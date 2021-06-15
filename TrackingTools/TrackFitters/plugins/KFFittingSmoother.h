@@ -163,9 +163,9 @@ namespace {
   }  // namespace
 
   inline Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
-                                       const RecHitContainer& hits,
-                                       const TrajectoryStateOnSurface& firstPredTsos,
-                                       fitType type) const {
+                                              const RecHitContainer& hits,
+                                              const TrajectoryStateOnSurface& firstPredTsos,
+                                              fitType type) const {
     LogDebug("TrackFitters") << "In KFFittingSmoother::fit";
 
     print("firstPred ", firstPredTsos);
@@ -413,7 +413,9 @@ namespace {
     return smoothed;
   }
 
-  inline Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed, const RecHitContainer& hits, fitType type) const {
+  inline Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
+                                              const RecHitContainer& hits,
+                                              fitType type) const {
     throw cms::Exception("TrackFitters",
                          "KFFittingSmoother::fit(TrajectorySeed, <TransientTrackingRecHit>) not implemented");
 

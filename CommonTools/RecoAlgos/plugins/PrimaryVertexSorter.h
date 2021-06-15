@@ -308,7 +308,8 @@ inline void PrimaryVertexSorter<std::vector<reco::RecoChargedRefCandidate>>::doC
 }
 
 template <>
-inline void PrimaryVertexSorter<std::vector<reco::PFCandidate>>::doConsumesForTiming(const edm::ParameterSet& iConfig) {}
+inline void PrimaryVertexSorter<std::vector<reco::PFCandidate>>::doConsumesForTiming(const edm::ParameterSet& iConfig) {
+}
 
 template <>
 inline bool PrimaryVertexSorter<std::vector<reco::RecoChargedRefCandidate>>::needsProductsForTiming() {

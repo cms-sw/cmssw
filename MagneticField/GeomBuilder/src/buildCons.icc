@@ -7,12 +7,12 @@
 #include "DataFormats/GeometrySurface/interface/SimpleConeBounds.h"
 
 inline void volumeHandle::buildCons(double zhalf,
-                             double rInMinusZ,
-                             double rOutMinusZ,
-                             double rInPlusZ,
-                             double rOutPlusZ,
-                             double startPhi,
-                             double deltaPhi) {
+                                    double rInMinusZ,
+                                    double rOutMinusZ,
+                                    double rInPlusZ,
+                                    double rOutPlusZ,
+                                    double startPhi,
+                                    double deltaPhi) {
   LogTrace("MagGeoBuilder") << "Building cons surfaces...: ";
   LogTrace("MagGeoBuilder") << "zhalf      " << zhalf << newln << "rInMinusZ  " << rInMinusZ << newln << "rOutMinusZ "
                             << rOutMinusZ << newln << "rInPlusZ   " << rInPlusZ << newln << "rOutPlusZ  " << rOutPlusZ

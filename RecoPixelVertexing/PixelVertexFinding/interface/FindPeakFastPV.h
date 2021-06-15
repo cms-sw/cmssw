@@ -11,11 +11,11 @@
 #include <vector>
 
 inline float FindPeakFastPV(const std::vector<float> &zProjections,
-                     const std::vector<float> &zWeights,
-                     const float oldVertex,
-                     const float m_zClusterWidth,
-                     const float m_zClusterSearchArea,
-                     const float m_weightCut) {
+                            const std::vector<float> &zWeights,
+                            const float oldVertex,
+                            const float m_zClusterWidth,
+                            const float m_zClusterSearchArea,
+                            const float m_weightCut) {
   float centerWMax = oldVertex;
   if (m_zClusterWidth > 0 && m_zClusterSearchArea > 0) {
     std::vector<float>::const_iterator itCenter = zProjections.begin();

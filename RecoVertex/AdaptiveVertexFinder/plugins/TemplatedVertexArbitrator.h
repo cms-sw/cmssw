@@ -43,7 +43,9 @@
 //#define VTXDEBUG
 
 inline const unsigned int nTracks(const reco::Vertex &sv) { return sv.nTracks(); }
-inline const unsigned int nTracks(const reco::VertexCompositePtrCandidate &sv) { return sv.numberOfSourceCandidatePtrs(); }
+inline const unsigned int nTracks(const reco::VertexCompositePtrCandidate &sv) {
+  return sv.numberOfSourceCandidatePtrs();
+}
 
 template <class InputContainer, class VTX>
 class TemplatedVertexArbitrator : public edm::stream::EDProducer<> {
