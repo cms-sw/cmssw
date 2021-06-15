@@ -37,7 +37,7 @@ namespace mtd_digitizer {
     // index , det id, time
     typedef std::tuple<int, uint32_t, float> MTDCaloHitTuple_t;
 
-    bool orderByDetIdThenTime(const MTDCaloHitTuple_t& a, const MTDCaloHitTuple_t& b) {
+    inline bool orderByDetIdThenTime(const MTDCaloHitTuple_t& a, const MTDCaloHitTuple_t& b) {
       unsigned int detId_a(std::get<1>(a)), detId_b(std::get<1>(b));
 
       if (detId_a < detId_b)
