@@ -1,12 +1,12 @@
-#ifndef FWCore_MessageService_MessageLogger_h
-#define FWCore_MessageService_MessageLogger_h
+#ifndef FWCore_MessageService_plugins_MessageLogger_h
+#define FWCore_MessageService_plugins_MessageLogger_h
 
 // -*- C++ -*-
 //
-// Package:     Services
+// Package:     MessageService
 // Class  :     MessageLogger
 //
-/**\class MessageLogger MessageLogger.h FWCore/MessageService/interface/MessageLogger.h
+/**\class edm::service::MessageLogger MessageLogger.h FWCore/MessageService/plugins/MessageLogger.h
 
  Description: <one line class summary>
 
@@ -33,7 +33,7 @@
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
-#include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/MessageLogger/interface/edm_MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -44,18 +44,15 @@ namespace edm {
   class ParameterSet;
   namespace service {
 
-    class MessageLogger {
+    class MessageLogger : public edm::MessageLogger {
     public:
       MessageLogger(ParameterSet const&, ActivityRegistry&);
 
-      void fillErrorObj(edm::ErrorObj& obj) const;
-      bool debugEnabled() const { return debugEnabled_; }
-
-      static bool anyDebugEnabled() { return anyDebugEnabled_; }
-
-      static void SummarizeInJobReport();
+      void setThreadContext(ModuleCallingContext const&) final;
 
     private:
+      static void summarizeInJobReport();
+
       void postBeginJob();
       void preEndJob();
       void postEndJob();
@@ -193,4 +190,4 @@ namespace edm {
 
 }  // namespace edm
 
-#endif  // FWCore_MessageService_MessageLogger_h
+#endif  // FWCore_MessageService_plugins_MessageLogger_h

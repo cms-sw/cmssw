@@ -15,8 +15,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/MessageService/interface/MessageLogger.h"
-#include "FWCore/MessageService/src/MessageServicePSetValidation.h"
+#include "MessageLogger.h"
+#include "MessageServicePSetValidation.h"
 
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -324,6 +324,29 @@ namespace edm {
       nonModule_warningEnabled = messageDrop->warningEnabled;
       nonModule_errorEnabled = messageDrop->errorEnabled;
     }  // ctor
+
+    void MessageLogger::setThreadContext(ModuleCallingContext const& iModContext) {
+      //need to know if we are in a global or stream context
+      auto top = iModContext.getTopModuleCallingContext();
+      assert(nullptr != top);
+      if (ParentContext::Type::kGlobal == top->type()) {
+        auto globalContext = iModContext.getGlobalContext();
+        auto tran = globalContext->transition();
+        if (tran == GlobalContext::Transition::kBeginLuminosityBlock or
+            tran == GlobalContext::Transition::kEndLuminosityBlock) {
+          establishModule(lumiInfoBegin_ + globalContext->luminosityBlockIndex(),
+                          iModContext,
+                          s_globalTransitionNames[static_cast<int>(tran)]);
+        } else {
+          establishModule(
+              runInfoBegin_ + globalContext->runIndex(), iModContext, s_globalTransitionNames[static_cast<int>(tran)]);
+        }
+      } else {
+        auto stream = iModContext.getStreamContext();
+        establishModule(
+            stream->streamID().value(), iModContext, s_streamTransitionNames[static_cast<int>(stream->transition())]);
+      }
+    }
 
     //
     // Shared helper routines for establishing module name and enabling behavior
@@ -867,14 +890,14 @@ namespace edm {
     }
 
     void MessageLogger::postEndJob() {
-      SummarizeInJobReport();    // Put summary info into Job Rep  // change log 10
+      summarizeInJobReport();    // Put summary info into Job Rep  // change log 10
       MessageLoggerQ::MLqSUM();  // trigger summary info.		// change log 9
     }
 
     void MessageLogger::jobFailure() {
       MessageDrop* messageDrop = MessageDrop::instance();
       messageDrop->setSinglet("jobFailure");
-      SummarizeInJobReport();    // Put summary info into Job Rep  // change log 10
+      summarizeInJobReport();    // Put summary info into Job Rep  // change log 10
       MessageLoggerQ::MLqSUM();  // trigger summary info.		// change log 9
     }
 
@@ -882,7 +905,7 @@ namespace edm {
     // Other methods
     //
 
-    void MessageLogger::SummarizeInJobReport() {
+    void MessageLogger::summarizeInJobReport() {
       if (fjrSummaryRequested_) {
         std::map<std::string, double>* smp = new std::map<std::string, double>();
         MessageLoggerQ::MLqJRS(smp);
