@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # BTagPerformanceAnalyzer configuration                                                                                                                                              
-from DQMOffline.RecoB.bTagCombinedSVVariables_cff import *
 from DQMOffline.RecoB.bTagTrackIPAnalysis_cff import *
-from DQMOffline.RecoB.bTagCombinedSVAnalysis_cff import *
 from DQMOffline.RecoB.bTagSymmetricAnalysis_cff import *
 from DQMOffline.RecoB.bTagTrackCountingAnalysis_cff import *
 from DQMOffline.RecoB.bTagTrackProbabilityAnalysis_cff import *
@@ -13,11 +11,12 @@ from DQMOffline.RecoB.bTagSimpleSVAnalysis_cff import *
 from DQMOffline.RecoB.bTagSoftLeptonAnalysis_cff import *
 from DQMOffline.RecoB.cTagGenericAnalysis_cff import *
 from DQMOffline.RecoB.cTagSymmetricAnalysis_cff import *
-from DQMOffline.RecoB.cTagCombinedSVVariables_cff import *
-from DQMOffline.RecoB.cTagCombinedSVAnalysis_cff import *
-from DQMOffline.RecoB.cTagCorrelationAnalysis_cff import *
 from DQMOffline.RecoB.bTagGhostTrackAnalysis_cff import *
 from DQMOffline.RecoB.bTagGhostTrackVariables_cff import *
+
+
+
+
 
 bTagCommonBlock = cms.PSet(
     # use pre-computed jet flavour identification
@@ -47,6 +46,7 @@ bTagCommonBlock = cms.PSet(
     JECsourceData = cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"),
     #tagger configuration
     tagConfig = cms.VPSet(
+
         cms.PSet(
             bTagTrackIPAnalysisBlock,
             type = cms.string('CandIP'),
@@ -84,26 +84,5 @@ bTagCommonBlock = cms.PSet(
             discrCut = cms.double(0.28)
         ),
 
-        #cms.PSet(
-            #bTagGenericAnalysisBlock,
-            #label = cms.InputTag("pfDeepFlavourDiscriminatorsJetTags:BvsAll"),
-            #folder = cms.string("deepJet_BvsAll"),
-            #differentialPlots = cms.bool(True),
-            #discrCut = cms.double(-1)
-        #),
-        #cms.PSet(
-            #bTagGenericAnalysisBlock,
-            #label = cms.InputTag("pfDeepFlavourDiscriminatorsJetTags:CvsL"),
-            #folder = cms.string("deepJet_CvsL"),
-            #differentialPlots = cms.bool(True),
-            #discrCut = cms.double(-1)
-        #),
-        #cms.PSet(
-            #bTagGenericAnalysisBlock,
-            #label = cms.InputTag("pfDeepFlavourDiscriminatorsJetTags:CvsB"),
-            #folder = cms.string("deepJet_CvsB"),
-            #differentialPlots = cms.bool(True),
-            #discrCut = cms.double(-1)
-        #),
     )
 )
