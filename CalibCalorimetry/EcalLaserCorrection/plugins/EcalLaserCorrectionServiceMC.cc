@@ -22,12 +22,16 @@
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosMCRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLinearCorrectionsRcd.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 class EcalLaserCorrectionServiceMC : public edm::ESProducer {
 public:
   EcalLaserCorrectionServiceMC(const edm::ParameterSet&);
   ~EcalLaserCorrectionServiceMC() override;
 
   std::shared_ptr<EcalLaserDbService> produce(const EcalLaserDbRecordMC&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   using HostType = edm::ESProductHost<EcalLaserDbService,
@@ -64,6 +68,10 @@ EcalLaserCorrectionServiceMC::~EcalLaserCorrectionServiceMC() {}
 //
 // member functions
 //
+void EcalLaserCorrectionServiceMC::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  descriptions.add("EcalLaserCorrectionServiceMC", desc);
+}
 
 // ------------ method called to produce the data  ------------
 std::shared_ptr<EcalLaserDbService> EcalLaserCorrectionServiceMC::produce(const EcalLaserDbRecordMC& record) {

@@ -218,14 +218,13 @@ namespace {
   /*****************************************************************
      2d plot of Ecal Time Calib Errors difference between 2 IOVs
   *****************************************************************/
-  class EcalTimeCalibErrorsDiff : public cond::payloadInspector::PlotImage<EcalTimeCalibErrors> {
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags, int method>
+  class EcalTimeCalibErrorsBase : public cond::payloadInspector::PlotImage<EcalTimeCalibErrors, nIOVs, ntags> {
   public:
-    EcalTimeCalibErrorsDiff()
-        : cond::payloadInspector::PlotImage<EcalTimeCalibErrors>("Ecal Time Calib Errors difference ") {
-      setSingleIov(false);
-    }
+    EcalTimeCalibErrorsBase()
+        : cond::payloadInspector::PlotImage<EcalTimeCalibErrors, nIOVs, ntags>("Ecal Time Calib Errors comparison") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
       TH2F* barrel = new TH2F("EB", "mean EB", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F* endc_p = new TH2F("EE+", "mean EE+", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       TH2F* endc_m = new TH2F("EE-", "mean EE-", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
@@ -235,27 +234,43 @@ namespace {
       pEBmax = -10.;
       pEEmax = -10.;
 
-      unsigned int run[2], irun = 0;
+      unsigned int run[2];
       float pEB[kEBChannels], pEE[kEEChannels];
-      for (auto const& iov : iovs) {
-        std::shared_ptr<EcalTimeCalibErrors> payload = fetchPayload(std::get<1>(iov));
-        run[irun] = std::get<0>(iov);
-
+      std::string l_tagname[2];
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalTimeCalibErrors> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
         if (payload.get()) {
           if (payload->barrelItems().empty())
             return false;
 
-          fillEBMap_DiffIOV<EcalTimeCalibErrors>(payload, barrel, irun, pEB, pEBmin, pEBmax);
+          fillEBMap_TwoIOVs<EcalTimeCalibErrors>(payload, barrel, irun, pEB, pEBmin, pEBmax, method);
 
           if (payload->endcapItems().empty())
             return false;
 
-          fillEEMap_DiffIOV<EcalTimeCalibErrors>(payload, endc_m, endc_p, irun, pEE, pEEmin, pEEmax);
+          fillEEMap_TwoIOVs<EcalTimeCalibErrors>(payload, endc_m, endc_p, irun, pEE, pEEmin, pEEmax, method);
 
         }  // payload
-        irun++;
-
-      }  // loop over IOVs
+      }    // loop over IOVs
 
       gStyle->SetPalette(1);
       gStyle->SetOptStat(0);
@@ -263,9 +278,27 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal Time Calib Errors Diff, IOV %i - %i", run[1], run[0]));
-
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      std::string dr[2] = {"-", "/"};
+      if (ntags == 2) {
+        if (len < 170) {
+          t1.SetTextSize(0.05);
+          t1.DrawLatex(0.5,
+                       0.96,
+                       Form("%s IOV %i %s %s  IOV %i",
+                            l_tagname[1].c_str(),
+                            run[1],
+                            dr[method].c_str(),
+                            l_tagname[0].c_str(),
+                            run[0]));
+        } else {
+          t1.SetTextSize(0.05);
+          t1.DrawLatex(0.5, 0.96, Form("Ecal Time Calib Errors, IOV %i%s  %i", run[1], dr[method].c_str(), run[0]));
+        }
+      } else {
+        t1.SetTextSize(0.05);
+        t1.DrawLatex(0.5, 0.96, Form("%s, IOV %i %s %i", l_tagname[0].c_str(), run[1], dr[method].c_str(), run[0]));
+      }
       float xmi[3] = {0.0, 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
       TPad** pad = new TPad*;
@@ -282,15 +315,19 @@ namespace {
       pad[2]->cd();
       DrawEE(endc_p, pEEmin, pEEmax);
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };
+  };   // class EcalTimeCalibErrorsDiffBase
+  using EcalTimeCalibErrorsDiffOneTag = EcalTimeCalibErrorsBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
+  using EcalTimeCalibErrorsDiffTwoTags = EcalTimeCalibErrorsBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
+  using EcalTimeCalibErrorsRatioOneTag = EcalTimeCalibErrorsBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;
+  using EcalTimeCalibErrorsRatioTwoTags = EcalTimeCalibErrorsBase<cond::payloadInspector::SINGLE_IOV, 2, 1>;
 
   /*******************************************************
- 2d plot of Ecal Time Calib Errors Summary of 1 IOV
- *******************************************************/
+     2d plot of Ecal Time Calib Errors Summary of 1 IOV
+   *******************************************************/
   class EcalTimeCalibErrorsSummaryPlot : public cond::payloadInspector::PlotImage<EcalTimeCalibErrors> {
   public:
     EcalTimeCalibErrorsSummaryPlot()
@@ -355,6 +392,9 @@ PAYLOAD_INSPECTOR_MODULE(EcalTimeCalibErrors) {
   PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibErrorsEBMap);
   PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibErrorsEEMap);
   PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibErrorsPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibErrorsDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibErrorsDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibErrorsDiffTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibErrorsRatioOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibErrorsRatioTwoTags);
   PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibErrorsSummaryPlot);
 }

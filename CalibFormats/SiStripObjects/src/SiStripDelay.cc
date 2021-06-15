@@ -8,7 +8,6 @@
 //         Created:  26/10/2010
 
 #include "CalibFormats/SiStripObjects/interface/SiStripDelay.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/typelookup.h"

@@ -10,8 +10,6 @@
 #include <CondFormats/CSCObjects/interface/CSCTriggerMappingFromFile.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include <iostream>
 #include <cstdlib>
 

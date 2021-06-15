@@ -16,101 +16,19 @@
 using namespace std;
 using namespace edm;
 using namespace sipixelobjects;
+using namespace sipixelconstants;
 
-namespace {
-  constexpr int CRC_bits = 1;
-  constexpr int LINK_bits = 6;
-  constexpr int ROC_bits = 5;
-  constexpr int DCOL_bits = 5;
-  constexpr int PXID_bits = 8;
-  constexpr int ADC_bits = 8;
-  constexpr int OMIT_ERR_bits = 1;
-
-  constexpr int CRC_shift = 2;
-  constexpr int ADC_shift = 0;
-  constexpr int PXID_shift = ADC_shift + ADC_bits;
-  constexpr int DCOL_shift = PXID_shift + PXID_bits;
-  constexpr int ROC_shift = DCOL_shift + DCOL_bits;
-  constexpr int LINK_shift = ROC_shift + ROC_bits;
-  constexpr int OMIT_ERR_shift = 20;
-
-  constexpr cms_uint32_t dummyDetId = 0xffffffff;
-
-  constexpr ErrorCheckerPhase0::Word64 CRC_mask = ~(~ErrorCheckerPhase0::Word64(0) << CRC_bits);
-  constexpr ErrorCheckerPhase0::Word32 ERROR_mask = ~(~ErrorCheckerPhase0::Word32(0) << ROC_bits);
-  constexpr ErrorCheckerPhase0::Word32 LINK_mask = ~(~ErrorCheckerPhase0::Word32(0) << LINK_bits);
-  constexpr ErrorCheckerPhase0::Word32 ROC_mask = ~(~ErrorCheckerPhase0::Word32(0) << ROC_bits);
-  constexpr ErrorCheckerPhase0::Word32 OMIT_ERR_mask = ~(~ErrorCheckerPhase0::Word32(0) << OMIT_ERR_bits);
-}  // namespace
-
-ErrorCheckerPhase0::ErrorCheckerPhase0() { includeErrors = false; }
-
-void ErrorCheckerPhase0::setErrorStatus(bool ErrorStatus) { includeErrors = ErrorStatus; }
-
-bool ErrorCheckerPhase0::checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, Errors& errors) {
-  int CRC_BIT = (*trailer >> CRC_shift) & CRC_mask;
-  if (CRC_BIT == 0)
-    return true;
-  errorsInEvent = true;
-  if (includeErrors) {
-    int errorType = 39;
-    SiPixelRawDataError error(*trailer, errorType, fedId);
-    errors[dummyDetId].push_back(error);
-  }
-  return false;
-}
-
-bool ErrorCheckerPhase0::checkHeader(bool& errorsInEvent, int fedId, const Word64* header, Errors& errors) {
-  FEDHeader fedHeader(reinterpret_cast<const unsigned char*>(header));
-  if (!fedHeader.check())
-    return false;  // throw exception?
-  if (fedHeader.sourceID() != fedId) {
-    LogDebug("PixelDataFormatter::interpretRawData, fedHeader.sourceID() != fedId")
-        << ", sourceID = " << fedHeader.sourceID() << ", fedId = " << fedId << ", errorType = 32";
-    errorsInEvent = true;
-    if (includeErrors) {
-      int errorType = 32;
-      SiPixelRawDataError error(*header, errorType, fedId);
-      errors[dummyDetId].push_back(error);
-    }
-  }
-  return fedHeader.moreHeaders();
-}
-
-bool ErrorCheckerPhase0::checkTrailer(
-    bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, Errors& errors) {
-  FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer));
-  if (!fedTrailer.check()) {
-    if (includeErrors) {
-      int errorType = 33;
-      SiPixelRawDataError error(*trailer, errorType, fedId);
-      errors[dummyDetId].push_back(error);
-    }
-    errorsInEvent = true;
-    LogError("FedTrailerCheck") << "fedTrailer.check failed, Fed: " << fedId << ", errorType = 33";
-    return false;
-  }
-  if (fedTrailer.fragmentLength() != nWords) {
-    LogError("FedTrailerLenght") << "fedTrailer.fragmentLength()!= nWords !! Fed: " << fedId << ", errorType = 34";
-    errorsInEvent = true;
-    if (includeErrors) {
-      int errorType = 34;
-      SiPixelRawDataError error(*trailer, errorType, fedId);
-      errors[dummyDetId].push_back(error);
-    }
-  }
-  return fedTrailer.moreTrailers();
-}
+ErrorCheckerPhase0::ErrorCheckerPhase0() : ErrorCheckerBase(){};
 
 bool ErrorCheckerPhase0::checkROC(bool& errorsInEvent,
                                   int fedId,
                                   const SiPixelFrameConverter* converter,
                                   const SiPixelFedCabling* theCablingTree,
                                   Word32& errorWord,
-                                  Errors& errors) {
+                                  SiPixelFormatterErrors& errors) const {
   int errorType = (errorWord >> ROC_shift) & ERROR_mask;
-  if
-    LIKELY(errorType < 25) return true;
+  if LIKELY (errorType < 25)
+    return true;
 
   switch (errorType) {
     case (25): {
@@ -152,7 +70,7 @@ bool ErrorCheckerPhase0::checkROC(bool& errorsInEvent,
       return true;
   };
 
-  if (includeErrors) {
+  if (includeErrors_) {
     // check to see if overflow error for type 30, change type to 40 if so
     if (errorType == 30) {
       int StateMach_bits = 4;
@@ -170,57 +88,6 @@ bool ErrorCheckerPhase0::checkROC(bool& errorsInEvent,
     errors[detId].push_back(error);
   }
   return false;
-}
-
-void ErrorCheckerPhase0::conversionError(
-    int fedId, const SiPixelFrameConverter* converter, int status, Word32& errorWord, Errors& errors) {
-  switch (status) {
-    case (1): {
-      LogDebug("ErrorCheckerPhase0::conversionError") << " Fed: " << fedId << "  invalid channel Id (errorType=35)";
-      if (includeErrors) {
-        int errorType = 35;
-        SiPixelRawDataError error(errorWord, errorType, fedId);
-        cms_uint32_t detId = errorDetId(converter, errorType, errorWord);
-        errors[detId].push_back(error);
-      }
-      break;
-    }
-    case (2): {
-      LogDebug("ErrorCheckerPhase0::conversionError") << " Fed: " << fedId << "  invalid ROC Id (errorType=36)";
-      if (includeErrors) {
-        int errorType = 36;
-        SiPixelRawDataError error(errorWord, errorType, fedId);
-        cms_uint32_t detId = errorDetId(converter, errorType, errorWord);
-        errors[detId].push_back(error);
-      }
-      break;
-    }
-    case (3): {
-      LogDebug("ErrorCheckerPhase0::conversionError")
-          << " Fed: " << fedId << "  invalid dcol/pixel value (errorType=37)";
-      if (includeErrors) {
-        int errorType = 37;
-        SiPixelRawDataError error(errorWord, errorType, fedId);
-        cms_uint32_t detId = errorDetId(converter, errorType, errorWord);
-        errors[detId].push_back(error);
-      }
-      break;
-    }
-    case (4): {
-      LogDebug("ErrorCheckerPhase0::conversionError")
-          << " Fed: " << fedId << "  dcol/pixel read out of order (errorType=38)";
-      if (includeErrors) {
-        int errorType = 38;
-        SiPixelRawDataError error(errorWord, errorType, fedId);
-        cms_uint32_t detId = errorDetId(converter, errorType, errorWord);
-        errors[detId].push_back(error);
-      }
-      break;
-    }
-    default:
-      LogDebug("ErrorCheckerPhase0::conversionError")
-          << "  cabling check returned unexpected result, status = " << status;
-  };
 }
 
 // this function finds the detId for an error word that cannot be processed in word2digi

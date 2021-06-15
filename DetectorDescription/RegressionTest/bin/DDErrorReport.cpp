@@ -31,10 +31,11 @@ int main(int argc, char* argv[]) {
       "file,f",
       boost::program_options::value<std::string>(),
       "XML configuration file name. "
-      "Default is DetectorDescription/RegressionTest/test/configuration.xml")(
-      "path,p",
-      "Specifies filename is a full path and not to use FileInPath to find file. "
-      " This option is ignored if a filename is not specified");
+      "Default is DetectorDescription/RegressionTest/test/configuration.xml")("path,p",
+                                                                              "Specifies filename is a full path and "
+                                                                              "not to use FileInPath to find file. "
+                                                                              " This option is ignored if a filename "
+                                                                              "is not specified");
 
   boost::program_options::positional_options_description p;
   p.add("file", -1);

@@ -13,7 +13,6 @@
 
 // Geometry
 #include "DataFormats/GeometryVector/interface/Pi.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
@@ -24,8 +23,8 @@
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
 // DT Digi
-#include <DataFormats/DTDigi/interface/DTDigi.h>
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+#include "DataFormats/DTDigi/interface/DTDigi.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 //Root
 #include "TH1.h"
@@ -41,7 +40,8 @@ using namespace std;
 DTLocalTriggerSynchTask::DTLocalTriggerSynchTask(const edm::ParameterSet& ps)
     : nevents(0),
       tTrigSync{DTTTrigSyncFactory::get()->create(ps.getParameter<std::string>("tTrigMode"),
-                                                  ps.getParameter<edm::ParameterSet>("tTrigModeConfig"))} {
+                                                  ps.getParameter<edm::ParameterSet>("tTrigModeConfig"))},
+      muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   edm::LogVerbatim("DTLocalTriggerSynchTask") << "[DTLocalTriggerSynchTask]: Constructor" << endl;
   tm_Token_ = consumes<L1MuDTChambPhContainer>(ps.getParameter<edm::InputTag>("TMInputTag"));
   seg_Token_ = consumes<DTRecSegment4DCollection>(ps.getParameter<edm::InputTag>("SEGInputTag"));
@@ -80,7 +80,7 @@ void DTLocalTriggerSynchTask::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 void DTLocalTriggerSynchTask::dqmBeginRun(const Run& run, const EventSetup& context) {
-  context.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &context.getData(muonGeomToken_);
 }
 
 void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventSetup& context) {

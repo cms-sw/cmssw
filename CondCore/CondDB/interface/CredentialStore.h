@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 #include <sstream>
+#include <algorithm>
 //
 #include "CoralBase/MessageStream.h"
 
@@ -18,6 +19,12 @@ namespace coral {
   class IConnection;
 
 }  // namespace coral
+
+inline std::string to_lower(const std::string& s) {
+  std::string str(s);
+  std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return std::tolower(c); });
+  return str;
+}
 
 namespace coral_bridge {
 
@@ -106,7 +113,7 @@ namespace cond {
                        const std::string& connectionString,
                        const std::string& connectionLabel);
 
-    bool unsetPermission(const std::string& principal, const std::string& role, const std::string& connectionString);
+    size_t unsetPermission(const std::string& principal, const std::string& role, const std::string& connectionString);
 
     bool updateConnection(const std::string& connectionLabel, const std::string& userName, const std::string& password);
 

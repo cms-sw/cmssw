@@ -3,7 +3,8 @@
 
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
-TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
+TPTask::TPTask(edm::ParameterSet const& ps)
+    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   _tagData = ps.getUntrackedParameter<edm::InputTag>("tagData", edm::InputTag("hcalDigis"));
   _tagDataL1Rec = ps.getUntrackedParameter<edm::InputTag>("tagDataL1Rec", edm::InputTag("caloLayer1Digis"));
   _tagEmul = ps.getUntrackedParameter<edm::InputTag>("tagEmul", edm::InputTag("emulDigis"));
@@ -40,8 +41,7 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
   DQTask::bookHistograms(ib, r, es);
 
   //	GET WHAT YOU NEED
-  edm::ESHandle<HcalDbService> dbs;
-  es.get<HcalDbRecord>().get(dbs);
+  edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
   _emap = dbs->getHcalMapping();
   std::vector<uint32_t> vVME;
   std::vector<uint32_t> vuTCA;
@@ -726,7 +726,7 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
   //	book the flag for unknown ids and the online guy as well
   ib.setCurrentFolder(_subsystem + "/" + _name);
   auto scope = DQMStore::IBooker::UseLumiScope(ib);
-  meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds", 1, 0, 1);
+  meUnknownIds1LS = ib.book1DD("UnknownIds", "UnknownIds", 1, 0, 1);
   _unknownIdsPresent = false;
 }
 

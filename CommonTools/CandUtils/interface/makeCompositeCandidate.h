@@ -18,7 +18,7 @@ namespace helpers {
   private:
     std::unique_ptr<reco::CompositeCandidate> cmp_;
     std::unique_ptr<reco::Candidate> release() {
-      std::unique_ptr<reco::Candidate> ret(std::move(cmp_.get()));
+      std::unique_ptr<reco::Candidate> ret(cmp_.get());
       cmp_.release();
       return ret;
     }
@@ -61,7 +61,7 @@ helpers::CompositeCandidateMaker makeCompositeCandidate(const reco::Candidate& c
 template <typename C>
 helpers::CompositeCandidateMaker makeCompositeCandidate(const typename C::const_iterator& begin,
                                                         const typename C::const_iterator& end) {
-  helpers::CompositeCandidateMaker cmp(std::unique_ptr<reco::CompositeCandidate>(new reco::CompositeCandidate));
+  helpers::CompositeCandidateMaker cmp(std::make_unique<reco::CompositeCandidate>());
   for (typename C::const_iterator i = begin; i != end; ++i)
     cmp.addDaughter(*i);
   return cmp;
@@ -82,7 +82,7 @@ helpers::CompositeCandidateMaker makeCompositeCandidateWithRefsToMaster(const re
 template <typename C>
 helpers::CompositeCandidateMaker makeCompositeCandidateWithRefsToMaster(const typename C::const_iterator& begin,
                                                                         const typename C::const_iterator& end) {
-  helpers::CompositeCandidateMaker cmp(std::unique_ptr<reco::CompositeCandidate>(new reco::CompositeCandidate));
+  helpers::CompositeCandidateMaker cmp(std::make_unique<reco::CompositeCandidate>());
   for (typename C::const_iterator i = begin; i != end; ++i)
     cmp.addDaughter(ShallowCloneCandidate(CandidateBaseRef(*i)));
   return cmp;

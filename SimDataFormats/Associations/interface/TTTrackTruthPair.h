@@ -23,8 +23,8 @@ private:
 public:
   TTTrackTruthPair() : flags_(0) {}
   TTTrackTruthPair(const edm::Ref<std::vector<TTTrack<T> > >& ttTrkRef,
-               const edm::Ref<TrackingParticleCollection>& trkPartRef,
-               int flags)
+                   const edm::Ref<TrackingParticleCollection>& trkPartRef,
+                   int flags)
       : ttTrkRef_(ttTrkRef), trkPartRef_(trkPartRef), flags_(flags) {}
 
   edm::Ref<std::vector<TTTrack<T> > > ttTrk() const { return ttTrkRef_; }

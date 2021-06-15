@@ -42,15 +42,15 @@ TSToSCAssociatorByEnergyScoreProducer::TSToSCAssociatorByEnergyScoreProducer(con
 TSToSCAssociatorByEnergyScoreProducer::~TSToSCAssociatorByEnergyScoreProducer() {}
 
 void TSToSCAssociatorByEnergyScoreProducer::produce(edm::StreamID,
-                                                       edm::Event &iEvent,
-                                                       const edm::EventSetup &es) const {
+                                                    edm::Event &iEvent,
+                                                    const edm::EventSetup &es) const {
   edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
   rhtools_->setGeometry(*geom);
 
   const auto hitMap = &iEvent.get(hitMap_);
 
-  auto impl = std::make_unique<TSToSCAssociatorByEnergyScoreImpl>(
-      iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap);
+  auto impl =
+      std::make_unique<TSToSCAssociatorByEnergyScoreImpl>(iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap);
   auto toPut = std::make_unique<hgcal::TracksterToSimClusterAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
 }

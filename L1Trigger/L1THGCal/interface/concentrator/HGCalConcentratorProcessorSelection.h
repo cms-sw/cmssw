@@ -7,22 +7,27 @@
 #include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorSuperTriggerCellImpl.h"
 #include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorCoarsenerImpl.h"
 #include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorTrigSumImpl.h"
+#include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorAutoEncoderImpl.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
+#include "DataFormats/L1THGCal/interface/HGCalConcentratorData.h"
 
 #include <utility>
+#include <tuple>
 
 class HGCalConcentratorProcessorSelection : public HGCalConcentratorProcessorBase {
 private:
-  enum SelectionType { thresholdSelect, bestChoiceSelect, superTriggerCellSelect, noSelection };
+  enum SelectionType { thresholdSelect, bestChoiceSelect, superTriggerCellSelect, autoEncoderSelect, noSelection };
 
 public:
   HGCalConcentratorProcessorSelection(const edm::ParameterSet& conf);
 
   void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput,
-           std::pair<l1t::HGCalTriggerCellBxCollection, l1t::HGCalTriggerSumsBxCollection>& triggerCollOutput,
+           std::tuple<l1t::HGCalTriggerCellBxCollection,
+                      l1t::HGCalTriggerSumsBxCollection,
+                      l1t::HGCalConcentratorDataBxCollection>& triggerCollOutput,
            const edm::EventSetup& es) override;
 
 private:
@@ -38,6 +43,7 @@ private:
   std::unique_ptr<HGCalConcentratorSuperTriggerCellImpl> superTriggerCellImpl_;
   std::unique_ptr<HGCalConcentratorCoarsenerImpl> coarsenerImpl_;
   std::unique_ptr<HGCalConcentratorTrigSumImpl> trigSumImpl_;
+  std::unique_ptr<HGCalConcentratorAutoEncoderImpl> autoEncoderImpl_;
 
   HGCalTriggerTools triggerTools_;
 };

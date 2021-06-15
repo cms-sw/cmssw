@@ -9,6 +9,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMuHI_Output_cff import *
 # AlCaReco for track based alignment using ZMuMu events for PA data-taking
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMuPA_Output_cff import *
+# AlCaReco for track based alignment using ZMuMu + Vertices events
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlDiMuonAndVertex_Output_cff import *
 # AlCaReco for track based alignment using Cosmic muon events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsInCollisions_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics_Output_cff import *

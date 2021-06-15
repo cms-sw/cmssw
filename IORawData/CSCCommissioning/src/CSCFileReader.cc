@@ -37,7 +37,12 @@ CSCFileReader::CSCFileReader(const edm::ParameterSet &pset) {
   //  this is ok as long as eighter of RUI or FU are are provided in .cfg (not both)
   nActiveRUIs = 0;
   nActiveFUs = 0;
-  fFirstReadBug = true;
+
+  /// Legacy first read EDM EvendID bug (fixed?).
+  /// Currently disabled to fix number of events with data
+  /// Added as configurable parameter
+  // fFirstReadBug = true;
+  fFirstReadBug = pset.getUntrackedParameter<bool>("FirstReadBug", false);
   for (int unit = 0; unit < nRUIs; unit++) {
     std::ostringstream ruiName, fuName;
     ruiName << "RUI" << (unit < 10 ? "0" : "") << unit << std::ends;

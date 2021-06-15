@@ -1,14 +1,13 @@
 /* *  \author Anna Cimmino*/
-#include "DQM/RPCMonitorDigi/interface/utils.h"
 #include <DQM/RPCMonitorClient/interface/RPCDeadChannelTest.h>
+#include <DQM/RPCMonitorClient/interface/utils.h>
+#include <DQM/RPCMonitorClient/interface/RPCRollMapHisto.h>
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-
-#include <sstream>
 
 RPCDeadChannelTest::RPCDeadChannelTest(const edm::ParameterSet& ps) {
   edm::LogVerbatim("rpcdeadchanneltest") << "[RPCDeadChannelTest]: Constructor";
@@ -19,8 +18,6 @@ RPCDeadChannelTest::RPCDeadChannelTest(const edm::ParameterSet& ps) {
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
 }
-
-RPCDeadChannelTest::~RPCDeadChannelTest() {}
 
 void RPCDeadChannelTest::beginJob(std::string& workingFolder) {
   edm::LogVerbatim("rpcdeadchanneltest") << "[RPCDeadChannelTest]: Begin Job";
@@ -111,8 +108,6 @@ void RPCDeadChannelTest::myBooker(DQMStore::IBooker& ibooker) {
 
   std::stringstream histoName;
 
-  rpcdqm::utils rpcUtils;
-
   int limit = numberOfDisks_;
   if (numberOfDisks_ < 2)
     limit = 2;
@@ -121,7 +116,8 @@ void RPCDeadChannelTest::myBooker(DQMStore::IBooker& ibooker) {
     if (i > -3 && i < 3) {                     //wheels
       histoName.str("");
       histoName << "DeadChannelFraction_Roll_vs_Sector_Wheel" << i;
-      DEADWheel[i + 2] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
+      auto me = RPCRollMapHisto::bookBarrel(ibooker, i, histoName.str(), histoName.str(), useRollInfo_);
+      DEADWheel[i + 2] = dynamic_cast<MonitorElement*>(me);
 
       for (int x = 1; x <= 12; x++) {
         for (int y = 1; y <= 21; y++) {
@@ -129,8 +125,6 @@ void RPCDeadChannelTest::myBooker(DQMStore::IBooker& ibooker) {
         }
       }
 
-      rpcUtils.labelXAxisSector(DEADWheel[i + 2]);
-      rpcUtils.labelYAxisRoll(DEADWheel[i + 2], 0, i, useRollInfo_);
     }  //end wheels
 
     if (i == 0 || i > numberOfDisks_ || i < (-1 * numberOfDisks_)) {
@@ -144,17 +138,7 @@ void RPCDeadChannelTest::myBooker(DQMStore::IBooker& ibooker) {
 
     histoName.str("");
     histoName << "DeadChannelFraction_Ring_vs_Segment_Disk" << i;
-    DEADDisk[i + offset] = ibooker.book2D(histoName.str().c_str(),
-                                          histoName.str().c_str(),
-                                          36,
-                                          0.5,
-                                          36.5,
-                                          3 * numberOfRings_,
-                                          0.5,
-                                          3 * numberOfRings_ + 0.5);
-
-    rpcUtils.labelXAxisSegment(DEADDisk[i + offset]);
-    rpcUtils.labelYAxisRing(DEADDisk[i + offset], numberOfRings_, useRollInfo_);
-
+    auto me = RPCRollMapHisto::bookBarrel(ibooker, i, histoName.str(), histoName.str(), useRollInfo_);
+    DEADDisk[i + offset] = dynamic_cast<MonitorElement*>(me);
   }  //end loop on wheels and disks
 }

@@ -31,6 +31,7 @@ private:
 
   std::string monitorDir_;
 
+  // ME1/1 combines trigger data from ME1/a and ME1/b
   std::vector<std::string> chambers_;
 
   std::vector<std::string> alctVars_;
@@ -46,6 +47,15 @@ private:
   std::vector<double> alctMaxBin_;
   std::vector<double> clctMaxBin_;
   std::vector<double> lctMaxBin_;
+
+  /*
+    When set to True, we assume that the data comes from
+    the Building 904 CSC test-stand. This test-stand is a single
+    ME1/1 chamber.
+  */
+  bool B904Setup_;
+
+  bool isRun3_;
 
   // first key is the chamber number
   // second key is the variable

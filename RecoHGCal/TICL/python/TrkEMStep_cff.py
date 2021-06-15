@@ -19,21 +19,23 @@ filteredLayerClustersTrkEM = _filteredLayerClustersProducer.clone(
 ticlTrackstersTrkEM = _trackstersProducer.clone(
     filtered_mask = "filteredLayerClustersTrkEM:TrkEM",
     seeding_regions = "ticlSeedingTrk",
-    filter_on_categories = [0, 1],
-    pid_threshold = 0.5,
-    energy_em_over_total_threshold = 0.9,
-    max_longitudinal_sigmaPCA = 10,
-    shower_start_max_layer = 5, #inclusive
-    max_out_in_hops = 1,
-    max_missing_layers_in_trackster = 2,
-    skip_layers = 2,
-    min_layers_per_trackster = 10,
-    min_cos_theta = 0.97,  # ~14 degrees
-    min_cos_pointing = 0.94, # ~20 degrees
-    root_doublet_max_distance_from_seed_squared = 2.5e-3, # dR=0.05
-    max_delta_time = 3.,
+    pluginPatternRecognitionByCA = dict(
+        algo_verbosity = 0,
+        filter_on_categories = [0, 1],
+        pid_threshold = 0.5,
+        energy_em_over_total_threshold = 0.9,
+        max_longitudinal_sigmaPCA = 10,
+        shower_start_max_layer = 5, #inclusive
+        max_out_in_hops = 1,
+        max_missing_layers_in_trackster = 2,
+        skip_layers = 2,
+        min_layers_per_trackster = 10,
+        min_cos_theta = 0.97,  # ~14 degrees
+        min_cos_pointing = 0.94, # ~20 degrees
+        root_doublet_max_distance_from_seed_squared = 2.5e-3, # dR=0.05
+        max_delta_time = 3.
+    ),
     itername = "TrkEM",
-    algo_verbosity = 0,
 )
 
 ticlTrkEMStepTask = cms.Task(ticlSeedingTrk
@@ -57,11 +59,12 @@ ticlTrackstersHFNoseTrkEM = ticlTrackstersTrkEM.clone(
     seeding_regions = "ticlSeedingTrkHFNose",
     time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
     itername = "TrkEMn",
-    filter_on_categories = [0, 1],
-    min_layers_per_trackster = 5,
-    pid_threshold = 0.,
-    shower_start_max_layer = 5 #inclusive
-
+    pluginPatternRecognitionByCA = dict(
+        filter_on_categories = [0, 1],
+        min_layers_per_trackster = 5,
+        pid_threshold = 0.,
+        shower_start_max_layer = 5 #inclusive
+    )
 )
 
 ticlHFNoseTrkEMStepTask = cms.Task(ticlSeedingTrkHFNose

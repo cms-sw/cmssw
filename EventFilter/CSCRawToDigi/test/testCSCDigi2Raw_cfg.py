@@ -11,6 +11,7 @@ options.register ("reconstruct", False, VarParsing.multiplicity.singleton, VarPa
 options.register ("view", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("validate", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("mc", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("useB904Data", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.parseArguments()
 
 ## process def
@@ -127,9 +128,14 @@ else:
       pack.preTriggerTag = cms.InputTag("simCscTriggerPrimitiveDigis")
       pack.correlatedLCTDigiTag = cms.InputTag("muonCSCDigis","MuonCSCCorrelatedLCTDigi")
 
+if options.useB904Data:
+      process.muonCSCDigis.DisableMappingCheck = True
+      process.muonCSCDigis.B904Setup = True
+
 process.out = cms.OutputModule(
       "PoolOutputModule",
       fileName = cms.untracked.string('output.root'),
+      outputCommands = cms.untracked.vstring("keep *")
 )
 
 ## schedule and path definition

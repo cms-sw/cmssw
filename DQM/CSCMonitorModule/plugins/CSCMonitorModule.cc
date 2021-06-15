@@ -22,7 +22,8 @@
  * @brief  Constructor.
  * @param  ps Parameters.
  */
-CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps) {
+CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps)
+    : hcrateToken_(esConsumes<CSCCrateMap, CSCCrateMapRcd>()) {
   edm::FileInPath fp;
 
   inputTag = ps.getUntrackedParameter<edm::InputTag>("InputObjects", (edm::InputTag)INPUT_TAG_LABEL);
@@ -86,7 +87,8 @@ void CSCMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // Get crate mapping from database
   edm::ESHandle<CSCCrateMap> hcrate;
-  c.get<CSCCrateMapRcd>().get(hcrate);
+  /// Use esConsumes to get crate mapping
+  hcrate = c.getHandle(hcrateToken_);
   pcrate = hcrate.product();
 
   cscdqm::HWStandbyType standby;

@@ -1,33 +1,64 @@
-// system include files
-#include <vector>
-#include <memory>
+// authors A. Kyriakis, D. Maletic
 
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-// Reconstruction Classes
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "DataFormats/EgammaReco/interface/PreshowerClusterShape.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-
+#include "DataFormats/Math/interface/Point3D.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include <fstream>
-#include <sstream>
+#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/EndcapPiZeroDiscriminatorAlgo.h"
 
-#include "RecoEcal/EgammaClusterProducers/interface/PreshowerClusterShapeProducer.h"
+#include <fstream>
+#include <memory>
+#include <sstream>
+#include <vector>
+
+class PreshowerClusterShapeProducer : public edm::stream::EDProducer<> {
+public:
+  typedef math::XYZPoint Point;
+
+  explicit PreshowerClusterShapeProducer(const edm::ParameterSet& ps);
+
+  ~PreshowerClusterShapeProducer() override;
+
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
+
+private:
+  int nEvt_;  // internal counter of events
+
+  //clustering parameters:
+
+  edm::EDGetTokenT<EcalRecHitCollection> preshHitToken_;                // name of module/plugin/producer
+                                                                        // producing hits
+  edm::EDGetTokenT<reco::SuperClusterCollection> endcapSClusterToken_;  // likewise for producer
+                                                                        // of endcap superclusters
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+
+  std::string PreshowerClusterShapeCollectionX_;
+  std::string PreshowerClusterShapeCollectionY_;
+
+  EndcapPiZeroDiscriminatorAlgo* presh_pi0_algo;  // algorithm doing the real work
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PreshowerClusterShapeProducer);
 
 using namespace std;
 using namespace reco;

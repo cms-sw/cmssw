@@ -48,6 +48,7 @@ int main(int argc, char* argv[]) {
   descString += "data_file \nAllowed options";
   options_description desc(descString);
 
+  // clang-format off
   desc.add_options()(kHelpCommandOpt, "produce help message")(kAutoLoadCommandOpt,
                                                               "automatic library loading (avoid root warnings)")(
       kDataFileCommandOpt, value<string>(), "data file")(
@@ -58,6 +59,7 @@ int main(int argc, char* argv[]) {
       kPlotCommandOpt, value<string>(), "produce a summary plot")(
       kPlotTopCommandOpt, value<int>(), "plot only the <arg> top size branches")(
       kSavePlotCommandOpt, value<string>(), "save plot into root file <arg>")(kVerboseCommandOpt, "verbose printout");
+  // clang-format on
 
   positional_options_description p;
 

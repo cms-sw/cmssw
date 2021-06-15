@@ -41,6 +41,8 @@ private:
   bool checkNoisyChannels;
   edm::ParameterSet parameters;
 
+  const edm::ESGetToken<DTStatusFlag, DTStatusFlagRcd> statusMapToken_;
+
   // the histos
   std::vector<MonitorElement *> phiHistos;
   std::vector<MonitorElement *> thetaHistos;

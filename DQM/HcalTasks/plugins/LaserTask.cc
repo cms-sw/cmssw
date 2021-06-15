@@ -3,7 +3,8 @@
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
 using namespace hcaldqm::filter;
-LaserTask::LaserTask(edm::ParameterSet const& ps) : DQTask(ps) {
+LaserTask::LaserTask(edm::ParameterSet const& ps)
+    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   _nevents = ps.getUntrackedParameter<int>("nevents", 2000);
 
   //	tags
@@ -59,8 +60,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   DQTask::bookHistograms(ib, r, es);
 
-  edm::ESHandle<HcalDbService> dbService;
-  es.get<HcalDbRecord>().get(dbService);
+  edm::ESHandle<HcalDbService> dbService = es.getHandle(hcalDbServiceToken_);
   _emap = dbService->getHcalMapping();
 
   std::vector<uint32_t> vhashVME;

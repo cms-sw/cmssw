@@ -20,11 +20,13 @@ namespace edm {
   // Convert from handle-to-void to handle-to-T
   template <typename T>
   Handle<T> convert_handle(BasicHandle&& bh) noexcept(true) {
-    if
-      UNLIKELY(bh.failedToGet()) { return Handle<T>(std::move(bh.whyFailedFactory())); }
+    if UNLIKELY (bh.failedToGet()) {
+      return Handle<T>(std::move(bh.whyFailedFactory()));
+    }
     void const* basicWrapper = bh.wrapper();
-    if
-      UNLIKELY(nullptr == basicWrapper) { return Handle<T>{handleimpl::makeInvalidReferenceException()}; }
+    if UNLIKELY (nullptr == basicWrapper) {
+      return Handle<T>{handleimpl::makeInvalidReferenceException()};
+    }
     auto wrapper = static_cast<Wrapper<T> const*>(basicWrapper);
 
     return Handle<T>(wrapper->product(), bh.provenance());
@@ -32,15 +34,16 @@ namespace edm {
 
   template <typename T>
   Handle<T> convert_handle_check_type(BasicHandle&& bh) {
-    if
-      UNLIKELY(bh.failedToGet()) { return Handle<T>(std::move(bh.whyFailedFactory())); }
+    if UNLIKELY (bh.failedToGet()) {
+      return Handle<T>(std::move(bh.whyFailedFactory()));
+    }
     void const* basicWrapper = bh.wrapper();
-    if
-      UNLIKELY(basicWrapper == nullptr) { return Handle<T>{handleimpl::makeInvalidReferenceException()}; }
-    if
-      UNLIKELY(!(bh.wrapper()->dynamicTypeInfo() == typeid(T))) {
-        handleimpl::throwConvertTypeError(typeid(T), bh.wrapper()->dynamicTypeInfo());
-      }
+    if UNLIKELY (basicWrapper == nullptr) {
+      return Handle<T>{handleimpl::makeInvalidReferenceException()};
+    }
+    if UNLIKELY (!(bh.wrapper()->dynamicTypeInfo() == typeid(T))) {
+      handleimpl::throwConvertTypeError(typeid(T), bh.wrapper()->dynamicTypeInfo());
+    }
     Wrapper<T> const* wrapper = static_cast<Wrapper<T> const*>(basicWrapper);
 
     return Handle<T>(wrapper->product(), bh.provenance());

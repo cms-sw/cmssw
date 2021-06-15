@@ -153,7 +153,7 @@ public:
 
   TopProjector(const edm::ParameterSet&);
 
-  ~TopProjector() = default;
+  ~TopProjector() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

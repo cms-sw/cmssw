@@ -1,6 +1,7 @@
 <use name="RecoLocalTracker/SiStripClusterizer"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/DetId"/>
+<use name="DataFormats/Scalers"/> <!--Needed for typeinfo for LumiScalers for UBSAN builds-->
 <use name="DataFormats/SiStripDetId"/>
 <use name="DataFormats/TrackingRecHit"/>
 <use name="DataFormats/TrackReco"/>

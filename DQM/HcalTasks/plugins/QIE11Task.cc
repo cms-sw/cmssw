@@ -3,7 +3,8 @@
 
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
-QIE11Task::QIE11Task(edm::ParameterSet const& ps) : DQTask(ps) {
+QIE11Task::QIE11Task(edm::ParameterSet const& ps)
+    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   //	tags
   _tagQIE11 = ps.getUntrackedParameter<edm::InputTag>("tagQIE11", edm::InputTag("hcalDigis"));
   _tokQIE11 = consumes<QIE11DigiCollection>(_tagQIE11);
@@ -25,8 +26,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps) : DQTask(ps) {
   DQTask::bookHistograms(ib, r, es);
 
   //	GET WHAT YOU NEED
-  edm::ESHandle<HcalDbService> dbs;
-  es.get<HcalDbRecord>().get(dbs);
+  edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
   _emap = dbs->getHcalMapping();
   std::vector<uint32_t> vhashC34;
   vhashC34.push_back(HcalElectronicsId(34, 11, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());

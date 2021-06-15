@@ -16,15 +16,17 @@
 #include <memory>
 #include <sys/stat.h>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #include "CoralBase/MessageStream.h"
 
 cond::RelationalAuthenticationService::RelationalAuthenticationService::RelationalAuthenticationService(
     const std::string& key)
     : coral::Service(key), m_authenticationPath(""), m_db(), m_cache(), m_callbackID(0) {
-  boost::function1<void, std::string> cb(boost::bind(
-      &cond::RelationalAuthenticationService::RelationalAuthenticationService::setAuthenticationPath, this, _1));
+  boost::function1<void, std::string> cb(
+      boost::bind(&cond::RelationalAuthenticationService::RelationalAuthenticationService::setAuthenticationPath,
+                  this,
+                  boost::placeholders::_1));
 
   coral::Property* pm = dynamic_cast<coral::Property*>(
       coral::Context::instance().PropertyManager().property(auth::COND_AUTH_PATH_PROPERTY));
@@ -44,7 +46,8 @@ void cond::RelationalAuthenticationService::RelationalAuthenticationService::set
 
 const coral::IAuthenticationCredentials&
 cond::RelationalAuthenticationService::RelationalAuthenticationService::credentials(
-    const std::string& connectionString) const {
+    const std::string& connectionStr) const {
+  std::string connectionString = to_lower(connectionStr);
   const coral::IAuthenticationCredentials* creds = m_cache.get(connectionString);
   if (!creds) {
     std::string credsStoreConn = m_db.setUpForConnectionString(connectionString, m_authenticationPath);
@@ -65,8 +68,9 @@ cond::RelationalAuthenticationService::RelationalAuthenticationService::credenti
 }
 
 const coral::IAuthenticationCredentials&
-cond::RelationalAuthenticationService::RelationalAuthenticationService::credentials(const std::string& connectionString,
+cond::RelationalAuthenticationService::RelationalAuthenticationService::credentials(const std::string& connectionStr,
                                                                                     const std::string& role) const {
+  std::string connectionString = to_lower(connectionStr);
   const coral::IAuthenticationCredentials* creds = m_cache.get(connectionString, role);
   if (!creds) {
     std::string credsStoreConn = m_db.setUpForConnectionString(connectionString, m_authenticationPath);

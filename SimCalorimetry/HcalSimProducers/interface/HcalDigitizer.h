@@ -7,7 +7,7 @@
 #include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 #include "CondFormats/HcalObjects/interface/HBHEDarkening.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HFRecalibration.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"

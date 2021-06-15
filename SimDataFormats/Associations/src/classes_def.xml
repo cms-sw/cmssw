@@ -21,6 +21,13 @@
   <class name="hgcal::MultiClusterToCaloParticleAssociator" persistent="false"/>
   <class name="edm::Wrapper<hgcal::MultiClusterToCaloParticleAssociator>" persistent="false"/>
 
+  <class name="hgcal::TracksterToSimTracksterAssociator" persistent="false"/>
+  <class name="edm::Wrapper<hgcal::TracksterToSimTracksterAssociator>" persistent="false"/>
+
+  <class name="hgcal::LayerClusterToSimTracksterAssociator" persistent="false"/>
+  <class name="edm::Wrapper<hgcal::LayerClusterToSimTracksterAssociator>" persistent="false"/>
+
+
   <class name="reco::VertexSimToRecoCollection" >
     <field name="transientMap_" transient="true"/>
   </class>
@@ -59,6 +66,7 @@
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<SimCluster> >, edm::RefProd<vector<ticl::Trackster> > >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<ticl::Trackster> >, edm::RefProd<vector<SimCluster> > >" />
 
+
   <class name="hgcal::SimToRecoCollectionTracksters" >
    <field name="transientMap_" transient="true"/>
   </class>
@@ -80,10 +88,13 @@
   <class name="reco::RecoToSimCollection" >
    <field name="transientMap_" transient="true"/>
   </class>
+
+
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQualityGeneric<edm::View<reco::Track>,vector<TrackingParticle>,double,unsigned int,edm::RefToBaseProd<reco::Track>,edm::RefProd<vector<TrackingParticle> >,edm::RefToBase<reco::Track>,edm::Ref<vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<vector<TrackingParticle>,TrackingParticle> > > > >" />
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQualityGeneric<vector<TrackingParticle>,edm::View<reco::Track>,double,unsigned int,edm::RefProd<vector<TrackingParticle> >,edm::RefToBaseProd<reco::Track>,edm::Ref<vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<vector<TrackingParticle>,TrackingParticle> >,edm::RefToBase<reco::Track> > > >" />
 
-   <class name="hgcal::SimToRecoCollectionWithMultiClusters" >
+
+  <class name="hgcal::SimToRecoCollectionWithMultiClusters" >
     <field name="transientMap_" transient="true"/>
   </class>
   <class name="edm::Wrapper<hgcal::SimToRecoCollectionWithMultiClusters>" />
@@ -95,6 +106,32 @@
   <class name="edm::RefProd<vector<reco::HGCalMultiCluster> >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<CaloParticle> >,edm::RefProd<vector<reco::HGCalMultiCluster> > >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::HGCalMultiCluster> >,edm::RefProd<vector<CaloParticle> > >" />
+
+
+  <class name="hgcal::SimToRecoCollectionSimTracksters" >
+    <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<hgcal::SimToRecoCollectionSimTracksters>" />
+  <class name="hgcal::RecoToSimCollectionSimTracksters" >
+    <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<hgcal::RecoToSimCollectionSimTracksters>" />
+
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<ticl::Trackster> >,edm::RefProd<vector<ticl::Trackster> > >" />
+
+
+  <class name="hgcal::SimTracksterToRecoCollection" >
+   <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<hgcal::SimTracksterToRecoCollection>" />
+  <class name="hgcal::RecoToSimTracksterCollection" >
+   <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<hgcal::RecoToSimTracksterCollection>" />
+
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::CaloCluster> >,edm::RefProd<vector<ticl::Trackster> > >" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<ticl::Trackster> >,edm::RefProd<vector<reco::CaloCluster> > >" />
+
 
   <class name="TTTrackTruthPair<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >" />
   <class name="std::vector<TTTrackTruthPair<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />

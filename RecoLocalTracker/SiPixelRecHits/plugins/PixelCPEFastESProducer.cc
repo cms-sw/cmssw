@@ -80,6 +80,9 @@ void PixelCPEFastESProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   // from PixelCPEBase
   PixelCPEBase::fillPSetDescription(desc);
 
+  // from PixelCPEFast
+  PixelCPEFast::fillPSetDescription(desc);
+
   // used by PixelCPEFast
   desc.add<double>("EdgeClusterErrorX", 50.0);
   desc.add<double>("EdgeClusterErrorY", 85.0);

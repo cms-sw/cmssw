@@ -74,10 +74,10 @@ public:
   void run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]);
 
   /** Returns vector of ALCTs in the read-out time window, if any. */
-  std::vector<CSCALCTDigi> readoutALCTs(int nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
+  std::vector<CSCALCTDigi> readoutALCTs() const;
 
   /** Returns vector of all found ALCTs, if any. */
-  std::vector<CSCALCTDigi> getALCTs(unsigned nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
+  std::vector<CSCALCTDigi> getALCTs() const;
 
   /** read out pre-ALCTs */
   std::vector<CSCALCTPreTriggerDigi> preTriggerDigis() const { return thePreTriggerDigis; }
@@ -103,9 +103,6 @@ protected:
 
   /** Second best LCTs in this chamber, as found by the processor. */
   CSCALCTDigi secondALCT[CSCConstants::MAX_ALCT_TBINS];
-
-  /** LCTs in this chamber, as found by the processor. */
-  std::vector<std::vector<CSCALCTDigi> > ALCTContainer_;
 
   CSCShowerDigi shower_;
 
@@ -222,14 +219,25 @@ protected:
   //  set the wire hit container
   void setWireContainer(CSCALCTDigi&, CSCALCTDigi::WireContainer& wireHits) const;
 
-  /* This function looks for LCTs on the previous and next wires.  If one
+  /* This function looks for ALCTs on the previous and next wires.  If one
      exists and it has a better quality and a bx_time up to 4 clocks earlier
-     than the present, then the present LCT is cancelled.  The present LCT
+     than the present, then the present ALCT is cancelled.  The present ALCT
      also gets cancelled if it has the same quality as the one on the
      previous wire (this has not been done in 2003 test beam).  The
      cancellation is done separately for collision and accelerator patterns. */
   virtual void ghostCancellationLogic();
 
+  /* In older versions of the ALCT emulation, the ghost cancellation was performed after
+     the ALCTs were found. In December 2018 it became clear that during the study of data
+     and emulation comparison on 2018 data, a small disagreement between data and emulation
+     was found. The changes we implemented then allow re-triggering on one wiregroup after
+     some dead time once an earlier ALCT was constructed built on this wiregroup. Before this
+     commit the ALCT processor would prohibit the wiregroup from triggering in one event after
+     an ALCT was found on that wiregroup. In the firwmare, the wiregroup with ALCT is only dead
+     for a few BX before it can be triggered by next muon. The implementation of ghost cancellation
+     logic wqas changed to accommodate the re-triggering change while the idea of the ghost
+     cancellation logic is kept the same.
+  */
   virtual void ghostCancellationLogicOneWire(const int key_wire, int* ghost_cleared);
 
   virtual int getTempALCTQuality(int temp_quality) const;

@@ -515,7 +515,7 @@ namespace riemannFit {
     // scale
     const double tempQ = mc.squaredNorm();
     const double tempS = sqrt(n * 1. / tempQ);  // scaling factor
-    p3D *= tempS;
+    p3D.block(0, 0, 2, n) *= tempS;
 
     // project on paraboloid
     p3D.row(2) = p3D.block(0, 0, 2, n).colwise().squaredNorm();

@@ -3,7 +3,6 @@
 
 #include <array>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/propagate_const_array.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
@@ -22,11 +21,19 @@ public:
   };
 
 #ifndef __CUDACC__
-  EcalRecHitParametersGPU(edm::ParameterSet const &);
+  struct DBStatus {
+    DBStatus(int flag, std::vector<uint32_t> status) : recoflagbit{flag}, dbstatus(std::move(status)) {}
+    int recoflagbit;                 //must be a EcalRecHit::Flags
+    std::vector<uint32_t> dbstatus;  //must contain EcalChannelStatusCode::Code
+  };
+
+  /// channelStatusToBeExcluded must contain EcalChannelStatusCode::Code
+  EcalRecHitParametersGPU(std::vector<int> const& channelStatusToBeExcluded,
+                          std::vector<DBStatus> const& flagsMapDBReco);
 
   ~EcalRecHitParametersGPU() = default;
 
-  Product const &getProduct(cudaStream_t) const;
+  Product const& getProduct(cudaStream_t) const;
 
   using intvec = std::reference_wrapper<std::vector<int, cms::cuda::HostAllocator<int>> const>;
   using uint32vec = std::reference_wrapper<std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> const>;

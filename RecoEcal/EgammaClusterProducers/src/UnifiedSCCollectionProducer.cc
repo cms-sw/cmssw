@@ -1,30 +1,3 @@
-// C/C++ headers
-#include <iostream>
-#include <vector>
-#include <memory>
-
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-// Reconstruction Classes
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-
-// Class header file
-#include "RecoEcal/EgammaClusterProducers/interface/UnifiedSCCollectionProducer.h"
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-
 /*
 UnifiedSCCollectionProducer:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -47,6 +20,54 @@ In that way the user can get hold of objects from the
 Nikolaos Rompotis and Chris Seez  - Imperial College London
 many thanks to David Wardrope, Shahram Rahatlou and Federico Ferri
 */
+
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+
+#include <iostream>
+#include <memory>
+#include <vector>
+
+class UnifiedSCCollectionProducer : public edm::stream::EDProducer<> {
+public:
+  UnifiedSCCollectionProducer(const edm::ParameterSet& ps);
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  // the clean collection
+  edm::EDGetTokenT<reco::BasicClusterCollection> cleanBcCollection_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> cleanScCollection_;
+  // the uncleaned collection
+  edm::EDGetTokenT<reco::BasicClusterCollection> uncleanBcCollection_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> uncleanScCollection_;
+
+  // the names of the products to be produced:
+  std::string bcCollection_;
+  std::string scCollection_;
+  std::string bcCollectionUncleanOnly_;
+  std::string scCollectionUncleanOnly_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(UnifiedSCCollectionProducer);
 
 UnifiedSCCollectionProducer::UnifiedSCCollectionProducer(const edm::ParameterSet& ps) {
   using reco::BasicClusterCollection;

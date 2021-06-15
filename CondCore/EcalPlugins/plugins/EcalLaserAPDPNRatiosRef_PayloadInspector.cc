@@ -34,11 +34,9 @@ namespace {
     EEhistXMax = 220
   };  // endcaps lower and upper bounds on x and y
 
-  /*******************************************************
-   
+  /****************************************************************
      2d histogram of ECAL barrel Laser APDPN Ratios Ref of 1 IOV 
-
-  *******************************************************/
+  *****************************************************************/
 
   // inherit from one of the predefined plot class: Histogram2D
   class EcalLaserAPDPNRatiosRefEBMap : public cond::payloadInspector::Histogram2D<EcalLaserAPDPNRatiosRef> {
@@ -90,12 +88,9 @@ namespace {
     }  //fill method
   };
 
-  /*******************************************************
-   
+  /****************************************************************
      2d histogram of ECAL EndCaps Laser APDPN Ratios Ref of 1 IOV 
-
-  *******************************************************/
-
+  ****************************************************************/
   class EcalLaserAPDPNRatiosRefEEMap : public cond::payloadInspector::Histogram2D<EcalLaserAPDPNRatiosRef> {
   private:
     int EEhistSplit = 20;
@@ -149,9 +144,9 @@ namespace {
     }  // fill method
   };
 
-  /*************************************************
+  /****************************************************
      2d plot of Ecal Laser APDPN Ratios Ref of 1 IOV
-  *************************************************/
+  ****************************************************/
   class EcalLaserAPDPNRatiosRefPlot : public cond::payloadInspector::PlotImage<EcalLaserAPDPNRatiosRef> {
   public:
     EcalLaserAPDPNRatiosRefPlot()
@@ -217,17 +212,17 @@ namespace {
     }  // fill method
   };
 
-  /*****************************************************************
+  /********************************************************************
      2d plot of Ecal Laser APDPN Ratios Ref difference between 2 IOVs
-  *****************************************************************/
-  class EcalLaserAPDPNRatiosRefDiff : public cond::payloadInspector::PlotImage<EcalLaserAPDPNRatiosRef> {
+  ********************************************************************/
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags, int method>
+  class EcalLaserAPDPNRatiosRefBase : public cond::payloadInspector::PlotImage<EcalLaserAPDPNRatiosRef, nIOVs, ntags> {
   public:
-    EcalLaserAPDPNRatiosRefDiff()
-        : cond::payloadInspector::PlotImage<EcalLaserAPDPNRatiosRef>("Ecal Laser APDPN Ratios Ref difference ") {
-      setSingleIov(false);
-    }
+    EcalLaserAPDPNRatiosRefBase()
+        : cond::payloadInspector::PlotImage<EcalLaserAPDPNRatiosRef, nIOVs, ntags>(
+              "Ecal Laser APDPN Ratios Ref difference ") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
       TH2F* barrel =
           new TH2F("EB", "Laser APDPN Ratios Ref EB", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F* endc_p =
@@ -240,27 +235,38 @@ namespace {
       pEBmax = -10.;
       pEEmax = -10.;
 
-      unsigned int run[2], irun = 0;
+      unsigned int run[2];
+      std::string l_tagname[2];
       float pEB[kEBChannels], pEE[kEEChannels];
-      for (auto const& iov : iovs) {
-        std::shared_ptr<EcalLaserAPDPNRatiosRef> payload = fetchPayload(std::get<1>(iov));
-        run[irun] = std::get<0>(iov);
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
 
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalLaserAPDPNRatiosRef> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
         if (payload.get()) {
-          if (payload->barrelItems().empty())
-            return false;
-
-          fillEBMap_DiffIOV<EcalLaserAPDPNRatiosRef>(payload, barrel, irun, pEB, pEBmin, pEBmax);
-
-          if (payload->endcapItems().empty())
-            return false;
-
-          fillEEMap_DiffIOV<EcalLaserAPDPNRatiosRef>(payload, endc_m, endc_p, irun, pEE, pEEmin, pEEmax);
-
+          if (!payload->barrelItems().empty())
+            fillEBMap_TwoIOVs<EcalLaserAPDPNRatiosRef>(payload, barrel, irun, pEB, pEBmin, pEBmax, method);
+          if (!payload->endcapItems().empty())
+            fillEEMap_TwoIOVs<EcalLaserAPDPNRatiosRef>(payload, endc_m, endc_p, irun, pEE, pEEmin, pEEmax, method);
         }  // payload
-        irun++;
-
-      }  // loop over IOVs
+      }    // loop over IOVs
 
       gStyle->SetPalette(1);
       gStyle->SetOptStat(0);
@@ -287,15 +293,19 @@ namespace {
       pad[2]->cd();
       DrawEE(endc_p, pEEmin, pEEmax);
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
   };
+  using EcalLaserAPDPNRatiosRefDiffOneTag = EcalLaserAPDPNRatiosRefBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
+  using EcalLaserAPDPNRatiosRefDiffTwoTags = EcalLaserAPDPNRatiosRefBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
+  using EcalLaserAPDPNRatiosRefRatioOneTag = EcalLaserAPDPNRatiosRefBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;
+  using EcalLaserAPDPNRatiosRefRatioTwoTags = EcalLaserAPDPNRatiosRefBase<cond::payloadInspector::SINGLE_IOV, 2, 1>;
 
-  /*******************************************************
- 2d plot of Ecal Laser APDPN Ratios Ref Summary of 1 IOV
- *******************************************************/
+  /**********************************************************
+    2d plot of Ecal Laser APDPN Ratios Ref Summary of 1 IOV
+   **********************************************************/
   class EcalLaserAPDPNRatiosRefSummaryPlot : public cond::payloadInspector::PlotImage<EcalLaserAPDPNRatiosRef> {
   public:
     EcalLaserAPDPNRatiosRefSummaryPlot()
@@ -361,6 +371,9 @@ PAYLOAD_INSPECTOR_MODULE(EcalLaserAPDPNRatiosRef) {
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosRefEBMap);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosRefEEMap);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosRefPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosRefDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosRefDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosRefDiffTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosRefRatioOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosRefRatioTwoTags);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosRefSummaryPlot);
 }

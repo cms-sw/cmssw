@@ -37,8 +37,8 @@ namespace detail {
   template <template <typename, typename> class Gen, typename... Ts1, typename... Ts2>
   struct TypeZipper<Gen, std::tuple<Ts1...>, std::tuple<Ts2...>> {
     static_assert(sizeof...(Ts1) == sizeof...(Ts2));
-    using type = typename std::decay<decltype(
-        TypeZipperImpl<Gen>(std::tuple<Ts1...>{}, std::tuple<Ts2...>{}, std::index_sequence_for<Ts1...>{}))>::type;
+    using type = typename std::decay<decltype(TypeZipperImpl<Gen>(
+        std::tuple<Ts1...>{}, std::tuple<Ts2...>{}, std::index_sequence_for<Ts1...>{}))>::type;
   };
 
 }  // namespace detail

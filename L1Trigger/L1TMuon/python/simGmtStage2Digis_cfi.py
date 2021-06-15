@@ -38,16 +38,28 @@ l1ugmtdb = cms.ESSource("PoolDBESSource",
 
 ## Era: Run2_2016
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-stage2L1Trigger.toModify(simGmtStage2Digis, barrelTFInput = cms.InputTag("simBmtfDigis", "BMTF"))
+stage2L1Trigger.toModify(simGmtStage2Digis, barrelTFInput = cms.InputTag("simBmtfDigis", "BMTF"),
+                                            autoCancelMode = cms.bool(False),
+                                            bmtfCancelMode = cms.string("tracks"),
+                                            emtfCancelMode = cms.string("coordinate"))
 
 ## Era: Run2_2017
 from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
-stage2L1Trigger_2017.toModify(simGmtStage2Digis, barrelTFInput = cms.InputTag("simBmtfDigis", "BMTF"))
+stage2L1Trigger_2017.toModify(simGmtStage2Digis, barrelTFInput = cms.InputTag("simBmtfDigis", "BMTF"),
+                                                 autoCancelMode = cms.bool(False),
+                                                 bmtfCancelMode = cms.string("tracks"),
+                                                 emtfCancelMode = cms.string("coordinate"))
 
 ### Era: Run2_2018
 from Configuration.Eras.Modifier_stage2L1Trigger_2018_cff import stage2L1Trigger_2018
-stage2L1Trigger_2018.toModify(simGmtStage2Digis, barrelTFInput = cms.InputTag("simBmtfDigis", "BMTF"))
+stage2L1Trigger_2018.toModify(simGmtStage2Digis, barrelTFInput = cms.InputTag("simBmtfDigis", "BMTF"),
+                                                 autoCancelMode = cms.bool(False),
+                                                 bmtfCancelMode = cms.string("tracks"),
+                                                 emtfCancelMode = cms.string("coordinate"))
 
 ### Era: Run3_2021
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
-stage2L1Trigger_2021.toModify(simGmtStage2Digis, barrelTFInput = cms.InputTag("simKBmtfDigis", "BMTF"))
+stage2L1Trigger_2021.toModify(simGmtStage2Digis, barrelTFInput = cms.InputTag("simKBmtfDigis", "BMTF"),
+                                                 autoCancelMode = cms.bool(False),
+                                                 bmtfCancelMode = cms.string("kftracks"),
+                                                 emtfCancelMode = cms.string("coordinate"))

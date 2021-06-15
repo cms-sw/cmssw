@@ -23,8 +23,8 @@ public:
                               unsigned chamber,
                               const edm::ParameterSet& conf);
 
-  /** Default constructor. Used for testing. */
-  CSCUpgradeAnodeLCTProcessor();
+  /** Default destructor. */
+  ~CSCUpgradeAnodeLCTProcessor() override{};
 
 private:
   /* This function looks for LCTs on the previous and next wires.  If one

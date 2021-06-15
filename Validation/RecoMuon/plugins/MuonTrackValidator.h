@@ -53,8 +53,10 @@ public:
 
     // Declare consumes (also for the base class)
     bsSrc_Token = consumes<reco::BeamSpot>(bsSrc);
-    tp_effic_Token = consumes<TrackingParticleCollection>(label_tp_effic);
-    tp_fake_Token = consumes<TrackingParticleCollection>(label_tp_fake);
+    if (label_tp_refvector)
+      tp_refvector_Token = consumes<TrackingParticleRefVector>(label_tp);
+    else
+      tp_Token = consumes<TrackingParticleCollection>(label_tp);
     pileupinfo_Token = consumes<std::vector<PileupSummaryInfo> >(label_pileupinfo);
     for (unsigned int www = 0; www < label.size(); www++) {
       track_Collection_Token.push_back(consumes<edm::View<reco::Track> >(label[www]));
@@ -96,33 +98,42 @@ public:
       std::string recoTracksInstance = label[www].instance();
 
       // tracks with hits only on tracker
-      if (recoTracksLabel == "generalTracks" || (recoTracksLabel.find("cutsRecoTracks") != std::string::npos) ||
-          recoTracksLabel == "ctfWithMaterialTracksP5LHCNavigation" || recoTracksLabel == "hltL3TkTracksFromL2" ||
-          (recoTracksLabel == "hltL3Muons" && recoTracksInstance == "L2Seeded")) {
+      if (recoTracksLabel == "generalTracks" || recoTracksLabel == "probeTracks" ||
+          recoTracksLabel == "displacedTracks" || recoTracksLabel == "extractGemMuons" ||
+          recoTracksLabel == "extractMe0Muons" || recoTracksLabel == "ctfWithMaterialTracksP5LHCNavigation" ||
+          recoTracksLabel == "ctfWithMaterialTracksP5" ||
+          recoTracksLabel == "hltIterL3OIMuonTrackSelectionHighPurity" || recoTracksLabel == "hltIterL3MuonMerged" ||
+          recoTracksLabel == "hltIterL3MuonAndMuonFromL1Merged") {
         if (usemuon) {
           edm::LogWarning("MuonTrackValidator")
               << "\n*** WARNING : inconsistent input tracksTag = " << label[www] << "\n with usemuon == true"
-              << "\n ---> please change to usemuon == false ";
+              << "\n ---> resetting to usemuon == false ";
+          usemuon = false;
         }
         if (!usetracker) {
           edm::LogWarning("MuonTrackValidator")
               << "\n*** WARNING : inconsistent input tracksTag = " << label[www] << "\n with usetracker == false"
-              << "\n ---> please change to usetracker == true ";
+              << "\n ---> resetting to usetracker == true ";
+          usetracker = true;
         }
       }
 
       // tracks with hits only on muon detectors
-      else if (recoTracksLabel == "standAloneMuons" || recoTracksLabel == "standAloneSETMuons" ||
-               recoTracksLabel == "cosmicMuons" || recoTracksLabel == "hltL2Muons") {
+      else if (recoTracksLabel == "seedsOfSTAmuons" || recoTracksLabel == "standAloneMuons" ||
+               recoTracksLabel == "seedsOfDisplacedSTAmuons" || recoTracksLabel == "displacedStandAloneMuons" ||
+               recoTracksLabel == "refittedStandAloneMuons" || recoTracksLabel == "cosmicMuons" ||
+               recoTracksLabel == "cosmicMuons1Leg" || recoTracksLabel == "hltL2Muons") {
         if (usetracker) {
           edm::LogWarning("MuonTrackValidator")
               << "\n*** WARNING : inconsistent input tracksTag = " << label[www] << "\n with usetracker == true"
-              << "\n ---> please change to usetracker == false ";
+              << "\n ---> resetting to usetracker == false ";
+          usetracker = false;
         }
         if (!usemuon) {
           edm::LogWarning("MuonTrackValidator")
               << "\n*** WARNING : inconsistent input tracksTag = " << label[www] << "\n with usemuon == false"
-              << "\n ---> please change to usemuon == true ";
+              << "\n ---> resetting to usemuon == true ";
+          usemuon = true;
         }
       }
 
@@ -132,12 +143,7 @@ public:
   /// Destructor
   ~MuonTrackValidator() override {}
 
-  /// Method called before the event loop
-  //  void beginRun(edm::Run const&, edm::EventSetup const&);
-  /// Method called once per event
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  /// Method called at the end of the event loop
-  //   void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
   void bookHistograms(DQMEDAnalyzer::DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:

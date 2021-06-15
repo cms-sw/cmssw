@@ -42,9 +42,6 @@
 <test name="import-argparse" command="python3 -c 'import argparse'"/>
 <test name="import-autopep8" command="python3 -c 'import autopep8'"/>
 <test name="import-avro" command="python3 -c 'import avro'"/>
-<test name="import-backports_abc" command="python3 -c 'import backports_abc'"/>
-<test name="import-backports.lzma" command="python3 -c 'import backports.lzma'"/>
-<test name="import-backports.ssl_match_hostname" command="python3 -c 'import backports.ssl_match_hostname'"/>
 <test name="import-bleach" command="python3 -c 'import bleach'"/>
 <test name="import-bottleneck" command="python3 -c 'import bottleneck'"/>
 <test name="import-certifi" command="python3 -c 'import certifi'"/>
@@ -56,7 +53,7 @@
 <test name="import-decorator" command="python3 -c 'import decorator'"/>
 <test name="import-docopt" command="python3 -c 'import docopt'"/>
 <test name="import-downhill" command="python3 -c 'import downhill'"/>
-<test name="import-dxr" command="python3 -c 'import dxr'"/>
+<test name="dxr-build"  command="dxr-build.py --help"/>
 <test name="import-enum" command="python3 -c 'import enum'"/>
 <test name="import-flake8" command="python3 -c 'import flake8'"/>
 <test name="import-funcsigs" command="python3 -c 'import funcsigs'"/>
@@ -89,7 +86,6 @@
 <test name="import-notebook" command="python3 -c 'import notebook'"/>
 <test name="import-numexpr" command="python3 -c 'import numexpr'"/>
 <test name="import-numpy" command="python3 -c 'import numpy'"/>
-<test name="import-ordereddict" command="python2 -c 'import ordereddict'"/>
 <test name="import-packaging" command="python3 -c 'import packaging'"/>
 <test name="import-pandas" command="python3 -c 'import pandas'"/>
 <test name="import-pandocfilters" command="python3 -c 'import pandocfilters'"/>
@@ -122,7 +118,6 @@
 <test name="import-scipy" command="python3 -c 'import scipy'"/>
 <test name="import-seaborn" command="python3 -c 'import seaborn'"/>
 <test name="import-send2trash" command="python3 -c 'import send2trash'"/>
-<test name="import-backports.shutil_get_terminal_size" command="python3 -c 'import backports.shutil_get_terminal_size'"/>
 <test name="import-simplegeneric" command="python3 -c 'import simplegeneric'"/>
 <test name="import-singledispatch" command="python3 -c 'import singledispatch'"/>
 <test name="import-six" command="python3 -c 'import six'"/>

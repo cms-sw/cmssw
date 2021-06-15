@@ -24,13 +24,15 @@ ticlTrackstersHAD = _trackstersProducer.clone(
     # For the moment we mask everything w/o requirements since we are last
 #    filter_on_categories = [5], # filter neutral hadrons
 #    pid_threshold = 0.7,
-    skip_layers = 1,
-    min_layers_per_trackster = 12,
-    min_cos_theta = 0.866,    # ~30 degrees
-    min_cos_pointing = 0.819, # ~35 degrees
-    max_delta_time = -1,
+    pluginPatternRecognitionByCA = dict(
+       skip_layers = 1,
+       min_layers_per_trackster = 12,
+       min_cos_theta = 0.866,    # ~30 degrees
+       min_cos_pointing = 0.819, # ~35 degrees
+       max_delta_time = -1
+    ),
     itername = "HAD"
-    )
+)
 
 ticlHADStepTask = cms.Task(ticlSeedingGlobal
     ,filteredLayerClustersHAD
@@ -53,12 +55,14 @@ ticlTrackstersHFNoseHAD = _trackstersProducer.clone(
     seeding_regions = "ticlSeedingGlobalHFNose",
     time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
     # For the moment we mask everything w/o requirements since we are last
-    pid_threshold = 0.,
-    skip_layers = 1,
-    min_layers_per_trackster = 5,
-    min_cos_theta = 0.866,    # ~30 degrees
-    min_cos_pointing = 0.819, # ~35 degrees
-    max_delta_time = -1,
+    pluginPatternRecognitionByCA = dict(
+       pid_threshold = 0.,
+       skip_layers = 1,
+       min_layers_per_trackster = 5,
+       min_cos_theta = 0.866,    # ~30 degrees
+       min_cos_pointing = 0.819, # ~35 degrees
+       max_delta_time = -1,
+    ),
     itername = "HADRONIC"
     )
 

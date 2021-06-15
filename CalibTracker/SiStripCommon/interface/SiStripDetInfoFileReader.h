@@ -23,24 +23,15 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetInfo.h"
 #include <cstdint>
 
 class SiStripDetInfoFileReader {
 public:
-  struct DetInfo {
-    DetInfo(){};
-    DetInfo(unsigned short _nApvs, double _stripLength, float _thickness)
-        : nApvs(_nApvs), stripLength(_stripLength), thickness(_thickness){};
+  using DetInfo = SiStripDetInfo::DetInfo;
 
-    unsigned short nApvs;
-    double stripLength;
-    float thickness;
-  };
-
+  constexpr static char const* const kDefaultFile = "CalibTracker/SiStripCommon/data/SiStripDetInfo.dat";
   explicit SiStripDetInfoFileReader(){};
-  explicit SiStripDetInfoFileReader(const edm::ParameterSet&, const edm::ActivityRegistry&);
 
   explicit SiStripDetInfoFileReader(std::string filePath);
   explicit SiStripDetInfoFileReader(const SiStripDetInfoFileReader&);
@@ -49,23 +40,23 @@ public:
 
   SiStripDetInfoFileReader& operator=(const SiStripDetInfoFileReader& copy);
 
-  const std::vector<uint32_t>& getAllDetIds() const { return detIds_; }
+  SiStripDetInfo const& info() const { return info_; }
 
-  const std::pair<unsigned short, double> getNumberOfApvsAndStripLength(uint32_t detId) const;
+  const std::vector<uint32_t>& getAllDetIds() const { return info_.getAllDetIds(); }
 
-  const float& getThickness(uint32_t detId) const;
+  const std::pair<unsigned short, double> getNumberOfApvsAndStripLength(uint32_t detId) const {
+    return info_.getNumberOfApvsAndStripLength(detId);
+  }
 
-  const std::map<uint32_t, DetInfo>& getAllData() const { return detData_; }
+  const float& getThickness(uint32_t detId) const { return info_.getThickness(detId); }
+
+  const std::map<uint32_t, DetInfo>& getAllData() const { return info_.getAllData(); }
 
 private:
   void reader(std::string filePath);
 
   std::ifstream inputFile_;
-  //  std::string filePath_;
 
-  std::map<uint32_t, DetInfo> detData_;
-  //  std::map<uint32_t, std::pair<unsigned short, double> > detData_;
-  //std::map<uint32_t, float > detThickness_;
-  std::vector<uint32_t> detIds_;
+  SiStripDetInfo info_;
 };
 #endif

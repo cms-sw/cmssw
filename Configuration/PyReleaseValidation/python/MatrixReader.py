@@ -48,6 +48,7 @@ class MatrixReader(object):
                              'relval_production': 'prod-'  ,
                              'relval_ged': 'ged-',
                              'relval_upgrade':'upg-',
+                             'relval_cleanedupgrade':'clnupg-',
                              'relval_gpu':'gpu-',
                              'relval_2017':'2017-',
                              'relval_2026':'2026-',
@@ -64,6 +65,7 @@ class MatrixReader(object):
                       'relval_production',
                       'relval_ged',
                       'relval_upgrade',
+                      'relval_cleanedupgrade',
                       'relval_gpu',
                       'relval_2017',
                       'relval_2026',
@@ -79,6 +81,7 @@ class MatrixReader(object):
                              'relval_production':True,
                              'relval_ged':True,
                              'relval_upgrade':False,
+                             'relval_cleanedupgrade':False,
                              'relval_gpu':False,
                              'relval_2017':True,
                              'relval_2026':True,
@@ -316,7 +319,7 @@ class MatrixReader(object):
 
             self.reset(what)
 
-            if self.what != 'all' and not any(el in matrixFile for el in self.what.split(",")):
+            if self.what != 'all' and not any('_'+el in matrixFile for el in self.what.split(",")):
                 print("ignoring non-requested file",matrixFile)
                 continue
 
@@ -492,7 +495,7 @@ class MatrixReader(object):
     def prepare(self, useInput=None, refRel='', fromScratch=None):
         
         for matrixFile in self.files:
-            if self.what != 'all' and not any(el in matrixFile for el in self.what.split(",")):
+            if self.what != 'all' and not any('_'+el in matrixFile for el in self.what.split(",")):
                 print("ignoring non-requested file",matrixFile)
                 continue
             if self.what == 'all' and not self.filesDefault[matrixFile]:

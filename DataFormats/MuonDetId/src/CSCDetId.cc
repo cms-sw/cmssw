@@ -59,6 +59,18 @@ unsigned short CSCDetId::iChamberType(unsigned short istation, unsigned short ir
   return i;
 }
 
+bool CSCDetId::isME1a() const { return iChamberType(station(), ring()) == 1; }
+bool CSCDetId::isME1b() const { return iChamberType(station(), ring()) == 2; }
+bool CSCDetId::isME11() const { return isME1a() or isME1b(); }
+bool CSCDetId::isME12() const { return iChamberType(station(), ring()) == 3; }
+bool CSCDetId::isME13() const { return iChamberType(station(), ring()) == 4; }
+bool CSCDetId::isME21() const { return iChamberType(station(), ring()) == 5; }
+bool CSCDetId::isME22() const { return iChamberType(station(), ring()) == 6; }
+bool CSCDetId::isME31() const { return iChamberType(station(), ring()) == 7; }
+bool CSCDetId::isME32() const { return iChamberType(station(), ring()) == 8; }
+bool CSCDetId::isME41() const { return iChamberType(station(), ring()) == 9; }
+bool CSCDetId::isME42() const { return iChamberType(station(), ring()) == 10; }
+
 std::string CSCDetId::chamberName(int endcap, int station, int ring, int chamber) {
   const std::string eSign = endcap == 1 ? "+" : "-";
   return "ME" + eSign + std::to_string(station) + "/" + std::to_string(ring) + "/" + std::to_string(chamber);
