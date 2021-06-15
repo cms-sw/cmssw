@@ -1,14 +1,14 @@
-#!/bin/bash                                                                                                                                                                                                 
-# Save current working dir so img can be outputted there later                                                                                                                                              
+#!/bin/bash
+# Save current working dir so img can be outputted there later                                          
 W_DIR=$(pwd);
-# Set SCRAM architecture var                                                                                                                                                                                
-SCRAM_ARCH=slc6_amd64_gcc630;
+# Set SCRAM architecture var               
+SCRAM_ARCH=slc7_amd64_gcc900;
 export SCRAM_ARCH;
 source /afs/cern.ch/cms/cmsset_default.sh;
 eval `scram run -sh`;
-# Go back to original working directory                                                                                                                                                                     
+# Go back to original working directory                                                   
 cd $W_DIR;
-# Run get payload data script                                                                                                                                                                               
+# Run get payload data script                                    
 if [ -f *.png ]; then
     rm *.png
 fi
