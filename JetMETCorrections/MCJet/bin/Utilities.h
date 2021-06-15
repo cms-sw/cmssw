@@ -422,7 +422,8 @@ inline void CalculateResponse(bool UseRatioForResponse, double x, double ex, dou
   }
 }
 ///////////////////////////////////////////////////////////////////////
-inline void CalculateCorrection(bool UseRatioForResponse, double x, double ex, double y, double ey, double& c, double& e) {
+inline void CalculateCorrection(
+    bool UseRatioForResponse, double x, double ex, double y, double ey, double& c, double& e) {
   if (x > 0 && fabs(y) > 0) {
     if (UseRatioForResponse) {
       c = 1. / y;
