@@ -32,14 +32,16 @@ namespace {
 
   template <class T>
   constexpr T keyToValue(char const* label, entry<T> const* entries) {
-    return !entries->label ? entries->value
-                           : same(entries->label, label) ? entries->value : /*default*/ keyToValue(label, entries + 1);
+    return !entries->label               ? entries->value
+           : same(entries->label, label) ? entries->value
+                                         : /*default*/ keyToValue(label, entries + 1);
   }
 
   template <class T>
   constexpr char const* valueToKey(T value, entry<T> const* entries) {
-    return !entries->label ? entries->label
-                           : entries->value == value ? entries->label : /*default*/ valueToKey(value, entries + 1);
+    return !entries->label           ? entries->label
+           : entries->value == value ? entries->label
+                                     : /*default*/ valueToKey(value, entries + 1);
   }
   constexpr entry<L1GtBoardType> l1GtBoardTypeStringToEnumMap[] = {{"GTFE", GTFE},
                                                                    {"FDL", FDL},
