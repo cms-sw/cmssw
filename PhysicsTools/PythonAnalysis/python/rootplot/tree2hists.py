@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Create ROOT Histograms from one or more ROOT TTrees or TNtuples.
 
