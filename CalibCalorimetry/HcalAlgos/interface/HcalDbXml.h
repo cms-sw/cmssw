@@ -30,7 +30,7 @@ namespace HcalDbXml {
                   const std::string& fTag,
                   unsigned fVersion,
                   const HcalPedestals& fObject);
-  bool dumpObject(std::ostream& fOutput,
+  inline bool dumpObject(std::ostream& fOutput,
                   unsigned fRun,
                   unsigned long fGMTIOVBegin,
                   unsigned long fGMTIOVEnd,
@@ -54,7 +54,7 @@ namespace HcalDbXml {
                   const std::string& fTag,
                   unsigned fVersion,
                   const HcalGains& fObject);
-  bool dumpObject(std::ostream& fOutput,
+  inline bool dumpObject(std::ostream& fOutput,
                   unsigned fRun,
                   unsigned long fGMTIOVBegin,
                   unsigned long fGMTIOVEnd,
@@ -63,7 +63,7 @@ namespace HcalDbXml {
                   const HcalGainWidths& fObject) {
     return false;
   }
-  bool dumpObject(std::ostream& fOutput,
+  inline bool dumpObject(std::ostream& fOutput,
                   unsigned fRun,
                   unsigned long fGMTIOVBegin,
                   unsigned long fGMTIOVEnd,
@@ -72,7 +72,7 @@ namespace HcalDbXml {
                   const HcalElectronicsMap& fObject) {
     return false;
   }
-  bool dumpObject(std::ostream& fOutput,
+  inline bool dumpObject(std::ostream& fOutput,
                   unsigned fRun,
                   unsigned long fGMTIOVBegin,
                   unsigned long fGMTIOVEnd,
@@ -81,7 +81,7 @@ namespace HcalDbXml {
                   const HcalQIEData& fObject) {
     return false;
   }
-  bool dumpObject(std::ostream& fOutput,
+  inline bool dumpObject(std::ostream& fOutput,
                   unsigned fRun,
                   unsigned long fGMTIOVBegin,
                   unsigned long fGMTIOVEnd,
@@ -90,7 +90,7 @@ namespace HcalDbXml {
                   const HcalCalibrationQIEData& fObject) {
     return false;
   }
-  bool dumpObject(std::ostream& fOutput,
+  inline bool dumpObject(std::ostream& fOutput,
                   unsigned fRun,
                   unsigned long fGMTIOVBegin,
                   unsigned long fGMTIOVEnd,
@@ -99,7 +99,7 @@ namespace HcalDbXml {
                   const HcalQIETypes& fObject) {
     return false;
   }
-  bool dumpObject(std::ostream& fOutput,
+  inline bool dumpObject(std::ostream& fOutput,
                   unsigned fRun,
                   unsigned long fGMTIOVBegin,
                   unsigned long fGMTIOVEnd,
