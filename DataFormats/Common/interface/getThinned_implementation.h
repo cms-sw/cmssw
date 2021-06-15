@@ -140,8 +140,8 @@ namespace edm {
     }
 
     inline auto makeThinnedIndexes(std::vector<unsigned int> const& keys,
-                            std::vector<WrapperBase const*> const& foundContainers,
-                            ThinnedAssociation const* thinnedAssociation) {
+                                   std::vector<WrapperBase const*> const& foundContainers,
+                                   ThinnedAssociation const* thinnedAssociation) {
       unsigned const nKeys = keys.size();
       std::vector<unsigned int> thinnedIndexes(nKeys, kThinningDoNotLookForThisIndex);
       bool hasAny = false;
