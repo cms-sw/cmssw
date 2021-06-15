@@ -363,12 +363,12 @@ namespace SiStripPI {
 
   /*--------------------------------------------------------------------*/
   inline void drawStatBox(std::map<std::string, std::shared_ptr<TH1F>> histos,
-                   std::map<std::string, int> colormap,
-                   std::vector<std::string> legend,
-                   double X = 0.15,
-                   double Y = 0.93,
-                   double W = 0.15,
-                   double H = 0.10)
+                          std::map<std::string, int> colormap,
+                          std::vector<std::string> legend,
+                          double X = 0.15,
+                          double Y = 0.93,
+                          double W = 0.15,
+                          double H = 0.10)
   /*--------------------------------------------------------------------*/
   {
     char buffer[255];
@@ -498,8 +498,8 @@ namespace SiStripPI {
   // generic code to fill a SiStripDetSummary with Noise payload info
   /*--------------------------------------------------------------------*/
   inline void fillNoiseDetSummary(SiStripDetSummary& summaryNoise,
-                           std::shared_ptr<SiStripNoises> payload,
-                           SiStripPI::estimator est)
+                                  std::shared_ptr<SiStripNoises> payload,
+                                  SiStripPI::estimator est)
   /*--------------------------------------------------------------------*/
   {
     SiStripNoises::RegistryIterator rit = payload->getRegistryVectorBegin(), erit = payload->getRegistryVectorEnd();
@@ -610,9 +610,9 @@ namespace SiStripPI {
   // generic code to fill the vectors of bad components
   /*--------------------------------------------------------------------*/
   inline void fillBCArrays(const SiStripQuality* siStripQuality_,
-                    int NTkBadComponent[4],
-                    int NBadComponent[4][19][4],
-                    const TrackerTopology m_trackerTopo)
+                           int NTkBadComponent[4],
+                           int NBadComponent[4][19][4],
+                           const TrackerTopology m_trackerTopo)
   /*--------------------------------------------------------------------*/
   {
     std::vector<SiStripQuality::BadComponent> BC = siStripQuality_->getBadComponentList();
