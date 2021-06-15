@@ -111,9 +111,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
                                         const CSCComparatorDigiCollection* compdc,
                                         const GEMPadDigiClusterCollection* gemClusters,
                                         CSCALCTDigiCollection& oc_alct,
-                                        CSCALCTDigiCollection& oc_alct_all,
                                         CSCCLCTDigiCollection& oc_clct,
-                                        CSCCLCTDigiCollection& oc_clct_all,
                                         CSCALCTPreTriggerDigiCollection& oc_alctpretrigger,
                                         CSCCLCTPreTriggerDigiCollection& oc_pretrigger,
                                         CSCCLCTPreTriggerCollection& oc_pretrig,
@@ -170,11 +168,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               const std::vector<CSCCorrelatedLCTDigi>& lctV = tmb11->readoutLCTs1b();
               const std::vector<CSCCorrelatedLCTDigi>& lctV1a = tmb11->readoutLCTs1a();
               const std::vector<CSCALCTDigi>& alctV = tmb11->alctProc->readoutALCTs();
-              const std::vector<CSCALCTDigi>& alctV_all =
-                  tmb11->alctProc->readoutALCTs(CSCConstants::MAX_ALCTS_PER_PROCESSOR);
               const std::vector<CSCCLCTDigi>& clctV = tmb11->clctProc->readoutCLCTsME1b();
-              const std::vector<CSCCLCTDigi>& clctV_all =
-                  tmb11->clctProc->readoutCLCTsME1b(CSCConstants::MAX_CLCTS_PER_PROCESSOR);
               const std::vector<int>& preTriggerBXs = tmb11->clctProc->preTriggerBXs();
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = tmb11->clctProc->preTriggerDigisME1b();
               const std::vector<CSCCLCTDigi>& clctV1a = tmb11->clctProc->readoutCLCTsME1a();
@@ -196,9 +190,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               // put collections in event
               put(lctV, oc_lct, detid, " ME1b LCT digi");
               put(alctV, oc_alct, detid, " ME1b ALCT digi");
-              put(alctV_all, oc_alct_all, detid, " ME1b ALCT digi");
               put(clctV, oc_clct, detid, " ME1b CLCT digi");
-              put(clctV_all, oc_clct_all, detid, " ME1b CLCT digi");
               put(pretriggerV, oc_pretrigger, detid, " ME1b CLCT pre-trigger digi");
               put(preTriggerBXs, oc_pretrig, detid, " ME1b CLCT pre-trigger BX");
               put(alctpretriggerV, oc_alctpretrigger, detid, " ME1b ALCT pre-trigger digi");
@@ -243,11 +235,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               const std::vector<CSCCorrelatedLCTDigi>& lctV = tmb11GEM->readoutLCTs1b();
               const std::vector<CSCCorrelatedLCTDigi>& lctV1a = tmb11GEM->readoutLCTs1a();
               const std::vector<CSCALCTDigi>& alctV = tmb11GEM->alctProc->readoutALCTs();
-              const std::vector<CSCALCTDigi>& alctV_all =
-                  tmb11GEM->alctProc->readoutALCTs(CSCConstants::MAX_ALCTS_PER_PROCESSOR);
               const std::vector<CSCCLCTDigi>& clctV = tmb11GEM->clctProc->readoutCLCTsME1b();
-              const std::vector<CSCCLCTDigi>& clctV_all =
-                  tmb11GEM->clctProc->readoutCLCTsME1b(CSCConstants::MAX_CLCTS_PER_PROCESSOR);
               const std::vector<int>& preTriggerBXs = tmb11GEM->clctProc->preTriggerBXs();
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = tmb11GEM->clctProc->preTriggerDigisME1b();
               const std::vector<CSCCLCTDigi>& clctV1a = tmb11GEM->clctProc->readoutCLCTsME1a();
@@ -265,9 +253,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               // put collections in event
               put(lctV, oc_lct, detid, " ME1b LCT digi");
               put(alctV, oc_alct, detid, " ME1b ALCT digi");
-              put(alctV_all, oc_alct_all, detid, " ME1b ALCT digi");
               put(clctV, oc_clct, detid, " ME1b CLCT digi");
-              put(clctV_all, oc_clct_all, detid, " ME1b CLCT digi");
               put(pretriggerV, oc_pretrigger, detid, " ME1b CLCT pre-trigger digi");
               put(preTriggerBXs, oc_pretrig, detid, " ME1b CLCT pre-trigger BX");
               put(copads, oc_gemcopad, gemId, " GEM coincidence pad");
@@ -308,11 +294,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               // get the collections
               const std::vector<CSCCorrelatedLCTDigi>& lctV = tmb21GEM->readoutLCTs();
               const std::vector<CSCALCTDigi>& alctV = tmb21GEM->alctProc->readoutALCTs();
-              const std::vector<CSCALCTDigi>& alctV_all =
-                  tmb21GEM->alctProc->readoutALCTs(CSCConstants::MAX_ALCTS_PER_PROCESSOR);
               const std::vector<CSCCLCTDigi>& clctV = tmb21GEM->clctProc->readoutCLCTs();
-              const std::vector<CSCCLCTDigi>& clctV_all =
-                  tmb21GEM->clctProc->readoutCLCTs(CSCConstants::MAX_CLCTS_PER_PROCESSOR);
               const std::vector<int>& preTriggerBXs = tmb21GEM->clctProc->preTriggerBXs();
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = tmb21GEM->clctProc->preTriggerDigis();
               const std::vector<GEMCoPadDigi>& copads = tmb21GEM->coPadProcessor->readoutCoPads();
@@ -327,9 +309,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               // put collections in event
               put(lctV, oc_lct, detid, " ME21 LCT digi");
               put(alctV, oc_alct, detid, " ME21 ALCT digi");
-              put(alctV_all, oc_alct_all, detid, " ME21 ALCT digi");
               put(clctV, oc_clct, detid, " ME21 CLCT digi");
-              put(clctV_all, oc_clct_all, detid, " ME21 CLCT digi");
               put(pretriggerV, oc_pretrigger, detid, " ME21 CLCT pre-trigger digi");
               put(preTriggerBXs, oc_pretrig, detid, " ME21 CLCT pre-trigger BX");
               put(copads, oc_gemcopad, gemId, " GEM coincidence pad");
@@ -351,11 +331,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               // get the collections
               const std::vector<CSCCorrelatedLCTDigi>& lctV = utmb->readoutLCTs();
               const std::vector<CSCALCTDigi>& alctV = utmb->alctProc->readoutALCTs();
-              const std::vector<CSCALCTDigi>& alctV_all =
-                  utmb->alctProc->readoutALCTs(CSCConstants::MAX_ALCTS_PER_PROCESSOR);
               const std::vector<CSCCLCTDigi>& clctV = utmb->clctProc->readoutCLCTs();
-              const std::vector<CSCCLCTDigi>& clctV_all =
-                  utmb->clctProc->readoutCLCTs(CSCConstants::MAX_CLCTS_PER_PROCESSOR);
               const std::vector<int>& preTriggerBXs = utmb->clctProc->preTriggerBXs();
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = utmb->clctProc->preTriggerDigis();
               const std::vector<CSCALCTPreTriggerDigi>& alctpretriggerV = utmb->alctProc->preTriggerDigis();
@@ -369,9 +345,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               // put collections in event
               put(lctV, oc_lct, detid, " LCT digi");
               put(alctV, oc_alct, detid, " ALCT digi");
-              put(alctV_all, oc_alct_all, detid, " ALCT digi");
               put(clctV, oc_clct, detid, " CLCT digi");
-              put(clctV_all, oc_clct_all, detid, tmb->getCSCName() + " CLCT digi");
               put(pretriggerV, oc_pretrigger, detid, " CLCT pre-trigger digi");
               put(preTriggerBXs, oc_pretrig, detid, " CLCT pre-trigger BX");
               put(alctpretriggerV, oc_alctpretrigger, detid, " ALCT pre-trigger digi");
@@ -389,11 +363,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               // get the collections
               const std::vector<CSCCorrelatedLCTDigi>& lctV = tmb->readoutLCTs();
               const std::vector<CSCALCTDigi>& alctV = tmb->alctProc->readoutALCTs();
-              const std::vector<CSCALCTDigi>& alctV_all =
-                  tmb->alctProc->readoutALCTs(CSCConstants::MAX_ALCTS_PER_PROCESSOR);
               const std::vector<CSCCLCTDigi>& clctV = tmb->clctProc->readoutCLCTs();
-              const std::vector<CSCCLCTDigi>& clctV_all =
-                  tmb->clctProc->readoutCLCTs(CSCConstants::MAX_CLCTS_PER_PROCESSOR);
               const std::vector<int>& preTriggerBXs = tmb->clctProc->preTriggerBXs();
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = tmb->clctProc->preTriggerDigis();
               const std::vector<CSCALCTPreTriggerDigi>& alctpretriggerV = tmb->alctProc->preTriggerDigis();
@@ -407,9 +377,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               // put collections in event
               put(lctV, oc_lct, detid, tmb->getCSCName() + " LCT digi");
               put(alctV, oc_alct, detid, tmb->getCSCName() + " ALCT digi");
-              put(alctV_all, oc_alct_all, detid, tmb->getCSCName() + " ALCT digi");
               put(clctV, oc_clct, detid, tmb->getCSCName() + " CLCT digi");
-              put(clctV_all, oc_clct_all, detid, tmb->getCSCName() + " CLCT digi");
               put(pretriggerV, oc_pretrigger, detid, tmb->getCSCName() + " CLCT pre-trigger digi");
               put(preTriggerBXs, oc_pretrig, detid, tmb->getCSCName() + " CLCT pre-trigger BX");
               put(alctpretriggerV, oc_alctpretrigger, detid, tmb->getCSCName() + " ALCT pre-trigger digi");

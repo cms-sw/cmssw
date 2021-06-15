@@ -15,19 +15,19 @@ layerInfo = cms.PSet(
       maxRing = cms.int32(7)
       )
 )
-layerList = cms.vstring('TOB6+TOB5',
-                        'TOB6+TOB4', 
-                        'TOB6+TOB3',
-                        'TOB5+TOB4',
-                        'TOB5+TOB3',
-                        'TOB4+TOB3',
-                        'TEC1_neg+TOB6',
-                        'TEC1_neg+TOB5',
-                        'TEC1_neg+TOB4',
-                        'TEC1_pos+TOB6',
-                        'TEC1_pos+TOB5',
-                        'TEC1_pos+TOB4'                                   
-                        )
+layerList = ['TOB6+TOB5',
+             'TOB6+TOB4', 
+             'TOB6+TOB3',
+             'TOB5+TOB4',
+             'TOB5+TOB3',
+             'TOB4+TOB3',
+             'TEC1_neg+TOB6',
+             'TEC1_neg+TOB5',
+             'TEC1_neg+TOB4',
+             'TEC1_pos+TOB6',
+             'TEC1_pos+TOB5',
+             'TEC1_pos+TOB4'                                   
+             ]
 from RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi import SeedFromConsecutiveHitsCreator as _SeedFromConsecutiveHitsCreator
 CosmicSeedCreator = _SeedFromConsecutiveHitsCreator.clone(
     ComponentName = 'CosmicSeedCreator',

@@ -15,6 +15,7 @@
 // user include files
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "HcalTB02SD.h"
 #include "HcalTB02HcalNumberingScheme.h"
@@ -37,7 +38,7 @@ HcalTB02SD::HcalTB02SD(const std::string& name,
                        const SensitiveDetectorCatalog& clg,
                        edm::ParameterSet const& p,
                        const SimTrackManager* manager)
-    : CaloSD(name, es, clg, p, manager) {
+    : CaloSD(name, clg, p, manager) {
   numberingScheme_.reset(nullptr);
   edm::ParameterSet m_SD = p.getParameter<edm::ParameterSet>("HcalTB02SD");
   useBirk_ = m_SD.getUntrackedParameter<bool>("UseBirkLaw", false);

@@ -31,7 +31,7 @@ Description: Producer for EcalRecHits to be used for pi0/eta ECAL calibration.
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 // Geometry
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"

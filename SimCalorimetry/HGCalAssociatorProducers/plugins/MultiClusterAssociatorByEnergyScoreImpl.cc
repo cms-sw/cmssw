@@ -8,6 +8,8 @@
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "SimCalorimetry/HGCalAssociatorProducers/interface/AssociatorTools.h"
 
+#include <cfloat>
+
 MultiClusterAssociatorByEnergyScoreImpl::MultiClusterAssociatorByEnergyScoreImpl(
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,

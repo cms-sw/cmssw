@@ -61,7 +61,7 @@ public:
 
   /// tell the digitizer which cells exist
   const std::vector<DetId> &detIds() const {
-    assert(0 != theDetIds);
+    assert(nullptr != theDetIds);
     return *theDetIds;
   }
   void setDetIds(const std::vector<DetId> &detIds) { theDetIds = &detIds; }

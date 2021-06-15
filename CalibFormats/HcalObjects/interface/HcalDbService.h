@@ -14,9 +14,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationsSet.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationWidthsSet.h"
 
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 
 class HcalCalibrations;

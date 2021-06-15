@@ -10,7 +10,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -175,6 +174,9 @@ private:
   edm::EDGetTokenT<l1t::TkHTMissCollection> TrackMHTExtendedToken_;
   edm::EDGetTokenT<l1t::TkJetCollection> TrackJetsToken_;
   edm::EDGetTokenT<l1t::TkJetCollection> TrackJetsExtendedToken_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
 
   //-----------------------------------------------------------------------------------------------
   // tree & branches for mini-ntuple
@@ -452,6 +454,9 @@ L1TrackObjectNtupleMaker::L1TrackObjectNtupleMaker(edm::ParameterSet const& iCon
   GenJetToken_ = consumes<std::vector<reco::GenJet> >(GenJetInputTag);
   GenParticleToken_ = consumes<std::vector<reco::GenParticle> >(GenParticleInputTag);
   L1VertexToken_ = consumes<l1t::TkPrimaryVertexCollection>(RecoVertexInputTag);
+
+  tTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""));
+  tGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("", ""));
 }
 
 /////////////
@@ -1093,7 +1098,10 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
 
   // -----------------------------------------------------------------------------------------------
   // more for TTStubs
-  edm::ESHandle<TrackerGeometry> geometryHandle;
+  const TrackerTopology& tTopo = iSetup.getData(tTopoToken_);
+  const TrackerGeometry& tGeom = iSetup.getData(tGeomToken_);
+
+  /*edm::ESHandle<TrackerGeometry> geometryHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get(geometryHandle);
 
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -1103,7 +1111,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
   iSetup.get<TrackerDigiGeometryRecord>().get(tGeomHandle);
 
   const TrackerTopology* const tTopo = tTopoHandle.product();
-  const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+  const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();*/
 
   //Gen particles
   edm::Handle<std::vector<reco::GenParticle> > GenParticleHandle;
@@ -1186,20 +1194,20 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
   // loop over L1 stubs
   // ----------------------------------------------------------------------------------------------
   if (SaveStubs) {
-    for (auto gd = theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++) {
+    for (auto gd = tGeom.dets().begin(); gd != tGeom.dets().end(); gd++) {
       DetId detid = (*gd)->geographicalId();
       if (detid.subdetId() != StripSubdetector::TOB && detid.subdetId() != StripSubdetector::TID)
         continue;
-      if (!tTopo->isLower(detid))
-        continue;                              // loop on the stacks: choose the lower arbitrarily
-      DetId stackDetid = tTopo->stack(detid);  // Stub module detid
+      if (!tTopo.isLower(detid))
+        continue;                             // loop on the stacks: choose the lower arbitrarily
+      DetId stackDetid = tTopo.stack(detid);  // Stub module detid
 
       if (TTStubHandle->find(stackDetid) == TTStubHandle->end())
         continue;
 
       // Get the DetSets of the Clusters
       edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_> > stubs = (*TTStubHandle)[stackDetid];
-      const GeomDetUnit* det0 = theTrackerGeom->idToDetUnit(detid);
+      const GeomDetUnit* det0 = tGeom.idToDetUnit(detid);
       const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(det0);
       const PixelTopology* topol = dynamic_cast<const PixelTopology*>(&(theGeomDet->specificTopology()));
 
@@ -1212,10 +1220,10 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         int layer = -999999;
         if (detid.subdetId() == StripSubdetector::TOB) {
           isBarrel = 1;
-          layer = static_cast<int>(tTopo->layer(detid));
+          layer = static_cast<int>(tTopo.layer(detid));
         } else if (detid.subdetId() == StripSubdetector::TID) {
           isBarrel = 0;
-          layer = static_cast<int>(tTopo->layer(detid));
+          layer = static_cast<int>(tTopo.layer(detid));
         } else {
           edm::LogVerbatim("Tracklet") << "WARNING -- neither TOB or TID stub, shouldn't happen...";
           layer = -1;
@@ -1330,9 +1338,9 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         // loop over stubs
         for (int is = 0; is < tmp_trk_nstub; is++) {
           //detID of stub
-          DetId detIdStub = theTrackerGeom->idToDet((stubRefs.at(is)->clusterRef(0))->getDetId())->geographicalId();
+          DetId detIdStub = tGeom.idToDet((stubRefs.at(is)->clusterRef(0))->getDetId())->geographicalId();
           MeasurementPoint coords = stubRefs.at(is)->clusterRef(0)->findAverageLocalCoordinatesCentered();
-          const GeomDet* theGeomDet = theTrackerGeom->idToDet(detIdStub);
+          const GeomDet* theGeomDet = tGeom.idToDet(detIdStub);
           Global3DPoint posStub = theGeomDet->surface().toGlobal(theGeomDet->topology().localPosition(coords));
 
           double x = posStub.x();
@@ -1341,13 +1349,13 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
 
           int layer = -999999;
           if (detIdStub.subdetId() == StripSubdetector::TOB) {
-            layer = static_cast<int>(tTopo->layer(detIdStub));
+            layer = static_cast<int>(tTopo.layer(detIdStub));
             if (DebugMode)
               edm::LogVerbatim("Tracklet")
                   << "   stub in layer " << layer << " at position x y z = " << x << " " << y << " " << z;
             tmp_trk_lhits += pow(10, layer - 1);
           } else if (detIdStub.subdetId() == StripSubdetector::TID) {
-            layer = static_cast<int>(tTopo->layer(detIdStub));
+            layer = static_cast<int>(tTopo.layer(detIdStub));
             if (DebugMode)
               edm::LogVerbatim("Tracklet")
                   << "   stub in disk " << layer << " at position x y z = " << x << " " << y << " " << z;
@@ -1509,9 +1517,9 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         // loop over stubs
         for (int is = 0; is < tmp_trk_nstub; is++) {
           //detID of stub
-          DetId detIdStub = theTrackerGeom->idToDet((stubRefs.at(is)->clusterRef(0))->getDetId())->geographicalId();
+          DetId detIdStub = tGeom.idToDet((stubRefs.at(is)->clusterRef(0))->getDetId())->geographicalId();
           MeasurementPoint coords = stubRefs.at(is)->clusterRef(0)->findAverageLocalCoordinatesCentered();
-          const GeomDet* theGeomDet = theTrackerGeom->idToDet(detIdStub);
+          const GeomDet* theGeomDet = tGeom.idToDet(detIdStub);
           Global3DPoint posStub = theGeomDet->surface().toGlobal(theGeomDet->topology().localPosition(coords));
 
           double x = posStub.x();
@@ -1520,13 +1528,13 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
 
           int layer = -999999;
           if (detIdStub.subdetId() == StripSubdetector::TOB) {
-            layer = static_cast<int>(tTopo->layer(detIdStub));
+            layer = static_cast<int>(tTopo.layer(detIdStub));
             if (DebugMode)
               edm::LogVerbatim("Tracklet")
                   << "   stub in layer " << layer << " at position x y z = " << x << " " << y << " " << z;
             tmp_trk_lhits += pow(10, layer - 1);
           } else if (detIdStub.subdetId() == StripSubdetector::TID) {
-            layer = static_cast<int>(tTopo->layer(detIdStub));
+            layer = static_cast<int>(tTopo.layer(detIdStub));
             if (DebugMode)
               edm::LogVerbatim("Tracklet")
                   << "   stub in disk " << layer << " at position x y z = " << x << " " << y << " " << z;
@@ -1738,9 +1746,9 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
 
       int layer = -1;
       if (detid.subdetId() == StripSubdetector::TOB) {
-        layer = static_cast<int>(tTopo->layer(detid)) - 1;  //fill in array as entries 0-5
+        layer = static_cast<int>(tTopo.layer(detid)) - 1;  //fill in array as entries 0-5
       } else if (detid.subdetId() == StripSubdetector::TID) {
-        layer = static_cast<int>(tTopo->layer(detid)) + 5;  //fill in array as entries 6-10
+        layer = static_cast<int>(tTopo.layer(detid)) + 5;  //fill in array as entries 6-10
       }
 
       //treat genuine stubs separately (==2 is genuine, ==1 is not)
@@ -1932,13 +1940,13 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         int tmp_nstub = stubRefs.size();
 
         for (int is = 0; is < tmp_nstub; is++) {
-          DetId detIdStub = theTrackerGeom->idToDet((stubRefs.at(is)->clusterRef(0))->getDetId())->geographicalId();
+          DetId detIdStub = tGeom.idToDet((stubRefs.at(is)->clusterRef(0))->getDetId())->geographicalId();
           int layer = -999999;
           if (detIdStub.subdetId() == StripSubdetector::TOB) {
-            layer = static_cast<int>(tTopo->layer(detIdStub));
+            layer = static_cast<int>(tTopo.layer(detIdStub));
             tmp_matchtrk_lhits += pow(10, layer - 1);
           } else if (detIdStub.subdetId() == StripSubdetector::TID) {
-            layer = static_cast<int>(tTopo->layer(detIdStub));
+            layer = static_cast<int>(tTopo.layer(detIdStub));
             tmp_matchtrk_dhits += pow(10, layer - 1);
           }
         }
@@ -2102,13 +2110,13 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         int tmp_nstub = stubRefs.size();
 
         for (int is = 0; is < tmp_nstub; is++) {
-          DetId detIdStub = theTrackerGeom->idToDet((stubRefs.at(is)->clusterRef(0))->getDetId())->geographicalId();
+          DetId detIdStub = tGeom.idToDet((stubRefs.at(is)->clusterRef(0))->getDetId())->geographicalId();
           int layer = -999999;
           if (detIdStub.subdetId() == StripSubdetector::TOB) {
-            layer = static_cast<int>(tTopo->layer(detIdStub));
+            layer = static_cast<int>(tTopo.layer(detIdStub));
             tmp_matchtrkExt_lhits += pow(10, layer - 1);
           } else if (detIdStub.subdetId() == StripSubdetector::TID) {
-            layer = static_cast<int>(tTopo->layer(detIdStub));
+            layer = static_cast<int>(tTopo.layer(detIdStub));
             tmp_matchtrkExt_dhits += pow(10, layer - 1);
           }
         }

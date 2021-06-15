@@ -55,7 +55,7 @@ public:
       std::string layersToSet = thisTriplet.tripletName_;
       for (int thisLayer = 0; thisLayer < 3; thisLayer++) {
         // Get layer name
-        std::size_t layerPos = layersToSet.find("+");
+        std::size_t layerPos = layersToSet.find('+');
         if ((thisLayer < 2 && layerPos == std::string::npos) || (thisLayer == 2 && layerPos != std::string::npos)) {
           throw cms::Exception("Configuration")
               << "Please enter a valid triplet name in the CACuts parameter set; e.g. 'BPix1+BPix2+BPix3'";

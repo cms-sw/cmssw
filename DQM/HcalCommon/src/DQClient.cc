@@ -2,8 +2,18 @@
 
 namespace hcaldqm {
   using namespace constants;
-  DQClient::DQClient(std::string const &name, std::string const &taskname, edm::ParameterSet const &ps)
-      : DQModule(ps), _taskname(taskname), _maxProcessedLS(0) {
+  DQClient::DQClient(std::string const &name,
+                     std::string const &taskname,
+                     edm::ParameterSet const &ps,
+                     edm::ConsumesCollector &iC)
+      : DQModule(ps),
+        _taskname(taskname),
+        _maxProcessedLS(0),
+        hcalDbServiceToken_(iC.esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()),
+        runInfoToken_(iC.esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>()),
+        hcalChannelQualityToken_(
+            iC.esConsumes<HcalChannelQuality, HcalChannelQualityRcd, edm::Transition::BeginLuminosityBlock>(
+                edm::ESInputTag("", "withTopo"))) {
     //	- SET THE TASK NAME YOU REFER TO
     //	- SET THE CLIENT'S NAME AS WELL - RUN SUMMARY PLOTS
     //	WILL BE GENERATED UNDER THAT FOLDER
@@ -17,8 +27,7 @@ namespace hcaldqm {
     _vhashCrates.clear();
 
     //	get various FED lists
-    edm::ESHandle<HcalDbService> dbs;
-    es.get<HcalDbRecord>().get(dbs);
+    edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
     _emap = dbs->getHcalMapping();
 
     if (_ptype != fOffline) {  // hidefed2crate
@@ -44,9 +53,8 @@ namespace hcaldqm {
 
       //	get FEDs registered @cDAQ
       if (auto runInfoRec = es.tryToGet<RunInfoRcd>()) {
-        edm::ESHandle<RunInfo> ri;
-        runInfoRec->get(ri);
-        std::vector<int> vfeds = ri->m_fed_in;
+        const RunInfo &runInfo = es.getData(runInfoToken_);
+        std::vector<int> vfeds = runInfo.m_fed_in;
         for (std::vector<int>::const_iterator it = vfeds.begin(); it != vfeds.end(); ++it) {
           if (*it >= constants::FED_VME_MIN && *it <= FED_VME_MAX)
             _vcdaqEids.push_back(
@@ -78,9 +86,7 @@ namespace hcaldqm {
                                       edm::EventSetup const &es) {
     //	get the Channel Quality masks
     _xQuality.reset();
-    edm::ESHandle<HcalChannelQuality> hcq;
-    es.get<HcalChannelQualityRcd>().get("withTopo", hcq);
-    const HcalChannelQuality *cq = hcq.product();
+    const HcalChannelQuality *cq = &es.getData(hcalChannelQualityToken_);
     std::vector<DetId> detids = cq->getAllChannels();
     for (std::vector<DetId>::const_iterator it = detids.begin(); it != detids.end(); ++it) {
       if (HcalGenericDetId(*it).genericSubdet() == HcalGenericDetId::HcalGenUnknown)

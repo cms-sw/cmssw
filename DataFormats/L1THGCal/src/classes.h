@@ -9,5 +9,6 @@
 #include "DataFormats/L1THGCal/interface/HGCalTowerMap.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
+#include "DataFormats/L1THGCal/interface/HGCalConcentratorData.h"
 
 #include "DataFormats/L1THGCal/interface/ClusterShapes.h"

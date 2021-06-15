@@ -22,6 +22,14 @@ protected:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
+  // CLCTs and LCTs are considered duplicates if there is an earlier copy
+  bool isDuplicateCLCT(const CSCCLCTDigi& clct, const std::vector<CSCCLCTDigi>& container) const;
+  bool isDuplicateLCT(const CSCCorrelatedLCTDigi& lct, const std::vector<CSCCorrelatedLCTDigi>& container) const;
+
+  // all properties are the same, except for the BX which is off by +1
+  bool isCLCTOffByOneBX(const CSCCLCTDigi& lhs, const CSCCLCTDigi& rhs) const;
+  bool isLCTOffByOneBX(const CSCCorrelatedLCTDigi& lhs, const CSCCorrelatedLCTDigi& rhs) const;
+
   edm::EDGetTokenT<CSCALCTDigiCollection> dataALCT_token_;
   edm::EDGetTokenT<CSCALCTDigiCollection> emulALCT_token_;
   edm::EDGetTokenT<CSCCLCTDigiCollection> dataCLCT_token_;
@@ -30,6 +38,7 @@ private:
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> emulLCT_token_;
   std::string monitorDir_;
 
+  // ME1/1 combines trigger data from ME1/a and ME1/b
   std::vector<std::string> chambers_;
   std::vector<std::string> dataEmul_;
 
@@ -46,6 +55,15 @@ private:
   std::vector<double> alctMaxBin_;
   std::vector<double> clctMaxBin_;
   std::vector<double> lctMaxBin_;
+
+  /*
+    When set to True, we assume that the data comes from
+    the Building 904 CSC test-stand. This test-stand is a single
+    ME1/1 chamber.
+  */
+  bool B904Setup_;
+
+  bool isRun3_;
 
   // first key is the chamber number
   // second key is the variable

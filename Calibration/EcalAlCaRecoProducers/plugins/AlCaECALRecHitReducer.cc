@@ -1,12 +1,11 @@
 #include "Calibration/EcalAlCaRecoProducers/plugins/AlCaECALRecHitReducer.h"
-//#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 //#define ALLrecHits
 //#define DEBUG

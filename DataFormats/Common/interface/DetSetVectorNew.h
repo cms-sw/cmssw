@@ -107,11 +107,11 @@ namespace edmNew {
           size = rh.size;
           return *this;
         }
-        Item(Item&& rh) noexcept : id(std::move(rh.id)), offset(int(rh.offset)), size(std::move(rh.size)) {}
+        Item(Item&& rh) noexcept : id(rh.id), offset(int(rh.offset)), size(rh.size) {}
         Item& operator=(Item&& rh) noexcept {
-          id = std::move(rh.id);
+          id = rh.id;
           offset = int(rh.offset);
-          size = std::move(rh.size);
+          size = rh.size;
           return *this;
         }
 

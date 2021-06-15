@@ -3,6 +3,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibTracker/SiStripESProducers/interface/SiStripQualityHelpers.h"
 
 using dqm::harvesting::DQMStore;
@@ -52,7 +53,10 @@ namespace {
 std::unique_ptr<SiStripQuality> sistrip::badStripFromFedErr(DQMStore::IGetter& dqmStore,
                                                             const SiStripFedCabling& fedCabling,
                                                             float cutoff) {
-  auto quality = std::make_unique<SiStripQuality>();
+  edm::FileInPath path(SiStripDetInfoFileReader::kDefaultFile);
+  SiStripDetInfoFileReader reader(path.fullPath());
+
+  auto quality = std::make_unique<SiStripQuality>(reader.info());
   dqmStore.cd();
   const std::string dname{"SiStrip/ReadoutView"};
   const std::string hpath{dname + "/FedIdVsApvId"};

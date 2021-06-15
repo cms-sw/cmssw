@@ -65,7 +65,7 @@ CollectionMerger<T1, T2>::CollectionMerger(const edm::ParameterSet &iConfig) {
   for (auto const &inCollection : inCollections) {
     inputs_[inCollection.instance()].push_back(consumes<MergeCollection>(inCollection));
   }
-  for (auto toproduce : inputs_) {
+  for (const auto &toproduce : inputs_) {
     //  std::cout<<toproduce.first<<"\t"<<toproduce.second.size()<<std::endl;
     produces<MergeCollection>(toproduce.first);
   }

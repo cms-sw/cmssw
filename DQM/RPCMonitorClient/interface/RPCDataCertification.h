@@ -4,14 +4,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "CondFormats/RunInfo/interface/RunSummary.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 class RPCDataCertification : public DQMEDHarvester {
 public:
-  /// Constructor
   RPCDataCertification(const edm::ParameterSet& pset);
-
-  /// Destructor
-  ~RPCDataCertification() override;
+  ~RPCDataCertification() override = default;
 
 protected:
   void beginJob() override;
@@ -25,12 +25,14 @@ private:
   void myBooker(DQMStore::IBooker&);
   void checkFED(edm::EventSetup const&);
 
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+
   MonitorElement* CertMap_;
   MonitorElement* totalCertFraction;
-  constexpr static int kNWheels = 5;
-  MonitorElement* certWheelFractions[kNWheels];
-  constexpr static int kNDisks = 10;
-  MonitorElement* certDiskFractions[kNDisks];
+  constexpr static int nWheels_ = 5;
+  MonitorElement* certWheelFractions[nWheels_];
+  constexpr static int nDisks_ = 10;
+  MonitorElement* certDiskFractions[nDisks_];
   std::pair<int, int> FEDRange_;
   int numberOfDisks_;
   int NumberOfFeds_;

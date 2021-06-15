@@ -9,6 +9,7 @@
 #include "SimG4CMS/Forward/interface/ZdcSD.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
@@ -29,7 +30,7 @@ ZdcSD::ZdcSD(const std::string& name,
              const SensitiveDetectorCatalog& clg,
              edm::ParameterSet const& p,
              const SimTrackManager* manager)
-    : CaloSD(name, es, clg, p, manager) {
+    : CaloSD(name, clg, p, manager) {
   edm::ParameterSet m_ZdcSD = p.getParameter<edm::ParameterSet>("ZdcSD");
   useShowerLibrary = m_ZdcSD.getParameter<bool>("UseShowerLibrary");
   useShowerHits = m_ZdcSD.getParameter<bool>("UseShowerHits");

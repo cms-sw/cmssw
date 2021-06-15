@@ -55,10 +55,11 @@
 #include "G4SystemOfUnits.hh"
 
 CMSEmStandardPhysicsXS::CMSEmStandardPhysicsXS(G4int ver, const edm::ParameterSet& p)
-    : G4VPhysicsConstructor("CMSEmStandard_emn"), verbose(ver) {
+    : G4VPhysicsConstructor("CMSEmStandard_emn") {
+  SetVerboseLevel(ver);
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
-  param->SetVerbose(verbose);
+  param->SetVerbose(ver);
   param->SetApplyCuts(true);
   param->SetMinEnergy(100 * CLHEP::eV);
   param->SetNumberOfBinsPerDecade(20);
@@ -90,7 +91,7 @@ void CMSEmStandardPhysicsXS::ConstructParticle() {
 }
 
 void CMSEmStandardPhysicsXS::ConstructProcess() {
-  if (verbose > 0) {
+  if (verboseLevel > 0) {
     edm::LogVerbatim("PhysicsList") << "### " << GetPhysicsName() << " Construct Processes";
   }
 

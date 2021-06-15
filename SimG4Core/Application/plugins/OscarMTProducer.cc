@@ -29,6 +29,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
+#include <memory>
 
 namespace edm {
   class StreamID;
@@ -141,7 +142,7 @@ std::unique_ptr<OscarMTMasterThread> OscarMTProducer::initializeGlobalCache(cons
   StaticRandomEngineSetUnset random(nullptr);
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::initializeGlobalCache";
 
-  return std::unique_ptr<OscarMTMasterThread>(new OscarMTMasterThread(iConfig));
+  return std::make_unique<OscarMTMasterThread>(iConfig);
 }
 
 std::shared_ptr<int> OscarMTProducer::globalBeginRun(const edm::Run& iRun,
@@ -168,6 +169,7 @@ void OscarMTProducer::globalEndJob(OscarMTMasterThread* masterThread) {
 
 void OscarMTProducer::beginRun(const edm::Run&, const edm::EventSetup& es) {
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun";
+  m_runManagerWorker->beginRun(es);
   m_runManagerWorker->initializeG4(m_masterThread->runManagerMasterPtr(), es);
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun done";
 }

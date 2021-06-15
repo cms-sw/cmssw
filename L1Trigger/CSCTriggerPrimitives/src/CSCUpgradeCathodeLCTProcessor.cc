@@ -322,7 +322,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
 
             // do the CCLUT procedures
             if (runCCLUT_) {
-              runCCLUT(thisLCT);
+              cclut_->run(thisLCT, numCFEBs_);
             }
 
             // purge the comparator digi collection from the obsolete "65535" entries...

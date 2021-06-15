@@ -5,6 +5,8 @@
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
 
 #include "SimG4CMS/ShowerLibraryProducer/interface/HFShowerG4Hit.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4Track.hh"

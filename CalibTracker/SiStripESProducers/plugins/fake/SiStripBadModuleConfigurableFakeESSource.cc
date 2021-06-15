@@ -81,7 +81,7 @@ SiStripBadModuleConfigurableFakeESSource::ReturnType SiStripBadModuleConfigurabl
 
   TrackerTopology const& tTopo = iRecord.get(trackTopoToken_);
 
-  auto quality = std::make_unique<SiStripQuality>();
+  auto quality = std::make_unique<SiStripQuality>(m_detInfoFileReader.info());
 
   if (!m_doByAPVs) {
     std::vector<uint32_t> selDetIds{selectDetectors(&tTopo, m_detInfoFileReader.getAllDetIds())};

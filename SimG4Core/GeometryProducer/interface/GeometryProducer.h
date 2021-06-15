@@ -10,12 +10,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
-#include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 
 #include <memory>
+#include <unordered_map>
 
 namespace sim {
   class FieldBuilder;
@@ -30,6 +30,7 @@ class SimProducer;
 class DDDWorld;
 class G4RunManagerKernel;
 class SimTrackManager;
+class SensitiveDetectorMakerBase;
 class DDCompactView;
 
 class GeometryProducer : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns> {
@@ -57,9 +58,9 @@ private:
   std::vector<std::shared_ptr<SimProducer>> m_producers;
   std::unique_ptr<sim::FieldBuilder> m_fieldBuilder;
   std::unique_ptr<SimTrackManager> m_trackManager;
-  AttachSD *m_attach;
   std::vector<SensitiveTkDetector *> m_sensTkDets;
   std::vector<SensitiveCaloDetector *> m_sensCaloDets;
+  std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> m_sdMakers;
   edm::ParameterSet m_p;
 
   mutable const DDCompactView *m_pDD;

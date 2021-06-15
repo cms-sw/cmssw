@@ -8,6 +8,7 @@
 <use name="DataFormats/L1TMuon"/>
 <use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/RPCRecHit"/>
+<use name="DataFormats/CSCDigi"/>
 <use name="FWCore/PluginManager"/>
 <use name="L1Trigger/L1TCommon"/>
 <use name="L1Trigger/CSCTriggerPrimitives"/>

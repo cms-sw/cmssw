@@ -54,6 +54,8 @@ HGCAL_noise_fC = cms.PSet(
     values = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
     )
 
+HFNose_noise_fC = HGCAL_noise_fC.clone()
+
 HGCAL_noise_heback = cms.PSet(
     scaleByDose = cms.bool(False),
     scaleByDoseAlgo = cms.uint32(0),
@@ -196,7 +198,7 @@ hfnoseDigitizer = cms.PSet(
         ileakParam       = cms.PSet(refToPSet_ = cms.string("HGCAL_ileakParam_toUse")),
         cceParams        = cms.PSet(refToPSet_ = cms.string("HGCAL_cceParams_toUse")),
         chargeCollectionEfficiencies = cms.PSet(refToPSet_ = cms.string("HGCAL_chargeCollectionEfficiencies")),
-        noise_fC         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_fC")),
+        noise_fC         = cms.PSet(refToPSet_ = cms.string("HFNose_noise_fC")),
         doTimeSamples    = cms.bool(False),
         thresholdFollowsMIP        = cms.bool(thresholdTracksMIP),
         feCfg   = hgcROCSettings.clone()
@@ -299,6 +301,17 @@ def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap
         )
     return process
 
+def HFNose_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap,byDoseFactor=1):
+    process.HFNose_noise_fC = cms.PSet(
+        scaleByDose = cms.bool(byDose),
+        scaleByDoseAlgo = cms.uint32(byDoseAlgo),
+        scaleByDoseFactor = cms.double(byDoseFactor),
+        doseMap = byDoseMap,
+        values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #100,200,300 um
+        )
+    return process
+
+
 def HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap,byDoseFactor=1):
     process.HGCAL_noise_heback = cms.PSet(
         scaleByDose = cms.bool(byDose),
@@ -337,7 +350,7 @@ phase2_hgcalV10.toModify(HGCAL_noises, values = [x for x in nonAgedNoises_v9])
 def HFNose_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseFactor=1):
     """includes all effects from radiation and gain choice"""
     # byDoseAlgo is used as a collection of bits to toggle: FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP (from lsb to Msb)
-    process=HGCal_setRealisticNoiseSi(process,byDose=byDose,byDoseAlgo=byDoseAlgo,byDoseMap=doseMapNose,byDoseFactor=byDoseFactor)
+    process=HFNose_setRealisticNoiseSi(process,byDose=byDose,byDoseAlgo=byDoseAlgo,byDoseMap=doseMapNose,byDoseFactor=byDoseFactor)
     return process
 
 doseMapNose = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka_HFNose_3.7.20.12_Eta2.4.txt")

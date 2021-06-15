@@ -48,7 +48,7 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
                                                                  const SensitiveDetectorCatalog& clg,
                                                                  edm::ParameterSet const& p,
                                                                  const SimTrackManager* manager)
-    : SensitiveTkDetector(name, es, clg, p),
+    : SensitiveTkDetector(name, clg),
       theManager(manager),
       rTracker(1200. * CLHEP::mm),
       zTracker(3000. * CLHEP::mm),

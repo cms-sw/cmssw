@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #  This compares the content of two Python files,
 #  ignoring trivial differences like order within
 #  dictionaries or escape characters

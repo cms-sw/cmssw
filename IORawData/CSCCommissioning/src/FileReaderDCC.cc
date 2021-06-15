@@ -17,7 +17,7 @@ FileReaderDCC::FileReaderDCC(void) {
     throw std::runtime_error(std::string("Wrong platform: sizeof(unsigned long long)!=8 || sizeof(unsigned short)!=2"));
   raw_event = new unsigned short[200000 * 40];
   end = (file_buffer_end = file_buffer + sizeof(file_buffer) / sizeof(unsigned long long));
-  bzero(raw_event, sizeof(raw_event) * 200000 * 40);
+  bzero(raw_event, sizeof(unsigned short) * 200000 * 40);
   bzero(file_buffer, sizeof(file_buffer));
   word_0 = 0;
   word_1 = 0;

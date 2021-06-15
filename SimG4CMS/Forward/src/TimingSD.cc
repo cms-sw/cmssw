@@ -37,12 +37,8 @@ static const double invns = 1.0 / CLHEP::nanosecond;
 static const double invdeg = 1.0 / CLHEP::deg;
 
 //-------------------------------------------------------------------
-TimingSD::TimingSD(const std::string& name,
-                   const edm::EventSetup& es,
-                   const SensitiveDetectorCatalog& clg,
-                   edm::ParameterSet const& p,
-                   const SimTrackManager* manager)
-    : SensitiveTkDetector(name, es, clg, p),
+TimingSD::TimingSD(const std::string& name, const SensitiveDetectorCatalog& clg, const SimTrackManager* manager)
+    : SensitiveTkDetector(name, clg),
       theManager(manager),
       theHC(nullptr),
       currentHit(nullptr),

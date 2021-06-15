@@ -43,8 +43,6 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
-  writeOutAllCLCTs_ = conf.getParameter<bool>("writeOutAllCLCTs");
-  writeOutAllALCTs_ = conf.getParameter<bool>("writeOutAllALCTs");
   savePreTriggers_ = conf.getParameter<bool>("savePreTriggers");
   writeOutShowers_ = conf.getParameter<bool>("writeOutShowers");
 
@@ -55,7 +53,8 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   wire_token_ = consumes<CSCWireDigiCollection>(wireDigiProducer_);
   comp_token_ = consumes<CSCComparatorDigiCollection>(compDigiProducer_);
-  gem_pad_cluster_token_ = consumes<GEMPadDigiClusterCollection>(gemPadDigiClusterProducer_);
+  if (runME11ILT_ or runME21ILT_)
+    gem_pad_cluster_token_ = consumes<GEMPadDigiClusterCollection>(gemPadDigiClusterProducer_);
   cscToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
   gemToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
   pBadChambersToken_ = esConsumes<CSCBadChambers, CSCBadChambersRcd>();
@@ -64,13 +63,6 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   // register what this produces
   produces<CSCALCTDigiCollection>();
   produces<CSCCLCTDigiCollection>();
-  // for experimental simulation studies
-  if (writeOutAllCLCTs_) {
-    produces<CSCCLCTDigiCollection>("All");
-  }
-  if (writeOutAllALCTs_) {
-    produces<CSCALCTDigiCollection>("All");
-  }
   produces<CSCCLCTPreTriggerCollection>();
   if (savePreTriggers_) {
     produces<CSCCLCTPreTriggerDigiCollection>();
@@ -129,18 +121,18 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
 
   // input GEM pad cluster collection for upgrade scenarios
   const GEMPadDigiClusterCollection* gemPadClusters = nullptr;
-  if (!gemPadDigiClusterProducer_.label().empty()) {
-    edm::Handle<GEMPadDigiClusterCollection> gemPadDigiClusters;
-    ev.getByToken(gem_pad_cluster_token_, gemPadDigiClusters);
-    gemPadClusters = gemPadDigiClusters.product();
+  if (runME11ILT_ or runME21ILT_) {
+    if (!gemPadDigiClusterProducer_.label().empty()) {
+      edm::Handle<GEMPadDigiClusterCollection> gemPadDigiClusters;
+      ev.getByToken(gem_pad_cluster_token_, gemPadDigiClusters);
+      gemPadClusters = gemPadDigiClusters.product();
+    }
   }
 
   // Create empty collections of ALCTs, CLCTs, and correlated LCTs upstream
   // and downstream of MPC.
   std::unique_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
-  std::unique_ptr<CSCALCTDigiCollection> oc_alct_all(new CSCALCTDigiCollection);
   std::unique_ptr<CSCCLCTDigiCollection> oc_clct(new CSCCLCTDigiCollection);
-  std::unique_ptr<CSCCLCTDigiCollection> oc_clct_all(new CSCCLCTDigiCollection);
   std::unique_ptr<CSCCLCTPreTriggerDigiCollection> oc_clctpretrigger(new CSCCLCTPreTriggerDigiCollection);
   std::unique_ptr<CSCALCTPreTriggerDigiCollection> oc_alctpretrigger(new CSCALCTPreTriggerDigiCollection);
   std::unique_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
@@ -170,9 +162,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
                     compDigis.product(),
                     gemPadClusters,
                     *oc_alct,
-                    *oc_alct_all,
                     *oc_clct,
-                    *oc_clct_all,
                     *oc_alctpretrigger,
                     *oc_clctpretrigger,
                     *oc_pretrig,
@@ -187,13 +177,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
 
   // Put collections in event.
   ev.put(std::move(oc_alct));
-  if (writeOutAllALCTs_) {
-    ev.put(std::move(oc_alct_all), "All");
-  }
   ev.put(std::move(oc_clct));
-  if (writeOutAllCLCTs_) {
-    ev.put(std::move(oc_clct_all), "All");
-  }
   if (savePreTriggers_) {
     ev.put(std::move(oc_alctpretrigger));
     ev.put(std::move(oc_clctpretrigger));

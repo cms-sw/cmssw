@@ -1,5 +1,5 @@
-#ifndef PixelUnpackingRegions_H
-#define PixelUnpackingRegions_H
+#ifndef EventFilter_SiPixelRawToDigi_interface_PixelUnpackingRegions_h
+#define EventFilter_SiPixelRawToDigi_interface_PixelUnpackingRegions_h
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -126,4 +126,4 @@ private:
   edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
 };
 
-#endif
+#endif  // EventFilter_SiPixelRawToDigi_interface_PixelUnpackingRegions_h

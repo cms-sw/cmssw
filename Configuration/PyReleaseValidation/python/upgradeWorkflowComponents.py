@@ -545,8 +545,12 @@ upgradeWFs['PatatrackHCALOnlyGPU'] = PatatrackWorkflow(
 
 class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Digi' in step and 'Trigger' not in step:
-            stepDict[stepName][k] = merge([{'-s': 'DIGI,L1,DIGI2RAW,HLT:@relval2021', '--datatier':'GEN-SIM-DIGI-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
+        if 'GenSimHLBeamSpot14' in step:
+            stepDict[stepName][k] = merge([{'--eventcontent': 'RAWSIM', '--datatier': 'GEN-SIM'},stepDict[step][k]])
+        elif 'Digi' in step and 'Trigger' not in step:
+            stepDict[stepName][k] = merge([{'-s': 'DIGI,L1,DIGI2RAW,HLT:@relval2021', '--datatier':'GEN-SIM-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
+        elif 'DigiTrigger' in step: # for Phase-2
+            stepDict[stepName][k] = merge([{'-s': 'DIGI,L1TrackTrigger,L1,DIGI2RAW,HLT:@fake2', '--datatier':'GEN-SIM-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
         elif 'Reco' in step:
             stepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'AODSIM', '--eventcontent':'AODSIM'}, stepDict[step][k]])
         elif 'MiniAOD' in step:
@@ -561,7 +565,9 @@ class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
         return fragment=="TTbar_14TeV" and ('2026' in key or '2021' in key)
 upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
     steps = [
+        'GenSimHLBeamSpot14',
         'Digi',
+        'DigiTrigger',
         'Reco',
         'RecoGlobal',
         'HARVEST',
@@ -571,7 +577,9 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
         'Nano',
     ],
     PU = [
+        'GenSimHLBeamSpot14',
         'Digi',
+        'DigiTrigger',
         'Reco',
         'RecoGlobal',
         'HARVEST',
@@ -779,6 +787,8 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
                 },
                 stepDict[stepName][k]
             ])
+            if "ProdLike" in self.suffix:
+                stepDict[stepNamePmx][k] = merge([{'-s': 'GEN,SIM,DIGI'},stepDict[stepNamePmx][k]])
         # setup for stage 2
         elif "Digi" in step or "Reco" in step:
             # go back to non-PU step version
@@ -906,6 +916,19 @@ class UpgradeWorkflowPremixProdLike(UpgradeWorkflowPremix,UpgradeWorkflow_ProdLi
         # copy steps, then apply specializations
         UpgradeWorkflowPremix.setup_(self, step, stepName, stepDict, k, properties)
         UpgradeWorkflow_ProdLike.setup_(self, step, stepName, stepDict, k, properties)
+        #
+        if 'Digi' in step:
+            d = merge([stepDict[self.getStepName(step)][k]])
+            tmpsteps = []
+            for s in d["-s"].split(","):
+                if "DIGI:pdigi_valid" in s:
+                    tmpsteps.append("DIGI")
+                else:
+                    tmpsteps.append(s)
+            d = merge([{"-s" : ",".join(tmpsteps),
+                        "--eventcontent": "PREMIXRAW"},
+                       d])
+            stepDict[stepName][k] = d
     def condition(self, fragment, stepList, key, hasHarvest):
         # use both conditions
         return UpgradeWorkflowPremix.condition(self, fragment, stepList, key, hasHarvest) and UpgradeWorkflow_ProdLike.condition(self, fragment, stepList, key, hasHarvest)

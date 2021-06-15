@@ -54,10 +54,10 @@ void SCRegressionCalculator<VarCalc>::update(const edm::EventSetup& es) {
     gbr_record = &gbrfrom_es;
     gbr_record->get(eb_corr_name.c_str(), eb_corr);
     gbr_record->get(ee_corr_name.c_str(), ee_corr);
-    if (eb_err_name.size()) {
+    if (!eb_err_name.empty()) {
       gbr_record->get(eb_err_name.c_str(), eb_err);
     }
-    if (ee_err_name.size()) {
+    if (!ee_err_name.empty()) {
       gbr_record->get(ee_err_name.c_str(), ee_err);
     }
   }

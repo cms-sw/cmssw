@@ -1,5 +1,8 @@
 <library name="RecoLocalTrackerSiStripClusterizerTestPlugins" file="*.cc">
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="CommonTools/Utils"/>
   <use name="RecoLocalTracker/SiStripClusterizer"/>
   <use name="SimTracker/TrackerHitAssociation"/>
+  <use name="CalibTracker/SiStripCommon"/>
   <flags EDM_PLUGIN="1"/>
 </library>

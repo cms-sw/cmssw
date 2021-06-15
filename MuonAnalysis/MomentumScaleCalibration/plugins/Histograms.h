@@ -28,10 +28,12 @@
 #include "TCanvas.h"
 
 #include "TLorentzVector.h"
-#include <vector>
-#include <string>
-#include <iostream>
+#include <memory>
+
 #include "TMath.h"
+#include <iostream>
+#include <string>
+#include <vector>
 
 class Histograms {
 public:
@@ -2288,8 +2290,8 @@ public:
     }
 
     // single particles histograms
-    muMinus.reset(new HDelta("muMinus"));
-    muPlus.reset(new HDelta("muPlus"));
+    muMinus = std::make_unique<HDelta>("muMinus");
+    muPlus = std::make_unique<HDelta>("muPlus");
   }
 
   ~HMassResolutionVSPart() override {

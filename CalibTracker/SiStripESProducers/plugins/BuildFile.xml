@@ -2,6 +2,7 @@
   <use name="CalibTracker/Records"/>
   <use name="CalibTracker/SiStripESProducers"/>
   <use name="CondCore/DBOutputService"/>
+  <use name="Geometry/TrackerNumberingBuilder"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 

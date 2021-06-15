@@ -35,6 +35,7 @@ protected:
   edm::InputTag _tag2;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tok1;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tok2;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   //	tmp flags
   bool _skip1x1;

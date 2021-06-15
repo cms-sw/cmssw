@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
 import RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmics_cfi
-
 def makeSimpleCosmicSeedLayers(*layers):
     layerList = cms.vstring()
     if 'ALL' in layers: 

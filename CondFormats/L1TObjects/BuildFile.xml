@@ -7,7 +7,6 @@
 <use name="DataFormats/L1GlobalTrigger"/>
 <use name="CondFormats/External"/>
 <use name="DataFormats/L1CaloTrigger"/>
-<use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <export>
   <lib name="1"/>

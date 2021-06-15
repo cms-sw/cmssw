@@ -10,7 +10,7 @@ def create_vfe(process,
         ):
     producer = process.hgcalVFEProducer.clone(
         ProcessorParameters = vfe_proc.clone(
-            linearizationCfg_si = linearization_sc,
+            linearizationCfg_si = linearization_si,
             linearizationCfg_sc = linearization_sc,
             compressionCfg_ldm = compression_ldm,
             compressionCfg_hdm = compression_hdm,

@@ -56,7 +56,7 @@ options.register ('myseed',
                   "seed number")
 
 options.register ('myfile',
-                  'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_6_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_106X_mc2017_realistic_v6_HS-v1/10000/44690279-DDF3-0D43-B92D-F5CB57EF7E6A.root', # default value
+                  '/store/relval/CMSSW_10_6_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_106X_mc2017_realistic_v6_HS-v1/10000/44690279-DDF3-0D43-B92D-F5CB57EF7E6A.root', # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "file name")

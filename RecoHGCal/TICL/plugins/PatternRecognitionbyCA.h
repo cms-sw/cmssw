@@ -4,10 +4,9 @@
 #ifndef __RecoHGCal_TICL_PRbyCA_H__
 #define __RecoHGCal_TICL_PRbyCA_H__
 #include <memory>  // unique_ptr
-#include "RecoHGCal/TICL/plugins/PatternRecognitionAlgoBase.h"
+#include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "HGCGraph.h"
 
 namespace ticl {
@@ -25,6 +24,8 @@ namespace ticl {
     void emptyTrackstersFromSeedsTRK(std::vector<Trackster>& tracksters,
                                      std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation,
                                      const edm::ProductID& collectionID) const;
+
+    static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
   private:
     void mergeTrackstersTRK(const std::vector<Trackster>&,

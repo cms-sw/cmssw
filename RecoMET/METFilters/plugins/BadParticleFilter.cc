@@ -212,7 +212,7 @@ bool BadParticleFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm:
 
   bool pass = !foundBadCandidate;
 
-  iEvent.put(std::unique_ptr<bool>(new bool(pass)));
+  iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass;
 }

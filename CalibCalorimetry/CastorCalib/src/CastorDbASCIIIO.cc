@@ -24,11 +24,10 @@ namespace CastorDbASCIIIO {
       if (first.isHcalDetId()) {
         HcalDetId f1(first);
         HcalDetId s1(second);
-        return f1.zside() != s1.zside()
-                   ? f1.zside() < s1.zside()
-                   : f1.iphi() != s1.iphi()
-                         ? f1.iphi() < s1.iphi()
-                         : f1.ietaAbs() != s1.ietaAbs() ? f1.ietaAbs() < s1.ietaAbs() : f1.depth() < s1.depth();
+        return f1.zside() != s1.zside()       ? f1.zside() < s1.zside()
+               : f1.iphi() != s1.iphi()       ? f1.iphi() < s1.iphi()
+               : f1.ietaAbs() != s1.ietaAbs() ? f1.ietaAbs() < s1.ietaAbs()
+                                              : f1.depth() < s1.depth();
       } else {
         return first.rawId() < second.rawId();
       }
@@ -39,12 +38,10 @@ namespace CastorDbASCIIIO {
     bool operator()(CastorElectronicsId first, CastorElectronicsId second) const {
       return first.readoutVMECrateId() != second.readoutVMECrateId()
                  ? first.readoutVMECrateId() < second.readoutVMECrateId()
-                 : first.htrSlot() != second.htrSlot()
-                       ? first.htrSlot() < second.htrSlot()
-                       : first.htrTopBottom() != second.htrTopBottom()
-                             ? first.htrTopBottom() < second.htrTopBottom()
-                             : first.fiberIndex() != second.fiberIndex() ? first.fiberIndex() < second.fiberIndex()
-                                                                         : first.fiberChanId() < second.fiberChanId();
+             : first.htrSlot() != second.htrSlot()           ? first.htrSlot() < second.htrSlot()
+             : first.htrTopBottom() != second.htrTopBottom() ? first.htrTopBottom() < second.htrTopBottom()
+             : first.fiberIndex() != second.fiberIndex()     ? first.fiberIndex() < second.fiberIndex()
+                                                             : first.fiberChanId() < second.fiberChanId();
     }
   };
 

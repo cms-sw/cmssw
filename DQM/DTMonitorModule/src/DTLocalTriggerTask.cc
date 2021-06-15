@@ -15,7 +15,6 @@
 
 // Geometry
 #include "DataFormats/GeometryVector/interface/Pi.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
@@ -32,7 +31,9 @@ using namespace edm;
 using namespace std;
 
 DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps)
-    : trigGeomUtils(nullptr), isLocalRun(ps.getUntrackedParameter<bool>("localrun", true)) {
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      trigGeomUtils(nullptr),
+      isLocalRun(ps.getUntrackedParameter<bool>("localrun", true)) {
   if (!isLocalRun) {
     ltcDigiCollectionToken_ = consumes<LTCDigiCollection>(ps.getParameter<edm::InputTag>("ltcDigiCollectionTag"));
   }
@@ -71,7 +72,7 @@ DTLocalTriggerTask::~DTLocalTriggerTask() {
 
 void DTLocalTriggerTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
   nevents = 0;
-  context.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &context.getData(muonGeomToken_);
   trigGeomUtils = new DTTrigGeomUtils(muonGeom);
 }
 

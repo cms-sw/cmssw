@@ -25,6 +25,9 @@
 #include "SimG4CMS/Forward/interface/CastorShowerLibrary.h"
 #include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
 #include "SimDataFormats/CaloHit/interface/CastorShowerEvent.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
 #include "G4LogicalVolume.hh"
 
 class CastorSD : public CaloSD {

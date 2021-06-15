@@ -34,6 +34,7 @@ protected:
   edm::InputTag _tagHBHE2;
   edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE1;
   edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE2;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   //	emap+hashmap
   hcaldqm::electronicsmap::ElectronicsMap _ehashmapuTCA;

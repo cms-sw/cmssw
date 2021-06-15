@@ -15,13 +15,9 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <vector>
 #include <map>
-
-namespace edm {
-  class ParameterSet;
-}
 
 class CSCReadoutMapping {
 public:
@@ -89,11 +85,6 @@ public:
     *  endcap = 1 (+z), 2 (-z), station, vme crate number, dmb slot number, tmb slot number.
     */
   int chamber(int endcap, int station, int vmecrate, int dmb, int tmb) const;
-
-  /** 
-    * Fill mapping store
-    */
-  virtual void fill(const edm::ParameterSet&) = 0;
 
   ///returns hardware ids given chamber id
   CSCLabel findHardwareId(const CSCDetId&) const;

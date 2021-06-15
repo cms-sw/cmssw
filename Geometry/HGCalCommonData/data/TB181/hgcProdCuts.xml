@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition>
 
 <SpecParSection label="hgcProdCuts.xml" eval="true">
   <SpecPar name="hgcProdCuts">
@@ -7,7 +7,7 @@
     <PartSelector path="//HGCalHE"/>
     <Parameter name="CMSCutsRegion" value="HGCalRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="0.03*mm"/>
-<Parameter name="ProdCutsForProtons" value="0.03*mm"/>
+    <Parameter name="ProdCutsForProtons" value="0.03*mm"/>
     <Parameter name="ProdCutsForPositrons" value="0.03*mm"/>
     <Parameter name="ProdCutsForGamma" value="0.03*mm"/>
   </SpecPar>

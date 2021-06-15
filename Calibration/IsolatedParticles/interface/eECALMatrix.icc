@@ -101,7 +101,7 @@ namespace spr {
         if (thisDet != DetId(0)) {
           std::vector<typename T::const_iterator> hit;
           spr::findHit(hits, thisDet, hit, debug);
-          if (debug && hit.size() > 0) {
+          if (debug && !hit.empty()) {
             if (thisDet.subdetId() == EcalBarrel) {
               EBDetId id = thisDet;
               std::cout << "hitECALmatrix::Cell 0x" << std::hex << thisDet() << std::dec << " " << id;
@@ -119,7 +119,7 @@ namespace spr {
                 std::cout << " hit " << ihit << " " << hit[ihit]->energy();
             }
           }
-          if (debug && hit.size() > 0)
+          if (debug && !hit.empty())
             std::cout << std::endl;
         }
 

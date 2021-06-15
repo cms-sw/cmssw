@@ -1,36 +1,84 @@
-#include "RecoEcal/EgammaClusterProducers/interface/PFECALSuperClusterProducer.h"
+/**\class PFECALSuperClusterProducer 
 
-#include <memory>
-
-#include "RecoEcal/EgammaClusterAlgos/interface/PFECALSuperClusterAlgo.h"
-#include "RecoEcal/EgammaClusterAlgos/interface/SCEnergyCorrectorSemiParm.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+\author Nicolas Chanon
+Additional authors for Mustache: Y. Gershtein, R. Patel, L. Gray
+\date   July 2012
+*/
 
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "CondFormats/GBRForest/interface/GBRForest.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/PFECALSuperClusterAlgo.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/SCEnergyCorrectorSemiParm.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "TVector2.h"
-#include "DataFormats/Math/interface/deltaR.h"
+
+#include <memory>
+#include <vector>
+
+class PFECALSuperClusterProducer : public edm::stream::EDProducer<> {
+public:
+  explicit PFECALSuperClusterProducer(const edm::ParameterSet&);
+  ~PFECALSuperClusterProducer() override;
+
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  // ----------member data ---------------------------
+
+  /// clustering algorithm
+  PFECALSuperClusterAlgo superClusterAlgo_;
+  PFECALSuperClusterAlgo::clustering_type _theclusteringtype;
+  PFECALSuperClusterAlgo::energy_weight _theenergyweight;
+
+  std::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_;
+
+  /// verbose ?
+  bool verbose_;
+
+  std::string PFBasicClusterCollectionBarrel_;
+  std::string PFSuperClusterCollectionBarrel_;
+  std::string PFBasicClusterCollectionEndcap_;
+  std::string PFSuperClusterCollectionEndcap_;
+  std::string PFBasicClusterCollectionPreshower_;
+  std::string PFSuperClusterCollectionEndcapWithPreshower_;
+  std::string PFClusterAssociationEBEE_;
+  std::string PFClusterAssociationES_;
+
+  // OOT photons
+  bool isOOTCollection_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFECALSuperClusterProducer);
 
 using namespace std;
 using namespace edm;
