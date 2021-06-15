@@ -56,7 +56,7 @@
 class HGCalWaferValidation : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalWaferValidation(const edm::ParameterSet&);
-  ~HGCalWaferValidation();
+  ~HGCalWaferValidation() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -66,9 +66,9 @@ private:
 
   std::string strWaferCoord(const WaferCoord& coord);
 
-  bool DDFindHGCal(DDCompactView::GraphWalker & walker, std::string targetName);
-  void DDFindWafers(DDCompactView::GraphWalker & walker);
-  void ProcessWaferLayer(DDCompactView::GraphWalker & walker);
+  bool DDFindHGCal(DDCompactView::GraphWalker& walker, std::string targetName);
+  void DDFindWafers(DDCompactView::GraphWalker& walker);
+  void ProcessWaferLayer(DDCompactView::GraphWalker& walker);
 
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -109,7 +109,7 @@ private:
 // constructors and destructor
 //
 HGCalWaferValidation::HGCalWaferValidation(const edm::ParameterSet& iConfig)
- : geometryFileName_(iConfig.getParameter<edm::FileInPath>("GeometryFileName")) {
+    : geometryFileName_(iConfig.getParameter<edm::FileInPath>("GeometryFileName")) {
   viewToken_ = esConsumes<DDCompactView, IdealGeometryRecord>();
   //now do what ever initialization is needed
 }
@@ -133,7 +133,7 @@ std::string HGCalWaferValidation::strWaferCoord(const WaferCoord& coord) {
 }
 
 // ----- find HGCal entry among the DD -----
-bool HGCalWaferValidation::DDFindHGCal(DDCompactView::GraphWalker & walker, std::string targetName) {
+bool HGCalWaferValidation::DDFindHGCal(DDCompactView::GraphWalker& walker, std::string targetName) {
   if (walker.current().first.name().name() == targetName) {
     // target found
     return true;
@@ -150,7 +150,7 @@ bool HGCalWaferValidation::DDFindHGCal(DDCompactView::GraphWalker & walker, std:
 }
 
 // ----- find the next wafer, then process the wafer layer -----
-void HGCalWaferValidation::DDFindWafers(DDCompactView::GraphWalker & walker) {
+void HGCalWaferValidation::DDFindWafers(DDCompactView::GraphWalker& walker) {
   if (walker.current().first.name().fullname().rfind("hgcalwafer:", 0) == 0) {
     // first wafer found. Now process the entire layer of wafers.
     ProcessWaferLayer(walker);
@@ -165,8 +165,8 @@ void HGCalWaferValidation::DDFindWafers(DDCompactView::GraphWalker & walker) {
 }
 
 // ----- process the layer of wafers -----
-void HGCalWaferValidation::ProcessWaferLayer(DDCompactView::GraphWalker & walker) {
-  static int waferLayer = 0;    // layer numbers in DD are assumed to be sequential from 1
+void HGCalWaferValidation::ProcessWaferLayer(DDCompactView::GraphWalker& walker) {
+  static int waferLayer = 0;  // layer numbers in DD are assumed to be sequential from 1
   waferLayer++;
   std::cout << "ProcessWaferLayer: Processing layer " << waferLayer << std::endl;
   do {
@@ -178,17 +178,17 @@ void HGCalWaferValidation::ProcessWaferLayer(DDCompactView::GraphWalker & walker
       const int waferType = HGCalTypes::getUnpackedType(copyNo);
       const int waferU = HGCalTypes::getUnpackedU(copyNo);
       const int waferV = HGCalTypes::getUnpackedV(copyNo);
-      const WaferCoord waferCoord(waferLayer, waferU, waferV);    // map index
+      const WaferCoord waferCoord(waferLayer, waferU, waferV);  // map index
       // build struct of DD wafer properties
       struct WaferInfo waferInfo;
       waferInfo.thickClass = waferType;
       waferInfo.x = wafer.second->translation().x();
       waferInfo.y = wafer.second->translation().y();
       const std::string waferNameData =
-        std::regex_replace(waferName,
-                           std::regex("(HGCal[EH]E)(Wafer[01])(Fine|Coarse[12])([a-z]*)([0-9]*)"),
-                           "$1 $2-$3 $4 $5",
-                           std::regex_constants::format_no_copy);
+          std::regex_replace(waferName,
+                             std::regex("(HGCal[EH]E)(Wafer[01])(Fine|Coarse[12])([a-z]*)([0-9]*)"),
+                             "$1 $2-$3 $4 $5",
+                             std::regex_constants::format_no_copy);
       std::stringstream ss(waferNameData);
       std::string EEorHE;
       std::string typeStr;
@@ -196,9 +196,9 @@ void HGCalWaferValidation::ProcessWaferLayer(DDCompactView::GraphWalker & walker
       std::string rotStr;
       ss >> EEorHE >> typeStr >> shapeStr >> rotStr;
       // assume rotational symmetry of full-sized wafers
-      if (shapeStr == "")
+      if (shapeStr.empty())
         shapeStr = "F";
-      if (rotStr == "")
+      if (rotStr.empty())
         rotStr = "0";
       const int rotCode(std::stoi(rotStr));
       //std::cout << "rotStr " << rotStr << " rotCode " << rotCode << std::endl;
@@ -233,8 +233,7 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     std::cout << "HGCalEE found!" << std::endl;
     std::cout << "name     = " << eeWalker.current().first.name().name() << std::endl;
     std::cout << "fullname = " << eeWalker.current().first.name().fullname() << std::endl;
-  }
-  else {
+  } else {
     std::cout << "HGCalEE not found!" << std::endl;
   }
   std::cout << std::endl;
@@ -246,8 +245,7 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     std::cout << "HGCalHEsil found!" << std::endl;
     std::cout << "name     = " << hesilWalker.current().first.name().name() << std::endl;
     std::cout << "fullname = " << hesilWalker.current().first.name().fullname() << std::endl;
-  }
-  else {
+  } else {
     std::cout << "HGCalHEsil not found!" << std::endl;
   }
   std::cout << std::endl;
@@ -259,8 +257,7 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     std::cout << "HGCalHEmix found!" << std::endl;
     std::cout << "name     = " << hemixWalker.current().first.name().name() << std::endl;
     std::cout << "fullname = " << hemixWalker.current().first.name().fullname() << std::endl;
-  }
-  else {
+  } else {
     std::cout << "HGCalHEmix not found!" << std::endl;
   }
   std::cout << std::endl;
@@ -315,7 +312,7 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     std::stringstream ss(buf);
     std::vector<std::string> tokens;
     while (ss >> buf)
-      if (buf.size() > 0)
+      if (!buf.empty())
         tokens.push_back(buf);
     if (tokens.size() != 8)
       continue;
@@ -346,20 +343,19 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     const struct WaferInfo waferInfo = waferData[waferCoord];
     waferValidated[waferCoord] = true;
 
-    if ((waferInfo.thickClass == 0 && waferThickness != 120) ||
-        (waferInfo.thickClass == 1 && waferThickness != 200) ||
+    if ((waferInfo.thickClass == 0 && waferThickness != 120) || (waferInfo.thickClass == 1 && waferThickness != 200) ||
         (waferInfo.thickClass == 2 && waferThickness != 300)) {
       nThicknessError++;
       std::cout << "THICKNESS ERROR: " << strWaferCoord(waferCoord) << std::endl;
     }
 
     // it seems that wafer x-coords relative to their layer plane are mirrored...
-    if (fabs(-waferInfo.x - waferX) > 0.015) {       // assuming this much tolerance
+    if (fabs(-waferInfo.x - waferX) > 0.015) {  // assuming this much tolerance
       nPosXError++;
       std::cout << "POSITION x ERROR: " << strWaferCoord(waferCoord) << std::endl;
     }
 
-    if (fabs(waferInfo.y - waferY) > 0.015) {        // assuming this much tolerance
+    if (fabs(waferInfo.y - waferY) > 0.015) {  // assuming this much tolerance
       nPosYError++;
       std::cout << "POSITION y ERROR: " << strWaferCoord(waferCoord) << std::endl;
     }
@@ -369,17 +365,18 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       std::cout << "SHAPE ERROR: " << strWaferCoord(waferCoord) << std::endl;
     }
 
-    if ((waferShapeCode != 'F' && waferInfo.rotCode != waferRotCode)
-        || (waferShapeCode == 'F' && (waferInfo.rotCode % 2 != waferRotCode % 2))) {
+    if ((waferShapeCode != 'F' && waferInfo.rotCode != waferRotCode) ||
+        (waferShapeCode == 'F' && (waferInfo.rotCode % 2 != waferRotCode % 2))) {
       nRotError++;
-      std::cout << "ROTATION ERROR: " << strWaferCoord(waferCoord) << "  ( " << waferInfo.rotCode << " != " << waferRotCode << " )" << std::endl;
+      std::cout << "ROTATION ERROR: " << strWaferCoord(waferCoord) << "  ( " << waferInfo.rotCode
+                << " != " << waferRotCode << " )" << std::endl;
     }
   }
 
   geoTxtFile.close();
 
   // Find unaccounted DD wafers
-  for ( auto const& accounted : waferValidated ) {
+  for (auto const& accounted : waferValidated) {
     if (!accounted.second) {
       nUnaccounted++;
       std::cout << "UNACCOUNTED: " << strWaferCoord(accounted.first) << std::endl;
