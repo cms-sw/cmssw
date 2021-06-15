@@ -29,7 +29,7 @@ namespace HcalDbXml {
                   unsigned long fGMTIOVEnd,
                   const std::string& fTag,
                   const HcalPedestals& fObject);
-  bool dumpObject(std::ostream& fOutput,
+  inline bool dumpObject(std::ostream& fOutput,
                   unsigned fRun,
                   unsigned long fGMTIOVBegin,
                   unsigned long fGMTIOVEnd,
