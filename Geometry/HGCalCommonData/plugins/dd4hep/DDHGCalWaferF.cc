@@ -25,10 +25,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   const auto& thick = args.value<double>("ModuleThickness");
   const auto& waferSize = args.value<double>("WaferSize");
   const auto& waferSepar = args.value<double>("SensorSeparation");
+  const auto& waferThick = args.value<double>("WaferThickness");
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Module " << motherName << " made of " << material << " T "
                                 << cms::convert2mm(thick) << " Wafer 2r " << cms::convert2mm(waferSize)
-                                << " Half Separation " << cms::convert2mm(waferSepar);
+                                << " Half Separation " << cms::convert2mm(waferSepar) << " T "
+                                << cms::convert2mm(waferThick);
 #endif
   const auto& layerNames = args.value<std::vector<std::string>>("LayerNames");
   const auto& materials = args.value<std::vector<std::string>>("LayerMaterials");
@@ -99,8 +101,13 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   for (unsigned int l = 0; l < layers.size(); l++) {
     unsigned int i = layers[l];
     if (copyNumber[i] == 1) {
-      zw[0] = -0.5 * layerThick[i];
-      zw[1] = 0.5 * layerThick[i];
+      if (layerType[i] > 0) {
+        zw[0] = -0.5 * waferThick;
+        zw[1] = 0.5 * waferThick;
+      } else {
+        zw[0] = -0.5 * layerThick[i];
+        zw[1] = 0.5 * layerThick[i];
+      }
       solid = dd4hep::ExtrudedPolygon(xL, yL, zw, zx, zy, scale);
       ns.addSolidNS(ns.prepend(layerNames[i]), solid);
       matter = ns.material(materials[i]);

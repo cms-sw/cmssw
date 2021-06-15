@@ -18,7 +18,7 @@
 //  debug     (int)          Three digit integer to set debug for each
 //                           of the outputs
 //
-//  HGCalConvert 2 infile outfile laymin debug
+//  HGCalConvert 2 infile outfile1 outfile2 laymin debug
 //  infile   (const char*)   Input file from Katya (modified by Chris)
 //                           containing layer #. ring #, start and end
 //                           of ring radius, SiPM size, 4 hexadecimal
@@ -173,8 +173,8 @@ int main(int argc, char* argv[]) {
   } else {
     const char* outfile1 = argv[3];
     const char* outfile2 = argv[4];
-    int laymin = atoi(argv[4]);
-    int debug = atoi(argv[5]);
+    int laymin = atoi(argv[5]);
+    int debug = atoi(argv[6]);
     std::cout << "Calls ConvertScintillator for i/p file " << infile << " o/p files " << outfile1 << ":" << outfile2
               << " Laymin " << laymin << " Debug " << debug << std::endl;
     ConvertScintillator c1(laymin);
@@ -349,7 +349,9 @@ void ConvertSiliconV1::convert(
     //First read in all records
     char buffer[1024];
     std::string thick[4] = {"h120", "l200", "l300", "h200"};
-    int addType[4] = {10, 20, 20, 10};
+    int addType[4] = {0, 1, 2, 0};
+    int partTypeH[6] = {0, 8, 3, 6, 6, 9};
+    int partTypeL[7] = {0, 4, 4, 5, 5, 1, 7};
     std::map<int, wafer> module1, module2, module3;
     unsigned int all(0), comments(0), others(0), bad(0), good(0);
     int layers(0);
@@ -390,8 +392,12 @@ void ConvertSiliconV1::convert(
           int waferV = std::atoi(items[7].c_str());
           int thck = static_cast<int>(std::find(thick, thick + 4, items[2]) - thick);
           int part = std::atoi(items[1].c_str());
-          if ((thck < 4) && (part > 0))
-            part += addType[thck];
+          if ((thck < 4) && (part >= 0)) {
+            if (addType[thck] == 0)
+              part = partTypeH[part];
+            else
+              part = partTypeL[part];
+          }
           int orient = std::atoi(items[5].c_str());
           wafer waf(thck, part, orient);
           if (layer <= layMax1_) {
