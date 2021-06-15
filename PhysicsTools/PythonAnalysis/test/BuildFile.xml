@@ -42,8 +42,6 @@
 <test name="import-argparse" command="python3 -c 'import argparse'"/>
 <test name="import-autopep8" command="python3 -c 'import autopep8'"/>
 <test name="import-avro" command="python3 -c 'import avro'"/>
-<test name="import-backports.lzma" command="python3 -c 'import backports.lzma'"/>
-<test name="import-backports.ssl_match_hostname" command="python3 -c 'import backports.ssl_match_hostname'"/>
 <test name="import-bleach" command="python3 -c 'import bleach'"/>
 <test name="import-bottleneck" command="python3 -c 'import bottleneck'"/>
 <test name="import-certifi" command="python3 -c 'import certifi'"/>
@@ -120,7 +118,6 @@
 <test name="import-scipy" command="python3 -c 'import scipy'"/>
 <test name="import-seaborn" command="python3 -c 'import seaborn'"/>
 <test name="import-send2trash" command="python3 -c 'import send2trash'"/>
-<test name="import-backports.shutil_get_terminal_size" command="python3 -c 'import backports.shutil_get_terminal_size'"/>
 <test name="import-simplegeneric" command="python3 -c 'import simplegeneric'"/>
 <test name="import-singledispatch" command="python3 -c 'import singledispatch'"/>
 <test name="import-six" command="python3 -c 'import six'"/>
