@@ -413,7 +413,7 @@ void HGCalWaferValidation::fillDescriptions(edm::ConfigurationDescriptions& desc
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.add<edm::FileInPath>("GeometryFileName");
+  desc.add<edm::FileInPath>("GeometryFileName", edm::FileInPath("Validation/HGCalValidation/data/geomnew_corrected_360.txt"));
   descriptions.add("hgcalWaferValidation", desc);
 }
 
