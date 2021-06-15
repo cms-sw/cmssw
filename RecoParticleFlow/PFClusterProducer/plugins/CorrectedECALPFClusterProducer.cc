@@ -44,16 +44,16 @@ namespace {
 class CorrectedECALPFClusterProducer : public edm::stream::EDProducer<> {
 public:
   CorrectedECALPFClusterProducer(const edm::ParameterSet& conf)
-      : _minimumPSEnergy(conf.getParameter<double>("minimumPSEnergy")), _skipPS(conf.getParameter<bool>("skipPS")) {
+      : minimumPSEnergy_(conf.getParameter<double>("minimumPSEnergy")), skipPS_(conf.getParameter<bool>("skipPS")) {
     const edm::InputTag& inputECAL = conf.getParameter<edm::InputTag>("inputECAL");
-    _inputECAL = consumes<reco::PFClusterCollection>(inputECAL);
+    inputECAL_ = consumes<reco::PFClusterCollection>(inputECAL);
 
     const edm::InputTag& inputPS = conf.getParameter<edm::InputTag>("inputPS");
-    if (!_skipPS)
-      _inputPS = consumes<reco::PFClusterCollection>(inputPS);
+    if (!skipPS_)
+      inputPS_ = consumes<reco::PFClusterCollection>(inputPS);
 
     const edm::ParameterSet& corConf = conf.getParameterSet("energyCorrector");
-    _corrector = std::make_unique<PFClusterEMEnergyCorrector>(corConf, consumesCollector());
+    corrector_ = std::make_unique<PFClusterEMEnergyCorrector>(corConf, consumesCollector());
 
     produces<reco::PFCluster::EEtoPSAssociation>();
     produces<reco::PFClusterCollection>();
@@ -63,11 +63,11 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  const double _minimumPSEnergy;
-  const bool _skipPS;
-  std::unique_ptr<PFClusterEMEnergyCorrector> _corrector;
-  edm::EDGetTokenT<reco::PFClusterCollection> _inputECAL;
-  edm::EDGetTokenT<reco::PFClusterCollection> _inputPS;
+  const double minimumPSEnergy_;
+  const bool skipPS_;
+  std::unique_ptr<PFClusterEMEnergyCorrector> corrector_;
+  edm::EDGetTokenT<reco::PFClusterCollection> inputECAL_;
+  edm::EDGetTokenT<reco::PFClusterCollection> inputPS_;
 };
 
 DEFINE_FWK_MODULE(CorrectedECALPFClusterProducer);
@@ -77,10 +77,10 @@ void CorrectedECALPFClusterProducer::produce(edm::Event& e, const edm::EventSetu
   auto association_out = std::make_unique<reco::PFCluster::EEtoPSAssociation>();
 
   edm::Handle<reco::PFClusterCollection> handleECAL;
-  e.getByToken(_inputECAL, handleECAL);
+  e.getByToken(inputECAL_, handleECAL);
   edm::Handle<reco::PFClusterCollection> handlePS;
-  if (!_skipPS)
-    e.getByToken(_inputPS, handlePS);
+  if (!skipPS_)
+    e.getByToken(inputPS_, handlePS);
 
   auto const& ecals = *handleECAL;
 
@@ -89,7 +89,7 @@ void CorrectedECALPFClusterProducer::produce(edm::Event& e, const edm::EventSetu
   clusters_out->insert(clusters_out->end(), ecals.begin(), ecals.end());
 
   //build the EE->PS association
-  if (!_skipPS) {
+  if (!skipPS_) {
     auto const& pss = *handlePS;
     for (unsigned i = 0; i < pss.size(); ++i) {
       switch (pss[i].layer()) {  // just in case this isn't the ES...
@@ -99,7 +99,7 @@ void CorrectedECALPFClusterProducer::produce(edm::Event& e, const edm::EventSetu
         default:
           continue;
       }
-      if (pss[i].energy() < _minimumPSEnergy)
+      if (pss[i].energy() < minimumPSEnergy_)
         continue;
       int eematch = -1;
       auto min_dist = std::numeric_limits<double>::max();
@@ -122,7 +122,7 @@ void CorrectedECALPFClusterProducer::produce(edm::Event& e, const edm::EventSetu
   }
   std::sort(association_out->begin(), association_out->end(), sortByKey);
 
-  _corrector->correctEnergies(e, es, *association_out, *clusters_out);
+  corrector_->correctEnergies(e, es, *association_out, *clusters_out);
 
   association_out->shrink_to_fit();
 
