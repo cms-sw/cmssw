@@ -270,8 +270,8 @@ def nanoAOD_recalibrateMETs(process,isData):
         process.patJetsPuppi.addGenPartonMatch = cms.bool(False)
         process.patJetsPuppi.addGenJetMatch = cms.bool(False)
     
-    runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi", recoMetFromPFCs=bool(nanoAOD_PuppiV15_switch.recoMetFromPFCs), reclusterJets=bool(nanoAOD_PuppiV15_switch.reclusterJets))
-    process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(process.jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
+    (~run2_nanoAOD_106Xv2).toModify(runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi", recoMetFromPFCs=bool(nanoAOD_PuppiV15_switch.recoMetFromPFCs), reclusterJets=bool(nanoAOD_PuppiV15_switch.reclusterJets)))
+    (~run2_nanoAOD_106Xv2).toModify(process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(process.jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi)))
     return process
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
