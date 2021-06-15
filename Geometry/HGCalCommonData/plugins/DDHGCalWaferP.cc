@@ -36,6 +36,7 @@ private:
   double thick_;                         // Module thickness
   double waferSize_;                     // Wafer size
   double waferSepar_;                    // Sensor separation
+  double waferThick_;                    // Wafer thickness
   std::vector<std::string> tags_;        // Tags to be added to each name
   std::vector<int> partialTypes_;        // Type of partial wafer
   std::vector<int> orientations_;        // Orientations of the wafers
@@ -67,10 +68,12 @@ void DDHGCalWaferP::initialize(const DDNumericArguments& nArgs,
   material_ = sArgs["ModuleMaterial"];
   thick_ = nArgs["ModuleThickness"];
   waferSize_ = nArgs["WaferSize"];
-  waferSepar_ = nArgs["SensorSeparation"];
+  waferThick_ = nArgs["WaferThickness"];
 #ifdef EDM_ML_DEBUG
+  waferSepar_ = nArgs["SensorSeparation"];
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferP: Module " << parent().name() << " made of " << material_ << " T "
-                                << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_;
+                                << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_ << " T "
+                                << waferThick_;
 #endif
   tags_ = vsArgs["Tags"];
   partialTypes_ = dbl_to_int(vArgs["PartialTypes"]);
@@ -165,8 +168,13 @@ void DDHGCalWaferP::execute(DDCompactView& cpv) {
 #endif
       DDRotation rot;
       if (copyNumber[i] == 1) {
-        zw[0] = -0.5 * layerThick_[i];
-        zw[1] = 0.5 * layerThick_[i];
+        if (layerType_[i] > 0) {
+          zw[0] = -0.5 * waferThick_;
+          zw[1] = 0.5 * waferThick_;
+        } else {
+          zw[0] = -0.5 * layerThick_[i];
+          zw[1] = 0.5 * layerThick_[i];
+        }
         std::string lname = layerNames_[i] + tags_[k];
         solid = DDSolidFactory::extrudedpolygon(lname, xL, yL, zw, zx, zy, scale);
         DDName matN(DDSplit(materials_[i]).first, DDSplit(materials_[i]).second);
@@ -196,7 +204,7 @@ void DDHGCalWaferP::execute(DDCompactView& cpv) {
           for (unsigned int j = 0; j < xL.size(); ++j)
             edm::LogVerbatim("HGCalGeom") << "[" << j << "] " << xL[j] << ":" << yL[j];
 #endif
-          double zpos = (posSense_ == 0) ? -0.5 * (layerThick_[i] - senseT_) : 0.5 * (layerThick_[i] - senseT_);
+          double zpos = (posSense_ == 0) ? -0.5 * (waferThick_ - senseT_) : 0.5 * (waferThick_ - senseT_);
           DDTranslation tran(0, 0, zpos);
           int copy = 10 + senseType_;
           cpv.position(glog, glogs[i], copy, tran, rot);

@@ -25,11 +25,13 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   const auto& material = args.value<std::string>("ModuleMaterial");
   const auto& thick = args.value<double>("ModuleThickness");
   const auto& waferSize = args.value<double>("WaferSize");
+  const auto& waferThick = args.value<double>("WaferThickness");
 #ifdef EDM_ML_DEBUG
   const auto& waferSepar = args.value<double>("SensorSeparation");
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferP: Module " << parentName << " made of " << material << " T "
                                 << cms::convert2mm(thick) << " Wafer 2r " << cms::convert2mm(waferSize)
-                                << " Half Separation " << cms::convert2mm(waferSepar);
+                                << " Half Separation " << cms::convert2mm(waferSepar) << " T "
+                                << cms::convert2mm(waferThick);
 #endif
   const auto& tags = args.value<std::vector<std::string>>("Tags");
   const auto& partialTypes = args.value<std::vector<int>>("PartialTypes");
@@ -116,8 +118,13 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     for (unsigned int l = 0; l < layers.size(); l++) {
       unsigned int i = layers[l];
       if (copyNumber[i] == 1) {
-        zw[0] = -0.5 * layerThick[i];
-        zw[1] = 0.5 * layerThick[i];
+        if (layerType[i] > 0) {
+          zw[0] = -0.5 * waferThick;
+          zw[1] = 0.5 * waferThick;
+        } else {
+          zw[0] = -0.5 * layerThick[i];
+          zw[1] = 0.5 * layerThick[i];
+        }
         solid = dd4hep::ExtrudedPolygon(xL, yL, zw, zx, zy, scale);
         std::string lname = layerNames[i] + tags[k];
         ns.addSolidNS(ns.prepend(lname), solid);
@@ -154,7 +161,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         for (unsigned int j = 0; j < xL.size(); ++j)
           edm::LogVerbatim("HGCalGeom") << "[" << j << "] " << cms::convert2mm(xL[j]) << ":" << cms::convert2mm(yL[j]);
 #endif
-        double zpos = (posSense == 0) ? -0.5 * (layerThick[i] - senseT) : 0.5 * (layerThick[i] - senseT);
+        double zpos = (posSense == 0) ? -0.5 * (waferThick - senseT) : 0.5 * (waferThick - senseT);
         dd4hep::Position tran(0, 0, zpos);
         int copy = 10 + senseType;
         glogs[i].placeVolume(glog, copy, tran);
