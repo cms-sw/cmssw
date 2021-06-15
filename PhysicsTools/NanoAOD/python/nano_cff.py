@@ -417,12 +417,11 @@ def nanoAOD_customizeCommon(process):
                                      jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload)
     addTauIds_switch = cms.PSet(
         nanoAOD_addTauIds_switch = cms.untracked.bool(True),
-        nanoAOD_addBoostedTauIds_switch = cms.untracked.bool(False)
+        nanoAOD_addBoostedTauIds_switch = cms.untracked.bool(True)
     )
-    run2_miniAOD_80XLegacy.toModify(addTauIds_switch, nanoAOD_addTauIds_switch = False)
-    ((run2_nanoAOD_106Xv2 | run2_miniAOD_devel | run2_tau_ul_2016 | run2_tau_ul_2018) & \
-    (~(run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1))).toModify(addTauIds_switch,
-                                                                                                                                           nanoAOD_addTauIds_switch = False, nanoAOD_addBoostedTauIds_switch = True)
+    from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+    (run2_miniAOD_80XLegacy | run2_miniAOD_UL | run2_tau_ul_2016 | run2_tau_ul_2018).toModify(addTauIds_switch, nanoAOD_addTauIds_switch = False)
+    (run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(addTauIds_switch, nanoAOD_addBoostedTauIds_switch = False)
     if addTauIds_switch.nanoAOD_addTauIds_switch:
         process = nanoAOD_addTauIds(process)
     if addTauIds_switch.nanoAOD_addBoostedTauIds_switch:
