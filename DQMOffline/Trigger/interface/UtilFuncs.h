@@ -12,10 +12,10 @@
 
 namespace hltdqm {
   inline bool passTrig(const float objEta,
-                float objPhi,
-                const trigger::TriggerEvent& trigEvt,
-                const std::string& filterName,
-                const std::string& processName) {
+                       float objPhi,
+                       const trigger::TriggerEvent& trigEvt,
+                       const std::string& filterName,
+                       const std::string& processName) {
     constexpr float kMaxDR2 = 0.1 * 0.1;
 
     edm::InputTag filterTag(filterName, "", processName);
@@ -34,11 +34,11 @@ namespace hltdqm {
 
   //empty filters is auto pass
   inline bool passTrig(const float objEta,
-                float objPhi,
-                const trigger::TriggerEvent& trigEvt,
-                const std::vector<std::string>& filterNames,
-                bool orFilters,
-                const std::string& processName) {
+                       float objPhi,
+                       const trigger::TriggerEvent& trigEvt,
+                       const std::vector<std::string>& filterNames,
+                       bool orFilters,
+                       const std::string& processName) {
     if (orFilters) {
       if (filterNames.empty())
         return true;  //auto pass if empty filters
@@ -60,8 +60,8 @@ namespace hltdqm {
   //triggers are ORed together
   //empty pattern is auto pass
   inline bool passTrig(const std::string& trigPattern,
-                const edm::TriggerNames& trigNames,
-                const edm::TriggerResults& trigResults) {
+                       const edm::TriggerNames& trigNames,
+                       const edm::TriggerResults& trigResults) {
     if (trigPattern.empty())
       return true;
 
