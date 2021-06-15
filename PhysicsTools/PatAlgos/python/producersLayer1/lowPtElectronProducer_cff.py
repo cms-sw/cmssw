@@ -74,11 +74,13 @@ from Configuration.Eras.Modifier_bParking_cff import bParking
 
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSeedValueMaps_cff import rekeyLowPtGsfElectronSeedValueMaps
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cff import lowPtGsfElectronID
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cff import lowPtGsfElectrons
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cff import lowPtGsfElectrons,_lowPtGsfElectrons
+lowPtGsfElectronsTmp = lowPtGsfElectrons.clone()
 
 _makePatLowPtElectronsTask = makePatLowPtElectronsTask.copy()
 _makePatLowPtElectronsTask.add(rekeyLowPtGsfElectronSeedValueMaps)
 _makePatLowPtElectronsTask.add(lowPtGsfElectronID)
 (bParking | run2_miniAOD_UL).toReplaceWith(makePatLowPtElectronsTask,_makePatLowPtElectronsTask)
 ( (bParking & run2_miniAOD_UL) | (~bParking & run2_miniAOD_devel) ).toModify(
-    makePatLowPtElectronsTask, func = lambda t: t.add(lowPtGsfElectrons))
+    makePatLowPtElectronsTask, func = lambda t: t.add(lowPtGsfElectronsTmp))
+run2_miniAOD_UL.toReplaceWith(lowPtGsfElectronsTmp,_lowPtGsfElectrons)

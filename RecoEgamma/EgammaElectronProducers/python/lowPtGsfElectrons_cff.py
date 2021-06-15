@@ -51,5 +51,5 @@ _lowPtGsfElectrons = lowPtGsfElectronFinalizer.clone(
     regressionConfig = lowPtRegressionModifier,
 )
 
-from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-run2_miniAOD_UL.toReplaceWith(lowPtGsfElectrons,_lowPtGsfElectrons)
+#from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+#run2_miniAOD_UL.toReplaceWith(lowPtGsfElectrons,_lowPtGsfElectrons)
