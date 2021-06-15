@@ -8,7 +8,7 @@
 // ===============================================================================
 // Class declarations
 // ===============================================================================
-using namespace dtbayesam;
+// using namespace dtbayesam;
 
 class PseudoBayesGrouping : public MotherGrouping {
 public:
@@ -36,7 +36,7 @@ private:
   void RecognisePatternsByLayerPairs(DTChamberId chamber_ID);
   void RecognisePatterns(std::vector<DTPrimitive> digisinLDown,
                          std::vector<DTPrimitive> digisinLUp,
-                         DTPatternPtrs patterns);
+                         dtbayesam::DTPatternPtrs patterns);
   void ReCleanPatternsAndDigis();
   void FillMuonPaths(MuonPathPtrs& mpaths);
 
@@ -83,42 +83,42 @@ private:
 
   // One vector per MB and per shift of SL3 wrt SL1
   // shift = (0, 1, 2) --> (left, nothing, right)
-  DTPatternPtrs allPatterns_[4][3];
+  dtbayesam::DTPatternPtrs allPatterns_[4][3];
 
-  DTPatternPtrs L0L7Patterns_[4][3];
-  DTPatternPtrs L1L7Patterns_[4][3];
-  DTPatternPtrs L2L7Patterns_[4][3];
-  DTPatternPtrs L3L7Patterns_[4][3];
-  DTPatternPtrs L4L7Patterns_[4][3];
-  DTPatternPtrs L5L7Patterns_[4][3];
-  DTPatternPtrs L6L7Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L0L7Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L1L7Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L2L7Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L3L7Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L4L7Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L5L7Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L6L7Patterns_[4][3];
 
-  DTPatternPtrs L0L6Patterns_[4][3];
-  DTPatternPtrs L1L6Patterns_[4][3];
-  DTPatternPtrs L2L6Patterns_[4][3];
-  DTPatternPtrs L3L6Patterns_[4][3];
-  DTPatternPtrs L4L6Patterns_[4][3];
-  DTPatternPtrs L5L6Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L0L6Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L1L6Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L2L6Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L3L6Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L4L6Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L5L6Patterns_[4][3];
 
-  DTPatternPtrs L0L5Patterns_[4][3];
-  DTPatternPtrs L1L5Patterns_[4][3];
-  DTPatternPtrs L2L5Patterns_[4][3];
-  DTPatternPtrs L3L5Patterns_[4][3];
-  DTPatternPtrs L4L5Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L0L5Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L1L5Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L2L5Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L3L5Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L4L5Patterns_[4][3];
 
-  DTPatternPtrs L0L4Patterns_[4][3];
-  DTPatternPtrs L1L4Patterns_[4][3];
-  DTPatternPtrs L2L4Patterns_[4][3];
-  DTPatternPtrs L3L4Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L0L4Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L1L4Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L2L4Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L3L4Patterns_[4][3];
 
-  DTPatternPtrs L0L3Patterns_[4][3];
-  DTPatternPtrs L1L3Patterns_[4][3];
-  DTPatternPtrs L2L3Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L0L3Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L1L3Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L2L3Patterns_[4][3];
 
-  DTPatternPtrs L0L2Patterns_[4][3];
-  DTPatternPtrs L1L2Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L0L2Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L1L2Patterns_[4][3];
 
-  DTPatternPtrs L0L1Patterns_[4][3];
+  dtbayesam::DTPatternPtrs L0L1Patterns_[4][3];
 };
 
 #endif
