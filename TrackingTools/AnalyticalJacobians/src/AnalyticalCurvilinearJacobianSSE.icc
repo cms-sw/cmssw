@@ -1,5 +1,5 @@
 
-void AnalyticalCurvilinearJacobian::computeFullJacobian(const GlobalTrajectoryParameters& globalParameters,
+inline void AnalyticalCurvilinearJacobian::computeFullJacobian(const GlobalTrajectoryParameters& globalParameters,
                                                         const GlobalPoint& x,
                                                         const GlobalVector& p,
                                                         const GlobalVector& h,

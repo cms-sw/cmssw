@@ -10,7 +10,7 @@
 
 #include <vector>
 
-float FindPeakFastPV(const std::vector<float> &zProjections,
+inline float FindPeakFastPV(const std::vector<float> &zProjections,
                      const std::vector<float> &zWeights,
                      const float oldVertex,
                      const float m_zClusterWidth,
