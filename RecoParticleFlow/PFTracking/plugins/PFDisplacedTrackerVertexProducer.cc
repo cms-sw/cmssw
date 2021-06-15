@@ -1,8 +1,38 @@
-#include <memory>
-#include "RecoParticleFlow/PFTracking/plugins/PFDisplacedTrackerVertexProducer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+
+class PFDisplacedTrackerVertexProducer : public edm::stream::EDProducer<> {
+public:
+  ///Constructor
+  explicit PFDisplacedTrackerVertexProducer(const edm::ParameterSet&);
+
+  ///Destructor
+  ~PFDisplacedTrackerVertexProducer() override;
+
+private:
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+
+  ///Produce the PFRecTrack collection
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  ///PFTrackTransformer
+  PFTrackTransformer* pfTransformer_;
+  edm::EDGetTokenT<reco::PFDisplacedVertexCollection> pfDisplacedVertexContainer_;
+  edm::EDGetTokenT<reco::TrackCollection> pfTrackContainer_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFDisplacedTrackerVertexProducer);
 
 using namespace std;
 using namespace edm;
