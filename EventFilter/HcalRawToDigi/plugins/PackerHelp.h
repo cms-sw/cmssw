@@ -618,9 +618,9 @@ public:
 // converts HE QIE digies to HB data format
 
 inline QIE11DataFrame convertHB(QIE11DataFrame qiehe,
-                         std::vector<int> const& tdc1,
-                         std::vector<int> const& tdc2,
-                         const int tdcmax) {
+                                std::vector<int> const& tdc1,
+                                std::vector<int> const& tdc2,
+                                const int tdcmax) {
   QIE11DataFrame qiehb = qiehe;
   HcalDetId did = HcalDetId(qiehb.detid());
   int adc, tdc;

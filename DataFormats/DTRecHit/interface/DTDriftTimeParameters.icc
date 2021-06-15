@@ -404,7 +404,8 @@ const double THIS_CLASS::fun_sigma_t[N_alpha][N_By][N_Bz][N_Sigma_t] = {
 
 /*** Auxiliary functions ***/
 
-inline unsigned short THIS_CLASS::MB_DT_Check_boundaries(double distime, double alpha, double by, double bz, short ifl) const {
+inline unsigned short THIS_CLASS::MB_DT_Check_boundaries(
+    double distime, double alpha, double by, double bz, short ifl) const {
   unsigned short status = 1;
   std::string name = "MB_DT_drift_time";
 
@@ -483,14 +484,14 @@ inline void THIS_CLASS::MB_DT_Get_grid_values(
 }
 
 inline void THIS_CLASS::MB_DT_Get_grid_points(double alpha,
-                                       double by,
-                                       double bz,
-                                       unsigned short *p_alpha,
-                                       unsigned short *p_By,
-                                       unsigned short *p_Bz,
-                                       unsigned short *q_alpha,
-                                       unsigned short *q_By,
-                                       unsigned short *q_Bz) const {
+                                              double by,
+                                              double bz,
+                                              unsigned short *p_alpha,
+                                              unsigned short *p_By,
+                                              unsigned short *p_Bz,
+                                              unsigned short *q_alpha,
+                                              unsigned short *q_By,
+                                              unsigned short *q_Bz) const {
   MB_DT_Get_grid_values(fabs(alpha), p_alpha, q_alpha, 4, N_alpha, alpha_value);
   MB_DT_Get_grid_values(by, p_By, q_By, 0, N_By, By_value);
   MB_DT_Get_grid_values(bz, p_Bz, q_Bz, 0, N_Bz, Bz_value);

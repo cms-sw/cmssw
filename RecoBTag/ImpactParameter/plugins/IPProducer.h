@@ -462,7 +462,8 @@ inline void IPProducer<reco::TrackRefVector, reco::JTATagInfo, IPProducerHelpers
 }
 
 template <>
-inline void IPProducer<std::vector<reco::CandidatePtr>, reco::JetTagInfo, IPProducerHelpers::FromJetAndCands>::fillDescriptions(
+inline void
+IPProducer<std::vector<reco::CandidatePtr>, reco::JetTagInfo, IPProducerHelpers::FromJetAndCands>::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<double>("maximumTransverseImpactParameter", 0.2);
