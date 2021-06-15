@@ -64,10 +64,11 @@ void DigiCollectionProfiler<T>::fill(edm::Handle<T> digis,
                                      const std::vector<TH2F*>& hist2d) const {}
 
 template <>
-inline void DigiCollectionProfiler<edm::DetSetVector<SiStripDigi> >::fill(edm::Handle<edm::DetSetVector<SiStripDigi> > digis,
-                                                                   const std::vector<TH1F*>& hist,
-                                                                   const std::vector<TProfile*>& hprof,
-                                                                   const std::vector<TH2F*>& hist2d) const {
+inline void DigiCollectionProfiler<edm::DetSetVector<SiStripDigi> >::fill(
+    edm::Handle<edm::DetSetVector<SiStripDigi> > digis,
+    const std::vector<TH1F*>& hist,
+    const std::vector<TProfile*>& hprof,
+    const std::vector<TH2F*>& hist2d) const {
   for (edm::DetSetVector<SiStripDigi>::const_iterator mod = digis->begin(); mod != digis->end(); mod++) {
     for (unsigned int isel = 0; isel < m_selections.size(); ++isel) {
       if (m_selections[isel].isSelected(mod->detId())) {
