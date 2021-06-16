@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    Validation/HGCalWaferValidation
+// Package:    Validation/HGCalValidation
 // Class:      HGCalWaferValidation
 //
-/**\class HGCalWaferValidation HGCalWaferValidation.cc Validation/HGCalWaferValidation/plugins/HGCalWaferValidation.cc
+/**\class HGCalWaferValidation HGCalWaferValidation.cc Validation/HGCalValidation/plugins/HGCalWaferValidation.cc
 
  Description: Validates HGCal wafer data inside DD against specifications given in a flat text file.
 
