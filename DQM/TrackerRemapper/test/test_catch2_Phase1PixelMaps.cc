@@ -13,7 +13,7 @@ TEST_CASE("Phase1PixelMaps testing", "[Phase1PixelMaps]") {
     gStyle->SetOptStat(0);
     Phase1PixelMaps theMap("");
     TCanvas c = TCanvas("c", "c", 1200, 1200);
-    theMap.bookBarrelHistograms("mytest", "test", "test");
+    theMap.bookBarrelHistograms("mytest", "test", "z-axis");
     theMap.drawBarrelMaps("mytest", c, "colz0");
     theMap.beautifyAllHistograms();
     c.SaveAs("Phase1PixelMaps_Barrel.png");
@@ -25,7 +25,7 @@ TEST_CASE("Phase1PixelMaps testing", "[Phase1PixelMaps]") {
     gStyle->SetOptStat(0);
     Phase1PixelMaps theMap("");
     TCanvas c = TCanvas("c", "c", 1200, 800);
-    theMap.bookForwardHistograms("mytest", "test", "test");
+    theMap.bookForwardHistograms("mytest", "test", "z-axis");
     theMap.drawForwardMaps("mytest", c, "colz0");
     theMap.beautifyAllHistograms();
     c.SaveAs("Phase1PixelMaps_Endcap.png");
@@ -35,10 +35,10 @@ TEST_CASE("Phase1PixelMaps testing", "[Phase1PixelMaps]") {
   //_____________________________________________________________
   SECTION("Check summary plotting") {
     gStyle->SetOptStat(0);
-    Phase1PixelMaps theMap("COLZA L");  // needed to not show the axis
+    Phase1PixelMaps theMap("textAL");  // needed to not show the axis
     TCanvas c = TCanvas("c", "c", 1200, 800);
-    theMap.bookBarrelHistograms("mytest", "test", "test");
-    theMap.bookForwardHistograms("mytest", "test", "test");
+    theMap.bookBarrelHistograms("mytest", "test", "z-axis");
+    theMap.bookForwardHistograms("mytest", "test", "z-axis");
     theMap.beautifyAllHistograms();
     theMap.drawSummaryMaps("mytest", c);
     c.SaveAs("Phase1PixelMaps_Summary.png");
@@ -50,8 +50,8 @@ TEST_CASE("Phase1PixelMaps testing", "[Phase1PixelMaps]") {
     gStyle->SetOptStat(0);
     Phase1PixelMaps theMap("COLZA L");
     TCanvas c = TCanvas("c", "c", 1200, 800);
-    theMap.bookBarrelHistograms("mytest", "test", "test");
-    theMap.bookForwardHistograms("mytest", "test", "test");
+    theMap.bookBarrelHistograms("mytest", "test", "z-axis");
+    theMap.bookForwardHistograms("mytest", "test", "z-axis");
 
     SiPixelDetInfoFileReader reader_ = SiPixelDetInfoFileReader(edm::FileInPath(k_geo).fullPath());
     const auto& detIds = reader_.getAllDetIds();

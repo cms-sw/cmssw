@@ -31,6 +31,11 @@ void Phase1PixelMaps::bookBarrelHistograms(const std::string& currentHistoName, 
   std::string histName;
   std::shared_ptr<TH2Poly> th2p;
 
+  // check if the passed histogram name already exists, if not store it
+  if (std::find(m_knownNames.begin(), m_knownNames.end(), currentHistoName) == m_knownNames.end()) {
+    m_knownNames.emplace_back(currentHistoName);
+  }
+
   for (unsigned i = 0; i < 4; ++i) {
     histName = "barrel_layer_";
 
@@ -70,6 +75,11 @@ void Phase1PixelMaps::bookBarrelHistograms(const std::string& currentHistoName, 
 void Phase1PixelMaps::bookForwardHistograms(const std::string& currentHistoName, const char* what, const char* zaxis) {
   std::string histName;
   std::shared_ptr<TH2Poly> th2p;
+
+  // check if the passed histogram name already exists, if not store it
+  if (std::find(m_knownNames.begin(), m_knownNames.end(), currentHistoName) == m_knownNames.end()) {
+    m_knownNames.emplace_back(currentHistoName);
+  }
 
   for (unsigned side = 1; side <= 2; ++side) {
     for (unsigned disk = 1; disk <= 3; ++disk) {
@@ -205,8 +215,6 @@ void Phase1PixelMaps::bookForwardBins(const std::string& currentHistoName) {
 void Phase1PixelMaps::book(const std::string& currentHistoName, const char* what, const char* zaxis) {
   bookBarrelHistograms(currentHistoName, what, zaxis);
   bookForwardHistograms(currentHistoName, what, zaxis);
-  bookBarrelBins(currentHistoName);
-  bookForwardBins(currentHistoName);
   m_isBooked = std::make_pair(true, true);
 }
 
@@ -219,6 +227,9 @@ void Phase1PixelMaps::fill(const std::string& currentHistoName, unsigned int id,
       edm::LogError("Phase1PixelMaps") << __func__ << ": trying to fill a histogram not booked";
       return;
     }
+
+    LogDebug("Phase1PixelMaps") << __func__ << " filling barrel with value: " << value << std::endl;
+
     pxbTh2PolyBarrel[currentHistoName][layer - 1]->Fill(TString::Format("%u", id), value);
     pxbTh2PolyBarrelSummary[currentHistoName]->Fill(TString::Format("%u", id), value);
   } else if (detid.subdetId() == PixelSubdetector::PixelEndcap) {
@@ -229,6 +240,9 @@ void Phase1PixelMaps::fill(const std::string& currentHistoName, unsigned int id,
       edm::LogError("Phase1PixelMaps") << __func__ << ": trying to fill a histogram not booked";
       return;
     }
+
+    LogDebug("Phase1PixelMaps") << __func__ << " filling endcaps with value: " << value << std::endl;
+
     pxfTh2PolyForward[currentHistoName][mapIdx]->Fill(TString::Format("%u", id), value);
     pxfTh2PolyForwardSummary[currentHistoName]->Fill(TString::Format("%u", id), value);
   }
@@ -321,8 +335,9 @@ void Phase1PixelMaps::setForwardScale(const std::string& currentHistoName, std::
 //============================================================================
 void Phase1PixelMaps::drawBarrelMaps(const std::string& currentHistoName, TCanvas& canvas, const char* drawOption) {
   canvas.Divide(2, 2);
+  auto found = (std::find(m_knownNames.begin(), m_knownNames.end(), currentHistoName) != m_knownNames.end());
 
-  if (!m_isBooked.first) {
+  if (!m_isBooked.first || !found) {
     edm::LogError("Phase1PixelMaps") << __func__ << ": trying to draw a histogram not booked";
     return;
   }
@@ -350,8 +365,9 @@ void Phase1PixelMaps::drawBarrelMaps(const std::string& currentHistoName, TCanva
 //============================================================================
 void Phase1PixelMaps::drawForwardMaps(const std::string& currentHistoName, TCanvas& canvas, const char* drawOption) {
   canvas.Divide(3, 2);
+  auto found = (std::find(m_knownNames.begin(), m_knownNames.end(), currentHistoName) != m_knownNames.end());
 
-  if (!m_isBooked.second) {
+  if (!m_isBooked.second || !found) {
     edm::LogError("Phase1PixelMaps") << __func__ << ": trying to draw a histogram not booked";
     return;
   }
@@ -378,16 +394,19 @@ void Phase1PixelMaps::drawForwardMaps(const std::string& currentHistoName, TCanv
 
 //============================================================================
 void Phase1PixelMaps::drawSummaryMaps(const std::string& currentHistoName, TCanvas& canvas) {
-  if (!m_isBooked.second || !m_isBooked.first) {
+  auto found = (std::find(m_knownNames.begin(), m_knownNames.end(), currentHistoName) != m_knownNames.end());
+
+  if (!m_isBooked.second || !m_isBooked.first || !found) {
     edm::LogError("Phase1PixelMaps") << __func__ << ": trying to draw a histogram not booked";
     return;
   }
 
   canvas.Divide(2, 1);
   canvas.cd(1);
-  adjustCanvasMargins(canvas.cd(1), 0.07, 0.02, 0.01, 0.15);
   std::string temp(m_option);  // create a std string
-  if (temp.find("text") != 0) {
+  auto isText = (temp.find("text") != std::string::npos);
+  adjustCanvasMargins(canvas.cd(1), 0.07, 0.02, 0.01, isText ? 0.05 : 0.15);
+  if (isText) {
     pxbTh2PolyBarrelSummary[currentHistoName]->SetMarkerColor(kRed);
     pxbTh2PolyBarrelSummary[currentHistoName]->SetMarkerSize(0.5);
   }
@@ -395,8 +414,8 @@ void Phase1PixelMaps::drawSummaryMaps(const std::string& currentHistoName, TCanv
   pxbTh2PolyBarrelSummary[currentHistoName]->Draw();
 
   canvas.cd(2);
-  adjustCanvasMargins(canvas.cd(2), 0.07, 0.02, 0.01, 0.15);
-  if (temp.find("text") != 0) {
+  adjustCanvasMargins(canvas.cd(2), 0.07, 0.02, 0.01, isText ? 0.05 : 0.15);
+  if (isText) {
     pxfTh2PolyForwardSummary[currentHistoName]->SetMarkerColor(kRed);
     pxfTh2PolyForwardSummary[currentHistoName]->SetMarkerSize(0.5);
   }
@@ -503,6 +522,11 @@ void Phase1PixelMaps::adjustCanvasMargins(TVirtualPad* pad, float top, float bot
 
 //============================================================================
 void Phase1PixelMaps::rescaleAllBarrel(const std::string& currentHistoName) {
+  if (std::find(m_knownNames.begin(), m_knownNames.end(), currentHistoName) == m_knownNames.end()) {
+    edm::LogError("Phase1PixelMaps") << __func__ << ": trying to manipulate a histogram not booked";
+    return;
+  }
+
   std::vector<float> maxima;
   std::transform(pxbTh2PolyBarrel[currentHistoName].begin(),
                  pxbTh2PolyBarrel[currentHistoName].end(),
@@ -524,6 +548,11 @@ void Phase1PixelMaps::rescaleAllBarrel(const std::string& currentHistoName) {
 
 //============================================================================
 void Phase1PixelMaps::rescaleAllForward(const std::string& currentHistoName) {
+  if (std::find(m_knownNames.begin(), m_knownNames.end(), currentHistoName) == m_knownNames.end()) {
+    edm::LogError("Phase1PixelMaps") << __func__ << ": trying to manipulate a histogram not booked";
+    return;
+  }
+
   std::vector<float> maxima;
   std::transform(pxfTh2PolyForward[currentHistoName].begin(),
                  pxfTh2PolyForward[currentHistoName].end(),
