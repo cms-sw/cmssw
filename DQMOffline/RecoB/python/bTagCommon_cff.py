@@ -1,20 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 # BTagPerformanceAnalyzer configuration                                                                                                                                              
-from DQMOffline.RecoB.bTagTrackIPAnalysis_cff import *
-from DQMOffline.RecoB.bTagSymmetricAnalysis_cff import *
-from DQMOffline.RecoB.bTagTrackCountingAnalysis_cff import *
-from DQMOffline.RecoB.bTagTrackProbabilityAnalysis_cff import *
-from DQMOffline.RecoB.bTagTrackBProbabilityAnalysis_cff import *
-from DQMOffline.RecoB.bTagGenericAnalysis_cff import *
-from DQMOffline.RecoB.bTagSimpleSVAnalysis_cff import *
-from DQMOffline.RecoB.bTagSoftLeptonAnalysis_cff import *
-from DQMOffline.RecoB.cTagGenericAnalysis_cff import *
-from DQMOffline.RecoB.cTagSymmetricAnalysis_cff import *
-from DQMOffline.RecoB.bTagGhostTrackAnalysis_cff import *
-from DQMOffline.RecoB.bTagGhostTrackVariables_cff import *
-
-
+from DQMOffline.RecoB.bTagGenericAnalysis_cff import bTagGenericAnalysisBlock
+from DQMOffline.RecoB.cTagGenericAnalysis_cff import cTagGenericAnalysisBlock
+from DQMOffline.RecoB.bTagTrackIPAnalysis_cff import bTagTrackIPAnalysisBlock
+from DQMOffline.RecoB.bTagTrackProbabilityAnalysis_cff import bTagProbabilityAnalysisBlock
 
 
 
