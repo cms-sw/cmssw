@@ -172,7 +172,7 @@ void HGCalWaferValidation::DDFindWafers(DDCompactView::GraphWalker& walker) {
 void HGCalWaferValidation::ProcessWaferLayer(DDCompactView::GraphWalker& walker) {
   static int waferLayer = 0;  // layer numbers in DD are assumed to be sequential from 1
   waferLayer++;
-  edm::LogVerbatim(logcat) << "ProcessWaferLayer: Processing layer " << waferLayer << std::endl;
+  edm::LogVerbatim(logcat) << "ProcessWaferLayer: Processing layer " << waferLayer;
   do {
     if (walker.current().first.name().fullname().rfind("hgcalwafer:", 0) == 0) {
       auto wafer = walker.current();
@@ -205,7 +205,7 @@ void HGCalWaferValidation::ProcessWaferLayer(DDCompactView::GraphWalker& walker)
       if (rotStr.empty())
         rotStr = "0";
       const int rotCode(std::stoi(rotStr));
-      //edm::LogVerbatim(logcat) << "rotStr " << rotStr << " rotCode " << rotCode << std::endl;
+      //edm::LogVerbatim(logcat) << "rotStr " << rotStr << " rotCode " << rotCode;
       waferInfo.shapeCode = shapeStr;
       waferInfo.rotCode = rotCode;
       // populate the map
@@ -223,23 +223,23 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   auto viewH = iSetup.getHandle(viewToken_);
 
   if (!viewH.isValid()) {
-    edm::LogPrint(logcat) << "Error obtaining geometry handle!" << std::endl;
+    edm::LogPrint(logcat) << "Error obtaining geometry handle!";
     return;
   }
 
-  edm::LogVerbatim(logcat) << "Root is : " << viewH->root() << std::endl;
+  edm::LogVerbatim(logcat) << "Root is : " << viewH->root();
   edm::LogVerbatim(logcat) << std::endl;
 
   // find HGCalEE
   auto eeWalker = viewH->walker();
   const bool eeFound = DDFindHGCal(eeWalker, "HGCalEE");
   if (eeFound) {
-    edm::LogVerbatim(logcat) << "HGCalEE found!" << std::endl;
-    edm::LogVerbatim(logcat) << "name     = " << eeWalker.current().first.name().name() << std::endl;
+    edm::LogVerbatim(logcat) << "HGCalEE found!";
+    edm::LogVerbatim(logcat) << "name     = " << eeWalker.current().first.name().name();
     edm::LogVerbatim(logcat)
-        << "fullname = " << eeWalker.current().first.name().fullname() << std::endl;
+        << "fullname = " << eeWalker.current().first.name().fullname();
   } else {
-    edm::LogPrint(logcat) << "HGCalEE not found!" << std::endl;
+    edm::LogPrint(logcat) << "HGCalEE not found!";
   }
   edm::LogVerbatim(logcat) << std::endl;
 
@@ -247,12 +247,12 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   auto hesilWalker = viewH->walker();
   const bool hesilFound = DDFindHGCal(hesilWalker, "HGCalHEsil");
   if (hesilFound) {
-    edm::LogVerbatim(logcat) << "HGCalHEsil found!" << std::endl;
-    edm::LogVerbatim(logcat) << "name     = " << hesilWalker.current().first.name().name() << std::endl;
+    edm::LogVerbatim(logcat) << "HGCalHEsil found!";
+    edm::LogVerbatim(logcat) << "name     = " << hesilWalker.current().first.name().name();
     edm::LogVerbatim(logcat)
-        << "fullname = " << hesilWalker.current().first.name().fullname() << std::endl;
+        << "fullname = " << hesilWalker.current().first.name().fullname();
   } else {
-    edm::LogPrint(logcat) << "HGCalHEsil not found!" << std::endl;
+    edm::LogPrint(logcat) << "HGCalHEsil not found!";
   }
   edm::LogVerbatim(logcat) << std::endl;
 
@@ -260,43 +260,43 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   auto hemixWalker = viewH->walker();
   const bool hemixFound = DDFindHGCal(hemixWalker, "HGCalHEmix");
   if (hemixFound) {
-    edm::LogVerbatim(logcat) << "HGCalHEmix found!" << std::endl;
-    edm::LogVerbatim(logcat) << "name     = " << hemixWalker.current().first.name().name() << std::endl;
+    edm::LogVerbatim(logcat) << "HGCalHEmix found!";
+    edm::LogVerbatim(logcat) << "name     = " << hemixWalker.current().first.name().name();
     edm::LogVerbatim(logcat)
-        << "fullname = " << hemixWalker.current().first.name().fullname() << std::endl;
+        << "fullname = " << hemixWalker.current().first.name().fullname();
   } else {
-    edm::LogPrint(logcat) << "HGCalHEmix not found!" << std::endl;
+    edm::LogPrint(logcat) << "HGCalHEmix not found!";
   }
   edm::LogVerbatim(logcat) << std::endl;
 
   // give up if no HGCal found at all
   if (!(eeFound || hesilFound || hemixFound)) {
-    edm::LogPrint(logcat) << "Nothing found. Giving up." << std::endl;
+    edm::LogPrint(logcat) << "Nothing found. Giving up.";
     return;
   }
 
   // Now walk the HGCalEE walker to find the first wafer on each layer and process them
-  edm::LogVerbatim(logcat) << "Calling DDFindWafers(eeWalker);" << std::endl;
+  edm::LogVerbatim(logcat) << "Calling DDFindWafers(eeWalker);";
   DDFindWafers(eeWalker);
 
   // Walk the HGCalHEsilwalker to find the first wafer on each layer and process them
-  edm::LogVerbatim(logcat) << "Calling DDFindWafers(hesilWalker);" << std::endl;
+  edm::LogVerbatim(logcat) << "Calling DDFindWafers(hesilWalker);";
   DDFindWafers(hesilWalker);
 
   // Walk the HGCalHEmix walker to find the first wafer on each layer and process them
-  edm::LogVerbatim(logcat) << "Calling DDFindWafers(hemixWalker);" << std::endl;
+  edm::LogVerbatim(logcat) << "Calling DDFindWafers(hemixWalker);";
   DDFindWafers(hemixWalker);
 
   // Confirm all the DD wafers have been read
-  edm::LogVerbatim(logcat) << "Number of wafers read from DD: " << waferData.size() << std::endl;
+  edm::LogVerbatim(logcat) << "Number of wafers read from DD: " << waferData.size();
 
   // Now open the geometry text file
   std::string fileName = geometryFileName_.fullPath();
-  edm::LogVerbatim(logcat) << "Opening geometry text file: " << fileName << std::endl;
+  edm::LogVerbatim(logcat) << "Opening geometry text file: " << fileName;
   std::ifstream geoTxtFile(fileName);
 
   if (!geoTxtFile) {
-    edm::LogPrint(logcat) << "Cannot open geometry text file." << std::endl;
+    edm::LogPrint(logcat) << "Cannot open geometry text file.";
     return;
   }
 
@@ -343,7 +343,7 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
     if (waferData.find(waferCoord) == waferData.end()) {
       nMissing++;
-      edm::LogVerbatim(logcat) << "MISSING: " << strWaferCoord(waferCoord) << std::endl;
+      edm::LogVerbatim(logcat) << "MISSING: " << strWaferCoord(waferCoord);
       continue;
     }
 
@@ -353,30 +353,30 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     if ((waferInfo.thickClass == 0 && waferThickness != 120) || (waferInfo.thickClass == 1 && waferThickness != 200) ||
         (waferInfo.thickClass == 2 && waferThickness != 300)) {
       nThicknessError++;
-      edm::LogVerbatim(logcat) << "THICKNESS ERROR: " << strWaferCoord(waferCoord) << std::endl;
+      edm::LogVerbatim(logcat) << "THICKNESS ERROR: " << strWaferCoord(waferCoord);
     }
 
     // it seems that wafer x-coords relative to their layer plane are mirrored...
     if (fabs(-waferInfo.x - waferX) > 0.015) {  // assuming this much tolerance
       nPosXError++;
-      edm::LogVerbatim(logcat) << "POSITION x ERROR: " << strWaferCoord(waferCoord) << std::endl;
+      edm::LogVerbatim(logcat) << "POSITION x ERROR: " << strWaferCoord(waferCoord);
     }
 
     if (fabs(waferInfo.y - waferY) > 0.015) {  // assuming this much tolerance
       nPosYError++;
-      edm::LogVerbatim(logcat) << "POSITION y ERROR: " << strWaferCoord(waferCoord) << std::endl;
+      edm::LogVerbatim(logcat) << "POSITION y ERROR: " << strWaferCoord(waferCoord);
     }
 
     if (waferInfo.shapeCode != waferShapeCode) {
       nShapeError++;
-      edm::LogVerbatim(logcat) << "SHAPE ERROR: " << strWaferCoord(waferCoord) << std::endl;
+      edm::LogVerbatim(logcat) << "SHAPE ERROR: " << strWaferCoord(waferCoord);
     }
 
     if ((waferShapeCode != 'F' && waferInfo.rotCode != waferRotCode) ||
         (waferShapeCode == 'F' && (waferInfo.rotCode % 2 != waferRotCode % 2))) {
       nRotError++;
       edm::LogVerbatim(logcat) << "ROTATION ERROR: " << strWaferCoord(waferCoord) << "  ( "
-                               << waferInfo.rotCode << " != " << waferRotCode << " )" << std::endl;
+                               << waferInfo.rotCode << " != " << waferRotCode << " )";
     }
   }
 
@@ -386,26 +386,26 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   for (auto const& accounted : waferValidated) {
     if (!accounted.second) {
       nUnaccounted++;
-      edm::LogVerbatim(logcat) << "UNACCOUNTED: " << strWaferCoord(accounted.first) << std::endl;
+      edm::LogVerbatim(logcat) << "UNACCOUNTED: " << strWaferCoord(accounted.first);
     }
   }
 
   // Print out error counts
   edm::LogVerbatim(logcat) << std::endl;
-  edm::LogVerbatim(logcat) << "*** ERROR COUNTS ***" << std::endl;
-  edm::LogVerbatim(logcat) << "Missing         :  " << nMissing << std::endl;
-  edm::LogVerbatim(logcat) << "Thickness error :  " << nThicknessError << std::endl;
-  edm::LogVerbatim(logcat) << "Pos-x error     :  " << nPosXError << std::endl;
-  edm::LogVerbatim(logcat) << "Pos-y error     :  " << nPosYError << std::endl;
-  edm::LogVerbatim(logcat) << "Shape error     :  " << nShapeError << std::endl;
-  edm::LogVerbatim(logcat) << "Rotation error  :  " << nRotError << std::endl;
-  edm::LogVerbatim(logcat) << "Unaccounted     :  " << nUnaccounted << std::endl;
+  edm::LogVerbatim(logcat) << "*** ERROR COUNTS ***";
+  edm::LogVerbatim(logcat) << "Missing         :  " << nMissing;
+  edm::LogVerbatim(logcat) << "Thickness error :  " << nThicknessError;
+  edm::LogVerbatim(logcat) << "Pos-x error     :  " << nPosXError;
+  edm::LogVerbatim(logcat) << "Pos-y error     :  " << nPosYError;
+  edm::LogVerbatim(logcat) << "Shape error     :  " << nShapeError;
+  edm::LogVerbatim(logcat) << "Rotation error  :  " << nRotError;
+  edm::LogVerbatim(logcat) << "Unaccounted     :  " << nUnaccounted;
   edm::LogVerbatim(logcat) << std::endl;
   edm::LogVerbatim(logcat)
-      << "Total wafers processed from geotxtfile = " << nTotalProcessed << std::endl;
+      << "Total wafers processed from geotxtfile = " << nTotalProcessed;
   edm::LogVerbatim(logcat) << std::endl;
 
-  // Issue a LogPrint if there is at least one wafer errors
+  // Issue a LogPrint (warning) if there is at least one wafer errors
   if (nMissing > 0 || nThicknessError > 0 || nPosXError > 0 || nPosYError > 0 ||
       nShapeError > 0 || nRotError > 0 || nUnaccounted > 0) {
     edm::LogPrint(logcat) << "There are at least one wafer error.";
