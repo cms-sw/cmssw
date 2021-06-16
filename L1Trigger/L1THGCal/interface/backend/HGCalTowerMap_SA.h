@@ -11,7 +11,7 @@ namespace l1thgcfirmware {
   class HGCalTowerMap {
   public:
     HGCalTowerMap(){};
-    HGCalTowerMap(const std::vector<unsigned short>& tower_ids);
+    HGCalTowerMap(const std::vector<l1thgcfirmware::HGCalTowerCoord>& tower_ids);
 
     ~HGCalTowerMap(){};
 

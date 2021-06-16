@@ -1,17 +1,24 @@
 #ifndef L1Trigger_L1THGCal_HGCalTower_SA_h
 #define L1Trigger_L1THGCal_HGCalTower_SA_h
 
+#include <cstdint>
+
 namespace l1thgcfirmware {
 
   class HGCalTower {
   public:
     HGCalTower() {}
-    HGCalTower(double etEm, double etHad) : etEm_(etEm), etHad_(etHad) {}
+    HGCalTower(double etEm, double etHad, float eta, float phi, uint32_t rawId)
+        : etEm_(etEm), etHad_(etHad), eta_(eta), phi_(phi), id_(rawId) {}
 
     ~HGCalTower(){};
 
-    double etEm() const { return etEm_; };
-    double etHad() const { return etHad_; };
+    double etEm() const { return etEm_; }
+    double etHad() const { return etHad_; }
+
+    float eta() const { return eta_; }
+    float phi() const { return phi_; }
+    uint32_t id() const { return id_; }
 
     void addEtEm(double et);
     void addEtHad(double et);
@@ -21,6 +28,18 @@ namespace l1thgcfirmware {
   private:
     double etEm_;
     double etHad_;
+
+    float eta_;
+    float phi_;
+    uint32_t id_;
+  };
+
+  struct HGCalTowerCoord {
+    HGCalTowerCoord(uint32_t rawId, float eta, float phi) : rawId(rawId), eta(eta), phi(phi) {}
+
+    const uint32_t rawId;
+    const float eta;
+    const float phi;
   };
 }  // namespace l1thgcfirmware
 

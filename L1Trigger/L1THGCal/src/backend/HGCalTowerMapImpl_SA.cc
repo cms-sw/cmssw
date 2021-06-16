@@ -7,9 +7,9 @@ void HGCalTowerMapImplSA::runAlgorithm(const std::vector<HGCalTowerMap>& inputTo
   // Need better way to initialise the output tower map
   if (inputTowerMaps_SA.empty())
     return;
-  std::vector<unsigned short> tower_ids;
+  std::vector<HGCalTowerCoord> tower_ids;
   for (const auto& tower : inputTowerMaps_SA.front().towers()) {
-    tower_ids.push_back(tower.first);
+    tower_ids.emplace_back(tower.first, tower.second.eta(), tower.second.phi());
   }
   HGCalTowerMap towerMap(tower_ids);
 
