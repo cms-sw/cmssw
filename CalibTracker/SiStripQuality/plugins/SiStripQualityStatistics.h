@@ -24,6 +24,8 @@ public:
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void updateAndSave(const SiStripQuality* siStripQuality);
   void SetBadComponents(int, int, SiStripQuality::BadComponent&);

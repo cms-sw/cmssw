@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -43,6 +44,12 @@ public:
   /// Constructor
   SiStripBadComponentInfo(edm::ParameterSet const& ps);
   ~SiStripBadComponentInfo() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    SiStripQualityWithFromFedErrorsHelper::fillDescription(desc);
+    descriptions.add("siStripBadComponentInfo", desc);
+  }
 
 protected:
   void endRun(edm::Run const&, edm::EventSetup const&) override;

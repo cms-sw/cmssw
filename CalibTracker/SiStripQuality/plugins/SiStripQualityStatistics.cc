@@ -16,6 +16,7 @@
 //
 //
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -26,8 +27,7 @@
 #include "CalibTracker/SiStripQuality/plugins/SiStripQualityStatistics.h"
 
 SiStripQualityStatistics::SiStripQualityStatistics(const edm::ParameterSet& iConfig)
-    : dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel", "")),
-      TkMapFileName_(iConfig.getUntrackedParameter<std::string>("TkMapFileName", "")),
+    : TkMapFileName_(iConfig.getUntrackedParameter<std::string>("TkMapFileName", "")),
       saveTkHistoMap_(iConfig.getUntrackedParameter<bool>("SaveTkHistoMap", true)),
       tkMap(nullptr),
       tkMapFullIOVs(nullptr),
@@ -45,6 +45,15 @@ SiStripQualityStatistics::SiStripQualityStatistics(const edm::ParameterSet& iCon
 }
 
 SiStripQualityStatistics::~SiStripQualityStatistics() {}
+
+void SiStripQualityStatistics::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>("TkMapFileName", "");
+  desc.addUntracked<bool>("SaveTkHistoMap", true);
+  desc.addUntracked<edm::FileInPath>("file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
+  SiStripQualityWithFromFedErrorsHelper::fillDescription(desc);
+  descriptions.add("siStripQualityStatistics", desc);
+}
 
 void SiStripQualityStatistics::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
   if (withFedErrHelper_.addBadCompFromFedErr()) {
