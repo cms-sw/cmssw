@@ -108,7 +108,7 @@ inline void B2GHadronicHLTValidation::triggerBinLabels(const std::vector<std::st
 //
 // constructors and destructor
 //
-B2GHadronicHLTValidation::B2GHadronicHLTValidation(const edm::ParameterSet &iConfig)
+inline B2GHadronicHLTValidation::B2GHadronicHLTValidation(const edm::ParameterSet &iConfig)
     : sDir_(iConfig.getUntrackedParameter<std::string>("sDir", "HLTValidation/B2G/Efficiencies/")),
       sJets_(iConfig.getUntrackedParameter<std::string>("sJets", "ak5PFJets")),
       ptJets_(iConfig.getUntrackedParameter<double>("ptJets", 0.)),
@@ -127,7 +127,7 @@ B2GHadronicHLTValidation::B2GHadronicHLTValidation(const edm::ParameterSet &iCon
   tokTrigger_ = consumes<edm::TriggerResults>(edm::InputTag(sTrigger_, "", "HLT"));
 }
 
-B2GHadronicHLTValidation::~B2GHadronicHLTValidation() {
+inline B2GHadronicHLTValidation::~B2GHadronicHLTValidation() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
