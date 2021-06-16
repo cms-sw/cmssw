@@ -218,7 +218,6 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   unsigned int n_reco_btl = 0;
   for (const auto& recHit : *btlRecHitsHandle) {
     BTLDetId detId = recHit.id();
-
     DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
     const MTDGeomDet* thedet = geom->idToDet(geoId);
     if (thedet == nullptr)
@@ -265,11 +264,11 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       float time_res = recHit.time() - m_btlSimHits[detId.rawId()].time;
       float energy_res = recHit.energy() - m_btlSimHits[detId.rawId()].energy;
 
-      Local3DPoint local_point_sim(m_btlSimHits[detId.rawId()].x_local,
-                                   m_btlSimHits[detId.rawId()].y_local,
-                                   m_btlSimHits[detId.rawId()].z_local);
+      Local3DPoint local_point_sim(convertMmToCm(m_btlSimHits[detId.rawId()].x_local),
+                                   convertMmToCm(m_btlSimHits[detId.rawId()].y_local),
+                                   convertMmToCm(m_btlSimHits[detId.rawId()].z_local));
       local_point_sim =
-          topo.pixelToModuleLocalPoint(local_point_sim, detId.row(topo.nrows()), detId.column(topo.ncolumns()));
+          topo.pixelToModuleLocalPoint(local_point_sim, detId.row(topo.nrows()), detId.column(topo.nrows()));
       const auto& global_point_sim = thedet->toGlobal(local_point_sim);
 
       meTimeRes_->Fill(time_res);
@@ -306,7 +305,10 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(genericDet->topology());
       const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
-      Local3DPoint local_point(cluster.x() * topo.pitch().first, cluster.y() * topo.pitch().second, 0.);
+      // --- Cluster position in the module reference frame
+      Local3DPoint local_point((cluster.x() - 0.5 * topo.nrows()) * topo.pitch().first,
+                               (cluster.y() - 0.5 * topo.ncolumns()) * topo.pitch().second,
+                               0.);
       const auto& global_point = genericDet->toGlobal(local_point);
 
       meCluEnergy_->Fill(cluster.energy());
@@ -344,17 +346,18 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
             continue;
 
           // SIM hit's position in the module reference frame
-          Local3DPoint local_point_sim(
-              convertMmToCm(m_btlSimHits[recHit.id().rawId()].x_local) + (recHit.row() + 0.5) * topo.pitch().first,
-              convertMmToCm(m_btlSimHits[recHit.id().rawId()].y_local) + (recHit.column() + 0.5) * topo.pitch().second,
-              convertMmToCm(m_btlSimHits[recHit.id().rawId()].z_local));
+          Local3DPoint local_point_sim(convertMmToCm(m_btlSimHits[recHit.id().rawId()].x_local) +
+                                           (hit_row - 0.5 * topo.nrows() + 0.5) * topo.pitch().first,
+                                       convertMmToCm(m_btlSimHits[recHit.id().rawId()].y_local) +
+                                           (hit_col - 0.5 * topo.ncolumns() + 0.5) * topo.pitch().second,
+                                       convertMmToCm(m_btlSimHits[recHit.id().rawId()].z_local));
 
-          // SIM cluster's position in the module reference frame
+          // Calculate the SIM cluster's position in the module reference frame
           cluLocXSIM += local_point_sim.x() * m_btlSimHits[recHit.id().rawId()].energy;
           cluLocYSIM += local_point_sim.y() * m_btlSimHits[recHit.id().rawId()].energy;
           cluLocZSIM += local_point_sim.z() * m_btlSimHits[recHit.id().rawId()].energy;
 
-          // SIM cluster energy and time
+          // Calculate the SIM cluster energy and time
           cluEneSIM += m_btlSimHits[recHit.id().rawId()].energy;
           cluTimeSIM += m_btlSimHits[recHit.id().rawId()].time * m_btlSimHits[recHit.id().rawId()].energy;
 
