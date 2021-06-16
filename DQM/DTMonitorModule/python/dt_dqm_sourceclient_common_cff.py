@@ -16,8 +16,9 @@ physicsEventsFilter = cms.EDFilter("HLTTriggerTypeFilter",
 
 # GT unpacker
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
-gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
-gtDigis.DaqGtInputTag = 'rawDataCollector'
+gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone(
+   DaqGtInputTag = 'rawDataCollector'
+)
 
 # Scalers info
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
