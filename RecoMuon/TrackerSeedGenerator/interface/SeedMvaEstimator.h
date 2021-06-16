@@ -1,7 +1,5 @@
-#ifndef SeedMvaEstimator_h
-#define SeedMvaEstimator_h
-
-#include "DataFormats/Common/interface/Handle.h"
+#ifndef RecoMuon_TrackerSeedGenerator_SeedMvaEstimator_h
+#define RecoMuon_TrackerSeedGenerator_SeedMvaEstimator_h
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -15,7 +13,6 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 #include <memory>
-#include <string>
 
 class GBRForest;
 
@@ -25,7 +22,9 @@ namespace edm {
 
 class SeedMvaEstimator {
 public:
-  SeedMvaEstimator(const edm::FileInPath& weightsfile, std::vector<double> scale_mean, std::vector<double> scale_std);
+  SeedMvaEstimator(const edm::FileInPath& weightsfile,
+                   const std::vector<double>& scale_mean,
+                   const std::vector<double>& scale_std);
   ~SeedMvaEstimator();
 
   std::vector<double> scale_mean_;
@@ -41,9 +40,7 @@ public:
 private:
   std::unique_ptr<const GBRForest> gbrForest_;
 
-  void getL1MuonVariables(
-      const TrajectorySeed&, const GlobalVector&, const l1t::MuonBxCollection&, int minL1Qual, float&, float&) const;
-  void getL2MuonVariables(
-      const TrajectorySeed&, const GlobalVector&, const reco::RecoChargedCandidateCollection&, float&, float&) const;
+  void getL1MuonVariables(const GlobalVector&, const l1t::MuonBxCollection&, int minL1Qual, float&, float&) const;
+  void getL2MuonVariables(const GlobalVector&, const reco::RecoChargedCandidateCollection&, float&, float&) const;
 };
 #endif
