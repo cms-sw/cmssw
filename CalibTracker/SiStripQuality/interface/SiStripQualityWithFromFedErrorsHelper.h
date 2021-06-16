@@ -44,12 +44,13 @@ public:
   SiStripQualityWithFromFedErrorsHelper(const edm::ParameterSet& iConfig,
                                         edm::ConsumesCollector iC,
                                         bool keepCopy = false) {
-    const auto& fedErrConfig = iConfig.getUntrackedParameter<edm::ParameterSet>("BadComponentsFromFedErrors", {});
-    addBadCompFromFedErr_ = fedErrConfig.getUntrackedParameter<bool>("Add", false);
-    fedErrCutoff_ = float(fedErrConfig.getUntrackedParameter<double>("Cutoff", 0.8));
-    fedErrLegacyFile_ = fedErrConfig.getUntrackedParameter<std::string>("LegacyDQMFile", "");
-    fedErrFileRunNumber_ = fedErrConfig.getUntrackedParameter<unsigned int>("FileRunNumber", -1);
-    stripQualityToken_ = iC.esConsumes<edm::Transition::EndRun>();
+    const auto& fedErrConfig = iConfig.getParameter<edm::ParameterSet>("BadComponentsFromFedErrors");
+    addBadCompFromFedErr_ = fedErrConfig.getParameter<bool>("Add");
+    fedErrCutoff_ = float(fedErrConfig.getParameter<double>("Cutoff"));
+    fedErrLegacyFile_ = fedErrConfig.getParameter<std::string>("LegacyDQMFile");
+    fedErrFileRunNumber_ = fedErrConfig.getParameter<unsigned int>("FileRunNumber");
+    stripQualityToken_ = iC.esConsumes<edm::Transition::EndRun>(
+        edm::ESInputTag{"", iConfig.getParameter<std::string>("StripQualityLabel")});
     if (addBadCompFromFedErr_) {
       fedCablingToken_ = iC.esConsumes<edm::Transition::EndRun>();
     }
@@ -59,12 +60,13 @@ public:
   }
 
   static void fillDescription(edm::ParameterSetDescription& desc) {
+    desc.add<std::string>("StripQualityLabel", "");
     edm::ParameterSetDescription descFedErr;
-    descFedErr.addUntracked<bool>("Add", false);
-    descFedErr.addUntracked<double>("Cutoff", 0.8);
-    descFedErr.addUntracked<std::string>("LegacyDQMFile", "");
-    descFedErr.addUntracked<unsigned int>("FileRunNumber", -1);
-    desc.addUntracked<edm::ParameterSetDescription>("BadComponentsFromFedErrors", descFedErr);
+    descFedErr.add<bool>("Add", false);
+    descFedErr.add<double>("Cutoff", 0.8);
+    descFedErr.add<std::string>("LegacyDQMFile", "");
+    descFedErr.add<unsigned int>("FileRunNumber", -1);
+    desc.add<edm::ParameterSetDescription>("BadComponentsFromFedErrors", descFedErr);
   }
 
   bool endRun(const edm::EventSetup&);
