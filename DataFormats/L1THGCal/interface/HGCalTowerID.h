@@ -1,5 +1,7 @@
-#ifndef DataFormats_L1TCalorimeter_HGCalTowerID_h
-#define DataFormats_L1TCalorimeter_HGCalTowerID_h
+#ifndef DataFormats_L1THGCal_HGCalTowerID_h
+#define DataFormats_L1THGCal_HGCalTowerID_h
+
+#include <cstdint>
 
 // NOTE: in the current implementation HGCalTowerID can only
 // accomodate 127 bins per coordinate x2 zsides
