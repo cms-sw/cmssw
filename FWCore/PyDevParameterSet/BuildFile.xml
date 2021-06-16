@@ -4,6 +4,5 @@
 <use name="py3-pybind11"/>
 <use name="python3"/>
 <export>
-  <use name="py3-pybind11"/>
   <lib name="1"/>
 </export>
