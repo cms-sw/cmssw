@@ -1409,7 +1409,8 @@ class Iteration:
         # it's fine to include e.g. quadruplets here also for pair
         # steps, as non-existing modules are just ignored
         _set(seeding, "_seeding", [self._name+"SeedingLayers", self._name+"TrackingRegions", self._name+"HitDoublets", self._name+"HitTriplets", self._name+"HitQuadruplets", self._name+"Seeds"])
-        _set(building, "_building", [self._name+"TrackCandidates"])
+        trackCandidates = self._name+"TrackCandidates"
+        _set(building, "_building", [trackCandidates+"MkFitSeeds", trackCandidates+"MkFit", trackCandidates])
         _set(fit, "_fit", [self._name+"Tracks"])
         _set(selection, "_selection", [self._name])
         self._other = other
@@ -1472,14 +1473,14 @@ _iterations = [
                          "initialStepClassifier3",
                          "initialStep",
                          "initialStepSelector"],
-              building=["initialStepTrackCandidatesMkFitInput",
-                        "initialStepTrackCandidatesMkFit",
-                        "initialStepTrackCandidates"],
               other=["firstStepPrimaryVerticesUnsorted",
                      "initialStepTrackRefsForJets",
                      "caloTowerForTrk",
                      "ak4CaloJetsForTrk",
-                     "firstStepPrimaryVertices"]),
+                     "firstStepPrimaryVertices",
+                     "mkFitSiPixelHits",
+                     "mkFitSiStripHits",
+                     "mkFitEventOfHits"]),
     Iteration("highPtTripletStep",
               selection=["highPtTripletStepClassifier1",
                          "highPtTripletStepClassifier2",
