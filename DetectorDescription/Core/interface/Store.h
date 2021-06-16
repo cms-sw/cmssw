@@ -66,11 +66,11 @@ namespace DDI {
 
     Store() : readOnly_(false) {}
     ~Store();
+    Store(const Store&) = delete;
+    Store& operator=(const Store&) = delete;
 
   protected:
     std::map<name_type, prep_type> reg_;
-    Store(const Store&) = delete;
-    Store& operator=(const Store&) = delete;
     bool readOnly_;
   };
 
