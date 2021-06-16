@@ -450,6 +450,10 @@ namespace {
             modules.push_back(it->second);
           }
           foundInLabelsToDesc = true;
+        } else {
+          if (label == "source") {
+            foundInLabelsToDesc = true;
+          }
         }
       }
       if (foundInLabelsToDesc) {
