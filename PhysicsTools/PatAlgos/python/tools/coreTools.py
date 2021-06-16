@@ -193,6 +193,8 @@ class RemoveMCMatching(ConfigToolBase):
             'prunedGenParticles',
             'prunedGenParticlesWithStatusOne',
             'packedGenParticles',
+            'packedPFCandidateToGenAssociation',
+            'lostTracksToGenAssociation',
         ]
         for attr in attrsToDelete:
             if hasattr(process,attr): delattr(process,attr)
