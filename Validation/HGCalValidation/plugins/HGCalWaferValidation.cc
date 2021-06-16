@@ -236,8 +236,7 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   if (eeFound) {
     edm::LogVerbatim(logcat) << "HGCalEE found!";
     edm::LogVerbatim(logcat) << "name     = " << eeWalker.current().first.name().name();
-    edm::LogVerbatim(logcat)
-        << "fullname = " << eeWalker.current().first.name().fullname();
+    edm::LogVerbatim(logcat) << "fullname = " << eeWalker.current().first.name().fullname();
   } else {
     edm::LogPrint(logcat) << "HGCalEE not found!";
   }
@@ -249,8 +248,7 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   if (hesilFound) {
     edm::LogVerbatim(logcat) << "HGCalHEsil found!";
     edm::LogVerbatim(logcat) << "name     = " << hesilWalker.current().first.name().name();
-    edm::LogVerbatim(logcat)
-        << "fullname = " << hesilWalker.current().first.name().fullname();
+    edm::LogVerbatim(logcat) << "fullname = " << hesilWalker.current().first.name().fullname();
   } else {
     edm::LogPrint(logcat) << "HGCalHEsil not found!";
   }
@@ -262,8 +260,7 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   if (hemixFound) {
     edm::LogVerbatim(logcat) << "HGCalHEmix found!";
     edm::LogVerbatim(logcat) << "name     = " << hemixWalker.current().first.name().name();
-    edm::LogVerbatim(logcat)
-        << "fullname = " << hemixWalker.current().first.name().fullname();
+    edm::LogVerbatim(logcat) << "fullname = " << hemixWalker.current().first.name().fullname();
   } else {
     edm::LogPrint(logcat) << "HGCalHEmix not found!";
   }
@@ -375,8 +372,8 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     if ((waferShapeCode != 'F' && waferInfo.rotCode != waferRotCode) ||
         (waferShapeCode == 'F' && (waferInfo.rotCode % 2 != waferRotCode % 2))) {
       nRotError++;
-      edm::LogVerbatim(logcat) << "ROTATION ERROR: " << strWaferCoord(waferCoord) << "  ( "
-                               << waferInfo.rotCode << " != " << waferRotCode << " )";
+      edm::LogVerbatim(logcat) << "ROTATION ERROR: " << strWaferCoord(waferCoord) << "  ( " << waferInfo.rotCode
+                               << " != " << waferRotCode << " )";
     }
   }
 
@@ -401,13 +398,12 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::LogVerbatim(logcat) << "Rotation error  :  " << nRotError;
   edm::LogVerbatim(logcat) << "Unaccounted     :  " << nUnaccounted;
   edm::LogVerbatim(logcat) << std::endl;
-  edm::LogVerbatim(logcat)
-      << "Total wafers processed from geotxtfile = " << nTotalProcessed;
+  edm::LogVerbatim(logcat) << "Total wafers processed from geotxtfile = " << nTotalProcessed;
   edm::LogVerbatim(logcat) << std::endl;
 
   // Issue a LogPrint (warning) if there is at least one wafer errors
-  if (nMissing > 0 || nThicknessError > 0 || nPosXError > 0 || nPosYError > 0 ||
-      nShapeError > 0 || nRotError > 0 || nUnaccounted > 0) {
+  if (nMissing > 0 || nThicknessError > 0 || nPosXError > 0 || nPosYError > 0 || nShapeError > 0 || nRotError > 0 ||
+      nUnaccounted > 0) {
     edm::LogPrint(logcat) << "There are at least one wafer error.";
   }
 }
