@@ -41,8 +41,8 @@ if process.dqmRunConfig.type.value() is "playback":
 process.load('HLTrigger.Timer.fastTimerServiceClient_cfi')
 process.fastTimerServiceClient.dqmPath = "HLT/TimerService"
 # timing VS lumi
-process.fastTimerServiceClient.doPlotsVsScalLumi  = cms.bool(True)
-process.fastTimerServiceClient.doPlotsVsPixelLumi = cms.bool(False)
+process.fastTimerServiceClient.doPlotsVsScalLumi  = True
+process.fastTimerServiceClient.doPlotsVsPixelLumi = False
 process.fastTimerServiceClient.scalLumiME = cms.PSet(
     folder = cms.string('HLT/LumiMonitoring'),
     name   = cms.string('lumiVsLS'),

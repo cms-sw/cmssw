@@ -46,7 +46,7 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 #process.GlobalTag.globaltag = "102X_dataRun2_Express_v4"
-process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
+process.GlobalTag.RefreshEachRun = True
 
 ############# DQM Cetral Modules ################
 #process.load("DQMServices.Core.DQM_cfg")
@@ -91,32 +91,35 @@ process.load("RecoLocalMuon.RPCRecHit.rpcRecHits_cfi")
 process.rpcRecHits.rpcDigiLabel = 'rpcunpacker'
 #######################################################
 ### RPCRecHit - from Merger
-process.rpcMergerRecHits = process.rpcRecHits.clone()
-process.rpcMergerRecHits.rpcDigiLabel = cms.InputTag('rpcDigiMerger')
+process.rpcMergerRecHits = process.rpcRecHits.clone(
+  rpcDigiLabel = 'rpcDigiMerger'
+)
 
 ################ DQM Digi Module ################
 ### DQM - from legacy
 process.load("DQM.RPCMonitorDigi.RPCDigiMonitoring_cfi")
 process.rpcdigidqm.UseMuon =  useMuons
-process.rpcdigidqm.NoiseFolder = cms.untracked.string("AllHits")
-process.rpcdigidqm.RecHitLabel = cms.InputTag("rpcRecHits")
+process.rpcdigidqm.NoiseFolder = "AllHits"
+process.rpcdigidqm.RecHitLabel = "rpcRecHits"
 ### DQM - from Merger
-process.rpcMergerdigidqm = process.rpcdigidqm.clone()
-process.rpcMergerdigidqm.NoiseFolder = cms.untracked.string("AllHitsMerger")
-process.rpcMergerdigidqm.RecHitLabel = cms.InputTag("rpcMergerRecHits")
+process.rpcMergerdigidqm = process.rpcdigidqm.clone(
+  NoiseFolder = "AllHitsMerger",
+  RecHitLabel = "rpcMergerRecHits"
+)
 
 #######################################################
 
 ################# DQM Client Modules ############
 process.load("DQM.RPCMonitorClient.RPCDqmClient_cfi")
-process.rpcdqmclient.RPCDqmClientList = cms.untracked.vstring("RPCMultiplicityTest", "RPCDeadChannelTest", "RPCClusterSizeTest", "RPCOccupancyTest","RPCNoisyStripTest")
-process.rpcdqmclient.DiagnosticPrescale = cms.untracked.int32(1)
-process.rpcdqmclient.MinimumRPCEvents  = cms.untracked.int32(100)
-process.rpcdqmclient.OfflineDQM = cms.untracked.bool(isOfflineDQM)
-process.rpcdqmclient.RecHitTypeFolder = cms.untracked.string("AllHits")
+process.rpcdqmclient.RPCDqmClientList = ["RPCMultiplicityTest", "RPCDeadChannelTest", "RPCClusterSizeTest", "RPCOccupancyTest","RPCNoisyStripTest"]
+process.rpcdqmclient.DiagnosticPrescale = 1
+process.rpcdqmclient.MinimumRPCEvents  = 100
+process.rpcdqmclient.OfflineDQM = isOfflineDQM
+process.rpcdqmclient.RecHitTypeFolder = "AllHits"
 ### Merger
-process.rpcMergerdqmclient = process.rpcdqmclient.clone()
-process.rpcMergerdqmclient.RecHitTypeFolder = cms.untracked.string("AllHitsMerger")
+process.rpcMergerdqmclient = process.rpcdqmclient.clone(
+  RecHitTypeFolder = "AllHitsMerger"
+)
 ################# Other Clients #################
 #process.load("DQM.RPCMonitorClient.RPCMon_SS_Dbx_Global_cfi")
 
@@ -127,12 +130,13 @@ process.load("DQM.RPCMonitorClient.RPCMonitorLinkSynchro_cfi")
 
 ########### RPC Event Summary Module ############
 process.load("DQM.RPCMonitorClient.RPCEventSummary_cfi")
-process.rpcEventSummary.OfflineDQM = cms.untracked.bool(isOfflineDQM )
-process.rpcEventSummary.MinimumRPCEvents  = cms.untracked.int32(10000)
-process.rpcEventSummary.RecHitTypeFolder = cms.untracked.string("AllHits")
+process.rpcEventSummary.OfflineDQM = isOfflineDQM 
+process.rpcEventSummary.MinimumRPCEvents  = 10000
+process.rpcEventSummary.RecHitTypeFolder = "AllHits"
 ### Merger
-process.rpcEventSummaryMerger = process.rpcEventSummary.clone()
-process.rpcEventSummaryMerger.RecHitTypeFolder = cms.untracked.string("AllHitsMerger")
+process.rpcEventSummaryMerger = process.rpcEventSummary.clone(
+   RecHitTypeFolder = "AllHitsMerger"
+)
 
 ################# Quality Tests #################
 from DQMServices.Core.DQMQualityTester import DQMQualityTester
@@ -145,12 +149,13 @@ process.qTesterRPC = DQMQualityTester(
 
 ############## Chamber Quality ##################
 process.load("DQM.RPCMonitorClient.RPCChamberQuality_cfi")
-process.rpcChamberQuality.OfflineDQM = cms.untracked.bool(isOfflineDQM )
-process.rpcChamberQuality.RecHitTypeFolder = cms.untracked.string("AllHits")
-process.rpcChamberQuality.MinimumRPCEvents  = cms.untracked.int32(10000)
+process.rpcChamberQuality.OfflineDQM = isOfflineDQM 
+process.rpcChamberQuality.RecHitTypeFolder = "AllHits"
+process.rpcChamberQuality.MinimumRPCEvents  = 10000
 ### Merger
-process.rpcChamberQualityMerger = process.rpcChamberQuality.clone()
-process.rpcChamberQualityMerger.RecHitTypeFolder = cms.untracked.string("AllHitsMerger")
+process.rpcChamberQualityMerger = process.rpcChamberQuality.clone(
+  RecHitTypeFolder = "AllHitsMerger"
+)
 
 ###############  Sequences ######################
 process.rpcSource = cms.Sequence( process.rpcunpacker
@@ -164,9 +169,9 @@ process.rpcSource = cms.Sequence( process.rpcunpacker
 process.rpcClient = cms.Sequence(process.rpcdqmclient*process.rpcMergerdqmclient*process.rpcChamberQuality*process.rpcChamberQualityMerger*process.rpcEventSummary*process.rpcEventSummaryMerger*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
 process.p = cms.Path(process.hltTriggerTypeFilter*process.rpcSource*process.rpcClient)
 
-process.rpcunpacker.InputLabel = cms.InputTag("rawDataCollector")
-process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataCollector")
+process.rpcunpacker.InputLabel = "rawDataCollector"
+process.scalersRawToDigi.scalersInputTag = "rawDataCollector"
+process.rpcCPPFRawToDigi.inputTag = "rawDataCollector"
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
@@ -174,13 +179,13 @@ process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataCollector")
 print("Running with run type = ", process.runType.getRunType())
 
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.rpcunpacker.InputLabel = cms.InputTag("rawDataRepacker")
-    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.rpcTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
-    process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
-    process.omtfStage2Digis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.rpcEventSummary.MinimumRPCEvents  = cms.untracked.int32(100000)
-    process.rpcEventSummaryMerger.MinimumRPCEvents  = cms.untracked.int32(100000)
+    process.rpcunpacker.InputLabel = "rawDataRepacker"
+    process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
+    process.rpcTwinMuxRawToDigi.inputTag = "rawDataRepacker"
+    process.rpcCPPFRawToDigi.inputTag = "rawDataRepacker"
+    process.omtfStage2Digis.inputLabel = "rawDataRepacker"
+    process.rpcEventSummary.MinimumRPCEvents  = 100000
+    process.rpcEventSummaryMerger.MinimumRPCEvents  = 100000
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *

@@ -100,14 +100,14 @@ process = customise(process)
 
 # Set rawDataRepacker (HI and live) or rawDataCollector (for all the rest)
 if (process.runType.getRunType() == process.runType.hi_run and live):
-  rawDataInputTag = cms.InputTag("rawDataRepacker")
+  rawDataInputTag = "rawDataRepacker"
 else:
-  rawDataInputTag = cms.InputTag("rawDataCollector")
+  rawDataInputTag = "rawDataCollector"
 
 process.dqmBeamMonitor.monitorName = 'FakeBeamMonitor'
 process.dqmBeamMonitor.OnlineMode = True              
 process.dqmBeamMonitor.recordName = BSOnlineRecordName
-process.dqmBeamMonitor.useLockRecords = cms.untracked.bool(useLockRecords)
+process.dqmBeamMonitor.useLockRecords = useLockRecords
 process.dqmBeamMonitor.resetEveryNLumi   = 5
 process.dqmBeamMonitor.resetPVEveryNLumi = 5
 

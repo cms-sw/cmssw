@@ -166,7 +166,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
         "HLT_PAZeroBias_v", "HLT_ZeroBias_", "HLT_QuadJet",
         "HLT_HI")
 
-    process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
+    process.dqmBeamMonitor.hltResults = "TriggerResults::HLT"
 
     #---------
     # Upload BeamSpotOnlineObject (HLTRcd) to CondDB
