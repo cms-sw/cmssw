@@ -46,6 +46,15 @@ else:
     process = cms.Process('TEST',Phase2C11M9)
     process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
 
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger = cms.Service("MessageLogger",
+   destinations   = cms.untracked.vstring('cout'),
+   cout           = cms.untracked.PSet(
+                        threshold  = cms.untracked.string('INFO')
+                        #threshold  = cms.untracked.string('WARNING')
+                    ),
+)
+
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
