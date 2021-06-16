@@ -63,8 +63,6 @@ public:
   // booking methods
   void bookBarrelHistograms(const std::string& currentHistoName, const char* what, const char* zaxis);
   void bookForwardHistograms(const std::string& currentHistoName, const char* what, const char* zaxis);
-  void bookBarrelBins(const std::string& currentHistoName);
-  void bookForwardBins(const std::string& currentHistoName);
 
   // fill them all
   void fill(const std::string& currentHistoName, unsigned int id, double value);
@@ -99,6 +97,10 @@ private:
   std::vector<edm::FileInPath> m_cornersFPIX;
 
   const indexedCorners retrieveCorners(const std::vector<edm::FileInPath>& cornerFiles, const unsigned int reads);
+
+  // called by book histograms
+  void bookBarrelBins(const std::string& currentHistoName);
+  void bookForwardBins(const std::string& currentHistoName);
 
   // graphics
   void makeNicePlotStyle(TH1* hist);

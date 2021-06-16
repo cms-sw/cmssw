@@ -115,9 +115,7 @@ public:
 
     pixelmap = std::make_unique<Phase1PixelMaps>("COLZ0 L");
     pixelmap->bookBarrelHistograms("entriesBarrel", "# hits", "# pixel hits");
-    pixelmap->bookBarrelBins("entriesBarrel");
     pixelmap->bookForwardHistograms("entriesForward", "# hits", "# pixel hits");
-    pixelmap->bookForwardBins("entriesForward");
   }
 
   ~GeneralPurposeTrackAnalyzer() override {}
