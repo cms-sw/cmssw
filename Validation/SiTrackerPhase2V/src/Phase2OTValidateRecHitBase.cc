@@ -300,7 +300,7 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_vs_Eta_Pixel");
-    psd0.add<std::string>("title", ";#eta;#Delta x [#mum]");
+    psd0.add<std::string>("title", ";|#eta|;#Delta x [#mum]");
     psd0.add<int>("NyBins", 250);
     psd0.add<double>("ymin", -250.0);
     psd0.add<double>("ymax", 250.0);
@@ -313,7 +313,7 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_vs_Eta_Pixel");
-    psd0.add<std::string>("title", ";#eta;#Delta y [#mum]");
+    psd0.add<std::string>("title", ";|#eta|;#Delta y [#mum]");
     psd0.add<int>("NyBins", 300);
     psd0.add<double>("ymin", -1500.0);
     psd0.add<double>("ymax", 1500.0);
@@ -471,7 +471,7 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_vs_Eta_Strip");
-    psd0.add<std::string>("title", ";#eta;#Delta x [#mum]");
+    psd0.add<std::string>("title", ";|#eta|;#Delta x [#mum]");
     psd0.add<int>("NyBins", 250);
     psd0.add<double>("ymin", -250.0);
     psd0.add<double>("ymax", 250.0);
@@ -484,7 +484,7 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_vs_Eta_Strip");
-    psd0.add<std::string>("title", ";#eta;#Delta y [cm]");
+    psd0.add<std::string>("title", ";|#eta|;#Delta y [cm]");
     psd0.add<int>("NyBins", 100);
     psd0.add<double>("ymin", -5.0);
     psd0.add<double>("ymax", 5.0);

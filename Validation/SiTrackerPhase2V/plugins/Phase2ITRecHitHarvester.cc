@@ -166,7 +166,7 @@ void Phase2ITRecHitHarvester::fillDescriptions(edm::ConfigurationDescriptions& d
 
   edm::ParameterSetDescription psd0;
   psd0.add<std::string>("name", "resolutionXFitvseta");
-  psd0.add<std::string>("title", ";#eta; X-Resolution from fit [#mum]");
+  psd0.add<std::string>("title", ";|#eta|; X-Resolution from fit [#mum]");
   psd0.add<int>("NxBins", 41);
   psd0.add<double>("xmax", 4.1);
   psd0.add<double>("xmin", 0.);
@@ -175,7 +175,7 @@ void Phase2ITRecHitHarvester::fillDescriptions(edm::ConfigurationDescriptions& d
 
   edm::ParameterSetDescription psd1;
   psd1.add<std::string>("name", "resolutionYFitvseta");
-  psd1.add<std::string>("title", ";#eta; Y-Resolution from fit [#mum]");
+  psd1.add<std::string>("title", ";|#eta|; Y-Resolution from fit [#mum]");
   psd1.add<int>("NxBins", 41);
   psd1.add<double>("xmax", 4.1);
   psd1.add<double>("xmin", 0.);
@@ -202,7 +202,7 @@ void Phase2ITRecHitHarvester::fillDescriptions(edm::ConfigurationDescriptions& d
 
   edm::ParameterSetDescription psd4;
   psd4.add<std::string>("name", "meanXFitvseta");
-  psd4.add<std::string>("title", ";#eta; Mean residual X from fit [#mum]");
+  psd4.add<std::string>("title", ";|#eta|; Mean residual X from fit [#mum]");
   psd4.add<int>("NxBins", 41);
   psd4.add<double>("xmax", 4.1);
   psd4.add<double>("xmin", 0.);
@@ -211,7 +211,7 @@ void Phase2ITRecHitHarvester::fillDescriptions(edm::ConfigurationDescriptions& d
 
   edm::ParameterSetDescription psd5;
   psd5.add<std::string>("name", "meanYFitvseta");
-  psd5.add<std::string>("title", ";#eta; Mean residual Y from fit [#mum]");
+  psd5.add<std::string>("title", ";|#eta|; Mean residual Y from fit [#mum]");
   psd5.add<int>("NxBins", 41);
   psd5.add<double>("xmax", 4.1);
   psd5.add<double>("xmin", 0.);
