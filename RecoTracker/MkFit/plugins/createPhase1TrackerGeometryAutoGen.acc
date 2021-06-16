@@ -1,0 +1,1142 @@
+void createPhase1TrackerGeometryAutoGen(TrackerInfo &ti, IterationsInfo &ii) {
+  // PIXB
+
+  {
+    LayerInfo &obj = ti.m_layers[0];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(2.720, 3.390, -26.700, 26.700);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(1, 18, 45);
+    obj.m_q_bin = 2.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_pixb_lyr = true;
+    obj.m_is_seed_lyr = true;
+  }
+
+  {
+    LayerInfo &obj = ti.m_layers[1];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(6.560, 7.270, -26.700, 26.700);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(2, 18, 45);
+    obj.m_q_bin = 2.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_pixb_lyr = true;
+    obj.m_is_seed_lyr = true;
+  }
+
+  {
+    LayerInfo &obj = ti.m_layers[2];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(10.690, 11.360, -26.700, 26.700);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(3, 18, 45);
+    obj.m_q_bin = 2.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_pixb_lyr = true;
+    obj.m_is_seed_lyr = true;
+  }
+
+  {
+    LayerInfo &obj = ti.m_layers[3];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(15.800, 16.460, -26.700, 26.690);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(4, 21, 48);
+    obj.m_q_bin = 2.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_pixb_lyr = true;
+    obj.m_is_seed_lyr = true;
+  }
+
+  // TIB
+
+  {
+    LayerInfo &obj = ti.m_layers[4];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(23.450, 27.880, -66.670, 63.930);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(5, 21, 48);
+    obj.m_q_bin = 6.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tib_lyr = true;
+  }
+
+  {
+    LayerInfo &obj = ti.m_layers[5];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(23.450, 27.880, -66.670, 63.930);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(6, 21, 48);
+    obj.m_q_bin = 6.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tib_lyr = true;
+  }
+
+  {
+    LayerInfo &obj = ti.m_layers[6];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(31.830, 36.240, -65.890, 66.670);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(7, 21, 48);
+    obj.m_q_bin = 6.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tib_lyr = true;
+  }
+
+  {
+    LayerInfo &obj = ti.m_layers[7];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(31.830, 36.240, -65.890, 66.670);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(8, 21, 48);
+    obj.m_q_bin = 6.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tib_lyr = true;
+  }
+
+  {
+    LayerInfo &obj = ti.m_layers[8];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(39.880, 44.040, -66.400, 65.240);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(9, 21, 48);
+    obj.m_q_bin = 6.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tib_lyr = true;
+  }
+
+  {
+    LayerInfo &obj = ti.m_layers[9];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(47.810, 51.980, -66.400, 66.400);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(10, 27, 54);
+    obj.m_q_bin = 6.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tib_lyr = true;
+  }
+
+  // TOB
+
+  {
+    LayerInfo &obj = ti.m_layers[10];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(58.410, 63.430, -108.710, 108.710);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(11, 27, 54);
+    obj.m_q_bin = 9.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tib_lyr = true;
+  }
+
+  {
+    LayerInfo &obj = ti.m_layers[11];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(58.410, 63.430, -108.710, 108.710);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(12, 27, 54);
+    obj.m_q_bin = 9.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tib_lyr = true;
+  }
+
+  {
+    LayerInfo &obj = ti.m_layers[12];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(66.810, 71.740, -108.700, 108.710);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(13, 27, 54);
+    obj.m_q_bin = 9.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tib_lyr = true;
+  }
+
+  {
+    LayerInfo &obj = ti.m_layers[13];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(66.810, 71.740, -108.700, 108.710);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(14, 27, 54);
+    obj.m_q_bin = 9.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tib_lyr = true;
+  }
+
+  {
+    LayerInfo &obj = ti.m_layers[14];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(76.040, 80.090, -108.300, 108.290);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(15, 27, 54);
+    obj.m_q_bin = 9.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tib_lyr = true;
+  }
+
+  {
+    LayerInfo &obj = ti.m_layers[15];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(84.840, 88.880, -108.290, 108.300);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(16, 27, 54);
+    obj.m_q_bin = 9.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tib_lyr = true;
+  }
+
+  {
+    LayerInfo &obj = ti.m_layers[16];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(94.540, 98.570, -108.290, 108.290);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(17, 27, 54);
+    obj.m_q_bin = 9.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tib_lyr = true;
+  }
+
+  {
+    LayerInfo &obj = ti.m_layers[17];
+    obj.m_layer_type = LayerInfo::Barrel;
+    obj.set_limits(106.040, 110.060, -108.290, 108.290);
+    obj.m_propagate_to = obj.r_mean();
+    obj.set_next_layers(-1, -1, -1);
+    obj.m_q_bin = 9.500;
+    obj.m_is_outer = true;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tib_lyr = true;
+  }
+
+  // PIXE +/-
+
+  {
+    LayerInfo &obj = ti.m_layers[18];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(4.590, 16.090, 29.440, 35.210);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(4, 19, -1);
+    obj.m_q_bin = 1.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_pixe_lyr = true;
+    obj.m_is_seed_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[45];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(4.590, 16.090, -35.200, -29.440);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(4, -1, 46);
+    obj.m_q_bin = 1.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_pixe_lyr = true;
+    obj.m_is_seed_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[19];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(4.590, 16.090, 36.940, 42.700);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(4, 20, -1);
+    obj.m_q_bin = 1.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_pixe_lyr = true;
+    obj.m_is_seed_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[46];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(4.590, 16.090, -42.700, -36.940);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(4, -1, 47);
+    obj.m_q_bin = 1.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_pixe_lyr = true;
+    obj.m_is_seed_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[20];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(4.590, 16.090, 46.450, 52.200);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(4, 21, -1);
+    obj.m_q_bin = 1.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_pixe_lyr = true;
+    obj.m_is_seed_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[47];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(4.590, 16.090, -52.210, -46.450);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(4, -1, 48);
+    obj.m_q_bin = 1.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_pixe_lyr = true;
+    obj.m_is_seed_lyr = true;
+  }
+
+  // TID +/-
+
+  {
+    LayerInfo &obj = ti.m_layers[21];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(22.980, 50.440, 74.350, 84.050);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(10, 22, -1);
+    obj.m_q_bin = 5.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tid_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[48];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(22.980, 50.440, -84.050, -74.350);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(10, -1, 49);
+    obj.m_q_bin = 5.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tid_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[22];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(22.800, 42.000, 74.350, 84.050);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(10, 23, -1);
+    obj.m_q_bin = 5.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tid_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[49];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(22.800, 42.000, -84.050, -74.350);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(10, -1, 50);
+    obj.m_q_bin = 5.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tid_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[23];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(22.980, 50.440, 87.300, 97.000);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(10, 24, -1);
+    obj.m_q_bin = 5.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tid_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[50];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(22.980, 50.440, -97.000, -87.300);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(10, -1, 51);
+    obj.m_q_bin = 5.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tid_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[24];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(22.800, 42.000, 87.300, 97.000);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(10, 25, -1);
+    obj.m_q_bin = 5.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tid_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[51];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(22.800, 42.000, -97.000, -87.300);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(10, -1, 52);
+    obj.m_q_bin = 5.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tid_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[25];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(22.980, 50.440, 100.250, 109.950);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(10, 26, -1);
+    obj.m_q_bin = 5.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tid_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[52];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(22.980, 50.440, -109.950, -100.250);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(10, -1, 53);
+    obj.m_q_bin = 5.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tid_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[26];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(22.800, 42.000, 100.250, 109.950);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(10, 27, -1);
+    obj.m_q_bin = 5.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tid_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[53];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(22.800, 42.000, -109.950, -100.250);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(10, -1, 54);
+    obj.m_q_bin = 5.500;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tid_lyr = true;
+  }
+
+  // TEC +/-
+
+  {
+    LayerInfo &obj = ti.m_layers[27];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(23.370, 109.390, 126.380, 137.390);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 28, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[54];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(23.360, 109.400, -137.390, -126.380);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 55);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[28];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(23.300, 76.100, 126.380, 137.390);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 29, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+    obj.set_r_hole_range(42.000, 59.900);
+  }
+  {
+    LayerInfo &obj = ti.m_layers[55];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(23.300, 76.100, -137.390, -126.380);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 56);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+    obj.set_r_hole_range(42.000, 59.900);
+  }
+  {
+    LayerInfo &obj = ti.m_layers[29];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(23.360, 109.410, 140.380, 151.390);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 30, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[56];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(23.360, 109.390, -151.420, -140.380);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 57);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[30];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(23.300, 76.100, 140.380, 151.390);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 31, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+    obj.set_r_hole_range(42.000, 59.900);
+  }
+  {
+    LayerInfo &obj = ti.m_layers[57];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(23.300, 76.100, -151.420, -140.380);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 58);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+    obj.set_r_hole_range(42.000, 59.900);
+  }
+  {
+    LayerInfo &obj = ti.m_layers[31];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(23.360, 109.390, 154.380, 165.390);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 32, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[58];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(23.360, 109.390, -165.390, -154.380);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 59);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[32];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(23.300, 76.100, 154.380, 165.390);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 33, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+    obj.set_r_hole_range(42.000, 59.900);
+  }
+  {
+    LayerInfo &obj = ti.m_layers[59];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(23.300, 76.100, -165.390, -154.380);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 60);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+    obj.set_r_hole_range(42.000, 59.900);
+  }
+  {
+    LayerInfo &obj = ti.m_layers[33];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(32.110, 109.400, 168.380, 179.380);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 34, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[60];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(32.110, 109.390, -179.390, -168.380);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 61);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[34];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(31.600, 75.900, 168.380, 179.380);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 35, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+    obj.set_r_hole_range(42.100, 59.700);
+  }
+  {
+    LayerInfo &obj = ti.m_layers[61];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(31.600, 75.900, -179.390, -168.380);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 62);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+    obj.set_r_hole_range(42.100, 59.700);
+  }
+  {
+    LayerInfo &obj = ti.m_layers[35];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(32.110, 109.390, 182.370, 193.390);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 36, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[62];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(32.110, 109.390, -193.380, -182.380);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 63);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[36];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(31.600, 75.900, 182.370, 193.390);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 37, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+    obj.set_r_hole_range(42.100, 59.700);
+  }
+  {
+    LayerInfo &obj = ti.m_layers[63];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(31.600, 75.900, -193.380, -182.380);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 64);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+    obj.set_r_hole_range(42.100, 59.700);
+  }
+  {
+    LayerInfo &obj = ti.m_layers[37];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(32.110, 109.390, 199.870, 210.880);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 38, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[64];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(32.110, 109.390, -210.880, -199.870);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 65);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[38];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(31.600, 75.900, 199.870, 210.880);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 39, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+    obj.set_r_hole_range(42.100, 59.700);
+  }
+  {
+    LayerInfo &obj = ti.m_layers[65];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(31.600, 75.900, -210.880, -199.870);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 66);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+    obj.set_r_hole_range(42.100, 59.700);
+  }
+  {
+    LayerInfo &obj = ti.m_layers[39];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(39.200, 109.390, 218.870, 229.860);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 40, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[66];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(39.200, 109.390, -229.860, -218.870);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 67);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[40];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(59.900, 75.900, 218.870, 229.860);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 41, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[67];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(59.900, 75.900, -229.860, -218.870);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 68);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[41];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(39.200, 109.400, 239.370, 250.360);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 42, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[68];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(39.200, 109.400, -250.360, -239.370);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 69);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[42];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(59.900, 75.900, 239.370, 250.360);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 43, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[69];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(59.900, 75.900, -250.360, -239.370);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 70);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[43];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(50.410, 109.400, 260.870, 271.870);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, 44, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[70];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(50.410, 109.390, -271.880, -260.870);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, 71);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = false;
+    obj.m_is_stereo_lyr = false;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[44];
+    obj.m_layer_type = LayerInfo::EndCapPos;
+    obj.set_limits(59.900, 75.900, 260.870, 271.870);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = true;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+  }
+  {
+    LayerInfo &obj = ti.m_layers[71];
+    obj.m_layer_type = LayerInfo::EndCapNeg;
+    obj.set_limits(59.900, 75.900, -271.880, -260.870);
+    obj.m_propagate_to = obj.z_mean();
+    obj.set_next_layers(-1, -1, -1);
+    obj.m_q_bin = 10.000;
+    obj.m_is_outer = true;
+    obj.m_is_stereo_lyr = true;
+    obj.m_is_tec_lyr = true;
+  }
+
+  // Iteration 0 (default)
+
+  {
+    IterationConfig &ic = ii[0];
+    {
+      IterationLayerConfig &obj = ic.layer(0);
+      obj.set_selection_limits(0.010000, 0.050000, 1.000000, 2.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(1);
+      obj.set_selection_limits(0.010000, 0.050000, 1.000000, 2.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(2);
+      obj.set_selection_limits(0.010000, 0.050000, 1.000000, 2.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(3);
+      obj.set_selection_limits(0.010000, 0.050000, 1.000000, 2.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(4);
+      obj.set_selection_limits(0.010000, 0.015000, 6.000000, 12.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(5);
+      obj.set_selection_limits(0.023000, 0.030000, 6.000000, 12.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(6);
+      obj.set_selection_limits(0.010000, 0.015000, 6.000000, 12.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(7);
+      obj.set_selection_limits(0.016000, 0.030000, 6.000000, 12.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(8);
+      obj.set_selection_limits(0.010000, 0.015000, 6.000000, 12.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(9);
+      obj.set_selection_limits(0.010000, 0.015000, 6.000000, 12.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(10);
+      obj.set_selection_limits(0.010000, 0.015000, 9.500000, 19.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(11);
+      obj.set_selection_limits(0.016000, 0.030000, 9.500000, 19.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(12);
+      obj.set_selection_limits(0.010000, 0.015000, 9.500000, 19.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(13);
+      obj.set_selection_limits(0.013000, 0.030000, 9.500000, 19.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(14);
+      obj.set_selection_limits(0.010000, 0.015000, 9.500000, 19.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(15);
+      obj.set_selection_limits(0.010000, 0.015000, 9.500000, 19.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(16);
+      obj.set_selection_limits(0.010000, 0.015000, 9.500000, 19.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(17);
+      obj.set_selection_limits(0.010000, 0.015000, 9.500000, 19.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(18);
+      obj.set_selection_limits(0.010000, 0.015000, 0.800000, 1.600000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(19);
+      obj.set_selection_limits(0.010000, 0.015000, 0.800000, 1.600000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(20);
+      obj.set_selection_limits(0.010000, 0.015000, 0.800000, 1.600000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(21);
+      obj.set_selection_limits(0.010000, 0.015000, 5.500000, 11.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(22);
+      obj.set_selection_limits(0.010000, 0.030000, 5.500000, 11.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(23);
+      obj.set_selection_limits(0.010000, 0.015000, 5.500000, 11.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(24);
+      obj.set_selection_limits(0.010000, 0.030000, 5.500000, 11.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(25);
+      obj.set_selection_limits(0.010000, 0.015000, 5.500000, 11.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(26);
+      obj.set_selection_limits(0.010000, 0.030000, 5.500000, 11.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(27);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(28);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(29);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(30);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(31);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(32);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(33);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(34);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(35);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(36);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(37);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(38);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(39);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(40);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(41);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(42);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(43);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(44);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(45);
+      obj.set_selection_limits(0.010000, 0.015000, 0.800000, 1.600000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(46);
+      obj.set_selection_limits(0.010000, 0.015000, 0.800000, 1.600000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(47);
+      obj.set_selection_limits(0.010000, 0.015000, 0.800000, 1.600000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(48);
+      obj.set_selection_limits(0.010000, 0.015000, 5.500000, 11.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(49);
+      obj.set_selection_limits(0.010000, 0.030000, 5.500000, 11.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(50);
+      obj.set_selection_limits(0.010000, 0.015000, 5.500000, 11.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(51);
+      obj.set_selection_limits(0.010000, 0.030000, 5.500000, 11.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(52);
+      obj.set_selection_limits(0.010000, 0.015000, 5.500000, 11.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(53);
+      obj.set_selection_limits(0.010000, 0.030000, 5.500000, 11.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(54);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(55);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(56);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(57);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(58);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(59);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(60);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(61);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(62);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(63);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(64);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(65);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(66);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(67);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(68);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(69);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(70);
+      obj.set_selection_limits(0.010000, 0.015000, 10.000000, 20.000000);
+    }
+    {
+      IterationLayerConfig &obj = ic.layer(71);
+      obj.set_selection_limits(0.010000, 0.030000, 10.000000, 20.000000);
+    }
+  }
+}

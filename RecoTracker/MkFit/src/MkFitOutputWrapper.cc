@@ -5,8 +5,8 @@
 
 MkFitOutputWrapper::MkFitOutputWrapper() = default;
 
-MkFitOutputWrapper::MkFitOutputWrapper(mkfit::TrackVec&& candidateTracks, mkfit::TrackVec&& fitTracks)
-    : candidateTracks_{std::move(candidateTracks)}, fitTracks_{std::move(fitTracks)} {}
+MkFitOutputWrapper::MkFitOutputWrapper(mkfit::TrackVec tracks, bool propagatedToFirstLayer)
+    : tracks_{std::move(tracks)}, propagatedToFirstLayer_{propagatedToFirstLayer} {}
 
 MkFitOutputWrapper::~MkFitOutputWrapper() = default;
 

@@ -12,11 +12,9 @@ def customizeInitialStepOnly(process):
     process.initialStepSeedLayers.BPix.HitProducer = 'siPixelRecHitsPreSplitting'
     process.initialStepHitQuadruplets.SeedComparitorPSet.clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
     process.initialStepSeeds.SeedComparitorPSet.ClusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
-    if hasattr(process.initialStepTrackCandidates, "measurementTrackerEvent"):
-        # mkFit case
-        process.initialStepTrackCandidates.measurementTrackerEvent = 'MeasurementTrackerEventPreSplitting'
-        process.initialStepTrackCandidatesMkFitInput.pixelRecHits = "siPixelRecHitsPreSplitting"
-    else:
+    if hasattr(process, "initialStepTrackCandidatesMkFitHits"):
+        process.initialStepTrackCandidatesMkFitHits.pixelRecHits = "siPixelRecHitsPreSplitting"
+    if hasattr(process.initialStepTrackCandidates, "MeasurementTrackerEvent"):
         process.initialStepTrackCandidates.MeasurementTrackerEvent = 'MeasurementTrackerEventPreSplitting'
     process.initialStepTracks.MeasurementTrackerEvent = 'MeasurementTrackerEventPreSplitting'
     process.iterTrackingTask = cms.Task(process.trackerClusterCheck,
@@ -57,10 +55,10 @@ def customizeInitialStepOnly(process):
             mod.dodEdxPlots = False
             mod.doResolutionPlotsForLabels = []
 
-    setInput(["trackValidatorTrackingOnly", "trackValidatorAllTPEfficStandalone",
-              "trackValidatorTPPtLess09Standalone", "trackValidatorBHadronTrackingOnly"],
+    setInput(["trackValidatorTrackingOnly", "trackValidatorAllTPEfficTrackingOnly",
+              "trackValidatorTPPtLess09TrackingOnly", "trackValidatorBHadronTrackingOnly"],
              ["cutsRecoTracksInitialStep", "cutsRecoTracksPt09InitialStep"])
-    setInput(["trackValidatorFromPVStandalone", "trackValidatorFromPVAllTPStandalone"],
+    setInput(["trackValidatorFromPVTrackingOnly", "trackValidatorFromPVAllTPTrackingOnly"],
              ["cutsRecoTracksFromPVInitialStep", "cutsRecoTracksFromPVPt09InitialStep"])
     setInput(["trackValidatorSeedingTrackingOnly"], ["seedTracksinitialStepSeeds"])
     setInput(["trackValidatorBuilding"], ["initialStepTracks"])

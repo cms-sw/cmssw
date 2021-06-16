@@ -295,11 +295,14 @@ upgradeWFs['pixelTrackingOnly'].step3 = {
 
 class UpgradeWorkflow_trackingMkFit(UpgradeWorkflowTracking):
     def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Digi' in step: stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
         return '2017' in key or '2021' in key
 upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
     steps = [
+        'Digi',
+        'DigiTrigger',
         'Reco',
         'RecoGlobal',
     ],
@@ -307,6 +310,9 @@ upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
     suffix = '_trackingMkFit',
     offset = 0.7,
 )
+upgradeWFs['trackingMkFit'].step2 = {
+    '--customise': 'RecoTracker/MkFit/customizeHLTIter0ToMkFit.customizeHLTIter0ToMkFit'
+}
 upgradeWFs['trackingMkFit'].step3 = {
     '--procModifiers': 'trackingMkFit'
 }
