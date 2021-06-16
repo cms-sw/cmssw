@@ -50,32 +50,35 @@ process.qTester = DQMQualityTester(
 )
 
 #process.load("DQM.DTMonitorClient.dtResolutionTest_cfi")
-#process.modulo1=process.resolutionTest.clone()
-#process.modulo1.histoTag2D = 'hResDistVsDist_STEP1' 
-#process.modulo1.histoTag  = 'hResDist_STEP1'
-#process.modulo1.STEP = 'STEP1'
-#process.modulo1.OutputMEsInRootFile = cms.bool(False)
-#process.modulo1.readFile = cms.untracked.bool(True)
-#process.modulo1.inputFile = cms.untracked.string('/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/DTkFactValidation_ResidCorr_RUNNUMBERTEMPLATE.root')
+#process.modulo1=process.resolutionTest.clone(
+#  histoTag2D = 'hResDistVsDist_STEP1', 
+#  histoTag  = 'hResDist_STEP1',
+#  STEP = 'STEP1',
+#  OutputMEsInRootFile = False,
+#  readFile = True,
+#  inputFile = '/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/DTkFactValidation_ResidCorr_RUNNUMBERTEMPLATE.root'
+# )
  
 #process.load("DQM.DTMonitorClient.dtResolutionTest_cfi")
-#process.modulo2=process.resolutionTest.clone()
-#process.modulo2.histoTag2D = 'hResDistVsDist_STEP2' 
-#process.modulo2.histoTag  = 'hResDist_STEP2'
-#process.modulo2.STEP = 'STEP2'
-#process.modulo2.OutputMEsInRootFile = cms.bool(False)
-#process.modulo2.readFile = cms.untracked.bool(True)
-#process.modulo2.inputFile = cms.untracked.string('/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/DTkFactValidation_ResidCorr_RUNNUMBERTEMPLATE.root')
+#process.modulo2=process.resolutionTest.clone(
+#  histoTag2D = 'hResDistVsDist_STEP2', 
+#  histoTag  = 'hResDist_STEP2',
+#  STEP = 'STEP2',
+#  OutputMEsInRootFile = False,
+#  readFile = True,
+#  inputFile = '/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/DTkFactValidation_ResidCorr_RUNNUMBERTEMPLATE.root'
+# )
  
 process.load("DQM.DTMonitorClient.dtResolutionTest_cfi")
-process.modulo=process.resolutionTest.clone()
-process.modulo.histoTag2D = 'hResDistVsDist_STEP3' 
-process.modulo.histoTag  = 'hResDist_STEP3'
-process.modulo.STEP = 'STEP3'
-process.modulo.OutputMEsInRootFile = cms.bool(True)
-process.modulo.readFile = cms.untracked.bool(True)
-process.modulo.inputFile = cms.untracked.string('/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/DTkFactValidation_ResidCorr_RUNNUMBERTEMPLATE.root')
-process.modulo.OutputFileName = cms.string('/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/SummaryResiduals_ResidCorr_RUNNUMBERTEMPLATE.root')
+process.modulo=process.resolutionTest.clone(
+  histoTag2D = 'hResDistVsDist_STEP3',
+  histoTag  = 'hResDist_STEP3',
+  STEP = 'STEP3',
+  OutputMEsInRootFile = True,
+  readFile = True,
+  inputFile = '/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/DTkFactValidation_ResidCorr_RUNNUMBERTEMPLATE.root',
+  OutputFileName = '/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/SummaryResiduals_ResidCorr_RUNNUMBERTEMPLATE.root'
+)
 
 process.secondStep = cms.Sequence(process.modulo*process.qTester)
 process.p = cms.Path(process.secondStep)
