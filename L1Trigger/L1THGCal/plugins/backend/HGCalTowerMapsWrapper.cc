@@ -43,9 +43,9 @@ HGCalTowerMapsWrapper::HGCalTowerMapsWrapper(const edm::ParameterSet& conf) : HG
 void HGCalTowerMapsWrapper::convertCMSSWInputs(const std::vector<edm::Ptr<l1t::HGCalTowerMap>>& inputTowerMaps,
                                                std::vector<l1thgcfirmware::HGCalTowerMap>& towerMaps_SA) const {
   for (const auto& map : inputTowerMaps) {
-    std::vector<unsigned short> tower_ids;
+    std::vector<l1thgcfirmware::HGCalTowerCoord> tower_ids;
     for (const auto& tower : map->towers()) {
-      tower_ids.push_back(tower.first);
+      tower_ids.emplace_back(tower.first, tower.second.eta(), tower.second.phi());
     }
 
     l1thgcfirmware::HGCalTowerMap towerMapSA(tower_ids);
@@ -60,8 +60,8 @@ void HGCalTowerMapsWrapper::convertCMSSWInputs(const std::vector<edm::Ptr<l1t::H
 void HGCalTowerMapsWrapper::convertAlgorithmOutputs(const std::vector<l1thgcfirmware::HGCalTower>& towers_SA,
                                                     l1t::HGCalTowerBxCollection& outputTowerMaps) const {
   for (const auto& towerSA : towers_SA) {
-    // Need to carry eta, phi, ID through the SA emulation
-    outputTowerMaps.push_back(0, l1t::HGCalTower(towerSA.etEm(), towerSA.etHad(), 0, 0, 0));
+    outputTowerMaps.push_back(
+        0, l1t::HGCalTower(towerSA.etEm(), towerSA.etHad(), towerSA.eta(), towerSA.phi(), towerSA.id()));
   }
 }
 

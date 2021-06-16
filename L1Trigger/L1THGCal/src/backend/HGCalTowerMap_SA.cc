@@ -4,9 +4,9 @@
 
 using namespace l1thgcfirmware;
 
-HGCalTowerMap::HGCalTowerMap(const std::vector<unsigned short>& tower_ids) {
+HGCalTowerMap::HGCalTowerMap(const std::vector<l1thgcfirmware::HGCalTowerCoord>& tower_ids) {
   for (const auto tower_id : tower_ids) {
-    towerMap_[tower_id] = l1thgcfirmware::HGCalTower(0., 0.);
+    towerMap_[tower_id.rawId] = l1thgcfirmware::HGCalTower(0., 0., tower_id.eta, tower_id.phi, tower_id.rawId);
   }
 }
 
