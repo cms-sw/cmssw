@@ -1,5 +1,5 @@
 <bin name="testPyDevParameterSet" file="processbuilder_t.cppunit.cpp,makeprocess_t.cppunit.cc,makepset_t.cppunit.cc,readpsetsfrom_t.cppunit.cc">
-  <use name="py2-pybind11"/>
+  <use name="py3-pybind11"/>
   <use name="cppunit"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/PythonParameterSet"/>

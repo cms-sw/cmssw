@@ -7,7 +7,7 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 <use name="boost"/>
-<use name="py2-pybind11"/>
+<use name="py3-pybind11"/>
 <export>
   <lib name="1"/>
 </export>
