@@ -33,6 +33,7 @@ public:
   Phase1PixelMaps(const char* option)
       : m_option{option},
         m_isBooked{std::make_pair(false, false)},
+        m_knownNames{{}},
         m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
             edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
     // set the rescale to true by default
@@ -85,6 +86,8 @@ private:
   Option_t* m_option;
   bool m_autorescale;
   std::pair<bool, bool> m_isBooked;
+  std::vector<std::string> m_knownNames;
+
   TrackerTopology m_trackerTopo;
 
   std::map<uint32_t, std::shared_ptr<TGraph>> bins, binsSummary;
