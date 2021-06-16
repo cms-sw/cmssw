@@ -40,12 +40,9 @@ mergedSiStripQualityProducer.ThresholdForReducedGranularity = cms.double(0.3)
 mergedSiStripQualityProducer.appendToDataLabel = 'MergedBadComponent'
 
 
-siStripBadComponentInfo = cms.EDProducer("SiStripBadComponentInfo",
-        StripQualityLabel = cms.string('MergedBadComponent'),
-        BadComponentsFromFedErrors = cms.untracked.PSet(
-            Add = cms.untracked.bool(True),
-            Cutoff = cms.untracked.double(0.8)
-            ))
+from DQM.SiStripMonitorClient.siStripBadComponentInfo_cfi import siStripBadComponentInfo
+siStripBadComponentInfo.StripQualityLabel = 'MergedBadComponent'
+siStripBadComponentInfo.BadComponentsFromFedErrors.Add = True
 
 # Sequence
 SiStripCosmicDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser*siStripBadComponentInfo)

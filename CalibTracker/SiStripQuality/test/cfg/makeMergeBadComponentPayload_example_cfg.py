@@ -79,20 +79,19 @@ process.siStripQualityESProducer.ThresholdForReducedGranularity = cms.double(0.3
 process.siStripQualityESProducer.PrintDebugOutput = True
 
 # common config for adding bad components from FED errors
-badCompFromFedErrors = cms.untracked.PSet(
-    Add=cms.untracked.bool(True),
-    Cutoff=cms.untracked.double(0.8),
-    LegacyDQMFile=cms.untracked.string(opts.dqmFile),
-    FileRunNumber=cms.untracked.uint32(opts.runNumber)
-    )
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+badCompFromFedErrors = siStripQualityStatistics.BadComponentsFromFedErrors.clone(
+        Add=cms.bool(True),
+        LegacyDQMFile=cms.string(opts.dqmFile),
+        FileRunNumber=cms.uint32(opts.runNumber)
+        )
 
 # Print list of Bad modules and create Tracker Map indicating Bad modules
 process.load("DQM.SiStripCommon.TkHistoMap_cff")  # to produce a tracker map
-process.stat = cms.EDProducer("SiStripQualityStatistics",
-    TkMapFileName=cms.untracked.string("TkMap_Jul04_2018_319176.png"),
-    dataLabel=cms.untracked.string(""),
-    BadComponentsFromFedErrors=badCompFromFedErrors
-)
+process.stat = siStripQualityStatistics.clone(
+        TkMapFileName=cms.untracked.string("TkMap_Jul04_2018_319176.png"),  #available filetypes: .pdf .png .jpg .svg
+        BadComponentsFromFedErrors=badCompFromFedErrors
+        )
 
 # Write Information into DB
 process.load("CalibTracker.SiStripQuality.siStripBadStripFromQualityDBWriter_cfi")
