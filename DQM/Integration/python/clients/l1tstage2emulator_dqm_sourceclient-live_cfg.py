@@ -75,10 +75,11 @@ process.rawToDigiPath = cms.Path(process.RawToDigi)
 
 # Filter fat events
 from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
-process.hltFatEventFilter = hltHighLevel.clone()
-process.hltFatEventFilter.throw = cms.bool(False)
+process.hltFatEventFilter = hltHighLevel.clone(
+   throw = False,
 # HLT_Physics now has the event % 107 filter as well as L1FatEvents
-process.hltFatEventFilter.HLTPaths = cms.vstring('HLT_L1FatEvents_v*', 'HLT_Physics_v*')
+   HLTPaths = ['HLT_L1FatEvents_v*', 'HLT_Physics_v*']
+)
 
 # This can be used if HLT filter not available in a run
 process.selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
@@ -108,7 +109,7 @@ process.load("L1Trigger.L1TGlobal.GlobalParameters_cff")
 
 # To get CaloTPGTranscoder
 process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
-process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
+process.HcalTPGCoderULUT.LUTGenerationMode = False
 
 #--------------------------------------------------
 # TODO: Stage2 Emulator Quality Tests
@@ -123,45 +124,45 @@ process.l1tStage2EmulatorMonitorClientPath = cms.Path(process.l1tStage2EmulatorM
 
 # Heavy-Ion run
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.onlineMetaDataDigis.onlineMetaDataInputLabel = cms.InputTag("rawDataRepacker")
-    process.onlineMetaDataRawToDigi.onlineMetaDataInputLabel = cms.InputTag("rawDataRepacker")
-    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
-    process.ctppsPixelDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.ecalDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
-    process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
-    process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
-    process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.muonGEMDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
-    process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
-    process.tcdsDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.tcdsRawToDigi.InputLabel = cms.InputTag("rawDataRepacker")
-    process.totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
-    process.totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
-    process.totemTimingRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
-    process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
-    process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
-    process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
-    process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
-    process.bmtfDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.valBmtfAlgoSel.feds = cms.InputTag("rawDataRepacker")
-    process.omtfStage2Digis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.emtfStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.gmtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.caloLayer1Digis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.caloStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.simHcalTriggerPrimitiveDigis.InputTagFEDRaw = cms.InputTag("rawDataRepacker")
-    process.l1tdeStage2CaloLayer1.fedRawDataLabel = cms.InputTag("rawDataRepacker")
-    process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.selfFatEventFilter.rawInput = cms.InputTag("rawDataRepacker")
-    process.rpcTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
-    process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
+    process.onlineMetaDataDigis.onlineMetaDataInputLabel = "rawDataRepacker"
+    process.onlineMetaDataRawToDigi.onlineMetaDataInputLabel = "rawDataRepacker"
+    process.castorDigis.InputLabel = "rawDataRepacker"
+    process.ctppsDiamondRawToDigi.rawDataTag = "rawDataRepacker"
+    process.ctppsPixelDigis.inputLabel = "rawDataRepacker"
+    process.ecalDigis.cpu.InputLabel = "rawDataRepacker"
+    process.ecalPreshowerDigis.sourceTag = "rawDataRepacker"
+    process.hcalDigis.InputLabel = "rawDataRepacker"
+    process.muonCSCDigis.InputObjects = "rawDataRepacker"
+    process.muonDTDigis.inputLabel = "rawDataRepacker"
+    process.muonRPCDigis.InputLabel = "rawDataRepacker"
+    process.muonGEMDigis.InputLabel = "rawDataRepacker"
+    process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
+    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+    process.siStripDigis.ProductLabel = "rawDataRepacker"
+    process.tcdsDigis.InputLabel = "rawDataRepacker"
+    process.tcdsRawToDigi.InputLabel = "rawDataRepacker"
+    process.totemRPRawToDigi.rawDataTag = "rawDataRepacker"
+    process.totemTriggerRawToDigi.rawDataTag = "rawDataRepacker"
+    process.totemTimingRawToDigi.rawDataTag = "rawDataRepacker"
+    process.csctfDigis.producer = "rawDataRepacker"
+    process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
+    process.gctDigis.inputLabel = "rawDataRepacker"
+    process.gtDigis.DaqGtInputTag = "rawDataRepacker"
+    process.twinMuxStage2Digis.DTTM7_FED_Source = "rawDataRepacker"
+    process.bmtfDigis.InputLabel = "rawDataRepacker"
+    process.valBmtfAlgoSel.feds = "rawDataRepacker"
+    process.omtfStage2Digis.inputLabel = "rawDataRepacker"
+    process.emtfStage2Digis.InputLabel = "rawDataRepacker"
+    process.gmtStage2Digis.InputLabel = "rawDataRepacker"
+    process.caloLayer1Digis.InputLabel = "rawDataRepacker"
+    process.caloStage1Digis.InputLabel = "rawDataRepacker"
+    process.caloStage2Digis.InputLabel = "rawDataRepacker"
+    process.simHcalTriggerPrimitiveDigis.InputTagFEDRaw = "rawDataRepacker"
+    process.l1tdeStage2CaloLayer1.fedRawDataLabel = "rawDataRepacker"
+    process.gtStage2Digis.InputLabel = "rawDataRepacker"
+    process.selfFatEventFilter.rawInput = "rawDataRepacker"
+    process.rpcTwinMuxRawToDigi.inputTag = "rawDataRepacker"
+    process.rpcCPPFRawToDigi.inputTag = "rawDataRepacker"
     process.hltFatEventFilter.HLTPaths.append('HLT_HIPhysics_v*')
 
 #--------------------------------------------------

@@ -53,13 +53,13 @@ process.LaserAlignmentProducerDQM.DigiProducerList = cms.VPSet(
   )
 )
 process.LaserAlignmentProducerDQM.FolderName = "SiStripLAS"
-process.LaserAlignmentProducerDQM.UpperAdcThreshold = cms.uint32( 280 )
+process.LaserAlignmentProducerDQM.UpperAdcThreshold = 280 
 
 process.seqDigitization = cms.Path( process.siStripDigis )
 process.DQMCommon   = cms.Sequence(process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
 
 process.seqAnalysis = cms.Path( process.LaserAlignmentProducerDQM*process.DQMCommon)
-process.siStripDigis.ProductLabel = cms.InputTag("hltTrackerCalibrationRaw")
+process.siStripDigis.ProductLabel = "hltTrackerCalibrationRaw"
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
@@ -67,7 +67,7 @@ process.siStripDigis.ProductLabel = cms.InputTag("hltTrackerCalibrationRaw")
 print("Running with run type = ", process.runType.getRunType())
 
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
+    process.siStripDigis.ProductLabel = "rawDataRepacker"
 
 
 ### process customizations included here

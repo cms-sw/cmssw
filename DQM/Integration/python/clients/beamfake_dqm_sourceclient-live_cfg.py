@@ -112,9 +112,9 @@ process = customise(process)
 #------------------------
 # Set rawDataRepacker (HI and live) or rawDataCollector (for all the rest)
 if (process.runType.getRunType() == process.runType.hi_run and live):
-    rawDataInputTag = cms.InputTag("rawDataRepacker")
+    rawDataInputTag = "rawDataRepacker"
 else:
-    rawDataInputTag = cms.InputTag("rawDataCollector")
+    rawDataInputTag = "rawDataCollector"
 
 """ process.castorDigis.InputLabel           = rawDataInputTag
 process.csctfDigis.producer              = rawDataInputTag 
