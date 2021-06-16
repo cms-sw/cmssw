@@ -95,12 +95,10 @@ process.MySSQ = cms.ESProducer("SiStripQualityESProducer",
 #        ))
 #)
 ###
-#from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-#process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
-#    #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_offline.png'),
-#    TkMapFileName = cms.untracked.string(''),
-#    dataLabel = cms.untracked.string('test')
-#)
+#from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+#process.reader = siStripQualityStatistics.clone(
+#        #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_offline.png'),
+#        )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
