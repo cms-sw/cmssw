@@ -121,10 +121,22 @@ process.g4SimHits.HCalSD.TestNumberingScheme = False
 process.g4SimHits.HCalSD.UseHF   = False
 process.g4SimHits.HCalSD.ForTBHCAL = True
 process.g4SimHits.HCalSD.ForTBH2 = True
+process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
+                             'EcalTBH4BeamDetector',
+                             'HcalTB02SensitiveDetector',
+                             'HcalTB06BeamDetector',
+                             'EcalSensitiveDetector',
+                             'HcalSensitiveDetector']
 
 process.g4SimHits.CaloSD = cms.PSet(
     process.common_beam_direction_parameters,
     process.common_heavy_suppression,
+    DoFineCalo     = cms.bool(False),
+    SaveCaloBoundaryInformation = cms.bool(False),
+    EminFineTrack  = cms.double(10000.0),
+    FineCaloNames  = cms.vstring(),
+    FineCaloLevels = cms.vint32(),
+    UseFineCalo    = cms.vint32(),
     EminTrack      = cms.double(1.0),
     TmaxHit        = cms.double(1000.0),
     EminHits       = cms.vdouble(0.0,0.0,0.0,0.0),
