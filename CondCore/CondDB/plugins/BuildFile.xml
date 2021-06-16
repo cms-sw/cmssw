@@ -5,7 +5,7 @@
 
 <library file="CondDBPyBind11Wrappers.cc" name="CondDBPyBind11Interface">
   <use name="CondCore/CondDB"/>
-  <use name="py2-pybind11"/>
+  <use name="py3-pybind11"/>
   <use name="python"/>
 </library>                                                                                                                                                                    
 
