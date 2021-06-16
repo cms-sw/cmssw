@@ -215,7 +215,7 @@ void Phase2ITValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
 
   edm::ParameterSetDescription psd4;
   psd4.add<std::string>("name", "Delta_X_vs_Eta");
-  psd4.add<std::string>("title", "Delta_X_vs_Eta;#eta;#Delta x [#mum]");
+  psd4.add<std::string>("title", "Delta_X_vs_Eta;|#eta|;#Delta x [#mum]");
   psd4.add<int>("NyBins", 100);
   psd4.add<double>("ymin", -100.0);
   psd4.add<double>("ymax", 100.0);
@@ -240,7 +240,7 @@ void Phase2ITValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
 
   edm::ParameterSetDescription psd5;
   psd5.add<std::string>("name", "Delta_Y_vs_Eta");
-  psd5.add<std::string>("title", "Delta_Y_vs_Eta;#eta;#Delta y [#mum]");
+  psd5.add<std::string>("title", "Delta_Y_vs_Eta;|#eta|;#Delta y [#mum]");
   psd5.add<int>("NyBins", 100);
   psd5.add<double>("ymin", -100.0);
   psd5.add<double>("ymax", 100.0);
