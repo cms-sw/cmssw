@@ -7,8 +7,8 @@
 #include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 SeedMvaEstimator::SeedMvaEstimator(const edm::FileInPath& weightsfile,
-                                   std::vector<double> scale_mean,
-                                   std::vector<double> scale_std) {
+                                   const std::vector<double>& scale_mean,
+                                   const std::vector<double>& scale_std) {
   gbrForest_ = createGBRForest(weightsfile);
   scale_mean_ = scale_mean;
   scale_std_ = scale_std;
@@ -34,17 +34,16 @@ namespace {
   };
 }  // namespace
 
-void SeedMvaEstimator::getL1MuonVariables(const TrajectorySeed& seed,
-                                          const GlobalVector& global_p,
-                                          const l1t::MuonBxCollection& L1Muons,
+void SeedMvaEstimator::getL1MuonVariables(const GlobalVector& global_p,
+                                          const l1t::MuonBxCollection& l1Muons,
                                           int minL1Qual,
                                           float& dR2dRL1SeedP,
                                           float& dPhidRL1SeedP) const {
-  for (int ibx = L1Muons.getFirstBX(); ibx <= L1Muons.getLastBX(); ++ibx) {
+  for (int ibx = l1Muons.getFirstBX(); ibx <= l1Muons.getLastBX(); ++ibx) {
     if (ibx != 0)
       continue;  // -- only take when ibx == 0 -- //
 
-    for (auto it = L1Muons.begin(ibx); it != L1Muons.end(ibx); it++) {
+    for (auto it = l1Muons.begin(ibx); it != l1Muons.end(ibx); it++) {
       if (it->hwQual() < minL1Qual)
         continue;
 
@@ -57,12 +56,11 @@ void SeedMvaEstimator::getL1MuonVariables(const TrajectorySeed& seed,
   }
 }
 
-void SeedMvaEstimator::getL2MuonVariables(const TrajectorySeed& seed,
-                                          const GlobalVector& global_p,
-                                          const reco::RecoChargedCandidateCollection& L2Muons,
+void SeedMvaEstimator::getL2MuonVariables(const GlobalVector& global_p,
+                                          const reco::RecoChargedCandidateCollection& l2Muons,
                                           float& dR2dRL2SeedP,
                                           float& dPhidRL2SeedP) const {
-  for (auto it = L2Muons.begin(); it != L2Muons.end(); it++) {
+  for (auto it = l2Muons.begin(); it != l2Muons.end(); it++) {
     float dR2tmp = reco::deltaR2(*it, global_p);
     if (dR2tmp < dR2dRL2SeedP) {
       dR2dRL2SeedP = dR2tmp;
@@ -73,60 +71,49 @@ void SeedMvaEstimator::getL2MuonVariables(const TrajectorySeed& seed,
 
 double SeedMvaEstimator::computeMva(const TrajectorySeed& seed,
                                     const GlobalVector& global_p,
-                                    const l1t::MuonBxCollection& L1Muons,
+                                    const l1t::MuonBxCollection& l1Muons,
                                     int minL1Qual,
-                                    const reco::RecoChargedCandidateCollection& L2Muons,
+                                    const reco::RecoChargedCandidateCollection& l2Muons,
                                     bool isFromL1) const {
-  float initDRdPhi = 99999.;
-  if (isFromL1) {
-    float var[kLastL1]{};
+  static constexpr float initDRdPhi(99999.);
+  const int kLast = isFromL1 ? kLastL1 : kLastL2;
 
-    var[kTsosErr0] = seed.startingState().error(0);
-    var[kTsosErr2] = seed.startingState().error(2);
-    var[kTsosErr5] = seed.startingState().error(5);
-    var[kTsosDxdz] = seed.startingState().parameters().dxdz();
-    var[kTsosDydz] = seed.startingState().parameters().dydz();
-    var[kTsosQbp] = seed.startingState().parameters().qbp();
+  union theVars {
+    float var[kLastL2];
+    float varL1[kLastL1];
+    float varL2[kLastL2];
+  };
+  theVars var{};
 
-    float dR2dRL1SeedP = initDRdPhi;
-    float dPhidRL1SeedP = initDRdPhi;
-    getL1MuonVariables(seed, global_p, L1Muons, minL1Qual, dR2dRL1SeedP, dPhidRL1SeedP);
+  var.var[kTsosErr0] = seed.startingState().error(0);
+  var.var[kTsosErr2] = seed.startingState().error(2);
+  var.var[kTsosErr5] = seed.startingState().error(5);
+  var.var[kTsosDxdz] = seed.startingState().parameters().dxdz();
+  var.var[kTsosDydz] = seed.startingState().parameters().dydz();
+  var.var[kTsosQbp] = seed.startingState().parameters().qbp();
 
-    var[kDRdRL1SeedP] = std::sqrt(dR2dRL1SeedP);
-    var[kDPhidRL1SeedP] = dPhidRL1SeedP;
+  float dR2dRL1SeedP = initDRdPhi;
+  float dPhidRL1SeedP = initDRdPhi;
+  getL1MuonVariables(global_p, l1Muons, minL1Qual, dR2dRL1SeedP, dPhidRL1SeedP);
 
-    for (int iv = 0; iv < kLastL1; ++iv) {
-      var[iv] = (var[iv] - scale_mean_.at(iv)) / scale_std_.at(iv);
-    }
+  var.var[kDRdRL1SeedP] = std::sqrt(dR2dRL1SeedP);
+  var.var[kDPhidRL1SeedP] = dPhidRL1SeedP;
 
-    return gbrForest_->GetResponse(var);
-  } else {
-    float var[kLastL2]{};
-
-    var[kTsosErr0] = seed.startingState().error(0);
-    var[kTsosErr2] = seed.startingState().error(2);
-    var[kTsosErr5] = seed.startingState().error(5);
-    var[kTsosDxdz] = seed.startingState().parameters().dxdz();
-    var[kTsosDydz] = seed.startingState().parameters().dydz();
-    var[kTsosQbp] = seed.startingState().parameters().qbp();
-
-    float dR2dRL1SeedP = initDRdPhi;
-    float dPhidRL1SeedP = initDRdPhi;
-    getL1MuonVariables(seed, global_p, L1Muons, minL1Qual, dR2dRL1SeedP, dPhidRL1SeedP);
-
+  if (!isFromL1) {
     float dR2dRL2SeedP = initDRdPhi;
     float dPhidRL2SeedP = initDRdPhi;
-    getL2MuonVariables(seed, global_p, L2Muons, dR2dRL2SeedP, dPhidRL2SeedP);
+    getL2MuonVariables(global_p, l2Muons, dR2dRL2SeedP, dPhidRL2SeedP);
 
-    var[kDRdRL1SeedP] = std::sqrt(dR2dRL1SeedP);
-    var[kDPhidRL1SeedP] = dPhidRL1SeedP;
-    var[kDRdRL2SeedP] = std::sqrt(dR2dRL2SeedP);
-    var[kDPhidRL2SeedP] = dPhidRL2SeedP;
-
-    for (int iv = 0; iv < kLastL2; ++iv) {
-      var[iv] = (var[iv] - scale_mean_.at(iv)) / scale_std_.at(iv);
-    }
-
-    return gbrForest_->GetResponse(var);
+    var.var[kDRdRL2SeedP] = std::sqrt(dR2dRL2SeedP);
+    var.var[kDPhidRL2SeedP] = dPhidRL2SeedP;
   }
+
+  for (int iv = 0; iv < kLast; ++iv) {
+    var.var[iv] = (var.var[iv] - scale_mean_.at(iv)) / scale_std_.at(iv);
+  }
+
+  if (isFromL1)
+    return gbrForest_->GetResponse(var.varL1);
+  else
+    return gbrForest_->GetResponse(var.varL2);
 }
