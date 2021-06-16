@@ -36,6 +36,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -168,7 +169,7 @@ void HGCalWaferValidation::DDFindWafers(DDCompactView::GraphWalker& walker) {
 void HGCalWaferValidation::ProcessWaferLayer(DDCompactView::GraphWalker& walker) {
   static int waferLayer = 0;  // layer numbers in DD are assumed to be sequential from 1
   waferLayer++;
-  std::cout << "ProcessWaferLayer: Processing layer " << waferLayer << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << "ProcessWaferLayer: Processing layer " << waferLayer << std::endl;
   do {
     if (walker.current().first.name().fullname().rfind("hgcalwafer:", 0) == 0) {
       auto wafer = walker.current();
@@ -201,7 +202,7 @@ void HGCalWaferValidation::ProcessWaferLayer(DDCompactView::GraphWalker& walker)
       if (rotStr.empty())
         rotStr = "0";
       const int rotCode(std::stoi(rotStr));
-      //std::cout << "rotStr " << rotStr << " rotCode " << rotCode << std::endl;
+      //edm::LogInfo("HGCalWaferValidation") << "rotStr " << rotStr << " rotCode " << rotCode << std::endl;
       waferInfo.shapeCode = shapeStr;
       waferInfo.rotCode = rotCode;
       // populate the map
@@ -219,77 +220,80 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   auto viewH = iSetup.getHandle(viewToken_);
 
   if (!viewH.isValid()) {
-    std::cout << "Error obtaining geometry handle!" << std::endl;
+    edm::LogWarning("HGCalWaferValidation") << "Error obtaining geometry handle!" << std::endl;
     return;
   }
 
-  std::cout << "Root is : " << viewH->root() << std::endl;
-  std::cout << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << "Root is : " << viewH->root() << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << std::endl;
 
   // find HGCalEE
   auto eeWalker = viewH->walker();
   const bool eeFound = DDFindHGCal(eeWalker, "HGCalEE");
   if (eeFound) {
-    std::cout << "HGCalEE found!" << std::endl;
-    std::cout << "name     = " << eeWalker.current().first.name().name() << std::endl;
-    std::cout << "fullname = " << eeWalker.current().first.name().fullname() << std::endl;
+    edm::LogInfo("HGCalWaferValidation") << "HGCalEE found!" << std::endl;
+    edm::LogInfo("HGCalWaferValidation") << "name     = " << eeWalker.current().first.name().name() << std::endl;
+    edm::LogInfo("HGCalWaferValidation")
+        << "fullname = " << eeWalker.current().first.name().fullname() << std::endl;
   } else {
-    std::cout << "HGCalEE not found!" << std::endl;
+    edm::LogWarning("HGCalWaferValidation") << "HGCalEE not found!" << std::endl;
   }
-  std::cout << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << std::endl;
 
   // find HGCalHEsil
   auto hesilWalker = viewH->walker();
   const bool hesilFound = DDFindHGCal(hesilWalker, "HGCalHEsil");
   if (hesilFound) {
-    std::cout << "HGCalHEsil found!" << std::endl;
-    std::cout << "name     = " << hesilWalker.current().first.name().name() << std::endl;
-    std::cout << "fullname = " << hesilWalker.current().first.name().fullname() << std::endl;
+    edm::LogInfo("HGCalWaferValidation") << "HGCalHEsil found!" << std::endl;
+    edm::LogInfo("HGCalWaferValidation") << "name     = " << hesilWalker.current().first.name().name() << std::endl;
+    edm::LogInfo("HGCalWaferValidation")
+        << "fullname = " << hesilWalker.current().first.name().fullname() << std::endl;
   } else {
-    std::cout << "HGCalHEsil not found!" << std::endl;
+    edm::LogWarning("HGCalWaferValidation") << "HGCalHEsil not found!" << std::endl;
   }
-  std::cout << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << std::endl;
 
   // find HGCalHEmix
   auto hemixWalker = viewH->walker();
   const bool hemixFound = DDFindHGCal(hemixWalker, "HGCalHEmix");
   if (hemixFound) {
-    std::cout << "HGCalHEmix found!" << std::endl;
-    std::cout << "name     = " << hemixWalker.current().first.name().name() << std::endl;
-    std::cout << "fullname = " << hemixWalker.current().first.name().fullname() << std::endl;
+    edm::LogInfo("HGCalWaferValidation") << "HGCalHEmix found!" << std::endl;
+    edm::LogInfo("HGCalWaferValidation") << "name     = " << hemixWalker.current().first.name().name() << std::endl;
+    edm::LogInfo("HGCalWaferValidation")
+        << "fullname = " << hemixWalker.current().first.name().fullname() << std::endl;
   } else {
-    std::cout << "HGCalHEmix not found!" << std::endl;
+    edm::LogWarning("HGCalWaferValidation") << "HGCalHEmix not found!" << std::endl;
   }
-  std::cout << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << std::endl;
 
   // give up if no HGCal found at all
   if (!(eeFound || hesilFound || hemixFound)) {
-    std::cout << "Nothing found. Giving up." << std::endl;
+    edm::LogWarning("HGCalWaferValidation") << "Nothing found. Giving up." << std::endl;
     return;
   }
 
   // Now walk the HGCalEE walker to find the first wafer on each layer and process them
-  std::cout << "Calling DDFindWafers(eeWalker);" << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << "Calling DDFindWafers(eeWalker);" << std::endl;
   DDFindWafers(eeWalker);
 
   // Walk the HGCalHEsilwalker to find the first wafer on each layer and process them
-  std::cout << "Calling DDFindWafers(hesilWalker);" << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << "Calling DDFindWafers(hesilWalker);" << std::endl;
   DDFindWafers(hesilWalker);
 
   // Walk the HGCalHEmix walker to find the first wafer on each layer and process them
-  std::cout << "Calling DDFindWafers(hemixWalker);" << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << "Calling DDFindWafers(hemixWalker);" << std::endl;
   DDFindWafers(hemixWalker);
 
   // Confirm all the DD wafers have been read
-  std::cout << "Number of wafers read from DD: " << waferData.size() << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << "Number of wafers read from DD: " << waferData.size() << std::endl;
 
   // Now open the geometry text file
   std::string fileName = geometryFileName_.fullPath();
-  std::cout << "Opening geometry text file: " << fileName << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << "Opening geometry text file: " << fileName << std::endl;
   std::ifstream geoTxtFile(fileName);
 
   if (!geoTxtFile) {
-    std::cout << "Cannot open geometry text file." << std::endl;
+    edm::LogWarning("HGCalWaferValidation") << "Cannot open geometry text file." << std::endl;
     return;
   }
 
@@ -336,7 +340,7 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
     if (waferData.find(waferCoord) == waferData.end()) {
       nMissing++;
-      std::cout << "MISSING: " << strWaferCoord(waferCoord) << std::endl;
+      edm::LogInfo("HGCalWaferValidation") << "MISSING: " << strWaferCoord(waferCoord) << std::endl;
       continue;
     }
 
@@ -346,30 +350,30 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     if ((waferInfo.thickClass == 0 && waferThickness != 120) || (waferInfo.thickClass == 1 && waferThickness != 200) ||
         (waferInfo.thickClass == 2 && waferThickness != 300)) {
       nThicknessError++;
-      std::cout << "THICKNESS ERROR: " << strWaferCoord(waferCoord) << std::endl;
+      edm::LogInfo("HGCalWaferValidation") << "THICKNESS ERROR: " << strWaferCoord(waferCoord) << std::endl;
     }
 
     // it seems that wafer x-coords relative to their layer plane are mirrored...
     if (fabs(-waferInfo.x - waferX) > 0.015) {  // assuming this much tolerance
       nPosXError++;
-      std::cout << "POSITION x ERROR: " << strWaferCoord(waferCoord) << std::endl;
+      edm::LogInfo("HGCalWaferValidation") << "POSITION x ERROR: " << strWaferCoord(waferCoord) << std::endl;
     }
 
     if (fabs(waferInfo.y - waferY) > 0.015) {  // assuming this much tolerance
       nPosYError++;
-      std::cout << "POSITION y ERROR: " << strWaferCoord(waferCoord) << std::endl;
+      edm::LogInfo("HGCalWaferValidation") << "POSITION y ERROR: " << strWaferCoord(waferCoord) << std::endl;
     }
 
     if (waferInfo.shapeCode != waferShapeCode) {
       nShapeError++;
-      std::cout << "SHAPE ERROR: " << strWaferCoord(waferCoord) << std::endl;
+      edm::LogInfo("HGCalWaferValidation") << "SHAPE ERROR: " << strWaferCoord(waferCoord) << std::endl;
     }
 
     if ((waferShapeCode != 'F' && waferInfo.rotCode != waferRotCode) ||
         (waferShapeCode == 'F' && (waferInfo.rotCode % 2 != waferRotCode % 2))) {
       nRotError++;
-      std::cout << "ROTATION ERROR: " << strWaferCoord(waferCoord) << "  ( " << waferInfo.rotCode
-                << " != " << waferRotCode << " )" << std::endl;
+      edm::LogInfo("HGCalWaferValidation") << "ROTATION ERROR: " << strWaferCoord(waferCoord) << "  ( "
+                                           << waferInfo.rotCode << " != " << waferRotCode << " )" << std::endl;
     }
   }
 
@@ -379,23 +383,24 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   for (auto const& accounted : waferValidated) {
     if (!accounted.second) {
       nUnaccounted++;
-      std::cout << "UNACCOUNTED: " << strWaferCoord(accounted.first) << std::endl;
+      edm::LogInfo("HGCalWaferValidation") << "UNACCOUNTED: " << strWaferCoord(accounted.first) << std::endl;
     }
   }
 
   // Print out error counts
-  std::cout << std::endl;
-  std::cout << "*** ERROR COUNTS ***" << std::endl;
-  std::cout << "Missing         :  " << nMissing << std::endl;
-  std::cout << "Thickness error :  " << nThicknessError << std::endl;
-  std::cout << "Pos-x error     :  " << nPosXError << std::endl;
-  std::cout << "Pos-y error     :  " << nPosYError << std::endl;
-  std::cout << "Shape error     :  " << nShapeError << std::endl;
-  std::cout << "Rotation error  :  " << nRotError << std::endl;
-  std::cout << "Unaccounted     :  " << nUnaccounted << std::endl;
-  std::cout << std::endl;
-  std::cout << "Total wafers processed from geotxtfile = " << nTotalProcessed << std::endl;
-  std::cout << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << "*** ERROR COUNTS ***" << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << "Missing         :  " << nMissing << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << "Thickness error :  " << nThicknessError << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << "Pos-x error     :  " << nPosXError << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << "Pos-y error     :  " << nPosYError << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << "Shape error     :  " << nShapeError << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << "Rotation error  :  " << nRotError << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << "Unaccounted     :  " << nUnaccounted << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << std::endl;
+  edm::LogInfo("HGCalWaferValidation")
+      << "Total wafers processed from geotxtfile = " << nTotalProcessed << std::endl;
+  edm::LogInfo("HGCalWaferValidation") << std::endl;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
