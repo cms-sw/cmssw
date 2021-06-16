@@ -270,6 +270,30 @@ tobTecStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTra
     cleanTrajectoryAfterInOut   = True,
     TrajectoryCleaner = 'tobTecStepTrajectoryCleanerBySharedHits'
 )
+
+from Configuration.ProcessModifiers.trackingMkFitTobTecStep_cff import trackingMkFitTobTecStep
+import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationConfigESProducer_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
+tobTecStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+    seeds = 'tobTecStepSeeds',
+)
+tobTecStepTrackCandidatesMkFitConfig = mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+    ComponentName = 'tobTecStepTrackCandidatesMkFitConfig',
+    config = 'RecoTracker/MkFit/data/mkfit-phase1-tobTecStep.json',
+)
+tobTecStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+    seeds = 'tobTecStepTrackCandidatesMkFitSeeds',
+    config = ('', 'tobTecStepTrackCandidatesMkFitConfig'),
+    clustersToSkip = 'tobTecStepClusters',
+)
+trackingMkFitTobTecStep.toReplaceWith(tobTecStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = 'tobTecStepSeeds',
+    mkFitSeeds = 'tobTecStepTrackCandidatesMkFitSeeds',
+    tracks = 'tobTecStepTrackCandidatesMkFit',
+))
+
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(tobTecStepTrackCandidates,
                       FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
@@ -451,6 +475,9 @@ TobTecStepTask = cms.Task(tobTecStepClusters,
                           tobTecStep)
 TobTecStep = cms.Sequence(TobTecStepTask)
 
+_TobTecStepTask_trackingMkFit = TobTecStepTask.copy()
+_TobTecStepTask_trackingMkFit.add(tobTecStepTrackCandidatesMkFitSeeds, tobTecStepTrackCandidatesMkFit, tobTecStepTrackCandidatesMkFitConfig)
+trackingMkFitTobTecStep.toReplaceWith(TobTecStepTask, _TobTecStepTask_trackingMkFit)
 
 ### Following are specific for LowPU, they're collected here to
 ### not to interfere too much with the default configuration
