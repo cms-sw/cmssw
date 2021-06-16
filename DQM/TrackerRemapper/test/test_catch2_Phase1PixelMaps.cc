@@ -14,7 +14,6 @@ TEST_CASE("Phase1PixelMaps testing", "[Phase1PixelMaps]") {
     Phase1PixelMaps theMap("");
     TCanvas c = TCanvas("c", "c", 1200, 1200);
     theMap.bookBarrelHistograms("mytest", "test", "test");
-    theMap.bookBarrelBins("mytest");
     theMap.drawBarrelMaps("mytest", c, "colz0");
     theMap.beautifyAllHistograms();
     c.SaveAs("Phase1PixelMaps_Barrel.png");
@@ -27,7 +26,6 @@ TEST_CASE("Phase1PixelMaps testing", "[Phase1PixelMaps]") {
     Phase1PixelMaps theMap("");
     TCanvas c = TCanvas("c", "c", 1200, 800);
     theMap.bookForwardHistograms("mytest", "test", "test");
-    theMap.bookForwardBins("mytest");
     theMap.drawForwardMaps("mytest", c, "colz0");
     theMap.beautifyAllHistograms();
     c.SaveAs("Phase1PixelMaps_Endcap.png");
@@ -40,9 +38,7 @@ TEST_CASE("Phase1PixelMaps testing", "[Phase1PixelMaps]") {
     Phase1PixelMaps theMap("COLZA L");  // needed to not show the axis
     TCanvas c = TCanvas("c", "c", 1200, 800);
     theMap.bookBarrelHistograms("mytest", "test", "test");
-    theMap.bookBarrelBins("mytest");
     theMap.bookForwardHistograms("mytest", "test", "test");
-    theMap.bookForwardBins("mytest");
     theMap.beautifyAllHistograms();
     theMap.drawSummaryMaps("mytest", c);
     c.SaveAs("Phase1PixelMaps_Summary.png");
@@ -55,9 +51,7 @@ TEST_CASE("Phase1PixelMaps testing", "[Phase1PixelMaps]") {
     Phase1PixelMaps theMap("COLZA L");
     TCanvas c = TCanvas("c", "c", 1200, 800);
     theMap.bookBarrelHistograms("mytest", "test", "test");
-    theMap.bookBarrelBins("mytest");
     theMap.bookForwardHistograms("mytest", "test", "test");
-    theMap.bookForwardBins("mytest");
 
     SiPixelDetInfoFileReader reader_ = SiPixelDetInfoFileReader(edm::FileInPath(k_geo).fullPath());
     const auto& detIds = reader_.getAllDetIds();

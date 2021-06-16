@@ -59,6 +59,9 @@ void Phase1PixelMaps::bookBarrelHistograms(const std::string& currentHistoName, 
   th2p->SetOption(m_option);
   pxbTh2PolyBarrelSummary[currentHistoName] = th2p;
 
+  // book the bins
+  bookBarrelBins(currentHistoName);
+
   // set the isBooked bit to true;
   m_isBooked.first = true;
 }
@@ -99,6 +102,9 @@ void Phase1PixelMaps::bookForwardHistograms(const std::string& currentHistoName,
   th2p->SetStats(false);
   th2p->SetOption(m_option);
   pxfTh2PolyForwardSummary[currentHistoName] = th2p;
+
+  // book the bins
+  bookForwardBins(currentHistoName);
 
   m_isBooked.second = true;
 }
