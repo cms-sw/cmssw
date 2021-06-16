@@ -28,7 +28,7 @@ TEST_CASE("StoredProcessBlockHelper", "[StoredProcessBlockHelper]") {
   }
 
   SECTION("Constructor") {
-    std::vector<std::string> testStrings{std::string("test1"), std::string("test2"), std::string("test3")};
+    std::vector<std::string> testStrings{"test1", "test2", "test3"};
 
     edm::StoredProcessBlockHelper storedProcessBlockHelper(testStrings);
     REQUIRE(storedProcessBlockHelper.processesWithProcessBlockProducts() == testStrings);

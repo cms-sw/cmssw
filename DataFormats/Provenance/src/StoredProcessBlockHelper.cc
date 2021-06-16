@@ -2,7 +2,7 @@
 
 namespace edm {
 
-  StoredProcessBlockHelper::StoredProcessBlockHelper() {}
+  StoredProcessBlockHelper::StoredProcessBlockHelper() = default;
 
   StoredProcessBlockHelper::StoredProcessBlockHelper(std::vector<std::string> const& processesWithProcessBlockProducts)
       : processesWithProcessBlockProducts_(processesWithProcessBlockProducts) {}
