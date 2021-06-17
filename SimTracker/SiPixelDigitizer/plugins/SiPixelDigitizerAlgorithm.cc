@@ -1531,56 +1531,32 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
   //  size_t ReferenceIndex4CR=0;
   if (UseReweighting) {
     if (hit.processType() == 0) {
-      //      ReferenceIndex4CR=hitIndex;
+      //  ReferenceIndex4CR=hitIndex;
       reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight(
           hit, hit_signal, hitIndex, tofBin, topol, detID, theSignal, hit.processType(), makeDigiSimLinks_);
     } else {
-      // As it is not the primary particle, check if the first hit in the SimHit collection corresponding to the same simulated track
-      if ((*inputBegin).trackId() == hit.trackId()) {
-        //            ReferenceIndex4CR=FirstHitIndex;
-        reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight(
-            (*inputBegin), hit_signal, hitIndex, tofBin, topol, detID, theSignal, hit.processType(), makeDigiSimLinks_);
-      } else {
-        // loop on all the hit from the 1st of the collection to the hit itself to find the Primary particle of the same trackId
+      std::vector<PSimHit>::const_iterator crSimHit = inputBegin;
+      //  ReferenceIndex4CR=FirstHitIndex;
+      // if the first hit in the same detId is not associated to the same trackId, try to find a better match
+      if ((*inputBegin).trackId() != hit.trackId()) {
+        // loop over all the hit from the 1st in the same detId to the hit itself to find the primary particle of the same trackId
         uint32_t detId = pixdet->geographicalId().rawId();
         size_t localIndex = FirstHitIndex;
-        bool find_the_primary = false;
         for (std::vector<PSimHit>::const_iterator ssbegin = inputBegin; localIndex < hitIndex;
              ++ssbegin, ++localIndex) {
           if ((*ssbegin).detUnitId() != detId) {
             continue;
           }
-          if ((*ssbegin).trackId() == hit.trackId() && !find_the_primary) {
-            // what to do if we find the same trackId but w/o being Primary particle ?
-            if ((*ssbegin).processType() == 0) {
-              //                      ReferenceIndex4CR=localIndex;
-              reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight((*ssbegin),
-                                                                                           hit_signal,
-                                                                                           hitIndex,
-                                                                                           tofBin,
-                                                                                           topol,
-                                                                                           detID,
-                                                                                           theSignal,
-                                                                                           hit.processType(),
-                                                                                           makeDigiSimLinks_);
-              find_the_primary = true;
-            }
+          if ((*ssbegin).trackId() == hit.trackId() && (*ssbegin).processType() == 0) {
+            crSimHit = ssbegin;
+            //  ReferenceIndex4CR=localIndex;
+            break;
           }
         }
-        if (!find_the_primary) {
-          // we haven't found a hit associated to the same trackId --> use the 1st hit of the collection then
-          //              ReferenceIndex4CR=FirstHitIndex;
-          reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight((*inputBegin),
-                                                                                       hit_signal,
-                                                                                       hitIndex,
-                                                                                       tofBin,
-                                                                                       topol,
-                                                                                       detID,
-                                                                                       theSignal,
-                                                                                       hit.processType(),
-                                                                                       makeDigiSimLinks_);
-        }
       }
+
+      reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight(
+          (*crSimHit), hit_signal, hitIndex, tofBin, topol, detID, theSignal, hit.processType(), makeDigiSimLinks_);
     }
   }
   if (!reweighted) {
