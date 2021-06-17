@@ -208,7 +208,7 @@ struct WalkAST {
   }
 };
 
-int ExpressionAST::evaluate(const DetId& detId, const TrackerTopology& trackerTopology) const {
+inline int ExpressionAST::evaluate(const DetId& detId, const TrackerTopology& trackerTopology) const {
   return boost::apply_visitor(Accessor(detId, trackerTopology), this->expr);
 }
 
