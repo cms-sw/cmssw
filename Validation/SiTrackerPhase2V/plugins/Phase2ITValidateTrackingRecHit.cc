@@ -155,8 +155,8 @@ void Phase2ITValidateTrackingRecHit::fillITHistos(const edm::Event& iEvent,
             continue;
           for (const auto& mId : matchedId) {
             if (simhitIt.trackId() == mId.first) {
-              if (!simhitClosest || abs(simhitIt.localPosition().x() - lp.x()) < minx) {
-                minx = abs(simhitIt.localPosition().x() - lp.x());
+              if (!simhitClosest || std::abs(simhitIt.localPosition().x() - lp.x()) < minx) {
+                minx = std::abs(simhitIt.localPosition().x() - lp.x());
                 simhitClosest = &simhitIt;
               }
             }
