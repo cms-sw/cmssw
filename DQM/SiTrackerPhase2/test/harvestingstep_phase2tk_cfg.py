@@ -76,7 +76,9 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 
 # Path and EndPath definitions
-process.trackerphase2ValidationHarvesting_step = cms.Path(process.trackerphase2ValidationHarvesting)
+process.trackerphase2ValidationHarvesting_step = cms.Path(process.trackerphase2ValidationHarvesting_standalone
+##default path in production
+#process.trackerphase2ValidationHarvesting_step = cms.Path(process.trackerphase2ValidationHarvesting)
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
 # Schedule definition

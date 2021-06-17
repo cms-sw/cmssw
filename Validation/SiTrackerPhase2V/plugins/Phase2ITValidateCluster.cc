@@ -197,7 +197,7 @@ void Phase2ITValidateCluster::fillITHistos(const edm::Event& iEvent,
             if (it != clusterSimTrackIds.end() && *it == simhitIt.trackId()) {
               float dx = simhitIt.localPosition().x() - localPosCluster.x();
               float dy = simhitIt.localPosition().y() - localPosCluster.y();
-              float dist = std::sqrt(dx * dx + dy * dy);
+              float dist = dx * dx + dy * dy;
               if (!closestSimHit || dist < mind) {
                 mind = dist;
                 closestSimHit = &simhitIt;

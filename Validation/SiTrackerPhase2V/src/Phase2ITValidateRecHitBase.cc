@@ -68,10 +68,16 @@ void Phase2ITValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
     local_histos.pullY = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("PullY"), ibooker);
 
     local_histos.deltaX_eta =
-        phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX_eta"), ibooker);
+        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX_eta"), ibooker);
+
+    local_histos.deltaX_phi =
+        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX_phi"), ibooker);
 
     local_histos.deltaY_eta =
-        phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaY_eta"), ibooker);
+        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaY_eta"), ibooker);
+
+    local_histos.deltaY_phi =
+        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaY_phi"), ibooker);
 
     local_histos.deltaX_clsizex =
         phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX_clsizex"), ibooker);
@@ -142,12 +148,17 @@ void Phase2ITValidateRecHitBase::fillRechitHistos(const PSimHit* simhitClosest,
   if (lperr.yy())
     pully = (lp.y() - simlp.y()) / std::sqrt(lperr.yy());
   float eta = geomDetunit->surface().toGlobal(lp).eta();
+  float phi = geomDetunit->surface().toGlobal(lp).phi();
   layerMEs_[key].deltaX->Fill(dx);
   layerMEs_[key].deltaY->Fill(dy);
   layerMEs_[key].pullX->Fill(pullx);
   layerMEs_[key].pullY->Fill(pully);
-  layerMEs_[key].deltaX_eta->Fill(eta, dx);
-  layerMEs_[key].deltaY_eta->Fill(eta, dy);
+
+  layerMEs_[key].deltaX_eta->Fill(std::abs(eta), dx);
+  layerMEs_[key].deltaY_eta->Fill(std::abs(eta), dy);
+  layerMEs_[key].deltaX_phi->Fill(phi, dx);
+  layerMEs_[key].deltaY_phi->Fill(phi, dy);
+
   layerMEs_[key].deltaX_clsizex->Fill(rechit->cluster()->sizeX(), dx);
   layerMEs_[key].deltaX_clsizey->Fill(rechit->cluster()->sizeY(), dx);
   layerMEs_[key].deltaY_clsizex->Fill(rechit->cluster()->sizeX(), dy);
@@ -204,25 +215,52 @@ void Phase2ITValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
 
   edm::ParameterSetDescription psd4;
   psd4.add<std::string>("name", "Delta_X_vs_Eta");
-  psd4.add<std::string>("title", "Delta_X_vs_Eta;#eta;#Delta x [#mum]");
+  psd4.add<std::string>("title", "Delta_X_vs_Eta;|#eta|;#Delta x [#mum]");
+  psd4.add<int>("NyBins", 100);
   psd4.add<double>("ymin", -100.0);
   psd4.add<double>("ymax", 100.0);
-  psd4.add<int>("NxBins", 82);
+  psd4.add<int>("NxBins", 41);
   psd4.add<bool>("switch", true);
   psd4.add<double>("xmax", 4.1);
-  psd4.add<double>("xmin", -4.1);
+  psd4.add<double>("xmin", 0.);
   desc.add<edm::ParameterSetDescription>("DeltaX_eta", psd4);
+
+  edm::ParameterSetDescription psd4_y;
+  psd4_y.add<std::string>("name", "Delta_X_vs_Phi");
+  ;
+  psd4_y.add<std::string>("title", "Delta_X_vs_Phi;#phi;#Delta x [#mum]");
+  psd4_y.add<int>("NyBins", 100);
+  psd4_y.add<double>("ymin", -100.0);
+  psd4_y.add<double>("ymax", 100.0);
+  psd4_y.add<int>("NxBins", 36);
+  psd4_y.add<bool>("switch", true);
+  psd4_y.add<double>("xmax", M_PI);
+  psd4_y.add<double>("xmin", -M_PI);
+  desc.add<edm::ParameterSetDescription>("DeltaX_phi", psd4_y);
 
   edm::ParameterSetDescription psd5;
   psd5.add<std::string>("name", "Delta_Y_vs_Eta");
-  psd5.add<std::string>("title", "Delta_Y_vs_Eta;#eta;#Delta y [#mum]");
+  psd5.add<std::string>("title", "Delta_Y_vs_Eta;|#eta|;#Delta y [#mum]");
+  psd5.add<int>("NyBins", 100);
   psd5.add<double>("ymin", -100.0);
   psd5.add<double>("ymax", 100.0);
-  psd5.add<int>("NxBins", 82);
+  psd5.add<int>("NxBins", 41);
   psd5.add<bool>("switch", true);
   psd5.add<double>("xmax", 4.1);
-  psd5.add<double>("xmin", -4.1);
+  psd5.add<double>("xmin", 0.);
   desc.add<edm::ParameterSetDescription>("DeltaY_eta", psd5);
+
+  edm::ParameterSetDescription psd5_y;
+  psd5_y.add<std::string>("name", "Delta_Y_vs_Phi");
+  psd5_y.add<std::string>("title", "Delta_Y_vs_Phi;#phi;#Delta y [#mum]");
+  psd5_y.add<int>("NyBins", 100);
+  psd5_y.add<double>("ymin", -100.0);
+  psd5_y.add<double>("ymax", 100.0);
+  psd5_y.add<int>("NxBins", 36);
+  psd5_y.add<bool>("switch", true);
+  psd5_y.add<double>("xmax", M_PI);
+  psd5_y.add<double>("xmin", -M_PI);
+  desc.add<edm::ParameterSetDescription>("DeltaY_phi", psd5_y);
 
   edm::ParameterSetDescription psd6;
   psd6.add<std::string>("name", "Delta_X_vs_ClusterSizeX");
