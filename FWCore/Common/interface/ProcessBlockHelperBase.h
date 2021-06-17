@@ -19,13 +19,15 @@ namespace edm {
   public:
     virtual ~ProcessBlockHelperBase();
 
-    std::vector<std::string>& processesWithProcessBlockProducts() { return processesWithProcessBlockProducts_; }
     std::vector<std::string> const& processesWithProcessBlockProducts() const {
       return processesWithProcessBlockProducts_;
     }
+    void setProcessesWithProcessBlockProducts(std::vector<std::string> const& val) { processesWithProcessBlockProducts_ = val; }
+    void emplaceBackProcessName(std::string const& processName) { processesWithProcessBlockProducts_.emplace_back(processName); }
 
-    std::vector<std::string>& addedProcesses() { return addedProcesses_; }
     std::vector<std::string> const& addedProcesses() const { return addedProcesses_; }
+    void setAddedProcesses(std::vector<std::string> const& val) { addedProcesses_ = val; }
+    void emplaceBackAddedProcessName(std::string const& processName) { addedProcesses_.emplace_back(processName); }
 
     void updateForNewProcess(ProductRegistry const&, std::string const& processName);
 

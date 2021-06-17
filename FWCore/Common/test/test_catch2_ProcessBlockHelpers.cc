@@ -8,6 +8,7 @@
 #include <vector>
 
 TEST_CASE("Test ProcessBlockHelpers", "[ProcessBlockHelpers]") {
+  const std::string testString("ADD");
   const std::vector<std::string> testNames = {{"HLT"}, {"RECO"}, {"TEST"}};
   const std::vector<std::string> testNames2 = {{"MERGE"}, {"ANA"}, {"HARVEST"}};
 
@@ -17,14 +18,19 @@ TEST_CASE("Test ProcessBlockHelpers", "[ProcessBlockHelpers]") {
 
   SECTION("ProcessBlockHelper") {
     edm::ProcessBlockHelper processBlockHelper;
-    processBlockHelper.processesWithProcessBlockProducts() = testNames;
-    edm::ProcessBlockHelper const& constProcessBlockHelper = processBlockHelper;
+    processBlockHelper.setProcessesWithProcessBlockProducts(testNames);
     REQUIRE(processBlockHelper.processesWithProcessBlockProducts() == testNames);
-    REQUIRE(constProcessBlockHelper.processesWithProcessBlockProducts() == testNames);
+    processBlockHelper.emplaceBackProcessName(testString);
+    std::vector<std::string> testEmplace = testNames;
+    testEmplace.emplace_back(testString);
+    REQUIRE(processBlockHelper.processesWithProcessBlockProducts() == testEmplace);
 
-    processBlockHelper.addedProcesses() = testNames2;
+    processBlockHelper.setAddedProcesses(testNames2);
     REQUIRE(processBlockHelper.addedProcesses() == testNames2);
-    REQUIRE(constProcessBlockHelper.addedProcesses() == testNames2);
+    processBlockHelper.emplaceBackAddedProcessName(testString);
+    std::vector<std::string> testEmplace2 = testNames2;
+    testEmplace2.emplace_back(testString);
+    REQUIRE(processBlockHelper.addedProcesses() == testEmplace2);
 
     REQUIRE(edm::ProcessBlockHelper::invalidCacheIndex() == 0xffffffff);
     REQUIRE(edm::ProcessBlockHelper::invalidProcessIndex() == 0xffffffff);

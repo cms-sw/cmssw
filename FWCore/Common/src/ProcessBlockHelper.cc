@@ -124,7 +124,7 @@ namespace edm {
       initializedFromInput_ = true;
 
       assert(processesWithProcessBlockProducts().empty());
-      processesWithProcessBlockProducts() = storedProcessBlockHelper.processesWithProcessBlockProducts();
+      setProcessesWithProcessBlockProducts(storedProcessBlockHelper.processesWithProcessBlockProducts());
       nProcessesInFirstFile_ = processesWithProcessBlockProducts().size();
     }
   }

@@ -53,7 +53,7 @@ namespace edm {
       for (auto const& item : productRegistry.productList()) {
         BranchDescription const& desc = item.second;
         if (desc.branchType() == InProcess && desc.present() && desc.processName() == processName) {
-          processesWithProcessBlockProducts().emplace_back(processName);
+          emplaceBackProcessName(processName);
           break;
         }
       }
@@ -65,7 +65,7 @@ namespace edm {
       for (auto const& item : productRegistry.productList()) {
         BranchDescription const& desc = item.second;
         if (desc.branchType() == InProcess && desc.present() && desc.processName() == processName) {
-          addedProcesses().emplace_back(processName);
+          emplaceBackAddedProcessName(processName);
           break;
         }
       }
