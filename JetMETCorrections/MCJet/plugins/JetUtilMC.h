@@ -12,7 +12,7 @@ namespace {
     }
   };
 
-  double Phi_0_2pi(double x) {
+  inline double Phi_0_2pi(double x) {
     while (x >= 2 * M_PI)
       x -= 2 * M_PI;
     while (x < 0.)
@@ -20,7 +20,7 @@ namespace {
     return x;
   }
 
-  double Phi_mpi_pi(double x) {
+  inline double Phi_mpi_pi(double x) {
     while (x >= M_PI)
       x -= 2 * M_PI;
     while (x < -M_PI)
@@ -34,7 +34,7 @@ namespace {
     return Phi_mpi_pi(phi1 - phi2);
   }
 
-  double radius(double eta1, double phi1, double eta2, double phi2) {
+  inline double radius(double eta1, double phi1, double eta2, double phi2) {
     const double TWOPI = 2.0 * M_PI;
 
     phi1 = Phi_0_2pi(phi1);
