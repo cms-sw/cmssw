@@ -38,5 +38,20 @@ genTable  = cms.EDProducer("SimpleGenEventFlatTableProducer",
         ),
 )
 
+genFilterTable = cms.EDProducer("SimpleGenFilterFlatTableProducerLumi",
+        src = cms.InputTag("genFilterEfficiencyProducer"),
+        cut = cms.string(""), 
+        name= cms.string("GenFilter"),
+        doc = cms.string("Generator filter information"),
+        singleton = cms.bool(True), 
+        extension = cms.bool(False),
+    variables = cms.PSet(
+        numEventsTotal        = Var("numEventsTotal()",        int,   doc="generator filter: total number of events",  precision=6),
+        numEventsPassed       = Var("numEventsPassed()",       int,   doc="generator filter: passed number of events", precision=6),
+        filterEfficiency      = Var("filterEfficiency()",      float, doc="generator filter: efficiency",              precision=14),
+        filterEfficiencyError = Var("filterEfficiencyError()", float, doc="generator filter: efficiency error",        precision=14),
+        ),
+)
+
 globalTables = cms.Sequence(rhoTable)
-globalTablesMC = cms.Sequence(puTable+genTable)
+globalTablesMC = cms.Sequence(puTable+genTable+genFilterTable)

@@ -6,6 +6,9 @@ typedef SimpleFlatTableProducer<reco::Candidate> SimpleCandidateFlatTableProduce
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 typedef EventSingletonSimpleFlatTableProducer<GenEventInfoProduct> SimpleGenEventFlatTableProducer;
 
+#include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
+typedef LumiSingletonSimpleFlatTableProducer<GenFilterInfo> SimpleGenFilterFlatTableProducerLumi;
+
 #include "SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h"
 typedef EventSingletonSimpleFlatTableProducer<HTXS::HiggsClassification> SimpleHTXSFlatTableProducer;
 
@@ -21,6 +24,7 @@ typedef EventSingletonSimpleFlatTableProducer<math::XYZPointF> SimpleXYZPointFla
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleGenEventFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleGenFilterFlatTableProducerLumi);
 DEFINE_FWK_MODULE(SimpleHTXSFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleProtonTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleLocalTrackFlatTableProducer);
