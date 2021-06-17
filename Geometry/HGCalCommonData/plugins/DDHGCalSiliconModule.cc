@@ -334,7 +334,7 @@ void DDHGCalSiliconModule::constructLayers(const DDLogicalPart& module, DDCompac
                                       << ", " << hthick << ", 0.0, 360.0 and position " << glog.name() << " number "
                                       << copy << ":" << layerCenter_[copy - firstLayer_];
 #endif
-	positionSensitive(glog, (copy - firstLayer_), cpv);
+        positionSensitive(glog, (copy - firstLayer_), cpv);
       }
       DDTranslation r1(0, 0, zz);
       DDRotation rot;
@@ -342,9 +342,9 @@ void DDHGCalSiliconModule::constructLayers(const DDLogicalPart& module, DDCompac
       std::string rotName("Null");
 #endif
       if ((layerSense_[ly] > 0) && (layerTypes_[copy - firstLayer_] == HGCalTypes::WaferCenteredRotated)) {
-	rot = DDRotation(DDName(DDSplit(rotstr_).first, DDSplit(rotstr_).second));
+        rot = DDRotation(DDName(DDSplit(rotstr_).first, DDSplit(rotstr_).second));
 #ifdef EDM_ML_DEBUG
-	rotName = rotstr_;
+        rotName = rotstr_;
 #endif
       }
       cpv.position(glog, module, copy, r1, rot);
@@ -352,7 +352,8 @@ void DDHGCalSiliconModule::constructLayers(const DDLogicalPart& module, DDCompac
       copyNumber_[ii] = copy + inc;
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: " << glog.name() << " number " << copy
-                                    << " positioned in " << module.name() << " at " << r1 << " with " << rotName << " rotation";
+                                    << " positioned in " << module.name() << " at " << r1 << " with " << rotName
+                                    << " rotation";
 #endif
       zz += hthick;
     }  // End of loop over layers in a block
@@ -373,7 +374,9 @@ void DDHGCalSiliconModule::constructLayers(const DDLogicalPart& module, DDCompac
 
 void DDHGCalSiliconModule::positionSensitive(const DDLogicalPart& glog, int layer, DDCompactView& cpv) {
   static const double sqrt3 = std::sqrt(3.0);
-  int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda) ? 1 : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? 2 : 0);
+  int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda)
+                        ? 1
+                        : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? 2 : 0);
   int layertype = (layerTypes_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
   int firstWafer = waferLayerStart_[layer];
   int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
@@ -409,8 +412,8 @@ void DDHGCalSiliconModule::positionSensitive(const DDLogicalPart& glog, int laye
       i = layertype * waferTypes_ + type;
       wafer = waferFull_[i];
     } else {
-      i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ +
-          layertype * waferTypes_ * orientationTypes_ + type * orientationTypes_ + orien;
+      i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ + layertype * waferTypes_ * orientationTypes_ +
+          type * orientationTypes_ + orien;
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:ind " << layertype << ":" << type << ":" << part
                                     << ":" << orien << ":" << i << ":" << waferPart_.size();

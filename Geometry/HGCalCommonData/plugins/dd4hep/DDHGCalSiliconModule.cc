@@ -63,7 +63,8 @@ struct HGCalSiliconModule {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "zStart " << cms::convert2mm(zMinBlock_) << " wafer width "
                                   << cms::convert2mm(waferSize_) << " separations " << cms::convert2mm(waferSepar_)
-                                  << " sectors " << sectors_ << ":" << convertRadToDeg(alpha_) << ":" << cosAlpha_ << " rotation matrix " << rotstr_;
+                                  << " sectors " << sectors_ << ":" << convertRadToDeg(alpha_) << ":" << cosAlpha_
+                                  << " rotation matrix " << rotstr_;
 #endif
     waferFull_ = args.value<std::vector<std::string>>("WaferNamesFull");
     waferPart_ = args.value<std::vector<std::string>>("WaferNamesPartial");
@@ -254,20 +255,20 @@ struct HGCalSiliconModule {
                                         << cms::convert2mm(hthick) << ", 0.0, 360.0 and position " << glog.name()
                                         << " number " << copy << ":" << layerCenter_[copy - firstLayer_];
 #endif
-	  positionSensitive(ctxt, e, glog, (copy - firstLayer_));
+          positionSensitive(ctxt, e, glog, (copy - firstLayer_));
         }
 
         dd4hep::Position r1(0, 0, zz);
-	dd4hep::Rotation3D rot;
+        dd4hep::Rotation3D rot;
 #ifdef EDM_ML_DEBUG
-	std::string rotName("Null");
+        std::string rotName("Null");
 #endif
-	if ((layerSense_[ly] > 0) && (layerTypes_[copy - firstLayer_] == HGCalTypes::WaferCenteredRotated)) {
-	  rot = ns.rotation(rotstr_);
+        if ((layerSense_[ly] > 0) && (layerTypes_[copy - firstLayer_] == HGCalTypes::WaferCenteredRotated)) {
+          rot = ns.rotation(rotstr_);
 #ifdef EDM_ML_DEBUG
-	  rotName = rotstr_;
+          rotName = rotstr_;
 #endif
-	}
+        }
         mother.placeVolume(glog, copy, dd4hep::Transform3D(rot, r1));
         int inc = ((layerSense_[ly] > 0) && (facingTypes_ > 1)) ? 2 : 1;
         copyNumber_[ii] = copy + inc;
@@ -307,7 +308,9 @@ struct HGCalSiliconModule {
   void positionSensitive(cms::DDParsingContext& ctxt, xml_h e, const dd4hep::Volume& glog, int layer) {
     cms::DDNamespace ns(ctxt, e, true);
     static const double sqrt3 = std::sqrt(3.0);
-    int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda) ? 1 : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? 2 : 0);
+    int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda)
+                          ? 1
+                          : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? 2 : 0);
     int layertype = (layerTypes_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
     int firstWafer = waferLayerStart_[layer];
     int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
@@ -345,8 +348,8 @@ struct HGCalSiliconModule {
         i = layertype * waferTypes_ + type;
         wafer = waferFull_[i];
       } else {
-        i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ +
-            layertype * waferTypes_ * orientationTypes_ + type * orientationTypes_ + orien;
+        i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ + layertype * waferTypes_ * orientationTypes_ +
+            type * orientationTypes_ + orien;
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:ind " << layertype << ":" << type << ":" << part
                                       << ":" << orien << ":" << i << ":" << waferPart_.size();
