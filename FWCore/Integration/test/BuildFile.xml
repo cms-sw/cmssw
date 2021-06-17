@@ -447,4 +447,6 @@
   <test name="TestFWCoreIntegrationInterProcess" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TestInterProcessProd_cfg.py"/>
 
   <test name="TestFWCoreIntegrationPutOrMerge" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/putOrMergeTest_cfg.py"/>
+
+  <test name="TestFWCoreIntegrationInputSourceAlias" command="cmsRun ${LOCALTOP}//src/FWCore/Integration/test/inputSource_alias_Test_cfg.py"/>
 </environment>
