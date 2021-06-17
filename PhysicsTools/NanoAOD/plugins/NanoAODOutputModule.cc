@@ -39,6 +39,7 @@
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "DataFormats/NanoAOD/interface/UniqueString.h"
 #include "PhysicsTools/NanoAOD/plugins/TableOutputBranches.h"
+#include "PhysicsTools/NanoAOD/plugins/LumiOutputBranches.h"
 #include "PhysicsTools/NanoAOD/plugins/TriggerOutputBranches.h"
 #include "PhysicsTools/NanoAOD/plugins/EventStringOutputBranches.h"
 #include "PhysicsTools/NanoAOD/plugins/SummaryTableOutputBranches.h"
@@ -128,6 +129,7 @@ private:
 
   std::vector<SummaryTableOutputBranches> m_runTables;
   std::vector<SummaryTableOutputBranches> m_lumiTables;
+  std::vector<LumiOutputBranches> m_lumiTables2;
   std::vector<TableOutputBranches> m_runFlatTables;
 
   std::vector<std::pair<std::string, edm::EDGetToken>> m_nanoMetadata;
@@ -231,6 +233,11 @@ void NanoAODOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput con
 
   for (auto& t : m_lumiTables)
     t.fill(iLumi, *m_lumiTree);
+  
+  for (unsigned int extensions = 0; extensions <= 1; ++extensions) {
+    for (auto& t : m_lumiTables2)
+      t.fill(iLumi, *m_lumiTree, extensions);
+  }
 
   tbb::this_task_arena::isolate([&] { m_lumiTree->Fill(); });
 
@@ -301,6 +308,7 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
   m_evstrings.clear();
   m_runTables.clear();
   m_lumiTables.clear();
+  m_lumiTables2.clear();
   m_runFlatTables.clear();
   const auto& keeps = keptProducts();
   for (const auto& keep : keeps[edm::InEvent]) {
@@ -320,6 +328,8 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
       m_lumiTables.push_back(SummaryTableOutputBranches(keep.first, keep.second));
     else if (keep.first->className() == "nanoaod::UniqueString" && keep.first->moduleLabel() == "nanoMetadata")
       m_nanoMetadata.emplace_back(keep.first->productInstanceName(), keep.second);
+    else if (keep.first->className() == "nanoaod::FlatTable")
+      m_lumiTables2.push_back(LumiOutputBranches(keep.first, keep.second));
     else
       throw cms::Exception(
           "Configuration",
