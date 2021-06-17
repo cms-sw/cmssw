@@ -14,7 +14,7 @@ process.dqmCSCClient.EventProcessor.EFF_COLD_SIGFAIL = 2.0
 process.dqmCSCClient.EventProcessor.EFF_HOT_THRESHOLD = 2.0
 process.dqmCSCClient.EventProcessor.EFF_HOT_SIGFAIL = 10.0
 process.dqmCSCClient.EventProcessor.EFF_NODATA_THRESHOLD = 0.99
-process.dqmCSCClient.EventProcessor.PREBOOK_ALL_HISTOS = True
+#process.dqmCSCClient.EventProcessor.PREBOOK_ALL_HISTOS = True
 
 #process.dqmCSCClient.FractUpdateEventFreq = cms.untracked.uint32(100)
 #process.dqmCSCClient.effParameters.threshold_hot = cms.untracked.double(10.0)
