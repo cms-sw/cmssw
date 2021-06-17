@@ -8,6 +8,8 @@
 
 namespace edm {
 
+  ProcessBlockHelperBase::~ProcessBlockHelperBase() = default;
+
   void ProcessBlockHelperBase::updateForNewProcess(ProductRegistry const& productRegistry,
                                                    std::string const& processName) {
     // Add the current process at the end if there are any
