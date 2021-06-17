@@ -30,8 +30,6 @@ namespace edm {
 
     bool productsFromInputKept() const { return productsFromInputKept_; }
 
-    static constexpr unsigned int invalidCacheIndex() { return 0xffffffff; }
-
     ProcessBlockHelperBase const* processBlockHelper() const { return processBlockHelper_; }
 
     // These are intended to be used only for testing purposes

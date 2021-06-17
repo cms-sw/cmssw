@@ -206,8 +206,8 @@ namespace edm {
         for (unsigned int j = 0; j < nFinalProcesses; ++j) {
           unsigned int storedIndex = finalIndexToStoredIndex[j];
           unsigned int oldCacheIndex = storedCacheIndices[storedOuterOffset + storedIndex];
-          unsigned int newCacheIndex = StoredProcessBlockHelper::invalidCacheIndex();
-          if (oldCacheIndex != StoredProcessBlockHelper::invalidCacheIndex()) {
+          unsigned int newCacheIndex = invalidCacheIndex();
+          if (oldCacheIndex != invalidCacheIndex()) {
             newCacheIndex = oldCacheIndex - oldOffsets[storedIndex] + newOffsets[j];
           }
           newCacheIndices.emplace_back(newCacheIndex);

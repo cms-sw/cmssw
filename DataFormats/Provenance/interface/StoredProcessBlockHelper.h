@@ -38,9 +38,6 @@ namespace edm {
 
     std::vector<unsigned int>& processBlockCacheIndices() { return processBlockCacheIndices_; }
 
-    static constexpr unsigned int invalidCacheIndex() { return 0xffffffff; }
-    static constexpr unsigned int invalidProcessIndex() { return 0xffffffff; }
-
   private:
     std::vector<std::string> processesWithProcessBlockProducts_;
 
