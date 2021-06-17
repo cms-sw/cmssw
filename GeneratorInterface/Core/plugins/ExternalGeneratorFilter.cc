@@ -46,15 +46,22 @@ namespace externalgen {
 
       channel_.setupWorker([&]() {
         using namespace std::string_literals;
+        using namespace std::filesystem;
         edm::LogSystem("ExternalProcess") << id_ << " starting external process \n";
         std::string verboseCommand;
         if (verbose) {
           verboseCommand = "--verbose ";
         }
+        std::error_code ec;
+        auto curDir = current_path();
+        auto newDir = path("thread"s + std::to_string(id_));
+        create_directory(newDir, ec);
+        current_path(newDir, ec);
         pipe_ =
             popen(("cmsExternalGenerator "s + verboseCommand + channel_.sharedMemoryName() + " " + channel_.uniqueID())
                       .c_str(),
                   "w");
+        current_path(curDir, ec);
 
         if (nullptr == pipe_) {
           abort();
