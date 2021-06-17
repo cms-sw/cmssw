@@ -168,10 +168,11 @@ namespace popcon {
       if (typeid(T) == typeid(SiStripNoises)) {
         obj = new SiStripNoises();
 
-        SiStripDetInfoFileReader reader{edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath()};
+        const auto detInfo =
+            SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
 
         int count = -1;
-        for (const auto& it : reader.getAllData()) {
+        for (const auto& it : detInfo.getAllData()) {
           count++;
           //Generate Noise for det detid
           SiStripNoises::InputVector theSiStripVector;

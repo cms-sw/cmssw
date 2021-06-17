@@ -152,9 +152,9 @@ namespace {
 std::unique_ptr<SiStripQuality> sistrip::badStripFromFedErr(DQMStore::IGetter& dqmStore,
                                                             const SiStripFedCabling& fedCabling,
                                                             float cutoff) {
-  edm::FileInPath path(SiStripDetInfoFileReader::kDefaultFile);
-  SiStripDetInfoFileReader reader(path.fullPath());
-  auto quality = std::make_unique<SiStripQuality>(reader.info());
+  const auto detInfo =
+      SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+  auto quality = std::make_unique<SiStripQuality>(detInfo);
   auto detectorMap = getBadChannelDetectorMap(dqmStore, fedCabling, cutoff);
   if (!detectorMap.empty()) {
     fillQuality(quality.get(), detectorMap);
@@ -169,9 +169,9 @@ std::unique_ptr<SiStripQuality> sistrip::badStripFromFedErrLegacyDQMFile(const s
                                                                          unsigned int runNumber,
                                                                          const SiStripFedCabling& fedCabling,
                                                                          float cutoff) {
-  edm::FileInPath path(SiStripDetInfoFileReader::kDefaultFile);
-  SiStripDetInfoFileReader reader(path.fullPath());
-  auto quality = std::make_unique<SiStripQuality>(reader.info());
+  const auto detInfo =
+      SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+  auto quality = std::make_unique<SiStripQuality>(detInfo);
   auto tdirFile = TFile::Open(fileName.c_str());
   auto detectorMap = getBadChannelDetectorMap(tdirFile, runNumber, fedCabling, cutoff);
   if (!detectorMap.empty()) {

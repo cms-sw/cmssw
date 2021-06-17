@@ -17,7 +17,7 @@ void SiStripApvGainBuilder::analyze(const edm::Event& evt, const edm::EventSetup
   SiStripApvGain* obj = new SiStripApvGain();
 
   int count = -1;
-  for (const auto& it : SiStripDetInfoFileReader(fp_.fullPath()).getAllData()) {
+  for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
     count++;
     //Generate Gain for det detid
     std::vector<float> theSiStripVector;

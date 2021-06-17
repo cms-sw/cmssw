@@ -47,7 +47,7 @@ private:
   SiStripFakeAPVParameters m_noisePar1;
   SiStripFakeAPVParameters m_noisePar2;
   uint32_t m_printDebug;
-  SiStripDetInfoFileReader m_detInfoFileReader;
+  SiStripDetInfo m_detInfo;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -81,8 +81,7 @@ SiStripNoisesFakeESSource::SiStripNoisesFakeESSource(const edm::ParameterSet& iC
 
   m_printDebug = iConfig.getUntrackedParameter<uint32_t>("printDebug", 5);
 
-  m_detInfoFileReader =
-      SiStripDetInfoFileReader{iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
+  m_detInfo = SiStripDetInfoFileReader::read(iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath());
 }
 
 SiStripNoisesFakeESSource::~SiStripNoisesFakeESSource() {}
@@ -102,7 +101,7 @@ SiStripNoisesFakeESSource::ReturnType SiStripNoisesFakeESSource::produce(const S
   auto noises = std::make_unique<SiStripNoises>();
 
   uint32_t count{0};
-  for (const auto& elm : m_detInfoFileReader.getAllData()) {
+  for (const auto& elm : m_detInfo.getAllData()) {
     //Generate Noises for det detid
     SiStripNoises::InputVector theSiStripVector;
     SiStripFakeAPVParameters::index sl = SiStripFakeAPVParameters::getIndex(&tTopo, elm.first);

@@ -65,17 +65,17 @@ std::unique_ptr<SiStripApvGain> SiStripGainFromAsciiFile::getNewObject() {
     assert(0);
   }
 
-  SiStripDetInfoFileReader reader(fp_.fullPath());
+  const auto detInfo = SiStripDetInfoFileReader::read(fp_.fullPath());
 
   ss.str("");
   ss << "[SiStripGainFromAsciiFile::getNewObject]\n Filling SiStripApvGain object";
   short nApvPair;
-  for (const auto it : reader.getAllDetIds()) {
+  for (const auto it : detInfo.getAllDetIds()) {
     ModuleGain MG;
     if (DetId(it).det() != DetId::Tracker)
       continue;
 
-    nApvPair = reader.getNumberOfApvsAndStripLength(it).first / 2;
+    nApvPair = detInfo.getNumberOfApvsAndStripLength(it).first / 2;
 
     ss << "Looking at detid " << it << " nApvPairs  " << nApvPair << std::endl;
     auto iter = GainsMap.find(it);

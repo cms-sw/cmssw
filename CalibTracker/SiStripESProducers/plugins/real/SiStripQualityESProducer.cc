@@ -127,9 +127,9 @@ SiStripQualityESProducer::SiStripQualityESProducer(const edm::ParameterSet& iCon
 }
 
 std::unique_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQualityRcd& iRecord) {
-  edm::FileInPath path(SiStripDetInfoFileReader::kDefaultFile);
-  SiStripDetInfoFileReader reader(path.fullPath());
-  auto quality = std::make_unique<SiStripQuality>(reader.info());
+  const auto detInfo =
+      SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+  auto quality = std::make_unique<SiStripQuality>(detInfo);
   edm::LogInfo("SiStripQualityESProducer") << "produce called";
 
   // Set the debug output level

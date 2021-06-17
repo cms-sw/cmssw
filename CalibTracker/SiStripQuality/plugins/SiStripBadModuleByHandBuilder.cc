@@ -34,7 +34,7 @@ SiStripBadModuleByHandBuilder::SiStripBadModuleByHandBuilder(const edm::Paramete
 }
 
 std::unique_ptr<SiStripBadStrip> SiStripBadModuleByHandBuilder::getNewObject() {
-  SiStripDetInfoFileReader reader{fp_.fullPath()};
+  const auto detInfo = SiStripDetInfoFileReader::read(fp_.fullPath());
 
   auto obj = std::make_unique<SiStripBadStrip>();
 
@@ -45,7 +45,7 @@ std::unique_ptr<SiStripBadStrip> SiStripBadModuleByHandBuilder::getNewObject() {
   for (std::vector<uint32_t>::const_iterator it = BadModuleList_.begin(); it != BadModuleList_.end(); ++it) {
     std::vector<unsigned int> theSiStripVector;
 
-    NconsecutiveBadStrips = reader.getNumberOfApvsAndStripLength(*it).first * 128;
+    NconsecutiveBadStrips = detInfo.getNumberOfApvsAndStripLength(*it).first * 128;
     theBadStripRange = obj->encode(firstBadStrip, NconsecutiveBadStrips);
     if (printdebug_)
       edm::LogInfo("SiStripBadModuleByHandBuilder")
@@ -62,3 +62,6 @@ std::unique_ptr<SiStripBadStrip> SiStripBadModuleByHandBuilder::getNewObject() {
   }
   return obj;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiStripBadModuleByHandBuilder);

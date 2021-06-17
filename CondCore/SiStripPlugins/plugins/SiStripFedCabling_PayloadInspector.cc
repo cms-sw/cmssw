@@ -95,8 +95,9 @@ namespace {
       containers myCont;
       containers allCounts;
 
-      SiStripDetInfoFileReader reader{edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath()};
-      for (const auto& it : reader.getAllData()) {
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
+      for (const auto& it : detInfo.getAllData()) {
         // check if det id is correct and if it is actually cabled in the detector
         if (it.first == 0 || it.first == 0xFFFFFFFF) {
           edm::LogError("DetIdNotGood") << "@SUB=analyze"
