@@ -10,7 +10,7 @@ dtPreCalibrationTaskAlca = dtPreCalibTask.clone(
 )
 
 dtAlcaResolutionMonitor = dtResolutionAnalysisMonitor.clone(
-  topHistoFolder = "AlCaReco/DtCalibSynch/01-Calibration"
+  topHistoFolder = 'AlCaReco/DtCalibSynch/01-Calibration'
 )
  
 dtTriggerSynchMonitor.baseDir = 'AlCaReco/DtCalibSynch/02-Synchronization'             
