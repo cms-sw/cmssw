@@ -36,9 +36,9 @@ process.esRawToDigi.sourceTag = 'source'
 process.esRawToDigi.debugMode = False
 
 process.load('RecoLocalCalo/EcalRecProducers/ecalPreshowerRecHit_cfi')
-process.ecalPreshowerRecHit.ESGain = 2
-process.ecalPreshowerRecHit.ESBaseline = 0
-process.ecalPreshowerRecHit.ESMIPADC = 50
+#process.ecalPreshowerRecHit.ESGain = 2
+#process.ecalPreshowerRecHit.ESBaseline = 0
+#process.ecalPreshowerRecHit.ESMIPADC = 50
 process.ecalPreshowerRecHit.ESdigiCollection = "esRawToDigi"
 process.ecalPreshowerRecHit.ESRecoAlgo = 0
 
