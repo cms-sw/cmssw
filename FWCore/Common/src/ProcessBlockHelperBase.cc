@@ -6,6 +6,9 @@
 #include "FWCore/Utilities/interface/ProductLabels.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
+#include <algorithm>
+#include <iterator>
+
 namespace edm {
 
   ProcessBlockHelperBase::~ProcessBlockHelperBase() = default;
@@ -37,18 +40,17 @@ namespace edm {
           desc.moduleLabel() == productLabels.module && desc.productInstanceName() == productLabels.productInstance &&
           desc.unwrappedTypeID() == typeID && (processName.empty() || processName == desc.processName())) {
         // This code is to select the latest matching process
-        unsigned int position = 0;
-        bool found = false;
-        for (auto const& processFromHelper : processesWithProcessBlockProducts_) {
-          if (processFromHelper == desc.processName()) {
-            found = true;
-            break;
+        auto found = std::find_if(processesWithProcessBlockProducts_.begin(),
+                                  processesWithProcessBlockProducts_.end(),
+                                  [&desc](auto const& processFromHelper) {
+          return processFromHelper == desc.processName();
+        });
+        if (found != processesWithProcessBlockProducts_.end()) {
+          const unsigned int position = std::distance(processesWithProcessBlockProducts_.begin(), found);
+          if (position >= bestPosition) {
+            bestPosition = position;
+            selectedProcess = desc.processName();
           }
-          ++position;
-        }
-        if (found && position >= bestPosition) {
-          bestPosition = position;
-          selectedProcess = desc.processName();
         }
       }
     }
