@@ -71,6 +71,7 @@ process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.DefaultCutValue = 0.07
 process.g4SimHits.StackingAction.SaveFirstLevelSecondary = True
+process.g4SimHits.OnlySDs = ['CaloTrkProcessing', 'DreamSensitiveDetector']
 process.g4SimHits.ECalSD = cms.PSet(
     TestBeam = cms.untracked.bool(False),
     ReadBothSide = cms.untracked.bool(False),

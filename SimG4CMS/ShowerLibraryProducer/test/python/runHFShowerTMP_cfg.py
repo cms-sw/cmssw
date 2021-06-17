@@ -75,6 +75,11 @@ process.g4SimHits.HCalSD.UseShowerLibrary = True
 process.g4SimHits.HCalSD.UseParametrize = False
 process.g4SimHits.HCalSD.UsePMTHits = False
 process.g4SimHits.HCalSD.UseFibreBundleHits = False
+process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
+                             'HFWedgeSensitiveDetector',
+                             'FiberSensitiveDetector',
+                             'HFChamberSensitiveDetector',
+                             'HcalSensitiveDetector']
 
 process.g4SimHits.HFShower.UseShowerLibrary= True
 process.g4SimHits.HFShower.UseR7600UPMT    = True

@@ -43,6 +43,7 @@ process.generator.PGunParameters.MinE = 10.0
 process.generator.PGunParameters.MaxE = 10.0
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
+process.g4SimHits.OnlySDs = ['CaloTrkProcessing', 'DreamSensitiveDetector']
 process.g4SimHits.ECalSD = cms.PSet(
     TestBeam = cms.untracked.bool(False),
     ReadBothSide = cms.untracked.bool(True),
