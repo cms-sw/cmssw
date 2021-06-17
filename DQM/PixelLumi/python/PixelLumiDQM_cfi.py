@@ -10,5 +10,7 @@ pixel_lumi_dqm  = DQMEDAnalyzer('PixelLumiDQM',
                                  # Only count pixel clusters with a minimum number of pixels.
                                  minNumPixelsPerCluster = cms.untracked.int32(2),
                                  # Only count pixel clusters with a minimum charge.
-                                 minChargePerCluster = cms.untracked.double(15000.)
+                                 minChargePerCluster = cms.untracked.double(15000.),
+                                 #log file defined in class but not here as parameter
+                                 logFileName = cms.untracked.string('/tmp/pixel_lumi.txt')
                                  )
