@@ -17,7 +17,7 @@ namespace edm {
 
   class ProcessBlockHelperBase {
   public:
-    virtual ~ProcessBlockHelperBase() = default;
+    virtual ~ProcessBlockHelperBase();
 
     std::vector<std::string>& processesWithProcessBlockProducts() { return processesWithProcessBlockProducts_; }
     std::vector<std::string> const& processesWithProcessBlockProducts() const {
