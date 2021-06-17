@@ -162,10 +162,10 @@ namespace edm {
 
       // Really fill the cache indices that will be stored in the output file in this loop
       for (unsigned int iStoredProcess = 0; iStoredProcess < nStoredProcesses; ++iStoredProcess) {
-        unsigned int storedCacheIndex = invalidCacheIndex();
+        unsigned int storedCacheIndex = ProcessBlockHelperBase::invalidCacheIndex();
         if (iStoredProcess < nInputProcesses) {
           unsigned int cacheIndex = innerVectorOfCacheIndices[translateFromStoredIndex_[iStoredProcess]];
-          if (cacheIndex != invalidCacheIndex()) {
+          if (cacheIndex != ProcessBlockHelperBase::invalidCacheIndex()) {
             // The offsets count in the cache sequence to the first entry in
             // the current input file and process
             unsigned int inputOffset = fileOffset + processOffset[iStoredProcess];

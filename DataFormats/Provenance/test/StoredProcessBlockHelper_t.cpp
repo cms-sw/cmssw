@@ -18,9 +18,6 @@ TEST_CASE("StoredProcessBlockHelper", "[StoredProcessBlockHelper]") {
     REQUIRE(storedProcessBlockHelperConstPtr->processesWithProcessBlockProducts().empty());
     REQUIRE(storedProcessBlockHelperConstPtr->processBlockCacheIndices().empty());
 
-    REQUIRE(edm::StoredProcessBlockHelper::invalidCacheIndex() == 0xffffffff);
-    REQUIRE(edm::StoredProcessBlockHelper::invalidProcessIndex() == 0xffffffff);
-
     edm::EventToProcessBlockIndexes eventToProcessBlockIndexes;
     REQUIRE(eventToProcessBlockIndexes.index() == 0);
     eventToProcessBlockIndexes.setIndex(2);

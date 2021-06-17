@@ -13,8 +13,6 @@ TEST_CASE("Test ProcessBlockHelpers", "[ProcessBlockHelpers]") {
 
   SECTION("OutputProcessBlockHelper") {
     edm::OutputProcessBlockHelper outputProcessBlockHelper;
-
-    REQUIRE(edm::OutputProcessBlockHelper::invalidCacheIndex() == 0xffffffff);
   }
 
   SECTION("ProcessBlockHelper") {
