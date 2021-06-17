@@ -747,17 +747,15 @@ void SiStripCondObjBuilderFromDb::buildAnalysisRelatedObjects(SiStripConfigDb* c
   }
 
   // Get all detIds from the ideal geometry to build the payload
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = m_reader->getAllData();
-
-  for (auto it = DetInfos.begin(); it != DetInfos.end(); ++it) {
+  for (const auto& it : m_reader->getAllData()) {
     // check if det id is correct and if it is actually cabled in the detector
-    if (it->first == 0 || it->first == sistrip::invalid32_) {
+    if (it.first == 0 || it.first == sistrip::invalid32_) {
       edm::LogError("DetIdNotGood") << "@SUB=analyze"
-                                    << "Invalid detid: " << it->first << "  ... neglecting!" << std::endl;
+                                    << "Invalid detid: " << it.first << "  ... neglecting!" << std::endl;
       continue;
     }
 
-    uint32_t detid = it->first;
+    uint32_t detid = it.first;
     bool update_ = true;
     i_trackercon det_iter =
         std::find_if(tc.begin(), tc.end(), [detid](const pair_detcon& p) { return p.first == detid; });
@@ -785,7 +783,7 @@ void SiStripCondObjBuilderFromDb::buildAnalysisRelatedObjects(SiStripConfigDb* c
       }  //connections
 
     } else {
-      uint32_t nApvPairs = it->second.nApvs / 2;
+      uint32_t nApvPairs = it.second.nApvs / 2;
       for (uint32_t apvPair = 0; apvPair < nApvPairs; ++apvPair) {
         setDefaultValuesApvTiming(detid, apvPair);
       }

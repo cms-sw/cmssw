@@ -30,8 +30,8 @@ private:
 SiStripPopConPedestalsHandlerFromDQM::SiStripPopConPedestalsHandlerFromDQM(const edm::ParameterSet& iConfig,
                                                                            edm::ConsumesCollector&&)
     : SiStripDQMPopConSourceHandler<SiStripPedestals>(iConfig),
-      fp_{iConfig.getUntrackedParameter<edm::FileInPath>(
-          "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))},
+      fp_{iConfig.getUntrackedParameter<edm::FileInPath>("file",
+                                                         edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile))},
       MEDir_{iConfig.getUntrackedParameter<std::string>("ME_DIR", "DQMData")} {
   edm::LogInfo("SiStripPedestalsDQMService") << "[SiStripPedestalsDQMService::SiStripPedestalsDQMService]";
 }

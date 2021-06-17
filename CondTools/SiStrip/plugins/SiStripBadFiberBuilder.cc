@@ -8,8 +8,7 @@
 
 SiStripBadFiberBuilder::SiStripBadFiberBuilder(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiStripBadStrip>(iConfig) {
-  fp_ = iConfig.getUntrackedParameter<edm::FileInPath>(
-      "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
+  fp_ = iConfig.getUntrackedParameter<edm::FileInPath>("file", edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile));
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug", false);
   BadComponentList_ = iConfig.getUntrackedParameter<Parameters>("BadComponentList");
 }

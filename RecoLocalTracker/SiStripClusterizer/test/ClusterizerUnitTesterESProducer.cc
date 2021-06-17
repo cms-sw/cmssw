@@ -2,8 +2,7 @@
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 ClusterizerUnitTesterESProducer::ClusterizerUnitTesterESProducer(const edm::ParameterSet& conf) {
-  edm::FileInPath testInfo(("RecoLocalTracker/SiStripClusterizer/test/ClusterizerUnitTestDetInfo.dat"));
-  SiStripDetInfoFileReader reader(testInfo.fullPath());
+  SiStripDetInfoFileReader reader{edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath()};
 
   auto quality = std::make_unique<SiStripQuality>(reader.info());
   auto apvGain = std::make_unique<SiStripApvGain>();

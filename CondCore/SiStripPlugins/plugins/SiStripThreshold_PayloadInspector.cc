@@ -95,8 +95,7 @@ namespace {
                                                     10) {}
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      SiStripDetInfoFileReader reader{edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath()};
 
       for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload(std::get<1>(iov));
@@ -108,7 +107,7 @@ namespace {
             //std::cout<<d<<std::endl;
             SiStripThreshold::Range range = payload->getRange(d);
 
-            int nAPVs = reader->getNumberOfApvsAndStripLength(d).first;
+            int nAPVs = reader.getNumberOfApvsAndStripLength(d).first;
 
             for (int it = 0; it < nAPVs; ++it) {
               auto hth = payload->getData(it * 128, range).getHth();
@@ -119,7 +118,6 @@ namespace {
         }
       }
 
-      delete reader;
       return true;
     }
   };
@@ -138,8 +136,7 @@ namespace {
                                                     10) {}
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      SiStripDetInfoFileReader reader{edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath()};
 
       for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload(std::get<1>(iov));
@@ -151,7 +148,7 @@ namespace {
             //std::cout<<d<<std::endl;
             SiStripThreshold::Range range = payload->getRange(d);
 
-            int nAPVs = reader->getNumberOfApvsAndStripLength(d).first;
+            int nAPVs = reader.getNumberOfApvsAndStripLength(d).first;
 
             for (int it = 0; it < nAPVs; ++it) {
               auto lth = payload->getData(it * 128, range).getLth();
@@ -162,7 +159,6 @@ namespace {
         }
       }
 
-      delete reader;
       return true;
     }
   };
