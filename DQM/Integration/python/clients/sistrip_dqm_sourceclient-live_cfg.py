@@ -311,7 +311,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
 
     process.MonitorTrackResiduals_gentk.Tracks                 = 'initialStepTracksPreSplitting'
     process.MonitorTrackResiduals_gentk.trajectoryInput        = 'initialStepTracksPreSplitting'
-    process.MonitorTrackResiduals_gentk.TrackProducer          = 'initialStepTracksPreSplitting'
+#    process.MonitorTrackResiduals_gentk.TrackProducer          = 'initialStepTracksPreSplitting' ##DOES NOT EXIST ON DQM/TrackerMonitorTrack/src/MonitorTrackResiduals.cc
     process.TrackMon_gentk.TrackProducer    = 'initialStepTracksPreSplitting'
     process.TrackMon_gentk.allTrackProducer = 'initialStepTracksPreSplitting'
     process.SiStripMonitorTrack_gentk.TrackProducer = 'initialStepTracksPreSplitting'
@@ -320,7 +320,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
 
     ### STRIP
     process.load("DQM.SiStripMonitorClient.SiStripClientConfigP5_cff")
-    process.SiStripAnalyser.UseGoodTracks  = True
+#    process.SiStripAnalyser.UseGoodTracks  = True   #DOES NOT EXIST ON DQM/SiStripMonitorClient/plugins/SiStripAnalyser.cc
     process.SiStripAnalyser.TkMapCreationFrequency  = -1
     process.SiStripAnalyser.ShiftReportFrequency = -1
     process.SiStripAnalyser.StaticUpdateFrequency = 5
@@ -338,7 +338,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
         process.TrackingAnalyser.verbose = True
     process.TrackingClient = cms.Sequence( process.TrackingAnalyser )
 
-    process.trackingQTester.qtList                  = 'DQM/TrackingMonitorClient/data/tracking_qualitytest_config.xml')    process.trackingQTester.prescaleFactor          = 1
+    process.trackingQTester.qtList                  = 'DQM/TrackingMonitorClient/data/tracking_qualitytest_config.xml'
+    process.trackingQTester.prescaleFactor          = 1
     process.trackingQTester.getQualityTestsFromFile = True
     process.trackingQTester.qtestOnEndLumi          = True
     process.trackingQTester.qtestOnEndRun           = True
@@ -419,14 +420,14 @@ if (process.runType.getRunType() == process.runType.hpu_run):
 
     process.MonitorTrackResiduals_gentk.Tracks                 = 'earlyGeneralTracks'
     process.MonitorTrackResiduals_gentk.trajectoryInput        = 'earlyGeneralTracks'
-    process.MonitorTrackResiduals_gentk.TrackProducer          = 'earlyGeneralTracks'
+#    process.MonitorTrackResiduals_gentk.TrackProducer          = 'earlyGeneralTracks'  #DOES NOT EXIST ON DQM/TrackerMonitorTrack/src/MonitorTrackResiduals.cc
     process.TrackMon_gentk.TrackProducer          = "earlyGeneralTracks"
     process.TrackMon_gentk.allTrackProducer = "earlyGeneralTracks"
     process.SiStripMonitorTrack_gentk.TrackProducer    = 'earlyGeneralTracks'
 
     process.SiStripSources_TrkReco   = cms.Sequence(process.SiStripMonitorTrack_gentk*process.MonitorTrackResiduals_gentk*process.TrackMon_gentk)
     process.load("DQM.SiStripMonitorClient.SiStripClientConfigP5_cff")
-    process.SiStripAnalyser.UseGoodTracks  = True
+#    process.SiStripAnalyser.UseGoodTracks  = True  #DOES NOT EXIST ON DQM/SiStripMonitorClient/plugins/SiStripAnalyser.cc
     process.SiStripAnalyser.TkMapCreationFrequency  = -1
     process.SiStripAnalyser.ShiftReportFrequency = -1
     process.SiStripAnalyser.StaticUpdateFrequency = 5
@@ -541,7 +542,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
     process.MonitorTrackResiduals_gentk.Tracks                 = 'initialStepTracksPreSplitting'
     process.MonitorTrackResiduals_gentk.trajectoryInput        = 'initialStepTracksPreSplitting'
-    process.MonitorTrackResiduals_gentk.TrackProducer          = 'initialStepTracksPreSplitting'
+#    process.MonitorTrackResiduals_gentk.TrackProducer          = 'initialStepTracksPreSplitting' ##DOES NOT EXIST ON DQM/TrackerMonitorTrack/src/MonitorTrackResiduals.cc
     process.TrackMon_gentk.TrackProducer    = 'initialStepTracksPreSplitting'
     process.TrackMon_gentk.allTrackProducer = 'initialStepTracksPreSplitting'
     process.SiStripMonitorTrack_gentk.TrackProducer = 'initialStepTracksPreSplitting'
@@ -550,7 +551,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
     ### STRIP
     process.load("DQM.SiStripMonitorClient.SiStripClientConfigP5_cff")
-    process.SiStripAnalyser.UseGoodTracks  = True
+#    process.SiStripAnalyser.UseGoodTracks  = True  #DOES NOT EXIST ON DQM/SiStripMonitorClient/plugins/SiStripAnalyser.cc
     process.SiStripAnalyser.TkMapCreationFrequency  = -1
     process.SiStripAnalyser.ShiftReportFrequency = -1
     process.SiStripAnalyser.StaticUpdateFrequency = 5
