@@ -52,10 +52,9 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifier::getNewObject(
     theIdentifier.setMinNumEntries(parameters.getUntrackedParameter<uint32_t>("MinNumEntries", 100));
     theIdentifier.setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip", 5));
 
-    edm::FileInPath path(SiStripDetInfoFileReader::kDefaultFile);
-    SiStripDetInfoFileReader reader(path.fullPath());
-
-    SiStripQuality* qobj = new SiStripQuality(reader.info());
+    const auto detInfo =
+        SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+    SiStripQuality* qobj = new SiStripQuality(detInfo);
     theIdentifier.extractBadStrips(qobj, ClusterPositionHistoMap, stripQuality_);
 
     edm::LogInfo("SiStripQualityHotStripIdentifier")
@@ -115,7 +114,7 @@ void SiStripQualityHotStripIdentifier::resetHistos() {
 void SiStripQualityHotStripIdentifier::bookHistos() {
   edm::LogInfo("SiStripQualityHotStripIdentifier") << " [SiStripQualityHotStripIdentifier::bookHistos] " << std::endl;
   char hname[1024];
-  for (const auto& it : SiStripDetInfoFileReader{fp_.fullPath()}.getAllData()) {
+  for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
     sprintf(hname, "h_%d", it.first);
     auto ref = ClusterPositionHistoMap.find(it.first);
     if (ref == ClusterPositionHistoMap.end()) {

@@ -195,7 +195,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj() {
         modV = new SiStripDetVOff();
 
         // Use the file
-        SiStripDetInfoFileReader reader(edm::FileInPath{detIdListFile_}.fullPath());
+        const auto detInfo = SiStripDetInfoFileReader::read(edm::FileInPath{detIdListFile_}.fullPath());
 
         //FIXME:
         //Following code is actually broken (well not until the cfg has "" for excludedDetIDListFile parameter!
@@ -208,7 +208,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj() {
         if (!excludedDetIdListFile_.empty()) {
           map.BuildMap(excludedDetIdListFile_, excludedDetIdMap);
         }
-        for (const auto& it : reader.getAllData()) {
+        for (const auto& it : detInfo.getAllData()) {
           bool excluded = false;
           for (const auto& exclIt : excludedDetIdMap) {
             if (it.first == exclIt.first) {

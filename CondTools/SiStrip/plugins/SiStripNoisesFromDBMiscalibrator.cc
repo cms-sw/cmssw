@@ -298,7 +298,7 @@ std::unique_ptr<SiStripNoises> SiStripNoisesFromDBMiscalibrator::getNewObject_wi
 
   std::vector<uint32_t> missingDetIds;
 
-  for (const auto& it : SiStripDetInfoFileReader(fp_.fullPath()).getAllData()) {
+  for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
     //Generate Noise for det detid
     bool isMissing(false);
     SiStripNoises::InputVector theSiStripVector;

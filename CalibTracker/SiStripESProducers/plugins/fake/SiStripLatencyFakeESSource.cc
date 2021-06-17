@@ -40,7 +40,7 @@ public:
 private:
   uint32_t m_latency;
   uint32_t m_mode;
-  SiStripDetInfoFileReader m_detInfoFileReader;
+  SiStripDetInfo m_detInfo;
 };
 
 SiStripLatencyFakeESSource::SiStripLatencyFakeESSource(const edm::ParameterSet& iConfig) {
@@ -49,8 +49,7 @@ SiStripLatencyFakeESSource::SiStripLatencyFakeESSource(const edm::ParameterSet& 
 
   m_latency = iConfig.getParameter<uint32_t>("latency");
   m_mode = iConfig.getParameter<uint32_t>("mode");
-  m_detInfoFileReader =
-      SiStripDetInfoFileReader{iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
+  m_detInfo = SiStripDetInfoFileReader::read(iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath());
 }
 
 SiStripLatencyFakeESSource::~SiStripLatencyFakeESSource() {}
@@ -67,7 +66,7 @@ SiStripLatencyFakeESSource::ReturnType SiStripLatencyFakeESSource::produce(const
 
   auto latency = std::make_unique<SiStripLatency>();
 
-  const auto& detInfos = m_detInfoFileReader.getAllData();
+  const auto& detInfos = m_detInfo.getAllData();
   // Take the last detId. Since the map is sorted it will be the biggest value
   if (!detInfos.empty()) {
     // Set the apv number as 6, the highest possible
