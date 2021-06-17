@@ -10,7 +10,7 @@ dtPreCalibrationTaskAlcaCosmics = dtPreCalibTask.clone(
 )
 
 dtAlcaResolutionMonitorCosmics = dtResolutionAnalysisMonitor.clone(
-  topHistoFolder = "AlCaReco/DtCalibSynchCosmics/01-Calibration"
+  topHistoFolder = 'AlCaReco/DtCalibSynchCosmics/01-Calibration'
 )
 
 #dtTriggerSynchMonitorCosmics = dtTriggerSynchMonitor.clone(

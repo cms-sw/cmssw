@@ -7,7 +7,7 @@ dtResolutionTaskHLT = DQMEDAnalyzer('DTResolutionAnalysisTask',
                                      # interval of lumi block after which we reset the histos
                                      ResetCycle = cms.untracked.int32(10000),
                                      # top folder for the histograms in DQMStore
-                                     topHistoFolder = cms.untracked.string("HLT/HLTMonMuon/DT-Segments")
+                                     topHistoFolder = cms.untracked.string('HLT/HLTMonMuon/DT-Segments')
                                      )
 
 

@@ -15,15 +15,15 @@ dtFineDelayCorr = cms.EDAnalyzer("DTFineDelayCorr",
     # Read old delays from file or from Db
     readOldFromDb = cms.bool(False),
     # Input file name for old delays
-    oldDelaysInputFile = cms.string("dtOldFineDelays.txt"),
+    oldDelaysInputFile = cms.string('dtOldFineDelays.txt'),
     # Write new delays to file or to Db
     writeDB = cms.bool(False),
     # output file name
-    outputFile = cms.string("dtFineDelaysNew.txt"),
+    outputFile = cms.string('dtFineDelaysNew.txt'),
     # Tag for the t0Mean Histograms
-    t0MeanHistoTag  = cms.string("TrackCrossingTimeAll"),
+    t0MeanHistoTag  = cms.string('TrackCrossingTimeAll'),
     # Hardware Source (TM)
-    hwSource = cms.string("TM"),
+    hwSource = cms.string('TM'),
     # Choose to use Hist Mean or Gaussian Fit Mean
     gaussMean = cms.bool(False),
     # Require Minimum Number Of Entries in the t0Mean Histogram

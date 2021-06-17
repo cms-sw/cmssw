@@ -17,7 +17,7 @@ dtSegmentTaskHLT = DQMEDAnalyzer('DTSegmentAnalysisTask',
                                   # switch on/off sliding bins in time histos
                                   slideTimeBins = cms.untracked.bool(True),
                                   # top folder for the histograms in DQMStore
-                                  topHistoFolder = cms.untracked.string("HLT/HLTMonMuon/DT-Segments"),
+                                  topHistoFolder = cms.untracked.string('HLT/HLTMonMuon/DT-Segments'),
                                   # hlt DQM mode
                                   hltDQMMode = cms.untracked.bool(True)
                                   )
