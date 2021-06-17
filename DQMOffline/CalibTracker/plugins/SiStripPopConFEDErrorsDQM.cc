@@ -60,8 +60,8 @@ private:
 SiStripPopConFEDErrorsHandlerFromDQM::SiStripPopConFEDErrorsHandlerFromDQM(const edm::ParameterSet& iConfig,
                                                                            edm::ConsumesCollector&& iC)
     : SiStripDQMPopConSourceHandler<SiStripBadStrip>(iConfig),
-      fp_(iConfig.getUntrackedParameter<edm::FileInPath>(
-          "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
+      fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",
+                                                         edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile))),
       threshold_(iConfig.getUntrackedParameter<double>("Threshold", 0)),
       debug_(iConfig.getUntrackedParameter<unsigned int>("Debug", 0)),
       fedCablingToken_(iC.esConsumes<SiStripFedCabling, SiStripFedCablingRcd, edm::Transition::BeginRun>()) {

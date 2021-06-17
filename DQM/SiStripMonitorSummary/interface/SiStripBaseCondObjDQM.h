@@ -91,7 +91,7 @@ protected:
 
   void fillTkMap(const uint32_t &detid, const float &value);
 
-  SiStripDetInfoFileReader *reader;
+  SiStripDetInfoFileReader reader;
 
   edm::ParameterSet hPSet_;
   edm::ParameterSet fPSet_;

@@ -38,8 +38,8 @@ private:
 SiStripPopConBadComponentsHandlerFromDQM::SiStripPopConBadComponentsHandlerFromDQM(const edm::ParameterSet& iConfig,
                                                                                    edm::ConsumesCollector&& iC)
     : SiStripDQMPopConSourceHandler<SiStripBadStrip>(iConfig),
-      fp_{iConfig.getUntrackedParameter<edm::FileInPath>(
-          "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))},
+      fp_{iConfig.getUntrackedParameter<edm::FileInPath>("file",
+                                                         edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile))},
       tTopoToken_(iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()) {
   edm::LogInfo("SiStripBadComponentsDQMService") << "[SiStripBadComponentsDQMService::SiStripBadComponentsDQMService]";
 }
