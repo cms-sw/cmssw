@@ -63,7 +63,6 @@ namespace edm {
     }
 
     struct TokenInfo {
-    public:
       EDGetToken token_;
       TypeID typeID_;
     };
