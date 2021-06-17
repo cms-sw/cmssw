@@ -11,7 +11,7 @@ dtSegmentAnalysisMonitor = DQMEDAnalyzer('DTSegmentAnalysisTask',
                                           # switch off uneeded histograms
                                           detailedAnalysis = cms.untracked.bool(False),
                                           # top folder for the histograms in DQMStore
-                                          topHistoFolder = cms.untracked.string("DT/02-Segments"),
+                                          topHistoFolder = cms.untracked.string('DT/02-Segments'),
                                           # hlt DQM mode
                                           hltDQMMode = cms.untracked.bool(False),
                                           # max phi angle of reconstructed segments 

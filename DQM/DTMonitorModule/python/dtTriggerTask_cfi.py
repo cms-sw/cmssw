@@ -6,7 +6,7 @@ dtTriggerMonitor = DQMEDAnalyzer('DTLocalTriggerTask',
     staticBooking = cms.untracked.bool(True),
     # labels of TM data and 4D segments
     tm_label = cms.untracked.InputTag('twinMuxStage2Digis:PhIn'),
-    tmTh_label = cms.untracked.InputTag("twinMuxStage2Digis","ThIn"),
+    tmTh_label = cms.untracked.InputTag('twinMuxStage2Digis','ThIn'),
     ros_label = cms.untracked.InputTag('dtunpacker'),
     seg_label = cms.untracked.InputTag('dt4DSegments'),
     maxBXTM = cms.untracked.int32(2),  # max BX for TM plots
