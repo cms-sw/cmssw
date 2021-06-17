@@ -9,8 +9,8 @@ namespace edm {
                                       TTree* lumiMeta,
                                       TTree* run,
                                       TTree* runMeta,
-                                      std::vector<TTree*>&& processBlockTrees,
-                                      std::vector<std::string>&& processesWithProcessBlockTrees) {
+                                      std::vector<TTree*> processBlockTrees,
+                                      std::vector<std::string> processesWithProcessBlockTrees) {
     tree_ = ev;
     metaTree_ = meta;
     lumiTree_ = lumi;
