@@ -78,8 +78,8 @@ namespace edm {
               TTree* lumiMeta,
               TTree* run,
               TTree* runMeta,
-              std::vector<TTree*>&& processBlockTrees,
-              std::vector<std::string>&& processesWithProcessBlockTrees,
+              std::vector<TTree*> processBlockTrees,
+              std::vector<std::string> processesWithProcessBlockTrees,
               int whyNotFastClonable,
               std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch,
               std::string const& fileName,
@@ -110,8 +110,8 @@ namespace edm {
                              TTree* lumiMeta,
                              TTree* run,
                              TTree* runMeta,
-                             std::vector<TTree*>&& processBlockTrees,
-                             std::vector<std::string>&& processesWithProcessBlockTrees);
+                             std::vector<TTree*> processBlockTrees,
+                             std::vector<std::string> processesWithProcessBlockTrees);
 
     FileFormatVersion const& fileFormatVersion() const { return fileFormatVersion_; }
     TTree* tree() const { return tree_; }
