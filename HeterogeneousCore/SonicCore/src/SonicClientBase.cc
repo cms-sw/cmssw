@@ -73,6 +73,10 @@ void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
     holder_.reset();
   } else if (eptr)
     std::rethrow_exception(eptr);
+
+  //reset client data now (usually done at end of produce())
+  if (eptr)
+    reset();
 }
 
 void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc, bool allowRetry) {

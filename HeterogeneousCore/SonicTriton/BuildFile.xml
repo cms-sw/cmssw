@@ -4,8 +4,12 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="HeterogeneousCore/SonicCore"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="triton-inference-server"/>
 <use name="protobuf"/>
+<iftool name="cuda">
+  <use name="cuda"/>
+</iftool>
 <export>
   <lib   name="1"/>
 </export>
