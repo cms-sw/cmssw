@@ -92,6 +92,7 @@ public:
   float getTDClsb() { return tdcLSB_fC_; }
   int getTargetMipValue() { return targetMIPvalue_ADC_; }
   float getADCThreshold() { return adcThreshold_fC_; }
+  float getMaxADC() { return adcSaturation_fC_; }
   float getTDCOnset() { return tdcOnset_fC_; }
   std::array<float, 3> getTDCForToAOnset() { return tdcForToAOnset_fC_; }
   void setADClsb(float newLSB) { adcLSB_fC_ = newLSB; }

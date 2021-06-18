@@ -237,6 +237,7 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
     TString count_name(name.Contains("_ieta") ? "count_ieta" : "count_iphi");
     hit.second->Divide(histos_[count_name]);
   }
+
 }
 
 //

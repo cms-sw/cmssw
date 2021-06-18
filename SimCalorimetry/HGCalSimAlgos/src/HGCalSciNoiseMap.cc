@@ -20,13 +20,14 @@ HGCalSciNoiseMap::HGCalSciNoiseMap()
   nPEperMIP_.push_back(40.2);
   nPEperMIP_.push_back(28.6);
 
-  //full scale charge per gain
-  fscADCPerGain_.push_back(34.375);
-  fscADCPerGain_.push_back(68.75);
+  //full scale charge per gain in nPE
+  //(this is for now chosen such that at startup the MIP peak for MOULDED is ~15 ADC counts)
+  fscADCPerGain_.push_back(1952.f);
+  fscADCPerGain_.push_back(3904.f);
 
   //lsb: adc has 10 bits -> 1024 counts at max ( >0 baseline to be handled)
   for (auto i : fscADCPerGain_)
-    lsbPerGain_.push_back(i / 1024.);
+    lsbPerGain_.push_back(i / 1024.f);
 }
 
 //
@@ -48,6 +49,13 @@ void HGCalSciNoiseMap::setDoseMap(const std::string &fullpath,const unsigned int
 //
 void HGCalSciNoiseMap::setSipmMap(const std::string& fullpath) { 
   sipmMap_ = readSipmPars(fullpath); 
+}
+
+
+//
+void HGCalSciNoiseMap::setNpePerMIP(float npePerMIP) { 
+  nPEperMIP_[GAIN_4]=npePerMIP*2;
+  nPEperMIP_[GAIN_2]=npePerMIP;
 }
 
 //
@@ -127,26 +135,17 @@ HGCalSciNoiseMap::SiPMonTileCharacteristics HGCalSciNoiseMap::scaleByDose(const 
 
   //ADDITIONAL SCALING FACTORS
   double tileAreaSF = scaleByTileArea(cellId,radius);
-  double sipmAreaSF = scaleBySipmArea(cellId,radius);
+  std::pair<double,HGCalSciNoiseMap::GainRange_t> sipm = scaleBySipmArea(cellId,radius);
+  double sipmAreaSF = sipm.first;
+  gain = sipm.second;
 
   lyScaleFactor *= tileAreaSF*sipmAreaSF;
   noise *= sqrt(sipmAreaSF);
 
   //final signal depending on the type
-  double S( cellId.type()<=1 ? nPEperMIP_[CAST] : nPEperMIP_[MOULDED] );
+  double S(nPEperMIP_[CAST]);
+  if(cellId.type()==2) S=nPEperMIP_[MOULDED];
   S *= lyScaleFactor;
-
-  //determine gain to be used if required
-  if (gain == GainRange_t::AUTO) {
-    gain = GainRange_t::GAIN_2;
-    std::vector<GainRange_t> orderedGainChoice = {GainRange_t::GAIN_4};
-    for (const auto &igain : orderedGainChoice) {
-      double mipPeakADC(S / lsbPerGain_[igain]);
-      if (mipPeakADC > 1.8*aimMIPtoADC)
-        break;
-      gain = igain;
-    }
-  }
 
   HGCalSciNoiseMap::SiPMonTileCharacteristics sipmChar;
   sipmChar.s      = S;
@@ -165,7 +164,7 @@ double HGCalSciNoiseMap::scaleByTileArea(const HGCScintillatorDetId& cellId, con
 
   if(ignoreTileArea_) return scaleFactor;
   
-  double edge(refEdge_); //start with reference 3cmm of edge
+  double edge(refEdge_); //start with reference 3cm of edge
   if (cellId.type() == 0) {
     constexpr double factor = 2 * M_PI * 1. / 360.;
     edge = radius * factor;  //1 degree
@@ -174,27 +173,33 @@ double HGCalSciNoiseMap::scaleByTileArea(const HGCScintillatorDetId& cellId, con
     edge = radius * factor;  //1.25 degrees
   }
   scaleFactor = refEdge_ / edge;
-
   return scaleFactor;
 }
 
 //
-double HGCalSciNoiseMap::scaleBySipmArea(const HGCScintillatorDetId& cellId, const double radius) {
+std::pair<double,HGCalSciNoiseMap::GainRange_t> HGCalSciNoiseMap::scaleBySipmArea(const HGCScintillatorDetId& cellId, const double radius) {
   
+  HGCalSciNoiseMap::GainRange_t gain(GainRange_t::GAIN_2);
   double scaleFactor(1.f);
 
-  if(ignoreSiPMarea_) return scaleFactor;
+  if(ignoreSiPMarea_) return std::pair<double,HGCalSciNoiseMap::GainRange_t>(scaleFactor,gain);
 
   //use sipm area boundary map
   if(overrideSiPMarea_) {
     int layer = cellId.layer();
-    if (sipmMap_.count(layer)>0 && radius < sipmMap_[layer]) scaleFactor=2.f;
+    if (sipmMap_.count(layer)>0 && radius < sipmMap_[layer]) {
+      scaleFactor=2.f;
+      gain=GainRange_t::GAIN_4;
+    }
   }
   //read from DetId
   else {
     int sipm = cellId.sipm(); 
-    if( sipm ==1 ) scaleFactor=2.f;
+    if( sipm==0 ) {
+      scaleFactor=2.f;
+      gain=GainRange_t::GAIN_4;
+    }
   }
 
-  return scaleFactor;
+  return std::pair<double,HGCalSciNoiseMap::GainRange_t>(scaleFactor,gain);
 }
