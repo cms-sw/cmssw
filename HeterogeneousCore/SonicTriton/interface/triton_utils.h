@@ -19,10 +19,6 @@ namespace triton_utils {
 
   //helper to turn triton error into exception
   void throwIfError(const Error& err, std::string_view msg);
-
-  //helper to turn triton error into warning
-  bool warnIfError(const Error& err, std::string_view msg);
-
 }  // namespace triton_utils
 
 extern template std::string triton_utils::printColl(const edm::Span<std::vector<int64_t>::const_iterator>& coll,

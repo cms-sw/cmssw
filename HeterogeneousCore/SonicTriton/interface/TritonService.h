@@ -19,6 +19,8 @@ namespace edm {
   class ModuleDescription;
 }  // namespace edm
 
+enum class TritonServerType { Remote = 0, LocalCPU = 1, LocalGPU = 2 };
+
 class TritonService {
 public:
   //classes and defs
@@ -79,7 +81,9 @@ public:
 
   //accessors
   void addModel(const std::string& modelName, const std::string& path);
-  std::pair<std::string, bool> serverAddress(const std::string& model, const std::string& preferred = "") const;
+  std::pair<std::string, TritonServerType> serverAddress(const std::string& model,
+                                                         const std::string& preferred = "") const;
+  const std::string& pid() const { return pid_; }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -94,6 +98,7 @@ private:
   unsigned currentModuleId_;
   bool allowAddModel_;
   bool startedFallback_;
+  std::string pid_;
   std::unordered_map<std::string, Model> unservedModels_;
   //this represents a many:many:many map
   std::unordered_map<std::string, Server> servers_;

@@ -58,7 +58,8 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
       fallbackOpts_(pset.getParameterSet("fallback")),
       currentModuleId_(0),
       allowAddModel_(false),
-      startedFallback_(false) {
+      startedFallback_(false),
+      pid_(std::to_string(::getpid())) {
   //module construction is assumed to be serial (correct at the time this code was written)
   areg.watchPreModuleConstruction(this, &TritonService::preModuleConstruction);
   areg.watchPostModuleConstruction(this, &TritonService::postModuleConstruction);
@@ -158,8 +159,8 @@ void TritonService::preModuleDestruction(edm::ModuleDescription const& desc) {
 }
 
 //second return value is only true if fallback CPU server is being used
-std::pair<std::string, bool> TritonService::serverAddress(const std::string& model,
-                                                          const std::string& preferred) const {
+std::pair<std::string, TritonServerType> TritonService::serverAddress(const std::string& model,
+                                                                      const std::string& preferred) const {
   auto mit = models_.find(model);
   if (mit == models_.end())
     throw cms::Exception("MissingModel") << "There are no servers that provide model " << model;
@@ -178,8 +179,16 @@ std::pair<std::string, bool> TritonService::serverAddress(const std::string& mod
 
   //todo: use some algorithm to select server rather than just picking arbitrarily
   const auto& serverInfo(servers_.find(serverName)->second);
-  bool isFallbackCPU = serverInfo.isFallback and !fallbackOpts_.useGPU;
-  return std::make_pair(serverInfo.url, isFallbackCPU);
+  auto serverType = TritonServerType::Remote;
+  if (serverInfo.isFallback) {
+    if (!fallbackOpts_.useGPU)
+      serverType = TritonServerType::LocalCPU;
+#ifdef TRITON_ENABLE_GPU
+    else
+      serverType = TritonServerType::LocalGPU;
+#endif
+  }
+  return std::make_pair(serverInfo.url, serverType);
 }
 
 void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&) {
@@ -208,7 +217,7 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   }
 
   //assemble server start command
-  std::string command("cmsTriton -P -1 -p " + std::to_string(::getpid()));
+  std::string command("cmsTriton -P -1 -p " + pid_);
   if (fallbackOpts_.debug)
     command += " -c";
   if (fallbackOpts_.verbose)
