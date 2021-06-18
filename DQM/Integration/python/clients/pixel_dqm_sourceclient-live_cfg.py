@@ -115,7 +115,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
 else :
     process.siPixelDigis.cpu.InputLabel = "rawDataCollector"
-    process.siStripDigis.ProductLabel     = cms.InputTag("rawDataCollector") #there was atypo in prvious version siStripDigis.InputLabel 
+    process.siStripDigis.ProductLabel     = cms.InputTag("rawDataCollector") 
 
 ## Collision Reconstruction
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
