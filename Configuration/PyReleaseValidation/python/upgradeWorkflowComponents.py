@@ -350,6 +350,7 @@ class UpgradeWorkflow_vectorHits(UpgradeWorkflow):
 upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
     steps = [
         'RecoGlobal',
+        'HARVESTGlobal'
     ],
     PU = [
         'RecoGlobal',
