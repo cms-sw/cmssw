@@ -283,7 +283,7 @@ public:
         skipNonExistingSrc_(
             params.existsAs<bool>("skipNonExistingSrc") ? params.getParameter<bool>("skipNonExistingSrc") : false),
         src_(skipNonExistingSrc_ ? mayConsume<TProd>(params.getParameter<edm::InputTag>("src"))
-                                 : consumes<TProd,edm::InLumi>(params.getParameter<edm::InputTag>("src"))) {
+                                 : consumes<TProd, edm::InLumi>(params.getParameter<edm::InputTag>("src"))) {
     edm::ParameterSet const &varsPSet = params.getParameter<edm::ParameterSet>("variables");
     for (const std::string &vname : varsPSet.getParameterNamesForType<edm::ParameterSet>()) {
       const auto &varPSet = varsPSet.getParameter<edm::ParameterSet>(vname);
@@ -300,7 +300,7 @@ public:
         throw cms::Exception("Configuration", "unsupported type " + type + " for variable " + vname);
     }
 
-    produces<nanoaod::FlatTable,edm::Transition::EndLuminosityBlock>();
+    produces<nanoaod::FlatTable, edm::Transition::EndLuminosityBlock>();
   }
 
   ~SimpleFlatTableProducerBaseLumi() override {}
@@ -310,10 +310,10 @@ public:
                                                         const edm::Handle<TProd> &prod) const = 0;
 
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override {
-    // do nothing 
+    // do nothing
   }
 
-  void endLuminosityBlockProduce(edm::LuminosityBlock& iLumi, const edm::EventSetup &iSetup) final {
+  void endLuminosityBlockProduce(edm::LuminosityBlock &iLumi, const edm::EventSetup &iSetup) final {
     edm::Handle<TProd> src;
     iLumi.getByToken(src_, src);
 
@@ -391,11 +391,13 @@ protected:
 template <typename T>
 class LumiSingletonSimpleFlatTableProducer : public SimpleFlatTableProducerBaseLumi<T, T> {
 public:
-  LumiSingletonSimpleFlatTableProducer(edm::ParameterSet const &params) : SimpleFlatTableProducerBaseLumi<T, T>(params) {}
+  LumiSingletonSimpleFlatTableProducer(edm::ParameterSet const &params)
+      : SimpleFlatTableProducerBaseLumi<T, T>(params) {}
 
   ~LumiSingletonSimpleFlatTableProducer() override {}
 
-  std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::LuminosityBlock &, const edm::Handle<T> &prod) const override {
+  std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::LuminosityBlock &,
+                                                const edm::Handle<T> &prod) const override {
     auto out = std::make_unique<nanoaod::FlatTable>(1, this->name_, true, this->extension_);
     std::vector<const T *> selobjs(1, prod.product());
     for (const auto &var : this->vars_)
