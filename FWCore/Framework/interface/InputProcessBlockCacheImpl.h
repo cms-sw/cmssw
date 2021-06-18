@@ -215,9 +215,7 @@ namespace edm {
 
         tokenInfos_[ICacheType] = TokenInfo{EDGetToken(token), TypeID(typeid(DataType))};
 
-        std::get<ICacheType>(functors_).func_ =
-            std::function<std::shared_ptr<CacheType>(ProcessBlock const&, std::shared_ptr<CacheType> const&)>(
-                std::forward<Func>(func));
+        std::get<ICacheType>(functors_).func_ = std::forward<Func>(func);
       }
 
       // ------------ Data members --------------------
