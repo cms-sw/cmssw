@@ -83,8 +83,6 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
-#define EDM_ML_DEBUG
-
 class HcalIsoTrackStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HcalIsoTrackStudy(edm::ParameterSet const&);

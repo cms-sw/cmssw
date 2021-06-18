@@ -29,8 +29,6 @@
 #include <unordered_map>
 #include <utility>
 
-#define EDM_ML_DEBUG
-
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
