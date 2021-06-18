@@ -4,7 +4,8 @@ process = cms.Process("HFShowerLib")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedRun3RoundOptics25ns13TeVLowSigmaZ_cfi')
+process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
+#process.load('IOMC.EventVertexGenerators.VtxSmearedRun3RoundOptics25ns13TeVLowSigmaZ_cfi')
 process.load("Configuration.Geometry.GeometryExtended2021_cff")
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
@@ -54,16 +55,13 @@ process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.analysis_step = cms.EndPath(process.hfShowerLibaryAnalysis)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.analysis_step)
+process.schedule = cms.Schedule(process.generation_step,
+#                                process.genfiltersummary_step,
+                                process.simulation_step,
+                                process.analysis_step)
 
 #process.hfShowerLibaryAnalysis.Verbosity = True
 
-from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
-associatePatAlgosToolsTask(process)
-# Customisation from command line
-
-# Add early deletion of temporary data products to reduce peak memory need
-from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
-process = customiseEarlyDelete(process)
-# End adding early deletion
-
+# filter all path with the production filter sequence
+for path in process.paths:
+        getattr(process,path)._seq = process.generator * getattr(process,path)._seq
