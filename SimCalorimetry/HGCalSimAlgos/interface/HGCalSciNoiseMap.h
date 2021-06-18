@@ -39,14 +39,16 @@ public:
      @short returns the signal scaling and the noise
   */
   double scaleByTileArea(const HGCScintillatorDetId &, const double);
-  double scaleBySipmArea(const HGCScintillatorDetId &, const double);
+  std::pair<double,GainRange_t> scaleBySipmArea(const HGCScintillatorDetId &, const double);
   SiPMonTileCharacteristics scaleByDose(const HGCScintillatorDetId &, const double,const int aimMIPtoADC=15,const GainRange_t gain=GainRange_t::AUTO);
 
   void setDoseMap(const std::string &,const unsigned int );
   void setSipmMap(const std::string &);
   void setReferenceDarkCurrent(double idark);
+  void setNpePerMIP(float npePerMIP);
   std::vector<double> &getLSBPerGain() { return lsbPerGain_; } 
   std::vector<double> &getMaxADCPerGain() { return fscADCPerGain_; }
+  std::vector<double> &getNpePerMIP() { return nPEperMIP_; } 
 
 private:
 

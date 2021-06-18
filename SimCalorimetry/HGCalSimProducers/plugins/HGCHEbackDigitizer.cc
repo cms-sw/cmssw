@@ -25,7 +25,7 @@ public:
 private:
   //calice-like digitization parameters
   uint32_t algo_;
-  bool scaleByTileArea_, scaleBySipmArea_, scaleByDose_, thresholdFollowsMIP_;
+  bool scaleByDose_, thresholdFollowsMIP_;
   float keV2MIP_, noise_MIP_;
   float nPEperMIP_, nTotalPE_, xTalk_, sdPixels_;
   std::string doseMapFile_, sipmMapFile_;
@@ -53,11 +53,10 @@ private:
 HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet& ps) : HGCDigitizerBase(ps) {
   edm::ParameterSet cfg = ps.getParameter<edm::ParameterSet>("digiCfg");
   algo_ = cfg.getParameter<uint32_t>("algo");
-  scaleByTileArea_ = cfg.getParameter<bool>("scaleByTileArea");
-  scaleBySipmArea_ = cfg.getParameter<bool>("scaleBySipmArea");
   sipmMapFile_ = cfg.getParameter<std::string>("sipmMap");
   scaleByDose_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<bool>("scaleByDose");
   unsigned int scaleByDoseAlgo = cfg.getParameter<edm::ParameterSet>("noise").getParameter<uint32_t>("scaleByDoseAlgo");
+  double refIdark = cfg.getParameter<edm::ParameterSet>("noise").getParameter<double>("referenceIdark");
   scaleByDoseFactor_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<double>("scaleByDoseFactor");
   doseMapFile_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<std::string>("doseMap");
   noise_MIP_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<double>("noise_MIP");
@@ -71,6 +70,8 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet& ps) : HGCDigitiz
   sdPixels_ = cfg.getParameter<double>("sdPixels");
 
   scal_.setDoseMap(doseMapFile_, scaleByDoseAlgo);
+  scal_.setReferenceDarkCurrent(refIdark);
+  scal_.setNpePerMIP(nPEperMIP_);
   scal_.setFluenceScaleFactor(scaleByDoseFactor_);
   scal_.setSipmMap(sipmMapFile_);
 }
@@ -151,30 +152,28 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
     float scaledPePerMip = nPEperMIP_;           //needed to scale according to tile geometry
     float tunedNoise = nPEperMIP_ * noise_MIP_;  //flat noise case
     float sipmFactor = 1.;                       //standard 2 mm^2 sipm
+    float adcThr = this->myFEelectronics_->getADCThreshold();  //vanilla thrs  in MIPs
+    int gainIdx=0;
+    float adcLsb = this->myFEelectronics_->getADClsb();       //vanilla lsb in MIPs
+    float maxADC = this->myFEelectronics_->getMaxADC();       //vanilla fsc
+    uint32_t thrADC(thresholdFollowsMIP_ ? std::floor(adcThr / adcLsb * scaledPePerMip / nPEperMIP_)
+                                         : std::floor(adcThr / adcLsb));
 
-    if (id.det() == DetId::HGCalHSc)  //skip those geometries that have HE used as BH
+    //update vanilla values in case realistic scenario (noise, fluence, dose, sipm/tile area) is to be used
+    //skip those geometries that have HE used as BH
+    if (id.det() == DetId::HGCalHSc && scaleByDose_)  
     {
-      double radius(0);
-      if (scaleByTileArea_ or scaleByDose_ or scaleBySipmArea_)
-        radius = scal_.computeRadius(id);
-
-      //take into account the tile size
-      if (scaleByTileArea_)
-        scaledPePerMip *= scal_.scaleByTileArea(id, radius);
-
-      //take into account the darkening of the scintillator and SiPM dark current
-      if (scaleByDose_) {
-        auto dosePair = scal_.scaleByDose(id, radius);
-        scaledPePerMip *= dosePair.first;
-        tunedNoise = dosePair.second;
-      }
-
-      //take into account the sipm size
-      if (scaleBySipmArea_) {
-        sipmFactor = scal_.scaleBySipmArea(id, radius);
-        scaledPePerMip *= sipmFactor;
-        tunedNoise *= sqrt(sipmFactor);
-      }
+      HGCScintillatorDetId scId(id.rawId());
+      double radius = scal_.computeRadius(scId);
+      auto opChar = scal_.scaleByDose(scId, radius);
+      scaledPePerMip = opChar.s;
+      tunedNoise = opChar.n;
+      gainIdx = opChar.gain;
+      //the following are returned in Npe: convert to MIP multiplicity for now
+      double npePerMIP=scal_.getNpePerMIP()[gainIdx];
+      thrADC = opChar.thrADC/npePerMIP;
+      adcLsb = scal_.getLSBPerGain()[gainIdx]/npePerMIP;
+      maxADC = scal_.getMaxADCPerGain()[gainIdx]/npePerMIP;
     }
 
     //set mean for poissonian noise
@@ -225,12 +224,7 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
 
     //init a new data frame and run shaper
     HGCalDataFrame newDataFrame(id);
-    float adcThr = this->myFEelectronics_->getADCThreshold();  //this is in MIPs
-    float adcLsb = this->myFEelectronics_->getADClsb();
-    uint32_t thrADC(thresholdFollowsMIP_ ? std::floor(adcThr / adcLsb * scaledPePerMip / nPEperMIP_)
-                                         : std::floor(adcThr / adcLsb));
-
-    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, engine, thrADC);
+    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, engine, thrADC, adcLsb, gainIdx, maxADC);
 
     //prepare the output
     this->updateOutput(digiColl, newDataFrame);
