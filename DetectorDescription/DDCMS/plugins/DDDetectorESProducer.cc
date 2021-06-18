@@ -66,9 +66,7 @@ private:
 DDDetectorESProducer::DDDetectorESProducer(const ParameterSet& iConfig)
     : fromDB_(iConfig.getParameter<bool>("fromDB")),
       appendToDataLabel_(iConfig.getParameter<string>("appendToDataLabel")),
-      confGeomXMLFiles_(iConfig.existsAs<FileInPath>("confGeomXMLFiles")
-                            ? iConfig.getParameter<FileInPath>("confGeomXMLFiles").fullPath()
-                            : "none"),
+      confGeomXMLFiles_(fromDB_ ? "none" : iConfig.getParameter<FileInPath>("confGeomXMLFiles").fullPath()),
       rootDDName_(iConfig.getParameter<string>("rootDDName")),
       label_(iConfig.getParameter<string>("label")) {
   usesResources({edm::ESSharedResourceNames::kDD4Hep});
