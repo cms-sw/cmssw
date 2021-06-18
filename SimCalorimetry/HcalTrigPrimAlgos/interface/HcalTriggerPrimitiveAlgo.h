@@ -103,7 +103,7 @@ private:
   /// adds the actual digis
   void analyze(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result);
   // 2017 and later: QIE11
-  void analyzeQIE11(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo);
+  void analyzeQIE11(IntegerCaloSamples& samples, std::vector<bool> sample_saturation, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo);
   // Version 0: RCT
   void analyzeHF(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const int hf_lumi_shift);
   // Version 1: 1x1
@@ -155,6 +155,10 @@ private:
 
   typedef std::map<HcalTrigTowerDetId, IntegerCaloSamples> SumMap;
   SumMap theSumMap;
+
+  typedef std::map<HcalTrigTowerDetId, std::vector<bool>> SatMap;
+  SatMap theSatMap;
+
 
   struct HFDetails {
     IntegerCaloSamples long_fiber;
@@ -243,6 +247,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
   conditions_ = conditions;
 
   theSumMap.clear();
+  theSatMap.clear();
   theTowerMapFGSum.clear();
   HF_Veto.clear();
   fgMap_.clear();
@@ -286,13 +291,19 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
       if (fgMap_.find(item.first) != fgMap_.end()) {
         analyze(item.second, result.back());
       } else if (fgUpgradeMap_.find(item.first) != fgUpgradeMap_.end()) {
-        analyzeQIE11(item.second, result.back(), fg_algo);
+        SatMap::iterator item_sat = theSatMap.find(detId);
+//        for (int i=0; i < (int)(item_sat->second).size(); ++i){
+//          std::cout<<(item_sat->second)[i]<<" ";
+//        }
+//        std::cout<<std::endl;
+        analyzeQIE11(item.second, item_sat->second, result.back(), fg_algo);
       }
     }
   }
 
   // Free up some memory
   theSumMap.clear();
+  theSatMap.clear();
   theTowerMapFGSum.clear();
   HF_Veto.clear();
   fgMap_.clear();

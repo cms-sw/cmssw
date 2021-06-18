@@ -100,6 +100,7 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame& frame) {
   IntegerCaloSamples samples1(ids[0], int(frame.size()));
 
   samples1.setPresamples(frame.presamples());
+//  std::cout<<"ieta: "<<frame.id().ieta()<<", "<<frame.id().iphi()<<", "<<frame.id().depth()<<std::endl;
   incoder_->adc2Linear(frame, samples1);
 
   std::vector<bool> msb;
@@ -278,12 +279,27 @@ void HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame) {
 void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples& samples) {
   HcalTrigTowerDetId id(samples.id());
   SumMap::iterator itr = theSumMap.find(id);
+  SatMap::iterator itr_sat = theSatMap.find(id);
+
+  assert((itr == theSumMap.end()) == (itr_sat == theSatMap.end()));
+
   if (itr == theSumMap.end()) {
     theSumMap.insert(std::make_pair(id, samples));
+
+    vector<bool> check_sat;
+    for (int i = 0; i < samples.size(); ++i) {
+      if (samples[i] == 0x3ff){
+        check_sat.push_back(true);
+        std::cout<<"saturation found"<<std::endl;
+      }
+      else check_sat.push_back(false); 
+    }
+    theSatMap.insert(std::make_pair(id, check_sat));
   } else {
     // wish CaloSamples had a +=
     for (int i = 0; i < samples.size(); ++i) {
       (itr->second)[i] += samples[i];
+      if (samples[i] == 0x3ff) (itr_sat->second)[i] = true; 
     }
   }
 }
@@ -371,6 +387,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples& samples, HcalTriggerP
 }
 
 void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
+                                            vector<bool> sample_saturation,
                                             HcalTriggerPrimitiveDigi& result,
                                             const HcalFinegrainBit& fg_algo) {
   HcalDetId detId(samples.id());
@@ -398,17 +415,27 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
   IntegerCaloSamples sum(samples.id(), samples.size());
 
   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
+
+  bool force_saturation[samples.size()] = {false};
   //slide algo window
   for (unsigned int ibin = 0; ibin < dgSamples - shrink; ++ibin) {
     int algosumvalue = 0;
+    bool check_sat =  false;
     for (unsigned int i = 0; i < filterSamples; i++) {
       //add up value * scale factor
       // In addition, divide by two in the 10 degree phi segmentation region
       // to mimic 5 degree segmentation for the trigger
       unsigned int sample = samples[ibin + i];
-      if (sample > QIE11_MAX_LINEARIZATION_ET)
-        sample = QIE11_MAX_LINEARIZATION_ET;
-
+      if (sample_saturation[ibin+i] | (sample > QIE11_MAX_LINEARIZATION_ET)){
+         check_sat = true;
+         std::cout<<"saturation found"<<std::endl;
+      }
+//      if (sample > QIE11_MAX_LINEARIZATION_ET){
+//        sample = QIE11_MAX_LINEARIZATION_ET;
+//        force_saturation[ibin] = true;
+//        std::cout<<QIE11_MAX_LINEARIZATION_ET<<" "<<sample<<std::endl;
+//      }
+  
       // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 0.5
       double segmentationFactor = 1.0;
       if (ids.size() == 2) {
@@ -426,6 +453,8 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
     //else if (algosumvalue>QIE11_LINEARIZATION_ET) sum[ibin]=QIE11_LINEARIZATION_ET;
     else
       sum[ibin] = algosumvalue;  //assign value to sum[]
+
+    if (check_sat) force_saturation[ibin] = true;
   }
 
   std::vector<int> finegrain(tpSamples, false);
@@ -448,6 +477,10 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
 
     if (isPeak) {
       output[ibin] = std::min<unsigned int>(sum[idx], QIE11_MAX_LINEARIZATION_ET);
+      if (force_saturation[idx]){
+        output[ibin] = QIE11_MAX_LINEARIZATION_ET;
+        std::cout<<"saturation inforced"<<std::endl; 
+      }
     } else {
       // Not a peak
       output[ibin] = 0;
