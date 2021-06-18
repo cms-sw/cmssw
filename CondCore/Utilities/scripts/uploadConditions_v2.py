@@ -21,10 +21,11 @@ Takes user arguments and passes them to the main upload module CondDBFW.uploads,
 
 __version__ = 1
 
-#import pycurl
-import requests
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+try: 
+	from CondCore.Utilities.CondDBFW.url_query import url_query
+except:
+	print("ERROR: Could not access the url query utiliy. Yoy are probably not in a CMSSW environment.")
+	exit(-1)
 try:
 	from StringIO import StringIO
 except:
@@ -34,7 +35,7 @@ import sys
 import os
 import json
 import subprocess
-import argparse
+import optparse
 import netrc
 import shutil
 import getpass
@@ -225,47 +226,55 @@ I will ask you some questions to fill the metadata file. For some of the questio
         if getInput('n',
                     '\nIs it fine (i.e. save in %s and *upload* the conditions if this is the latest file)?\nAnswer [n]: ' % metadataFilename).lower() == 'y':
             break
-    print('Saving generated metadata in %s...', metadataFilename)
+    print('Saving generated metadata in %s...'% metadataFilename)
     with open(metadataFilename, 'wb') as metadataFile:
         metadataFile.write(metadata)
 
 def parse_arguments():
 	# read in command line arguments, and build metadata dictionary from them
-	parser = argparse.ArgumentParser(prog="cmsDbUpload client", description="CMS Conditions Upload Script in CondDBFW.")
-
-	parser.add_argument("--sourceDB", type=str, help="DB to find Tags, IOVs + Payloads in.", required=False)
+	parser = optparse.OptionParser(description="CMS Conditions Upload Script in CondDBFW.",
+		usage = 'Usage: %prog [options] <file>')
 
 	# metadata arguments
-	parser.add_argument("--inputTag", type=str,\
-						help="Tag to take IOVs + Payloads from in --sourceDB.", required=False)
-	parser.add_argument("--destinationTag", type=str,\
-						help="Tag to copy IOVs + Payloads to in --destDB.", required=False)
-	parser.add_argument("--destinationDatabase", type=str,\
-						help="Database to copy IOVs + Payloads to.", required=False)
-	parser.add_argument("--since", type=int,\
-						help="Since to take IOVs from.", required=False)
-	parser.add_argument("--userText", type=str,\
+	parser.add_option("-i", "--inputTag", type=str,\
+						help="Tag to take IOVs + Payloads from in --sourceDB.")
+	parser.add_option("-t", "--destinationTag", type=str,\
+						help="Tag to copy IOVs + Payloads to in --destDB.")
+	parser.add_option("-D", "--destinationDatabase", type=str,\
+						help="Database to copy IOVs + Payloads to.")
+	parser.add_option("-s", "--since", type=int,\
+						help="Since to take IOVs from.")
+	parser.add_option("-u", "--userText", type=str,\
 						help="Description of --destTag (can be empty).")
 
 	# non-metadata arguments
-	parser.add_argument("--metadataFile", "-m", type=str, help="Metadata file to take metadata from.", required=False)
+	parser.add_option("-m", "--metadataFile", type=str, help="Metadata file to take metadata from.")
 
-	parser.add_argument("--debug", required=False, action="store_true")
-	parser.add_argument("--verbose", required=False, action="store_true")
-	parser.add_argument("--testing", required=False, action="store_true")
-	parser.add_argument("--fcsr-filter", type=str, help="Synchronization to take FCSR from for local filtering of IOVs.", required=False)
+	parser.add_option("-d", "--debug", action="store_true", default=False)
+	parser.add_option("-v", "--verbose", action="store_true", default=False)
+	parser.add_option("-T", "--testing", action="store_true")
+	parser.add_option("--fcsr-filter", type=str, help="Synchronization to take FCSR from for local filtering of IOVs.")
 
-	parser.add_argument("--netrc", required=False)
+	parser.add_option("-n", "--netrc", help = 'The netrc host (machine) from where the username and password will be read.')
+	
+	parser.add_option("-a", "--authPath", help = 'The path of the .netrc file for the authentication. Default: $HOME')
 
-	parser.add_argument("--hashToUse", required=False)
+	parser.add_option("-H", "--hashToUse")
 
-	parser.add_argument("--server", required=False)
+	parser.add_option("-S", "--server")
 
-	parser.add_argument("--review-options", required=False, action="store_true")
+	parser.add_option("-o", "--review-options", action="store_true")
 
-	parser.add_argument("--replay-file", required=False)
+	parser.add_option("-r", "--replay-file")
 
-	command_line_data = parser.parse_args()
+	(command_line_data, arguments) = parser.parse_args()
+
+	if len(arguments) < 1:
+		if command_line_data.hashToUse == None:
+			parser.print_help()
+			exit(-2)
+	
+	command_line_data.sourceDB = arguments[0]
 
 	if command_line_data.replay_file:
 		dictionary = json.loads("".join(open(command_line_data.replay_file, "r").readlines()))
@@ -297,6 +306,13 @@ def parse_arguments():
 	# use netrc to get username and password
 	try:
 		netrc_file = command_line_data.netrc
+		auth_path = command_line_data.authPath
+		if not auth_path is None:
+			if netrc_file is None:
+				netrc_file = os.path.join(auth_path,'.netrc')
+			else:
+				netrc_file = os.path.join(auth_path, netrc_file)
+
 		netrc_authenticators = netrc.netrc(netrc_file).authenticators("ConditionUploader")
 		if netrc_authenticators == None:
 			print("Your netrc file must contain the key 'ConditionUploader'.")
@@ -308,7 +324,6 @@ def parse_arguments():
 			else:
 				exit()
 		else:
-			print("Read your credentials from ~/.netrc.  If you want to use a different file, supply its name with the --netrc argument.")
 			username = netrc_authenticators[0]
 			password = netrc_authenticators[2]
 	except:
@@ -345,6 +360,7 @@ def parse_arguments():
 			basename = os.path.basename(basepath)
 			dataFilename = '%s.db' % basepath
 			metadataFilename = '%s.txt' % basepath
+
 			# Data file
 			try:
 				with open(dataFilename, 'rb') as dataFile:
@@ -357,6 +373,8 @@ def parse_arguments():
 				return ret
 
 			# Metadata file
+
+			command_line_data.sourceDB = dataFilename
 
 			try:
 				with open(metadataFilename, 'rb') as metadataFile:
@@ -433,7 +451,9 @@ def parse_arguments():
 	return metadata_dictionary
 
 def get_version(url):
-	return requests.get(url + "script_version/", verify=False)
+	query = url_query(url=url + "script_version/")
+	response = query.send()
+	return response
 
 
 if __name__ == "__main__":
@@ -444,7 +464,7 @@ if __name__ == "__main__":
 	final_service_url = upload_metadata["server"]
 	try:
 		response = get_version(final_service_url)
-		server_version = response.json()
+		server_version = json.loads(response)
 	except Exception as e:
 		print(horizontal_rule)
 		print(e)
