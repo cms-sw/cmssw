@@ -135,6 +135,7 @@ for i in range( nE) :
   pfile.write('  input = cms.untracked.int32(' + stat + ') \n')
   pfile.write(') \n\n')
   pfile.write('process.g4SimHits.Physics.type = "SimG4Core/Physics/' + phys + '" \n\n')
+  pfile.write('process.g4SimHits.OnlySDs = ["CaloTrkProcessing", "EcalTBH4BeamDetector", "HcalTB02SensitiveDetector", "HcalTB06BeamDetector", "EcalSensitiveDetector", "HcalSensitiveDetector"] \n\n')
   pfile.close()
   cmd2 = 'cmsRun ' + fnametmp + ' >> ' + outf 
   os.system(cmd2)

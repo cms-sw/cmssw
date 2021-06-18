@@ -110,6 +110,8 @@ process.common_maximum_timex = cms.PSet(
     MaxTrackTime  = cms.double(1000.0),
     MaxTimeNames  = cms.vstring(),
     MaxTrackTimes = cms.vdouble(),
+    MaxTrackTimeForward = cms.double(2000.0), # ns
+    MaxZCentralCMS = cms.double(50.0), # m
     DeadRegions   = cms.vstring(),
     CriticalEnergyForVacuum = cms.double(2.0),
     CriticalDensity         = cms.double(1e-15)
@@ -136,6 +138,12 @@ process.g4SimHits.HCalSD.TestNumberingScheme = False
 process.g4SimHits.HCalSD.UseHF   = False
 process.g4SimHits.HCalSD.ForTBHCAL = True
 process.g4SimHits.HCalSD.ForTBH2 = True
+process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
+                             'EcalTBH4BeamDetector',
+                             'HcalTB02SensitiveDetector',
+                             'HcalTB06BeamDetector',
+                             'EcalSensitiveDetector',
+                             'HcalSensitiveDetector']
 process.g4SimHits.StackingAction = cms.PSet(
     process.common_heavy_suppression1,
     process.common_maximum_timex,
@@ -174,6 +182,7 @@ process.g4SimHits.StackingAction = cms.PSet(
 
 process.g4SimHits.SteppingAction = cms.PSet(
     process.common_maximum_timex,
+    MaxNumberOfSteps        = cms.int32(50000),
     EkinNames               = cms.vstring(),
     EkinThresholds          = cms.vdouble(),
     EkinParticles           = cms.vstring()
@@ -182,6 +191,12 @@ process.g4SimHits.SteppingAction = cms.PSet(
 process.g4SimHits.CaloSD = cms.PSet(
     process.common_beam_direction_parameters,
     process.common_heavy_suppression1,
+    DoFineCalo     = cms.bool(False),
+    SaveCaloBoundaryInformation = cms.bool(False),
+    EminFineTrack  = cms.double(10000.0),
+    FineCaloNames  = cms.vstring(),
+    FineCaloLevels = cms.vint32(),
+    UseFineCalo    = cms.vint32(),
     EminTrack      = cms.double(1.0),
     TmaxHit        = cms.double(1000.0),
     EminHits       = cms.vdouble(0.0,0.0,0.0,0.0),
