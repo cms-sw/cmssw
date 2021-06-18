@@ -69,26 +69,32 @@ ecalTrkCombinationRegression = cms.PSet(
     
 )
 
-calibratedElectrons = cms.EDProducer("CalibratedElectronProducer",
-                                     calibratedEgammaSettings,                                   
-                                     epCombConfig = ecalTrkCombinationRegression,
-                                     src = cms.InputTag('gedGsfElectrons'),
-                                     )
+import RecoEgamma.EgammaTools.calibratedElectronProducer_cfi as _mod_ele
+import RecoEgamma.EgammaTools.calibratedPatElectronProducer_cfi as _mod_patele
+import RecoEgamma.EgammaTools.calibratedPhotonProducer_cfi as _mod_pho
+import RecoEgamma.EgammaTools.calibratedPatPhotonProducer_cfi as _mod_patpho
 
-calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
-                                        calibratedEgammaPatSettings,
-                                        epCombConfig = ecalTrkCombinationRegression,
-                                        src = cms.InputTag('slimmedElectrons'), 
-                                        )
-
-calibratedPhotons = cms.EDProducer("CalibratedPhotonProducer",
-                                   calibratedEgammaSettings,
-                                   src = cms.InputTag('gedPhotons'),    
+calibratedElectrons = _mod_ele.calibratedElectronProducer.clone(
+                                  calibratedEgammaSettings,                                   
+                                  epCombConfig = ecalTrkCombinationRegression,
+                                  src = 'gedGsfElectrons',
                                   )
-calibratedPatPhotons = cms.EDProducer("CalibratedPatPhotonProducer",
-                                      calibratedEgammaPatSettings,
-                                      src = cms.InputTag('slimmedPhotons'),
-                                      )
+
+calibratedPatElectrons = _mod_patele.calibratedPatElectronProducer.clone(
+                                  calibratedEgammaPatSettings,
+                                  epCombConfig = ecalTrkCombinationRegression,
+                                  src = 'slimmedElectrons', 
+                                  )
+
+calibratedPhotons = _mod_pho.calibratedPhotonProducer.clone( 
+                                   calibratedEgammaSettings,
+                                   src = 'gedPhotons',    
+                                  )
+
+calibratedPatPhotons = _mod_patpho.calibratedPatPhotonProducer.clone(
+                                  calibratedEgammaPatSettings,
+                                  src = 'slimmedPhotons',
+                                  )
 
 def prefixName(prefix,name):
     return prefix+name[0].upper()+name[1:]
