@@ -2,6 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd">
 
   <SolidSection label="testSolids.xml">
+    <Assembly name="assembly"/>
     <Trapezoid name="trap1" alp1="10*deg" alp2="10*deg" bl1="50*cm" bl2="75*cm" dz="1*m" h1="20*cm" h2="40*cm" phi="30*deg" theta="30*deg" tl1="50*cm" tl2="75*cm"/>
     <Trapezoid name="trap2" alp1="10*deg" alp2="10*deg" bl1="50*cm" bl2="75*cm" dz="1*m" h1="20*cm" h2="40*cm" tl1="50*cm" tl2="75*cm"/>
     <PseudoTrap name="ptrap1" dx1="10" dx2="3" dy1="30" dy2="10" dz="30" radius="10" atMinusZ="false"/>
