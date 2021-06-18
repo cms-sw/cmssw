@@ -9,7 +9,7 @@
 namespace dpf2fw {
 
   // convert inputs from discrete to firmware
-  void convert(const l1tpf_impl::PropagatedTrack &in, TkObj &out) {
+  inline void convert(const l1tpf_impl::PropagatedTrack &in, TkObj &out) {
     out.hwPt = in.hwPt;
     out.hwPtErr = in.hwCaloPtErr;
     out.hwEta = in.hwEta;  // @calo
@@ -18,26 +18,26 @@ namespace dpf2fw {
     out.hwTightQuality = (in.hwStubs >= 6 && in.hwChi2 < 500);
   }
 
-  TkObj transformConvert(const l1tpf_impl::PropagatedTrack &in) {
+  inline TkObj transformConvert(const l1tpf_impl::PropagatedTrack &in) {
     TkObj out;
     convert(in, out);
     return out;
   }
 
-  void convert(const l1tpf_impl::CaloCluster &in, HadCaloObj &out) {
+  inline void convert(const l1tpf_impl::CaloCluster &in, HadCaloObj &out) {
     out.hwPt = in.hwPt;
     out.hwEmPt = in.hwEmPt;
     out.hwEta = in.hwEta;
     out.hwPhi = in.hwPhi;
     out.hwIsEM = in.isEM;
   }
-  void convert(const l1tpf_impl::CaloCluster &in, EmCaloObj &out) {
+  inline void convert(const l1tpf_impl::CaloCluster &in, EmCaloObj &out) {
     out.hwPt = in.hwPt;
     out.hwPtErr = in.hwPtErr;
     out.hwEta = in.hwEta;
     out.hwPhi = in.hwPhi;
   }
-  void convert(const l1tpf_impl::Muon &in, MuObj &out) {
+  inline void convert(const l1tpf_impl::Muon &in, MuObj &out) {
     out.hwPt = in.hwPt;
     out.hwPtErr = 0;       // does not exist in input
     out.hwEta = in.hwEta;  // @calo

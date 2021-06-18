@@ -8,7 +8,7 @@
 #include "DiscretePFInputs.h"
 
 namespace l1tpf_impl {
-  void writeToFile(const CaloCluster &c, FILE *file) {
+  inline void writeToFile(const CaloCluster &c, FILE *file) {
     fwrite(&c.hwPt, 2, 1, file);
     fwrite(&c.hwEmPt, 2, 1, file);
     fwrite(&c.hwPtErr, 2, 1, file);
@@ -19,7 +19,7 @@ namespace l1tpf_impl {
     // used is not written out
     // src is not written out
   }
-  void readFromFile(CaloCluster &c, FILE *file) {
+  inline void readFromFile(CaloCluster &c, FILE *file) {
     fread(&c.hwPt, 2, 1, file);
     fread(&c.hwEmPt, 2, 1, file);
     fread(&c.hwPtErr, 2, 1, file);
@@ -31,7 +31,7 @@ namespace l1tpf_impl {
     c.src = nullptr;
   }
 
-  void writeToFile(const InputTrack &t, FILE *file) {
+  inline void writeToFile(const InputTrack &t, FILE *file) {
     fwrite(&t.hwInvpt, 2, 1, file);
     fwrite(&t.hwVtxEta, 4, 1, file);
     fwrite(&t.hwVtxPhi, 4, 1, file);
@@ -42,7 +42,7 @@ namespace l1tpf_impl {
     fwrite(&t.hwFlags, 2, 1, file);
     // src is not written out
   }
-  void readFromFile(InputTrack &t, FILE *file) {
+  inline void readFromFile(InputTrack &t, FILE *file) {
     fread(&t.hwInvpt, 2, 1, file);
     fread(&t.hwVtxEta, 4, 1, file);
     fread(&t.hwVtxPhi, 4, 1, file);
@@ -53,7 +53,7 @@ namespace l1tpf_impl {
     fread(&t.hwFlags, 2, 1, file);
     t.src = nullptr;
   }
-  void writeToFile(const PropagatedTrack &t, FILE *file) {
+  inline void writeToFile(const PropagatedTrack &t, FILE *file) {
     writeToFile(static_cast<const InputTrack &>(t), file);
     fwrite(&t.hwPt, 2, 1, file);
     fwrite(&t.hwPtErr, 2, 1, file);
@@ -62,7 +62,7 @@ namespace l1tpf_impl {
     fwrite(&t.hwPhi, 2, 1, file);
     // muonLink, used, fromPV are transient
   }
-  void readFromFile(PropagatedTrack &t, FILE *file) {
+  inline void readFromFile(PropagatedTrack &t, FILE *file) {
     readFromFile(static_cast<InputTrack &>(t), file);
     fread(&t.hwPt, 2, 1, file);
     fread(&t.hwPtErr, 2, 1, file);
@@ -74,14 +74,14 @@ namespace l1tpf_impl {
     t.fromPV = false;
   }
 
-  void writeToFile(const Muon &m, FILE *file) {
+  inline void writeToFile(const Muon &m, FILE *file) {
     fwrite(&m.hwPt, 2, 1, file);
     fwrite(&m.hwEta, 2, 1, file);
     fwrite(&m.hwPhi, 2, 1, file);
     fwrite(&m.hwFlags, 2, 1, file);
     fwrite(&m.hwCharge, 1, 1, file);
   }
-  void readFromFile(Muon &m, FILE *file) {
+  inline void readFromFile(Muon &m, FILE *file) {
     fread(&m.hwPt, 2, 1, file);
     fread(&m.hwEta, 2, 1, file);
     fread(&m.hwPhi, 2, 1, file);
@@ -90,8 +90,8 @@ namespace l1tpf_impl {
     m.src = nullptr;
   }
 
-  void writeToFile(const float &pug, FILE *file) { fwrite(&pug, sizeof(float), 1, file); }
-  void readFromFile(float &pug, FILE *file) { fread(&pug, sizeof(float), 1, file); }
+  inline void writeToFile(const float &pug, FILE *file) { fwrite(&pug, sizeof(float), 1, file); }
+  inline void readFromFile(float &pug, FILE *file) { fread(&pug, sizeof(float), 1, file); }
 
   template <typename T>
   void writeManyToFile(const std::vector<T> &objs, FILE *file) {
@@ -110,7 +110,7 @@ namespace l1tpf_impl {
       readFromFile(objs[i], file);
   }
 
-  void writeToFile(const InputRegion &r, FILE *file) {
+  inline void writeToFile(const InputRegion &r, FILE *file) {
     assert(4 == sizeof(float));
     fwrite(&r.etaCenter, 4, 1, file);
     fwrite(&r.etaMin, 4, 1, file);
@@ -124,7 +124,7 @@ namespace l1tpf_impl {
     writeManyToFile(r.track, file);
     writeManyToFile(r.muon, file);
   }
-  void readFromFile(InputRegion &r, FILE *file) {
+  inline void readFromFile(InputRegion &r, FILE *file) {
     assert(4 == sizeof(float));
     fread(&r.etaCenter, 4, 1, file);
     fread(&r.etaMin, 4, 1, file);
