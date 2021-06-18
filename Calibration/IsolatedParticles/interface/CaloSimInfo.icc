@@ -435,7 +435,7 @@ namespace spr {
     }
   }
 
-  std::map<std::string, double> eCaloSimInfo(spr::caloSimInfo& info) {
+  inline std::map<std::string, double> eCaloSimInfo(spr::caloSimInfo& info) {
     std::map<std::string, double> simInfo;
     simInfo.insert(std::pair<std::string, double>("eMatched", info.eMatched));
     simInfo.insert(std::pair<std::string, double>("pdgMatched", info.pdgMatched));

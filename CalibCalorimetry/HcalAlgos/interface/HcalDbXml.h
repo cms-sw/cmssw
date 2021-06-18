@@ -30,13 +30,13 @@ namespace HcalDbXml {
                   const std::string& fTag,
                   unsigned fVersion,
                   const HcalPedestals& fObject);
-  bool dumpObject(std::ostream& fOutput,
-                  unsigned fRun,
-                  unsigned long fGMTIOVBegin,
-                  unsigned long fGMTIOVEnd,
-                  const std::string& fTag,
-                  unsigned fVersion,
-                  const HcalPedestalWidths& fObject) {
+  inline bool dumpObject(std::ostream& fOutput,
+                         unsigned fRun,
+                         unsigned long fGMTIOVBegin,
+                         unsigned long fGMTIOVEnd,
+                         const std::string& fTag,
+                         unsigned fVersion,
+                         const HcalPedestalWidths& fObject) {
     return false;
   }
   bool dumpObject(std::ostream& fOutput,
@@ -54,58 +54,58 @@ namespace HcalDbXml {
                   const std::string& fTag,
                   unsigned fVersion,
                   const HcalGains& fObject);
-  bool dumpObject(std::ostream& fOutput,
-                  unsigned fRun,
-                  unsigned long fGMTIOVBegin,
-                  unsigned long fGMTIOVEnd,
-                  const std::string& fTag,
-                  unsigned fVersion,
-                  const HcalGainWidths& fObject) {
+  inline bool dumpObject(std::ostream& fOutput,
+                         unsigned fRun,
+                         unsigned long fGMTIOVBegin,
+                         unsigned long fGMTIOVEnd,
+                         const std::string& fTag,
+                         unsigned fVersion,
+                         const HcalGainWidths& fObject) {
     return false;
   }
-  bool dumpObject(std::ostream& fOutput,
-                  unsigned fRun,
-                  unsigned long fGMTIOVBegin,
-                  unsigned long fGMTIOVEnd,
-                  const std::string& fTag,
-                  unsigned fVersion,
-                  const HcalElectronicsMap& fObject) {
+  inline bool dumpObject(std::ostream& fOutput,
+                         unsigned fRun,
+                         unsigned long fGMTIOVBegin,
+                         unsigned long fGMTIOVEnd,
+                         const std::string& fTag,
+                         unsigned fVersion,
+                         const HcalElectronicsMap& fObject) {
     return false;
   }
-  bool dumpObject(std::ostream& fOutput,
-                  unsigned fRun,
-                  unsigned long fGMTIOVBegin,
-                  unsigned long fGMTIOVEnd,
-                  const std::string& fTag,
-                  unsigned fVersion,
-                  const HcalQIEData& fObject) {
+  inline bool dumpObject(std::ostream& fOutput,
+                         unsigned fRun,
+                         unsigned long fGMTIOVBegin,
+                         unsigned long fGMTIOVEnd,
+                         const std::string& fTag,
+                         unsigned fVersion,
+                         const HcalQIEData& fObject) {
     return false;
   }
-  bool dumpObject(std::ostream& fOutput,
-                  unsigned fRun,
-                  unsigned long fGMTIOVBegin,
-                  unsigned long fGMTIOVEnd,
-                  const std::string& fTag,
-                  unsigned fVersion,
-                  const HcalCalibrationQIEData& fObject) {
+  inline bool dumpObject(std::ostream& fOutput,
+                         unsigned fRun,
+                         unsigned long fGMTIOVBegin,
+                         unsigned long fGMTIOVEnd,
+                         const std::string& fTag,
+                         unsigned fVersion,
+                         const HcalCalibrationQIEData& fObject) {
     return false;
   }
-  bool dumpObject(std::ostream& fOutput,
-                  unsigned fRun,
-                  unsigned long fGMTIOVBegin,
-                  unsigned long fGMTIOVEnd,
-                  const std::string& fTag,
-                  unsigned fVersion,
-                  const HcalQIETypes& fObject) {
+  inline bool dumpObject(std::ostream& fOutput,
+                         unsigned fRun,
+                         unsigned long fGMTIOVBegin,
+                         unsigned long fGMTIOVEnd,
+                         const std::string& fTag,
+                         unsigned fVersion,
+                         const HcalQIETypes& fObject) {
     return false;
   }
-  bool dumpObject(std::ostream& fOutput,
-                  unsigned fRun,
-                  unsigned long fGMTIOVBegin,
-                  unsigned long fGMTIOVEnd,
-                  const std::string& fTag,
-                  unsigned fVersion,
-                  const HcalFrontEndMap& fObject) {
+  inline bool dumpObject(std::ostream& fOutput,
+                         unsigned fRun,
+                         unsigned long fGMTIOVBegin,
+                         unsigned long fGMTIOVEnd,
+                         const std::string& fTag,
+                         unsigned fVersion,
+                         const HcalFrontEndMap& fObject) {
     return false;
   }
   bool dumpObject(std::ostream& fOutput,
