@@ -233,7 +233,7 @@ void NanoAODOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput con
 
   for (auto& t : m_lumiTables)
     t.fill(iLumi, *m_lumiTree);
-  
+
   for (unsigned int extensions = 0; extensions <= 1; ++extensions) {
     for (auto& t : m_lumiTables2)
       t.fill(iLumi, *m_lumiTree, extensions);
