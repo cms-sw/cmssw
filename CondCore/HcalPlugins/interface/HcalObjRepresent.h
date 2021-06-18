@@ -481,7 +481,7 @@ namespace HcalObjRepresent {
     }
   };
 
-  void drawTable(int nbRows, int nbColumns) {
+  inline void drawTable(int nbRows, int nbColumns) {
     TLine* l = new TLine;
     l->SetLineWidth(1);
     for (int i = 1; i < nbRows; i++) {
@@ -498,7 +498,7 @@ namespace HcalObjRepresent {
     }
   }
 
-  std::string SciNotatStr(float num) {
+  inline std::string SciNotatStr(float num) {
     // Create an output string stream
     std::ostringstream streamObj2;
 
@@ -528,12 +528,12 @@ namespace HcalObjRepresent {
     return ss.str();
   }
 
-  const bool isBitSet(unsigned int bitnumber, unsigned int status) {
+  inline const bool isBitSet(unsigned int bitnumber, unsigned int status) {
     unsigned int statadd = 0x1 << (bitnumber);
     return (status & statadd) ? (true) : (false);
   }
 
-  std::string getBitsSummary(uint32_t bits, std::string statusBitArray[], short unsigned int bitMap[]) {
+  inline std::string getBitsSummary(uint32_t bits, std::string statusBitArray[], short unsigned int bitMap[]) {
     std::stringstream ss;
     for (unsigned int i = 0; i < 9; ++i) {
       if (isBitSet(bitMap[i], bits)) {
@@ -545,7 +545,7 @@ namespace HcalObjRepresent {
   }
 
   //functions for making plot:
-  void setBinLabels(std::vector<TH2F>& depth) {
+  inline void setBinLabels(std::vector<TH2F>& depth) {
     // Set labels for all depth histograms
     for (unsigned int i = 0; i < depth.size(); ++i) {
       depth[i].SetXTitle("i#eta");
@@ -1050,7 +1050,7 @@ namespace HcalObjRepresent {
   }  // FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
 
   // special fill call based on detid -- eventually will need special treatment
-  void Fill(HcalDetId& id, double val /*=1*/, std::vector<TH2F>& depth) {
+  inline void Fill(HcalDetId& id, double val /*=1*/, std::vector<TH2F>& depth) {
     // If in HF, need to shift by 1 bin (-1 bin lower in -HF, +1 bin higher in +HF)
     if (id.subdet() == HcalForward)
       depth[id.depth() - 1].Fill(id.ieta() < 0 ? id.ieta() - 1 : id.ieta() + 1, id.iphi(), val);
@@ -1058,14 +1058,14 @@ namespace HcalObjRepresent {
       depth[id.depth() - 1].Fill(id.ieta(), id.iphi(), val);
   }
 
-  void Reset(std::vector<TH2F>& depth) {
+  inline void Reset(std::vector<TH2F>& depth) {
     for (unsigned int d = 0; d < depth.size(); d++)
       //BUG CAN BE HERE:
       //if(depth[d])
       depth[d].Reset();
   }  // void Reset(void)
 
-  void setup(std::vector<TH2F>& depth, std::string name, std::string units = "") {
+  inline void setup(std::vector<TH2F>& depth, std::string name, std::string units = "") {
     std::string unittitle, unitname;
     if (units.empty()) {
       unitname = units;
@@ -1132,11 +1132,11 @@ namespace HcalObjRepresent {
     setBinLabels(depth);  // set axis titles, special bins
   }
 
-  void fillOneGain(std::vector<TH2F>& graphData,
-                   HcalGains::tAllContWithNames& allContainers,
-                   std::string name,
-                   int id,
-                   std::string units = "") {
+  inline void fillOneGain(std::vector<TH2F>& graphData,
+                          HcalGains::tAllContWithNames& allContainers,
+                          std::string name,
+                          int id,
+                          std::string units = "") {
     setup(graphData, name);
 
     std::stringstream x;
