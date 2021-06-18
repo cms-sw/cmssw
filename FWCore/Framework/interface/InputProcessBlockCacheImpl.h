@@ -148,8 +148,11 @@ namespace edm {
         registerProcessBlockCacheFiller<I, CacheType, DataType, Func>(token, std::forward<Func>(func));
       }
 
-      // This gets used for stream type modules instead of registerProcessBlockCacheFiller
-      void copyProcessBlockCacheFiller(std::vector<edm::impl::TokenInfo>& tokenInfos,
+      // This gets used for stream type modules where the InputProcessBlockCacheImpl
+      // object is held by the adaptor. For stream modules, we use a registerProcessBlockCacheFiller
+      // function defined in edm::stream::impl::InputProcessBlockCacheHolder then
+      // move the information.
+      void moveProcessBlockCacheFiller(std::vector<edm::impl::TokenInfo>& tokenInfos,
                                        std::tuple<edm::impl::CacheFiller<CacheTypes>...>& functors) {
         tokenInfos_ = std::move(tokenInfos);
         functors_ = std::move(functors);

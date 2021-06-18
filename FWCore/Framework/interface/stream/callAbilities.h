@@ -78,7 +78,7 @@ namespace edm {
                       unsigned int iStreamModule) {
         iProd->setProcessBlockCache(iCaches->get());
         if (iStreamModule == 0 && iProd->cacheFillersRegistered()) {
-          (*iCaches)->copyProcessBlockCacheFiller(iProd->tokenInfos(), iProd->cacheFillers());
+          (*iCaches)->moveProcessBlockCacheFiller(iProd->tokenInfos(), iProd->cacheFillers());
         }
         iProd->clearRegistration();
       }
@@ -111,7 +111,7 @@ namespace edm {
                       unsigned int iStreamModule) {
         iProd->setProcessBlockCache(iCaches->get());
         if (iStreamModule == 0 && iProd->cacheFillersRegistered()) {
-          (*iCaches)->copyProcessBlockCacheFiller(iProd->tokenInfos(), iProd->cacheFillers());
+          (*iCaches)->moveProcessBlockCacheFiller(iProd->tokenInfos(), iProd->cacheFillers());
         }
         iProd->clearRegistration();
       }
