@@ -17,7 +17,7 @@ namespace beamspot {
     std::time_t reftime[2];
   };
 
-  void dumpBeamSpotTxt(std::ofstream& outFile, BeamSpotContainer const& bsContainer) {
+  inline void dumpBeamSpotTxt(std::ofstream& outFile, BeamSpotContainer const& bsContainer) {
     outFile << "Runnumber " << bsContainer.run << std::endl;
     outFile << "BeginTimeOfFit " << bsContainer.beginTimeOfFit << " " << bsContainer.reftime[0] << std::endl;
     outFile << "EndTimeOfFit " << bsContainer.endTimeOfFit << " " << bsContainer.reftime[1] << std::endl;
