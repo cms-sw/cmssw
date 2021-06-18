@@ -26,7 +26,7 @@ namespace edm {
     // This constructor exists for ROOT I/O
     StoredProcessBlockHelper();
 
-    StoredProcessBlockHelper(std::vector<std::string> const& processesWithProcessBlockProducts);
+    explicit StoredProcessBlockHelper(std::vector<std::string> const& processesWithProcessBlockProducts);
 
     std::vector<std::string> const& processesWithProcessBlockProducts() const {
       return processesWithProcessBlockProducts_;
