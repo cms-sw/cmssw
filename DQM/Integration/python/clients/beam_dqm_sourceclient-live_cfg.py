@@ -318,13 +318,14 @@ process.dqmBeamMonitor.PVFitter.errorScale = 1.22
 # Pixel tracks/vertices reco
 process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
 from RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi import *
-process.pixelVertices = pixelVertices.clone()
+process.pixelVertices = pixelVertices.clone(
+  TkFilterParameters = dict( minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin)
+)
 process.pixelTracksTrackingRegions.RegionPSet.originRadius = 0.4
 process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 12
 process.pixelTracksTrackingRegions.RegionPSet.originXPos =  0.08
 process.pixelTracksTrackingRegions.RegionPSet.originYPos = -0.03
 process.pixelTracksTrackingRegions.RegionPSet.originZPos = 0.
-process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
 
 process.tracking_FirstStep = cms.Sequence(
       process.siPixelDigis 
