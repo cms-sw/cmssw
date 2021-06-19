@@ -18,6 +18,7 @@ process.load('IOMC.RandomEngine.IOMC_cff')
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HCalGeom=dict()
     process.MessageLogger.HcalSim=dict()
+    process.MessageLogger.CaloSim=dict()
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('hcaltb06.root')
