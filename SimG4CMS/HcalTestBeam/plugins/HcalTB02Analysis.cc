@@ -110,8 +110,8 @@ HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet& p) {
   produces<HcalTB02HistoClass>();
 
   edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis:: Initialised as observer of "
-                            << "BeginOfJob/BeginOfEvent/EndOfEvent with "
-                            << "Parameter values:\n \thcalOnly = " << hcalOnly;
+                                << "BeginOfJob/BeginOfEvent/EndOfEvent with "
+                                << "Parameter values:\n \thcalOnly = " << hcalOnly;
 
   histo = std::make_unique<HcalTB02Histo>(m_Anal);
 }
