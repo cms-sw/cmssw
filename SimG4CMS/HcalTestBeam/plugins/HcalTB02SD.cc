@@ -72,11 +72,11 @@ HcalTB02SD::HcalTB02SD(const std::string& name,
 #endif
   // Get pointers to HcalTB02Parameters
   edm::ESHandle<HcalTB02Parameters> hdc;
-  es.get<IdealGeometryRecord>().get(hdc);
+  es.get<IdealGeometryRecord>().get(name, hdc);
   if (hdc.isValid()) {
     hcalTB02Parameters_ = hdc.product();
   } else {
-    throw cms::Exception("Unknown", "HcalTB02SD") << "Cannot find HcalTB02Parameters\n";
+    throw cms::Exception("Unknown", "HcalTB02SD") << "Cannot find HcalTB02Parameters for " << name << "\n";
   }
 }
 
