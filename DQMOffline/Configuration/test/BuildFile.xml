@@ -1,10 +1,20 @@
-<!-- To make the tests run in parallel, we chunk up the work into arbitrary sets of 50 sequences. -->
-<test name="TestDQMOfflineConfiguration0" command="runtests.sh 50 0"/>
-<test name="TestDQMOfflineConfiguration50" command="runtests.sh 50 50"/>
-<test name="TestDQMOfflineConfiguration100" command="runtests.sh 50 100"/>
-<test name="TestDQMOfflineConfiguration150" command="runtests.sh 50 150"/>
-<test name="TestDQMOfflineConfiguration200" command="runtests.sh 50 200"/>
-<test name="TestDQMOfflineConfiguration250" command="runtests.sh 50 250"/>
+<!-- To make the tests run in parallel, we chunk up the work into arbitrary sets of 20 sequences. -->
+<test name="TestDQMOfflineConfiguration0" command="runtests.sh   20 0"/>
+<test name="TestDQMOfflineConfiguration20" command="runtests.sh  20 20"/>
+<test name="TestDQMOfflineConfiguration40" command="runtests.sh  20 40"/>
+<test name="TestDQMOfflineConfiguration60" command="runtests.sh  20 60"/>
+<test name="TestDQMOfflineConfiguration80" command="runtests.sh  20 80"/>
+<test name="TestDQMOfflineConfiguration100" command="runtests.sh 20 100"/>
+<test name="TestDQMOfflineConfiguration120" command="runtests.sh 20 120"/>
+<test name="TestDQMOfflineConfiguration140" command="runtests.sh 20 140"/>
+<test name="TestDQMOfflineConfiguration160" command="runtests.sh 20 160"/>
+<test name="TestDQMOfflineConfiguration180" command="runtests.sh 20 180"/>
+<test name="TestDQMOfflineConfiguration200" command="runtests.sh 20 200"/>
+<test name="TestDQMOfflineConfiguration220" command="runtests.sh 20 220"/>
+<test name="TestDQMOfflineConfiguration240" command="runtests.sh 20 240"/>
+<test name="TestDQMOfflineConfiguration260" command="runtests.sh 20 260"/>
+<test name="TestDQMOfflineConfiguration280" command="runtests.sh 20 280"/>
+<test name="SMATs" command="true"/>
 <!-- To make sure we actually got all sequences, the last check checks that there are no sequences beyond the last test -->
 <!-- This might need to updated when the number of distinct sequences grows, add more rows above and change the number here. -->
 <test name="TestDQMOfflineConfigurationGotAll" command="cmsswSequenceInfo.py --runTheMatrix --steps DQM,VALIDATION --limit 50 --offset 300 --threads 1 | grep 'Analyzing 0 seqs'"/>
