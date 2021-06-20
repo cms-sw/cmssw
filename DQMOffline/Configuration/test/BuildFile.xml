@@ -14,7 +14,6 @@
 <test name="TestDQMOfflineConfiguration240" command="runtests.sh 20 240"/>
 <test name="TestDQMOfflineConfiguration260" command="runtests.sh 20 260"/>
 <test name="TestDQMOfflineConfiguration280" command="runtests.sh 20 280"/>
-<test name="SMATs" command="true"/>
 <!-- To make sure we actually got all sequences, the last check checks that there are no sequences beyond the last test -->
 <!-- This might need to updated when the number of distinct sequences grows, add more rows above and change the number here. -->
 <test name="TestDQMOfflineConfigurationGotAll" command="cmsswSequenceInfo.py --runTheMatrix --steps DQM,VALIDATION --limit 50 --offset 300 --threads 1 | grep 'Analyzing 0 seqs'"/>
