@@ -1598,9 +1598,11 @@ bool HGCalDDDConstants::isValidCell8(int lay, int waferU, int waferV, int cellU,
     int N = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
     auto partn = waferTypeRotation(lay, waferU, waferV, false, false);
     result = HGCalWaferMask::goodCell(cellU, cellV, N, partn.first, partn.second);
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Input " << lay << ":" << waferU << ":" << waferV << ":" << cellU << ":" << cellV
                                   << " N " << N << " part " << partn.first << ":" << partn.second << " Result "
                                   << result;
+#endif
   }
   return result;
 }
