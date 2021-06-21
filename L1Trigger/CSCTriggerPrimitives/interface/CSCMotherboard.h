@@ -171,6 +171,8 @@ protected:
                      const CSCALCTDigi& secondALCT,
                      const CSCCLCTDigi& bestCLCT,
                      const CSCCLCTDigi& secondCLCT,
+                     CSCCorrelatedLCTDigi& bLCT,
+                     CSCCorrelatedLCTDigi& sLCT,
                      int type);
 
   // This method calculates all the TMB words and then passes them to the
