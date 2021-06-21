@@ -11,3 +11,5 @@
 
 <bin file="testPngHistograms.cpp" name="testPngHistograms">
 </bin>
+
+<test name="testGetPayloadData" command="test_getPayloadData.sh"/>
