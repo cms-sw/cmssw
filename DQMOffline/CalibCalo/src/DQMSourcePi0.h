@@ -207,6 +207,9 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEEpi0_;
   edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEEeta_;
 
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopoToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+
   int gammaCandEtaSize_;
   int gammaCandPhiSize_;
 
