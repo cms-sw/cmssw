@@ -2,7 +2,6 @@
 
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCTriggerPrimitivesBuilder.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboard.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboardME11.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboardME11.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboardME21.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCMuonPortCard.h"
@@ -58,10 +57,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             // and CLCT processors.
 
             // go through all possible cases
-            if (runPhase2_ and ring == 1 and stat == 1 and runME11Up_ and !runME11ILT_)
-              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
-                  std::make_unique<CSCMotherboardME11>(endc, stat, sect, subs, cham, conf);
-            else if (runPhase2_ and ring == 1 and stat == 1 and runME11Up_ and runME11ILT_)
+            if (runPhase2_ and ring == 1 and stat == 1 and runME11Up_ and runME11ILT_)
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
                   std::make_unique<CSCGEMMotherboardME11>(endc, stat, sect, subs, cham, conf);
             else if (runPhase2_ and ring == 1 and stat == 2 and runME21Up_ and runME21ILT_)
@@ -153,52 +149,8 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             if (checkBadChambers_ && badChambers->isInBadChamber(detid))
               continue;
 
-            // running upgraded ME1/1 TMBs
-            if (stat == 1 && ring == 1 && runPhase2_ && !runME11ILT_) {
-              // run the TMB
-              CSCMotherboardME11* tmb11 = static_cast<CSCMotherboardME11*>(tmb);
-              if (infoV > 1)
-                LogTrace("CSCTriggerPrimitivesBuilder")
-                    << "CSCTriggerPrimitivesBuilder::build in E:" << endc << " S:" << stat << " R:" << ring;
-              tmb11->run(wiredc, compdc);
-
-              // get all collections
-              // all ALCTs, CLCTs, LCTs are written with detid ring = 1, as data did
-              // but CLCTs and LCTs are written sperately in ME1a and ME1b, considering whether ME1a is disabled or not
-              const std::vector<CSCCorrelatedLCTDigi>& lctV = tmb11->readoutLCTs1b();
-              const std::vector<CSCCorrelatedLCTDigi>& lctV1a = tmb11->readoutLCTs1a();
-              const std::vector<CSCALCTDigi>& alctV = tmb11->alctProc->readoutALCTs();
-              const std::vector<CSCCLCTDigi>& clctV = tmb11->clctProc->readoutCLCTs();
-              const std::vector<int>& preTriggerBXs = tmb11->clctProc->preTriggerBXs();
-              const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = tmb11->clctProc->preTriggerDigis();
-              const std::vector<CSCALCTPreTriggerDigi>& alctpretriggerV = tmb11->alctProc->preTriggerDigis();
-              const CSCShowerDigi& shower = tmb11->readoutShower();
-              const CSCShowerDigi& anodeShower = tmb11->alctProc->readoutShower();
-
-              if (infoV > 1)
-                LogTrace("CSCTriggerPrimitivesBuilder")
-                    << "CSCTriggerPrimitivesBuilder:: a=" << alctV.size() << " c=" << clctV.size()
-                    << " l=" << lctV.size();
-
-              if (!(lctV.empty() && alctV.empty() && clctV.empty()) and infoV > 1) {
-                LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder results in " << detid;
-              }
-
-              // put collections in event
-              put(lctV, oc_lct, detid, " ME1b LCT digi");
-              put(alctV, oc_alct, detid, " ME1b ALCT digi");
-              put(clctV, oc_clct, detid, " ME1b CLCT digi");
-              put(pretriggerV, oc_pretrigger, detid, " ME1b CLCT pre-trigger digi");
-              put(preTriggerBXs, oc_pretrig, detid, " ME1b CLCT pre-trigger BX");
-              put(alctpretriggerV, oc_alctpretrigger, detid, " ME1b ALCT pre-trigger digi");
-              if (shower.isValid())
-                oc_shower.insertDigi(detid, shower);
-              if (anodeShower.isValid())
-                oc_shower_anode.insertDigi(detid, anodeShower);
-            }
-
-            // running upgraded ME1/1 TMBs with GEMs
-            else if (stat == 1 && ring == 1 && runPhase2_ && runME11ILT_) {
+            /// running upgraded ME1/1 TMBs with GEMs
+            if (stat == 1 && ring == 1 && runPhase2_ && runME11ILT_) {
               // run the TMB
               CSCGEMMotherboardME11* tmb11GEM = static_cast<CSCGEMMotherboardME11*>(tmb);
               tmb11GEM->setCSCGeometry(csc_g);
