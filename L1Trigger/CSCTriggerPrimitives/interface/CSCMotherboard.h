@@ -15,7 +15,7 @@
  * for general use, with wire digi and comparator digi collections as
  * arguments.  In the latter mode, the wire & strip info is passed on the
  * LCTProcessors, where it is decoded and converted into a convenient form.
- * After running the anode and cathode LCTProcessors, TMB correlates the
+ 1;95;0c* After running the anode and cathode LCTProcessors, TMB correlates the
  * anode and cathode LCTs.  At present, it simply matches the best CLCT
  * with the best ALCT; perhaps a better algorithm will be determined in
  * the future.  The MotherBoard then determines a few more numbers (such as
@@ -31,11 +31,15 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- *
+ * Extended for Run-3 and Phase-2 by Vadim Khotilovich, Tao Huang and Sven Dildick
  */
 
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTContainer.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCALCTCrossCLCT.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeAnodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeCathodeLCTProcessor.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 
@@ -56,8 +60,28 @@ public:
       takes results and correlates into CorrelatedLCT. */
   virtual void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
 
-  /** Returns vector of correlated LCTs in the read-out time window, if any. */
+  /*
+    Returns vector of good correlated LCTs in the read-out time window.
+    LCTs in the BX window [early_tbins,...,late_tbins] are considered
+    good for physics. The central LCT BX is time bin 8.
+    - tmb_l1a_window_size = 7 (Run-1, Run-2) -> [5, 6, 7, 8, 9, 10, 11]
+    - tmb_l1a_window_size = 5 (Run-3)        ->    [6, 7, 8, 9, 10]
+    - tmb_l1a_window_size = 3 (Run-4?)       ->       [7, 8, 9]
+
+    Note, this function does not have an exact counterpart in the
+    firmware. The reason is that the DAQ of LCTs is not correctly
+    simulated in CMSSW - at least the simulation of the L1-accept.
+    So, this function corresponds to both the trigger path and the
+    DAQ path in the firmware. In general, the function will return
+    LCTs that would not be used in the OMTF or EMTF emulator,
+    because they are out-of-time relative for tracking purposes. For
+    instance an LCT with BX5 would be read out by the DAQ, but would
+    likely not be used by the EMTF.
+  */
   virtual std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const;
+
+  // LCT selection: at most 2 in each BX
+  void selectLCTs();
 
   /** Returns vector of all found correlated LCTs, if any. */
   std::vector<CSCCorrelatedLCTDigi> getLCTs() const;
@@ -101,9 +125,6 @@ protected:
   unsigned int alct_trig_enable, clct_trig_enable, match_trig_enable;
   unsigned int match_trig_window_size, tmb_l1a_window_size;
 
-  /** Phase2: whether to not reuse ALCTs that were used by previous matching CLCTs */
-  bool drop_used_alcts;
-
   /** Phase2: whether to not reuse CLCTs that were used by previous matching ALCTs */
   bool drop_used_clcts;
 
@@ -113,8 +134,18 @@ protected:
   /** Phase2: whether to readout only the earliest two LCTs in readout window */
   bool readout_earliest_2;
 
+  // when set to true, ignore CLCTs found in later BX's
+  bool match_earliest_clct_only_;
+
   // encode special bits for high-multiplicity triggers
   unsigned showerSource_;
+
+  /*
+     Preferential index array in matching window, relative to the ALCT BX.
+     Where the central match BX goes first,
+     then the closest early, the closest late, etc.
+  */
+  std::vector<int> preferred_bx_match_;
 
   /** Default values of configuration parameters. */
   static const unsigned int def_mpc_block_me1a;
@@ -127,6 +158,8 @@ protected:
 
   /* quality control */
   std::unique_ptr<LCTQualityControl> qualityControl_;
+
+  std::unique_ptr<CSCALCTCrossCLCT> cscOverlap_;
 
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
