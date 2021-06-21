@@ -83,7 +83,6 @@ private:
   double dTanPsi_correlate_TP_;
   double minx_match_2digis_;
   double chi2corTh_;
-  bool cmssw_for_global_;
   std::string geometry_tag_;
 
   //shift
