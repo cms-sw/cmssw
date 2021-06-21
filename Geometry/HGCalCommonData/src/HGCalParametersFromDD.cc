@@ -121,12 +121,13 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.waferMaskMode_ = static_cast<int>(getDDDValue("WaferMaskMode", sv));
       php.waferZSide_ = static_cast<int>(getDDDValue("WaferZside", sv));
       if (php.mode_ == HGCalGeometryMode::Hexagon8Module)
-	php.layerRotation_ = getDDDValue("LayerRotation", sv);
+        php.layerRotation_ = getDDDValue("LayerRotation", sv);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " ZSide Level "
                                     << php.levelZSide_ << " first layers " << php.firstLayer_ << ":"
                                     << php.firstMixedLayer_ << " Det Type " << php.detectorType_ << " Wafer Mask Mode "
-                                    << php.waferMaskMode_ << " Zside " << php.waferZSide_ << " Layer Rotation " << convertRadToDeg(php.layerRotation_);
+                                    << php.waferMaskMode_ << " Zside " << php.waferZSide_ << " Layer Rotation "
+                                    << convertRadToDeg(php.layerRotation_);
 #endif
       attribute = "OnlyForHGCalNumbering";
       value = namet;
@@ -317,14 +318,15 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       tempD = fv.get<std::vector<double> >(name, "WaferZside");
       php.waferZSide_ = static_cast<int>(tempD[0]);
       if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
-	tempD = fv.get<std::vector<double> >(name, "LayerRotation");
-	php.layerRotation_ = tempD[0];
+        tempD = fv.get<std::vector<double> >(name, "LayerRotation");
+        php.layerRotation_ = tempD[0];
       }
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " ZSide Level "
                                     << php.levelZSide_ << " first layers " << php.firstLayer_ << ":"
                                     << php.firstMixedLayer_ << " Det Type " << php.detectorType_ << " Wafer Mask Mode "
-                                    << php.waferMaskMode_ << " ZSide " << php.waferZSide_ << " Layer Rotation " << convertRadToDeg(php.layerRotation_);
+                                    << php.waferMaskMode_ << " ZSide " << php.waferZSide_ << " Layer Rotation "
+                                    << convertRadToDeg(php.layerRotation_);
 #endif
 
       tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");
