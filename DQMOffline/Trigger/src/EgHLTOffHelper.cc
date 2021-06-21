@@ -4,6 +4,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
@@ -46,6 +47,11 @@ void OffHelper::setup(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC
   caloTowersToken = iC.consumes<CaloTowerCollection>(conf.getParameter<edm::InputTag>("CaloTowers"));
   trigResultsToken = iC.consumes<edm::TriggerResults>(conf.getParameter<edm::InputTag>("TrigResults"));
   vertexToken = iC.consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("VertexCollection"));
+
+  caloGeomToken_ = iC.esConsumes();
+  caloTopoToken_ = iC.esConsumes();
+  magFieldToken_ = iC.esConsumes();
+  ecalSeverityToken_ = iC.esConsumes();
 
   eleCuts_.setup(conf.getParameter<edm::ParameterSet>("eleCuts"));
   eleLooseCuts_.setup(conf.getParameter<edm::ParameterSet>("eleLooseCuts"));
@@ -169,14 +175,14 @@ int OffHelper::makeOffEvt(const edm::Event& edmEvent,
 
 int OffHelper::getHandles(const edm::Event& event, const edm::EventSetup& setup) {
   try {
-    setup.get<CaloGeometryRecord>().get(caloGeom_);
-    setup.get<CaloTopologyRecord>().get(caloTopology_);
-    //setup.get<EcalSeverityLevelAlgoRcd>().get(ecalSeverityLevel_);
+    caloGeom_ = setup.getHandle(caloGeomToken_);
+    caloTopology_ = setup.getHandle(caloTopoToken_);
+    //ecalSeverityLevel_ = setup.getHandle(ecalSeverityToken_);
   } catch (cms::Exception& iException) {
     return errCodes::Geom;
   }
   try {
-    setup.get<IdealMagneticFieldRecord>().get(magField_);
+    magField_ = setup.getHandle(magFieldToken_);
   } catch (cms::Exception& iException) {
     return errCodes::MagField;
   }
