@@ -29,25 +29,6 @@
 #include <string>
 #include <vector>
 
-namespace {
-  inline std::string format_vstring(const std::vector<std::string>& v) {
-    std::string retVal;
-
-    retVal.append("{ ");
-
-    unsigned numEntries = v.size();
-    for (unsigned iEntry = 0; iEntry < numEntries; ++iEntry) {
-      retVal.append(v[iEntry]);
-      if (iEntry < (numEntries - 1))
-        retVal.append(", ");
-    }
-
-    retVal.append(" }");
-
-    return retVal;
-  }
-}  // namespace
-
 class PATJetCorrExtractor {
 public:
   reco::Candidate::LorentzVector operator()(
@@ -87,6 +68,24 @@ public:
     }
 
     return corrJetP4;
+  }
+
+private:
+  inline std::string format_vstring(const std::vector<std::string>& v) const {
+    std::string retVal;
+
+    retVal.append("{ ");
+
+    unsigned numEntries = v.size();
+    for (unsigned iEntry = 0; iEntry < numEntries; ++iEntry) {
+      retVal.append(v[iEntry]);
+      if (iEntry < (numEntries - 1))
+        retVal.append(", ");
+    }
+
+    retVal.append(" }");
+
+    return retVal;
   }
 };
 
