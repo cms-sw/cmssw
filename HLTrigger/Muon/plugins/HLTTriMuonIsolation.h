@@ -23,7 +23,7 @@
 class HLTTriMuonIsolation : public edm::global::EDProducer<> {
 public:
   explicit HLTTriMuonIsolation(const edm::ParameterSet& iConfig);
-  ~HLTTriMuonIsolation() override;
+  ~HLTTriMuonIsolation() override = default;
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -91,8 +91,6 @@ inline HLTTriMuonIsolation::HLTTriMuonIsolation(const edm::ParameterSet& iConfig
   produces<reco::CompositeCandidateCollection>("Taus");
   produces<reco::CompositeCandidateCollection>("SelectedTaus");
 }
-
-inline HLTTriMuonIsolation::~HLTTriMuonIsolation() {}
 
 inline void HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
   std::unique_ptr<reco::CompositeCandidateCollection> Taus(new reco::CompositeCandidateCollection);
