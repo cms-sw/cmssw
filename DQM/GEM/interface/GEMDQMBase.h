@@ -419,6 +419,7 @@ protected:
   std::string log_category_;
 
   const GEMGeometry *GEMGeometry_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
 
   std::vector<GEMChamber> gemChambers_;
 
