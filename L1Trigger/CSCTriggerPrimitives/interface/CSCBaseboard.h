@@ -45,7 +45,7 @@ protected:
   const unsigned theSector;
   const unsigned theSubsector;
   const unsigned theTrigChamber;
-  unsigned theRegion;
+  int theRegion;
   unsigned theRing;
   unsigned theChamber;
 
