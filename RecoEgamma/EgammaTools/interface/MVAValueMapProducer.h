@@ -32,7 +32,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  inline auto getMVAEstimators(const edm::VParameterSet& vConfig) const {
+  auto getMVAEstimators(const edm::VParameterSet& vConfig) const {
     std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators;
 
     // Loop over the list of MVA configurations passed here from python and
@@ -52,7 +52,7 @@ private:
     return mvaEstimators;
   }
 
-  inline std::vector<std::string> getValueMapNames(const edm::VParameterSet& vConfig, std::string&& suffix) const {
+  std::vector<std::string> getValueMapNames(const edm::VParameterSet& vConfig, std::string&& suffix) const {
     std::vector<std::string> names;
     for (auto& imva : vConfig) {
       names.push_back(imva.getParameter<std::string>("mvaName") + imva.getParameter<std::string>("mvaTag") + suffix);

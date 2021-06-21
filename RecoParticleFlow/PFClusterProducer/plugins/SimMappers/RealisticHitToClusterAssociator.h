@@ -267,7 +267,7 @@ public:
   const std::vector<RealisticCluster>& realisticClusters() const { return realisticSimClusters_; }
 
 private:
-  inline float getDecayLength(unsigned int layer, unsigned int fhOffset, unsigned int bhOffset) const {
+  float getDecayLength(unsigned int layer, unsigned int fhOffset, unsigned int bhOffset) const {
     constexpr float eeDecayLengthInLayer = 2.f;
     constexpr float fhDecayLengthInLayer = 1.5f;
     constexpr float bhDecayLengthInLayer = 1.f;
