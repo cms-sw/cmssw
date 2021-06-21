@@ -43,7 +43,6 @@ CSCALCTDigi::CSCALCTDigi(const uint16_t valid,
 /// Default
 CSCALCTDigi::CSCALCTDigi() {
   clear();  // set contents to zero
-  version_ = Version::Legacy;
 }
 
 /// Clears this ALCT.
@@ -58,6 +57,7 @@ void CSCALCTDigi::clear() {
   fullbx_ = 0;
   hmt_ = 0;
   hits_.resize(NUM_LAYERS);
+  version_ = Version::Legacy;
   for (auto& p : hits_) {
     p.resize(ALCT_PATTERN_WIDTH);
   }
