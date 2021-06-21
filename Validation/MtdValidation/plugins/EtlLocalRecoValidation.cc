@@ -904,9 +904,9 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                     150);
 
   meCluTimeRes_[0] =
-      ibook.book1D("EtlCluTimeResZneg", "ETL cluster time resolution (-Z);T_{RECO}-T_{SIM}", 100, -0.5, 0.5);
+      ibook.book1D("EtlCluTimeResZneg", "ETL cluster time resolution (-Z);T_{RECO}-T_{SIM} [ns]", 100, -0.5, 0.5);
   meCluTimeRes_[1] =
-      ibook.book1D("EtlCluTimeResZpos", "ETL cluster time resolution (+Z);T_{RECO}-T_{SIM}", 100, -0.5, 0.5);
+      ibook.book1D("EtlCluTimeResZpos", "ETL cluster time resolution (+Z);T_{RECO}-T_{SIM} [MeV]", 100, -0.5, 0.5);
   meCluEnergyRes_[0] =
       ibook.book1D("EtlCluEnergyResZneg", "ETL cluster energy resolution (-Z);E_{RECO}-E_{SIM}", 100, -0.5, 0.5);
   meCluEnergyRes_[1] =
