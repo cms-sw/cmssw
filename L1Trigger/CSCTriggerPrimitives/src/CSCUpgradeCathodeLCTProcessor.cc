@@ -200,9 +200,6 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
         }
       }
 
-      // 2 possible LCTs per CSC x 7 LCT quantities per BX
-      int keystrip_data[CSCConstants::MAX_CLCTS_PER_PROCESSOR][CLCT_NUM_QUANTITIES] = {{0}};
-
       // Quality for sorting.
       int quality[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
       int best_halfstrip[CSCConstants::MAX_CLCTS_PER_PROCESSOR], best_quality[CSCConstants::MAX_CLCTS_PER_PROCESSOR];
@@ -288,34 +285,39 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
               bx = fbx;
               fbx = first_bx;
             }
-            //ptn_trig = true;
-            keystrip_data[ilct][CLCT_PATTERN] = best_pid[best_hs];
-            keystrip_data[ilct][CLCT_BEND] =
-                clct_pattern_[best_pid[best_hs]][CSCConstants::NUM_LAYERS - 1][CSCConstants::CLCT_PATTERN_WIDTH];
-            // Remove stagger if any.
-            keystrip_data[ilct][CLCT_STRIP] = best_hs - stagger[CSCConstants::KEY_CLCT_LAYER - 1];
-            keystrip_data[ilct][CLCT_BX] = bx;
-            keystrip_data[ilct][CLCT_STRIP_TYPE] = 1;  // obsolete
-            keystrip_data[ilct][CLCT_QUALITY] = nhits[best_hs];
-            keystrip_data[ilct][CLCT_CFEB] = keystrip_data[ilct][CLCT_STRIP] / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
-            int halfstrip_in_cfeb = keystrip_data[ilct][CLCT_STRIP] -
-                                    CSCConstants::NUM_HALF_STRIPS_PER_CFEB * keystrip_data[ilct][CLCT_CFEB];
+            // prototype CLCT information
+            ProtoCLCT protoCLCT;
+            // Assign the CLCT properties
+            protoCLCT.quality = nhits[best_hs];
+            protoCLCT.pattern = best_pid[best_hs];
+            // CLCTs are always of type halfstrip (not strip or distrip)
+            protoCLCT.striptype = 1;
+            protoCLCT.bend = CSCPatternBank::getPatternBend(clct_pattern_[protoCLCT.pattern]);
+            protoCLCT.keyhalfstrip = best_hs - stagger[CSCConstants::KEY_CLCT_LAYER - 1];
+            protoCLCT.cfeb = protoCLCT.keyhalfstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
+            protoCLCT.halfstrip = protoCLCT.keyhalfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
+            protoCLCT.bx = bx;
 
             CSCCLCTDigi thisLCT(1,
-                                keystrip_data[ilct][CLCT_QUALITY],
-                                keystrip_data[ilct][CLCT_PATTERN],
-                                keystrip_data[ilct][CLCT_STRIP_TYPE],
-                                keystrip_data[ilct][CLCT_BEND],
-                                halfstrip_in_cfeb,
-                                keystrip_data[ilct][CLCT_CFEB],
-                                keystrip_data[ilct][CLCT_BX]);
+                                protoCLCT.quality,
+                                protoCLCT.pattern,
+                                protoCLCT.striptype,
+                                protoCLCT.bend,
+                                protoCLCT.halfstrip,
+                                protoCLCT.cfeb,
+                                protoCLCT.bx,
+                                0,
+                                0,
+                                -1,
+                                CSCCLCTDigi::Version::Legacy);
+
             if (infoV > 1) {
               LogTrace("CSCCathodeLCTProcessor") << " Final selection: ilct " << ilct << " " << thisLCT << std::endl;
             }
             thisLCT.setFullBX(fbx);
 
-            // get the comparator hits for this pattern
-            const auto& compHits = hits_in_patterns[best_hs][keystrip_data[ilct][CLCT_PATTERN]];
+            // get the comparator hits for this pattern (need to taken into account the stagger)
+            const auto& compHits = hits_in_patterns[best_hs][protoCLCT.pattern];
 
             // set the hit collection
             thisLCT.setHits(compHits);
