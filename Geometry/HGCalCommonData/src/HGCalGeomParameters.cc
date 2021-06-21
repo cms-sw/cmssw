@@ -1253,7 +1253,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
     php.waferThickness_ = getDDDArray("WaferThickness", sv, 3);
     rescale(php.waferThickness_, HGCalParameters::k_ScaleFromDDD);
   } else {
-    for (unsigned int k= 0; k < php.cellThickness_.size(); ++k)
+    for (unsigned int k = 0; k < php.cellThickness_.size(); ++k)
       php.waferThickness_.emplace_back(php.waferThick_);
   }
 
@@ -1302,9 +1302,9 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
     }
     if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
       if (php.waferMaskMode_ == siliconFileEE) {
-	layerType = dbl_to_int(fv.vector("LayerTypeEE"));
+        layerType = dbl_to_int(fv.vector("LayerTypeEE"));
       } else if (php.waferMaskMode_ == siliconFileHE) {
-	layerType = dbl_to_int(fv.vector("LayerTypeHE"));
+        layerType = dbl_to_int(fv.vector("LayerTypeHE"));
       }
     }
 
@@ -1319,10 +1319,10 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
   php.cellThickness_ = fv.get<std::vector<double> >(sdTag1, "CellThickness");
   rescale(php.cellThickness_, HGCalParameters::k_ScaleFromDD4Hep);
   if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
-    php.waferThickness_ =  fv.get<std::vector<double> >(sdTag1, "WaferThickness");
+    php.waferThickness_ = fv.get<std::vector<double> >(sdTag1, "WaferThickness");
     rescale(php.waferThickness_, HGCalParameters::k_ScaleFromDD4Hep);
   } else {
-    for (unsigned int k= 0; k < php.cellThickness_.size(); ++k)
+    for (unsigned int k = 0; k < php.cellThickness_.size(); ++k)
       php.waferThickness_.emplace_back(php.waferThick_);
   }
 
@@ -1402,22 +1402,21 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
     }
     if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
       if (php.waferMaskMode_ == siliconFileEE) {
-	for (auto const& it : vmap) {
-	  if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerTypeEE")) {
-	    for (const auto& i : it.second)
-	      layerType.emplace_back(std::round(i));
-	  }
-	}
+        for (auto const& it : vmap) {
+          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerTypeEE")) {
+            for (const auto& i : it.second)
+              layerType.emplace_back(std::round(i));
+          }
+        }
       } else if (php.waferMaskMode_ == siliconFileHE) {
-	for (auto const& it : vmap) {
-	  if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerTypeHE")) {
-	    for (const auto& i : it.second)
-	      layerType.emplace_back(std::round(i));
-	  }
-	}
+        for (auto const& it : vmap) {
+          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerTypeHE")) {
+            for (const auto& i : it.second)
+              layerType.emplace_back(std::round(i));
+          }
+        }
       }
     }
-
 
     loadSpecParsHexagon8(php, layerType, waferIndex, waferProperties);
   }
@@ -1464,12 +1463,12 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
                                                const std::vector<int>& waferIndex,
                                                const std::vector<int>& waferProperties) {
   // Store parameters from Philip's file
-  int types[5] = {HGCalTypes::WaferCenter, HGCalTypes::WaferCenter, HGCalTypes::CornerCenterYm, HGCalTypes::CornerCenterYp, 6};
+  int types[5] = {
+      HGCalTypes::WaferCenter, HGCalTypes::WaferCenter, HGCalTypes::CornerCenterYm, HGCalTypes::CornerCenterYp, 6};
   for (unsigned int k = 0; k < layerType.size(); ++k) {
     php.layerType_.emplace_back(types[layerType[k]]);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << layerType[k]
-				  << ":" << php.layerType_[k];
+    edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << layerType[k] << ":" << php.layerType_[k];
 #endif
   }
   for (unsigned int k = 0; k < waferIndex.size(); ++k) {
