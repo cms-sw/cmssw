@@ -32,12 +32,13 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
   // configuration handle for number of early time bins
   early_tbins = tmbParams_.getParameter<int>("tmbEarlyTbins");
 
-  // whether to not reuse ALCTs that were used by previous matching CLCTs
-  drop_used_alcts = tmbParams_.getParameter<bool>("tmbDropUsedAlcts");
+  // whether to not reuse CLCTs that were used by previous matching ALCTs
   drop_used_clcts = tmbParams_.getParameter<bool>("tmbDropUsedClcts");
 
   // whether to readout only the earliest two LCTs in readout window
   readout_earliest_2 = tmbParams_.getParameter<bool>("tmbReadoutEarliest2");
+
+  match_earliest_clct_only_ = tmbParams_.getParameter<bool>("matchEarliestClctOnly");
 
   infoV = tmbParams_.getParameter<int>("verbosity");
 
@@ -51,6 +52,9 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
     config_dumped = true;
   }
 
+  // get the preferred CLCT BX match array
+  preferred_bx_match_ = tmbParams_.getParameter<std::vector<int> >("preferredBxMatch");
+
   // quality assignment
   qualityAssignment_ = std::make_unique<LCTQualityAssignment>(station);
 
@@ -59,6 +63,18 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
 
   // shower-trigger source
   showerSource_ = showerParams_.getParameter<unsigned>("source");
+
+  // // enable the upgrade processors for ring 1 stations
+  // if (runPhase2_ and theRing == 1) {
+  //   clctProc = std::make_unique<CSCUpgradeCathodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
+  //   if (enableAlctPhase2_) {
+  //     alctProc = std::make_unique<CSCUpgradeAnodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
+  //   }
+  // }
+
+  // set up helper class to check if ALCT and CLCT cross
+  const bool ignoreAlctCrossClct = tmbParams_.getParameter<bool>("ignoreAlctCrossClct");
+  cscOverlap_ = std::make_unique<CSCALCTCrossCLCT>(endcap, station, theRing, ignoreAlctCrossClct, conf);
 }
 
 void CSCMotherboard::clear() {
