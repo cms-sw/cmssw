@@ -52,6 +52,8 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
     config_dumped = true;
   }
 
+  allLCTs_.setMatchTrigWindowSize(match_trig_window_size);
+
   // get the preferred CLCT BX match array
   preferred_bx_match_ = tmbParams_.getParameter<std::vector<int> >("preferredBxMatch");
 
@@ -93,6 +95,8 @@ void CSCMotherboard::clear() {
     firstLCT[bx].clear();
     secondLCT[bx].clear();
   }
+
+  allLCTs_.clear();
 
   // reset the shower trigger
   shower_.clear();

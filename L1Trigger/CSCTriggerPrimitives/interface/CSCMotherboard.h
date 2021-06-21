@@ -15,7 +15,7 @@
  * for general use, with wire digi and comparator digi collections as
  * arguments.  In the latter mode, the wire & strip info is passed on the
  * LCTProcessors, where it is decoded and converted into a convenient form.
- 1;95;0c* After running the anode and cathode LCTProcessors, TMB correlates the
+ * After running the anode and cathode LCTProcessors, TMB correlates the
  * anode and cathode LCTs.  At present, it simply matches the best CLCT
  * with the best ALCT; perhaps a better algorithm will be determined in
  * the future.  The MotherBoard then determines a few more numbers (such as
@@ -113,6 +113,9 @@ protected:
 
   /** Container for second correlated LCT. */
   CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_TBINS];
+
+  /** Container with all LCTs prior to sorting and selecting. */
+  LCTContainer allLCTs_;
 
   CSCShowerDigi shower_;
 

@@ -123,7 +123,7 @@ public:
     MAX_ALCT_TBINS = 16,
     MAX_LCT_TBINS = 16,
     // Maximum allowed matching window size
-    MAX_MATCH_WINDOW_SIZE = 15,
+    MAX_MATCH_WINDOW_SIZE = 7,
     // Each CLCT processor can send up to 2 CLCTs to TMB per BX
     MAX_CLCTS_PER_PROCESSOR = 2,
     MAX_CLCTS_READOUT = 2,
