@@ -11,8 +11,6 @@
 
 #include <memory>
 
-#define EDM_ML_DEBUG
-
 class HcalTB02ParametersESModule : public edm::ESProducer {
 public:
   HcalTB02ParametersESModule(const edm::ParameterSet&);
