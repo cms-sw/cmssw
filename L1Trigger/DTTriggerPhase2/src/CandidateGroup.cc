@@ -8,7 +8,7 @@ using namespace dtbayesam;
 //------------------------------------------------------------------
 //--- Constructores y destructores
 //------------------------------------------------------------------
-CandidateGroup::CandidateGroup(DTPattern* p) {
+CandidateGroup::CandidateGroup(DTPatternPtr p) {
   nhits_ = 0;
   nLayerhits_ = 0;
   nisGood_ = 0;
