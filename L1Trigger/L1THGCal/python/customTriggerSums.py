@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import math
 
 def custom_partial_trigger_sums(process):
     process.tower.includeTrigCells = cms.bool(True)
