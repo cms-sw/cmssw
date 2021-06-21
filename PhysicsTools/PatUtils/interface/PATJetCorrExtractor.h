@@ -71,7 +71,7 @@ public:
   }
 
 private:
-  std::string format_vstring(const std::vector<std::string>& v) const {
+  static std::string format_vstring(const std::vector<std::string>& v) {
     std::string retVal;
 
     retVal.append("{ ");
