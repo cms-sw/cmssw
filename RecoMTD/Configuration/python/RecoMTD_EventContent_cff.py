@@ -1,17 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
-#FEVT content
-RecoMTDFEVT = cms.PSet(
+#RECO content
+RecoMTDRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_trackExtenderWithMTD_*_*',
         'keep *_mtdTrackQualityMVA_*_*')
 )
 
-#RECO content
-RecoMTDRECO = cms.PSet(
+#FEVT content
+RecoMTDFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
-RecoMTDRECO.outputCommands.extend(RecoMTDFEVT.outputCommands)
+RecoMTDFEVT.outputCommands.extend(RecoMTDRECO.outputCommands)
 
 #AOD
 RecoMTDAOD = cms.PSet(
