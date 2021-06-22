@@ -42,6 +42,7 @@ public:
         maxDxySigForNotReconstructedPrimary_(iConfig.getParameter<double>("maxDxySigForNotReconstructedPrimary")),
         maxDxyForNotReconstructedPrimary_(iConfig.getParameter<double>("maxDxyForNotReconstructedPrimary")),
         useTiming_(iConfig.getParameter<bool>("useTiming")),
+        useVertexFit_(iConfig.getParameter<bool>("useVertexFit")),
         preferHighRanked_(iConfig.getParameter<bool>("preferHighRanked")),
         fNumOfPUVtxsForCharged_(iConfig.getParameter<int>("NumOfPUVtxsForCharged")),
         fDzCutForChargedFromPUVtxs_(iConfig.getParameter<double>("DzCutForChargedFromPUVtxs")),
@@ -112,7 +113,7 @@ public:
     else
       return chargedHadronVertex(
           vertices,
-          (pfcand.pvAssociationQuality() >= pat::PackedCandidate::UsedInFitLoose) ? pfcand.vertexRef().key() : -1,
+          (useVertexFit_ && (pfcand.pvAssociationQuality() >= pat::PackedCandidate::UsedInFitLoose)) ? pfcand.vertexRef().key() : -1,
           &pfcand.pseudoTrack(),
           time,
           timeResolution,
@@ -149,6 +150,7 @@ private:
   double maxDxySigForNotReconstructedPrimary_;
   double maxDxyForNotReconstructedPrimary_;
   bool useTiming_;
+  bool useVertexFit_;
   bool preferHighRanked_;
   int fNumOfPUVtxsForCharged_;
   double fDzCutForChargedFromPUVtxs_;

@@ -18,6 +18,7 @@ sortedPFPrimaryVertices = cms.EDProducer("PFCandidatePrimaryVertexSorter",
     maxDxySigForNotReconstructedPrimary = cms.double(2), #in AND with next
     maxDxyForNotReconstructedPrimary = cms.double(0.01), #in AND with prev
     useTiming = cms.bool(False),
+    useVertexFit = cms.bool(True),
     preferHighRanked = cms.bool(False),
 
     #options used in PUPPI

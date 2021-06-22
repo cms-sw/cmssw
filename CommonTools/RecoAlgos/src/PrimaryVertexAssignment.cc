@@ -52,7 +52,7 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
   if (preferHighRanked_) {
     for (IV iv = vertices.begin(); iv != vertices.end(); ++iv) {
       int ivtx = iv - vertices.begin();
-      if (iVertex == ivtx)
+      if (useVertexFit_ && (iVertex == ivtx))
         return std::pair<int, PrimaryVertexAssignment::Quality>(ivtx, PrimaryVertexAssignment::UsedInFit);
 
       double dz = std::abs(track->dz(iv->position()));
@@ -68,11 +68,11 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
   }
 
   // recover cases where the primary vertex is split
-  if ((iVertex > 0) && (iVertex <= fNumOfPUVtxsForCharged_) &&
+  if (useVertexFit_ && (iVertex > 0) && (iVertex <= fNumOfPUVtxsForCharged_) &&
       (std::abs(track->dz(vertices.at(0).position())) < fDzCutForChargedFromPUVtxs_))
     return std::pair<int, PrimaryVertexAssignment::Quality>(iVertex, PrimaryVertexAssignment::PrimaryDz);
 
-  if (iVertex >= 0)
+  if (useVertexFit_ && (iVertex >= 0))
     return std::pair<int, PrimaryVertexAssignment::Quality>(iVertex, PrimaryVertexAssignment::UsedInFit);
 
   double distmin = std::numeric_limits<double>::max();
