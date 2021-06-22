@@ -47,7 +47,10 @@ private:
 };
 
 RPCSectorAnalyzer::RPCSectorAnalyzer(const edm::ParameterSet& /*iConfig*/)
-  : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})}, dashedLineWidth_(104), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("RPCSectorAnalyzer") {
+    : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
+      dashedLineWidth_(104),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("RPCSectorAnalyzer") {
   ofos.open("MytestOutput.out");
   std::cout << "======================== Opening output file" << std::endl;
 }

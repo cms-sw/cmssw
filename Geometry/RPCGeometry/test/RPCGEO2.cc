@@ -61,7 +61,8 @@ private:
   const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> tokRPC_;
 };
 
-RPCGEO2::RPCGEO2(const edm::ParameterSet& /*iConfig*/) : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {}
+RPCGEO2::RPCGEO2(const edm::ParameterSet& /*iConfig*/)
+    : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {}
 
 RPCGEO2::~RPCGEO2() {}
 
@@ -83,8 +84,8 @@ void RPCGEO2::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetu
         if (rpcId.region() == 0) {
           const BoundPlane& RPCSurface = (*r)->surface();
           GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0, 0, 0));
-          edm::LogVerbatim("RPCGeometry") << rpcsrv.name() << " " << CenterPointRollGlobal.x() << " " << CenterPointRollGlobal.y() << " "
-                    << CenterPointRollGlobal.z();
+          edm::LogVerbatim("RPCGeometry") << rpcsrv.name() << " " << CenterPointRollGlobal.x() << " "
+                                          << CenterPointRollGlobal.y() << " " << CenterPointRollGlobal.z();
           GlobalPoint i = RPCSurface.toGlobal(LocalPoint(1, 0, 0));
           GlobalPoint j = RPCSurface.toGlobal(LocalPoint(0, 1, 0));
           edm::LogVerbatim("RPCGeometry") << " i " << i.x() << " " << i.y() << " " << i.z();
@@ -93,8 +94,8 @@ void RPCGEO2::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetu
         } else {
           const BoundPlane& RPCSurface = (*r)->surface();
           GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0, 0, 0));
-          edm::LogVerbatim("RPCGeometry") << rpcsrv.name() << " " << CenterPointRollGlobal.x() << " " << CenterPointRollGlobal.y() << " "
-                    << CenterPointRollGlobal.z();
+          edm::LogVerbatim("RPCGeometry") << rpcsrv.name() << " " << CenterPointRollGlobal.x() << " "
+                                          << CenterPointRollGlobal.y() << " " << CenterPointRollGlobal.z();
         }
       }
     }

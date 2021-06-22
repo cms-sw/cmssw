@@ -101,10 +101,10 @@ private:
 };
 
 RPCGeometryValidate::RPCGeometryValidate(const edm::ParameterSet& iConfig)
-  : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
-    infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsGeom10.root")),
-     outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateRPCGeometry.root")),
-     tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
+    : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
+      infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsGeom10.root")),
+      outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateRPCGeometry.root")),
+      tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
   fwGeometry_.loadMap(infileName_.c_str());
   outFile_ = new TFile(outfileName_.c_str(), "RECREATE");
 }
