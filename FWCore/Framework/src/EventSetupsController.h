@@ -88,7 +88,9 @@ namespace edm {
 
       std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&,
                                                        ActivityRegistry*,
-                                                       ParameterSet const* eventSetupPset = nullptr);
+                                                       ParameterSet const* eventSetupPset = nullptr,
+                                                       unsigned int nConcurrentLumis = 0,
+                                                       bool dumpOptions = false);
 
       void setMaxConcurrentIOVs(unsigned int nStreams, unsigned int nConcurrentLumis);
 

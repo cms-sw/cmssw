@@ -16,11 +16,16 @@ namespace edm {
 
     NumberOfConcurrentIOVs::NumberOfConcurrentIOVs() : numberConcurrentIOVs_(1) {}
 
-    void NumberOfConcurrentIOVs::readConfigurationParameters(ParameterSet const* eventSetupPset) {
+    void NumberOfConcurrentIOVs::readConfigurationParameters(ParameterSet const* eventSetupPset,
+                                                             unsigned int nConcurrentLumis,
+                                                             bool dumpOptions) {
       if (eventSetupPset) {  // this condition is false for SubProcesses
         numberConcurrentIOVs_ = eventSetupPset->getUntrackedParameter<unsigned int>("numberOfConcurrentIOVs");
-        if (numberConcurrentIOVs_ == 0) {
-          numberConcurrentIOVs_ = 1;
+        if (numberConcurrentIOVs_ == 0 || numberConcurrentIOVs_ > nConcurrentLumis) {
+          numberConcurrentIOVs_ = nConcurrentLumis;
+        }
+        if (dumpOptions) {
+          LogAbsolute("Options") << "Number of Concurrent IOVs = " << numberConcurrentIOVs_;
         }
 
         ParameterSet const& pset(eventSetupPset->getUntrackedParameterSet("forceNumberOfConcurrentIOVs"));
