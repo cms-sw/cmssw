@@ -47,7 +47,10 @@ private:
 
 using namespace std;
 GEMGeometryAnalyzer::GEMGeometryAnalyzer(const edm::ParameterSet& /*iConfig*/)
-  : dashedLineWidth_(104), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("GEMGeometryAnalyzer"), tokGeom_{esConsumes<GEMGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {
+    : dashedLineWidth_(104),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("GEMGeometryAnalyzer"),
+      tokGeom_{esConsumes<GEMGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {
   ofos.open("GEMtestOutput.out");
   ofos << "======================== Opening output file" << std::endl;
 }

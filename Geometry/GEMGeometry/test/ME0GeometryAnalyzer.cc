@@ -47,7 +47,10 @@ private:
 using namespace std;
 
 ME0GeometryAnalyzer::ME0GeometryAnalyzer(const edm::ParameterSet& /*iConfig*/)
-  : dashedLineWidth_(104), dashedLine_(string(dashedLineWidth_, '-')), myName_("ME0GeometryAnalyzer"), tokGeom_{esConsumes<ME0Geometry, MuonGeometryRecord>(edm::ESInputTag{})} {
+    : dashedLineWidth_(104),
+      dashedLine_(string(dashedLineWidth_, '-')),
+      myName_("ME0GeometryAnalyzer"),
+      tokGeom_{esConsumes<ME0Geometry, MuonGeometryRecord>(edm::ESInputTag{})} {
   ofos.open("ME0testOutput.out");
   ofos << "======================== Opening output file" << endl;
 }

@@ -33,7 +33,9 @@ private:
   const GEMGeometry* gemGeometry_;
 };
 
-GEMGeometryDump::GEMGeometryDump(const edm::ParameterSet& iC) : verbose_(iC.getParameter<bool>("verbose")), tokGeom_{esConsumes<GEMGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {}
+GEMGeometryDump::GEMGeometryDump(const edm::ParameterSet& iC)
+    : verbose_(iC.getParameter<bool>("verbose")),
+      tokGeom_{esConsumes<GEMGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {}
 
 void GEMGeometryDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
