@@ -69,12 +69,13 @@ public:
 
     return corrJetP4;
   }
+
 private:
   static std::string format_vstring(const std::vector<std::string>& v) {
     std::string retVal;
-    auto ss = std::accumulate(v.begin(),v.end(),0,[](int a,std::string const & s){return a+s.length()+2;});
+    auto ss = std::accumulate(v.begin(), v.end(), 0, [](int a, std::string const& s) { return a + s.length() + 2; });
     retVal.reserve(ss);
-    for_each(v.begin(),v.end(),[&](std::string const & s){retVal += (retVal.empty() ? "" : ", ")+s;});
+    for_each(v.begin(), v.end(), [&](std::string const& s) { retVal += (retVal.empty() ? "" : ", ") + s; });
     return retVal;
   }
 };
