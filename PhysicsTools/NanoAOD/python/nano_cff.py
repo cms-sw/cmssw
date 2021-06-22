@@ -366,11 +366,12 @@ def nanoAOD_runMETfixEE2017(process,isData):
 
 def nanoAOD_customizeCommon(process):
 
-    makePuppiesFromMiniAOD(process,True)
-    process.puppiNoLep.useExistingWeights = True
-    process.puppi.useExistingWeights = True
+    (~run3_nanoAOD_devel).toModify(process, lambda p: makePuppiesFromMiniAOD(process,True))
+    (~run3_nanoAOD_devel).toModify(process.puppiNoLep,useExistingWeights = True)
+    (~run3_nanoAOD_devel).toModify(process.puppi,useExistingWeights = True)
     run2_nanoAOD_106Xv1.toModify(process.puppiNoLep, useExistingWeights = False)
     run2_nanoAOD_106Xv1.toModify(process.puppi, useExistingWeights = False)
+
     process = nanoAOD_activateVID(process)
     nanoAOD_addDeepInfo_switch = cms.PSet(
         nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
@@ -424,8 +425,8 @@ def nanoAOD_customizeCommon(process):
 def nanoAOD_customizeData(process):
     process = nanoAOD_customizeCommon(process)
     process = nanoAOD_recalibrateMETs(process,isData=True)
-    process = nanoAOD_rebuildPuppiMETs(process,isData=True)
     process = nanoAOD_seqDeepMETs(process,isData=True)
+    (~run3_nanoAOD_devel).toModify(process, lambda p: nanoAOD_rebuildPuppiMETs(process,isData=True))
     for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         modifier.toModify(process, lambda p: nanoAOD_runMETfixEE2017(p,isData=True))
     return process
@@ -433,8 +434,8 @@ def nanoAOD_customizeData(process):
 def nanoAOD_customizeMC(process):
     process = nanoAOD_customizeCommon(process)
     process = nanoAOD_recalibrateMETs(process,isData=False)
-    process = nanoAOD_rebuildPuppiMETs(process,isData=False)
     process = nanoAOD_seqDeepMETs(process,isData=False)
+    (~run3_nanoAOD_devel).toModify(process, lambda p: nanoAOD_rebuildPuppiMETs(process,isData=False))
     for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         modifier.toModify(process, lambda p: nanoAOD_runMETfixEE2017(p,isData=False))
     return process
