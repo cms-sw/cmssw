@@ -11,7 +11,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -84,7 +83,8 @@ private:
     stripslen_.clear();
   }
 
-  edm::ESHandle<RPCGeometry> rpcGeometry_;
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> tokRPC_;
+  const RPCGeometry* rpcGeometry_;
   FWGeometry fwGeometry_;
   TFile* outFile_;
   vector<float> globalDistances_;
@@ -101,16 +101,17 @@ private:
 };
 
 RPCGeometryValidate::RPCGeometryValidate(const edm::ParameterSet& iConfig)
-    : infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsGeom10.root")),
-      outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateRPCGeometry.root")),
-      tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
+  : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
+    infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsGeom10.root")),
+     outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateRPCGeometry.root")),
+     tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
   fwGeometry_.loadMap(infileName_.c_str());
   outFile_ = new TFile(outfileName_.c_str(), "RECREATE");
 }
 
 void RPCGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
-  eventSetup.get<MuonGeometryRecord>().get(rpcGeometry_);
-  if (rpcGeometry_.isValid()) {
+  rpcGeometry_ = &eventSetup.getData(tokRPC_);
+  if (rpcGeometry_ != nullptr) {
     LogVerbatim("RPCGeometry") << "Validating RPC chamber geometry";
     validateRPCChamberGeometry();
     validateRPCStripsGeometry();
