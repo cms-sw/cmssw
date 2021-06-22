@@ -11,8 +11,8 @@ RecoMTDAOD = cms.PSet(
 #RECO content
 RecoMTDRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
-         'keep *_trackExtenderWithMTD_*_*',
-         'keep *_mtdTrackQualityMVA_*_*',
+         'keep recoTrack*_trackExtenderWithMTD_*_*',
+         'keep TrackingRecHitsOwned_trackExtenderWithMTD_*_*',
     )
 )
 RecoMTDRECO.outputCommands.extend(RecoMTDAOD.outputCommands)
