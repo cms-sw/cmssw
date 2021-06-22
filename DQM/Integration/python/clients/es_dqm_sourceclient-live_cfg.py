@@ -36,11 +36,8 @@ process.esRawToDigi.sourceTag = 'source'
 process.esRawToDigi.debugMode = False
 
 process.load('RecoLocalCalo/EcalRecProducers/ecalPreshowerRecHit_cfi')
-process.ecalPreshowerRecHit.ESGain = cms.int32(2)
-process.ecalPreshowerRecHit.ESBaseline = cms.int32(0)
-process.ecalPreshowerRecHit.ESMIPADC = cms.double(50)
-process.ecalPreshowerRecHit.ESdigiCollection = cms.InputTag("esRawToDigi")
-process.ecalPreshowerRecHit.ESRecoAlgo = cms.int32(0)
+process.ecalPreshowerRecHit.ESdigiCollection = "esRawToDigi"
+process.ecalPreshowerRecHit.ESRecoAlgo = 0
 
 process.preScaler.prescaleFactor = 1
 
@@ -62,15 +59,15 @@ process.dqmSaverPB.runNumber = options.runNumber
 #process.dqmSaverPB.path = './pb'
 
 process.load("DQM/EcalPreshowerMonitorModule/EcalPreshowerMonitorTasks_cfi")
-process.ecalPreshowerIntegrityTask.ESDCCCollections = cms.InputTag("esRawToDigi")
-process.ecalPreshowerIntegrityTask.ESKChipCollections = cms.InputTag("esRawToDigi")
-process.ecalPreshowerIntegrityTask.ESDCCCollections = cms.InputTag("esRawToDigi")
-process.ecalPreshowerIntegrityTask.ESKChipCollections = cms.InputTag("esRawToDigi")
-process.ecalPreshowerOccupancyTask.DigiLabel = cms.InputTag("esRawToDigi")
-process.ecalPreshowerPedestalTask.DigiLabel = cms.InputTag("esRawToDigi")
-process.ecalPreshowerRawDataTask.ESDCCCollections = cms.InputTag("esRawToDigi")
-process.ecalPreshowerTimingTask.DigiLabel = cms.InputTag("esRawToDigi")
-process.ecalPreshowerTrendTask.ESDCCCollections = cms.InputTag("esRawToDigi")
+process.ecalPreshowerIntegrityTask.ESDCCCollections = "esRawToDigi"
+process.ecalPreshowerIntegrityTask.ESKChipCollections = "esRawToDigi"
+process.ecalPreshowerIntegrityTask.ESDCCCollections = "esRawToDigi"
+process.ecalPreshowerIntegrityTask.ESKChipCollections = "esRawToDigi"
+process.ecalPreshowerOccupancyTask.DigiLabel = "esRawToDigi"
+process.ecalPreshowerPedestalTask.DigiLabel = "esRawToDigi"
+process.ecalPreshowerRawDataTask.ESDCCCollections = "esRawToDigi"
+process.ecalPreshowerTimingTask.DigiLabel = "esRawToDigi"
+process.ecalPreshowerTrendTask.ESDCCCollections = "esRawToDigi"
 
 process.load("DQM/EcalPreshowerMonitorClient/EcalPreshowerMonitorClient_cfi")
 del process.dqmInfoES
@@ -84,8 +81,8 @@ process.p = cms.Path(process.preScaler*
                process.dqmSaverPB)
 
 
-process.esRawToDigi.sourceTag = cms.InputTag("rawDataCollector")
-process.ecalPreshowerRawDataTask.FEDRawDataCollection = cms.InputTag("rawDataCollector")
+process.esRawToDigi.sourceTag = "rawDataCollector"
+process.ecalPreshowerRawDataTask.FEDRawDataCollection = "rawDataCollector"
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
@@ -93,8 +90,8 @@ process.ecalPreshowerRawDataTask.FEDRawDataCollection = cms.InputTag("rawDataCol
 print("Running with run type = ", process.runType.getRunType())
 
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.esRawToDigi.sourceTag = cms.InputTag("rawDataRepacker")
-    process.ecalPreshowerRawDataTask.FEDRawDataCollection = cms.InputTag("rawDataRepacker")
+    process.esRawToDigi.sourceTag = "rawDataRepacker"
+    process.ecalPreshowerRawDataTask.FEDRawDataCollection = "rawDataRepacker"
 
 
 ### process customizations included here

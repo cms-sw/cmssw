@@ -33,12 +33,12 @@ TrackMon_ckf.TkSizeMin = cms.double(-0.5)
 
 # Clone for General Track (for Collision data)
 import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
-TrackMon_gentk = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
-TrackMon_gentk.FolderName          = 'Tracking/TrackParameters'
-TrackMon_gentk.BSFolderName        = 'Tracking/TrackParameters/BeamSpotParameters'
+TrackMon_gentk = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone(
+     FolderName          = 'Tracking/TrackParameters',
+     BSFolderName        = 'Tracking/TrackParameters/BeamSpotParameters',
 # decrease number of histograms
-#TrackMon_gentk.doTrackerSpecific = False
-
+#    doTrackerSpecific = False
+)
 # Clone for Heavy Ion Tracks (for HI Collisions)
 import DQM.TrackingMonitor.TrackerHeavyIonTrackingMonitor_cfi
 TrackMon_hi = DQM.TrackingMonitor.TrackerHeavyIonTrackingMonitor_cfi.TrackerHeavyIonTrackMon.clone()

@@ -123,13 +123,13 @@ process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineB
 # Strip FED check
 #
 process.load("DQM.SiStripMonitorHardware.siStripFEDCheck_cfi")
-process.siStripFEDCheck.RawDataTag = cms.InputTag("rawDataCollector")
-process.siStripFEDCheck.DirName    = cms.untracked.string('SiStrip/FEDIntegrity_SM/')
-process.siStripFEDCheck.doPLOTfedsPresent       = cms.bool(False) # already produced by fedtest
-process.siStripFEDCheck.doPLOTfedFatalErrors    = cms.bool(False) # already produced by fedtest
-process.siStripFEDCheck.doPLOTfedNonFatalErrors = cms.bool(False) # already produced by fedtest
-process.siStripFEDCheck.doPLOTnFEDinVsLS        = cms.bool(True)
-process.siStripFEDCheck.doPLOTnFEDinWdataVsLS   = cms.bool(True)
+process.siStripFEDCheck.RawDataTag = "rawDataCollector"
+process.siStripFEDCheck.DirName    = 'SiStrip/FEDIntegrity_SM/'
+process.siStripFEDCheck.doPLOTfedsPresent       = False # already produced by fedtest
+process.siStripFEDCheck.doPLOTfedFatalErrors    = False # already produced by fedtest
+process.siStripFEDCheck.doPLOTfedNonFatalErrors = False # already produced by fedtest
+process.siStripFEDCheck.doPLOTnFEDinVsLS        = True
+process.siStripFEDCheck.doPLOTnFEDinWdataVsLS   = True
 
 #------------------------------
 # Strip and Tracking DQM Source
@@ -194,8 +194,8 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 # L1 Trigger Bit Selection (bit 40 and 41 for BSC trigger)
 process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
 process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
-process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
-process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('NOT (36 OR 37 OR 38 OR 39)')
+process.hltLevel1GTSeed.L1TechTriggerSeeding = True
+process.hltLevel1GTSeed.L1SeedsLogicalExpression = 'NOT (36 OR 37 OR 38 OR 39)'
 
 # HLT trigger selection (HLT_ZeroBias)
 # modified for 0 Tesla HLT menu (no ZeroBias_*)
@@ -204,11 +204,11 @@ if (process.runType.getRunType() == process.runType.hi_run):
     #--------------------------
     # HI Runs HLT path
     #--------------------------
-    process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_HIZeroBias*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*' , 'HLT_HICentralityVeto*','HLT_HIMinimumBias*', 'HLT_HIPhysics*')
+    process.hltHighLevel.HLTPaths = ['HLT_ZeroBias_*' , 'HLT_HIZeroBias*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*' , 'HLT_HICentralityVeto*','HLT_HIMinimumBias*', 'HLT_HIPhysics*']
 else:
-    process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*')
-process.hltHighLevel.andOr = cms.bool(True)
-process.hltHighLevel.throw =  cms.bool(False)
+    process.hltHighLevel.HLTPaths = ['HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*']
+process.hltHighLevel.andOr = True
+process.hltHighLevel.throw =  False
 
 #--------------------------
 # Scheduling
@@ -222,32 +222,32 @@ else :
 #------------------------------------------------------
 # Switch for channel errors per FED ID trend plots.
 #------------------------------------------------------
-process.siStripFEDMonitor.fedErrorsVsIdVsLumiHistogramConfig.globalswitchon = cms.untracked.bool(True)
+process.siStripFEDMonitor.fedErrorsVsIdVsLumiHistogramConfig.globalswitchon = True
 
 #--------------------------
 # Global Plot Switches
 #--------------------------
-process.SiStripMonitorDigi.TotalNumberOfDigisFailure.subdetswitchon = cms.bool(False)
+process.SiStripMonitorDigi.TotalNumberOfDigisFailure.subdetswitchon = False
 
 ### COSMIC RUN SETTING
 if (process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1):
     # event selection for cosmic data
-    if ((process.runType.getRunType() == process.runType.cosmic_run) and live): process.source.SelectEvents = cms.untracked.vstring('HLT*SingleMu*','HLT_L1*')
+    if ((process.runType.getRunType() == process.runType.cosmic_run) and live): process.source.SelectEvents = ['HLT*SingleMu*','HLT_L1*']
     # Reference run for cosmic
     # Source config for cosmic data
     process.SiStripSources_TrkReco_cosmic = cms.Sequence(process.SiStripMonitorTrack_ckf*process.TrackMon_ckf)
     # Client config for cosmic data
     ### STRIP
     process.load("DQM.SiStripMonitorClient.SiStripClientConfigP5_Cosmic_cff")
-    process.SiStripAnalyserCosmic.RawDataTag = cms.untracked.InputTag("rawDataCollector")
+    process.SiStripAnalyserCosmic.RawDataTag = "rawDataCollector"
     process.SiStripAnalyserCosmic.TkMapCreationFrequency  = -1
     process.SiStripAnalyserCosmic.ShiftReportFrequency = -1
     process.SiStripAnalyserCosmic.StaticUpdateFrequency = 5
-    process.SiStripAnalyserCosmic.MonitorSiStripBackPlaneCorrection = cms.bool(False)
+    process.SiStripAnalyserCosmic.MonitorSiStripBackPlaneCorrection = False
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyserCosmic)
     ### TRACKING
     process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_Cosmic_cff")
-    process.TrackingAnalyserCosmic.RawDataTag           = cms.untracked.InputTag("rawDataCollector")
+    process.TrackingAnalyserCosmic.RawDataTag           = "rawDataCollector"
     process.TrackingAnalyserCosmic.ShiftReportFrequency = -1
     process.TrackingAnalyserCosmic.StaticUpdateFrequency = 5
     process.TrackingClient = cms.Sequence( process.TrackingAnalyserCosmic )
@@ -260,16 +260,16 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
     process.RecoForDQM_TrkReco_cosmic = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.ctftracksP5)
 
     process.stripQTester.qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_cosmic.xml')
-    process.stripQTester.prescaleFactor          = cms.untracked.int32(2)
-    process.stripQTester.getQualityTestsFromFile = cms.untracked.bool(True)
-    process.stripQTester.qtestOnEndLumi          = cms.untracked.bool(True)
-    process.stripQTester.qtestOnEndRun           = cms.untracked.bool(True)
+    process.stripQTester.prescaleFactor          = 2
+    process.stripQTester.getQualityTestsFromFile = True
+    process.stripQTester.qtestOnEndLumi          = True
+    process.stripQTester.qtestOnEndRun           = True
 
-    process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_cosmic.xml')
-    process.trackingQTester.prescaleFactor          = cms.untracked.int32(1)
-    process.trackingQTester.getQualityTestsFromFile = cms.untracked.bool(True)
-    process.trackingQTester.qtestOnEndLumi          = cms.untracked.bool(True)
-    process.trackingQTester.qtestOnEndRun           = cms.untracked.bool(True)
+    process.trackingQTester.qtList                  = 'DQM/TrackingMonitorClient/data/tracking_qualitytest_config_cosmic.xml'
+    process.trackingQTester.prescaleFactor          = 1
+    process.trackingQTester.getQualityTestsFromFile = True
+    process.trackingQTester.qtestOnEndLumi          = True
+    process.trackingQTester.qtestOnEndRun           = True
 
     process.p = cms.Path(process.scalersRawToDigi*
                          process.tcdsDigis*
@@ -294,7 +294,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
 if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1):
     #event selection for pp collisions
     if ((process.runType.getRunType() == process.runType.pp_run) and live):
-        process.source.SelectEvents = cms.untracked.vstring(
+        process.source.SelectEvents = [
             'HLT_L1*',
             'HLT_Jet*',
             'HLT_Physics*',
@@ -302,47 +302,45 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
             'HLT_PAL1*',
             'HLT_PAZeroBias*',
             'HLT_PAAK*'
-            )
+            ]
 
     # Source and Client config for pp collisions
 
-    process.SiStripMonitorDigi.UseDCSFiltering = cms.bool(False)
-    process.SiStripMonitorClusterReal.UseDCSFiltering = cms.bool(False)
+    process.SiStripMonitorDigi.UseDCSFiltering = False
+    process.SiStripMonitorClusterReal.UseDCSFiltering = False
 
     process.MonitorTrackResiduals_gentk.Tracks                 = 'initialStepTracksPreSplitting'
     process.MonitorTrackResiduals_gentk.trajectoryInput        = 'initialStepTracksPreSplitting'
-    process.MonitorTrackResiduals_gentk.TrackProducer          = cms.string('initialStepTracksPreSplitting')
-    process.TrackMon_gentk.TrackProducer    = cms.InputTag('initialStepTracksPreSplitting')
-    process.TrackMon_gentk.allTrackProducer = cms.InputTag('initialStepTracksPreSplitting')
+    process.TrackMon_gentk.TrackProducer    = 'initialStepTracksPreSplitting'
+    process.TrackMon_gentk.allTrackProducer = 'initialStepTracksPreSplitting'
     process.SiStripMonitorTrack_gentk.TrackProducer = 'initialStepTracksPreSplitting'
 
     process.SiStripSources_TrkReco   = cms.Sequence(process.SiStripMonitorTrack_gentk*process.MonitorTrackResiduals_gentk*process.TrackMon_gentk)
 
     ### STRIP
     process.load("DQM.SiStripMonitorClient.SiStripClientConfigP5_cff")
-    process.SiStripAnalyser.UseGoodTracks  = cms.untracked.bool(True)
     process.SiStripAnalyser.TkMapCreationFrequency  = -1
     process.SiStripAnalyser.ShiftReportFrequency = -1
     process.SiStripAnalyser.StaticUpdateFrequency = 5
-    process.SiStripAnalyser.RawDataTag = cms.untracked.InputTag("rawDataCollector")
-    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = cms.bool(False)
+    process.SiStripAnalyser.RawDataTag = "rawDataCollector"
+    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = False
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyser)
 
-    process.SiStripMonitorDigi.TotalNumberOfDigisFailure.integrateNLumisections = cms.int32(25)
+    process.SiStripMonitorDigi.TotalNumberOfDigisFailure.integrateNLumisections = 25
     ### TRACKING
     process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_cff")
     process.TrackingAnalyser.ShiftReportFrequency = -1
     process.TrackingAnalyser.StaticUpdateFrequency = 5
-    process.TrackingAnalyser.RawDataTag = cms.untracked.InputTag("rawDataCollector")
+    process.TrackingAnalyser.RawDataTag = "rawDataCollector"
     if offlineTesting :
-        process.TrackingAnalyser.verbose = cms.untracked.bool(True)
+        process.TrackingAnalyser.verbose = True
     process.TrackingClient = cms.Sequence( process.TrackingAnalyser )
 
-    process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config.xml')
-    process.trackingQTester.prescaleFactor          = cms.untracked.int32(1)
-    process.trackingQTester.getQualityTestsFromFile = cms.untracked.bool(True)
-    process.trackingQTester.qtestOnEndLumi          = cms.untracked.bool(True)
-    process.trackingQTester.qtestOnEndRun           = cms.untracked.bool(True)
+    process.trackingQTester.qtList                  = 'DQM/TrackingMonitorClient/data/tracking_qualitytest_config.xml'
+    process.trackingQTester.prescaleFactor          = 1
+    process.trackingQTester.getQualityTestsFromFile = True
+    process.trackingQTester.qtestOnEndLumi          = True
+    process.trackingQTester.qtestOnEndRun           = True
 
     # Reco for pp collisions
 
@@ -406,33 +404,31 @@ if (process.runType.getRunType() == process.runType.hpu_run):
     # the expected reconstruction time should be ~ several seconds
     # => PRESCALE = 50
     # but try firstly w/ 30, maybe it is enough
-    process.eventFilter.EventsToSkip = cms.untracked.int32(30)
+    process.eventFilter.EventsToSkip = 30
 
     # change the HLT trigger path selection
     # it should already be ok, but the name could be changed
-    process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias*' )
+    process.hltHighLevel.HLTPaths = ['HLT_ZeroBias*'] 
 
  #        process.DQMEventStreamerReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_600Tower*','HLT_L1*','HLT_Jet*','HLT_HT*','HLT_MinBias_*','HLT_Physics*', 'HLT_ZeroBias*'))
 #
 
-    process.SiStripMonitorDigi.UseDCSFiltering = cms.bool(False)
-    process.SiStripMonitorClusterReal.UseDCSFiltering = cms.bool(False)
+    process.SiStripMonitorDigi.UseDCSFiltering = False
+    process.SiStripMonitorClusterReal.UseDCSFiltering = False
 
     process.MonitorTrackResiduals_gentk.Tracks                 = 'earlyGeneralTracks'
     process.MonitorTrackResiduals_gentk.trajectoryInput        = 'earlyGeneralTracks'
-    process.MonitorTrackResiduals_gentk.TrackProducer          = cms.string('earlyGeneralTracks')
-    process.TrackMon_gentk.TrackProducer          = cms.InputTag("earlyGeneralTracks")
-    process.TrackMon_gentk.allTrackProducer = cms.InputTag("earlyGeneralTracks")
+    process.TrackMon_gentk.TrackProducer          = "earlyGeneralTracks"
+    process.TrackMon_gentk.allTrackProducer = "earlyGeneralTracks"
     process.SiStripMonitorTrack_gentk.TrackProducer    = 'earlyGeneralTracks'
 
     process.SiStripSources_TrkReco   = cms.Sequence(process.SiStripMonitorTrack_gentk*process.MonitorTrackResiduals_gentk*process.TrackMon_gentk)
     process.load("DQM.SiStripMonitorClient.SiStripClientConfigP5_cff")
-    process.SiStripAnalyser.UseGoodTracks  = cms.untracked.bool(True)
     process.SiStripAnalyser.TkMapCreationFrequency  = -1
     process.SiStripAnalyser.ShiftReportFrequency = -1
     process.SiStripAnalyser.StaticUpdateFrequency = 5
-    process.SiStripAnalyser.RawDataTag = cms.untracked.InputTag("rawDataCollector")
-    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = cms.bool(False)
+    process.SiStripAnalyser.RawDataTag = "rawDataCollector"
+    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = False
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyser)
     ### TRACKING
     process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_cff")
@@ -490,21 +486,21 @@ if (process.runType.getRunType() == process.runType.hpu_run):
                          process.TrackingClient
                          )
 
-process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.csctfDigis.producer = cms.InputTag("rawDataCollector")
-process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataCollector")
-process.ecalDigis.cpu.InputLabel = cms.InputTag("rawDataCollector")
-process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataCollector")
-process.gctDigis.inputLabel = cms.InputTag("rawDataCollector")
-process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
-process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
-process.muonDTDigis.inputLabel = cms.InputTag("rawDataCollector")
-process.muonRPCDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataCollector")
-process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
-process.siStripFEDMonitor.RawDataTag = cms.untracked.InputTag("rawDataCollector")
+process.castorDigis.InputLabel = "rawDataCollector"
+process.csctfDigis.producer = "rawDataCollector"
+process.dttfDigis.DTTF_FED_Source = "rawDataCollector"
+process.ecalDigis.cpu.InputLabel = "rawDataCollector"
+process.ecalPreshowerDigis.sourceTag = "rawDataCollector"
+process.gctDigis.inputLabel = "rawDataCollector"
+process.gtDigis.DaqGtInputTag = "rawDataCollector"
+process.hcalDigis.InputLabel = "rawDataCollector"
+process.muonCSCDigis.InputObjects = "rawDataCollector"
+process.muonDTDigis.inputLabel = "rawDataCollector"
+process.muonRPCDigis.InputLabel = "rawDataCollector"
+process.scalersRawToDigi.scalersInputTag = "rawDataCollector"
+process.siPixelDigis.cpu.InputLabel = "rawDataCollector"
+process.siStripDigis.ProductLabel = "rawDataCollector"
+process.siStripFEDMonitor.RawDataTag = "rawDataCollector"
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
@@ -512,74 +508,72 @@ process.siStripFEDMonitor.RawDataTag = cms.untracked.InputTag("rawDataCollector"
 print("Running with run type = ", process.runType.getRunType())
 ### HEAVY ION SETTING
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
-    process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
-    process.ecalDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
-    process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
-    process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
-    process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
-    process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
-    process.siStripFEDMonitor.RawDataTag = cms.untracked.InputTag("rawDataRepacker")
+    process.castorDigis.InputLabel = "rawDataRepacker"
+    process.csctfDigis.producer = "rawDataRepacker"
+    process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
+    process.ecalDigis.cpu.InputLabel = "rawDataRepacker"
+    process.ecalPreshowerDigis.sourceTag = "rawDataRepacker"
+    process.gctDigis.inputLabel = "rawDataRepacker"
+    process.hcalDigis.InputLabel = "rawDataRepacker"
+    process.muonCSCDigis.InputObjects = "rawDataRepacker"
+    process.muonDTDigis.inputLabel = "rawDataRepacker"
+    process.muonRPCDigis.InputLabel = "rawDataRepacker"
+    process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
+    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+    process.siStripDigis.ProductLabel = "rawDataRepacker"
+    process.siStripFEDMonitor.RawDataTag = "rawDataRepacker"
 
     if ((process.runType.getRunType() == process.runType.hi_run) and live):
-        process.source.SelectEvents = cms.untracked.vstring(
+        process.source.SelectEvents = [
             'HLT_HICentralityVeto*',
 #            'HLT_HIMinimumBias*',
 #            'HLT_HIZeroBias*'
             'HLT_HIPhysics*'
-            )
+            ]
 
 
 
-    process.SiStripMonitorDigi.UseDCSFiltering = cms.bool(False)
-    process.SiStripMonitorClusterReal.UseDCSFiltering = cms.bool(False)
+    process.SiStripMonitorDigi.UseDCSFiltering = False
+    process.SiStripMonitorClusterReal.UseDCSFiltering = False
 
     process.MonitorTrackResiduals_gentk.Tracks                 = 'initialStepTracksPreSplitting'
     process.MonitorTrackResiduals_gentk.trajectoryInput        = 'initialStepTracksPreSplitting'
-    process.MonitorTrackResiduals_gentk.TrackProducer          = cms.string('initialStepTracksPreSplitting')
-    process.TrackMon_gentk.TrackProducer    = cms.InputTag('initialStepTracksPreSplitting')
-    process.TrackMon_gentk.allTrackProducer = cms.InputTag('initialStepTracksPreSplitting')
+    process.TrackMon_gentk.TrackProducer    = 'initialStepTracksPreSplitting'
+    process.TrackMon_gentk.allTrackProducer = 'initialStepTracksPreSplitting'
     process.SiStripMonitorTrack_gentk.TrackProducer = 'initialStepTracksPreSplitting'
 
     process.SiStripSources_TrkReco   = cms.Sequence(process.SiStripMonitorTrack_gentk*process.MonitorTrackResiduals_gentk*process.TrackMon_gentk)
 
     ### STRIP
     process.load("DQM.SiStripMonitorClient.SiStripClientConfigP5_cff")
-    process.SiStripAnalyser.UseGoodTracks  = cms.untracked.bool(True)
     process.SiStripAnalyser.TkMapCreationFrequency  = -1
     process.SiStripAnalyser.ShiftReportFrequency = -1
     process.SiStripAnalyser.StaticUpdateFrequency = 5
-    process.SiStripAnalyser.RawDataTag = cms.untracked.InputTag("rawDataRepacker")
-    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = cms.bool(False)
+    process.SiStripAnalyser.RawDataTag = "rawDataRepacker"
+    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = False
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyser)
 
-    process.SiStripMonitorDigi.TotalNumberOfDigisFailure.integrateNLumisections = cms.int32(25)
+    process.SiStripMonitorDigi.TotalNumberOfDigisFailure.integrateNLumisections = 25
     ### TRACKING
     process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_cff")
     process.TrackingAnalyser.ShiftReportFrequency = -1
     process.TrackingAnalyser.StaticUpdateFrequency = 5
-    process.TrackingAnalyser.RawDataTag = cms.untracked.InputTag("rawDataRepacker")
+    process.TrackingAnalyser.RawDataTag = "rawDataRepacker"
     if offlineTesting :
-        process.TrackingAnalyser.verbose = cms.untracked.bool(True)
+        process.TrackingAnalyser.verbose = True
     process.TrackingClient = cms.Sequence( process.TrackingAnalyser )
 
-    process.stripQTester.qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_heavyion.xml')
-    process.stripQTester.prescaleFactor          = cms.untracked.int32(2)
-    process.stripQTester.getQualityTestsFromFile = cms.untracked.bool(True)
-    process.stripQTester.qtestOnEndLumi          = cms.untracked.bool(True)
-    process.stripQTester.qtestOnEndRun           = cms.untracked.bool(True)
+    process.stripQTester.qtList = 'DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_heavyion.xml'
+    process.stripQTester.prescaleFactor          = 2
+    process.stripQTester.getQualityTestsFromFile = True
+    process.stripQTester.qtestOnEndLumi          = True
+    process.stripQTester.qtestOnEndRun           = True
 
-    process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_heavyion.xml')
-    process.trackingQTester.prescaleFactor          = cms.untracked.int32(1)
-    process.trackingQTester.getQualityTestsFromFile = cms.untracked.bool(True)
-    process.trackingQTester.qtestOnEndLumi          = cms.untracked.bool(True)
-    process.trackingQTester.qtestOnEndRun           = cms.untracked.bool(True)
+    process.trackingQTester.qtList                  = 'DQM/TrackingMonitorClient/data/tracking_qualitytest_config_heavyion.xml'
+    process.trackingQTester.prescaleFactor          = 1
+    process.trackingQTester.getQualityTestsFromFile = True
+    process.trackingQTester.qtestOnEndLumi          = True
+    process.trackingQTester.qtestOnEndRun           = True
 
     # Reco for pp collisions
 
@@ -614,14 +608,14 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
     # BaselineValidator Module
     from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import siStripDigis as _siStripDigis
-    process.siStripDigisNoZS=_siStripDigis.clone()
-    process.siStripDigisNoZS.ProductLabel = cms.InputTag("rawDataCollector")
-    process.SiStripBaselineValidator.srcProcessedRawDigi =  cms.InputTag('siStripDigisNoZS','ZeroSuppressed')
+    process.siStripDigisNoZS=_siStripDigis.clone(
+        ProductLabel = "rawDataCollector")
+    process.SiStripBaselineValidator.srcProcessedRawDigi =  'siStripDigisNoZS:ZeroSuppressed'
 
 
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
-    process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
-    process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
+    process.PixelLayerTriplets.BPix.HitProducer = 'siPixelRecHitsPreSplitting'
+    process.PixelLayerTriplets.FPix.HitProducer = 'siPixelRecHitsPreSplitting'
     from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
     process.pixelTracksHitTriplets.SeedComparitorPSet.clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting'
 

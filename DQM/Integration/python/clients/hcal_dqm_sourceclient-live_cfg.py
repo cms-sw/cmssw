@@ -87,58 +87,57 @@ runTypeName		= process.runType.getRunTypeName()
 isCosmicRun		= runTypeName=="cosmic_run" or runTypeName=="cosmic_run_stage1"
 isHeavyIon		= runTypeName=="hi_run"
 cmssw			= os.getenv("CMSSW_VERSION").split("_")
-rawTag			= cms.InputTag("rawDataCollector")
-rawTagUntracked = cms.untracked.InputTag("rawDataCollector")
+rawTag			= "rawDataCollector"
+rawTagUntracked = "rawDataCollector"
 if isHeavyIon:
-	rawTag = cms.InputTag("rawDataRepacker")
-	rawTagUntracked = cms.untracked.InputTag("rawDataRepacker")
+	rawTag = "rawDataRepacker"
+	rawTagUntracked = "rawDataRepacker"
 	process.castorDigis.InputLabel = rawTag
 
-process.emulTPDigis = \
-		process.simHcalTriggerPrimitiveDigis.clone()
-process.emulTPDigis.inputLabel = \
-		cms.VInputTag("hcalDigis", 'hcalDigis')
-process.emulTPDigis.FrontEndFormatError = \
-		cms.bool(True)
-process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
-process.emulTPDigis.FG_threshold = cms.uint32(2)
-process.emulTPDigis.InputTagFEDRaw = rawTag
-process.emulTPDigis.upgradeHF = cms.bool(True)
-process.emulTPDigis.upgradeHE = cms.bool(True)
-process.emulTPDigis.upgradeHB = cms.bool(True)
-process.emulTPDigis.inputLabel = cms.VInputTag("hcalDigis", "hcalDigis")
-process.emulTPDigis.inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis")
-# Enable ZS on emulated TPs, to match what is done in data
-process.emulTPDigis.RunZS = cms.bool(True)
-process.emulTPDigis.ZS_threshold = cms.uint32(0)
+process.emulTPDigis = process.simHcalTriggerPrimitiveDigis.clone(
+   inputLabel = ["hcalDigis", 'hcalDigis'],
+   FrontEndFormatError = True,
+   FG_threshold = 2,
+   InputTagFEDRaw = rawTag,
+   upgradeHF = True,
+   upgradeHE = True,
+   upgradeHB = True,
+   inputUpgradeLabel = ["hcalDigis", "hcalDigis"],
+   # Enable ZS on emulated TPs, to match what is done in data
+   RunZS = True,
+   ZS_threshold = 0
+)
+
 process.hcalDigis.InputLabel = rawTag
-process.emulTPDigisNoTDCCut = process.emulTPDigis.clone()
-process.emulTPDigisNoTDCCut.parameters = cms.untracked.PSet(
+process.emulTPDigisNoTDCCut = process.emulTPDigis.clone(
+     parameters = cms.untracked.PSet(
 	ADCThresholdHF = cms.uint32(255),
 	TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
+     )
 )
+process.HcalTPGCoderULUT.LUTGenerationMode = False
 
 # For sent-received comparison
 process.load("L1Trigger.Configuration.L1TRawToDigi_cff")
 # For heavy ion runs, need to reconfigure sources for L1TRawToDigi
 if isHeavyIon:
-	process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
-	process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
-	process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
-	process.omtfStage2Digis.inputLabel = cms.InputTag("rawDataRepacker")
-	process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker") #new
-	process.bmtfDigis.InputLabel = cms.InputTag("rawDataRepacker")
-	process.emtfStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
-	process.caloLayer1Digis.InputLabel = cms.InputTag("rawDataRepacker") #not sure
-	process.caloStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
-	process.gmtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
-	process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
-	process.rpcTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
-	process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
+	process.csctfDigis.producer = "rawDataRepacker"
+	process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
+	process.twinMuxStage2Digis.DTTM7_FED_Source = "rawDataRepacker"
+	process.omtfStage2Digis.inputLabel = "rawDataRepacker"
+	process.caloStage1Digis.InputLabel = "rawDataRepacker" #new
+	process.bmtfDigis.InputLabel = "rawDataRepacker"
+	process.emtfStage2Digis.InputLabel = "rawDataRepacker"
+	process.caloLayer1Digis.InputLabel = "rawDataRepacker" #not sure
+	process.caloStage2Digis.InputLabel = "rawDataRepacker"
+	process.gmtStage2Digis.InputLabel = "rawDataRepacker"
+	process.gtStage2Digis.InputLabel = "rawDataRepacker"
+	process.rpcTwinMuxRawToDigi.inputTag = "rawDataRepacker"
+	process.rpcCPPFRawToDigi.inputTag = "rawDataRepacker"
 
 # Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 
 #from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
-#run2_HCAL_2017.toModify(process.hcalDigis, FEDs=cms.untracked.vint32(724,725,726,727,728,729,730,731,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123))
+#run2_HCAL_2017.toModify(process.hcalDigis, FEDs=[724,725,726,727,728,729,730,731,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123])
 
 #-------------------------------------
 #	Hcal DQM Tasks and Harvesters import
@@ -253,7 +252,7 @@ process.options = cms.untracked.PSet(
 			"TooFewProducts"
 		)
 )
-process.options.wantSummary = cms.untracked.bool(True)
+process.options.wantSummary = True
 
 # tracer
 #process.Tracer = cms.Service("Tracer")

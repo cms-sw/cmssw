@@ -52,7 +52,7 @@ if not unitTest:
 #if (process.runType.getRunType() == process.runType.hi_run):
 
 if (process.runType.getRunType() == process.runType.cosmic_run and not unitTest):
-    process.source.SelectEvents = cms.untracked.vstring('HLT*SingleMu*')
+    process.source.SelectEvents = ['HLT*SingleMu*']
 
 #----------------------------
 # Magnetic Field
@@ -98,10 +98,10 @@ process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataCollector")
 #--------------------------------
 if (process.runType.getRunType() == process.runType.hi_run):
     process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
-    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
 
     if not unitTest:
-        process.source.SelectEvents = cms.untracked.vstring('HLT_HIL1MinimumBiasHF2AND*')
+        process.source.SelectEvents = ['HLT_HIL1MinimumBiasHF2AND*']
 
 
 #    process.DQMEventStreamHttpReader.SelectEvents = cms.untracked.PSet(
@@ -113,9 +113,9 @@ if (process.runType.getRunType() == process.runType.hi_run):
 process.load("DQM.PixelLumi.PixelLumiDQM_cfi") 
 
 if process.dqmRunConfig.type.value() is "playback":
-    process.pixel_lumi_dqm.logFileName = cms.untracked.string("pixel_lumi.txt")
+    process.pixel_lumi_dqm.logFileName = "pixel_lumi.txt"
 else:
-    process.pixel_lumi_dqm.logFileName = cms.untracked.string("/nfshome0/dqmpro/pixel_lumi.txt")
+    process.pixel_lumi_dqm.logFileName = "/nfshome0/dqmpro/pixel_lumi.txt"
 
 print(process.pixel_lumi_dqm.logFileName)
     

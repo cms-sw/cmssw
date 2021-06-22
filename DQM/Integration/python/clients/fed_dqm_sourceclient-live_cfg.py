@@ -53,23 +53,23 @@ process.load('DQM.SiPixelMonitorRawData.SiPixelMonitorHLT_cfi')
 process.SiPixelHLTSource.saveFile = False
 process.SiPixelHLTSource.slowDown = False
 path = 'Pixel/%s/' % folder_name
-process.SiPixelHLTSource.DirName = cms.untracked.string(path)
+process.SiPixelHLTSource.DirName = path
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff') # ???
 # SiStrip sequence:
 process.load('DQM.SiStripMonitorHardware.siStripFEDCheck_cfi')
 path = 'SiStrip/%s/' % folder_name
-process.siStripFEDCheck.DirName = cms.untracked.string(path)
+process.siStripFEDCheck.DirName = path
 # ECAL Preshower sequence:
 process.load('EventFilter.ESRawToDigi.esRawToDigi_cfi')
 process.load('DQM.EcalPreshowerMonitorModule.ESFEDIntegrityTask_cfi')
-process.ecalPreshowerFEDIntegrityTask.FEDDirName = cms.untracked.string(folder_name)
+process.ecalPreshowerFEDIntegrityTask.FEDDirName = folder_name
 # ECAL sequence --> Both ECAL Barrel and ECAL Endcap:
 process.load('Geometry.EcalMapping.EcalMapping_cfi')
 process.load('Geometry.EcalMapping.EcalMappingRecord_cfi')
 from EventFilter.EcalRawToDigi.EcalUnpackerData_cfi import ecalEBunpacker
 process.ecalDigis = ecalEBunpacker.clone()
 process.load('DQM.EcalMonitorTasks.EcalFEDMonitor_cfi')
-process.ecalFEDMonitor.folderName = cms.untracked.string(folder_name)
+process.ecalFEDMonitor.folderName = folder_name
 # HCAL sequence:
 process.load('EventFilter.HcalRawToDigi.HcalRawToDigi_cfi')
 # DT sequence:
@@ -82,43 +82,43 @@ process.dtDataIntegrityTask.dtFEDlabel     = 'dtunpacker'
 process.load('EventFilter.RPCRawToDigi.rpcUnpacker_cfi')
 process.load('DQM.RPCMonitorClient.RPCFEDIntegrity_cfi')
 path = 'RPC/%s/' % folder_name
-process.rpcFEDIntegrity.RPCPrefixDir = cms.untracked.string(path)
+process.rpcFEDIntegrity.RPCPrefixDir = path
 # CSC sequence:
 process.load('DQM.CSCMonitorModule.csc_hlt_dqm_sourceclient_cfi')
 path = 'CSC/%s/' % folder_name
-process.cscDQMEvF.EventProcessor.FOLDER_EMU = cms.untracked.string(path)
+process.cscDQMEvF.EventProcessor.FOLDER_EMU = path
 
 # Setting raw data collection label for all subsytem modules, depending on run type:
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.l1tStage2Fed.rawTag = cms.InputTag('rawDataRepacker')
-    process.siPixelDigis.cpu.InputLabel = cms.InputTag('rawDataRepacker')
-    process.SiPixelHLTSource.RawInput = cms.InputTag('rawDataRepacker')
-    process.siStripFEDCheck.RawDataTag = cms.InputTag('rawDataRepacker')
-    process.esRawToDigi.sourceTag = cms.InputTag('rawDataRepacker')
-    process.ecalPreshowerFEDIntegrityTask.FEDRawDataCollection = cms.InputTag('rawDataRepacker')
-    process.ecalDigis.InputLabel = cms.InputTag('rawDataRepacker')
-    process.ecalFEDMonitor.FEDRawDataCollection = cms.InputTag('rawDataRepacker')
-    process.hcalDigis.InputLabel = cms.InputTag('rawDataRepacker')
-    process.dtunpacker.inputLabel = cms.InputTag('rawDataRepacker')
-    process.rpcunpacker.InputLabel = cms.InputTag('rawDataRepacker')
-    process.cscDQMEvF.InputObjects = cms.untracked.InputTag('rawDataRepacker')
+    process.l1tStage2Fed.rawTag = 'rawDataRepacker'
+    process.siPixelDigis.cpu.InputLabel = 'rawDataRepacker'
+    process.SiPixelHLTSource.RawInput = 'rawDataRepacker'
+    process.siStripFEDCheck.RawDataTag = 'rawDataRepacker'
+    process.esRawToDigi.sourceTag = 'rawDataRepacker'
+    process.ecalPreshowerFEDIntegrityTask.FEDRawDataCollection = 'rawDataRepacker'
+    process.ecalDigis.InputLabel = 'rawDataRepacker'
+    process.ecalFEDMonitor.FEDRawDataCollection = 'rawDataRepacker'
+    process.hcalDigis.InputLabel = 'rawDataRepacker'
+    process.dtunpacker.inputLabel = 'rawDataRepacker'
+    process.rpcunpacker.InputLabel = 'rawDataRepacker'
+    process.cscDQMEvF.InputObjects = 'rawDataRepacker'
 else:
-    process.l1tStage2Fed.rawTag = cms.InputTag('rawDataCollector')
-    process.siPixelDigis.cpu.InputLabel = cms.InputTag('rawDataCollector')
-    process.SiPixelHLTSource.RawInput = cms.InputTag('rawDataCollector')
-    process.siStripFEDCheck.RawDataTag = cms.InputTag('rawDataCollector')
-    process.esRawToDigi.sourceTag = cms.InputTag('rawDataCollector')
-    process.ecalPreshowerFEDIntegrityTask.FEDRawDataCollection = cms.InputTag('rawDataCollector')
-    process.ecalDigis.InputLabel = cms.InputTag('rawDataCollector')
-    process.ecalFEDMonitor.FEDRawDataCollection = cms.InputTag('rawDataCollector')
-    process.hcalDigis.InputLabel = cms.InputTag('rawDataCollector')
-    process.dtunpacker.inputLabel = cms.InputTag('rawDataCollector')
-    process.rpcunpacker.InputLabel = cms.InputTag('rawDataCollector')
-    process.cscDQMEvF.InputObjects = cms.untracked.InputTag('rawDataCollector')
+    process.l1tStage2Fed.rawTag = 'rawDataCollector'
+    process.siPixelDigis.cpu.InputLabel = 'rawDataCollector'
+    process.SiPixelHLTSource.RawInput = 'rawDataCollector'
+    process.siStripFEDCheck.RawDataTag = 'rawDataCollector'
+    process.esRawToDigi.sourceTag = 'rawDataCollector'
+    process.ecalPreshowerFEDIntegrityTask.FEDRawDataCollection = 'rawDataCollector'
+    process.ecalDigis.InputLabel = 'rawDataCollector'
+    process.ecalFEDMonitor.FEDRawDataCollection = 'rawDataCollector'
+    process.hcalDigis.InputLabel = 'rawDataCollector'
+    process.dtunpacker.inputLabel = 'rawDataCollector'
+    process.rpcunpacker.InputLabel = 'rawDataCollector'
+    process.cscDQMEvF.InputObjects = 'rawDataCollector'
 
 # Finaly the DQM FED sequence itself
 process.load('DQMServices.Components.DQMFEDIntegrityClient_cff')
-process.dqmFEDIntegrity.fedFolderName = cms.untracked.string(folder_name)
+process.dqmFEDIntegrity.fedFolderName = folder_name
 
 # Sequences, paths and schedules:
 
