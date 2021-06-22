@@ -33,7 +33,9 @@ private:
   const ME0Geometry* me0Geometry_;
 };
 
-ME0GeometryDump::ME0GeometryDump(const edm::ParameterSet& iC) : verbose_(iC.getParameter<bool>("verbose")), tokGeom_{esConsumes<ME0Geometry, MuonGeometryRecord>(edm::ESInputTag{})} {}
+ME0GeometryDump::ME0GeometryDump(const edm::ParameterSet& iC)
+    : verbose_(iC.getParameter<bool>("verbose")),
+      tokGeom_{esConsumes<ME0Geometry, MuonGeometryRecord>(edm::ESInputTag{})} {}
 
 void ME0GeometryDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
