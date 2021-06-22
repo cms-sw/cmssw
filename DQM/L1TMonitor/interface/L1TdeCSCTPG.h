@@ -10,6 +10,7 @@
 
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
 class L1TdeCSCTPG : public DQMEDAnalyzer {
@@ -34,6 +35,7 @@ private:
   edm::EDGetTokenT<CSCALCTDigiCollection> emulALCT_token_;
   edm::EDGetTokenT<CSCCLCTDigiCollection> dataCLCT_token_;
   edm::EDGetTokenT<CSCCLCTDigiCollection> emulCLCT_token_;
+  edm::EDGetTokenT<CSCCLCTPreTriggerDigiCollection> emulpreCLCT_token_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> dataLCT_token_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> emulLCT_token_;
   std::string monitorDir_;

@@ -7,6 +7,7 @@ L1TdeCSCTPG::L1TdeCSCTPG(const edm::ParameterSet& ps)
       emulALCT_token_(consumes<CSCALCTDigiCollection>(ps.getParameter<edm::InputTag>("emulALCT"))),
       dataCLCT_token_(consumes<CSCCLCTDigiCollection>(ps.getParameter<edm::InputTag>("dataCLCT"))),
       emulCLCT_token_(consumes<CSCCLCTDigiCollection>(ps.getParameter<edm::InputTag>("emulCLCT"))),
+      emulpreCLCT_token_(consumes<CSCCLCTPreTriggerDigiCollection>(ps.getParameter<edm::InputTag>("emulpreCLCT"))),
       dataLCT_token_(consumes<CSCCorrelatedLCTDigiCollection>(ps.getParameter<edm::InputTag>("dataLCT"))),
       emulLCT_token_(consumes<CSCCorrelatedLCTDigiCollection>(ps.getParameter<edm::InputTag>("emulLCT"))),
       monitorDir_(ps.getParameter<std::string>("monitorDir")),
@@ -96,6 +97,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
   edm::Handle<CSCALCTDigiCollection> emulALCTs;
   edm::Handle<CSCCLCTDigiCollection> dataCLCTs;
   edm::Handle<CSCCLCTDigiCollection> emulCLCTs;
+  edm::Handle<CSCCLCTPreTriggerDigiCollection> emulpreCLCTs;
   edm::Handle<CSCCorrelatedLCTDigiCollection> dataLCTs;
   edm::Handle<CSCCorrelatedLCTDigiCollection> emulLCTs;
 
@@ -105,6 +107,9 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
   e.getByToken(emulCLCT_token_, emulCLCTs);
   e.getByToken(dataLCT_token_, dataLCTs);
   e.getByToken(emulLCT_token_, emulLCTs);
+  // only do pre-trigger analysis when B904 setup is used
+  if (B904Setup_)
+    e.getByToken(emulpreCLCT_token_, emulpreCLCTs);
 
   for (auto it = dataALCTs->begin(); it != dataALCTs->end(); it++) {
     auto range = dataALCTs->get((*it).first);
@@ -136,6 +141,10 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 
+  // temporary containers for B904 analysis
+  std::vector<CSCCLCTDigi> tempdata;
+  std::vector<CSCCLCTDigi> tempemul;
+
   for (auto it = dataCLCTs->begin(); it != dataCLCTs->end(); it++) {
     auto range = dataCLCTs->get((*it).first);
     const int type = ((*it).first).iChamberType() - 2;
@@ -144,6 +153,9 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
       continue;
     for (auto clct = range.first; clct != range.second; clct++) {
       if (clct->isValid()) {
+        if (B904Setup_) {
+          tempdata.push_back(*clct);
+        }
         chamberHistos[type]["clct_pattern_data"]->Fill(clct->getPattern());
         chamberHistos[type]["clct_quality_data"]->Fill(clct->getQuality());
         chamberHistos[type]["clct_halfstrip_data"]->Fill(clct->getKeyStrip());
@@ -181,6 +193,9 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
     for (const auto& clct : cleanedemul) {
       if (clct.isValid()) {
+        if (B904Setup_) {
+          tempemul.push_back(clct);
+        }
         chamberHistos[type]["clct_pattern_emul"]->Fill(clct.getPattern());
         chamberHistos[type]["clct_quality_emul"]->Fill(clct.getQuality());
         chamberHistos[type]["clct_halfstrip_emul"]->Fill(clct.getKeyStrip());
@@ -195,6 +210,24 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
             chamberHistos[type]["clct_quartstripbit_emul"]->Fill(clct.getQuartStripBit());
             chamberHistos[type]["clct_eighthstripbit_emul"]->Fill(clct.getEighthStripBit());
           }
+        }
+      }
+    }
+  }
+
+  // Pre-trigger analysis
+  if (B904Setup_) {
+    if (tempdata.size() != tempemul.size()) {
+      for (auto& clct : tempdata) {
+        edm::LogInfo("L1TdeCSCTPG") << "data" << clct;
+      }
+      for (auto& clct : tempemul) {
+        edm::LogInfo("L1TdeCSCTPG") << "emul" << clct;
+      }
+      for (auto it = emulpreCLCTs->begin(); it != emulpreCLCTs->end(); it++) {
+        auto range = emulpreCLCTs->get((*it).first);
+        for (auto clct = range.first; clct != range.second; clct++) {
+          edm::LogInfo("L1TdeCSCTPG") << "emul pre" << *clct;
         }
       }
     }
