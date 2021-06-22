@@ -83,9 +83,6 @@ public:
   // LCT selection: at most 2 in each BX
   void selectLCTs();
 
-  /** Returns vector of all found correlated LCTs, if any. */
-  std::vector<CSCCorrelatedLCTDigi> getLCTs() const;
-
   /** Returns shower bits */
   CSCShowerDigi readoutShower() const;
 
@@ -108,14 +105,11 @@ protected:
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV;
 
-  /** Container for first correlated LCT. */
-  CSCCorrelatedLCTDigi firstLCT[CSCConstants::MAX_LCT_TBINS];
-
-  /** Container for second correlated LCT. */
-  CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_TBINS];
-
   /** Container with all LCTs prior to sorting and selecting. */
   LCTContainer allLCTs_;
+
+  /* Container with sorted and selected LCTs */
+  std::vector<CSCCorrelatedLCTDigi> lctV;
 
   CSCShowerDigi shower_;
 

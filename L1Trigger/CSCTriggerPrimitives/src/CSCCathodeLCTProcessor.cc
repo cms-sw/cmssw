@@ -1110,9 +1110,9 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() const {
     }
     if (late_tbin > max_late_tbin) {
       edm::LogWarning("CSCCathodeLCTProcessor|SuspiciousParameters")
-        << "Late time bin (late_tbin) larger than maximum allowed, which is " << max_late_tbin
-        << ". set early_tbin to max allowed";
-      late_tbin = CSCConstants::MAX_LCT_TBINS - 1;
+          << "Late time bin (late_tbin) larger than maximum allowed, which is " << max_late_tbin
+          << ". set early_tbin to max allowed";
+      late_tbin = CSCConstants::MAX_CLCT_TBINS - 1;
     }
     debugTimeBins = false;
   }
