@@ -53,7 +53,9 @@ private:
   edm::ESGetToken<MuonDDDConstants, MuonNumberingRecord> tokMuon_;
 };
 
-MuonNumberingTester::MuonNumberingTester(const edm::ParameterSet& iConfig) : tokDDD_{esConsumes<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{})}, tokMuon_{esConsumes<MuonDDDConstants, MuonNumberingRecord>(edm::ESInputTag{})} {}
+MuonNumberingTester::MuonNumberingTester(const edm::ParameterSet& iConfig)
+    : tokDDD_{esConsumes<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{})},
+      tokMuon_{esConsumes<MuonDDDConstants, MuonNumberingRecord>(edm::ESInputTag{})} {}
 
 MuonNumberingTester::~MuonNumberingTester() {}
 
