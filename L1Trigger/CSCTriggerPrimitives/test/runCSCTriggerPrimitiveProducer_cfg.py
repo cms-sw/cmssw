@@ -64,9 +64,9 @@ if not options.mc or options.unpack:
       process.cscTriggerPrimitiveDigis.CSCWireDigiProducer = "muonCSCDigis:MuonCSCWireDigi"
 
 ## unpacker
-if options.unpack:
-      process.muonCSCDigis.DisableMappingCheck = options.useB904Data
-      process.muonCSCDigis.B904Setup = options.useB904Data
+if options.useB904Data:
+      process.muonCSCDigis.DisableMappingCheck = True
+      process.muonCSCDigis.B904Setup = True
 
 ## l1 emulator
 l1csc = process.cscTriggerPrimitiveDigis
