@@ -1464,7 +1464,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
                                                const std::vector<int>& waferProperties) {
   // Store parameters from Philip's file
   int types[5] = {
-      HGCalTypes::WaferCenter, HGCalTypes::WaferCenter, HGCalTypes::CornerCenterYm, HGCalTypes::CornerCenterYp, 6};
+      HGCalTypes::WaferCenter, HGCalTypes::WaferCenterB, HGCalTypes::CornerCenterYm, HGCalTypes::CornerCenterYp, HGCalTypes::WaferCenterR};
   for (unsigned int k = 0; k < layerType.size(); ++k) {
     php.layerType_.emplace_back(types[layerType[k]]);
 #ifdef EDM_ML_DEBUG
