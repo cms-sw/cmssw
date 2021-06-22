@@ -82,7 +82,15 @@ else:
 # BeamMonitor
 #-----------------------------
 process.load("DQM.BeamMonitor.FakeBeamMonitor_cff")
-process.dqmBeamMonitor = process.dqmFakeBeamMonitor.clone()
+process.dqmBeamMonitor = process.dqmFakeBeamMonitor.clone(
+  monitorName = 'FakeBeamMonitor',
+  OnlineMode = True,
+  recordName = BSOnlineRecordName,
+  useLockRecords = useLockRecords,
+  resetEveryNLumi   = 5,
+  resetPVEveryNLumi = 5
+)  
+
 #---------------
 # Calibration
 #---------------
@@ -100,16 +108,9 @@ process = customise(process)
 
 # Set rawDataRepacker (HI and live) or rawDataCollector (for all the rest)
 if (process.runType.getRunType() == process.runType.hi_run and live):
-  rawDataInputTag = cms.InputTag("rawDataRepacker")
+  rawDataInputTag = "rawDataRepacker"
 else:
-  rawDataInputTag = cms.InputTag("rawDataCollector")
-
-process.dqmBeamMonitor.monitorName = 'FakeBeamMonitor'
-process.dqmBeamMonitor.OnlineMode = True              
-process.dqmBeamMonitor.recordName = BSOnlineRecordName
-process.dqmBeamMonitor.useLockRecords = cms.untracked.bool(useLockRecords)
-process.dqmBeamMonitor.resetEveryNLumi   = 5
-process.dqmBeamMonitor.resetPVEveryNLumi = 5
+  rawDataInputTag = "rawDataCollector"
 
 #---------
 # Upload BeamSpotOnlineObject (HLTRcd) to CondDB

@@ -12,6 +12,7 @@ TrackingAnalyser = DQMEDHarvester("TrackingAnalyser",
     ShiftReportFrequency     = cms.untracked.int32(-1),
     RawDataTag               = cms.untracked.InputTag("source"),                              
     TopFolderName              = cms.untracked.string("Tracking"),
+    verbose                  = cms.untracked.bool(False),
     TrackingGlobalQualityPSets = cms.VPSet(
          cms.PSet(
              QT         = cms.string("Rate"),

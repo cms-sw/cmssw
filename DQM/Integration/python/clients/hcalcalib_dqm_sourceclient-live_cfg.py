@@ -83,23 +83,22 @@ runTypeName		= process.runType.getRunTypeName()
 isCosmicRun		= runTypeName=="cosmic_run" or runTypeName=="cosmic_run_stage1"
 isHeavyIon		= runTypeName=="hi_run"
 cmssw			= os.getenv("CMSSW_VERSION").split("_")
-rawTag			= cms.InputTag("hltHcalCalibrationRaw")
-rawTagUntracked	= cms.untracked.InputTag("hltHcalCalibrationRaw")
+rawTag			= "hltHcalCalibrationRaw"
+rawTagUntracked	= "hltHcalCalibrationRaw"
 process.essourceSev = cms.ESSource(
 		"EmptyESSource",
 		recordName		= cms.string("HcalSeverityLevelComputerRcd"),
 		firstValid		= cms.vuint32(1),
 		iovIsRunNotTime	= cms.bool(True)
 )
-process.emulTPDigis = \
-		process.simHcalTriggerPrimitiveDigis.clone()
-process.emulTPDigis.inputLabel = \
-		cms.VInputTag("hcalDigis", 'hcalDigis')
-process.emulTPDigis.FrontEndFormatError = \
-		cms.bool(True)
+process.emulTPDigis = process.simHcalTriggerPrimitiveDigis.clone(
+   inputLabel = ["hcalDigis", 'hcalDigis'],
+   FrontEndFormatError = True,
+   FG_threshold = 2,
+   InputTagFEDRaw = rawTag
+)
+
 process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
-process.emulTPDigis.FG_threshold = cms.uint32(2)
-process.emulTPDigis.InputTagFEDRaw = rawTag
 process.l1GtUnpack.DaqGtInputTag = rawTag
 process.hbhereco = process.hbheprereco.clone()
 
@@ -134,75 +133,68 @@ process.hcalDigis.InputLabel = rawTag
 process.hcalOnlineHarvesting.subsystem = subsystem
 process.rawTask.subsystem = subsystem
 process.rawTask.tagFEDs = rawTagUntracked
-process.rawTask.tagReport = cms.untracked.InputTag("hcalDigis")
-process.rawTask.calibProcessing = cms.untracked.bool(True)
+process.rawTask.tagReport = "hcalDigis"
+process.rawTask.calibProcessing = True
 
 #-------------------------------------
 #	Prepare all the Laser Tasks
 #-------------------------------------
-process.hbhehpdTask = process.laserTask.clone()
-process.hbhehpdTask.name = cms.untracked.string("HBHEHPDTask")
-process.hbhehpdTask.laserType = cms.untracked.uint32(3)
-process.hbhehpdTask.thresh_timingreflm_HO = cms.untracked.vdouble(-1000., 1000.)
-process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000, 1000.)
+process.hbhehpdTask = process.laserTask.clone(
+   name = "HBHEHPDTask",
+   laserType = 3,
+   thresh_timingreflm_HO = [-1000., 1000.],
+   thresh_timingreflm_HF = [-1000., 1000.],
+   thresh_timingreflm_HB = [-1000., 1000.],
+   thresh_timingreflm_HE = [-1000., 1000.]
+)
 
-process.hoTask = process.laserTask.clone()
-process.hoTask.name = cms.untracked.string("HOTask")
-process.hoTask.laserType = cms.untracked.uint32(4)
-process.hbhehpdTask.thresh_timingreflm_HB = cms.untracked.vdouble(-1000., 1000.)
-process.hbhehpdTask.thresh_timingreflm_HE = cms.untracked.vdouble(-1000., 1000.)
-process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000, 1000.)
+process.hoTask = process.laserTask.clone(
+   name = "HOTask",
+   laserType = 4
+)
 
-process.hfTask = process.laserTask.clone()
-process.hfTask.name = cms.untracked.string("HFTask")
-process.hfTask.laserType = cms.untracked.uint32(5)
-process.hbhehpdTask.thresh_timingreflm_HB = cms.untracked.vdouble(-1000., 1000.)
-process.hbhehpdTask.thresh_timingreflm_HE = cms.untracked.vdouble(-1000., 1000.)
-process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000., 1000.)
+process.hfTask = process.laserTask.clone(
+   name = "HFTask",
+   laserType = 5
+)
 
-process.hepmegaTask = process.laserTask.clone()
-process.hepmegaTask.name = cms.untracked.string("HEPMegaTask")
-process.hepmegaTask.laserType = cms.untracked.uint32(7)
-process.hbhehpdTask.thresh_timingreflm_HB = cms.untracked.vdouble(-1000., 1000.)
-process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000., 1000.)
-process.hbhehpdTask.thresh_timingreflm_HO = cms.untracked.vdouble(-1000., 1000.)
+process.hepmegaTask = process.laserTask.clone(
+   name = "HEPMegaTask",
+   laserType = 7
+)
 
-process.hemmegaTask = process.laserTask.clone()
-process.hemmegaTask.name = cms.untracked.string("HEMMegaTask")
-process.hemmegaTask.laserType = cms.untracked.uint32(8)
-process.hbhehpdTask.thresh_timingreflm_HB = cms.untracked.vdouble(-1000., 1000.)
-process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000., 1000.)
-process.hbhehpdTask.thresh_timingreflm_HO = cms.untracked.vdouble(-1000., 1000.)
+process.hemmegaTask = process.laserTask.clone(
+  name = "HEMMegaTask",
+  laserType = 8
+)
 
-process.hbpmegaTask = process.laserTask.clone()
-process.hbpmegaTask.name = cms.untracked.string("HBPMegaTask")
-process.hbpmegaTask.laserType = cms.untracked.uint32(9)
-process.hbhehpdTask.thresh_timingreflm_HE = cms.untracked.vdouble(-1000., 1000.)
-process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000., 1000.)
-process.hbhehpdTask.thresh_timingreflm_HO = cms.untracked.vdouble(-1000., 1000.)
+process.hbpmegaTask = process.laserTask.clone(
+  name = "HBPMegaTask",
+  laserType = 9
+)
 
-process.hbmmegaTask = process.laserTask.clone()
-process.hbmmegaTask.name = cms.untracked.string("HBMMegaTask")
-process.hbmmegaTask.laserType = cms.untracked.uint32(10)
-process.hbhehpdTask.thresh_timingreflm_HE = cms.untracked.vdouble(-1000., 1000.)
-process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000., 1000.)
-process.hbhehpdTask.thresh_timingreflm_HO = cms.untracked.vdouble(-1000., 1000.)
+process.hbmmegaTask = process.laserTask.clone(
+  name = "HBMMegaTask",
+  laserType = 10
+)
 
-process.qie11Task_laser = process.qie11Task.clone()
-process.qie11Task_laser.name = cms.untracked.string("QIE11Task_laser")
-process.qie11Task_laser.runkeyVal = runType
-process.qie11Task_laser.runkeyName = runTypeName
-process.qie11Task_laser.tagQIE11 = cms.untracked.InputTag("hcalDigis")
-process.qie11Task_laser.subsystem = cms.untracked.string("HcalCalib")
-process.qie11Task_laser.laserType = cms.untracked.int32(12)
+process.qie11Task_laser = process.qie11Task.clone(
+   name = "QIE11Task_laser",
+   runkeyVal = runType,
+   runkeyName = runTypeName,
+   tagQIE11 = "hcalDigis",
+   subsystem = "HcalCalib",
+   laserType = 12
+)
 
-process.qie11Task_pedestal = process.qie11Task.clone()
-process.qie11Task_pedestal.name = cms.untracked.string("QIE11Task_pedestal")
-process.qie11Task_pedestal.runkeyVal = runType
-process.qie11Task_pedestal.runkeyName = runTypeName
-process.qie11Task_pedestal.tagQIE11 = cms.untracked.InputTag("hcalDigis")
-process.qie11Task_pedestal.subsystem = cms.untracked.string("HcalCalib")
-process.qie11Task_pedestal.eventType = cms.untracked.int32(1)
+process.qie11Task_pedestal = process.qie11Task.clone(
+   name = "QIE11Task_pedestal",
+   runkeyVal = runType,
+   runkeyName = runTypeName,
+   tagQIE11 = "hcalDigis",
+   subsystem = "HcalCalib",
+   eventType = 1
+)
 
 process.ledTask.name = cms.untracked.string("LEDTask")
 

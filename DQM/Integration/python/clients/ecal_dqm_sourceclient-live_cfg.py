@@ -104,14 +104,15 @@ process.GlobalTag.toGet = cms.VPSet(cms.PSet(
 
 process.preScaler.prescaleFactor = 1
 
-process.tcdsDigis = tcdsRawToDigi.clone()
-process.tcdsDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.tcdsDigis = tcdsRawToDigi.clone(
+  InputLabel = "rawDataCollector"
+)
 
 
-process.dqmEnv.subSystemFolder = cms.untracked.string('Ecal')
-process.dqmSaver.tag = cms.untracked.string('Ecal')
+process.dqmEnv.subSystemFolder = 'Ecal'
+process.dqmSaver.tag = 'Ecal'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = cms.untracked.string('Ecal')
+process.dqmSaverPB.tag = 'Ecal'
 process.dqmSaverPB.runNumber = options.runNumber
 
 process.simEcalTriggerPrimitiveDigis.InstanceEB = "ebDigis"
@@ -162,7 +163,7 @@ elif (runTypeName == 'cosmic_run' or runTypeName == 'cosmic_run_stage1'):
     process.ecalMonitorTask.workerParameters.PresampleTask.params.doPulseMaxCheck = False 
 elif runTypeName == 'hi_run':
     process.ecalMonitorTask.collectionTags.Source = "rawDataRepacker"
-    process.ecalDigis.cpu.InputLabel = cms.InputTag('rawDataRepacker')
+    process.ecalDigis.cpu.InputLabel = 'rawDataRepacker'
 elif runTypeName == 'hpu_run':
     if not unitTest:
         process.source.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('*'))

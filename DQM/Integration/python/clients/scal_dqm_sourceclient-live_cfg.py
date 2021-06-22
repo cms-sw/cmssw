@@ -54,7 +54,7 @@ import EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi
 gtEvmDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi.l1GtEvmUnpack.clone()
 
 if (process.runType.getRunType() == process.runType.pp_run and not unitTest):
-    process.source.SelectEvents = cms.untracked.vstring('HLT_ZeroBias*')
+    process.source.SelectEvents = ['HLT_ZeroBias*']
 
 process.physicsBitSelector = cms.EDFilter("PhysDecl",
                                                    applyfilter = cms.untracked.bool(False),
@@ -87,21 +87,21 @@ process.evfDQMmodulesPath = cms.Path(
 process.schedule = cms.Schedule(process.evfDQMmodulesPath)
 
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
-    process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
-    process.ecalDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
-    process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
-    process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
-    process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataRepacker")
-    process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
-    process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
-    process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
+    process.castorDigis.InputLabel = "rawDataRepacker"
+    process.csctfDigis.producer = "rawDataRepacker"
+    process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
+    process.ecalDigis.cpu.InputLabel = "rawDataRepacker"
+    process.ecalPreshowerDigis.sourceTag = "rawDataRepacker"
+    process.gctDigis.inputLabel = "rawDataRepacker"
+    process.gtDigis.DaqGtInputTag = "rawDataRepacker"
+    process.gtEvmDigis.EvmGtInputTag = "rawDataRepacker"
+    process.hcalDigis.InputLabel = "rawDataRepacker"
+    process.muonCSCDigis.InputObjects = "rawDataRepacker"
+    process.muonDTDigis.inputLabel = "rawDataRepacker"
+    process.muonRPCDigis.InputLabel = "rawDataRepacker"
+    process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
+    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+    process.siStripDigis.ProductLabel = "rawDataRepacker"
 
 
 ### process customizations included here

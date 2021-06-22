@@ -159,9 +159,9 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 # HLT trigger selection (HLT_ZeroBias)
 # modified for 0 Tesla HLT menu (no ZeroBias_*)
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-process.hltHighLevel.HLTPaths = cms.vstring('HLT*Mu*','HLT_*Physics*')
-process.hltHighLevel.andOr = cms.bool(True)
-process.hltHighLevel.throw =  cms.bool(False)
+process.hltHighLevel.HLTPaths = ['HLT*Mu*','HLT_*Physics*']
+process.hltHighLevel.andOr = True
+process.hltHighLevel.throw =  False
 
 
 #-----------------------------                                                                                                     
