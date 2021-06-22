@@ -64,7 +64,7 @@
   <Constant name="cslope3"               value="sqrt([slope3]*[slope3]+1.0)"/>
   <Constant name="zHGCal0"               value="[caloBase:ZposV0]"/>
   <Constant name="zHGCal1"               value="[zPosV0]"/>
-  <Constant name="zHGCal2"               value="3620.96*mm"/>
+  <Constant name="zHGCal2"               value="3619.71*mm"/>
   <Constant name="zHGCal3"               value="[caloBase:Zpos31]"/>
   <Constant name="zHGCal4"               value="[caloBase:Zpos32]"/>
   <Constant name="zHGCal5"               value="[zPosV1]"/>
