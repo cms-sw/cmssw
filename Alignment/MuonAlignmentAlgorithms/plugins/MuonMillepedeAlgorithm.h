@@ -19,7 +19,7 @@ class TTree;
 class MuonMillepedeAlgorithm : public AlignmentAlgorithmBase {
 public:
   /// Constructor
-  MuonMillepedeAlgorithm(const edm::ParameterSet& cfg);
+  MuonMillepedeAlgorithm(const edm::ParameterSet& cfg, const edm::ConsumesCollector& iC);
 
   /// Destructor
   ~MuonMillepedeAlgorithm() override{};
