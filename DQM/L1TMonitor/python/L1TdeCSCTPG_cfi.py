@@ -41,6 +41,7 @@ l1tdeCSCTPG = DQMEDAnalyzer(
     emulCLCT = cms.InputTag("valCscStage2Digis"),
     dataLCT = cms.InputTag("muonCSCDigis","MuonCSCCorrelatedLCTDigi"),
     emulLCT = cms.InputTag("valCscStage2Digis", "MPCSORTED"),
+    emulpreCLCT = cms.InputTag("valCscStage2Digis"),
     dataEmul = cms.vstring("data","emul"),
 )
 
