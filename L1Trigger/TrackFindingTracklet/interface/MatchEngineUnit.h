@@ -52,6 +52,7 @@ namespace trklet {
 
     bool active() const { return !idle_ || goodpair_ || goodpair__ || !empty(); }
 
+    //needed for consistency with HLS FW version ("_" vs "__" indicating different pipelining stages)
     bool have_() const { return havepair_; }
     bool have__() const { return havepair__; }
 
