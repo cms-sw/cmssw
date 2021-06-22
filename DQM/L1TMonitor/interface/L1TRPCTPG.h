@@ -90,6 +90,7 @@ private:
   edm::EDGetTokenT<RPCDigiCollection> rpctpgSource_token_;
   edm::InputTag rpctfSource_;
   edm::EDGetTokenT<L1MuGMTReadoutCollection> rpctfSource_token_;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcgeomToken_;
 };
 
 #endif

@@ -38,6 +38,10 @@
 //
 // class decleration
 //
+class L1MuTriggerScales;
+class L1MuTriggerScalesRcd;
+class L1MuTriggerPtScale;
+class L1MuTriggerPtScaleRcd;
 
 class L1TGMT : public DQMEDAnalyzer {
 public:
@@ -99,6 +103,8 @@ private:
   const bool verbose_;
   std::ofstream logFile_;
   const edm::EDGetTokenT<L1MuGMTReadoutCollection> gmtSource_;
+  edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> l1muTrigscaleToken_;
+  edm::ESGetToken<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd> l1TrigptscaleToken_;
 
   int bxnum_old_;  // bx of previous event
   int obnum_old_;  // orbit of previous event
