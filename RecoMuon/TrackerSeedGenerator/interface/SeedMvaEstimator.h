@@ -24,21 +24,21 @@ class SeedMvaEstimator {
 public:
   SeedMvaEstimator(const edm::FileInPath& weightsfile,
                    const std::vector<double>& scale_mean,
-                   const std::vector<double>& scale_std);
+                   const std::vector<double>& scale_std,
+                   const bool isFromL1);
   ~SeedMvaEstimator();
-
-  std::vector<double> scale_mean_;
-  std::vector<double> scale_std_;
 
   double computeMva(const TrajectorySeed&,
                     const GlobalVector&,
                     const l1t::MuonBxCollection&,
                     int minL1Qual,
-                    const reco::RecoChargedCandidateCollection&,
-                    bool isFromL1) const;
+                    const reco::RecoChargedCandidateCollection&) const;
 
 private:
   std::unique_ptr<const GBRForest> gbrForest_;
+  const std::vector<double> scale_mean_;
+  const std::vector<double> scale_std_;
+  const bool isFromL1_;
 
   void getL1MuonVariables(const GlobalVector&, const l1t::MuonBxCollection&, int minL1Qual, float&, float&) const;
   void getL2MuonVariables(const GlobalVector&, const reco::RecoChargedCandidateCollection&, float&, float&) const;
