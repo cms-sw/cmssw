@@ -55,8 +55,8 @@ private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
 
   typedef std::pair<std::unique_ptr<const SeedMvaEstimator>, std::unique_ptr<const SeedMvaEstimator>>
-      pairSeedMvaEstimator;
-  pairSeedMvaEstimator mvaEstimator_;
+      PairSeedMvaEstimator;
+  PairSeedMvaEstimator mvaEstimator_;
 
   const bool rejectAll_;
   const bool isFromL1_;
@@ -80,7 +80,7 @@ private:
   const int minL1Qual_;
   const double baseScore_;
 
-  double getSeedMva(const pairSeedMvaEstimator& pairMvaEstimator,
+  double getSeedMva(const PairSeedMvaEstimator& pairMvaEstimator,
                     const TrajectorySeed& seed,
                     const GlobalVector& global_p,
                     const l1t::MuonBxCollection& l1Muons,
@@ -115,8 +115,9 @@ MuonHLTSeedMVAClassifier::MuonHLTSeedMVAClassifier(const edm::ParameterSet& iCon
       minL1Qual_(iConfig.getParameter<int>("minL1Qual")),
       baseScore_(iConfig.getParameter<double>("baseScore")) {
   if (!rejectAll_) {
-    mvaEstimator_ = std::make_pair(std::make_unique<SeedMvaEstimator>(mvaFileB_, mvaScaleMeanB_, mvaScaleStdB_),
-                                   std::make_unique<SeedMvaEstimator>(mvaFileE_, mvaScaleMeanE_, mvaScaleStdE_));
+    mvaEstimator_ =
+        std::make_pair(std::make_unique<SeedMvaEstimator>(mvaFileB_, mvaScaleMeanB_, mvaScaleStdB_, isFromL1_),
+                       std::make_unique<SeedMvaEstimator>(mvaFileE_, mvaScaleMeanE_, mvaScaleStdE_, isFromL1_));
   }
 
   produces<TrajectorySeedCollection>();
@@ -141,17 +142,16 @@ void MuonHLTSeedMVAClassifier::produce(edm::Event& iEvent, edm::EventSetup const
     return;
   }
 
-  edm::ESHandle<TrackerGeometry> trkGeom = iEventSetup.getHandle(trackerGeometryToken_);
-
+  const TrajectorySeedCollection& seeds = iEvent.get(seedToken_);
   const l1t::MuonBxCollection& l1Muons = iEvent.get(l1MuonToken_);
   const reco::RecoChargedCandidateCollection& l2Muons = iEvent.get(l2MuonToken_);
-  const TrajectorySeedCollection& seeds = iEvent.get(seedToken_);
+  const TrackerGeometry& trkGeom = iEventSetup.getData(trackerGeometryToken_);
 
   std::vector<std::pair<unsigned, double>> pairSeedIdxMvaScoreB = {};
   std::vector<std::pair<unsigned, double>> pairSeedIdxMvaScoreE = {};
   for (auto& seed : seeds) {
     const GlobalVector global_p =
-        trkGeom->idToDet(seed.startingState().detId())->surface().toGlobal(seed.startingState().parameters().momentum());
+        trkGeom.idToDet(seed.startingState().detId())->surface().toGlobal(seed.startingState().parameters().momentum());
 
     bool isB = (std::abs(global_p.eta()) < etaEdge_);
 
@@ -222,16 +222,16 @@ void MuonHLTSeedMVAClassifier::produce(edm::Event& iEvent, edm::EventSetup const
   iEvent.put(std::move(result));
 }
 
-double MuonHLTSeedMVAClassifier::getSeedMva(const pairSeedMvaEstimator& pairMvaEstimator,
+double MuonHLTSeedMVAClassifier::getSeedMva(const PairSeedMvaEstimator& pairMvaEstimator,
                                             const TrajectorySeed& seed,
                                             const GlobalVector& global_p,
                                             const l1t::MuonBxCollection& l1Muons,
                                             const reco::RecoChargedCandidateCollection& l2Muons) {
   double mva = 0.;
   if (std::abs(global_p.eta()) < etaEdge_) {
-    mva = pairMvaEstimator.first->computeMva(seed, global_p, l1Muons, minL1Qual_, l2Muons, isFromL1_);
+    mva = pairMvaEstimator.first->computeMva(seed, global_p, l1Muons, minL1Qual_, l2Muons);
   } else {
-    mva = pairMvaEstimator.second->computeMva(seed, global_p, l1Muons, minL1Qual_, l2Muons, isFromL1_);
+    mva = pairMvaEstimator.second->computeMva(seed, global_p, l1Muons, minL1Qual_, l2Muons);
   }
 
   return (mva + baseScore_);

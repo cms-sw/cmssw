@@ -8,10 +8,10 @@
 
 SeedMvaEstimator::SeedMvaEstimator(const edm::FileInPath& weightsfile,
                                    const std::vector<double>& scale_mean,
-                                   const std::vector<double>& scale_std) {
+                                   const std::vector<double>& scale_std,
+                                   const bool isFromL1)
+    : scale_mean_(scale_mean), scale_std_(scale_std), isFromL1_(isFromL1) {
   gbrForest_ = createGBRForest(weightsfile);
-  scale_mean_ = scale_mean;
-  scale_std_ = scale_std;
 }
 
 SeedMvaEstimator::~SeedMvaEstimator() {}
@@ -73,10 +73,9 @@ double SeedMvaEstimator::computeMva(const TrajectorySeed& seed,
                                     const GlobalVector& global_p,
                                     const l1t::MuonBxCollection& l1Muons,
                                     int minL1Qual,
-                                    const reco::RecoChargedCandidateCollection& l2Muons,
-                                    bool isFromL1) const {
+                                    const reco::RecoChargedCandidateCollection& l2Muons) const {
   static constexpr float initDRdPhi(99999.);
-  auto kLast = isFromL1 ? kLastL1 : kLastL2;
+  auto kLast = isFromL1_ ? kLastL1 : kLastL2;
   float var[kLast];
 
   var[kTsosErr0] = seed.startingState().error(0);
@@ -93,7 +92,7 @@ double SeedMvaEstimator::computeMva(const TrajectorySeed& seed,
   var[kDRdRL1SeedP] = std::sqrt(dR2dRL1SeedP);
   var[kDPhidRL1SeedP] = dPhidRL1SeedP;
 
-  if (!isFromL1) {
+  if (!isFromL1_) {
     float dR2dRL2SeedP = initDRdPhi;
     float dPhidRL2SeedP = initDRdPhi;
     getL2MuonVariables(global_p, l2Muons, dR2dRL2SeedP, dPhidRL2SeedP);
