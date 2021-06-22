@@ -39,11 +39,12 @@ cscTriggerPrimitiveDigis = cms.EDProducer(
     # If True, output collections will only be built for good chambers
     checkBadChambers = cms.bool(True),
 
-    # Write out special trigger collections
-    writeOutAllCLCTs = cms.bool(False),
-    writeOutAllALCTs = cms.bool(False),
-    savePreTriggers = cms.bool(True),
-    writeOutShowers = cms.bool(True),
+    # Anode-DAQ rate determined by pre-CLCTs
+    keepCLCTPreTriggers = cms.bool(True),
+    # Anode-DAQ rate determined by ALCTs
+    keepALCTPreTriggers = cms.bool(False),
+    # special triggers for showers in chambers
+    keepShowers = cms.bool(False),
 
     commonParam = auxPSets.commonParam.clone(),
     mpcParam = auxPSets.mpcParamRun1.clone(),
@@ -64,6 +65,7 @@ run2_common.toModify( cscTriggerPrimitiveDigis,
 ## turn on upgrade CSC algorithm without GEMs
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify( cscTriggerPrimitiveDigis,
+                      keepShowers = True,
                       commonParam = dict(runPhase2 = True,
                                          runME11Up = True)
 )
