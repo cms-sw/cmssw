@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoLocalCalo.EcalRecProducers.ecalRecHitTPGConditions_cff import *
 
 # ECAL reconstruction
+from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2_cff import *
 from RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cff import *
 from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import *
@@ -13,6 +14,7 @@ from RecoLocalCalo.EcalRecProducers.ecalTPSkim_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalDetailedTimeRecHit_cfi import *
 
 ecalUncalibRecHitTask = cms.Task(
+    ecalUncalibRecHitPhase2Task,
     ecalMultiFitUncalibRecHitTask,
     ecalDetIdToBeRecovered)
 
@@ -39,7 +41,7 @@ ecalLocalRecoSequence = cms.Sequence(ecalLocalRecoTask)
 
 ecalOnlyLocalRecoTask = cms.Task(
     ecalUncalibRecHitTask,
-    ecalRecHitNoTPTask)
+   ecalRecHitNoTPTask)
 
 ecalOnlyLocalRecoSequence = cms.Sequence(ecalOnlyLocalRecoTask)
 
