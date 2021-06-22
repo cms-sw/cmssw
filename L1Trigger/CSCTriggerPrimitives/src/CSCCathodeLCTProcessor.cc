@@ -47,7 +47,12 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   tmb_l1a_window_size =  // Common to CLCT and TMB
       tmbParams_.getParameter<unsigned int>("tmbL1aWindowSize");
 
-  // separate handle for early time bins
+  /*
+    In Summer 2021 the CLCT readout function was updated so that the
+    window is based on a number of time bins around the central CLCT
+    time BX7. In the past the window was based on early_tbins and late_tbins.
+    The parameter is kept, but is not used.
+  */
   early_tbins = tmbParams_.getParameter<int>("tmbEarlyTbins");
   if (early_tbins < 0)
     early_tbins = fifo_pretrig - CSCConstants::CLCT_EMUL_TIME_OFFSET;
