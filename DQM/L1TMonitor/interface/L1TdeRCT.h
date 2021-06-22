@@ -267,8 +267,8 @@ private:
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPGData_;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPGData_;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigisLabel_;
-  edm::ESGetToken<RunInfo,RunInfoRcd> runInfoToken_;
-  edm::ESGetToken<RunInfo,RunInfoRcd> runInfolumiToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfolumiToken_;
   std::string gtEGAlgoName_;  // name of algo to determine EG trigger threshold
   int doubleThreshold_;       // value of ET at which to make 2-D eff plot
 

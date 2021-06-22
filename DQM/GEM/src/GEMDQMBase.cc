@@ -4,9 +4,7 @@
 using namespace std;
 using namespace edm;
 
-GEMDQMBase::GEMDQMBase(const edm::ParameterSet& cfg) :
-  geomToken_(esConsumes<edm::Transition::BeginRun>())
-{
+GEMDQMBase::GEMDQMBase(const edm::ParameterSet& cfg) : geomToken_(esConsumes<edm::Transition::BeginRun>()) {
   log_category_ = cfg.getUntrackedParameter<std::string>("logCategory");
 
   nNumEtaPartitionGE0_ = 0;

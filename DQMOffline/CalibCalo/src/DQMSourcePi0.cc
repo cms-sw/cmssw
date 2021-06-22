@@ -309,7 +309,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
     return;
   eventCounter_++;
 
-  auto const& theCaloTopology = iSetup.getHandle(caloTopoToken_);
+  auto const &theCaloTopology = iSetup.getHandle(caloTopoToken_);
 
   std::vector<EcalRecHit> seeds;
   seeds.clear();
@@ -338,7 +338,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
   //edm::ESHandle<CaloGeometry> geoHandle;
   //iSetup.get<CaloGeometryRecord>().get(geoHandle);
-  const auto& geoHandle = iSetup.getHandle(caloGeomToken_);
+  const auto &geoHandle = iSetup.getHandle(caloGeomToken_);
   const CaloSubdetectorGeometry *geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   const CaloSubdetectorGeometry *geometryEE_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   const CaloSubdetectorGeometry *geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
