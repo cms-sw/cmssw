@@ -22,7 +22,7 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "Utilities/General/interface/ClassName.h"
-
+//trivial change to trigger checks
 using namespace std;
 
 AlignmentStats::AlignmentStats(const edm::ParameterSet &iConfig)
