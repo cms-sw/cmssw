@@ -88,7 +88,9 @@ private:
   std::map<CSCStationIndex, std::set<RPCDetId> > rollstoreCSC;
 };
 
-RPCCSC::RPCCSC(const edm::ParameterSet& /*iConfig*/) : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})}, tokCSC_{esConsumes<CSCGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {}
+RPCCSC::RPCCSC(const edm::ParameterSet& /*iConfig*/)
+    : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
+      tokCSC_{esConsumes<CSCGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {}
 
 RPCCSC::~RPCCSC() {}
 

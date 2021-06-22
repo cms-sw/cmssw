@@ -33,7 +33,9 @@ private:
   const RPCGeometry* rpcGeometry_;
 };
 
-RPCGeometryDump::RPCGeometryDump(const edm::ParameterSet& iC) : verbose_(iC.getParameter<bool>("verbose")), tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {}
+RPCGeometryDump::RPCGeometryDump(const edm::ParameterSet& iC)
+    : verbose_(iC.getParameter<bool>("verbose")),
+      tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {}
 
 void RPCGeometryDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;

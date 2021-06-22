@@ -55,7 +55,8 @@ private:
   std::ofstream detailstream;
 };
 
-RPCGEO::RPCGEO(const edm::ParameterSet& /*iConfig*/) : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {
+RPCGEO::RPCGEO(const edm::ParameterSet& /*iConfig*/)
+    : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {
   detailstream.open("RPCGeometry.out");
   detidsstream.open("RPCDetIdLst.out");
   edm::LogVerbatim("RPCGeometry") << "Opening output files :: RPCGeometry.out and RPCDetIdLst.out";

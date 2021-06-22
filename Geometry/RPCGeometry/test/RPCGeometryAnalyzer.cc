@@ -46,7 +46,10 @@ private:
 };
 
 RPCGeometryAnalyzer::RPCGeometryAnalyzer(const edm::ParameterSet& /*iConfig*/)
-  : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})}, dashedLineWidth_(104), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("RPCGeometryAnalyzer") {
+    : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
+      dashedLineWidth_(104),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("RPCGeometryAnalyzer") {
   ofos.open("MytestOutput.out");
   std::cout << "======================== Opening output file" << std::endl;
 }
