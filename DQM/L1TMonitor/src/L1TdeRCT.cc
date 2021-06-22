@@ -2091,7 +2091,7 @@ void L1TdeRCT::readFEDVector(MonitorElement* histogram, const edm::EventSetup& e
   // adding fed mask into channel mask
   //edm::ESHandle<RunInfo> sum;
   //es.get<RunInfoRcd>().get(sum);
-  const auto& sum = isLumitransition ? es.getHandle(runInfolumiToken_) :  es.getHandle(runInfoToken_);
+  const auto& sum = isLumitransition ? es.getHandle(runInfolumiToken_) : es.getHandle(runInfoToken_);
   const RunInfo* summary = sum.product();
 
   std::vector<int> caloFeds;  // pare down the feds to the intresting ones
