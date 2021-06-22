@@ -25,13 +25,13 @@ public:
   SeedMvaEstimator(const edm::FileInPath& weightsfile,
                    const std::vector<double>& scale_mean,
                    const std::vector<double>& scale_std,
-                   const bool isFromL1);
+                   const bool isFromL1,
+                   const int minL1Qual);
   ~SeedMvaEstimator();
 
   double computeMva(const TrajectorySeed&,
                     const GlobalVector&,
                     const l1t::MuonBxCollection&,
-                    int minL1Qual,
                     const reco::RecoChargedCandidateCollection&) const;
 
 private:
@@ -39,8 +39,9 @@ private:
   const std::vector<double> scale_mean_;
   const std::vector<double> scale_std_;
   const bool isFromL1_;
+  const int minL1Qual_;
 
-  void getL1MuonVariables(const GlobalVector&, const l1t::MuonBxCollection&, int minL1Qual, float&, float&) const;
+  void getL1MuonVariables(const GlobalVector&, const l1t::MuonBxCollection&, float&, float&) const;
   void getL2MuonVariables(const GlobalVector&, const reco::RecoChargedCandidateCollection&, float&, float&) const;
 };
 #endif

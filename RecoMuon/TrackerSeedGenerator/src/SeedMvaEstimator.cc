@@ -9,8 +9,9 @@
 SeedMvaEstimator::SeedMvaEstimator(const edm::FileInPath& weightsfile,
                                    const std::vector<double>& scale_mean,
                                    const std::vector<double>& scale_std,
-                                   const bool isFromL1)
-    : scale_mean_(scale_mean), scale_std_(scale_std), isFromL1_(isFromL1) {
+                                   const bool isFromL1,
+                                   const int minL1Qual)
+    : scale_mean_(scale_mean), scale_std_(scale_std), isFromL1_(isFromL1), minL1Qual_(minL1Qual) {
   gbrForest_ = createGBRForest(weightsfile);
 }
 
@@ -36,7 +37,6 @@ namespace {
 
 void SeedMvaEstimator::getL1MuonVariables(const GlobalVector& global_p,
                                           const l1t::MuonBxCollection& l1Muons,
-                                          int minL1Qual,
                                           float& dR2dRL1SeedP,
                                           float& dPhidRL1SeedP) const {
   for (int ibx = l1Muons.getFirstBX(); ibx <= l1Muons.getLastBX(); ++ibx) {
@@ -44,7 +44,7 @@ void SeedMvaEstimator::getL1MuonVariables(const GlobalVector& global_p,
       continue;  // -- only take when ibx == 0 -- //
 
     for (auto it = l1Muons.begin(ibx); it != l1Muons.end(ibx); it++) {
-      if (it->hwQual() < minL1Qual)
+      if (it->hwQual() < minL1Qual_)
         continue;
 
       float dR2tmp = reco::deltaR2(it->etaAtVtx(), it->phiAtVtx(), global_p.eta(), global_p.phi());
@@ -72,7 +72,6 @@ void SeedMvaEstimator::getL2MuonVariables(const GlobalVector& global_p,
 double SeedMvaEstimator::computeMva(const TrajectorySeed& seed,
                                     const GlobalVector& global_p,
                                     const l1t::MuonBxCollection& l1Muons,
-                                    int minL1Qual,
                                     const reco::RecoChargedCandidateCollection& l2Muons) const {
   static constexpr float initDRdPhi(99999.);
   auto kLast = isFromL1_ ? kLastL1 : kLastL2;
@@ -87,7 +86,7 @@ double SeedMvaEstimator::computeMva(const TrajectorySeed& seed,
 
   float dR2dRL1SeedP = initDRdPhi;
   float dPhidRL1SeedP = initDRdPhi;
-  getL1MuonVariables(global_p, l1Muons, minL1Qual, dR2dRL1SeedP, dPhidRL1SeedP);
+  getL1MuonVariables(global_p, l1Muons, dR2dRL1SeedP, dPhidRL1SeedP);
 
   var[kDRdRL1SeedP] = std::sqrt(dR2dRL1SeedP);
   var[kDPhidRL1SeedP] = dPhidRL1SeedP;
