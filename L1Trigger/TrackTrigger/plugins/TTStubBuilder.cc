@@ -210,7 +210,7 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
 
       /// Here tempOutput stores all the stubs from this lower cluster
       /// Check if there is need to store only one (if only one already, skip this step)
-      if (ForbidMultipleStubs && tempOutput.size() > 1+static_cast<unsigned int>(isPS)) {
+      if (ForbidMultipleStubs && tempOutput.size() > 1 + static_cast<unsigned int>(isPS)) {
         /// If so, sort the stubs by bend and keep only the first one (smallest bend)
         std::sort(tempOutput.begin(), tempOutput.end(), TTStubBuilder<Ref_Phase2TrackerDigi_>::SortStubsBend);
 
