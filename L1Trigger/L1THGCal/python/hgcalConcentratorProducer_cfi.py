@@ -32,6 +32,7 @@ threshold_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorPro
                                threshold_scintillator = cms.double(2.), # MipT
                                coarsenTriggerCells = cms.vuint32(0,0,0),
                                fixedDataSizePerHGCROC = cms.bool(False),
+                               allTrigCellsInTrigSums = cms.bool(True),
                                ctcSize = cms.vuint32(CTC_SIZE),
                                )
 
@@ -81,6 +82,7 @@ best_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcesso
                           NData = cms.vuint32(bestchoice_ndata_decentralized),
                           coarsenTriggerCells = cms.vuint32(0,0,0),
                           fixedDataSizePerHGCROC = cms.bool(False),
+                          allTrigCellsInTrigSums = cms.bool(False),
                           coarseTCCompression = coarseTCCompression_proc.clone(),
                           superTCCalibration_ee = vfe_proc.calibrationCfg_ee.clone(),
                           superTCCalibration_hesi = vfe_proc.calibrationCfg_hesi.clone(),
@@ -95,6 +97,7 @@ supertc_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProce
                              stcSize = cms.vuint32(STC_SIZE),
                              ctcSize = cms.vuint32(CTC_SIZE),
                              fixedDataSizePerHGCROC = cms.bool(False),
+                             allTrigCellsInTrigSums = cms.bool(False),
                              coarsenTriggerCells = cms.vuint32(0,0,0),
                              superTCCompression = superTCCompression_proc.clone(),
                              coarseTCCompression = coarseTCCompression_proc.clone(),
@@ -111,6 +114,7 @@ custom_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProces
                           threshold_scintillator = cms.double(2.), # MipT
                           coarsenTriggerCells = cms.vuint32(0,0,0),
                           fixedDataSizePerHGCROC = cms.bool(False),
+                          allTrigCellsInTrigSums = cms.bool(False),
                           type_energy_division = cms.string('superTriggerCell'),# superTriggerCell,oneBitFraction,equalShare
                           stcSize = cms.vuint32(STC_SIZE),
                           ctcSize = cms.vuint32(CTC_SIZE),
@@ -129,6 +133,7 @@ coarsetc_onebitfraction_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcen
                              stcSize = cms.vuint32([4]*(MAX_LAYERS+1)+ [8]*(MAX_LAYERS+1)*3),
                              ctcSize = cms.vuint32(CTC_SIZE),
                              fixedDataSizePerHGCROC = cms.bool(True),
+                             allTrigCellsInTrigSums = cms.bool(False),
                              coarsenTriggerCells = cms.vuint32(0,0,0),
                              oneBitFractionThreshold = cms.double(0.125),
                              oneBitFractionLowValue = cms.double(0.0625),
@@ -148,6 +153,7 @@ coarsetc_equalshare_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentrat
                              stcSize = cms.vuint32([4]*(MAX_LAYERS+1)+ [8]*(MAX_LAYERS+1)*3),
                              ctcSize = cms.vuint32(CTC_SIZE),
                              fixedDataSizePerHGCROC = cms.bool(True),
+                             allTrigCellsInTrigSums = cms.bool(False),
                              coarsenTriggerCells = cms.vuint32(0,0,0),
                              superTCCompression = superTCCompression_proc.clone(),
                              coarseTCCompression = coarseTCCompression_proc.clone(),
@@ -212,6 +218,7 @@ autoEncoder_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorP
                                  stcSize = supertc_conc_proc.stcSize,
                                  ctcSize = supertc_conc_proc.ctcSize,
                                  fixedDataSizePerHGCROC = supertc_conc_proc.fixedDataSizePerHGCROC,
+                                 allTrigCellsInTrigSums = supertc_conc_proc.allTrigCellsInTrigSums,
                                  coarsenTriggerCells = supertc_conc_proc.coarsenTriggerCells,
                                  superTCCompression = superTCCompression_proc.clone(),
                                  coarseTCCompression = coarseTCCompression_proc.clone(),

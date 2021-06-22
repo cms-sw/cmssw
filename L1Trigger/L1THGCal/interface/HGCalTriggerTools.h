@@ -51,10 +51,11 @@ public:
   // in the v8 geometry detid scheme
   int thicknessIndex(const DetId&, bool tc = false) const;
 
-  unsigned lastLayerEE() const { return eeLayers_; }
+  unsigned lastLayerEE(bool nose = false) const { return (nose ? HFNoseDetId::HFNoseLayerEEmax : eeLayers_); }
   unsigned lastLayerFH() const { return eeLayers_ + fhLayers_; }
   unsigned lastLayerBH() const { return totalLayers_; }
   unsigned lastLayerNose() const { return noseLayers_; }
+  unsigned lastLayer(bool nose = false) const { return nose ? noseLayers_ : totalLayers_; }
 
   // 4-vector helper functions using GlobalPoint
   float getEta(const GlobalPoint& position, const float& vertex_z = 0.) const;
