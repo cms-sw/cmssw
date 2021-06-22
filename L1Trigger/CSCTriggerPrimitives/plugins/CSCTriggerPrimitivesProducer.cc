@@ -43,8 +43,9 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
-  savePreTriggers_ = conf.getParameter<bool>("savePreTriggers");
-  writeOutShowers_ = conf.getParameter<bool>("writeOutShowers");
+  keepCLCTPreTriggers_ = conf.getParameter<bool>("keepCLCTPreTriggers");
+  keepALCTPreTriggers_ = conf.getParameter<bool>("keepALCTPreTriggers");
+  keepShowers_ = conf.getParameter<bool>("keepShowers");
 
   // check whether you need to run the integrated local triggers
   const edm::ParameterSet commonParam(conf.getParameter<edm::ParameterSet>("commonParam"));
@@ -64,19 +65,21 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   produces<CSCALCTDigiCollection>();
   produces<CSCCLCTDigiCollection>();
   produces<CSCCLCTPreTriggerCollection>();
-  if (savePreTriggers_) {
+  if (keepCLCTPreTriggers_) {
     produces<CSCCLCTPreTriggerDigiCollection>();
+  }
+  if (keepALCTPreTriggers_) {
     produces<CSCALCTPreTriggerDigiCollection>();
   }
   produces<CSCCorrelatedLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
-  if (writeOutShowers_) {
+  if (keepShowers_) {
     produces<CSCShowerDigiCollection>();
     produces<CSCShowerDigiCollection>("Anode");
   }
-  if (runME11ILT_ or runME21ILT_)
+  if (runME11ILT_ or runME21ILT_) {
     produces<GEMCoPadDigiCollection>();
-
+  }
   // temporarily switch to a "one" module with a CSCTriggerPrimitivesBuilder data member
   builder_ = std::make_unique<CSCTriggerPrimitivesBuilder>(config_);
 }
@@ -178,14 +181,16 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   // Put collections in event.
   ev.put(std::move(oc_alct));
   ev.put(std::move(oc_clct));
-  if (savePreTriggers_) {
+  if (keepALCTPreTriggers_) {
     ev.put(std::move(oc_alctpretrigger));
+  }
+  if (keepCLCTPreTriggers_) {
     ev.put(std::move(oc_clctpretrigger));
   }
   ev.put(std::move(oc_pretrig));
   ev.put(std::move(oc_lct));
   ev.put(std::move(oc_sorted_lct), "MPCSORTED");
-  if (writeOutShowers_) {
+  if (keepShowers_) {
     ev.put(std::move(oc_shower));
     ev.put(std::move(oc_shower_anode), "Anode");
   }
