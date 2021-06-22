@@ -33,17 +33,13 @@ private:
   edm::EDGetTokenT<l1t::RegionalMuonShowerBxCollection> showerInputToken_;
   int bxMin_;
   int bxMax_;
-  unsigned minNominalShowers_;
-  unsigned minTwoLooseShowers_;
 };
 
 L1TMuonShowerProducer::L1TMuonShowerProducer(const edm::ParameterSet& iConfig)
     : showerInputTag_(iConfig.getParameter<edm::InputTag>("showerInput")),
       showerInputToken_(consumes<l1t::RegionalMuonShowerBxCollection>(showerInputTag_)),
       bxMin_(iConfig.getParameter<int>("bxMin")),
-      bxMax_(iConfig.getParameter<int>("bxMax")),
-      minNominalShowers_(iConfig.getParameter<unsigned>("minNominalShowers")),
-      minTwoLooseShowers_(iConfig.getParameter<unsigned>("minTwoLooseShowers")) {
+      bxMax_(iConfig.getParameter<int>("bxMax")) {
   produces<MuonShowerBxCollection>();
 }
 
@@ -63,30 +59,25 @@ void L1TMuonShowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     can either be in-time or out-of-time. The minimal implementation
     only considers the "at least 1-nominal shower" case.
    */
-  unsigned nNominalInTime = 0;
-  unsigned nNominalOutOfTime = 0;
-  unsigned nTwoLooseInTime = 0;
-  unsigned nTwoLooseOutOfTime = 0;
+  bool isOneNominalInTime = false;
+  bool isOneNominalOutOfTime = false;
+  bool isTwoLooseInTime = false;
+  bool isTwoLooseOutOfTime = false;
   for (size_t i = 0; i < emtfShowers->size(0); ++i) {
     auto shower = emtfShowers->at(0, i);
     if (shower.isValid()) {
       // nominal
       if (shower.isOneNominalInTime())
-        nNominalInTime++;
+        isOneNominalInTime = true;
       if (shower.isOneNominalOutOfTime())
-        nNominalOutOfTime++;
+        isOneNominalOutOfTime = true;
       // two loose
       if (shower.isTwoLooseInTime())
-        nTwoLooseInTime++;
+        isTwoLooseInTime = true;
       if (shower.isTwoLooseOutOfTime())
-        nTwoLooseOutOfTime++;
+        isTwoLooseOutOfTime = true;
     }
   }
-
-  const bool isOneNominalInTime(nNominalInTime >= minNominalShowers_);
-  const bool isOneNominalOutOfTime(nNominalOutOfTime >= minNominalShowers_);
-  const bool isTwoLooseInTime(nTwoLooseInTime >= minTwoLooseShowers_);
-  const bool isTwoLooseOutOfTime(nTwoLooseOutOfTime >= minTwoLooseShowers_);
 
   // Check for at least one nominal shower
   const bool acceptCondition(isOneNominalInTime or isOneNominalOutOfTime or isTwoLooseInTime or isTwoLooseOutOfTime);
