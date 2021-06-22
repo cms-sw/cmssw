@@ -55,8 +55,8 @@ namespace trklet {
       assert(wptr_ != rptr_);
     }
 
+    // methods used when comparing emulation with HLS code
     unsigned int rptr() const { return rptr_; }
-
     unsigned int wptr() const { return wptr_; }
 
   private:
@@ -65,7 +65,7 @@ namespace trklet {
     //buffer size
     unsigned int size_;
 
-    //read and write poiters into buffer
+    //read and write pointers into buffer
     unsigned int rptr_;
     unsigned int wptr_;
   };

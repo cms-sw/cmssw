@@ -64,37 +64,37 @@ namespace trklet {
       std::string hexword = "";
       if (word == '0')
         hexword = "0000";
-      if (word == '1')
+      else if (word == '1')
         hexword = "0001";
-      if (word == '2')
+      else if (word == '2')
         hexword = "0010";
-      if (word == '3')
+      else if (word == '3')
         hexword = "0011";
-      if (word == '4')
+      else if (word == '4')
         hexword = "0100";
-      if (word == '5')
+      else if (word == '5')
         hexword = "0101";
-      if (word == '6')
+      else if (word == '6')
         hexword = "0110";
-      if (word == '7')
+      else if (word == '7')
         hexword = "0111";
-      if (word == '8')
+      else if (word == '8')
         hexword = "1000";
-      if (word == '9')
+      else if (word == '9')
         hexword = "1001";
-      if (word == 'A')
+      else if (word == 'A')
         hexword = "1010";
-      if (word == 'B')
+      else if (word == 'B')
         hexword = "1011";
-      if (word == 'C')
+      else if (word == 'C')
         hexword = "1100";
-      if (word == 'D')
+      else if (word == 'D')
         hexword = "1101";
-      if (word == 'E')
+      else if (word == 'E')
         hexword = "1110";
-      if (word == 'F')
+      else if (word == 'F')
         hexword = "1111";
-      if (hexword.empty()) {
+      else if (hexword.empty()) {
         throw cms::Exception("Inconsistency")
             << __FILE__ << " " << __LINE__ << " hex string format invalid: " << stubwordhex;
       }
