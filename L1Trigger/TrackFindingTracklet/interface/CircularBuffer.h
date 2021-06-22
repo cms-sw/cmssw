@@ -55,8 +55,8 @@ namespace trklet {
       assert(wptr_ != rptr_);
     }
 
+    //these are needed for comparison of emulation with HLS FW
     unsigned int rptr() const { return rptr_; }
-
     unsigned int wptr() const { return wptr_; }
 
   private:
