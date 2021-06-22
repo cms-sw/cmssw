@@ -32,6 +32,8 @@ class Phase1PixelMaps {
 public:
   Phase1PixelMaps(const char* option)
       : m_option{option},
+        m_isBooked{std::make_pair(false, false)},
+        m_knownNames{{}},
         m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
             edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
     // set the rescale to true by default
@@ -56,11 +58,15 @@ public:
   // set option, but only if not already set
   void resetOption(const char* option);
 
+  // book them all
+  void book(const std::string& currentHistoName, const char* what, const char* zaxis);
+
   // booking methods
   void bookBarrelHistograms(const std::string& currentHistoName, const char* what, const char* zaxis);
   void bookForwardHistograms(const std::string& currentHistoName, const char* what, const char* zaxis);
-  void bookBarrelBins(const std::string& currentHistoName);
-  void bookForwardBins(const std::string& currentHistoName);
+
+  // fill them all
+  void fill(const std::string& currentHistoName, unsigned int id, double value);
 
   // filling methods
   void fillBarrelBin(const std::string& currentHistoName, unsigned int id, double value);
@@ -79,6 +85,9 @@ public:
 private:
   Option_t* m_option;
   bool m_autorescale;
+  std::pair<bool, bool> m_isBooked;
+  std::vector<std::string> m_knownNames;
+
   TrackerTopology m_trackerTopo;
 
   std::map<uint32_t, std::shared_ptr<TGraph>> bins, binsSummary;
@@ -91,6 +100,10 @@ private:
   std::vector<edm::FileInPath> m_cornersFPIX;
 
   const indexedCorners retrieveCorners(const std::vector<edm::FileInPath>& cornerFiles, const unsigned int reads);
+
+  // called by book histograms
+  void bookBarrelBins(const std::string& currentHistoName);
+  void bookForwardBins(const std::string& currentHistoName);
 
   // graphics
   void makeNicePlotStyle(TH1* hist);
