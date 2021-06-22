@@ -107,8 +107,9 @@ for i in range( nE) :
   cmd3 = 'rm -f ' + fnametmp
   os.system(cmd3)
   pfile = open(fnametmp, "w")
-  pfile.write('import FWCore.ParameterSet.Config as cms \n\n' )                
-  pfile.write('process = cms.Process("PROD") \n\n' )
+  pfile.write('import FWCore.ParameterSet.Config as cms \n\n' )
+  pfile.write('from Configuration.Eras.Modifier_h2tb_cff import h2tb   \n\n' )
+  pfile.write('process = cms.Process("PROD", h2tb) \n\n' )
   pfile.write('process.load("' + geom + '") \n\n')
   pfile.write('from SimG4CMS.HcalTestBeam.TB2006Analysis_cfi import * \n')
   pfile.write('process = testbeam2006(process) \n\n')
