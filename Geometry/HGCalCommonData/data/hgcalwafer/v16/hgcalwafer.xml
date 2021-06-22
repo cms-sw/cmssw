@@ -6,6 +6,9 @@
   <Constant name="ModuleThicknessHE"     value="[hgcal:ModuleThicknessHE]"/>
   <Constant name="WaferSize"             value="[hgcal:WaferSize]"/>
   <Constant name="WaferThickness"        value="[hgcal:WaferThickness]"/>
+  <Constant name="WaferThicknessFine"    value="[hgcal:WaferThicknessFine]"/>
+  <Constant name="WaferThicknessCoarse1" value="[hgcal:WaferThicknessCoarse1]"/>
+  <Constant name="WaferThicknessCoarse2" value="[hgcal:WaferThicknessCoarse2]"/>
   <Constant name="SensorSeparation"      value="[hgcal:SensorSeparation]"/>
   <Constant name="CellThicknessFine"     value="[hgcal:CellThicknessFine]"/>
   <Constant name="CellThicknessCoarse1"  value="[hgcal:CellThicknessCoarse1]"/>
@@ -152,8 +155,8 @@
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
-    <Numeric name="SensorSeparation" value="[SensorSeparationCoarse2]"/>
-    <Numeric name="WaferThickness"   value="[WaferThickness]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
     <Vector name="LayerNames" type="string" nEntries="7">
       HGCalEEMotherBoard0Coarse2, HGCalEEConnector0Coarse2, HGCalEEPCB0Coarse2,
       HGCalEEEpoxy0Coarse2, HGCalEEKapton0Coarse2, HGCalEESensitive0Coarse2, 
@@ -185,8 +188,8 @@
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
-    <Numeric name="SensorSeparation" value="[SensorSeparationCoarse2]"/>
-    <Numeric name="WaferThickness"   value="[WaferThickness]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
     <Vector name="LayerNames" type="string" nEntries="7">
       HGCalEEMotherBoard1Coarse2, HGCalEEConnector1Coarse2, HGCalEEPCB1Coarse2,
       HGCalEEEpoxy1Coarse2, HGCalEEKapton1Coarse2, HGCalEESensitive1Coarse2, 

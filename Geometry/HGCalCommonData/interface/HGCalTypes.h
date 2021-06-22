@@ -71,6 +71,14 @@ public:
     WaferOut = 99
   };
 
+  enum LayerType {
+    WaferCenteredFront = 0,
+    WaferCenteredBack = 1,
+    CornerCenteredY = 2,
+    CornerCenteredLambda = 3,
+    WaferCenteredRotated = 0
+  };
+
   static constexpr int32_t WaferCornerMin = 3;
   static constexpr int32_t WaferCornerMax = 6;
   static constexpr int32_t WaferSizeMax = 7;
