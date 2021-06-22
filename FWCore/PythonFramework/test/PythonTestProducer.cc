@@ -26,7 +26,6 @@ namespace edmtest {
 
   PythonTestProducer::PythonTestProducer(edm::ParameterSet const& iPS)
       : get_(consumes<IntProduct>(iPS.getParameter<edm::InputTag>("source"))) {
-
     pybind11::module main_module = pybind11::module::import("__main__");
     auto main_namespace = main_module.attr("__dict__");
 
