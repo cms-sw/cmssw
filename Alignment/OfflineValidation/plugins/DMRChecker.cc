@@ -184,14 +184,10 @@ public:
 
     pixelmap = std::make_unique<Phase1PixelMaps>("COLZ0 L");
     pixelmap->bookBarrelHistograms("DMRsX", "Median Residuals x-direction", "Median Residuals");
-    pixelmap->bookBarrelBins("DMRsX");
     pixelmap->bookForwardHistograms("DMRsX", "Median Residuals x-direction", "Median Residuals");
-    pixelmap->bookForwardBins("DMRsX");
 
     pixelmap->bookBarrelHistograms("DMRsY", "Median Residuals y-direction", "Median Residuals");
-    pixelmap->bookBarrelBins("DMRsY");
     pixelmap->bookForwardHistograms("DMRsY", "Median Residuals y-direction", "Median Residuals");
-    pixelmap->bookForwardBins("DMRsY");
 
     // set no rescale
     pixelmap->setNoRescale();

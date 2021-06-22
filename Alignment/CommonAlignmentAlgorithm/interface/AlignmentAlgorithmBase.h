@@ -37,6 +37,7 @@ class Trajectory;
 #include "DataFormats/Alignment/interface/TkFittedLasBeamCollectionFwd.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMapFwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
   class EventSetup;
@@ -111,7 +112,7 @@ public:
   };
 
   /// Constructor
-  AlignmentAlgorithmBase(const edm::ParameterSet &){};
+  AlignmentAlgorithmBase(const edm::ParameterSet &, const edm::ConsumesCollector &){};
 
   /// Destructor
   virtual ~AlignmentAlgorithmBase(){};
