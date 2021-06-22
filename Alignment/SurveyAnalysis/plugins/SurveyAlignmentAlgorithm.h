@@ -24,7 +24,7 @@ class AlignableExtras;
 
 class SurveyAlignmentAlgorithm : public AlignmentAlgorithmBase {
 public:
-  SurveyAlignmentAlgorithm(const edm::ParameterSet&);
+  SurveyAlignmentAlgorithm(const edm::ParameterSet&, const edm::ConsumesCollector&);
 
   /// call at start of job
   void initialize(

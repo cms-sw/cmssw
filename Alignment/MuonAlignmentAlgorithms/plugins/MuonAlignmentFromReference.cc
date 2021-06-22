@@ -73,7 +73,7 @@ Implementation:
 
 class MuonAlignmentFromReference : public AlignmentAlgorithmBase {
 public:
-  MuonAlignmentFromReference(const edm::ParameterSet& cfg);
+  MuonAlignmentFromReference(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
   ~MuonAlignmentFromReference() override;
 
   void initialize(const edm::EventSetup& iSetup,
@@ -109,6 +109,13 @@ private:
   void eraseNotSelectedResiduals();
 
   void fillNtuple();
+
+  // tokens
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> m_cscGeometryToken;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_globTackingToken;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagFieldToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> m_propToken;
+  const edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> m_DetIdToken;
 
   // configutarion paramenters:
   edm::InputTag m_muonCollectionTag;
@@ -185,8 +192,13 @@ private:
   bool m_debug;
 };
 
-MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet& cfg)
-    : AlignmentAlgorithmBase(cfg),
+MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
+    : AlignmentAlgorithmBase(cfg, iC),
+      m_cscGeometryToken(iC.esConsumes<edm::Transition::BeginRun>()),
+      m_globTackingToken(iC.esConsumes()),
+      m_MagFieldToken(iC.esConsumes()),
+      m_propToken(iC.esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))),
+      m_DetIdToken(iC.esConsumes(edm::ESInputTag("", "MuonDetIdAssociator"))),
       m_muonCollectionTag(cfg.getParameter<edm::InputTag>("muonCollectionTag")),
       m_reference(cfg.getParameter<std::vector<std::string> >("reference")),
       m_minTrackPt(cfg.getParameter<double>("minTrackPt")),
@@ -335,8 +347,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup,
     throw cms::Exception("MuonAlignmentFromReference")
         << "unrecognized useResiduals: \"" << m_useResiduals << "\"" << std::endl;
 
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  iSetup.get<MuonGeometryRecord>().get(cscGeometry);
+  const CSCGeometry* cscGeometry = &iSetup.getData(m_cscGeometryToken);
 
   // set up the MuonResidualsFitters (which also collect residuals for fitting)
   m_me11map.clear();
@@ -389,9 +400,9 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup,
         m_fitters[ali] = new MuonResidualsTwoBin(
             m_twoBin,
             new MuonResiduals6DOFrphiFitter(
-                residualsModel, m_minAlignmentHits, useResiduals, &(*cscGeometry), m_weightAlignment),
+                residualsModel, m_minAlignmentHits, useResiduals, cscGeometry, m_weightAlignment),
             new MuonResiduals6DOFrphiFitter(
-                residualsModel, m_minAlignmentHits, useResiduals, &(*cscGeometry), m_weightAlignment));
+                residualsModel, m_minAlignmentHits, useResiduals, cscGeometry, m_weightAlignment));
         made_fitter = true;
       }
     }
@@ -430,17 +441,10 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
     std::cout << "****** EVENT START *******" << std::endl;
   m_counter_events++;
 
-  edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
-
-  edm::ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-
-  edm::ESHandle<Propagator> prop;
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", prop);
-
-  edm::ESHandle<DetIdAssociator> muonDetIdAssociator_;
-  iSetup.get<DetIdAssociatorRecord>().get("MuonDetIdAssociator", muonDetIdAssociator_);
+  const GlobalTrackingGeometry* globalGeometry = &iSetup.getData(m_globTackingToken);
+  const MagneticField* magneticField = &iSetup.getData(m_MagFieldToken);
+  const Propagator* prop = &iSetup.getData(m_propToken);
+  const DetIdAssociator* muonDetIdAssociator = &iSetup.getData(m_DetIdToken);
 
   if (m_muonCollectionTag.label().empty())  // use trajectories
   {
@@ -467,7 +471,7 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
           MuonResidualsFromTrack muonResidualsFromTrack(iSetup,
                                                         magneticField,
                                                         globalGeometry,
-                                                        muonDetIdAssociator_,
+                                                        muonDetIdAssociator,
                                                         prop,
                                                         traj,
                                                         track,
