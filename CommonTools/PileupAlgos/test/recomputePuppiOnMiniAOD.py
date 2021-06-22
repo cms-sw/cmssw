@@ -28,7 +28,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/h/hinzmann/stable_13TeV/jetmet/mtd/CMSSW_11_1_8/src/25202.0_TTbar_13+TTbar_13+DIGIUP15_PU25+RECOUP15_PU25+HARVESTUP15_PU25+NANOUP15_PU25/step3_inMINIAODSIM.root'),
+    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/h/hinzmann/stable_13TeV/jetmet/mtd/CMSSW_12_0_0_pre3/src/25202.0_TTbar_13+TTbar_13+DIGIUP15_PU25+RECOUP15_PU25+HARVESTUP15_PU25+NANOUP15_PU25/step3_inMINIAODSIM.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -85,8 +85,35 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
-from CommonTools.PileupAlgos.customizePuppiTune_cff import UpdatePuppiTune_MC
-UpdatePuppiTune_MC(process)
+# Rerun PUPPI MET and ak4 jets (but not ak8)
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
+task = getPatAlgosToolsTask(process)
+from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
+makePuppiesFromMiniAOD(process,True)
+process.puppi.useExistingWeights = False
+process.puppiNoLep.useExistingWeights = False
+from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+runMetCorAndUncFromMiniAOD(process,isData=False,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi",recoMetFromPFCs=True)
+from PhysicsTools.PatAlgos.patPuppiJetSpecificProducer_cfi import patPuppiJetSpecificProducer
+addToProcessAndTask('patPuppiJetSpecificProducer', patPuppiJetSpecificProducer.clone(src=cms.InputTag("patJetsPuppi")), process, task)
+from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+updateJetCollection(
+   process,
+   labelName = 'PuppiJetSpecific',
+   jetSource = cms.InputTag('patJetsPuppi'),
+)
+process.updatedPatJetsPuppiJetSpecific.userData.userFloats.src = ['patPuppiJetSpecificProducer:puppiMultiplicity', 'patPuppiJetSpecificProducer:neutralPuppiMultiplicity', 'patPuppiJetSpecificProducer:neutralHadronPuppiMultiplicity', 'patPuppiJetSpecificProducer:photonPuppiMultiplicity', 'patPuppiJetSpecificProducer:HFHadronPuppiMultiplicity', 'patPuppiJetSpecificProducer:HFEMPuppiMultiplicity' ]
+addToProcessAndTask('slimmedJetsPuppi', process.updatedPatJetsPuppiJetSpecific.clone(), process, task)
+del process.updatedPatJetsPuppiJetSpecific
+process.puppiSequence = cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi+process.patPuppiJetSpecificProducer+process.slimmedJetsPuppi)
+
+# Example how to not use vertex fit for track-vertex-association, but only dz
+#process.packedPrimaryVertexAssociationJME.assignment.useVertexFit = False
+#process.packedPrimaryVertexAssociationJME.assignment.maxDzSigForPrimaryAssignment = 5.0
+#process.packedPrimaryVertexAssociationJME.assignment.maxDzForPrimaryAssignment = 0.1
+#process.packedPrimaryVertexAssociationJME.assignment.maxDzErrorForPrimaryAssignment = 0.05
+#process.packedPrimaryVertexAssociationJME.assignment.OnlyUseFirstDz = False
+#process.pfCHS.vertexAssociationQuality = 6
 
 # Path and EndPath definitions
 process.puppi_step = cms.Path(process.puppiSequence)
