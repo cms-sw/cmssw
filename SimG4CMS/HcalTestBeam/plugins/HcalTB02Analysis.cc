@@ -109,9 +109,9 @@ HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet& p) {
 
   produces<HcalTB02HistoClass>();
 
-  edm::LogInfo("HcalTBSim") << "HcalTB02Analysis:: Initialised as observer of "
-                            << "BeginOfJob/BeginOfEvent/EndOfEvent with "
-                            << "Parameter values:\n \thcalOnly = " << hcalOnly;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis:: Initialised as observer of "
+                                << "BeginOfJob/BeginOfEvent/EndOfEvent with "
+                                << "Parameter values:\n \thcalOnly = " << hcalOnly;
 
   histo = std::make_unique<HcalTB02Histo>(m_Anal);
 }
@@ -129,7 +129,7 @@ void HcalTB02Analysis::produce(edm::Event& e, const edm::EventSetup&) {
 }
 
 void HcalTB02Analysis::update(const BeginOfEvent* evt) {
-  edm::LogInfo("HcalTBSim") << "HcalTB02Analysis: =====> Begin of event = " << (*evt)()->GetEventID();
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis: =====> Begin of event = " << (*evt)()->GetEventID();
   clear();
 }
 
@@ -459,7 +459,7 @@ void HcalTB02Analysis::finish() {
   for (int ilayer = 0; ilayer<19; ilayer++) {
 
     // Histogram mean and sigma calculated from the ROOT histos
-    edm::LogInfo("HcalTBSim") << "Layer number: " << ilayer << " Mean = " 
+    edm::LogVerbatim("HcalTBSim") << "Layer number: " << ilayer << " Mean = " 
 			      << histo->getMean(ilayer) << " sigma = "   
 			      << histo->getRMS(ilayer) << " LThick= "   
 			      << w[ilayer] << " SThick= "   << st[ilayer];

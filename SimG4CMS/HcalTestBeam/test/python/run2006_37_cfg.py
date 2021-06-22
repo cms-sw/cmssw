@@ -1,4 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_h2tb_cff import h2tb
+
+process = cms.Process("PROD", h2tb)
 
 process = cms.Process("PROD")
 
@@ -26,6 +29,8 @@ process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
+beamPosition = -800.0
+
 process.common_beam_direction_parameters = cms.PSet(
     MinE   = cms.double(50.0),
     MaxE   = cms.double(50.0),
@@ -34,7 +39,7 @@ process.common_beam_direction_parameters = cms.PSet(
     MaxEta       = cms.double(0.2175),
     MinPhi       = cms.double(0.15708),
     MaxPhi       = cms.double(0.15708),
-    BeamPosition = cms.double(-800.0)
+    BeamPosition = cms.double(beamPosition)
     )
 
 process.source = cms.Source("EmptySource",
@@ -105,6 +110,9 @@ process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
 process.g4SimHits.Physics.Region = 'HcalRegion'
 process.g4SimHits.Physics.DefaultCutValue = 1.
 
+process.g4SimHits.StackingAction.KillGamma = False
+process.g4SimHits.CaloTrkProcessing.TestBeam = True
+process.g4SimHits.CaloSD.BeamPosition = beamPosition
 process.g4SimHits.ECalSD.UseBirkLaw = True
 process.g4SimHits.ECalSD.BirkL3Parametrization = True
 process.g4SimHits.ECalSD.BirkC1 = 0.033
@@ -127,30 +135,3 @@ process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
                              'HcalTB06BeamDetector',
                              'EcalSensitiveDetector',
                              'HcalSensitiveDetector']
-
-process.g4SimHits.CaloSD = cms.PSet(
-    process.common_beam_direction_parameters,
-    process.common_heavy_suppression,
-    DoFineCalo     = cms.bool(False),
-    SaveCaloBoundaryInformation = cms.bool(False),
-    EminFineTrack  = cms.double(10000.0),
-    FineCaloNames  = cms.vstring(),
-    FineCaloLevels = cms.vint32(),
-    UseFineCalo    = cms.vint32(),
-    EminTrack      = cms.double(1.0),
-    TmaxHit        = cms.double(1000.0),
-    EminHits       = cms.vdouble(0.0,0.0,0.0,0.0),
-    EminHitsDepth  = cms.vdouble(0.0,0.0,0.0,0.0),
-    TmaxHits       = cms.vdouble(1000.0,1000.0,1000.0,1000.0),
-    HCNames        = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits'),
-    UseResponseTables = cms.vint32(0,0,0,0),
-    SuppressHeavy  = cms.bool(False),
-    UseFineCaloID  = cms.bool(False),
-    CheckHits      = cms.untracked.int32(25),
-    UseMap         = cms.untracked.bool(True),
-    Verbosity      = cms.untracked.int32(0),
-    DetailedTiming = cms.untracked.bool(False),
-    CorrectTOFBeam = cms.bool(False)
-    )
-
-process.g4SimHits.CaloTrkProcessing.TestBeam = True

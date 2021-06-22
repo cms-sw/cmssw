@@ -115,7 +115,7 @@ CaloSD::CaloSD(const std::string& name,
                               << " ns and if energy is above " << eminHit / CLHEP::MeV << " MeV (for depth 0) or "
                               << eminHitD / CLHEP::MeV << " MeV (for nonzero depths);\n        Time Slice Unit "
                               << timeSlice << "\nIgnore TrackID Flag " << ignoreTrackID << " doFineCalo flag "
-                              << doFineCalo_;
+                              << doFineCalo_ << "\nBeam Position " << beamZ / CLHEP::cm << " cm";
 
   // Treat fine calorimeters
   edm::LogVerbatim("CaloSim") << "CaloSD: Have a possibility of " << fineNames.size() << " fine calorimeters of which "
