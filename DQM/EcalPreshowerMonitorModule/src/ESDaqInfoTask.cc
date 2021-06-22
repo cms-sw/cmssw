@@ -117,7 +117,6 @@ void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
   }
 
   if (auto runInfoRec = iSetup.tryToGet<RunInfoRcd>()) {
-
     const auto& sumFED = runInfoRec->getHandle(runInfoToken_);
 
     std::vector<int> FedsInIds = sumFED->m_fed_in;
