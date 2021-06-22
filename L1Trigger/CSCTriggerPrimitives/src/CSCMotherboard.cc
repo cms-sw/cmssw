@@ -89,6 +89,7 @@ void CSCMotherboard::clear() {
   // clear the ALCT and CLCT containers
   alctV.clear();
   clctV.clear();
+  lctV.clear();
 
   allLCTs_.clear();
 
@@ -291,7 +292,6 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
       continue;
     }
 
-    std::cout << "readout " << lct << std::endl;
     const int bx = lct.getBX();
     // Skip LCTs found too early relative to L1Accept.
     if (bx < early_tbin) {
@@ -473,31 +473,24 @@ unsigned int CSCMotherboard::encodePattern(const int ptn) const {
 }
 
 void CSCMotherboard::selectLCTs() {
-  lctV.clear();
-
   // in each of the LCT time bins
   for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
     unsigned nLCTs = 0;
+
+    std::vector<CSCCorrelatedLCTDigi> tempV;
     // check each of the preferred combinations
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) {
       // select at most 2
       for (int i = 0; i < CSCConstants::MAX_LCTS_PER_CSC; i++) {
-        if (allLCTs_(bx, mbx, i).isValid()) {
-          // clear the others
-          if (nLCTs >= CSCConstants::MAX_LCTS_PER_CSC) {
-            allLCTs_(bx, mbx, i).clear();
-          }
+        if (allLCTs_(bx, mbx, i).isValid() and nLCTs < 2) {
+          tempV.push_back(allLCTs_(bx, mbx, i));
           ++nLCTs;
         }
       }
     }
-    // store them in a temporary container
-    for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) {
-      for (int i = 0; i < CSCConstants::MAX_LCTS_PER_CSC; i++) {
-        if (allLCTs_(bx, mbx, i).isValid()) {
-          lctV.push_back(allLCTs_(bx, mbx, i));
-        }
-      }
+    // store the best 2
+    for (const auto& lct: tempV) {
+      lctV.push_back(lct);
     }
   }
 
