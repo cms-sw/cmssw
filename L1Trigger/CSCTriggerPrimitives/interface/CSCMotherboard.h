@@ -162,11 +162,28 @@ protected:
   /* quality control */
   std::unique_ptr<LCTQualityControl> qualityControl_;
 
+  /*
+    Helper class to check if an ALCT intersects with a CLCT. Normally
+    this class should not be used. It is left in the code as a potential
+    improvement for ME1/1 when unphysical LCTs are not desired. This
+    function is not implemented in the firmware.
+  */
   std::unique_ptr<CSCALCTCrossCLCT> cscOverlap_;
 
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
 
+  /*
+    This function matches maximum two ALCTs with maximum two CLCTs in
+    a bunch crossing. The best ALCT is considered the one with the highest
+    quality in a BX. Similarly for the best CLCT. If there is just one
+    ALCT and just one CLCT, the correlated LCT is made from those two
+    components. If there are exactly two ALCTs and two CLCTs, the best
+    LCT and second best LCT are formed from the best ALCT-CLCT combination
+    and the second best ALCT-CLCT combination. In case there is missing
+    information (e.g. second best ALCT, but no second best CLCT), information
+    is copied over.
+   */
   void correlateLCTs(const CSCALCTDigi& bestALCT,
                      const CSCALCTDigi& secondALCT,
                      const CSCCLCTDigi& bestCLCT,
@@ -175,8 +192,11 @@ protected:
                      CSCCorrelatedLCTDigi& sLCT,
                      int type);
 
-  // This method calculates all the TMB words and then passes them to the
-  // constructor of correlated LCTs.
+  /*
+     This method calculates all the TMB words and then passes them to the
+     constructor of correlated LCTs. The LCT data members are filled with
+     information from the ALCT-CLCT combination.
+  */
   CSCCorrelatedLCTDigi constructLCTs(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb) const;
 
   // CLCT pattern number: encodes the pattern number itself
