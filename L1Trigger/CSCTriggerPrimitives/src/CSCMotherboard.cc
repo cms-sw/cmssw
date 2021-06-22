@@ -90,12 +90,6 @@ void CSCMotherboard::clear() {
   alctV.clear();
   clctV.clear();
 
-  // clear the LCT containers
-  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
-    firstLCT[bx].clear();
-    secondLCT[bx].clear();
-  }
-
   allLCTs_.clear();
 
   // reset the shower trigger
@@ -250,61 +244,75 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
 // the vector of all found LCTs and selects the ones in the read-out
 // time window.
 std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
+  // temporary container for further selection
   std::vector<CSCCorrelatedLCTDigi> tmpV;
 
-  // The start time of the L1A*LCT coincidence window should be related
-  // to the fifo_pretrig parameter, but I am not completely sure how.
-  // Just choose it such that the window is centered at bx=7.  This may
-  // need further tweaking if the value of tmb_l1a_window_size changes.
-  //static int early_tbins = 4;
+  /*
+    LCTs in the BX window [early_tbin,...,late_tbin] are considered good for physics
+    The central LCT BX is time bin 8.
+    For tmb_l1a_window_size set to 7 (Run-1, Run-2), the window is [5, 6, 7, 8, 9, 10, 11]
+    For tmb_l1a_window_size set to 5 (Run-3), the window is [6, 7, 8, 9, 10]
+    For tmb_l1a_window_size set to 3 (Run-4?), the window is [ 7, 8, 9]
+  */
+  const unsigned delta_tbin = tmb_l1a_window_size / 2;
+  int early_tbin = CSCConstants::LCT_CENTRAL_BX - delta_tbin;
+  int late_tbin = CSCConstants::LCT_CENTRAL_BX + delta_tbin;
+  /*
+     Special case for an even-numbered time-window,
+     For instance tmb_l1a_window_size set to 6: [5, 6, 7, 8, 9, 10]
+  */
+  if (tmb_l1a_window_size % 2 == 0)
+    late_tbin = CSCConstants::LCT_CENTRAL_BX + delta_tbin - 1;
+  const int max_late_tbin = CSCConstants::MAX_LCT_TBINS - 1;
 
-  // Empirical correction to match 2009 collision data (firmware change?)
-  int lct_bins = tmb_l1a_window_size;
-  int late_tbins = early_tbins + lct_bins;
-
-  int ifois = 0;
-  if (ifois == 0) {
-    if (infoV >= 0 && early_tbins < 0) {
+  // debugging messages when early_tbin or late_tbin has a suspicious value
+  bool debugTimeBins = true;
+  if (debugTimeBins) {
+    if (early_tbin < 0) {
       edm::LogWarning("CSCMotherboard|SuspiciousParameters")
-          << "+++ early_tbins = " << early_tbins << "; in-time LCTs are not getting read-out!!! +++"
-          << "\n";
+          << "Early time bin (early_tbin) smaller than minimum allowed, which is 0. set early_tbin to 0.";
+      early_tbin = 0;
     }
-
-    if (late_tbins > CSCConstants::MAX_LCT_TBINS - 1) {
-      if (infoV >= 0)
-        edm::LogWarning("CSCMotherboard|SuspiciousParameters")
-            << "+++ Allowed range of time bins, [0-" << late_tbins << "] exceeds max allowed, "
-            << CSCConstants::MAX_LCT_TBINS - 1 << " +++\n"
-            << "+++ Set late_tbins to max allowed +++\n";
-      late_tbins = CSCConstants::MAX_LCT_TBINS - 1;
+    if (late_tbin > max_late_tbin) {
+      edm::LogWarning("CSCMotherboard|SuspiciousParameters")
+          << "Late time bin (late_tbin) larger than maximum allowed, which is " << max_late_tbin
+          << ". set early_tbin to max allowed";
+      late_tbin = CSCConstants::MAX_LCT_TBINS - 1;
     }
-    ifois = 1;
+    debugTimeBins = false;
   }
 
   // Start from the vector of all found correlated LCTs and select
   // those within the LCT*L1A coincidence window.
   int bx_readout = -1;
-  const std::vector<CSCCorrelatedLCTDigi>& all_lcts = getLCTs();
-  for (auto plct = all_lcts.begin(); plct != all_lcts.end(); plct++) {
-    if (!plct->isValid())
+  for (const auto& lct: lctV) {
+    // extra check on invalid LCTs
+    if (!lct.isValid()) {
       continue;
+    }
 
-    int bx = (*plct).getBX();
+    std::cout << "readout " << lct << std::endl;
+    const int bx = lct.getBX();
     // Skip LCTs found too early relative to L1Accept.
-    if (bx <= early_tbins) {
+    if (bx < early_tbin) {
       if (infoV > 1)
-        LogDebug("CSCMotherboard") << " Do not report correlated LCT on key halfstrip " << plct->getStrip()
-                                   << " and key wire " << plct->getKeyWG() << ": found at bx " << bx
-                                   << ", whereas the earliest allowed bx is " << early_tbins + 1;
+        LogDebug("CSCMotherboard") << " Do not report correlated LCT on key halfstrip " << lct.getStrip()
+                                   << " and key wire " << lct.getKeyWG() << ": found at bx " << bx
+                                   << ", whereas the earliest allowed bx is " << early_tbin;
       continue;
     }
 
     // Skip LCTs found too late relative to L1Accept.
-    if (bx > late_tbins) {
+    if (bx > late_tbin) {
       if (infoV > 1)
-        LogDebug("CSCMotherboard") << " Do not report correlated LCT on key halfstrip " << plct->getStrip()
-                                   << " and key wire " << plct->getKeyWG() << ": found at bx " << bx
-                                   << ", whereas the latest allowed bx is " << late_tbins;
+        LogDebug("CSCMotherboard") << " Do not report correlated LCT on key halfstrip " << lct.getStrip()
+                                   << " and key wire " << lct.getKeyWG() << ": found at bx " << bx
+                                   << ", whereas the latest allowed bx is " << late_tbin;
+      continue;
+    }
+
+    // Do not report LCTs found in ME1/A if mpc_block_me1a is set.
+    if (mpc_block_me1a and isME11_ and lct.getStrip() > CSCConstants::MAX_HALF_STRIP_ME1B) {
       continue;
     }
 
@@ -313,14 +321,15 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
     // currently there is room just for two.
     if (readout_earliest_2) {
       if (bx_readout == -1 || bx == bx_readout) {
-        tmpV.push_back(*plct);
+        tmpV.push_back(lct);
         if (bx_readout == -1)
           bx_readout = bx;
       }
     }
     // if readout_earliest_2 == false, save all LCTs
-    else
-      tmpV.push_back(*plct);
+    else {
+      tmpV.push_back(lct);
+    }
   }
 
   // do a final check on the LCTs in readout
@@ -329,22 +338,6 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
     qualityControl_->checkValid(lct);
   }
 
-  return tmpV;
-}
-
-// Returns vector of all found correlated LCTs, if any.
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() const {
-  std::vector<CSCCorrelatedLCTDigi> tmpV;
-
-  // Do not report LCTs found in ME1/A if mpc_block_me1/a is set.
-  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
-    if (firstLCT[bx].isValid())
-      if (!mpc_block_me1a || (!isME11_ || firstLCT[bx].getStrip() <= CSCConstants::MAX_HALF_STRIP_ME1B))
-        tmpV.push_back(firstLCT[bx]);
-    if (secondLCT[bx].isValid())
-      if (!mpc_block_me1a || (!isME11_ || secondLCT[bx].getStrip() <= CSCConstants::MAX_HALF_STRIP_ME1B))
-        tmpV.push_back(secondLCT[bx]);
-  }
   return tmpV;
 }
 
@@ -480,6 +473,8 @@ unsigned int CSCMotherboard::encodePattern(const int ptn) const {
 }
 
 void CSCMotherboard::selectLCTs() {
+  lctV.clear();
+
   // in each of the LCT time bins
   for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
     unsigned nLCTs = 0;
@@ -496,16 +491,20 @@ void CSCMotherboard::selectLCTs() {
         }
       }
     }
-    // show the final LCTs
+    // store them in a temporary container
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) {
       for (int i = 0; i < CSCConstants::MAX_LCTS_PER_CSC; i++) {
         if (allLCTs_(bx, mbx, i).isValid()) {
-          if (infoV > 0) {
-            LogDebug("CSCMotherboard") << "Selected LCT" << i + 1 << " " << bx << "/" << mbx << ": "
-                                       << allLCTs_(bx, mbx, i) << std::endl;
-          }
+          lctV.push_back(allLCTs_(bx, mbx, i));
         }
       }
+    }
+  }
+
+  // Show the pre-selected LCTs. They're not final yet. Some selection is done in the readoutLCTs function
+  if (infoV > 0) {
+    for (const auto& lct: lctV) {
+      LogDebug("CSCMotherboard") << "Selected LCT" << lct;
     }
   }
 }
