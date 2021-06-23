@@ -111,12 +111,9 @@ RPCGeometryValidate::RPCGeometryValidate(const edm::ParameterSet& iConfig)
 
 void RPCGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   rpcGeometry_ = &eventSetup.getData(tokRPC_);
-  if (rpcGeometry_ != nullptr) {
-    LogVerbatim("RPCGeometry") << "Validating RPC chamber geometry";
-    validateRPCChamberGeometry();
-    validateRPCStripsGeometry();
-  } else
-    LogVerbatim("RPCGeometry") << "Invalid RPC geometry";
+  LogVerbatim("RPCGeometry") << "Validating RPC chamber geometry";
+  validateRPCChamberGeometry();
+  validateRPCStripsGeometry();
 }
 
 void RPCGeometryValidate::validateRPCChamberGeometry() {
