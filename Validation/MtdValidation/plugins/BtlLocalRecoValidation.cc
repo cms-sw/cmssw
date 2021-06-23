@@ -341,6 +341,9 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         for (const auto& recHit : *btlRecHitsHandle) {
           BTLDetId hitId(recHit.id().rawId());
 
+          if (m_btlSimHits.count(hitId.rawId()) == 0)
+            continue;
+
           // Check the hit position
           if (hitId.mtdSide() != cluId.mtdSide() || hitId.mtdRR() != cluId.mtdRR() || recHit.row() != hit_row ||
               recHit.column() != hit_col)
@@ -396,13 +399,13 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
           meCluXRes_->Fill(x_res);
           meCluYRes_->Fill(y_res);
           meCluZRes_->Fill(z_res);
+
+          meCluYXLocal_->Fill(local_point.x(), local_point.y());
+          meCluYXLocalSim_->Fill(cluLocalPosSIM.x(), cluLocalPosSIM.y());
         }
 
         meCluTPullvsEta_->Fill(std::abs(cluGlobalPosSIM.eta()), time_res / cluster.timeError());
         meCluTPullvsE_->Fill(cluEneSIM, time_res / cluster.timeError());
-
-        meCluYXLocal_->Fill(local_point.x(), local_point.y());
-        meCluYXLocalSim_->Fill(cluLocalPosSIM.x(), cluLocalPosSIM.y());
 
       }  // if ( cluTimeSIM > 0. &&  cluEneSIM > 0. )
 
@@ -612,23 +615,23 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
     meCluXRes_ = ibook.book1D("BtlCluXRes", "BTL cluster X resolution;X_{RECO}-X_{SIM} [cm]", 100, -3.1, 3.1);
     meCluYRes_ = ibook.book1D("BtlCluYRes", "BTL cluster Y resolution;Y_{RECO}-Y_{SIM} [cm]", 100, -3.1, 3.1);
     meCluZRes_ = ibook.book1D("BtlCluZRes", "BTL cluster Z resolution;Z_{RECO}-Z_{SIM} [cm]", 100, -0.2, 0.2);
+    meCluYXLocal_ = ibook.book2D("BtlCluYXLocal",
+                                 "BTL cluster local Y vs X;X^{local}_{RECO} [cm];Y^{local}_{RECO} [cm]",
+                                 200,
+                                 -9.5,
+                                 9.5,
+                                 200,
+                                 -2.8,
+                                 2.8);
+    meCluYXLocalSim_ = ibook.book2D("BtlCluYXLocalSim",
+                                    "BTL cluster local Y vs X;X^{local}_{SIM} [cm];Y^{local}_{SIM} [cm]",
+                                    200,
+                                    -9.5,
+                                    9.5,
+                                    200,
+                                    -2.8,
+                                    2.8);
   }
-  meCluYXLocal_ = ibook.book2D("BtlCluYXLocal",
-                               "BTL cluster local Y vs X;X^{local}_{RECO} [cm];Y^{local}_{RECO} [cm]",
-                               200,
-                               -9.5,
-                               9.5,
-                               200,
-                               -2.8,
-                               2.8);
-  meCluYXLocalSim_ = ibook.book2D("BtlCluYXLocalSim",
-                                  "BTL cluster local Y vs X;X^{local}_{SIM} [cm];Y^{local}_{SIM} [cm]",
-                                  200,
-                                  -9.5,
-                                  9.5,
-                                  200,
-                                  -2.8,
-                                  2.8);
 
   // --- UncalibratedRecHits histograms
 

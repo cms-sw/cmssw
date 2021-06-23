@@ -407,6 +407,9 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         for (const auto& recHit : *etlRecHitsHandle) {
           ETLDetId hitId(recHit.id().rawId());
 
+          if (m_etlSimHits[idet].count(hitId.rawId()) == 0)
+            continue;
+
           // Check the hit position
           if (hitId.zside() != cluId.zside() || hitId.mtdRR() != cluId.mtdRR() || hitId.module() != cluId.module() ||
               recHit.row() != hit_row || recHit.column() != hit_col)
@@ -458,8 +461,10 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         meCluTPullvsEta_[iside]->Fill(cluGlobalPosSIM.eta(), time_res / cluster.timeError());
         meCluTPullvsE_[iside]->Fill(cluEneSIM, time_res / cluster.timeError());
 
-        meCluYXLocal_[iside]->Fill(local_point.x(), local_point.y());
-        meCluYXLocalSim_[iside]->Fill(cluLocalPosSIM.x(), cluLocalPosSIM.y());
+        if (LocalPosDebug_) {
+          meCluYXLocal_[iside]->Fill(local_point.x(), local_point.y());
+          meCluYXLocalSim_[iside]->Fill(cluLocalPosSIM.x(), cluLocalPosSIM.y());
+        }
 
       }  // if ( cluTimeSIM > 0. &&  cluEneSIM > 0. )
 
@@ -956,38 +961,40 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
       ibook.book1D("EtlCluZResZneg", "ETL cluster Z resolution (-Z);Z_{RECO}-Z_{SIM} [cm]", 100, -0.003, 0.003);
   meCluZRes_[1] =
       ibook.book1D("EtlCluZResZpos", "ETL cluster Z resolution (+Z);Z_{RECO}-Z_{SIM} [cm]", 100, -0.003, 0.003);
-  meCluYXLocal_[0] = ibook.book2D("EtlCluYXLocalZneg",
-                                  "ETL cluster local Y vs X (-Z);X^{local}_{RECO} [cm];Y^{local}_{RECO} [cm]",
-                                  100,
-                                  -2.2,
-                                  2.2,
-                                  100,
-                                  -1.1,
-                                  1.1);
-  meCluYXLocal_[1] = ibook.book2D("EtlCluYXLocalZpos",
-                                  "ETL cluster local Y vs X (+Z);X^{local}_{RECO} [cm];Y^{local}_{RECO} [cm]",
-                                  100,
-                                  -2.2,
-                                  2.2,
-                                  100,
-                                  -1.1,
-                                  1.1);
-  meCluYXLocalSim_[0] = ibook.book2D("EtlCluYXLocalSimZneg",
-                                     "ETL cluster local Y vs X (-Z);X^{local}_{SIM} [cm];Y^{local}_{SIM} [cm]",
-                                     200,
-                                     -2.2,
-                                     2.2,
-                                     200,
-                                     -1.1,
-                                     1.1);
-  meCluYXLocalSim_[1] = ibook.book2D("EtlCluYXLocalSimZpos",
-                                     "ETL cluster local Y vs X (+Z);X^{local}_{SIM} [cm];Y^{local}_{SIM} [cm]",
-                                     200,
-                                     -2.2,
-                                     2.2,
-                                     200,
-                                     -1.1,
-                                     1.1);
+  if (LocalPosDebug_) {
+    meCluYXLocal_[0] = ibook.book2D("EtlCluYXLocalZneg",
+                                    "ETL cluster local Y vs X (-Z);X^{local}_{RECO} [cm];Y^{local}_{RECO} [cm]",
+                                    100,
+                                    -2.2,
+                                    2.2,
+                                    100,
+                                    -1.1,
+                                    1.1);
+    meCluYXLocal_[1] = ibook.book2D("EtlCluYXLocalZpos",
+                                    "ETL cluster local Y vs X (+Z);X^{local}_{RECO} [cm];Y^{local}_{RECO} [cm]",
+                                    100,
+                                    -2.2,
+                                    2.2,
+                                    100,
+                                    -1.1,
+                                    1.1);
+    meCluYXLocalSim_[0] = ibook.book2D("EtlCluYXLocalSimZneg",
+                                       "ETL cluster local Y vs X (-Z);X^{local}_{SIM} [cm];Y^{local}_{SIM} [cm]",
+                                       200,
+                                       -2.2,
+                                       2.2,
+                                       200,
+                                       -1.1,
+                                       1.1);
+    meCluYXLocalSim_[1] = ibook.book2D("EtlCluYXLocalSimZpos",
+                                       "ETL cluster local Y vs X (+Z);X^{local}_{SIM} [cm];Y^{local}_{SIM} [cm]",
+                                       200,
+                                       -2.2,
+                                       2.2,
+                                       200,
+                                       -1.1,
+                                       1.1);
+  }
 
   // --- UncalibratedRecHits histograms
 
