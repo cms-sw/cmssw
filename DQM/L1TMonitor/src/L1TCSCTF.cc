@@ -28,7 +28,8 @@ L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
       trackProducer(ps.getParameter<InputTag>("trackProducer")),
       statusProducer(ps.getParameter<InputTag>("statusProducer")),
       mbProducer(ps.getParameter<InputTag>("mbProducer")),
-      l1muTscalesToken_(esConsumes()) {
+      l1muTscalesToken_(esConsumes()),
+      ptscalesToken_(esConsumes()) {
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
