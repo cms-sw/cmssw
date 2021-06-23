@@ -15,7 +15,7 @@ TEST_CASE("SiStripTkMaps testing", "[SiStripTkMaps]") {
     theMap.bookMap("testing SiStripTkMaps", "counts");
     SiStripDetInfoFileReader reader_ = SiStripDetInfoFileReader(edm::FileInPath(k_geo).fullPath());
     const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader_.getAllData();
-    int count = 0;
+    unsigned int count = 0;
     for (const auto& it : DetInfos) {
       count++;
       theMap.fill(it.first, count);
