@@ -51,17 +51,17 @@ void RPCGeometryDump::analyze(const edm::Event& event, const edm::EventSetup& ev
 
   for (unsigned int k1 = 0; k1 < chambers.size(); ++k1) {
     edm::LogVerbatim("RPCGeometry") << "\nChamber " << k1 << ":" << chambers[k1]->id() << " with "
-				    << chambers[k1]->nrolls() << " rolls";
+                                    << chambers[k1]->nrolls() << " rolls";
 
     auto const& rolls = chambers[k1]->rolls();
     for (unsigned int k2 = 0; k2 < rolls.size(); ++k2) {
       edm::LogVerbatim("RPCGeometry") << "\nRoll " << k2 << ":" << rolls[k2]->id() << " Barrel|Endcap "
-				      << rolls[k2]->isBarrel() << ":" << rolls[k2]->isForward() << ":"
-				      << rolls[k2]->isIRPC() << " with " << rolls[k2]->nstrips() << " of pitch "
-				      << rolls[k2]->pitch();
+                                      << rolls[k2]->isBarrel() << ":" << rolls[k2]->isForward() << ":"
+                                      << rolls[k2]->isIRPC() << " with " << rolls[k2]->nstrips() << " of pitch "
+                                      << rolls[k2]->pitch();
       if (verbose_) {
-	for (int k = 0; k < rolls[k2]->nstrips(); ++k)
-	  edm::LogVerbatim("RPCGeometry") << "Strip[" << k << "] " << rolls[k2]->centreOfStrip(k + 1);
+        for (int k = 0; k < rolls[k2]->nstrips(); ++k)
+          edm::LogVerbatim("RPCGeometry") << "Strip[" << k << "] " << rolls[k2]->centreOfStrip(k + 1);
       }
     }
   }
