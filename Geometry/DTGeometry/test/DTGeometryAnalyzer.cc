@@ -44,7 +44,8 @@ private:
 };
 
 DTGeometryAnalyzer::DTGeometryAnalyzer(const edm::ParameterSet& iConfig)
-  : tokDT_{esConsumes<DTGeometry, MuonGeometryRecord>(edm::ESInputTag{})}, dashedLineWidth_(104),
+    : tokDT_{esConsumes<DTGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
+      dashedLineWidth_(104),
       dashedLine_(string(dashedLineWidth_, '-')),
       myName_("DTGeometryAnalyzer"),
       tolerance_(iConfig.getUntrackedParameter<double>("tolerance", 1.e-23)) {}
