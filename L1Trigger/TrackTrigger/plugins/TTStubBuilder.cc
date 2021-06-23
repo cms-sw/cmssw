@@ -218,7 +218,7 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
         typename std::vector<TTStub<Ref_Phase2TrackerDigi_>>::iterator tempIter = tempOutput.begin();
         ++tempIter;
         if (isPS) 
-          ++tempIter; // PS module case
+          ++tempIter;  // PS module case
         /// tempIter points now to the second or third element (2S/PS)
 
         /// Delete all-but-the first one from tempOutput
