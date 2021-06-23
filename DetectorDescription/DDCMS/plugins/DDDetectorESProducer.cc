@@ -79,8 +79,7 @@ DDDetectorESProducer::DDDetectorESProducer(const ParameterSet& iConfig)
     }
     findingRecord<IdealMagneticFieldRecord>();
   } else {
-    auto c = setWhatProduced(
-        this, &DDDetectorESProducer::produceGeom, edm::es::Label(iConfig.getParameter<std::string>("@module_label")));
+    auto c = setWhatProduced(this, &DDDetectorESProducer::produceGeom);
     if (fromDB_) {
       geomToken_ = c.consumes(edm::ESInputTag("", label_));
     }
