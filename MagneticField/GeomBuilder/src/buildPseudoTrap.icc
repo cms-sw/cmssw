@@ -12,7 +12,7 @@
  *  \author N. Amapane - INFN Torino
  */
 
-void volumeHandle::buildPseudoTrap(
+inline void volumeHandle::buildPseudoTrap(
     double x1, double x2, double y1, double y2, double halfZ, double radius, bool atMinusZ) {
   LogTrace("MagGeoBuilder") << "Building PseudoTrap surfaces...: ";
   LogTrace("MagGeoBuilder") << "halfZ     " << halfZ << newln << "x1        " << x1 << newln << "x2        " << x2
