@@ -763,7 +763,9 @@ class ConfigBuilder(object):
                 if ('SIM' in self.stepMap or 'reSIM' in self.stepMap) and not self._options.fast:
                     self.loadAndRemember(self.SimGeometryCFF)
                     if self.geometryDBLabel:
-                        self.executeAndRemember('process.XMLFromDBSource.label = cms.string("%s")'%(self.geometryDBLabel))
+                        self.executeAndRemember('if hasattr(process, "XMLFromDBSource"): process.XMLFromDBSource.label="%s"'%(self.geometryDBLabel))
+                        self.executeAndRemember('if hasattr(process, "DDDetectorESProducerFromDB"): process.DDDetectorESProducerFromDB.label="%s"'%(self.geometryDBLabel))
+
         except ImportError:
             print("Geometry option",self._options.geometry,"unknown.")
             raise
