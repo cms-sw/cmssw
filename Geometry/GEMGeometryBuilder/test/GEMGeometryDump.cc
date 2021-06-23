@@ -3,7 +3,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,10 +29,13 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   const bool verbose_;
-  edm::ESHandle<GEMGeometry> gemGeometry_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> tokGeom_;
+  const GEMGeometry* gemGeometry_;
 };
 
-GEMGeometryDump::GEMGeometryDump(const edm::ParameterSet& iC) : verbose_(iC.getParameter<bool>("verbose")) {}
+GEMGeometryDump::GEMGeometryDump(const edm::ParameterSet& iC)
+    : verbose_(iC.getParameter<bool>("verbose")),
+      tokGeom_{esConsumes<GEMGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {}
 
 void GEMGeometryDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -42,9 +44,9 @@ void GEMGeometryDump::fillDescriptions(edm::ConfigurationDescriptions& descripti
 }
 
 void GEMGeometryDump::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
-  eventSetup.get<MuonGeometryRecord>().get(gemGeometry_);
+  gemGeometry_ = &eventSetup.getData(tokGeom_);
 
-  if (!gemGeometry_.isValid()) {
+  if (gemGeometry_ != nullptr) {
     edm::LogVerbatim("GEMGeometry") << "No valid GEM geometry found!!!";
   } else {
     auto const& regions = gemGeometry_->regions();
