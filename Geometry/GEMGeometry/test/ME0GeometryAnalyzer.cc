@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
@@ -41,13 +40,17 @@ private:
   const int dashedLineWidth_;
   const std::string dashedLine_;
   const std::string myName_;
+  const edm::ESGetToken<ME0Geometry, MuonGeometryRecord> tokGeom_;
   std::ofstream ofos;
 };
 
 using namespace std;
 
 ME0GeometryAnalyzer::ME0GeometryAnalyzer(const edm::ParameterSet& /*iConfig*/)
-    : dashedLineWidth_(104), dashedLine_(string(dashedLineWidth_, '-')), myName_("ME0GeometryAnalyzer") {
+    : dashedLineWidth_(104),
+      dashedLine_(string(dashedLineWidth_, '-')),
+      myName_("ME0GeometryAnalyzer"),
+      tokGeom_{esConsumes<ME0Geometry, MuonGeometryRecord>(edm::ESInputTag{})} {
   ofos.open("ME0testOutput.out");
   ofos << "======================== Opening output file" << endl;
 }
@@ -58,31 +61,30 @@ ME0GeometryAnalyzer::~ME0GeometryAnalyzer() {
 }
 
 void ME0GeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-  edm::ESHandle<ME0Geometry> pDD;
-  iSetup.get<MuonGeometryRecord>().get(pDD);
+  const auto& pDD = iSetup.getData(tokGeom_);
 
   ofos << myName() << ": Analyzer..." << endl;
   ofos << "start " << dashedLine_ << endl;
 
-  ofos << " Geometry node for ME0Geom is  " << &(*pDD) << endl;
-  ofos << " detTypes       \t" << pDD->detTypes().size() << endl;
-  ofos << " GeomDetUnit       \t" << pDD->detUnits().size() << endl;
-  ofos << " GeomDet           \t" << pDD->dets().size() << endl;
-  ofos << " GeomDetUnit DetIds\t" << pDD->detUnitIds().size() << endl;
-  ofos << " eta partitions \t" << pDD->etaPartitions().size() << endl;
-  ofos << " layers         \t" << pDD->layers().size() << endl;
-  ofos << " chambers       \t" << pDD->chambers().size() << endl;
-  // ofos << " regions        \t"              <<pDD->regions().size() << endl;
+  ofos << " Geometry node for ME0Geom is  " << &pDD << endl;
+  ofos << " detTypes       \t" << pDD.detTypes().size() << endl;
+  ofos << " GeomDetUnit       \t" << pDD.detUnits().size() << endl;
+  ofos << " GeomDet           \t" << pDD.dets().size() << endl;
+  ofos << " GeomDetUnit DetIds\t" << pDD.detUnitIds().size() << endl;
+  ofos << " eta partitions \t" << pDD.etaPartitions().size() << endl;
+  ofos << " layers         \t" << pDD.layers().size() << endl;
+  ofos << " chambers       \t" << pDD.chambers().size() << endl;
+  // ofos << " regions        \t"              <<pDD.regions().size() << endl;
 
   // checking uniqueness of roll detIds
   bool flagNonUniqueRollID = false;
   bool flagNonUniqueRollRawID = false;
   int nstrips = 0;
   int npads = 0;
-  for (auto roll1 : pDD->etaPartitions()) {
+  for (auto roll1 : pDD.etaPartitions()) {
     nstrips += roll1->nstrips();
     npads += roll1->npads();
-    for (auto roll2 : pDD->etaPartitions()) {
+    for (auto roll2 : pDD.etaPartitions()) {
       if (roll1 != roll2) {
         if (roll1->id() == roll2->id())
           flagNonUniqueRollID = true;
@@ -97,8 +99,8 @@ void ME0GeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Event
   // checking uniqueness of layer detIds
   bool flagNonUniqueLaID = false;
   bool flagNonUniqueLaRawID = false;
-  for (auto la1 : pDD->layers()) {
-    for (auto la2 : pDD->layers()) {
+  for (auto la1 : pDD.layers()) {
+    for (auto la2 : pDD.layers()) {
       if (la1 != la2) {
         if (la1->id() == la2->id())
           flagNonUniqueLaID = true;
@@ -113,8 +115,8 @@ void ME0GeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Event
   // checking uniqueness of chamber detIds
   bool flagNonUniqueChID = false;
   bool flagNonUniqueChRawID = false;
-  for (auto ch1 : pDD->chambers()) {
-    for (auto ch2 : pDD->chambers()) {
+  for (auto ch1 : pDD.chambers()) {
+    for (auto ch2 : pDD.chambers()) {
       if (ch1 != ch2) {
         if (ch1->id() == ch2->id())
           flagNonUniqueChID = true;
@@ -148,7 +150,7 @@ void ME0GeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Event
    */
 
   int i = 1;
-  for (auto ch : pDD->chambers()) {
+  for (auto ch : pDD.chambers()) {
     ME0DetId chId(ch->id());
     int nLayers(ch->nLayers());
     ofos << "\tME0Chamber " << i << ", ME0DetId = " << chId.rawId() << ", " << chId << " has " << nLayers << " layers."
@@ -163,7 +165,7 @@ void ME0GeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Event
       int k = 1;
       auto& rolls(la->etaPartitions());
       for (auto roll : rolls) {
-        // for (auto roll : pDD->etaPartitions()){
+        // for (auto roll : pDD.etaPartitions()){
         ME0DetId rId(roll->id());
         ofos << "\t\t\tME0EtaPartition " << k << " , ME0DetId = " << rId.rawId() << ", " << rId << endl;
 

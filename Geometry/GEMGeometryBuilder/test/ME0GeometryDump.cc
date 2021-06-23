@@ -3,7 +3,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,10 +29,13 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   const bool verbose_;
-  edm::ESHandle<ME0Geometry> me0Geometry_;
+  const edm::ESGetToken<ME0Geometry, MuonGeometryRecord> tokGeom_;
+  const ME0Geometry* me0Geometry_;
 };
 
-ME0GeometryDump::ME0GeometryDump(const edm::ParameterSet& iC) : verbose_(iC.getParameter<bool>("verbose")) {}
+ME0GeometryDump::ME0GeometryDump(const edm::ParameterSet& iC)
+    : verbose_(iC.getParameter<bool>("verbose")),
+      tokGeom_{esConsumes<ME0Geometry, MuonGeometryRecord>(edm::ESInputTag{})} {}
 
 void ME0GeometryDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -42,9 +44,9 @@ void ME0GeometryDump::fillDescriptions(edm::ConfigurationDescriptions& descripti
 }
 
 void ME0GeometryDump::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
-  eventSetup.get<MuonGeometryRecord>().get(me0Geometry_);
+  me0Geometry_ = &eventSetup.getData(tokGeom_);
 
-  if (!me0Geometry_.isValid()) {
+  if (me0Geometry_ != nullptr) {
     edm::LogVerbatim("ME0Geometry") << "No valid ME0 geometry found!!!";
   } else {
     auto const& chambers = me0Geometry_->chambers();
