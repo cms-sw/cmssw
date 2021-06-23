@@ -1,4 +1,4 @@
-
+// NOLINTNEXTLINE(misc-definitions-in-headers)
 void AnalyticalCurvilinearJacobian::computeFullJacobian(const GlobalTrajectoryParameters& globalParameters,
                                                         const GlobalPoint& x,
                                                         const GlobalVector& p,
