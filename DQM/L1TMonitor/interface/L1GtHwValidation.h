@@ -50,6 +50,7 @@ class L1GtTriggerMenu;
 class L1GtPrescaleFactors;
 class L1GtTriggerMask;
 class L1GtPrescaleFactorsTechTrigRcd;
+class L1GtPrescaleFactorsAlgoTrigRcd;
 class L1GtTriggerMenuRcd;
 class L1GtTriggerMaskTechTrigRcd;
 class L1GtTriggerMaskAlgoTrigRcd;
@@ -270,7 +271,8 @@ private:
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtEmulDaqInputToken_;
   edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtDataEvmInputToken_;
   edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtEmulEvmInputToken_;
-  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd> l1gtPrescaleToken_;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd> l1gtPrescaleTechToken_;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd> l1gtPrescaleAlgoToken_;
   edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> l1gtTrigmenuToken_;
   edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd> l1gtTrigmaskTechToken_;
   edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd> l1gtTrigmaskAlgoToken_;
