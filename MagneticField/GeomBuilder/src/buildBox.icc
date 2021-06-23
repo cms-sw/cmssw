@@ -4,7 +4,7 @@
  *  \author N. Amapane - INFN Torino
  */
 
-void volumeHandle::buildBox(double halfX, double halfY, double halfZ) {
+inline void volumeHandle::buildBox(double halfX, double halfY, double halfZ) {
   LogTrace("MagGeoBuilder") << "Building box surfaces...: ";
 
   // Global vectors of the normals to X, Y, Z axes
