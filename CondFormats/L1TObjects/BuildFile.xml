@@ -1,7 +1,6 @@
 <use name="boost"/>
 <use name="CondFormats/Serialization"/>
 <use name="boost_serialization"/>
-<use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/L1GlobalCaloTrigger"/>
 <use name="DataFormats/L1GlobalTrigger"/>
