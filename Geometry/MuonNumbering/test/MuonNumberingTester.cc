@@ -27,8 +27,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -49,9 +47,15 @@ public:
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
+
+private:
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> tokDDD_;
+  edm::ESGetToken<MuonDDDConstants, MuonNumberingRecord> tokMuon_;
 };
 
-MuonNumberingTester::MuonNumberingTester(const edm::ParameterSet& iConfig) {}
+MuonNumberingTester::MuonNumberingTester(const edm::ParameterSet& iConfig)
+    : tokDDD_{esConsumes<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{})},
+      tokMuon_{esConsumes<MuonDDDConstants, MuonNumberingRecord>(edm::ESInputTag{})} {}
 
 MuonNumberingTester::~MuonNumberingTester() {}
 
@@ -61,13 +65,11 @@ void MuonNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   std::cout << "Here I am " << std::endl;
 
-  edm::ESHandle<MuonDDDConstants> pMNDC;
-  edm::ESTransientHandle<DDCompactView> pDD;
-  iSetup.get<IdealGeometryRecord>().get(pDD);
-  iSetup.get<MuonNumberingRecord>().get(pMNDC);
+  const auto& pDD = iSetup.getData(tokDDD_);
+  const auto& pMNDC = iSetup.getData(tokMuon_);
 
   try {
-    DDExpandedView epv(*pDD);
+    DDExpandedView epv(pDD);
     std::cout << " without firstchild or next... epv.logicalPart() =" << epv.logicalPart() << std::endl;
   } catch (const DDLogicalPart& iException) {
     throw cms::Exception("Geometry") << "DDORAReader::readDB caught a DDLogicalPart exception: \"" << iException
@@ -82,7 +84,7 @@ void MuonNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSetu
   std::cout << "set the toFind string to \"level\"" << std::endl;
   std::string toFind("level");
   std::cout << "about to de-reference the edm::ESHandle<MuonDDDConstants> pMNDC" << std::endl;
-  const MuonDDDConstants mdc(*pMNDC);
+  const MuonDDDConstants mdc(pMNDC);
   std::cout << "about to getValue( toFind )" << std::endl;
   int level = mdc.getValue(toFind);
   std::cout << "level = " << level << std::endl;
