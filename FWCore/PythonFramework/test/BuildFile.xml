@@ -7,6 +7,10 @@
   <flags EDM_PLUGIN="1"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Framework"/>
-  <use name="boost"/>
-  <use name="boost_python"/>
+  <use name="py3-pybind11"/>
+  <ifrelease name="_DEVEL_|_PY3_">
+     <use name="python3"/>
+  <else/>
+    <use name="python"/>
+  </ifrelease>
 </library>
