@@ -217,7 +217,7 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
         /// Get to the second element (the switch above ensures there are min 2)
         typename std::vector<TTStub<Ref_Phase2TrackerDigi_>>::iterator tempIter = tempOutput.begin();
         ++tempIter;
-        if (isPS) 
+        if (isPS)
           ++tempIter;  // PS module case
         /// tempIter points now to the second or third element (2S/PS)
 
