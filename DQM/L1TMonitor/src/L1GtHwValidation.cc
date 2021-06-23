@@ -134,7 +134,8 @@ L1GtHwValidation::L1GtHwValidation(const edm::ParameterSet& paramSet)
       consumes<L1GlobalTriggerEvmReadoutRecord>(paramSet.getParameter<edm::InputTag>("L1GtDataEvmInputTag"));
   m_l1GtEmulEvmInputToken_ =
       consumes<L1GlobalTriggerEvmReadoutRecord>(paramSet.getParameter<edm::InputTag>("L1GtEmulEvmInputTag"));
-  l1gtPrescaleToken_ = esConsumes<edm::Transition::BeginRun>();
+  l1gtPrescaleTechToken_ = esConsumes<edm::Transition::BeginRun>();
+  l1gtPrescaleAlgoToken_ = esConsumes<edm::Transition::BeginRun>();
   l1gtTrigmenuToken_ = esConsumes<edm::Transition::BeginRun>();
   l1gtTrigmaskTechToken_ = esConsumes<edm::Transition::BeginRun>();
   l1gtTrigmaskAlgoToken_ = esConsumes<edm::Transition::BeginRun>();
@@ -754,9 +755,7 @@ void L1GtHwValidation::bookHistograms(DQMStore::IBooker& ibooker,
   unsigned long long l1GtPfAlgoCacheID = evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().cacheIdentifier();
 
   if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
-    edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
-    evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
-    m_l1GtPfAlgo = l1GtPfAlgo.product();
+    m_l1GtPfAlgo = &evSetup.getData(l1gtPrescaleAlgoToken_);
 
     m_prescaleFactorsAlgoTrig = &(m_l1GtPfAlgo->gtPrescaleFactors());
 
@@ -766,7 +765,7 @@ void L1GtHwValidation::bookHistograms(DQMStore::IBooker& ibooker,
   unsigned long long l1GtPfTechCacheID = evSetup.get<L1GtPrescaleFactorsTechTrigRcd>().cacheIdentifier();
 
   if (m_l1GtPfTechCacheID != l1GtPfTechCacheID) {
-    m_l1GtPfTech = &evSetup.getData(l1gtPrescaleToken_);
+    m_l1GtPfTech = &evSetup.getData(l1gtPrescaleTechToken_);
 
     m_prescaleFactorsTechTrig = &(m_l1GtPfTech->gtPrescaleFactors());
 
