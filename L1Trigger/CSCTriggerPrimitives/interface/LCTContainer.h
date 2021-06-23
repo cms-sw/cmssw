@@ -38,9 +38,9 @@ public:
   // clear the array with stubs
   void clear();
 
-  void setMatchTrigWindowSize(unsigned trig_window_size) {match_trig_window_size_ = trig_window_size;}
+  void setMatchTrigWindowSize(unsigned trig_window_size) { match_trig_window_size_ = trig_window_size; }
 
- private:
+private:
   // array with stored LCTs
   // 1st index: depth of pipeline that stores the ALCT and CLCT
   // 2nd index: BX number of the ALCT-CLCT match in the matching window

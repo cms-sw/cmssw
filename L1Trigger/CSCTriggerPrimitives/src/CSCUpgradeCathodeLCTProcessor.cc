@@ -262,8 +262,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
           // do not consider halfstrips:
           //   - out of pretrigger-trigger zones
           //   - in busy zones from previous trigger
-          if (quality[hstrip] > best_quality[0] && pretrig_zone[hstrip] && !busyMap[hstrip][first_bx])
-          {
+          if (quality[hstrip] > best_quality[0] && pretrig_zone[hstrip] && !busyMap[hstrip][first_bx]) {
             best_halfstrip[0] = hstrip;
             best_quality[0] = quality[hstrip];
             if (infoV > 1) {
@@ -283,8 +282,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
 
         for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < numHalfStrips_; hstrip++) {
           // we don't have to recalculate the quality for each half-strip
-          if (quality[hstrip] > best_quality[1] && pretrig_zone[hstrip] && !busyMap[hstrip][first_bx])
-          {
+          if (quality[hstrip] > best_quality[1] && pretrig_zone[hstrip] && !busyMap[hstrip][first_bx]) {
             best_halfstrip[1] = hstrip;
             best_quality[1] = quality[hstrip];
             if (infoV > 1) {

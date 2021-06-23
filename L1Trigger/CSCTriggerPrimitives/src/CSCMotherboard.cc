@@ -286,7 +286,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
   // Start from the vector of all found correlated LCTs and select
   // those within the LCT*L1A coincidence window.
   int bx_readout = -1;
-  for (const auto& lct: lctV) {
+  for (const auto& lct : lctV) {
     // extra check on invalid LCTs
     if (!lct.isValid()) {
       continue;
@@ -489,14 +489,14 @@ void CSCMotherboard::selectLCTs() {
       }
     }
     // store the best 2
-    for (const auto& lct: tempV) {
+    for (const auto& lct : tempV) {
       lctV.push_back(lct);
     }
   }
 
   // Show the pre-selected LCTs. They're not final yet. Some selection is done in the readoutLCTs function
   if (infoV > 0) {
-    for (const auto& lct: lctV) {
+    for (const auto& lct : lctV) {
       LogDebug("CSCMotherboard") << "Selected LCT" << lct;
     }
   }

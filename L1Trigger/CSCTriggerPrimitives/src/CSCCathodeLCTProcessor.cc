@@ -641,7 +641,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
         for (int ilct = 0; ilct < CSCConstants::MAX_CLCTS_PER_PROCESSOR; ilct++) {
           int best_hs = best_halfstrip[ilct];
           if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
-
             // prototype CLCT information
             ProtoCLCT protoCLCT;
             // Assign the CLCT properties
@@ -1105,7 +1104,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() const {
   if (debugTimeBins) {
     if (early_tbin < 0) {
       edm::LogWarning("CSCCathodeLCTProcessor|SuspiciousParameters")
-        << "Early time bin (early_tbin) smaller than minimum allowed, which is 0. set early_tbin to 0.";
+          << "Early time bin (early_tbin) smaller than minimum allowed, which is 0. set early_tbin to 0.";
       early_tbin = 0;
     }
     if (late_tbin > max_late_tbin) {
@@ -1133,8 +1132,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() const {
     if (bx < early_tbin) {
       if (infoV > 1)
         LogDebug("CSCCathodeLCTProcessor")
-          << " Do not report correlated CLCT on key halfstrip " << clct.getStrip() << ": found at bx " << bx
-          << ", whereas the earliest allowed bx is " << early_tbin;
+            << " Do not report correlated CLCT on key halfstrip " << clct.getStrip() << ": found at bx " << bx
+            << ", whereas the earliest allowed bx is " << early_tbin;
       continue;
     }
 
@@ -1142,8 +1141,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() const {
     if (bx > late_tbin) {
       if (infoV > 1)
         LogDebug("CSCCathodeLCTProcessor")
-          << " Do not report correlated CLCT on key halfstrip " << clct.getStrip() << ": found at bx " << bx
-          << ", whereas the latest allowed bx is " << late_tbin;
+            << " Do not report correlated CLCT on key halfstrip " << clct.getStrip() << ": found at bx " << bx
+            << ", whereas the latest allowed bx is " << late_tbin;
       continue;
     }
 
