@@ -11,7 +11,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -85,7 +84,8 @@ private:
     stripslen_.clear();
   }
 
-  edm::ESHandle<ME0Geometry> me0Geometry_;
+  const edm::ESGetToken<ME0Geometry, MuonGeometryRecord> tokGeom_;
+  const ME0Geometry* me0Geometry_;
   FWGeometry fwGeometry_;
   TFile* outFile_;
   vector<float> globalDistances_;
@@ -102,8 +102,8 @@ private:
 };
 
 ME0GeometryValidate::ME0GeometryValidate(const edm::ParameterSet& iConfig)
-    : infileName_(
-          iConfig.getUntrackedParameter<string>("infileName", "cmsRecoGeom-2026.root")),  //it was cmsGeom10.root
+    : tokGeom_{esConsumes<ME0Geometry, MuonGeometryRecord>(edm::ESInputTag{})},
+      infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsRecoGeom-2026.root")),
       outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateME0Geometry.root")),
       tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
   fwGeometry_.loadMap(infileName_.c_str());
@@ -111,8 +111,8 @@ ME0GeometryValidate::ME0GeometryValidate(const edm::ParameterSet& iConfig)
 }
 
 void ME0GeometryValidate::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
-  eventSetup.get<MuonGeometryRecord>().get(me0Geometry_);
-  if (me0Geometry_.isValid()) {
+  me0Geometry_ = &eventSetup.getData(tokGeom_);
+  if (me0Geometry_ != nullptr) {
     LogTrace("ME0Geometry") << "Validating ME0 chamber geometry";
     validateME0ChamberGeometry();
     validateME0EtaPartitionGeometry2();
