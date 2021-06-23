@@ -8,5 +8,9 @@
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Framework"/>
   <use name="py3-pybind11"/>
-  <use name="python"/>
+  <ifrelease name="_DEVEL_|_PY3_">
+     <use name="python3"/>
+  <else/>
+    <use name="python"/>
+  </ifrelease>
 </library>
