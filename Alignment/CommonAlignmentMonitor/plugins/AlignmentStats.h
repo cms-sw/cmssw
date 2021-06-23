@@ -23,6 +23,7 @@
 #include "TFile.h"
 #include "TTree.h"
 
+//trivial change to trigger checks
 //using namespace edm;
 
 class AlignmentStats : public edm::EDAnalyzer {
