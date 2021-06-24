@@ -27,7 +27,9 @@ L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
       lctProducer(ps.getParameter<InputTag>("lctProducer")),
       trackProducer(ps.getParameter<InputTag>("trackProducer")),
       statusProducer(ps.getParameter<InputTag>("statusProducer")),
-      mbProducer(ps.getParameter<InputTag>("mbProducer")) {
+      mbProducer(ps.getParameter<InputTag>("mbProducer")),
+      l1muTscalesToken_(esConsumes()),
+      ptscalesToken_(esConsumes()) {
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
@@ -653,12 +655,9 @@ void L1TCSCTF::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::
 void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
   if (c.get<L1MuTriggerScalesRcd>().cacheIdentifier() != m_scalesCacheID ||
       c.get<L1MuTriggerPtScaleRcd>().cacheIdentifier() != m_ptScaleCacheID) {
-    edm::ESHandle<L1MuTriggerScales> scales;
-    c.get<L1MuTriggerScalesRcd>().get(scales);
-    ts = scales.product();
-    edm::ESHandle<L1MuTriggerPtScale> ptscales;
-    c.get<L1MuTriggerPtScaleRcd>().get(ptscales);
-    tpts = ptscales.product();
+    ts = &c.getData(l1muTscalesToken_);
+    tpts = &c.getData(ptscalesToken_);
+
     m_scalesCacheID = c.get<L1MuTriggerScalesRcd>().cacheIdentifier();
     m_ptScaleCacheID = c.get<L1MuTriggerPtScaleRcd>().cacheIdentifier();
 
@@ -930,8 +929,8 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
   }
 
   if (lctProducer.label() != "null") {
-    edm::ESHandle<CSCGeometry> pDD;
-    c.get<MuonGeometryRecord>().get(pDD);
+    //edm::ESHandle<CSCGeometry> pDD;
+    //c.get<MuonGeometryRecord>().get(pDD);
 
     edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
     e.getByToken(corrlctsToken_, corrlcts);

@@ -85,6 +85,8 @@ L1TdeRCT::L1TdeRCT(const ParameterSet& ps)
       ecalTPGData_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<InputTag>("ecalTPGData"))),
       hcalTPGData_(consumes<HcalTrigPrimDigiCollection>(ps.getParameter<InputTag>("hcalTPGData"))),
       gtDigisLabel_(consumes<L1GlobalTriggerReadoutRecord>(ps.getParameter<InputTag>("gtDigisLabel"))),
+      runInfoToken_(esConsumes<edm::Transition::BeginRun>()),
+      runInfolumiToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
       gtEGAlgoName_(ps.getParameter<std::string>("gtEGAlgoName")),
       doubleThreshold_(ps.getParameter<int>("doubleThreshold")),
       filterTriggerType_(ps.getParameter<int>("filterTriggerType")),
@@ -2076,7 +2078,7 @@ void L1TdeRCT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, c
   notrigCount = 0;
   trigCount = 0;
 
-  readFEDVector(fedVectorMonitorRUN_, es);
+  readFEDVector(fedVectorMonitorRUN_, es, false);
 }
 
 std::shared_ptr<l1tderct::Empty> L1TdeRCT::globalBeginLuminosityBlock(const edm::LuminosityBlock& ls,
@@ -2085,10 +2087,11 @@ std::shared_ptr<l1tderct::Empty> L1TdeRCT::globalBeginLuminosityBlock(const edm:
   return std::shared_ptr<l1tderct::Empty>();
 }
 
-void L1TdeRCT::readFEDVector(MonitorElement* histogram, const edm::EventSetup& es) const {
+void L1TdeRCT::readFEDVector(MonitorElement* histogram, const edm::EventSetup& es, const bool isLumitransition) const {
   // adding fed mask into channel mask
-  edm::ESHandle<RunInfo> sum;
-  es.get<RunInfoRcd>().get(sum);
+  //edm::ESHandle<RunInfo> sum;
+  //es.get<RunInfoRcd>().get(sum);
+  const auto& sum = isLumitransition ? es.getHandle(runInfolumiToken_) : es.getHandle(runInfoToken_);
   const RunInfo* summary = sum.product();
 
   std::vector<int> caloFeds;  // pare down the feds to the intresting ones

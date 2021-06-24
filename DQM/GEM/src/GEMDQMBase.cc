@@ -4,7 +4,7 @@
 using namespace std;
 using namespace edm;
 
-GEMDQMBase::GEMDQMBase(const edm::ParameterSet& cfg) {
+GEMDQMBase::GEMDQMBase(const edm::ParameterSet& cfg) : geomToken_(esConsumes<edm::Transition::BeginRun>()) {
   log_category_ = cfg.getUntrackedParameter<std::string>("logCategory");
 
   nNumEtaPartitionGE0_ = 0;
@@ -15,9 +15,9 @@ GEMDQMBase::GEMDQMBase(const edm::ParameterSet& cfg) {
 int GEMDQMBase::initGeometry(edm::EventSetup const& iSetup) {
   GEMGeometry_ = nullptr;
   try {
-    edm::ESHandle<GEMGeometry> hGeom;
-    iSetup.get<MuonGeometryRecord>().get(hGeom);
-    GEMGeometry_ = &*hGeom;
+    //edm::ESHandle<GEMGeometry> hGeom;
+    //iSetup.get<MuonGeometryRecord>().get(hGeom);
+    GEMGeometry_ = &iSetup.getData(geomToken_);
   } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
     edm::LogError(log_category_) << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
     return -1;
