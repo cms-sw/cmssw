@@ -91,7 +91,6 @@ private:
   edm::EDGetTokenT<std::vector<l1t::Vertex>> pvToken_;
   const edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_> > genToken_;
   edm::ESGetToken<TrackerTopology,TrackerTopologyRcd> tTopoToken_;
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
 };
 
 // constructor
@@ -99,8 +98,7 @@ L1FastTrackingJetProducer::L1FastTrackingJetProducer(const edm::ParameterSet& iC
 trackToken_(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
 pvToken_(consumes<std::vector<l1t::Vertex>>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag"))),
 genToken_(consumes< TTTrackAssociationMap<Ref_Phase2TrackerDigi_> > (iConfig.getParameter<edm::InputTag>("GenInfo"))),
-tTopoToken_(esConsumes<TrackerTopology,TrackerTopologyRcd>(edm::ESInputTag("",""))),
-tGeomToken_(esConsumes<TrackerGeometry,TrackerDigiGeometryRecord>(edm::ESInputTag("","")))
+tTopoToken_(esConsumes<TrackerTopology,TrackerTopologyRcd>(edm::ESInputTag("","")))
 {
   trkZMax_    = (float)iConfig.getParameter<double>("trk_zMax");
   trkChi2dofMax_ = (float)iConfig.getParameter<double>("trk_chi2dofMax");
@@ -139,7 +137,6 @@ void L1FastTrackingJetProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   // Tracker Topology
   const TrackerTopology &tTopo = iSetup.getData(tTopoToken_);
-  const TrackerGeometry & tGeom = iSetup.getData(tGeomToken_);
 
   edm::Handle<std::vector<l1t::Vertex>> L1VertexHandle;
   iEvent.getByToken(pvToken_, L1VertexHandle);
