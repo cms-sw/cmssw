@@ -32,8 +32,7 @@ L1TdeCSCTPG::L1TdeCSCTPG(const edm::ParameterSet& ps)
       lctMaxBin_(ps.getParameter<std::vector<double>>("lctMaxBin")),
       B904Setup_(ps.getParameter<bool>("B904Setup")),
       isRun3_(ps.getParameter<bool>("isRun3")),
-      preTriggerAnalysis_(ps.getParameter<bool>("preTriggerAnalysis"))
- {}
+      preTriggerAnalysis_(ps.getParameter<bool>("preTriggerAnalysis")) {}
 
 L1TdeCSCTPG::~L1TdeCSCTPG() {}
 
