@@ -25,6 +25,8 @@ tmbPhase1 = cms.PSet(
     # Flag for whether to readout only the earliest max two LCTs in a
     # L1A readout window, as there is only room just for two in the TMB header.
     # If false, all LCTs would be readout in L1A window.
+    # originally, this planned to change this for Phase-2, but no longer
+    # as of June 2021
     tmbReadoutEarliest2 = cms.bool(True),
 
     # For ALCT-centric matching in ME11, break after finding
@@ -50,7 +52,6 @@ tmbPhase1 = cms.PSet(
 tmbPhase2 = tmbPhase1.clone(
     # reduce ALCT-CLCT matching window size from 7 to 5
     matchTrigWindowSize = 5,
-    tmbReadoutEarliest2 = False,
     matchEarliestClctOnly = False,
     tmbDropUsedClcts = False,
     # 0 = default "non-X-BX" sorting algorithm,
