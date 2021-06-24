@@ -51,7 +51,7 @@ function checkJars() {
 function makeCreateConfig() {
   local baseDir="/afs/cern.ch/user/c/confdb/www/${Vx}/lib"
   local baseUrl="http://confdb.web.cern.ch/confdb/${Vx}/lib"
-  local JARS="ojdbc6.jar cmssw-evf-confdb-gui.jar"
+  local JARS="ojdbc8.jar cmssw-evf-confdb-gui.jar"
   workDir="$baseDir"
 
   # try to read the .jar files from AFS, or download them
