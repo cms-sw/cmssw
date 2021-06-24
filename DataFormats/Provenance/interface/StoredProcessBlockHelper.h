@@ -17,6 +17,7 @@ interact with the ProcessBlockHelper.
 */
 
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace edm {
@@ -31,12 +32,12 @@ namespace edm {
     std::vector<std::string> const& processesWithProcessBlockProducts() const {
       return processesWithProcessBlockProducts_;
     }
-
-    std::vector<std::string>& processesWithProcessBlockProducts() { return processesWithProcessBlockProducts_; }
+    void setProcessesWithProcessBlockProducts(std::vector<std::string> val) {
+      processesWithProcessBlockProducts_ = std::move(val);
+    }
 
     std::vector<unsigned int> const& processBlockCacheIndices() const { return processBlockCacheIndices_; }
-
-    std::vector<unsigned int>& processBlockCacheIndices() { return processBlockCacheIndices_; }
+    void setProcessBlockCacheIndices(std::vector<unsigned int> val) { processBlockCacheIndices_ = std::move(val); }
 
   private:
     std::vector<std::string> processesWithProcessBlockProducts_;

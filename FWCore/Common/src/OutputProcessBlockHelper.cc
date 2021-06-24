@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <utility>
 
 namespace edm {
 
@@ -54,7 +55,7 @@ namespace edm {
     // The stored cache indices are the ones we want to fill.
     // This will get written to the output file.
     // Note for output the vector of vectors is flattened into a single vector
-    std::vector<unsigned int>& storedCacheIndices = storedProcessBlockHelper.processBlockCacheIndices();
+    std::vector<unsigned int> storedCacheIndices;
 
     // Number of processes in StoredProcessBlockHelper.
     unsigned int nStoredProcesses = storedProcessBlockHelper.processesWithProcessBlockProducts().size();
@@ -68,6 +69,7 @@ namespace edm {
       for (unsigned int i = 0; i < nStoredProcesses; ++i) {
         storedCacheIndices.push_back(i);
       }
+      storedProcessBlockHelper.setProcessBlockCacheIndices(std::move(storedCacheIndices));
       return;
     }
 
@@ -180,6 +182,7 @@ namespace edm {
         storedCacheIndices.push_back(storedCacheIndex);
       }
     }
+    storedProcessBlockHelper.setProcessBlockCacheIndices(std::move(storedCacheIndices));
   }
 
   void OutputProcessBlockHelper::setStoredProcessOffset(unsigned int nInputProcesses,
