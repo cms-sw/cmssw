@@ -66,13 +66,13 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
   // shower-trigger source
   showerSource_ = showerParams_.getParameter<unsigned>("source");
 
-  // // enable the upgrade processors for ring 1 stations
-  // if (runPhase2_ and theRing == 1) {
-  //   clctProc = std::make_unique<CSCUpgradeCathodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
-  //   if (enableAlctPhase2_) {
-  //     alctProc = std::make_unique<CSCUpgradeAnodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
-  //   }
-  // }
+  // enable the upgrade processors for ring 1 stations
+  if (runPhase2_ and theRing == 1) {
+    clctProc = std::make_unique<CSCUpgradeCathodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
+    if (enableAlctPhase2_) {
+      alctProc = std::make_unique<CSCUpgradeAnodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
+    }
+   }
 
   // set up helper class to check if ALCT and CLCT cross
   const bool ignoreAlctCrossClct = tmbParams_.getParameter<bool>("ignoreAlctCrossClct");
