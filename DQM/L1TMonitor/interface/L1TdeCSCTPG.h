@@ -67,6 +67,9 @@ private:
 
   bool isRun3_;
 
+  // check the data CLCTs and emul CLCTs against emul preCLCTs
+  bool preTriggerAnalysis_;
+
   // first key is the chamber number
   // second key is the variable
   std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;

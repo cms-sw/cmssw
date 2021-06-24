@@ -31,7 +31,9 @@ L1TdeCSCTPG::L1TdeCSCTPG(const edm::ParameterSet& ps)
       clctMaxBin_(ps.getParameter<std::vector<double>>("clctMaxBin")),
       lctMaxBin_(ps.getParameter<std::vector<double>>("lctMaxBin")),
       B904Setup_(ps.getParameter<bool>("B904Setup")),
-      isRun3_(ps.getParameter<bool>("isRun3")) {}
+      isRun3_(ps.getParameter<bool>("isRun3")),
+      preTriggerAnalysis_(ps.getParameter<bool>("preTriggerAnalysis"))
+ {}
 
 L1TdeCSCTPG::~L1TdeCSCTPG() {}
 
@@ -153,7 +155,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
       continue;
     for (auto clct = range.first; clct != range.second; clct++) {
       if (clct->isValid()) {
-        if (B904Setup_) {
+        if (preTriggerAnalysis_) {
           tempdata.push_back(*clct);
         }
         chamberHistos[type]["clct_pattern_data"]->Fill(clct->getPattern());
@@ -181,7 +183,6 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     // ignore non-ME1/1 chambers when using B904 test-stand data
     if (B904Setup_ and !((*it).first).isME11())
       continue;
-
     // remove the duplicate CLCTs
     // these are CLCTs that have the same properties as CLCTs found
     // before by the emulator, except for the BX, which is off by +1
@@ -190,10 +191,9 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
       if (not isDuplicateCLCT(*clct, cleanedemul))
         cleanedemul.push_back(*clct);
     }
-
     for (const auto& clct : cleanedemul) {
       if (clct.isValid()) {
-        if (B904Setup_) {
+        if (preTriggerAnalysis_) {
           tempemul.push_back(clct);
         }
         chamberHistos[type]["clct_pattern_emul"]->Fill(clct.getPattern());
@@ -216,18 +216,18 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
   }
 
   // Pre-trigger analysis
-  if (B904Setup_) {
+  if (preTriggerAnalysis_) {
     if (tempdata.size() != tempemul.size()) {
       for (auto& clct : tempdata) {
-        edm::LogInfo("L1TdeCSCTPG") << "data" << clct;
+        edm::LogWarning("L1TdeCSCTPG") << "data" << clct;
       }
       for (auto& clct : tempemul) {
-        edm::LogInfo("L1TdeCSCTPG") << "emul" << clct;
+        edm::LogWarning("L1TdeCSCTPG") << "emul" << clct;
       }
       for (auto it = emulpreCLCTs->begin(); it != emulpreCLCTs->end(); it++) {
         auto range = emulpreCLCTs->get((*it).first);
         for (auto clct = range.first; clct != range.second; clct++) {
-          edm::LogInfo("L1TdeCSCTPG") << "emul pre" << *clct;
+          edm::LogWarning("L1TdeCSCTPG") << "emul pre" << *clct;
         }
       }
     }

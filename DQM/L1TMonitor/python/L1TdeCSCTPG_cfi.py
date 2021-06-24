@@ -30,6 +30,7 @@ l1tdeCSCTPGCommon = cms.PSet(
     lctMaxBin = cms.vdouble(16, 116, 224, 16, 2, 448, 896, 5, 16, 2, 2),
     B904Setup = cms.bool(False),
     isRun3 = cms.bool(False),
+    preTriggerAnalysis = cms.bool(False)
 )
 
 l1tdeCSCTPG = DQMEDAnalyzer(
