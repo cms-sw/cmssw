@@ -427,6 +427,7 @@ private:
                      std::vector<PSimHit>::const_iterator inputEnd,
                      const PSimHit& hit,
                      const size_t hitIndex,
+                     const size_t FirstHitIndex,
                      const unsigned int tofBin,
                      const PixelGeomDetUnit* pixdet,
                      const std::vector<SignalPoint>& collection_points);
