@@ -14,6 +14,7 @@ options.register ("runCCLUT", False, VarParsing.multiplicity.singleton, VarParsi
 options.register ("runME11ILT", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("saveEdmOutput", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("preTriggerAnalysis", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("dropNonMuonCollections", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.parseArguments()
 
 process_era = Run3
@@ -99,6 +100,22 @@ process.output = cms.OutputModule(
       ]),
       fileName = cms.untracked.string("lcts2.root"),
 )
+
+## for most studies, you don't need these collections.
+## adjust as necessary
+if options.dropNonMuonCollections:
+      outputCom = process.output.outputCommands
+      outputCom.append('drop *_rawDataCollector_*_*')
+      outputCom.append('drop *_sim*al*_*_*')
+      outputCom.append('drop *_hlt*al*_*_*')
+      outputCom.append('drop *_g4SimHits_*al*_*')
+      outputCom.append('drop *_simSi*_*_*')
+      outputCom.append('drop *_hltSi*_*_*')
+      outputCom.append('drop *_simBmtfDigis_*_*')
+      outputCom.append('drop *_*_*BMTF*_*')
+      outputCom.append('drop *_hltGtStage2ObjectMap_*_*')
+      outputCom.append('drop *_simGtStage2Digis_*_*')
+      outputCom.append('drop *_hltTriggerSummary*_*_*')
 
 ## DQM output
 process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
