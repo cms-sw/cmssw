@@ -18,15 +18,15 @@ namespace edm {
 
   class ProcessBlockHelper : public ProcessBlockHelperBase {
   public:
-    ProcessBlockHelperBase const* topProcessBlockHelper() const override;
-    std::vector<std::string> const& topProcessesWithProcessBlockProducts() const override;
-    unsigned int nProcessesInFirstFile() const override;
-    std::vector<std::vector<unsigned int>> const& processBlockCacheIndices() const override;
-    std::vector<std::vector<unsigned int>> const& nEntries() const override;
-    std::vector<unsigned int> const& cacheIndexVectorsPerFile() const override;
-    std::vector<unsigned int> const& cacheEntriesPerFile() const override;
-    unsigned int processBlockIndex(std::string const& processName, EventToProcessBlockIndexes const&) const override;
-    unsigned int outerOffset() const override;
+    ProcessBlockHelperBase const* topProcessBlockHelper() const final;
+    std::vector<std::string> const& topProcessesWithProcessBlockProducts() const final;
+    unsigned int nProcessesInFirstFile() const final;
+    std::vector<std::vector<unsigned int>> const& processBlockCacheIndices() const final;
+    std::vector<std::vector<unsigned int>> const& nEntries() const final;
+    std::vector<unsigned int> const& cacheIndexVectorsPerFile() const final;
+    std::vector<unsigned int> const& cacheEntriesPerFile() const final;
+    unsigned int processBlockIndex(std::string const& processName, EventToProcessBlockIndexes const&) const final;
+    unsigned int outerOffset() const final;
 
     bool initializedFromInput() const { return initializedFromInput_; }
 
