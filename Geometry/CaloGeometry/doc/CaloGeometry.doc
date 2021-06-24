@@ -29,15 +29,22 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+
+...
+
+private:
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tokGeom_;
+
+...
+
+...(const edm::ParameterSet&)
+  : tokGeom_{esConsumes<CaloGeometry, CaloGeometryRecord>()},
 
 ...
 
 void ...(edm::Event& e, const edm::EventSetup& es) {
-  edm::ESHandle<CaloGeometry> pGeo;
-  c.get<IdealGeometryRecord>().get(pGeo);
   
-  const CaloGeometry* geom=pGeo.product();
+  const CaloGeometry* geom=es.getData(tokGeom_);
 @endcode 
 
 
@@ -46,10 +53,12 @@ void ...(edm::Event& e, const edm::EventSetup& es) {
  - CaloGeometry
  - CaloSubdetectorGeometry
  - CaloCellGeometry
+   - FlatHexagon
+   - FlatTrd
    - IdealObliquePrism
    - IdealZPrism
-   - TruncatedPyramid
    - PreshowerStrip
+   - TruncatedPyramid
 
 
 
