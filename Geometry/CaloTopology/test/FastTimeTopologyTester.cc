@@ -34,7 +34,8 @@ private:
   const edm::ESGetToken<FastTimeTopology, IdealGeometryRecord> tokTopo_;
 };
 
-FastTimeTopologyTester::FastTimeTopologyTester(const edm::ParameterSet&) : tokTopo_{esConsumes<FastTimeTopology, IdealGeometryRecord>(edm::ESInputTag{"", "FastTimeBarrel"})} {}
+FastTimeTopologyTester::FastTimeTopologyTester(const edm::ParameterSet&)
+    : tokTopo_{esConsumes<FastTimeTopology, IdealGeometryRecord>(edm::ESInputTag{"", "FastTimeBarrel"})} {}
 
 void FastTimeTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;

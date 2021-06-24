@@ -45,7 +45,7 @@ HGCalTopologyTester::HGCalTopologyTester(const edm::ParameterSet& iC)
       sec2_(iC.getParameter<std::vector<int> >("sector2")),
       cell1_(iC.getParameter<std::vector<int> >("cell1")),
       cell2_(iC.getParameter<std::vector<int> >("cell2")),
-      tokTopo_{esConsumes<HGCalTopology, IdealGeometryRecord>(edm::ESInputTag{"", detectorName_ })} {}
+      tokTopo_{esConsumes<HGCalTopology, IdealGeometryRecord>(edm::ESInputTag{"", detectorName_})} {}
 
 void HGCalTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;

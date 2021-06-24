@@ -42,7 +42,9 @@ private:
   const edm::ESGetToken<CaloTowerConstituentsMap, CaloGeometryRecord> tokMap_;
 };
 
-CaloTowerMapTester::CaloTowerMapTester(const edm::ParameterSet&) : tokGeom_{esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})}, tokMap_{esConsumes<CaloTowerConstituentsMap, CaloGeometryRecord>(edm::ESInputTag{})} {}
+CaloTowerMapTester::CaloTowerMapTester(const edm::ParameterSet&)
+    : tokGeom_{esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})},
+      tokMap_{esConsumes<CaloTowerConstituentsMap, CaloGeometryRecord>(edm::ESInputTag{})} {}
 
 void CaloTowerMapTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -63,7 +65,8 @@ void CaloTowerMapTester::doTest(const CaloGeometry* geo, const CaloTowerConstitu
   for (const auto& id : dets) {
     CaloTowerDetId tower = ctmap->towerOf(id);
     std::vector<DetId> ids = ctmap->constituentsOf(tower);
-    std::cout << static_cast<HcalDetId>(id) << " belongs to " << tower << " which has " << ids.size() << " constituents\n";
+    std::cout << static_cast<HcalDetId>(id) << " belongs to " << tower << " which has " << ids.size()
+              << " constituents\n";
     for (unsigned int i = 0; i < ids.size(); ++i) {
       std::cout << "[" << i << "] " << std::hex << ids[i].rawId() << std::dec;
       if (ids[i].det() == DetId::Ecal && ids[i].subdetId() == EcalBarrel) {
