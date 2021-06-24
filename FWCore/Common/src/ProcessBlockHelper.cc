@@ -45,11 +45,12 @@ namespace edm {
   // Part of the dropOnInput. Also part of reordering that forces ProcessBlocks
   // to be read in the same order for all input files.
   bool ProcessBlockHelper::firstFileDropProcessesAndReorderStored(
-      std::vector<std::string>& storedProcesses,
-      std::vector<unsigned int>& storedCacheIndices,
+      StoredProcessBlockHelper& storedProcessBlockHelper,
       std::set<std::string> const& processesToKeep,
       std::vector<unsigned int> const& nEntries,
       std::vector<unsigned int>& finalIndexToStoredIndex) const {
+    std::vector<std::string> const& storedProcesses = storedProcessBlockHelper.processesWithProcessBlockProducts();
+
     bool isModified = false;
     unsigned int finalSize = 0;
     for (auto const& process : storedProcesses) {
@@ -72,20 +73,20 @@ namespace edm {
         finalIndexToStoredIndex.emplace_back(iStored);
       }
     }
-    dropProcessesAndReorderStoredImpl(
-        storedProcesses, storedCacheIndices, finalProcesses, nEntries, finalIndexToStoredIndex);
+    dropProcessesAndReorderStoredImpl(storedProcessBlockHelper, finalProcesses, nEntries, finalIndexToStoredIndex);
     return isModified;
   }
 
   // Modifies the process names and cache indices in the StoredProcessBlockHelper.
   // Part of the dropOnInput. Also part of reordering that forces ProcessBlocks
   // to be read in the same order for all input files.
-  bool ProcessBlockHelper::dropProcessesAndReorderStored(std::vector<std::string>& storedProcesses,
-                                                         std::vector<unsigned int>& storedCacheIndices,
+  bool ProcessBlockHelper::dropProcessesAndReorderStored(StoredProcessBlockHelper& storedProcessBlockHelper,
                                                          std::set<std::string> const& processesToKeep,
                                                          std::vector<unsigned int> const& nEntries,
                                                          std::vector<unsigned int>& finalIndexToStoredIndex,
                                                          std::vector<std::string> const& firstFileFinalProcesses) const {
+    std::vector<std::string> const& storedProcesses = storedProcessBlockHelper.processesWithProcessBlockProducts();
+
     std::vector<std::string> finalProcesses;
     // Always will allocate enough space (sometimes too much)
     finalProcesses.reserve(storedProcesses.size());
@@ -114,8 +115,7 @@ namespace edm {
       return isModified;
     }
 
-    dropProcessesAndReorderStoredImpl(
-        storedProcesses, storedCacheIndices, finalProcesses, nEntries, finalIndexToStoredIndex);
+    dropProcessesAndReorderStoredImpl(storedProcessBlockHelper, finalProcesses, nEntries, finalIndexToStoredIndex);
     return isModified;
   }
 
@@ -168,11 +168,13 @@ namespace edm {
   // Part of the dropOnInput. Also part of reordering that forces ProcessBlocks
   // to be read in the same order for all input files.
   void ProcessBlockHelper::dropProcessesAndReorderStoredImpl(
-      std::vector<std::string>& storedProcesses,
-      std::vector<unsigned int>& storedCacheIndices,
+      StoredProcessBlockHelper& storedProcessBlockHelper,
       std::vector<std::string>& finalProcesses,
       std::vector<unsigned int> const& nEntries,
       std::vector<unsigned int> const& finalIndexToStoredIndex) const {
+    std::vector<std::string> const& storedProcesses = storedProcessBlockHelper.processesWithProcessBlockProducts();
+    std::vector<unsigned int> const& storedCacheIndices = storedProcessBlockHelper.processBlockCacheIndices();
+
     assert(!storedProcesses.empty());
     std::vector<unsigned int> newCacheIndices;
     if (!finalProcesses.empty()) {
@@ -215,8 +217,8 @@ namespace edm {
         storedOuterOffset += storedProcesses.size();
       }
     }
-    storedCacheIndices.swap(newCacheIndices);
-    storedProcesses.swap(finalProcesses);
+    storedProcessBlockHelper.setProcessBlockCacheIndices(std::move(newCacheIndices));
+    storedProcessBlockHelper.setProcessesWithProcessBlockProducts(std::move(finalProcesses));
   }
 
   void ProcessBlockHelper::fillFromPrimaryInputWhenNotEmpty(std::vector<std::string> const& storedProcesses,

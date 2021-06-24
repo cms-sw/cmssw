@@ -36,7 +36,7 @@ TEST_CASE("StoredProcessBlockHelper", "[StoredProcessBlockHelper]") {
     REQUIRE(storedProcessBlockHelperConstPtr->processBlockCacheIndices().empty());
 
     std::vector<unsigned int> testIndices{1, 10, 100};
-    storedProcessBlockHelper.processBlockCacheIndices() = testIndices;
+    storedProcessBlockHelper.setProcessBlockCacheIndices(testIndices);
     REQUIRE(storedProcessBlockHelper.processBlockCacheIndices() == testIndices);
     REQUIRE(storedProcessBlockHelperConstPtr->processBlockCacheIndices() == testIndices);
   }

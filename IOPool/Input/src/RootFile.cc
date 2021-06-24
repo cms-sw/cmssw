@@ -2068,19 +2068,14 @@ namespace edm {
 
     if (firstInputFile) {
       isModified = processBlockHelper->firstFileDropProcessesAndReorderStored(
-          storedProcessBlockHelper.processesWithProcessBlockProducts(),
-          storedProcessBlockHelper.processBlockCacheIndices(),
-          processesWithKeptProcessBlockProducts,
-          nEntries,
-          finalIndexToStoredIndex);
+          storedProcessBlockHelper, processesWithKeptProcessBlockProducts, nEntries, finalIndexToStoredIndex);
     } else {
-      isModified = processBlockHelper->dropProcessesAndReorderStored(
-          storedProcessBlockHelper.processesWithProcessBlockProducts(),
-          storedProcessBlockHelper.processBlockCacheIndices(),
-          processesWithKeptProcessBlockProducts,
-          nEntries,
-          finalIndexToStoredIndex,
-          processBlockHelper->processesWithProcessBlockProducts());
+      isModified =
+          processBlockHelper->dropProcessesAndReorderStored(storedProcessBlockHelper,
+                                                            processesWithKeptProcessBlockProducts,
+                                                            nEntries,
+                                                            finalIndexToStoredIndex,
+                                                            processBlockHelper->processesWithProcessBlockProducts());
     }
 
     // At this point, any modifications to storedProcessBlockHelper are done.

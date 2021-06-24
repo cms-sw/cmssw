@@ -30,14 +30,12 @@ namespace edm {
 
     bool initializedFromInput() const { return initializedFromInput_; }
 
-    bool firstFileDropProcessesAndReorderStored(std::vector<std::string>& storedProcesses,
-                                                std::vector<unsigned int>& storedCacheIndices,
+    bool firstFileDropProcessesAndReorderStored(StoredProcessBlockHelper& storedProcessBlockHelper,
                                                 std::set<std::string> const& processesToKeep,
                                                 std::vector<unsigned int> const& nEntries,
                                                 std::vector<unsigned int>& finalIndexToStoredIndex) const;
 
-    bool dropProcessesAndReorderStored(std::vector<std::string>& storedProcesses,
-                                       std::vector<unsigned int>& storedCacheIndices,
+    bool dropProcessesAndReorderStored(StoredProcessBlockHelper& storedProcessBlockHelper,
                                        std::set<std::string> const& processesToKeep,
                                        std::vector<unsigned int> const& nEntries,
                                        std::vector<unsigned int>& finalIndexToStoredIndex,
@@ -51,8 +49,7 @@ namespace edm {
     void clearAfterOutputFilesClose();
 
   private:
-    void dropProcessesAndReorderStoredImpl(std::vector<std::string>& storedProcesses,
-                                           std::vector<unsigned int>& storedCacheIndices,
+    void dropProcessesAndReorderStoredImpl(StoredProcessBlockHelper& storedProcessBlockHelper,
                                            std::vector<std::string>& finalProcesses,
                                            std::vector<unsigned int> const& nEntries,
                                            std::vector<unsigned int> const& finalIndexToStoredIndex) const;
