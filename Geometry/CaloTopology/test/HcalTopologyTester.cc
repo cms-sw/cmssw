@@ -34,7 +34,8 @@ private:
   const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tokTopo_;
 };
 
-HcalTopologyTester::HcalTopologyTester(const edm::ParameterSet&) : tokTopo_{esConsumes<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag{})} {}
+HcalTopologyTester::HcalTopologyTester(const edm::ParameterSet&)
+    : tokTopo_{esConsumes<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag{})} {}
 
 void HcalTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -42,9 +43,7 @@ void HcalTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descri
   descriptions.addDefault(desc);
 }
 
-void HcalTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
-  doTest(iSetup.getData(tokTopo_));
-}
+void HcalTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetup) { doTest(iSetup.getData(tokTopo_)); }
 
 void HcalTopologyTester::doTest(const HcalTopology& topology) {
   // First test on movements along eta/phi directions

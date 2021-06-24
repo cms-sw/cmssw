@@ -36,7 +36,8 @@ private:
   const edm::ESGetToken<CaloTowerTopology, HcalRecNumberingRecord> tokTopo_;
 };
 
-CaloTowerTopologyTester::CaloTowerTopologyTester(const edm::ParameterSet&) : tokTopo_{esConsumes<CaloTowerTopology, HcalRecNumberingRecord>(edm::ESInputTag{})} {}
+CaloTowerTopologyTester::CaloTowerTopologyTester(const edm::ParameterSet&)
+    : tokTopo_{esConsumes<CaloTowerTopology, HcalRecNumberingRecord>(edm::ESInputTag{})} {}
 
 void CaloTowerTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
