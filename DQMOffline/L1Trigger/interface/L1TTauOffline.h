@@ -130,6 +130,7 @@ private:
   // variables from config file
   edm::EDGetTokenT<reco::PFTauCollection> theTauCollection_;
   edm::EDGetTokenT<reco::TauDiscriminatorContainer> AntiMuInputTag_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mFieldToken_;
   std::string AntiMuWP_;
   int AntiMuWPIndex_;
   edm::EDGetTokenT<reco::TauDiscriminatorContainer> AntiEleInputTag_;

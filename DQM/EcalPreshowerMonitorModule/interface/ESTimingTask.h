@@ -35,6 +35,7 @@ private:
   MonitorElement *hTiming_[2][2];
   MonitorElement *h2DTiming_;
 
+  edm::ESGetToken<ESGain, ESGainRcd> esgainToken_;
   edm::ESHandle<ESGain> esgain_;
 
   TF1 *fit_;
