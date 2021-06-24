@@ -37,6 +37,9 @@ L1TBPTX::L1TBPTX(const ParameterSet& pset) {
   m_scalersSource = consumes<Level1TriggerScalersCollection>(pset.getParameter<InputTag>("inputTagScalersResults"));
   m_l1GtDataDaqInputTag = consumes<L1GlobalTriggerReadoutRecord>(pset.getParameter<InputTag>("inputTagL1GtDataDaq"));
   m_l1GtEvmSource = consumes<L1GlobalTriggerEvmReadoutRecord>(pset.getParameter<InputTag>("inputTagtEvmSource"));
+  l1gtMenuToken_ = esConsumes<edm::Transition::BeginRun>();
+  l1GtPfAlgoToken_ = esConsumes<edm::Transition::BeginRun>();
+  l1GtPfTechToken_ = esConsumes<edm::Transition::BeginRun>();
   m_verbose = pset.getUntrackedParameter<bool>("verbose", false);
   //  m_refPrescaleSet      = pset.getParameter         <int>     ("refPrescaleSet");
 
@@ -82,9 +85,7 @@ void L1TBPTX::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& iRun, c
   m_currentLS = 0;
 
   // Getting Trigger menu from GT
-  ESHandle<L1GtTriggerMenu> menuRcd;
-  iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
-  const L1GtTriggerMenu* menu = menuRcd.product();
+  const L1GtTriggerMenu* menu = &iSetup.getData(l1gtMenuToken_);
 
   // Filling Alias-Bit Map
   for (CItAlgo algo = menu->gtAlgorithmAliasMap().begin(); algo != menu->gtAlgorithmAliasMap().end(); ++algo) {
@@ -185,11 +186,8 @@ void L1TBPTX::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& iRun, c
 
   //_____________________________________________________________________
   // Getting the prescale columns definition for this run
-  ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
-  ESHandle<L1GtPrescaleFactors> l1GtPfTech;
-
-  iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
-  iSetup.get<L1GtPrescaleFactorsTechTrigRcd>().get(l1GtPfTech);
+  const auto& l1GtPfAlgo = iSetup.getHandle(l1GtPfAlgoToken_);
+  const auto& l1GtPfTech = iSetup.getHandle(l1GtPfTechToken_);
 
   if (l1GtPfAlgo.isValid()) {
     const L1GtPrescaleFactors* m_l1GtPfAlgo = l1GtPfAlgo.product();

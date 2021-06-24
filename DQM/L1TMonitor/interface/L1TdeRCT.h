@@ -38,6 +38,8 @@
 
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
+class RunInfoRcd;
+class RunInfo;
 // Trigger Headers
 //
 // class declaration
@@ -63,7 +65,7 @@ protected:
   std::shared_ptr<l1tderct::Empty> globalBeginLuminosityBlock(const edm::LuminosityBlock&,
                                                               const edm::EventSetup&) const override;
   void globalEndLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final {}
-  void readFEDVector(MonitorElement*, const edm::EventSetup&) const;
+  void readFEDVector(MonitorElement*, const edm::EventSetup&, const bool isLumitransition = true) const;
 
 private:
   // ----------member data ---------------------------
@@ -265,6 +267,8 @@ private:
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPGData_;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPGData_;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigisLabel_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfolumiToken_;
   std::string gtEGAlgoName_;  // name of algo to determine EG trigger threshold
   int doubleThreshold_;       // value of ET at which to make 2-D eff plot
 

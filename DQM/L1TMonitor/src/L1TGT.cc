@@ -27,6 +27,7 @@ L1TGT::L1TGT(const edm::ParameterSet& ps)
       preGps_(0ULL),
       preOrb_(0ULL) {
   m_histFolder = ps.getUntrackedParameter<std::string>("HistFolder", "L1T/L1TGT");
+  l1gtTrigmenuToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 L1TGT::~L1TGT() {
@@ -274,10 +275,10 @@ void L1TGT::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::Eve
 
   //--------book AlgoBits/TechBits vs Bx Histogram-----------
 
-  edm::ESHandle<L1GtTriggerMenu> menuRcd;
-  evSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
-
-  const L1GtTriggerMenu* menu = menuRcd.product();
+  //edm::ESHandle<L1GtTriggerMenu> menuRcd;
+  //evSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
+  //menuRcd.product();
+  const L1GtTriggerMenu* menu = &evSetup.getData(l1gtTrigmenuToken_);
 
   h_L1AlgoBX1 = ibooker.book2D("h_L1AlgoBX1", "L1 Algo Trigger BX (algo bit 0 to 31)", 32, -0.5, 31.5, 5, -2.5, 2.5);
   h_L1AlgoBX2 = ibooker.book2D("h_L1AlgoBX2", "L1 Algo Trigger BX (algo bit 32 to 63)", 32, 31.5, 63.5, 5, -2.5, 2.5);

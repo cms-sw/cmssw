@@ -52,6 +52,7 @@
 class EgammaHLTTrackIsolation;
 class HLTConfigProvider;
 class EcalSeverityLevelAlgo;
+class EcalSeverityLevelAlgoRcd;
 
 namespace egHLT {
 
@@ -77,6 +78,11 @@ namespace egHLT {
     edm::EDGetTokenT<CaloTowerCollection> caloTowersToken;
     edm::EDGetTokenT<edm::TriggerResults> trigResultsToken;
     edm::EDGetTokenT<reco::VertexCollection> vertexToken;
+
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+    edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopoToken_;
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+    edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> ecalSeverityToken_;
 
     edm::ESHandle<CaloGeometry> caloGeom_;
     edm::ESHandle<CaloTopology> caloTopology_;
