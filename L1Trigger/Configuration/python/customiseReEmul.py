@@ -258,6 +258,17 @@ def L1TReEmulFromRAWCalo(process):
     print ("# {0}".format(process.schedule))
     return process
 
+def L1TReEmulFromRAWCaloSimTP(process):
+    process.load('L1Trigger.Configuration.SimL1CaloEmulator_cff')
+    process.L1TReEmul = cms.Sequence(process.SimL1CaloEmulator)
+    process.L1TReEmulPath = cms.Path(process.L1TReEmul)
+    process.schedule.append(process.L1TReEmulPath)
+
+    print ("# L1TReEmul sequence:  ")
+    print ("# {0}".format(process.L1TReEmul))
+    print ("# {0}".format(process.schedule))
+    return process
+
 def L1TReEmulMCFromRAW(process):
     L1TReEmulFromRAW(process)
     stage2L1Trigger.toModify(process.simEmtfDigis, CSCInput = 'simCscTriggerPrimitiveDigis:MPCSORTED')
