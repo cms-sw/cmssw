@@ -46,8 +46,8 @@ class ConnectionL1TMenuXml(object):
 
 # type used to store a reference to an HLT configuration
 class ConnectionHLTMenu(object):
-  valid_versions  = 'v1', 'v2'
-  valid_databases = 'online', 'offline', 'adg'
+  valid_versions  = 'v1', 'v2', 'v2-dev'
+  valid_databases = 'online', 'offline', 'adg','dev'
   compatibility   = { 'hltdev': ('v2', 'offline'), 'orcoff': ('v2', 'adg') }
 
   def __init__(self, value):
