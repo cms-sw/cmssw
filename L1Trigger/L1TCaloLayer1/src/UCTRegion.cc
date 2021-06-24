@@ -268,6 +268,12 @@ bool UCTRegion::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
   return true;
 }
 
+bool UCTRegion::setRegionSummary(uint16_t regionData) {
+  // Use when the region collection is available and no direct access to TPGs
+  regionSummary = regionData;
+  return true;
+}
+
 std::ostream& operator<<(std::ostream& os, const UCTRegion& r) {
   if (r.negativeEta)
     os << "UCTRegion Summary for negative eta " << r.region << " HitTower (eta, phi) = (" << std::dec << r.hitCaloEta()
