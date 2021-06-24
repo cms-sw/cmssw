@@ -130,7 +130,7 @@ namespace edm {
   }
 
   void ProcessBlockHelper::fillFromPrimaryInput(StoredProcessBlockHelper const& storedProcessBlockHelper,
-                                                std::vector<unsigned int>&& nEntries) {
+                                                std::vector<unsigned int> const& nEntries) {
     // I've written this so it will continue to work even if we someday relax
     // the strict merging requirement in the ProductRegistry (there
     // is a little extra complexity that may be unnecessary...).
@@ -145,7 +145,7 @@ namespace edm {
       return;
     } else if (!storedProcesses.empty()) {
       // Subsequent input file with ProcessBlock products
-      fillFromPrimaryInputWhenNotEmpty(storedProcesses, storedCacheIndices, std::move(nEntries));
+      fillFromPrimaryInputWhenNotEmpty(storedProcesses, storedCacheIndices, nEntries);
     } else if (storedProcesses.empty()) {
       // Subsequent input file without ProcessBlock products
       processBlockCacheIndices_.emplace_back(nProcessesInFirstFile_, invalidCacheIndex());
@@ -223,7 +223,7 @@ namespace edm {
 
   void ProcessBlockHelper::fillFromPrimaryInputWhenNotEmpty(std::vector<std::string> const& storedProcesses,
                                                             std::vector<unsigned int> const& storedCacheIndices,
-                                                            std::vector<unsigned int>&& nEntries) {
+                                                            std::vector<unsigned int> const& nEntries) {
     assert(nProcessesInFirstFile_ <= processesWithProcessBlockProducts().size());
 
     // Calculate a translation from an index into the process names from the first file
@@ -268,7 +268,7 @@ namespace edm {
     fillEntriesFromPrimaryInput(std::move(newNEntries));
   }
 
-  void ProcessBlockHelper::fillEntriesFromPrimaryInput(std::vector<unsigned int>&& nEntries) {
+  void ProcessBlockHelper::fillEntriesFromPrimaryInput(std::vector<unsigned int> nEntries) {
     unsigned int entriesThisFile = 0;
     for (auto const& entries : nEntries) {
       entriesThisFile += entries;

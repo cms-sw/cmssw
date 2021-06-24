@@ -44,7 +44,7 @@ namespace edm {
     void initializeFromPrimaryInput(StoredProcessBlockHelper const& storedProcessBlockHelper);
 
     void fillFromPrimaryInput(StoredProcessBlockHelper const& storedProcessBlockHelper,
-                              std::vector<unsigned int>&& nEntries);
+                              std::vector<unsigned int> const& nEntries);
 
     void clearAfterOutputFilesClose();
 
@@ -56,9 +56,9 @@ namespace edm {
 
     void fillFromPrimaryInputWhenNotEmpty(std::vector<std::string> const& storedProcesses,
                                           std::vector<unsigned int> const& storedCacheIndices,
-                                          std::vector<unsigned int>&& nEntries);
+                                          std::vector<unsigned int> const& nEntries);
 
-    void fillEntriesFromPrimaryInput(std::vector<unsigned int>&& nEntries);
+    void fillEntriesFromPrimaryInput(std::vector<unsigned int> nEntries);
 
     // A general comment about this class and its data members.
     // It was initially written to handle cases where all ProcessBlock

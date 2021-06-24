@@ -1653,7 +1653,7 @@ namespace edm {
     for (auto const& processBlockTree : processBlockTrees_) {
       nEntries.push_back(processBlockTree->entries());
     }
-    processBlockHelper_->fillFromPrimaryInput(*storedProcessBlockHelper_, std::move(nEntries));
+    processBlockHelper_->fillFromPrimaryInput(*storedProcessBlockHelper_, nEntries);
     storedProcessBlockHelper_ =
         std::make_unique<StoredProcessBlockHelper>();  // propagate_const<T> has no reset() function
   }
