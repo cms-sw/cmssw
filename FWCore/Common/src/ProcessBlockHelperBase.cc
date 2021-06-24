@@ -40,11 +40,10 @@ namespace edm {
           desc.moduleLabel() == productLabels.module && desc.productInstanceName() == productLabels.productInstance &&
           desc.unwrappedTypeID() == typeID && (processName.empty() || processName == desc.processName())) {
         // This code is to select the latest matching process
-        auto found = std::find_if(processesWithProcessBlockProducts_.begin(),
-                                  processesWithProcessBlockProducts_.end(),
-                                  [&desc](auto const& processFromHelper) {
-          return processFromHelper == desc.processName();
-        });
+        auto found =
+            std::find_if(processesWithProcessBlockProducts_.begin(),
+                         processesWithProcessBlockProducts_.end(),
+                         [&desc](auto const& processFromHelper) { return processFromHelper == desc.processName(); });
         if (found != processesWithProcessBlockProducts_.end()) {
           const unsigned int position = std::distance(processesWithProcessBlockProducts_.begin(), found);
           if (position >= bestPosition) {

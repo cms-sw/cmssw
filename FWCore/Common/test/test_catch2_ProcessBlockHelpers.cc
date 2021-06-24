@@ -12,9 +12,7 @@ TEST_CASE("Test ProcessBlockHelpers", "[ProcessBlockHelpers]") {
   const std::vector<std::string> testNames = {{"HLT"}, {"RECO"}, {"TEST"}};
   const std::vector<std::string> testNames2 = {{"MERGE"}, {"ANA"}, {"HARVEST"}};
 
-  SECTION("OutputProcessBlockHelper") {
-    edm::OutputProcessBlockHelper outputProcessBlockHelper;
-  }
+  SECTION("OutputProcessBlockHelper") { edm::OutputProcessBlockHelper outputProcessBlockHelper; }
 
   SECTION("ProcessBlockHelper") {
     edm::ProcessBlockHelper processBlockHelper;
