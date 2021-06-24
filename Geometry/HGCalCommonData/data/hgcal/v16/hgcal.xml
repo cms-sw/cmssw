@@ -56,7 +56,7 @@
   <Constant name="rPosV1"                value="1753.2*mm"/>
   <Constant name="zPosV2"                value="4562.0*mm"/>
   <Constant name="rPosV2"                value="2634.5*mm"/>
-  <Constant name="slope1"                value="([rPosV01]-[rPosV0])/([zPosV01]-[zPosV0])"/>
+  <Constant name="slope1"                value="([rPosV1]-[rPosV0])/([zPosV1]-[zPosV0])"/>
   <Constant name="slope2"                value="([rPosV1]-[rPosV01])/([zPosV1]-[zPosV01])"/>
   <Constant name="slope3"                value="([caloBase:Rmax36]-[rPosV1])/([caloBase:Zpos36]-[zPosV1])"/>
   <Constant name="cslope1"               value="sqrt([slope1]*[slope1]+1.0)"/>
@@ -75,33 +75,35 @@
   <Constant name="zHGCal10"              value="[zPosV2]"/>
   <Constant name="zHGCal11"              value="[caloBase:Zpos37]"/>
   <Constant name="zHGCal12"              value="5140.51*mm"/>
+  <Constant name="zHGCal12S"             value="[caloBase:Zpos2H]"/>
   <Constant name="zHGCal13"              value="[caloBase:Zpos38]"/>
   <Constant name="rMinHGCal0"            value="[caloBase:Rmin11]"/>
   <Constant name="rMinHGCal1"            value="[caloBase:Rmin11]"/>
   <Constant name="rMinHGCal2"            value="314.0*mm"/> 
   <Constant name="rMinHGCal3"            value="[caloBase:Rmin31]"/> 
-  <Constant name="rMinHGCal4"            value="348.6*mm"/>    
+  <Constant name="rMinHGCal4"            value="348.6*mm"/>
   <Constant name="rMinHGCal5"            value="[caloBase:Rmin33]"/>    
   <Constant name="rMinHGCal6"            value="418.6*mm"/>
   <Constant name="rMinHGCal7"            value="[caloBase:Rmin34]"/>
   <Constant name="rMinHGCal8"            value="483.4*mm"/>
-  <Constant name="rMaxHGCal0"            value="([rPosV0]+[slope2]*([zHGCal0]-[zPosV0]))"/>
+  <Constant name="rMaxHGCal0"            value="([rPosV0]+[slope1]*([zHGCal0]-[zPosV0]))"/>
   <Constant name="rMaxHGCal0S"           value="[caloBase:RmaxV0]"/>
   <Constant name="rMaxHGCal1"            value="[rPosV0]"/>
-  <Constant name="rMaxHGCal2"            value="([rPosV0]+[slope2]*([zHGCal2]-[zPosV0]))"/>
-  <Constant name="rMaxHGCal3"            value="([rPosV0]+[slope2]*([zHGCal3]-[zPosV0]))"/>
+  <Constant name="rMaxHGCal2"            value="([rPosV0]+[slope1]*([zHGCal2]-[zPosV0]))"/>
+  <Constant name="rMaxHGCal3"            value="([rPosV0]+[slope1]*([zHGCal3]-[zPosV0]))"/>
   <Constant name="rMaxHGCal3S"           value="[caloBase:Rmax31]"/>
   <Constant name="rMaxHGCal4S"           value="[caloBase:Rmax32]"/>
   <Constant name="rMaxHGCal5"            value="[rPosV1]"/>
-  <Constant name="rMaxHGCal6"            value="([rPosV2]+[slope3]*([zHGCal6]-[zPosV2]))"/>
-  <Constant name="rMaxHGCal7"            value="([rPosV2]+[slope3]*([zHGCal7]-[zPosV2]))"/>
+  <Constant name="rMaxHGCal6"            value="([rPosV1]+[slope3]*([zHGCal6]-[zPosV1]))"/>
+  <Constant name="rMaxHGCal7"            value="([rPosV1]+[slope3]*([zHGCal7]-[zPosV1]))"/>
   <Constant name="rMaxHGCal7S"           value="[caloBase:Rmax33]"/>
-  <Constant name="rMaxHGCal8"            value="([rPosV2]+[slope3]*([zHGCal8]-[zPosV2]))"/>
+  <Constant name="rMaxHGCal8"            value="([rPosV1]+[slope3]*([zHGCal8]-[zPosV1]))"/>
   <Constant name="rMaxHGCal8S"           value="[caloBase:Rmax34]"/>
   <Constant name="rMaxHGCal9S"           value="[caloBase:Rmax36]"/>
   <Constant name="rMaxHGCal10"           value="[rPosV2]"/>
   <Constant name="rMaxHGCal11"           value="[caloBase:Rmax37]"/>
   <Constant name="rMaxHGCal12"           value="[caloBase:Rmax37]"/>
+  <Constant name="rMaxHGCal12S"          value="[caloBase:Rmax38]"/>
   <Constant name="zHGCalEE1"             value="[zHGCal1]"/>
   <Constant name="zHGCalEE2"             value="[zHGCal2]"/>
   <Constant name="rMinHGCalEE1"          value="[rMinHGCal2]"/>
@@ -137,21 +139,19 @@
 
 <SolidSection label="hgcal.xml" eval="true">
   <Polycone name="HGCalService" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zHGCal0]"  rMin="[rMinHGCal1]" rMax="[rMaxHGCal0S]"/>
-    <ZSection z="[zHGCal3]"  rMin="[rMinHGCal1]" rMax="[rMaxHGCal3S]"/>
-    <ZSection z="[zHGCal3]"  rMin="[rMinHGCal3]" rMax="[rMaxHGCal3S]"/>
-    <ZSection z="[zHGCal4]"  rMin="[rMinHGCal3]" rMax="[rMaxHGCal4S]"/>
-    <ZSection z="[zHGCal7]"  rMin="[rMinHGCal3]" rMax="[rMaxHGCal7S]"/>
-    <ZSection z="[zHGCal7]"  rMin="[rMinHGCal5]" rMax="[rMaxHGCal7S]"/>
-    <ZSection z="[zHGCal8]"  rMin="[rMinHGCal5]" rMax="[rMaxHGCal8S]"/>
-    <ZSection z="[zHGCal8]"  rMin="[rMinHGCal7]" rMax="[rMaxHGCal8S]"/>
-    <ZSection z="[zHGCal9]"  rMin="[rMinHGCal7]" rMax="[rMaxHGCal9S]"/>
-    <ZSection z="[zHGCal11]" rMin="[rMinHGCal7]" rMax="[rMaxHGCal9S]"/>
-    <ZSection z="[zHGCal11]" rMin="[rMinHGCal7]" rMax="[rMaxHGCal12]"/>
-    <ZSection z="[zHGCal13]" rMin="[rMinHGCal7]" rMax="[rMaxHGCal12]"/>
+    <ZSection z="[zHGCal0]"   rMin="[rMinHGCal1]" rMax="[rMaxHGCal0S]"/>
+    <ZSection z="[zHGCal3]"   rMin="[rMinHGCal1]" rMax="[rMaxHGCal3S]"/>
+    <ZSection z="[zHGCal3]"   rMin="[rMinHGCal3]" rMax="[rMaxHGCal3S]"/>
+    <ZSection z="[zHGCal4]"   rMin="[rMinHGCal3]" rMax="[rMaxHGCal4S]"/>
+    <ZSection z="[zHGCal7]"   rMin="[rMinHGCal3]" rMax="[rMaxHGCal7S]"/>
+    <ZSection z="[zHGCal7]"   rMin="[rMinHGCal5]" rMax="[rMaxHGCal7S]"/>
+    <ZSection z="[zHGCal8]"   rMin="[rMinHGCal5]" rMax="[rMaxHGCal8S]"/>
+    <ZSection z="[zHGCal8]"   rMin="[rMinHGCal7]" rMax="[rMaxHGCal8S]"/>
+    <ZSection z="[zHGCal12S]" rMin="[rMinHGCal7]" rMax="[rMaxHGCal12S]"/>
+    <ZSection z="[zHGCal13]"  rMin="[rMinHGCal7]" rMax="[rMaxHGCal12S]"/>
   </Polycone>
   <Polycone name="HGCal" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zHGCal0]"   rMin="[rMinHGCal1]"   rMax="[rMaxHGCal1]"/>
+    <ZSection z="[zHGCal1]"   rMin="[rMinHGCal1]"   rMax="[rMaxHGCal1]"/>
     <ZSection z="[zHGCal3]"   rMin="[rMinHGCal1]"   rMax="[rMaxHGCal3]"/>
     <ZSection z="[zHGCal3]"   rMin="[rMinHGCal3]"   rMax="[rMaxHGCal3]"/>
     <ZSection z="[zHGCal5]"   rMin="[rMinHGCal3]"   rMax="[rMaxHGCal5]"/>
