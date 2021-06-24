@@ -650,7 +650,7 @@ namespace dqm::implementation {
              ipath != store_->MEsToSave_.end();
              ++ipath) {
           std::string name = (*it)->getFullname();
-          if (name.find(*ipath->) != std::string::npos) {
+          if (name.find(*ipath) != std::string::npos) {
             saveIt = true;
             //std::cout<<name<<" compared to"<<ipath->data()<<std::endl;
             break;
