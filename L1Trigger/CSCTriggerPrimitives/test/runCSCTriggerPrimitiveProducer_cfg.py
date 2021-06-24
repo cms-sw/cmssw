@@ -13,6 +13,7 @@ options.register ("run3", True, VarParsing.multiplicity.singleton, VarParsing.va
 options.register ("runCCLUT", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("runME11ILT", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("saveEdmOutput", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("preTriggerAnalysis", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.parseArguments()
 
 process_era = Run3
@@ -87,6 +88,7 @@ if options.dqm:
       process.l1tdeCSCTPG.emulALCT = "cscTriggerPrimitiveDigis"
       process.l1tdeCSCTPG.emulCLCT = "cscTriggerPrimitiveDigis"
       process.l1tdeCSCTPG.emulLCT = "cscTriggerPrimitiveDigis:MPCSORTED"
+      process.l1tdeCSCTPG.preTriggerAnalysis = options.preTriggerAnalysis
 
 # Output
 process.output = cms.OutputModule(
