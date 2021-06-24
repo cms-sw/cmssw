@@ -4,11 +4,9 @@
 #include "UCTGeometry.hh"
 
 class UCTGeometryExtended : public UCTGeometry {
-
 public:
-
-  UCTGeometryExtended() {;}
-  ~UCTGeometryExtended() {;}
+  UCTGeometryExtended() { ; }
+  ~UCTGeometryExtended() { ; }
 
   UCTRegionIndex getUCTRegionNorth(UCTRegionIndex center);
   UCTRegionIndex getUCTRegionSouth(UCTRegionIndex center);
@@ -22,7 +20,6 @@ public:
   bool areNeighbors(UCTTowerIndex a, UCTTowerIndex b);
 
   bool isEdgeTower(UCTTowerIndex a);
-
 };
 
 #endif

@@ -12,14 +12,12 @@ class UCTRegion;
 
 class UCTSummaryCard {
 public:
-
-  UCTSummaryCard(const std::vector< std::vector< std::vector < uint32_t > > > *l,
-		 uint32_t jetSeedIn = 10,
-		 uint32_t tauSeedIn = 10,
-		 double tauIsolationFactorIn = 0.3,
-		 uint32_t eGammaSeedIn = 5,
-		 double eGammaIsolationFactorIn = 0.3
-		 );
+  UCTSummaryCard(const std::vector<std::vector<std::vector<uint32_t> > >* l,
+                 uint32_t jetSeedIn = 10,
+                 uint32_t tauSeedIn = 10,
+                 double tauIsolationFactorIn = 0.3,
+                 uint32_t eGammaSeedIn = 5,
+                 double eGammaIsolationFactorIn = 0.3);
 
   virtual ~UCTSummaryCard();
 
@@ -31,36 +29,36 @@ public:
 
   bool clearEvent();
   bool clearRegions();
-  bool setRegionData(std::vector<UCTRegion*> inputRegions); // Use when the region collection is available and no direct access to TPGs
+  bool setRegionData(
+      std::vector<UCTRegion*> inputRegions);  // Use when the region collection is available and no direct access to TPGs
   bool process();
 
   // Access to data
 
-  const std::list<UCTObject*>& getEMObjs() {return emObjs;}
-  const std::list<UCTObject*>& getIsoEMObjs() {return isoEMObjs;}
-  const std::list<UCTObject*>& getTauObjs() {return tauObjs;}
-  const std::list<UCTObject*>& getIsoTauObjs() {return isoTauObjs;}
-  const std::list<UCTObject*>& getCentralJetObjs() {return centralJetObjs;}
-  const std::list<UCTObject*>& getForwardJetObjs() {return forwardJetObjs;}
-  const std::list<UCTObject*>& getBoostedJetObjs() {return boostedJetObjs;}
+  const std::list<UCTObject*>& getEMObjs() { return emObjs; }
+  const std::list<UCTObject*>& getIsoEMObjs() { return isoEMObjs; }
+  const std::list<UCTObject*>& getTauObjs() { return tauObjs; }
+  const std::list<UCTObject*>& getIsoTauObjs() { return isoTauObjs; }
+  const std::list<UCTObject*>& getCentralJetObjs() { return centralJetObjs; }
+  const std::list<UCTObject*>& getForwardJetObjs() { return forwardJetObjs; }
+  const std::list<UCTObject*>& getBoostedJetObjs() { return boostedJetObjs; }
 
-  const UCTObject* getET() {return ET;}
-  const UCTObject* getMET() {return MET;}
+  const UCTObject* getET() { return ET; }
+  const UCTObject* getMET() { return MET; }
 
-  const UCTObject* getHT() {return HT;}
-  const UCTObject* getMHT() {return MHT;}
+  const UCTObject* getHT() { return HT; }
+  const UCTObject* getMHT() { return MHT; }
 
   void print();
 
 private:
-
   // No copy constructor is needed
 
-  UCTSummaryCard(const UCTSummaryCard&);
+  UCTSummaryCard(const UCTSummaryCard&) = delete;
 
   // No equality operator is needed
 
-  const UCTSummaryCard& operator=(const UCTSummaryCard&);
+  const UCTSummaryCard& operator=(const UCTSummaryCard&) = delete;
 
   // Helper functions
 
@@ -68,19 +66,19 @@ private:
 
   // Parameters specified at constructor level
 
-//  const UCTLayer1 *uctLayer1;
-  const std::vector< std::vector< std::vector < uint32_t > > > *pumLUT;
+  //  const UCTLayer1 *uctLayer1;
+  const std::vector<std::vector<std::vector<uint32_t> > >* pumLUT;
   uint32_t jetSeed;
   uint32_t tauSeed;
   double tauIsolationFactor;
   uint32_t eGammaSeed;
   double eGammaIsolationFactor;
 
-  // Owned card level data 
+  // Owned card level data
 
   std::vector<UCTRegion*> regions;
 
-  double sinPhi[73]; // Make one extra so caloPhi : 1-72 can be used as index directly
+  double sinPhi[73];  // Make one extra so caloPhi : 1-72 can be used as index directly
   double cosPhi[73];
 
   std::list<UCTObject*> emObjs;
@@ -91,11 +89,11 @@ private:
   std::list<UCTObject*> forwardJetObjs;
   std::list<UCTObject*> boostedJetObjs;
 
-  UCTObject *ET;
-  UCTObject *MET;
+  UCTObject* ET;
+  UCTObject* MET;
 
-  UCTObject *HT;
-  UCTObject *MHT;
+  UCTObject* HT;
+  UCTObject* MHT;
 
   uint32_t cardSummary;
 
@@ -103,7 +101,6 @@ private:
 
   uint32_t pumLevel;
   uint32_t pumBin;
-
 };
 
 #endif
