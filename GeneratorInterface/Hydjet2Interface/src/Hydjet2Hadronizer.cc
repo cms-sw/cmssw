@@ -76,6 +76,8 @@
 
 #include "GeneratorInterface/Hydjet2Interface/interface/HYJET_COMMONS.h"
 
+CLHEP::HepRandomEngine* hjRandomEngine;
+
 extern "C" void hyevnt_();
 extern "C" void myini_();
 
