@@ -69,7 +69,8 @@ namespace l1tcalo {
   constexpr uint32_t CaloVHFRegionStart{12};
 
   constexpr uint32_t MaxUCTRegionsPhi{MaxCaloPhi / NPhiInRegion};
-  constexpr uint32_t MaxUCTRegionsEta{NRegionsInCard + NHFRegionsInCard}; // Labelled -MaxUCTRegionsEta to +MaxUCTRegionsEta skipping 0
+  constexpr uint32_t MaxUCTRegionsEta{NRegionsInCard +
+                                      NHFRegionsInCard};  // Labelled -MaxUCTRegionsEta to +MaxUCTRegionsEta skipping 0
 
   // Binning for Layer1 calibration LUTs
   const uint32_t nEtBins = 256;
@@ -109,7 +110,7 @@ public:
   uint32_t getRegion(int caloEta, int caloPhi);
   uint32_t getiEta(int caloEta);
   uint32_t getiPhi(int caloPhi);
-  bool getNegativeSide(int caloEta) {return (caloEta < 0);}
+  bool getNegativeSide(int caloEta) { return (caloEta < 0); }
 
   bool checkCrate(uint32_t crate) { return !(crate < l1tcalo::NCrates); }
   bool checkCard(uint32_t card) { return !(card < l1tcalo::NCardsInCrate); }
