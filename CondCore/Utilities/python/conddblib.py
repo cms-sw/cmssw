@@ -571,7 +571,7 @@ def connect(url, authPath=None, verbose=0, as_admin=False):
                     else:
                         explicit_auth =True
                 else:
-                    import pluginCondDBPyBind11Interface as auth
+                    import libCondDBPyBind11Interface as auth
                     role_code = auth.reader_role
                     if url.username == dbwriter_user_name:
                         role_code = auth.writer_role
