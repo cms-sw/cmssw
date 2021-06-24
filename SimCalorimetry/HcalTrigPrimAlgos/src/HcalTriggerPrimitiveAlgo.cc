@@ -76,6 +76,10 @@ void HcalTriggerPrimitiveAlgo::setUpgradeFlags(bool hb, bool he, bool hf) {
   upgrade_hf_ = hf;
 }
 
+void HcalTriggerPrimitiveAlgo::setFixSaturationFlag(bool fix_saturation) {
+  fix_saturation_ = fix_saturation;
+}
+
 void HcalTriggerPrimitiveAlgo::overrideParameters(const edm::ParameterSet& ps) {
   override_parameters_ = ps;
 
@@ -279,27 +283,36 @@ void HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame) {
 void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples& samples) {
   HcalTrigTowerDetId id(samples.id());
   SumMap::iterator itr = theSumMap.find(id);
-  SatMap::iterator itr_sat = theSatMap.find(id);
-
-  assert((itr == theSumMap.end()) == (itr_sat == theSatMap.end()));
 
   if (itr == theSumMap.end()) {
     theSumMap.insert(std::make_pair(id, samples));
-
-    vector<bool> check_sat;
-    for (int i = 0; i < samples.size(); ++i) {
-      if (samples[i] == 0x3ff){
-        check_sat.push_back(true);
-        std::cout<<"saturation found"<<std::endl;
-      }
-      else check_sat.push_back(false); 
-    }
-    theSatMap.insert(std::make_pair(id, check_sat));
   } else {
     // wish CaloSamples had a +=
     for (int i = 0; i < samples.size(); ++i) {
       (itr->second)[i] += samples[i];
-      if (samples[i] == 0x3ff) (itr_sat->second)[i] = true; 
+    }
+  }
+
+  // if fix_saturation == true, keep track of tower with saturated input LUT
+  if (fix_saturation_){
+    SatMap::iterator itr_sat = theSatMap.find(id);
+
+    assert((itr == theSumMap.end()) == (itr_sat == theSatMap.end()));
+
+    if (itr_sat == theSatMap.end()){ 
+      vector<bool> check_sat;
+      for (int i = 0; i < samples.size(); ++i) {
+        if (samples[i] >= 0x3ff){
+          check_sat.push_back(true);
+        }
+        else check_sat.push_back(false);
+      }
+      theSatMap.insert(std::make_pair(id, check_sat));
+
+    }else{
+      for (int i = 0; i < samples.size(); ++i) {
+        if (samples[i] >= 0x3ff) (itr_sat->second)[i] = true; 
+      }
     }
   }
 }
@@ -416,7 +429,9 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
 
   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
 
+  // keep track of tower with saturated energy and force the total TP saturated
   bool force_saturation[samples.size()] = {false};
+
   //slide algo window
   for (unsigned int ibin = 0; ibin < dgSamples - shrink; ++ibin) {
     int algosumvalue = 0;
@@ -426,16 +441,11 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
       // In addition, divide by two in the 10 degree phi segmentation region
       // to mimic 5 degree segmentation for the trigger
       unsigned int sample = samples[ibin + i];
-      if (sample_saturation[ibin+i] | (sample > QIE11_MAX_LINEARIZATION_ET)){
-         check_sat = true;
-         std::cout<<"saturation found"<<std::endl;
-      }
-//      if (sample > QIE11_MAX_LINEARIZATION_ET){
-//        sample = QIE11_MAX_LINEARIZATION_ET;
-//        force_saturation[ibin] = true;
-//        std::cout<<QIE11_MAX_LINEARIZATION_ET<<" "<<sample<<std::endl;
-//      }
-  
+      if (fix_saturation_ && (sample_saturation.size() > ibin + i))
+        check_sat = (sample_saturation[ibin+i] | (sample > QIE11_MAX_LINEARIZATION_ET));
+      else if (sample > QIE11_MAX_LINEARIZATION_ET)
+        sample = QIE11_MAX_LINEARIZATION_ET;
+
       // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 0.5
       double segmentationFactor = 1.0;
       if (ids.size() == 2) {
@@ -477,10 +487,8 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
 
     if (isPeak) {
       output[ibin] = std::min<unsigned int>(sum[idx], QIE11_MAX_LINEARIZATION_ET);
-      if (force_saturation[idx]){
-        output[ibin] = QIE11_MAX_LINEARIZATION_ET;
-        std::cout<<"saturation inforced"<<std::endl; 
-      }
+      if (fix_saturation_ && force_saturation[idx]) output[ibin] = QIE11_MAX_LINEARIZATION_ET;
+
     } else {
       // Not a peak
       output[ibin] = 0;

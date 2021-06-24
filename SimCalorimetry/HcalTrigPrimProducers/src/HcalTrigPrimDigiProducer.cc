@@ -46,6 +46,7 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   }
   theAlgo_.setUpgradeFlags(upgrades[0], upgrades[1], upgrades[2]);
   theAlgo_.setWeightsQIE11(ps.getParameter<edm::ParameterSet>("weightsQIE11"));
+  theAlgo_.setFixSaturationFlag(ps.getParameter<bool>("applySaturationFix"));
 
   HFEMB_ = false;
   if (ps.exists("LSConfig")) {

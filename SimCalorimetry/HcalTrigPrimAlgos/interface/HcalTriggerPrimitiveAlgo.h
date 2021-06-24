@@ -82,6 +82,9 @@ public:
   void setRCTScaleShift(int);
 
   void setUpgradeFlags(bool hb, bool he, bool hf);
+
+  void setFixSaturationFlag(bool fix_saturation);
+
   void overrideParameters(const edm::ParameterSet& ps);
 
 private:
@@ -207,6 +210,8 @@ private:
   bool upgrade_he_ = false;
   bool upgrade_hf_ = false;
 
+  bool fix_saturation_ = false;
+
   edm::ParameterSet override_parameters_;
 
   bool override_adc_hf_ = false;
@@ -292,11 +297,9 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
         analyze(item.second, result.back());
       } else if (fgUpgradeMap_.find(item.first) != fgUpgradeMap_.end()) {
         SatMap::iterator item_sat = theSatMap.find(detId);
-//        for (int i=0; i < (int)(item_sat->second).size(); ++i){
-//          std::cout<<(item_sat->second)[i]<<" ";
-//        }
-//        std::cout<<std::endl;
-        analyzeQIE11(item.second, item_sat->second, result.back(), fg_algo);
+
+        if (item_sat == theSatMap.end()) analyzeQIE11(item.second, std::vector<bool>(), result.back(), fg_algo);
+        else analyzeQIE11(item.second, item_sat->second, result.back(), fg_algo);
       }
     }
   }

@@ -66,6 +66,7 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     upgradeHB = cms.bool(False),
     upgradeHE = cms.bool(False),
 
+    applySaturationFix = cms.bool(True), # Apply the TP energy saturation fix for Peak Finder Algorithm 
     # parameters = cms.untracked.PSet(
     #     FGVersionHBHE=cms.uint32(0),
     #     TDCMask=cms.uint64(0xFFFFFFFFFFFFFFFF),
