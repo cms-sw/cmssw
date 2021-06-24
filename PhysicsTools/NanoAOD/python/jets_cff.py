@@ -207,7 +207,6 @@ lepInJetVars = cms.EDProducer("LepInJetProducer",
 ##################### Tables for final output and docs ##########################
 
 
-
 jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("linkedObjects","jets"),
     cut = cms.string(""), #we should not filter on cross linked collections
@@ -254,6 +253,13 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         muEF = Var("muonEnergyFraction()", float, doc="muon Energy Fraction", precision= 6),
         chFPV0EF = Var("userFloat('chFPV0EF')", float, doc="charged fromPV==0 Energy Fraction (energy excluded from CHS jets). Previously called betastar.", precision= 6),
     )
+)
+
+run3_nanoAOD_devel.toModify(jetTable.externalVariables,
+                            bRegCorr = None,
+                            bRegRes  = None,
+                            cRegCorr = None,
+                            cRegRes  = None
 )
 
 #jets are not as precise as muons
@@ -755,6 +761,8 @@ jetLepSequence = cms.Sequence(lepInJetVars)
 
 #after cross linkining
 jetTables = cms.Sequence(bjetNN+cjetNN+jetTable+fatJetTable+subJetTable+saJetTable+saTable)
+
+(run3_nanoAOD_devel).toReplaceWith(jetTables, jetTables.copyAndExclude([bjetNN,cjetNN]))
 
 #MC only producers and tables
 jetMC = cms.Sequence(jetMCTable+genJetTable+patJetPartonsNano+genJetFlavourTable+genJetAK8Table+genJetAK8FlavourAssociation+genJetAK8FlavourTable+fatJetMCTable+genSubJetAK8Table+subjetMCTable)
