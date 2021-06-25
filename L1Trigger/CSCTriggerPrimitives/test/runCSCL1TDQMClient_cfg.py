@@ -7,6 +7,7 @@ options = VarParsing('analysis')
 options.register ("run3", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("mc", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("useB904Data", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("useGEMs", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.parseArguments()
 options.inputFiles = "file:step_DQM.root"
 
@@ -22,6 +23,7 @@ process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load("DQM.L1TMonitorClient.L1TdeCSCTPGClient_cfi")
+process.load("DQM.L1TMonitorClient.L1TdeGEMTPGClient_cfi")
 process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
 
 process.maxEvents = cms.untracked.PSet(
@@ -53,7 +55,10 @@ else:
 process.l1tdeCSCTPGClient.B904Setup = options.useB904Data
 
 ## schedule and path definition
-process.dqm_step = cms.Path(process.l1tdeCSCTPGClient)
+process.dqmsequence = cms.Sequence(process.l1tdeCSCTPGClient)
+if options.useGEMs:
+      process.dqmsequence += process.l1tdeGEMTPGClient
+process.dqm_step = cms.Path(process.dqmsequence)
 process.dqmsave_step = cms.Path(process.DQMSaver)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 
