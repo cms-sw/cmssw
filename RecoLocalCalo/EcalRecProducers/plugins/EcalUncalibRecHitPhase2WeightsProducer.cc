@@ -66,6 +66,8 @@ void EcalUncalibRecHitPhase2WeightsProducer::produce(edm::Event& evt, const edm:
     bool g1 = false; 
     std::vector<float> timetrace;
     std::vector<float> adctrace;
+
+    // weights calculated averaging the full EB
     std::vector<double> weights = {-0.121016, -0.119899, -0.120923, -0.0848959, 0.261041, 0.509881, 0.373591, 0.134899, -0.0233605, -0.0913195, -0.112452, -0.118596, -0.120178, -0.12204, -0.121947, -0.122785};
     int nSamples = digi.size();
     
