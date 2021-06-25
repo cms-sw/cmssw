@@ -41,7 +41,9 @@ public:
     CornerCenterYp = 1,
     CornerCenterYm = 2,
     CornerCenterXp = 3,
-    CornerCenterXm = 4
+    CornerCenterXm = 4,
+    WaferCenterB = 5,
+    WaferCenterR = 6
   };
 
   enum WaferType { WaferFineThin = 0, WaferCoarseThin = 1, WaferCoarseThick = 2, WaferFineThick = 3 };
