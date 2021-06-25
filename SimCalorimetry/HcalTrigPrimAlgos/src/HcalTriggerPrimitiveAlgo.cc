@@ -429,7 +429,10 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
 
   // keep track of tower with saturated energy and force the total TP saturated
-  bool force_saturation[samples.size()] = {false};
+  bool force_saturation[samples.size()];
+  for (int i = 0; i < samples.size(); i++){
+    force_saturation[i] = false;
+  }
 
   //slide algo window
   for (unsigned int ibin = 0; ibin < dgSamples - shrink; ++ibin) {
