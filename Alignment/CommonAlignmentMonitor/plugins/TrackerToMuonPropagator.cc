@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -59,15 +59,13 @@
 // class decleration
 //
 
-class TrackerToMuonPropagator : public edm::EDProducer {
+class TrackerToMuonPropagator : public edm::stream::EDProducer<> {
 public:
   explicit TrackerToMuonPropagator(const edm::ParameterSet&);
   ~TrackerToMuonPropagator() override;
 
 private:
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   // ----------member data ---------------------------
 
@@ -266,12 +264,6 @@ void TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup&
   // and put it in the Event, also
   iEvent.put(std::move(trajTrackMap));
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void TrackerToMuonPropagator::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void TrackerToMuonPropagator::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TrackerToMuonPropagator);
