@@ -522,8 +522,8 @@ void DDHGCalMixLayer::positionMix(const DDLogicalPart& glog,
       i = layerType * waferTypes_ + type;
       wafer = waferFull_[i];
     } else {
-      i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ +
-          layerType * waferTypes_ * orientationTypes_ + type * orientationTypes_ + orien;
+      i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ + layerType * waferTypes_ * orientationTypes_ +
+          type * orientationTypes_ + orien;
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:ind " << layerType << ":" << type << ":" << part
                                     << ":" << orien << ":" << i << ":" << waferPart_.size();
