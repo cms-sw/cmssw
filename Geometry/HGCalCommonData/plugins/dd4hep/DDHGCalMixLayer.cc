@@ -417,7 +417,9 @@ struct HGCalMixLayer {
     // Make the bottom part next
     int layer = (copyM - firstLayer_);
     static const double sqrt3 = std::sqrt(3.0);
-    int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda) ? 1 : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? 2 : 0);
+    int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda)
+                          ? 1
+                          : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? 2 : 0);
     int layerType = (layerTypes_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
     int firstWafer = waferLayerStart_[layer];
     int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
@@ -455,8 +457,8 @@ struct HGCalMixLayer {
         i = layerType * waferTypes_ + type;
         wafer = waferFull_[i];
       } else {
-        i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ +
-            layerType * waferTypes_ * orientationTypes_ + type * orientationTypes_ + orien;
+        i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ + layerType * waferTypes_ * orientationTypes_ +
+            type * orientationTypes_ + orien;
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:ind " << layerType << ":" << type << ":" << part
                                       << ":" << orien << ":" << i << ":" << waferPart_.size();
