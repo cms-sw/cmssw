@@ -76,9 +76,7 @@ void HcalTriggerPrimitiveAlgo::setUpgradeFlags(bool hb, bool he, bool hf) {
   upgrade_hf_ = hf;
 }
 
-void HcalTriggerPrimitiveAlgo::setFixSaturationFlag(bool fix_saturation) {
-  fix_saturation_ = fix_saturation;
-}
+void HcalTriggerPrimitiveAlgo::setFixSaturationFlag(bool fix_saturation) { fix_saturation_ = fix_saturation; }
 
 void HcalTriggerPrimitiveAlgo::overrideParameters(const edm::ParameterSet& ps) {
   override_parameters_ = ps;
@@ -293,24 +291,26 @@ void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples& samples) {
   }
 
   // if fix_saturation == true, keep track of tower with saturated input LUT
-  if (fix_saturation_){
+  if (fix_saturation_) {
     SatMap::iterator itr_sat = theSatMap.find(id);
 
     assert((itr == theSumMap.end()) == (itr_sat == theSatMap.end()));
 
-    if (itr_sat == theSatMap.end()){ 
+    if (itr_sat == theSatMap.end()) { 
       vector<bool> check_sat;
       for (int i = 0; i < samples.size(); ++i) {
-        if (!(samples[i] < QIE11_LINEARIZATION_ET)){
+        if (!(samples[i] < QIE11_LINEARIZATION_ET)) {
           check_sat.push_back(true);
         }
-        else check_sat.push_back(false);
+        else
+          check_sat.push_back(false);
       }
       theSatMap.insert(std::make_pair(id, check_sat));
 
-    }else{
+    } else {
       for (int i = 0; i < samples.size(); ++i) {
-        if (!(samples[i] < QIE11_LINEARIZATION_ET)) (itr_sat->second)[i] = true; 
+        if (!(samples[i] < QIE11_LINEARIZATION_ET))
+          (itr_sat->second)[i] = true; 
       }
     }
   }
@@ -430,14 +430,14 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
 
   // keep track of tower with saturated energy and force the total TP saturated
   bool force_saturation[samples.size()];
-  for (int i = 0; i < samples.size(); i++){
+  for (int i = 0; i < samples.size(); i++) {
     force_saturation[i] = false;
   }
 
   //slide algo window
   for (unsigned int ibin = 0; ibin < dgSamples - shrink; ++ibin) {
     int algosumvalue = 0;
-    bool check_sat =  false;
+    bool check_sat = false;
     for (unsigned int i = 0; i < filterSamples; i++) {
       //add up value * scale factor
       // In addition, divide by two in the 10 degree phi segmentation region
@@ -445,7 +445,7 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
       unsigned int sample = samples[ibin + i];
 
       if (fix_saturation_ && (sample_saturation.size() > ibin + i))
-        check_sat = (sample_saturation[ibin+i] | (sample > QIE11_MAX_LINEARIZATION_ET));
+        check_sat = (sample_saturation[ibin + i] | (sample > QIE11_MAX_LINEARIZATION_ET));
       else if (sample > QIE11_MAX_LINEARIZATION_ET)
         sample = QIE11_MAX_LINEARIZATION_ET;
 
@@ -467,7 +467,8 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
     else
       sum[ibin] = algosumvalue;  //assign value to sum[]
 
-    if (check_sat) force_saturation[ibin] = true;
+    if (check_sat)
+      force_saturation[ibin] = true;
   }
 
   std::vector<int> finegrain(tpSamples, false);
@@ -490,7 +491,8 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
 
     if (isPeak) {
       output[ibin] = std::min<unsigned int>(sum[idx], QIE11_MAX_LINEARIZATION_ET);
-      if (fix_saturation_ && force_saturation[idx]) output[ibin] = QIE11_MAX_LINEARIZATION_ET;
+      if (fix_saturation_ && force_saturation[idx])
+        output[ibin] = QIE11_MAX_LINEARIZATION_ET;
     } else {
       // Not a peak
       output[ibin] = 0;
