@@ -303,7 +303,6 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
       if (fgMap_.find(item.first) != fgMap_.end()) {
         analyze(item.second, result.back());
       } else if (fgUpgradeMap_.find(item.first) != fgUpgradeMap_.end()) {
-
         SatMap::iterator item_sat = theSatMap.find(detId);
         if (item_sat == theSatMap.end())
           analyzeQIE11(item.second, std::vector<bool>(), result.back(), fg_algo);
