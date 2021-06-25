@@ -183,6 +183,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 
               // put collections in event
               put(lctV, oc_lct, detid, " ME1b LCT digi");
+              put(lctV1a, oc_lct, detid, " ME1a LCT digi");
               put(alctV, oc_alct, detid, " ME1b ALCT digi");
               put(clctV, oc_clct, detid, " ME1b CLCT digi");
               put(pretriggerV, oc_pretrigger, detid, " ME1b CLCT pre-trigger digi");
