@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Phase2C10_cff import Phase2C10
 from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
 
+from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2_cff import *
+from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
+
 process = cms.Process('RECO',Phase2C10,phase2_ecal_devel)
 
 # import of standard configurations
@@ -11,12 +14,16 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2_cff')
 process.load('Configuration.Geometry.GeometryExtended2026D60Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+process.load('RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2_cff')
+process.load('RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10),
@@ -158,7 +165,10 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', ''
 
 # Path and EndPath definitions
 process.L1Reco_step = cms.Path(process.L1Reco)
-process.reconstruction_step = cms.Path(process.reconstruction_ecalOnly)
+process.reconstruction_step = cms.Path(cms.Sequence(cms.Task(
+    bunchSpacingProducer,
+    ecalUncalibRecHitPhase2Task
+)))
 
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
