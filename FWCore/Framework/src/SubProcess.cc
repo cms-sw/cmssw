@@ -510,6 +510,7 @@ namespace edm {
     ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
 
     if (parentProducedProductIsKept(parentPrincipal, processBlockPrincipal)) {
+      auto& taskGroup = *iHolder.group();
       auto runEndProcessBlock =
           make_waiting_task([this, iWait = std::move(iHolder), info = transitionInfo, cleaningUpAfterException](
                                 std::exception_ptr const* iPtr) mutable {
@@ -526,7 +527,7 @@ namespace edm {
                   std::move(iWait), *schedule_, info, serviceToken_, subProcesses_, cleaningUpAfterException);
             }
           });
-      WaitingTaskHolder holder(*iHolder.group(), runEndProcessBlock);
+      WaitingTaskHolder holder(taskGroup, runEndProcessBlock);
 
       auto runWriteProcessBlock =
           make_waiting_task([this, iWait = std::move(holder)](std::exception_ptr const* iPtr) mutable {
@@ -536,7 +537,7 @@ namespace edm {
               writeProcessBlockAsync(iWait, ProcessBlockType::Input);
             }
           });
-      WaitingTaskHolder writeHolder(*iHolder.group(), runWriteProcessBlock);
+      WaitingTaskHolder writeHolder(taskGroup, runWriteProcessBlock);
 
       ProcessBlockPrincipal& inputProcessBlockPrincipal = principalCache_.inputProcessBlockPrincipal();
       inputProcessBlockPrincipal.fillProcessBlockPrincipal(parentPrincipal.processName(), parentPrincipal.reader());
