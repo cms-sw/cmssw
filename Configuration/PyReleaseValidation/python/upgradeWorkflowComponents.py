@@ -359,8 +359,6 @@ upgradeWFs['PatatrackPixelOnlyCPU'] = UpgradeWorkflowPatatrack_PixelOnlyCPU(
     steps = [
         'Reco',
         'HARVEST',
-        'RecoFakeHLT',
-        'HARVESTFakeHLT',
         'RecoGlobal',
         'HARVESTGlobal',
     ],
@@ -390,8 +388,6 @@ upgradeWFs['PatatrackPixelOnlyGPU'] = UpgradeWorkflowPatatrack_PixelOnlyGPU(
     steps = [
         'Reco',
         'HARVEST',
-        'RecoFakeHLT',
-        'HARVESTFakeHLT',
         'RecoGlobal',
         'HARVESTGlobal',
     ],
@@ -421,8 +417,6 @@ upgradeWFs['PatatrackECALOnlyCPU'] = UpgradeWorkflowPatatrack_ECALOnlyCPU(
     steps = [
         'Reco',
         'HARVEST',
-        'RecoFakeHLT',
-        'HARVESTFakeHLT',
         'RecoGlobal',
         'HARVESTGlobal',
     ],
@@ -451,8 +445,6 @@ upgradeWFs['PatatrackECALOnlyGPU'] = UpgradeWorkflowPatatrack_ECALOnlyGPU(
     steps = [
         'Reco',
         'HARVEST',
-        'RecoFakeHLT',
-        'HARVESTFakeHLT',
         'RecoGlobal',
         'HARVESTGlobal',
     ],
@@ -482,8 +474,6 @@ upgradeWFs['PatatrackHCALOnlyCPU'] = UpgradeWorkflowPatatrack_HCALOnlyCPU(
     steps = [
         'Reco',
         'HARVEST',
-        'RecoFakeHLT',
-        'HARVESTFakeHLT',
         'RecoGlobal',
         'HARVESTGlobal',
     ],
@@ -512,8 +502,6 @@ upgradeWFs['PatatrackHCALOnlyGPU'] = UpgradeWorkflowPatatrack_HCALOnlyGPU(
     steps = [
         'Reco',
         'HARVEST',
-        'RecoFakeHLT',
-        'HARVESTFakeHLT',
         'RecoGlobal',
         'HARVESTGlobal',
     ],
