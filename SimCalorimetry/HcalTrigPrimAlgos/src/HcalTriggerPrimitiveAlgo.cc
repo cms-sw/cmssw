@@ -296,21 +296,19 @@ void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples& samples) {
 
     assert((itr == theSumMap.end()) == (itr_sat == theSatMap.end()));
 
-    if (itr_sat == theSatMap.end()) { 
+    if (itr_sat == theSatMap.end()) {
       vector<bool> check_sat;
       for (int i = 0; i < samples.size(); ++i) {
         if (!(samples[i] < QIE11_LINEARIZATION_ET)) {
           check_sat.push_back(true);
-        }
-        else
+        } else
           check_sat.push_back(false);
       }
       theSatMap.insert(std::make_pair(id, check_sat));
-
     } else {
       for (int i = 0; i < samples.size(); ++i) {
         if (!(samples[i] < QIE11_LINEARIZATION_ET))
-          (itr_sat->second)[i] = true; 
+          (itr_sat->second)[i] = true;
       }
     }
   }
