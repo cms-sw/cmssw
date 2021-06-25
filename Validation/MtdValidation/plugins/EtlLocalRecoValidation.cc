@@ -33,7 +33,8 @@
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 #include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
@@ -111,6 +112,16 @@ private:
   MonitorElement* meEnergyRes_;
   MonitorElement* meTPullvsE_;
   MonitorElement* meTPullvsEta_;
+
+  MonitorElement* meCluTimeRes_[2];
+  MonitorElement* meCluEnergyRes_[2];
+  MonitorElement* meCluTPullvsE_[2];
+  MonitorElement* meCluTPullvsEta_[2];
+  MonitorElement* meCluXRes_[2];
+  MonitorElement* meCluYRes_[2];
+  MonitorElement* meCluZRes_[2];
+  MonitorElement* meCluYXLocal_[2];
+  MonitorElement* meCluYXLocalSim_[2];
 
   // --- UncalibratedRecHits histograms
 
@@ -222,7 +233,8 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     if (thedet == nullptr)
       throw cms::Exception("EtlLocalRecoValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
                                                      << detId.rawId() << ") is invalid!" << std::dec << std::endl;
-    const PixelTopology& topo = static_cast<const PixelTopology&>(thedet->topology());
+    const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+    const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
     Local3DPoint local_point(topo.localX(recHit.row()), topo.localY(recHit.column()), 0.);
     const auto& global_point = thedet->toGlobal(local_point);
@@ -335,8 +347,8 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         throw cms::Exception("EtlLocalRecoValidation")
             << "GeographicalID: " << std::hex << cluId << " is invalid!" << std::dec << std::endl;
       }
-
-      const PixelTopology& topo = static_cast<const PixelTopology&>(genericDet->topology());
+      const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(genericDet->topology());
+      const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
       Local3DPoint local_point(topo.localX(cluster.x()), topo.localY(cluster.y()), 0.);
       const auto& global_point = genericDet->toGlobal(local_point);
@@ -377,8 +389,88 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       meCluEta_[idet]->Fill(global_point.eta());
       meCluOccupancy_[idet]->Fill(global_point.x(), global_point.y(), weight);
       meCluHits_[idet]->Fill(cluster.size());
-    }
-  }
+
+      // --- Get the SIM hits associated to the cluster and calculate
+      //     the cluster SIM energy, time and position
+
+      double cluEneSIM = 0.;
+      double cluTimeSIM = 0.;
+      double cluLocXSIM = 0.;
+      double cluLocYSIM = 0.;
+      double cluLocZSIM = 0.;
+
+      for (int ihit = 0; ihit < cluster.size(); ++ihit) {
+        int hit_row = cluster.minHitRow() + cluster.hitOffset()[ihit * 2];
+        int hit_col = cluster.minHitCol() + cluster.hitOffset()[ihit * 2 + 1];
+
+        // Match the RECO hit to the corresponding SIM hit
+        for (const auto& recHit : *etlRecHitsHandle) {
+          ETLDetId hitId(recHit.id().rawId());
+
+          if (m_etlSimHits[idet].count(hitId.rawId()) == 0)
+            continue;
+
+          // Check the hit position
+          if (hitId.zside() != cluId.zside() || hitId.mtdRR() != cluId.mtdRR() || hitId.module() != cluId.module() ||
+              recHit.row() != hit_row || recHit.column() != hit_col)
+            continue;
+
+          // Check the hit energy and time
+          if (recHit.energy() != cluster.hitENERGY()[ihit] || recHit.time() != cluster.hitTIME()[ihit])
+            continue;
+
+          // SIM hit's position in the module reference frame
+          Local3DPoint local_point_sim(convertMmToCm(m_etlSimHits[idet][recHit.id().rawId()].x_local),
+                                       convertMmToCm(m_etlSimHits[idet][recHit.id().rawId()].y_local),
+                                       convertMmToCm(m_etlSimHits[idet][recHit.id().rawId()].z_local));
+
+          // Calculate the SIM cluster's position in the module reference frame
+          cluLocXSIM += local_point_sim.x() * m_etlSimHits[idet][recHit.id().rawId()].energy;
+          cluLocYSIM += local_point_sim.y() * m_etlSimHits[idet][recHit.id().rawId()].energy;
+          cluLocZSIM += local_point_sim.z() * m_etlSimHits[idet][recHit.id().rawId()].energy;
+
+          // Calculate the SIM cluster energy and time
+          cluEneSIM += m_etlSimHits[idet][recHit.id().rawId()].energy;
+          cluTimeSIM += m_etlSimHits[idet][recHit.id().rawId()].time * m_etlSimHits[idet][recHit.id().rawId()].energy;
+
+        }  // recHit loop
+
+      }  // ihit loop
+
+      // --- Fill the cluster resolution histograms
+      if (cluTimeSIM > 0. && cluEneSIM > 0.) {
+        int iside = (cluId.zside() == -1 ? 0 : 1);
+
+        cluTimeSIM /= cluEneSIM;
+
+        Local3DPoint cluLocalPosSIM(cluLocXSIM / cluEneSIM, cluLocYSIM / cluEneSIM, cluLocZSIM / cluEneSIM);
+        const auto& cluGlobalPosSIM = genericDet->toGlobal(cluLocalPosSIM);
+
+        float time_res = cluster.time() - cluTimeSIM;
+        float energy_res = cluster.energy() - cluEneSIM;
+        float x_res = global_point.x() - cluGlobalPosSIM.x();
+        float y_res = global_point.y() - cluGlobalPosSIM.y();
+        float z_res = global_point.z() - cluGlobalPosSIM.z();
+
+        meCluTimeRes_[iside]->Fill(time_res);
+        meCluEnergyRes_[iside]->Fill(energy_res);
+        meCluXRes_[iside]->Fill(x_res);
+        meCluYRes_[iside]->Fill(y_res);
+        meCluZRes_[iside]->Fill(z_res);
+
+        meCluTPullvsEta_[iside]->Fill(cluGlobalPosSIM.eta(), time_res / cluster.timeError());
+        meCluTPullvsE_[iside]->Fill(cluEneSIM, time_res / cluster.timeError());
+
+        if (LocalPosDebug_) {
+          meCluYXLocal_[iside]->Fill(local_point.x(), local_point.y());
+          meCluYXLocalSim_[iside]->Fill(cluLocalPosSIM.x(), cluLocalPosSIM.y());
+        }
+
+      }  // if ( cluTimeSIM > 0. &&  cluEneSIM > 0. )
+
+    }  // cluster loop
+
+  }  // DetSetClu loop
 
   // --- Loop over the ETL Uncalibrated RECO hits
   if (uncalibRecHitsPlots_) {
@@ -398,7 +490,9 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       if (thedet == nullptr)
         throw cms::Exception("EtlLocalRecoValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
                                                        << detId.rawId() << ") is invalid!" << std::dec << std::endl;
-      const PixelTopology& topo = static_cast<const PixelTopology&>(thedet->topology());
+
+      const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+      const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
       Local3DPoint local_point(topo.localX(uRecHit.row()), topo.localY(uRecHit.column()), 0.);
       const auto& global_point = thedet->toGlobal(local_point);
@@ -720,9 +814,9 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                       0.,
                                       100.);
   meTPullvsE_ = ibook.bookProfile(
-      "EtlTPullvsE", "ETL time pull vs E;E_{SIM} [MeV];T_{RECO}-T_{SIM}/#sigma_{T_{RECO}}", 20, 0., 2., -5., 5., "S");
+      "EtlTPullvsE", "ETL time pull vs E;E_{SIM} [MeV];(T_{RECO}-T_{SIM})/#sigma_{T_{RECO}}", 20, 0., 2., -5., 5., "S");
   meTPullvsEta_ = ibook.bookProfile("EtlTPullvsEta",
-                                    "ETL time pull vs #eta;|#eta_{RECO}|;T_{RECO}-T_{SIM}/#sigma_{T_{RECO}}",
+                                    "ETL time pull vs #eta;|#eta_{RECO}|;(T_{RECO}-T_{SIM})/#sigma_{T_{RECO}}",
                                     26,
                                     1.65,
                                     3.0,
@@ -813,6 +907,94 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                     100,
                                     -150,
                                     150);
+
+  meCluTimeRes_[0] =
+      ibook.book1D("EtlCluTimeResZneg", "ETL cluster time resolution (-Z);T_{RECO}-T_{SIM} [ns]", 100, -0.5, 0.5);
+  meCluTimeRes_[1] =
+      ibook.book1D("EtlCluTimeResZpos", "ETL cluster time resolution (+Z);T_{RECO}-T_{SIM} [MeV]", 100, -0.5, 0.5);
+  meCluEnergyRes_[0] =
+      ibook.book1D("EtlCluEnergyResZneg", "ETL cluster energy resolution (-Z);E_{RECO}-E_{SIM}", 100, -0.5, 0.5);
+  meCluEnergyRes_[1] =
+      ibook.book1D("EtlCluEnergyResZpos", "ETL cluster energy resolution (+Z);E_{RECO}-E_{SIM}", 100, -0.5, 0.5);
+
+  meCluTPullvsE_[0] =
+      ibook.bookProfile("EtlCluTPullvsEZneg",
+                        "ETL cluster time pull vs E (-Z);E_{SIM} [MeV];(T_{RECO}-T_{SIM})/#sigma_{T_{RECO}}",
+                        25,
+                        0.,
+                        0.5,
+                        -5.,
+                        5.,
+                        "S");
+  meCluTPullvsE_[1] =
+      ibook.bookProfile("EtlCluTPullvsEZpos",
+                        "ETL cluster time pull vs E (+Z);E_{SIM} [MeV];(T_{RECO}-T_{SIM})/#sigma_{T_{RECO}}",
+                        25,
+                        0.,
+                        0.5,
+                        -5.,
+                        5.,
+                        "S");
+  meCluTPullvsEta_[0] =
+      ibook.bookProfile("EtlCluTPullvsEtaZneg",
+                        "ETL cluster time pull vs #eta (-Z);|#eta_{RECO}|;(T_{RECO}-T_{SIM})/#sigma_{T_{RECO}}",
+                        30,
+                        -3.,
+                        -1.65,
+                        -5.,
+                        5.,
+                        "S");
+  meCluTPullvsEta_[1] =
+      ibook.bookProfile("EtlCluTPullvsEtaZpos",
+                        "ETL cluster time pull vs #eta (+Z);|#eta_{RECO}|;(T_{RECO}-T_{SIM})/#sigma_{T_{RECO}}",
+                        30,
+                        1.65,
+                        3.,
+                        -5.,
+                        5.,
+                        "S");
+  meCluXRes_[0] = ibook.book1D("EtlCluXResZneg", "ETL cluster X resolution (-Z);X_{RECO}-X_{SIM} [cm]", 100, -0.1, 0.1);
+  meCluXRes_[1] = ibook.book1D("EtlCluXResZpos", "ETL cluster X resolution (+Z);X_{RECO}-X_{SIM} [cm]", 100, -0.1, 0.1);
+  meCluYRes_[0] = ibook.book1D("EtlCluYResZneg", "ETL cluster Y resolution (-Z);Y_{RECO}-Y_{SIM} [cm]", 100, -0.1, 0.1);
+  meCluYRes_[1] = ibook.book1D("EtlCluYResZpos", "ETL cluster Y resolution (+Z);Y_{RECO}-Y_{SIM} [cm]", 100, -0.1, 0.1);
+  meCluZRes_[0] =
+      ibook.book1D("EtlCluZResZneg", "ETL cluster Z resolution (-Z);Z_{RECO}-Z_{SIM} [cm]", 100, -0.003, 0.003);
+  meCluZRes_[1] =
+      ibook.book1D("EtlCluZResZpos", "ETL cluster Z resolution (+Z);Z_{RECO}-Z_{SIM} [cm]", 100, -0.003, 0.003);
+  if (LocalPosDebug_) {
+    meCluYXLocal_[0] = ibook.book2D("EtlCluYXLocalZneg",
+                                    "ETL cluster local Y vs X (-Z);X^{local}_{RECO} [cm];Y^{local}_{RECO} [cm]",
+                                    100,
+                                    -2.2,
+                                    2.2,
+                                    100,
+                                    -1.1,
+                                    1.1);
+    meCluYXLocal_[1] = ibook.book2D("EtlCluYXLocalZpos",
+                                    "ETL cluster local Y vs X (+Z);X^{local}_{RECO} [cm];Y^{local}_{RECO} [cm]",
+                                    100,
+                                    -2.2,
+                                    2.2,
+                                    100,
+                                    -1.1,
+                                    1.1);
+    meCluYXLocalSim_[0] = ibook.book2D("EtlCluYXLocalSimZneg",
+                                       "ETL cluster local Y vs X (-Z);X^{local}_{SIM} [cm];Y^{local}_{SIM} [cm]",
+                                       200,
+                                       -2.2,
+                                       2.2,
+                                       200,
+                                       -1.1,
+                                       1.1);
+    meCluYXLocalSim_[1] = ibook.book2D("EtlCluYXLocalSimZpos",
+                                       "ETL cluster local Y vs X (+Z);X^{local}_{SIM} [cm];Y^{local}_{SIM} [cm]",
+                                       200,
+                                       -2.2,
+                                       2.2,
+                                       200,
+                                       -1.1,
+                                       1.1);
+  }
 
   // --- UncalibratedRecHits histograms
 
