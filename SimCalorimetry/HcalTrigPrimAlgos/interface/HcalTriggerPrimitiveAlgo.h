@@ -111,7 +111,10 @@ private:
   /// adds the actual digis
   void analyze(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result);
   // 2017 and later: QIE11
-  void analyzeQIE11(IntegerCaloSamples& samples, std::vector<bool> sample_saturation, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo);
+  void analyzeQIE11(IntegerCaloSamples& samples,
+                    std::vector<bool> sample_saturation,
+                    HcalTriggerPrimitiveDigi& result,
+                    const HcalFinegrainBit& fg_algo);
   // Version 0: RCT
   void analyzeHF(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const int hf_lumi_shift);
   // Version 1: 1x1
@@ -302,8 +305,10 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
       } else if (fgUpgradeMap_.find(item.first) != fgUpgradeMap_.end()) {
 
         SatMap::iterator item_sat = theSatMap.find(detId);
-        if (item_sat == theSatMap.end()) analyzeQIE11(item.second, std::vector<bool>(), result.back(), fg_algo);
-        else analyzeQIE11(item.second, item_sat->second, result.back(), fg_algo);
+        if (item_sat == theSatMap.end())
+          analyzeQIE11(item.second, std::vector<bool>(), result.back(), fg_algo);
+        else
+          analyzeQIE11(item.second, item_sat->second, result.back(), fg_algo);
       }
     }
   }
