@@ -399,7 +399,7 @@ int HGCalWaferMask::getRotation(int zside, int type, int rotn) {
     rotn = HGCalTypes::WaferCorner0;
   int newrotn(rotn);
   if ((zside < 0) && (type != HGCalTypes::WaferFull)) {
-    if (type == HGCalTypes::WaferFive) {  //WaferFive
+    if ((type == HGCalTypes::WaferFive) || (type == HGCalTypes::WaferFive2)) {  //WaferFive/WaferFive2
       static constexpr int rot1[HGCalTypes::WaferCornerMax] = {HGCalTypes::WaferCorner4,
                                                                HGCalTypes::WaferCorner3,
                                                                HGCalTypes::WaferCorner2,
@@ -416,7 +416,7 @@ int HGCalWaferMask::getRotation(int zside, int type, int rotn) {
                                                                HGCalTypes::WaferCorner4,
                                                                HGCalTypes::WaferCorner3};
       newrotn = rot2[rotn];
-    } else {  //WaferHalf/WaferChopTwo/WaferChopTwoM
+    } else {  //WaferHalf/WaferChopTwo/WaferChopTwoM/WaferHalf2
       static constexpr int rot3[HGCalTypes::WaferCornerMax] = {HGCalTypes::WaferCorner3,
                                                                HGCalTypes::WaferCorner2,
                                                                HGCalTypes::WaferCorner1,
