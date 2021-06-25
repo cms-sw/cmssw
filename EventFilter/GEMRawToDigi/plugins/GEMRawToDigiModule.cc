@@ -49,6 +49,7 @@ private:
   edm::ESGetToken<GEMeMap, GEMeMapRcd> gemEMapToken_;
   bool useDBEMap_;
   bool unPackStatusDigis_;
+  bool useB904Data_;
   std::unique_ptr<GEMRawToDigi> gemRawToDigi_;
 };
 
@@ -61,6 +62,7 @@ GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet& pset)
     : fed_token(consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("InputLabel"))),
       useDBEMap_(pset.getParameter<bool>("useDBEMap")),
       unPackStatusDigis_(pset.getParameter<bool>("unPackStatusDigis")),
+      useB904Data_(pset.getParameter<bool>("useB904Data")),
       gemRawToDigi_(std::make_unique<GEMRawToDigi>()) {
   produces<GEMDigiCollection>();
   if (unPackStatusDigis_) {
@@ -79,6 +81,7 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
   desc.add<bool>("useDBEMap", false);
   desc.add<bool>("unPackStatusDigis", false);
+  desc.add<bool>("useB904Data", false);
   descriptions.add("muonGEMDigisDefault", desc);
 }
 
@@ -160,6 +163,9 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     for (auto amcData : *(amc13Event->getAMCpayloads())) {
       uint16_t amcBx = amcData.bx();
       uint8_t amcNum = amcData.amcNum();
+      // for the GE1/1-ME1/1 trigger test stand, the AMC13 number is fixed to 3!
+      if (useB904Data_)
+        amcNum = 3;
       LogDebug("GEMRawToDigiModule") << "AMC no.:" << int(amcData.amcNum()) << " bx:" << int(amcData.bx())
                                      << " lv1Id:" << int(amcData.l1A()) << " orbitNumber:" << int(amcData.orbitNum());
 
