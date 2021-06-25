@@ -152,7 +152,7 @@ class SwitchOnTrigger( ConfigToolBase ):
         trigEvtProdMod                    = getattr( process, triggerEventProducer )
         trigEvtProdMod.processName        = hltProcess
         trigEvtProdMod.patTriggerProducer = cms.InputTag( triggerProducer )
-        if not path is '':
+        if path != '':
             if not hasattr( process, path ):
                 prodPath = cms.Path( trigProdMod + trigEvtProdMod )
                 setattr( process, path, prodPath )
