@@ -171,7 +171,7 @@ class SwitchOnTrigger( ConfigToolBase ):
                     prodPath += trigEvtProdMod
 
         # Add event content
-        if outputModule is not '':
+        if outputModule != '':
             patTriggerEventContent = [ 'keep patTriggerObjects_%s_*_%s'%( triggerProducer, process.name_() )
                                      , 'keep patTriggerFilters_%s_*_%s'%( triggerProducer, process.name_() )
                                      , 'keep patTriggerPaths_%s_*_%s'%( triggerProducer, process.name_() )
@@ -273,7 +273,7 @@ class SwitchOnTriggerStandAlone( ConfigToolBase ):
                 prodPath += trigProdMod
 
         # Add event content
-        if outputModule is not '':
+        if outputModule != '':
             patTriggerEventContent = [ 'keep patTriggerObjectStandAlones_%s_*_%s'%( triggerProducer, process.name_() )
                                      ]
             if ( hasattr( trigProdMod, 'saveL1Refs' ) and trigProdMod.saveL1Refs.value() is True ):
@@ -401,7 +401,7 @@ class SwitchOnTriggerMatching( ConfigToolBase ):
             print('    configuration parameters automatically changed')
             for matcher in matchers:
                 trigMchMod = getattr( process, matcher )
-                if trigMchMod.matched.value() is not triggerProducer:
+                if trigMchMod.matched.value() != triggerProducer:
                     trigMchMod.matched = triggerProducer
                     print('    PAT trigger matcher %s.matched --> %s'%( matcher, trigMchMod.matched ))
             print(_longLine)
@@ -411,7 +411,7 @@ class SwitchOnTriggerMatching( ConfigToolBase ):
             trigEvtProdMod.patTriggerMatches.append( cms.InputTag( matcher ) )
 
         # Add event content
-        if outputModule is not '':
+        if outputModule != '':
             patTriggerEventContent = []
             for matcher in triggerMatchersKnown:
                 patTriggerEventContent += [ 'keep patTriggerObjectsedmAssociation_%s_%s_%s'%( triggerEventProducer, matcher, process.name_() )
@@ -527,7 +527,7 @@ class SwitchOnTriggerMatchingStandAlone( ConfigToolBase ):
             trigMchMod.matched = triggerProducer
 
         # Add event content
-        if outputModule is not '':
+        if outputModule != '':
             patTriggerEventContent = []
             for matcher in triggerMatchersKnown:
                 patTriggerEventContent += [ 'keep patTriggerObjectStandAlonesedmAssociation_%s_*_%s'%( matcher, process.name_() )
@@ -739,7 +739,7 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
                 print('    Invalid input source for trigger match embedding')
                 print('    ==> %s with matchers \'%s\' is skipped'%( patObjProdType, dictConfig[ patObjProdType ] ))
                 print(_longLine)
-        if outputModule is not '':
+        if outputModule != '':
             getattr( process, outputModule ).outputCommands = _addEventContent( getattr( process, outputModule ).outputCommands, patTriggerEventContent )
 
 switchOnTriggerMatchEmbedding = SwitchOnTriggerMatchEmbedding()
