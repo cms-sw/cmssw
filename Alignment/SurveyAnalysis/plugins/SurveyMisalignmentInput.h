@@ -26,6 +26,11 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> aliToken_;
+
   SurveyInputTextReader::MapType uIdMap;
 
   std::string textFileName;

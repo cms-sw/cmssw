@@ -17,27 +17,25 @@
 #include "Alignment/SurveyAnalysis/plugins/SurveyMisalignmentInput.h"
 
 SurveyMisalignmentInput::SurveyMisalignmentInput(const edm::ParameterSet& cfg)
-    : textFileName(cfg.getParameter<std::string>("textFileName")) {}
+    : tTopoToken_(esConsumes()),
+      geomDetToken_(esConsumes()),
+      ptpToken_(esConsumes()),
+      aliToken_(esConsumes()),
+      textFileName(cfg.getParameter<std::string>("textFileName")) {}
 
 void SurveyMisalignmentInput::analyze(const edm::Event&, const edm::EventSetup& setup) {
   if (theFirstEvent) {
     //Retrieve tracker topology from geometry
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-    const TrackerTopology* const tTopo = tTopoHandle.product();
-
-    edm::ESHandle<GeometricDet> geom;
-    setup.get<IdealGeometryRecord>().get(geom);
-
-    edm::ESHandle<PTrackerParameters> ptp;
-    setup.get<PTrackerParametersRcd>().get(ptp);
-    TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, *ptp, tTopo);
+    const TrackerTopology* const tTopo = &setup.getData(tTopoToken_);
+    const GeometricDet* geom = &setup.getData(geomDetToken_);
+    const PTrackerParameters& ptp = setup.getData(ptpToken_);
+    TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(geom, ptp, tTopo);
 
     addComponent(new AlignableTracker(tracker, tTopo));
 
     edm::LogInfo("SurveyMisalignmentInput") << "Starting!";
     // Retrieve alignment[Error]s from DBase
-    setup.get<TrackerAlignmentRcd>().get(alignments);
+    alignments = setup.getHandle(aliToken_);
 
     //Get map from textreader
     SurveyInputTextReader dataReader;

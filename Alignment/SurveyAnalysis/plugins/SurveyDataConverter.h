@@ -19,12 +19,11 @@
 //
 
 #include "Alignment/SurveyAnalysis/interface/SurveyDataReader.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignment.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
-class SurveyDataConverter : public edm::EDAnalyzer {
+class SurveyDataConverter : public edm::one::EDAnalyzer<> {
   typedef SurveyDataReader::MapType MapType;
   typedef SurveyDataReader::PairType PairType;
   typedef SurveyDataReader::MapTypeOr MapTypeOr;

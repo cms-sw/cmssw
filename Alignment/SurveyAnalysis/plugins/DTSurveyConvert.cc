@@ -3,15 +3,10 @@
 #include "Alignment/MuonAlignment/interface/MuonAlignment.h"
 #include "Alignment/SurveyAnalysis/interface/DTSurvey.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-// #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
 #include "Alignment/SurveyAnalysis/plugins/DTSurveyConvert.h"
 
-DTSurveyConvert::DTSurveyConvert(const edm::ParameterSet &iConfig) {
+DTSurveyConvert::DTSurveyConvert(const edm::ParameterSet &iConfig) : muonGeoToken_(esConsumes()) {
   //now do what ever initialization is needed
   nameWheel_m2 = iConfig.getUntrackedParameter<std::string>("nameWheel_m2");
   nameWheel_m1 = iConfig.getUntrackedParameter<std::string>("nameWheel_m1");
@@ -37,8 +32,7 @@ DTSurveyConvert::DTSurveyConvert(const edm::ParameterSet &iConfig) {
 
 // ------------ method called to for each event  ------------
 void DTSurveyConvert::analyze(const edm::Event &, const edm::EventSetup &iSetup) {
-  edm::ESHandle<DTGeometry> pDD;
-  iSetup.get<MuonGeometryRecord>().get(pDD);
+  const DTGeometry *pDD = &iSetup.getData(muonGeoToken_);
 
   std::ofstream outFile(outputFileName.c_str());
 
