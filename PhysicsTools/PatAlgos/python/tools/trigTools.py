@@ -260,7 +260,7 @@ class SwitchOnTriggerStandAlone( ConfigToolBase ):
         # Maintain configuration
         trigProdMod             = getattr( process, triggerProducer )
         trigProdMod.processName = hltProcess
-        if not path is '':
+        if path != '':
             if not hasattr( process, path ):
                 prodPath = cms.Path( trigProdMod )
                 setattr( process, path, prodPath )
@@ -401,7 +401,7 @@ class SwitchOnTriggerMatching( ConfigToolBase ):
             print('    configuration parameters automatically changed')
             for matcher in matchers:
                 trigMchMod = getattr( process, matcher )
-                if trigMchMod.matched.value() != triggerProducer:
+                if trigMchMod.matched.value() is not triggerProducer:
                     trigMchMod.matched = triggerProducer
                     print('    PAT trigger matcher %s.matched --> %s'%( matcher, trigMchMod.matched ))
             print(_longLine)
