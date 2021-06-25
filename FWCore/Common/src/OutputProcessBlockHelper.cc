@@ -188,17 +188,19 @@ namespace edm {
   void OutputProcessBlockHelper::setStoredProcessOffset(unsigned int nInputProcesses,
                                                         std::vector<std::vector<unsigned int>> const& nEntries,
                                                         std::vector<unsigned int>& storedProcessOffset) const {
-    for (unsigned int iStored = 0; iStored < nInputProcesses + 1; ++iStored) {
-      storedProcessOffset[iStored] = 0;
+    unsigned int iStored = 0;
+    for (auto& offset : storedProcessOffset) {
+      offset = 0;
       // loop over earlier processes
       for (unsigned int jStored = 0; jStored < iStored; ++jStored) {
         unsigned int indexInEventProcessor = translateFromStoredIndex_[jStored];
         // loop over input files
         for (auto const& entries : nEntries) {
           assert(indexInEventProcessor < entries.size());
-          storedProcessOffset[iStored] += entries[indexInEventProcessor];
+          offset += entries[indexInEventProcessor];
         }
       }
+      ++iStored;
     }
   }
 
@@ -206,12 +208,14 @@ namespace edm {
                                                   unsigned int nInputProcesses,
                                                   std::vector<std::vector<unsigned int>> const& nEntries,
                                                   std::vector<unsigned int>& processOffset) const {
-    for (unsigned int iStored = 0; iStored < nInputProcesses; ++iStored) {
-      processOffset[iStored] = 0;
+    unsigned int iStored = 0;
+    for (auto& offset : processOffset) {
+      offset = 0;
       unsigned int iProcess = translateFromStoredIndex_[iStored];
       for (unsigned int jProcess = 0; jProcess < iProcess; ++jProcess) {
-        processOffset[iStored] += nEntries[iFile][jProcess];
+        offset += nEntries[iFile][jProcess];
       }
+      ++iStored;
     }
   }
 
@@ -220,14 +224,16 @@ namespace edm {
       unsigned int nInputProcesses,
       std::vector<std::vector<unsigned int>> const& nEntries,
       std::vector<unsigned int>& storedFileInProcessOffset) const {
-    for (unsigned int iStored = 0; iStored < nInputProcesses; ++iStored) {
-      storedFileInProcessOffset[iStored] = 0;
+    unsigned int iStored = 0;
+    for (auto& offset : storedFileInProcessOffset) {
+      offset = 0;
       unsigned int indexInEventProcessor = translateFromStoredIndex_[iStored];
       // loop over input files before current input file
       for (unsigned int jFile = 0; jFile < iFile; ++jFile) {
         assert(indexInEventProcessor < nEntries[jFile].size());
-        storedFileInProcessOffset[iStored] += nEntries[jFile][indexInEventProcessor];
+        offset += nEntries[jFile][indexInEventProcessor];
       }
+      ++iStored;
     }
   }
 
