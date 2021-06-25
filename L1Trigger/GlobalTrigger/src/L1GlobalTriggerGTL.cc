@@ -16,9 +16,6 @@
 // this class header
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerGTL.h"
 
-// system include files
-#include <ext/hash_map>
-
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 

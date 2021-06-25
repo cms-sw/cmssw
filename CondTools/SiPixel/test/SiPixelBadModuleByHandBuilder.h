@@ -14,7 +14,6 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <vector>
-#include <ext/hash_map>
 
 class SiPixelBadModuleByHandBuilder : public ConditionDBWriter<SiPixelQuality> {
 public:
