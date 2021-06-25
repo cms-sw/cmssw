@@ -4,27 +4,66 @@
  *  \author R. Bellan - CERN <riccardo.bellan@cern.ch>
  */
 
-#include "PhysicsTools/PatExamples/plugins/MuonAnalyzer.h"
-
-// Collaborating Class Header
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TH1I.h"
 #include "TH1F.h"
 #include "TH2F.h"
 
+class ExampleMuonAnalyzer : public edm::EDAnalyzer {
+public:
+  /// Constructor
+  ExampleMuonAnalyzer(const edm::ParameterSet &pset);
+
+  /// Destructor
+  ~ExampleMuonAnalyzer() override;
+
+  // Operations
+
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
+
+  void beginJob() override;
+  void endJob() override;
+
+protected:
+private:
+  edm::EDGetTokenT<pat::MuonCollection> theMuonToken;
+
+  // Histograms
+  TH1I *hNMuons;
+  TH1F *hPtRec;
+  TH2F *hPtReso;
+  TH1F *hEHcal;
+
+  TH1I *hMuonType;
+  TH1F *hPtSTATKDiff;
+
+  // ID
+  TH1F *hMuCaloCompatibility;
+  TH1F *hMuSegCompatibility;
+  TH1I *hChamberMatched;
+  TH1I *hMuIdAlgo;
+
+  // Isolation
+  TH1F *hMuIso03SumPt;
+  TH1F *hMuIso03CaloComb;
+
+  TH1F *h4MuInvMass;
+};
+
 using namespace std;
 using namespace edm;
 
 /// Constructor
-ExampleMuonAnalyzer::ExampleMuonAnalyzer(const ParameterSet& pset) {
+ExampleMuonAnalyzer::ExampleMuonAnalyzer(const ParameterSet &pset) {
   theMuonToken = consumes<pat::MuonCollection>(pset.getParameter<InputTag>("MuonCollection"));
 }
 
@@ -59,7 +98,7 @@ void ExampleMuonAnalyzer::beginJob() {
 
 void ExampleMuonAnalyzer::endJob() {}
 
-void ExampleMuonAnalyzer::analyze(const Event& event, const EventSetup& eventSetup) {
+void ExampleMuonAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) {
   // Get the Muon collection
   Handle<pat::MuonCollection> muons;
   event.getByToken(theMuonToken, muons);
