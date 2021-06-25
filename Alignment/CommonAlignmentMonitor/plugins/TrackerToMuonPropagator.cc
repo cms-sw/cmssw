@@ -71,8 +71,15 @@ private:
 
   // ----------member data ---------------------------
 
+  // es tokens
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> m_esTokenProp;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> m_esTokenTk;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> m_esTokenDT;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> m_esTokenCSC;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_esTokenMF;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_esTokenGTGeo;
+
   edm::InputTag m_globalMuons, m_globalMuonTracks;
-  std::string m_propagator;
 
   bool m_refitTracker;
   TrackTransformer* m_trackTransformer;
@@ -89,10 +96,15 @@ private:
 //
 // constructors and destructor
 //
-TrackerToMuonPropagator::TrackerToMuonPropagator(const edm::ParameterSet& iConfig) {
+TrackerToMuonPropagator::TrackerToMuonPropagator(const edm::ParameterSet& iConfig)
+    : m_esTokenProp(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("propagator")))),
+      m_esTokenTk(esConsumes()),
+      m_esTokenDT(esConsumes()),
+      m_esTokenCSC(esConsumes()),
+      m_esTokenMF(esConsumes()),
+      m_esTokenGTGeo(esConsumes()) {
   m_globalMuons = iConfig.getParameter<edm::InputTag>("globalMuons");
   m_globalMuonTracks = iConfig.getParameter<edm::InputTag>("globalMuonTracks");
-  m_propagator = iConfig.getParameter<std::string>("propagator");
   m_refitTracker = iConfig.getParameter<bool>("refitTrackerTrack");
   if (m_refitTracker) {
     m_trackTransformer = new TrackTransformer(iConfig.getParameter<edm::ParameterSet>("trackerTrackTransformer"));
@@ -123,23 +135,12 @@ void TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<reco::TrackCollection> globalMuonTracks;
   iEvent.getByLabel(m_globalMuonTracks, globalMuonTracks);
 
-  edm::ESHandle<Propagator> propagator;
-  iSetup.get<TrackingComponentsRecord>().get(m_propagator, propagator);
-
-  edm::ESHandle<TrackerGeometry> trackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
-
-  edm::ESHandle<DTGeometry> dtGeometry;
-  iSetup.get<MuonGeometryRecord>().get(dtGeometry);
-
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  iSetup.get<MuonGeometryRecord>().get(cscGeometry);
-
-  edm::ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-
-  edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
+  const Propagator* propagator = &iSetup.getData(m_esTokenProp);
+  const TrackerGeometry* trackerGeometry = &iSetup.getData(m_esTokenTk);
+  const DTGeometry* dtGeometry = &iSetup.getData(m_esTokenDT);
+  const CSCGeometry* cscGeometry = &iSetup.getData(m_esTokenCSC);
+  const MagneticField* magneticField = &iSetup.getData(m_esTokenMF);
+  const GlobalTrackingGeometry* globalGeometry = &iSetup.getData(m_esTokenGTGeo);
 
   // Create these factories once per event
 
@@ -193,7 +194,7 @@ void TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup&
       outerDetId = DetId(globalMuon->track()->outerDetId());
 
       // construct the information necessary to make a TrajectoryStateOnSurface
-      GlobalTrajectoryParameters globalTrajParams(outerPosition, outerMomentum, charge, &(*magneticField));
+      GlobalTrajectoryParameters globalTrajParams(outerPosition, outerMomentum, charge, magneticField);
       CurvilinearTrajectoryError curviError(outerStateCovariance);
       FreeTrajectoryState tracker_state(globalTrajParams, curviError);
 
