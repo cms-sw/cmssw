@@ -780,7 +780,11 @@ class timestamp_to_run( object ):
         RunInfo = self.session.get_dbtype(conddb.RunInfo)
         minTs = datetime.datetime.utcfromtimestamp( int(ks[0]) >> 32 )
         maxTs = datetime.datetime.utcfromtimestamp( int(ks[len(ks)-1]) >> 32 )
+        if self.session.query(RunInfo.end_time).filter(RunInfo.end_time > minTs).count() == 0:
+            raise Exception("Lower IOV sincetimestamp %s cannot be matched with an existing run in the database."%minTs)
         firstRun = self.session.query(sqlalchemy.func.min(RunInfo.run_number)).filter(RunInfo.end_time > minTs).one()[0]
+        if self.session.query(RunInfo.start_time).filter(RunInfo.start_time < maxTs).count() == 0:
+            raise Exception("Upper iov since timestamp %s cannot be matched with an existing run in the database"%maxTs)
         lastRun = self.session.query(sqlalchemy.func.max(RunInfo.run_number)).filter(RunInfo.start_time < maxTs).one()[0]
         runs = self.session.query(RunInfo.run_number,RunInfo.start_time,RunInfo.end_time).filter(RunInfo.run_number >= firstRun).filter(RunInfo.run_number <= lastRun ).order_by(RunInfo.run_number).all()
         newiovs = {}
