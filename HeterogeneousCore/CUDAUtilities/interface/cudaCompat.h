@@ -52,11 +52,10 @@ namespace cms {
       return ret;
     }
 
-   template <typename T1, typename T2>
+    template <typename T1, typename T2>
     T1 atomicInc_block(T1* a, T2 b) {
-      return atomicInc(a,b);
+      return atomicInc(a, b);
     }
-
 
     template <typename T1, typename T2>
     T1 atomicAdd(T1* a, T2 b) {
@@ -65,11 +64,10 @@ namespace cms {
       return ret;
     }
 
-   template <typename T1, typename T2>
+    template <typename T1, typename T2>
     T1 atomicAdd_block(T1* a, T2 b) {
-      return atomicAdd(a,b);
+      return atomicAdd(a, b);
     }
-
 
     template <typename T1, typename T2>
     T1 atomicSub(T1* a, T2 b) {
@@ -78,11 +76,10 @@ namespace cms {
       return ret;
     }
 
-   template <typename T1, typename T2>
+    template <typename T1, typename T2>
     T1 atomicSub_block(T1* a, T2 b) {
-      return atomicSub(a,b);
+      return atomicSub(a, b);
     }
-
 
     template <typename T1, typename T2>
     T1 atomicMin(T1* a, T2 b) {
@@ -91,9 +88,9 @@ namespace cms {
       return ret;
     }
 
-   template <typename T1, typename T2>
+    template <typename T1, typename T2>
     T1 atomicMin_block(T1* a, T2 b) {
-      return atomicMin(a,b);
+      return atomicMin(a, b);
     }
 
     template <typename T1, typename T2>
@@ -103,11 +100,10 @@ namespace cms {
       return ret;
     }
 
-   template <typename T1, typename T2>
+    template <typename T1, typename T2>
     T1 atomicMax_block(T1* a, T2 b) {
-      return atomicMax(a,b);
+      return atomicMax(a, b);
     }
-
 
     inline void __syncthreads() {}
     inline void __threadfence() {}
