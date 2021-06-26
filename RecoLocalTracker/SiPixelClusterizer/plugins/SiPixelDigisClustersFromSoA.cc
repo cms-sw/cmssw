@@ -41,7 +41,6 @@ private:
 
   const bool produceDigis_;
   const bool storeDigis_;
-
 };
 
 SiPixelDigisClustersFromSoA::SiPixelDigisClustersFromSoA(const edm::ParameterSet& iConfig)
@@ -51,10 +50,9 @@ SiPixelDigisClustersFromSoA::SiPixelDigisClustersFromSoA(const edm::ParameterSet
       clusterThresholds_{iConfig.getParameter<int>("clusterThreshold_layer1"),
                          iConfig.getParameter<int>("clusterThreshold_otherLayers")},
       produceDigis_(iConfig.getParameter<bool>("produceDigis")),
-      storeDigis_(iConfig.getParameter<bool>("produceDigis")&iConfig.getParameter<bool>("storeDigis"))
-{
-   if (produceDigis_) 
-      digiPutToken_ = produces<edm::DetSetVector<PixelDigi>>();
+      storeDigis_(iConfig.getParameter<bool>("produceDigis") & iConfig.getParameter<bool>("storeDigis")) {
+  if (produceDigis_)
+    digiPutToken_ = produces<edm::DetSetVector<PixelDigi>>();
 }
 
 void SiPixelDigisClustersFromSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -62,8 +60,8 @@ void SiPixelDigisClustersFromSoA::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelDigisSoA"));
   desc.add<int>("clusterThreshold_layer1", kSiPixelClusterThresholdsDefaultPhase1.layer1);
   desc.add<int>("clusterThreshold_otherLayers", kSiPixelClusterThresholdsDefaultPhase1.otherLayers);
-  desc.add<bool>("produceDigis",true);
-  desc.add<bool>("storeDigis",true);
+  desc.add<bool>("produceDigis", true);
+  desc.add<bool>("storeDigis", true);
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -80,9 +78,8 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
   auto outputClusters = std::make_unique<SiPixelClusterCollectionNew>();
   outputClusters->reserve(gpuClustering::maxNumModules, nDigis / 2);
 
-
   edm::DetSet<PixelDigi>* detDigis = nullptr;
-  uint32_t  detId = 0;
+  uint32_t detId = 0;
   for (uint32_t i = 0; i < nDigis; i++) {
     if (digis.pdigi(i) == 0)
       continue;
@@ -94,7 +91,6 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
     }
     break;
   }
-
 
   int32_t nclus = -1;
   PixelClusterizerBase::AccretionCluster aclusters[gpuClustering::maxNumClustersPerModules];
@@ -157,13 +153,15 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
         if ((*detDigis).empty())
           (*detDigis).data.reserve(64);  // avoid the first relocations
         else {
-          edm::LogWarning("SiPixelDigisClustersFromSoA") << "Problem det present twice in input! " << (*detDigis).detId();
+          edm::LogWarning("SiPixelDigisClustersFromSoA")
+              << "Problem det present twice in input! " << (*detDigis).detId();
         }
       }
     }
     PixelDigi dig(digis.pdigi(i));
-    if (storeDigis_) (*detDigis).data.emplace_back(dig);
-    // fill clusters
+    if (storeDigis_)
+      (*detDigis).data.emplace_back(dig);
+      // fill clusters
 #ifdef EDM_ML_DEBUG
     assert(digis.clus(i) >= 0);
     assert(digis.clus(i) < gpuClustering::maxNumClustersPerModules);
@@ -176,14 +174,15 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
   }
 
   // fill final clusters
-  if (detId>0)
+  if (detId > 0)
     fillClusters(detId);
 
 #ifdef EDM_ML_DEBUG
   LogDebug("SiPixelDigisClustersFromSoA") << "filled " << totClustersFilled << " clusters";
 #endif
 
-  if (produceDigis_) iEvent.put(digiPutToken_, std::move(collection));
+  if (produceDigis_)
+    iEvent.put(digiPutToken_, std::move(collection));
   iEvent.put(clusterPutToken_, std::move(outputClusters));
 }
 

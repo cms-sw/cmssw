@@ -69,7 +69,7 @@ void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event &iEv
 
   float x0 = 0, y0 = 0, z0 = 0, dxdz = 0, dydz = 0;
   std::vector<int32_t> itrk;
-  itrk.reserve(64); // avoid first relocations
+  itrk.reserve(64);  // avoid first relocations
   if (!bsHandle.isValid()) {
     edm::LogWarning("PixelVertexProducer") << "No beamspot found. returning vertexes with (0,0,Z) ";
   } else {

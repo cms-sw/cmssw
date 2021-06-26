@@ -75,16 +75,17 @@ namespace reco {
     /// For a primary vertex, it could simply be the beam line.
     bool isFake() const { return (chi2_ == 0 && ndof_ == 0 && tracks_.empty()); }
     /// reserve space for the tracks
-    void reserve(int size, bool refitAsWell=false) { 
-        tracks_.reserve(size);
-        if(refitAsWell) refittedTracks_.reserve(size);
-        weights_.reserve(size);
+    void reserve(int size, bool refitAsWell = false) {
+      tracks_.reserve(size);
+      if (refitAsWell)
+        refittedTracks_.reserve(size);
+      weights_.reserve(size);
     }
     /// add a reference to a Track
-    template<typename Ref>
+    template <typename Ref>
     void add(Ref const &r, float w = 1.0) {
-        tracks_.emplace_back(r);
-        weights_.emplace_back(w * 255.f);
+      tracks_.emplace_back(r);
+      weights_.emplace_back(w * 255.f);
     }
     /// add the original a Track(reference) and the smoothed Track
     void add(const TrackBaseRef &r, const Track &refTrack, float w = 1.0);
