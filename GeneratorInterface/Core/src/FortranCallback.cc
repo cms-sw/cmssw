@@ -8,4 +8,4 @@ namespace gen {
       fInstance = new gen::FortranCallback;
     return fInstance;
   }
-};
+};  // namespace gen
