@@ -103,7 +103,7 @@ namespace reco {
       return 0;
     }
     // track collections
-    auto const & tracks() const { return tracks_;}
+    auto const &tracks() const { return tracks_; }
     /// first iterator over tracks
     trackRef_iterator tracks_begin() const { return tracks_.begin(); }
     /// last iterator over tracks
