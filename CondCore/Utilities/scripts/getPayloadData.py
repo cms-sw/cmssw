@@ -124,7 +124,8 @@ def discover_plugins():
     plugins = []
     releases = [
         os.environ.get('CMSSW_BASE', None),
-        os.environ.get('CMSSW_RELEASE_BASE', None)
+        os.environ.get('CMSSW_RELEASE_BASE', None),
+        os.environ.get('CMSSW_FULL_RELEASE_BASE', None)
     ]
 
     for r in releases:
@@ -137,7 +138,12 @@ def discover_plugins():
         plugins += glob.glob(path + '/plugin*_PayloadInspector.so' )
         output('found plugins: ', plugins) 
         
-        if r: break # break loop if CMSSW_BASE is specified        
+        # If no plugins are found in the local release,
+        # go find them in the release base (or full release base, in case of patches)
+        if(len(plugins)==0):
+            output('# plugins found:',len(plugins))
+        else:
+            if r: break # break loop if CMSSW_BASE is specified
   
     # extracts the object name from plugin path:
     # /afs/cern.ch/cms/slc6_amd64_gcc493/cms/cmssw/CMSSW_8_0_6/lib/slc6_amd64_gcc493/pluginBasicPayload_PayloadInspector.so
