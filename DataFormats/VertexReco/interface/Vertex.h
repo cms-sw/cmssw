@@ -102,12 +102,14 @@ namespace reco {
       }
       return 0;
     }
+    // track collections
+    auto const & tracks() const { return tracks_;}
     /// first iterator over tracks
-    trackRef_iterator tracks_begin() const;
+    trackRef_iterator tracks_begin() const { return tracks_.begin(); }
     /// last iterator over tracks
-    trackRef_iterator tracks_end() const;
+    trackRef_iterator tracks_end() const { return tracks_.end(); }
     /// number of tracks
-    size_t tracksSize() const;
+    size_t tracksSize() const { return tracks_.size(); }
     /// python friendly track getting
     const TrackBaseRef &trackRefAt(size_t idx) const { return tracks_[idx]; }
     /// chi-squares
