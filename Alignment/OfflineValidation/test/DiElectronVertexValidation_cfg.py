@@ -56,7 +56,7 @@ options.register ('myseed',
                   "seed number")
 
 options.register ('myfile',
-                  '/store/relval/CMSSW_10_6_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_106X_mc2017_realistic_v6_HS-v1/10000/44690279-DDF3-0D43-B92D-F5CB57EF7E6A.root', # default value
+                  'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_6_1/RelValZEE_13/GEN-SIM-RECO/PU25ns_106X_mc2017_realistic_v6_HS-v1/10000/B3F7544E-F34D-9D42-B897-21820FDE0331.root',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "file name")
@@ -79,7 +79,7 @@ if(options.FileList):
     print("FileList:           ", options.FileList)
 else:
     print("inputFile:          ", options.myfile)
-print("outputFile:         ", "DiMuonVertexValidation_{fname}_{fseed}.root".format(fname = options.outputName,fseed=options.myseed))
+print("outputFile:         ", "DiElectronVertexValidation_{fname}_{fseed}.root".format(fname = options.outputName,fseed=options.myseed))
 print("era:                ", options.era)
 print("conditionGT:        ", options.GlobalTag)
 print("conditionOverwrite: ", options.records)
@@ -142,25 +142,10 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
 process.GlobalTag.toGet = cms.VPSet(*records)
 
-'''
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-             tag = cms.string("TrackerAlignment_Upgrade2017_design_v4"),
-             #tag = cms.string("TrackerAlignment_2017_ultralegacymc_v1"),
-             connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-         ),
-    cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"),
-             tag = cms.string("TrackerAlignmentErrorsExtended_Upgrade2017_design_v0"),
-             #tag = cms.string("TrackerAlignmentExtendedErrors_2017_ultralegacymc_v1"),
-             connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-         )
-)
-'''
-
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 #process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.MessageLogger.cerr.FwkReport.reportEvery = 1
+#process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 ###################################################################
 # Messages
@@ -168,8 +153,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 process.load('FWCore.MessageService.MessageLogger_cfi')   
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.TrackRefitter=dict()
+process.MessageLogger.GsfTrackRefitter=dict()
 process.MessageLogger.PrimaryVertexProducer=dict()
-process.MessageLogger.DiMuonVertexValidation=dict()
+process.MessageLogger.DiElectronVertexValidation=dict()
 process.MessageLogger.DiLeptonHelpCounts=dict()
 process.MessageLogger.PlotsVsKinematics=dict()
 process.MessageLogger.cout = cms.untracked.PSet(
@@ -177,9 +163,9 @@ process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string("INFO"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
-                                   reportEvery = cms.untracked.int32(100)
+                                   reportEvery = cms.untracked.int32(1000)
                                    ),                                                      
-    DiMuonVertexValidation = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    DiElectronVertexValidation = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     DiLeptonHelpCounts = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     enableStatistics = cms.untracked.bool(True)
     )
@@ -195,9 +181,7 @@ else:
     readFiles = cms.untracked.vstring([options.myfile])
 
 process.source = cms.Source("PoolSource",
-                            fileNames = readFiles,
-                            #skipEvents = cms.untracked.uint32(45000)
-)
+                            fileNames = readFiles)
 
 ###################################################################
 # TransientTrack from https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideTransientTracks
@@ -219,10 +203,26 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 import RecoTracker.TrackProducer.TrackRefitters_cff
 process.TrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
 process.TrackRefitter.src = "generalTracks"
-#process.TrackRefitter.src = "ALCARECOTkAlDiMuonVertexTracks"
 process.TrackRefitter.TrajectoryInEvent = True
 process.TrackRefitter.NavigationSchool = ''
 process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
+
+####################################################################
+# Load  electron configuration files
+####################################################################
+process.load("TrackingTools.GsfTracking.GsfElectronFit_cff")
+
+####################################################################
+# GSF Track Refitter
+####################################################################
+process.load("TrackingTools.GsfTracking.fwdGsfElectronPropagator_cff")
+process.load("RecoTracker.TrackProducer.GsfTrackRefitter_cff")
+process.GsfTrackRefitter = RecoTracker.TrackProducer.GsfTrackRefitter_cff.GsfTrackRefitter.clone()
+process.GsfTrackRefitter.src = cms.InputTag('electronGsfTracks')  
+process.GsfTrackRefitter.TrajectoryInEvent = True
+process.GsfTrackRefitter.AlgorithmName = cms.string('gsf')
+#process.GsfTrackRefitter.NavigationSchool = ''
+#process.GsfTrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
 
 ####################################################################
 # Sequence
@@ -230,7 +230,8 @@ process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
 process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
                                         # in case NavigatioSchool is set !=''
                                         #process.MeasurementTrackerEvent*
-                                        process.TrackRefitter)
+                                        process.TrackRefitter*
+                                        process.GsfTrackRefitter)
 
 ####################################################################
 # Re-do vertices
@@ -242,16 +243,11 @@ process.offlinePrimaryVerticesFromRefittedTrks.TrackLabel = cms.InputTag("TrackR
 ####################################################################
 # Output file
 ####################################################################
-process.TFileService = cms.Service("TFileService",fileName=cms.string("DiMuonVertexValidation_"+options.outputName+"_"+options.myseed+".root"))
+process.TFileService = cms.Service("TFileService",fileName=cms.string("DiElectronVertexValidation_"+options.outputName+"_"+options.myseed+".root"))
 
 # Additional output definition
-process.analysis = cms.EDAnalyzer("DiMuonVertexValidation",
-                                  useReco = cms.bool(True),
-                                  ## the two parameters below are mutually exclusive,
-                                  ## depending if RECO or ALCARECO is used
-                                  muons  = cms.InputTag('muons'),
-                                  #muonTracks = cms.InputTag('ALCARECOTkAlDiMuon'),
-                                  tracks = cms.InputTag('TrackRefitter'),
+process.analysis = cms.EDAnalyzer("DiElectronVertexValidation",
+                                  gsfTracks = cms.InputTag('GsfTrackRefitter'),
                                   vertices = cms.InputTag('offlinePrimaryVerticesFromRefittedTrks'))
 
 ####################################################################
@@ -259,5 +255,4 @@ process.analysis = cms.EDAnalyzer("DiMuonVertexValidation",
 ####################################################################
 process.p = cms.Path(process.seqTrackselRefit                        +
                      process.offlinePrimaryVerticesFromRefittedTrks  +
-                     process.analysis
-                     )
+                     process.analysis)
