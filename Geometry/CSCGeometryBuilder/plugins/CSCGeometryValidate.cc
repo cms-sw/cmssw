@@ -118,7 +118,7 @@ private:
 };
 
 CSCGeometryValidate::CSCGeometryValidate(const edm::ParameterSet& iConfig)
-  : tokCSC_{esConsumes<CSCGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
+    : tokCSC_{esConsumes<CSCGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
       infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsGeom10.root")),
       outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateCSCGeometry.root")),
       tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
