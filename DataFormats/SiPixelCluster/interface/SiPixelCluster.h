@@ -81,10 +81,9 @@ public:
   SiPixelCluster() = default;
   ~SiPixelCluster() = default;
   SiPixelCluster(SiPixelCluster const&) = default;
-  SiPixelCluster(SiPixelCluster &&) = default;
+  SiPixelCluster(SiPixelCluster&&) = default;
   SiPixelCluster& operator=(SiPixelCluster const&) = default;
-  SiPixelCluster& operator=(SiPixelCluster &&) = default;
-
+  SiPixelCluster& operator=(SiPixelCluster&&) = default;
 
   SiPixelCluster(unsigned int isize,
                  uint16_t const* adcs,
