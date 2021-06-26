@@ -24,7 +24,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -51,20 +50,22 @@ public:
   void endJob() override {}
 
 private:
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> tokRPC_;
   std::ofstream detidsstream;
   std::ofstream detailstream;
 };
 
-RPCGEO::RPCGEO(const edm::ParameterSet& /*iConfig*/) {
+RPCGEO::RPCGEO(const edm::ParameterSet& /*iConfig*/)
+    : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {
   detailstream.open("RPCGeometry.out");
   detidsstream.open("RPCDetIdLst.out");
-  std::cout << "Opening output files :: RPCGeometry.out and RPCDetIdLst.out" << std::endl;
+  edm::LogVerbatim("RPCGeometry") << "Opening output files :: RPCGeometry.out and RPCDetIdLst.out";
 }
 
 RPCGEO::~RPCGEO() {
   detailstream.close();
   detidsstream.close();
-  std::cout << "Closing output files :: RPCGeometry.out and RPCDetIdLst.out" << std::endl;
+  edm::LogVerbatim("RPCGeometry") << "Closing output files :: RPCGeometry.out and RPCDetIdLst.out";
 }
 
 // ------------ method called to for each event  ------------
@@ -72,8 +73,7 @@ void RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup
   using namespace edm;
 
   detailstream << " Getting the RPC Geometry" << std::endl;
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+  const RPCGeometry* rpcGeo = &iSetup.getData(tokRPC_);
 
   int StripsInCMS = 0;
   int counterstripsBarrel = 0;
