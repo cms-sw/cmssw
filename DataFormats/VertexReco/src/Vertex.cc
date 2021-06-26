@@ -76,11 +76,6 @@ Vertex::trackRef_iterator Vertex::tracks_end() const {
   // return weights_.keys().end();
 }
 
-void Vertex::add(const TrackBaseRef& r, float w) {
-  tracks_.push_back(r);
-  weights_.push_back(w * 255);
-}
-
 void Vertex::add(const TrackBaseRef& r, const Track& refTrack, float w) {
   tracks_.push_back(r);
   refittedTracks_.push_back(refTrack);

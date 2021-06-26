@@ -62,8 +62,9 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
   const auto& ttopo = iSetup.getData(topoToken_);
 
   auto collection = std::make_unique<edm::DetSetVector<PixelDigi>>();
+  collection->reserve(gpuClustering::maxNumModules);
   auto outputClusters = std::make_unique<SiPixelClusterCollectionNew>();
-  outputClusters->reserve(gpuClustering::maxNumModules, nDigis / 4);
+  outputClusters->reserve(gpuClustering::maxNumModules, nDigis / 2);
 
   edm::DetSet<PixelDigi>* detDigis = nullptr;
   for (uint32_t i = 0; i < nDigis; i++) {
@@ -76,7 +77,7 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
   }
 
   int32_t nclus = -1;
-  std::vector<PixelClusterizerBase::AccretionCluster> aclusters(gpuClustering::maxNumClustersPerModules);
+  PixelClusterizerBase::AccretionCluster aclusters[gpuClustering::maxNumClustersPerModules];
 #ifdef EDM_ML_DEBUG
   auto totClustersFilled = 0;
 #endif
@@ -95,19 +96,18 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
                                                        << "Layer/DetId/clusId " << layer << '/' << detId << '/' << ic
                                                        << " size/charge " << acluster.isize << '/' << acluster.charge;
       SiPixelCluster cluster(acluster.isize, acluster.adc, acluster.x, acluster.y, acluster.xmin, acluster.ymin, ic);
+      aclusters[ic].clear();
 #ifdef EDM_ML_DEBUG
       ++totClustersFilled;
-#endif
       LogDebug("SiPixelDigisClustersFromSoA")
           << "putting in this cluster " << ic << " " << cluster.charge() << " " << cluster.pixelADC().size();
+#endif
       // sort by row (x)
       spc.push_back(std::move(cluster));
       std::push_heap(spc.begin(), spc.end(), [](SiPixelCluster const& cl1, SiPixelCluster const& cl2) {
         return cl1.minPixelRow() < cl2.minPixelRow();
       });
     }
-    for (int32_t ic = 0; ic < nclus + 1; ++ic)
-      aclusters[ic].clear();
     nclus = -1;
     // sort by row (x)
     std::sort_heap(spc.begin(), spc.end(), [](SiPixelCluster const& cl1, SiPixelCluster const& cl2) {
@@ -122,10 +122,14 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
       continue;
     if (digis.clus(i) > 9000)
       continue;  // not in cluster; TODO add an assert for the size
+#ifdef EDM_ML_DEBUG
     assert(digis.rawIdArr(i) > 109999);
+#endif
     if ((*detDigis).detId() != digis.rawIdArr(i)) {
       fillClusters((*detDigis).detId());
+#ifdef EDM_ML_DEBUG
       assert(nclus == -1);
+#endif
       detDigis = &collection->find_or_insert(digis.rawIdArr(i));
       if ((*detDigis).empty())
         (*detDigis).data.reserve(64);  // avoid the first relocations
@@ -134,10 +138,12 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
       }
     }
     (*detDigis).data.emplace_back(digis.pdigi(i));
-    auto const& dig = (*detDigis).data.back();
+    auto dig = (*detDigis).data.back();
     // fill clusters
+#ifdef EDM_ML_DEBUG
     assert(digis.clus(i) >= 0);
     assert(digis.clus(i) < gpuClustering::maxNumClustersPerModules);
+#endif
     nclus = std::max(digis.clus(i), nclus);
     auto row = dig.row();
     auto col = dig.column();
