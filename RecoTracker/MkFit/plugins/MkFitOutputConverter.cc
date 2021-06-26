@@ -27,7 +27,7 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-#include "TrackingTools/MaterialEffects/src/PropagatorWithMaterial.cc"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
 #include "RecoTracker/MkFit/interface/MkFitEventOfHits.h"
 #include "RecoTracker/MkFit/interface/MkFitClusterIndexToHit.h"
