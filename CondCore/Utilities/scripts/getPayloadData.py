@@ -124,7 +124,7 @@ def discover_plugins():
     plugins = []
     releases = [
         os.environ.get('CMSSW_BASE', None),
-        os.environ.get('CMSSW_RELEASE_BASE', None)
+        os.environ.get('CMSSW_RELEASE_BASE', None),
         os.environ.get('CMSSW_FULL_RELEASE_BASE', None)
     ]
 
@@ -138,8 +138,8 @@ def discover_plugins():
         plugins += glob.glob(path + '/plugin*_PayloadInspector.so' )
         output('found plugins: ', plugins) 
         
-        # if no plugins are found in the local release,
-        # go found them in the release base
+        # If no plugins are found in the local release,
+        # go find them in the release base (or full release base, in case of patches)
         if(len(plugins)==0):
             output('# plugins found:',len(plugins))
         else:
