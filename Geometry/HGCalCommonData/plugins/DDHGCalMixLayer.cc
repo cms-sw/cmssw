@@ -50,7 +50,6 @@ protected:
                    int copyM,
                    double thick,
                    const DDMaterial& matter,
-                   int layerType,
                    DDCompactView& cpv);
 
 private:
@@ -92,7 +91,7 @@ private:
   std::vector<double> layerThickTop_;     // Thickness of the top sections
   std::vector<int> layerTypeTop_;         // Type of the Top layer
   std::vector<int> copyNumberTop_;        // Initial copy numbers (top section)
-  std::vector<int> layerCenter_;          // Centering of the wafers
+  std::vector<int> layerTypes_;           // Layer type of silicon layers
   std::vector<int> waferIndex_;           // Wafer index for the types
   std::vector<int> waferProperty_;        // Wafer property
   std::vector<int> waferLayerStart_;      // Start index of wafers in each layer
@@ -203,10 +202,10 @@ void DDHGCalMixLayer::initialize(const DDNumericArguments& nArgs,
 #endif
   layerType_ = dbl_to_int(vArgs["LayerType"]);
   layerSense_ = dbl_to_int(vArgs["LayerSense"]);
-  layerCenter_ = dbl_to_int(vArgs["LayerCenter"]);
+  layerTypes_ = dbl_to_int(vArgs["LayerTypes"]);
 #ifdef EDM_ML_DEBUG
-  for (unsigned int i = 0; i < layerCenter_.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "LayerCenter [" << i << "] " << layerCenter_[i];
+  for (unsigned int i = 0; i < layerTypes_.size(); ++i)
+    edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerTypes_[i];
 #endif
   if (firstLayer_ > 0) {
     for (unsigned int i = 0; i < layerType_.size(); ++i) {
@@ -283,7 +282,7 @@ void DDHGCalMixLayer::initialize(const DDNumericArguments& nArgs,
 #endif
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: NameSpace " << nameSpace_;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: NameSpace " << nameSpace_ << ":";
 #endif
 }
 
@@ -309,9 +308,6 @@ void DDHGCalMixLayer::execute(DDCompactView& cpv) {
 }
 
 void DDHGCalMixLayer::constructLayers(const DDLogicalPart& module, DDCompactView& cpv) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: \t\tInside Layers";
-#endif
   double zi(zMinBlock_);
   int laymin(0);
   for (unsigned int i = 0; i < layers_.size(); i++) {
@@ -381,7 +377,7 @@ void DDHGCalMixLayer::constructLayers(const DDLogicalPart& module, DDCompactView
                                       << ", " << hthick << ", 0.0, 360.0 and positioned in: " << glog.name()
                                       << " number " << copy;
 #endif
-        positionMix(glog, name, copy, thick_[ii], matter, layerSense_[ly], cpv);
+        positionMix(glog, name, copy, thick_[ii], matter, cpv);
       }
       DDTranslation r1(0, 0, zz);
       DDRotation rot;
@@ -413,7 +409,6 @@ void DDHGCalMixLayer::positionMix(const DDLogicalPart& glog,
                                   int copyM,
                                   double thick,
                                   const DDMaterial& matter,
-                                  int layerType,
                                   DDCompactView& cpv) {
   DDRotation rot;
 
@@ -489,7 +484,10 @@ void DDHGCalMixLayer::positionMix(const DDLogicalPart& glog,
   // Make the bottom part next
   int layer = (copyM - firstLayer_);
   static const double sqrt3 = std::sqrt(3.0);
-  int layercenter = layerCenter_[layer];
+  int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda)
+                        ? 1
+                        : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? 2 : 0);
+  int layerType = (layerTypes_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
   int firstWafer = waferLayerStart_[layer];
   int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
                                                                            : static_cast<int>(waferIndex_.size()));
@@ -521,11 +519,11 @@ void DDHGCalMixLayer::positionMix(const DDLogicalPart& glog,
     std::string wafer;
     int i(999);
     if (part == HGCalTypes::WaferFull) {
-      i = (layerType - 1) * waferTypes_ + type;
+      i = layerType * waferTypes_ + type;
       wafer = waferFull_[i];
     } else {
-      i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ +
-          (layerType - 1) * waferTypes_ * orientationTypes_ + type * orientationTypes_ + orien;
+      i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ + layerType * waferTypes_ * orientationTypes_ +
+          type * orientationTypes_ + orien;
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:ind " << layerType << ":" << type << ":" << part
                                     << ":" << orien << ":" << i << ":" << waferPart_.size();

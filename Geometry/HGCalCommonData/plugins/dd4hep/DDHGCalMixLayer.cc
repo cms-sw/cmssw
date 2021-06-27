@@ -53,7 +53,7 @@ struct HGCalMixLayer {
     absorbMode_ = args.value<int>("AbsorberMode");
     sensitiveMode_ = args.value<int>("SensitiveMode");
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "First Layer " << firstLayer_ << " and "
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer::First Layer " << firstLayer_ << " and "
                                   << "Absober:Sensitive mode " << absorbMode_ << ":" << sensitiveMode_;
 #endif
     zMinBlock_ = args.value<double>("zMinBlock");
@@ -66,6 +66,20 @@ struct HGCalMixLayer {
     edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: zStart " << cms::convert2mm(zMinBlock_) << " wafer width "
                                   << cms::convert2mm(waferSize_) << " separations " << cms::convert2mm(waferSepar_)
                                   << " sectors " << sectors_ << ":" << convertRadToDeg(alpha_) << ":" << cosAlpha_;
+#endif
+    slopeB_ = args.value<std::vector<double>>("SlopeBottom");
+    zFrontB_ = args.value<std::vector<double>>("ZFrontBottom");
+    rMinFront_ = args.value<std::vector<double>>("RMinFront");
+    slopeT_ = args.value<std::vector<double>>("SlopeTop");
+    zFrontT_ = args.value<std::vector<double>>("ZFrontTop");
+    rMaxFront_ = args.value<std::vector<double>>("RMaxFront");
+#ifdef EDM_ML_DEBUG
+    for (unsigned int i = 0; i < slopeB_.size(); ++i)
+      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << cms::convert2mm(zFrontB_[i]) << " Rmin "
+                                    << cms::convert2mm(rMinFront_[i]) << " Slope " << slopeB_[i];
+    for (unsigned int i = 0; i < slopeT_.size(); ++i)
+      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << cms::convert2mm(zFrontT_[i]) << " Rmax "
+                                    << cms::convert2mm(rMaxFront_[i]) << " Slope " << slopeT_[i];
 #endif
 
     waferFull_ = args.value<std::vector<std::string>>("WaferNamesFull");
@@ -91,20 +105,6 @@ struct HGCalMixLayer {
       edm::LogVerbatim("HGCalGeom") << st1.str() << std::endl;
     }
 #endif
-    slopeB_ = args.value<std::vector<double>>("SlopeBottom");
-    zFrontB_ = args.value<std::vector<double>>("ZFrontBottom");
-    rMinFront_ = args.value<std::vector<double>>("RMinFront");
-    slopeT_ = args.value<std::vector<double>>("SlopeTop");
-    zFrontT_ = args.value<std::vector<double>>("ZFrontTop");
-    rMaxFront_ = args.value<std::vector<double>>("RMaxFront");
-#ifdef EDM_ML_DEBUG
-    for (unsigned int i = 0; i < slopeB_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << cms::convert2mm(zFrontB_[i]) << " Rmin "
-                                    << cms::convert2mm(rMinFront_[i]) << " Slope " << slopeB_[i];
-    for (unsigned int i = 0; i < slopeT_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << cms::convert2mm(zFrontT_[i]) << " Rmax "
-                                    << cms::convert2mm(rMaxFront_[i]) << " Slope " << slopeT_[i];
-#endif
 
     materials_ = args.value<std::vector<std::string>>("MaterialNames");
     names_ = args.value<std::vector<std::string>>("VolumeNames");
@@ -127,10 +127,10 @@ struct HGCalMixLayer {
 #endif
     layerType_ = args.value<std::vector<int>>("LayerType");
     layerSense_ = args.value<std::vector<int>>("LayerSense");
-    layerCenter_ = args.value<std::vector<int>>("LayerCenter");
+    layerTypes_ = args.value<std::vector<int>>("LayerTypes");
 #ifdef EDM_ML_DEBUG
-    for (unsigned int i = 0; i < layerCenter_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "LayerCenter [" << i << "] " << layerCenter_[i];
+    for (unsigned int i = 0; i < layerTypes_.size(); ++i)
+      edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerTypes_[i];
 #endif
     if (firstLayer_ > 0) {
       for (unsigned int i = 0; i < layerType_.size(); ++i) {
@@ -295,7 +295,7 @@ struct HGCalMixLayer {
                                         << cms::convert2mm(hthick) << ", 0.0, 360.0 and positioned in: " << glog.name()
                                         << " number " << copy;
 #endif
-          positionMix(ctxt, e, glog, name, copy, thick_[ii], matter, layerSense_[ly]);
+          positionMix(ctxt, e, glog, name, copy, thick_[ii], matter);
         }
 
         dd4hep::Position r1(0, 0, zz);
@@ -338,8 +338,7 @@ struct HGCalMixLayer {
                    const std::string& nameM,
                    int copyM,
                    double thick,
-                   const dd4hep::Material& matter,
-                   int layerType) {
+                   const dd4hep::Material& matter) {
     cms::DDNamespace ns(ctxt, e, true);
 
     // Make the top part first
@@ -418,7 +417,10 @@ struct HGCalMixLayer {
     // Make the bottom part next
     int layer = (copyM - firstLayer_);
     static const double sqrt3 = std::sqrt(3.0);
-    int layercenter = layerCenter_[layer];
+    int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda)
+                          ? 1
+                          : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? 2 : 0);
+    int layerType = (layerTypes_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
     int firstWafer = waferLayerStart_[layer];
     int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
                                                                              : static_cast<int>(waferIndex_.size()));
@@ -452,11 +454,11 @@ struct HGCalMixLayer {
       std::string wafer;
       int i(999);
       if (part == HGCalTypes::WaferFull) {
-        i = (layerType - 1) * waferTypes_ + type;
+        i = layerType * waferTypes_ + type;
         wafer = waferFull_[i];
       } else {
-        i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ +
-            (layerType - 1) * waferTypes_ * orientationTypes_ + type * orientationTypes_ + orien;
+        i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ + layerType * waferTypes_ * orientationTypes_ +
+            type * orientationTypes_ + orien;
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:ind " << layerType << ":" << type << ":" << part
                                       << ":" << orien << ":" << i << ":" << waferPart_.size();
@@ -531,7 +533,7 @@ struct HGCalMixLayer {
   std::vector<double> layerThickTop_;     // Thickness of the top sections
   std::vector<int> layerTypeTop_;         // Type of the Top layer
   std::vector<int> copyNumberTop_;        // Initial copy numbers (top section)
-  std::vector<int> layerCenter_;          // Centering of the wafers
+  std::vector<int> layerTypes_;           // Layer type of silicon layers
   std::vector<int> waferIndex_;           // Wafer index for the types
   std::vector<int> waferProperty_;        // Wafer property
   std::vector<int> waferLayerStart_;      // Start index of wafers in each layer

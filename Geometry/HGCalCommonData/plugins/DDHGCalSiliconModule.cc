@@ -76,7 +76,6 @@ private:
   std::vector<double> layerThick_;      // Thickness of each section
   std::vector<int> layerType_;          // Type of the layer
   std::vector<int> layerSense_;         // Content of a layer (sensitive?)
-  std::vector<int> layerCenter_;        // Centering of the wafers
   std::vector<double> slopeB_;          // Slope at the lower R
   std::vector<double> zFrontB_;         // Starting Z values for the slopes
   std::vector<double> rMinFront_;       // Corresponding rMin's
@@ -173,11 +172,8 @@ void DDHGCalSiliconModule::initialize(const DDNumericArguments& nArgs,
 #endif
   layerType_ = dbl_to_int(vArgs["LayerType"]);
   layerSense_ = dbl_to_int(vArgs["LayerSense"]);
-  layerCenter_ = dbl_to_int(vArgs["LayerCenter"]);
   layerTypes_ = dbl_to_int(vArgs["LayerTypes"]);
 #ifdef EDM_ML_DEBUG
-  for (unsigned int i = 0; i < layerCenter_.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "LayerCenter [" << i << "] " << layerCenter_[i];
   for (unsigned int i = 0; i < layerTypes_.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerTypes_[i];
 #endif
@@ -332,7 +328,7 @@ void DDHGCalSiliconModule::constructLayers(const DDLogicalPart& module, DDCompac
         edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: " << solid.name() << " Tubs made of " << matName
                                       << " of dimensions " << rinB << ":" << rins << ", " << routF << ":" << routs
                                       << ", " << hthick << ", 0.0, 360.0 and position " << glog.name() << " number "
-                                      << copy << ":" << layerCenter_[copy - firstLayer_];
+                                      << copy << ":" << layerTypes_[copy - firstLayer_];
 #endif
         positionSensitive(glog, (copy - firstLayer_), cpv);
       }
