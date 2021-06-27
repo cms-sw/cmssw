@@ -220,8 +220,8 @@ private:
   double vertexZFromClusters(const std::vector<Pixel> &pix) const;
   void yieldAlphaHistogram(int which = 12);
 
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord>  tkGeomToken_;
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd>  tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   std::string hltResName_;                    // HLT trigger results name
   std::vector<std::string> hltProcNames_;     // HLT process name(s)
   std::vector<std::string> hltTrgNames_;      // HLT trigger name(s)
