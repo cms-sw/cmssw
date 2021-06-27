@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.nano_eras_cff import *
 
 finalIsolatedTracks = cms.EDProducer("IsolatedTrackCleaner",
     tracks = cms.InputTag("isolatedTracks"),
@@ -53,3 +54,5 @@ isoTrackTask = cms.Task(finalIsolatedTracks,isoForIsoTk,isFromLostTrackForIsoTk)
 isoTrackSequence = cms.Sequence(isoTrackTask)
 isoTrackTables = cms.Sequence(isoTrackTable)
 
+run2_miniAOD_80XLegacy.toReplaceWith(isoTrackSequence, cms.Sequence())
+run2_miniAOD_80XLegacy.toReplaceWith(isoTrackTables,cms.Sequence())

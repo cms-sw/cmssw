@@ -169,9 +169,14 @@ HTXSCategoryTable = cms.EDProducer("SimpleHTXSFlatTableProducer",
    )
 )
 
+lheInfoTable = cms.EDProducer("LHETablesProducer",
+    lheInfo = cms.VInputTag(cms.InputTag("externalLHEProducer"), cms.InputTag("source")),
+    precision = cms.int32(14),
+    storeLHEParticles = cms.bool(True)
+)
 
 particleLevelSequenceTask = cms.Task(mergedGenParticles,genParticles2HepMC,particleLevel,tautagger,genParticles2HepMCHiggsVtx,rivetProducerHTXS)
-particleLevelTablesTask = cms.Task(rivetLeptonTable,rivetPhotonTable,rivetMetTable,HTXSCategoryTable)
+particleLevelTablesTask = cms.Task(rivetLeptonTable,rivetPhotonTable,rivetMetTable,HTXSCategoryTable,lheInfoTable)
 
 particleLevelSequence = cms.Sequence(particleLevelSequenceTask)
 particleLevelTables = cms.Sequence(particleLevelTablesTask)
