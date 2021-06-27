@@ -187,7 +187,6 @@ private:
   edm::EDGetTokenT<reco::MuonTimeExtraMap> IT_CSCTimeMapToken;
 
   edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
 
   //Output File
   std::string OutputFileName;
