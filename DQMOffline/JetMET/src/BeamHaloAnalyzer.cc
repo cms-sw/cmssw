@@ -1,6 +1,5 @@
 #include "DQMOffline/JetMET/interface/BeamHaloAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 //author : Ronny Remington, University of Florida
 //date : 11/11/09
 
@@ -60,6 +59,9 @@ BeamHaloAnalyzer::BeamHaloAnalyzer(const edm::ParameterSet& iConfig) {
   IT_HcalHaloData = consumes<reco::HcalHaloData>(iConfig.getParameter<edm::InputTag>("HcalHaloDataLabel"));
   IT_GlobalHaloData = consumes<reco::GlobalHaloData>(iConfig.getParameter<edm::InputTag>("GlobalHaloDataLabel"));
   IT_BeamHaloSummary = consumes<BeamHaloSummary>(iConfig.getParameter<edm::InputTag>("BeamHaloSummaryLabel"));
+
+  cscGeomToken_ = esConsumes();
+  caloGeomToken_ = esConsumes();
 
   edm::InputTag CosmicSAMuonLabel = iConfig.getParameter<edm::InputTag>("CosmicStandAloneMuonLabel");
   IT_CSCTimeMapToken = consumes<reco::MuonTimeExtraMap>(edm::InputTag(CosmicSAMuonLabel.label(), std::string("csc")));
@@ -326,13 +328,9 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   edm::RunNumber_t Run = iEvent.run();
 
   //Get CSC Geometry
-  edm::ESHandle<CSCGeometry> TheCSCGeometry;
-  iSetup.get<MuonGeometryRecord>().get(TheCSCGeometry);
-
+  const auto& TheCSCGeometry = iSetup.getHandle(cscGeomToken_);
   //Get CaloGeometry
-  edm::ESHandle<CaloGeometry> TheCaloGeometry;
-  iSetup.get<CaloGeometryRecord>().get(TheCaloGeometry);
-
+  const auto& TheCaloGeometry = iSetup.getHandle(caloGeomToken_);
   //Get Stand-alone Muons from Cosmic Muon Reconstruction
   edm::Handle<reco::MuonCollection> TheCosmics;
   iEvent.getByToken(IT_CosmicStandAloneMuon, TheCosmics);
