@@ -16,6 +16,7 @@ ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig) {
   // Retrieve Information from the Configuration File
   EBRecHitsLabel_ = consumes<EBRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitsLabel"));
   EERecHitsLabel_ = consumes<EERecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitsLabel"));
+  caloGeomToken_ = esConsumes<edm::Transition::BeginRun>();
   FolderName_ = iConfig.getUntrackedParameter<std::string>("FolderName");
   debug_ = iConfig.getParameter<bool>("Debug");
   //  EBRecHitsLabel_= consumes<EcalRecHitCollection>(edm::InputTag(EBRecHitsLabel_));
@@ -24,6 +25,7 @@ ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig) {
 
 void ECALRecHitAnalyzer::dqmbeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   CurrentEvent = -1;
+  caloGeom_ = &iSetup.getData(caloGeomToken_);
   // Fill the geometry histograms
   FillGeometry(iSetup);
 }
@@ -196,13 +198,9 @@ void ECALRecHitAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
 void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup) {
   // Fill geometry histograms
   using namespace edm;
-  //int b=0;
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry cG = *pG;
-
+  //const auto& cG = iSetup.getData(caloGeomToken_);
   //----Fill Ecal Barrel----//
-  const CaloSubdetectorGeometry* EBgeom = cG.getSubdetectorGeometry(DetId::Ecal, 1);
+  const CaloSubdetectorGeometry* EBgeom = caloGeom_->getSubdetectorGeometry(DetId::Ecal, 1);
   int n = 0;
   std::vector<DetId> EBids = EBgeom->getValidDetIds(DetId::Ecal, 1);
   for (std::vector<DetId>::iterator i = EBids.begin(); i != EBids.end(); i++) {
@@ -225,7 +223,7 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup) {
     DEBUG(" ");
   }
   //----Fill Ecal Endcap----------//
-  const CaloSubdetectorGeometry* EEgeom = cG.getSubdetectorGeometry(DetId::Ecal, 2);
+  const CaloSubdetectorGeometry* EEgeom = caloGeom_->getSubdetectorGeometry(DetId::Ecal, 2);
   n = 0;
   std::vector<DetId> EEids = EEgeom->getValidDetIds(DetId::Ecal, 2);
   for (std::vector<DetId>::iterator i = EEids.begin(); i != EEids.end(); i++) {
@@ -308,9 +306,6 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
   iEvent.getByToken(EERecHitsLabel_, EERecHits);
   DEBUG("Got ECALRecHits");
 
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry cG = *pG;
   //const CaloSubdetectorGeometry* EBgeom=cG.getSubdetectorGeometry(DetId::Ecal,1);
   //const CaloSubdetectorGeometry* EEgeom=cG.getSubdetectorGeometry(DetId::Ecal,2);
   DEBUG("Got Geometry");
