@@ -111,18 +111,16 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
         edm::LogWarning("SiPixelDigisClustersFromSoA") << "cluster below charge Threshold "
                                                        << "Layer/DetId/clusId " << layer << '/' << detId << '/' << ic
                                                        << " size/charge " << acluster.isize << '/' << acluster.charge;
-      SiPixelCluster cluster(acluster.isize, acluster.adc, acluster.x, acluster.y, acluster.xmin, acluster.ymin, ic);
+      // sort by row (x)
+      spc.emplace_back(acluster.isize, acluster.adc, acluster.x, acluster.y, acluster.xmin, acluster.ymin, ic);
       aclusters[ic].clear();
+      std::push_heap(spc.begin(), spc.end(), [](SiPixelCluster const& cl1, SiPixelCluster const& cl2) {
+        return cl1.minPixelRow() < cl2.minPixelRow();});
 #ifdef EDM_ML_DEBUG
       ++totClustersFilled;
       LogDebug("SiPixelDigisClustersFromSoA")
           << "putting in this cluster " << ic << " " << cluster.charge() << " " << cluster.pixelADC().size();
 #endif
-      // sort by row (x)
-      spc.push_back(std::move(cluster));
-      std::push_heap(spc.begin(), spc.end(), [](SiPixelCluster const& cl1, SiPixelCluster const& cl2) {
-        return cl1.minPixelRow() < cl2.minPixelRow();
-      });
     }
     nclus = -1;
     // sort by row (x)
