@@ -115,7 +115,8 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
       spc.emplace_back(acluster.isize, acluster.adc, acluster.x, acluster.y, acluster.xmin, acluster.ymin, ic);
       aclusters[ic].clear();
       std::push_heap(spc.begin(), spc.end(), [](SiPixelCluster const& cl1, SiPixelCluster const& cl2) {
-        return cl1.minPixelRow() < cl2.minPixelRow();});
+        return cl1.minPixelRow() < cl2.minPixelRow();
+      });
 #ifdef EDM_ML_DEBUG
       ++totClustersFilled;
       LogDebug("SiPixelDigisClustersFromSoA")

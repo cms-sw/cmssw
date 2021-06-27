@@ -275,7 +275,7 @@ namespace edmNew {
       template <typename... Args>
       void emplace_back(Args&&... args) {
         checkCapacityExausted();
-         m_v.m_data.emplace_back(args...);
+        m_v.m_data.emplace_back(args...);
         ++m_v.m_dataSize;
         m_item.size++;
       }
@@ -367,7 +367,9 @@ namespace edmNew {
       DataIter end() { return m_lv.end(); }
 
       template <typename... Args>
-      void emplace_back(Args&&... args) {m_lv.emplace_back(args...); }
+      void emplace_back(Args&&... args) {
+        m_lv.emplace_back(args...);
+      }
 
       void push_back(data_type const& d) { m_lv.push_back(d); }
       void push_back(data_type&& d) { m_lv.push_back(std::move(d)); }
