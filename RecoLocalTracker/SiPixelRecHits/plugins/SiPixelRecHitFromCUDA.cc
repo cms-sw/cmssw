@@ -94,6 +94,7 @@ void SiPixelRecHitFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& e
     iEvent.emplace(rechitsPutToken_, std::move(output));
     return;
   }
+  output.reserve(gpuClustering::maxNumModules,nHits_);
 
   auto xl = store32_.get();
   auto yl = xl + nHits_;
