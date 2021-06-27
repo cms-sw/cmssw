@@ -243,12 +243,12 @@
       [hgcal:rMinHGCal2], [hgcal:rMinHGCal4], 
       [hgcal:rMinHGCal6], [hgcal:rMinHGCal8]</Vector>
     <Vector name="SlopeTop" type="numeric" nEntries="4">
-      [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
+      [hgcal:slope1], [hgcal:slope3], 0, 0</Vector>
     <Vector name="ZFrontTop" type="numeric" nEntries="4">
-      [hgcal:zHGCal0], [hgcal:zHGCal5], [hgcal:zHGCal10], 
+      [hgcal:zHGCal1], [hgcal:zHGCal5], [hgcal:zHGCal10], 
       [hgcal:zHGCal11]</Vector>
     <Vector name="RMaxFront" type="numeric" nEntries="4">
-      [hgcal:rMaxHGCal0], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
+      [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
       [hgcal:rMaxHGCal11]</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="26">
        0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
