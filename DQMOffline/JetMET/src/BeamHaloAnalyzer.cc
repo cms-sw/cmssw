@@ -61,7 +61,6 @@ BeamHaloAnalyzer::BeamHaloAnalyzer(const edm::ParameterSet& iConfig) {
   IT_BeamHaloSummary = consumes<BeamHaloSummary>(iConfig.getParameter<edm::InputTag>("BeamHaloSummaryLabel"));
 
   cscGeomToken_ = esConsumes();
-  caloGeomToken_ = esConsumes();
 
   edm::InputTag CosmicSAMuonLabel = iConfig.getParameter<edm::InputTag>("CosmicStandAloneMuonLabel");
   IT_CSCTimeMapToken = consumes<reco::MuonTimeExtraMap>(edm::InputTag(CosmicSAMuonLabel.label(), std::string("csc")));
@@ -329,8 +328,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   //Get CSC Geometry
   const auto& TheCSCGeometry = iSetup.getHandle(cscGeomToken_);
-  //Get CaloGeometry
-  const auto& TheCaloGeometry = iSetup.getHandle(caloGeomToken_);
+  //Note - removed getting calogeometry since it was unused
   //Get Stand-alone Muons from Cosmic Muon Reconstruction
   edm::Handle<reco::MuonCollection> TheCosmics;
   iEvent.getByToken(IT_CosmicStandAloneMuon, TheCosmics);
