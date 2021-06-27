@@ -80,7 +80,7 @@ void PhysicsObjectsMonitor::analyze(const Event &event, const EventSetup &eventS
   Handle<reco::TrackCollection> staTracks;
   event.getByToken(theSTAMuonToken_, staTracks);
 
-  const auto& theMGField = eventSetup.getHandle(magFiledToken_);
+  const auto &theMGField = eventSetup.getHandle(magFiledToken_);
 
   double recPt = 0.;
   double simPt = 0.;
