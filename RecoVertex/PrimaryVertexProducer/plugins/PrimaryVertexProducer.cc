@@ -250,7 +250,8 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
             auto err = v.positionError().matrix4D();
             auto trkweightMap3d = v.weightMap();  // copy the 3 fit weights
             err(3, 3) = vartime;
-            v = TransientVertex(v.position(), meantime, err, v.originalTracks(), v.totalChiSquared());
+            v = TransientVertex(
+                v.position(), meantime, err, v.originalTracks(), v.totalChiSquared(), v.degreesOfFreedom());
             v.weightMap(trkweightMap3d);
           }
         }
@@ -262,7 +263,8 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
           if (v.isValid()) {
             auto err = v.positionError().matrix4D();
             err(3, 3) = vartime;
-            v = TransientVertex(v.position(), meantime, err, v.originalTracks(), v.totalChiSquared());
+            v = TransientVertex(
+                v.position(), meantime, err, v.originalTracks(), v.totalChiSquared(), v.degreesOfFreedom());
           }
         }
 
