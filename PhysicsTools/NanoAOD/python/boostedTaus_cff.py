@@ -70,5 +70,6 @@ boostedTauMCTable = tauMCTable.clone(
 
 boostedTauSequence = cms.Sequence(finalBoostedTaus)
 boostedTauTables = cms.Sequence(boostedTauTable)
-boostedTauMC = cms.Sequence(boostedTausMCMatchLepTauForTable + boostedTausMCMatchHadTauForTable + boostedTauMCTable)
 
+boostedTauMCTask = cms.Task(boostedTausMCMatchLepTauForTable,boostedTausMCMatchHadTauForTable,boostedTauMCTable)
+boostedTauMC = cms.Sequence(boostedTauMCTask)

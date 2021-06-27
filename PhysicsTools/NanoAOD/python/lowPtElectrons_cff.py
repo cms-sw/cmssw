@@ -184,20 +184,26 @@ lowPtElectronMCTable = cms.EDProducer(
 # Sequences
 ################################################################################
 
-lowPtElectronSequence = cms.Sequence(modifiedLowPtElectrons
-                                     +updatedLowPtElectrons
-                                     +lowPtPATElectronID
-                                     +isoForLowPtEle
-                                     +updatedLowPtElectronsWithUserData
-                                     +finalLowPtElectrons)
+lowPtElectronTask = cms.Task(modifiedLowPtElectrons,
+                             updatedLowPtElectrons,
+                             lowPtPATElectronID,
+                             isoForLowPtEle,
+                             updatedLowPtElectronsWithUserData,
+                             finalLowPtElectrons)
+lowPtElectronSequence = cms.Sequence(lowPtElectronTask)
+
 lowPtElectronTables = cms.Sequence(lowPtElectronTable)
+
+lowPtElectronMCTask = cms.Task(
+    particleLevelForMatchingLowPt,
+    tautaggerForMatchingLowPt,
+    matchingLowPtElecPhoton,
+    lowPtElectronsMCMatchForTable,
+    lowPtElectronsMCMatchForTableAlt,
+    lowPtElectronMCTable)
+
 lowPtElectronMC = cms.Sequence(
-    particleLevelForMatchingLowPt
-    +tautaggerForMatchingLowPt
-    +matchingLowPtElecPhoton
-    +lowPtElectronsMCMatchForTable
-    +lowPtElectronsMCMatchForTableAlt
-    +lowPtElectronMCTable)
+    lowPtElectronMCTask)
 
 ################################################################################
 # Modifiers

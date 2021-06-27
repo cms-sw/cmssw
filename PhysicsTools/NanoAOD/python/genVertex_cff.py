@@ -23,4 +23,5 @@ genVertexT0Table = cms.EDProducer("GlobalVariablesTableProducer",
     )
 )
 
-genVertexTables = cms.Sequence(genVertexTable+genVertexT0Table)
+genVertexTablesTask = cms.Task(genVertexTable,genVertexT0Table)
+genVertexTables = cms.Sequence(genVertexTablesTask)

@@ -48,6 +48,8 @@ isoTrackTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
 )
 
-isoTrackSequence = cms.Sequence(finalIsolatedTracks + isoForIsoTk + isFromLostTrackForIsoTk)
+isoTrackTask = cms.Task(finalIsolatedTracks,isoForIsoTk,isFromLostTrackForIsoTk)
+
+isoTrackSequence = cms.Sequence(isoTrackTask)
 isoTrackTables = cms.Sequence(isoTrackTable)
 
