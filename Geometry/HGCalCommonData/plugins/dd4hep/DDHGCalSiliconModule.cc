@@ -110,11 +110,8 @@ struct HGCalSiliconModule {
 #endif
     layerType_ = args.value<std::vector<int>>("LayerType");
     layerSense_ = args.value<std::vector<int>>("LayerSense");
-    layerCenter_ = args.value<std::vector<int>>("LayerCenter");
     layerTypes_ = args.value<std::vector<int>>("LayerTypes");
 #ifdef EDM_ML_DEBUG
-    for (unsigned int i = 0; i < layerCenter_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "LayerCenter [" << i << "] " << layerCenter_[i];
     for (unsigned int i = 0; i < layerTypes_.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerTypes_[i];
 #endif
@@ -253,7 +250,7 @@ struct HGCalSiliconModule {
                                         << " of dimensions " << cms::convert2mm(rinB) << ":" << cms::convert2mm(rins)
                                         << ", " << cms::convert2mm(routF) << ":" << cms::convert2mm(routs) << ", "
                                         << cms::convert2mm(hthick) << ", 0.0, 360.0 and position " << glog.name()
-                                        << " number " << copy << ":" << layerCenter_[copy - firstLayer_];
+                                        << " number " << copy << ":" << layerTypes_[copy - firstLayer_];
 #endif
           positionSensitive(ctxt, e, glog, (copy - firstLayer_));
         }
@@ -412,7 +409,6 @@ struct HGCalSiliconModule {
   std::vector<double> layerThick_;      // Thickness of each section
   std::vector<int> layerType_;          // Type of the layer
   std::vector<int> layerSense_;         // Content of a layer (sensitive?)
-  std::vector<int> layerCenter_;        // Centering of the wafers
   std::vector<double> slopeB_;          // Slope at the lower R
   std::vector<double> zFrontB_;         // Starting Z values for the slopes
   std::vector<double> rMinFront_;       // Corresponding rMin's
