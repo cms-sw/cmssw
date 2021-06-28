@@ -12,6 +12,8 @@ L1TrackFastJets = cms.EDProducer("L1TrackFastJetProducer",
     trk_nPSStubMin = cms.int32(-1),   # minimum number of PS stubs in track
     deltaZ0Cut=cms.double(0.5),       # cluster tracks within |dz|<X
     doTightChi2 = cms.bool( True ),   # chi2dof < 5 for tracks with PT > 20
+    trk_ptTightChi2 = cms.double(20.0),
+    trk_chi2dofTightChi2 = cms.double(5.0),
     coneSize=cms.double(0.4),         #cone size for anti-kt fast jet
     displaced = cms.bool(False)       # use prompt/displaced tracks
 )
@@ -28,6 +30,8 @@ L1TrackFastJetsExtended = cms.EDProducer("L1TrackFastJetProducer",
     trk_nPSStubMin = cms.int32(-1),   # minimum number of stubs in PS modules on track
     deltaZ0Cut=cms.double(3.0),       #cluster tracks within |dz|<X
     doTightChi2 = cms.bool( True ),   # chi2dof < 5 for tracks with PT > 20
+    trk_ptTightChi2 = cms.double(20.0),
+    trk_chi2dofTightChi2 = cms.double(5.0),
     coneSize=cms.double(0.4),         #cone size for anti-kt fast jet
     displaced = cms.bool(True)        # use prompt/displaced tracks
 )
