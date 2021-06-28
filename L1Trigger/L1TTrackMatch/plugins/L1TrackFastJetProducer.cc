@@ -73,6 +73,8 @@ private:
   double deltaZ0Cut_;      // save with |L1z-z0| < maxZ0
   double coneSize_;        // Use anti-kt with this cone size
   bool doTightChi2_;
+  float trkPtTightChi2_;
+  float trkChi2dofTightChi2_;
   bool displaced_;  //use prompt/displaced tracks
 
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
@@ -96,6 +98,8 @@ L1TrackFastJetProducer::L1TrackFastJetProducer(const edm::ParameterSet& iConfig)
   deltaZ0Cut_ = (float)iConfig.getParameter<double>("deltaZ0Cut");
   coneSize_ = (float)iConfig.getParameter<double>("coneSize");
   doTightChi2_ = iConfig.getParameter<bool>("doTightChi2");
+  trkPtTightChi2_ = (float)iConfig.getParameter<double>("trk_ptTightChi2");
+  trkChi2dofTightChi2_ = (float)iConfig.getParameter<double>("trk_chi2dofTightChi2");
   displaced_ = iConfig.getParameter<bool>("displaced");
   if (displaced_)
     produces<TkJetCollection>("L1TrackFastJetsExtended");
@@ -148,7 +152,7 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       continue;
     if (trk_bendchi2 > trkBendChi2Max_)
       continue;
-    if (doTightChi2_ && (trk_pt > 20.0 && trk_chi2dof > 5.0))
+    if (doTightChi2_ && (trk_pt > trkPtTightChi2_ && trk_chi2dof > trkChi2dofTightChi2_))
       continue;
 
     int trk_nPS = 0;
