@@ -528,22 +528,23 @@ namespace edmtest {
       void analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const override {
         auto cacheTuple = processBlockCaches(event);
         if (!expectedByRun_.empty()) {
-          if (expectedByRun_[event.run()] != *std::get<edm::CacheHandle<int>>(cacheTuple)) {
-            throw cms::Exception("UnexpectedValue") << "InputProcessBlockIntAnalyzer::analyze cached value was "
-                                                    << *std::get<edm::CacheHandle<int>>(cacheTuple)
-                                                    << " but it was supposed to be " << expectedByRun_[event.run()];
+          if (expectedByRun_.at(event.run() - 1) != *std::get<edm::CacheHandle<int>>(cacheTuple)) {
+            throw cms::Exception("UnexpectedValue")
+                << "InputProcessBlockIntAnalyzer::analyze cached value was "
+                << *std::get<edm::CacheHandle<int>>(cacheTuple) << " but it was supposed to be "
+                << expectedByRun_.at(event.run() - 1);
           }
-          if (expectedByRun_[event.run()] != std::get<1>(cacheTuple)->value_) {
+          if (expectedByRun_.at(event.run() - 1) != std::get<1>(cacheTuple)->value_) {
             throw cms::Exception("UnexpectedValue")
                 << "InputProcessBlockIntAnalyzer::analyze second cached value was " << std::get<1>(cacheTuple)->value_
-                << " but it was supposed to be " << expectedByRun_[event.run()];
+                << " but it was supposed to be " << expectedByRun_.at(event.run() - 1);
           }
-          if (expectedByRun_[event.run()] !=
+          if (expectedByRun_.at(event.run() - 1) !=
               std::get<edm::CacheHandle<TestInputProcessBlockCache1>>(cacheTuple)->value_) {
             throw cms::Exception("UnexpectedValue")
                 << "InputProcessBlockIntAnalyzer::analyze third cached value was "
                 << std::get<edm::CacheHandle<TestInputProcessBlockCache1>>(cacheTuple)->value_
-                << " but it was supposed to be " << expectedByRun_[event.run()];
+                << " but it was supposed to be " << expectedByRun_.at(event.run() - 1);
           }
         }
         ++transitions_;
@@ -658,11 +659,11 @@ namespace edmtest {
                 << "InputProcessBlockAnalyzerThreeTags::analyze expected invalid CacheHandle for cache 0";
           }
         } else {
-          if (expectedByRun0_[event.run()] != *std::get<edm::CacheHandle<int>>(cacheTuple)) {
+          if (expectedByRun0_.at(event.run() - 1) != *std::get<edm::CacheHandle<int>>(cacheTuple)) {
             throw cms::Exception("UnexpectedValue")
                 << "InputProcessBlockAnalyzerThreeTags::analyze zeroth cached value was "
                 << *std::get<edm::CacheHandle<int>>(cacheTuple) << " but it was supposed to be "
-                << expectedByRun0_[event.run()];
+                << expectedByRun0_.at(event.run() - 1);
           }
         }
         if (expectedByRun1_.empty()) {
@@ -671,10 +672,11 @@ namespace edmtest {
                 << "InputProcessBlockAnalyzerThreeTags::analyze expected invalid CacheHandle for cache 1";
           }
         } else {
-          if (expectedByRun1_[event.run()] != std::get<1>(cacheTuple)->value_) {
+          if (expectedByRun1_.at(event.run() - 1) != std::get<1>(cacheTuple)->value_) {
             throw cms::Exception("UnexpectedValue")
                 << "InputProcessBlockAnalyzerThreeTags::analyze first cached value was "
-                << std::get<1>(cacheTuple)->value_ << " but it was supposed to be " << expectedByRun1_[event.run()];
+                << std::get<1>(cacheTuple)->value_ << " but it was supposed to be "
+                << expectedByRun1_.at(event.run() - 1);
           }
         }
         if (expectedByRun2_.empty()) {
@@ -683,12 +685,12 @@ namespace edmtest {
                 << "InputProcessBlockAnalyzerThreeTags::analyze expected invalid CacheHandle for cache 2";
           }
         } else {
-          if (expectedByRun2_[event.run()] !=
+          if (expectedByRun2_.at(event.run() - 1) !=
               std::get<edm::CacheHandle<TestInputProcessBlockCache1>>(cacheTuple)->value_) {
             throw cms::Exception("UnexpectedValue")
                 << "InputProcessBlockAnalyzerThreeTags::analyze second cached value was "
                 << std::get<edm::CacheHandle<TestInputProcessBlockCache1>>(cacheTuple)->value_
-                << " but it was supposed to be " << expectedByRun2_[event.run()];
+                << " but it was supposed to be " << expectedByRun2_.at(event.run() - 1);
           }
         }
         ++transitions_;
@@ -757,12 +759,12 @@ namespace edmtest {
       void analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const override {
         auto cacheTuple = processBlockCaches(event);
         if (!expectedByRun_.empty()) {
-          if (expectedByRun_[event.run()] !=
+          if (expectedByRun_.at(event.run() - 1) !=
               std::get<edm::CacheHandle<TestInputProcessBlockCache1>>(cacheTuple)->value_) {
             throw cms::Exception("UnexpectedValue")
                 << "InputProcessBlockAnalyzerReuseCache::analyze cached value was "
                 << std::get<edm::CacheHandle<TestInputProcessBlockCache1>>(cacheTuple)->value_
-                << " but it was supposed to be " << expectedByRun_[event.run()];
+                << " but it was supposed to be " << expectedByRun_.at(event.run() - 1);
           }
         }
         ++transitions_;
