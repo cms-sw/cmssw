@@ -160,9 +160,9 @@ void L1FastTrackingJetProducer::produce(edm::Event& iEvent, const edm::EventSetu
         theStubs = iterL1Track->getStubRefs();
     int trk_nstub = (int)theStubs.size();
 
-    if (fabs(trk_z0) > trkZMax_)
+    if (std::abs(trk_z0) > trkZMax_)
       continue;
-    if (fabs(iterL1Track->momentum().eta()) > trkEtaMax_)
+    if (std::abs(iterL1Track->momentum().eta()) > trkEtaMax_)
       continue;
     if (trk_pt < trkPtMin_)
       continue;
@@ -190,7 +190,7 @@ void L1FastTrackingJetProducer::produce(edm::Event& iEvent, const edm::EventSetu
     }
     if (trk_nPS < trkNPSStubMin_)
       continue;
-    if (fabs(recoVtx - trk_z0) > deltaZ0Cut_)
+    if (std::abs(recoVtx - trk_z0) > deltaZ0Cut_)
       continue;
     if (!iEvent.isRealData()) {
       edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> trk_ptr(TTTrackHandle, this_l1track);
