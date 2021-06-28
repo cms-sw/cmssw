@@ -562,7 +562,7 @@ namespace edmtest {
       edm::EDGetTokenT<IntProduct> getTokenNotFound2_;
       edm::EDGetTokenT<IntProduct> getTokenNotFound3_;
       edm::EDGetTokenT<IntProduct> getTokenNotFound4_;
-      CMS_THREAD_SAFE mutable std::atomic<unsigned int> transitions_{0};
+      mutable std::atomic<unsigned int> transitions_{0};
       int sum_{0};
       unsigned int expectedTransitions_{0};
       std::vector<int> expectedByRun_;
