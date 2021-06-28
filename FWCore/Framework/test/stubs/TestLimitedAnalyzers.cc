@@ -496,22 +496,23 @@ namespace edmtest {
       void analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const override {
         auto cacheTuple = processBlockCaches(event);
         if (!expectedByRun_.empty()) {
-          if (expectedByRun_[event.run()] != *std::get<edm::CacheHandle<int>>(cacheTuple)) {
-            throw cms::Exception("UnexpectedValue") << "InputProcessBlockIntAnalyzer::analyze cached value was "
-                                                    << *std::get<edm::CacheHandle<int>>(cacheTuple)
-                                                    << " but it was supposed to be " << expectedByRun_[event.run()];
+          if (expectedByRun_.at(event.run() - 1) != *std::get<edm::CacheHandle<int>>(cacheTuple)) {
+            throw cms::Exception("UnexpectedValue")
+                << "InputProcessBlockIntAnalyzer::analyze cached value was "
+                << *std::get<edm::CacheHandle<int>>(cacheTuple) << " but it was supposed to be "
+                << expectedByRun_.at(event.run() - 1);
           }
-          if (expectedByRun_[event.run()] != std::get<1>(cacheTuple)->value_) {
+          if (expectedByRun_.at(event.run() - 1) != std::get<1>(cacheTuple)->value_) {
             throw cms::Exception("UnexpectedValue")
                 << "InputProcessBlockIntAnalyzer::analyze second cached value was " << std::get<1>(cacheTuple)->value_
-                << " but it was supposed to be " << expectedByRun_[event.run()];
+                << " but it was supposed to be " << expectedByRun_.at(event.run() - 1);
           }
-          if (expectedByRun_[event.run()] !=
+          if (expectedByRun_.at(event.run() - 1) !=
               std::get<edm::CacheHandle<TestInputProcessBlockCache1>>(cacheTuple)->value_) {
             throw cms::Exception("UnexpectedValue")
                 << "InputProcessBlockIntAnalyzer::analyze third cached value was "
                 << std::get<edm::CacheHandle<TestInputProcessBlockCache1>>(cacheTuple)->value_
-                << " but it was supposed to be " << expectedByRun_[event.run()];
+                << " but it was supposed to be " << expectedByRun_.at(event.run() - 1);
           }
         }
         ++transitions_;

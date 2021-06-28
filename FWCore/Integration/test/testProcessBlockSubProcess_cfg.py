@@ -118,7 +118,7 @@ readAgainProcess.readProcessBlocksOneAnalyzer1 = cms.EDAnalyzer("edmtest::one::I
                                             consumesEndProcessBlock = cms.InputTag("intProducerEndProcessBlock", ""),
                                             consumesBeginProcessBlockM = cms.InputTag("intProducerBeginProcessBlockM", ""),
                                             consumesEndProcessBlockM = cms.InputTag("intProducerEndProcessBlockM", ""),
-                                            expectedByRun = cms.vint32(0, 11, 22, 3300, 4400),
+                                            expectedByRun = cms.vint32(11, 22, 3300, 4400),
                                             expectedSum = cms.int32(8221)
 )
 
@@ -130,7 +130,7 @@ readAgainProcess.readProcessBlocksOneAnalyzer2 = cms.EDAnalyzer("edmtest::one::I
                                             consumesEndProcessBlock = cms.InputTag("intProducerEndProcessBlockM", ""),
                                             consumesBeginProcessBlockM = cms.InputTag("intProducerBeginProcessBlockM", ""),
                                             consumesEndProcessBlockM = cms.InputTag("intProducerEndProcessBlockM", ""),
-                                            expectedByRun = cms.vint32(0, 44, 44, 444, 444),
+                                            expectedByRun = cms.vint32(44, 44, 444, 444),
                                             expectedSum = cms.int32(488)
 )
 
@@ -142,7 +142,7 @@ readAgainProcess.readProcessBlocksOneAnalyzer3 = cms.EDAnalyzer("edmtest::one::I
                                             consumesEndProcessBlock = cms.InputTag("intProducerEndProcessBlockMM", ""),
                                             consumesBeginProcessBlockM = cms.InputTag("intProducerBeginProcessBlockM", ""),
                                             consumesEndProcessBlockM = cms.InputTag("intProducerEndProcessBlockM", ""),
-                                            expectedByRun = cms.vint32(0, 644, 644, 644, 644),
+                                            expectedByRun = cms.vint32(644, 644, 644, 644),
                                             expectedSum = cms.int32(488)
 )
 

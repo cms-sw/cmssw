@@ -939,12 +939,12 @@ namespace edmtest {
       bool filter(edm::Event& event, edm::EventSetup const&) override {
         auto cacheTuple = processBlockCaches(event);
         if (!expectedByRun_.empty()) {
-          if (expectedByRun_[event.run()] !=
+          if (expectedByRun_.at(event.run() - 1) !=
               std::get<edm::CacheHandle<TestInputProcessBlockCache1>>(cacheTuple)->value_) {
             throw cms::Exception("UnexpectedValue")
                 << "InputProcessBlockIntFilter::filter cached value was "
                 << std::get<edm::CacheHandle<TestInputProcessBlockCache1>>(cacheTuple)->value_
-                << " but it was supposed to be " << expectedByRun_[event.run()];
+                << " but it was supposed to be " << expectedByRun_.at(event.run() - 1);
           }
         }
         // Force events to be processed concurrently
@@ -1078,23 +1078,23 @@ namespace edmtest {
         auto cacheTuple = processBlockCaches(event);
         auto testGlobalCache = globalCache();
         if (!testGlobalCache->expectedByRun_.empty()) {
-          if (testGlobalCache->expectedByRun_[event.run()] != *std::get<edm::CacheHandle<int>>(cacheTuple)) {
+          if (testGlobalCache->expectedByRun_.at(event.run() - 1) != *std::get<edm::CacheHandle<int>>(cacheTuple)) {
             throw cms::Exception("UnexpectedValue")
                 << "InputProcessBlockIntFilterG::filter cached value was "
                 << *std::get<edm::CacheHandle<int>>(cacheTuple) << " but it was supposed to be "
-                << testGlobalCache->expectedByRun_[event.run()];
+                << testGlobalCache->expectedByRun_.at(event.run() - 1);
           }
-          if (testGlobalCache->expectedByRun_[event.run()] != std::get<1>(cacheTuple)->value_) {
+          if (testGlobalCache->expectedByRun_.at(event.run() - 1) != std::get<1>(cacheTuple)->value_) {
             throw cms::Exception("UnexpectedValue")
                 << "InputProcessBlockIntFilterG::filter second cached value was " << std::get<1>(cacheTuple)->value_
-                << " but it was supposed to be " << testGlobalCache->expectedByRun_[event.run()];
+                << " but it was supposed to be " << testGlobalCache->expectedByRun_.at(event.run() - 1);
           }
-          if (testGlobalCache->expectedByRun_[event.run()] !=
+          if (testGlobalCache->expectedByRun_.at(event.run() - 1) !=
               std::get<edm::CacheHandle<TestInputProcessBlockCache1>>(cacheTuple)->value_) {
             throw cms::Exception("UnexpectedValue")
                 << "InputProcessBlockIntFilterG::filter third cached value was "
                 << std::get<edm::CacheHandle<TestInputProcessBlockCache1>>(cacheTuple)->value_
-                << " but it was supposed to be " << testGlobalCache->expectedByRun_[event.run()];
+                << " but it was supposed to be " << testGlobalCache->expectedByRun_.at(event.run() - 1);
           }
         }
         ++testGlobalCache->transitions_;
