@@ -141,11 +141,13 @@ void MatchEngineUnit::step(bool) {
   }
 
   // Detailed printout for comparison with HLS code
-  //if (print)
-  //  cout << "MEU TrkId stubindex : " << 128 * proj_->TCIndex() + proj_->trackletIndex() << " "
-  //       << vmstub.stubindex().value() << "   " << ((pass && dphicut) && luttable_.lookup(index)) << " index=" << index
-  //       << " projrinv bend : " << projrinv_ << " " << vmstub.bend().value() << "  shift_ isPSseed_ :" << shift_ << " "
-  //       << isPSseed_ << " slot=" << slot << endl;
+  bool print = false;
+  if (print)
+    edm::LogVerbatim("Tracklet") << "MEU TrkId stubindex : " << 128 * proj_->TCIndex() + proj_->trackletIndex() << " "
+                                 << vmstub.stubindex().value() << "   "
+                                 << ((pass && dphicut) && luttable_.lookup(index)) << " index=" << index
+                                 << " projrinv bend : " << projrinv_ << " " << vmstub.bend().value()
+                                 << "  shift_ isPSseed_ :" << shift_ << " " << isPSseed_ << " slot=" << slot;
 
   //Check if stub bend and proj rinv consistent
 

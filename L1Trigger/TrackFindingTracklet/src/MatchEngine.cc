@@ -262,9 +262,9 @@ void MatchEngine::execute() {
       }
 
       if (print) {
-        cout << "istep index : " << istep << " " << index << " " << vmstub.bend().value()
-             << " rzbin istubtmp : " << rzbin << " " << istubtmp << " dz " << stubfinerz << " " << projfinerzadj
-             << "  dphi: " << deltaphi << endl;
+        edm::LogVerbatim("Tracklet") << "istep index : " << istep << " " << index << " " << vmstub.bend().value()
+                                     << " rzbin istubtmp : " << rzbin << " " << istubtmp << " dz " << stubfinerz << " "
+                                     << projfinerzadj << "  dphi: " << deltaphi;
       }
 
       //Check if stub bend and proj rinv consistent
