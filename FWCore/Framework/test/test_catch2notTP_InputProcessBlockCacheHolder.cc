@@ -84,76 +84,76 @@ namespace edmtest {
 
 TEST_CASE("test InputProcessBlockCacheHolder", "[InputProcessBlockCacheHolder]") {
   SECTION("test countTypeInParameterPack") {
-    REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA>() == 0);
-    REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA, edmtest::TestProcessBlockCacheA>() ==
-            1);
-    REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA, edmtest::TestProcessBlockCacheB>() ==
-            0);
-    REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheB>() == 1);
-    REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheB,
-                                                edmtest::TestProcessBlockCacheA>() == 1);
-    REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheA>() == 2);
-    REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheB,
-                                                edmtest::TestProcessBlockCacheB>() == 0);
+    STATIC_REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA>() == 0);
+    STATIC_REQUIRE(
+        edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA, edmtest::TestProcessBlockCacheA>() == 1);
+    STATIC_REQUIRE(
+        edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA, edmtest::TestProcessBlockCacheB>() == 0);
+    STATIC_REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheB>() == 1);
+    STATIC_REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheB,
+                                                       edmtest::TestProcessBlockCacheA>() == 1);
+    STATIC_REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheA>() == 2);
+    STATIC_REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheB,
+                                                       edmtest::TestProcessBlockCacheB>() == 0);
 
-    REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheB,
-                                                edmtest::TestProcessBlockCacheA>() == 2);
-    REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheB,
-                                                edmtest::TestProcessBlockCacheC>() == 1);
-    REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheA>() == 3);
-    REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheC>() == 2);
-    REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheB,
-                                                edmtest::TestProcessBlockCacheB,
-                                                edmtest::TestProcessBlockCacheA>() == 1);
-    REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheB,
-                                                edmtest::TestProcessBlockCacheB,
-                                                edmtest::TestProcessBlockCacheC>() == 0);
-    REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheB,
-                                                edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheA>() == 2);
-    REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheB,
-                                                edmtest::TestProcessBlockCacheA,
-                                                edmtest::TestProcessBlockCacheC>() == 1);
+    STATIC_REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheB,
+                                                       edmtest::TestProcessBlockCacheA>() == 2);
+    STATIC_REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheB,
+                                                       edmtest::TestProcessBlockCacheC>() == 1);
+    STATIC_REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheA>() == 3);
+    STATIC_REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheC>() == 2);
+    STATIC_REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheB,
+                                                       edmtest::TestProcessBlockCacheB,
+                                                       edmtest::TestProcessBlockCacheA>() == 1);
+    STATIC_REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheB,
+                                                       edmtest::TestProcessBlockCacheB,
+                                                       edmtest::TestProcessBlockCacheC>() == 0);
+    STATIC_REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheB,
+                                                       edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheA>() == 2);
+    STATIC_REQUIRE(edm::impl::countTypeInParameterPack<edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheB,
+                                                       edmtest::TestProcessBlockCacheA,
+                                                       edmtest::TestProcessBlockCacheC>() == 1);
 
     // The following should not compile and I manually verified it doesn't
     // REQUIRE(edm::impl::countTypeInParameterPack<>() == 0);
   }
 
   SECTION("test indexInputProcessBlockCache") {
-    REQUIRE(
+    STATIC_REQUIRE(
         edm::impl::indexInputProcessBlockCache<edmtest::TestProcessBlockCacheA, edmtest::TestProcessBlockCacheA>() ==
         0);
-    REQUIRE(edm::impl::indexInputProcessBlockCache<edmtest::TestProcessBlockCacheA,
-                                                   edmtest::TestProcessBlockCacheA,
-                                                   edmtest::TestProcessBlockCacheB>() == 0);
-    REQUIRE(edm::impl::indexInputProcessBlockCache<edmtest::TestProcessBlockCacheA,
-                                                   edmtest::TestProcessBlockCacheB,
-                                                   edmtest::TestProcessBlockCacheA>() == 1);
-    REQUIRE(edm::impl::indexInputProcessBlockCache<edmtest::TestProcessBlockCacheD,
-                                                   edmtest::TestProcessBlockCacheA,
-                                                   edmtest::TestProcessBlockCacheB,
-                                                   edmtest::TestProcessBlockCacheC,
-                                                   edmtest::TestProcessBlockCacheD>() == 3);
+    STATIC_REQUIRE(edm::impl::indexInputProcessBlockCache<edmtest::TestProcessBlockCacheA,
+                                                          edmtest::TestProcessBlockCacheA,
+                                                          edmtest::TestProcessBlockCacheB>() == 0);
+    STATIC_REQUIRE(edm::impl::indexInputProcessBlockCache<edmtest::TestProcessBlockCacheA,
+                                                          edmtest::TestProcessBlockCacheB,
+                                                          edmtest::TestProcessBlockCacheA>() == 1);
+    STATIC_REQUIRE(edm::impl::indexInputProcessBlockCache<edmtest::TestProcessBlockCacheD,
+                                                          edmtest::TestProcessBlockCacheA,
+                                                          edmtest::TestProcessBlockCacheB,
+                                                          edmtest::TestProcessBlockCacheC,
+                                                          edmtest::TestProcessBlockCacheD>() == 3);
     // The following fails compilation if uncommented, tested manually
     // REQUIRE(edm::impl::indexInputProcessBlockCache<edmtest::TestProcessBlockCacheD, edmtest::TestProcessBlockCacheA, edmtest::TestProcessBlockCacheB, edmtest::TestProcessBlockCacheC>() == 3);
     // REQUIRE(edm::impl::indexInputProcessBlockCache<edmtest::TestProcessBlockCacheD>() == 3);
