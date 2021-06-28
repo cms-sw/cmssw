@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
 
-
 L1FastTrackingJets = cms.EDProducer("L1FastTrackingJetProducer",
     L1TrackInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
     L1PrimaryVertexTag=cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),

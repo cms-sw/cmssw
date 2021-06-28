@@ -11,6 +11,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -47,7 +48,7 @@ using namespace std;
 //                          //
 //////////////////////////////
 
-class L1TrackFastJetProducer : public edm::EDProducer {
+class L1TrackFastJetProducer : public edm::stream::EDProducer<> {
 public:
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
   typedef std::vector<L1TTTrackType> L1TTTrackCollectionType;
@@ -58,9 +59,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
+  //void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  //void endJob() override;
 
   // track selection criteria
   float trkZMax_;          // in [cm]
@@ -212,9 +213,9 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     iEvent.put(std::move(L1TrackFastJets), "L1TrackFastJets");
 }
 
-void L1TrackFastJetProducer::beginJob() {}
+//void L1TrackFastJetProducer::beginJob() {}
 
-void L1TrackFastJetProducer::endJob() {}
+//void L1TrackFastJetProducer::endJob() {}
 
 void L1TrackFastJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation

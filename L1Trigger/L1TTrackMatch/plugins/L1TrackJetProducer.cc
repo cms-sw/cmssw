@@ -593,19 +593,23 @@ EtaPhiBin *L1TrackJetProducer::L1_cluster(EtaPhiBin *phislice) {
     clusters[nclust] = phislice[etabin];
     phislice[etabin].used = true;
     if (left_pt > 0) {
-      clusters[nclust].pTtot += left_pt;
-      clusters[nclust].numtracks += phislice[etabin - 1].numtracks;
-      clusters[nclust].numttrks += phislice[etabin - 1].numttrks;
-      clusters[nclust].numtdtrks += phislice[etabin - 1].numtdtrks;
-      clusters[nclust].numttdtrks += phislice[etabin - 1].numttdtrks;
+      if (clusters != nullptr) {
+         clusters[nclust].pTtot += left_pt;
+         clusters[nclust].numtracks += phislice[etabin - 1].numtracks;
+         clusters[nclust].numttrks += phislice[etabin - 1].numttrks;
+         clusters[nclust].numtdtrks += phislice[etabin - 1].numtdtrks;
+         clusters[nclust].numttdtrks += phislice[etabin - 1].numttdtrks;
+      }
     }
     if (my_pt >= right2pt && right_pt > 0) {
-      clusters[nclust].pTtot += right_pt;
-      clusters[nclust].numtracks += phislice[etabin + 1].numtracks;
-      clusters[nclust].numttrks += phislice[etabin + 1].numttrks;
-      clusters[nclust].numtdtrks += phislice[etabin + 1].numtdtrks;
-      clusters[nclust].numttdtrks += phislice[etabin + 1].numttdtrks;
-      phislice[etabin + 1].used = true;
+      if (clusters != nullptr) {
+         clusters[nclust].pTtot += right_pt;
+         clusters[nclust].numtracks += phislice[etabin + 1].numtracks;
+         clusters[nclust].numttrks += phislice[etabin + 1].numttrks;
+         clusters[nclust].numtdtrks += phislice[etabin + 1].numtdtrks;
+         clusters[nclust].numttdtrks += phislice[etabin + 1].numttdtrks;
+         phislice[etabin + 1].used = true;
+      }
     }
     nclust++;
   }  // for each etabin
