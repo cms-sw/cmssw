@@ -8442,21 +8442,15 @@ void TEcnaGui::InitKeys() {
 }
 
 void TEcnaGui::DisplayInEntryField(TGTextEntry* StringOfField, Int_t& value) {
-  char* f_in = new char[20];
-  fCnew++;
+  char f_in[20];
   sprintf(f_in, "%d", value);
   StringOfField->SetText(f_in);
-  delete[] f_in;
-  fCdelete++;
 }
 
 void TEcnaGui::DisplayInEntryField(TGTextEntry* StringOfField, Double_t& value) {
-  char* f_in = new char[20];
-  fCnew++;
+  char f_in[20];
   sprintf(f_in, "%g", value);
   StringOfField->SetText(f_in);
-  delete[] f_in;
-  fCdelete++;
 }
 void TEcnaGui::DisplayInEntryField(TGTextEntry* StringOfField, const TString& value) {
   //StringOfField->Insert(value);
