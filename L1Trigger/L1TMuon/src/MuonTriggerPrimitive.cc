@@ -136,7 +136,7 @@ TriggerPrimitive::TriggerPrimitive(const CSCDetId& detid, const CSCCorrelatedLCT
   _csc.pattern_run3 = digi.getRun3Pattern();
   _csc.slope = digi.getSlope();
   _csc.strip_quart_bit = digi.getQuartStripBit();
-  _csc.strip_eighth_bit = digi.getEightStripBit();
+  _csc.strip_eighth_bit = digi.getEighthStripBit();
   _csc.strip_quart = digi.getStrip(4);
   _csc.strip_eighth = digi.getStrip(8);
 
