@@ -132,11 +132,12 @@ AlignmentMonitorAsAnalyzer::AlignmentMonitorAsAnalyzer(const edm::ParameterSet& 
       esTokenCSCAPE_(esConsumes()),
       esTokenGEMAl_(esConsumes()),
       esTokenGEMAPE_(esConsumes()) {
+  edm::ConsumesCollector consumeCollector = consumesCollector();
   std::vector<std::string> monitors = iConfig.getUntrackedParameter<std::vector<std::string>>("monitors");
 
   for (auto const& mon : monitors) {
-    m_monitors.emplace_back(
-        AlignmentMonitorPluginFactory::get()->create(mon, iConfig.getUntrackedParameter<edm::ParameterSet>(mon)));
+    m_monitors.emplace_back(AlignmentMonitorPluginFactory::get()->create(
+        mon, iConfig.getUntrackedParameter<edm::ParameterSet>(mon), consumeCollector));
   }
 }
 
