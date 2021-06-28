@@ -112,15 +112,11 @@ GEMGeometryValidate::GEMGeometryValidate(const edm::ParameterSet& iConfig)
 void GEMGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   gemGeometry_ = &eventSetup.getData(tokGeom_);
 
-  if (gemGeometry_ == nullptr) {
-    LogVerbatim("GEMGeometry") << "Validating GEM chamber geometry";
+  LogVerbatim("GEMGeometry") << "Validating GEM chamber geometry";
 
-    validateGEMChamberGeometry();
+  validateGEMChamberGeometry();
 
-    validateGEMEtaPartitionGeometry();
-
-  } else
-    LogVerbatim("GEMGeometry") << "Invalid GEM geometry";
+  validateGEMEtaPartitionGeometry();
 }
 
 void GEMGeometryValidate::validateGEMChamberGeometry() {
