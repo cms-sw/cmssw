@@ -570,7 +570,7 @@ namespace edmtest {
       edm::EDGetTokenT<IntProduct> getTokenEnd_;
       edm::EDGetTokenT<IntProduct> getTokenBeginM_;
       edm::EDGetTokenT<IntProduct> getTokenEndM_;
-      CMS_THREAD_SAFE mutable std::atomic<unsigned int> transitions_{0};
+      mutable std::atomic<unsigned int> transitions_{0};
       int sum_{0};
       unsigned int expectedTransitions_{0};
       std::vector<int> expectedByRun_;
@@ -714,7 +714,7 @@ namespace edmtest {
       edm::EDGetTokenT<IntProduct> getTokenEnd1_;
       edm::EDGetTokenT<IntProduct> getTokenBegin2_;
       edm::EDGetTokenT<IntProduct> getTokenEnd2_;
-      CMS_THREAD_SAFE mutable std::atomic<unsigned int> transitions_{0};
+      mutable std::atomic<unsigned int> transitions_{0};
       unsigned int expectedTransitions_{0};
       std::vector<int> expectedByRun0_;
       std::vector<int> expectedByRun1_;
@@ -784,7 +784,7 @@ namespace edmtest {
     private:
       edm::EDGetTokenT<IntProduct> getTokenBegin_;
       edm::EDGetTokenT<IntProduct> getTokenEnd_;
-      CMS_THREAD_SAFE mutable std::atomic<unsigned int> transitions_{0};
+      mutable std::atomic<unsigned int> transitions_{0};
       unsigned int expectedTransitions_{0};
       std::vector<int> expectedByRun_;
     };
@@ -815,7 +815,7 @@ namespace edmtest {
       }
 
     private:
-      CMS_THREAD_SAFE mutable std::atomic<unsigned int> transitions_{0};
+      mutable std::atomic<unsigned int> transitions_{0};
       unsigned int expectedTransitions_{0};
     };
 

@@ -48,7 +48,7 @@ namespace edmtest {
         CMS_THREAD_SAFE mutable edm::EDGetTokenT<unsigned int> getTokenBegin_;
         CMS_THREAD_SAFE mutable edm::EDGetTokenT<unsigned int> getTokenEnd_;
         unsigned int trans_{0};
-        CMS_THREAD_SAFE mutable std::atomic<unsigned int> m_count{0};
+        mutable std::atomic<unsigned int> m_count{0};
       };
     }  // namespace cache
 
@@ -640,7 +640,7 @@ namespace edmtest {
       CMS_THREAD_SAFE mutable edm::EDGetTokenT<IntProduct> getTokenEnd_;
       CMS_THREAD_SAFE mutable edm::EDGetTokenT<IntProduct> getTokenBeginM_;
       CMS_THREAD_SAFE mutable edm::EDGetTokenT<IntProduct> getTokenEndM_;
-      CMS_THREAD_SAFE mutable std::atomic<unsigned int> transitions_{0};
+      mutable std::atomic<unsigned int> transitions_{0};
       int sum_{0};
       unsigned int expectedTransitions_{0};
       std::vector<int> expectedByRun_;
