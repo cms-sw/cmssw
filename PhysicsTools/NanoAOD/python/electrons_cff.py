@@ -36,6 +36,7 @@ run2_miniAOD_80XLegacy.toModify( slimmedElectronsUpdated, computeMiniIso = True 
 ##modify the past eras
 for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1:
     modifier.toModify(slimmedElectronsUpdated, src = cms.InputTag("slimmedElectronsTo106X"))
+
 ############################FOR bitmapVIDForEle main defn#############################
 electron_id_modules_WorkingPoints_nanoAOD = cms.PSet(
     modules = cms.vstring(
@@ -398,6 +399,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
 )
 
+
 #for technical reasons
 for modifier in run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_miniAOD_80XLegacy,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1,run2_nanoAOD_106Xv2:
     modifier.toModify(electronTable.variables,            
@@ -528,6 +530,14 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
 electronSequence = cms.Sequence(bitmapVIDForEle + bitmapVIDForEleHEEP + isoForEle + ptRatioRelForEle + seedGainEle + slimmedElectronsWithUserData + finalElectrons)
 electronTables = cms.Sequence (electronMVATTH + electronTable)
 electronMC = cms.Sequence(particleLevelForMatching + tautaggerForMatching + matchingElecPhoton + electronsMCMatchForTable + electronsMCMatchForTableAlt + electronMCTable)
+
+#### TEMPORARY Run3
+(run3_nanoAOD_devel).toModify(finalElectrons,src = cms.InputTag("slimmedElectrons"))
+(run3_nanoAOD_devel).toReplaceWith(electronSequence, cms.Sequence(finalElectrons))
+(run3_nanoAOD_devel).toReplaceWith(electronTables, cms.Sequence(electronTable))
+(run3_nanoAOD_devel).toModify(electronTable, variables = cms.PSet(CandVars))
+(run3_nanoAOD_devel).toModify(electronTable, externalVariables = None)
+
 
 #for NANO from reminAOD, no need to run slimmedElectronsUpdated, other modules of electron sequence will run on slimmedElectrons
 for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:

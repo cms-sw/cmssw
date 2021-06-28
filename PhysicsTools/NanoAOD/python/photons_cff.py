@@ -325,6 +325,12 @@ photonSequence = cms.Sequence(
 photonTables = cms.Sequence ( photonTable)
 photonMC = cms.Sequence(photonsMCMatchForTable + photonMCTable)
 
+#### TEMPORARY Run3
+(run3_nanoAOD_devel).toModify(finalPhotons,src = cms.InputTag("slimmedPhotons"))
+(run3_nanoAOD_devel).toReplaceWith(photonSequence, cms.Sequence(finalPhotons))
+(run3_nanoAOD_devel).toModify(photonTable, variables = cms.PSet(CandVars))
+
+
 from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import egmPhotonIsolation
 from RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff import photonIDValueMapProducer
 
