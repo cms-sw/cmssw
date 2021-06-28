@@ -33,7 +33,7 @@
 
 class AlignmentMonitorMuonResiduals : public AlignmentMonitorBase {
 public:
-  AlignmentMonitorMuonResiduals(const edm::ParameterSet &cfg);
+  AlignmentMonitorMuonResiduals(const edm::ParameterSet &cfg, edm::ConsumesCollector iC);
   ~AlignmentMonitorMuonResiduals() override{};
 
   void book() override;
@@ -145,8 +145,8 @@ private:
 // member functions
 //
 
-AlignmentMonitorMuonResiduals::AlignmentMonitorMuonResiduals(const edm::ParameterSet &cfg)
-    : AlignmentMonitorBase(cfg, "AlignmentMonitorMuonResiduals") {
+AlignmentMonitorMuonResiduals::AlignmentMonitorMuonResiduals(const edm::ParameterSet &cfg, edm::ConsumesCollector iC)
+    : AlignmentMonitorBase(cfg, iC, "AlignmentMonitorMuonResiduals") {
   xresid_bins = cfg.getParameter<unsigned int>("xresid_bins");
   xmean_bins = cfg.getParameter<unsigned int>("xmean_bins");
   xstdev_bins = cfg.getParameter<unsigned int>("xstdev_bins");
