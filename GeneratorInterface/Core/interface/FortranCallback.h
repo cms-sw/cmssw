@@ -43,17 +43,9 @@ namespace gen {
 
   // --** Implementation **---
 
-  FortranCallback* FortranCallback::fInstance = nullptr;
-
   inline FortranCallback::FortranCallback()
       //   : fPartonLevel(0)
       : fRunBlock(nullptr), fEventBlock(nullptr), fIterationsPerEvent(0) {}
-
-  inline FortranCallback* FortranCallback::getInstance() {
-    if (fInstance == nullptr)
-      fInstance = new FortranCallback;
-    return fInstance;
-  }
 
   inline void FortranCallback::fillHeader() {
     if (fRunBlock == nullptr)
