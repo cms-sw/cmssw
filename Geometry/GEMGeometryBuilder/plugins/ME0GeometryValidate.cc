@@ -112,14 +112,10 @@ ME0GeometryValidate::ME0GeometryValidate(const edm::ParameterSet& iConfig)
 
 void ME0GeometryValidate::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   me0Geometry_ = &eventSetup.getData(tokGeom_);
-  if (me0Geometry_ != nullptr) {
-    LogTrace("ME0Geometry") << "Validating ME0 chamber geometry";
-    validateME0ChamberGeometry();
-    validateME0EtaPartitionGeometry2();
-    validateME0EtaPartitionGeometry();
-  } else {
-    LogError("ME0Geometry") << "Invalid ME0 geometry";
-  }
+  LogTrace("ME0Geometry") << "Validating ME0 chamber geometry";
+  validateME0ChamberGeometry();
+  validateME0EtaPartitionGeometry2();
+  validateME0EtaPartitionGeometry();
 }
 
 void ME0GeometryValidate::validateME0ChamberGeometry() {
