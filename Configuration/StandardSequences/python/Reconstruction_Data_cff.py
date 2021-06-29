@@ -22,10 +22,8 @@ HcalRemoveAddSevLevel.AddFlag(hcalRecAlgos,"HFDigiTime",11,verbose=False)
 HcalRemoveAddSevLevel.AddFlag(hcalRecAlgos,"HBHEFlatNoise",12)
 HcalRemoveAddSevLevel.AddFlag(hcalRecAlgos,"HBHENegativeNoise",12)
 
-#--- Subsequent era-wise HCAL data flags custimizations ---------------------
+#--- Subsequent era-wise HCAL data-specific flags customization 
 
-#--- run2_25ns_specific HCAL data flags customization
-#---    "HFDigiTime", "HBHEFlatNoise"  -> 8
 from Configuration.Eras.Modifier_run2_25ns_specific_cff import run2_25ns_specific
 def _modName(algos):
    HcalRemoveAddSevLevel.AddFlag(algos,"HBHEFlatNoise",8)
@@ -34,15 +32,11 @@ def _modName(algos):
    HcalRemoveAddSevLevel.AddFlag(algos,"HFDigiTime",8)
 run2_25ns_specific.toModify(hcalRecAlgos, _modName)
 
-#--- Run2_2017 HCAL data flags customization
-#---     "HFDigiTime" to be removed
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 def _modName(algos):
    HcalRemoveAddSevLevel.RemoveFlag(algos,"HFDigiTime")  
 run2_HCAL_2017.toModify(hcalRecAlgos, _modName)
 
-#--- Run3 HCAL data flags customization (bringing in sync with MC setting)
-#---    "HBHENegativeNoise" -> 8
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 def _modName(algos):
    HcalRemoveAddSevLevel.AddFlag(algos,"HBHENegativeNoise",8)
