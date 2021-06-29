@@ -13,7 +13,6 @@
 // system include files
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/test_tools.hpp>
-#include <boost/bind.hpp>
 #include <stdexcept>
 #include <iostream>
 
@@ -26,8 +25,8 @@
 namespace {
   struct Test : public FWParameterizable {
     Test()
-        : m_double(this, "double", boost::bind(&Test::doubleChanged, this, _1)),
-          m_long(this, "long", boost::bind(&Test::longChanged, this, _1)),
+        : m_double(this, "double", std::bind(&Test::doubleChanged, this, std::placeholders::_1)),
+          m_long(this, "long", std::bind(&Test::longChanged, this, std::placeholders::_1)),
           m_wasChanged(false) {}
 
     void doubleChanged(double iValue) {
