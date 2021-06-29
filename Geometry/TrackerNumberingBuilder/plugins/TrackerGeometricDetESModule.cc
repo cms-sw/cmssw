@@ -36,7 +36,8 @@ using namespace edm;
 
 TrackerGeometricDetESModule::TrackerGeometricDetESModule(const edm::ParameterSet& p)
     : fromDDD_(p.getParameter<bool>("fromDDD")), fromDD4hep_(p.getParameter<bool>("fromDD4hep")) {
-  edm::LogVerbatim("TrackerGeom") << "TrackerGeometricDetESModule::fromDDD " <<fromDDD_ << "  fromDD4hep " << fromDD4hep_;
+  edm::LogVerbatim("TrackerGeom") << "TrackerGeometricDetESModule::fromDDD " << fromDDD_ << "  fromDD4hep "
+                                  << fromDD4hep_;
   auto cc = setWhatProduced(this);
   if (fromDDD_) {
     ddToken_ = cc.consumes<DDCompactView>(edm::ESInputTag());
