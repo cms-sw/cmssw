@@ -12,7 +12,6 @@
 
 // system include files
 #include <boost/test/auto_unit_test.hpp>
-#include <boost/bind.hpp>
 #include <boost/test/test_tools.hpp>
 #include "TClass.h"
 
@@ -62,7 +61,7 @@ BOOST_AUTO_TEST_CASE(eventitemmanager) {
   //NOTE: have to pass a pointer to the listener else the bind will
   // create a copy of the listener and the original one will never
   // 'hear' any signal
-  eim.newItem_.connect(boost::bind(&Listener::newItem, &listener, _1));
+  eim.newItem_.connect(std::bind(&Listener::newItem, &listener, std::placeholders::_1));
 
   TClass* cls = TClass::GetClass("std::vector<reco::Track>");
   assert(0 != cls);
