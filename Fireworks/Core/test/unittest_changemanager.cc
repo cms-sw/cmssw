@@ -12,7 +12,6 @@
 
 // system include files
 #include <boost/test/auto_unit_test.hpp>
-#include <boost/bind.hpp>
 #include <boost/test/test_tools.hpp>
 
 #include "TClass.h"
@@ -96,8 +95,8 @@ BOOST_AUTO_TEST_CASE(changemanager) {
   //NOTE: have to pass a pointer to the listener else the bind will
   // create a copy of the listener and the original one will never
   // 'hear' any signal
-  item.changed_.connect(boost::bind(&Listener::listen, &listener, _1));
-  item.itemChanged_.connect(boost::bind(&ItemListener::listen, &iListener, _1));
+  item.changed_.connect(std::bind(&Listener::listen, &listener, std::placeholders::_1));
+  item.itemChanged_.connect(std::bind(&ItemListener::listen, &iListener, std::placeholders::_1));
 
   BOOST_CHECK(listener.nHeard_ == 0);
   BOOST_CHECK(iListener.nHeard_ == 0);
