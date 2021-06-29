@@ -8,7 +8,7 @@ using namespace reco;
 TrackSelector::result_type TrackSelector::operator()(const TrackSelector::input_type& tracks) const {
   static const std::string metname = "MuonIsolation|TrackSelector";
   result_type result;
-  auto const dr2Max = thePars.drMax*thePars.drMax;
+  auto const dr2Max = thePars.drMax * thePars.drMax;
   for (auto const& tk : tracks) {
     //! pick/read variables in order to cut down on unnecessary calls
     //! someone will have some fun reading the log if Debug is on
