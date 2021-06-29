@@ -4,6 +4,6 @@ from DQM.HcalTasks.HcalOfflineHarvesting import *
 # apply some customization
 # -	ptype = 1 Offlien processing
 # - runkey value 2 - cosmics
-hcalOfflineHarvesting.ptype = cms.untracked.int32(1)
-hcalOfflineHarvesting.runkeyVal = cms.untracked.int32(4)
-hcalOfflineHarvesting.runkeyName = cms.untracked.string("hi_run")
+hcalOfflineHarvesting.ptype = 1
+hcalOfflineHarvesting.runkeyVal = 4
+hcalOfflineHarvesting.runkeyName = "hi_run"
