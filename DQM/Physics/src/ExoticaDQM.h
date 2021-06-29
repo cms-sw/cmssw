@@ -195,6 +195,9 @@ private:
   edm::EDGetTokenT<reco::GenParticleCollection> GenParticleToken_;
   edm::Handle<reco::GenParticleCollection> GenCollection_;
 
+  //ES tokens
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+
   ///////////////////////////
   // Parameters
   ///////////////////////////
