@@ -89,10 +89,8 @@ namespace edm {
       std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&,
                                                        ActivityRegistry*,
                                                        ParameterSet const* eventSetupPset = nullptr,
-                                                       unsigned int nConcurrentLumis = 0,
+                                                       unsigned int maxConcurrentIOVs = 0,
                                                        bool dumpOptions = false);
-
-      void setMaxConcurrentIOVs(unsigned int nStreams, unsigned int nConcurrentLumis);
 
       // Pass in an IOVSyncValue to let the EventSetup system know which run and lumi
       // need to be processed and prepare IOVs for it (also could be a time or only a run).

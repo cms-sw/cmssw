@@ -414,6 +414,9 @@ namespace edm {
         edm::LogInfo("ThreadStreamSetup") << "setting # threads " << nThreads << "\nsetting # streams " << nStreams;
       }
     }
+    // The number of concurrent IOVs is configured individually for each record in
+    // the class NumberOfConcurrentIOVs to values less than or equal to this.
+    unsigned int maxConcurrentIOVs = nConcurrentLumis;
 
     //Check that relationships between threading parameters makes sense
     /*
@@ -455,7 +458,7 @@ namespace edm {
     // intialize the event setup provider
     ParameterSet const& eventSetupPset(optionsPset.getUntrackedParameterSet("eventSetup"));
     esp_ = espController_->makeProvider(
-        *parameterSet, items.actReg_.get(), &eventSetupPset, nConcurrentLumis, dumpOptions);
+        *parameterSet, items.actReg_.get(), &eventSetupPset, maxConcurrentIOVs, dumpOptions);
 
     // initialize the looper, if any
     if (!loopers.empty()) {
@@ -466,7 +469,6 @@ namespace edm {
       // in presence of looper do not delete modules
       deleteNonConsumedUnscheduledModules_ = false;
     }
-    espController_->setMaxConcurrentIOVs(nStreams, nConcurrentLumis);
 
     preallocations_ = PreallocationConfiguration{nThreads, nStreams, nConcurrentLumis, nConcurrentRuns};
 
