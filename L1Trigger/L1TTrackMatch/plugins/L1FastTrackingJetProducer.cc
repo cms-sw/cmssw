@@ -250,11 +250,52 @@ void L1FastTrackingJetProducer::beginJob() {}
 void L1FastTrackingJetProducer::endJob() {}
 
 void L1FastTrackingJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  {
+    // L1FastTrackingJets
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+    desc.add<std::string>("L1PrimaryVertexTag", "l1vertices");
+    desc.add<edm::InputTag>("GenInfo", edm::InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"));
+    desc.add<double>("trk_zMax", 15.0);
+    desc.add<double>("trk_chi2dofMax", 10.0);
+    desc.add<double>("trk_bendChi2Max", 2.2);
+    desc.add<double>("trk_ptMin", 2.0);
+    desc.add<double>("trk_etaMax", 2.5);
+    desc.add<int>("trk_nStubMin", 4);
+    desc.add<int>("trk_nPSStubMin", -1);
+    desc.add<double>("deltaZ0Cut", 0.5);
+    desc.add<bool>("doTightChi2", true);
+    desc.add<double>("trk_ptTightChi2", 20.0);
+    desc.add<double>("trk_chi2dofTightChi2", 5.0);
+    desc.add<double>("coneSize", 0.4);
+    desc.add<bool>("displaced", false);
+    desc.add<bool>("selectTrkMatchGenTight", true);
+    desc.add<bool>("selectTrkMatchGenLoose", false);
+    desc.add<bool>("selectTrkMatchGenOrPU", false);
+    descriptions.add("L1FastTrackingJets", desc);
+    // or use the following to generate the label from the module's C++ type
+    //descriptions.addWithDefaultLabel(desc);
+  }
+  /*{                                                                                                                           
+    // L1FastTrackingJetsExtended                                                                                             
+    desc.add<double>("trk_bendChi2Max", 2.4);
+    desc.add<double>("trk_ptMin", 3.0);
+    desc.add<double>("trk_etaMax", 2.5);
+    desc.add<int>("trk_nStubMin", 4);
+    desc.add<int>("trk_nPSStubMin", -1);
+    desc.add<double>("deltaZ0Cut", 3.0);
+    desc.add<bool>("doTightChi2", true);
+    desc.add<double>("trk_ptTightChi2", 20.0);
+    desc.add<double>("trk_chi2dofTightChi2", 5.0);
+    desc.add<double>("coneSize", 0.4);
+    desc.add<bool>("displaced", true);
+    desc.add<bool>("selectTrkMatchGenTight", true);
+    desc.add<bool>("selectTrkMatchGenLoose", false);
+    desc.add<bool>("selectTrkMatchGenOrPU", false);
+    descriptions.add("L1FastTrackingJetsExtended", desc);
+    // or use the following to generate the label from the module's C++ type
+    //descriptions.addWithDefaultLabel(desc);
+  }*/
 }
 
 //define this as a plug-in
