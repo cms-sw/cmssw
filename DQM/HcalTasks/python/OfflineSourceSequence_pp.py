@@ -12,14 +12,14 @@ from DQM.HcalTasks.TPTask import tpTask
 from DQM.HcalTasks.RecHitTask import recHitTask, recHitPreRecoTask
 
 #   set processing type to Offine
-digiTask.ptype = cms.untracked.int32(1)
-tpTask.ptype = cms.untracked.int32(1)
-recHitTask.ptype = cms.untracked.int32(1)
-rawTask.ptype = cms.untracked.int32(1)
-recHitPreRecoTask.ptype = cms.untracked.int32(1)
+digiTask.ptype = 1
+tpTask.ptype = 1
+recHitTask.ptype = 1
+rawTask.ptype = 1
+recHitPreRecoTask.ptype = 1
 
 #   set the label for Emulator TP Task
-tpTask.tagEmul = cms.untracked.InputTag("valHcalTriggerPrimitiveDigis")
+tpTask.tagEmul = "valHcalTriggerPrimitiveDigis"
 
 hcalOfflineSourceSequence = cms.Sequence(
     digiTask +
