@@ -32,9 +32,8 @@
 
 #include <pybind11/pybind11.h>
 
-using namespace cmspython3;
-
 PYBIND11_MODULE(libFWCorePyDevParameterSet, m) {
+  using namespace cmspython3;
   pybind11::register_exception_translator([](std::exception_ptr p) {
     try {
       if (p)
