@@ -8,6 +8,7 @@ using namespace reco;
 TrackSelector::result_type TrackSelector::operator()(const TrackSelector::input_type& tracks) const {
   static const std::string metname = "MuonIsolation|TrackSelector";
   result_type result;
+  auto const dr2Max = thePars.drMax*thePars.drMax;
   for (auto const& tk : tracks) {
     //! pick/read variables in order to cut down on unnecessary calls
     //! someone will have some fun reading the log if Debug is on
@@ -32,7 +33,7 @@ TrackSelector::result_type TrackSelector::operator()(const TrackSelector::input_
       continue;
     float tEta = tk.eta();
     float tPhi = tk.phi();
-    if (thePars.dir.deltaR(reco::isodeposit::Direction(tEta, tPhi)) > thePars.drMax)
+    if (thePars.dir.deltaR2(reco::isodeposit::Direction(tEta, tPhi)) > dr2Max)
       continue;
 
     //! skip if min Hits == 0; assumes any track has at least one valid hit
