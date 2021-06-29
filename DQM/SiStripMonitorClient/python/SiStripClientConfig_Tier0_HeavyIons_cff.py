@@ -50,11 +50,9 @@ mergedSiStripQualityProducer.ReduceGranularity = cms.bool(False)
 mergedSiStripQualityProducer.ThresholdForReducedGranularity = cms.double(0.3)
 mergedSiStripQualityProducer.appendToDataLabel = 'MergedBadComponent'
 
-siStripBadComponentInfo = cms.EDProducer("SiStripBadComponentInfo",
-    StripQualityLabel = cms.string('MergedBadComponent'),
-    AddBadComponentsFromFedErrors = cms.untracked.bool(True),
-    FedErrorBadComponentsCutoff = cms.untracked.double(0.8)
-)
+from DQM.SiStripMonitorClient.siStripBadComponentInfo_cfi import siStripBadComponentInfo
+siStripBadComponentInfo.StripQualityLabel = 'MergedBadComponent'
+siStripBadComponentInfo.BadComponentsFromFedErrors.Add = True
 
 # define new HI sequence
 #removed modules using TkDetMap
