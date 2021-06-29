@@ -12,7 +12,7 @@
 
 // system include files
 //#include <boost/test/auto_unit_test.hpp>
-#include <boost/bind.hpp>
+
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(selectionmanager) {
   //NOTE: have to pass a pointer to the listener else the bind will
   // create a copy of the listener and the original one will never
   // 'hear' any signal
-  sm.selectionChanged_.connect(boost::bind(&Listener::listen, &listener, _1));
+  sm.selectionChanged_.connect(std::bind(&Listener::listen, &listener, std::placeholders::_1));
 
   reco::TrackCollection fVector;
   fVector.push_back(reco::Track());
