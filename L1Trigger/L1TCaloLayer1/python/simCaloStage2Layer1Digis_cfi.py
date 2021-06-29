@@ -7,8 +7,8 @@ import FWCore.ParameterSet.Config as cms
 
 simCaloStage2Layer1Digis = cms.EDProducer(
     'L1TCaloLayer1',
-    ecalToken = cms.InputTag("l1tCaloLayer1Digis"),
-    hcalToken = cms.InputTag("l1tCaloLayer1Digis"),
+    ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis"),
+    hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis"),
     useLSB = cms.bool(True),
     useCalib = cms.bool(True),
     useECALLUT = cms.bool(True),

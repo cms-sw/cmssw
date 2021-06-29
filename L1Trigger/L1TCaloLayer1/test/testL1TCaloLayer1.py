@@ -83,11 +83,11 @@ process.simCaloStage2Layer1Digis.useHCALLUT = cms.bool(True)
 process.simCaloStage2Layer1Digis.useHFLUT = cms.bool(True)
 process.simCaloStage2Layer1Digis.useLSB = cms.bool(True)
 process.simCaloStage2Layer1Digis.verbose = cms.bool(True)
-process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("l1tCaloLayer1Digis")
-process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("l1tCaloLayer1Digis")
+process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis"),
+process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis"),
 
 process.load('L1Trigger.L1TCaloLayer1.layer1Validator_cfi')
-process.layer1Validator.testRegionToken = cms.InputTag("l1tCaloLayer1Digis")
+process.layer1Validator.testRegionToken = cms.InputTag("simEcalTriggerPrimitiveDigis"),
 process.layer1Validator.emulRegionToken = cms.InputTag("simCaloStage2Layer1Digis")
 process.layer1Validator.emulTowerToken = cms.InputTag("simCaloStage2Layer1Digis")
 process.layer1Validator.validateTowers = cms.bool(False)
