@@ -396,16 +396,23 @@ namespace edm {
     std::vector<std::string> loopers = parameterSet->getParameter<std::vector<std::string>>("@all_loopers");
     if (!loopers.empty()) {
       //For now loopers make us run only 1 transition at a time
-      nStreams = 1;
-      nConcurrentLumis = 1;
-      nConcurrentRuns = 1;
-    }
-    if (nThreads > 1 or nStreams > 1) {
-      edm::LogInfo("ThreadStreamSetup") << "setting # threads " << nThreads << "\nsetting # streams " << nStreams;
+      if (nStreams != 1 || nConcurrentLumis != 1 || nConcurrentRuns != 1) {
+        edm::LogWarning("ThreadStreamSetup") << "There is a looper, so the number of streams, the number "
+                                                "of concurrent runs, and the number of concurrent lumis "
+                                                "are all being reset to 1. Loopers cannot currently support "
+                                                "values greater than 1.";
+        nStreams = 1;
+        nConcurrentLumis = 1;
+        nConcurrentRuns = 1;
+      }
     }
     bool dumpOptions = optionsPset.getUntrackedParameter<bool>("dumpOptions");
     if (dumpOptions) {
       dumpOptionsToLogFile(nThreads, nStreams, nConcurrentLumis, nConcurrentRuns);
+    } else {
+      if (nThreads > 1 or nStreams > 1) {
+        edm::LogInfo("ThreadStreamSetup") << "setting # threads " << nThreads << "\nsetting # streams " << nStreams;
+      }
     }
 
     //Check that relationships between threading parameters makes sense
