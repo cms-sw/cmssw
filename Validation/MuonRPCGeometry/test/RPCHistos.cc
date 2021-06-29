@@ -11,7 +11,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 #include "FWCore/Utilities/interface/Exception.h"
-//#include "boost/bind.hpp"
 
 const double ptRanges[RPCConst::m_PT_CODE_MAX+2]= {
                         0.0, 0.01,  
