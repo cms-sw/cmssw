@@ -89,6 +89,7 @@ public:
   void setNumFilterPresamplesHEQIE11(int presamples) { numberOfFilterPresamplesHEQIE11_ = presamples; }
 
   void setUpgradeFlags(bool hb, bool he, bool hf);
+  void setFixSaturationFlag(bool fix_saturation);
   void overrideParameters(const edm::ParameterSet& ps);
 
 private:
@@ -110,7 +111,10 @@ private:
   /// adds the actual digis
   void analyze(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result);
   // 2017 and later: QIE11
-  void analyzeQIE11(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo);
+  void analyzeQIE11(IntegerCaloSamples& samples,
+                    std::vector<bool> sample_saturation,
+                    HcalTriggerPrimitiveDigi& result,
+                    const HcalFinegrainBit& fg_algo);
   // Version 0: RCT
   void analyzeHF(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const int hf_lumi_shift);
   // Version 1: 1x1
@@ -163,6 +167,9 @@ private:
   typedef std::map<HcalTrigTowerDetId, IntegerCaloSamples> SumMap;
   SumMap theSumMap;
 
+  typedef std::map<HcalTrigTowerDetId, std::vector<bool>> SatMap;
+  SatMap theSatMap;
+
   struct HFDetails {
     IntegerCaloSamples long_fiber;
     IntegerCaloSamples short_fiber;
@@ -210,6 +217,8 @@ private:
   bool upgrade_he_ = false;
   bool upgrade_hf_ = false;
 
+  bool fix_saturation_ = false;
+
   edm::ParameterSet override_parameters_;
 
   bool override_adc_hf_ = false;
@@ -250,6 +259,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
   conditions_ = conditions;
 
   theSumMap.clear();
+  theSatMap.clear();
   theTowerMapFGSum.clear();
   HF_Veto.clear();
   fgMap_.clear();
@@ -293,13 +303,18 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
       if (fgMap_.find(item.first) != fgMap_.end()) {
         analyze(item.second, result.back());
       } else if (fgUpgradeMap_.find(item.first) != fgUpgradeMap_.end()) {
-        analyzeQIE11(item.second, result.back(), fg_algo);
+        SatMap::iterator item_sat = theSatMap.find(detId);
+        if (item_sat == theSatMap.end())
+          analyzeQIE11(item.second, std::vector<bool>(), result.back(), fg_algo);
+        else
+          analyzeQIE11(item.second, item_sat->second, result.back(), fg_algo);
       }
     }
   }
 
   // Free up some memory
   theSumMap.clear();
+  theSatMap.clear();
   theTowerMapFGSum.clear();
   HF_Veto.clear();
   fgMap_.clear();
