@@ -27,8 +27,6 @@ HcalRemoveAddSevLevel.AddFlag(hcalRecAlgos,"HBHENegativeNoise",12)
 from Configuration.Eras.Modifier_run2_25ns_specific_cff import run2_25ns_specific
 def _modName(algos):
    HcalRemoveAddSevLevel.AddFlag(algos,"HBHEFlatNoise",8)
-run2_25ns_specific.toModify(hcalRecAlgos, _modName)
-def _modName(algos):
    HcalRemoveAddSevLevel.AddFlag(algos,"HFDigiTime",8)
 run2_25ns_specific.toModify(hcalRecAlgos, _modName)
 
@@ -37,6 +35,7 @@ def _modName(algos):
    HcalRemoveAddSevLevel.RemoveFlag(algos,"HFDigiTime")  
 run2_HCAL_2017.toModify(hcalRecAlgos, _modName)
 
+#--- NB: MC and data get back in sync for >= Run3  ------------------------
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 def _modName(algos):
    HcalRemoveAddSevLevel.AddFlag(algos,"HBHENegativeNoise",8)
