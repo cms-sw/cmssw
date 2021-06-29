@@ -9,7 +9,6 @@ TrackSelector::result_type TrackSelector::operator()(const TrackSelector::input_
   static const std::string metname = "MuonIsolation|TrackSelector";
   result_type result;
   for (auto const& tk : tracks) {
-
     //! pick/read variables in order to cut down on unnecessary calls
     //! someone will have some fun reading the log if Debug is on
     //! the biggest reason is the numberOfValidHits call (the rest are not as costly)
