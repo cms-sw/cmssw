@@ -13,10 +13,9 @@ TEST_CASE("SiStripTkMaps testing", "[SiStripTkMaps]") {
     gStyle->SetOptStat(0);
     SiStripTkMaps theMap("COLZA L");
     theMap.bookMap("testing SiStripTkMaps", "counts");
-    SiStripDetInfoFileReader reader_ = SiStripDetInfoFileReader(edm::FileInPath(k_geo).fullPath());
-    const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader_.getAllData();
+    const auto detInfo = SiStripDetInfoFileReader::read(edm::FileInPath(k_geo).fullPath());
     unsigned int count = 0;
-    for (const auto& it : DetInfos) {
+    for (const auto& it : detInfo.getAllData()) {
       count++;
       theMap.fill(it.first, count);
     }
