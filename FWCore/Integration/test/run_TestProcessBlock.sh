@@ -14,7 +14,7 @@ pushd ${LOCAL_TMP_DIR}
   grep "Branch.* ProcessBlockHelper " testProcessBlock1ContentsM.txt || die "Check for existence of ProcessBlockHelper branch" $?
   grep "TTree.*ProcessBlocksPROD1" testProcessBlock1ContentsM.txt || die "Check for existence of ProcessBlocksPROD1 TTree" $?
   edmFileUtil -t Events -P file:testProcessBlock1.root > testProcessBlock1ContentsE.txt
-  grep "Branch.* EventToProcessBlockIndexes " testProcessBlock1ContentsE.txt && die "Check for non-existence of eventToProcessBlockIndexes branch" $?
+  grep "Branch.* EventToProcessBlockIndexes " testProcessBlock1ContentsE.txt && die "Check for non-existence of eventToProcessBlockIndexes branch" 1
 
   echo "testProcessBlock2"
   cmsRun -p ${LOCAL_TEST_DIR}/testProcessBlock2_cfg.py > /dev/null 2>&1 || die "cmsRun testProcessBlock2_cfg.py" $?
@@ -51,15 +51,15 @@ pushd ${LOCAL_TMP_DIR}
   # The ProcessBlock Branches and TTrees should not exist in this case because
   # all the ProcessBlock products are dropped. Test that here:
   edmFileUtil -l -t MetaData -P file:testProcessBlock2Dropped.root > testProcessBlock2DroppedContentsM.txt
-  grep "Branch.* ProcessBlockHelper " testProcessBlock2DroppedContentsM.txt && die "Check for non-existence of ProcessBlockHelper branch" $?
-  grep "TTree.*ProcessBlocksPROD1" testProcessBlock2DroppedContentsM.txt && die "Check for non-existence of ProcessBlocksPROD1 TTree" $?
+  grep "Branch.* ProcessBlockHelper " testProcessBlock2DroppedContentsM.txt && die "Check for non-existence of ProcessBlockHelper branch" 1
+  grep "TTree.*ProcessBlocksPROD1" testProcessBlock2DroppedContentsM.txt && die "Check for non-existence of ProcessBlocksPROD1 TTree" 1
   edmFileUtil -t Events -P file:testProcessBlock2Dropped.root > testProcessBlock2DroppedContentsE.txt
-  grep "Branch.* EventToProcessBlockIndexes " testProcessBlock2DroppedContentsE.txt && die "Check for non-existence of eventToProcessBlockIndexes branch" $?
+  grep "Branch.* EventToProcessBlockIndexes " testProcessBlock2DroppedContentsE.txt && die "Check for non-existence of eventToProcessBlockIndexes branch" 1
 
   # This one intentionally fails because the product content of the
   # files does not match (strict merging requirements for ProcessBlocks)
   echo "testProcessBlockFailMerge"
-  cmsRun -p ${LOCAL_TEST_DIR}/testProcessBlockFailMerge_cfg.py > /dev/null 2>&1 && die "cmsRun testProcessBlockFailMerge_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/testProcessBlockFailMerge_cfg.py > /dev/null 2>&1 && die "cmsRun testProcessBlockFailMerge_cfg.py" 1
 
   echo "testProcessBlockMerge2"
   cmsRun -p ${LOCAL_TEST_DIR}/testProcessBlockMerge2_cfg.py > /dev/null 2>&1 || die "cmsRun testProcessBlockMerge2_cfg.py" $?
