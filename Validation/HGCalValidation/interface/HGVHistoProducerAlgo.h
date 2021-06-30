@@ -372,6 +372,7 @@ private:
   int nintScore_;
   double minSharedEneFrac_, maxSharedEneFrac_;
   int nintSharedEneFrac_;
+  double minTSTSharedEneFracEfficiency_;
   double minTSTSharedEneFrac_, maxTSTSharedEneFrac_;
   int nintTSTSharedEneFrac_;
   double minTotNsimClsperthick_, maxTotNsimClsperthick_;

@@ -96,6 +96,7 @@ HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
       minSharedEneFrac_(pset.getParameter<double>("minSharedEneFrac")),
       maxSharedEneFrac_(pset.getParameter<double>("maxSharedEneFrac")),
       nintSharedEneFrac_(pset.getParameter<int>("nintSharedEneFrac")),
+      minTSTSharedEneFracEfficiency_(pset.getParameter<double>("minTSTSharedEneFracEfficiency")),
 
       //Same as above for Tracksters
       minTSTSharedEneFrac_(pset.getParameter<double>("minTSTSharedEneFrac")),
@@ -2818,7 +2819,7 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
       histograms.h_energy_vs_score_caloparticle2trackster[count]->Fill(score3d[cpId][tstId],
                                                                        tstSharedEnergyFrac[cpId][tstId]);
       // Fill the numerator for the efficiency calculation. The efficiency is computed by considering the energy shared between a Trackster and a _corresponding_ caloParticle. The threshold is configurable via python.
-      if (!cp_considered_efficient && tstSharedEnergyFrac[cpId][tstId] >= 0.5) {
+      if (!cp_considered_efficient && tstSharedEnergyFrac[cpId][tstId] >= minTSTSharedEneFracEfficiency_) {
         cp_considered_efficient = true;
         histograms.h_num_caloparticle_eta[count]->Fill(cP[cpId].g4Tracks()[0].momentum().eta());
         histograms.h_num_caloparticle_phi[count]->Fill(cP[cpId].g4Tracks()[0].momentum().phi());
