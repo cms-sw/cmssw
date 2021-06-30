@@ -10,6 +10,10 @@ clctPhase1 = cms.PSet(
     clctNplanesHitPattern = cms.uint32(4),
     clctPidThreshPretrig  = cms.uint32(2),
     clctMinSeparation     = cms.uint32(10),
+
+    # Turns on algorithms of localized dead-time zones:
+    useDeadTimeZoning = cms.bool(False),
+
     # Debug
     verbosity = cms.int32(0),
 

@@ -6,7 +6,16 @@ tmbPhase1 = cms.PSet(
     clctTrigEnable  = cms.uint32(0),
     matchTrigEnable = cms.uint32(1),
     matchTrigWindowSize = cms.uint32(7),
+
+    # array with the preferred delta BX values for the candidate CLCTs
+    # perfectly in-time CLCTs are preferred, followed by
+    # first-early, first-late, second-early, second late, etc.
+    preferredBxMatch = cms.vint32(0, -1, 1, -2, 2, -3, 3),
+
+    # readout window for the DAQ
+    # LCTs found in the window [5, 6, 7, 8, 9, 10, 11] are good
     tmbL1aWindowSize = cms.uint32(7),
+
     # Debug
     verbosity = cms.int32(0),
 
@@ -16,15 +25,24 @@ tmbPhase1 = cms.PSet(
     # Flag for whether to readout only the earliest max two LCTs in a
     # L1A readout window, as there is only room just for two in the TMB header.
     # If false, all LCTs would be readout in L1A window.
+    # originally, this planned to change this for Phase-2, but no longer
+    # as of June 2021
     tmbReadoutEarliest2 = cms.bool(True),
 
-    # For CLCT-centric matching, whether to drop ALCTs that were matched
-    # to CLCTs in this BX, and not use them in the following BX
-    tmbDropUsedAlcts = cms.bool(True),
+    # For ALCT-centric matching in ME11, break after finding
+    # the first BX with matching CLCT
+    matchEarliestClctOnly = cms.bool(True),
 
     # For ALCT-centric matching, whether to drop CLCTs that were matched
     # to ALCTs in this BX, and not use them in the following BX
     tmbDropUsedClcts = cms.bool(False),
+
+    # True: allow construction of unphysical LCTs
+    # in ME11 for which WG and HS do not intersect.
+    # False: do not build such unphysical LCTs
+    # It is recommended to keep this False, so that
+    # the EMTF receives all information, physical or not
+    ignoreAlctCrossClct = cms.bool(True),
 
     ## bits for high-multiplicity triggers
     useHighMultiplicityBits = cms.bool(False),
@@ -32,20 +50,10 @@ tmbPhase1 = cms.PSet(
 
 # to be used by ME11 chambers with upgraded TMB and ALCT
 tmbPhase2 = tmbPhase1.clone(
-    # reduce ALCT-CLCT matching window size from 7 to 3
-    matchTrigWindowSize = 3,
-    tmbReadoutEarliest2 = False,
-    tmbDropUsedAlcts = False,
+    # reduce ALCT-CLCT matching window size from 7 to 5
+    matchTrigWindowSize = 5,
+    matchEarliestClctOnly = False,
     tmbDropUsedClcts = False,
-
-    # For CLCT-centric matching in ME11, break after finding
-    # the first BX with matching ALCT
-    matchEarliestAlctOnly = cms.bool(False),
-
-    # For ALCT-centric matching in ME11, break after finding
-    # the first BX with matching CLCT
-    matchEarliestClctOnly = cms.bool(False),
-
     # 0 = default "non-X-BX" sorting algorithm,
     #     where the first BX with match goes first
     # 1 = simple X-BX sorting algorithm,
@@ -55,11 +63,6 @@ tmbPhase2 = tmbPhase1.clone(
 
     # How many maximum LCTs per whole chamber per BX to keep
     maxLCTs = cms.uint32(2),
-
-    # True: allow construction of unphysical LCTs
-    # in ME11 for which WG and HS do not intersect
-    # False: do not build unphysical LCTs
-    ignoreAlctCrossClct = cms.bool(True),
 
     ## run in debug mode
     debugMatching = cms.bool(False),
