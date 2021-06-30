@@ -25,6 +25,7 @@ numWFIB.extend([31434.0]) #2026D68
 numWFIB.extend([32234.0]) #2026D70
 numWFIB.extend([34634.0]) #2026D76
 numWFIB.extend([34834.999]) #2026D76 premixing combined stage1+stage2 (ttbar+PU50 for PR test)
+numWFIB.extend([34634.21,34834.21,34834.9921]) #2026D76 prodlike, prodlike PU, prodlike premix stage1+stage2
 numWFIB.extend([35034.0]) #2026D77
 numWFIB.extend([35434.0]) #2026D78
 numWFIB.extend([35834.0]) #2026D79
