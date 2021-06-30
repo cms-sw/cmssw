@@ -164,6 +164,10 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
   neb_ = ebUncalibRecHits.size;
   nee_ = eeUncalibRecHits.size;
 
+  // stop here if there are no uncalibRecHits
+  if (neb_ + nee_ == 0)
+    return;
+
   if ((neb_ > configParameters_.maxNumberHitsEB) || (nee_ > configParameters_.maxNumberHitsEE)) {
     edm::LogError("EcalRecHitProducerGPU")
         << "max number of channels exceeded. See options 'maxNumberHitsEB and maxNumberHitsEE' ";
