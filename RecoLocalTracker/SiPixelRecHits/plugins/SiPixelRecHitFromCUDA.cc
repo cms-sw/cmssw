@@ -94,6 +94,7 @@ void SiPixelRecHitFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& e
     iEvent.emplace(rechitsPutToken_, std::move(output));
     return;
   }
+  output.reserve(gpuClustering::maxNumModules, nHits_);
 
   auto xl = store32_.get();
   auto yl = xl + nHits_;
@@ -162,10 +163,7 @@ void SiPixelRecHitFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& e
       // Create a persistent edm::Ref to the cluster
       edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> cluster = edmNew::makeRefTo(hclusters, &clust);
       // Make a RecHit and add it to the DetSet
-      SiPixelRecHit hit(lp, le, rqw, *genericDet, cluster);
-      //
-      // Now save it =================
-      recHitsOnDetUnit.push_back(hit);
+      recHitsOnDetUnit.emplace_back(lp, le, rqw, *genericDet, cluster);
       // =============================
 
       LogDebug("SiPixelRecHitFromCUDA") << "cluster " << numberOfClusters << " at " << lp << ' ' << le;
