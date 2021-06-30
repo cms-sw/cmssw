@@ -14,6 +14,11 @@
 
 namespace edm {
 
+  // NOTE: The defaults given here are not actually used when running cmsRun
+  // Those come from hard coded values in the Python code in Config.py
+  // The defaults here are used when running the edmPluginHelp utility so
+  // it is important the defaults in both places are consistent.
+
   void fillOptionsDescription(ParameterSetDescription& description) {
     description.addUntracked<unsigned int>("numberOfThreads", s_defaultNumberOfThreads)
         ->setComment("If zero, let TBB use its default which is normally the number of CPUs on the machine");
@@ -73,7 +78,10 @@ namespace edm {
     description.addUntracked<std::vector<std::string>>("canDeleteEarly", emptyVector)
         ->setComment("Branch names of products that the Framework can try to delete before the end of the Event");
 
-    description.addUntracked<bool>("dumpOptions", false);
+    description.addUntracked<bool>("dumpOptions", false)
+        ->setComment(
+            "Print values of selected Framework parameters. The Framework might modify the values "
+            "in the options parameter set and this prints the values after that modification.");
 
     description.addOptionalUntracked<bool>("allowUnscheduled")
         ->setComment(
@@ -149,9 +157,8 @@ namespace edm {
                             unsigned int nStreams,
                             unsigned int nConcurrentLumis,
                             unsigned int nConcurrentRuns) {
-    LogAbsolute("Options") << "Number of Threads = " << nThreads;
-    LogAbsolute("Options") << "Number of Streams = " << nStreams;
-    LogAbsolute("Options") << "Number of Concurrent Lumis = " << nConcurrentLumis;
-    LogAbsolute("Options") << "Number of Concurrent Runs = " << nConcurrentRuns;
+    LogAbsolute("Options") << "Number of Threads = " << nThreads << "\nNumber of Streams = " << nStreams
+                           << "\nNumber of Concurrent Lumis = " << nConcurrentLumis
+                           << "\nNumber of Concurrent Runs = " << nConcurrentRuns;
   }
 }  // namespace edm
