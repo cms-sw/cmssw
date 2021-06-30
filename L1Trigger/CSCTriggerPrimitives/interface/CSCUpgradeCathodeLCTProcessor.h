@@ -31,9 +31,6 @@ public:
                                 unsigned chamber,
                                 const edm::ParameterSet& conf);
 
-  /** Default constructor. Used for testing. */
-  CSCUpgradeCathodeLCTProcessor();
-
 protected:
   /* is a given half-strip in a pretrigger dead zone */
   bool busyMap[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER][CSCConstants::MAX_CLCT_TBINS];
@@ -41,7 +38,10 @@ protected:
 private:
   /** VK: use of localized dead-time zones */
   bool use_dead_time_zoning;
-  unsigned int clct_state_machine_zone;  // +- around a keystrip
+
+  /* +/- half-strips around a keystrip that are dead
+     for a few BX after a CLCT was found*/
+  unsigned int clct_state_machine_zone;
 
   /** VK: allow triggers only in +-pretrig_trig_zone around pretriggers */
   unsigned int pretrig_trig_zone;
@@ -49,7 +49,7 @@ private:
   /** VK: whether to use corrected_bx instead of pretrigger BX */
   bool use_corrected_bx;
 
-  //--------------- Functions for Phase2 studies ----------------
+  /* Phase-2 version of the CLCT finder function */
   std::vector<CSCCLCTDigi> findLCTs(
       const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER])
       override;

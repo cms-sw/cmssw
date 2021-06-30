@@ -47,7 +47,12 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   tmb_l1a_window_size =  // Common to CLCT and TMB
       tmbParams_.getParameter<unsigned int>("tmbL1aWindowSize");
 
-  // separate handle for early time bins
+  /*
+    In Summer 2021 the CLCT readout function was updated so that the
+    window is based on a number of time bins around the central CLCT
+    time BX7. In the past the window was based on early_tbins and late_tbins.
+    The parameter is kept, but is not used.
+  */
   early_tbins = tmbParams_.getParameter<int>("tmbEarlyTbins");
   if (early_tbins < 0)
     early_tbins = fifo_pretrig - CSCConstants::CLCT_EMUL_TIME_OFFSET;
@@ -58,7 +63,8 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   // Verbosity level, set to 0 (no print) by default.
   infoV = clctParams_.getParameter<int>("verbosity");
 
-  // Do not exclude pattern 0 and 1 when the Run-3 patterns are enabled.
+  // Do not exclude pattern 0 and 1 when the Run-3 patterns are enabled!!
+  // Valid Run-3 patterns are 0,1,2,3,4
   if (runCCLUT_) {
     pid_thresh_pretrig = 0;
   }
@@ -523,8 +529,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
   if (infoV > 1)
     dumpDigis(halfstrip);
 
-  // 2 possible LCTs per CSC x 7 LCT quantities
-  int keystrip_data[CSCConstants::MAX_CLCTS_PER_PROCESSOR][CLCT_NUM_QUANTITIES] = {{0}};
   PulseArray pulse;
 
   // Fire half-strip one-shots for hit_persist bx's (4 bx's by default).
@@ -637,32 +641,28 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
         for (int ilct = 0; ilct < CSCConstants::MAX_CLCTS_PER_PROCESSOR; ilct++) {
           int best_hs = best_halfstrip[ilct];
           if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
-            keystrip_data[ilct][CLCT_PATTERN] = best_pid[best_hs];
-            keystrip_data[ilct][CLCT_BEND] =
-                clct_pattern_[best_pid[best_hs]][CSCConstants::NUM_LAYERS - 1][CSCConstants::CLCT_PATTERN_WIDTH];
+            // prototype CLCT information
+            ProtoCLCT protoCLCT;
+            // Assign the CLCT properties
+            protoCLCT.quality = nhits[best_hs];
+            protoCLCT.pattern = best_pid[best_hs];
+            // CLCTs are always of type halfstrip (not strip or distrip)
+            protoCLCT.striptype = 1;
+            protoCLCT.bend = CSCPatternBank::getPatternBend(clct_pattern_[protoCLCT.pattern]);
             // Remove stagger if any.
-            keystrip_data[ilct][CLCT_STRIP] = best_hs - stagger[CSCConstants::KEY_CLCT_LAYER - 1];
-            keystrip_data[ilct][CLCT_BX] = first_bx;
-            keystrip_data[ilct][CLCT_STRIP_TYPE] = 1;  // obsolete
-            keystrip_data[ilct][CLCT_QUALITY] = nhits[best_hs];
-            keystrip_data[ilct][CLCT_CFEB] = keystrip_data[ilct][CLCT_STRIP] / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
-            int halfstrip_in_cfeb = keystrip_data[ilct][CLCT_STRIP] -
-                                    CSCConstants::NUM_HALF_STRIPS_PER_CFEB * keystrip_data[ilct][CLCT_CFEB];
-
-            if (infoV > 1)
-              LogTrace("CSCCathodeLCTProcessor")
-                  << " Final selection: ilct " << ilct << " key halfstrip " << keystrip_data[ilct][CLCT_STRIP]
-                  << " quality " << keystrip_data[ilct][CLCT_QUALITY] << " pattern "
-                  << keystrip_data[ilct][CLCT_PATTERN] << " bx " << keystrip_data[ilct][CLCT_BX];
+            protoCLCT.keyhalfstrip = best_hs - stagger[CSCConstants::KEY_CLCT_LAYER - 1];
+            protoCLCT.cfeb = protoCLCT.keyhalfstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
+            protoCLCT.halfstrip = protoCLCT.keyhalfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
+            protoCLCT.bx = first_bx;
 
             CSCCLCTDigi thisLCT(1,
-                                keystrip_data[ilct][CLCT_QUALITY],
-                                keystrip_data[ilct][CLCT_PATTERN],
-                                keystrip_data[ilct][CLCT_STRIP_TYPE],
-                                keystrip_data[ilct][CLCT_BEND],
-                                halfstrip_in_cfeb,
-                                keystrip_data[ilct][CLCT_CFEB],
-                                keystrip_data[ilct][CLCT_BX],
+                                protoCLCT.quality,
+                                protoCLCT.pattern,
+                                protoCLCT.striptype,
+                                protoCLCT.bend,
+                                protoCLCT.halfstrip,
+                                protoCLCT.cfeb,
+                                protoCLCT.bx,
                                 0,
                                 // track number is assigned later
                                 0,
@@ -671,8 +671,12 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
                                 // default version is legacy
                                 CSCCLCTDigi::Version::Legacy);
 
-            // get the comparator hits for this pattern
-            const auto& compHits = hits_in_patterns[best_hs][keystrip_data[ilct][CLCT_PATTERN]];
+            if (infoV > 1) {
+              LogTrace("CSCCathodeLCTProcessor") << " Final selection: ilct " << ilct << " " << thisLCT << std::endl;
+            }
+
+            // get the comparator hits for this pattern (need to take into account the stagger)
+            const auto& compHits = hits_in_patterns[best_hs][protoCLCT.pattern];
 
             // set the hit collection
             thisLCT.setHits(compHits);
@@ -1073,143 +1077,99 @@ void CSCCathodeLCTProcessor::dumpDigis(
 
 // Returns vector of read-out CLCTs, if any.  Starts with the vector
 // of all found CLCTs and selects the ones in the read-out time window.
-std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs(int nMaxCLCTs) const {
+std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() const {
+  // temporary container for further selection
   std::vector<CSCCLCTDigi> tmpV;
 
-  // The start time of the L1A*CLCT coincidence window should be
-  // related to the fifo_pretrig parameter, but I am not completely
-  // sure how.  For now, just choose it such that the window is
-  // centered at bx=7.  This may need further tweaking if the value of
-  // tmb_l1a_window_size changes.
+  /*
+    CLCTs in the BX window [early_tbin,...,late_tbin] are considered good for physics
+    The central CLCT BX is time bin 7.
+    For tmb_l1a_window_size set to 7 (Run-1, Run-2), the window is [4, 5, 6, 7, 8, 9, 10]
+    For tmb_l1a_window_size set to 5 (Run-3), the window is [5, 6, 7, 8, 9]
+    For tmb_l1a_window_size set to 3 (Run-4?), the window is [6, 7, 8]
+  */
+  const unsigned delta_tbin = tmb_l1a_window_size / 2;
+  int early_tbin = CSCConstants::CLCT_CENTRAL_BX - delta_tbin;
+  int late_tbin = CSCConstants::CLCT_CENTRAL_BX + delta_tbin;
+  /*
+     Special case for an even-numbered time-window,
+     For instance tmb_l1a_window_size set to 6: [4, 5, 6, 7, 8, 9]
+  */
+  if (tmb_l1a_window_size % 2 == 0)
+    late_tbin = CSCConstants::CLCT_CENTRAL_BX + delta_tbin - 1;
+  const int max_late_tbin = CSCConstants::MAX_CLCT_TBINS - 1;
 
-  // The number of CLCT bins in the read-out is given by the
-  // tmb_l1a_window_size parameter, but made even by setting the LSB
-  // of tmb_l1a_window_size to 0.
-  //
-  static std::atomic<int> lct_bins;
-  lct_bins = (tmb_l1a_window_size % 2 == 0) ? tmb_l1a_window_size : tmb_l1a_window_size - 1;
-  static std::atomic<int> late_tbins;
-  late_tbins = early_tbins + lct_bins;
-
-  static std::atomic<int> ifois{0};
-  if (ifois == 0) {
-    if (infoV >= 0 && early_tbins < 0) {
-      edm::LogWarning("L1CSCTPEmulatorSuspiciousParameters")
-          << "+++ early_tbins = " << early_tbins << "; in-time CLCTs are not getting read-out!!! +++"
-          << "\n";
+  // debugging messages when early_tbin or late_tbin has a suspicious value
+  bool debugTimeBins = true;
+  if (debugTimeBins) {
+    if (early_tbin < 0) {
+      edm::LogWarning("CSCCathodeLCTProcessor|SuspiciousParameters")
+          << "Early time bin (early_tbin) smaller than minimum allowed, which is 0. set early_tbin to 0.";
+      early_tbin = 0;
     }
-
-    if (late_tbins > CSCConstants::MAX_CLCT_TBINS - 1) {
-      if (infoV >= 0)
-        edm::LogWarning("L1CSCTPEmulatorSuspiciousParameters")
-            << "+++ Allowed range of time bins, [0-" << late_tbins << "] exceeds max allowed, "
-            << CSCConstants::MAX_CLCT_TBINS - 1 << " +++\n"
-            << "+++ Set late_tbins to max allowed +++\n";
-      late_tbins = CSCConstants::MAX_CLCT_TBINS - 1;
+    if (late_tbin > max_late_tbin) {
+      edm::LogWarning("CSCCathodeLCTProcessor|SuspiciousParameters")
+          << "Late time bin (late_tbin) larger than maximum allowed, which is " << max_late_tbin
+          << ". set early_tbin to max allowed";
+      late_tbin = CSCConstants::MAX_CLCT_TBINS - 1;
     }
-    ifois = 1;
+    debugTimeBins = false;
   }
+
+  // get the valid LCTs. No BX selection is done here
+  const auto& all_clcts = getCLCTs();
 
   // Start from the vector of all found CLCTs and select those within
   // the CLCT*L1A coincidence window.
   int bx_readout = -1;
-  const std::vector<CSCCLCTDigi>& all_lcts = getCLCTs(nMaxCLCTs);
-  for (const auto& p : all_lcts) {
+  for (const auto& clct : all_clcts) {
     // only consider valid CLCTs
-    if (!p.isValid())
+    if (!clct.isValid())
       continue;
 
-    const int bx = p.getBX();
+    const int bx = clct.getBX();
     // Skip CLCTs found too early relative to L1Accept.
-    if (bx <= early_tbins) {
+    if (bx < early_tbin) {
       if (infoV > 1)
         LogDebug("CSCCathodeLCTProcessor")
-            << " Do not report CLCT on key halfstrip " << p.getKeyStrip() << ": found at bx " << bx
-            << ", whereas the earliest allowed bx is " << early_tbins + 1;
+            << " Do not report correlated CLCT on key halfstrip " << clct.getStrip() << ": found at bx " << bx
+            << ", whereas the earliest allowed bx is " << early_tbin;
       continue;
     }
 
     // Skip CLCTs found too late relative to L1Accept.
-    if (bx > late_tbins) {
+    if (bx > late_tbin) {
       if (infoV > 1)
         LogDebug("CSCCathodeLCTProcessor")
-            << " Do not report CLCT on key halfstrip " << p.getKeyStrip() << ": found at bx " << bx
-            << ", whereas the latest allowed bx is " << late_tbins;
+            << " Do not report correlated CLCT on key halfstrip " << clct.getStrip() << ": found at bx " << bx
+            << ", whereas the latest allowed bx is " << late_tbin;
       continue;
     }
 
     // If (readout_earliest_2) take only CLCTs in the earliest bx in the read-out window:
-    // in digi->raw step, LCTs have to be packed into the TMB header, and
-    // currently there is room just for two.
     if (readout_earliest_2) {
+      // the first CLCT passes
+      // the second CLCT passes if the BX matches to the first
       if (bx_readout == -1 || bx == bx_readout) {
-        tmpV.push_back(p);
+        tmpV.push_back(clct);
         if (bx_readout == -1)
           bx_readout = bx;
       }
     } else
-      tmpV.push_back(p);
+      tmpV.push_back(clct);
   }
 
   // do a final check on the CLCTs in readout
   qualityControl_->checkMultiplicityBX(tmpV);
   for (const auto& clct : tmpV) {
-    qualityControl_->checkValid(clct, nMaxCLCTs);
+    qualityControl_->checkValid(clct);
   }
 
   return tmpV;
 }
 
-// Returns vector of read-out CLCTs, if any.  Starts with the vector
-// of all found CLCTs and selects the ones in the read-out time window.
-std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTsME1a(int nMaxCLCTs) const {
-  std::vector<CSCCLCTDigi> tmpV;
-  if (not(theStation == 1 and (theRing == 1 or theRing == 4)))
-    return tmpV;
-  const std::vector<CSCCLCTDigi>& allCLCTs = readoutCLCTs(nMaxCLCTs);
-  for (const auto& clct : allCLCTs)
-    if (clct.getCFEB() >= 4)
-      tmpV.push_back(clct);
-  return tmpV;
-}
-
-// Returns vector of read-out CLCTs, if any.  Starts with the vector
-// of all found CLCTs and selects the ones in the read-out time window.
-std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTsME1b(int nMaxCLCTs) const {
-  std::vector<CSCCLCTDigi> tmpV;
-  if (not(theStation == 1 and (theRing == 1 or theRing == 4)))
-    return tmpV;
-  const std::vector<CSCCLCTDigi>& allCLCTs = readoutCLCTs(nMaxCLCTs);
-  for (const auto& clct : allCLCTs)
-    if (clct.getCFEB() < 4)
-      tmpV.push_back(clct);
-  return tmpV;
-}
-
-std::vector<CSCCLCTPreTriggerDigi> CSCCathodeLCTProcessor::preTriggerDigisME1a() const {
-  std::vector<CSCCLCTPreTriggerDigi> tmpV;
-  if (not(theStation == 1 and (theRing == 1 or theRing == 4)))
-    return tmpV;
-  const std::vector<CSCCLCTPreTriggerDigi>& allPretriggerdigis = preTriggerDigis();
-  for (const auto& preclct : allPretriggerdigis)
-    if (preclct.getCFEB() >= 4)
-      tmpV.push_back(preclct);
-  return tmpV;
-}
-
-std::vector<CSCCLCTPreTriggerDigi> CSCCathodeLCTProcessor::preTriggerDigisME1b() const {
-  std::vector<CSCCLCTPreTriggerDigi> tmpV;
-  if (not(theStation == 1 and (theRing == 1 or theRing == 4)))
-    return tmpV;
-  const std::vector<CSCCLCTPreTriggerDigi>& allPretriggerdigis = preTriggerDigis();
-  for (const auto& preclct : allPretriggerdigis)
-    if (preclct.getCFEB() < 4)
-      tmpV.push_back(preclct);
-  return tmpV;
-}
-
 // Returns vector of all found CLCTs, if any.  Used for ALCT-CLCT matching.
-std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs(unsigned nMaxCLCTs) const {
+std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() const {
   std::vector<CSCCLCTDigi> tmpV;
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
     if (bestCLCT[bx].isValid())

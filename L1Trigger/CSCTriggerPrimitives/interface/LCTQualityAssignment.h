@@ -59,6 +59,9 @@ public:
   // constructor
   LCTQualityAssignment(unsigned station);
 
+  // quality for all LCTs in Run-1/2 or Run-3
+  unsigned findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, bool runCCLUT) const;
+
   // quality for all LCTs in Run-1 and Run-2
   unsigned findQualityRun2(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
 
