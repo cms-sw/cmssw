@@ -7,6 +7,13 @@
 
 LCTQualityAssignment::LCTQualityAssignment(unsigned station) : station_(station) {}
 
+unsigned LCTQualityAssignment::findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, bool runCCLUT) const {
+  if (runCCLUT)
+    return findQualityRun3(aLCT, cLCT);
+  else
+    return findQualityRun2(aLCT, cLCT);
+}
+
 // 4-bit LCT quality number.
 unsigned LCTQualityAssignment::findQualityRun2(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const {
   LCT_QualityRun2 qual = LCT_QualityRun2::INVALID;

@@ -13,6 +13,8 @@ options.register ("run3", True, VarParsing.multiplicity.singleton, VarParsing.va
 options.register ("runCCLUT", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("runME11ILT", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("saveEdmOutput", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("preTriggerAnalysis", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("dropNonMuonCollections", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.parseArguments()
 
 process_era = Run3
@@ -40,7 +42,11 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source(
       "PoolSource",
-      fileNames = cms.untracked.vstring(options.inputFiles)
+      fileNames = cms.untracked.vstring(options.inputFiles),
+      inputCommands = cms.untracked.vstring(
+            'keep *',
+            'drop CSCDetIdCSCShowerDigiMuonDigiCollection_simCscTriggerPrimitiveDigis_*_*'
+      )
 )
 
 ## global tag (data or MC, Run-2 or Run-3)
@@ -60,9 +66,9 @@ if not options.mc or options.unpack:
       process.cscTriggerPrimitiveDigis.CSCWireDigiProducer = "muonCSCDigis:MuonCSCWireDigi"
 
 ## unpacker
-if options.unpack:
-      process.muonCSCDigis.DisableMappingCheck = options.useB904Data
-      process.muonCSCDigis.B904Setup = options.useB904Data
+if options.useB904Data:
+      process.muonCSCDigis.DisableMappingCheck = True
+      process.muonCSCDigis.B904Setup = True
 
 ## l1 emulator
 l1csc = process.cscTriggerPrimitiveDigis
@@ -83,6 +89,7 @@ if options.dqm:
       process.l1tdeCSCTPG.emulALCT = "cscTriggerPrimitiveDigis"
       process.l1tdeCSCTPG.emulCLCT = "cscTriggerPrimitiveDigis"
       process.l1tdeCSCTPG.emulLCT = "cscTriggerPrimitiveDigis:MPCSORTED"
+      process.l1tdeCSCTPG.preTriggerAnalysis = options.preTriggerAnalysis
 
 # Output
 process.output = cms.OutputModule(
@@ -93,6 +100,22 @@ process.output = cms.OutputModule(
       ]),
       fileName = cms.untracked.string("lcts2.root"),
 )
+
+## for most studies, you don't need these collections.
+## adjust as necessary
+if options.dropNonMuonCollections:
+      outputCom = process.output.outputCommands
+      outputCom.append('drop *_rawDataCollector_*_*')
+      outputCom.append('drop *_sim*al*_*_*')
+      outputCom.append('drop *_hlt*al*_*_*')
+      outputCom.append('drop *_g4SimHits_*al*_*')
+      outputCom.append('drop *_simSi*_*_*')
+      outputCom.append('drop *_hltSi*_*_*')
+      outputCom.append('drop *_simBmtfDigis_*_*')
+      outputCom.append('drop *_*_*BMTF*_*')
+      outputCom.append('drop *_hltGtStage2ObjectMap_*_*')
+      outputCom.append('drop *_simGtStage2Digis_*_*')
+      outputCom.append('drop *_hltTriggerSummary*_*_*')
 
 ## DQM output
 process.DQMoutput = cms.OutputModule("DQMRootOutputModule",

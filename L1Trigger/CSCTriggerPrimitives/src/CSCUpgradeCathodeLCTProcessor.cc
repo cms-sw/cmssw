@@ -65,7 +65,7 @@ bool CSCUpgradeCathodeLCTProcessor::preTrigger(const PulseArray pulse, const int
                 << " nhits = " << nhits[hstrip];
           }
         }
-        //ispretrig[hstrip] = false; it is initialzed in findLCT
+        // note that ispretrig is initialized in findLCT function
         if (nhits[hstrip] >= nplanes_hit_pretrig && best_pid[hstrip] >= pid_thresh_pretrig &&
             !busyMap[hstrip][bx_time]) {
           pre_trig = true;
@@ -94,13 +94,17 @@ bool CSCUpgradeCathodeLCTProcessor::preTrigger(const PulseArray pulse, const int
 
       //update dead zone
       for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < numHalfStrips_; hstrip++) {
+        // check if this halfstrip has a pretrigger
         if (ispretrig[hstrip]) {
           int min_hstrip = hstrip - delta_hs;  //only fixed localized dead time zone is implemented
           int max_hstrip = hstrip + delta_hs;
+          // set the minimum strip
           if (min_hstrip < stagger[CSCConstants::KEY_CLCT_LAYER - 1])
             min_hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1];
+          // set the maximum strip
           if (max_hstrip >= numHalfStrips_)
             max_hstrip = numHalfStrips_ - 1;
+          // mask the busy half-strips
           for (int hs = min_hstrip; hs <= max_hstrip; hs++)
             busyMap[hs][bx_time + 1] = true;
           if (infoV > 1)
@@ -154,7 +158,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
 
   std::vector<CSCCLCTDigi> lctListBX;
 
-  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
+  PulseArray pulse;
 
   // Fire half-strip one-shots for hit_persist bx's (4 bx's by default).
   pulseExtension(halfstrip, pulse);
@@ -171,6 +175,8 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
 
     // All half-strip pattern envelopes are evaluated simultaneously, on every clock cycle.
     int first_bx = 999;
+
+    // Check for a pre-trigger. If so, find the first BX when the pre-trigger occurred
     bool pre_trig = CSCUpgradeCathodeLCTProcessor::preTrigger(pulse, start_bx, first_bx);
 
     // If any of half-strip envelopes has enough layers hit in it, TMB
@@ -183,9 +189,12 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
       // TMB latches LCTs drift_delay clocks after pretrigger.
       int latch_bx = first_bx + drift_delay;
 
+      // temporary container to keep track of the hits in the CLCT
       std::map<int, std::map<int, CSCCLCTDigi::ComparatorContainer> > hits_in_patterns;
       hits_in_patterns.clear();
 
+      // We check if there is at least one key half strip for which at least
+      // one pattern id has at least the minimum number of hits
       bool hits_in_time = patternFinding(pulse, latch_bx, hits_in_patterns);
       if (infoV > 1) {
         if (hits_in_time) {
@@ -200,9 +209,6 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
         }
       }
 
-      // 2 possible LCTs per CSC x 7 LCT quantities per BX
-      int keystrip_data[CSCConstants::MAX_CLCTS_PER_PROCESSOR][CLCT_NUM_QUANTITIES] = {{0}};
-
       // Quality for sorting.
       int quality[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
       int best_halfstrip[CSCConstants::MAX_CLCTS_PER_PROCESSOR], best_quality[CSCConstants::MAX_CLCTS_PER_PROCESSOR];
@@ -214,7 +220,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
       bool pretrig_zone[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
 
       // Calculate quality from pattern id and number of hits, and
-      // simultaneously select best-quality LCT.
+      // simultaneously select best-quality CLCT.
       if (hits_in_time) {
         // first, mark half-strip zones around pretriggers
         // that happened at the current first_bx
@@ -224,10 +230,13 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
           if (ispretrig[hstrip]) {
             int min_hs = hstrip - pretrig_trig_zone;
             int max_hs = hstrip + pretrig_trig_zone;
+            // set the minimum strip
             if (min_hs < 0)
               min_hs = 0;
+            // set the maximum strip
             if (max_hs > CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER - 1)
               max_hs = CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER - 1;
+            // mark the pre-trigger zone
             for (int hs = min_hs; hs <= max_hs; hs++)
               pretrig_zone[hs] = true;
             if (infoV > 1)
@@ -237,14 +246,23 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
         }
 
         for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < numHalfStrips_; hstrip++) {
-          // The bend-direction bit pid[0] is ignored (left and right bends have equal quality).
+          /* The bend-direction bit pid[0] is ignored (left and right bends have equal quality).
+           This works both for the Run-2 patterns
+           - PID 2,3: 2 & 14 == 2, 3 & 14 == 2
+           - PID 4,5: 4 & 14 == 4, 3 & 14 == 4
+           - PID 6,7: 6 & 14 == 6, 3 & 14 == 6
+           - PID 8,9: 8 & 14 == 8, 3 & 14 == 8
+           - PID 10: 10 & 14 == 10
+           It also works for the Run-3 patterns:
+           - PID 0,1: 0 & 14 == 0, 1 & 14 == 0
+           - PID 2,3: 2 & 14 == 2, 3 & 14 == 2
+           - PID  4:  4 & 14 == 4
+          */
           quality[hstrip] = (best_pid[hstrip] & 14) | (nhits[hstrip] << 5);
           // do not consider halfstrips:
           //   - out of pretrigger-trigger zones
           //   - in busy zones from previous trigger
-          if (quality[hstrip] > best_quality[0] && pretrig_zone[hstrip] && !busyMap[hstrip][first_bx])
-          //!busyMap[hstrip][latch_bx] )
-          {
+          if (quality[hstrip] > best_quality[0] && pretrig_zone[hstrip] && !busyMap[hstrip][first_bx]) {
             best_halfstrip[0] = hstrip;
             best_quality[0] = quality[hstrip];
             if (infoV > 1) {
@@ -263,9 +281,8 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
         markBusyKeys(best_halfstrip[0], best_pid[best_halfstrip[0]], quality);
 
         for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < numHalfStrips_; hstrip++) {
-          if (quality[hstrip] > best_quality[1] && pretrig_zone[hstrip] && !busyMap[hstrip][first_bx])
-          //!busyMap[hstrip][latch_bx] )
-          {
+          // we don't have to recalculate the quality for each half-strip
+          if (quality[hstrip] > best_quality[1] && pretrig_zone[hstrip] && !busyMap[hstrip][first_bx]) {
             best_halfstrip[1] = hstrip;
             best_quality[1] = quality[hstrip];
             if (infoV > 1) {
@@ -282,40 +299,47 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
         for (int ilct = 0; ilct < CSCConstants::MAX_CLCTS_PER_PROCESSOR; ilct++) {
           int best_hs = best_halfstrip[ilct];
           if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
+            // assign the CLCT BX as the time when the pre-trigger was found
             int bx = first_bx;
             int fbx = first_bx_corrected[best_hs];
+            // case when we use a corrected BX
             if (use_corrected_bx) {
               bx = fbx;
               fbx = first_bx;
             }
-            //ptn_trig = true;
-            keystrip_data[ilct][CLCT_PATTERN] = best_pid[best_hs];
-            keystrip_data[ilct][CLCT_BEND] =
-                clct_pattern_[best_pid[best_hs]][CSCConstants::NUM_LAYERS - 1][CSCConstants::CLCT_PATTERN_WIDTH];
-            // Remove stagger if any.
-            keystrip_data[ilct][CLCT_STRIP] = best_hs - stagger[CSCConstants::KEY_CLCT_LAYER - 1];
-            keystrip_data[ilct][CLCT_BX] = bx;
-            keystrip_data[ilct][CLCT_STRIP_TYPE] = 1;  // obsolete
-            keystrip_data[ilct][CLCT_QUALITY] = nhits[best_hs];
-            keystrip_data[ilct][CLCT_CFEB] = keystrip_data[ilct][CLCT_STRIP] / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
-            int halfstrip_in_cfeb = keystrip_data[ilct][CLCT_STRIP] -
-                                    CSCConstants::NUM_HALF_STRIPS_PER_CFEB * keystrip_data[ilct][CLCT_CFEB];
+            // prototype CLCT information
+            ProtoCLCT protoCLCT;
+            // Assign the CLCT properties
+            protoCLCT.quality = nhits[best_hs];
+            protoCLCT.pattern = best_pid[best_hs];
+            // CLCTs are always of type halfstrip (not strip or distrip)
+            protoCLCT.striptype = 1;
+            protoCLCT.bend = CSCPatternBank::getPatternBend(clct_pattern_[protoCLCT.pattern]);
+            protoCLCT.keyhalfstrip = best_hs - stagger[CSCConstants::KEY_CLCT_LAYER - 1];
+            protoCLCT.cfeb = protoCLCT.keyhalfstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
+            protoCLCT.halfstrip = protoCLCT.keyhalfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
+            protoCLCT.bx = bx;
 
             CSCCLCTDigi thisLCT(1,
-                                keystrip_data[ilct][CLCT_QUALITY],
-                                keystrip_data[ilct][CLCT_PATTERN],
-                                keystrip_data[ilct][CLCT_STRIP_TYPE],
-                                keystrip_data[ilct][CLCT_BEND],
-                                halfstrip_in_cfeb,
-                                keystrip_data[ilct][CLCT_CFEB],
-                                keystrip_data[ilct][CLCT_BX]);
+                                protoCLCT.quality,
+                                protoCLCT.pattern,
+                                protoCLCT.striptype,
+                                protoCLCT.bend,
+                                protoCLCT.halfstrip,
+                                protoCLCT.cfeb,
+                                protoCLCT.bx,
+                                0,
+                                0,
+                                -1,
+                                CSCCLCTDigi::Version::Legacy);
+
             if (infoV > 1) {
               LogTrace("CSCCathodeLCTProcessor") << " Final selection: ilct " << ilct << " " << thisLCT << std::endl;
             }
             thisLCT.setFullBX(fbx);
 
-            // get the comparator hits for this pattern
-            const auto& compHits = hits_in_patterns[best_hs][keystrip_data[ilct][CLCT_PATTERN]];
+            // get the comparator hits for this pattern (need to taken into account the stagger)
+            const auto& compHits = hits_in_patterns[best_hs][protoCLCT.pattern];
 
             // set the hit collection
             thisLCT.setHits(compHits);

@@ -27,15 +27,6 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
 
   theParity = theChamber % 2 == 0 ? Parity::Even : Parity::Odd;
 
-  // enable the upgrade processors
-  if (runPhase2_ and theRing == 1) {
-    clctProc = std::make_unique<CSCUpgradeCathodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
-    if (enableAlctPhase2_) {
-      alctProc = std::make_unique<CSCUpgradeAnodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
-    }
-  }
-
-  match_earliest_alct_only = tmbParams_.getParameter<bool>("matchEarliestAlctOnly");
   match_earliest_clct_only = tmbParams_.getParameter<bool>("matchEarliestClctOnly");
   drop_used_clcts = tmbParams_.getParameter<bool>("tmbDropUsedClcts");
   tmb_cross_bx_algo = tmbParams_.getParameter<unsigned int>("tmbCrossBxAlgorithm");
