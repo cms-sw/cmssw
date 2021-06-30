@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+constexpr unsigned int kDoNotTest = 0xffffffff;
+
 namespace edm {
 
   class TestOneOutput : public one::OutputModule<WatchInputFiles, RunCache<int>, LuminosityBlockCache<int>> {
@@ -281,7 +283,7 @@ namespace edm {
             << "TestOneOutput::writeProcessBlock unexpected value for translateFromStoredIndex";
       }
     }
-    if (expectedNAddedProcesses_ != 0xffffffff) {
+    if (expectedNAddedProcesses_ != kDoNotTest) {
       if (expectedNAddedProcesses_ != outputProcessBlockHelper().nAddedProcesses()) {
         throw cms::Exception("TestFailure") << "TestOneOutput::writeProcessBlock unexpected value for nAddedProcesses";
       }
@@ -401,7 +403,7 @@ namespace edm {
     desc.addUntracked<std::vector<unsigned int>>("expectedCacheEntriesPerFile2", std::vector<unsigned int>());
     desc.addUntracked<std::vector<unsigned int>>("expectedOuterOffset", std::vector<unsigned int>());
     desc.addUntracked<std::vector<unsigned int>>("expectedTranslateFromStoredIndex", std::vector<unsigned int>());
-    desc.addUntracked<unsigned int>("expectedNAddedProcesses", 0xffffffff);
+    desc.addUntracked<unsigned int>("expectedNAddedProcesses", kDoNotTest);
     desc.addUntracked<bool>("expectedProductsFromInputKept", true);
 
     descriptions.addDefault(desc);
