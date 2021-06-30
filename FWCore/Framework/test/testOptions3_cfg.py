@@ -1,4 +1,4 @@
-# Test of options when parameters are zero
+# Test of options when concurrentIOVs and concurrentLumis are too big
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 process.source = cms.Source("EmptySource")
@@ -8,10 +8,10 @@ process.maxEvents = cms.untracked.PSet(
 
 process.options = dict(
     dumpOptions = True,
-    numberOfThreads = 6,
-    numberOfStreams = 0,
-    numberOfConcurrentLuminosityBlocks = 0,
+    numberOfThreads = 4,
+    numberOfStreams = 4,
+    numberOfConcurrentLuminosityBlocks = 5,
     eventSetup = dict(
-        numberOfConcurrentIOVs = 0
+        numberOfConcurrentIOVs = 5
     )
 )
