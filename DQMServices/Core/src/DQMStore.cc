@@ -639,10 +639,32 @@ namespace dqm::implementation {
     auto path_str = path.getFullname();
     auto const& meset = store_->globalMEs_[edm::LuminosityBlockID(runNumber, lumi)];
     auto it = meset.lower_bound(path);
+
+    // decide if the ME should be save din DQMIO based on the list provided
+    bool saveIt = true;
+
     // rfind can be used as a prefix match.
     while (it != meset.end() && (*it)->getFullname().rfind(path_str, 0) == 0) {
+      if (store_->doSaveByLumi_ && not store_->MEsToSave_.empty()) {
+        for (std::vector<std::string>::const_iterator ipath = store_->MEsToSave_.begin();
+             ipath != store_->MEsToSave_.end();
+             ++ipath) {
+          std::string name = (*it)->getFullname();
+          if (name.find(*ipath) != std::string::npos) {
+            saveIt = true;
+            //std::cout<<name<<" compared to"<<ipath->data()<<std::endl;
+            break;
+          }
+          saveIt = false;
+        }
+      }
+
       store_->debugTrackME("getAllContents (run/lumi match)", nullptr, *it);
-      out.push_back(*it);
+      if (saveIt) {
+        out.push_back(*it);
+        if (store_->doSaveByLumi_)
+          store_->debugTrackME("getAllContents (run/lumi saved)", nullptr, *it);
+      }
       ++it;
     }
     return out;
@@ -718,6 +740,7 @@ namespace dqm::implementation {
     verbose_ = pset.getUntrackedParameter<int>("verbose", 0);
     assertLegacySafe_ = pset.getUntrackedParameter<bool>("assertLegacySafe", true);
     doSaveByLumi_ = pset.getUntrackedParameter<bool>("saveByLumi", false);
+    MEsToSave_ = pset.getUntrackedParameter<std::vector<std::string>>("MEsToSave", std::vector<std::string>());
     trackME_ = pset.getUntrackedParameter<std::string>("trackME", "");
 
     // Set lumi and run for legacy booking.
