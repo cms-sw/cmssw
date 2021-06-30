@@ -36,10 +36,11 @@
   <use name="FWCore/Utilities"/>
 </bin>
 
-<bin name="TestFWCoreFrameworkOptions" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_testOptions.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkOptions0" command="run_testOptions.sh 0"/>
+<test name="TestFWCoreFrameworkOptions1" command="run_testOptions.sh 1"/>
+<test name="TestFWCoreFrameworkOptions2" command="run_testOptions.sh 2"/>
+<test name="TestFWCoreFrameworkOptions3" command="run_testOptions.sh 3"/>
+<test name="TestFWCoreFrameworkOptions4" command="run_testOptions.sh 4"/>
 
 <library file="stubs/TestTriggerNames.cc" name="TestTriggerNames">
   <flags EDM_PLUGIN="1"/>

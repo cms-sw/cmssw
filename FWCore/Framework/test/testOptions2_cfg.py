@@ -1,4 +1,4 @@
-# Test of options when all parameters explicitly set
+# Test of options when parameters are zero
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 process.source = cms.Source("EmptySource")
@@ -8,10 +8,10 @@ process.maxEvents = cms.untracked.PSet(
 
 process.options = dict(
     dumpOptions = True,
-    numberOfThreads = 6,
-    numberOfStreams = 5,
-    numberOfConcurrentLuminosityBlocks = 4,
+    numberOfThreads = 4,
+    numberOfStreams = 0,
+    numberOfConcurrentLuminosityBlocks = 0,
     eventSetup = dict(
-        numberOfConcurrentIOVs = 3
+        numberOfConcurrentIOVs = 0
     )
 )
