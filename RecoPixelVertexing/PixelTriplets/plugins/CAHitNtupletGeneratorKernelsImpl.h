@@ -350,7 +350,9 @@ __global__ void kernel_find_ntuplets(GPUCACell::Hits const *__restrict__ hhp,
     auto const &thisCell = cells[idx];
     if (thisCell.isKilled())
       continue;  // cut by earlyFishbone
-
+    // we require at least three hits...
+    if (thisCell.outerNeighbors().empty())
+      continue;
     auto pid = thisCell.layerPairId();
     auto doit = minHitsPerNtuplet > 3 ? pid < 3 : pid < 8 || pid > 12;
     if (doit) {
