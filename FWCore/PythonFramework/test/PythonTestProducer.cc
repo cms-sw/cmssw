@@ -32,7 +32,6 @@ namespace edmtest {
     //NOTE attempts to hold the object directly and read it in `produce` lead to segmentation faults
     value_ = main_namespace[(iPS.getParameter<std::string>("inputVariable")).c_str()].cast<int>();
     outputList_ = main_namespace[(iPS.getParameter<std::string>("outputListVariable")).c_str()].cast<pybind11::list>();
-
     put_ = produces<int>();
 
     usesResource("python");
@@ -41,9 +40,10 @@ namespace edmtest {
   void PythonTestProducer::produce(edm::Event& iEvent, edm::EventSetup const&) {
     edm::Handle<IntProduct> h;
     iEvent.getByToken(get_, h);
-
-    outputList_.append(h->value);
-
+    {
+      pybind11::gil_scoped_acquire acquire;
+      outputList_.append(h->value);
+    }
     iEvent.emplace(put_, h->value + value_);
   }
 }  // namespace edmtest
