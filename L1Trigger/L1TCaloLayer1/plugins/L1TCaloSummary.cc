@@ -22,6 +22,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -66,7 +67,7 @@ using namespace std;
 // class declaration
 //
 
-class L1TCaloSummary : public edm::EDProducer {
+class L1TCaloSummary : public edm::stream::EDProducer<> {
 public:
   explicit L1TCaloSummary(const edm::ParameterSet&);
   ~L1TCaloSummary() override;
@@ -74,9 +75,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
+  //void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  //void endJob() override;
 
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
@@ -237,8 +238,8 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     }
     string regionEta = activeRegionEtaPattern.to_string<char, std::string::traits_type, std::string::allocator_type>();
     string regionPhi = activeRegionPhiPattern.to_string<char, std::string::traits_type, std::string::allocator_type>();
-    if (abs(eta) < 2.5 && (regionEta == "010" || regionPhi == "010" || regionEta == "110" || regionPhi == "110" ||
-                           regionEta == "011" || regionPhi == "011"))
+    if (std::abs(eta) < 2.5 && (regionEta == "010" || regionPhi == "010" || regionEta == "110" || regionPhi == "110" ||
+                                regionEta == "011" || regionPhi == "011"))
       bJetCands->push_back(L1JetParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1JetParticle::kCentral));
   }
 
@@ -248,10 +249,10 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 void L1TCaloSummary::print() {}
 
 // ------------ method called once each job just before starting event loop  ------------
-void L1TCaloSummary::beginJob() {}
+//void L1TCaloSummary::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void L1TCaloSummary::endJob() {}
+//void L1TCaloSummary::endJob() {}
 
 // ------------ method called when starting to processes a run  ------------
 
