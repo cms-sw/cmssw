@@ -74,14 +74,7 @@ private:
   edm::ESGetToken<EcalRecHitParametersGPU, JobConfigurationGPURecord> tokenRecHitParameters_;
 
   // conditions handles
-  edm::ESHandle<EcalRechitADCToGeVConstantGPU> ADCToGeVConstantHandle_;
   edm::ESHandle<EcalIntercalibConstantsGPU> IntercalibConstantsHandle_;
-  edm::ESHandle<EcalRechitChannelStatusGPU> ChannelStatusHandle_;
-
-  edm::ESHandle<EcalLaserAPDPNRatiosGPU> LaserAPDPNRatiosHandle_;
-  edm::ESHandle<EcalLaserAPDPNRatiosRefGPU> LaserAPDPNRatiosRefHandle_;
-  edm::ESHandle<EcalLaserAlphasGPU> LaserAlphasHandle_;
-  edm::ESHandle<EcalLinearCorrectionsGPU> LinearCorrectionsHandle_;
   edm::ESHandle<EcalRecHitParametersGPU> recHitParametersHandle_;
 
   // Associate reco flagbit (outer vector) to many db status flags (inner vector)
@@ -198,24 +191,17 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
   // - adt2gev
 
   //
-  ADCToGeVConstantHandle_ = setup.getHandle(tokenADCToGeVConstant_);
   IntercalibConstantsHandle_ = setup.getHandle(tokenIntercalibConstants_);
-  ChannelStatusHandle_ = setup.getHandle(tokenChannelStatus_);
-
-  LaserAPDPNRatiosHandle_ = setup.getHandle(tokenLaserAPDPNRatios_);
-  LaserAPDPNRatiosRefHandle_ = setup.getHandle(tokenLaserAPDPNRatiosRef_);
-  LaserAlphasHandle_ = setup.getHandle(tokenLaserAlphas_);
-  LinearCorrectionsHandle_ = setup.getHandle(tokenLinearCorrections_);
   recHitParametersHandle_ = setup.getHandle(tokenRecHitParameters_);
 
-  auto const& ADCToGeVConstantProduct = ADCToGeVConstantHandle_->getProduct(ctx.stream());
+  auto const& ADCToGeVConstantProduct = setup.getData(tokenADCToGeVConstant_).getProduct(ctx.stream());
   auto const& IntercalibConstantsProduct = IntercalibConstantsHandle_->getProduct(ctx.stream());
-  auto const& ChannelStatusProduct = ChannelStatusHandle_->getProduct(ctx.stream());
+  auto const& ChannelStatusProduct = setup.getData(tokenChannelStatus_).getProduct(ctx.stream());
 
-  auto const& LaserAPDPNRatiosProduct = LaserAPDPNRatiosHandle_->getProduct(ctx.stream());
-  auto const& LaserAPDPNRatiosRefProduct = LaserAPDPNRatiosRefHandle_->getProduct(ctx.stream());
-  auto const& LaserAlphasProduct = LaserAlphasHandle_->getProduct(ctx.stream());
-  auto const& LinearCorrectionsProduct = LinearCorrectionsHandle_->getProduct(ctx.stream());
+  auto const& LaserAPDPNRatiosProduct = setup.getData(tokenLaserAPDPNRatios_).getProduct(ctx.stream());
+  auto const& LaserAPDPNRatiosRefProduct = setup.getData(tokenLaserAPDPNRatiosRef_).getProduct(ctx.stream());
+  auto const& LaserAlphasProduct = setup.getData(tokenLaserAlphas_).getProduct(ctx.stream());
+  auto const& LinearCorrectionsProduct = setup.getData(tokenLinearCorrections_).getProduct(ctx.stream());
   auto const& recHitParametersProduct = recHitParametersHandle_->getProduct(ctx.stream());
 
   // set config ptrs : this is done to avoid changing things downstream
