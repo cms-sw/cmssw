@@ -44,6 +44,8 @@ using namespace reco;
 
 ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) : ElectronDqmAnalyzerBase(conf) {
   electronCollection_ = consumes<reco::GsfElectronCollection>(conf.getParameter<edm::InputTag>("electronCollection"));
+  electronCollectionEndcaps_ =
+      consumes<reco::GsfElectronCollection>(conf.getParameter<edm::InputTag>("electronCollectionEndcaps"));
   electronCoreCollection_ =
       consumes<reco::GsfElectronCoreCollection>(conf.getParameter<edm::InputTag>("electronCoreCollection"));
   electronTrackCollection_ =
@@ -2411,9 +2413,12 @@ ElectronMcFakeValidator::~ElectronMcFakeValidator() {}
 void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get reco electrons
   auto gsfElectrons = iEvent.getHandle(electronCollection_);
+  auto gsfElectronsEndcaps = iEvent.getHandle(electronCollectionEndcaps_);
   auto gsfElectronCores = iEvent.getHandle(electronCoreCollection_);
   auto gsfElectronTracks = iEvent.getHandle(electronTrackCollection_);
   auto gsfElectronSeeds = iEvent.getHandle(electronSeedCollection_);
+
+  edm::Handle<reco::GsfElectronCollection> mergedElectrons;
 
   auto isoFromDepsTk03Handle = iEvent.getHandle(isoFromDepsTk03Tag_);
   auto isoFromDepsTk04Handle = iEvent.getHandle(isoFromDepsTk04Tag_);
@@ -2424,8 +2429,6 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
   auto isoFromDepsHcal03Handle = iEvent.getHandle(isoFromDepsHcal03Tag_);
   auto isoFromDepsHcal04Handle = iEvent.getHandle(isoFromDepsHcal04Tag_);
 
-  /*edm::Handle<reco::VertexCollection> vertexCollectionHandle;
-  iEvent.getByToken(offlineVerticesCollection_, vertexCollectionHandle);*/
   auto vertexCollectionHandle = iEvent.getHandle(offlineVerticesCollection_);
   if (!vertexCollectionHandle.isValid()) {
     edm::LogInfo("ElectronMcFakeValidator::analyze") << "vertexCollectionHandle KO";
@@ -2533,25 +2536,34 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
     reco::GsfElectronRef bestGsfElectronRef;
     reco::GsfElectronCollection::const_iterator gsfIter;
     reco::GsfElectronCollection::size_type iElectron;
-    for (gsfIter = gsfElectrons->begin(), iElectron = 0; gsfIter != gsfElectrons->end(); gsfIter++, iElectron++) {
-      double dphi = gsfIter->phi() - moIter->phi();
-      if (std::abs(dphi) > CLHEP::pi) {
-        dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-      }
-      double deltaR = sqrt(pow((gsfIter->eta() - moIter->eta()), 2) + pow(dphi, 2));
-      if (deltaR < deltaR_) {
-        //if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
-        //(gsfIter->charge() > 0.) ){
-        double tmpGsfRatio = gsfIter->p() / moIter->energy();
-        if (std::abs(tmpGsfRatio - 1) < std::abs(gsfOkRatio - 1)) {
-          gsfOkRatio = tmpGsfRatio;
-          bestGsfElectronRef = reco::GsfElectronRef(gsfElectrons, iElectron);
-          bestGsfElectron = *gsfIter;
-          okGsfFound = true;
+
+    for (unsigned i_elec = 0; i_elec < 2; ++i_elec) {
+      mergedElectrons = (i_elec == 0) ? gsfElectrons : gsfElectronsEndcaps;
+
+      for (gsfIter = mergedElectrons->begin(), iElectron = 0; gsfIter != mergedElectrons->end();
+           gsfIter++, iElectron++) {
+        //for (gsfIter = gsfElectrons->begin(), iElectron = 0; gsfIter != gsfElectrons->end(); gsfIter++, iElectron++) {
+        if (i_elec == 0 && !(*gsfIter).isEB())
+          continue;
+        double dphi = gsfIter->phi() - moIter->phi();
+        if (std::abs(dphi) > CLHEP::pi) {
+          dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
         }
-        //}
-      }
-    }  // loop over rec ele to look for the best one
+        double deltaR = sqrt(pow((gsfIter->eta() - moIter->eta()), 2) + pow(dphi, 2));
+        if (deltaR < deltaR_) {
+          //if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
+          //(gsfIter->charge() > 0.) ){
+          double tmpGsfRatio = gsfIter->p() / moIter->energy();
+          if (std::abs(tmpGsfRatio - 1) < std::abs(gsfOkRatio - 1)) {
+            gsfOkRatio = tmpGsfRatio;
+            bestGsfElectronRef = reco::GsfElectronRef(mergedElectrons, iElectron);
+            bestGsfElectron = *gsfIter;
+            okGsfFound = true;
+          }
+          //}
+        }
+      }  // loop over rec ele to look for the best one
+    }    // end loop i_elec
 
     // analysis when the matching object is matched by a rec electron
     if (okGsfFound) {

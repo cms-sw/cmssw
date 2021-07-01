@@ -40,6 +40,7 @@ public:
 
 private:
   edm::EDGetTokenT<reco::GsfElectronCollection> electronCollection_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> electronCollectionEndcaps_;  // gedGsfElectrons
   edm::EDGetTokenT<reco::GsfElectronCoreCollection> electronCoreCollection_;
   edm::EDGetTokenT<reco::GsfTrackCollection> electronTrackCollection_;
   edm::EDGetTokenT<reco::ElectronSeedCollection> electronSeedCollection_;

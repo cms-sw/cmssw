@@ -8,7 +8,7 @@ electronMcFakeHistosCfg = cms.PSet(
 
 electronMcFakePostValidator = DQMEDHarvester("ElectronMcFakePostValidator",
 
-  Verbosity = cms.untracked.int32(0),
+  Verbosity = cms.untracked.int32(1),
   FinalStep = cms.string("AtJobEnd"),
   InputFile = cms.string(""),
   OutputFile = cms.string(""),

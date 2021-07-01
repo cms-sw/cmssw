@@ -53,6 +53,8 @@ using namespace reco;
 ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &conf) : ElectronDqmAnalyzerBase(conf) {
   mcTruthCollection_ = consumes<reco::GenParticleCollection>(conf.getParameter<edm::InputTag>("mcTruthCollection"));
   electronCollection_ = consumes<reco::GsfElectronCollection>(conf.getParameter<edm::InputTag>("electronCollection"));
+  electronCollectionEndcaps_ =
+      consumes<reco::GsfElectronCollection>(conf.getParameter<edm::InputTag>("electronCollectionEndcaps"));
   electronCoreCollection_ =
       consumes<reco::GsfElectronCoreCollection>(conf.getParameter<edm::InputTag>("electronCoreCollection"));
   electronTrackCollection_ =
@@ -3276,11 +3278,14 @@ ElectronMcSignalValidator::~ElectronMcSignalValidator() {}
 void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::EventSetup &) {
   // get collections
   auto gsfElectrons = iEvent.getHandle(electronCollection_);
+  auto gsfElectronsEndcaps = iEvent.getHandle(electronCollectionEndcaps_);
   auto gsfElectronCores = iEvent.getHandle(electronCoreCollection_);
   auto gsfElectronTracks = iEvent.getHandle(electronTrackCollection_);
   auto gsfElectronSeeds = iEvent.getHandle(electronSeedCollection_);
   auto genParticles = iEvent.getHandle(mcTruthCollection_);
   auto theBeamSpot = iEvent.getHandle(beamSpotTag_);
+
+  edm::Handle<reco::GsfElectronCollection> mergedElectrons;
 
   auto isoFromDepsTk03Handle = iEvent.getHandle(isoFromDepsTk03Tag_);
   auto isoFromDepsTk04Handle = iEvent.getHandle(isoFromDepsTk04Tag_);
@@ -3290,6 +3295,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
   auto isoFromDepsEcalReduced04Handle = iEvent.getHandle(isoFromDepsEcalReduced04Tag_);
   auto isoFromDepsHcal03Handle = iEvent.getHandle(isoFromDepsHcal03Tag_);
   auto isoFromDepsHcal04Handle = iEvent.getHandle(isoFromDepsHcal04Tag_);
+
   auto vertexCollectionHandle = iEvent.getHandle(offlineVerticesCollection_);
   if (!vertexCollectionHandle.isValid()) {
     edm::LogInfo("ElectronMcSignalValidator::analyze") << "vertexCollectionHandle KO";
@@ -3299,6 +3305,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
   edm::LogInfo("ElectronMcSignalValidator::analyze")
       << "Treating event " << iEvent.id() << " with " << gsfElectrons.product()->size() << " electrons";
+  edm::LogInfo("ElectronMcSignalValidator::analyze")
+      << "Treating event " << iEvent.id() << " with " << gsfElectronsEndcaps.product()->size() << " electrons";
   h1_recEleNum->Fill((*gsfElectrons).size());
   h1_recCoreNum->Fill((*gsfElectronCores).size());
   h1_recTrackNum->Fill((*gsfElectronTracks).size());
@@ -3568,28 +3576,37 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     reco::GsfElectronRef bestGsfElectronRef;
     reco::GsfElectronCollection::const_iterator gsfIter;
     reco::GsfElectronCollection::size_type iElectron;
-    for (gsfIter = gsfElectrons->begin(), iElectron = 0; gsfIter != gsfElectrons->end(); gsfIter++, iElectron++) {
-      // temporary cut for pt < 5.
-      double dphi = gsfIter->phi() - mcIter->phi();
-      if (std::abs(dphi) > CLHEP::pi) {
-        dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-      }
-      double deltaR2 = (gsfIter->eta() - mcIter->eta()) * (gsfIter->eta() - mcIter->eta()) + dphi * dphi;
-      if (deltaR2 < deltaR2_) {
-        if (((mcIter->pdgId() == 11) && (gsfIter->charge() < 0.)) ||
-            ((mcIter->pdgId() == -11) && (gsfIter->charge() > 0.))) {
-          double tmpGsfRatio = gsfIter->p() / mcIter->p();
-          if (std::abs(tmpGsfRatio - 1) < std::abs(gsfOkRatio - 1)) {
-            gsfOkRatio = tmpGsfRatio;
-            bestGsfElectron = *gsfIter;
-            bestGsfElectronRef = reco::GsfElectronRef(gsfElectrons, iElectron);
-            okGsfFound = true;
 
-            //std::cout << "evt ID : " << iEvent.id() << " - Pt : " << bestGsfElectron.pt() << " - eta : " << bestGsfElectron.eta() << " - phi : " << bestGsfElectron.phi() << std::endl; // debug lines
+    for (unsigned i_elec = 0; i_elec < 2; ++i_elec) {
+      mergedElectrons = (i_elec == 0) ? gsfElectrons : gsfElectronsEndcaps;
+
+      for (gsfIter = mergedElectrons->begin(), iElectron = 0; gsfIter != mergedElectrons->end();
+           gsfIter++, iElectron++) {
+        //for (gsfIter = gsfElectrons->begin(), iElectron = 0; gsfIter != gsfElectrons->end(); gsfIter++, iElectron++) {
+        if (i_elec == 0 && !(*gsfIter).isEB())
+          continue;
+        // temporary cut for pt < 5.
+        double dphi = gsfIter->phi() - mcIter->phi();
+        if (std::abs(dphi) > CLHEP::pi) {
+          dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
+        }
+        double deltaR2 = (gsfIter->eta() - mcIter->eta()) * (gsfIter->eta() - mcIter->eta()) + dphi * dphi;
+        if (deltaR2 < deltaR2_) {
+          if (((mcIter->pdgId() == 11) && (gsfIter->charge() < 0.)) ||
+              ((mcIter->pdgId() == -11) && (gsfIter->charge() > 0.))) {
+            double tmpGsfRatio = gsfIter->p() / mcIter->p();
+            if (std::abs(tmpGsfRatio - 1) < std::abs(gsfOkRatio - 1)) {
+              gsfOkRatio = tmpGsfRatio;
+              bestGsfElectron = *gsfIter;
+              bestGsfElectronRef = reco::GsfElectronRef(mergedElectrons, iElectron);
+              okGsfFound = true;
+
+              //std::cout << "evt ID : " << iEvent.id() << " - Pt : " << bestGsfElectron.pt() << " - eta : " << bestGsfElectron.eta() << " - phi : " << bestGsfElectron.phi() << std::endl; // debug lines
+            }
           }
         }
-      }
-    }  // loop over rec ele to look for the best one
+      }  // loop over rec ele to look for the best one
+    }    // end loop i_elec
     if (!okGsfFound)
       continue;
 

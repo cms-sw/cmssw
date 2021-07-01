@@ -554,8 +554,8 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
             }
           }
         }
-      }
-    }  // end loop i_elec
+      }  // end loop electrons
+    }    // end loop i_elec
 
     if (okGsfFound) {
       //------------------------------------

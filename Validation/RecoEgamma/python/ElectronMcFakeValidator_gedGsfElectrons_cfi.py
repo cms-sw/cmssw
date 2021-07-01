@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 
 electronMcFakeHistosCfg = cms.PSet(
@@ -38,12 +37,11 @@ electronMcFakeValidator = DQMEDAnalyzer('ElectronMcFakeValidator',
     
   matchingObjectCollection = cms.InputTag("ak4GenJets"),
   electronCollection = cms.InputTag("gedGsfElectrons"),
+  electronCollectionEndcaps=cms.InputTag("gedGsfElectrons"),
   electronCoreCollection = cms.InputTag("gedGsfElectronCores"),
   electronTrackCollection = cms.InputTag("electronGsfTracks"),
   electronSeedCollection = cms.InputTag("electronMergedSeeds"),
-  # ajout 04/02/2015
   offlinePrimaryVertices = cms.InputTag("offlinePrimaryVertices"),
-  # fin ajout
   
   beamSpot = cms.InputTag("offlineBeamSpot"),
   readAOD = cms.bool(False),
@@ -66,7 +64,9 @@ electronMcFakeValidator = DQMEDAnalyzer('ElectronMcFakeValidator',
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
     electronMcFakeValidator,
-    electronCollection = 'ecalDrivenGsfElectronsFromMultiCl',
+ #  electronCollection = 'ecalDrivenGsfElectronsFromMultiCl',
+    electronCollection = 'gedGsfElectrons',
+    electronCollectionEndcaps= 'ecalDrivenGsfElectronsFromMultiCl',
     electronCoreCollection = 'ecalDrivenGsfElectronCoresFromMultiCl',
     electronTrackCollection = 'electronGsfTracksFromMultiCl',
     electronSeedCollection = 'electronMergedSeedsFromMultiCl',

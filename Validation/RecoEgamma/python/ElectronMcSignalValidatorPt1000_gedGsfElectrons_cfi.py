@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 electronMcSignalHistosCfg = cms.PSet(
   Nbinxyz = cms.int32(50),
   Nbinp = cms.int32(50), Nbinp2D = cms.int32(50), 
-#  Pmax = cms.double(300.0),
   Pmax = cms.double(4500), 
   Nbinpt = cms.int32(50), Nbinpt2D = cms.int32(50), Nbinpteff = cms.int32(19),Ptmax = cms.double(1500.0),
   Nbinfhits = cms.int32(30), Fhitsmax = cms.double(30.0),
@@ -15,7 +14,6 @@ electronMcSignalHistosCfg = cms.PSet(
   Nbindphi = cms.int32(100), Dphimin = cms.double(-0.01), Dphimax = cms.double(0.01),
   Nbindphimatch = cms.int32(100), Nbindphimatch2D = cms.int32(50), Dphimatchmin = cms.double(-0.2), Dphimatchmax = cms.double(0.2),
   Nbineop = cms.int32(50), Nbineop2D = cms.int32(30), 
-#  Eopmax = cms.double(5.0), 
   Eopmax = cms.double(10),
   Eopmaxsht = cms.double(3.0),
   Nbinmee = cms.int32(100), Meemin = cms.double(0.0), Meemax = cms.double(150.),
@@ -42,12 +40,11 @@ electronMcSignalValidatorPt1000 = DQMEDAnalyzer('ElectronMcSignalValidator',
     
   mcTruthCollection = cms.InputTag("genParticles"),
   electronCollection = cms.InputTag("gedGsfElectrons"),
+  electronCollectionEndcaps=cms.InputTag("gedGsfElectrons"),
   electronCoreCollection = cms.InputTag("gedGsfElectronCores"),
   electronTrackCollection = cms.InputTag("electronGsfTracks"),
   electronSeedCollection = cms.InputTag("electronMergedSeeds"),
-  # ajout 04/02/2015
   offlinePrimaryVertices = cms.InputTag("offlinePrimaryVertices"),
-  # fin ajout
   
   beamSpot = cms.InputTag("offlineBeamSpot"),
   readAOD = cms.bool(False),
@@ -72,7 +69,9 @@ electronMcSignalValidatorPt1000 = DQMEDAnalyzer('ElectronMcSignalValidator',
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
     electronMcSignalValidatorPt1000,
-    electronCollection = 'ecalDrivenGsfElectronsFromMultiCl',
+#    electronCollection = 'ecalDrivenGsfElectronsFromMultiCl',
+    electronCollection = 'gedGsfElectrons',
+    electronCollectionEndcaps= 'ecalDrivenGsfElectronsFromMultiCl',
     electronCoreCollection = 'ecalDrivenGsfElectronCoresFromMultiCl',
     electronTrackCollection = 'electronGsfTracksFromMultiCl',
     electronSeedCollection = 'electronMergedSeedsFromMultiCl',

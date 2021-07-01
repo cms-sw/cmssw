@@ -32,6 +32,7 @@ public:
 private:
   edm::EDGetTokenT<reco::GenParticleCollection> mcTruthCollection_;           // genParticles
   edm::EDGetTokenT<reco::GsfElectronCollection> electronCollection_;          // gedGsfElectrons
+  edm::EDGetTokenT<reco::GsfElectronCollection> electronCollectionEndcaps_;   // gedGsfElectrons
   edm::EDGetTokenT<reco::GsfElectronCoreCollection> electronCoreCollection_;  // gedGsfElectronCore
   edm::EDGetTokenT<reco::GsfTrackCollection> electronTrackCollection_;
   edm::EDGetTokenT<reco::ElectronSeedCollection> electronSeedCollection_;
