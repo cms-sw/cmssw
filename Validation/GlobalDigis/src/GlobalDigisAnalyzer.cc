@@ -1076,12 +1076,8 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event &iEvent, const edm::EventSet
 
 void GlobalDigisAnalyzer::fillTrk(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
-
+  const TrackerTopology *const tTopo = &iSetup.getData(tTopoToken_);
   std::string MsgLoggerCat = "GlobalDigisAnalyzer_fillTrk";
-
   TString eventout;
   if (verbosity > 0)
     eventout = "\nGathering info:";
