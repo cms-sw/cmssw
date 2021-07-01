@@ -16,18 +16,19 @@
           bit 4 - ignores the scaling of the light yield with the dose
           bit 5 - ignores the scaling of the noise with the fluence (=constant noise scenario)
           bit 6 - ignores noise
+          bit 7 - ignore tile type (fallback on CAST)
 */
 
 class HGCalSciNoiseMap : public HGCalRadiationMap {
 public:
 
-  enum TileType_t { CAST=1, MOULDED=2 };
+  enum TileType_t { CAST, MOULDED };
   enum GainRange_t { GAIN_4, GAIN_2, AUTO };
-  enum NoiseMapAlgoBits_t { IGNORE_SIPMAREA, OVERRIDE_SIPMAREA, IGNORE_TILEAREA, IGNORE_DOSESCALE, IGNORE_FLUENCESCALE, IGNORE_NOISE };
+  enum NoiseMapAlgoBits_t { IGNORE_SIPMAREA, OVERRIDE_SIPMAREA, IGNORE_TILEAREA, IGNORE_DOSESCALE, IGNORE_FLUENCESCALE, IGNORE_NOISE, IGNORE_TILETYPE };
 
   struct SiPMonTileCharacteristics {
-    SiPMonTileCharacteristics() : s(0.), lySF(0.), n(0.), gain(0), thrADC(0) { }
-    float s, lySF, n;
+    SiPMonTileCharacteristics() : s(0.), lySF(0.), n(0.), sipmPEperMIP(0.), gain(0), thrADC(0) { }
+    float s, lySF, n,sipmPEperMIP;
     unsigned short gain, thrADC;
   };
 
@@ -67,10 +68,13 @@ private:
   const double refEdge_;
 
   //flags used to disable/override specific SiPM-on-tile operation parameters
-  bool ignoreSiPMarea_, overrideSiPMarea_, ignoreTileArea_, ignoreDoseScale_, ignoreFluenceScale_, ignoreNoise_;
+  bool ignoreSiPMarea_, overrideSiPMarea_, ignoreTileArea_, ignoreDoseScale_, ignoreFluenceScale_, ignoreNoise_, ignoreTileType_;
 
   //reference dark current for the noise (mA)
   double refDarkCurrent_;
+
+  //reference ADC counts for the MIP peak
+  int aimMIPtoADC_;
 
   //sipm size boundaries
   std::unordered_map<int, float> sipmMap_;
