@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Run3_cff import Run3
 
-process = cms.Process("DumpDTRaw")
+process = cms.Process("DumpDTRaw",Run3)
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(

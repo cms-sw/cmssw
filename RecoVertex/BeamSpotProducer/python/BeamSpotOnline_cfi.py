@@ -7,6 +7,6 @@ onlineBeamSpotProducer = cms.EDProducer('BeamSpotOnlineProducer',
                                         maxRadius = cms.double(2),
                                         setSigmaZ = cms.double(-1), #negative value disables it.
                                         gtEvmLabel = cms.InputTag('gtEvmDigis'),
-                                        useTransientRecord = cms.bool(True)
+                                        useTransientRecord = cms.bool(False)
 )
 

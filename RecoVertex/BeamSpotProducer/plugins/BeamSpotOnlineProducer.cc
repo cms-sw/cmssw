@@ -78,7 +78,7 @@ void BeamSpotOnlineProducer::fillDescriptions(edm::ConfigurationDescriptions& iD
   ps.add<InputTag>("src", InputTag("hltScalersRawToDigi"));
   ps.add<InputTag>("gtEvmLabel", InputTag(""));
   ps.add<double>("maxRadius", 2.0);
-  ps.add<bool>("useTransientRecord", true);
+  ps.add<bool>("useTransientRecord", false);
   iDesc.addWithDefaultLabel(ps);
 }
 
@@ -106,7 +106,6 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       }
       fallBackToDB = true;
     } else {
-      
       // translate from BeamSpotObjects to reco::BeamSpot
       // in case we need to switch to LHC reference frame
       // ignore for the moment rotations, and translations
