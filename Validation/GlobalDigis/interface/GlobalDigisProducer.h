@@ -90,7 +90,6 @@
 //#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <cstdlib>
-#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
@@ -99,7 +98,8 @@
 #include "TString.h"
 
 class PGlobalDigi;
-
+class TrackerTopology;
+class TrackerTopologyRcd;
 class GlobalDigisProducer : public edm::EDProducer {
 public:
   typedef std::vector<float> FloatVector;
@@ -174,6 +174,9 @@ private:
   edm::InputTag HCalSrc_;
   edm::InputTag HCalDigi_;
 
+  edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> ecalADCtoGevToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcaldbToken_;
   // Tracker info
   // SiStrip
 
