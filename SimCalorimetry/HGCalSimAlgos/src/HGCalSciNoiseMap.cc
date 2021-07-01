@@ -157,12 +157,6 @@ HGCalSciNoiseMap::SiPMonTileCharacteristics HGCalSciNoiseMap::scaleByDose(const 
   sipmChar.thrADC       = std::floor(S / 2. / lsbPerGain_[gain] );
   sipmChar.sipmPEperMIP = (S/lyScaleFactor)*sipmAreaSF;
 
-  std::cout<< cellId.type() << " " 
-           << sipmChar.gain << " "
-           << sipmChar.thrADC  << " "
-           << lsbPerGain_[gain] << " "
-           << getMaxADCPerGain()[gain] << std::endl;
-
   return sipmChar;
 }
 
