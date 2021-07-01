@@ -1,19 +1,15 @@
-<!-- To make the tests run in parallel, we chunk up the work into arbitrary sets of 20 sequences. -->
-<test name="TestDQMOfflineConfiguration0" command="runtests.sh   20 0"/>
-<test name="TestDQMOfflineConfiguration20" command="runtests.sh  20 20"/>
-<test name="TestDQMOfflineConfiguration40" command="runtests.sh  20 40"/>
-<test name="TestDQMOfflineConfiguration60" command="runtests.sh  20 60"/>
-<test name="TestDQMOfflineConfiguration80" command="runtests.sh  20 80"/>
-<test name="TestDQMOfflineConfiguration100" command="runtests.sh 20 100"/>
-<test name="TestDQMOfflineConfiguration120" command="runtests.sh 20 120"/>
-<test name="TestDQMOfflineConfiguration140" command="runtests.sh 20 140"/>
-<test name="TestDQMOfflineConfiguration160" command="runtests.sh 20 160"/>
-<test name="TestDQMOfflineConfiguration180" command="runtests.sh 20 180"/>
-<test name="TestDQMOfflineConfiguration200" command="runtests.sh 20 200"/>
-<test name="TestDQMOfflineConfiguration220" command="runtests.sh 20 220"/>
-<test name="TestDQMOfflineConfiguration240" command="runtests.sh 20 240"/>
-<test name="TestDQMOfflineConfiguration260" command="runtests.sh 20 260"/>
-<test name="TestDQMOfflineConfiguration280" command="runtests.sh 20 280"/>
+<!-- Download input file locally so that all tests can use it -->
+<set name="INFILE_NAME" value="004D960A-EA4C-E811-A908-FA163ED1F481.root"/>
+<set name="INFILE"      value="/store/data/Run2018A/EGamma/RAW/v1/000/315/489/00000/${INFILE_NAME}"/>
+<test name="GetTestDQMOfflineConfigurationFile" command="edmCopyUtil ${INFILE} $(LOCALTOP)/tmp/"/>
+
+<!-- To make the tests run in parallel, we chunk up the work into arbitrary sets of 10 sequences. -->
+<test name="TestDQMOfflineConfiguration" command="runtests.sh   ${step_value} ${value} file://${LOCALTOP}/tmp/${INFILE_NAME}" for="0,290,10">
+  <flags PRE_TEST="GetTestDQMOfflineConfigurationFile"/>
+</test>
+
 <!-- To make sure we actually got all sequences, the last check checks that there are no sequences beyond the last test -->
 <!-- This might need to updated when the number of distinct sequences grows, add more rows above and change the number here. -->
-<test name="TestDQMOfflineConfigurationGotAll" command="cmsswSequenceInfo.py --runTheMatrix --steps DQM,VALIDATION --limit 50 --offset 300 --threads 1 | grep 'Analyzing 0 seqs'"/>
+<test name="TestDQMOfflineConfigurationGotAll" command="cmsswSequenceInfo.py --runTheMatrix --steps DQM,VALIDATION --infile file://${LOCALTOP}/tmp/${INFILE_NAME} --limit 50 --offset 300 --threads 1 | grep 'Analyzing 0 seqs'">
+  <flags PRE_TEST="GetTestDQMOfflineConfigurationFile"/>
+</test>
