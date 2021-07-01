@@ -96,9 +96,8 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     shoutMODE = true;
   }
   bool fallBackToDB = false;
-  if (useTransientRecord_) {
-    auto const& spotDB = iSetup.getData(beamTransientToken_);
-
+  if (useTransientRecord_) {    
+    auto const& spotDB = iSetup.getData(beamTransientToken_);        
     if (spotDB.GetBeamType() != 2) {
       if (shoutMODE) {
         edm::LogWarning("BeamSpotFromDB")
@@ -142,8 +141,7 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
     // product is a reco::BeamSpot object
     auto result = std::make_unique<reco::BeamSpot>();
-
-    reco::BeamSpot aSpot;
+    
 
     if (!handleScaler->empty()) {
       // get one element
@@ -167,8 +165,8 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       if (theSetSigmaZ > 0)
         sigmaZ = theSetSigmaZ;
 
-      aSpot = reco::BeamSpot(apoint, sigmaZ, spotOnline.dxdz(), f * spotOnline.dydz(), spotOnline.width_x(), matrix);
-
+      aSpot = reco::BeamSpot(apoint, sigmaZ, spotOnline.dxdz(), f * spotOnline.dydz(), spotOnline.width_x(), matrix);      
+      
       aSpot.setBeamWidthY(spotOnline.width_y());
       aSpot.setEmittanceX(0.);
       aSpot.setEmittanceY(0.);
@@ -183,7 +181,7 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
               << "Online Beam Spot producer falls back to DB value because the scaler values are zero ";
         }
         fallBackToDB = true;
-      }
+      }      
       double r2 = spotOnline.x() * spotOnline.x() + spotOnline.y() * spotOnline.y();
       if (fabs(spotOnline.z()) >= theMaxZ || r2 >= theMaxR2) {
         if (shoutMODE) {
@@ -192,7 +190,7 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
               << spotOnline.x() << " " << spotOnline.y() << " " << spotOnline.z();
         }
         fallBackToDB = true;
-      }
+      }      
     } else {
       //empty online beamspot collection: FED data was empty
       //the error should probably have been send at unpacker level
@@ -222,6 +220,7 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     aSpot.setbetaStar(spotDB->GetBetaStar());
     aSpot.setType(reco::BeamSpot::Tracker);
   }
+  
   *result = aSpot;
 
   iEvent.put(std::move(result));
