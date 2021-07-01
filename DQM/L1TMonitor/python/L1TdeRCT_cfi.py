@@ -6,6 +6,7 @@ l1TdeRCT = DQMEDAnalyzer('L1TdeRCT',
     HistFolder = cms.untracked.string('L1TEMU/L1TdeRCT'),
     verbose = cms.untracked.bool(False),
     DQMStore = cms.untracked.bool(True),
+    perLSsaving = cms.untracked.bool(False), #driven by DQMServices/Core/python/DQMStore_cfi.py
     singlechannelhistos = cms.untracked.bool(False),
     ecalTPGData = cms.InputTag("ecalDigis","EcalTriggerPrimitives"),
     rctSourceEmul = cms.InputTag("valRctDigis"),
