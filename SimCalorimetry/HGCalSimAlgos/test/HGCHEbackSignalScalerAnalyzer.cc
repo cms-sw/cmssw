@@ -117,7 +117,7 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
   int minIphi( *allIphi_.begin() ),    maxIphi( *allIphi_.end() ),     nIphi(maxIphi-minIphi+1);
 
   TString hnames[]={"count","radius","dose","fluence","s","n","sn","lysf","gain","thr"};
-  TString htitles[]={"tiles","#rho [cm]","<Dose> [krad]","<Fluence> [1 MeV n_{eq}/cm^{2}]","<S> [pe]","<N> [pe]","<S/N>","LY SF","<Gain>","<Threshold> [ADC]"};
+  TString htitles[]={"tiles","#rho [cm]","<Dose> [krad]","<Fluence> [1 MeV n_{eq}/cm^{2}]","<S> [pe]","<#sigma_{N}> [pe]","<S/#sigma_{N}>","LY SF","<Gain>","<Threshold> [ADC]"};
   for(size_t i=0; i<sizeof(hnames)/sizeof(TString); i++){
     histos_[hnames[i]+"_ieta"] = fs->make<TH2F>(hnames[i]+"_ieta",";Layer;i-#eta;"+htitles[i],nLayers,minLayer,maxLayer+1, nIeta,minIeta,maxIeta);
     histos_[hnames[i]+"_iphi"] = fs->make<TH2F>(hnames[i]+"_iphi",";Layer;i-#phi;"+htitles[i],nLayers,minLayer,maxLayer+1, nIphi,minIphi,maxIphi);

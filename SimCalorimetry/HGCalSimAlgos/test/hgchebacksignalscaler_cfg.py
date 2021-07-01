@@ -20,41 +20,28 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 process.source = cms.Source("EmptySource")
 
-process.ideal = cms.EDAnalyzer("HGCHEbackSignalScalerAnalyzer",
-                              doseMap  = cms.string( options.doseMap ),
-                              doseMapAlgo = cms.uint32( 1+2+4+8+16+32 ),
-                              sipmMap  = cms.string( 'SimCalorimetry/HGCalSimProducers/data/sipmParams_geom-10.txt' ),
-                              referenceIdark = cms.double( -1 ) )
-process.noise2020 = process.ideal.clone( doseMapAlgo = cms.uint32( 1+2+4+8+16 ) )
-process.noise     = process.ideal.clone( doseMapAlgo = cms.uint32( 1+2+4+8+16 ),
-                                         referenceIdark = cms.double(0.25) )
-process.noise_rad = process.ideal.clone( doseMapAlgo = cms.uint32( 1+2+4 ),
-                                         referenceIdark = cms.double(0.25) )
-process.noise_atile = process.ideal.clone( doseMapAlgo = cms.uint32( 1+2+8+16 ),
-                                           referenceIdark = cms.double(0.25) )
-process.noise_radpatile = process.ideal.clone( doseMapAlgo = cms.uint32( 1+2 ),
-                                               referenceIdark = cms.double(0.25) )
-process.eol = process.ideal.clone( doseMapAlgo = cms.uint32( 2 ),
-                                   referenceIdark = cms.double(0.25) )
-process.startup = process.ideal.clone( doseMapAlgo = cms.uint32( 2+8+16 ),
-                                       referenceIdark = cms.double(0.05) )
-process.eol_2020 = process.ideal.clone( doseMapAlgo = cms.uint32( 2 ),
-                                        referenceIdark = cms.double(-1) )
 
+#startup: custom sipm map, no dose or fluence
+process.startup = cms.EDAnalyzer("HGCHEbackSignalScalerAnalyzer",
+                                     doseMap  = cms.string( options.doseMap ),
+                                     doseMapAlgo = cms.uint32( 2+8+16 ), 
+                                     sipmMap  = cms.string( 'SimCalorimetry/HGCalSimProducers/data/sipmParams_geom-10.txt' ),
+                                     referenceIdark = cms.double( 0.25 ) )
+
+#end-of-life
+process.eol = process.startup.clone( doseMapAlgo = cms.uint32( 2 ) )
+
+#end-of-life but all CAST and 4mm2
+process.eol_cast_all4mm2 = process.startup.clone( doseMapAlgo = cms.uint32( 2+64 ),
+                                                  sipmMap  = cms.string( 'SimCalorimetry/HGCalSimProducers/data/sipmParams_all4mm2.txt' ) ) 
 
 #add tfile service
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("sipmontile_dosemap_output.root"))
 
 process.p = cms.Path( 
-    process.ideal
-    *process.noise2020
-    *process.noise
-    *process.noise_rad
-    *process.noise_atile
-    *process.noise_radpatile
+    process.startup
     *process.eol
-    *process.eol_2020
-    *process.startup
+    *process.eol_cast_all4mm2
 )
 

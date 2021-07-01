@@ -11,19 +11,20 @@ HGCalSciNoiseMap::HGCalSciNoiseMap()
     ignoreDoseScale_(false), 
     ignoreFluenceScale_(false),
     ignoreNoise_(false),
-    refDarkCurrent_(0.5)
+    refDarkCurrent_(0.5),
+    aimMIPtoADC_(15)
 {
 
   //number of photo electrons per MIP per scintillator type (irradiated, based on testbeam results)
   //reference is a 30*30 mm^2 tile and 2 mm^2 SiPM (with 15um pixels), at the 2 V over-voltage
-  //cf https://indico.cern.ch/event/927798/contributions/3900921/attachments/2054679/3444966/2020Jun10_sn_scenes.pdf
-  nPEperMIP_.push_back(40.2);
-  nPEperMIP_.push_back(28.6);
+  //based on https://indico.cern.ch/event/927798/contributions/3900921/attachments/2054679/3444966/2020Jun10_sn_scenes.pdf
+  nPEperMIP_.push_back(80.31/2); //cast
+  nPEperMIP_.push_back(57.35/2); //moulded
 
   //full scale charge per gain in nPE
-  //(this is for now chosen such that at startup the MIP peak for MOULDED is ~15 ADC counts)
-  fscADCPerGain_.push_back(1952.f);
-  fscADCPerGain_.push_back(3904.f);
+  //this is chosen for now such that the ref. MIP peak is at N ADC counts
+  fscADCPerGain_.push_back( nPEperMIP_[CAST]*1024./aimMIPtoADC_ );
+  fscADCPerGain_.push_back( 0.5*nPEperMIP_[CAST]*1024./aimMIPtoADC_ );
 
   //lsb: adc has 10 bits -> 1024 counts at max ( >0 baseline to be handled)
   for (auto i : fscADCPerGain_)
@@ -40,6 +41,7 @@ void HGCalSciNoiseMap::setDoseMap(const std::string &fullpath,const unsigned int
   ignoreDoseScale_ = ((algo>>IGNORE_DOSESCALE) & 0x1);
   ignoreFluenceScale_ = ((algo>>IGNORE_FLUENCESCALE) & 0x1);
   ignoreNoise_ = ((algo>>IGNORE_NOISE) & 0x1);
+  ignoreTileType_ = ((algo>>IGNORE_TILETYPE) & 0x1);
 
   //call base class method
   HGCalRadiationMap::setDoseMap(fullpath, algo);
@@ -54,8 +56,8 @@ void HGCalSciNoiseMap::setSipmMap(const std::string& fullpath) {
 
 //
 void HGCalSciNoiseMap::setNpePerMIP(float npePerMIP) { 
-  nPEperMIP_[GAIN_4]=npePerMIP*2;
-  nPEperMIP_[GAIN_2]=npePerMIP;
+  nPEperMIP_[CAST]=npePerMIP;
+  nPEperMIP_[MOULDED]=npePerMIP;
 }
 
 //
@@ -142,17 +144,24 @@ HGCalSciNoiseMap::SiPMonTileCharacteristics HGCalSciNoiseMap::scaleByDose(const 
   lyScaleFactor *= tileAreaSF*sipmAreaSF;
   noise *= sqrt(sipmAreaSF);
 
-  //final signal depending on the type
+  //final signal depending on scintillator type
   double S(nPEperMIP_[CAST]);
-  if(cellId.type()==2) S=nPEperMIP_[MOULDED];
+  if(!ignoreTileType_ && cellId.type()==2) S=nPEperMIP_[MOULDED];
   S *= lyScaleFactor;
 
   HGCalSciNoiseMap::SiPMonTileCharacteristics sipmChar;
-  sipmChar.s      = S;
-  sipmChar.lySF   = lyScaleFactor;
-  sipmChar.n      = noise;
-  sipmChar.gain   = gain;
-  sipmChar.thrADC = std::floor(S / 2. / lsbPerGain_[gain] );
+  sipmChar.s            = S;
+  sipmChar.lySF         = lyScaleFactor;
+  sipmChar.n            = noise;
+  sipmChar.gain         = gain;
+  sipmChar.thrADC       = std::floor(S / 2. / lsbPerGain_[gain] );
+  sipmChar.sipmPEperMIP = (S/lyScaleFactor)*sipmAreaSF;
+
+  std::cout<< cellId.type() << " " 
+           << sipmChar.gain << " "
+           << sipmChar.thrADC  << " "
+           << lsbPerGain_[gain] << " "
+           << getMaxADCPerGain()[gain] << std::endl;
 
   return sipmChar;
 }

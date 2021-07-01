@@ -169,11 +169,12 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
       scaledPePerMip = opChar.s;
       tunedNoise = opChar.n;
       gainIdx = opChar.gain;
-      //the following are returned in Npe: convert to MIP multiplicity for now
-      double npePerMIP=scal_.getNpePerMIP()[gainIdx];
-      thrADC = opChar.thrADC/npePerMIP;
-      adcLsb = scal_.getLSBPerGain()[gainIdx]/npePerMIP;
-      maxADC = scal_.getMaxADCPerGain()[gainIdx]/npePerMIP;
+
+      //convert from nPE to MIP multiplicity for the time being
+      double sipmPEperMIP=opChar.sipmPEperMIP; //this is the nPE/MIP with only SiPM area
+      thrADC = opChar.thrADC/sipmPEperMIP;
+      adcLsb = scal_.getLSBPerGain()[gainIdx]/sipmPEperMIP;
+      maxADC = scal_.getMaxADCPerGain()[gainIdx]/sipmPEperMIP;
     }
 
     //set mean for poissonian noise
