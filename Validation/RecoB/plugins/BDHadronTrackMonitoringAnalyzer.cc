@@ -214,9 +214,9 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event &iEvent, const ed
   iEvent.getByToken(clusterTPMapToken_, pCluster2TPListH);
   const ClusterTPAssociation &clusterToTPMap = *pCluster2TPListH;
 
-  //edm::ESHandle<TransientTrackBuilder> 
-  const auto& trackBuilder = iSetup.getHandle(ttrackToken_);
-  
+  //edm::ESHandle<TransientTrackBuilder>
+  const auto &trackBuilder = iSetup.getHandle(ttrackToken_);
+
   classifier_.newEvent(iEvent, iSetup);
 
   // -----Primary Vertex-----

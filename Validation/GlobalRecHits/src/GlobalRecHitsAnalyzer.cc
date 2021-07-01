@@ -854,7 +854,9 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent, const edm::EventSe
     int nStripBrl = 0, nStripFwd = 0;
 
     // loop over det units
-    for (TrackerGeometry::DetContainer::const_iterator it = tGeomHandle->dets().begin(); it != tGeomHandle->dets().end(); ++it) {
+    for (TrackerGeometry::DetContainer::const_iterator it = tGeomHandle->dets().begin();
+         it != tGeomHandle->dets().end();
+         ++it) {
       uint32_t myid = ((*it)->geographicalId()).rawId();
       DetId detid = ((*it)->geographicalId());
 
@@ -1047,7 +1049,9 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent, const edm::EventSe
   if (validpixel) {
     int nPxlBrl = 0, nPxlFwd = 0;
     //iterate over detunits
-    for (TrackerGeometry::DetContainer::const_iterator it = tGeomHandle->dets().begin(); it != tGeomHandle->dets().end(); ++it) {
+    for (TrackerGeometry::DetContainer::const_iterator it = tGeomHandle->dets().begin();
+         it != tGeomHandle->dets().end();
+         ++it) {
       uint32_t myid = ((*it)->geographicalId()).rawId();
       DetId detId = ((*it)->geographicalId());
       int subid = detId.subdetId();

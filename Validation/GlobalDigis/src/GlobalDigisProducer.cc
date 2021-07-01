@@ -618,7 +618,7 @@ void GlobalDigisProducer::fillHCal(edm::Event &iEvent, const edm::EventSetup &iS
     eventout = "\nGathering info:";
 
   // get calibration info
-  const auto& HCalconditions =   iSetup.getHandle(hcaldbToken_);
+  const auto &HCalconditions = iSetup.getHandle(hcaldbToken_);
   if (!HCalconditions.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find HCalconditions in event!";
     return;
