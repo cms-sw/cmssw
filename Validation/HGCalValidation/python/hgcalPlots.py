@@ -1638,6 +1638,11 @@ _effplots.extend([Plot("effic_phi", xtitle="", **_common_eff)])
 _effplots.extend([Plot("globalEfficiencies", xtitle="", **_common_eff)])
 _efficiencies = PlotGroup("Efficiencies", _effplots, ncols=3)
 
+_common_purity = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
+_purityplots = [Plot("purity_eta", xtitle="", **_common_purity)]
+_purityplots.extend([Plot("purity_phi", xtitle="", **_common_purity)])
+_purityplots.extend([Plot("globalEfficiencies", xtitle="", **_common_purity)])
+_purities = PlotGroup("Purities", _purityplots, ncols=3)
 
 _common_dup = {"stat": False, "legend": False, "xbinlabelsize": 14, "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
 _dupplots = [Plot("duplicate_eta", xtitle="", **_common_dup)]
@@ -2427,6 +2432,7 @@ def _hgcalFolders(lastDirName="hgcalLayerClusters"):
 
 _trackstersAllPlots = [
   _efficiencies,
+  _purities,
   _duplicates,
   _fakes,
   _merges,
