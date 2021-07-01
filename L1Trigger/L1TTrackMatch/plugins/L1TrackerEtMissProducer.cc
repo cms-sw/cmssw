@@ -8,6 +8,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -26,7 +27,7 @@
 
 using namespace l1t;
 
-class L1TrackerEtMissProducer : public edm::EDProducer {
+class L1TrackerEtMissProducer : public edm::stream::EDProducer<> {
 public:
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
   typedef std::vector<L1TTTrackType> L1TTTrackCollectionType;
@@ -35,9 +36,9 @@ public:
   ~L1TrackerEtMissProducer() override;
 
 private:
-  void beginJob() override;
+  //void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  //void endJob() override;
 
   // ----------member data ---------------------------
   float maxZ0_;   // in cm
@@ -201,8 +202,8 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     iEvent.put(std::move(METCollection), "L1TrackerEtMiss");
 }  // end producer
 
-void L1TrackerEtMissProducer::beginJob() {}
+//void L1TrackerEtMissProducer::beginJob() {}
 
-void L1TrackerEtMissProducer::endJob() {}
+//void L1TrackerEtMissProducer::endJob() {}
 
 DEFINE_FWK_MODULE(L1TrackerEtMissProducer);
