@@ -741,47 +741,47 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
 void TotemTimingDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &) {
   auto lumiCache = luminosityBlockCache(iLumi.index());
   if (!perLSsaving_) {
-   for (auto &plot : potPlots_) {
-     *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
-   }
+    for (auto &plot : potPlots_) {
+      *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
+    }
 
-  globalPlot_.digiSentPercentage->Reset();
-  TH2F *hitHistoGlobalTmp = globalPlot_.digiSentPercentage->getTH2F();
-  for (auto &plot : potPlots_) {
-    TH2F *hitHistoTmp = plot.second.digiSentPercentage->getTH2F();
-    TH2F *histoSent = plot.second.digiSent->getTH2F();
-    TH2F *histoAll = plot.second.digiAll->getTH2F();
+    globalPlot_.digiSentPercentage->Reset();
+    TH2F *hitHistoGlobalTmp = globalPlot_.digiSentPercentage->getTH2F();
+    for (auto &plot : potPlots_) {
+      TH2F *hitHistoTmp = plot.second.digiSentPercentage->getTH2F();
+      TH2F *histoSent = plot.second.digiSent->getTH2F();
+      TH2F *histoAll = plot.second.digiAll->getTH2F();
 
-    hitHistoTmp->Divide(histoSent, histoAll);
-    hitHistoTmp->Scale(100);
-    hitHistoGlobalTmp->Add(hitHistoTmp, 1);
+      hitHistoTmp->Divide(histoSent, histoAll);
+      hitHistoTmp->Scale(100);
+      hitHistoGlobalTmp->Add(hitHistoTmp, 1);
 
-    plot.second.baseline->Reset();
-    plot.second.noiseRMS->Reset();
-    plot.second.meanAmplitude->Reset();
-    plot.second.cellOfMax->Reset();
-    plot.second.hitRate->Reset();
-    TotemTimingDetId rpId(plot.first);
-    for (auto &chPlot : channelPlots_) {
-      TotemTimingDetId chId(chPlot.first);
-      if (chId.arm() == rpId.arm() && chId.rp() == rpId.rp()) {
-        plot.second.baseline->Fill(chId.plane(), chId.channel(), chPlot.second.noiseSamples->getTH1F()->GetMean());
-        plot.second.noiseRMS->Fill(chId.plane(), chId.channel(), chPlot.second.noiseSamples->getTH1F()->GetRMS());
-        plot.second.meanAmplitude->Fill(chId.plane(), chId.channel(), chPlot.second.amplitude->getTH1F()->GetMean());
-        plot.second.cellOfMax->Fill(chId.plane(), chId.channel(), chPlot.second.cellOfMax->getTH1F()->GetMean());
-        auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[chPlot.first];
-        plot.second.hitRate->Fill(chId.plane(), chId.channel(), (double)hitsCounterPerLumisection * HIT_RATE_FACTOR);
+      plot.second.baseline->Reset();
+      plot.second.noiseRMS->Reset();
+      plot.second.meanAmplitude->Reset();
+      plot.second.cellOfMax->Reset();
+      plot.second.hitRate->Reset();
+      TotemTimingDetId rpId(plot.first);
+      for (auto &chPlot : channelPlots_) {
+        TotemTimingDetId chId(chPlot.first);
+        if (chId.arm() == rpId.arm() && chId.rp() == rpId.rp()) {
+          plot.second.baseline->Fill(chId.plane(), chId.channel(), chPlot.second.noiseSamples->getTH1F()->GetMean());
+          plot.second.noiseRMS->Fill(chId.plane(), chId.channel(), chPlot.second.noiseSamples->getTH1F()->GetRMS());
+          plot.second.meanAmplitude->Fill(chId.plane(), chId.channel(), chPlot.second.amplitude->getTH1F()->GetMean());
+          plot.second.cellOfMax->Fill(chId.plane(), chId.channel(), chPlot.second.cellOfMax->getTH1F()->GetMean());
+          auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[chPlot.first];
+          plot.second.hitRate->Fill(chId.plane(), chId.channel(), (double)hitsCounterPerLumisection * HIT_RATE_FACTOR);
+        }
+      }
+    }
+
+    for (auto &plot : channelPlots_) {
+      auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[plot.first];
+      if (hitsCounterPerLumisection != 0) {
+        plot.second.hitRate->Fill((double)hitsCounterPerLumisection * HIT_RATE_FACTOR);
       }
     }
   }
-
-  for (auto &plot : channelPlots_) {
-    auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[plot.first];
-    if (hitsCounterPerLumisection != 0) {
-      plot.second.hitRate->Fill((double)hitsCounterPerLumisection * HIT_RATE_FACTOR);
-    }
-  }
- }
 }
 
 DEFINE_FWK_MODULE(TotemTimingDQMSource);
