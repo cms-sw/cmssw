@@ -186,7 +186,7 @@ UCTTowerIndex UCTGeometry::getUCTTowerIndex(UCTRegionIndex region, uint32_t iEta
   int regionEta = region.first;
   uint32_t regionPhi = region.second;
   bool negativeSide = (regionEta < 0);
-  uint32_t regionNo = abs(regionEta) - 1;
+  uint32_t regionNo = std::abs(regionEta) - 1;
   int towerEta = 0xDEADBEEF;
   if (regionNo < NRegionsInCard) {
     towerEta = 1 + regionNo * getNEta(regionNo) + iEta;  // Ranges 1 - 28
