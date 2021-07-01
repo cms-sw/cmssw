@@ -741,10 +741,9 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
 void TotemTimingDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &) {
   auto lumiCache = luminosityBlockCache(iLumi.index());
   if (!perLSsaving_) {
-    for (auto &plot : potPlots_) {
-      *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
-    }
-  }
+   for (auto &plot : potPlots_) {
+     *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
+   }
 
   globalPlot_.digiSentPercentage->Reset();
   TH2F *hitHistoGlobalTmp = globalPlot_.digiSentPercentage->getTH2F();
@@ -782,6 +781,7 @@ void TotemTimingDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock &
       plot.second.hitRate->Fill((double)hitsCounterPerLumisection * HIT_RATE_FACTOR);
     }
   }
+ }
 }
 
 DEFINE_FWK_MODULE(TotemTimingDQMSource);
