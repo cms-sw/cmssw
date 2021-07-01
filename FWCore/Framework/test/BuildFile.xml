@@ -36,11 +36,7 @@
   <use name="FWCore/Utilities"/>
 </bin>
 
-<test name="TestFWCoreFrameworkOptions0" command="run_testOptions.sh 0"/>
-<test name="TestFWCoreFrameworkOptions1" command="run_testOptions.sh 1"/>
-<test name="TestFWCoreFrameworkOptions2" command="run_testOptions.sh 2"/>
-<test name="TestFWCoreFrameworkOptions3" command="run_testOptions.sh 3"/>
-<test name="TestFWCoreFrameworkOptions4" command="run_testOptions.sh 4"/>
+<test name="TestFWCoreFrameworkOptions" command="run_testOptions.sh ${value}" for="0,4"/>
 
 <library file="stubs/TestTriggerNames.cc" name="TestTriggerNames">
   <flags EDM_PLUGIN="1"/>
