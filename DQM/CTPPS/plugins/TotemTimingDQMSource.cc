@@ -104,6 +104,7 @@ private:
   double minimumStripAngleForTomography_;
   double maximumStripAngleForTomography_;
   unsigned int samplesForNoise_;
+  bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
   unsigned int verbosity_;
   edm::TimeValue_t timeOfPreviousEvent_;
 
@@ -414,6 +415,7 @@ TotemTimingDQMSource::TotemTimingDQMSource(const edm::ParameterSet &ps)
       minimumStripAngleForTomography_(ps.getParameter<double>("minimumStripAngleForTomography")),
       maximumStripAngleForTomography_(ps.getParameter<double>("maximumStripAngleForTomography")),
       samplesForNoise_(ps.getUntrackedParameter<unsigned int>("samplesForNoise", 5)),
+      perLSsaving_(ps.getUntrackedParameter<bool>("perLSsaving", false)),
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
       timeOfPreviousEvent_(0) {}
 
@@ -472,9 +474,11 @@ std::shared_ptr<totemds::Cache> TotemTimingDQMSource::globalBeginLuminosityBlock
                                                                                  const edm::EventSetup &) const {
   auto d = std::make_shared<totemds::Cache>();
   d->hitDistribution2dMap.reserve(potPlots_.size());
-  for (auto &plot : potPlots_)
-    d->hitDistribution2dMap[plot.first] =
-        std::unique_ptr<TH2F>(static_cast<TH2F *>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
+  if (!perLSsaving_) {
+    for (auto &plot : potPlots_)
+      d->hitDistribution2dMap[plot.first] =
+          std::unique_ptr<TH2F>(static_cast<TH2F *>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
+  }
   return d;
 }
 
@@ -607,8 +611,9 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
         for (int i = 0; i < numOfBins; ++i) {
           potPlots_[detId_pot].hitDistribution2d->Fill(detId.plane() + 0.25 * (rechit.x() > 2),
                                                        hitHistoTmpYAxis->GetBinCenter(startBin + i));
-          potPlots_[detId_pot].hitDistribution2d_lumisection->Fill(x_shift,
-                                                                   hitHistoTmpYAxis->GetBinCenter(startBin + i));
+          if (!perLSsaving_)
+            potPlots_[detId_pot].hitDistribution2d_lumisection->Fill(x_shift,
+                                                                     hitHistoTmpYAxis->GetBinCenter(startBin + i));
         }
 
         //All plots with Time
@@ -735,8 +740,10 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
 
 void TotemTimingDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &) {
   auto lumiCache = luminosityBlockCache(iLumi.index());
-  for (auto &plot : potPlots_) {
-    *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
+  if (!perLSsaving_) {
+    for (auto &plot : potPlots_) {
+      *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
+    }
   }
 
   globalPlot_.digiSentPercentage->Reset();

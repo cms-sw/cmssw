@@ -107,6 +107,7 @@ private:
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryEventToken_;
 
   bool excludeMultipleHits_;
+  bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
   double horizontalShiftBwDiamondPixels_;
   double horizontalShiftOfDiamond_;
   std::vector<std::pair<edm::EventRange, int>> runParameters_;
@@ -257,14 +258,14 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker, unsigned i
                                      19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
                                      -0.5,
                                      18.5);
-  hitDistribution2d_lumisection = ibooker.book2D("hits in planes lumisection",
+  /*  hitDistribution2d_lumisection = ibooker.book2D("hits in planes lumisection",
                                                  title + " hits in planes in the last lumisection;plane number;x (mm)",
                                                  10,
                                                  -0.5,
                                                  4.5,
                                                  19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
                                                  -0.5,
-                                                 18.5);
+                                                 18.5);*/
   hitDistribution2dOOT = ibooker.book2D("hits with OOT in planes",
                                         title + " hits with OOT in planes;plane number + 0.25 OOT;x (mm)",
                                         17,
@@ -486,6 +487,7 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
       ctppsGeometryRunToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord, edm::Transition::BeginRun>()),
       ctppsGeometryEventToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
       excludeMultipleHits_(ps.getParameter<bool>("excludeMultipleHits")),
+      perLSsaving_(ps.getUntrackedParameter<bool>("perLSsaving", false)),
       centralOOT_(-999),
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
       EC_difference_56_(-500),
@@ -554,9 +556,9 @@ std::shared_ptr<dds::Cache> CTPPSDiamondDQMSource::globalBeginLuminosityBlock(co
                                                                               const edm::EventSetup&) const {
   auto d = std::make_shared<dds::Cache>();
   d->hitDistribution2dMap.reserve(potPlots_.size());
-  for (auto& plot : potPlots_)
-    d->hitDistribution2dMap[plot.first] =
-        std::unique_ptr<TH2F>(static_cast<TH2F*>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
+  //  for (auto& plot : potPlots_)
+  //    d->hitDistribution2dMap[plot.first] =
+  //        std::unique_ptr<TH2F>(static_cast<TH2F*>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
   return d;
 }
 
@@ -1129,8 +1131,10 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
 void CTPPSDiamondDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup&) {
   auto lumiCache = luminosityBlockCache(iLumi.index());
-  for (auto& plot : potPlots_) {
-    *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
+  if (!perLSsaving_) {
+    for (auto& plot : potPlots_) {
+      *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
+    }
   }
   for (auto& plot : channelPlots_) {
     auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[plot.first];
