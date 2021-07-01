@@ -192,7 +192,7 @@ private:
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> EBHits_Token_;
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> EEHits_Token_;
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> ESHits_Token_;
-  
+
   // HCal info
 
   MonitorElement *mehHcaln[4];

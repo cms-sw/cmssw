@@ -828,7 +828,7 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event &iEvent, const edm::EventSet
     eventout = "\nGathering info:";
 
   // get calibration info
-  const auto& HCalconditions = iSetup.getHandle(hcaldbToken_);
+  const auto &HCalconditions = iSetup.getHandle(hcaldbToken_);
   if (!HCalconditions.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find HCalconditions in event!";
     return;
@@ -1455,7 +1455,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event &iEvent, const edm::EventSet
 
   // get RPC information
   // Get the RPC Geometry
-  const auto& rpcGeom = iSetup.getHandle(rpcGeomToken_);
+  const auto &rpcGeom = iSetup.getHandle(rpcGeomToken_);
   if (!rpcGeom.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find RPCGeometryRecord in event!";
     return;

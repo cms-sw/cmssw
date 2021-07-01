@@ -854,7 +854,7 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent, const edm::EventSetup &iSet
     eventout = "\nGathering info:";
 
   // access the tracker geometry
-  const auto& theTrackerGeometry = iSetup.getHandle(tGeomToken_);
+  const auto &theTrackerGeometry = iSetup.getHandle(tGeomToken_);
   if (!theTrackerGeometry.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find TrackerDigiGeometryRecord in event!";
     return;
@@ -1214,7 +1214,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent, const edm::EventSetup &iSe
   // access the CSC Muon
   ///////////////////////
   // access the CSC Muon geometry
-  const auto& theCSCGeometry = iSetup.getHandle(cscGeomToken_);
+  const auto &theCSCGeometry = iSetup.getHandle(cscGeomToken_);
   if (!theCSCGeometry.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find MuonGeometryRecord for the CSCGeometry in event!";
     return;
@@ -1283,7 +1283,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent, const edm::EventSetup &iSe
   // access the DT Muon
   /////////////////////
   // access the DT Muon geometry
-  const auto& theDTGeometry = iSetup.getHandle(dtGeomToken_);
+  const auto &theDTGeometry = iSetup.getHandle(dtGeomToken_);
   if (!theDTGeometry.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find MuonGeometryRecord for the DTGeometry in event!";
     return;
@@ -1357,7 +1357,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent, const edm::EventSetup &iSe
   // access the RPC Muon
   ///////////////////////
   // access the RPC Muon geometry
-  const auto& theRPCGeometry = iSetup.getHandle(rpcGeomToken_);
+  const auto &theRPCGeometry = iSetup.getHandle(rpcGeomToken_);
   if (!theRPCGeometry.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find MuonGeometryRecord for the RPCGeometry in event!";
     return;
@@ -1474,7 +1474,7 @@ void GlobalHitsProdHist::fillECal(edm::Event &iEvent, const edm::EventSetup &iSe
     eventout = "\nGathering info:";
 
   // access the calorimeter geometry
-  const auto& theCaloGeometry = iSetup.getHandle(caloGeomToken_);
+  const auto &theCaloGeometry = iSetup.getHandle(caloGeomToken_);
   if (!theCaloGeometry.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find CaloGeometryRecord in event!";
     return;
@@ -1642,7 +1642,7 @@ void GlobalHitsProdHist::fillHCal(edm::Event &iEvent, const edm::EventSetup &iSe
     eventout = "\nGathering info:";
 
   // access the calorimeter geometry
-  const auto& theCaloGeometry =iSetup.getHandle(caloGeomToken_);
+  const auto &theCaloGeometry = iSetup.getHandle(caloGeomToken_);
   if (!theCaloGeometry.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find CaloGeometryRecord in event!";
     return;

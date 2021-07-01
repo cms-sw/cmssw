@@ -806,7 +806,8 @@ void GlobalRecHitsProducer::storeHCal(PGlobalRecHit& product) {
 
 void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
-  const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);;
+  const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
+  ;
   std::string MsgLoggerCat = "GlobalRecHitsProducer_fillTrk";
   TString eventout;
   if (verbosity > 0)
@@ -832,7 +833,8 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent, const edm::EventSetup& i
   int nStripBrl = 0, nStripFwd = 0;
 
   // loop over det units
-  for (TrackerGeometry::DetContainer::const_iterator it = tGeomHandle->dets().begin(); it != tGeomHandle->dets().end(); ++it) {
+  for (TrackerGeometry::DetContainer::const_iterator it = tGeomHandle->dets().begin(); it != tGeomHandle->dets().end();
+       ++it) {
     uint32_t myid = ((*it)->geographicalId()).rawId();
     DetId detid = ((*it)->geographicalId());
 
@@ -1045,7 +1047,8 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent, const edm::EventSetup& i
 
   int nPxlBrl = 0, nPxlFwd = 0;
   //iterate over detunits
-  for (TrackerGeometry::DetContainer::const_iterator it = tGeomHandle->dets().begin(); it != tGeomHandle->dets().end(); ++it) {
+  for (TrackerGeometry::DetContainer::const_iterator it = tGeomHandle->dets().begin(); it != tGeomHandle->dets().end();
+       ++it) {
     uint32_t myid = ((*it)->geographicalId()).rawId();
     DetId detId = ((*it)->geographicalId());
     int subid = detId.subdetId();

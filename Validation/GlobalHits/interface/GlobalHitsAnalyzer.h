@@ -152,7 +152,6 @@ private:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> hcaldddRecToken_;
 
-
   // Electromagnetic info
   // ECal info
   MonitorElement *meCaloEcal[2];
