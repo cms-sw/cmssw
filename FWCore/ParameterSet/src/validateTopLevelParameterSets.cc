@@ -28,8 +28,8 @@ namespace edm {
             "Threads (except always 1 if there is a looper)");
     description.addUntracked<unsigned int>("numberOfConcurrentLuminosityBlocks", 0)
         ->setComment(
-            "If zero, use Framework default (currently 2). In all cases, "
-            "the number of concurrent luminosity blocks will be reset to "
+            "If zero, use Framework default (currently 2 when the number of streams >= 2, otherwise 1). "
+            "In all cases, the number of concurrent luminosity blocks will be reset to "
             "be the same as the number of streams if it is greater than the "
             "numbers of streams.");
     description.addUntracked<unsigned int>("numberOfConcurrentRuns", 1);
