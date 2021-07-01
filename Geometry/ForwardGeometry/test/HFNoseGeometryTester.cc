@@ -34,7 +34,8 @@ private:
 };
 
 HFNoseGeometryTester::HFNoseGeometryTester(const edm::ParameterSet& iC)
-  : name_(iC.getParameter<std::string>("Detector")), tokGeom_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_})) {}
+    : name_(iC.getParameter<std::string>("Detector")),
+      tokGeom_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_})) {}
 
 void HFNoseGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   const HGCalGeometry* geom = &iSetup.getData(tokGeom_);
