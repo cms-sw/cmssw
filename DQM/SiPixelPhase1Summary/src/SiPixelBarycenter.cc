@@ -63,7 +63,8 @@ void SiPixelBarycenter::bookBarycenterHistograms(DQMStore::IBooker& iBooker) {
 
   iBooker.setCurrentFolder("PixelPhase1/Barycenter");
   //Book one histogram for each subdetector
-  for (std::string subdetector : {"BPIX", "FPIXm", "FPIXp"}) {
+  for (std::string subdetector :
+       {"BPIX", "FPIX_zm", "FPIX_zp", "BPix_xp", "BPix_xm", "FPix_zp_xp", "FPix_zm_xp", "FPix_zp_xm", "FPix_zm_xm"}) {
     barycenters_[subdetector] =
         iBooker.book1D("barycenters_" + subdetector,
                        "Position of the barycenter for " + subdetector + ";Coordinate;Position [mm]",
@@ -100,7 +101,8 @@ void SiPixelBarycenter::fillBarycenterHistograms(DQMStore::IBooker& iBooker,
   auto Zbarycenters = barycenters.getZ();
 
   //Fill histogram for each subdetector
-  std::vector<std::string> subdetectors = {"BPIX", "FPIXm", "FPIXp"};
+  std::vector<std::string> subdetectors = {
+      "BPIX", "FPIX_zm", "FPIX_zp", "BPix_xp", "BPix_xm", "FPix_zp_xp", "FPix_zm_xp", "FPix_zp_xm", "FPix_zm_xm"};
   for (std::size_t i = 0; i < subdetectors.size(); ++i) {
     barycenters_[subdetectors[i]]->setBinContent(1, Xbarycenters[i]);
     barycenters_[subdetectors[i]]->setBinContent(2, Ybarycenters[i]);
