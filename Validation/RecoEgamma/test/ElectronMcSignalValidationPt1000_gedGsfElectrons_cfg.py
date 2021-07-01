@@ -1,8 +1,14 @@
+from __future__ import print_function
 
 import sys
 import os
-import DQMOffline.EGamma.electronDataDiscovery as dd
 import FWCore.ParameterSet.Config as cms
+
+print('Number of arguments:', len(sys.argv), 'arguments.')
+print('Argument List:', str(sys.argv))
+# first arg : cmsRun
+# second arg : name of the _cfg file
+# third arg : sample name (ex. ZEE_14)
 
 from electronValidationCheck_Env import env
 cmsEnv = env() # be careful, cmsEnv != cmsenv. cmsEnv is local
@@ -10,9 +16,14 @@ cmsEnv = env() # be careful, cmsEnv != cmsenv. cmsEnv is local
 cmsEnv.checkSample() # check the sample value
 cmsEnv.checkValues()
 
+import DQMOffline.EGamma.electronDataDiscovery as dd
+
 if cmsEnv.beginTag() == 'Run2_2017':
     from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
     process = cms.Process("electronValidation",Run2_2017)
+elif cmsEnv.beginTag() == 'Run3':
+    from Configuration.Eras.Era_Run3_cff import Run3
+    process = cms.Process('electronValidation', Run3) 
 else:
     from Configuration.Eras.Era_Phase2_cff import Phase2
     process = cms.Process('electronValidation',Phase2) 
@@ -27,8 +38,13 @@ max_number = -1 # 10 # number of events
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(max_number))
 #process.source = cms.Source ("PoolSource",skipEvents = cms.untracked.uint32(max_skipped), fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
 
-process.source = cms.Source ("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring()) # std value
-process.source.fileNames.extend(dd.search())  # to be commented for local run only
+data = os.environ['data']
+flist = dd.getCMSdata(data)
+print(flist)
+process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(*flist))
+
+#process.source = cms.Source ("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring()) # std value
+#process.source.fileNames.extend(dd.search())  # to be commented for local run only
 
 #process.source = cms.Source ("PoolSource",
 #    fileNames = cms.untracked.vstring(

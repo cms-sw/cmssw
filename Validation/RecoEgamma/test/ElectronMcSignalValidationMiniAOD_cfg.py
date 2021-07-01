@@ -21,11 +21,12 @@ import DQMOffline.EGamma.electronDataDiscovery as dd
 if cmsEnv.beginTag() == 'Run2_2017':
     from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
     process = cms.Process("electronValidation",Run2_2017)
+elif cmsEnv.beginTag() == 'Run3':
+    from Configuration.Eras.Era_Run3_cff import Run3
+    process = cms.Process('electronValidation', Run3) 
 else:
     from Configuration.Eras.Era_Phase2_cff import Phase2
     process = cms.Process('electronValidation',Phase2)
-
-#process.options = cms.untracked.PSet( )
 
 process.DQMStore = cms.Service("DQMStore")
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -38,6 +39,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(max_number))
 
 data = os.environ['data']
 flist = dd.getCMSdata(data)
+print(flist)
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*flist))
 
 #process.source = cms.Source ("PoolSource",
@@ -54,7 +56,6 @@ process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*fli
 #    ]),
 #secondaryFileNames = cms.untracked.vstring() )
 #process.source.fileNames.extend(dd.search())
-print("reading files done")
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -71,7 +72,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
-process.GlobalTag.globaltag = '113X_mcRun4_realistic_v4'
+process.GlobalTag.globaltag = '113X_mcRun4_realistic_v7'
 #process.GlobalTag.globaltag = '93X_mc2017_realistic_v1'
 
 # FOR DATA REDONE FROM RAW, ONE MUST HIDE IsoFromDeps
@@ -93,7 +94,6 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 process.EDM = cms.OutputModule("PoolOutputModule",
 outputCommands = cms.untracked.vstring('drop *',"keep *_MEtoEDMConverter_*_*"),
-#fileName = cms.untracked.string(TEST_HISTOS_FILE)
 fileName = cms.untracked.string(os.environ['outputFile'].replace(".root", "_a.root"))
 )
 

@@ -20,17 +20,19 @@ class env:
 
     def beginTag(self):
         beginTag = 'Phase2'
-        # beginTag = 'Run2_2017'
+        #beginTag = 'Run2_2017'
+        #beginTag = 'Run3'
         return beginTag
 
     def dd_tier(self):
         dd_tier = 'GEN-SIM-RECO'
-        dd_tier = 'MINIAODSIM'
+        #dd_tier = 'MINIAODSIM'
         return dd_tier
 
     def tag_startup(self):
-        tag_startup = '113X_mcRun4_realistic_v4_2026D76noPU'
-        # tag_startup = '113X_mcRun3_2021_realistic_v7'
+        tag_startup = '113X_mcRun4_realistic_v7_2026D76noPU' # 12_0_0_pre3 PHASE2
+        # tag_startup = '113X_mcRun3_2021_realistic_v10' # 12_0_0_pre1
+        # tag_startup = '113X_mcRun4_2021_realistic_v7' # 11_3_0_pre6
         # tag_startup = '93X_upgrade2023_realistic_v2_2023D17PU140'
         # tag_startup = '93X_upgrade2023_realistic_v0_D17PU200'
         # tag_startup = '92X_upgrade2023_realistic_v2_2023D17noPU'
@@ -74,7 +76,7 @@ class env:
                 'DD_COND'] = self.dd_cond()  # 'PU25ns_' + os.environ['TEST_GLOBAL_TAG'] + '-' + os.environ['DATA_VERSION']
 
         os.environ['DD_RELEASE'] = os.environ['CMSSW_VERSION']
-        # os.environ['DD_RELEASE'] = "CMSSW_11_3_0_pre3"
+        os.environ['DD_RELEASE'] = "CMSSW_12_0_0_pre3"
 
         print('=====')
         if ('DD_SAMPLE_OUT' not in os.environ) or (os.environ['DD_SAMPLE_OUT'] == ''):

@@ -12,6 +12,9 @@ cmsEnv.checkValues()
 if cmsEnv.beginTag() == 'Run2_2017':
     from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
     process = cms.Process("electronPostValidation",Run2_2017)
+elif cmsEnv.beginTag() == 'Run3':
+    from Configuration.Eras.Era_Run3_cff import Run3
+    process = cms.Process('electronPostValidation', Run3) 
 else:
     from Configuration.Eras.Era_Phase2_cff import Phase2
     process = cms.Process('electronPostValidation',Phase2)
@@ -50,7 +53,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 print('= inputPostFile : %s' % os.environ['inputPostFile'])
 t1 = os.environ['inputPostFile'].split('.')
-localFileInput = os.environ['inputPostFile'].replace("_a.root", ".root") #
+localFileInput = os.environ['inputPostFile'].replace(".root", "_a.root") #
 # Source
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring("file:" + localFileInput),
 secondaryFileNames = cms.untracked.vstring(),)
@@ -60,7 +63,7 @@ process.electronMcSignalPostValidator.OutputFolderName = cms.string("EgammaV/Ele
 
 from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
-process.GlobalTag.globaltag = '113X_mcRun4_realistic_v4'
+process.GlobalTag.globaltag = '113X_mcRun4_realistic_v7'
 #process.GlobalTag.globaltag = '93X_mc2017_realistic_v1'
 #process.GlobalTag.globaltag = '92X_upgrade2017_realistic_v10'
 

@@ -21,11 +21,12 @@ import DQMOffline.EGamma.electronDataDiscovery as dd
 
 if cmsEnv.beginTag() == 'Run2_2017':
     from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
-
     process = cms.Process("electronValidation", Run2_2017)
+elif cmsEnv.beginTag() == 'Run3':
+    from Configuration.Eras.Era_Run3_cff import Run3
+    process = cms.Process('electronValidation', Run3) 
 else:
     from Configuration.Eras.Era_Phase2_cff import Phase2
-
     process = cms.Process('electronValidation', Phase2)
 
 process.DQMStore = cms.Service("DQMStore")
@@ -41,6 +42,7 @@ process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(max_number))
 
 data = os.environ['data']
 flist = dd.getCMSdata(data)
+print(flist)
 process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(*flist))
 
 # process.source = cms.Source ("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring()) # std value
@@ -86,7 +88,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
 
 # process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG'] + '::All'
-process.GlobalTag.globaltag = '113X_mcRun4_realistic_v4'
+process.GlobalTag.globaltag = '113X_mcRun4_realistic_v7'
+# process.GlobalTag.globaltag = '113X_mcRun4_realistic_v4_2026D76noPU'
 # process.GlobalTag.globaltag = '113X_mcRun3_2021_realistic_v4'
 # process.GlobalTag.globaltag = '93X_mc2017_realistic_v1'
 # process.GlobalTag.globaltag = '92X_upgrade2017_realistic_v10'
