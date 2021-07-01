@@ -246,13 +246,11 @@ tauMCTable = cms.EDProducer("CandMCMatchTableProducer",
 )
 
 
-tauSequence = cms.Sequence(patTauMVAIDsSeq + finalTaus)
-_tauSequence80X =  cms.Sequence(finalTaus)
-run2_miniAOD_80XLegacy.toReplaceWith(tauSequence,_tauSequence80X)
-tauTables = cms.Sequence(tauTable)
+tauTask = cms.Task( patTauMVAIDsTask,finalTaus)
+
+run2_miniAOD_80XLegacy.toReplaceWith(tauTask, cms.Task(finalTaus))
+
+tauTablesTask = cms.Task(tauTable)
 
 genTauTask = cms.Task(tauGenJetsForNano,tauGenJetsSelectorAllHadronsForNano,genVisTaus,genVisTauTable)
 tauMCTask = cms.Task(genTauTask,tausMCMatchLepTauForTable,tausMCMatchHadTauForTable,tauMCTable)
-
-genTauSequence = cms.Sequence(genTauTask)
-tauMC = cms.Sequence(tauMCTask)

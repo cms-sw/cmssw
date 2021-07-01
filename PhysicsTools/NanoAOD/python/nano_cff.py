@@ -24,7 +24,6 @@ from PhysicsTools.NanoAOD.protons_cff import *
 from PhysicsTools.NanoAOD.btagWeightTable_cff  import *
 from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
 
-
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
         tag = cms.string("untagged"),
@@ -60,27 +59,37 @@ lhcInfoTable = cms.EDProducer("LHCInfoProducer",
                               precision = cms.int32(10),
 )
 
+
+nanoTableTaskCommon = cms.Task(
+    cms.Task(nanoMetadata), jetTask, extraFlagsProducersTask, muonTask, tauTask, #boostedTauTask,
+    electronTask , lowPtElectronTask, photonTask, vertexTask,
+    isoTrackTask, jetLepTask,
+    cms.Task(linkedObjects),
+    jetTablesTask, muonTablesTask, tauTablesTask, #boostedTauTablesTask,
+    electronTablesTask,
+    lowPtElectronTablesTask, photonTablesTask,
+    globalTablesTask, vertexTablesTask, metTablesTask, simpleCleanerTable, extraFlagsTableTask,
+    isoTrackTablesTask
+)
+
 nanoSequenceCommon = cms.Sequence(
-        nanoMetadata + jetSequence + muonSequence + tauSequence + boostedTauSequence + electronSequence + lowPtElectronSequence + photonSequence+vertexSequence+
-        isoTrackSequence + jetLepSequence + # must be after all the leptons
-        linkedObjects  +
-        jetTables + muonTables + tauTables + boostedTauTables + electronTables + lowPtElectronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + isoTrackTables
-        )
-nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTables + l1bits)
-nanoSequenceOnlyData = cms.Sequence(protonTables + lhcInfoTable)
+    nanoTableTaskCommon
+)
+
+nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTablesTask)
+nanoSequenceOnlyData = cms.Sequence(cms.Sequence(protonTablesTask) + lhcInfoTable)
 
 nanoSequence = cms.Sequence(nanoSequenceCommon + nanoSequenceOnlyData + nanoSequenceOnlyFullSim)
 
-nanoSequenceFS = cms.Sequence(genParticleSequence + genVertexTables + particleLevelSequence + nanoSequenceCommon + jetMC + muonMC + electronMC + lowPtElectronMC + photonMC + tauMC + boostedTauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genVertexTable + genParticleTables + particleLevelTables + ttbarCategoryTable )
+nanoTableTaskFS = cms.Task(genParticleTask, particleLevelTask, jetMCTask, muonMCTask, electronMCTask, lowPtElectronMCTask, photonMCTask, tauMCTask, #boostedTauMCTask,
+                           metMCTable, ttbarCatMCProducersTask, globalTablesMCTask, btagWeightTableTask, ttbarCategoryTableTask,
+                           genWeightsTableTask, genVertexTablesTask, genParticleTablesTask, particleLevelTablesTask)
+
+nanoSequenceFS = cms.Sequence(nanoSequenceCommon + cms.Sequence(nanoTableTaskFS))
 
 # GenVertex only stored in newer MiniAOD
 nanoSequenceMC = nanoSequenceFS.copy()
 nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequenceCommon)+1,nanoSequenceOnlyFullSim)
-
-# modify extraFlagsTable to store ecalBadCalibFilter decision which is re-run with updated bad crystal list for 2017 and 2018 samples
-for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1:
-    modifier.toModify(extraFlagsTable, variables= cms.PSet())
-    modifier.toModify(extraFlagsTable, variables = dict(Flag_ecalBadCalibFilterV2 = ExtVar(cms.InputTag("ecalBadCalibFilterNanoTagger"), bool, doc = "Bad ECAL calib flag (updated xtal list)")))
 
 # modifier which adds new tauIDs (currently only deepTauId2017v2p1 is being added)
 import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
@@ -233,6 +242,7 @@ def nanoAOD_recalibrateMETs(process,isData):
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 def nanoAOD_activateVID(process):
+
     switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD)
     for modname in electron_id_modules_WorkingPoints_nanoAOD.modules:
         setupAllVIDIdsInModule(process,modname,setupVIDElectronSelection)
@@ -247,6 +257,7 @@ def nanoAOD_activateVID(process):
     switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD) # do not call this to avoid resetting photon IDs in VID, if called before inside makePuppiesFromMiniAOD
     for modname in photon_id_modules_WorkingPoints_nanoAOD.modules:
         setupAllVIDIdsInModule(process,modname,setupVIDPhotonSelection)
+
     process.photonSequence.insert(process.photonSequence.index(bitmapVIDForPho),process.egmPhotonIDSequence)
     for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1:
         modifier.toModify(process.photonMVAValueMapProducer, src = "slimmedPhotonsTo106X")
@@ -299,7 +310,7 @@ def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubl
     process.updatedJetsAK8.jetSource="selectedUpdatedPatJetsAK8WithDeepInfo"
     return process
 
-from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+#from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 def nanoAOD_runMETfixEE2017(process,isData):
     runMetCorAndUncFromMiniAOD(process,isData=isData,
                                fixEE2017 = True,
@@ -315,7 +326,7 @@ def nanoAOD_customizeCommon(process):
     run2_nanoAOD_106Xv1.toModify(process.puppiNoLep, useExistingWeights = False)
     run2_nanoAOD_106Xv1.toModify(process.puppi, useExistingWeights = False)
 
-    process = nanoAOD_activateVID(process)
+#    process = nanoAOD_activateVID(process)
     nanoAOD_addDeepInfo_switch = cms.PSet(
         nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
         nanoAOD_addDeepFlavourTag_switch = cms.untracked.bool(False),
@@ -367,8 +378,8 @@ def nanoAOD_customizeCommon(process):
 
 def nanoAOD_customizeData(process):
     process = nanoAOD_customizeCommon(process)
-    process = nanoAOD_recalibrateMETs(process,isData=True)
-    process = nanoAOD_seqDeepMETs(process,isData=True)
+    (~run3_nanoAOD_devel).toModify(process, lambda p: nanoAOD_recalibrateMETs(process,isData=True))
+    (~run3_nanoAOD_devel).toModify(process, lambda p: nanoAOD_seqDeepMETs(process,isData=True))
     (~run3_nanoAOD_devel).toModify(process, lambda p: nanoAOD_rebuildPuppiMETs(process,isData=True))
     for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         modifier.toModify(process, lambda p: nanoAOD_runMETfixEE2017(p,isData=True))
@@ -376,8 +387,8 @@ def nanoAOD_customizeData(process):
 
 def nanoAOD_customizeMC(process):
     process = nanoAOD_customizeCommon(process)
-    process = nanoAOD_recalibrateMETs(process,isData=False)
-    process = nanoAOD_seqDeepMETs(process,isData=False)
+    (~run3_nanoAOD_devel).toModify(process, lambda p: nanoAOD_recalibrateMETs(process,isData=False))
+    (~run3_nanoAOD_devel).toModify(process, lambda p: nanoAOD_seqDeepMETs(process,isData=False))
     (~run3_nanoAOD_devel).toModify(process, lambda p: nanoAOD_rebuildPuppiMETs(process,isData=False))
     for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         modifier.toModify(process, lambda p: nanoAOD_runMETfixEE2017(p,isData=False))
@@ -394,19 +405,3 @@ def nanoWmassGenCustomize(process):
     etaPrecision="{} ? {} : {}".format(pdgSelection, CandVars.eta.precision.value(), genParticleTable.variables.eta.precision.value())
     process.genParticleTable.variables.eta.precision=cms.string(etaPrecision)
     return process
-
-### Era dependent customization
-_80x_sequence = nanoSequenceCommon.copy()
-#add stuff
-_80x_sequence.insert(_80x_sequence.index(jetSequence), extraFlagsProducers)
-_80x_sequence.insert(_80x_sequence.index(simpleCleanerTable)+1, extraFlagsTable)
-
-run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceCommon, _80x_sequence)
-
-_102x_sequence = nanoSequenceCommon.copy()
-#add stuff
-_102x_sequence.insert(_102x_sequence.index(jetSequence),extraFlagsProducers102x)
-_102x_sequence.insert(_102x_sequence.index(simpleCleanerTable)+1,extraFlagsTable)
-
-for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1:
-    modifier.toReplaceWith(nanoSequenceCommon, _102x_sequence)

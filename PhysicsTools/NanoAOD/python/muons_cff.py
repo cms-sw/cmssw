@@ -203,10 +203,5 @@ muonMCTable = cms.EDProducer("CandMCMatchTableProducer",
 )
 
 muonTask = cms.Task(slimmedMuonsUpdated,isoForMu,ptRatioRelForMu,slimmedMuonsWithUserData,finalMuons,finalLooseMuons )
-muonSequence = cms.Sequence(muonTask)
-
 muonMCTask = cms.Task(muonsMCMatchForTable,muonMCTable)
-muonMC = cms.Sequence(muonMCTask)
-
 muonTablesTask = cms.Task(muonFSRphotons,muonFSRassociation,muonMVATTH,muonMVALowPt,muonTable,fsrTable)
-muonTables = cms.Sequence(muonTablesTask)

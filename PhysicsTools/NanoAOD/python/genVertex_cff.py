@@ -30,5 +30,3 @@ genVertexTablesTask = cms.Task(genVertexTable,genVertexT0Table)
     run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | \
     run2_nanoAOD_102Xv1).toReplaceWith(genVertexTablesTask,cms.Task(genVertexTable))
 
-genVertexTables = cms.Sequence(genVertexTablesTask)
-

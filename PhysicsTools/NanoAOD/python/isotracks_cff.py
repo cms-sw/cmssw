@@ -50,9 +50,7 @@ isoTrackTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 )
 
 isoTrackTask = cms.Task(finalIsolatedTracks,isoForIsoTk,isFromLostTrackForIsoTk)
+isoTrackTablesTask = cms.Task(isoTrackTable)
 
-isoTrackSequence = cms.Sequence(isoTrackTask)
-isoTrackTables = cms.Sequence(isoTrackTable)
-
-run2_miniAOD_80XLegacy.toReplaceWith(isoTrackSequence, cms.Sequence())
-run2_miniAOD_80XLegacy.toReplaceWith(isoTrackTables,cms.Sequence())
+run2_miniAOD_80XLegacy.toReplaceWith(isoTrackTask, cms.Task())
+run2_miniAOD_80XLegacy.toReplaceWith(isoTrackTablesTask,cms.Task())

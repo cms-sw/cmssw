@@ -39,3 +39,5 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016: # to be updated wh
             btagSFdir+"cMVAv2_Moriond17_B_H.csv"
         )
     )
+
+btagWeightTableTask = cms.Task(btagWeightTable)

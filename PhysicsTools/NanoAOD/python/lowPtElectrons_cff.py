@@ -181,7 +181,7 @@ lowPtElectronMCTable = cms.EDProducer(
 )
 
 ################################################################################
-# Sequences
+# Tasks
 ################################################################################
 
 lowPtElectronTask = cms.Task(modifiedLowPtElectrons,
@@ -190,9 +190,8 @@ lowPtElectronTask = cms.Task(modifiedLowPtElectrons,
                              isoForLowPtEle,
                              updatedLowPtElectronsWithUserData,
                              finalLowPtElectrons)
-lowPtElectronSequence = cms.Sequence(lowPtElectronTask)
 
-lowPtElectronTables = cms.Sequence(lowPtElectronTable)
+lowPtElectronTablesTask = cms.Task(lowPtElectronTable)
 
 lowPtElectronMCTask = cms.Task(
     particleLevelForMatchingLowPt,
@@ -201,9 +200,6 @@ lowPtElectronMCTask = cms.Task(
     lowPtElectronsMCMatchForTable,
     lowPtElectronsMCMatchForTableAlt,
     lowPtElectronMCTable)
-
-lowPtElectronMC = cms.Sequence(
-    lowPtElectronMCTask)
 
 ################################################################################
 # Modifiers
@@ -215,6 +211,6 @@ _modifiers = ( run2_miniAOD_80XLegacy |
                run2_nanoAOD_94X2016 |
                run2_nanoAOD_102Xv1 |
                run2_nanoAOD_106Xv1 )
-(_modifiers).toReplaceWith(lowPtElectronSequence,cms.Sequence())
-(_modifiers).toReplaceWith(lowPtElectronTables,cms.Sequence())
-(_modifiers).toReplaceWith(lowPtElectronMC,cms.Sequence())
+(_modifiers).toReplaceWith(lowPtElectronTask,cms.Task())
+(_modifiers).toReplaceWith(lowPtElectronTablesTask,cms.Task())
+(_modifiers).toReplaceWith(lowPtElectronMCTask,cms.Task())
