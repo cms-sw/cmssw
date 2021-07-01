@@ -46,12 +46,14 @@ private:
   void runCocoa();
 
 private:
+  edm::ESGetToken<OpticalAlignments, OpticalAlignmentsRcd> optAliToken;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> ddcvToken;
   OpticalAlignments oaList_;
   OpticalAlignMeasurements measList_;
   std::string theCocoaDaqRootFileName_;
 };
 
-CocoaAnalyzer::CocoaAnalyzer(edm::ParameterSet const& pset) {
+CocoaAnalyzer::CocoaAnalyzer(edm::ParameterSet const& pset) : optAliToken(esConsumes()), ddcvToken(esConsumes()) {
   theCocoaDaqRootFileName_ = pset.getParameter<std::string>("cocoaDaqRootFile");
   int maxEvents = pset.getParameter<int32_t>("maxEvents");
   GlobalOptionMgr::getInstance()->setDefaultGlobalOptions();
@@ -83,9 +85,7 @@ void CocoaAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& evts) 
  * Resulting optical alignment info is stored in oaList_ and measList_.
  */
 void CocoaAnalyzer::readXMLFile(const edm::EventSetup& evts) {
-  edm::ESTransientHandle<cms::DDCompactView> myCompactView;
-  evts.get<IdealGeometryRecord>().get(myCompactView);
-
+  edm::ESTransientHandle<cms::DDCompactView> myCompactView = evts.getTransientHandle(ddcvToken);
   const cms::DDDetector* mySystem = myCompactView->detector();
 
   if (mySystem) {
@@ -453,9 +453,8 @@ std::vector<OpticalAlignInfo> CocoaAnalyzer::readCalibrationDB(const edm::EventS
   }
 
   using namespace edm::eventsetup;
-  edm::ESHandle<OpticalAlignments> pObjs;
-  evts.get<OpticalAlignmentsRcd>().get(pObjs);
-  const std::vector<OpticalAlignInfo>& infoFromDB = pObjs.product()->opticalAlignments_;
+  const OpticalAlignments* pObjs = &evts.getData(optAliToken);
+  const std::vector<OpticalAlignInfo>& infoFromDB = pObjs->opticalAlignments_;
 
   if (ALIUtils::debug >= 5) {
     edm::LogInfo("Alignment") << "CocoaAnalyzer::readCalibrationDB:  Number of OpticalAlignInfo READ "
