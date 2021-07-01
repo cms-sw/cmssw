@@ -37,6 +37,7 @@ public:
 
   ///Fill descriptor
   static void fillDescriptions(edm::ConfigurationDescriptions& iDesc);
+
 private:
   const bool changeFrame_;
   const double theMaxZ, theSetSigmaZ;
@@ -59,25 +60,25 @@ BeamSpotOnlineProducer::BeamSpotOnlineProducer(const ParameterSet& iconf)
       useTransientRecord_(iconf.getParameter<bool>("useTransientRecord")),
       scalerToken_(consumes<BeamSpotOnlineCollection>(iconf.getParameter<InputTag>("src"))),
       l1GtEvmReadoutRecordToken_(consumes<L1GlobalTriggerEvmReadoutRecord>(iconf.getParameter<InputTag>("gtEvmLabel"))),
-      beamToken_(esConsumes<BeamSpotObjects, BeamSpotObjectsRcd>()),      
-      beamTransientToken_(esConsumes<BeamSpotObjects, BeamSpotTransientObjectsRcd>()),      
+      beamToken_(esConsumes<BeamSpotObjects, BeamSpotObjectsRcd>()),
+      beamTransientToken_(esConsumes<BeamSpotObjects, BeamSpotTransientObjectsRcd>()),
       theBeamShoutMode(iconf.getUntrackedParameter<unsigned int>("beamMode", 11)) {
   theMaxR2 = iconf.getParameter<double>("maxRadius");
   theMaxR2 *= theMaxR2;
-  
+
   produces<reco::BeamSpot>();
 }
 
 void BeamSpotOnlineProducer::fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
   edm::ParameterSetDescription ps;
-  ps.add<bool>("changeToCMSCoordinates",false);
-  ps.add<double>("maxZ",40.);
-  ps.add<double>("setSigmaZ",-1.);
+  ps.add<bool>("changeToCMSCoordinates", false);
+  ps.add<double>("maxZ", 40.);
+  ps.add<double>("setSigmaZ", -1.);
   ps.addUntracked<unsigned int>("beamMode", 11);
-  ps.add<InputTag>("src",InputTag("hltScalersRawToDigi"));
-  ps.add<InputTag>("gtEvmLabel",InputTag(""));
-  ps.add<double>("maxRadius",2.0);
-  ps.add<bool>("useTransientRecord",true);
+  ps.add<InputTag>("src", InputTag("hltScalersRawToDigi"));
+  ps.add<InputTag>("gtEvmLabel", InputTag(""));
+  ps.add<double>("maxRadius", 2.0);
+  ps.add<bool>("useTransientRecord", true);
   iDesc.addWithDefaultLabel(ps);
 }
 
@@ -92,42 +93,47 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     if (gtEvmReadoutRecord->gtfeWord().beamMode() == theBeamShoutMode)
       shoutMODE = true;
   } else {
-      shoutMODE = true;
+    shoutMODE = true;
   }
   bool fallBackToDB = false;
-  if (useTransientRecord_){
-      auto const& spotDB = iSetup.getData(beamTransientToken_);  
+  if (useTransientRecord_) {
+    auto const& spotDB = iSetup.getData(beamTransientToken_);
 
-      if (spotDB.GetBeamType() != 2){            
-       if (shoutMODE) {
-          edm::LogWarning("BeamSpotFromDB")
-              << "Online Beam Spot producer falls back to DB value because the ESProducer returned a fake beamspot ";
+    if (spotDB.GetBeamType() != 2) {
+      if (shoutMODE) {
+        edm::LogWarning("BeamSpotFromDB")
+            << "Online Beam Spot producer falls back to DB value because the ESProducer returned a fake beamspot ";
+      }
+      fallBackToDB = true;
+    } else {
+      
+      // translate from BeamSpotObjects to reco::BeamSpot
+      // in case we need to switch to LHC reference frame
+      // ignore for the moment rotations, and translations
+      double f = 1.;
+      if (changeFrame_)
+        f = -1.;
+      reco::BeamSpot::Point apoint(f * spotDB.GetX(), f * spotDB.GetY(), f * spotDB.GetZ());
+
+      reco::BeamSpot::CovarianceMatrix matrix;
+      for (int i = 0; i < 7; ++i) {
+        for (int j = 0; j < 7; ++j) {
+          matrix(i, j) = spotDB.GetCovariance(i, j);
         }
-        fallBackToDB = true;
-      }else{
-        // translate from BeamSpotObjects to reco::BeamSpot
-        reco::BeamSpot::Point apoint(spotDB.GetX(), spotDB.GetY(), spotDB.GetZ());
+      }
+      double sigmaZ = spotDB.GetSigmaZ();
+      if (theSetSigmaZ > 0)
+        sigmaZ = theSetSigmaZ;
 
-        reco::BeamSpot::CovarianceMatrix matrix;
-        for (int i = 0; i < 7; ++i) {
-          for (int j = 0; j < 7; ++j) {
-            matrix(i, j) = spotDB.GetCovariance(i, j);
-          }
-        }
-        double sigmaZ = spotDB.GetSigmaZ();
-        if (theSetSigmaZ > 0)
-          sigmaZ = theSetSigmaZ;
-
-        // this assume beam width same in x and y
-        aSpot = reco::BeamSpot(
-            apoint, sigmaZ, spotDB.Getdxdz(), spotDB.Getdydz(), spotDB.GetBeamWidthX(), matrix);
-            aSpot.setBeamWidthY(spotDB.GetBeamWidthY());
-            aSpot.setEmittanceX(spotDB.GetEmittanceX());
-            aSpot.setEmittanceY(spotDB.GetEmittanceY());
-            aSpot.setbetaStar(spotDB.GetBetaStar());
-            aSpot.setType(reco::BeamSpot::Tracker);
-      }   
-  }else{   
+      // this assume beam width same in x and y
+      aSpot = reco::BeamSpot(apoint, sigmaZ, spotDB.Getdxdz(), spotDB.Getdydz(), spotDB.GetBeamWidthX(), matrix);
+      aSpot.setBeamWidthY(spotDB.GetBeamWidthY());
+      aSpot.setEmittanceX(spotDB.GetEmittanceX());
+      aSpot.setEmittanceY(spotDB.GetEmittanceY());
+      aSpot.setbetaStar(spotDB.GetBetaStar());
+      aSpot.setType(reco::BeamSpot::Tracker);
+    }
+  } else {
     // get scalar collection
     Handle<BeamSpotOnlineCollection> handleScaler;
     iEvent.getByToken(scalerToken_, handleScaler);

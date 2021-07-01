@@ -38,8 +38,8 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
                                                )
 
                                 ),
-                                        connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS')
-
+                                        #connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS')
+                                        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
 )
 process.MessageLogger = cms.Service("MessageLogger",
     cerr = cms.untracked.PSet(
