@@ -34,6 +34,7 @@ AlcaBeamMonitor::AlcaBeamMonitor(const ParameterSet& ps)
       trackLabel_(consumes<reco::TrackCollection>(ps.getUntrackedParameter<InputTag>("TrackLabel"))),
       scalerLabel_(consumes<BeamSpot>(ps.getUntrackedParameter<InputTag>("ScalerLabel"))),
       beamSpotToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
+      perLSsaving_(ps.getUntrackedParameter<bool>("perLSsaving", false)),
       numberOfValuesToSave_(0) {
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
@@ -63,15 +64,17 @@ AlcaBeamMonitor::AlcaBeamMonitor(const ParameterSet& ps)
   histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex-BeamFit"));
   histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex-Scalers"));
 
-  histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased BeamSpotFit"));
-  histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased PrimaryVertex"));
-  histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased DataBase"));
-  histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased Scalers"));
-  histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased PrimaryVertex-DataBase fit"));
-  histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased PrimaryVertex-Scalers fit"));
-  histoByCategoryNames_.insert(pair<string, string>("validation", "Lumibased Scalers-DataBase fit"));
-  histoByCategoryNames_.insert(pair<string, string>("validation", "Lumibased PrimaryVertex-DataBase"));
-  histoByCategoryNames_.insert(pair<string, string>("validation", "Lumibased PrimaryVertex-Scalers"));
+  if (!perLSsaving_) {
+    histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased BeamSpotFit"));
+    histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased PrimaryVertex"));
+    histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased DataBase"));
+    histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased Scalers"));
+    histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased PrimaryVertex-DataBase fit"));
+    histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased PrimaryVertex-Scalers fit"));
+    histoByCategoryNames_.insert(pair<string, string>("validation", "Lumibased Scalers-DataBase fit"));
+    histoByCategoryNames_.insert(pair<string, string>("validation", "Lumibased PrimaryVertex-DataBase"));
+    histoByCategoryNames_.insert(pair<string, string>("validation", "Lumibased PrimaryVertex-Scalers"));
+  }
 
   for (vector<string>::iterator itV = varNamesV_.begin(); itV != varNamesV_.end(); itV++) {
     for (multimap<string, string>::iterator itM = histoByCategoryNames_.begin(); itM != histoByCategoryNames_.end();
@@ -88,6 +91,7 @@ void AlcaBeamMonitor::fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
   ps.addUntracked<edm::InputTag>("PrimaryVertexLabel");
   ps.addUntracked<edm::InputTag>("TrackLabel");
   ps.addUntracked<edm::InputTag>("ScalerLabel");
+  ps.addUntracked<bool>("perLSsaving");
 
   BeamFitter::fillDescription(ps);
   PVFitter::fillDescription(ps);
