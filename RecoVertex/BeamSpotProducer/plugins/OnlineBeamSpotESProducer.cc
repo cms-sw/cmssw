@@ -56,19 +56,19 @@ void OnlineBeamSpotESProducer::fillDescriptions(edm::ConfigurationDescriptions& 
 
 const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotOnlineObjects* bs1,
                                                                  const BeamSpotOnlineObjects* bs2) {
-  //Random logic so far ...  
+  //Random logic so far ...
   if (bs1->GetSigmaZ() - 0.0001 > bs2->GetSigmaZ()) {  //just temporary for debugging
     if (bs1->GetSigmaZ() > 2.5) {
       return bs1;
     } else {
-      return NULL;
+      return nullptr;
     }
 
   } else {
     if (bs2->GetSigmaZ() > 2.5) {
       return bs2;
     } else {
-      return NULL;
+      return nullptr;
     }
   }
 }
@@ -88,9 +88,9 @@ std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const B
   } else {
     best = &hltRec->get(bsHLTToken_);
   }
-  if (best){
+  if (best) {
     return std::shared_ptr<const BeamSpotObjects>(best, edm::do_nothing_deleter());
-  }else{
+  } else {
     return std::shared_ptr<const BeamSpotObjects>(&fakeBS_, edm::do_nothing_deleter());
   }
 };
