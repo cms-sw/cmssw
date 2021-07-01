@@ -258,14 +258,14 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker, unsigned i
                                      19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
                                      -0.5,
                                      18.5);
-  /*  hitDistribution2d_lumisection = ibooker.book2D("hits in planes lumisection",
+  hitDistribution2d_lumisection = ibooker.book2D("hits in planes lumisection",
                                                  title + " hits in planes in the last lumisection;plane number;x (mm)",
                                                  10,
                                                  -0.5,
                                                  4.5,
                                                  19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
                                                  -0.5,
-                                                 18.5);*/
+                                                 18.5);
   hitDistribution2dOOT = ibooker.book2D("hits with OOT in planes",
                                         title + " hits with OOT in planes;plane number + 0.25 OOT;x (mm)",
                                         17,
@@ -556,9 +556,9 @@ std::shared_ptr<dds::Cache> CTPPSDiamondDQMSource::globalBeginLuminosityBlock(co
                                                                               const edm::EventSetup&) const {
   auto d = std::make_shared<dds::Cache>();
   d->hitDistribution2dMap.reserve(potPlots_.size());
-  //  for (auto& plot : potPlots_)
-  //    d->hitDistribution2dMap[plot.first] =
-  //        std::unique_ptr<TH2F>(static_cast<TH2F*>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
+  for (auto& plot : potPlots_)
+    d->hitDistribution2dMap[plot.first] =
+          std::unique_ptr<TH2F>(static_cast<TH2F*>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
   return d;
 }
 
@@ -1135,7 +1135,7 @@ void CTPPSDiamondDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock&
     for (auto& plot : potPlots_) {
       *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
     }
-  }
+  
   for (auto& plot : channelPlots_) {
     auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[plot.first];
     if (hitsCounterPerLumisection != 0) {
@@ -1171,7 +1171,6 @@ void CTPPSDiamondDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock&
       }
     }
   }
-
   // Efficiencies of single channels
   for (auto& plot : potPlots_) {
     plot.second.EfficiencyOfChannelsInPot->Reset();
@@ -1198,6 +1197,7 @@ void CTPPSDiamondDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock&
 
     hitHistoTmp->Divide(&(plot.second.pixelTracksMapWithDiamonds), &(potPlots_[detId_pot].pixelTracksMap));
   }
+ }//perLSsaving
 }
 
 //----------------------------------------------------------------------------------------------------
