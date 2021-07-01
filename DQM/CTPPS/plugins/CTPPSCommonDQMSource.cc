@@ -124,7 +124,7 @@ void CTPPSCommonDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker) {
      2 -> warning
      3 -> ok
   */
-    RPState = ibooker.book2D("rpstate per LS",
+  RPState = ibooker.book2D("rpstate per LS",
                            "RP State per Lumisection;Luminosity Section;",
                            MAX_LUMIS,
                            0,

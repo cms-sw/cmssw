@@ -56,17 +56,15 @@ AlcaBeamMonitor::AlcaBeamMonitor(const ParameterSet& ps)
   varNamesV_.push_back("sigmaY");
   varNamesV_.push_back("sigmaZ");
 
-  if (!perLSsaving_){
-  histoByCategoryNames_.insert(pair<string, string>("run", "Coordinate"));
-  histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex fit-DataBase"));
-  }
-  histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex fit-BeamFit"));
-  histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex fit-Scalers"));
-  histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex-DataBase"));
-  histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex-BeamFit"));
-  histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex-Scalers"));
-
   if (!perLSsaving_) {
+    histoByCategoryNames_.insert(pair<string, string>("run", "Coordinate"));
+    histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex fit-DataBase"));
+    histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex fit-BeamFit"));
+    histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex fit-Scalers"));
+    histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex-DataBase"));
+    histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex-BeamFit"));
+    histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex-Scalers"));
+
     histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased BeamSpotFit"));
     histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased PrimaryVertex"));
     histoByCategoryNames_.insert(pair<string, string>("lumi", "Lumibased DataBase"));
