@@ -38,7 +38,7 @@ BDHadronTrackMonitoringAnalyzer::BDHadronTrackMonitoringAnalyzer(const edm::Para
   TrackCollectionTag_ = consumes<reco::TrackCollection>(TrackSrc_);
   PrimaryVertexColl_ = consumes<reco::VertexCollection>(PVSrc_);
   clusterTPMapToken_ = consumes<ClusterTPAssociation>(ClusterTPMapSrc_);
-  ttrackToken_ = esConsumes();
+  ttrackToken_ = esConsumes(edm::ESInputTag("", "TransientTrackBuilder"));
   // TrkHistCat = {"BCWeakDecay", "BWeakDecay", "CWeakDecay", "PU", "Other",
   // "Fake"};
 }
