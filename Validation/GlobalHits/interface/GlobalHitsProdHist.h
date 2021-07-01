@@ -121,6 +121,11 @@ private:
   edm::EDGetTokenT<edm::SimVertexContainer> G4VtxSrc_Token_;
   edm::EDGetTokenT<edm::SimTrackContainer> G4TrkSrc_Token_;
 
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   // Electromagnetic info
   // ECal info
   TH1F *hCaloEcal[2];
