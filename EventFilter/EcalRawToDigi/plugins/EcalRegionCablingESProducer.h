@@ -24,6 +24,7 @@
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "EventFilter/EcalRawToDigi/interface/EcalRegionCablingRecord.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalRegionCabling.h"
@@ -39,5 +40,7 @@ public:
 
 private:
   edm::ParameterSet conf_;
+
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> esEcalElectronicsMappingToken_;
 };
 #endif

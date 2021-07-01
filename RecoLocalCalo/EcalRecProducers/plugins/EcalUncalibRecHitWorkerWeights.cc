@@ -4,24 +4,25 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 
 EcalUncalibRecHitWorkerWeights::EcalUncalibRecHitWorkerWeights(const edm::ParameterSet& ps, edm::ConsumesCollector& c)
-    : EcalUncalibRecHitWorkerRunOneDigiBase(ps, c), testbeamEEShape(EEShape(true)), testbeamEBShape(EBShape(true)) {}
+    : EcalUncalibRecHitWorkerRunOneDigiBase(ps, c),
+      tokenPeds_(c.esConsumes<EcalPedestals, EcalPedestalsRcd>()),
+      tokenGains_(c.esConsumes<EcalGainRatios, EcalGainRatiosRcd>()),
+      tokenGrps_(c.esConsumes<EcalWeightXtalGroups, EcalWeightXtalGroupsRcd>()),
+      tokenWgts_(c.esConsumes<EcalTBWeights, EcalTBWeightsRcd>()),
+      testbeamEEShape(EEShape(true)),
+      testbeamEBShape(EBShape(true)) {}
 
 void EcalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es) {
-  es.get<EcalGainRatiosRcd>().get(gains);
-  es.get<EcalPedestalsRcd>().get(peds);
-  es.get<EcalWeightXtalGroupsRcd>().get(grps);
-  es.get<EcalTBWeightsRcd>().get(wgts);
+  gains_ = es.getHandle(tokenGains_);
+  peds_ = es.getHandle(tokenPeds_);
+  grps_ = es.getHandle(tokenGrps_);
+  wgts_ = es.getHandle(tokenWgts_);
 
   testbeamEEShape.setEventSetup(es);
   testbeamEBShape.setEventSetup(es);
@@ -39,14 +40,14 @@ bool EcalUncalibRecHitWorkerWeights::run(const edm::Event& evt,
 
   if (detid.subdetId() == EcalEndcap) {
     unsigned int hashedIndex = EEDetId(detid).hashedIndex();
-    aped = &peds->endcap(hashedIndex);
-    aGain = &gains->endcap(hashedIndex);
-    gid = &grps->endcap(hashedIndex);
+    aped = &peds_->endcap(hashedIndex);
+    aGain = &gains_->endcap(hashedIndex);
+    gid = &grps_->endcap(hashedIndex);
   } else {
     unsigned int hashedIndex = EBDetId(detid).hashedIndex();
-    aped = &peds->barrel(hashedIndex);
-    aGain = &gains->barrel(hashedIndex);
-    gid = &grps->barrel(hashedIndex);
+    aped = &peds_->barrel(hashedIndex);
+    aGain = &gains_->barrel(hashedIndex);
+    gid = &grps_->barrel(hashedIndex);
   }
 
   pedVec[0] = aped->mean_x12;
@@ -60,7 +61,7 @@ bool EcalUncalibRecHitWorkerWeights::run(const edm::Event& evt,
   gainRatios[2] = aGain->gain6Over1() * aGain->gain12Over6();
 
   // now lookup the correct weights in the map
-  EcalTBWeights::EcalTBWeightMap const& wgtsMap = wgts->getMap();
+  EcalTBWeights::EcalTBWeightMap const& wgtsMap = wgts_->getMap();
   EcalTBWeights::EcalTBWeightMap::const_iterator wit;
   wit = wgtsMap.find(std::make_pair(*gid, tdcid));
   if (wit == wgtsMap.end()) {
