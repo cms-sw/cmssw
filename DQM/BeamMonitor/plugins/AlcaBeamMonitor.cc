@@ -56,8 +56,10 @@ AlcaBeamMonitor::AlcaBeamMonitor(const ParameterSet& ps)
   varNamesV_.push_back("sigmaY");
   varNamesV_.push_back("sigmaZ");
 
+  if (!perLSsaving_){
   histoByCategoryNames_.insert(pair<string, string>("run", "Coordinate"));
   histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex fit-DataBase"));
+  }
   histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex fit-BeamFit"));
   histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex fit-Scalers"));
   histoByCategoryNames_.insert(pair<string, string>("run", "PrimaryVertex-DataBase"));
