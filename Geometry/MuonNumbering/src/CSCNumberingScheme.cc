@@ -18,9 +18,9 @@ void CSCNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   theLayerLevel = muonConstants.getValue("me_layer") / theLevelPart;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonGeom") << "Initialize CSCNumberingScheme"
-                                   << "\ntheRegionLevel " << theRegionLevel << "\ntheStationLevel " << theStationLevel
-                                   << "\ntheSubringLevel " << theSubringLevel << "\ntheSectorLevel " << theSectorLevel
-                                   << "\ntheRingLevel " << theRingLevel << "\ntheLayerLevel " << theLayerLevel;
+                               << "\ntheRegionLevel " << theRegionLevel << "\ntheStationLevel " << theStationLevel
+                               << "\ntheSubringLevel " << theSubringLevel << "\ntheSectorLevel " << theSectorLevel
+                               << "\ntheRingLevel " << theRingLevel << "\ntheLayerLevel " << theLayerLevel;
 #endif
 }
 
@@ -85,33 +85,33 @@ int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
 
   if ((fwbw_id < 1) || (fwbw_id > 2)) {
     edm::LogError("MuonGeom") << "@SUB=CSCNumberingScheme::baseNumberToUnitNumber"
-                                  << "forward/backward id out of range:" << fwbw_id;
+                              << "forward/backward id out of range:" << fwbw_id;
   }
 
   if ((station_id < 1) || (station_id > 4)) {
     edm::LogError("MuonGeom") << "@SUB=CSCNumberingScheme::baseNumberToUnitNumber"
-                                  << "station id out of range:" << station_id;
+                              << "station id out of range:" << station_id;
   }
 
   if ((ring_id < 1) || (ring_id > 4)) {
     edm::LogError("MuonGeom") << "@SUB=CSCNumberingScheme::baseNumberToUnitNumber"
-                                  << "ring id out of range:" << ring_id;
+                              << "ring id out of range:" << ring_id;
   }
 
   if ((subring_id < 1) || (subring_id > 2)) {
     edm::LogError("MuonGeom") << "@SUB=CSCNumberingScheme::baseNumberToUnitNumber"
-                                  << "subring id out of range:" << subring_id;
+                              << "subring id out of range:" << subring_id;
   }
 
   if ((sector_id < 1) || (sector_id > 36)) {
     edm::LogError("MuonGeom") << "@SUB=CSCNumberingScheme::baseNumberToUnitNumber"
-                                  << "sector id out of range:" << sector_id;
+                              << "sector id out of range:" << sector_id;
   }
 
   // Allow id=0 since that means a chamber
   if ((layer_id < 0) || (layer_id > 6)) {
     edm::LogError("MuonGeom") << "@SUB=CSCNumberingScheme::baseNumberToUnitNumber"
-                                  << "layer id out of range" << layer_id;
+                              << "layer id out of range" << layer_id;
   }
 
   // find appropriate chamber label
@@ -124,8 +124,8 @@ int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonGeom") << "CSCNumberingScheme :  fw/bw " << fwbw_id << " station " << station_id << " ring "
-                                   << ring_id << " subring " << subring_id << " chamber " << chamber_id << " sector "
-                                   << sector_id << " layer " << layer_id;
+                               << ring_id << " subring " << subring_id << " chamber " << chamber_id << " sector "
+                               << sector_id << " layer " << layer_id;
 #endif
 
   return intIndex;
