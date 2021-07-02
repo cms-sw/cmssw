@@ -135,7 +135,7 @@ private:
     EffME1() : hTotal(nullptr), hFound(nullptr) {}
     EffME1(MonitorElement* total, MonitorElement* found) : hTotal(total), hFound(found) {}
 
-    void fill(double x, bool found, float weight=1.) {
+    void fill(double x, bool found, float weight = 1.) {
       hTotal->Fill(x, weight);
       if (found) {
         hFound->Fill(x, weight);
@@ -146,9 +146,10 @@ private:
   };
   struct EffTkMap {
     EffTkMap() : hTotal(nullptr), hFound(nullptr) {}
-    EffTkMap(std::unique_ptr<TkHistoMap>&& total, std::unique_ptr<TkHistoMap>&& found) : hTotal(std::move(total)), hFound(std::move(found)) {}
+    EffTkMap(std::unique_ptr<TkHistoMap>&& total, std::unique_ptr<TkHistoMap>&& found)
+        : hTotal(std::move(total)), hFound(std::move(found)) {}
 
-    void fill(uint32_t id, bool found, float weight=1.) {
+    void fill(uint32_t id, bool found, float weight = 1.) {
       hTotal->fill(id, weight);
       if (found) {
         hFound->fill(id, weight);
@@ -195,8 +196,7 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
   trackMultiplicityCut_ = conf.getUntrackedParameter<unsigned int>("trackMultiplicity", 100);
   useFirstMeas_ = conf.getUntrackedParameter<bool>("useFirstMeas", false);
   useLastMeas_ = conf.getUntrackedParameter<bool>("useLastMeas", false);
-  useAllHitsFromTracksWithMissingHits_ =
-      conf.getUntrackedParameter<bool>("useAllHitsFromTracksWithMissingHits", false);
+  useAllHitsFromTracksWithMissingHits_ = conf.getUntrackedParameter<bool>("useAllHitsFromTracksWithMissingHits", false);
 
   // TODO make consistent
 
@@ -229,7 +229,7 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
   }
   if (!badModules_.empty())
     std::cout << "Remove additionnal bad modules from the analysis: " << std::endl;
-  for ( const auto badMod : badModules_ ) {
+  for (const auto badMod : badModules_) {
     std::cout << " " << badMod << std::endl;
   }
 }
@@ -382,48 +382,41 @@ namespace {
 void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
                                                 const edm::Run& run,
                                                 const edm::EventSetup& setup) {
-  const std::string path = "SiStrip/HitEfficiency"; // TODO make this configurable
+  const std::string path = "SiStrip/HitEfficiency";  // TODO make this configurable
   booker.setCurrentFolder(path);
   h_bx = booker.book1D("bx", "bx", 3600, 0, 3600);
   h_instLumi = booker.book1D("instLumi", "inst. lumi.", 250, 0, 25000);
   h_PU = booker.book1D("PU", "PU", 200, 0, 200);
 
-  h_goodLayer = EffME1(
-      booker.book1D("goodlayer_total", "goodlayer_total", 35, 0., 35.),
-      booker.book1D("goodlayer_found", "goodlayer_found", 35, 0., 35.));
-  h_allLayer = EffME1(
-      booker.book1D("alllayer_total", "alllayer_total", 35, 0., 35.),
-      booker.book1D("alllayer_found", "alllayer_found", 35, 0., 35.));
+  h_goodLayer = EffME1(booker.book1D("goodlayer_total", "goodlayer_total", 35, 0., 35.),
+                       booker.book1D("goodlayer_found", "goodlayer_found", 35, 0., 35.));
+  h_allLayer = EffME1(booker.book1D("alllayer_total", "alllayer_total", 35, 0., 35.),
+                      booker.book1D("alllayer_found", "alllayer_found", 35, 0., 35.));
 
-  h_layer = EffME1(
-      booker.book1D("layer_found", "layer_found", 23, 0., 23.),
-      booker.book1D("layer_total", "layer_total", 23, 0., 23.));
-  for ( int iLayer = 0; iLayer != 23; ++iLayer ) {
-    const auto lyrName = layerName(iLayer); // TODO change to std::string and {fmt}
+  h_layer = EffME1(booker.book1D("layer_found", "layer_found", 23, 0., 23.),
+                   booker.book1D("layer_total", "layer_total", 23, 0., 23.));
+  for (int iLayer = 0; iLayer != 23; ++iLayer) {
+    const auto lyrName = layerName(iLayer);  // TODO change to std::string and {fmt}
     auto ihres = booker.book1D(Form("resol_layer_%i", iLayer), lyrName, 125, -125., 125.);
     ihres->setAxisTitle("trajX-clusX [strip unit]");
     h_resolution.push_back(ihres);
-    h_layer_vsLumi.push_back(EffME1(
-          booker.book1D(Form("layerfound_vsLumi_%i", iLayer), lyrName, 100, 0, 25000),
-          booker.book1D(Form("layertotal_vsLumi_%i", iLayer), lyrName, 100, 0, 25000)));
-    h_layer_vsPU.push_back(EffME1(
-          booker.book1D(Form("layerfound_vsPU_%i", iLayer), lyrName, 45, 0, 90),
-          booker.book1D(Form("layertotal_vsPU_%i", iLayer), lyrName, 45, 0, 90)));
+    h_layer_vsLumi.push_back(EffME1(booker.book1D(Form("layerfound_vsLumi_%i", iLayer), lyrName, 100, 0, 25000),
+                                    booker.book1D(Form("layertotal_vsLumi_%i", iLayer), lyrName, 100, 0, 25000)));
+    h_layer_vsPU.push_back(EffME1(booker.book1D(Form("layerfound_vsPU_%i", iLayer), lyrName, 45, 0, 90),
+                                  booker.book1D(Form("layertotal_vsPU_%i", iLayer), lyrName, 45, 0, 90)));
     if (addCommonMode_) {
-      h_layer_vsCM.push_back(EffME1(
-            booker.book1D(Form("layerfound_vsCM_%i", iLayer), lyrName, 20, 0, 400),
-            booker.book1D(Form("layertotal_vsCM_%i", iLayer), lyrName, 20, 0, 400)));
+      h_layer_vsCM.push_back(EffME1(booker.book1D(Form("layerfound_vsCM_%i", iLayer), lyrName, 20, 0, 400),
+                                    booker.book1D(Form("layertotal_vsCM_%i", iLayer), lyrName, 20, 0, 400)));
     }
-    h_layer_vsBx.push_back(EffME1(
-          booker.book1D(Form("totalVsBx_layer%i", iLayer), Form("layer %i", iLayer), 3565, 0, 3565),
-          booker.book1D(Form("foundVsBx_layer%i", iLayer), Form("layer %i", iLayer), 3565, 0, 3565)));
-    if ( iLayer < 10 ) {
+    h_layer_vsBx.push_back(
+        EffME1(booker.book1D(Form("totalVsBx_layer%i", iLayer), Form("layer %i", iLayer), 3565, 0, 3565),
+               booker.book1D(Form("foundVsBx_layer%i", iLayer), Form("layer %i", iLayer), 3565, 0, 3565)));
+    if (iLayer < 10) {
       const bool isTIB = iLayer < 4;
       const auto partition = (isTIB ? "TIB" : "TOB");
       const auto yMax = (isTIB ? 100 : 120);
       auto ihhotcold = booker.book2D(
-          Form("%s%i", partition, (isTIB ? iLayer+1 : iLayer-3)),
-          partition, 100, -1, 361, 100, -yMax, yMax);
+          Form("%s%i", partition, (isTIB ? iLayer + 1 : iLayer - 3)), partition, 100, -1, 361, 100, -yMax, yMax);
       ihhotcold->setAxisTitle("Phi", 1);
       ihhotcold->setBinLabel(1, "360", 1);
       ihhotcold->setBinLabel(50, "180", 1);
@@ -433,12 +426,18 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
       h_hotcold.push_back(ihhotcold);
     } else {
       const bool isTID = iLayer < 13;
-      const auto partitions = (isTID ? std::vector<std::string>{"TID-", "TID+"} : std::vector<std::string>{"TEC-", "TEC+"});
+      const auto partitions =
+          (isTID ? std::vector<std::string>{"TID-", "TID+"} : std::vector<std::string>{"TEC-", "TEC+"});
       const auto axMax = (isTID ? 100 : 120);
-      for ( const auto part : partitions ) {
-        auto ihhotcold = booker.book2D(
-            Form("%s%i", part.c_str(), (isTID ? iLayer-9 : iLayer-12)),
-            part, 100, -axMax, axMax, 100, -axMax, axMax);
+      for (const auto part : partitions) {
+        auto ihhotcold = booker.book2D(Form("%s%i", part.c_str(), (isTID ? iLayer - 9 : iLayer - 12)),
+                                       part,
+                                       100,
+                                       -axMax,
+                                       axMax,
+                                       100,
+                                       -axMax,
+                                       axMax);
         ihhotcold->setAxisTitle("Global Y", 1);
         ihhotcold->setBinLabel(1, "+Y", 1);
         ihhotcold->setBinLabel(50, "0", 1);
@@ -457,9 +456,9 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
   setup.get<TrackerTopologyRcd>().get(tTopoHandle);
   edm::ESHandle<TkDetMap> tkDetMapHandle;
   setup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-  h_module = EffTkMap(
-      std::make_unique<TkHistoMap>(tkDetMapHandle.product(), booker, path, "perModule_total", 0, false, true),
-      std::make_unique<TkHistoMap>(tkDetMapHandle.product(), booker, path, "perModule_found", 0, false, true));
+  h_module =
+      EffTkMap(std::make_unique<TkHistoMap>(tkDetMapHandle.product(), booker, path, "perModule_total", 0, false, true),
+               std::make_unique<TkHistoMap>(tkDetMapHandle.product(), booker, path, "perModule_found", 0, false, true));
 }
 
 void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSetup& es) {
@@ -488,7 +487,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
   h_bx->Fill(e.bunchCrossing());
   h_instLumi->Fill(instLumi);
   h_PU->Fill(PU);
-
 
   edm::Handle<edm::DetSetVector<SiStripRawDigi>> commonModeDigis;
   if (addCommonMode_)
@@ -736,8 +734,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
                                              int bunchCrossing,
                                              float instLumi,
                                              float PU,
-                                             bool highPurity
-                                             ) {
+                                             bool highPurity) {
   // --> Get trajectory from combinatedStat& e
   const auto iidd = tm.monodet_id();
   LogDebug("SiStripHitEfficiency:HitEff") << "setting iidd = " << iidd << " before checking efficiency and ";
@@ -755,7 +752,8 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
 
   const bool withinAcceptance = tm.withinAcceptance() && (!isInBondingExclusionZone(iidd, TKlayers, yloc, yErr, tTopo));
 
-  if ((TKlayers > 0) && ((layers == TKlayers) || (layers == 0))) {  // Look at the layer not used to reconstruct the track
+  if ((TKlayers > 0) &&
+      ((layers == TKlayers) || (layers == 0))) {  // Look at the layer not used to reconstruct the track
     LogDebug("SiStripHitEfficiency:HitEff") << "Looking at layer under study" << std::endl;
     unsigned int ModIsBad = 2;
     unsigned int SiStripQualBad = 0;
@@ -799,7 +797,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
           // Need additionnal corrections for endcap
           if (TKlayers >= 11) {
             const float TrajLocXMid = xloc / (1 + (htedge - hbedge) * yloc / (htedge + hbedge) /
-                                                hapoth);  // radialy extrapolated x loc position at middle
+                                                      hapoth);  // radialy extrapolated x loc position at middle
             TrajStrip = TrajLocXMid / pitch + nstrips / 2.0;
           }
           //cout<<" Layer "<<TKlayers<<" TrajStrip: "<<nstrips<<" "<<pitch<<" "<<TrajStrip<<endl;
@@ -904,35 +902,36 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
             << " RPhi Error " << sqrt(xErr * xErr + yErr * yErr) << " ErrorX " << xErr << " yErr " << yErr << std::endl;
       }
 
-      LogDebug("SiStripHitEfficiency:HitEff") << "To avoid them staying unused: ModIsBad=" << ModIsBad << ", SiStripQualBad=" << SiStripQualBad << ", commonMode=" << commonMode << ", highPurity=" << highPurity << ", withinAcceptance=" << withinAcceptance;
+      LogDebug("SiStripHitEfficiency:HitEff")
+          << "To avoid them staying unused: ModIsBad=" << ModIsBad << ", SiStripQualBad=" << SiStripQualBad
+          << ", commonMode=" << commonMode << ", highPurity=" << highPurity
+          << ", withinAcceptance=" << withinAcceptance;
 
       unsigned int layer = TKlayers;
-      if (_showRings && layer > 10) { // use rings instead of wheels
-        if (layer < 14) { // TID
-          layer = 10 + ((iidd >> 9) & 0x3); // 3 disks and also 3 rings -> use the same container
-        } else { // TEC
+      if (_showRings && layer > 10) {        // use rings instead of wheels
+        if (layer < 14) {                    // TID
+          layer = 10 + ((iidd >> 9) & 0x3);  // 3 disks and also 3 rings -> use the same container
+        } else {                             // TEC
           layer = 13 + ((iidd >> 5) & 0x7);
         }
       }
       unsigned int layerWithSide = layer;
-      if ( layer > 10 && layer < 14 ) {
-        const auto side = (iidd>>13)&0x3; // TID
-        if ( side == 2 )
+      if (layer > 10 && layer < 14) {
+        const auto side = (iidd >> 13) & 0x3;  // TID
+        if (side == 2)
           layerWithSide = layer + 3;
-      } else if ( layer > 13 ) {
-        const auto side = (iidd>>18)&0x3; // TEC
-        if ( side == 1 ) {
+      } else if (layer > 13) {
+        const auto side = (iidd >> 18) & 0x3;  // TEC
+        if (side == 1) {
           layerWithSide = layer + 3;
-        } else if ( side == 2 ) {
+        } else if (side == 2) {
           layerWithSide = layer + 3 + (_showRings ? 7 : 9);
         }
       }
 
-      if ( (_bunchx > 0 && _bunchx != bunchCrossing) ||
-           (!withinAcceptance) ||
-           (_useOnlyHighPurityTracks && !highPurity) ||
-           (!_showTOB6TEC9 && (TKlayers == 10 || TKlayers == 22)) ||
-           ( badModules_.end() != badModules_.find(iidd) ) )
+      if ((_bunchx > 0 && _bunchx != bunchCrossing) || (!withinAcceptance) ||
+          (_useOnlyHighPurityTracks && !highPurity) || (!_showTOB6TEC9 && (TKlayers == 10 || TKlayers == 22)) ||
+          (badModules_.end() != badModules_.find(iidd)))
         return;
 
       const bool badquality = (SiStripQualBad == 1);
@@ -940,7 +939,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
       //Now that we have a good event, we need to look at if we expected it or not, and the location
       //if we didn't
       //Fill the missing hit information first
-      bool badflag = false; // true for hits that are expected but not found
+      bool badflag = false;  // true for hits that are expected but not found
       if (_ResXSig < 0) {
         if (ModIsBad == 1)
           badflag = true;  // isBad set to false in the tree when resxsig<999.0
@@ -953,9 +952,10 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
       int nstrips = -9;
       float Pitch = -9.0;
       const StripGeomDetUnit* stripdet = nullptr;
-      if (finalCluster.xResidualPull == 1000.0) {  // special treatment, no GeomDetUnit associated in some cases when no cluster found
-        Pitch = 0.0205;         // maximum
-        nstrips = 768;          // maximum
+      if (finalCluster.xResidualPull ==
+          1000.0) {      // special treatment, no GeomDetUnit associated in some cases when no cluster found
+        Pitch = 0.0205;  // maximum
+        nstrips = 768;   // maximum
       } else {
         stripdet = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(iidd));
         const StripTopology& Topo = stripdet->specificTopology();
@@ -973,19 +973,18 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
         const float htedge = parameters[1];
         const float hapoth = parameters[3];
         const float TrajLocXMid = xloc / (1 + (htedge - hbedge) * yloc / (htedge + hbedge) /
-                                          hapoth);  // radialy extrapolated x loc position at middle
+                                                  hapoth);  // radialy extrapolated x loc position at middle
         stripTrajMid = TrajLocXMid / Pitch + nstrips / 2.0;
       }
 
-      if ( (!badquality) && (layer < h_resolution.size())) {
-        h_resolution[layer]->Fill(finalCluster.xResidualPull != 1000.0 ?
-            stripTrajMid-stripCluster : 1000);
+      if ((!badquality) && (layer < h_resolution.size())) {
+        h_resolution[layer]->Fill(finalCluster.xResidualPull != 1000.0 ? stripTrajMid - stripCluster : 1000);
       }
 
       // New matching methods
       if (_clusterMatchingMethod >= 1) {
         badflag = false;
-        if ( finalCluster.xResidualPull == 1000.0 ) {
+        if (finalCluster.xResidualPull == 1000.0) {
           badflag = true;
         } else {
           if (_clusterMatchingMethod == 2 || _clusterMatchingMethod == 4) {
@@ -1008,13 +1007,13 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
       if (!badquality) {
         // hot/cold maps of hits that are expected but not found
         if (badflag) {
-          if ( layer > 0 && layer <= 10 ) {
+          if (layer > 0 && layer <= 10) {
             // 1-4: TIB, 4-10: TOB
-            h_hotcold[layer-1]->Fill(360.-calcPhi(tm.globalX(), tm.globalY()), tm.globalZ(), 1.);
-          } else if ( layer > 10 && layer <= 13 ) {
+            h_hotcold[layer - 1]->Fill(360. - calcPhi(tm.globalX(), tm.globalY()), tm.globalZ(), 1.);
+          } else if (layer > 10 && layer <= 13) {
             // 11-13: TID, above: TEC
-            const int side = layer > 13 ? (iidd>>13)&0x3 : (iidd>>18)&0x3;
-            h_hotcold[2*layer-13+side]->Fill(-tm.globalY(), tm.globalX(), 1.);
+            const int side = layer > 13 ? (iidd >> 13) & 0x3 : (iidd >> 18) & 0x3;
+            h_hotcold[2 * layer - 13 + side]->Fill(-tm.globalY(), tm.globalX(), 1.);
           }
         }
 
