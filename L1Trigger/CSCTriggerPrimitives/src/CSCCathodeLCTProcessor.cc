@@ -730,7 +730,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
 
   // comparator digi cleaning + optional CCLUT
   for (auto& thisLCT : lctList) {
-
     // do the CCLUT procedures
     if (runCCLUT_) {
       cclut_->run(thisLCT, numCFEBs_);
