@@ -17,7 +17,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-AlignmentMonitorBase::AlignmentMonitorBase(const edm::ParameterSet &cfg, std::string name)
+AlignmentMonitorBase::AlignmentMonitorBase(const edm::ParameterSet &cfg,
+                                           const edm::ConsumesCollector &iC,
+                                           std::string name)
     : m_beamSpotTag(cfg.getUntrackedParameter<edm::InputTag>("beamSpotTag", edm::InputTag("offlineBeamSpot"))),
       m_iteration(0),
       mp_tracker(nullptr),

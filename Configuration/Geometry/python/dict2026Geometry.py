@@ -141,7 +141,7 @@ trackerDict = {
             'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
         ],
         "sim" : [
-            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -176,7 +176,7 @@ trackerDict = {
             'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
         ],
         "sim" : [
-            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -211,7 +211,7 @@ trackerDict = {
             'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
         ],
         "sim" : [
-            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -245,7 +245,7 @@ trackerDict = {
             'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
         ],
         "sim" : [
-            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -280,7 +280,7 @@ trackerDict = {
             'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
         ],
         "sim" : [
-            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -314,7 +314,7 @@ trackerDict = {
             'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
         ],
         "sim" : [
-            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -348,7 +348,7 @@ trackerDict = {
             'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
         ],
         "sim" : [
-            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
