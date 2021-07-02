@@ -1708,7 +1708,7 @@ _multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layercluster
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)])
 _multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layercluster_zminus", xtitle="Layer Cluster multiplicity in Tracksters", ytitle = "Layer Number", 
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)])
-_multiplicityOfLCinTST = PlotGroup("MultiplcityofLCinTST", _multiplicityOfLCinTST_plots, ncols=2)
+_multiplicityOfLCinTST = PlotGroup("MultiplicityofLCinTST", _multiplicityOfLCinTST_plots, ncols=2)
 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
 #--------------------------------------------------------------------------------------------
