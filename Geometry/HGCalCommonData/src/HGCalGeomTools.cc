@@ -3,6 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 
+#include <sstream>
 #include <string>
 
 //#define EDM_ML_DEBUG
@@ -20,51 +21,93 @@ void HGCalGeomTools::radius(double zf,
                             std::vector<double>& zz,
                             std::vector<double>& rin,
                             std::vector<double>& rout) {
-  double dz1(0), dz2(0);
+#ifdef EDM_ML_DEBUG
+  std::ostringstream st1;
+  st1 << "Z = " << zf << ":" << zb << "; zFront1 =";
+  for (const auto& v : zFront1)
+    st1 << " " << v;
+  st1 << "; rFront1 =";
+  for (const auto& v : rFront1)
+    st1 << " " << v;
+  st1 << "; slope1 =";
+  for (const auto& v : slope1)
+    st1 << " " << v;
+  st1 << "; zFront2 =";
+  for (const auto& v : zFront2)
+    st1 << " " << v;
+  st1 << "; rFront2 =";
+  for (const auto& v : rFront2)
+    st1 << " " << v;
+  st1 << "; slope2 =";
+  for (const auto& v : slope2)
+    st1 << " " << v;
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radiusX: " << st1.str();
+  double dz2f(0), dz2b(0);
+#endif
+  double dz1f(0), dz1b(0);
   auto zf1 = std::lower_bound(zFront1.begin(), zFront1.end(), zf);
   if (zf1 != zFront1.begin())
     --zf1;
   if (((zf1 + 1) != zFront1.end()) && (std::abs(*(zf1 + 1) - zf) < tol_)) {
     ++zf1;
-    dz1 = 2 * tol_;
+    dz1f = 2 * tol_;
   }
   auto zf2 = std::lower_bound(zFront2.begin(), zFront2.end(), zf);
   if (zf2 != zFront2.begin())
     --zf2;
+  if (((zf2 + 1) != zFront2.end()) && (std::abs(*(zf2 + 1) - zf) < tol_)) {
+    if (static_cast<int>(zf2 - zFront2.begin()) >= 2)
+      ++zf2;
+#ifdef EDM_ML_DEBUG
+    dz2f = 2 * tol_;
+#endif
+  }
   auto zb1 = std::lower_bound(zFront1.begin(), zFront1.end(), zb);
   if (zb1 != zFront1.begin())
     --zb1;
   if ((zb1 != zFront1.begin()) && (std::abs(*zb1 - zb) < tol_)) {
     --zb1;
-    dz2 = -2 * tol_;
+    dz1b = -2 * tol_;
   }
   if (((zb1 + 1) != zFront1.end()) && (std::abs(*(zb1 + 1) - zb) < tol_)) {
-    dz2 = -2 * tol_;
+    dz1b = -2 * tol_;
   }
   auto zb2 = std::lower_bound(zFront2.begin(), zFront2.end(), zb);
-  if (zb2 != zFront2.begin())
+  if (zb2 != zFront2.begin()) {
     --zb2;
+  }
+  if ((zb2 != zFront2.begin()) && (std::abs(*zb2 - zb) < tol_)) {
+    if (static_cast<int>(zb2 - zFront2.begin()) > 2)
+      --zb2;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius:zf " << zf << " : "
+    dz2b = -2 * tol_;
+#endif
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radiusX:zf " << zf << " : "
                                 << static_cast<int>(zf1 - zFront1.begin()) << ":" << *zf1 << " : "
                                 << static_cast<int>(zf2 - zFront2.begin()) << ":" << *zf2 << " zb " << zb << ":"
                                 << static_cast<int>(zb1 - zFront1.begin()) << " : " << *zb1 << " : "
-                                << static_cast<int>(zb2 - zFront2.begin()) << ":" << *zb2 << " Flag " << flag;
+                                << static_cast<int>(zb2 - zFront2.begin()) << ":" << *zb2 << " Flag " << flag << ":"
+                                << (zf1 == zb1) << ":" << (zf2 == zb2) << " dz " << dz1f << ":" << dz2f << ":" << dz1b
+                                << ":" << dz2b;
 #endif
   if ((zf1 == zb1) && (zf2 == zb2)) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius:Try 1: " << zf << ":" << zb << " dz " << dz1 << ":" << dz2;
+    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radiusX:Try 1: " << zf << ":" << zb;
 #endif
     zz.emplace_back(zf);
-    rin.emplace_back(radius(zf + dz1, zFront1, rFront1, slope1));
+    rin.emplace_back(radius(zf + dz1f, zFront1, rFront1, slope1));
     rout.emplace_back(radius(zf, zFront2, rFront2, slope2));
     zz.emplace_back(zb);
-    rin.emplace_back(radius(zb + dz2, zFront1, rFront1, slope1));
+    rin.emplace_back(radius(zb + dz1b, zFront1, rFront1, slope1));
     rout.emplace_back(radius(zb, zFront2, rFront2, slope2));
   } else if (zf1 == zb1) {
 #ifdef EDM_ML_DEBUG
     double z1 = std::max(*zf2, *zb2);
-    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius:Try 2:" << zf << ":" << *zb2 << " (" << z1 << ") : " << zb;
+    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radiusX:Try 2:" << zf << ":" << *zb2 << " (" << z1 << ") : " << zb
+                                  << " Test " << (slope(*zb2, zFront2, slope2) < tol_) << ":"
+                                  << ((std::abs(*zb2 - zb) > tol_) && (std::abs(*zb2 - zf) > tol_));
 #endif
     zz.emplace_back(zf);
     rin.emplace_back(radius(zf, zFront1, rFront1, slope1));
@@ -84,7 +127,9 @@ void HGCalGeomTools::radius(double zf,
     rout.emplace_back(radius(zb, zFront2, rFront2, slope2));
   } else if (zf2 == zb2) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius:Try 3: " << zf << ":" << *zb1 << ":" << zb;
+    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radiusX:Try 3: " << zf << ":" << *zb1 << ":" << zb << " Test "
+                                  << (slope(*zb1, zFront1, slope1) < tol_) << ":"
+                                  << ((std::abs(*zb1 - zb) > tol_) && (std::abs(*zb1 - zf) > tol_));
 #endif
     zz.emplace_back(zf);
     rin.emplace_back(radius(zf, zFront1, rFront1, slope1));
@@ -106,7 +151,7 @@ void HGCalGeomTools::radius(double zf,
     double z1 = std::min(*zf2, *zb1);
     double z2 = std::max(*zf2, *zb1);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius:Try 4: " << zf << ":" << z1 << " : " << z2 << ":" << zb;
+    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radiusX:Try 4: " << zf << ":" << z1 << " : " << z2 << ":" << zb;
 #endif
     zz.emplace_back(zf);
     rin.emplace_back(radius(zf, zFront1, rFront1, slope1));
@@ -127,7 +172,7 @@ void HGCalGeomTools::radius(double zf,
       rr = rmin;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius has " << zz.size() << " sections: " << rmin;
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radiusX has " << zz.size() << " sections: " << rmin;
   for (unsigned int k = 0; k < zz.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] Z = " << zz[k] << " R = " << rin[k] << ":" << rout[k];
 #endif
@@ -137,6 +182,19 @@ double HGCalGeomTools::radius(double z,
                               std::vector<double> const& zFront,
                               std::vector<double> const& rFront,
                               std::vector<double> const& slope) {
+#ifdef EDM_ML_DEBUG
+  std::ostringstream st1;
+  st1 << "Z = " << z << "; zFront =";
+  for (const auto& v : zFront)
+    st1 << " " << v;
+  st1 << "; rFront =";
+  for (const auto& v : rFront)
+    st1 << " " << v;
+  st1 << "; slope =";
+  for (const auto& v : slope)
+    st1 << " " << v;
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius: " << st1.str();
+#endif
   auto itrz = std::lower_bound(zFront.begin(), zFront.end(), z);
   if (itrz != zFront.begin())
     --itrz;
