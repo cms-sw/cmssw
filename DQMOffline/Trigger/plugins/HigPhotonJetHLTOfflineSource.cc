@@ -61,6 +61,7 @@ private:
   std::string dirname_;
   bool verbose_;
   bool triggerAccept_;
+  bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
 
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   edm::EDGetTokenT<reco::VertexCollection> pvToken_;
@@ -109,6 +110,7 @@ HigPhotonJetHLTOfflineSource::HigPhotonJetHLTOfflineSource(const edm::ParameterS
   hltProcessName_ = pset.getParameter<std::string>("hltProcessName");
   hltPathsToCheck_ = pset.getParameter<std::vector<std::string>>("hltPathsToCheck");
   verbose_ = pset.getUntrackedParameter<bool>("verbose", false);
+  perLSsaving_ = pset.getUntrackedParameter<bool>("perLSsaving", false);
   triggerAccept_ = pset.getUntrackedParameter<bool>("triggerAccept", true);
   triggerResultsToken_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("triggerResultsToken"));
   dirname_ = pset.getUntrackedParameter<std::string>("dirname", std::string("HLT/Higgs/PhotonJet/"));
@@ -327,13 +329,15 @@ void HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::
 
 void HigPhotonJetHLTOfflineSource::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   // Normalize to the total number of events in the run
-  TH2F* h = trigvsnvtx_->getTH2F();
-  double integral = h->Integral();
-  double norm = (integral > 0.) ? evtsrun_ * hltPathsToCheck_.size() / integral : 1.;
-  h->Scale(norm);
-  if (verbose_) {
-    std::cout << "xshi:: endRun total number of events: " << evtsrun_ << ", integral = " << h->Integral()
-              << ", norm = " << norm << std::endl;
+  if (!perLSsaving_) {
+    TH2F* h = trigvsnvtx_->getTH2F();
+    double integral = h->Integral();
+    double norm = (integral > 0.) ? evtsrun_ * hltPathsToCheck_.size() / integral : 1.;
+    h->Scale(norm);
+    if (verbose_) {
+      std::cout << "xshi:: endRun total number of events: " << evtsrun_ << ", integral = " << h->Integral()
+                << ", norm = " << norm << std::endl;
+    }
   }
 }
 
