@@ -169,7 +169,6 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
   // Allow for more than one pass over the hits in the time window.
   // Do search in every BX
   while (start_bx < stop_bx) {
-
     // All half-strip pattern envelopes are evaluated simultaneously, on every clock cycle.
     int first_bx = 999;
 
@@ -355,7 +354,6 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
 
   // comparator digi cleaning + optional CCLUT
   for (auto& thisLCT : lctList) {
-
     // do the CCLUT procedures
     if (runCCLUT_) {
       cclut_->run(thisLCT, numCFEBs_);
