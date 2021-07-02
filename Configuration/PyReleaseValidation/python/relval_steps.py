@@ -2160,7 +2160,16 @@ steps['RECOCOSD']=merge([{'--scenario':'cosmics',
 
 steps['RECOCOSDRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016'},steps['RECOCOSD']])
 steps['RECOCOSDRUN3']=merge([{'--conditions':'auto:run3_data_prompt','--era':'Run3'},steps['RECOCOSD']])
-steps['RECOCOSDEXPRUN3']=merge([{'--conditions':'auto:run3_data_express','--era':'Run3'},steps['RECOCOSD']])
+
+steps['RECOCOSDPROMPTRUN3']=merge([{'--conditions':'auto:run3_data_prompt',
+                                    '--era':'Run3',
+                                    '--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt,Configuration/DataProcessing/RecoTLR.customiseCosmicData'
+                                },steps['RECOCOSD']])
+
+steps['RECOCOSDEXPRUN3']=merge([{'--conditions':'auto:run3_data_express',
+                                 '--era':'Run3',
+                                 '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress,Configuration/DataProcessing/RecoTLR.customiseCosmicData'
+                             },steps['RECOCOSD']])
 
 # step1 gensim for HI mixing
 step1Up2018HiMixDefaults = merge ([{'--beamspot':'MatchHI', '--pileup':'HiMixGEN', '--scenario':'HeavyIons'},hiDefaults2018_ppReco,PUHI,step1Up2018HiProdDefaults])
