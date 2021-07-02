@@ -182,7 +182,7 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         fallBackToDB = true;
       }
       double r2 = spotOnline.x() * spotOnline.x() + spotOnline.y() * spotOnline.y();
-      if (fabs(spotOnline.z()) >= theMaxZ || r2 >= theMaxR2) {
+      if (std::abs(spotOnline.z()) >= theMaxZ || r2 >= theMaxR2) {
         if (shoutMODE) {
           edm::LogError("BeamSpotFromDB")
               << "Online Beam Spot producer falls back to DB value because the scaler values are too big to be true :"
