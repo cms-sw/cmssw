@@ -556,9 +556,11 @@ std::shared_ptr<dds::Cache> CTPPSDiamondDQMSource::globalBeginLuminosityBlock(co
                                                                               const edm::EventSetup&) const {
   auto d = std::make_shared<dds::Cache>();
   d->hitDistribution2dMap.reserve(potPlots_.size());
+  if(!perLSsaving_){
   for (auto& plot : potPlots_)
     d->hitDistribution2dMap[plot.first] =
         std::unique_ptr<TH2F>(static_cast<TH2F*>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
+  }
   return d;
 }
 
@@ -749,12 +751,14 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
           hitHistoTmp->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
         }
 
+        if(!perLSsaving_){ 
         hitHistoTmp = lumiCache->hitDistribution2dMap[detId_pot].get();
         hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
         startBin = hitHistoTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_ - 0.5 * rechit.xWidth());
         numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i) {
           hitHistoTmp->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
+        }
         }
       }
 
