@@ -10,6 +10,6 @@ touch empty_file
 
 (cmsRun ${LOCAL_TEST_DIR}/test_1_concurrent_lumi_cfg.py 2>&1) | tail -n 2 | grep -v ' 0 ' | grep -v 'e-' | diff - empty_file || die "Failure using test_1_concurrent_lumi_cfg.py" $?
 
-(cmsRun ${LOCAL_TEST_DIR}/test_2_concurrent_lumis_cfg.py 2>&1) | tail -n 1 | grep -v ' 0 ' | grep -v 'e-' | diff - empty_file && die "Failure using test_2_concurrent_lumis_cfg.py" $?
+(cmsRun ${LOCAL_TEST_DIR}/test_2_concurrent_lumis_cfg.py 2>&1) | tail -n 1 | grep -v ' 0 ' | grep -v 'e-' | diff - empty_file && die "Failure using test_2_concurrent_lumis_cfg.py" 1
 
 exit 0
