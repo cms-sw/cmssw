@@ -15,7 +15,7 @@ function die { echo $1: status $2 ;  exit $2; }
 # an infinite wait.
 F2=${LOCAL_TEST_DIR}/testConcurrentLumiExceptions_cfg.py
 echo $F2 "This test intentionally throws an exception"
-(cmsRun $F2 ) && die "No exception using $F2" $?
+(cmsRun $F2 ) && die "No exception using $F2" 1
 
 # Test maxEvents output parameter
 F3=${LOCAL_TEST_DIR}/testMaxEventsOutput_cfg.py

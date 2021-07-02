@@ -147,15 +147,9 @@
     <use name="FWCore/Utilities"/>
   </bin>
 
-  <bin file="TestIntegration.cpp" name="CatchStdExceptiontest">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test CatchStdExceptiontest.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
+  <test name="CatchStdExceptiontest" command="CatchStdExceptiontest.sh"/>
 
-  <bin file="TestIntegration.cpp" name="CatchCmsExceptiontest">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test CatchCmsExceptiontest.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
+  <test name="CatchCmsExceptiontest" command="CatchCmsExceptiontest.sh"/>
 
   <bin file="TestIntegration.cpp" name="TestIntegrationExistingDictionary">
     <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestExistingDictionary.sh"/>
