@@ -96,6 +96,7 @@ HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
       minSharedEneFrac_(pset.getParameter<double>("minSharedEneFrac")),
       maxSharedEneFrac_(pset.getParameter<double>("maxSharedEneFrac")),
       nintSharedEneFrac_(pset.getParameter<int>("nintSharedEneFrac")),
+      minTSTSharedEneFracEfficiency_(pset.getParameter<double>("minTSTSharedEneFracEfficiency")),
 
       //Same as above for Tracksters
       minTSTSharedEneFrac_(pset.getParameter<double>("minTSTSharedEneFrac")),
@@ -1049,14 +1050,18 @@ void HGVHistoProducerAlgo::bookTracksterHistos(DQMStore::IBooker& ibook, Histogr
                         maxPhi_,
                         minTSTSharedEneFrac_,
                         maxTSTSharedEneFrac_));
+  histograms.h_numEff_caloparticle_eta.push_back(ibook.book1D(
+      "NumEff_CaloParticle_Eta", "Num Efficiency CaloParticle Eta per Trackster", nintEta_, minEta_, maxEta_));
   histograms.h_num_caloparticle_eta.push_back(
-      ibook.book1D("Num_CaloParticle_Eta", "Num CaloParticle Eta per Trackster", nintEta_, minEta_, maxEta_));
+      ibook.book1D("Num_CaloParticle_Eta", "Num Purity CaloParticle Eta per Trackster", nintEta_, minEta_, maxEta_));
   histograms.h_numDup_trackster_eta.push_back(
       ibook.book1D("NumDup_Trackster_Eta", "Num Duplicate Trackster vs Eta", nintEta_, minEta_, maxEta_));
   histograms.h_denom_caloparticle_eta.push_back(
       ibook.book1D("Denom_CaloParticle_Eta", "Denom CaloParticle Eta per Trackster", nintEta_, minEta_, maxEta_));
+  histograms.h_numEff_caloparticle_phi.push_back(ibook.book1D(
+      "NumEff_CaloParticle_Phi", "Num Efficiency CaloParticle Phi per Trackster", nintPhi_, minPhi_, maxPhi_));
   histograms.h_num_caloparticle_phi.push_back(
-      ibook.book1D("Num_CaloParticle_Phi", "Num CaloParticle Phi per Trackster", nintPhi_, minPhi_, maxPhi_));
+      ibook.book1D("Num_CaloParticle_Phi", "Num Purity CaloParticle Phi per Trackster", nintPhi_, minPhi_, maxPhi_));
   histograms.h_numDup_trackster_phi.push_back(
       ibook.book1D("NumDup_Trackster_Phi", "Num Duplicate Trackster vs Phi", nintPhi_, minPhi_, maxPhi_));
   histograms.h_denom_caloparticle_phi.push_back(
@@ -2424,15 +2429,14 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
     std::vector<int> hitsToCaloParticleId(numberOfHitsInTST);
     //Det id of the first hit just to make the lcLayerId variable
     //which maps the layers in -z: 0->51 and in +z: 52->103
-    const auto firstHitDetId = tst_hitsAndFractions[0].first;
-    int lcLayerId =
-        recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
 
     //Loop through the hits of the trackster under study
     for (unsigned int hitId = 0; hitId < numberOfHitsInTST; hitId++) {
       const auto rh_detid = tst_hitsAndFractions[hitId].first;
       const auto rhFraction = tst_hitsAndFractions[hitId].second;
 
+      const int lcLayerId =
+          recHitTools_->getLayerWithOffset(rh_detid) + layers * ((recHitTools_->zside(rh_detid) + 1) >> 1) - 1;
       //Since the hit is belonging to the layer cluster, it must also be in the rechits map.
       std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(rh_detid);
       const HGCRecHit* hit = itcheck->second;
@@ -2748,9 +2752,15 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
           }
           lcPair.second.second += (tstFraction - cpFraction) * (tstFraction - cpFraction) * hitEnergyWeight;
           LogDebug("HGCalValidator") << "TracksterId:\t" << tracksterId << "\t"
-                                     << "tstfraction,cpfraction:\t" << tstFraction << ", " << cpFraction << "\t"
+                                     << "cpId:\t" << cpId << "\t"
+                                     << "Layer: " << layerId << '\t' << "tstfraction,cpfraction:\t" << tstFraction
+                                     << ", " << cpFraction << "\t"
                                      << "hitEnergyWeight:\t" << hitEnergyWeight << "\t"
-                                     << "currect score numerator:\t" << lcPair.second.second << "\n";
+                                     << "added delta:\t"
+                                     << (tstFraction - cpFraction) * (tstFraction - cpFraction) * hitEnergyWeight
+                                     << "\t"
+                                     << "currect score numerator:\t" << lcPair.second.second << "\t"
+                                     << "shared Energy:\t" << lcPair.second.first << '\n';
         }
       }  //end of loop through sim hits of current calo particle
 
@@ -2785,6 +2795,11 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
     //Loop through related Tracksters here
     //Will switch to vector for access because it is faster
     std::vector<int> cpId_tstId_related_vec(cpId_tstId_related.begin(), cpId_tstId_related.end());
+    // In case the threshold to associate a CaloParticle to a Trackster is
+    // below 50%, there could be cases in which the CP is linked to more than
+    // one tracksters, leading to efficiencies >1. This boolean is used to
+    // avoid "over counting".
+    bool cp_considered_efficient = false;
     for (unsigned int i = 0; i < cpId_tstId_related_vec.size(); ++i) {
       auto tstId = cpId_tstId_related_vec[i];
       //Now time for the denominator
@@ -2794,6 +2809,7 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
       LogDebug("HGCalValidator") << "CP Id: \t" << cpId << "\t TST id: \t" << tstId << "\t score \t"  //
                                  << score3d[cpId][tstId] << "\t"
                                  << "invCPEnergyWeight \t" << invCPEnergyWeight << "\t"
+                                 << "Trackste energy: \t" << tracksters[tstId].raw_energy() << "\t"
                                  << "shared energy:\t" << tstSharedEnergy[cpId][tstId] << "\t"
                                  << "shared energy fraction:\t" << tstSharedEnergyFrac[cpId][tstId] << "\n";
 
@@ -2802,6 +2818,12 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
       histograms.h_sharedenergy_caloparticle2trackster[count]->Fill(tstSharedEnergyFrac[cpId][tstId]);
       histograms.h_energy_vs_score_caloparticle2trackster[count]->Fill(score3d[cpId][tstId],
                                                                        tstSharedEnergyFrac[cpId][tstId]);
+      // Fill the numerator for the efficiency calculation. The efficiency is computed by considering the energy shared between a Trackster and a _corresponding_ caloParticle. The threshold is configurable via python.
+      if (!cp_considered_efficient && tstSharedEnergyFrac[cpId][tstId] >= minTSTSharedEneFracEfficiency_) {
+        cp_considered_efficient = true;
+        histograms.h_numEff_caloparticle_eta[count]->Fill(cP[cpId].g4Tracks()[0].momentum().eta());
+        histograms.h_numEff_caloparticle_phi[count]->Fill(cP[cpId].g4Tracks()[0].momentum().phi());
+      }
     }  //end of loop through Tracksters
 
     auto is_assoc = [&](const auto& v) -> bool { return v < ScoreCutCPtoTSTEffDup_; };
@@ -2818,6 +2840,10 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
           cP[cpId].g4Tracks()[0].momentum().eta(), tracksters[bestTstId].raw_energy() / CPenergy);
       histograms.h_sharedenergy_caloparticle2trackster_vs_phi[count]->Fill(
           cP[cpId].g4Tracks()[0].momentum().phi(), tracksters[bestTstId].raw_energy() / CPenergy);
+      LogDebug("HGCalValidator") << count << " " << cP[cpId].g4Tracks()[0].momentum().eta() << " "
+                                 << cP[cpId].g4Tracks()[0].momentum().phi() << " " << tracksters[bestTstId].raw_energy()
+                                 << " " << CPenergy << " " << (tracksters[bestTstId].raw_energy() / CPenergy) << " "
+                                 << tstSharedEnergyFrac[cpId][bestTstId] << '\n';
       histograms.h_sharedenergy_caloparticle2trackster_assoc[count]->Fill(tstSharedEnergyFrac[cpId][bestTstId]);
     }
     if (assocDup >= 2) {
