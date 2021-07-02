@@ -74,7 +74,7 @@ void RPCandIRPCDigiProducer::beginRun(const edm::Run& r, const edm::EventSetup& 
   edm::ESHandle<RPCStripNoises> noiseRcd = eventSetup.getHandle(noiseToken);
 
   edm::ESHandle<RPCClusterSize> clsRcd = eventSetup.getHandle(clsToken);
-  
+
   //setup the two digi models
   theRPCSimSetUpRPC->setGeometry(pGeom);
   theRPCSimSetUpRPC->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());

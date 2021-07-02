@@ -129,7 +129,7 @@ void RPCChamberMasker::beginRun(edm::Run const& run, edm::EventSetup const& iSet
 
   auto rpcGeom = iSetup.getHandle(rpcGeomToken_);
   auto agingObj = iSetup.getHandle(agingObjToken_);
-  
+
   const auto rolls = rpcGeom->rolls();
 
   for (const auto* roll : rolls) {
