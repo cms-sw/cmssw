@@ -20,7 +20,7 @@
 
 class AlignmentMonitorSurvey : public AlignmentMonitorBase {
 public:
-  AlignmentMonitorSurvey(const edm::ParameterSet&);
+  AlignmentMonitorSurvey(const edm::ParameterSet&, edm::ConsumesCollector);
 
   void book() override;
 

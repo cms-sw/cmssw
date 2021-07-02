@@ -138,7 +138,7 @@ private:
   void createAlignmentAlgorithm(edm::ConsumesCollector&);
 
   /// Creates the monitors
-  void createMonitors();
+  void createMonitors(edm::ConsumesCollector&);
 
   /// Creates the calibrations
   void createCalibrations();

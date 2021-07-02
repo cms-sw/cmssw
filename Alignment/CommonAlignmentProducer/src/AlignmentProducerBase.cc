@@ -92,7 +92,7 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config, ed
   }
 
   createAlignmentAlgorithm(iC);
-  createMonitors();
+  createMonitors(iC);
   createCalibrations();
 }
 
@@ -287,12 +287,12 @@ void AlignmentProducerBase::createAlignmentAlgorithm(edm::ConsumesCollector& iC)
 }
 
 //------------------------------------------------------------------------------
-void AlignmentProducerBase::createMonitors() {
+void AlignmentProducerBase::createMonitors(edm::ConsumesCollector& iC) {
   const auto& monitorConfig = config_.getParameter<edm::ParameterSet>("monitorConfig");
   auto monitors = monitorConfig.getUntrackedParameter<std::vector<std::string> >("monitors");
   for (const auto& miter : monitors) {
     monitors_.emplace_back(
-        AlignmentMonitorPluginFactory::get()->create(miter, monitorConfig.getUntrackedParameterSet(miter)));
+        AlignmentMonitorPluginFactory::get()->create(miter, monitorConfig.getUntrackedParameterSet(miter), iC));
   }
 }
 
