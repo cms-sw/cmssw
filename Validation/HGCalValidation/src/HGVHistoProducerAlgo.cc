@@ -1050,7 +1050,7 @@ void HGVHistoProducerAlgo::bookTracksterHistos(DQMStore::IBooker& ibook, Histogr
                         maxPhi_,
                         minTSTSharedEneFrac_,
                         maxTSTSharedEneFrac_));
-  histograms.h_num_caloparticle_eta.push_back(ibook.book1D(
+  histograms.h_numEff_caloparticle_eta.push_back(ibook.book1D(
       "NumEff_CaloParticle_Eta", "Num Efficiency CaloParticle Eta per Trackster", nintEta_, minEta_, maxEta_));
   histograms.h_num_caloparticle_eta.push_back(
       ibook.book1D("Num_CaloParticle_Eta", "Num Purity CaloParticle Eta per Trackster", nintEta_, minEta_, maxEta_));
@@ -1058,7 +1058,7 @@ void HGVHistoProducerAlgo::bookTracksterHistos(DQMStore::IBooker& ibook, Histogr
       ibook.book1D("NumDup_Trackster_Eta", "Num Purity Duplicate Trackster vs Eta", nintEta_, minEta_, maxEta_));
   histograms.h_denom_caloparticle_eta.push_back(
       ibook.book1D("Denom_CaloParticle_Eta", "Denom CaloParticle Eta per Trackster", nintEta_, minEta_, maxEta_));
-  histograms.h_num_caloparticle_phi.push_back(ibook.book1D(
+  histograms.h_numEff_caloparticle_phi.push_back(ibook.book1D(
       "NumEff_CaloParticle_Phi", "Num Efficiency CaloParticle Phi per Trackster", nintPhi_, minPhi_, maxPhi_));
   histograms.h_num_caloparticle_phi.push_back(
       ibook.book1D("Num_CaloParticle_Phi", "Num Purity CaloParticle Phi per Trackster", nintPhi_, minPhi_, maxPhi_));
@@ -2821,8 +2821,8 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
       // Fill the numerator for the efficiency calculation. The efficiency is computed by considering the energy shared between a Trackster and a _corresponding_ caloParticle. The threshold is configurable via python.
       if (!cp_considered_efficient && tstSharedEnergyFrac[cpId][tstId] >= minTSTSharedEneFracEfficiency_) {
         cp_considered_efficient = true;
-        histograms.h_num_caloparticle_eta[count]->Fill(cP[cpId].g4Tracks()[0].momentum().eta());
-        histograms.h_num_caloparticle_phi[count]->Fill(cP[cpId].g4Tracks()[0].momentum().phi());
+        histograms.h_numEff_caloparticle_eta[count]->Fill(cP[cpId].g4Tracks()[0].momentum().eta());
+        histograms.h_numEff_caloparticle_phi[count]->Fill(cP[cpId].g4Tracks()[0].momentum().phi());
       }
     }  //end of loop through Tracksters
 
