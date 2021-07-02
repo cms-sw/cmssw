@@ -17,6 +17,9 @@
 // helper
 #include "CondCore/RunInfoPlugins/interface/RunInfoPayloadInspectoHelper.h"
 
+// for the FED intervals
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+
 // system includes
 #include <memory>
 #include <sstream>
@@ -275,6 +278,33 @@ namespace {
   typedef RunInfoCurrentHistory<RunInfoPI::m_min_current> RunInfoMinCurrentHistory;
   typedef RunInfoCurrentHistory<RunInfoPI::m_BField> RunInfoBFieldHistory;
 
+   /************************************************
+    time history of Magnet currents from RunInfo
+  *************************************************/
+  class RunInfoTrackerHistory : public cond::payloadInspector::HistoryPlot<RunInfo, std::pair<bool, float> > {
+  public:
+    RunInfoTrackerHistory()
+      : cond::payloadInspector::HistoryPlot<RunInfo, std::pair<bool, float> >("Tracker Status History","Tk Status History") {}
+    ~RunInfoTrackerHistory() override = default;
+
+    std::pair<bool, float> getFromPayload(RunInfo& payload) override {
+      bool isRealRun = ((payload.m_run) != -1);
+      float returnValue = 0.;
+      // early return in case the run is fake
+      if(!isRealRun){
+	return std::make_pair(isRealRun, returnValue);
+      }
+      const auto& FEDsIn = payload.m_fed_in;
+      for(const auto& FED : FEDsIn){
+	if (FED > FEDNumbering::MINSiStripFEDID &&  FED < FEDNumbering::MAXSiStripFEDID){
+	  returnValue = 1.;
+	  break; // break the loop to speed up time
+	}
+      }
+      return std::make_pair(isRealRun, returnValue);
+    }  // payload
+  };
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(RunInfo) {
@@ -285,4 +315,5 @@ PAYLOAD_INSPECTOR_MODULE(RunInfo) {
   PAYLOAD_INSPECTOR_CLASS(RunInfoMaxCurrentHistory);
   PAYLOAD_INSPECTOR_CLASS(RunInfoMinCurrentHistory);
   PAYLOAD_INSPECTOR_CLASS(RunInfoBFieldHistory);
+  PAYLOAD_INSPECTOR_CLASS(RunInfoTrackerHistory);
 }
