@@ -3,8 +3,7 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
-python_cmd="python2"
-python3 -c "from FWCore.PythonFramework.CmsRun import CmsRun" 2>/dev/null && python_cmd="python3"
+python_cmd="python3"
 
 for file in ${CMSSW_BASE}/src/FWCore/PythonFramework/python/*.py
 do
