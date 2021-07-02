@@ -21,6 +21,9 @@ options.parseArguments()
 if options.B904Setup and options.B904RunNumber == "YYMMDD_HHMMSS":
     sys.exit("B904 setup was selected. Please provide a valid Run Number")
 
+if (not options.B904Setup) and int(options.runNumber) == 0:
+    sys.exit("Please provide a valid CMS Run Number")
+
 process = cms.Process("ANALYSIS", Run3)
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
