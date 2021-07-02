@@ -19,10 +19,7 @@ void ME0NumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
 
   // Debug using EDM_ML_DEBUG
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ME0NumberingScheme") << "Initialize ME0NumberingScheme"
-                                         << "\ntheRegionLevel " << theRegionLevel << "\ntheLayerLevel " << theLayerLevel
-                                         << "\ntheSectorLevel " << theSectorLevel << "\ntheRollLevel " << theRollLevel
-                                         << "\ntheNEtaPart  " << theNEtaPart;
+  edm::LogVerbatim("MuonGeom") << "Initialize ME0NumberingScheme" << "\ntheRegionLevel " << theRegionLevel << "\ntheLayerLevel " << theLayerLevel << "\ntheSectorLevel " << theSectorLevel << "\ntheRollLevel " << theRollLevel << "\ntheNEtaPart  " << theNEtaPart;
 #endif
   // -----------------------
 }
@@ -30,10 +27,10 @@ void ME0NumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
 int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
   // Debug using EDM_ML_DEBUG
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ME0NumberingScheme") << "ME0NumberingScheme::baseNumberToUnitNumber BEGIN ";
-  edm::LogVerbatim("ME0NumberingScheme") << "ME0Numbering " << num.getLevels();
+  edm::LogVerbatim("MuonGeom") << "ME0NumberingScheme::baseNumberToUnitNumber BEGIN ";
+  edm::LogVerbatim("MuonGeom") << "ME0Numbering " << num.getLevels();
   for (int level = 1; level <= num.getLevels(); level++) {
-    edm::LogVerbatim("ME0NumberingScheme")
+    edm::LogVerbatim("MuonGeom")
         << "level " << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
   }
 #endif
@@ -41,7 +38,7 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
 
 #ifdef EDM_ML_DEBUG
   if (num.getLevels() != theRollLevel)
-    edm::LogVerbatim("ME0NumberingScheme")
+    edm::LogVerbatim("MuonGeom")
         << "MuonME0NS::BNToUN BaseNumber has " << num.getLevels() << " levels which is less than " << theRollLevel;
 #endif
 
@@ -65,7 +62,7 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
 
     // Debug using EDM_ML_DEBUG
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ME0NumberingScheme") << "ME0NumberingScheme: Region " << region << " Layer " << layer << " Chamber "
+  edm::LogVerbatim("MuonGeom") << "ME0NumberingScheme: Region " << region << " Layer " << layer << " Chamber "
                                          << chamber << " Roll " << roll;
 #endif
   // -----------------------
@@ -75,7 +72,7 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
 
   // Debug using EDM_ML_DEBUG
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ME0NumberingScheme") << " DetId " << id;
+  edm::LogVerbatim("MuonGeom") << " DetId " << id;
 #endif
   // ---------------------
 
