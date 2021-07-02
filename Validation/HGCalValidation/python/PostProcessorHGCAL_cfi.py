@@ -45,8 +45,10 @@ postProcessorHGCALsimclusters= DQMEDHarvester('DQMGenericClient',
     outputFileName = cms.untracked.string(""),
     verbose = cms.untracked.uint32(4))
 
-eff_tracksters = ["effic_eta 'Trackster Efficiency vs #eta' Num_CaloParticle_Eta Denom_CaloParticle_Eta"]
-eff_tracksters.extend(["effic_phi 'Trackster Efficiency vs #phi' Num_CaloParticle_Phi Denom_CaloParticle_Phi"])
+eff_tracksters = ["purity_eta 'Trackster Purity vs #eta' Num_CaloParticle_Eta Denom_CaloParticle_Eta"]
+eff_tracksters.extend(["purity_phi 'Trackster Purity vs #phi' Num_CaloParticle_Phi Denom_CaloParticle_Phi"])
+eff_tracksters.extend(["effic_eta 'Trackster Efficiency vs #eta' NumEff_CaloParticle_Eta Denom_CaloParticle_Eta"])
+eff_tracksters.extend(["effic_phi 'Trackster Efficiency vs #phi' NumEff_CaloParticle_Phi Denom_CaloParticle_Phi"])
 eff_tracksters.extend(["duplicate_eta 'Trackster Duplicate(Split) Rate vs #eta' NumDup_Trackster_Eta Denom_Trackster_Eta"])
 eff_tracksters.extend(["duplicate_phi 'Trackster Duplicate(Split) Rate vs #phi' NumDup_Trackster_Phi Denom_Trackster_Phi"])
 eff_tracksters.extend(["fake_eta 'Trackster Fake Rate vs #eta' Num_Trackster_Eta Denom_Trackster_Eta fake"])

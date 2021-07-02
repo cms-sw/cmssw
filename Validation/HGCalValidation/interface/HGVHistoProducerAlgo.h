@@ -156,6 +156,8 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_vs_phi;
   std::vector<dqm::reco::MonitorElement*> h_denom_trackster_eta;
   std::vector<dqm::reco::MonitorElement*> h_denom_trackster_phi;
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_eta;
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_phi;
   std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_eta;
   std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_phi;
   std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_eta;
@@ -370,6 +372,7 @@ private:
   int nintScore_;
   double minSharedEneFrac_, maxSharedEneFrac_;
   int nintSharedEneFrac_;
+  double minTSTSharedEneFracEfficiency_;
   double minTSTSharedEneFrac_, maxTSTSharedEneFrac_;
   int nintTSTSharedEneFrac_;
   double minTotNsimClsperthick_, maxTotNsimClsperthick_;

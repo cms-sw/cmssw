@@ -214,6 +214,16 @@ def L1TReEmulFromRAW(process):
         DTThetaDigi_Source = 'simDtTriggerPrimitiveDigis'
     )
 
+    run3_GEM.toModify(process.simKBmtfStubs,
+        srcPhi   = 'bmtfDigis',
+        srcTheta = 'bmtfDigis'
+    )
+
+    run3_GEM.toModify(process.simBmtfDigis,
+        DTDigi_Source       = 'bmtfDigis',
+        DTDigi_Theta_Source = 'bmtfDigis'
+    )
+
     print("# L1TReEmul sequence:  ")
     print("# {0}".format(process.L1TReEmul))
     print("# {0}".format(process.schedule))
