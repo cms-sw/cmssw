@@ -3,7 +3,7 @@ from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 
 process = cms.Process("OverlapTest",Phase2C11)
 
-process.load('Geometry.HGCalCommonData.testHGCalEEV16XML_cfi')
+process.load('Geometry.HGCalCommonData.testHGCalV16XML_cfi')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
@@ -16,10 +16,7 @@ process = checkOverlap(process)
 
 # enable Geant4 overlap check 
 process.g4SimHits.CheckGeometry = True
-process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
-                             'HGCSensitiveDetector',
-                             'HGCalSensitiveDetector',
-                             'HGCScintillatorSensitiveDetector']
+#process.g4SimHits.OnlySDs = ['CaloTrkProcessing', 'HGCSensitiveDetector', 'HGCalSensitiveDetector', 'HGCScintillatorSensitiveDetector']
 
 # Geant4 geometry check 
 process.g4SimHits.G4CheckOverlap.OutputBaseName = cms.string("hgcal")
