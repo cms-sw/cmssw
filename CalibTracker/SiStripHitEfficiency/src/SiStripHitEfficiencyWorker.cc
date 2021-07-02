@@ -429,7 +429,7 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
       const auto partitions =
           (isTID ? std::vector<std::string>{"TID-", "TID+"} : std::vector<std::string>{"TEC-", "TEC+"});
       const auto axMax = (isTID ? 100 : 120);
-      for (const auto part : partitions) {
+      for (const auto& part : partitions) {
         auto ihhotcold = booker.book2D(Form("%s%i", part.c_str(), (isTID ? iLayer - 9 : iLayer - 12)),
                                        part,
                                        100,
