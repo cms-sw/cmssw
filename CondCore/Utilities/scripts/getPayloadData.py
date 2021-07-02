@@ -279,7 +279,7 @@ if __name__ == '__main__':
         
         # If test -> output the result as formatted json
         if args.test:
-            os.write( 1, json.dumps( json.loads( result ), indent=4 ))
+            os.write( 1, str.encode(json.dumps( json.loads( result ), indent=4 )))
 
         # If image plot -> get image file from result, open it and output bytes 
         elif args.image_plot:
