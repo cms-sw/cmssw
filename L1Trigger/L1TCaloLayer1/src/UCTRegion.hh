@@ -37,6 +37,8 @@ public:
   bool clearEvent();
   bool setECALData(UCTTowerIndex t, bool ecalFG, uint32_t ecalET);
   bool setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET);
+  bool setRegionSummary(
+      uint16_t regionData);  // Use when the region collection is available and no direct access to TPGs
   bool process();
 
   // Packed data access
