@@ -27,7 +27,10 @@ void DTNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   theLayerLevel = muonConstants.getValue("mb_layer") / theLevelPart;
   theWireLevel = muonConstants.getValue("mb_wire") / theLevelPart;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MuonGeom") << "Initialize DTNumberingScheme\ntheRegionLevel " << theRegionLevel << "\ntheWheelLevel " << theWheelLevel << "\ntheStationLevel " << theStationLevel << "\ntheSuperLayerLevel " << theSuperLayerLevel << "\ntheLayerLevel " << theLayerLevel << "\ntheWireLevel " << theWireLevel;
+  edm::LogVerbatim("MuonGeom") << "Initialize DTNumberingScheme\ntheRegionLevel " << theRegionLevel
+                               << "\ntheWheelLevel " << theWheelLevel << "\ntheStationLevel " << theStationLevel
+                               << "\ntheSuperLayerLevel " << theSuperLayerLevel << "\ntheLayerLevel " << theLayerLevel
+                               << "\ntheWireLevel " << theWireLevel;
 #endif
 }
 
@@ -39,8 +42,8 @@ int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
   }
 #endif
   if (num.getLevels() < theStationLevel) {  // it was  if (num.getLevels() != theWireLevel) {
-    edm::LogWarning("MuonGeom") << "DTNumberingScheme::BNToUN: BaseNumber has " << num.getLevels()
-                                         << " levels, need " << theStationLevel;  //it was theWireLevel;
+    edm::LogWarning("MuonGeom") << "DTNumberingScheme::BNToUN: BaseNumber has " << num.getLevels() << " levels, need "
+                                << theStationLevel;  //it was theWireLevel;
     return 0;
   }
 

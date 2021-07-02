@@ -19,7 +19,10 @@ void ME0NumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
 
   // Debug using EDM_ML_DEBUG
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MuonGeom") << "Initialize ME0NumberingScheme" << "\ntheRegionLevel " << theRegionLevel << "\ntheLayerLevel " << theLayerLevel << "\ntheSectorLevel " << theSectorLevel << "\ntheRollLevel " << theRollLevel << "\ntheNEtaPart  " << theNEtaPart;
+  edm::LogVerbatim("MuonGeom") << "Initialize ME0NumberingScheme"
+                               << "\ntheRegionLevel " << theRegionLevel << "\ntheLayerLevel " << theLayerLevel
+                               << "\ntheSectorLevel " << theSectorLevel << "\ntheRollLevel " << theRollLevel
+                               << "\ntheNEtaPart  " << theNEtaPart;
 #endif
   // -----------------------
 }
@@ -30,16 +33,15 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
   edm::LogVerbatim("MuonGeom") << "ME0NumberingScheme::baseNumberToUnitNumber BEGIN ";
   edm::LogVerbatim("MuonGeom") << "ME0Numbering " << num.getLevels();
   for (int level = 1; level <= num.getLevels(); level++) {
-    edm::LogVerbatim("MuonGeom")
-        << "level " << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
+    edm::LogVerbatim("MuonGeom") << "level " << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
   }
 #endif
   // -----------------------
 
 #ifdef EDM_ML_DEBUG
   if (num.getLevels() != theRollLevel)
-    edm::LogVerbatim("MuonGeom")
-        << "MuonME0NS::BNToUN BaseNumber has " << num.getLevels() << " levels which is less than " << theRollLevel;
+    edm::LogVerbatim("MuonGeom") << "MuonME0NS::BNToUN BaseNumber has " << num.getLevels()
+                                 << " levels which is less than " << theRollLevel;
 #endif
 
   int region(ME0DetId::minRegionId), layer(ME0DetId::minLayerId);
@@ -63,7 +65,7 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
     // Debug using EDM_ML_DEBUG
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonGeom") << "ME0NumberingScheme: Region " << region << " Layer " << layer << " Chamber "
-                                         << chamber << " Roll " << roll;
+                               << chamber << " Roll " << roll;
 #endif
   // -----------------------
 
