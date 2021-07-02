@@ -77,6 +77,7 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     minSharedEneFrac = cms.double(0.),
     maxSharedEneFrac = cms.double(1.),
     nintSharedEneFrac = cms.int32(100),
+    minTSTSharedEneFracEfficiency = cms.double(0.5),
 
     #Same as above for tracksters
     minTSTSharedEneFrac = cms.double(0.),
