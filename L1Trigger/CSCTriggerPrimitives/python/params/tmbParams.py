@@ -35,7 +35,8 @@ tmbPhase1 = cms.PSet(
     tmbReadoutEarliest2 = cms.bool(True),
 
     # For ALCT-centric matching in ME11, break after finding
-    # the first BX with matching CLCT
+    # the first BX with matching CLCT. Should always be set to True
+    # when using the preferred BX windows
     matchEarliestClctOnly = cms.bool(True),
 
     # For ALCT-centric matching, whether to drop CLCTs that were matched
@@ -59,7 +60,6 @@ tmbPhase2 = tmbPhase1.clone(
     matchTrigWindowSize = 5,
     # LCTs found in the window [6, 7, 8, 9, 10] are good
     tmbL1aWindowSize = 5,
-    matchEarliestClctOnly = False,
     tmbDropUsedClcts = False,
     # 0 = default "non-X-BX" sorting algorithm,
     #     where the first BX with match goes first
