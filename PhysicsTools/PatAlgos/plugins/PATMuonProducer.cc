@@ -18,17 +18,14 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSimInfo.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/PFIsolation.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/UserData.h"
-#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -267,6 +264,9 @@ namespace pat {
     edm::EDGetTokenT<std::vector<pat::TriggerObjectStandAlone>> triggerObjects_;
     edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
     std::vector<std::string> hltCollectionFilters_;
+
+    const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geometryToken_;
+    const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
   };
 
 }  // namespace pat
@@ -352,7 +352,9 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
       isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation")
                                                 : edm::ParameterSet(),
                 consumesCollector(),
-                false) {
+                false),
+      geometryToken_{esConsumes()},
+      transientTrackBuilderToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))} {
   // input source
   muonToken_ = consumes<edm::View<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muonSource"));
   // embedding of tracks
@@ -579,8 +581,7 @@ void PATMuonProducer::fillHltTriggerInfo(pat::Muon& muon,
 
 void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get the tracking Geometry
-  edm::ESHandle<GlobalTrackingGeometry> geometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geometry);
+  auto geometry = iSetup.getHandle(geometryToken_);
   if (!geometry.isValid())
     throw cms::Exception("FatalError") << "Unable to find GlobalTrackingGeometryRecord in event!\n";
 
@@ -599,7 +600,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get the ESHandle for the transient track builder,
   // if needed for high level selection embedding
-  edm::ESHandle<TransientTrackBuilder> trackBuilder;
+  TransientTrackBuilder const* trackBuilder = nullptr;
 
   if (isolator_.enabled())
     isolator_.beginEvent(iEvent, iSetup);
@@ -684,7 +685,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           << "No primary vertex available from EventSetup, not adding high level selection \n";
     }
     // this is needed by the IPTools methods from the tracking group
-    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
+    trackBuilder = &iSetup.getData(transientTrackBuilderToken_);
   }
 
   // MC info
@@ -692,7 +693,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool simInfoIsAvailalbe = iEvent.getByToken(simInfo_, simInfo);
 
   // this will be the new object collection
-  std::vector<Muon>* patMuons = new std::vector<Muon>();
+  auto patMuons = std::make_unique<std::vector<Muon>>();
 
   edm::Handle<reco::PFCandidateCollection> pfMuons;
   if (useParticleFlow_) {
@@ -1053,8 +1054,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   // put products in Event
-  std::unique_ptr<std::vector<Muon>> ptr(patMuons);
-  iEvent.put(std::move(ptr));
+  iEvent.put(std::move(patMuons));
 
   if (isolator_.enabled())
     isolator_.endEvent();

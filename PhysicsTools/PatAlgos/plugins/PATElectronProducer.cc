@@ -207,6 +207,9 @@ namespace pat {
     edm::EDGetTokenT<edm::ValueMap<float>> PUPPINoLeptonsIsolation_photons_;
     pat::PATUserDataHelper<pat::Electron> userDataHelper_;
 
+    const edm::ESGetToken<CaloTopology, CaloTopologyRecord> ecalTopologyToken_;
+    const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> trackBuilderToken_;
+
     const CaloTopology* ecalTopology_;
   };
 }  // namespace pat
@@ -319,9 +322,9 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet& iConfig)
                 false),
       addEfficiencies_(iConfig.getParameter<bool>("addEfficiencies")),
       addResolutions_(iConfig.getParameter<bool>("addResolutions")),
-      useUserData_(iConfig.exists("userData"))
-
-{
+      useUserData_(iConfig.exists("userData")),
+      ecalTopologyToken_{esConsumes()},
+      trackBuilderToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))} {
   // MC matching configurables (scheduled mode)
 
   if (addGenMatch_) {
@@ -451,9 +454,7 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     embedGenMatch_ = false;
   }
 
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  ecalTopology_ = &(*theCaloTopology);
+  ecalTopology_ = &iSetup.getData(ecalTopologyToken_);
 
   // Get the collection of electrons from the event
   edm::Handle<edm::View<reco::GsfElectron>> electrons;
@@ -541,7 +542,7 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     iEvent.getByToken(pvToken_, pvHandle);
 
     // This is needed by the IPTools methods from the tracking group
-    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
+    trackBuilder = iSetup.getHandle(trackBuilderToken_);
 
     if (pvHandle.isValid() && !pvHandle->empty()) {
       primaryVertex = pvHandle->at(0);
