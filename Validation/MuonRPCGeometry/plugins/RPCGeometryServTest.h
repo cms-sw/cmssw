@@ -3,7 +3,7 @@
  *  \author M. Maggi - INFN Bari
  */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -13,7 +13,7 @@
 
 class RPCGeometry;
 class MuonGeometryRecord;
-class RPCGeometryServTest : public edm::EDAnalyzer {
+class RPCGeometryServTest : public edm::one::EDAnalyzer<> {
 public:
   RPCGeometryServTest(const edm::ParameterSet& pset);
 

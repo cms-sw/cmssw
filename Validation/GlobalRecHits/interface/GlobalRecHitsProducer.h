@@ -11,7 +11,7 @@
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -146,7 +146,7 @@
 class PGlobalRecHit;
 class CaloGeometryRecord;
 class TrackerTopology;
-class GlobalRecHitsProducer : public edm::EDProducer {
+class GlobalRecHitsProducer : public edm::one::EDProducer<> {
 public:
   typedef std::vector<float> FloatVector;
   typedef std::vector<double> DoubleVector;

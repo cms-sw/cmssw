@@ -14,7 +14,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -72,7 +72,7 @@
 
 class PGlobalSimHit;
 class CaloGeometryRecord;
-class GlobalHitsProducer : public edm::EDProducer {
+class GlobalHitsProducer : public edm::one::EDProducer<> {
 public:
   typedef std::vector<float> FloatVector;
 
