@@ -12,7 +12,7 @@
 
 // framework & common header files
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -100,7 +100,7 @@
 class PGlobalDigi;
 class TrackerTopology;
 class TrackerTopologyRcd;
-class GlobalDigisProducer : public edm::EDProducer {
+class GlobalDigisProducer : public edm::one::EDProducer<> {
 public:
   typedef std::vector<float> FloatVector;
   typedef std::vector<double> DoubleVector;
