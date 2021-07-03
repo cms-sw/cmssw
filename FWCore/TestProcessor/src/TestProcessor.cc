@@ -119,7 +119,6 @@ namespace edm {
       auto nConcurrentRuns = 1U;
       preallocations_ = PreallocationConfiguration{nThreads, nStreams, nConcurrentLumis, nConcurrentRuns};
 
-      espController_->setMaxConcurrentIOVs(nStreams, nConcurrentLumis);
       if (not iConfig.esProduceEntries().empty()) {
         esHelper_ = std::make_unique<EventSetupTestHelper>(iConfig.esProduceEntries());
         esp_->add(std::dynamic_pointer_cast<eventsetup::DataProxyProvider>(esHelper_));

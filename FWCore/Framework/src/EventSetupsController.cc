@@ -41,7 +41,9 @@ namespace edm {
 
     std::shared_ptr<EventSetupProvider> EventSetupsController::makeProvider(ParameterSet& iPSet,
                                                                             ActivityRegistry* activityRegistry,
-                                                                            ParameterSet const* eventSetupPset) {
+                                                                            ParameterSet const* eventSetupPset,
+                                                                            unsigned int maxConcurrentIOVs,
+                                                                            bool dumpOptions) {
       // Makes an EventSetupProvider
       // Also parses the prefer information from ParameterSets and puts
       // it in a map that is stored in the EventSetupProvider
@@ -53,14 +55,10 @@ namespace edm {
       // EventSetupsController and in the EventSetupProvider
       fillEventSetupProvider(*this, *returnValue, iPSet);
 
-      numberOfConcurrentIOVs_.readConfigurationParameters(eventSetupPset);
+      numberOfConcurrentIOVs_.readConfigurationParameters(eventSetupPset, maxConcurrentIOVs, dumpOptions);
 
       providers_.push_back(returnValue);
       return returnValue;
-    }
-
-    void EventSetupsController::setMaxConcurrentIOVs(unsigned int nStreams, unsigned int nConcurrentLumis) {
-      numberOfConcurrentIOVs_.setMaxConcurrentIOVs(nStreams, nConcurrentLumis);
     }
 
     void EventSetupsController::finishConfiguration() {
