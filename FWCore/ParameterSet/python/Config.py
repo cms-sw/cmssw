@@ -215,9 +215,9 @@ class Process(object):
         return untracked.PSet(numberOfThreads = untracked.uint32(1),
                               numberOfStreams = untracked.uint32(0),
                               numberOfConcurrentRuns = untracked.uint32(1),
-                              numberOfConcurrentLuminosityBlocks = untracked.uint32(1),
+                              numberOfConcurrentLuminosityBlocks = untracked.uint32(0),
                               eventSetup = untracked.PSet(
-                                  numberOfConcurrentIOVs = untracked.uint32(1),
+                                  numberOfConcurrentIOVs = untracked.uint32(0),
                                   forceNumberOfConcurrentIOVs = untracked.PSet(
                                       allowAnyLabel_ = required.untracked.uint32
                                   )
@@ -234,6 +234,7 @@ class Process(object):
                               FailPath = untracked.vstring(),
                               IgnoreCompletely = untracked.vstring(),
                               canDeleteEarly = untracked.vstring(),
+                              dumpOptions = untracked.bool(False),
                               allowUnscheduled = obsolete.untracked.bool,
                               emptyRunLumiMode = obsolete.untracked.string,
                               makeTriggerResults = obsolete.untracked.bool
@@ -2015,17 +2016,18 @@ process.options = cms.untracked.PSet(
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
     deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
+    dumpOptions = cms.untracked.bool(False),
     emptyRunLumiMode = cms.obsolete.untracked.string,
     eventSetup = cms.untracked.PSet(
         forceNumberOfConcurrentIOVs = cms.untracked.PSet(
             allowAnyLabel_=cms.required.untracked.uint32
         ),
-        numberOfConcurrentIOVs = cms.untracked.uint32(1)
+        numberOfConcurrentIOVs = cms.untracked.uint32(0)
     ),
     fileMode = cms.untracked.string('FULLMERGE'),
     forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
     makeTriggerResults = cms.obsolete.untracked.bool,
-    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1),
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
     numberOfStreams = cms.untracked.uint32(0),
     numberOfThreads = cms.untracked.uint32(1),
