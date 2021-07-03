@@ -36,6 +36,8 @@
   <use name="FWCore/Utilities"/>
 </bin>
 
+<test name="TestFWCoreFrameworkOptions" command="run_testOptions.sh ${value}" for="0,4"/>
+
 <library file="stubs/TestTriggerNames.cc" name="TestTriggerNames">
   <flags EDM_PLUGIN="1"/>
   <use name="DataFormats/Common"/>

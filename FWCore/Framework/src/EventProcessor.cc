@@ -209,20 +209,14 @@ namespace edm {
 
   std::shared_ptr<EDLooperBase> fillLooper(eventsetup::EventSetupsController& esController,
                                            eventsetup::EventSetupProvider& cp,
-                                           ParameterSet& params) {
+                                           ParameterSet& params,
+                                           std::vector<std::string> const& loopers) {
     std::shared_ptr<EDLooperBase> vLooper;
-
-    std::vector<std::string> loopers = params.getParameter<std::vector<std::string>>("@all_loopers");
-
-    if (loopers.empty()) {
-      return vLooper;
-    }
 
     assert(1 == loopers.size());
 
-    for (std::vector<std::string>::iterator itName = loopers.begin(), itNameEnd = loopers.end(); itName != itNameEnd;
-         ++itName) {
-      ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
+    for (auto const& looperName : loopers) {
+      ParameterSet* providerPSet = params.getPSetForUpdate(looperName);
       validateLooper(*providerPSet);
       providerPSet->registerIt();
       vLooper = eventsetup::LooperFactory::get()->addTo(esController, cp, *providerPSet);
@@ -386,9 +380,6 @@ namespace edm {
     if (nStreams == 0) {
       nStreams = nThreads;
     }
-    if (nThreads > 1 or nStreams > 1) {
-      edm::LogInfo("ThreadStreamSetup") << "setting # threads " << nThreads << "\nsetting # streams " << nStreams;
-    }
     unsigned int nConcurrentRuns = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
     if (nConcurrentRuns != 1) {
       throw Exception(errors::Configuration, "Illegal value nConcurrentRuns : ")
@@ -397,8 +388,35 @@ namespace edm {
     unsigned int nConcurrentLumis =
         optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentLuminosityBlocks");
     if (nConcurrentLumis == 0) {
-      nConcurrentLumis = nConcurrentRuns;
+      nConcurrentLumis = 2;
     }
+    if (nConcurrentLumis > nStreams) {
+      nConcurrentLumis = nStreams;
+    }
+    std::vector<std::string> loopers = parameterSet->getParameter<std::vector<std::string>>("@all_loopers");
+    if (!loopers.empty()) {
+      //For now loopers make us run only 1 transition at a time
+      if (nStreams != 1 || nConcurrentLumis != 1 || nConcurrentRuns != 1) {
+        edm::LogWarning("ThreadStreamSetup") << "There is a looper, so the number of streams, the number "
+                                                "of concurrent runs, and the number of concurrent lumis "
+                                                "are all being reset to 1. Loopers cannot currently support "
+                                                "values greater than 1.";
+        nStreams = 1;
+        nConcurrentLumis = 1;
+        nConcurrentRuns = 1;
+      }
+    }
+    bool dumpOptions = optionsPset.getUntrackedParameter<bool>("dumpOptions");
+    if (dumpOptions) {
+      dumpOptionsToLogFile(nThreads, nStreams, nConcurrentLumis, nConcurrentRuns);
+    } else {
+      if (nThreads > 1 or nStreams > 1) {
+        edm::LogInfo("ThreadStreamSetup") << "setting # threads " << nThreads << "\nsetting # streams " << nStreams;
+      }
+    }
+    // The number of concurrent IOVs is configured individually for each record in
+    // the class NumberOfConcurrentIOVs to values less than or equal to this.
+    unsigned int maxConcurrentIOVs = nConcurrentLumis;
 
     //Check that relationships between threading parameters makes sense
     /*
@@ -439,22 +457,18 @@ namespace edm {
 
     // intialize the event setup provider
     ParameterSet const& eventSetupPset(optionsPset.getUntrackedParameterSet("eventSetup"));
-    esp_ = espController_->makeProvider(*parameterSet, items.actReg_.get(), &eventSetupPset);
+    esp_ = espController_->makeProvider(
+        *parameterSet, items.actReg_.get(), &eventSetupPset, maxConcurrentIOVs, dumpOptions);
 
     // initialize the looper, if any
-    looper_ = fillLooper(*espController_, *esp_, *parameterSet);
-    if (looper_) {
+    if (!loopers.empty()) {
+      looper_ = fillLooper(*espController_, *esp_, *parameterSet, loopers);
       looper_->setActionTable(items.act_table_.get());
       looper_->attachTo(*items.actReg_);
 
-      //For now loopers make us run only 1 transition at a time
-      nStreams = 1;
-      nConcurrentLumis = 1;
-      nConcurrentRuns = 1;
       // in presence of looper do not delete modules
       deleteNonConsumedUnscheduledModules_ = false;
     }
-    espController_->setMaxConcurrentIOVs(nStreams, nConcurrentLumis);
 
     preallocations_ = PreallocationConfiguration{nThreads, nStreams, nConcurrentLumis, nConcurrentRuns};
 

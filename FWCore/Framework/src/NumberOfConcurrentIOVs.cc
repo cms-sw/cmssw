@@ -16,11 +16,17 @@ namespace edm {
 
     NumberOfConcurrentIOVs::NumberOfConcurrentIOVs() : numberConcurrentIOVs_(1) {}
 
-    void NumberOfConcurrentIOVs::readConfigurationParameters(ParameterSet const* eventSetupPset) {
+    void NumberOfConcurrentIOVs::readConfigurationParameters(ParameterSet const* eventSetupPset,
+                                                             unsigned int maxConcurrentIOVs,
+                                                             bool dumpOptions) {
       if (eventSetupPset) {  // this condition is false for SubProcesses
+        maxConcurrentIOVs_ = maxConcurrentIOVs;
         numberConcurrentIOVs_ = eventSetupPset->getUntrackedParameter<unsigned int>("numberOfConcurrentIOVs");
-        if (numberConcurrentIOVs_ == 0) {
-          numberConcurrentIOVs_ = 1;
+        if (numberConcurrentIOVs_ == 0 || numberConcurrentIOVs_ > maxConcurrentIOVs) {
+          numberConcurrentIOVs_ = maxConcurrentIOVs;
+        }
+        if (dumpOptions) {
+          LogAbsolute("Options") << "Number of Concurrent IOVs = " << numberConcurrentIOVs_;
         }
 
         ParameterSet const& pset(eventSetupPset->getUntrackedParameterSet("forceNumberOfConcurrentIOVs"));
@@ -34,10 +40,6 @@ namespace edm {
                   forceNumberOfConcurrentIOVs_.end(),
                   [](auto const& left, auto const& right) { return left.first < right.first; });
       }
-    }
-
-    void NumberOfConcurrentIOVs::setMaxConcurrentIOVs(unsigned int nStreams, unsigned int nConcurrentLumis) {
-      maxConcurrentIOVs_ = std::min(nStreams, nConcurrentLumis);
     }
 
     void NumberOfConcurrentIOVs::fillRecordsNotAllowingConcurrentIOVs(EventSetupProvider const& eventSetupProvider) {
@@ -69,7 +71,7 @@ namespace edm {
                                  << "But you cannot have more concurrent IOVs than lumis or streams.\n"
                                  << "There will not be more than " << maxConcurrentIOVs_ << " concurrent IOVs.\n";
       }
-      return std::min(numberConcurrentIOVs_, maxConcurrentIOVs_);
+      return numberConcurrentIOVs_;
     }
 
     void NumberOfConcurrentIOVs::clear() {
