@@ -10,7 +10,6 @@
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -50,7 +49,6 @@ private:
   const SiStripQuality *stripQuality_ = nullptr;
   const edm::ParameterSet conf_;
   edm::FileInPath fp_;
-  SiStripDetInfoFileReader *reader;
   edm::InputTag Cluster_src_;
   edm::InputTag Track_src_;
   bool tracksCollection_in_EventTree;

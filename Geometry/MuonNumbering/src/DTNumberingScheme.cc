@@ -27,24 +27,23 @@ void DTNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   theLayerLevel = muonConstants.getValue("mb_layer") / theLevelPart;
   theWireLevel = muonConstants.getValue("mb_wire") / theLevelPart;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("DTNumberingScheme") << "Initialize DTNumberingScheme"
-                                        << "\ntheRegionLevel " << theRegionLevel << "\ntheWheelLevel " << theWheelLevel
-                                        << "\ntheStationLevel " << theStationLevel << "\ntheSuperLayerLevel "
-                                        << theSuperLayerLevel << "\ntheLayerLevel " << theLayerLevel
-                                        << "\ntheWireLevel " << theWireLevel;
+  edm::LogVerbatim("MuonGeom") << "Initialize DTNumberingScheme\ntheRegionLevel " << theRegionLevel
+                               << "\ntheWheelLevel " << theWheelLevel << "\ntheStationLevel " << theStationLevel
+                               << "\ntheSuperLayerLevel " << theSuperLayerLevel << "\ntheLayerLevel " << theLayerLevel
+                               << "\ntheWireLevel " << theWireLevel;
 #endif
 }
 
 int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("DTNumberingScheme") << "DTNumbering " << num.getLevels();
+  edm::LogVerbatim("MuonGeom") << "DTNumbering " << num.getLevels();
   for (int level = 1; level <= num.getLevels(); level++) {
-    edm::LogVerbatim("DTNumberingScheme") << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
+    edm::LogVerbatim("MuonGeom") << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
   }
 #endif
   if (num.getLevels() < theStationLevel) {  // it was  if (num.getLevels() != theWireLevel) {
-    edm::LogWarning("DTNumberingScheme") << "DTNumberingScheme::BNToUN: BaseNumber has " << num.getLevels()
-                                         << " levels, need " << theStationLevel;  //it was theWireLevel;
+    edm::LogWarning("MuonGeom") << "DTNumberingScheme::BNToUN: BaseNumber has " << num.getLevels() << " levels, need "
+                                << theStationLevel;  //it was theWireLevel;
     return 0;
   }
 
@@ -105,7 +104,7 @@ int DTNumberingScheme::getDetId(const MuonBaseNumber& num) const {
   DTWireId id(wheel_id, station_id, sector_id, superlayer_id, layer_id, wire_id);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("DTNumberingScheme") << "DTNumberingScheme: " << id;
+  edm::LogVerbatim("MuonGeom") << "DTNumberingScheme: " << id;
 #endif
 
   return id.rawId();

@@ -68,6 +68,9 @@ private:
   std::map<RPCDetId, float> m_ChEffs;
   bool theRE31_off;
   bool theRE41_off;
+
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
+  edm::ESGetToken<MuonSystemAging, MuonSystemAgingRcd> agingObjToken_;
 };
 
 //
@@ -88,6 +91,8 @@ RPCChamberMasker::RPCChamberMasker(const edm::ParameterSet& iConfig)
 
   theRE31_off = iConfig.getParameter<bool>("descopeRE31");
   theRE41_off = iConfig.getParameter<bool>("descopeRE41");
+  rpcGeomToken_ = esConsumes();
+  agingObjToken_ = esConsumes();
 }
 
 RPCChamberMasker::~RPCChamberMasker() {}
@@ -122,11 +127,8 @@ void RPCChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 void RPCChamberMasker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
   m_ChEffs.clear();
 
-  edm::ESHandle<RPCGeometry> rpcGeom;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeom);
-
-  edm::ESHandle<MuonSystemAging> agingObj;
-  iSetup.get<MuonSystemAgingRcd>().get(agingObj);
+  auto rpcGeom = iSetup.getHandle(rpcGeomToken_);
+  auto agingObj = iSetup.getHandle(agingObjToken_);
 
   const auto rolls = rpcGeom->rolls();
 

@@ -37,7 +37,7 @@ void SiStripThresholdDQM::fillMEsForDet(const ModMEs &_selModME_, uint32_t selDe
   condObj_->getDetIds(DetIds);
 
   const auto ThresholdRange = condObj_->getRange(selDetId_);
-  int nStrip = reader->getNumberOfApvsAndStripLength(selDetId_).first * 128;
+  int nStrip = detInfo_.getNumberOfApvsAndStripLength(selDetId_).first * 128;
 
   getModMEs(selModME_, selDetId_);
 
@@ -79,7 +79,7 @@ void SiStripThresholdDQM::fillMEsForLayer(
 
   const auto ThresholdRange = condObj_->getRange(selDetId_);
 
-  int nStrip = reader->getNumberOfApvsAndStripLength(selDetId_).first * 128;
+  int nStrip = detInfo_.getNumberOfApvsAndStripLength(selDetId_).first * 128;
 
   SiStripHistoId hidmanager;
 

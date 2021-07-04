@@ -26,6 +26,8 @@
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 
+//#define EDM_ML_DEBUG
+
 class MuonNumberingESProducer : public edm::ESProducer {
 public:
   MuonNumberingESProducer(const edm::ParameterSet&);
@@ -50,7 +52,9 @@ MuonNumberingESProducer::MuonNumberingESProducer(const edm::ParameterSet& iConfi
 MuonNumberingESProducer::~MuonNumberingESProducer() {}
 
 MuonNumberingESProducer::ReturnType MuonNumberingESProducer::produce(const MuonNumberingRecord& iRecord) {
-  LogDebug("Geometry") << "MuonNumberingESProducer::produce from " << m_label << " with " << m_key;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MuonGeom") << "MuonNumberingESProducer::produce from " << m_label << " with " << m_key;
+#endif
   auto product = std::make_unique<cms::MuonNumbering>();
 
   cms::DDSpecParRegistry const& registry = iRecord.get(m_token);

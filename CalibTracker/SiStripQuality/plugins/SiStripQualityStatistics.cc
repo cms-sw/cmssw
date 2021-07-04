@@ -34,23 +34,19 @@ SiStripQualityStatistics::SiStripQualityStatistics(const edm::ParameterSet& iCon
       tTopoToken_(esConsumes<edm::Transition::EndRun>()),
       tkDetMapToken_(esConsumes<edm::Transition::EndRun>()),
       withFedErrHelper_{iConfig, consumesCollector(), true} {
-  reader = new SiStripDetInfoFileReader(
-      iConfig
-          .getUntrackedParameter<edm::FileInPath>("file",
-                                                  edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))
+  detInfo_ = SiStripDetInfoFileReader::read(
+      iConfig.getUntrackedParameter<edm::FileInPath>("file", edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile))
           .fullPath());
 
   tkMapFullIOVs = new TrackerMap("BadComponents");
   tkhisto = nullptr;
 }
 
-SiStripQualityStatistics::~SiStripQualityStatistics() {}
-
 void SiStripQualityStatistics::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("TkMapFileName", "");
   desc.addUntracked<bool>("SaveTkHistoMap", true);
-  desc.addUntracked<edm::FileInPath>("file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
+  desc.addUntracked<edm::FileInPath>("file", edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile));
   SiStripQualityWithFromFedErrorsHelper::fillDescription(desc);
   descriptions.add("siStripQualityStatistics", desc);
 }
@@ -100,7 +96,7 @@ void SiStripQualityStatistics::updateAndSave(const SiStripQuality* siStripQualit
   tkMap = new TrackerMap("BadComponents");
 
   std::stringstream ss;
-  std::vector<uint32_t> detids = reader->getAllDetIds();
+  std::vector<uint32_t> detids = detInfo_.getAllDetIds();
   std::vector<uint32_t>::const_iterator idet = detids.begin();
   for (; idet != detids.end(); ++idet) {
     ss << "detid " << (*idet) << " IsModuleUsable " << siStripQuality->IsModuleUsable((*idet)) << "\n";
@@ -205,7 +201,7 @@ void SiStripQualityStatistics::updateAndSave(const SiStripQuality* siStripQualit
       percentage += range;
     }
     if (percentage != 0)
-      percentage /= 128. * reader->getNumberOfApvsAndStripLength(detid).first;
+      percentage /= 128. * detInfo_.getNumberOfApvsAndStripLength(detid).first;
     if (percentage > 1)
       edm::LogError("SiStripQualityStatistics") << "PROBLEM detid " << detid << " value " << percentage << std::endl;
 
@@ -294,7 +290,7 @@ void SiStripQualityStatistics::updateAndSave(const SiStripQuality* siStripQualit
 }
 
 void SiStripQualityStatistics::SetBadComponents(int i, int component, SiStripQuality::BadComponent& BC) {
-  int napv = reader->getNumberOfApvsAndStripLength(BC.detid).first;
+  int napv = detInfo_.getNumberOfApvsAndStripLength(BC.detid).first;
 
   ssV[i][component] << "\n\t\t " << BC.detid << " \t " << BC.BadModule << " \t " << ((BC.BadFibers) & 0x1) << " ";
   if (napv == 4)
