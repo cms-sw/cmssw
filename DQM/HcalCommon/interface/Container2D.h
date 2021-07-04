@@ -126,8 +126,6 @@ namespace hcaldqm {
     void fill(HcalTrigTowerDetId const &, int, double) override;
     void fill(HcalTrigTowerDetId const &, double, double) override;
 
-    void fill(HcalTrigTowerDetId const &, HcalElectronicsId const &, int, int);
-
     double getBinEntries(HcalTrigTowerDetId const &) override;
     double getBinEntries(HcalTrigTowerDetId const &, int) override;
     double getBinEntries(HcalTrigTowerDetId const &, double) override;
