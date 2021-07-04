@@ -38,7 +38,7 @@ namespace gainCalibHelper {
   namespace gainCalibPI {
 
     enum type { t_gain = 0, t_pedestal = 1, t_correlation = 2 };
-    std::array<std::string, 3> t_titles = {{"gain", "pedestal", "correlation"}};
+    static const std::array<std::string, 3> t_titles = {{"gain", "pedestal", "correlation"}};
 
     //===========================================================================
     // helper method to fill the ratio and diff distributions

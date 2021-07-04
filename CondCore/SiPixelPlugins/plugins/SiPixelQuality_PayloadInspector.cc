@@ -101,16 +101,15 @@ namespace {
       }
 
       //=========================
-      TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
-      SiPixelPI::displayNotSupported(canvas, 0);
-      canvas.cd();
-      canvas.SetBottomMargin(0.11);
-      canvas.SetLeftMargin(0.13);
-      canvas.SetRightMargin(0.05);
-      canvas.Modified();
+      TCanvas canv("Partition summary", "partition summary", 1200, 1000);
+      canv.SetBottomMargin(0.11);
+      canv.SetLeftMargin(0.13);
+      canv.SetRightMargin(0.05);
+      canv.cd();
+      SiPixelPI::displayNotSupported(canv, 0);
 
       std::string fileName(m_imageFileName);
-      canvas.SaveAs(fileName.c_str());
+      canv.SaveAs(fileName.c_str());
 
       return true;
     }
