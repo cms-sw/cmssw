@@ -263,12 +263,6 @@ namespace {
 
       Phase1PixelROCMaps theMap("", "#Delta payload A - payload B");
 
-      // first loop on the first payload (newest)
-      fillTheMapFromPayload(theMap, first_payload, false);
-
-      // then loop on the second payload (oldest)
-      fillTheMapFromPayload(theMap, last_payload, true);  // true will subtract
-
       gStyle->SetOptStat(0);
       //=========================
       TCanvas canvas("Summary", "Summary", 1200, k_height[myType]);
@@ -309,6 +303,12 @@ namespace {
           throw cms::Exception("SiPixelQualityMapComparison")
               << "\nERROR: unrecognized Pixel Detector part " << std::endl;
       }
+
+      // first loop on the first payload (newest)
+      fillTheMapFromPayload(theMap, first_payload, false);
+
+      // then loop on the second payload (oldest)
+      fillTheMapFromPayload(theMap, last_payload, true);  // true will subtract
 
       std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -351,11 +351,11 @@ namespace {
   using SiPixelFullQualityMapCompareSingleTag =
       SiPixelQualityMapComparisonBase<SiPixelPI::t_all, cond::payloadInspector::MULTI_IOV, 1>;
   using SiPixelBPixQualityMapCompareTwoTags =
-      SiPixelQualityMapComparisonBase<SiPixelPI::t_barrel, cond::payloadInspector::MULTI_IOV, 2>;
+      SiPixelQualityMapComparisonBase<SiPixelPI::t_barrel, cond::payloadInspector::SINGLE_IOV, 2>;
   using SiPixelFPixQualityMapCompareTwoTags =
-      SiPixelQualityMapComparisonBase<SiPixelPI::t_forward, cond::payloadInspector::MULTI_IOV, 2>;
+      SiPixelQualityMapComparisonBase<SiPixelPI::t_forward, cond::payloadInspector::SINGLE_IOV, 2>;
   using SiPixelFullQualityMapCompareTwoTags =
-      SiPixelQualityMapComparisonBase<SiPixelPI::t_all, cond::payloadInspector::MULTI_IOV, 2>;
+      SiPixelQualityMapComparisonBase<SiPixelPI::t_all, cond::payloadInspector::SINGLE_IOV, 2>;
 
 }  // namespace
 

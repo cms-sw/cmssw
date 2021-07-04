@@ -353,7 +353,7 @@ void PixelROCMapHelper::dress_plot(TPad*& canv,
     double max = h->GetMaximum();
     double min = h->GetMinimum();
     double val_white = 0.;
-    double per_white = (val_white - min) / (max - min);
+    double per_white = (max != min) ? ((val_white - min) / (max - min)) : 0.5;
 
     const int Number = 3;
     double Red[Number] = {0., 1., 1.};
