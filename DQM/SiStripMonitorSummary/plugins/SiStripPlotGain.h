@@ -33,7 +33,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -62,8 +61,6 @@ private:
   TH1F *getHisto(const long unsigned int &index);
 
   // ----------member data ---------------------------
-
-  SiStripDetInfoFileReader *fr;
 
   edm::ESWatcher<SiStripApvGainRcd> gainWatcher_;
   edm::ESGetToken<SiStripApvGain, SiStripApvGainRcd> gainToken_;

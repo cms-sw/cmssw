@@ -13,13 +13,12 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripQualityWithFromFedErrorsHelper.h"
 
-class SiStripDetInfoFileReader;
 class SiStripFedCabling;
 
 class SiStripQualityStatistics : public DQMEDHarvester {
 public:
   explicit SiStripQualityStatistics(const edm::ParameterSet&);
-  ~SiStripQualityStatistics() override;
+  ~SiStripQualityStatistics() override = default;
 
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
@@ -43,7 +42,7 @@ private:
   std::stringstream ssV[4][19];
 
   TrackerMap *tkMap, *tkMapFullIOVs;
-  SiStripDetInfoFileReader* reader;
+  SiStripDetInfo detInfo_;
   std::unique_ptr<TkHistoMap> tkhisto;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;

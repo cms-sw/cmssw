@@ -7,6 +7,7 @@
 #include <TChain.h>
 #include <TFile.h>
 #include <regex>
+#include <fstream>
 
 namespace sistrip {
 
@@ -56,7 +57,7 @@ namespace sistrip {
   std::map<uint32_t,LA_Filler_Fitter::Result> 
     module_results = LA_Filler_Fitter::module_results(book, LA_Filler_Fitter::SQRTVAR);
   
-  BOOST_FOREACH(const uint32_t& detid, SiStripDetInfoFileReader(fp_.fullPath()).getAllDetIds()) {
+  BOOST_FOREACH(const uint32_t& detid, SiStripDetInfoFileReader::read(fp_.fullPath()).getAllDetIds()) {
     float la = module_results[detid].measure / module_results[detid].field ;
     lorentzAngle->putLorentzAngle( detid, la );
   }

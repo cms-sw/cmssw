@@ -19,7 +19,6 @@ public:
 private:
   std::unique_ptr<SiStripBadStrip> getNewObject() override;
 
-  edm::FileInPath fp_;
   bool printdebug_;
 
   typedef std::vector<edm::ParameterSet> Parameters;

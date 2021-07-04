@@ -86,8 +86,8 @@ SiStripNoisesFromDBMiscalibrator::SiStripNoisesFromDBMiscalibrator(const edm::Pa
     : m_fillDefaults{iConfig.getUntrackedParameter<bool>("fillDefaults", false)},
       m_saveMaps{iConfig.getUntrackedParameter<bool>("saveMaps", true)},
       m_parameters{iConfig.getParameter<std::vector<edm::ParameterSet> >("params")},
-      fp_{iConfig.getUntrackedParameter<edm::FileInPath>(
-          "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))},
+      fp_{iConfig.getUntrackedParameter<edm::FileInPath>("file",
+                                                         edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile))},
       m_tTopoToken(esConsumes()),
       m_noiseToken(esConsumes()) {
   //now do what ever initialization is needed
@@ -296,22 +296,17 @@ std::unique_ptr<SiStripNoises> SiStripNoisesFromDBMiscalibrator::getNewObject_wi
     const std::map<std::pair<uint32_t, int>, float>& theMap, const float theDefault) {
   std::unique_ptr<SiStripNoises> obj = std::make_unique<SiStripNoises>();
 
-  SiStripDetInfoFileReader reader(fp_.fullPath());
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader.getAllData();
-
   std::vector<uint32_t> missingDetIds;
 
-  for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin();
-       it != DetInfos.end();
-       it++) {
+  for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
     //Generate Noise for det detid
     bool isMissing(false);
     SiStripNoises::InputVector theSiStripVector;
-    for (int t_strip = 0; t_strip < 128 * it->second.nApvs; ++t_strip) {
-      std::pair<uint32_t, int> index = std::make_pair(it->first, t_strip);
+    for (int t_strip = 0; t_strip < 128 * it.second.nApvs; ++t_strip) {
+      std::pair<uint32_t, int> index = std::make_pair(it.first, t_strip);
 
       if (theMap.find(index) == theMap.end()) {
-        LogDebug("SiStripNoisesFromDBMiscalibrator") << "detid " << it->first << " \t"
+        LogDebug("SiStripNoisesFromDBMiscalibrator") << "detid " << it.first << " \t"
                                                      << " strip " << t_strip << " \t"
                                                      << " not found" << std::endl;
 
@@ -325,9 +320,9 @@ std::unique_ptr<SiStripNoises> SiStripNoisesFromDBMiscalibrator::getNewObject_wi
     }
 
     if (isMissing)
-      missingDetIds.push_back(it->first);
+      missingDetIds.push_back(it.first);
 
-    if (!obj->put(it->first, theSiStripVector)) {
+    if (!obj->put(it.first, theSiStripVector)) {
       edm::LogError("SiStripNoisesFromDBMiscalibrator")
           << "[SiStripNoisesFromDBMiscalibrator::analyze] detid already exists" << std::endl;
     }

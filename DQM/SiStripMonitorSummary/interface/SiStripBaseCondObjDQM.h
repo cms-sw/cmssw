@@ -16,7 +16,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetInfo.h"
 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"  /// ADDITON OF TK_HISTO_MAP
@@ -91,7 +91,7 @@ protected:
 
   void fillTkMap(const uint32_t &detid, const float &value);
 
-  SiStripDetInfoFileReader *reader;
+  SiStripDetInfo detInfo_;
 
   edm::ParameterSet hPSet_;
   edm::ParameterSet fPSet_;
