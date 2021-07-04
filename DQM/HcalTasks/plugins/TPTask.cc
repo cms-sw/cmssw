@@ -64,15 +64,13 @@ TPTask::TPTask(edm::ParameterSet const& ps)
                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEt_128),
                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
                                0);
-  for (int iii = 0; iii < constants::MAX_TS; iii++) {
-    _cEtCorr_TTSubdet[iii].initialize(_name,
-                                      "EtCorr",
-                                      hcaldqm::hashfunctions::fTTSubdetFW,
-                                      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
-                                      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
-                                      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
-                                      0);
-  }
+  _cEtCorr_TTSubdet.initialize(_name,
+                               "EtCorr",
+                               hcaldqm::hashfunctions::fTTSubdet,
+                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
+                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
+                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
+                               0);
   for (uint8_t iii = 0; iii < constants::NUM_FGBITS; iii++) {
     _cFGCorr_TTSubdet[iii].initialize(_name,
                                       "FGCorr",
@@ -539,10 +537,7 @@ TPTask::TPTask(edm::ParameterSet const& ps)
   }
   _cEtData_TTSubdet.book(ib, _emap, _subsystem);
   _cEtEmul_TTSubdet.book(ib, _emap, _subsystem);
-  for (int iii = 0; iii < constants::MAX_TS; iii++) {
-    sprintf(aux, "TS%d", iii);
-    _cEtCorr_TTSubdet[iii].book(ib, _emap, _subsystem, aux);
-  }
+  _cEtCorr_TTSubdet.book(ib, _emap, _subsystem);
   if (_ptype != fOffline) {  // hidefed2crate
     _cEtData_ElectronicsuTCA.book(ib, _emap, _subsystem);
     _cEtEmul_ElectronicsuTCA.book(ib, _emap, _subsystem);
@@ -795,9 +790,7 @@ TPTask::TPTask(edm::ParameterSet const& ps)
       //	^^^ONLINE ONLY!
 
       _cEtCorrRatio_depthlike.fill(tid, rEt);
-      for (int iTS = 0; iTS < it->size(); iTS++) {
-        _cEtCorr_TTSubdet[iTS].fill(tid, eid, it->sample(iTS).compressedEt(), jt->sample(iTS).compressedEt());
-      }
+      _cEtCorr_TTSubdet.fill(tid, soiEt_d, soiEt_e);
       for (uint32_t ibit = 0; ibit < constants::NUM_FGBITS; ibit++)
         _cFGCorr_TTSubdet[ibit].fill(tid, soiFG_d[ibit], soiFG_e[ibit]);
       //	FILL w/o a CUT
@@ -830,9 +823,7 @@ TPTask::TPTask(edm::ParameterSet const& ps)
         }
     } else {
       //	IF MISSING
-      for (int iTS = 0; iTS < it->size(); iTS++) {
-        _cEtCorr_TTSubdet[iTS].fill(tid, eid, it->sample(iTS).compressedEt(), -2);
-      }
+      _cEtCorr_TTSubdet.fill(tid, soiEt_d, -2);
       _cMsnEmul_depthlike.fill(tid);
       tid.ietaAbs() >= 29 ? numMsnHF++ : numMsnHBHE++;
       if (_ptype != fOffline) {  // hidefed2crate
@@ -983,9 +974,7 @@ TPTask::TPTask(edm::ParameterSet const& ps)
       HcalTrigPrimDigiCollection::const_iterator jt = cdata->find(tid);
       if (jt == cdata->end()) {
         tid.ietaAbs() >= 29 ? numMsnHF++ : numMsnHBHE++;
-        for (int iTS = 0; iTS < it->size(); iTS++) {
-          _cEtCorr_TTSubdet[iTS].fill(tid, eid, -2, jt->sample(iTS).compressedEt());
-        }
+        _cEtCorr_TTSubdet.fill(tid, -2, soiEt);
         _cMsnData_depthlike.fill(tid);
         if (_ptype != fOffline) {  // hidefed2crate
           _cMsnData_ElectronicsuTCA.fill(eid);
