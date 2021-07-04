@@ -78,7 +78,7 @@ void FWCompositeParameter::addTo(FWConfiguration& oTo) const {
     (*it)->addTo(conf);
   }
   //   std::for_each(begin(), end(),
-  //                 boost::bind(&FWParameterBase::addTo,_1,conf));
+  //                 std::bind(&FWParameterBase::addTo, std::placeholders::_1,conf));
 
   oTo.addKeyValue(name(), conf, true);
 }
