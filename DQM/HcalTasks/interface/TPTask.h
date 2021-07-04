@@ -68,7 +68,7 @@ protected:
   //	Et/FG
   hcaldqm::Container1D _cEtData_TTSubdet;
   hcaldqm::Container1D _cEtEmul_TTSubdet;
-  hcaldqm::Container2D _cEtCorr_TTSubdet[hcaldqm::constants::MAX_TS];
+  hcaldqm::Container2D _cEtCorr_TTSubdet;
   hcaldqm::Container2D _cEtCorr2x3_TTSubdet;  //	online only
   hcaldqm::Container2D _cFGCorr_TTSubdet[hcaldqm::constants::NUM_FGBITS];
   hcaldqm::ContainerProf1D _cEtCutDatavsLS_TTSubdet;  // online only!
