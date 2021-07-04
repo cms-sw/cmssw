@@ -32,7 +32,7 @@ void SiStripPedestalsDQM::fillMEsForDet(const ModMEs &_selModME_, uint32_t selDe
   getModMEs(selModME_, selDetId_);
 
   const auto pedRange = condObj_->getRange(selDetId_);
-  int nStrip = reader->getNumberOfApvsAndStripLength(selDetId_).first * 128;
+  int nStrip = detInfo_.getNumberOfApvsAndStripLength(selDetId_).first * 128;
 
   for (int istrip = 0; istrip < nStrip; ++istrip) {
     if (CondObj_fillId_ == "onlyProfile" || CondObj_fillId_ == "ProfileAndCumul") {
@@ -95,7 +95,7 @@ void SiStripPedestalsDQM::fillMEsForLayer(
 
   const auto pedRange = condObj_->getRange(selDetId_);
 
-  int nStrip = reader->getNumberOfApvsAndStripLength(selDetId_).first * 128;
+  int nStrip = detInfo_.getNumberOfApvsAndStripLength(selDetId_).first * 128;
 
   SiStripHistoId hidmanager;
 

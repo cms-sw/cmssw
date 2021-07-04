@@ -42,7 +42,7 @@ private:
   double m_sigmaGain;
   double m_minimumPosValue;
   uint32_t m_printDebug;
-  SiStripDetInfoFileReader m_detInfoFileReader;
+  SiStripDetInfo m_detInfo;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -57,8 +57,7 @@ SiStripApvGainFakeESSource::SiStripApvGainFakeESSource(const edm::ParameterSet& 
   m_sigmaGain = iConfig.getParameter<double>("SigmaGain");
   m_minimumPosValue = iConfig.getParameter<double>("MinPositiveGain");
   m_printDebug = iConfig.getUntrackedParameter<uint32_t>("printDebug", 5);
-  m_detInfoFileReader =
-      SiStripDetInfoFileReader{iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
+  m_detInfo = SiStripDetInfoFileReader::read(iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath());
 }
 
 SiStripApvGainFakeESSource::~SiStripApvGainFakeESSource() {}
@@ -76,7 +75,7 @@ SiStripApvGainFakeESSource::ReturnType SiStripApvGainFakeESSource::produce(const
   auto apvGain = std::make_unique<SiStripApvGain>();
 
   uint32_t count{0};
-  for (const auto& elm : m_detInfoFileReader.getAllData()) {
+  for (const auto& elm : m_detInfo.getAllData()) {
     std::vector<float> theSiStripVector;
     for (unsigned short j = 0; j < elm.second.nApvs; ++j) {
       float gainValue;

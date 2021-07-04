@@ -5,18 +5,16 @@
 #include "DQM/TrackerRemapper/interface/SiStripTkMaps.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
-static const std::string k_geo = "CalibTracker/SiStripCommon/data/SiStripDetInfo.dat";
-
 TEST_CASE("SiStripTkMaps testing", "[SiStripTkMaps]") {
   //_____________________________________________________________
   SECTION("Check SiStrip Tk Maps plotting") {
     gStyle->SetOptStat(0);
     SiStripTkMaps theMap("COLZA L");
     theMap.bookMap("testing SiStripTkMaps", "counts");
-    SiStripDetInfoFileReader reader_ = SiStripDetInfoFileReader(edm::FileInPath(k_geo).fullPath());
-    const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader_.getAllData();
+    const auto detInfo =
+        SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
     unsigned int count = 0;
-    for (const auto& it : DetInfos) {
+    for (const auto& it : detInfo.getAllData()) {
       count++;
       theMap.fill(it.first, count);
     }

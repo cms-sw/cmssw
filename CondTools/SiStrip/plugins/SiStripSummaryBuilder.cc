@@ -1,5 +1,4 @@
 #include "CondTools/SiStrip/plugins/SiStripSummaryBuilder.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include <iostream>
 #include <fstream>
 

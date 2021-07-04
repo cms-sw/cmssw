@@ -1,15 +1,11 @@
 #include "CondTools/SiStrip/plugins/SiStripBadFiberBuilder.h"
 
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
 SiStripBadFiberBuilder::SiStripBadFiberBuilder(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiStripBadStrip>(iConfig) {
-  fp_ = iConfig.getUntrackedParameter<edm::FileInPath>(
-      "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug", false);
   BadComponentList_ = iConfig.getUntrackedParameter<Parameters>("BadComponentList");
 }
@@ -20,8 +16,6 @@ std::unique_ptr<SiStripBadStrip> SiStripBadFiberBuilder::getNewObject() {
   edm::LogInfo("SiStripBadFiberBuilder") << "... creating dummy SiStripBadStrip Data" << std::endl;
 
   auto obj = std::make_unique<SiStripBadStrip>();
-
-  SiStripDetInfoFileReader reader(fp_.fullPath());
 
   std::stringstream ss;
   for (Parameters::iterator iBadComponent = BadComponentList_.begin(); iBadComponent != BadComponentList_.end();

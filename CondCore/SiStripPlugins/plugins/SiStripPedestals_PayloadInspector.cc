@@ -144,13 +144,12 @@ namespace {
         //=========================
         TCanvas canvas("ByDetId", "ByDetId", sides.second * 800, sides.first * 600);
         canvas.Divide(sides.second, sides.first);
-        edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-        auto reader = std::make_unique<SiStripDetInfoFileReader>(fp_.fullPath());
-
+        const auto detInfo =
+            SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
         for (const auto& the_detid : the_detids) {
           edm::LogPrint("SiStripNoisePerDetId") << "DetId:" << the_detid << std::endl;
 
-          unsigned int nAPVs = reader->getNumberOfApvsAndStripLength(the_detid).first;
+          unsigned int nAPVs = detInfo.getNumberOfApvsAndStripLength(the_detid).first;
           if (nAPVs == 0)
             nAPVs = 6;
           v_nAPVs.push_back(nAPVs);
@@ -169,7 +168,7 @@ namespace {
           if (the_detid != 0xFFFFFFFF) {
             fillHisto(payload, histo, the_detid);
           } else {
-            auto allDetIds = reader->getAllDetIds();
+            auto allDetIds = detInfo.getAllDetIds();
             for (const auto& id : allDetIds) {
               fillHisto(payload, histo, id);
             }
@@ -678,8 +677,8 @@ namespace {
       auto iov = tag.iovs.front();
       std::shared_ptr<SiStripPedestals> payload = fetchPayload(std::get<1>(iov));
 
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      auto reader = std::make_unique<SiStripDetInfoFileReader>(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       std::string titleMap =
           "Tracker Map of Zero SiStrip Pedestals fraction per module (payload : " + std::get<1>(iov) + ")";
@@ -703,10 +702,10 @@ namespace {
             zeropeds_per_detid[d] += 1;
           }
         }  // end of loop on strips
-        float fraction = zeropeds_per_detid[d] / (128. * reader->getNumberOfApvsAndStripLength(d).first);
+        float fraction = zeropeds_per_detid[d] / (128. * detInfo.getNumberOfApvsAndStripLength(d).first);
         if (fraction > 0.) {
           tmap->fill(d, fraction);
-          std::cout << "detid: " << d << " (n. APVs=" << reader->getNumberOfApvsAndStripLength(d).first << ") has "
+          std::cout << "detid: " << d << " (n. APVs=" << detInfo.getNumberOfApvsAndStripLength(d).first << ") has "
                     << std::setw(4) << zeropeds_per_detid[d]
                     << " zero-pedestals strips (i.e. a fraction:" << std::setprecision(5) << fraction << ")"
                     << std::endl;

@@ -38,8 +38,8 @@ private:
 SiStripPopConBadComponentsHandlerFromDQM::SiStripPopConBadComponentsHandlerFromDQM(const edm::ParameterSet& iConfig,
                                                                                    edm::ConsumesCollector&& iC)
     : SiStripDQMPopConSourceHandler<SiStripBadStrip>(iConfig),
-      fp_{iConfig.getUntrackedParameter<edm::FileInPath>(
-          "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))},
+      fp_{iConfig.getUntrackedParameter<edm::FileInPath>("file",
+                                                         edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile))},
       tTopoToken_(iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()) {
   edm::LogInfo("SiStripBadComponentsDQMService") << "[SiStripBadComponentsDQMService::SiStripBadComponentsDQMService]";
 }
@@ -82,7 +82,7 @@ void SiStripPopConBadComponentsHandlerFromDQM::dqmEndJob(DQMStore::IBooker&, DQM
 
   m_obj = SiStripBadStrip();
 
-  SiStripDetInfoFileReader reader(fp_.fullPath());
+  const auto detInfo = SiStripDetInfoFileReader::read(fp_.fullPath());
 
   getter.cd();
 
@@ -123,7 +123,7 @@ void SiStripPopConBadComponentsHandlerFromDQM::dqmEndJob(DQMStore::IBooker&, DQM
         // for(std::vector<uint32_t>::const_iterator is=BadApvList_.begin(); is!=BadApvList_.end(); ++is){
 
         //   firstBadStrip=(*is)*128;
-        NconsecutiveBadStrips = reader.getNumberOfApvsAndStripLength(detId).first * 128;
+        NconsecutiveBadStrips = detInfo.getNumberOfApvsAndStripLength(detId).first * 128;
 
         theBadStripRange = m_obj.encode(firstBadStrip, NconsecutiveBadStrips, flag);
 

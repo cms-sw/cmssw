@@ -560,14 +560,13 @@ namespace SiStripPI {
   inline void fillTotalComponents(int NTkComponents[4], int NComponents[4][19][4], const TrackerTopology m_trackerTopo)
   /*--------------------------------------------------------------------*/
   {
-    edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-    SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
-    const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader->getAllData();
-    for (const auto& det : DetInfos) {
-      int nAPVs = reader->getNumberOfApvsAndStripLength(det.first).first;
+    const auto detInfo =
+        SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
+    for (const auto& det : detInfo.getAllData()) {
+      int nAPVs = detInfo.getNumberOfApvsAndStripLength(det.first).first;
       // one fiber connects to 2 APVs
       int nFibers = nAPVs / 2;
-      int nStrips = (128 * reader->getNumberOfApvsAndStripLength(det.first).first);
+      int nStrips = (128 * detInfo.getNumberOfApvsAndStripLength(det.first).first);
       NTkComponents[0]++;
       NTkComponents[1] += nFibers;
       NTkComponents[2] += nAPVs;
@@ -604,7 +603,6 @@ namespace SiStripPI {
       NComponents[subDetIndex][component][2] += nAPVs;
       NComponents[subDetIndex][component][3] += nStrips;
     }
-    delete reader;
   }
 
   // generic code to fill the vectors of bad components
@@ -678,8 +676,8 @@ namespace SiStripPI {
     // Single Strip Info
     //&&&&&&&&&&&&&&&&&&
 
-    edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-    SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+    const auto detInfo =
+        SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
     float percentage = 0;
 
@@ -721,13 +719,11 @@ namespace SiStripPI {
         percentage += range;
       }
       if (percentage != 0)
-        percentage /= 128. * reader->getNumberOfApvsAndStripLength(detid).first;
+        percentage /= 128. * detInfo.getNumberOfApvsAndStripLength(detid).first;
       if (percentage > 1)
         edm::LogError("SiStripBadStrip_PayloadInspector")
             << "PROBLEM detid " << detid << " value " << percentage << std::endl;
     }
-
-    delete reader;
   }
 
   /*--------------------------------------------------------------------*/
