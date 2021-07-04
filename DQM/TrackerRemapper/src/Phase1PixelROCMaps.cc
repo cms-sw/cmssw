@@ -363,6 +363,9 @@ void PixelROCMapHelper::dress_plot(TPad*& canv,
     int nb = 256;
     h->SetContour(nb);
     TColor::CreateGradientColorTable(Number, Stops, Red, Green, Blue, nb);
+    // if max == min impose the range to be the same as it was a real diff
+    if (max == min)
+      h->GetZaxis()->SetRangeUser(-1., 1.);
   }
 
   h->SetMarkerSize(0.7);
