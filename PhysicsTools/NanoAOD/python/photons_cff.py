@@ -313,23 +313,24 @@ for modifier in run2_nanoAOD_94X2016,:
                       dEsigmaDown=Var("userFloat('ecalEnergyPostCorr') - userFloat('energySigmaDown')", float,  doc="ecal energy smearing value shifted 1 sigma up", precision=8),
     )
 
-photonSequence = cms.Sequence(
-        bitmapVIDForPho + \
-        bitmapVIDForPhoSpring16V2p2 + \
-        isoForPho + \
-        seedGainPho + \
-        slimmedPhotonsWithUserData + \
+photonTask = cms.Task(
+        bitmapVIDForPho,
+        bitmapVIDForPhoSpring16V2p2,
+        isoForPho,
+        seedGainPho,
+        slimmedPhotonsWithUserData,
         finalPhotons
 )
 
-photonTables = cms.Sequence ( photonTable)
-photonMC = cms.Sequence(photonsMCMatchForTable + photonMCTable)
+photonTablesTask = cms.Task(photonTable)
+photonMCTask = cms.Task(photonsMCMatchForTable,photonMCTable)
+
+photonSequence = cms.Sequence(photonTablesTask)
 
 #### TEMPORARY Run3
-(run3_nanoAOD_devel).toModify(finalPhotons,src = cms.InputTag("slimmedPhotons"))
-(run3_nanoAOD_devel).toReplaceWith(photonSequence, cms.Sequence(finalPhotons))
-(run3_nanoAOD_devel).toModify(photonTable, variables = cms.PSet(CandVars))
-
+(run3_nanoAOD_devel | ~run3_nanoAOD_devel).toModify(finalPhotons,src = cms.InputTag("slimmedPhotons"))
+(run3_nanoAOD_devel | ~run3_nanoAOD_devel).toReplaceWith(photonTask, cms.Task(finalPhotons))
+(run3_nanoAOD_devel | ~run3_nanoAOD_devel).toModify(photonTable, variables = cms.PSet(CandVars))
 
 from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import egmPhotonIsolation
 from RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff import photonIDValueMapProducer

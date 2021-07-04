@@ -527,17 +527,18 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     genparticles     = cms.InputTag("finalGenParticles"), 
 )
 
+electronTask = cms.Task(bitmapVIDForEle,bitmapVIDForEleHEEP,isoForEle,ptRatioRelForEle,seedGainEle,slimmedElectronsWithUserData,finalElectrons)
+electronTablesTask = cms.Task(electronMVATTH,electronTable)
+electronMCTask = cms.Task(particleLevelForMatching,tautaggerForMatching,matchingElecPhoton,electronsMCMatchForTable,electronsMCMatchForTableAlt,electronMCTable)
+# temporary keep to all replacement below
 electronSequence = cms.Sequence(bitmapVIDForEle + bitmapVIDForEleHEEP + isoForEle + ptRatioRelForEle + seedGainEle + slimmedElectronsWithUserData + finalElectrons)
-electronTables = cms.Sequence (electronMVATTH + electronTable)
-electronMC = cms.Sequence(particleLevelForMatching + tautaggerForMatching + matchingElecPhoton + electronsMCMatchForTable + electronsMCMatchForTableAlt + electronMCTable)
 
 #### TEMPORARY Run3
-(run3_nanoAOD_devel).toModify(finalElectrons,src = cms.InputTag("slimmedElectrons"))
-(run3_nanoAOD_devel).toReplaceWith(electronSequence, cms.Sequence(finalElectrons))
-(run3_nanoAOD_devel).toReplaceWith(electronTables, cms.Sequence(electronTable))
-(run3_nanoAOD_devel).toModify(electronTable, variables = cms.PSet(CandVars))
-(run3_nanoAOD_devel).toModify(electronTable, externalVariables = None)
-
+(~run3_nanoAOD_devel | run3_nanoAOD_devel).toModify(finalElectrons,src = cms.InputTag("slimmedElectrons"))
+(~run3_nanoAOD_devel | run3_nanoAOD_devel).toReplaceWith(electronTask, cms.Task(finalElectrons))
+(~run3_nanoAOD_devel | run3_nanoAOD_devel).toReplaceWith(electronTablesTask, cms.Task(electronTable))
+(~run3_nanoAOD_devel | run3_nanoAOD_devel).toModify(electronTable, variables = cms.PSet(CandVars))
+(~run3_nanoAOD_devel | run3_nanoAOD_devel).toModify(electronTable, externalVariables = None)
 
 #for NANO from reminAOD, no need to run slimmedElectronsUpdated, other modules of electron sequence will run on slimmedElectrons
 for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:

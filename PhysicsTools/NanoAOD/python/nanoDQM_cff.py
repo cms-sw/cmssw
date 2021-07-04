@@ -105,6 +105,7 @@ run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.Flag, plots = _Flag_plots_80x)
 
 run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots, IsoTrack = None)
 
+
 ## MC
 nanoDQMMC = nanoDQM.clone()
 nanoDQMMC.vplots.Electron.sels.Prompt = cms.string("genPartFlav == 1")
@@ -114,6 +115,9 @@ nanoDQMMC.vplots.Photon.sels.Prompt = cms.string("genPartFlav == 1")
 nanoDQMMC.vplots.Tau.sels.Prompt = cms.string("genPartFlav == 5")
 nanoDQMMC.vplots.Jet.sels.Prompt = cms.string("genJetIdx != 1")
 nanoDQMMC.vplots.Jet.sels.PromptB = cms.string("genJetIdx != 1 && hadronFlavour == 5")
+
+(~run3_nanoAOD_devel | run3_nanoAOD_devel).toModify(nanoDQM.vplots, Electron = None)
+
 
 from DQMServices.Core.DQMQualityTester import DQMQualityTester
 nanoDQMQTester = DQMQualityTester(
