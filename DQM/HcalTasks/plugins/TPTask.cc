@@ -942,7 +942,7 @@ TPTask::TPTask(edm::ParameterSet const& ps)
         }
     } else {
       //	IF MISSING
-      _cEtCorr_TTSubdet.fill(tid, eid, it->t0().compressedEt(), -2);
+      _cEtCorr_TTSubdet.fill(tid, eid, soiEt_d, -2);
       _cMsnEmul_depthlike.fill(tid);
       tid.ietaAbs() >= 29 ? numMsnHF++ : numMsnHBHE++;
       if (_ptype != fOffline) {  // hidefed2crate
@@ -1104,7 +1104,7 @@ TPTask::TPTask(edm::ParameterSet const& ps)
       HcalTrigPrimDigiCollection::const_iterator jt = cdata->find(tid);
       if (jt == cdata->end()) {
         tid.ietaAbs() >= 29 ? numMsnHF++ : numMsnHBHE++;
-        _cEtCorr_TTSubdet.fill(tid, eid, -2, jt->t0().compressedEt());
+        _cEtCorr_TTSubdet.fill(tid, eid, -2, soiEt);
         _cMsnData_depthlike.fill(tid);
         if (_ptype != fOffline) {  // hidefed2crate
           if (eid.isVMEid())
