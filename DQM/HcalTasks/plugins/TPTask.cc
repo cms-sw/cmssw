@@ -70,8 +70,8 @@ TPTask::TPTask(edm::ParameterSet const& ps)
   _cEtCorr_TTSubdet.initialize(_name,
                                "EtCorr",
                                hcaldqm::hashfunctions::fTTSubdetFW,
-                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256_x4),
-                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256_x4),
+                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_data),
+                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_emul),
                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
                                0);
   for (uint8_t iii = 0; iii < constants::NUM_FGBITS; iii++) {
