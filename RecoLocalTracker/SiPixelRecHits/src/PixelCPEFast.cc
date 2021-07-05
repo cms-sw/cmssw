@@ -215,9 +215,9 @@ void PixelCPEFast::fillParamsForGpu() {
     }
 #ifdef EDM_ML_DEBUG
     // sample yerr as function of position
-    auto yoff = -54 * 4.f * commonParamsGPU_.thePitchY;
+    auto const yoff = -54 * 4.f * commonParamsGPU_.thePitchY;
     for (int ix = 0; ix < 16; ++ix) {
-      auto y = yoff + (0.5f + float(ix)) * 432.f * commonParamsGPU_.thePitchY / 16.f;
+      auto y = yoff * (1.f - (0.5f + float(ix)) / 8.f);
       auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchY;
       auto gvy = p.theOrigin.y() - y;
       auto gvz = 1.f / p.theOrigin.z();
