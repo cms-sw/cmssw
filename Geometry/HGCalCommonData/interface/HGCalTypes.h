@@ -46,11 +46,11 @@ public:
     WaferCenterR = 6
   };
 
-  enum WaferType { 
+  enum WaferType {
     WaferTypeUndefined = -1,
-    WaferFineThin = 0, 
-    WaferCoarseThin = 1, 
-    WaferCoarseThick = 2, 
+    WaferFineThin = 0,
+    WaferCoarseThin = 1,
+    WaferCoarseThick = 2,
     WaferFineThick = 3
   };
 

@@ -1479,7 +1479,8 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
     double sth = (php.layerType_[k] == HGCalTypes::WaferCenterR) ? sin(php.layerRotation_) : 0.0;
     php.layerRotV_.emplace_back(std::make_pair(cth, sth));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << php.layerType_[k] << " cos|sin(Theta) " << php.layerRotV_[k].first << ":" << php.layerRotV_[k].second;
+    edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << php.layerType_[k] << " cos|sin(Theta) "
+                                  << php.layerRotV_[k].first << ":" << php.layerRotV_[k].second;
 #endif
   }
   for (unsigned int k = 0; k < waferIndex.size(); ++k) {
