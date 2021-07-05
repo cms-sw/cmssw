@@ -1,20 +1,30 @@
+<use name="CalibTracker/SiStripCommon"/>
+<use name="CalibTracker/SiStripHitEfficiency"/>
 <use name="CommonTools/ConditionDBWriter"/>
 <use name="CommonTools/TrackerMap"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/DetId"/>
+<use name="DataFormats/Scalers"/> <!--Needed for typeinfo for LumiScalers for UBSAN builds-->
 <use name="DataFormats/SiStripDetId"/>
 <use name="DataFormats/TrackingRecHit"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/Common"/>
+<use name="DQMServices/Core"/>
+<use name="DQM/SiStripCommon"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
-<use name="CalibTracker/SiStripCommon"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
+<use name="RecoLocalTracker/SiStripClusterizer"/>
 <use name="RecoTracker/Record"/>
 <use name="RecoTracker/MeasurementDet"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="TrackingTools/KalmanUpdators"/>
+<use name="TrackingTools/MeasurementDet"/>
 <flags EDM_PLUGIN="1"/>
 <library file="*.cc" name="CalibTrackerSiStripHitEffPlugins">
   <flags EDM_PLUGIN="1"/>
