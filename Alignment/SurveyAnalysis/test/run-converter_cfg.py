@@ -3,14 +3,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("DATACONVERTER")
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.GlobalTag.globaltag = 'auto:phase1_2021_realistic'
 
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-
+process.load("Configuration.Geometry.GeometryDB_cff")
 process.load("Alignment.SurveyAnalysis.SurveyInfoScenario_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -40,18 +35,19 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1)
 )
 
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.connect = cms.string('sqlite_file:TibTidTecAllSurvey.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBSetup,
-    toPut = cms.VPSet(cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('TibTidTecAllSurvey_v2')
-    ), 
-        cms.PSet(
-            record = cms.string('TrackerAlignmentErrorExtendedRcd'),
-            tag = cms.string('TibTidTecAllSurveyAPE_v2')
-        )),
-   connect = cms.string('sqlite_file:TibTidTecAllSurvey.db')                                     
-)
+                                          process.CondDB,
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
+                                                                     tag = cms.string('TibTidTecAllSurvey_v2')
+                                                                     ), 
+                                                            cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
+                                                                     tag = cms.string('TibTidTecAllSurveyAPE_v2')
+                                                                     ),
+                                                           )
+                                          )
+
 
 process.mydataconverter = cms.EDAnalyzer("SurveyDataConverter",
     applyFineInfo = cms.bool(True),
@@ -60,8 +56,8 @@ process.mydataconverter = cms.EDAnalyzer("SurveyDataConverter",
     ),
     applyErrors = cms.bool(True),
     textFileNames = cms.PSet(
-        forTID = cms.untracked.string('../data/GetTibSurvey/TIDNewSurvey.dat'),
-        forTIB = cms.untracked.string('../data/GetTibSurvey/TIBNewSurvey.dat')
+        forTID = cms.untracked.string('./TIDSurvey.dat'),
+        forTIB = cms.untracked.string('./TIBSurvey.dat')
     ),
     applyCoarseInfo = cms.bool(True),                                  
     TOBerrors = cms.vdouble(0.014, 0.05, 0.02, 0.003),
@@ -74,4 +70,4 @@ process.mydataconverter = cms.EDAnalyzer("SurveyDataConverter",
 
 process.p = cms.Path(process.mydataconverter)
 # process.ep = cms.EndPath(process.print)
-process.GlobalTag.globaltag = 'IDEAL_V9::All'
+
