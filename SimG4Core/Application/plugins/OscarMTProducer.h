@@ -3,12 +3,23 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 
 #include "SimG4Core/Application/interface/OscarMTMasterThread.h"
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "HepPDT/ParticleDataTable.hh"
+#include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "G4Threading.hh"
 
 #include <memory>
 
@@ -38,6 +49,13 @@ public:
 private:
   std::unique_ptr<RunManagerMTWorker> m_runManagerWorker;
   const OscarMTMasterThread* m_masterThread = nullptr;
+
+  static edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> m_DD4Hep;
+  static edm::ESGetToken<DDCompactView, IdealGeometryRecord> m_DDD;
+  static edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> m_PDT;
+  static edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagField;
+  static G4Mutex m_OscarMutex;
+  static bool m_hasToken;
 };
 
 #endif

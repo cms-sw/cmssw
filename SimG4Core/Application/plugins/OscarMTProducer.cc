@@ -31,6 +31,13 @@
 #include <iostream>
 #include <memory>
 
+edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> OscarMTProducer::m_DD4Hep;
+edm::ESGetToken<DDCompactView, IdealGeometryRecord> OscarMTProducer::m_DDD;
+edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> OscarMTProducer::m_PDT;
+edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> OscarMTProducer::m_MagField;
+G4Mutex OscarMTProducer::m_OscarMutex = G4MUTEX_INITIALIZER;
+bool OscarMTProducer::m_hasToken = false;
+
 namespace edm {
   class StreamID;
 }
@@ -63,13 +70,6 @@ namespace {
     CLHEP::HepRandomEngine* m_previousEngine;
   };
 }  // namespace
-
-edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> OscarMTProducer::m_DD4Hep;
-edm::ESGetToken<DDCompactView, IdealGeometryRecord> OscarMTProducer::m_DDD;
-edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> OscarMTProducer::m_PDT;
-edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> OscarMTProducer::m_MagField;
-G4Mutex OscarMTProducer::m_OscarMutex = G4MUTEX_INITIALIZER;
-bool OscarMTProducer::m_hasToken = false;
 
 OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread* ms) {
   // Random number generation not allowed here
