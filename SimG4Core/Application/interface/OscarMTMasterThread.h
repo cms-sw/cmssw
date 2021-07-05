@@ -46,7 +46,6 @@ public:
   inline bool isDD4Hep() const { return m_pGeoFromDD4hep; }
 
 private:
-
   enum class ThreadState { NotExist = 0, BeginRun = 1, EndRun = 2, Destruct = 3 };
 
   const bool m_pGeoFromDD4hep;

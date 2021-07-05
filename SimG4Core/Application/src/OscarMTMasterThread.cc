@@ -5,8 +5,6 @@
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Geometry/interface/CustomUIsession.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "G4PhysicalVolumeStore.hh"
@@ -104,7 +102,9 @@ OscarMTMasterThread::~OscarMTMasterThread() {
   }
 }
 
-void OscarMTMasterThread::beginRun(const DDCompactView* pDDD, const cms::DDCompactView* pDD4Hep, const HepPDT::ParticleDataTable* pPDT) const {
+void OscarMTMasterThread::beginRun(const DDCompactView* pDDD,
+                                   const cms::DDCompactView* pDD4Hep,
+                                   const HepPDT::ParticleDataTable* pPDT) const {
   std::lock_guard<std::mutex> lk(m_protectMutex);
 
   std::unique_lock<std::mutex> lk2(m_threadMutex);

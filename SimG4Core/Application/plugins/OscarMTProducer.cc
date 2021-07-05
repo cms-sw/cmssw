@@ -64,11 +64,10 @@ namespace {
   };
 }  // namespace
 
-
-edm::ESGetToken<cms::DDCompactView,IdealGeometryRecord> OscarMTProducer::m_DD4Hep;
-edm::ESGetToken<DDCompactView,IdealGeometryRecord> OscarMTProducer::m_DDD;
-edm::ESGetToken<HepPDT::ParticleDataTable,PDTRecord> OscarMTProducer::m_PDT;
-edm::ESGetToken<MagneticField,IdealMagneticFieldRecord> OscarMTProducer::m_MagField;
+edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> OscarMTProducer::m_DD4Hep;
+edm::ESGetToken<DDCompactView, IdealGeometryRecord> OscarMTProducer::m_DDD;
+edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> OscarMTProducer::m_PDT;
+edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> OscarMTProducer::m_MagField;
 G4Mutex OscarMTProducer::m_OscarMutex = G4MUTEX_INITIALIZER;
 bool OscarMTProducer::m_hasToken = false;
 
@@ -81,13 +80,13 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
 
   // Prepare tokens
   bool isDD4Hep = p.getParameter<bool>("g4GeometryDD4hepSource");
-  if(!m_hasToken) {
+  if (!m_hasToken) {
     G4MUTEXLOCK(&m_OscarMutex);
-    if(!m_hasToken) {
+    if (!m_hasToken) {
       if (isDD4Hep) {
-	m_DD4Hep = esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
+        m_DD4Hep = esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
       } else {
-	m_DDD = esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
+        m_DDD = esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
       }
       m_PDT = esConsumes<HepPDT::ParticleDataTable, PDTRecord, edm::Transition::BeginRun>();
       m_MagField = esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
@@ -96,7 +95,7 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
   }
   m_runManagerWorker->SetMagFieldToken(m_MagField);
 
-  // List of produced containers 
+  // List of produced containers
   produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
   produces<edm::SimVertexContainer>().setBranchAlias("SimVertices");
   produces<edm::PSimHitContainer>("TrackerHitsPixelBarrelLowTof");
@@ -154,7 +153,7 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
 
   //register any products
   auto& producers = m_runManagerWorker->producers();
-  for (auto & ptr : producers) {
+  for (auto& ptr : producers) {
     ptr->registerProducts(producesCollector());
   }
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer is constructed DD4Hep: " << isDD4Hep;
@@ -219,9 +218,8 @@ void OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&) {
 
 void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   StaticRandomEngineSetUnset random(e.streamID());
-  edm::LogVerbatim("SimG4CoreApplication") << "Produce event " << e.id() 
-					   << " stream " << e.streamID() 
-					   << " rand= " << G4UniformRand();
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "Produce event " << e.id() << " stream " << e.streamID() << " rand= " << G4UniformRand();
 
   auto& sTk = m_runManagerWorker->sensTkDetectors();
   auto& sCalo = m_runManagerWorker->sensCaloDetectors();
@@ -233,8 +231,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     edm::LogWarning("SimG4CoreApplication") << "SimG4Exception caght! " << simg4ex.what();
 
     throw edm::Exception(edm::errors::EventCorruption)
-        << "SimG4CoreApplication exception in generation of event " << e.id() 
-	<< " in stream " << e.streamID() << " \n"
+        << "SimG4CoreApplication exception in generation of event " << e.id() << " in stream " << e.streamID() << " \n"
         << simg4ex.what();
   }
 
@@ -252,8 +249,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       std::unique_ptr<edm::PSimHitContainer> product(new edm::PSimHitContainer);
       tracker->fillHits(*product, name);
       if (product != nullptr && !product->empty())
-        edm::LogVerbatim("SimG4CoreApplication") << "Produced " << product->size() 
-						 << " tracker hits <" << name << ">";
+        edm::LogVerbatim("SimG4CoreApplication") << "Produced " << product->size() << " tracker hits <" << name << ">";
       e.put(std::move(product), name);
     }
   }
@@ -264,8 +260,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       std::unique_ptr<edm::PCaloHitContainer> product(new edm::PCaloHitContainer);
       calo->fillHits(*product, name);
       if (product != nullptr && !product->empty())
-        edm::LogVerbatim("SimG4CoreApplication") << "Produced " << product->size() 
-						 << " calo hits <" << name << ">";
+        edm::LogVerbatim("SimG4CoreApplication") << "Produced " << product->size() << " calo hits <" << name << ">";
       e.put(std::move(product), name);
     }
   }
@@ -274,9 +269,8 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   for (auto& prod : producers) {
     prod.get()->produce(e, es);
   }
-  edm::LogVerbatim("SimG4CoreApplication") << "Event is produced " << e.id() 
-					   << " stream " << e.streamID() 
-					   << " rand= " << G4UniformRand();
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "Event is produced " << e.id() << " stream " << e.streamID() << " rand= " << G4UniformRand();
 }
 
 StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(edm::StreamID const& streamID) {
