@@ -5,7 +5,6 @@
 
 #include <boost/ref.hpp>
 
-
 #include <limits>
 #include <vector>
 #include <string>

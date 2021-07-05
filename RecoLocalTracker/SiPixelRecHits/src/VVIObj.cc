@@ -21,7 +21,6 @@
 #include <cmath>
 #include <algorithm>
 
-
 namespace VVIObjDetails {
   void sincosint(double x, double& sint, double& cint);  //! Private version of the cosine and sine integral
   double cosint(double x);                               //! Private version of the cosine integral

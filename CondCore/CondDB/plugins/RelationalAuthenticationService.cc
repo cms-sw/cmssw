@@ -16,7 +16,6 @@
 #include <memory>
 #include <sys/stat.h>
 
-
 #include "CoralBase/MessageStream.h"
 
 cond::RelationalAuthenticationService::RelationalAuthenticationService::RelationalAuthenticationService(
@@ -24,8 +23,8 @@ cond::RelationalAuthenticationService::RelationalAuthenticationService::Relation
     : coral::Service(key), m_authenticationPath(""), m_db(), m_cache(), m_callbackID(0) {
   boost::function1<void, std::string> cb(
       std::bind(&cond::RelationalAuthenticationService::RelationalAuthenticationService::setAuthenticationPath,
-                  this,
-                  std::placeholders::_1));
+                this,
+                std::placeholders::_1));
 
   coral::Property* pm = dynamic_cast<coral::Property*>(
       coral::Context::instance().PropertyManager().property(auth::COND_AUTH_PATH_PROPERTY));
