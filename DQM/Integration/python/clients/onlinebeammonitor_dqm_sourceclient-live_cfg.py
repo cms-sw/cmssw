@@ -117,28 +117,8 @@ else:
 
 #ESProducer
 process.load("CondCore.CondDB.CondDB_cfi")
-process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
-                      process.CondDB,
-                      toGet = cms.VPSet(
-                            cms.PSet(
-                                record = cms.string('BeamSpotOnlineLegacyObjectsRcd'),
-                                tag = cms.string("BeamSpotOnlineTestLegacy"),
-                                refreshTime = cms.uint64(1)
-                            ),
-                            cms.PSet(
-                                record = cms.string('BeamSpotOnlineHLTObjectsRcd'),
-                                tag = cms.string("BeamSpotOnlineTestHLT"),
-                                refreshTime = cms.uint64(1)
-
-                            ),
-                      )
-
-)
 process.BeamSpotESProducer = cms.ESProducer("OnlineBeamSpotESProducer")
-#if unitTest == True:
-process.BeamSpotDBSource.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-#else:
-#  process.BeamSpotDBSource.connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS')
+
 #-----------------------------
 # DQM Live Environment
 #-----------------------------
