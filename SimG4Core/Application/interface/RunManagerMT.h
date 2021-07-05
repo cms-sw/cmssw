@@ -2,10 +2,7 @@
 #define SimG4Core_RunManagerMT_H
 
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 

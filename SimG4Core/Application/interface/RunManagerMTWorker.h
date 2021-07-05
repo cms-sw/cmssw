@@ -74,7 +74,7 @@ public:
 
   void initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es);
 
-  inline void SetMagFieldToken(edm::ESGetToken<MagneticField,IdealMagneticFieldRecord>& ref) { m_MagField = ref; }
+  inline void SetMagFieldToken(edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>& ref) { m_MagField = ref; }
 
 private:
   void initializeTLS();
@@ -94,7 +94,7 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> m_InToken;
   edm::EDGetTokenT<edm::HepMCProduct> m_LHCToken;
   edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_theLHCTlinkToken;
-  edm::ESGetToken<MagneticField,IdealMagneticFieldRecord> m_MagField;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagField;
 
   bool m_nonBeam;
   bool m_pUseMagneticField;
