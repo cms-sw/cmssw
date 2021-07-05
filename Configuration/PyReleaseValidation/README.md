@@ -57,7 +57,8 @@ The offsets currently in use are:
 * 0.999: 0.99 with Phase-2 premixing with PU50
 * 0.9821: Production-like premixing stage2
 * 0.9921: Production-like premixing stage1+stage2
-* 0.911: DD4Hep
+* 0.911: DD4Hep reading geometry from XML
+* 0.912: DD4Hep reading geometry from the DB
 * 0.101: Phase-2 aging, 1000fb-1
 * 0.103: Phase-2 aging, 3000fb-1
 * 0.9001: Sonic Triton
