@@ -217,7 +217,7 @@ namespace hcaldqm {
  *	Number of Time Samples
  */
     int const TS_NUM[SUBDET_NUM] = {10, 10, 10, 4};
-    int const MAX_TS = 10;
+
     /*
  *	Value Constants
  */
