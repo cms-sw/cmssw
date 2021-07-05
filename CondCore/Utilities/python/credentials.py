@@ -57,7 +57,7 @@ def get_credentials_for_schema( service, schema, role, authPath=None ):
             raise Exception(msg)
         return params
     else:
-        import pluginCondDBPyBind11Interface as credential_db
+        import libCondDBPyBind11Interface as credential_db
         roles_map = { reader_role: credential_db.reader_role, writer_role: credential_db.writer_role, admin_role: credential_db.admin_role }
         connection_string = 'oracle://%s/%s'%(service.lower(),schema.upper())
         logging.debug('Looking up db credentials for %s in credential store' %connection_string )
