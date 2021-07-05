@@ -68,6 +68,7 @@ public:
   std::vector<HGCalParameters::hgtrform> getTrForms() const;
   int getTypeTrap(int layer) const;
   int getTypeHex(int layer, int waferU, int waferV) const;
+  std::pair<double, double> getXY(int layer, double x, double y, bool forwd) const;
   int getUVMax(int type) const { return ((type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_); }
   bool isHalfCell(int waferType, int cell) const;
   bool isValidHex(int lay, int mod, int cell, bool reco) const;
