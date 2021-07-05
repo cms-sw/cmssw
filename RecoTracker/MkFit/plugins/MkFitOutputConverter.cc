@@ -272,25 +272,6 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     // seed
     const auto seedIndex = cand.label();
     LogTrace("MkFitOutputConverter") << " from seed " << seedIndex << " seed hits";
-    const auto& mkseed = mkFitSeeds.at(cand.label());
-    for (int i = 0; i < mkseed.nTotalHits(); ++i) {
-      const auto& hitOnTrack = mkseed.getHitOnTrack(i);
-      LogTrace("MkFitOutputConverter") << "  hit on layer " << hitOnTrack.layer << " index " << hitOnTrack.index;
-      // sanity check for now
-      const auto& candHitOnTrack = cand.getHitOnTrack(i);
-      if (hitOnTrack.layer != candHitOnTrack.layer) {
-        throw cms::Exception("LogicError")
-            << "Candidate " << candIndex << " from seed " << seedIndex << " hit " << i
-            << " has different layer in candidate (" << candHitOnTrack.layer << ") and seed (" << hitOnTrack.layer
-            << ")."
-            << " Hit indices are " << candHitOnTrack.index << " and " << hitOnTrack.index << ", respectively";
-      }
-      if (hitOnTrack.index != candHitOnTrack.index) {
-        throw cms::Exception("LogicError") << "Candidate " << candIndex << " from seed " << seedIndex << " hit " << i
-                                           << " has different hit index in candidate (" << candHitOnTrack.index
-                                           << ") and seed (" << hitOnTrack.index << ") on layer " << hitOnTrack.layer;
-      }
-    }
 
     // state
     auto state = cand.state();  // copy because have to modify
