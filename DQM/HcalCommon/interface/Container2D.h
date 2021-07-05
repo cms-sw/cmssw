@@ -174,6 +174,9 @@ namespace hcaldqm {
     quantity::Quantity *_qz;
 
     void customize(MonitorElement *) override;
+
+  private:
+    using Container1D::fill;
   };
 }  // namespace hcaldqm
 
