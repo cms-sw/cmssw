@@ -198,10 +198,10 @@ void PixelCPEFast::fillParamsForGpu() {
     g.sy2 = std::max(55, toMicron(cp.sy2));  // sometimes sy2 is smaller than others (due to angle?)
 
     // sample xerr as function of position
-    auto xoff = -81.f * commonParamsGPU_.thePitchX;
+    auto const xoff = -81.f * commonParamsGPU_.thePitchX;
 
     for (int ix = 0; ix < 16; ++ix) {
-      auto x = xoff + (0.5f + float(ix)) * 162.f * commonParamsGPU_.thePitchX / 16.f;
+      auto x = xoff * (1.f - (0.5f + float(ix)) / 8.f);
       auto gvx = p.theOrigin.x() - x;
       auto gvy = p.theOrigin.y();
       auto gvz = 1.f / p.theOrigin.z();

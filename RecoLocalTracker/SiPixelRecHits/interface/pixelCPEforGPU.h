@@ -354,7 +354,7 @@ namespace pixelCPEforGPU {
     cp.status[ic].isBigY = (isOneY & isBigY) | isEdgeY;
 
     auto xoff = 81.f * comParams.thePitchX;
-    int jx = std::min(15, std::max(0, int(16.f * (cp.xpos[ic] + xoff) / (162.f * comParams.thePitchX))));
+    int jx = std::min(15, std::max(0, int(16.f * (cp.xpos[ic] + xoff) / (2 * xoff))));
 
     auto toCM = [](uint8_t x) { return float(x) * 1.e-4; };
 
