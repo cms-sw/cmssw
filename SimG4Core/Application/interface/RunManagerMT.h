@@ -59,7 +59,6 @@ public:
   explicit RunManagerMT(edm::ParameterSet const&);
   ~RunManagerMT();
 
-  //  void initG4(const DDCompactView*, const cms::DDCompactView*, const MagneticField*, const HepPDT::ParticleDataTable*);
   void initG4(const DDCompactView*, const cms::DDCompactView*, const HepPDT::ParticleDataTable*);
 
   void initializeUserActions();
