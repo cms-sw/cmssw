@@ -232,8 +232,8 @@
   TCanvas *c_absetaEff = new TCanvas("absetaEff","absetaEff");
   c_absetaEff->cd();
   for (int ibin=1; ibin<h_ele_absetaEff->GetNbinsX(); ibin++) {
-    Double_t binContent = h_ele_absetaEff->GetBinContent(ibin);
-    Double_t error2 = binContent*(1.-binContent)/h_simAbsEta->GetBinContent(ibin);
+    double binContent = h_ele_absetaEff->GetBinContent(ibin);
+    double error2 = binContent*(1.-binContent)/h_simAbsEta->GetBinContent(ibin);
     //h_ele_absetaEff->SetBinError(ibin,sqrt(error2));
     std::cout << "ibin " << ibin << " efficiency " << binContent << " error " <<  sqrt(error2) <<
     std::endl;

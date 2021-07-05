@@ -90,7 +90,7 @@ std::cout<<"new url: "<<val_new_file_url<<std::endl ;
 
 TCanvas * canvas ;
 TH1 * histo_old, * histo_new ;
-Double_t nold, nnew ;
+double nold, nnew ;
 
 std::cout<<"index path: "<<index_path<<std::endl ;
 std::ofstream web_page(index_path.c_str()) ;

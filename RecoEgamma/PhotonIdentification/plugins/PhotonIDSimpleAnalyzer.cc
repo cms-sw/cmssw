@@ -249,9 +249,9 @@ void PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetu
   Handle<reco::PhotonCollection> photonColl;
   evt.getByLabel("photons", "", photonColl);
 
-  Handle<edm::ValueMap<Bool_t> > loosePhotonQual;
+  Handle<edm::ValueMap<bool> > loosePhotonQual;
   evt.getByLabel("PhotonIDProd", "PhotonCutBasedIDLoose", loosePhotonQual);
-  Handle<edm::ValueMap<Bool_t> > looseEMQual;
+  Handle<edm::ValueMap<bool> > looseEMQual;
   evt.getByLabel("PhotonIDProd", "PhotonCutBasedIDLooseEM", looseEMQual);
   // grab PhotonId objects
   //   Handle<reco::PhotonIDAssociationCollection> photonIDMapColl;
@@ -259,8 +259,8 @@ void PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetu
 
   // create reference to the object types we are interested in
   const reco::PhotonCollection* photons = photonColl.product();
-  const edm::ValueMap<Bool_t>* phoMap = loosePhotonQual.product();
-  const edm::ValueMap<Bool_t>* lEMMap = looseEMQual.product();
+  const edm::ValueMap<bool>* phoMap = loosePhotonQual.product();
+  const edm::ValueMap<bool>* lEMMap = looseEMQual.product();
   int photonCounter = 0;
   int idxpho = 0;
   reco::PhotonCollection::const_iterator pho;
@@ -272,9 +272,9 @@ void PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetu
 
     float photonEt = pho->et();
     float superClusterEt = (pho->superCluster()->energy()) / (cosh(pho->superCluster()->position().eta()));
-    Bool_t LoosePhotonQu = (*phoMap)[photonref];
+    bool LoosePhotonQu = (*phoMap)[photonref];
     h_nPassingPho_->Fill(LoosePhotonQu);
-    Bool_t LooseEMQu = (*lEMMap)[photonref];
+    bool LooseEMQu = (*lEMMap)[photonref];
     h_nPassEM_->Fill(LooseEMQu);
     // Only store photon candidates (SuperClusters) that pass some simple cuts
     bool passCuts = (photonEt > minPhotonEt_) && (fabs(pho->eta()) > minPhotonAbsEta_) &&

@@ -7,10 +7,10 @@ namespace {
     double et = energy / cosh(eta);
 
     constexpr int nBinsEta = 5;
-    constexpr Double_t EtaBins[nBinsEta + 1] = {0.0, 0.4, 0.8, 1.5, 2.0, 2.5};
+    constexpr double EtaBins[nBinsEta + 1] = {0.0, 0.4, 0.8, 1.5, 2.0, 2.5};
 
     constexpr int nBinsBrem = 6;
-    constexpr Double_t BremBins[nBinsBrem + 1] = {0.8, 1.0, 1.1, 1.2, 1.3, 1.5, 8.0};
+    constexpr double BremBins[nBinsBrem + 1] = {0.8, 1.0, 1.1, 1.2, 1.3, 1.5, 8.0};
 
     constexpr float par0[nBinsEta][nBinsBrem] = {
         {0.00567891, 0.0065673, 0.00574742, 0.00542964, 0.00523293, 0.00547518},
@@ -93,10 +93,10 @@ namespace {
     const double et = energy / cosh(eta);
 
     constexpr int nBinsEta = 4;
-    constexpr Double_t EtaBins[nBinsEta + 1] = {0.0, 0.8, 1.5, 2.0, 2.5};
+    constexpr double EtaBins[nBinsEta + 1] = {0.0, 0.8, 1.5, 2.0, 2.5};
 
     constexpr int nBinsBrem = 1;
-    constexpr Double_t BremBins[nBinsBrem + 1] = {0.8, 8.0};
+    constexpr double BremBins[nBinsBrem + 1] = {0.8, 8.0};
 
     constexpr float par0[nBinsEta][nBinsBrem] = {{0.00593389}, {0.00266954}, {0.00500623}, {0.00841038}};
 
@@ -155,10 +155,10 @@ namespace {
     const double et = energy / cosh(eta);
 
     constexpr int nBinsEta = 4;
-    constexpr Double_t EtaBins[nBinsEta + 1] = {0.0, 0.7, 1.3, 1.8, 2.5};
+    constexpr double EtaBins[nBinsEta + 1] = {0.0, 0.7, 1.3, 1.8, 2.5};
 
     constexpr int nBinsBrem = 1;
-    constexpr Double_t BremBins[nBinsBrem + 1] = {0.8, 8.0};
+    constexpr double BremBins[nBinsBrem + 1] = {0.8, 8.0};
 
     constexpr float par0[nBinsEta][nBinsBrem] = {{0.00601311}, {0.0059814}, {0.00953032}, {0.00728618}};
 
@@ -218,10 +218,10 @@ namespace {
     const double et = energy / cosh(eta);
 
     constexpr int nBinsEta = 4;
-    constexpr Double_t EtaBins[nBinsEta + 1] = {0.0, 0.8, 1.2, 1.7, 2.5};
+    constexpr double EtaBins[nBinsEta + 1] = {0.0, 0.8, 1.2, 1.7, 2.5};
 
     constexpr int nBinsBrem = 5;
-    constexpr Double_t BremBins[nBinsBrem + 1] = {0.8, 1.8, 2.2, 3.0, 4.0, 8.0};
+    constexpr double BremBins[nBinsBrem + 1] = {0.8, 1.8, 2.2, 3.0, 4.0, 8.0};
 
     constexpr float par0[nBinsEta][nBinsBrem] = {{0.0049351, 0.00566155, 0.0051397, 0.00468481, 0.00444475},
 
@@ -305,10 +305,10 @@ namespace {
     const double et = energy / cosh(eta);
 
     constexpr int nBinsEta = 5;
-    constexpr Double_t EtaBins[nBinsEta + 1] = {0.0, 0.42, 0.78, 1.2, 1.52, 1.65};
+    constexpr double EtaBins[nBinsEta + 1] = {0.0, 0.42, 0.78, 1.2, 1.52, 1.65};
 
     constexpr int nBinsBrem = 6;
-    constexpr Double_t BremBins[nBinsBrem + 1] = {0.8, 1.2, 1.5, 2.1, 3., 4, 8.0};
+    constexpr double BremBins[nBinsBrem + 1] = {0.8, 1.2, 1.5, 2.1, 3., 4, 8.0};
 
     constexpr float par0[nBinsEta][nBinsBrem] = {
         {0.0139815, 0.00550839, 0.0108292, 0.00596201, -0.00498136, 0.000621696},
