@@ -101,7 +101,7 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
       float yerr = dp.sigmay[bin] * 1.e-4f;
       yerr *= dp.yfact[qbin];  // inflate
       yerr *= yerr;
-      yerr += dp.apeY;
+      yerr += dp.apeYY;
       yerr = nok ? hhp->yerrLocal(hit) : yerr;
       dp.frame.toGlobal(hhp->xerrLocal(hit), 0, yerr, ge);
 #else

@@ -167,8 +167,8 @@ void PixelCPEFast::fillParamsForGpu() {
     if (lape.invalid())
       lape = LocalError();  // zero....
 
-    g.apeX = lape.xx();
-    g.apeY = lape.yy();
+    g.apeXX = lape.xx();
+    g.apeYY = lape.yy();
 
     auto toMicron = [&](float x) { return std::min(511, int(x * 1.e4f + 0.5f)); };
 
