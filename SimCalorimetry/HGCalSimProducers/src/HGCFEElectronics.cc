@@ -257,7 +257,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     if (busyFlags[it])
       continue;
 
-    if (tdcOnsetAuto < 0)  {
+    if (tdcOnsetAuto < 0) {
       tdcOnsetAuto = tdcOnset_fC_;
     }
     //if below TDC onset will be handled by SARS ADC later
