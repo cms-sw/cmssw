@@ -370,7 +370,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
   int PU_NumInteractions(-1);
 
   edm::ESHandle<ParametersDefinerForTP> Lhc_parametersDefinerTP;
-  edm::ESHandle<CosmicParametersDefinerForTP> _Cosmic_parametersDefinerTP;   
+  edm::ESHandle<CosmicParametersDefinerForTP> _Cosmic_parametersDefinerTP;
   std::unique_ptr<ParametersDefinerForTP> Cosmic_parametersDefinerTP;
 
   if (parametersDefiner == "LhcParametersDefinerForTP") {
@@ -387,9 +387,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
     }
 
   } else if (parametersDefiner == "CosmicParametersDefinerForTP") {
-    
     //setup.get<TrackAssociatorRecord>().get(parametersDefiner, _Cosmic_parametersDefinerTP);
-    auto _Cosmic_parametersDefinerTP = setup.getHandle(cosmictpDefinerEsToken);    
+    auto _Cosmic_parametersDefinerTP = setup.getHandle(cosmictpDefinerEsToken);
 
     //Since we modify the object, we must clone it
     Cosmic_parametersDefinerTP = _Cosmic_parametersDefinerTP->clone();
