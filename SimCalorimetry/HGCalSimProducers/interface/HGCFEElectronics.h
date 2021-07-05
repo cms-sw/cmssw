@@ -51,7 +51,8 @@ public:
         break;
       }
       case WITHTOT: {
-        runShaperWithToT(dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, tdcOnsetAuto, adcPulse);
+        runShaperWithToT(
+            dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, tdcOnsetAuto, adcPulse);
         break;
       }
       default: {
@@ -140,7 +141,8 @@ public:
                         float maxADC,
                         int thickness,
                         float tdcOnsetAuto) {
-    runShaperWithToT(dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, tdcOnsetAuto, adcPulse_);
+    runShaperWithToT(
+        dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, tdcOnsetAuto, adcPulse_);
   }
 
   /**

@@ -94,10 +94,9 @@ double HGCalSiNoiseMap<T>::getENCpad(double ileak) {
 
 //
 template <typename T>
-double HGCalSiNoiseMap<T>::getTDCOnsetAuto(uint32_t gainIdx)
-{
+double HGCalSiNoiseMap<T>::getTDCOnsetAuto(uint32_t gainIdx) {
   if (gainIdx < 3) {
-      return chargeAtFullScaleADCPerGain_[gainIdx];
+    return chargeAtFullScaleADCPerGain_[gainIdx];
   }
 
   return -1;
