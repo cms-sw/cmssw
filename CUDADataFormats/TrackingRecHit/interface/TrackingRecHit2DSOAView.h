@@ -53,7 +53,6 @@ public:
   __device__ __forceinline__ int16_t iphi(int i) const { return __ldg(m_iphi + i); }
 
   __device__ __forceinline__ void setChargeAndStatus(int i, uint32_t ich, Status is) {
-    // static_assert(0xffffff == chargeMask());
     ich = std::min(ich, chargeMask());
     uint32_t w = *reinterpret_cast<uint8_t*>(&is);
     ich |= (w << 24);

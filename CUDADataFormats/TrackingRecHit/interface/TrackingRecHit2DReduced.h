@@ -41,6 +41,7 @@ public:
 
   auto nHits() const { return m_nHits; }
 
+private:
   TrackingRecHit2DSOAView m_view;
 
   HLPstorage m_store32;
