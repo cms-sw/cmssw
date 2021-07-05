@@ -895,9 +895,12 @@ TPTask::TPTask(edm::ParameterSet const& ps)
       _cEtCorrRatio_depthlike.fill(tid, rEt);
       for (int ci = 0; ci < 4; ci++) {
         for (int cj = 0; cj < 4; cj++) {
-          if (ci < it->size() && cj < jt->size())
-            _cEtCorr_TTSubdet.fill(
-                tid, eid, 256 * ci + it->sample(ci).compressedEt(), 256 * cj + jt->sample(cj).compressedEt());
+          if (ci < it->size() && cj < jt->size()) {
+            if ((ci == cj) || (it->sample(ci).compressedEt() > 0 && jt->sample(cj).compressedEt() > 0)) {
+              _cEtCorr_TTSubdet.fill(
+                  tid, eid, 256 * ci + it->sample(ci).compressedEt(), 256 * cj + jt->sample(cj).compressedEt());
+            }
+          }
         }
       }
       for (uint32_t ibit = 0; ibit < constants::NUM_FGBITS; ibit++)
