@@ -193,7 +193,7 @@ namespace mkfit {
     ti.set_eta_regions(0.9, 1.7, 2.45, false);
     ti.create_layers(18, 27, 27);
 
-    ii.resize(9);
+    ii.resize(10);
     ii[0].set_iteration_index_and_track_algorithm(0, (int)TrackBase::TrackAlgorithm::initialStep);
     ii[0].set_num_regions_layers(5, 72);
 
@@ -226,7 +226,10 @@ namespace mkfit {
     ii[8].Clone(ii[0]);
     ii[8].set_iteration_index_and_track_algorithm(8, (int)TrackBase::TrackAlgorithm::tobTecStep);
 
-    //for the latter 2 iter investing in maxCand & stop condition (for time) + QF and Dupl. cleaning (for quality)
+    ii[9].Clone(ii[0]);
+    ii[9].set_iteration_index_and_track_algorithm(9, (int)TrackBase::TrackAlgorithm::pixelPairStep);
+
+    // for iters [7] and [8]: investing in maxCand & stop condition (for time) + QF and Dupl. cleaning (for quality)
 
     // TODO: replace with MessageLogger
     if (verbose) {

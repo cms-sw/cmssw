@@ -300,6 +300,30 @@ pixelPairStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckf
     onlyPixelHitsForSeedCleaner = cms.bool(True),
 
 )
+
+from Configuration.ProcessModifiers.trackingMkFitPixelPairStep_cff import trackingMkFitPixelPairStep
+import RecoTracker.MkFit.mkFitSeedConverter_cfi as _mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as _mkFitIterationConfigESProducer_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as _mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as _mkFitOutputConverter_cfi
+pixelPairStepTrackCandidatesMkFitSeeds = _mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+    seeds = 'pixelPairStepSeeds',
+)
+pixelPairStepTrackCandidatesMkFitConfig = _mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+    ComponentName = 'pixelPairStepTrackCandidatesMkFitConfig',
+    config = 'RecoTracker/MkFit/data/mkfit-phase1-pixelPairStep.json',
+)
+pixelPairStepTrackCandidatesMkFit = _mkFitProducer_cfi.mkFitProducer.clone(
+    seeds = 'pixelPairStepTrackCandidatesMkFitSeeds',
+    config = ('', 'pixelPairStepTrackCandidatesMkFitConfig'),
+    clustersToSkip = 'pixelPairStepClusters',
+)
+trackingMkFitPixelPairStep.toReplaceWith(pixelPairStepTrackCandidates, _mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = 'pixelPairStepSeeds',
+    mkFitSeeds = 'pixelPairStepTrackCandidatesMkFitSeeds',
+    tracks = 'pixelPairStepTrackCandidatesMkFit',
+))
+
 trackingPhase2PU140.toModify(pixelPairStepTrackCandidates,
     clustersToSkip       = None,
     phase2clustersToSkip = cms.InputTag('pixelPairStepClusters'),
@@ -434,6 +458,10 @@ PixelPairStepTask = cms.Task(pixelPairStepClusters,
                          pixelPairStepTracks,
                          pixelPairStep)
 PixelPairStep = cms.Sequence(PixelPairStepTask)
+
+_PixelPairStepTask_trackingMkFit = PixelPairStepTask.copy()
+_PixelPairStepTask_trackingMkFit.add(pixelPairStepTrackCandidatesMkFitSeeds, pixelPairStepTrackCandidatesMkFit, pixelPairStepTrackCandidatesMkFit)
+trackingMkFitPixelPairStep.toReplaceWith(PixelPairStepTask, _PixelPairStepTask_trackingMkFit)
 
 _PixelPairStepTask_LowPU_Phase2PU140 = PixelPairStepTask.copy()
 _PixelPairStepTask_LowPU_Phase2PU140.replace(pixelPairStep, pixelPairStepSelector)
