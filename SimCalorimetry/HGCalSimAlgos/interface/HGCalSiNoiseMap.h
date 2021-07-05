@@ -102,6 +102,7 @@ public:
   std::vector<double> &getMaxADCPerGain() { return chargeAtFullScaleADCPerGain_; }
   double getENCpad(double ileak);
   void setCachedOp(bool flag) { activateCachedOp_ = flag; }
+  double getTDCOnsetAuto(uint32_t gainIdx);
 
   inline void setENCCommonNoiseSubScale(double val) { encCommonNoiseSub_ = val; }
 
