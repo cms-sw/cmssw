@@ -83,7 +83,7 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithError(const Phot
 
   //highest energy basic cluster excluding seed basic cluster
   CaloClusterPtr b2;
-  Double_t ebcmax = -99.;
+  double ebcmax = -99.;
   for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit != s->clustersEnd(); ++bit) {
     const CaloClusterPtr bc = *bit;
     if (bc->energy() > ebcmax && bc != b) {
@@ -94,7 +94,7 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithError(const Phot
 
   //lowest energy basic cluster excluding seed (for pileup mitigation)
   CaloClusterPtr bclast;
-  Double_t ebcmin = 1e6;
+  double ebcmin = 1e6;
   for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit != s->clustersEnd(); ++bit) {
     const CaloClusterPtr bc = *bit;
     if (bc->energy() < ebcmin && bc != b) {
@@ -114,10 +114,10 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithError(const Phot
     }
   }
 
-  Bool_t isbarrel = b->hitsAndFractions().at(0).first.subdetId() == EcalBarrel;
-  Bool_t hasbc2 = b2.isNonnull() && b2->energy() > 0.;
-  Bool_t hasbclast = bclast.isNonnull() && bclast->energy() > 0.;
-  Bool_t hasbclast2 = bclast2.isNonnull() && bclast2->energy() > 0.;
+  bool isbarrel = b->hitsAndFractions().at(0).first.subdetId() == EcalBarrel;
+  bool hasbc2 = b2.isNonnull() && b2->energy() > 0.;
+  bool hasbclast = bclast.isNonnull() && bclast->energy() > 0.;
+  bool hasbclast2 = bclast2.isNonnull() && bclast2->energy() > 0.;
 
   if (isbarrel) {
     //basic supercluster variables
@@ -246,8 +246,8 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithError(const Phot
     fVals[7] = vtxcol.size();
   }
 
-  const Double_t varscale = 1.253;
-  Double_t den;
+  const double varscale = 1.253;
+  double den;
   const GBRForest *reader;
   const GBRForest *readervar;
   if (isbarrel) {
@@ -260,8 +260,8 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithError(const Phot
     readervar = fReadereevariance;
   }
 
-  Double_t ecor = reader->GetResponse(fVals.data()) * den;
-  Double_t ecorerr = readervar->GetResponse(fVals.data()) * den * varscale;
+  double ecor = reader->GetResponse(fVals.data()) * den;
+  double ecorerr = readervar->GetResponse(fVals.data()) * den * varscale;
 
   //printf("ecor = %5f, ecorerr = %5f\n",ecor,ecorerr);
 
@@ -278,7 +278,7 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Ph
   const SuperClusterRef s = p.superCluster();
   const CaloClusterPtr b = s->seed();  //seed  basic cluster
 
-  Bool_t isbarrel = b->hitsAndFractions().at(0).first.subdetId() == EcalBarrel;
+  bool isbarrel = b->hitsAndFractions().at(0).first.subdetId() == EcalBarrel;
 
   //basic supercluster variables
   fVals[0] = s->rawEnergy();
@@ -356,7 +356,7 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Ph
   //   }
   //   else for (int i=0; i<31; ++i) printf("%i: %5f\n",i,fVals[i]);
 
-  Double_t den;
+  double den;
   const GBRForest *reader;
   const GBRForest *readervar;
   if (isbarrel) {
@@ -369,7 +369,7 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Ph
     readervar = fReadereevariance;
   }
 
-  Double_t ecor = reader->GetResponse(fVals.data()) * den;
+  double ecor = reader->GetResponse(fVals.data()) * den;
 
   //apply shower shape rescaling - for Monte Carlo only, and only for calculation of energy uncertainty
   if (applyRescale) {
@@ -425,7 +425,7 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Ph
     }
   }
 
-  Double_t ecorerr = readervar->GetResponse(fVals.data()) * den;
+  double ecorerr = readervar->GetResponse(fVals.data()) * den;
 
   //printf("ecor = %5f, ecorerr = %5f\n",ecor,ecorerr);
 

@@ -348,19 +348,19 @@ void MCPhotonAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
 }
 
 void MCPhotonAnalyzer::endJob() {
-  Double_t s1 = 0;
-  Double_t s2 = 0;
-  Double_t s3 = 0;
-  Double_t s4 = 0;
+  double s1 = 0;
+  double s2 = 0;
+  double s3 = 0;
+  double s4 = 0;
   int e1 = 0;
   int e2 = 0;
   int e3 = 0;
   int e4 = 0;
 
-  Double_t nTotEta1 = h_MCPhoEta1_->GetEntries();
-  Double_t nTotEta2 = h_MCPhoEta2_->GetEntries();
-  Double_t nTotEta3 = h_MCPhoEta3_->GetEntries();
-  Double_t nTotEta4 = h_MCPhoEta4_->GetEntries();
+  double nTotEta1 = h_MCPhoEta1_->GetEntries();
+  double nTotEta2 = h_MCPhoEta2_->GetEntries();
+  double nTotEta3 = h_MCPhoEta3_->GetEntries();
+  double nTotEta4 = h_MCPhoEta4_->GetEntries();
 
   for (int i = 1; i <= 120; ++i) {
     e1 = (int)h_MCConvPhoREta1_->GetBinContent(i);
