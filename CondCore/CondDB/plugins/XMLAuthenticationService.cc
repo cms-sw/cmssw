@@ -76,8 +76,8 @@ const coral::IAuthenticationCredentials& cond::XMLAuthenticationService::DataSou
 
 cond::XMLAuthenticationService::XMLAuthenticationService::XMLAuthenticationService(const std::string& key)
     : coral::Service(key), m_isInitialized(false), m_inputFileName(""), m_data(), m_mutexLock(), m_callbackID(0) {
-  boost::function1<void, std::string> cb(
-      std::bind(&cond::XMLAuthenticationService::XMLAuthenticationService::setAuthenticationPath, this, std::placeholders::_1));
+  boost::function1<void, std::string> cb(std::bind(
+      &cond::XMLAuthenticationService::XMLAuthenticationService::setAuthenticationPath, this, std::placeholders::_1));
 
   coral::Property* pm = dynamic_cast<coral::Property*>(
       coral::Context::instance().PropertyManager().property(auth::COND_AUTH_PATH_PROPERTY));

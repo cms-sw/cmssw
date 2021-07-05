@@ -7,7 +7,6 @@
 #include <sstream>
 #include <string>
 
-
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"

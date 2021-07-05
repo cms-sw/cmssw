@@ -4,7 +4,6 @@
 #include <string>
 #include <memory>
 
-
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
