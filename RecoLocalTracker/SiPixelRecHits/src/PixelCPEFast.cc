@@ -210,10 +210,8 @@ void PixelCPEFast::fillParamsForGpu() {
       errorFromTemplates(p, cp, 20000.f);
       g.sigmax[ix] = toMicron(cp.sigmax);
       g.sigmax1[ix] = toMicron(cp.sx1);
-#ifdef EDM_ML_DEBUG
       LogDebug("PixelCPEFast") << "sigmax vs x " << i << ' ' << x << ' ' << cp.cotalpha << ' ' << int(g.sigmax[ix])
                                << ' ' << int(g.sigmax1[ix]) << ' ' << 10000.f * cp.sigmay << std::endl;
-#endif  // EDM_ML_DEBUG
     }
 #ifdef EDM_ML_DEBUG
     // sample yerr as function of position
@@ -283,10 +281,8 @@ void PixelCPEFast::fillParamsForGpu() {
       cp.cotbeta = std::copysign(ys * 150.f / (8.f * 285.f), aveCB);
       errorFromTemplates(p, cp, 20000.f);
       g.sigmay[iy] = toMicron(cp.sigmay);
-#ifdef EDM_ML_DEBUG
       LogDebug("PixelCPEFast") << "sigmax/sigmay " << i << ' ' << (ys + 4.f) / 8.f << ' ' << cp.cotalpha << '/'
                                << cp.cotbeta << ' ' << 10000.f * cp.sigmax << '/' << int(g.sigmay[iy]) << std::endl;
-#endif  // EDM_ML_DEBUG
     }
   }  // loop over det
 
@@ -327,7 +323,6 @@ void PixelCPEFast::fillParamsForGpu() {
   aveGeom.endCapZ[0] -= 1.5f;
   aveGeom.endCapZ[1] += 1.5f;
 
-#ifdef EDM_ML_DEBUG
   for (int jl = 0, nl = phase1PixelTopology::numberOfLaddersInBarrel; jl < nl; ++jl) {
     LogDebug("PixelCPEFast") << jl << ':' << aveGeom.ladderR[jl] << '/'
                              << std::sqrt(aveGeom.ladderX[jl] * aveGeom.ladderX[jl] +
@@ -336,7 +331,6 @@ void PixelCPEFast::fillParamsForGpu() {
                              << aveGeom.ladderMaxZ[jl] << '\n';
   }
   LogDebug("PixelCPEFast") << aveGeom.endCapZ[0] << ' ' << aveGeom.endCapZ[1];
-#endif  // EDM_ML_DEBUG
 
   // fill Layer and ladders geometry
   memcpy(layerGeometry_.layerStart, phase1PixelTopology::layerStart, sizeof(phase1PixelTopology::layerStart));
