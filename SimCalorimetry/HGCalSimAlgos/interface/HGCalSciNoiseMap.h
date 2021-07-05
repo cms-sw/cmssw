@@ -23,13 +23,13 @@ class HGCalSciNoiseMap : public HGCalRadiationMap {
 public:
 
   enum TileType_t { CAST, MOULDED };
-  enum GainRange_t { GAIN_4, GAIN_2, AUTO };
+  enum GainRange_t { GAIN_2, GAIN_4, AUTO }; //roc gain for 2mm2 and 4mm2
   enum NoiseMapAlgoBits_t { IGNORE_SIPMAREA, OVERRIDE_SIPMAREA, IGNORE_TILEAREA, IGNORE_DOSESCALE, IGNORE_FLUENCESCALE, IGNORE_NOISE, IGNORE_TILETYPE };
 
   struct SiPMonTileCharacteristics {
-    SiPMonTileCharacteristics() : s(0.), lySF(0.), n(0.), sipmPEperMIP(0.), gain(0), thrADC(0) { }
-    float s, lySF, n,sipmPEperMIP;
-    unsigned short gain, thrADC;
+    SiPMonTileCharacteristics() : s(0.), lySF(0.), n(0.), gain(0), thrADC(0), ntotalPE(0) { }
+    float s, lySF, n;
+    unsigned short gain, thrADC, ntotalPE;
   };
 
 
@@ -50,6 +50,7 @@ public:
   std::vector<double> &getLSBPerGain() { return lsbPerGain_; } 
   std::vector<double> &getMaxADCPerGain() { return fscADCPerGain_; }
   std::vector<double> &getNpePerMIP() { return nPEperMIP_; } 
+  float getNPeInSiPM() { return maxSiPMPE_; }
 
 private:
 
@@ -75,6 +76,9 @@ private:
 
   //reference ADC counts for the MIP peak
   int aimMIPtoADC_;
+
+  //reference number of pixels (2mm2 SiPM)
+  float maxSiPMPE_;
 
   //sipm size boundaries
   std::unordered_map<int, float> sipmMap_;
