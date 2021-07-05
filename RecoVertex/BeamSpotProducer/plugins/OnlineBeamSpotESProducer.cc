@@ -42,7 +42,7 @@ OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p) {
   fakeBS_.SetBeamWidthX(0.1);
   fakeBS_.SetBeamWidthY(0.1);
   fakeBS_.SetSigmaZ(15.);
-  fakeBS_.SetPosition(0., 0., 0.);
+  fakeBS_.SetPosition(0.0001, 0.0001, 0.0001);
   fakeBS_.SetType(-1);
 
   bsHLTToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd>();
@@ -57,18 +57,18 @@ void OnlineBeamSpotESProducer::fillDescriptions(edm::ConfigurationDescriptions& 
 const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotOnlineObjects* bs1,
                                                                  const BeamSpotOnlineObjects* bs2) {
   //Random logic so far ...
-  if (bs1->GetSigmaZ() - 0.0001 < bs2->GetSigmaZ()) {  //just temporary for debugging
-    if (bs1->GetSigmaZ() > 5.) {
+  if (bs1->GetSigmaZ() - 0.0001 > bs2->GetSigmaZ()) {  //just temporary for debugging
+    if (bs1->GetSigmaZ() > 2.5) {
       return bs1;
     } else {
-      return bs2;
+      return nullptr;
     }
 
   } else {
-    if (bs2->GetSigmaZ() > 5.) {
+    if (bs2->GetSigmaZ() > 2.5) {
       return bs2;
     } else {
-      return bs1;
+      return nullptr;
     }
   }
 }
@@ -88,7 +88,11 @@ std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const B
   } else {
     best = &hltRec->get(bsHLTToken_);
   }
-  return std::shared_ptr<const BeamSpotObjects>(best, edm::do_nothing_deleter());
+  if (best) {
+    return std::shared_ptr<const BeamSpotObjects>(best, edm::do_nothing_deleter());
+  } else {
+    return std::shared_ptr<const BeamSpotObjects>(&fakeBS_, edm::do_nothing_deleter());
+  }
 };
 
 DEFINE_FWK_EVENTSETUP_MODULE(OnlineBeamSpotESProducer);
