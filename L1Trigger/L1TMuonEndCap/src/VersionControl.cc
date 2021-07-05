@@ -5,6 +5,8 @@ VersionControl::VersionControl(const edm::ParameterSet& iConfig) : config_(iConf
   verbose_ = iConfig.getUntrackedParameter<int>("verbosity");
   useO2O_ = iConfig.getParameter<bool>("FWConfig");
   era_ = iConfig.getParameter<std::string>("Era");
+  // Run 3 CCLUT
+  useRun3CCLUT_ = iConfig.getParameter<bool>("UseRun3CCLUT");
 
   useDT_ = iConfig.getParameter<bool>("DTEnable");
   useCSC_ = iConfig.getParameter<bool>("CSCEnable");
@@ -30,8 +32,6 @@ VersionControl::VersionControl(const edm::ParameterSet& iConfig) : config_(iConf
   fixZonePhi_ = spPCParams16.getParameter<bool>("FixZonePhi");
   useNewZones_ = spPCParams16.getParameter<bool>("UseNewZones");
   fixME11Edges_ = spPCParams16.getParameter<bool>("FixME11Edges");
-  // Run 3 CCLUT
-  useRun3CCLUT_ = spPCParams16.getParameter<bool>("UseRun3CCLUT");
 
   auto spPRParams16 = iConfig.getParameter<edm::ParameterSet>("spPRParams16");
   pattDefinitions_ = spPRParams16.getParameter<std::vector<std::string> >("PatternDefinitions");

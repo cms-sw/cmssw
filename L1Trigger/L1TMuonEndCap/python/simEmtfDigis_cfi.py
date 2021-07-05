@@ -19,6 +19,9 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     # Era (options: 'Run2_2016', 'Run2_2017', 'Run2_2018')
     Era = cms.string('Run2_2018'),
 
+    # New Run 3 CSC TPs using CCLUT algorithm
+    UseRun3CCLUT    = cms.bool(False),
+
     # Input collections
     # Three options for CSCInput
     #   * 'simCscTriggerPrimitiveDigis','MPCSORTED' : simulated trigger primitives (LCTs) from re-emulating CSC digis
@@ -63,7 +66,6 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
         FixZonePhi      = cms.bool(True),  # Pattern phi slightly offset from true LCT phi; also ME3/4 pattern width off
         UseNewZones     = cms.bool(False), # Improve high-quality pattern finding near ring 1-2 gap in ME3/4
         FixME11Edges    = cms.bool(True),  # Improved small fraction of buggy LCT coordinate transformations
-        UseRun3CCLUT    = cms.bool(True),  # New Run 3 CSC TPs using CCLUT algorithm
     ),
 
     # Sector processor pattern-recognition parameters
@@ -161,5 +163,5 @@ stage2L1Trigger_2018.toModify(simEmtfDigis, RPCEnable = cms.bool(True), Era = cm
 
 ## Era: Run3_2021
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
-stage2L1Trigger_2021.toModify(simEmtfDigis, RPCEnable = cms.bool(True), spPCParams16 = dict(UseRun3CCLUT = True), Era = cms.string('Run3_2021'))
+stage2L1Trigger_2021.toModify(simEmtfDigis, RPCEnable = cms.bool(True), UseRun3CCLUT = cms.bool(False), Era = cms.string('Run3_2021'))
 
