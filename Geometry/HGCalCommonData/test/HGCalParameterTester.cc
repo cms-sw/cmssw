@@ -130,6 +130,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     std::cout << "DetectorType: " << phgp->detectorType_ << "\n";
     std::cout << "Wafer Parameters: " << phgp->waferSize_ << ":" << phgp->waferR_ << ":" << phgp->waferThick_ << ":"
               << phgp->sensorSeparation_ << ":" << phgp->mouseBite_ << "\n";
+    myPrint("waferThickness", phgp->waferThickness_, 10);
     std::cout << "nCells_: " << phgp->nCellsFine_ << ":" << phgp->nCellsCoarse_ << "\n";
     std::cout << "nSectors_: " << phgp->nSectors_ << "\n";
     std::cout << "FirstLayer: " << phgp->firstLayer_ << "\n";
@@ -147,6 +148,9 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("CellSize", phgp->cellSize_, 10);
     myPrint("radiusMixBoundary", phgp->radiusMixBoundary_, 10);
     myPrint("LayerCenter", phgp->layerCenter_, 20);
+    std::cout << "Layer Rotation " << phgp->layerRotation_ << "   with " << phgp->layerRotV_.size() << "  parameters\n";
+    for (unsigned int k = 0; k < phgp->layerRotV_.size(); ++k)
+      std::cout << "Element[" << k << "] " << phgp->layerRotV_[k].first << ":" << phgp->layerRotV_[k].second << "\n";
     myPrint("slopeMin", phgp->slopeMin_, 10);
     myPrint("zFrontMin", phgp->zFrontMin_, 10);
     myPrint("rMinFront", phgp->rMinFront_, 10);

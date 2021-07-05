@@ -182,8 +182,7 @@ public:
   int waferMaskMode_;
   int waferZSide_;
   waferInfo_map waferInfoMap_;
-  std::vector<std::pair<double, double> > layerRotF_;
-  std::vector<std::pair<double, double> > layerRotB_;
+  std::vector<std::pair<double, double> > layerRotV_;
   tileInfo_map tileInfoMap_;
   std::vector<std::pair<double, double> > tileRingR_;
   std::vector<std::pair<int, int> > tileRingRange_;

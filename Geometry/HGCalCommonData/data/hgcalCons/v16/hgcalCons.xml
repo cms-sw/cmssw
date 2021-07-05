@@ -13,9 +13,10 @@
      [hgcal:zHGCalEE1], [hgcal:zHGCalHEsil1], [hgcal:zHGCalHEmix1], 
      [hgcal:zHGCalHEmix6]</Vector>
   <Vector name="LayerCenter" type="numeric" nEntries="47">
-    0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-    0, 1, 0, 1, 0, 1, 0, 4, 0, 4, 0, 4, 0, 2, 3, 2, 3, 2, 3, 2,
-    3, 2, 3, 2, 3, 2, 3
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0,
+    0, 6, 0, 6, 0, 6, 0,
+    2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1
   </Vector>
 </ConstantsSection>
 
