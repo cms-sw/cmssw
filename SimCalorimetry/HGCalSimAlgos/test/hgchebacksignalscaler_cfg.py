@@ -23,10 +23,10 @@ process.source = cms.Source("EmptySource")
 
 #startup: custom sipm map, no dose or fluence
 process.startup = cms.EDAnalyzer("HGCHEbackSignalScalerAnalyzer",
-                                     doseMap  = cms.string( options.doseMap ),
-                                     doseMapAlgo = cms.uint32( 2+8+16 ), 
-                                     sipmMap  = cms.string( 'SimCalorimetry/HGCalSimProducers/data/sipmParams_geom-10.txt' ),
-                                     referenceIdark = cms.double( 0.25 ) )
+                                 doseMap  = cms.string( options.doseMap ),
+                                 doseMapAlgo = cms.uint32( 2+8+16 ), 
+                                 sipmMap  = cms.string( 'SimCalorimetry/HGCalSimProducers/data/sipmParams_geom-10.txt' ),
+                                 referenceIdark = cms.double( 0.25 ) )
 
 #end-of-life
 process.eol = process.startup.clone( doseMapAlgo = cms.uint32( 2 ) )

@@ -12,7 +12,8 @@ HGCalSciNoiseMap::HGCalSciNoiseMap()
     ignoreFluenceScale_(false),
     ignoreNoise_(false),
     refDarkCurrent_(0.5),
-    aimMIPtoADC_(15)
+    aimMIPtoADC_(15),
+    maxSiPMPE_(8888)
 {
 
   //number of photo electrons per MIP per scintillator type (irradiated, based on testbeam results)
@@ -23,8 +24,10 @@ HGCalSciNoiseMap::HGCalSciNoiseMap()
 
   //full scale charge per gain in nPE
   //this is chosen for now such that the ref. MIP peak is at N ADC counts
-  fscADCPerGain_.push_back( nPEperMIP_[CAST]*1024./aimMIPtoADC_ );
-  fscADCPerGain_.push_back( 0.5*nPEperMIP_[CAST]*1024./aimMIPtoADC_ );
+  //to be changed once the specs are fully defined such that the algorithm chooses the best gain 
+  //for the MIP peak to be close to N ADC counts (similar to Si) or applying other specific criteria
+  fscADCPerGain_.push_back( nPEperMIP_[CAST]*1024./aimMIPtoADC_ );  //2 mm^2
+  fscADCPerGain_.push_back( 2*nPEperMIP_[CAST]*1024./aimMIPtoADC_ ); //4mm^2
 
   //lsb: adc has 10 bits -> 1024 counts at max ( >0 baseline to be handled)
   for (auto i : fscADCPerGain_)
@@ -150,12 +153,12 @@ HGCalSciNoiseMap::SiPMonTileCharacteristics HGCalSciNoiseMap::scaleByDose(const 
   S *= lyScaleFactor;
 
   HGCalSciNoiseMap::SiPMonTileCharacteristics sipmChar;
-  sipmChar.s            = S;
-  sipmChar.lySF         = lyScaleFactor;
-  sipmChar.n            = noise;
-  sipmChar.gain         = gain;
-  sipmChar.thrADC       = std::floor(S / 2. / lsbPerGain_[gain] );
-  sipmChar.sipmPEperMIP = (S/lyScaleFactor)*sipmAreaSF;
+  sipmChar.s        = S;
+  sipmChar.lySF     = lyScaleFactor;
+  sipmChar.n        = noise;
+  sipmChar.gain     = gain;
+  sipmChar.thrADC   = std::floor( 0.5*S/lsbPerGain_[gain] );
+  sipmChar.ntotalPE = maxSiPMPE_ * sipmAreaSF;
 
   return sipmChar;
 }
