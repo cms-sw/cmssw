@@ -37,9 +37,6 @@
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 #include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimG4Core/Physics/interface/PhysicsList.h"
@@ -317,19 +314,19 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   if (m_pUseMagneticField) {
     const GlobalPoint g(0., 0., 0.);
 
-    edm::ESHandle<MagneticField> pMF;
-    es.get<IdealMagneticFieldRecord>().get(pMF);
-
-    sim::FieldBuilder fieldBuilder(pMF.product(), m_pField);
     CMSFieldManager* fieldManager = new CMSFieldManager();
     tM->SetFieldManager(fieldManager);
+
+    const MagneticField* pMF = &(es.getData(m_MagField));
+    sim::FieldBuilder fieldBuilder(pMF, m_pField);
     fieldBuilder.build(fieldManager, tM->GetPropagatorInField());
 
     std::string fieldFile = m_p.getUntrackedParameter<std::string>("FileNameField", "");
     if (!fieldFile.empty()) {
       std::call_once(applyOnce, []() { dumpMF = true; });
       if (dumpMF) {
-        edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker: Dump magnetic field to file " << fieldFile;
+        edm::LogVerbatim("SimG4CoreApplication") 
+	  << "RunManagerMTWorker: Dump magnetic field to file " << fieldFile;
         DumpMagneticField(tM->GetFieldManager()->GetDetectorField(), fieldFile);
       }
     }
@@ -391,7 +388,8 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
 
   timer.Stop();
   edm::LogVerbatim("SimG4CoreApplication")
-      << "RunManagerMTWorker::initializeThread done for the thread " << thisID << "  " << timer;
+      << "RunManagerMTWorker::initializeThread done for the thread " 
+      << thisID << "  " << timer;
 }
 
 void RunManagerMTWorker::initializeUserActions() {
@@ -472,7 +470,8 @@ void RunManagerMTWorker::terminateRun() {
     return;
   }
   int thisID = getThreadIndex();
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::terminateRun " << thisID << " is started";
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::terminateRun " 
+					   << thisID << " is started";
   if (m_tls->userRunAction) {
     m_tls->userRunAction->EndOfRunAction(m_tls->currentRun);
     m_tls->userRunAction.reset();
