@@ -12,9 +12,15 @@
 #include "RecoTracker/MkFit/interface/MkFitHitWrapper.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
+
 // mkFit includes
 #include "mkFit/HitStructures.h"
 #include "mkFit/MkStdSeqs.h"
+#include "LayerNumberConverter.h"
 
 class MkFitEventOfHitsProducer : public edm::global::EDProducer<> {
 public:
@@ -35,6 +41,8 @@ private:
   const edm::EDGetTokenT<MkFitClusterIndexToHit> pixelClusterIndexToHitToken_;
   const edm::EDGetTokenT<MkFitClusterIndexToHit> stripClusterIndexToHitToken_;
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
+  const edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::EDPutTokenT<MkFitEventOfHits> putToken_;
 };
 
@@ -44,6 +52,8 @@ MkFitEventOfHitsProducer::MkFitEventOfHitsProducer(edm::ParameterSet const& iCon
       pixelClusterIndexToHitToken_{consumes(iConfig.getParameter<edm::InputTag>("pixelHits"))},
       stripClusterIndexToHitToken_{consumes(iConfig.getParameter<edm::InputTag>("stripHits"))},
       mkFitGeomToken_{esConsumes()},
+      qualityToken_{esConsumes()},
+      geomToken_{esConsumes()},
       putToken_{produces<MkFitEventOfHits>()} {}
 
 void MkFitEventOfHitsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -63,11 +73,28 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
   auto eventOfHits = std::make_unique<mkfit::EventOfHits>(mkFitGeom.trackerInfo());
   mkfit::StdSeq::Cmssw_LoadHits_Begin(*eventOfHits, {&pixelHits.hits(), &stripHits.hits()});
 
+  std::vector<mkfit::DeadVec> deadvectors(mkFitGeom.layerNumberConverter().nLayers());
+  const auto& siStripQuality = iSetup.getData(qualityToken_);
+  const auto& trackerGeom = iSetup.getData(geomToken_);
+  const auto& badStrips = siStripQuality.getBadComponentList();
+  for (const auto& bs : badStrips) {
+    const auto& surf = trackerGeom.idToDet(DetId(bs.detid))->surface();
+    const DetId detid(bs.detid);
+    bool isBarrel = (mkFitGeom.topology()->side(detid) == static_cast<unsigned>(TrackerDetSide::Barrel));
+    const auto ilay = mkFitGeom.mkFitLayerNumber(detid);
+    //dump content of deadmodules.h in standalone setup
+    // std::cout << "deadvectors["<<ilay<<"].push_back({"<<surf.phiSpan().first<<","<<surf.phiSpan().second<<","
+    // <<(isBarrel ? surf.zSpan().first : surf.rSpan().first)<<","<<(isBarrel ? surf.zSpan().second : surf.rSpan().second)<<"});"<<std::endl;
+    deadvectors[ilay].push_back({surf.phiSpan().first,surf.phiSpan().second,
+	  (isBarrel ? surf.zSpan().first : surf.rSpan().first),(isBarrel ? surf.zSpan().second : surf.rSpan().second)});
+  }
+  mkfit::StdSeq::LoadDeads(*eventOfHits, deadvectors);
+  
   fill(iEvent.get(pixelClusterIndexToHitToken_).hits(), *eventOfHits, mkFitGeom);
   fill(iEvent.get(stripClusterIndexToHitToken_).hits(), *eventOfHits, mkFitGeom);
-
+  
   mkfit::StdSeq::Cmssw_LoadHits_End(*eventOfHits);
-
+  
   iEvent.emplace(putToken_, std::move(eventOfHits));
 }
 
