@@ -74,6 +74,7 @@ private:
 
   mutable ThreadState m_masterThreadState;
 
+  mutable bool m_hasToken = false;
   mutable bool m_masterCanProceed = false;
   mutable bool m_mainCanProceed = false;
   mutable bool m_firstRun = true;

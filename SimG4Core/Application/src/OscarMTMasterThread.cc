@@ -168,7 +168,10 @@ void OscarMTMasterThread::stopThread() {
 void OscarMTMasterThread::SetTokens(edm::ESGetToken<DDCompactView, IdealGeometryRecord>& rDDD,
                                     edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord>& rDD4Hep,
                                     edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord>& rPDT) const {
-  m_DDD = rDDD;
-  m_DD4Hep = rDD4Hep;
-  m_PDT = rPDT;
+  if (!m_hasToken) {
+    m_DDD = rDDD;
+    m_DD4Hep = rDD4Hep;
+    m_PDT = rPDT;
+    m_hasToken = true;
+  }
 }

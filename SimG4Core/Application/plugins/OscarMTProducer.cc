@@ -38,8 +38,6 @@
 #include <iostream>
 #include <memory>
 
-bool OscarMTProducer::m_hasToken = false;
-
 namespace edm {
   class StreamID;
 }
@@ -82,19 +80,17 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
 
   // Prepare tokens
   bool isDD4Hep = p.getParameter<bool>("g4GeometryDD4hepSource");
-  if (!m_hasToken) {
-    m_hasToken = true;
-    edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> pDD4Hep;
-    edm::ESGetToken<DDCompactView, IdealGeometryRecord> pDDD;
-    if (isDD4Hep) {
-      pDD4Hep = esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
-    } else {
-      pDDD = esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
-    }
-    edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pPDT =
-        esConsumes<HepPDT::ParticleDataTable, PDTRecord, edm::Transition::BeginRun>();
-    m_masterThread->SetTokens(pDDD, pDD4Hep, pPDT);
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> pDD4Hep;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> pDDD;
+  if (isDD4Hep) {
+    pDD4Hep = esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
+  } else {
+    pDDD = esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
   }
+  edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pPDT =
+      esConsumes<HepPDT::ParticleDataTable, PDTRecord, edm::Transition::BeginRun>();
+  m_masterThread->SetTokens(pDDD, pDD4Hep, pPDT);
+
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> pMagField =
       esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
   m_runManagerWorker->SetMagFieldToken(pMagField);
