@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 from builtins import range
@@ -411,7 +411,7 @@ def FindEndOfTracking(fake, particle, end_criterion = ["nMissing", 2], real_crit
 	print particle_end.index()
 	print end_class
 	print "*****"
-	raw_input()
+	input()
 	'''
 	return last, fake_end, particle_end, end_class
 

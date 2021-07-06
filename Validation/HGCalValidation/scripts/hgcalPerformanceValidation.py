@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 #------------------------------------------------------------------------------------------
 # Description: This script is used to produce the results of the regurarly announced RelVal campaings.
