@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''Script that uploads to the new CMS conditions uploader.
 Adapted to the new infrastructure from v6 of the upload.py script for the DropBox from Miguel Ojeda.
 '''
