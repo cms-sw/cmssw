@@ -75,6 +75,9 @@ public:
                   });
   }
 
+  SimProducer(const SimProducer &) = delete;
+  const SimProducer &operator=(const SimProducer &) = delete;
+
 protected:
   template <class T>
   void produces() {
@@ -85,9 +88,6 @@ protected:
   void produces(const std::string &instanceName) {
     m_info.push_back(std::make_shared<simproducer::ProductInfo<T>>(instanceName));
   }
-
-  SimProducer(const SimProducer &) = delete;
-  const SimProducer &operator=(const SimProducer &) = delete;
 
 private:
 
