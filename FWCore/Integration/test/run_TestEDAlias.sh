@@ -28,11 +28,11 @@ pushd ${LOCAL_TMP_DIR}
 
   echo "*************************************************"
   echo "Test EDAlias aliasing for many modules with possibly ambiguous get via edm::View"
-  cmsRun ${LOCAL_TEST_DIR}/${test}ManyModulesAmbiguous_cfg.py && die "cmsRun ${test}ManyModulesAmbiguous_cfg.py 1" $?
+  cmsRun ${LOCAL_TEST_DIR}/${test}ManyModulesAmbiguous_cfg.py && die "cmsRun ${test}ManyModulesAmbiguous_cfg.py 1" 1
   cmsRun ${LOCAL_TEST_DIR}/${test}ManyModulesAmbiguous_cfg.py includeAliasToFoo=0 || die "cmsRun ${test}ManyModulesAmbiguous_cfg.py includeAliasToFoo=0" $?
   cmsRun ${LOCAL_TEST_DIR}/${test}ManyModulesAmbiguous_cfg.py includeAliasToBar=0 || die "cmsRun ${test}ManyModulesAmbiguous_cfg.py includeAliasToBar=0" $?
   cmsRun ${LOCAL_TEST_DIR}/${test}ManyModulesAmbiguous_cfg.py consumerGets=0 || die "cmsRun ${test}ManyModulesAmbiguous_cfg.py consumerGets=0" $?
-  cmsRun ${LOCAL_TEST_DIR}/${test}ManyModulesAmbiguous_cfg.py explicitProcessName=1 & die "cmsRun ${test}ManyModulesAmbiguous_cfg.py explicitProcessName=1" $?
+  cmsRun ${LOCAL_TEST_DIR}/${test}ManyModulesAmbiguous_cfg.py explicitProcessName=1 && die "cmsRun ${test}ManyModulesAmbiguous_cfg.py explicitProcessName=1" 1
 
 popd
 
