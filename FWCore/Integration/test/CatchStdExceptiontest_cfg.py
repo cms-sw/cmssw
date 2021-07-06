@@ -19,7 +19,9 @@ process.DoodadESProducer = cms.ESProducer("DoodadESProducer",
 )
 #es_source = DoodadESSource {}
 
-process.demo = cms.EDAnalyzer("WhatsItAnalyzer")
+process.demo = cms.EDAnalyzer("WhatsItAnalyzer",
+    expectedValues = cms.untracked.vint32(0)
+)
 
 process.bad = cms.ESSource("EmptyESSource",
     recordName = cms.string('GadgetRcd'),
