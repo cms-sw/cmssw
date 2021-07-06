@@ -37,8 +37,6 @@ public:
 private:
   std::unique_ptr<RunManagerMTWorker> m_runManagerWorker;
   const OscarMTMasterThread* m_masterThread = nullptr;
-
-  static bool m_hasToken;
 };
 
 #endif
