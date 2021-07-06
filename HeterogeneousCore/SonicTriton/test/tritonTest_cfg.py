@@ -57,6 +57,10 @@ if len(options.address)>0:
             name = cms.untracked.string(options.serverName),
             address = cms.untracked.string(options.address),
             port = cms.untracked.uint32(options.port),
+            useSsl = cms.untracked.bool(False),
+            rootCertificates = cms.string(""),
+            privateKey = cms.string(""),
+            certificateChain = cms.string(""),
         )
     )
 

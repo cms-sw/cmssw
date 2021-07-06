@@ -44,19 +44,17 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
       options_(params.getParameter<std::string>("modelName")) {
   //get appropriate server for this model
   edm::Service<TritonService> ts;
-  const auto& [url, serverType] =
-      ts->serverAddress(options_.model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
-  serverType_ = serverType;
+  const auto& server = ts->serverInfo(options_.model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
+  serverType_ = server.type;
   if (verbose_)
-    edm::LogInfo(fullDebugName_) << "Using server: " << url;
+    edm::LogInfo(fullDebugName_) << "Using server: " << server.url;
   //enforce sync mode for fallback CPU server to avoid contention
   //todo: could enforce async mode otherwise (unless mode was specified by user?)
   if (serverType_ == TritonServerType::LocalCPU)
     setMode(SonicMode::Sync);
 
   //connect to the server
-  //TODO: add SSL options
-  triton_utils::throwIfError(tc::InferenceServerGrpcClient::Create(&client_, url, false),
+  triton_utils::throwIfError(tc::InferenceServerGrpcClient::Create(&client_, server.url, false, server.useSsl, server.sslOptions),
                              "TritonClient(): unable to create inference context");
 
   //set options
