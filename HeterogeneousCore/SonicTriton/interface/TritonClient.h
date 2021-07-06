@@ -68,6 +68,8 @@ protected:
   bool verbose_;
   bool useSharedMemory_;
   TritonServerType serverType_;
+  grpc_compression_algorithm compressionAlgo_;
+  triton::client::Headers headers_;
 
   //IO pointers for triton
   std::vector<triton::client::InferInput*> inputsTriton_;

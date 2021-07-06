@@ -32,6 +32,7 @@ The model information from the server can be printed by enabling `verbose` outpu
 * `outputs`: optional, specify which output(s) the server should send
 * `verbose`: enable verbose printouts (default: false)
 * `useSharedMemory`: enable use of shared memory (see [below](#shared-memory)) with local servers (default: true)
+* `compression`: enable compression of input and output data to reduce bandwidth (using gzip or deflate) (default: none)
 
 The batch size should be set using the client accessor, in order to ensure a consistent value across all inputs:
 * `setBatchSize()`: set a new batch size
