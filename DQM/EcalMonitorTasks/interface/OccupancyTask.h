@@ -29,6 +29,7 @@ namespace ecaldqm {
     void runOnTPDigis(EcalTrigPrimDigiCollection const&);
     void runOnRecHits(EcalRecHitCollection const&, Collections);
     void setEventTime(const edm::TimeValue_t& iTime);
+
   private:
     void setParams(edm::ParameterSet const&) override;
     edm::ESHandle<EcalLaserDbService> laser;
