@@ -23,54 +23,49 @@ namespace ecaldqm {
 
     return false;
   }
-  
-   void OccupancyTask::beginRun(edm::Run const&, edm::EventSetup const& _es)
-   {
-   
+
+  void OccupancyTask::beginRun(edm::Run const&, edm::EventSetup const& _es) {
     _es.get<EcalLaserDbRecord>().get(laser);
     FillLaser = true;
-	
-   }
-  void OccupancyTask::setEventTime(const edm::TimeValue_t& iTime) {
-      m_iTime = iTime;
   }
+  void OccupancyTask::setEventTime(const edm::TimeValue_t& iTime) { m_iTime = iTime; }
   void OccupancyTask::beginEvent(edm::Event const& _evt,
                                  edm::EventSetup const& _es,
                                  bool const& ByLumiResetSwitch,
-                                 bool&) {	
+                                 bool&) {
     if (ByLumiResetSwitch) {
       MEs_.at("DigiAllByLumi").reset(GetElectronicsMap());
       MEs_.at("TPDigiThrAllByLumi").reset(GetElectronicsMap());
       MEs_.at("RecHitThrAllByLumi").reset(GetElectronicsMap());
     }
     MESet& meLaserCorrProjEta(MEs_.at("LaserCorrProjEta"));
-   if (FillLaser){
-    for ( int i = 0; i < EBDetId::kSizeForDenseIndexing; i++ ) { 
-        if ( !EBDetId::validDenseIndex(i) ) continue;
-        EBDetId ebid( EBDetId::unhashIndex(i) );
-   	 	
- 	const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
- 
-        float lasercalib = 1.;
-        lasercalib = laser->getLaserCorrection( ebid, evtTimeStamp);
-        meLaserCorrProjEta.fill(getEcalDQMSetupObjects(), ebid, lasercalib);
-
-    }
-     
-      for ( int i = 0; i < EEDetId::kSizeForDenseIndexing; i++ ) { 
-        if ( !EEDetId::validDenseIndex(i) ) continue;
-        EEDetId eeid( EEDetId::unhashIndex(i) );
+    if (FillLaser) {
+      for (int i = 0; i < EBDetId::kSizeForDenseIndexing; i++) {
+        if (!EBDetId::validDenseIndex(i))
+          continue;
+        EBDetId ebid(EBDetId::unhashIndex(i));
 
         const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
 
         float lasercalib = 1.;
-        lasercalib = laser->getLaserCorrection( eeid, evtTimeStamp);
+        lasercalib = laser->getLaserCorrection(ebid, evtTimeStamp);
+        meLaserCorrProjEta.fill(getEcalDQMSetupObjects(), ebid, lasercalib);
+      }
+
+      for (int i = 0; i < EEDetId::kSizeForDenseIndexing; i++) {
+        if (!EEDetId::validDenseIndex(i))
+          continue;
+        EEDetId eeid(EEDetId::unhashIndex(i));
+
+        const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
+
+        float lasercalib = 1.;
+        lasercalib = laser->getLaserCorrection(eeid, evtTimeStamp);
         meLaserCorrProjEta.fill(getEcalDQMSetupObjects(), eeid, lasercalib);
-    
+      }
+      FillLaser = false;
     }
-     FillLaser = false;
-  } 
-}
+  }
 
   void OccupancyTask::runOnRawData(EcalRawDataCollection const& _dcchs) {
     MESet& meDCC(MEs_.at("DCC"));

@@ -33,7 +33,6 @@ namespace ecaldqm {
     MESet* mePedestalByLS;
     bool FillPedestal = false;
     edm::ESHandle<EcalPedestals> pPeds;
-
   };
 
   inline bool PresampleTask::analyze(void const* _p, Collections _collection) {
