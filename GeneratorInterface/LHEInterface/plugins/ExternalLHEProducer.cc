@@ -19,6 +19,7 @@ Implementation:
 
 // system include files
 #include <cstdio>
+#include <cstdlib>
 #include <memory>
 #include <vector>
 #include <string>
@@ -318,9 +319,16 @@ ExternalLHEProducer::endRunProduce(edm::Run& run, edm::EventSetup const& es)
   
   nextEvent();
   if (partonLevel) {
-    throw edm::Exception(edm::errors::EventGenerationFailure) << "Error in ExternalLHEProducer::endRunProduce().  "
-    << "Event loop is over, but there are still lhe events to process."
-    << "This could happen if lhe file contains more events than requested.  This is never expected to happen.";
+    // VALIDATION_RUN env variable allows to finish event processing early without errors by sending SIGINT
+    if (std::getenv("VALIDATION_RUN") != nullptr) {
+      edm::LogWarning("ExternalLHEProducer")
+          << "Event loop is over, but there are still lhe events to process, ignoring...";
+    } else {
+      throw edm::Exception(edm::errors::EventGenerationFailure)
+          << "Error in ExternalLHEProducer::endRunProduce().  "
+          << "Event loop is over, but there are still lhe events to process."
+          << "This could happen if lhe file contains more events than requested.  This is never expected to happen.";
+    }
   }  
   
   reader_.reset();  
