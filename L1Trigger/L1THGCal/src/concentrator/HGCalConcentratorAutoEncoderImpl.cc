@@ -262,8 +262,6 @@ void HGCalConcentratorAutoEncoderImpl::select(unsigned nLinks,
     int layer = id.layer();
     int waferU = id.waferU();
     int waferV = id.waferV();
-    int cellU = id.triggerCellU();
-    int cellV = id.triggerCellV();
 
     //use first TC to find mipPt conversions to Et and ADC
     float mipPtToEt_conv = trigCellVecInput[0].et() / trigCellVecInput[0].mipPt();
@@ -271,8 +269,8 @@ void HGCalConcentratorAutoEncoderImpl::select(unsigned nLinks,
 
     for (int i = 0; i < nTriggerCells_; i++) {
       if (ae_outputArray[i] > 0) {
-        cellU = ae_outputCellU_[i];
-        cellV = ae_outputCellV_[i];
+        int cellU = ae_outputCellU_[i];
+        int cellV = ae_outputCellV_[i];
 
         HGCalTriggerDetId id(subdet, zp, type, layer, waferU, waferV, cellU, cellV);
 
