@@ -14,10 +14,24 @@
 #include "SimDataFormats/Associations/interface/TrackAssociation.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimTracker/TrackAssociation/interface/ParametersDefinerForTP.h"
+#include "SimTracker/TrackAssociation/interface/CosmicParametersDefinerForTP.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBase {
 public:
   /// Constructor
-  MuonTrackValidator(const edm::ParameterSet& pset) : MuonTrackValidatorBase(pset) {
+  MuonTrackValidator(const edm::ParameterSet& pset)
+      : MuonTrackValidatorBase(pset),
+        tpDefinerEsToken(
+            esConsumes<ParametersDefinerForTP, TrackAssociatorRecord>(edm::ESInputTag("", parametersDefiner))),
+        cosmictpDefinerEsToken(
+            esConsumes<CosmicParametersDefinerForTP, TrackAssociatorRecord>(edm::ESInputTag("", parametersDefiner))) {
     dirName_ = pset.getParameter<std::string>("dirName");
     associatormap = pset.getParameter<edm::InputTag>("associatormap");
     UseAssociators = pset.getParameter<bool>("UseAssociators");
@@ -152,6 +166,9 @@ private:
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoCollection_Token;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimCollection_Token;
   edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;
+
+  const edm::ESGetToken<ParametersDefinerForTP, TrackAssociatorRecord> tpDefinerEsToken;
+  const edm::ESGetToken<CosmicParametersDefinerForTP, TrackAssociatorRecord> cosmictpDefinerEsToken;
 
   bool UseAssociators;
   bool useGEMs_;
