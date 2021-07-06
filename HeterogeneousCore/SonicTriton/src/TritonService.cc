@@ -67,10 +67,19 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
   areg.watchPreBeginJob(this, &TritonService::preBeginJob);
 
   //include fallback server in set if enabled
-  if (fallbackOpts_.enable)
+  if (fallbackOpts_.enable) {
+    auto serverType = TritonServerType::Remote;
+    if (!fallbackOpts_.useGPU)
+      serverType = TritonServerType::LocalCPU;
+#ifdef TRITON_ENABLE_GPU
+    else
+      serverType = TritonServerType::LocalGPU;
+#endif
+
     servers_.emplace(std::piecewise_construct,
                      std::forward_as_tuple(Server::fallbackName),
-                     std::forward_as_tuple(Server::fallbackName, Server::fallbackAddress));
+                     std::forward_as_tuple(Server::fallbackName, Server::fallbackAddress, serverType));
+  }
 
   //loop over input servers: check which models they have
   std::string msg;
@@ -158,8 +167,8 @@ void TritonService::preModuleDestruction(edm::ModuleDescription const& desc) {
 }
 
 //second return value is only true if fallback CPU server is being used
-std::pair<std::string, TritonServerType> TritonService::serverAddress(const std::string& model,
-                                                                      const std::string& preferred) const {
+TritonService::Server TritonService::serverInfo(const std::string& model,
+                                                const std::string& preferred) const {
   auto mit = models_.find(model);
   if (mit == models_.end())
     throw cms::Exception("MissingModel") << "There are no servers that provide model " << model;
@@ -177,17 +186,8 @@ std::pair<std::string, TritonServerType> TritonService::serverAddress(const std:
   const auto& serverName(msit == modelServers.end() ? *modelServers.begin() : preferred);
 
   //todo: use some algorithm to select server rather than just picking arbitrarily
-  const auto& serverInfo(servers_.find(serverName)->second);
-  auto serverType = TritonServerType::Remote;
-  if (serverInfo.isFallback) {
-    if (!fallbackOpts_.useGPU)
-      serverType = TritonServerType::LocalCPU;
-#ifdef TRITON_ENABLE_GPU
-    else
-      serverType = TritonServerType::LocalGPU;
-#endif
-  }
-  return std::make_pair(serverInfo.url, serverType);
+  const auto& server(servers_.find(serverName)->second);
+  return server;
 }
 
 void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&) {
@@ -282,6 +282,10 @@ void TritonService::fillDescriptions(edm::ConfigurationDescriptions& description
   validator.addUntracked<std::string>("name");
   validator.addUntracked<std::string>("address");
   validator.addUntracked<unsigned>("port");
+  validator.addUntracked<bool>("useSsl",false);
+  validator.addUntracked<std::string>("rootCertificates","");
+  validator.addUntracked<std::string>("privateKey","");
+  validator.addUntracked<std::string>("certificateChain","");
 
   desc.addVPSetUntracked("servers", validator, {});
 
