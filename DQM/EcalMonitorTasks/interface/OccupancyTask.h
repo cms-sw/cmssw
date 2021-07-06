@@ -6,6 +6,10 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 
 namespace ecaldqm {
   class OccupancyTask : public DQWorkerTask {
@@ -16,7 +20,7 @@ namespace ecaldqm {
     bool filterRunType(short const*) override;
 
     void beginEvent(edm::Event const&, edm::EventSetup const&, bool const&, bool&) override;
-
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
     bool analyze(void const*, Collections) override;
 
     void runOnRawData(EcalRawDataCollection const&);
@@ -24,12 +28,14 @@ namespace ecaldqm {
     void runOnDigis(DigiCollection const&, Collections);
     void runOnTPDigis(EcalTrigPrimDigiCollection const&);
     void runOnRecHits(EcalRecHitCollection const&, Collections);
-
+    void setEventTime(const edm::TimeValue_t& iTime);
   private:
     void setParams(edm::ParameterSet const&) override;
-
+    edm::ESHandle<EcalLaserDbService> laser;
+    bool FillLaser = false;
     float recHitThreshold_;
     float tpThreshold_;
+    edm::TimeValue_t m_iTime;
   };
 
   inline bool OccupancyTask::analyze(void const* _p, Collections _collection) {

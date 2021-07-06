@@ -2,11 +2,10 @@
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace ecaldqm {
-  OccupancyTask::OccupancyTask() : DQWorkerTask(), recHitThreshold_(0.), tpThreshold_(0.) {}
+  OccupancyTask::OccupancyTask() : DQWorkerTask(), recHitThreshold_(0.), tpThreshold_(0.), m_iTime(0.) {}
 
   void OccupancyTask::setParams(edm::ParameterSet const& _params) {
     recHitThreshold_ = _params.getUntrackedParameter<double>("recHitThreshold");
@@ -24,17 +23,54 @@ namespace ecaldqm {
 
     return false;
   }
-
+  
+   void OccupancyTask::beginRun(edm::Run const&, edm::EventSetup const& _es)
+   {
+   
+    _es.get<EcalLaserDbRecord>().get(laser);
+    FillLaser = true;
+	
+   }
+  void OccupancyTask::setEventTime(const edm::TimeValue_t& iTime) {
+      m_iTime = iTime;
+  }
   void OccupancyTask::beginEvent(edm::Event const& _evt,
                                  edm::EventSetup const& _es,
                                  bool const& ByLumiResetSwitch,
-                                 bool&) {
+                                 bool&) {	
     if (ByLumiResetSwitch) {
       MEs_.at("DigiAllByLumi").reset(GetElectronicsMap());
       MEs_.at("TPDigiThrAllByLumi").reset(GetElectronicsMap());
       MEs_.at("RecHitThrAllByLumi").reset(GetElectronicsMap());
     }
-  }
+    MESet& meLaserCorrProjEta(MEs_.at("LaserCorrProjEta"));
+   if (FillLaser){
+    for ( int i = 0; i < EBDetId::kSizeForDenseIndexing; i++ ) { 
+        if ( !EBDetId::validDenseIndex(i) ) continue;
+        EBDetId ebid( EBDetId::unhashIndex(i) );
+   	 	
+ 	const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
+ 
+        float lasercalib = 1.;
+        lasercalib = laser->getLaserCorrection( ebid, evtTimeStamp);
+        meLaserCorrProjEta.fill(getEcalDQMSetupObjects(), ebid, lasercalib);
+
+    }
+     
+      for ( int i = 0; i < EEDetId::kSizeForDenseIndexing; i++ ) { 
+        if ( !EEDetId::validDenseIndex(i) ) continue;
+        EEDetId eeid( EEDetId::unhashIndex(i) );
+
+        const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
+
+        float lasercalib = 1.;
+        lasercalib = laser->getLaserCorrection( eeid, evtTimeStamp);
+        meLaserCorrProjEta.fill(getEcalDQMSetupObjects(), eeid, lasercalib);
+    
+    }
+     FillLaser = false;
+  } 
+}
 
   void OccupancyTask::runOnRawData(EcalRawDataCollection const& _dcchs) {
     MESet& meDCC(MEs_.at("DCC"));
