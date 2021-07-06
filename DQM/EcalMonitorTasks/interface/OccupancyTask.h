@@ -10,6 +10,7 @@
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace ecaldqm {
   class OccupancyTask : public DQWorkerTask {
@@ -29,9 +30,11 @@ namespace ecaldqm {
     void runOnTPDigis(EcalTrigPrimDigiCollection const&);
     void runOnRecHits(EcalRecHitCollection const&, Collections);
     void setEventTime(const edm::TimeValue_t& iTime);
+    void setTokens(edm::ConsumesCollector&) override;
+
   private:
     void setParams(edm::ParameterSet const&) override;
-    edm::ESHandle<EcalLaserDbService> laser;
+    edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> lasertoken_;
     bool FillLaser = false;
     float recHitThreshold_;
     float tpThreshold_;
