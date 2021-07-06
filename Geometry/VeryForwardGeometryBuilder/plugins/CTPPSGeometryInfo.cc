@@ -67,7 +67,6 @@ CTPPSGeometryInfo::CTPPSGeometryInfo(const edm::ParameterSet& iConfig)
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSGeometryInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   if (geometryType_ == "ideal") {
     if (watcherIdealGeometry_.check(iSetup)) {
       const auto& geometry = iSetup.getData(tokIdeal_);
