@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #-*- coding: utf-8 -*-
 #pylint: disable-msg=
 """
@@ -44,7 +44,7 @@ def config(tmpl, pkg_help):
     elif len(sys.argv) == 1:
         # need to walk
         msg = 'Please enter %s name: ' % tmpl.lower()
-        kwds['pname'] = raw_input(msg)
+        kwds['pname'] = input(msg)
     else:
         print(pkg_help)
         sys.exit(0)

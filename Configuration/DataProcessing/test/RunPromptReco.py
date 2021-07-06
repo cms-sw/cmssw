@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 _RunPromptReco_
 Test wrapper to generate a reco config and actually push it into cmsRun for
