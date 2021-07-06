@@ -30,35 +30,20 @@ HFCherenkov::HFCherenkov(edm::ParameterSet const& m_HF) {
   aperturetrapped = aperture / ref_index;
   sinPsimax = 1 / ref_index;
 
-  edm::LogVerbatim("HFShower") << "HFCherenkov:: initialised with ref_index " << ref_index << " lambda1/lambda2 (cm) "
-                               << lambda1 / CLHEP::cm << "|" << lambda2 / CLHEP::cm << " aperture(trapped) " << aperture
-                               << "|" << aperturetrapped << " sinPsimax " << sinPsimax
-                               << " Check photon survival in HF " << checkSurvive << " Gain " << gain << " useNewPMT "
-                               << UseNewPMT << " FibreR " << fibreR / CLHEP::mm << " mm";
+  edm::LogVerbatim("HFShower") << "HFCherenkov:: initialised with ref_index " << ref_index << " lambda1/lambda2 (cm) " << lambda1 / CLHEP::cm << "|" << lambda2 / CLHEP::cm << " aperture(trapped) " << aperture << "|" << aperturetrapped << " sinPsimax " << sinPsimax << " Check photon survival in HF " << checkSurvive << " Gain " << gain << " useNewPMT " << UseNewPMT << " FibreR " << fibreR / CLHEP::mm << " mm";
 
   clearVectors();
 }
 
 HFCherenkov::~HFCherenkov() {}
 
-int HFCherenkov::computeNPE(const G4Step* aStep,
-                            const G4ParticleDefinition* pDef,
-                            double pBeta,
-                            double u,
-                            double v,
-                            double w,
-                            double step_length,
-                            double zFiber,
-                            double dose,
-                            int npe_Dose) {
+int HFCherenkov::computeNPE(const G4Step* aStep, const G4ParticleDefinition* pDef, double pBeta, double u, double v, double w, double step_length, double zFiber, double dose, int npe_Dose) {
   clearVectors();
-  if (!isApplicable(pDef)) {
+  if (!isApplicable(pDef))
     return 0;
-  }
   if (pBeta < (1 / ref_index) || step_length < 0.0001) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: pBeta " << pBeta << " 1/mu " << (1 / ref_index)
-                                 << " step_length " << step_length;
+    edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: pBeta " << pBeta << " 1/mu " << (1 / ref_index) << " step_length " << step_length;
 #endif
     return 0;
   }
@@ -66,22 +51,17 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
   double uv = sqrt(u * u + v * v);
   int nbOfPhotons = computeNbOfPhotons(pBeta, step_length) * aStep->GetTrack()->GetWeight();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: pBeta " << pBeta << " u/v/w " << u << "/" << v << "/" << w
-                               << " step_length " << step_length << " zFib " << zFiber << " nbOfPhotons "
-                               << nbOfPhotons;
+  edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: pBeta " << pBeta << " u/v/w " << u << "/" << v << "/" << w << " step_length " << step_length << " zFib " << zFiber << " nbOfPhotons " << nbOfPhotons;
 #endif
   if (nbOfPhotons < 0) {
     return 0;
   } else if (nbOfPhotons > 0) {
     G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
     const G4TouchableHandle& theTouchable = preStepPoint->GetTouchableHandle();
-    G4ThreeVector localprepos =
-        theTouchable->GetHistory()->GetTopTransform().TransformPoint(aStep->GetPreStepPoint()->GetPosition());
-    G4ThreeVector localpostpos =
-        theTouchable->GetHistory()->GetTopTransform().TransformPoint(aStep->GetPostStepPoint()->GetPosition());
+    G4ThreeVector localprepos = theTouchable->GetHistory()->GetTopTransform().TransformPoint(aStep->GetPreStepPoint()->GetPosition());
+    G4ThreeVector localpostpos = theTouchable->GetHistory()->GetTopTransform().TransformPoint(aStep->GetPostStepPoint()->GetPosition());
 
-    double length = sqrt((localpostpos.x() - localprepos.x()) * (localpostpos.x() - localprepos.x()) +
-                         (localpostpos.y() - localprepos.y()) * (localpostpos.y() - localprepos.y()));
+    double length = sqrt((localpostpos.x() - localprepos.x()) * (localpostpos.x() - localprepos.x()) + (localpostpos.y() - localprepos.y()) * (localpostpos.y() - localprepos.y()));
     double yemit = std::sqrt(fibreR * fibreR - length * length / 4.);
 
     double u_ph = 0, v_ph = 0, w_ph = 0;
@@ -95,7 +75,7 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
       double sinPhi = sin(phi_C);
       //photon momentum
       if (uv < 0.001) {  // aligned with z-axis
-        u_ph = sinTheta * cosPhi;
+	u_ph = sinTheta * cosPhi;
         v_ph = sinTheta * sinPhi;
         w_ph = cosTheta;
       } else {  // general case
@@ -105,7 +85,7 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
       }
       double r_lambda = G4UniformRand();
       double lambda0 = (lambda1 * lambda2) / (lambda2 - r_lambda * (lambda2 - lambda1));
-      double lambda = (lambda0 / cm) * pow(double(10), 7);  // lambda is in nm
+      double lambda = (lambda0 / CLHEP::cm) * pow(double(10), 7);  // lambda is in nm
       wlini.push_back(lambda);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: " << i << " lambda " << lambda << " w_ph " << w_ph;
@@ -123,23 +103,17 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
 
 #ifdef EDM_ML_DEBUG
       if (cosKsi < aperturetrapped && w_ph > 0.) {
-        edm::LogVerbatim("HFShower") << "HFCherenkov::Trapped photon : " << u_ph << " " << v_ph << " " << w_ph << " "
-                                     << xemit << " " << gam << " " << eps << " " << sinBeta << " " << rho << " "
-                                     << sinEta << " " << cosEta << " "
-                                     << " " << sinPsi << " " << cosKsi;
+        edm::LogVerbatim("HFShower") << "HFCherenkov::Trapped photon : " << u_ph << " " << v_ph << " " << w_ph << " " << xemit << " " << gam << " " << eps << " " << sinBeta << " " << rho << " " << sinEta << " " << cosEta << " " << " " << sinPsi << " " << cosKsi;
       } else {
-        edm::LogVerbatim("HFShower") << "HFCherenkov::Rejected photon : " << u_ph << " " << v_ph << " " << w_ph << " "
-                                     << xemit << " " << gam << " " << eps << " " << sinBeta << " " << rho << " "
-                                     << sinEta << " " << cosEta << " "
-                                     << " " << sinPsi << " " << cosKsi;
+        edm::LogVerbatim("HFShower") << "HFCherenkov::Rejected photon : " << u_ph << " " << v_ph << " " << w_ph << " " << xemit << " " << gam << " " << eps << " " << sinBeta << " " << rho << " " << sinEta << " " << cosEta << " " << " " << sinPsi << " " << cosKsi;
       }
 #endif
       if (cosKsi < aperturetrapped  // photon is trapped inside fiber
           && w_ph > 0.              // and moves to PMT
           && sinPsi < sinPsimax) {  // and is not reflected at fiber end
-        wltrap.push_back(lambda);
-        double prob_HF = 1.0;
-        if (checkSurvive) {
+	wltrap.push_back(lambda);
+	double prob_HF = 1.0;
+	if (checkSurvive) {
           double a0_inv = 0.1234;                          //meter^-1
           double a_inv = a0_inv + 0.14 * pow(dose, 0.30);  // ?
           double z_meters = zFiber;
@@ -147,8 +121,7 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
         }
         rand = G4UniformRand();
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: probHF " << prob_HF << " Random " << rand
-                                     << " Survive? " << (rand < prob_HF);
+        edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: probHF " << prob_HF << " Random " << rand << " Survive? " << (rand < prob_HF);
 #endif
         if (rand < prob_HF) {  // survived in HF
           wlatten.push_back(lambda);
@@ -169,20 +142,18 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
           int nbounce = length_lg / tlength * tang + 0.5;
           double eff = pow(effHEM, nbounce);
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: w_ph " << w_ph << " effHEM " << effHEM << " eff "
-                                       << eff << " Random " << rand << " Survive? " << (rand < eff);
+          edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: w_ph " << w_ph << " effHEM " << effHEM << " eff " << eff << " Random " << rand << " Survive? " << (rand < eff);
 #endif
           if (rand < eff) {  // survived HEM
             wlhem.push_back(lambda);
             double qEffic = computeQEff(lambda);
             rand = G4UniformRand();
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: qEffic " << qEffic << " Random " << rand
-                                         << " Survive? " << (rand < qEffic);
+            edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: qEffic " << qEffic << " Random " << rand << " Survive? " << (rand < qEffic);
 #endif
             if (rand < qEffic) {  // made photoelectron
-              npe_Dose += 1;
-              momZ.push_back(w_ph);
+	      npe_Dose += 1;
+	      momZ.push_back(w_ph);
               wl.push_back(lambda);
               wlqeff.push_back(lambda);
             }          // made pe
@@ -198,17 +169,14 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
   return npe;
 }
 
-int HFCherenkov::computeNPEinPMT(
-    const G4ParticleDefinition* pDef, double pBeta, double u, double v, double w, double step_length) {
+int HFCherenkov::computeNPEinPMT(const G4ParticleDefinition* pDef, double pBeta, double u, double v, double w, double step_length) {
   clearVectors();
   int npe_ = 0;
-  if (!isApplicable(pDef)) {
+  if (!isApplicable(pDef))
     return 0;
-  }
   if (pBeta < (1 / ref_index) || step_length < 0.0001) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPEinPMT: pBeta " << pBeta << " 1/mu " << (1 / ref_index)
-                                 << " step_length " << step_length;
+    edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPEinPMT: pBeta " << pBeta << " 1/mu " << (1 / ref_index) << " step_length " << step_length;
 #endif
     return 0;
   }
@@ -216,8 +184,7 @@ int HFCherenkov::computeNPEinPMT(
   double uv = sqrt(u * u + v * v);
   int nbOfPhotons = computeNbOfPhotons(pBeta, step_length);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPEinPMT: pBeta " << pBeta << " u/v/w " << u << "/" << v << "/"
-                               << w << " step_length " << step_length << " nbOfPhotons " << nbOfPhotons;
+  edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPEinPMT: pBeta " << pBeta << " u/v/w " << u << "/" << v << "/" << w << " step_length " << step_length << " nbOfPhotons " << nbOfPhotons;
 #endif
   if (nbOfPhotons < 0) {
     return 0;
@@ -238,25 +205,23 @@ int HFCherenkov::computeNPEinPMT(
       }
       double r_lambda = G4UniformRand();
       double lambda0 = (lambda1 * lambda2) / (lambda2 - r_lambda * (lambda2 - lambda1));
-      double lambda = (lambda0 / cm) * pow(double(10), 7);  // lambda is in nm
+      double lambda = (lambda0 / CLHEP::cm) * pow(double(10), 7);  // lambda is in nm
       wlini.push_back(lambda);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPEinPMT: " << i << " lambda " << lambda << " w_ph " << w_ph
-                                   << " aperture " << aperture;
+      edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPEinPMT: " << i << " lambda " << lambda << " w_ph " << w_ph << " aperture " << aperture;
 #endif
       if (w_ph > aperture) {  // phton trapped inside PMT glass
         wltrap.push_back(lambda);
-        rand = G4UniformRand();
+	rand = G4UniformRand();
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPEinPMT: Random " << rand << " Survive? " << (rand < 1.);
+	edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPEinPMT: Random " << rand << " Survive? " << (rand < 1.);
 #endif
         if (rand < 1.0) {  // survived all the times and sent to photo-cathode
           wlatten.push_back(lambda);
           double qEffic = computeQEff(lambda);  //Quantum efficiency of the PMT
           rand = G4UniformRand();
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPEinPMT: qEffic " << qEffic << " Random " << rand
-                                       << " Survive? " << (rand < qEffic);
+          edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPEinPMT: qEffic " << qEffic << " Random " << rand << " Survive? " << (rand < qEffic);
 #endif
           if (rand < qEffic) {  // made photoelectron
             npe_ += 1;
@@ -264,7 +229,7 @@ int HFCherenkov::computeNPEinPMT(
             wl.push_back(lambda);
             wlqeff.push_back(lambda);
           }  // made pe
-        }    // accepted all Cherenkov photons
+	}    // accepted all Cherenkov photons
       }      // end of  if(w_ph < w_aperture), trapped inside glass
     }        // end of ++NbOfPhotons
   }          // end of if(NbOfPhotons)}
@@ -315,13 +280,11 @@ int HFCherenkov::computeNbOfPhotons(double beta, G4double stepL) {
   double step_length = stepL;
   double theta_C = acos(1. / (pBeta * ref_index));
   double lambdaDiff = (1. / lambda1 - 1. / lambda2);
-  double cherenPhPerLength = 2 * M_PI * alpha * lambdaDiff * cm;
-  double d_NOfPhotons = cherenPhPerLength * sin(theta_C) * sin(theta_C) * (step_length / cm);
+  double cherenPhPerLength = 2 * M_PI * alpha * lambdaDiff * CLHEP::cm;
+  double d_NOfPhotons = cherenPhPerLength * sin(theta_C) * sin(theta_C) * (step_length / CLHEP::cm);
   int nbOfPhotons = int(d_NOfPhotons);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFCherenkov::computeNbOfPhotons: StepLength " << step_length << " theta_C "
-                               << theta_C << " lambdaDiff " << lambdaDiff << " cherenPhPerLength " << cherenPhPerLength
-                               << " Photons " << d_NOfPhotons << " " << nbOfPhotons;
+  edm::LogVerbatim("HFShower") << "HFCherenkov::computeNbOfPhotons: StepLength " << step_length << " theta_C " << theta_C << " lambdaDiff " << lambdaDiff << " cherenPhPerLength " << cherenPhPerLength << " Photons " << d_NOfPhotons << " " << nbOfPhotons;
 #endif
   return nbOfPhotons;
 }
@@ -339,8 +302,7 @@ double HFCherenkov::computeQEff(double wavelength) {
       qeff = 0.137297 * exp(-pow((wavelength - 520.260), 2) / (2 * pow((75.5023), 2)));
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HFShower") << "HFCherenkov:: for new PMT : wavelength === " << wavelength << "\tqeff  ===\t"
-                                 << qeff;
+    edm::LogVerbatim("HFShower") << "HFCherenkov:: for new PMT : wavelength === " << wavelength << "\tqeff  ===\t" << qeff;
 #endif
   } else {
     double y = (wavelength - 275.) / 180.;
@@ -348,11 +310,11 @@ double HFCherenkov::computeQEff(double wavelength) {
     double qE_R7525 = 0.77 * y * exp(-y) * func;
     qeff = qE_R7525;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HFShower") << "HFCherenkov::computeQEff: wavelength " << wavelength << " y/func " << y << "/"
-                                 << func << " qeff " << qeff;
+    edm::LogVerbatim("HFShower") << "HFCherenkov::computeQEff: wavelength " << wavelength << " y/func " << y << "/" << func << " qeff " << qeff;
     edm::LogVerbatim("HFShower") << "HFCherenkov:: for old PMT : wavelength === " << wavelength << "; qeff = " << qeff;
 #endif
   }
+
   return qeff;
 }
 
@@ -411,8 +373,7 @@ void HFCherenkov::clearVectors() {
 bool HFCherenkov::isApplicable(const G4ParticleDefinition* aParticleType) {
   bool tmp = (aParticleType->GetPDGCharge() != 0);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFCherenkov::isApplicable: aParticleType " << aParticleType->GetParticleName()
-                               << " PDGCharge " << aParticleType->GetPDGCharge() << " Result " << tmp;
+  edm::LogVerbatim("HFShower") << "HFCherenkov::isApplicable: aParticleType " << aParticleType->GetParticleName() << " PDGCharge " << aParticleType->GetPDGCharge() << " Result " << tmp;
 #endif
   return tmp;
 }
