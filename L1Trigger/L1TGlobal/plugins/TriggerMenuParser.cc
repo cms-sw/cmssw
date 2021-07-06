@@ -14,6 +14,9 @@
  *                - correlations with overlap object removal
  *                - displaced muons by R.Cavanaugh
  *
+ * \new features: Elisa Fontanesi                                                      
+ *                - extended for three-body correlation conditions                                         
+ *                                                                
  * $Date$
  * $Revision$
  *
@@ -127,6 +130,11 @@ void l1t::TriggerMenuParser::setVecCorrelationTemplate(
   m_vecCorrelationTemplate = vecCorrelationTempl;
 }
 
+void l1t::TriggerMenuParser::setVecCorrelationThreeBodyTemplate(
+    const std::vector<std::vector<CorrelationThreeBodyTemplate> >& vecCorrelationThreeBodyTempl) {
+  m_vecCorrelationThreeBodyTemplate = vecCorrelationThreeBodyTempl;
+}
+
 void l1t::TriggerMenuParser::setVecCorrelationWithOverlapRemovalTemplate(
     const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >& vecCorrelationWithOverlapRemovalTempl) {
   m_vecCorrelationWithOverlapRemovalTemplate = vecCorrelationWithOverlapRemovalTempl;
@@ -199,6 +207,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
   m_vecExternalTemplate.resize(m_numberConditionChips);
 
   m_vecCorrelationTemplate.resize(m_numberConditionChips);
+  m_vecCorrelationThreeBodyTemplate.resize(m_numberConditionChips);
   m_vecCorrelationWithOverlapRemovalTemplate.resize(m_numberConditionChips);
   m_corMuonTemplate.resize(m_numberConditionChips);
   m_corCaloTemplate.resize(m_numberConditionChips);
@@ -301,6 +310,10 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
                    condition.getType() == esConditionType::TransverseMass ||
                    condition.getType() == esConditionType::InvariantMassUpt) {  // Added for displaced muons
           parseCorrelation(condition, chipNr);
+
+          //parse three-body Correlation Conditions
+        } else if (condition.getType() == esConditionType::InvariantMass3) {
+          parseCorrelationThreeBody(condition, chipNr);
 
           //parse Externals
         } else if (condition.getType() == esConditionType::Externals) {
@@ -655,7 +668,6 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
   std::map<std::string, unsigned int> precisions;
   getPrecisions(precisions, scaleMap);
   for (std::map<std::string, unsigned int>::const_iterator cit = precisions.begin(); cit != precisions.end(); cit++) {
-    //std::cout << cit->first << " = " << cit->second << "\n";
     hasPrecision = true;
   }
 
@@ -2586,7 +2598,7 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
         corrParameter.chargeCorrelation = 1;  //ignore charge correlation
     } else {
       //
-      //  Unitl utm has method to calculate these, do the integer value calculation with precision.
+      //  Until utm has method to calculate these, do the integer value calculation with precision.
       //
       double minV = cut.getMinimum().value;
       double maxV = cut.getMaximum().value;
@@ -2664,10 +2676,10 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
   // loop over legs
   for (size_t jj = 0; jj < objects.size(); jj++) {
     const esObject object = objects.at(jj);
-    //std::cout << "      obj name = " << object.getName() << "\n";
-    //std::cout << "      obj type = " << object.getType() << "\n";
-    //std::cout << "      obj op = " << object.getComparisonOperator() << "\n";
-    //std::cout << "      obj bx = " << object.getBxOffset() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj name = " << object.getName() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj type = " << object.getType() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj op = " << object.getComparisonOperator() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj bx = " << object.getBxOffset() << "\n";
 
     // check the leg type
     if (object.getType() == esObjectType::Muon) {
@@ -2810,6 +2822,151 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
   return true;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////
+/**
+ * parseCorrelationThreeBody Parse a correlation condition between three objects and
+ * insert an entry to the conditions map
+ *
+ * @param node The corresponding node.
+ * @param name The name of the condition.
+ * @param chipNr The number of the chip this condition is located.
+ *
+ * @return "true" if succeeded, "false" if an error occurred.
+ *
+ */
+
+bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition corrCond, unsigned int chipNr) {
+  using namespace tmeventsetup;
+
+  std::string condition = "corrThreeBody";
+  std::string particle = "muon";
+  std::string type = l1t2string(corrCond.getType());
+  std::string name = l1t2string(corrCond.getName());
+
+  LogDebug("TriggerMenuParser") << " ****************************************** " << std::endl
+                                << "     (in parseCorrelationThreeBody) " << std::endl
+                                << " condition = " << condition << std::endl
+                                << " particle  = " << particle << std::endl
+                                << " type      = " << type << std::endl
+                                << " name      = " << name << std::endl;
+
+  // create a new correlation condition
+  CorrelationThreeBodyTemplate correlationThreeBodyCond(name);
+
+  // check that the condition does not exist already in the map
+  if (!insertConditionIntoMap(correlationThreeBodyCond, chipNr)) {
+    edm::LogError("TriggerMenuParser") << "    Error: duplicate correlation condition (" << name << ")" << std::endl;
+    return false;
+  }
+
+  // Define some of the quantities to store the parsed information
+  GtConditionType cType = l1t::Type3s;
+
+  // three objects (for sure)
+  const int nrObj = 3;
+
+  // object types and greater equal flag - filled in the loop
+  std::vector<GlobalObject> objType(nrObj);
+  std::vector<GtConditionCategory> condCateg(nrObj);
+
+  // correlation flag and index in the cor*vector
+  const bool corrFlag = true;
+  int corrIndexVal[nrObj] = {-1, -1, -1};
+
+  // Storage of the correlation selection
+  CorrelationThreeBodyTemplate::CorrelationThreeBodyParameter corrThreeBodyParameter;
+
+  // Get the correlation cuts on the legs
+  int cutType = 0;
+  const std::vector<esCut>& cuts = corrCond.getCuts();
+  for (size_t lll = 0; lll < cuts.size(); lll++) {
+    const esCut cut = cuts.at(lll);
+
+    //
+    //  Until utm has method to calculate these, do the integer value calculation with precision.
+    //
+    double minV = cut.getMinimum().value;
+    double maxV = cut.getMaximum().value;
+
+    //Scale down very large numbers out of xml
+    if (maxV > 1.0e8)
+      maxV = 1.0e8;
+
+    if (cut.getCutType() == esCutType::Mass) {
+      LogDebug("TriggerMenuParser") << "CutType: " << cut.getCutType() << "\tMass Cut minV = " << minV
+                                    << "\tMass Cut maxV = " << maxV << " precMin = " << cut.getMinimum().index
+                                    << " precMax = " << cut.getMaximum().index << std::endl;
+      corrThreeBodyParameter.minMassCutValue = (long long)(minV * pow(10., cut.getMinimum().index));
+      corrThreeBodyParameter.maxMassCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
+      corrThreeBodyParameter.precMassCut = cut.getMinimum().index;
+      cutType = cutType | 0x8;
+    }
+  }
+  corrThreeBodyParameter.corrCutType = cutType;
+
+  // Get the three objects that form the legs
+  const std::vector<esObject>& objects = corrCond.getObjects();
+  if (objects.size() != 3) {
+    edm::LogError("TriggerMenuParser") << "incorrect number of objects for the correlation condition " << name
+                                       << " corrFlag " << corrFlag << std::endl;
+    return false;
+  }
+
+  // Loop over legs
+  for (size_t lll = 0; lll < objects.size(); lll++) {
+    const esObject object = objects.at(lll);
+    LogDebug("TriggerMenuParser") << "      obj name = " << object.getName() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj type = " << object.getType() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj bx = " << object.getBxOffset() << "\n";
+
+    // check the leg type
+    if (object.getType() == esObjectType::Muon) {
+      // we have a muon
+      parseMuonCorr(&object, chipNr);
+      corrIndexVal[lll] = (m_corMuonTemplate[chipNr]).size() - 1;
+
+      //Now set some flags for this subCondition
+      objType[lll] = gtMu;
+      condCateg[lll] = CondMuon;
+
+    } else {
+      edm::LogError("TriggerMenuParser") << "Checked the object Type " << object.getType()
+                                         << " for the correlation condition " << name
+                                         << ": no three muons in the event!" << std::endl;
+    }
+  }  // End loop over legs
+
+  // fill the three-body correlation condition
+  correlationThreeBodyCond.setCondType(cType);
+  correlationThreeBodyCond.setObjectType(objType);
+  correlationThreeBodyCond.setCondChipNr(chipNr);
+
+  correlationThreeBodyCond.setCond0Category(condCateg[0]);
+  correlationThreeBodyCond.setCond1Category(condCateg[1]);
+  correlationThreeBodyCond.setCond2Category(condCateg[2]);
+
+  correlationThreeBodyCond.setCond0Index(corrIndexVal[0]);
+  correlationThreeBodyCond.setCond1Index(corrIndexVal[1]);
+  correlationThreeBodyCond.setCond2Index(corrIndexVal[2]);
+
+  correlationThreeBodyCond.setCorrelationThreeBodyParameter(corrThreeBodyParameter);
+
+  if (edm::isDebugEnabled()) {
+    std::ostringstream myCoutStream;
+    correlationThreeBodyCond.print(myCoutStream);
+    LogTrace("TriggerMenuParser") << myCoutStream.str() << "\n" << std::endl;
+  }
+
+  // insert condition into the map
+  // condition is not duplicate, check was done at the beginning
+
+  (m_vecCorrelationThreeBodyTemplate[chipNr]).push_back(correlationThreeBodyCond);
+
+  //
+  return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
 /**
  * parseCorrelationWithOverlapRemoval Parse a correlation condition and
  * insert an entry to the conditions map
@@ -2950,14 +3107,14 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(const tmeventset
     return false;
   }
 
-  // loop over legs
+  // Loop over legs
   for (size_t jj = 0; jj < objects.size(); jj++) {
     const esObject& object = objects.at(jj);
-    //std::cout << "      obj name = " << object.getName() << "\n";
-    //std::cout << "      obj type = " << object.getType() << "\n";
-    //std::cout << "      obj op = " << object.getComparisonOperator() << "\n";
-    //std::cout << "      obj bx = " << object.getBxOffset() << "\n";
-    //std::cout << "type = done" << std::endl;
+    LogDebug("TriggerMenuParser") << "      obj name = " << object.getName() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj type = " << object.getType() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj op = " << object.getComparisonOperator() << "\n";
+    LogDebug("TriggerMenuParser") << "      obj bx = " << object.getBxOffset() << "\n";
+    LogDebug("TriggerMenuParser") << "type = done" << std::endl;
 
     // check the leg type
     if (object.getType() == esObjectType::Muon) {
