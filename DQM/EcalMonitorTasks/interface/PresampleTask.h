@@ -5,6 +5,9 @@
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
 namespace ecaldqm {
   class PresampleTask : public DQWorkerTask {
@@ -14,6 +17,7 @@ namespace ecaldqm {
 
     bool filterRunType(short const*) override;
 
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
     void beginEvent(edm::Event const&, edm::EventSetup const&, bool const&, bool&) override;
     bool analyze(void const*, Collections) override;
 
@@ -27,6 +31,9 @@ namespace ecaldqm {
     int pulseMaxPosition_;
     int nSamples_;
     MESet* mePedestalByLS;
+    bool FillPedestal = false;
+    edm::ESHandle<EcalPedestals> pPeds;
+
   };
 
   inline bool PresampleTask::analyze(void const* _p, Collections _collection) {
