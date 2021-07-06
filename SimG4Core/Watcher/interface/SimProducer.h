@@ -90,7 +90,6 @@ protected:
   }
 
 private:
-
   std::vector<std::shared_ptr<simproducer::ProductInfoBase>> m_info;
 };
 
