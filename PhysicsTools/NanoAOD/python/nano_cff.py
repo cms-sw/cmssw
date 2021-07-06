@@ -348,7 +348,7 @@ def nanoAOD_customizeCommon(process):
         nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(False),
         nanoAOD_addDeepDoubleXV2_switch = cms.untracked.bool(False),
         nanoAOD_addParticleNet_switch = cms.untracked.bool(False),
-        nanoAOD_addParticleNetMass_switch = cms.untracked.bool(True),
+        nanoAOD_addParticleNetMass_switch = cms.untracked.bool(False),
         jecPayload = cms.untracked.string('AK8PFPuppi')
         )
     # deepAK8 should not run on 80X, that contains ak8PFJetsCHS jets
@@ -362,13 +362,21 @@ def nanoAOD_customizeCommon(process):
         nanoAOD_addDeepDoubleX_switch = True,
         nanoAOD_addDeepDoubleXV2_switch = True,
         nanoAOD_addParticleNet_switch = True,
+        nanoAOD_addParticleNetMass_switch = True,
         )
     # for 106Xv1: only needs to run ParticleNet and DDXV2; DeepAK8, DeepDoubleX are already in MiniAOD
     run2_nanoAOD_106Xv1.toModify(
         nanoAOD_addDeepInfoAK8_switch,
         nanoAOD_addDeepDoubleXV2_switch = True,
         nanoAOD_addParticleNet_switch = True,
+        nanoAOD_addParticleNetMass_switch = True,
         )
+
+    run2_nanoAOD_106Xv2.toModify(
+        nanoAOD_addDeepInfoAK8_switch,
+        nanoAOD_addParticleNetMass_switch = True,
+    )
+
     process = nanoAOD_addDeepInfoAK8(process,
                                      addDeepBTag=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBTag_switch,
                                      addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
