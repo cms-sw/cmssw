@@ -47,7 +47,7 @@ class SimProducer;
 
 class RunManagerMTWorker {
 public:
-  explicit RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& i);
+  explicit RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
   ~RunManagerMTWorker();
 
   void beginRun(const edm::EventSetup&);
@@ -73,8 +73,6 @@ public:
   std::vector<std::shared_ptr<SimProducer>>& producers();
 
   void initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es);
-
-  inline void SetMagFieldToken(edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>& ref) { m_MagField = ref; }
 
 private:
   void initializeTLS();

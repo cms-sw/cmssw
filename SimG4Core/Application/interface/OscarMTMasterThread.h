@@ -18,7 +18,8 @@
 
 namespace edm {
   class EventSetup;
-}
+  class ConsumesCollector;
+}  // namespace edm
 
 class RunManagerMT;
 
@@ -42,9 +43,7 @@ public:
   void endRun() const;
   void stopThread();
 
-  void SetTokens(edm::ESGetToken<DDCompactView, IdealGeometryRecord>&,
-                 edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord>&,
-                 edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord>&) const;
+  void callConsumes(edm::ConsumesCollector&& iC) const;
 
   inline RunManagerMT& runManagerMaster() const { return *m_runManagerMaster; }
   inline RunManagerMT* runManagerMasterPtr() const { return m_runManagerMaster.get(); }
