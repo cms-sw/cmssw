@@ -92,11 +92,11 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
       pDDD = esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
     }
     edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pPDT =
-      esConsumes<HepPDT::ParticleDataTable, PDTRecord, edm::Transition::BeginRun>();
+        esConsumes<HepPDT::ParticleDataTable, PDTRecord, edm::Transition::BeginRun>();
     m_masterThread->SetTokens(pDDD, pDD4Hep, pPDT);
   }
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> pMagField =
-    esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
+      esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
   m_runManagerWorker->SetMagFieldToken(pMagField);
 
   // List of produced containers
