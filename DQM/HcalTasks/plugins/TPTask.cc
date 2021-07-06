@@ -761,8 +761,10 @@ TPTask::TPTask(edm::ParameterSet const& ps)
       }
     }
     if (_ptype != fOffline) {  // hidefed2crate
-      _cOccupancyData_ElectronicsuTCA.fill(eid);
-      _cEtData_ElectronicsuTCA.fill(eid, soiEt_d);
+      if (!eid.isVMEid()) {
+        _cOccupancyData_ElectronicsuTCA.fill(eid);
+        _cEtData_ElectronicsuTCA.fill(eid, soiEt_d);
+      }
     }
 
     //	FILL w/a CUT
@@ -779,7 +781,8 @@ TPTask::TPTask(edm::ParameterSet const& ps)
       }
       //	^^^ONLINE ONLY!
       if (_ptype != fOffline) {  // hidefed2crate
-        _cOccupancyCutData_ElectronicsuTCA.fill(eid);
+        if (!eid.isVMEid())
+          _cOccupancyCutData_ElectronicsuTCA.fill(eid);
       }
     }
 
@@ -820,7 +823,8 @@ TPTask::TPTask(edm::ParameterSet const& ps)
         _cFGCorr_TTSubdet[ibit].fill(tid, soiFG_d[ibit], soiFG_e[ibit]);
       //	FILL w/o a CUT
       if (_ptype != fOffline) {  // hidefed2crate
-        _cEtCorrRatio_ElectronicsuTCA.fill(eid, rEt);
+        if (!eid.isVMEid())
+          _cEtCorrRatio_ElectronicsuTCA.fill(eid, rEt);
       }
 
       //	if SOI Et are not equal
@@ -829,7 +833,8 @@ TPTask::TPTask(edm::ParameterSet const& ps)
         tid.ietaAbs() >= 29 ? numMsmHF++ : numMsmHBHE++;
         _cEtMsm_depthlike.fill(tid);
         if (_ptype != fOffline) {  // hidefed2crate
-          _cEtMsm_ElectronicsuTCA.fill(eid);
+          if (!eid.isVMEid())
+            _cEtMsm_ElectronicsuTCA.fill(eid);
         }
         if (_ptype == fOnline)
           _xEtMsm.get(eid)++;
@@ -841,19 +846,21 @@ TPTask::TPTask(edm::ParameterSet const& ps)
         if (soiFG_d[ibit] != soiFG_e[ibit] && _vFGBitsReady[ibit]) {
           _cFGMsm_depthlike.fill(tid);
           if (_ptype != fOffline) {  // hidefed2crate
-            _cFGMsm_ElectronicsuTCA.fill(eid);
+            if (!eid.isVMEid())
+              _cFGMsm_ElectronicsuTCA.fill(eid);
           }
           if (_ptype == fOnline)
             _xFGMsm.get(eid)++;
         }
     } else {
       //	IF MISSING
-      _cEtCorr_TTSubdet.fill(tid, eid, soiEt_d, -2);
-      _cSOIEtCorr_TTSubdet.fill(tid, eid, soiEt_d, -2);
+      _cEtCorr_TTSubdet.fill(tid, eid, soiEt_d, -1);
+      _cSOIEtCorr_TTSubdet.fill(tid, eid, soiEt_d, -1);
       _cMsnEmul_depthlike.fill(tid);
       tid.ietaAbs() >= 29 ? numMsnHF++ : numMsnHBHE++;
       if (_ptype != fOffline) {  // hidefed2crate
-        _cMsnEmul_ElectronicsuTCA.fill(eid);
+        if (!eid.isVMEid())
+          _cMsnEmul_ElectronicsuTCA.fill(eid);
       }
 
       if (soiEt_d > _cutEt) {
@@ -972,8 +979,10 @@ TPTask::TPTask(edm::ParameterSet const& ps)
     _cEtEmul_depthlike.fill(tid, soiEt);
     _cOccupancyEmul_depthlike.fill(tid);
     if (_ptype != fOffline) {  // hidefed2crate
-      _cOccupancyEmul_ElectronicsuTCA.fill(eid);
-      _cEtEmul_ElectronicsuTCA.fill(eid, soiEt);
+      if (!eid.isVMEid()) {
+        _cOccupancyEmul_ElectronicsuTCA.fill(eid);
+        _cEtEmul_ElectronicsuTCA.fill(eid, soiEt);
+      }
     }
 
     //	FILL w/ a CUT
@@ -982,7 +991,8 @@ TPTask::TPTask(edm::ParameterSet const& ps)
       _cOccupancyCutEmul_depthlike.fill(tid);
       _cEtCutEmul_depthlike.fill(tid, soiEt);
       if (_ptype != fOffline) {  // hidefed2crate
-        _cOccupancyCutEmul_ElectronicsuTCA.fill(eid);
+        if (!eid.isVMEid())
+          _cOccupancyCutEmul_ElectronicsuTCA.fill(eid);
       }
 
       //	ONLINE ONLY!
@@ -1000,11 +1010,12 @@ TPTask::TPTask(edm::ParameterSet const& ps)
       HcalTrigPrimDigiCollection::const_iterator jt = cdata->find(tid);
       if (jt == cdata->end()) {
         tid.ietaAbs() >= 29 ? numMsnHF++ : numMsnHBHE++;
-        _cEtCorr_TTSubdet.fill(tid, eid, -2, soiEt);
-        _cSOIEtCorr_TTSubdet.fill(tid, eid, -2, soiEt);
+        _cEtCorr_TTSubdet.fill(tid, eid, -1, soiEt);
+        _cSOIEtCorr_TTSubdet.fill(tid, eid, -1, soiEt);
         _cMsnData_depthlike.fill(tid);
         if (_ptype != fOffline) {  // hidefed2crate
-          _cMsnData_ElectronicsuTCA.fill(eid);
+          if (!eid.isVMEid())
+            _cMsnData_ElectronicsuTCA.fill(eid);
         }
         if (soiEt > _cutEt) {
           tid.ietaAbs() >= 29 ? numMsnCutHF++ : numMsnCutHBHE++;
