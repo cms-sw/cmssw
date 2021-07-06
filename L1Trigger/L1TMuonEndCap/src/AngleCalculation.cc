@@ -413,6 +413,8 @@ void AngleCalculation::calculate_angles(EMTFTrack& track, const int izone) const
   for (int i = 0; i < emtf::NUM_STATIONS; ++i) {
     const auto& v = st_conv_hits.at(i);
     ptlut_data.cpattern[i] = v.empty() ? 0 : v.front().Pattern();  // Automatically set to 0 for RPCs
+    ptlut_data.csign[i] = v.empty() ? 0 : v.front().Bend();        // Automatically set to 0 for RPCs
+    ptlut_data.slope[i] = v.empty() ? 0 : v.front().Slope();       // Automatically set to 0 for RPCs
     ptlut_data.fr[i] =
         v.empty() ? 0 : isFront(v.front().Station(), v.front().Ring(), v.front().Chamber(), v.front().Subsystem());
     if (i == 0)
