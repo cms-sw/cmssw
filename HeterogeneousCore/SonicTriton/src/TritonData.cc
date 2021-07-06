@@ -5,19 +5,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "model_config.pb.h"
+#include "model_config.h"
 
 #include <sstream>
 
 namespace ni = nvidia::inferenceserver;
-namespace nic = ni::client;
-
-namespace nvidia {
-  namespace inferenceserver {
-    //in libgrpcclient.so, but corresponding header src/core/model_config.h not available
-    size_t GetDataTypeByteSize(const inference::DataType dtype);
-    inference::DataType ProtocolStringToDataType(const std::string& dtype);
-  }  // namespace inferenceserver
-}  // namespace nvidia
+namespace tc = triton::client;
 
 //dims: kept constant, represents config.pbtxt parameters of model (converted from google::protobuf::RepeatedField to vector)
 //fullShape: if batching is enabled, first entry is batch size; values can be modified
@@ -50,13 +43,13 @@ TritonData<IO>::TritonData(const std::string& name,
 }
 
 template <>
-void TritonInputData::createObject(nic::InferInput** ioptr) {
-  nic::InferInput::Create(ioptr, name_, fullShape_, dname_);
+void TritonInputData::createObject(tc::InferInput** ioptr) {
+  tc::InferInput::Create(ioptr, name_, fullShape_, dname_);
 }
 
 template <>
-void TritonOutputData::createObject(nic::InferRequestedOutput** ioptr) {
-  nic::InferRequestedOutput::Create(ioptr, name_);
+void TritonOutputData::createObject(tc::InferRequestedOutput** ioptr) {
+  tc::InferRequestedOutput::Create(ioptr, name_);
   //another specialization for output: can't use shared memory if output size is not known
   useShm_ &= !variableDims_;
 }
@@ -72,7 +65,7 @@ std::string TritonOutputData::xput() const {
 }
 
 template <typename IO>
-nic::InferenceServerGrpcClient* TritonData<IO>::client() {
+tc::InferenceServerGrpcClient* TritonData<IO>::client() {
   return client_->client();
 }
 
@@ -250,8 +243,8 @@ void TritonOutputData::reset() {
 }
 
 //explicit template instantiation declarations
-template class TritonData<nic::InferInput>;
-template class TritonData<nic::InferRequestedOutput>;
+template class TritonData<tc::InferInput>;
+template class TritonData<tc::InferRequestedOutput>;
 
 template TritonInputContainer<float> TritonInputData::allocate(bool reserve);
 template TritonInputContainer<int64_t> TritonInputData::allocate(bool reserve);

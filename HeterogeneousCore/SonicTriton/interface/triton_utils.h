@@ -12,7 +12,7 @@
 
 namespace triton_utils {
 
-  using Error = nvidia::inferenceserver::client::Error;
+  using Error = triton::client::Error;
 
   template <typename C>
   std::string printColl(const C& coll, const std::string& delim = ", ");

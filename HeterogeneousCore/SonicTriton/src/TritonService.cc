@@ -20,8 +20,7 @@
 #include <tuple>
 #include <unistd.h>
 
-namespace ni = nvidia::inferenceserver;
-namespace nic = ni::client;
+namespace tc = triton::client;
 
 const std::string TritonService::Server::fallbackName{"fallback"};
 const std::string TritonService::Server::fallbackAddress{"0.0.0.0"};
@@ -86,9 +85,9 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
           << "Not allowed to specify more than one server with same name (" << serverName << ")";
     auto& serverInfo(sit->second);
 
-    std::unique_ptr<nic::InferenceServerGrpcClient> client;
+    std::unique_ptr<tc::InferenceServerGrpcClient> client;
     triton_utils::throwIfError(
-        nic::InferenceServerGrpcClient::Create(&client, serverInfo.url, false),
+        tc::InferenceServerGrpcClient::Create(&client, serverInfo.url, false),
         "TritonService(): unable to create inference context for " + serverName + " (" + serverInfo.url + ")");
 
     inference::RepositoryIndexResponse repoIndexResponse;

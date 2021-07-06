@@ -18,8 +18,7 @@
 #include <utility>
 #include <tuple>
 
-namespace ni = nvidia::inferenceserver;
-namespace nic = ni::client;
+namespace tc = triton::client;
 
 //based on https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/examples/simple_grpc_async_infer_client.cc
 //and https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/perf_client/perf_client.cc
@@ -43,7 +42,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
 
   //connect to the server
   //TODO: add SSL options
-  triton_utils::throwIfError(nic::InferenceServerGrpcClient::Create(&client_, url, false),
+  triton_utils::throwIfError(tc::InferenceServerGrpcClient::Create(&client_, url, false),
                              "TritonClient(): unable to create inference context");
 
   //set options
@@ -209,7 +208,7 @@ bool TritonClient::handle_exception(F&& call) {
   }
 }
 
-void TritonClient::getResults(std::shared_ptr<nic::InferResult> results) {
+void TritonClient::getResults(std::shared_ptr<tc::InferResult> results) {
   for (auto& [oname, output] : output_) {
     //set shape here before output becomes const
     if (output.variableDims()) {
@@ -256,9 +255,9 @@ void TritonClient::evaluate() {
     success = handle_exception([&]() {
       triton_utils::throwIfError(
           client_->AsyncInfer(
-              [t1, start_status, this](nic::InferResult* results) {
+              [t1, start_status, this](tc::InferResult* results) {
                 //get results
-                std::shared_ptr<nic::InferResult> results_ptr(results);
+                std::shared_ptr<tc::InferResult> results_ptr(results);
                 auto success = handle_exception([&]() {
                   triton_utils::throwIfError(results_ptr->RequestStatus(), "evaluate(): unable to get result");
                 });
@@ -298,7 +297,7 @@ void TritonClient::evaluate() {
   } else {
     //blocking call
     auto t1 = std::chrono::high_resolution_clock::now();
-    nic::InferResult* results;
+    tc::InferResult* results;
     success = handle_exception([&]() {
       triton_utils::throwIfError(client_->Infer(&results, options_, inputsTriton_, outputsTriton_),
                                  "evaluate(): unable to run and/or get result");
@@ -321,7 +320,7 @@ void TritonClient::evaluate() {
       reportServerSideStats(stats);
     }
 
-    std::shared_ptr<nic::InferResult> results_ptr(results);
+    std::shared_ptr<tc::InferResult> results_ptr(results);
     success = handle_exception([&]() { getResults(results_ptr); });
     if (!success)
       return;

@@ -42,7 +42,7 @@ using TritonInputContainer = std::shared_ptr<TritonInput<DT>>;
 template <typename IO>
 class TritonData {
 public:
-  using Result = nvidia::inferenceserver::client::InferResult;
+  using Result = triton::client::InferResult;
   using TensorMetadata = inference::ModelMetadataResponse_TensorMetadata;
   using ShapeType = std::vector<int64_t>;
   using ShapeView = edm::Span<ShapeType::const_iterator>;
@@ -93,7 +93,7 @@ private:
   void updateMem(size_t size);
   void computeSizes();
   void resetSizes();
-  nvidia::inferenceserver::client::InferenceServerGrpcClient* client();
+  triton::client::InferenceServerGrpcClient* client();
 
   //helpers
   bool anyNeg(const ShapeView& vec) const {
@@ -134,9 +134,9 @@ private:
   std::shared_ptr<Result> result_;
 };
 
-using TritonInputData = TritonData<nvidia::inferenceserver::client::InferInput>;
+using TritonInputData = TritonData<triton::client::InferInput>;
 using TritonInputMap = std::unordered_map<std::string, TritonInputData>;
-using TritonOutputData = TritonData<nvidia::inferenceserver::client::InferRequestedOutput>;
+using TritonOutputData = TritonData<triton::client::InferRequestedOutput>;
 using TritonOutputMap = std::unordered_map<std::string, TritonOutputData>;
 
 //avoid "explicit specialization after instantiation" error
@@ -160,12 +160,12 @@ void TritonInputData::reset();
 template <>
 void TritonOutputData::reset();
 template <>
-void TritonInputData::createObject(nvidia::inferenceserver::client::InferInput** ioptr);
+void TritonInputData::createObject(triton::client::InferInput** ioptr);
 template <>
-void TritonOutputData::createObject(nvidia::inferenceserver::client::InferRequestedOutput** ioptr);
+void TritonOutputData::createObject(triton::client::InferRequestedOutput** ioptr);
 
 //explicit template instantiation declarations
-extern template class TritonData<nvidia::inferenceserver::client::InferInput>;
-extern template class TritonData<nvidia::inferenceserver::client::InferRequestedOutput>;
+extern template class TritonData<triton::client::InferInput>;
+extern template class TritonData<triton::client::InferRequestedOutput>;
 
 #endif
