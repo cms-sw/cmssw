@@ -16,14 +16,16 @@ gensource = cms.EDProducer("GenParticlePruner",
                            )
 
 
-pfElectronValidation1 = pfElectronDQMAnalyzer.clone()
-pfElectronValidation1.BenchmarkLabel  = cms.string('PFElectronValidation/CompWithGenElectron')
+pfElectronValidation1 = pfElectronDQMAnalyzer.clone(
+    BenchmarkLabel  = 'PFElectronValidation/CompWithGenElectron'
+)
 pfElectronValidationSequence = cms.Sequence( gensource + pfElectronValidation1 )
 
 
 # NoTracking
-pfElectronValidation2 = pfElectronDQMAnalyzer.clone()
-pfElectronValidation2.InputCollection = cms.InputTag('pfAllElectrons','','PFlowDQMnoTracking')
-pfElectronValidation2.MatchCollection = cms.InputTag('gensource','','PFlowDQMnoTracking')
-pfElectronValidation2.BenchmarkLabel  = cms.string('PFElectronValidation/CompWithGenElectron')
+pfElectronValidation2 = pfElectronDQMAnalyzer.clone(
+    InputCollection = 'pfAllElectrons::PFlowDQMnoTracking',
+    MatchCollection = 'gensource::PFlowDQMnoTracking',
+    BenchmarkLabel  = 'PFElectronValidation/CompWithGenElectron'
+)
 pfElectronValidationSequence_NoTracking = cms.Sequence( pfElectronValidation2 )
