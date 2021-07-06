@@ -1558,9 +1558,9 @@ namespace edm {
         });
 
     if (looper_) {
-      auto prefetchLooperTask = edm::make_waiting_task(
-          [this, nextTask = WaitingTaskHolder(taskGroup, finalTaskForThisLumi), &lp, &es, &taskGroup](
-              std::exception_ptr const* iPtr) mutable {
+      auto prefetchLooperTask =
+          edm::make_waiting_task([this, nextTask = WaitingTaskHolder(taskGroup, finalTaskForThisLumi), &lp, &es](
+                                     std::exception_ptr const* iPtr) mutable {
             if (iPtr) {
               handleEndLumiExceptions(iPtr, nextTask);
             } else {
@@ -1967,7 +1967,7 @@ namespace edm {
     }
 
     WaitingTaskHolder finalizeEventTask(*iHolder.group(),
-                                        make_waiting_task([this, pep, iHolder](std::exception_ptr const* iPtr) mutable {
+                                        make_waiting_task([pep, iHolder](std::exception_ptr const* iPtr) mutable {
                                           FDEBUG(1) << "\tprocessEvent\n";
                                           pep->clearEventPrincipal();
                                           if (iPtr) {
