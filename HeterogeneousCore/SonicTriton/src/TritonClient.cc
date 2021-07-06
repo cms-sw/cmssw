@@ -20,6 +20,19 @@
 
 namespace tc = triton::client;
 
+namespace {
+  grpc_compression_algorithm getCompressionAlgo(const std::string& name){
+    if(name.empty() or name.compare("none")==0)
+      return grpc_compression_algorithm::GRPC_COMPRESS_NONE;
+    else if(name.compare("deflate")==0)
+      return grpc_compression_algorithm::GRPC_COMPRESS_DEFLATE;
+    else if(name.compare("gzip")==0)
+      return grpc_compression_algorithm::GRPC_COMPRESS_GZIP;
+    else
+      throw cms::Exception("GrpcCompression") << "Unknown compression algorithm requested: " << name << " (choices: none, deflate, gzip)";
+  }
+}
+
 //based on https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/examples/simple_grpc_async_infer_client.cc
 //and https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/perf_client/perf_client.cc
 
@@ -27,6 +40,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
     : SonicClient(params, debugName, "TritonClient"),
       verbose_(params.getUntrackedParameter<bool>("verbose")),
       useSharedMemory_(params.getUntrackedParameter<bool>("useSharedMemory")),
+      compressionAlgo_(getCompressionAlgo(params.getUntrackedParameter<std::string>("compression"))),
       options_(params.getParameter<std::string>("modelName")) {
   //get appropriate server for this model
   edm::Service<TritonService> ts;
@@ -289,7 +303,9 @@ void TritonClient::evaluate() {
               },
               options_,
               inputsTriton_,
-              outputsTriton_),
+              outputsTriton_,
+              headers_,
+              compressionAlgo_),
           "evaluate(): unable to launch async run");
     });
     if (!success)
@@ -299,7 +315,7 @@ void TritonClient::evaluate() {
     auto t1 = std::chrono::high_resolution_clock::now();
     tc::InferResult* results;
     success = handle_exception([&]() {
-      triton_utils::throwIfError(client_->Infer(&results, options_, inputsTriton_, outputsTriton_),
+      triton_utils::throwIfError(client_->Infer(&results, options_, inputsTriton_, outputsTriton_, headers_, compressionAlgo_),
                                  "evaluate(): unable to run and/or get result");
     });
     if (!success)
@@ -409,6 +425,7 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   descClient.addUntracked<unsigned>("timeout");
   descClient.addUntracked<bool>("verbose", false);
   descClient.addUntracked<bool>("useSharedMemory", true);
+  descClient.addUntracked<std::string>("compression", "");
   descClient.addUntracked<std::vector<std::string>>("outputs", {});
   iDesc.add<edm::ParameterSetDescription>("Client", descClient);
 }
