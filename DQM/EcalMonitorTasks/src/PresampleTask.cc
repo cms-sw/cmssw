@@ -16,6 +16,7 @@ namespace ecaldqm {
     pulseMaxPosition_ = _params.getUntrackedParameter<int>("pulseMaxPosition");
     nSamples_ = _params.getUntrackedParameter<int>("nSamples");
   }
+  void PresampleTask::setTokens(edm::ConsumesCollector& _collector) { Pedtoken_ = _collector.esConsumes(); }
 
   bool PresampleTask::filterRunType(short const* _runType) {
     for (int iFED(0); iFED < nDCC; iFED++) {
@@ -29,10 +30,7 @@ namespace ecaldqm {
     return false;
   }
 
-  void PresampleTask::beginRun(edm::Run const&, edm::EventSetup const& _es) {
-    _es.get<EcalPedestalsRcd>().get(pPeds);
-    FillPedestal = true;
-  }
+  void PresampleTask::beginRun(edm::Run const&, edm::EventSetup const& _es) { FillPedestal = true; }
 
   void PresampleTask::beginEvent(edm::Event const& _evt,
                                  edm::EventSetup const& _es,
@@ -52,7 +50,7 @@ namespace ecaldqm {
     MESet& mePedestalProjEtaG12(MEs_.at("PedestalProjEtaG12"));
 
     if (FillPedestal) {
-      const EcalPedestals* myped = pPeds.product();
+      const EcalPedestals* myped = &_es.getData(Pedtoken_);
 
       for (int i = 0; i < EBDetId::kSizeForDenseIndexing; i++) {
         if (!EBDetId::validDenseIndex(i))
