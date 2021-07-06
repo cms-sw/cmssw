@@ -32,16 +32,14 @@ namespace edmtest {
       }
     }
 
-    Status duringLoop(edm::Event const& iEvent, edm::EventSetup const& iSetup) override {
-      return kContinue;
-    }
+    Status duringLoop(edm::Event const& iEvent, edm::EventSetup const& iSetup) override { return kContinue; }
 
     Status endOfLoop(edm::EventSetup const&, unsigned int iCount) override { return iCount == 2 ? kStop : kContinue; }
 
   private:
     edm::ESGetToken<Doodad, GadgetRcd> token_;
   };
-}
+}  // namespace edmtest
 
 using namespace edmtest;
 DEFINE_FWK_LOOPER(DoodadEDLooper);
