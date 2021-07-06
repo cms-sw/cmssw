@@ -79,8 +79,3 @@ _modifiers = (run2_miniAOD_80XLegacy | run2_nanoAOD_92X | run2_nanoAOD_94XMiniAO
 (_modifiers).toReplaceWith(boostedTauTask,cms.Task())
 (_modifiers).toReplaceWith(boostedTauTablesTask,cms.Task())
 (_modifiers).toReplaceWith(boostedTauMCTask,cms.Task())
-
-# TEMPORARY for Run3 and run2_nanoAOD_106Xv2
-(run3_nanoAOD_devel | run2_nanoAOD_106Xv2).toReplaceWith(boostedTauTask,cms.Task())
-(run3_nanoAOD_devel | run2_nanoAOD_106Xv2).toReplaceWith(boostedTauTablesTask,cms.Task())
-(run3_nanoAOD_devel | run2_nanoAOD_106Xv2).toReplaceWith(boostedTauMCTask,cms.Task())

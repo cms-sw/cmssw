@@ -97,8 +97,12 @@ def nanoAOD_addTauIds(process):
     tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, debug = False, updatedTauName = updatedTauName,
             toKeep = [ "deepTau2017v2p1" ])
     tauIdEmbedder.runTauID()
-    process.patTauMVAIDsSeq.insert(process.patTauMVAIDsSeq.index(getattr(process, updatedTauName)),
-                                   process.rerunMvaIsolationSequence)
+
+    _tauTask = patTauMVAIDsTask.copy()
+    _tauTask.add(process.rerunMvaIsolationTask)
+    _tauTask.add(finalTaus)
+    process.tauTask = _tauTask.copy()
+
     return process
 
 def nanoAOD_addBoostedTauIds(process):
@@ -108,12 +112,13 @@ def nanoAOD_addBoostedTauIds(process):
                                                      updatedTauName = updatedBoostedTauName,
                                                      postfix="Boosted",
                                                      toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2","againstEle2018",])
-    boostedTauIdEmbedder.runTauID()
-    process.boostedTauSequence.insert(process.boostedTauSequence.index(process.finalBoostedTaus),
-                                      process.rerunMvaIsolationSequenceBoosted)
 
-    process.boostedTauSequence.insert(process.boostedTauSequence.index(process.finalBoostedTaus),
-                                      getattr(process, updatedBoostedTauName))
+    boostedTauIdEmbedder.runTauID()
+    _boostedTauTask = process.rerunMvaIsolationTaskBoosted.copy()
+    _boostedTauTask.add(getattr(process, updatedBoostedTauName))
+    _boostedTauTask.add(process.finalBoostedTaus)
+
+    process.boostedTauTask = _boostedTauTask.copy()
 
     return process
  
@@ -373,8 +378,8 @@ def nanoAOD_customizeCommon(process):
                                      addParticleNetMass=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNetMass_switch,
                                      jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload)
 
-#    (run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(process, lambda p : nanoAOD_addTauIds(p))
-#    (~(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1)).toModify(process, lambda p : nanoAOD_addBoostedTauIds(p))
+    (run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(process, lambda p : nanoAOD_addTauIds(p))
+    (~(run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1)).toModify(process, lambda p : nanoAOD_addBoostedTauIds(p))
     return process
 
 def nanoAOD_customizeData(process):

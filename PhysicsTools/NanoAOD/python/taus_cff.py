@@ -246,7 +246,6 @@ tauMCTable = cms.EDProducer("CandMCMatchTableProducer",
 )
 
 
-patTauMVAIDsSeq = cms.Sequence(patTauMVAIDsTask)
 tauTask = cms.Task( patTauMVAIDsTask,finalTaus)
 
 run2_miniAOD_80XLegacy.toReplaceWith(tauTask, cms.Task(finalTaus))
@@ -255,11 +254,3 @@ tauTablesTask = cms.Task(tauTable)
 
 genTauTask = cms.Task(tauGenJetsForNano,tauGenJetsSelectorAllHadronsForNano,genVisTaus,genVisTauTable)
 tauMCTask = cms.Task(genTauTask,tausMCMatchLepTauForTable,tausMCMatchHadTauForTable,tauMCTable)
-
-
-run3_nanoAOD_devel.toModify(finalTaus,
-                            src = cms.InputTag("slimmedTaus"),
-                            cut =  cms.string("pt > 18")
-)
-
-run3_nanoAOD_devel.toReplaceWith(tauTask, cms.Task(finalTaus))
