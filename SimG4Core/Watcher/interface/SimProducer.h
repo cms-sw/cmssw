@@ -64,13 +64,7 @@ namespace simproducer {
 class SimProducer : public SimWatcher {
 public:
   SimProducer() {}
-  // virtual ~SimProducer();
 
-  // ---------- const member functions ---------------------
-
-  // ---------- static member functions --------------------
-
-  // ---------- member functions ---------------------------
   virtual void produce(edm::Event &, const edm::EventSetup &) = 0;
 
   void registerProducts(edm::ProducesCollector producesCollector) {
@@ -92,12 +86,11 @@ protected:
     m_info.push_back(std::make_shared<simproducer::ProductInfo<T>>(instanceName));
   }
 
+  SimProducer(const SimProducer &) = delete;
+  const SimProducer &operator=(const SimProducer &) = delete;
+
 private:
-  SimProducer(const SimProducer &) = delete;  // stop default
 
-  const SimProducer &operator=(const SimProducer &) = delete;  // stop default
-
-  // ---------- member data --------------------------------
   std::vector<std::shared_ptr<simproducer::ProductInfoBase>> m_info;
 };
 

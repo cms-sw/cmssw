@@ -42,7 +42,7 @@ public:
   void endRun() const;
   void stopThread();
 
-  void SetTokens(edm::ESGetToken<DDCompactView, IdealGeometryRecord>&, 
+  void SetTokens(edm::ESGetToken<DDCompactView, IdealGeometryRecord>&,
                  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord>&,
                  edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord>&) const;
 
@@ -62,7 +62,7 @@ private:
   mutable const DDCompactView* m_pDDD = nullptr;
   mutable const cms::DDCompactView* m_pDD4Hep = nullptr;
   mutable const HepPDT::ParticleDataTable* m_pTable = nullptr;
-  mutable edm::ESGetToken<DDCompactView, IdealGeometryRecord> m_DDD; 
+  mutable edm::ESGetToken<DDCompactView, IdealGeometryRecord> m_DDD;
   mutable edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> m_DD4Hep;
   mutable edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> m_PDT;
 
