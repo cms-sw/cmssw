@@ -25,16 +25,6 @@
 
 #include "Randomize.hh"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
-#include "HepPDT/ParticleDataTable.hh"
-#include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include <iostream>
 #include <memory>
 
@@ -77,23 +67,7 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
 
   m_runManagerWorker = std::make_unique<RunManagerMTWorker>(p, consumesCollector());
   m_masterThread = ms;
-
-  // Prepare tokens
-  bool isDD4Hep = p.getParameter<bool>("g4GeometryDD4hepSource");
-  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> pDD4Hep;
-  edm::ESGetToken<DDCompactView, IdealGeometryRecord> pDDD;
-  if (isDD4Hep) {
-    pDD4Hep = esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
-  } else {
-    pDDD = esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
-  }
-  edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pPDT =
-      esConsumes<HepPDT::ParticleDataTable, PDTRecord, edm::Transition::BeginRun>();
-  m_masterThread->SetTokens(pDDD, pDD4Hep, pPDT);
-
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> pMagField =
-      esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
-  m_runManagerWorker->SetMagFieldToken(pMagField);
+  m_masterThread->callConsumes(consumesCollector());
 
   // List of produced containers
   produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
@@ -156,7 +130,7 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
   for (auto& ptr : producers) {
     ptr->registerProducts(producesCollector());
   }
-  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer is constructed DD4Hep: " << isDD4Hep;
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer is constructed";
 }
 
 OscarMTProducer::~OscarMTProducer() {}

@@ -1,11 +1,11 @@
 #include <memory>
 
 #include "SimG4Core/Application/interface/OscarMTMasterThread.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Geometry/interface/CustomUIsession.h"
-
-#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "G4PhysicalVolumeStore.hh"
 
@@ -15,7 +15,8 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
   // Lock the mutex
   std::unique_lock<std::mutex> lk(m_threadMutex);
 
-  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread: creating master thread";
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "OscarMTMasterThread: creating master thread DD4Hep: " << m_pGeoFromDD4hep;
 
   // Create Geant4 master thread
   m_masterThread = std::thread([&]() {
@@ -102,6 +103,19 @@ OscarMTMasterThread::~OscarMTMasterThread() {
   }
 }
 
+void OscarMTMasterThread::callConsumes(edm::ConsumesCollector&& iC) const {
+  if (m_hasToken) {
+    return;
+  }
+  if (m_pGeoFromDD4hep) {
+    m_DD4Hep = iC.esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
+  } else {
+    m_DDD = iC.esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
+  }
+  m_PDT = iC.esConsumes<HepPDT::ParticleDataTable, PDTRecord, edm::Transition::BeginRun>();
+  m_hasToken = true;
+}
+
 void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
   std::lock_guard<std::mutex> lk(m_protectMutex);
   std::unique_lock<std::mutex> lk2(m_threadMutex);
@@ -163,15 +177,4 @@ void OscarMTMasterThread::stopThread() {
   m_masterThread.join();
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread::stopTread: main thread finished";
   m_stopped = true;
-}
-
-void OscarMTMasterThread::SetTokens(edm::ESGetToken<DDCompactView, IdealGeometryRecord>& rDDD,
-                                    edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord>& rDD4Hep,
-                                    edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord>& rPDT) const {
-  if (!m_hasToken) {
-    m_DDD = rDDD;
-    m_DD4Hep = rDD4Hep;
-    m_PDT = rPDT;
-    m_hasToken = true;
-  }
 }
