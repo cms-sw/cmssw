@@ -311,11 +311,11 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   if (m_pUseMagneticField) {
     const GlobalPoint g(0., 0., 0.);
 
-    CMSFieldManager* fieldManager = new CMSFieldManager();
-    tM->SetFieldManager(fieldManager);
-
     const MagneticField* pMF = &(es.getData(m_MagField));
     sim::FieldBuilder fieldBuilder(pMF, m_pField);
+
+    CMSFieldManager* fieldManager = new CMSFieldManager();
+    tM->SetFieldManager(fieldManager);
     fieldBuilder.build(fieldManager, tM->GetPropagatorInField());
 
     std::string fieldFile = m_p.getUntrackedParameter<std::string>("FileNameField", "");
