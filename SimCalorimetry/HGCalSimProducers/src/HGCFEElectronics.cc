@@ -53,7 +53,7 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
 
   if (ps.exists("tdcNbits")) {
     tdcNbits_ = ps.getParameter<uint32_t>("tdcNbits");
-    setTDCfsc( ps.getParameter<double>("tdcSaturation_fC") );   
+    setTDCfsc(ps.getParameter<double>("tdcSaturation_fC"));
     edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] " << tdcNbits_ << " bit TDC defined with LSB=" << tdcLSB_fC_
                               << " saturation to occur @ " << tdcSaturation_fC_
                               << " (NB lowered by 1 part in a million)" << std::endl;
@@ -236,7 +236,8 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
   }
 
   //configure the ADC LSB depending on the value passed as argument
-  if (lsbADC < 0) lsbADC = adcLSB_fC_;
+  if (lsbADC < 0)
+    lsbADC = adcLSB_fC_;
 
   //first look at time
   //for pileup look only at intime signals

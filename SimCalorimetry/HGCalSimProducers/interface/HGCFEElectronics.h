@@ -98,7 +98,7 @@ public:
   std::array<float, 3> getTDCForToAOnset() { return tdcForToAOnset_fC_; }
   void setADClsb(float newLSB) { adcLSB_fC_ = newLSB; }
   void setTDCfsc(float newTDCfsc) {
-    tdcSaturation_fC_=newTDCfsc;
+    tdcSaturation_fC_ = newTDCfsc;
     tdcLSB_fC_ = tdcSaturation_fC_ / pow(2., tdcNbits_);
     // lower tdcSaturation_fC_ by one part in a million
     // to ensure largest charge converted in bits is 0xfff and not 0x000

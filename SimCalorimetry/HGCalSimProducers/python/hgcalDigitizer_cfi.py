@@ -62,8 +62,9 @@ HGCAL_noise_heback = cms.PSet(
     scaleByDoseFactor = cms.double(1),
     doseMap = cms.string(""), #empty dose map at begin-of-life
     sipmMap = cms.string(""), #if empty will prompt to use geometry-based definition
-    noise_MIP = cms.double(1./7.),
-    referenceIdark = cms.double(-1)
+    referenceIdark = cms.double(-1),
+    referenceXtalk = cms.double(-1),
+    noise_MIP = cms.double(1./7.) #this is to be deprecated
 )
 
 HGCAL_chargeCollectionEfficiencies = cms.PSet(
@@ -157,8 +158,7 @@ hgchebackDigitizer = cms.PSet(
         keV2MIP       = cms.double(1./675.0),
         doTimeSamples = cms.bool(False),
         nPEperMIP = cms.double(21.0),
-        nTotalPE  = cms.double(7500),
-        xTalk     = cms.double(0.01),
+        nTotalPE  = cms.double(7500),        
         sdPixels  = cms.double(1e-6), # this is additional photostatistics noise (as implemented), not sure why it's here...
         thresholdFollowsMIP = cms.bool(thresholdTracksMIP),
         feCfg = hgcROCSettings.clone(
@@ -210,13 +210,21 @@ for _m in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigiti
     premix_stage1.toModify(_m, premixStage1 = True)
 
 #function to set noise to aged HGCal
-endOfLifeCCEs = [0.5, 0.5, 0.7]
-endOfLifeNoises = [2400.0,2250.0,1750.0]
-def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseFactor=1):
-    """includes all effects from radiation and gain choice"""
-    # byDoseAlgo is used as a collection of bits to toggle: FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP (from lsb to Msb)
+endOfLifeCCEs = [0.5, 0.5, 0.7] # this is to be deprecated
+endOfLifeNoises = [2400.0,2250.0,1750.0]  #this is to be deprecated
+def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseAlgoSci=2,byDoseFactor=1):
+    """
+    includes all effects from radiation and gain choice
+    (see also notes in HGCal_setRealisticStartupNoise)    
+    """
+
     process=HGCal_setRealisticNoiseSi(process,byDose=byDose,byDoseAlgo=byDoseAlgo,byDoseFactor=byDoseFactor)
-    process=HGCal_setRealisticNoiseSci(process,byDose=byDose,byDoseAlgo=byDoseAlgo,byDoseFactor=byDoseFactor)
+    process=HGCal_setRealisticNoiseSci(process,
+                                       byDose=byDose,
+                                       byDoseAlgo=byDoseAlgoSci,
+                                       byDoseFactor=byDoseFactor,
+                                       referenceIdark=0.25,
+                                       referenceXtalk=0.01)
     return process
 
 def HGCal_setEndOfLifeNoise_4000(process):
@@ -254,10 +262,10 @@ def HGCal_setRealisticStartupNoise(process):
       (for instance turning on the 0th  bit turns off the impact of fluence in Si)
     """
     process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=1)
-    process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=2+8+16,referenceIdark=0.125)
+    process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=2+8+16,referenceIdark=0.125,referenceXtalk=0.01)
     return process
 
-def HGCal_setRealisticStartupNoise_fixedSiPMTileAreasAndSN(process,targetSN=7):
+def HGCal_setRealisticStartupNoise_fixedSiPMTileAreasAndSN(process,targetSN=7,referenceXtalk=-1):
     """ 
     similar to HGCal_setRealisticStartupNoise but tile and SiPM areas are fixed
     as 4mm2 assumed use Idark=0.25 so that S/N ~ 7
@@ -267,10 +275,12 @@ def HGCal_setRealisticStartupNoise_fixedSiPMTileAreasAndSN(process,targetSN=7):
     
     #scale dark current on the SiPM so that it corresponds to the target S/N
     idark=0.25/(targetSN/6.97)**2
+    print('[HGCal_setRealisticStartupNoise_fixedSiPMTileAreasAndSN] for a target S/N={:3.2f} setting idark={:3.3f}nA'.format(targetSN,idark))
     process=HGCal_setRealisticNoiseSci(process,byDose=True,
                                        byDoseAlgo=2+4+8+16+64,
                                        byDoseSipmMap=cms.string("SimCalorimetry/HGCalSimProducers/data/sipmParams_all4mm2.txt"),
-                                       referenceIdark=idark)
+                                       referenceIdark=idark,
+                                       referenceXtalk=referenceXtalk)
     return process
 
 
@@ -323,12 +333,17 @@ def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap
         doseMap = byDoseMap,
         values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #100,200,300 um
         )
-    process.HGCAL_chargeCollectionEfficiencies = cms.PSet(
+
+    #this is to be deprecated
+    process.HGCAL_chargeCollectionEfficiencies = cms.PSet(  
         values = cms.vdouble(endOfLifeCCEs)
         )
+    
+    #this is to be deprecated
     process.HGCAL_noises = cms.PSet(
-        values = cms.vdouble([x for x in endOfLifeNoises])
+        values = cms.vdouble([x for x in endOfLifeNoises])  
         )
+
     return process
 
 def HGCal_setRealisticNoiseSci(process,
@@ -337,7 +352,8 @@ def HGCal_setRealisticNoiseSci(process,
                                byDoseMap=doseMap,
                                byDoseSipmMap=cms.string("SimCalorimetry/HGCalSimProducers/data/sipmParams_geom-10.txt"),
                                byDoseFactor=1,
-                               referenceIdark=0.25):
+                               referenceIdark=0.25,
+                               referenceXtalk=-1):
     process.HGCAL_noise_heback = cms.PSet(
         scaleByDose = cms.bool(byDose),
         scaleByDoseAlgo = cms.uint32(byDoseAlgo),
@@ -345,6 +361,7 @@ def HGCal_setRealisticNoiseSci(process,
         doseMap = byDoseMap,
         sipmMap = byDoseSipmMap,
         referenceIdark = cms.double(referenceIdark),
+        referenceXtalk = cms.double(referenceXtalk),
         noise_MIP = cms.double(1./5.), #this is to be deprecated (still needed for vanilla for the moment)
         )
     return process
@@ -362,8 +379,9 @@ def HGCal_disableNoise(process):
         scaleByDoseAlgo = cms.uint32(0),
         scaleByDoseFactor = cms.double(1),
         doseMap = cms.string(""),
-        noise_MIP = cms.double(0.), #zero noise
-        referenceIdark = cms.double(0.)
+        referenceIdark = cms.double(0.),
+        referenceXtalk = cms.double(-1),
+        noise_MIP = cms.double(0.), #zero noise (this is to be deprecated)
         )
     process.HGCAL_noises = cms.PSet(
         values = cms.vdouble(0,0,0)

@@ -28,7 +28,7 @@ double HGCalRadiationMap::computeRadius(const HGCScintillatorDetId& cellId) {
 double HGCalRadiationMap::getDoseValue(const int subdet, const int layer, const double radius, bool logVal) {
   std::pair<int, int> key(subdet, layer);
 
-  if(doseMap_.find(key)==doseMap_.end()) {
+  if (doseMap_.find(key) == doseMap_.end()) {
     return logVal ? -10. : 0.;
   }
 
