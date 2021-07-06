@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 
 from __future__ import print_function
@@ -261,7 +261,7 @@ if __name__ == '__main__':
     
     # Return discover of plot if requested
     if args.discover:
-        os.write( 1, discover() )
+        os.write( 1, str.encode(discover()) )
 
     input_params = None
     if args.input_params is not None:
@@ -279,7 +279,7 @@ if __name__ == '__main__':
         
         # If test -> output the result as formatted json
         if args.test:
-            os.write( 1, json.dumps( json.loads( result ), indent=4 ))
+            os.write( 1, str.encode(json.dumps( json.loads( result ), indent=4 )))
 
         # If image plot -> get image file from result, open it and output bytes 
         elif args.image_plot:
@@ -289,9 +289,9 @@ if __name__ == '__main__':
             try:
                 filename = json.loads( result )['file']
                 #print 'File name',filename
-            except ValueError, e:
+            except ValueError as e:
                 os.write( 2, 'Value error when getting image name: %s\n' % str( e ))
-            except KeyError, e:
+            except KeyError as e:
                 os.write( 2, 'Key error when getting image name: %s\n' % str( e ))
 
             if not filename or not os.path.isfile( filename ):
@@ -300,7 +300,7 @@ if __name__ == '__main__':
             try:
                 with open( filename, 'r' ) as f:
                     shutil.copyfileobj( f, sys.stdout )
-            except IOError, e:
+            except IOError as e:
                 os.write( 2, 'IO error when streaming image: %s' % str( e ))
             finally:
                 os.remove( filename )
