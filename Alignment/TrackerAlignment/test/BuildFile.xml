@@ -24,5 +24,6 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<test name="test_PixelBaryCentreTool" command="pixelPositions.sh ${LOCALTOP}/tmp/PixelBaryCentreTool"/>
+<!-- keep commented until this issue is not solved: https://github.com/cms-sw/cmssw/issues/34223 -->
+<!--<test name="test_PixelBaryCentreTool" command="pixelPositions.sh ${LOCALTOP}/tmp/PixelBaryCentreTool"/>-->
 <test name="test_ProduceSystematicMisalignment" command="testProduceAllMisalignments.sh"/>
