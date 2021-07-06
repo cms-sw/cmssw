@@ -1,41 +1,43 @@
-#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "OscarMTProducer.h"
 
+#include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OscarMTProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
+#include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
 #include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
+#include "SimG4Core/Watcher/interface/SimProducer.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-#include "SimG4Core/Watcher/interface/SimProducer.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "Randomize.hh"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "HepPDT/ParticleDataTable.hh"
+#include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include <iostream>
 #include <memory>
 
-edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> OscarMTProducer::m_DD4Hep;
-edm::ESGetToken<DDCompactView, IdealGeometryRecord> OscarMTProducer::m_DDD;
-edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> OscarMTProducer::m_PDT;
-edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> OscarMTProducer::m_MagField;
-G4Mutex OscarMTProducer::m_OscarMutex = G4MUTEX_INITIALIZER;
 bool OscarMTProducer::m_hasToken = false;
 
 namespace edm {
@@ -81,19 +83,21 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
   // Prepare tokens
   bool isDD4Hep = p.getParameter<bool>("g4GeometryDD4hepSource");
   if (!m_hasToken) {
-    G4MUTEXLOCK(&m_OscarMutex);
-    if (!m_hasToken) {
-      if (isDD4Hep) {
-        m_DD4Hep = esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
-      } else {
-        m_DDD = esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
-      }
-      m_PDT = esConsumes<HepPDT::ParticleDataTable, PDTRecord, edm::Transition::BeginRun>();
-      m_MagField = esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
+    m_hasToken = true;
+    edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> pDD4Hep;
+    edm::ESGetToken<DDCompactView, IdealGeometryRecord> pDDD;
+    if (isDD4Hep) {
+      pDD4Hep = esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
+    } else {
+      pDDD = esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
     }
-    G4MUTEXUNLOCK(&m_OscarMutex);
+    edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pPDT =
+      esConsumes<HepPDT::ParticleDataTable, PDTRecord, edm::Transition::BeginRun>();
+    m_masterThread->SetTokens(pDDD, pDD4Hep, pPDT);
   }
-  m_runManagerWorker->SetMagFieldToken(m_MagField);
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> pMagField =
+    esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
+  m_runManagerWorker->SetMagFieldToken(pMagField);
 
   // List of produced containers
   produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
@@ -175,18 +179,7 @@ std::shared_ptr<int> OscarMTProducer::globalBeginRun(const edm::Run&,
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::globalBeginRun";
-
-  // Prepare master thread
-  const DDCompactView* pDDD = nullptr;
-  const cms::DDCompactView* pDD4Hep = nullptr;
-  if (masterThread->isDD4Hep()) {
-    pDD4Hep = &(iSetup.getData(m_DD4Hep));
-  } else {
-    pDDD = &(iSetup.getData(m_DDD));
-  }
-  const HepPDT::ParticleDataTable* pPDT = &(iSetup.getData(m_PDT));
-  masterThread->beginRun(pDDD, pDD4Hep, pPDT);
-
+  masterThread->beginRun(iSetup);
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::globalBeginRun done";
   return std::shared_ptr<int>();
 }

@@ -102,17 +102,18 @@ OscarMTMasterThread::~OscarMTMasterThread() {
   }
 }
 
-void OscarMTMasterThread::beginRun(const DDCompactView* pDDD,
-                                   const cms::DDCompactView* pDD4Hep,
-                                   const HepPDT::ParticleDataTable* pPDT) const {
+void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
   std::lock_guard<std::mutex> lk(m_protectMutex);
-
   std::unique_lock<std::mutex> lk2(m_threadMutex);
-
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread::beginRun";
-  m_pDDD = pDDD;
-  m_pDD4Hep = pDD4Hep;
-  m_pTable = pPDT;
+
+  if (m_pGeoFromDD4hep) {
+    m_pDD4Hep = &(iSetup.getData(m_DD4Hep));
+  } else {
+    m_pDDD = &(iSetup.getData(m_DDD));
+  }
+  m_pTable = &(iSetup.getData(m_PDT));
+
   m_masterThreadState = ThreadState::BeginRun;
   m_masterCanProceed = true;
   m_mainCanProceed = false;
@@ -127,8 +128,8 @@ void OscarMTMasterThread::beginRun(const DDCompactView* pDDD,
 
 void OscarMTMasterThread::endRun() const {
   std::lock_guard<std::mutex> lk(m_protectMutex);
-
   std::unique_lock<std::mutex> lk2(m_threadMutex);
+
   m_masterThreadState = ThreadState::EndRun;
   m_mainCanProceed = false;
   m_masterCanProceed = true;
@@ -162,4 +163,13 @@ void OscarMTMasterThread::stopThread() {
   m_masterThread.join();
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread::stopTread: main thread finished";
   m_stopped = true;
+}
+
+void OscarMTMasterThread::SetTokens(
+     edm::ESGetToken<DDCompactView, IdealGeometryRecord>& rDDD, 
+     edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord>& rDD4Hep,
+     edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord>& rPDT) const {
+  m_DDD = rDDD;
+  m_DD4Hep = rDD4Hep;
+  m_PDT = rPDT;
 }

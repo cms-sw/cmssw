@@ -6,6 +6,7 @@
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "HepPDT/ParticleDataTable.hh"
 #include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
@@ -37,9 +38,13 @@ public:
   explicit OscarMTMasterThread(const edm::ParameterSet& iConfig);
   ~OscarMTMasterThread();
 
-  void beginRun(const DDCompactView*, const cms::DDCompactView*, const HepPDT::ParticleDataTable*) const;
+  void beginRun(const edm::EventSetup& iSetup) const;
   void endRun() const;
   void stopThread();
+
+  void SetTokens(edm::ESGetToken<DDCompactView, IdealGeometryRecord>&, 
+                 edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord>&,
+                 edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord>&) const;
 
   inline RunManagerMT& runManagerMaster() const { return *m_runManagerMaster; }
   inline RunManagerMT* runManagerMasterPtr() const { return m_runManagerMaster.get(); }
@@ -57,6 +62,9 @@ private:
   mutable const DDCompactView* m_pDDD = nullptr;
   mutable const cms::DDCompactView* m_pDD4Hep = nullptr;
   mutable const HepPDT::ParticleDataTable* m_pTable = nullptr;
+  mutable edm::ESGetToken<DDCompactView, IdealGeometryRecord> m_DDD; 
+  mutable edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> m_DD4Hep;
+  mutable edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> m_PDT;
 
   // status flags
   mutable std::mutex m_protectMutex;
