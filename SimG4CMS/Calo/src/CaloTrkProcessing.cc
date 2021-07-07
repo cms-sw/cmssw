@@ -21,7 +21,7 @@
 #include "DD4hep/Filter.h"
 
 #include <sstream>
-//#define EDM_ML_DEBUG
+// #define EDM_ML_DEBUG
 
 CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
                                      const edm::EventSetup& es,
@@ -196,20 +196,22 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
   }
 
   if (doFineCalo_) {
-    // Boundary-crossing logic
     int prestepLV = isItCalo(aStep->GetPreStepPoint()->GetTouchable(), fineDetectors_);
     int poststepLV = isItCalo(aStep->GetPostStepPoint()->GetTouchable(), fineDetectors_);
-    if (prestepLV < 0 && poststepLV >= 0
-        // Allow back-scattering and filter it out later; ensure consistency during the SIM step
-        // && std::abs(theTrack->GetStep()->GetPreStepPoint()->GetPosition().z()) < std::abs(theTrack->GetPosition().z())
-    ) {
+
+    // Once per track, determine whether track started in fine volume
+    if (!trkInfo->startedInFineVolumeIsSet())
+      trkInfo->setStartedInFineVolume(prestepLV >= 0);
+
+    // Boundary-crossing logic
+    if (prestepLV < 0 && poststepLV >= 0) {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("DoFineCalo") << "Entered fine volume " << poststepLV << ":"
-                                     << " Track " << id << " pdgid=" << theTrack->GetDefinition()->GetPDGEncoding()
+      edm::LogVerbatim("DoFineCalo") << "Track " << id << " entered a fine volume:"
+                                     << " pdgid=" << theTrack->GetDefinition()->GetPDGEncoding()
+                                     << " theTrack->GetCurrentStepNumber()=" << theTrack->GetCurrentStepNumber()
                                      << " prestepLV=" << prestepLV << " poststepLV=" << poststepLV
                                      << " GetKineticEnergy[GeV]=" << theTrack->GetKineticEnergy() / CLHEP::GeV
-                                     << " GetVertexKineticEnergy[GeV]="
-                                     << theTrack->GetVertexKineticEnergy() / CLHEP::GeV << " prestepPosition[cm]=("
+                                     << " prestepPosition[cm]=("
                                      << theTrack->GetStep()->GetPreStepPoint()->GetPosition().x() / CLHEP::cm << ","
                                      << theTrack->GetStep()->GetPreStepPoint()->GetPosition().y() / CLHEP::cm << ","
                                      << theTrack->GetStep()->GetPreStepPoint()->GetPosition().z() / CLHEP::cm << ")"
@@ -222,17 +224,33 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
                                      << theTrack->GetPosition().z() / CLHEP::cm << ")"
                                      << " vertex_position[cm]=(" << theTrack->GetVertexPosition().x() / CLHEP::cm << ","
                                      << theTrack->GetVertexPosition().y() / CLHEP::cm << ","
-                                     << theTrack->GetVertexPosition().z() / CLHEP::cm << ")";
+                                     << theTrack->GetVertexPosition().z() / CLHEP::cm << ")"
+                                     << " GetVertexKineticEnergy[GeV]="
+                                     << theTrack->GetVertexKineticEnergy() / CLHEP::GeV
+                                     ;
 #endif
-      trkInfo->setCrossedBoundary(theTrack);
+      if (!trkInfo->startedInFineVolume()){
+        trkInfo->setCrossedBoundary(theTrack);
+        edm::LogVerbatim("DoFineCalo") << "Track " << id << " marked as boundary-crossing; sanity check:"
+                                       << " theTrack->GetTrackID()=" << theTrack->GetTrackID()
+                                       << " trkInfo->crossedBoundary()=" << trkInfo->crossedBoundary()
+                                       ;
+      }
+#ifdef EDM_ML_DEBUG
+      else{
+        edm::LogVerbatim("DoFineCalo") << "Track " << id << " REENTERED a fine volume;"
+                                       << " not counting this boundary crossing!";
+      }
+#endif
+
     }
 #ifdef EDM_ML_DEBUG
     else if (prestepLV >= 0 && poststepLV < 0) {
-      edm::LogVerbatim("DoFineCalo") << "Exited fine volume " << prestepLV << ":"
-                                     << " Track " << id
+      edm::LogVerbatim("DoFineCalo") << "Track " << id << " exited a fine volume:"
+                                     << " theTrack->GetCurrentStepNumber()=" << theTrack->GetCurrentStepNumber()
+                                     << " prestepLV=" << prestepLV << " poststepLV=" << poststepLV
                                      << " GetKineticEnergy[GeV]=" << theTrack->GetKineticEnergy() / CLHEP::GeV
-                                     << " GetVertexKineticEnergy[GeV]="
-                                     << theTrack->GetVertexKineticEnergy() / CLHEP::GeV << " prestepPosition[cm]=("
+                                     << " prestepPosition[cm]=("
                                      << theTrack->GetStep()->GetPreStepPoint()->GetPosition().x() / CLHEP::cm << ","
                                      << theTrack->GetStep()->GetPreStepPoint()->GetPosition().y() / CLHEP::cm << ","
                                      << theTrack->GetStep()->GetPreStepPoint()->GetPosition().z() / CLHEP::cm << ")"
@@ -288,7 +306,7 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
           trkInfo->setIDonCaloSurface(
               id, ical, inside, theTrack->GetDefinition()->GetPDGEncoding(), theTrack->GetMomentum().mag());
           trkInfo->setCaloIDChecked(true);
-          trkInfo->setCrossedBoundary(theTrack);
+          // trkInfo->setCrossedBoundary(theTrack);
           lastTrackID_ = id;
           if (theTrack->GetKineticEnergy() / CLHEP::MeV > eMin_)
             trkInfo->putInHistory();
