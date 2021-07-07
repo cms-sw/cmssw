@@ -156,8 +156,6 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
     }
   }
 
-  std::vector<CSCCLCTDigi> lctListBX;
-
   PulseArray pulse;
 
   // Fire half-strip one-shots for hit_persist bx's (4 bx's by default).
@@ -171,8 +169,6 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
   // Allow for more than one pass over the hits in the time window.
   // Do search in every BX
   while (start_bx < stop_bx) {
-    lctListBX.clear();
-
     // All half-strip pattern envelopes are evaluated simultaneously, on every clock cycle.
     int first_bx = 999;
 
@@ -344,17 +340,8 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
             // set the hit collection
             thisLCT.setHits(compHits);
 
-            // do the CCLUT procedures
-            if (runCCLUT_) {
-              cclut_->run(thisLCT, numCFEBs_);
-            }
-
-            // purge the comparator digi collection from the obsolete "65535" entries...
-            cleanComparatorContainer(thisLCT);
-
             // put the CLCT into the collection
             lctList.push_back(thisLCT);
-            lctListBX.push_back(thisLCT);
           }
         }
 
@@ -363,6 +350,18 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
     // The pattern finder runs continuously, so another pre-trigger
     // could occur already at the next bx.
     start_bx = first_bx + 1;
+  }
+
+  // comparator digi cleaning + optional CCLUT
+  for (auto& thisLCT : lctList) {
+    // do the CCLUT procedures
+    if (runCCLUT_) {
+      cclut_->run(thisLCT, numCFEBs_);
+    }
+
+    // purge the comparator digi collection from the obsolete "65535" entries...
+    // this is always done
+    cleanComparatorContainer(thisLCT);
   }
 
   return lctList;

@@ -1,10 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 tmbPhase1 = cms.PSet(
+    # block the ME1/a LCTs
     mpcBlockMe1a    = cms.uint32(0),
+    # allow ALCT-only LCTs
     alctTrigEnable  = cms.uint32(0),
+    # allow CLCT-only LCTs
     clctTrigEnable  = cms.uint32(0),
+    # allow ALCT-CLCT correlated LCTs (default)
     matchTrigEnable = cms.uint32(1),
+    # matching window for the trigger
     matchTrigWindowSize = cms.uint32(7),
 
     # array with the preferred delta BX values for the candidate CLCTs
@@ -30,12 +35,13 @@ tmbPhase1 = cms.PSet(
     tmbReadoutEarliest2 = cms.bool(True),
 
     # For ALCT-centric matching in ME11, break after finding
-    # the first BX with matching CLCT
+    # the first BX with matching CLCT. Should always be set to True
+    # when using the preferred BX windows
     matchEarliestClctOnly = cms.bool(True),
 
     # For ALCT-centric matching, whether to drop CLCTs that were matched
     # to ALCTs in this BX, and not use them in the following BX
-    tmbDropUsedClcts = cms.bool(False),
+    tmbDropUsedClcts = cms.bool(True),
 
     # True: allow construction of unphysical LCTs
     # in ME11 for which WG and HS do not intersect.
@@ -52,7 +58,8 @@ tmbPhase1 = cms.PSet(
 tmbPhase2 = tmbPhase1.clone(
     # reduce ALCT-CLCT matching window size from 7 to 5
     matchTrigWindowSize = 5,
-    matchEarliestClctOnly = False,
+    # LCTs found in the window [6, 7, 8, 9, 10] are good
+    tmbL1aWindowSize = 5,
     tmbDropUsedClcts = False,
     # 0 = default "non-X-BX" sorting algorithm,
     #     where the first BX with match goes first
