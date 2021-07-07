@@ -847,7 +847,7 @@ void AlignmentProducerBase::storeAlignmentsToDB() {
 
 //------------------------------------------------------------------------------
 void AlignmentProducerBase::writeForRunRange(cond::Time_t time) {
-  if (doTracker_) {                                // first tracker
+  if (doTracker_ and alignableTracker_) {          // first tracker
     const AlignTransform* trackerGlobal{nullptr};  // will be 'removed' from constants
     if (globalPositions_) {                        // i.e. applied before in applyDB
       trackerGlobal = &align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Tracker));
@@ -865,7 +865,7 @@ void AlignmentProducerBase::writeForRunRange(cond::Time_t time) {
     }
   }
 
-  if (doMuon_) {                                // now muon
+  if (doMuon_ and alignableMuon_) {             // now muon
     const AlignTransform* muonGlobal{nullptr};  // will be 'removed' from constants
     if (globalPositions_) {                     // i.e. applied before in applyDB
       muonGlobal = &align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon));
