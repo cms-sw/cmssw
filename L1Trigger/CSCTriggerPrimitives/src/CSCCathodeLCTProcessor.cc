@@ -681,14 +681,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
             // set the hit collection
             thisLCT.setHits(compHits);
 
-            // do the CCLUT procedures
-            if (runCCLUT_) {
-              cclut_->run(thisLCT, numCFEBs_);
-            }
-
-            // purge the comparator digi collection from the obsolete "65535" entries...
-            cleanComparatorContainer(thisLCT);
-
             // useful debugging
             if (infoV > 1) {
               LogTrace("CSCCathodeLCTProcessor") << " Final selection: ilct " << ilct << " " << thisLCT << std::endl;
@@ -734,6 +726,18 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
     else {
       start_bx = first_bx + 1;  // no dead time
     }
+  }
+
+  // comparator digi cleaning + optional CCLUT
+  for (auto& thisLCT : lctList) {
+    // do the CCLUT procedures
+    if (runCCLUT_) {
+      cclut_->run(thisLCT, numCFEBs_);
+    }
+
+    // purge the comparator digi collection from the obsolete "65535" entries...
+    // this is always done
+    cleanComparatorContainer(thisLCT);
   }
 
   return lctList;
