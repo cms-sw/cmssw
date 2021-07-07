@@ -15,6 +15,7 @@ options.register ("runME11ILT", False, VarParsing.multiplicity.singleton, VarPar
 options.register ("saveEdmOutput", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("preTriggerAnalysis", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("dropNonMuonCollections", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("dqmOutputFile", "step_DQM.root", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.parseArguments()
 
 process_era = Run3
@@ -123,7 +124,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
         dataTier = cms.untracked.string('DQMIO'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:step_DQM.root'),
+    fileName = cms.untracked.string('file:{}'.format(options.dqmOutputFile)),
     outputCommands = process.DQMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
