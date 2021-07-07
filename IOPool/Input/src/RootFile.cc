@@ -252,9 +252,10 @@ namespace edm {
         inputType_(inputType) {
     hasNewlyDroppedBranch_.fill(false);
 
-    treePointers_.emplace_back(&eventTree_);
-    treePointers_.emplace_back(&lumiTree_);
-    treePointers_.emplace_back(&runTree_);
+    treePointers_.resize(3);
+    treePointers_[InEvent] = &eventTree_;
+    treePointers_[InLumi] = &lumiTree_;
+    treePointers_[InRun] = &runTree_;
 
     // Read the metadata tree.
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
