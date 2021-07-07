@@ -5,7 +5,7 @@ DQMStore = cms.Service("DQMStore",
     verbose = cms.untracked.int32(0),
     # similar to LSBasedMode but for offline. Explicitly sets LumiFLag on all
     # MEs/modules that allow it (canSaveByLumi)
-    saveByLumi = cms.untracked.bool(False),
+    saveByLumi = cms.untracked.bool(True),
     #Following list has no effect if saveByLumi is False
     MEsToSave = cms.untracked.vstring(nanoDQMIO_perLSoutput.MEsToSave),  
     trackME = cms.untracked.string(""),

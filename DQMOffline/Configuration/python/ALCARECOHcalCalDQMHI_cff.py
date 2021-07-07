@@ -6,6 +6,10 @@ import DQMOffline.CalibCalo.MonitorHcalIsoTrackAlCaReco_cfi
 import DQMOffline.CalibCalo.MonitorHcalIsolatedBunchAlCaReco_cfi
 import DQMOffline.CalibCalo.MonitorHOAlCaRecoStream_cfi
 
+#Check if perLSsaving is enabled to mask MEs vs LS
+from DQMServices.Core.DQMStore_cfi import DQMStore
+if(DQMStore.saveByLumi):
+    DQMOffline.CalibCalo.MonitorAlCaHcalPhisym_cfi.HcalPhiSymMon.perLSsaving=True
 
 ALCARECOHcalCalPhisymDQM =  DQMOffline.CalibCalo.MonitorAlCaHcalPhisym_cfi.HcalPhiSymMon.clone()
 
