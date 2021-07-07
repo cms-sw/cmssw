@@ -6,26 +6,10 @@ import RecoEgamma.EgammaIsolationAlgos.egammaHcalPFClusterIsolationProducerRecoP
 
 electronEcalPFClusterIsolationProducer = _mod_Ecalele.egammaEcalPFClusterIsolationProducerRecoGsfElectron.clone(
                                                       candidateProducer = 'gedGsfElectronsTmp',
-                                                      pfClusterProducer = 'particleFlowClusterECAL',
-                                                      drMax = 0.3,
-                                                      drVetoBarrel = 0,
-                                                      drVetoEndcap = 0,
-                                                      etaStripBarrel = 0,
-                                                      etaStripEndcap = 0,
-                                                      energyBarrel = 0,
-                                                      energyEndcap = 0
                                                       )
 
 photonEcalPFClusterIsolationProducer = _mod_Ecalpho.egammaEcalPFClusterIsolationProducerRecoPhoton.clone(
                                                       candidateProducer = 'gedPhotonsTmp',
-                                                      pfClusterProducer = 'particleFlowClusterECAL',
-                                                      drMax = 0.3,
-                                                      drVetoBarrel = 0,
-                                                      drVetoEndcap = 0,
-                                                      etaStripBarrel = 0,
-                                                      etaStripEndcap = 0,
-                                                      energyBarrel = 0,
-                                                      energyEndcap = 0
                                                       )
 
 ootPhotonEcalPFClusterIsolationProducer = photonEcalPFClusterIsolationProducer.clone(
@@ -35,28 +19,10 @@ ootPhotonEcalPFClusterIsolationProducer = photonEcalPFClusterIsolationProducer.c
 
 electronHcalPFClusterIsolationProducer = _mod_Hcalele.egammaHcalPFClusterIsolationProducerRecoGsfElectron.clone( 
                                                       candidateProducer = 'gedGsfElectronsTmp',
-                                                      pfClusterProducerHCAL = 'particleFlowClusterHCAL',
-                                                      useHF = False,
-                                                      drMax = 0.3,
-                                                      drVetoBarrel = 0,
-                                                      drVetoEndcap = 0,
-                                                      etaStripBarrel = 0,
-                                                      etaStripEndcap = 0,
-                                                      energyBarrel = 0,
-                                                      energyEndcap = 0
                                                       )
 
 photonHcalPFClusterIsolationProducer = _mod_Hcalpho.egammaHcalPFClusterIsolationProducerRecoPhoton.clone( 
                                                       candidateProducer = 'gedPhotonsTmp',
-                                                      pfClusterProducerHCAL = 'particleFlowClusterHCAL',
-                                                      useHF = False,
-                                                      drMax = 0.3,
-                                                      drVetoBarrel = 0,
-                                                      drVetoEndcap = 0,
-                                                      etaStripBarrel = 0,
-                                                      etaStripEndcap = 0,
-                                                      energyBarrel = 0,
-                                                      energyEndcap = 0
                                                       )
 
 ootPhotonHcalPFClusterIsolationProducer = photonHcalPFClusterIsolationProducer.clone(
