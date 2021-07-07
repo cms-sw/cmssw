@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 from builtins import range
@@ -646,7 +646,7 @@ class EventPlotter(object):
 	#hist.GetXaxis().SetRange(0,10)
 	hist.Draw()
 
-	raw_input("Press any key to continue")
+	input("Press any key to continue")
 
     def EndOfTrackingHistogram(self, end_list, hist_type="end_class", end_mask = [], fake_mask = [], normalised = False, BPix3mask = False):
 	''' Plots several types of histograms related to end of tracking analysis '''
@@ -784,7 +784,7 @@ class EventPlotter(object):
 	#c1.SetLogy()
 	if draw:
 	    c1.Draw()
-	    raw_input("Press enter to continue")
+	    input("Press enter to continue")
 	
 	return histograms
 
@@ -815,7 +815,7 @@ class EventPlotter(object):
 
 	if draw:
 	    c1.Draw()
-	    raw_input("Press enter to continue")
+	    input("Press enter to continue")
 	
 	return histograms
 
@@ -853,7 +853,7 @@ class EventPlotter(object):
 
 	if draw:
 	    c1.Draw()
-	    raw_input("Press enter to continue")
+	    input("Press enter to continue")
 	
 	#return histograms
     
@@ -902,7 +902,7 @@ class EventPlotter(object):
 
 	if draw:
 	    c1.Draw()
-	    raw_input("Press enter to continue")
+	    input("Press enter to continue")
 
     def Histogram1D(self, data, name = "Histogram", nbins = 100, xmin = -1, xmax = 1, xlabel = "", color = 38, draw = True, normalised = False):
 	''' Creates a single histogram of resolutions for one parameter list '''
@@ -927,7 +927,7 @@ class EventPlotter(object):
 	if draw: hist.Draw()
 	return hist
 
-	#raw_input("Press any key to continue")
+	#input("Press any key to continue")
 
     def HistogramSigmaPt(self, data, name = "Sigma(Pt) vs Pt"): # Old function
         
@@ -948,7 +948,7 @@ class EventPlotter(object):
 
 	hist_2.Draw()
 
-	raw_input("Press enter to continue")
+	input("Press enter to continue")
 
     def HistogramSigmaPtCombined(self, data1, data2, name = "Sigma(Pt) vs Pt"): # Old function
         
@@ -971,7 +971,7 @@ class EventPlotter(object):
 
 	hist_2.Draw()
 
-	raw_input("Press enter to continue")
+	input("Press enter to continue")
     
     def HistogramSigmaPtDual(self, data1, data2, parameter = "pt", pad = None, name = "Sigma(parameter) vs Pt"):
 	'''
@@ -1061,7 +1061,7 @@ class EventPlotter(object):
 	leg.AddEntry(hist3_2, "Both", "L")
 	leg.Draw()
 	
-	raw_input("Press enter to continue")
+	input("Press enter to continue")
 	'''
 	return [hist1_2, hist2_2, hist3_2]
 
@@ -1097,7 +1097,7 @@ class EventPlotter(object):
 
 	if draw:
 	    c1.Draw()
-	    raw_input("Press enter to continue")
+	    input("Press enter to continue")
 	
 
 
@@ -1162,6 +1162,6 @@ class EventPlotter(object):
             plots.Draw("A")
 	    '''
 
-	raw_input("Press any key to continue")
+        input("Press any key to continue")
 
 
