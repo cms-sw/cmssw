@@ -219,6 +219,25 @@ int RecHitTools::getSiThickIndex(const DetId& id) const {
   return thickIndex;
 }
 
+
+
+void RecHitTools::getScintDEtaDPhi(const DetId &id, std::float_t &deta,
+        std::float_t &dphi) const {
+    if (!isScintillator(id)) {
+        LogDebug("getScintDEtaDPhi::InvalidSintDetid") << "det id: " << std::hex
+                                                              << id.rawId()
+                                                              << std::dec << ":"
+                                                              << id.det()
+                                                              << " is not HGCal scintillator!";
+        deta = 0;
+        dphi = 0;
+        return;
+    }
+    auto geom = static_cast<const HGCalGeometry*>(getSubdetectorGeometry(id));
+    dphi = geom->getGeometry(id)->phiSpan();
+    deta = geom->getGeometry(id)->etaSpan();
+}
+
 std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
   auto geom = getSubdetectorGeometry(id);
   std::float_t size(std::numeric_limits<std::float_t>::max());
@@ -415,6 +434,10 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
 bool RecHitTools::isSilicon(const DetId& id) const {
   return (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi ||
           (id.det() == DetId::Forward && id.subdetId() == static_cast<int>(HFNose)));
+}
+
+bool RecHitTools::isScintillator(const DetId& id) const{
+    return id.det() == DetId::HGCalHSc;
 }
 
 bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
