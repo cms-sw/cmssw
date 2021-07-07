@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # Define here the BeamSpotOnline record name,
 # it will be used both in FakeBeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineHLTObjectsRcd'
-BSOnlineTag = 'BeamSpotOnlineTestHLT'
-BSOnlineJobName = 'BeamSpotOnlineTestHLT'
+BSOnlineTag = 'BeamSpotOnlineHLT'
+BSOnlineJobName = 'BeamSpotOnlineHLT'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 
