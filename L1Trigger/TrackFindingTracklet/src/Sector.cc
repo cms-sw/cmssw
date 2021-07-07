@@ -3,8 +3,10 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
 
+#include "L1Trigger/TrackFindingTracklet/interface/DTCLinkMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/InputLinkMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/AllStubsMemory.h"
+#include "L1Trigger/TrackFindingTracklet/interface/AllInnerStubsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsTEMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsMEMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/StubPairsMemory.h"
@@ -18,6 +20,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/TrackFitMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/CleanTrackMemory.h"
 
+#include "L1Trigger/TrackFindingTracklet/interface/InputRouter.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMRouterCM.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMRouter.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletEngine.h"
@@ -37,12 +40,18 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 
 using namespace std;
 using namespace trklet;
 
-Sector::Sector(unsigned int i, Settings const& settings, Globals* globals) : settings_(settings), globals_(globals) {
-  isector_ = i;
+Sector::Sector(Settings const& settings, Globals* globals) : isector_(-1), settings_(settings), globals_(globals) {}
+
+Sector::~Sector() = default;
+
+void Sector::setSector(unsigned int isector) {
+  assert(isector < N_SECTOR);
+  isector_ = isector;
   double dphi = 2 * M_PI / N_SECTOR;
   double dphiHG = 0.5 * settings_.dphisectorHG() - M_PI / N_SECTOR;
   phimin_ = isector_ * dphi - dphiHG;
@@ -51,75 +60,77 @@ Sector::Sector(unsigned int i, Settings const& settings, Globals* globals) : set
   phimax_ -= M_PI / N_SECTOR;
   phimin_ = reco::reduceRange(phimin_);
   phimax_ = reco::reduceRange(phimax_);
-  if (phimin_ > phimax_)
+  if (phimin_ > phimax_) {
     phimin_ -= 2 * M_PI;
-}
-
-Sector::~Sector() {
-  for (auto& mem : MemoriesV_) {
-    mem->clean();
   }
 }
 
 bool Sector::addStub(L1TStub stub, string dtc) {
-  bool add = false;
+  unsigned int layerdisk = stub.layerdisk();
 
-  double phi = stub.phi();
-  double dphi = 0.5 * settings_.dphisectorHG() - M_PI / N_SECTOR;
-
-  std::map<string, std::vector<int> >& ILindex = globals_->ILindex();
-  std::vector<int>& tmp = ILindex[dtc];
-  if (tmp.empty()) {
-    for (unsigned int i = 0; i < IL_.size(); i++) {
-      if (IL_[i]->getName().find("_" + dtc) != string::npos) {
-        tmp.push_back(i);
-      }
-    }
+  if (layerdisk < N_LAYER && globals_->phiCorr(layerdisk) == nullptr) {
+    globals_->phiCorr(layerdisk) = new TrackletLUT(settings_);
+    globals_->phiCorr(layerdisk)->initPhiCorrTable(layerdisk, 3);
   }
 
-  if (((phi > phimin_ - dphi) && (phi < phimax_ + dphi)) ||
-      ((phi > 2 * M_PI + phimin_ - dphi) && (phi < 2 * M_PI + phimax_ + dphi))) {
-    Stub fpgastub(stub, settings_, phimin_, phimax_);
-    std::vector<int>& tmp = ILindex[dtc];
-    assert(!tmp.empty());
-    for (int i : tmp) {
-      if (IL_[i]->addStub(settings_, globals_, stub, fpgastub, dtc))
-        add = true;
-    }
+  Stub fpgastub(stub, settings_, *globals_);
+
+  if (layerdisk < N_LAYER) {
+    FPGAWord r = fpgastub.r();
+    int bendbin = fpgastub.bend().value();
+    int rbin = (r.value() + (1 << (r.nbits() - 1))) >> (r.nbits() - 3);
+    const TrackletLUT& phiCorrTable = *globals_->phiCorr(layerdisk);
+    int iphicorr = phiCorrTable.lookup(bendbin * (1 << 3) + rbin);
+    fpgastub.setPhiCorr(iphicorr);
   }
 
-  return add;
+  int nadd = 0;
+  for (unsigned int i = 0; i < DL_.size(); i++) {
+    const string& name = DL_[i]->getName();
+    if (name.find("_" + dtc) == string::npos)
+      continue;
+    DL_[i]->addStub(stub, fpgastub);
+    nadd++;
+  }
+
+  assert(nadd == 1);
+
+  return true;
 }
 
 void Sector::addMem(string memType, string memName) {
-  if (memType == "InputLink:") {
-    addMemToVec(IL_, memName, settings_, isector_, phimin_, phimax_);
+  if (memType == "DTCLink:") {
+    addMemToVec(DL_, memName, settings_, phimin_, phimax_);
+  } else if (memType == "InputLink:") {
+    addMemToVec(IL_, memName, settings_, phimin_, phimax_);
   } else if (memType == "AllStubs:") {
-    addMemToVec(AS_, memName, settings_, isector_);
+    addMemToVec(AS_, memName, settings_);
+  } else if (memType == "AllInnerStubs:") {
+    addMemToVec(AIS_, memName, settings_);
   } else if (memType == "VMStubsTE:") {
-    addMemToVec(VMSTE_, memName, settings_, isector_);
+    addMemToVec(VMSTE_, memName, settings_);
   } else if (memType == "VMStubsME:") {
-    addMemToVec(VMSME_, memName, settings_, isector_);
+    addMemToVec(VMSME_, memName, settings_);
   } else if (memType == "StubPairs:" || memType == "StubPairsDisplaced:") {
-    addMemToVec(SP_, memName, settings_, isector_);
+    addMemToVec(SP_, memName, settings_);
   } else if (memType == "StubTriplets:") {
-    addMemToVec(ST_, memName, settings_, isector_);
+    addMemToVec(ST_, memName, settings_);
   } else if (memType == "TrackletParameters:") {
-    addMemToVec(TPAR_, memName, settings_, isector_);
+    addMemToVec(TPAR_, memName, settings_);
   } else if (memType == "TrackletProjections:") {
-    addMemToVec(TPROJ_, memName, settings_, isector_);
+    addMemToVec(TPROJ_, memName, settings_);
   } else if (memType == "AllProj:") {
-    addMemToVec(AP_, memName, settings_, isector_);
+    addMemToVec(AP_, memName, settings_);
   } else if (memType == "VMProjections:") {
-    addMemToVec(VMPROJ_, memName, settings_, isector_);
+    addMemToVec(VMPROJ_, memName, settings_);
   } else if (memType == "CandidateMatch:") {
-    addMemToVec(CM_, memName, settings_, isector_);
+    addMemToVec(CM_, memName, settings_);
   } else if (memType == "FullMatch:") {
-    addMemToVec(FM_, memName, settings_, isector_);
+    addMemToVec(FM_, memName, settings_);
   } else if (memType == "TrackFit:") {
-    addMemToVec(TF_, memName, settings_, isector_, phimin_, phimax_);
+    addMemToVec(TF_, memName, settings_, phimin_, phimax_);
   } else if (memType == "CleanTrack:") {
-    addMemToVec(CT_, memName, settings_, isector_, phimin_, phimax_);
+    addMemToVec(CT_, memName, settings_, phimin_, phimax_);
   } else {
     edm::LogPrint("Tracklet") << "Don't know of memory type: " << memType;
     exit(0);
@@ -127,35 +138,37 @@ void Sector::addMem(string memType, string memName) {
 }
 
 void Sector::addProc(string procType, string procName) {
-  if (procType == "VMRouter:") {
-    addProcToVec(VMR_, procName, settings_, globals_, isector_);
+  if (procType == "InputRouter:") {
+    addProcToVec(IR_, procName, settings_, globals_);
+  } else if (procType == "VMRouter:") {
+    addProcToVec(VMR_, procName, settings_, globals_);
   } else if (procType == "VMRouterCM:") {
-    addProcToVec(VMRCM_, procName, settings_, globals_, isector_);
+    addProcToVec(VMRCM_, procName, settings_, globals_);
   } else if (procType == "TrackletEngine:") {
-    addProcToVec(TE_, procName, settings_, globals_, isector_);
+    addProcToVec(TE_, procName, settings_, globals_);
   } else if (procType == "TrackletEngineDisplaced:") {
-    addProcToVec(TED_, procName, settings_, globals_, isector_);
+    addProcToVec(TED_, procName, settings_, globals_);
   } else if (procType == "TripletEngine:") {
-    addProcToVec(TRE_, procName, settings_, globals_, isector_);
+    addProcToVec(TRE_, procName, settings_, globals_);
   } else if (procType == "TrackletCalculator:") {
-    addProcToVec(TC_, procName, settings_, globals_, isector_);
+    addProcToVec(TC_, procName, settings_, globals_);
   } else if (procType == "TrackletProcessor:") {
-    addProcToVec(TP_, procName, settings_, globals_, isector_);
+    addProcToVec(TP_, procName, settings_, globals_);
   } else if (procType == "TrackletCalculatorDisplaced:") {
-    addProcToVec(TCD_, procName, settings_, globals_, isector_);
+    addProcToVec(TCD_, procName, settings_, globals_);
   } else if (procType == "ProjectionRouter:") {
-    addProcToVec(PR_, procName, settings_, globals_, isector_);
+    addProcToVec(PR_, procName, settings_, globals_);
   } else if (procType == "MatchEngine:") {
-    addProcToVec(ME_, procName, settings_, globals_, isector_);
+    addProcToVec(ME_, procName, settings_, globals_);
   } else if (procType == "MatchCalculator:" ||
              procType == "DiskMatchCalculator:") {  //TODO should not be used in configurations
-    addProcToVec(MC_, procName, settings_, globals_, isector_);
+    addProcToVec(MC_, procName, settings_, globals_);
   } else if (procType == "MatchProcessor:") {
-    addProcToVec(MP_, procName, settings_, globals_, isector_);
+    addProcToVec(MP_, procName, settings_, globals_);
   } else if (procType == "FitTrack:") {
-    addProcToVec(FT_, procName, settings_, globals_, isector_);
+    addProcToVec(FT_, procName, settings_, globals_);
   } else if (procType == "PurgeDuplicate:") {
-    addProcToVec(PD_, procName, settings_, globals_, isector_);
+    addProcToVec(PD_, procName, settings_, globals_);
   } else {
     edm::LogPrint("Tracklet") << "Don't know of processing type: " << procType;
     exit(0);
@@ -206,103 +219,111 @@ MemoryBase* Sector::getMem(string memName) {
   return nullptr;
 }
 
-void Sector::writeInputStubs(bool first) {
+void Sector::writeDTCStubs(bool first) {
+  for (auto& i : DL_) {
+    i->writeStubs(first, isector_);
+  }
+}
+
+void Sector::writeIRStubs(bool first) {
   for (auto& i : IL_) {
-    i->writeStubs(first);
+    i->writeStubs(first, isector_);
   }
 }
 
 void Sector::writeVMSTE(bool first) {
   for (auto& i : VMSTE_) {
-    i->writeStubs(first);
+    i->writeStubs(first, isector_);
   }
 }
 
 void Sector::writeVMSME(bool first) {
   for (auto& i : VMSME_) {
-    i->writeStubs(first);
+    i->writeStubs(first, isector_);
   }
 }
 
 void Sector::writeAS(bool first) {
   for (auto& i : AS_) {
-    i->writeStubs(first);
+    i->writeStubs(first, isector_);
+  }
+}
+
+void Sector::writeAIS(bool first) {
+  for (auto& i : AIS_) {
+    i->writeStubs(first, isector_);
   }
 }
 
 void Sector::writeSP(bool first) {
   for (auto& i : SP_) {
-    i->writeSP(first);
+    i->writeSP(first, isector_);
   }
 }
 
 void Sector::writeST(bool first) {
   for (auto& i : ST_) {
-    i->writeST(first);
+    i->writeST(first, isector_);
   }
 }
 
 void Sector::writeTPAR(bool first) {
   for (auto& i : TPAR_) {
-    i->writeTPAR(first);
+    i->writeTPAR(first, isector_);
   }
 }
 
 void Sector::writeTPROJ(bool first) {
   for (auto& i : TPROJ_) {
-    i->writeTPROJ(first);
+    i->writeTPROJ(first, isector_);
   }
 }
 
 void Sector::writeAP(bool first) {
   for (auto& i : AP_) {
-    i->writeAP(first);
+    i->writeAP(first, isector_);
   }
 }
 
 void Sector::writeVMPROJ(bool first) {
   for (auto& i : VMPROJ_) {
-    i->writeVMPROJ(first);
+    i->writeVMPROJ(first, isector_);
   }
 }
 
 void Sector::writeCM(bool first) {
   for (auto& i : CM_) {
-    i->writeCM(first);
+    i->writeCM(first, isector_);
   }
 }
 
 void Sector::writeMC(bool first) {
   for (auto& i : FM_) {
-    i->writeMC(first);
+    i->writeMC(first, isector_);
   }
 }
 
 void Sector::writeTF(bool first) {
   for (auto& i : TF_) {
-    i->writeTF(first);
+    i->writeTF(first, isector_);
   }
 }
 
 void Sector::writeCT(bool first) {
   for (auto& i : CT_) {
-    i->writeCT(first);
+    i->writeCT(first, isector_);
   }
 }
 
 void Sector::clean() {
-  if (settings_.writeMonitorData("NMatches")) {
-    int matchesL1 = 0;
-    int matchesL3 = 0;
-    int matchesL5 = 0;
-    for (auto& i : TPAR_) {
-      i->writeMatches(globals_, matchesL1, matchesL3, matchesL5);
-    }
-    globals_->ofstream("nmatchessector.txt") << matchesL1 << " " << matchesL3 << " " << matchesL5 << endl;
-  }
-
   for (auto& mem : MemoriesV_) {
     mem->clean();
+  }
+}
+
+void Sector::executeIR() {
+  for (auto& i : IR_) {
+    i->execute();
   }
 }
 
@@ -341,13 +362,13 @@ void Sector::executeTRE() {
 
 void Sector::executeTP() {
   for (auto& i : TP_) {
-    i->execute();
+    i->execute(isector_, phimin_, phimax_);
   }
 }
 
 void Sector::executeTC() {
   for (auto& i : TC_) {
-    i->execute();
+    i->execute(isector_, phimin_, phimax_);
   }
 
   if (settings_.writeMonitorData("TrackProjOcc")) {
@@ -360,7 +381,7 @@ void Sector::executeTC() {
 
 void Sector::executeTCD() {
   for (auto& i : TCD_) {
-    i->execute();
+    i->execute(isector_, phimin_, phimax_);
   }
 }
 
@@ -378,25 +399,25 @@ void Sector::executeME() {
 
 void Sector::executeMC() {
   for (auto& i : MC_) {
-    i->execute();
+    i->execute(phimin_);
   }
 }
 
 void Sector::executeMP() {
   for (auto& i : MP_) {
-    i->execute();
+    i->execute(isector_, phimin_);
   }
 }
 
 void Sector::executeFT() {
   for (auto& i : FT_) {
-    i->execute();
+    i->execute(isector_);
   }
 }
 
-void Sector::executePD(std::vector<Track*>& tracks) {
+void Sector::executePD(std::vector<Track>& tracks) {
   for (auto& i : PD_) {
-    i->execute(tracks);
+    i->execute(tracks, isector_);
   }
 }
 
