@@ -25,9 +25,8 @@
 
 class PPSTimingCalibrationWriter : public edm::one::EDAnalyzer<> {
 public:
-  explicit PPSTimingCalibrationWriter(const edm::ParameterSet&) :
-    tokenCalibration_( esConsumes<PPSTimingCalibration, PPSTimingCalibrationRcd>() )
-  {}
+  explicit PPSTimingCalibrationWriter(const edm::ParameterSet&)
+      : tokenCalibration_(esConsumes<PPSTimingCalibration, PPSTimingCalibrationRcd>()) {}
 
 private:
   void beginJob() override {}

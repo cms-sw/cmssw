@@ -58,10 +58,8 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSRPAlignmentInfoAnalyzer::CTPPSRPAlignmentInfoAnalyzer(const edm::ParameterSet& iConfig) :
-  record_(iConfig.getParameter<string>("record")),
-  iov_(iConfig.getParameter<unsigned long long>("iov"))
-{
+CTPPSRPAlignmentInfoAnalyzer::CTPPSRPAlignmentInfoAnalyzer(const edm::ParameterSet& iConfig)
+    : record_(iConfig.getParameter<string>("record")), iov_(iConfig.getParameter<unsigned long long>("iov")) {
   if (strcmp(record_.c_str(), "CTPPSRPAlignmentCorrectionsDataRcd") == 0) {
     tokenAlignmentIdeal_ = esConsumes<CTPPSRPAlignmentCorrectionsData, CTPPSRPAlignmentCorrectionsDataRcd>();
   } else if (strcmp(record_.c_str(), "RPRealAlignmentRecord") == 0) {
@@ -84,11 +82,11 @@ void CTPPSRPAlignmentInfoAnalyzer::analyze(const edm::Event& iEvent, const edm::
     alignments = iSetup.getHandle(tokenAlignmentMisaligned_);
   }
 
-    const CTPPSRPAlignmentCorrectionsData* pCTPPSRPAlignmentCorrectionsData = alignments.product();
-    edm::Service<cond::service::PoolDBOutputService> poolDbService;
-    if (poolDbService.isAvailable()) {
-      poolDbService->writeOne(pCTPPSRPAlignmentCorrectionsData, iov_, record_);
-    }
+  const CTPPSRPAlignmentCorrectionsData* pCTPPSRPAlignmentCorrectionsData = alignments.product();
+  edm::Service<cond::service::PoolDBOutputService> poolDbService;
+  if (poolDbService.isAvailable()) {
+    poolDbService->writeOne(pCTPPSRPAlignmentCorrectionsData, iov_, record_);
+  }
 }
 
 //----------------------------------------------------------------------------------------------------

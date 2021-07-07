@@ -56,8 +56,7 @@ WriteCTPPSPixelDAQMapping::WriteCTPPSPixelDAQMapping(const edm::ParameterSet &ps
     : daqmappingiov_(ps.getParameter<unsigned long long>("daqmappingiov")),
       record_(ps.getParameter<string>("record")),
       label_(ps.getParameter<string>("label")),
-      tokenMapping_( esConsumes<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd>(edm::ESInputTag("", label_)) )
-{}
+      tokenMapping_(esConsumes<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd>(edm::ESInputTag("", label_))) {}
 
 void WriteCTPPSPixelDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es) {
   // get DAQ mapping

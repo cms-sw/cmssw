@@ -16,8 +16,7 @@ class CTPPSPixGainCalibsESAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit CTPPSPixGainCalibsESAnalyzer(edm::ParameterSet const& p)
       : m_outfilename(p.getUntrackedParameter<std::string>("outputrootfile", "output.root")),
-      tokenCalibration_( esConsumes<CTPPSPixelGainCalibrations, CTPPSPixelGainCalibrationsRcd>() )
-  {
+        tokenCalibration_(esConsumes<CTPPSPixelGainCalibrations, CTPPSPixelGainCalibrationsRcd>()) {
     setReadablePlaneNames();
   }
   explicit CTPPSPixGainCalibsESAnalyzer(int i) {

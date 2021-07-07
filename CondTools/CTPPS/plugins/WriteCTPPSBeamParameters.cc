@@ -35,9 +35,8 @@
 
 class WriteCTPPSBeamParameters : public edm::one::EDAnalyzer<> {
 public:
-  WriteCTPPSBeamParameters(const edm::ParameterSet&) :
-    tokenBeamParameters_( esConsumes<CTPPSBeamParameters, CTPPSBeamParametersRcd>() )
-  {}
+  WriteCTPPSBeamParameters(const edm::ParameterSet&)
+      : tokenBeamParameters_(esConsumes<CTPPSBeamParameters, CTPPSBeamParametersRcd>()) {}
 
   ~WriteCTPPSBeamParameters() override = default;
 

@@ -55,8 +55,7 @@ WriteCTPPSPixelAnalysisMask::WriteCTPPSPixelAnalysisMask(const edm::ParameterSet
     : analysismaskiov_(ps.getParameter<unsigned long long>("analysismaskiov")),
       record_(ps.getParameter<string>("record")),
       label_(ps.getParameter<string>("label")),
-      tokenAnalysisMask_( esConsumes<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd>(edm::ESInputTag("", label_)) )
-{}
+      tokenAnalysisMask_(esConsumes<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd>(edm::ESInputTag("", label_))) {}
 
 void WriteCTPPSPixelAnalysisMask::analyze(const edm::Event &, edm::EventSetup const &es) {
   // get analysis mask to mask channels

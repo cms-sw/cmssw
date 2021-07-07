@@ -28,9 +28,8 @@ public:
       : label_(iConfig.getUntrackedParameter<string>("label", "RPix")),
         daqmappingiov_(iConfig.getParameter<unsigned long long>("daqmappingiov")),
         analysismaskiov_(iConfig.getParameter<unsigned long long>("analysismaskiov")),
-        tokenMapping_( esConsumes<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd>(edm::ESInputTag("", label_)) ),
-        tokenMask_( esConsumes<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd>(edm::ESInputTag("", label_)) )
-  {}
+        tokenMapping_(esConsumes<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd>(edm::ESInputTag("", label_))),
+        tokenMask_(esConsumes<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd>(edm::ESInputTag("", label_))) {}
   explicit CTPPSPixelDAQMappingAnalyzer(int i) {}
   ~CTPPSPixelDAQMappingAnalyzer() override {}
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
