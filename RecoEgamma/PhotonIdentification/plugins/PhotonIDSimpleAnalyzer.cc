@@ -46,7 +46,6 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TFile.h"
-#include "TMath.h"
 #include "TTree.h"
 
 // system include files
@@ -213,13 +212,13 @@ void PhotonIDSimpleAnalyzer::beginJob() {
   // Photon Histograms
   h_photonEt_ = new TH1F("photonEt", "Photon E_{T}", 200, 0, 200);
   h_photonEta_ = new TH1F("photonEta", "Photon #eta", 800, -4, 4);
-  h_photonPhi_ = new TH1F("photonPhi", "Photon #phi", 628, -1. * TMath::Pi(), TMath::Pi());
+  h_photonPhi_ = new TH1F("photonPhi", "Photon #phi", 628, -1. * M_PI, M_PI);
   h_hadoverem_ = new TH1F("photonHoverE", "Hadronic over EM", 200, 0, 1);
 
   // Photon's SuperCluster Histograms
   h_photonScEt_ = new TH1F("photonScEt", "Photon SuperCluster E_{T}", 200, 0, 200);
   h_photonScEta_ = new TH1F("photonScEta", "Photon #eta", 800, -4, 4);
-  h_photonScPhi_ = new TH1F("photonScPhi", "Photon #phi", 628, -1. * TMath::Pi(), TMath::Pi());
+  h_photonScPhi_ = new TH1F("photonScPhi", "Photon #phi", 628, -1. * M_PI, M_PI);
   h_photonScEtaWidth_ = new TH1F("photonScEtaWidth", "#eta-width", 100, 0, .1);
 
   // Composite or Other Histograms
@@ -250,9 +249,9 @@ void PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetu
   Handle<reco::PhotonCollection> photonColl;
   evt.getByLabel("photons", "", photonColl);
 
-  Handle<edm::ValueMap<Bool_t> > loosePhotonQual;
+  Handle<edm::ValueMap<bool> > loosePhotonQual;
   evt.getByLabel("PhotonIDProd", "PhotonCutBasedIDLoose", loosePhotonQual);
-  Handle<edm::ValueMap<Bool_t> > looseEMQual;
+  Handle<edm::ValueMap<bool> > looseEMQual;
   evt.getByLabel("PhotonIDProd", "PhotonCutBasedIDLooseEM", looseEMQual);
   // grab PhotonId objects
   //   Handle<reco::PhotonIDAssociationCollection> photonIDMapColl;
@@ -260,8 +259,8 @@ void PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetu
 
   // create reference to the object types we are interested in
   const reco::PhotonCollection* photons = photonColl.product();
-  const edm::ValueMap<Bool_t>* phoMap = loosePhotonQual.product();
-  const edm::ValueMap<Bool_t>* lEMMap = looseEMQual.product();
+  const edm::ValueMap<bool>* phoMap = loosePhotonQual.product();
+  const edm::ValueMap<bool>* lEMMap = looseEMQual.product();
   int photonCounter = 0;
   int idxpho = 0;
   reco::PhotonCollection::const_iterator pho;
@@ -273,9 +272,9 @@ void PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetu
 
     float photonEt = pho->et();
     float superClusterEt = (pho->superCluster()->energy()) / (cosh(pho->superCluster()->position().eta()));
-    Bool_t LoosePhotonQu = (*phoMap)[photonref];
+    bool LoosePhotonQu = (*phoMap)[photonref];
     h_nPassingPho_->Fill(LoosePhotonQu);
-    Bool_t LooseEMQu = (*lEMMap)[photonref];
+    bool LooseEMQu = (*lEMMap)[photonref];
     h_nPassEM_->Fill(LooseEMQu);
     // Only store photon candidates (SuperClusters) that pass some simple cuts
     bool passCuts = (photonEt > minPhotonEt_) && (fabs(pho->eta()) > minPhotonAbsEta_) &&
