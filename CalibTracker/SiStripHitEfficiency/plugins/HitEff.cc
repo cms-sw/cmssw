@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CalibTracker/SiStripHitEfficiency/interface/HitEff.h"
+#include "CalibTracker/SiStripHitEfficiency/plugins/HitEff.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
