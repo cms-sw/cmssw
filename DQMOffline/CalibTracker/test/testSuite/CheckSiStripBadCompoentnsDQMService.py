@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This script compares the writer output with the reader output.
 # - run the SiStripBadComponentsDQMService.py > logReader

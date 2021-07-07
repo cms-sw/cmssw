@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #this script:
 #Find which Modules bad in the PCL and which are NOT bad in the DQM (express) (and dumps the info in a txt file)
 #Find which modules are bad in the DQM (express) and which are still bad in DQM prompt (not because they are masked) (and dumps the info in a txt file) 

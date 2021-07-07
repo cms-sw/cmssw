@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from FWCore.ParameterSet.Types import PSet
 import FWCore.ParameterSet.Config as cms
 class RunType(PSet):
