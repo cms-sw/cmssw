@@ -1302,9 +1302,9 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
     }
     if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
       if (php.waferMaskMode_ == siliconFileEE) {
-        layerType = dbl_to_int(fv.vector("LayerTypeEE"));
+        layerType = dbl_to_int(fv.vector("LayerTypesEE"));
       } else if (php.waferMaskMode_ == siliconFileHE) {
-        layerType = dbl_to_int(fv.vector("LayerTypeHE"));
+        layerType = dbl_to_int(fv.vector("LayerTypesHE"));
       }
     }
 
@@ -1403,14 +1403,14 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
     if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
       if (php.waferMaskMode_ == siliconFileEE) {
         for (auto const& it : vmap) {
-          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerTypeEE")) {
+          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerTypesEE")) {
             for (const auto& i : it.second)
               layerType.emplace_back(std::round(i));
           }
         }
       } else if (php.waferMaskMode_ == siliconFileHE) {
         for (auto const& it : vmap) {
-          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerTypeHE")) {
+          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerTypesHE")) {
             for (const auto& i : it.second)
               layerType.emplace_back(std::round(i));
           }
@@ -1472,6 +1472,15 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
     php.layerType_.emplace_back(types[layerType[k]]);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << layerType[k] << ":" << php.layerType_[k];
+#endif
+  }
+  for (unsigned int k = 0; k < php.layerType_.size(); ++k) {
+    double cth = (php.layerType_[k] == HGCalTypes::WaferCenterR) ? cos(php.layerRotation_) : 1.0;
+    double sth = (php.layerType_[k] == HGCalTypes::WaferCenterR) ? sin(php.layerRotation_) : 0.0;
+    php.layerRotV_.emplace_back(std::make_pair(cth, sth));
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << php.layerType_[k] << " cos|sin(Theta) "
+                                  << php.layerRotV_[k].first << ":" << php.layerRotV_[k].second;
 #endif
   }
   for (unsigned int k = 0; k < waferIndex.size(); ++k) {

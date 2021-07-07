@@ -46,9 +46,15 @@ public:
     WaferCenterR = 6
   };
 
-  enum WaferType { WaferFineThin = 0, WaferCoarseThin = 1, WaferCoarseThick = 2, WaferFineThick = 3 };
+  enum WaferType {
+    WaferTypeUndefined = -1,
+    WaferFineThin = 0,
+    WaferCoarseThin = 1,
+    WaferCoarseThick = 2,
+    WaferFineThick = 3
+  };
 
-  enum WaferSizeType {
+  enum WaferPartialType {
     WaferFull = 0,
     WaferFive = 1,
     WaferChopTwo = 2,
@@ -78,7 +84,7 @@ public:
     WaferCenteredBack = 1,
     CornerCenteredY = 2,
     CornerCenteredLambda = 3,
-    WaferCenteredRotated = 0
+    WaferCenteredRotated = 4
   };
 
   static constexpr int32_t WaferCornerMin = 3;
