@@ -9,7 +9,6 @@
   \version  $Id: PATMuonProducer.h,v 1.29 2012/08/22 15:02:52 bellan Exp $
 */
 
-#include "CommonTools/Utils/interface/PtComparator.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -58,12 +57,10 @@ namespace pat {
   public:
     PATMuonHeavyObjectCache(const edm::ParameterSet&);
 
-    std::unique_ptr<const pat::MuonMvaEstimator> const& muonMvaEstimator() const { return muonMvaEstimator_; }
-    std::unique_ptr<const pat::MuonMvaEstimator> const& muonLowPtMvaEstimator() const { return muonLowPtMvaEstimator_; }
+    pat::MuonMvaEstimator const& muonMvaEstimator() const { return *muonMvaEstimator_; }
+    pat::MuonMvaEstimator const& muonLowPtMvaEstimator() const { return *muonLowPtMvaEstimator_; }
 
-    std::unique_ptr<const pat::SoftMuonMvaEstimator> const& softMuonMvaEstimator() const {
-      return softMuonMvaEstimator_;
-    }
+    pat::SoftMuonMvaEstimator const& softMuonMvaEstimator() const { return *softMuonMvaEstimator_; }
 
   private:
     std::unique_ptr<const pat::MuonMvaEstimator> muonLowPtMvaEstimator_;
@@ -245,8 +242,6 @@ namespace pat {
     edm::EDGetTokenT<double> rho_;
 
     /// --- tools ---
-    /// comparator for pt ordering
-    GreaterByPt<Muon> pTComparator_;
     /// helper class to add userdefined isolation values to the muon
     pat::helper::MultiIsolator isolator_;
     /// isolation value pair for temporary storage before being folded into the muon
@@ -267,6 +262,8 @@ namespace pat {
 
     const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geometryToken_;
     const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
+
+    const edm::EDPutTokenT<std::vector<Muon>> patMuonPutToken_;
   };
 
 }  // namespace pat
@@ -282,31 +279,28 @@ void pat::PATMuonProducer::readIsolationLabels(const edm::ParameterSet& iConfig,
     edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>(psetName);
 
     if (depconf.exists("tracker"))
-      labels.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
+      labels.emplace_back(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker"));
     if (depconf.exists("ecal"))
-      labels.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
+      labels.emplace_back(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal"));
     if (depconf.exists("hcal"))
-      labels.push_back(std::make_pair(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal")));
+      labels.emplace_back(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal"));
     if (depconf.exists("pfAllParticles")) {
-      labels.push_back(std::make_pair(pat::PfAllParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles")));
+      labels.emplace_back(pat::PfAllParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles"));
     }
     if (depconf.exists("pfChargedHadrons")) {
-      labels.push_back(
-          std::make_pair(pat::PfChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadrons")));
+      labels.emplace_back(pat::PfChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadrons"));
     }
     if (depconf.exists("pfChargedAll")) {
-      labels.push_back(std::make_pair(pat::PfChargedAllIso, depconf.getParameter<edm::InputTag>("pfChargedAll")));
+      labels.emplace_back(pat::PfChargedAllIso, depconf.getParameter<edm::InputTag>("pfChargedAll"));
     }
     if (depconf.exists("pfPUChargedHadrons")) {
-      labels.push_back(
-          std::make_pair(pat::PfPUChargedHadronIso, depconf.getParameter<edm::InputTag>("pfPUChargedHadrons")));
+      labels.emplace_back(pat::PfPUChargedHadronIso, depconf.getParameter<edm::InputTag>("pfPUChargedHadrons"));
     }
     if (depconf.exists("pfNeutralHadrons")) {
-      labels.push_back(
-          std::make_pair(pat::PfNeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadrons")));
+      labels.emplace_back(pat::PfNeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadrons"));
     }
     if (depconf.exists("pfPhotons")) {
-      labels.push_back(std::make_pair(pat::PfGammaIso, depconf.getParameter<edm::InputTag>("pfPhotons")));
+      labels.emplace_back(pat::PfGammaIso, depconf.getParameter<edm::InputTag>("pfPhotons"));
     }
     if (depconf.exists("user")) {
       std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag>>("user");
@@ -354,7 +348,8 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
                 consumesCollector(),
                 false),
       geometryToken_{esConsumes()},
-      transientTrackBuilderToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))} {
+      transientTrackBuilderToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))},
+      patMuonPutToken_{produces<std::vector<Muon>>()} {
   // input source
   muonToken_ = consumes<edm::View<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muonSource"));
   // embedding of tracks
@@ -483,9 +478,6 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
     triggerResults_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"));
   }
   hltCollectionFilters_ = iConfig.getParameter<std::vector<std::string>>("hltCollectionFilters");
-
-  // produces vector of muons
-  produces<std::vector<Muon>>();
 }
 
 PATMuonProducer::~PATMuonProducer() {}
@@ -537,7 +529,7 @@ void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
     return;
   for (const auto& triggerObject : *triggerObjects) {
     if (triggerObject.hasTriggerObjectType(trigger::TriggerL1Mu)) {
-      if (fabs(triggerObject.eta()) < 0.001) {
+      if (std::abs(triggerObject.eta()) < 0.001) {
         // L1 is defined in X-Y plain
         if (deltaPhi(triggerObject.phi(), muonPosition->phi()) > 0.1)
           continue;
@@ -693,7 +685,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool simInfoIsAvailalbe = iEvent.getByToken(simInfo_, simInfo);
 
   // this will be the new object collection
-  auto patMuons = std::make_unique<std::vector<Muon>>();
+  std::vector<Muon> patMuons;
 
   edm::Handle<reco::PFCandidateCollection> pfMuons;
   if (useParticleFlow_) {
@@ -767,7 +759,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         aMuon.setPfEcalEnergy(pfmu.ecalEnergy());
       }
 
-      patMuons->push_back(aMuon);
+      patMuons.push_back(aMuon);
     }
   } else {
     edm::Handle<edm::View<reco::Muon>> muons;
@@ -920,12 +912,12 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         aMuon.setSimPhi(msi.p4.phi());
         aMuon.setSimMatchQuality(msi.tpAssoQuality);
       }
-      patMuons->push_back(aMuon);
+      patMuons.push_back(aMuon);
     }
   }
 
   // sort muons in pt
-  std::sort(patMuons->begin(), patMuons->end(), pTComparator_);
+  std::sort(patMuons.begin(), patMuons.end(), [](auto const& t1, auto const& t2) { return t1.pt() > t2.pt(); });
 
   // Store standard muon selection decisions and jet related
   // quantaties.
@@ -947,7 +939,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     triggerResultsAvailable = iEvent.getByToken(triggerResults_, triggerResults);
   }
 
-  for (auto& muon : *patMuons) {
+  for (auto& muon : patMuons) {
     // trigger info
     if (addTriggerMatching_ and triggerObjectsAvailable and triggerResultsAvailable) {
       const edm::TriggerNames& triggerNames(iEvent.triggerNames(*triggerResults));
@@ -986,28 +978,28 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float mva_lowpt = 0.0;
     if (computeMuonMVA_ && primaryVertexIsValid && computeMiniIso_) {
       if (mvaUseJec_) {
-        mva = globalCache()->muonMvaEstimator()->computeMva(muon,
-                                                            primaryVertex,
-                                                            *(mvaBTagCollectionTag.product()),
-                                                            jetPtRatio,
-                                                            jetPtRel,
-                                                            miniIsoValue,
-                                                            &*mvaL1Corrector,
-                                                            &*mvaL1L2L3ResCorrector);
-        mva_lowpt = globalCache()->muonLowPtMvaEstimator()->computeMva(muon,
-                                                                       primaryVertex,
-                                                                       *(mvaBTagCollectionTag.product()),
-                                                                       jetPtRatio,
-                                                                       jetPtRel,
-                                                                       miniIsoValue,
-                                                                       &*mvaL1Corrector,
-                                                                       &*mvaL1L2L3ResCorrector);
+        mva = globalCache()->muonMvaEstimator().computeMva(muon,
+                                                           primaryVertex,
+                                                           *(mvaBTagCollectionTag.product()),
+                                                           jetPtRatio,
+                                                           jetPtRel,
+                                                           miniIsoValue,
+                                                           mvaL1Corrector.product(),
+                                                           mvaL1L2L3ResCorrector.product());
+        mva_lowpt = globalCache()->muonLowPtMvaEstimator().computeMva(muon,
+                                                                      primaryVertex,
+                                                                      *(mvaBTagCollectionTag.product()),
+                                                                      jetPtRatio,
+                                                                      jetPtRel,
+                                                                      miniIsoValue,
+                                                                      mvaL1Corrector.product(),
+                                                                      mvaL1L2L3ResCorrector.product());
 
       } else {
-        mva = globalCache()->muonMvaEstimator()->computeMva(
-            muon, primaryVertex, *(mvaBTagCollectionTag.product()), jetPtRatio, jetPtRel, miniIsoValue);
-        mva_lowpt = globalCache()->muonLowPtMvaEstimator()->computeMva(
-            muon, primaryVertex, *(mvaBTagCollectionTag.product()), jetPtRatio, jetPtRel, miniIsoValue);
+        mva = globalCache()->muonMvaEstimator().computeMva(
+            muon, primaryVertex, *mvaBTagCollectionTag, jetPtRatio, jetPtRel, miniIsoValue);
+        mva_lowpt = globalCache()->muonLowPtMvaEstimator().computeMva(
+            muon, primaryVertex, *mvaBTagCollectionTag, jetPtRatio, jetPtRel, miniIsoValue);
       }
 
       muon.setMvaValue(mva);
@@ -1023,11 +1015,11 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       // MVA working points
       // https://twiki.cern.ch/twiki/bin/viewauth/CMS/LeptonMVA
-      double dB2D = fabs(muon.dB(pat::Muon::PV2D));
-      double dB3D = fabs(muon.dB(pat::Muon::PV3D));
-      double edB3D = fabs(muon.edB(pat::Muon::PV3D));
-      double sip3D = edB3D > 0 ? dB3D / edB3D : 0.0;
-      double dz = fabs(muon.muonBestTrack()->dz(primaryVertex.position()));
+      const double dB2D = std::abs(muon.dB(pat::Muon::PV2D));
+      const double dB3D = std::abs(muon.dB(pat::Muon::PV3D));
+      const double edB3D = std::abs(muon.edB(pat::Muon::PV3D));
+      const double sip3D = edB3D > 0 ? dB3D / edB3D : 0.0;
+      const double dz = std::abs(muon.muonBestTrack()->dz(primaryVertex.position()));
 
       // muon preselection
       if (muon.pt() > 5 and muon.isLooseMuon() and muon.passed(reco::Muon::MiniIsoLoose) and sip3D < 8.0 and
@@ -1046,7 +1038,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //SOFT MVA
     if (computeSoftMuonMVA_) {
-      float mva = globalCache()->softMuonMvaEstimator()->computeMva(muon);
+      float mva = globalCache()->softMuonMvaEstimator().computeMva(muon);
       muon.setSoftMvaValue(mva);
       //preselection in SoftMuonMvaEstimator.cc
       muon.setSelector(reco::Muon::SoftMvaId, muon.softMvaValue() > 0.58);  //WP choose for bmm4
@@ -1054,7 +1046,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   // put products in Event
-  iEvent.put(std::move(patMuons));
+  iEvent.emplace(patMuonPutToken_, std::move(patMuons));
 
   if (isolator_.enabled())
     isolator_.endEvent();
@@ -1098,8 +1090,8 @@ void PATMuonProducer::fillMuon(Muon& aMuon,
 
   // store the match to the generated final state muons
   if (addGenMatch_) {
-    for (size_t i = 0, n = genMatches.size(); i < n; ++i) {
-      reco::GenParticleRef genMuon = (*genMatches[i])[baseRef];
+    for (auto const& genMatch : genMatches) {
+      reco::GenParticleRef genMuon = (*genMatch)[baseRef];
       aMuon.addGenParticleRef(genMuon);
     }
     if (embedGenMatch_)
@@ -1168,9 +1160,9 @@ double PATMuonProducer::getRelMiniIsoPUCorrected(const pat::Muon& muon, double r
 }
 
 double PATMuonProducer::puppiCombinedIsolation(const pat::Muon& muon, const pat::PackedCandidateCollection* pc) {
-  double dR_threshold = 0.4;
-  double dR2_threshold = dR_threshold * dR_threshold;
-  double mix_fraction = 0.5;
+  constexpr double dR_threshold = 0.4;
+  constexpr double dR2_threshold = dR_threshold * dR_threshold;
+  constexpr double mix_fraction = 0.5;
   enum particleType { CH = 0, NH = 1, PH = 2, OTHER = 100000 };
   double val_PuppiWithLep = 0.0;
   double val_PuppiWithoutLep = 0.0;
