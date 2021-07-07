@@ -23,7 +23,7 @@ from __future__ import print_function
 # guts without repeating the classname, etc.
 #------------------------------------------------------------
 
-import cStringIO
+import io
 import types
 import six
 
@@ -36,7 +36,7 @@ import six
 def pset_dict_to_string(psetDict):
     """Convert dictionary representing a PSet to a string consistent
     with the configuration grammar."""
-    stream = cStringIO.StringIO()
+    stream = io.StringIO()
     stream.write('\n{\n')
 
     for name, value in six.iteritems(psetDict):
@@ -49,7 +49,7 @@ def pset_dict_to_string(psetDict):
 
 def secsource_dict_to_string(secSourceDict):
     """Make a string representing the secsource"""
-    stream = cStringIO.StringIO()
+    stream = io.StringIO()
     stream.write("%s\n{\n" %  secSourceDict["@classname"][2])
     for name, value in six.iteritems(secSourceDict):
         if name[0] != '@':
@@ -238,7 +238,7 @@ class cmsconfig:
         result = ""
 
         try:
-            stream = cStringIO.StringIO()
+            stream = io.StringIO()
             self.__write_self_to_stream(stream)
             result = stream.getvalue()
 
