@@ -8,7 +8,7 @@ AlcaBeamMonitor.BeamFitter.TrackCollection = 'hiGeneralTracks'
 AlcaBeamMonitor.BeamFitter.TrackQuality    = ['highPurity']
 AlcaBeamMonitor.PVFitter.VertexCollection  = 'hiSelectedVertex'
 #Check if perLSsaving is enabled to mask MEs vs LS
-fromm DQMServices.Core.DQMStore_cfi import DQMStore
+from DQMServices.Core.DQMStore_cfi import DQMStore
 if(DQMstore.saveByLumi):
       AlcaBeamMonitor.perLSsaving=True
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
