@@ -5,11 +5,15 @@
 // Class  :     L1TMuonBarrelParamsRcd
 //
 // Author:      Giannis Flouris
+// Kalman Mod:  Panos Katsoulis
 // Created:
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
 class L1TMuonBarrelParamsRcd : public edm::eventsetup::EventSetupRecordImplementation<L1TMuonBarrelParamsRcd> {};
+
+class L1TMuonBarrelKalmanParamsRcd :
+public edm::eventsetup::EventSetupRecordImplementation<L1TMuonBarrelKalmanParamsRcd> {};
 
 #endif
