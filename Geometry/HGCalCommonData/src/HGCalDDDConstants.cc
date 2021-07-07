@@ -435,6 +435,21 @@ int HGCalDDDConstants::getTypeHex(int layer, int waferU, int waferV) const {
   }
 }
 
+std::pair<double, double> HGCalDDDConstants::getXY(int layer, double x, double y, bool forwd) const {
+  int ll = layer - hgpar_->firstLayer_;
+  double x0(x), y0(y);
+  if (ll < static_cast<int>(hgpar_->layerRotV_.size())) {
+    if (forwd) {
+      x0 = x * hgpar_->layerRotV_[ll].first + y * hgpar_->layerRotV_[ll].second;
+      y0 = y * hgpar_->layerRotV_[ll].first - x * hgpar_->layerRotV_[ll].second;
+    } else {
+      x0 = x * hgpar_->layerRotV_[ll].first - y * hgpar_->layerRotV_[ll].second;
+      y0 = y * hgpar_->layerRotV_[ll].first + x * hgpar_->layerRotV_[ll].second;
+    }
+  }
+  return std::make_pair(x0, y0);
+}
+
 bool HGCalDDDConstants::isHalfCell(int waferType, int cell) const {
   if (waferType < 1 || cell < 0)
     return false;

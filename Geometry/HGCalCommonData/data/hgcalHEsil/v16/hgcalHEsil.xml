@@ -113,7 +113,7 @@
     <Vector name="Layers" type="numeric" nEntries="7">
       6, 5, 5, 5, 5, 5, 5</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="7">
-      67.80*mm, 63.05*mm, 63.05*mm, 63.05*mm, 63.05*mm, 63.05*mm, 63.05*mm,
+      67.80*mm, 63.05*mm, 63.05*mm, 63.05*mm, 63.05*mm, 63.05*mm, 63.05*mm
    </Vector>
     <Vector name="LayerType" type="numeric" nEntries="36">
       0, 2, 3, 4, 6, 5,
