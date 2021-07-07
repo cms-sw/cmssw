@@ -14,7 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "CalibTracker/SiStripHitEfficiency/interface/HitEff.h"
+#include "CalibTracker/SiStripHitEfficiency/plugins/HitEff.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/Common/interface/Handle.h"
