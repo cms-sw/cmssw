@@ -374,7 +374,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
   std::unique_ptr<ParametersDefinerForTP> Cosmic_parametersDefinerTP;
 
   if (parametersDefiner == "LhcParametersDefinerForTP") {
-    auto Lhc_parametersDefinerTP = setup.getHandle(tpDefinerEsToken);
+    Lhc_parametersDefinerTP = setup.getHandle(tpDefinerEsToken);
 
     // PileupSummaryInfo is contained only in collision events
     event.getByToken(pileupinfo_Token, puinfoH);
@@ -388,7 +388,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 
   } else if (parametersDefiner == "CosmicParametersDefinerForTP") {
     //setup.get<TrackAssociatorRecord>().get(parametersDefiner, _Cosmic_parametersDefinerTP);
-    auto _Cosmic_parametersDefinerTP = setup.getHandle(cosmictpDefinerEsToken);
+    _Cosmic_parametersDefinerTP = setup.getHandle(cosmictpDefinerEsToken);
 
     //Since we modify the object, we must clone it
     Cosmic_parametersDefinerTP = _Cosmic_parametersDefinerTP->clone();
