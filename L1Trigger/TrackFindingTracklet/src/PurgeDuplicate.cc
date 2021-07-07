@@ -22,8 +22,8 @@
 using namespace std;
 using namespace trklet;
 
-PurgeDuplicate::PurgeDuplicate(std::string name, Settings const& settings, Globals* global, unsigned int iSector)
-    : ProcessBase(name, settings, global, iSector) {}
+PurgeDuplicate::PurgeDuplicate(std::string name, Settings const& settings, Globals* global)
+    : ProcessBase(name, settings, global) {}
 
 void PurgeDuplicate::addOutput(MemoryBase* memory, std::string output) {
   if (settings_.writetrace()) {
@@ -78,7 +78,7 @@ void PurgeDuplicate::addInput(MemoryBase* memory, std::string input) {
   throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " could not find input: " << input;
 }
 
-void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
+void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSector) {
   inputtracklets_.clear();
   inputtracks_.clear();
 
@@ -92,7 +92,7 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
         continue;
       for (unsigned int j = 0; j < inputtrackfit->nTracks(); j++) {
         Track* aTrack = inputtrackfit->getTrack(j)->getTrack();
-        aTrack->setSector(iSector_);
+        aTrack->setSector(iSector);
         inputtracks_.push_back(aTrack);
       }
     }
@@ -326,14 +326,14 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
       Tracklet* tracklet = inputtracklets_[itrk];
       std::vector<const Stub*> trackstublist = inputstublists_[itrk];
 
-      HybridFit hybridFitter(iSector_, settings_, globals_);
+      HybridFit hybridFitter(iSector, settings_, globals_);
       hybridFitter.Fit(tracklet, trackstublist);
 
       // If the track was accepted (and thus fit), add to output
       if (tracklet->fit()) {
         // Add track to output if it wasn't merged into another
         Track* outtrack = tracklet->getTrack();
-        outtrack->setSector(iSector_);
+        outtrack->setSector(iSector);
         if (trackInfo[itrk].second == true)
           outtrack->setDuplicate(true);
         else
@@ -342,7 +342,7 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
         // Add all tracks to standalone root file output
         outtrack->setStubIDpremerge(inputstubidslists_[itrk]);
         outtrack->setStubIDprefit(mergedstubidslists_[itrk]);
-        outputtracks_.push_back(outtrack);
+        outputtracks_.push_back(*outtrack);
       }
     }
   }
@@ -362,7 +362,7 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
       if (inputtracks_[itrk]->duplicate())
         edm::LogPrint("Tracklet") << "WARNING: Track already tagged as duplicate!!";
 
-      double phiBin = (inputtracks_[itrk]->phi0(settings_) - 2 * M_PI / 27 * iSector_) / (2 * M_PI / 9 / 50) + 9;
+      double phiBin = (inputtracks_[itrk]->phi0(settings_) - 2 * M_PI / 27 * iSector) / (2 * M_PI / 9 / 50) + 9;
       phiBin = std::max(phiBin, 0.);
       phiBin = std::min(phiBin, 34.);
 
@@ -374,7 +374,7 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
         inputtracks_[itrk]->setDuplicate(true);
       grid[(int)phiBin][(int)ptBin] = true;
 
-      double phiTest = inputtracks_[itrk]->phi0(settings_) - 2 * M_PI / 27 * iSector_;
+      double phiTest = inputtracks_[itrk]->phi0(settings_) - 2 * M_PI / 27 * iSector;
       if (phiTest < -2 * M_PI / 27)
         edm::LogVerbatim("Tracklet") << "track phi too small!";
       if (phiTest > 2 * 2 * M_PI / 27)
@@ -463,14 +463,14 @@ void PurgeDuplicate::execute(std::vector<Track*>& outputtracks_) {
         if (inputtrackfits_[i]->getTrack(j)->getTrack()->duplicate() == 0) {
           if (settings_.writeMonitorData("Seeds")) {
             ofstream fout("seeds.txt", ofstream::app);
-            fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector_ << " "
+            fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector << " "
                  << inputtrackfits_[i]->getTrack(j)->getISeed() << endl;
             fout.close();
           }
           outputtracklets_[i]->addTrack(inputtrackfits_[i]->getTrack(j));
         }
         //For root file:
-        outputtracks_.push_back(inputtrackfits_[i]->getTrack(j)->getTrack());
+        outputtracks_.push_back(*inputtrackfits_[i]->getTrack(j)->getTrack());
       }
     }
   }
@@ -483,8 +483,14 @@ double PurgeDuplicate::getPhiRes(Tracklet* curTracklet, const Stub* curStub) {
   // Get phi position of stub
   stubphi = curStub->l1tstub()->phi();
   // Get region that the stub is in (Layer 1->6, Disk 1->5)
-  int Layer = curStub->layer().value() + 1;
-  int Disk = curStub->disk().value();
+  int Layer = curStub->layerdisk() + 1;
+  if (Layer > N_LAYER) {
+    Layer = 0;
+  }
+  int Disk = curStub->layerdisk() - (N_LAYER - 1);
+  if (Disk < 0) {
+    Disk = 0;
+  }
   // Get phi projection of tracklet
   int seedindex = curTracklet->seedIndex();
   // If this stub is a seed stub, set projection=phi, so that res=0
@@ -499,13 +505,8 @@ double PurgeDuplicate::getPhiRes(Tracklet* curTracklet, const Stub* curStub) {
       (seedindex == 11 && (Layer == 2 || abs(Disk) == 1 || abs(Disk) == 2))) {
     phiproj = stubphi;
     // Otherwise, get projection of tracklet
-  } else if (Layer != 0) {
-    phiproj = curTracklet->phiproj(Layer);
-  } else if (Disk != 0) {
-    phiproj = curTracklet->phiprojdisk(Disk);
   } else {
-    throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " Layer: " << Layer << "  --  Disk: " << Disk
-                                       << " Stub is not layer or disk in getPhiRes";
+    phiproj = curTracklet->proj(curStub->layerdisk()).phiproj();
   }
   // Calculate residual
   phires = std::abs(stubphi - phiproj);

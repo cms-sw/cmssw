@@ -1,5 +1,5 @@
-#ifndef L1Trigger_TrackFindingTracklet_interface_LayerResidual_h
-#define L1Trigger_TrackFindingTracklet_interface_LayerResidual_h
+#ifndef L1Trigger_TrackFindingTracklet_interface_Residual_h
+#define L1Trigger_TrackFindingTracklet_interface_Residual_h
 
 #include "L1Trigger/TrackFindingTracklet/interface/FPGAWord.h"
 
@@ -10,22 +10,21 @@ namespace trklet {
   class Settings;
   class Stub;
 
-  class LayerResidual {
+  class Residual {
   public:
-    LayerResidual() { valid_ = false; }
+    Residual() { valid_ = false; }
 
-    ~LayerResidual() = default;
+    ~Residual() = default;
 
     void init(Settings const& settings,
-              int layer,
+              unsigned int layerdisk,
               int iphiresid,
-              int izresid,
+              int irzresid,
               int istubid,
               double phiresid,
-              double zresid,
+              double rzresid,
               double phiresidapprox,
-              double zresidapprox,
-              double rstub,
+              double rzresidapprox,
               const Stub* stubptr);
 
     bool valid() const { return valid_; }
@@ -35,9 +34,9 @@ namespace trklet {
       return fpgaphiresid_;
     };
 
-    const FPGAWord& fpgazresid() const {
+    const FPGAWord& fpgarzresid() const {
       assert(valid_);
-      return fpgazresid_;
+      return fpgarzresid_;
     };
 
     const FPGAWord& fpgastubid() const {
@@ -50,9 +49,9 @@ namespace trklet {
       return phiresid_;
     };
 
-    double zresid() const {
+    double rzresid() const {
       assert(valid_);
-      return zresid_;
+      return rzresid_;
     };
 
     double phiresidapprox() const {
@@ -60,15 +59,10 @@ namespace trklet {
       return phiresidapprox_;
     };
 
-    double zresidapprox() const {
+    double rzresidapprox() const {
       assert(valid_);
-      return zresidapprox_;
+      return rzresidapprox_;
     };
-
-    double rstub() const {
-      assert(valid_);
-      return rstub_;
-    }
 
     const Stub* stubptr() const {
       assert(valid_);
@@ -78,19 +72,18 @@ namespace trklet {
   protected:
     bool valid_;
 
-    int layer_;
+    unsigned int layerdisk_;
 
     FPGAWord fpgaphiresid_;
-    FPGAWord fpgazresid_;
+    FPGAWord fpgarzresid_;
     FPGAWord fpgastubid_;
 
     double phiresid_;
-    double zresid_;
+    double rzresid_;
 
     double phiresidapprox_;
-    double zresidapprox_;
+    double rzresidapprox_;
 
-    double rstub_;
     const Stub* stubptr_;
   };
 

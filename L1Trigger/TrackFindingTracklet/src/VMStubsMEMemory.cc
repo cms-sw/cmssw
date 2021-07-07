@@ -6,8 +6,7 @@
 using namespace std;
 using namespace trklet;
 
-VMStubsMEMemory::VMStubsMEMemory(string name, Settings const& settings, unsigned int iSector)
-    : MemoryBase(name, settings, iSector) {
+VMStubsMEMemory::VMStubsMEMemory(string name, Settings const& settings) : MemoryBase(name, settings) {
   unsigned int layerdisk = initLayerDisk(6);
   if (layerdisk < N_LAYER) {
     binnedstubs_.resize(settings_.NLONGVMBINS());
@@ -17,7 +16,8 @@ VMStubsMEMemory::VMStubsMEMemory(string name, Settings const& settings, unsigned
   }
 }
 
-void VMStubsMEMemory::writeStubs(bool first) {
+void VMStubsMEMemory::writeStubs(bool first, unsigned int iSector) {
+  iSector_ = iSector;
   const string dirVM = settings_.memPath() + "VMStubsME/";
 
   std::ostringstream oss;
@@ -30,21 +30,7 @@ void VMStubsMEMemory::writeStubs(bool first) {
   oss << "_" << std::setfill('0') << std::setw(2) << (iSector_ + 1) << ".dat";
   auto const& fname = oss.str();
 
-  if (first) {
-    bx_ = 0;
-    event_ = 1;
-
-    if (not std::filesystem::exists(dirVM)) {
-      int fail = system((string("mkdir -p ") + dirVM).c_str());
-      if (fail)
-        throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory " << dirVM;
-    }
-    out_.open(fname);
-    if (out_.fail())
-      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
-
-  } else
-    out_.open(fname, std::ofstream::app);
+  openfile(out_, first, dirVM, fname, __FILE__, __LINE__);
 
   out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
 
@@ -53,6 +39,8 @@ void VMStubsMEMemory::writeStubs(bool first) {
       string stub = binnedstubs_[i][j].stubindex().str();
       stub += "|" + binnedstubs_[i][j].bend().str();
 
+      FPGAWord finephipos = binnedstubs_[i][j].finephi();
+      stub += "|" + finephipos.str();
       FPGAWord finepos = binnedstubs_[i][j].finerz();
       stub += "|" + finepos.str();
       out_ << hex << i << " " << j << dec << " " << stub << " " << trklet::hexFormat(stub) << endl;
