@@ -332,6 +332,9 @@ bool MillePedeAlignmentAlgorithm::storeAlignments() {
 //____________________________________________________
 bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runrange) {
   if (this->isMode(myPedeReadBit)) {
+    if (not theAlignmentParameterStore) {
+      return false;
+    }
     // restore initial positions, rotations and deformations
     if (enableAlignableUpdates_) {
       theAlignmentParameterStore->restoreCachedTransformations(runrange.first);
@@ -379,6 +382,9 @@ void MillePedeAlignmentAlgorithm::terminate() {
                               << "files as input (assigned weights are indicated by ' -- <weight>'):"
                               << filesForLogOutput;
   }
+
+  if (not theAlignmentParameterStore)
+    return;
 
   // cache all positions, rotations and deformations
   theAlignmentParameterStore->cacheTransformations();
