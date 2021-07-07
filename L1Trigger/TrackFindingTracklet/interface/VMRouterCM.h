@@ -4,7 +4,7 @@
 
 #include "L1Trigger/TrackFindingTracklet/interface/ProcessBase.h"
 #include "L1Trigger/TrackFindingTracklet/interface/FPGAWord.h"
-#include "L1Trigger/TrackFindingTracklet/interface/VMRouterTable.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 
 #include <string>
 #include <vector>
@@ -17,6 +17,7 @@ namespace trklet {
   class MemoryBase;
   class InputLinkMemory;
   class AllStubsMemory;
+  class AllInnerStubsMemory;
   class VMStubsMEMemory;
   class VMStubsTEMemory;
 
@@ -30,7 +31,7 @@ namespace trklet {
 
   class VMRouterCM : public ProcessBase {
   public:
-    VMRouterCM(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
+    VMRouterCM(std::string name, Settings const& settings, Globals* global);
 
     ~VMRouterCM() override = default;
 
@@ -53,13 +54,15 @@ namespace trklet {
 
     unsigned int nvmmebins_;  //number of long z/r bins in VM
 
-    VMRouterTable vmrtable_;
+    TrackletLUT meTable_;    //used for ME and outer TE barrel
+    TrackletLUT diskTable_;  //outer disk used by D1, D2, and D4
 
     //The input stub memories
     std::vector<InputLinkMemory*> stubinputs_;
 
     //The all stub memories
-    std::vector<std::pair<char, AllStubsMemory*> > allstubs_;
+    std::vector<AllStubsMemory*> allstubs_;
+    std::vector<std::pair<char, AllInnerStubsMemory*> > allinnerstubs_;
 
     //The VM stubs memories used by the MEs
     std::vector<VMStubsMEMemory*> vmstubsMEPHI_;

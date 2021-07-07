@@ -1,42 +1,46 @@
 #include "L1Trigger/TrackFindingTracklet/interface/L1TStub.h"
-#include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 
 using namespace std;
 using namespace trklet;
 
 L1TStub::L1TStub() {}
 
-L1TStub::L1TStub(int eventid,
-                 vector<int> tps,
-                 int iphi,
-                 int iz,
-                 int layer,
-                 int ladder,
-                 int module,
-                 int strip,
+L1TStub::L1TStub(std::string DTClink,
+                 int region,
+                 int layerdisk,
+                 std::string stubword,
+                 int isPSmodule,
+                 int isFlipped,
                  double x,
                  double y,
                  double z,
-                 double sigmax,
-                 double sigmaz,
-                 double pt,
                  double bend,
-                 int isPSmodule,
-                 int isFlipped) {
-  eventid_ = eventid;
+                 double strip,
+                 std::vector<int> tps) {
+  DTClink_ = DTClink;
+  layerdisk_ = layerdisk;
+  region_ = region;
+  stubword_ = stubword;
+  eventid_ = -1;
   tps_ = tps;
-  iphi_ = iphi;
-  iz_ = iz;
-  layer_ = layer;
-  ladder_ = ladder;
-  module_ = module;
+  iphi_ = -1;
+  iz_ = -1;
+  layer_ = layerdisk;
+  if (layerdisk >= N_LAYER) {
+    layer_ = 1000 + layerdisk - N_LAYER + 1;
+    if (z < 0.0)
+      layer_ += 1000;
+  }
+
+  ladder_ = -1;
+  module_ = -1;
   strip_ = strip;
   x_ = x;
   y_ = y;
   z_ = z;
-  sigmax_ = sigmax;
-  sigmaz_ = sigmaz;
-  pt_ = pt;
+  sigmax_ = -1.0;
+  sigmaz_ = -1.0;
+  pt_ = -1.0;
   bend_ = bend;
   isPSmodule_ = isPSmodule;
   isFlipped_ = isFlipped;
@@ -45,18 +49,8 @@ L1TStub::L1TStub(int eventid,
 }
 
 void L1TStub::write(ofstream& out) {
-  out << "Stub: " << layer_ + 1 << "\t" << ladder_ << "\t" << module_ << "\t" << strip_ << "\t" << eventid_ << "\t"
-      << pt_ << "\t" << x_ << "\t" << y_ << "\t" << z_ << "\t" << bend_ << "\t" << isPSmodule_ << "\t" << isFlipped_
-      << "\t" << tps_.size() << " \t";
-  for (int itp : tps_) {
-    out << itp << " \t";
-  }
-  out << endl;
-}
-
-void L1TStub::write(ostream& out) {
-  out << "Stub: " << layer_ + 1 << "\t" << ladder_ << "\t" << module_ << "\t" << strip_ << "\t" << eventid_ << "\t"
-      << pt_ << "\t" << x_ << "\t" << y_ << "\t" << z_ << "\t" << bend_ << "\t" << isPSmodule_ << "\t" << isFlipped_
+  out << "Stub: " << DTClink_ << "\t" << region_ << "\t" << layerdisk_ << "\t" << stubword_ << "\t" << isPSmodule_
+      << "\t" << isFlipped_ << "\t" << x_ << "\t" << y_ << "\t" << z_ << "\t" << bend_ << "\t" << strip_ << "\t"
       << "\t" << tps_.size() << " \t";
   for (int itp : tps_) {
     out << itp << " \t";
@@ -107,11 +101,26 @@ void L1TStub::setXY(double x, double y) {
 
 bool L1TStub::tpmatch(int tp) const {
   for (int itp : tps_) {
-    if (tp == itp)
+    if (tp == std::abs(itp))
       return true;
   }
 
   return false;
+}
+
+bool L1TStub::tpmatch2(int tp) const {
+  bool match1 = false;
+  bool match2 = false;
+  for (int itp : tps_) {
+    if (tp == itp) {
+      match1 = true;
+    }
+    if (tp == -itp) {
+      match2 = true;
+    }
+  }
+
+  return match1 && match2;
 }
 
 bool L1TStub::isTilted() const {

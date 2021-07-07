@@ -17,7 +17,7 @@ namespace trklet {
 
   class FitTrack : public ProcessBase {
   public:
-    FitTrack(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
+    FitTrack(std::string name, Settings const& settings, Globals* global);
 
     ~FitTrack() override = default;
 
@@ -38,7 +38,7 @@ namespace trklet {
 
     std::vector<Tracklet*> orderedMatches(std::vector<FullMatchMemory*>& fullmatch);
 
-    void execute();
+    void execute(unsigned int iSector);
 
   private:
     std::vector<TrackletParametersMemory*> seedtracklet_;
@@ -46,6 +46,8 @@ namespace trklet {
     std::vector<FullMatchMemory*> fullmatch2_;
     std::vector<FullMatchMemory*> fullmatch3_;
     std::vector<FullMatchMemory*> fullmatch4_;
+
+    unsigned int iSector_;
 
     TrackFitMemory* trackfit_;
   };

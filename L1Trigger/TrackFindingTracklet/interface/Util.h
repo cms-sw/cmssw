@@ -2,9 +2,13 @@
 #define L1Trigger_TrackFindingTracklet_interface_Util_h
 
 #include <sstream>
+#include <fstream>
 #include <cassert>
 #include <cmath>
+#include <string>
 #include <algorithm>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -35,143 +39,15 @@ namespace trklet {
     return str;
   }
 
-  //Should be optimized by layer - now first implementation to make sure it works OK
-  inline int bendencode(double bend, bool isPS) {
-    int ibend = 2.0 * bend;
-
-    assert(std::abs(ibend - 2.0 * bend) < 0.1);
-
-    if (isPS) {
-      if (ibend == 0 || ibend == 1)
-        return 0;
-      if (ibend == 2 || ibend == 3)
-        return 1;
-      if (ibend == 4 || ibend == 5)
-        return 2;
-      if (ibend >= 6)
-        return 3;
-      if (ibend == -1 || ibend == -2)
-        return 4;
-      if (ibend == -3 || ibend == -4)
-        return 5;
-      if (ibend == -5 || ibend == -6)
-        return 6;
-      if (ibend <= -7)
-        return 7;
-
-      throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__
-                                        << " Unknown bendencode for PS module for bend = " << bend
-                                        << " ibend = " << ibend;
-    }
-
-    if (ibend == 0 || ibend == 1)
-      return 0;
-    if (ibend == 2 || ibend == 3)
-      return 1;
-    if (ibend == 4 || ibend == 5)
-      return 2;
-    if (ibend == 6 || ibend == 7)
-      return 3;
-    if (ibend == 8 || ibend == 9)
-      return 4;
-    if (ibend == 10 || ibend == 11)
-      return 5;
-    if (ibend == 12 || ibend == 13)
-      return 6;
-    if (ibend >= 14)
-      return 7;
-    if (ibend == -1 || ibend == -2)
-      return 8;
-    if (ibend == -3 || ibend == -4)
-      return 9;
-    if (ibend == -5 || ibend == -6)
-      return 10;
-    if (ibend == -7 || ibend == -8)
-      return 11;
-    if (ibend == -9 || ibend == -10)
-      return 12;
-    if (ibend == -11 || ibend == -12)
-      return 13;
-    if (ibend == -13 || ibend == -14)
-      return 14;
-    if (ibend <= -15)
-      return 15;
-
-    throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__
-                                      << " Unknown bendencode for 2S module for bend = " << bend
-                                      << " ibend = " << ibend;
-  }
-
-  //Should be optimized by layer - now first implementation to make sure it works OK
-  inline double benddecode(int ibend, bool isPS) {
-    if (isPS) {
-      if (ibend == 0)
-        return 0.25;
-      if (ibend == 1)
-        return 1.25;
-      if (ibend == 2)
-        return 2.25;
-      if (ibend == 3)
-        return 3.25;
-      if (ibend == 4)
-        return -0.75;
-      if (ibend == 5)
-        return -1.75;
-      if (ibend == 6)
-        return -2.75;
-      if (ibend == 7)
-        return -3.75;
-
-      throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__
-                                        << " Unknown benddecode for PS module for ibend = " << ibend;
-    }
-
-    if (ibend == 0)
-      return 0.25;
-    if (ibend == 1)
-      return 1.25;
-    if (ibend == 2)
-      return 2.25;
-    if (ibend == 3)
-      return 3.25;
-    if (ibend == 4)
-      return 4.25;
-    if (ibend == 5)
-      return 5.25;
-    if (ibend == 6)
-      return 6.25;
-    if (ibend == 7)
-      return 7.25;
-    if (ibend == 8)
-      return -0.75;
-    if (ibend == 9)
-      return -1.75;
-    if (ibend == 10)
-      return -2.75;
-    if (ibend == 11)
-      return -3.75;
-    if (ibend == 12)
-      return -4.75;
-    if (ibend == 13)
-      return -5.75;
-    if (ibend == 14)
-      return -6.75;
-    if (ibend == 15)
-      return -7.75;
-
-    throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__
-                                      << " Unknown benddecode for 2S module for ibend = " << ibend;
-  }
-
-  inline double bend(double r, double rinv, double stripPitch) {
+  inline double bendstrip(double r, double rinv, double stripPitch) {
     constexpr double dr = 0.18;
     double delta = r * dr * 0.5 * rinv;
-    double bend = -delta / stripPitch;
+    double bend = delta / stripPitch;
     return bend;
   }
 
   inline double rinv(double phi1, double phi2, double r1, double r2) {
-    if (r2 <= r1) {  //can not form tracklet
+    if (r2 <= r1) {  //FIXME can not form tracklet should not call function with r2<=r1
       return 20.0;
     }
 
@@ -179,6 +55,126 @@ namespace trklet {
     double dr = r2 - r1;
 
     return 2.0 * sin(dphi) / dr / sqrt(1.0 + 2 * r1 * r2 * (1.0 - cos(dphi)) / (dr * dr));
+  }
+
+  inline std::string convertHexToBin(const std::string& stubwordhex) {
+    std::string stubwordbin = "";
+
+    for (char word : stubwordhex) {
+      std::string hexword = "";
+      if (word == '0')
+        hexword = "0000";
+      else if (word == '1')
+        hexword = "0001";
+      else if (word == '2')
+        hexword = "0010";
+      else if (word == '3')
+        hexword = "0011";
+      else if (word == '4')
+        hexword = "0100";
+      else if (word == '5')
+        hexword = "0101";
+      else if (word == '6')
+        hexword = "0110";
+      else if (word == '7')
+        hexword = "0111";
+      else if (word == '8')
+        hexword = "1000";
+      else if (word == '9')
+        hexword = "1001";
+      else if (word == 'A')
+        hexword = "1010";
+      else if (word == 'B')
+        hexword = "1011";
+      else if (word == 'C')
+        hexword = "1100";
+      else if (word == 'D')
+        hexword = "1101";
+      else if (word == 'E')
+        hexword = "1110";
+      else if (word == 'F')
+        hexword = "1111";
+      else {
+        throw cms::Exception("Inconsistency")
+            << __FILE__ << " " << __LINE__ << " hex string format invalid: " << stubwordhex;
+      }
+      stubwordbin += hexword;
+    }
+    return stubwordbin;
+  }
+
+  inline int ilog2(double factor) {
+    double power = log(factor) / log(2);
+    int ipower = round(power);
+    assert(std::abs(power - ipower) < 0.1);
+    return ipower;
+  }
+
+  /******************************************************************************
+ * Checks to see if a directory exists. Note: This method only checks the
+ * existence of the full path AND if path leaf is a dir.
+ *
+ * @return   1 if dir exists AND is a dir,
+ *           0 if dir does not exist OR exists but not a dir,
+ *          -1 if an error occurred (errno is also set)
+ *****************************************************************************/
+  inline int dirExists(const std::string& path) {
+    struct stat info;
+
+    int statRC = stat(path.c_str(), &info);
+    if (statRC != 0) {
+      if (errno == ENOENT) {
+        return 0;
+      }  // something along the path does not exist
+      if (errno == ENOTDIR) {
+        return 0;
+      }  // something in path prefix is not a dir
+      return -1;
+    }
+
+    return (info.st_mode & S_IFDIR) ? 1 : 0;
+  }
+
+  //Open file - create directory if not existent.
+  inline std::ofstream openfile(const std::string& dir, const std::string& fname, const char* file, int line) {
+    if (dirExists(dir) != 1) {
+      edm::LogVerbatim("Tracklet") << "Creating directory : " << dir;
+      int fail = system((std::string("mkdir -p ") + dir).c_str());
+      if (fail) {
+        throw cms::Exception("BadDir") << file << " " << line << " could not create directory " << dir;
+      }
+    }
+
+    std::ofstream out(dir + "/" + fname);
+
+    if (out.fail()) {
+      throw cms::Exception("BadFile") << file << " " << line << " could not create file " << fname << " in " << dir;
+    }
+
+    return out;
+  }
+
+  //Open file - create directory if not existent.
+  //If first==true open file in create mode, if first==false open in append mode
+  inline void openfile(
+      std::ofstream& out, bool first, const std::string& dir, const std::string& fname, const char* file, int line) {
+    if (dirExists(dir) != 1) {
+      edm::LogVerbatim("Tracklet") << "Creating directory : " << dir;
+      int fail = system((std::string("mkdir -p ") + dir).c_str());
+      if (fail) {
+        throw cms::Exception("BadDir") << file << " " << line << " could not create directory " << dir;
+      }
+    }
+
+    if (first) {
+      out.open(fname);
+    } else {
+      out.open(fname, std::ofstream::app);
+    }
+
+    if (out.fail()) {
+      throw cms::Exception("BadFile") << file << " " << line << " could not create file " << fname << " in " << dir;
+    }
   }
 
 };  // namespace trklet
