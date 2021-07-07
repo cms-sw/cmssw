@@ -101,7 +101,6 @@ capture()\n"""
         print("\n### generated code\n")
         print(func)
     # compile python code as exec statement
-    print(func)
     obj   = compile(func, '<string>', 'exec')
     # define execution namespace
     namespace = {}
