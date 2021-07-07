@@ -33,10 +33,9 @@
 
 class RetrieveCTPPSBeamParameters : public edm::one::EDAnalyzer<> {
 public:
-  explicit RetrieveCTPPSBeamParameters(const edm::ParameterSet &ps) :
-    label_(ps.getParameter<std::string>("label")),
-    tokenBeamParameters_( esConsumes<CTPPSBeamParameters, CTPPSBeamParametersRcd>( edm::ESInputTag("", label_) ) )
-  {}
+  explicit RetrieveCTPPSBeamParameters(const edm::ParameterSet& ps)
+      : label_(ps.getParameter<std::string>("label")),
+        tokenBeamParameters_(esConsumes<CTPPSBeamParameters, CTPPSBeamParametersRcd>(edm::ESInputTag("", label_))) {}
 
   ~RetrieveCTPPSBeamParameters() override = default;
 

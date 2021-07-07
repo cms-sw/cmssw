@@ -24,7 +24,7 @@ public:
   edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, CTPPSRPAlignmentCorrectionsDataRcd> tokenAlignmentsIdeal_;
   edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord> tokenAlignmentsReal_;
   edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord> tokenAlignmentsMisaligned_;
-  
+
   explicit CTPPSRPAlignmentInfoReader(edm::ParameterSet const& iConfig);
 
   explicit CTPPSRPAlignmentInfoReader(int i) {}
@@ -35,10 +35,8 @@ public:
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSRPAlignmentInfoReader::CTPPSRPAlignmentInfoReader(edm::ParameterSet const& iConfig) :
-      iov_(iConfig.getParameter<unsigned long long>("iov")),
-        record_(iConfig.getParameter<string>("record"))
-{
+CTPPSRPAlignmentInfoReader::CTPPSRPAlignmentInfoReader(edm::ParameterSet const& iConfig)
+    : iov_(iConfig.getParameter<unsigned long long>("iov")), record_(iConfig.getParameter<string>("record")) {
   if (strcmp(record_.c_str(), "CTPPSRPAlignmentCorrectionsDataRcd") == 0) {
     tokenAlignmentsIdeal_ = esConsumes<CTPPSRPAlignmentCorrectionsData, CTPPSRPAlignmentCorrectionsDataRcd>();
   } else if (strcmp(record_.c_str(), "RPRealAlignmentRecord") == 0) {
@@ -47,7 +45,6 @@ CTPPSRPAlignmentInfoReader::CTPPSRPAlignmentInfoReader(edm::ParameterSet const& 
     tokenAlignmentsMisaligned_ = esConsumes<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>();
   }
 }
-
 
 //----------------------------------------------------------------------------------------------------
 
