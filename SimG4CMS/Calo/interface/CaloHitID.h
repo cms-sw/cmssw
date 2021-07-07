@@ -26,9 +26,9 @@ public:
   void reset();
 
   void setTrackID(int trackID) { theTrackID = trackID; }
-  void markAsFinecaloTrackID(bool flag=true){ isFinecaloTrackID_ = flag; }
+  void markAsFinecaloTrackID(bool flag = true) { isFinecaloTrackID_ = flag; }
   bool isFinecaloTrackID() const { return isFinecaloTrackID_; }
-  
+
   bool operator==(const CaloHitID&) const;
   bool operator<(const CaloHitID&) const;
   bool operator>(const CaloHitID&) const;

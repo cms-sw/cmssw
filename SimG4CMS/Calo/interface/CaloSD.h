@@ -88,7 +88,7 @@ protected:
   static std::string printableDecayChain(const std::vector<unsigned int>& decayChain);
   std::string shortreprID(const CaloHitID& ID);
   std::string shortreprID(const CaloG4Hit* hit);
-  unsigned int findBoundaryCrossingParent(const G4Track* track, bool markParentAsSaveable=true);
+  unsigned int findBoundaryCrossingParent(const G4Track* track, bool markParentAsSaveable = true);
 
   void update(const BeginOfRun*) override;
   void update(const BeginOfEvent*) override;

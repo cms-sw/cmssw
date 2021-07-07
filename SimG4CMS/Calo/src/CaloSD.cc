@@ -217,7 +217,7 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
 
   double energy = getEnergyDeposit(aStep);
   if (energy > 0.0) {
-    if (doFineCaloThisStep_){
+    if (doFineCaloThisStep_) {
       currentID.setID(unitID, time, findBoundaryCrossingParent(theTrack), depth);
       currentID.markAsFinecaloTrackID();
     }
@@ -467,39 +467,33 @@ std::string CaloSD::printableDecayChain(const std::vector<unsigned int>& decayCh
 }
 
 /* Very short representation of a CaloHitID */
-std::string CaloSD::shortreprID(const CaloHitID& ID){
+std::string CaloSD::shortreprID(const CaloHitID& ID) {
   std::stringstream ss;
-  ss << GetName()
-    << "/" << ID.unitID()
-    << "/trk" << ID.trackID()
-    << "/d" << ID.depth()
-    << "/time" << ID.timeSliceID()
-    ;
-  if (ID.isFinecaloTrackID()) ss << "/FC";
+  ss << GetName() << "/" << ID.unitID() << "/trk" << ID.trackID() << "/d" << ID.depth() << "/time" << ID.timeSliceID();
+  if (ID.isFinecaloTrackID())
+    ss << "/FC";
   return ss.str();
 }
 
 /* As above, but with a hit as input */
-std::string CaloSD::shortreprID(const CaloG4Hit* hit){
-  return shortreprID(hit->getID());
-}
+std::string CaloSD::shortreprID(const CaloG4Hit* hit) { return shortreprID(hit->getID()); }
 
 /*
 Finds the boundary-crossing parent of a track, and stores it in the CaloSD's map
 */
-unsigned int CaloSD::findBoundaryCrossingParent(const G4Track* track, bool markAsSaveable){
+unsigned int CaloSD::findBoundaryCrossingParent(const G4Track* track, bool markAsSaveable) {
   TrackInformation* trkInfo = cmsTrackInformation(track);
   unsigned int id = track->GetTrackID();
   // First see if this track is already in the map
   auto it = boundaryCrossingParentMap_.find(id);
-  if (it != boundaryCrossingParentMap_.end()){
+  if (it != boundaryCrossingParentMap_.end()) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("DoFineCalo") << "Track " << id << " parent already cached: " << it->second;
 #endif
     return it->second;
   }
   // Then see if the track itself crosses the boundary
-  else if (trkInfo->crossedBoundary()){
+  else if (trkInfo->crossedBoundary()) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("DoFineCalo") << "Track " << id << " crosses boundary itself";
 #endif
@@ -510,49 +504,46 @@ unsigned int CaloSD::findBoundaryCrossingParent(const G4Track* track, bool markA
   // Else, traverse the history of the track
   std::vector<unsigned int> decayChain{id};
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("DoFineCalo") << "Track " << id
-                                 << ": Traversing history to find boundary-crossing parent";
+  edm::LogVerbatim("DoFineCalo") << "Track " << id << ": Traversing history to find boundary-crossing parent";
 #endif
   unsigned int parentID = track->GetParentID();
-  while(true){
+  while (true) {
     if (parentID == 0)
-      throw cms::Exception("Unknown", "CaloSD") << "Hit end of parentage for track " << id
-                                                << " without finding a boundary-crossing parent";
+      throw cms::Exception("Unknown", "CaloSD")
+          << "Hit end of parentage for track " << id << " without finding a boundary-crossing parent";
     // First check if this ancestor is already in the map
     auto it = boundaryCrossingParentMap_.find(parentID);
-    if (it != boundaryCrossingParentMap_.end()){
+    if (it != boundaryCrossingParentMap_.end()) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("DoFineCalo") << "  Track " << parentID
-                                     << " boundary-crossing parent already cached: "
-                                     << it->second;
+                                     << " boundary-crossing parent already cached: " << it->second;
 #endif
       // Store this parent also for the rest of the traversed decay chain
-      for(auto ancestorID : decayChain)
+      for (auto ancestorID : decayChain)
         boundaryCrossingParentMap_[ancestorID] = it->second;
 #ifdef EDM_ML_DEBUG
       // In debug mode, still build the rest of the decay chain for debugging
       decayChain.push_back(parentID);
-      while(parentID != it->second){
+      while (parentID != it->second) {
         parentID = m_trackManager->getTrackByID(parentID, true)->parentID();
         decayChain.push_back(parentID);
       }
-      edm::LogVerbatim("DoFineCalo") << "  Full decay chain: "
-                                      << printableDecayChain(decayChain);
+      edm::LogVerbatim("DoFineCalo") << "  Full decay chain: " << printableDecayChain(decayChain);
 #endif
       return it->second;
     }
     // If not, get this parent from the track manager (expensive)
     TrackWithHistory* parentTrack = m_trackManager->getTrackByID(parentID, true);
-    if (parentTrack->crossedBoundary()){
-      if (markAsSaveable) parentTrack->save();
+    if (parentTrack->crossedBoundary()) {
+      if (markAsSaveable)
+        parentTrack->save();
       decayChain.push_back(parentID);
       // Record this boundary crossing parent for all traversed ancestors
-      for(auto ancestorID : decayChain)
+      for (auto ancestorID : decayChain)
         boundaryCrossingParentMap_[ancestorID] = parentID;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("DoFineCalo") << "  Found boundary-crossing ancestor " << parentID
-                                     << " for track " << id << "; decay chain: "
-                                     << printableDecayChain(decayChain);
+      edm::LogVerbatim("DoFineCalo") << "  Found boundary-crossing ancestor " << parentID << " for track " << id
+                                     << "; decay chain: " << printableDecayChain(decayChain);
 #endif
       return parentID;
     }
@@ -561,7 +552,6 @@ unsigned int CaloSD::findBoundaryCrossingParent(const G4Track* track, bool markA
     parentID = parentTrack->parentID();
   }
 }
-
 
 CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep, const G4Track* theTrack) {
 #ifdef EDM_ML_DEBUG
@@ -599,10 +589,8 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep, const G4Track* theTrack) {
 #ifdef EDM_ML_DEBUG
   if (doFineCaloThisStep_)
     edm::LogVerbatim("DoFineCalo") << "New hit " << shortreprID(aHit) << " using finecalo;"
-                                   << " isItFineCalo(post)="
-                                   << isItFineCalo(aStep->GetPostStepPoint()->GetTouchable())
-                                   << " isItFineCalo(pre)="
-                                   << isItFineCalo(aStep->GetPreStepPoint()->GetTouchable());
+                                   << " isItFineCalo(post)=" << isItFineCalo(aStep->GetPostStepPoint()->GetTouchable())
+                                   << " isItFineCalo(pre)=" << isItFineCalo(aStep->GetPreStepPoint()->GetTouchable());
 #endif
 
   // 'Traditional', non-fine history bookkeeping
@@ -889,17 +877,21 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
     time += correctT;
 
   // More strict bookkeeping for finecalo
-  if (doFineCalo_ && aHit->isFinecaloTrackID()){
+  if (doFineCalo_ && aHit->isFinecaloTrackID()) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("DoFineCalo") << "Saving hit " << shortreprID(aHit);
 #endif
     if (!m_trackManager)
       throw cms::Exception("Unknown", "CaloSD") << "m_trackManager not set, needed for finecalo!";
-    if (!m_trackManager->trackExists(aHit->getTrackID())) 
-      throw cms::Exception("Unknown", "CaloSD") << "Error on hit " << shortreprID(aHit)
-                                                << ": Parent track not in track manager";
-    slave.get()->processHits(
-        aHit->getUnitID(), aHit->getEM() / CLHEP::GeV, aHit->getHadr() / CLHEP::GeV, time, aHit->getTrackID(), aHit->getDepth());
+    if (!m_trackManager->trackExists(aHit->getTrackID()))
+      throw cms::Exception("Unknown", "CaloSD")
+          << "Error on hit " << shortreprID(aHit) << ": Parent track not in track manager";
+    slave.get()->processHits(aHit->getUnitID(),
+                             aHit->getEM() / CLHEP::GeV,
+                             aHit->getHadr() / CLHEP::GeV,
+                             time,
+                             aHit->getTrackID(),
+                             aHit->getDepth());
   }
   // Regular, not-fine way:
   else {

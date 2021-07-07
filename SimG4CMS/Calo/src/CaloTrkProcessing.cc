@@ -226,20 +226,18 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
                                      << theTrack->GetVertexPosition().y() / CLHEP::cm << ","
                                      << theTrack->GetVertexPosition().z() / CLHEP::cm << ")"
                                      << " GetVertexKineticEnergy[GeV]="
-                                     << theTrack->GetVertexKineticEnergy() / CLHEP::GeV
-                                     ;
+                                     << theTrack->GetVertexKineticEnergy() / CLHEP::GeV;
 #endif
-      if (!trkInfo->startedInFineVolume()){
+      if (!trkInfo->startedInFineVolume()) {
         trkInfo->setCrossedBoundary(theTrack);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("DoFineCalo") << "Track " << id << " marked as boundary-crossing; sanity check:"
                                        << " theTrack->GetTrackID()=" << theTrack->GetTrackID()
-                                       << " trkInfo->crossedBoundary()=" << trkInfo->crossedBoundary()
-                                       ;
+                                       << " trkInfo->crossedBoundary()=" << trkInfo->crossedBoundary();
 #endif
       }
 #ifdef EDM_ML_DEBUG
-      else{
+      else {
         edm::LogVerbatim("DoFineCalo") << "Track " << id << " REENTERED a fine volume;"
                                        << " not counting this boundary crossing!";
       }

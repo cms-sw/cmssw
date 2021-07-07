@@ -73,8 +73,11 @@ public:
   const math::XYZTLorentzVectorF &getPositionAtBoundary() const { return positionAtBoundary_; }
   const math::XYZTLorentzVectorF &getMomentumAtBoundary() const { return momentumAtBoundary_; }
   bool startedInFineVolume() const { return startedInFineVolume_; }
-  void setStartedInFineVolume(bool flag=true) {startedInFineVolume_ = flag; startedInFineVolumeIsSet_ = true; }
-  bool startedInFineVolumeIsSet(){ return startedInFineVolumeIsSet_; }
+  void setStartedInFineVolume(bool flag = true) {
+    startedInFineVolume_ = flag;
+    startedInFineVolumeIsSet_ = true;
+  }
+  bool startedInFineVolumeIsSet() { return startedInFineVolumeIsSet_; }
 
   // Generator information
   int genParticlePID() const { return genParticlePID_; }
