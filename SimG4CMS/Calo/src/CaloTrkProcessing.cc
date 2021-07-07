@@ -231,10 +231,12 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
 #endif
       if (!trkInfo->startedInFineVolume()){
         trkInfo->setCrossedBoundary(theTrack);
+#ifdef EDM_ML_DEBUG
         edm::LogVerbatim("DoFineCalo") << "Track " << id << " marked as boundary-crossing; sanity check:"
                                        << " theTrack->GetTrackID()=" << theTrack->GetTrackID()
                                        << " trkInfo->crossedBoundary()=" << trkInfo->crossedBoundary()
                                        ;
+#endif
       }
 #ifdef EDM_ML_DEBUG
       else{
