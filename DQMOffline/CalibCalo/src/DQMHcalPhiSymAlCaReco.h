@@ -69,6 +69,8 @@ private:
   double ihbhe_size_;
   double ihf_size_;
 
+  bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
+
   /// object to monitor
 
   edm::EDGetTokenT<HBHERecHitCollection> hbherecoMB;
