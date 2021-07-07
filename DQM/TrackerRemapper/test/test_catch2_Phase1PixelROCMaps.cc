@@ -40,6 +40,19 @@ TEST_CASE("Phase1PixelROCMaps testing", "[Phase1PixelROCMaps]") {
   }
 
   //_____________________________________________________________
+  SECTION("Check empty delta plotting") {
+    gStyle->SetOptStat(0);
+    Phase1PixelROCMaps theMap("#Delta", "#Delta");
+    TCanvas c = TCanvas("c", "c", 1200, 1600);
+    theMap.drawMaps(c, "testing empty #Delta");
+    theMap.fillWholeModule(303042564, 1.);
+    theMap.fillWholeModule(344912900, -1.);
+    c.SaveAs("Phase1PixelROCMaps_emptyDelta.png");
+    REQUIRE(theMap.getLayerMaps().size() == 4);
+    REQUIRE(theMap.getRingMaps().size() == 2);
+  }
+
+  //_____________________________________________________________
   SECTION("Check filling whole modules") {
     Phase1PixelROCMaps theMap("");
     gStyle->SetOptStat(0);
