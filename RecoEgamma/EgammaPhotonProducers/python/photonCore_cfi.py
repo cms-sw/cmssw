@@ -17,6 +17,7 @@ photonCore = cms.EDProducer("PhotonCoreProducer",
 )
 
 photonCoreHGC = photonCore.clone(
+    scHybridBarrelProducer = "",
     scIslandEndcapProducer = 'particleFlowSuperClusterHGCal',
     pixelSeedProducer = 'electronMergedSeeds'
 )

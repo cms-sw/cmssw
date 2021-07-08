@@ -2,5 +2,6 @@ from RecoEgamma.EgammaElectronProducers.ecalDrivenGsfElectronCores_cfi import ec
 
 ecalDrivenGsfElectronCoresHGC = ecalDrivenGsfElectronCores.clone(
   gsfTracks = 'electronGsfTracks',
-  useGsfPfRecTracks = False
+  useGsfPfRecTracks = False,
+  hgcalOnly = True,
 )
