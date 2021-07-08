@@ -219,14 +219,6 @@ protected:
   //  set the wire hit container
   void setWireContainer(CSCALCTDigi&, CSCALCTDigi::WireContainer& wireHits) const;
 
-  /* This function looks for ALCTs on the previous and next wires.  If one
-     exists and it has a better quality and a bx_time up to 4 clocks earlier
-     than the present, then the present ALCT is cancelled.  The present ALCT
-     also gets cancelled if it has the same quality as the one on the
-     previous wire (this has not been done in 2003 test beam).  The
-     cancellation is done separately for collision and accelerator patterns. */
-  virtual void ghostCancellationLogic();
-
   /* In older versions of the ALCT emulation, the ghost cancellation was performed after
      the ALCTs were found. In December 2018 it became clear that during the study of data
      and emulation comparison on 2018 data, a small disagreement between data and emulation

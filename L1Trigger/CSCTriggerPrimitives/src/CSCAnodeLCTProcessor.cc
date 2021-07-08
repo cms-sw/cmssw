@@ -365,9 +365,9 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
        In the firmware however, the ghost cancellation is done during the trigger
        on each wiregroup in parallel. For Run-3 and beyond, the ghost cancellation is
        implemented per wiregroup earlier in the code. See function
-       "ghostCancellationLogicOneWire". Therefore, the line below is commented out.
+       "ghostCancellationLogicOneWire". There used to be a function ghostCancellationLogic
+       call here.
     */
-    //ghostCancellationLogic();
     lctSearch();
   }
 }
@@ -745,82 +745,7 @@ bool CSCAnodeLCTProcessor::patternDetection(
   return trigger;
 }
 
-void CSCAnodeLCTProcessor::ghostCancellationLogic() {
-  int ghost_cleared[CSCConstants::MAX_NUM_WIREGROUPS][2];
-
-  for (int key_wire = 0; key_wire < numWireGroups; key_wire++) {
-    for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
-      ghost_cleared[key_wire][i_pattern] = 0;
-
-      // Non-empty wire group.
-      int qual_this = quality[key_wire][i_pattern];
-      if (qual_this > 0) {
-        // Previous wire.
-        int qual_prev = (key_wire > 0) ? quality[key_wire - 1][i_pattern] : 0;
-        if (qual_prev > 0) {
-          int dt = first_bx[key_wire] - first_bx[key_wire - 1];
-          // Cancel this wire
-          //   1) If the candidate at the previous wire is at the same bx
-          //      clock and has better quality (or equal quality - this has
-          //      been implemented only in 2004).
-          //   2) If the candidate at the previous wire is up to 4 clocks
-          //      earlier, regardless of quality.
-          if (dt == 0) {
-            if (qual_prev >= qual_this)
-              ghost_cleared[key_wire][i_pattern] = 1;
-          } else if (dt > 0 && dt <= ghost_cancellation_bx_depth) {
-            if ((!ghost_cancellation_side_quality) || (qual_prev > qual_this))
-              ghost_cleared[key_wire][i_pattern] = 1;
-          }
-        }
-
-        // Next wire.
-        // Skip this step if this wire is already declared "ghost".
-        if (ghost_cleared[key_wire][i_pattern] == 1) {
-          if (infoV > 1)
-            LogTrace("CSCAnodeLCTProcessor")
-                << ((i_pattern == 0) ? "Accelerator" : "Collision") << " pattern ghost cancelled on key_wire "
-                << key_wire << " q=" << qual_this << "  by wire " << key_wire - 1 << " q=" << qual_prev;
-          continue;
-        }
-
-        int qual_next = (key_wire < numWireGroups - 1) ? quality[key_wire + 1][i_pattern] : 0;
-        if (qual_next > 0) {
-          int dt = first_bx[key_wire] - first_bx[key_wire + 1];
-          // Same cancellation logic as for the previous wire.
-          if (dt == 0) {
-            if (qual_next > qual_this)
-              ghost_cleared[key_wire][i_pattern] = 1;
-          } else if (dt > 0 && dt <= ghost_cancellation_bx_depth) {
-            if ((!ghost_cancellation_side_quality) || (qual_next >= qual_this))
-              ghost_cleared[key_wire][i_pattern] = 1;
-          }
-        }
-        if (ghost_cleared[key_wire][i_pattern] == 1) {
-          if (infoV > 1)
-            LogTrace("CSCAnodeLCTProcessor")
-                << ((i_pattern == 0) ? "Accelerator" : "Collision") << " pattern ghost cancelled on key_wire "
-                << key_wire << " q=" << qual_this << "  by wire " << key_wire + 1 << " q=" << qual_next;
-          continue;
-        }
-      }
-    }
-  }
-
-  // All cancellation is done in parallel, so wiregroups do not know what
-  // their neighbors are cancelling.
-  // namely, if wiregroup 10, 11, 12 all have trigger and same quality, only wiregroup 10 can keep the trigger
-  for (int key_wire = 0; key_wire < numWireGroups; key_wire++) {
-    for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
-      if (ghost_cleared[key_wire][i_pattern] > 0) {
-        clear(key_wire, i_pattern);
-      }
-    }
-  }
-}
-
 void CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire, int* ghost_cleared) {
-  //int ghost_cleared[2];
 
   for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
     ghost_cleared[i_pattern] = 0;
