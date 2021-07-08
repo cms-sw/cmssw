@@ -75,6 +75,14 @@
   <use name="DQM/TrackerRemapper"/>
 </library>
 
+<library file="SiPixelDynamicInefficiency_PayloadInspector.cc" name="SiPixelDynamicInefficiency_PayloadInspector">
+  <use name="CondCore/SiPixelPlugins"/>
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="DQM/TrackerRemapper"/>
+  <use name="CalibTracker/StandaloneTrackerTopology"/>
+</library>
+
 <library file="plugin.cc" name="CondCoreSiPixelPluginsPlugin">
   <flags EDM_PLUGIN="1"/>
   <use name="CondCore/ESSources"/>
