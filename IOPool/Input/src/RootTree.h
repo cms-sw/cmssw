@@ -53,12 +53,10 @@ namespace edm {
       BranchInfo(BranchDescription const& prod)
           : branchDescription_(prod),
             productBranch_(nullptr),
-            provenanceBranch_(nullptr),
             classCache_(nullptr),
             offsetToWrapperBase_(0) {}
       BranchDescription const branchDescription_;
       TBranch* productBranch_;
-      TBranch* provenanceBranch_;  // For backward compatibility
       //All access to a ROOT file is serialized
       CMS_SA_ALLOW mutable TClass* classCache_;
       CMS_SA_ALLOW mutable Int_t offsetToWrapperBase_;
