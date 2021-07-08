@@ -217,10 +217,6 @@ protected:
   static const unsigned int def_pid_thresh_pretrig, def_min_separation;
   static const unsigned int def_tmb_l1a_window_size;
 
-  std::vector<std::string> positionLUTFiles_;
-  std::vector<std::string> slopeLUTFiles_;
-  std::vector<std::string> patternConversionLUTFiles_;
-
   /* quality control */
   std::unique_ptr<LCTQualityControl> qualityControl_;
 
