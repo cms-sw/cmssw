@@ -87,11 +87,7 @@ namespace edm {
         std::shared_ptr<std::map<std::string, int>> treeMap_;
       };
 
-      OutputItem();
-
       explicit OutputItem(BranchDescription const* bd, EDGetToken const& token, int splitLevel, int basketSize);
-
-      ~OutputItem() {}
 
       BranchID branchID() const { return branchDescription_->branchID(); }
       std::string const& branchName() const { return branchDescription_->branchName(); }
