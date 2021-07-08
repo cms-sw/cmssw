@@ -169,15 +169,15 @@ def _parse_timestamp(timestamp):
 def _confirm_changes(args):
     if not args.yes:
         output(args, 'Confirm changes? [n]', newline=False)
-        if raw_input().lower() not in ['y', 'yes']:
+        if input().lower() not in ['y', 'yes']:
             raise Exception('Aborted by the user.')
 
 def _get_user_note(args,message):
     output(args, message, newline=False)
-    note = raw_input()
+    note = input()
     if note == '' or note == ' ':
         output(args,'Provided note is invalid, please provide a non-empty string: ',newline=False)
-        note = raw_input()
+        note = input()
         if note == '' or note == ' ':
             raise Exception('Sorry, bailing out...')
     return note 
@@ -588,7 +588,7 @@ def search(args):
             return _ilike_or_regexp_highlight(args, cell, args.string)
 
     def size(cell):
-        return str( sys.getsizeof( bytearray(cell) ) )
+        return str( sys.getsizeof( bytearray(cell,encoding='utf8') ) )
 
     Tag = session.get_dbtype(conddb.Tag)
     output_table(args,
@@ -1041,7 +1041,7 @@ def diffGlobalTagsAtRun_(args):
 
     if(not args.lastIOV):
 
-        if(args.testRunNumber<0):
+        if(int(args.testRunNumber)<0):
             raise Exception("Run %s (default) can't be matched with an existing run in the database. \n\t\t Please specify a run with the option --run." % args.testRunNumber)
 
         bestRun = session.query(RUNINFO.run_number, RUNINFO.start_time, RUNINFO.end_time).filter(RUNINFO.run_number == int(args.testRunNumber)).first()
@@ -1293,7 +1293,7 @@ def listRuns_(args):
     if match is None:
         fromTime = getattr(args, 'from')
         if fromTime is not None:
-            fromTime = unicode(fromTime,'utf-8')
+            fromTime = str(fromTime)
             fromRun = fromTime
             start = None
             if fromTime.isnumeric():
@@ -1306,7 +1306,7 @@ def listRuns_(args):
                 logging.debug('run lower boundary: %s (%s)'%(fromRun, start.strftime('%Y-%m-%d %H:%M:%S')))
         toTime = getattr(args, 'to')
         if toTime is not None:   
-            toTime = unicode(toTime,'utf-8')
+            toTime = str(toTime)
             toRun = toTime
             end = None
             if toTime.isnumeric():
@@ -1741,7 +1741,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
             raise Exception('Time type mismatch, bailing out.')
         if not args.yes:
             output(args, 'Confirm the update of the existing tag "%s" in %s [n]?' %(second,args.destdb), newline=False)
-            if raw_input().lower() not in ['y', 'yes']:
+            if input().lower() not in ['y', 'yes']:
                 raise Exception('Aborted by the user.')
     else:
         destSynchro = 'any'
@@ -2052,7 +2052,7 @@ def edit(args):
     if args.editor is None:
         editor = _get_editor(args)
 
-    with tempfile.NamedTemporaryFile() as tempfd:
+    with tempfile.NamedTemporaryFile(mode='r+') as tempfd:
 
         if args.type == 'payload':
             raise Exception('TODO')
@@ -2710,10 +2710,10 @@ def query_object(args):
         header = None
         for res in query:
             found = 0
-            streamer_info = str(res[1])
+            streamer_info = res[1]
             row = (args.unique_key,res[0],)
             header = ['Payload hash','Object type']
-            if streamer_info != '0':
+            if streamer_info != b'0':
                 payload_md = json.loads(streamer_info)
                 for k in sorted(payload_md.keys()):
                     header.append(k)
