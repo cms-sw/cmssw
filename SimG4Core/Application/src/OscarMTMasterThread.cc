@@ -48,6 +48,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
       m_masterCanProceed = false;
       edm::LogVerbatim("OscarMTMasterThread") << "Master thread: State loop, starting wait";
       m_notifyMasterCv.wait(lk2, [&] { return m_masterCanProceed; });
+      //m_notifyMasterCv.wait(lk2, [&] { return false; });
 
       // Act according to the state
       edm::LogVerbatim("OscarMTMasterThread")
@@ -121,17 +122,18 @@ void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
   std::unique_lock<std::mutex> lk2(m_threadMutex);
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread::beginRun";
 
-  if (m_pGeoFromDD4hep) {
-    m_pDD4Hep = &(iSetup.getData(m_DD4Hep));
-  } else {
-    m_pDDD = &(iSetup.getData(m_DDD));
+  if(m_firstRun) {
+    if (m_pGeoFromDD4hep) {
+      m_pDD4Hep = &(*iSetup.getTransientHandle(m_DD4Hep));
+    } else {
+      m_pDDD = &(*iSetup.getTransientHandle(m_DDD));
+    }
+    m_pTable = &(*iSetup.getTransientHandle(m_PDT));
+    m_firstRun = false;
   }
-  m_pTable = &(iSetup.getData(m_PDT));
-
   m_masterThreadState = ThreadState::BeginRun;
   m_masterCanProceed = true;
   m_mainCanProceed = false;
-  m_firstRun = false;
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread: Signal master for BeginRun";
   m_notifyMasterCv.notify_one();
   m_notifyMainCv.wait(lk2, [&]() { return m_mainCanProceed; });
