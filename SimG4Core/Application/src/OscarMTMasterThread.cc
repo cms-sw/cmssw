@@ -122,7 +122,7 @@ void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
   std::unique_lock<std::mutex> lk2(m_threadMutex);
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread::beginRun";
 
-  if(m_firstRun) {
+  if (m_firstRun) {
     if (m_pGeoFromDD4hep) {
       m_pDD4Hep = &(*iSetup.getTransientHandle(m_DD4Hep));
     } else {
