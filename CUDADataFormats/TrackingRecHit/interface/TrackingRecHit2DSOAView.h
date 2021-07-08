@@ -7,6 +7,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 #include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
+#include "CUDADataFormats/TrackingRecHit/interface/SiPixelHitStatus.h"
 
 namespace pixelCPEforGPU {
   struct ParamsOnGPU;
@@ -14,6 +15,9 @@ namespace pixelCPEforGPU {
 
 class TrackingRecHit2DSOAView {
 public:
+  using Status = SiPixelHitStatus;
+  static_assert(sizeof(Status) == sizeof(uint8_t));
+
   using hindex_type = uint32_t;  // if above is <=2^32
 
   using PhiBinner = cms::cuda::HistoContainer<int16_t, 128, -1, 8 * sizeof(int16_t), hindex_type, 10>;
@@ -22,6 +26,7 @@ public:
 
   template <typename>
   friend class TrackingRecHit2DHeterogeneous;
+  friend class TrackingRecHit2DReduced;
 
   __device__ __forceinline__ uint32_t nHits() const { return m_nHits; }
 
@@ -47,8 +52,18 @@ public:
   __device__ __forceinline__ int16_t& iphi(int i) { return m_iphi[i]; }
   __device__ __forceinline__ int16_t iphi(int i) const { return __ldg(m_iphi + i); }
 
-  __device__ __forceinline__ int32_t& charge(int i) { return m_charge[i]; }
-  __device__ __forceinline__ int32_t charge(int i) const { return __ldg(m_charge + i); }
+  __device__ __forceinline__ void setChargeAndStatus(int i, uint32_t ich, Status is) {
+    ich = std::min(ich, chargeMask());
+    uint32_t w = *reinterpret_cast<uint8_t*>(&is);
+    ich |= (w << 24);
+    m_chargeAndStatus[i] = ich;
+  }
+
+  __device__ __forceinline__ Status status(int i) const {
+    uint8_t w = __ldg(m_chargeAndStatus + i) >> 24;
+    return *reinterpret_cast<Status*>(&w);
+  }
+
   __device__ __forceinline__ int16_t& clusterSizeX(int i) { return m_xsize[i]; }
   __device__ __forceinline__ int16_t clusterSizeX(int i) const { return __ldg(m_xsize + i); }
   __device__ __forceinline__ int16_t& clusterSizeY(int i) { return m_ysize[i]; }
@@ -79,7 +94,8 @@ private:
   int16_t* m_iphi;
 
   // cluster properties
-  int32_t* m_charge;
+  static constexpr uint32_t chargeMask() { return (1 << 24) - 1; }
+  uint32_t* m_chargeAndStatus;
   int16_t* m_xsize;
   int16_t* m_ysize;
   uint16_t* m_detInd;
