@@ -48,8 +48,6 @@ namespace edm {
                                            PreallocationConfiguration const& iAllocConfig,
                                            ProcessContext const*);
 
-    void clear();
-
     std::shared_ptr<SignallingProductRegistry const> preg() const { return get_underlying_safe(preg_); }
     std::shared_ptr<SignallingProductRegistry>& preg() { return get_underlying_safe(preg_); }
     std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {

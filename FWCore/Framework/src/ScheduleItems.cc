@@ -144,13 +144,4 @@ namespace edm {
                                       config,
                                       processContext);
   }
-
-  void ScheduleItems::clear() {
-    // propagate_const<T> has no reset() function
-    actReg_ = nullptr;
-    preg_ = nullptr;
-    branchIDListHelper_ = nullptr;
-    thinnedAssociationsHelper_ = nullptr;
-    processConfiguration_ = nullptr;
-  }
 }  // namespace edm
