@@ -72,6 +72,7 @@ _phase2_hgcal_simPFTask = cms.Task( pfTrack ,
                                     hgcalTrackCollection ,
                                     tpClusterProducer ,
                                     quickTrackAssociatorByHits ,
+                                    particleFlowClusterHGCalFromSimCl ,
                                     simPFProducer )
 _phase2_hgcal_simPFSequence = cms.Sequence(_phase2_hgcal_simPFTask)
 
