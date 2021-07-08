@@ -6,11 +6,14 @@ process = cms.Process("PROD",Phase2C11)
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.HGCalCommonData.testHGCV15XML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
+process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load("Geometry.MuonNumbering.muonOffsetESProducer_cff")
+process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -57,7 +60,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 
 process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('simevent.root')
+    fileName = cms.untracked.string('hgcV15.root')
 )
 
 process.generation_step = cms.Path(process.pgen)
