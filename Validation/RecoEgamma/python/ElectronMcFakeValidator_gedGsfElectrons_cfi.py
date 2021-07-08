@@ -68,8 +68,6 @@ phase2_hgcal.toModify(
     electronMcFakeValidator,
     electronCollection = 'ecalDrivenGsfElectronsHGC',
     electronCoreCollection = 'ecalDrivenGsfElectronCoresHGC',
-    electronTrackCollection = 'electronGsfTracks',
-    electronSeedCollection = 'electronMergedSeeds',
     MaxAbsEta = cms.double(3.0),
     histosCfg = dict( 
         Nbineta = 60 ,
