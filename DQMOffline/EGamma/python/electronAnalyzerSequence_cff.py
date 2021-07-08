@@ -59,7 +59,7 @@ dqmElectronAnalysisAllElectronsFromMultiCl.MaxAbsEtaMatchingObject = 3.0
 dqmElectronAnalysisAllElectronsFromMultiCl.EtaMax = 3.0
 dqmElectronAnalysisAllElectronsFromMultiCl.EtaMin = -3.0
 dqmElectronAnalysisAllElectronsFromMultiCl.MaxAbsEta = 3.0
-dqmElectronAnalysisAllElectronsFromMultiCl.ElectronCollection = 'ecalDrivenGsfElectronsFromMultiCl'
+dqmElectronAnalysisAllElectronsFromMultiCl.ElectronCollection = 'ecalDrivenGsfElectronsHGC'
 dqmElectronAnalysisAllElectronsFromMultiCl.MatchingObjectCollection = 'mergedSuperClustersHGC'
 
 _electronAnalyzerSequenceFromMultiCl = electronAnalyzerSequence.copy()
