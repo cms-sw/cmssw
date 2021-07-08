@@ -24,8 +24,6 @@ namespace edm {
       : tree_(tree),
         filePtr_(filePtr),
         nextReader_(),
-        resourceAcquirer_(inputType == InputType::Primary ? new SharedResourcesAcquirer()
-                                                          : static_cast<SharedResourcesAcquirer*>(nullptr)),
         inputType_(inputType),
         wrapperBaseTClass_(TClass::GetClass("edm::WrapperBase")) {
     if (inputType == InputType::Primary) {
