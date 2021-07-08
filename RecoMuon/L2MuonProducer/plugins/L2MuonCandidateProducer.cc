@@ -9,39 +9,51 @@
  *   the interchangeability of the L2MuonProducer and the StandAloneMuonProducer
  *   This class is supposed to be removed once the
  *   L2/STA comparison will be done, then the RecoChargedCandidate
- *   production will be put into the L2MuonProducer class.
+ *   production will be done into the L2MuonProducer class.
  *
  *
  *   \author  J.Alcaraz
  */
 
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "RecoMuon/L2MuonProducer/src/L2MuonCandidateProducer.h"
-
-// Input and output collections
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-
 #include <string>
 
-using namespace edm;
-using namespace std;
-using namespace reco;
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+class L2MuonCandidateProducer : public edm::global::EDProducer<> {
+public:
+  /// constructor with config
+  L2MuonCandidateProducer(const edm::ParameterSet&);
+
+  /// destructor
+  ~L2MuonCandidateProducer() override;
+
+  /// produce candidates
+  void produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup&) const override;
+
+private:
+  // StandAlone Collection Label
+  edm::InputTag theSACollectionLabel;
+  edm::EDGetTokenT<reco::TrackCollection> tracksToken;
+};
 
 /// constructor with config
-L2MuonCandidateProducer::L2MuonCandidateProducer(const ParameterSet& parameterSet) {
+L2MuonCandidateProducer::L2MuonCandidateProducer(const edm::ParameterSet& parameterSet) {
   LogTrace("Muon|RecoMuon|L2MuonCandidateProducer") << " constructor called";
 
   // StandAlone Collection Label
-  theSACollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
+  theSACollectionLabel = parameterSet.getParameter<edm::InputTag>("InputObjects");
   tracksToken = consumes<reco::TrackCollection>(theSACollectionLabel);
-  produces<RecoChargedCandidateCollection>();
+  produces<reco::RecoChargedCandidateCollection>();
 }
 
 /// destructor
@@ -50,29 +62,29 @@ L2MuonCandidateProducer::~L2MuonCandidateProducer() {
 }
 
 /// reconstruct muons
-void L2MuonCandidateProducer::produce(edm::StreamID sid, Event& event, const EventSetup& eventSetup) const {
-  const string metname = "Muon|RecoMuon|L2MuonCandidateProducer";
+void L2MuonCandidateProducer::produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup& eventSetup) const {
+  const std::string metname = "Muon|RecoMuon|L2MuonCandidateProducer";
 
   // Take the SA container
   LogTrace(metname) << " Taking the StandAlone muons: " << theSACollectionLabel;
-  Handle<TrackCollection> tracks;
+  edm::Handle<reco::TrackCollection> tracks;
   event.getByToken(tracksToken, tracks);
 
   // Create a RecoChargedCandidate collection
   LogTrace(metname) << " Creating the RecoChargedCandidate collection";
-  auto candidates = std::make_unique<RecoChargedCandidateCollection>();
+  auto candidates = std::make_unique<reco::RecoChargedCandidateCollection>();
 
   for (unsigned int i = 0; i < tracks->size(); i++) {
-    TrackRef tkref(tracks, i);
-    Particle::Charge q = tkref->charge();
-    Particle::LorentzVector p4(tkref->px(), tkref->py(), tkref->pz(), tkref->p());
-    Particle::Point vtx(tkref->vx(), tkref->vy(), tkref->vz());
+    reco::TrackRef tkref(tracks, i);
+    reco::Particle::Charge q = tkref->charge();
+    reco::Particle::LorentzVector p4(tkref->px(), tkref->py(), tkref->pz(), tkref->p());
+    reco::Particle::Point vtx(tkref->vx(), tkref->vy(), tkref->vz());
     int pid = 13;
     if (abs(q) == 1)
       pid = q < 0 ? 13 : -13;
     else
-      LogWarning(metname) << "L2MuonCandidate has charge = " << q;
-    RecoChargedCandidate cand(q, p4, vtx, pid);
+      edm::LogWarning(metname) << "L2MuonCandidate has charge = " << q;
+    reco::RecoChargedCandidate cand(q, p4, vtx, pid);
     cand.setTrack(tkref);
     candidates->push_back(cand);
   }
@@ -82,3 +94,7 @@ void L2MuonCandidateProducer::produce(edm::StreamID sid, Event& event, const Eve
   LogTrace(metname) << " Event loaded"
                     << "================================";
 }
+
+// declare as a framework plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L2MuonCandidateProducer);
