@@ -2606,9 +2606,6 @@ def showProtections( args ):
     return 0
 
 def setProtection( args ):
-    if args.credential is not None and args.credentialtype is None:
-        logging.error('Specified option "credential" requires option "credentialtype')
-        return 2
     if not args.remove and args.accesstype == db_access_code_map[tag_db_lock_access_code]:
         logging.error("Lock can't be set by command line tool action.")
         return 2        
@@ -2622,24 +2619,68 @@ def setProtection( args ):
     if full_protection_code is None:
         logging.error('Tag %s does not exists.'%args.tag)
         return 1
+    input_access_code = None
+    for k in db_access_code_map.keys():
+        if db_access_code_map[k] == args.accesstype:
+            input_access_code = k
+    new_protection_code = 0
+    action = 'Access restriction altered.'
+    note = ''
+    if args.remove:
+        query = session.query(TagAuthorization).filter(TagAuthorization.tag_name == args.tag)
+        query = query.filter(TagAuthorization.access_type == input_access_code)
+        for code in db_access_code_map.keys():
+            if code != input_access_code:
+                new_protection_code |= (full_protection_code & code)
+        note = '%s restrictions removed'%args.accesstype
+        query = query.delete()
+    else:
+        new_protection_code = full_protection_code | input_access_code
+        note = '%s restriction set'%args.accesstype
+    session.merge(Tag(name=args.tag,protection_code=new_protection_code))
+    _update_tag_log(session,args.tag,datetime.datetime.utcnow(),action,note)
+    session.commit()
+    logging.info(note)
+    logging.info('Tag header updated. Action(s): %s' %action)
+    return 0
+
+def setPermission( args ):
+    if args.credential is not None and args.credentialtype is None:
+        logging.error('Specified option "credential" requires option "credentialtype')
+        return 1
+    if args.accesstype == db_access_code_map[tag_db_lock_access_code]:
+        logging.error("Lock ownership can't be altered.")
+        return 1        
+    connection = connect(args, False, True, True)
+    session = connection.session()
+    Tag = session.get_dbtype(conddb.Tag)
+    result = session.query(Tag.name, Tag.protection_code).filter(Tag.name==args.tag).all()
+    full_protection_code = None
+    for res in result:
+        full_protection_code = res[1]
+    if full_protection_code is None:
+        logging.error('Tag %s does not exists.'%args.tag)
+        return 2
+    if full_protection_code == 0:
+        logging.error('Tag %s is not protected.' %args.tag)
+        return 3
     TagAuthorization = session.get_dbtype(conddb.TagAuthorization)
     input_access_code = None
     for k in db_access_code_map.keys():
         if db_access_code_map[k] == args.accesstype:
             input_access_code = k
+    if full_protection_code & input_access_code==0:
+        logging.error('Tag %s is not protected for access %s.'%(args.tag,args.accessType))
+        return 3
     input_credential = None
     input_credential_code = None
     input_credential_type = None
     if args.credential is not None:
-        if input_access_code == tag_db_lock_access_code:
-            logger.warning('Ignoring credentials specified for the lock - the full lock will be removed.')
-        else:
-            input_credential = args.credential
-            for k in db_credential_type_map.keys():
-                if db_credential_type_map[k][1] == args.credentialtype:
-                    input_credential_code = k
-                    input_credential_type = db_credential_type_map[k][0]
-    new_protection_code = 0
+        input_credential = args.credential
+        for k in db_credential_type_map.keys():
+            if db_credential_type_map[k][1] == args.credentialtype:
+                input_credential_code = k
+                input_credential_type = db_credential_type_map[k][0]
     action = 'Access permission altered.'
     note = ''
     if args.remove:
@@ -2648,27 +2689,21 @@ def setProtection( args ):
         if input_credential is not None:
             query = query.filter(TagAuthorization.credential == input_credential)
             query = query.filter(TagAuthorization.credential_type == input_credential_code)
-            new_protection_code = full_protection_code
             note = '%s permission for %s "%s" removed'%(args.accesstype,input_credential_type,args.credential)
         else:
-            for code in db_access_code_map.keys():
-                if code != input_access_code:
-                    new_protection_code |= (full_protection_code & code)
             note = '%s restrictions removed'%args.accesstype
         query = query.delete()
     else:
-        new_protection_code = full_protection_code | input_access_code
         if input_credential is not None:
             session.add(TagAuthorization(tag_name=args.tag, access_type=input_access_code, 
                                          credential=input_credential, credential_type=input_credential_code ))
             note = '%s permission for %s "%s" added'%(args.accesstype,input_credential_type,args.credential)
         else:
             note = '%s restriction set'%args.accesstype
-    session.merge(Tag(name=args.tag,protection_code=new_protection_code))
     _update_tag_log(session,args.tag,datetime.datetime.utcnow(),action,note)
     session.commit()
     logging.info(note)
-    logging.info('Tag header updated. Action(s): %s' %action)
+    logging.info('Tag access permissions updated. Action(s): %s' %action)
     return 0
 
 def query_object(args):
@@ -2879,17 +2914,23 @@ def main():
     parser_fromTimestamp.add_argument('timestamp', help="The Time timetype value")
     parser_fromTimestamp.set_defaults(func=fromTimestamp_)
 
-    parser_showProtections = parser_subparsers.add_parser('showProtections', description='Display the access restriction for the specified tag')
+    parser_showProtections = parser_subparsers.add_parser('showProtections', description='Display the access restrictions and permissions for the specified tag')
     parser_showProtections.add_argument('tag', help="The tag name")
     parser_showProtections.set_defaults(func=showProtections)
 
     parser_setProtection = parser_subparsers.add_parser('setProtection', description='Set an access restriction for the specified tag')
     parser_setProtection.add_argument('tag', help="The tag name")
     parser_setProtection.add_argument('--accesstype','-a', choices=[db_access_code_map[tag_db_write_access_code],db_access_code_map[tag_db_lock_access_code]], required=True, help='The access type of the protection (flag)')
-    parser_setProtection.add_argument('--credential','-c', help='The credential entitled with the permission')
-    parser_setProtection.add_argument('--credentialtype','-t', choices=[db_credential_type_map[db_key_credential_type_code][1],db_credential_type_map[db_cmsuser_credential_type_code][1]],help='The type of the credential provided. Required for "credential" option')
     parser_setProtection.add_argument('--remove','-r',action='store_true', help='Remove the specified protection')
     parser_setProtection.set_defaults(func=setProtection)
+
+    parser_setPermission = parser_subparsers.add_parser('setPermission', description='Set an access permission for the specified tag')
+    parser_setPermission.add_argument('tag', help="The tag name")
+    parser_setPermission.add_argument('--accesstype','-a', choices=[db_access_code_map[tag_db_write_access_code],db_access_code_map[tag_db_lock_access_code]], required=True, help='The access type of the permission (flag)')
+    parser_setPermission.add_argument('--credential','-c', help='The credential entitled with the permission')
+    parser_setPermission.add_argument('--credentialtype','-t', choices=[db_credential_type_map[db_key_credential_type_code][1],db_credential_type_map[db_cmsuser_credential_type_code][1]],help='The type of the credential provided. Required for "credential" option')
+    parser_setPermission.add_argument('--remove','-r',action='store_true', help='Remove the specified permission')
+    parser_setPermission.set_defaults(func=setPermission)
 
     parser_query = parser_subparsers.add_parser('query', description='Query the database to get information about condition metadata')
     parser_query.add_argument('unique_key', help="The unique key for the query")
