@@ -31,13 +31,13 @@ def compare(base_dir, pr_dir, output_dir, files, pr_number, test_number, release
             print('Running comparison:')
             print(' '.join(command))
             
-            output = subprocess.check_output(command)
+            output = subprocess.check_output(command).decode()
 
             output_elements = output.split('\n')[1:]
-            base_output_filename = output_elements[0]
-            pr_output_filename = output_elements[1]
+            base_output_filename = output_elements[3]
+            pr_output_filename = output_elements[4]
             run_nr = base_output_filename.split('_')[2].lstrip('R').lstrip('0')
-            output_numbers = output_elements[2].split(' ')
+            output_numbers = output_elements[5].split(' ')
             
             workflow = os.path.basename(os.path.dirname(os.path.join(base_dir, file_name))).split('_')[0]
             base_dataset = '/' + '/'.join(base_output_filename.rstrip('.root').split('__')[1:])
