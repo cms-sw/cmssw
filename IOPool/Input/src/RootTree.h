@@ -51,10 +51,7 @@ namespace edm {
     typedef IndexIntoFile::EntryNumber_t EntryNumber;
     struct BranchInfo {
       BranchInfo(BranchDescription const& prod)
-          : branchDescription_(prod),
-            productBranch_(nullptr),
-            classCache_(nullptr),
-            offsetToWrapperBase_(0) {}
+          : branchDescription_(prod), productBranch_(nullptr), classCache_(nullptr), offsetToWrapperBase_(0) {}
       BranchDescription const branchDescription_;
       TBranch* productBranch_;
       //All access to a ROOT file is serialized
@@ -218,7 +215,7 @@ namespace edm {
 
     TBranch* branchEntryInfoBranch_;  //backwards compatibility
     // below for backward compatibility
-    TTree* infoTree_;        // backward compatibility
+    TTree* infoTree_;  // backward compatibility
   };
 }  // namespace edm
 #endif
