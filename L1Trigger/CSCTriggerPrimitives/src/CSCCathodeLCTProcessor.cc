@@ -542,7 +542,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
   unsigned int stop_bx = fifo_tbins - drift_delay;
   // Allow for more than one pass over the hits in the time window.
   while (start_bx < stop_bx) {
-
     // temp CLCT objects
     CSCCLCTDigi tempBestCLCT;
     CSCCLCTDigi tempSecondCLCT;
@@ -627,7 +626,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
 
       // If 1st best CLCT is found, look for the 2nd best.
       if (best_halfstrip[0] >= 0) {
-
         // Get the half-strip of the best CLCT in this BX that was put into the list.
         // You do need to re-add the any stagger, because the busy keys are based on
         // the pulse array which takes into account strip stagger!!!
@@ -703,7 +701,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
 // Common to all versions.
 void CSCCathodeLCTProcessor::pulseExtension(
     const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) {
-
   const unsigned bits_in_pulse = pulse_.bitsInPulse();
 
   // Clear pulse array.  This array will be used as a bit representation of
@@ -764,7 +761,6 @@ bool CSCCathodeLCTProcessor::preTrigger(const int start_bx, int& first_bx) {
 
     bool hits_in_time = patternFinding(bx_time, hits_in_patterns);
     if (hits_in_time) {
-
       // clear the pretriggers
       clearPreTriggers();
 
@@ -805,8 +801,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const int start_bx, int& first_bx) {
 
 // TMB-07 version.
 bool CSCCathodeLCTProcessor::patternFinding(
-    const unsigned int bx_time,
-    std::map<int, std::map<int, CSCCLCTDigi::ComparatorContainer>>& hits_in_patterns) {
+    const unsigned int bx_time, std::map<int, std::map<int, CSCCLCTDigi::ComparatorContainer>>& hits_in_patterns) {
   if (bx_time >= fifo_tbins)
     return false;
 
@@ -925,8 +920,9 @@ void CSCCathodeLCTProcessor::markBusyKeys(const int best_hstrip,
   }
 }  // markBusyKeys -- TMB-07 version.
 
-CSCCLCTDigi CSCCathodeLCTProcessor::constructCLCT(const int bx, const unsigned halfstrip_withstagger, const CSCCLCTDigi::ComparatorContainer& hits) {
-
+CSCCLCTDigi CSCCathodeLCTProcessor::constructCLCT(const int bx,
+                                                  const unsigned halfstrip_withstagger,
+                                                  const CSCCLCTDigi::ComparatorContainer& hits) {
   // Assign the CLCT properties
   const unsigned quality = nhits[halfstrip_withstagger];
   const unsigned pattern = best_pid[halfstrip_withstagger];
@@ -968,14 +964,13 @@ CSCCLCTDigi CSCCathodeLCTProcessor::constructCLCT(const int bx, const unsigned h
   return clct;
 }
 
-CSCCLCTPreTriggerDigi CSCCathodeLCTProcessor::constructPreCLCT(const int bx_time, const unsigned hstrip, const unsigned nPreTriggers) const {
-
-  const int bend =
-    clct_pattern_[best_pid[hstrip]][CSCConstants::NUM_LAYERS - 1][CSCConstants::CLCT_PATTERN_WIDTH];
+CSCCLCTPreTriggerDigi CSCCathodeLCTProcessor::constructPreCLCT(const int bx_time,
+                                                               const unsigned hstrip,
+                                                               const unsigned nPreTriggers) const {
+  const int bend = clct_pattern_[best_pid[hstrip]][CSCConstants::NUM_LAYERS - 1][CSCConstants::CLCT_PATTERN_WIDTH];
   const int halfstrip = hstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
   const int cfeb = hstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
-  return CSCCLCTPreTriggerDigi(
-                               1, nhits[hstrip], best_pid[hstrip], 1, bend, halfstrip, cfeb, bx_time, nPreTriggers, 0);
+  return CSCCLCTPreTriggerDigi(1, nhits[hstrip], best_pid[hstrip], 1, bend, halfstrip, cfeb, bx_time, nPreTriggers, 0);
 }
 
 void CSCCathodeLCTProcessor::clearPreTriggers() {
