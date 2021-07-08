@@ -64,8 +64,7 @@ HcalTestSimHitID::HcalTestSimHitID(const edm::ParameterSet& ps)
   // register for data access
   toks_calo_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLab_));
 
-  std::cout << "HcalTestSimHitID::Module Label: " << g4Label_ << "   Hits: " << hitLab_ << " MaxEvent: " << maxEvent_
-            << " Numbering scheme: " << testN_ << " (0 normal; 1 test)\n";
+  edm::LogVerbatim("HcalSim") << "HcalTestSimHitID::Module Label: " << g4Label_ << "   Hits: " << hitLab_ << " MaxEvent: " << maxEvent_ << " Numbering scheme: " << testN_ << " (0 normal; 1 test)";
 }
 
 void HcalTestSimHitID::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
