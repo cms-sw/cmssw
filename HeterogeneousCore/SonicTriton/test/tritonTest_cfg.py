@@ -19,6 +19,7 @@ options.register("unittest", False, VarParsing.multiplicity.singleton, VarParsin
 options.register("testother", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register("shm", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register("compression", "", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register("ssl", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register("device","auto", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("docker", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register("tries", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int)
@@ -57,10 +58,10 @@ if len(options.address)>0:
             name = cms.untracked.string(options.serverName),
             address = cms.untracked.string(options.address),
             port = cms.untracked.uint32(options.port),
-            useSsl = cms.untracked.bool(False),
-            rootCertificates = cms.string(""),
-            privateKey = cms.string(""),
-            certificateChain = cms.string(""),
+            useSsl = cms.untracked.bool(options.ssl),
+            rootCertificates = cms.untracked.string(""),
+            privateKey = cms.untracked.string(""),
+            certificateChain = cms.untracked.string(""),
         )
     )
 

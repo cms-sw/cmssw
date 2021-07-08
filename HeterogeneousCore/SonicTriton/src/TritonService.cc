@@ -92,17 +92,25 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
     if (!unique)
       throw cms::Exception("DuplicateServer")
           << "Not allowed to specify more than one server with same name (" << serverName << ")";
-    auto& serverInfo(sit->second);
+    auto& server(sit->second);
 
     std::unique_ptr<tc::InferenceServerGrpcClient> client;
     triton_utils::throwIfError(
-        tc::InferenceServerGrpcClient::Create(&client, serverInfo.url, false),
-        "TritonService(): unable to create inference context for " + serverName + " (" + serverInfo.url + ")");
+        tc::InferenceServerGrpcClient::Create(&client, server.url, false, server.useSsl, server.sslOptions),
+        "TritonService(): unable to create inference context for " + serverName + " (" + server.url + ")");
+
+    if (verbose_) {
+      inference::ServerMetadataResponse serverMetaResponse;
+      triton_utils::throwIfError(
+        client->ServerMetadata(&serverMetaResponse),
+        "TritonService(): unable to get metadata for " + serverName + " (" + server.url + ")");
+      edm::LogInfo("TritonService") << "Server " << serverName << ": url = " << server.url << ", version = " << serverMetaResponse.version();
+    }
 
     inference::RepositoryIndexResponse repoIndexResponse;
     triton_utils::throwIfError(
         client->ModelRepositoryIndex(&repoIndexResponse),
-        "TritonService(): unable to get repository index for " + serverName + " (" + serverInfo.url + ")");
+        "TritonService(): unable to get repository index for " + serverName + " (" + server.url + ")");
 
     //servers keep track of models and vice versa
     if (verbose_)
@@ -114,7 +122,7 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
         mit = models_.emplace(modelName, "").first;
       auto& modelInfo(mit->second);
       modelInfo.servers.insert(serverName);
-      serverInfo.models.insert(modelName);
+      server.models.insert(modelName);
       if (verbose_)
         msg += modelName + ", ";
     }
@@ -199,11 +207,11 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   if (verbose_)
     msg = "List of models for fallback server: ";
   //all unserved models are provided by fallback server
-  auto& serverInfo(servers_.find(Server::fallbackName)->second);
+  auto& server(servers_.find(Server::fallbackName)->second);
   for (const auto& [modelName, model] : unservedModels_) {
     auto& modelInfo(models_.emplace(modelName, model).first->second);
     modelInfo.servers.insert(Server::fallbackName);
-    serverInfo.models.insert(modelName);
+    server.models.insert(modelName);
     if (verbose_)
       msg += modelName + ", ";
   }
@@ -269,7 +277,7 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
     auto pos2 = pos + portIndicator.size();
     auto pos3 = output.find('\n', pos2);
     const auto& portNum = output.substr(pos2, pos3 - pos2);
-    serverInfo.url += ":" + portNum;
+    server.url += ":" + portNum;
   } else
     throw cms::Exception("FallbackFailed") << "Unknown port for fallback server, log follows:\n" << output;
 }
