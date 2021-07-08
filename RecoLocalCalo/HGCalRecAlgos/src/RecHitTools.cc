@@ -221,12 +221,12 @@ int RecHitTools::getSiThickIndex(const DetId& id) const {
 
 std::pair<float, float> RecHitTools::getScintDEtaDPhi(const DetId& id) const {
   if (!isScintillator(id)) {
-    LogDebug("getScintDEtaDPhi::InvalidSintDetid")
+    LogDebug("getScintDEtaDPhi::InvalidScintDetid")
         << "det id: " << std::hex << id.rawId() << std::dec << ":" << id.det() << " is not HGCal scintillator!";
-    return std::pair<float, float>(0., 0.);
+    return {0.f, 0.f};
   }
-  auto geom = static_cast<const HGCalGeometry*>(getSubdetectorGeometry(id));
-  return std::pair<float, float>(geom->getGeometry(id)->etaSpan(), geom->getGeometry(id)->phiSpan());
+  auto cellGeom = getSubdetectorGeometry(id)->getGeometry(id);
+  return {cellGeom->etaSpan(), cellGeom->phiSpan()};
 }
 
 std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
