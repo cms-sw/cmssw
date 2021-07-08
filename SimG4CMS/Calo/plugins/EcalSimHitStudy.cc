@@ -78,7 +78,8 @@ private:
   TH2F *poszp_[ndets_], *poszn_[ndets_];
 };
 
-EcalSimHitStudy::EcalSimHitStudy(const edm::ParameterSet& ps) : tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
+EcalSimHitStudy::EcalSimHitStudy(const edm::ParameterSet& ps)
+    : tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   usesResource(TFileService::kSharedResource);
 
   g4Label_ = ps.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits");

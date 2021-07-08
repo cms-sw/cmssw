@@ -64,7 +64,8 @@ HcalTestSimHitID::HcalTestSimHitID(const edm::ParameterSet& ps)
   // register for data access
   toks_calo_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLab_));
 
-  edm::LogVerbatim("HcalSim") << "HcalTestSimHitID::Module Label: " << g4Label_ << "   Hits: " << hitLab_ << " MaxEvent: " << maxEvent_ << " Numbering scheme: " << testN_ << " (0 normal; 1 test)";
+  edm::LogVerbatim("HcalSim") << "HcalTestSimHitID::Module Label: " << g4Label_ << "   Hits: " << hitLab_
+                              << " MaxEvent: " << maxEvent_ << " Numbering scheme: " << testN_ << " (0 normal; 1 test)";
 }
 
 void HcalTestSimHitID::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -79,7 +80,8 @@ void HcalTestSimHitID::fillDescriptions(edm::ConfigurationDescriptions& descript
 
 void HcalTestSimHitID::analyze(const edm::Event& e, const edm::EventSetup& iS) {
   ++nevt_;
-  edm::LogVerbatim("HcalSim") << "HcalTestSimHitID::Serial # " << nevt_ << " Run # " << e.id().run() << " Event # " << e.id().event();
+  edm::LogVerbatim("HcalSim") << "HcalTestSimHitID::Serial # " << nevt_ << " Run # " << e.id().run() << " Event # "
+                              << e.id().event();
   const HcalDDDRecConstants* hcr = &iS.getData(tok_hrdd_);
   const HcalTopology* theHBHETopology = &iS.getData(tok_topo_);
   const CaloGeometry* caloGeom = &iS.getData(tok_geom_);
