@@ -119,13 +119,6 @@ namespace edm {
 
   PoolOutputModule::AuxItem::AuxItem() : basketSize_(BranchDescription::invalidBasketSize) {}
 
-  PoolOutputModule::OutputItem::OutputItem()
-      : branchDescription_(nullptr),
-        token_(),
-        product_(nullptr),
-        splitLevel_(BranchDescription::invalidSplitLevel),
-        basketSize_(BranchDescription::invalidBasketSize) {}
-
   PoolOutputModule::OutputItem::OutputItem(BranchDescription const* bd,
                                            EDGetToken const& token,
                                            int splitLevel,
