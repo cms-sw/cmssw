@@ -17,10 +17,11 @@ HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
                                            const std::string& name)
     : hgcons_(hgc), mode_(hgc.geomMode()), det_(det), name_(name) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "Creating HGCalNumberingScheme for " << name_ << " Det " << det_ << " Mode " << mode_ << ":"
-                             << HGCalGeometryMode::Hexagon8Full << ":" << HGCalGeometryMode::Hexagon8 << ":"
+  edm::LogVerbatim("HGCSim") << "Creating HGCalNumberingScheme for " << name_ << " Det " << det_ << " Mode " << mode_
+                             << ":" << HGCalGeometryMode::Hexagon8Full << ":" << HGCalGeometryMode::Hexagon8 << ":"
                              << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Trapezoid << ":"
-                             << HGCalGeometryMode::TrapezoidFile << ":" << HGCalGeometryMode::Hexagon8Module << ":" << HGCalGeometryMode::TrapezoidModule;
+                             << HGCalGeometryMode::TrapezoidFile << ":" << HGCalGeometryMode::Hexagon8Module << ":"
+                             << HGCalGeometryMode::TrapezoidModule;
 #endif
 }
 
@@ -141,7 +142,8 @@ void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
                        (z1 > zrange.second + tolZ))
                           ? "***** ERROR *****"
                           : "");
-    if (matchOnly && match) ck = "";
+    if (matchOnly && match)
+      ck = "";
     if (!(match && inok && outok) || debug) {
       edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme::Detector " << det_ << " Layer " << lay << " R " << r2 << ":"
                                  << r1 << ":" << rrange.first << ":" << rrange.second << " Z " << z2 << ":" << z1 << ":"

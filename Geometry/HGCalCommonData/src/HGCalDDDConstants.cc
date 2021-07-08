@@ -1143,7 +1143,8 @@ void HGCalDDDConstants::waferFromPosition(const double x,
   if ((hgpar_->xLayerHex_.empty()) || (hgpar_->yLayerHex_.empty()))
     return;
   int ll = layer - hgpar_->firstLayer_;
-  std::pair<double, double> xy = getXY(layer, HGCalParameters::k_ScaleFromDDD * x, HGCalParameters::k_ScaleFromDDD * y, false);
+  std::pair<double, double> xy =
+      getXY(layer, HGCalParameters::k_ScaleFromDDD * x, HGCalParameters::k_ScaleFromDDD * y, false);
   double xx = xy.first - hgpar_->xLayerHex_[ll];
   double yy = xy.second - hgpar_->yLayerHex_[ll];
   for (unsigned int k = 0; k < hgpar_->waferPosX_.size(); ++k) {
