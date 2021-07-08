@@ -36,7 +36,7 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 stdPhotonAnalysisHGCal = stdPhotonAnalysis.clone()
 stdPhotonAnalysisHGCal.ComponentName = 'stdPhotonAnalyzerHGCalFromMultiCl'
 stdPhotonAnalysisHGCal.analyzerName = 'stdPhotonAnalyzerHGCalFromMultiCl'
-stdPhotonAnalysisHGCal.phoProducer = 'photonsFromMultiCl'
+stdPhotonAnalysisHGCal.phoProducer = 'photonsHGC'
 stdPhotonAnalysisHGCal.isolationStrength = 2
 stdPhotonAnalysisHGCal.etaMin = -3.0
 stdPhotonAnalysisHGCal.etaMax = 3.0
