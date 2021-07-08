@@ -27,13 +27,12 @@
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 #include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 
@@ -169,8 +168,9 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
   if (m_LHCTransport) {
     m_LHCToken = iC.consumes<edm::HepMCProduct>(edm::InputTag("LHCTransport"));
   }
-  m_MagField = iC.esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
-
+  if (m_pUseMagneticField) {
+    m_MagField = iC.esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
+  }
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker is constructed for the thread " << thisID;
   unsigned int k = 0;
   for (std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>>::const_iterator itr =
@@ -310,11 +310,11 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
 
   // setup the magnetic field
   if (m_pUseMagneticField) {
-    const GlobalPoint g(0., 0., 0.);
+    const GlobalPoint g(0.f, 0.f, 0.f);
 
-    const MagneticField* pMF = &(es.getData(m_MagField));
+    const MagneticField* pMF = &(*es.getTransientHandle(m_MagField));
     sim::FieldBuilder fieldBuilder(pMF, m_pField);
-
+    
     CMSFieldManager* fieldManager = new CMSFieldManager();
     tM->SetFieldManager(fieldManager);
     fieldBuilder.build(fieldManager, tM->GetPropagatorInField());
