@@ -427,9 +427,7 @@ bool RecHitTools::isSilicon(const DetId& id) const {
           (id.det() == DetId::Forward && id.subdetId() == static_cast<int>(HFNose)));
 }
 
-bool RecHitTools::isScintillator(const DetId& id) const{
-    return id.det() == DetId::HGCalHSc;
-}
+bool RecHitTools::isScintillator(const DetId& id) const { return id.det() == DetId::HGCalHSc; }
 
 bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
   // HFnose TODO
