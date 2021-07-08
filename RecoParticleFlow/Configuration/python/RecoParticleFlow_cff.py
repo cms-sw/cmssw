@@ -63,6 +63,7 @@ phase2_hgcal.toModify(
 
 #
 # for simPF
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHGC_cfi import *
 from RecoParticleFlow.PFTracking.hgcalTrackCollection_cfi import *
 from RecoParticleFlow.PFProducer.simPFProducer_cff import *
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
