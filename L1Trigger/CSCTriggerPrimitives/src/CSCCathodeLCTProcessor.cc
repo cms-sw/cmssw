@@ -1,7 +1,6 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h"
 
 #include <iomanip>
-#include <iostream>
 #include <memory>
 
 // Default values of configuration parameters.
@@ -543,6 +542,11 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
   unsigned int stop_bx = fifo_tbins - drift_delay;
   // Allow for more than one pass over the hits in the time window.
   while (start_bx < stop_bx) {
+
+    // temp CLCT objects
+    CSCCLCTDigi tempBestCLCT;
+    CSCCLCTDigi tempSecondCLCT;
+
     // All half-strip pattern envelopes are evaluated simultaneously, on every
     // clock cycle.
     int first_bx = 999;
@@ -610,87 +614,49 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
             best_halfstrip[0] = hstrip;
             best_quality[0] = quality[hstrip];
           }
-          if (infoV > 1 && quality[hstrip] > 0) {
-            LogTrace("CSCCathodeLCTProcessor")
-                << " 1st CLCT: halfstrip = " << std::setw(3) << hstrip << " quality = " << std::setw(3)
-                << quality[hstrip] << " nhits = " << std::setw(3) << nhits[hstrip] << " pid = " << std::setw(3)
-                << best_pid[hstrip] << " best halfstrip = " << std::setw(3) << best_halfstrip[0]
-                << " best quality = " << std::setw(3) << best_quality[0];
+          // temporary alias
+          const int best_hs(best_halfstrip[0]);
+          const int best_pat(best_pid[best_hs]);
+          // construct a CLCT if the trigger condition has been met
+          if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
+            // overwrite the current best CLCT
+            tempBestCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pat]);
           }
         }
       }
 
       // If 1st best CLCT is found, look for the 2nd best.
       if (best_halfstrip[0] >= 0) {
+
+        // Get the half-strip of the best CLCT in this BX that was put into the list.
+        // You do need to re-add the any stagger, because the busy keys are based on
+        // the pulse array which takes into account strip stagger!!!
+        const unsigned halfStripBestCLCT(tempBestCLCT.getKeyStrip() + stagger[CSCConstants::KEY_CLCT_LAYER - 1]);
+
         // Mark keys near best CLCT as busy by setting their quality to
         // zero, and repeat the search.
-        markBusyKeys(best_halfstrip[0], best_pid[best_halfstrip[0]], quality);
+        markBusyKeys(halfStripBestCLCT, best_pid[halfStripBestCLCT], quality);
 
         for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < numHalfStrips_; hstrip++) {
           if (quality[hstrip] > best_quality[1]) {
             best_halfstrip[1] = hstrip;
             best_quality[1] = quality[hstrip];
           }
-          if (infoV > 1 && quality[hstrip] > 0) {
-            LogTrace("CSCCathodeLCTProcessor")
-                << " 2nd CLCT: halfstrip = " << std::setw(3) << hstrip << " quality = " << std::setw(3)
-                << quality[hstrip] << " nhits = " << std::setw(3) << nhits[hstrip] << " pid = " << std::setw(3)
-                << best_pid[hstrip] << " best halfstrip = " << std::setw(3) << best_halfstrip[1]
-                << " best quality = " << std::setw(3) << best_quality[1];
+          // temporary alias
+          const int best_hs(best_halfstrip[1]);
+          const int best_pat(best_pid[best_hs]);
+          // construct a CLCT if the trigger condition has been met
+          if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
+            // overwrite the current second best CLCT
+            tempSecondCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pat]);
           }
         }
-
-        // Pattern finder.
-        for (int ilct = 0; ilct < CSCConstants::MAX_CLCTS_PER_PROCESSOR; ilct++) {
-          int best_hs = best_halfstrip[ilct];
-          if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
-            // prototype CLCT information
-            ProtoCLCT protoCLCT;
-            // Assign the CLCT properties
-            protoCLCT.quality = nhits[best_hs];
-            protoCLCT.pattern = best_pid[best_hs];
-            // CLCTs are always of type halfstrip (not strip or distrip)
-            protoCLCT.striptype = 1;
-            protoCLCT.bend = CSCPatternBank::getPatternBend(clct_pattern_[protoCLCT.pattern]);
-            // Remove stagger if any.
-            protoCLCT.keyhalfstrip = best_hs - stagger[CSCConstants::KEY_CLCT_LAYER - 1];
-            protoCLCT.cfeb = protoCLCT.keyhalfstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
-            protoCLCT.halfstrip = protoCLCT.keyhalfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
-            protoCLCT.bx = first_bx;
-
-            CSCCLCTDigi thisLCT(1,
-                                protoCLCT.quality,
-                                protoCLCT.pattern,
-                                protoCLCT.striptype,
-                                protoCLCT.bend,
-                                protoCLCT.halfstrip,
-                                protoCLCT.cfeb,
-                                protoCLCT.bx,
-                                0,
-                                // track number is assigned later
-                                0,
-                                // comparator code is assigned for Run-3 and Phase-2
-                                -1,
-                                // default version is legacy
-                                CSCCLCTDigi::Version::Legacy);
-
-            if (infoV > 1) {
-              LogTrace("CSCCathodeLCTProcessor") << " Final selection: ilct " << ilct << " " << thisLCT << std::endl;
-            }
-
-            // get the comparator hits for this pattern (need to take into account the stagger)
-            const auto& compHits = hits_in_patterns[best_hs][protoCLCT.pattern];
-
-            // set the hit collection
-            thisLCT.setHits(compHits);
-
-            // useful debugging
-            if (infoV > 1) {
-              LogTrace("CSCCathodeLCTProcessor") << " Final selection: ilct " << ilct << " " << thisLCT << std::endl;
-            }
-            // put the CLCT into the collection
-            lctList.push_back(thisLCT);
-          }
+        // add the CLCTs to the collection
+        if (tempBestCLCT.isValid()) {
+          lctList.push_back(tempBestCLCT);
+        }
+        if (tempSecondCLCT.isValid()) {
+          lctList.push_back(tempSecondCLCT);
         }
       }  //find CLCT, end of best_halfstrip[0] >= 0
 
@@ -729,18 +695,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
     else {
       start_bx = first_bx + 1;  // no dead time
     }
-  }
-
-  // comparator digi cleaning + optional CCLUT
-  for (auto& thisLCT : lctList) {
-    // do the CCLUT procedures
-    if (runCCLUT_) {
-      cclut_->run(thisLCT, numCFEBs_);
-    }
-
-    // purge the comparator digi collection from the obsolete "65535" entries...
-    // this is always done
-    cleanComparatorContainer(thisLCT);
   }
 
   return lctList;
@@ -810,7 +764,12 @@ bool CSCCathodeLCTProcessor::preTrigger(const int start_bx, int& first_bx) {
 
     bool hits_in_time = patternFinding(bx_time, hits_in_patterns);
     if (hits_in_time) {
+
+      // clear the pretriggers
+      clearPreTriggers();
+
       for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < numHalfStrips_; hstrip++) {
+        // check the properties of the pattern on this halfstrip
         if (infoV > 1) {
           if (nhits[hstrip] > 0) {
             LogTrace("CSCCathodeLCTProcessor")
@@ -819,22 +778,18 @@ bool CSCCathodeLCTProcessor::preTrigger(const int start_bx, int& first_bx) {
                 << " nhits = " << nhits[hstrip];
           }
         }
-        ispretrig[hstrip] = false;
+        // a pretrigger was found
         if (nhits[hstrip] >= nplanes_hit_pretrig && best_pid[hstrip] >= pid_thresh_pretrig) {
           pre_trig = true;
-          ispretrig[hstrip] = true;
+          ispretrig_[hstrip] = true;
 
           // write each pre-trigger to output
           nPreTriggers++;
-          const int bend =
-              clct_pattern_[best_pid[hstrip]][CSCConstants::NUM_LAYERS - 1][CSCConstants::CLCT_PATTERN_WIDTH];
-          const int halfstrip = hstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
-          const int cfeb = hstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
-          thePreTriggerDigis.push_back(CSCCLCTPreTriggerDigi(
-              1, nhits[hstrip], best_pid[hstrip], 1, bend, halfstrip, cfeb, bx_time, nPreTriggers, 0));
+          thePreTriggerDigis.push_back(constructPreCLCT(bx_time, hstrip, nPreTriggers));
         }
       }
 
+      // upon the first pretrigger, we save first BX and exit
       if (pre_trig) {
         first_bx = bx_time;  // bx at time of pretrigger
         return true;

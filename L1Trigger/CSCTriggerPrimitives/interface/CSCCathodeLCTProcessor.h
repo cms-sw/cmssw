@@ -161,22 +161,10 @@ protected:
   unsigned int nhits[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
 
   /* does a given half-strip have a pre-trigger? */
-  bool ispretrig[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
+  bool ispretrig_[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
 
   // actual LUT used
   CSCPatternBank::LCTPatterns clct_pattern_ = {};
-
-  // Structure for the prototype CLCTs
-  struct ProtoCLCT {
-    unsigned pattern;
-    unsigned bend;
-    unsigned halfstrip;
-    unsigned bx;
-    unsigned striptype;
-    unsigned cfeb;
-    unsigned keyhalfstrip;
-    unsigned quality;
-  };
 
   /* number of strips used in this processor */
   int numStrips_;
