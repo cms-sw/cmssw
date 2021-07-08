@@ -75,7 +75,11 @@ private:
   double xBeam_, yBeam_, zBeam_, pBeam_;
 };
 
-HGCalTimingAnalyzer::HGCalTimingAnalyzer(const edm::ParameterSet& iConfig) :  detectorEE_(iConfig.getParameter<std::string>("DetectorEE")), detectorBeam_ (iConfig.getParameter<std::string>("DetectorBeam")), tokDDD_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_))) {
+HGCalTimingAnalyzer::HGCalTimingAnalyzer(const edm::ParameterSet& iConfig)
+    : detectorEE_(iConfig.getParameter<std::string>("DetectorEE")),
+      detectorBeam_(iConfig.getParameter<std::string>("DetectorBeam")),
+      tokDDD_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", detectorEE_))) {
   usesResource("TFileService");
 
   // now do whatever initialization is needed
