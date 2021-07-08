@@ -59,7 +59,8 @@ std::shared_ptr<const SiPixel2DTemplateDBObject> SiPixel2DTemplateDBObjectESProd
 
   const auto& dbobject = iRecord.get(dbToken_);
 
-  if (std::fabs(theMagField - dbobject.sVector()[22]) > 0.1)
+  if ((theMagField > 0.1) && (std::fabs(theMagField - dbobject.sVector()[22]) > 0.1))
+    //2D templates not actually used at 0T, so don't print warning
     edm::LogWarning("UnexpectedMagneticFieldUsingNonIdealPixel2DTemplate")
         << "Magnetic field is " << theMagField << " Template Magnetic field is " << dbobject.sVector()[22];
 
