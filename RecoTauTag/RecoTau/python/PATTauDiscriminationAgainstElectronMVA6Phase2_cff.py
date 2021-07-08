@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Electron collection merger
 mergedSlimmedElectronsForTauId = cms.EDProducer('PATElectronCollectionMerger',
-    src = cms.VInputTag('slimmedElectrons', 'slimmedElectronsFromMultiCl')
+    src = cms.VInputTag('slimmedElectrons', 'slimmedElectronsHGC')
 )
 # anti-e phase-2 tauID (Raw)
 from RecoTauTag.RecoTau.tauDiscriminationAgainstElectronMVA6Phase2_mvaDefs_cff import mvaNames_phase2, mapping_phase2, workingPoints_phase2
