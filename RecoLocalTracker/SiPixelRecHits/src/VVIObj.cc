@@ -20,7 +20,6 @@
 
 #include <cmath>
 #include <algorithm>
-#include <boost/bind.hpp>
 
 namespace VVIObjDetails {
   void sincosint(double x, double& sint, double& cint);  //! Private version of the cosine and sine integral
