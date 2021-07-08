@@ -134,6 +134,14 @@ protected:
                     const int best_patid,
                     int quality[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
 
+  // build a new CLCT trigger
+  CSCCLCTDigi constructCLCT(const int bx, const unsigned halfstrip_withstagger, const CSCCLCTDigi::ComparatorContainer& hits);
+
+  // build a new CLCT pretrigger
+  CSCCLCTPreTriggerDigi constructPreCLCT(const int bx, const unsigned halfstrip, const unsigned index) const;
+
+  // resets ispretrig_
+  void clearPreTriggers();
   //--------------------------- Auxiliary methods -----------------------------
   /** Dump CLCT configuration parameters. */
   void dumpConfigParams() const;

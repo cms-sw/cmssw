@@ -970,6 +970,65 @@ void CSCCathodeLCTProcessor::markBusyKeys(const int best_hstrip,
   }
 }  // markBusyKeys -- TMB-07 version.
 
+CSCCLCTDigi CSCCathodeLCTProcessor::constructCLCT(const int bx, const unsigned halfstrip_withstagger, const CSCCLCTDigi::ComparatorContainer& hits) {
+
+  // Assign the CLCT properties
+  const unsigned quality = nhits[halfstrip_withstagger];
+  const unsigned pattern = best_pid[halfstrip_withstagger];
+  const unsigned bend = CSCPatternBank::getPatternBend(clct_pattern_[pattern]);
+  const unsigned keyhalfstrip = halfstrip_withstagger - stagger[CSCConstants::KEY_CLCT_LAYER - 1];
+  const unsigned cfeb = keyhalfstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
+  const unsigned halfstrip = keyhalfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
+
+  // set the Run-2 properties
+  CSCCLCTDigi clct(1,
+                   quality,
+                   pattern,
+                   // CLCTs are always of type halfstrip (not strip or distrip)
+                   1,
+                   bend,
+                   halfstrip,
+                   cfeb,
+                   bx,
+                   0,
+                   0,
+                   -1,
+                   CSCCLCTDigi::Version::Legacy);
+
+  // set the hit collection
+  clct.setHits(hits);
+
+  // do the CCLUT procedures for Run-3
+  if (runCCLUT_) {
+    cclut_->run(clct, numCFEBs_);
+  }
+
+  // purge the comparator digi collection from the obsolete "65535" entries...
+  cleanComparatorContainer(clct);
+
+  if (infoV > 1) {
+    LogTrace("CSCCathodeLCTProcessor") << "Produce CLCT " << clct << std::endl;
+  }
+
+  return clct;
+}
+
+CSCCLCTPreTriggerDigi CSCCathodeLCTProcessor::constructPreCLCT(const int bx_time, const unsigned hstrip, const unsigned nPreTriggers) const {
+
+  const int bend =
+    clct_pattern_[best_pid[hstrip]][CSCConstants::NUM_LAYERS - 1][CSCConstants::CLCT_PATTERN_WIDTH];
+  const int halfstrip = hstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
+  const int cfeb = hstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
+  return CSCCLCTPreTriggerDigi(
+                               1, nhits[hstrip], best_pid[hstrip], 1, bend, halfstrip, cfeb, bx_time, nPreTriggers, 0);
+}
+
+void CSCCathodeLCTProcessor::clearPreTriggers() {
+  for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < numHalfStrips_; hstrip++) {
+    ispretrig_[hstrip] = false;
+  }
+}
+
 void CSCCathodeLCTProcessor::cleanComparatorContainer(CSCCLCTDigi& clct) const {
   CSCCLCTDigi::ComparatorContainer newHits = clct.getHits();
   for (auto& p : newHits) {
