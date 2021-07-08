@@ -135,7 +135,9 @@ protected:
                     int quality[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
 
   // build a new CLCT trigger
-  CSCCLCTDigi constructCLCT(const int bx, const unsigned halfstrip_withstagger, const CSCCLCTDigi::ComparatorContainer& hits);
+  CSCCLCTDigi constructCLCT(const int bx,
+                            const unsigned halfstrip_withstagger,
+                            const CSCCLCTDigi::ComparatorContainer& hits);
 
   // build a new CLCT pretrigger
   CSCCLCTPreTriggerDigi constructPreCLCT(const int bx, const unsigned halfstrip, const unsigned index) const;

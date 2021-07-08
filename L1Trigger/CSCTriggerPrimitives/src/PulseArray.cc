@@ -13,20 +13,16 @@ void PulseArray::initialize(unsigned numberOfChannels) {
 
 void PulseArray::clear() {
   // set all elements in the 2D vector to 0
-  for (auto& p : data_){
+  for (auto& p : data_) {
     for (auto& q : p) {
       q = 0;
     }
   }
 }
 
-unsigned& PulseArray::operator()(const unsigned layer, const unsigned channel) {
-  return data_[layer][channel];
-}
+unsigned& PulseArray::operator()(const unsigned layer, const unsigned channel) { return data_[layer][channel]; }
 
-unsigned PulseArray::bitsInPulse() const {
-  return 8 * sizeof(data_[0][0]);
-}
+unsigned PulseArray::bitsInPulse() const { return 8 * sizeof(data_[0][0]); }
 
 void PulseArray::extend(const unsigned layer, const unsigned channel, const unsigned bx) {
   data_[layer][channel] = data_[layer][channel] | (1 << bx);
