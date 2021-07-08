@@ -55,11 +55,11 @@ MkFitEventOfHitsProducer::MkFitEventOfHitsProducer(edm::ParameterSet const& iCon
       mkFitGeomToken_{esConsumes()},
       putToken_{produces<MkFitEventOfHits>()},
       useStripStripQualityDB_{iConfig.getParameter<bool>("useStripStripQualityDB")} {
-	if (useStripStripQualityDB_) {
-	  qualityToken_ = esConsumes();
-	  geomToken_ = esConsumes();
-	}
-      }
+  if (useStripStripQualityDB_) {
+    qualityToken_ = esConsumes();
+    geomToken_ = esConsumes();
+  }
+}
 
 void MkFitEventOfHitsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -79,7 +79,7 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
   auto eventOfHits = std::make_unique<mkfit::EventOfHits>(mkFitGeom.trackerInfo());
   mkfit::StdSeq::Cmssw_LoadHits_Begin(*eventOfHits, {&pixelHits.hits(), &stripHits.hits()});
 
-  if(useStripStripQualityDB_) {
+  if (useStripStripQualityDB_) {
     std::vector<mkfit::DeadVec> deadvectors(mkFitGeom.layerNumberConverter().nLayers());
     const auto& siStripQuality = iSetup.getData(qualityToken_);
     const auto& trackerGeom = iSetup.getData(geomToken_);
@@ -92,8 +92,10 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
       // dump content of deadmodules.h in standalone setup
       // std::cout << "deadvectors["<<ilay<<"].push_back({"<<surf.phiSpan().first<<","<<surf.phiSpan().second<<","
       // <<(isBarrel ? surf.zSpan().first : surf.rSpan().first)<<","<<(isBarrel ? surf.zSpan().second : surf.rSpan().second)<<"});"<<std::endl;
-      deadvectors[ilay].push_back({surf.phiSpan().first,surf.phiSpan().second,
-	    (isBarrel ? surf.zSpan().first : surf.rSpan().first),(isBarrel ? surf.zSpan().second : surf.rSpan().second)});
+      deadvectors[ilay].push_back({surf.phiSpan().first,
+                                   surf.phiSpan().second,
+                                   (isBarrel ? surf.zSpan().first : surf.rSpan().first),
+                                   (isBarrel ? surf.zSpan().second : surf.rSpan().second)});
     }
     mkfit::StdSeq::LoadDeads(*eventOfHits, deadvectors);
   }

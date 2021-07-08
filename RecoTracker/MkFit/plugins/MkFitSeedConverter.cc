@@ -112,7 +112,7 @@ mkfit::TrackVec MkFitSeedConverter::convertSeeds(const edm::View<TrajectorySeed>
     SVector3 mom(gmom.x(), gmom.y(), gmom.z());
 
     const auto& cov = tsos.curvilinearError().matrix();
-    SMatrixSym66 err; //fill a sub-matrix, mkfit::TrackState will convert internally
+    SMatrixSym66 err;  //fill a sub-matrix, mkfit::TrackState will convert internally
     for (int i = 0; i < 5; ++i) {
       for (int j = i; j < 5; ++j) {
         err.At(i, j) = cov[i][j];
