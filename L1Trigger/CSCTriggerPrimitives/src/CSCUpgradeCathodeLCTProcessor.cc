@@ -54,7 +54,7 @@ bool CSCUpgradeCathodeLCTProcessor::preTrigger(const PulseArray pulse, const int
     std::map<int, std::map<int, CSCCLCTDigi::ComparatorContainer> > hits_in_patterns;
     hits_in_patterns.clear();
 
-    bool hits_in_time = patternFinding(pulse, bx_time, hits_in_patterns);
+    bool hits_in_time = patternFinding(bx_time, hits_in_patterns);
     if (hits_in_time) {
       for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < numHalfStrips_; hstrip++) {
         if (infoV > 1) {
@@ -156,10 +156,8 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
     }
   }
 
-  PulseArray pulse;
-
   // Fire half-strip one-shots for hit_persist bx's (4 bx's by default).
-  pulseExtension(halfstrip, pulse);
+  pulseExtension(halfstrip);
 
   unsigned int start_bx = start_bx_shift;
   // Stop drift_delay bx's short of fifo_tbins since at later bx's we will
@@ -173,7 +171,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
     int first_bx = 999;
 
     // Check for a pre-trigger. If so, find the first BX when the pre-trigger occurred
-    bool pre_trig = CSCUpgradeCathodeLCTProcessor::preTrigger(pulse, start_bx, first_bx);
+    bool pre_trig = CSCUpgradeCathodeLCTProcessor::preTrigger(start_bx, first_bx);
 
     // If any of half-strip envelopes has enough layers hit in it, TMB
     // will pre-trigger.
@@ -191,7 +189,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
 
       // We check if there is at least one key half strip for which at least
       // one pattern id has at least the minimum number of hits
-      bool hits_in_time = patternFinding(pulse, latch_bx, hits_in_patterns);
+      bool hits_in_time = patternFinding(latch_bx, hits_in_patterns);
       if (infoV > 1) {
         if (hits_in_time) {
           for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < numHalfStrips_; hstrip++) {

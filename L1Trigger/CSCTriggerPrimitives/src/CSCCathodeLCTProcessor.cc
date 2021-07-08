@@ -328,6 +328,11 @@ void CSCCathodeLCTProcessor::run(
   // run() function above.  It uses the findLCTs() method to find vectors
   // of LCT candidates. These candidates are sorted and the best two per bx
   // are returned.
+
+  // initialize the pulse array.
+  // add 1 for possible stagger
+  pulse_.initialize(numHalfStrips_ + 1);
+
   std::vector<CSCCLCTDigi> CLCTlist = findLCTs(halfstrip);
 
   // LCT sorting.
@@ -529,10 +534,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
   if (infoV > 1)
     dumpDigis(halfstrip);
 
-  PulseArray pulse;
-
   // Fire half-strip one-shots for hit_persist bx's (4 bx's by default).
-  pulseExtension(halfstrip, pulse);
+  pulseExtension(halfstrip);
 
   unsigned int start_bx = start_bx_shift;
   // Stop drift_delay bx's short of fifo_tbins since at later bx's we will
@@ -543,7 +546,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
     // All half-strip pattern envelopes are evaluated simultaneously, on every
     // clock cycle.
     int first_bx = 999;
-    bool pre_trig = preTrigger(pulse, start_bx, first_bx);
+    bool pre_trig = preTrigger(start_bx, first_bx);
 
     // If any of half-strip envelopes has enough layers hit in it, TMB
     // will pre-trigger.
@@ -566,7 +569,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
 
       // We check if there is at least one key half strip for which at least
       // one pattern id has at least the minimum number of hits
-      bool hits_in_time = patternFinding(pulse, latch_bx, hits_in_patterns);
+      bool hits_in_time = patternFinding(latch_bx, hits_in_patterns);
       if (infoV > 1) {
         if (hits_in_time) {
           for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < numHalfStrips_; hstrip++) {
@@ -703,7 +706,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
       unsigned int stop_time = fifo_tbins - drift_delay;
       for (unsigned int bx = latch_bx + 1; bx < stop_time; bx++) {
         bool return_to_idle = true;
-        bool hits_in_time = patternFinding(pulse, bx, hits_in_patterns);
+        bool hits_in_time = patternFinding(bx, hits_in_patterns);
         if (hits_in_time) {
           for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < numHalfStrips_; hstrip++) {
             // the dead-time is done at the pre-trigger, not at the trigger
@@ -745,9 +748,9 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
 
 // Common to all versions.
 void CSCCathodeLCTProcessor::pulseExtension(
-    const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
-    PulseArray pulse) {
-  static const unsigned int bits_in_pulse = 8 * sizeof(pulse[0][0]);
+    const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) {
+
+  const unsigned bits_in_pulse = pulse_.bitsInPulse();
 
   // Clear pulse array.  This array will be used as a bit representation of
   // hit times.  For example: if strip[1][2] has a value of 3, then 1 shifted
@@ -757,9 +760,7 @@ void CSCCathodeLCTProcessor::pulseExtension(
   // the TMB's drift delay.  So for the same pulse[1][2] with a hit_persist
   // of 3 would look like 0000000000111000.  This is similating the digital
   // one-shot in the TMB.
-  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
-    for (int i_strip = 0; i_strip < numHalfStrips_; i_strip++)
-      pulse[i_layer][i_strip] = 0;
+  pulse_.clear();
 
   // Loop over all layers and halfstrips.
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
@@ -780,7 +781,7 @@ void CSCCathodeLCTProcessor::pulseExtension(
           }
           if (bx_times[i] >= start_bx_shift) {
             for (unsigned int bx = bx_times[i]; bx < bx_times[i] + hit_persist; ++bx)
-              pulse[i_layer][i_strip] = pulse[i_layer][i_strip] | (1 << bx);
+              pulse_.extend(i_layer, i_strip, bx);
           }
         }
       }
@@ -789,7 +790,7 @@ void CSCCathodeLCTProcessor::pulseExtension(
 }  // pulseExtension.
 
 // TMB-07 version.
-bool CSCCathodeLCTProcessor::preTrigger(const PulseArray pulse, const int start_bx, int& first_bx) {
+bool CSCCathodeLCTProcessor::preTrigger(const int start_bx, int& first_bx) {
   if (infoV > 1)
     LogTrace("CSCCathodeLCTProcessor") << "....................PreTrigger...........................";
 
@@ -807,7 +808,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const PulseArray pulse, const int start_
     std::map<int, std::map<int, CSCCLCTDigi::ComparatorContainer>> hits_in_patterns;
     hits_in_patterns.clear();
 
-    bool hits_in_time = patternFinding(pulse, bx_time, hits_in_patterns);
+    bool hits_in_time = patternFinding(bx_time, hits_in_patterns);
     if (hits_in_time) {
       for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < numHalfStrips_; hstrip++) {
         if (infoV > 1) {
@@ -849,24 +850,12 @@ bool CSCCathodeLCTProcessor::preTrigger(const PulseArray pulse, const int start_
 
 // TMB-07 version.
 bool CSCCathodeLCTProcessor::patternFinding(
-    const PulseArray pulse,
     const unsigned int bx_time,
     std::map<int, std::map<int, CSCCLCTDigi::ComparatorContainer>>& hits_in_patterns) {
   if (bx_time >= fifo_tbins)
     return false;
 
-  // This loop is a quick check of a number of layers hit at bx_time: since
-  // most of the time it is 0, this check helps to speed-up the execution
-  // substantially.
-  unsigned int layers_hit = 0;
-  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-    for (int i_hstrip = 0; i_hstrip < numHalfStrips_; i_hstrip++) {
-      if (((pulse[i_layer][i_hstrip] >> bx_time) & 1) == 1) {
-        layers_hit++;
-        break;
-      }
-    }
-  }
+  unsigned layers_hit = pulse_.numberOfLayersAtBX(bx_time);
   if (layers_hit < nplanes_hit_pretrig)
     return false;
 
@@ -918,7 +907,7 @@ bool CSCCathodeLCTProcessor::patternFinding(
                                                  << " layer = " << this_layer << " strip = " << this_strip << std::endl;
             }
             // Determine if "one shot" is high at this bx_time
-            if (((pulse[this_layer][this_strip] >> bx_time) & 1) == 1) {
+            if (pulse_.isOneShotHighAtBX(this_layer, this_strip, bx_time)) {
               if (hit_layer[this_layer] == false) {
                 hit_layer[this_layer] = true;
                 layers_hit++;  // determines number of layers hit
@@ -930,7 +919,7 @@ bool CSCCathodeLCTProcessor::patternFinding(
               // use hit_persist constraint on how far back we can go
               int first_bx_layer = bx_time;
               for (unsigned int dbx = 0; dbx < hit_persist; dbx++) {
-                if (((pulse[this_layer][this_strip] >> (first_bx_layer - 1)) & 1) == 1)
+                if (pulse_.isOneShotHighAtBX(this_layer, this_strip, first_bx_layer - 1))
                   first_bx_layer--;
                 else
                   break;
