@@ -1645,13 +1645,13 @@ def _copy_payload( args, copyTime, session1, session2, payloadHash, payloadSeria
         logging.debug('Skipping copy of payload %s to %s since it already exists...', str_db_object(args.db, payloadHash), str_db_object(args.destdb, payloadHash))
         if payloadSerializationVersionMap is not None:
             q = session1.query(Payload1.streamer_info).filter(Payload1.hash == payloadHash).one()
-            streamerInfo = str(q[0])
+            streamerInfo = q[0]
     else:
         logging.info('Copying payload %s to %s ...', str_db_object(args.db, payloadHash), str_db_object(args.destdb, payloadHash))
         q = session1.query(Payload1).filter(Payload1.hash == payloadHash).one()
         payload = _rawdict(q)
         payload['insertion_time'] = copyTime
-        streamerInfo = str(payload['streamer_info'])
+        streamerInfo = payload['streamer_info']
         session2.add(Payload2(** payload))
         ret = True
     if payloadSerializationVersionMap is not None:
