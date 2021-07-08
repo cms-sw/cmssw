@@ -862,7 +862,6 @@ bool CSCCathodeLCTProcessor::patternFinding(
   for (int key_hstrip = 0; key_hstrip < numHalfStrips_; key_hstrip++) {
     best_pid[key_hstrip] = 0;
     nhits[key_hstrip] = 0;
-    first_bx_corrected[key_hstrip] = -999;
   }
 
   bool hit_layer[CSCConstants::NUM_LAYERS];
@@ -944,31 +943,6 @@ bool CSCCathodeLCTProcessor::patternFinding(
       if (layers_hit > nhits[key_hstrip]) {
         best_pid[key_hstrip] = pid;
         nhits[key_hstrip] = layers_hit;
-
-        // calculate median
-        const int sz = mset_for_median.size();
-        if (sz > 0) {
-          std::multiset<int>::iterator im = mset_for_median.begin();
-          if (sz > 1)
-            std::advance(im, sz / 2 - 1);
-          if (sz == 1)
-            first_bx_corrected[key_hstrip] = *im;
-          else if ((sz % 2) == 1)
-            first_bx_corrected[key_hstrip] = *(++im);
-          else
-            first_bx_corrected[key_hstrip] = ((*im) + (*(++im))) / 2;
-
-#if defined(EDM_ML_DEBUG)
-          //LogTrace only ever prints if EDM_ML_DEBUG is defined
-          if (infoV > 1) {
-            auto lt = LogTrace("CSCCathodeLCTProcessor")
-                      << "bx=" << bx_time << " bx_cor=" << first_bx_corrected[key_hstrip] << "  bxset=";
-            for (im = mset_for_median.begin(); im != mset_for_median.end(); im++) {
-              lt << " " << *im;
-            }
-          }
-#endif
-        }
         // Do not loop over the other (worse) patterns if max. numbers of
         // hits is found.
         if (nhits[key_hstrip] == CSCConstants::NUM_LAYERS)
