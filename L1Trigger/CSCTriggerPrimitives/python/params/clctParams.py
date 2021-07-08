@@ -47,12 +47,6 @@ clctPhase2 = clctPhase1.clone(
     # (it becomes important to do so with localized dead-time zoning):
     # not implemented yet, 2018-10-18, Tao Huang
     clctPretriggerTriggerZone = cms.uint32(224),
-
-    # whether to store the "corrected" CLCT stub time
-    # (currently it is median time of all hits in a pattern) into the CSCCLCTDigi bx,
-    # and temporary store the regular "key layer hit" time into the CSCCLCTDigi fullBX:
-    # not feasible in firmware -- Tao Huang
-    clctUseCorrectedBx = cms.bool(False),
 )
 
 clctPhase2GEM = clctPhase2.clone(

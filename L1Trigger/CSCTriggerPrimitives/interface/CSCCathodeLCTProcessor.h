@@ -152,8 +152,6 @@ protected:
   /* number of layers hit on a given half-strip */
   unsigned int nhits[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
 
-  int first_bx_corrected[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
-
   /* does a given half-strip have a pre-trigger? */
   bool ispretrig[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
 
