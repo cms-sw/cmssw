@@ -37,7 +37,7 @@ namespace hgcal {
     std::float_t getRadiusToSide(const DetId&) const;
     int getSiThickIndex(const DetId&) const;
 
-    void getScintDEtaDPhi(const DetId&, std::float_t& deta, std::float_t& dphi) const;
+    std::pair<float, float> getScintDEtaDPhi(const DetId&) const;
 
     unsigned int getLayer(DetId::Detector type, bool nose = false) const;
     unsigned int getLayer(ForwardSubdetector type) const;
