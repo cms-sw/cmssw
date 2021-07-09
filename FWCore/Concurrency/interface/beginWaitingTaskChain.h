@@ -78,6 +78,9 @@ namespace edm {
       F f_;
     };
 
+    template <typename T>
+    struct Conditional {};
+
     template <typename U>
     struct WaitingTaskChain<U> {
       constexpr explicit WaitingTaskChain(U&& iU) : f_{std::forward<U>(iU)} {}
@@ -103,6 +106,12 @@ namespace edm {
       [[nodiscard]] constexpr auto ifExceptionElseNext(E&& iE, F&& iF) {
         return WaitingTaskChain<ExplicitExceptionHandler<E, F>, U>(
             ExplicitExceptionHandler<E, F>(std::forward<E>(iE), std::forward<F>(iF)), std::move(*this));
+      }
+
+      template <typename O>
+      [[nodiscard]] constexpr auto ifThenNext(bool iCondition, O&& iO) {
+        return WaitingTaskChain<Conditional<AutoExceptionHandler<O>>, U>(
+            iCondition, AutoExceptionHandler<O>(std::forward<O>(iO)), std::move(*this));
       }
 
       [[nodiscard]] WaitingTaskHolder end(WaitingTaskHolder iV) {
@@ -146,6 +155,12 @@ namespace edm {
             ExplicitExceptionHandler<E, F>(std::forward<E>(iE), std::forward<F>(iF)), std::move(*this));
       }
 
+      template <typename O>
+      [[nodiscard]] constexpr auto ifThenNext(bool iCondition, O&& iO) {
+        return WaitingTaskChain<Conditional<AutoExceptionHandler<O>>, U, T...>(
+            iCondition, AutoExceptionHandler<O>(std::forward<O>(iO)), std::move(*this));
+      }
+
       [[nodiscard]] WaitingTaskHolder end(WaitingTaskHolder iV) {
         return l_.end(WaitingTaskHolder(
             *iV.group(),
@@ -166,6 +181,69 @@ namespace edm {
       WaitingTaskChain<T...> l_;
       U f_;
     };
+
+    template <typename U, typename... T>
+    struct WaitingTaskChain<Conditional<U>, T...> {
+      explicit constexpr WaitingTaskChain(bool iCondition, U&& iU, WaitingTaskChain<T...> iL)
+          : l_(std::move(iL)), f_{std::forward<U>(iU)}, condition_(iCondition) {}
+
+      ///Define next task to run once this task has finished. The functor must take a edm::WaitingTaskHolder as argument. If an exception happened
+      /// in a previous task, the functor will NOT be run.
+      template <typename O>
+      [[nodiscard]] constexpr auto next(O&& iO) {
+        return WaitingTaskChain<AutoExceptionHandler<O>, Conditional<U>, T...>(
+            AutoExceptionHandler<O>(std::forward<O>(iO)), std::move(*this));
+      }
+
+      ///Define next task to run once this task has finished. The functor must take std::exception_ptr const* and a  edm::WaitingTaskHolder as arguments
+      template <typename O>
+      [[nodiscard]] constexpr auto nextWithException(O&& iO) {
+        return WaitingTaskChain<O, Conditional<U>, T...>(std::forward<O>(iO), std::move(*this));
+      }
+
+      ///Define next task to run once this task has finished. If a previous task had an exception, only the first functor, iE, will be run and passed the std::exception_ptr const. If there
+      /// was no exception, then only the functor iF will be run. If iF has an exception, it will be automatically propagated to the edm::WaitingTaskHolder.
+      template <typename E, typename F>
+      [[nodiscard]] constexpr auto ifExceptionElseNext(E&& iE, F&& iF) {
+        return WaitingTaskChain<ExplicitExceptionHandler<E, F>, Conditional<U>, T...>(
+            ExplicitExceptionHandler<E, F>(std::forward<E>(iE), std::forward<F>(iF)), std::move(*this));
+      }
+
+      template <typename O>
+      [[nodiscard]] constexpr auto ifThenNext(bool iCondition, O&& iO) {
+        return WaitingTaskChain<Conditional<AutoExceptionHandler<O>>, Conditional<U>, T...>(
+            iCondition, AutoExceptionHandler<O>(std::forward<O>(iO)), std::move(*this));
+      }
+
+      [[nodiscard]] WaitingTaskHolder end(WaitingTaskHolder iV) {
+        if (condition_) {
+          return l_.end(WaitingTaskHolder(
+              *iV.group(),
+              make_waiting_task([f = std::move(f_), v = std::move(iV)](std::exception_ptr const* iPtr) mutable {
+                f(iPtr, std::move(v));
+              })));
+        }
+        return l_.end(iV);
+      }
+
+      void run(WaitingTaskHolder iV) {
+        if (condition_) {
+          l_.run(WaitingTaskHolder(
+              *iV.group(),
+              make_waiting_task([f = std::move(f_), v = std::move(iV)](std::exception_ptr const* iPtr) mutable {
+                f(iPtr, std::move(v));
+              })));
+        } else {
+          l_.run(iV);
+        }
+      }
+
+    private:
+      WaitingTaskChain<T...> l_;
+      U f_;
+      bool condition_;
+    };
+
   }  // namespace task_chain::detail
   template <typename F>
   auto beginWaitingTaskChain(F&& iF) {

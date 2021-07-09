@@ -465,4 +465,61 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
     REQUIRE(waitTask.done());
     REQUIRE(waitTask.exceptionPtr() != nullptr);
   }
+  SECTION("ifThenNext testing") {
+    SECTION("begin.ifTheNext(true).next.run") {
+      std::atomic<int> count{0};
+
+      edm::FinalWaitingTask waitTask;
+      tbb::task_group group;
+      {
+        edm::beginWaitingTaskChain([&count](auto h) {
+          ++count;
+          REQUIRE(count.load() == 1);
+        })
+            .ifThenNext(true,
+                        [&count](auto h) {
+                          ++count;
+                          REQUIRE(count.load() == 2);
+                        })
+            .next([&count](auto h) {
+              ++count;
+              REQUIRE(count.load() == 3);
+            })
+            .run(edm::WaitingTaskHolder(group, &waitTask));
+      }
+      group.wait();
+      REQUIRE(count.load() == 3);
+      REQUIRE(waitTask.done());
+      REQUIRE(waitTask.exceptionPtr() == nullptr);
+    }
+
+    SECTION("ifThenNext testing") {
+      SECTION("begin.ifTheNext(false).next.run") {
+        std::atomic<int> count{0};
+
+        edm::FinalWaitingTask waitTask;
+        tbb::task_group group;
+        {
+          edm::beginWaitingTaskChain([&count](auto h) {
+            ++count;
+            REQUIRE(count.load() == 1);
+          })
+              .ifThenNext(false,
+                          [&count](auto h) {
+                            ++count;
+                            REQUIRE(false);
+                          })
+              .next([&count](auto h) {
+                ++count;
+                REQUIRE(count.load() == 2);
+              })
+              .run(edm::WaitingTaskHolder(group, &waitTask));
+        }
+        group.wait();
+        REQUIRE(count.load() == 2);
+        REQUIRE(waitTask.done());
+        REQUIRE(waitTask.exceptionPtr() == nullptr);
+      }
+    }
+  }
 }
