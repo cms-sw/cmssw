@@ -8,6 +8,13 @@ def custom_ntuples_V9(process):
             ntuple.bhSimHits = cms.InputTag('g4SimHits:HGCHitsHEback')
     return process
 
+def custom_ntuples_stage1_truncation(process):
+    ntuples = process.hgcalTriggerNtuplizer.Ntuples
+    for ntuple in ntuples:
+        if ntuple.NtupleName=='HGCalTriggerNtupleHGCClusters':
+            ntuple.Clusters = cms.InputTag('hgcalBackEndLayer1Producer:HGCalBackendStage1Processor')
+    return process
+
 def custom_ntuples_standalone_clustering(process):
     ntuples = process.hgcalTriggerNtuplizer.Ntuples
     for ntuple in ntuples:
