@@ -13,6 +13,8 @@ if ( $2 == "" ) then
   set tables = ( GRun )
 else if ( $2 == ALL ) then
   set tables = ( GRun 2011 5E33v4 7E33v2 7E33v3 7E33v4 8E33v2 HIon PIon )
+else if ( $2 == IB ) then
+  set tables = ( GRun 2011 HIon PIon )
 else if ( $2 == BOTH ) then
   set tables = ( GRun PIon )
 else if ( $2 == FROZEN ) then
