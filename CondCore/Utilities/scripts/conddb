@@ -169,15 +169,15 @@ def _parse_timestamp(timestamp):
 def _confirm_changes(args):
     if not args.yes:
         output(args, 'Confirm changes? [n]', newline=False)
-        if raw_input().lower() not in ['y', 'yes']:
+        if input().lower() not in ['y', 'yes']:
             raise Exception('Aborted by the user.')
 
 def _get_user_note(args,message):
     output(args, message, newline=False)
-    note = raw_input()
+    note = input()
     if note == '' or note == ' ':
         output(args,'Provided note is invalid, please provide a non-empty string: ',newline=False)
-        note = raw_input()
+        note = input()
         if note == '' or note == ' ':
             raise Exception('Sorry, bailing out...')
     return note 
@@ -588,7 +588,7 @@ def search(args):
             return _ilike_or_regexp_highlight(args, cell, args.string)
 
     def size(cell):
-        return str( sys.getsizeof( bytearray(cell) ) )
+        return str( sys.getsizeof( bytearray(cell,encoding='utf8') ) )
 
     Tag = session.get_dbtype(conddb.Tag)
     output_table(args,
@@ -1041,7 +1041,7 @@ def diffGlobalTagsAtRun_(args):
 
     if(not args.lastIOV):
 
-        if(args.testRunNumber<0):
+        if(int(args.testRunNumber)<0):
             raise Exception("Run %s (default) can't be matched with an existing run in the database. \n\t\t Please specify a run with the option --run." % args.testRunNumber)
 
         bestRun = session.query(RUNINFO.run_number, RUNINFO.start_time, RUNINFO.end_time).filter(RUNINFO.run_number == int(args.testRunNumber)).first()
@@ -1293,7 +1293,7 @@ def listRuns_(args):
     if match is None:
         fromTime = getattr(args, 'from')
         if fromTime is not None:
-            fromTime = unicode(fromTime,'utf-8')
+            fromTime = str(fromTime)
             fromRun = fromTime
             start = None
             if fromTime.isnumeric():
@@ -1306,7 +1306,7 @@ def listRuns_(args):
                 logging.debug('run lower boundary: %s (%s)'%(fromRun, start.strftime('%Y-%m-%d %H:%M:%S')))
         toTime = getattr(args, 'to')
         if toTime is not None:   
-            toTime = unicode(toTime,'utf-8')
+            toTime = str(toTime)
             toRun = toTime
             end = None
             if toTime.isnumeric():
@@ -1645,13 +1645,13 @@ def _copy_payload( args, copyTime, session1, session2, payloadHash, payloadSeria
         logging.debug('Skipping copy of payload %s to %s since it already exists...', str_db_object(args.db, payloadHash), str_db_object(args.destdb, payloadHash))
         if payloadSerializationVersionMap is not None:
             q = session1.query(Payload1.streamer_info).filter(Payload1.hash == payloadHash).one()
-            streamerInfo = str(q[0])
+            streamerInfo = q[0]
     else:
         logging.info('Copying payload %s to %s ...', str_db_object(args.db, payloadHash), str_db_object(args.destdb, payloadHash))
         q = session1.query(Payload1).filter(Payload1.hash == payloadHash).one()
         payload = _rawdict(q)
         payload['insertion_time'] = copyTime
-        streamerInfo = str(payload['streamer_info'])
+        streamerInfo = payload['streamer_info']
         session2.add(Payload2(** payload))
         ret = True
     if payloadSerializationVersionMap is not None:
@@ -1741,7 +1741,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
             raise Exception('Time type mismatch, bailing out.')
         if not args.yes:
             output(args, 'Confirm the update of the existing tag "%s" in %s [n]?' %(second,args.destdb), newline=False)
-            if raw_input().lower() not in ['y', 'yes']:
+            if input().lower() not in ['y', 'yes']:
                 raise Exception('Aborted by the user.')
     else:
         destSynchro = 'any'
@@ -2052,7 +2052,7 @@ def edit(args):
     if args.editor is None:
         editor = _get_editor(args)
 
-    with tempfile.NamedTemporaryFile() as tempfd:
+    with tempfile.NamedTemporaryFile(mode='r+') as tempfd:
 
         if args.type == 'payload':
             raise Exception('TODO')
@@ -2606,9 +2606,6 @@ def showProtections( args ):
     return 0
 
 def setProtection( args ):
-    if args.credential is not None and args.credentialtype is None:
-        logging.error('Specified option "credential" requires option "credentialtype')
-        return 2
     if not args.remove and args.accesstype == db_access_code_map[tag_db_lock_access_code]:
         logging.error("Lock can't be set by command line tool action.")
         return 2        
@@ -2622,24 +2619,68 @@ def setProtection( args ):
     if full_protection_code is None:
         logging.error('Tag %s does not exists.'%args.tag)
         return 1
+    input_access_code = None
+    for k in db_access_code_map.keys():
+        if db_access_code_map[k] == args.accesstype:
+            input_access_code = k
+    new_protection_code = 0
+    action = 'Access restriction altered.'
+    note = ''
+    if args.remove:
+        query = session.query(TagAuthorization).filter(TagAuthorization.tag_name == args.tag)
+        query = query.filter(TagAuthorization.access_type == input_access_code)
+        for code in db_access_code_map.keys():
+            if code != input_access_code:
+                new_protection_code |= (full_protection_code & code)
+        note = '%s restrictions removed'%args.accesstype
+        query = query.delete()
+    else:
+        new_protection_code = full_protection_code | input_access_code
+        note = '%s restriction set'%args.accesstype
+    session.merge(Tag(name=args.tag,protection_code=new_protection_code))
+    _update_tag_log(session,args.tag,datetime.datetime.utcnow(),action,note)
+    session.commit()
+    logging.info(note)
+    logging.info('Tag header updated. Action(s): %s' %action)
+    return 0
+
+def setPermission( args ):
+    if args.credential is not None and args.credentialtype is None:
+        logging.error('Specified option "credential" requires option "credentialtype')
+        return 1
+    if args.accesstype == db_access_code_map[tag_db_lock_access_code]:
+        logging.error("Lock ownership can't be altered.")
+        return 1        
+    connection = connect(args, False, True, True)
+    session = connection.session()
+    Tag = session.get_dbtype(conddb.Tag)
+    result = session.query(Tag.name, Tag.protection_code).filter(Tag.name==args.tag).all()
+    full_protection_code = None
+    for res in result:
+        full_protection_code = res[1]
+    if full_protection_code is None:
+        logging.error('Tag %s does not exists.'%args.tag)
+        return 2
+    if full_protection_code == 0:
+        logging.error('Tag %s is not protected.' %args.tag)
+        return 3
     TagAuthorization = session.get_dbtype(conddb.TagAuthorization)
     input_access_code = None
     for k in db_access_code_map.keys():
         if db_access_code_map[k] == args.accesstype:
             input_access_code = k
+    if full_protection_code & input_access_code==0:
+        logging.error('Tag %s is not protected for access %s.'%(args.tag,args.accessType))
+        return 3
     input_credential = None
     input_credential_code = None
     input_credential_type = None
     if args.credential is not None:
-        if input_access_code == tag_db_lock_access_code:
-            logger.warning('Ignoring credentials specified for the lock - the full lock will be removed.')
-        else:
-            input_credential = args.credential
-            for k in db_credential_type_map.keys():
-                if db_credential_type_map[k][1] == args.credentialtype:
-                    input_credential_code = k
-                    input_credential_type = db_credential_type_map[k][0]
-    new_protection_code = 0
+        input_credential = args.credential
+        for k in db_credential_type_map.keys():
+            if db_credential_type_map[k][1] == args.credentialtype:
+                input_credential_code = k
+                input_credential_type = db_credential_type_map[k][0]
     action = 'Access permission altered.'
     note = ''
     if args.remove:
@@ -2648,27 +2689,21 @@ def setProtection( args ):
         if input_credential is not None:
             query = query.filter(TagAuthorization.credential == input_credential)
             query = query.filter(TagAuthorization.credential_type == input_credential_code)
-            new_protection_code = full_protection_code
             note = '%s permission for %s "%s" removed'%(args.accesstype,input_credential_type,args.credential)
         else:
-            for code in db_access_code_map.keys():
-                if code != input_access_code:
-                    new_protection_code |= (full_protection_code & code)
             note = '%s restrictions removed'%args.accesstype
         query = query.delete()
     else:
-        new_protection_code = full_protection_code | input_access_code
         if input_credential is not None:
             session.add(TagAuthorization(tag_name=args.tag, access_type=input_access_code, 
                                          credential=input_credential, credential_type=input_credential_code ))
             note = '%s permission for %s "%s" added'%(args.accesstype,input_credential_type,args.credential)
         else:
             note = '%s restriction set'%args.accesstype
-    session.merge(Tag(name=args.tag,protection_code=new_protection_code))
     _update_tag_log(session,args.tag,datetime.datetime.utcnow(),action,note)
     session.commit()
     logging.info(note)
-    logging.info('Tag header updated. Action(s): %s' %action)
+    logging.info('Tag access permissions updated. Action(s): %s' %action)
     return 0
 
 def query_object(args):
@@ -2710,10 +2745,10 @@ def query_object(args):
         header = None
         for res in query:
             found = 0
-            streamer_info = str(res[1])
+            streamer_info = res[1]
             row = (args.unique_key,res[0],)
             header = ['Payload hash','Object type']
-            if streamer_info != '0':
+            if streamer_info != b'0':
                 payload_md = json.loads(streamer_info)
                 for k in sorted(payload_md.keys()):
                     header.append(k)
@@ -2879,17 +2914,23 @@ def main():
     parser_fromTimestamp.add_argument('timestamp', help="The Time timetype value")
     parser_fromTimestamp.set_defaults(func=fromTimestamp_)
 
-    parser_showProtections = parser_subparsers.add_parser('showProtections', description='Display the access restriction for the specified tag')
+    parser_showProtections = parser_subparsers.add_parser('showProtections', description='Display the access restrictions and permissions for the specified tag')
     parser_showProtections.add_argument('tag', help="The tag name")
     parser_showProtections.set_defaults(func=showProtections)
 
     parser_setProtection = parser_subparsers.add_parser('setProtection', description='Set an access restriction for the specified tag')
     parser_setProtection.add_argument('tag', help="The tag name")
     parser_setProtection.add_argument('--accesstype','-a', choices=[db_access_code_map[tag_db_write_access_code],db_access_code_map[tag_db_lock_access_code]], required=True, help='The access type of the protection (flag)')
-    parser_setProtection.add_argument('--credential','-c', help='The credential entitled with the permission')
-    parser_setProtection.add_argument('--credentialtype','-t', choices=[db_credential_type_map[db_key_credential_type_code][1],db_credential_type_map[db_cmsuser_credential_type_code][1]],help='The type of the credential provided. Required for "credential" option')
     parser_setProtection.add_argument('--remove','-r',action='store_true', help='Remove the specified protection')
     parser_setProtection.set_defaults(func=setProtection)
+
+    parser_setPermission = parser_subparsers.add_parser('setPermission', description='Set an access permission for the specified tag')
+    parser_setPermission.add_argument('tag', help="The tag name")
+    parser_setPermission.add_argument('--accesstype','-a', choices=[db_access_code_map[tag_db_write_access_code],db_access_code_map[tag_db_lock_access_code]], required=True, help='The access type of the permission (flag)')
+    parser_setPermission.add_argument('--credential','-c', help='The credential entitled with the permission')
+    parser_setPermission.add_argument('--credentialtype','-t', choices=[db_credential_type_map[db_key_credential_type_code][1],db_credential_type_map[db_cmsuser_credential_type_code][1]],help='The type of the credential provided. Required for "credential" option')
+    parser_setPermission.add_argument('--remove','-r',action='store_true', help='Remove the specified permission')
+    parser_setPermission.set_defaults(func=setPermission)
 
     parser_query = parser_subparsers.add_parser('query', description='Query the database to get information about condition metadata')
     parser_query.add_argument('unique_key', help="The unique key for the query")
