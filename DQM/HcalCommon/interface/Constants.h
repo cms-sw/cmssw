@@ -166,6 +166,7 @@ namespace hcaldqm {
     std::string const SUBSYSTEM = "Hcal";
     std::string const TPSUBDET_NAME[TPSUBDET_NUM] = {"HBHE", "HF"};
     std::string const TPSUBDETPM_NAME[2 * TPSUBDET_NUM] = {"HBHEM", "HBHEP", "HFM", "HFP"};
+    std::string const TPSUBDETFW_NAME[2 * TPSUBDET_NUM] = {"Pure HB", "Overlap HBHE", "Pure HE", "HF"};
 
     //	iphis
     int const IPHI_MIN = 1;
