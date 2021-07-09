@@ -9,6 +9,7 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(10))
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
+## these lines load ESProducers to be run outside the path (automatically)
 process.load("L1Trigger.L1TMuonBarrel.fakeBmtfParams_cff")
 process.load("L1Trigger.L1TMuonBarrel.staticKBmtfParams_cff")
 
@@ -50,4 +51,3 @@ process.l1bpw = cms.EDAnalyzer("L1TMuonBarrelParamsWriter",
                                isO2Opayload = cms.untracked.bool(False))
 
 process.p = cms.Path(process.getter + process.l1bpw)
-
