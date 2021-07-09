@@ -32,15 +32,15 @@ process.MessageLogger.L1track = dict(limit = -1)
 process.MessageLogger.Tracklet = dict(limit = -1)
 
 if GEOMETRY == "D49": 
-    print "using geometry " + GEOMETRY + " (tilted)"
+    print("using geometry " + GEOMETRY + " (tilted)")
     process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 elif GEOMETRY == "D76": 
-    print "using geometry " + GEOMETRY + " (tilted)"
+    print("using geometry " + GEOMETRY + " (tilted)")
     process.load('Configuration.Geometry.GeometryExtended2026D76Reco_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D76_cff')
 else:
-    print "this is not a valid geometry!!!"
+    print("this is not a valid geometry!!!")
 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -78,9 +78,9 @@ if GEOMETRY == "D49":
   inputMC = ["/store/relval/CMSSW_11_3_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/00000/00260a30-734a-4a3a-a4b0-f836ce5502c6.root"] 
 
 elif GEOMETRY == "D76":
-  inputMC = ["/store/relval/CMSSW_11_3_0_pre6/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v6_2026D76PU200-v1/00000/00026541-6200-4eed-b6f8-d3a1fd720e9c.root"]
+    inputMC = ["/store/relval/CMSSW_11_3_0_pre6/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v6_2026D76PU200-v1/00000/00026541-6200-4eed-b6f8-d3a1fd720e9c.root"]
 else:
-  print "this is not a valid geometry!!!"    
+  print("this is not a valid geometry!!!")
     
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputMC))
 
@@ -145,8 +145,8 @@ elif (L1TRKALGO == 'HYBRID_DISPLACED'):
     
 # LEGACY ALGORITHM (EXPERTS ONLY): TRACKLET  
 elif (L1TRKALGO == 'TRACKLET'):
-    print "\n WARNING: This is not the baseline algorithm! Prefer HYBRID or HYBRID_DISPLACED!"
-    print "\n To run the Tracklet-only algorithm, ensure you have commented out 'CXXFLAGS=-DUSEHYBRID' in BuildFile.xml & recompiled! \n"
+    print("\n WARNING: This is not the baseline algorithm! Prefer HYBRID or HYBRID_DISPLACED!")
+    print("\n To run the Tracklet-only algorithm, ensure you have commented out 'CXXFLAGS=-DUSEHYBRID' in BuildFile.xml & recompiled! \n")
     process.TTTracksEmulation = cms.Path(process.L1HybridTracks)
     process.TTTracksEmulationWithTruth = cms.Path(process.L1HybridTracksWithAssociators)
     NHELIXPAR = 4
@@ -156,7 +156,7 @@ elif (L1TRKALGO == 'TRACKLET'):
 
 # LEGACY ALGORITHM (EXPERTS ONLY): TMTT  
 elif (L1TRKALGO == 'TMTT'):
-    print "\n WARNING: This is not the baseline algorithm! Prefer HYBRID or HYBRID_DISPLACED! \n"
+    print("\n WARNING: This is not the baseline algorithm! Prefer HYBRID or HYBRID_DISPLACED! \n")
     process.load("L1Trigger.TrackFindingTMTT.TMTrackProducer_Ultimate_cff")
     L1TRK_PROC  =  process.TMTrackProducer
     L1TRK_NAME  = "TMTrackProducer"
@@ -172,7 +172,7 @@ elif (L1TRKALGO == 'TMTT'):
     process.TTTracksEmulationWithTruth = cms.Path(process.offlineBeamSpot*L1TRK_PROC*process.TrackTriggerAssociatorTracks)
 
 else:
-    print "ERROR: Unknown L1TRKALGO option"
+    print("ERROR: Unknown L1TRKALGO option")
     exit(1)
 
 
