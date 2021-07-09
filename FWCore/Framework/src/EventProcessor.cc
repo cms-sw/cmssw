@@ -1110,7 +1110,7 @@ namespace edm {
                      RunTransitionInfo transitionInfo(runPrincipal, es);
                      beginGlobalTransitionAsync<Traits>(
                          std::move(waitTask), *schedule_, transitionInfo, serviceToken_, subProcesses_);
-                   }).next([this, run, &runPrincipal, &es, &globalBeginSucceeded](auto waitTask) mutable {
+                   }).next([&globalBeginSucceeded, run](auto waitTask) mutable {
         globalBeginSucceeded = true;
         FDEBUG(1) << "\tbeginRun " << run << "\n";
       });
