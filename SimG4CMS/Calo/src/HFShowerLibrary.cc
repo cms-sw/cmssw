@@ -84,7 +84,8 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
 
 #ifdef EDM_ML_DEBUG
   std::stringstream ss;
-  ss << "HFShowerLibrary: Library " << libVers << " ListVersion " << listVersion << " File version " << fileVersion_ << " Events Total " << totEvents << " and " << evtPerBin << " per bin\n";
+  ss << "HFShowerLibrary: Library " << libVers << " ListVersion " << listVersion << " File version " << fileVersion_
+     << " Events Total " << totEvents << " and " << evtPerBin << " per bin\n";
   ss << "HFShowerLibrary: Energies (GeV) with " << nMomBin << " bins\n";
   for (int i = 0; i < nMomBin; ++i) {
     if (i / 10 * 10 == i && i > 0) {
@@ -109,7 +110,12 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << " HFShowerLibrary:Branch " << emName << " has " << emBranch->GetEntries() << " entries and Branch " << hadName << " has " << hadBranch->GetEntries() << " entries\n HFShowerLibrary::No packing information - Assume x, y, z are not in packed form\n Maximum probability cut off " << probMax << "  Back propagation of light probability " << backProb << " Flag for ignoring Time Shift " << ignoreTimeShift_;
+  edm::LogVerbatim("HFShower") << " HFShowerLibrary:Branch " << emName << " has " << emBranch->GetEntries()
+                               << " entries and Branch " << hadName << " has " << hadBranch->GetEntries()
+                               << " entries\n HFShowerLibrary::No packing information - Assume x, y, z are not in "
+                                  "packed form\n Maximum probability cut off "
+                               << probMax << "  Back propagation of light probability " << backProb
+                               << " Flag for ignoring Time Shift " << ignoreTimeShift_;
 #endif
   fibre_ = std::make_unique<HFFibre>(name, hcalConstant_, hps, p);
   photo = new HFShowerPhotonCollection;
@@ -160,7 +166,12 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step* aStep,
   const G4ThreeVector localPos = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
   double zoff = localPos.z() + 0.5 * gpar[1];
 
-  edm::LogVerbatim("HFShower") << "HFShowerLibrary::getHits " << partType << " of energy " << track->GetKineticEnergy() / CLHEP::GeV << " GeV weight= " << weight << " onlyLong: " << onlyLong << "  dir.orts " << momDir.x() << ", " << momDir.y() << ", " << momDir.z() << "  Pos x,y,z = " << hitPoint.x() << "," << hitPoint.y() << "," << hitPoint.z() << " (" << zoff << ")   sphi,cphi,stheta,ctheta  = " << sin(momDir.phi()) << "," << cos(momDir.phi()) << ", " << sin(momDir.theta()) << "," << cos(momDir.theta());
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary::getHits " << partType << " of energy "
+                               << track->GetKineticEnergy() / CLHEP::GeV << " GeV weight= " << weight
+                               << " onlyLong: " << onlyLong << "  dir.orts " << momDir.x() << ", " << momDir.y() << ", "
+                               << momDir.z() << "  Pos x,y,z = " << hitPoint.x() << "," << hitPoint.y() << ","
+                               << hitPoint.z() << " (" << zoff << ")   sphi,cphi,stheta,ctheta  = " << sin(momDir.phi())
+                               << "," << cos(momDir.phi()) << ", " << sin(momDir.theta()) << "," << cos(momDir.theta());
 #endif
 
   double tSlice = (postStepPoint->GetGlobalTime()) / CLHEP::nanosecond;
@@ -289,7 +300,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
 #endif
       if (rInside(r) && r1 <= exp(-p * zv) && r2 <= probMax * weight && dfir > gpar[5] && zz >= gpar[4] &&
           zz <= gpar[4] + gpar[1] && r3 <= backProb && (depth != 2 || zz >= gpar[4] + gpar[0])) {
-	double tdiff = (ignoreTimeShift_) ? 0 : (fibre_->tShift(lpos, depth, 1));
+        double tdiff = (ignoreTimeShift_) ? 0 : (fibre_->tShift(lpos, depth, 1));
         oneHit.position = pos;
         oneHit.depth = depth;
         oneHit.time = (tSlice + (pe[i].t()) + tdiff);
@@ -309,7 +320,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
         r1 = G4UniformRand();
         r2 = G4UniformRand();
         if (rInside(r) && r1 <= exp(-p * zv) && r2 <= probMax && dfir > gpar[5]) {
-	  double tdiff = (ignoreTimeShift_) ? 0 : (fibre_->tShift(lpos, 2, 1));
+          double tdiff = (ignoreTimeShift_) ? 0 : (fibre_->tShift(lpos, 2, 1));
           oneHit.position = pos;
           oneHit.depth = 2;
           oneHit.time = (tSlice + (pe[i].t()) + tdiff);
@@ -428,7 +439,9 @@ void HFShowerLibrary::loadEventInfo(TBranch* branch) {
 
 void HFShowerLibrary::interpolate(int type, double pin) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFShowerLibrary:: Interpolate for Energy " << pin / CLHEP::GeV << " GeV with " << nMomBin << " momentum bins and " << evtPerBin << " entries/bin -- total " << totEvents;
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary:: Interpolate for Energy " << pin / CLHEP::GeV << " GeV with "
+                               << nMomBin << " momentum bins and " << evtPerBin << " entries/bin -- total "
+                               << totEvents;
 #endif
   int irc[2] = {0, 0};
   double w = 0.;
@@ -507,7 +520,9 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
   double w = (pin - pmom[nMomBin - 1] * nrec) / pmom[nMomBin - 1];
   nrec++;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFShowerLibrary:: Extrapolate for Energy " << pin / CLHEP::GeV << " GeV with " << nMomBin << " momentum bins and " << evtPerBin << " entries/bin -- " << "total " << totEvents << " using " << nrec << " records";
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary:: Extrapolate for Energy " << pin / CLHEP::GeV << " GeV with "
+                               << nMomBin << " momentum bins and " << evtPerBin << " entries/bin -- "
+                               << "total " << totEvents << " using " << nrec << " records";
 #endif
   std::vector<int> irc(nrec);
 

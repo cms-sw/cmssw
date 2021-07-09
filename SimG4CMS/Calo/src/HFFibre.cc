@@ -120,13 +120,13 @@ double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) { 
   double hR = sqrt((point.x()) * (point.x()) + (point.y()) * (point.y()));
 
   // Defines the Radius bin by radial subdivision
-  if (fromEndAbs >= 0) {  
+  if (fromEndAbs >= 0) {
     for (int i = nBinR - 1; i > 0; --i)
       if (hR < radius[i])
         ieta = nBinR - i - 1;
   }
 
-  // Defines the full length of the fibre 
+  // Defines the full length of the fibre
   if (depth == 2) {
     if (static_cast<int>(shortFL.size()) > ieta)
       length = shortFL[ieta] + gpar[0];
@@ -134,13 +134,13 @@ double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) { 
     if (static_cast<int>(longFL.size()) > ieta)
       length = longFL[ieta];
   }
-  zFibre = length;   // from beginning of abs (full length)
+  zFibre = length;  // from beginning of abs (full length)
 
   if (fromEndAbs > 0) {
-    zFibre -= gpar[1];   // length from end of HF  
+    zFibre -= gpar[1];  // length from end of HF
   } else {
-    double zz = 0.5 * gpar[1] + point.z();    // depth of point of photon emission (from beginning of HF)
-    zFibre -= zz;	 // length of fiber from point of photon emission 
+    double zz = 0.5 * gpar[1] + point.z();  // depth of point of photon emission (from beginning of HF)
+    zFibre -= zz;                           // length of fiber from point of photon emission
   }
 
 #ifdef EDM_ML_DEBUG

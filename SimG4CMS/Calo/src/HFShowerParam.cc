@@ -51,7 +51,8 @@ HFShowerParam::HFShowerParam(const std::string& name,
                                << " Use of Gflash is set to " << useGflash << " P.E. per GeV " << pePerGeV_
                                << ", ref. index of fibre " << ref_index_ << ", Track EM Flag " << trackEM_ << ", edMin "
                                << edMin_ << " GeV, use of Short fibre info in"
-                               << " shower library set to " << !(onlyLong_) << " ignore flag for time shift in fire is set to " << ignoreTimeShift_
+                               << " shower library set to " << !(onlyLong_)
+                               << " ignore flag for time shift in fire is set to " << ignoreTimeShift_
                                << ", use of parametrization for last part set to " << parametrizeLast_
                                << ", Mean lambda " << lambdaMean << ", aperture (cutoff) " << aperture_
                                << ", Application of Fiducial Cut " << applyFidCut_;

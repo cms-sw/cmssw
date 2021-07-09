@@ -19,20 +19,20 @@ HFCherenkov::HFCherenkov(edm::ParameterSet const& m_HF) {
   ref_index = m_HF.getParameter<double>("RefIndex");
   lambda1 = ((m_HF.getParameter<double>("Lambda1")) / pow(double(10), 7)) * CLHEP::cm;
   lambda2 = ((m_HF.getParameter<double>("Lambda2")) / pow(double(10), 7)) * CLHEP::cm;
-  aperture = m_HF.getParameter<double>("Aperture");             
+  aperture = m_HF.getParameter<double>("Aperture");
   gain = m_HF.getParameter<double>("Gain");
   checkSurvive = m_HF.getParameter<bool>("CheckSurvive");
-  UseNewPMT = m_HF.getParameter<bool>("UseR7600UPMT");                
-  fibreR = m_HF.getParameter<double>("FibreR") * CLHEP::mm;    
-  
-  aperturetrapped=aperture/ref_index;
-  sinPsimax=1/ref_index;
+  UseNewPMT = m_HF.getParameter<bool>("UseR7600UPMT");
+  fibreR = m_HF.getParameter<double>("FibreR") * CLHEP::mm;
+
+  aperturetrapped = aperture / ref_index;
+  sinPsimax = 1 / ref_index;
 
   edm::LogVerbatim("HFShower") << "HFCherenkov:: initialised with ref_index " << ref_index << " lambda1/lambda2 (cm) "
-                               << lambda1 / CLHEP::cm << "|" << lambda2 / CLHEP::cm << " aperture(trapped) " << aperture 
-                               << "|" << aperturetrapped << " sinPsimax " << sinPsimax << " Check photon survival in HF "
-                               << checkSurvive << " Gain " << gain << " useNewPMT " << UseNewPMT << " FibreR "
-                               << fibreR;
+                               << lambda1 / CLHEP::cm << "|" << lambda2 / CLHEP::cm << " aperture(trapped) " << aperture
+                               << "|" << aperturetrapped << " sinPsimax " << sinPsimax
+                               << " Check photon survival in HF " << checkSurvive << " Gain " << gain << " useNewPMT "
+                               << UseNewPMT << " FibreR " << fibreR;
 
   clearVectors();
 }
@@ -118,67 +118,73 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
       double cosEta = sqrt(1. - sinEta * sinEta);
       double sinPsi = sqrt(1. - w_ph * w_ph);
       double cosKsi = cosEta * sinPsi;
-     
+
 #ifdef EDM_ML_DEBUG
       if (cosKsi < aperturetrapped && w_ph > 0.) {
-        edm::LogVerbatim("HFShower") << "HFCherenkov::Trapped photon : " << u_ph << " " << v_ph << " " << w_ph << " " << xemit << " " << gam << " " << eps << " " << sinBeta << " " << rho << " " << sinEta << " " << cosEta << " " << " " << sinPsi << " " << cosKsi;
+        edm::LogVerbatim("HFShower") << "HFCherenkov::Trapped photon : " << u_ph << " " << v_ph << " " << w_ph << " "
+                                     << xemit << " " << gam << " " << eps << " " << sinBeta << " " << rho << " "
+                                     << sinEta << " " << cosEta << " "
+                                     << " " << sinPsi << " " << cosKsi;
       } else {
-        edm::LogVerbatim("HFShower") << "HFCherenkov::Rejected photon : " << u_ph << " " << v_ph << " " << w_ph << " " << xemit << " " << gam << " " << eps << " " << sinBeta << " " << rho << " " << sinEta << " " << cosEta << " " << " " << sinPsi << " " << cosKsi;
+        edm::LogVerbatim("HFShower") << "HFCherenkov::Rejected photon : " << u_ph << " " << v_ph << " " << w_ph << " "
+                                     << xemit << " " << gam << " " << eps << " " << sinBeta << " " << rho << " "
+                                     << sinEta << " " << cosEta << " "
+                                     << " " << sinPsi << " " << cosKsi;
       }
 #endif
-      if (cosKsi < aperturetrapped     // photon is trapped inside fiber
-          && w_ph > 0.                 // and moves to PMT
-          && sinPsi < sinPsimax) {     // and is not reflected at fiber end
+      if (cosKsi < aperturetrapped  // photon is trapped inside fiber
+          && w_ph > 0.              // and moves to PMT
+          && sinPsi < sinPsimax) {  // and is not reflected at fiber end
         wltrap.push_back(lambda);
-        double prob_HF = 1.0;                 
+        double prob_HF = 1.0;
         if (checkSurvive) {
-          double a0_inv = 0.1234;               //meter^-1
+          double a0_inv = 0.1234;                          //meter^-1
           double a_inv = a0_inv + 0.14 * pow(dose, 0.30);  // ?
-          double z_meters = zFiber;       
-          prob_HF = exp(-z_meters * a_inv);  
+          double z_meters = zFiber;
+          prob_HF = exp(-z_meters * a_inv);
         }
         rand = G4UniformRand();
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: probHF " << prob_HF 
-                                     << " Random " << rand << " Survive? " << (rand < prob_HF);
+        edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: probHF " << prob_HF << " Random " << rand
+                                     << " Survive? " << (rand < prob_HF);
 #endif
         if (rand < prob_HF) {  // survived in HF
           wlatten.push_back(lambda);
           rand = G4UniformRand();
           double effHEM = computeHEMEff(lambda);
-	  // compute number of bounces in air guide
-	  rand = G4UniformRand();
-	  double phi = 0.5*M_PI*rand;
-	  double rad_bundle = 19.;  // bundle radius
-	  double rad_lg = 25.;      //  light guide radius
-	  rand = G4UniformRand();
-	  double rad = rad_bundle*sqrt(rand);
-	  double rho = rad*sin(phi);
-	  double tlength = 2. * sqrt(rad_lg*rad_lg-rho*rho);
-	  double length_lg = 430;
-	  double sin_air = sinPsi * 1.46;
-	  double tang = sin_air / sqrt(1. - sin_air * sin_air);
-	  int nbounce = length_lg / tlength * tang + 0.5;
-	  double eff = pow(effHEM, nbounce);
+          // compute number of bounces in air guide
+          rand = G4UniformRand();
+          double phi = 0.5 * M_PI * rand;
+          double rad_bundle = 19.;  // bundle radius
+          double rad_lg = 25.;      //  light guide radius
+          rand = G4UniformRand();
+          double rad = rad_bundle * sqrt(rand);
+          double rho = rad * sin(phi);
+          double tlength = 2. * sqrt(rad_lg * rad_lg - rho * rho);
+          double length_lg = 430;
+          double sin_air = sinPsi * 1.46;
+          double tang = sin_air / sqrt(1. - sin_air * sin_air);
+          int nbounce = length_lg / tlength * tang + 0.5;
+          double eff = pow(effHEM, nbounce);
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: w_ph " << w_ph << " effHEM " << effHEM 
-				       << " eff " << eff << " Random " << rand << " Survive? " << (rand < eff);
+          edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: w_ph " << w_ph << " effHEM " << effHEM << " eff "
+                                       << eff << " Random " << rand << " Survive? " << (rand < eff);
 #endif
-	  if (rand<eff) { // survived HEM
-	    wlhem.push_back(lambda);
-	    double qEffic = computeQEff(lambda);
-	    rand = G4UniformRand();
+          if (rand < eff) {  // survived HEM
+            wlhem.push_back(lambda);
+            double qEffic = computeQEff(lambda);
+            rand = G4UniformRand();
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: qEffic " << qEffic << " Random " << rand
-					 << " Survive? " << (rand < qEffic);
+            edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: qEffic " << qEffic << " Random " << rand
+                                         << " Survive? " << (rand < qEffic);
 #endif
-	    if (rand < qEffic) {  // made photoelectron
-	      npe_Dose += 1;
-	      momZ.push_back(w_ph);
-	      wl.push_back(lambda);
-	      wlqeff.push_back(lambda);
-	    }          // made pe
-	  }            // passed HEM
+            if (rand < qEffic) {  // made photoelectron
+              npe_Dose += 1;
+              momZ.push_back(w_ph);
+              wl.push_back(lambda);
+              wlqeff.push_back(lambda);
+            }          // made pe
+          }            // passed HEM
         }              // passed fiber
       }                // end of  if(w_ph < w_aperture), trapped inside fiber
     }                  // end of ++NbOfPhotons
