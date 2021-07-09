@@ -4,6 +4,7 @@
 
 #include "L1Trigger/TrackFindingTracklet/interface/L1TStub.h"
 #include "L1Trigger/TrackFindingTracklet/interface/SLHCEvent.h"
+#include "L1Trigger/TrackFindingTracklet/interface/StubStreamData.h"
 
 #include <string>
 #include <map>
@@ -50,6 +51,7 @@ namespace trklet {
   class TripletEngine;
   class TrackletCalculator;
   class TrackletProcessor;
+  class TrackletProcessorDisplaced;
   class TrackletCalculatorDisplaced;
   class ProjectionRouter;
   class MatchEngine;
@@ -108,13 +110,15 @@ namespace trklet {
     void executeTED();
     void executeTRE();
     void executeTP();
+    void executeTPD();
     void executeTC();
     void executeTCD();
     void executePR();
     void executeME();
     void executeMC();
     void executeMP();
-    void executeFT();
+    void executeFT(std::vector<std::vector<std::string>>& streamsTrackRaw,
+                   std::vector<std::vector<StubStreamData>>& streamsStubRaw);
     void executePD(std::vector<Track>& tracks);
 
     std::vector<Tracklet*> getAllTracklets() const;
@@ -126,14 +130,14 @@ namespace trklet {
     double phimax() const { return phimax_; }
 
     template <typename TV, typename... Args>
-    void addMemToVec(std::vector<std::unique_ptr<TV> >& memvec, const std::string& memName, Args&... args) {
+    void addMemToVec(std::vector<std::unique_ptr<TV>>& memvec, const std::string& memName, Args&... args) {
       memvec.push_back(std::make_unique<TV>(memName, std::forward<Args>(args)...));
       Memories_[memName] = memvec.back().get();
       MemoriesV_.push_back(memvec.back().get());
     }
 
     template <typename TV, typename... Args>
-    void addProcToVec(std::vector<std::unique_ptr<TV> >& procvec, const std::string& procName, Args&... args) {
+    void addProcToVec(std::vector<std::unique_ptr<TV>>& procvec, const std::string& procName, Args&... args) {
       procvec.push_back(std::make_unique<TV>(procName, std::forward<Args>(args)...));
       Processes_[procName] = procvec.back().get();
     }
@@ -147,39 +151,40 @@ namespace trklet {
 
     std::map<std::string, MemoryBase*> Memories_;
     std::vector<MemoryBase*> MemoriesV_;
-    std::vector<std::unique_ptr<DTCLinkMemory> > DL_;
-    std::vector<std::unique_ptr<InputLinkMemory> > IL_;
-    std::vector<std::unique_ptr<AllStubsMemory> > AS_;
-    std::vector<std::unique_ptr<AllInnerStubsMemory> > AIS_;
-    std::vector<std::unique_ptr<VMStubsTEMemory> > VMSTE_;
-    std::vector<std::unique_ptr<VMStubsMEMemory> > VMSME_;
-    std::vector<std::unique_ptr<StubPairsMemory> > SP_;
-    std::vector<std::unique_ptr<StubTripletsMemory> > ST_;
-    std::vector<std::unique_ptr<TrackletParametersMemory> > TPAR_;
-    std::vector<std::unique_ptr<TrackletProjectionsMemory> > TPROJ_;
-    std::vector<std::unique_ptr<AllProjectionsMemory> > AP_;
-    std::vector<std::unique_ptr<VMProjectionsMemory> > VMPROJ_;
-    std::vector<std::unique_ptr<CandidateMatchMemory> > CM_;
-    std::vector<std::unique_ptr<FullMatchMemory> > FM_;
-    std::vector<std::unique_ptr<TrackFitMemory> > TF_;
-    std::vector<std::unique_ptr<CleanTrackMemory> > CT_;
+    std::vector<std::unique_ptr<DTCLinkMemory>> DL_;
+    std::vector<std::unique_ptr<InputLinkMemory>> IL_;
+    std::vector<std::unique_ptr<AllStubsMemory>> AS_;
+    std::vector<std::unique_ptr<AllInnerStubsMemory>> AIS_;
+    std::vector<std::unique_ptr<VMStubsTEMemory>> VMSTE_;
+    std::vector<std::unique_ptr<VMStubsMEMemory>> VMSME_;
+    std::vector<std::unique_ptr<StubPairsMemory>> SP_;
+    std::vector<std::unique_ptr<StubTripletsMemory>> ST_;
+    std::vector<std::unique_ptr<TrackletParametersMemory>> TPAR_;
+    std::vector<std::unique_ptr<TrackletProjectionsMemory>> TPROJ_;
+    std::vector<std::unique_ptr<AllProjectionsMemory>> AP_;
+    std::vector<std::unique_ptr<VMProjectionsMemory>> VMPROJ_;
+    std::vector<std::unique_ptr<CandidateMatchMemory>> CM_;
+    std::vector<std::unique_ptr<FullMatchMemory>> FM_;
+    std::vector<std::unique_ptr<TrackFitMemory>> TF_;
+    std::vector<std::unique_ptr<CleanTrackMemory>> CT_;
 
     std::map<std::string, ProcessBase*> Processes_;
-    std::vector<std::unique_ptr<InputRouter> > IR_;
-    std::vector<std::unique_ptr<VMRouter> > VMR_;
-    std::vector<std::unique_ptr<VMRouterCM> > VMRCM_;
-    std::vector<std::unique_ptr<TrackletEngine> > TE_;
-    std::vector<std::unique_ptr<TrackletEngineDisplaced> > TED_;
-    std::vector<std::unique_ptr<TripletEngine> > TRE_;
-    std::vector<std::unique_ptr<TrackletProcessor> > TP_;
-    std::vector<std::unique_ptr<TrackletCalculator> > TC_;
-    std::vector<std::unique_ptr<TrackletCalculatorDisplaced> > TCD_;
-    std::vector<std::unique_ptr<ProjectionRouter> > PR_;
-    std::vector<std::unique_ptr<MatchEngine> > ME_;
-    std::vector<std::unique_ptr<MatchCalculator> > MC_;
-    std::vector<std::unique_ptr<MatchProcessor> > MP_;
-    std::vector<std::unique_ptr<FitTrack> > FT_;
-    std::vector<std::unique_ptr<PurgeDuplicate> > PD_;
+    std::vector<std::unique_ptr<InputRouter>> IR_;
+    std::vector<std::unique_ptr<VMRouter>> VMR_;
+    std::vector<std::unique_ptr<VMRouterCM>> VMRCM_;
+    std::vector<std::unique_ptr<TrackletEngine>> TE_;
+    std::vector<std::unique_ptr<TrackletEngineDisplaced>> TED_;
+    std::vector<std::unique_ptr<TripletEngine>> TRE_;
+    std::vector<std::unique_ptr<TrackletProcessor>> TP_;
+    std::vector<std::unique_ptr<TrackletProcessorDisplaced>> TPD_;
+    std::vector<std::unique_ptr<TrackletCalculator>> TC_;
+    std::vector<std::unique_ptr<TrackletCalculatorDisplaced>> TCD_;
+    std::vector<std::unique_ptr<ProjectionRouter>> PR_;
+    std::vector<std::unique_ptr<MatchEngine>> ME_;
+    std::vector<std::unique_ptr<MatchCalculator>> MC_;
+    std::vector<std::unique_ptr<MatchProcessor>> MP_;
+    std::vector<std::unique_ptr<FitTrack>> FT_;
+    std::vector<std::unique_ptr<PurgeDuplicate>> PD_;
   };
 };  // namespace trklet
 #endif

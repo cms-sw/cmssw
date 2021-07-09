@@ -125,7 +125,7 @@ void TrackletLUT::initTPlut(bool fillInner,
           } else {
             rinner = settings_.rmean(layerdisk1);
           }
-          double rinv1 = rinv(0.0, -dphi[i2], rinner, router[i3]);
+          double rinv1 = (rinner < router[i3]) ? rinv(0.0, -dphi[i2], rinner, router[i3]) : 20.0;
           double pitchinner = (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
           double pitchouter =
               (router[i3] < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
@@ -313,7 +313,7 @@ void TrackletLUT::initteptlut(bool fillInner,
               } else {
                 rinner = settings_.rmean(layerdisk1);
               }
-              double rinv1 = -rinv(phiinner[i1], phiouter[i2], rinner, router[i3]);
+              double rinv1 = (rinner < router[i3]) ? -rinv(phiinner[i1], phiouter[i2], rinner, router[i3]) : -20.0;
               double pitchinner =
                   (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
               double pitchouter =
@@ -423,11 +423,13 @@ void TrackletLUT::initProjectionBend(double k_phider,
         double stripPitch = (rproj < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
         double bendproj = bendstrip(rproj, rinv, stripPitch);
 
-        int ibendproj = 2.0 * bendproj + 15.5;
+        static double maxbend = (1 << NRINVBITS) - 1;
+
+        int ibendproj = 2.0 * bendproj + 0.5 * maxbend;
         if (ibendproj < 0)
           ibendproj = 0;
-        if (ibendproj > 31)
-          ibendproj = 31;
+        if (ibendproj > maxbend)
+          ibendproj = maxbend;
 
         table_.push_back(ibendproj);
       }
@@ -630,7 +632,8 @@ void TrackletLUT::initVMRTable(unsigned int layerdisk, VMRTableType type, int re
   } else {
     if (type == VMRTableType::me) {
       //This if a hack where the same memory is used in both ME and TE modules
-      if (layerdisk == 1 || layerdisk == 2 || layerdisk == 3 || layerdisk == 4) {
+      if (layerdisk == LayerDisk::L2 || layerdisk == LayerDisk::L3 || layerdisk == LayerDisk::L4 ||
+          layerdisk == LayerDisk::L6) {
         positive_ = false;
         name_ = "VMTableOuter" + TrackletConfigBuilder::LayerName(layerdisk) + ".tab";
         writeTable();

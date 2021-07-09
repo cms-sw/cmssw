@@ -227,17 +227,14 @@ void VMStubsTEMemory::writeStubs(bool first, unsigned int iSector) {
 
   if (isinner_) {  // inner VM for TE purpose
     for (unsigned int j = 0; j < stubsvm_.size(); j++) {
-      out_ << "0x";
-      out_ << std::setfill('0') << std::setw(2);
-      out_ << hex << j << dec;
       string stub = stubsvm_[j].str();
-      out_ << " " << stub << " " << trklet::hexFormat(stub) << endl;
+      out_ << hexstr(j) << " " << stub << " " << trklet::hexFormat(stub) << endl;
     }
   } else {  // outer VM for TE purpose
     for (unsigned int i = 0; i < stubsbinnedvm_.size(); i++) {
       for (unsigned int j = 0; j < stubsbinnedvm_[i].size(); j++) {
         string stub = stubsbinnedvm_[i][j].str();
-        out_ << hex << i << " " << j << dec << " " << stub << " " << trklet::hexFormat(stub) << endl;
+        out_ << hexstr(i) << " " << hexstr(j) << " " << stub << " " << trklet::hexFormat(stub) << endl;
       }
     }
   }

@@ -121,8 +121,11 @@ void VMRouterCM::addInput(MemoryBase* memory, string input) {
   throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find input : " << input;
 }
 
-void VMRouterCM::execute() {
+void VMRouterCM::execute(unsigned int) {
   unsigned int allStubCounter = 0;
+
+  //bool print = getName() == "VMR_D1PHIB" && iSector == 3;
+  //print = false;
 
   //Loop over the input stubs
   for (auto& stubinput : stubinputs_) {
