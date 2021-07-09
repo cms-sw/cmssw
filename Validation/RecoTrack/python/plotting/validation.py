@@ -5,7 +5,7 @@ import re
 import sys
 import shutil
 import subprocess
-import urllib
+import urllib.request
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
@@ -720,7 +720,7 @@ class Validation:
         """Download DQM files. Requires grid certificate and asks your password for it."""
         filenames = [s.filename(self._newRelease) for s in self._fullsimSamples+self._fastsimSamples]
         if self._newFileModifier is not None:
-            filenames = map(self._newFileModifier, filenames)
+            filenames = list(map(self._newFileModifier, filenames))
         filenames = [f for f in filenames if not os.path.exists(f)]
         if len(filenames) == 0:
             print("All files already downloaded")
@@ -987,7 +987,7 @@ class Validation:
 
         # Move plots to new directory
         print("Created plots and %s in %s" % (valname, newdir))
-        return map(lambda n: n.replace(newdir, newsubdir), fileList)
+        return list(map(lambda n: n.replace(newdir, newsubdir), fileList))
 
     def _doPlotsFastFull(self, fastSample, fullSample, plotterFolder, dqmSubFolder, htmlReport):
         """Do the real plotting work for FastSim vs. FullSim for a given algorithm, quality flag, and sample."""
@@ -1053,7 +1053,7 @@ class Validation:
 
         # Move plots to new directory
         print("Created plots in %s" % (newdir))
-        return map(lambda n: n.replace(newdir, newsubdir), fileList)
+        return list(map(lambda n: n.replace(newdir, newsubdir), fileList))
 
     def _doPlotsPileup(self, pu140Sample, pu200Sample, plotterFolder, dqmSubFolder, htmlReport):
         """Do the real plotting work for two pileup scenarios for a given algorithm, quality flag, and sample."""
@@ -1120,7 +1120,7 @@ class Validation:
 
         # Move plots to new directory
         print("Created plots in %s" % (newdir))
-        return map(lambda n: n.replace(newdir, newsubdir), fileList)
+        return list(map(lambda n: n.replace(newdir, newsubdir), fileList))
 
 
 def _copySubDir(oldfile, newfile, basenames, dirname):
@@ -1300,10 +1300,10 @@ class SimpleValidation:
             downloadables = ["index.php", "res/jquery-ui.js", "res/jquery.js", "res/style.css", "res/style.js", "res/theme.css"]
             for d in downloadables:
                 if not os.path.exists("%s/%s" % (newdir,d)):
-                    urllib.urlretrieve("https://raw.githubusercontent.com/musella/php-plots/master/%s"%d, "%s/%s"%(newdir,d))
+                    urllib.request.urlretrieve("https://raw.githubusercontent.com/musella/php-plots/master/%s"%d, "%s/%s"%(newdir,d))
 
         print("Created plots in %s" % newdir)
-        return map(lambda n: n.replace(newdir, newsubdir), fileList)
+        return list(map(lambda n: n.replace(newdir, newsubdir), fileList))
 
 class SeparateValidation:
     #Similar to the SimpleValidation
@@ -1389,7 +1389,7 @@ class SeparateValidation:
             downloadables = ["index.php", "res/jquery-ui.js", "res/jquery.js", "res/style.css", "res/style.js", "res/theme.css"]
             for d in downloadables:
                 if not os.path.exists("%s/%s" % (link,d)):
-                    urllib.urlretrieve("https://raw.githubusercontent.com/rovere/php-plots/master/%s"%d, "%s/%s"%(link,d))
+                    urllib.request.urlretrieve("https://raw.githubusercontent.com/rovere/php-plots/master/%s"%d, "%s/%s"%(link,d))
 
         print("Created separated plots in %s" % newdir)
-        return map(lambda n: n.replace(newdir, newsubdir), linkList)
+        return list(map(lambda n: n.replace(newdir, newsubdir), linkList))
