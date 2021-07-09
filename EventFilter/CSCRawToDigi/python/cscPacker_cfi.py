@@ -15,7 +15,7 @@ run2_common.toModify( cscpacker,
                       packEverything = True)
 
 ## in Run-3 pack again the digis according to (pre)triggers
-from Configuration.Eras.Modifier_run2_common_cff import run2_common
+from Configuration.Eras.Modifier_run2_common_cff import run3_common
 run3_common.toModify( cscpacker,
                       usePreTriggers = True,
                       packEverything = False)
