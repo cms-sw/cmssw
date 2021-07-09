@@ -47,7 +47,7 @@ private:
   std::unique_ptr<HFGflash> gflash_;
   bool fillHisto_;
   double pePerGeV_, edMin_, ref_index_, aperture_, attLMeanInv_;
-  bool trackEM_, onlyLong_, applyFidCut_, parametrizeLast_;
+  bool trackEM_, ignoreTimeShift_, onlyLong_, applyFidCut_, parametrizeLast_;
   G4int emPDG_, epPDG_, gammaPDG_;
   std::vector<double> gpar_;
   TH1F *em_long_1_, *em_lateral_1_, *em_long_2_, *em_lateral_2_;
