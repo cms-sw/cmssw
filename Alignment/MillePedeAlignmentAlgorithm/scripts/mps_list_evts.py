@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """ Print the total number of events processed by the mille jobs per dataset
 
