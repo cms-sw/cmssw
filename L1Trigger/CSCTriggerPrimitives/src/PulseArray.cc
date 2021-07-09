@@ -30,7 +30,7 @@ void PulseArray::extend(const unsigned layer, const unsigned channel, const unsi
   }
 }
 
-bool PulseArray::oneShotAtBX(const unsigned layer, const unsigned channel, const unsigned bx) const{
+bool PulseArray::oneShotAtBX(const unsigned layer, const unsigned channel, const unsigned bx) const {
   return (data_[layer][channel] >> bx) & 1;
 }
 
