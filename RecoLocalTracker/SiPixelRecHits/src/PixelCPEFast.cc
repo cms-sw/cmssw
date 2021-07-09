@@ -93,9 +93,8 @@ void PixelCPEFast::fillParamsForGpu() {
   commonParamsGPU_.thePitchX = m_DetParams[0].thePitchX;
   commonParamsGPU_.thePitchY = m_DetParams[0].thePitchY;
 
-  //LogDebug("PixelCPEFast")
-  std::cout << "pitch & thickness " << commonParamsGPU_.thePitchX << ' ' << commonParamsGPU_.thePitchY << "  "
-            << commonParamsGPU_.theThicknessB << ' ' << commonParamsGPU_.theThicknessE << std::endl;
+  LogDebug("PixelCPEFast") << "pitch & thickness " << commonParamsGPU_.thePitchX << ' ' << commonParamsGPU_.thePitchY
+                           << "  " << commonParamsGPU_.theThicknessB << ' ' << commonParamsGPU_.theThicknessE;
 
   // zero average geometry
   memset(&averageGeometry_, 0, sizeof(pixelCPEforGPU::AverageGeometry));
