@@ -19,6 +19,7 @@
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsO2ORcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonBarrelKalmanParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsO2ORcd.h"
 
@@ -32,6 +33,7 @@ REGISTER_PLUGIN(L1TMuonEndCapParamsRcd, L1TMuonEndCapParams);
 REGISTER_PLUGIN(L1TMuonEndCapForestRcd, L1TMuonEndCapForest);
 REGISTER_PLUGIN(L1TMuonOverlapParamsRcd, L1TMuonOverlapParams);
 REGISTER_PLUGIN(L1TMuonBarrelParamsRcd, L1TMuonBarrelParams);
+REGISTER_PLUGIN(L1TMuonBarrelKalmanParamsRcd, L1TMuonBarrelKalmanParams);
 REGISTER_PLUGIN(L1TMuonGlobalParamsRcd, L1TMuonGlobalParams);
 
 REGISTER_PLUGIN(L1TMuonEndCapParamsO2ORcd, L1TMuonEndCapParams);
