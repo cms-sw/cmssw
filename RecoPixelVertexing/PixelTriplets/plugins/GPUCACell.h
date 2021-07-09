@@ -69,7 +69,6 @@ public:
       auto i = cellNeighbors.extend();  // maybe wasted....
       if (i > 0) {
         cellNeighbors[i].reset();
-        __threadfence();
 #ifdef __CUDACC__
         auto zero = (PtrAsInt)(&cellNeighbors[0]);
         atomicCAS((PtrAsInt*)(&theOuterNeighbors),
@@ -90,7 +89,6 @@ public:
       auto i = cellTracks.extend();  // maybe wasted....
       if (i > 0) {
         cellTracks[i].reset();
-        __threadfence();
 #ifdef __CUDACC__
         auto zero = (PtrAsInt)(&cellTracks[0]);
         atomicCAS((PtrAsInt*)(&theTracks), zero, (PtrAsInt)(&cellTracks[i]));  // if fails we cannot give "i" back...
