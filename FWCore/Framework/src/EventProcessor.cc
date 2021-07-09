@@ -1106,26 +1106,23 @@ namespace edm {
       using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
       FinalWaitingTask globalWaitTask;
 
-      auto chain = beginWaitingTaskChain([&runPrincipal, &es, this](auto waitTask) {
-                     RunTransitionInfo transitionInfo(runPrincipal, es);
-                     beginGlobalTransitionAsync<Traits>(
-                         std::move(waitTask), *schedule_, transitionInfo, serviceToken_, subProcesses_);
-                   }).next([&globalBeginSucceeded, run](auto waitTask) mutable {
-        globalBeginSucceeded = true;
-        FDEBUG(1) << "\tbeginRun " << run << "\n";
-      });
-
-      if (looper_) {
-        chain
-            .next([this, &runPrincipal, &es](auto waitTask) {
-              looper_->prefetchAsync(waitTask, serviceToken_, Transition::BeginRun, runPrincipal, es);
-            })
-            .next(
-                [this, &runPrincipal, &es](auto waitTask) { looper_->doBeginRun(runPrincipal, es, &processContext_); })
-            .run(WaitingTaskHolder(taskGroup_, &globalWaitTask));
-      } else {
-        chain.run(WaitingTaskHolder(taskGroup_, &globalWaitTask));
-      }
+      beginWaitingTaskChain([&runPrincipal, &es, this](auto waitTask) {
+        RunTransitionInfo transitionInfo(runPrincipal, es);
+        beginGlobalTransitionAsync<Traits>(
+            std::move(waitTask), *schedule_, transitionInfo, serviceToken_, subProcesses_);
+      })
+          .next([&globalBeginSucceeded, run](auto waitTask) mutable {
+            globalBeginSucceeded = true;
+            FDEBUG(1) << "\tbeginRun " << run << "\n";
+          })
+          .ifThenNext(looper_,
+                      [this, &runPrincipal, &es](auto waitTask) {
+                        looper_->prefetchAsync(waitTask, serviceToken_, Transition::BeginRun, runPrincipal, es);
+                      })
+          .ifThenNext(
+              looper_,
+              [this, &runPrincipal, &es](auto waitTask) { looper_->doBeginRun(runPrincipal, es, &processContext_); })
+          .run(WaitingTaskHolder(taskGroup_, &globalWaitTask));
 
       do {
         taskGroup_.wait();
@@ -1231,23 +1228,21 @@ namespace edm {
     {
       FinalWaitingTask globalWaitTask;
 
-      auto chain = beginWaitingTaskChain([this, &runPrincipal, &es, cleaningUpAfterException](auto nextTask) {
+      beginWaitingTaskChain([this, &runPrincipal, &es, cleaningUpAfterException](auto nextTask) {
         RunTransitionInfo transitionInfo(runPrincipal, es);
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
         endGlobalTransitionAsync<Traits>(
             std::move(nextTask), *schedule_, transitionInfo, serviceToken_, subProcesses_, cleaningUpAfterException);
-      });
-
-      if (looper_) {
-        chain
-            .next([this, &runPrincipal, &es](auto nextTask) {
-              looper_->prefetchAsync(std::move(nextTask), serviceToken_, Transition::EndRun, runPrincipal, es);
-            })
-            .next([this, &runPrincipal, &es](auto nextTask) { looper_->doEndRun(runPrincipal, es, &processContext_); })
-            .run(WaitingTaskHolder(taskGroup_, &globalWaitTask));
-      } else {
-        chain.run(WaitingTaskHolder(taskGroup_, &globalWaitTask));
-      }
+      })
+          .ifThenNext(looper_,
+                      [this, &runPrincipal, &es](auto nextTask) {
+                        looper_->prefetchAsync(
+                            std::move(nextTask), serviceToken_, Transition::EndRun, runPrincipal, es);
+                      })
+          .ifThenNext(
+              looper_,
+              [this, &runPrincipal, &es](auto nextTask) { looper_->doEndRun(runPrincipal, es, &processContext_); })
+          .run(WaitingTaskHolder(taskGroup_, &globalWaitTask));
 
       do {
         taskGroup_.wait();
@@ -1329,7 +1324,9 @@ namespace edm {
                 rng->preBeginLumi(lb);
               }
 
-              auto chain = beginWaitingTaskChain([this, status, &lumiPrincipal](auto nextTask) {
+              EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
+
+              beginWaitingTaskChain([this, status, &lumiPrincipal](auto nextTask) {
                 EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
                 {
                   LumiTransitionInfo transitionInfo(lumiPrincipal, es, &status->eventSetupImpls());
@@ -1337,11 +1334,21 @@ namespace edm {
                   beginGlobalTransitionAsync<Traits>(
                       nextTask, *schedule_, transitionInfo, serviceToken_, subProcesses_);
                 }
-              });
-
-              //Task to start the stream beginLumis after global begin lumi
-              auto beginStreamsTask =
-                  make_waiting_task([this, holder = iHolder, status](std::exception_ptr const* iPtr) mutable {
+              })
+                  .ifThenNext(
+                      looper_,
+                      [this, status, &es](auto nextTask) {
+                        looper_->prefetchAsync(
+                            nextTask, serviceToken_, Transition::BeginLuminosityBlock, *(status->lumiPrincipal()), es);
+                      })
+                  .ifThenNext(looper_,
+                              [this, status, &es](auto nextTask) {
+                                status->globalBeginDidSucceed();
+                                //make the services available
+                                ServiceRegistry::Operate operateLooper(serviceToken_);
+                                looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
+                              })
+                  .nextWithException([this, status](std::exception_ptr const* iPtr, auto holder) mutable {
                     if (iPtr) {
                       status->resetResources();
                       holder.doneWaiting(*iPtr);
@@ -1384,25 +1391,8 @@ namespace edm {
                         });
                       }
                     }
-                  });  // beginStreamTask
-
-              if (looper_) {
-                EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
-                chain
-                    .next([this, status, &es](auto nextTask) {
-                      looper_->prefetchAsync(
-                          nextTask, serviceToken_, Transition::BeginLuminosityBlock, *(status->lumiPrincipal()), es);
-                    })
-                    .next([this, status, &es](auto nextTask) {
-                      status->globalBeginDidSucceed();
-                      //make the services available
-                      ServiceRegistry::Operate operateLooper(serviceToken_);
-                      looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
-                    })
-                    .run(WaitingTaskHolder(taskGroup_, beginStreamsTask));
-              } else {
-                chain.run(WaitingTaskHolder(taskGroup_, beginStreamsTask));
-              }
+                  })
+                  .run(iHolder);
 
             } catch (...) {
               status->resetResources();
@@ -1502,80 +1492,75 @@ namespace edm {
     EventSetupImpl const& es = iLumiStatus->eventSetupImpl(esp_->subProcessIndex());
     std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls = &iLumiStatus->eventSetupImpls();
 
-    auto chain =
-        beginWaitingTaskChain([this, &lp, &es, &eventSetupImpls, cleaningUpAfterException](auto nextTask) {
-          IOVSyncValue ts(EventID(lp.run(), lp.luminosityBlock(), EventID::maxEventNumber()), lp.beginTime());
+    beginWaitingTaskChain([this, &lp, &es, &eventSetupImpls, cleaningUpAfterException](auto nextTask) {
+      IOVSyncValue ts(EventID(lp.run(), lp.luminosityBlock(), EventID::maxEventNumber()), lp.beginTime());
 
-          LumiTransitionInfo transitionInfo(lp, es, eventSetupImpls);
-          using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
-          endGlobalTransitionAsync<Traits>(
-              std::move(nextTask), *schedule_, transitionInfo, serviceToken_, subProcesses_, cleaningUpAfterException);
-        }).next([this, didGlobalBeginSucceed, &lumiPrincipal = lp](auto nextTask) {
+      LumiTransitionInfo transitionInfo(lp, es, eventSetupImpls);
+      using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
+      endGlobalTransitionAsync<Traits>(
+          std::move(nextTask), *schedule_, transitionInfo, serviceToken_, subProcesses_, cleaningUpAfterException);
+    })
+        .next([this, didGlobalBeginSucceed, &lumiPrincipal = lp](auto nextTask) {
           //Only call writeLumi if beginLumi succeeded
           if (didGlobalBeginSucceed) {
             writeLumiAsync(std::move(nextTask), lumiPrincipal);
           }
-        });
+        })
+        .ifThenNext(looper_,
+                    [this, &lp, &es](auto nextTask) {
+                      looper_->prefetchAsync(
+                          std::move(nextTask), serviceToken_, Transition::EndLuminosityBlock, lp, es);
+                    })
+        .ifThenNext(looper_,
+                    [this, &lp, &es](auto nextTask) {
+                      //any thrown exception auto propagates to nextTask via the chain
+                      ServiceRegistry::Operate operate(serviceToken_);
+                      looper_->doEndLuminosityBlock(lp, es, &processContext_);
+                    })
+        .nextWithException(
+            [status = std::move(iLumiStatus), this](std::exception_ptr const* iPtr, auto nextTask) mutable {
+              std::exception_ptr ptr;
+              if (iPtr) {
+                ptr = *iPtr;
+              }
+              ServiceRegistry::Operate operate(serviceToken_);
 
-    auto finalTaskForThisLumi =
-        edm::beginWaitingTaskChainWithException([status = std::move(iLumiStatus), this](std::exception_ptr const* iPtr,
-                                                                                        auto nextTask) mutable {
-          std::exception_ptr ptr;
-          if (iPtr) {
-            ptr = *iPtr;
-          }
-          ServiceRegistry::Operate operate(serviceToken_);
+              // Try hard to clean up resources so the
+              // process can terminate in a controlled
+              // fashion even after exceptions have occurred.
+              // Caught exception is passed to handleEndLumiExceptions()
+              CMS_SA_ALLOW try { deleteLumiFromCache(*status); } catch (...) {
+                if (not ptr) {
+                  ptr = std::current_exception();
+                }
+              }
+              // Caught exception is passed to handleEndLumiExceptions()
+              CMS_SA_ALLOW try {
+                status->resumeGlobalLumiQueue();
+                queueWhichWaitsForIOVsToFinish_.resume();
+              } catch (...) {
+                if (not ptr) {
+                  ptr = std::current_exception();
+                }
+              }
+              // Caught exception is passed to handleEndLumiExceptions()
+              CMS_SA_ALLOW try {
+                // This call to status.resetResources() must occur before iTask is destroyed.
+                // Otherwise there will be a data race which could result in endRun
+                // being delayed until it is too late to successfully call it.
+                status->resetResources();
+                status.reset();
+              } catch (...) {
+                if (not ptr) {
+                  ptr = std::current_exception();
+                }
+              }
 
-          // Try hard to clean up resources so the
-          // process can terminate in a controlled
-          // fashion even after exceptions have occurred.
-          // Caught exception is passed to handleEndLumiExceptions()
-          CMS_SA_ALLOW try { deleteLumiFromCache(*status); } catch (...) {
-            if (not ptr) {
-              ptr = std::current_exception();
-            }
-          }
-          // Caught exception is passed to handleEndLumiExceptions()
-          CMS_SA_ALLOW try {
-            status->resumeGlobalLumiQueue();
-            queueWhichWaitsForIOVsToFinish_.resume();
-          } catch (...) {
-            if (not ptr) {
-              ptr = std::current_exception();
-            }
-          }
-          // Caught exception is passed to handleEndLumiExceptions()
-          CMS_SA_ALLOW try {
-            // This call to status.resetResources() must occur before iTask is destroyed.
-            // Otherwise there will be a data race which could result in endRun
-            // being delayed until it is too late to successfully call it.
-            status->resetResources();
-            status.reset();
-          } catch (...) {
-            if (not ptr) {
-              ptr = std::current_exception();
-            }
-          }
-
-          if (ptr) {
-            handleEndLumiExceptions(&ptr, nextTask);
-          }
-        }).end(std::move(iTask));
-
-    if (looper_) {
-      chain
-          .next([this, &lp, &es](auto nextTask) {
-            looper_->prefetchAsync(std::move(nextTask), serviceToken_, Transition::EndLuminosityBlock, lp, es);
-          })
-          .next([this, &lp, &es](auto nextTask) {
-            //any thrown exception auto propagates to nextTask via the chain
-            ServiceRegistry::Operate operate(serviceToken_);
-            looper_->doEndLuminosityBlock(lp, es, &processContext_);
-          })
-          .run(std::move(finalTaskForThisLumi));
-    } else {
-      chain.run(std::move(finalTaskForThisLumi));
-    }
+              if (ptr) {
+                handleEndLumiExceptions(&ptr, nextTask);
+              }
+            })
+        .run(std::move(iTask));
   }
 
   void EventProcessor::streamEndLumiAsync(edm::WaitingTaskHolder iTask, unsigned int iStreamIndex) {
@@ -1934,54 +1919,28 @@ namespace edm {
       rng->postEventRead(ev);
     }
 
-    WaitingTaskHolder finalizeEventTask(*iHolder.group(),
-                                        make_waiting_task([pep, iHolder](std::exception_ptr const* iPtr) mutable {
-                                          FDEBUG(1) << "\tprocessEvent\n";
-                                          pep->clearEventPrincipal();
-                                          if (iPtr) {
-                                            iHolder.doneWaiting(*iPtr);
-                                          } else {
-                                            iHolder.doneWaiting(std::exception_ptr());
-                                          }
-                                        }));
-    if (looper_) {
-      //NOTE: If we have a looper we only have one Stream
-      auto tmp = std::move(finalizeEventTask);
-      finalizeEventTask = WaitingTaskHolder(*iHolder.group(),
-                                            make_waiting_task([this, iStreamIndex, pep, nextTask = std::move(tmp)](
-                                                                  std::exception_ptr const* iPtr) mutable {
-                                              ServiceRegistry::Operate operateLooper(serviceToken_);
-                                              processEventWithLooper(*pep, iStreamIndex);
-                                              if (iPtr) {
-                                                nextTask.doneWaiting(*iPtr);
-                                              }
-                                            }));
-    }
-    WaitingTaskHolder afterProcessTask;
-    if (subProcesses_.empty()) {
-      afterProcessTask = std::move(finalizeEventTask);
-    } else {
-      //Need to run SubProcesses after schedule has finished
-      // with the event
-      afterProcessTask = WaitingTaskHolder(
-          *iHolder.group(),
-          make_waiting_task([this, pep, finalizeEventTask, iStreamIndex](std::exception_ptr const* iPtr) mutable {
-            if (not iPtr) {
-              //when run with 1 thread, we want to the order to be what
-              // it was before. This requires reversing the order since
-              // tasks are run last one in first one out
-              for (auto& subProcess : boost::adaptors::reverse(subProcesses_)) {
-                subProcess.doEventAsync(finalizeEventTask, *pep, &streamLumiStatus_[iStreamIndex]->eventSetupImpls());
-              }
-            } else {
-              finalizeEventTask.doneWaiting(*iPtr);
-            }
-          }));
-    }
-
     EventSetupImpl const& es = streamLumiStatus_[iStreamIndex]->eventSetupImpl(esp_->subProcessIndex());
-    EventTransitionInfo info(*pep, es);
-    schedule_->processOneEventAsync(std::move(afterProcessTask), iStreamIndex, info, serviceToken_);
+    beginWaitingTaskChain([this, &es, pep, iStreamIndex](auto nextTask) {
+      EventTransitionInfo info(*pep, es);
+      schedule_->processOneEventAsync(std::move(nextTask), iStreamIndex, info, serviceToken_);
+    })
+        .ifThenNext(not subProcesses_.empty(),
+                    [this, pep, iStreamIndex](auto nextTask) {
+                      for (auto& subProcess : boost::adaptors::reverse(subProcesses_)) {
+                        subProcess.doEventAsync(nextTask, *pep, &streamLumiStatus_[iStreamIndex]->eventSetupImpls());
+                      }
+                    })
+        .ifThenNext(looper_,
+                    [this, iStreamIndex, pep](auto nextTask) {
+                      //NOTE: behavior change. previously if an exception happened looper was still called. Now it will not be called
+                      ServiceRegistry::Operate operateLooper(serviceToken_);
+                      processEventWithLooper(*pep, iStreamIndex);
+                    })
+        .next([pep](auto nextTask) {
+          FDEBUG(1) << "\tprocessEvent\n";
+          pep->clearEventPrincipal();
+        })
+        .run(iHolder);
   }
 
   void EventProcessor::processEventWithLooper(EventPrincipal& iPrincipal, unsigned int iStreamIndex) {
