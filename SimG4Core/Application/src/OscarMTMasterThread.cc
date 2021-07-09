@@ -133,7 +133,7 @@ void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
       m_pDDD = &(*iSetup.getTransientHandle(m_DDD));
     }
     m_pTable = &iSetup.getData(m_PDT);
-    if(m_pUseMagneticField) { 
+    if (m_pUseMagneticField) {
       m_runManagerMaster->setMagField(&iSetup.getData(m_MF));
     }
     m_firstRun = false;
