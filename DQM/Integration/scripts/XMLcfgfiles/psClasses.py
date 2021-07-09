@@ -66,7 +66,7 @@ class BuildThread(Thread):
           depsCompleted=False
           deps.BThread.IsComplete.acquire() 
           deps.BThread.IsComplete.wait()
-          #deps.BThread.isAlive() and sys.stdout.write("Wait time exeded %s %s\n" % (deps.LibName,deps.Module))
+          #deps.BThread.is_alive() and sys.stdout.write("Wait time exeded %s %s\n" % (deps.LibName,deps.Module))
           deps.BThread.IsComplete.release()
       
     self.putInServerQueue()
