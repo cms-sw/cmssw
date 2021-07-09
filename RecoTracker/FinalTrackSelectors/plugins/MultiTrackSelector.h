@@ -99,16 +99,16 @@ protected:
   /// vertex cuts
   std::vector<int32_t> vtxNumber_;
   //StringCutObjectSelector is not const thread safe
-  std::vector<StringCutObjectSelector<reco::Vertex> > vertexCut_;
+  std::vector<StringCutObjectSelector<reco::Vertex>> vertexCut_;
 
   //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
-  std::vector<std::vector<double> > res_par_;
+  std::vector<std::vector<double>> res_par_;
   std::vector<double> chi2n_par_;
   std::vector<double> chi2n_no1Dmod_par_;
-  std::vector<std::vector<double> > d0_par1_;
-  std::vector<std::vector<double> > dz_par1_;
-  std::vector<std::vector<double> > d0_par2_;
-  std::vector<std::vector<double> > dz_par2_;
+  std::vector<std::vector<double>> d0_par1_;
+  std::vector<std::vector<double>> dz_par1_;
+  std::vector<std::vector<double>> d0_par2_;
+  std::vector<std::vector<double>> dz_par2_;
   // Boolean indicating if adapted primary vertex compatibility cuts are to be applied.
   std::vector<bool> applyAdaptedPVCuts_;
 
