@@ -5,7 +5,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
 template <>
-cms::cuda::host::unique_ptr<float[]> TrackingRecHit2DCUDA::localCoordToHostAsync(cudaStream_t stream) const {
+cms::cuda::host::unique_ptr<float[]> TrackingRecHit2DGPU::localCoordToHostAsync(cudaStream_t stream) const {
   auto ret = cms::cuda::make_host_unique<float[]>(5 * nHits(), stream);
   cms::cuda::copyAsync(ret, m_store32, 5 * nHits(), stream);
   return ret;
