@@ -305,6 +305,74 @@ def writeDocReport(fileData, stream):
     </body></html>
     """ )
 
+def writeMarkdownSizeReport(fileData, stream):
+    filename = fileData.filename
+    filesize = fileData.filesize
+    events = fileData.nevents
+    survey, _ = makeSurvey("Events", filedata.Events)
+
+    stream.write("**%s (%.3f Mb, %d events, %.2f kb/event)**\n" % (filename, filesize/1024.0, events, filesize/events))
+    stream.write("\n# Event data\n")
+    stream.write("| collection | kind | vars | items/evt | kb/evt | b/item | plot	| % | ascending cumulative % | descending cumulative % |\n")
+    stream.write("| - | - | - | - | - | - | - | - | - | - |\n")
+    grandtotal = filedata.Events['allsize']; runningtotal = 0
+    for s in survey:
+        stream.write("| [**%s**](#%s '%s') | %s | %d" % (s['name'], s['name'].lower(), s['doc'].replace('|', '\|').replace('\'', '\"'), s['kind'].lower(), len(s['subs'])))
+        stream.write("| %.2f|%.3f|%.1f" % (s['entries']/events, s['tot']/events, s['tot'] / s['entries'] * 1024 if s['entries'] else 0))
+        stream.write("| <img src='http://gpetrucc.web.cern.ch/gpetrucc/micro/blue-dot.gif' width='%d' height='%d' />" % (s['tot'] / grandtotal * 200, 10))
+        stream.write("| %.1f%%" % (s['tot'] / grandtotal * 100.0))
+        stream.write("| %.1f%%" % ((runningtotal+s['tot'])/grandtotal * 100.0))
+        stream.write("| %.1f%% |\n" % ((grandtotal-runningtotal)/grandtotal * 100.0))
+        runningtotal += s['tot']
+
+    # all known data
+    stream.write("**All Event data**")
+    stream.write("| | | | **%.2f**"  % (grandtotal/events))
+    stream.write("| | <img src='http://gpetrucc.web.cern.ch/gpetrucc/micro/green-dot.gif' width='%d' height='%d' />" % (grandtotal / filesize * 100.0, 10))
+    stream.write("| %.1f%%<sup>a</sup> | | |\n" % (grandtotal/filesize * 100.0))
+
+    # other, unknown overhead
+    stream.write("**Non per-event data or overhead**")
+    stream.write("| | | | %.2f" % ((filesize-grandtotal)/events))
+    stream.write("| | <img src='http://gpetrucc.web.cern.ch/gpetrucc/micro/red-dot.gif' width='%d' height='%d' />" % ((filesize - grandtotal) / filesize * 100, 10))
+    stream.write("| %.1f%%<sup>a</sup> | | |\n" % ((filesize-grandtotal)/filesize * 100.0))
+
+    # all file
+    stream.write("**File size**")
+    stream.write("| | | | **%.2f**" % (filesize/events))
+    stream.write("| | | | | |\n\n")
+
+    stream.write("Note: size percentages of individual event products are relative to the total size of Event data only.\\\n")
+    stream.write("Percentages with <sup>a</sup> are instead relative to the full file size.\n\n")
+
+    stream.write("# Events detail\n")
+    for s in sorted(survey, key=lambda s: s['name']):
+        stream.write("## <a id='%s'></a>%s (%.1f items/evt, %.3f kb/evt) [<sup>[back to top]</sup>](#event-data)\n" % (s['name'].lower(), s['name'], s['entries'] / events, s['tot'] / events))
+        stream.write("| branch | kind | b/event | b/item | plot | % |\n")
+        stream.write("| - | - | - | - | - | - |\n")
+        subs = [fileData.Events['branches'][b] for b in s['subs']]
+        for b in sorted(subs, key = lambda s: - s['tot']):
+            stream.write("| <b title='%s'>%s</b> | %s | %.1f | %.1f" % (b['doc'].replace('|', '\|').replace('\'', '\"'), b['name'], b['kind'], b['tot'] / events * 1024, b['tot'] / s['entries'] * 1024 if s['entries'] else 0))
+            stream.write("| <img src='http://gpetrucc.web.cern.ch/gpetrucc/micro/blue-dot.gif' width='%d' height='%d' />" % (b['tot'] / s['tot'] * 200, 10))
+            stream.write("| %.1f%% |\n" % (b['tot'] / s['tot'] * 100.0))
+
+def writeMarkdownDocReport(fileData, stream):
+    stream.write("# Content\n")
+    stream.write("\n| Collection | Description |\n")
+    stream.write("| - | - |\n")
+    groups = fileData.Events['branchgroups'].values()
+    groups.sort(key = lambda s : s['name'])
+    for s in groups:
+        stream.write("| [**%s**](#%s) | %s |\n" % (s['name'], s['name'].lower(), s['doc']))
+    stream.write("\n# Events detail\n")
+    for s in groups:
+        stream.write("\n## <a id='%s'></a>%s [<sup>[back to top]</sup>](#content)\n" % (s['name'].lower(), s['name']))
+        stream.write("| Object property | Type | Description |\n")
+        stream.write("| - | - | - |\n")
+        subs = [fileData.Events['branches'][b] for b in s['subs']]
+        for b in sorted(subs, key = lambda s : s['name']):
+            stream.write("| **%s** | %s| %s |\n" % (b['name'], b['kind'], b['doc']))
+
 def _maybeOpen(filename):
     return open(filename, 'w') if filename != "-" else sys.stdout
 
@@ -314,6 +382,8 @@ if __name__ == '__main__':
     parser.add_option("-j", "--json", dest="json", type="string", default=None, help="Write out json file")
     parser.add_option("-d", "--doc", dest="doc", type="string", default=None, help="Write out html doc")
     parser.add_option("-s", "--size", dest="size", type="string", default=None, help="Write out html size report")
+    parser.add_option("--docmd", dest="docmd", type="string", default=None, help="Write out markdown doc")
+    parser.add_option("--sizemd", dest="sizemd", type="string", default=None, help="Write out markdown size report")
     (options, args) = parser.parse_args()
     if len(args) != 1: raise RuntimeError("Please specify one input file")
 
@@ -332,3 +402,9 @@ if __name__ == '__main__':
     if options.size:
         writeSizeReport(filedata, _maybeOpen(options.size))
         sys.stderr.write("HTML size report saved to %s\n" % options.size)
+    if options.docmd:
+        writeMarkdownDocReport(filedata, _maybeOpen(options.docmd))
+        sys.stderr.write("Markdown documentation saved to %s\n" % options.docmd)
+    if options.sizemd:
+        writeMarkdownSizeReport(filedata, _maybeOpen(options.sizemd))
+        sys.stderr.write("Markdown size report saved to %s\n" % options.sizemd)
