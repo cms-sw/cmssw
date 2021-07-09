@@ -1,20 +1,14 @@
-<DDDefinition>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
   <ConstantsSection label="CTPPS_Diamond_Detector_Assembly.xml" eval="true">
-    <Constant name="Shift_dx" value="[CTPPS_Diamond_Parameters:Plane_dx]/2-([CTPPS_Timing_Horizontal_Pot:plane_length]-[CTPPS_Timing_Horizontal_Pot:bottom_wall_thickness])/2-[CTPPS_Timing_Horizontal_Pot:cut_depth]/2"/>
+    <Constant name="Shift_dx" value="[CTPPS_Diamond_Parameters:Plane_dx]/2-([CTPPS_Timing_Horizontal_Pot:plane_length]-[CTPPS_Timing_Horizontal_Pot:bottom_wall_thickness])/2-[CTPPS_Timing_Horizontal_Pot:cut_depth]/2+[CTPPS_Timing_Horizontal_Pot:thin_window_thickness]*2"/>
     <Constant name="box_dz" value="([CTPPS_Diamond_Parameters:Metalized_thick]*2+[CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:PCB_thick])*4+[CTPPS_Diamond_Parameters:Plane_gap]*3"/>
+    <Constant name="Sensors_Displacement_Foil" value="0.5*mm"/>
   </ConstantsSection>
 
   <SolidSection label="CTPPS_Diamond_Detector_Assembly.xml">
     <!-- Detector Main Box and Planes -->
-    <Box name="Main_Box_main" dx="[CTPPS_Diamond_Parameters:PCB_dx]/2-[CTPPS_Diamond_Parameters:PCB_extend_dx]" dy="[CTPPS_Diamond_Parameters:Plane_dy]/2" dz="[box_dz]/2"/>
-    <Trd1 name="Main_Box_extra" dz="[CTPPS_Diamond_Parameters:PCB_extend_dx]/2" dy1="[CTPPS_Timing_Horizontal_Pot:cut_width]/2" dy2="([CTPPS_Timing_Horizontal_Pot:cut_width]+[CTPPS_Timing_Horizontal_Pot:cut_depth]/2)/2" dx1="[box_dz]/2" dx2="[box_dz]/2"/>
-    <UnionSolid name="CTPPS_Diamond_Main_Box">
-      <rSolid name="Main_Box_main"/>
-      <rSolid name="Main_Box_extra"/>
-      <rRotation name="rotations:90YX"/>
-      <Translation x="-[CTPPS_Diamond_Parameters:PCB_dx]/2+[CTPPS_Diamond_Parameters:PCB_extend_dx]/2" y="0*mm" z="0*mm"/>
-    </UnionSolid>
+    <Box name="CTPPS_Diamond_Main_Box" dx="[CTPPS_Diamond_Parameters:PCB_dx]/2-[Sensors_Displacement_Foil]" dy="[CTPPS_Diamond_Parameters:Plane_dy]/2" dz="[box_dz]/2"/>
     <Box name="PCB_main" dx="[CTPPS_Diamond_Parameters:PCB_dx]/2" dy="[CTPPS_Diamond_Parameters:PCB_dy]/2" dz="[CTPPS_Diamond_Parameters:PCB_thick]/2"/>
     <Trd1 name="PCB_extra" dz="[CTPPS_Diamond_Parameters:PCB_extend_dx]/2" dy1="[CTPPS_Diamond_Parameters:PCB_extend_dy1]/2" dy2="[CTPPS_Diamond_Parameters:PCB_extend_dy2]/2" dx1="[CTPPS_Diamond_Parameters:PCB_thick]/2" dx2="[CTPPS_Diamond_Parameters:PCB_thick]/2"/>
     <UnionSolid name="PCB">
@@ -41,7 +35,7 @@
     <PosPart copyNumber="1">
       <rParent name="CTPPS_Timing_Horizontal_Pot:Primary_Vacuum"/>
       <rChild name="CTPPS_Diamond_Main_Box"/>
-      <Translation x="0*cm" y="0*cm" z="[CTPPS_Diamond_Parameters:PCB_extend_dx]"/>
+      <Translation x="0*cm" y="0*cm" z="[Sensors_Displacement_Foil]"/>
       <rRotation name="CTPPS_Diamond_Transformations:planes_box_rotation"/>
     </PosPart>
     <PosPart copyNumber="1">
@@ -68,4 +62,3 @@
   </PosPartSection>
 
 </DDDefinition>
-
