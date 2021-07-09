@@ -22,7 +22,7 @@ HFFibre::HFFibre(const std::string& name,
       (p.getParameter<edm::ParameterSet>("HFShower")).getParameter<edm::ParameterSet>("HFShowerBlock");
   cFibre = c_light * (m_HF.getParameter<double>("CFibre"));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFFibre:: Speed of light in fibre " << cFibre << " m/ns";
+  edm::LogVerbatim("HFShower") << "HFFibre:: Speed of light in fibre " << cFibre / (CLHEP::m / CLHEP::ns) << " m/ns";
 #endif
   // Attenuation length
   attL = hcalsimpar_->attenuationLength_;
@@ -112,34 +112,35 @@ double HFFibre::tShift(const G4ThreeVector& point, int depth, int fromEndAbs) {
   return time;
 }
 
-double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) {
-  // point is z-local
+double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) {  // point is z-local
+
   double zFibre = 0;
-  double hR = sqrt((point.x()) * (point.x()) + (point.y()) * (point.y()));
   int ieta = 0;
   double length = 250 * CLHEP::cm;
-  if (fromEndAbs < 0) {
-    zFibre = 0.5 * gpar[1] - point.z();  //
-  } else {
-    // Defines the Radius bin by radial subdivision
+  double hR = sqrt((point.x()) * (point.x()) + (point.y()) * (point.y()));
+
+  // Defines the Radius bin by radial subdivision
+  if (fromEndAbs >= 0) {  
     for (int i = nBinR - 1; i > 0; --i)
       if (hR < radius[i])
         ieta = nBinR - i - 1;
-    // Defines the full length of the fibre
-    if (depth == 2) {
-      if (static_cast<int>(shortFL.size()) > ieta)
-        length = shortFL[ieta] + gpar[0];
-    } else {
-      if (static_cast<int>(longFL.size()) > ieta)
-        length = longFL[ieta];
-    }
-    zFibre = length;  // from beginning of abs (full length)
-    if (fromEndAbs > 0) {
-      zFibre -= gpar[1];  // Never, as fromEndAbs=0 (M.K. ?)
-    } else {
-      double zz = 0.5 * gpar[1] + point.z();  // depth of point of photon emission (from beginning of HF)
-      zFibre -= zz;                           // length of fiber from point of photon emission
-    }
+  }
+
+  // Defines the full length of the fibre 
+  if (depth == 2) {
+    if (static_cast<int>(shortFL.size()) > ieta)
+      length = shortFL[ieta] + gpar[0];
+  } else {
+    if (static_cast<int>(longFL.size()) > ieta)
+      length = longFL[ieta];
+  }
+  zFibre = length;   // from beginning of abs (full length)
+
+  if (fromEndAbs > 0) {
+    zFibre -= gpar[1];   // length from end of HF  
+  } else {
+    double zz = 0.5 * gpar[1] + point.z();    // depth of point of photon emission (from beginning of HF)
+    zFibre -= zz;	 // length of fiber from point of photon emission 
   }
 
 #ifdef EDM_ML_DEBUG
