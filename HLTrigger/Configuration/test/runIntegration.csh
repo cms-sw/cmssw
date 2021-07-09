@@ -10,6 +10,8 @@ if ( $2 == "" ) then
   set tables = ( GRun )
 else if ( $2 == ALL ) then
   set tables = ( GRun PIon 2013 HIon )
+else if ( $2 == IB ) then
+  exit 0
 else if ( $2 == DEV ) then
   set tables = ( GRun PIon HIon )
 else if ( $2 == FROZEN ) then
