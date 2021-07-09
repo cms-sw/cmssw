@@ -10,9 +10,9 @@
 
 #include "tbb/global_control.h"
 
-#include "FWCore/Concurrency/interface/beginWaitingTaskChain.h"
+#include "FWCore/Concurrency/interface/beginChain.h"
 
-TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
+TEST_CASE("Test beginChain", "[beginChain]") {
   tbb::global_control control(tbb::global_control::max_allowed_parallelism, 1);
 
   SECTION("no explicit exception handling") {
@@ -22,10 +22,10 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::beginWaitingTaskChain([&count](edm::WaitingTaskHolder h) {
+        auto h = edm::waiting_task::beginChain([&count](edm::WaitingTaskHolder h) {
                    ++count;
                    REQUIRE(count.load() == 1);
-                 }).end(edm::WaitingTaskHolder(group, &waitTask));
+                 }).task(edm::WaitingTaskHolder(group, &waitTask));
 
         h.doneWaiting(std::exception_ptr());
       }
@@ -41,15 +41,15 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::beginWaitingTaskChain([&count](auto h) {
+        auto h = edm::waiting_task::beginChain([&count](auto h) {
                    ++count;
                    REQUIRE(count.load() == 1);
                  })
-                     .next([&count](auto h) {
+                     .then([&count](auto h) {
                        ++count;
                        REQUIRE(count.load() == 2);
                      })
-                     .end(edm::WaitingTaskHolder(group, &waitTask));
+                     .task(edm::WaitingTaskHolder(group, &waitTask));
 
         h.doneWaiting(std::exception_ptr());
       }
@@ -65,19 +65,19 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::beginWaitingTaskChain([&count](auto h) {
+        auto h = edm::waiting_task::beginChain([&count](auto h) {
                    ++count;
                    REQUIRE(count.load() == 1);
                  })
-                     .next([&count](auto h) {
+                     .then([&count](auto h) {
                        ++count;
                        REQUIRE(count.load() == 2);
                      })
-                     .next([&count](auto h) {
+                     .then([&count](auto h) {
                        ++count;
                        REQUIRE(count.load() == 3);
                      })
-                     .end(edm::WaitingTaskHolder(group, &waitTask));
+                     .task(edm::WaitingTaskHolder(group, &waitTask));
 
         h.doneWaiting(std::exception_ptr());
       }
@@ -93,15 +93,15 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        edm::beginWaitingTaskChain([&count](auto h) {
+        edm::waiting_task::beginChain([&count](auto h) {
           ++count;
           REQUIRE(count.load() == 1);
         })
-            .next([&count](auto h) {
+            .then([&count](auto h) {
               ++count;
               REQUIRE(count.load() == 2);
             })
-            .next([&count](auto h) {
+            .then([&count](auto h) {
               ++count;
               REQUIRE(count.load() == 3);
             })
@@ -119,10 +119,10 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::beginWaitingTaskChain([&count](edm::WaitingTaskHolder h) {
+        auto h = edm::waiting_task::beginChain([&count](edm::WaitingTaskHolder h) {
                    ++count;
                    REQUIRE(false);
-                 }).end(edm::WaitingTaskHolder(group, &waitTask));
+                 }).task(edm::WaitingTaskHolder(group, &waitTask));
 
         h.doneWaiting(std::make_exception_ptr(std::exception()));
       }
@@ -138,11 +138,11 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::beginWaitingTaskChain([&count](edm::WaitingTaskHolder h) {
+        auto h = edm::waiting_task::beginChain([&count](edm::WaitingTaskHolder h) {
                    ++count;
                    REQUIRE(count.load() == 1);
                    throw std::exception();
-                 }).end(edm::WaitingTaskHolder(group, &waitTask));
+                 }).task(edm::WaitingTaskHolder(group, &waitTask));
 
         h.doneWaiting(std::exception_ptr());
       }
@@ -158,20 +158,20 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::beginWaitingTaskChain([&count](auto h) {
+        auto h = edm::waiting_task::beginChain([&count](auto h) {
                    ++count;
                    REQUIRE(count.load() == 1);
                    throw std::exception();
                  })
-                     .next([&count](auto h) {
+                     .then([&count](auto h) {
                        ++count;
                        REQUIRE(false);
                      })
-                     .next([&count](auto h) {
+                     .then([&count](auto h) {
                        ++count;
                        REQUIRE(false);
                      })
-                     .end(edm::WaitingTaskHolder(group, &waitTask));
+                     .task(edm::WaitingTaskHolder(group, &waitTask));
 
         h.doneWaiting(std::exception_ptr());
       }
@@ -182,19 +182,19 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
     }
   }
 
-  SECTION("nextWithException testing") {
+  SECTION("thenWithException testing") {
     SECTION("begin.end") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h =
-            edm::beginWaitingTaskChainWithException([&count](std::exception_ptr const* iPtr, edm::WaitingTaskHolder h) {
-              REQUIRE(iPtr == nullptr);
-              ++count;
-              REQUIRE(count.load() == 1);
-            }).end(edm::WaitingTaskHolder(group, &waitTask));
+        auto h = edm::waiting_task::beginChainWithException([&count](std::exception_ptr const* iPtr,
+                                                                     edm::WaitingTaskHolder h) {
+                   REQUIRE(iPtr == nullptr);
+                   ++count;
+                   REQUIRE(count.load() == 1);
+                 }).task(edm::WaitingTaskHolder(group, &waitTask));
 
         h.doneWaiting(std::exception_ptr());
       }
@@ -210,17 +210,17 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::beginWaitingTaskChainWithException([&count](std::exception_ptr const* iPtr, auto h) {
+        auto h = edm::waiting_task::beginChainWithException([&count](std::exception_ptr const* iPtr, auto h) {
                    REQUIRE(iPtr == nullptr);
                    ++count;
                    REQUIRE(count.load() == 1);
                  })
-                     .nextWithException([&count](std::exception_ptr const* iPtr, auto h) {
+                     .thenWithException([&count](std::exception_ptr const* iPtr, auto h) {
                        REQUIRE(iPtr == nullptr);
                        ++count;
                        REQUIRE(count.load() == 2);
                      })
-                     .end(edm::WaitingTaskHolder(group, &waitTask));
+                     .task(edm::WaitingTaskHolder(group, &waitTask));
 
         h.doneWaiting(std::exception_ptr());
       }
@@ -236,22 +236,22 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::beginWaitingTaskChainWithException([&count](std::exception_ptr const* iPtr, auto h) {
+        auto h = edm::waiting_task::beginChainWithException([&count](std::exception_ptr const* iPtr, auto h) {
                    REQUIRE(iPtr == nullptr);
                    ++count;
                    REQUIRE(count.load() == 1);
                  })
-                     .nextWithException([&count](std::exception_ptr const* iPtr, auto h) {
+                     .thenWithException([&count](std::exception_ptr const* iPtr, auto h) {
                        REQUIRE(iPtr == nullptr);
                        ++count;
                        REQUIRE(count.load() == 2);
                      })
-                     .nextWithException([&count](std::exception_ptr const* iPtr, auto h) {
+                     .thenWithException([&count](std::exception_ptr const* iPtr, auto h) {
                        REQUIRE(iPtr == nullptr);
                        ++count;
                        REQUIRE(count.load() == 3);
                      })
-                     .end(edm::WaitingTaskHolder(group, &waitTask));
+                     .task(edm::WaitingTaskHolder(group, &waitTask));
 
         h.doneWaiting(std::exception_ptr());
       }
@@ -267,12 +267,12 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h =
-            edm::beginWaitingTaskChainWithException([&count](std::exception_ptr const* iPtr, edm::WaitingTaskHolder h) {
-              REQUIRE(iPtr != nullptr);
-              ++count;
-              REQUIRE(count.load() == 1);
-            }).end(edm::WaitingTaskHolder(group, &waitTask));
+        auto h = edm::waiting_task::beginChainWithException([&count](std::exception_ptr const* iPtr,
+                                                                     edm::WaitingTaskHolder h) {
+                   REQUIRE(iPtr != nullptr);
+                   ++count;
+                   REQUIRE(count.load() == 1);
+                 }).task(edm::WaitingTaskHolder(group, &waitTask));
 
         h.doneWaiting(std::make_exception_ptr(std::exception()));
       }
@@ -288,19 +288,19 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h =
-            edm::beginWaitingTaskChainWithException([&count](std::exception_ptr const* iPtr, edm::WaitingTaskHolder h) {
-              REQUIRE(iPtr != nullptr);
-              ++count;
-              REQUIRE(count.load() == 1);
-              h.doneWaiting(*iPtr);
-            })
-                .nextWithException([&count](std::exception_ptr const* iPtr, auto h) {
-                  REQUIRE(iPtr != nullptr);
-                  ++count;
-                  REQUIRE(count.load() == 2);
-                })
-                .end(edm::WaitingTaskHolder(group, &waitTask));
+        auto h = edm::waiting_task::beginChainWithException(
+                     [&count](std::exception_ptr const* iPtr, edm::WaitingTaskHolder h) {
+                       REQUIRE(iPtr != nullptr);
+                       ++count;
+                       REQUIRE(count.load() == 1);
+                       h.doneWaiting(*iPtr);
+                     })
+                     .thenWithException([&count](std::exception_ptr const* iPtr, auto h) {
+                       REQUIRE(iPtr != nullptr);
+                       ++count;
+                       REQUIRE(count.load() == 2);
+                     })
+                     .task(edm::WaitingTaskHolder(group, &waitTask));
 
         h.doneWaiting(std::make_exception_ptr(std::exception()));
       }
@@ -311,7 +311,7 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
     }
   }
 
-  SECTION("ifExceptionElseNext testing") {
+  SECTION("thenIfExceptionElse testing") {
     SECTION("begin.end") {
       std::atomic<int> count{0};
       std::atomic<int> exceptCount{0};
@@ -319,7 +319,7 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::beginWaitingTaskChainIfExceptionElseNext(
+        auto h = edm::waiting_task::beginChainIfExceptionElse(
                      [&exceptCount](std::exception_ptr const& iPtr) {
                        ++exceptCount;
                        REQUIRE(false);
@@ -328,7 +328,7 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
                        ++count;
                        REQUIRE(count.load() == 1);
                      })
-                     .end(edm::WaitingTaskHolder(group, &waitTask));
+                     .task(edm::WaitingTaskHolder(group, &waitTask));
 
         h.doneWaiting(std::exception_ptr());
       }
@@ -346,7 +346,7 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::beginWaitingTaskChainIfExceptionElseNext(
+        auto h = edm::waiting_task::beginChainIfExceptionElse(
                      [&exceptCount](std::exception_ptr const& iPtr) {
                        ++exceptCount;
                        REQUIRE(false);
@@ -355,7 +355,7 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
                        ++count;
                        REQUIRE(count.load() == 1);
                      })
-                     .ifExceptionElseNext(
+                     .thenIfExceptionElse(
                          [&exceptCount](std::exception_ptr const& iPtr) {
                            ++exceptCount;
                            REQUIRE(false);
@@ -364,7 +364,7 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
                            ++count;
                            REQUIRE(count.load() == 2);
                          })
-                     .end(edm::WaitingTaskHolder(group, &waitTask));
+                     .task(edm::WaitingTaskHolder(group, &waitTask));
 
         h.doneWaiting(std::exception_ptr());
       }
@@ -382,7 +382,7 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::beginWaitingTaskChainIfExceptionElseNext(
+        auto h = edm::waiting_task::beginChainIfExceptionElse(
                      [&exceptCount](std::exception_ptr const& iPtr) {
                        ++exceptCount;
                        REQUIRE(false);
@@ -391,7 +391,7 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
                        ++count;
                        REQUIRE(count.load() == 1);
                      })
-                     .ifExceptionElseNext(
+                     .thenIfExceptionElse(
                          [&exceptCount](std::exception_ptr const& iPtr) {
                            ++exceptCount;
                            REQUIRE(false);
@@ -400,7 +400,7 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
                            ++count;
                            REQUIRE(count.load() == 2);
                          })
-                     .ifExceptionElseNext(
+                     .thenIfExceptionElse(
                          [&exceptCount](std::exception_ptr const& iPtr) {
                            ++exceptCount;
                            REQUIRE(false);
@@ -409,7 +409,7 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
                            ++count;
                            REQUIRE(count.load() == 3);
                          })
-                     .end(edm::WaitingTaskHolder(group, &waitTask));
+                     .task(edm::WaitingTaskHolder(group, &waitTask));
 
         h.doneWaiting(std::exception_ptr());
       }
@@ -428,7 +428,7 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
     edm::FinalWaitingTask waitTask;
     tbb::task_group group;
     {
-      auto h = edm::beginWaitingTaskChainIfExceptionElseNext(
+      auto h = edm::waiting_task::beginChainIfExceptionElse(
                    [&exceptCount](std::exception_ptr const& iPtr) {
                      ++exceptCount;
                      REQUIRE(exceptCount.load() == 1);
@@ -437,7 +437,7 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
                      ++count;
                      REQUIRE(false);
                    })
-                   .ifExceptionElseNext(
+                   .thenIfExceptionElse(
                        [&exceptCount](std::exception_ptr const& iPtr) {
                          ++exceptCount;
                          REQUIRE(exceptCount.load() == 2);
@@ -446,7 +446,7 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
                          ++count;
                          REQUIRE(false);
                        })
-                   .ifExceptionElseNext(
+                   .thenIfExceptionElse(
                        [&exceptCount](std::exception_ptr const& iPtr) {
                          ++exceptCount;
                          REQUIRE(exceptCount.load() == 3);
@@ -455,7 +455,7 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
                          ++count;
                          REQUIRE(false);
                        })
-                   .end(edm::WaitingTaskHolder(group, &waitTask));
+                   .task(edm::WaitingTaskHolder(group, &waitTask));
 
       h.doneWaiting(std::make_exception_ptr(std::exception()));
     }
@@ -465,23 +465,23 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
     REQUIRE(waitTask.done());
     REQUIRE(waitTask.exceptionPtr() != nullptr);
   }
-  SECTION("ifThenNext testing") {
+  SECTION("ifThen testing") {
     SECTION("begin.ifTheNext(true).next.run") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        edm::beginWaitingTaskChain([&count](auto h) {
+        edm::waiting_task::beginChain([&count](auto h) {
           ++count;
           REQUIRE(count.load() == 1);
         })
-            .ifThenNext(true,
-                        [&count](auto h) {
-                          ++count;
-                          REQUIRE(count.load() == 2);
-                        })
-            .next([&count](auto h) {
+            .ifThen(true,
+                    [&count](auto h) {
+                      ++count;
+                      REQUIRE(count.load() == 2);
+                    })
+            .then([&count](auto h) {
               ++count;
               REQUIRE(count.load() == 3);
             })
@@ -493,23 +493,23 @@ TEST_CASE("Test beginWaitingTaskChain", "[beginWaitingTaskChain]") {
       REQUIRE(waitTask.exceptionPtr() == nullptr);
     }
 
-    SECTION("ifThenNext testing") {
+    SECTION("ifThen testing") {
       SECTION("begin.ifTheNext(false).next.run") {
         std::atomic<int> count{0};
 
         edm::FinalWaitingTask waitTask;
         tbb::task_group group;
         {
-          edm::beginWaitingTaskChain([&count](auto h) {
+          edm::waiting_task::beginChain([&count](auto h) {
             ++count;
             REQUIRE(count.load() == 1);
           })
-              .ifThenNext(false,
-                          [&count](auto h) {
-                            ++count;
-                            REQUIRE(false);
-                          })
-              .next([&count](auto h) {
+              .ifThen(false,
+                      [&count](auto h) {
+                        ++count;
+                        REQUIRE(false);
+                      })
+              .then([&count](auto h) {
                 ++count;
                 REQUIRE(count.load() == 2);
               })

@@ -55,7 +55,7 @@
 
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
-#include "FWCore/Concurrency/interface/beginWaitingTaskChain.h"
+#include "FWCore/Concurrency/interface/beginChain.h"
 
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
@@ -114,6 +114,8 @@ namespace {
 }  // namespace
 
 namespace edm {
+
+  using waiting_task::beginChain;
 
   // ---------------------------------------------------------------
   std::unique_ptr<InputSource> makeInput(ParameterSet& params,
@@ -1086,9 +1088,9 @@ namespace edm {
       looper_->copyInfo(ScheduleInfo(schedule_.get()));
 
       FinalWaitingTask waitTask;
-      beginWaitingTaskChain(
+      beginChain(
           [this, &es](auto nextTask) { looper_->esPrefetchAsync(nextTask, es, Transition::BeginRun, serviceToken_); })
-          .next([this, &es](auto nextTask) mutable {
+          .then([this, &es](auto nextTask) mutable {
             looper_->beginOfJob(es);
             looperBeginJobRun_ = true;
             looper_->doStartingNewLoop();
@@ -1106,20 +1108,20 @@ namespace edm {
       using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
       FinalWaitingTask globalWaitTask;
 
-      beginWaitingTaskChain([&runPrincipal, &es, this](auto waitTask) {
+      beginChain([&runPrincipal, &es, this](auto waitTask) {
         RunTransitionInfo transitionInfo(runPrincipal, es);
         beginGlobalTransitionAsync<Traits>(
             std::move(waitTask), *schedule_, transitionInfo, serviceToken_, subProcesses_);
       })
-          .next([&globalBeginSucceeded, run](auto waitTask) mutable {
+          .then([&globalBeginSucceeded, run](auto waitTask) mutable {
             globalBeginSucceeded = true;
             FDEBUG(1) << "\tbeginRun " << run << "\n";
           })
-          .ifThenNext(looper_,
-                      [this, &runPrincipal, &es](auto waitTask) {
-                        looper_->prefetchAsync(waitTask, serviceToken_, Transition::BeginRun, runPrincipal, es);
-                      })
-          .ifThenNext(
+          .ifThen(looper_,
+                  [this, &runPrincipal, &es](auto waitTask) {
+                    looper_->prefetchAsync(waitTask, serviceToken_, Transition::BeginRun, runPrincipal, es);
+                  })
+          .ifThen(
               looper_,
               [this, &runPrincipal, &es](auto waitTask) { looper_->doBeginRun(runPrincipal, es, &processContext_); })
           .run(WaitingTaskHolder(taskGroup_, &globalWaitTask));
@@ -1228,20 +1230,18 @@ namespace edm {
     {
       FinalWaitingTask globalWaitTask;
 
-      beginWaitingTaskChain([this, &runPrincipal, &es, cleaningUpAfterException](auto nextTask) {
+      beginChain([this, &runPrincipal, &es, cleaningUpAfterException](auto nextTask) {
         RunTransitionInfo transitionInfo(runPrincipal, es);
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
         endGlobalTransitionAsync<Traits>(
             std::move(nextTask), *schedule_, transitionInfo, serviceToken_, subProcesses_, cleaningUpAfterException);
       })
-          .ifThenNext(looper_,
-                      [this, &runPrincipal, &es](auto nextTask) {
-                        looper_->prefetchAsync(
-                            std::move(nextTask), serviceToken_, Transition::EndRun, runPrincipal, es);
-                      })
-          .ifThenNext(
-              looper_,
-              [this, &runPrincipal, &es](auto nextTask) { looper_->doEndRun(runPrincipal, es, &processContext_); })
+          .ifThen(looper_,
+                  [this, &runPrincipal, &es](auto nextTask) {
+                    looper_->prefetchAsync(std::move(nextTask), serviceToken_, Transition::EndRun, runPrincipal, es);
+                  })
+          .ifThen(looper_,
+                  [this, &runPrincipal, &es](auto nextTask) { looper_->doEndRun(runPrincipal, es, &processContext_); })
           .run(WaitingTaskHolder(taskGroup_, &globalWaitTask));
 
       do {
@@ -1326,7 +1326,7 @@ namespace edm {
 
               EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
 
-              beginWaitingTaskChain([this, status, &lumiPrincipal](auto nextTask) {
+              beginChain([this, status, &lumiPrincipal](auto nextTask) {
                 EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
                 {
                   LumiTransitionInfo transitionInfo(lumiPrincipal, es, &status->eventSetupImpls());
@@ -1335,20 +1335,20 @@ namespace edm {
                       nextTask, *schedule_, transitionInfo, serviceToken_, subProcesses_);
                 }
               })
-                  .ifThenNext(
+                  .ifThen(
                       looper_,
                       [this, status, &es](auto nextTask) {
                         looper_->prefetchAsync(
                             nextTask, serviceToken_, Transition::BeginLuminosityBlock, *(status->lumiPrincipal()), es);
                       })
-                  .ifThenNext(looper_,
-                              [this, status, &es](auto nextTask) {
-                                status->globalBeginDidSucceed();
-                                //make the services available
-                                ServiceRegistry::Operate operateLooper(serviceToken_);
-                                looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
-                              })
-                  .nextWithException([this, status](std::exception_ptr const* iPtr, auto holder) mutable {
+                  .ifThen(looper_,
+                          [this, status, &es](auto nextTask) {
+                            status->globalBeginDidSucceed();
+                            //make the services available
+                            ServiceRegistry::Operate operateLooper(serviceToken_);
+                            looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
+                          })
+                  .thenWithException([this, status](std::exception_ptr const* iPtr, auto holder) mutable {
                     if (iPtr) {
                       status->resetResources();
                       holder.doneWaiting(*iPtr);
@@ -1373,11 +1373,11 @@ namespace edm {
                           ++streamLumiActive_;
                           event.setLuminosityBlockPrincipal(lp);
                           LumiTransitionInfo transitionInfo(*lp, es, eventSetupImpls);
-                          beginWaitingTaskChain([this, i, &transitionInfo](auto nextTask) {
+                          beginChain([this, i, &transitionInfo](auto nextTask) {
                             beginStreamTransitionAsync<Traits>(
                                 std::move(nextTask), *schedule_, i, transitionInfo, serviceToken_, subProcesses_);
                           })
-                              .nextWithException(
+                              .thenWithException(
                                   [this, i](std::exception_ptr const* exceptionFromBeginStreamLumi, auto nextTask) {
                                     if (exceptionFromBeginStreamLumi) {
                                       WaitingTaskHolder tmp(nextTask);
@@ -1492,7 +1492,7 @@ namespace edm {
     EventSetupImpl const& es = iLumiStatus->eventSetupImpl(esp_->subProcessIndex());
     std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls = &iLumiStatus->eventSetupImpls();
 
-    beginWaitingTaskChain([this, &lp, &es, &eventSetupImpls, cleaningUpAfterException](auto nextTask) {
+    beginChain([this, &lp, &es, &eventSetupImpls, cleaningUpAfterException](auto nextTask) {
       IOVSyncValue ts(EventID(lp.run(), lp.luminosityBlock(), EventID::maxEventNumber()), lp.beginTime());
 
       LumiTransitionInfo transitionInfo(lp, es, eventSetupImpls);
@@ -1500,24 +1500,23 @@ namespace edm {
       endGlobalTransitionAsync<Traits>(
           std::move(nextTask), *schedule_, transitionInfo, serviceToken_, subProcesses_, cleaningUpAfterException);
     })
-        .next([this, didGlobalBeginSucceed, &lumiPrincipal = lp](auto nextTask) {
+        .then([this, didGlobalBeginSucceed, &lumiPrincipal = lp](auto nextTask) {
           //Only call writeLumi if beginLumi succeeded
           if (didGlobalBeginSucceed) {
             writeLumiAsync(std::move(nextTask), lumiPrincipal);
           }
         })
-        .ifThenNext(looper_,
-                    [this, &lp, &es](auto nextTask) {
-                      looper_->prefetchAsync(
-                          std::move(nextTask), serviceToken_, Transition::EndLuminosityBlock, lp, es);
-                    })
-        .ifThenNext(looper_,
-                    [this, &lp, &es](auto nextTask) {
-                      //any thrown exception auto propagates to nextTask via the chain
-                      ServiceRegistry::Operate operate(serviceToken_);
-                      looper_->doEndLuminosityBlock(lp, es, &processContext_);
-                    })
-        .nextWithException(
+        .ifThen(looper_,
+                [this, &lp, &es](auto nextTask) {
+                  looper_->prefetchAsync(std::move(nextTask), serviceToken_, Transition::EndLuminosityBlock, lp, es);
+                })
+        .ifThen(looper_,
+                [this, &lp, &es](auto nextTask) {
+                  //any thrown exception auto propagates to nextTask via the chain
+                  ServiceRegistry::Operate operate(serviceToken_);
+                  looper_->doEndLuminosityBlock(lp, es, &processContext_);
+                })
+        .thenWithException(
             [status = std::move(iLumiStatus), this](std::exception_ptr const* iPtr, auto nextTask) mutable {
               std::exception_ptr ptr;
               if (iPtr) {
@@ -1920,23 +1919,23 @@ namespace edm {
     }
 
     EventSetupImpl const& es = streamLumiStatus_[iStreamIndex]->eventSetupImpl(esp_->subProcessIndex());
-    beginWaitingTaskChain([this, &es, pep, iStreamIndex](auto nextTask) {
+    beginChain([this, &es, pep, iStreamIndex](auto nextTask) {
       EventTransitionInfo info(*pep, es);
       schedule_->processOneEventAsync(std::move(nextTask), iStreamIndex, info, serviceToken_);
     })
-        .ifThenNext(not subProcesses_.empty(),
-                    [this, pep, iStreamIndex](auto nextTask) {
-                      for (auto& subProcess : boost::adaptors::reverse(subProcesses_)) {
-                        subProcess.doEventAsync(nextTask, *pep, &streamLumiStatus_[iStreamIndex]->eventSetupImpls());
-                      }
-                    })
-        .ifThenNext(looper_,
-                    [this, iStreamIndex, pep](auto nextTask) {
-                      //NOTE: behavior change. previously if an exception happened looper was still called. Now it will not be called
-                      ServiceRegistry::Operate operateLooper(serviceToken_);
-                      processEventWithLooper(*pep, iStreamIndex);
-                    })
-        .next([pep](auto nextTask) {
+        .ifThen(not subProcesses_.empty(),
+                [this, pep, iStreamIndex](auto nextTask) {
+                  for (auto& subProcess : boost::adaptors::reverse(subProcesses_)) {
+                    subProcess.doEventAsync(nextTask, *pep, &streamLumiStatus_[iStreamIndex]->eventSetupImpls());
+                  }
+                })
+        .ifThen(looper_,
+                [this, iStreamIndex, pep](auto nextTask) {
+                  //NOTE: behavior change. previously if an exception happened looper was still called. Now it will not be called
+                  ServiceRegistry::Operate operateLooper(serviceToken_);
+                  processEventWithLooper(*pep, iStreamIndex);
+                })
+        .then([pep](auto nextTask) {
           FDEBUG(1) << "\tprocessEvent\n";
           pep->clearEventPrincipal();
         })
