@@ -30,7 +30,8 @@ HFShower::HFShower(const std::string &name,
   ignoreTimeShift_ = m_HF2.getParameter<bool>("IgnoreTimeShift");
   probMax_ = m_HF2.getParameter<double>("ProbMax");
 
-  edm::LogVerbatim("HFShower") << "HFShower:: Maximum probability cut off " << probMax_ << " Check flag " << chkFibre_ << " ignoreTimeShift " << ignoreTimeShift_;
+  edm::LogVerbatim("HFShower") << "HFShower:: Maximum probability cut off " << probMax_ << " Check flag " << chkFibre_
+                               << " ignoreTimeShift " << ignoreTimeShift_;
 
   cherenkov_ = std::make_unique<HFCherenkov>(m_HF);
   fibre_ = std::make_unique<HFFibre>(name, hcalConstant_, hps, p);
