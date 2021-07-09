@@ -51,9 +51,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  unsigned int theFormatVersion;  // Select which version of data format to use Pre-LS1: 2005, Post-LS1: 2013
-  bool usePreTriggers;            // Select if to use Pre-Triigers CLCT digis
-  bool packEverything_;           // bypass all cuts and (pre)trigger requirements
+  bool usePreTriggers_;  // Select if to use Pre-Triggers CLCT digis
   bool useGEMs_;
   bool useCSCShowers_;
 
@@ -75,17 +73,14 @@ private:
 };
 
 CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet& pset) : packer_(std::make_unique<CSCDigiToRaw>(pset)) {
-  theFormatVersion = pset.getParameter<unsigned int>("useFormatVersion");  // pre-LS1 - '2005'. post-LS1 - '2013'
-  usePreTriggers = pset.getParameter<bool>("usePreTriggers");              // disable checking CLCT PreTriggers digis
-  packEverything_ = pset.getParameter<bool>("packEverything");  // don't check for consistency with trig primitives
-                                                                // overrides usePreTriggers
+  usePreTriggers_ = pset.getParameter<bool>("usePreTriggers");  // disable checking CLCT PreTriggers digis
 
   useGEMs_ = pset.getParameter<bool>("useGEMs");
   useCSCShowers_ = pset.getParameter<bool>("useCSCShowers");
   wd_token = consumes<CSCWireDigiCollection>(pset.getParameter<edm::InputTag>("wireDigiTag"));
   sd_token = consumes<CSCStripDigiCollection>(pset.getParameter<edm::InputTag>("stripDigiTag"));
   cd_token = consumes<CSCComparatorDigiCollection>(pset.getParameter<edm::InputTag>("comparatorDigiTag"));
-  if (usePreTriggers) {
+  if (usePreTriggers_) {
     pr_token = consumes<CSCCLCTPreTriggerCollection>(pset.getParameter<edm::InputTag>("preTriggerTag"));
     prdigi_token = consumes<CSCCLCTPreTriggerDigiCollection>(pset.getParameter<edm::InputTag>("preTriggerDigiTag"));
   }
@@ -105,7 +100,7 @@ CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet& pset) : packer_(
 void CSCDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<unsigned int>("useFormatVersion", 2005)
+  desc.add<unsigned int>("formatVersion", 2005)
       ->setComment("Set to 2005 for pre-LS1 CSC data format, 2013 - new post-LS1 CSC data format");
   desc.add<bool>("usePreTriggers", true)->setComment("Set to false if CSCCLCTPreTrigger digis are not available");
   desc.add<bool>("packEverything", false)
@@ -160,7 +155,7 @@ void CSCDigiToRawModule::produce(edm::StreamID, edm::Event& e, const edm::EventS
   // packing with pre-triggers
   CSCCLCTPreTriggerCollection const* preTriggersPtr = nullptr;
   CSCCLCTPreTriggerDigiCollection const* preTriggerDigisPtr = nullptr;
-  if (usePreTriggers) {
+  if (usePreTriggers_) {
     preTriggersPtr = &e.get(pr_token);
     preTriggerDigisPtr = &e.get(prdigi_token);
   }
@@ -192,9 +187,7 @@ void CSCDigiToRawModule::produce(edm::StreamID, edm::Event& e, const edm::EventS
                             padDigiClustersPtr,
                             fed_buffers,
                             theMapping,
-                            e.id(),
-                            theFormatVersion,
-                            packEverything_);
+                            e.id());
 
   // put the raw data to the event
   e.emplace(put_token_, std::move(fed_buffers));
