@@ -118,7 +118,8 @@ protected:
 
   int first_bx[CSCConstants::MAX_NUM_WIREGROUPS];
   int first_bx_corrected[CSCConstants::MAX_NUM_WIREGROUPS];
-  int quality[CSCConstants::MAX_NUM_WIREGROUPS][3];
+
+  int quality[CSCConstants::MAX_NUM_WIREGROUPS][CSCConstants::NUM_ALCT_PATTERNS];
   std::vector<CSCWireDigi> digiV[CSCConstants::NUM_LAYERS];
 
   std::vector<CSCALCTDigi> lct_list;
@@ -211,9 +212,6 @@ protected:
      the pattern with the best quality. */
   bool patternDetection(const int key_wire,
                         std::map<int, std::map<int, CSCALCTDigi::WireContainer> >& hits_in_patterns);
-
-  // enum used in the wire hit assignment
-  enum ALCT_WireInfo { INVALID_WIRE = 65535 };
 
   // remove the invalid wires from the container
   void cleanWireContainer(CSCALCTDigi::WireContainer& wireHits) const;

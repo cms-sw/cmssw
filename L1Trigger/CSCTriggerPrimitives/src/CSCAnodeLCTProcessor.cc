@@ -185,10 +185,10 @@ void CSCAnodeLCTProcessor::clear() {
 void CSCAnodeLCTProcessor::clear(const int wire, const int pattern) {
   /* Clear the data off of selected pattern */
   if (pattern == 0)
-    quality[wire][0] = -999;
+    quality[wire][CSCConstants::ALCT_ACCELERATOR_PATTERN] = -999;
   else {
-    quality[wire][1] = -999;
-    quality[wire][2] = -999;
+    quality[wire][CSCConstants::ALCT_COLLISIONA_PATTERN] = -999;
+    quality[wire][CSCConstants::ALCT_COLLISIONB_PATTERN] = -999;
   }
 }
 
@@ -302,7 +302,7 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
             int ghost_cleared[2] = {0, 0};
             /*
               In older versions of the ALCT emulation, the ghost cancellation was performed after
-              the ALCTs were found. In December 2018 it became clear that during the study of data
+              the ALCTs were found. In December 2018, it became clear that during the study of data
               and emulation comparison on 2018 data, a small disagreement between data and emulation
               was found. The changes we implemented then allow re-triggering on one wiregroup after
               some dead time once an earlier ALCT was constructed built on this wiregroup. Before this
@@ -333,13 +333,20 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
             }
 
             //collision mode
-            if (quality[i_wire][1] > 0 and bx < CSCConstants::MAX_ALCT_TBINS) {
-              int valid = (ghost_cleared[1] == 0) ? 1 : 0;  //cancelled, valid=0, otherwise it is 1
+            if (quality[i_wire][CSCConstants::ALCT_COLLISIONA_PATTERN] > 0 and bx < CSCConstants::MAX_ALCT_TBINS) {
+              int valid = (ghost_cleared[CSCConstants::ALCT_COLLISIONA_PATTERN] == 0)
+                              ? 1
+                              : 0;  //cancelled, valid=0, otherwise it is 1
 
-              CSCALCTDigi newALCT(valid, quality[i_wire][1], 0, quality[i_wire][2], i_wire, bx);
+              CSCALCTDigi newALCT(valid,
+                                  quality[i_wire][CSCConstants::ALCT_COLLISIONA_PATTERN],
+                                  0,
+                                  quality[i_wire][CSCConstants::ALCT_COLLISIONB_PATTERN],
+                                  i_wire,
+                                  bx);
 
               // set the wire digis for this pattern
-              setWireContainer(newALCT, hits_in_patterns[i_wire][1]);
+              setWireContainer(newALCT, hits_in_patterns[i_wire][CSCConstants::ALCT_COLLISIONA_PATTERN]);
 
               lct_list.emplace_back(newALCT);
               if (infoV > 1)
@@ -552,9 +559,9 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
   // If nplanes_hit_accel_pretrig is 0, the firmware uses the value
   // of nplanes_hit_pretrig instead.
   const unsigned int nplanes_hit_pretrig_acc =
-    (nplanes_hit_accel_pretrig != 0) ? nplanes_hit_accel_pretrig : nplanes_hit_pretrig;
+      (nplanes_hit_accel_pretrig != 0) ? nplanes_hit_accel_pretrig : nplanes_hit_pretrig;
   const unsigned int pretrig_thresh[CSCConstants::NUM_ALCT_PATTERNS] = {
-    nplanes_hit_pretrig_acc, nplanes_hit_pretrig, nplanes_hit_pretrig};
+      nplanes_hit_pretrig_acc, nplanes_hit_pretrig, nplanes_hit_pretrig};
 
   // Loop over bx times, accelerator and collision patterns to
   // look for pretrigger.
@@ -636,7 +643,7 @@ bool CSCAnodeLCTProcessor::patternDetection(
     hits_single_pattern.clear();
     hits_single_pattern.resize(CSCConstants::NUM_LAYERS);
     for (auto& p : hits_single_pattern) {
-      p.resize(CSCConstants::ALCT_PATTERN_WIDTH, INVALID_WIRE);
+      p.resize(CSCConstants::ALCT_PATTERN_WIDTH, CSCConstants::INVALID_WIREGROUP);
     }
 
     double num_pattern_hits = 0., times_sum = 0.;
@@ -676,8 +683,7 @@ bool CSCAnodeLCTProcessor::patternDetection(
                 for (unsigned int dbx = 0; dbx < hit_persist; dbx++) {
                   if (pulse_.isOneShotHighAtBX(i_layer, this_wire, first_bx_layer - 1)) {
                     first_bx_layer--;
-                  }
-                  else
+                  } else
                     break;
                 }
                 times_sum += (double)first_bx_layer;
@@ -728,12 +734,12 @@ bool CSCAnodeLCTProcessor::patternDetection(
 
       if (i_pattern == 0) {
         // Accelerator pattern
-        quality[key_wire][0] = temp_quality;
+        quality[key_wire][CSCConstants::ALCT_ACCELERATOR_PATTERN] = temp_quality;
       } else {
         // Only one collision pattern (of the best quality) is reported
-        if (static_cast<int>(temp_quality) > quality[key_wire][1]) {
-          quality[key_wire][1] = temp_quality;   //real quality
-          quality[key_wire][2] = i_pattern - 1;  // pattern, left or right
+        if (static_cast<int>(temp_quality) > quality[key_wire][CSCConstants::ALCT_COLLISIONA_PATTERN]) {
+          quality[key_wire][CSCConstants::ALCT_COLLISIONA_PATTERN] = temp_quality;   //real quality
+          quality[key_wire][CSCConstants::ALCT_COLLISIONB_PATTERN] = i_pattern - 1;  // pattern, left or right
         }
       }
       if (infoV > 1) {
@@ -742,11 +748,11 @@ bool CSCAnodeLCTProcessor::patternDetection(
       }
     }
   }
-  if (infoV > 1 && quality[key_wire][1] > 0) {
-    if (quality[key_wire][2] == 0)
+  if (infoV > 1 && quality[key_wire][CSCConstants::ALCT_COLLISIONA_PATTERN] > 0) {
+    if (quality[key_wire][CSCConstants::ALCT_COLLISIONB_PATTERN] == 0)
       LogTrace("CSCAnodeLCTProcessor") << "Collision Pattern A is chosen"
                                        << "\n";
-    else if (quality[key_wire][2] == 1)
+    else if (quality[key_wire][CSCConstants::ALCT_COLLISIONB_PATTERN] == 1)
       LogTrace("CSCAnodeLCTProcessor") << "Collision Pattern B is chosen"
                                        << "\n";
   }
@@ -757,7 +763,6 @@ bool CSCAnodeLCTProcessor::patternDetection(
 }
 
 void CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire, int* ghost_cleared) {
-
   for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
     ghost_cleared[i_pattern] = 0;
     if (key_wire == 0)
@@ -1047,8 +1052,8 @@ void CSCAnodeLCTProcessor::trigMode(const int key_wire) {
       break;
     case 1:
       // Disables collision tracks
-      if (quality[key_wire][1] > 0) {
-        quality[key_wire][1] = 0;
+      if (quality[key_wire][CSCConstants::ALCT_COLLISIONA_PATTERN] > 0) {
+        quality[key_wire][CSCConstants::ALCT_COLLISIONA_PATTERN] = 0;
         if (infoV > 1)
           LogTrace("CSCAnodeLCTProcessor") << "trigMode(): collision track " << key_wire << " disabled"
                                            << "\n";
@@ -1056,8 +1061,8 @@ void CSCAnodeLCTProcessor::trigMode(const int key_wire) {
       break;
     case 2:
       // Disables accelerator tracks
-      if (quality[key_wire][0] > 0) {
-        quality[key_wire][0] = 0;
+      if (quality[key_wire][CSCConstants::ALCT_ACCELERATOR_PATTERN] > 0) {
+        quality[key_wire][CSCConstants::ALCT_ACCELERATOR_PATTERN] = 0;
         if (infoV > 1)
           LogTrace("CSCAnodeLCTProcessor") << "trigMode(): accelerator track " << key_wire << " disabled"
                                            << "\n";
@@ -1066,8 +1071,8 @@ void CSCAnodeLCTProcessor::trigMode(const int key_wire) {
     case 3:
       // Disables collision track if there is an accelerator track found
       // in the same wire group at the same time
-      if (quality[key_wire][0] > 0 && quality[key_wire][1] > 0) {
-        quality[key_wire][1] = 0;
+      if (quality[key_wire][0] > 0 && quality[key_wire][CSCConstants::ALCT_COLLISIONA_PATTERN] > 0) {
+        quality[key_wire][CSCConstants::ALCT_COLLISIONA_PATTERN] = 0;
         if (infoV > 1)
           LogTrace("CSCAnodeLCTProcessor") << "trigMode(): collision track " << key_wire << " disabled"
                                            << "\n";
@@ -1092,8 +1097,8 @@ void CSCAnodeLCTProcessor::accelMode(const int key_wire) {
       break;
     case 1:
       // Prefer collision muons by adding promotion bit.
-      if (quality[key_wire][1] > 0) {
-        quality[key_wire][1] += promotionBit;
+      if (quality[key_wire][CSCConstants::ALCT_COLLISIONA_PATTERN] > 0) {
+        quality[key_wire][CSCConstants::ALCT_COLLISIONA_PATTERN] += promotionBit;
         if (infoV > 1)
           LogTrace("CSCAnodeLCTProcessor") << "alctMode(): collision track " << key_wire << " promoted"
                                            << "\n";
@@ -1101,8 +1106,8 @@ void CSCAnodeLCTProcessor::accelMode(const int key_wire) {
       break;
     case 2:
       // Prefer accelerator muons by adding promotion bit.
-      if (quality[key_wire][0] > 0) {
-        quality[key_wire][0] += promotionBit;
+      if (quality[key_wire][CSCConstants::ALCT_ACCELERATOR_PATTERN] > 0) {
+        quality[key_wire][CSCConstants::ALCT_ACCELERATOR_PATTERN] += promotionBit;
         if (infoV > 1)
           LogTrace("CSCAnodeLCTProcessor") << "alctMode(): accelerator track " << key_wire << " promoted"
                                            << "\n";
@@ -1110,8 +1115,8 @@ void CSCAnodeLCTProcessor::accelMode(const int key_wire) {
       break;
     case 3:
       // Ignore collision muons.
-      if (quality[key_wire][1] > 0) {
-        quality[key_wire][1] = 0;
+      if (quality[key_wire][CSCConstants::ALCT_COLLISIONA_PATTERN] > 0) {
+        quality[key_wire][CSCConstants::ALCT_COLLISIONA_PATTERN] = 0;
         if (infoV > 1)
           LogTrace("CSCAnodeLCTProcessor") << "alctMode(): collision track " << key_wire << " ignored"
                                            << "\n";
@@ -1315,9 +1320,8 @@ int CSCAnodeLCTProcessor::getTempALCTQuality(int temp_quality) const {
 
 void CSCAnodeLCTProcessor::cleanWireContainer(CSCALCTDigi::WireContainer& wireHits) const {
   for (auto& p : wireHits) {
-    p.erase(
-        std::remove_if(p.begin(), p.end(), [](unsigned i) -> bool { return i == CSCAnodeLCTProcessor::INVALID_WIRE; }),
-        p.end());
+    p.erase(std::remove_if(p.begin(), p.end(), [](unsigned i) -> bool { return i == CSCConstants::INVALID_WIREGROUP; }),
+            p.end());
   }
 }
 
