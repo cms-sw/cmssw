@@ -31,6 +31,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CondFormats/GBRForest/interface/GBRForest.h"
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 
 class dso_hidden MultiTrackSelector : public edm::stream::EDProducer<> {
 private:
@@ -151,6 +152,7 @@ protected:
 
   std::vector<std::string> mvaType_;
   std::vector<std::string> forestLabel_;
+  std::vector<edm::ESGetToken<GBRForest, GBRWrapperRcd>> forestToken_;
   std::vector<GBRForest *> forest_;
   bool useForestFromDB_;
   std::string dbFileName_;
