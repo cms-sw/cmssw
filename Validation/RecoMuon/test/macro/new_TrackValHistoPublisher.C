@@ -56,7 +56,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
   cout << ">> Starting new_TrackValHistoPublisher(" 
        << newFile << "," << refFile << ")..." << endl;
 
-  //====  To be replaced from python ====================
+  //====  To be replaced from python3 ====================
   
   const char* dataType = "DATATYPE";
   const char* refLabel("REF_LABEL, REF_RELEASE REFSELECTION");

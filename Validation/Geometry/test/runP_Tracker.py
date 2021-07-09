@@ -1,6 +1,6 @@
 # In order to produce everything that you need in one go, use the command:
 #
-# for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do python runP_Tracker.py geom=XYZ label=$t >& /dev/null &; done
+# for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do python3 runP_Tracker.py geom=XYZ label=$t >& /dev/null &; done
 
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
@@ -21,7 +21,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
  The default component to be monitored is the Tracker. If other
  components need to be studied, they must be supplied, one at a time,
- at the command line, e.g.: python runP_Tracker.py
+ at the command line, e.g.: python3 runP_Tracker.py
  label="XYZ"
 
 """

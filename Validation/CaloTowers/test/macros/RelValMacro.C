@@ -52,7 +52,7 @@ public:
 
 void RelValMacro(std::string seriesOfTubes)
 {
-    //Split the string passed from the python driver
+    //Split the string passed from the python3 driver
     std::stringstream ss(seriesOfTubes);
     std::string item;
     std::vector<std::string> props;

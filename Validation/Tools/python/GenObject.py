@@ -1505,7 +1505,7 @@ class GenObject (object):
 
     @staticmethod
     def _convertStringToParameters (string):
-        """Convert comma-separated string into a python list of
+        """Convert comma-separated string into a python3 list of
         parameters.  Currently only understands strings, floats, and
         integers."""
         retval = []        

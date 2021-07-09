@@ -9,7 +9,7 @@
 void IsoValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="REF_FILE") {
   cout << ">> Starting IsoValHistoPublisher(" << newFile << "," << refFile << ")..." << endl;
 
-  //====  To be replaced from python ====================
+  //====  To be replaced from python3 ====================
 
   const char* dataType = "DATATYPE";
   const char* refLabel("REF_LABEL, REF_RELEASE REFSELECTION");
