@@ -35,6 +35,7 @@ LeptonSkimming::LeptonSkimming(const edm::ParameterSet& iConfig)
 
       trgresultsToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerresults"))),
       trigobjectsToken_(consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("triggerobjects"))),
+      bFieldToken_(esConsumes()),
       HLTFilter_(iConfig.getParameter<vector<string>>("HLTFilter")),
       HLTPath_(iConfig.getParameter<vector<string>>("HLTPath")) {
   edm::ParameterSet runParameters = iConfig.getParameter<edm::ParameterSet>("RunParameters");
@@ -200,8 +201,7 @@ bool LeptonSkimming::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(Tracks_, tracks);
   edm::Handle<edm::TriggerResults> trigResults;
   iEvent.getByToken(trgresultsToken_, trigResults);
-  edm::ESHandle<MagneticField> bFieldHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
+  auto const& bField = iSetup.getData(bFieldToken_);
   KalmanVertexFitter theKalmanFitter(false);
   TransientVertex LLvertex;
 
@@ -383,7 +383,7 @@ bool LeptonSkimming::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     return false;
 
   for (auto& obj : cleanedObjects) {
-    auto tranobj = std::make_shared<reco::TransientTrack>(reco::TransientTrack(*obj, &(*bFieldHandle)));
+    auto tranobj = std::make_shared<reco::TransientTrack>(reco::TransientTrack(*obj, &bField));
     unsigned int iobj = &obj - &cleanedObjects[0];
     unsigned int index = object_container.at(iobj);
     float massLep = 0.0005;
@@ -427,7 +427,7 @@ bool LeptonSkimming::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       float InvMassLepLep = (vel1 + vel2).M();
       if (InvMassLepLep > MaxMee_Cut || InvMassLepLep < MinMee_Cut)
         continue;
-      auto trantrk2 = std::make_shared<reco::TransientTrack>(reco::TransientTrack(*trk2, &(*bFieldHandle)));
+      auto trantrk2 = std::make_shared<reco::TransientTrack>(reco::TransientTrack(*trk2, &bField));
       std::vector<reco::TransientTrack> tempTracks;
       tempTracks.reserve(2);
       tempTracks.push_back(*tranobj);
@@ -464,8 +464,8 @@ bool LeptonSkimming::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for (unsigned int iobj = 0; iobj < cleanedObjTracks.size(); iobj++) {
     auto objtrk = cleanedObjTracks.at(iobj);
     auto pairtrk = cleanedPairTracks.at(iobj);
-    auto tranobj = std::make_shared<reco::TransientTrack>(reco::TransientTrack(*objtrk, &(*bFieldHandle)));
-    auto tranpair = std::make_shared<reco::TransientTrack>(reco::TransientTrack(*pairtrk, &(*bFieldHandle)));
+    auto tranobj = std::make_shared<reco::TransientTrack>(reco::TransientTrack(*objtrk, &bField));
+    auto tranpair = std::make_shared<reco::TransientTrack>(reco::TransientTrack(*pairtrk, &bField));
     //unsigned int index=Epair_ObjectIndex.at(iobj);
     float massLep = 0.0005;
     if (Epair_ObjectId.at(iobj) == 13)
@@ -491,7 +491,7 @@ bool LeptonSkimming::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         continue;
       if ((vel1 + vel2 + vK).Pt() < PtB_Cut)
         continue;
-      auto trantrk = std::make_shared<reco::TransientTrack>(reco::TransientTrack(*trk, &(*bFieldHandle)));
+      auto trantrk = std::make_shared<reco::TransientTrack>(reco::TransientTrack(*trk, &bField));
       std::vector<reco::TransientTrack> tempTracks;
       tempTracks.reserve(3);
       tempTracks.push_back(*tranobj);
