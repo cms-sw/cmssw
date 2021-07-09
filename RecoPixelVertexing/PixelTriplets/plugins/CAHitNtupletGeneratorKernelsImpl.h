@@ -448,20 +448,35 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
 
     // compute a pT-dependent chi2 cut
 
+    auto roughLog = [](float x) {
+      union IF {
+        uint32_t i;
+        float f;
+      };
+      IF z;
+      z.f = x;
+      uint32_t lsb = 1 < 21;
+      z.i += lsb;
+      z.i >>= 21;
+      auto f = z.i & 3;
+      int ex = int(z.i >> 2) - 127;
+
+      // is this faster than 0.25f*float(f)?
+      const float frac[4] = {0.f, 0.25f, 0.5f, 0.75f};
+      return float(ex) + frac[f];
+    };
+
     // (see CAHitNtupletGeneratorGPU.cc)
-    //float pt = std::min<float>(tracks->pt(it), cuts.chi2MaxPt);
-    //float chi2Cut = cuts.chi2Scale *
-    //                (cuts.chi2Coeff[0] + pt * (cuts.chi2Coeff[1] + pt * (cuts.chi2Coeff[2] + pt * cuts.chi2Coeff[3])));
-    float chi2Cut = cuts.chi2Scale;
-    // above number were for Quads not normalized so for the time being just multiple by ndof for Quads  (triplets to be understood)
-    if (3.f * tracks->chi2(it) >= chi2Cut) {
+    float pt = std::min<float>(tracks->pt(it), cuts.chi2MaxPt);
+    float chi2Cut = cuts.chi2Scale * (cuts.chi2Coeff[0] + roughLog(pt) * cuts.chi2Coeff[1]);
+    if (tracks->chi2(it) >= chi2Cut) {
 #ifdef NTUPLE_FIT_DEBUG
-      printf("Bad fit %d size %d pt %f eta %f chi2 %f\n",
+      printf("Bad chi2 %d size %d pt %f eta %f chi2 %f\n",
              it,
              tuples->size(it),
              tracks->pt(it),
              tracks->eta(it),
-             3.f * tracks->chi2(it));
+             tracks->chi2(it));
 #endif
       continue;
     }
