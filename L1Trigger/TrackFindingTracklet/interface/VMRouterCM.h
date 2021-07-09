@@ -38,7 +38,7 @@ namespace trklet {
     void addOutput(MemoryBase* memory, std::string output) override;
     void addInput(MemoryBase* memory, std::string input) override;
 
-    void execute();
+    void execute(unsigned int iSector);
 
   private:
     //0-5 are the layers and 6-10 are the disks
