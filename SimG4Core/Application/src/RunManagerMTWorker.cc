@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
@@ -168,9 +169,11 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
   if (m_LHCTransport) {
     m_LHCToken = iC.consumes<edm::HepMCProduct>(edm::InputTag("LHCTransport"));
   }
+  /*
   if (m_pUseMagneticField) {
     m_MagField = iC.esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
   }
+  */
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker is constructed for the thread " << thisID;
   unsigned int k = 0;
   for (std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>>::const_iterator itr =
@@ -312,8 +315,8 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   if (m_pUseMagneticField) {
     const GlobalPoint g(0.f, 0.f, 0.f);
 
-    const MagneticField* pMF = &(*es.getTransientHandle(m_MagField));
-    sim::FieldBuilder fieldBuilder(pMF, m_pField);
+    //const MagneticField* pMF = &es.getData(m_MagField);
+    sim::FieldBuilder fieldBuilder(runManagerMaster->getMagField(), m_pField);
 
     CMSFieldManager* fieldManager = new CMSFieldManager();
     tM->SetFieldManager(fieldManager);
