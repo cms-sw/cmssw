@@ -23,7 +23,11 @@ public:
 
   unsigned bitsInPulse() const;
 
-  void extend(const unsigned layer, const unsigned channel, const unsigned bx);
+  // make the pulse at time "bx" with length "hit_persist"
+  void extend(const unsigned layer, const unsigned channel, const unsigned bx, const unsigned hit_persist);
+
+  // check "one shot" at this bx_time
+  bool oneShotAtBX(const unsigned layer, const unsigned channel, const unsigned bx) const;
 
   // check if "one shot" is high at this bx_time
   bool isOneShotHighAtBX(const unsigned layer, const unsigned channel, const unsigned bx) const;

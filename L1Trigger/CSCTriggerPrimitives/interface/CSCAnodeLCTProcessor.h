@@ -41,6 +41,7 @@
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/PulseArray.h"
 
 #include <vector>
 
@@ -104,6 +105,8 @@ protected:
   /** Second best LCTs in this chamber, as found by the processor. */
   CSCALCTDigi secondALCT[CSCConstants::MAX_ALCT_TBINS];
 
+  PulseArray pulse_;
+
   CSCShowerDigi shower_;
 
   /** Access routines to wire digis. */
@@ -117,7 +120,6 @@ protected:
   int first_bx_corrected[CSCConstants::MAX_NUM_WIREGROUPS];
   int quality[CSCConstants::MAX_NUM_WIREGROUPS][3];
   std::vector<CSCWireDigi> digiV[CSCConstants::NUM_LAYERS];
-  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS];
 
   std::vector<CSCALCTDigi> lct_list;
 

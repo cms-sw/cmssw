@@ -731,8 +731,7 @@ void CSCCathodeLCTProcessor::pulseExtension(
             continue;
           }
           if (bx_times[i] >= start_bx_shift) {
-            for (unsigned int bx = bx_times[i]; bx < bx_times[i] + hit_persist; ++bx)
-              pulse_.extend(i_layer, i_strip, bx);
+            pulse_.extend(i_layer, i_strip, bx_times[i], hit_persist);
           }
         }
       }
