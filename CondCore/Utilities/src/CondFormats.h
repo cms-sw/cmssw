@@ -27,6 +27,7 @@
 #include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
 #include "CondFormats/CSCObjects/interface/CSCDDUMap.h"
 #include "CondFormats/CSCObjects/interface/CSCL1TPParameters.h"
+#include "CondFormats/Common/interface/BasicPayload.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelAnalysisMask.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelGainCalibrations.h"
