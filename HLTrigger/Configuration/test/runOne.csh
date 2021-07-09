@@ -13,6 +13,8 @@ if ( $2 == "" ) then
   set tables = ( GRun )
 else if ( ($2 == all) || ($2 == ALL) ) then
   set tables = ( GRun PIon 2013 HIon )
+else if ( ($2 == ib)  || ($2 == IB)  ) then
+  set tables = ( GRun PIon 2013 HIon )
 else if ( ($2 == dev) || ($2 == DEV) ) then
   set tables = ( GRun PIon HIon )
 else if ( ($2 == frozen) || ($2 == FROZEN) ) then
