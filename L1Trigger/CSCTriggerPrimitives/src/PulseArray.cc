@@ -24,12 +24,18 @@ unsigned& PulseArray::operator()(const unsigned layer, const unsigned channel) {
 
 unsigned PulseArray::bitsInPulse() const { return 8 * sizeof(data_[0][0]); }
 
-void PulseArray::extend(const unsigned layer, const unsigned channel, const unsigned bx) {
-  data_[layer][channel] = data_[layer][channel] | (1 << bx);
+void PulseArray::extend(const unsigned layer, const unsigned channel, const unsigned bx, const unsigned hit_persist) {
+  for (unsigned int ibx = bx; ibx < bx + hit_persist; ++ibx) {
+    data_[layer][channel] = data_[layer][channel] | (1 << ibx);
+  }
+}
+
+bool PulseArray::oneShotAtBX(const unsigned layer, const unsigned channel, const unsigned bx) const{
+  return (data_[layer][channel] >> bx) & 1;
 }
 
 bool PulseArray::isOneShotHighAtBX(const unsigned layer, const unsigned channel, const unsigned bx) const {
-  return ((data_[layer][channel] >> bx) & 1) == 1;
+  return oneShotAtBX(layer, channel, bx) == 1;
 }
 
 unsigned PulseArray::numberOfLayersAtBX(const unsigned bx) const {

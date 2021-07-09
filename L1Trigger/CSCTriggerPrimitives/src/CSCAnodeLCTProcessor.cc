@@ -269,6 +269,9 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* 
 void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) {
   bool trigger = false;
 
+  // initialize the pulse array.
+  pulse_.initialize(numWireGroups);
+
   // Check if there are any in-time hits and do the pulse extension.
   bool chamber_empty = pulseExtension(wire);
 
@@ -473,12 +476,20 @@ bool CSCAnodeLCTProcessor::pulseExtension(
     const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) {
   bool chamber_empty = true;
   int i_wire, i_layer, digi_num;
-  const unsigned int bits_in_pulse = 8 * sizeof(pulse[0][0]);
+
+  const unsigned bits_in_pulse = pulse_.bitsInPulse();
+
+  // Clear pulse array.  This array will be used as a bit representation of
+  // hit times.  For example: if strip[1][2] has a value of 3, then 1 shifted
+  // left 3 will be bit pattern of pulse[1][2].  This would make the pattern
+  // look like 0000000000001000.  Then add on additional bits to signify
+  // the duration of a signal (hit_persist, formerly bx_width) to simulate
+  // the TMB's drift delay.  So for the same pulse[1][2] with a hit_persist
+  // of 3 would look like 0000000000111000.  This is similating the digital
+  // one-shot in the TMB.
+  pulse_.clear();
 
   for (i_wire = 0; i_wire < numWireGroups; i_wire++) {
-    for (i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-      pulse[i_layer][i_wire] = 0;
-    }
     first_bx[i_wire] = -999;
     first_bx_corrected[i_wire] = -999;
     for (int j = 0; j < 3; j++)
@@ -506,8 +517,7 @@ bool CSCAnodeLCTProcessor::pulseExtension(
             chamber_empty = false;
 
           // make the pulse
-          for (unsigned int bx = bx_times[i]; bx < (bx_times[i] + hit_persist); bx++)
-            pulse[i_layer][i_wire] = pulse[i_layer][i_wire] | (1 << bx);
+          pulse_.extend(i_layer, i_wire, bx_times[i], hit_persist);
 
           // Debug information.
           if (infoV > 1) {
@@ -516,7 +526,7 @@ bool CSCAnodeLCTProcessor::pulseExtension(
             if (infoV > 2) {
               std::ostringstream strstrm;
               for (int i = 1; i <= 32; i++) {
-                strstrm << ((pulse[i_layer][i_wire] >> (32 - i)) & 1);
+                strstrm << pulse_.oneShotAtBX(i_layer, i_wire, 32 - i);
               }
               LogTrace("CSCAnodeLCTProcessor") << "  Pulse: " << strstrm.str();
             }
@@ -542,9 +552,9 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
   // If nplanes_hit_accel_pretrig is 0, the firmware uses the value
   // of nplanes_hit_pretrig instead.
   const unsigned int nplanes_hit_pretrig_acc =
-      (nplanes_hit_accel_pretrig != 0) ? nplanes_hit_accel_pretrig : nplanes_hit_pretrig;
+    (nplanes_hit_accel_pretrig != 0) ? nplanes_hit_accel_pretrig : nplanes_hit_pretrig;
   const unsigned int pretrig_thresh[CSCConstants::NUM_ALCT_PATTERNS] = {
-      nplanes_hit_pretrig_acc, nplanes_hit_pretrig, nplanes_hit_pretrig};
+    nplanes_hit_pretrig_acc, nplanes_hit_pretrig, nplanes_hit_pretrig};
 
   // Loop over bx times, accelerator and collision patterns to
   // look for pretrigger.
@@ -566,7 +576,7 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
             this_wire = CSCPatternBank::alct_keywire_offset_[MESelection][i_wire] + key_wire;
             if ((this_wire >= 0) && (this_wire < numWireGroups)) {
               // Perform bit operation to see if pulse is 1 at a certain bx_time.
-              if (((pulse[i_layer][this_wire] >> bx_time) & 1) == 1) {
+              if (pulse_.isOneShotHighAtBX(i_layer, this_wire, bx_time)) {
                 // Store number of layers hit.
                 if (!hit_layer[i_layer]) {
                   hit_layer[i_layer] = true;
@@ -642,7 +652,7 @@ bool CSCAnodeLCTProcessor::patternDetection(
           if ((this_wire >= 0) && (this_wire < numWireGroups)) {
             // Wait a drift_delay time later and look for layers hit in
             // the pattern.
-            if (((pulse[i_layer][this_wire] >> (first_bx[key_wire] + drift_delay)) & 1) == 1) {
+            if (pulse_.isOneShotHighAtBX(i_layer, this_wire, first_bx[key_wire] + drift_delay)) {
               // store hits in the temporary pattern vector
               hits_single_pattern[i_layer][i_wire] = this_wire;
 
@@ -664,8 +674,9 @@ bool CSCAnodeLCTProcessor::patternDetection(
                 // use hit_pesrist constraint on how far back we can go
                 int first_bx_layer = first_bx[key_wire] + drift_delay;
                 for (unsigned int dbx = 0; dbx < hit_persist; dbx++) {
-                  if (((pulse[i_layer][this_wire] >> (first_bx_layer - 1)) & 1) == 1)
+                  if (pulse_.isOneShotHighAtBX(i_layer, this_wire, first_bx_layer - 1)) {
                     first_bx_layer--;
+                  }
                   else
                     break;
                 }
@@ -1281,7 +1292,7 @@ void CSCAnodeLCTProcessor::showPatterns(const int key_wire) {
           int this_wire = CSCPatternBank::alct_keywire_offset_[MESelection][i_wire] + key_wire;
           if (this_wire >= 0 && this_wire < numWireGroups) {
             for (int i = 1; i <= 32; i++) {
-              strstrm_pulse << ((pulse[i_layer][this_wire] >> (32 - i)) & 1);
+              strstrm_pulse << pulse_.oneShotAtBX(i_layer, this_wire, 32 - i);
             }
             LogTrace("CSCAnodeLCTProcessor") << strstrm_pulse.str() << " on layer " << i_layer << " wire " << this_wire;
           }
