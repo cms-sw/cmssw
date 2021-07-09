@@ -131,16 +131,12 @@ namespace edm {
   template <module::Abilities ABILITY, typename T, typename... VArgs>
   struct CheckAbility<ABILITY, T, VArgs...> {
     static constexpr bool kHasIt = (T::kAbilities == ABILITY) | CheckAbility<ABILITY, VArgs...>::kHasIt;
-    typedef std::
-        conditional_t<(T::kAbilities == ABILITY), typename T::Type, typename CheckAbility<ABILITY, VArgs...>::Type>
-            Type;
   };
 
   //End of the recursion
   template <module::Abilities ABILITY>
   struct CheckAbility<ABILITY> {
     static constexpr bool kHasIt = false;
-    typedef edm::module::Empty Type;
   };
 
   template <typename... VArgs>

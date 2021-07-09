@@ -145,8 +145,6 @@ namespace edm {
       //we want the new branch name for the JobReport
       branchNames_.push_back(prod.branchName());
     }
-    TTree* provTree = (metaTree_ != nullptr ? metaTree_ : tree_);
-    info.provenanceBranch_ = provTree->GetBranch(oldBranchName.c_str());
     branches_.insert(prod.branchID(), info);
   }
 

@@ -51,36 +51,19 @@ namespace edm {
     typedef IndexIntoFile::EntryNumber_t EntryNumber;
     struct BranchInfo {
       BranchInfo(BranchDescription const& prod)
-          : branchDescription_(prod),
-            productBranch_(nullptr),
-            provenanceBranch_(nullptr),
-            classCache_(nullptr),
-            offsetToWrapperBase_(0) {}
+          : branchDescription_(prod), productBranch_(nullptr), classCache_(nullptr), offsetToWrapperBase_(0) {}
       BranchDescription const branchDescription_;
       TBranch* productBranch_;
-      TBranch* provenanceBranch_;  // For backward compatibility
       //All access to a ROOT file is serialized
       CMS_SA_ALLOW mutable TClass* classCache_;
       CMS_SA_ALLOW mutable Int_t offsetToWrapperBase_;
     };
 
     class BranchMap {
-      enum {
-        kKeys,
-        kInfos,
-      };
-
     public:
       void reserve(size_t iSize) { map_.reserve(iSize); }
       void insert(edm::BranchID const& iKey, BranchInfo const& iInfo) { map_.emplace(iKey.id(), iInfo); }
       BranchInfo const* find(BranchID const& iKey) const {
-        auto itFound = map_.find(iKey.id());
-        if (itFound == map_.end()) {
-          return nullptr;
-        }
-        return &itFound->second;
-      }
-      BranchInfo* find(BranchID const& iKey) {
         auto itFound = map_.find(iKey.id());
         if (itFound == map_.end()) {
           return nullptr;
@@ -126,7 +109,6 @@ namespace edm {
 
     bool next() { return ++entryNumber_ < entries_; }
     bool nextWithCache();
-    bool previous() { return --entryNumber_ >= 0; }
     bool current() const { return entryNumber_ < entries_ && entryNumber_ >= 0; }
     bool current(EntryNumber entry) const { return entry < entries_ && entry >= 0; }
     void rewind() { entryNumber_ = 0; }
@@ -144,16 +126,6 @@ namespace edm {
     void fillAux(T*& pAux) {
       auxBranch_->SetAddress(&pAux);
       getEntry(auxBranch_, entryNumber_);
-    }
-    template <typename T>
-    void fillBranchEntryMeta(TBranch* branch, T*& pbuf) {
-      if (metaTree_ != nullptr) {
-        // Metadata was in separate tree.  Not cached.
-        branch->SetAddress(&pbuf);
-        roottree::getEntry(branch, entryNumber_);
-      } else {
-        fillBranchEntry<T>(branch, pbuf);
-      }
     }
 
     template <typename T>
@@ -243,8 +215,7 @@ namespace edm {
 
     TBranch* branchEntryInfoBranch_;  //backwards compatibility
     // below for backward compatibility
-    TTree* infoTree_;        // backward compatibility
-    TBranch* statusBranch_;  // backward compatibility
+    TTree* infoTree_;  // backward compatibility
   };
 }  // namespace edm
 #endif

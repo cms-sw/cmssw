@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 '''Script that submits CMS Tracker Alignment Primary Vertex Validation workflows,
 usage:
