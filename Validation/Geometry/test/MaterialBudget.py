@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 # Pure trick to start ROOT in batch mode, pass this only option to it
 # and the rest of the command line options to this code.
