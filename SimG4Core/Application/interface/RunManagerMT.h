@@ -35,6 +35,7 @@ class G4Event;
 class G4StateManager;
 class G4GeometryManager;
 class RunAction;
+class MagneticField;
 
 class SimRunInterface;
 
@@ -79,6 +80,9 @@ public:
   // with TLS.
   inline PhysicsList* physicsListForWorker() const { return m_physicsList.get(); }
 
+  inline void setMagField(const MagneticField* ptr) { m_pMagField = ptr; }
+  inline const MagneticField* getMagField() const { return m_pMagField; }
+
 private:
   void terminateRun();
 
@@ -92,6 +96,7 @@ private:
   G4Run* m_currentRun;
   G4StateManager* m_stateManager;
   G4GeometryManager* m_geometryManager;
+  const MagneticField* m_pMagField = nullptr;
 
   std::unique_ptr<SimRunInterface> m_runInterface;
 

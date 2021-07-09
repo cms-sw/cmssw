@@ -11,6 +11,7 @@
 
 OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
     : m_pGeoFromDD4hep(iConfig.getParameter<bool>("g4GeometryDD4hepSource")),
+      m_pUseMagneticField(iConfig.getParameter<bool>("UseMagneticField")),
       m_masterThreadState(ThreadState::NotExist) {
   // Lock the mutex
   std::unique_lock<std::mutex> lk(m_threadMutex);
@@ -114,6 +115,9 @@ void OscarMTMasterThread::callConsumes(edm::ConsumesCollector&& iC) const {
     m_DDD = iC.esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
   }
   m_PDT = iC.esConsumes<HepPDT::ParticleDataTable, PDTRecord, edm::Transition::BeginRun>();
+  if (m_pUseMagneticField) {
+    m_MF = iC.esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
+  }
   m_hasToken = true;
 }
 
@@ -128,7 +132,10 @@ void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
     } else {
       m_pDDD = &(*iSetup.getTransientHandle(m_DDD));
     }
-    m_pTable = &(*iSetup.getTransientHandle(m_PDT));
+    m_pTable = &iSetup.getData(m_PDT);
+    if(m_pUseMagneticField) { 
+      m_runManagerMaster->setMagField(&iSetup.getData(m_MF));
+    }
     m_firstRun = false;
   }
   m_masterThreadState = ThreadState::BeginRun;
