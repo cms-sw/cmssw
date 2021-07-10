@@ -178,8 +178,8 @@ class _SequenceCollection(_Sequenceable):
             returnValue += '&'+m.dumpSequenceConfig()
         return returnValue
 
-    def directDependencies(self):
-        return findDirectDependencies(self, self._collection)
+    def directDependencies(self,sortByType=True):
+        return findDirectDependencies(self, self._collection,sortByType=sortByType)
 
     def visitNode(self,visitor):
         for m in self._collection:
@@ -210,8 +210,8 @@ class _SequenceCollection(_Sequenceable):
         return didReplace
 
 
-def findDirectDependencies(element, collection):
-    dependencies = set()
+def findDirectDependencies(element, collection,sortByType=True):
+    dependencies = []
     for item in collection:
         # skip null items
         if item is None:
@@ -223,23 +223,23 @@ def findDirectDependencies(element, collection):
         # cms.ignore(module), ~(module)
         elif isinstance(item, (_SequenceIgnore, _SequenceNegation)):
             if isinstance(item._operand, _SequenceCollection):
-                dependencies.update(item.directDependencies())
+                dependencies += item.directDependencies(sortByType)
                 continue
             t = 'modules'
         # _SequenceCollection
         elif isinstance(item, _SequenceCollection):
-            dependencies.update(item.directDependencies())
+            dependencies += item.directDependencies(sortByType)
             continue
         # cms.Sequence
         elif isinstance(item, Sequence):
             if not item.hasLabel_():
-                dependencies.update(item.directDependencies())
+                dependencies += item.directDependencies(sortByType)
                 continue
             t = 'sequences'
         # cms.Task
         elif isinstance(item, Task):
             if not item.hasLabel_():
-                dependencies.update(item.directDependencies())
+                dependencies += item.directDependencies(sortByType)
                 continue
             t = 'tasks'
         # SequencePlaceholder and TaskPlaceholder do not add an explicit dependency
@@ -249,8 +249,11 @@ def findDirectDependencies(element, collection):
         else:
             sys.stderr.write("Warning: unsupported element '%s' in %s '%s'\n" % (str(item), type(element).__name__, element.label_()))
             continue
-        dependencies.add((t, item.label_()))
-    return sorted(dependencies, key = lambda t_item: (t_item[0].lower(), t_item[1].lower().replace('_cfi', '')))
+        dependencies.append((t, item.label_()))
+    if sortByType:
+        return sorted(set(dependencies), key = lambda t_item: (t_item[0].lower(), t_item[1].lower().replace('_cfi', '')))
+    else:
+        return dependencies
 
 
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
@@ -369,13 +372,13 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
            s = str(self._seq)
         return "cms."+type(self).__name__+'('+s+')\n'
 
-    def directDependencies(self):
+    def directDependencies(self,sortByType=True):
         """Returns the list of modules and other entities that are directly used"""
         result = []
         if self._seq:
-          result += self._seq.directDependencies()
+          result += self._seq.directDependencies(sortByType=sortByType)
         if self._tasks:
-          result += findDirectDependencies(self, self._tasks)
+          result += findDirectDependencies(self, self._tasks,sortByType=sortByType)
         return result
 
     def moduleNames(self):
@@ -568,8 +571,8 @@ class _UnarySequenceOperator(_BooleanLogicSequenceable):
         self._operand.visitNode(visitor)
     def decoration(self):
         self._operand.decoration()
-    def directDependencies(self):
-        return self._operand.directDependencies()
+    def directDependencies(self,sortByType=True):
+        return self._operand.directDependencies(sortByType=sortByType)
     def label_(self):
         return self._operand.label_()
 
@@ -1474,8 +1477,8 @@ class Task(_ConfigureComponent, _Labelable) :
             return "cms.Task(*[" + s + "])"
         return "cms.Task(" + s + ")"
 
-    def directDependencies(self):
-        return findDirectDependencies(self, self._collection)
+    def directDependencies(self,sortByType=True):
+        return findDirectDependencies(self, self._collection,sortByType=sortByType)
 
     def _isTaskComponent(self):
         return True
