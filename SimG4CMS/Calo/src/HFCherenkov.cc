@@ -17,8 +17,8 @@
 
 HFCherenkov::HFCherenkov(edm::ParameterSet const& m_HF) {
   ref_index = m_HF.getParameter<double>("RefIndex");
-  lambda1 = ((m_HF.getParameter<double>("Lambda1")) / pow(double(10), 7)) * CLHEP::cm;
-  lambda2 = ((m_HF.getParameter<double>("Lambda2")) / pow(double(10), 7)) * CLHEP::cm;
+  lambda1 = ((m_HF.getParameter<double>("Lambda1")) / 1.e+7) * CLHEP::cm;
+  lambda2 = ((m_HF.getParameter<double>("Lambda2")) / 1.e+7) * CLHEP::cm;
   aperture = m_HF.getParameter<double>("Aperture");
   gain = m_HF.getParameter<double>("Gain");
   checkSurvive = m_HF.getParameter<bool>("CheckSurvive");
@@ -61,7 +61,7 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
     return 0;
   }
 
-  double uv = sqrt(u * u + v * v);
+  double uv = std::sqrt(u * u + v * v);
   int nbOfPhotons = computeNbOfPhotons(pBeta, step_length) * aStep->GetTrack()->GetWeight();
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: pBeta " << pBeta << " u/v/w " << u << "/" << v << "/" << w
@@ -78,7 +78,7 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
     G4ThreeVector localpostpos =
         theTouchable->GetHistory()->GetTopTransform().TransformPoint(aStep->GetPostStepPoint()->GetPosition());
 
-    double length = sqrt((localpostpos.x() - localprepos.x()) * (localpostpos.x() - localprepos.x()) +
+    double length = std::sqrt((localpostpos.x() - localprepos.x()) * (localpostpos.x() - localprepos.x()) +
                          (localpostpos.y() - localprepos.y()) * (localpostpos.y() - localprepos.y()));
     double yemit = std::sqrt(fibreR * fibreR - length * length / 4.);
 
@@ -103,7 +103,7 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
       }
       double r_lambda = G4UniformRand();
       double lambda0 = (lambda1 * lambda2) / (lambda2 - r_lambda * (lambda2 - lambda1));
-      double lambda = (lambda0 / CLHEP::cm) * pow(double(10), 7);  // lambda is in nm
+      double lambda = (lambda0 / CLHEP::cm) * 1.e+7;  // lambda is in nm
       wlini.push_back(lambda);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: " << i << " lambda " << lambda << " w_ph " << w_ph;
@@ -113,10 +113,10 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
       double gam = atan2(yemit, xemit);
       double eps = atan2(v_ph, u_ph);
       double sinBeta = sin(gam - eps);
-      double rho = sqrt(xemit * xemit + yemit * yemit);
+      double rho = std::sqrt(xemit * xemit + yemit * yemit);
       double sinEta = rho / fibreR * sinBeta;
-      double cosEta = sqrt(1. - sinEta * sinEta);
-      double sinPsi = sqrt(1. - w_ph * w_ph);
+      double cosEta = std::sqrt(1. - sinEta * sinEta);
+      double sinPsi = std::sqrt(1. - w_ph * w_ph);
       double cosKsi = cosEta * sinPsi;
 
 #ifdef EDM_ML_DEBUG
@@ -158,12 +158,12 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
           double rad_bundle = 19.;  // bundle radius
           double rad_lg = 25.;      //  light guide radius
           rand = G4UniformRand();
-          double rad = rad_bundle * sqrt(rand);
+          double rad = rad_bundle * std::sqrt(rand);
           double rho = rad * sin(phi);
-          double tlength = 2. * sqrt(rad_lg * rad_lg - rho * rho);
+          double tlength = 2. * std::sqrt(rad_lg * rad_lg - rho * rho);
           double length_lg = 430;
           double sin_air = sinPsi * 1.46;
-          double tang = sin_air / sqrt(1. - sin_air * sin_air);
+          double tang = sin_air / std::sqrt(1. - sin_air * sin_air);
           int nbounce = length_lg / tlength * tang + 0.5;
           double eff = pow(effHEM, nbounce);
 #ifdef EDM_ML_DEBUG
@@ -211,7 +211,7 @@ int HFCherenkov::computeNPEinPMT(
     return 0;
   }
 
-  double uv = sqrt(u * u + v * v);
+  double uv = std::sqrt(u * u + v * v);
   int nbOfPhotons = computeNbOfPhotons(pBeta, step_length);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPEinPMT: pBeta " << pBeta << " u/v/w " << u << "/" << v << "/"
@@ -236,7 +236,7 @@ int HFCherenkov::computeNPEinPMT(
       }
       double r_lambda = G4UniformRand();
       double lambda0 = (lambda1 * lambda2) / (lambda2 - r_lambda * (lambda2 - lambda1));
-      double lambda = (lambda0 / CLHEP::cm) * pow(double(10), 7);  // lambda is in nm
+      double lambda = (lambda0 / CLHEP::cm) * 1.e+7;  // lambda is in nm
       wlini.push_back(lambda);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPEinPMT: " << i << " lambda " << lambda << " w_ph " << w_ph
