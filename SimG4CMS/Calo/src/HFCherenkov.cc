@@ -79,7 +79,7 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
         theTouchable->GetHistory()->GetTopTransform().TransformPoint(aStep->GetPostStepPoint()->GetPosition());
 
     double length = std::sqrt((localpostpos.x() - localprepos.x()) * (localpostpos.x() - localprepos.x()) +
-                         (localpostpos.y() - localprepos.y()) * (localpostpos.y() - localprepos.y()));
+                              (localpostpos.y() - localprepos.y()) * (localpostpos.y() - localprepos.y()));
     double yemit = std::sqrt(fibreR * fibreR - length * length / 4.);
 
     double u_ph = 0, v_ph = 0, w_ph = 0;
