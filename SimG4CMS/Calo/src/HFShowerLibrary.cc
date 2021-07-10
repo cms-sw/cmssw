@@ -82,7 +82,6 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
     throw cms::Exception("Unknown", "HFShowerLibrary") << "Events tree absent\n";
   }
 
-#ifdef EDM_ML_DEBUG
   std::stringstream ss;
   ss << "HFShowerLibrary: Library " << libVers << " ListVersion " << listVersion << " File version " << fileVersion_
      << " Events Total " << totEvents << " and " << evtPerBin << " per bin\n";
@@ -94,7 +93,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
     ss << "  " << pmom[i] / CLHEP::GeV;
   }
   edm::LogVerbatim("HFShower") << ss.str();
-#endif
+
   std::string nameBr = branchPre + emName + branchPost;
   emBranch = event->GetBranch(nameBr.c_str());
   if (verbose)
@@ -109,14 +108,13 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
     v3version = true;
   }
 
-#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << " HFShowerLibrary:Branch " << emName << " has " << emBranch->GetEntries()
                                << " entries and Branch " << hadName << " has " << hadBranch->GetEntries()
                                << " entries\n HFShowerLibrary::No packing information - Assume x, y, z are not in "
                                   "packed form\n Maximum probability cut off "
                                << probMax << "  Back propagation of light probability " << backProb
                                << " Flag for ignoring Time Shift " << ignoreTimeShift_;
-#endif
+
   fibre_ = std::make_unique<HFFibre>(name, hcalConstant_, hps, p);
   photo = new HFShowerPhotonCollection;
 
@@ -128,10 +126,10 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
   //Delta phi
   std::vector<double> phibin = hcalConstant_->getPhiTableHF();
   dphi = phibin[0];
-#ifdef EDM_ML_DEBUG
+
   edm::LogVerbatim("HFShower") << "HFShowerLibrary: rMIN " << rMin / CLHEP::cm << " cm and rMax " << rMax / CLHEP::cm
                                << " (Half) Phi Width of wedge " << dphi / CLHEP::deg;
-#endif
+
   //Special Geometry parameters
   gpar = hcalConstant_->getGparHF();
 }
@@ -411,10 +409,9 @@ void HFShowerLibrary::loadEventInfo(TBranch* branch) {
     std::vector<HFShowerLibraryEventInfo> eventInfoCollection;
     branch->SetAddress(&eventInfoCollection);
     branch->GetEntry(0);
-#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HFShower") << "HFShowerLibrary::loadEventInfo loads EventInfo Collection of size "
                                  << eventInfoCollection.size() << " records";
-#endif
+
     totEvents = eventInfoCollection[0].totalEvents();
     nMomBin = eventInfoCollection[0].numberOfBins();
     evtPerBin = eventInfoCollection[0].eventsPerBin();
@@ -422,10 +419,9 @@ void HFShowerLibrary::loadEventInfo(TBranch* branch) {
     listVersion = eventInfoCollection[0].physListVersion();
     pmom = eventInfoCollection[0].energyBins();
   } else {
-#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HFShower") << "HFShowerLibrary::loadEventInfo loads EventInfo from hardwired"
                                  << " numbers";
-#endif
+
     nMomBin = 16;
     evtPerBin = (fileVersion_ == 0) ? 5000 : 100000;
     totEvents = nMomBin * evtPerBin;
