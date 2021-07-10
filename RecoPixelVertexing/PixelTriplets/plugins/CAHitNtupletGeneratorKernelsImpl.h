@@ -449,6 +449,8 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
     // compute a pT-dependent chi2 cut
 
     auto roughLog = [](float x) {
+      // max diff [0.5,12] at 1.25 0.16143
+      // average diff  0.0662998
       union IF {
         uint32_t i;
         float f;
@@ -461,8 +463,9 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
       auto f = z.i & 3;
       int ex = int(z.i >> 2) - 127;
 
-      // is this faster than 0.25f*float(f)?
-      const float frac[4] = {0.f, 0.25f, 0.5f, 0.75f};
+      // log2(1+0.25*f)
+      // averaged over bins
+      const float frac[4] = {0.160497f, 0.452172f, 0.694562f, 0.901964f};
       return float(ex) + frac[f];
     };
 
