@@ -130,8 +130,13 @@ EOF
  
      def launch(self, nb_event, seed):
 EOF
+    fi
 
-        # fix another "readonly" mode issue related to proper handle of the integration grid, as identified in: https://answers.launchpad.net/mg5amcnlo/+question/696856
+    # fix another "readonly" mode issue related to proper handle of the integration grid,
+    # as identified in: https://answers.launchpad.net/mg5amcnlo/+question/696856
+    # this is fixed since 2.9.4 and 3.1.1, so we add a patch if MG is lower then these versions
+    if [[ ( ${MGVersion[0]} -eq 2 ) && ( ${MGVersion[1]} -lt 9 || ( ${MGVersion[1]} -eq 9 && ${MGVersion[2]} -le 3 ) ) ]] || \
+       [[ ( ${MGVersion[0]} -eq 3 ) && ( ${MGVersion[1]} -lt 1 || ( ${MGVersion[1]} -eq 1 && ${MGVersion[2]} -le 0 ) ) ]]; then 
         patch process/madevent/bin/internal/gen_ximprove.py << EOF
 === modified file 'madgraph/interface/gen_ximprove.py'
 --- madgraph/interface/gen_ximprove.py
