@@ -130,6 +130,22 @@ EOF
  
      def launch(self, nb_event, seed):
 EOF
+
+        # fix another "readonly" mode issue related to proper handle of the integration grid, as identified in: https://answers.launchpad.net/mg5amcnlo/+question/696856
+        patch process/madevent/bin/internal/gen_ximprove.py << EOF
+=== modified file 'madgraph/interface/gen_ximprove.py'
+--- madgraph/interface/gen_ximprove.py
++++ madgraph/interface/gen_ximprove.py
+@@ -1903,5 +1903,8 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
+                     'packet': None,
+                     }
++            if self.readonly:
++                basedir = pjoin(os.path.dirname(__file__), '..','..','SubProcesses', info['P_dir'], info['directory'])
++                info['base_directory'] = basedir
+
+
+             jobs.append(info)
+EOF
     fi
     
     # fix another multi-thread related bug for MG 2.6.1 only
