@@ -117,14 +117,6 @@ namespace edm {
         return _then(std::forward<O>(iO), std::move(*this));
       }
 
-      ///Define next task to run once this task has finished. If a previous task had an exception, only the first functor, iE, will be run and passed the std::exception_ptr const. If there
-      /// was no exception, then only the functor iF will be run. If iF has an exception, it will be automatically propagated to the edm::WaitingTaskHolder.
-      template <typename E, typename F>
-      [[nodiscard]] constexpr auto thenIfExceptionElse(E&& iE, F&& iF) {
-        return WaitingTaskChain<ExplicitExceptionHandler<E, F>, U>(
-            ExplicitExceptionHandler<E, F>(std::forward<E>(iE), std::forward<F>(iF)), std::move(*this));
-      }
-
       ///Only runs this task if the condition (which is known at the call time) is true. If false, this task will be skipped and the following task will run.
       template <typename O>
       [[nodiscard]] constexpr auto ifThen(bool iCondition, O&& iO) {
@@ -161,14 +153,6 @@ namespace edm {
       template <typename O>
       [[nodiscard]] constexpr auto then(O&& iO) {
         return _then(std::forward<O>(iO), std::move(*this));
-      }
-
-      ///Define next task to run once this task has finished. If a previous task had an exception, only the first functor, iE, will be run and passed the std::exception_ptr const. If there
-      /// was no exception, then only the functor iF will be run. If iF has an exception, it will be automatically propagated to the edm::WaitingTaskHolder.
-      template <typename E, typename F>
-      [[nodiscard]] constexpr auto thenIfExceptionElse(E&& iE, F&& iF) {
-        return WaitingTaskChain<ExplicitExceptionHandler<E, F>, U, T...>(
-            ExplicitExceptionHandler<E, F>(std::forward<E>(iE), std::forward<F>(iF)), std::move(*this));
       }
 
       template <typename O>
@@ -213,14 +197,6 @@ namespace edm {
       template <typename O>
       [[nodiscard]] constexpr auto then(O&& iO) {
         return _then(std::forward<O>(iO), std::move(*this));
-      }
-
-      ///Define next task to run once this task has finished. If a previous task had an exception, only the first functor, iE, will be run and passed the std::exception_ptr const. If there
-      /// was no exception, then only the functor iF will be run. If iF has an exception, it will be automatically propagated to the edm::WaitingTaskHolder.
-      template <typename E, typename F>
-      [[nodiscard]] constexpr auto thenIfExceptionElse(E&& iE, F&& iF) {
-        return WaitingTaskChain<ExplicitExceptionHandler<E, F>, Conditional<U>, T...>(
-            ExplicitExceptionHandler<E, F>(std::forward<E>(iE), std::forward<F>(iF)), std::move(*this));
       }
 
       template <typename O>
@@ -270,12 +246,23 @@ namespace edm {
       }
     }
 
-    template <typename E, typename F>
-    auto beginChainIfExceptionElse(E&& iE, F&& iF) {
-      using namespace detail;
-      return WaitingTaskChain<ExplicitExceptionHandler<E, F>>(
-          ExplicitExceptionHandler<E, F>(std::forward<E>(iE), std::forward<F>(iF)));
-    }
+    /**Creates a functor adaptor which assembled two different functors into one. To use, one calls the constructor immediately followed by the else_ method. The created functor has the following behavior:
+   If a previous task had an exception, only the first functor given to the constructor, iE, will be run and passed the std::exception_ptr const. If there
+   was no exception, then only the functor passed to else_, iF, will be run. If iF has an exception, it will be automatically propagated to the edm::WaitingTaskHolder. */
+    template <typename E>
+    struct IfException {
+      IfException(E&& iE) : except_(std::forward<E>(iE)) {}
+
+      template <typename F>
+      auto else_(F&& iF) {
+        using namespace detail;
+        return ExplicitExceptionHandler<E, F>(std::move(except_), std::forward<F>(iF));
+      }
+
+    private:
+      E except_;
+    };
+
   }  // namespace waiting_task
 }  // namespace edm
 
