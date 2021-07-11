@@ -233,7 +233,6 @@ def OptionsFromItems(items):
             print('We have determined that this is simulation (if not, rerun cmsDriver.py with --data)')
         else:
             print('We have determined that this is real data (if not, rerun cmsDriver.py with --mc)')
-            options.isData=True
 
     if options.profile:
         if options.profile and options.prefix:
