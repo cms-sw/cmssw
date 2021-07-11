@@ -182,15 +182,14 @@ TEST_CASE("Test beginChain", "[beginChain]") {
     }
   }
 
-  SECTION("thenWithException testing") {
+  SECTION("then with exception handler testing") {
     SECTION("begin.end") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::waiting_task::beginChainWithException([&count](std::exception_ptr const* iPtr,
-                                                                     edm::WaitingTaskHolder h) {
+        auto h = edm::waiting_task::beginChain([&count](std::exception_ptr const* iPtr, edm::WaitingTaskHolder h) {
                    REQUIRE(iPtr == nullptr);
                    ++count;
                    REQUIRE(count.load() == 1);
@@ -210,12 +209,12 @@ TEST_CASE("Test beginChain", "[beginChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::waiting_task::beginChainWithException([&count](std::exception_ptr const* iPtr, auto h) {
+        auto h = edm::waiting_task::beginChain([&count](std::exception_ptr const* iPtr, auto h) {
                    REQUIRE(iPtr == nullptr);
                    ++count;
                    REQUIRE(count.load() == 1);
                  })
-                     .thenWithException([&count](std::exception_ptr const* iPtr, auto h) {
+                     .then([&count](std::exception_ptr const* iPtr, auto h) {
                        REQUIRE(iPtr == nullptr);
                        ++count;
                        REQUIRE(count.load() == 2);
@@ -236,17 +235,17 @@ TEST_CASE("Test beginChain", "[beginChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::waiting_task::beginChainWithException([&count](std::exception_ptr const* iPtr, auto h) {
+        auto h = edm::waiting_task::beginChain([&count](std::exception_ptr const* iPtr, auto h) {
                    REQUIRE(iPtr == nullptr);
                    ++count;
                    REQUIRE(count.load() == 1);
                  })
-                     .thenWithException([&count](std::exception_ptr const* iPtr, auto h) {
+                     .then([&count](std::exception_ptr const* iPtr, auto h) {
                        REQUIRE(iPtr == nullptr);
                        ++count;
                        REQUIRE(count.load() == 2);
                      })
-                     .thenWithException([&count](std::exception_ptr const* iPtr, auto h) {
+                     .then([&count](std::exception_ptr const* iPtr, auto h) {
                        REQUIRE(iPtr == nullptr);
                        ++count;
                        REQUIRE(count.load() == 3);
@@ -267,8 +266,7 @@ TEST_CASE("Test beginChain", "[beginChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::waiting_task::beginChainWithException([&count](std::exception_ptr const* iPtr,
-                                                                     edm::WaitingTaskHolder h) {
+        auto h = edm::waiting_task::beginChain([&count](std::exception_ptr const* iPtr, edm::WaitingTaskHolder h) {
                    REQUIRE(iPtr != nullptr);
                    ++count;
                    REQUIRE(count.load() == 1);
@@ -288,14 +286,13 @@ TEST_CASE("Test beginChain", "[beginChain]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        auto h = edm::waiting_task::beginChainWithException(
-                     [&count](std::exception_ptr const* iPtr, edm::WaitingTaskHolder h) {
-                       REQUIRE(iPtr != nullptr);
-                       ++count;
-                       REQUIRE(count.load() == 1);
-                       h.doneWaiting(*iPtr);
-                     })
-                     .thenWithException([&count](std::exception_ptr const* iPtr, auto h) {
+        auto h = edm::waiting_task::beginChain([&count](std::exception_ptr const* iPtr, edm::WaitingTaskHolder h) {
+                   REQUIRE(iPtr != nullptr);
+                   ++count;
+                   REQUIRE(count.load() == 1);
+                   h.doneWaiting(*iPtr);
+                 })
+                     .then([&count](std::exception_ptr const* iPtr, auto h) {
                        REQUIRE(iPtr != nullptr);
                        ++count;
                        REQUIRE(count.load() == 2);
