@@ -423,7 +423,7 @@ void HFShowerLibrary::loadEventInfo(TBranch* branch) {
                                  << " numbers";
 
     nMomBin = 16;
-    evtPerBin = (fileVersion_ == 0) ? 5000 : 100000;
+    evtPerBin = (fileVersion_ == 0) ? 5000 : 10000;
     totEvents = nMomBin * evtPerBin;
     libVers = (fileVersion_ == 0) ? 1.1 : 1.2;
     listVersion = 3.6;
