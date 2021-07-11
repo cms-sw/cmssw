@@ -1348,7 +1348,7 @@ namespace edm {
                             ServiceRegistry::Operate operateLooper(serviceToken_);
                             looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
                           })
-                  .thenWithException([this, status](std::exception_ptr const* iPtr, auto holder) mutable {
+                  .then([this, status](std::exception_ptr const* iPtr, auto holder) mutable {
                     if (iPtr) {
                       status->resetResources();
                       holder.doneWaiting(*iPtr);
@@ -1377,16 +1377,15 @@ namespace edm {
                             beginStreamTransitionAsync<Traits>(
                                 std::move(nextTask), *schedule_, i, transitionInfo, serviceToken_, subProcesses_);
                           })
-                              .thenWithException(
-                                  [this, i](std::exception_ptr const* exceptionFromBeginStreamLumi, auto nextTask) {
-                                    if (exceptionFromBeginStreamLumi) {
-                                      WaitingTaskHolder tmp(nextTask);
-                                      tmp.doneWaiting(*exceptionFromBeginStreamLumi);
-                                      streamEndLumiAsync(nextTask, i);
-                                    } else {
-                                      handleNextEventForStreamAsync(std::move(nextTask), i);
-                                    }
-                                  })
+                              .then([this, i](std::exception_ptr const* exceptionFromBeginStreamLumi, auto nextTask) {
+                                if (exceptionFromBeginStreamLumi) {
+                                  WaitingTaskHolder tmp(nextTask);
+                                  tmp.doneWaiting(*exceptionFromBeginStreamLumi);
+                                  streamEndLumiAsync(nextTask, i);
+                                } else {
+                                  handleNextEventForStreamAsync(std::move(nextTask), i);
+                                }
+                              })
                               .run(holder);
                         });
                       }
@@ -1516,49 +1515,48 @@ namespace edm {
                   ServiceRegistry::Operate operate(serviceToken_);
                   looper_->doEndLuminosityBlock(lp, es, &processContext_);
                 })
-        .thenWithException(
-            [status = std::move(iLumiStatus), this](std::exception_ptr const* iPtr, auto nextTask) mutable {
-              std::exception_ptr ptr;
-              if (iPtr) {
-                ptr = *iPtr;
-              }
-              ServiceRegistry::Operate operate(serviceToken_);
+        .then([status = std::move(iLumiStatus), this](std::exception_ptr const* iPtr, auto nextTask) mutable {
+          std::exception_ptr ptr;
+          if (iPtr) {
+            ptr = *iPtr;
+          }
+          ServiceRegistry::Operate operate(serviceToken_);
 
-              // Try hard to clean up resources so the
-              // process can terminate in a controlled
-              // fashion even after exceptions have occurred.
-              // Caught exception is passed to handleEndLumiExceptions()
-              CMS_SA_ALLOW try { deleteLumiFromCache(*status); } catch (...) {
-                if (not ptr) {
-                  ptr = std::current_exception();
-                }
-              }
-              // Caught exception is passed to handleEndLumiExceptions()
-              CMS_SA_ALLOW try {
-                status->resumeGlobalLumiQueue();
-                queueWhichWaitsForIOVsToFinish_.resume();
-              } catch (...) {
-                if (not ptr) {
-                  ptr = std::current_exception();
-                }
-              }
-              // Caught exception is passed to handleEndLumiExceptions()
-              CMS_SA_ALLOW try {
-                // This call to status.resetResources() must occur before iTask is destroyed.
-                // Otherwise there will be a data race which could result in endRun
-                // being delayed until it is too late to successfully call it.
-                status->resetResources();
-                status.reset();
-              } catch (...) {
-                if (not ptr) {
-                  ptr = std::current_exception();
-                }
-              }
+          // Try hard to clean up resources so the
+          // process can terminate in a controlled
+          // fashion even after exceptions have occurred.
+          // Caught exception is passed to handleEndLumiExceptions()
+          CMS_SA_ALLOW try { deleteLumiFromCache(*status); } catch (...) {
+            if (not ptr) {
+              ptr = std::current_exception();
+            }
+          }
+          // Caught exception is passed to handleEndLumiExceptions()
+          CMS_SA_ALLOW try {
+            status->resumeGlobalLumiQueue();
+            queueWhichWaitsForIOVsToFinish_.resume();
+          } catch (...) {
+            if (not ptr) {
+              ptr = std::current_exception();
+            }
+          }
+          // Caught exception is passed to handleEndLumiExceptions()
+          CMS_SA_ALLOW try {
+            // This call to status.resetResources() must occur before iTask is destroyed.
+            // Otherwise there will be a data race which could result in endRun
+            // being delayed until it is too late to successfully call it.
+            status->resetResources();
+            status.reset();
+          } catch (...) {
+            if (not ptr) {
+              ptr = std::current_exception();
+            }
+          }
 
-              if (ptr) {
-                handleEndLumiExceptions(&ptr, nextTask);
-              }
-            })
+          if (ptr) {
+            handleEndLumiExceptions(&ptr, nextTask);
+          }
+        })
         .run(std::move(iTask));
   }
 
