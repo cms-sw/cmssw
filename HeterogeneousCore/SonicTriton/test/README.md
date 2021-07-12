@@ -1,9 +1,9 @@
 # SONIC TritonClient tests
 
 Test modules `TritonImageProducer` and `TritonGraphProducer` (`TritonGraphFilter`, `TritonGraphAnalyzer`) are available.
-They generate arbitrary inputs for inference (with ResNet50 or Graph Attention Network, respectively) and print the resulting output.
+They generate arbitrary inputs for inference (with Inception/Densenet or Graph Attention Network, respectively) and print the resulting output.
 
-First, the relevant data for ResNet50 should be downloaded from Nvidia:
+First, the relevant data for the image classification networks should be downloaded:
 ```
 ./fetch_model.sh
 ```
