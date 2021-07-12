@@ -316,8 +316,8 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        using edm::waiting_task::chain::IfException;
-        auto h = edm::waiting_task::chain::first(IfException([&exceptCount](std::exception_ptr const& iPtr) {
+        using edm::waiting_task::chain::ifException;
+        auto h = edm::waiting_task::chain::first(ifException([&exceptCount](std::exception_ptr const& iPtr) {
                                                    ++exceptCount;
                                                    REQUIRE(false);
                                                  }).else_([&count](edm::WaitingTaskHolder h) {
@@ -341,15 +341,15 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        using edm::waiting_task::chain::IfException;
-        auto h = edm::waiting_task::chain::first(IfException([&exceptCount](std::exception_ptr const& iPtr) {
+        using edm::waiting_task::chain::ifException;
+        auto h = edm::waiting_task::chain::first(ifException([&exceptCount](std::exception_ptr const& iPtr) {
                                                    ++exceptCount;
                                                    REQUIRE(false);
                                                  }).else_([&count](auto h) {
                    ++count;
                    REQUIRE(count.load() == 1);
                  }))
-                     .then(IfException([&exceptCount](std::exception_ptr const& iPtr) {
+                     .then(ifException([&exceptCount](std::exception_ptr const& iPtr) {
                              ++exceptCount;
                              REQUIRE(false);
                            }).else_([&count](auto h) {
@@ -374,22 +374,22 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       edm::FinalWaitingTask waitTask;
       tbb::task_group group;
       {
-        using edm::waiting_task::chain::IfException;
-        auto h = edm::waiting_task::chain::first(IfException([&exceptCount](std::exception_ptr const& iPtr) {
+        using edm::waiting_task::chain::ifException;
+        auto h = edm::waiting_task::chain::first(ifException([&exceptCount](std::exception_ptr const& iPtr) {
                                                    ++exceptCount;
                                                    REQUIRE(false);
                                                  }).else_([&count](auto h) {
                    ++count;
                    REQUIRE(count.load() == 1);
                  }))
-                     .then(IfException([&exceptCount](std::exception_ptr const& iPtr) {
+                     .then(ifException([&exceptCount](std::exception_ptr const& iPtr) {
                              ++exceptCount;
                              REQUIRE(false);
                            }).else_([&count](auto h) {
                        ++count;
                        REQUIRE(count.load() == 2);
                      }))
-                     .then(IfException([&exceptCount](std::exception_ptr const& iPtr) {
+                     .then(ifException([&exceptCount](std::exception_ptr const& iPtr) {
                              ++exceptCount;
                              REQUIRE(false);
                            }).else_([&count](auto h) {
@@ -415,22 +415,22 @@ TEST_CASE("Test chain::first", "[chain::first]") {
     edm::FinalWaitingTask waitTask;
     tbb::task_group group;
     {
-      using edm::waiting_task::chain::IfException;
-      auto h = edm::waiting_task::chain::first(IfException([&exceptCount](std::exception_ptr const& iPtr) {
+      using edm::waiting_task::chain::ifException;
+      auto h = edm::waiting_task::chain::first(ifException([&exceptCount](std::exception_ptr const& iPtr) {
                                                  ++exceptCount;
                                                  REQUIRE(exceptCount.load() == 1);
                                                }).else_([&count](auto h) {
                  ++count;
                  REQUIRE(false);
                }))
-                   .then(IfException([&exceptCount](std::exception_ptr const& iPtr) {
+                   .then(ifException([&exceptCount](std::exception_ptr const& iPtr) {
                            ++exceptCount;
                            REQUIRE(exceptCount.load() == 2);
                          }).else_([&count](auto h) {
                      ++count;
                      REQUIRE(false);
                    }))
-                   .then(IfException([&exceptCount](std::exception_ptr const& iPtr) {
+                   .then(ifException([&exceptCount](std::exception_ptr const& iPtr) {
                            ++exceptCount;
                            REQUIRE(exceptCount.load() == 3);
                          }).else_([&count](auto h) {
