@@ -11,7 +11,6 @@
 
 OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
     : m_pGeoFromDD4hep(iConfig.getParameter<bool>("g4GeometryDD4hepSource")),
-      m_pUseMagneticField(iConfig.getParameter<bool>("UseMagneticField")),
       m_masterThreadState(ThreadState::NotExist) {
   // Lock the mutex
   std::unique_lock<std::mutex> lk(m_threadMutex);
