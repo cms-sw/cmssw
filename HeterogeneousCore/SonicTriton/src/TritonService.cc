@@ -242,6 +242,10 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   for (const auto& [modelName, model] : unservedModels_) {
     command += " -m " + model.path;
   }
+  if (!fallbackOpts_.imageName.empty())
+    command += " -i " + fallbackOpts_.imageName;
+  if (!fallbackOpts_.sandboxName.empty())
+    command += " -s " + fallbackOpts_.sandboxName;
   //don't need this anymore
   unservedModels_.clear();
 
@@ -307,6 +311,8 @@ void TritonService::fillDescriptions(edm::ConfigurationDescriptions& description
   fallbackDesc.addUntracked<int>("wait", -1);
   fallbackDesc.addUntracked<std::string>("instanceName", "");
   fallbackDesc.addUntracked<std::string>("tempDir", "");
+  fallbackDesc.addUntracked<std::string>("imageName", "");
+  fallbackDesc.addUntracked<std::string>("sandboxName", "");
   desc.add<edm::ParameterSetDescription>("fallback", fallbackDesc);
 
   descriptions.addWithDefaultLabel(desc);

@@ -36,7 +36,9 @@ public:
           retries(pset.getUntrackedParameter<int>("retries")),
           wait(pset.getUntrackedParameter<int>("wait")),
           instanceName(pset.getUntrackedParameter<std::string>("instanceName")),
-          tempDir(pset.getUntrackedParameter<std::string>("tempDir")) {}
+          tempDir(pset.getUntrackedParameter<std::string>("tempDir")),
+          imageName(pset.getUntrackedParameter<std::string>("imageName")),
+          sandboxName(pset.getUntrackedParameter<std::string>("sandboxName")) {}
 
     bool enable;
     bool debug;
@@ -47,6 +49,8 @@ public:
     int wait;
     std::string instanceName;
     std::string tempDir;
+	std::string imageName;
+	std::string sandboxName;
   };
   struct Server {
     Server(const edm::ParameterSet& pset)
