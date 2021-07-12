@@ -12,7 +12,6 @@
 
 #include <string>
 #include <cmath>
-#include <chrono>
 #include <exception>
 #include <sstream>
 #include <utility>
@@ -263,11 +262,10 @@ void TritonClient::evaluate() {
 
   if (mode_ == SonicMode::Async) {
     //non-blocking call
-    auto t1 = std::chrono::high_resolution_clock::now();
     success = handle_exception([&]() {
       triton_utils::throwIfError(
           client_->AsyncInfer(
-              [t1, start_status, this](tc::InferResult* results) {
+              [start_status, this](tc::InferResult* results) {
                 //get results
                 std::shared_ptr<tc::InferResult> results_ptr(results);
                 auto success = handle_exception([&]() {
@@ -275,11 +273,6 @@ void TritonClient::evaluate() {
                 });
                 if (!success)
                   return;
-                auto t2 = std::chrono::high_resolution_clock::now();
-
-                if (!debugName_.empty())
-                  edm::LogInfo(fullDebugName_)
-                      << "Remote time: " << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
                 if (verbose()) {
                   inference::ModelStatistics end_status;
@@ -310,7 +303,6 @@ void TritonClient::evaluate() {
       return;
   } else {
     //blocking call
-    auto t1 = std::chrono::high_resolution_clock::now();
     tc::InferResult* results;
     success = handle_exception([&]() {
       triton_utils::throwIfError(client_->Infer(&results, options_, inputsTriton_, outputsTriton_, headers_, compressionAlgo_),
@@ -318,11 +310,6 @@ void TritonClient::evaluate() {
     });
     if (!success)
       return;
-
-    auto t2 = std::chrono::high_resolution_clock::now();
-    if (!debugName_.empty())
-      edm::LogInfo(fullDebugName_) << "Remote time: "
-                                   << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
     if (verbose()) {
       inference::ModelStatistics end_status;
