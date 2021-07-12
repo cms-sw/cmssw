@@ -11,7 +11,7 @@ options.register("params", "", VarParsing.multiplicity.singleton, VarParsing.var
 options.register("threads", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register("streams", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register("modules", "TritonImageProducer", VarParsing.multiplicity.list, VarParsing.varType.string)
-options.register("modelName","resnet50_netdef", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register("models","inception_graphdef", VarParsing.multiplicity.list, VarParsing.varType.string)
 options.register("mode","Async", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("verbose", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register("brief", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
@@ -37,6 +37,11 @@ options.device = options.device.lower()
 allowed_devices = ["auto","cpu","gpu"]
 if options.device not in allowed_devices:
 	raise ValueError("Unknown device: "+options.device)
+
+if len(options.modules)!=len(options.models):
+    # assigning to VarParsing.multiplicity.list actually appends to existing value(s)
+    if len(options.models)==1: options.models = [options.models[0]]*(len(options.modules)-1)
+    else: raise ValueError("Arguments for modules and models must have same length")
 
 from Configuration.ProcessModifiers.enableSonicTriton_cff import enableSonicTriton
 process = cms.Process('tritonTest',enableSonicTriton)
@@ -70,10 +75,10 @@ process.p = cms.Path()
 
 # check module/model
 models = {
-    "TritonImageProducer": "resnet50_netdef",
-    "TritonGraphProducer": "gat_test",
-    "TritonGraphFilter": "gat_test",
-    "TritonGraphAnalyzer": "gat_test",
+    "TritonImageProducer": ["inception_graphdef", "densenet_onnx"],
+    "TritonGraphProducer": ["gat_test"],
+    "TritonGraphFilter": ["gat_test"],
+    "TritonGraphAnalyzer": ["gat_test"],
 }
 
 modules = {
@@ -83,9 +88,12 @@ modules = {
 }
 
 keepMsgs = ['TritonClient','TritonService']
-for module in options.modules:
+for im,module in enumerate(options.modules):
     if module not in models:
-        raise ValueError("Unknown module: "+module)
+        raise ValueError("Unknown module: {}".format(module))
+    model = options.models[im]
+    if model not in models[module]:
+        raise ValueError("Unsupported model {} for module {}".format(model,module))
     Module = [obj for name,obj in six.iteritems(modules) if name in module][0]
     setattr(process, module,
         Module(module,
@@ -93,9 +101,9 @@ for module in options.modules:
                 mode = cms.string(options.mode),
                 preferredServer = cms.untracked.string(""),
                 timeout = cms.untracked.uint32(options.timeout),
-                modelName = cms.string(models[module]),
+                modelName = cms.string(model),
                 modelVersion = cms.string(""),
-                modelConfigPath = cms.FileInPath("HeterogeneousCore/SonicTriton/data/models/{}/config.pbtxt".format(models[module])),
+                modelConfigPath = cms.FileInPath("HeterogeneousCore/SonicTriton/data/models/{}/config.pbtxt".format(model)),
                 verbose = cms.untracked.bool(options.verbose),
                 allowedTries = cms.untracked.uint32(options.tries),
                 useSharedMemory = cms.untracked.bool(options.shm),
@@ -107,7 +115,7 @@ for module in options.modules:
     if module=="TritonImageProducer":
         processModule.batchSize = cms.int32(1)
         processModule.topN = cms.uint32(5)
-        processModule.imageList = cms.FileInPath("HeterogeneousCore/SonicTriton/data/models/resnet50_netdef/resnet50_labels.txt")
+        processModule.imageList = cms.FileInPath("HeterogeneousCore/SonicTriton/data/models/{}/{}_labels.txt".format(model,model.split('_')[0]))
     elif "TritonGraph" in module:
         if options.unittest:
             # reduce input size for unit test

@@ -155,4 +155,4 @@ Servers have several available parameters:
 
 ## Examples
 
-Several example producers (running ResNet50 or Graph Attention Network) can be found in the [test](./test) directory.
+Several example producers (running image classification networks or Graph Attention Network) can be found in the [test](./test) directory.
