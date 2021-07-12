@@ -661,8 +661,10 @@ namespace pat {
       setTrackProperties(tk, tk.covariance(), quality, covarianceVersion);
     }
 
-    void setTrackPropertiesLite(unsigned int covSchema, unsigned int covarianceVersion, unsigned int nHits, unsigned int nPixelHits)
-    {
+    void setTrackPropertiesLite(unsigned int covSchema,
+                                unsigned int covarianceVersion,
+                                unsigned int nHits,
+                                unsigned int nPixelHits) {
       covarianceVersion_ = covarianceVersion;
       covarianceSchema_ = covSchema;
       packedHits_ = (nHits & trackPixelHitsMask) | (nPixelHits << trackStripHitsShift);
