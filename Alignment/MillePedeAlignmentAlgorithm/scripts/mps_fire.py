@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #  Submit jobs that are setup in local mps database to batch system
 #
 #  The bsub sytax: bsub -J 'jobname' -q 'queue name' theProgram
