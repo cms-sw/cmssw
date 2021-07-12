@@ -2263,7 +2263,7 @@ class ConfigBuilder(object):
         self.pythonCfgCode+="from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask\n"
         self.pythonCfgCode+="associatePatAlgosToolsTask(process)\n"
 
-        if self._options.nThreads is not "1":
+        if self._options.nThreads != "1":
             self.pythonCfgCode +="\n"
             self.pythonCfgCode +="#Setup FWK for multithreaded\n"
             self.pythonCfgCode +="process.options.numberOfThreads = "+self._options.nThreads+"\n"
