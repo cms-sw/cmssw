@@ -35,7 +35,7 @@ def customiseLogErrorHarvesterUsingOutputCommands(process):
         toExclude = includeMods.difference(modulesFromAllOutput)
         if hasattr(process.logErrorHarvester,"excludeModules"):
             toExclude = toExclude.union(set(process.logErrorHarvester.excludeModules.value()))
-        process.logErrorHarvester.excludeModules = cms.untracked.vstring(*toExclude)
+        process.logErrorHarvester.excludeModules = cms.untracked.vstring(sorted(toExclude))
     else:
-        process.logErrorHarvester.includeModules = cms.untracked.vstring(*modulesFromAllOutput)
+        process.logErrorHarvester.includeModules = cms.untracked.vstring(sorted(modulesFromAllOutput))
     return process
