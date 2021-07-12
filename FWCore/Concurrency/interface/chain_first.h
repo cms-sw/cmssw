@@ -98,11 +98,24 @@ namespace edm {
       E except_;
     };
 
-    template <typename T>
-    struct Conditional {};
-
     template <typename... T>
     struct WaitingTaskChain;
+
+    template <typename F>
+    struct Conditional {};
+
+    template <typename F>
+    struct ConditionalAdaptor {
+      constexpr explicit ConditionalAdaptor(bool iCond, F&& iF) : f_(std::forward<F>(iF)), condition_(iCond) {}
+
+      template <typename... T>
+      [[nodiscard]] constexpr auto pipe(WaitingTaskChain<T...> iChain) {
+        return WaitingTaskChain<Conditional<F>, T...>(condition_, std::move(f_), std::move(iChain));
+      }
+
+      F f_;
+      bool condition_;
+    };
 
     template <typename O, typename... T>
     [[nodiscard]] constexpr auto _then(O&& iO, WaitingTaskChain<T...> iChain) {
@@ -113,6 +126,43 @@ namespace edm {
                                                                std::move(iChain));
       }
     }
+
+    template <typename F>
+    struct ThenAdaptor {
+      constexpr explicit ThenAdaptor(F&& iF) : f_(std::forward<F>(iF)) {}
+
+      template <typename... T>
+      [[nodiscard]] constexpr auto pipe(WaitingTaskChain<T...> iChain) {
+        return _then(std::move(f_), std::move(iChain));
+      }
+
+    private:
+      F f_;
+    };
+
+    struct RunLastAdaptor {
+      explicit RunLastAdaptor(edm::WaitingTaskHolder iT) : task_(std::move(iT)) {}
+
+      template <typename... T>
+      constexpr void pipe(WaitingTaskChain<T...>&& iChain) {
+        iChain.runLast(std::move(task_));
+      }
+
+    private:
+      edm::WaitingTaskHolder task_;
+    };
+
+    struct LastTaskAdaptor {
+      explicit LastTaskAdaptor(edm::WaitingTaskHolder iT) : task_(std::move(iT)) {}
+
+      template <typename... T>
+      constexpr auto pipe(WaitingTaskChain<T...>&& iChain) {
+        return iChain.lastTask(std::move(task_));
+      }
+
+    private:
+      edm::WaitingTaskHolder task_;
+    };
 
     template <typename U>
     struct WaitingTaskChain<U> {
@@ -146,6 +196,11 @@ namespace edm {
       }
 
       void runLast(WaitingTaskHolder iH) { f_(nullptr, std::move(iH)); }
+
+      template <typename V>
+      friend auto operator|(WaitingTaskChain<U> iChain, V&& iV) {
+        return iV.pipe(std::move(iChain));
+      }
 
     private:
       U f_;
@@ -190,6 +245,11 @@ namespace edm {
             })));
       }
 
+      template <typename V>
+      friend auto operator|(WaitingTaskChain<U, T...> iChain, V&& iV) {
+        return iV.pipe(std::move(iChain));
+      }
+
     private:
       WaitingTaskChain<T...> l_;
       U f_;
@@ -199,6 +259,9 @@ namespace edm {
     struct WaitingTaskChain<Conditional<U>, T...> {
       explicit constexpr WaitingTaskChain(bool iCondition, U&& iU, WaitingTaskChain<T...> iL)
           : l_(std::move(iL)), f_{std::forward<U>(iU)}, condition_(iCondition) {}
+
+      explicit constexpr WaitingTaskChain(Conditional<U> iC, WaitingTaskChain<T...> iL)
+          : l_(std::move(iL)), f_{std::move<U>(iC.f_)}, condition_(iC.condition_) {}
 
       /**Define next task to run once this task has finished. Two different functor types are allowed
        1. The functor  takes a edm::WaitingTaskHolder as argument. If an exception happened in a previous task, the functor will NOT be run.
@@ -241,6 +304,11 @@ namespace edm {
         }
       }
 
+      template <typename V>
+      friend auto operator|(WaitingTaskChain<Conditional<U>, T...> iChain, V&& iV) {
+        return iV.pipe(std::move(iChain));
+      }
+
     private:
       WaitingTaskChain<T...> l_;
       U f_;
@@ -254,13 +322,33 @@ namespace edm {
    a single argument of type edm::WairingTaskHolder or two arguments of type std::exception_ptr const* and WaitingTaskHolder. In the latter case, the pointer is only non-null if a previous task in the chain threw an exception.
    */
     template <typename F>
-    constexpr auto first(F&& iF) {
+    [[nodiscard]] constexpr auto first(F&& iF) {
       using namespace detail;
       if constexpr (has_exception_handling<F>::value) {
         return WaitingTaskChain<F>(std::forward<F>(iF));
       } else {
         return WaitingTaskChain<AutoExceptionHandler<F>>(AutoExceptionHandler<F>(std::forward<F>(iF)));
       }
+    }
+
+    template <typename O>
+    [[nodiscard]] constexpr auto then(O&& iO) {
+      return detail::ThenAdaptor<O>(std::forward<O>(iO));
+    }
+
+    template <typename O>
+    [[nodiscard]] constexpr auto ifThen(bool iValue, O&& iO) {
+      if constexpr (detail::has_exception_handling<O>::value) {
+        return detail::ConditionalAdaptor<O>(iValue, std::forward<O>(iO));
+      } else {
+        return detail::ConditionalAdaptor<detail::AutoExceptionHandler<O>>(iValue, std::forward<O>(iO));
+      }
+    }
+
+    [[nodiscard]] inline auto runLast(edm::WaitingTaskHolder iTask) { return detail::RunLastAdaptor(std::move(iTask)); }
+
+    [[nodiscard]] inline auto lastTask(edm::WaitingTaskHolder iTask) {
+      return detail::LastTaskAdaptor(std::move(iTask));
     }
 
     /**Creates a functor adaptor which assembled two different functors into one. To use, one calls the constructor immediately followed by the else_ method. The created functor has the following behavior:
