@@ -1,18 +1,18 @@
-#ifndef FWCore_Concurrency_beginChain_h
-#define FWCore_Concurrency_beginChain_h
+#ifndef FWCore_Concurrency_chain_first_h
+#define FWCore_Concurrency_chain_first_h
 // -*- C++ -*-
 //
 // Package:     Concurrency
-// function  :     beginChain
+// function  :     edm::waiting_task::chain::first
 //
-/**\function beginChain
+/**\function chain_first
 
  Description: Handles creation of a chain of WaitingTasks
 
  Usage:
     Use the function to begin constructing a chain of waiting tasks.
-    Once the chain is declared, call end() with a WaitingTaskHolder
-    to get back a new WaitingTaskHolder.
+    Once the chain is declared, call lastTask() with a WaitingTaskHolder
+    to get back a new WaitingTaskHolder or runLast() to schedule the chain to run.
 */
 //
 // Original Author:  Chris Jones
@@ -124,7 +124,7 @@ namespace edm {
             iCondition, AutoExceptionHandler<O>(std::forward<O>(iO)), std::move(*this));
       }
 
-      [[nodiscard]] WaitingTaskHolder task(WaitingTaskHolder iV) {
+      [[nodiscard]] WaitingTaskHolder lastTask(WaitingTaskHolder iV) {
         return WaitingTaskHolder(
             *iV.group(),
             make_waiting_task([f = std::move(f_), v = std::move(iV)](const std::exception_ptr* iPtr) mutable {
@@ -132,7 +132,7 @@ namespace edm {
             }));
       }
 
-      void run(WaitingTaskHolder iH) { f_(nullptr, std::move(iH)); }
+      void runLast(WaitingTaskHolder iH) { f_(nullptr, std::move(iH)); }
 
     private:
       U f_;
@@ -161,16 +161,16 @@ namespace edm {
             iCondition, AutoExceptionHandler<O>(std::forward<O>(iO)), std::move(*this));
       }
 
-      [[nodiscard]] WaitingTaskHolder task(WaitingTaskHolder iV) {
-        return l_.task(WaitingTaskHolder(
+      [[nodiscard]] WaitingTaskHolder lastTask(WaitingTaskHolder iV) {
+        return l_.lastTask(WaitingTaskHolder(
             *iV.group(),
             make_waiting_task([f = std::move(f_), v = std::move(iV)](std::exception_ptr const* iPtr) mutable {
               f(iPtr, std::move(v));
             })));
       }
 
-      void run(WaitingTaskHolder iV) {
-        l_.run(WaitingTaskHolder(
+      void runLast(WaitingTaskHolder iV) {
+        l_.runLast(WaitingTaskHolder(
             *iV.group(),
             make_waiting_task([f = std::move(f_), v = std::move(iV)](std::exception_ptr const* iPtr) mutable {
               f(iPtr, std::move(v));
@@ -205,26 +205,26 @@ namespace edm {
             iCondition, AutoExceptionHandler<O>(std::forward<O>(iO)), std::move(*this));
       }
 
-      [[nodiscard]] WaitingTaskHolder task(WaitingTaskHolder iV) {
+      [[nodiscard]] WaitingTaskHolder lastTask(WaitingTaskHolder iV) {
         if (condition_) {
-          return l_.task(WaitingTaskHolder(
+          return l_.lastTask(WaitingTaskHolder(
               *iV.group(),
               make_waiting_task([f = std::move(f_), v = std::move(iV)](std::exception_ptr const* iPtr) mutable {
                 f(iPtr, std::move(v));
               })));
         }
-        return l_.task(iV);
+        return l_.lastTask(iV);
       }
 
-      void run(WaitingTaskHolder iV) {
+      void runLast(WaitingTaskHolder iV) {
         if (condition_) {
-          l_.run(WaitingTaskHolder(
+          l_.runLast(WaitingTaskHolder(
               *iV.group(),
               make_waiting_task([f = std::move(f_), v = std::move(iV)](std::exception_ptr const* iPtr) mutable {
                 f(iPtr, std::move(v));
               })));
         } else {
-          l_.run(iV);
+          l_.runLast(iV);
         }
       }
 
@@ -235,9 +235,13 @@ namespace edm {
     };
 
   }  // namespace waiting_task::detail
-  namespace waiting_task {
+  namespace waiting_task::chain {
+
+    /** Sets the first task to be run as part of the task chain. The functor is expected to take either
+   a single argument of type edm::WairingTaskHolder or two arguments of type std::exception_ptr const* and WaitingTaskHolder. In the latter case, the pointer is only non-null if a previous task in the chain threw an exception.
+   */
     template <typename F>
-    auto beginChain(F&& iF) {
+    auto first(F&& iF) {
       using namespace detail;
       if constexpr (has_exception_handling<F>::value) {
         return WaitingTaskChain<F>(std::forward<F>(iF));
@@ -263,7 +267,7 @@ namespace edm {
       E except_;
     };
 
-  }  // namespace waiting_task
+  }  // namespace waiting_task::chain
 }  // namespace edm
 
 #endif
