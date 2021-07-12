@@ -2,27 +2,41 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 import FWCore.ParameterSet.Config as cms
 import os, sys, json, six
 
-options = VarParsing("analysis")
-options.register("serverName", "default", VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register("address", "", VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register("port", 8001, VarParsing.multiplicity.singleton, VarParsing.varType.int)
-options.register("timeout", 30, VarParsing.multiplicity.singleton, VarParsing.varType.int)
-options.register("params", "", VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register("threads", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int)
-options.register("streams", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int)
-options.register("modules", "TritonImageProducer", VarParsing.multiplicity.list, VarParsing.varType.string)
-options.register("models","inception_graphdef", VarParsing.multiplicity.list, VarParsing.varType.string)
-options.register("mode","Async", VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register("verbose", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register("brief", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register("unittest", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register("testother", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register("shm", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register("compression", "", VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register("ssl", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register("device","auto", VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register("docker", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register("tries", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int)
+# module/model correspondence
+models = {
+    "TritonImageProducer": ["inception_graphdef", "densenet_onnx"],
+    "TritonGraphProducer": ["gat_test"],
+    "TritonGraphFilter": ["gat_test"],
+    "TritonGraphAnalyzer": ["gat_test"],
+}
+
+# other choices
+allowed_modes = ["Async","PseudoAsync","Sync"]
+allowed_compression = ["none","deflate","gzip"]
+allowed_devices = ["auto","cpu","gpu"]
+
+options = VarParsing()
+options.register("maxEvents", -1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Number of events to process (-1 for all)")
+options.register("serverName", "default", VarParsing.multiplicity.singleton, VarParsing.varType.string, "name for server (used internally)")
+options.register("address", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "server address")
+options.register("port", 8001, VarParsing.multiplicity.singleton, VarParsing.varType.int, "server port")
+options.register("timeout", 30, VarParsing.multiplicity.singleton, VarParsing.varType.int, "timeout for requests")
+options.register("params", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "json file containing server address/port")
+options.register("threads", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "number of threads")
+options.register("streams", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "number of streams")
+options.register("modules", "TritonImageProducer", VarParsing.multiplicity.list, VarParsing.varType.string, "list of modules to run (choices: {})".format(', '.join(models)))
+options.register("models","inception_graphdef", VarParsing.multiplicity.list, VarParsing.varType.string, "list of models (same length as modules, or just 1 entry if all modules use same model)")
+options.register("mode","Async", VarParsing.multiplicity.singleton, VarParsing.varType.string, "mode for client (choices: {})".format(', '.join(allowed_modes)))
+options.register("verbose", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "enable verbose output")
+options.register("brief", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "briefer output for graph modules")
+options.register("unittest", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "unit test mode: reduce input sizes")
+options.register("testother", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "also test gRPC communication if shared memory enabled, or vice versa")
+options.register("shm", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "enable shared memory")
+options.register("compression", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "enable I/O compression (choices: {})".format(', '.join(allowed_compression)))
+options.register("ssl", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "enable SSL authentication for server communication")
+options.register("device","auto", VarParsing.multiplicity.singleton, VarParsing.varType.string, "specify device for fallback server (choices: {})".format(', '.join(allowed_devices)))
+options.register("docker", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "use Docker for fallback server")
+options.register("tries", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "number of retries for failed request")
 options.parseArguments()
 
 if len(options.params)>0:
@@ -32,16 +46,30 @@ if len(options.params)>0:
     options.port = int(pdict["port"])
     print("server = "+options.address+":"+str(options.port))
 
-# check devices
-options.device = options.device.lower()
-allowed_devices = ["auto","cpu","gpu"]
-if options.device not in allowed_devices:
-	raise ValueError("Unknown device: "+options.device)
-
+# check models and modules
+for im,module in enumerate(options.modules):
+    if module not in models:
+        raise ValueError("Unknown module: {}".format(module))
+    model = options.models[im]
+    if model not in models[module]:
+        raise ValueError("Unsupported model {} for module {}".format(model,module))
 if len(options.modules)!=len(options.models):
     # assigning to VarParsing.multiplicity.list actually appends to existing value(s)
     if len(options.models)==1: options.models = [options.models[0]]*(len(options.modules)-1)
     else: raise ValueError("Arguments for modules and models must have same length")
+
+# check modes
+if options.mode not in allowed_modes:
+    raise ValueError("Unknown mode: {}".format(options.mode))
+
+# check compression
+if len(options.compression)>0 and options.compression not in allowed_compression:
+    raise ValueError("Unknown compression setting: {}".format(options.compression))
+
+# check devices
+options.device = options.device.lower()
+if options.device not in allowed_devices:
+	raise ValueError("Unknown device: {}".format(options.device))
 
 from Configuration.ProcessModifiers.enableSonicTriton_cff import enableSonicTriton
 process = cms.Process('tritonTest',enableSonicTriton)
@@ -73,14 +101,6 @@ if len(options.address)>0:
 # Let it run
 process.p = cms.Path()
 
-# check module/model
-models = {
-    "TritonImageProducer": ["inception_graphdef", "densenet_onnx"],
-    "TritonGraphProducer": ["gat_test"],
-    "TritonGraphFilter": ["gat_test"],
-    "TritonGraphAnalyzer": ["gat_test"],
-}
-
 modules = {
     "Producer": cms.EDProducer,
     "Filter": cms.EDFilter,
@@ -89,11 +109,7 @@ modules = {
 
 keepMsgs = ['TritonClient','TritonService']
 for im,module in enumerate(options.modules):
-    if module not in models:
-        raise ValueError("Unknown module: {}".format(module))
     model = options.models[im]
-    if model not in models[module]:
-        raise ValueError("Unsupported model {} for module {}".format(model,module))
     Module = [obj for name,obj in six.iteritems(modules) if name in module][0]
     setattr(process, module,
         Module(module,
