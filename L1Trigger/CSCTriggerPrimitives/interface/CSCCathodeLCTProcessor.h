@@ -37,10 +37,9 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCLUTReader.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/ComparatorCodeLUT.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/PulseArray.h"
 
 #include <vector>
-#include <array>
-#include <string>
 
 class CSCCathodeLCTProcessor : public CSCBaseboard {
 public:
@@ -106,8 +105,6 @@ protected:
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
 
-  typedef unsigned int PulseArray[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
-
   //---------------- Methods common to all firmware versions ------------------
   // Single-argument version for TMB07 (halfstrip-only) firmware.
   // Takes the comparator & time info and stuffs it into halfstrip vector.
@@ -115,8 +112,7 @@ protected:
   void readComparatorDigis(
       std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
   void pulseExtension(
-      const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
-      PulseArray pulse);
+      const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
 
   //--------------- Functions for post-2007 version of the firmware -----------
   virtual std::vector<CSCCLCTDigi> findLCTs(
@@ -124,12 +120,11 @@ protected:
 
   /* Check all half-strip pattern envelopes simultaneously, on every clock cycle, for a matching pattern
      Returns true if a pretrigger was found, and the first BX of the pretrigger */
-  virtual bool preTrigger(const PulseArray pulse, const int start_bx, int& first_bx);
+  virtual bool preTrigger(const int start_bx, int& first_bx);
 
   /* For a given clock cycle, check each half-strip if a pattern matches
-     This function determines best_pid_, nhits_ and first_bx_corrected_ for each half-strip */
-  bool patternFinding(const PulseArray pulse,
-                      const unsigned int bx_time,
+     This function determines best_pid_ and nhits_ for each half-strip */
+  bool patternFinding(const unsigned int bx_time,
                       std::map<int, std::map<int, CSCCLCTDigi::ComparatorContainer> >& hits_in_patterns);
 
   void cleanComparatorContainer(CSCCLCTDigi& lct) const;
@@ -139,6 +134,16 @@ protected:
                     const int best_patid,
                     int quality[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
 
+  // build a new CLCT trigger
+  CSCCLCTDigi constructCLCT(const int bx,
+                            const unsigned halfstrip_withstagger,
+                            const CSCCLCTDigi::ComparatorContainer& hits);
+
+  // build a new CLCT pretrigger
+  CSCCLCTPreTriggerDigi constructPreCLCT(const int bx, const unsigned halfstrip, const unsigned index) const;
+
+  // resets ispretrig_
+  void clearPreTriggers();
   //--------------------------- Auxiliary methods -----------------------------
   /** Dump CLCT configuration parameters. */
   void dumpConfigParams() const;
@@ -149,31 +154,19 @@ protected:
 
   //--------------------------- Member variables -----------------------------
 
+  PulseArray pulse_;
+
   /* best pattern Id for a given half-strip */
   unsigned int best_pid[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
 
   /* number of layers hit on a given half-strip */
   unsigned int nhits[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
 
-  int first_bx_corrected[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
-
   /* does a given half-strip have a pre-trigger? */
-  bool ispretrig[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
+  bool ispretrig_[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
 
   // actual LUT used
   CSCPatternBank::LCTPatterns clct_pattern_ = {};
-
-  // Structure for the prototype CLCTs
-  struct ProtoCLCT {
-    unsigned pattern;
-    unsigned bend;
-    unsigned halfstrip;
-    unsigned bx;
-    unsigned striptype;
-    unsigned cfeb;
-    unsigned keyhalfstrip;
-    unsigned quality;
-  };
 
   /* number of strips used in this processor */
   int numStrips_;
@@ -221,10 +214,6 @@ protected:
   static const unsigned int def_nplanes_hit_pattern;
   static const unsigned int def_pid_thresh_pretrig, def_min_separation;
   static const unsigned int def_tmb_l1a_window_size;
-
-  std::vector<std::string> positionLUTFiles_;
-  std::vector<std::string> slopeLUTFiles_;
-  std::vector<std::string> patternConversionLUTFiles_;
 
   /* quality control */
   std::unique_ptr<LCTQualityControl> qualityControl_;
