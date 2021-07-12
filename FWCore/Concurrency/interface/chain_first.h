@@ -28,6 +28,7 @@
 
 // user include files
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 
@@ -51,9 +52,7 @@ namespace edm {
         if (iPtr) {
           h.doneWaiting(*iPtr);
         } else {
-          try {
-            f_(h);
-          } catch (...) {
+          CMS_SA_ALLOW try { f_(h); } catch (...) {
             h.doneWaiting(std::current_exception());
           }
         }
@@ -72,9 +71,7 @@ namespace edm {
           except_(*iPtr);
           h.doneWaiting(*iPtr);
         } else {
-          try {
-            f_(h);
-          } catch (...) {
+          CMS_SA_ALLOW try { f_(h); } catch (...) {
             h.doneWaiting(std::current_exception());
           }
         }
