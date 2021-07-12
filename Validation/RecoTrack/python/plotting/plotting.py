@@ -1021,7 +1021,7 @@ class AggregateBins:
                 # the iteration timing plots), so let's test them all
                 for lab in labels:
                     if lab in values:
-                        ivalue = values.keys().index(lab)
+                        ivalue = list(values.keys()).index(lab)
                         break
             binIndexOrder.append( (ivalue, i) )
 
@@ -1934,9 +1934,9 @@ class Plot:
             return th1
 
         if self._fallback is not None:
-            self._histograms = map(_modifyHisto, self._histograms, profileX)
+            self._histograms = list(map(_modifyHisto, self._histograms, profileX))
         else:
-            self._histograms = map(lambda h: _modifyHisto(h, self._profileX), self._histograms)
+            self._histograms =list(map(lambda h: _modifyHisto(h, self._profileX), self._histograms))
         if requireAllHistograms and None in self._histograms:
             self._histograms = [None]*len(self._histograms)
 
@@ -2737,8 +2737,7 @@ class PlotterFolder:
                     if sf_translated is not None and not sf_translated in subfolders:
                         subfolders[sf_translated] = DQMSubFolder(sf, sf_translated)
 
-            self._dqmSubFolders = subfolders.values()
-            self._dqmSubFolders.sort(key=lambda sf: sf.subfolder)
+            self._dqmSubFolders = sorted(subfolders.values(), key=lambda sf: sf.subfolder)
 
         self._fallbackNames = fallbackNames
         self._fallbackDqmSubFolders = fallbackDqmSubFolders
