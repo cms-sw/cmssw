@@ -7,6 +7,7 @@ import re
 import string
 import mimetypes
 import http.client as httplib
+import ssl
 import gzip
 import hashlib
 from stat import *
@@ -33,10 +34,15 @@ else:
 
 ssl_key_file = None
 ssl_cert_file = None
+context = None
 
 class HTTPSCertAuth(HTTPS):
-  def __init__(self, host, *args, **kwargs):
-    HTTPS.__init__(self, host, key_file = ssl_key_file, cert_file = ssl_cert_file, **kwargs)
+  def __init__(self, host, context = None, *args, **kwargs):
+    if context is None:
+       context = ssl._create_default_https_context()
+    if ssl_key_file or ssl_cert_file:
+            context.load_cert_chain(ssl_cert_file, ssl_key_file)
+    HTTPS.__init__(self, host, context = context, **kwargs)
 
 class HTTPSCertAuthenticate(urllib2.AbstractHTTPHandler):
   def default_open(self, req):
