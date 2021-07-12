@@ -156,9 +156,9 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
     float scaledPePerMip = nPEperMIP_;                         //needed to scale according to tile geometry
     float tunedNoise = nPEperMIP_ * noise_MIP_;                //flat noise case
     float adcThr = this->myFEelectronics_->getADCThreshold();  //vanilla thrs  in MIPs
-    int gainIdx = 0;
-    float adcLsb = this->myFEelectronics_->getADClsb();  //vanilla lsb in MIPs
-    float maxADC = this->myFEelectronics_->getMaxADC();  //vanilla fsc
+    int gainIdx(0);
+    float adcLsb( this->myFEelectronics_->getADClsb() );
+    float maxADC(-1);   //vanilla will rely on what has been configured by default
     uint32_t thrADC(thresholdFollowsMIP_ ? std::floor(adcThr / adcLsb * scaledPePerMip / nPEperMIP_)
                                          : std::floor(adcThr / adcLsb));
     float nTotalPixels(nTotalPE_);

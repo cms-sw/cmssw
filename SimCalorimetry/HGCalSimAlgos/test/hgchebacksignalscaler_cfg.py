@@ -26,14 +26,16 @@ process.startup = cms.EDAnalyzer("HGCHEbackSignalScalerAnalyzer",
                                  doseMap  = cms.string( options.doseMap ),
                                  doseMapAlgo = cms.uint32( 2+8+16 ), 
                                  sipmMap  = cms.string( 'SimCalorimetry/HGCalSimProducers/data/sipmParams_geom-10.txt' ),
-                                 referenceIdark = cms.double( 0.25 ) )
+                                 referenceIdark = cms.double( 0.125 ) )
 
 #end-of-life
-process.eol = process.startup.clone( doseMapAlgo = cms.uint32( 2 ) )
+process.eol = process.startup.clone( doseMapAlgo = cms.uint32( 2 ),
+                                     referenceIdark = cms.double( 0.5 ) )
 
 #end-of-life but all CAST and 4mm2
 process.eol_cast_all4mm2 = process.startup.clone( doseMapAlgo = cms.uint32( 2+64 ),
-                                                  sipmMap  = cms.string( 'SimCalorimetry/HGCalSimProducers/data/sipmParams_all4mm2.txt' ) ) 
+                                                  sipmMap  = cms.string( 'SimCalorimetry/HGCalSimProducers/data/sipmParams_all4mm2.txt' ),
+                                                  referenceIdark = cms.double( 0.5 ) )
 
 #add tfile service
 process.TFileService = cms.Service("TFileService",
