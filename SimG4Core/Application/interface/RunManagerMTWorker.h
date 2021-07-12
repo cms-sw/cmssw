@@ -7,6 +7,9 @@
 #include "SimG4Core/Generators/interface/Generator.h"
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include <memory>
 #include <tbb/concurrent_vector.h>
 #include <unordered_map>
@@ -89,6 +92,8 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> m_InToken;
   edm::EDGetTokenT<edm::HepMCProduct> m_LHCToken;
   edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_theLHCTlinkToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagField;
+  const MagneticField* m_pMagField = nullptr;
 
   bool m_nonBeam;
   bool m_pUseMagneticField;

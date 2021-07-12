@@ -115,9 +115,6 @@ void OscarMTMasterThread::callConsumes(edm::ConsumesCollector&& iC) const {
     m_DDD = iC.esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
   }
   m_PDT = iC.esConsumes<HepPDT::ParticleDataTable, PDTRecord, edm::Transition::BeginRun>();
-  if (m_pUseMagneticField) {
-    m_MF = iC.esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
-  }
   m_hasToken = true;
 }
 
@@ -133,9 +130,6 @@ void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
       m_pDDD = &(*iSetup.getTransientHandle(m_DDD));
     }
     m_pTable = &iSetup.getData(m_PDT);
-    if (m_pUseMagneticField) {
-      m_runManagerMaster->setMagField(&iSetup.getData(m_MF));
-    }
     m_firstRun = false;
   }
   m_masterThreadState = ThreadState::BeginRun;

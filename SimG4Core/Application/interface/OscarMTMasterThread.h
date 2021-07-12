@@ -11,9 +11,6 @@
 #include "HepPDT/ParticleDataTable.hh"
 #include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include <memory>
 #include <thread>
 #include <mutex>
@@ -55,7 +52,6 @@ private:
   enum class ThreadState { NotExist = 0, BeginRun = 1, EndRun = 2, Destruct = 3 };
 
   const bool m_pGeoFromDD4hep;
-  const bool m_pUseMagneticField;
 
   std::shared_ptr<RunManagerMT> m_runManagerMaster;
   std::thread m_masterThread;
@@ -67,7 +63,6 @@ private:
   mutable edm::ESGetToken<DDCompactView, IdealGeometryRecord> m_DDD;
   mutable edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> m_DD4Hep;
   mutable edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> m_PDT;
-  mutable edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MF;
 
   // status flags
   mutable std::mutex m_protectMutex;
