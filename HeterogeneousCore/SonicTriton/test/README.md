@@ -1,7 +1,7 @@
 # SONIC TritonClient tests
 
 Test modules `TritonImageProducer` and `TritonGraphProducer` (`TritonGraphFilter`, `TritonGraphAnalyzer`) are available.
-They generate arbitrary inputs for inference (with Inception/Densenet or Graph Attention Network, respectively) and print the resulting output.
+They generate arbitrary inputs for inference (with Inception/DenseNet or Graph Attention Network, respectively) and print the resulting output.
 
 First, the relevant data for the image classification networks should be downloaded:
 ```
@@ -16,7 +16,7 @@ The local server will use Singularity with CPU by default; if a local Nvidia GPU
 
 Run the image test:
 ```
-cmsRun tritonTest_cfg.py maxEvents=1 modules=TritonImageProducer
+cmsRun tritonTest_cfg.py maxEvents=1 modules=TritonImageProducer,TritonImageProducer models=inception_graphdef,densenet_onnx
 ```
 
 Run the graph test:

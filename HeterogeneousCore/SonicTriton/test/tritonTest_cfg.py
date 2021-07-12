@@ -24,8 +24,8 @@ options.register("timeout", 30, VarParsing.multiplicity.singleton, VarParsing.va
 options.register("params", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "json file containing server address/port")
 options.register("threads", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "number of threads")
 options.register("streams", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "number of streams")
-options.register("modules", "TritonImageProducer", VarParsing.multiplicity.list, VarParsing.varType.string, "list of modules to run (choices: {})".format(', '.join(models)))
-options.register("models","inception_graphdef", VarParsing.multiplicity.list, VarParsing.varType.string, "list of models (same length as modules, or just 1 entry if all modules use same model)")
+options.register("modules", "TritonGraphProducer", VarParsing.multiplicity.list, VarParsing.varType.string, "list of modules to run (choices: {})".format(', '.join(models)))
+options.register("models","gat_test", VarParsing.multiplicity.list, VarParsing.varType.string, "list of models (same length as modules, or just 1 entry if all modules use same model)")
 options.register("mode","Async", VarParsing.multiplicity.singleton, VarParsing.varType.string, "mode for client (choices: {})".format(', '.join(allowed_modes)))
 options.register("verbose", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "enable verbose output")
 options.register("brief", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "briefer output for graph modules")
@@ -47,16 +47,16 @@ if len(options.params)>0:
     print("server = "+options.address+":"+str(options.port))
 
 # check models and modules
+if len(options.modules)!=len(options.models):
+    # assigning to VarParsing.multiplicity.list actually appends to existing value(s)
+    if len(options.models)==1: options.models = [options.models[0]]*(len(options.modules)-1)
+    else: raise ValueError("Arguments for modules and models must have same length")
 for im,module in enumerate(options.modules):
     if module not in models:
         raise ValueError("Unknown module: {}".format(module))
     model = options.models[im]
     if model not in models[module]:
         raise ValueError("Unsupported model {} for module {}".format(model,module))
-if len(options.modules)!=len(options.models):
-    # assigning to VarParsing.multiplicity.list actually appends to existing value(s)
-    if len(options.models)==1: options.models = [options.models[0]]*(len(options.modules)-1)
-    else: raise ValueError("Arguments for modules and models must have same length")
 
 # check modes
 if options.mode not in allowed_modes:
