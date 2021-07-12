@@ -223,8 +223,7 @@ def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseAlgoSci=2,byD
                                        byDose=byDose,
                                        byDoseAlgo=byDoseAlgoSci,
                                        byDoseFactor=byDoseFactor,
-                                       referenceIdark=0.25,
-                                       referenceXtalk=0.01)
+                                       referenceIdark=0.25)
     return process
 
 def HGCal_setEndOfLifeNoise_4000(process):

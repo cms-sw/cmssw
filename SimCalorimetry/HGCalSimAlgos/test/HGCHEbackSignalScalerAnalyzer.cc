@@ -110,9 +110,15 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
 
   //setup maps
   createBinning(detIdVec);
-  int minLayer(*allLayers_.begin()), maxLayer(*allLayers_.end()), nLayers(maxLayer - minLayer + 1);
-  int minIeta(*allIeta_.begin()), maxIeta(*allIeta_.end()), nIeta(maxIeta - minIeta + 1);
-  int minIphi(*allIphi_.begin()), maxIphi(*allIphi_.end()), nIphi(maxIphi - minIphi + 1);
+  int minLayer( *std::min_element(allLayers_.begin(),allLayers_.end()) );
+  int maxLayer( *std::max_element(allLayers_.begin(),allLayers_.end()) );
+  int nLayers(maxLayer - minLayer + 1);
+  int minIeta( *std::min_element(allIeta_.begin(),allIeta_.end()) );
+  int maxIeta( *std::max_element(allIeta_.begin(),allIeta_.end()) );
+  int nIeta(maxLayer - minLayer + 1);
+  int minIphi( *std::min_element(allIphi_.begin(),allIphi_.end()) );
+  int maxIphi( *std::max_element(allIphi_.begin(),allIphi_.end()) );
+  int nIphi(maxLayer - minLayer + 1);
 
   TString hnames[] = {"count", "radius", "dose", "fluence", "s", "n", "sn", "lysf", "gain", "thr"};
   TString htitles[] = {"tiles",
