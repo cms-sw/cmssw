@@ -2316,8 +2316,6 @@ ppsDict = {
             'Geometry/VeryForwardData/data/CTPPS_2021/Cuts_Per_Region/Simu/v1/CTPPS_Cuts_Per_Region.xml',
             'Geometry/VeryForwardData/data/RP_Sensitive_Dets.xml',
 ##
-## Diamond description ---- ?
-
             'Geometry/VeryForwardData/data/CTPPS_Diamond_Transformations.xml',
             'Geometry/VeryForwardData/data/CTPPS_Diamond_Parameters.xml',
             'Geometry/VeryForwardData/data/CTPPS_Timing_Station_Parameters.xml',

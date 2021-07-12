@@ -9,6 +9,7 @@
   <SolidSection label="CTPPS_Diamond_Detector_Assembly.xml">
     <!-- Detector Main Box and Planes -->
     <Box name="CTPPS_Diamond_Main_Box" dx="[CTPPS_Diamond_Parameters:PCB_dx]/2-[Sensors_Displacement_Foil]" dy="[CTPPS_Diamond_Parameters:Plane_dy]/2" dz="[box_dz]/2"/>
+    <Box name="CTPPS_Diamond_Main_Short" dx="[RP_Box:RP_Box_Height]/2-[Sensors_Displacement_Foil]" dy="[CTPPS_Diamond_Parameters:Plane_dy]/2" dz="[box_dz]/2"/> 
     <Box name="PCB_main" dx="[CTPPS_Diamond_Parameters:PCB_dx]/2" dy="[CTPPS_Diamond_Parameters:PCB_dy]/2" dz="[CTPPS_Diamond_Parameters:PCB_thick]/2"/>
     <Trd1 name="PCB_extra" dz="[CTPPS_Diamond_Parameters:PCB_extend_dx]/2" dy1="[CTPPS_Diamond_Parameters:PCB_extend_dy1]/2" dy2="[CTPPS_Diamond_Parameters:PCB_extend_dy2]/2" dx1="[CTPPS_Diamond_Parameters:PCB_thick]/2" dx2="[CTPPS_Diamond_Parameters:PCB_thick]/2"/>
     <UnionSolid name="PCB">
@@ -23,6 +24,10 @@
     <!-- ****** Detector Box and Downstream Plane ****** -->
     <LogicalPart name="CTPPS_Diamond_Main_Box" category="envelope">
       <rSolid name="CTPPS_Diamond_Main_Box"/>
+      <rMaterial name="materials:Vacuum"/>
+    </LogicalPart>
+    <LogicalPart name="CTPPS_Diamond_Main_Short" category="envelope">
+      <rSolid name="CTPPS_Diamond_Main_Short"/>
       <rMaterial name="materials:Vacuum"/>
     </LogicalPart>
     <LogicalPart name="PCB" category="support">
