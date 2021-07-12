@@ -426,7 +426,7 @@ class Page(object):
 
         fileTable = []
 
-        sections = self._orderSets(self._plotSets.keys())
+        sections = self._orderSets(list(self._plotSets.keys()))
         for isec, section in enumerate(sections):
             leg = self._appendLegend(section)
 
@@ -489,7 +489,7 @@ class Page(object):
                     return False
             return True
 
-        sections = self._orderSets(self._tables.keys())
+        sections = self._orderSets(list(self._tables.keys()))
         for isec, section in enumerate(sections):
             leg = self._appendLegend(section)
 
@@ -625,7 +625,7 @@ class PageSet(object):
         #print "TrackingPageSet.write"
         ret = []
 
-        keys = self._orderPages(self._pages.keys())
+        keys = self._orderPages(list(self._pages.keys()))
         for key in keys:
             page = self._pages[key]
             if page.isEmpty():
@@ -815,7 +815,7 @@ class HtmlReport:
 
     def write(self):
         # Reorder sections such that Fast vs. Full becomes just after the corresponding Fast
-        keys = self._sections.iterkeys()
+        keys = self._sections.keys()
         newkeys = []
         for key in keys:
             if not key[1]:
