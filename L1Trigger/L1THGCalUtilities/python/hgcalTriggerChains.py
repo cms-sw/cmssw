@@ -80,32 +80,38 @@ class HGCalTriggerChains:
             backend2_name = '{0}{1}{2}{3}'.format(vfe, concentrator, backend1, backend2)
             selector_name = '{0}{1}{2}{3}{4}'.format(vfe, concentrator, backend1, backend2, selector)
             ntuple_name = '{0}{1}{2}{3}{4}{5}'.format(vfe, concentrator, backend1, backend2, selector, ntuple)
-            if selector=='':
-                ntuple_inputs = [
-                        concentrator_name+':HGCalConcentratorProcessorSelection',
-                        backend1_name+':HGCalBackendLayer1Processor2DClustering',
-                        backend2_name+':HGCalBackendLayer2Processor3DClustering'
-                        ]
-            else:
-                ntuple_inputs = [
-                        concentrator_name+':HGCalConcentratorProcessorSelection',
-                        backend1_name+':HGCalBackendLayer1Processor2DClustering',
-                        selector_name]
             if not hasattr(process, vfe):
                 setattr(process, vfe, self.vfe[vfe](process))
                 vfe_task.add(getattr(process, vfe))
             if not hasattr(process, concentrator_name):
-                setattr(process, concentrator_name, self.concentrator[concentrator](process, vfe))
+                vfe_processor = getattr(process, vfe).ProcessorParameters.ProcessorName.value()
+                setattr(process, concentrator_name, self.concentrator[concentrator](process, vfe+':'+vfe_processor))
                 concentrator_task.add(getattr(process, concentrator_name))
             if not hasattr(process, backend1_name):
-                setattr(process, backend1_name, self.backend1[backend1](process, concentrator_name))
+                concentrator_processor = getattr(process, concentrator_name).ProcessorParameters.ProcessorName.value()
+                setattr(process, backend1_name, self.backend1[backend1](process, concentrator_name+':'+concentrator_processor))
                 backend1_task.add(getattr(process, backend1_name))
             if not hasattr(process, backend2_name):
-                setattr(process, backend2_name, self.backend2[backend2](process, backend1_name))
+                backend1_processor = getattr(process, backend1_name).ProcessorParameters.ProcessorName.value()
+                setattr(process, backend2_name, self.backend2[backend2](process, backend1_name+':'+backend1_processor))
                 backend2_task.add(getattr(process, backend2_name))
             if selector!='' and not hasattr(process, selector_name):
-                setattr(process, selector_name, self.selector[selector](process, backend2_name))
+                backend2_processor = getattr(process, backend2_name).ProcessorParameters.ProcessorName.value()
+                setattr(process, selector_name, self.selector[selector](process, backend2_name+':'+backend2_processor))
                 selector_sequence *= getattr(process, selector_name)
+
+            if selector=='':
+                ntuple_inputs = [
+                        concentrator_name+':'+getattr(process, concentrator_name).ProcessorParameters.ProcessorName.value(),
+                        backend1_name+':'+getattr(process, backend1_name).ProcessorParameters.ProcessorName.value(),
+                        backend2_name+':'+getattr(process, backend2_name).ProcessorParameters.ProcessorName.value()
+                        ]
+            else:
+                ntuple_inputs = [
+                        concentrator_name+':'+getattr(process, concentrator_name).ProcessorParameters.ProcessorName.value(),
+                        backend1_name+':'+getattr(process, backend1_name).ProcessorParameters.ProcessorName.value(),
+                        selector_name]
+
             if ntuple!='' and not hasattr(process, ntuple_name):
                 setattr(process, ntuple_name, self.ntuple[ntuple](process, ntuple_inputs))
                 ntuple_sequence *= getattr(process, ntuple_name)

@@ -33,7 +33,8 @@ def custom_ntuples_standalone_tower(process):
     return process
 
 
-def create_ntuple(process, inputs,
+class CreateNtuple(object):
+    def __init__(self,
         ntuple_list=[
             'event',
             'gen', 'genjet', 'gentau',
@@ -41,22 +42,25 @@ def create_ntuple(process, inputs,
             'triggercells',
             'clusters', 'multiclusters'
             ]
-        ):
-    vpset = []
-    for ntuple in ntuple_list:
-        pset = getattr(process, 'ntuple_'+ntuple).clone()
-        if ntuple=='triggercells':
-            pset.TriggerCells = cms.InputTag(inputs[0])
-            pset.Multiclusters = cms.InputTag(inputs[2])
-        elif ntuple=='clusters':
-            pset.Clusters = cms.InputTag(inputs[1])
-            pset.Multiclusters = cms.InputTag(inputs[2])
-        elif ntuple=='multiclusters':
-            pset.Multiclusters = cms.InputTag(inputs[2])
-        vpset.append(pset)
-    ntuplizer = process.hgcalTriggerNtuplizer.clone()
-    ntuplizer.Ntuples = cms.VPSet(vpset)
-    return ntuplizer
+            ):
+        self.ntuple_list = ntuple_list
+
+    def __call__(self, process, inputs):
+        vpset = []
+        for ntuple in self.ntuple_list:
+            pset = getattr(process, 'ntuple_'+ntuple).clone()
+            if ntuple=='triggercells':
+                pset.TriggerCells = cms.InputTag(inputs[0])
+                pset.Multiclusters = cms.InputTag(inputs[2])
+            elif ntuple=='clusters':
+                pset.Clusters = cms.InputTag(inputs[1])
+                pset.Multiclusters = cms.InputTag(inputs[2])
+            elif ntuple=='multiclusters':
+                pset.Multiclusters = cms.InputTag(inputs[2])
+            vpset.append(pset)
+        ntuplizer = process.hgcalTriggerNtuplizer.clone()
+        ntuplizer.Ntuples = cms.VPSet(vpset)
+        return ntuplizer
 
 
 
