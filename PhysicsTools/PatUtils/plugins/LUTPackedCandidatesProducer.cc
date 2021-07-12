@@ -51,7 +51,7 @@ void LUTPackedCandidatesProducer::produce(edm::StreamID, edm::Event &iEvent, con
     const pat::PackedCandidate &cand = (*packedCandidates)[ic];
     output->push_back(pat::PackedCandidate(cand));
 
-    if (!output->back().hasTrackDetails())
+    if (!output->back().hasTrackDetails() && output->back().covarianceVersion() == int(covVersion_))
       output->back().setTrackPropertiesLite(covSchema_, covVersion_, nHits_, nPixelHits_);
   }
 
