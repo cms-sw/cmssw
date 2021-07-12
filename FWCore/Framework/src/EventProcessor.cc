@@ -55,7 +55,7 @@
 
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
-#include "FWCore/Concurrency/interface/beginChain.h"
+#include "FWCore/Concurrency/interface/chain_first.h"
 
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
@@ -115,7 +115,7 @@ namespace {
 
 namespace edm {
 
-  using waiting_task::beginChain;
+  namespace chain = waiting_task::chain;
 
   // ---------------------------------------------------------------
   std::unique_ptr<InputSource> makeInput(ParameterSet& params,
@@ -1088,14 +1088,14 @@ namespace edm {
       looper_->copyInfo(ScheduleInfo(schedule_.get()));
 
       FinalWaitingTask waitTask;
-      beginChain(
+      chain::first(
           [this, &es](auto nextTask) { looper_->esPrefetchAsync(nextTask, es, Transition::BeginRun, serviceToken_); })
           .then([this, &es](auto nextTask) mutable {
             looper_->beginOfJob(es);
             looperBeginJobRun_ = true;
             looper_->doStartingNewLoop();
           })
-          .run(WaitingTaskHolder(taskGroup_, &waitTask));
+          .runLast(WaitingTaskHolder(taskGroup_, &waitTask));
 
       do {
         taskGroup_.wait();
@@ -1108,7 +1108,7 @@ namespace edm {
       using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
       FinalWaitingTask globalWaitTask;
 
-      beginChain([&runPrincipal, &es, this](auto waitTask) {
+      chain::first([&runPrincipal, &es, this](auto waitTask) {
         RunTransitionInfo transitionInfo(runPrincipal, es);
         beginGlobalTransitionAsync<Traits>(
             std::move(waitTask), *schedule_, transitionInfo, serviceToken_, subProcesses_);
@@ -1124,7 +1124,7 @@ namespace edm {
           .ifThen(
               looper_,
               [this, &runPrincipal, &es](auto waitTask) { looper_->doBeginRun(runPrincipal, es, &processContext_); })
-          .run(WaitingTaskHolder(taskGroup_, &globalWaitTask));
+          .runLast(WaitingTaskHolder(taskGroup_, &globalWaitTask));
 
       do {
         taskGroup_.wait();
@@ -1230,7 +1230,7 @@ namespace edm {
     {
       FinalWaitingTask globalWaitTask;
 
-      beginChain([this, &runPrincipal, &es, cleaningUpAfterException](auto nextTask) {
+      chain::first([this, &runPrincipal, &es, cleaningUpAfterException](auto nextTask) {
         RunTransitionInfo transitionInfo(runPrincipal, es);
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
         endGlobalTransitionAsync<Traits>(
@@ -1242,7 +1242,7 @@ namespace edm {
                   })
           .ifThen(looper_,
                   [this, &runPrincipal, &es](auto nextTask) { looper_->doEndRun(runPrincipal, es, &processContext_); })
-          .run(WaitingTaskHolder(taskGroup_, &globalWaitTask));
+          .runLast(WaitingTaskHolder(taskGroup_, &globalWaitTask));
 
       do {
         taskGroup_.wait();
@@ -1326,7 +1326,7 @@ namespace edm {
 
               EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
 
-              beginChain([this, status, &lumiPrincipal](auto nextTask) {
+              chain::first([this, status, &lumiPrincipal](auto nextTask) {
                 EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
                 {
                   LumiTransitionInfo transitionInfo(lumiPrincipal, es, &status->eventSetupImpls());
@@ -1373,7 +1373,7 @@ namespace edm {
                           ++streamLumiActive_;
                           event.setLuminosityBlockPrincipal(lp);
                           LumiTransitionInfo transitionInfo(*lp, es, eventSetupImpls);
-                          beginChain([this, i, &transitionInfo](auto nextTask) {
+                          chain::first([this, i, &transitionInfo](auto nextTask) {
                             beginStreamTransitionAsync<Traits>(
                                 std::move(nextTask), *schedule_, i, transitionInfo, serviceToken_, subProcesses_);
                           })
@@ -1386,12 +1386,12 @@ namespace edm {
                                   handleNextEventForStreamAsync(std::move(nextTask), i);
                                 }
                               })
-                              .run(holder);
+                              .runLast(holder);
                         });
                       }
                     }
                   })
-                  .run(iHolder);
+                  .runLast(iHolder);
 
             } catch (...) {
               status->resetResources();
@@ -1491,7 +1491,7 @@ namespace edm {
     EventSetupImpl const& es = iLumiStatus->eventSetupImpl(esp_->subProcessIndex());
     std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls = &iLumiStatus->eventSetupImpls();
 
-    beginChain([this, &lp, &es, &eventSetupImpls, cleaningUpAfterException](auto nextTask) {
+    chain::first([this, &lp, &es, &eventSetupImpls, cleaningUpAfterException](auto nextTask) {
       IOVSyncValue ts(EventID(lp.run(), lp.luminosityBlock(), EventID::maxEventNumber()), lp.beginTime());
 
       LumiTransitionInfo transitionInfo(lp, es, eventSetupImpls);
@@ -1557,7 +1557,7 @@ namespace edm {
             handleEndLumiExceptions(&ptr, nextTask);
           }
         })
-        .run(std::move(iTask));
+        .runLast(std::move(iTask));
   }
 
   void EventProcessor::streamEndLumiAsync(edm::WaitingTaskHolder iTask, unsigned int iStreamIndex) {
@@ -1917,7 +1917,7 @@ namespace edm {
     }
 
     EventSetupImpl const& es = streamLumiStatus_[iStreamIndex]->eventSetupImpl(esp_->subProcessIndex());
-    beginChain([this, &es, pep, iStreamIndex](auto nextTask) {
+    chain::first([this, &es, pep, iStreamIndex](auto nextTask) {
       EventTransitionInfo info(*pep, es);
       schedule_->processOneEventAsync(std::move(nextTask), iStreamIndex, info, serviceToken_);
     })
@@ -1937,7 +1937,7 @@ namespace edm {
           FDEBUG(1) << "\tprocessEvent\n";
           pep->clearEventPrincipal();
         })
-        .run(iHolder);
+        .runLast(iHolder);
   }
 
   void EventProcessor::processEventWithLooper(EventPrincipal& iPrincipal, unsigned int iStreamIndex) {
