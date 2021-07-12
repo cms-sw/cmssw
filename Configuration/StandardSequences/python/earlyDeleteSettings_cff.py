@@ -55,7 +55,8 @@ def customiseEarlyDelete(process):
     for branches in six.itervalues(products):
         for branch in branches:
             branchSet.add(branch)
-    process.options.canDeleteEarly.extend(list(branchSet))
+    branchList = sorted(branchSet)
+    process.options.canDeleteEarly.extend(branchList)
 
     # LogErrorHarvester should not wait for deleted items
     for prod in six.itervalues(process.producers_()):
@@ -63,7 +64,7 @@ def customiseEarlyDelete(process):
             if not hasattr(prod,'excludeModules'):
                 prod.excludeModules = cms.untracked.vstring()
             t = prod.excludeModules.value()
-            t.extend([b.split('_')[1] for b in branchSet])
+            t.extend([b.split('_')[1] for b in branchList])
             prod.excludeModules = t
 
     # Find the consumers
