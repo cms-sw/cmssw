@@ -10,6 +10,10 @@ totemGeomXMLFiles = cms.vstring(
     'Geometry/CMSCommonData/data/cmsBeam.xml',
     'Geometry/CMSCommonData/data/cmsMother.xml',
     'Geometry/CMSCommonData/data/mgnt.xml',
+    'Geometry/TrackerCommonData/data/trackermaterial/2021/v1/trackermaterial.xm\
+l',
+    'Geometry/TrackerCommonData/data/pixfwdMaterials/2021/v2/pixfwdMaterials.xm\
+l',
     'Geometry/ForwardCommonData/data/forward.xml',
     'Geometry/ForwardCommonData/data/totemRotations.xml',
     'Geometry/ForwardCommonData/data/totemMaterials.xml',
@@ -38,8 +42,8 @@ totemGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/RP_Box/RP_Box_123.xml',
     'Geometry/VeryForwardData/data/RP_Box/RP_Box_124.xml',
     'Geometry/VeryForwardData/data/RP_Box/RP_Box_125.xml',
-    'Geometry/VeryForwardData/data/RP_Hybrid.xml',
-    'Geometry/VeryForwardData/data/RP_Materials.xml',
+    'Geometry/VeryForwardData/data/RP_Hybrid/v1/RP_Hybrid.xml',
+    'Geometry/VeryForwardData/data/RP_Materials/v1/RP_Materials.xml',
     'Geometry/VeryForwardData/data/RP_Transformations.xml',
     'Geometry/VeryForwardData/data/RP_Detectors_Assembly.xml',
     'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_000.xml',
@@ -103,15 +107,6 @@ ctppsDiamondGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/CTPPS_Diamond_2021/CTPPS_Diamond_Detector_Assembly.xml'
     )
 
-# UFSD files
-ctppsUFSDGeomXMLFiles = cms.vstring(
-    # UFSDetectors
-    'Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern1.xml',
-    'Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern2_SegmentA.xml',
-    'Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern2_SegmentB.xml',
-    'Geometry/VeryForwardData/data/CTPPS_UFSD_Planes/CTPPS_UFSD_Plane4.xml',
-    'Geometry/VeryForwardData/data/CTPPS_UFSD_Parameters.xml',
-    )
 
 # Totem Timing files
 totemTimingGeomXMLFiles = cms.vstring(
@@ -135,7 +130,7 @@ ctppsPixelGeomXMLFiles = cms.vstring(
     )
 
 XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
-                                              geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + totemTimingGeomXMLFiles + ctppsPixelGeomXMLFiles,
+                                              geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + totemTimingGeomXMLFiles + ctppsPixelGeomXMLFiles,
                                               rootNodeName = cms.string('cms:CMSE')
                                               )
 

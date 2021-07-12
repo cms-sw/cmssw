@@ -299,7 +299,6 @@
     <Include ref='Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_005.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_020.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_021.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_022.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_024.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_025.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_100.xml'/>
@@ -309,7 +308,6 @@
     <Include ref='Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_105.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_120.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_121.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_122.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_124.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_125.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Device.xml'/>
@@ -338,11 +336,13 @@
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern4_Segment3.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern4_Segment4.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern4_Segment5.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane1.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane2.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane3.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane4.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2018/CTPPS_Diamond_Detector_Assembly/2021/v1/CTPPS_Diamond_Detector_Assembly.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2021/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane1.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2021/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane2.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2021/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane3.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2021/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane4.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2021/CTPPS_Diamond_Detector_Assembly.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2021/Simu/v1/CTPPS_Detectors_Assembly_022.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2021/Simu/v1/CTPPS_Detectors_Assembly_122.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_Sensitive_Dets_TimingHits.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Modules/v1/ppstrackerMaterials.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Modules/v1/PPS_Pixel_Module_2x2_Run3.xml'/>
