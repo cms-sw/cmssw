@@ -132,6 +132,7 @@ private:
   std::shared_ptr<void> holder_;
   std::shared_ptr<TritonMemResource<IO>> memResource_;
   std::shared_ptr<Result> result_;
+  mutable bool done_{};
 };
 
 using TritonInputData = TritonData<triton::client::InferInput>;

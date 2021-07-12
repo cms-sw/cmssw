@@ -162,6 +162,10 @@ TritonInputContainer<DT> TritonInputData::allocate(bool reserve) {
 template <>
 template <typename DT>
 void TritonInputData::toServer(TritonInputContainer<DT> ptr) {
+  //shouldn't be called twice
+  if (done_)
+    throw cms::Exception("TritonDataError") << name_ << " toServer() was already called for this event";
+
   const auto& data_in = *ptr;
 
   //check batch size
@@ -186,6 +190,7 @@ void TritonInputData::toServer(TritonInputContainer<DT> ptr) {
 
   //keep input data in scope
   holder_ = ptr;
+  done_ = true;
 }
 
 //sets up shared memory for outputs, if possible
@@ -199,6 +204,10 @@ void TritonOutputData::prepare() {
 template <>
 template <typename DT>
 TritonOutput<DT> TritonOutputData::fromServer() const {
+  //shouldn't be called twice
+  if (done_)
+    throw cms::Exception("TritonDataError") << name_ << " fromServer() was already called for this event";
+
   if (!result_) {
     throw cms::Exception("TritonDataError") << name_ << " fromServer(): missing result";
   }
@@ -218,11 +227,13 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
     dataOut.emplace_back(r1 + offset, r1 + offset + sizeShape_);
   }
 
+  done_ = true;
   return dataOut;
 }
 
 template <>
 void TritonInputData::reset() {
+  done_ = false;
   holder_.reset();
   data_->Reset();
   //reset shape
@@ -237,6 +248,7 @@ void TritonInputData::reset() {
 
 template <>
 void TritonOutputData::reset() {
+  done_ = false;
   result_.reset();
   holder_.reset();
   resetSizes();
