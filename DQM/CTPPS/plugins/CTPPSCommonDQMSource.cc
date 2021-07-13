@@ -52,6 +52,7 @@ private:
   const edm::EDGetTokenT<std::vector<reco::ForwardProton>> tokenRecoProtons;
 
   bool makeProtonRecoPlots_;
+  bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
 
   int currentLS;
   int endLS;
@@ -287,7 +288,8 @@ CTPPSCommonDQMSource::CTPPSCommonDQMSource(const edm::ParameterSet &ps)
       ctppsRecordToken(consumes<CTPPSRecord>(ps.getUntrackedParameter<edm::InputTag>("ctppsmetadata"))),
       tokenLocalTrackLite(consumes<vector<CTPPSLocalTrackLite>>(ps.getParameter<edm::InputTag>("tagLocalTrackLite"))),
       tokenRecoProtons(consumes<std::vector<reco::ForwardProton>>(ps.getParameter<InputTag>("tagRecoProtons"))),
-      makeProtonRecoPlots_(ps.getParameter<bool>("makeProtonRecoPlots")) {
+      makeProtonRecoPlots_(ps.getParameter<bool>("makeProtonRecoPlots")),
+      perLSsaving_(ps.getUntrackedParameter<bool>("perLSsaving", false)) {
   currentLS = 0;
   endLS = 0;
   rpstate.clear();
@@ -545,8 +547,10 @@ std::shared_ptr<std::vector<int>> CTPPSCommonDQMSource::globalBeginLuminosityBlo
 void CTPPSCommonDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &c) {
   auto const &rpstate = *luminosityBlockCache(iLumi.index());
   auto currentLS = iLumi.id().luminosityBlock();
-  for (std::vector<int>::size_type i = 0; i < rpstate.size(); i++)
-    globalPlots.RPState->setBinContent(currentLS, i + 1, rpstate[i]);
+  if (!perLSsaving_) {
+    for (std::vector<int>::size_type i = 0; i < rpstate.size(); i++)
+      globalPlots.RPState->setBinContent(currentLS, i + 1, rpstate[i]);
+  }
 }
 
 //----------------------------------------------------------------------------------------------------
