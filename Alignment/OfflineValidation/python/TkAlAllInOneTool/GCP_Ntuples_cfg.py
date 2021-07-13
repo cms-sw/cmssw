@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 
+from Alignment.OfflineValidation.TkAlAllInOneTool.utils import _byteify
+
 import json
 import os
 
@@ -20,13 +22,12 @@ options.parseArguments()
 
 ##Read in AllInOne config in JSON format
 with open(options.config, "r") as configFile:
-    config = json.load(configFile)
+    config = _byteify(json.load(configFile, object_hook=_byteify),ignore_dicts=True)
 
 #Global tag
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag,config["alignments"]["globaltag"])
-
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
@@ -39,6 +40,28 @@ process.MessageLogger = cms.Service("MessageLogger",
                        threshold  = cms.untracked.string('WARNING') 
         )
 ) 
+
+##Load conditions if needed
+if "conditions" in config["alignments"]:
+    from CalibTracker.Configuration.Common.PoolDBESSource_cfi import poolDBESSource
+
+    for condition in config["alignments"]["conditions"]:
+        setattr(
+            process, 
+            "conditionsIn{}".format(condition), 
+            poolDBESSource.clone(
+                connect = cms.string(str(config["alignments"]["conditions"][condition]["connect"])),
+                toGet = cms.VPSet(
+                    cms.PSet(
+                        record = cms.string(str(condition)),
+                        tag = cms.string(str(config["alignments"]["conditions"][condition]["tag"]))
+                    )
+                )
+            )
+        )
+
+        setattr(process, "prefer_conditionsIn{}".format(condition), cms.ESPrefer("PoolDBESSource", "conditionsIn{}".format(condition)))
+
 
 process.source = cms.Source("EmptySource",
     firstRun=cms.untracked.uint32(config["validation"]["IOV"])
