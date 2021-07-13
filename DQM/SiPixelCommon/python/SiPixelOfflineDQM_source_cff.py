@@ -115,6 +115,11 @@ dqmInfo = DQMEDAnalyzer('DQMEventInfo',
     subSystemFolder = cms.untracked.string('Pixel')
 )
 
+#Check if perLSsaving is enabled to mask MEs vs LS
+from DQMServices.Core.DQMStore_cfi import DQMStore
+if(DQMStore.saveByLumi):
+    SiPixelDigiSource.perLSsaving=True
+
 #FED integrity
 from DQM.SiPixelMonitorRawData.SiPixelMonitorHLT_cfi import *
 

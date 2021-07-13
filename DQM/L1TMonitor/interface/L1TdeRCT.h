@@ -257,6 +257,7 @@ private:
   std::string histFolder_;  // base dqm folder
   bool verbose_;
   bool singlechannelhistos_;
+  bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
 
   edm::EDGetTokenT<L1CaloRegionCollection> rctSourceEmul_rgnEmul_;
   edm::EDGetTokenT<L1CaloEmCollection> rctSourceEmul_emEmul_;
