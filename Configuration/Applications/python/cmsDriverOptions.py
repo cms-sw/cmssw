@@ -231,6 +231,8 @@ def OptionsFromItems(items):
             options.isMC=True
         if 'VALIDATION' in options.trimmedStep:
             options.isMC=True
+        if options.era and 'Phase2' in options.era:
+            options.isMC=True
         if options.isMC:
             print('We have determined that this is simulation (if not, rerun cmsDriver.py with --data)')
         else:
