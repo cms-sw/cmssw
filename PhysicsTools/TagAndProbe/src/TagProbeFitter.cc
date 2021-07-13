@@ -33,7 +33,7 @@
 #include "RooLinkedListIter.h"
 #include "RooMappedCategory.h"
 #include "RooMinimizer.h"
-#include "RooMinuit.h"
+#include "RooFitLegacy/RooMinuit.h"
 #include "RooMsgService.h"
 #include "RooMultiCategory.h"
 #include "RooNLLVar.h"
