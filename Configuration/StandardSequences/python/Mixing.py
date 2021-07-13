@@ -124,6 +124,7 @@ addMixingScenario("2018_25ns_UltraLegacy_PoissonOOTPU",{'file': 'SimGeneral.Mixi
 addMixingScenario("Run3_Flat55To75_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_Run3_Flat55To75_PoissonOOTPU_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
+addMixingScenario("2022_LHC_Simulation_10h_2h",{'file': 'SimGeneral.MixingModule.Run3_2022_LHC_Simulation_10h_2h_cfi'})
 
 #scenarios for L1 tdr work
 addMixingScenario("AVE_4_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 4})
