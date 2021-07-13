@@ -25,6 +25,9 @@ workflows[510]=['',['SoftQCDinelastic_13TeV_pythia8','HARVESTGEN']]
 workflows[534]=['',['sherpa_ZtoLL_2j_MEPSatNLO_13TeV_MASTER','HARVESTGEN']]
 workflows[535]=['',['TTbar_13TeV_Pow_herwig7','HARVESTGEN']]
 workflows[536]=['',['sherpa_ttbar_2j_MENLOPS_13TeV_MASTER','HARVESTGEN']]
+workflows[537]=['',['DYToLL012Jets_5FS_TuneCH3_13TeV_amcatnloFxFx_herwig7','HARVESTGEN']]
+workflows[538]=['',['DYToLL01234Jets_5FS_TuneCH3_13TeV_madgraphMLM_herwig7','HARVESTGEN']]
+
 
 # Hadronization (LHE Generation + Hadronization)
 workflows[555]=['DYTollJets_NLO_Mad_13TeV_py8',['DYToll012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV','Hadronizer_TuneCP5_13TeV_aMCatNLO_FXFX_5f_max2j_max0p_LHE_pythia8','HARVESTGEN2']]
