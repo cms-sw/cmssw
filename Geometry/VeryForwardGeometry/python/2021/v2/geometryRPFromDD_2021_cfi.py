@@ -10,10 +10,8 @@ totemGeomXMLFiles = cms.vstring(
     'Geometry/CMSCommonData/data/cmsBeam.xml',
     'Geometry/CMSCommonData/data/cmsMother.xml',
     'Geometry/CMSCommonData/data/mgnt.xml',
-    'Geometry/TrackerCommonData/data/trackermaterial/2021/v1/trackermaterial.xm\
-l',
-    'Geometry/TrackerCommonData/data/pixfwdMaterials/2021/v2/pixfwdMaterials.xm\
-l',
+    'Geometry/TrackerCommonData/data/trackermaterial/2021/v1/trackermaterial.xml',
+    'Geometry/TrackerCommonData/data/pixfwdMaterials/2021/v2/pixfwdMaterials.xml',
     'Geometry/ForwardCommonData/data/forward.xml',
     'Geometry/ForwardCommonData/data/totemRotations.xml',
     'Geometry/ForwardCommonData/data/totemMaterials.xml',
