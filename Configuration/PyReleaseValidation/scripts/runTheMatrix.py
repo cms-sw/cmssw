@@ -120,26 +120,31 @@ if __name__ == '__main__':
                       dest='memoryOffset',
                       default=3000
                      )
+
     parser.add_option('--addMemPerCore',
                       help='increase of memory per each n > 1 core:  memory(n_core) = memoryOffset + (n_core-1) * memPerCore',
                       dest='memPerCore',
                       default=1500
                      )
+
     parser.add_option('-j','--nproc',
                       help='number of processes. 0 Will use 4 processes, not execute anything but create the wfs',
                       dest='nProcs',
                       default=4
                      )
+
     parser.add_option('-t','--nThreads',
                       help='number of threads per process to use in cmsRun.',
                       dest='nThreads',
                       default=1
                      )
+
     parser.add_option('--nStreams',
                       help='number of streams to use in cmsRun.',
                       dest='nStreams',
                       default=0
                      )
+
     parser.add_option('--numberEventsInLuminosityBlock',
                       help='number of events in a luminosity block',
                       dest='numberEventsInLuminosityBlock',
@@ -152,118 +157,141 @@ if __name__ == '__main__':
                       default=False,
                       action='store_true'
                       )
+
     parser.add_option('-e','--extended',
                       help='Show details of workflows, used with --show',
                       dest='extended',
                       default=False,
                       action='store_true'
                       )
+
     parser.add_option('-s','--selected',
                       help='Run a pre-defined selected matrix of wf. Deprecated, please use -l limited',
                       dest='restricted',
                       default=False,
                       action='store_true'
                       )
+
     parser.add_option('-l','--list',
-                     help='Coma separated list of workflow to be shown or ran. Possible keys are also '+str(predefinedSet.keys())+'. and wild card like muon, or mc',
-                     dest='testList',
-                     default=None
+                      help='Comma separated list of workflow to be shown or ran. Possible keys are also '+str(predefinedSet.keys())+'. and wild card like muon, or mc',
+                      dest='testList',
+                      default=None
                      )
+
     parser.add_option('-r','--raw',
                       help='Temporary dump the .txt needed for prodAgent interface. To be discontinued soon. Argument must be the name of the set (standard, pileup,...)',
                       dest='raw'
                       )
+
     parser.add_option('-i','--useInput',
-                      help='Use recyling where available. Either all, or a coma separated list of wf number.',
+                      help='Use recyling where available. Either all, or a comma separated list of wf number.',
                       dest='useInput',
                       default=None
                       )
+
     parser.add_option('-w','--what',
                       help='Specify the set to be used. Argument must be the name of a set (standard, pileup,...) or multiple sets separated by commas (--what standard,pileup )',
                       dest='what',
                       default='all'
                       )
+
     parser.add_option('--step1',
                       help='Used with --raw. Limit the production to step1',
                       dest='step1Only',
                       default=False
                       )
+
     parser.add_option('--maxSteps',
                       help='Only run maximum on maxSteps. Used when we are only interested in first n steps.',
                       dest='maxSteps',
                       default=9999,
                       type="int"
                       )
+
     parser.add_option('--fromScratch',
-                      help='Coma separated list of wf to be run without recycling. all is not supported as default.',
+                      help='Comma separated list of wf to be run without recycling. all is not supported as default.',
                       dest='fromScratch',
                       default=None
                        )
+
     parser.add_option('--refRelease',
                       help='Allow to modify the recycling dataset version',
                       dest='refRel',
                       default=None
                       )
+
     parser.add_option('--wmcontrol',
                       help='Create the workflows for injection to WMAgent. In the WORKING. -wmcontrol init will create the the workflows, -wmcontrol test will dryRun a test, -wmcontrol submit will submit to wmagent',
                       choices=['init','test','submit','force'],
                       dest='wmcontrol',
                       default=None,
                       )
+
     parser.add_option('--revertDqmio',
                       help='When submitting workflows to wmcontrol, force DQM outout to use pool and not DQMIO',
                       choices=['yes','no'],
                       dest='revertDqmio',
                       default='no',
                       )
+
     parser.add_option('--optionswm',
                       help='Specify a few things for wm injection',
                       default='',
                       dest='wmoptions')
+
     parser.add_option('--keep',
-                      help='allow to specify for which coma separated steps the output is needed',
+                      help='allow to specify for which comma separated steps the output is needed',
                       default=None)
+
     parser.add_option('--label',
                       help='allow to give a special label to the output dataset name',
                       default='')
+
     parser.add_option('--command',
                       help='provide a way to add additional command to all of the cmsDriver commands in the matrix',
                       dest='command',
                       default=None
                       )
+
     parser.add_option('--apply',
-                      help='allow to use the --command only for 1 coma separeated',
+                      help='allow to use the --command only for 1 comma separeated',
                       dest='apply',
                       default=None)
+
     parser.add_option('--workflow',
                       help='define a workflow to be created or altered from the matrix',
                       action='append',
                       dest='workflow',
                       default=None
                       )
+
     parser.add_option('--dryRun',
                       help='do not run the wf at all',
                       action='store_true',
                       dest='dryRun',
                       default=False
                       )
+
     parser.add_option('--testbed',
                       help='workflow injection to cmswebtest (you need dedicated rqmgr account)',
                       dest='testbed',
                       default=False,
                       action='store_true'
                       )
+
     parser.add_option('--noCafVeto',
                       help='Run from any source, ignoring the CAF label',
                       dest='cafVeto',
                       default=True,
                       action='store_false'
                       )
+
     parser.add_option('--overWrite',
                       help='Change the content of a step for another. List of pairs.',
                       dest='overWrite',
                       default=None
                       )
+
     parser.add_option('--noRun',
                       help='Remove all run list selection from wfs',
                       dest='noRun',
@@ -293,6 +321,7 @@ if __name__ == '__main__':
                       dest='dasSites',
                       default='T2_CH_CERN',
                       action='store')
+
     parser.add_option('--interactive',
                       help="Open the Matrix interactive shell",
                       action='store_true',
@@ -303,6 +332,41 @@ if __name__ == '__main__':
                       dest='dbsUrl',
                       default=None,
                       action='store')
+
+    parser.add_option('--RequiresGPU',
+                      help='if GPU is reuired or not: forbidden (default, CPU-only), optional, required',
+                      dest='RequiresGPU',
+                      default=0)
+
+    parser.add_option('--GPUMemory',
+                      help='to specify GPU memory. Default = 8000 MB (for RequiresGPU = required).',
+                      dest='GPUMemory',
+                      default='8000')
+
+    parser.add_option('--CUDACapabilities',
+                      help='to specify CUDA capabilities. Default = 7.5 (for RequiresGPU = required). Use comma to identify various CUDACapabilities',
+                      dest='CUDACapabilities',
+                      default='7.5')
+
+    parser.add_option('--CUDARuntime',
+                      help='to specify CUDA runtime. Default = 11.2 (for RequiresGPU= required).',
+                      dest='CUDARuntime',
+                      default='11.2')
+
+    parser.add_option('--GPUName',
+                      help='to specify GPU class',
+                      dest='GPUName',
+                      default='')
+
+    parser.add_option('--CUDADriverVersion',
+                      help='to specify CUDA driver version',
+                      dest='CUDADriverVersion',
+                      default='')
+
+    parser.add_option('--CUDARuntimeVersion',
+                      help='to specify CUDA runtime version',
+                      dest='CUDARuntimeVersion',
+                      default='')
 
     opt,args = parser.parse_args()
     os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
@@ -370,9 +434,9 @@ if __name__ == '__main__':
     if opt.nProcs: opt.nProcs=int(opt.nProcs)
     if opt.nThreads: opt.nThreads=int(opt.nThreads)
     if opt.nStreams: opt.nStreams=int(opt.nStreams)
-    if (opt.numberEventsInLuminosityBlock): opt.numberEventsInLuminosityBlock=int(opt.numberEventsInLuminosityBlock)
-    if (opt.memoryOffset): opt.memoryOffset=int(opt.memoryOffset)
-    if (opt.memPerCore): opt.memPerCore=int(opt.memPerCore)
+    if opt.numberEventsInLuminosityBlock: opt.numberEventsInLuminosityBlock=int(opt.numberEventsInLuminosityBlock)
+    if opt.memoryOffset: opt.memoryOffset=int(opt.memoryOffset)
+    if opt.memPerCore: opt.memPerCore=int(opt.memPerCore)
 
     if opt.wmcontrol:
         performInjectionOptionTest(opt)
