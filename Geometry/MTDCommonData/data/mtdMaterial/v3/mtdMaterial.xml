@@ -154,6 +154,11 @@
         <rMaterial name="materials:Air"/>
       </MaterialFraction>
     </CompositeMaterial>
+    <CompositeMaterial name="Borated_Polyethyl." density="950*mg/cm3" symbol=" " method="mixture by weight">
+      <MaterialFraction fraction="1.00000000">
+        <rMaterial name="materials:Borated Polyethyl."/>
+      </MaterialFraction>
+    </CompositeMaterial>
   </MaterialSection>
 
 </DDDefinition>
