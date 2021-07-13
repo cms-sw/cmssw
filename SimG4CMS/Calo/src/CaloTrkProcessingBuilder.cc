@@ -32,7 +32,8 @@
 
 class CaloTrkProcessingBuilder : public SensitiveDetectorMakerBase {
 public:
-  explicit CaloTrkProcessingBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc) : cspsToken_{cc.esConsumes<edm::Transition::BeginRun>()},  caloSimPar_{nullptr} {
+  explicit CaloTrkProcessingBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc)
+      : cspsToken_{cc.esConsumes<edm::Transition::BeginRun>()}, caloSimPar_{nullptr} {
     bool dd4hep = p.getParameter<bool>("g4GeometryDD4hepSource");
     addlevel_ = dd4hep ? 1 : 0;
     edm::ParameterSet csps = p.getParameter<edm::ParameterSet>("CaloTrkProcessing");
@@ -48,16 +49,26 @@ public:
       level += addlevel_;
   }
 
-  void beginRun(const edm::EventSetup& es) final {
-    caloSimPar_ = &es.getData(cspsToken_);
-  }
+  void beginRun(const edm::EventSetup& es) final { caloSimPar_ = &es.getData(cspsToken_); }
 
   std::unique_ptr<SensitiveDetector> make(const std::string& iname,
                                           const SensitiveDetectorCatalog& clg,
                                           const edm::ParameterSet& p,
                                           const SimTrackManager* man,
                                           SimActivityRegistry& reg) const final {
-    auto sd = std::make_unique<CaloTrkProcessing>(iname, *caloSimPar_, clg, testBeam_, eMin_, putHistory_, doFineCalo_, eMinFine_, addlevel_, fineNames_, fineLevels_, useFines_, man);
+    auto sd = std::make_unique<CaloTrkProcessing>(iname,
+                                                  *caloSimPar_,
+                                                  clg,
+                                                  testBeam_,
+                                                  eMin_,
+                                                  putHistory_,
+                                                  doFineCalo_,
+                                                  eMinFine_,
+                                                  addlevel_,
+                                                  fineNames_,
+                                                  fineLevels_,
+                                                  useFines_,
+                                                  man);
     SimActivityRegistryEnroller::enroll(reg, sd.get());
     return sd;
   }
