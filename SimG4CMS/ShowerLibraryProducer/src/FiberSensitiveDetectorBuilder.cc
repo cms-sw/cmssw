@@ -31,9 +31,13 @@
 
 class FiberSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
 public:
-  explicit FiberSensitiveDetectorBuilder(const edm::ParameterSet& p, edm::ConsumesCollector cc) : cspsToken_{cc.esConsumes<edm::Transition::BeginRun>()}, cdcToken_{cc.esConsumes<edm::Transition::BeginRun>()}, hcalSimCons_{nullptr}, hcalDDCons_{nullptr} { }
+  explicit FiberSensitiveDetectorBuilder(const edm::ParameterSet& p, edm::ConsumesCollector cc)
+      : cspsToken_{cc.esConsumes<edm::Transition::BeginRun>()},
+        cdcToken_{cc.esConsumes<edm::Transition::BeginRun>()},
+        hcalSimCons_{nullptr},
+        hcalDDCons_{nullptr} {}
 
-  void beginRun(const edm::EventSetup& es) final { 
+  void beginRun(const edm::EventSetup& es) final {
     hcalSimCons_ = &es.getData(cspsToken_);
     hcalDDCons_ = &es.getData(cdcToken_);
   }
