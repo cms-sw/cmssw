@@ -203,11 +203,6 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
     throw edm::Exception(edm::errors::LogicError, "G4RunManagerKernel initialization failed!");
   }
 
-  timer.Stop();
-  G4cout.precision(4);
-  G4cout << "RunManagerMT: physics is initialized: " << timer << G4endl;
-  timer.Start();
-
   if (m_StorePhysicsTables) {
     std::ostringstream dir;
     dir << m_PhysicsTablesDir << '\0';
