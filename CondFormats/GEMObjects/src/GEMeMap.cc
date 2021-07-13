@@ -15,10 +15,8 @@ void GEMeMap::convert(GEMROMapping& romap) {
   // fed->amc->geb mapping to GEMDetId
   for (auto imap : theChamberMap_) {
     for (unsigned int ix = 0; ix < imap.fedId.size(); ix++) {
-      GEMROMapping::chamEC ec;
-      ec.fedId = imap.fedId[ix];
-      ec.amcNum = imap.amcNum[ix];
-      ec.gebId = imap.gebId[ix];
+      GEMROMapping::chamEC ec{imap.fedId[ix], imap.amcNum[ix], imap.gebId[ix]};
+      GEMROMapping::sectorEC amcEC = {imap.fedId[ix], imap.amcNum[ix]};
 
       GEMROMapping::chamDC dc;
       dc.detId = GEMDetId((imap.gemNum[ix] > 0) ? 1 : -1,
@@ -29,6 +27,8 @@ void GEMeMap::convert(GEMROMapping& romap) {
                           0);
       dc.vfatVer = imap.vfatVer[ix];
       romap.add(ec, dc);
+      if (!romap.isValidAMC(amcEC)) romap.add(amcEC);
+
     }
   }
 
