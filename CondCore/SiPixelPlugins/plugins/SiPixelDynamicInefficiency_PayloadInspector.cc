@@ -41,10 +41,6 @@
 namespace {
 
   using namespace cond::payloadInspector;
-
-  const std::string k_Ph0_geo = "CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt";
-  const std::string k_Ph1_geo = "SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt";
-
   namespace SiPixDynIneff {
 
     // constants for ROC level simulation for Phase1
@@ -90,7 +86,8 @@ namespace {
 
     //_________________________________________________
     bool isPhase0(const BRFractions& fractions) {
-      SiPixelDetInfoFileReader reader = SiPixelDetInfoFileReader(edm::FileInPath(k_Ph0_geo).fullPath());
+      SiPixelDetInfoFileReader reader =
+          SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh0DefaultFile).fullPath());
       const auto& p0detIds = reader.getAllDetIds();
       std::vector<uint32_t> ownDetIds;
 
@@ -300,11 +297,10 @@ namespace {
       std::string headerText;
 
       if (this->m_plotAnnotations.ntags == 2) {
-        headerText = fmt::sprintf(
-            "#Delta #color[2]{A: %s, %s} - #color[4]{B: %s, %s}", f_tagname, f_IOVstring, l_tagname, l_IOVstring);
-      } else {
         headerText =
-            fmt::sprintf("%s, #Delta IOV #color[2]{A: %s} - #color[4]{B: %s} ", f_tagname, f_IOVstring, l_IOVstring);
+            fmt::sprintf("#color[2]{A: %s, %s} - #color[4]{B: %s, %s}", f_tagname, f_IOVstring, l_tagname, l_IOVstring);
+      } else {
+        headerText = fmt::sprintf("%s,IOV #color[2]{A: %s} - #color[4]{B: %s} ", f_tagname, f_IOVstring, l_IOVstring);
       }
 
       switch (myType) {
@@ -356,7 +352,7 @@ namespace {
           if ((subid == PixelSubdetector::PixelBarrel && myType == SiPixelPI::t_barrel) ||
               (subid == PixelSubdetector::PixelEndcap && myType == SiPixelPI::t_forward) ||
               (myType == SiPixelPI::t_all)) {
-            theMap.fillSelectedRocs(rawid, rocToMark, badRocsF[i] * 100.f * (subtract ? -1. : 1.));
+            theMap.fillSelectedRocs(rawid, rocToMark, badRocsF[i] * (subtract ? -1. : 1.));
           }
         }
       }
