@@ -168,25 +168,6 @@ namespace edm {
     struct WaitingTaskChain<U> {
       constexpr explicit WaitingTaskChain(U&& iU) : f_{std::forward<U>(iU)} {}
 
-      /**Define next task to run once this task has finished. Two different functor types are allowed
-       1. The functor  takes a edm::WaitingTaskHolder as argument. If an exception happened in a previous task, the functor will NOT be run.
-       If an exception happens while running the functor, the exception will be propagated to the WaitingTaskHolder.
-       2. The functor takes a std::exception_ptr const* and WaitingTaskHolder. If an exception happened in a previous task, the first
-       argument will be non-nullptr. In that case, the exception will NOT be automatically propagated to the WaitingTaskHolder. In addition,
-       if the functor itself throws an exception, it is up to the functor to handle the exception.
-       */
-      template <typename O>
-      [[nodiscard]] constexpr auto then(O&& iO) {
-        return _then(std::forward<O>(iO), std::move(*this));
-      }
-
-      ///Only runs this task if the condition (which is known at the call time) is true. If false, this task will be skipped and the following task will run.
-      template <typename O>
-      [[nodiscard]] constexpr auto ifThen(bool iCondition, O&& iO) {
-        return WaitingTaskChain<Conditional<AutoExceptionHandler<O>>, U>(
-            iCondition, AutoExceptionHandler<O>(std::forward<O>(iO)), std::move(*this));
-      }
-
       [[nodiscard]] WaitingTaskHolder lastTask(WaitingTaskHolder iV) {
         return WaitingTaskHolder(
             *iV.group(),
@@ -210,24 +191,6 @@ namespace edm {
     struct WaitingTaskChain<U, T...> {
       explicit constexpr WaitingTaskChain(U&& iU, WaitingTaskChain<T...> iL)
           : l_(std::move(iL)), f_{std::forward<U>(iU)} {}
-
-      /**Define next task to run once this task has finished. Two different functor types are allowed
-       1. The functor  takes a edm::WaitingTaskHolder as argument. If an exception happened in a previous task, the functor will NOT be run.
-       If an exception happens while running the functor, the exception will be propagated to the WaitingTaskHolder.
-       2. The functor takes a std::exception_ptr const* and WaitingTaskHolder. If an exception happened in a previous task, the first
-       argument will be non-nullptr. In that case, the exception will NOT be automatically propagated to the WaitingTaskHolder. In addition,
-       if the functor itself throws an exception, it is up to the functor to handle the exception.
-       */
-      template <typename O>
-      [[nodiscard]] constexpr auto then(O&& iO) {
-        return _then(std::forward<O>(iO), std::move(*this));
-      }
-
-      template <typename O>
-      [[nodiscard]] constexpr auto ifThen(bool iCondition, O&& iO) {
-        return WaitingTaskChain<Conditional<AutoExceptionHandler<O>>, U, T...>(
-            iCondition, AutoExceptionHandler<O>(std::forward<O>(iO)), std::move(*this));
-      }
 
       [[nodiscard]] WaitingTaskHolder lastTask(WaitingTaskHolder iV) {
         return l_.lastTask(WaitingTaskHolder(
@@ -262,24 +225,6 @@ namespace edm {
 
       explicit constexpr WaitingTaskChain(Conditional<U> iC, WaitingTaskChain<T...> iL)
           : l_(std::move(iL)), f_{std::move<U>(iC.f_)}, condition_(iC.condition_) {}
-
-      /**Define next task to run once this task has finished. Two different functor types are allowed
-       1. The functor  takes a edm::WaitingTaskHolder as argument. If an exception happened in a previous task, the functor will NOT be run.
-       If an exception happens while running the functor, the exception will be propagated to the WaitingTaskHolder.
-       2. The functor takes a std::exception_ptr const* and WaitingTaskHolder. If an exception happened in a previous task, the first
-       argument will be non-nullptr. In that case, the exception will NOT be automatically propagated to the WaitingTaskHolder. In addition,
-       if the functor itself throws an exception, it is up to the functor to handle the exception.
-       */
-      template <typename O>
-      [[nodiscard]] constexpr auto then(O&& iO) {
-        return _then(std::forward<O>(iO), std::move(*this));
-      }
-
-      template <typename O>
-      [[nodiscard]] constexpr auto ifThen(bool iCondition, O&& iO) {
-        return WaitingTaskChain<Conditional<AutoExceptionHandler<O>>, Conditional<U>, T...>(
-            iCondition, AutoExceptionHandler<O>(std::forward<O>(iO)), std::move(*this));
-      }
 
       [[nodiscard]] WaitingTaskHolder lastTask(WaitingTaskHolder iV) {
         if (condition_) {
@@ -331,11 +276,19 @@ namespace edm {
       }
     }
 
+    /**Define next task to run once this task has finished. Two different functor types are allowed
+   1. The functor  takes a edm::WaitingTaskHolder as argument. If an exception happened in a previous task, the functor will NOT be run.
+   If an exception happens while running the functor, the exception will be propagated to the WaitingTaskHolder.
+   2. The functor takes a std::exception_ptr const* and WaitingTaskHolder. If an exception happened in a previous task, the first
+   argument will be non-nullptr. In that case, the exception will NOT be automatically propagated to the WaitingTaskHolder. In addition,
+   if the functor itself throws an exception, it is up to the functor to handle the exception.
+   */
     template <typename O>
     [[nodiscard]] constexpr auto then(O&& iO) {
       return detail::ThenAdaptor<O>(std::forward<O>(iO));
     }
 
+    ///Only runs this task if the condition (which is known at the call time) is true. If false, this task will be skipped and the following task will run.
     template <typename O>
     [[nodiscard]] constexpr auto ifThen(bool iValue, O&& iO) {
       if constexpr (detail::has_exception_handling<O>::value) {
