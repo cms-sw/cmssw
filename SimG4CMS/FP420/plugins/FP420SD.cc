@@ -19,7 +19,6 @@
 #include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
 #include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
