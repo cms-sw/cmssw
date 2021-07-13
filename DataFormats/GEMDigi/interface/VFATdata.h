@@ -15,8 +15,9 @@ namespace gem {
       uint64_t header : 8;    ///<normally 0x1E. 0x5E indicates that the VFAT3 internal buffer
       // is half-full, so it's like a warning
       uint64_t vc : 1;      /// VFAT CRC Error
-      uint64_t unused : 7;  ///<bits 183:177 are not used, should be 0, bit 176 is 1 if CTP7 detected a CRC mismatch
-      uint64_t pos : 8;     ///<an 8bit value indicating the VFAT position on this GEB (it can be 0 to 23)
+      uint64_t : 7;         // unused
+      uint64_t pos : 5;     ///<an 8bit value indicating the VFAT position on this GEB (it can be 0 to 23)
+      uint64_t : 3;         // unused
     };
     // v2 dataformat
     struct {
@@ -100,8 +101,9 @@ namespace gem {
 
     /// v3
     uint8_t header() const { return VFATfirst{fw_}.header; }
-    uint8_t crcCheck() const { return VFATfirst{fw_}.vc; }
+    bool vc() const { return VFATfirst{fw_}.vc; }
     uint8_t position() const { return VFATfirst{fw_}.pos; }
+    uint8_t crcCheck() const { return VFATfirst{fw_}.vc; } // to be removed
 
     /// v2
     uint8_t b1010() const { return VFATfirst{fw_}.b1010; }

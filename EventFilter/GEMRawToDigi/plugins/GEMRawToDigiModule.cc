@@ -12,6 +12,10 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/GEMDigi/interface/AMC13Event.h"
+#include "DataFormats/GEMDigi/interface/GEMAMC13Status.h"
+#include "DataFormats/GEMDigi/interface/GEMAMCStatus.h"
+#include "DataFormats/GEMDigi/interface/GEMOHStatus.h"
+#include "DataFormats/GEMDigi/interface/GEMVFATStatus.h"
 #include "DataFormats/GEMDigi/interface/GEMAMC13EventCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMAMCdataCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
@@ -116,92 +120,49 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
     int nWords = fedData.size() / sizeof(uint64_t);
     LogDebug("GEMRawToDigiModule") << "fedId:" << fedId << " words: " << nWords;
+    GEMAMC13Status st_amc13 = GEMAMC13Status(fedData);
+    if (st_amc13.isBad()) continue;
 
-    if (nWords < 5)
-      continue;
-
-    // trailer checks
-    FEDTrailer trailer(fedData.data() + fedData.size() - FEDTrailer::length);
-
-    bool failTrailerCheck = false, failTrailerMatch = false;
-    if (!trailer.check() || (trailer.fragmentLength() * sizeof(uint64_t) != fedData.size())) {
-      failTrailerCheck = true;
-    }
-
-    const unsigned char* data = fedData.data();
-    const uint64_t* word = reinterpret_cast<const uint64_t*>(data);
+    const uint64_t* word = reinterpret_cast<const uint64_t*>(fedData.data());
     auto amc13Event = gemRawToDigi_->convertWordToAMC13Event(word);
-
-    if (amc13Event == nullptr) {
-      LogDebug("GEMRawToDigiModule") << "AMC13Event FAILED to be produced";
-      continue;
-    }
-
-    // compare trailers found by last word of fedData.size() and gemRawToDigi
-    // caused by error in no. of AMC, GEB or VFAT stored in FEDs
-    if ((amc13Event->fragmentLength() != trailer.fragmentLength()) || (amc13Event->crc() != trailer.crc()))
-      failTrailerMatch = true;
 
     LogDebug("GEMRawToDigiModule") << "Event bx:" << iEvent.bunchCrossing() << " lv1Id:" << iEvent.id().event()
                                    << " orbitNumber:" << iEvent.orbitNumber();
-    LogDebug("GEMRawToDigiModule") << "AMC13 bx:" << amc13Event->bxId() << " lv1Id:" << int(amc13Event->lv1Id())
+    LogDebug("GEMRawToDigiModule") << "AMC13 bx:" << amc13Event->bunchCrossing() << " lv1Id:" << int(amc13Event->lv1Id())
                                    << " orbitNumber:" << amc13Event->orbitNumber();
-
-    if (failTrailerCheck || failTrailerMatch) {
-      // best to skip these events since FED is most likely corrupt
-      edm::LogWarning("GEMRawToDigiModule")
-          << "FED trailer: fail check? " << failTrailerCheck << " fail match? " << failTrailerMatch;
-      continue;
-    }
 
     bool unknownChamber = false, unknownVFat = false, badVfat = false;
 
     // Read AMC data
     for (auto amcData : *(amc13Event->getAMCpayloads())) {
-      uint16_t amcBx = amcData.bx();
       uint8_t amcNum = amcData.amcNum();
-      LogDebug("GEMRawToDigiModule") << "AMC no.:" << int(amcData.amcNum()) << " bx:" << int(amcData.bx())
-                                     << " lv1Id:" << int(amcData.l1A()) << " orbitNumber:" << int(amcData.orbitNum());
+      GEMROMapping::sectorEC amcEC{fedId, amcNum};
+      GEMAMCStatus st_amc = GEMAMCStatus(amc13Event.get(), amcData, gemROMap->isValidAMC(amcEC));
+      if (st_amc.isBad()) continue;
+      
+      uint16_t amcBx = amcData.bunchCrossing();
+      LogDebug("GEMRawToDigiModule") << "AMC no.:" << int(amcData.amcNum()) << " bx:" << int(amcData.bunchCrossing())
+                                     << " lv1Id:" << int(amcData.lv1Id()) << " orbitNumber:" << int(amcData.orbitNumber());
 
       // Read GEB data
-      for (auto gebData : *amcData.gebs()) {
-        uint8_t gebId = gebData.inputID();
-        GEMROMapping::chamEC geb_ec = {fedId, amcNum, gebId};
+      for (auto optoHybrid : *amcData.gebs()) {
+        uint8_t gebId = optoHybrid.inputID();
+        GEMROMapping::chamEC geb_ec{fedId, amcNum, gebId};
 
-        // check if Chamber exists.
-        if (!gemROMap->isValidChamber(geb_ec)) {
-          unknownChamber = true;
-          LogDebug("GEMRawToDigiModule") << "InValid: amcNum " << int(amcNum) << " gebId " << int(gebId);
-          continue;
-        }
+        GEMOHStatus st_oh = GEMOHStatus(optoHybrid, !gemROMap->isValidChamber(geb_ec));
+        if (st_oh.isBad()) continue;
 
         GEMROMapping::chamDC geb_dc = gemROMap->chamberPos(geb_ec);
         GEMDetId gemChId = geb_dc.detId;
 
         //Read vfat data
-        for (auto vfatData : *gebData.vFATs()) {
+        for (auto vfatData : *optoHybrid.vFATs()) {
           vfatData.setVersion(geb_dc.vfatVer);
           uint16_t vfatId = vfatData.vfatId();
-          GEMROMapping::vfatEC vfat_ec = {vfatId, gemChId};
+          GEMROMapping::vfatEC vfat_ec{vfatId, gemChId};
 
-          // check if ChipID exists.
-          if (!gemROMap->isValidChipID(vfat_ec)) {
-            unknownVFat = true;
-            LogDebug("GEMRawToDigiModule") << "InValid: amcNum " << int(amcNum) << " gebId " << int(gebId) << " vfatId "
-                                           << int(vfatId) << " vfat Pos " << int(vfatData.position());
-            continue;
-          }
-
-          // check vfat data
-          if (vfatData.quality()) {
-            badVfat = true;
-            LogDebug("GEMRawToDigiModule")
-                << "Quality " << int(vfatData.quality()) << " b1010 " << int(vfatData.b1010()) << " b1100 "
-                << int(vfatData.b1100()) << " b1110 " << int(vfatData.b1110());
-            if (vfatData.crc() != vfatData.checkCRC()) {
-              LogDebug("GEMRawToDigiModule") << "DIFFERENT CRC :" << vfatData.crc() << "   " << vfatData.checkCRC();
-            }
-          }
+          GEMVFATStatus st_vfat = GEMVFATStatus(amcData, vfatData, !gemROMap->isValidChipID(vfat_ec));
+          if (st_vfat.isBad()) continue;
 
           GEMROMapping::vfatDC vfat_dc = gemROMap->vfatPos(vfat_ec);
 
@@ -220,7 +181,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
             if (chan0xf == 0)
               continue;
 
-            GEMROMapping::channelNum chMap = {vfat_dc.vfatType, chan};
+            GEMROMapping::channelNum chMap{vfat_dc.vfatType, chan};
             GEMROMapping::stripNum stMap = gemROMap->hitPos(chMap);
 
             int stripId = stMap.stNum + vfatData.phi() * GEMeMap::maxChan_;
@@ -243,8 +204,8 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
         }  // end of vfat loop
 
         if (unPackStatusDigis_) {
-          gebData.clearVFATs();
-          outGEBStatus.get()->insertDigi(gemChId.chamberId(), (gebData));
+          optoHybrid.clearVFATs();
+          outGEBStatus.get()->insertDigi(gemChId.chamberId(), (optoHybrid));
         }
 
       }  // end of geb loop
@@ -258,7 +219,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
     if (unPackStatusDigis_) {
       amc13Event->clearAMCpayloads();
-      outAMC13Event.get()->insertDigi(amc13Event->bxId(), AMC13Event(*amc13Event));
+      outAMC13Event.get()->insertDigi(amc13Event->bunchCrossing(), AMC13Event(*amc13Event));
     }
 
     if (unknownChamber || unknownVFat || badVfat) {
