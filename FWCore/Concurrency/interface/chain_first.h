@@ -117,23 +117,13 @@ namespace edm {
       bool condition_;
     };
 
-    template <typename O, typename... T>
-    [[nodiscard]] constexpr auto _then(O&& iO, WaitingTaskChain<T...> iChain) {
-      if constexpr (has_exception_handling<O>::value) {
-        return WaitingTaskChain<O, T...>(std::forward<O>(iO), std::move(iChain));
-      } else {
-        return WaitingTaskChain<AutoExceptionHandler<O>, T...>(AutoExceptionHandler<O>(std::forward<O>(iO)),
-                                                               std::move(iChain));
-      }
-    }
-
     template <typename F>
     struct ThenAdaptor {
       constexpr explicit ThenAdaptor(F&& iF) : f_(std::forward<F>(iF)) {}
 
       template <typename... T>
       [[nodiscard]] constexpr auto pipe(WaitingTaskChain<T...> iChain) {
-        return _then(std::move(f_), std::move(iChain));
+        return WaitingTaskChain<F, T...>(std::move(f_), std::move(iChain));
       }
 
     private:
@@ -285,16 +275,22 @@ namespace edm {
    */
     template <typename O>
     [[nodiscard]] constexpr auto then(O&& iO) {
-      return detail::ThenAdaptor<O>(std::forward<O>(iO));
+      using namespace detail;
+      if constexpr (has_exception_handling<O>::value) {
+        return ThenAdaptor<O>(std::forward<O>(iO));
+      } else {
+        return ThenAdaptor<AutoExceptionHandler<O>>(AutoExceptionHandler<O>(std::forward<O>(iO)));
+      }
     }
 
     ///Only runs this task if the condition (which is known at the call time) is true. If false, this task will be skipped and the following task will run.
     template <typename O>
     [[nodiscard]] constexpr auto ifThen(bool iValue, O&& iO) {
-      if constexpr (detail::has_exception_handling<O>::value) {
-        return detail::ConditionalAdaptor<O>(iValue, std::forward<O>(iO));
+      using namespace detail;
+      if constexpr (has_exception_handling<O>::value) {
+        return ConditionalAdaptor<O>(iValue, std::forward<O>(iO));
       } else {
-        return detail::ConditionalAdaptor<detail::AutoExceptionHandler<O>>(iValue, std::forward<O>(iO));
+        return ConditionalAdaptor<AutoExceptionHandler<O>>(iValue, AutoExceptionHandler<O>(std::forward<O>(iO)));
       }
     }
 
