@@ -955,7 +955,7 @@ bool HGCalWaferMask::goodTypeMode(
         int k = nc % base;
         double xc1 = xpos + dx0[k];
         double yc1 = ypos + dy0[k];
-	rpos2 = (xc1 * xc1 + yc1 * yc1);
+        rpos2 = (xc1 * xc1 + yc1 * yc1);
         if ((rpos2 > rout2) || (rpos2 < rin2)) {
           ok = false;
           ncf = k;
@@ -968,7 +968,7 @@ bool HGCalWaferMask::goodTypeMode(
         int k = nc % base2;
         double xc1 = xpos + dx2[k];
         double yc1 = ypos + dy2[k];
-	rpos2 = (xc1 * xc1 + yc1 * yc1);
+        rpos2 = (xc1 * xc1 + yc1 * yc1);
         if ((rpos2 > rout2) || (rpos2 < rin2)) {
           ok = false;
           ncf = k + base2;
@@ -995,7 +995,8 @@ bool HGCalWaferMask::goodTypeMode(
   if (debug || (!ok))
     edm::LogVerbatim("HGCalGeom") << "I/p "
                                   << ":" << xpos << ":" << ypos << ":" << delX << ":" << delY << ":" << rin << ":"
-                                  << rout << ":" << part << ":" << rotn << " Results " << ok << ":" << ncf << " R " << rin2 << ":" << rout2 << ":" << rpos2;
+                                  << rout << ":" << part << ":" << rotn << " Results " << ok << ":" << ncf << " R "
+                                  << rin2 << ":" << rout2 << ":" << rpos2;
   return ok;
 }
 
