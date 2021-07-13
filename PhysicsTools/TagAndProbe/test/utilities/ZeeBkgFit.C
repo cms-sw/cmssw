@@ -25,7 +25,6 @@
 #include "RooGaussian.h"
 #include "RooNLLVar.h"
 #include "RooConstVar.h"
-#include "RooFitLegacy/RooMinuit.h"
 #include "RooFitResult.h"
 #include "RooExponential.h"
 #include "RooFFTConvPdf.h"
