@@ -151,8 +151,15 @@ void GEMTriggerPrimitivesAnalyzer::makeDataVsEmulatorPlots() {
       // when all histograms are found, make a new canvas and add it to
       // the collection
       if (dataMon && emulMon && diffMon) {
-        makePlot(
-            dataMon, emulMon, diffMon, "GEM Cluster", "gemcluster_", TString(clusterVars_[iVar]), TString(chambers_[iType]), ps, c1);
+        makePlot(dataMon,
+                 emulMon,
+                 diffMon,
+                 "GEM Cluster",
+                 "gemcluster_",
+                 TString(clusterVars_[iVar]),
+                 TString(chambers_[iType]),
+                 ps,
+                 c1);
       }
     }
   }
