@@ -2,10 +2,10 @@
 //
 /**  \class L2MuonProducer
  * 
- *   Level-2 muon reconstructor:
+ *   L2 muon reconstructor:
  *   reconstructs muons using DT, CSC and RPC
  *   information,<BR>
- *   starting from Level-1 trigger seeds.
+ *   starting from internal seeds (L2 muon track segments).
  *
  *
  *
@@ -16,51 +16,73 @@
 //
 //--------------------------------------------------
 
-#include "RecoMuon/L2MuonProducer/src/L2MuonProducer.h"
-
-// Framework
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-// TrackFinder and Specific STA/L2 Trajectory Builder
-#include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
-#include "RecoMuon/StandAloneTrackFinder/interface/ExhaustiveMuonTrajectoryBuilder.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include <memory>
+#include <string>
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
-#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "RecoMuon/StandAloneTrackFinder/interface/ExhaustiveMuonTrajectoryBuilder.h"
+#include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
-#include <string>
+class L2MuonProducer : public edm::stream::EDProducer<> {
+public:
+  /// constructor with config
+  L2MuonProducer(const edm::ParameterSet&);
 
-using namespace edm;
-using namespace std;
+  /// destructor
+  ~L2MuonProducer() override;
+
+  /// reconstruct muons
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  // MuonSeed Collection Label
+  edm::InputTag theSeedCollectionLabel;
+
+  /// the track finder
+  std::unique_ptr<MuonTrackFinder> theTrackFinder;  //It isn't the same as in ORCA
+
+  /// the event setup proxy, it takes care the services update
+  std::unique_ptr<MuonServiceProxy> theService;
+
+  edm::EDGetTokenT<edm::View<TrajectorySeed>> seedsToken;
+};
 
 /// constructor with config
-L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet) {
+L2MuonProducer::L2MuonProducer(const edm::ParameterSet& parameterSet) {
   LogTrace("Muon|RecoMuon|L2MuonProducer") << "constructor called" << endl;
 
   // Parameter set for the Builder
-  ParameterSet trajectoryBuilderParameters = parameterSet.getParameter<ParameterSet>("L2TrajBuilderParameters");
+  edm::ParameterSet trajectoryBuilderParameters =
+      parameterSet.getParameter<edm::ParameterSet>("L2TrajBuilderParameters");
 
   // MuonSeed Collection Label
-  theSeedCollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
+  theSeedCollectionLabel = parameterSet.getParameter<edm::InputTag>("InputObjects");
   seedsToken = consumes<edm::View<TrajectorySeed>>(theSeedCollectionLabel);
   // service parameters
-  ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
+  edm::ParameterSet serviceParameters = parameterSet.getParameter<edm::ParameterSet>("ServiceParameters");
 
   // TrackLoader parameters
-  ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
+  edm::ParameterSet trackLoaderParameters = parameterSet.getParameter<edm::ParameterSet>("TrackLoaderParameters");
 
   // the services
   theService = std::make_unique<MuonServiceProxy>(serviceParameters, consumesCollector());
@@ -79,7 +101,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet) {
     trajectoryBuilder =
         std::make_unique<ExhaustiveMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);
   else {
-    LogWarning("Muon|RecoMuon|StandAloneMuonProducer")
+    edm::LogWarning("Muon|RecoMuon|StandAloneMuonProducer")
         << "No Trajectory builder associated with " << typeOfBuilder
         << ". Falling down to the default (StandAloneMuonTrajectoryBuilder)";
     trajectoryBuilder =
@@ -109,7 +131,7 @@ L2MuonProducer::~L2MuonProducer() {
 }
 
 /// reconstruct muons
-void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
+void L2MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
   const std::string metname = "Muon|RecoMuon|L2MuonProducer";
 
   LogTrace(metname) << endl << endl << endl;
@@ -117,7 +139,7 @@ void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   // Take the seeds container
   LogTrace(metname) << "Taking the seeds: " << theSeedCollectionLabel.label() << endl;
-  Handle<View<TrajectorySeed>> seeds;
+  edm::Handle<edm::View<TrajectorySeed>> seeds;
   event.getByToken(seedsToken, seeds);
 
   // Update the services
@@ -127,7 +149,7 @@ void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   LogTrace(metname) << "Track Reconstruction" << endl;
   theTrackFinder->reconstruct(seeds, event, eventSetup);
 
-  LogTrace(metname) << "Event loaded"
+  LogTrace(metname) << "edm::Event loaded"
                     << "================================" << endl
                     << endl;
 }
@@ -266,3 +288,7 @@ void L2MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<std::string>("MuonTrajectoryBuilder", "Exhaustive");
   descriptions.add("L2MuonProducer", desc);
 }
+
+// declare as a framework plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L2MuonProducer);
