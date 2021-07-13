@@ -21,7 +21,7 @@ Implementation:
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -29,6 +29,7 @@ Implementation:
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -38,16 +39,18 @@ Implementation:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <TH1F.h>
 
-class CherenkovAnalysis : public edm::EDAnalyzer {
+class CherenkovAnalysis : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit CherenkovAnalysis(const edm::ParameterSet &);
   ~CherenkovAnalysis() override {}
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
 private:
+  const double maxEnergy_;
+  const int nBinsEnergy_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_calo_;
   TH1F *hEnergy_;
-  double maxEnergy_;
-  int nBinsEnergy_;
 
   TH1F *hTimeStructure_;
 
@@ -58,8 +61,9 @@ private:
 
 //__________________________________________________________________________________________________
 CherenkovAnalysis::CherenkovAnalysis(const edm::ParameterSet &iConfig)
-    : maxEnergy_(iConfig.getParameter<double>("maxEnergy")),
-      nBinsEnergy_(iConfig.getParameter<unsigned>("nBinsEnergy")) {
+    : maxEnergy_(iConfig.getParameter<double>("maxEnergy")), nBinsEnergy_(iConfig.getParameter<int>("nBinsEnergy")) {
+  usesResource(TFileService::kSharedResource);
+
   tok_calo_ = consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("caloHitSource"));
 
   // Book histograms
@@ -71,6 +75,14 @@ CherenkovAnalysis::CherenkovAnalysis(const edm::ParameterSet &iConfig)
 
   hEnergy_ = tfile->make<TH1F>("hEnergy", "Total energy deposit [GeV]", nBinsEnergy_, 0, maxEnergy_);
   hTimeStructure_ = tfile->make<TH1F>("hTimeStructure", "Time structure [ns]", 100, 0, 0.3);
+}
+
+void CherenkovAnalysis::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("caloHitSource", edm::InputTag("g4SimHits", "EcalHitsEB"));
+  desc.add<double>("maxEnergy", 2.0);
+  desc.add<int>("nBinsEnergy", 50);
+  descriptions.add("cherenkovAnalysis", desc);
 }
 
 //__________________________________________________________________________________________________

@@ -1,20 +1,19 @@
-
 // system include files
 #include <memory>
 #include <string>
 #include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -32,10 +31,14 @@
 #include <TH1F.h>
 #include <TH1I.h>
 
-class XtalDedxAnalysis : public edm::EDAnalyzer {
+#define EDM_ML_DEBUG
+
+class XtalDedxAnalysis : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit XtalDedxAnalysis(const edm::ParameterSet &);
   ~XtalDedxAnalysis() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
   void beginJob() override {}
@@ -59,13 +62,12 @@ private:
 };
 
 XtalDedxAnalysis::XtalDedxAnalysis(const edm::ParameterSet &ps) {
+  usesResource(TFileService::kSharedResource);
   caloHitSource_ = ps.getParameter<edm::InputTag>("caloHitSource");
-  simTkLabel_ = ps.getUntrackedParameter<std::string>("moduleLabelTk", "g4SimHits");
-  double energyMax = ps.getParameter<double>("EnergyMax");
-#ifdef EDM_ML_DEBUG
-  edm::LogInfo("CherenkovAnalysis") << "XtalDedxAnalysis::Source " << caloHitSource_ << " Track Label " << simTkLabel_
-                                    << " Energy Max " << energyMax;
-#endif
+  simTkLabel_ = ps.getParameter<std::string>("moduleLabelTk");
+  double energyMax = ps.getParameter<double>("energyMax");
+  edm::LogVerbatim("CherenkovAnalysis") << "XtalDedxAnalysis::Source " << caloHitSource_ << " Track Label "
+                                        << simTkLabel_ << " Energy Max " << energyMax;
   // register for data access
   tok_calo_ = consumes<edm::PCaloHitContainer>(caloHitSource_);
   tok_tk_ = consumes<edm::SimTrackContainer>(edm::InputTag(simTkLabel_));
@@ -112,6 +114,14 @@ XtalDedxAnalysis::XtalDedxAnalysis(const edm::ParameterSet &ps) {
   mType_ = tfile->make<TH1I>(name, title, 5000, -2500, 2500);
   mType_->GetXaxis()->SetTitle(title);
   mType_->GetYaxis()->SetTitle("Tracks");
+}
+
+void XtalDedxAnalysis::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("caloHitSource", edm::InputTag("g4SimHits", "EcalHitsEB"));
+  desc.add<std::string>("moduleLabelTk", "g4SimHits");
+  desc.add<double>("energyMax", 2.0);
+  descriptions.add("xtalDedxAnalysis", desc);
 }
 
 void XtalDedxAnalysis::analyze(const edm::Event &e, const edm::EventSetup &) {
