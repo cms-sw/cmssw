@@ -22,7 +22,6 @@
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
