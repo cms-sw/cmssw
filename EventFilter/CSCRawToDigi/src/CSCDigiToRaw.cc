@@ -161,7 +161,7 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
     const bool usePreTriggers = usePreTriggers_ and preTriggers != nullptr;
     if (!usePreTriggers || packEverything_ ||
         (usePreTriggers && cscd2r::accept(cscDetId,
-                                          *preTriggers,
+                                          *preTriggerDigis,
                                           preTriggerWindowMin_,
                                           preTriggerWindowMax_,
                                           CSCConstants::CLCT_CENTRAL_BX,
