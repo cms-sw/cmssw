@@ -38,7 +38,7 @@ public:
   explicit XtalDedxAnalysis(const edm::ParameterSet &);
   ~XtalDedxAnalysis() override {}
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
   void beginJob() override {}
@@ -66,7 +66,8 @@ XtalDedxAnalysis::XtalDedxAnalysis(const edm::ParameterSet &ps) {
   caloHitSource_ = ps.getParameter<edm::InputTag>("caloHitSource");
   simTkLabel_ = ps.getParameter<std::string>("moduleLabelTk");
   double energyMax = ps.getParameter<double>("energyMax");
-  edm::LogVerbatim("CherenkovAnalysis") << "XtalDedxAnalysis::Source " << caloHitSource_ << " Track Label " << simTkLabel_ << " Energy Max " << energyMax;
+  edm::LogVerbatim("CherenkovAnalysis") << "XtalDedxAnalysis::Source " << caloHitSource_ << " Track Label "
+                                        << simTkLabel_ << " Energy Max " << energyMax;
   // register for data access
   tok_calo_ = consumes<edm::PCaloHitContainer>(caloHitSource_);
   tok_tk_ = consumes<edm::SimTrackContainer>(edm::InputTag(simTkLabel_));
@@ -115,9 +116,9 @@ XtalDedxAnalysis::XtalDedxAnalysis(const edm::ParameterSet &ps) {
   mType_->GetYaxis()->SetTitle("Tracks");
 }
 
-void XtalDedxAnalysis::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void XtalDedxAnalysis::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("caloHitSource", edm::InputTag("g4SimHits","EcalHitsEB"));
+  desc.add<edm::InputTag>("caloHitSource", edm::InputTag("g4SimHits", "EcalHitsEB"));
   desc.add<std::string>("moduleLabelTk", "g4SimHits");
   desc.add<double>("energyMax", 2.0);
   descriptions.add("xtalDedxAnalysis", desc);

@@ -44,7 +44,7 @@ public:
   explicit CherenkovAnalysis(const edm::ParameterSet &);
   ~CherenkovAnalysis() override {}
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   const double maxEnergy_;
@@ -61,9 +61,7 @@ private:
 
 //__________________________________________________________________________________________________
 CherenkovAnalysis::CherenkovAnalysis(const edm::ParameterSet &iConfig)
-    : maxEnergy_(iConfig.getParameter<double>("maxEnergy")),
-      nBinsEnergy_(iConfig.getParameter<int>("nBinsEnergy")) {
-
+    : maxEnergy_(iConfig.getParameter<double>("maxEnergy")), nBinsEnergy_(iConfig.getParameter<int>("nBinsEnergy")) {
   usesResource(TFileService::kSharedResource);
 
   tok_calo_ = consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("caloHitSource"));
@@ -79,9 +77,9 @@ CherenkovAnalysis::CherenkovAnalysis(const edm::ParameterSet &iConfig)
   hTimeStructure_ = tfile->make<TH1F>("hTimeStructure", "Time structure [ns]", 100, 0, 0.3);
 }
 
-void CherenkovAnalysis::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void CherenkovAnalysis::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("caloHitSource", edm::InputTag("g4SimHits","EcalHitsEB"));
+  desc.add<edm::InputTag>("caloHitSource", edm::InputTag("g4SimHits", "EcalHitsEB"));
   desc.add<double>("maxEnergy", 2.0);
   desc.add<int>("nBinsEnergy", 50);
   descriptions.add("cherenkovAnalysis", desc);
