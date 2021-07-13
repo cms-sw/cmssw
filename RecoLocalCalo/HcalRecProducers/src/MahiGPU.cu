@@ -1048,6 +1048,10 @@ namespace hcal {
                     cudaStream_t cudaStream) {
       auto const totalChannels = inputGPU.f01HEDigis.size + inputGPU.f5HBDigis.size + inputGPU.f3HBDigis.size;
 
+      // protections when the detector is out
+      if (totalChannels == 0)
+        return;
+
       // FIXME: may be move this assignment to emphasize this more clearly
       // FIXME: number of channels for output might change given that
       //   some channesl might be filtered out
