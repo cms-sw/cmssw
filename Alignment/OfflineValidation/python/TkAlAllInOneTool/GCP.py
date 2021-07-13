@@ -66,7 +66,14 @@ def GCP(config, validationDir):
                     "flavour": "espresso", 
                 }
 
-                jobs.append(job)
+                # Ntuple jobs might appear multiple times, only add if not there yet
+                already_there = False
+                for j in jobs:
+                    if j["name"] == job["name"]: 
+                        already_there = True
+                        break
+
+                if not already_there: jobs.append(job)
 
             # Comparison job preps
             for IOV_pair in IOVpair_list:
@@ -112,7 +119,8 @@ def GCP(config, validationDir):
                         job['exe'] = 'cmsRun'
                         job['cms-config'] = "{}/src/Alignment/OfflineValidation/python/TkAlAllInOneTool/GCP_tree_cfg.py".format(os.environ["CMSSW_BASE"]) 
                         job['dependencies'] = parents
-                    elif step == 'GCPcpp': 
+                    elif step == 'GCPcpp':
+                        job['flavour'] = 'microcentury' 
                         job['exe'] = 'GCP'
                         job['dependencies'] = parents + ["GCP_{}_{}_{}_{}".format(comparison, ali_pair, IOV_pair, 'GCPtree')]
                     else: 
