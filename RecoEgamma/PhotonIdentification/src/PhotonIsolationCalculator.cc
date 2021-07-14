@@ -15,14 +15,11 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -41,13 +38,20 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,
       iC.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("barrelEcalRecHitCollection"));
   endcapecalCollection_ =
       iC.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("endcapEcalRecHitCollection"));
-  auto hcRHC = conf.getParameter<edm::InputTag>("HcalRecHitCollection");
-  if (not hcRHC.label().empty())
-    hcalCollection_ = iC.consumes<CaloTowerCollection>(hcRHC);
+
+  auto hbhetag = conf.getParameter<edm::InputTag>("HBHERecHitCollection");
+  if (not hbhetag.label().empty())
+    hbheRecHitsTag_ = iC.consumes<HBHERecHitCollection>(hbhetag);
+
+  caloGeometryToken_ = decltype(caloGeometryToken_){iC.esConsumes()};
+  hcalTopologyToken_ = decltype(hcalTopologyToken_){iC.esConsumes()};
+  hcalChannelQualityToken_ = decltype(hcalChannelQualityToken_){iC.esConsumes(edm::ESInputTag("", "withTopo"))};
+  hcalSevLvlComputerToken_ = decltype(hcalSevLvlComputerToken_){iC.esConsumes()};
+  towerMapToken_ = decltype(towerMapToken_){iC.esConsumes()};
 
   //  gsfRecoInputTag_ = conf.getParameter<edm::InputTag>("GsfRecoCollection");
   modulePhiBoundary_ = conf.getParameter<double>("modulePhiBoundary");
-  moduleEtaBoundary_ = conf.getParameter<std::vector<double> >("moduleEtaBoundary");
+  moduleEtaBoundary_ = conf.getParameter<std::vector<double>>("moduleEtaBoundary");
   //
   vetoClusteredEcalHits_ = conf.getParameter<bool>("vetoClustered");
   useNumCrystals_ = conf.getParameter<bool>("useNumCrystals");
@@ -68,16 +72,8 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,
   ecalIsoBarrelRadiusA_[i++] = (conf.getParameter<double>("EcalRecHitThreshEA_Barrel"));
   ecalIsoBarrelRadiusA_[i++] = (conf.getParameter<double>("EcalRecHitThreshEtA_Barrel"));
 
-  i = 0;
-  hcalIsoBarrelRadiusA_[i++] = (conf.getParameter<double>("HcalTowerInnerRadiusA_Barrel"));
-  hcalIsoBarrelRadiusA_[i++] = (conf.getParameter<double>("HcalTowerOuterRadiusA_Barrel"));
-  hcalIsoBarrelRadiusA_[i++] = (conf.getParameter<double>("HcalTowerThreshEA_Barrel"));
-  hcalIsoBarrelRadiusA_[i++] = (conf.getParameter<double>("HcalDepth1TowerInnerRadiusA_Barrel"));
-  hcalIsoBarrelRadiusA_[i++] = (conf.getParameter<double>("HcalDepth1TowerOuterRadiusA_Barrel"));
-  hcalIsoBarrelRadiusA_[i++] = (conf.getParameter<double>("HcalDepth1TowerThreshEA_Barrel"));
-  hcalIsoBarrelRadiusA_[i++] = (conf.getParameter<double>("HcalDepth2TowerInnerRadiusA_Barrel"));
-  hcalIsoBarrelRadiusA_[i++] = (conf.getParameter<double>("HcalDepth2TowerOuterRadiusA_Barrel"));
-  hcalIsoBarrelRadiusA_[i++] = (conf.getParameter<double>("HcalDepth2TowerThreshEA_Barrel"));
+  hcalIsoInnerRadAEB_ = conf.getParameter<std::array<double, 7>>("HcalRecHitInnerRadiusA_Barrel");
+  hcalIsoOuterRadAEB_ = conf.getParameter<std::array<double, 7>>("HcalRecHitOuterRadiusA_Barrel");
 
   i = 0;
   trkIsoBarrelRadiusB_[i++] = (conf.getParameter<double>("TrackConeOuterRadiusB_Barrel"));
@@ -94,16 +90,8 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,
   ecalIsoBarrelRadiusB_[i++] = (conf.getParameter<double>("EcalRecHitThreshEB_Barrel"));
   ecalIsoBarrelRadiusB_[i++] = (conf.getParameter<double>("EcalRecHitThreshEtB_Barrel"));
 
-  i = 0;
-  hcalIsoBarrelRadiusB_[i++] = (conf.getParameter<double>("HcalTowerInnerRadiusB_Barrel"));
-  hcalIsoBarrelRadiusB_[i++] = (conf.getParameter<double>("HcalTowerOuterRadiusB_Barrel"));
-  hcalIsoBarrelRadiusB_[i++] = (conf.getParameter<double>("HcalTowerThreshEB_Barrel"));
-  hcalIsoBarrelRadiusB_[i++] = (conf.getParameter<double>("HcalDepth1TowerInnerRadiusB_Barrel"));
-  hcalIsoBarrelRadiusB_[i++] = (conf.getParameter<double>("HcalDepth1TowerOuterRadiusB_Barrel"));
-  hcalIsoBarrelRadiusB_[i++] = (conf.getParameter<double>("HcalDepth1TowerThreshEB_Barrel"));
-  hcalIsoBarrelRadiusB_[i++] = (conf.getParameter<double>("HcalDepth2TowerInnerRadiusB_Barrel"));
-  hcalIsoBarrelRadiusB_[i++] = (conf.getParameter<double>("HcalDepth2TowerOuterRadiusB_Barrel"));
-  hcalIsoBarrelRadiusB_[i++] = (conf.getParameter<double>("HcalDepth2TowerThreshEB_Barrel"));
+  hcalIsoInnerRadBEB_ = conf.getParameter<std::array<double, 7>>("HcalRecHitInnerRadiusB_Barrel");
+  hcalIsoOuterRadBEB_ = conf.getParameter<std::array<double, 7>>("HcalRecHitOuterRadiusB_Barrel");
 
   /// Isolation parameters for Endcap and for two different cone sizes
   i = 0;
@@ -121,16 +109,8 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,
   ecalIsoEndcapRadiusA_[i++] = (conf.getParameter<double>("EcalRecHitThreshEA_Endcap"));
   ecalIsoEndcapRadiusA_[i++] = (conf.getParameter<double>("EcalRecHitThreshEtA_Endcap"));
 
-  i = 0;
-  hcalIsoEndcapRadiusA_[i++] = (conf.getParameter<double>("HcalTowerInnerRadiusA_Endcap"));
-  hcalIsoEndcapRadiusA_[i++] = (conf.getParameter<double>("HcalTowerOuterRadiusA_Endcap"));
-  hcalIsoEndcapRadiusA_[i++] = (conf.getParameter<double>("HcalTowerThreshEA_Endcap"));
-  hcalIsoEndcapRadiusA_[i++] = (conf.getParameter<double>("HcalDepth1TowerInnerRadiusA_Endcap"));
-  hcalIsoEndcapRadiusA_[i++] = (conf.getParameter<double>("HcalDepth1TowerOuterRadiusA_Endcap"));
-  hcalIsoEndcapRadiusA_[i++] = (conf.getParameter<double>("HcalDepth1TowerThreshEA_Endcap"));
-  hcalIsoEndcapRadiusA_[i++] = (conf.getParameter<double>("HcalDepth2TowerInnerRadiusA_Endcap"));
-  hcalIsoEndcapRadiusA_[i++] = (conf.getParameter<double>("HcalDepth2TowerOuterRadiusA_Endcap"));
-  hcalIsoEndcapRadiusA_[i++] = (conf.getParameter<double>("HcalDepth2TowerThreshEA_Endcap"));
+  hcalIsoInnerRadAEE_ = conf.getParameter<std::array<double, 7>>("HcalRecHitInnerRadiusA_Endcap");
+  hcalIsoOuterRadAEE_ = conf.getParameter<std::array<double, 7>>("HcalRecHitOuterRadiusA_Endcap");
 
   i = 0;
   trkIsoEndcapRadiusB_[i++] = (conf.getParameter<double>("TrackConeOuterRadiusB_Endcap"));
@@ -147,22 +127,18 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,
   ecalIsoEndcapRadiusB_[i++] = (conf.getParameter<double>("EcalRecHitThreshEB_Endcap"));
   ecalIsoEndcapRadiusB_[i++] = (conf.getParameter<double>("EcalRecHitThreshEtB_Endcap"));
 
-  i = 0;
-  hcalIsoEndcapRadiusB_[i++] = (conf.getParameter<double>("HcalTowerInnerRadiusB_Endcap"));
-  hcalIsoEndcapRadiusB_[i++] = (conf.getParameter<double>("HcalTowerOuterRadiusB_Endcap"));
-  hcalIsoEndcapRadiusB_[i++] = (conf.getParameter<double>("HcalTowerThreshEB_Endcap"));
-  hcalIsoEndcapRadiusB_[i++] = (conf.getParameter<double>("HcalDepth1TowerInnerRadiusB_Endcap"));
-  hcalIsoEndcapRadiusB_[i++] = (conf.getParameter<double>("HcalDepth1TowerOuterRadiusB_Endcap"));
-  hcalIsoEndcapRadiusB_[i++] = (conf.getParameter<double>("HcalDepth1TowerThreshEB_Endcap"));
-  hcalIsoEndcapRadiusB_[i++] = (conf.getParameter<double>("HcalDepth2TowerInnerRadiusB_Endcap"));
-  hcalIsoEndcapRadiusB_[i++] = (conf.getParameter<double>("HcalDepth2TowerOuterRadiusB_Endcap"));
-  hcalIsoEndcapRadiusB_[i++] = (conf.getParameter<double>("HcalDepth2TowerThreshEB_Endcap"));
+  hcalIsoInnerRadBEE_ = conf.getParameter<std::array<double, 7>>("HcalRecHitInnerRadiusB_Endcap");
+  hcalIsoOuterRadBEE_ = conf.getParameter<std::array<double, 7>>("HcalRecHitOuterRadiusB_Endcap");
 
   //Pick up the variables for the spike removal
   flagsEB_ = flagsEB;
   flagsEE_ = flagsEE;
   severityExclEB_ = severitiesEB;
   severityExclEE_ = severitiesEE;
+
+  hcalIsoEThresHB_ = conf.getParameter<EgammaHcalIsolation::arrayHB>("recHitEThresholdHB");
+  hcalIsoEThresHE_ = conf.getParameter<EgammaHcalIsolation::arrayHE>("recHitEThresholdHE");
+  maxHcalSeverity_ = conf.getParameter<int>("maxHcalRecHitSeverity");
 }
 
 void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
@@ -188,6 +164,12 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   phofid.isEEDeeGap = isEEDeeGap;
   phofid.isEBEEGap = isEBEEGap;
 
+  auto const& caloGeometry = es.getData(caloGeometryToken_);
+  auto const& hcalTopology = &es.getData(hcalTopologyToken_);
+  auto const& hcalChannelQuality = &es.getData(hcalChannelQualityToken_);
+  auto const& hcalSevLvlComputer = &es.getData(hcalSevLvlComputerToken_);
+  auto const& towerMap = es.getData(towerMapToken_);
+
   // Calculate isolation variables. cone sizes and thresholds
   // are set for Barrel and endcap separately
 
@@ -202,15 +184,6 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   double photonEcalRecHitEtaSliceA_;
   double photonEcalRecHitThreshEA_;
   double photonEcalRecHitThreshEtA_;
-  double photonHcalTowerConeInnerRadiusA_;
-  double photonHcalTowerConeOuterRadiusA_;
-  double photonHcalTowerThreshEA_;
-  double photonHcalDepth1TowerConeInnerRadiusA_;
-  double photonHcalDepth1TowerConeOuterRadiusA_;
-  double photonHcalDepth1TowerThreshEA_;
-  double photonHcalDepth2TowerConeInnerRadiusA_;
-  double photonHcalDepth2TowerConeOuterRadiusA_;
-  double photonHcalDepth2TowerThreshEA_;
   double trackConeOuterRadiusA_;
   double trackConeInnerRadiusA_;
   double isolationtrackThresholdA_;
@@ -222,15 +195,6 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   double photonEcalRecHitEtaSliceB_;
   double photonEcalRecHitThreshEB_;
   double photonEcalRecHitThreshEtB_;
-  double photonHcalTowerConeInnerRadiusB_;
-  double photonHcalTowerConeOuterRadiusB_;
-  double photonHcalTowerThreshEB_;
-  double photonHcalDepth1TowerConeInnerRadiusB_;
-  double photonHcalDepth1TowerConeOuterRadiusB_;
-  double photonHcalDepth1TowerThreshEB_;
-  double photonHcalDepth2TowerConeInnerRadiusB_;
-  double photonHcalDepth2TowerConeOuterRadiusB_;
-  double photonHcalDepth2TowerThreshEB_;
   double trackConeOuterRadiusB_;
   double trackConeInnerRadiusB_;
   double isolationtrackThresholdB_;
@@ -252,16 +216,6 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
     photonEcalRecHitThreshEA_ = ecalIsoBarrelRadiusA_[3];
     photonEcalRecHitThreshEtA_ = ecalIsoBarrelRadiusA_[4];
 
-    photonHcalTowerConeInnerRadiusA_ = hcalIsoBarrelRadiusA_[0];
-    photonHcalTowerConeOuterRadiusA_ = hcalIsoBarrelRadiusA_[1];
-    photonHcalTowerThreshEA_ = hcalIsoBarrelRadiusA_[2];
-    photonHcalDepth1TowerConeInnerRadiusA_ = hcalIsoBarrelRadiusA_[3];
-    photonHcalDepth1TowerConeOuterRadiusA_ = hcalIsoBarrelRadiusA_[4];
-    photonHcalDepth1TowerThreshEA_ = hcalIsoBarrelRadiusA_[5];
-    photonHcalDepth2TowerConeInnerRadiusA_ = hcalIsoBarrelRadiusA_[6];
-    photonHcalDepth2TowerConeOuterRadiusA_ = hcalIsoBarrelRadiusA_[7];
-    photonHcalDepth2TowerThreshEA_ = hcalIsoBarrelRadiusA_[8];
-
     trackConeOuterRadiusB_ = trkIsoBarrelRadiusB_[0];
     trackConeInnerRadiusB_ = trkIsoBarrelRadiusB_[1];
     isolationtrackThresholdB_ = trkIsoBarrelRadiusB_[2];
@@ -274,17 +228,6 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
     photonEcalRecHitEtaSliceB_ = ecalIsoBarrelRadiusB_[2];
     photonEcalRecHitThreshEB_ = ecalIsoBarrelRadiusB_[3];
     photonEcalRecHitThreshEtB_ = ecalIsoBarrelRadiusB_[4];
-
-    photonHcalTowerConeInnerRadiusB_ = hcalIsoBarrelRadiusB_[0];
-    photonHcalTowerConeOuterRadiusB_ = hcalIsoBarrelRadiusB_[1];
-    photonHcalTowerThreshEB_ = hcalIsoBarrelRadiusB_[2];
-    photonHcalDepth1TowerConeInnerRadiusB_ = hcalIsoBarrelRadiusB_[3];
-    photonHcalDepth1TowerConeOuterRadiusB_ = hcalIsoBarrelRadiusB_[4];
-    photonHcalDepth1TowerThreshEB_ = hcalIsoBarrelRadiusB_[5];
-    photonHcalDepth2TowerConeInnerRadiusB_ = hcalIsoBarrelRadiusB_[6];
-    photonHcalDepth2TowerConeOuterRadiusB_ = hcalIsoBarrelRadiusB_[7];
-    photonHcalDepth2TowerThreshEB_ = hcalIsoBarrelRadiusB_[8];
-
   } else {
     // detector==EcalEndcap
 
@@ -301,16 +244,6 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
     photonEcalRecHitThreshEA_ = ecalIsoEndcapRadiusA_[3];
     photonEcalRecHitThreshEtA_ = ecalIsoEndcapRadiusA_[4];
 
-    photonHcalTowerConeInnerRadiusA_ = hcalIsoEndcapRadiusA_[0];
-    photonHcalTowerConeOuterRadiusA_ = hcalIsoEndcapRadiusA_[1];
-    photonHcalTowerThreshEA_ = hcalIsoEndcapRadiusA_[2];
-    photonHcalDepth1TowerConeInnerRadiusA_ = hcalIsoEndcapRadiusA_[3];
-    photonHcalDepth1TowerConeOuterRadiusA_ = hcalIsoEndcapRadiusA_[4];
-    photonHcalDepth1TowerThreshEA_ = hcalIsoEndcapRadiusA_[5];
-    photonHcalDepth2TowerConeInnerRadiusA_ = hcalIsoEndcapRadiusA_[6];
-    photonHcalDepth2TowerConeOuterRadiusA_ = hcalIsoEndcapRadiusA_[7];
-    photonHcalDepth2TowerThreshEA_ = hcalIsoEndcapRadiusA_[8];
-
     trackConeOuterRadiusB_ = trkIsoEndcapRadiusB_[0];
     trackConeInnerRadiusB_ = trkIsoEndcapRadiusB_[1];
     isolationtrackThresholdB_ = trkIsoEndcapRadiusB_[2];
@@ -323,16 +256,6 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
     photonEcalRecHitEtaSliceB_ = ecalIsoEndcapRadiusB_[2];
     photonEcalRecHitThreshEB_ = ecalIsoEndcapRadiusB_[3];
     photonEcalRecHitThreshEtB_ = ecalIsoEndcapRadiusB_[4];
-
-    photonHcalTowerConeInnerRadiusB_ = hcalIsoEndcapRadiusB_[0];
-    photonHcalTowerConeOuterRadiusB_ = hcalIsoEndcapRadiusB_[1];
-    photonHcalTowerThreshEB_ = hcalIsoEndcapRadiusB_[2];
-    photonHcalDepth1TowerConeInnerRadiusB_ = hcalIsoEndcapRadiusB_[3];
-    photonHcalDepth1TowerConeOuterRadiusB_ = hcalIsoEndcapRadiusB_[4];
-    photonHcalDepth1TowerThreshEB_ = hcalIsoEndcapRadiusB_[5];
-    photonHcalDepth2TowerConeInnerRadiusB_ = hcalIsoEndcapRadiusB_[6];
-    photonHcalDepth2TowerConeOuterRadiusB_ = hcalIsoEndcapRadiusB_[7];
-    photonHcalDepth2TowerThreshEB_ = hcalIsoEndcapRadiusB_[8];
   }
 
   //Calculate hollow cone track isolation, CONE A
@@ -428,82 +351,49 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
                                                  useNumCrystals_);
   phoisolR2.ecalRecHitSumEt = EcalRecHitIsoB;
 
-  double HcalTowerIsoA = calculateHcalTowerIso(
-      pho, e, es, photonHcalTowerConeOuterRadiusA_, photonHcalTowerConeInnerRadiusA_, photonHcalTowerThreshEA_, -1);
-  phoisolR1.hcalTowerSumEt = HcalTowerIsoA;
+  if (not hbheRecHitsTag_.isUninitialized()) {
+    auto const& hbheRecHits = e.get(hbheRecHitsTag_);
 
-  double HcalTowerIsoB = calculateHcalTowerIso(
-      pho, e, es, photonHcalTowerConeOuterRadiusB_, photonHcalTowerConeInnerRadiusB_, photonHcalTowerThreshEB_, -1);
-  phoisolR2.hcalTowerSumEt = HcalTowerIsoB;
+    auto fcone = [this,
+                  pho,
+                  &caloGeometry,
+                  &hcalTopo = *hcalTopology,
+                  &hcalQual = *hcalChannelQuality,
+                  &hcalSev = *hcalSevLvlComputer,
+                  &towerMap,
+                  &hbheRecHits](double outer, double inner, int depth) {
+      return calculateHcalRecHitIso<false>(
+          pho, caloGeometry, hcalTopo, hcalQual, hcalSev, towerMap, hbheRecHits, outer, inner, depth);
+    };
 
-  //// Hcal depth1
+    auto fbc = [this,
+                pho,
+                &caloGeometry,
+                &hcalTopo = *hcalTopology,
+                &hcalQual = *hcalChannelQuality,
+                &hcalSev = *hcalSevLvlComputer,
+                &towerMap,
+                &hbheRecHits](double outer, int depth) {
+      return calculateHcalRecHitIso<true>(
+          pho, caloGeometry, hcalTopo, hcalQual, hcalSev, towerMap, hbheRecHits, outer, 0., depth);
+    };
 
-  double HcalDepth1TowerIsoA = calculateHcalTowerIso(pho,
-                                                     e,
-                                                     es,
-                                                     photonHcalDepth1TowerConeOuterRadiusA_,
-                                                     photonHcalDepth1TowerConeInnerRadiusA_,
-                                                     photonHcalDepth1TowerThreshEA_,
-                                                     1);
-  phoisolR1.hcalDepth1TowerSumEt = HcalDepth1TowerIsoA;
+    for (size_t id = 0; id < phoisolR1.hcalRecHitSumEt.size(); ++id) {
+      const auto& outerA = detector == EcalBarrel ? hcalIsoOuterRadAEB_[id] : hcalIsoOuterRadAEE_[id];
+      const auto& outerB = detector == EcalBarrel ? hcalIsoOuterRadBEB_[id] : hcalIsoOuterRadBEE_[id];
+      const auto& innerA = detector == EcalBarrel ? hcalIsoInnerRadAEB_[id] : hcalIsoInnerRadAEE_[id];
+      const auto& innerB = detector == EcalBarrel ? hcalIsoInnerRadBEB_[id] : hcalIsoInnerRadBEE_[id];
 
-  double HcalDepth1TowerIsoB = calculateHcalTowerIso(pho,
-                                                     e,
-                                                     es,
-                                                     photonHcalDepth1TowerConeOuterRadiusB_,
-                                                     photonHcalDepth1TowerConeInnerRadiusB_,
-                                                     photonHcalDepth1TowerThreshEB_,
-                                                     1);
-  phoisolR2.hcalDepth1TowerSumEt = HcalDepth1TowerIsoB;
+      phoisolR1.hcalRecHitSumEt[id] = fcone(outerA, innerA, id + 1);
+      phoisolR2.hcalRecHitSumEt[id] = fcone(outerB, innerB, id + 1);
 
-  //// Hcal depth2
+      phoisolR1.hcalRecHitSumEtBc[id] = fbc(outerA, id + 1);
+      phoisolR2.hcalRecHitSumEtBc[id] = fbc(outerB, id + 1);
+    }
+  }
 
-  double HcalDepth2TowerIsoA = calculateHcalTowerIso(pho,
-                                                     e,
-                                                     es,
-                                                     photonHcalDepth2TowerConeOuterRadiusA_,
-                                                     photonHcalDepth2TowerConeInnerRadiusA_,
-                                                     photonHcalDepth2TowerThreshEA_,
-                                                     2);
-  phoisolR1.hcalDepth2TowerSumEt = HcalDepth2TowerIsoA;
-
-  double HcalDepth2TowerIsoB = calculateHcalTowerIso(pho,
-                                                     e,
-                                                     es,
-                                                     photonHcalDepth2TowerConeOuterRadiusB_,
-                                                     photonHcalDepth2TowerConeInnerRadiusB_,
-                                                     photonHcalDepth2TowerThreshEB_,
-                                                     2);
-  phoisolR2.hcalDepth2TowerSumEt = HcalDepth2TowerIsoB;
-
-  // New Hcal isolation based on the new H/E definition (towers behind the BCs in the SC are used to evaluated H)
-  double HcalTowerBcIsoA =
-      calculateHcalTowerIso(pho, e, es, photonHcalTowerConeOuterRadiusA_, photonHcalTowerThreshEA_, -1);
-  phoisolR1.hcalTowerSumEtBc = HcalTowerBcIsoA;
-
-  double HcalTowerBcIsoB =
-      calculateHcalTowerIso(pho, e, es, photonHcalTowerConeOuterRadiusB_, photonHcalTowerThreshEB_, -1);
-  phoisolR2.hcalTowerSumEtBc = HcalTowerBcIsoB;
-
-  //// Hcal depth1
-
-  double HcalDepth1TowerBcIsoA =
-      calculateHcalTowerIso(pho, e, es, photonHcalDepth1TowerConeOuterRadiusA_, photonHcalDepth1TowerThreshEA_, 1);
-  phoisolR1.hcalDepth1TowerSumEtBc = HcalDepth1TowerBcIsoA;
-
-  double HcalDepth1TowerBcIsoB =
-      calculateHcalTowerIso(pho, e, es, photonHcalDepth1TowerConeOuterRadiusB_, photonHcalDepth1TowerThreshEB_, 1);
-  phoisolR2.hcalDepth1TowerSumEtBc = HcalDepth1TowerBcIsoB;
-
-  //// Hcal depth2
-
-  double HcalDepth2TowerBcIsoA =
-      calculateHcalTowerIso(pho, e, es, photonHcalDepth2TowerConeOuterRadiusA_, photonHcalDepth2TowerThreshEA_, 2);
-  phoisolR1.hcalDepth2TowerSumEtBc = HcalDepth2TowerBcIsoA;
-
-  double HcalDepth2TowerBcIsoB =
-      calculateHcalTowerIso(pho, e, es, photonHcalDepth2TowerConeOuterRadiusB_, photonHcalDepth2TowerThreshEB_, 2);
-  phoisolR2.hcalDepth2TowerSumEtBc = HcalDepth2TowerBcIsoB;
+  phoisolR1.pre7DepthHcal = false;
+  phoisolR2.pre7DepthHcal = false;
 }
 
 void PhotonIsolationCalculator::classify(const reco::Photon* photon,
@@ -640,51 +530,57 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   return ecalIsol;
 }
 
-double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* photon,
-                                                        const edm::Event& iEvent,
-                                                        const edm::EventSetup& iSetup,
-                                                        double RCone,
-                                                        double RConeInner,
-                                                        double eMin,
-                                                        signed int depth) const {
-  double hcalIsol = 0.;
+template <bool isoBC>
+double PhotonIsolationCalculator::calculateHcalRecHitIso(const reco::Photon* photon,
+                                                         const CaloGeometry& geometry,
+                                                         const HcalTopology& hcalTopology,
+                                                         const HcalChannelQuality& hcalChStatus,
+                                                         const HcalSeverityLevelComputer& hcalSevLvlComputer,
+                                                         const CaloTowerConstituentsMap& towerMap,
+                                                         const HBHERecHitCollection& hbheRecHits,
+                                                         double RCone,
+                                                         double RConeInner,
+                                                         int depth) const {
+  const EgammaHcalIsolation::arrayHB e04{{0., 0., 0., 0.}};
+  const EgammaHcalIsolation::arrayHE e07{{0., 0., 0., 0., 0., 0., 0.}};
 
-  if (not hcalCollection_.isUninitialized()) {
-    edm::Handle<CaloTowerCollection> hcalhitsCollH;
-    iEvent.getByToken(hcalCollection_, hcalhitsCollH);
+  if constexpr (isoBC) {
+    auto hcaliso = EgammaHcalIsolation(EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
+                                       RCone,
+                                       EgammaHcalIsolation::InclusionRule::isBehindClusterSeed,
+                                       RConeInner,
+                                       hcalIsoEThresHB_,
+                                       e04,
+                                       maxHcalSeverity_,
+                                       hcalIsoEThresHE_,
+                                       e07,
+                                       maxHcalSeverity_,
+                                       hbheRecHits,
+                                       geometry,
+                                       hcalTopology,
+                                       hcalChStatus,
+                                       hcalSevLvlComputer,
+                                       towerMap);
 
-    const CaloTowerCollection* toww = hcalhitsCollH.product();
+    return hcaliso.getHcalEtSumBc(photon, depth);
+  } else {
+    auto hcaliso = EgammaHcalIsolation(EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
+                                       RCone,
+                                       EgammaHcalIsolation::InclusionRule::withinConeAroundCluster,
+                                       RConeInner,
+                                       hcalIsoEThresHB_,
+                                       e04,
+                                       maxHcalSeverity_,
+                                       hcalIsoEThresHE_,
+                                       e07,
+                                       maxHcalSeverity_,
+                                       hbheRecHits,
+                                       geometry,
+                                       hcalTopology,
+                                       hcalChStatus,
+                                       hcalSevLvlComputer,
+                                       towerMap);
 
-    //std::cout << "before iso call" << std::endl;
-    EgammaTowerIsolation phoIso(RCone, RConeInner, eMin, depth, toww);
-    hcalIsol = phoIso.getTowerEtSum(photon);
-    //  delete phoIso;
-    //std::cout << "after call" << std::endl;
+    return hcaliso.getHcalEtSum(photon, depth);
   }
-
-  return hcalIsol;
-}
-
-double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* photon,
-                                                        const edm::Event& iEvent,
-                                                        const edm::EventSetup& iSetup,
-                                                        double RCone,
-                                                        double eMin,
-                                                        signed int depth) const {
-  double hcalIsol = 0.;
-
-  if (not hcalCollection_.isUninitialized()) {
-    edm::Handle<CaloTowerCollection> hcalhitsCollH;
-    iEvent.getByToken(hcalCollection_, hcalhitsCollH);
-
-    const CaloTowerCollection* toww = hcalhitsCollH.product();
-
-    //std::cout << "before iso call" << std::endl;
-    EgammaTowerIsolation phoIso(RCone, 0., eMin, depth, toww);
-    hcalIsol = phoIso.getTowerEtSum(photon, &(photon->hcalTowersBehindClusters()));
-    //  delete phoIso;
-    //std::cout << "after call" << std::endl;
-  }
-
-  return hcalIsol;
 }

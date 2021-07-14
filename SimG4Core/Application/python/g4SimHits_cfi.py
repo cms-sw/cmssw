@@ -44,7 +44,7 @@ common_UseHF = cms.PSet(
     Lambda2       = cms.double(700.0),
     Gain          = cms.double(0.33),
     CheckSurvive  = cms.bool(False),
-    FibreR        = cms.untracked.double(0.3)
+    FibreR        = cms.double(0.3)
 )
 
 common_UseLuminosity = cms.PSet(

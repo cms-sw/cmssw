@@ -2,50 +2,23 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.CMSCommonData.cmsHFPMTFibreXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load("Geometry.MuonNumbering.muonOffsetESProducer_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("SimG4CMS.Calo.HFPMTHitAnalyzer_cfi")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('CaloSim', 
-        'EcalSim', 'G4cerr', 'G4cout',
-        'HcalSim', 'HFShower'),
-    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HFShower = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
-    )
-)
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.G4cout=dict()
+    process.MessageLogger.HFShower=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
