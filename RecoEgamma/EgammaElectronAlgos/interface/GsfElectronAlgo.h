@@ -34,7 +34,6 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/RegressionHelper.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EleTkIsolFromCands.h"
 #include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimator.h"
 #include "RecoEgamma/ElectronIdentification/interface/SoftElectronMVAEstimator.h"
@@ -60,7 +59,7 @@ public:
 
   struct Tokens {
     edm::EDGetTokenT<reco::GsfElectronCoreCollection> gsfElectronCores;
-    edm::EDGetTokenT<CaloTowerCollection> hcalTowersTag;
+    edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitsTag;
     edm::EDGetTokenT<reco::SuperClusterCollection> barrelSuperClusters;
     edm::EDGetTokenT<reco::SuperClusterCollection> endcapSuperClusters;
     edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitCollection;
@@ -114,10 +113,10 @@ public:
     double maxHOverEEndcapsCone;
     double maxHBarrelCone;
     double maxHEndcapsCone;
-    double maxHOverEBarrelTower;
-    double maxHOverEEndcapsTower;
-    double maxHBarrelTower;
-    double maxHEndcapsTower;
+    double maxHOverEBarrelBc;
+    double maxHOverEEndcapsBc;
+    double maxHBarrelBc;
+    double maxHEndcapsBc;
 
     // maximum eta difference between the supercluster position and the track position at the closest impact to the supercluster
     double maxDeltaEtaBarrel;
@@ -179,7 +178,8 @@ public:
   GsfElectronAlgo(const Tokens&,
                   const StrategyConfiguration&,
                   const CutsConfiguration& cutsCfg,
-                  const ElectronHcalHelper::Configuration& hcalCfg,
+                  const ElectronHcalHelper::Configuration& hcalCone,
+                  const ElectronHcalHelper::Configuration& hcalBc,
                   const IsolationConfiguration&,
                   const EcalRecHitsConfiguration&,
                   std::unique_ptr<EcalClusterFunctionBaseClass>&& crackCorrectionFunction,
@@ -231,7 +231,8 @@ private:
 
   template <bool full5x5>
   reco::GsfElectron::ShowerShape calculateShowerShape(const reco::SuperClusterRef&,
-                                                      ElectronHcalHelper const& hcalHelper,
+                                                      ElectronHcalHelper const& hcalHelperCone,
+                                                      ElectronHcalHelper const& hcalHelperBc,
                                                       EventData const& eventData,
                                                       CaloTopology const& topology,
                                                       CaloGeometry const& geometry,
@@ -258,7 +259,8 @@ private:
   const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_;
 
   // additional configuration and helpers
-  ElectronHcalHelper hcalHelper_;
+  ElectronHcalHelper hcalHelperCone_;
+  ElectronHcalHelper hcalHelperBc_;
   std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction_;
   RegressionHelper regHelper_;
 };
