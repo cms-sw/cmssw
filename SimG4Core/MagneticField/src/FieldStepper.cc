@@ -5,19 +5,21 @@
 #include "G4CashKarpRKF45.hh"
 #include "G4ClassicalRK4.hh"
 #include "G4DormandPrince745.hh"
+#include "G4TDormandPrince45.hh"
 #include "G4HelixExplicitEuler.hh"
 #include "G4HelixHeum.hh"
 #include "G4HelixImplicitEuler.hh"
 #include "G4HelixSimpleRunge.hh"
 #include "G4ImplicitEuler.hh"
 #include "G4Mag_UsualEqRhs.hh"
+#include "G4TMagFieldEquation.hh"
 #include "G4NystromRK4.hh"
 #include "G4SimpleHeum.hh"
 #include "G4SimpleRunge.hh"
 #include "G4TsitourasRK45.hh"
 
 FieldStepper::FieldStepper(G4Mag_UsualEqRhs *eq, double del, const std::string &nam)
-    : G4MagIntegratorStepper(eq, 6), theEquation(eq), theDelta(del) {
+  : G4MagIntegratorStepper(eq, 6), theEquation(eq), theDelta(del) {
   selectStepper(nam);
 }
 
@@ -44,6 +46,8 @@ void FieldStepper::selectStepper(const std::string &ss) {
     theStepper = new G4CashKarpRKF45(theEquation);
   else if (ss == "G4DormandPrince745")
     theStepper = new G4DormandPrince745(theEquation);
+  else if (ss == "G4TDormandPrince45")
+    theStepper = new G4TDormandPrince45<G4Mag_UsualEqRhs>(theEquation);
   else if (ss == "G4BogackiShampine45")
     theStepper = new G4BogackiShampine45(theEquation);
   else if (ss == "G4TsitourasRK45")
