@@ -51,12 +51,6 @@ TotemTimingLocalTrackFitter<T>::TotemTimingLocalTrackFitter(const edm::Parameter
       trk_algo_params_(iConfig.getParameter<edm::ParameterSet>("trackingAlgorithmParams")) {
   produces<edm::DetSetVector<TotemTimingLocalTrack> >();
 
-  // for (unsigned short armNo = 0; armNo < 2; armNo++){//
-  //   //for (unsigned short rpNo = 0; rpNo < 2; rpNo++) {//
-  //     T id(armNo, 1, 6, 0, 0);
-  //     TotemTimingTrackRecognition trk_algo(iConfig.getParameter<edm::ParameterSet>("trackingAlgorithmParams"));
-  //     trk_algo_map_.insert(std::make_pair(id, trk_algo));
-  //   }
 }
 template <typename T>
 void TotemTimingLocalTrackFitter<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -65,14 +59,10 @@ void TotemTimingLocalTrackFitter<T>::produce(edm::Event& iEvent, const edm::Even
   edm::Handle<edm::DetSetVector<TotemTimingRecHit> > recHits;
   iEvent.getByToken(recHitsToken_, recHits);
 
-  // for (const auto& trk_algo_entry : trk_algo_map_)
-  //   pOut->find_or_insert(trk_algo_entry.first);
-
   std::map<T, int> planeActivityMap;
 
   auto motherId = [](const edm::det_id_type& detid) {
     T out(detid);
-    //out.setStation(1);
     out.setChannel(0);
     return out;
   };
