@@ -8,11 +8,11 @@
 <SolidSection label="RP_Param_Beam_Region.xml">
  <Polycone name="Beam_IP_150_R" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[cms:HallZ]" rMin="[cms:Rmin]" rMax="[cms:HallR]"/>
-  <ZSection z="[RP_Stations_Assembly:RP_210_Right_Station_Position_z]" rMin="[cms:Rmin]" rMax="[cms:HallR]"/>
+  <ZSection z="[RP_Stations_Assembly:RP_147_Right_Station_Position_z]" rMin="[cms:Rmin]" rMax="[cms:HallR]"/>
  </Polycone> 
  <Polycone name="Beam_IP_150_L" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="-[cms:HallZ]" rMin="[cms:Rmin]" rMax="[cms:HallR]"/>
-  <ZSection z="[RP_Stations_Assembly:RP_210_Left_Station_Position_z]" rMin="[cms:Rmin]" rMax="[cms:HallR]"/>
+  <ZSection z="[RP_Stations_Assembly:RP_147_Left_Station_Position_z]" rMin="[cms:Rmin]" rMax="[cms:HallR]"/>
  </Polycone> 
 </SolidSection>
 
