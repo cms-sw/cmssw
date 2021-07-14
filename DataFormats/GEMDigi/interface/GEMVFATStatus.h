@@ -1,8 +1,7 @@
 #ifndef DataFormats_GEMDigi_GEMVFATStatus_h
 #define DataFormats_GEMDigi_GEMVFATStatus_h
 #include "GEBdata.h"
-
-namespace gem {
+#include <bitset>
 
     class GEMVFATStatus {
     public:
@@ -10,7 +9,6 @@ namespace gem {
     union Errors {
     uint8_t codes;
     struct {
-      uint8_t InValidPosition : 1; 
       uint8_t vc : 1; // VFAT CRC error
       uint8_t InValidHeader : 1;
       uint8_t EC : 1; // does not match AMC EC
@@ -21,17 +19,17 @@ namespace gem {
     uint8_t wcodes;
     struct {
       uint8_t basicOFW : 1;             // Basic overflow warning
-      uint8_t zeroSupOFW : 1;              // Zero-sup overflow warning
+      uint8_t zeroSupOFW : 1;           // Zero-sup overflow warning
     };
     };
 
-    GEMVFATStatus(const AMCdata& amc, const VFATdata& vfat, bool inValidPosition) {
+    GEMVFATStatus(){}
+    GEMVFATStatus(const gem::AMCdata& amc, const gem::VFATdata& vfat, uint16_t position) {
       Errors error{0};
-      error.InValidPosition = inValidPosition;
       error.vc = vfat.vc();
-      error.EC = vfat.ec() != amc.lv1Id();
+      error.EC = vfat.ec() != amc.lv1Idt();
       error.BC = vfat.bc() != amc.bunchCrossing();
-        
+       
       Warnings warn{0};
       if (vfat.header() == 0x1E)
         warn.basicOFW = 0;
@@ -44,22 +42,29 @@ namespace gem {
       else 
         error.InValidHeader = 1;
         
-      errors_ = error.codes;
-      warnings_ = warn.wcodes;
+      vfatPosition_ = position;
 
+      errors_ = error.codes;
+      warnings_ = warn.wcodes;      
     }
 
-    bool isGood() { return errors_ == 0;}
-    bool isBad() { return errors_ != 0;}
-    uint8_t errors() { return errors_; }
-    uint8_t warnings() { return warnings_; }
+    uint16_t vfatPosition() const {return vfatPosition_;}
+    bool isGood() const { return errors_ == 0;}
+    bool isBad() const { return errors_ != 0;}
+    uint16_t errors() const { return errors_; }
+    uint8_t warnings() const { return warnings_; }
 
     private:
 
+    uint16_t vfatPosition_;
     uint16_t errors_;
     uint8_t warnings_;
 
-
     };
-}
+
+    std::ostream& operator<< (std::ostream &out, const GEMVFATStatus &status)
+    {
+      out << "GEMVFATStatus errors " << std::bitset<8>(status.errors()) << " warnings "<< std::bitset<8>(status.warnings());
+      return out;
+    }
 #endif

@@ -31,7 +31,8 @@ namespace gem {
     uint64_t word;
     struct {
       uint64_t dataLength : 20;  // Number of 64bit words in this event
-      uint64_t l1AIDT : 12;      // 8bit long GLIB serial number (first 8 bits)
+      uint64_t : 4;
+      uint64_t l1AID : 8;        // L1A number (first 8 bits)
       uint64_t crc : 32;         // CRC added by the AMC13
     };
   };
@@ -101,6 +102,7 @@ namespace gem {
     uint8_t runType() const { return AMCheader2{amch2_}.runType; }
     uint8_t formatVer() const { return AMCheader2{amch2_}.formatVer; }
 
+    uint8_t lv1Idt() const { return AMCTrailer{amct_}.l1AID; }
     uint32_t crc() const { return AMCTrailer{amct_}.crc; }
 
     uint16_t ttsState() const { return EventHeader{eh_}.ttsState; }

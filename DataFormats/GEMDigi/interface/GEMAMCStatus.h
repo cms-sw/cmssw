@@ -2,15 +2,13 @@
 #define DataFormats_GEMDigi_GEMAMCStatus_h
 #include "AMC13Event.h"
 #include "AMCdata.h"
-
-namespace gem {
+#include <bitset>
 
     class GEMAMCStatus {
     public:
     union Errors {
     uint16_t ecodes;
     struct {
-      uint16_t InvalidAMC : 1;
       uint16_t badEC : 1; // event counter
       uint16_t badBC : 1; // bunch crossing
       uint16_t badOC : 1; // orbit number
@@ -26,13 +24,15 @@ namespace gem {
     union Warnings {
     uint8_t wcodes;
     struct {
+      uint8_t InValidOH : 1;
       uint8_t backPressure : 1;
     };
     };
 
-    GEMAMCStatus(const AMC13Event* amc13, const AMCdata& amc, int isValidAMC) {
+    GEMAMCStatus(){}
+    GEMAMCStatus(const gem::AMC13Event* amc13, const gem::AMCdata& amc) {
+        amcNum_ = amc.amcNum();
         Errors error{0};
-        error.InvalidAMC = !isValidAMC;
         error.badEC = (amc13->lv1Id() != amc.lv1Id());
         error.badBC = (amc13->bunchCrossing() != amc.bunchCrossing());
         error.badRunType = amc.runType() != 0x1; 
@@ -50,16 +50,30 @@ namespace gem {
         warnings_ = warn.wcodes;
     }
 
-    bool isGood() { return errors_ == 0;}
-    bool isBad() { return errors_ != 0;}
-    uint16_t errors() { return errors_; }
-    uint8_t warnings() { return warnings_; }
+    void inValidOH() {
+      Warnings warn{warnings_};
+      warn.InValidOH = 1;
+      warnings_ = warn.wcodes;
+    }
+
+    uint8_t amcNumber() const { return amcNum_; };
+    bool isGood() const { return errors_ == 0;}
+    bool isBad() const { return errors_ != 0;}
+    uint16_t errors() const { return errors_; }
+    uint8_t warnings() const { return warnings_; }
 
     private:
 
+    uint8_t amcNum_;
     uint16_t errors_;
     uint8_t warnings_;
 
     };
-}
+
+    std::ostream& operator<< (std::ostream &out, const GEMAMCStatus &status)
+    {
+      out << "GEMAMCStatus errors " << std::bitset<16>(status.errors()) << " warnings "<< std::bitset<8>(status.warnings());
+      return out;
+    }
+
 #endif

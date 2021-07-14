@@ -1,17 +1,15 @@
 #ifndef DataFormats_GEMDigi_GEMOHStatus_h
 #define DataFormats_GEMDigi_GEMOHStatus_h
 #include "GEBdata.h"
+#include <bitset>
 
 // GEM OptoHyrid status
-namespace gem {
-
     class GEMOHStatus {
     public:
 
     union Errors {
     uint16_t codes;
     struct {
-      uint16_t InValidOptoHybrid : 1; // input link not found
       uint16_t EvtF : 1;              // Event FIFO full
       uint16_t InF : 1;               // Input FIFO full
       uint16_t L1aF : 1;              // L1A FIFO full
@@ -32,12 +30,13 @@ namespace gem {
       uint8_t InNF : 1;              // Input FIFO near full
       uint8_t L1aNF : 1;             // L1A FIFO near full
       uint8_t EvtSzW : 1;            // Event size warning
+      uint8_t InValidVFAT : 1;
     };
     };
 
-    GEMOHStatus(const GEBdata& oh, bool InValidOH) {
+    GEMOHStatus(){}
+    GEMOHStatus(const gem::GEBdata& oh) {
       Errors error{0};
-      error.InValidOptoHybrid = InValidOH;
       error.EvtF = oh.evtF();
       error.InF = oh.inF();
       error.L1aF = oh.l1aF();
@@ -59,25 +58,28 @@ namespace gem {
       warnings_ = warn.wcodes;
     }
 
-    bool isGood() { return errors_ == 0;}
-    bool isBad() { return errors_ != 0;}
-    uint16_t errors() { return errors_; }
-    uint8_t warnings() { return warnings_; }
+    void inValidVFAT() {
+      Warnings warn{warnings_};
+      warn.InValidVFAT = 1;
+      warnings_ = warn.wcodes;
+    }
+
+    bool isGood() const { return errors_ == 0;}
+    bool isBad() const { return errors_ != 0;}
+    uint16_t errors() const { return errors_; }
+    uint8_t warnings() const { return warnings_; }
 
     private:
 
     uint16_t errors_;
     uint8_t warnings_;
 
-/*
-        // check if Chamber exists.
-        if (!gemROMap->isValidChamber(geb_ec)) {
-          unknownChamber = true;
-          LogDebug("GEMRawToDigiModule") << "InValid: amcNum " << int(amcNum) << " gebId " << int(gebId);
-          continue;
-        }
-*/
-
     };
-}
+
+    std::ostream& operator<< (std::ostream &out, const GEMOHStatus &status)
+    {
+      out << "GEMOHStatus errors " << std::bitset<16>(status.errors()) << " warnings "<< std::bitset<8>(status.warnings());
+      return out;
+    }
+
 #endif

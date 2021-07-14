@@ -4,8 +4,7 @@
 #include "AMCdata.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
-
-namespace gem {
+#include <bitset>
 
     class GEMAMC13Status {
     public:
@@ -23,28 +22,52 @@ namespace gem {
       uint8_t wrongFedId : 1;      
     };
     };
+    union Warnings {
+    uint8_t wcodes;
+    struct {
+      uint8_t InValidAMC : 1; // error for AMC but cant display when not found.
+    };
+    };
 
+    GEMAMC13Status(){}
     GEMAMC13Status(const FEDRawData& fedData) {
+      Errors error{0};
+      if ( (fedData.size() / sizeof(uint64_t)) < 5) {
+        error.InValidSize = 1;
+      }
+      else {
       FEDTrailer trailer(fedData.data() + fedData.size() - FEDTrailer::length);
-      Errors ferror{0};
-      ferror.InValidSize = ( (fedData.size() / sizeof(uint64_t)) < 5);
-      ferror.failTrailerCheck = trailer.check();
-      ferror.failFragmentLength = (trailer.fragmentLength() * sizeof(uint64_t) != fedData.size());
-      ferror.moreTrailers = trailer.moreTrailers();
-      ferror.crcModified = trailer.crcModified();
-      ferror.slinkError = trailer.slinkError();
-      ferror.wrongFedId = trailer.wrongFedId();
-      errors_ = ferror.codes;
+      error.failTrailerCheck = !trailer.check();
+      error.failFragmentLength = (trailer.fragmentLength() * sizeof(uint64_t) != fedData.size());
+      error.moreTrailers = trailer.moreTrailers();
+      error.crcModified = trailer.crcModified();
+      error.slinkError = trailer.slinkError();
+      error.wrongFedId = trailer.wrongFedId();
+      }
+      errors_ = error.codes;
+    }
+    void inValidAMC() {
+      Warnings warn{0};
+      warn.InValidAMC = 1;
+      warnings_ = warn.wcodes;
     }
 
-    bool isGood() { return errors_ == 0;}
-    bool isBad() { return errors_ != 0;}
-    uint16_t errors() { return errors_; }
+    bool isGood() const { return errors_ == 0;}
+    bool isBad() const { return errors_ != 0;}
+    uint8_t errors() const { return errors_; }
+    uint8_t warnings() const { return warnings_; }
 
     private:
 
     uint8_t errors_;
+    uint8_t warnings_;
 
     };
-}
+
+    std::ostream& operator<< (std::ostream &out, const GEMAMC13Status &status)
+    {
+      out << "GEMAMC13Status errors " << std::bitset<8>(status.errors()) << " warnings "<< std::bitset<8>(status.warnings());
+      return out;
+    }
+
 #endif

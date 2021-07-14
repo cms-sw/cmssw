@@ -6,7 +6,7 @@ VFATdata::VFATdata() : ver_(0), phiPos_(0), fw_(0), sw_(0), tw_(0) {}
 
 VFATdata::VFATdata(const int vfatVer,
                    const uint16_t BC,
-                   const uint8_t EC,
+                   const uint32_t EC,
                    const uint16_t chipID,
                    const uint64_t lsDatas,
                    const uint64_t msDatas) {
