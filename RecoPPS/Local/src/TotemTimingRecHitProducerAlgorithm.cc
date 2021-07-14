@@ -76,8 +76,8 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
       // remove baseline
       std::vector<float> dataCorrected(data.size());
       for (unsigned int i = 0; i < data.size(); ++i){
-        //edm::LogProblem("TotemTimingRecHitProducerAlgorithm") <<"time"<<time[i];
-        dataCorrected[i] = data[i];// - (baselineRegression.q + baselineRegression.m * time[i]);
+        dataCorrected[i] = data[i] - (baselineRegression.q + baselineRegression.m * time[i]);
+        //flip value if sampic
         if(det->name()=="CTPPS_Diamond_Segment")
           dataCorrected[i] = -1*dataCorrected[i]+1;
           
@@ -89,7 +89,6 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
         t = constantFractionDiscriminator(time, dataCorrected);
 
       mode_ = TotemTimingRecHit::CFD;
-      //edm::LogProblem("TotemTimingRecHitProducerAlgorithm") <<"time"<<t;
       rec_hits.emplace_back(x_pos,
                             x_width,
                             y_pos,
