@@ -50,10 +50,10 @@ ctppsCommonDQMSourceOffline = ctppsCommonDQMSource.clone(
 )
 
 #Check if perLSsaving is enabled to mask MEs vs LS
-from Configuration.ProcessModifiers.perLSsaving_cff import perLSsaving
-perLSsaving.toModify(ctppsDiamondDQMSource, perLSsaving=True)
-perLSsaving.toModify(totemTimingDQMSource, perLSsaving=True)
-perLSsaving.toModify(ctppsCommonDQMSourceOffline, perLSsaving=True)
+from Configuration.ProcessModifiers.dqmPerLSsaving_cff import dqmPerLSsaving
+dqmPerLSsaving.toModify(ctppsDiamondDQMSource, perLSsaving=True)
+dqmPerLSsaving.toModify(totemTimingDQMSource, perLSsaving=True)
+dqmPerLSsaving.toModify(ctppsCommonDQMSourceOffline, perLSsaving=True)
 
 _ctppsDQMOfflineSource = cms.Sequence(
   ctppsPixelDQMOfflineSource
