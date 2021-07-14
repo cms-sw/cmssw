@@ -1,5 +1,8 @@
-#ifndef SimG4CMS_ShowerLibraryProducer_FiberSD_h
-#define SimG4CMS_ShowerLibraryProducer_FiberSD_h
+#ifndef SimG4CMS_ShowerLibraryProducer_FiberSensitiveDetector_h
+#define SimG4CMS_ShowerLibraryProducer_FiberSensitiveDetector_h
+
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalSimulationConstants.h"
 
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
@@ -23,18 +26,19 @@
 class G4Step;
 class G4HCofThisEvent;
 
-class FiberSD : public SensitiveCaloDetector,
+class FiberSensitiveDetector : public SensitiveCaloDetector,
                 public Observer<const BeginOfJob *>,
                 public Observer<const BeginOfRun *>,
                 public Observer<const BeginOfEvent *>,
                 public Observer<const EndOfEvent *> {
 public:
-  explicit FiberSD(const std::string &,
-                   const edm::EventSetup &,
+  explicit FiberSensitiveDetector(const std::string &,
+		   const HcalSimulationConstants*,
+                   const HcalDDDSimConstants*,
                    const SensitiveDetectorCatalog &,
                    edm::ParameterSet const &,
                    const SimTrackManager *);
-  ~FiberSD() override;
+  ~FiberSensitiveDetector() override;
 
   void Initialize(G4HCofThisEvent *HCE) override;
   G4bool ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist) override;
