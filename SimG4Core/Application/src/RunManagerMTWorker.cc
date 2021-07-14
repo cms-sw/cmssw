@@ -226,6 +226,9 @@ void RunManagerMTWorker::beginRun(edm::EventSetup const& es) {
   for (auto& maker : m_sdMakers) {
     maker.second->beginRun(es);
   }
+  if (m_pUseMagneticField) {
+    m_pMagField = &es.getData(m_MagField);
+  }
 }
 
 void RunManagerMTWorker::endRun() {
@@ -312,7 +315,6 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   if (m_pUseMagneticField) {
     const GlobalPoint g(0.f, 0.f, 0.f);
 
-    m_pMagField = &es.getData(m_MagField);
     sim::FieldBuilder fieldBuilder(m_pMagField, m_pField);
 
     CMSFieldManager* fieldManager = new CMSFieldManager();
