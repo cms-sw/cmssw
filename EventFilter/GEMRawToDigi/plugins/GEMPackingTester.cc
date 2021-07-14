@@ -21,7 +21,7 @@ using namespace std;
 class GEMPackingTester : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit GEMPackingTester(const edm::ParameterSet&);
-  ~GEMPackingTester();
+  ~GEMPackingTester() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -75,7 +75,7 @@ void GEMPackingTester::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (fedId == 1467 or fedId == 1468)
       b_ge1 += fedData.size();
     if (fedId == 1469 or fedId == 1470)
-              b_ge2 += fedData.size();
+      b_ge2 += fedData.size();
   }
   // std::cout << " ge0:" << b_ge0
   //           << " ge1:" << b_ge1

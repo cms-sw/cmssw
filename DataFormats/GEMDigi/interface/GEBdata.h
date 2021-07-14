@@ -8,27 +8,27 @@ namespace gem {
   union GEBchamberHeader {
     uint64_t word;
     struct {
-      uint64_t : 10;                  // unused
-      uint64_t BxmVvV : 1;            // 1st bit BX mismatch VFAT vs VFAT
-      uint64_t BxmAvV : 1;            // BX mismatch AMC vs VFAT
-      uint64_t OOScVvV : 1;           // Out of Sync (EC mismatch) VFAT vs VFAT
-      uint64_t OOScAvV : 1;           // Out of Sync (EC mismatch) AMC vs VFAT
-      uint64_t Inv : 1;               // Invalid event
-      uint64_t EvtSzW : 1;            // Event size warning
-      uint64_t L1aNF : 1;             // L1A FIFO near full
-      uint64_t InNF : 1;              // Input FIFO near full
-      uint64_t EvtNF : 1;             // Event FIFO near full
-      uint64_t EvtSzOFW : 1;          // Event size overflow
-      uint64_t L1aF : 1;              // L1A FIFO full
-      uint64_t InF : 1;               // Input FIFO full
-      uint64_t EvtF : 1;              // Event FIFO full
-      uint64_t VfWdCnt : 12;          // VFAT word count (in number of 64-bit words)
-      uint64_t InputID : 5;           // Input link ID
-      uint64_t CALIB_CHAN : 7;        // Calibration channel number
-      uint64_t : 17;                  // unused
+      uint64_t : 10;            // unused
+      uint64_t BxmVvV : 1;      // 1st bit BX mismatch VFAT vs VFAT
+      uint64_t BxmAvV : 1;      // BX mismatch AMC vs VFAT
+      uint64_t OOScVvV : 1;     // Out of Sync (EC mismatch) VFAT vs VFAT
+      uint64_t OOScAvV : 1;     // Out of Sync (EC mismatch) AMC vs VFAT
+      uint64_t Inv : 1;         // Invalid event
+      uint64_t EvtSzW : 1;      // Event size warning
+      uint64_t L1aNF : 1;       // L1A FIFO near full
+      uint64_t InNF : 1;        // Input FIFO near full
+      uint64_t EvtNF : 1;       // Event FIFO near full
+      uint64_t EvtSzOFW : 1;    // Event size overflow
+      uint64_t L1aF : 1;        // L1A FIFO full
+      uint64_t InF : 1;         // Input FIFO full
+      uint64_t EvtF : 1;        // Event FIFO full
+      uint64_t VfWdCnt : 12;    // VFAT word count (in number of 64-bit words)
+      uint64_t InputID : 5;     // Input link ID
+      uint64_t CALIB_CHAN : 7;  // Calibration channel number
+      uint64_t : 17;            // unused
     };
   };
-  
+
   union GEBchamberTrailer {
     uint64_t word;
     struct {
@@ -86,10 +86,10 @@ namespace gem {
     bool inF() const { return GEBchamberHeader{ch_}.InF; }
     bool evtF() const { return GEBchamberHeader{ch_}.EvtF; }
     bool inUfw() const { return GEBchamberTrailer{ct_}.InUfw; }
-    
-    bool noVFAT() const { return 0; } // to be removed
-    bool stuckData() const { return 0; }// to be removed
-    bool evUfw() const { return 0; }// to be removed
+
+    bool noVFAT() const { return false; }     // to be removed
+    bool stuckData() const { return false; }  // to be removed
+    bool evUfw() const { return false; }      // to be removed
 
     //!Adds VFAT data to the vector
     void addVFAT(VFATdata v) { vfatd_.push_back(v); }
