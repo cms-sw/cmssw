@@ -4,7 +4,6 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetIdToROC.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetIdToModule.h"
@@ -19,7 +18,6 @@ class HGCalTriggerGeometryV9Imp2 : public HGCalTriggerGeometryBase {
 public:
   HGCalTriggerGeometryV9Imp2(const edm::ParameterSet& conf);
 
-  void initialize(const CaloGeometry*) final;
   void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
   void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
   void reset() final;
@@ -127,11 +125,6 @@ void HGCalTriggerGeometryV9Imp2::reset() {
   wafer_to_module_.clear();
   module_to_wafers_.clear();
   cache_missing_wafers_.clear();
-}
-
-void HGCalTriggerGeometryV9Imp2::initialize(const CaloGeometry* calo_geometry) {
-  throw cms::Exception("BadGeometry")
-      << "HGCalTriggerGeometryV9Imp2 geometry cannot be initialized with the V7/V8 HGCAL geometry";
 }
 
 void HGCalTriggerGeometryV9Imp2::initialize(const HGCalGeometry* hgc_ee_geometry,
