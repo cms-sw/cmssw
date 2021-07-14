@@ -285,3 +285,4 @@ foreach gtag ( MC DATA )
 
   end
 end
+ln -s FastSim_GenToHLT_GRun_MC.py FastSim_GenToHLT_HIon_MC.py
