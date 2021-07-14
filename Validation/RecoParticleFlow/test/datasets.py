@@ -113,9 +113,9 @@ class Dataset:
 
         nfiles = 0
         with open(self.get_das_cache_filename(), "w") as fi:
-            for line in ret.split("\n".encode()):
-                if line.endswith(".root".encode()):
-                    fi.write(self.global_file_prefix + line.decode() + "\n")
+            for line in ret.decode().split("\n"):
+                if line.endswith(".root"):
+                    fi.write(self.global_file_prefix + line + "\n")
                     nfiles += 1
 
         LOG_MODULE_NAME.info("retrieved {0} files from DAS".format(nfiles))
