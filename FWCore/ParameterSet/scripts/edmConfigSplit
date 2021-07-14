@@ -2,7 +2,7 @@
 
 import sys
 import os
-import imp
+import importlib.machinery
 import argparse
 import six
 
@@ -45,9 +45,9 @@ sys.argv.extend(other)
 # make the behaviour of 'cmsRun file.py' and 'edmConfigSplit file.py' more consistent
 sys.path.append(os.getcwd())
 
-cfo = imp.load_source("pycfg", args.file.name, args.file)
+loader = importlib.machinery.SourceFileLoader("pycfg", argd.file())
+cfo = loader.load_module()
 process = cfo.process
-args.file.close()
 
 options = PrintOptions()
 options.useSubdirectories = args.subdirectories
