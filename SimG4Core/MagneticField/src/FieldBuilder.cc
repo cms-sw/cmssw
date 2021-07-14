@@ -57,7 +57,7 @@ void FieldBuilder::configureForVolume(const std::string &volName,
   edm::ParameterSet stpPSet = volPSet.getParameter<edm::ParameterSet>("StepperParam");
   double minStep = stpPSet.getParameter<double>("MinStep") * CLHEP::mm;
 
-  if(stepper == "G4TDormandPrince45") {
+  if (stepper == "G4TDormandPrince45") {
     theFieldEquation = new G4TMagFieldEquation<Field>(theField);
   } else {
     theFieldEquation = new G4Mag_UsualEqRhs(theField);

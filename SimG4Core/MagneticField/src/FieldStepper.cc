@@ -21,7 +21,7 @@
 #include "G4TsitourasRK45.hh"
 
 FieldStepper::FieldStepper(G4Mag_UsualEqRhs *eq, double del, const std::string &nam)
-  : G4MagIntegratorStepper(eq, 6), theEquation(eq), theDelta(del) {
+    : G4MagIntegratorStepper(eq, 6), theEquation(eq), theDelta(del) {
   selectStepper(nam);
 }
 
