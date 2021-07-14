@@ -21,7 +21,8 @@ ticlSeedingTrkHFNose = _ticlSeedingRegionProducer.clone(
     seedingPSet = _ticlSeedingRegionProducer.seedingPSet.clone(
         type="SeedingRegionByTracks",
         cutTk = cms.string('3. < abs(eta) < 4. && pt > 1. && quality("highPurity") && hitPattern().numberOfLostHits("MISSING_OUTER_HITS") < 5'),
-        detector = cms.string("HFNose")
+        detector = cms.string("HFNose"),
+	propagator = cms.string("RungeKuttaTrackerPropagator")
     )
 )
 
