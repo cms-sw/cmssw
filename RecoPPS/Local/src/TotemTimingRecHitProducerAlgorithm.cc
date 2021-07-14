@@ -38,7 +38,7 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
                                                const edm::DetSetVector<TotemTimingDigi>& input,
                                                edm::DetSetVector<TotemTimingRecHit>& output) {
   for (const auto& vec : input) {
-    const TotemTimingDetId detid(vec.detId());
+    const CTPPSDetId detid(vec.detId());
 
     float x_pos = 0.f, y_pos = 0.f, z_pos = 0.f;
     float x_width = 0.f, y_width = 0.f, z_width = 0.f;
@@ -75,8 +75,13 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
 
       // remove baseline
       std::vector<float> dataCorrected(data.size());
-      for (unsigned int i = 0; i < data.size(); ++i)
-        dataCorrected[i] = data[i] - (baselineRegression.q + baselineRegression.m * time[i]);
+      for (unsigned int i = 0; i < data.size(); ++i){
+        //edm::LogProblem("TotemTimingRecHitProducerAlgorithm") <<"time"<<time[i];
+        dataCorrected[i] = data[i];// - (baselineRegression.q + baselineRegression.m * time[i]);
+        if(det->name()=="CTPPS_Diamond_Segment")
+          dataCorrected[i] = -1*dataCorrected[i]+1;
+          
+      }
       auto max_corrected_it = std::max_element(dataCorrected.begin(), dataCorrected.end());
 
       float t = TotemTimingRecHit::NO_T_AVAILABLE;
@@ -84,7 +89,7 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
         t = constantFractionDiscriminator(time, dataCorrected);
 
       mode_ = TotemTimingRecHit::CFD;
-
+      //edm::LogProblem("TotemTimingRecHitProducerAlgorithm") <<"time"<<t;
       rec_hits.emplace_back(x_pos,
                             x_width,
                             y_pos,
