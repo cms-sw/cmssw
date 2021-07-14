@@ -52,7 +52,7 @@ namespace gem {
     // this constructor only used for packing sim digis
     VFATdata(const int vfatVer,
              const uint16_t BC,
-             const uint8_t EC,
+             const uint32_t EC,
              const uint16_t chipID,
              const uint64_t lsDatas,
              const uint64_t msDatas);

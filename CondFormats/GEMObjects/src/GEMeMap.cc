@@ -16,8 +16,6 @@ void GEMeMap::convert(GEMROMapping& romap) {
   for (auto imap : theChamberMap_) {
     for (unsigned int ix = 0; ix < imap.fedId.size(); ix++) {
       GEMROMapping::chamEC ec{imap.fedId[ix], imap.amcNum[ix], imap.gebId[ix]};
-      GEMROMapping::sectorEC amcEC = {imap.fedId[ix], imap.amcNum[ix]};
-
       GEMROMapping::chamDC dc;
       dc.detId = GEMDetId((imap.gemNum[ix] > 0) ? 1 : -1,
                           1,
@@ -27,6 +25,7 @@ void GEMeMap::convert(GEMROMapping& romap) {
                           0);
       dc.vfatVer = imap.vfatVer[ix];
       romap.add(ec, dc);
+      GEMROMapping::sectorEC amcEC = {imap.fedId[ix], imap.amcNum[ix]};
       if (!romap.isValidAMC(amcEC)) romap.add(amcEC);
 
     }
@@ -107,6 +106,9 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
           dc.detId = gemId;
           dc.vfatVer = vfatVerV3_;
           romap.add(ec, dc);
+
+          GEMROMapping::sectorEC amcEC = {fedId, amcNum};
+          if (!romap.isValidAMC(amcEC)) romap.add(amcEC);
 
           uint16_t chipPos = 0;
           for (int lphi = 0; lphi < maxVFat; ++lphi) {

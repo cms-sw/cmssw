@@ -182,7 +182,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
               continue;
             // only make vfat with hits
             amcSize += 3;
-            auto vfatData = std::make_unique<VFATdata>(geb_dc.vfatVer, bc, 0, vfatId, lsData, msData);
+            auto vfatData = std::make_unique<VFATdata>(geb_dc.vfatVer, bc, LV1_id, vfatId, lsData, msData);
             gebData->addVFAT(*vfatData);
           }
         }  // end of vfats in GEB
