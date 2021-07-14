@@ -213,6 +213,8 @@ class int32(_SimpleParameterTypeBase):
         parameterSet.addInt32(self.isTracked(), myname, self.value())
     def __nonzero__(self):
         return self.value()!=0
+    def __bool__(self):
+        return self.__nonzero__()
 
 
 class uint32(_SimpleParameterTypeBase):
@@ -230,6 +232,8 @@ class uint32(_SimpleParameterTypeBase):
         parameterSet.addUInt32(self.isTracked(), myname, self.value())
     def __nonzero__(self):
         return self.value()!=0
+    def __bool__(self):
+        return self.__nonzero__()
 
 
 
@@ -360,6 +364,8 @@ class string(_SimpleParameterTypeBase):
         parameterSet.addString(self.isTracked(), myname, value)
     def __nonzero__(self):
         return len(self.value()) !=0
+    def __bool__(self):
+        return self.__nonzero__()
 
 
 class EventID(_ParameterTypeBase):
@@ -1486,19 +1492,19 @@ if __name__ == "__main__":
         def testint32(self):
             i = int32(1)
             self.assertEqual(i.value(),1)
-            self.assert_(i)
+            self.assertTrue(i)
             self.assertRaises(ValueError,int32,"i")
             i = int32._valueFromString("0xA")
             self.assertEqual(i.value(),10)
-            self.assert_(not int32(0))
+            self.assertTrue(not int32(0))
 
         def testuint32(self):
             i = uint32(1)
             self.assertEqual(i.value(),1)
-            self.assert_(i)
+            self.assertTrue(i)
             i = uint32(0)
             self.assertEqual(i.value(),0)
-            self.assert_(not i)
+            self.assertTrue(not i)
             self.assertRaises(ValueError,uint32,"i")
             self.assertRaises(ValueError,uint32,-1)
             i = uint32._valueFromString("0xA")
@@ -1515,7 +1521,7 @@ if __name__ == "__main__":
             self.assertEqual(d,-float('Inf'))
             self.assertEqual(d.pythonValue(),"-float('inf')")
             d = double(float('Nan'))
-            self.assert_(math.isnan(d.value()))
+            self.assertTrue(math.isnan(d.value()))
             self.assertEqual(d.pythonValue(),"float('nan')")
         def testvdouble(self):
             d = vdouble(1)
@@ -1528,16 +1534,16 @@ if __name__ == "__main__":
             self.assertEqual(d,[-float('inf')])
             self.assertEqual(d.dumpPython(),"cms.vdouble(-float('inf'))")
             d = vdouble(float('nan'))
-            self.assert_(math.isnan(d[0]))
+            self.assertTrue(math.isnan(d[0]))
             self.assertEqual(d.dumpPython(),"cms.vdouble(float('nan'))")
         def testvint32(self):
             v = vint32()
             self.assertEqual(len(v),0)
-            self.assert_(not v)
+            self.assertTrue(not v)
             v.append(1)
             self.assertEqual(len(v),1)
             self.assertEqual(v[0],1)
-            self.assert_(v)
+            self.assertTrue(v)
             v.append(2)
             v.insert(1,3)
             self.assertEqual(v[1],3)
@@ -1551,10 +1557,10 @@ if __name__ == "__main__":
         def testbool(self):
             b = bool(True)
             self.assertEqual(b.value(),True)
-            self.assert_(b)
+            self.assertTrue(b)
             b = bool(False)
             self.assertEqual(b.value(),False)
-            self.assert_(not b)
+            self.assertTrue(not b)
             b = bool._valueFromString("2")
             self.assertEqual(b.value(),True)
             self.assertEqual(repr(b), "cms.bool(True)")
@@ -1563,13 +1569,13 @@ if __name__ == "__main__":
             s=string('this is a test')
             self.assertEqual(s.value(),'this is a test')
             self.assertEqual(repr(s), "cms.string(\'this is a test\')")
-            self.assert_(s)
+            self.assertTrue(s)
             s=string('\0')
             self.assertEqual(s.value(),'\0')
             self.assertEqual(s.configValue(),"'\\0'")
             s2=string('')
             self.assertEqual(s2.value(),'')
-            self.assert_(not s2)
+            self.assertTrue(not s2)
         def testvstring(self):
             a = vstring("", "Barack", "John", "Sarah", "Joe")
             self.assertEqual(len(a), 5)
@@ -1580,16 +1586,16 @@ if __name__ == "__main__":
         def testUntracked(self):
             p=untracked(int32(1))
             self.assertRaises(TypeError,untracked,(1),{})
-            self.failIf(p.isTracked())
+            self.assertFalse(p.isTracked())
             p=untracked.int32(1)
             self.assertEqual(repr(p), "cms.untracked.int32(1)")
             self.assertRaises(TypeError,untracked,(1),{})
-            self.failIf(p.isTracked())
+            self.assertFalse(p.isTracked())
             p=untracked.vint32(1,5,3)
             self.assertRaises(TypeError,untracked,(1,5,3),{})
-            self.failIf(p.isTracked())
+            self.assertFalse(p.isTracked())
             p = untracked.PSet(b=int32(1))
-            self.failIf(p.isTracked())
+            self.assertFalse(p.isTracked())
             self.assertEqual(p.b.value(),1)
         def testInputTag(self):
             it = InputTag._valueFromString("label::proc")
@@ -1823,19 +1829,19 @@ if __name__ == "__main__":
             vp1 = VPSet(PSet(i = int32(2)))
             #self.assertEqual(vp1.configValue(), "
             self.assertEqual(repr(vp1), "cms.VPSet(cms.PSet(\n    i = cms.int32(2)\n))")
-            self.assert_(p1.hasParameter(['a', 'b']))
-            self.failIf(p1.hasParameter(['a', 'c']))
+            self.assertTrue(p1.hasParameter(['a', 'b']))
+            self.assertFalse(p1.hasParameter(['a', 'c']))
             self.assertEqual(p1.getParameter(['a', 'b']).value(), 1)
             # test clones and trackedness
             p3 = untracked.PSet(i = int32(1), ui=untracked.int32(2), a = PSet(b = untracked.int32(1)), b = untracked.PSet(b = int32(1)))
             p4 = p3.clone()
             self.assertFalse(p4.isTracked())
-            self.assert_(p4.i.isTracked())
+            self.assertTrue(p4.i.isTracked())
             self.assertFalse(p4.ui.isTracked())
-            self.assert_(p4.a.isTracked())
+            self.assertTrue(p4.a.isTracked())
             self.assertFalse(p4.b.isTracked())
             self.assertFalse(p4.a.b.isTracked())
-            self.assert_(p4.b.b.isTracked())
+            self.assertTrue(p4.b.b.isTracked())
             p4 = p3.clone( i = None, b = dict(b = 5))
             self.assertEqual(p3.i.value(), 1)
             self.assertEqual(hasattr(p4,"i"), False)
@@ -1858,7 +1864,7 @@ if __name__ == "__main__":
             self.assertRaises(TypeError, p5.p , dict(bar = 3) )
         def testRequired(self):
             p1 = PSet(anInt = required.int32)
-            self.assert_(hasattr(p1,"anInt"))
+            self.assertTrue(hasattr(p1,"anInt"))
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    anInt = cms.required.int32\n)')
             p1.anInt = 3
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    anInt = cms.int32(3)\n)')
@@ -1871,24 +1877,24 @@ if __name__ == "__main__":
             p1 = PSet(anInt = required.untracked.int32)
             p1.anInt = 5
             self.assertEqual(p1.anInt.value(), 5)
-            self.failIf(p1.anInt.isTracked())
+            self.assertFalse(p1.anInt.isTracked())
             p1 = PSet(anInt = required.untracked.int32)
             self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.required.untracked.int32\n)')
             p1.anInt = 6
             self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.untracked.int32(6)\n)')
-            self.assert_(p1.anInt.isCompatibleCMSType(int32))
-            self.failIf(p1.anInt.isCompatibleCMSType(uint32))
+            self.assertTrue(p1.anInt.isCompatibleCMSType(int32))
+            self.assertFalse(p1.anInt.isCompatibleCMSType(uint32))
             p1 = PSet(allowAnyLabel_ = required.int32)
-            self.failIf(p1.hasParameter(['allowAnyLabel_']))
+            self.assertFalse(p1.hasParameter(['allowAnyLabel_']))
             p1.foo = 3
             self.assertEqual(p1.foo.value(),3)
             self.assertRaises(ValueError,setattr,p1, 'bar', 'bad')
-            self.assert_(p1.foo.isTracked())
+            self.assertTrue(p1.foo.isTracked())
             p1 = PSet(allowAnyLabel_ = required.untracked.int32)
-            self.failIf(p1.hasParameter(['allowAnyLabel_']))
+            self.assertFalse(p1.hasParameter(['allowAnyLabel_']))
             p1.foo = 3
             self.assertEqual(p1.foo.value(),3)
-            self.failIf(p1.foo.isTracked())
+            self.assertFalse(p1.foo.isTracked())
             self.assertRaises(ValueError,setattr,p1, 'bar', 'bad')
             #PSetTemplate use
             p1 = PSet(aPSet = required.PSetTemplate())
@@ -1917,7 +1923,7 @@ if __name__ == "__main__":
 
         def testOptional(self):
             p1 = PSet(anInt = optional.int32)
-            self.assert_(hasattr(p1,"anInt"))
+            self.assertTrue(hasattr(p1,"anInt"))
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    anInt = cms.optional.int32\n)')
             p1.anInt = 3
             self.assertEqual(p1.anInt.value(), 3)
@@ -1930,19 +1936,19 @@ if __name__ == "__main__":
             p1 = PSet(anInt = optional.untracked.int32)
             p1.anInt = 5
             self.assertEqual(p1.anInt.value(), 5)
-            self.failIf(p1.anInt.isTracked())
+            self.assertFalse(p1.anInt.isTracked())
             p1 = PSet(anInt = optional.untracked.int32)
             self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.optional.untracked.int32\n)')
             p1.anInt = 6
             self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.untracked.int32(6)\n)')
-            self.assert_(p1.anInt.isCompatibleCMSType(int32))
-            self.failIf(p1.anInt.isCompatibleCMSType(uint32))
+            self.assertTrue(p1.anInt.isCompatibleCMSType(int32))
+            self.assertFalse(p1.anInt.isCompatibleCMSType(uint32))
             p1 = PSet(f = required.vint32)
-            self.failIf(p1.f)
+            self.assertFalse(p1.f)
             p1.f = []
-            self.failIf(p1.f)
+            self.assertFalse(p1.f)
             p1.f.append(3)
-            self.assert_(p1.f)
+            self.assertTrue(p1.f)
             #PSetTemplate use
             p1 = PSet(aPSet = optional.PSetTemplate())
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.optional.PSetTemplate(\n\n    )\n)')
@@ -1972,21 +1978,21 @@ if __name__ == "__main__":
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.allowed(cms.int32,cms.string)\n)')
             p1.aValue = 1
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.int32(1)\n)')
-            self.assert_(p1.aValue.isCompatibleCMSType(int32))
-            self.failIf(p1.aValue.isCompatibleCMSType(uint32))
-            self.assertRaises(ValueError,setattr(p1,'aValue',PSet()))
+            self.assertTrue(p1.aValue.isCompatibleCMSType(int32))
+            self.assertFalse(p1.aValue.isCompatibleCMSType(uint32))
+            self.assertRaises(RuntimeError, lambda: setattr(p1,'aValue',1.3))
             p1 = PSet(aValue = required.allowed(int32, string))
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.allowed(cms.int32,cms.string)\n)')
             p1.aValue = "foo"
             self.assertEqual(p1.dumpPython(),"cms.PSet(\n    aValue = cms.string('foo')\n)")
-            self.assert_(p1.aValue.isCompatibleCMSType(string))
-            self.failIf(p1.aValue.isCompatibleCMSType(uint32))
+            self.assertTrue(p1.aValue.isCompatibleCMSType(string))
+            self.assertFalse(p1.aValue.isCompatibleCMSType(uint32))
 
             p1 = PSet(aValue = required.untracked.allowed(int32, string))
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.untracked.allowed(cms.int32,cms.string)\n)')
             p1.aValue = 1
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.untracked.int32(1)\n)')
-            self.assertRaises(ValueError,setattr(p1,'aValue',PSet()))
+            self.assertRaises(RuntimeError, lambda: setattr(p1,'aValue',1.3))
             p1 = PSet(aValue = required.untracked.allowed(int32, string))
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.untracked.allowed(cms.int32,cms.string)\n)')
             p1.aValue = "foo"
@@ -2042,10 +2048,10 @@ if __name__ == "__main__":
             self.assertRaises(SyntaxError, lambda : VPSet(foo=PSet()))
         def testEDAlias(self):
             aliasfoo2 = EDAlias(foo2 = VPSet(PSet(type = string("Foo2"))))
-            self.assert_(hasattr(aliasfoo2,"foo2"))
+            self.assertTrue(hasattr(aliasfoo2,"foo2"))
             del aliasfoo2.foo2
-            self.assert_(not hasattr(aliasfoo2,"foo2"))
-            self.assert_("foo2" not in aliasfoo2.parameterNames_())
+            self.assertTrue(not hasattr(aliasfoo2,"foo2"))
+            self.assertTrue("foo2" not in aliasfoo2.parameterNames_())
 
             aliasfoo2 = EDAlias(foo2 = VPSet(PSet(type = string("Foo2"))))
             aliasfoo3 = aliasfoo2.clone(
@@ -2189,18 +2195,18 @@ if __name__ == "__main__":
             )
             convert = _ConvertToPSet()
             p.insertInto(convert,"p")
-            self.assert_(hasattr(convert.pset,'p'))
-            self.assert_(hasattr(convert.pset.p,'a'))
+            self.assertTrue(hasattr(convert.pset,'p'))
+            self.assertTrue(hasattr(convert.pset.p,'a'))
             self.assertEqual(p.a,convert.pset.p.a)
             self.assertEqual(p.a.isTracked(),convert.pset.p.a.isTracked())
 
             q = PSet(b = int32(1), p = p)
             q.insertInto(convert,"q")
-            self.assert_(hasattr(convert.pset,'q'))
-            self.assert_(hasattr(convert.pset.q,'b'))
+            self.assertTrue(hasattr(convert.pset,'q'))
+            self.assertTrue(hasattr(convert.pset.q,'b'))
             self.assertEqual(q.b,convert.pset.q.b)
-            self.assert_(hasattr(convert.pset.q,'p'))
-            self.assert_(hasattr(convert.pset.q.p,'a'))
+            self.assertTrue(hasattr(convert.pset.q,'p'))
+            self.assertTrue(hasattr(convert.pset.q.p,'a'))
             self.assertEqual(p.a,convert.pset.q.p.a)
             for i in p.parameterNames_():
                 self.assertEqual(str(getattr(p,i)),str(getattr(convert.pset.p,i)))
@@ -2210,8 +2216,8 @@ if __name__ == "__main__":
             v = VPSet(p,q)
             convert = _ConvertToPSet()
             v.insertInto(convert,'v')
-            self.assert_(hasattr(convert.pset,'v'))
-            self.assert_(len(convert.pset.v)==2)
+            self.assertTrue(hasattr(convert.pset,'v'))
+            self.assertTrue(len(convert.pset.v)==2)
             self.assertEqual(v[0].a,convert.pset.v[0].a)
             self.assertEqual(v[1].b,convert.pset.v[1].b)
             self.assertEqual(v[1].p.a, convert.pset.v[1].p.a)
@@ -2233,7 +2239,6 @@ if __name__ == "__main__":
         def teststring(self):
             self.assertGreater(string("I am a string"), "I am a strinf")
             self.assertGreaterEqual("I am a string", string("I am a string"))
-            self.assertLess(5, string("I am a string"))
         def testincompatibletypes(self):
             import sys
             if sys.version_info < (3, 0): #python 2, comparing incompatible types compares the class name
