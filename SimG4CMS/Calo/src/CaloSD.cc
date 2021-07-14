@@ -598,8 +598,7 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep, const G4Track* theTrack) {
   storeHit(aHit);
   TrackInformation* trkInfo = cmsTrackInformation(theTrack);
 
-  bool currentlyInsideFineVolume = !doFineCalo_ ? false :
-    isItFineCalo(aStep->GetPostStepPoint()->GetTouchable());
+  bool currentlyInsideFineVolume = !doFineCalo_ ? false : isItFineCalo(aStep->GetPostStepPoint()->GetTouchable());
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DoFineCalo") << "Creating new hit " << aHit->getUnitID() << " using "

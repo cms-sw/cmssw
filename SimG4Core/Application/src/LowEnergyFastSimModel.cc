@@ -14,8 +14,11 @@
 constexpr G4double twomass = 2 * CLHEP::electron_mass_c2;
 
 LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* region, const edm::ParameterSet& parSet)
-  : G4VFastSimulationModel(name, region), fRegion(region), fTrackingAction(nullptr), 
-    fCheck(false), fTailPos(0., 0., 0.) {
+    : G4VFastSimulationModel(name, region),
+      fRegion(region),
+      fTrackingAction(nullptr),
+      fCheck(false),
+      fTailPos(0., 0., 0.) {
   fEmax = parSet.getParameter<double>("LowEnergyGflashEcalEmax") * CLHEP::GeV;
 }
 
@@ -25,7 +28,7 @@ G4bool LowEnergyFastSimModel::IsApplicable(const G4ParticleDefinition& particle)
 
 G4bool LowEnergyFastSimModel::ModelTrigger(const G4FastTrack& fastTrack) {
   const G4Track* track = fastTrack.GetPrimaryTrack();
-  if(fCheck) {
+  if (fCheck) {
     if (nullptr == fTrackingAction) {
       fTrackingAction = static_cast<const TrackingAction*>(G4EventManager::GetEventManager()->GetUserTrackingAction());
     }
@@ -67,7 +70,7 @@ void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
     const G4double z = fParam.GetZ();
 
     const G4double phi = CLHEP::twopi * G4UniformRand();
-    fTailPos.set(r*std::cos(phi), r*std::sin(phi), z);
+    fTailPos.set(r * std::cos(phi), r * std::sin(phi), z);
     fTailPos.rotateUz(momDir);
     fTailPos += pos;
 
