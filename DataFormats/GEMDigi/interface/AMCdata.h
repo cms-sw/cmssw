@@ -32,8 +32,8 @@ namespace gem {
     struct {
       uint64_t dataLength : 20;  // Number of 64bit words in this event
       uint64_t : 4;
-      uint64_t l1AID : 8;        // L1A number (first 8 bits)
-      uint64_t crc : 32;         // CRC added by the AMC13
+      uint64_t l1AID : 8;  // L1A number (first 8 bits)
+      uint64_t crc : 32;   // CRC added by the AMC13
     };
   };
   union EventHeader {

@@ -16,7 +16,7 @@ public:
     bool operator==(const sectorEC& r) const {
       if (fedId == r.fedId) {
         return amcNum == r.amcNum;
-        } else {
+      } else {
         return false;
       }
     }
@@ -100,7 +100,7 @@ public:
 
   bool isValidChipID(const vfatEC& r) const { return vfatMap_.find(r) != vfatMap_.end(); }
   bool isValidChamber(const chamEC& r) const { return chamberMap_.find(r) != chamberMap_.end(); }
-  
+
   bool isValidAMC(const sectorEC& r) const { return std::find(amcVec_.begin(), amcVec_.end(), r) != amcVec_.end(); }
 
   void add(sectorEC e) { amcVec_.push_back(e); }

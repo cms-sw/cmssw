@@ -26,8 +26,8 @@ void GEMeMap::convert(GEMROMapping& romap) {
       dc.vfatVer = imap.vfatVer[ix];
       romap.add(ec, dc);
       GEMROMapping::sectorEC amcEC = {imap.fedId[ix], imap.amcNum[ix]};
-      if (!romap.isValidAMC(amcEC)) romap.add(amcEC);
-
+      if (!romap.isValidAMC(amcEC))
+        romap.add(amcEC);
     }
   }
 
@@ -108,7 +108,8 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
           romap.add(ec, dc);
 
           GEMROMapping::sectorEC amcEC = {fedId, amcNum};
-          if (!romap.isValidAMC(amcEC)) romap.add(amcEC);
+          if (!romap.isValidAMC(amcEC))
+            romap.add(amcEC);
 
           uint16_t chipPos = 0;
           for (int lphi = 0; lphi < maxVFat; ++lphi) {

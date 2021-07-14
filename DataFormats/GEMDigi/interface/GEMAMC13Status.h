@@ -6,10 +6,9 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include <bitset>
 
-    class GEMAMC13Status {
-    public:
-
-    union Errors {
+class GEMAMC13Status {
+public:
+  union Errors {
     uint8_t codes;
     struct {
       uint8_t InValidSize : 1;
@@ -19,23 +18,22 @@
       uint8_t moreTrailers : 1;
       uint8_t crcModified : 1;
       uint8_t slinkError : 1;
-      uint8_t wrongFedId : 1;      
+      uint8_t wrongFedId : 1;
     };
-    };
-    union Warnings {
+  };
+  union Warnings {
     uint8_t wcodes;
     struct {
-      uint8_t InValidAMC : 1; // error for AMC but cant display when not found.
+      uint8_t InValidAMC : 1;  // error for AMC but cant display when not found.
     };
-    };
+  };
 
-    GEMAMC13Status(){}
-    GEMAMC13Status(const FEDRawData& fedData) {
-      Errors error{0};
-      if ( (fedData.size() / sizeof(uint64_t)) < 5) {
-        error.InValidSize = 1;
-      }
-      else {
+  GEMAMC13Status() {}
+  GEMAMC13Status(const FEDRawData& fedData) {
+    Errors error{0};
+    if ((fedData.size() / sizeof(uint64_t)) < 5) {
+      error.InValidSize = 1;
+    } else {
       FEDTrailer trailer(fedData.data() + fedData.size() - FEDTrailer::length);
       error.failTrailerCheck = !trailer.check();
       error.failFragmentLength = (trailer.fragmentLength() * sizeof(uint64_t) != fedData.size());
@@ -43,31 +41,32 @@
       error.crcModified = trailer.crcModified();
       error.slinkError = trailer.slinkError();
       error.wrongFedId = trailer.wrongFedId();
-      }
-      errors_ = error.codes;
     }
-    void inValidAMC() {
-      Warnings warn{0};
-      warn.InValidAMC = 1;
-      warnings_ = warn.wcodes;
-    }
+    errors_ = error.codes;
 
-    bool isGood() const { return errors_ == 0;}
-    bool isBad() const { return errors_ != 0;}
-    uint8_t errors() const { return errors_; }
-    uint8_t warnings() const { return warnings_; }
+    Warnings warn{0};
+    warnings_ = warn.wcodes;
+  }
+  void inValidAMC() {
+    Warnings warn{warnings_};
+    warn.InValidAMC = 1;
+    warnings_ = warn.wcodes;
+  }
 
-    private:
+  bool isGood() const { return errors_ == 0; }
+  bool isBad() const { return errors_ != 0; }
+  uint8_t errors() const { return errors_; }
+  uint8_t warnings() const { return warnings_; }
 
-    uint8_t errors_;
-    uint8_t warnings_;
+private:
+  uint8_t errors_;
+  uint8_t warnings_;
+};
 
-    };
-
-    std::ostream& operator<< (std::ostream &out, const GEMAMC13Status &status)
-    {
-      out << "GEMAMC13Status errors " << std::bitset<8>(status.errors()) << " warnings "<< std::bitset<8>(status.warnings());
-      return out;
-    }
+std::ostream& operator<<(std::ostream& out, const GEMAMC13Status& status) {
+  out << "GEMAMC13Status errors " << std::bitset<8>(status.errors()) << " warnings "
+      << std::bitset<8>(status.warnings());
+  return out;
+}
 
 #endif
