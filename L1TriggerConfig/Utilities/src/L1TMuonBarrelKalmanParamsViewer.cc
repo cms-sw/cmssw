@@ -25,7 +25,7 @@ private:
 public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  L1TMuonBarrelKalmanParamsViewer(const edm::ParameterSet &) {};
+  L1TMuonBarrelKalmanParamsViewer(const edm::ParameterSet &){};
   ~L1TMuonBarrelKalmanParamsViewer(void) override {}
 };
 
@@ -64,7 +64,7 @@ void L1TMuonBarrelKalmanParamsViewer::analyze(const edm::Event &iEvent, const ed
   // Get the nodes and print out
   auto pnodes = ptr->pnodes_[ptr->CONFIG];
   cout << "version    : " << ptr->version_ << endl;
-  cout << "fwVersion : " << hex << pnodes.fwVersion_ << dec << endl;
+  cout << "fwVersion  : " << hex << pnodes.fwVersion_ << dec << endl;
   cout << "LUTsPath   : " << pnodes.kalmanLUTsPath_ << endl;
 
   // typedef std::map<short, short, std::less<short> > LUT;
