@@ -75,7 +75,7 @@ GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet& pset)
     produces<GEMVFATStatusCollection>("VFATStatus");
   }
   if (unPackStatusDigis_) {
-   // to be removed
+    // to be removed
     produces<GEMVfatStatusDigiCollection>("vfatStatus");
     produces<GEMGEBdataCollection>("gebStatus");
     produces<GEMAMCdataCollection>("AMCdata");
@@ -124,7 +124,6 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
   auto outAMCdata = std::make_unique<GEMAMCdataCollection>();
   auto outAMC13Event = std::make_unique<GEMAMC13EventCollection>();
 
-
   // Take raw from the event
   edm::Handle<FEDRawDataCollection> fed_buffers;
   iEvent.getByToken(fed_token, fed_buffers);
@@ -137,10 +136,10 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     int nWords = fedData.size() / sizeof(uint64_t);
     LogDebug("GEMRawToDigiModule") << "fedId:" << fedId << " words: " << nWords;
     GEMAMC13Status st_amc13 = GEMAMC13Status(fedData);
-    
-    if (st_amc13.isBad()){
-      LogDebug("GEMRawToDigiModule") << st_amc13 ;
-      if (keepDAQStatus_) {        
+
+    if (st_amc13.isBad()) {
+      LogDebug("GEMRawToDigiModule") << st_amc13;
+      if (keepDAQStatus_) {
         outAMC13Status.get()->insertDigi(fedId, st_amc13);
       }
       continue;
@@ -150,7 +149,8 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     auto amc13Event = gemRawToDigi_->convertWordToAMC13Event(word);
     LogDebug("GEMRawToDigiModule") << "Event bx:" << iEvent.bunchCrossing() << " lv1Id:" << iEvent.id().event()
                                    << " orbitNumber:" << iEvent.orbitNumber();
-    LogDebug("GEMRawToDigiModule") << "AMC13 bx:" << amc13Event->bunchCrossing() << " lv1Id:" << int(amc13Event->lv1Id())
+    LogDebug("GEMRawToDigiModule") << "AMC13 bx:" << amc13Event->bunchCrossing()
+                                   << " lv1Id:" << int(amc13Event->lv1Id())
                                    << " orbitNumber:" << amc13Event->orbitNumber();
 
     // Read AMC data
@@ -163,17 +163,18 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       }
 
       GEMAMCStatus st_amc = GEMAMCStatus(amc13Event.get(), amcData);
-      if (st_amc.isBad()){
-        LogDebug("GEMRawToDigiModule") << st_amc ;
+      if (st_amc.isBad()) {
+        LogDebug("GEMRawToDigiModule") << st_amc;
         if (keepDAQStatus_) {
           outAMCStatus.get()->insertDigi(fedId, st_amc);
         }
         continue;
       }
-      
+
       uint16_t amcBx = amcData.bunchCrossing();
       LogDebug("GEMRawToDigiModule") << "AMC no.:" << int(amcData.amcNum()) << " bx:" << int(amcData.bunchCrossing())
-                                     << " lv1Id:" << int(amcData.lv1Id()) << " orbitNumber:" << int(amcData.orbitNumber());
+                                     << " lv1Id:" << int(amcData.lv1Id())
+                                     << " orbitNumber:" << int(amcData.orbitNumber());
 
       // Read GEB data
       for (auto optoHybrid : *amcData.gebs()) {
@@ -189,11 +190,11 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
         GEMDetId gemChId = geb_dc.detId;
 
         GEMOHStatus st_oh = GEMOHStatus(optoHybrid);
-        if (st_oh.isBad()){
-        LogDebug("GEMRawToDigiModule") << st_oh ;
-        if (keepDAQStatus_) {
-          outOHStatus.get()->insertDigi(gemChId, st_oh);
-        }
+        if (st_oh.isBad()) {
+          LogDebug("GEMRawToDigiModule") << st_oh;
+          if (keepDAQStatus_) {
+            outOHStatus.get()->insertDigi(gemChId, st_oh);
+          }
         }
 
         //Read vfat data
@@ -202,8 +203,8 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
           vfatData.setVersion(geb_dc.vfatVer);
           uint16_t vfatId = vfatData.vfatId();
           GEMROMapping::vfatEC vfat_ec{vfatId, gemChId};
-          
-          if (!gemROMap->isValidChipID(vfat_ec)){
+
+          if (!gemROMap->isValidChipID(vfat_ec)) {
             st_oh.inValidVFAT();
             continue;
           }
@@ -213,8 +214,8 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
           GEMDetId gemId = vfat_dc.detId;
 
           GEMVFATStatus st_vfat = GEMVFATStatus(amcData, vfatData, vfatData.phi());
-          if (st_vfat.isBad()){
-            LogDebug("GEMRawToDigiModule") << st_vfat ;
+          if (st_vfat.isBad()) {
+            LogDebug("GEMRawToDigiModule") << st_vfat;
             if (keepDAQStatus_) {
               outVFATStatus.get()->insertDigi(gemId, st_vfat);
             }
@@ -250,28 +251,25 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
           }  // end of channel loop
 
-          LogDebug("GEMRawToDigiModule") << st_vfat ;
           if (keepDAQStatus_) {
             outVFATStatus.get()->insertDigi(gemId, st_vfat);
           }
-          if (unPackStatusDigis_) {              
-              outVFATStatusOld.get()->insertDigi(gemId, GEMVfatStatusDigi(vfatData));
+          if (unPackStatusDigis_) {
+            outVFATStatusOld.get()->insertDigi(gemId, GEMVfatStatusDigi(vfatData));
           }
 
         }  // end of vfat loop
 
-        LogDebug("GEMRawToDigiModule") << st_oh ;
         if (keepDAQStatus_) {
           outOHStatus.get()->insertDigi(gemChId, st_oh);
         }
         if (unPackStatusDigis_) {
-          optoHybrid.clearVFATs();          
+          optoHybrid.clearVFATs();
           outGEBStatus.get()->insertDigi(gemChId.chamberId(), (optoHybrid));
         }
 
       }  // end of optohybrid loop
-      
-      LogDebug("GEMRawToDigiModule") << st_amc ;
+
       if (keepDAQStatus_) {
         outAMCStatus.get()->insertDigi(fedId, st_amc);
       }
@@ -282,10 +280,9 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
     }  // end of amc loop
 
-    LogDebug("GEMRawToDigiModule") << st_amc13 ;
-      if (keepDAQStatus_) {
+    if (keepDAQStatus_) {
       outAMC13Status.get()->insertDigi(fedId, st_amc13);
-      }
+    }
 
     if (unPackStatusDigis_) {
       amc13Event->clearAMCpayloads();
@@ -302,7 +299,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     iEvent.put(std::move(outVFATStatus), "VFATStatus");
   }
   if (unPackStatusDigis_) {
-   // to be removed
+    // to be removed
     iEvent.put(std::move(outVFATStatusOld), "vfatStatus");
     iEvent.put(std::move(outGEBStatus), "gebStatus");
     iEvent.put(std::move(outAMCdata), "AMCdata");

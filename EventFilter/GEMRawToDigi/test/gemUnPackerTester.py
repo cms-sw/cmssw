@@ -10,6 +10,8 @@ process.load('EventFilter.GEMRawToDigi.GEMPackingTester_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.GEMPackingTester.gemDigi = cms.InputTag("muonGEMDigis",'','gemTester')
+process.gemPacker.useDBEMap = False
+process.muonGEMDigis.useDBEMap = False
 process.muonGEMDigis.keepDAQStatus = True
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
@@ -26,7 +28,6 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring( ('drop *', 'keep *_muonGEMDigis_*_*')),
     splitLevel = cms.untracked.int32(0)
 )
-
 process.TFileService = cms.Service('TFileService', fileName = cms.string('gemTester.root') )
 process.rawDataCollector.RawCollectionList = cms.VInputTag(cms.InputTag("gemPacker",'','gemTester'))
 process.MessageLogger.cerr.threshold = "DEBUG"
