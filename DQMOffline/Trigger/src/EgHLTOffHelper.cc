@@ -288,8 +288,8 @@ void OffHelper::fillIsolData(const reco::GsfElectron& ele, OffEle::IsolData& iso
   isolData.ptTrks = ele.dr03TkSumPt();
   isolData.nrTrks = 999;  //no longer supported
   isolData.em = ele.dr03EcalRecHitSumEt();
-  isolData.hadDepth1 = ele.dr03HcalDepth1TowerSumEt();
-  isolData.hadDepth2 = ele.dr03HcalDepth2TowerSumEt();
+  isolData.hadDepth1 = ele.dr03HcalTowerSumEt(1);
+  isolData.hadDepth2 = ele.dr03HcalTowerSumEt(2);
 
   //now time to do the HLT algos
   if (calHLTHcalIsol_)
@@ -509,7 +509,6 @@ void OffHelper::fillClusShapeData(const reco::Photon& pho, OffPho::ClusShapeData
     const auto& stdCov =
         EcalClusterTools::covariances(seedClus, eeRecHits_.product(), caloTopology_.product(), caloGeom_.product());
     const auto& crysCov = EcalClusterTools::localCovariances(seedClus, eeRecHits_.product(), caloTopology_.product());
-
     clusShapeData.sigmaPhiPhi = sqrt(stdCov[2]);
     clusShapeData.sigmaIPhiIPhi = sqrt(crysCov[2]);
   }

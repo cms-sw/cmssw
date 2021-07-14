@@ -7,7 +7,6 @@
 
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -32,13 +31,12 @@
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMIPHaloTagger.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 
 #include <vector>
 
@@ -56,7 +54,8 @@ private:
                             const CaloTopology* topology,
                             const EcalRecHitCollection* ecalBarrelHits,
                             const EcalRecHitCollection* ecalEndcapHits,
-                            CaloTowerCollection const& hcalTowers,
+                            ElectronHcalHelper const& hcalHelperCone,
+                            ElectronHcalHelper const& hcalHelperBc,
                             reco::VertexCollection& pvVertices,
                             reco::PhotonCollection& outputCollection,
                             int& iSC,
@@ -67,7 +66,7 @@ private:
   edm::EDGetTokenT<reco::PhotonCoreCollection> photonCoreProducer_;
   edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
-  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
+  edm::EDGetTokenT<HBHERecHitCollection> hbheRecHits_;
   edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
 
   //AA
@@ -79,8 +78,6 @@ private:
   std::vector<int> severitiesexclEE_;
 
   double hOverEConeSize_;
-  double maxHOverE_;
-  double minSCEt_;
   double highEt_;
   double minR9Barrel_;
   double minR9Endcap_;
@@ -103,19 +100,24 @@ private:
 
   PhotonEnergyCorrector photonEnergyCorrector_;
   std::string candidateP4type_;
+
+  // additional configuration and helpers
+  std::unique_ptr<ElectronHcalHelper> hcalHelperCone_;
+  std::unique_ptr<ElectronHcalHelper> hcalHelperBc_;
+  bool hcalRun2EffDepth_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PhotonProducer);
 
 PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : photonEnergyCorrector_(config, consumesCollector()) {
-  // use onfiguration file to setup input/output collection names
+  // use configuration file to setup input/output collection names
 
   photonCoreProducer_ = consumes<reco::PhotonCoreCollection>(config.getParameter<edm::InputTag>("photonCoreProducer"));
   barrelEcalHits_ = consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("barrelEcalHits"));
   endcapEcalHits_ = consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("endcapEcalHits"));
   vertexProducer_ = consumes<reco::VertexCollection>(config.getParameter<edm::InputTag>("primaryVertexProducer"));
-  hcalTowers_ = consumes<CaloTowerCollection>(config.getParameter<edm::InputTag>("hcalTowers"));
+  hbheRecHits_ = consumes<HBHERecHitCollection>(config.getParameter<edm::InputTag>("hbheRecHits"));
   hOverEConeSize_ = config.getParameter<double>("hOverEConeSize");
   highEt_ = config.getParameter<double>("highEt");
   // R9 value to decide converted/unconverted
@@ -132,24 +134,54 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : photonEnergyCo
   //AA
   //Flags and Severities to be excluded from photon calculations
   const std::vector<std::string> flagnamesEB =
-      config.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEB");
+      config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEB");
 
   const std::vector<std::string> flagnamesEE =
-      config.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEE");
+      config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEE");
 
   flagsexclEB_ = StringToEnumValue<EcalRecHit::Flags>(flagnamesEB);
 
   flagsexclEE_ = StringToEnumValue<EcalRecHit::Flags>(flagnamesEE);
 
   const std::vector<std::string> severitynamesEB =
-      config.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcludedEB");
+      config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEB");
 
   severitiesexclEB_ = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEB);
 
   const std::vector<std::string> severitynamesEE =
-      config.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcludedEE");
+      config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEE");
 
   severitiesexclEE_ = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEE);
+
+  ElectronHcalHelper::Configuration cfgCone, cfgBc;
+  cfgCone.hOverEConeSize = hOverEConeSize_;
+  if (cfgCone.hOverEConeSize > 0) {
+    cfgCone.onlyBehindCluster = false;
+    cfgCone.checkHcalStatus = false;
+
+    cfgCone.hbheRecHits = hbheRecHits_;
+
+    cfgCone.eThresHB = config.getParameter<EgammaHcalIsolation::arrayHB>("recHitEThresholdHB");
+    cfgCone.maxSeverityHB = config.getParameter<int>("maxHcalRecHitSeverity");
+    cfgCone.eThresHE = config.getParameter<EgammaHcalIsolation::arrayHE>("recHitEThresholdHE");
+    cfgCone.maxSeverityHE = cfgCone.maxSeverityHB;
+  }
+
+  cfgBc.hOverEConeSize = 0.;
+  cfgBc.onlyBehindCluster = true;
+  cfgBc.checkHcalStatus = false;
+
+  cfgBc.hbheRecHits = hbheRecHits_;
+
+  cfgBc.eThresHB = config.getParameter<EgammaHcalIsolation::arrayHB>("recHitEThresholdHB");
+  cfgBc.maxSeverityHB = config.getParameter<int>("maxHcalRecHitSeverity");
+  cfgBc.eThresHE = config.getParameter<EgammaHcalIsolation::arrayHE>("recHitEThresholdHE");
+  cfgBc.maxSeverityHE = cfgBc.maxSeverityHB;
+
+  hcalHelperCone_ = std::make_unique<ElectronHcalHelper>(cfgCone, consumesCollector());
+  hcalHelperBc_ = std::make_unique<ElectronHcalHelper>(cfgBc, consumesCollector());
+
+  hcalRun2EffDepth_ = config.getParameter<bool>("hcalRun2EffDepth");
 
   //AA
 
@@ -169,8 +201,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : photonEnergyCo
   preselCutValuesBarrel_.push_back(config.getParameter<double>("maxHoverEBarrel"));
   preselCutValuesBarrel_.push_back(config.getParameter<double>("ecalRecHitSumEtOffsetBarrel"));
   preselCutValuesBarrel_.push_back(config.getParameter<double>("ecalRecHitSumEtSlopeBarrel"));
-  preselCutValuesBarrel_.push_back(config.getParameter<double>("hcalTowerSumEtOffsetBarrel"));
-  preselCutValuesBarrel_.push_back(config.getParameter<double>("hcalTowerSumEtSlopeBarrel"));
+  preselCutValuesBarrel_.push_back(config.getParameter<double>("hcalRecHitSumEtOffsetBarrel"));
+  preselCutValuesBarrel_.push_back(config.getParameter<double>("hcalRecHitSumEtSlopeBarrel"));
   preselCutValuesBarrel_.push_back(config.getParameter<double>("nTrackSolidConeBarrel"));
   preselCutValuesBarrel_.push_back(config.getParameter<double>("nTrackHollowConeBarrel"));
   preselCutValuesBarrel_.push_back(config.getParameter<double>("trackPtSumSolidConeBarrel"));
@@ -181,8 +213,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : photonEnergyCo
   preselCutValuesEndcap_.push_back(config.getParameter<double>("maxHoverEEndcap"));
   preselCutValuesEndcap_.push_back(config.getParameter<double>("ecalRecHitSumEtOffsetEndcap"));
   preselCutValuesEndcap_.push_back(config.getParameter<double>("ecalRecHitSumEtSlopeEndcap"));
-  preselCutValuesEndcap_.push_back(config.getParameter<double>("hcalTowerSumEtOffsetEndcap"));
-  preselCutValuesEndcap_.push_back(config.getParameter<double>("hcalTowerSumEtSlopeEndcap"));
+  preselCutValuesEndcap_.push_back(config.getParameter<double>("hcalRecHitSumEtOffsetEndcap"));
+  preselCutValuesEndcap_.push_back(config.getParameter<double>("hcalRecHitSumEtSlopeEndcap"));
   preselCutValuesEndcap_.push_back(config.getParameter<double>("nTrackSolidConeEndcap"));
   preselCutValuesEndcap_.push_back(config.getParameter<double>("nTrackHollowConeEndcap"));
   preselCutValuesEndcap_.push_back(config.getParameter<double>("trackPtSumSolidConeEndcap"));
@@ -245,12 +277,13 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   theEventSetup.get<EcalSeverityLevelAlgoRcd>().get(sevLv);
   //
 
-  // get Hcal towers collection
-  auto const& hcalTowers = theEvent.get(hcalTowers_);
-
   edm::ESHandle<CaloTopology> pTopology;
   theEventSetup.get<CaloTopologyRecord>().get(pTopology);
   const CaloTopology* topology = pTopology.product();
+
+  // prepare access to hcal data
+  hcalHelperCone_->beginEvent(theEvent, theEventSetup);
+  hcalHelperBc_->beginEvent(theEvent, theEventSetup);
 
   // Get the primary event vertex
   Handle<reco::VertexCollection> vertexHandle;
@@ -276,7 +309,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
                          topology,
                          &barrelRecHits,
                          &endcapRecHits,
-                         hcalTowers,
+                         *hcalHelperCone_,
+                         *hcalHelperBc_,
                          vertexCollection,
                          outputPhotonCollection,
                          iSC,
@@ -285,6 +319,13 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   // put the product in the event
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
   outputPhotonCollection_p->assign(outputPhotonCollection.begin(), outputPhotonCollection.end());
+
+  // go back to run2-like 2 effective depths if desired - depth 1 is the normal depth 1, depth 2 is the sum over the rest
+  if (hcalRun2EffDepth_) {
+    for (auto& pho : *outputPhotonCollection_p)
+      pho.hcalToRun2EffDepth();
+  }
+
   theEvent.put(std::move(outputPhotonCollection_p), PhotonCollection_);
 }
 
@@ -294,7 +335,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
                                           const CaloTopology* topology,
                                           const EcalRecHitCollection* ecalBarrelHits,
                                           const EcalRecHitCollection* ecalEndcapHits,
-                                          CaloTowerCollection const& hcalTowers,
+                                          ElectronHcalHelper const& hcalHelperCone,
+                                          ElectronHcalHelper const& hcalHelperBc,
                                           reco::VertexCollection& vertexCollection,
                                           reco::PhotonCollection& outputPhotonCollection,
                                           int& iSC,
@@ -343,19 +385,6 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     // SC energy preselection
     if (scRef->energy() / cosh(scRef->eta()) <= preselCutValues[0])
       continue;
-    // calculate HoE
-
-    EgammaTowerIsolation towerIso1(hOverEConeSize_, 0., 0., 1, &hcalTowers);
-    EgammaTowerIsolation towerIso2(hOverEConeSize_, 0., 0., 2, &hcalTowers);
-    double HoE1 = towerIso1.getTowerESum(&(*scRef)) / scRef->energy();
-    double HoE2 = towerIso2.getTowerESum(&(*scRef)) / scRef->energy();
-
-    edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
-    es.get<CaloGeometryRecord>().get(ctmaph);
-
-    auto towersBehindCluster = egamma::towersOf(*scRef, *ctmaph);
-    float hcalDepth1OverEcalBc = egamma::depth1HcalESum(towersBehindCluster, hcalTowers) / scRef->energy();
-    float hcalDepth2OverEcalBc = egamma::depth2HcalESum(towersBehindCluster, hcalTowers) / scRef->energy();
 
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
     math::XYZPoint unconvPos =
@@ -425,11 +454,12 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.maxEnergyXtal = maxXtal;
     showerShape.sigmaEtaEta = sigmaEtaEta;
     showerShape.sigmaIetaIeta = sigmaIetaIeta;
-    showerShape.hcalDepth1OverEcal = HoE1;
-    showerShape.hcalDepth2OverEcal = HoE2;
-    showerShape.hcalDepth1OverEcalBc = hcalDepth1OverEcalBc;
-    showerShape.hcalDepth2OverEcalBc = hcalDepth2OverEcalBc;
-    showerShape.hcalTowersBehindClusters = towersBehindCluster;
+    for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
+      showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id + 1) / scRef->energy();
+      showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1) / scRef->energy();
+    }
+    showerShape.hcalTowersBehindClusters = hcalHelperBc.hcalTowersBehindClusters(*scRef);
+    showerShape.pre7DepthHcal = false;
     newCandidate.setShowerShapeVariables(showerShape);
 
     /// fill full5x5 shower shape block
@@ -441,6 +471,12 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.maxEnergyXtal = full5x5_maxXtal;
     full5x5_showerShape.sigmaEtaEta = full5x5_sigmaEtaEta;
     full5x5_showerShape.sigmaIetaIeta = full5x5_sigmaIetaIeta;
+    for (uint id = 0; id < full5x5_showerShape.hcalOverEcal.size(); ++id) {
+      full5x5_showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id + 1) / full5x5_e5x5;
+      full5x5_showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1) / full5x5_e5x5;
+    }
+    full5x5_showerShape.hcalTowersBehindClusters = hcalHelperBc.hcalTowersBehindClusters(*scRef);
+    full5x5_showerShape.pre7DepthHcal = false;
     newCandidate.full5x5_setShowerShapeVariables(full5x5_showerShape);
 
     /// get ecal photon specific corrected energy
