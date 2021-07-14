@@ -17,8 +17,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducts.h"
 
-#include "CondFormats/L1TObjects/interface/L1TMuonBarrelKalmanParams.h" //changed
-#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h" //changed
+#include "CondFormats/L1TObjects/interface/L1TMuonBarrelKalmanParams.h"
+#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTLUTFactories.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -28,7 +28,7 @@
 #include "L1Trigger/L1TCommon/interface/Parameter.h"
 #include "L1Trigger/L1TCommon/interface/Mask.h"
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsHelper.h" //to check
+#include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsHelper.h"
 
 // class declaration
 //
@@ -59,7 +59,7 @@ private:
 //
 L1TMuonBarrelKalmanParamsESProducer::L1TMuonBarrelKalmanParamsESProducer(const edm::ParameterSet& iConfig) {
   // the following line is needed to tell the framework what data is being produced
-  setWhatProduced(this); //???
+  setWhatProduced(this);
 
   // basic configurables needed (now set static)
   kalman_params.pnodes_[kalman_params.CONFIG].fwVersion_ = iConfig.getParameter<unsigned>("fwVersion");
@@ -75,7 +75,8 @@ L1TMuonBarrelKalmanParamsESProducer::~L1TMuonBarrelKalmanParamsESProducer() {}
 //
 
 // ------------ method called to produce the data  ------------
-L1TMuonBarrelKalmanParamsESProducer::ReturnType L1TMuonBarrelKalmanParamsESProducer::produce(const L1TMuonBarrelKalmanParamsRcd& iRecord) {
+L1TMuonBarrelKalmanParamsESProducer::ReturnType L1TMuonBarrelKalmanParamsESProducer::produce(
+    const L1TMuonBarrelKalmanParamsRcd& iRecord) {
   return std::make_unique<L1TMuonBarrelKalmanParams>(kalman_params);
 }
 

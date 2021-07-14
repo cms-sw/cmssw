@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsO2ORcd.h"
-#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h" // includes both Old-Phase1 and Kalman Rcds
+#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"  // includes both Old-Phase1 and Kalman Rcds
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelKalmanParams.h"
 
@@ -46,9 +46,10 @@ void L1TMuonBarrelParamsWriter::analyze(const edm::Event& iEvent, const edm::Eve
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {
     cond::Time_t firstSinceTime = poolDb->beginOfTime();
-    poolDb->writeOne( ptr1.get(), firstSinceTime, (isO2Opayload ? "L1TMuonBarrelParamsO2ORcd" : "L1TMuonBarrelParamsRcd") );
+    poolDb->writeOne(
+        ptr1.get(), firstSinceTime, (isO2Opayload ? "L1TMuonBarrelParamsO2ORcd" : "L1TMuonBarrelParamsRcd"));
     if (not isO2Opayload)
-      poolDb->writeOne( ptr2.get(), firstSinceTime, ("L1TMuonBarrelKalmanParamsRcd") );
+      poolDb->writeOne(ptr2.get(), firstSinceTime, ("L1TMuonBarrelKalmanParamsRcd"));
   }
 }
 
