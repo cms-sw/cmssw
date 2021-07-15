@@ -31,7 +31,7 @@
 #include <iostream>
 #include <string>
 
-class GEMTriggerPrimitivesAnalyzer : public edm::one::EDAnalyzer<> {
+class GEMTriggerPrimitivesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// Constructor
   explicit GEMTriggerPrimitivesAnalyzer(const edm::ParameterSet &conf);
@@ -91,7 +91,9 @@ GEMTriggerPrimitivesAnalyzer::GEMTriggerPrimitivesAnalyzer(const edm::ParameterS
       mcEfficiencyPlots_(conf.getParameter<bool>("mcEfficiencyPlots")),
       mcResolutionPlots_(conf.getParameter<bool>("mcResolutionPlots")),
       B904Setup_(conf.getParameter<bool>("B904Setup")),
-      B904RunNumber_(conf.getParameter<std::string>("B904RunNumber")) {}
+      B904RunNumber_(conf.getParameter<std::string>("B904RunNumber")) {
+  usesResource("TFileService");
+}
 
 void GEMTriggerPrimitivesAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &setup) {
   // efficiency and resolution analysis is done here
