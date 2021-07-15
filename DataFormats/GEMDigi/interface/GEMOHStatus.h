@@ -2,6 +2,7 @@
 #define DataFormats_GEMDigi_GEMOHStatus_h
 #include "GEBdata.h"
 #include <bitset>
+#include <ostream>
 
 // GEM OptoHybrid status
 class GEMOHStatus {

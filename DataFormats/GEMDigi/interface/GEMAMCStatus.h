@@ -3,6 +3,7 @@
 #include "AMC13Event.h"
 #include "AMCdata.h"
 #include <bitset>
+#include <ostream>
 
 class GEMAMCStatus {
 public:

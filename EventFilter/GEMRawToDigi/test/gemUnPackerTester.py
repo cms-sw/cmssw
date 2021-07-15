@@ -10,13 +10,15 @@ process.load('Configuration.EventContent.EventContent_cff')
 
 process.GEMPackingTester.gemDigi = cms.InputTag("muonGEMDigis",'','gemTester')
 process.gemPacker.useDBEMap = False
-process.muonGEMDigis.useDBEMap = False
+process.muonGEMDigis.useDBEMap = process.gemPacker.useDBEMap
 process.muonGEMDigis.keepDAQStatus = True
 process.muonGEMDigis.readMultiBX = True
+process.GEMPackingTester.readMultiBX = process.muonGEMDigis.readMultiBX
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 process.source = cms.Source("PoolSource",                           
   fileNames = cms.untracked.vstring('file:/store/relval/CMSSW_11_3_0_pre4/RelValZMM_14/GEN-SIM-RECO/PU_113X_mcRun4_realistic_v4_2026D76PU200-v1/00000/028001e8-5c24-48e7-8162-5da736ad7d38.root'),
+  #fileNames = cms.untracked.vstring('file:/pad/jlee/CMSSW_12_0_0_pre3/src/11634.0_TTbar_14TeV+2021+TTbar_14TeV_TuneCP5_GenSim+Digi+Reco+HARVEST+ALCA/step2.root'),
   #fileNames = cms.untracked.vstring('file:/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/342/218/00000/00dede46-dcef-4376-94db-5ee88a3a895e.root'),
 )
 
@@ -32,8 +34,8 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 process.TFileService = cms.Service('TFileService', fileName = cms.string('gemTester.root') )
 process.rawDataCollector.RawCollectionList = cms.VInputTag(cms.InputTag("gemPacker",'','gemTester'))
 process.MessageLogger.cerr.threshold = "DEBUG"
-#process.MessageLogger.debugModules = ["gemPacker", "muonGEMDigis"]
-process.MessageLogger.debugModules = ["muonGEMDigis"]
+process.MessageLogger.debugModules = ["gemPacker", "muonGEMDigis"]
+#process.MessageLogger.debugModules = ["muonGEMDigis"]
 
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
