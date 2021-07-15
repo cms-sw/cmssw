@@ -16,6 +16,12 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
 #include <string>
@@ -51,6 +57,11 @@ public:
 
 protected:
 private:
-  edm::InputTag SACollectionTag;
+  edm::ESHandle<MagneticField> theMGField;
+  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+
+  edm::EDGetToken tracksSAToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMGFieldToken_;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> theTrackingGeometryToken_;
 };
 #endif

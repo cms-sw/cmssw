@@ -76,28 +76,16 @@ AlignmentProducer = cms.EDProducer("AlignmentProducerAsAnalyzer",
                     # update alignables if triggered by corresponding input IOV boundary
                     enableAlignableUpdates = cms.bool(False),
                     )
-DTGeometryAlignmentProducerAsAnalyzer = cms.ESProducer("DTGeometryESModule",
-    appendToDataLabel = cms.string('idealForAlignmentProducerBase'),
-    applyAlignment = cms.bool(False), 
-    alignmentsLabel = cms.string(''),
-    fromDDD = cms.bool(True)
-)
-CSCGeometryAlignmentProducerAsAnalyzer = cms.ESProducer("CSCGeometryESModule",
-    appendToDataLabel = cms.string('idealForAlignmentProducerBase'),
-    debugV = cms.untracked.bool(False),
-    useGangedStripsInME1a = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    useOnlyWiresInME1a = cms.bool(False),
-    useRealWireGeometry = cms.bool(True),
-    useCentreTIOffsets = cms.bool(False),
-    applyAlignment = cms.bool(False), 
-    fromDDD = cms.bool(True),
-    fromDD4hep = cms.bool(False)
-)
-GEMGeometryAlignmentProducerAsAnalyzer = cms.ESProducer("GEMGeometryESModule",
-    appendToDataLabel = cms.string('idealForAlignmentProducerBase'),
-    applyAlignment = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    fromDDD = cms.bool(True),
-    fromDD4Hep = cms.bool(False)
-)
+
+from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
+import Geometry.DTGeometryBuilder.dtGeometry_cfi
+DTGeometryAlignmentProducerAsAnalyzer = Geometry.DTGeometryBuilder.dtGeometry_cfi.DTGeometryESModule.clone()
+DTGeometryAlignmentProducerAsAnalyzer.appendToDataLabel = 'idealForAlignmentProducerBase'
+import Geometry.CSCGeometryBuilder.cscGeometry_cfi
+CSCGeometryAlignmentProducerAsAnalyzer = Geometry.CSCGeometryBuilder.cscGeometry_cfi.CSCGeometryESModule.clone()
+CSCGeometryAlignmentProducerAsAnalyzer.appendToDataLabel = 'idealForAlignmentProducerBase'
+import   Geometry.GEMGeometryBuilder.gemGeometry_cfi 
+GEMGeometryAlignmentProducerAsAnalyzer = Geometry.GEMGeometryBuilder.gemGeometry_cfi.gemGeometry.clone()
+GEMGeometryAlignmentProducerAsAnalyzer.appendToDataLabel = 'idealForAlignmentProducerBase'
+GEMGeometryAlignmentProducerAsAnalyzer.fromDDD = False
+GEMGeometryAlignmentProducerAsAnalyzer.fromDD4Hep = False
