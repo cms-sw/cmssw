@@ -63,7 +63,7 @@ private:
   uint8_t warnings_;
 };
 
-std::ostream& operator<<(std::ostream& out, const GEMAMC13Status& status) {
+inline std::ostream& operator<<(std::ostream& out, const GEMAMC13Status& status) {
   out << "GEMAMC13Status errors " << std::bitset<8>(status.errors()) << " warnings "
       << std::bitset<8>(status.warnings());
   return out;

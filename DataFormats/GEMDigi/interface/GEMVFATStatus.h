@@ -60,7 +60,7 @@ private:
   uint8_t warnings_;
 };
 
-std::ostream& operator<<(std::ostream& out, const GEMVFATStatus& status) {
+inline std::ostream& operator<<(std::ostream& out, const GEMVFATStatus& status) {
   out << "GEMVFATStatus errors " << std::bitset<8>(status.errors()) << " warnings "
       << std::bitset<8>(status.warnings());
   return out;
