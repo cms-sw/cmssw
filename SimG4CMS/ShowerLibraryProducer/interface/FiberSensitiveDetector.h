@@ -27,17 +27,17 @@ class G4Step;
 class G4HCofThisEvent;
 
 class FiberSensitiveDetector : public SensitiveCaloDetector,
-                public Observer<const BeginOfJob *>,
-                public Observer<const BeginOfRun *>,
-                public Observer<const BeginOfEvent *>,
-                public Observer<const EndOfEvent *> {
+                               public Observer<const BeginOfJob *>,
+                               public Observer<const BeginOfRun *>,
+                               public Observer<const BeginOfEvent *>,
+                               public Observer<const EndOfEvent *> {
 public:
   explicit FiberSensitiveDetector(const std::string &,
-		   const HcalSimulationConstants*,
-                   const HcalDDDSimConstants*,
-                   const SensitiveDetectorCatalog &,
-                   edm::ParameterSet const &,
-                   const SimTrackManager *);
+                                  const HcalSimulationConstants *,
+                                  const HcalDDDSimConstants *,
+                                  const SensitiveDetectorCatalog &,
+                                  edm::ParameterSet const &,
+                                  const SimTrackManager *);
   ~FiberSensitiveDetector() override;
 
   void Initialize(G4HCofThisEvent *HCE) override;
