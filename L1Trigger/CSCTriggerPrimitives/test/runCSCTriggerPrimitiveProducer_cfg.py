@@ -86,7 +86,6 @@ if options.useB904Data:
             process.muonCSCDigis.useGEMs = True
       ## GEM
       process.muonGEMDigis.InputLabel = "rawDataCollectorGEM"
-      process.muonGEMDigis.useB904Data = options.useB904Data
 
 ## l1 emulator
 l1csc = process.cscTriggerPrimitiveDigis
