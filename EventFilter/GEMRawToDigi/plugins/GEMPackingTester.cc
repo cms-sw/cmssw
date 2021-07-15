@@ -94,11 +94,11 @@ void GEMPackingTester::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     int nsims = 0;
     for (auto digi = sim.first; digi != sim.second; ++digi) {
-        nsims++;
+      nsims++;
     }
     int npacked = 0;
     for (auto digi = packed.first; digi != packed.second; ++digi) {
-        npacked++;
+      npacked++;
     }
     if (nsims != npacked) {
       cout << gemId << endl;
