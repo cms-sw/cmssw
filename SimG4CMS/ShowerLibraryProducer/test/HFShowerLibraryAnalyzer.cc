@@ -221,25 +221,25 @@ void HFShowerLibraryAnalyzer::bookHistos() {
         int irc = k * evtPerBin_ + j + 1;
         getRecord(type, irc);
         int nPhoton = (newForm_) ? photo_->size() : photon_.size();
-        int nlong=0, nshort=0;
+        int nlong = 0, nshort = 0;
         for (int i = 0; i < nPhoton; i++) {
           if (newForm_) {
-	    if (photo_->at(i).z() > 0) {
-	      nlong++;
-	    } else {
-	      nshort++;
-	    } 
+            if (photo_->at(i).z() > 0) {
+              nlong++;
+            } else {
+              nshort++;
+            }
             h_x_[type][k]->Fill((photo_->at(i)).x());
             h_y_[type][k]->Fill((photo_->at(i)).y());
             h_z_[type][k]->Fill((photo_->at(i)).z());
             h_t_[type][k]->Fill((photo_->at(i)).t());
             h_l_[type][k]->Fill((photo_->at(i)).lambda());
           } else {
-	    if (photon_[i].z() > 0) {
-	      nlong++;
-	    } else {
-	      nshort++;
-	    } 
+            if (photon_[i].z() > 0) {
+              nlong++;
+            } else {
+              nshort++;
+            }
             h_x_[type][k]->Fill(photon_[i].x());
             h_y_[type][k]->Fill(photon_[i].y());
             h_z_[type][k]->Fill(photon_[i].z());
