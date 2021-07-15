@@ -15,9 +15,9 @@
 
 class TotemSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
 public:
-  explicit TotemSensitiveDetectorBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc) { }
+  explicit TotemSensitiveDetectorBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc) {}
 
-  void beginRun(const edm::EventSetup& es) final { }
+  void beginRun(const edm::EventSetup& es) final {}
 
   std::unique_ptr<SensitiveDetector> make(const std::string& iname,
                                           const SensitiveDetectorCatalog& clg,
