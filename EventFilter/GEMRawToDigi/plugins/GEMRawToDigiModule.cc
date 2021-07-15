@@ -244,8 +244,8 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
             GEMDigi digi(stripId, bx);
 
             LogDebug("GEMRawToDigiModule")
-                << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId) << " vfat:" << vfat_dc.localPhi
-                << ",type: " << vfat_dc.vfatType << " id:" << gemId << " ch:" << chMap.chNum << " st:" << digi.strip()
+                << "fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId) << " vfat id:" << int(vfatId)
+                << ",type:" << vfat_dc.vfatType << " id:" << gemId << " ch:" << chMap.chNum << " st:" << digi.strip()
                 << " bx:" << digi.bx();
 
             outGEMDigis.get()->insertDigi(gemId, digi);

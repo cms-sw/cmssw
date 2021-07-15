@@ -5,6 +5,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include <bitset>
+#include <ostream>
 
 class GEMAMC13Status {
 public:

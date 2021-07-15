@@ -16,8 +16,7 @@ namespace gem {
       // is half-full, so it's like a warning
       uint64_t vc : 1;   /// VFAT CRC Error
       uint64_t : 7;      // unused
-      uint64_t pos : 5;  ///<an 8bit value indicating the VFAT position on this GEB (it can be 0 to 23)
-      uint64_t : 3;      // unused
+      uint64_t pos : 8;  // VFAT position on chamber, 5 used in GE11 but more is needed for phase2
     };
     // v2 dataformat
     struct {
