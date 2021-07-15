@@ -7,7 +7,7 @@ import DQMOffline.CalibCalo.MonitorHcalIsolatedBunchAlCaReco_cfi
 import DQMOffline.CalibCalo.MonitorHOAlCaRecoStream_cfi
 
 #Check if perLSsaving is enabled to mask MEs vs LS
-from Configuration.ProcessModifiers.perLSsavin_cff import dqmPerLSsaving
+from Configuration.ProcessModifiers.dqmPerLSsaving_cff import dqmPerLSsaving
 dqmPerLSsaving.toModify(DQMOffline.CalibCalo.MonitorAlCaHcalPhisym_cfi.HcalPhiSymMon, perLSsaving=True)
 
 ALCARECOHcalCalPhisymDQM =  DQMOffline.CalibCalo.MonitorAlCaHcalPhisym_cfi.HcalPhiSymMon.clone()
