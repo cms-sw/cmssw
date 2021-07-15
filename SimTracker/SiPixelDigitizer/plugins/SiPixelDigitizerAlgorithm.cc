@@ -595,7 +595,6 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
 }
 
 // Read DynIneff Scale factors from DB
-//void SiPixelDigitizerAlgorithm::init_DynIneffDB(const edm::EventSetup& es, const unsigned int& bunchspace) {
 void SiPixelDigitizerAlgorithm::init_DynIneffDB(const edm::EventSetup& es) {
   LogDebug("PixelDigitizer ") << " In SiPixelDigitizerAlgorithm::init_DynIneffDB " << AddPixelInefficiency << "  "
                               << pixelEfficiencies_.FromConfig << "\n";
