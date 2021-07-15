@@ -250,8 +250,9 @@ namespace cms {
     std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
 
     if (firstFinalizeEvent_) {
-      const unsigned int bunchspace = PileupInfo_->getMix_bunchSpacing();
-      _pixeldigialgo->init_DynIneffDB(iSetup, bunchspace);
+      //      const unsigned int bunchspace = PileupInfo_->getMix_bunchSpacing();
+      //      _pixeldigialgo->init_DynIneffDB(iSetup, bunchspace);
+      _pixeldigialgo->init_DynIneffDB(iSetup);
       firstFinalizeEvent_ = false;
     }
     _pixeldigialgo->calculateInstlumiFactor(PileupInfo_.get());
