@@ -45,7 +45,7 @@ sys.argv.extend(other)
 # make the behaviour of 'cmsRun file.py' and 'edmConfigSplit file.py' more consistent
 sys.path.append(os.getcwd())
 
-loader = importlib.machinery.SourceFileLoader("pycfg", argd.file())
+loader = importlib.machinery.SourceFileLoader("pycfg", args.file.name)
 cfo = loader.load_module()
 process = cfo.process
 
