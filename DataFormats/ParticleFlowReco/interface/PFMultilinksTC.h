@@ -11,10 +11,8 @@ namespace reco {
   /// linker to store all found links.
   ///
   struct PFMultilink {
-    PFMultilink ( const reco::PFClusterRef & clusterref ) : 
-    trackRef(), clusterRef(clusterref) {}
-    PFMultilink ( const reco::PFRecTrackRef & trackref ) :
-    trackRef(trackref), clusterRef() {}
+    PFMultilink(const reco::PFClusterRef& clusterref) : trackRef(), clusterRef(clusterref) {}
+    PFMultilink(const reco::PFRecTrackRef& trackref) : trackRef(trackref), clusterRef() {}
     reco::PFRecTrackRef trackRef;
     reco::PFClusterRef clusterRef;
   };
@@ -23,7 +21,7 @@ namespace reco {
   class PFMultiLinksTC {
   public:
     bool isValid;
-    PFMultilinksType linkedClusters;
+    PFMultilinksType linkedPFObjects;
 
   public:
     PFMultiLinksTC(bool isvalid = false) : isValid(isvalid) {}

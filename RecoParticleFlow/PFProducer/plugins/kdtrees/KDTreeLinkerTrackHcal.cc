@@ -256,8 +256,8 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
     // No restriction on the number of HCAL links per track or isLinkedToDisplacedVertex
     if (nMaxHcalLinksPerTrack_ < 0. || trackElt->isLinkedToDisplacedVertex()) {
       for (const auto& hcalElt : hcalEltSet) {
-	reco::PFMultilink multiLink( hcalElt->clusterRef() );
-	multitracks.linkedClusters.push_back(multiLink);
+        reco::PFMultilink multiLink(hcalElt->clusterRef());
+        multitracks.linkedPFObjects.push_back(multiLink);
 
         // We set the multilinks flag of the track (for links to ECAL) to true. It will allow us to
         // use it in an optimized way in prefilter
@@ -315,13 +315,13 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
       // Fill multitracks
       for (auto i : sort_indexes(vDist)) {
         const BlockEltSet::iterator hcalEltIt = std::next(hcalEltSet.begin(), i);
-	reco::PFMultilink multiLink( (*hcalEltIt)->clusterRef() );
-	multitracks.linkedClusters.push_back(multiLink);
+        reco::PFMultilink multiLink((*hcalEltIt)->clusterRef());
+        multitracks.linkedPFObjects.push_back(multiLink);
         // We set the multilinks flag of the track (for links to ECAL) to true. It will allow us to
         // use it in an optimized way in prefilter
         (*hcalEltIt)->setIsValidMultilinks(true, _targetType);
 
-        if (multitracks.linkedClusters.size() >= (unsigned)nMaxHcalLinksPerTrack_)
+        if (multitracks.linkedPFObjects.size() >= (unsigned)nMaxHcalLinksPerTrack_)
           break;
       }
     }
