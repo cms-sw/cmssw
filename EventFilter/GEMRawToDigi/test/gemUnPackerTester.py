@@ -13,7 +13,7 @@ process.gemPacker.useDBEMap = False
 process.muonGEMDigis.useDBEMap = False
 process.muonGEMDigis.keepDAQStatus = True
 process.muonGEMDigis.readMultiBX = True
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 process.source = cms.Source("PoolSource",                           
   fileNames = cms.untracked.vstring('file:/store/relval/CMSSW_11_3_0_pre4/RelValZMM_14/GEN-SIM-RECO/PU_113X_mcRun4_realistic_v4_2026D76PU200-v1/00000/028001e8-5c24-48e7-8162-5da736ad7d38.root'),
