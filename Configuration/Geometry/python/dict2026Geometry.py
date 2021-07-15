@@ -3,7 +3,7 @@ maxSections = 5
 commonDict = {
     "abbrev" : "O",
     "name" : "common",
-    "default" : 4,
+    "default" : 7,
     "O4" : {
         1 : [
             'Geometry/CMSCommonData/data/materials.xml',
@@ -112,12 +112,39 @@ commonDict = {
         ],
         "era" : "phase2_common, phase2_trigger",
     },
+    "O8" : {
+        1 : [
+            'Geometry/CMSCommonData/data/materials/2021/v1/materials.xml',
+            'Geometry/CMSCommonData/data/rotations.xml',
+            'Geometry/CMSCommonData/data/extend/v2/cmsextent.xml',
+            'Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml',
+            'Geometry/CMSCommonData/data/cms/2026/v5/cms.xml',
+            'Geometry/CMSCommonData/data/cmsMother.xml',
+            'Geometry/CMSCommonData/data/eta3/etaMax.xml',
+            'Geometry/CMSCommonData/data/cmsTracker.xml',
+            'Geometry/CMSCommonData/data/caloBase/2026/v6/caloBase.xml',
+            'Geometry/CMSCommonData/data/cmsCalo.xml',
+            'Geometry/CMSCommonData/data/muonBase/2026/v5/muonBase.xml',
+            'Geometry/CMSCommonData/data/cmsMuon.xml',
+            'Geometry/CMSCommonData/data/mgnt.xml',
+            'Geometry/CMSCommonData/data/beampipe/2026/v3/beampipe.xml',
+            'Geometry/CMSCommonData/data/cmsBeam/2026/v1/cmsBeam.xml',
+            'Geometry/CMSCommonData/data/muonMB.xml',
+            'Geometry/CMSCommonData/data/muonMagnet.xml',
+            'Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml',
+            'Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml',
+        ],
+        5 : [
+            'Geometry/CMSCommonData/data/FieldParameters.xml',
+        ],
+        "era" : "phase2_common, phase2_trigger",
+    },
 }
 
 trackerDict = {
     "abbrev" : "T",
     "name" : "tracker",
-    "default" : 15,
+    "default" : 24,
     "T15" : {
         1 : [
             'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
@@ -365,7 +392,7 @@ trackerDict = {
 caloDict = {
     "abbrev" : "C",
     "name" : "calo",
-    "default" : 9,
+    "default" : 14,
     "C9" : {
         1 : [
             'Geometry/EcalCommonData/data/eregalgo/2026/v2/eregalgo.xml',
@@ -905,13 +932,87 @@ caloDict = {
         ],
         "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12, phase2_hfnose",
     },
+    "C17" : {
+        1 : [
+            'Geometry/EcalCommonData/data/eregalgo/2026/v2/eregalgo.xml',
+            'Geometry/EcalCommonData/data/ectkcable/2026/v1/ectkcable.xml',
+            'Geometry/EcalCommonData/data/ectkcablemat/2026/v1/ectkcablemat.xml',
+            'Geometry/EcalCommonData/data/ebalgo.xml',
+            'Geometry/EcalCommonData/data/ebcon/2021/v1/ebcon.xml',
+            'Geometry/EcalCommonData/data/ebrot.xml',
+            'Geometry/HcalCommonData/data/hcalrotations.xml',
+            'Geometry/HcalCommonData/data/hcal/v2/hcalalgo.xml',
+            'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
+            'Geometry/HcalCommonData/data/hcalcablealgo/v2/hcalcablealgo.xml',
+            'Geometry/HcalCommonData/data/hcalouteralgo.xml',
+            'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
+            'Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/hcalSimNumbering.xml',
+            'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml',
+            'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
+            'Geometry/HGCalCommonData/data/hgcalMaterial/v2/hgcalMaterial.xml',
+            'Geometry/HGCalCommonData/data/hgcal/v16/hgcal.xml',
+            'Geometry/HGCalCommonData/data/hgcalcell/v16/hgcalcell.xml',
+            'Geometry/HGCalCommonData/data/hgcalwafer/v16/hgcalwafer.xml',
+            'Geometry/HGCalCommonData/data/hgcalEE/v16/hgcalEE.xml',
+            'Geometry/HGCalCommonData/data/hgcalHEsil/v16/hgcalHEsil.xml',
+            'Geometry/HGCalCommonData/data/hgcalHEmix/v16/hgcalHEmix.xml',
+            'Geometry/HGCalCommonData/data/hgcalCons/v16/hgcalCons.xml',
+            'Geometry/HGCalCommonData/data/hgcalConsData/v16/hgcalConsData.xml',
+        ],
+        3 : [
+            'Geometry/EcalSimData/data/PhaseII/ecalsens.xml',
+            'Geometry/HcalCommonData/data/hcalsens/NoHE/hcalsenspmf.xml',
+            'Geometry/HcalSimData/data/hf.xml',
+            'Geometry/HcalSimData/data/hfpmt.xml',
+            'Geometry/HcalSimData/data/hffibrebundle.xml',
+            'Geometry/HcalSimData/data/CaloUtil/2026/v2c/CaloUtil.xml',
+            'Geometry/HGCalSimData/data/hgcsensv15.xml',
+        ],
+        4 : [
+            'Geometry/HcalSimData/data/HcalProdCuts/2021/v1/HcalProdCuts.xml',
+            'Geometry/EcalSimData/data/EcalProdCuts.xml',
+            'Geometry/HGCalSimData/data/hgcProdCutsv15.xml',
+        ],
+        "sim" : [
+            'from Geometry.EcalCommonData.ecalSimulationParameters_cff import *',
+            'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
+            'from Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi import *',
+            'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
+        ],
+        "reco" : [
+            'from Geometry.CaloEventSetup.HGCalV9Topology_cfi import *',
+            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
+            'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
+            'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
+            '    SelectedCalos = cms.vstring("HCAL",',
+            '                                "ZDC",',
+            '                                "EcalBarrel",',
+            '                                "TOWER",',
+            '                                "HGCalEESensitive",',
+            '                                "HGCalHESiliconSensitive",',
+            '                                "HGCalHEScintillatorSensitive"',
+            '    )',
+            ')',
+            'from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *',
+            'from Geometry.HcalEventSetup.HcalGeometry_cfi import *',
+            'from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *',
+            'from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *',
+            'from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *',
+            'from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *',
+            'from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *',
+            'from Geometry.EcalMapping.EcalMapping_cfi import *',
+            'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
+        ],
+        "era" : "phase2_ecal, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, phase2_hgcalV10, phase2_hgcalV11, phase2_hgcalV12, phase2_hfnose",
+    },
 
 }
 
 muonDict = {
     "abbrev" : "M",
     "name" : "muon",
-    "default" : 4,
+    "default" : 9,
     "M4" : {
         1 : [
             'Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml',
@@ -1099,12 +1200,59 @@ muonDict = {
         ],
         "era" : "phase2_muon, phase2_GEM, phase2_GE0",
     },
+    "M10" : {
+        1 : [
+            'Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml',
+            'Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml',
+            'Geometry/MuonCommonData/data/mb2/2015/v2/mb2.xml',
+            'Geometry/MuonCommonData/data/mb3/2015/v2/mb3.xml',
+            'Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml',
+            'Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml',
+            'Geometry/MuonCommonData/data/muonYoke/2026/v1/muonYoke.xml',
+            'Geometry/MuonCommonData/data/mf/2026/v8/mf.xml',
+            'Geometry/MuonCommonData/data/csc/2021/v2/csc.xml',
+            'Geometry/MuonCommonData/data/rpcf/2026/v3/rpcf.xml',
+            'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
+            'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',
+            'Geometry/MuonCommonData/data/gem21/TDR_Eta16/gem21.xml',
+            'Geometry/MuonCommonData/data/mfshield/2026/v6/mfshield.xml',
+            'Geometry/MuonCommonData/data/ge0/TDR_Dev/v4/ge0.xml',
+            'Geometry/MuonCommonData/data/ge0shield/2026/v1/ge0shield.xml',
+         ],
+        2 : [
+            'Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v5/muonNumbering.xml',
+        ],
+        3 : [
+            'Geometry/MuonSimData/data/PhaseII/v2/muonSens.xml',
+            'Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
+            'Geometry/RPCGeometryBuilder/data/2026/v1/RPCSpecs.xml',
+            'Geometry/GEMGeometryBuilder/data/v12/GEMSpecsFilter.xml',
+            'Geometry/GEMGeometryBuilder/data/v12/GEMSpecs.xml',
+        ],
+        4 : [
+            'Geometry/MuonSimData/data/muonProdCuts/2026/v2/muonProdCuts.xml',
+        ],
+        "sim" : [
+            'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
+            'from Geometry.MuonNumbering.muonOffsetESProducer_cff import *',
+        ],
+        "reco" : [
+            'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
+            'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *',
+            'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
+            'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
+        ],
+        "era" : "phase2_muon, phase2_GEM, phase2_GE0",
+    },
 }
 
 forwardDict = {
     "abbrev" : "F",
     "name" : "forward",
-    "default" : 2,
+    "default" : 6,
     "F2" : {
         1 : [
             'Geometry/ForwardCommonData/data/forwardshield/2017/v1/forwardshield.xml',
@@ -1237,7 +1385,7 @@ forwardDict = {
 timingDict = {
     "abbrev" : "I",
     "name" : "timing",
-    "default" : 10,
+    "default" : 13,
     "I10" : {
         1 : [
             'Geometry/MTDCommonData/data/btl.xml',
@@ -1322,6 +1470,34 @@ timingDict = {
            ],
        "era" : "phase2_timing, phase2_timing_layer, phase2_etlV4",
     },
+    "I14" : {
+        1 : [
+           'Geometry/MTDCommonData/data/mtdMaterial/v3/mtdMaterial.xml',
+           'Geometry/MTDCommonData/data/btl/v1/btl.xml',
+           'Geometry/MTDCommonData/data/etl/v6/etl.xml',
+           'Geometry/MTDCommonData/data/mtdParameters/v3/mtdStructureTopology.xml',
+           'Geometry/MTDCommonData/data/mtdParameters/v2/mtdParameters.xml',
+           ],
+       3 : [
+           'Geometry/MTDSimData/data/v2/mtdsens.xml'
+           ],
+       4 : [
+           'Geometry/MTDSimData/data/v2/mtdProdCuts.xml'
+           ],
+       "sim" : [
+           'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
+           ],
+       "reco" :[
+           'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+           'from Geometry.MTDGeometryBuilder.mtdParameters_cff import *',
+           'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *',
+           'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+           'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+           'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+           'mtdGeometry.applyAlignment = cms.bool(False)'
+           ],
+       "era" : "phase2_timing, phase2_timing_layer, phase2_etlV4",
+    },
 }
 
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDict ]
@@ -1340,6 +1516,8 @@ detectorVersionDict = {
     ("O7","T21","C15","M9","F7","I13") : "D82",
     ("O7","T24","C16","M9","F6","I13") : "D83",
     ("O6","T24","C13","M7","F6","I11") : "D84",
+    ("O7","T24","C14","M9","F6","I14") : "D85",
+    ("O8","T24","C17","M10","F6","I14") : "D86",
  }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42", "D35", "D41", "D43", "D44", "D45", "D46", "D48", "D47", "D50", "D51", "D52", "D53", "D54", "D55", "D56", "D57", "D58", "D59", "D61", "D62", "D63", "D64", "D65", "D66", "D67", "D69", "D71", "D72", "D73", "D74", "D75"])
