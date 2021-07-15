@@ -51,7 +51,7 @@ public:
 private:
   edm::EDGetTokenT<FEDRawDataCollection> fed_token;
   edm::ESGetToken<GEMeMap, GEMeMapRcd> gemEMapToken_;
-  bool useDBEMap_, keepDAQStatus_;
+  bool useDBEMap_, keepDAQStatus_, readMultiBX_;
   bool unPackStatusDigis_;
   std::unique_ptr<GEMRawToDigi> gemRawToDigi_;
 };
@@ -65,6 +65,7 @@ GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet& pset)
     : fed_token(consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("InputLabel"))),
       useDBEMap_(pset.getParameter<bool>("useDBEMap")),
       keepDAQStatus_(pset.getParameter<bool>("keepDAQStatus")),
+      readMultiBX_(pset.getParameter<bool>("readMultiBX")),
       unPackStatusDigis_(pset.getParameter<bool>("unPackStatusDigis")),
       gemRawToDigi_(std::make_unique<GEMRawToDigi>()) {
   produces<GEMDigiCollection>();
@@ -92,6 +93,7 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<bool>("useDBEMap", false);
   desc.add<bool>("unPackStatusDigis", false);
   desc.add<bool>("keepDAQStatus", false);
+  desc.add<bool>("readMultiBX", false);
   descriptions.add("muonGEMDigisDefault", desc);
 }
 
@@ -134,7 +136,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     const FEDRawData& fedData = fed_buffers->FEDData(fedId);
 
     int nWords = fedData.size() / sizeof(uint64_t);
-    LogDebug("GEMRawToDigiModule") << "fedId:" << fedId << " words: " << nWords;
+    //LogDebug("GEMRawToDigiModule") << "fedId:" << fedId << " words: " << nWords;
     GEMAMC13Status st_amc13 = GEMAMC13Status(fedData);
 
     if (st_amc13.isBad()) {
@@ -213,7 +215,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
           vfatData.setPhi(vfat_dc.localPhi);
           GEMDetId gemId = vfat_dc.detId;
 
-          GEMVFATStatus st_vfat = GEMVFATStatus(amcData, vfatData, vfatData.phi());
+          GEMVFATStatus st_vfat = GEMVFATStatus(amcData, vfatData, vfatData.phi(), readMultiBX_);
           if (st_vfat.isBad()) {
             LogDebug("GEMRawToDigiModule") << st_vfat;
             if (keepDAQStatus_) {

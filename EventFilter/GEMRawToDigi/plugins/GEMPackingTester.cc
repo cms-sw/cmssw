@@ -94,10 +94,12 @@ void GEMPackingTester::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     int nsims = 0;
     for (auto digi = sim.first; digi != sim.second; ++digi) {
+      if (digi->bx()==0)
       nsims++;
     }
     int npacked = 0;
     for (auto digi = packed.first; digi != packed.second; ++digi) {
+      if (digi->bx()==0)
       npacked++;
     }
     if (nsims != npacked) {
