@@ -88,7 +88,7 @@ namespace {
     auto e = fill_buffer(buffer.begin(), buffer.end(), std::forward<T>(t)...);
     assert(e < buffer.end());
     *e = 0;
-    return std::string_view(buffer.begin(), e - buffer.begin() + 1);
+    return std::string_view(buffer.begin(), e - buffer.begin());
   }
 
 }  // namespace
