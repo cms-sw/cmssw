@@ -136,9 +136,8 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     const FEDRawData& fedData = fed_buffers->FEDData(fedId);
 
     int nWords = fedData.size() / sizeof(uint64_t);
-    //LogDebug("GEMRawToDigiModule") << "fedId:" << fedId << " words: " << nWords;
+    LogDebug("GEMRawToDigiModule") << "fedId:" << fedId << " words: " << nWords;
     GEMAMC13Status st_amc13 = GEMAMC13Status(fedData);
-
     if (st_amc13.isBad()) {
       LogDebug("GEMRawToDigiModule") << st_amc13;
       if (keepDAQStatus_) {
