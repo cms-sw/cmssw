@@ -22,11 +22,14 @@ hiPixelAdaptiveVertex = _mod.primaryVertexProducer.clone(
             zSeparation = cms.double(1.0)       ## 1 cm max separation between clusters
         )
     ),
-    vertexCollections = {
-        0: dict(
-        label = '',
-        chi2cutoff = 3.0,
-        maxDistanceToBeam = 0.1
+    vertexCollections = cms.VPSet(
+      cms.PSet(
+        label = cms.string(''),
+        chi2cutoff = cms.double(3.0),
+        algorithm = cms.string('AdaptiveVertexFitter'),
+        useBeamConstraint = cms.bool(False),
+        maxDistanceToBeam = cms.double(0.1),
+        minNdof  = cms.double(0.0)
         )
-    }
+      )
 )
