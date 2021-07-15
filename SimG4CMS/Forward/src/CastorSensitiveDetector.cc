@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// File: CastorSD.cc
+// File: CastorSensitiveDetector.cc
 // Date: 02.04
 // UpDate: 07.04 - C3TF & C4TF semi-trapezoid added
 // Description: Sensitive Detector class for Castor
@@ -9,7 +9,7 @@
 #include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 
-#include "SimG4CMS/Forward/interface/CastorSD.h"
+#include "SimG4CMS/Forward/interface/CastorSensitiveDetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4SDManager.hh"
@@ -26,13 +26,12 @@
 #include "Randomize.hh"
 #include "G4Poisson.hh"
 
-//#define debugLog
+//#define EDM_ML_DEBUG
 
-CastorSD::CastorSD(const std::string& name,
-                   const edm::EventSetup& es,
-                   const SensitiveDetectorCatalog& clg,
-                   edm::ParameterSet const& p,
-                   const SimTrackManager* manager)
+CastorSensitiveDetector::CastorSensitiveDetector(const std::string& name,
+						 const SensitiveDetectorCatalog& clg,
+						 edm::ParameterSet const& p,
+						 const SimTrackManager* manager)
     : CaloSD(name, clg, p, manager),
       numberingScheme(nullptr),
       lvC3EF(nullptr),
@@ -54,7 +53,7 @@ CastorSD::CastorSD(const std::string& name,
   setNumberingScheme(new CastorNumberingScheme());
 
   edm::LogVerbatim("ForwardSim") << "********************************************************\n"
-                                 << "* Constructing a CastorSD  with name " << GetName() << "\n"
+                                 << "* Constructing a CastorSensitiveDetector  with name " << GetName() << "\n"
                                  << "* Using Castor Shower Library: " << useShowerLibrary << "\n"
                                  << "********************************************************";
 
@@ -79,18 +78,18 @@ CastorSD::CastorSD(const std::string& name,
       break;
     }
   }
-  LogDebug("ForwardSim") << "CastorSD:: LogicalVolume pointers\n"
+  edm::LogVerbatim("ForwardSim") << "CastorSensitiveDetector:: LogicalVolume pointers\n"
                          << lvC3EF << " for C3EF; " << lvC3HF << " for C3HF; " << lvC4EF << " for C4EF; " << lvC4HF
                          << " for C4HF; " << lvCAST << " for CAST. ";
 }
 
 //=============================================================================================
 
-CastorSD::~CastorSD() { delete showerLibrary; }
+CastorSensitiveDetector::~CastorSensitiveDetector() { delete showerLibrary; }
 
 //=============================================================================================
 
-double CastorSD::getEnergyDeposit(const G4Step* aStep) {
+double CastorSensitiveDetector::getEnergyDeposit(const G4Step* aStep) {
   double NCherPhot = 0.;
 
   // Get theTrack
@@ -101,8 +100,8 @@ double CastorSD::getEnergyDeposit(const G4Step* aStep) {
   auto const currentPV = preStepPoint->GetPhysicalVolume();
   auto const currentLV = currentPV->GetLogicalVolume();
 
-#ifdef debugLog
-  edm::LogVerbatim("ForwardSim") << "CastorSD::getEnergyDeposit:"
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("ForwardSim") << "CastorSensitiveDetector::getEnergyDeposit:"
                                  << "\n CurrentStepNumber , TrackID , ParentID, Particle , VertexPosition ,"
                                  << " LogicalVolumeAtVertex , PV, Time"
                                  << "\n  TRACKINFO: " << theTrack->GetCurrentStepNumber() << " , "
@@ -162,8 +161,8 @@ double CastorSD::getEnergyDeposit(const G4Step* aStep) {
         for tests with my own test geometry of HF (on ask of Gavrilov)
         C3TF, C4TF - for third release of CASTOR
   */
-#ifdef debugLog
-  edm::LogVerbatim("ForwardSim") << "CastorSD::getEnergyDeposit: for ID=" << theTrack->GetTrackID()
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("ForwardSim") << "CastorSensitiveDetector::getEnergyDeposit: for ID=" << theTrack->GetTrackID()
                                  << " LV: " << currentLV->GetName() << " isHad:" << isHad << " pdg=" << parCode
                                  << " castorPID=" << trkInfo.getCastorHitPID() << " sl= " << stepl
                                  << " Edep= " << aStep->GetTotalEnergyDeposit();
@@ -220,7 +219,7 @@ double CastorSD::getEnergyDeposit(const G4Step* aStep) {
 
     // define losses d_qz in cone of full reflection inside quartz direction
     double d_qz;
-#ifdef debugLog
+#ifdef EDM_ML_DEBUG
     int variant(0);
 #endif
     if (DelFibPart > (thFullReflRad + thcher)) {
@@ -228,17 +227,17 @@ double CastorSD::getEnergyDeposit(const G4Step* aStep) {
     } else {
       if ((th + thcher) < (thFibDirRad + thFullReflRad) && (th - thcher) > (thFibDirRad - thFullReflRad)) {
         d_qz = 1.;
-#ifdef debugLog
+#ifdef EDM_ML_DEBUG
         variant = 1;
 #endif
       } else {
         if ((thFibDirRad + thFullReflRad) < (th + thcher) && (thFibDirRad - thFullReflRad) > (th - thcher)) {
           d_qz = 0.;
-#ifdef debugLog
+#ifdef EDM_ML_DEBUG
           variant = 2;
 #endif
         } else {
-#ifdef debugLog
+#ifdef EDM_ML_DEBUG
           variant = 3;
 #endif
           // use crossed length of circles(cone projection)
@@ -266,7 +265,7 @@ double CastorSD::getEnergyDeposit(const G4Step* aStep) {
     const double ReflPower = 0.1;
     double proba = d_qz + (1 - d_qz) * ReflPower;
     NCherPhot = poissNCherPhot * effPMTandTransport * proba * 0.307;
-#ifdef debugLog
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ForwardSim") << " Nph= " << NCherPhot << " Np= " << poissNCherPhot
                                    << " eff= " << effPMTandTransport << " pb= " << proba << " Nmean= " << meanNCherPhot
                                    << " q=" << charge << " beta=" << beta << " nMedium= " << nMedium << " sl= " << stepl
@@ -278,15 +277,15 @@ double CastorSD::getEnergyDeposit(const G4Step* aStep) {
 
 //=======================================================================================
 
-uint32_t CastorSD::setDetUnitId(const G4Step* aStep) {
+uint32_t CastorSensitiveDetector::setDetUnitId(const G4Step* aStep) {
   return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
 
 //=======================================================================================
 
-void CastorSD::setNumberingScheme(CastorNumberingScheme* scheme) {
+void CastorSensitiveDetector::setNumberingScheme(CastorNumberingScheme* scheme) {
   if (scheme != nullptr) {
-    edm::LogVerbatim("ForwardSim") << "CastorSD: updates numbering scheme for " << GetName();
+    edm::LogVerbatim("ForwardSim") << "CastorSensitiveDetector: updates numbering scheme for " << GetName();
     delete numberingScheme;
     numberingScheme = scheme;
   }
@@ -294,7 +293,7 @@ void CastorSD::setNumberingScheme(CastorNumberingScheme* scheme) {
 
 //=======================================================================================
 
-uint32_t CastorSD::rotateUnitID(uint32_t unitID, const G4Track* track, const CastorShowerEvent& shower) {
+uint32_t CastorSensitiveDetector::rotateUnitID(uint32_t unitID, const G4Track* track, const CastorShowerEvent& shower) {
   // ==============================================================
   //
   //   o   Exploit Castor phi symmetry to return newUnitID for
@@ -344,9 +343,9 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, const G4Track* track, const Cas
   sec = sec << 4;
   newUnitID = complement | sec;
 
-#ifdef debugLog
+#ifdef EDM_ML_DEBUG
   if (newUnitID != unitID) {
-    LogDebug("ForwardSim") << "\n CastorSD::rotateUnitID:  "
+    edm::LogVerbatim("ForwardSim") << "\n CastorSensitiveDetector::rotateUnitID:  "
                            << "\n     unitID = " << unitID << "\n  newUnitID = " << newUnitID;
   }
 #endif
@@ -356,7 +355,7 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, const G4Track* track, const Cas
 
 //=======================================================================================
 
-bool CastorSD::getFromLibrary(const G4Step* aStep) {
+bool CastorSensitiveDetector::getFromLibrary(const G4Step* aStep) {
   /////////////////////////////////////////////////////////////////////
   //
   //   Method to get hits from the Shower Library
@@ -385,8 +384,8 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
   auto const currentPV = preStepPoint->GetPhysicalVolume();
   auto const currentLV = currentPV->GetLogicalVolume();
 
-#ifdef debugLog
-  edm::LogVerbatim("ForwardSim") << "CastorSD::getFromLibrary: for ID=" << theTrack->GetTrackID()
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("ForwardSim") << "CastorSensitiveDetector::getFromLibrary: for ID=" << theTrack->GetTrackID()
                                  << " parentID= " << theTrack->GetParentID() << " "
                                  << theTrack->GetDefinition()->GetParticleName() << " LV: " << currentLV->GetName()
                                  << " PV: " << currentPV->GetName() << "\n eta= " << theTrack->GetPosition().eta()
@@ -427,8 +426,8 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
   bool particleWithinShowerLibrary =
       aboveThreshold && (isEM || isHad) && (!backward) && inRange && !dot && angleok && currentLV == lvCAST;
 
-#ifdef debugLog
-  edm::LogVerbatim("ForwardSim") << "CastorSD::getFromLibrary: ID= " << theTrack->GetTrackID() << " E>E0 "
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("ForwardSim") << "CastorSensitiveDetector::getFromLibrary: ID= " << theTrack->GetTrackID() << " E>E0 "
                                  << aboveThreshold << " isEM " << isEM << " isHad " << isHad << " backword " << backward
                                  << " Ok " << (inRange && !dot) << " angle " << angleok
                                  << " LV: " << currentLV->GetName() << "  " << (currentLV == lvCAST) << " "
@@ -451,8 +450,8 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
   // Reset entry point for new primary
   resetForNewPrimary(aStep);
 
-#ifdef debugLog
-  edm::LogVerbatim("ForwardSim") << "CastorSD::getFromLibrary:  " << hits.getNhit() << " hits for " << GetName()
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("ForwardSim") << "CastorSensitiveDetector::getFromLibrary:  " << hits.getNhit() << " hits for " << GetName()
                                  << " from " << theTrack->GetDefinition()->GetParticleName() << " of "
                                  << preStepPoint->GetKineticEnergy() / GeV << " GeV and trackID "
                                  << theTrack->GetTrackID() << " isHad: " << isHad;

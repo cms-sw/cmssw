@@ -1,11 +1,11 @@
-#ifndef Forward_TotemSD_h
-#define Forward_TotemSD_h
+#ifndef Forward_TotemSensitiveDetector_h
+#define Forward_TotemSensitiveDetector_h
 // -*- C++ -*-
 //
 // Package:     Forward
-// Class  :     TotemSD
+// Class  :     TotemSensitiveDetector
 //
-/**\class TotemSD TotemSD.h SimG4CMS/Forward/interface/TotemSD.h
+/**\class TotemSensitiveDetector TotemSensitiveDetector.h SimG4CMS/Forward/interface/TotemSensitiveDetector.h
  
  Description: Stores hits of Totem in appropriate  container
  
@@ -43,14 +43,13 @@
 class TrackingSlaveSD;
 class SimTrackManager;
 
-class TotemSD : public SensitiveTkDetector, public Observer<const BeginOfEvent*> {
+class TotemSensitiveDetector : public SensitiveTkDetector, public Observer<const BeginOfEvent*> {
 public:
-  TotemSD(const std::string&,
-          const edm::EventSetup&,
-          const SensitiveDetectorCatalog&,
-          edm::ParameterSet const&,
-          const SimTrackManager*);
-  ~TotemSD() override;
+  TotemSensitiveDetector(const std::string&,
+			 const SensitiveDetectorCatalog&,
+			 edm::ParameterSet const&,
+			 const SimTrackManager*);
+  ~TotemSensitiveDetector() override;
 
   bool ProcessHits(G4Step*, G4TouchableHistory*) override;
   uint32_t setDetUnitId(const G4Step*) override;
