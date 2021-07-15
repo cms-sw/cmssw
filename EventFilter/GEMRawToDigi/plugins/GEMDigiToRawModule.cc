@@ -173,9 +173,9 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
                 msData |= 1UL << (chMap.chNum - 64);
 
               LogDebug("GEMDigiToRawModule")
-                  << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId)
-                  << " vfat:" << vfat_dc.localPhi << ",type: " << vfat_dc.vfatType << " id:" << gemId
-                  << " ch:" << chMap.chNum << " st:" << digi.strip() << " bx:" << digi.bx();
+                  << "fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId) << " vfat id:" << int(vfatId)
+                  << ",type:" << vfat_dc.vfatType << " id:" << gemId << " ch:" << chMap.chNum << " st:" << digi.strip()
+                  << " bx:" << digi.bx();
             }
 
             if (!hasDigi)

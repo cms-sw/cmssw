@@ -1,7 +1,9 @@
 #ifndef DataFormats_GEMDigi_GEMVFATStatus_h
 #define DataFormats_GEMDigi_GEMVFATStatus_h
-#include "GEBdata.h"
+#include "AMCdata.h"
+#include "VFATdata.h"
 #include <bitset>
+#include <ostream>
 
 class GEMVFATStatus {
 public:
