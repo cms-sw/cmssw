@@ -598,7 +598,7 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep, const G4Track* theTrack) {
   storeHit(aHit);
   TrackInformation* trkInfo = cmsTrackInformation(theTrack);
 
-  bool currentlyInsideFineVolume = isItFineCalo(aStep->GetPostStepPoint()->GetTouchable());
+  bool currentlyInsideFineVolume = !doFineCalo_ ? false : isItFineCalo(aStep->GetPostStepPoint()->GetTouchable());
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DoFineCalo") << "Creating new hit " << aHit->getUnitID() << " using "
@@ -617,7 +617,7 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep, const G4Track* theTrack) {
 
   // If fine calo is activated for the current volume, perform track/hit
   // saving logic for fineCalo
-  if (doFineCalo_ && currentlyInsideFineVolume) {
+  if (currentlyInsideFineVolume) {
     hitBookkeepingFineCalo(aStep, theTrack, aHit);
   }
   // 'Traditional', non-fine history bookkeeping
