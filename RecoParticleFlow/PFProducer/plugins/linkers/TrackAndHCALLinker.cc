@@ -117,8 +117,8 @@ double TrackAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const rec
           edm::LogWarning("TrackHCALLinker ")
               << "Special case of linking with track hitting HCAL and looping back in the tracker ";
         } else {
-          dist =
-	    LinkByRecHit::computeDist(hcalreppos.Eta(), hcalreppos.Phi(), tkreppos.Eta() + 0.1 * dHEta, tkreppos.Phi() + 0.1 * dHPhi);
+          dist = LinkByRecHit::computeDist(
+              hcalreppos.Eta(), hcalreppos.Phi(), tkreppos.Eta() + 0.1 * dHEta, tkreppos.Phi() + 0.1 * dHPhi);
         }
       }  // checkExit_
     }    // multilinks
