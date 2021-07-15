@@ -2,17 +2,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "CondFormats/EcalObjects/interface/EcalCATIAGainRatios.h"
-#include "CondFormats/DataRecord/interface/EcalCATIAGainRatiosRcd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-#include <TGraph.h>
-#include <TF1.h>
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 class EcalUncalibRecHitPhase2WeightsProducer: public edm::stream::EDProducer<>{
 
@@ -24,9 +19,9 @@ public:
 private:
   
   float tRise_;
-  float tFall_;  
-  double gainRatios[2]={10,1};  
-  float gratio;
+  float tFall_;
+  std::vector<double> weights_;
+
 
   edm::EDGetTokenT<EBDigiCollectionPh2> ebDigiCollectionToken_;
   std::string hitCollection_;
@@ -42,6 +37,8 @@ EcalUncalibRecHitPhase2WeightsProducer::EcalUncalibRecHitPhase2WeightsProducer(c
   tFall_ = ps.getParameter<double>("tFall");
   
   ebDigiCollectionToken_ = consumes<EBDigiCollectionPh2>(ps.getParameter<edm::InputTag>("BarrelDigis"));
+
+  weights_ = ps.getParameter< std::vector<double> >("weights");
 }
 
 void EcalUncalibRecHitPhase2WeightsProducer::produce(edm::Event& evt, const edm::EventSetup& es){
@@ -64,22 +61,25 @@ void EcalUncalibRecHitPhase2WeightsProducer::produce(edm::Event& evt, const edm:
     DetId detId(digi.id());
     
     bool g1 = false; 
+
     std::vector<float> timetrace;
     std::vector<float> adctrace;
 
-    // weights calculated averaging the full EB
-    std::vector<double> weights = {-0.121016, -0.119899, -0.120923, -0.0848959, 0.261041, 0.509881, 0.373591, 0.134899, -0.0233605, -0.0913195, -0.112452, -0.118596, -0.120178, -0.12204, -0.121947, -0.122785};
     int nSamples = digi.size();
+
+    timetrace.reserve(nSamples);
+    adctrace.reserve(nSamples);
     
     float amp = 0;
+    float gratio;
     
     for (int sample = 0; sample < nSamples; ++sample){
       
       EcalLiteDTUSample thisSample = dataFrame[sample];
-      gratio = gainRatios[thisSample.gainId()];
+      gratio = ecalPh2::gains[thisSample.gainId()];
       adctrace.push_back(thisSample.adc()*gratio);
 
-      amp = amp + adctrace[sample]*weights[sample];
+      amp = amp + adctrace[sample]*weights_[sample];
       
       if (thisSample.gainId()==1) g1=true;
       
@@ -88,15 +88,11 @@ void EcalUncalibRecHitPhase2WeightsProducer::produce(edm::Event& evt, const edm:
     }// loop on samples
      
     float amp_e= 1;
-    float t0   = 0;
     float t0_e = 0;
-    float ped  = 0;
-    float chi2 = 0;
-    uint32_t flags =0;
-    
-    EcalUncalibratedRecHit rhit(detId, amp, ped, t0, chi2, flags);
+  
+    EcalUncalibratedRecHit rhit(detId, amp, 0., 0., 0., 0); // rhit(detIt, amp, pedestal, t0, chi2, flags)
     rhit.setAmplitudeError(amp_e);
-    rhit.setJitterError(t0_e);  
+    rhit.setJitterError(t0_e);
     if (g1) rhit.setFlagBit(EcalUncalibratedRecHit::kHasSwitchToGain1); 
     
     ebUncalibRechits->push_back(rhit);
