@@ -104,8 +104,8 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   bool geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
   bool cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
   bool protonCut = m_pPhysics.getParameter<bool>("CutsOnProton");
-  int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0),
-                      m_p.getUntrackedParameter<int>("SteppingVerbosity", 0));
+  int verb = m_pPhysics.getUntrackedParameter<int>("Verbosity", 0);
+  int stepverb = m_p.getUntrackedParameter<int>("SteppingVerbosity", 0);
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep << "\n"
       << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
@@ -116,11 +116,6 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
 
   m_world = std::make_unique<DDDWorld>(pDD, pDD4hep, m_catalog, verb, cuts, protonCut);
   G4VPhysicalVolume* world = m_world.get()->GetWorldVolume();
-
-  timer.Stop();
-  G4cout.precision(4);
-  G4cout << "RunManagerMT: geometry is initialized: " << timer << G4endl;
-  timer.Start();
 
   m_kernel->SetVerboseLevel(verb);
   edm::LogVerbatim("SimG4CoreApplication")
@@ -155,8 +150,10 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (phys == nullptr) {
     throw edm::Exception(edm::errors::Configuration, "Physics list construction failed!");
   }
+  if(stepverb > 0) { verb = std::max(verb, 1); }
+  G4HadronicParameters::Instance()->SetVerboseLevel(verb);
   G4EmParameters::Instance()->SetVerbose(verb);
-  G4EmParameters::Instance()->SetWorkerVerbose(verb - 1);
+  G4EmParameters::Instance()->SetWorkerVerbose(std::max(verb - 1, 0));
 
   // exotic particle physics
   double monopoleMass = m_pPhysics.getUntrackedParameter<double>("MonopoleMass", 0);
@@ -216,6 +213,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (verb > 1) {
     m_physicsList->DumpCutValuesTable();
   }
+  G4HadronicParameters::Instance()->SetVerboseLevel(verb - 1);
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: Physics is initilized, now initialise user actions";
 
   initializeUserActions();
