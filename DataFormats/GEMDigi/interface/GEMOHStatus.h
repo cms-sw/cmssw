@@ -3,7 +3,7 @@
 #include "GEBdata.h"
 #include <bitset>
 
-// GEM OptoHyrid status
+// GEM OptoHybrid status
 class GEMOHStatus {
 public:
   union Errors {

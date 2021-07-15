@@ -23,11 +23,12 @@ public:
   };
 
   GEMVFATStatus() {}
-  GEMVFATStatus(const gem::AMCdata& amc, const gem::VFATdata& vfat, uint16_t position) {
+  GEMVFATStatus(const gem::AMCdata& amc, const gem::VFATdata& vfat, uint16_t position, bool readMultiBX) {
     Errors error{0};
     error.vc = vfat.vc();
     error.EC = vfat.ec() != amc.lv1Idt();
-    error.BC = vfat.bc() != amc.bunchCrossing();
+    if (!readMultiBX)
+      error.BC = vfat.bc() != amc.bunchCrossing();
 
     Warnings warn{0};
     if (vfat.header() == 0x1E)
