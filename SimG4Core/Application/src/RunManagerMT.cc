@@ -150,7 +150,9 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (phys == nullptr) {
     throw edm::Exception(edm::errors::Configuration, "Physics list construction failed!");
   }
-  if(stepverb > 0) { verb = std::max(verb, 1); }
+  if (stepverb > 0) {
+    verb = std::max(verb, 1);
+  }
   G4HadronicParameters::Instance()->SetVerboseLevel(verb);
   G4EmParameters::Instance()->SetVerbose(verb);
   G4EmParameters::Instance()->SetWorkerVerbose(std::max(verb - 1, 0));
