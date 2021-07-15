@@ -18,7 +18,7 @@ PARENTPID=""
 BASEPORT=8000
 AUTOPORT=""
 NPORTS=3
-IMAGE=fastml/triton-torchgeo:20.09-py3-geometric
+IMAGE=fastml/triton-torchgeo:21.06-py3-geometric
 SANDBOX=""
 
 get_sandbox(){
