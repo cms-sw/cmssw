@@ -81,7 +81,10 @@ void CustomPhysicsList::ConstructProcess() {
           ph->RegisterProcess(new G4hMultipleScattering, particle);
           ph->RegisterProcess(new G4hIonisation, particle);
         }
-        if (cp->GetCloud() && fHadronicInteraction && CustomPDGParser::s_isRHadron(particle->GetPDGEncoding())) {
+        if (cp->GetCloud() && fHadronicInteraction &&
+            (CustomPDGParser::s_isgluinoHadron(particle->GetPDGEncoding()) ||
+             (CustomPDGParser::s_isstopHadron(particle->GetPDGEncoding())) ||
+             (CustomPDGParser::s_issbottomHadron(particle->GetPDGEncoding())))) {
           edm::LogVerbatim("SimG4CoreCustomPhysics")
               << "CustomPhysicsList: " << particle->GetParticleName()
               << " CloudMass= " << cp->GetCloud()->GetPDGMass() / GeV
