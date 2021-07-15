@@ -33,6 +33,10 @@ public:
   const std::vector<uint32_t>& getAllDetIds() const;
   const std::pair<int, int>& getDetUnitDimensions(uint32_t detId) const;
 
+  constexpr static char const* const kPh0DefaultFile = "CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt";
+  constexpr static char const* const kPh1DefaultFile =
+      "SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt";
+
 private:
   std::ifstream inputFile_;
   //  std::string filePath_;
