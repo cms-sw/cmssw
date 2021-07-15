@@ -101,10 +101,10 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
 
     if (verbose_) {
       inference::ServerMetadataResponse serverMetaResponse;
-      triton_utils::throwIfError(
-        client->ServerMetadata(&serverMetaResponse),
-        "TritonService(): unable to get metadata for " + serverName + " (" + server.url + ")");
-      edm::LogInfo("TritonService") << "Server " << serverName << ": url = " << server.url << ", version = " << serverMetaResponse.version();
+      triton_utils::throwIfError(client->ServerMetadata(&serverMetaResponse),
+                                 "TritonService(): unable to get metadata for " + serverName + " (" + server.url + ")");
+      edm::LogInfo("TritonService") << "Server " << serverName << ": url = " << server.url
+                                    << ", version = " << serverMetaResponse.version();
     }
 
     inference::RepositoryIndexResponse repoIndexResponse;
@@ -175,8 +175,7 @@ void TritonService::preModuleDestruction(edm::ModuleDescription const& desc) {
 }
 
 //second return value is only true if fallback CPU server is being used
-TritonService::Server TritonService::serverInfo(const std::string& model,
-                                                const std::string& preferred) const {
+TritonService::Server TritonService::serverInfo(const std::string& model, const std::string& preferred) const {
   auto mit = models_.find(model);
   if (mit == models_.end())
     throw cms::Exception("MissingModel") << "There are no servers that provide model " << model;
@@ -294,10 +293,10 @@ void TritonService::fillDescriptions(edm::ConfigurationDescriptions& description
   validator.addUntracked<std::string>("name");
   validator.addUntracked<std::string>("address");
   validator.addUntracked<unsigned>("port");
-  validator.addUntracked<bool>("useSsl",false);
-  validator.addUntracked<std::string>("rootCertificates","");
-  validator.addUntracked<std::string>("privateKey","");
-  validator.addUntracked<std::string>("certificateChain","");
+  validator.addUntracked<bool>("useSsl", false);
+  validator.addUntracked<std::string>("rootCertificates", "");
+  validator.addUntracked<std::string>("privateKey", "");
+  validator.addUntracked<std::string>("certificateChain", "");
 
   desc.addVPSetUntracked("servers", validator, {});
 

@@ -20,17 +20,18 @@
 namespace tc = triton::client;
 
 namespace {
-  grpc_compression_algorithm getCompressionAlgo(const std::string& name){
-    if(name.empty() or name.compare("none")==0)
+  grpc_compression_algorithm getCompressionAlgo(const std::string& name) {
+    if (name.empty() or name.compare("none") == 0)
       return grpc_compression_algorithm::GRPC_COMPRESS_NONE;
-    else if(name.compare("deflate")==0)
+    else if (name.compare("deflate") == 0)
       return grpc_compression_algorithm::GRPC_COMPRESS_DEFLATE;
-    else if(name.compare("gzip")==0)
+    else if (name.compare("gzip") == 0)
       return grpc_compression_algorithm::GRPC_COMPRESS_GZIP;
     else
-      throw cms::Exception("GrpcCompression") << "Unknown compression algorithm requested: " << name << " (choices: none, deflate, gzip)";
+      throw cms::Exception("GrpcCompression")
+          << "Unknown compression algorithm requested: " << name << " (choices: none, deflate, gzip)";
   }
-}
+}  // namespace
 
 //based on https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/examples/simple_grpc_async_infer_client.cc
 //and https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/perf_client/perf_client.cc
@@ -43,7 +44,8 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
       options_(params.getParameter<std::string>("modelName")) {
   //get appropriate server for this model
   edm::Service<TritonService> ts;
-  const auto& server = ts->serverInfo(options_.model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
+  const auto& server =
+      ts->serverInfo(options_.model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
   serverType_ = server.type;
   if (verbose_)
     edm::LogInfo(fullDebugName_) << "Using server: " << server.url;
@@ -53,8 +55,9 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
     setMode(SonicMode::Sync);
 
   //connect to the server
-  triton_utils::throwIfError(tc::InferenceServerGrpcClient::Create(&client_, server.url, false, server.useSsl, server.sslOptions),
-                             "TritonClient(): unable to create inference context");
+  triton_utils::throwIfError(
+      tc::InferenceServerGrpcClient::Create(&client_, server.url, false, server.useSsl, server.sslOptions),
+      "TritonClient(): unable to create inference context");
 
   //set options
   options_.model_version_ = params.getParameter<std::string>("modelVersion");
@@ -263,41 +266,41 @@ void TritonClient::evaluate() {
   if (mode_ == SonicMode::Async) {
     //non-blocking call
     success = handle_exception([&]() {
-      triton_utils::throwIfError(
-          client_->AsyncInfer(
-              [start_status, this](tc::InferResult* results) {
-                //get results
-                std::shared_ptr<tc::InferResult> results_ptr(results);
-                auto success = handle_exception([&]() {
-                  triton_utils::throwIfError(results_ptr->RequestStatus(), "evaluate(): unable to get result");
-                });
-                if (!success)
-                  return;
+      triton_utils::throwIfError(client_->AsyncInfer(
+                                     [start_status, this](tc::InferResult* results) {
+                                       //get results
+                                       std::shared_ptr<tc::InferResult> results_ptr(results);
+                                       auto success = handle_exception([&]() {
+                                         triton_utils::throwIfError(results_ptr->RequestStatus(),
+                                                                    "evaluate(): unable to get result");
+                                       });
+                                       if (!success)
+                                         return;
 
-                if (verbose()) {
-                  inference::ModelStatistics end_status;
-                  success = handle_exception([&]() { end_status = getServerSideStatus(); });
-                  if (!success)
-                    return;
+                                       if (verbose()) {
+                                         inference::ModelStatistics end_status;
+                                         success = handle_exception([&]() { end_status = getServerSideStatus(); });
+                                         if (!success)
+                                           return;
 
-                  const auto& stats = summarizeServerStats(start_status, end_status);
-                  reportServerSideStats(stats);
-                }
+                                         const auto& stats = summarizeServerStats(start_status, end_status);
+                                         reportServerSideStats(stats);
+                                       }
 
-                //check result
-                success = handle_exception([&]() { getResults(results_ptr); });
-                if (!success)
-                  return;
+                                       //check result
+                                       success = handle_exception([&]() { getResults(results_ptr); });
+                                       if (!success)
+                                         return;
 
-                //finish
-                finish(true);
-              },
-              options_,
-              inputsTriton_,
-              outputsTriton_,
-              headers_,
-              compressionAlgo_),
-          "evaluate(): unable to launch async run");
+                                       //finish
+                                       finish(true);
+                                     },
+                                     options_,
+                                     inputsTriton_,
+                                     outputsTriton_,
+                                     headers_,
+                                     compressionAlgo_),
+                                 "evaluate(): unable to launch async run");
     });
     if (!success)
       return;
@@ -305,8 +308,9 @@ void TritonClient::evaluate() {
     //blocking call
     tc::InferResult* results;
     success = handle_exception([&]() {
-      triton_utils::throwIfError(client_->Infer(&results, options_, inputsTriton_, outputsTriton_, headers_, compressionAlgo_),
-                                 "evaluate(): unable to run and/or get result");
+      triton_utils::throwIfError(
+          client_->Infer(&results, options_, inputsTriton_, outputsTriton_, headers_, compressionAlgo_),
+          "evaluate(): unable to run and/or get result");
     });
     if (!success)
       return;

@@ -40,9 +40,7 @@ void SonicClientBase::start(edm::WaitingTaskWithArenaHolder holder) {
   holder_ = std::move(holder);
 }
 
-void SonicClientBase::start() {
-  tries_ = 0;
-}
+void SonicClientBase::start() { tries_ = 0; }
 
 void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
   //retries are only allowed if no exception was raised
