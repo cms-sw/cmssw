@@ -16,7 +16,7 @@ public:
   //typedef to simplify usage
   typedef typename Client::Output Output;
   //constructor
-  SonicEDProducer(edm::ParameterSet const& cfg, const std::string& debugName, bool verbose=true)
+  SonicEDProducer(edm::ParameterSet const& cfg, const std::string& debugName, bool verbose = true)
       : SonicAcquirer<Client, edm::stream::EDProducer<edm::ExternalWork, Capabilities...>>(cfg, debugName, verbose) {}
   //destructor
   ~SonicEDProducer() override = default;
@@ -24,11 +24,13 @@ public:
   //derived classes use a dedicated produce() interface that incorporates client_->output()
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) final {
     //measure time between acquire and produce
-    if(this->verbose_) sonic_utils::printDebugTime(this->debugName_, "dispatch() time: ", this->t_dispatch_);
+    if (this->verbose_)
+      sonic_utils::printDebugTime(this->debugName_, "dispatch() time: ", this->t_dispatch_);
 
     auto t0 = std::chrono::high_resolution_clock::now();
     produce(iEvent, iSetup, this->client_->output());
-    if(this->verbose_) sonic_utils::printDebugTime(this->debugName_, "produce() time: ", t0);
+    if (this->verbose_)
+      sonic_utils::printDebugTime(this->debugName_, "produce() time: ", t0);
 
     //reset client data
     this->client_->reset();

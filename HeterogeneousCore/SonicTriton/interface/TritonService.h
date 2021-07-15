@@ -49,8 +49,8 @@ public:
     int wait;
     std::string instanceName;
     std::string tempDir;
-	std::string imageName;
-	std::string sandboxName;
+    std::string imageName;
+    std::string sandboxName;
   };
   struct Server {
     Server(const edm::ParameterSet& pset)
@@ -65,7 +65,8 @@ public:
         sslOptions.certificate_chain = pset.getUntrackedParameter<std::string>("certificateChain");
       }
     }
-    Server(const std::string& name_, const std::string& url_, TritonServerType type_) : url(url_), isFallback(name_ == fallbackName), type(type_), useSsl(false) {}
+    Server(const std::string& name_, const std::string& url_, TritonServerType type_)
+        : url(url_), isFallback(name_ == fallbackName), type(type_), useSsl(false) {}
 
     //members
     std::string url;
