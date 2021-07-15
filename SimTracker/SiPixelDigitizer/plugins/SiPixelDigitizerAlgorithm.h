@@ -78,7 +78,7 @@ public:
                 const TrackerTopology* tTopo,
                 CLHEP::HepRandomEngine*);
   void calculateInstlumiFactor(PileupMixingContent* puInfo);
-  void init_DynIneffDB(const edm::EventSetup&, const unsigned int&);
+  void init_DynIneffDB(const edm::EventSetup&);
   std::unique_ptr<PixelFEDChannelCollection> chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine*);
 
   // for premixing
@@ -162,7 +162,6 @@ private:
 
   // Get Dynamic Inefficiency scale factors from DB
   edm::ESGetToken<SiPixelDynamicInefficiency, SiPixelDynamicInefficiencyRcd> SiPixelDynamicInefficiencyToken_;
-  edm::ESGetToken<SiPixelDynamicInefficiency, SiPixelDynamicInefficiencyRcd> SiPixelDynamicInefficiencyToken50ns_;
   const SiPixelDynamicInefficiency* SiPixelDynamicInefficiency_ = nullptr;
 
   // For BadFEDChannel simulation
