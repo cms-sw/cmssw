@@ -162,7 +162,6 @@ process.output = cms.OutputModule(
 )
 
 process.muonGEMDigis.InputLabel = options.unpackerLabel
-process.muonGEMDigis.useB904Data = options.useB904Data
 process.simMuonGEMPadDigis.InputCollection = 'muonGEMDigis'
 
 ## schedule and path definition
