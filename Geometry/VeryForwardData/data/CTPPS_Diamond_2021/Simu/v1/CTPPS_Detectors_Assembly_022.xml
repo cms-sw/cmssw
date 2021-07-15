@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+    <PosPartSection label="RP_Detectors_Assembly_022_Diamond.xml">
+        <PosPart copyNumber="1">
+            <rParent name="RP_Box_022:RP_box_secondary_vacuum"/>
+            <rChild name="CTPPS_Diamond_Detector_Assembly:CTPPS_Diamond_Main_Short"/>
+            <rRotation name="RP_Transformations:RP_90_z_rot"/>
+            <Translation x="0*mm" y="-[RP_Box:RP_Box_primary_vacuum_y]/2+[RP_Box:RP_Box_Foil_Thickness]+[RP_Box:RP_Box_Height]/2" z="0*mm"/>
+        </PosPart>
+    </PosPartSection>
+</DDDefinition>
