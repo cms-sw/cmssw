@@ -16,10 +16,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -49,8 +45,7 @@
 
 /// Constructor
 MuonMillepedeTrackRefitter::MuonMillepedeTrackRefitter(const edm::ParameterSet& pset) {
-  SACollectionTag = pset.getParameter<edm::InputTag>("SATrackCollectionTag");
-
+  tracksSAToken_ = consumes<reco::TrackCollection>(pset.getParameter<edm::InputTag>("SATrackCollectionTag"));
   //Products
   produces<std::vector<Trajectory>>();
   produces<TrajTrackAssociationCollection>();
@@ -63,13 +58,11 @@ void MuonMillepedeTrackRefitter::produce(edm::Event& event, const edm::EventSetu
   //Get collections from the event
 
   edm::Handle<reco::TrackCollection> tracksSA;
-  event.getByLabel(SACollectionTag, tracksSA);
+  event.getByToken(tracksSAToken_, tracksSA);
 
-  edm::ESHandle<MagneticField> theMGField;
-  eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
+  theMGField = eventSetup.getHandle(theMGFieldToken_);
 
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+  theTrackingGeometry = eventSetup.getHandle(theTrackingGeometryToken_);
 
   edm::RefProd<std::vector<Trajectory>> trajectoryCollectionRefProd = event.getRefBeforePut<std::vector<Trajectory>>();
 

@@ -47,13 +47,12 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config, ed
       saveDeformationsToDB_{config.getParameter<bool>("saveDeformationsToDB")},
       useSurvey_{config.getParameter<bool>("useSurvey")},
       enableAlignableUpdates_{config.getParameter<bool>("enableAlignableUpdates")},
-      idealGeometryLabel("idealForAlignmentProducerBase"),
       ttopoToken_(iC.esConsumes<edm::Transition::BeginRun>()),
       geomDetToken_(iC.esConsumes<edm::Transition::BeginRun>()),
       ptpToken_(iC.esConsumes<edm::Transition::BeginRun>()),
-      //dtGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
-      //cscGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
-      //gemGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
+      dtGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
+      cscGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
+      gemGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
       tkAliToken_(iC.esConsumes<edm::Transition::BeginRun>()),
       dtAliToken_(iC.esConsumes<edm::Transition::BeginRun>()),
       cscAliToken_(iC.esConsumes<edm::Transition::BeginRun>()),
@@ -436,12 +435,9 @@ void AlignmentProducerBase::createGeometries(const edm::EventSetup& iSetup, cons
   }
 
   if (doMuon_) {
-    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, muonDTGeometry_);
-    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, muonCSCGeometry_);
-    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, muonGEMGeometry_);
-    //muonDTGeometry_ = iSetup.getHandle(dtGeomToken_);
-    //muonCSCGeometry_ = iSetup.getHandle(cscGeomToken_);
-    //muonGEMGeometry_ = iSetup.getHandle(gemGeomToken_);
+    muonDTGeometry_ = iSetup.getHandle(dtGeomToken_);
+    muonCSCGeometry_ = iSetup.getHandle(cscGeomToken_);
+    muonGEMGeometry_ = iSetup.getHandle(gemGeomToken_);
   }
 }
 
