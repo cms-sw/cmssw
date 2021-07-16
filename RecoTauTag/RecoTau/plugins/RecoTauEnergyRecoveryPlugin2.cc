@@ -26,8 +26,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include <algorithm>
