@@ -65,9 +65,16 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 # execution configuration
+#Diamond Sampic flow
 process.p = cms.Path(
     process.ctppsRawToDigi*
-    process.totemTimingLocalReconstruction
+    process.diamondSampicLocalReconstruction
 )
+
+#Legacy UFSD flow
+#process.p = cms.Path(
+#    process.ctppsRawToDigi*
+#    process.totemTimingLocalReconstruction
+#)
 
 process.outpath = cms.EndPath(process.output)
