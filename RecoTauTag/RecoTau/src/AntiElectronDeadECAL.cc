@@ -77,24 +77,10 @@ void AntiElectronDeadECAL::updateBadTowers(const edm::EventSetup& es) {
   std::map<uint32_t, unsigned> nBadCrystals, maxStatus;
   std::map<uint32_t, double> sumEta, sumPhi;
 
-  loopXtals<EBDetId>(nBadCrystals,
-                     maxStatus,
-                     sumEta,
-                     sumPhi,
-                     &channelStatus,
-                     &caloGeometry,
-                     &ttMap,
-                     minStatus_,
-                     statusMask_);
-  loopXtals<EEDetId>(nBadCrystals,
-                     maxStatus,
-                     sumEta,
-                     sumPhi,
-                     &channelStatus,
-                     &caloGeometry,
-                     &ttMap,
-                     minStatus_,
-                     statusMask_);
+  loopXtals<EBDetId>(
+      nBadCrystals, maxStatus, sumEta, sumPhi, &channelStatus, &caloGeometry, &ttMap, minStatus_, statusMask_);
+  loopXtals<EEDetId>(
+      nBadCrystals, maxStatus, sumEta, sumPhi, &channelStatus, &caloGeometry, &ttMap, minStatus_, statusMask_);
 
   badTowers_.clear();
   for (auto it : nBadCrystals) {
