@@ -23,8 +23,8 @@ workflows[510]=['',['SoftQCDinelastic_13TeV_pythia8','HARVESTGEN']]
 # Matrix Element Generations (sherpa & Herwig)
 #workflows[533]=['',['sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER','HARVESTGEN']]
 workflows[534]=['',['sherpa_ZtoLL_2j_MEPSatNLO_13TeV_MASTER','HARVESTGEN']]
-workflows[535]=['',['TTbar_13TeV_Pow_herwig7','HARVESTGEN']]
 workflows[536]=['',['sherpa_ttbar_2j_MENLOPS_13TeV_MASTER','HARVESTGEN']]
+
 
 # Hadronization (LHE Generation + Hadronization)
 workflows[555]=['DYTollJets_NLO_Mad_13TeV_py8',['DYToll012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV','Hadronizer_TuneCP5_13TeV_aMCatNLO_FXFX_5f_max2j_max0p_LHE_pythia8','HARVESTGEN2']]
@@ -43,6 +43,10 @@ workflows[518]=['DYTollJets_LO_Mad_13TeV_py8_taurhonu',['DYToll01234Jets_5f_LO_M
 workflows[519]=['WTolNuJets_LO_Mad_13TeV_py8_taurhonu',['WTolNu01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV','Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8_taurhonu','HARVESTGEN2']]
 workflows[520]=['VHToHtt_NLO_Pow_13TeV_py8_taurhonu',['VHToH_Pow_LHE_13TeV','Hadronizer_TuneCP5_13TeV_Httrhonu_powhegEmissionVeto_pythia8','HARVESTGEN2']]
 
+
+workflows[535]=['',['TTbar_13TeV_Pow_herwig7','HARVESTGEN']]
+workflows[537]=['',['DYToLL012Jets_5FS_TuneCH3_13TeV_amcatnloFxFx_herwig7','HARVESTGEN']]
+workflows[538]=['',['DYToLL01234Jets_5FS_TuneCH3_13TeV_madgraphMLM_herwig7','HARVESTGEN']]
 # External Decays
 
 workflows[521]=['WTolNuJets_LO_Mad_13TeV_py8_Ta',['WTolNu01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV','Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola','HARVESTGEN2']]
