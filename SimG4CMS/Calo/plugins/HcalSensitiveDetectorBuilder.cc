@@ -27,15 +27,26 @@
 class HcalSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
 public:
   explicit HcalSensitiveDetectorBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc)
-    : hdscToken_{cc.esConsumes<edm::Transition::BeginRun>()}, hdrcToken_{cc.esConsumes<edm::Transition::BeginRun>()}, hscsToken_{cc.esConsumes<edm::Transition::BeginRun>()}, hbdkToken_{cc.esConsumes<HBHEDarkening, HBHEDarkeningRecord, edm::Transition::BeginRun>(edm::ESInputTag{"","HB"})}, hedkToken_{cc.esConsumes<HBHEDarkening, HBHEDarkeningRecord, edm::Transition::BeginRun>(edm::ESInputTag{"","HE"})}, hcalDDSim_{nullptr}, hcalDDRec_{nullptr}, hcalSimConstants_{nullptr}, hbDarkening_{nullptr}, heDarkening_{nullptr} { 
-  edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HCalSD");
-  agingFlagHB_ = m_HC.getParameter<bool>("HBDarkening");
-  agingFlagHE_ = m_HC.getParameter<bool>("HEDarkening");
-  forTBHC_ = m_HC.getUntrackedParameter<bool>("ForTBHCAL", false);
-  forTBH2_ = m_HC.getUntrackedParameter<bool>("ForTBH2", false);
-}
+      : hdscToken_{cc.esConsumes<edm::Transition::BeginRun>()},
+        hdrcToken_{cc.esConsumes<edm::Transition::BeginRun>()},
+        hscsToken_{cc.esConsumes<edm::Transition::BeginRun>()},
+        hbdkToken_{
+            cc.esConsumes<HBHEDarkening, HBHEDarkeningRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", "HB"})},
+        hedkToken_{
+            cc.esConsumes<HBHEDarkening, HBHEDarkeningRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", "HE"})},
+        hcalDDSim_{nullptr},
+        hcalDDRec_{nullptr},
+        hcalSimConstants_{nullptr},
+        hbDarkening_{nullptr},
+        heDarkening_{nullptr} {
+    edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HCalSD");
+    agingFlagHB_ = m_HC.getParameter<bool>("HBDarkening");
+    agingFlagHE_ = m_HC.getParameter<bool>("HEDarkening");
+    forTBHC_ = m_HC.getUntrackedParameter<bool>("ForTBHCAL", false);
+    forTBH2_ = m_HC.getUntrackedParameter<bool>("ForTBH2", false);
+  }
 
-  void beginRun(const edm::EventSetup& es) final { 
+  void beginRun(const edm::EventSetup& es) final {
     hcalDDSim_ = &es.getData(hdscToken_);
     if ((!forTBHC_) && (!forTBH2_))
       hcalDDRec_ = &es.getData(hdrcToken_);
@@ -47,16 +58,16 @@ public:
     if (agingFlagHB_) {
       edm::ESHandle<HBHEDarkening> hbdark = es.getHandle(hbdkToken_);
       if (hbdark.isValid())
-	hbDarkening_ = hbdark.product();
+        hbDarkening_ = hbdark.product();
       else
-	edm::LogVerbatim("HcalSim") << "HcalSensitiveDetectorBuilder does not find record for HBDarkening";
+        edm::LogVerbatim("HcalSim") << "HcalSensitiveDetectorBuilder does not find record for HBDarkening";
     }
     if (agingFlagHE_) {
       edm::ESHandle<HBHEDarkening> hedark = es.getHandle(hedkToken_);
       if (hedark.isValid())
-	heDarkening_ = hedark.product();
+        heDarkening_ = hedark.product();
       else
-	edm::LogVerbatim("HcalSim") << "HcalSensitiveDetectorBuilder does not find record for HEDarkening";
+        edm::LogVerbatim("HcalSim") << "HcalSensitiveDetectorBuilder does not find record for HEDarkening";
     }
   }
 
@@ -65,7 +76,8 @@ public:
                                           const edm::ParameterSet& p,
                                           const SimTrackManager* man,
                                           SimActivityRegistry& reg) const final {
-    auto sd = std::make_unique<HCalSD>(iname, hcalDDSim_, hcalDDRec_, hcalSimConstants_, hbDarkening_, heDarkening_, clg, p, man);
+    auto sd = std::make_unique<HCalSD>(
+        iname, hcalDDSim_, hcalDDRec_, hcalSimConstants_, hbDarkening_, heDarkening_, clg, p, man);
     SimActivityRegistryEnroller::enroll(reg, sd.get());
     return sd;
   }
