@@ -8,7 +8,7 @@ process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
 process.load("SimG4CMS.HcalTestBeam.TB2002GeometryXML_cfi")
 process.load("Geometry.HcalTestBeamData.hcalDDDSimConstants_cff")
-
+process.load('GeneratorInterface.Core.generatorSmeared_cfi')
 process.load("Configuration.EventContent.EventContent_cff")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
@@ -64,7 +64,7 @@ process.Tracer = cms.Service("Tracer")
 
 process.Timing = cms.Service("Timing")
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.VtxSmeared.MeanX = -420.0
 process.VtxSmeared.MeanY = 18.338
