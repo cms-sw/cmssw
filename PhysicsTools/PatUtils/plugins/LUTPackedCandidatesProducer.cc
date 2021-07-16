@@ -36,7 +36,6 @@ LUTPackedCandidatesProducer::LUTPackedCandidatesProducer(const edm::ParameterSet
       covVersion_(iConfig.getParameter<unsigned int>("covVersion")),
       nHits_(iConfig.getParameter<unsigned int>("nHits")),
       nPixelHits_(iConfig.getParameter<unsigned int>("nPixelHits")) {
-
   outputCandidates_ = produces<pat::PackedCandidateCollection>("");
 }
 
@@ -56,7 +55,7 @@ void LUTPackedCandidatesProducer::produce(edm::StreamID, edm::Event &iEvent, con
       output.back().setTrackPropertiesLite(covSchema_, covVersion_, nHits_, nPixelHits_);
   }
 
-  iEvent.emplace(outputCandidates_,std::move(output));
+  iEvent.emplace(outputCandidates_, std::move(output));
 };
 
 void LUTPackedCandidatesProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
