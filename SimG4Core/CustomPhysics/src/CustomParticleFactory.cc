@@ -100,7 +100,7 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
   G4double spectatormass = 0.0;
   G4ParticleDefinition *spectator = nullptr;
   //////////////////////
-  if (CustomPDGParser::s_isRHadron(pdgCode)) {
+  if (CustomPDGParser::s_isgluinoHadron(pdgCode)) {
     pType = "rhadron";
   }
   if (CustomPDGParser::s_isSLepton(pdgCode)) {
@@ -261,7 +261,7 @@ void CustomParticleFactory::getMassTable(std::ifstream *configFile) {
 
     edm::LogInfo("SimG4CoreCustomPhysics")
         << "CustomParticleFactory: Calling addCustomParticle for pdgId: " << pdgId << ", mass " << mass << " GeV  "
-        << name << ", isRHadron: " << CustomPDGParser::s_isRHadron(pdgId)
+        << name << ", isgluinoHadron: " << CustomPDGParser::s_isgluinoHadron(pdgId)
         << ", isstopHadron: " << CustomPDGParser::s_isstopHadron(pdgId);
     addCustomParticle(pdgId, mass, name);
 
@@ -275,7 +275,7 @@ void CustomParticleFactory::getMassTable(std::ifstream *configFile) {
           << " pdgId= " << pdgId << ", pdgIdPartner= " << pdgIdPartner << " " << aParticle->GetParticleName();
     }
 
-    if (aParticle && !CustomPDGParser::s_isRHadron(pdgId) && !CustomPDGParser::s_isstopHadron(pdgId) &&
+    if (aParticle && !CustomPDGParser::s_isgluinoHadron(pdgId) && !CustomPDGParser::s_isstopHadron(pdgId) &&
         pdgId != 1000006 && pdgId != -1000006 && pdgId != 25 && pdgId != 35 && pdgId != 36 && pdgId != 37) {
       int sign = aParticle->GetAntiPDGEncoding() / pdgIdPartner;
       edm::LogInfo("SimG4CoreCustomPhysics")
