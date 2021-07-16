@@ -156,7 +156,6 @@ RecoEgamma/EgammaPhotonProducers:
 - ConversionTrackCandidateProducer
 - GEDPhotonProducer
 - PhotonProducer
-- TrackProducer
 - TrackProducerWithSCAssociation
 RecoEgamma/Examples:
 - SiStripElectronAnalyzer
@@ -276,10 +275,10 @@ RecoParticleFlow/PFTracking:
 - PFNuclearProducer
 - PFV0Producer
 RecoPixelVertexing/PixelLowPtUtilities:
-- PixelTrackProducer
 - PixelVertexProducerClusters
 - SiPixelClusterShapeCacheProducer
 RecoPixelVertexing/PixelTrackFitting:
+- PixelTrackProducer
 - PixelFitterByConformalMappingAndLineProducer
 - PixelFitterByHelixProjectionsProducer
 RecoPixelVertexing/PixelVertexFinding:
@@ -317,6 +316,7 @@ RecoTracker/TkSeedingLayers:
 RecoTracker/TkTrackingRegions:
 - PixelInactiveAreaTrackingRegionsSeedingLayersProducer
 RecoTracker/TrackProducer:
+- TrackProducer
 - DAFTrackProducer
 - GsfTrackProducer
 - GsfTrackRefitter
