@@ -42,12 +42,11 @@ public:
   explicit SiPixelPhase1ResidualsExtra(const edm::ParameterSet& conf);
   ~SiPixelPhase1ResidualsExtra() override;
 
-
 protected:
   // BeginJob
   //  void beginJob(void) override;
 
-  // BeginRun 
+  // BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   // EndJob
@@ -63,10 +62,9 @@ private:
 
   //Book Monitoring Elements
   void bookMEs(DQMStore::IBooker& iBooker);
-  
+
   //Fill Monitoring Elements
   void fillMEs(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
-
 };
 
 #endif
