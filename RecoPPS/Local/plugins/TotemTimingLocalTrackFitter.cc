@@ -154,7 +154,7 @@ void TotemTimingLocalTrackFitter<TotemTimingDetId>::fillDescriptions(edm::Config
 template <>
 void TotemTimingLocalTrackFitter<CTPPSDiamondDetId>::fillDescriptions(edm::ConfigurationDescriptions& descr) {
   auto desc=fillDescriptionsShared(descr);
-  descr.add("totemTimingLocalTracksSampic", desc);
+  descr.add("diamondSampicLocalTracks", desc);
 }
 template class TotemTimingLocalTrackFitter<CTPPSDiamondDetId>;
 template class TotemTimingLocalTrackFitter<TotemTimingDetId>;
