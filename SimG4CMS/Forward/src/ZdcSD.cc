@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// File: ZdcSensitiveDetector.cc
+// File: ZdcSD.cc
 // Date: 03.01
 // Description: Sensitive Detector class for Zdc
 // Modifications:
 ///////////////////////////////////////////////////////////////////////////////
 #include <memory>
 
-#include "SimG4CMS/Forward/interface/ZdcSensitiveDetector.h"
+#include "SimG4CMS/Forward/interface/ZdcSD.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,7 +27,7 @@
 
 #define EDM_ML_DEBUG
 
-ZdcSensitiveDetector::ZdcSensitiveDetector(const std::string& name,
+ZdcSD::ZdcSD(const std::string& name,
 					   const SensitiveDetectorCatalog& clg,
 					   edm::ParameterSet const& p,
 					   const SimTrackManager* manager)
@@ -44,7 +44,7 @@ ZdcSensitiveDetector::ZdcSensitiveDetector(const std::string& name,
 
   edm::LogVerbatim("ForwardSim") << "***************************************************\n"
                             << "*                                                 *\n"
-                            << "* Constructing a ZdcSensitiveDetector  with name " << name << "   *\n"
+                            << "* Constructing a ZdcSD  with name " << name << "   *\n"
                             << "*                                                 *\n"
                             << "***************************************************";
 
@@ -61,9 +61,9 @@ ZdcSensitiveDetector::ZdcSensitiveDetector(const std::string& name,
   }
 }
 
-void ZdcSensitiveDetector::initRun() { hits.clear(); }
+void ZdcSD::initRun() { hits.clear(); }
 
-bool ZdcSensitiveDetector::getFromLibrary(const G4Step* aStep) {
+bool ZdcSD::getFromLibrary(const G4Step* aStep) {
   bool ok = true;
 
   auto const preStepPoint = aStep->GetPreStepPoint();
@@ -84,7 +84,7 @@ bool ZdcSensitiveDetector::getFromLibrary(const G4Step* aStep) {
     edm::LogVerbatim("ForwardSim") << "----------------New track------------------------------\n"
                            << "Incident EnergyTrack: " << etrack << " MeV \n"
                            << "Zdc Cut Energy for Hits: " << zdcHitEnergyCut << " MeV \n"
-                           << "ZdcSensitiveDetector::getFromLibrary " << hits.size() << " hits for " << GetName() << " of "
+                           << "ZdcSD::getFromLibrary " << hits.size() << " hits for " << GetName() << " of "
                            << primaryID << " with " << theTrack->GetDefinition()->GetParticleName() << " of " << etrack
                            << " MeV\n";
 #endif
@@ -104,7 +104,7 @@ bool ZdcSensitiveDetector::getFromLibrary(const G4Step* aStep) {
     processHit(aStep);
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardSim") << "ZdcSensitiveDetector: Final Hit number:" << i << "-->"
+    edm::LogVerbatim("ForwardSim") << "ZdcSD: Final Hit number:" << i << "-->"
                            << "New HitID: " << currentHit->getUnitID()
                            << " New Hit trackID: " << currentHit->getTrackID()
                            << " New EM Energy: " << currentHit->getEM() / GeV
@@ -117,7 +117,7 @@ bool ZdcSensitiveDetector::getFromLibrary(const G4Step* aStep) {
   return ok;
 }
 
-double ZdcSensitiveDetector::getEnergyDeposit(const G4Step* aStep) {
+double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
   double NCherPhot = 0.;
 
   // preStepPoint information
@@ -156,7 +156,7 @@ double ZdcSensitiveDetector::getEnergyDeposit(const G4Step* aStep) {
   // Get the total energy deposit
   double stepE = aStep->GetTotalEnergyDeposit();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ForwardSim") << "ZdcSensitiveDetector::  getEnergyDeposit: \n"
+  edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: \n"
                          << "  preStepPoint: " << nameVolume << "," << stepL << "," << stepE << "," << beta << ","
                          << charge << "\n"
                          << "  postStepPoint: " << postnameVolume << "," << costheta << "," << theta << "," << eta
@@ -166,7 +166,7 @@ double ZdcSensitiveDetector::getEnergyDeposit(const G4Step* aStep) {
   const double bThreshold = 0.67;
   if ((beta > bThreshold) && (charge != 0) && (nameVolume == "ZDC_EMFiber" || nameVolume == "ZDC_HadFiber")) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardSim") << "ZdcSensitiveDetector::  getEnergyDeposit:  pass ";
+    edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit:  pass ";
 #endif
     const float nMedium = 1.4925;
     // float photEnSpectrDL = 10714.285714;
@@ -257,7 +257,7 @@ double ZdcSensitiveDetector::getEnergyDeposit(const G4Step* aStep) {
     }
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardSim") << "ZdcSensitiveDetector::  getEnergyDeposit:  gED: " << stepE << "," << costh << "," << th << ","
+    edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit:  gED: " << stepE << "," << costh << "," << th << ","
                            << costhcher << "," << thcher << "," << DelFibPart << "," << d << "," << a << "," << r << ","
                            << hitPoint << "," << hit_mom << "," << vert_mom << "," << localPoint << "," << charge << ","
                            << beta << "," << stepL << "," << d_qz << "," << variant << "," << meanNCherPhot << ","
@@ -280,23 +280,23 @@ double ZdcSensitiveDetector::getEnergyDeposit(const G4Step* aStep) {
   } else {
     // determine failure mode: beta, charge, and/or nameVolume
     if (beta <= bThreshold)
-      edm::LogVerbatim("ForwardSim") << "ZdcSensitiveDetector::  getEnergyDeposit: fail beta=" << beta;
+      edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: fail beta=" << beta;
     if (charge == 0)
-      edm::LogVerbatim("ForwardSim") << "ZdcSensitiveDetector::  getEnergyDeposit: fail charge=0";
+      edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: fail charge=0";
     if (!(nameVolume == "ZDC_EMFiber" || nameVolume == "ZDC_HadFiber"))
-      edm::LogVerbatim("ForwardSim") << "ZdcSensitiveDetector::  getEnergyDeposit: fail nv=" << nameVolume;
+      edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: fail nv=" << nameVolume;
   }
 
   return NCherPhot;
 }
 
-uint32_t ZdcSensitiveDetector::setDetUnitId(const G4Step* aStep) {
+uint32_t ZdcSD::setDetUnitId(const G4Step* aStep) {
   return (numberingScheme.get() == nullptr ? 0 : numberingScheme.get()->getUnitID(aStep));
 }
 
-void ZdcSensitiveDetector::setNumberingScheme(ZdcNumberingScheme* scheme) {
+void ZdcSD::setNumberingScheme(ZdcNumberingScheme* scheme) {
   if (scheme != nullptr) {
-    edm::LogVerbatim("ForwardSim") << "ZdcSensitiveDetector: updates numbering scheme for " << GetName();
+    edm::LogVerbatim("ForwardSim") << "ZdcSD: updates numbering scheme for " << GetName();
     numberingScheme.reset(scheme);
   }
 }

@@ -5,7 +5,7 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistryEnroller.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorPluginFactory.h"
 
-#include "SimG4CMS/Forward/interface/CastorSensitiveDetector.h"
+#include "SimG4CMS/Forward/interface/CastorSD.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -24,10 +24,11 @@ public:
                                           const edm::ParameterSet& p,
                                           const SimTrackManager* man,
                                           SimActivityRegistry& reg) const final {
-    auto sd = std::make_unique<CastorSensitiveDetector>(iname, clg, p, man);
+    auto sd = std::make_unique<CastorSD>(iname, clg, p, man);
     SimActivityRegistryEnroller::enroll(reg, sd.get());
     return sd;
   }
 };
 
+typedef CastorSD CastorSensitiveDetector;
 DEFINE_SENSITIVEDETECTORBUILDER(CastorSensitiveDetectorBuilder, CastorSensitiveDetector);

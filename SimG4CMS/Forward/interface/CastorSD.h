@@ -1,11 +1,11 @@
-#ifndef Forward_CastorSensitiveDetector_h
-#define Forward_CastorSensitiveDetector_h
+#ifndef Forward_CastorSD_h
+#define Forward_CastorSD_h
 // -*- C++ -*-
 //
 // Package:     Forward
-// Class  :     CastorSensitiveDetector
+// Class  :     CastorSD
 //
-/**\class CastorSensitiveDetector CastorSensitiveDetector.h SimG4CMS/Forward/interface/CastorSensitiveDetector.h
+/**\class CastorSD CastorSD.h SimG4CMS/Forward/interface/CastorSD.h
  
  Description: Stores hits of Castor in appropriate  container
  
@@ -30,13 +30,13 @@
 
 #include "G4LogicalVolume.hh"
 
-class CastorSensitiveDetector : public CaloSD {
+class CastorSD : public CaloSD {
 public:
-  CastorSensitiveDetector(const std::string &,
+  CastorSD(const std::string &,
 			  const SensitiveDetectorCatalog &clg,
 			  edm::ParameterSet const &,
 			  const SimTrackManager *);
-  ~CastorSensitiveDetector() override;
+  ~CastorSD() override;
   uint32_t setDetUnitId(const G4Step *step) override;
   void setNumberingScheme(CastorNumberingScheme *scheme);
 
@@ -56,4 +56,4 @@ private:
   double non_compensation_factor;
 };
 
-#endif  // CastorSensitiveDetector_h
+#endif  // CastorSD_h
