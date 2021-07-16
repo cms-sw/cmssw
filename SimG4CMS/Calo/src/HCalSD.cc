@@ -40,11 +40,11 @@
 #endif
 
 HCalSD::HCalSD(const std::string& name,
-	       const HcalDDDSimConstants* hcns,
-	       const HcalDDDRecConstants* hcnr,
-	       const HcalSimulationConstants* hscs,
-	       const HBHEDarkening* hbd,
-	       const HBHEDarkening* hed,
+               const HcalDDDSimConstants* hcns,
+               const HcalDDDRecConstants* hcnr,
+               const HcalSimulationConstants* hscs,
+               const HBHEDarkening* hbd,
+               const HBHEDarkening* hed,
                const SensitiveDetectorCatalog& clg,
                edm::ParameterSet const& p,
                const SimTrackManager* manager)

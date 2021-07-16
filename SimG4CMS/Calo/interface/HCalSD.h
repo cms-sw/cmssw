@@ -38,11 +38,11 @@ class TH1F;
 class HCalSD : public CaloSD, public Observer<const BeginOfJob*> {
 public:
   HCalSD(const std::string&,
-	 const HcalDDDSimConstants*,
-	 const HcalDDDRecConstants*,
-	 const HcalSimulationConstants*,
-	 const HBHEDarkening*,
-	 const HBHEDarkening*,
+         const HcalDDDSimConstants*,
+         const HcalDDDRecConstants*,
+         const HcalSimulationConstants*,
+         const HBHEDarkening*,
+         const HBHEDarkening*,
          const SensitiveDetectorCatalog&,
          edm::ParameterSet const&,
          const SimTrackManager*);

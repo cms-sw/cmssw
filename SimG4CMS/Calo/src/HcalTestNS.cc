@@ -6,7 +6,7 @@
 
 //#define EDM_ML_DEBUG
 
-HcalTestNS::HcalTestNS(const HcalDDDRecConstants* hcons) : hcons_(hcons) { }
+HcalTestNS::HcalTestNS(const HcalDDDRecConstants* hcons) : hcons_(hcons) {}
 
 HcalTestNS::~HcalTestNS() {}
 
