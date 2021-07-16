@@ -7,7 +7,7 @@ class SortedKeysDict(dict):
         dict.__init__(self,*args,**kw)
         self.list = list()
         if len(args) == 1:
-            if not hasattr(args[0],'iterkeys'):
+            if not hasattr(args[0],'keys'):
                 s = set()
                 #must protect against adding the same key multiple times
                 for x,y in iter(args[0]):
@@ -15,7 +15,7 @@ class SortedKeysDict(dict):
                         self.list.append(x)
                         s.add(x)
             else:
-                self.list = list(args[0].iterkeys())
+                self.list = list(args[0].keys())
             return
         self.list = list(six.iterkeys(super(SortedKeysDict,self)))
 
