@@ -26,6 +26,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include "boost/filesystem.hpp"
 
 using namespace edm::shared_memory;
 namespace externalgen {
@@ -47,15 +48,21 @@ namespace externalgen {
 
       channel_.setupWorker([&]() {
         using namespace std::string_literals;
+        using namespace boost::filesystem;
         edm::LogSystem("ExternalProcess") << id_ << " starting external process \n";
         std::string verboseCommand;
         if (verbose) {
           verboseCommand = "--verbose ";
         }
+        auto curDir = current_path();
+        auto newDir = path("thread"s + std::to_string(id_));
+        create_directory(newDir);
+        current_path(newDir);
         pipe_ =
             popen(("cmsExternalGenerator "s + verboseCommand + channel_.sharedMemoryName() + " " + channel_.uniqueID())
                       .c_str(),
                   "w");
+        current_path(curDir);
 
         if (nullptr == pipe_) {
           abort();
