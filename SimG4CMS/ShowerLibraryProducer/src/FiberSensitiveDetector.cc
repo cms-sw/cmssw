@@ -17,13 +17,15 @@
 #include "G4SDManager.hh"
 #include "G4ios.hh"
 
+//#define EDM_ML_DEBUG
+
 FiberSensitiveDetector::FiberSensitiveDetector(const std::string& iname,
-		 const HcalSimulationConstants* hsps,
-		 const HcalDDDSimConstants* hdc,
-                 const SensitiveDetectorCatalog& clg,
-                 edm::ParameterSet const& p,
-                 const SimTrackManager* manager)
-  : SensitiveCaloDetector(iname, clg), m_trackManager(manager), theShower(nullptr), theHCID(-1), theHC(nullptr) {
+                                               const HcalSimulationConstants* hsps,
+                                               const HcalDDDSimConstants* hdc,
+                                               const SensitiveDetectorCatalog& clg,
+                                               edm::ParameterSet const& p,
+                                               const SimTrackManager* manager)
+    : SensitiveCaloDetector(iname, clg), theShower(nullptr), theHCID(-1), theHC(nullptr) {
   edm::LogVerbatim("FiberSim") << "FiberSensitiveDetector : Instantiating for " << iname;
   // Get pointer to HcalDDDConstants and HcalSimulationConstants
   theShower = new HFShower(iname, hdc, hsps->hcalsimpar(), p, 1);
@@ -35,13 +37,14 @@ FiberSensitiveDetector::~FiberSensitiveDetector() {
 }
 
 void FiberSensitiveDetector::Initialize(G4HCofThisEvent* HCE) {
-  edm::LogVerbatim("FiberSim") << "FiberSensitiveDetector : Initialize called for " << GetName() << " in collection " << HCE;
+  edm::LogVerbatim("FiberSim") << "FiberSensitiveDetector : Initialize called for " << GetName() << " in collection "
+                               << HCE;
   theHC = new FiberG4HitsCollection(GetName(), collectionName[0]);
   if (theHCID < 0)
     theHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(theHCID, theHC);
-  edm::LogVerbatim("FiberSim") << "FiberSensitiveDetector : Add hit collectrion for " << collectionName[0] << ":" << theHCID << ":"
-                               << theHC;
+  edm::LogVerbatim("FiberSim") << "FiberSensitiveDetector : Add hit collectrion for " << collectionName[0] << ":"
+                               << theHCID << ":" << theHC;
 }
 
 G4bool FiberSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
@@ -68,22 +71,25 @@ G4bool FiberSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     //edm::LogVerbatim("FiberSim") << "FiberSensitiveDetector :presteppoint position z " << preStepPoint->GetPosition().z();
 
     FiberG4Hit* aHit = new FiberG4Hit(lv, detID, depth, trackID);
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("FiberSim") << "FiberSensitiveDetector :hit size " << hits.size() << "  npe" << aHit->npe();
     edm::LogVerbatim("FiberSim") << "FiberSensitiveDetector :pre hit position " << aHit->hitPos();
+#endif
     aHit->setNpe(hits.size());
     aHit->setPos(theHitPos);
     aHit->setTime(preStepPoint->GetGlobalTime());
     aHit->setPhoton(thePE);
-    edm::LogVerbatim("FiberSim") << "FiberSensitiveDetector :ShowerPhoton position " << thePE[0].x() << " " << thePE[0].y() << " "
-                                 << thePE[0].z();
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("FiberSim") << "FiberSensitiveDetector :ShowerPhoton position " << thePE[0].x() << " "
+                                 << thePE[0].y() << " " << thePE[0].z();
 
-    edm::LogVerbatim("FiberSim") << "FiberSensitiveDetector: Hit created at " << lv->GetName() << " DetID: " << aHit->towerId()
-                                 << " Depth: " << aHit->depth() << " Track ID: " << aHit->trackId()
-                                 << " Nb. of Cerenkov Photons: " << aHit->npe() << " Time: " << aHit->time() << " at "
-                                 << aHit->hitPos();
+    edm::LogVerbatim("FiberSim") << "FiberSensitiveDetector: Hit created at " << lv->GetName()
+                                 << " DetID: " << aHit->towerId() << " Depth: " << aHit->depth()
+                                 << " Track ID: " << aHit->trackId() << " Nb. of Cerenkov Photons: " << aHit->npe()
+                                 << " Time: " << aHit->time() << " at " << aHit->hitPos();
     for (unsigned int i = 0; i < thePE.size(); i++)
       edm::LogVerbatim("FiberSim") << "FiberSensitiveDetector: PE[" << i << "] " << thePE[i];
-
+#endif
     theHC->insert(aHit);
   }
   return true;

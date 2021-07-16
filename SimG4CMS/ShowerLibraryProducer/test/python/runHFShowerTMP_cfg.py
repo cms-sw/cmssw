@@ -17,6 +17,7 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.FlatThetaGun=dict()
     process.MessageLogger.HFShower=dict()
     process.MessageLogger.HcalForwardLib=dict()
+    process.MessageLogger.HCalGeom=dict()
     process.MessageLogger.SensitiveDetector=dict()
 
 process.RandomNumberGeneratorService.generator.initialSeed = 12345
