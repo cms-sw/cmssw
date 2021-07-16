@@ -258,6 +258,7 @@ int CCLUTLinearFitWriter(unsigned N_LAYER_REQUIREMENT = 3) {
     // pattern conversions
     ofstream outpatternconv;
     outpatternconv.open(outdir + "CSCComparatorCodePatternConversionLUT_pat" + patt->getName() + "_v1.txt");
+    outpatternconv << "#<header> v1.0 12 32 </header>\n";
 
     // iterate through each possible comparator code
     for (unsigned code = 0; code < CSCConstants::NUM_COMPARATOR_CODES; code++) {
