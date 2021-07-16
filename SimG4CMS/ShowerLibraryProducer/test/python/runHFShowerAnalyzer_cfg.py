@@ -61,6 +61,8 @@ process.schedule = cms.Schedule(process.generation_step,
                                 process.analysis_step)
 
 #process.hfShowerLibaryAnalysis.Verbosity = True
+#process.hfShowerLibaryAnalysis.EventPerBin = 5000
+#process.hfShowerLibaryAnalysis.FileName = "HFShowerLibrary_npmt_noatt_eta4_16en_v4.root"
 
 # filter all path with the production filter sequence
 for path in process.paths:
