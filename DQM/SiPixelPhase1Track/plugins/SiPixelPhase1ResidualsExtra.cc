@@ -352,7 +352,6 @@ void SiPixelPhase1ResidualsExtra::fillMEs(DQMStore::IBooker& iBooker, DQMStore::
       }
       for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
 	if (me_x->getBinEntries(j, i) < minHits_){
-	  std::cout<<"Barrel Bin "<<j<<","<<i<<" - Entries "<<me2_x->getBinEntries(j, i)<<std::endl;
 	  me2_x->setBinContent(j,i,0);
           me2_y->setBinContent(j,i,0);
           me2_x->setBinEntries(me2_x->getBin(j, i),0);
@@ -439,7 +438,6 @@ void SiPixelPhase1ResidualsExtra::fillMEs(DQMStore::IBooker& iBooker, DQMStore::
 	  me2_y->setBinEntries(me2_y->getBin(j, i),1);
 	}
 	else{
-	  std::cout<<"Endcap Bin "<<j<<","<<i<<" - Entries "<<me2_x->getBinEntries(j, i)<<std::endl;
 	  me2_x->setBinContent(j,i,0);
 	  me2_y->setBinContent(j,i,0);	
 	  me2_x->setBinEntries(me2_x->getBin(j, i),0);
