@@ -5,7 +5,7 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistryEnroller.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorPluginFactory.h"
 
-#include "SimG4CMS/Forward/interface/TotemSensitiveDetector.h"
+#include "SimG4CMS/Forward/interface/TotemSD.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -24,10 +24,11 @@ public:
                                           const edm::ParameterSet& p,
                                           const SimTrackManager* man,
                                           SimActivityRegistry& reg) const final {
-    auto sd = std::make_unique<TotemSensitiveDetector>(iname, clg, p, man);
+    auto sd = std::make_unique<TotemSD>(iname, clg, p, man);
     SimActivityRegistryEnroller::enroll(reg, sd.get());
     return sd;
   }
 };
 
+typedef TotemSD TotemSensitiveDetector;
 DEFINE_SENSITIVEDETECTORBUILDER(TotemSensitiveDetectorBuilder, TotemSensitiveDetector);

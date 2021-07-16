@@ -1,25 +1,25 @@
 ///////////////////////////////////////////////////////////////////////////////
-// File: ZdcSensitiveDetector.h
+// File: ZdcSD.h
 // Date: 02.04
 // Description: Stores hits of Zdc in appropriate  container
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef ZdcSensitiveDetector_h
-#define ZdcSensitiveDetector_h
+#ifndef ZdcSD_h
+#define ZdcSD_h
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4CMS/Forward/interface/ZdcShowerLibrary.h"
 #include "SimG4CMS/Forward/interface/ZdcNumberingScheme.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-class ZdcSensitiveDetector : public CaloSD {
+class ZdcSD : public CaloSD {
 public:
-  ZdcSensitiveDetector(const std::string &,
+  ZdcSD(const std::string &,
 		       const SensitiveDetectorCatalog &,
 		       edm::ParameterSet const &,
 		       const SimTrackManager *);
 
-  ~ZdcSensitiveDetector() override = default;
+  ~ZdcSD() override = default;
 
   uint32_t setDetUnitId(const G4Step *step) override;
 
@@ -41,4 +41,4 @@ private:
   std::vector<ZdcShowerLibrary::Hit> hits;
 };
 
-#endif  // ZdcSensitiveDetector_h
+#endif  // ZdcSD_h

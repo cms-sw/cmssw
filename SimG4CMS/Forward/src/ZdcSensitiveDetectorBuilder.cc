@@ -5,7 +5,7 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistryEnroller.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorPluginFactory.h"
 
-#include "SimG4CMS/Forward/interface/ZdcSensitiveDetector.h"
+#include "SimG4CMS/Forward/interface/ZdcSD.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -24,10 +24,11 @@ public:
                                           const edm::ParameterSet& p,
                                           const SimTrackManager* man,
                                           SimActivityRegistry& reg) const final {
-    auto sd = std::make_unique<ZdcSensitiveDetector>(iname, clg, p, man);
+    auto sd = std::make_unique<ZdcSD>(iname, clg, p, man);
     SimActivityRegistryEnroller::enroll(reg, sd.get());
     return sd;
   }
 };
 
+typedef ZdcSD ZdcSensitiveDetector;
 DEFINE_SENSITIVEDETECTORBUILDER(ZdcSensitiveDetectorBuilder, ZdcSensitiveDetector);

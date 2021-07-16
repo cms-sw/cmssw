@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     Forward
-// Class  :     TotemSensitiveDetector
+// Class  :     TotemSD
 //
 // Implementation:
 //     <Notes on implementation>
@@ -25,7 +25,7 @@
 #include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
 #include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
 
-#include "SimG4CMS/Forward/interface/TotemSensitiveDetector.h"
+#include "SimG4CMS/Forward/interface/TotemSD.h"
 #include "SimG4CMS/Forward/interface/TotemNumberMerger.h"
 #include "SimG4CMS/Forward/interface/TotemT1NumberingScheme.h"
 #include "SimG4CMS/Forward/interface/TotemT2NumberingSchemeGem.h"
@@ -46,7 +46,7 @@
 //
 // constructors and destructor
 //
-TotemSensitiveDetector::TotemSensitiveDetector(const std::string& name,
+TotemSD::TotemSD(const std::string& name,
 					       const SensitiveDetectorCatalog& clg,
 					       edm::ParameterSet const& p,
 					       const SimTrackManager* manager)
@@ -79,16 +79,16 @@ TotemSensitiveDetector::TotemSensitiveDetector(const std::string& name,
   } else if (name == "TotemHitsRP") {
     numberingScheme = dynamic_cast<TotemVDetectorOrganization*>(new TotemRPNumberingScheme(3));
   } else {
-    edm::LogWarning("ForwardSim") << "TotemSensitiveDetector: ReadoutName not supported\n";
+    edm::LogWarning("ForwardSim") << "TotemSD: ReadoutName not supported\n";
   }
 }
 
-TotemSensitiveDetector::~TotemSensitiveDetector() {
+TotemSD::~TotemSD() {
   delete slave;
   delete numberingScheme;
 }
 
-bool TotemSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
+bool TotemSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   getStepInfo(aStep);
   if (!hitExists() && edeposit > 0.) {
     createNewHit();
@@ -100,13 +100,13 @@ bool TotemSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   return true;
 }
 
-uint32_t TotemSensitiveDetector::setDetUnitId(const G4Step* aStep) {
+uint32_t TotemSD::setDetUnitId(const G4Step* aStep) {
   return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
 
-void TotemSensitiveDetector::Initialize(G4HCofThisEvent* HCE) {
+void TotemSD::Initialize(G4HCofThisEvent* HCE) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ForwardSim") << "TotemSensitiveDetector : Initialize called for " << GetName();
+  edm::LogVerbatim("ForwardSim") << "TotemSD : Initialize called for " << GetName();
 #endif
 
   theHC = new TotemG4HitCollection(GetName(), collectionName[0]);
@@ -118,7 +118,7 @@ void TotemSensitiveDetector::Initialize(G4HCofThisEvent* HCE) {
   primID = -2;
 }
 
-void TotemSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
+void TotemSD::EndOfEvent(G4HCofThisEvent*) {
   // here we loop over transient hits and make them persistent
   int thehc_entries = theHC->entries();
   for (int j = 0; j < thehc_entries && j < 15000; j++) {
@@ -141,36 +141,36 @@ void TotemSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
   }
 }
 
-void TotemSensitiveDetector::PrintAll() {
+void TotemSD::PrintAll() {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ForwardSim") << "TotemSensitiveDetector: Collection " << theHC->GetName();
+  edm::LogVerbatim("ForwardSim") << "TotemSD: Collection " << theHC->GetName();
 #endif
   theHC->PrintAllHits();
 }
 
-void TotemSensitiveDetector::fillHits(edm::PSimHitContainer& cc, const std::string& hname) {
+void TotemSD::fillHits(edm::PSimHitContainer& cc, const std::string& hname) {
   if (slave->name() == hname) {
     cc = slave->hits();
   }
 }
 
-void TotemSensitiveDetector::update(const BeginOfEvent* i) {
+void TotemSD::update(const BeginOfEvent* i) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ForwardSim") << " Dispatched BeginOfEvent for " << GetName() << " !";
 #endif
   clearHits();
 }
 
-void TotemSensitiveDetector::clearHits() { slave->Initialize(); }
+void TotemSD::clearHits() { slave->Initialize(); }
 
-G4ThreeVector TotemSensitiveDetector::setToLocal(const G4ThreeVector& global) {
+G4ThreeVector TotemSD::setToLocal(const G4ThreeVector& global) {
   G4ThreeVector localPoint;
   const G4VTouchable* touch = preStepPoint->GetTouchable();
   localPoint = touch->GetHistory()->GetTopTransform().TransformPoint(global);
   return localPoint;
 }
 
-void TotemSensitiveDetector::getStepInfo(const G4Step* aStep) {
+void TotemSD::getStepInfo(const G4Step* aStep) {
   preStepPoint = aStep->GetPreStepPoint();
   postStepPoint = aStep->GetPostStepPoint();
   theTrack = aStep->GetTrack();
@@ -192,14 +192,14 @@ void TotemSensitiveDetector::getStepInfo(const G4Step* aStep) {
   primaryID = theTrack->GetTrackID();
 
   Posizio = hitPoint;
-  Pabs = aStep->GetPreStepPoint()->GetMomentum().mag() / GeV;
-  Tof = aStep->GetPostStepPoint()->GetGlobalTime() / nanosecond;
+  Pabs = aStep->GetPreStepPoint()->GetMomentum().mag() / CLHEP::GeV;
+  Tof = aStep->GetPostStepPoint()->GetGlobalTime() / CLHEP::nanosecond;
 
-  Eloss = aStep->GetTotalEnergyDeposit() / GeV;
+  Eloss = aStep->GetTotalEnergyDeposit() / CLHEP::GeV;
   ParticleType = theTrack->GetDefinition()->GetPDGEncoding();
 
-  ThetaAtEntry = aStep->GetPreStepPoint()->GetPosition().theta() / deg;
-  PhiAtEntry = aStep->GetPreStepPoint()->GetPosition().phi() / deg;
+  ThetaAtEntry = aStep->GetPreStepPoint()->GetPosition().theta() / CLHEP::deg;
+  PhiAtEntry = aStep->GetPreStepPoint()->GetPosition().phi() / CLHEP::deg;
 
   ParentId = theTrack->GetParentID();
   Vx = theTrack->GetVertexPosition().x();
@@ -207,9 +207,9 @@ void TotemSensitiveDetector::getStepInfo(const G4Step* aStep) {
   Vz = theTrack->GetVertexPosition().z();
 }
 
-bool TotemSensitiveDetector::hitExists() {
+bool TotemSD::hitExists() {
   if (primaryID < 1) {
-    edm::LogWarning("ForwardSim") << "***** TotemSensitiveDetector error: primaryID = " << primaryID << " maybe detector name changed";
+    edm::LogWarning("ForwardSim") << "***** TotemSD error: primaryID = " << primaryID << " maybe detector name changed";
   }
 
   // Update if in the same detector, time-slice and for same track
@@ -246,9 +246,9 @@ bool TotemSensitiveDetector::hitExists() {
   }
 }
 
-void TotemSensitiveDetector::createNewHit() {
+void TotemSD::createNewHit() {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ForwardSim") << "TotemSensitiveDetector CreateNewHit for PV " << currentPV->GetName() << " PVid = " << currentPV->GetCopyNo() << " Unit " << unitID << "\n primary " << primaryID << " time slice " << tSliceID << " For Track  " << theTrack->GetTrackID() << " which is a " << theTrack->GetDefinition()->GetParticleName();
+  edm::LogVerbatim("ForwardSim") << "TotemSD CreateNewHit for PV " << currentPV->GetName() << " PVid = " << currentPV->GetCopyNo() << " Unit " << unitID << "\n primary " << primaryID << " time slice " << tSliceID << " For Track  " << theTrack->GetTrackID() << " which is a " << theTrack->GetDefinition()->GetParticleName();
 
   if (theTrack->GetTrackID() == 1) {
     edm::LogVerbatim("ForwardSim") << " of energy " << theTrack->GetTotalEnergy();
@@ -287,7 +287,7 @@ void TotemSensitiveDetector::createNewHit() {
   storeHit(currentHit);
 }
 
-void TotemSensitiveDetector::createNewHitEvo() {
+void TotemSD::createNewHitEvo() {
   // edm::LogVerbatim("ForwardSim") << "INSIDE CREATE NEW HIT EVO ";
 
   currentHit = new TotemG4Hit;
@@ -324,7 +324,7 @@ void TotemSensitiveDetector::createNewHitEvo() {
   // edm::LogVerbatim("ForwardSim") << "STORED HIT IN: " << unitID;
 }
 
-G4ThreeVector TotemSensitiveDetector::posizioEvo(
+G4ThreeVector TotemSD::posizioEvo(
     const G4ThreeVector& Pos, double vx, double vy, double vz, double pabs, int& accettanza) {
   accettanza = 0;
   //Pos.xyz() in mm
@@ -418,7 +418,7 @@ G4ThreeVector TotemSensitiveDetector::posizioEvo(
   return PosEvo;
 }
 
-void TotemSensitiveDetector::updateHit() {
+void TotemSD::updateHit() {
   //
   if (Eloss > 0.) {
 #ifdef EDM_ML_DEBUG
@@ -434,18 +434,18 @@ void TotemSensitiveDetector::updateHit() {
   previousUnitID = unitID;
 }
 
-void TotemSensitiveDetector::storeHit(TotemG4Hit* hit) {
+void TotemSD::storeHit(TotemG4Hit* hit) {
   if (primID < 0)
     return;
   if (hit == nullptr) {
-    edm::LogWarning("ForwardSim") << "TotemSensitiveDetector: hit to be stored is NULL !!";
+    edm::LogWarning("ForwardSim") << "TotemSD: hit to be stored is NULL !!";
     return;
   }
 
   theHC->insert(hit);
 }
 
-void TotemSensitiveDetector::resetForNewPrimary() {
+void TotemSD::resetForNewPrimary() {
   entrancePoint = setToLocal(hitPoint);
   incidentEnergy = preStepPoint->GetKineticEnergy();
 }
