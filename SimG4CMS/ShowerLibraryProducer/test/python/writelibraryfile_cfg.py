@@ -17,7 +17,9 @@ process.photon = cms.EDProducer('HcalForwardLibWriter',
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('myOutputFile.root')
+    fileName = cms.untracked.string('/eos/cms/store/group/dpg_hcal/comm_hcal/lev/myOutputFile.root')
+    Nbins = cms.int32(16),
+    Nshowers = cms.int32(10000)
 )
 
 process.p = cms.Path(process.photon)
