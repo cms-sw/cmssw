@@ -13,3 +13,7 @@
 </bin>
 
 <test name="testGetPayloadData" command="test_getPayloadData.sh"/>
+
+<test name="testUploadConditions" command="test_uploadConditions.sh">
+  <flags PRE_TEST="testBasicPayload"/>
+</test>
