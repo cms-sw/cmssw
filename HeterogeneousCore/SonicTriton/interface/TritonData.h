@@ -39,6 +39,8 @@ template <typename DT>
 using TritonInputContainer = std::shared_ptr<TritonInput<DT>>;
 
 //store all the info needed for triton input and output
+//NOTE: this class is not const-thread-safe, and should only be used with stream or one modules
+//(generally recommended for SONIC, but especially necessary here)
 template <typename IO>
 class TritonData {
 public:
@@ -129,10 +131,14 @@ private:
   size_t sizeShape_;
   size_t byteSizePerBatch_;
   size_t totalByteSize_;
+  //can be modified in otherwise-const fromServer() method in TritonMemResource::copyOutput():
+  //TritonMemResource holds a non-const pointer to an instance of this class
+  //so that TritonOutputGpuShmResource can store data here
   std::shared_ptr<void> holder_;
   std::shared_ptr<TritonMemResource<IO>> memResource_;
   std::shared_ptr<Result> result_;
-  mutable bool done_{};
+  //can be modified in otherwise-const fromServer() method to prevent multiple calls
+  CMS_SA_ALLOW mutable bool done_{};
 };
 
 using TritonInputData = TritonData<triton::client::InferInput>;
