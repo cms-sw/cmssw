@@ -16,19 +16,24 @@
 
 class HcalTB02SensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
 public:
-  explicit HcalTB02SensitiveDetectorBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc) : ebParToken_{cc.esConsumes<HcalTB02Parameters, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"","EcalHitsEB"})}, hcParToken_{cc.esConsumes<HcalTB02Parameters, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"","HcalHits"})}, ebPar_{nullptr}, hcPar_{nullptr} {
-  }
+  explicit HcalTB02SensitiveDetectorBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc)
+      : ebParToken_{cc.esConsumes<HcalTB02Parameters, IdealGeometryRecord, edm::Transition::BeginRun>(
+            edm::ESInputTag{"", "EcalHitsEB"})},
+        hcParToken_{cc.esConsumes<HcalTB02Parameters, IdealGeometryRecord, edm::Transition::BeginRun>(
+            edm::ESInputTag{"", "HcalHits"})},
+        ebPar_{nullptr},
+        hcPar_{nullptr} {}
 
   void beginRun(const edm::EventSetup& es) final {
     ebPar_ = &es.getData(ebParToken_);
     hcPar_ = &es.getData(hcParToken_);
   }
-    
+
   std::unique_ptr<SensitiveDetector> make(const std::string& iname,
-					  const SensitiveDetectorCatalog& clg,
-					  const edm::ParameterSet& p,
-					  const SimTrackManager* man,
-					  SimActivityRegistry& reg) const final {
+                                          const SensitiveDetectorCatalog& clg,
+                                          const edm::ParameterSet& p,
+                                          const SimTrackManager* man,
+                                          SimActivityRegistry& reg) const final {
     auto par = ((iname == "EcalHitsEB") ? ebPar_ : ((iname == "HcalHits") ? hcPar_ : nullptr));
     auto sd = std::make_unique<HcalTB02SD>(iname, par, clg, p, man);
     SimActivityRegistryEnroller::enroll(reg, sd.get());

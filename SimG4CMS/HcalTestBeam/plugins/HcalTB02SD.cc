@@ -36,7 +36,7 @@ HcalTB02SD::HcalTB02SD(const std::string& name,
                        const SensitiveDetectorCatalog& clg,
                        edm::ParameterSet const& p,
                        const SimTrackManager* manager)
-  : CaloSD(name, clg, p, manager), hcalTB02Parameters_(es) {
+    : CaloSD(name, clg, p, manager), hcalTB02Parameters_(es) {
   numberingScheme_.reset(nullptr);
   edm::ParameterSet m_SD = p.getParameter<edm::ParameterSet>("HcalTB02SD");
   useBirk_ = m_SD.getUntrackedParameter<bool>("UseBirkLaw", false);

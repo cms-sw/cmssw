@@ -22,7 +22,7 @@ HcalTB06BeamSD::HcalTB06BeamSD(const std::string& name,
                                const SensitiveDetectorCatalog& clg,
                                edm::ParameterSet const& p,
                                const SimTrackManager* manager)
-  : CaloSD(name, clg, p, manager), hcalBeamPar_(es) {
+    : CaloSD(name, clg, p, manager), hcalBeamPar_(es) {
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HcalTB06BeamSD");
   useBirk_ = m_HC.getParameter<bool>("UseBirkLaw");
