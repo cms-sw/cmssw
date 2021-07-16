@@ -47,9 +47,9 @@
 // constructors and destructor
 //
 TotemSD::TotemSD(const std::string& name,
-					       const SensitiveDetectorCatalog& clg,
-					       edm::ParameterSet const& p,
-					       const SimTrackManager* manager)
+                 const SensitiveDetectorCatalog& clg,
+                 edm::ParameterSet const& p,
+                 const SimTrackManager* manager)
     : SensitiveTkDetector(name, clg),
       numberingScheme(nullptr),
       hcID(-1),
@@ -124,7 +124,9 @@ void TotemSD::EndOfEvent(G4HCofThisEvent*) {
   for (int j = 0; j < thehc_entries && j < 15000; j++) {
     TotemG4Hit* aHit = (*theHC)[j];
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardSim") << "HIT NUMERO " << j << "unit ID = " << aHit->getUnitID() << "\n               enrty z " << aHit->getEntry().z() << "\n               theta   " << aHit->getThetaAtEntry() << "\n";
+    edm::LogVerbatim("ForwardSim") << "HIT NUMERO " << j << "unit ID = " << aHit->getUnitID()
+                                   << "\n               enrty z " << aHit->getEntry().z() << "\n               theta   "
+                                   << aHit->getThetaAtEntry() << "\n";
 #endif
     Local3DPoint theExitPoint(0, 0, 0);
     Local3DPoint Entrata(aHit->getEntry().x(), aHit->getEntry().y(), aHit->getEntry().z());
@@ -248,7 +250,10 @@ bool TotemSD::hitExists() {
 
 void TotemSD::createNewHit() {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ForwardSim") << "TotemSD CreateNewHit for PV " << currentPV->GetName() << " PVid = " << currentPV->GetCopyNo() << " Unit " << unitID << "\n primary " << primaryID << " time slice " << tSliceID << " For Track  " << theTrack->GetTrackID() << " which is a " << theTrack->GetDefinition()->GetParticleName();
+  edm::LogVerbatim("ForwardSim") << "TotemSD CreateNewHit for PV " << currentPV->GetName()
+                                 << " PVid = " << currentPV->GetCopyNo() << " Unit " << unitID << "\n primary "
+                                 << primaryID << " time slice " << tSliceID << " For Track  " << theTrack->GetTrackID()
+                                 << " which is a " << theTrack->GetDefinition()->GetParticleName();
 
   if (theTrack->GetTrackID() == 1) {
     edm::LogVerbatim("ForwardSim") << " of energy " << theTrack->GetTotalEnergy();
@@ -422,7 +427,8 @@ void TotemSD::updateHit() {
   //
   if (Eloss > 0.) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardSim") << "G4TotemT1SD updateHit: add eloss " << Eloss << "\nCurrentHit=" << currentHit << ", PostStepPoint=" << postStepPoint->GetPosition();
+    edm::LogVerbatim("ForwardSim") << "G4TotemT1SD updateHit: add eloss " << Eloss << "\nCurrentHit=" << currentHit
+                                   << ", PostStepPoint=" << postStepPoint->GetPosition();
 #endif
 
     currentHit->setEnergyLoss(Eloss);
