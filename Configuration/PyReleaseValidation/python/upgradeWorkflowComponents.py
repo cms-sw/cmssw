@@ -1247,7 +1247,6 @@ upgradeProperties[2026] = {
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D85' : {
-<<<<<<< HEAD
         'Geom' : 'Extended2026D85',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
@@ -1260,13 +1259,13 @@ upgradeProperties[2026] = {
         'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C11I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-=======
-        'Geom' : 'Extended2026D85', # N.B.: Geometry with 3D pixels in the Inner Tracker L1.
+    },
+    '2026D87' : {
+        'Geom' : 'Extended2026D87', # N.B.: Geometry with 3D pixels in the Inner Tracker L1.
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T27',
         'Era' : 'Phase2C11I13T25M9', # customized for 3D pixels and Muon M9
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger'],
->>>>>>> Adding T27 and support for brickedness + new record to store this information
     },
 }
 
