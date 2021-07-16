@@ -69,20 +69,21 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
       const std::vector<float> time(sampicConversions_->timeSamples(digi));
       std::vector<float> data(sampicConversions_->voltSamples(digi));
 
-      auto max_it = std::max_element(data.begin(), data.end());
 
       RegressionResults baselineRegression = simplifiedLinearRegression(time, data, 0, baselinePoints_);
 
       // remove baseline
       std::vector<float> dataCorrected(data.size());
       for (unsigned int i = 0; i < data.size(); ++i){
-        dataCorrected[i] = data[i] - (baselineRegression.q + baselineRegression.m * time[i]);
         //flip value if sampic
         if(det->name()=="CTPPS_Diamond_Segment")
-          dataCorrected[i] = -1*dataCorrected[i]+1;
-          
+          data[i] = -1*data[i]+1;
+        dataCorrected[i] = data[i] - (baselineRegression.q + baselineRegression.m * time[i]);//time is not correct
+
       }
+      auto max_it = std::max_element(data.begin(), data.end());
       auto max_corrected_it = std::max_element(dataCorrected.begin(), dataCorrected.end());
+
 
       float t = TotemTimingRecHit::NO_T_AVAILABLE;
       if (*max_it < saturationLimit_)
