@@ -29,9 +29,9 @@
 //#define EDM_ML_DEBUG
 
 CastorSD::CastorSD(const std::string& name,
-						 const SensitiveDetectorCatalog& clg,
-						 edm::ParameterSet const& p,
-						 const SimTrackManager* manager)
+                   const SensitiveDetectorCatalog& clg,
+                   edm::ParameterSet const& p,
+                   const SimTrackManager* manager)
     : CaloSD(name, clg, p, manager),
       numberingScheme(nullptr),
       lvC3EF(nullptr),
@@ -79,8 +79,8 @@ CastorSD::CastorSD(const std::string& name,
     }
   }
   edm::LogVerbatim("ForwardSim") << "CastorSD:: LogicalVolume pointers\n"
-                         << lvC3EF << " for C3EF; " << lvC3HF << " for C3HF; " << lvC4EF << " for C4EF; " << lvC4HF
-                         << " for C4HF; " << lvCAST << " for CAST. ";
+                                 << lvC3EF << " for C3EF; " << lvC3HF << " for C3HF; " << lvC4EF << " for C4EF; "
+                                 << lvC4HF << " for C4HF; " << lvCAST << " for CAST. ";
 }
 
 //=============================================================================================
@@ -346,7 +346,7 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, const G4Track* track, const Cas
 #ifdef EDM_ML_DEBUG
   if (newUnitID != unitID) {
     edm::LogVerbatim("ForwardSim") << "\n CastorSD::rotateUnitID:  "
-                           << "\n     unitID = " << unitID << "\n  newUnitID = " << newUnitID;
+                                   << "\n     unitID = " << unitID << "\n  newUnitID = " << newUnitID;
   }
 #endif
 

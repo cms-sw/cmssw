@@ -28,9 +28,9 @@
 #define EDM_ML_DEBUG
 
 ZdcSD::ZdcSD(const std::string& name,
-					   const SensitiveDetectorCatalog& clg,
-					   edm::ParameterSet const& p,
-					   const SimTrackManager* manager)
+             const SensitiveDetectorCatalog& clg,
+             edm::ParameterSet const& p,
+             const SimTrackManager* manager)
     : CaloSD(name, clg, p, manager) {
   edm::ParameterSet m_ZdcSD = p.getParameter<edm::ParameterSet>("ZdcSD");
   useShowerLibrary = m_ZdcSD.getParameter<bool>("UseShowerLibrary");
@@ -43,13 +43,13 @@ ZdcSD::ZdcSD(const std::string& name,
   setNumberingScheme(new ZdcNumberingScheme(verbn));
 
   edm::LogVerbatim("ForwardSim") << "***************************************************\n"
-                            << "*                                                 *\n"
-                            << "* Constructing a ZdcSD  with name " << name << "   *\n"
-                            << "*                                                 *\n"
-                            << "***************************************************";
+                                 << "*                                                 *\n"
+                                 << "* Constructing a ZdcSD  with name " << name << "   *\n"
+                                 << "*                                                 *\n"
+                                 << "***************************************************";
 
   edm::LogVerbatim("ForwardSim") << "\nUse of shower library is set to " << useShowerLibrary
-                            << "\nUse of Shower hits method is set to " << useShowerHits;
+                                 << "\nUse of Shower hits method is set to " << useShowerHits;
 
   edm::LogVerbatim("ForwardSim") << "\nEnergy Threshold Cut set to " << zdcHitEnergyCut / GeV << " (GeV)";
 
@@ -82,11 +82,11 @@ bool ZdcSD::getFromLibrary(const G4Step* aStep) {
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ForwardSim") << "----------------New track------------------------------\n"
-                           << "Incident EnergyTrack: " << etrack << " MeV \n"
-                           << "Zdc Cut Energy for Hits: " << zdcHitEnergyCut << " MeV \n"
-                           << "ZdcSD::getFromLibrary " << hits.size() << " hits for " << GetName() << " of "
-                           << primaryID << " with " << theTrack->GetDefinition()->GetParticleName() << " of " << etrack
-                           << " MeV\n";
+                                   << "Incident EnergyTrack: " << etrack << " MeV \n"
+                                   << "Zdc Cut Energy for Hits: " << zdcHitEnergyCut << " MeV \n"
+                                   << "ZdcSD::getFromLibrary " << hits.size() << " hits for " << GetName() << " of "
+                                   << primaryID << " with " << theTrack->GetDefinition()->GetParticleName() << " of "
+                                   << etrack << " MeV\n";
 #endif
     hits.swap(showerLibrary.get()->getHits(aStep, ok));
   }
@@ -105,13 +105,13 @@ bool ZdcSD::getFromLibrary(const G4Step* aStep) {
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ForwardSim") << "ZdcSD: Final Hit number:" << i << "-->"
-                           << "New HitID: " << currentHit->getUnitID()
-                           << " New Hit trackID: " << currentHit->getTrackID()
-                           << " New EM Energy: " << currentHit->getEM() / GeV
-                           << " New HAD Energy: " << currentHit->getHadr() / GeV
-                           << " New HitEntryPoint: " << currentHit->getEntryLocal()
-                           << " New IncidentEnergy: " << currentHit->getIncidentEnergy() / GeV
-                           << " New HitPosition: " << posGlobal;
+                                   << "New HitID: " << currentHit->getUnitID()
+                                   << " New Hit trackID: " << currentHit->getTrackID()
+                                   << " New EM Energy: " << currentHit->getEM() / GeV
+                                   << " New HAD Energy: " << currentHit->getHadr() / GeV
+                                   << " New HitEntryPoint: " << currentHit->getEntryLocal()
+                                   << " New IncidentEnergy: " << currentHit->getIncidentEnergy() / GeV
+                                   << " New HitPosition: " << posGlobal;
 #endif
   }
   return ok;
@@ -157,11 +157,11 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
   double stepE = aStep->GetTotalEnergyDeposit();
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: \n"
-                         << "  preStepPoint: " << nameVolume << "," << stepL << "," << stepE << "," << beta << ","
-                         << charge << "\n"
-                         << "  postStepPoint: " << postnameVolume << "," << costheta << "," << theta << "," << eta
-                         << "," << phi << "," << particleType << " id= " << theTrack->GetTrackID()
-                         << " Etot(GeV)= " << theTrack->GetTotalEnergy() / GeV;
+                                 << "  preStepPoint: " << nameVolume << "," << stepL << "," << stepE << "," << beta
+                                 << "," << charge << "\n"
+                                 << "  postStepPoint: " << postnameVolume << "," << costheta << "," << theta << ","
+                                 << eta << "," << phi << "," << particleType << " id= " << theTrack->GetTrackID()
+                                 << " Etot(GeV)= " << theTrack->GetTotalEnergy() / GeV;
 #endif
   const double bThreshold = 0.67;
   if ((beta > bThreshold) && (charge != 0) && (nameVolume == "ZDC_EMFiber" || nameVolume == "ZDC_HadFiber")) {
@@ -258,10 +258,10 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit:  gED: " << stepE << "," << costh << "," << th << ","
-                           << costhcher << "," << thcher << "," << DelFibPart << "," << d << "," << a << "," << r << ","
-                           << hitPoint << "," << hit_mom << "," << vert_mom << "," << localPoint << "," << charge << ","
-                           << beta << "," << stepL << "," << d_qz << "," << variant << "," << meanNCherPhot << ","
-                           << poissNCherPhot << "," << NCherPhot;
+                                   << costhcher << "," << thcher << "," << DelFibPart << "," << d << "," << a << ","
+                                   << r << "," << hitPoint << "," << hit_mom << "," << vert_mom << "," << localPoint
+                                   << "," << charge << "," << beta << "," << stepL << "," << d_qz << "," << variant
+                                   << "," << meanNCherPhot << "," << poissNCherPhot << "," << NCherPhot;
 #endif
     // --constants-----------------
     // << "," << photEnSpectrDE
