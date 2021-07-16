@@ -97,7 +97,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
       builder_->setGEMGeometry(&*h_gem);
     } else {
       edm::LogWarning("CSCTriggerPrimitivesProducer|NoGEMGeometry")
-        << "GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
+          << "GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
     }
   }
 

@@ -192,7 +192,7 @@ protected:
      information from the ALCT-CLCT combination.
   */
   void constructLCTs(
-                     const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb, CSCCorrelatedLCTDigi& lct) const;
+      const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb, CSCCorrelatedLCTDigi& lct) const;
 
   /*
     This function copies valid ALCT/CLCT information to invalid the ALCT/CLCT
