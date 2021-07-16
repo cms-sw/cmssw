@@ -49,6 +49,9 @@ clctPhase2 = clctPhase1.clone(
     clctPretriggerTriggerZone = cms.uint32(224),
 )
 
+# in the GEM-CSC trigger, we can lower the CLCT threshold from 4 to 3,
+# provided there is at least one matching GEM cluster. This cluster matching
+# is done in the CSCGEMMatcher
 clctPhase2GEM = clctPhase2.clone(
     clctNplanesHitPattern = 3
 )
