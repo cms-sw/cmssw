@@ -206,6 +206,7 @@ private:
   std::string const config_;
   bool const verbose_;
   unsigned int waitTime_;
+  std::string const extraConfig_;
 
   //This is set at beginStream and used for globalBeginRun
   //The framework guarantees that non of those can happen concurrently
@@ -226,7 +227,8 @@ ExternalGeneratorFilter::ExternalGeneratorFilter(edm::ParameterSet const& iPSet)
       lumiInfoToken_{produces<GenLumiInfoProduct, edm::Transition::EndLuminosityBlock>()},
       config_{iPSet.getUntrackedParameter<std::string>("@python_config")},
       verbose_{iPSet.getUntrackedParameter<bool>("_external_process_verbose_")},
-      waitTime_{iPSet.getUntrackedParameter<unsigned int>("_external_process_waitTime_")} {}
+      waitTime_{iPSet.getUntrackedParameter<unsigned int>("_external_process_waitTime_")},
+      extraConfig_{iPSet.getUntrackedParameter<std::string>("_external_process_extraConfig_")} {}
 
 std::unique_ptr<externalgen::StreamCache> ExternalGeneratorFilter::beginStream(edm::StreamID iID) const {
   auto const label = moduleDescription().moduleLabel();
@@ -241,6 +243,10 @@ process = TestProcess()
   config += R"_(
 process.add_(cms.Service("InitRootHandlers", UnloadRootSigHandler=cms.untracked.bool(True)))
   )_";
+  if (not extraConfig_.empty()) {
+    config += "\n";
+    config += extraConfig_;
+  }
 
   auto cache = std::make_unique<externalgen::StreamCache>(config, iID.value(), verbose_, waitTime_);
   if (iID.value() == 0) {
