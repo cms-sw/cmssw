@@ -25,7 +25,7 @@
 #include "Randomize.hh"
 #include "G4Poisson.hh"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 ZdcSD::ZdcSD(const std::string& name,
              const SensitiveDetectorCatalog& clg,
@@ -67,7 +67,6 @@ bool ZdcSD::getFromLibrary(const G4Step* aStep) {
   bool ok = true;
 
   auto const preStepPoint = aStep->GetPreStepPoint();
-  auto const theTrack = aStep->GetTrack();
 
   double etrack = preStepPoint->GetKineticEnergy();
   int primaryID = setTrackID(aStep);
@@ -81,6 +80,7 @@ bool ZdcSD::getFromLibrary(const G4Step* aStep) {
     // create hits only if above threshold
 
 #ifdef EDM_ML_DEBUG
+    auto const theTrack = aStep->GetTrack();
     edm::LogVerbatim("ForwardSim") << "----------------New track------------------------------\n"
                                    << "Incident EnergyTrack: " << etrack << " MeV \n"
                                    << "Zdc Cut Energy for Hits: " << zdcHitEnergyCut << " MeV \n"
@@ -131,16 +131,13 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
   G4double beta = preStepPoint->GetBeta();
   G4double charge = preStepPoint->GetCharge();
 
-  // postStepPoint information
-  G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
-  G4VPhysicalVolume* postPV = postStepPoint->GetPhysicalVolume();
-  const G4String& postnameVolume = postPV->GetName();
-
   // theTrack information
   G4Track* theTrack = aStep->GetTrack();
   G4String particleType = theTrack->GetDefinition()->GetParticleName();
-  const G4ThreeVector& vert_mom = theTrack->GetVertexMomentumDirection();
   G4ThreeVector localPoint = theTrack->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
+
+#ifdef EDM_ML_DEBUG
+  const G4ThreeVector& vert_mom = theTrack->GetVertexMomentumDirection();
 
   // calculations
   float costheta =
@@ -155,7 +152,11 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
 
   // Get the total energy deposit
   double stepE = aStep->GetTotalEnergyDeposit();
-#ifdef EDM_ML_DEBUG
+
+  // postStepPoint information
+  G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
+  G4VPhysicalVolume* postPV = postStepPoint->GetPhysicalVolume();
+  const G4String& postnameVolume = postPV->GetName();
   edm::LogVerbatim("ForwardSim") << "ZdcSD::  getEnergyDeposit: \n"
                                  << "  preStepPoint: " << nameVolume << "," << stepL << "," << stepE << "," << beta
                                  << "," << charge << "\n"
@@ -211,25 +212,33 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
 
     // define losses d_qz in cone of full reflection inside quartz direction
     float d_qz = -1;
+#ifdef EDM_ML_DEBUG
     float variant = -1;
-
+#endif
     // if (d > (r+a))
     if (DelFibPart > (thFullReflRad + thcher)) {
+#ifdef EDM_ML_DEBUG
       variant = 0.;
+#endif
       d_qz = 0.;
     } else {
       // if ((DelFibPart + thcher) < thFullReflRad )  [(d+r) < a]
       if ((th + thcher) < (thFibDirRad + thFullReflRad) && (th - thcher) > (thFibDirRad - thFullReflRad)) {
+#ifdef EDM_ML_DEBUG
         variant = 1.;
+#endif
         d_qz = 1.;
       } else {
         // if ((thcher - DelFibPart ) > thFullReflRad )  [(r-d) > a]
         if ((thFibDirRad + thFullReflRad) < (th + thcher) && (thFibDirRad - thFullReflRad) > (th - thcher)) {
+#ifdef EDM_ML_DEBUG
           variant = 2.;
+#endif
           d_qz = 0.;
         } else {
+#ifdef EDM_ML_DEBUG
           variant = 3.;  // d_qz is calculated below
-
+#endif
           // use crossed length of circles(cone projection) - dC1/dC2 :
           float arg_arcos = 0.;
           float tan_arcos = 2. * a * d;

@@ -42,7 +42,7 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 //
 // constructors and destructor
 //
