@@ -21,7 +21,7 @@ public:
 
 private:
   const edm::EDGetTokenT<pat::PackedCandidateCollection> inputCandidates_;
-
+  edm::EDPutTokenT<pat::PackedCandidateCollection> outputCandidates_;
   const unsigned int covSchema_;
   const unsigned int covVersion_;
   const unsigned int nHits_;
@@ -36,7 +36,8 @@ LUTPackedCandidatesProducer::LUTPackedCandidatesProducer(const edm::ParameterSet
       covVersion_(iConfig.getParameter<unsigned int>("covVersion")),
       nHits_(iConfig.getParameter<unsigned int>("nHits")),
       nPixelHits_(iConfig.getParameter<unsigned int>("nPixelHits")) {
-  produces<pat::PackedCandidateCollection>("");
+
+  outputCandidates_ = produces<pat::PackedCandidateCollection>("");
 }
 
 LUTPackedCandidatesProducer::~LUTPackedCandidatesProducer() {}
@@ -45,17 +46,17 @@ void LUTPackedCandidatesProducer::produce(edm::StreamID, edm::Event &iEvent, con
   edm::Handle<pat::PackedCandidateCollection> packedCandidates;
   iEvent.getByToken(inputCandidates_, packedCandidates);
 
-  auto output = std::make_unique<pat::PackedCandidateCollection>();
-
+  pat::PackedCandidateCollection output;
+  output.reserve(packedCandidates->size());
   for (unsigned int ic = 0, nc = packedCandidates->size(); ic < nc; ++ic) {
     const pat::PackedCandidate &cand = (*packedCandidates)[ic];
-    output->push_back(pat::PackedCandidate(cand));
+    output.push_back(pat::PackedCandidate(cand));
 
-    if (!output->back().hasTrackDetails() && output->back().covarianceVersion() == int(covVersion_))
-      output->back().setTrackPropertiesLite(covSchema_, covVersion_, nHits_, nPixelHits_);
+    if (!output.back().hasTrackDetails() && output.back().covarianceVersion() == int(covVersion_))
+      output.back().setTrackPropertiesLite(covSchema_, covVersion_, nHits_, nPixelHits_);
   }
 
-  iEvent.put(std::move(output));
+  iEvent.emplace(outputCandidates_,std::move(output));
 };
 
 void LUTPackedCandidatesProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
