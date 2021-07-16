@@ -219,13 +219,13 @@ void CSCUpgradeMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
   // parameters.
   if ((alct_trig_enable and bestALCT.isValid()) or (clct_trig_enable and bestCLCT.isValid()) or
       (match_trig_enable and bestALCT.isValid() and bestCLCT.isValid())) {
-    lct1 = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
+    constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1, lct1);
   }
 
   if (((secondALCT != bestALCT) or (secondCLCT != bestCLCT)) and
       ((alct_trig_enable and secondALCT.isValid()) or (clct_trig_enable and secondCLCT.isValid()) or
        (match_trig_enable and secondALCT.isValid() and secondCLCT.isValid()))) {
-    lct2 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
+    constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2, lct2);
   }
 }
 
