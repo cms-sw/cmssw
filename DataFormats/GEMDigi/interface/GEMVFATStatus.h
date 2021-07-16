@@ -27,23 +27,25 @@ public:
   GEMVFATStatus() {}
   GEMVFATStatus(const gem::AMCdata& amc, const gem::VFATdata& vfat, uint16_t position, bool readMultiBX) {
     Errors error{0};
-    error.vc = vfat.vc();
+    Warnings warn{0};
+
     error.EC = vfat.ec() != amc.lv1Idt();
     if (!readMultiBX)
       error.BC = vfat.bc() != amc.bunchCrossing();
 
-    Warnings warn{0};
-    if (vfat.header() == 0x1E)
-      warn.basicOFW = 0;
-    else if (vfat.header() == 0x5E)
-      warn.basicOFW = 1;
-    else if (vfat.header() == 0x1A)
-      warn.zeroSupOFW = 0;
-    else if (vfat.header() == 0x56)
-      warn.zeroSupOFW = 1;
-    else
-      error.InValidHeader = 1;
-
+    if (vfat.version() > 2) {
+      error.vc = vfat.vc();
+      if (vfat.header() == 0x1E)
+        warn.basicOFW = 0;
+      else if (vfat.header() == 0x5E)
+        warn.basicOFW = 1;
+      else if (vfat.header() == 0x1A)
+        warn.zeroSupOFW = 0;
+      else if (vfat.header() == 0x56)
+        warn.zeroSupOFW = 1;
+      else
+        error.InValidHeader = 1;
+    }
     vfatPosition_ = position;
 
     errors_ = error.codes;
