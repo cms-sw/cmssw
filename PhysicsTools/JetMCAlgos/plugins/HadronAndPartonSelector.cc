@@ -150,6 +150,11 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      if( genEvtInfoProduct.isValid() ) {
        const edm::Provenance& prov = iEvent.getProvenance(genEvtInfoProduct.id());
        moduleName = edm::moduleName(prov);
+       if (moduleName == "ExternalGeneratorFilter") {
+         moduleName = edm::parameterSet(prov).getParameter<std::string>("@external_type");
+         edm::LogInfo("SpecialModule") << "GEN events are produced by ExternalGeneratorFilter, "
+                                       << "which is a wrapper of the original module: " << moduleName;
+       }
      }
 
      if( moduleName.find("Pythia6")!=std::string::npos )
