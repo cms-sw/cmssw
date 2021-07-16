@@ -49,6 +49,7 @@ public:
   bool empty() const { return data_.empty(); }
 
 private:
+  std::string fname_;
   int readHeader(std::istream&);
 
   unsigned int nrBitsAddress_;  //technically redundant with addressMask
