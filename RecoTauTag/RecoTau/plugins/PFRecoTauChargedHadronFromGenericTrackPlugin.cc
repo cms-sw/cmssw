@@ -17,7 +17,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -74,6 +73,7 @@ namespace reco {
 
       edm::InputTag srcTracks_;
       edm::EDGetTokenT<std::vector<TrackClass> > Tracks_token;
+      const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
       double dRcone_;
       bool dRconeLimitedToJetArea_;
 
@@ -96,7 +96,8 @@ namespace reco {
         const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
         : PFRecoTauChargedHadronBuilderPlugin(pset, std::move(iC)),
           vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"), std::move(iC)),
-          qcuts_(nullptr) {
+          qcuts_(nullptr),
+          magneticFieldToken_(iC.esConsumes()) {
       edm::ParameterSet qcuts_pset = pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts");
       qcuts_ = new RecoTauQualityCuts(qcuts_pset);
 
@@ -121,10 +122,7 @@ namespace reco {
     void PFRecoTauChargedHadronFromGenericTrackPlugin<TrackClass>::beginEvent() {
       vertexAssociator_.setEvent(*this->evt());
 
-      edm::ESHandle<MagneticField> magneticField;
-      const edm::EventSetup* evtSetup(this->evtSetup());
-      evtSetup->get<IdealMagneticFieldRecord>().get(magneticField);
-      magneticFieldStrength_ = magneticField->inTesla(GlobalPoint(0., 0., 0.));
+      magneticFieldStrength_ = evtSetup()->getData(magneticFieldToken_).inTesla(GlobalPoint(0., 0., 0.));
     }
 
     template <>
