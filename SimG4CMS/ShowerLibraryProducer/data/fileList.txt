@@ -1,4 +1,32 @@
-#####################################################################
-# fileNameandLocation Type Momentum
-#####################################################################
-SimG4CMS/ShowerLibraryProducer/test/hfShowerLibSimu_100GeVElec.root electron 100
+hfShowerLibSimu_emm_eta4_phiall_e2_10000.root electron   2	
+hfShowerLibSimu_emm_eta4_phiall_e3_10000.root electron   3  
+hfShowerLibSimu_emm_eta4_phiall_e5_10000.root electron   5  
+hfShowerLibSimu_emm_eta4_phiall_e7_10000.root electron   7  
+hfShowerLibSimu_emm_eta4_phiall_e10_10000.root electron  10 
+hfShowerLibSimu_emm_eta4_phiall_e15_10000.root electron  15 
+hfShowerLibSimu_emm_eta4_phiall_e20_10000.root electron  20  
+hfShowerLibSimu_emm_eta4_phiall_e30_10000.root electron  30  
+hfShowerLibSimu_emm_eta4_phiall_e50_10000.root electron  50  
+hfShowerLibSimu_emm_eta4_phiall_e75_10000.root electron  75  
+hfShowerLibSimu_emm_eta4_phiall_e100_10000.root electron  100  
+hfShowerLibSimu_emm_eta4_phiall_e150_10000.root electron  150
+hfShowerLibSimu_emm_eta4_phiall_e250_10000.root electron  250
+hfShowerLibSimu_emm_eta4_phiall_e350_10000.root electron  350
+hfShowerLibSimu_emm_eta4_phiall_e500_10000.root electron  500
+hfShowerLibSimu_emm_eta4_phiall_e1000_10000.root electron 1000
+hfShowerLibSimu_emm_eta4_phiall_pi2_10000.root Pion   2	
+hfShowerLibSimu_emm_eta4_phiall_pi3_10000.root Pion   3  
+hfShowerLibSimu_emm_eta4_phiall_pi5_10000.root Pion   5  
+hfShowerLibSimu_emm_eta4_phiall_pi7_10000.root Pion   7  
+hfShowerLibSimu_emm_eta4_phiall_pi10_10000.root Pion  10 
+hfShowerLibSimu_emm_eta4_phiall_pi15_10000.root Pion  15 
+hfShowerLibSimu_emm_eta4_phiall_pi20_10000.root Pion  20  
+hfShowerLibSimu_emm_eta4_phiall_pi30_10000.root Pion  30  
+hfShowerLibSimu_emm_eta4_phiall_pi50_10000.root Pion  50  
+hfShowerLibSimu_emm_eta4_phiall_pi75_10000.root Pion  75  
+hfShowerLibSimu_emm_eta4_phiall_pi100_10000.root Pion  100  
+hfShowerLibSimu_emm_eta4_phiall_pi150_10000.root Pion  150
+hfShowerLibSimu_emm_eta4_phiall_pi250_10000.root Pion  250
+hfShowerLibSimu_emm_eta4_phiall_pi350_10000.root Pion  350
+hfShowerLibSimu_emm_eta4_phiall_pi500_10000.root Pion  500
+hfShowerLibSimu_emm_eta4_phiall_pi1000_10000.root Pion 1000
