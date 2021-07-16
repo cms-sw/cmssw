@@ -800,7 +800,7 @@ if __name__ == "__main__":
             self.assertEqual(t,pythonized)
         def testUsingBlock(self):
             a = UsingBlock("a")
-            self.assert_(isinstance(a, _ParameterTypeBase))
+            self.assertTrue(isinstance(a, _ParameterTypeBase))
         def testConstruction(self):
             class __Test(_TypedParameterizable):
                 pass
@@ -929,7 +929,7 @@ if __name__ == "__main__":
         def testSpecialImportRegistry(self):
             reg = _SpecialImportRegistry()
             reg.registerSpecialImportForType(int, "import foo")
-            self.assertRaises(lambda x: reg.registerSpecialImportForType(int, "import bar"))
+            self.assertRaises(RuntimeError, lambda: reg.registerSpecialImportForType(int, "import bar"))
             reg.registerSpecialImportForType(str, "import bar")
             self.assertEqual(reg.getSpecialImports(), [])
             reg.registerUse([1])
