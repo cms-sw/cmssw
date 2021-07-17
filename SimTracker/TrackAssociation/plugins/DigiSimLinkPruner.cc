@@ -33,23 +33,21 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "SimDataFormats/Track/interface/UniqueSimTrackId.h"
 
 #include <unordered_set>
 
 namespace {
 
   template <typename T>
-  std::vector<edm::DetSet<T>> pruneByTpAssoc(
-      const edm::DetSetVector<T>& simLinkColl,
-      const std::unordered_set<UniqueSimTrackId, UniqueSimTrackIdHash>& selectedIds) {
+  std::vector<edm::DetSet<T>> pruneByTpAssoc(const edm::DetSetVector<T>& simLinkColl,
+                                             const std::set<std::pair<uint32_t, EncodedEventId>>& selectedIds) {
     std::vector<edm::DetSet<T>> linkVector;
 
     for (auto&& detSet : simLinkColl) {
       edm::DetSet<T> newDetSet(detSet.detId());
 
       for (auto&& simLink : detSet) {
-        UniqueSimTrackId trkid(simLink.SimTrackId(), simLink.eventId());
+        std::pair<uint32_t, EncodedEventId> trkid(simLink.SimTrackId(), simLink.eventId());
         if (selectedIds.count(trkid) > 0) {
           newDetSet.push_back(simLink);
         }
@@ -109,7 +107,7 @@ void DigiSimLinkPruner::produce(edm::StreamID, edm::Event& iEvent, const edm::Ev
 
   auto const& tpColl = iEvent.get(trackingParticleToken_);
 
-  std::unordered_set<UniqueSimTrackId, UniqueSimTrackIdHash> selectedIds;
+  std::set<std::pair<uint32_t, EncodedEventId>> selectedIds;
   for (TrackingParticleCollection::size_type itp = 0; itp < tpColl.size(); ++itp) {
     auto const& trackingParticle = tpColl[itp];
 
