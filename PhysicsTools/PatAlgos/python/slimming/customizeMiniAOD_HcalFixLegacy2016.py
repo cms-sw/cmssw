@@ -58,7 +58,7 @@ def cleanPfCandidates(process, verbose=False):
     replacePFCandidates = MassSearchReplaceAnyInputTagVisitor("particleFlow", "pfCandidateRecalibrator", verbose=verbose)
     replacePFTmpPtrs = MassSearchReplaceAnyInputTagVisitor("particleFlowTmpPtrs", "particleFlowPtrs", verbose=verbose)
     for everywhere in [ process.producers, process.filters, process.analyzers, process.psets, process.vpsets ]:
-        for name,obj in six.iteritems(everywhere):
+        for name,obj in everywhere.items():
             if obj != process.pfCandidateRecalibrator:
                 replacePFCandidates.doIt(obj, name)
                 replacePFTmpPtrs.doIt(obj, name)

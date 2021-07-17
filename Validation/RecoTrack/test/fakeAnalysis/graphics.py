@@ -678,7 +678,7 @@ class EventPlotter(object):
 
 	    if normalised:
 		norm_cff = analysis.Get_Normalisation_Coefficients()
-		for i, v in six.iteritems(data_dict):
+		for i, v in data_dict.items():
 		    data_dict[i] = int(round(v*norm_cff[i]))
             
 	    name = ""

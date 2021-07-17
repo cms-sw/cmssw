@@ -80,7 +80,7 @@ keepMsgs = ['TritonClient','TritonService']
 for module in options.modules:
     if module not in models:
         raise ValueError("Unknown module: "+module)
-    Module = [obj for name,obj in six.iteritems(modules) if name in module][0]
+    Module = [obj for name,obj in modules.items() if name in module][0]
     setattr(process, module,
         Module(module,
             Client = cms.PSet(

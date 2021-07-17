@@ -321,7 +321,7 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
 
     counter = 0
     legends = OrderedDict() #KeepAlive
-    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+    for label, [num, color, leg] in hist_label_to_num.items():
 
         mainPad[counter].cd()
         oldHistos[label] = get1DHisto_(detector,
@@ -368,7 +368,7 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
     mainPadDiff, subPadDiff = setUpCanvas(canDiff)
  
     counter = 0
-    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+    for label, [num, color, leg] in hist_label_to_num.items():
         mainPadDiff[counter].cd()
         oldHistos[label].SetTitle(setUpTitle(detector,leg,plot))
         oldHistos[label].Draw("HIST")
@@ -551,7 +551,7 @@ def createPlots_(plot, geometry):
     hist_X0_IB = None
     hist_X0_elements = OrderedDict()
 
-    for subDetector,color in six.iteritems(DETECTORS):
+    for subDetector,color in DETECTORS.items():
         h = get1DHisto_(subDetector,plots[plot].plotNumber,geometry)
         if not h: 
             print('Warning: Skipping %s'%subDetector)
@@ -567,7 +567,7 @@ def createPlots_(plot, geometry):
                 )
 
         # category profiles
-        for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+        for label, [num, color, leg] in hist_label_to_num.items():
             if label is 'SUM': continue
             hist_label = get1DHisto_(subDetector, num + plots[plot].plotNumber, geometry)
             hist_X0_elements[label] = assignOrAddIfExists_(
@@ -585,7 +585,7 @@ def createPlots_(plot, geometry):
     cumulative_matbdg.SetDirectory(0)
 
     # colors
-    for det, color in six.iteritems(DETECTORS):
+    for det, color in DETECTORS.items():
         setColorIfExists_(hist_X0_detectors, det,  color)
 
     # First Plot: BeamPipe + Pixel + TIB/TID + TOB + TEC + Outside
@@ -593,7 +593,7 @@ def createPlots_(plot, geometry):
     stackTitle_SubDetectors = "Tracker Material Budget;%s;%s" % (
         plots[plot].abscissa,plots[plot].ordinate)
     stack_X0_SubDetectors = THStack("stack_X0",stackTitle_SubDetectors)
-    for det, histo in six.iteritems(hist_X0_detectors):
+    for det, histo in hist_X0_detectors.items():
         stack_X0_SubDetectors.Add(histo)
         cumulative_matbdg.Add(histo, 1)
 
@@ -616,7 +616,7 @@ def createPlots_(plot, geometry):
     theLegend_SubDetectors.SetFillStyle(0)
     theLegend_SubDetectors.SetBorderSize(0)
 
-    for det, histo in six.iteritems(hist_X0_detectors):
+    for det, histo in hist_X0_detectors.items():
         theLegend_SubDetectors.AddEntry(histo, det,  "f")
 
     theLegend_SubDetectors.Draw()
@@ -643,7 +643,7 @@ def createPlots_(plot, geometry):
                                                               plots[plot].ordinate)
     stack_X0_Materials = THStack("stack_X0",stackTitle_Materials)
     stack_X0_Materials.Add(hist_X0_detectors["BeamPipe"])
-    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+    for label, [num, color, leg] in hist_label_to_num.items():
         if label is 'SUM':
             continue
         stack_X0_Materials.Add(hist_X0_elements[label])
@@ -666,7 +666,7 @@ def createPlots_(plot, geometry):
     theLegend_Materials.SetBorderSize(0)
 
     theLegend_Materials.AddEntry(hist_X0_detectors["BeamPipe"],  "Beam Pipe", "f")
-    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+    for label, [num, color, leg] in hist_label_to_num.items():
         if label is 'SUM':
             continue
         theLegend_Materials.AddEntry(hist_X0_elements[label], leg, "f")
@@ -715,7 +715,7 @@ def createPlotsReco_(reco_file, label, debug=False):
     for s in sPREF:
         hs = THStack("hs","");
         histos = []
-        for det, color in six.iteritems(sDETS):
+        for det, color in sDETS.items():
             layer_number = 0
             while True:
                 layer_number += 1
@@ -828,7 +828,7 @@ def createCompoundPlots(detector, plot, geometry):
         maxY = h.GetBinContent(h.GetMaximumBin()) * legendSpace
         h.GetYaxis().SetRangeUser(minY, maxY)
 
-    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+    for label, [num, color, leg] in hist_label_to_num.items():
         # We don't want the sum to be added as part of the stack
         if label is 'SUM':
             continue

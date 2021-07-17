@@ -79,7 +79,7 @@ USAGE = re.compile(r'(?s)\s*usage: (.*?)(\n[ \t]*\n|$)')
 
 def nonzero(self): # will become the nonzero method of optparse.Values
     "True if options were given"
-    for v in six.itervalues(self.__dict__):
+    for v in self.__dict__.values():
         if v is not None: return True
     return False
 

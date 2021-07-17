@@ -1540,7 +1540,7 @@ class ConfigBuilder(object):
                 optionsForHLT['type'] = 'HIon'
             else:
                 optionsForHLT['type'] = 'GRun'
-            optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in six.iteritems(optionsForHLT))
+            optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.items())
             if sequence == 'run,fromSource':
                 if hasattr(self.process.source,'firstRun'):
                     self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.firstRun.value()),%s)'%(optionsForHLTConfig))

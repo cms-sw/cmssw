@@ -116,7 +116,7 @@ def new_items_(self):
   #items += self.moduleItems_()
   items += self.outputModules.items()
   #items += self.sequences.items() # TODO: we don't need sequences that are not paths?
-  items += six.iteritems(self.paths)
+  items += self.paths.items()
   items += self.endpaths.items()
   items += self.services.items()
   items += self.es_producers.items()

@@ -438,7 +438,7 @@ class ValidationJobMultiIOV(ValidationBase):
 
         with open("{}/validation.dagman".format(outdir), "w") as dagman:
             parents = {}
-            for (valType, valName, iov), alignments in six.iteritems(ValidationJob.condorConf):
+            for (valType, valName, iov), alignments in ValidationJob.condorConf.items():
 
                 parents[(valType, valName, iov)] = []
                 for jobInfo in alignments:
@@ -456,7 +456,7 @@ class ValidationJobMultiIOV(ValidationBase):
                 else:
                     raise AllInOneError("Merge script '[%s]' not found!"%path)
 
-            for (valType, valName, iov), alignments in six.iteritems(ValidationJob.condorConf):
+            for (valType, valName, iov), alignments in ValidationJob.condorConf.items():
                 if len(parents[(valType, valName, iov)]) != 0:
                     dagman.write('PARENT {} '.format(" ".join([parent for parent in parents[(valType, valName, iov)]])) + 'CHILD Merge_{}_{}_{}'.format(valType, valName, iov) + "\n")
 
@@ -536,7 +536,7 @@ def createMergeScript( path, validations, options ):
     #pprint.pprint(comparisonLists)
     anythingToMerge = []
 
-    for (validationtype, validationName, referenceName), validations in six.iteritems(comparisonLists):
+    for (validationtype, validationName, referenceName), validations in comparisonLists.items():
         #pprint.pprint("validations")
         #pprint.pprint(validations)
         globalDictionaries.plottingOptions = {}

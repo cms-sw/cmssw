@@ -136,7 +136,7 @@ class DataNode (object):
             retval += '\n' + ' ' * offset
             retval += '%s: ' % name
         first = True
-        for key, value in sorted (six.iteritems(self._attrs)):
+        for key, value in sorted (self._attrs.items()):
             if first:
                 retval += '{ \n'
                 tempspace = offset + 3

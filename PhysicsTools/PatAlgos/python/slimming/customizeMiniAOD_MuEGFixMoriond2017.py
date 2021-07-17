@@ -35,7 +35,7 @@ def cleanPFCandidates(process, badMuons, verbose=False):
     needOriginalMuons = [ process.muonsCleaned ] + [ getattr(process,l.moduleLabel) for l in badMuons ]
     replacePFCandidates = MassSearchReplaceAnyInputTagVisitor("particleFlow", "pfCandidatesBadMuonsCleaned", verbose=verbose)
     for everywhere in [ process.producers, process.filters, process.analyzers, process.psets, process.vpsets ]:
-        for name,obj in six.iteritems(everywhere):
+        for name,obj in everywhere.items():
             if obj not in needOriginalMuons:
                 replaceMuons.doIt(obj, name)
             if obj != process.pfCandidatesBadMuonsCleaned: 

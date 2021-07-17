@@ -33,7 +33,7 @@ def main(argv = None):
                                 ["TrackerAlignmentRcd",
                                  "TrackerSurfaceDeformationRcd",
                                  "TrackerAlignmentErrorExtendedRcd"])
-    for inp in six.itervalues(inputs):
+    for inp in inputs.values():
         inp["iovs"] = mps_tools.get_iovs(inp["connect"], inp["tag"])
     mps_tools.create_single_iov_db(inputs, args.run_number, args.output_db)
 

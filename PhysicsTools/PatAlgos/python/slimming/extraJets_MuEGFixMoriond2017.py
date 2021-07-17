@@ -93,7 +93,7 @@ def backupJetsSecondStep(process, sequences, badMuons, verbose=False):
     task = getPatAlgosToolsTask(process)
 
     # put back the old input tags and copy in task
-    for sequence in six.itervalues(sequences):
+    for sequence in sequences.values():
         massSearchReplaceAnyInputTag(sequence, "pfCandidatesBadMuonsCleaned", "particleFlow")
         massSearchReplaceAnyInputTag(sequence, "muonsCleaned", "muons")
         for mod in listModules(sequence):

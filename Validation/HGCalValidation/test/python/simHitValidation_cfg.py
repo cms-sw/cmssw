@@ -85,7 +85,7 @@ process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.DefaultCutValue   = 0.1
 process.g4SimHits.HCalSD.TestNumberingScheme = True
 
-for label, prod in six.iteritems(process.producers_()):
+for label, prod in process.producers_().items():
         if prod.type_() == "OscarMTProducer":
             # ugly hack
             prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"

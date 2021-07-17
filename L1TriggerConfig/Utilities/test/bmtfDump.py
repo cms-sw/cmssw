@@ -79,7 +79,7 @@ batch = {
         }
 
 # do the main job here
-for config,fileName in six.iteritems(batch):
+for config,fileName in batch.items():
 
     sqlplus = subprocess.Popen(sqlplusCmd, shell=False, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     with open(fileName,'w') as f:

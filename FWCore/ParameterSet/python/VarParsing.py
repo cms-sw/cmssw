@@ -561,13 +561,13 @@ class VarParsing (object):
         retval = ""
         if len (self._singletons):
             retval = retval + "Singletons:\n"
-        for varName, value in sorted (six.iteritems(self._singletons)):
+        for varName, value in sorted (self._singletons.items()):
             retval = retval + form % (varName, value) + "\n";
             if self._info.get(varName):
                 retval = retval + formInfo % ('', self._info[varName]) + "\n"
         if len (self._singletons):
             retval = retval +  "Lists:\n"
-        for varName, value in sorted (six.iteritems(self._lists)):
+        for varName, value in sorted (self._lists.items()):
             stringValue = "%s" % value
             if len (stringValue) < 76 - maxLen:
                 retval = retval + form % (varName, value) + "\n"

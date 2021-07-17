@@ -374,7 +374,7 @@ class Page(object):
         self._tables[section] = table
 
     def isEmpty(self):
-        for plotSet in six.itervalues(self._plotSets):
+        for plotSet in self._plotSets.values():
             if len(plotSet) > 0:
                 return False
 

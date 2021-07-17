@@ -22,7 +22,7 @@ def create_single_iov_db(inputs, run_number, output_db):
     """
 
     # find the IOV containing `run_number`
-    for record,tag in six.iteritems(inputs):
+    for record,tag in inputs.items():
         run_is_covered = False
         for iov in reversed(tag["iovs"]):
             if iov <= run_number:
@@ -40,7 +40,7 @@ def create_single_iov_db(inputs, run_number, output_db):
     result = {}
     remove_existing_object(output_db)
 
-    for record,tag in six.iteritems(inputs):
+    for record,tag in inputs.items():
         result[record] = {"connect": "sqlite_file:"+output_db,
                           "tag": "_".join([tag["tag"], tag["since"]])}
 
