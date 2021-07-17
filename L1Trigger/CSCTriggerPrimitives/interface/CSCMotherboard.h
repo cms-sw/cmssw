@@ -184,14 +184,21 @@ protected:
                      const CSCCLCTDigi& secondCLCT,
                      CSCCorrelatedLCTDigi& bLCT,
                      CSCCorrelatedLCTDigi& sLCT,
-                     int type);
+                     int type) const;
 
   /*
      This method calculates all the TMB words and then passes them to the
      constructor of correlated LCTs. The LCT data members are filled with
      information from the ALCT-CLCT combination.
   */
-  CSCCorrelatedLCTDigi constructLCTs(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb) const;
+  void constructLCTs(
+      const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb, CSCCorrelatedLCTDigi& lct) const;
+
+  /*
+    This function copies valid ALCT/CLCT information to invalid the ALCT/CLCT
+    if present, so that we always construct the maximum number of valid LCts
+  */
+  void copyValidToInValid(CSCALCTDigi&, CSCALCTDigi&, CSCCLCTDigi&, CSCCLCTDigi&) const;
 
   // CLCT pattern number: encodes the pattern number itself
   unsigned int encodePattern(const int clctPattern) const;
