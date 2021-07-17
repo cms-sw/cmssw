@@ -58,6 +58,7 @@ protected:
   void update(const ::EndOfEvent *) override;
 
 private:
+  const SimTrackManager *m_trackManager;
   HFShower *theShower;
 
   G4int theHCID;
