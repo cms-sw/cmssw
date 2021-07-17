@@ -1,6 +1,6 @@
 from FWCore.ParameterSet.VarParsing import VarParsing
 import FWCore.ParameterSet.Config as cms
-import os, sys, json, six
+import os, sys, json
 
 options = VarParsing("analysis")
 options.register("serverName", "default", VarParsing.multiplicity.singleton, VarParsing.varType.string)
