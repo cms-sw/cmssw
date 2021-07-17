@@ -106,8 +106,11 @@ public:
                         GEMInternalCluster& best) const;
 
 private:
+  //mitigate slope by consistency of slope indicator, if necessary
+  uint16_t mitigatedSlopeByConsistency(const CSCCLCTDigi& clct) const;
+
   // calculate slope correction
-  int CSCGEMSlopeCorrector(const bool isFacing, const bool isL1orCopad, const int cscSlope) const;
+  int CSCGEMSlopeCorrector(const bool isL1orCopad, const int cscSlope) const;
 
   unsigned endcap_;
   unsigned station_;
@@ -118,24 +121,39 @@ private:
   unsigned maxDeltaBXALCTGEM_;
   unsigned maxDeltaBXCLCTGEM_;
 
+  bool matchWithHS_;
+
   unsigned maxDeltaHsEven_;
   unsigned maxDeltaHsOdd_;
   unsigned maxDeltaHsEvenME1a_;
   unsigned maxDeltaHsOddME1a_;
 
   bool assign_gem_csc_bending_;
+  bool mitigateSlopeByCosi_;
 
   // strings to paths of LUTs
   std::vector<std::string> gemCscSlopeCorrectionFiles_;
+  std::vector<std::string> gemCscSlopeCosiFiles_;
+  std::vector<std::string> gemCscSlopeCosiCorrectionFiles_;
   std::vector<std::string> esDiffToSlopeME1aFiles_;
   std::vector<std::string> esDiffToSlopeME1bFiles_;
   std::vector<std::string> esDiffToSlopeME21Files_;
 
   // unique pointers to the luts
+  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_2to1_L1_ME11_even_;
+  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_3to1_L1_ME11_even_;
+  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_2to1_L1_ME11_odd_;
+  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_3to1_L1_ME11_odd_;
+
   std::unique_ptr<CSCLUTReader> gem_csc_slope_corr_L1_ME11_even_;
   std::unique_ptr<CSCLUTReader> gem_csc_slope_corr_L2_ME11_even_;
   std::unique_ptr<CSCLUTReader> gem_csc_slope_corr_L1_ME11_odd_;
   std::unique_ptr<CSCLUTReader> gem_csc_slope_corr_L2_ME11_odd_;
+
+  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_corr_L1_ME11_even_;
+  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_corr_L2_ME11_even_;
+  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_corr_L1_ME11_odd_;
+  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_corr_L2_ME11_odd_;
 
   std::unique_ptr<CSCLUTReader> es_diff_slope_L1_ME1b_even_;
   std::unique_ptr<CSCLUTReader> es_diff_slope_L2_ME1b_even_;
