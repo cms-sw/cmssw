@@ -10,7 +10,6 @@ import pickle
 from math import sqrt, copysign, sin, cos, pi
 
 from Validation.RecoTrack.plotting.ntuple import *
-import six
 
 ##### GLOBAL VARIABLES #####
 
