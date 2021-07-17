@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import six
 
 from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
 process = cms.Process('testHGCalSIMLocal',Phase2C9)

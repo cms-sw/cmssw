@@ -1,4 +1,3 @@
-import six
 from Configuration.StandardSequences.CondDBESSource_cff import GlobalTag as essource
 connectionString = essource.connect.value()
 

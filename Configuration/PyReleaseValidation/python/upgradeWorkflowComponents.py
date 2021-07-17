@@ -1,6 +1,5 @@
 from copy import copy, deepcopy
 from collections import OrderedDict
-import six
 from .MatrixUtil import merge, Kby
 import re
 

@@ -3,7 +3,6 @@
 from builtins import range
 import sys, os.path, json
 from collections import defaultdict
-import six
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(True)

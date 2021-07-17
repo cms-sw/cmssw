@@ -9,7 +9,6 @@ import optparse
 import re
 import copy
 import subprocess
-import six
 
 # define regex
 wrapperRE      = re.compile (r'edm::Wrapper<(.+)\s*>$')

@@ -6,7 +6,6 @@ import re
 import subprocess
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 
-import six
 
 def fill_time_info(mps_index, status, cpu_time):
     """Fill timing info in the database for `mps_index`.

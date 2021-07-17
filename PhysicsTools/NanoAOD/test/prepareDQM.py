@@ -4,7 +4,6 @@ from __future__ import print_function
 import sys, os
 from collections import defaultdict
 from math import ceil, pi, log
-import six
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(True)

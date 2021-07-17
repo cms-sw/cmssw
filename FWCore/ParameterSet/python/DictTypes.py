@@ -1,5 +1,4 @@
 # helper classes for sorted and fixed dicts
-import six
 class SortedKeysDict(dict):
     """a dict preserving order of keys"""
     # specialised __repr__ missing.

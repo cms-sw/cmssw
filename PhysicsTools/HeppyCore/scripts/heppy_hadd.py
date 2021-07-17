@@ -7,7 +7,6 @@ import os
 import pprint
 import pickle
 import shutil
-import six
 
 MAX_ARG_STRLEN = 131072
 

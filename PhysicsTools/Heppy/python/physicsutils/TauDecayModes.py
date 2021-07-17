@@ -8,7 +8,6 @@ class TauDecayModes( object ):
     def _decayModes(self):
         '''Builds the internal dictionaries from the enum defined in 
         http://cmslxr.fnal.gov/lxr/source/DataFormats/TauReco/interface/PFTau.h'''
-        import six
         tmp = [
             'kNull',
             'kOneProng0PiZero',

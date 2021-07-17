@@ -6,7 +6,6 @@ from __future__ import absolute_import
 from .weight import Weight
 import copy
 import glob
-import six
 
 def printComps(comps, details=False):
     '''

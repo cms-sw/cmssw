@@ -1,6 +1,5 @@
 import collections
 from ROOT import TChain
-import six
 
 class Event(object):
     '''Event class.

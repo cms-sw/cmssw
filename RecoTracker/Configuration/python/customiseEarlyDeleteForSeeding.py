@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 import collections
-import six
 
 def customiseEarlyDeleteForSeeding(process, products):
     # Find the producers

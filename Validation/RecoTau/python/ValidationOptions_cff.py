@@ -1,7 +1,6 @@
 from __future__ import print_function
 import os
 import sys
-import six
 try:
    ReleaseBase = os.path.join(os.environ['CMSSW_BASE'], "src")
    ReleaseVersion = os.environ['CMSSW_VERSION']

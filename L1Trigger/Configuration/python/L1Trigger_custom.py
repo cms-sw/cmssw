@@ -4,7 +4,6 @@ from __future__ import print_function
 # V.M. Ghete 2010-06-09 initial version
 
 import FWCore.ParameterSet.Config as cms
-import six
 
 def customiseUnprescaleAlgoTriggers(process):
 

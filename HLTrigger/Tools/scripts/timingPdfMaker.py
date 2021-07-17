@@ -22,7 +22,6 @@ import os, glob
 import os.path
 import operator
 import subprocess 
-import six
 import sys, getopt
 sys.argv.append('-b')
 from ROOT import *

@@ -14,7 +14,6 @@ from .event import Event
 import timeit
 import resource
 import json
-import six
 
 class Setup(object):
     '''The Looper creates a Setup object to hold information relevant during 

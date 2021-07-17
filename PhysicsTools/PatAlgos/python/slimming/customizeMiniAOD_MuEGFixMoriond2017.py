@@ -5,7 +5,6 @@ from PhysicsTools.PatAlgos.slimming.extraJets_MuEGFixMoriond2017 import backupJe
 #from RecoEgamma.EgammaTools.egammaGainSwitchFixToolsForPAT_cff import customizeGSFixForPAT
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 import sys
-import six
 
 def addBadMuonFilters(process):
 

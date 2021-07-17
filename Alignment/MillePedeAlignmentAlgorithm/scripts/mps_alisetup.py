@@ -20,7 +20,6 @@ import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.trackerTree as mpsv_tra
 from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper import checked_out_MPS
 from functools import reduce
 
-import six
 
 ################################################################################
 def main(argv = None):

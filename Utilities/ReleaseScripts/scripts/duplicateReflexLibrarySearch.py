@@ -8,7 +8,6 @@ import sys
 import pprint
 import subprocess
 from XML2Python import xml2obj
-import six
 try:
   from subprocess import getoutput
 except:

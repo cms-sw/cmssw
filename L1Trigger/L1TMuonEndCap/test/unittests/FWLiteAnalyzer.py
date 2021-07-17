@@ -8,7 +8,6 @@ from __future__ import print_function
 from ROOT import gROOT, gSystem, AutoLibraryLoader
 from DataFormats.FWLite import Events, Handle
 
-import six
 
 class FWLiteAnalyzer(object):
 

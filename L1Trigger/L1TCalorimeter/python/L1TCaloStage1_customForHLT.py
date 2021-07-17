@@ -3,7 +3,6 @@
 
 import FWCore.ParameterSet.Config as cms
 import os
-import six
 
 ##############################################################################
 

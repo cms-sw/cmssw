@@ -4,7 +4,6 @@ from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import patDiscriminationByIsolationMVArun2v1raw, patDiscriminationByIsolationMVArun2v1
 import os
 import re
-import six
 
 class TauIDEmbedder(object):
     """class to rerun the tau seq and acces trainings from the database"""

@@ -15,7 +15,6 @@ from os.path import join
 from urllib import quote
 from functools import reduce
 
-import six
 
 renaming = {
         'MessageLogger': 'Miscellanea', 'FourVector': 'Generic',

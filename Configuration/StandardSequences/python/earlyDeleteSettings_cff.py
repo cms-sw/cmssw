@@ -6,7 +6,6 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.Configuration.customiseEarlyDeleteForSeeding import customiseEarlyDeleteForSeeding
 from CommonTools.ParticleFlow.Isolation.customiseEarlyDeleteForCandIsoDeposits import customiseEarlyDeleteForCandIsoDeposits
-import six
 
 def _hasInputTagModuleLabel(process, pset, psetModLabel, moduleLabels, result):
     for name in pset.parameterNames_():

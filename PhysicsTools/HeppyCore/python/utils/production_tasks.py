@@ -15,7 +15,6 @@ from . import das as Das
 from .dataset import Dataset
 from .datasetToSource import createDataset
 from .castorBaseDir import castorBaseDir
-import six
 
 def mkdir_p(path):
     try:

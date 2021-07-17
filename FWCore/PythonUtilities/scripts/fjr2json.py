@@ -9,7 +9,6 @@ import ast
 import optparse
 import sys
 
-import six
 
 if __name__ == '__main__':
 

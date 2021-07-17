@@ -99,7 +99,6 @@ import copy
 from inspect import getargspec
 from random import choice
 
-import six
 
 # These we need to communicate with DBS global DBSAPI
 from DBSAPI.dbsApi import DbsApi

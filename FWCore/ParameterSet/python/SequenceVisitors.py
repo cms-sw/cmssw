@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from .SequenceTypes import *
 from .Modules import OutputModule, EDProducer, EDFilter, EDAnalyzer, Service, ESProducer, ESSource, _Module
 from .Mixins import _Labelable
-import six
 
 # Use this on Tasks in the Schedule
 class ScheduleTaskValidator(object):

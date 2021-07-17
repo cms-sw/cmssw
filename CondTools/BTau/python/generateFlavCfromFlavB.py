@@ -8,7 +8,6 @@ import itertools
 from . import dataLoader
 from . import checkBTagCalibrationConsistency as checker
 
-import six
 
 def generate_flav_c(loaded_data):
     flav_b_data = [e for e in loaded_data.entries if e.params.jetFlavor == 0]

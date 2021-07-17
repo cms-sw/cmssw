@@ -17,7 +17,6 @@ import itertools
 import pprint
 import re
 
-import six
 import Alignment.OfflineValidation.TkAlAllInOneTool.configTemplates \
     as configTemplates
 from Alignment.OfflineValidation.TkAlAllInOneTool.TkAlExceptions \

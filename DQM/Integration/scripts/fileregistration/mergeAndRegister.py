@@ -7,7 +7,6 @@ from datetime import datetime
 import smtplib
 from email.MIMEText import MIMEText
 from ROOT import TFile
-import six
 
 def sendmail(EmailAddress,run):
     s=smtplib.SMTP("localhost")

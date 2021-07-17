@@ -6,7 +6,6 @@ import optparse
 import os
 import re
 from pprint import pprint
-import six
 
 epsilon = 1.e-4
 

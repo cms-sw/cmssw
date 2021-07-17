@@ -10,7 +10,6 @@ import subprocess
 import CondCore.Utilities.conddblib as conddb
 from functools import reduce
 
-import six
 
 def create_single_iov_db(inputs, run_number, output_db):
     """Create an sqlite file with single-IOV tags for alignment payloads.

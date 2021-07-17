@@ -1,6 +1,5 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
-import six
 
 def customise(process):
     process.escontent = cms.EDAnalyzer("PrintEventSetupContent",

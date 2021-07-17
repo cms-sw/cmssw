@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.Modules.logErrorHarvester_cfi import logErrorHarvester
-import six
 
 def customiseLogErrorHarvesterUsingOutputCommands(process):
     logName = 'logErrorHarvester'

@@ -4,7 +4,6 @@ from copy import copy
 from copy import deepcopy
 import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
-import six
 
 # Helper functions
 def getPSetDict(thePSet):

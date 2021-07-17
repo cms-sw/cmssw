@@ -8,7 +8,6 @@ import os
 import sys
 import xml.etree.ElementTree as ET
 
-import six
 
 # Pairwise generator: returns pairs of adjacent elements in a list / other iterable
 def pairwiseGen(aList):

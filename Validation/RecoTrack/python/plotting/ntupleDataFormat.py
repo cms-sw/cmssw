@@ -6,7 +6,6 @@ import ROOT
 
 from Validation.RecoTrack.plotting.ntupleEnum import *
 from Validation.RecoTrack.plotting.ntupleEnum import _Enum
-import six
 
 class _Collection(object):
     """Adaptor class representing a collection of objects.

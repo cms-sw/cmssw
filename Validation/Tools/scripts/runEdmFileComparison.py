@@ -7,7 +7,6 @@ import pprint
 import re
 import os
 import sys
-import six
 
 piecesRE     = re.compile (r'(.+?)\s+"(\S+)"\s+"(\S*)"\s+"(\S+)"')
 #colonRE      = re.compile (r':+')

@@ -7,7 +7,6 @@ import commands
 from optparse import OptionParser
 
 
-import six
 # --
 # -- Usage :
 # -- Rate within a given PD :

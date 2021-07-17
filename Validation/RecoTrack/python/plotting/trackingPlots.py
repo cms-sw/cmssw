@@ -4,7 +4,6 @@ import os
 import copy
 import collections
 
-import six
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True

@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import six
 
 # require the EXISTANCE of a track - not necessarily above any pt cut (above the basic 0.5 GeV filter)
 leadTrackFinding = cms.PSet(

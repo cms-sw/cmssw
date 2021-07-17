@@ -6,7 +6,6 @@ __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
-import six
 # The following import is provided for backward compatibility reasons.
 # The function used to be defined in this file.
 from FWCore.ParameterSet.MassReplace import massReplaceInputTag as MassReplaceInputTag

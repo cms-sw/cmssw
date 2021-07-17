@@ -8,7 +8,6 @@ from __future__ import print_function
 from builtins import range
 import re
 import ROOT
-import six
 import sys
 ### define tab completion
 try:

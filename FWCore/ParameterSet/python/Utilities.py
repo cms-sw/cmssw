@@ -61,7 +61,6 @@ def moduleLabelsInSequences(* sequences):
 
 def createTaskWithAllProducersAndFilters(process):
   from FWCore.ParameterSet.Config import Task
-  import six
 
   l = [ p for p in process.producers.values()]
   l.extend( (f for f in process.filters.values()) )
@@ -72,7 +71,6 @@ def convertToSingleModuleEndPaths(process):
     and replace with new EndPaths each with only one module.
     """
     import FWCore.ParameterSet.Config as cms
-    import six
     toRemove =[]
     added = []
     for n,ep in process.endpaths_().items():

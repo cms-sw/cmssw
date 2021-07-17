@@ -13,7 +13,6 @@ from pprint import pprint
 import array
 import ROOT
 import math
-import six
 
 sepRE      = re.compile (r'[\s,;:]+')
 nonSpaceRE = re.compile (r'\S')

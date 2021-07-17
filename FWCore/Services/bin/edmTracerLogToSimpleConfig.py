@@ -14,7 +14,6 @@ from __future__ import print_function
 #==============================
 
 import sys
-import six
 
 f = open(sys.argv[1])
 

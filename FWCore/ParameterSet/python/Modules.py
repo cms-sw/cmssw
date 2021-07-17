@@ -6,7 +6,6 @@ from .SequenceTypes import _SequenceLeaf
 from .Types import vstring, EDAlias
 
 
-import six
 import copy
 from .ExceptionHandling import *
 class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):

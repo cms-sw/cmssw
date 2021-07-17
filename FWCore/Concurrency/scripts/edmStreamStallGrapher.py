@@ -5,7 +5,6 @@ from itertools import groupby
 from operator import attrgetter,itemgetter
 import sys
 from collections import defaultdict
-import six
 #----------------------------------------------
 def printHelp():
     s = '''

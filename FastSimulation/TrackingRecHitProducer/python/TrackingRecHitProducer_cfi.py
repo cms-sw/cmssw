@@ -1,5 +1,4 @@
 # Python 2 vs 3 compatibility library:
-import six
 
 import FWCore.ParameterSet.Config as cms
 

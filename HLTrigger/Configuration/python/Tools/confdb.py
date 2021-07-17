@@ -8,7 +8,6 @@ import urllib, urllib2
 from .pipe import pipe as _pipe
 from .options import globalTag
 from itertools import islice
-import six
 
 def splitter(iterator, n):
   i = iterator.__iter__()

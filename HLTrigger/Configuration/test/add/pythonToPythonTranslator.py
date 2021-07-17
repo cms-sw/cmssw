@@ -7,7 +7,6 @@ import sys, os, os.path
 
 # enable tracing cms.Sequences, cms.Paths and cms.EndPaths for all imported modules (thus, process.load(...), too)
 import tracingImport
-import six
 
 result = dict()
 result['procname']       = ''

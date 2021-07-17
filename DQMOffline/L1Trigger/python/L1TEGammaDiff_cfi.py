@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from DQMOffline.L1Trigger import L1TEGammaOffline_cfi
-import six
 
 variables = {
     'electron': L1TEGammaOffline_cfi.electronEfficiencyThresholds,

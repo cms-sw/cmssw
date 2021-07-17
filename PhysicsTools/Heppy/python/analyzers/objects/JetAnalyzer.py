@@ -10,7 +10,6 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 
 from PhysicsTools.Heppy.physicsutils.QGLikelihoodCalculator import QGLikelihoodCalculator
 
-import six
 import copy
 def cleanNearestJetOnly(jets,leptons,deltaR):
     dr2 = deltaR**2

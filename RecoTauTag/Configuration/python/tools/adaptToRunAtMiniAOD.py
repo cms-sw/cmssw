@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import six
 
 ######
 # Tools to adapt Tau sequences to run tau ReReco+PAT at MiniAOD samples

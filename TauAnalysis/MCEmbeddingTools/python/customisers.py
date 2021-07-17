@@ -5,7 +5,6 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-import six
 
 ################################ Customizer for skimming ###########################
 ### There are four different parts.

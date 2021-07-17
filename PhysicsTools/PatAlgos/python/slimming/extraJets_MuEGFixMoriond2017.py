@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.helpers import listDependencyChain, massSearchReplaceAnyInputTag, cloneProcessingSnippet, addKeepStatement,listModules
 
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
-import six
 
 def makeRecoJetCollection(process, 
                           pfCandCollection,
