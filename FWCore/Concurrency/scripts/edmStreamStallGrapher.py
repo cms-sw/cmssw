@@ -577,7 +577,7 @@ def plotPerStreamAboveFirstAndPrepareStack(points, allStackTimes, ax, stream, he
 #----------------------------------------------
 def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledModuleInfo, displayExternalWork, checkOrder, setXAxis, xLower, xUpper):
 
-    stalledModuleNames = set([x for x in stalledModuleInfo.iterkeys()])
+    stalledModuleNames = set([x for x in iter(stalledModuleInfo)])
     streamLowestRow = [[] for x in range(numStreams)]
     modulesActiveOnStreams = [set() for x in range(numStreams)]
     acquireActiveOnStreams = [set() for x in range(numStreams)]
