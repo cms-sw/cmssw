@@ -1,46 +1,16 @@
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimG4CMS/Calo/interface/CaloSD.h"
-#include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "SimG4CMS/HGCalTestBeam/interface/HGCalTB16SD01.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "G4LogicalVolumeStore.hh"
-#include "G4Material.hh"
-#include "G4Step.hh"
 #include "G4Track.hh"
 
 #include <string>
 
 //#define EDM_ML_DEBUG
 
-class HGCalTB16SD01 : public CaloSD {
-public:
-  HGCalTB16SD01(const std::string&,
-                const edm::EventSetup&,
-                const SensitiveDetectorCatalog&,
-                edm::ParameterSet const&,
-                const SimTrackManager*);
-  ~HGCalTB16SD01() override = default;
-  uint32_t setDetUnitId(const G4Step* step) override;
-  static uint32_t packIndex(int det, int lay, int x, int y);
-  static void unpackIndex(const uint32_t& idx, int& det, int& lay, int& x, int& y);
-
-protected:
-  double getEnergyDeposit(const G4Step*) override;
-
-private:
-  void initialize(const G4StepPoint* point);
-
-  std::string matName_;
-  bool useBirk_;
-  double birk1_, birk2_, birk3_;
-  bool initialize_;
-  G4Material* matScin_;
-};
 
 HGCalTB16SD01::HGCalTB16SD01(const std::string& name,
-                             const edm::EventSetup& es,
                              const SensitiveDetectorCatalog& clg,
                              edm::ParameterSet const& p,
                              const SimTrackManager* manager)
@@ -131,10 +101,3 @@ void HGCalTB16SD01::initialize(const G4StepPoint* point) {
                              << " is initialized to : " << matScin_;
 #endif
 }
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorPluginFactory.h"
-
-typedef HGCalTB16SD01 HGCalTB1601SensitiveDetector;
-DEFINE_SENSITIVEDETECTOR(HGCalTB1601SensitiveDetector);
