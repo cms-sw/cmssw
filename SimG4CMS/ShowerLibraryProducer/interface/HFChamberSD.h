@@ -1,5 +1,5 @@
-#ifndef SimG4CMS_ShowerLibraryProducer_HFChamberSensitiveDetector_h
-#define SimG4CMS_ShowerLibraryProducer_HFChamberSensitiveDetector_h
+#ifndef SimG4CMS_ShowerLibraryProducer_HFChamberSD_h
+#define SimG4CMS_ShowerLibraryProducer_HFChamberSD_h
 
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
@@ -18,12 +18,14 @@
 class G4Step;
 class G4HCofThisEvent;
 
-class HFChamberSensitiveDetector : public SensitiveCaloDetector {
+class HFChamberSD : public SensitiveCaloDetector {
 public:
-  explicit HFChamberSensitiveDetector(const std::string&,
-				      const SensitiveDetectorCatalog&,
-				      const SimTrackManager*);
-  ~HFChamberSensitiveDetector() override;
+  explicit HFChamberSD(const std::string&,
+                       const edm::EventSetup&,
+                       const SensitiveDetectorCatalog&,
+                       const edm::ParameterSet&,
+                       const SimTrackManager*);
+  ~HFChamberSD() override;
 
   void Initialize(G4HCofThisEvent* HCE) override;
   G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ROhist) override;
@@ -37,6 +39,8 @@ public:
   void fillHits(edm::PCaloHitContainer&, const std::string&) override;
 
 private:
+  const SimTrackManager* m_trackManager;
+
   G4int theHCID;
   HFShowerG4HitsCollection* theHC;
   int theNSteps;

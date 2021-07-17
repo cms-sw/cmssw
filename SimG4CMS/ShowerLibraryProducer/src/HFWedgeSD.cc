@@ -1,4 +1,4 @@
-#include "SimG4CMS/ShowerLibraryProducer/interface/HFWedgeSensitiveDetector.h"
+#include "SimG4CMS/ShowerLibraryProducer/interface/HFWedgeSD.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "G4VPhysicalVolume.hh"
@@ -16,29 +16,30 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 
-//#define EDM_ML_DEBUG
-
-HFWedgeSensitiveDetector::HFWedgeSensitiveDetector(const std::string& iname,
-						   const SensitiveDetectorCatalog& clg,
-						   const SimTrackManager* manager)
-    : SensitiveCaloDetector(iname, clg), hcID(-1), theHC(nullptr), currentHit(nullptr) {
-  edm::LogVerbatim("FiberSim") << "HFWedgeSensitiveDetector : Instantiated for " << iname;
+HFWedgeSD::HFWedgeSD(const std::string& iname,
+                     const edm::EventSetup& es,
+                     const SensitiveDetectorCatalog& clg,
+                     edm::ParameterSet const& p,
+                     const SimTrackManager* manager)
+    : SensitiveCaloDetector(iname, clg), m_trackManager(manager), hcID(-1), theHC(nullptr), currentHit(nullptr) {
+  edm::LogVerbatim("FiberSim") << "HFWedgeSD : Instantiated for " << iname;
 }
 
-HFWedgeSensitiveDetector::~HFWedgeSensitiveDetector() { delete theHC; }
+HFWedgeSD::~HFWedgeSD() { delete theHC; }
 
-void HFWedgeSensitiveDetector::Initialize(G4HCofThisEvent* HCE) {
-  edm::LogVerbatim("FiberSim") << "HFWedgeSensitiveDetector : Initialize called for " << GetName() << " in collection " << HCE;
+void HFWedgeSD::Initialize(G4HCofThisEvent* HCE) {
+  edm::LogVerbatim("FiberSim") << "HFWedgeSD : Initialize called for " << GetName() << " in collection " << HCE;
   theHC = new HFShowerG4HitsCollection(GetName(), collectionName[0]);
   if (hcID < 0)
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(hcID, theHC);
-  edm::LogVerbatim("FiberSim") << "HFWedgeSensitiveDetector : Add hit collectrion for " << collectionName[0] << ":" << hcID << ":" << theHC;
+  edm::LogVerbatim("FiberSim") << "HFWedgeSD : Add hit collectrion for " << collectionName[0] << ":" << hcID << ":"
+                               << theHC;
 
   clearHits();
 }
 
-G4bool HFWedgeSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
+G4bool HFWedgeSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
   const G4VTouchable* touch = preStepPoint->GetTouchable();
   currentID = setDetUnitId(aStep);
@@ -57,18 +58,18 @@ G4bool HFWedgeSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*)
   return true;
 }
 
-void HFWedgeSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE) {
-  edm::LogVerbatim("FiberSim") << "HFWedgeSensitiveDetector: Sees" << theHC->entries() << " hits";
+void HFWedgeSD::EndOfEvent(G4HCofThisEvent* HCE) {
+  edm::LogVerbatim("FiberSim") << "HFWedgeSD: Sees" << theHC->entries() << " hits";
   clear();
 }
 
-void HFWedgeSensitiveDetector::clear() {}
+void HFWedgeSD::clear() {}
 
-void HFWedgeSensitiveDetector::DrawAll() {}
+void HFWedgeSD::DrawAll() {}
 
-void HFWedgeSensitiveDetector::PrintAll() {}
+void HFWedgeSD::PrintAll() {}
 
-G4bool HFWedgeSensitiveDetector::hitExists() {
+G4bool HFWedgeSD::hitExists() {
   // Update if in the same detector, time-slice and for same track
   if (currentID == previousID) {
     updateHit(currentHit);
@@ -84,12 +85,10 @@ G4bool HFWedgeSensitiveDetector::hitExists() {
   return false;
 }
 
-HFShowerG4Hit* HFWedgeSensitiveDetector::createNewHit() {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("FiberSim") << "HFWedgeSensitiveDetector::CreateNewHit for ID " << currentID << " Track " << trackID
+HFShowerG4Hit* HFWedgeSD::createNewHit() {
+  edm::LogVerbatim("FiberSim") << "HFWedgeSD::CreateNewHit for ID " << currentID << " Track " << trackID
                                << " Edep: " << edep / CLHEP::MeV << " MeV; Time: " << time << " ns; Position (local) "
                                << localPos << " (global ) " << globalPos << " direction " << momDir;
-#endif
   HFShowerG4Hit* aHit = new HFShowerG4Hit;
   aHit->setHitId(currentID);
   aHit->setTrackId(trackID);
@@ -105,24 +104,23 @@ HFShowerG4Hit* HFWedgeSensitiveDetector::createNewHit() {
   return aHit;
 }
 
-void HFWedgeSensitiveDetector::updateHit(HFShowerG4Hit* aHit) {
+void HFWedgeSD::updateHit(HFShowerG4Hit* aHit) {
   if (edep != 0) {
     aHit->updateEnergy(edep);
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("FiberSim") << "HFWedgeSensitiveDetector: Add energy deposit in " << currentID << " edep " << edep / CLHEP::MeV << " MeV";
-#endif
+    edm::LogVerbatim("FiberSim") << "HFWedgeSD: Add energy deposit in " << currentID << " edep " << edep / CLHEP::MeV
+                                 << " MeV";
   }
   previousID = currentID;
 }
 
-void HFWedgeSensitiveDetector::clearHits() {
+void HFWedgeSD::clearHits() {
   hitMap.erase(hitMap.begin(), hitMap.end());
   previousID = -1;
 }
 
-uint32_t HFWedgeSensitiveDetector::setDetUnitId(const G4Step* aStep) {
+uint32_t HFWedgeSD::setDetUnitId(const G4Step* aStep) {
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   return (touch->GetReplicaNumber(0));
 }
 
-void HFWedgeSensitiveDetector::fillHits(edm::PCaloHitContainer&, const std::string&) {}
+void HFWedgeSD::fillHits(edm::PCaloHitContainer&, const std::string&) {}
