@@ -94,7 +94,7 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
         if targetLabel is None:
             self._targetLabel = str('')
         if kargs:
-            for k,v in six.iteritems(kargs):
+            for k,v in kargs.items():
                 if not isinstance(v,vstring):
                     raise RuntimeError('ESPrefer only allows vstring attributes. "'+k+'" is a '+str(type(v)))
     def _placeImpl(self,name,proc):
@@ -282,7 +282,7 @@ class SwitchProducer(EDProducer):
         if not self.__typeIsValid(value):
             raise TypeError(name+" does not already exist, so it can only be set to a cms.EDProducer or cms.EDAlias")
         if name not in self._caseFunctionDict:
-            raise ValueError("Case '%s' is not allowed (allowed ones are %s)" % (name, ",".join(six.iterkeys(self._caseFunctionDict))))
+            raise ValueError("Case '%s' is not allowed (allowed ones are %s)" % (name, ",".join(self._caseFunctionDict.keys())))
         if name in self.__dict__:
             message = "Duplicate insert of member " + name
             message += "\nThe original parameters are:\n"
@@ -293,7 +293,7 @@ class SwitchProducer(EDProducer):
         self._isModified = True
 
     def __setParameters(self, parameters):
-        for name, value in six.iteritems(parameters):
+        for name, value in parameters.items():
             self.__addParameter(name, value)
 
     def __setattr__(self, name, value):
@@ -326,7 +326,7 @@ class SwitchProducer(EDProducer):
 
         # Need special treatment as cms.EDProducer is not a valid parameter type (except in this case)
         myparams = dict()
-        for name, value in six.iteritems(params):
+        for name, value in params.items():
             if value is None:
                 continue
             elif isinstance(value, dict):

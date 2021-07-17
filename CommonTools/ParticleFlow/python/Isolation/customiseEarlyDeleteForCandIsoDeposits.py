@@ -9,7 +9,7 @@ def customiseEarlyDeleteForCandIsoDeposits(process, products):
     def _branchName(productType, moduleLabel, instanceLabel=""):
         return "%s_%s_%s_%s" % (productType, moduleLabel, instanceLabel, process.name_())
 
-    for name, module in six.iteritems(process.producers_()):
+    for name, module in process.producers_().items():
         cppType = module._TypedParameterizable__type
         if cppType == "CandIsoDepositProducer":
             if module.ExtractorPSet.ComponentName in ["CandViewExtractor", "PFCandWithSuperClusterExtractor"] :

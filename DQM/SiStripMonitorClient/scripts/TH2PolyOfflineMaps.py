@@ -313,7 +313,7 @@ class TH2PolyOfflineMaps:
           # init internal data structure
           self.internalData.update({int(items[0]) : {}})
           
-      self.rawToOnlineDict = dict((v,k) for k,v in six.iteritems(self.detDict))    
+      self.rawToOnlineDict = dict((v,k) for k,v in self.detDict.items())    
       
       self.__GroupHistograms()
       

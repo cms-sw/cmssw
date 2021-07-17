@@ -69,7 +69,7 @@ class HLTProcess(object):
     args = ['--configName', self.config.setup ]
     args.append('--noedsources')
     args.append('--nopaths')
-    for key, vals in six.iteritems(self.options):
+    for key, vals in self.options.items():
       if vals:
         args.extend(('--'+key, ','.join(vals)))
     args.append('--cff')
@@ -89,7 +89,7 @@ class HLTProcess(object):
     if not self.config.hilton:
         # keep the original Source when running on Hilton
         args.append('--noedsources')
-    for key, vals in six.iteritems(self.options):
+    for key, vals in self.options.items():
       if vals:
         args.extend(('--'+key, ','.join(vals)))
 

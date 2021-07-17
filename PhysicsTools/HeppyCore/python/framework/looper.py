@@ -281,7 +281,7 @@ if __name__ == '__main__':
         jsonfilename = options.options
         jfile = open (jsonfilename, 'r')
         opts=json.loads(jfile.readline())
-        for k,v in six.iteritems(opts):
+        for k,v in opts.items():
             _heppyGlobalOptions[k]=v
         jfile.close()
 

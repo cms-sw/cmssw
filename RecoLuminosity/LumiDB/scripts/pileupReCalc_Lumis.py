@@ -97,7 +97,7 @@ if __name__ == '__main__':
 
     # loop over pileup JSON as source, since it should have more lumi sections
 
-    for (run, LSPUlist) in sorted (six.iteritems(inputPileupRange)):
+    for (run, LSPUlist) in sorted (inputPileupRange.items()):
         # now, look for matching run, then match lumi sections
         #print "searching for run %d" % (run)
         if run in inputRange.keys():

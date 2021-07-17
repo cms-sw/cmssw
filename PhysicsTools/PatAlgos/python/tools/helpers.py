@@ -276,7 +276,7 @@ def listDependencyChain(process, module, sources, verbose=False):
     """
     def allDirectInputModules(moduleOrPSet,moduleName,attrName):
         ret = set()
-        for name,value in six.iteritems(moduleOrPSet.parameters_()):
+        for name,value in moduleOrPSet.parameters_().items():
             type = value.pythonTypeName()
             if type == 'cms.PSet':
                 ret.update(allDirectInputModules(value,moduleName,moduleName+"."+name))
@@ -354,7 +354,7 @@ def listDependencyChain(process, module, sources, verbose=False):
 
 def addKeepStatement(process, oldKeep, newKeeps, verbose=False):
     """Add new keep statements to any PoolOutputModule of the process that has the old keep statements"""
-    for name,out in six.iteritems(process.outputModules):
+    for name,out in process.outputModules.items():
         if out.type_() == 'PoolOutputModule' and hasattr(out, "outputCommands"):
             if oldKeep in out.outputCommands:
                 out.outputCommands += newKeeps

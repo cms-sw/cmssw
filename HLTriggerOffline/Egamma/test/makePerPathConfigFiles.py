@@ -143,7 +143,7 @@ allPathsWritten = []
 
 
 
-for hltPathCategory, thisCategoryData in six.iteritems(configData):
+for hltPathCategory, thisCategoryData in configData.items():
 
     # get the HLT path objects for this category
     paths = pathsByCategory[hltPathCategory]

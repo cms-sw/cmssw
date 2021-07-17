@@ -246,7 +246,7 @@ class Alignment(object):
         rcdnames = collections.Counter(condition["rcdName"] for condition in conditions)
         if rcdnames and max(rcdnames.values()) >= 2:
             raise AllInOneError("Some conditions are specified multiple times (possibly through mp or hp options)!\n"
-                                + ", ".join(rcdname for rcdname, count in six.iteritems(rcdnames) if count >= 2))
+                                + ", ".join(rcdname for rcdname, count in rcdnames.items() if count >= 2))
 
         for condition in conditions:
             self.__testDbExist(condition["connectString"], condition["tagName"])

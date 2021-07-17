@@ -131,7 +131,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
 
     # explicit payloads toGet from DB
     if custom_conditions:
-        for ( (record, label), (tag, connection, snapshotTime) ) in sorted(six.iteritems(custom_conditions)):
+        for ( (record, label), (tag, connection, snapshotTime) ) in sorted(custom_conditions.items()):
             payload = cms.PSet()
             payload.record = cms.string( record )
             if label:

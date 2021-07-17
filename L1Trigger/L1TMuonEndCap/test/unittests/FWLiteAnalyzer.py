@@ -28,7 +28,7 @@ class FWLiteAnalyzer(object):
     self.handles = {}
     self.handle_labels = {}
     if handles:
-      for k, v in six.iteritems(handles):
+      for k, v in handles.items():
         self.handles[k] = Handle(v[0])
         self.handle_labels[k] = v[1]
 
@@ -71,7 +71,7 @@ class FWLiteAnalyzer(object):
     return
 
   def getHandles(self, event):
-    for k, v in six.iteritems(self.handles):
+    for k, v in self.handles.items():
       label = self.handle_labels[k]
       event.getByLabel(label, v)
     return

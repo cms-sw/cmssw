@@ -667,7 +667,7 @@ class MonitorJobs(Task):
             actions = {'FilesToCompress':{'Files':[]}}
             
             result = {}
-            for j, id in six.iteritems(jobs):
+            for j, id in jobs.items():
                 if id is None:
                     result[j] = 'UNKNOWN'
                 else:
@@ -697,7 +697,7 @@ class MonitorJobs(Task):
         def countJobs(stat):
             """Count jobs that are monitorable - i.e. not in a final state"""
             result = []
-            for j, id in six.iteritems(jobs):
+            for j, id in jobs.items():
                 if id is not None and id in stat:
                     st = stat[id]
                     if st in ['PEND','PSUSP','RUN','USUSP','SSUSP','WAIT']:
@@ -744,7 +744,7 @@ class CheckJobStatus(Task):
         job_status = input['MonitorJobs']['LSFJobStatus']
 
         result = {}
-        for j, status in six.iteritems(job_status):
+        for j, status in job_status.items():
             valid = True
             if os.path.exists(status):
 
@@ -809,7 +809,7 @@ class WriteJobReport(Task):
         
         #collect a list of jobs by status
         states = {}
-        for j, status in six.iteritems(report['LSFJobStatusCheck']):
+        for j, status in report['LSFJobStatusCheck'].items():
             if status not in states:
                 states[status] = []
             states[status].append(j)
@@ -831,7 +831,7 @@ class WriteJobReport(Task):
         if self.options.group is not None:
             user_group = '-G %s' % self.options.group
 
-        for status, jobs in six.iteritems(states):
+        for status, jobs in states.items():
             output.write('# %d jobs found in state %s\n' % (len(jobs),status) )
             if status == 'VALID':
                 continue

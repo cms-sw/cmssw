@@ -116,7 +116,7 @@ class Branch (object):
         # that order here.
         order = ['type', 'module', 'label', 'process']
         for obj in branchList:
-            for key, twoList in six.iteritems(lengthDict):
+            for key, twoList in lengthDict.items():
                 attribute = getattr (obj, key)
                 if len (attribute) + 2 > twoList[0]:
                     twoList[0] = len (attribute) + 2

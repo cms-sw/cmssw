@@ -6,7 +6,7 @@ import six
 
 def _build_options(**args):
   options = _options.HLTProcessOptions()
-  for key, val in six.iteritems(args):
+  for key, val in args.items():
     setattr(options, key, val)
   return options
 

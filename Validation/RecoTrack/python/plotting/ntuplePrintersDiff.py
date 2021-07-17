@@ -77,7 +77,7 @@ class _TracksByHitsMatcher(object):
                 tracks[ot] += 1
 
         best = (None, 0)
-        for t, ncommon in six.iteritems(tracks):
+        for t, ncommon in tracks.items():
             if ncommon > best[1]:
                 best = (t, ncommon)
         return best
@@ -486,7 +486,7 @@ def _associateTracksByTrackingParticlesAndHits(lst1, lst2):
 
     # merge results
     # any good way to avoid copy-past?
-    for ind, assoc in six.iteritems(trkAssoc1):
+    for ind, assoc in trkAssoc1.items():
         for t1 in assoc.trks1():
             a = trkAssoc1[t1.index()]
             assoc.merge(a)
@@ -495,7 +495,7 @@ def _associateTracksByTrackingParticlesAndHits(lst1, lst2):
             a = trkAssoc2[t2.index()]
             assoc.merge(a)
             a.merge(assoc)
-    for ind, assoc in six.iteritems(trkAssoc2):
+    for ind, assoc in trkAssoc2.items():
         for t2 in assoc.trks2():
             a = trkAssoc2[t2.index()]
             assoc.merge(a)
@@ -505,7 +505,7 @@ def _associateTracksByTrackingParticlesAndHits(lst1, lst2):
             assoc.merge(a)
             a.merge(assoc)
 
-    for ind, assoc in itertools.chain(six.iteritems(trkAssoc1), six.iteritems(trkAssoc2)):
+    for ind, assoc in itertools.chain(trkAssoc1.items(), trkAssoc2.items()):
         #if ind in [437, 1101]:
         #    print "----"
         #    print ind, [t.index() for t in assoc.trks1()], [t.index() for t in assoc.trks2()]

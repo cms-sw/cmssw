@@ -27,7 +27,7 @@ requireLeadPion = cms.PSet(
 
 def subParameterSets(pSet):
    ''' Generator to return all sub-PSets in a PSet '''
-   for name, value in six.iteritems(pSet.parameters_()):
+   for name, value in pSet.parameters_().items():
       if isinstance(value, cms.PSet):
          yield getattr(pSet, name)
 

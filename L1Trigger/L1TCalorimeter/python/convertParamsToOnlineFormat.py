@@ -253,8 +253,8 @@ if __name__ == '__main__':
     os.mkdir(args.output_dir)
 
     if args.mif:
-        for fileName, value in six.iteritems(getMifParameterMap(caloParams)):
+        for fileName, value in getMifParameterMap(caloParams).items():
             createMIF(args.output_dir + '/' + fileName, value) 
     else:
-        for fileTag, paramList in six.iteritems(getXmlParameterMap(caloParams)):
+        for fileTag, paramList in getXmlParameterMap(caloParams).items():
             createXML(paramList, 'MainProcessor' if fileTag.startswith('mp') else 'Demux', args.output_dir + '/algo_' + fileTag + '.xml')

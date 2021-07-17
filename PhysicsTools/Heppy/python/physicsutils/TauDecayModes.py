@@ -30,7 +30,7 @@ class TauDecayModes( object ):
             ]
         self.decayModes = dict( (index-1, name) for index, name in enumerate( tmp ) )
         self.decayModeNames = dict( (value, key) for key, value \
-                                    in six.iteritems(self.decayModes) )
+                                    in self.decayModes.items() )
 
     def intToName( self, anInt ):
         '''Returns the decay mode name corresponding to an int.'''

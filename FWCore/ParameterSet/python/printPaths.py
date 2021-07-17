@@ -6,7 +6,7 @@ import six
 
 def printPaths(process):
     "print all the paths in the process"
-    for p  in six.itervalues(process.paths):
+    for p  in process.paths.values():
         printPath(p)
 
 def printPath(pth, indent="", indentDelta=" ", type="path"):

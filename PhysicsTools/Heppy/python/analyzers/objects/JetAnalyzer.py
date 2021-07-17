@@ -332,7 +332,7 @@ class JetAnalyzer( Analyzer ):
                 jetNus=[x for x in event.genParticles if abs(x.pdgId()) in [12,14,16] and self.cfg_ana.genNuSelection(x) ]
                 pairs= matchObjectCollection (jetNus, self.genJets, 0.4**2)
 
-                for (nu,genJet) in six.iteritems(pairs) :
+                for (nu,genJet) in pairs.items() :
                     if genJet is not None :
                         if not hasattr(genJet,"nu") :
                             genJet.nu=nu.p4()

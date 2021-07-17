@@ -14,21 +14,21 @@ def findEDFilters(holder):
   if isinstance(holder, cms.Process):
     return process.filters_()
   else:
-    return dict( (name, module) for name, module in six.iteritems(holder) if isinstance(module, cms.EDFilter) )
+    return dict( (name, module) for name, module in holder.items() if isinstance(module, cms.EDFilter) )
 
 
 def findEDProducers(holder):
   if isinstance(holder, cms.Process):
     return process.producers_()
   else:
-    return dict( (name, module) for name, module in six.iteritems(holder) if isinstance(module, cms.EDProducer) )
+    return dict( (name, module) for name, module in holder.items() if isinstance(module, cms.EDProducer) )
 
 
 def findEDAnalyzers(holder):
   if isinstance(holder, cms.Process):
     return process.analyzers_()
   else:
-    return dict( (name, module) for name, module in six.iteritems(holder) if isinstance(module, cms.EDAnalyzer) )
+    return dict( (name, module) for name, module in holder.items() if isinstance(module, cms.EDAnalyzer) )
 
 
 def findModules(holder):
@@ -39,6 +39,6 @@ def findModules(holder):
     modules.upate(process.filters_())
     return modules
   else:
-    return dict( (name, module) for name, module in six.iteritems(holder) if isinstance(module, (cms.EDAnalyzer, _cms.EDProducer, _cms.EDFilter)) )
+    return dict( (name, module) for name, module in holder.items() if isinstance(module, (cms.EDAnalyzer, _cms.EDProducer, _cms.EDFilter)) )
 
 

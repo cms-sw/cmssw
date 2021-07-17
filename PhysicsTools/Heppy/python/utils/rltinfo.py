@@ -26,7 +26,7 @@ class RLTInfo( object ):
 
     def __str__(self):
         lines = []
-        for rlt, count in six.iteritems(self.dict):
+        for rlt, count in self.dict.items():
             lines.append( ': '.join( [str(rlt), str(count)] ))
         return '\n'.join(lines)
 
@@ -37,7 +37,7 @@ class RLTInfo( object ):
         t.var('lumi', int )
         t.var('counts', int )
         t.var('trigger', int )
-        for rlt, count in six.iteritems(self.dict):
+        for rlt, count in self.dict.items():
             t.fill('run', rlt[1])
             t.fill('lumi', rlt[2])
             t.fill( 'counts', count.integer)
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     rltinfo.add('HLT1', 129, 2)
     rltinfo.add('HLT2', 129, 2)
 
-    for rlt, count in six.iteritems(rltinfo.dict):
+    for rlt, count in rltinfo.dict.items():
         print(rlt, count)
 
     rltinfo.write('.')

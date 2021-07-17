@@ -70,7 +70,7 @@ if len(submitted_jobs) > 0:
         job_status[job_id] = {"status": htcondor_jobstatus[status],
                               "cpu": float(cpu_time)}
 
-    for job_id, job_info in six.iteritems(job_status):
+    for job_id, job_info in job_status.items():
         mps_index = submitted_jobs.get(job_id, -1)
         # check for disabled Jobs
         disabled = "DISABLED" if "DISABLED" in lib.JOBSTATUS[mps_index] else ""
@@ -118,7 +118,7 @@ for job_id, mps_index in submitted_jobs.items(): # IMPORTANT to copy here (no it
 
 ################################################################################
 # check for orphaned jobs
-for job_id, mps_index in six.iteritems(submitted_jobs):
+for job_id, mps_index in submitted_jobs.items():
     for status in ("SETUP", "DONE", "FETCH", "TIMEL", "SUBTD"):
         if status in lib.JOBSTATUS[mps_index]:
             print("Funny entry index", mps_index, " job", lib.JOBID[mps_index], end=' ')
