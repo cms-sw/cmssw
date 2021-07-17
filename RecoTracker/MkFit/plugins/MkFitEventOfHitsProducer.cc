@@ -89,9 +89,6 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
       const DetId detid(bs.detid);
       bool isBarrel = (mkFitGeom.topology()->side(detid) == static_cast<unsigned>(TrackerDetSide::Barrel));
       const auto ilay = mkFitGeom.mkFitLayerNumber(detid);
-      // dump content of deadmodules.h in standalone setup
-      // std::cout << "deadvectors["<<ilay<<"].push_back({"<<surf.phiSpan().first<<","<<surf.phiSpan().second<<","
-      // <<(isBarrel ? surf.zSpan().first : surf.rSpan().first)<<","<<(isBarrel ? surf.zSpan().second : surf.rSpan().second)<<"});"<<std::endl;
       deadvectors[ilay].push_back({surf.phiSpan().first,
                                    surf.phiSpan().second,
                                    (isBarrel ? surf.zSpan().first : surf.rSpan().first),
