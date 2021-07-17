@@ -50,7 +50,7 @@ if [ ! -f ./callgraph.py ]
    cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/callgraph.py .
    cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/module_to_package.yaml .
    cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/modules_in_ib.yaml .
-   curl -OL https://raw.githubusercontent.com/fwyzard/circles/master/web/groups/packages.json
 fi
+curl -OL https://raw.githubusercontent.com/fwyzard/circles/master/web/groups/packages.json
 touch eventsetuprecord-get-all.txt eventsetuprecord-get.txt
 ./callgraph.py 2>&1 | tee eventsetuprecord-get.txt
