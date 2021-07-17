@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 from .MatrixUtil import *
-import six
 
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL

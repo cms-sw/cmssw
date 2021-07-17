@@ -25,7 +25,6 @@ from __future__ import print_function
 
 import io
 import types
-import six
 
 # TODO: Refactor pset_dict_to_string and class printable_parameter to
 # have a consistent view of the problem. Perhaps have a class

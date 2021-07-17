@@ -6,7 +6,6 @@ import os
 from glob import glob
 import re
 import pprint
-import six
 import commands
 countRE = re.compile (r'^count_(\w+)')
 avoid = ['index', 'print']

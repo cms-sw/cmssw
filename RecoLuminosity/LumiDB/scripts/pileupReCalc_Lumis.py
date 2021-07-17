@@ -8,7 +8,6 @@ from RecoLuminosity.LumiDB import selectionParser
 from RecoLuminosity.LumiDB import csvLumibyLSParser
 from math import exp
 from math import sqrt
-import six
 
 def parseInputFile(inputfilename):
     '''

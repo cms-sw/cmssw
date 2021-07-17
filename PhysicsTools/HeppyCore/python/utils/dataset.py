@@ -12,7 +12,6 @@ import sys
 from .castorBaseDir import castorBaseDir
 from . import eostools as castortools
 import fnmatch
-import six
 
 class IntegrityCheckError(Exception):
     def __init__(self, value):

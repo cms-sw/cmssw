@@ -1,7 +1,6 @@
 # Poor-man enum class with string conversion
 class _Enum:
     def __init__(self, **values):
-        import six
         self._reverse = {}
         for key, value in values.items():
             setattr(self, key, value)

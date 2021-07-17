@@ -9,7 +9,6 @@ import collections
 from operator import itemgetter, methodcaller
 
 from Validation.RecoTrack.plotting.ntupleDataFormat import *
-import six
 
 # Common track-track matching by hits (=clusters)
 def _commonHits(trk1, trk2):

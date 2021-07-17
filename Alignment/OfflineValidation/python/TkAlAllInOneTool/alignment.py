@@ -6,7 +6,6 @@ import re
 from . import configTemplates
 from .helperFunctions import parsecolor, parsestyle, replaceByMap, clean_name, getTagsMap
 from .TkAlExceptions import AllInOneError
-import six
 
 class Alignment(object):
     condShorts = {

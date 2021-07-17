@@ -1,4 +1,3 @@
-import six
 
 def generateEfficiencyStrings(variables, plots):
     stringTemplate = "{plot} " + \

@@ -4,7 +4,6 @@ import itertools
 import ROOT
 
 import Validation.RecoTrack.plotting.plotting as plotting
-import six
 
 def saveHistograms(tdirectory, histos):
     for h in histos:

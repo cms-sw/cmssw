@@ -12,7 +12,6 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import HLTriggerOffline.Egamma.EgammaHLTValidationUtils as EgammaHLTValidationUtils
 import sys, os
-import six
 
 # prefix for printouts
 # msgPrefix = "[" + os.path.basename(__file__) + "]"

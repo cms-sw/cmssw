@@ -7,7 +7,6 @@ import ROOT
 import sys
 from .TkAlExceptions import AllInOneError
 import CondCore.Utilities.conddblib as conddblib
-import six
 
 ####################--- Helpers ---############################
 def replaceByMap(target, the_map):

@@ -8,7 +8,6 @@ import sys
 from . import dataLoader
 import ROOT
 
-import six
 
 data = None
 check_flavor = True

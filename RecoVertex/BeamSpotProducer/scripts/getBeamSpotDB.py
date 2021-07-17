@@ -33,7 +33,6 @@ from __future__ import print_function
 
 import sys,os, re
 import commands
-import six
 
 #_______________OPTIONS________________
 import optparse

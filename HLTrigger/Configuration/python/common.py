@@ -1,5 +1,4 @@
 import itertools
-import six
 import FWCore.ParameterSet.Config as cms
 
 def producers_by_type(process, *types):

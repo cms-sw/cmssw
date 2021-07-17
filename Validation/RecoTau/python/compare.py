@@ -5,7 +5,6 @@ from .officialStyle import officialStyle
 from array import array
 from ROOT import gROOT, gStyle, TH1F, TH1D, TF1, TFile, TCanvas, TH2F, TLegend, TGraphAsymmErrors, Double, TLatex
 import os, copy, sys
-import six
 
 gROOT.SetBatch(True)
 officialStyle(gStyle)

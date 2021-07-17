@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.helpers import MassSearchReplaceAnyInputTagVisitor, addKeepStatement
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
-import six
 
 def loadJetMETBTag(process):
 

@@ -1,6 +1,5 @@
 import os
 import collections
-import six
 
 def _lowerFirst(s):
     return s[0].lower()+s[1:]

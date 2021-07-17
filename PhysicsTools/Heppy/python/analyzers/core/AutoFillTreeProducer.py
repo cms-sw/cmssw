@@ -5,7 +5,6 @@ from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.analyzers.core.autovars import *
 from PhysicsTools.Heppy.analyzers.objects.autophobj  import *
 
-import six
 
 class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 

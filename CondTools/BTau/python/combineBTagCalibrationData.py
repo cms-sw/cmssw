@@ -7,7 +7,6 @@ import sys
 import itertools
 from . import checkBTagCalibrationConsistency as checker
 
-import six
 
 def check_csv_data(csv_data):
     res = checker.run_check_csv(csv_data, False, False, False)

@@ -3,7 +3,6 @@ from __future__ import print_function
 from builtins import range
 from optparse import OptionParser
 import json
-import six
 
 def root2map(dir,ana,treename):
     import ROOT

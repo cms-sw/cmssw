@@ -5,7 +5,6 @@ import re
 from pprint import pprint
 from FWCore.Utilities.Enumerate import Enumerate
 from FWCore.Utilities.FileUtils import sectionNofTotal
-import six
 
 class VarParsing (object):
     """Infrastructure to parse variable definitions passed to cmsRun

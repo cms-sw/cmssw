@@ -18,7 +18,6 @@ from __future__ import print_function
 
 import sys
 
-import six
 
 mps_db = "mps.db"               # the mps.db file, default value
 

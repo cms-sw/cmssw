@@ -4,7 +4,6 @@ from __future__ import print_function
 import optparse
 import re
 from pprint import pprint
-import six
 
 commentRE = re.compile (r'#.*$')
 

@@ -3,7 +3,6 @@ import os
 import logging 
 
 from PhysicsTools.HeppyCore.framework.analyzer import Analyzer as CoreAnalyzer
-import six
 
 class Analyzer(CoreAnalyzer):
     '''Base Analyzer class. Used in Looper.'''

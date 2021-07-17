@@ -4,7 +4,6 @@ import ROOT
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.analyzers.core.AutoFillTreeProducer  import NTupleVariable
-import six
 import PhysicsTools.HeppyCore.framework.config as cfg
         
 class TriggerBitAnalyzer( Analyzer ):

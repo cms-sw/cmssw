@@ -1,7 +1,6 @@
 from __future__ import print_function
 from builtins import range, object
 import inspect
-import six
 
 class _ConfigureComponent(object):
     """Denotes a class that can be used by the Processes class"""

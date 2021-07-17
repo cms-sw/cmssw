@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import six
 
 def _label(tag):
     if hasattr(tag, "getModuleLabel"):

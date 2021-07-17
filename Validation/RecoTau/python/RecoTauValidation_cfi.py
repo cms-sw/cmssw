@@ -11,7 +11,6 @@ import RecoTauTag.Configuration.HPSPFTaus_cff as RecoModules #Working point indi
 
 
 """
-import six
 
    RecoTauValidation_cfi.py
 

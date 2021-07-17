@@ -5,7 +5,6 @@ from builtins import str
 from FWCore.ParameterSet.Modules import _TypedParameterizable
 from FWCore.ParameterSet.Mixins import _ValidatingParameterListBase
 import FWCore.ParameterSet.Config as cms
-import six
 
 def simpleItemToString(param):
     return str(param)

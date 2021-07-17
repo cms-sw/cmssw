@@ -1,7 +1,6 @@
 #!  /usr/bin/env python3
 import string, os
 from optparse import OptionParser
-import six
 
 class ClassesDefXmlParser(object):
     """Parses a classes_def.xml file looking for class declarations that do not contain

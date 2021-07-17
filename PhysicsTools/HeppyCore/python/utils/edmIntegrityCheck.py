@@ -13,7 +13,6 @@ from . import eostools as castortools
 from .timeout import timed_out, TimedOutExc
 from .castorBaseDir import castorBaseDir
 from .dataset import CMSDataset
-import six
 
 class PublishToFileSystem(object):
     """Write a report to storage"""

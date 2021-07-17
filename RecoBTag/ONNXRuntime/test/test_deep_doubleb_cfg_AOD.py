@@ -1,7 +1,6 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
-import six
 
 process = cms.Process("PAT")
 

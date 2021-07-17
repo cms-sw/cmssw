@@ -27,7 +27,6 @@ from __future__ import print_function
 from builtins import range
 import sys, os, inspect, copy, struct, dis, imp
 import modulefinder
-import six
 
 def packageNameFromFilename(name):
     return ".".join(name.replace("python/","").replace(".py","").split("/")[-3:])

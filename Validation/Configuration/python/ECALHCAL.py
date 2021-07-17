@@ -1,4 +1,3 @@
-import six
 import FWCore.ParameterSet.Config as cms
 def customise(process):
 
@@ -30,7 +29,6 @@ def customise(process):
     # modify the content
 
     #process.output.outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
-    six.next(process.outputModules_().items())[1].outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
             
 # user schedule: use only calorimeters digitization and local reconstruction
 
@@ -84,6 +82,5 @@ def customise(process):
 
     process.schedule.append(process.endjob_step)
     #process.schedule.append(process.out_step)
-    process.schedule.append(getattr(process,six.next(process.outputModules_().items())[0]+"_step"))
 
     return(process)

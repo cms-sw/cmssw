@@ -3,7 +3,6 @@
 import sys
 import argparse
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
-import six
 
 ################################################################################
 def main(argv = None):

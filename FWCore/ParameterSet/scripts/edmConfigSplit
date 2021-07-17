@@ -4,7 +4,6 @@ import sys
 import os
 import imp
 import argparse
-import six
 
 from FWCore.ParameterSet.Mixins import PrintOptions
 

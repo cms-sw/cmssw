@@ -3,7 +3,6 @@ import time
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
-import six
 
 options = VarParsing.VarParsing()
 options.register('connectionString',

@@ -4,7 +4,6 @@ import time
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 from Configuration.AlCa.autoCond import autoCond
-import six
 
 options = VarParsing.VarParsing()
 options.register('processId',

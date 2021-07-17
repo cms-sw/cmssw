@@ -4,7 +4,6 @@ import os
 import json
 import collections
 
-import six
 
 workflows = Matrix()
 steps = Steps()

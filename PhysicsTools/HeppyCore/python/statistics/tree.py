@@ -1,7 +1,6 @@
 import numpy
 from ROOT import TTree
 import ROOT
-import six
 
 class Tree(object):
     

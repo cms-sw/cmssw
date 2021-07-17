@@ -11,7 +11,6 @@ from Validation.RecoTrack.plotting.ntuple import *
 import analysis
 
 from math import sqrt, copysign, sin, cos, pi
-import six
 
 class EventPlotter(object):
     '''

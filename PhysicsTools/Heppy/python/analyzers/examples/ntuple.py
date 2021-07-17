@@ -1,6 +1,5 @@
 #!/bin/env python
 from __future__ import print_function
-import six
 
 def var( tree, varName, type=float ):
     tree.var(varName, type)

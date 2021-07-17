@@ -12,7 +12,6 @@ import os
 import datetime
 import subprocess
 import argparse
-import six
 
 def insert_to_file(template, target, replace_dict):
     '''Update the template file based on the replace_dict, and write to the target.'''

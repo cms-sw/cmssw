@@ -7,7 +7,6 @@ from past.builtins import long
 import codecs
 import copy
 import math
-import six
 from six.moves import builtins
 
 _builtin_bool = bool

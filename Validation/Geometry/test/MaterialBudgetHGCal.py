@@ -7,7 +7,6 @@ import sys
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import six
 
 from array import array
 oldargv = sys.argv[:]

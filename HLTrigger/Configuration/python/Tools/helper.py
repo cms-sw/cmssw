@@ -8,7 +8,6 @@ either from a dictionary (either a cms.Process.__dict__ or from the locals() ins
 """
 
 import FWCore.ParameterSet.Config as cms
-import six
 
 def findEDFilters(holder):
   if isinstance(holder, cms.Process):

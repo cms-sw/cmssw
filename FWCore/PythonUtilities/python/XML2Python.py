@@ -7,7 +7,6 @@ import re
 import os
 import xml.sax.handler
 import pprint
-import six
 
 class DataNode (object):
 

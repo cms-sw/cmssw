@@ -1,4 +1,3 @@
-import six
 # import the definition of the steps and input files:
 from  Configuration.PyReleaseValidation.relval_steps import *
 

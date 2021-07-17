@@ -11,7 +11,6 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import sqlite3
-import six
 
 def kill_subproc_noexcept(p):
     '''Kill a subprocess without throwing OSError.

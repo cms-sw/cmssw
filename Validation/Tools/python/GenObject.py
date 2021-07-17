@@ -15,7 +15,6 @@ import random
 import sys
 import inspect
 import ROOT
-import six
 from functools import reduce
 ROOT.gROOT.SetBatch()
 

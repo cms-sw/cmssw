@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from functools import reduce
-import six
 
 # whether to use the old or newer (automatically adapting
 # to the MC menu) method of configuring the monitoring
