@@ -19,21 +19,20 @@
 class DreamSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
 public:
   explicit DreamSensitiveDetectorBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc) {
-  fromDD4Hep_ = p.getParameter<bool>("g4GeometryDD4hepSource");
-  if (fromDD4Hep_)
-    cpvTokenDD4Hep_ = cc.esConsumes<edm::Transition::BeginRun>();
-  else
-    cpvTokenDDD_ = cc.esConsumes<edm::Transition::BeginRun>();
-}
+    fromDD4Hep_ = p.getParameter<bool>("g4GeometryDD4hepSource");
+    if (fromDD4Hep_)
+      cpvTokenDD4Hep_ = cc.esConsumes<edm::Transition::BeginRun>();
+    else
+      cpvTokenDDD_ = cc.esConsumes<edm::Transition::BeginRun>();
+  }
 
-  void beginRun(const edm::EventSetup& es) final { 
+  void beginRun(const edm::EventSetup& es) final {
     if (fromDD4Hep_) {
       cpvDD4Hep_ = &es.getData(cpvTokenDD4Hep_);
     } else {
       cpvDDD_ = &es.getData(cpvTokenDDD_);
     }
   }
-
 
   std::unique_ptr<SensitiveDetector> make(const std::string& iname,
                                           const SensitiveDetectorCatalog& clg,
@@ -55,5 +54,3 @@ private:
 
 typedef DreamSD DreamSensitiveDetector;
 DEFINE_SENSITIVEDETECTORBUILDER(DreamSensitiveDetectorBuilder, DreamSensitiveDetector);
-
- 

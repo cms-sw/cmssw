@@ -20,8 +20,8 @@ class G4LogicalVolume;
 class DreamSD : public CaloSD {
 public:
   DreamSD(const std::string &,
-	  const DDCompactView*,
-	  const cms::DDCompactView*,
+          const DDCompactView *,
+          const cms::DDCompactView *,
           const SensitiveDetectorCatalog &,
           edm::ParameterSet const &,
           const SimTrackManager *);
@@ -58,8 +58,8 @@ private:
   static constexpr double k_ScaleFromDDDToG4 = 1.0;
   static constexpr double k_ScaleFromDD4HepToG4 = 1.0 / dd4hep::mm;
 
-  const DDCompactView* cpvDDD_;
-  const cms::DDCompactView* cpvDD4Hep_;
+  const DDCompactView *cpvDDD_;
+  const cms::DDCompactView *cpvDD4Hep_;
 
   bool useBirk_, doCherenkov_, readBothSide_, dd4hep_;
   double birk1_, birk2_, birk3_;

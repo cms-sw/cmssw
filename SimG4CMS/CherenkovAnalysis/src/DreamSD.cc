@@ -32,12 +32,12 @@
 
 //________________________________________________________________________________________
 DreamSD::DreamSD(const std::string &name,
-		 const DDCompactView* cpvDDD,
-		 const cms::DDCompactView* cpvDD4Hep,
+                 const DDCompactView *cpvDDD,
+                 const cms::DDCompactView *cpvDD4Hep,
                  const SensitiveDetectorCatalog &clg,
                  edm::ParameterSet const &p,
                  const SimTrackManager *manager)
-  : CaloSD(name, clg, p, manager), cpvDDD_(cpvDDD), cpvDD4Hep_(cpvDD4Hep) {
+    : CaloSD(name, clg, p, manager), cpvDDD_(cpvDDD), cpvDD4Hep_(cpvDD4Hep) {
   edm::ParameterSet m_EC = p.getParameter<edm::ParameterSet>("ECalSD");
   useBirk_ = m_EC.getParameter<bool>("UseBirkLaw");
   doCherenkov_ = m_EC.getParameter<bool>("doCherenkov");
