@@ -1,6 +1,6 @@
-// system include files                                                           
+// system include files
 
-// user include files                                                             
+// user include files
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorMakerBase.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistryEnroller.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorPluginFactory.h"
@@ -29,4 +29,3 @@ public:
 
 typedef HGCalTB16SD01 HGCalTB1601SensitiveDetector;
 DEFINE_SENSITIVEDETECTORBUILDER(HGCalTB16SensitiveDetector01Builder, HGCalTB1601SensitiveDetector);
-
