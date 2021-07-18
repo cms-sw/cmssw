@@ -1,0 +1,13 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="SimG4CMS/Muon"/>
+<use name="boost"/>
+<use name="geant4core"/>
+<use name="hepmc"/>
+<library file="*.cc" name="SimG4CMSMuonPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
