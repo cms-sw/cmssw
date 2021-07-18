@@ -76,7 +76,7 @@ namespace edm {
     std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, branchInfo->offsetToWrapperBase_);
     br->SetAddress(&p);
     try {
-      //Run and Lumi only have 1 entry number, which is index 0
+      //Run, Lumi, and ProcessBlock only have 1 entry number, which is index 0
       tree_.getEntry(br, tree_.entryNumberForIndex(tree_.branchType() == InEvent ? ep->transitionIndex() : 0));
     } catch (edm::Exception& exception) {
       exception.addContext("Rethrowing an exception that happened on a different thread.");
