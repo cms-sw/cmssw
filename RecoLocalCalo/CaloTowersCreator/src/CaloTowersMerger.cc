@@ -22,20 +22,14 @@
 // This functionality is subject to some restrictions
 // (see notes below)
 
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoLocalCalo/CaloTowersCreator/src/CaloTowersCreator.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include <memory>
 
 //
 // class declaration

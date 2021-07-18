@@ -1,12 +1,49 @@
-// makes CaloTowerCandidates from CaloTowers
-// original author: L.Lista INFN
-// modifyed by: F.Ratnikov UMd
-#include <cmath>
-#include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
+/** \class CaloTowerCandidateCreator
+ *
+ * Framework module that produces a collection
+ * of candidates with a CaloTowerCandidate compoment
+ *
+ * \author Luca Lista, INFN
+ * modifyed by: F.Ratnikov UMd
+ *
+ *
+ */
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoLocalCalo/CaloTowersCreator/src/CaloTowerCandidateCreator.h"
+
+#include <cmath>
+#include <string>
+
+class CaloTowerCandidateCreator : public edm::stream::EDProducer<> {
+public:
+  /// constructor from parameter set
+  CaloTowerCandidateCreator(const edm::ParameterSet&);
+  /// destructor
+  ~CaloTowerCandidateCreator() override;
+
+private:
+  /// process one event
+  void produce(edm::Event& e, const edm::EventSetup&) override;
+  /// verbosity
+  int mVerbose;
+  /// token of source collection
+  edm::EDGetTokenT<CaloTowerCollection> tok_src_;
+  /// ET threshold
+  double mEtThreshold;
+  /// E threshold
+  double mEThreshold;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+// remove following line after Jet/Met move to using
+// exclusively CaloTowers
+DEFINE_FWK_MODULE(CaloTowerCandidateCreator);
+
 using namespace edm;
 using namespace reco;
 using namespace std;
