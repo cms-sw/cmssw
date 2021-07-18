@@ -72,9 +72,8 @@ from DQMOffline.Trigger.HiggsMonitoring_cff import *
 # photon jet
 from DQMOffline.Trigger.HigPhotonJetHLTOfflineSource_cfi import * # ?!?!?!
 #Check if perLSsaving is enabled to mask MEs vs LS
-from DQMServices.Core.DQMStore_cfi import DQMStore
-if(DQMStore.saveByLumi):
-   higPhotonJetHLTOfflineSource.perLSsaving=True
+from Configuration.ProcessModifiers.dqmPerLSsaving_cff import dqmPerLSsaving
+dqmPerLSsaving.toModify(higPhotonJetHLTOfflineSource, perLSsaving=True)
 # SMP
 from DQMOffline.Trigger.StandardModelMonitoring_cff import *
 
