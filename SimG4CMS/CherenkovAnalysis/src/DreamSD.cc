@@ -1,7 +1,6 @@
 
 #include <memory>
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -19,8 +18,6 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-
 // Histogramming
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -35,11 +32,12 @@
 
 //________________________________________________________________________________________
 DreamSD::DreamSD(const std::string &name,
-                 const edm::EventSetup &es,
+                 const DDCompactView *cpvDDD,
+                 const cms::DDCompactView *cpvDD4Hep,
                  const SensitiveDetectorCatalog &clg,
                  edm::ParameterSet const &p,
                  const SimTrackManager *manager)
-    : CaloSD(name, clg, p, manager) {
+    : CaloSD(name, clg, p, manager), cpvDDD_(cpvDDD), cpvDD4Hep_(cpvDD4Hep) {
   edm::ParameterSet m_EC = p.getParameter<edm::ParameterSet>("ECalSD");
   useBirk_ = m_EC.getParameter<bool>("UseBirkLaw");
   doCherenkov_ = m_EC.getParameter<bool>("doCherenkov");
@@ -65,7 +63,7 @@ DreamSD::DreamSD(const std::string &name,
   for (auto lvcite = lvs->begin(); lvcite != lvs->end(); ++lvcite, ++k)
     edm::LogVerbatim("EcalSim") << "Volume[" << k << "] " << (*lvcite)->GetName();
 #endif
-  initMap(name, es);
+  initMap(name);
 }
 
 //________________________________________________________________________________________
@@ -122,12 +120,10 @@ uint32_t DreamSD::setDetUnitId(const G4Step *aStep) {
 }
 
 //________________________________________________________________________________________
-void DreamSD::initMap(const std::string &sd, const edm::EventSetup &es) {
+void DreamSD::initMap(const std::string &sd) {
   if (dd4hep_) {
-    edm::ESTransientHandle<cms::DDCompactView> cpv;
-    es.get<IdealGeometryRecord>().get(cpv);
     const cms::DDFilter filter("ReadOutName", sd);
-    cms::DDFilteredView fv((*cpv), filter);
+    cms::DDFilteredView fv((*cpvDD4Hep_), filter);
     while (fv.firstChild()) {
       std::string name = static_cast<std::string>(dd4hep::dd::noNamespace(fv.name()));
       std::vector<double> paras(fv.parameters());
@@ -142,10 +138,8 @@ void DreamSD::initMap(const std::string &sd, const edm::EventSetup &es) {
       fillMap(name, length, width);
     }
   } else {
-    edm::ESTransientHandle<DDCompactView> cpv;
-    es.get<IdealGeometryRecord>().get(cpv);
     DDSpecificsMatchesValueFilter filter{DDValue("ReadOutName", sd, 0)};
-    DDFilteredView fv((*cpv), filter);
+    DDFilteredView fv((*cpvDDD_), filter);
     fv.firstChild();
     bool dodet = true;
     const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
