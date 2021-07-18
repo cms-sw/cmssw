@@ -38,9 +38,8 @@ from DQM.L1TMonitor.L1TdeStage1Layer2_cfi import *
 
 from DQM.L1TMonitor.L1TdeRCT_cfi import *
 #Check if perLSsaving is enabled to mask MEs vs LS
-from DQMServices.Core.DQMStore_cfi import DQMStore
-if(DQMStore.saveByLumi):
-    l1TdeRCT.perLSsaving=True
+from Configuration.ProcessModifiers.dqmPerLSsaving_cff import dqmPerLSsaving
+dqmPerLSsaving.toModify(l1TdeRCT, perLSsaving=True)
 
 l1TdeRCTRun1 = l1TdeRCT.clone()
 l1TdeRCT.rctSourceData = 'caloStage1Digis'
