@@ -43,6 +43,9 @@ namespace edm {
     void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_();
     void readRun_(RunPrincipal& runPrincipal);
+    void fillProcessBlockHelper_();
+    bool nextProcessBlock_(ProcessBlockPrincipal&);
+    void readProcessBlock_(ProcessBlockPrincipal&);
     bool skipToItem(RunNumber_t run,
                     LuminosityBlockNumber_t lumi,
                     EventNumber_t event,
