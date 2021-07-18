@@ -135,6 +135,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   }
   m_kernel->DefineWorldVolume(world, true);
   m_registry.dddWorldSignal_(m_world.get());
+  G4StateManager::GetStateManager()->SetNewState(G4State_PreInit);
 
   // Create physics list
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: create PhysicsList";
@@ -210,13 +211,13 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
       G4UImanager::GetUIpointer()->ApplyCommand(cmd);
     m_physicsList->StorePhysicsTable(m_PhysicsTablesDir);
   }
+  // Appload nuclear level data up to Z=84
   G4NuclearLevelData::GetInstance()->UploadNuclearLevelData(84);
 
   if (verb > 1) {
     m_physicsList->DumpCutValuesTable();
   }
-  G4HadronicParameters::Instance()->SetVerboseLevel(verb - 1);
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: Physics is initilized, now initialise user actions";
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: Physics is initilized, now initialise user actions, verb=" << verb;
 
   initializeUserActions();
 
@@ -236,6 +237,9 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (m_check || !regionFile.empty()) {
     CMSG4CheckOverlap check(m_g4overlap, regionFile, m_UIsession, world);
   }
+
+  m_stateManager->SetNewState(G4State_PreInit);
+  G4HadronicParameters::Instance()->SetVerboseLevel(std::max(verb - 1, 0));
 
   // If the Geant4 particle table is needed, decomment the lines below
   //
