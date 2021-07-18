@@ -19,8 +19,7 @@
 class TkAccumulatingSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
 public:
   explicit TkAccumulatingSensitiveDetectorBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc)
-      : geomdet_{nullptr},
-        geomdetToken_{cc.esConsumes<edm::Transition::BeginRun>()} {}
+      : geomdet_{nullptr}, geomdetToken_{cc.esConsumes<edm::Transition::BeginRun>()} {}
 
   void beginRun(const edm::EventSetup& es) final { geomdet_ = &es.getData(geomdetToken_); }
 
