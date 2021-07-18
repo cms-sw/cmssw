@@ -7,8 +7,6 @@ autoCond = {
     'run1_mc'                      : '113X_mcRun1_realistic_v3',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
     'run1_mc_hi'                   : '113X_mcRun1_HeavyIon_v3',
-    # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pa'                   : '113X_mcRun1_pA_v3',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
     'run2_mc_50ns'                 : '113X_mcRun2_startup_v3',
     # GlobalTag for MC production (2015 L1 Trigger Stage1) with startup-like alignment and calibrations for Run2, L1 trigger in Stage1 mode
@@ -115,8 +113,6 @@ autoCond['mc']               = ( autoCond['run1_design'] )
 autoCond['startup']          = ( autoCond['run1_mc'] )
     # GlobalTag for MC production of Heavy Ions events with realistic alignment and calibrations
 autoCond['starthi']          = ( autoCond['run1_mc_hi'] )
-    # GlobalTag for MC production of p-Pb events with realistic alignment and calibrations
-autoCond['startpa']          = ( autoCond['run1_mc_pa'] )
     # GlobalTag for data reprocessing
 autoCond['com10']            = ( autoCond['run1_data'] )
     # GlobalTag for running HLT on recent data: it points to the online GT (remove the snapshot!)
