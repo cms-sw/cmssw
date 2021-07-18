@@ -42,11 +42,11 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 
+//#define EDM_ML_DEBUG
 //
 // constructors and destructor
 //
 TotemSD::TotemSD(const std::string& name,
-                 const edm::EventSetup& es,
                  const SensitiveDetectorCatalog& clg,
                  edm::ParameterSet const& p,
                  const SimTrackManager* manager)
@@ -105,7 +105,9 @@ uint32_t TotemSD::setDetUnitId(const G4Step* aStep) {
 }
 
 void TotemSD::Initialize(G4HCofThisEvent* HCE) {
-  LogDebug("ForwardSim") << "TotemSD : Initialize called for " << GetName();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("ForwardSim") << "TotemSD : Initialize called for " << GetName();
+#endif
 
   theHC = new TotemG4HitCollection(GetName(), collectionName[0]);
   if (hcID < 0)
@@ -121,12 +123,10 @@ void TotemSD::EndOfEvent(G4HCofThisEvent*) {
   int thehc_entries = theHC->entries();
   for (int j = 0; j < thehc_entries && j < 15000; j++) {
     TotemG4Hit* aHit = (*theHC)[j];
-#ifdef ddebug
-    LogDebug("ForwardSim") << "HIT NUMERO " << j << "unit ID = " << aHit->getUnitID() << "\n"
-                           << "               "
-                           << "enrty z " << aHit->getEntry().z() << "\n"
-                           << "               "
-                           << "theta   " << aHit->getThetaAtEntry() << "\n";
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("ForwardSim") << "HIT NUMERO " << j << "unit ID = " << aHit->getUnitID()
+                                   << "\n               enrty z " << aHit->getEntry().z() << "\n               theta   "
+                                   << aHit->getThetaAtEntry() << "\n";
 #endif
     Local3DPoint theExitPoint(0, 0, 0);
     Local3DPoint Entrata(aHit->getEntry().x(), aHit->getEntry().y(), aHit->getEntry().z());
@@ -144,7 +144,9 @@ void TotemSD::EndOfEvent(G4HCofThisEvent*) {
 }
 
 void TotemSD::PrintAll() {
-  LogDebug("ForwardSim") << "TotemSD: Collection " << theHC->GetName();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("ForwardSim") << "TotemSD: Collection " << theHC->GetName();
+#endif
   theHC->PrintAllHits();
 }
 
@@ -155,7 +157,9 @@ void TotemSD::fillHits(edm::PSimHitContainer& cc, const std::string& hname) {
 }
 
 void TotemSD::update(const BeginOfEvent* i) {
-  LogDebug("ForwardSim") << " Dispatched BeginOfEvent for " << GetName() << " !";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("ForwardSim") << " Dispatched BeginOfEvent for " << GetName() << " !";
+#endif
   clearHits();
 }
 
@@ -184,20 +188,20 @@ void TotemSD::getStepInfo(const G4Step* aStep) {
   tSlice = (postStepPoint->GetGlobalTime()) / nanosecond;
   tSliceID = (int)tSlice;
   unitID = setDetUnitId(aStep);
-#ifdef debug
-  LogDebug("ForwardSim") << "UNITa " << unitID;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("ForwardSim") << "UNITa " << unitID;
 #endif
   primaryID = theTrack->GetTrackID();
 
   Posizio = hitPoint;
-  Pabs = aStep->GetPreStepPoint()->GetMomentum().mag() / GeV;
-  Tof = aStep->GetPostStepPoint()->GetGlobalTime() / nanosecond;
+  Pabs = aStep->GetPreStepPoint()->GetMomentum().mag() / CLHEP::GeV;
+  Tof = aStep->GetPostStepPoint()->GetGlobalTime() / CLHEP::nanosecond;
 
-  Eloss = aStep->GetTotalEnergyDeposit() / GeV;
+  Eloss = aStep->GetTotalEnergyDeposit() / CLHEP::GeV;
   ParticleType = theTrack->GetDefinition()->GetPDGEncoding();
 
-  ThetaAtEntry = aStep->GetPreStepPoint()->GetPosition().theta() / deg;
-  PhiAtEntry = aStep->GetPreStepPoint()->GetPosition().phi() / deg;
+  ThetaAtEntry = aStep->GetPreStepPoint()->GetPosition().theta() / CLHEP::deg;
+  PhiAtEntry = aStep->GetPreStepPoint()->GetPosition().phi() / CLHEP::deg;
 
   ParentId = theTrack->GetParentID();
   Vx = theTrack->GetVertexPosition().x();
@@ -245,23 +249,22 @@ bool TotemSD::hitExists() {
 }
 
 void TotemSD::createNewHit() {
-#ifdef debug
-  LogDebug("ForwardSim") << "TotemSD CreateNewHit for"
-                         << " PV " << currentPV->GetName() << " PVid = " << currentPV->GetCopyNo()
-                         << " MVid = " << currentPV->GetMother()->GetCopyNo() << " Unit " << unitID << "\n"
-                         << " primary " << primaryID << " time slice " << tSliceID << " For Track  "
-                         << theTrack->GetTrackID() << " which is a " << theTrack->GetDefinition()->GetParticleName();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("ForwardSim") << "TotemSD CreateNewHit for PV " << currentPV->GetName()
+                                 << " PVid = " << currentPV->GetCopyNo() << " Unit " << unitID << "\n primary "
+                                 << primaryID << " time slice " << tSliceID << " For Track  " << theTrack->GetTrackID()
+                                 << " which is a " << theTrack->GetDefinition()->GetParticleName();
 
   if (theTrack->GetTrackID() == 1) {
-    LogDebug("ForwardSim") << " of energy " << theTrack->GetTotalEnergy();
+    edm::LogVerbatim("ForwardSim") << " of energy " << theTrack->GetTotalEnergy();
   } else {
-    LogDebug("ForwardSim") << " daughter of part. " << theTrack->GetParentID();
+    edm::LogVerbatim("ForwardSim") << " daughter of part. " << theTrack->GetParentID();
   }
 
   if (theTrack->GetCreatorProcess() != nullptr)
-    LogDebug("ForwardSim") << theTrack->GetCreatorProcess()->GetProcessName();
+    edm::LogVerbatim("ForwardSim") << theTrack->GetCreatorProcess()->GetProcessName();
   else
-    LogDebug("ForwardSim") << "NO process";
+    edm::LogVerbatim("ForwardSim") << "NO process";
 #endif
 
   currentHit = new TotemG4Hit;
@@ -290,7 +293,7 @@ void TotemSD::createNewHit() {
 }
 
 void TotemSD::createNewHitEvo() {
-  // LogDebug("ForwardSim") << "INSIDE CREATE NEW HIT EVO ";
+  // edm::LogVerbatim("ForwardSim") << "INSIDE CREATE NEW HIT EVO ";
 
   currentHit = new TotemG4Hit;
   currentHit->setTrackID(primaryID);
@@ -305,7 +308,7 @@ void TotemSD::createNewHitEvo() {
   currentHit->setThetaAtEntry(ThetaAtEntry);
   currentHit->setPhiAtEntry(PhiAtEntry);
 
-  //  LogDebug("ForwardSim") << Posizio.x() << " " << Posizio.y() << " " << Posizio.z();
+  //  edm::LogVerbatim("ForwardSim") << Posizio.x() << " " << Posizio.y() << " " << Posizio.z();
 
   currentHit->setParentId(ParentId);
   currentHit->setVx(Vx);
@@ -323,7 +326,7 @@ void TotemSD::createNewHitEvo() {
 
     storeHit(currentHit);
   }
-  // LogDebug("ForwardSim") << "STORED HIT IN: " << unitID;
+  // edm::LogVerbatim("ForwardSim") << "STORED HIT IN: " << unitID;
 }
 
 G4ThreeVector TotemSD::posizioEvo(
@@ -403,7 +406,7 @@ G4ThreeVector TotemSD::posizioEvo(
     }
   }
   /*
-  LogDebug("ForwardSim") << "\n"
+  edm::LogVerbatim("ForwardSim") << "\n"
 			 << "ACCETTANZA: "<<accettanza << "\n" 
 			 << "CSI: "<< csi << "\n"
 			 << "Theta_X: " << ThetaX << "\n"
@@ -423,9 +426,9 @@ G4ThreeVector TotemSD::posizioEvo(
 void TotemSD::updateHit() {
   //
   if (Eloss > 0.) {
-#ifdef debug
-    LogDebug("ForwardSim") << "G4TotemT1SD updateHit: add eloss " << Eloss << "\nCurrentHit=" << currentHit
-                           << ", PostStepPoint=" << postStepPoint->GetPosition();
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("ForwardSim") << "G4TotemT1SD updateHit: add eloss " << Eloss << "\nCurrentHit=" << currentHit
+                                   << ", PostStepPoint=" << postStepPoint->GetPosition();
 #endif
 
     currentHit->setEnergyLoss(Eloss);
