@@ -1,10 +1,12 @@
 #ifndef SimG4CMS_DreamSD_h
 #define SimG4CMS_DreamSD_h
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Calo/interface/CaloSD.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "G4PhysicsFreeVector.hh"
@@ -20,7 +22,8 @@ class G4LogicalVolume;
 class DreamSD : public CaloSD {
 public:
   DreamSD(const std::string &,
-          const edm::EventSetup &,
+          const DDCompactView *,
+          const cms::DDCompactView *,
           const SensitiveDetectorCatalog &,
           edm::ParameterSet const &,
           const SimTrackManager *);
@@ -36,7 +39,7 @@ private:
   typedef std::pair<double, double> Doubles;
   typedef std::map<G4LogicalVolume *, Doubles> DimensionMap;
 
-  void initMap(const std::string &, const edm::EventSetup &);
+  void initMap(const std::string &);
   void fillMap(const std::string &, double, double);
   double curve_LY(const G4Step *, int);
   double crystalLength(G4LogicalVolume *) const;
@@ -56,6 +59,9 @@ private:
 
   static constexpr double k_ScaleFromDDDToG4 = 1.0;
   static constexpr double k_ScaleFromDD4HepToG4 = 1.0 / dd4hep::mm;
+
+  const DDCompactView *cpvDDD_;
+  const cms::DDCompactView *cpvDD4Hep_;
 
   bool useBirk_, doCherenkov_, readBothSide_, dd4hep_;
   double birk1_, birk2_, birk3_;
