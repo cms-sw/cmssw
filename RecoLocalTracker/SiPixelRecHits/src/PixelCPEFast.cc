@@ -83,6 +83,11 @@ const pixelCPEforGPU::ParamsOnGPU* PixelCPEFast::getGPUProductAsync(cudaStream_t
 }
 
 void PixelCPEFast::fillParamsForGpu() {
+  //
+  // this code executes only once per job, computation inefficiency is not an issue
+  // many code blocks are repeated: better keep the computation local and self oconsistent as blocks may in future move around, be deleted ...
+  // It is valid only for Phase1 and the version of GenError in DB used in late 2018 and in 2021
+
   commonParamsGPU_.theThicknessB = m_DetParams.front().theThickness;
   commonParamsGPU_.theThicknessE = m_DetParams.back().theThickness;
   commonParamsGPU_.thePitchX = m_DetParams[0].thePitchX;
@@ -115,7 +120,8 @@ void PixelCPEFast::fillParamsForGpu() {
     g.layer = ttopo_.layer(p.theDet->geographicalId());
     g.index = i;  // better be!
     g.rawId = p.theDet->geographicalId();
-    assert((g.isBarrel ? commonParamsGPU_.theThicknessB : commonParamsGPU_.theThicknessE) == p.theThickness);
+    auto thickness = g.isBarrel ? commonParamsGPU_.theThicknessB : commonParamsGPU_.theThicknessE;
+    assert(thickness == p.theThickness);
 
     auto ladder = ttopo_.pxbLadder(p.theDet->geographicalId());
     if (oldLayer != g.layer) {
@@ -215,7 +221,7 @@ void PixelCPEFast::fillParamsForGpu() {
     }
 #ifdef EDM_ML_DEBUG
     // sample yerr as function of position
-    auto const yoff = -54 * 4.f * commonParamsGPU_.thePitchY;
+    auto const yoff = -54.f * 4.f * commonParamsGPU_.thePitchY;
     for (int ix = 0; ix < 16; ++ix) {
       auto y = yoff * (1.f - (0.5f + float(ix)) / 8.f);
       auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchY;
@@ -235,7 +241,7 @@ void PixelCPEFast::fillParamsForGpu() {
     auto gvz = 1.f / p.theOrigin.z();
     //--- Note that the normalization is not required as only the ratio used
 
-    // calculate angles
+    // calculate angles (fed into errorFromTemplates)
     cp.cotalpha = gvx * gvz;
     cp.cotbeta = gvy * gvz;
     auto aveCB = cp.cotbeta;
@@ -270,15 +276,15 @@ void PixelCPEFast::fillParamsForGpu() {
       g.xfact[kk] *= detx;
       g.yfact[kk] *= dety;
     }
-    // sample y in angle
+    // sample y in "angle"  (estimated from cluster size)
     float ys = 8.f - 4.f;  // apperent bias of half pixel (see plot)
     // sample yerr as function of "size"
     for (int iy = 0; iy < 16; ++iy) {
       ys += 1.f;  // first bin 0 is for size 9  (and size is in fixed point 2^3)
       if (15 == iy)
         ys += 8.f;  // last bin for "overflow"
-      // cp.cotalpha = ys*100.f/(8.f*285.f);
-      cp.cotbeta = std::copysign(ys * 150.f / (8.f * 285.f), aveCB);
+      // cp.cotalpha = ys*(commonParamsGPU_.thePitchX/(8.f*thickness));  //  use this to print sampling in "x"  (and comment the line below)
+      cp.cotbeta = std::copysign(ys * (commonParamsGPU_.thePitchY / (8.f * thickness)), aveCB);
       errorFromTemplates(p, cp, 20000.f);
       g.sigmay[iy] = toMicron(cp.sigmay);
       LogDebug("PixelCPEFast") << "sigmax/sigmay " << i << ' ' << (ys + 4.f) / 8.f << ' ' << cp.cotalpha << '/'
@@ -286,7 +292,9 @@ void PixelCPEFast::fillParamsForGpu() {
     }
   }  // loop over det
 
+  //
   // compute ladder baricenter (only in global z) for the barrel
+  //
   auto& aveGeom = averageGeometry_;
   int il = 0;
   for (int im = 0, nm = phase1PixelTopology::numberOfModulesInBarrel; im < nm; ++im) {

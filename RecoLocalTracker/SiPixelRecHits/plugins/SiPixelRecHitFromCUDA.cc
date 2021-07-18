@@ -40,9 +40,9 @@ private:
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override;
 
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
-  const edm::EDGetTokenT<cms::cuda::Product<TrackingRecHit2DCUDA>> hitsToken_;  // CUDA hits
-  const edm::EDGetTokenT<SiPixelClusterCollectionNew> clusterToken_;            // legacy clusters
-  const edm::EDPutTokenT<SiPixelRecHitCollection> rechitsPutToken_;             // legacy rechits
+  const edm::EDGetTokenT<cms::cuda::Product<TrackingRecHit2DGPU>> hitsToken_;  // CUDA hits
+  const edm::EDGetTokenT<SiPixelClusterCollectionNew> clusterToken_;           // legacy clusters
+  const edm::EDPutTokenT<SiPixelRecHitCollection> rechitsPutToken_;            // legacy rechits
   const edm::EDPutTokenT<HMSstorage> hostPutToken_;
 
   uint32_t nHits_;
@@ -53,7 +53,7 @@ private:
 SiPixelRecHitFromCUDA::SiPixelRecHitFromCUDA(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes()),
       hitsToken_(
-          consumes<cms::cuda::Product<TrackingRecHit2DCUDA>>(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
+          consumes<cms::cuda::Product<TrackingRecHit2DGPU>>(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
       clusterToken_(consumes<SiPixelClusterCollectionNew>(iConfig.getParameter<edm::InputTag>("src"))),
       rechitsPutToken_(produces<SiPixelRecHitCollection>()),
       hostPutToken_(produces<HMSstorage>()) {}
@@ -68,7 +68,7 @@ void SiPixelRecHitFromCUDA::fillDescriptions(edm::ConfigurationDescriptions& des
 void SiPixelRecHitFromCUDA::acquire(edm::Event const& iEvent,
                                     edm::EventSetup const& iSetup,
                                     edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
-  cms::cuda::Product<TrackingRecHit2DCUDA> const& inputDataWrapped = iEvent.get(hitsToken_);
+  cms::cuda::Product<TrackingRecHit2DGPU> const& inputDataWrapped = iEvent.get(hitsToken_);
   cms::cuda::ScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
   auto const& inputData = ctx.get(inputDataWrapped);
 
