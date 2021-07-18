@@ -24,7 +24,8 @@ TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm(const edm
       cfdFraction_(iConfig.getParameter<double>("cfdFraction")),
       smoothingPoints_(iConfig.getParameter<int>("smoothingPoints")),
       lowPassFrequency_(iConfig.getParameter<double>("lowPassFrequency")),
-      hysteresis_(iConfig.getParameter<double>("hysteresis")) {}
+      hysteresis_(iConfig.getParameter<double>("hysteresis")),
+      sampicOffset_(iConfig.getParameter<double>("sampicOffset")){}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -69,19 +70,19 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
       const std::vector<float> time(sampicConversions_->timeSamples(digi));
       std::vector<float> data(sampicConversions_->voltSamples(digi));
 
+      auto max_it = std::max_element(data.begin(), data.end());
 
+      for (unsigned int i = 0; i < data.size(); ++i)
+        if(det->name()=="CTPPS_Diamond_Segment")
+          data[i] = -data[i]+sampicOffset_;
+          
       RegressionResults baselineRegression = simplifiedLinearRegression(time, data, 0, baselinePoints_);
 
       // remove baseline
       std::vector<float> dataCorrected(data.size());
-      for (unsigned int i = 0; i < data.size(); ++i){
-        //flip value if sampic
-        if(det->name()=="CTPPS_Diamond_Segment")
-          data[i] = -1*data[i]+1;
+      for (unsigned int i = 0; i < data.size(); ++i)
         dataCorrected[i] = data[i] - (baselineRegression.q + baselineRegression.m * time[i]);//time is not correct
-
-      }
-      auto max_it = std::max_element(data.begin(), data.end());
+      
       auto max_corrected_it = std::max_element(dataCorrected.begin(), dataCorrected.end());
 
 

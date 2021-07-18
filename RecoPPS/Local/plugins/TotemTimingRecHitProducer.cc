@@ -105,7 +105,7 @@ void TotemTimingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
       ->setComment("Frequency (in GHz) for CFD smoothing, 0 for disabling the filter");
   desc.add<double>("hysteresis", 5.e-3)->setComment("hysteresis of the discriminator");
   desc.add<bool>("mergeTimePeaks", true)->setComment("if time peaks schould be merged");
-
+  desc.add<double>("sampicOffset", 1.0)->setComment("offset of the flipped sampic signal");
   descr.add("totemTimingRecHits", desc);
 }
 

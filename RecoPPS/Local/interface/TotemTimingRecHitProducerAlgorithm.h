@@ -58,6 +58,7 @@ private:
   int smoothingPoints_;
   double lowPassFrequency_;
   double hysteresis_;
+  double sampicOffset_;
   TotemTimingRecHit::TimingAlgorithm mode_;
 };
 
