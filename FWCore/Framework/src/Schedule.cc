@@ -7,6 +7,7 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
+#include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/src/SubProcess.h"
@@ -658,6 +659,7 @@ namespace edm {
                      service::TriggerNamesService const& tns,
                      ProductRegistry& preg,
                      BranchIDListHelper& branchIDListHelper,
+                     ProcessBlockHelperBase& processBlockHelper,
                      ThinnedAssociationsHelper& thinnedAssociationsHelper,
                      SubProcessParentageHelper const* subProcessParentageHelper,
                      ExceptionToActionTable const& actions,
@@ -796,10 +798,12 @@ namespace edm {
       worker->registerThinnedAssociations(preg, thinnedAssociationsHelper);
     }
 
+    processBlockHelper.updateForNewProcess(preg, processConfiguration->processName());
+
     // The output modules consume products in kept branches.
     // So we must set this up before freezing.
     for (auto& c : all_output_communicators_) {
-      c->selectProducts(preg, thinnedAssociationsHelper);
+      c->selectProducts(preg, thinnedAssociationsHelper, processBlockHelper);
     }
 
     for (auto& product : preg.productListUpdator()) {
@@ -1213,6 +1217,9 @@ namespace edm {
   void Schedule::closeOutputFiles() {
     using std::placeholders::_1;
     for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::closeFile, _1));
+    for (auto& worker : allWorkers()) {
+      worker->respondToCloseOutputFile();
+    }
   }
 
   void Schedule::openOutputFiles(FileBlock& fb) {
@@ -1352,8 +1359,10 @@ namespace edm {
     for_all(allWorkers(), std::bind(&Worker::respondToCloseInputFile, _1, std::cref(fb)));
   }
 
-  void Schedule::beginJob(ProductRegistry const& iRegistry, eventsetup::ESRecordsToProxyIndices const& iESIndices) {
-    globalSchedule_->beginJob(iRegistry, iESIndices);
+  void Schedule::beginJob(ProductRegistry const& iRegistry,
+                          eventsetup::ESRecordsToProxyIndices const& iESIndices,
+                          ProcessBlockHelperBase const& processBlockHelperBase) {
+    globalSchedule_->beginJob(iRegistry, iESIndices, processBlockHelperBase);
   }
 
   void Schedule::beginStream(unsigned int iStreamID) {

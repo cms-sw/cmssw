@@ -27,6 +27,7 @@
 #include "tbb/task_group.h"
 
 // user include files
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
@@ -331,6 +332,7 @@ This simulates a problem happening early in the job which causes processing not 
       std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
       std::shared_ptr<ProductRegistry> preg_;
       std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
+      std::shared_ptr<ProcessBlockHelper> processBlockHelper_;
       std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
       ServiceToken serviceToken_;
       std::unique_ptr<eventsetup::EventSetupsController> espController_;

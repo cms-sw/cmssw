@@ -16,18 +16,25 @@ RootFile.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/EventEntryDescription.h"  // backward compatibility
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"  // backward compatibility
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "DataFormats/Provenance/interface/EventToProcessBlockIndexes.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Utilities/interface/InputType.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
+
+#include "TBranch.h"
 
 #include <array>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -52,7 +59,7 @@ namespace edm {
   class RunHelperBase;
   class ThinnedAssociationsHelper;
 
-  typedef std::map<EntryDescriptionID, EventEntryDescription> EntryDescriptionMap;
+  using EntryDescriptionMap = std::map<EntryDescriptionID, EventEntryDescription>;
 
   class MakeProvenanceReader {
   public:
@@ -63,7 +70,7 @@ namespace edm {
 
   class RootFile {
   public:
-    typedef std::array<RootTree*, NumBranchTypes> RootTreePtrArray;
+    // Constructor used by RootPrimaryFileSequence
     RootFile(std::string const& fileName,
              ProcessConfiguration const& processConfiguration,
              std::string const& logicalFileName,
@@ -81,6 +88,7 @@ namespace edm {
              ProductSelectorRules const& productSelectorRules,
              InputType inputType,
              std::shared_ptr<BranchIDListHelper> branchIDListHelper,
+             ProcessBlockHelper*,
              std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
              std::vector<BranchID> const* associationsFromSecondary,
              std::shared_ptr<DuplicateChecker> duplicateChecker,
@@ -95,6 +103,7 @@ namespace edm {
              bool enablePrefetching,
              bool enforceGUIDInFileName);
 
+    // Constructor used by RootSecondaryFileSequence
     RootFile(std::string const& fileName,
              ProcessConfiguration const& processConfiguration,
              std::string const& logicalFileName,
@@ -134,6 +143,7 @@ namespace edm {
                    productSelectorRules,
                    inputType,
                    branchIDListHelper,
+                   nullptr,
                    thinnedAssociationsHelper,
                    associationsFromSecondary,
                    nullptr,
@@ -148,6 +158,7 @@ namespace edm {
                    enablePrefetching,
                    enforceGUIDInFileName) {}
 
+    // Constructor used by RootEmbeddedFileSequence
     RootFile(std::string const& fileName,
              ProcessConfiguration const& processConfiguration,
              std::string const& logicalFileName,
@@ -185,6 +196,7 @@ namespace edm {
                    nullptr,
                    nullptr,
                    nullptr,
+                   nullptr,
                    false,
                    processHistoryRegistry,
                    indexesIntoFiles,
@@ -209,6 +221,13 @@ namespace edm {
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_();
     std::shared_ptr<RunAuxiliary> readFakeRunAuxiliary_();
+
+    void fillProcessBlockHelper_();
+    bool initializeFirstProcessBlockEntry();
+    bool endOfProcessBlocksReached() const;
+    bool nextProcessBlock_(ProcessBlockPrincipal&);
+    void readProcessBlock_(ProcessBlockPrincipal&);
+
     void readRun_(RunPrincipal& runPrincipal);
     void readFakeRun_(RunPrincipal& runPrincipal);
     void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
@@ -225,7 +244,9 @@ namespace edm {
     std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const { return hasNewlyDroppedBranch_; }
     bool branchListIndexesUnchanged() const { return branchListIndexesUnchanged_; }
     bool modifiedIDs() const { return daqProvenanceHelper_.get() != nullptr; }
-    std::unique_ptr<FileBlock> createFileBlock() const;
+    std::shared_ptr<FileBlock> createFileBlock();
+    void updateFileBlock(FileBlock&);
+
     bool setEntryAtItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) {
       return (event != 0) ? setEntryAtEvent(run, lumi, event) : (lumi ? setEntryAtLumi(run, lumi) : setEntryAtRun(run));
     }
@@ -241,6 +262,10 @@ namespace edm {
       eventTree_.rewind();
       lumiTree_.rewind();
       runTree_.rewind();
+      currentProcessBlockTree_ = 0;
+      for (auto& processBlockTree : processBlockTrees_) {
+        processBlockTree->rewindToInvalid();
+      }
     }
     void setToLastEntry() { indexIntoFileIter_ = indexIntoFileEnd_; }
 
@@ -268,13 +293,18 @@ namespace edm {
         signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource);
 
   private:
-    RootTreePtrArray& treePointers() { return treePointers_; }
+    void makeProcessBlockRootTrees(std::shared_ptr<InputFile> filePtr,
+                                   int treeMaxVirtualSize,
+                                   bool enablePrefetching,
+                                   InputType inputType,
+                                   StoredProcessBlockHelper const& storedProcessBlockHelper);
     bool skipThisEntry();
     void setIfFastClonable(int remainingEvents, int remainingLumis);
     void validateFile(InputType inputType, bool usingGoToEvent);
     void fillIndexIntoFile();
     EventAuxiliary fillEventAuxiliary(IndexIntoFile::EntryNumber_t entry);
     EventAuxiliary const& fillThisEventAuxiliary();
+    void fillEventToProcessBlockIndexes();
     bool fillEventHistory(EventAuxiliary& evtAux,
                           EventSelectionIDVector& eventSelectionIDs,
                           BranchListIndexes& branchListIndexes,
@@ -282,11 +312,21 @@ namespace edm {
     std::shared_ptr<LuminosityBlockAuxiliary> fillLumiAuxiliary();
     std::shared_ptr<RunAuxiliary> fillRunAuxiliary();
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
+    void setPresenceInProductRegistry(ProductRegistry&, StoredProcessBlockHelper const&);
     void markBranchToBeDropped(bool dropDescendants,
                                BranchDescription const& branch,
                                std::set<BranchID>& branchesToDrop,
                                std::map<BranchID, BranchID> const& droppedToKeptAlias) const;
-    void dropOnInput(ProductRegistry& reg, ProductSelectorRules const& rules, bool dropDescendants, InputType inputType);
+    void dropOnInputAndReorder(ProductRegistry&,
+                               ProductSelectorRules const&,
+                               bool dropDescendants,
+                               InputType,
+                               StoredProcessBlockHelper&,
+                               ProcessBlockHelper const*);
+    void dropProcessesAndReorder(StoredProcessBlockHelper&,
+                                 std::set<std::string> const& processesWithKeptProcessBlockProducts,
+                                 ProcessBlockHelper const*);
+
     void readParentageTree(InputType inputType);
     void readEntryDescriptionTree(EntryDescriptionMap& entryDescriptionMap,
                                   InputType inputType);  // backward compatibility
@@ -340,18 +380,24 @@ namespace edm {
     RootTree eventTree_;
     RootTree lumiTree_;
     RootTree runTree_;
-    RootTreePtrArray treePointers_;
+    std::vector<edm::propagate_const<std::unique_ptr<RootTree>>> processBlockTrees_;
+    unsigned int currentProcessBlockTree_ = 0;
+    std::vector<edm::propagate_const<RootTree*>> treePointers_;
     //Should only be used by fillThisEventAuxiliary()
     IndexIntoFile::EntryNumber_t lastEventEntryNumberRead_;
     std::shared_ptr<ProductRegistry const> productRegistry_;
     std::shared_ptr<BranchIDLists const> branchIDLists_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<ProcessBlockHelper*> processBlockHelper_;
+    edm::propagate_const<std::unique_ptr<StoredProcessBlockHelper>> storedProcessBlockHelper_;
     edm::propagate_const<std::unique_ptr<ThinnedAssociationsHelper>> fileThinnedAssociationsHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     InputSource::ProcessingMode processingMode_;
     edm::propagate_const<RunHelperBase*> runHelper_;
     std::map<std::string, std::string> newBranchToOldBranch_;
-    edm::propagate_const<TTree*> eventHistoryTree_;           // backward compatibility
+    edm::propagate_const<TTree*> eventHistoryTree_;  // backward compatibility
+    EventToProcessBlockIndexes eventToProcessBlockIndexes_;
+    edm::propagate_const<TBranch*> eventToProcessBlockIndexesBranch_;
     edm::propagate_const<std::unique_ptr<History>> history_;  // backward compatibility
     edm::propagate_const<std::shared_ptr<BranchChildren>> branchChildren_;
     edm::propagate_const<std::shared_ptr<DuplicateChecker>> duplicateChecker_;

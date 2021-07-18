@@ -85,6 +85,10 @@ namespace edm {
     consumer_->labelsForToken(iToken, oLabels);
   }
 
+  unsigned int PrincipalGetAdapter::processBlockIndex(std::string const& processName) const {
+    return principal_.processBlockIndex(processName);
+  }
+
   BasicHandle PrincipalGetAdapter::makeFailToGetException(KindOfType kindOfType,
                                                           TypeID const& productType,
                                                           EDGetToken token) const {

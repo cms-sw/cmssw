@@ -21,10 +21,18 @@
 // system include files
 #include <memory>
 #include <mutex>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 // user include files
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
+#include "FWCore/Framework/interface/CacheHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/InputProcessBlockCacheImpl.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/ProcessBlockIndex.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
@@ -88,7 +96,7 @@ namespace edm {
         std::vector<C*> caches_;
       };
 
-      template <typename T, typename C>
+      template <typename T, typename... CacheTypes>
       class InputProcessBlockCacheHolder : public virtual T {
       public:
         InputProcessBlockCacheHolder(edm::ParameterSet const& iPSet) : T(iPSet) {}
@@ -96,20 +104,43 @@ namespace edm {
         InputProcessBlockCacheHolder& operator=(InputProcessBlockCacheHolder const&) = delete;
         ~InputProcessBlockCacheHolder() noexcept(false) override {}
 
-      protected:
-        // Not implemented yet
-        // const C* inputProcessBlockCache(ProcessBlockIndex index) const { return caches_.at(index).get(); }
-
-      private:
-        // Not yet fully implemented, will never get called
-        void doAccessInputProcessBlock_(ProcessBlock const& pb) final {
-          caches_.push_back(accessInputProcessBlock(pb));
+        std::tuple<CacheHandle<CacheTypes>...> processBlockCaches(Event const& event) const {
+          return cacheImpl_.processBlockCaches(event);
         }
 
-        // Not yet fully implemented, will never get called
-        virtual std::shared_ptr<C> accessInputProcessBlock(ProcessBlock const&) const = 0;
+        template <std::size_t ICacheType, typename DataType, typename Func>
+        void registerProcessBlockCacheFiller(EDGetTokenT<DataType> const& token, Func&& func) {
+          cacheImpl_.template registerProcessBlockCacheFiller<ICacheType, DataType, Func>(token,
+                                                                                          std::forward<Func>(func));
+        }
 
-        std::vector<std::shared_ptr<C>> caches_;
+        template <typename CacheType, typename DataType, typename Func>
+        void registerProcessBlockCacheFiller(EDGetTokenT<DataType> const& token, Func&& func) {
+          cacheImpl_.template registerProcessBlockCacheFiller<CacheType, DataType, Func>(token,
+                                                                                         std::forward<Func>(func));
+        }
+
+        // This is intended for use by Framework unit tests only
+        unsigned int cacheSize() const { return cacheImpl_.cacheSize(); }
+
+      private:
+        void doSelectInputProcessBlocks(ProductRegistry const& productRegistry,
+                                        ProcessBlockHelperBase const& processBlockHelperBase) final {
+          cacheImpl_.selectInputProcessBlocks(productRegistry, processBlockHelperBase, *this);
+        }
+
+        void doAccessInputProcessBlock_(ProcessBlock const& pb) final {
+          cacheImpl_.accessInputProcessBlock(pb);
+          accessInputProcessBlock(pb);
+        }
+
+        // Alternate method to access ProcessBlocks without using the caches
+        // Mostly intended for unit testing, but might have other uses...
+        virtual void accessInputProcessBlock(ProcessBlock const&) {}
+
+        void clearInputProcessBlockCaches() final { cacheImpl_.clearCaches(); }
+
+        edm::impl::InputProcessBlockCacheImpl<CacheTypes...> cacheImpl_;
       };
 
       template <typename T, typename C>
@@ -255,8 +286,8 @@ namespace edm {
         void doBeginProcessBlock_(ProcessBlock const&) final;
         void doEndProcessBlock_(ProcessBlock const&) final;
 
-        virtual void beginProcessBlock(ProcessBlock const&) const {}
-        virtual void endProcessBlock(ProcessBlock const&) const {}
+        virtual void beginProcessBlock(ProcessBlock const&) {}
+        virtual void endProcessBlock(ProcessBlock const&) {}
       };
 
       template <typename T>
@@ -270,7 +301,7 @@ namespace edm {
       private:
         void doBeginProcessBlockProduce_(ProcessBlock&) final;
 
-        virtual void beginProcessBlockProduce(edm::ProcessBlock&) const = 0;
+        virtual void beginProcessBlockProduce(edm::ProcessBlock&) = 0;
       };
 
       template <typename T>
@@ -284,7 +315,7 @@ namespace edm {
       private:
         void doEndProcessBlockProduce_(ProcessBlock&) final;
 
-        virtual void endProcessBlockProduce(edm::ProcessBlock&) const = 0;
+        virtual void endProcessBlockProduce(edm::ProcessBlock&) = 0;
       };
 
       template <typename T>

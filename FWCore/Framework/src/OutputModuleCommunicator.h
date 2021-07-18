@@ -25,6 +25,7 @@
 
 // user include files
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 // forward declarations
@@ -76,7 +77,9 @@ namespace edm {
 
     virtual SelectedProductsForBranchType const& keptProducts() const = 0;
 
-    virtual void selectProducts(ProductRegistry const& preg, ThinnedAssociationsHelper const&) = 0;
+    virtual void selectProducts(ProductRegistry const& preg,
+                                ThinnedAssociationsHelper const&,
+                                ProcessBlockHelperBase const&) = 0;
 
     virtual void setEventSelectionInfo(
         std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,

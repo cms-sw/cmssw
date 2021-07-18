@@ -1,5 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
 # Configuration file for PoolInputTest
 
 import FWCore.ParameterSet.Config as cms

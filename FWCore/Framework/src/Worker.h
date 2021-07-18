@@ -22,6 +22,7 @@ the worker is reset().
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/Framework/src/WorkerParams.h"
@@ -170,7 +171,7 @@ namespace edm {
     void endStream(StreamID id, StreamContext& streamContext);
     void respondToOpenInputFile(FileBlock const& fb) { implRespondToOpenInputFile(fb); }
     void respondToCloseInputFile(FileBlock const& fb) { implRespondToCloseInputFile(fb); }
-
+    void respondToCloseOutputFile() { implRespondToCloseOutputFile(); }
     void registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper);
 
     void reset() {
@@ -198,6 +199,7 @@ namespace edm {
     //Used to make EDGetToken work
     virtual void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&) = 0;
     virtual void updateLookup(eventsetup::ESRecordsToProxyIndices const&) = 0;
+    virtual void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) = 0;
     virtual void resolvePutIndicies(
         BranchType iBranchType,
         std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
@@ -292,6 +294,7 @@ namespace edm {
 
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
+    virtual void implRespondToCloseOutputFile() = 0;
 
     virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) = 0;
 

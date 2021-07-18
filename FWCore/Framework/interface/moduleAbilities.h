@@ -44,10 +44,9 @@ namespace edm {
     typedef T Type;
   };
 
-  template <typename T>
+  template <typename... CacheTypes>
   struct InputProcessBlockCache {
     static constexpr module::Abilities kAbilities = module::Abilities::kInputProcessBlockCache;
-    typedef T Type;
   };
 
   template <typename T>
