@@ -39,7 +39,7 @@ static TrackerG4SimHitNumberingScheme& numberingScheme(const GeometricDet& det) 
 }
 
 TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::string& name,
-                                                                 const GeometricDet *pDD,
+                                                                 const GeometricDet* pDD,
                                                                  const SensitiveDetectorCatalog& clg,
                                                                  edm::ParameterSet const& p,
                                                                  const SimTrackManager* manager)
@@ -349,9 +349,7 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfEvent* i) {
   mySimHit = nullptr;
 }
 
-void TkAccumulatingSensitiveDetector::update(const BeginOfJob* i) {
-  theNumberingScheme = &(numberingScheme(*pDD_));
-}
+void TkAccumulatingSensitiveDetector::update(const BeginOfJob* i) { theNumberingScheme = &(numberingScheme(*pDD_)); }
 
 void TkAccumulatingSensitiveDetector::clearHits() {
   slaveLowTof.get()->Initialize();

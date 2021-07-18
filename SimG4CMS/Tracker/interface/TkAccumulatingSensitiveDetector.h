@@ -34,7 +34,7 @@ class TkAccumulatingSensitiveDetector : public SensitiveTkDetector,
                                         public Observer<const BeginOfJob *> {
 public:
   TkAccumulatingSensitiveDetector(const std::string &,
-                                  const GeometricDet*,
+                                  const GeometricDet *,
                                   const SensitiveDetectorCatalog &,
                                   edm::ParameterSet const &,
                                   const SimTrackManager *);
