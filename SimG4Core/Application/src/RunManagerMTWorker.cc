@@ -325,25 +325,22 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
     if (!fieldFile.empty()) {
       std::call_once(applyOnce, []() { dumpMF = true; });
       if (dumpMF) {
-        edm::LogVerbatim("SimG4CoreApplication") 
-            << "RunManagerMTWorker: Dump magnetic field to file " << fieldFile;
+        edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker: Dump magnetic field to file " << fieldFile;
         DumpMagneticField(tM->GetFieldManager()->GetDetectorField(), fieldFile);
       }
     }
   }
 
   // attach sensitive detector
-  auto sensDets = sim::attachSD(m_sdMakers, es, runManagerMaster->catalog(), 
-				m_p, m_tls->trackManager.get(), *(m_tls->registry.get()));
+  auto sensDets = sim::attachSD(
+      m_sdMakers, es, runManagerMaster->catalog(), m_p, m_tls->trackManager.get(), *(m_tls->registry.get()));
 
   m_tls->sensTkDets.swap(sensDets.first);
   m_tls->sensCaloDets.swap(sensDets.second);
 
   edm::LogVerbatim("SimG4CoreApplication")
-      << "RunManagerMTWorker: Sensitive Detectors are built in thread " 
-      << thisID << " found "
-      << m_tls->sensTkDets.size() << " Tk type SD, and " 
-      << m_tls->sensCaloDets.size() << " Calo type SD";
+      << "RunManagerMTWorker: Sensitive Detectors are built in thread " << thisID << " found "
+      << m_tls->sensTkDets.size() << " Tk type SD, and " << m_tls->sensCaloDets.size() << " Calo type SD";
 
   // Set the physics list for the worker, share from master
   PhysicsList* physicsList = runManagerMaster->physicsListForWorker();
@@ -374,7 +371,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   m_tls->registry->beginOfJobSignal_(&aBeginOfJob);
 
   G4int sv = m_p.getUntrackedParameter<int>("SteppingVerbosity", 0);
-  G4double elim = m_p.getUntrackedParameter<double>("StepVerboseThreshold", 0.1)*CLHEP::GeV;
+  G4double elim = m_p.getUntrackedParameter<double>("StepVerboseThreshold", 0.1) * CLHEP::GeV;
   std::vector<int> ve = m_p.getUntrackedParameter<std::vector<int>>("VerboseEvents");
   std::vector<int> vn = m_p.getUntrackedParameter<std::vector<int>>("VertexNumber");
   std::vector<int> vt = m_p.getUntrackedParameter<std::vector<int>>("VerboseTracks");
@@ -499,8 +496,7 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
 
   if (nullptr == m_tls || !m_tls->threadInitialized) {
     edm::LogVerbatim("SimG4CoreApplication")
-        << "RunManagerMTWorker::produce(): stream " << inpevt.streamID() 
-        << " thread " << getThreadIndex()
+        << "RunManagerMTWorker::produce(): stream " << inpevt.streamID() << " thread " << getThreadIndex()
         << " Geant4 initialisation for this thread";
     initializeG4(&runManagerMaster, es);
     m_tls->threadInitialized = true;
@@ -508,8 +504,7 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
   // Initialize run
   if (inpevt.id().run() != m_tls->currentRunNumber) {
     edm::LogVerbatim("SimG4CoreApplication")
-        << "RunID= " << inpevt.id().run() 
-        << "  TLS RunID= " << m_tls->currentRunNumber;
+        << "RunID= " << inpevt.id().run() << "  TLS RunID= " << m_tls->currentRunNumber;
     if (m_tls->currentRunNumber != 0 && !m_tls->runTerminated) {
       // If previous run in this thread was not terminated via endRun() call,
       // terminate it now
@@ -528,24 +523,21 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
   m_simEvent->weight(m_generator.eventWeight());
   if (m_generator.genVertex() != nullptr) {
     auto genVertex = m_generator.genVertex();
-    m_simEvent->collisionPoint(math::XYZTLorentzVectorD(genVertex->x()/CLHEP::cm,
-                                                        genVertex->y()/CLHEP::cm,
-                                                        genVertex->z()/CLHEP::cm,
-                                                        genVertex->t()/CLHEP::second));
+    m_simEvent->collisionPoint(math::XYZTLorentzVectorD(genVertex->x() / CLHEP::cm,
+                                                        genVertex->y() / CLHEP::cm,
+                                                        genVertex->z() / CLHEP::cm,
+                                                        genVertex->t() / CLHEP::second));
   }
   if (m_tls->currentEvent->GetNumberOfPrimaryVertex() == 0) {
     std::stringstream ss;
-    ss << "RunManagerMTWorker::produce: event " << inpevt.id().event() 
-       << " with no G4PrimaryVertices \n";
+    ss << "RunManagerMTWorker::produce: event " << inpevt.id().event() << " with no G4PrimaryVertices \n";
     throw SimG4Exception(ss.str());
 
   } else {
     edm::LogVerbatim("SimG4CoreApplication")
-        << "RunManagerMTWorker::produce: start EventID=" 
-        << inpevt.id().event() << " StreamID=" << inpevt.streamID()
+        << "RunManagerMTWorker::produce: start EventID=" << inpevt.id().event() << " StreamID=" << inpevt.streamID()
         << " threadIndex=" << getThreadIndex() << " weight=" << m_simEvent->weight() << "; "
-        << m_tls->currentEvent->GetNumberOfPrimaryVertex() 
-        << " vertices for Geant4; generator produced "
+        << m_tls->currentEvent->GetNumberOfPrimaryVertex() << " vertices for Geant4; generator produced "
         << m_simEvent->nGenParts() << " particles.";
 
     m_tls->kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());

@@ -217,7 +217,8 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (verb > 1) {
     m_physicsList->DumpCutValuesTable();
   }
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: Physics is initilized, now initialise user actions, verb=" << verb;
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "RunManagerMT: Physics is initilized, now initialise user actions, verb=" << verb;
 
   initializeUserActions();
 
