@@ -47,6 +47,7 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
     float t[10000];
     float lambda[10000];
     int fiberId[10000];
+    float primZ;  // added
     for (int kk = 0; kk < 10000; ++kk) {
       x[kk] = 0.;
       y[kk] = 0.;
@@ -62,13 +63,16 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
     theTree->SetBranchAddress("t", &t);
     theTree->SetBranchAddress("lambda", &lambda);
     theTree->SetBranchAddress("fiberId", &fiberId);
+    theTree->SetBranchAddress("primZ", &primZ);  // added
     int nentries = int(theTree->GetEntries());
-    if (nentries > 5000)
-      nentries = 5000;
+    int ngood = 0;
     int nbytes = 0;
     // cycle over showers ====================================================
     for (int iev = 0; iev < nentries; iev++) {
       nbytes += theTree->GetEntry(iev);
+      if(primZ<990) continue;  // exclude showers with interactions in front of HF (1m of air)
+      ngood++;
+      if (ngood>nshowers) continue; 
       if (particle == "electron") {
         emColl.clear();
       } else {
