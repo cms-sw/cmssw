@@ -23,9 +23,7 @@ private:
   std::string hitCollection_;
 };
 
-EcalUncalibRecHitPhase2WeightsProducer::EcalUncalibRecHitPhase2WeightsProducer(
-    const edm::ParameterSet& ps) {
-
+EcalUncalibRecHitPhase2WeightsProducer::EcalUncalibRecHitPhase2WeightsProducer(const edm::ParameterSet& ps) {
   hitCollection_ = ps.getParameter<std::string>("EBhitCollection");
   produces<EBUncalibratedRecHitCollection>(hitCollection_);
 
