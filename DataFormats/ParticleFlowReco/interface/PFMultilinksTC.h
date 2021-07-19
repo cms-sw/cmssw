@@ -4,6 +4,8 @@
 // Done by Glowinski & Gouzevitch
 
 #include <vector>
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
 namespace reco {
 
