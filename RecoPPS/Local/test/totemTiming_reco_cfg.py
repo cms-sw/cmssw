@@ -53,7 +53,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
 # rechits production
-process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi')
+process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_2021_cfi')
 process.load('RecoPPS.Local.totemTimingLocalReconstruction_cff')
 
 process.output = cms.OutputModule("PoolOutputModule",
