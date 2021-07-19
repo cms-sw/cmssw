@@ -13,7 +13,7 @@
 #define Alignment_MuonMillepedeTrackRefitter_MuonMillepedeTrackRefitter_H
 
 // Base Class Headers
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -40,7 +40,7 @@ namespace edm {
 typedef std::vector<std::vector<int> > intDVector;
 typedef std::vector<TrackingRecHit*> RecHitVector;
 
-class MuonMillepedeTrackRefitter : public edm::EDProducer {
+class MuonMillepedeTrackRefitter : public edm::stream::EDProducer<> {
 public:
   typedef AlignmentAlgorithmBase::ConstTrajTrackPair ConstTrajTrackPair;
   typedef AlignmentAlgorithmBase::ConstTrajTrackPairCollection ConstTrajTrackPairCollection;
