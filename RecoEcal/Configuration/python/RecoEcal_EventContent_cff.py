@@ -63,8 +63,7 @@ RecoEcalRECO = cms.PSet(
         'drop recoSuperClusters_multi5x5SuperClusters_multi5x5BarrelSuperClusters_*')
 )
 RecoEcalRECO.outputCommands.extend(RecoEcalAOD.outputCommands)
-_phase2_hgcal_scCommands = ['keep *_particleFlowSuperClusterHGCal_*_*',
-                            'keep *_particleFlowSuperClusterHGCal_*_*']
+_phase2_hgcal_scCommands = ['keep *_particleFlowSuperClusterHGCal_*_*']
 phase2_hgcal.toModify(RecoEcalRECO,
     outputCommands = RecoEcalRECO.outputCommands + _phase2_hgcal_scCommands)
 
