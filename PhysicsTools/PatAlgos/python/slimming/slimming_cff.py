@@ -38,7 +38,6 @@ slimmingTask = cms.Task(
     offlineSlimmedPrimaryVertices,
     primaryVertexAssociation,
     genParticlesTask,
-    packedCandidateToGenAssociationTask,
     selectedPatTrigger,
     slimmedPatTrigger,
     slimmedCaloJets,
@@ -88,6 +87,10 @@ from RecoHI.HiTracking.miniAODVertexRecovery_cff import offlinePrimaryVerticesRe
 pp_on_AA.toReplaceWith(
     slimmingTask,
     cms.Task(slimmingTask.copy(), offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery))
+
+from Configuration.Eras.Modifier_bParking_cff import bParking
+_bParking_slimmingTask = cms.Task(slimmingTask.copy(),packedCandidateToGenAssociationTask)
+bParking.toReplaceWith(slimmingTask,_bParking_slimmingTask)
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _phase2_timing_slimmingTask = cms.Task(slimmingTask.copy(),
