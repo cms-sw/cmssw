@@ -1,10 +1,7 @@
-#include "SimG4CMS/Calo/interface/CaloSD.h"
+#include "SimG4CMS/HGCalTestBeam/interface/AHCalSD.h"
 #include "SimG4CMS/HGCalTestBeam/interface/AHCalDetId.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "Geometry/HGCalCommonData/interface/AHCalParameters.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -12,7 +9,6 @@
 #include "G4LogicalVolume.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4ParticleTable.hh"
-#include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 
@@ -21,33 +17,10 @@
 
 #include <iomanip>
 #include <map>
-#include <string>
 
 //#define EDM_ML_DEBUG
 
-class AHCalSD : public CaloSD {
-public:
-  AHCalSD(const std::string&,
-          const edm::EventSetup&,
-          const SensitiveDetectorCatalog&,
-          edm::ParameterSet const&,
-          const SimTrackManager*);
-  ~AHCalSD() override = default;
-  uint32_t setDetUnitId(const G4Step* step) override;
-  bool unpackIndex(const uint32_t& idx, int& row, int& col, int& depth);
-
-protected:
-  double getEnergyDeposit(const G4Step*) override;
-  bool filterHit(CaloG4Hit*, double) override;
-
-private:
-  bool useBirk;
-  double birk1, birk2, birk3, betaThr;
-  double eminHit;
-};
-
 AHCalSD::AHCalSD(const std::string& name,
-                 const edm::EventSetup& es,
                  const SensitiveDetectorCatalog& clg,
                  edm::ParameterSet const& p,
                  const SimTrackManager* manager)
@@ -128,10 +101,3 @@ bool AHCalSD::unpackIndex(const uint32_t& idx, int& row, int& col, int& depth) {
 bool AHCalSD::filterHit(CaloG4Hit* aHit, double time) {
   return ((time <= tmaxHit) && (aHit->getEnergyDeposit() > eminHit));
 }
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorPluginFactory.h"
-
-typedef AHCalSD AHcalSensitiveDetector;
-DEFINE_SENSITIVEDETECTOR(AHcalSensitiveDetector);
