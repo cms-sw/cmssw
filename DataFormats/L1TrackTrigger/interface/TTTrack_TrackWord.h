@@ -32,12 +32,12 @@ public:
     kMVAOtherSize = 6,    // Space for two specialized MVA selections
     kMVAQualitySize = 3,  // Width of track quality MVA
     kHitPatternSize = 7,  // Width of the hit pattern for stubs
-    kBendChi2Size = 3,    // Width of the Bend-Chi2
+    kBendChi2Size = 3,    // Width of the bend-chi2/dof
     kD0Size = 13,         // Width of D0
-    kChi2RZSize = 4,      // Width of Chi2 for r-z
+    kChi2RZSize = 4,      // Width of chi2/dof for r-z
     kZ0Size = 12,         // Width of z-position (40cm / 0.1)
     kTanlSize = 16,       // Width of tan(lambda)
-    kChi2RPhiSize = 4,    // Width of Chi2 for r-phi
+    kChi2RPhiSize = 4,    // Width of chi2/dof for r-phi
     kPhiSize = 12,        // Width of phi
     kRinvSize = 15,       // Width of Rinv
     kValidSize = 1,       // Valid bit

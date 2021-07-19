@@ -149,6 +149,8 @@ public:
   double chi2XYRed() const;
 
   /// Stub Pt consistency (i.e. stub bend chi2/dof)
+  /// Note: The "stubPtConsistency" names are historic and people are encouraged
+  ///       to adopt the "chi2Bend" names.
   double stubPtConsistency() const;
   void setStubPtConsistency(double aPtConsistency);
   double chi2BendRed() { return stubPtConsistency(); }
