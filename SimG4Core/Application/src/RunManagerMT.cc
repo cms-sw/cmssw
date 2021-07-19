@@ -104,8 +104,8 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   bool geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
   bool cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
   bool protonCut = m_pPhysics.getParameter<bool>("CutsOnProton");
-  int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0),
-                      m_p.getUntrackedParameter<int>("SteppingVerbosity", 0));
+  int verb = m_pPhysics.getUntrackedParameter<int>("Verbosity", 0);
+  int stepverb = m_p.getUntrackedParameter<int>("SteppingVerbosity", 0);
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep << "\n"
       << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
@@ -116,11 +116,6 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
 
   m_world = std::make_unique<DDDWorld>(pDD, pDD4hep, m_catalog, verb, cuts, protonCut);
   G4VPhysicalVolume* world = m_world.get()->GetWorldVolume();
-
-  timer.Stop();
-  G4cout.precision(4);
-  G4cout << "RunManagerMT: geometry is initialized: " << timer << G4endl;
-  timer.Start();
 
   m_kernel->SetVerboseLevel(verb);
   edm::LogVerbatim("SimG4CoreApplication")
@@ -140,6 +135,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   }
   m_kernel->DefineWorldVolume(world, true);
   m_registry.dddWorldSignal_(m_world.get());
+  G4StateManager::GetStateManager()->SetNewState(G4State_PreInit);
 
   // Create physics list
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: create PhysicsList";
@@ -155,8 +151,12 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (phys == nullptr) {
     throw edm::Exception(edm::errors::Configuration, "Physics list construction failed!");
   }
+  if (stepverb > 0) {
+    verb = std::max(verb, 1);
+  }
+  G4HadronicParameters::Instance()->SetVerboseLevel(verb);
   G4EmParameters::Instance()->SetVerbose(verb);
-  G4EmParameters::Instance()->SetWorkerVerbose(verb - 1);
+  G4EmParameters::Instance()->SetWorkerVerbose(std::max(verb - 1, 0));
 
   // exotic particle physics
   double monopoleMass = m_pPhysics.getUntrackedParameter<double>("MonopoleMass", 0);
@@ -211,12 +211,14 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
       G4UImanager::GetUIpointer()->ApplyCommand(cmd);
     m_physicsList->StorePhysicsTable(m_PhysicsTablesDir);
   }
+  // Appload nuclear level data up to Z=84
   G4NuclearLevelData::GetInstance()->UploadNuclearLevelData(84);
 
   if (verb > 1) {
     m_physicsList->DumpCutValuesTable();
   }
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: Physics is initilized, now initialise user actions";
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "RunManagerMT: Physics is initilized, now initialise user actions, verb=" << verb;
 
   initializeUserActions();
 
@@ -236,6 +238,9 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (m_check || !regionFile.empty()) {
     CMSG4CheckOverlap check(m_g4overlap, regionFile, m_UIsession, world);
   }
+
+  m_stateManager->SetNewState(G4State_PreInit);
+  G4HadronicParameters::Instance()->SetVerboseLevel(std::max(verb - 1, 0));
 
   // If the Geant4 particle table is needed, decomment the lines below
   //
