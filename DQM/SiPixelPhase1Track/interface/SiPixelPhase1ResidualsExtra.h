@@ -30,10 +30,6 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -43,9 +39,6 @@ public:
   ~SiPixelPhase1ResidualsExtra() override;
 
 protected:
-  // BeginJob
-  //  void beginJob(void) override;
-
   // BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
