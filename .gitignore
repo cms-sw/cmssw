@@ -5,5 +5,3 @@ __init__.py
 #*#
 *~
 *.pb
-*.root
-*replace.py
