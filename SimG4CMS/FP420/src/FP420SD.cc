@@ -44,7 +44,6 @@
 //#define debug
 //-------------------------------------------------------------------
 FP420SD::FP420SD(const std::string& name,
-                 const edm::EventSetup& es,
                  const SensitiveDetectorCatalog& clg,
                  edm::ParameterSet const& p,
                  const SimTrackManager* manager)
