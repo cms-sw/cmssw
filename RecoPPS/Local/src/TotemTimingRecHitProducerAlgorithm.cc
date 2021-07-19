@@ -72,8 +72,8 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
 
       auto max_it = std::max_element(data.begin(), data.end());
 
-      for (unsigned int i = 0; i < data.size(); ++i)
-        if(det->name()=="CTPPS_Diamond_Segment")
+      if(det->name()=="CTPPS_Diamond_Segment")
+        for (unsigned int i = 0; i < data.size(); ++i)
           data[i] = -data[i]+sampicOffset_;
           
       RegressionResults baselineRegression = simplifiedLinearRegression(time, data, 0, baselinePoints_);
@@ -81,7 +81,7 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
       // remove baseline
       std::vector<float> dataCorrected(data.size());
       for (unsigned int i = 0; i < data.size(); ++i)
-        dataCorrected[i] = data[i] - (baselineRegression.q + baselineRegression.m * time[i]);//time is not correct
+        dataCorrected[i] = data[i] - (baselineRegression.q + baselineRegression.m * time[i]);
       
       auto max_corrected_it = std::max_element(dataCorrected.begin(), dataCorrected.end());
 
