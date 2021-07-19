@@ -17,8 +17,8 @@ public:
   //typedef to simplify usage
   typedef typename Client::Input Input;
   //constructor
-  SonicAcquirer(edm::ParameterSet const& cfg, const std::string& debugName = "")
-      : clientPset_(cfg.getParameterSet("Client")), debugName_(debugName) {}
+  SonicAcquirer(edm::ParameterSet const& cfg, const std::string& debugName = "", bool verbose = true)
+      : clientPset_(cfg.getParameterSet("Client")), debugName_(debugName), verbose_(verbose) {}
   //destructor
   ~SonicAcquirer() override = default;
 
@@ -31,7 +31,8 @@ public:
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, edm::WaitingTaskWithArenaHolder holder) final {
     auto t0 = std::chrono::high_resolution_clock::now();
     acquire(iEvent, iSetup, client_->input());
-    sonic_utils::printDebugTime(debugName_, "acquire() time: ", t0);
+    if (verbose_)
+      sonic_utils::printDebugTime(debugName_, "acquire() time: ", t0);
     t_dispatch_ = std::chrono::high_resolution_clock::now();
     client_->dispatch(holder);
   }
@@ -45,6 +46,7 @@ protected:
   edm::ParameterSet clientPset_;
   std::unique_ptr<Client> client_;
   std::string debugName_;
+  bool verbose_;
   std::chrono::time_point<std::chrono::high_resolution_clock> t_dispatch_;
 };
 
