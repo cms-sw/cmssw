@@ -37,9 +37,10 @@ private:
   void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, TracksterIterIndex);
 
   void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters, std::vector<Trackster> &result) const;
-  void printTrackstersDebug(const std::vector<Trackster> &, const char *label) const;
+  void printTracksterDebug(const Trackster &) const;
+  void printTrackstersDebug(const std::vector<Trackster> &) const;
+  void printCandidatesDebug(std::vector<TICLCandidate> &) const;
   void assignTimeToCandidates(std::vector<TICLCandidate> &resultCandidates) const;
-  void dumpTrackster(const Trackster &) const;
 
   const edm::EDGetTokenT<std::vector<Trackster>> tracksterstrkem_token_;
   const edm::EDGetTokenT<std::vector<Trackster>> trackstersem_token_;
@@ -144,28 +145,6 @@ void TrackstersMergeProducer::fillTile(TICLTracksterTiles &tracksterTile,
   }
 }
 
-void TrackstersMergeProducer::dumpTrackster(const Trackster &t) const {
-  auto e_over_h = (t.raw_em_pt() / ((t.raw_pt() - t.raw_em_pt()) != 0. ? (t.raw_pt() - t.raw_em_pt()) : 1.));
-  LogDebug("TrackstersMergeProducer")
-      << "\nTrackster raw_pt: " << t.raw_pt() << " raw_em_pt: " << t.raw_em_pt() << " eoh: " << e_over_h
-      << " barycenter: " << t.barycenter() << " eta,phi (baricenter): " << t.barycenter().eta() << ", "
-      << t.barycenter().phi() << " eta,phi (eigen): " << t.eigenvectors(0).eta() << ", " << t.eigenvectors(0).phi()
-      << " pt(eigen): " << std::sqrt(t.eigenvectors(0).Unit().perp2()) * t.raw_energy() << " seedID: " << t.seedID()
-      << " seedIndex: " << t.seedIndex() << " size: " << t.vertices().size() << " average usage: "
-      << (std::accumulate(std::begin(t.vertex_multiplicity()), std::end(t.vertex_multiplicity()), 0.) /
-          (float)t.vertex_multiplicity().size())
-      << " raw_energy: " << t.raw_energy() << " regressed energy: " << t.regressed_energy()
-      << " probs(ga/e/mu/np/cp/nh/am/unk): ";
-  for (auto const &p : t.id_probabilities()) {
-    LogDebug("TrackstersMergeProducer") << std::fixed << p << " ";
-  }
-  LogDebug("TrackstersMergeProducer") << " sigmas: ";
-  for (auto const &s : t.sigmas()) {
-    LogDebug("TrackstersMergeProducer") << s << " ";
-  }
-  LogDebug("TrackstersMergeProducer") << std::endl;
-}
-
 void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
   edm::ESHandle<CaloGeometry> geom = es.getHandle(geometry_token_);
   rhtools_.setGeometry(*geom);
@@ -230,10 +209,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   indexInMergedCollHAD.reserve(trackstersHAD.size());
 
   if (debug_) {
-    printTrackstersDebug(trackstersTRKEM, "tracksterTRKEM");
-    printTrackstersDebug(trackstersEM, "tracksterEM");
-    printTrackstersDebug(trackstersTRK, "tracksterTRK");
-    printTrackstersDebug(trackstersHAD, "tracksterHAD");
+    printTrackstersDebug(trackstersTRKEM);
+    printTrackstersDebug(trackstersEM);
+    printTrackstersDebug(trackstersTRK);
+    printTrackstersDebug(trackstersHAD);
   }
 
   for (auto const &t : trackstersTRKEM) {
@@ -264,7 +243,8 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
                         rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
   energyRegressionAndID(layerClusters, *resultTrackstersMerged);
 
-  printTrackstersDebug(*resultTrackstersMerged, "TrackstersMergeProducer");
+  LogDebug("TrackstersMergeProducer") << "resultTrackstersMerged: " ;
+  printTrackstersDebug(*resultTrackstersMerged);
 
   auto trackstersMergedHandle = evt.put(std::move(resultTrackstersMerged));
 
@@ -536,6 +516,8 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   // Compute timing
   assignTimeToCandidates(*resultCandidates);
 
+  printCandidatesDebug(*resultCandidates);
+  
   evt.put(std::move(resultCandidates));
 }
 
@@ -721,22 +703,21 @@ void TrackstersMergeProducer::globalEndJob(TrackstersCache *cache) {
   cache->eidGraphDef = nullptr;
 }
 
-void TrackstersMergeProducer::printTrackstersDebug(const std::vector<Trackster> &tracksters, const char *label) const {
-  if (!debug_)
-    return;
+void TrackstersMergeProducer::printTracksterDebug(const Trackster & t) const {
 
-  int counter = 0;
-  for (auto const &t : tracksters) {
-    LogDebug("TrackstersMergeProducer")
-        << counter++ << " TrackstersMergeProducer (" << label << ") obj barycenter: " << t.barycenter()
-        << " eta,phi (baricenter): " << t.barycenter().eta() << ", " << t.barycenter().phi()
-        << " eta,phi (eigen): " << t.eigenvectors(0).eta() << ", " << t.eigenvectors(0).phi()
-        << " pt(eigen): " << std::sqrt(t.eigenvectors(0).Unit().perp2()) * t.raw_energy() << " seedID: " << t.seedID()
-        << " seedIndex: " << t.seedIndex() << " size: " << t.vertices().size() << " average usage: "
-        << (std::accumulate(std::begin(t.vertex_multiplicity()), std::end(t.vertex_multiplicity()), 0.) /
-            (float)t.vertex_multiplicity().size())
-        << " raw_energy: " << t.raw_energy() << " regressed energy: " << t.regressed_energy()
-        << " probs(ga/e/mu/np/cp/nh/am/unk): ";
+  auto e_over_h = (t.raw_em_pt() / ((t.raw_pt() - t.raw_em_pt()) != 0. ? (t.raw_pt() - t.raw_em_pt()) : 1.));
+  LogDebug("TrackstersMergeProducer")
+      << " TrackstersMergeProducer (#iter = " << t.ticlIteration() << ") obj barycenter: " << t.barycenter()
+      << " eta,phi (baricenter): " << t.barycenter().eta() << ", " << t.barycenter().phi()
+      << " eta,phi (eigen): " << t.eigenvectors(0).eta() << ", " << t.eigenvectors(0).phi()
+      << " pt(eigen): " << std::sqrt(t.eigenvectors(0).Unit().perp2()) * t.raw_energy() << " seedID: " << t.seedID()
+      << " seedIndex: " << t.seedIndex() << " size: " << t.vertices().size() << " average usage: "
+      << (std::accumulate(std::begin(t.vertex_multiplicity()), std::end(t.vertex_multiplicity()), 0.) /
+          (float)t.vertex_multiplicity().size())
+      << " raw_energy: " << t.raw_energy() << " regressed energy: " << t.regressed_energy()
+      << " e_over_h: " << e_over_h;
+/*
+      << " probs(ga/e/mu/np/cp/nh/am/unk): ";
     for (auto const &p : t.id_probabilities()) {
       LogDebug("TrackstersMergeProducer") << std::fixed << p << " ";
     }
@@ -745,8 +726,35 @@ void TrackstersMergeProducer::printTrackstersDebug(const std::vector<Trackster> 
       LogDebug("TrackstersMergeProducer") << s << " ";
     }
     LogDebug("TrackstersMergeProducer") << std::endl;
+*/
+
+}
+
+void TrackstersMergeProducer::printTrackstersDebug(const std::vector<Trackster> &tracksters) const {
+  if (!debug_)
+    return;
+
+  int counter = 0;
+  for (auto const &t : tracksters) {
+    LogDebug("TrackstersMergeProducer") << "#" << counter;
+    printTracksterDebug(t);
+    counter++;
   }
 }
+
+void TrackstersMergeProducer::printCandidatesDebug(std::vector<TICLCandidate> &resultCandidates) const {
+  for (auto &cand : resultCandidates) {
+    LogDebug("TrackstersMergeProducer") << "\nTICLCandidate built with " << cand.tracksters().size() << " tracksters:";
+
+    int counter = 0;
+    for (const auto &tr : cand.tracksters()) {
+      LogDebug("TrackstersMergeProducer") << "#" << counter;
+      printTracksterDebug(*tr);
+      counter++;
+    }
+  }
+}
+
 
 void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
