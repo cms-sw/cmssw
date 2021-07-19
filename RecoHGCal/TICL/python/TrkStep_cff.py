@@ -8,32 +8,32 @@ from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerCluste
 # CLUSTER FILTERING/MASKING
 
 filteredLayerClustersTrk = _filteredLayerClustersProducer.clone(
-  clusterFilter = "ClusterFilterByAlgoAndSize",
-  min_cluster_size = 3, # inclusive
-  algo_number = 8,
-  LayerClustersInputMask = 'ticlTrackstersEM',
-  iteration_label = "Trk"
+    clusterFilter = "ClusterFilterByAlgoAndSize",
+    min_cluster_size = 3, # inclusive
+    algo_number = 8,
+    LayerClustersInputMask = 'ticlTrackstersEM',
+    iteration_label = "Trk"
 )
 
 # CA - PATTERN RECOGNITION
 
 ticlTrackstersTrk = _trackstersProducer.clone(
-  filtered_mask = "filteredLayerClustersTrk:Trk",
-  seeding_regions = "ticlSeedingTrk",
-  original_mask = 'ticlTrackstersEM',
-  pluginPatternRecognitionByCA = dict(
-    filter_on_categories = [2, 4], # filter muons and charged hadrons
-    pid_threshold = 0.0,
-    skip_layers = 3,
-    min_layers_per_trackster = 10,
-    min_cos_theta = 0.866, # ~30 degrees
-    min_cos_pointing = 0.798, # ~ 37 degrees
-    max_delta_time = -1.,
-    algo_verbosity = 2,
-    oneTracksterPerTrackSeed = True,
-    promoteEmptyRegionToTrackster = True
-  ),
-  itername = "Trk"
+    filtered_mask = "filteredLayerClustersTrk:Trk",
+    seeding_regions = "ticlSeedingTrk",
+    original_mask = 'ticlTrackstersEM',
+    pluginPatternRecognitionByCA = dict(
+        filter_on_categories = [2, 4], # filter muons and charged hadrons
+        pid_threshold = 0.0,
+        skip_layers = 3,
+        min_layers_per_trackster = 10,
+        min_cos_theta = 0.866, # ~30 degrees
+        min_cos_pointing = 0.798, # ~ 37 degrees
+        max_delta_time = -1.,
+        algo_verbosity = 2,
+        oneTracksterPerTrackSeed = True,
+        promoteEmptyRegionToTrackster = True
+    ),
+    itername = "Trk"
 )
 
 ticlTrkStepTask = cms.Task(ticlSeedingTrk
@@ -43,32 +43,30 @@ ticlTrkStepTask = cms.Task(ticlSeedingTrk
 # HFNOSE CLUSTER FILTERING/MASKING
 
 filteredLayerClustersHFNoseTrk = filteredLayerClustersTrk.clone(
-  clusterFilter = "ClusterFilterByAlgoAndSize",
-  min_cluster_size = 3, # inclusive
-  algo_number = 8,
-  LayerClustersInputMask = 'ticlTrackstersHFNoseEM',
-  iteration_label = "Trkn"
+    LayerClusters = 'hgcalLayerClustersHFNose',
+    LayerClustersInputMask = 'ticlTrackstersHFNoseEM',
+    min_cluster_size = 2, # inclusive
+    algo_number = 8,
+    iteration_label = "Trkn"
 )
 
 # HFNOSE CA - PATTERN RECOGNITION
 
 ticlTrackstersHFNoseTrk = ticlTrackstersTrk.clone(
-  filtered_mask = "filteredLayerClustersHFNoseTrk:Trkn",
-  seeding_regions = "ticlSeedingTrkHFNose",
-  original_mask = 'ticlTrackstersHFNoseEM',
-  pluginPatternRecognitionByCA = dict(
-    filter_on_categories = [2, 4], # filter muons and charged hadrons
-    pid_threshold = 0.0,
-    skip_layers = 3,
-    min_layers_per_trackster = 5,
-    min_cos_theta = 0.866, # ~30 degrees
-    min_cos_pointing = 0.798, # ~ 37 degrees
-    max_delta_time = -1.,
-    algo_verbosity = 2,
-    oneTracksterPerTrackSeed = True,
-    promoteEmptyRegionToTrackster = True
-  ),
-  itername = "Trkn"
+    detector = "HFNose",
+    layer_clusters = "hgcalLayerClustersHFNose",
+    layer_clusters_hfnose_tiles = "ticlLayerTileHFNose",
+    original_mask = 'ticlTrackstersHFNoseEM',
+    filtered_mask = "filteredLayerClustersHFNoseTrk:Trkn",
+    seeding_regions = "ticlSeedingTrkHFNose",
+    time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
+    pluginPatternRecognitionByCA = dict(
+        filter_on_categories = [2, 4], # filter muons and charged hadrons
+        pid_threshold = 0.0,
+        skip_layers = 2,
+        min_layers_per_trackster = 4,
+    ),
+    itername = "Trkn"
 )
 
 ticlHFNoseTrkStepTask = cms.Task(ticlSeedingTrkHFNose
