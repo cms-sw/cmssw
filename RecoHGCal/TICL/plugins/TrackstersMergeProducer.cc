@@ -230,17 +230,19 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     auto iseed = seedToTracksterAssociator.find(t.seedIndex());
     if ( iseed != seedToTracksterAssociator.end()) {
       LogDebug("TrackstersMergeProducer") << "This seed ("<< t.seedIndex() << ") exists already in the map. Merging tracksters. ";
-      LogTrace("TrackstersMergeProducer") << "Current trackster energy = "<< t.raw_energy() ;
-      Trackster tMerged = t;
+      Trackster tMerged;
       for (const auto &tracksterIterationPair : seedToTracksterAssociator[t.seedIndex()]) {
         auto t2 = resultTrackstersMerged->at(tracksterIterationPair.first);
-        LogTrace("TrackstersMergeProducer") << "Previous trackster energy = "<< t2.raw_energy() ;
-        tMerged.addToRawEnergy(t2.raw_energy());
-        tMerged.addToRawEmEnergy(t2.raw_em_energy());
+        tMerged.setIteration(TracksterIterIndex::TRKHAD);
+        tMerged.setSeed(t.seedID(), t.seedIndex());
         tMerged.setRegressedEnergy(t.regressed_energy() + t2.regressed_energy());
+        tMerged.setRawEnergy(t.raw_energy() + t2.raw_energy());
+        tMerged.setRawEmEnergy(t.raw_em_energy() + t2.raw_em_energy());
+        tMerged.setRawPt(t.raw_pt());
+        tMerged.setRawEmPt(t.raw_em_pt());
+        tMerged.setBarycenter(t.barycenter());
         printTracksterDebug(tMerged);
         resultTrackstersMerged->at(tracksterIterationPair.first) = tMerged;
-//        std::replace(resultTrackstersMerged->begin(), resultTrackstersMerged->end(), t2, tMerged)
         //what about PCA, edges/vertices, barycentre, timing and probabilities?
       }
     } else {
