@@ -5,11 +5,10 @@
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimDataFormats/HcalTestBeam/interface/HcalTestBeamNumbering.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "HcalTB06BeamSD.h"
+#include "SimG4CMS/HcalTestBeam/plugins/HcalTB06BeamSD.h"
 
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -19,11 +18,11 @@
 //#define EDM_ML_DEBUG
 
 HcalTB06BeamSD::HcalTB06BeamSD(const std::string& name,
-                               const edm::EventSetup& es,
+                               const HcalTB06BeamParameters* es,
                                const SensitiveDetectorCatalog& clg,
                                edm::ParameterSet const& p,
                                const SimTrackManager* manager)
-    : CaloSD(name, clg, p, manager) {
+    : CaloSD(name, clg, p, manager), hcalBeamPar_(es) {
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HcalTB06BeamSD");
   useBirk_ = m_HC.getParameter<bool>("UseBirkLaw");
@@ -36,15 +35,6 @@ HcalTB06BeamSD::HcalTB06BeamSD(const std::string& name,
                                 << "  with three constants kB = " << birk1_ << ", C1 = " << birk2_
                                 << ", C2 = " << birk3_;
 #endif
-
-  // Get pointers to HcalTB06BeamParameters
-  edm::ESHandle<HcalTB06BeamParameters> hdc;
-  es.get<IdealGeometryRecord>().get(hdc);
-  if (hdc.isValid()) {
-    hcalBeamPar_ = hdc.product();
-  } else {
-    throw cms::Exception("Unknown", "HCalTB06BeamSD") << "Cannot find HcalTB06BeamParameters";
-  }
 }
 
 HcalTB06BeamSD::~HcalTB06BeamSD() {}
