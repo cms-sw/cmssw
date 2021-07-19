@@ -227,9 +227,27 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   }
 
   for (auto const &t : trackstersTRK) {
-    indexInMergedCollTRK.push_back(resultTrackstersMerged->size());
-    seedToTracksterAssociator[t.seedIndex()].emplace_back(resultTrackstersMerged->size(), TracksterIterIndex::TRKHAD);
-    resultTrackstersMerged->push_back(t);
+    auto iseed = seedToTracksterAssociator.find(t.seedIndex());
+    if ( iseed != seedToTracksterAssociator.end()) {
+      LogDebug("TrackstersMergeProducer") << "This seed ("<< t.seedIndex() << ") exists already in the map. Merging tracksters. ";
+      LogTrace("TrackstersMergeProducer") << "Current trackster energy = "<< t.raw_energy() ;
+      Trackster tMerged = t;
+      for (const auto &tracksterIterationPair : seedToTracksterAssociator[t.seedIndex()]) {
+        auto t2 = resultTrackstersMerged->at(tracksterIterationPair.first);
+        LogTrace("TrackstersMergeProducer") << "Previous trackster energy = "<< t2.raw_energy() ;
+        tMerged.addToRawEnergy(t2.raw_energy());
+        tMerged.addToRawEmEnergy(t2.raw_em_energy());
+        tMerged.setRegressedEnergy(t.regressed_energy() + t2.regressed_energy());
+        printTracksterDebug(tMerged);
+        resultTrackstersMerged->at(tracksterIterationPair.first) = tMerged;
+//        std::replace(resultTrackstersMerged->begin(), resultTrackstersMerged->end(), t2, tMerged)
+        //what about PCA, edges/vertices, barycentre, timing and probabilities?
+      }
+    } else {
+      indexInMergedCollTRK.push_back(resultTrackstersMerged->size());
+      seedToTracksterAssociator[t.seedIndex()].emplace_back(resultTrackstersMerged->size(), TracksterIterIndex::TRKHAD);
+      resultTrackstersMerged->push_back(t);
+    }
   }
 
   for (auto const &t : trackstersHAD) {
@@ -475,6 +493,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       }
     }
   }
+
   // For all seeds that have 0-energy tracksters whose track is not marked as used, create a charged hadron with the track information.
   for (auto const &s : seedingTrk) {
     if (usedSeeds[s.index] == false) {
