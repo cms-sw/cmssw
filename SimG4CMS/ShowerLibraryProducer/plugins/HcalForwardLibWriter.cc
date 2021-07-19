@@ -70,9 +70,11 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
     // cycle over showers ====================================================
     for (int iev = 0; iev < nentries; iev++) {
       nbytes += theTree->GetEntry(iev);
-      if(primZ<990) continue;  // exclude showers with interactions in front of HF (1m of air)
+      if (primZ < 990)
+        continue;  // exclude showers with interactions in front of HF (1m of air)
       ngood++;
-      if (ngood>nshowers) continue; 
+      if (ngood > nshowers)
+        continue;
       if (particle == "electron") {
         emColl.clear();
       } else {
