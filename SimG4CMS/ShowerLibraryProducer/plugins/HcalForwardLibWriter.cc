@@ -48,12 +48,19 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
     TFile* theFile = new TFile(fn.c_str(), "READ");
     TTree* theTree = (TTree*)gDirectory->Get("g4SimHits/CherenkovPhotons");
     int nphot = 0;
-    float x[nshowers] = {0.};
-    float y[nshowers] = {0.};
-    float z[nshowers] = {0.};
-    float t[nshowers] = {0.};
-    float lambda[nshowers] = {0.};
-    int fiberId[nshowers] = {0};
+
+    const int size = 10000;
+    if (nshowers > size) {
+      edm::LogError("HcalForwardLibWriter") << "Too big Nshowers number";
+      return;
+    }
+
+    float x[size] = {0.};
+    float y[size] = {0.};
+    float z[size] = {0.};
+    float t[size] = {0.};
+    float lambda[size] = {0.};
+    int fiberId[size] = {0};
     float primZ;  // added
 
     theTree->SetBranchAddress("nphot", &nphot);
