@@ -92,7 +92,7 @@ namespace {
         histo[RESIDUAL_X].fill(it.resXprime, id, &iEvent);
         histo[RESIDUAL_Y].fill(it.resYprime, id, &iEvent);
 
-        if (it.resXprimeErr != 0 && it.resXprimeErr != 0) {
+        if (it.resXprimeErr != 0 && it.resYprimeErr != 0) {
           histo[NormRes_X].fill(it.resXprime / it.resXprimeErr, id, &iEvent);
           histo[NormRes_Y].fill(it.resYprime / it.resYprimeErr, id, &iEvent);
           histo[DRNR_X].fill(it.resXprime / it.resXprimeErr, id, &iEvent);
