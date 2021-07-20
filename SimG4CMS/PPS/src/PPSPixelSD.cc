@@ -13,7 +13,6 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -36,7 +35,6 @@
 #include "G4SystemOfUnits.hh"
 
 PPSPixelSD::PPSPixelSD(const std::string& name_,
-                       const edm::EventSetup& es,
                        const SensitiveDetectorCatalog& clg,
                        edm::ParameterSet const& p,
                        SimTrackManager const* manager)

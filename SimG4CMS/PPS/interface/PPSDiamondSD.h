@@ -33,7 +33,6 @@ class PPSDiamondSD : public SensitiveTkDetector,
                      public Observer<const EndOfEvent*> {
 public:
   PPSDiamondSD(const std::string&,
-               const edm::EventSetup&,
                const SensitiveDetectorCatalog&,
                edm::ParameterSet const&,
                const SimTrackManager*);
