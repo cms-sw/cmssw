@@ -226,29 +226,41 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     resultTrackstersMerged->push_back(t);
   }
 
-  for (auto const &t : trackstersTRK) {
-    auto iseed = seedToTracksterAssociator.find(t.seedIndex());
+  for (auto const &tTRK : trackstersTRK) {
+    auto iseed = seedToTracksterAssociator.find(tTRK.seedIndex());
     if ( iseed != seedToTracksterAssociator.end()) {
-      LogDebug("TrackstersMergeProducer") << "This seed ("<< t.seedIndex() << ") exists already in the map. Merging tracksters. ";
+      LogDebug("TrackstersMergeProducer") << "This seed ("<< tTRK.seedIndex() << ") exists already in the map. Merging tracksters. ";
       Trackster tMerged;
-      for (const auto &tracksterIterationPair : seedToTracksterAssociator[t.seedIndex()]) {
-        auto t2 = resultTrackstersMerged->at(tracksterIterationPair.first);
+      for (const auto &tracksterIterationPair : seedToTracksterAssociator[tTRK.seedIndex()]) {
+        auto tTRKEM = resultTrackstersMerged->at(tracksterIterationPair.first);
         tMerged.setIteration(TracksterIterIndex::TRKHAD);
-        tMerged.setSeed(t.seedID(), t.seedIndex());
-        tMerged.setRegressedEnergy(t.regressed_energy() + t2.regressed_energy());
-        tMerged.setRawEnergy(t.raw_energy() + t2.raw_energy());
-        tMerged.setRawEmEnergy(t.raw_em_energy() + t2.raw_em_energy());
-        tMerged.setRawPt(t.raw_pt());
-        tMerged.setRawEmPt(t.raw_em_pt());
-        tMerged.setBarycenter(t.barycenter());
+        tMerged.setSeed(tTRK.seedID(), tTRK.seedIndex());
+        tMerged.setRegressedEnergy(tTRK.regressed_energy() + tTRKEM.regressed_energy());
+        unsigned int updated_vertices_size = tTRK.vertices().size() + tTRKEM.vertices().size();
+        tMerged.vertices().reserve(updated_vertices_size);
+        tMerged.vertex_multiplicity().reserve(updated_vertices_size);
+
+        // merging vertices, TRKEM first
+        std::copy(std::begin(tTRKEM.vertices()),
+                  std::end(tTRKEM.vertices()),
+                  std::back_inserter(tMerged.vertices()));
+        std::copy(std::begin(tTRKEM.vertex_multiplicity()),
+                  std::end(tTRKEM.vertex_multiplicity()),
+                  std::back_inserter(tMerged.vertex_multiplicity()));
+        std::copy(std::begin(tTRK.vertices()),
+                  std::end(tTRK.vertices()),
+                  std::back_inserter(tMerged.vertices()));
+        std::copy(std::begin(tTRK.vertex_multiplicity()),
+                  std::end(tTRK.vertex_multiplicity()),
+                  std::back_inserter(tMerged.vertex_multiplicity()));
+
         printTracksterDebug(tMerged);
         resultTrackstersMerged->at(tracksterIterationPair.first) = tMerged;
-        //what about PCA, edges/vertices, barycentre, timing and probabilities?
       }
     } else {
       indexInMergedCollTRK.push_back(resultTrackstersMerged->size());
-      seedToTracksterAssociator[t.seedIndex()].emplace_back(resultTrackstersMerged->size(), TracksterIterIndex::TRKHAD);
-      resultTrackstersMerged->push_back(t);
+      seedToTracksterAssociator[tTRK.seedIndex()].emplace_back(resultTrackstersMerged->size(), TracksterIterIndex::TRKHAD);
+      resultTrackstersMerged->push_back(tTRK);
     }
   }
 
@@ -735,19 +747,18 @@ void TrackstersMergeProducer::printTracksterDebug(const Trackster & t) const {
       << " seedIndex: " << t.seedIndex() << " size: " << t.vertices().size() << " average usage: "
       << (std::accumulate(std::begin(t.vertex_multiplicity()), std::end(t.vertex_multiplicity()), 0.) /
           (float)t.vertex_multiplicity().size())
-      << " raw_energy: " << t.raw_energy() << " regressed energy: " << t.regressed_energy()
-      << " e_over_h: " << e_over_h;
-/*
+      << " raw_energy: " << t.raw_energy() << " raw_em_energy: " << t.raw_em_energy() << " regressed energy: " << t.regressed_energy()
+      << " raw_pt: " << t.raw_pt() << " raw_em_pt: " << t.raw_em_pt() 
+      << " e_over_h: " << e_over_h
       << " probs(ga/e/mu/np/cp/nh/am/unk): ";
     for (auto const &p : t.id_probabilities()) {
-      LogDebug("TrackstersMergeProducer") << std::fixed << p << " ";
+      LogTrace("TrackstersMergeProducer") << std::fixed << p << " ";
     }
-    LogDebug("TrackstersMergeProducer") << " sigmas: ";
+    LogTrace("TrackstersMergeProducer") << " sigmas: ";
     for (auto const &s : t.sigmas()) {
-      LogDebug("TrackstersMergeProducer") << s << " ";
+      LogTrace("TrackstersMergeProducer") << s << " ";
     }
     LogDebug("TrackstersMergeProducer") << std::endl;
-*/
 
 }
 
