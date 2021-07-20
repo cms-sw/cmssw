@@ -58,7 +58,7 @@ namespace edm {
     Timestamp const& endTime() const { return aux_.endTime(); }
     MergeableRunProductMetadata const* mergeableRunProductMetadata() const { return mergeableRunProductMetadata_; }
 
-    /**\return Reusable index which can be used to separate data for different simultaneous LuminosityBlocks.
+    /**\return Reusable index which can be used to separate data for different simultaneous Runs.
      */
     RunIndex index() const;
 

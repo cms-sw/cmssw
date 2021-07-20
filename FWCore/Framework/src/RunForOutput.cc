@@ -27,7 +27,7 @@ namespace edm {
 
   RunPrincipal const& RunForOutput::runPrincipal() const { return dynamic_cast<RunPrincipal const&>(principal()); }
 
-  /**\return Reusable index which can be used to separate data for different simultaneous LuminosityBlocks.
+  /**\return Reusable index which can be used to separate data for different simultaneous Runs.
    */
   RunIndex RunForOutput::index() const { return runPrincipal().index(); }
 
