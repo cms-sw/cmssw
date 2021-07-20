@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+from __future__ import print_function
 import sys, os
 import argparse
 from HLTrigger.Configuration.extend_argparse import *
@@ -227,6 +228,6 @@ config = parser.parse_args(namespace = options.HLTProcessOptions())
 cmdArgs = sys.argv
 cmdArgs[0] = os.path.basename(sys.argv[0])
 cmdLine = ' '.join(cmdArgs)
-print '# ' + cmdLine
-print
-print confdb.HLTProcess(config).dump()
+print('# ' + cmdLine)
+print()
+print(confdb.HLTProcess(config).dump())
