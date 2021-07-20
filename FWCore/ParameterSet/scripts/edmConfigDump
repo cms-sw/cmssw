@@ -21,13 +21,12 @@ parser.add_argument("--pruneVerbose", action="store_true",
 options = parser.parse_args()
 handle = open(options.filename, 'r')
 loader=SourceFileLoader("pycfg", options.filename)
-loaded = types.ModuleType("pycfg",loader.name)
-loader.exec_module(loaded)
-#cfo = imp.load_source("pycfg", options.filename, handle)
-cmsProcess = cfo.process
-handle.close()
+mod=types.ModuleType(loader.name)
+loader.exec_module(mod)
+cmsProcess= mod.process
 
 if options.prune:
     cmsProcess.prune(options.pruneVerbose)
 
 print(cmsProcess.dumpPython())
+
