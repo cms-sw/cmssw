@@ -205,7 +205,9 @@ void DoCastorAnalysis::update(const EndOfEvent* evt) {
       simhit_etot += energy;
 
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("ForwardSim") << "hit " << ihit + 1 << " : x = " << (*psimhit_x)[ihit] << " , eta =  " << (*psimhit_eta)[ihit] << " , phi = " << (*psimhit_phi)[ihit] << " , energy = " << (*psimhit_energy)[ihit];
+      edm::LogVerbatim("ForwardSim") << "hit " << ihit + 1 << " : x = " << (*psimhit_x)[ihit]
+                                     << " , eta =  " << (*psimhit_eta)[ihit] << " , phi = " << (*psimhit_phi)[ihit]
+                                     << " , energy = " << (*psimhit_energy)[ihit];
 #endif
     }
 

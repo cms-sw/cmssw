@@ -32,4 +32,3 @@ public:
 
 typedef PltSD PLTSensitiveDetector;
 DEFINE_SENSITIVEDETECTORBUILDER(PLTSensitiveDetectorBuilder, PLTSensitiveDetector);
-

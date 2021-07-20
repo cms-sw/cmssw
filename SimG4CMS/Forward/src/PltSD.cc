@@ -114,7 +114,9 @@ uint32_t PltSD::setDetUnitId(const G4Step* aStep) {
     detId =
         10000000 * pltNum + 1000000 * halfCarriageNum + 100000 * telNum + 10000 * sensorNum + 100 * rowNum + columnNum;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("PltSD") <<  "Hit Recorded at " << "plt:" << pltNum << " hc:" << halfCarriageNum << " tel:" << telNum << " plane:" << sensorNum;
+    edm::LogVerbatim("PltSD") << "Hit Recorded at "
+                              << "plt:" << pltNum << " hc:" << halfCarriageNum << " tel:" << telNum
+                              << " plane:" << sensorNum;
 #endif
   }
   return detId;

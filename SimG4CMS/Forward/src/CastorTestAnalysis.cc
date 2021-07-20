@@ -208,7 +208,8 @@ void CastorTestAnalysis::update(const G4Step* aStep) {
 //================= End of EVENT ===============
 void CastorTestAnalysis::update(const EndOfEvent* evt) {
   // Look for the Hit Collection
-  edm::LogVerbatim("ForwardSim") << std::endl << "CastorTest::update(EndOfEvent * evt) - event #" << (*evt)()->GetEventID();
+  edm::LogVerbatim("ForwardSim") << std::endl
+                                 << "CastorTest::update(EndOfEvent * evt) - event #" << (*evt)()->GetEventID();
 
   // access to the G4 hit collections
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
@@ -292,7 +293,8 @@ void CastorTestAnalysis::update(const EndOfEvent* evt) {
       edm::LogVerbatim("ForwardSim") << "CASTORTest End Of Event ERR: could not find primary ";
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardSim") << "CastorTestAnalysis: Particle Type " << particleType << " p/eta/phi " << pInit << ", " << eta << ", " << phi;
+    edm::LogVerbatim("ForwardSim") << "CastorTestAnalysis: Particle Type " << particleType << " p/eta/phi " << pInit
+                                   << ", " << eta << ", " << phi;
 #endif
   }
 
