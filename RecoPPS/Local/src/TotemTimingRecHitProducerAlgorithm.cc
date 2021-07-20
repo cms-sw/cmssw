@@ -70,12 +70,12 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
       const std::vector<float> time(sampicConversions_->timeSamples(digi));
       std::vector<float> data(sampicConversions_->voltSamples(digi));
 
-      auto max_it = std::max_element(data.begin(), data.end());
+      auto [min_it, max_it] = std::minmax_element(data.begin(), data.end());
 
-      if(det->name()=="CTPPS_Diamond_Segment")
+      if(det->name()=="CTPPS_Diamond_Segment"){
         for (unsigned int i = 0; i < data.size(); ++i)
           data[i] = -data[i]+sampicOffset_;
-          
+      }
       RegressionResults baselineRegression = simplifiedLinearRegression(time, data, 0, baselinePoints_);
 
       // remove baseline
@@ -87,9 +87,8 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
 
 
       float t = TotemTimingRecHit::NO_T_AVAILABLE;
-      if (*max_it < saturationLimit_)
+      if (det->name()=="CTPPS_Diamond_Segment"&&(*min_it) > saturationLimit_||(*max_it) < saturationLimit_)
         t = constantFractionDiscriminator(time, dataCorrected);
-
       mode_ = TotemTimingRecHit::CFD;
       rec_hits.emplace_back(x_pos,
                             x_width,

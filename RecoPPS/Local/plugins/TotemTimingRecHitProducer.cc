@@ -96,7 +96,7 @@ void TotemTimingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<std::string>("timingCalibrationTag", "GlobalTag:TotemTimingCalibration")
       ->setComment("input tag for timing calibrations retrieval");
   desc.add<int>("baselinePoints", 8)->setComment("number of points to be used for the baseline");
-  desc.add<double>("saturationLimit", 0.85)
+  desc.add<double>("saturationLimit", 0.1)
       ->setComment("all signals with max > saturationLimit will be considered as saturated");
   desc.add<double>("cfdFraction", 0.3)->setComment("fraction of the CFD");
   desc.add<int>("smoothingPoints", 20)
