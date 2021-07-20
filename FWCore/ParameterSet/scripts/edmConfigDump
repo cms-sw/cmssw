@@ -3,7 +3,7 @@
 from __future__ import print_function
 import sys
 import os 
-import imp
+import importlib.machinery
 import argparse
 
 # make the behaviour of 'cmsRun file.py' and 'edmConfigDump file.py' more consistent
@@ -18,10 +18,9 @@ parser.add_argument("--pruneVerbose", action="store_true",
                     help="With --prune, be verbose on what is pruned")
 
 options = parser.parse_args()
-handle = open(options.filename, 'r')
-cfo = imp.load_source("pycfg", options.filename, handle)
+loader = importlib.machinery.SourceFileLoader("pycfg", options.filename)
+cfo = loader.load_module()
 cmsProcess = cfo.process
-handle.close()
 
 if options.prune:
     cmsProcess.prune(options.pruneVerbose)
