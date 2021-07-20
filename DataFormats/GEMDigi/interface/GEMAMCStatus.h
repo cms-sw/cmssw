@@ -19,7 +19,6 @@ public:
       uint16_t DAQclocklocked : 1;
       uint16_t DAQnotReday : 1;
       uint16_t BC0locked : 1;
-      uint16_t InvalidAMCSize : 1;
     };
   };
   union Warnings {
@@ -43,7 +42,6 @@ public:
     error.DAQclocklocked = !amc.daqClockLocked();
     error.DAQnotReday = !amc.daqReady();
     error.BC0locked = !amc.bc0locked();
-    //error.InvalidAMCSize = amc13->getAMCsize(i) != amc.dataLength();
     errors_ = error.ecodes;
 
     Warnings warn{0};
@@ -58,7 +56,6 @@ public:
   }
 
   uint8_t amcNumber() const { return amcNum_; };
-  bool isGood() const { return errors_ == 0; }
   bool isBad() const { return errors_ != 0; }
   uint16_t errors() const { return errors_; }
   uint8_t warnings() const { return warnings_; }
