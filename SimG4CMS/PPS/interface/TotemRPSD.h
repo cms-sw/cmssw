@@ -29,10 +29,7 @@ class TotemTestHitHBNtuple;
 
 class TotemRPSD : public SensitiveTkDetector, public Observer<const BeginOfEvent*>, public Observer<const EndOfEvent*> {
 public:
-  TotemRPSD(const std::string&,
-            const SensitiveDetectorCatalog&,
-            edm::ParameterSet const&,
-            const SimTrackManager*);
+  TotemRPSD(const std::string&, const SensitiveDetectorCatalog&, edm::ParameterSet const&, const SimTrackManager*);
   ~TotemRPSD() override;
 
   void printHitInfo();
