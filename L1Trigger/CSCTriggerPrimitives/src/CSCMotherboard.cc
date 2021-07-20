@@ -349,26 +349,14 @@ void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
                                    const CSCCLCTDigi& sCLCT,
                                    CSCCorrelatedLCTDigi& bLCT,
                                    CSCCorrelatedLCTDigi& sLCT,
-                                   int type) {
+                                   int type) const {
   CSCALCTDigi bestALCT = bALCT;
   CSCALCTDigi secondALCT = sALCT;
   CSCCLCTDigi bestCLCT = bCLCT;
   CSCCLCTDigi secondCLCT = sCLCT;
 
   // check which ALCTs and CLCTs are valid
-  const bool anodeBestValid = bestALCT.isValid();
-  const bool anodeSecondValid = secondALCT.isValid();
-  const bool cathodeBestValid = bestCLCT.isValid();
-  const bool cathodeSecondValid = secondCLCT.isValid();
-
-  if (anodeBestValid && !anodeSecondValid)
-    secondALCT = bestALCT;
-  if (!anodeBestValid && anodeSecondValid)
-    bestALCT = secondALCT;
-  if (cathodeBestValid && !cathodeSecondValid)
-    secondCLCT = bestCLCT;
-  if (!cathodeBestValid && cathodeSecondValid)
-    bestCLCT = secondCLCT;
+  copyValidToInValid(bestALCT, secondALCT, bestCLCT, secondCLCT);
 
   // ALCT-only LCTs
   const bool bestCase1(alct_trig_enable and bestALCT.isValid());
@@ -387,7 +375,7 @@ void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
 
   // at least one of the cases must be valid
   if (bestCase1 or bestCase2 or bestCase3) {
-    bLCT = constructLCTs(bestALCT, bestCLCT, type, 1);
+    constructLCTs(bestALCT, bestCLCT, type, 1, bLCT);
   }
 
   // ALCT-only LCTs
@@ -409,43 +397,54 @@ void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
   if ((secondALCT != bestALCT) or (secondCLCT != bestCLCT)) {
     // at least one of the cases must be valid
     if (secondCase1 or secondCase2 or secondCase3) {
-      sLCT = constructLCTs(secondALCT, secondCLCT, type, 2);
+      constructLCTs(secondALCT, secondCLCT, type, 2, sLCT);
     }
   }
 }
 
+void CSCMotherboard::copyValidToInValid(CSCALCTDigi& bestALCT,
+                                        CSCALCTDigi& secondALCT,
+                                        CSCCLCTDigi& bestCLCT,
+                                        CSCCLCTDigi& secondCLCT) const {
+  // check which ALCTs and CLCTs are valid
+  const bool anodeBestValid = bestALCT.isValid();
+  const bool anodeSecondValid = secondALCT.isValid();
+  const bool cathodeBestValid = bestCLCT.isValid();
+  const bool cathodeSecondValid = secondCLCT.isValid();
+
+  // copy the valid ALCT/CLCT information to the valid ALCT/CLCT
+  if (anodeBestValid && !anodeSecondValid)
+    secondALCT = bestALCT;
+  if (!anodeBestValid && anodeSecondValid)
+    bestALCT = secondALCT;
+  if (cathodeBestValid && !cathodeSecondValid)
+    secondCLCT = bestCLCT;
+  if (!cathodeBestValid && cathodeSecondValid)
+    bestCLCT = secondCLCT;
+}
+
 // This method calculates all the TMB words and then passes them to the
 // constructor of correlated LCTs.
-CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
-                                                   const CSCCLCTDigi& cLCT,
-                                                   int type,
-                                                   int trknmb) const {
-  // CLCT pattern number
-  unsigned int pattern = encodePattern(cLCT.getPattern());
-
-  // LCT quality number
-  unsigned quality = qualityAssignment_->findQuality(aLCT, cLCT, runCCLUT_);
-
+void CSCMotherboard::constructLCTs(
+    const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb, CSCCorrelatedLCTDigi& thisLCT) const {
+  thisLCT.setValid(true);
+  thisLCT.setType(type);
+  // make sure to shift the ALCT BX from 8 to 3 and the CLCT BX from 8 to 7!
+  thisLCT.setALCT(getBXShiftedALCT(aLCT));
+  thisLCT.setCLCT(getBXShiftedCLCT(cLCT));
+  thisLCT.setPattern(encodePattern(cLCT.getPattern()));
+  thisLCT.setMPCLink(0);
+  thisLCT.setBX0(0);
+  thisLCT.setSyncErr(0);
+  thisLCT.setCSCID(theTrigChamber);
+  thisLCT.setTrknmb(trknmb);
+  thisLCT.setWireGroup(aLCT.getKeyWG());
+  thisLCT.setStrip(cLCT.getKeyStrip());
+  thisLCT.setBend(cLCT.getBend());
   // Bunch crossing: get it from cathode LCT if anode LCT is not there.
   int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
-
-  // Not used in Run-2. Will not be assigned in Run-3
-  unsigned int syncErr = 0;
-
-  // construct correlated LCT
-  CSCCorrelatedLCTDigi thisLCT(trknmb,
-                               1,
-                               quality,
-                               aLCT.getKeyWG(),
-                               cLCT.getKeyStrip(),
-                               pattern,
-                               cLCT.getBend(),
-                               bx,
-                               0,
-                               0,
-                               syncErr,
-                               theTrigChamber);
-  thisLCT.setType(type);
+  thisLCT.setBX(bx);
+  thisLCT.setQuality(qualityAssignment_->findQuality(aLCT, cLCT, runCCLUT_));
 
   if (runCCLUT_) {
     thisLCT.setRun3(true);
@@ -455,11 +454,6 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
     thisLCT.setEighthStripBit(cLCT.getEighthStripBit());
     thisLCT.setRun3Pattern(cLCT.getRun3Pattern());
   }
-
-  // make sure to shift the ALCT BX from 8 to 3 and the CLCT BX from 8 to 7!
-  thisLCT.setALCT(getBXShiftedALCT(aLCT));
-  thisLCT.setCLCT(getBXShiftedCLCT(cLCT));
-  return thisLCT;
 }
 
 // CLCT pattern number: encodes the pattern number itself

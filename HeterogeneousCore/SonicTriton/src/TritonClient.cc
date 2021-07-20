@@ -12,14 +12,26 @@
 
 #include <string>
 #include <cmath>
-#include <chrono>
 #include <exception>
 #include <sstream>
 #include <utility>
 #include <tuple>
 
-namespace ni = nvidia::inferenceserver;
-namespace nic = ni::client;
+namespace tc = triton::client;
+
+namespace {
+  grpc_compression_algorithm getCompressionAlgo(const std::string& name) {
+    if (name.empty() or name.compare("none") == 0)
+      return grpc_compression_algorithm::GRPC_COMPRESS_NONE;
+    else if (name.compare("deflate") == 0)
+      return grpc_compression_algorithm::GRPC_COMPRESS_DEFLATE;
+    else if (name.compare("gzip") == 0)
+      return grpc_compression_algorithm::GRPC_COMPRESS_GZIP;
+    else
+      throw cms::Exception("GrpcCompression")
+          << "Unknown compression algorithm requested: " << name << " (choices: none, deflate, gzip)";
+  }
+}  // namespace
 
 //based on https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/examples/simple_grpc_async_infer_client.cc
 //and https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/perf_client/perf_client.cc
@@ -28,23 +40,24 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
     : SonicClient(params, debugName, "TritonClient"),
       verbose_(params.getUntrackedParameter<bool>("verbose")),
       useSharedMemory_(params.getUntrackedParameter<bool>("useSharedMemory")),
+      compressionAlgo_(getCompressionAlgo(params.getUntrackedParameter<std::string>("compression"))),
       options_(params.getParameter<std::string>("modelName")) {
   //get appropriate server for this model
   edm::Service<TritonService> ts;
-  const auto& [url, serverType] =
-      ts->serverAddress(options_.model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
-  serverType_ = serverType;
+  const auto& server =
+      ts->serverInfo(options_.model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
+  serverType_ = server.type;
   if (verbose_)
-    edm::LogInfo(fullDebugName_) << "Using server: " << url;
+    edm::LogInfo(fullDebugName_) << "Using server: " << server.url;
   //enforce sync mode for fallback CPU server to avoid contention
   //todo: could enforce async mode otherwise (unless mode was specified by user?)
   if (serverType_ == TritonServerType::LocalCPU)
     setMode(SonicMode::Sync);
 
   //connect to the server
-  //TODO: add SSL options
-  triton_utils::throwIfError(nic::InferenceServerGrpcClient::Create(&client_, url, false),
-                             "TritonClient(): unable to create inference context");
+  triton_utils::throwIfError(
+      tc::InferenceServerGrpcClient::Create(&client_, server.url, false, server.useSsl, server.sslOptions),
+      "TritonClient(): unable to create inference context");
 
   //set options
   options_.model_version_ = params.getParameter<std::string>("modelVersion");
@@ -209,7 +222,7 @@ bool TritonClient::handle_exception(F&& call) {
   }
 }
 
-void TritonClient::getResults(std::shared_ptr<nic::InferResult> results) {
+void TritonClient::getResults(std::shared_ptr<tc::InferResult> results) {
   for (auto& [oname, output] : output_) {
     //set shape here before output becomes const
     if (output.variableDims()) {
@@ -252,64 +265,55 @@ void TritonClient::evaluate() {
 
   if (mode_ == SonicMode::Async) {
     //non-blocking call
-    auto t1 = std::chrono::high_resolution_clock::now();
     success = handle_exception([&]() {
-      triton_utils::throwIfError(
-          client_->AsyncInfer(
-              [t1, start_status, this](nic::InferResult* results) {
-                //get results
-                std::shared_ptr<nic::InferResult> results_ptr(results);
-                auto success = handle_exception([&]() {
-                  triton_utils::throwIfError(results_ptr->RequestStatus(), "evaluate(): unable to get result");
-                });
-                if (!success)
-                  return;
-                auto t2 = std::chrono::high_resolution_clock::now();
+      triton_utils::throwIfError(client_->AsyncInfer(
+                                     [start_status, this](tc::InferResult* results) {
+                                       //get results
+                                       std::shared_ptr<tc::InferResult> results_ptr(results);
+                                       auto success = handle_exception([&]() {
+                                         triton_utils::throwIfError(results_ptr->RequestStatus(),
+                                                                    "evaluate(): unable to get result");
+                                       });
+                                       if (!success)
+                                         return;
 
-                if (!debugName_.empty())
-                  edm::LogInfo(fullDebugName_)
-                      << "Remote time: " << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+                                       if (verbose()) {
+                                         inference::ModelStatistics end_status;
+                                         success = handle_exception([&]() { end_status = getServerSideStatus(); });
+                                         if (!success)
+                                           return;
 
-                if (verbose()) {
-                  inference::ModelStatistics end_status;
-                  success = handle_exception([&]() { end_status = getServerSideStatus(); });
-                  if (!success)
-                    return;
+                                         const auto& stats = summarizeServerStats(start_status, end_status);
+                                         reportServerSideStats(stats);
+                                       }
 
-                  const auto& stats = summarizeServerStats(start_status, end_status);
-                  reportServerSideStats(stats);
-                }
+                                       //check result
+                                       success = handle_exception([&]() { getResults(results_ptr); });
+                                       if (!success)
+                                         return;
 
-                //check result
-                success = handle_exception([&]() { getResults(results_ptr); });
-                if (!success)
-                  return;
-
-                //finish
-                finish(true);
-              },
-              options_,
-              inputsTriton_,
-              outputsTriton_),
-          "evaluate(): unable to launch async run");
+                                       //finish
+                                       finish(true);
+                                     },
+                                     options_,
+                                     inputsTriton_,
+                                     outputsTriton_,
+                                     headers_,
+                                     compressionAlgo_),
+                                 "evaluate(): unable to launch async run");
     });
     if (!success)
       return;
   } else {
     //blocking call
-    auto t1 = std::chrono::high_resolution_clock::now();
-    nic::InferResult* results;
+    tc::InferResult* results;
     success = handle_exception([&]() {
-      triton_utils::throwIfError(client_->Infer(&results, options_, inputsTriton_, outputsTriton_),
-                                 "evaluate(): unable to run and/or get result");
+      triton_utils::throwIfError(
+          client_->Infer(&results, options_, inputsTriton_, outputsTriton_, headers_, compressionAlgo_),
+          "evaluate(): unable to run and/or get result");
     });
     if (!success)
       return;
-
-    auto t2 = std::chrono::high_resolution_clock::now();
-    if (!debugName_.empty())
-      edm::LogInfo(fullDebugName_) << "Remote time: "
-                                   << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
     if (verbose()) {
       inference::ModelStatistics end_status;
@@ -321,7 +325,7 @@ void TritonClient::evaluate() {
       reportServerSideStats(stats);
     }
 
-    std::shared_ptr<nic::InferResult> results_ptr(results);
+    std::shared_ptr<tc::InferResult> results_ptr(results);
     success = handle_exception([&]() { getResults(results_ptr); });
     if (!success)
       return;
@@ -410,6 +414,7 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   descClient.addUntracked<unsigned>("timeout");
   descClient.addUntracked<bool>("verbose", false);
   descClient.addUntracked<bool>("useSharedMemory", true);
+  descClient.addUntracked<std::string>("compression", "");
   descClient.addUntracked<std::vector<std::string>>("outputs", {});
   iDesc.add<edm::ParameterSetDescription>("Client", descClient);
 }

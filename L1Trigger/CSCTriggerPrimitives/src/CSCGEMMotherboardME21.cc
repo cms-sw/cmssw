@@ -503,8 +503,8 @@ void CSCGEMMotherboardME21::correlateLCTsGEM(const CSCALCTDigi& bALCT,
   } else {
     // run without gems - happens in less than 0.04% of the time
     if (ok_bb)
-      lct1 = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
+      constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1, lct1);
     if (ok_ss)
-      lct2 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
+      constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2, lct2);
   }
 }

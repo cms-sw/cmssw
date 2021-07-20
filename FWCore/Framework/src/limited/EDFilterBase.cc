@@ -224,14 +224,6 @@ namespace edm {
       this->doStreamEndLuminosityBlockSummary_(id, lb, c);
     }
 
-    void EDFilterBase::doRespondToOpenInputFile(FileBlock const& fb) {
-      //respondToOpenInputFile(fb);
-    }
-
-    void EDFilterBase::doRespondToCloseInputFile(FileBlock const& fb) {
-      //respondToCloseInputFile(fb);
-    }
-
     void EDFilterBase::preallocStreams(unsigned int) {}
     void EDFilterBase::preallocLumis(unsigned int) {}
     void EDFilterBase::preallocLumisSummary(unsigned int) {}
@@ -266,6 +258,8 @@ namespace edm {
     void EDFilterBase::doEndRunProduce_(Run& rp, EventSetup const& c) {}
     void EDFilterBase::doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}
     void EDFilterBase::doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}
+
+    void EDFilterBase::clearInputProcessBlockCaches() {}
 
     void EDFilterBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;

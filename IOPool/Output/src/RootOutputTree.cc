@@ -96,9 +96,12 @@ namespace edm {
   RootOutputTree::RootOutputTree(std::shared_ptr<TFile> filePtr,
                                  BranchType const& branchType,
                                  int splitLevel,
-                                 int treeMaxVirtualSize)
+                                 int treeMaxVirtualSize,
+                                 std::string const& processName)
       : filePtr_(filePtr),
-        tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
+        tree_(processName.empty()
+                  ? makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)
+                  : makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType, processName), splitLevel)),
         producedBranches_(),
         readBranches_(),
         auxBranches_(),

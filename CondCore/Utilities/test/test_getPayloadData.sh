@@ -9,10 +9,12 @@ check_for_failure() {
 }
 
 check_for_full(){
-    count=`echo ${@} | python3 -c 'import json,sys;print(len(json.load(sys.stdin)["cond::BasicPayload"]))'`
-    if [[ $count -gt 1 ]] 
+    count=`echo ${@} | python3 -c 'import json,sys;data=json.load(sys.stdin);print(len(data.keys()))'`
+    echo $count
+    if [[ $count -gt 0 ]]
     then 
-	echo -e "\n ---> passed getPayloadData.py --discover test : found $count entries"
+	entries=`echo ${@} | python3 -c 'import json,sys;data=json.load(sys.stdin);print(list(data.keys()))'`
+	echo -e "\n ---> passed getPayloadData.py --discover test : found $count entries: $entries"
     else 
 	echo -e "getPayloadData.py --discover test not passed... found no entries"
 	exit 1

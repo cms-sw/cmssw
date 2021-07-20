@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
-process = cms.Process("CaloTest")
+process = cms.Process("CaloTest", dd4hep)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')

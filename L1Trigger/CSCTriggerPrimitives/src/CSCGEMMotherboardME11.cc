@@ -581,7 +581,7 @@ void CSCGEMMotherboardME11::correlateLCTsGEM(const CSCALCTDigi& bALCT,
       else if (ok_bb_pad)
         lct1 = CSCGEMMotherboard::constructLCTsGEM(bestALCT, bestCLCT, bb_pad, 1);
       else
-        lct1 = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
+        constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1, lct1);
       break;
     case 12:
       if (ok_bs_copad)
@@ -589,7 +589,7 @@ void CSCGEMMotherboardME11::correlateLCTsGEM(const CSCALCTDigi& bALCT,
       else if (ok_bs_pad)
         lct1 = CSCGEMMotherboard::constructLCTsGEM(bestALCT, secondCLCT, bs_pad, 1);
       else
-        lct1 = constructLCTs(bestALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
+        constructLCTs(bestALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1, lct1);
       break;
     case 21:
       if (ok_sb_copad)
@@ -597,7 +597,7 @@ void CSCGEMMotherboardME11::correlateLCTsGEM(const CSCALCTDigi& bALCT,
       else if (ok_sb_pad)
         lct1 = CSCGEMMotherboard::constructLCTsGEM(secondALCT, bestCLCT, sb_pad, 1);
       else
-        lct1 = constructLCTs(secondALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
+        constructLCTs(secondALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1, lct1);
       break;
     case 22:
       if (ok_ss_copad)
@@ -605,7 +605,7 @@ void CSCGEMMotherboardME11::correlateLCTsGEM(const CSCALCTDigi& bALCT,
       else if (ok_ss_pad)
         lct1 = CSCGEMMotherboard::constructLCTsGEM(secondALCT, secondCLCT, ss_pad, 1);
       else
-        lct1 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
+        constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1, lct1);
       break;
     default:
       return;
@@ -621,7 +621,7 @@ void CSCGEMMotherboardME11::correlateLCTsGEM(const CSCALCTDigi& bALCT,
       else if (ok_bs_pad)
         lct2 = CSCGEMMotherboard::constructLCTsGEM(bestALCT, secondCLCT, bs_pad, 2);
       else
-        lct2 = constructLCTs(bestALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
+        constructLCTs(bestALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2, lct2);
       break;
     case 21:
       if (ok_sb_copad)
@@ -629,7 +629,7 @@ void CSCGEMMotherboardME11::correlateLCTsGEM(const CSCALCTDigi& bALCT,
       else if (ok_sb_pad)
         lct2 = CSCGEMMotherboard::constructLCTsGEM(secondALCT, bestCLCT, sb_pad, 2);
       else
-        lct2 = constructLCTs(secondALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
+        constructLCTs(secondALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2, lct2);
       break;
     case 22:
       if (ok_bb_copad)
@@ -637,7 +637,7 @@ void CSCGEMMotherboardME11::correlateLCTsGEM(const CSCALCTDigi& bALCT,
       else if (ok_bb_pad)
         lct2 = CSCGEMMotherboard::constructLCTsGEM(secondALCT, secondCLCT, bb_pad, 2);
       else
-        lct2 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
+        constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2, lct2);
       break;
     default:
       return;

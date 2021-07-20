@@ -92,11 +92,13 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
 
   // get the gem geometry if it's there
   edm::ESHandle<GEMGeometry> h_gem = setup.getHandle(gemToken_);
-  if (h_gem.isValid()) {
-    builder_->setGEMGeometry(&*h_gem);
-  } else {
-    edm::LogInfo("CSCTriggerPrimitivesProducer|NoGEMGeometry")
-        << "+++ Info: GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
+  if (runME11ILT_ or runME21ILT_) {
+    if (h_gem.isValid()) {
+      builder_->setGEMGeometry(&*h_gem);
+    } else {
+      edm::LogWarning("CSCTriggerPrimitivesProducer|NoGEMGeometry")
+          << "GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
+    }
   }
 
   // Find conditions data for bad chambers.

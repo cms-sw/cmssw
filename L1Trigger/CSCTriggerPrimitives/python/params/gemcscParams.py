@@ -71,6 +71,50 @@ gemcscParams = cms.PSet(
         "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/CoordinateConversion/GEMCSCLUT_roll_l2_max_wg_ME21_even.txt",
         "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/CoordinateConversion/GEMCSCLUT_roll_l2_max_wg_ME21_odd.txt",
     ),
+    # lookup tables for the GEM-CSC slope correction
+    gemCscSlopeCorrectionFiles = cms.vstring(
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/GEMCSCSlopeCorr_ME11_even_GE11_layer1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/GEMCSCSlopeCorr_ME11_even_GE11_layer2.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/GEMCSCSlopeCorr_ME11_odd_GE11_layer1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/GEMCSCSlopeCorr_ME11_odd_GE11_layer2.txt",
+    ),
+    # lookup tables for the GEM-CSC slope correction
+    gemCscSlopeCosiFiles = cms.vstring(
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/CSCconsistency_2to1_SlopeShift_ME11_even_GE11_layer1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/CSCconsistency_2to1_SlopeShift_ME11_odd_GE11_layer1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/CSCconsistency_3to1_SlopeShift_ME11_even_GE11_layer1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/CSCconsistency_3to1_SlopeShift_ME11_odd_GE11_layer1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/CSCconsistency_2to1_SlopeShift_ME11_even_GE11_layer2.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/CSCconsistency_2to1_SlopeShift_ME11_odd_GE11_layer2.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/CSCconsistency_3to1_SlopeShift_ME11_even_GE11_layer2.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/CSCconsistency_3to1_SlopeShift_ME11_odd_GE11_layer2.txt",
+    ),
+    # lookup tables for the GEM-CSC slope correction
+    gemCscSlopeCosiCorrectionFiles = cms.vstring(
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/GEMCSCconsistentSlopeCorr_ME11_even_GE11_layer1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/GEMCSCconsistentSlopeCorr_ME11_even_GE11_layer2.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/GEMCSCconsistentSlopeCorr_ME11_odd_GE11_layer1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/SlopeCorrection/FacingChambers/GEMCSCconsistentSlopeCorr_ME11_odd_GE11_layer2.txt",
+    ),
+    # convert differences in 1/8-strip numbers between GEM and CSC to Run-3 slopes
+    esDiffToSlopeME1aFiles = cms.vstring(
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/BendingAngle/GEMCSCLUT_es_diff_slope_L1_ME1a_even.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/BendingAngle/GEMCSCLUT_es_diff_slope_L1_ME1a_odd.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/BendingAngle/GEMCSCLUT_es_diff_slope_L2_ME1a_even.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/BendingAngle/GEMCSCLUT_es_diff_slope_L2_ME1a_odd.txt",
+    ),
+    esDiffToSlopeME1bFiles = cms.vstring(
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/BendingAngle/GEMCSCLUT_es_diff_slope_L1_ME1b_even.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/BendingAngle/GEMCSCLUT_es_diff_slope_L1_ME1b_odd.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/BendingAngle/GEMCSCLUT_es_diff_slope_L2_ME1b_even.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/BendingAngle/GEMCSCLUT_es_diff_slope_L2_ME1b_odd.txt",
+    ),
+    esDiffToSlopeME21Files = cms.vstring(
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/BendingAngle/GEMCSCLUT_es_diff_slope_L1_ME21_even.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/BendingAngle/GEMCSCLUT_es_diff_slope_L1_ME21_odd.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/BendingAngle/GEMCSCLUT_es_diff_slope_L2_ME21_even.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/GEMCSC/BendingAngle/GEMCSCLUT_es_diff_slope_L2_ME21_odd.txt",
+    ),
 )
 
 gemcscPSets = cms.PSet(

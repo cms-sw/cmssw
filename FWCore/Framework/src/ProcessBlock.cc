@@ -20,6 +20,8 @@ namespace edm {
     return processBlockPrincipal().cacheIdentifier();
   }
 
+  std::string const& ProcessBlock::processName() const { return processBlockPrincipal().processName(); }
+
   ProcessBlockPrincipal const& ProcessBlock::processBlockPrincipal() const {
     return dynamic_cast<ProcessBlockPrincipal const&>(provRecorder_.principal());
   }

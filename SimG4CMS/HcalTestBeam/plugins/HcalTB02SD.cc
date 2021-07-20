@@ -13,13 +13,11 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "HcalTB02SD.h"
-#include "HcalTB02HcalNumberingScheme.h"
-#include "HcalTB02XtalNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/plugins/HcalTB02SD.h"
+#include "SimG4CMS/HcalTestBeam/plugins/HcalTB02HcalNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/plugins/HcalTB02XtalNumberingScheme.h"
 
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -34,11 +32,11 @@
 //
 
 HcalTB02SD::HcalTB02SD(const std::string& name,
-                       const edm::EventSetup& es,
+                       const HcalTB02Parameters* es,
                        const SensitiveDetectorCatalog& clg,
                        edm::ParameterSet const& p,
                        const SimTrackManager* manager)
-    : CaloSD(name, clg, p, manager) {
+    : CaloSD(name, clg, p, manager), hcalTB02Parameters_(es) {
   numberingScheme_.reset(nullptr);
   edm::ParameterSet m_SD = p.getParameter<edm::ParameterSet>("HcalTB02SD");
   useBirk_ = m_SD.getUntrackedParameter<bool>("UseBirkLaw", false);
@@ -70,14 +68,6 @@ HcalTB02SD::HcalTB02SD(const std::string& name,
                                 << "        with three constants kB = " << birk1_ << ", C1 = " << birk2_
                                 << ", C2 = " << birk3_;
 #endif
-  // Get pointers to HcalTB02Parameters
-  edm::ESHandle<HcalTB02Parameters> hdc;
-  es.get<IdealGeometryRecord>().get(name, hdc);
-  if (hdc.isValid()) {
-    hcalTB02Parameters_ = hdc.product();
-  } else {
-    throw cms::Exception("Unknown", "HcalTB02SD") << "Cannot find HcalTB02Parameters for " << name << "\n";
-  }
 }
 
 HcalTB02SD::~HcalTB02SD() {}
