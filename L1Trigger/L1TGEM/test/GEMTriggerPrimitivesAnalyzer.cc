@@ -1,8 +1,7 @@
-/** \class CSCTriggerPrimitivesAnalyzer
+/** \class GEMTriggerPrimitivesAnalyzer
  *
- * Basic analyzer class which accesses ALCTs, CLCTs, and correlated LCTs
- * and plot various quantities. This analyzer can currently load a DQM file
- * and plot the data vs emulation of ALCTs, CLCTs, and correlated LCT properties.
+ * Basic analyzer class accesses GEM TPs and plot various quantities. This analyzer
+ * can currently load a DQM file and plot the data vs emulation of GEM TPs.
  *
  * \author Sven Dildick (Rice University)
  *
@@ -32,13 +31,13 @@
 #include <iostream>
 #include <string>
 
-class CSCTriggerPrimitivesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class GEMTriggerPrimitivesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// Constructor
-  explicit CSCTriggerPrimitivesAnalyzer(const edm::ParameterSet &conf);
+  explicit GEMTriggerPrimitivesAnalyzer(const edm::ParameterSet &conf);
 
   /// Destructor
-  ~CSCTriggerPrimitivesAnalyzer() override {}
+  ~GEMTriggerPrimitivesAnalyzer() override {}
 
   /// Does the job
   void analyze(const edm::Event &event, const edm::EventSetup &setup) override;
@@ -62,9 +61,7 @@ private:
   unsigned runNumber_;
   std::string monitorDir_;
   std::vector<std::string> chambers_;
-  std::vector<std::string> alctVars_;
-  std::vector<std::string> clctVars_;
-  std::vector<std::string> lctVars_;
+  std::vector<std::string> clusterVars_;
   bool dataVsEmulatorPlots_;
   void makeDataVsEmulatorPlots();
 
@@ -76,7 +73,7 @@ private:
 
   /*
     When set to True, we assume that the data comes from
-    the Building 904 CSC test-stand. This test-stand is a single
+    the Building 904 GEM test-stand. This test-stand is a single
     ME1/1 chamber.
   */
   bool B904Setup_;
@@ -84,14 +81,12 @@ private:
   std::string B904RunNumber_;
 };
 
-CSCTriggerPrimitivesAnalyzer::CSCTriggerPrimitivesAnalyzer(const edm::ParameterSet &conf)
+GEMTriggerPrimitivesAnalyzer::GEMTriggerPrimitivesAnalyzer(const edm::ParameterSet &conf)
     : rootFileName_(conf.getParameter<std::string>("rootFileName")),
       runNumber_(conf.getParameter<unsigned>("runNumber")),
       monitorDir_(conf.getParameter<std::string>("monitorDir")),
       chambers_(conf.getParameter<std::vector<std::string>>("chambers")),
-      alctVars_(conf.getParameter<std::vector<std::string>>("alctVars")),
-      clctVars_(conf.getParameter<std::vector<std::string>>("clctVars")),
-      lctVars_(conf.getParameter<std::vector<std::string>>("lctVars")),
+      clusterVars_(conf.getParameter<std::vector<std::string>>("clusterVars")),
       dataVsEmulatorPlots_(conf.getParameter<bool>("dataVsEmulatorPlots")),
       mcEfficiencyPlots_(conf.getParameter<bool>("mcEfficiencyPlots")),
       mcResolutionPlots_(conf.getParameter<bool>("mcResolutionPlots")),
@@ -100,16 +95,16 @@ CSCTriggerPrimitivesAnalyzer::CSCTriggerPrimitivesAnalyzer(const edm::ParameterS
   usesResource("TFileService");
 }
 
-void CSCTriggerPrimitivesAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &setup) {
+void GEMTriggerPrimitivesAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &setup) {
   // efficiency and resolution analysis is done here
 }
 
-void CSCTriggerPrimitivesAnalyzer::endJob() {
+void GEMTriggerPrimitivesAnalyzer::endJob() {
   if (dataVsEmulatorPlots_)
     makeDataVsEmulatorPlots();
 }
 
-void CSCTriggerPrimitivesAnalyzer::makeDataVsEmulatorPlots() {
+void GEMTriggerPrimitivesAnalyzer::makeDataVsEmulatorPlots() {
   // data vs emulator plots are created here
   edm::Service<TFileService> fs;
 
@@ -123,13 +118,13 @@ void CSCTriggerPrimitivesAnalyzer::makeDataVsEmulatorPlots() {
 
   TFile *theFile = new TFile(rootFileName_.c_str());
   if (!theFile) {
-    edm::LogError("CSCTriggerPrimitivesAnalyzer") << "Unable to load DQM ROOT file: " << rootFileName_;
+    edm::LogError("GEMTriggerPrimitivesAnalyzer") << "Unable to load DQM ROOT file: " << rootFileName_;
     return;
   }
 
   TDirectory *directory = theFile->GetDirectory(path.c_str());
   if (!directory) {
-    edm::LogError("CSCTriggerPrimitivesAnalyzer") << "Unable to navigate to directory: " << path;
+    edm::LogError("GEMTriggerPrimitivesAnalyzer") << "Unable to navigate to directory: " << path;
     return;
   }
 
@@ -137,16 +132,16 @@ void CSCTriggerPrimitivesAnalyzer::makeDataVsEmulatorPlots() {
   if (B904Setup_)
     runTitle = "B904_Cosmic_Run_" + TString(B904RunNumber_);
 
-  TPostScript *ps = new TPostScript("CSC_dataVsEmul_" + runTitle + ".ps", 111);
+  TPostScript *ps = new TPostScript("GEM_dataVsEmul_" + runTitle + ".ps", 111);
   TCanvas *c1 = new TCanvas("c1", "", 800, 800);
   c1->Clear();
   c1->Divide(1, 2);
 
   // alct variable
-  for (unsigned iVar = 0; iVar < alctVars_.size(); iVar++) {
+  for (unsigned iVar = 0; iVar < clusterVars_.size(); iVar++) {
     // chamber type
     for (unsigned iType = 0; iType < chambers_.size(); iType++) {
-      const std::string key("alct_" + alctVars_[iVar]);
+      const std::string key("cluster_" + clusterVars_[iVar]);
       const std::string histData(key + "_data_" + chambers_[iType]);
       const std::string histEmul(key + "_emul_" + chambers_[iType]);
       const std::string histDiff(key + "_diff_" + chambers_[iType]);
@@ -158,51 +153,15 @@ void CSCTriggerPrimitivesAnalyzer::makeDataVsEmulatorPlots() {
       // when all histograms are found, make a new canvas and add it to
       // the collection
       if (dataMon && emulMon && diffMon) {
-        makePlot(
-            dataMon, emulMon, diffMon, "ALCT", "alct_", TString(alctVars_[iVar]), TString(chambers_[iType]), ps, c1);
-      }
-    }
-  }
-
-  // clct variable
-  for (unsigned iVar = 0; iVar < clctVars_.size(); iVar++) {
-    // chamber type
-    for (unsigned iType = 0; iType < chambers_.size(); iType++) {
-      const std::string key("clct_" + clctVars_[iVar]);
-      const std::string histData(key + "_data_" + chambers_[iType]);
-      const std::string histEmul(key + "_emul_" + chambers_[iType]);
-      const std::string histDiff(key + "_diff_" + chambers_[iType]);
-
-      TH1F *dataMon = (TH1F *)directory->Get(histData.c_str());
-      TH1F *emulMon = (TH1F *)directory->Get(histEmul.c_str());
-      TH1F *diffMon = (TH1F *)directory->Get(histDiff.c_str());
-
-      // when all histograms are found, make a new canvas and add it to
-      // the collection
-      if (dataMon && emulMon && diffMon) {
-        makePlot(
-            dataMon, emulMon, diffMon, "CLCT", "clct_", TString(clctVars_[iVar]), TString(chambers_[iType]), ps, c1);
-      }
-    }
-  }
-
-  // lct variable
-  for (unsigned iVar = 0; iVar < lctVars_.size(); iVar++) {
-    // chamber type
-    for (unsigned iType = 0; iType < chambers_.size(); iType++) {
-      const std::string key("lct_" + lctVars_[iVar]);
-      const std::string histData(key + "_data_" + chambers_[iType]);
-      const std::string histEmul(key + "_emul_" + chambers_[iType]);
-      const std::string histDiff(key + "_diff_" + chambers_[iType]);
-
-      TH1F *dataMon = (TH1F *)directory->Get(histData.c_str());
-      TH1F *emulMon = (TH1F *)directory->Get(histEmul.c_str());
-      TH1F *diffMon = (TH1F *)directory->Get(histDiff.c_str());
-
-      // when all histograms are found, make a new canvas and add it to
-      // the collection
-      if (dataMon && emulMon && diffMon) {
-        makePlot(dataMon, emulMon, diffMon, "LCT", "lct_", TString(lctVars_[iVar]), TString(chambers_[iType]), ps, c1);
+        makePlot(dataMon,
+                 emulMon,
+                 diffMon,
+                 "GEM Cluster",
+                 "gemcluster_",
+                 TString(clusterVars_[iVar]),
+                 TString(chambers_[iType]),
+                 ps,
+                 c1);
       }
     }
   }
@@ -214,7 +173,7 @@ void CSCTriggerPrimitivesAnalyzer::makeDataVsEmulatorPlots() {
   delete ps;
 }
 
-void CSCTriggerPrimitivesAnalyzer::makePlot(TH1F *dataMon,
+void GEMTriggerPrimitivesAnalyzer::makePlot(TH1F *dataMon,
                                             TH1F *emulMon,
                                             TH1F *diffMon,
                                             TString lcts,
@@ -240,7 +199,7 @@ void CSCTriggerPrimitivesAnalyzer::makePlot(TH1F *dataMon,
   dataMon->SetMarkerStyle(kPlus);
   dataMon->SetMarkerSize(3);
   // add 50% to make sure the legend does not overlap with the histograms
-  dataMon->SetMaximum(dataMon->GetBinContent(dataMon->GetMaximumBin()) * 1.6);
+  dataMon->SetMaximum(dataMon->GetBinContent(dataMon->GetMaximumBin()) * 1.5);
   dataMon->Draw("histp");
   dataMon->GetXaxis()->SetLabelSize(0.05);
   dataMon->GetYaxis()->SetLabelSize(0.05);
@@ -248,9 +207,9 @@ void CSCTriggerPrimitivesAnalyzer::makePlot(TH1F *dataMon,
   dataMon->GetYaxis()->SetTitleSize(0.05);
   emulMon->SetLineColor(kRed);
   emulMon->Draw("histsame");
-  auto legend = new TLegend(0.6, 0.7, 0.9, 0.9);
-  legend->AddEntry(dataMon, TString("Data (" + std::to_string((int)dataMon->GetEntries()) + ")"), "p");
-  legend->AddEntry(emulMon, TString("Emulator (" + std::to_string((int)emulMon->GetEntries()) + ")"), "l");
+  auto legend = new TLegend(0.7, 0.7, 0.9, 0.9);
+  legend->AddEntry(dataMon, "Data", "p");
+  legend->AddEntry(emulMon, "Emulator", "l");
   legend->Draw();
 
   c1->cd(2);
@@ -269,4 +228,4 @@ void CSCTriggerPrimitivesAnalyzer::makePlot(TH1F *dataMon,
   c1->Update();
 }
 
-DEFINE_FWK_MODULE(CSCTriggerPrimitivesAnalyzer);
+DEFINE_FWK_MODULE(GEMTriggerPrimitivesAnalyzer);

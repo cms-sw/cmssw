@@ -5,9 +5,12 @@ from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 
 options = VarParsing('analysis')
 options.register ("unpack", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("unpackGEM", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("l1", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("l1GEM", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("mc", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("dqm", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("dqmGEM", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("useB904Data", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("run3", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("runCCLUT", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
@@ -30,8 +33,11 @@ process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load("EventFilter.CSCRawToDigi.cscUnpacker_cfi")
+process.load('EventFilter.GEMRawToDigi.muonGEMDigis_cfi')
 process.load("L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi")
+process.load('L1Trigger.L1TGEM.simGEMDigis_cff')
 process.load("DQM.L1TMonitor.L1TdeCSCTPG_cfi")
+process.load("DQM.L1TMonitor.L1TdeGEMTPG_cfi")
 
 process.maxEvents = cms.untracked.PSet(
       input = cms.untracked.int32(options.maxEvents)
@@ -49,6 +55,10 @@ process.source = cms.Source(
             'drop CSCDetIdCSCShowerDigiMuonDigiCollection_simCscTriggerPrimitiveDigis_*_*'
       )
 )
+
+## this line is needed to run the GEM unpacker on output from AMC13SpyReadout.py or readFile_b904_Run3.py
+if options.unpackGEM:
+      process.source.labelRawDataLikeMC = cms.untracked.bool(False)
 
 ## global tag (data or MC, Run-2 or Run-3)
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -68,8 +78,14 @@ if not options.mc or options.unpack:
 
 ## unpacker
 if options.useB904Data:
+      ## CSC
       process.muonCSCDigis.DisableMappingCheck = True
       process.muonCSCDigis.B904Setup = True
+      process.muonCSCDigis.InputObjects = "rawDataCollectorCSC"
+      if options.unpackGEM:
+            process.muonCSCDigis.useGEMs = True
+      ## GEM
+      process.muonGEMDigis.InputLabel = "rawDataCollectorGEM"
 
 ## l1 emulator
 l1csc = process.cscTriggerPrimitiveDigis
@@ -84,6 +100,9 @@ if options.l1:
             if options.runME11ILT:
                   l1csc.GEMPadDigiClusterProducer = "muonCSCDigis:MuonGEMPadDigiCluster"
 
+if options.l1GEM:
+      process.simMuonGEMPadDigis.InputCollection = 'muonGEMDigis'
+
 ## DQM monitor
 if options.dqm:
       process.l1tdeCSCTPG.B904Setup = options.useB904Data
@@ -91,6 +110,10 @@ if options.dqm:
       process.l1tdeCSCTPG.emulCLCT = "cscTriggerPrimitiveDigis"
       process.l1tdeCSCTPG.emulLCT = "cscTriggerPrimitiveDigis:MPCSORTED"
       process.l1tdeCSCTPG.preTriggerAnalysis = options.preTriggerAnalysis
+
+if options.dqmGEM:
+      process.l1tdeGEMTPG.data = "muonCSCDigis"
+      process.l1tdeGEMTPG.emul = "simMuonGEMPadDigiClusters"
 
 # Output
 process.output = cms.OutputModule(
@@ -130,9 +153,24 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 )
 
 ## schedule and path definition
-process.p1 = cms.Path(process.muonCSCDigis)
-process.p2 = cms.Path(l1csc)
-process.p3 = cms.Path(process.l1tdeCSCTPG)
+process.unpacksequence = cms.Sequence(process.muonCSCDigis)
+if options.unpackGEM:
+      process.unpacksequence += process.muonGEMDigis
+process.p1 = cms.Path(process.unpacksequence)
+
+process.l1sequence = cms.Sequence(l1csc)
+if options.l1GEM:
+      ## not sure if append would work for the GEM-CSC trigger
+      ## maybe the modules need to come first
+      process.l1sequence += process.simMuonGEMPadDigis
+      process.l1sequence += process.simMuonGEMPadDigiClusters
+process.p2 = cms.Path(process.l1sequence)
+
+process.dqmsequence = cms.Sequence(process.l1tdeCSCTPG)
+if options.dqmGEM:
+      process.dqmsequence += process.l1tdeGEMTPG
+process.p3 = cms.Path(process.dqmsequence)
+
 process.p4 = cms.EndPath(process.DQMoutput)
 process.p5 = cms.EndPath(process.output)
 process.p6 = cms.EndPath(process.endOfProcess)
