@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 import sys
-import imp
+import types
 import re
 
 # global options
@@ -20,7 +20,7 @@ if len(sys.argv) != 2:
 whitelist = ('HLTriggerFirstPath', 'HLTriggerFinalPath')
 
 # load the menu and get the "process" object
-menu = imp.new_module('menu')
+menu = types.ModuleType('menu')
 name = sys.argv[1]
 exec(open(name).read(), globals(), menu.__dict__)
 process = menu.process
