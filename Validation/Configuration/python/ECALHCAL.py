@@ -29,7 +29,7 @@ def customise(process):
     # modify the content
 
     #process.output.outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
-            
+    next(process.outputModules_().items())[1].outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")        
 # user schedule: use only calorimeters digitization and local reconstruction
 
     del process.schedule[:] 
