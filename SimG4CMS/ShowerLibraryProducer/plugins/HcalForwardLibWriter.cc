@@ -20,11 +20,10 @@ HcalForwardLibWriter::HcalForwardLibWriter(const edm::ParameterSet& iConfig) {
   fs->file().cd();
   LibTree = new TTree("HFSimHits", "HFSimHits");
 
-  //https://root.cern/root/html534/TTree.html 
+  //https://root.cern/root/html534/TTree.html
   // TBranch*Branch(const char* name, const char* classname, void** obj, Int_t bufsize = 32000, Int_t splitlevel = 99)
   LibTree->Branch("emParticles", "HFShowerPhotons-emParticles", &emColl, bsize, splitlevel);
   LibTree->Branch("hadParticles", "HFShowerPhotons-hadParticles", &hadColl, bsize, splitlevel);
-
 }
 
 HcalForwardLibWriter::~HcalForwardLibWriter() {}
@@ -44,7 +43,7 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
     std::string fn = theFileHandle[i].name;
     std::string particle = theFileHandle[i].id;
 
-    //    std::cout << "*** Input file  " << i << "   " << fn << std::endl;  
+    //    std::cout << "*** Input file  " << i << "   " << fn << std::endl;
 
     TFile* theFile = new TFile(fn.c_str(), "READ");
     TTree* theTree = (TTree*)gDirectory->Get("g4SimHits/CherenkovPhotons");
