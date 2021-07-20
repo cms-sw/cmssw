@@ -21,7 +21,7 @@
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "Geometry/HcalCommonData/interface/HcalSimulationConstants.h"
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
-#include "SimG4CMS/ShowerLibraryProducer/interface/FiberSensitiveDetector.h"
+#include "SimG4CMS/ShowerLibraryProducer/interface/FiberSD.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -47,7 +47,7 @@ public:
                                           const edm::ParameterSet& p,
                                           const SimTrackManager* man,
                                           SimActivityRegistry& reg) const final {
-    auto sd = std::make_unique<FiberSensitiveDetector>(iname, hcalSimCons_, hcalDDCons_, clg, p, man);
+    auto sd = std::make_unique<FiberSD>(iname, hcalSimCons_, hcalDDCons_, clg, p, man);
     SimActivityRegistryEnroller::enroll(reg, sd.get());
     return sd;
   }
@@ -59,4 +59,5 @@ private:
   const HcalDDDSimConstants* hcalDDCons_;
 };
 
+typedef FiberSD FiberSensitiveDetector;
 DEFINE_SENSITIVEDETECTORBUILDER(FiberSensitiveDetectorBuilder, FiberSensitiveDetector);
