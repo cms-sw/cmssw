@@ -72,6 +72,7 @@ process.p = cms.Path(
 )
 
 #Legacy UFSD flow
+#process.totemTimingRecHits.saturationLimit=cms.double(0.85)
 #process.p = cms.Path(
 #    process.ctppsRawToDigi*
 #    process.totemTimingLocalReconstruction
