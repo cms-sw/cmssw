@@ -10,6 +10,7 @@ l1tdeGEMTPGCommon = cms.PSet(
     clusterNBin = cms.vuint32(20,384,10),
     clusterMinBin = cms.vdouble(-0.5,-0.5,-4.5),
     clusterMaxBin = cms.vdouble(19.5,383.5,5.5),
+    B904Setup = cms.bool(False),
 )
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
