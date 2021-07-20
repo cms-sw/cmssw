@@ -55,6 +55,7 @@ public:
   // these are approximate numbers obviously for LCTs with lower quality
   unsigned getKeyWG() const { return (min_wg() + max_wg()) / 2.; }
   uint16_t getKeyStrip(int n = 2) const;
+  uint16_t getKeyStripME1a(int n = 2) const;
 
   // first and last 1/2-strips
   int layer1_first_hs() const { return layer1_first_hs_; }
@@ -206,5 +207,7 @@ private:
   // flag to signal if it is a coincidence
   bool isCoincidence_;
 };
+
+std::ostream& operator<<(std::ostream& os, const GEMInternalCluster& cl);
 
 #endif

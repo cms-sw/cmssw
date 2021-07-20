@@ -193,7 +193,7 @@
     <use name="FWCore/Framework"/>
   </library>
 
-  <library file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningThingProducer.cc,SlimmingThingProducer.cc,ThinningTestAnalyzer.cc,ThinnedRefFromTestAnalyzer.cc,DetSetVectorThingProducer.cc,TrackOfDSVThingsProducer.cc,ThinningDSVThingProducer.cc,SlimmingDSVThingProducer.cc,ThinningDSVTestAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc,AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc,ExistingDictionaryTestModules.cc,ThingAnalyzer.cc, TableTestModules.cc, AcquireIntProducer.cc, AcquireIntFilter.cc, AcquireIntStreamProducer.cc, AcquireIntStreamFilter.cc, TestGlobalOutput.cc, TestLimitedOutput.cc,PluginUsingProducer.cc,SwitchProducerProvenanceAnalyzer.cc,ProducerUsingCollector.cc" name="SomeTestModules">
+  <library file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningThingProducer.cc,SlimmingThingProducer.cc,ThinningTestAnalyzer.cc,ThinnedRefFromTestAnalyzer.cc,DetSetVectorThingProducer.cc,TrackOfDSVThingsProducer.cc,ThinningDSVThingProducer.cc,SlimmingDSVThingProducer.cc,ThinningDSVTestAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc,AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc,ExistingDictionaryTestModules.cc,ThingAnalyzer.cc, TableTestModules.cc, AcquireIntProducer.cc, AcquireIntFilter.cc, AcquireIntStreamProducer.cc, AcquireIntStreamFilter.cc, TestGlobalOutput.cc, TestLimitedOutput.cc, TestOneOutput.cc, PluginUsingProducer.cc,SwitchProducerProvenanceAnalyzer.cc,ProducerUsingCollector.cc" name="SomeTestModules">
     <flags EDM_PLUGIN="1"/>
     <lib name="FWCoreIntegrationWaitingServer"/>
     <use name="FWCore/Framework"/>
@@ -429,7 +429,7 @@
     <use name="clhep"/>
   </library>
   <test name="TestFWCoreIntegrationModuleThread" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/moduleThread_test_cfg.py"/>
-  
+
   <bin file="RandomIntProducer_t.cpp">
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
@@ -445,4 +445,89 @@
   <test name="TestFWCoreIntegrationInputSourceAlias" command="cmsRun ${LOCALTOP}//src/FWCore/Integration/test/inputSource_alias_Test_cfg.py"/>
 
   <test name="TestFWCoreIntegrationEDLooperESProcuer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testEDLooperESProducer_cfg.py"/>
+
+  <test name="TestIntegrationProcessBlock1" command="run_TestProcessBlock.sh 1"/>
+  <test name="TestIntegrationProcessBlock2" command="run_TestProcessBlock.sh 2"/>
+  <test name="TestIntegrationProcessBlock3" command="run_TestProcessBlock.sh 3"/>
+  <test name="TestIntegrationProcessBlock4" command="run_TestProcessBlock.sh 4"/>
+  <test name="TestIntegrationProcessBlock5" command="run_TestProcessBlock.sh 5">
+    <flags PRE_TEST="TestIntegrationProcessBlock1"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock2"/>
+  </test>
+  <test name="TestIntegrationProcessBlock6" command="run_TestProcessBlock.sh 6">
+    <flags PRE_TEST="TestIntegrationProcessBlock5"/>
+  </test>
+  <test name="TestIntegrationProcessBlock7" command="run_TestProcessBlock.sh 7"/>
+  <test name="TestIntegrationProcessBlock8" command="run_TestProcessBlock.sh 8">
+    <flags PRE_TEST="TestIntegrationProcessBlock1"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock7"/>
+  </test>
+  <test name="TestIntegrationProcessBlock9" command="run_TestProcessBlock.sh 9">
+    <flags PRE_TEST="TestIntegrationProcessBlock3"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock4"/>
+  </test>
+  <test name="TestIntegrationProcessBlock10" command="run_TestProcessBlock.sh 10">
+    <flags PRE_TEST="TestIntegrationProcessBlock5"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock9"/>
+  </test>
+  <test name="TestIntegrationProcessBlock11" command="run_TestProcessBlock.sh 11">
+    <flags PRE_TEST="TestIntegrationProcessBlock5"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock9"/>
+  </test>
+  <test name="TestIntegrationProcessBlock12" command="run_TestProcessBlock.sh 12">
+    <flags PRE_TEST="TestIntegrationProcessBlock10"/>
+  </test>
+  <test name="TestIntegrationProcessBlock14" command="run_TestProcessBlock.sh 14">
+    <flags PRE_TEST="TestIntegrationProcessBlock10"/>
+  </test>
+  <test name="TestIntegrationProcessBlock15" command="run_TestProcessBlock.sh 15">
+    <flags PRE_TEST="TestIntegrationProcessBlock14"/>
+  </test>
+  <test name="TestIntegrationProcessBlock16" command="run_TestProcessBlock.sh 16">
+    <flags PRE_TEST="TestIntegrationProcessBlock14"/>
+  </test>
+  <test name="TestIntegrationProcessBlock17" command="run_TestProcessBlock.sh 17">
+    <flags PRE_TEST="TestIntegrationProcessBlock10"/>
+  </test>
+  <test name="TestIntegrationProcessBlock18" command="run_TestProcessBlock.sh 18"/>
+  <test name="TestIntegrationProcessBlock19" command="run_TestProcessBlock.sh 19">
+    <flags PRE_TEST="TestIntegrationProcessBlock10"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock18"/>
+  </test>
+  <test name="TestIntegrationProcessBlock20" command="run_TestProcessBlock.sh 20">
+    <flags PRE_TEST="TestIntegrationProcessBlock10"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock18"/>
+  </test>
+  <test name="TestIntegrationProcessBlock21" command="run_TestProcessBlock.sh 21">
+    <flags PRE_TEST="TestIntegrationProcessBlock5"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock9"/>
+  </test>
+  <test name="TestIntegrationProcessBlock22" command="run_TestProcessBlock.sh 22">
+    <flags PRE_TEST="TestIntegrationProcessBlock5"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock9"/>
+  </test>
+  <test name="TestIntegrationProcessBlock23" command="run_TestProcessBlock.sh 23">
+    <flags PRE_TEST="TestIntegrationProcessBlock10"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock18"/>
+  </test>
+  <test name="TestIntegrationProcessBlock24" command="run_TestProcessBlock.sh 24">
+    <flags PRE_TEST="TestIntegrationProcessBlock10"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock18"/>
+  </test>
+  <test name="TestIntegrationProcessBlock100" command="run_TestProcessBlock.sh 100">
+    <flags PRE_TEST="TestIntegrationProcessBlock6"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock8"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock11"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock12"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock15"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock16"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock17"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock19"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock20"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock21"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock22"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock23"/>
+    <flags PRE_TEST="TestIntegrationProcessBlock24"/>
+  </test>
+
 </environment>

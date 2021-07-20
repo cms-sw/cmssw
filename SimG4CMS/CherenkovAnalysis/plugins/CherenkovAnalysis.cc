@@ -39,6 +39,8 @@ Implementation:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <TH1F.h>
 
+//#define EDM_ML_DEBUG
+
 class CherenkovAnalysis : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit CherenkovAnalysis(const edm::ParameterSet &);

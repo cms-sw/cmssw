@@ -13,7 +13,6 @@
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -96,6 +95,10 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> tok_hepMC_;
   edm::EDGetTokenT<edm::PassiveHitContainer> tok_hgcPHEE_, tok_hgcPHFH_;
   edm::EDGetTokenT<edm::PassiveHitContainer> tok_hgcPHBH_, tok_hgcPHCMSE_, tok_hgcPHBeam_;
+  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tokDDDEE_;
+  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tokGeomEE_;
+  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tokDDDFH_;
+  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tokGeomFH_;
 
   TTree* tree_;
   TH1D *hSimHitE_[4], *hSimHitT_[4];
@@ -164,7 +167,15 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig)
       gev2mip200_(iConfig.getUntrackedParameter<double>("gev2mip200", 57.0e-6)),
       gev2mip300_(iConfig.getUntrackedParameter<double>("gev2mip300", 85.5e-6)),
       stoc_smear_time_200_(iConfig.getUntrackedParameter<double>("stoc_smear_time_200", 10.24)),
-      stoc_smear_time_300_(iConfig.getUntrackedParameter<double>("stoc_smear_time_300", 15.5)) {
+      stoc_smear_time_300_(iConfig.getUntrackedParameter<double>("stoc_smear_time_300", 15.5)),
+      tokDDDEE_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", detectorEE_))),
+      tokGeomEE_(
+          esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_))),
+      tokDDDFH_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", detectorFH_))),
+      tokGeomFH_(
+          esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorFH_))) {
   usesResource("TFileService");
   ahcalGeom_ = std::make_unique<AHCalGeometry>(iConfig);
 
@@ -474,13 +485,9 @@ void HGCalTBAnalyzer::beginJob() {
 void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   char name[40], title[100];
   if (ifEE_) {
-    edm::ESHandle<HGCalDDDConstants> pHGDC;
-    iSetup.get<IdealGeometryRecord>().get(detectorEE_, pHGDC);
-    hgcons_[0] = &(*pHGDC);
+    hgcons_[0] = &iSetup.getData(tokDDDEE_);
     if (doDigis_ || doRecHits_) {
-      edm::ESHandle<HGCalGeometry> geom;
-      iSetup.get<IdealGeometryRecord>().get(detectorEE_, geom);
-      hgeom_[0] = geom.product();
+      hgeom_[0] = &iSetup.getData(tokGeomEE_);
     } else {
       hgeom_[0] = nullptr;
     }
@@ -504,13 +511,9 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   }
 
   if (ifFH_) {
-    edm::ESHandle<HGCalDDDConstants> pHGDC;
-    iSetup.get<IdealGeometryRecord>().get(detectorFH_, pHGDC);
-    hgcons_[1] = &(*pHGDC);
+    hgcons_[1] = &iSetup.getData(tokDDDFH_);
     if (doDigis_ || doRecHits_) {
-      edm::ESHandle<HGCalGeometry> geom;
-      iSetup.get<IdealGeometryRecord>().get(detectorFH_, geom);
-      hgeom_[1] = geom.product();
+      hgeom_[1] = &iSetup.getData(tokGeomFH_);
     } else {
       hgeom_[1] = nullptr;
     }

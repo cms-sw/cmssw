@@ -238,7 +238,7 @@ void RunManagerMTWorker::endRun() {
 }
 
 void RunManagerMTWorker::initializeTLS() {
-  if (m_tls) {
+  if (nullptr != m_tls) {
     return;
   }
 
@@ -295,7 +295,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
 
   // Create worker run manager
   m_tls->kernel.reset(G4WorkerRunManagerKernel::GetRunManagerKernel());
-  if (!m_tls->kernel) {
+  if (nullptr == m_tls->kernel) {
     m_tls->kernel = std::make_unique<G4WorkerRunManagerKernel>();
   }
 
@@ -362,8 +362,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   m_tls->kernel->SetPhysics(physicsList);
   m_tls->kernel->InitializePhysics();
 
-  const bool kernelInit = m_tls->kernel->RunInitialization();
-  if (!kernelInit) {
+  if (!m_tls->kernel->RunInitialization()) {
     throw edm::Exception(edm::errors::Configuration)
         << "RunManagerMTWorker: Geant4 kernel initialization failed in thread " << thisID;
   }
@@ -457,14 +456,14 @@ void RunManagerMTWorker::initializeRun() {
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::initializeRun " << thisID << " is started";
   m_tls->currentRun = new G4Run();
   G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
-  if (m_tls->userRunAction) {
+  if (nullptr != m_tls->userRunAction) {
     m_tls->userRunAction->BeginOfRunAction(m_tls->currentRun);
   }
 }
 
 void RunManagerMTWorker::terminateRun() {
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::terminateRun ";
-  if (!m_tls || m_tls->runTerminated) {
+  if (nullptr == m_tls || m_tls->runTerminated) {
     return;
   }
   int thisID = getThreadIndex();
@@ -495,7 +494,7 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
   // We have to do the per-thread initialization, and per-thread
   // per-run initialization here by ourselves.
 
-  if (!(m_tls && m_tls->threadInitialized)) {
+  if (nullptr == m_tls || !m_tls->threadInitialized) {
     edm::LogVerbatim("SimG4CoreApplication")
         << "RunManagerMTWorker::produce(): stream " << inpevt.streamID() << " thread " << getThreadIndex()
         << " Geant4 initialisation for this thread";
@@ -504,8 +503,11 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
   }
   // Initialize run
   if (inpevt.id().run() != m_tls->currentRunNumber) {
+    edm::LogVerbatim("SimG4CoreApplication")
+        << "RunID= " << inpevt.id().run() << "  TLS RunID= " << m_tls->currentRunNumber;
     if (m_tls->currentRunNumber != 0 && !m_tls->runTerminated) {
-      // If previous run in this thread was not terminated via endRun() call, terminate it now
+      // If previous run in this thread was not terminated via endRun() call,
+      // terminate it now
       terminateRun();
     }
     initializeRun();
@@ -532,14 +534,6 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
     throw SimG4Exception(ss.str());
 
   } else {
-    if (!m_tls->kernel) {
-      std::stringstream ss;
-      ss << "RunManagerMTWorker::produce: "
-         << " no G4WorkerRunManagerKernel yet for thread index" << getThreadIndex() << ", id " << std::hex
-         << std::this_thread::get_id() << " \n";
-      throw SimG4Exception(ss.str());
-    }
-
     edm::LogVerbatim("SimG4CoreApplication")
         << "RunManagerMTWorker::produce: start EventID=" << inpevt.id().event() << " StreamID=" << inpevt.streamID()
         << " threadIndex=" << getThreadIndex() << " weight=" << m_simEvent->weight() << "; "

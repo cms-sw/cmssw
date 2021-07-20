@@ -114,12 +114,12 @@ namespace edm {
     }
   }
 
-  std::unique_ptr<edm::FileBlock> RawInputSource::readFile_() {
+  std::shared_ptr<edm::FileBlock> RawInputSource::readFile_() {
     if (!fakeInputFileTransition_) {
       genuineReadFile();
     }
     fakeInputFileTransition_ = false;
-    return std::make_unique<FileBlock>();
+    return std::make_shared<FileBlock>();
   }
 
 }  // namespace edm
