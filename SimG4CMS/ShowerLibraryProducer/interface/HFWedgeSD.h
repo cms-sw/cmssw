@@ -1,5 +1,5 @@
-#ifndef SimG4CMS_ShowerLibraryProducer_HFWedgeSensitiveDetector_h
-#define SimG4CMS_ShowerLibraryProducer_HFWedgeSensitiveDetector_h
+#ifndef SimG4CMS_ShowerLibraryProducer_HFWedgeSD_h
+#define SimG4CMS_ShowerLibraryProducer_HFWedgeSD_h
 
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
@@ -17,12 +17,12 @@
 class G4Step;
 class G4HCofThisEvent;
 
-class HFWedgeSensitiveDetector : public SensitiveCaloDetector {
+class HFWedgeSD : public SensitiveCaloDetector {
 public:
-  explicit HFWedgeSensitiveDetector(const std::string&,
+  explicit HFWedgeSD(const std::string&,
 				    const SensitiveDetectorCatalog& clg,
 				    const SimTrackManager*);
-  ~HFWedgeSensitiveDetector() override;
+  ~HFWedgeSD() override;
 
   void Initialize(G4HCofThisEvent* HCE) override;
   bool ProcessHits(G4Step* step, G4TouchableHistory* tHistory) override;
