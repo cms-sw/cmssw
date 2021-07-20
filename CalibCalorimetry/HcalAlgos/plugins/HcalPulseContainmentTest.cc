@@ -48,7 +48,7 @@ void HcalPulseContainmentTest::analyze(const edm::Event& iEvent, const edm::Even
   float fixedphase_ns = 6.0;
   float max_fracerror = 0.02;
   std::unique_ptr<HcalPulseContainmentManager> manager;
-  manager = std::make_unique<HcalPulseContainmentManager>(max_fracerror);
+  manager = std::make_unique<HcalPulseContainmentManager>(max_fracerror, true);
   manager->setTimeSlew(hcalTimeSlew_delay_);
 
   HcalDetId hb1(HcalBarrel, 1, 1, 1);
@@ -65,6 +65,9 @@ void HcalPulseContainmentTest::analyze(const edm::Event& iEvent, const edm::Even
   double corr4 = manager->correction(he1, 4, fixedphase_ns, fc);
   assert(corr4 == corr1);
   std::cout << corr1 << " " << corr2 << " " << corr3 << " " << corr4 << " " << std::endl;
+  // test 1TS correction at high energy
+  double corr5 = manager->correction(hb1, 1, fixedphase_ns, 100000.);
+  std::cout << corr5 << std::endl;
 }
 
 //define this as a plug-in

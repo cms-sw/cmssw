@@ -21,7 +21,7 @@ ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(int recoMethod) : recoMethod_(recoMethod), co
 void ZdcSimpleRecAlgo::initPulseCorr(int toadd, const HcalTimeSlew* hcalTimeSlew_delay) {
   if (correctForPulse_) {
     pulseCorr_ =
-        std::make_unique<HcalPulseContainmentCorrection>(toadd, phaseNS_, MaximumFractionalError, hcalTimeSlew_delay);
+        std::make_unique<HcalPulseContainmentCorrection>(toadd, phaseNS_, false, MaximumFractionalError, hcalTimeSlew_delay);
   }
 }
 //static float timeshift_ns_zdc(float wpksamp);
