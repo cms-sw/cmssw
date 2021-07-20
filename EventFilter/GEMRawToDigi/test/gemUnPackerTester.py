@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Run3_cff import Run3
+from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
 
-process = cms.Process('gemTester')
+process = cms.Process('gemTester', Phase2C11I13M9)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
@@ -13,9 +15,11 @@ process.maxEvents.input = cms.untracked.int32(10)
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '113X_mcRun4_realistic_v4', '')
-process.gemPacker.useDBEMap = True
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 
-process.muonGEMDigis.readMultiBX = True
+#process.gemPacker.useDBEMap = True
+#process.muonGEMDigis.readMultiBX = True
+
 process.muonGEMDigis.useDBEMap = process.gemPacker.useDBEMap
 process.muonGEMDigis.keepDAQStatus = True
 

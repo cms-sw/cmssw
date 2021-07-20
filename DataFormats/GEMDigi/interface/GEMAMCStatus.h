@@ -37,7 +37,6 @@ public:
     error.badBC = (amc13->bunchCrossing() != amc.bunchCrossing());
     error.badRunType = amc.runType() != 0x1;
     error.badOC = (amc13->orbitNumber() != amc.orbitNumber());
-    error.badCRC = (amc13->crc() != amc.crc());
     error.MMCMlocked = !amc.mmcmLocked();
     error.DAQclocklocked = !amc.daqClockLocked();
     error.DAQnotReday = !amc.daqReady();

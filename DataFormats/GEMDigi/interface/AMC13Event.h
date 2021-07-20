@@ -33,7 +33,8 @@ namespace gem {
       uint64_t bxIdT : 12;  // bx id
       uint64_t lv1IdT : 8;  // level 1 id
       uint64_t blkN : 8;    // block number
-      uint64_t crc32 : 36;  // Overall CRC (first 32 bits)
+      uint64_t : 4;
+      uint64_t crc32 : 32;  // Overall CRC
     };
   };
   union CDFTrailer {
