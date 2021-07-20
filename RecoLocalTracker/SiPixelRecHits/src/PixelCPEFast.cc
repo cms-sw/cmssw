@@ -204,9 +204,9 @@ void PixelCPEFast::fillParamsForGpu() {
     g.sy2 = std::max(55, toMicron(cp.sy2));  // sometimes sy2 is smaller than others (due to angle?)
 
     // sample xerr as function of position
-    auto const xoff = -81.f * commonParamsGPU_.thePitchX;
+    auto const xoff = -float(phase1PixelTopology::xOffset) * commonParamsGPU_.thePitchX;
 
-    for (int ix = 0; ix < 16; ++ix) {
+    for (int ix = 0; ix < CPEFastParametrisation::NumErrorBins; ++ix) {
       auto x = xoff * (1.f - (0.5f + float(ix)) / 8.f);
       auto gvx = p.theOrigin.x() - x;
       auto gvy = p.theOrigin.y();
@@ -221,8 +221,8 @@ void PixelCPEFast::fillParamsForGpu() {
     }
 #ifdef EDM_ML_DEBUG
     // sample yerr as function of position
-    auto const yoff = -54.f * 4.f * commonParamsGPU_.thePitchY;
-    for (int ix = 0; ix < 16; ++ix) {
+    auto const yoff = -float(phase1PixelTopology::yOffset) * commonParamsGPU_.thePitchY;
+    for (int ix = 0; ix < CPEFastParametrisation::NumErrorBins; ++ix) {
       auto y = yoff * (1.f - (0.5f + float(ix)) / 8.f);
       auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchY;
       auto gvy = p.theOrigin.y() - y;
@@ -279,7 +279,7 @@ void PixelCPEFast::fillParamsForGpu() {
     // sample y in "angle"  (estimated from cluster size)
     float ys = 8.f - 4.f;  // apperent bias of half pixel (see plot)
     // sample yerr as function of "size"
-    for (int iy = 0; iy < 16; ++iy) {
+    for (int iy = 0; iy < CPEFastParametrisation::NumErrorBins; ++iy) {
       ys += 1.f;  // first bin 0 is for size 9  (and size is in fixed point 2^3)
       if (15 == iy)
         ys += 8.f;  // last bin for "overflow"
