@@ -21,7 +21,7 @@
 #include <iostream>
 #include <iomanip>
 
-#define debugLog
+//#define EDM_ML_DEBUG
 
 enum ntcastors_elements {
   ntcastors_evt,
@@ -63,19 +63,19 @@ CastorTestAnalysis::CastorTestAnalysis(const edm::ParameterSet& p) {
   eventNtFileName = m_Anal.getParameter<std::string>("EventNtupleFileName");
 
   if (verbosity > 0) {
-    std::cout << std::endl;
-    std::cout << "============================================================================" << std::endl;
-    std::cout << "CastorTestAnalysis:: Initialized as observer" << std::endl;
+    edm::LogVerbatim("ForwardSim") << std::endl;
+    edm::LogVerbatim("ForwardSim") << "============================================================================";
+    edm::LogVerbatim("ForwardSim") << "CastorTestAnalysis:: Initialized as observer";
     if (doNTcastorstep > 0) {
-      std::cout << " Step Ntuple will be created" << std::endl;
-      std::cout << " Step Ntuple file: " << stepNtFileName << std::endl;
+      edm::LogVerbatim("ForwardSim") << " Step Ntuple will be created";
+      edm::LogVerbatim("ForwardSim") << " Step Ntuple file: " << stepNtFileName;
     }
     if (doNTcastorevent > 0) {
-      std::cout << " Event Ntuple will be created" << std::endl;
-      std::cout << " Step Ntuple file: " << stepNtFileName << std::endl;
+      edm::LogVerbatim("ForwardSim") << " Event Ntuple will be created";
+      edm::LogVerbatim("ForwardSim") << " Step Ntuple file: " << stepNtFileName;
     }
-    std::cout << "============================================================================" << std::endl;
-    std::cout << std::endl;
+    edm::LogVerbatim("ForwardSim") << "============================================================================";
+    edm::LogVerbatim("ForwardSim") << std::endl;
   }
   if (doNTcastorstep > 0)
     castorstepntuple =
@@ -91,26 +91,26 @@ CastorTestAnalysis::~CastorTestAnalysis() {
 
   Finish();
   if (verbosity > 0) {
-    std::cout << std::endl << "End of CastorTestAnalysis" << std::endl;
+    edm::LogVerbatim("ForwardSim") << std::endl << "End of CastorTestAnalysis";
   }
 
-  std::cout << "CastorTestAnalysis: End of process" << std::endl;
+  edm::LogVerbatim("ForwardSim") << "CastorTestAnalysis: End of process";
 }
 
 //=================================================================== per EVENT
-void CastorTestAnalysis::update(const BeginOfJob* job) { std::cout << " Starting new job " << std::endl; }
+void CastorTestAnalysis::update(const BeginOfJob* job) { edm::LogVerbatim("ForwardSim") << " Starting new job "; }
 
 //==================================================================== per RUN
 void CastorTestAnalysis::update(const BeginOfRun* run) {
-  std::cout << std::endl << "CastorTestAnalysis: Starting Run" << std::endl;
+  edm::LogVerbatim("ForwardSim") << std::endl << "CastorTestAnalysis: Starting Run";
   if (doNTcastorstep) {
-    std::cout << "CastorTestAnalysis: output step root file created" << std::endl;
+    edm::LogVerbatim("ForwardSim") << "CastorTestAnalysis: output step root file created";
     TString stepfilename = stepNtFileName;
     castorOutputStepFile = new TFile(stepfilename, "RECREATE");
   }
 
   if (doNTcastorevent) {
-    std::cout << "CastorTestAnalysis: output event root file created" << std::endl;
+    edm::LogVerbatim("ForwardSim") << "CastorTestAnalysis: output event root file created";
     TString stepfilename = eventNtFileName;
     castorOutputEventFile = new TFile(stepfilename, "RECREATE");
   }
@@ -119,7 +119,7 @@ void CastorTestAnalysis::update(const BeginOfRun* run) {
 }
 
 void CastorTestAnalysis::update(const BeginOfEvent* evt) {
-  std::cout << "CastorTestAnalysis: Processing Event Number: " << eventIndex << std::endl;
+  edm::LogVerbatim("ForwardSim") << "CastorTestAnalysis: Processing Event Number: " << eventIndex;
   eventIndex++;
   stepIndex = 0;
 }
@@ -134,7 +134,7 @@ void CastorTestAnalysis::update(const G4Step* aStep) {
     G4double stepE = aStep->GetTotalEnergyDeposit();
 
     if (verbosity >= 2)
-      std::cout << "Step " << stepL << ", " << stepE << std::endl;
+      edm::LogVerbatim("ForwardSim") << "Step " << stepL << ", " << stepE;
 
     G4Track* theTrack = aStep->GetTrack();
     G4int theTrackID = theTrack->GetTrackID();
@@ -169,35 +169,35 @@ void CastorTestAnalysis::update(const G4Step* aStep) {
     castorsteparray[ntcastors_vpz] = vpz;
 
     /*
-  std::cout<<"TrackID: "<< theTrackID<<std::endl;
-  std::cout<<"   StepN: "<< theTrack->GetCurrentStepNumber() <<std::endl;
-  std::cout<<"      ParentID: "<< aStep->GetTrack()->GetParentID() <<std::endl;
-  std::cout<<"      PDG: "<< pdgcode <<std::endl;
-  std::cout<<"      X,Y,Z (mm): "<< theTrack->GetPosition().x() <<","<< theTrack->GetPosition().y() <<","<< theTrack->GetPosition().z() <<std::endl;
-  std::cout<<"      KE (MeV): "<< theTrack->GetKineticEnergy() <<std::endl;
-  std::cout<<"      Total EDep (MeV): "<< aStep->GetTotalEnergyDeposit() <<std::endl;
-  std::cout<<"      StepLength (mm): "<< aStep->GetStepLength() <<std::endl;
-  std::cout<<"      TrackLength (mm): "<< theTrack->GetTrackLength() <<std::endl;
+  edm::LogVerbatim("ForwardSim") << "TrackID: " << theTrackID;
+  edm::LogVerbatim("ForwardSim") << "   StepN: "<< theTrack->GetCurrentStepNumber();
+  edm::LogVerbatim("ForwardSim") << "      ParentID: " << aStep->GetTrack()->GetParentID();
+  edm::LogVerbatim("ForwardSim") << "      PDG: " << pdgcode;
+  edm::LogVerbatim("ForwardSim") << "      X,Y,Z (mm): " << theTrack->GetPosition().x() << "," << theTrack->GetPosition().y() << "," << theTrack->GetPosition().z();
+  edm::LogVerbatim("ForwardSim") << "      KE (MeV): " << theTrack->GetKineticEnergy();
+  edm::LogVerbatim("ForwardSim") << "      Total EDep (MeV): " << aStep->GetTotalEnergyDeposit();
+  edm::LogVerbatim("ForwardSim") << "      StepLength (mm): " << aStep->GetStepLength();
+  edm::LogVerbatim("ForwardSim") << "      TrackLength (mm): " << theTrack->GetTrackLength();
 
   if ( theTrack->GetNextVolume() != 0 )
-      std::cout<<"      NextVolume: "<< theTrack->GetNextVolume()->GetName() <<std::endl;
+      edm::LogVerbatim("ForwardSim") <<"      NextVolume: " << theTrack->GetNextVolume()->GetName();
   else 
-      std::cout<<"      NextVolume: OutOfWorld"<<std::endl;
+      edm::LogVerbatim("ForwardSim") <<"      NextVolume: OutOfWorld";
   
   if(aStep->GetPostStepPoint()->GetProcessDefinedStep() != NULL)
-      std::cout<<"      ProcessName: "<< aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() <<std::endl;
+      edm::LogVerbatim("ForwardSim") << "      ProcessName: "<< aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
   else
-      std::cout<<"      ProcessName: UserLimit"<<std::endl;
+      edm::LogVerbatim("ForwardSim") <<"      ProcessName: UserLimit";
   
 
-   std::cout<<std::endl;
+   edm::LogVerbatim("ForwardSim") << std::endl;
   */
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     if (theTrack->GetNextVolume() != 0)
-      LogDebug("ForwardSim") << " NextVolume: " << theTrack->GetNextVolume()->GetName();
+      edm::LogVerbatim("ForwardSim") << " NextVolume: " << theTrack->GetNextVolume()->GetName();
     else
-      LogDebug("ForwardSim") << " NextVolume: OutOfWorld";
+      edm::LogVerbatim("ForwardSim") << " NextVolume: OutOfWorld";
 #endif
 
     //fill ntuple with step level information
@@ -208,11 +208,12 @@ void CastorTestAnalysis::update(const G4Step* aStep) {
 //================= End of EVENT ===============
 void CastorTestAnalysis::update(const EndOfEvent* evt) {
   // Look for the Hit Collection
-  std::cout << std::endl << "CastorTest::update(EndOfEvent * evt) - event #" << (*evt)()->GetEventID() << std::endl;
+  edm::LogVerbatim("ForwardSim") << std::endl
+                                 << "CastorTest::update(EndOfEvent * evt) - event #" << (*evt)()->GetEventID();
 
   // access to the G4 hit collections
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
-  std::cout << "update(*evt) --> accessed all HC";
+  edm::LogVerbatim("ForwardSim") << "update(*evt) --> accessed all HC";
 
   int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorFI");
 
@@ -243,35 +244,39 @@ void CastorTestAnalysis::update(const EndOfEvent* evt) {
 
     // Find Primary info:
     int trackID = 0;
+#ifdef EDM_ML_DEBUG
     int particleType = 0;
+#endif
     G4PrimaryParticle* thePrim = nullptr;
     G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
-    std::cout << "Event has " << nvertex << " vertex" << std::endl;
+    edm::LogVerbatim("ForwardSim") << "Event has " << nvertex << " vertex";
     if (nvertex == 0)
-      std::cout << "CASTORTest End Of Event  ERROR: no vertex" << std::endl;
+      edm::LogVerbatim("ForwardSim") << "CASTORTest End Of Event  ERROR: no vertex";
 
     for (int i = 0; i < nvertex; i++) {
       G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
       if (avertex == nullptr)
-        std::cout << "CASTORTest End Of Event ERR: pointer to vertex = 0" << std::endl;
-      std::cout << "Vertex number :" << i << std::endl;
+        edm::LogVerbatim("ForwardSim") << "CASTORTest End Of Event ERR: pointer to vertex = 0";
+      edm::LogVerbatim("ForwardSim") << "Vertex number :" << i;
       int npart = avertex->GetNumberOfParticle();
       if (npart == 0)
-        std::cout << "CASTORTest End Of Event ERR: no primary!" << std::endl;
+        edm::LogVerbatim("ForwardSim") << "CASTORTest End Of Event ERR: no primary!";
       if (thePrim == nullptr)
         thePrim = avertex->GetPrimary(trackID);
     }
 
     double px = 0., py = 0., pz = 0., pInit = 0;
+#ifdef EDM_ML_DEBUG
     double eta = 0., phi = 0.;
-
+#endif
     if (thePrim != nullptr) {
       px = thePrim->GetPx();
       py = thePrim->GetPy();
       pz = thePrim->GetPz();
       pInit = sqrt(pow(px, 2.) + pow(py, 2.) + pow(pz, 2.));
       if (pInit == 0) {
-        std::cout << "CASTORTest End Of Event  ERR: primary has p=0 " << std::endl;
+        edm::LogVerbatim("ForwardSim") << "CASTORTest End Of Event  ERR: primary has p=0 ";
+#ifdef EDM_ML_DEBUG
       } else {
         float costheta = pz / pInit;
         float theta = acos(std::min(std::max(costheta, float(-1.)), float(1.)));
@@ -279,26 +284,31 @@ void CastorTestAnalysis::update(const EndOfEvent* evt) {
 
         if (px != 0)
           phi = atan(py / px);
+#endif
       }
+#ifdef EDM_ML_DEBUG
       particleType = thePrim->GetPDGcode();
+#endif
     } else {
-      std::cout << "CASTORTest End Of Event ERR: could not find primary " << std::endl;
+      edm::LogVerbatim("ForwardSim") << "CASTORTest End Of Event ERR: could not find primary ";
     }
-    LogDebug("ForwardSim") << "CastorTestAnalysis: Particle Type " << particleType << " p/eta/phi " << pInit << ", "
-                           << eta << ", " << phi;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("ForwardSim") << "CastorTestAnalysis: Particle Type " << particleType << " p/eta/phi " << pInit
+                                   << ", " << eta << ", " << phi;
+#endif
   }
 
   int iEvt = (*evt)()->GetEventID();
   if (iEvt < 10)
-    std::cout << " CastorTest Event " << iEvt << std::endl;
+    edm::LogVerbatim("ForwardSim") << " CastorTest Event " << iEvt;
   else if ((iEvt < 100) && (iEvt % 10 == 0))
-    std::cout << " CastorTest Event " << iEvt << std::endl;
+    edm::LogVerbatim("ForwardSim") << " CastorTest Event " << iEvt;
   else if ((iEvt < 1000) && (iEvt % 100 == 0))
-    std::cout << " CastorTest Event " << iEvt << std::endl;
+    edm::LogVerbatim("ForwardSim") << " CastorTest Event " << iEvt;
   else if ((iEvt < 10000) && (iEvt % 1000 == 0))
-    std::cout << " CastorTest Event " << iEvt << std::endl;
+    edm::LogVerbatim("ForwardSim") << " CastorTest Event " << iEvt;
 
-  std::cout << std::endl << "===>>> Done writing user histograms " << std::endl;
+  edm::LogVerbatim("ForwardSim") << std::endl << "===>>> Done writing user histograms ";
 }
 
 void CastorTestAnalysis::update(const EndOfRun* run) { ; }
@@ -363,16 +373,16 @@ void CastorTestAnalysis::Finish() {
   if (doNTcastorstep) {
     castorOutputStepFile->cd();
     castorstepntuple->Write();
-    std::cout << "CastorTestAnalysis: Ntuple step  written" << std::endl;
+    edm::LogVerbatim("ForwardSim") << "CastorTestAnalysis: Ntuple step  written";
     castorOutputStepFile->Close();
-    std::cout << "CastorTestAnalysis: Step file closed" << std::endl;
+    edm::LogVerbatim("ForwardSim") << "CastorTestAnalysis: Step file closed";
   }
 
   if (doNTcastorevent) {
     castorOutputEventFile->cd();
     castoreventntuple->Write("", TObject::kOverwrite);
-    std::cout << "CastorTestAnalysis: Ntuple event written" << std::endl;
+    edm::LogVerbatim("ForwardSim") << "CastorTestAnalysis: Ntuple event written";
     castorOutputEventFile->Close();
-    std::cout << "CastorTestAnalysis: Event file closed" << std::endl;
+    edm::LogVerbatim("ForwardSim") << "CastorTestAnalysis: Event file closed";
   }
 }
