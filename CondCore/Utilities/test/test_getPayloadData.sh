@@ -88,3 +88,30 @@ check_for_success getPayloadData.py \
     --db Prod \
     --test ;
 
+########################################
+# Test BasicPayload single-iov, with suppress output
+########################################
+check_for_success getPayloadData.py \
+    --plugin pluginBasicPayload_PayloadInspector \
+    --plot plot_BasicPayload_data5 \
+    --tag BasicPayload_v10.0 \
+    --input_params '{}' \
+    --time_type Run \
+    --iovs '{"start_iov": "601", "end_iov": "601"}' \
+    --db Prod \
+    --suppress-output ;
+
+########################################
+# Test in production style
+########################################
+check_for_success getPayloadData.py \
+    --plugin pluginBasicPayload_PayloadInspector \
+    --plot plot_BasicPayload_data6 \
+    --tag BasicPayload_v0 \
+    --input_params '{}' \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --suppress-output \
+    --image_plot;
+
