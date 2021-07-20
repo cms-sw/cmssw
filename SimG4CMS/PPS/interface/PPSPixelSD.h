@@ -48,7 +48,6 @@ class PPSPixelSD : public SensitiveTkDetector,
                    public Observer<const EndOfEvent*> {
 public:
   PPSPixelSD(const std::string&,
-             const edm::EventSetup&,
              const SensitiveDetectorCatalog&,
              edm::ParameterSet const&,
              SimTrackManager const*);
