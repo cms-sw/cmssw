@@ -97,23 +97,23 @@ namespace evf {
   class GlobalEvFOutputModule : public GlobalEvFOutputModuleType {
   public:
     explicit GlobalEvFOutputModule(edm::ParameterSet const& ps);
-    ~GlobalEvFOutputModule();
+    ~GlobalEvFOutputModule() override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    std::unique_ptr<edm::StreamerOutputModuleCommon> beginStream(edm::StreamID) const;
+    std::unique_ptr<edm::StreamerOutputModuleCommon> beginStream(edm::StreamID) const override;
 
-    std::shared_ptr<GlobalEvFOutputJSONWriter> globalBeginRun(edm::RunForOutput const& run) const;
-    void write(edm::EventForOutput const& e);
+    std::shared_ptr<GlobalEvFOutputJSONWriter> globalBeginRun(edm::RunForOutput const& run) const override;
+    void write(edm::EventForOutput const& e) override;
 
     //pure in parent class but unused here
-    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) {}
-    void writeRun(edm::RunForOutput const&) {}
-    void globalEndRun(edm::RunForOutput const&) const {}
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {}
+    void writeRun(edm::RunForOutput const&) override {}
+    void globalEndRun(edm::RunForOutput const&) const override {}
 
     std::shared_ptr<GlobalEvFOutputEventWriter> globalBeginLuminosityBlock(
-        edm::LuminosityBlockForOutput const& iLB) const;
-    void globalEndLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) const;
+        edm::LuminosityBlockForOutput const& iLB) const override;
+    void globalEndLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) const override;
 
     Trig getTriggerResults(edm::EDGetTokenT<edm::TriggerResults> const& token, edm::EventForOutput const& e) const;
 
