@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+using namespace edm::streamer;
 OutputFile::OutputFile(const std::string& name)
     : current_offset_(1),
       do_adler_(false),
