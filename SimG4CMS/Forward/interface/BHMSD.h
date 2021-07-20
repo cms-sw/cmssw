@@ -16,7 +16,6 @@ class BHMNumberingScheme;
 class BHMSD : public TimingSD {
 public:
   BHMSD(const std::string &,
-        const edm::EventSetup &,
         const SensitiveDetectorCatalog &,
         edm::ParameterSet const &,
         const SimTrackManager *);
