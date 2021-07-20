@@ -1,7 +1,7 @@
 # Auto generated configuration file
-# using: 
-# Revision: 1.19 
-# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
+# using:
+# Revision: 1.19
+# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v
 # with command line options: SingleElectronPt10_cfi.py -s GEN,SIM,DIGI,L1 --pileup=NoPileUp --geometry DB --conditions=auto:startup -n 1 --no_exec
 import FWCore.ParameterSet.Config as cms
 
@@ -44,16 +44,6 @@ options.register('edm',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Produce EDM file")
-options.register('valEvents',
-                 True,
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.bool,
-                 "Filter on validation events")
-options.register('mps',
-                 '',
-                 VarParsing.VarParsing.multiplicity.list,
-                 VarParsing.VarParsing.varType.int,
-                 "List of MPs to process")
 options.register('json',
                  '',
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -64,22 +54,41 @@ options.register('evtDisp',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  'Produce histos for individual events')
+options.register('trigger',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 'Trigger the data')
+options.register('reconstruct',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 'Reconstruct the data')
+options.register('feds',
+                 [1467,1468],
+                 VarParsing.VarParsing.multiplicity.list,
+                 VarParsing.VarParsing.varType.int,
+                 "List of FEDs")
+options.register('unpackerLabel',
+                 'rawDataCollector',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Label for the GEM unpacker RAW input collection")
+options.register('useB904Data',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool)
 
 options.parseArguments()
 
 
 
-from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
-from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
-process = cms.Process('RECO',Run2_2017,run2_GEM_2017)
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process('RECO',Run3)
 
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.RecoSim_cff')
-#process.load('Configuration.StandardSequences.AlCaRecoStreams_cff')
-
-
-# import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -88,6 +97,10 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('EventFilter.GEMRawToDigi.muonGEMDigis_cfi')
+process.load('L1Trigger.L1TGEM.simGEMDigis_cff')
+process.load('EventFilter.L1TRawToDigi.validationEventFilter_cfi')
+process.load("CommonTools.UtilAlgos.TFileService_cfi")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.maxEvents)
@@ -97,14 +110,16 @@ process.maxEvents = cms.untracked.PSet(
 if (options.streamer) :
     process.source = cms.Source(
         "NewEventStreamFileReader",
-        fileNames = cms.untracked.vstring (options.inputFiles),
+        fileNames = cms.untracked.vstring(options.inputFiles),
         skipEvents=cms.untracked.uint32(options.skipEvents)
     )
 else :
-    process.source = cms.Source (
+    process.source = cms.Source(
         "PoolSource",
-        fileNames = cms.untracked.vstring (options.inputFiles),
-        skipEvents=cms.untracked.uint32(options.skipEvents)
+        fileNames = cms.untracked.vstring(options.inputFiles),
+        skipEvents=cms.untracked.uint32(options.skipEvents),
+        ## this line is needed to run the unpacker on output from AMC13SpyReadout.py
+        labelRawDataLikeMC = cms.untracked.bool(False)
     )
 
 if (options.json):
@@ -115,99 +130,66 @@ process.options = cms.untracked.PSet(
     SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
-
-# Additional output definition
-# TTree output file
-process.load("CommonTools.UtilAlgos.TFileService_cfi")
-
 # enable debug message logging for our modules
-#
-
 if (options.dumpRaw):
     process.MessageLogger.files.infos = cms.untracked.PSet(INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)))
 
 if (options.debug):
-#    process.MessageLogger.debugModules = cms.untracked.vstring('L1TRawToDigi:caloStage2Digis', 'MP7BufferDumpToRaw:stage2MPRaw', 'MP7BufferDumpToRaw:stage2DemuxRaw')
     process.MessageLogger.debugModules = cms.untracked.vstring('*')
     process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
 
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
-
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(
-        #connect = cms.string('sqlite_fip:EventFilter/GEMRawToDigi/test/GEMeMap.db'),
-        connect = cms.string('sqlite_file:./GEMeMap.db'),
-        record = cms.string('GEMeMapRcd'),
-        tag = cms.string('GEMeMap_v4')
-    ))
-
-
-# validation event filter
-process.load('EventFilter.L1TRawToDigi.validationEventFilter_cfi')
-
-# MP selectah
-process.load('EventFilter.L1TRawToDigi.tmtFilter_cfi')
-process.tmtFilter.mpList = cms.untracked.vint32(options.mps)
+process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun3_Prompt_v5', '')
+## for the time being the mapping does not work with the data label. Use MC instead
+if options.useB904Data:
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 
 # dump raw data
-process.dumpRaw = cms.EDAnalyzer( 
+process.dumpRaw = cms.EDAnalyzer(
     "DumpFEDRawDataProduct",
-    token = cms.untracked.InputTag("rawDataCollector"),
-    feds = cms.untracked.vint32 ( 1467,1468 ),
-    dumpPayload = cms.untracked.bool ( options.dumpRaw )
+    token = cms.untracked.InputTag(options.unpackerLabel),
+    feds = cms.untracked.vint32(options.feds),
+    dumpPayload = cms.untracked.bool(options.dumpRaw)
 )
-
-# raw to digi
-process.load('EventFilter.GEMRawToDigi.muonGEMDigis_cfi')
-#process.load('EventFilter.GEMRawToDigi.GEMSQLiteCabling_cfi')
-process.muonGEMDigis.InputLabel = cms.InputTag('rawDataCollector')
-process.muonGEMDigis.useDBEMap = True
-
-#process.load('Geometry.GEMGeometryBuilder.gemGeometry_cfi')
-process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
-
-process.gemRecHits = cms.EDProducer("GEMRecHitProducer",
-    recAlgoConfig = cms.PSet(),
-    recAlgo = cms.string('GEMRecHitStandardAlgo'),
-    gemDigiLabel = cms.InputTag("muonGEMDigis"),
-    # maskSource = cms.string('File'),
-    # maskvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMMaskVec.dat'),
-    # deadSource = cms.string('File'),
-    # deadvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMDeadVec.dat')
-)
-
-
-# Path and EndPath definitions
-process.path = cms.Path(
-    #process.validationEventFilter
-    process.dumpRaw
-    +process.muonGEMDigis
-    +process.gemRecHits
-)
-
-# enable validation event filtering
-if (not options.valEvents):
-    process.path.remove(process.validationEventFilter)
-
-# enable validation event filtering
-if (len(options.mps)==0):
-    process.path.remove(process.tmtFilter)
-
-# enable RAW printout
-if (not options.dumpRaw):
-    process.path.remove(process.dumpRaw)
 
 # optional EDM file
-if (options.edm):
-    process.output = cms.OutputModule(
-        "PoolOutputModule",
-        outputCommands = cms.untracked.vstring("keep *"),
-        fileName = cms.untracked.string('gem_EDM.root')
-    )
+process.output = cms.OutputModule(
+    "PoolOutputModule",
+    outputCommands = cms.untracked.vstring("keep *"),
+    fileName = cms.untracked.string('output_edm.root')
+)
 
-    process.out = cms.EndPath(
-        process.output
-    )
+process.muonGEMDigis.InputLabel = options.unpackerLabel
+process.simMuonGEMPadDigis.InputCollection = 'muonGEMDigis'
+
+## schedule and path definition
+process.p1 = cms.Path(process.dumpRaw)
+process.p2 = cms.Path(process.muonGEMDigis)
+process.p3 = cms.Path(process.simMuonGEMPadDigis * process.simMuonGEMPadDigiClusters)
+process.p4 = cms.Path(process.gemRecHits * process.gemSegments)
+process.out = cms.EndPath(process.output)
+process.endjob_step = cms.EndPath(process.endOfProcess)
+
+process.schedule = cms.Schedule()
+
+# enable RAW printout
+if options.dumpRaw:
+    process.schedule.extend([process.p1])
+
+# always add unpacker
+process.schedule.extend([process.p2])
+
+# triggers
+if options.trigger:
+    process.schedule.extend([process.p3])
+
+# reconstruct rechits and segments
+if options.reconstruct:
+    process.schedule.extend([process.p4])
+
+if options.edm:
+    process.schedule.extend([process.out])
+
+process.schedule.extend([process.endjob_step])
