@@ -8,6 +8,8 @@ HcalForwardLibWriter::HcalForwardLibWriter(const edm::ParameterSet& iConfig) {
   edm::FileInPath fp = theParms.getParameter<edm::FileInPath>("FileName");
   nbins = theParms.getParameter<int>("Nbins");
   nshowers = theParms.getParameter<int>("Nshowers");
+  bsize = theParms.getParameter<int>("BufSize");
+  splitlevel = theParms.getParameter<int>("SplitLevel");
 
   std::string pName = fp.fullPath();
   if (pName.find('.') == 0)
@@ -15,11 +17,14 @@ HcalForwardLibWriter::HcalForwardLibWriter(const edm::ParameterSet& iConfig) {
   theDataFile = pName;
   readUserData();
 
-  int bsize = 64000;
   fs->file().cd();
   LibTree = new TTree("HFSimHits", "HFSimHits");
-  LibTree->Branch("emParticles", "HFShowerPhotons-emParticles", &emColl, bsize);
-  LibTree->Branch("hadParticles", "HFShowerPhotons-hadParticles", &hadColl, bsize);
+
+  //https://root.cern/root/html534/TTree.html 
+  // TBranch*Branch(const char* name, const char* classname, void** obj, Int_t bufsize = 32000, Int_t splitlevel = 99)
+  LibTree->Branch("emParticles", "HFShowerPhotons-emParticles", &emColl, bsize, splitlevel);
+  LibTree->Branch("hadParticles", "HFShowerPhotons-hadParticles", &hadColl, bsize, splitlevel);
+
 }
 
 HcalForwardLibWriter::~HcalForwardLibWriter() {}
@@ -38,24 +43,20 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
   for (int i = 0; i < n; ++i) {
     std::string fn = theFileHandle[i].name;
     std::string particle = theFileHandle[i].id;
+
+    //    std::cout << "*** Input file  " << i << "   " << fn << std::endl;  
+
     TFile* theFile = new TFile(fn.c_str(), "READ");
     TTree* theTree = (TTree*)gDirectory->Get("g4SimHits/CherenkovPhotons");
     int nphot = 0;
-    float x[10000];
-    float y[10000];
-    float z[10000];
-    float t[10000];
-    float lambda[10000];
-    int fiberId[10000];
+    float x[nshowers] = {0.};
+    float y[nshowers] = {0.};
+    float z[nshowers] = {0.};
+    float t[nshowers] = {0.};
+    float lambda[nshowers] = {0.};
+    int fiberId[nshowers] = {0};
     float primZ;  // added
-    for (int kk = 0; kk < 10000; ++kk) {
-      x[kk] = 0.;
-      y[kk] = 0.;
-      z[kk] = 0.;
-      t[kk] = 0.;
-      lambda[kk] = 0.;
-      fiberId[kk] = 0;
-    }
+
     theTree->SetBranchAddress("nphot", &nphot);
     theTree->SetBranchAddress("x", &x);
     theTree->SetBranchAddress("y", &y);
@@ -70,7 +71,7 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
     // cycle over showers ====================================================
     for (int iev = 0; iev < nentries; iev++) {
       nbytes += theTree->GetEntry(iev);
-      if (primZ < 990)
+      if (primZ < 990.)
         continue;  // exclude showers with interactions in front of HF (1m of air)
       ngood++;
       if (ngood > nshowers)
