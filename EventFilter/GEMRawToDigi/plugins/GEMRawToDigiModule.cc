@@ -137,7 +137,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
     int nWords = fedData.size() / sizeof(uint64_t);
     LogDebug("GEMRawToDigiModule") << "fedId:" << fedId << " words: " << nWords;
-    GEMAMC13Status st_amc13 = GEMAMC13Status(fedData);
+    GEMAMC13Status st_amc13(fedData);
     if (st_amc13.isBad()) {
       LogDebug("GEMRawToDigiModule") << st_amc13;
       if (keepDAQStatus_) {
@@ -163,7 +163,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
         continue;
       }
 
-      GEMAMCStatus st_amc = GEMAMCStatus(amc13Event.get(), amcData);
+      GEMAMCStatus st_amc(amc13Event.get(), amcData);
       if (st_amc.isBad()) {
         LogDebug("GEMRawToDigiModule") << st_amc;
         if (keepDAQStatus_) {
@@ -190,7 +190,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
         GEMROMapping::chamDC geb_dc = gemROMap->chamberPos(geb_ec);
         GEMDetId gemChId = geb_dc.detId;
 
-        GEMOHStatus st_oh = GEMOHStatus(optoHybrid);
+        GEMOHStatus st_oh(optoHybrid);
         if (st_oh.isBad()) {
           LogDebug("GEMRawToDigiModule") << st_oh;
           if (keepDAQStatus_) {
@@ -214,7 +214,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
           vfatData.setPhi(vfat_dc.localPhi);
           GEMDetId gemId = vfat_dc.detId;
 
-          GEMVFATStatus st_vfat = GEMVFATStatus(amcData, vfatData, vfatData.phi(), readMultiBX_);
+          GEMVFATStatus st_vfat(amcData, vfatData, vfatData.phi(), readMultiBX_);
           if (st_vfat.isBad()) {
             LogDebug("GEMRawToDigiModule") << st_vfat;
             if (keepDAQStatus_) {

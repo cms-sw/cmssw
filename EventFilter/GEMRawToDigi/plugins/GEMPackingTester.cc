@@ -61,10 +61,10 @@ void GEMPackingTester::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   b_ge1 = 0;
   b_ge2 = 0;
 
-  edm::Handle<FEDRawDataCollection> fed_buffers;
-  iEvent.getByToken(fedToken_, fed_buffers);
+  auto const& fed_buffers = iEvent.get(fedToken_);
+
   for (unsigned int fedId = FEDNumbering::MINGEMFEDID; fedId <= FEDNumbering::MAXGEMFEDID; ++fedId) {
-    const FEDRawData& fedData = fed_buffers->FEDData(fedId);
+    const FEDRawData& fedData = fed_buffers.FEDData(fedId);
 
     if (fedId == 1473 or fedId == 1474)
       b_ge0 += fedData.size();
@@ -74,15 +74,13 @@ void GEMPackingTester::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       b_ge2 += fedData.size();
   }
 
-  edm::Handle<GEMDigiCollection> gemDigis;
-  iEvent.getByToken(gemDigiToken_, gemDigis);
-  edm::Handle<GEMDigiCollection> gemSimDigis;
-  iEvent.getByToken(gemSimDigiToken_, gemSimDigis);
+  auto const& gemDigis = iEvent.get(gemDigiToken_);
+  auto const& gemSimDigis = iEvent.get(gemSimDigiToken_);
 
-  for (auto const& simDigi : *gemSimDigis) {
+  for (auto const& simDigi : gemSimDigis) {
     const GEMDetId& gemId = simDigi.first;
     const GEMDigiCollection::Range& sim = simDigi.second;
-    const GEMDigiCollection::Range& packed = gemDigis->get(gemId);
+    const GEMDigiCollection::Range& packed = gemDigis.get(gemId);
 
     for (auto digi = sim.first; digi != sim.second; ++digi) {
       if (!readMultiBX_ && digi->bx() != 0)
