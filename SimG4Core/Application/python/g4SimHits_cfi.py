@@ -151,7 +151,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
                     EnergyThSimple = cms.double(0.015),    ## in GeV
                     DeltaChordSimple = cms.double(0.1),    ## in mm
                     DeltaOneStepSimple = cms.double(0.1),  ## in mm
-                    DeltaIntersectionSimple = cms.double(0.01),       ## in mm
+                    DeltaIntersectionSimple = cms.double(0.01), ## in mm
                     MaxStepSimple = cms.double(50.),       ## in cm
                 )
             )
@@ -176,7 +176,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         G4MscSafetyFactor = cms.double(0.6), 
         G4MscLambdaLimit = cms.double(1.0), # mm 
         G4MscStepLimit = cms.string("UseSafety"), 
-        G4GeneralProcess = cms.bool(False), 
+        G4GeneralProcess = cms.bool(True),
         ReadMuonData = cms.bool(False), 
         Verbosity = cms.untracked.int32(0),
         # 1 will print cuts as they get set from DD
@@ -212,7 +212,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         bField        = cms.double(3.8),
         energyScaleEB = cms.double(1.032),
         energyScaleEE = cms.double(1.024),
-        ThermalNeutrons  = cms.untracked.bool(False),
+        ThermalNeutrons = cms.untracked.bool(False),
         RusRoElectronEnergyLimit  = cms.double(0.0),
         RusRoEcalElectron         = cms.double(1.0),
         RusRoHcalElectron         = cms.double(1.0),
