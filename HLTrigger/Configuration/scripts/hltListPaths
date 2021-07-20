@@ -20,7 +20,7 @@ def _build_query(menu):
 
 def getPathList(menu, selection):
   cmdline = 'hltConfigFromDB --cff %s --noedsources --noes --noservices --nosequences --nomodules' % _build_query(menu)
-  data = pipe.pipe(cmdline)
+  data = pipe.pipe(cmdline).decode()
   if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
     raise ImportError('%s is not a valid HLT menu' % menu.value)
 
