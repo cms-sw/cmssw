@@ -12,9 +12,6 @@
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 
 #include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4Step.hh"
@@ -30,7 +27,7 @@
 #include <vector>
 #include <iostream>
 
-//#define debug
+//#define EDM_ML_DEBUG
 
 static const float invgev = 1.0 / CLHEP::GeV;
 static const double invns = 1.0 / CLHEP::nanosecond;
@@ -84,7 +81,7 @@ void TimingSD::setTimeFactor(double val) {
     return;
   }
   timeFactor = val;
-#ifdef debug
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("TimingSim") << "TimingSD : for " << GetName() << " time slice factor is set to " << timeFactor;
 #endif
 }
@@ -96,7 +93,7 @@ void TimingSD::setCuts(double eCut, double historyCut) {
   if (historyCut > 0.) {
     energyHistoryCut = historyCut;
   }
-#ifdef debug
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("TimingSim") << "TimingSD : for " << GetName() << " MC truth cuts in are " << energyCut / CLHEP::GeV
                                 << " GeV and " << energyHistoryCut / CLHEP::GeV << " GeV";
 #endif
@@ -132,7 +129,7 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
     tof = (float)(preStepPoint->GetGlobalTime() * invns);
   }
 
-#ifdef debug
+#ifdef EDM_ML_DEBUG
   double distGlobal =
       std::sqrt(std::pow(hitPoint.x() - hitPointExit.x(), 2) + std::pow(hitPoint.y() - hitPointExit.y(), 2) +
                 std::pow(hitPoint.z() - hitPointExit.z(), 2));
@@ -253,7 +250,7 @@ void TimingSD::storeHit(BscG4Hit* hit) {
 }
 
 void TimingSD::createNewHit(const G4Step* aStep) {
-#ifdef debug
+#ifdef EDM_ML_DEBUG
   const G4VPhysicalVolume* currentPV = preStepPoint->GetPhysicalVolume();
   edm::LogVerbatim("TimingSim") << "TimingSD CreateNewHit for " << GetName() << " PV " << currentPV->GetName()
                                 << " PVid = " << currentPV->GetCopyNo() << " Unit " << unitID << "\n primary "
@@ -301,7 +298,7 @@ void TimingSD::createNewHit(const G4Step* aStep) {
 void TimingSD::updateHit() {
   currentHit->addEnergyDeposit(edepositEM, edepositHAD);
 
-#ifdef debug
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("TimingSim") << "updateHit: " << GetName() << " add eloss(GeV) " << edeposit
                                 << "CurrentHit=" << currentHit << ", PostStepPoint= " << postStepPoint->GetPosition();
 #endif
@@ -328,7 +325,7 @@ void TimingSD::EndOfEvent(G4HCofThisEvent*) {
     Local3DPoint locEntryPoint = ConvertToLocal3DPoint(aHit->getEntryLocalP());
     Local3DPoint locExitPoint = ConvertToLocal3DPoint(aHit->getExitLocalP());
 
-#ifdef debug
+#ifdef EDM_ML_DEBUG
     edm::LogInfo("TimingSim") << "TimingSD: Hit for storage \n"
                               << *aHit << "\n Entry point: " << locEntryPoint << "\n Exit  point: " << locExitPoint
                               << "\n";
@@ -349,7 +346,9 @@ void TimingSD::EndOfEvent(G4HCofThisEvent*) {
 }
 
 void TimingSD::PrintAll() {
-  LogDebug("TimingSim") << "TimingSD: Collection " << theHC->GetName() << "\n";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("TimingSim") << "TimingSD: Collection " << theHC->GetName();
+#endif
   theHC->PrintAllHits();
 }
 
@@ -360,7 +359,9 @@ void TimingSD::fillHits(edm::PSimHitContainer& cc, const std::string& hname) {
 }
 
 void TimingSD::update(const BeginOfEvent* i) {
-  LogDebug("TimingSim") << " Dispatched BeginOfEvent for " << GetName();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("TimingSim") << " Dispatched BeginOfEvent for " << GetName();
+#endif
   clearHits();
 }
 

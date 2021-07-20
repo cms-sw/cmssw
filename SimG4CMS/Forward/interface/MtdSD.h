@@ -19,7 +19,6 @@ class SimTrackManager;
 class MtdSD : public TimingSD {
 public:
   MtdSD(const std::string &,
-        const edm::EventSetup &,
         const SensitiveDetectorCatalog &,
         edm::ParameterSet const &,
         const SimTrackManager *);
