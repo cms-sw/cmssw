@@ -63,6 +63,7 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder()
       allLinear_{},
       contain1TSHB_{},
       contain1TSHE_{},
+      applyFixPCC_{},
       linearLSB_QIE8_{},
       linearLSB_QIE11_{},
       linearLSB_QIE11Overlap_{} {}
@@ -78,10 +79,11 @@ void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalTimeSlew* delay) 
   allLinear_ = false;
   contain1TSHB_ = false;
   contain1TSHE_ = false;
+  applyFixPCC_ = false;
   linearLSB_QIE8_ = 1.;
   linearLSB_QIE11_ = 1.;
   linearLSB_QIE11Overlap_ = 1.;
-  pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError);
+  pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError, false);
   firstHBEta_ = topo_->firstHBRing();
   lastHBEta_ = topo_->lastHBRing();
   nHBEta_ = (lastHBEta_ - firstHBEta_ + 1);
@@ -333,6 +335,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
   assert(metadata != nullptr);
   float nominalgain_ = metadata->getNominalGain();
 
+  pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError, applyFixPCC_);
   pulseCorr_->beginRun(&conditions, delay_);
 
   make_cosh_ieta_map();

@@ -40,13 +40,12 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   upgrade_ = std::any_of(std::begin(upgrades), std::end(upgrades), [](bool a) { return a; });
   legacy_ = std::any_of(std::begin(upgrades), std::end(upgrades), [](bool a) { return !a; });
 
-  theAlgo_.setWeightsQIE11(ps.getParameter<edm::ParameterSet>("weightsQIE11"));
-
   if (ps.exists("parameters")) {
     auto pset = ps.getUntrackedParameter<edm::ParameterSet>("parameters");
     theAlgo_.overrideParameters(pset);
   }
   theAlgo_.setUpgradeFlags(upgrades[0], upgrades[1], upgrades[2]);
+  theAlgo_.setWeightsQIE11(ps.getParameter<edm::ParameterSet>("weightsQIE11"));
   theAlgo_.setFixSaturationFlag(ps.getParameter<bool>("applySaturationFix"));
 
   HFEMB_ = false;
