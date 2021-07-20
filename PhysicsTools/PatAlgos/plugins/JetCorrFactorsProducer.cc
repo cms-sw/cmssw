@@ -44,6 +44,7 @@
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -89,7 +90,6 @@ namespace pat {
     /// determines the number of valid primary vertices for the standard L1Offset correction of JetMET
     int numberOf(const edm::Handle<std::vector<reco::Vertex> >& primaryVertices);
     /// map jet algorithm to payload in DB
-    std::string payload();
 
   private:
     /// use electromagnetic fraction for jet energy corrections or not (will only have an effect for jets CaloJets)
@@ -100,8 +100,6 @@ namespace pat {
     std::string type_;
     /// label of jec factors
     std::string label_;
-    /// label of payload
-    std::string payload_;
     /// label of additional L1Offset corrector for JPT jets; for format reasons this string is
     /// kept in a vector of strings
     std::vector<std::string> extraJPTOffset_;
@@ -111,6 +109,8 @@ namespace pat {
     /// label for L1FastJet energy density parameter rho
     edm::InputTag rho_;
     edm::EDGetTokenT<double> rhoToken_;
+    const edm::ESGetToken<JetCorrectorParametersCollection, JetCorrectionsRecord> parametersToken_;
+    edm::ESWatcher<JetCorrectionsRecord> parametersWatcher_;
     /// use the NPV and rho with the JEC? (used for L1Offset/L1FastJet and L1FastJet, resp.)
     bool useNPV_;
     bool useRho_;
@@ -125,8 +125,6 @@ namespace pat {
     /// per definition the vectors for all elements in this map should
     /// have the same size
     FlavorCorrLevelMap levels_;
-    /// cache identifier for JetCorrectionsRecord
-    unsigned long long cacheId_;
     /// cache container for jet corrections
     std::map<JetCorrFactors::Flavor, std::unique_ptr<FactorizedJetCorrector> > correctors_;
     /// cache container for JPTOffset jet corrections
@@ -135,8 +133,8 @@ namespace pat {
 
   inline int JetCorrFactorsProducer::numberOf(const edm::Handle<std::vector<reco::Vertex> >& primaryVertices) {
     int npv = 0;
-    for (std::vector<reco::Vertex>::const_iterator pv = primaryVertices->begin(); pv != primaryVertices->end(); ++pv) {
-      if (pv->ndof() >= 4)
+    for (auto const& pv : *primaryVertices) {
+      if (pv.ndof() >= 4)
         ++npv;
     }
     return npv;
@@ -147,13 +145,12 @@ using namespace pat;
 
 JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg)
     : emf_(cfg.getParameter<bool>("emf")),
-      srcToken_(consumes<edm::View<reco::Jet> >(cfg.getParameter<edm::InputTag>("src"))),
+      srcToken_(consumes(cfg.getParameter<edm::InputTag>("src"))),
       type_(cfg.getParameter<std::string>("flavorType")),
       label_(cfg.getParameter<std::string>("@module_label")),
-      payload_(cfg.getParameter<std::string>("payload")),
+      parametersToken_{esConsumes(edm::ESInputTag("", cfg.getParameter<std::string>("payload")))},
       useNPV_(cfg.getParameter<bool>("useNPV")),
-      useRho_(cfg.getParameter<bool>("useRho")),
-      cacheId_(0) {
+      useRho_(cfg.getParameter<bool>("useRho")) {
   std::vector<std::string> levels = cfg.getParameter<std::vector<std::string> >("levels");
   // fill the std::map for levels_, which might be flavor dependent or not;
   // flavor dependency is determined from the fact whether the std::string
@@ -304,8 +301,6 @@ float JetCorrFactorsProducer::evaluate(edm::View<reco::Jet>::const_iterator& jet
   return corrector->getSubCorrections()[level];
 }
 
-std::string JetCorrFactorsProducer::payload() { return payload_; }
-
 void JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   // get jet collection from the event
   edm::Handle<edm::View<reco::Jet> > jets;
@@ -321,20 +316,17 @@ void JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& s
   if (!rho_.label().empty())
     event.getByToken(rhoToken_, rho);
 
-  auto const& rec = setup.get<JetCorrectionsRecord>();
-  if (cacheId_ != rec.cacheIdentifier()) {
+  if (parametersWatcher_.check(setup)) {
     // retreive parameters from the DB
-    edm::ESHandle<JetCorrectorParametersCollection> parameters;
-    setup.get<JetCorrectionsRecord>().get(payload(), parameters);
+    auto const& parameters = setup.getData(parametersToken_);
     // initialize jet correctors
-    for (FlavorCorrLevelMap::const_iterator flavor = levels_.begin(); flavor != levels_.end(); ++flavor) {
-      correctors_[flavor->first] = std::make_unique<FactorizedJetCorrector>(params(*parameters, flavor->second));
+    for (auto const& flavor : levels_) {
+      correctors_[flavor.first] = std::make_unique<FactorizedJetCorrector>(params(parameters, flavor.second));
     }
     // initialize extra jet corrector for jpt if needed
     if (!extraJPTOffset_.empty()) {
-      extraJPTOffsetCorrector_ = std::make_unique<FactorizedJetCorrector>(params(*parameters, extraJPTOffset_));
+      extraJPTOffsetCorrector_ = std::make_unique<FactorizedJetCorrector>(params(parameters, extraJPTOffset_));
     }
-    cacheId_ = rec.cacheIdentifier();
   }
 
   // fill the jetCorrFactors
@@ -347,8 +339,7 @@ void JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& s
     // pendent afterwards. The first correction level is predefined with label 'Uncorrected'.
     // Per definition it is flavor independent. The correction factor is 1.
     std::vector<JetCorrFactors::CorrectionFactor> jec;
-    jec.push_back(
-        std::make_pair<std::string, std::vector<float> >(std::string("Uncorrected"), std::vector<float>(1, 1)));
+    jec.emplace_back("Uncorrected", std::vector<float>(1, 1));
 
     // pick the first element in the map (which could be the only one) and loop all jec
     // levels listed for that element. If this is not the only element all jec levels, which
@@ -401,12 +392,11 @@ void JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& s
       // factors, which might be flavor dependent or not. In the default configuration
       // the CorrectionFactor will look like this: 'Uncorrected': 1 ; 'L2Relative': x ;
       // 'L3Absolute': x ; 'L5Flavor': v, x, y, z ; 'L7Parton': v, x, y, z
-      jec.push_back(std::make_pair((corrLevel->second[idx]).substr(0, (corrLevel->second[idx]).find('_')), factors));
+      jec.emplace_back((corrLevel->second[idx]).substr(0, (corrLevel->second[idx]).find('_')), factors);
     }
     // create the actual object with the scale factors we want the valuemap to refer to
     // label_ corresponds to the label of the module instance
-    JetCorrFactors corrFactors(label_, jec);
-    jcfs.push_back(corrFactors);
+    jcfs.emplace_back(label_, jec);
   }
   // build the value map
   auto jetCorrsMap = std::make_unique<JetCorrFactorsMap>();
@@ -430,14 +420,15 @@ void JetCorrFactorsProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   iDesc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetAllCalo"));
   iDesc.add<std::string>("extraJPTOffset", "L1Offset");
 
-  std::vector<std::string> levels;
-  levels.push_back(std::string("L1Offset"));
-  levels.push_back(std::string("L2Relative"));
-  levels.push_back(std::string("L3Absolute"));
-  levels.push_back(std::string("L2L3Residual"));
-  levels.push_back(std::string("L5Flavor"));
-  levels.push_back(std::string("L7Parton"));
-  iDesc.add<std::vector<std::string> >("levels", levels);
+  iDesc.add<std::vector<std::string> >("levels",
+                                       {
+                                           "L1Offset",
+                                           "L2Relative",
+                                           "L3Absolute",
+                                           "L2L3Residual",
+                                           "L5Flavor",
+                                           "L7Parton",
+                                       });
   descriptions.add("JetCorrFactorsProducer", iDesc);
 }
 
