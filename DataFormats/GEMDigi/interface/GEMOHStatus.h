@@ -64,7 +64,6 @@ public:
     warnings_ = warn.wcodes;
   }
 
-  bool isGood() const { return errors_ == 0; }
   bool isBad() const { return errors_ != 0; }
   uint16_t errors() const { return errors_; }
   uint8_t warnings() const { return warnings_; }
