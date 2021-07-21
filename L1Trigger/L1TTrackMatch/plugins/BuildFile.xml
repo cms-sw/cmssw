@@ -3,6 +3,9 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="Geometry/Records"/>
 <use   name="L1Trigger/L1TTrackMatch"/>
+<use   name="L1Trigger/TrackTrigger"/>
+<use   name="PhysicsTools/UtilAlgos"/>
+<use   name="SimGeneral/HepPDTRecord"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimTracker/TrackTriggerAssociation"/>
 <use   name="DataFormats/L1TrackTrigger"/>

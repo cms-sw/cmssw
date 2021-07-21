@@ -50,6 +50,7 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
     theAlgo_.overrideParameters(pset);
   }
   theAlgo_.setUpgradeFlags(upgrades[0], upgrades[1], upgrades[2]);
+  theAlgo_.setFixSaturationFlag(ps.getParameter<bool>("applySaturationFix"));
 
   HFEMB_ = false;
   if (ps.exists("LSConfig")) {

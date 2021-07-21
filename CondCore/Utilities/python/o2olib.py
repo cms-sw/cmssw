@@ -401,7 +401,7 @@ class O2ORunMgr(object):
             pipe = subprocess.Popen( command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
             out = ''
             for line in iter(pipe.stdout.readline, ''):
-                if args.verbose>=1:
+                if args.verbose is not None and args.verbose>=1:
                     sys.stdout.write(line)
                     sys.stdout.flush()
                 out += line

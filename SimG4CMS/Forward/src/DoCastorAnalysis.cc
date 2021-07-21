@@ -9,6 +9,7 @@
 // Original Author: P. Katsas
 //         Created: 02/2007
 //
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -23,7 +24,7 @@
 #include <memory>
 #include <vector>
 
-#define debug 0
+//#define EDM_ML_DEBUG
 
 DoCastorAnalysis::DoCastorAnalysis(const edm::ParameterSet& p) {
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("DoCastorAnalysis");
@@ -32,20 +33,20 @@ DoCastorAnalysis::DoCastorAnalysis(const edm::ParameterSet& p) {
   TreeFileName = m_Anal.getParameter<std::string>("CastorTreeFileName");
 
   if (verbosity > 0) {
-    std::cout << std::endl;
-    std::cout << "============================================================================" << std::endl;
-    std::cout << "DoCastorAnalysis:: Initialized as observer" << std::endl;
+    edm::LogVerbatim("ForwardSim") << std::endl;
+    edm::LogVerbatim("ForwardSim") << "============================================================================";
+    edm::LogVerbatim("ForwardSim") << "DoCastorAnalysis:: Initialized as observer";
 
-    std::cout << " Castor Tree will be created" << std::endl;
-    std::cout << " Castor Tree will be in file: " << TreeFileName << std::endl;
-    if (debug)
-      getchar();
-
-    std::cout << "============================================================================" << std::endl;
-    std::cout << std::endl;
+    edm::LogVerbatim("ForwardSim") << " Castor Tree will be created";
+    edm::LogVerbatim("ForwardSim") << " Castor Tree will be in file: " << TreeFileName;
+#ifdef EDM_ML_DEBUG
+    getchar();
+#endif
+    edm::LogVerbatim("ForwardSim") << "============================================================================";
+    edm::LogVerbatim("ForwardSim") << std::endl;
   }
 
-  std::cout << "DoCastorAnalysis: output event root file created" << std::endl;
+  edm::LogVerbatim("ForwardSim") << "DoCastorAnalysis: output event root file created";
   TString treefilename = TreeFileName;
   CastorOutputEventFile = new TFile(treefilename, "RECREATE");
 
@@ -72,31 +73,34 @@ DoCastorAnalysis::~DoCastorAnalysis() {
   CastorOutputEventFile->cd();
   //-- CastorOutputEventFile->Write();
   CastorTree->Write("", TObject::kOverwrite);
-  std::cout << "DoCastorAnalysis: Ntuple event written" << std::endl;
-  if (debug)
-    getchar();
+  edm::LogVerbatim("ForwardSim") << "DoCastorAnalysis: Ntuple event written";
+#ifdef EDM_ML_DEBUG
+  getchar();
+#endif
   CastorOutputEventFile->Close();
-  std::cout << "DoCastorAnalysis: Event file closed" << std::endl;
-  if (debug)
-    getchar();
+  edm::LogVerbatim("ForwardSim") << "DoCastorAnalysis: Event file closed";
+#ifdef EDM_ML_DEBUG
+  getchar();
+#endif
 
   if (verbosity > 0) {
-    std::cout << std::endl << "DoCastorAnalysis: end of process" << std::endl;
-    if (debug)
-      getchar();
+    edm::LogVerbatim("ForwardSim") << std::endl << "DoCastorAnalysis: end of process";
+#ifdef EDM_ML_DEBUG
+    getchar();
+#endif
   }
 }
 
 //=================================================================== per EVENT
 
-void DoCastorAnalysis::update(const BeginOfJob* job) { std::cout << " Starting new job " << std::endl; }
+void DoCastorAnalysis::update(const BeginOfJob* job) { edm::LogVerbatim("ForwardSim") << " Starting new job "; }
 
 //==================================================================== per RUN
 
 void DoCastorAnalysis::update(const BeginOfRun* run) {
-  std::cout << std::endl << "DoCastorAnalysis: Starting Run" << std::endl;
+  edm::LogVerbatim("ForwardSim") << std::endl << "DoCastorAnalysis: Starting Run";
 
-  // std::cout << "DoCastorAnalysis: output event root file created"<< std::endl;
+  // edm::LogVerbatim("ForwardSim") << "DoCastorAnalysis: output event root file created";
   // TString treefilename = TreeFileName;
   // CastorOutputEventFile = new TFile(treefilename,"RECREATE");
 
@@ -104,7 +108,7 @@ void DoCastorAnalysis::update(const BeginOfRun* run) {
 }
 
 void DoCastorAnalysis::update(const BeginOfEvent* evt) {
-  std::cout << "DoCastorAnalysis: Processing Event Number: " << eventIndex << std::endl;
+  edm::LogVerbatim("ForwardSim") << "DoCastorAnalysis: Processing Event Number: " << eventIndex;
   eventIndex++;
 }
 
@@ -125,10 +129,10 @@ void DoCastorAnalysis::update(const EndOfEvent* evt) {
   // std::map<int,float,std::less<int> > themap;
 
   int nentries = theCAFI->entries();
-  if (debug)
-    std::cout << "nentries in CAFI: " << nentries << std::endl;
-  if (debug)
-    getchar();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("ForwardSim") << "nentries in CAFI: " << nentries;
+  getchar();
+#endif
 
   psimhit_x = &simhit_x;
   psimhit_x->clear();
@@ -200,14 +204,17 @@ void DoCastorAnalysis::update(const EndOfEvent* evt) {
 
       simhit_etot += energy;
 
-      if (debug)
-        std::cout << "hit " << ihit + 1 << " : x = " << (*psimhit_x)[ihit] << " , eta =  " << (*psimhit_eta)[ihit]
-                  << " , phi = " << (*psimhit_phi)[ihit] << " , energy = " << (*psimhit_energy)[ihit] << std::endl;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("ForwardSim") << "hit " << ihit + 1 << " : x = " << (*psimhit_x)[ihit]
+                                     << " , eta =  " << (*psimhit_eta)[ihit] << " , phi = " << (*psimhit_phi)[ihit]
+                                     << " , energy = " << (*psimhit_energy)[ihit];
+#endif
     }
 
-    //if(debug) std::cout<<" total energy = "<<simhit_etot<<std::endl;
-    if (debug)
-      getchar();
+    //if (debug) edm::LogVerbatim("ForwardSim") << " total energy = " << simhit_etot;
+#ifdef EDM_ML_DEBUG
+    getchar();
+#endif
     CastorTree->Fill();
 
   }  // nentries > 0

@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/bin/env python3
 
 import os
 import sys
@@ -31,7 +31,7 @@ def compare(base_dir, pr_dir, output_dir, files, pr_number, test_number, release
             print('Running comparison:')
             print(' '.join(command))
             
-            output = subprocess.check_output(command)
+            output = subprocess.check_output(command).decode()
 
             output_elements = output.split('\n')[1:]
             base_output_filename = output_elements[0]

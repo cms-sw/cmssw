@@ -32,7 +32,7 @@
 #include <iostream>
 #include <string>
 
-class CSCTriggerPrimitivesAnalyzer : public edm::one::EDAnalyzer<> {
+class CSCTriggerPrimitivesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// Constructor
   explicit CSCTriggerPrimitivesAnalyzer(const edm::ParameterSet &conf);
@@ -96,7 +96,9 @@ CSCTriggerPrimitivesAnalyzer::CSCTriggerPrimitivesAnalyzer(const edm::ParameterS
       mcEfficiencyPlots_(conf.getParameter<bool>("mcEfficiencyPlots")),
       mcResolutionPlots_(conf.getParameter<bool>("mcResolutionPlots")),
       B904Setup_(conf.getParameter<bool>("B904Setup")),
-      B904RunNumber_(conf.getParameter<std::string>("B904RunNumber")) {}
+      B904RunNumber_(conf.getParameter<std::string>("B904RunNumber")) {
+  usesResource("TFileService");
+}
 
 void CSCTriggerPrimitivesAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &setup) {
   // efficiency and resolution analysis is done here
@@ -238,7 +240,7 @@ void CSCTriggerPrimitivesAnalyzer::makePlot(TH1F *dataMon,
   dataMon->SetMarkerStyle(kPlus);
   dataMon->SetMarkerSize(3);
   // add 50% to make sure the legend does not overlap with the histograms
-  dataMon->SetMaximum(dataMon->GetBinContent(dataMon->GetMaximumBin()) * 1.5);
+  dataMon->SetMaximum(dataMon->GetBinContent(dataMon->GetMaximumBin()) * 1.6);
   dataMon->Draw("histp");
   dataMon->GetXaxis()->SetLabelSize(0.05);
   dataMon->GetYaxis()->SetLabelSize(0.05);
@@ -246,9 +248,9 @@ void CSCTriggerPrimitivesAnalyzer::makePlot(TH1F *dataMon,
   dataMon->GetYaxis()->SetTitleSize(0.05);
   emulMon->SetLineColor(kRed);
   emulMon->Draw("histsame");
-  auto legend = new TLegend(0.7, 0.7, 0.9, 0.9);
-  legend->AddEntry(dataMon, "Data", "p");
-  legend->AddEntry(emulMon, "Emulator", "l");
+  auto legend = new TLegend(0.6, 0.7, 0.9, 0.9);
+  legend->AddEntry(dataMon, TString("Data (" + std::to_string((int)dataMon->GetEntries()) + ")"), "p");
+  legend->AddEntry(emulMon, TString("Emulator (" + std::to_string((int)emulMon->GetEntries()) + ")"), "l");
   legend->Draw();
 
   c1->cd(2);

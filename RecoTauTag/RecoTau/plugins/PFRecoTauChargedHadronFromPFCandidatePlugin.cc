@@ -25,7 +25,6 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -75,6 +74,7 @@ namespace reco {
       double minMergeGammaEt_;
       double minMergeChargedHadronPt_;
 
+      const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken_;
       double bField_;
 
       int verbosity_;
@@ -84,7 +84,8 @@ namespace reco {
         const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
         : PFRecoTauChargedHadronBuilderPlugin(pset, std::move(iC)),
           vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"), std::move(iC)),
-          qcuts_(nullptr) {
+          qcuts_(nullptr),
+          bFieldToken_(iC.esConsumes()) {
       edm::ParameterSet qcuts_pset = pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts");
       qcuts_ = new RecoTauQualityCuts(qcuts_pset);
 
@@ -115,9 +116,7 @@ namespace reco {
     void PFRecoTauChargedHadronFromPFCandidatePlugin::beginEvent() {
       vertexAssociator_.setEvent(*evt());
 
-      edm::ESHandle<MagneticField> pSetup;
-      evtSetup()->get<IdealMagneticFieldRecord>().get(pSetup);
-      bField_ = pSetup->inTesla(GlobalPoint(0, 0, 0)).z();
+      bField_ = evtSetup()->getData(bFieldToken_).inTesla(GlobalPoint(0, 0, 0)).z();
     }
 
     namespace {

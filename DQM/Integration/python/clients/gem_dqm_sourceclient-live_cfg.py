@@ -33,7 +33,7 @@ process.load("DQM.GEM.GEMDQM_cff")
 
 
 if (process.runType.getRunType() == process.runType.hi_run):
-  process.muonGEMDigis.InputLabel = cms.InputTag("rawDataRepacker")
+  process.muonGEMDigis.InputLabel = "rawDataRepacker"
 
 process.muonGEMDigis.useDBEMap = True
 process.muonGEMDigis.unPackStatusDigis = True

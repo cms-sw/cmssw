@@ -1,16 +1,14 @@
 #include "EventFilter/EcalRawToDigi/plugins/EcalRegionCablingESProducer.h"
 
-EcalRegionCablingESProducer::EcalRegionCablingESProducer(const edm::ParameterSet& iConfig) {
-  conf_ = iConfig;
-  setWhatProduced(this);
+EcalRegionCablingESProducer::EcalRegionCablingESProducer(const edm::ParameterSet& iConfig) : conf_(iConfig) {
+  auto cc = setWhatProduced(this);
+  esEcalElectronicsMappingToken_ = cc.consumesFrom<EcalElectronicsMapping, EcalMappingRcd>();
 }
 
 EcalRegionCablingESProducer::~EcalRegionCablingESProducer() {}
 
 EcalRegionCablingESProducer::ReturnType EcalRegionCablingESProducer::produce(const EcalRegionCablingRecord& iRecord) {
-  using namespace edm::es;
-  edm::ESHandle<EcalElectronicsMapping> mapping;
-  iRecord.getRecord<EcalMappingRcd>().get(mapping);
+  edm::ESHandle<EcalElectronicsMapping> mapping = iRecord.getHandle(esEcalElectronicsMappingToken_);
 
   return std::make_unique<EcalRegionCabling>(conf_, mapping.product());
 }

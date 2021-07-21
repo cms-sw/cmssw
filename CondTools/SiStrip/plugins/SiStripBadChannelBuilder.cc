@@ -6,8 +6,7 @@
 
 SiStripBadChannelBuilder::SiStripBadChannelBuilder(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiStripBadStrip>(iConfig) {
-  fp_ = iConfig.getUntrackedParameter<edm::FileInPath>(
-      "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
+  fp_ = iConfig.getUntrackedParameter<edm::FileInPath>("file", edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile));
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug", false);
   BadComponentList_ = iConfig.getUntrackedParameter<Parameters>("BadComponentList");
 }
@@ -19,7 +18,7 @@ std::unique_ptr<SiStripBadStrip> SiStripBadChannelBuilder::getNewObject() {
 
   auto obj = std::make_unique<SiStripBadStrip>();
 
-  SiStripDetInfoFileReader reader(fp_.fullPath());
+  const auto detInfo = SiStripDetInfoFileReader::read(fp_.fullPath());
 
   for (Parameters::iterator iBadComponent = BadComponentList_.begin(); iBadComponent != BadComponentList_.end();
        ++iBadComponent) {
@@ -27,7 +26,7 @@ std::unique_ptr<SiStripBadStrip> SiStripBadChannelBuilder::getNewObject() {
     std::vector<uint32_t> BadChannelList_ = iBadComponent->getParameter<std::vector<uint32_t> >("BadChannelList");
 
     std::vector<unsigned int> theSiStripVector;
-    unsigned int NStrips = reader.getNumberOfApvsAndStripLength(BadModule_).first * 128;
+    unsigned int NStrips = detInfo.getNumberOfApvsAndStripLength(BadModule_).first * 128;
 
     uint32_t lastBad = 999;
     unsigned short firstBadStrip = 0, NconsecutiveBadStrips = 0;

@@ -8,6 +8,8 @@ public:
 
   L1Phase2MuDTThDigi(int bx, int wh, int sc, int st, int z, int k, int qual, int idx, int t0, int chi2, int rpc = -10);
 
+  virtual ~L1Phase2MuDTThDigi(){};
+
   // Operations
   int bxNum() const;
 

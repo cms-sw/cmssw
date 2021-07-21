@@ -1,3 +1,4 @@
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibTracker/SiStripDCS/interface/SiStripDetVOffBuilder.h"
 #include <sys/stat.h>
 
@@ -194,9 +195,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj() {
         modV = new SiStripDetVOff();
 
         // Use the file
-        edm::FileInPath fp(detIdListFile_);
-        SiStripDetInfoFileReader reader(fp.fullPath());
-        const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& detInfos = reader.getAllData();
+        const auto detInfo = SiStripDetInfoFileReader::read(edm::FileInPath{detIdListFile_}.fullPath());
 
         //FIXME:
         //Following code is actually broken (well not until the cfg has "" for excludedDetIDListFile parameter!
@@ -209,19 +208,16 @@ void SiStripDetVOffBuilder::BuildDetVOffObj() {
         if (!excludedDetIdListFile_.empty()) {
           map.BuildMap(excludedDetIdListFile_, excludedDetIdMap);
         }
-        for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = detInfos.begin();
-             it != detInfos.end();
-             ++it) {
-          std::vector<std::pair<uint32_t, std::string> >::const_iterator exclIt = excludedDetIdMap.begin();
+        for (const auto& it : detInfo.getAllData()) {
           bool excluded = false;
-          for (; exclIt != excludedDetIdMap.end(); ++exclIt) {
-            if (it->first == exclIt->first) {
+          for (const auto& exclIt : excludedDetIdMap) {
+            if (it.first == exclIt.first) {
               excluded = true;
               break;
             }
           }
           if (!excluded) {
-            modV->put(it->first, 1, 1);
+            modV->put(it.first, 1, 1);
           }
         }
 

@@ -97,6 +97,7 @@ private:
 
   /// input tag for L1 GT EVM readout record
   edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> gtEvmSource_;
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> l1gtTrigmenuToken_;
 
   /// switches to choose the running of various methods
   bool m_runInEventLoop;

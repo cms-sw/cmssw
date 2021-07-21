@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 
 from __future__ import print_function
@@ -124,7 +124,8 @@ def discover_plugins():
     plugins = []
     releases = [
         os.environ.get('CMSSW_BASE', None),
-        os.environ.get('CMSSW_RELEASE_BASE', None)
+        os.environ.get('CMSSW_RELEASE_BASE', None),
+        os.environ.get('CMSSW_FULL_RELEASE_BASE', None)
     ]
 
     for r in releases:
@@ -137,7 +138,12 @@ def discover_plugins():
         plugins += glob.glob(path + '/plugin*_PayloadInspector.so' )
         output('found plugins: ', plugins) 
         
-        if r: break # break loop if CMSSW_BASE is specified        
+        # If no plugins are found in the local release,
+        # go find them in the release base (or full release base, in case of patches)
+        if(len(plugins)==0):
+            output('# plugins found:',len(plugins))
+        else:
+            if r: break # break loop if CMSSW_BASE is specified
   
     # extracts the object name from plugin path:
     # /afs/cern.ch/cms/slc6_amd64_gcc493/cms/cmssw/CMSSW_8_0_6/lib/slc6_amd64_gcc493/pluginBasicPayload_PayloadInspector.so
@@ -255,7 +261,7 @@ if __name__ == '__main__':
     
     # Return discover of plot if requested
     if args.discover:
-        os.write( 1, discover() )
+        os.write( 1, str.encode(discover()) )
 
     input_params = None
     if args.input_params is not None:
@@ -273,7 +279,7 @@ if __name__ == '__main__':
         
         # If test -> output the result as formatted json
         if args.test:
-            os.write( 1, json.dumps( json.loads( result ), indent=4 ))
+            os.write( 2, str.encode(json.dumps( json.loads( result ), indent=4 )))
 
         # If image plot -> get image file from result, open it and output bytes 
         elif args.image_plot:
@@ -283,24 +289,24 @@ if __name__ == '__main__':
             try:
                 filename = json.loads( result )['file']
                 #print 'File name',filename
-            except ValueError, e:
+            except ValueError as e:
                 os.write( 2, 'Value error when getting image name: %s\n' % str( e ))
-            except KeyError, e:
+            except KeyError as e:
                 os.write( 2, 'Key error when getting image name: %s\n' % str( e ))
 
             if not filename or not os.path.isfile( filename ):
-                os.write( 2, 'Error: Generated image file (%s) not found\n' % filename )
+                os.write( 2, str.encode('Error: Generated image file (%s) not found\n' % filename ))
 
             try:
-                with open( filename, 'r' ) as f:
-                    shutil.copyfileobj( f, sys.stdout )
-            except IOError, e:
-                os.write( 2, 'IO error when streaming image: %s' % str( e ))
+                with open( filename, 'rb' ) as f:
+                    shutil.copyfileobj( f, sys.stdout.buffer )
+            except IOError as e:
+                os.write( 2, str.encode('IO error when streaming image: %s' % str( e )))
             finally:
                 os.remove( filename )
 
                         
         # Else -> output result json string with base 64 encoding
-        else: 
-            os.write( 1, result.encode( 'base64' ))
-
+        else:
+            import base64
+            os.write( 1, base64.b64encode(bytes(result, 'utf-8')))

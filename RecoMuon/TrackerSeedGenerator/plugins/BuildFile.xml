@@ -3,13 +3,17 @@
   <use name="DataFormats/L1Trigger"/>
   <use name="DataFormats/MuonSeed"/>
   <use name="DataFormats/TrackReco"/>
+  <use name="DataFormats/TrackingRecHit"/>
   <use name="DataFormats/TrajectorySeed"/>
+  <use name="DataFormats/TrajectoryState"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/PluginManager"/>
   <use name="Geometry/CommonDetUnit" source_only="1"/>
+  <use name="FWCore/Utilities"/>
   <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
   <use name="MagneticField/Engine"/>
   <use name="MagneticField/Records"/>
   <use name="RecoMuon/GlobalTrackingTools"/>

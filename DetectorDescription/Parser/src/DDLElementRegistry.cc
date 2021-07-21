@@ -1,5 +1,6 @@
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLAlgorithm.h"
+#include "DetectorDescription/Parser/src/DDLAssembly.h"
 #include "DetectorDescription/Parser/src/DDLBooleanSolid.h"
 #include "DetectorDescription/Parser/src/DDLBox.h"
 #include "DetectorDescription/Parser/src/DDLCompositeMaterial.h"
@@ -68,8 +69,10 @@ std::shared_ptr<DDXMLElement> DDLElementRegistry::getElement(const std::string& 
       myret = std::make_shared<DDLSphere>(this);
     } else if (name == "EllipticalTube") {
       myret = std::make_shared<DDLEllipticalTube>(this);
-    } else if (name == "ExtrudedPolygon")
+    } else if (name == "ExtrudedPolygon") {
       myret = std::make_shared<DDLPgonGenerator>(this);
+    } else if (name == "Assembly")
+      myret = std::make_shared<DDLAssembly>(this);
 
     //  LogicalParts, Positioners, Materials, Rotations, Reflections
     //  and Specific (Specified?) Parameters

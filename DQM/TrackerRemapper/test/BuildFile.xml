@@ -1,0 +1,10 @@
+<bin file="test_catch2_*.cc" name="test_catch2_DQM_TRACKERREMAPPER">
+  <use name="FWCore/Common"/>
+  <use name="DQM/TrackerRemapper"/>
+  <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="CalibTracker/SiPixelESProducers"/>
+  <use name="CalibTracker/SiStripCommon"/>
+  <use name="rootgraphics"/>
+  <use name="root"/>
+  <use name="catch2"/>
+</bin>

@@ -132,6 +132,13 @@ TriggerPrimitive::TriggerPrimitive(const CSCDetId& detid, const CSCCorrelatedLCT
   _csc.cscID = digi.getCSCID();
   _csc.alct_quality = digi.getALCT().getQuality();
   _csc.clct_quality = digi.getCLCT().getQuality();
+  // run-3
+  _csc.pattern_run3 = digi.getRun3Pattern();
+  _csc.slope = digi.getSlope();
+  _csc.strip_quart_bit = digi.getQuartStripBit();
+  _csc.strip_eighth_bit = digi.getEighthStripBit();
+  _csc.strip_quart = digi.getStrip(4);
+  _csc.strip_eighth = digi.getStrip(8);
 
   // Use ME1/1a --> ring 4 convention
   const bool is_me11a = (detid.station() == 1 && detid.ring() == 1 && digi.getStrip() >= 128);

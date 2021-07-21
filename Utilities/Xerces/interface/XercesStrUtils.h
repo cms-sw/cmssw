@@ -6,12 +6,13 @@
 #include <memory>
 #include <sstream>
 
-#ifdef XERCES_CPP_NAMESPACE_USE
-XERCES_CPP_NAMESPACE_USE
-#endif
-
 namespace cms {
   namespace xerces {
+
+#ifdef XERCES_CPP_NAMESPACE_USE
+    XERCES_CPP_NAMESPACE_USE
+#endif
+
     inline void dispose(XMLCh* ptr) { XMLString::release(&ptr); }
     inline void dispose(char* ptr) { XMLString::release(&ptr); }
 

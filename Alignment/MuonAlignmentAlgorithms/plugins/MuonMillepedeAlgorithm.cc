@@ -31,7 +31,8 @@
 
 // Constructor ----------------------------------------------------------------
 
-MuonMillepedeAlgorithm::MuonMillepedeAlgorithm(const edm::ParameterSet &cfg) : AlignmentAlgorithmBase(cfg) {
+MuonMillepedeAlgorithm::MuonMillepedeAlgorithm(const edm::ParameterSet &cfg, const edm::ConsumesCollector &iC)
+    : AlignmentAlgorithmBase(cfg, iC) {
   // parse parameters
 
   edm::LogWarning("Alignment") << "[MuonMillepedeAlgorithm] constructed.";

@@ -96,3 +96,10 @@ CSCGeometryAlignmentProducer = cms.ESProducer("CSCGeometryESModule",
     fromDDD = cms.bool(True),
     fromDD4hep = cms.bool(False)
 ) 
+GEMGeometryAlignmentProducer = cms.ESProducer("GEMGeometryESModule",
+    appendToDataLabel = cms.string('idealForAlignmentProducerBase'),
+    applyAlignment = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    fromDDD = cms.bool(True),
+    fromDD4Hep = cms.bool(False)
+)

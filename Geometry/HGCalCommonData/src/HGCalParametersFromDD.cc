@@ -88,6 +88,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
     php.levelZSide_ = 3;        // Default level for ZSide
     php.detectorType_ = 0;      // These two parameters are
     php.firstMixedLayer_ = -1;  // defined for post TDR geometry
+    php.layerRotation_ = 0;     // default layer rotation angle
     std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
       attribute = "OnlyForHGCalNumbering";
@@ -119,11 +120,14 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.minTileSize_ = 0;
       php.waferMaskMode_ = static_cast<int>(getDDDValue("WaferMaskMode", sv));
       php.waferZSide_ = static_cast<int>(getDDDValue("WaferZside", sv));
+      if (php.mode_ == HGCalGeometryMode::Hexagon8Module)
+        php.layerRotation_ = getDDDValue("LayerRotation", sv);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " ZSide Level "
                                     << php.levelZSide_ << " first layers " << php.firstLayer_ << ":"
                                     << php.firstMixedLayer_ << " Det Type " << php.detectorType_ << " Wafer Mask Mode "
-                                    << php.waferMaskMode_ << " Zside " << php.waferZSide_;
+                                    << php.waferMaskMode_ << " Zside " << php.waferZSide_ << " Layer Rotation "
+                                    << convertRadToDeg(php.layerRotation_);
 #endif
       attribute = "OnlyForHGCalNumbering";
       value = namet;
@@ -283,6 +287,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
     php.levelZSide_ = 3;        // Default level for ZSide
     php.detectorType_ = 0;      // These two parameters are
     php.firstMixedLayer_ = -1;  // defined for post TDR geometry
+    php.layerRotation_ = 0;     // default layer rotation angle
     std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
       tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");
@@ -312,11 +317,16 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       php.waferMaskMode_ = static_cast<int>(tempD[0]);
       tempD = fv.get<std::vector<double> >(name, "WaferZside");
       php.waferZSide_ = static_cast<int>(tempD[0]);
+      if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
+        tempD = fv.get<std::vector<double> >(name, "LayerRotation");
+        php.layerRotation_ = tempD[0];
+      }
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " ZSide Level "
                                     << php.levelZSide_ << " first layers " << php.firstLayer_ << ":"
                                     << php.firstMixedLayer_ << " Det Type " << php.detectorType_ << " Wafer Mask Mode "
-                                    << php.waferMaskMode_ << " ZSide " << php.waferZSide_;
+                                    << php.waferMaskMode_ << " ZSide " << php.waferZSide_ << " Layer Rotation "
+                                    << convertRadToDeg(php.layerRotation_);
 #endif
 
       tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");

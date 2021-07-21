@@ -36,6 +36,7 @@
 #include "TH2F.h"
 #include "TProfile.h"
 #include "TTree.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 // forward declarations
 
@@ -45,7 +46,7 @@ public:
   typedef std::vector<ConstTrajTrackPair> ConstTrajTrackPairCollection;
 
   /// Constructor
-  AlignmentMonitorBase(const edm::ParameterSet &cfg, std::string name);
+  AlignmentMonitorBase(const edm::ParameterSet &cfg, const edm::ConsumesCollector &iC, std::string name);
 
   /// Destructor
   virtual ~AlignmentMonitorBase() {}

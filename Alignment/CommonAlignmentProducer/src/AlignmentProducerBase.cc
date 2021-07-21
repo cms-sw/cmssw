@@ -17,17 +17,15 @@
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "CondFormats/Alignment/interface/SurveyError.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
-#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //------------------------------------------------------------------------------
-AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config)
+AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config, edm::ConsumesCollector iC)
     : doTracker_{config.getUntrackedParameter<bool>("doTracker")},
       doMuon_{config.getUntrackedParameter<bool>("doMuon")},
       useExtras_{config.getUntrackedParameter<bool>("useExtras")},
@@ -49,7 +47,29 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config)
       saveDeformationsToDB_{config.getParameter<bool>("saveDeformationsToDB")},
       useSurvey_{config.getParameter<bool>("useSurvey")},
       enableAlignableUpdates_{config.getParameter<bool>("enableAlignableUpdates")},
-      idealGeometryLabel("idealForAlignmentProducerBase") {
+      idealGeometryLabel("idealForAlignmentProducerBase"),
+      ttopoToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      geomDetToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      ptpToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      //dtGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
+      //cscGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
+      //gemGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
+      tkAliToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      dtAliToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      cscAliToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      gemAliToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      tkAliErrToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      dtAliErrToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      cscAliErrToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      gemAliErrToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      tkSurfDefToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      gprToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      tkSurveyToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      tkSurvErrorToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      dtSurveyToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      dtSurvErrorToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      cscSurveyToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      cscSurvErrorToken_(iC.esConsumes<edm::Transition::BeginRun>()) {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducerBase::AlignmentProducerBase";
 
   const auto& algoConfig = config_.getParameterSet("algoConfig");
@@ -71,8 +91,8 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config)
     runAtPCL_ = false;
   }
 
-  createAlignmentAlgorithm();
-  createMonitors();
+  createAlignmentAlgorithm(iC);
+  createMonitors(iC);
   createCalibrations();
 }
 
@@ -256,23 +276,23 @@ void AlignmentProducerBase::endLuminosityBlockImpl(const edm::LuminosityBlock&, 
 }
 
 //------------------------------------------------------------------------------
-void AlignmentProducerBase::createAlignmentAlgorithm() {
+void AlignmentProducerBase::createAlignmentAlgorithm(edm::ConsumesCollector& iC) {
   auto algoConfig = config_.getParameter<edm::ParameterSet>("algoConfig");
   algoConfig.addUntrackedParameter("RunRangeSelection", config_.getParameter<edm::VParameterSet>("RunRangeSelection"));
   algoConfig.addUntrackedParameter<align::RunNumber>("firstIOV", runAtPCL_ ? 1 : uniqueRunRanges_.front().first);
   algoConfig.addUntrackedParameter("enableAlignableUpdates", enableAlignableUpdates_);
 
   const auto& algoName = algoConfig.getParameter<std::string>("algoName");
-  alignmentAlgo_ = AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig);
+  alignmentAlgo_ = AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig, iC);
 }
 
 //------------------------------------------------------------------------------
-void AlignmentProducerBase::createMonitors() {
+void AlignmentProducerBase::createMonitors(edm::ConsumesCollector& iC) {
   const auto& monitorConfig = config_.getParameter<edm::ParameterSet>("monitorConfig");
   auto monitors = monitorConfig.getUntrackedParameter<std::vector<std::string> >("monitors");
   for (const auto& miter : monitors) {
     monitors_.emplace_back(
-        AlignmentMonitorPluginFactory::get()->create(miter, monitorConfig.getUntrackedParameterSet(miter)));
+        AlignmentMonitorPluginFactory::get()->create(miter, monitorConfig.getUntrackedParameterSet(miter), iC));
   }
 }
 
@@ -345,9 +365,7 @@ void AlignmentProducerBase::initAlignmentAlgorithm(const edm::EventSetup& setup,
   auto isTrueUpdate = update && isAlgoInitialized_;
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &setup.getData(ttopoToken_);
 
   // Create the geometries from the ideal geometries
   createGeometries(setup, tTopo);
@@ -411,21 +429,19 @@ void AlignmentProducerBase::initBeamSpot(const edm::Event& event) {
 //------------------------------------------------------------------------------
 void AlignmentProducerBase::createGeometries(const edm::EventSetup& iSetup, const TrackerTopology* tTopo) {
   if (doTracker_) {
-    edm::ESHandle<GeometricDet> geometricDet;
-    iSetup.get<IdealGeometryRecord>().get(geometricDet);
-
-    edm::ESHandle<PTrackerParameters> ptp;
-    iSetup.get<PTrackerParametersRcd>().get(ptp);
-
+    const GeometricDet* geometricDet = &iSetup.getData(geomDetToken_);
+    const PTrackerParameters* ptp = &iSetup.getData(ptpToken_);
     TrackerGeomBuilderFromGeometricDet trackerBuilder;
-
-    trackerGeometry_ = std::shared_ptr<TrackerGeometry>(trackerBuilder.build(&(*geometricDet), *ptp, tTopo));
+    trackerGeometry_ = std::shared_ptr<TrackerGeometry>(trackerBuilder.build(geometricDet, *ptp, tTopo));
   }
 
   if (doMuon_) {
     iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, muonDTGeometry_);
     iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, muonCSCGeometry_);
     iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, muonGEMGeometry_);
+    //muonDTGeometry_ = iSetup.getHandle(dtGeomToken_);
+    //muonCSCGeometry_ = iSetup.getHandle(cscGeomToken_);
+    //muonGEMGeometry_ = iSetup.getHandle(gemGeomToken_);
   }
 }
 
@@ -436,26 +452,41 @@ void AlignmentProducerBase::applyAlignmentsToDB(const edm::EventSetup& setup) {
     // we need GlobalPositionRcd - and have to keep track for later removal
     // before writing again to DB...
 
-    edm::ESHandle<Alignments> globalAlignments;
-    setup.get<GlobalPositionRcd>().get(globalAlignments);
+    const Alignments* globalAlignments = &setup.getData(gprToken_);
     globalPositions_ = std::make_unique<Alignments>(*globalAlignments);
 
     if (doTracker_) {
       applyDB<TrackerGeometry, TrackerAlignmentRcd, TrackerAlignmentErrorExtendedRcd>(
-          trackerGeometry_.get(), setup, align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Tracker)));
+          trackerGeometry_.get(),
+          setup,
+          tkAliToken_,
+          tkAliErrToken_,
+          align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Tracker)));
 
-      applyDB<TrackerGeometry, TrackerSurfaceDeformationRcd>(trackerGeometry_.get(), setup);
+      applyDB<TrackerGeometry, TrackerSurfaceDeformationRcd>(trackerGeometry_.get(), setup, tkSurfDefToken_);
     }
 
     if (doMuon_) {
       applyDB<DTGeometry, DTAlignmentRcd, DTAlignmentErrorExtendedRcd>(
-          &*muonDTGeometry_, setup, align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
+          &*muonDTGeometry_,
+          setup,
+          dtAliToken_,
+          dtAliErrToken_,
+          align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
 
       applyDB<CSCGeometry, CSCAlignmentRcd, CSCAlignmentErrorExtendedRcd>(
-          &*muonCSCGeometry_, setup, align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
+          &*muonCSCGeometry_,
+          setup,
+          cscAliToken_,
+          cscAliErrToken_,
+          align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
 
       applyDB<GEMGeometry, GEMAlignmentRcd, GEMAlignmentErrorExtendedRcd>(
-          &*muonGEMGeometry_, setup, align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
+          &*muonGEMGeometry_,
+          setup,
+          gemAliToken_,
+          gemAliErrToken_,
+          align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
     }
   }
 }
@@ -672,11 +703,8 @@ void AlignmentProducerBase::readInSurveyRcds(const edm::EventSetup& iSetup) {
     edm::LogInfo("Alignment") << "watcher tksurveyerrrcd: " << tkSurveyErrBool;
     if (tkSurveyBool || tkSurveyErrBool) {
       edm::LogInfo("Alignment") << "ADDING THE SURVEY INFORMATION";
-      edm::ESHandle<Alignments> surveys;
-      edm::ESHandle<SurveyErrors> surveyErrors;
-
-      iSetup.get<TrackerSurveyRcd>().get(surveys);
-      iSetup.get<TrackerSurveyErrorExtendedRcd>().get(surveyErrors);
+      const Alignments* surveys = &iSetup.getData(tkSurveyToken_);
+      const SurveyErrors* surveyErrors = &iSetup.getData(tkSurvErrorToken_);
 
       surveyIndex_ = 0;
       surveyValues_ = &*surveys;
@@ -692,15 +720,10 @@ void AlignmentProducerBase::readInSurveyRcds(const edm::EventSetup& iSetup) {
     bool CSCSurveyErrBool = watchTkSurveyErrExtRcd_.check(iSetup);
 
     if (DTSurveyBool || DTSurveyErrBool || CSCSurveyBool || CSCSurveyErrBool) {
-      edm::ESHandle<Alignments> dtSurveys;
-      edm::ESHandle<SurveyErrors> dtSurveyErrors;
-      edm::ESHandle<Alignments> cscSurveys;
-      edm::ESHandle<SurveyErrors> cscSurveyErrors;
-
-      iSetup.get<DTSurveyRcd>().get(dtSurveys);
-      iSetup.get<DTSurveyErrorExtendedRcd>().get(dtSurveyErrors);
-      iSetup.get<CSCSurveyRcd>().get(cscSurveys);
-      iSetup.get<CSCSurveyErrorExtendedRcd>().get(cscSurveyErrors);
+      const Alignments* dtSurveys = &iSetup.getData(dtSurveyToken_);
+      const SurveyErrors* dtSurveyErrors = &iSetup.getData(dtSurvErrorToken_);
+      const Alignments* cscSurveys = &iSetup.getData(cscSurveyToken_);
+      const SurveyErrors* cscSurveyErrors = &iSetup.getData(cscSurvErrorToken_);
 
       surveyIndex_ = 0;
       surveyValues_ = &*dtSurveys;
@@ -824,7 +847,7 @@ void AlignmentProducerBase::storeAlignmentsToDB() {
 
 //------------------------------------------------------------------------------
 void AlignmentProducerBase::writeForRunRange(cond::Time_t time) {
-  if (doTracker_) {                                // first tracker
+  if (doTracker_ and alignableTracker_) {          // first tracker
     const AlignTransform* trackerGlobal{nullptr};  // will be 'removed' from constants
     if (globalPositions_) {                        // i.e. applied before in applyDB
       trackerGlobal = &align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Tracker));
@@ -842,7 +865,7 @@ void AlignmentProducerBase::writeForRunRange(cond::Time_t time) {
     }
   }
 
-  if (doMuon_) {                                // now muon
+  if (doMuon_ and alignableMuon_) {             // now muon
     const AlignTransform* muonGlobal{nullptr};  // will be 'removed' from constants
     if (globalPositions_) {                     // i.e. applied before in applyDB
       muonGlobal = &align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon));

@@ -19,24 +19,14 @@ def _overridesFor50ns(process):
 # post-era customizations
 # these are here instead of generating Data-specific eras
 ##############################################################################
-def _hcalCustoms25ns(process):
-    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HFDigiTime",8)
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
-    return process
 
 def customisePostEra_Run2_25ns(process):
-    _hcalCustoms25ns(process)
     return process
 
 def customisePostEra_Run2_2016(process):
-    _hcalCustoms25ns(process)
     return process
 
 def customisePostEra_Run2_2017(process):
-    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
-    HcalRemoveAddSevLevel.RemoveFlag(process.hcalRecAlgos,"HFDigiTime")
     return process
 
 def customisePostEra_Run2_2017_express_trackingOnly(process):
@@ -89,23 +79,15 @@ def customisePostEra_Run2_2018_pp_on_AA_express_trackingOnly(process):
     return process
 
 # Run3 equivalents
-def _hcalCustomsRun3(process):
-    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHENegativeNoise",8)
-    return process
 
 def customisePostEra_Run3(process):
     #start with a repeat of 2018
     customisePostEra_Run2_2018(process)
-    #add Run3 HCAL setting
-    _hcalCustomsRun3(process)
     return process
 
 def customisePostEra_Run3_express_trackingOnly(process):
     #start with a repeat of 2018
     customisePostEra_Run2_2018_express_trackingOnly(process)
-    #add Run3 HCAL setting
-    _hcalCustomsRun3(process)
     return process
 
 ##############################################################################
@@ -213,8 +195,6 @@ def customiseDataRun2Common_withStage1(process):
 # common+ "25ns" Use this for data daking starting from runs in 2015C (>= 253256 )
 def customiseDataRun2Common_25ns(process):
     process = customiseDataRun2Common_withStage1(process)
-
-    _hcalCustoms25ns(process)
 
     from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_DQM_25ns
     if hasattr(process,'dqmoffline_step'):

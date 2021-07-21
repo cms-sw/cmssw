@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun protoSimValid_cfg.py geometry=D77 type=hgcalBHValidation
 #
-#   Options for geometry D49, D68, D77, D83, D84
+#   Options for geometry D49, D68, D77, D83, D84, D86
 #               type hgcalBHValidation, hgcalSiliconValidation
 #
 ###############################################################################
@@ -14,10 +14,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D77",
+                 "D86",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D49, D68, D77, D83, D84")
+                  "geometry of operations: D49, D68, D77, D83, D84, D86")
 options.register ('type',
                   "hgcalBHValidation",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -68,6 +68,15 @@ elif (options.geometry == "D84"):
         fileName = 'hgcSilValidD84.root'
     else:
         fileName = 'hgcBHValidD84.root'
+elif (options.geometry == "D86"):
+    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+    process = cms.Process('PROD',Phase2C11)
+    process.load('Configuration.Geometry.GeometryExtended2026D86_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D86Reco_cff')
+    if (options.type == "hgcalSiliconValidation"):
+        fileName = 'hgcSilValidD86.root'
+    else:
+        fileName = 'hgcBHValidD86.root'
 else:
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('PROD',Phase2C11M9)

@@ -2,16 +2,16 @@
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 ClusterizerUnitTesterESProducer::ClusterizerUnitTesterESProducer(const edm::ParameterSet& conf) {
-  edm::FileInPath testInfo(("RecoLocalTracker/SiStripClusterizer/test/ClusterizerUnitTestDetInfo.dat"));
-  SiStripDetInfoFileReader reader(testInfo.fullPath());
+  const auto detInfo =
+      SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
 
-  auto quality = std::make_unique<SiStripQuality>(reader.info());
+  auto quality = std::make_unique<SiStripQuality>(detInfo);
   auto apvGain = std::make_unique<SiStripApvGain>();
   auto noises = std::make_unique<SiStripNoises>();
 
   extractNoiseGainQuality(conf, quality.get(), apvGain.get(), noises.get());
 
-  gain_ = std::make_shared<const SiStripGain>(*apvGain, 1, reader.info());
+  gain_ = std::make_shared<const SiStripGain>(*apvGain, 1, detInfo);
 
   quality->cleanUp();
   quality->fillBadComponents();

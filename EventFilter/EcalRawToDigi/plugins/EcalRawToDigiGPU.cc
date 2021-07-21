@@ -134,8 +134,11 @@ void EcalRawToDigiGPU::acquire(edm::Event const& event,
     ++counter;
   }
 
-  ecal::raw::entryPoint(
-      inputCPU, inputGPU, outputGPU_, scratchGPU, outputCPU_, conditions, ctx.stream(), counter, currentCummOffset);
+  // unpack if at least one FED has data
+  if (counter > 0) {
+    ecal::raw::entryPoint(
+        inputCPU, inputGPU, outputGPU_, scratchGPU, outputCPU_, conditions, ctx.stream(), counter, currentCummOffset);
+  }
 }
 
 void EcalRawToDigiGPU::produce(edm::Event& event, edm::EventSetup const& setup) {

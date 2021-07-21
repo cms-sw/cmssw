@@ -31,15 +31,17 @@ namespace {
 
   cAHitNtupletGenerator::QualityCuts makeQualityCuts(edm::ParameterSet const& pset) {
     auto coeff = pset.getParameter<std::vector<double>>("chi2Coeff");
-    if (coeff.size() != 4) {
+    auto ptMax = pset.getParameter<double>("chi2MaxPt");
+    if (coeff.size() != 2) {
       throw edm::Exception(edm::errors::Configuration,
-                           "CAHitNtupletGeneratorOnGPU.trackQualityCuts.chi2Coeff must have 4 elements");
+                           "CAHitNtupletGeneratorOnGPU.trackQualityCuts.chi2Coeff must have 2 elements");
     }
+    coeff[1] = (coeff[1] - coeff[0]) / log2(ptMax);
     return cAHitNtupletGenerator::QualityCuts{// polynomial coefficients for the pT-dependent chi2 cut
-                                              {(float)coeff[0], (float)coeff[1], (float)coeff[2], (float)coeff[3]},
+                                              {(float)coeff[0], (float)coeff[1], 0.f, 0.f},
                                               // max pT used to determine the chi2 cut
-                                              (float)pset.getParameter<double>("chi2MaxPt"),
-                                              // chi2 scale factor: 30 for broken line fit, 45 for Riemann fit
+                                              (float)ptMax,
+                                              // chi2 scale factor: 8 for broken line fit, ?? for Riemann fit
                                               (float)pset.getParameter<double>("chi2Scale"),
                                               // regional cuts for triplets
                                               {(float)pset.getParameter<double>("tripletMaxTip"),
@@ -71,6 +73,8 @@ CAHitNtupletGeneratorOnGPU::CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& 
                cfg.getParameter<bool>("doZ0Cut"),
                cfg.getParameter<bool>("doPtCut"),
                cfg.getParameter<bool>("doSharedHitCut"),
+               cfg.getParameter<bool>("dupPassThrough"),
+               cfg.getParameter<bool>("useSimpleTripletCleaner"),
                cfg.getParameter<double>("ptmin"),
                cfg.getParameter<double>("CAThetaCutBarrel"),
                cfg.getParameter<double>("CAThetaCutForward"),
@@ -154,14 +158,15 @@ void CAHitNtupletGeneratorOnGPU::fillDescriptions(edm::ParameterSetDescription& 
   desc.add<bool>("doPtCut", true);
   desc.add<bool>("useRiemannFit", false)->setComment("true for Riemann, false for BrokenLine");
   desc.add<bool>("doSharedHitCut", true)->setComment("Sharing hit nTuples cleaning");
+  desc.add<bool>("dupPassThrough", false)->setComment("Do not reject duplicate");
+  desc.add<bool>("useSimpleTripletCleaner", false)->setComment("use alternate implementation");
 
   edm::ParameterSetDescription trackQualityCuts;
   trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");
-  trackQualityCuts.add<std::vector<double>>("chi2Coeff", {0.68177776, 0.74609577, -0.08035491, 0.00315399})
-      ->setComment("Polynomial coefficients to derive the pT-dependent chi2 cut");
-  trackQualityCuts.add<double>("chi2Scale", 30.)
+  trackQualityCuts.add<std::vector<double>>("chi2Coeff", {0.9, 1.8})->setComment("chi2 at 1GeV and at ptMax above");
+  trackQualityCuts.add<double>("chi2Scale", 8.)
       ->setComment(
-          "Factor to multiply the pT-dependent chi2 cut (currently: 30 for the broken line fit, 45 for the Riemann "
+          "Factor to multiply the pT-dependent chi2 cut (currently: 8 for the broken line fit, ?? for the Riemann "
           "fit)");
   trackQualityCuts.add<double>("tripletMinPt", 0.5)->setComment("Min pT for triplets, in GeV");
   trackQualityCuts.add<double>("tripletMaxTip", 0.3)->setComment("Max |Tip| for triplets, in cm");
@@ -175,7 +180,7 @@ void CAHitNtupletGeneratorOnGPU::fillDescriptions(edm::ParameterSetDescription& 
           "cuts\" based on the fit results (pT, Tip, Zip).");
 }
 
-PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecHit2DCUDA const& hits_d,
+PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecHit2DGPU const& hits_d,
                                                                     float bfield,
                                                                     cudaStream_t stream) const {
   PixelTrackHeterogeneous tracks(cms::cuda::make_device_unique<pixelTrack::TrackSoA>(stream));

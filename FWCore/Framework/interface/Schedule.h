@@ -58,6 +58,7 @@
 */
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -130,6 +131,7 @@ namespace edm {
              service::TriggerNamesService const& tns,
              ProductRegistry& pregistry,
              BranchIDListHelper& branchIDListHelper,
+             ProcessBlockHelperBase&,
              ThinnedAssociationsHelper& thinnedAssociationsHelper,
              SubProcessParentageHelper const* subProcessParentageHelper,
              ExceptionToActionTable const& actions,
@@ -157,7 +159,7 @@ namespace edm {
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
-    void beginJob(ProductRegistry const&, eventsetup::ESRecordsToProxyIndices const&);
+    void beginJob(ProductRegistry const&, eventsetup::ESRecordsToProxyIndices const&, ProcessBlockHelperBase const&);
     void endJob(ExceptionCollector& collector);
 
     void beginStream(unsigned int);

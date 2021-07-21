@@ -166,7 +166,8 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
         }
       }
       tmpTrackster.setIdProbability(tracksterParticleTypeFromPdgId(cp.pdgId(), cp.charge()), 1.f);
-
+      float energyAtBoundary = cp.g4Tracks()[0].getMomentumAtBoundary().energy();
+      tmpTrackster.setRegressedEnergy(energyAtBoundary);
       tmpTrackster.setSeed(key.id(), cpIndex);
       result->emplace_back(tmpTrackster);
     } else {
@@ -196,6 +197,8 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
           }
         }
         tmpTrackster.setIdProbability(tracksterParticleTypeFromPdgId(sc.pdgId(), sc.charge()), 1.f);
+        float energyAtBoundary = sc.g4Tracks()[0].getMomentumAtBoundary().energy();
+        tmpTrackster.setRegressedEnergy(energyAtBoundary);
         tmpTrackster.setSeed(scRef.id(), simClusterIndex);
         result->emplace_back(tmpTrackster);
       }

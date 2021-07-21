@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_h2tb_cff import h2tb
 
-process = cms.Process("PROD")
+process = cms.Process("PROD", h2tb)
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("SimG4CMS.HcalTestBeam.TB2003GeometryXML_cfi")
@@ -14,67 +15,26 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('hcaltb03.root')
 )
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        enable = cms.untracked.bool(False)
-    ),
-    cout = cms.untracked.PSet(
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HcalTBSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        SimHCalData = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        VertexGenerator = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        enable = cms.untracked.bool(True),
-        threshold = cms.untracked.string('INFO')
-    )
-)
+process.load('FWCore.MessageService.MessageLogger_cfi')
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HcalTBSim=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
-process.common_heavy_suppression1 = cms.PSet(
-    NeutronThreshold = cms.double(30.0),
-    ProtonThreshold = cms.double(30.0),
-    IonThreshold = cms.double(30.0)
-)
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 
+beamPosition = -408.50
 process.common_beam_direction_parameters = cms.PSet(
     MinEta       = cms.double(0.5655),
     MaxEta       = cms.double(0.5655),
     MinPhi       = cms.double(0.1309),
     MaxPhi       = cms.double(0.1309),
-    BeamPosition = cms.double(-408.50)
+    BeamPosition = cms.double(beamPosition)
 )
 
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
@@ -119,20 +79,14 @@ process.Timing = cms.Service("Timing")
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
-process.common_maximum_timex = cms.PSet(
-    MaxTrackTime  = cms.double(1000.0),
-    MaxTimeNames  = cms.vstring(),
-    MaxTrackTimes = cms.vdouble(),
-    DeadRegions   = cms.vstring(),
-    CriticalEnergyForVacuum = cms.double(2.0),
-    CriticalDensity         = cms.double(1e-15)
-)
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.Region = 'HcalRegion'
 process.g4SimHits.Physics.DefaultCutValue = 1.
 
+process.g4SimHits.StackingAction.KillGamma = False
+process.g4SimHits.CaloSD.BeamPosition = beamPosition
 process.g4SimHits.ECalSD.UseBirkLaw = True
 process.g4SimHits.ECalSD.BirkL3Parametrization = True
 process.g4SimHits.ECalSD.BirkC1 = 0.033
@@ -149,66 +103,12 @@ process.g4SimHits.HCalSD.TestNumberingScheme = False
 process.g4SimHits.HCalSD.UseHF   = False
 process.g4SimHits.HCalSD.ForTBHCAL = True
 process.g4SimHits.HCalSD.ForTBH2 = True
-process.g4SimHits.StackingAction = cms.PSet(
-    process.common_heavy_suppression1,
-    process.common_maximum_timex,
-    TrackNeutrino = cms.bool(False),
-    KillDeltaRay  = cms.bool(False),
-    KillHeavy     = cms.bool(False),
-    KillGamma     = cms.bool(False),
-    GammaThreshold = cms.double(0.0001), ## (MeV)
-    SaveFirstLevelSecondary = cms.untracked.bool(False),
-    SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(False),
-    SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(False),
-    SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(False),
-    RusRoGammaEnergyLimit  = cms.double(0.01), ## (MeV)
-    RusRoEcalGamma         = cms.double(0.01),
-    RusRoHcalGamma         = cms.double(0.01),
-    RusRoMuonIronGamma     = cms.double(0.01),
-    RusRoPreShowerGamma    = cms.double(0.01),
-    RusRoCastorGamma       = cms.double(0.01),
-    RusRoWorldGamma        = cms.double(0.01),
-    RusRoNeutronEnergyLimit  = cms.double(0.01), ## (MeV)
-    RusRoEcalNeutron         = cms.double(0.01),
-    RusRoHcalNeutron         = cms.double(0.01),
-    RusRoMuonIronNeutron     = cms.double(0.01),
-    RusRoPreShowerNeutron    = cms.double(0.01),
-    RusRoCastorNeutron       = cms.double(0.01),
-    RusRoWorldNeutron        = cms.double(0.01),
-    RusRoProtonEnergyLimit  = cms.double(0.0),
-    RusRoEcalProton         = cms.double(0.01),
-    RusRoHcalProton         = cms.double(0.01),
-    RusRoMuonIronProton     = cms.double(0.01),
-    RusRoPreShowerProton    = cms.double(0.01),
-    RusRoCastorProton       = cms.double(0.01),
-    RusRoWorldProton        = cms.double(0.01)
-)
-process.g4SimHits.SteppingAction = cms.PSet(
-    process.common_maximum_timex,
-    KillBeamPipe            = cms.bool(True),
-    EkinNames               = cms.vstring(),
-    EkinThresholds          = cms.vdouble(),
-    EkinParticles           = cms.vstring(),
-    Verbosity = cms.untracked.int32(0)
-)
-process.g4SimHits.CaloSD = cms.PSet(
-    process.common_beam_direction_parameters,
-    process.common_heavy_suppression1,
-    EminTrack      = cms.double(1.0),
-    TmaxHit        = cms.double(1000.0),
-    EminHits       = cms.vdouble(0.0,0.0,0.0,0.0),
-    EminHitsDepth  = cms.vdouble(0.0,0.0,0.0,0.0),
-    TmaxHits       = cms.vdouble(1000.0,1000.0,1000.0,1000.0),
-    HCNames        = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits'),
-    UseResponseTables = cms.vint32(0,0,0,0),
-    SuppressHeavy  = cms.bool(False),
-    UseFineCaloID  = cms.bool(False),
-    CheckHits      = cms.untracked.int32(25),
-    UseMap         = cms.untracked.bool(True),
-    Verbosity      = cms.untracked.int32(0),
-    DetailedTiming = cms.untracked.bool(False),
-    CorrectTOFBeam = cms.bool(False)
-)
+process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
+                             'EcalTBH4BeamDetector',
+                             'HcalTB02SensitiveDetector',
+                             'HcalTB06BeamDetector',
+                             'EcalSensitiveDetector',
+                             'HcalSensitiveDetector']
 process.g4SimHits.CaloTrkProcessing.TestBeam = True
 
 #process.g4SimHits.Watchers = cms.VPSet(cms.PSet(

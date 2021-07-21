@@ -337,13 +337,11 @@ namespace templateHelper {
         // Book the TH2Poly
         Phase1PixelMaps theMaps("text");
         if (myType == SiPixelPI::t_barrel) {
-          theMaps.bookBarrelHistograms(barrelName_, title_.c_str(), title_.c_str());
           // book the barrel bins of the TH2Poly
-          theMaps.bookBarrelBins(barrelName_);
+          theMaps.bookBarrelHistograms(barrelName_, title_.c_str(), title_.c_str());
         } else if (myType == SiPixelPI::t_forward) {
-          theMaps.bookForwardHistograms(endcapName_, title_.c_str(), title_.c_str());
           // book the forward bins of the TH2Poly
-          theMaps.bookForwardBins(endcapName_);
+          theMaps.bookForwardHistograms(endcapName_, title_.c_str(), title_.c_str());
         }
 
         std::map<unsigned int, short> templMap;

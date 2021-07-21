@@ -80,6 +80,8 @@ private:
 
   bool doPtComp_;
   bool doTightChi2_;
+  float trkPtTightChi2_;
+  float trkChi2dofTightChi2_;
 
   int weight_;  // weight (power) of pT 0 , 1, 2
 
@@ -125,6 +127,8 @@ L1TkFastVertexProducer::L1TkFastVertexProducer(const edm::ParameterSet& iConfig)
   monteCarloVertex_ = iConfig.getParameter<bool>("MonteCarloVertex");
   doPtComp_ = iConfig.getParameter<bool>("doPtComp");
   doTightChi2_ = iConfig.getParameter<bool>("doTightChi2");
+  trkPtTightChi2_ = (float)iConfig.getParameter<double>("trk_ptTightChi2");
+  trkChi2dofTightChi2_ = (float)iConfig.getParameter<double>("trk_chi2dofTightChi2");
 
   weight_ = iConfig.getParameter<int>("WEIGHT");
 
@@ -297,7 +301,7 @@ void L1TkFastVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
       }
     }
     if (doTightChi2_) {
-      if (pt > 10.0 && chi2dof > 5.0)
+      if (pt > trkPtTightChi2_ && chi2dof > trkChi2dofTightChi2_)
         continue;
     }
 

@@ -53,8 +53,6 @@
 #include "TH2.h"
 #include "TTree.h"
 
-#define EDM_ML_DEBUG
-
 namespace HcalMinbias {}
 
 // constructors and destructor

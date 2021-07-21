@@ -371,9 +371,8 @@ private:
   edm::EDPutToken etlMatchChi2Token;
   edm::EDPutToken btlMatchTimeChi2Token;
   edm::EDPutToken etlMatchTimeChi2Token;
-  edm::EDPutToken pathLengthToken;
-  edm::EDPutToken tmtdToken;
-  edm::EDPutToken sigmatmtdToken;
+  edm::EDPutToken npixBarrelToken;
+  edm::EDPutToken npixEndcapToken;
   edm::EDPutToken pOrigTrkToken;
   edm::EDPutToken betaOrigTrkToken;
   edm::EDPutToken t0OrigTrkToken;
@@ -455,9 +454,8 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
   etlMatchChi2Token = produces<edm::ValueMap<float>>("etlMatchChi2");
   btlMatchTimeChi2Token = produces<edm::ValueMap<float>>("btlMatchTimeChi2");
   etlMatchTimeChi2Token = produces<edm::ValueMap<float>>("etlMatchTimeChi2");
-  pathLengthToken = produces<edm::ValueMap<float>>("pathLength");
-  tmtdToken = produces<edm::ValueMap<float>>("tmtd");
-  sigmatmtdToken = produces<edm::ValueMap<float>>("sigmatmtd");
+  npixBarrelToken = produces<edm::ValueMap<int>>("npixBarrel");
+  npixEndcapToken = produces<edm::ValueMap<int>>("npixEndcap");
   pOrigTrkToken = produces<edm::ValueMap<float>>("generalTrackp");
   betaOrigTrkToken = produces<edm::ValueMap<float>>("generalTrackBeta");
   t0OrigTrkToken = produces<edm::ValueMap<float>>("generalTrackt0");
@@ -566,9 +564,8 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   std::vector<float> etlMatchChi2;
   std::vector<float> btlMatchTimeChi2;
   std::vector<float> etlMatchTimeChi2;
-  std::vector<float> pathLengthsRaw;
-  std::vector<float> tmtdRaw;
-  std::vector<float> sigmatmtdRaw;
+  std::vector<int> npixBarrel;
+  std::vector<int> npixEndcap;
   std::vector<float> pOrigTrkRaw;
   std::vector<float> betaOrigTrkRaw;
   std::vector<float> t0OrigTrkRaw;
@@ -721,9 +718,6 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
         etlMatchChi2.push_back(mETL.hit ? mETL.estChi2 : -1);
         btlMatchTimeChi2.push_back(mBTL.hit ? mBTL.timeChi2 : -1);
         etlMatchTimeChi2.push_back(mETL.hit ? mETL.timeChi2 : -1);
-        pathLengthsRaw.push_back(pathLength);
-        tmtdRaw.push_back(tmtd);
-        sigmatmtdRaw.push_back(sigmatmtd);
         pathLengthMap = pathLength;
         tmtdMap = tmtd;
         sigmatmtdMap = sigmatmtd;
@@ -738,6 +732,8 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
         for (unsigned ihit = hitsstart; ihit < hitsend; ++ihit) {
           backtrack.appendHitPattern((*outhits)[ihit], ttopo);
         }
+        npixBarrel.push_back(backtrack.hitPattern().numberOfValidPixelBarrelHits());
+        npixEndcap.push_back(backtrack.hitPattern().numberOfValidPixelEndcapHits());
       } else {
         LogTrace("TrackExtenderWithMTD") << "Error in the MTD track refitting. This should not happen";
       }
@@ -751,6 +747,16 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
     tmtdOrigTrkRaw.push_back(tmtdMap);
     sigmatmtdOrigTrkRaw.push_back(sigmatmtdMap);
     assocOrigTrkRaw.push_back(iMap);
+
+    if (iMap == -1) {
+      btlMatchChi2.push_back(-1.);
+      etlMatchChi2.push_back(-1.);
+      btlMatchTimeChi2.push_back(-1.);
+      etlMatchTimeChi2.push_back(-1.);
+      npixBarrel.push_back(-1.);
+      npixEndcap.push_back(-1.);
+    }
+
     ++itrack;
   }
 
@@ -758,13 +764,12 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   ev.put(std::move(extras));
   ev.put(std::move(outhits));
 
-  fillValueMap(ev, outTrksHandle, btlMatchChi2, btlMatchChi2Token);
-  fillValueMap(ev, outTrksHandle, etlMatchChi2, etlMatchChi2Token);
-  fillValueMap(ev, outTrksHandle, btlMatchTimeChi2, btlMatchTimeChi2Token);
-  fillValueMap(ev, outTrksHandle, etlMatchTimeChi2, etlMatchTimeChi2Token);
-  fillValueMap(ev, outTrksHandle, pathLengthsRaw, pathLengthToken);
-  fillValueMap(ev, outTrksHandle, tmtdRaw, tmtdToken);
-  fillValueMap(ev, outTrksHandle, sigmatmtdRaw, sigmatmtdToken);
+  fillValueMap(ev, tracksH, btlMatchChi2, btlMatchChi2Token);
+  fillValueMap(ev, tracksH, etlMatchChi2, etlMatchChi2Token);
+  fillValueMap(ev, tracksH, btlMatchTimeChi2, btlMatchTimeChi2Token);
+  fillValueMap(ev, tracksH, etlMatchTimeChi2, etlMatchTimeChi2Token);
+  fillValueMap(ev, tracksH, npixBarrel, npixBarrelToken);
+  fillValueMap(ev, tracksH, npixEndcap, npixEndcapToken);
   fillValueMap(ev, tracksH, pOrigTrkRaw, pOrigTrkToken);
   fillValueMap(ev, tracksH, betaOrigTrkRaw, betaOrigTrkToken);
   fillValueMap(ev, tracksH, t0OrigTrkRaw, t0OrigTrkToken);

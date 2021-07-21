@@ -1,18 +1,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
-#include "Geometry/Records/interface/PTrackerParametersRcd.h"
-
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -28,7 +18,12 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-CreateSurveyRcds::CreateSurveyRcds(const edm::ParameterSet& cfg) {
+CreateSurveyRcds::CreateSurveyRcds(const edm::ParameterSet& cfg)
+    : tTopoToken_(esConsumes()),
+      geomDetToken_(esConsumes()),
+      ptpToken_(esConsumes()),
+      aliToken_(esConsumes()),
+      aliErrToken_(esConsumes()) {
   m_inputGeom = cfg.getUntrackedParameter<std::string>("inputGeom");
   m_inputSimpleMis = cfg.getUntrackedParameter<double>("simpleMis");
   m_generatedRandom = cfg.getUntrackedParameter<bool>("generatedRandom");
@@ -37,28 +32,20 @@ CreateSurveyRcds::CreateSurveyRcds(const edm::ParameterSet& cfg) {
 
 void CreateSurveyRcds::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  edm::ESHandle<GeometricDet> geom;
-  setup.get<IdealGeometryRecord>().get(geom);
-  edm::ESHandle<PTrackerParameters> ptp;
-  setup.get<PTrackerParametersRcd>().get(ptp);
-  TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, *ptp, tTopo);
+  const TrackerTopology* const tTopo = &setup.getData(tTopoToken_);
+  const GeometricDet* geom = &setup.getData(geomDetToken_);
+  const PTrackerParameters& ptp = setup.getData(ptpToken_);
+  TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(geom, ptp, tTopo);
 
   //take geometry from DB or randomly generate geometry
   if (m_inputGeom == "sqlite") {
     //build the tracker
-    edm::ESHandle<Alignments> alignments;
-    edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-
-    setup.get<TrackerAlignmentRcd>().get(alignments);
-    setup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
+    const Alignments* alignments = &setup.getData(aliToken_);
+    const AlignmentErrorsExtended* alignmentErrors = &setup.getData(aliErrToken_);
 
     //apply the latest alignments
     GeometryAligner aligner;
-    aligner.applyAlignments<TrackerGeometry>(&(*tracker), &(*alignments), &(*alignmentErrors), AlignTransform());
+    aligner.applyAlignments<TrackerGeometry>(&(*tracker), alignments, alignmentErrors, AlignTransform());
   }
 
   addComponent(new AlignableTracker(tracker, tTopo));

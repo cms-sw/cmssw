@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,9 +31,11 @@ private:
   void doTest(const FastTimeTopology& topology);
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<FastTimeTopology, IdealGeometryRecord> tokTopo_;
 };
 
-FastTimeTopologyTester::FastTimeTopologyTester(const edm::ParameterSet&) {}
+FastTimeTopologyTester::FastTimeTopologyTester(const edm::ParameterSet&)
+    : tokTopo_{esConsumes<FastTimeTopology, IdealGeometryRecord>(edm::ESInputTag{"", "FastTimeBarrel"})} {}
 
 void FastTimeTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -43,12 +44,7 @@ void FastTimeTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& de
 }
 
 void FastTimeTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
-  edm::ESHandle<FastTimeTopology> topo;
-  iSetup.get<IdealGeometryRecord>().get("FastTimeBarrel", topo);
-  if (topo.isValid())
-    doTest(*topo);
-  else
-    std::cout << "Cannot get a valid FastTimeTopology Object for FastTimeBarrel\n";
+  doTest(iSetup.getData(tokTopo_));
 }
 
 void FastTimeTopologyTester::doTest(const FastTimeTopology& topology) {
@@ -65,19 +61,19 @@ void FastTimeTopologyTester::doTest(const FastTimeTopology& topology) {
           std::vector<DetId> idS = topology.south(id);
           std::cout << "          " << idE.size() << " sets along East:";
           for (auto& i : idE)
-            std::cout << " " << (FastTimeDetId)(i());
+            std::cout << " " << static_cast<FastTimeDetId>(i());
           std::cout << std::endl;
           std::cout << "          " << idW.size() << " sets along West:";
           for (auto& i : idW)
-            std::cout << " " << (FastTimeDetId)(i());
+            std::cout << " " << static_cast<FastTimeDetId>(i());
           std::cout << std::endl;
           std::cout << "          " << idN.size() << " sets along North:";
           for (auto& i : idN)
-            std::cout << " " << (FastTimeDetId)(i());
+            std::cout << " " << static_cast<FastTimeDetId>(i());
           std::cout << std::endl;
           std::cout << "          " << idS.size() << " sets along South:";
           for (auto& i : idS)
-            std::cout << " " << (FastTimeDetId)(i());
+            std::cout << " " << static_cast<FastTimeDetId>(i());
           std::cout << std::endl;
         }
         phi += 10;

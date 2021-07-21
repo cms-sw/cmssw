@@ -215,9 +215,9 @@ class Process(object):
         return untracked.PSet(numberOfThreads = untracked.uint32(1),
                               numberOfStreams = untracked.uint32(0),
                               numberOfConcurrentRuns = untracked.uint32(1),
-                              numberOfConcurrentLuminosityBlocks = untracked.uint32(1),
+                              numberOfConcurrentLuminosityBlocks = untracked.uint32(0),
                               eventSetup = untracked.PSet(
-                                  numberOfConcurrentIOVs = untracked.uint32(1),
+                                  numberOfConcurrentIOVs = untracked.uint32(0),
                                   forceNumberOfConcurrentIOVs = untracked.PSet(
                                       allowAnyLabel_ = required.untracked.uint32
                                   )
@@ -234,6 +234,7 @@ class Process(object):
                               FailPath = untracked.vstring(),
                               IgnoreCompletely = untracked.vstring(),
                               canDeleteEarly = untracked.vstring(),
+                              dumpOptions = untracked.bool(False),
                               allowUnscheduled = obsolete.untracked.bool,
                               emptyRunLumiMode = obsolete.untracked.string,
                               makeTriggerResults = obsolete.untracked.bool
@@ -2015,17 +2016,18 @@ process.options = cms.untracked.PSet(
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
     deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
+    dumpOptions = cms.untracked.bool(False),
     emptyRunLumiMode = cms.obsolete.untracked.string,
     eventSetup = cms.untracked.PSet(
         forceNumberOfConcurrentIOVs = cms.untracked.PSet(
             allowAnyLabel_=cms.required.untracked.uint32
         ),
-        numberOfConcurrentIOVs = cms.untracked.uint32(1)
+        numberOfConcurrentIOVs = cms.untracked.uint32(0)
     ),
     fileMode = cms.untracked.string('FULLMERGE'),
     forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
     makeTriggerResults = cms.obsolete.untracked.bool,
-    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1),
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
     numberOfStreams = cms.untracked.uint32(0),
     numberOfThreads = cms.untracked.uint32(1),
@@ -2429,13 +2431,13 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             # Also note that the mutating visitor replaces sequences and tasks that have
             # modified contents with their modified contents, it does not modify the sequence
             # or task itself.
-            self.assertTrue(process.path21.dumpPython(PrintOptions()) == 'cms.Path(process.mproducer10+process.mproducer8+process.mproducer8+(process.mproducer8+process.mproducer9)+process.sequence3, cms.Task(), cms.Task(process.None, process.mproducer10), cms.Task(process.d, process.mesproducer, process.messource, process.mfilter, process.mproducer10, process.mproducer2, process.myTask6), process.myTask100, process.myTask5)\n')
+            self.assertTrue(process.path21.dumpPython(PrintOptions()) == 'cms.Path(process.mproducer10+process.mproducer8+process.mproducer8+(process.mproducer8+process.mproducer9)+process.sequence3, cms.Task(), cms.Task(process.None, process.mproducer10), cms.Task(process.d, process.mesproducer, process.messource, process.mfilter, process.mproducer10, process.mproducer2, process.mproducer8, process.myTask5), process.myTask100, process.myTask5)\n')
 
             process.path22 = process.path21.copyAndExclude([process.d, process.mesproducer, process.mfilter])
-            self.assertTrue(process.path22.dumpPython(PrintOptions()) == 'cms.Path(process.mproducer10+process.mproducer8+process.mproducer8+(process.mproducer8+process.mproducer9)+process.mproducer8, cms.Task(), cms.Task(process.None, process.mproducer10), cms.Task(process.messource, process.mproducer10, process.mproducer2, process.myTask6), process.myTask100, process.myTask5)\n')
+            self.assertTrue(process.path22.dumpPython(PrintOptions()) == 'cms.Path(process.mproducer10+process.mproducer8+process.mproducer8+(process.mproducer8+process.mproducer9)+process.mproducer8, cms.Task(), cms.Task(process.None, process.mproducer10), cms.Task(process.messource, process.mproducer10, process.mproducer2, process.mproducer8, process.myTask5), process.myTask100, process.myTask5)\n')
 
             process.path23 = process.path22.copyAndExclude([process.messource, process.mproducer10])
-            self.assertTrue(process.path23.dumpPython(PrintOptions()) == 'cms.Path(process.mproducer8+process.mproducer8+(process.mproducer8+process.mproducer9)+process.mproducer8, cms.Task(), cms.Task(process.None), cms.Task(process.mproducer2, process.myTask6), process.myTask100, process.myTask5)\n')
+            self.assertTrue(process.path23.dumpPython(PrintOptions()) == 'cms.Path(process.mproducer8+process.mproducer8+(process.mproducer8+process.mproducer9)+process.mproducer8, cms.Task(), cms.Task(process.None), cms.Task(process.mproducer2, process.mproducer8, process.myTask5), process.myTask100, process.myTask5)\n')
 
             process.a = EDAnalyzer("MyAnalyzer")
             process.b = OutputModule("MyOutputModule")
@@ -3114,14 +3116,14 @@ process.h = cms.EDProducer("mh")
 process.i = cms.EDProducer("mi")
 process.j = cms.EDProducer("mj")
 process.b = cms.EDAnalyzer("mb")
-process.t8 = cms.Task(cms.TaskPlaceholder("j"))
-process.t6 = cms.Task(cms.TaskPlaceholder("h"))
-process.t7 = cms.Task(cms.TaskPlaceholder("i"), process.a, process.t6)
-process.t4 = cms.Task(cms.TaskPlaceholder("f"))
-process.t5 = cms.Task(cms.TaskPlaceholder("g"), cms.TaskPlaceholder("t4"), process.a)
-process.t3 = cms.Task(cms.TaskPlaceholder("e"))
 process.t1 = cms.Task(cms.TaskPlaceholder("c"))
 process.t2 = cms.Task(cms.TaskPlaceholder("d"), process.a, process.t1)
+process.t3 = cms.Task(cms.TaskPlaceholder("e"))
+process.t5 = cms.Task(cms.TaskPlaceholder("g"), cms.TaskPlaceholder("t4"), process.a)
+process.t4 = cms.Task(cms.TaskPlaceholder("f"))
+process.t6 = cms.Task(cms.TaskPlaceholder("h"))
+process.t7 = cms.Task(cms.TaskPlaceholder("i"), process.a, process.t6)
+process.t8 = cms.Task(cms.TaskPlaceholder("j"))
 process.path1 = cms.Path(process.b, process.t2, process.t3)
 process.endpath1 = cms.EndPath(process.b, process.t5)
 process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[process.t7, process.t8])""")
@@ -3137,14 +3139,14 @@ process.h = cms.EDProducer("mh")
 process.i = cms.EDProducer("mi")
 process.j = cms.EDProducer("mj")
 process.b = cms.EDAnalyzer("mb")
-process.t8 = cms.Task(process.j)
-process.t6 = cms.Task(process.h)
-process.t7 = cms.Task(process.a, process.i, process.t6)
-process.t4 = cms.Task(process.f)
-process.t5 = cms.Task(process.a, process.g, process.t4)
-process.t3 = cms.Task(process.e)
 process.t1 = cms.Task(process.c)
 process.t2 = cms.Task(process.a, process.d, process.t1)
+process.t3 = cms.Task(process.e)
+process.t4 = cms.Task(process.f)
+process.t6 = cms.Task(process.h)
+process.t7 = cms.Task(process.a, process.i, process.t6)
+process.t8 = cms.Task(process.j)
+process.t5 = cms.Task(process.a, process.g, process.t4)
 process.path1 = cms.Path(process.b, process.t2, process.t3)
 process.endpath1 = cms.EndPath(process.b, process.t5)
 process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[process.t7, process.t8])""")

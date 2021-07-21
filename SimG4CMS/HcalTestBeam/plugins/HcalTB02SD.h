@@ -31,7 +31,7 @@
 class HcalTB02SD : public CaloSD {
 public:
   HcalTB02SD(const std::string&,
-             const edm::EventSetup&,
+             const HcalTB02Parameters*,
              const SensitiveDetectorCatalog&,
              edm::ParameterSet const&,
              const SimTrackManager*);

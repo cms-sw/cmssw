@@ -28,7 +28,7 @@ using namespace std;
 
 ESDaqInfoTask::ESDaqInfoTask(const ParameterSet& ps) {
   dqmStore_ = Service<DQMStore>().operator->();
-
+  runInfoToken_ = esConsumes<edm::Transition::BeginLuminosityBlock>();
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
@@ -117,8 +117,7 @@ void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
   }
 
   if (auto runInfoRec = iSetup.tryToGet<RunInfoRcd>()) {
-    edm::ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
+    const auto& sumFED = runInfoRec->getHandle(runInfoToken_);
 
     std::vector<int> FedsInIds = sumFED->m_fed_in;
 

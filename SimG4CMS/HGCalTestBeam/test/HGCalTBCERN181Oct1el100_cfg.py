@@ -12,6 +12,7 @@ process.load('SimG4CMS.HGCalTestBeam.HGCalTB181Oct1XML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
 process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
+process.load('Geometry.HcalCommonData.caloSimulationParameters_cff')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
@@ -96,6 +97,16 @@ process.VtxSmeared.MeanZ  = 0
 process.VtxSmeared.SigmaZ = 0
 process.g4SimHits.HGCSD.RejectMouseBite = True
 process.g4SimHits.HGCSD.RotatedWafer    = True
+process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector', 
+                             'AHcalSensitiveDetector',
+                             'CaloTrkProcessing',
+                             'HGCSensitiveDetector',
+                             'EcalTBH4BeamDetector',
+                             'HGCalTB1601SensitiveDetector',
+                             'HcalTB02SensitiveDetector',
+                             'HcalTB06BeamDetector',
+                             'EcalSensitiveDetector',
+                             'HcalSensitiveDetector']
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 		HGCPassive = cms.PSet(
 			LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'HGCalBeam', 'CMSE'),

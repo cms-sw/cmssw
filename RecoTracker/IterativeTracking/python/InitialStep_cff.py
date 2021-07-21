@@ -233,7 +233,6 @@ import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationCon
 import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
 mkFitSiPixelHits = mkFitSiPixelHitConverter_cfi.mkFitSiPixelHitConverter.clone() # TODO: figure out better place for this module?
-mkFitSiStripHits = mkFitSiStripHitConverter_cfi.mkFitSiStripHitConverter.clone() # TODO: figure out better place for this module?
 mkFitEventOfHits = mkFitEventOfHitsProducer_cfi.mkFitEventOfHitsProducer.clone() # TODO: figure out better place for this module?
 initialStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
     seeds = 'initialStepSeeds',
@@ -428,7 +427,7 @@ InitialStep = cms.Sequence(InitialStepTask)
 
 from Configuration.ProcessModifiers.trackingMkFitCommon_cff import trackingMkFitCommon
 _InitialStepTask_trackingMkFitCommon = InitialStepTask.copy()
-_InitialStepTask_trackingMkFitCommon.add(mkFitSiPixelHits, mkFitSiStripHits, mkFitEventOfHits, mkFitGeometryESProducer)
+_InitialStepTask_trackingMkFitCommon.add(mkFitSiPixelHits, mkFitEventOfHits, mkFitGeometryESProducer)
 trackingMkFitCommon.toReplaceWith(InitialStepTask, _InitialStepTask_trackingMkFitCommon)
 
 _InitialStepTask_trackingMkFit = InitialStepTask.copy()

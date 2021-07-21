@@ -4,7 +4,6 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/RunInfo"/>
 <use name="CondCore/PopCon"/>
-<use name="EventFilter/RPCRawToDigi"/>
 <export>
   <lib name="1"/>
 </export>

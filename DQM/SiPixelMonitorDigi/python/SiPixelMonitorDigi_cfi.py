@@ -13,6 +13,7 @@ SiPixelDigiSource = DQMEDAnalyzer('SiPixelDigiSource',
     isPIB = cms.untracked.bool(False),
     slowDown = cms.untracked.bool(False),
     modOn = cms.untracked.bool(True),
+    perLSsaving = cms.untracked.bool(False), #driven by DQMServices/Core/python/DQMStore_cfi.py
     twoDimOn = cms.untracked.bool(True),	
     twoDimModOn = cms.untracked.bool(True),     
     #allows to have no twoD plots on Mod level (but possibly on other levels),

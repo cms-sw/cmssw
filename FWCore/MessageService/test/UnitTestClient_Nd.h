@@ -1,4 +1,6 @@
+#ifndef EDM_ML_DEBUG
 #define EDM_ML_DEBUG
+#endif
 
 #ifndef FWCore_MessageService_test_UnitTestClient_Nd_h
 #define FWCore_MessageService_test_UnitTestClient_Nd_h

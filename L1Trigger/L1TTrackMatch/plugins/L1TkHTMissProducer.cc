@@ -7,6 +7,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,15 +20,15 @@
 
 using namespace l1t;
 
-class L1TkHTMissProducer : public edm::EDProducer {
+class L1TkHTMissProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1TkHTMissProducer(const edm::ParameterSet&);
   ~L1TkHTMissProducer() override;
 
 private:
-  void beginJob() override;
+  //void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  //void endJob() override;
 
   // ----------member data ---------------------------
   float jetMinPt_;            // [GeV]
@@ -234,8 +235,8 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   }
 }  //end producer
 
-void L1TkHTMissProducer::beginJob() {}
+//void L1TkHTMissProducer::beginJob() {}
 
-void L1TkHTMissProducer::endJob() {}
+//void L1TkHTMissProducer::endJob() {}
 
 DEFINE_FWK_MODULE(L1TkHTMissProducer);

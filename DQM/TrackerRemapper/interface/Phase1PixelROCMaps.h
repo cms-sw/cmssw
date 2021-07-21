@@ -72,6 +72,7 @@ public:
 
   bool isBarrel() { return (m_layer > 0); }
   bool isEndcap() { return (m_ring > 0); }
+  bool isFlipped() { return m_isFlipped; }
 };
 
 /*--------------------------------------------------------------------
@@ -120,6 +121,7 @@ public:
   ~Phase1PixelROCMaps() {}
 
   // Forward declarations
+  DetCoordinates findDetCoordinates(const uint32_t& t_detid);
   void fillWholeModule(const uint32_t& detid, double value);
   void fillSelectedRocs(const uint32_t& detid, const std::bitset<16>& theROCs, double value);
   void drawBarrelMaps(TCanvas& canvas, const std::string& text = "");
@@ -152,8 +154,6 @@ private:
   static constexpr const char* kVerbose = "verbose";
 
   // Forward declarations of private methods
-
-  DetCoordinates findDetCoordinates(const uint32_t& t_detid);
   std::vector<std::pair<int, int> > maskedBarrelRocsToBins(DetCoordinates coord);
   std::vector<std::tuple<int, int, int> > maskedBarrelRocsToBins(DetCoordinates coord, std::bitset<16> myRocs);
   std::vector<std::pair<int, int> > maskedForwardRocsToBins(DetCoordinates coord);

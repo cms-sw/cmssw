@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <SolidSection>
+    <Assembly name="AssemblyVolume"/>
+    <TruncTubs name="ChildVolume" rMin="6.9551*m" rMax="9*m" cutAtStart="6.9551*m" cutAtDelta="7.20045*m" cutInside="true"
+	       startPhi="0*deg" deltaPhi="15*deg" zHalf="6.57005*m"/>
+  </SolidSection>
+  <LogicalPartSection>
+    <LogicalPart name="AssemblyVolume" category="unspecified">
+      <rSolid name="AssemblyVolume"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="ChildVolume" category="unspecified">
+      <rSolid name="ChildVolume"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+  </LogicalPartSection>
+  <PosPartSection label="">
+     <PosPart copyNumber="1">
+      <rParent name="AssemblyVolume"/>
+      <rChild name="ChildVolume"/>
+      <Translation z="17.4299*m" y="0.*m" x="0."/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="AssemblyVolume"/>
+      <rChild name="ChildVolume"/>
+      <Translation z="-17.4299*m" y="0.*m" x="0."/>
+    </PosPart>
+    <PosPart copyNumber="13">
+      <rParent name="world:MotherOfAllBoxes"/>
+      <rChild name="AssemblyVolume"/>
+      <Translation z="0*m" y="0.*m" x="0."/>
+    </PosPart>
+  </PosPartSection>
+</DDDefinition>

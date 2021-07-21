@@ -24,7 +24,7 @@
 // constructors and destructor
 HcalTB02Histo::HcalTB02Histo(const edm::ParameterSet& ps) : rt_tbTimes(nullptr), rt_TransProf(nullptr) {
   verbose = ps.getUntrackedParameter<bool>("Verbose", false);
-  edm::LogInfo("HcalTBSim") << "HcalTB02Histo:: initialised with o/p file " << fileName << " verbosity " << verbose;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02Histo:: initialised with o/p file " << fileName << " verbosity " << verbose;
 
   // Book histograms
   edm::Service<TFileService> tfile;
@@ -38,17 +38,17 @@ HcalTB02Histo::HcalTB02Histo(const edm::ParameterSet& ps) : rt_tbTimes(nullptr),
     sprintf(title, "Scint. Energy in Layer %d ", ilayer);
     TH1D* h = tfile->make<TH1D>(title, title, 500, 0., 1.5);
     rt_histoProf.push_back(h);
-    edm::LogInfo("HcalTBSim") << "HcalTB02Histo:: Initialise Histo " << title;
+    edm::LogVerbatim("HcalTBSim") << "HcalTB02Histo:: Initialise Histo " << title;
   }
   sprintf(title, "All Hit Time slices");
   rt_tbTimes = tfile->make<TH1D>(title, title, 100, 0., 100.);
-  edm::LogInfo("HcalTBSim") << "HcalTB02Histo:: Initialise Histo " << title;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02Histo:: Initialise Histo " << title;
   sprintf(title, "Transv. Shower Profile");
   rt_TransProf = tfile->make<TH2D>(title, title, 100, 0., 1., 1000, 0., 0.5);
-  edm::LogInfo("HcalTBSim") << "HcalTB02Histo:: Initialise Histo " << title;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02Histo:: Initialise Histo " << title;
 }
 
-HcalTB02Histo::~HcalTB02Histo() { edm::LogInfo("HcalTBSim") << " Deleting HcalTB02Histo"; }
+HcalTB02Histo::~HcalTB02Histo() { edm::LogVerbatim("HcalTBSim") << " Deleting HcalTB02Histo"; }
 
 //
 // member functions

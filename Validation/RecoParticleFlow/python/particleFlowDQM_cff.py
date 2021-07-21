@@ -92,10 +92,11 @@ pfJetAnalyzerDQM = cms.EDProducer("PFJetAnalyzerDQM",
     recoJetPlots = cms.VPSet(createRecoJetPlots(ptbins, etabins)),
 )
 
-pfPuppiJetAnalyzerDQM = pfJetAnalyzerDQM.clone()
-pfPuppiJetAnalyzerDQM.recoJetCollection = cms.InputTag('slimmedJetsPuppi')
-pfPuppiJetAnalyzerDQM.genJetsOn = cms.bool(False)
-pfPuppiJetAnalyzerDQM.recoJetsOn = cms.bool(True)
+pfPuppiJetAnalyzerDQM = pfJetAnalyzerDQM.clone(
+    recoJetCollection = 'slimmedJetsPuppi',
+    genJetsOn = False, 
+    recoJetsOn = True
+)
 
 vjetResponseDir = [jetResponseDir + "slimmedJets/JEC/",
                    jetResponseDir + "slimmedJets/noJEC/",

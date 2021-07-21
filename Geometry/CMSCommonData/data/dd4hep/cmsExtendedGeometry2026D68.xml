@@ -95,7 +95,7 @@
     <Include ref='Geometry/MTDCommonData/data/etl/v3/etl.xml'/>
     <Include ref='Geometry/MTDCommonData/data/mtdParameters/v1/mtdStructureTopology.xml'/>
     <Include ref='Geometry/MTDCommonData/data/mtdParameters/v1/mtdParameters.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v1/muonNumbering.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v4/muonNumbering.xml'/>
     <Include ref='Geometry/EcalSimData/data/PhaseII/ecalsens.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalsens/NoHE/hcalsenspmf.xml'/>
     <Include ref='Geometry/HcalSimData/data/hf.xml'/>

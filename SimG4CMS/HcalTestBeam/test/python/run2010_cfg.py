@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_h2tb_cff import h2tb
 
-process = cms.Process("PROD")
+process = cms.Process("PROD", h2tb)
 
 process.load('SimG4CMS.HcalTestBeam.TB2010GeometryXML_cfi')
 process.load('SimGeneral.HepPDTESSource.pdt_cfi')
@@ -27,6 +28,8 @@ process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
+beamPosition = -800.0
+
 process.common_beam_direction_parameters = cms.PSet(
     MinE         = cms.double(50.0),
     MaxE         = cms.double(50.0),
@@ -35,7 +38,7 @@ process.common_beam_direction_parameters = cms.PSet(
     MaxEta       = cms.double(0.2175),
     MinPhi       = cms.double(-0.1309),
     MaxPhi       = cms.double(-0.1309),
-    BeamPosition = cms.double(-800.0)
+    BeamPosition = cms.double(beamPosition)
 )
 
 process.source = cms.Source("EmptySource",
@@ -58,12 +61,6 @@ process.maxEvents = cms.untracked.PSet(
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
     fileName = cms.untracked.string('sim2010.root')
-)
-
-process.common_heavy_suppression1 = cms.PSet(
-    NeutronThreshold = cms.double(30.0),
-    ProtonThreshold = cms.double(30.0),
-    IonThreshold = cms.double(30.0)
 )
 
 process.Timing = cms.Service("Timing")
@@ -104,22 +101,17 @@ process.testbeam = cms.EDAnalyzer("HcalTB06Analysis",
                                   )
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.testbeam)
-process.outpath = cms.EndPath(process.o1)
 
-process.common_maximum_timex = cms.PSet(
-    MaxTrackTime  = cms.double(1000.0),
-    MaxTimeNames  = cms.vstring(),
-    MaxTrackTimes = cms.vdouble(),
-    DeadRegions   = cms.vstring(),
-    CriticalEnergyForVacuum = cms.double(2.0),
-    CriticalDensity         = cms.double(1e-15)
-)
+process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.Region = 'HcalRegion'
 process.g4SimHits.Physics.DefaultCutValue = 1.
 
+process.g4SimHits.StackingAction.KillGamma = False
+process.g4SimHits.CaloTrkProcessing.TestBeam = True
+process.g4SimHits.CaloSD.BeamPosition = beamPosition
 process.g4SimHits.ECalSD.UseBirkLaw = True
 process.g4SimHits.ECalSD.BirkL3Parametrization = True
 process.g4SimHits.ECalSD.BirkC1 = 0.033
@@ -136,66 +128,9 @@ process.g4SimHits.HCalSD.TestNumberingScheme = False
 process.g4SimHits.HCalSD.UseHF   = False
 process.g4SimHits.HCalSD.ForTBHCAL = True
 process.g4SimHits.HCalSD.ForTBH2 = True
-process.g4SimHits.StackingAction = cms.PSet(
-    process.common_heavy_suppression1,
-    process.common_maximum_timex,
-    KillDeltaRay  = cms.bool(False),
-    TrackNeutrino = cms.bool(False),
-    KillHeavy     = cms.bool(False),
-    KillGamma     = cms.bool(True),
-    GammaThreshold = cms.double(0.0001), ## (MeV)
-    SaveFirstLevelSecondary = cms.untracked.bool(False),
-    SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(False),
-    SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(False),
-    SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(False),
-    SaveAllPrimaryDecayProductsAndConversions = cms.untracked.bool(True),
-    RusRoGammaEnergyLimit  = cms.double(5.0), ## (MeV)
-    RusRoEcalGamma         = cms.double(0.3),
-    RusRoHcalGamma         = cms.double(0.3),
-    RusRoMuonIronGamma     = cms.double(0.3),
-    RusRoPreShowerGamma    = cms.double(0.3),
-    RusRoCastorGamma       = cms.double(0.3),
-    RusRoWorldGamma        = cms.double(0.3),
-    RusRoNeutronEnergyLimit  = cms.double(10.0), ## (MeV)
-    RusRoEcalNeutron         = cms.double(0.1),
-    RusRoHcalNeutron         = cms.double(0.1),
-    RusRoMuonIronNeutron     = cms.double(0.1),
-    RusRoPreShowerNeutron    = cms.double(0.1),
-    RusRoCastorNeutron       = cms.double(0.1),
-    RusRoWorldNeutron        = cms.double(0.1),
-    RusRoProtonEnergyLimit  = cms.double(0.0),
-    RusRoEcalProton         = cms.double(1.0),
-    RusRoHcalProton         = cms.double(1.0),
-    RusRoMuonIronProton     = cms.double(1.0),
-    RusRoPreShowerProton    = cms.double(1.0),
-    RusRoCastorProton       = cms.double(1.0),
-    RusRoWorldProton        = cms.double(1.0)
-    )
-
-process.g4SimHits.SteppingAction = cms.PSet(
-    process.common_maximum_timex,
-    EkinNames               = cms.vstring(),
-    EkinThresholds          = cms.vdouble(),
-    EkinParticles           = cms.vstring()
-    )
-
-process.g4SimHits.CaloSD = cms.PSet(
-    process.common_beam_direction_parameters,
-    process.common_heavy_suppression1,
-    EminTrack      = cms.double(1.0),
-    TmaxHit        = cms.double(1000.0),
-    EminHits       = cms.vdouble(0.0,0.0,0.0,0.0),
-    EminHitsDepth  = cms.vdouble(0.0,0.0,0.0,0.0),
-    TmaxHits       = cms.vdouble(1000.0,1000.0,1000.0,1000.0),
-    HCNames        = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits'),
-    UseResponseTables = cms.vint32(0,0,0,0),
-    SuppressHeavy  = cms.bool(False),
-    UseFineCaloID  = cms.bool(False),
-    CheckHits      = cms.untracked.int32(25),
-    UseMap         = cms.untracked.bool(True),
-    Verbosity      = cms.untracked.int32(0),
-    DetailedTiming = cms.untracked.bool(False),
-    CorrectTOFBeam = cms.bool(False)
-)
-
-process.g4SimHits.CaloTrkProcessing.TestBeam = True
+process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
+                             'EcalTBH4BeamDetector',
+                             'HcalTB02SensitiveDetector',
+                             'HcalTB06BeamDetector',
+                             'EcalSensitiveDetector',
+                             'HcalSensitiveDetector']

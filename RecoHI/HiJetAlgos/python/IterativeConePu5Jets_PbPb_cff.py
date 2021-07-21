@@ -18,18 +18,17 @@ caloTowers = cms.EDProducer("CaloTowerCandidateCreator",
     minimumEt = cms.double(0.0),
     et = cms.double(0.0)
 )
+import RecoJets.JetProducers.FastjetJetProducer_cfi as _mod
 
-iterativeConePu5CaloJets = cms.EDProducer("FastjetJetProducer",
-                                          CaloJetParameters,
-                                          AnomalousCellParameters,
-                                          jetAlgorithm = cms.string("IterativeCone"),
-                                          rParam       = cms.double(0.5),
-                                          )
-
-iterativeConePu5CaloJets.doPUOffsetCorr = True
-iterativeConePu5CaloJets.doPVCorrection = False
-iterativeConePu5CaloJets.jetPtMin = 10
-
+iterativeConePu5CaloJets = _mod.FastjetJetProducer.clone(
+    CaloJetParameters,
+    AnomalousCellParameters,
+    jetAlgorithm = "IterativeCone",
+    rParam       = 0.5,
+    doPUOffsetCorr = True,
+    doPVCorrection = False,
+    jetPtMin = 10
+)
 
 # REPLACE with UP-TO-DATE Corrections
 #MCJetCorJetIconePu5 = cms.EDProducer("CaloJetCorrectionProducer",

@@ -12,11 +12,7 @@ class G4Step;
 
 class Bcm1fSD : public TimingSD {
 public:
-  Bcm1fSD(const std::string &,
-          const edm::EventSetup &,
-          const SensitiveDetectorCatalog &,
-          edm::ParameterSet const &,
-          const SimTrackManager *);
+  Bcm1fSD(const std::string &, const SensitiveDetectorCatalog &, edm::ParameterSet const &, const SimTrackManager *);
   ~Bcm1fSD() override;
 
   uint32_t setDetUnitId(const G4Step *) override;

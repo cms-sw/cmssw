@@ -27,15 +27,6 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
 
   theParity = theChamber % 2 == 0 ? Parity::Even : Parity::Odd;
 
-  // enable the upgrade processors
-  if (runPhase2_ and theRing == 1) {
-    clctProc = std::make_unique<CSCUpgradeCathodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
-    if (enableAlctPhase2_) {
-      alctProc = std::make_unique<CSCUpgradeAnodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
-    }
-  }
-
-  match_earliest_alct_only = tmbParams_.getParameter<bool>("matchEarliestAlctOnly");
   match_earliest_clct_only = tmbParams_.getParameter<bool>("matchEarliestClctOnly");
   drop_used_clcts = tmbParams_.getParameter<bool>("tmbDropUsedClcts");
   tmb_cross_bx_algo = tmbParams_.getParameter<unsigned int>("tmbCrossBxAlgorithm");
@@ -228,13 +219,13 @@ void CSCUpgradeMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
   // parameters.
   if ((alct_trig_enable and bestALCT.isValid()) or (clct_trig_enable and bestCLCT.isValid()) or
       (match_trig_enable and bestALCT.isValid() and bestCLCT.isValid())) {
-    lct1 = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
+    constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1, lct1);
   }
 
   if (((secondALCT != bestALCT) or (secondCLCT != bestCLCT)) and
       ((alct_trig_enable and secondALCT.isValid()) or (clct_trig_enable and secondCLCT.isValid()) or
        (match_trig_enable and secondALCT.isValid() and secondCLCT.isValid()))) {
-    lct2 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
+    constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2, lct2);
   }
 }
 

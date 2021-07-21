@@ -107,6 +107,7 @@ private:
   edm::EDGetTokenT<reco::ConversionCollection> conversionsToken_;
   edm::EDGetTokenT<edm::TriggerResults> trgresultsToken_;
   edm::EDGetTokenT<trigger::TriggerEvent> trigobjectsToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken_;
   std::vector<string> HLTFilter_, HLTPath_;
 
   bool Result = false;

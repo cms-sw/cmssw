@@ -37,10 +37,9 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCLUTReader.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/ComparatorCodeLUT.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/PulseArray.h"
 
 #include <vector>
-#include <array>
-#include <string>
 
 class CSCCathodeLCTProcessor : public CSCBaseboard {
 public:
@@ -70,12 +69,10 @@ public:
   void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
 
   /** Returns vector of CLCTs in the read-out time window, if any. */
-  std::vector<CSCCLCTDigi> readoutCLCTs(int nMaxCLCTs = CSCConstants::MAX_CLCTS_READOUT) const;
-  std::vector<CSCCLCTDigi> readoutCLCTsME1a(int nMaxCLCTs = CSCConstants::MAX_CLCTS_READOUT) const;
-  std::vector<CSCCLCTDigi> readoutCLCTsME1b(int nMaxCLCTs = CSCConstants::MAX_CLCTS_READOUT) const;
+  std::vector<CSCCLCTDigi> readoutCLCTs() const;
 
   /** Returns vector of all found CLCTs, if any. */
-  std::vector<CSCCLCTDigi> getCLCTs(unsigned nMaxCLCTs = CSCConstants::MAX_CLCTS_PER_PROCESSOR) const;
+  std::vector<CSCCLCTDigi> getCLCTs() const;
 
   /** get best/second best CLCT
    * Note: CLCT has BX shifted */
@@ -86,8 +83,6 @@ public:
 
   /** read out CLCTs in ME1a , ME1b */
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigis() const { return thePreTriggerDigis; }
-  std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1a() const;
-  std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1b() const;
 
   /* get special bits for high multiplicity triggers */
   unsigned getInTimeHMT() const { return inTimeHMT_; }
@@ -110,8 +105,6 @@ protected:
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
 
-  typedef unsigned int PulseArray[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
-
   //---------------- Methods common to all firmware versions ------------------
   // Single-argument version for TMB07 (halfstrip-only) firmware.
   // Takes the comparator & time info and stuffs it into halfstrip vector.
@@ -119,19 +112,19 @@ protected:
   void readComparatorDigis(
       std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
   void pulseExtension(
-      const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
-      PulseArray pulse);
+      const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
 
   //--------------- Functions for post-2007 version of the firmware -----------
   virtual std::vector<CSCCLCTDigi> findLCTs(
       const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
 
-  /* Check all half-strip pattern envelopes simultaneously, on every clock cycle, for a matching pattern */
-  virtual bool preTrigger(const PulseArray pulse, const int start_bx, int& first_bx);
+  /* Check all half-strip pattern envelopes simultaneously, on every clock cycle, for a matching pattern
+     Returns true if a pretrigger was found, and the first BX of the pretrigger */
+  virtual bool preTrigger(const int start_bx, int& first_bx);
 
-  /* For a given clock cycle, check each half-strip if a pattern matches */
-  bool patternFinding(const PulseArray pulse,
-                      const unsigned int bx_time,
+  /* For a given clock cycle, check each half-strip if a pattern matches
+     This function determines best_pid_ and nhits_ for each half-strip */
+  bool patternFinding(const unsigned int bx_time,
                       std::map<int, std::map<int, CSCCLCTDigi::ComparatorContainer> >& hits_in_patterns);
 
   void cleanComparatorContainer(CSCCLCTDigi& lct) const;
@@ -141,6 +134,16 @@ protected:
                     const int best_patid,
                     int quality[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
 
+  // build a new CLCT trigger
+  CSCCLCTDigi constructCLCT(const int bx,
+                            const unsigned halfstrip_withstagger,
+                            const CSCCLCTDigi::ComparatorContainer& hits);
+
+  // build a new CLCT pretrigger
+  CSCCLCTPreTriggerDigi constructPreCLCT(const int bx, const unsigned halfstrip, const unsigned index) const;
+
+  // resets ispretrig_
+  void clearPreTriggers();
   //--------------------------- Auxiliary methods -----------------------------
   /** Dump CLCT configuration parameters. */
   void dumpConfigParams() const;
@@ -151,32 +154,19 @@ protected:
 
   //--------------------------- Member variables -----------------------------
 
+  PulseArray pulse_;
+
   /* best pattern Id for a given half-strip */
   unsigned int best_pid[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
 
   /* number of layers hit on a given half-strip */
   unsigned int nhits[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
 
-  int first_bx_corrected[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
-
   /* does a given half-strip have a pre-trigger? */
-  bool ispretrig[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
+  bool ispretrig_[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
 
   // actual LUT used
   CSCPatternBank::LCTPatterns clct_pattern_ = {};
-
-  // we use these next ones to address the various bits inside the array that's
-  // used to make the cathode LCTs.
-  enum CLCT_INDICES {
-    CLCT_PATTERN,
-    CLCT_BEND,
-    CLCT_STRIP,
-    CLCT_BX,
-    CLCT_STRIP_TYPE,
-    CLCT_QUALITY,
-    CLCT_CFEB,
-    CLCT_NUM_QUANTITIES = 7
-  };
 
   /* number of strips used in this processor */
   int numStrips_;
@@ -224,10 +214,6 @@ protected:
   static const unsigned int def_nplanes_hit_pattern;
   static const unsigned int def_pid_thresh_pretrig, def_min_separation;
   static const unsigned int def_tmb_l1a_window_size;
-
-  std::vector<std::string> positionLUTFiles_;
-  std::vector<std::string> slopeLUTFiles_;
-  std::vector<std::string> patternConversionLUTFiles_;
 
   /* quality control */
   std::unique_ptr<LCTQualityControl> qualityControl_;

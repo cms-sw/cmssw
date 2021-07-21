@@ -214,6 +214,16 @@ def L1TReEmulFromRAW(process):
         DTThetaDigi_Source = 'simDtTriggerPrimitiveDigis'
     )
 
+    run3_GEM.toModify(process.simKBmtfStubs,
+        srcPhi   = 'bmtfDigis',
+        srcTheta = 'bmtfDigis'
+    )
+
+    run3_GEM.toModify(process.simBmtfDigis,
+        DTDigi_Source       = 'bmtfDigis',
+        DTDigi_Theta_Source = 'bmtfDigis'
+    )
+
     print("# L1TReEmul sequence:  ")
     print("# {0}".format(process.L1TReEmul))
     print("# {0}".format(process.schedule))
@@ -250,6 +260,17 @@ def L1TReEmulFromRAWCalo(process):
     process.L1TReEmul = cms.Sequence(process.SimL1CaloEmulator)
     process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag('ecalDigis:EcalTriggerPrimitives')
     process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('hcalDigis:')
+    process.L1TReEmulPath = cms.Path(process.L1TReEmul)
+    process.schedule.append(process.L1TReEmulPath)
+
+    print ("# L1TReEmul sequence:  ")
+    print ("# {0}".format(process.L1TReEmul))
+    print ("# {0}".format(process.schedule))
+    return process
+
+def L1TReEmulFromRAWCaloSimTP(process):
+    process.load('L1Trigger.Configuration.SimL1CaloEmulator_cff')
+    process.L1TReEmul = cms.Sequence(process.SimL1CaloEmulator)
     process.L1TReEmulPath = cms.Path(process.L1TReEmul)
     process.schedule.append(process.L1TReEmulPath)
 

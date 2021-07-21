@@ -87,6 +87,34 @@ GlobalContext: transition = BeginProcessBlock
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
     ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
 
+++++ starting: source process block
+++++ finished: source process block PROD1
+++++ starting: access input process block
+GlobalContext: transition = AccessInputProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
+
+++++ finished: access input process block
+GlobalContext: transition = AccessInputProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
+
+++++ starting: write process block
+GlobalContext: transition = WriteProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
+
+++++++ starting: write process block for module: label = 'out' id = 5
+++++++ finished: write process block for module: label = 'out' id = 5
+++++ finished: write process block
+GlobalContext: transition = WriteProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
+
 ++++ starting: source run
 ++++ finished: source run
 ++++ starting: global begin run 1 : time = 1

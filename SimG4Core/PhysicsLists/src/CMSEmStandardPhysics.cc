@@ -124,26 +124,28 @@ void CMSEmStandardPhysics::ConstructProcess() {
   G4eMultipleScattering* msc = new G4eMultipleScattering;
   G4UrbanMscModel* msc1 = new G4UrbanMscModel();
   G4WentzelVIModel* msc2 = new G4WentzelVIModel();
-  G4UrbanMscModel* msc3 = new G4UrbanMscModel();
   msc1->SetHighEnergyLimit(highEnergyLimit);
   msc2->SetLowEnergyLimit(highEnergyLimit);
-  msc3->SetHighEnergyLimit(highEnergyLimit);
-
-  // e-/e+ msc for HCAL and HGCAL using the Urban model
-  msc3->SetRangeFactor(fRangeFactor);
-  msc3->SetGeomFactor(fGeomFactor);
-  msc3->SetSafetyFactor(fSafetyFactor);
-  msc3->SetLambdaLimit(fLambdaLimit);
-  msc3->SetStepLimitType(fStepLimitType);
-
-  msc3->SetLocked(true);
   msc->SetEmModel(msc1);
   msc->SetEmModel(msc2);
-  if (nullptr != aRegion) {
-    msc->AddEmModel(-1, msc3, aRegion);
-  }
-  if (nullptr != bRegion) {
-    msc->AddEmModel(-1, msc3, bRegion);
+
+  // e-/e+ msc for HCAL and HGCAL using the Urban model
+  if (nullptr != aRegion || nullptr != bRegion) {
+    G4UrbanMscModel* msc3 = new G4UrbanMscModel();
+    msc3->SetHighEnergyLimit(highEnergyLimit);
+    msc3->SetRangeFactor(fRangeFactor);
+    msc3->SetGeomFactor(fGeomFactor);
+    msc3->SetSafetyFactor(fSafetyFactor);
+    msc3->SetLambdaLimit(fLambdaLimit);
+    msc3->SetStepLimitType(fStepLimitType);
+    msc3->SetLocked(true);
+
+    if (nullptr != aRegion) {
+      msc->AddEmModel(-1, msc3, aRegion);
+    }
+    if (nullptr != bRegion) {
+      msc->AddEmModel(-1, msc3, bRegion);
+    }
   }
 
   // single scattering
@@ -166,26 +168,28 @@ void CMSEmStandardPhysics::ConstructProcess() {
   msc = new G4eMultipleScattering();
   msc1 = new G4UrbanMscModel();
   msc2 = new G4WentzelVIModel();
-  msc3 = new G4UrbanMscModel();
   msc1->SetHighEnergyLimit(highEnergyLimit);
   msc2->SetLowEnergyLimit(highEnergyLimit);
-  msc3->SetHighEnergyLimit(highEnergyLimit);
-
-  // e-/e+ msc for HCAL and HGCAL using the Urban model
-  msc3->SetRangeFactor(fRangeFactor);
-  msc3->SetGeomFactor(fGeomFactor);
-  msc3->SetSafetyFactor(fSafetyFactor);
-  msc3->SetLambdaLimit(fLambdaLimit);
-  msc3->SetStepLimitType(fStepLimitType);
-
-  msc3->SetLocked(true);
   msc->SetEmModel(msc1);
   msc->SetEmModel(msc2);
-  if (nullptr != aRegion) {
-    msc->AddEmModel(-1, msc3, aRegion);
-  }
-  if (nullptr != bRegion) {
-    msc->AddEmModel(-1, msc3, bRegion);
+
+  // e-/e+ msc for HCAL and HGCAL using the Urban model
+  if (nullptr != aRegion || nullptr != bRegion) {
+    G4UrbanMscModel* msc3 = new G4UrbanMscModel();
+    msc3->SetHighEnergyLimit(highEnergyLimit);
+    msc3->SetRangeFactor(fRangeFactor);
+    msc3->SetGeomFactor(fGeomFactor);
+    msc3->SetSafetyFactor(fSafetyFactor);
+    msc3->SetLambdaLimit(fLambdaLimit);
+    msc3->SetStepLimitType(fStepLimitType);
+    msc3->SetLocked(true);
+
+    if (nullptr != aRegion) {
+      msc->AddEmModel(-1, msc3, aRegion);
+    }
+    if (nullptr != bRegion) {
+      msc->AddEmModel(-1, msc3, bRegion);
+    }
   }
 
   // single scattering

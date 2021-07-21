@@ -218,12 +218,13 @@ namespace gpuClustering {
               auto l = nn[k][kk];
               auto m = l + firstPixel;
               assert(m != i);
-              auto old = atomicMin(&clusterId[m], clusterId[i]);
+              auto old = atomicMin_block(&clusterId[m], clusterId[i]);
+              // do we need memory fence?
               if (old != clusterId[i]) {
                 // end the loop only if no changes were applied
                 more = true;
               }
-              atomicMin(&clusterId[i], old);
+              atomicMin_block(&clusterId[i], old);
             }  // nnloop
           }    // pixel loop
         }

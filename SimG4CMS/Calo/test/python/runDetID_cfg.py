@@ -17,6 +17,7 @@ process.GlobalTag.globaltag = autoCond['run2_mc']
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.HcalSim=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

@@ -97,7 +97,6 @@ protected:
   /** "preferential" index array in matching window for cross-BX sorting */
   int pref[CSCConstants::MAX_LCT_TBINS];
 
-  bool match_earliest_alct_only;
   bool match_earliest_clct_only;
 
   /* type of algorithm to sort the stubs */

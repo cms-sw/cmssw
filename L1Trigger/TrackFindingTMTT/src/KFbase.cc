@@ -102,7 +102,15 @@ namespace tmtt {
         if (nHelixPar_ == 5) {
           double chi2rphi_bcon = 0.;
           TVectorD trackPars_bcon = trackParams_BeamConstr(cand, chi2rphi_bcon);
-          fitTrk.setBeamConstr(trackPars_bcon[QOVERPT], trackPars_bcon[PHI0], chi2rphi_bcon);
+
+          // Check scaled chi2 cut
+          vector<double> kfLayerVsChiSqCut = settings_->kfLayerVsChiSq5();
+          double chi2scaled = chi2rphi_bcon / settings_->kalmanChi2RphiScale() + fitTrk.chi2rz();
+          bool accepted = true;
+          if (chi2scaled > kfLayerVsChiSqCut[cand->nStubLayers()])
+            accepted = false;
+
+          fitTrk.setBeamConstr(trackPars_bcon[QOVERPT], trackPars_bcon[PHI0], chi2rphi_bcon, accepted);
         }
       }
 

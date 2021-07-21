@@ -18,6 +18,7 @@
 
 class CSCALCTDigi;
 class CSCCLCTDigi;
+class GEMInternalCluster;
 
 class LCTQualityAssignment {
 public:
@@ -59,6 +60,9 @@ public:
   // constructor
   LCTQualityAssignment(unsigned station);
 
+  // quality for all LCTs in Run-1/2 or Run-3
+  unsigned findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, bool runCCLUT) const;
+
   // quality for all LCTs in Run-1 and Run-2
   unsigned findQualityRun2(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
 
@@ -67,9 +71,15 @@ public:
 
   // quality for LCTs in Run-3 with GEMs (old-style to be compatible with EMTF Run-2)
   unsigned findQualityGEMv1(const CSCALCTDigi&, const CSCCLCTDigi&, int gemlayer) const;
+  unsigned findQualityGEMv1(const CSCCLCTDigi&, const GEMInternalCluster& cl) const;
+  unsigned findQualityGEMv1(const CSCALCTDigi&, const CSCCLCTDigi&, const GEMInternalCluster& cl) const;
 
   // quality for LCTs in Run-3 with GEMs
   unsigned findQualityGEMv2(const CSCALCTDigi&, const CSCCLCTDigi&, int gemlayer) const;
+  unsigned findQualityGEMv2(const CSCALCTDigi&,
+                            const CSCCLCTDigi&,
+                            const GEMInternalCluster& cl,
+                            bool assignGEMCSCBending) const;
 
 private:
   unsigned station_;

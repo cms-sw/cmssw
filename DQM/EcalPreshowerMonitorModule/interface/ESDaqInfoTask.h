@@ -37,7 +37,7 @@ protected:
 
 private:
   DQMStore* dqmStore_;
-
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
   std::string prefixME_;
 
   bool mergeRuns_;

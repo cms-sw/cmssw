@@ -40,7 +40,7 @@ process.dqmSaverPB.runNumber = options.runNumber
 #
 # Condition for P5 cluster
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
+process.GlobalTag.RefreshEachRun = True
 # Condition for lxplus: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
@@ -74,7 +74,7 @@ process.RawToDigi.remove("scalersRawToDigi")
 process.RawToDigi.remove("castorDigis")
 
 #if ( process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
-process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
+process.gtDigis.DaqGtFedId = 813
 #else:
 #    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
 
@@ -86,8 +86,8 @@ process.l1HwValEmulatorMonitorPath = cms.Path(process.l1Stage1HwValEmulatorMonit
 #process.valRctDigis.getFedsFromOmds = cms.bool(True)
 
 process.stage1UnpackerPath = cms.Path(process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
-process.caloStage1LegacyFormatDigis.bxMin = cms.int32(-2)
-process.caloStage1LegacyFormatDigis.bxMax = cms.int32(2)
+process.caloStage1LegacyFormatDigis.bxMin = -2
+process.caloStage1LegacyFormatDigis.bxMax = 2
 
 #
 process.l1EmulatorMonitorClientPath = cms.Path(process.l1EmulatorMonitorClient)
@@ -145,11 +145,11 @@ process.L1HardwareValidation.remove(process.deDt)
 
 #process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeRCT)
 
-process.l1demonstage1.HistFolder = cms.untracked.string('L1TEMU')
+process.l1demonstage1.HistFolder = 'L1TEMU'
 
-process.l1TdeStage1Layer2.HistFolder = cms.untracked.string('L1TEMU/Stage1Layer2expert')
+process.l1TdeStage1Layer2.HistFolder = 'L1TEMU/Stage1Layer2expert'
 
-process.l1Stage1GtHwValidation.DirName = cms.untracked.string("L1TEMU/GTexpert")
+process.l1Stage1GtHwValidation.DirName = "L1TEMU/GTexpert"
 
 #
 # remove a module / sequence from l1EmulatorMonitorClient
@@ -191,45 +191,45 @@ process.l1Stage1GtHwValidation.DirName = cms.untracked.string("L1TEMU/GTexpert")
 # process.l1EmulatorEventInfoClient.verbose = cms.untracked.bool(True)
 
 print("Running with run type = ", process.runType.getRunType())
-process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.csctfDigis.producer = cms.InputTag("rawDataCollector")
-process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataCollector")
-process.ecalDigis.cpu.InputLabel = cms.InputTag("rawDataCollector")
-process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataCollector")
-process.gctDigis.inputLabel = cms.InputTag("rawDataCollector")
-process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
-process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataCollector")
-process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.l1compare.FEDsourceEmul = cms.untracked.InputTag("rawDataCollector")
-process.l1compare.FEDsourceData = cms.untracked.InputTag("rawDataCollector")
-process.muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
-process.muonDTDigis.inputLabel = cms.InputTag("rawDataCollector")
-process.muonRPCDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataCollector")
-process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
+process.castorDigis.InputLabel = "rawDataCollector"
+process.csctfDigis.producer = "rawDataCollector"
+process.dttfDigis.DTTF_FED_Source = "rawDataCollector"
+process.ecalDigis.cpu.InputLabel = "rawDataCollector"
+process.ecalPreshowerDigis.sourceTag = "rawDataCollector"
+process.gctDigis.inputLabel = "rawDataCollector"
+process.gtDigis.DaqGtInputTag = "rawDataCollector"
+process.gtEvmDigis.EvmGtInputTag = "rawDataCollector"
+process.hcalDigis.InputLabel = "rawDataCollector"
+process.l1compare.FEDsourceEmul = "rawDataCollector"
+process.l1compare.FEDsourceData = "rawDataCollector"
+process.muonCSCDigis.InputObjects = "rawDataCollector"
+process.muonDTDigis.inputLabel = "rawDataCollector"
+process.muonRPCDigis.InputLabel = "rawDataCollector"
+process.scalersRawToDigi.scalersInputTag = "rawDataCollector"
+process.siPixelDigis.cpu.InputLabel = "rawDataCollector"
+process.siStripDigis.ProductLabel = "rawDataCollector"
 
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
-    process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
-    process.ecalDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
-    process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
-    process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
-    process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataRepacker")
-    process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.l1compare.FEDsourceEmul = cms.untracked.InputTag("rawDataRepacker")
-    process.l1compare.FEDsourceData = cms.untracked.InputTag("rawDataRepacker")
-    process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
-    process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
-    process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
+    process.castorDigis.InputLabel = "rawDataRepacker"
+    process.csctfDigis.producer = "rawDataRepacker"
+    process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
+    process.ecalDigis.cpu.InputLabel = "rawDataRepacker"
+    process.ecalPreshowerDigis.sourceTag = "rawDataRepacker"
+    process.gctDigis.inputLabel = "rawDataRepacker"
+    process.gtDigis.DaqGtInputTag = "rawDataRepacker"
+    process.gtEvmDigis.EvmGtInputTag = "rawDataRepacker"
+    process.hcalDigis.InputLabel = "rawDataRepacker"
+    process.l1compare.FEDsourceEmul = "rawDataRepacker"
+    process.l1compare.FEDsourceData = "rawDataRepacker"
+    process.muonCSCDigis.InputObjects = "rawDataRepacker"
+    process.muonDTDigis.inputLabel = "rawDataRepacker"
+    process.muonRPCDigis.InputLabel = "rawDataRepacker"
+    process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
+    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+    process.siStripDigis.ProductLabel = "rawDataRepacker"
 
 
 

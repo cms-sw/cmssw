@@ -115,7 +115,7 @@ CaloSD::CaloSD(const std::string& name,
                               << " ns and if energy is above " << eminHit / CLHEP::MeV << " MeV (for depth 0) or "
                               << eminHitD / CLHEP::MeV << " MeV (for nonzero depths);\n        Time Slice Unit "
                               << timeSlice << "\nIgnore TrackID Flag " << ignoreTrackID << " doFineCalo flag "
-                              << doFineCalo_;
+                              << doFineCalo_ << "\nBeam Position " << beamZ / CLHEP::cm << " cm";
 
   // Treat fine calorimeters
   edm::LogVerbatim("CaloSim") << "CaloSD: Have a possibility of " << fineNames.size() << " fine calorimeters of which "
@@ -598,7 +598,7 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep, const G4Track* theTrack) {
   storeHit(aHit);
   TrackInformation* trkInfo = cmsTrackInformation(theTrack);
 
-  bool currentlyInsideFineVolume = isItFineCalo(aStep->GetPostStepPoint()->GetTouchable());
+  bool currentlyInsideFineVolume = !doFineCalo_ ? false : isItFineCalo(aStep->GetPostStepPoint()->GetTouchable());
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DoFineCalo") << "Creating new hit " << aHit->getUnitID() << " using "
@@ -617,7 +617,7 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep, const G4Track* theTrack) {
 
   // If fine calo is activated for the current volume, perform track/hit
   // saving logic for fineCalo
-  if (doFineCalo_ && currentlyInsideFineVolume) {
+  if (currentlyInsideFineVolume) {
     hitBookkeepingFineCalo(aStep, theTrack, aHit);
   }
   // 'Traditional', non-fine history bookkeeping

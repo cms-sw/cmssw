@@ -741,16 +741,12 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
 
         // Is the cluster on edge ?
         /*
-		SiStripDetInfoFileReader* reader;
-		
-		FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-		
-		reader = new SiStripDetInfoFileReader( FileInPath_.fullPath() );
+                const auto stripDetInfo = SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
 		
 		uint16_t firstStrip = cluster->firstStrip();
 		uint16_t lastStrip = firstStrip + (cluster->amplitudes()).size() -1;
 		unsigned short Nstrips;
-		Nstrips = reader->getNumberOfApvsAndStripLength(id1).first*128;
+		Nstrips = stripDetInfo.getNumberOfApvsAndStripLength(id1).first*128;
 		
 		if ( firstStrip == 0 || lastStrip == (Nstrips-1) ) 
 		strip_edge = 1;

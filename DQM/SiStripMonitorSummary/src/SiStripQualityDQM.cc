@@ -33,7 +33,7 @@ void SiStripQualityDQM::fillMEsForDet(const ModMEs &_selModME_, uint32_t selDetI
   getModMEs(selModME_, selDetId_);
 
   const auto qualityRange = condObj_->getRange(selDetId_);
-  int nStrip = reader->getNumberOfApvsAndStripLength(selDetId_).first * 128;
+  int nStrip = detInfo_.getNumberOfApvsAndStripLength(selDetId_).first * 128;
 
   for (int istrip = 0; istrip < nStrip; ++istrip) {
     selModME_.ProfileDistr->Fill(istrip + 1, condObj_->IsStripBad(qualityRange, istrip) ? 0. : 1.);
@@ -111,7 +111,7 @@ void SiStripQualityDQM::fillMEsForLayer(
 
     for (unsigned int i = 0; i < sameLayerDetIds_.size(); i++) {
       const auto qualityRange = condObj_->getRange(sameLayerDetIds_[i]);
-      int nStrip = reader->getNumberOfApvsAndStripLength(sameLayerDetIds_[i]).first * 128;
+      int nStrip = detInfo_.getNumberOfApvsAndStripLength(sameLayerDetIds_[i]).first * 128;
 
       numberOfBadStrips = 0;
 
@@ -197,7 +197,7 @@ void SiStripQualityDQM::fillGrandSummaryMEs() {
 
   std::stringstream ss;
   ss.str("");
-  for (const auto det : reader->getAllDetIds()) {
+  for (const auto det : detInfo_.getAllDetIds()) {
     ss << "detid " << det << " IsModuleUsable " << condObj_->IsModuleUsable(det) << "\n";
   }
   LogDebug("SiStripQualityDQM") << ss.str() << std::endl;
@@ -420,7 +420,7 @@ void SiStripQualityDQM::fillGrandSummaryMEs() {
 }
 
 void SiStripQualityDQM::SetBadComponents(int i, int component, SiStripQuality::BadComponent &BC) {
-  int napv = reader->getNumberOfApvsAndStripLength(BC.detid).first;
+  int napv = detInfo_.getNumberOfApvsAndStripLength(BC.detid).first;
 
   ssV[i][component] << "\n\t\t " << BC.detid << " \t " << BC.BadModule << " \t " << ((BC.BadFibers) & 0x1) << " ";
   if (napv == 4)

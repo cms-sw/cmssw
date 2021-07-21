@@ -11,6 +11,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -47,7 +48,7 @@ using namespace std;
 //                          //
 //////////////////////////////
 
-class L1TrackFastJetProducer : public edm::EDProducer {
+class L1TrackFastJetProducer : public edm::stream::EDProducer<> {
 public:
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
   typedef std::vector<L1TTTrackType> L1TTTrackCollectionType;
@@ -58,9 +59,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
+  //void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  //void endJob() override;
 
   // track selection criteria
   float trkZMax_;          // in [cm]
@@ -73,6 +74,8 @@ private:
   double deltaZ0Cut_;      // save with |L1z-z0| < maxZ0
   double coneSize_;        // Use anti-kt with this cone size
   bool doTightChi2_;
+  float trkPtTightChi2_;
+  float trkChi2dofTightChi2_;
   bool displaced_;  //use prompt/displaced tracks
 
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
@@ -96,6 +99,8 @@ L1TrackFastJetProducer::L1TrackFastJetProducer(const edm::ParameterSet& iConfig)
   deltaZ0Cut_ = (float)iConfig.getParameter<double>("deltaZ0Cut");
   coneSize_ = (float)iConfig.getParameter<double>("coneSize");
   doTightChi2_ = iConfig.getParameter<bool>("doTightChi2");
+  trkPtTightChi2_ = (float)iConfig.getParameter<double>("trk_ptTightChi2");
+  trkChi2dofTightChi2_ = (float)iConfig.getParameter<double>("trk_chi2dofTightChi2");
   displaced_ = iConfig.getParameter<bool>("displaced");
   if (displaced_)
     produces<TkJetCollection>("L1TrackFastJetsExtended");
@@ -148,7 +153,7 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       continue;
     if (trk_bendchi2 > trkBendChi2Max_)
       continue;
-    if (doTightChi2_ && (trk_pt > 20.0 && trk_chi2dof > 5.0))
+    if (doTightChi2_ && (trk_pt > trkPtTightChi2_ && trk_chi2dof > trkChi2dofTightChi2_))
       continue;
 
     int trk_nPS = 0;
@@ -208,9 +213,9 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     iEvent.put(std::move(L1TrackFastJets), "L1TrackFastJets");
 }
 
-void L1TrackFastJetProducer::beginJob() {}
+//void L1TrackFastJetProducer::beginJob() {}
 
-void L1TrackFastJetProducer::endJob() {}
+//void L1TrackFastJetProducer::endJob() {}
 
 void L1TrackFastJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation

@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -63,6 +62,7 @@ private:
     EcalHit(uint16_t i = 0, double t = 0, double e = 0) : id(i), time(t), energy(e) {}
   };
   static const int ndets_ = 2;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tokGeom_;
   std::string g4Label_, hitLab_[ndets_];
   edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
   edm::EDGetTokenT<edm::PCaloHitContainer> toks_calo_[2];
@@ -78,7 +78,8 @@ private:
   TH2F *poszp_[ndets_], *poszn_[ndets_];
 };
 
-EcalSimHitStudy::EcalSimHitStudy(const edm::ParameterSet& ps) {
+EcalSimHitStudy::EcalSimHitStudy(const edm::ParameterSet& ps)
+    : tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   usesResource(TFileService::kSharedResource);
 
   g4Label_ = ps.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits");
@@ -257,9 +258,7 @@ void EcalSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& iS) {
   edm::LogVerbatim("HitStudy") << "Run = " << e.id().run() << " Event = " << e.id().event();
 #endif
   // get handles to calogeometry
-  edm::ESHandle<CaloGeometry> pG;
-  iS.get<CaloGeometryRecord>().get(pG);
-  geometry_ = pG.product();
+  geometry_ = &iS.getData(tokGeom_);
 
   double eInc = 0, etaInc = 0, phiInc = 0;
   int type(-1);

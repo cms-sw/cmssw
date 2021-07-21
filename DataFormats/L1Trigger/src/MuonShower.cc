@@ -10,7 +10,7 @@ l1t::MuonShower::MuonShower(bool oneNominalInTime, bool oneNominalOutOfTime, boo
 l1t::MuonShower::~MuonShower() {}
 
 bool l1t::MuonShower::isValid() const {
-  return isTwoLooseInTime_ or isTwoLooseOutOfTime_ or isTwoLooseOutOfTime_ or isOneNominalOutOfTime_;
+  return isOneNominalInTime_ or isTwoLooseInTime_ or isOneNominalOutOfTime_ or isTwoLooseOutOfTime_;
 }
 
 bool l1t::MuonShower::operator==(const l1t::MuonShower& rhs) const {

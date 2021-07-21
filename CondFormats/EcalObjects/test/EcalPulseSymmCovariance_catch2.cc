@@ -42,7 +42,7 @@ TEST_CASE("EcalPulseSymmCovariance testing", "[EcalPulseSymmCovariance]") {
   SECTION("Check bounds") {
     for (int i = 0; i < EcalPulseShape::TEMPLATESAMPLES; ++i) {
       for (int j = 0; j < EcalPulseShape::TEMPLATESAMPLES; ++j) {
-        REQUIRE(cov.indexFor(i, j) < std::size(cov.covval));
+        REQUIRE((unsigned)cov.indexFor(i, j) < std::size(cov.covval));
       }
     }
   }

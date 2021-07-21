@@ -24,9 +24,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   const auto& material = args.value<std::string>("ModuleMaterial");
   const auto& thick = args.value<double>("ModuleThickness");
   const auto& waferSize = args.value<double>("WaferSize");
-  const auto& waferSepar = args.value<double>("SensorSeparation");
   const auto& waferThick = args.value<double>("WaferThickness");
 #ifdef EDM_ML_DEBUG
+  const auto& waferSepar = args.value<double>("SensorSeparation");
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Module " << motherName << " made of " << material << " T "
                                 << cms::convert2mm(thick) << " Wafer 2r " << cms::convert2mm(waferSize)
                                 << " Half Separation " << cms::convert2mm(waferSepar) << " T "
@@ -64,7 +64,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
   static constexpr double tol = 0.00001 * dd4hep::mm;
   static const double sqrt3 = std::sqrt(3.0);
-  double rM = 0.5 * (waferSize + waferSepar);
+  double rM = 0.5 * waferSize;
   double RM2 = rM / sqrt3;
   double R = waferSize / (3.0 * nCells);
   double r = 0.5 * R * sqrt3;

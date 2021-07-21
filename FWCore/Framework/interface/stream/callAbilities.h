@@ -21,11 +21,15 @@
 // system include files
 #include <memory>
 #include <type_traits>
+
 // user include files
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
 
 // forward declarations
 namespace edm {
+  class EDConsumerBase;
   class Run;
   class EventSetup;
   class LuminosityBlock;
@@ -69,28 +73,99 @@ namespace edm {
     //********************************
     template <typename T, bool, bool>
     struct CallInputProcessBlockImpl {
-      static void accessInputProcessBlock(edm::ProcessBlock const& iProcessBlock, typename T::GlobalCache* iGC) {
-        // This is not fully implemented yet and will never be called
-        T::accessInputProcessBlock(iProcessBlock, iGC);
+      static void set(T* iProd,
+                      typename impl::choose_unique_ptr<typename T::InputProcessBlockCache>::type const* iCaches,
+                      unsigned int iStreamModule) {
+        iProd->setProcessBlockCache(iCaches->get());
+        if (iStreamModule == 0 && iProd->cacheFillersRegistered()) {
+          (*iCaches)->moveProcessBlockCacheFiller(iProd->tokenInfos(), iProd->cacheFillers());
+        }
+        iProd->clearRegistration();
+      }
+
+      static void selectInputProcessBlocks(
+          typename impl::choose_unique_ptr<typename T::InputProcessBlockCache>::type& iCaches,
+          ProductRegistry const& productRegistry,
+          ProcessBlockHelperBase const& processBlockHelperBase,
+          EDConsumerBase const& edConsumerBase) {
+        iCaches->selectInputProcessBlocks(productRegistry, processBlockHelperBase, edConsumerBase);
+      }
+
+      static void accessInputProcessBlock(
+          edm::ProcessBlock const& processBlock,
+          typename T::GlobalCache* iGC,
+          typename impl::choose_unique_ptr<typename T::InputProcessBlockCache>::type& iCaches) {
+        iCaches->accessInputProcessBlock(processBlock);
+        T::accessInputProcessBlock(processBlock, iGC);
+      }
+
+      static void clearCaches(typename impl::choose_unique_ptr<typename T::InputProcessBlockCache>::type& iCaches) {
+        iCaches->clearCaches();
       }
     };
 
     template <typename T>
     struct CallInputProcessBlockImpl<T, true, false> {
-      static void accessInputProcessBlock(edm::ProcessBlock const& processBlock, typename T::GlobalCache*) {
-        // This is not fully implemented yet and will never be called
+      static void set(T* iProd,
+                      typename impl::choose_unique_ptr<typename T::InputProcessBlockCache>::type const* iCaches,
+                      unsigned int iStreamModule) {
+        iProd->setProcessBlockCache(iCaches->get());
+        if (iStreamModule == 0 && iProd->cacheFillersRegistered()) {
+          (*iCaches)->moveProcessBlockCacheFiller(iProd->tokenInfos(), iProd->cacheFillers());
+        }
+        iProd->clearRegistration();
+      }
+
+      static void selectInputProcessBlocks(
+          typename impl::choose_unique_ptr<typename T::InputProcessBlockCache>::type& iCaches,
+          ProductRegistry const& productRegistry,
+          ProcessBlockHelperBase const& processBlockHelperBase,
+          EDConsumerBase const& edConsumerBase) {
+        iCaches->selectInputProcessBlocks(productRegistry, processBlockHelperBase, edConsumerBase);
+      }
+
+      static void accessInputProcessBlock(
+          edm::ProcessBlock const& processBlock,
+          typename T::GlobalCache*,
+          typename impl::choose_unique_ptr<typename T::InputProcessBlockCache>::type& iCaches) {
+        iCaches->accessInputProcessBlock(processBlock);
         T::accessInputProcessBlock(processBlock);
+      }
+
+      static void clearCaches(typename impl::choose_unique_ptr<typename T::InputProcessBlockCache>::type& iCaches) {
+        iCaches->clearCaches();
       }
     };
 
     template <typename T>
     struct CallInputProcessBlockImpl<T, false, true> {
-      static void accessInputProcessBlock(edm::ProcessBlock const&, typename T::GlobalCache*) {}
+      static void set(void*, void const*, unsigned int) {}
+      static void selectInputProcessBlocks(typename impl::choose_unique_ptr<typename T::InputProcessBlockCache>::type&,
+                                           ProductRegistry const&,
+                                           ProcessBlockHelperBase const&,
+                                           EDConsumerBase const&) {}
+
+      static void accessInputProcessBlock(
+          edm::ProcessBlock const&,
+          typename T::GlobalCache*,
+          typename impl::choose_unique_ptr<typename T::InputProcessBlockCache>::type& iCaches) {}
+
+      static void clearCaches(typename impl::choose_unique_ptr<typename T::InputProcessBlockCache>::type&) {}
     };
 
     template <typename T>
     struct CallInputProcessBlockImpl<T, false, false> {
-      static void accessInputProcessBlock(edm::ProcessBlock const&, typename T::GlobalCache*) {}
+      static void set(void*, void const*, unsigned int) {}
+      static void selectInputProcessBlocks(typename impl::choose_unique_ptr<typename T::InputProcessBlockCache>::type&,
+                                           ProductRegistry const&,
+                                           ProcessBlockHelperBase const&,
+                                           EDConsumerBase const&) {}
+      static void accessInputProcessBlock(
+          edm::ProcessBlock const&,
+          typename T::GlobalCache*,
+          typename impl::choose_unique_ptr<typename T::InputProcessBlockCache>::type& iCaches) {}
+
+      static void clearCaches(typename impl::choose_unique_ptr<typename T::InputProcessBlockCache>::type&) {}
     };
 
     template <typename T>

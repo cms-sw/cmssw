@@ -10,6 +10,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
-typedef edmplugin::PluginFactory<AlignmentAlgorithmBase*(const edm::ParameterSet&)> AlignmentAlgorithmPluginFactory;
+typedef edmplugin::PluginFactory<AlignmentAlgorithmBase*(const edm::ParameterSet&, edm::ConsumesCollector&)>
+    AlignmentAlgorithmPluginFactory;
 
 #endif

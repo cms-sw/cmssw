@@ -29,7 +29,7 @@ namespace cond {
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(pluginCondDBPyBind11Interface, m) {
+PYBIND11_MODULE(libCondDBPyBind11Interface, m) {
   m.def("get_credentials_from_db", &cond::getDbCredentials, "Get db credentials for a connection string");
   m.attr("default_role") = pybind11::int_(int(cond::auth::DEFAULT_ROLE));
   m.attr("reader_role") = pybind11::int_(int(cond::auth::READER_ROLE));

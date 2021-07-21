@@ -45,7 +45,9 @@ bool compareTracklets(const QcdLowPtDQM::Tracklet &a, const QcdLowPtDQM::Trackle
 
 //--------------------------------------------------------------------------------------------------
 QcdLowPtDQM::QcdLowPtDQM(const ParameterSet &parameters)
-    : hltResName_(parameters.getUntrackedParameter<string>("hltTrgResults", "TriggerResults")),
+    : tkGeomToken_(esConsumes()),
+      tTopoToken_(esConsumes()),
+      hltResName_(parameters.getUntrackedParameter<string>("hltTrgResults", "TriggerResults")),
       pixelName_(parameters.getUntrackedParameter<string>("pixelRecHits", "siPixelRecHits")),
       clusterVtxName_(parameters.getUntrackedParameter<string>("clusterVertices", "")),
       ZVCut_(parameters.getUntrackedParameter<double>("ZVertexCut", 10)),
@@ -690,9 +692,7 @@ void QcdLowPtDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
   // Analyze the given event.
 
   // get tracker geometry
-  ESHandle<TrackerGeometry> trackerHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
-  tgeo_ = trackerHandle.product();
+  tgeo_ = &iSetup.getData(tkGeomToken_);
   if (!tgeo_) {
     print(3,
           "QcdLowPtDQM::analyze -- Could not obtain pointer to "
@@ -1058,9 +1058,7 @@ void QcdLowPtDQM::fillPixels(const Event &iEvent, const edm::EventSetup &iSetup)
   }
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const TrackerTopology *const tTopo = &iSetup.getData(tTopoToken_);
 
   const SiPixelRecHitCollection *hits = hRecHits.product();
   for (SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), end = hits->data().end();

@@ -108,7 +108,7 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
 
   static constexpr double tol = 0.00001;
   static const double sqrt3 = std::sqrt(3.0);
-  double rM = 0.5 * (waferSize_ + waferSepar_);
+  double rM = 0.5 * waferSize_;
   double RM2 = rM / sqrt3;
   double R = waferSize_ / (3.0 * nCells_);
   double r = 0.5 * R * sqrt3;

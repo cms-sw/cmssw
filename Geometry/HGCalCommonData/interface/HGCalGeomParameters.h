@@ -118,6 +118,7 @@ private:
   void loadSpecParsHexagon(const HGCalParameters& php);
   void loadSpecParsHexagon8(HGCalParameters& php);
   void loadSpecParsHexagon8(HGCalParameters& php,
+                            const std::vector<int>& layerType,
                             const std::vector<int>& waferIndex,
                             const std::vector<int>& waferProperties);
   void loadSpecParsTrapezoid(HGCalParameters& php);

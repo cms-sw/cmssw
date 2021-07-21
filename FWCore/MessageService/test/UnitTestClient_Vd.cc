@@ -1,4 +1,6 @@
+#ifndef EDM_ML_DEBUG
 #define EDM_ML_DEBUG
+#endif
 
 #include "FWCore/MessageService/test/UnitTestClient_Vd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

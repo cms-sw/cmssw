@@ -33,7 +33,6 @@
 #include "RooLinkedListIter.h"
 #include "RooMappedCategory.h"
 #include "RooMinimizer.h"
-#include "RooMinuit.h"
 #include "RooMsgService.h"
 #include "RooMultiCategory.h"
 #include "RooNLLVar.h"
@@ -584,9 +583,8 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
   RooAbsReal* simNLL = w->pdf("simPdf")->createNLL(*data, Extended(true), NumCPU(numCPU));
 
   RooMinimizer minimizer(*simNLL);  // we are going to use this for 'scan'
-  RooMinuit minuit(*simNLL);
-  minuit.setStrategy(1);
-  minuit.setProfile(true);
+  minimizer.setStrategy(1);
+  minimizer.setProfile(true);
   RooProfileLL profileLL("simPdfNLL", "", *simNLL, *w->var("efficiency"));
 
   //******* The block of code below is to make the fit converge faster.
@@ -618,8 +616,8 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
       varFixer(w, true);
       //do fit
       minimizer.minimize("Minuit2", "Scan");
-      minuit.migrad();
-      minuit.hesse();
+      minimizer.migrad();
+      minimizer.hesse();
       //minuit.minos();
       //w->pdf("simPdf")->fitTo(*data, Save(true), Extended(true), NumCPU(numCPU), Strategy(2),
       //PrintLevel(quiet?-1:1), PrintEvalErrors(quiet?-1:1), Warnings(!quiet));
@@ -627,8 +625,8 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
       varFixer(w, false);
       //do fit
       minimizer.minimize("Minuit2", "Scan");
-      minuit.migrad();
-      minuit.hesse();
+      minimizer.migrad();
+      minimizer.hesse();
       //minuit.minos();
       //w->pdf("simPdf")->fitTo(*data, Save(true), Extended(true), NumCPU(numCPU), Strategy(2),
       //PrintLevel(quiet?-1:1), PrintEvalErrors(quiet?-1:1), Warnings(!quiet));
@@ -643,8 +641,8 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
 
     //do fit
     minimizer.minimize("Minuit2", "Scan");
-    minuit.migrad();
-    minuit.hesse();
+    minimizer.migrad();
+    minimizer.hesse();
     // initialize the profile likelihood
     profileLL.getVal();
     RooMinimizer* profMinuit = profileLL.minimizer();
@@ -665,8 +663,8 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
 
     //do fit
     minimizer.minimize("Minuit2", "Scan");
-    minuit.migrad();
-    minuit.hesse();
+    minimizer.migrad();
+    minimizer.hesse();
     res.reset(w->pdf("simPdf")->fitTo(*data,
                                       Save(true),
                                       Extended(true),

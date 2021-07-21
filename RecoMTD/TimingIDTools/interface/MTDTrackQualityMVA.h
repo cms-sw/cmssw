@@ -38,7 +38,8 @@ public:
   //---getters---
   // 4D
   float operator()(const reco::TrackRef& trk,
-                   const reco::TrackRef& ext_trk,
+                   const edm::ValueMap<int>& npixBarrels,
+                   const edm::ValueMap<int>& npixEndcaps,
                    const edm::ValueMap<float>& btl_chi2s,
                    const edm::ValueMap<float>& btl_time_chi2s,
                    const edm::ValueMap<float>& etl_chi2s,

@@ -14,8 +14,7 @@ SiStripGainFromAsciiFile::SiStripGainFromAsciiFile(const edm::ParameterSet& iCon
     : ConditionDBWriter<SiStripApvGain>(iConfig) {
   Asciifilename_ = iConfig.getParameter<std::string>("InputFileName");
   referenceValue_ = iConfig.getParameter<double>("referenceValue");
-  fp_ = iConfig.getUntrackedParameter<edm::FileInPath>(
-      "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
+  fp_ = iConfig.getUntrackedParameter<edm::FileInPath>("file", edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile));
 }
 
 SiStripGainFromAsciiFile::~SiStripGainFromAsciiFile() {
@@ -66,28 +65,26 @@ std::unique_ptr<SiStripApvGain> SiStripGainFromAsciiFile::getNewObject() {
     assert(0);
   }
 
-  SiStripDetInfoFileReader reader(fp_.fullPath());
-
-  const std::vector<uint32_t>& DetIds = reader.getAllDetIds();
+  const auto detInfo = SiStripDetInfoFileReader::read(fp_.fullPath());
 
   ss.str("");
   ss << "[SiStripGainFromAsciiFile::getNewObject]\n Filling SiStripApvGain object";
   short nApvPair;
-  for (std::vector<uint32_t>::const_iterator it = DetIds.begin(); it != DetIds.end(); it++) {
+  for (const auto it : detInfo.getAllDetIds()) {
     ModuleGain MG;
-    if (DetId(*it).det() != DetId::Tracker)
+    if (DetId(it).det() != DetId::Tracker)
       continue;
 
-    nApvPair = reader.getNumberOfApvsAndStripLength(*it).first / 2;
+    nApvPair = detInfo.getNumberOfApvsAndStripLength(it).first / 2;
 
-    ss << "Looking at detid " << *it << " nApvPairs  " << nApvPair << std::endl;
-    auto iter = GainsMap.find(*it);
+    ss << "Looking at detid " << it << " nApvPairs  " << nApvPair << std::endl;
+    auto iter = GainsMap.find(it);
     if (iter != GainsMap.end()) {
       MG = iter->second;
       ss << " " << MG.apv[0] << " " << MG.apv[1] << " " << MG.apv[2] << " " << MG.apv[3] << " " << MG.apv[4] << " "
          << MG.apv[5] << std::endl;
     } else {
-      ss << "Hard reset for detid " << *it << std::endl;
+      ss << "Hard reset for detid " << it << std::endl;
       MG.hard_reset(referenceValue_);
     }
 
@@ -106,12 +103,12 @@ std::unique_ptr<SiStripApvGain> SiStripGainFromAsciiFile::getNewObject() {
       DetGainsVector.push_back(MG.apv[4] / referenceValue_);
       DetGainsVector.push_back(MG.apv[5] / referenceValue_);
     } else {
-      edm::LogError("SiStripGainFromAsciiFile") << " SiStripGainFromAsciiFile::getNewObject] ERROR for detid " << *it
+      edm::LogError("SiStripGainFromAsciiFile") << " SiStripGainFromAsciiFile::getNewObject] ERROR for detid " << it
                                                 << " not expected number of APV pairs " << nApvPair << std::endl;
     }
 
     SiStripApvGain::Range range(DetGainsVector.begin(), DetGainsVector.end());
-    if (!obj->put(*it, range)) {
+    if (!obj->put(it, range)) {
       edm::LogError("SiStripGainFromAsciiFile")
           << " [SiStripGainFromAsciiFile::getNewObject] detid already exists" << std::endl;
       ss << " [SiStripGainFromAsciiFile::getNewObject] detid already exists" << std::endl;

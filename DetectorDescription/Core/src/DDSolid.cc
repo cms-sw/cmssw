@@ -5,6 +5,7 @@
 #include <string>
 #include <array>
 
+#include "DetectorDescription/Core/src/Assembly.h"
 #include "DetectorDescription/Core/src/Boolean.h"
 #include "DetectorDescription/Core/src/Box.h"
 #include "DetectorDescription/Core/src/Cons.h"
@@ -105,6 +106,9 @@ DDSolid::DDSolid(const DDName& name, DDSolidShape shape, const std::vector<doubl
       break;
     case DDSolidShape::ddextrudedpolygon:
       solid = std::make_unique<DDI::ExtrudedPolygon>(dummy, dummy, dummy, dummy, dummy, dummy);
+      break;
+    case DDSolidShape::ddassembly:
+      solid = std::make_unique<DDI::Assembly>();
       break;
     default:
       throw cms::Exception("DDException")
@@ -527,8 +531,18 @@ std::array<double, 3> DDCutTubs::highNorm(void) const {
   return std::array<double, 3>{{rep().parameters()[8], rep().parameters()[9], rep().parameters()[10]}};
 }
 
+DDAssembly::DDAssembly(const DDSolid& s) : DDSolid(s) {
+  if (s.shape() != DDSolidShape::ddassembly) {
+    std::string ex = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDAssembly.\n";
+    ex = ex + "Use a different solid interface!";
+    throw cms::Exception("DDException") << ex;
+  }
+}
+
 // =================================================================================
 // =========================SolidFactory============================================
+
+DDSolid DDSolidFactory::assembly(const DDName& name) { return DDSolid(name, std::make_unique<DDI::Assembly>()); }
 
 DDSolid DDSolidFactory::box(const DDName& name, double xHalf, double yHalf, double zHalf) {
   return DDSolid(name, std::make_unique<DDI::Box>(xHalf, yHalf, zHalf));

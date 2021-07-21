@@ -103,7 +103,6 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
   // processes used by several particles
-  G4ePairProduction* ee = new G4ePairProduction();
   G4hMultipleScattering* hmsc = new G4hMultipleScattering("ionmsc");
   G4NuclearStopping* pnuc(nullptr);
 
@@ -151,34 +150,32 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   G4eMultipleScattering* msc = new G4eMultipleScattering();
   G4UrbanMscModel* msc1 = new G4UrbanMscModel();
   G4WentzelVIModel* msc2 = new G4WentzelVIModel();
-  G4UrbanMscModel* msc4 = new G4UrbanMscModel();
-  G4GoudsmitSaundersonMscModel* msc3 = new G4GoudsmitSaundersonMscModel();
   msc1->SetHighEnergyLimit(highEnergyLimit);
   msc2->SetLowEnergyLimit(highEnergyLimit);
-  msc3->SetHighEnergyLimit(highEnergyLimit);
-  msc4->SetHighEnergyLimit(highEnergyLimit);
-
-  // e-/e+ msc GS with Mott-correction
-  // (Mott-correction is set through G4EmParameters)
-  msc3->SetRangeFactor(0.08);
-  msc3->SetSkin(3.);
-  msc3->SetStepLimitType(fUseSafetyPlus);
-
-  // e-/e+ msc for HCAL using the Urban model
-  msc4->SetRangeFactor(fRangeFactor);
-  msc4->SetGeomFactor(fGeomFactor);
-  msc4->SetSafetyFactor(fSafetyFactor);
-  msc4->SetLambdaLimit(fLambdaLimit);
-  msc4->SetStepLimitType(fStepLimitType);
-
-  msc3->SetLocked(true);
-  msc4->SetLocked(true);
   msc->SetEmModel(msc1);
   msc->SetEmModel(msc2);
+
+  // msc for HCAL using the Urban model
   if (nullptr != aRegion) {
+    G4UrbanMscModel* msc4 = new G4UrbanMscModel();
+    msc4->SetHighEnergyLimit(highEnergyLimit);
+    msc4->SetRangeFactor(fRangeFactor);
+    msc4->SetGeomFactor(fGeomFactor);
+    msc4->SetSafetyFactor(fSafetyFactor);
+    msc4->SetLambdaLimit(fLambdaLimit);
+    msc4->SetStepLimitType(fStepLimitType);
+    msc4->SetLocked(true);
     msc->AddEmModel(-1, msc4, aRegion);
   }
+
+  // msc GS with Mott-correction
   if (nullptr != bRegion) {
+    G4GoudsmitSaundersonMscModel* msc3 = new G4GoudsmitSaundersonMscModel();
+    msc3->SetHighEnergyLimit(highEnergyLimit);
+    msc3->SetRangeFactor(0.08);
+    msc3->SetSkin(3.);
+    msc3->SetStepLimitType(fUseSafetyPlus);
+    msc3->SetLocked(true);
     msc->AddEmModel(-1, msc3, bRegion);
   }
 
@@ -203,6 +200,8 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   brem->SetEmModel(br2);
   br1->SetHighEnergyLimit(CLHEP::GeV);
 
+  G4ePairProduction* ee = new G4ePairProduction();
+
   // register processes
   ph->RegisterProcess(msc, particle);
   ph->RegisterProcess(eioni, particle);
@@ -217,34 +216,32 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   msc = new G4eMultipleScattering();
   msc1 = new G4UrbanMscModel();
   msc2 = new G4WentzelVIModel();
-  msc4 = new G4UrbanMscModel();
-  msc3 = new G4GoudsmitSaundersonMscModel();
   msc1->SetHighEnergyLimit(highEnergyLimit);
   msc2->SetLowEnergyLimit(highEnergyLimit);
-  msc3->SetHighEnergyLimit(highEnergyLimit);
-  msc4->SetHighEnergyLimit(highEnergyLimit);
-
-  // e-/e+ msc GS with Mott-correction
-  // (Mott-correction is set through G4EmParameters)
-  msc3->SetRangeFactor(0.08);
-  msc3->SetSkin(3.);
-  msc3->SetStepLimitType(fUseSafetyPlus);
-
-  // e-/e+ msc for HCAL using the Urban model
-  msc4->SetRangeFactor(fRangeFactor);
-  msc4->SetGeomFactor(fGeomFactor);
-  msc4->SetSafetyFactor(fSafetyFactor);
-  msc4->SetLambdaLimit(fLambdaLimit);
-  msc4->SetStepLimitType(fStepLimitType);
-
-  msc3->SetLocked(true);
-  msc4->SetLocked(true);
   msc->SetEmModel(msc1);
   msc->SetEmModel(msc2);
+
+  // msc for HCAL using the Urban model
   if (nullptr != aRegion) {
+    G4UrbanMscModel* msc4 = new G4UrbanMscModel();
+    msc4->SetHighEnergyLimit(highEnergyLimit);
+    msc4->SetRangeFactor(fRangeFactor);
+    msc4->SetGeomFactor(fGeomFactor);
+    msc4->SetSafetyFactor(fSafetyFactor);
+    msc4->SetLambdaLimit(fLambdaLimit);
+    msc4->SetStepLimitType(fStepLimitType);
+    msc4->SetLocked(true);
     msc->AddEmModel(-1, msc4, aRegion);
   }
+
+  // msc GS with Mott-correction
   if (nullptr != bRegion) {
+    G4GoudsmitSaundersonMscModel* msc3 = new G4GoudsmitSaundersonMscModel();
+    msc3->SetHighEnergyLimit(highEnergyLimit);
+    msc3->SetRangeFactor(0.08);
+    msc3->SetSkin(3.);
+    msc3->SetStepLimitType(fUseSafetyPlus);
+    msc3->SetLocked(true);
     msc->AddEmModel(-1, msc3, bRegion);
   }
 

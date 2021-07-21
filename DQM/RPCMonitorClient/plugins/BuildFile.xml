@@ -1,5 +1,4 @@
 <use name="DQM/RPCMonitorClient"/>
-<use name="DQMServices/Core"/>
 <use name="Geometry/RPCGeometry"/>
 <library name="DQMRPCMonitorClient_plugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
