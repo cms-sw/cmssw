@@ -90,16 +90,20 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
 #ifdef YERR_FROM_DC
       auto const &dp = hhp->cpeParams().detParams(hhp->detectorIndex(hit));
       auto status = hhp->status(hit);
-      int qbin = 4 - status.qBin;
+      int qbin = CPEFastParametrisation::GenErrorQBins - status.qBin;
       assert(qbin >= 0 && qbin < 5);
       bool nok = (status.isBigY | status.isOneY);
       // compute cotanbeta and use it to recompute error
       dp.frame.rotation().multiply(dx, dy, dz, ux, uy, uz);
       auto cb = std::abs(uy / uz);
-      int bin = int(cb * (285.f / 150.f) * 8.f) - 4;
-      bin = std::max(0, std::min(15, bin));
-      float yerr = dp.sigmay[bin] * 1.e-4f;
-      yerr *= dp.yfact[qbin];  // inflate
+      // phase 1 pixel sensors - also available in DB
+      const float thickness = 285.f;
+      const float pitchY = 150.f;
+      int bin = int(cb * (thickness / pitchY) * 8.f) - 4;
+      // truncate bin to [0, 15] interval -> number of error bins for this parametrisation
+      bin = std::max(0, std::min(CPEFastParametrisation::NumErrorBins - 1, bin));
+      float yerr = dp.sigmay[bin] * 1.e-4f;  // toCM
+      yerr *= dp.yfact[qbin];                // inflate
       yerr *= yerr;
       yerr += dp.apeYY;
       yerr = nok ? hhp->yerrLocal(hit) : yerr;
