@@ -103,7 +103,7 @@ private:
   float minBadT0Sigma;
 
   edm::ESGetToken<DTMtime, DTMtimeRcd> mTimeMapToken_;
-  const DTMtime* mTimeMap_;            // legacy DB object
+  const DTMtime* mTimeMap_;  // legacy DB object
 
   edm::ESGetToken<DTRecoConditions, DTRecoConditionsVdriftRcd> vDriftToken_;
   const DTRecoConditions* vDriftMap_;  // DB object in new format

@@ -55,9 +55,9 @@ DTRunConditionVarClient::DTRunConditionVarClient(const ParameterSet& pSet) {
   bookingdone = false;
 
   if (readLegacyVDriftDB) {
-    mTimeMapToken_ =esConsumes<edm::Transition::BeginRun>();
+    mTimeMapToken_ = esConsumes<edm::Transition::BeginRun>();
   } else {
-    vDriftToken_=esConsumes<edm::Transition::BeginRun>();
+    vDriftToken_ = esConsumes<edm::Transition::BeginRun>();
   }
 }
 
