@@ -85,7 +85,7 @@
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Timing_Horizontal_Pot.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Timing_Positive_Station.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Timing_Negative_Station.xml"/>
-    <Include ref="Geometry/VeryForwardData/data/2021/v1/CTPPS_Timing_Stations_Assembly.xml"/>
+    <Include ref="Geometry/VeryForwardData/data/CTPPS_Diamond_2021/Reco/v1/CTPPS_Timing_Stations_Assembly.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern1_Segment1.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern2_Segment1.xml"/>
     <Include ref="Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern2_Segment2.xml"/>
