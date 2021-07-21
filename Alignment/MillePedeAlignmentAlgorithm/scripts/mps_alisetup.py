@@ -452,7 +452,7 @@ class SetupAlignment(object):
             print("Properly set up the alignment before using the -w option.")
             sys.exit(1)
 
-        firstDataset = next(self._datasets.values())
+        firstDataset = next(iter(self._datasets.values()))
         config_template = firstDataset["configTemplate"]
         collection = firstDataset["collection"]
 
