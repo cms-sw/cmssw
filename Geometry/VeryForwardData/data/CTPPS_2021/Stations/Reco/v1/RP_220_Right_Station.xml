@@ -47,7 +47,7 @@
   <LogicalPartSection label="RP_220_Right_Station.xml">
     <LogicalPart name="RP_220_Right_Station">
       <rSolid name="RP_220_Right_Station"/>
-      <rMaterial name="RP_Materials:Air"/>
+      <rMaterial name="materials:Air"/>
     </LogicalPart>
     <LogicalPart name="RP_220_Right_Station_Tube_1">
       <rSolid name="RP_220_Right_Station_Tube_1"/>

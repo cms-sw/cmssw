@@ -22,6 +22,7 @@ PPS:
 * P2: 2021 baseline (after using its own material files for pixel)
 * P3: 2021 baseline (same as P2 but removing common materials)
 * P4: 2021 baseline (same as P2 or P3 but using the same Vacuum)
+* P5: new Run3 detectors
 
 The script also handles the common and forward elements of the geometry:
 * O3: 2021 baseline
