@@ -11,6 +11,7 @@ from DQM.SiPixelPhase1Common.SiPixelPhase1Clusters_cfi import *
 from DQM.SiPixelPhase1Track.SiPixelPhase1RecHits_cfi import *
 # Residuals
 from DQM.SiPixelPhase1Track.SiPixelPhase1TrackResiduals_cfi import *
+from DQM.SiPixelPhase1Track.SiPixelPhase1ResidualsExtra_cfi import *
 # Clusters ontrack/offtrack (also general tracks)
 from DQM.SiPixelPhase1Track.SiPixelPhase1TrackClusters_cfi import *
 # Hit Efficiencies
@@ -21,6 +22,8 @@ from DQM.SiPixelPhase1Common.SiPixelPhase1RawData_cfi import *
 from DQM.SiPixelPhase1Summary.SiPixelPhase1Summary_cfi import *
 #Barycenter plots
 from DQM.SiPixelPhase1Summary.SiPixelBarycenter_cfi import *
+
+
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
