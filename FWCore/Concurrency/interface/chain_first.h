@@ -254,7 +254,7 @@ namespace edm {
   namespace waiting_task::chain {
 
     /** Sets the first task to be run as part of the task chain. The functor is expected to take either
-   a single argument of type edm::WairingTaskHolder or two arguments of type std::exception_ptr const* and WaitingTaskHolder. In the latter case, the pointer is only non-null if a previous task in the chain threw an exception.
+   a single argument of type edm::WaitingTaskHolder or two arguments of type std::exception_ptr const* and WaitingTaskHolder. In the latter case, the pointer is only non-null if a previous task in the chain threw an exception.
    */
     template <typename F>
     [[nodiscard]] constexpr auto first(F&& iF) {
