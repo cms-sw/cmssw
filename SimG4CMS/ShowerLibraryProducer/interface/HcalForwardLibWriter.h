@@ -41,6 +41,8 @@ private:
   int readUserData();
   int nbins;
   int nshowers;
+  int bsize;
+  int splitlevel;
 
   TFile* theFile;
   TTree* theTree;
