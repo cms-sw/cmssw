@@ -303,6 +303,7 @@ namespace edm {
     std::shared_ptr<EDLooperBase>& looper() { return get_underlying_safe(looper_); }
 
     void warnAboutModulesRequiringLuminosityBLockSynchronization() const;
+    void warnAboutLegacyModules() const;
     //------------------------------------------------------------------
     //
     // Data members below.

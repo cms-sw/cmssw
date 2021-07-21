@@ -42,6 +42,7 @@ namespace edm {
     }
 
     Types moduleType() const override;
+    ConcurrencyTypes moduleConcurrencyType() const override;
 
     bool wantsProcessBlocks() const final;
     bool wantsInputProcessBlocks() const final;
