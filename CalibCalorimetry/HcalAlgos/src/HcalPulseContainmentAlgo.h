@@ -13,7 +13,10 @@ public:
                            double fixedphase_ns,
                            bool phaseAsInSim,
                            const HcalTimeSlew* hcalTimeSlew_delay);
-  HcalPulseContainmentAlgo(int num_samples, double fixedphase_ns, bool phaseAsInSim, const HcalTimeSlew* hcalTimeSlew_delay);
+  HcalPulseContainmentAlgo(int num_samples,
+                           double fixedphase_ns,
+                           bool phaseAsInSim,
+                           const HcalTimeSlew* hcalTimeSlew_delay);
   std::pair<double, double> calcpair(double);
 
 private:
