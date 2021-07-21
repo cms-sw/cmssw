@@ -76,16 +76,12 @@ AlignmentProducer = cms.EDProducer("AlignmentProducerAsAnalyzer",
                     # update alignables if triggered by corresponding input IOV boundary
                     enableAlignableUpdates = cms.bool(False),
                     )
-
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
-import Geometry.DTGeometryBuilder.dtGeometry_cfi
-DTGeometryAlignmentProducerAsAnalyzer = Geometry.DTGeometryBuilder.dtGeometry_cfi.DTGeometryESModule.clone()
+import Geometry.DTGeometryBuilder.dtGeometryDB_cfi
+DTGeometryAlignmentProducerAsAnalyzer = Geometry.DTGeometryBuilder.dtGeometryDB_cfi.DTGeometryESModule.clone()
 DTGeometryAlignmentProducerAsAnalyzer.appendToDataLabel = 'idealForAlignmentProducerBase'
-import Geometry.CSCGeometryBuilder.cscGeometry_cfi
-CSCGeometryAlignmentProducerAsAnalyzer = Geometry.CSCGeometryBuilder.cscGeometry_cfi.CSCGeometryESModule.clone()
+import Geometry.CSCGeometryBuilder.cscGeometryDB_cfi
+CSCGeometryAlignmentProducerAsAnalyzer = Geometry.CSCGeometryBuilder.cscGeometryDB_cfi.CSCGeometryESModule.clone()
 CSCGeometryAlignmentProducerAsAnalyzer.appendToDataLabel = 'idealForAlignmentProducerBase'
-import   Geometry.GEMGeometryBuilder.gemGeometry_cfi 
-GEMGeometryAlignmentProducerAsAnalyzer = Geometry.GEMGeometryBuilder.gemGeometry_cfi.gemGeometry.clone()
+import   Geometry.GEMGeometryBuilder.gemGeometryDB_cfi
+GEMGeometryAlignmentProducerAsAnalyzer = Geometry.GEMGeometryBuilder.gemGeometryDB_cfi.GEMGeometryESModule.clone()
 GEMGeometryAlignmentProducerAsAnalyzer.appendToDataLabel = 'idealForAlignmentProducerBase'
-GEMGeometryAlignmentProducerAsAnalyzer.fromDDD = False
-GEMGeometryAlignmentProducerAsAnalyzer.fromDD4Hep = False
