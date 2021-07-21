@@ -5,9 +5,9 @@ EcalBarrelGeometryEP = cms.ESProducer("EcalBarrelGeometryEP",
                                       appendToDataLabel = cms.string("_master")
 )
 
-EcalBarrelGeometryEP_dd4hep = cms.ESProducer("EcalBarrelGeometryEPdd4hep",
-                                             applyAlignment = cms.bool(False),
-                                             appendToDataLabel = cms.string("_master")
+_EcalBarrelGeometryEP_dd4hep = cms.ESProducer("EcalBarrelGeometryEPdd4hep",
+                                              applyAlignment = cms.bool(False),
+                                              appendToDataLabel = cms.string("_master")
 )
 
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
