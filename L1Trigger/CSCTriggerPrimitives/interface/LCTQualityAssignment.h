@@ -64,7 +64,7 @@ public:
                        const edm::ParameterSet& conf);
 
   /** Default destructor. */
-  ~LCTQualityAssignment() {}
+  ~LCTQualityAssignment() override {}
 
   // setter
   void setGEMCSCBending(const bool setBend) { assignGEMCSCBending_ = setBend; }
