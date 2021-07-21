@@ -954,7 +954,7 @@ namespace edm {
       if (workerhelper::CallImpl<T>::needToRunSelection(this)) {
         //We need to run the selection in a different task so that
         // we can prefetch the data needed for the selection
-        auto runTask =
+        WaitingTask* moduleTask =
             new RunModuleTask<T>(this, transitionInfo, token, streamID, parentContext, context, task.group());
 
         //make sure the task is either run or destroyed
@@ -973,14 +973,28 @@ namespace edm {
         private:
           std::atomic<edm::WaitingTask*> m_task;
         };
+        if constexpr (T::isEvent_) {
+          if (hasAcquire()) {
+            auto ownRunTask = std::make_shared<DestroyTask>(moduleTask);
+            ServiceWeakToken weakToken = token;
+            auto* group = task.group();
+            moduleTask = make_waiting_task(
+                [this, weakToken, transitionInfo, parentContext, ownRunTask, group](std::exception_ptr const* iExcept) {
+                  WaitingTaskWithArenaHolder runTaskHolder(
+                      *group, new HandleExternalWorkExceptionTask(this, group, ownRunTask->release(), parentContext));
+                  AcquireTask<T> t(this, transitionInfo, weakToken.lock(), parentContext, runTaskHolder);
+                  t.execute();
+                });
+          }
+        }
         auto* group = task.group();
-        auto ownRunTask = std::make_shared<DestroyTask>(runTask);
+        auto ownModuleTask = std::make_shared<DestroyTask>(moduleTask);
         ServiceWeakToken weakToken = token;
         auto selectionTask =
-            make_waiting_task([ownRunTask, parentContext, info = transitionInfo, weakToken, group, this](
+            make_waiting_task([ownModuleTask, parentContext, info = transitionInfo, weakToken, group, this](
                                   std::exception_ptr const*) mutable {
               ServiceRegistry::Operate guard(weakToken.lock());
-              prefetchAsync<T>(WaitingTaskHolder(*group, ownRunTask->release()),
+              prefetchAsync<T>(WaitingTaskHolder(*group, ownModuleTask->release()),
                                weakToken.lock(),
                                parentContext,
                                info,

@@ -132,6 +132,10 @@ namespace edm {
       void doEndStream(StreamID id) { doEndStream_(id); }
 
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      void doAcquire(EventTransitionInfo const&,
+                     ActivityRegistry*,
+                     ModuleCallingContext const*,
+                     WaitingTaskWithArenaHolder&);
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,
@@ -264,10 +268,11 @@ namespace edm {
       virtual void doEndLuminosityBlockSummary_(LuminosityBlockForOutput const&, EventSetup const&) {}
       virtual void doRespondToOpenInputFile_(FileBlock const&) {}
       virtual void doRespondToCloseInputFile_(FileBlock const&) {}
+      virtual void doAcquire_(StreamID, EventForOutput const&, WaitingTaskWithArenaHolder&) {}
 
       virtual void setProcessesWithSelectedMergeableRunProducts(std::set<std::string> const&) {}
 
-      bool hasAcquire() const { return false; }
+      virtual bool hasAcquire() const { return false; }
       bool hasAccumulator() const { return false; }
 
       void keepThisBranch(BranchDescription const& desc,
