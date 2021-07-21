@@ -25,7 +25,10 @@ HcalPulseContainmentAlgo::HcalPulseContainmentAlgo(const HcalPulseShape* shape,
                                                    double fixedphase_ns,
                                                    bool phaseAsInSim,
                                                    const HcalTimeSlew* hcalTimeSlew_delay)
-    : fixedphasens_(fixedphase_ns), phaseAsInSim_(phaseAsInSim), integrator_(shape), hcalTimeSlew_delay_(hcalTimeSlew_delay) {
+    : fixedphasens_(fixedphase_ns),
+      phaseAsInSim_(phaseAsInSim),
+      integrator_(shape),
+      hcalTimeSlew_delay_(hcalTimeSlew_delay) {
   init(num_samples);
 }
 
@@ -68,10 +71,9 @@ std::pair<double, double> HcalPulseContainmentAlgo::calcpair(double truefc) {
   double timeslew_ns = hcalTimeSlew_delay_->delay(std::max(0.0, (double)truefc), HcalTimeSlew::Medium);
 
   double tmin = 0;
-  if (phaseAsInSim_) { // timePhase as in hcalSimParameters, no time0shift
+  if (phaseAsInSim_) {  // timePhase as in hcalSimParameters, no time0shift
     tmin = fixedphasens_ - timeslew_ns;
-  }
-  else { // Run 2: timePhase opposite to SIM, time0shift
+  } else {  // Run 2: timePhase opposite to SIM, time0shift
     double shift_ns = fixedphasens_ - time0shiftns_ + timeslew_ns;
     //std::cout << "SHIFT " << fixedphasens_ << " " << time0shiftns_ << " " << timeslew_ns << std::endl;
     tmin = -shift_ns;

@@ -8,7 +8,9 @@ HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror, bo
   hcalTimeSlew_delay_ = nullptr;
 }
 
-HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror, bool phaseAsInSim, edm::ConsumesCollector iC)
+HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror,
+                                                         bool phaseAsInSim,
+                                                         edm::ConsumesCollector iC)
     : entries_(),
       shapes_(iC),
       max_fracerror_(max_fracerror),
