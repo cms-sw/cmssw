@@ -73,7 +73,7 @@ private:
   const DTGeometry* dtGeom;
 
   edm::ESGetToken<DTMtime, DTMtimeRcd> mTimeToken_;
-  const DTMtime* mTimeMap_;            // legacy DB object
+  const DTMtime* mTimeMap_;  // legacy DB object
 
   edm::ESGetToken<DTRecoConditions, DTRecoConditionsVdriftRcd> vDriftToken_;
   const DTRecoConditions* vDriftMap_;  // DB object in new format

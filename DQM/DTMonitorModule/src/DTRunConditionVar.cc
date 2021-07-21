@@ -47,12 +47,12 @@ DTRunConditionVar::DTRunConditionVar(const ParameterSet& pSet)
       dt4DSegmentsToken_(consumes<DTRecSegment4DCollection>(pSet.getParameter<InputTag>("recoSegments"))),
       muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
       readLegacyVDriftDB(pSet.getParameter<bool>("readLegacyVDriftDB")) {
-	if (readLegacyVDriftDB) {
-	  mTimeToken_=esConsumes<edm::Transition::BeginRun>();
-	} else {
-	  vDriftToken_=esConsumes<edm::Transition::BeginRun>();
-	}
-      }
+  if (readLegacyVDriftDB) {
+    mTimeToken_ = esConsumes();
+  } else {
+    vDriftToken_ = esConsumes();
+  }
+}
 
 DTRunConditionVar::~DTRunConditionVar() {
   LogTrace("DTDQM|DTMonitorModule|DTRunConditionVar") << "DTRunConditionVar: destructor called";
