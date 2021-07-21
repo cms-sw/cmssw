@@ -13,6 +13,8 @@
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 
@@ -30,7 +32,6 @@
 
 #include <sys/stat.h>
 #include <filesystem>
-#include <mutex>
 #include <boost/algorithm/string.hpp>
 
 typedef edm::detail::TriggerResultsBasedEventSelector::handle_t Trig;
@@ -50,9 +51,21 @@ namespace evf {
 
     void doOutputEvent(EventMsgBuilder const& msg) {
       EventMsgView eview(msg.startAddress());
-      std::lock_guard<std::mutex> g(mutex_);
       stream_writer_events_->write(eview);
       incAccepted();
+    }
+
+    void doOutputEventAsync(std::unique_ptr<EventMsgBuilder> msg, edm::WaitingTaskHolder iHolder) {
+      auto group = iHolder.group();
+      writeQueue_.push(*group, [holder = std::move(iHolder), msg = msg.release(), this]() {
+        try {
+          std::unique_ptr<EventMsgBuilder> own(msg);
+          doOutputEvent(*msg);  //msg is written and discarded at this point
+        } catch (...) {
+          auto tmp = holder;
+          tmp.doneWaiting(std::current_exception());
+        }
+      });
     }
 
     uint32 get_adler32() const { return stream_writer_events_->adler32(); }
@@ -62,11 +75,13 @@ namespace evf {
     unsigned long getAccepted() const { return accepted_; }
     void incAccepted() { accepted_++; }
 
+    edm::SerialTaskQueue& queue() { return writeQueue_; }
+
   private:
     std::string filePath_;
     std::atomic<unsigned long> accepted_;
     edm::propagate_const<std::unique_ptr<StreamerOutputFile>> stream_writer_events_;
-    std::mutex mutex_;
+    edm::SerialTaskQueue writeQueue_;
   };
 
   class GlobalEvFOutputJSONDef {
@@ -99,7 +114,8 @@ namespace evf {
 
   typedef edm::global::OutputModule<edm::RunCache<GlobalEvFOutputJSONDef>,
                                     edm::LuminosityBlockCache<evf::GlobalEvFOutputEventWriter>,
-                                    edm::StreamCache<edm::StreamerOutputModuleCommon>>
+                                    edm::StreamCache<edm::StreamerOutputModuleCommon>,
+                                    edm::ExternalWork>
       GlobalEvFOutputModuleType;
 
   class GlobalEvFOutputModule : public GlobalEvFOutputModuleType {
@@ -109,19 +125,21 @@ namespace evf {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    std::unique_ptr<edm::StreamerOutputModuleCommon> beginStream(edm::StreamID) const override;
+    std::unique_ptr<edm::StreamerOutputModuleCommon> beginStream(edm::StreamID) const final;
 
-    std::shared_ptr<GlobalEvFOutputJSONDef> globalBeginRun(edm::RunForOutput const& run) const override;
-    void write(edm::EventForOutput const& e) override;
+    std::shared_ptr<GlobalEvFOutputJSONDef> globalBeginRun(edm::RunForOutput const& run) const final;
+
+    void acquire(edm::StreamID, edm::EventForOutput const&, edm::WaitingTaskWithArenaHolder) const final;
+    void write(edm::EventForOutput const& e) final;
 
     //pure in parent class but unused here
-    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {}
-    void writeRun(edm::RunForOutput const&) override {}
-    void globalEndRun(edm::RunForOutput const&) const override {}
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) final {}
+    void writeRun(edm::RunForOutput const&) final {}
+    void globalEndRun(edm::RunForOutput const&) const final {}
 
     std::shared_ptr<GlobalEvFOutputEventWriter> globalBeginLuminosityBlock(
-        edm::LuminosityBlockForOutput const& iLB) const override;
-    void globalEndLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) const override;
+        edm::LuminosityBlockForOutput const& iLB) const final;
+    void globalEndLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) const final;
 
     Trig getTriggerResults(edm::EDGetTokenT<edm::TriggerResults> const& token, edm::EventForOutput const& e) const;
 
@@ -131,8 +149,6 @@ namespace evf {
     edm::EDGetTokenT<edm::SendJobHeader::ParameterSetMap> psetToken_;
 
     evf::FastMonitoringService* fms_;
-
-    //std::unique_ptr<evf::GlobalEvFOutputJSONWriter> jsonWriter_;
 
   };  //end-of-class-def
 
@@ -345,19 +361,20 @@ namespace evf {
     return std::make_shared<GlobalEvFOutputEventWriter>(openDatFilePath);
   }
 
-  void GlobalEvFOutputModule::write(edm::EventForOutput const& e) {
+  void GlobalEvFOutputModule::acquire(edm::StreamID id,
+                                      edm::EventForOutput const& e,
+                                      edm::WaitingTaskWithArenaHolder iHolder) const {
     edm::Handle<edm::TriggerResults> const& triggerResults = getTriggerResults(trToken_, e);
 
-    //auto lumiWriter = const_cast<GlobalEvFOutputEventWriter*>(luminosityBlockCache(e.getLuminosityBlock().index() ));
-    auto streamerCommon = streamCache(e.streamID());
+    auto streamerCommon = streamCache(id);
     std::unique_ptr<EventMsgBuilder> msg =
         streamerCommon->serializeEvent(*streamerCommon->getSerializerBuffer(), e, triggerResults, selectorConfig());
-    {
-      auto lumiWriter = luminosityBlockCache(e.getLuminosityBlock().index());
-      const_cast<evf::GlobalEvFOutputEventWriter*>(lumiWriter)
-          ->doOutputEvent(*msg);  //msg is written and discarded at this point
-    }
+
+    auto lumiWriter = luminosityBlockCache(e.getLuminosityBlock().index());
+    const_cast<evf::GlobalEvFOutputEventWriter*>(lumiWriter)
+        ->doOutputEventAsync(std::move(msg), iHolder.makeWaitingTaskHolderAndRelease());
   }
+  void GlobalEvFOutputModule::write(edm::EventForOutput const&) {}
 
   void GlobalEvFOutputModule::globalEndLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) const {
     auto lumiWriter = luminosityBlockCache(iLB.index());
