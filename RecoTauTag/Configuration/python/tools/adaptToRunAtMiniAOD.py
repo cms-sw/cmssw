@@ -22,8 +22,6 @@ def addTauReReco(process):
 		process.selectedPatTaus
 	)
 	process.miniAODTausSequence = cms.Sequence(process.miniAODTausTask)
-	#Path with tau rereco (Needed?)
-	process.TauReco = cms.Path(process.miniAODTausSequence)
 
 #####
 def convertModuleToMiniAODInput(process, name):
@@ -46,24 +44,24 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 		jetCollection = 'patJetsPAT'
 		from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 		process.ak4PFJetsPAT = ak4PFJets.clone(
-			src=cms.InputTag("packedPFCandidates")
+			src = "packedPFCandidates"
 		)
 		# trivial PATJets
 		from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import _patJets
 		process.patJetsPAT = _patJets.clone(
-			jetSource            = cms.InputTag("ak4PFJetsPAT"),
-			addJetCorrFactors    = cms.bool(False),
-			jetCorrFactorsSource = cms.VInputTag(),
-			addBTagInfo          = cms.bool(False),
-			addDiscriminators    = cms.bool(False),
-			discriminatorSources = cms.VInputTag(),
-			addAssociatedTracks  = cms.bool(False),
-			addJetCharge         = cms.bool(False),
-			addGenPartonMatch    = cms.bool(False),
-			embedGenPartonMatch  = cms.bool(False),
-			addGenJetMatch       = cms.bool(False),
-			getJetMCFlavour      = cms.bool(False),
-			addJetFlavourInfo    = cms.bool(False),
+			jetSource            = "ak4PFJetsPAT",
+			addJetCorrFactors    = False,
+			jetCorrFactorsSource = [],
+			addBTagInfo          = False,
+			addDiscriminators    = False,
+			discriminatorSources = [],
+			addAssociatedTracks  = False,
+			addJetCharge         = False,
+			addGenPartonMatch    = False,
+			embedGenPartonMatch  = False,
+			addGenJetMatch       = False,
+			getJetMCFlavour      = False,
+			addJetFlavourInfo    = False,
 		)
 		process.miniAODTausTask.add(process.ak4PFJetsPAT)
 		process.miniAODTausTask.add(process.patJetsPAT)
@@ -93,22 +91,22 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 		process.recoTauPileUpVertices
 	)
 
-	for moduleName in process.TauReco.moduleNames(): 
+	for moduleName in process.miniAODTausTask.moduleNames():
 		convertModuleToMiniAODInput(process, moduleName)
 
 
 	# Adapt TauPiZeros producer
-	process.ak4PFJetsLegacyHPSPiZeros.builders[0].qualityCuts.primaryVertexSrc = cms.InputTag("offlineSlimmedPrimaryVertices")
+	process.ak4PFJetsLegacyHPSPiZeros.builders[0].qualityCuts.primaryVertexSrc = "offlineSlimmedPrimaryVertices"
 	process.ak4PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag(jetCollection)
 
 	# Adapt TauChargedHadrons producer
 	for builder in process.ak4PFJetsRecoTauChargedHadrons.builders:
-		builder.qualityCuts.primaryVertexSrc = cms.InputTag("offlineSlimmedPrimaryVertices")
+		builder.qualityCuts.primaryVertexSrc = "offlineSlimmedPrimaryVertices"
 		if builder.name.value() == 'tracks': #replace plugin based on generalTracks by one based on lostTracks
 			builder.name = 'lostTracks'
 			builder.plugin = 'PFRecoTauChargedHadronFromLostTrackPlugin'
-			builder.srcTracks = cms.InputTag("lostTracks")
-	process.ak4PFJetsRecoTauChargedHadrons.jetSrc = cms.InputTag(jetCollection)
+			builder.srcTracks = "lostTracks"
+	process.ak4PFJetsRecoTauChargedHadrons.jetSrc = jetCollection
 
 	# Adapt combinatoricRecoTau producer
 	process.combinatoricRecoTaus.jetRegionSrc = 'recoTauAK4Jets08RegionPAT'
@@ -148,7 +146,7 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	)
 	
 	# Remove RecoTau producers which are not supported (yet?), i.e. against-e/mu discriminats
-	for moduleName in process.TauReco.moduleNames(): 
+	for moduleName in process.miniAODTausTask.moduleNames():
 		if 'ElectronRejection' in moduleName or 'MuonRejection' in moduleName:
 			if 'ByDeadECALElectronRejection' in moduleName: continue
 			process.miniAODTausTask.remove(getattr(process, moduleName))
@@ -162,8 +160,8 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	#####
 	# PAT part in the following
 
-	process.tauGenJets.GenParticles = cms.InputTag("prunedGenParticles")
-	process.tauMatch.matched = cms.InputTag("prunedGenParticles")
+	process.tauGenJets.GenParticles = "prunedGenParticles"
+	process.tauMatch.matched = "prunedGenParticles"
 
 	# Remove unsupported tauIDs
 	for name, src in process.patTaus.tauIDSources.parameters_().items():
@@ -188,21 +186,19 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
 	tauIdEmbedder = tauIdConfig.TauIDEmbedder(
 		process, debug = False,
+		originalTauName = _noUpdatedTauName,
 		updatedTauName = _updatedTauName,
+		postfix = "MiniAODTaus",
 		toKeep = ['againstEle2018','deepTau2017v2p1']
 	)
 	tauIdEmbedder.runTauID()
 	setattr(process, _noUpdatedTauName, process.selectedPatTaus.clone())
 	process.miniAODTausTask.add(getattr(process,_noUpdatedTauName))
 	delattr(process, 'selectedPatTaus')
-	process.deepTau2017v2p1.taus = _noUpdatedTauName
-	process.patTauDiscriminationByElectronRejectionMVA62018Raw.PATTauProducer = _noUpdatedTauName
-	process.patTauDiscriminationByElectronRejectionMVA62018.PATTauProducer = _noUpdatedTauName
-	process.selectedPatTaus = getattr(process, _updatedTauName).clone(
-		src = _noUpdatedTauName
-	)
+	process.selectedPatTaus = getattr(process, _updatedTauName).clone()
+	delattr(process, _updatedTauName)
 	process.newTauIDsTask = cms.Task(
-		process.rerunMvaIsolationTask,
+		process.rerunMvaIsolationTaskMiniAODTaus,
 		process.selectedPatTaus
 	)
 	process.miniAODTausTask.add(process.newTauIDsTask)
