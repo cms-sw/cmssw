@@ -1,5 +1,4 @@
 #include "SimG4CMS/Calo/interface/ECalSD.h"
-#include "SimG4CMS/Calo/interface/HCalSD.h"
 #include "SimG4CMS/Calo/interface/HGCSD.h"
 #include "SimG4CMS/Calo/interface/HGCalSD.h"
 #include "SimG4CMS/Calo/interface/HGCScintSD.h"
@@ -12,8 +11,6 @@
 
 typedef ECalSD EcalSensitiveDetector;
 DEFINE_SENSITIVEDETECTOR(EcalSensitiveDetector);
-typedef HCalSD HcalSensitiveDetector;
-DEFINE_SENSITIVEDETECTOR(HcalSensitiveDetector);
 typedef HGCSD HGCSensitiveDetector;
 DEFINE_SENSITIVEDETECTOR(HGCSensitiveDetector);
 typedef HGCalSD HGCalSensitiveDetector;
