@@ -64,15 +64,13 @@ requireDecayMode = cms.PSet(
 )
 
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits
+import RecoTauTag.RecoTau.pfRecoTauDiscriminationAgainstMuon2_cfi as _mod
 
-hpsPFTauDiscriminationAgainstMuon2 = cms.EDProducer(
-    "PFRecoTauDiscriminationAgainstMuon2",
-    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+PFTauDiscriminationAgainstMuon2 = _mod.pfRecoTauDiscriminationAgainstMuon2.clone(
+    PFTauProducer = 'hpsPFTauProducer',
     Prediscriminants = requireDecayMode.clone(),
-    discriminatorOption = cms.string('loose'), # available options are: 'loose', 'medium', 'tight'
-    HoPMin = cms.double(0.2)
-
-
+    discriminatorOption = 'loose', # available options are: 'loose', 'medium', 'tight'
+)
 
 hpsPFTauDiscriminationByMVAIsolation = cms.EDProducer(
     "PFRecoTauDiscriminationByMVAIsolation",
