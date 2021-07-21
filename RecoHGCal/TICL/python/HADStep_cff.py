@@ -58,13 +58,15 @@ ticlTrackstersHFNoseHAD = ticlTrackstersHAD.clone(
     filtered_mask = "filteredLayerClustersHFNoseHAD:HADn",
     seeding_regions = "ticlSeedingGlobalHFNose",
     time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
+    # eid_graph_path: might as well have a separately trained model for nose
     pluginPatternRecognitionByCA = dict(
        pid_threshold = 0.,
        skip_layers = 1,
        min_layers_per_trackster = 5,
        min_cos_theta = 0.866,    # ~30 degrees
-       min_cos_pointing = 0.819, # ~35 degrees
-       max_delta_time = -1,
+       min_cos_pointing = 0.866, # ~30 degrees
+       max_delta_time = -1
+       # eid_n_layers = 8
     ),
     itername = "HADn"
     )
