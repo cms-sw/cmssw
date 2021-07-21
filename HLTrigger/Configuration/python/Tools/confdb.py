@@ -4,7 +4,6 @@ from __future__ import absolute_import
 import sys
 import re
 import os
-import urllib, urllib2
 from .pipe import pipe as _pipe
 from .options import globalTag
 from itertools import islice
