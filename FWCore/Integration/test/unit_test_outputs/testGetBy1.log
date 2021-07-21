@@ -36,6 +36,11 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e81
 ++++ finished: constructing module with label 'intVectorProducer' id = 14
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
 ++ starting: begin job
+The following legacy modules are configured. Support for legacy modules
+is going to end soon. These modules need to be converted to have type
+edm::global, edm::stream, edm::one, or in rare cases edm::limited.
+  IntVectorProducer intVectorProducer
+%MSG
 ++++ starting: begin job for module with label 'intProducerA' id = 9
 Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
 ++++ finished: begin job for module with label 'intProducerA' id = 9
