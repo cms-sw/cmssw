@@ -247,7 +247,7 @@ void PixelCPEFast::fillParamsForGpu() {
     auto aveCB = cp.cotbeta;
 
     // sample x by charge
-    int qbin = 5;  // low charge
+    int qbin = CPEFastParametrisation::GenErrorQBins;  // low charge
     int k = 0;
     for (int qclus = 1000; qclus < 200000; qclus += 1000) {
       errorFromTemplates(p, cp, qclus);
@@ -263,25 +263,26 @@ void PixelCPEFast::fillParamsForGpu() {
                                << m * cp.sigmay << ' ' << m * cp.sy1 << ' ' << m * cp.sy2 << std::endl;
 #endif  // EDM_ML_DEBUG
     }
-    assert(k <= 5);
+    assert(k <= CPEFastParametrisation::GenErrorQBins);
     // fill the rest  (sometimes bin 4 is missing)
-    for (int kk = k; kk < 5; ++kk) {
+    for (int kk = k; kk < CPEFastParametrisation::GenErrorQBins; ++kk) {
       g.xfact[kk] = g.xfact[k - 1];
       g.yfact[kk] = g.yfact[k - 1];
       g.minCh[kk] = g.minCh[k - 1];
     }
     auto detx = 1.f / g.xfact[0];
     auto dety = 1.f / g.yfact[0];
-    for (int kk = 0; kk < 5; ++kk) {
+    for (int kk = 0; kk < CPEFastParametrisation::GenErrorQBins; ++kk) {
       g.xfact[kk] *= detx;
       g.yfact[kk] *= dety;
     }
     // sample y in "angle"  (estimated from cluster size)
     float ys = 8.f - 4.f;  // apperent bias of half pixel (see plot)
+    // plot: https://indico.cern.ch/event/934821/contributions/3974619/attachments/2091853/3515041/DigilessReco.pdf page 25
     // sample yerr as function of "size"
     for (int iy = 0; iy < CPEFastParametrisation::NumErrorBins; ++iy) {
       ys += 1.f;  // first bin 0 is for size 9  (and size is in fixed point 2^3)
-      if (15 == iy)
+      if (CPEFastParametrisation::NumErrorBins - 1 == iy)
         ys += 8.f;  // last bin for "overflow"
       // cp.cotalpha = ys*(commonParamsGPU_.thePitchX/(8.f*thickness));  //  use this to print sampling in "x"  (and comment the line below)
       cp.cotbeta = std::copysign(ys * (commonParamsGPU_.thePitchY / (8.f * thickness)), aveCB);
