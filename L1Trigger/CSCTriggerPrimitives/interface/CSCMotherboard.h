@@ -40,6 +40,7 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCALCTCrossCLCT.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeCathodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityAssignment.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 

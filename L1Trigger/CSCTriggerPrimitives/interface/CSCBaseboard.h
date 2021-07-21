@@ -8,9 +8,7 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboardLUT.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCLUTReader.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityAssignment.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 
 class CSCBaseboard {
