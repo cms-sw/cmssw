@@ -76,6 +76,16 @@ namespace edm {
       static bool constexpr value = true;
     };
 
+    template <typename T>
+    struct has_only_stream_transition_functions {
+      static bool constexpr value = false;
+    };
+
+    template <>
+    struct has_only_stream_transition_functions<edm::global::OutputModuleBase> {
+      static bool constexpr value = true;
+    };
+
     struct DoNothing {
       template <typename... T>
       inline void operator()(const T&...) {}
@@ -456,7 +466,10 @@ namespace edm {
 
   template <typename T>
   inline void WorkerT<T>::implBeginStream(StreamID id) {
-    std::conditional_t<workerimpl::has_stream_functions<T>::value, workerimpl::DoBeginStream<T>, workerimpl::DoNothing>
+    std::conditional_t<workerimpl::has_stream_functions<T>::value or
+                           workerimpl::has_only_stream_transition_functions<T>::value,
+                       workerimpl::DoBeginStream<T>,
+                       workerimpl::DoNothing>
         might_call;
     might_call(this, id);
   }
@@ -469,7 +482,10 @@ namespace edm {
 
   template <typename T>
   inline void WorkerT<T>::implEndStream(StreamID id) {
-    std::conditional_t<workerimpl::has_stream_functions<T>::value, workerimpl::DoEndStream<T>, workerimpl::DoNothing>
+    std::conditional_t<workerimpl::has_stream_functions<T>::value or
+                           workerimpl::has_only_stream_transition_functions<T>::value,
+                       workerimpl::DoEndStream<T>,
+                       workerimpl::DoNothing>
         might_call;
     might_call(this, id);
   }

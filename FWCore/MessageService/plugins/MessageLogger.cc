@@ -342,11 +342,19 @@ namespace edm {
         } else if (tran == GlobalContext::Transition::kBeginRun or tran == GlobalContext::Transition::kEndRun) {
           establishModule(
               runInfoBegin_ + globalContext->runIndex(), iModContext, s_globalTransitionNames[static_cast<int>(tran)]);
-        } else {
-          assert(tran == GlobalContext::Transition::kBeginProcessBlock ||
-                 tran == GlobalContext::Transition::kAccessInputProcessBlock ||
-                 tran == GlobalContext::Transition::kEndProcessBlock);
+        } else if (tran == GlobalContext::Transition::kBeginProcessBlock ||
+                   tran == GlobalContext::Transition::kAccessInputProcessBlock ||
+                   tran == GlobalContext::Transition::kEndProcessBlock) {
           establishModule(processBlockInfoBegin_, iModContext, s_globalTransitionNames[static_cast<int>(tran)]);
+        } else {
+          MessageDrop* messageDrop = MessageDrop::instance();
+          messageDrop->streamID = std::numeric_limits<unsigned int>::max();
+          messageDrop->setSinglet("unknown context");
+          MessageDrop::instance()->runEvent = "";
+          messageDrop->debugEnabled = nonModule_debugEnabled;
+          messageDrop->infoEnabled = nonModule_infoEnabled;
+          messageDrop->warningEnabled = nonModule_warningEnabled;
+          messageDrop->errorEnabled = nonModule_errorEnabled;
         }
       } else {
         auto stream = iModContext.getStreamContext();
@@ -465,11 +473,19 @@ namespace edm {
           } else if (tran == GlobalContext::Transition::kBeginRun or tran == GlobalContext::Transition::kEndRun) {
             establishModule(
                 runInfoBegin_ + globalContext->runIndex(), *previous, s_globalTransitionNames[static_cast<int>(tran)]);
-          } else {
-            assert(tran == GlobalContext::Transition::kBeginProcessBlock ||
-                   tran == GlobalContext::Transition::kAccessInputProcessBlock ||
-                   tran == GlobalContext::Transition::kEndProcessBlock);
+          } else if (tran == GlobalContext::Transition::kBeginProcessBlock ||
+                     tran == GlobalContext::Transition::kAccessInputProcessBlock ||
+                     tran == GlobalContext::Transition::kEndProcessBlock) {
             establishModule(processBlockInfoBegin_, *previous, s_globalTransitionNames[static_cast<int>(tran)]);
+          } else {
+            MessageDrop* messageDrop = MessageDrop::instance();
+            messageDrop->streamID = std::numeric_limits<unsigned int>::max();
+            messageDrop->setSinglet("unknown context");
+            MessageDrop::instance()->runEvent = "";
+            messageDrop->debugEnabled = nonModule_debugEnabled;
+            messageDrop->infoEnabled = nonModule_infoEnabled;
+            messageDrop->warningEnabled = nonModule_warningEnabled;
+            messageDrop->errorEnabled = nonModule_errorEnabled;
           }
         } else {
           auto stream = previous->getStreamContext();
