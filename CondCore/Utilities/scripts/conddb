@@ -1044,11 +1044,12 @@ def diffGlobalTagsAtRun_(args):
         if(int(args.testRunNumber)<0):
             raise Exception("Run %s (default) can't be matched with an existing run in the database. \n\t\t Please specify a run with the option --run." % args.testRunNumber)
 
-        bestRun = session.query(RUNINFO.run_number, RUNINFO.start_time, RUNINFO.end_time).filter(RUNINFO.run_number == int(args.testRunNumber)).first()
-        if bestRun is None:
-            raise Exception("Run %s can't be matched with an existing run in the database." % args.testRunNumber)
+        if(int(args.testRunNumber)!=1):
+            bestRun = session.query(RUNINFO.run_number, RUNINFO.start_time, RUNINFO.end_time).filter(RUNINFO.run_number == int(args.testRunNumber)).first()
+            if bestRun is None:
+                raise Exception("Run %s can't be matched with an existing run in the database." % args.testRunNumber)
 
-        print("Run",args.testRunNumber," |Start time",bestRun[1]," |End time",bestRun[2],".")
+            print("Run",args.testRunNumber," |Start time",bestRun[1]," |End time",bestRun[2],".")
 
     ####################################
     # Get the Global Tag snapshots
