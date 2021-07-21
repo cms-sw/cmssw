@@ -2,7 +2,7 @@
 
 import sys
 import subprocess
-import imp
+import types
 import re
 import FWCore.ParameterSet.Config as cms
 
@@ -18,7 +18,7 @@ def extractDatasets(version, database, config):
   (out, err) = proc.communicate()
 
   # load the streams and Datasets
-  hlt = imp.new_module('hlt')
+  hlt = types.ModuleType('hlt')
   exec(out, globals(), hlt.__dict__)
 
   return hlt.process
