@@ -64,11 +64,14 @@ ticlTrackstersHFNoseEM = ticlTrackstersEM.clone(
     seeding_regions = "ticlSeedingGlobalHFNose",
     time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
     itername = "EMn",
+    # eid_graph_path: might as well have a separately trained model for nose
     pluginPatternRecognitionByCA = dict(
        filter_on_categories = [0, 1],
        min_layers_per_trackster = 5,
        pid_threshold = 0.,
-       shower_start_max_layer = 5 ### inclusive
+       min_cos_pointing = 0.9845, # ~10 degrees
+       shower_start_max_layer = 4 ### inclusive
+       # eid_n_layers = 8
     )
 )
 

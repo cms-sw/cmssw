@@ -46,7 +46,7 @@ filteredLayerClustersHFNoseTrk = filteredLayerClustersTrk.clone(
     LayerClusters = 'hgcalLayerClustersHFNose',
     LayerClustersInputMask = 'ticlTrackstersHFNoseEM',
     min_cluster_size = 2, # inclusive
-    algo_number = 8,
+    algo_number = 9,
     iteration_label = "Trkn"
 )
 
@@ -60,11 +60,15 @@ ticlTrackstersHFNoseTrk = ticlTrackstersTrk.clone(
     filtered_mask = "filteredLayerClustersHFNoseTrk:Trkn",
     seeding_regions = "ticlSeedingTrkHFNose",
     time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
+    # eid_graph_path: might as well have a separately trained model for nose
     pluginPatternRecognitionByCA = dict(
         filter_on_categories = [2, 4], # filter muons and charged hadrons
         pid_threshold = 0.0,
-        skip_layers = 2,
-        min_layers_per_trackster = 4,
+        skip_layers = 1,
+        min_layers_per_trackster = 5,
+        oneTracksterPerTrackSeed = True,
+        promoteEmptyRegionToTrackster = True
+        # eid_n_layers = 8
     ),
     itername = "Trkn"
 )
