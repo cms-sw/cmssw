@@ -118,7 +118,7 @@ gemcscParams = cms.PSet(
 )
 
 gemcscPSets = cms.PSet(
+    gemcscParams.clone(),
     copadParamGE11 = copadParamGE11.clone(),
     copadParamGE21 = copadParamGE21.clone(),
-    gemcscParams = gemcscParams.clone()
 )
