@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-import RecoJets.JetProducers.FastjetJetProducer_cfi _mod
+import RecoJets.JetProducers.FastjetJetProducer_cfi as _mod
 
 hltak4CaloJets = _mod.FastjetJetProducer.clone(
     useDeterministicSeed = True,
