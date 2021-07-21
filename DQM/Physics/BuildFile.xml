@@ -24,4 +24,5 @@
 <use name="TrackingTools/TransientTrack"/>
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/PatternTools"/>
+<use name="CommonTools/RecoAlgos"/>
 <flags EDM_PLUGIN="1"/>
