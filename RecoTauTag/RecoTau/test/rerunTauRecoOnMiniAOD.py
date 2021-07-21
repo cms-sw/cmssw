@@ -116,6 +116,7 @@ process.out = cms.EndPath(process.output)
 
 #####
 tauAtMiniTools.adaptTauToMiniAODReReco(process, reclusterJets)
+process.p = cms.Path(process.miniAODTausSequence)
 
 if runType == 'data':
     from PhysicsTools.PatAlgos.tools.coreTools import runOnData
