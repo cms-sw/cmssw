@@ -77,13 +77,59 @@ SiPixelPhase1TrackResidualsResOtherBadY = SiPixelPhase1TrackResidualsResOtherBad
 )
 
 
+SiPixelPhase1TrackNormResX = DefaultHistoTrack.clone(
+  topFolderName= cms.string("PixelPhase1/Tracks/ResidualsExtra"), 
+  name = "NormRes_x",
+  title = "Normalized Residuals X",
+  range_min = -5, range_max = 5, range_nbins = 100,
+  xlabel = "(x_rec - x_pred)/x_err",
+  dimensions = 1,
+  specs = VPSet(
+    Specification().groupBy("PXBarrel/PXLayer").saveAll(),
+    Specification().groupBy("PXForward/PXDisk").saveAll(),
+    Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
+    Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXRing/PXDisk").save()
+  )
+)
+
+SiPixelPhase1TrackNormResY = SiPixelPhase1TrackNormResX.clone(
+  name = "NormRes_y",
+  title = "Normalized Residuals Y",
+  range_min = -5, range_max = 5, range_nbins = 100,
+  xlabel = "(y_rec - y_pred)/y_err",
+)
+
+SiPixelPhase1TrackDRnRX = DefaultHistoTrack.clone(
+  topFolderName= cms.string("PixelPhase1/Tracks/ResidualsExtra"),
+  name = "DRnR_x",
+  title = "Distribution of RMS of Normalized Residuals X",
+  range_min = -5, range_max = 5, range_nbins = 100,
+  xlabel = "#sigma_{(x_rec - x_pred)/x_err}",
+  dimensions = 1,
+  specs = VPSet(
+    StandardSpecification2DProfile
+  )
+)
+
+SiPixelPhase1TrackDRnRY = SiPixelPhase1TrackDRnRX.clone(
+  name = "DRnR_y",
+  title = "Distribution of RMS of Normalized Residuals Y",
+  range_min = -5, range_max = 5, range_nbins = 100,
+  xlabel = "#sigma_{(y_rec - y_pred)/y_err}",
+)
+
+
 SiPixelPhase1TrackResidualsConf = cms.VPSet(
   SiPixelPhase1TrackResidualsResidualsX,
   SiPixelPhase1TrackResidualsResidualsY,
   SiPixelPhase1TrackResidualsResOnEdgeX,
   SiPixelPhase1TrackResidualsResOnEdgeY,
   SiPixelPhase1TrackResidualsResOtherBadX,
-  SiPixelPhase1TrackResidualsResOtherBadY
+  SiPixelPhase1TrackResidualsResOtherBadY,
+  SiPixelPhase1TrackNormResX,
+  SiPixelPhase1TrackNormResY,
+  SiPixelPhase1TrackDRnRX,
+  SiPixelPhase1TrackDRnRY
 )
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
