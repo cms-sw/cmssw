@@ -34,7 +34,7 @@ particleLevel = cms.EDProducer("ParticleLevelProducer",
     particleMaxEta = cms.double(5.), # HF range. Maximum 6.0 on MiniAOD
     
     lepConeSize = cms.double(0.1), # for photon dressing
-    lepMinPt    = cms.double(15.),
+    lepMinPt    = cms.double(1.),
     lepMaxEta   = cms.double(2.5),
     
     jetConeSize = cms.double(0.4),
@@ -47,7 +47,7 @@ particleLevel = cms.EDProducer("ParticleLevelProducer",
 
     phoIsoConeSize = cms.double(0.4),
     phoMaxRelIso = cms.double(0.5),
-    phoMinPt = cms.double(10),
+    phoMinPt = cms.double(1.),
     phoMaxEta = cms.double(2.5),
 )
 
@@ -61,7 +61,7 @@ rivetProducerHTXS = cms.EDProducer('HTXSRivetProducer',
 ##################### Tables for final output and docs ##########################
 rivetLeptonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("particleLevel:leptons"),
-    cut = cms.string(""),
+    cut = cms.string("pt > 15"),
     name= cms.string("GenDressedLepton"),
     doc = cms.string("Dressed leptons from Rivet-based ParticleLevelProducer"),
     singleton = cms.bool(False), # the number of entries is variable
@@ -77,7 +77,7 @@ rivetLeptonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 rivetPhotonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("particleLevel:photons"),
-    cut = cms.string(""),
+    cut = cms.string("pt > 10"),
     name= cms.string("GenIsolatedPhoton"),
     doc = cms.string("Isolated photons from Rivet-based ParticleLevelProducer"),
     singleton = cms.bool(False), # the number of entries is variable
