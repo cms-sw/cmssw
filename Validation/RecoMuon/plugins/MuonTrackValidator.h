@@ -66,7 +66,7 @@ public:
     edm::LogVerbatim("MuonTrackValidator") << "constructing MuonTrackValidator: " << pset.dump();
 
     // Declare consumes (also for the base class)
-    bsSrc_Token = consumes<reco::BeamSpot>(bsSrc);
+//    bsSrc_Token = consumes<reco::BeamSpot>(bsSrc);
     if (label_tp_refvector)
       tp_refvector_Token = consumes<TrackingParticleRefVector>(label_tp);
     else
