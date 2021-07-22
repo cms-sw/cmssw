@@ -6,7 +6,6 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.Configuration.customiseEarlyDeleteForSeeding import customiseEarlyDeleteForSeeding
 from CommonTools.ParticleFlow.Isolation.customiseEarlyDeleteForCandIsoDeposits import customiseEarlyDeleteForCandIsoDeposits
-import six
 
 def _hasInputTagModuleLabel(process, pset, psetModLabel, moduleLabels, result):
     for name in pset.parameterNames_():
@@ -52,14 +51,14 @@ def customiseEarlyDelete(process):
         process.options.canDeleteEarly = cms.untracked.vstring()
 
     branchSet = set()
-    for branches in six.itervalues(products):
+    for branches in products.values():
         for branch in branches:
             branchSet.add(branch)
     branchList = sorted(branchSet)
     process.options.canDeleteEarly.extend(branchList)
 
     # LogErrorHarvester should not wait for deleted items
-    for prod in six.itervalues(process.producers_()):
+    for prod in process.producers_().values():
         if prod.type_() == "LogErrorHarvester":
             if not hasattr(prod,'excludeModules'):
                 prod.excludeModules = cms.untracked.vstring()
@@ -70,12 +69,12 @@ def customiseEarlyDelete(process):
     # Find the consumers
     producers=[]
     branchesList=[]
-    for producer, branches in six.iteritems(products):
+    for producer, branches in products.items():
         producers.append(producer)
         branchesList.append(branches)
 
     for moduleType in [process.producers_(), process.filters_(), process.analyzers_()]:
-        for name, module in six.iteritems(moduleType):
+        for name, module in moduleType.items():
             result=[]
             for producer in producers:
                 result.append(False)
