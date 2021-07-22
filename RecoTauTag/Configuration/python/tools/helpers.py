@@ -1,7 +1,4 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
-import sys
-import six
 
 ## Helpers to perform some technically boring tasks like looking for all modules with a given parameter
 ## and replacing that to a given value
