@@ -36,7 +36,7 @@ namespace muonisolation {
 
   class JetExtractor : public reco::isodeposit::IsoDepositExtractor {
   public:
-    JetExtractor(){};
+    JetExtractor();
     JetExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC);
 
     ~JetExtractor() override;
@@ -62,10 +62,10 @@ namespace muonisolation {
     bool theExcludeMuonVeto;
 
     //! the event setup proxy, it takes care the services update
-    MuonServiceProxy* theService;
+    std::unique_ptr<MuonServiceProxy> theService;
 
-    TrackAssociatorParameters* theAssociatorParameters;
-    TrackDetectorAssociator* theAssociator;
+    std::unique_ptr<TrackAssociatorParameters> theAssociatorParameters;
+    std::unique_ptr<TrackDetectorAssociator> theAssociator;
 
     bool thePrintTimeReport;
   };
