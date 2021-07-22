@@ -260,12 +260,16 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig)
     edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorBeam_ << " with tags " << tmp1;
 #endif
   if (ifEE_) {
-    tokDDDEE_ = esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_));
-    tokGeomEE_ = esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_));
+    tokDDDEE_ =
+        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_));
+    tokGeomEE_ =
+        esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_));
   }
   if (ifFH_) {
-    tokDDDFH_ = esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorFH_));
-    tokGeomFH_ =  esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorFH_));
+    tokDDDFH_ =
+        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorFH_));
+    tokGeomFH_ =
+        esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorFH_));
   }
 }
 
