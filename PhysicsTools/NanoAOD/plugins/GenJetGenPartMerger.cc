@@ -84,9 +84,9 @@ void GenJetGenPartMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   for (unsigned int ijet = 0; ijet < jetHandle->size(); ++ijet) {
     auto jet = jetHandle->at(ijet);
     if (cut_(jet)) {
-        merged->push_back(reco::GenJet(jet));
-        reco::GenJetRef jetRef(jetHandle, ijet);
-        hasTauAncValues.push_back((*tauAncHandle)[jetRef]);
+      merged->push_back(reco::GenJet(jet));
+      reco::GenJetRef jetRef(jetHandle, ijet);
+      hasTauAncValues.push_back((*tauAncHandle)[jetRef]);
     }
   }
 
