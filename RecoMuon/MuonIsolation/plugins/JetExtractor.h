@@ -25,6 +25,9 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 class TrackAssociatorParameters;
 class TrackDetectorAssociator;
 class MuonServiceProxy;
@@ -47,6 +50,8 @@ namespace muonisolation {
     edm::EDGetTokenT<reco::CaloJetCollection> theJetCollectionToken;
 
     std::string thePropagatorName;
+
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
 
     // Cone cuts and thresholds
     double theThreshold;
