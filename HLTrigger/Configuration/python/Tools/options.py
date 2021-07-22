@@ -132,27 +132,27 @@ class HLTProcessOptions(object):
 
   # convert HLT and L1 menus to a dedicated object representation on the fly
   def __setattr__(self, name, value):
-    if name is 'menu' and not isinstance(value, ConnectionHLTMenu):
+    if name == 'menu' and not isinstance(value, ConnectionHLTMenu):
       # format 'menu' as needed
       object.__setattr__(self, name, ConnectionHLTMenu(value))
-    elif name is 'l1' and not isinstance(value, ConnectionL1TMenu):
+    elif name == 'l1' and not isinstance(value, ConnectionL1TMenu):
       # format '--l1' as needed
       object.__setattr__(self, name, ConnectionL1TMenu(value))
-    elif name is 'l1Xml' and not isinstance(value, ConnectionL1TMenuXml):
+    elif name == 'l1Xml' and not isinstance(value, ConnectionL1TMenuXml):
       # format '--l1Xml' as needed
       object.__setattr__(self, name, ConnectionL1TMenuXml(value))
-    elif name is 'open' and value:
+    elif name == 'open' and value:
       # '--open' implies '--unprescale'
       object.__setattr__(self, 'open',      True)
       object.__setattr__(self, 'prescale',  "none")
-    elif name is 'prescale' and value is not None:
+    elif name == 'prescale' and value is not None:
       # '--open' overrides '--prescale', set the prescale value only if '--open' is not set
       if not self.open:
         object.__setattr__(self, 'prescale', value)
-    elif name is 'profiling' and value:
+    elif name == 'profiling' and value:
       # '--profiling'
       object.__setattr__(self, 'profiling', True)
-    elif name is 'timing' and value:
+    elif name == 'timing' and value:
       # '--timing' implies '--profiling'
       object.__setattr__(self, 'timing',    True)
       object.__setattr__(self, 'profiling', True)
