@@ -912,7 +912,7 @@ void HcalTriggerPrimitiveAlgo::addUpgradeTDCFG(const HcalTrigTowerDetId& id, con
   assert(ids.size() == 1 || ids.size() == 2);
   IntegerCaloSamples samples1(ids[0], int(frame.samples()));
   samples1.setPresamples(frame.presamples());
-  incoder_->adc2Linear(frame, samples1); // use linearization LUT
+  incoder_->adc2Linear(frame, samples1);  // use linearization LUT
 
   auto it = fgUpgradeTDCMap_.find(id);
   if (it == fgUpgradeTDCMap_.end()) {
@@ -920,8 +920,8 @@ void HcalTriggerPrimitiveAlgo::addUpgradeTDCFG(const HcalTrigTowerDetId& id, con
     element.resize(frame.samples());
     it = fgUpgradeTDCMap_.insert(std::make_pair(id, element)).first;
   }
-  for(int i=0; i<frame.samples(); i++) {
-    it->second[i][detId.depth()-1] = std::make_pair(samples1[i], frame[i].tdc());
+  for (int i = 0; i < frame.samples(); i++) {
+    it->second[i][detId.depth() - 1] = std::make_pair(samples1[i], frame[i].tdc());
   }
 }
 
