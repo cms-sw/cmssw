@@ -24,6 +24,8 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
+JetExtractor::JetExtractor() {}
+
 JetExtractor::JetExtractor(const ParameterSet& par, edm::ConsumesCollector&& iC)
     : theJetCollectionToken(iC.consumes<CaloJetCollection>(par.getParameter<edm::InputTag>("JetCollectionLabel"))),
       thePropagatorName(par.getParameter<std::string>("PropagatorName")),
@@ -36,22 +38,15 @@ JetExtractor::JetExtractor(const ParameterSet& par, edm::ConsumesCollector&& iC)
       theAssociator(nullptr),
       thePrintTimeReport(par.getUntrackedParameter<bool>("PrintTimeReport")) {
   ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters, edm::ConsumesCollector(iC));
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, edm::ConsumesCollector(iC));
 
   //  theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC_);
-  theAssociatorParameters = new TrackAssociatorParameters();
+  theAssociatorParameters = std::make_unique<TrackAssociatorParameters>();
   theAssociatorParameters->loadParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC);
-  theAssociator = new TrackDetectorAssociator();
+  theAssociator = std::make_unique<TrackDetectorAssociator>();
 }
 
-JetExtractor::~JetExtractor() {
-  if (theAssociatorParameters)
-    delete theAssociatorParameters;
-  if (theService)
-    delete theService;
-  if (theAssociator)
-    delete theAssociator;
-}
+JetExtractor::~JetExtractor() {}
 
 void JetExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& eventSetup, const TrackCollection& muons) {
   //   LogWarning("JetExtractor")
