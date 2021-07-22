@@ -48,7 +48,7 @@ ticlEMStepTask = cms.Task(ticlSeedingGlobal
 filteredLayerClustersHFNoseEM = filteredLayerClustersEM.clone(
     LayerClusters = 'hgcalLayerClustersHFNose',
     LayerClustersInputMask = 'ticlTrackstersHFNoseTrkEM',
-    min_cluster_size = 2, # inclusive
+    min_cluster_size = 3, # inclusive
     algo_number = 9,
     iteration_label = "EMn"
 )
