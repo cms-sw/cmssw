@@ -6,7 +6,6 @@
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/PluginManager"/>
   <use name="RecoMuon/StandAloneTrackFinder"/>
   <use name="RecoMuon/TrackingTools"/>
   <use name="TrackingTools/PatternTools"/>
