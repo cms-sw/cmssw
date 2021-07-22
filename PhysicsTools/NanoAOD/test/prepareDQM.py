@@ -4,7 +4,6 @@ from __future__ import print_function
 import sys, os
 from collections import defaultdict
 from math import ceil, pi, log
-import six
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(True)
@@ -120,7 +119,7 @@ for head in sorted(branchgroups.iterkeys()):
     existing = set(x[0] for x in allplots)
     found  = set()
     title  = dict( (n,x.title.value()) for (n,x) in allplots if x.kind.value() != "none" and x.title.value() )
-    for (t,branch) in sorted(six.iteritems(branchgroups[head])):
+    for (t,branch) in sorted(branchgroups[head].items()):
         t_noat = t.replace("@","_")
         found.add(t_noat)
         if t_noat not in title: title[t_noat] = branch.title

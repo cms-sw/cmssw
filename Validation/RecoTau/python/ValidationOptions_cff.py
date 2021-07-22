@@ -1,7 +1,6 @@
 from __future__ import print_function
 import os
 import sys
-import six
 try:
    ReleaseBase = os.path.join(os.environ['CMSSW_BASE'], "src")
    ReleaseVersion = os.environ['CMSSW_VERSION']
@@ -150,7 +149,7 @@ allowedOptions['lxbatchQueue'] = ['8nm', '1nh', '8nh', '1nd', '1nw']
 
 def checkOptionsForBadInput():
    # Sanity check
-   for optionName, allowedValues in six.iteritems(allowedOptions):
+   for optionName, allowedValues in allowedOptions.items():
       if not getattr(options, optionName) in allowedValues:
          print("Bad input to option: %s" % optionName)
          sys.exit()
@@ -172,10 +171,10 @@ def CMSSWEnvironmentIsCurrent():
 def returnOptionsString():
    ''' format the options to be passed on the command line.  Used when submitting batch jobs'''
    outputString = ""
-   for optionsName, optionValue in six.iteritems(options.__dict__['_singletons']):
+   for optionsName, optionValue in options.__dict__['_singletons'].items():
       outputString += " %s=%s" % (optionsName, optionValue)
 
-   for optionsName, optionValues in six.iteritems(options.__dict__['_lists']):
+   for optionsName, optionValues in options.__dict__['_lists'].items():
       for anOption in optionValues:
          outputString += " %s=%s" % (optionsName, anOption) 
    return outputString

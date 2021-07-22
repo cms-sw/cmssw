@@ -1,6 +1,6 @@
 from FWCore.ParameterSet.VarParsing import VarParsing
 import FWCore.ParameterSet.Config as cms
-import os, sys, json, six
+import os, sys, json
 
 # module/model correspondence
 models = {
@@ -108,9 +108,10 @@ modules = {
 }
 
 keepMsgs = ['TritonClient','TritonService']
+
 for im,module in enumerate(options.modules):
     model = options.models[im]
-    Module = [obj for name,obj in six.iteritems(modules) if name in module][0]
+    Module = [obj for name,obj in modules.items() if name in module][0]
     setattr(process, module,
         Module(module,
             Client = cms.PSet(

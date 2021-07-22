@@ -1,6 +1,5 @@
 from copy import copy, deepcopy
 from collections import OrderedDict
-import six
 from .MatrixUtil import merge, Kby
 import re
 
@@ -1073,7 +1072,7 @@ upgradeWFs['SonicTriton'] = UpgradeWorkflow_SonicTriton(
 )
 
 # check for duplicate offsets
-offsets = [specialWF.offset for specialType,specialWF in six.iteritems(upgradeWFs)]
+offsets = [specialWF.offset for specialType,specialWF in upgradeWFs.items()]
 seen = set()
 dups = set(x for x in offsets if x in seen or seen.add(x))
 if len(dups)>0:

@@ -1,6 +1,5 @@
 import os
 import collections
-import six
 
 _sampleName = {
     "RelValCloseByParticleGun_CE_H_Fine_300um" : "CloseByParticleGun in CE-H Fine section with 300 um",
