@@ -122,17 +122,6 @@ lowPtElectronTable = cms.EDProducer(
 # electronTable (MC)
 ################################################################################
 
-from PhysicsTools.NanoAOD.particlelevel_cff import particleLevel
-particleLevelForMatchingLowPt = particleLevel.clone(
-    lepMinPt = cms.double(1.),
-    phoMinPt = cms.double(1),
-)
-
-tautaggerForMatchingLowPt = cms.EDProducer(
-    "GenJetTauTaggerProducer",
-    src = cms.InputTag('particleLevelForMatchingLowPt:leptons')
-)
-
 matchingLowPtElecPhoton = cms.EDProducer(
     "GenJetGenPartMerger",
     srcJet =cms.InputTag("particleLevelForMatchingLowPt:leptons"),
