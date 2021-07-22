@@ -22,11 +22,9 @@
 class HGCScintillatorSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
 public:
   explicit HGCScintillatorSensitiveDetectorBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc)
-    : hgcToken_{cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"","HGCalHEScintillatorSensitive"})} {}
+      : hgcToken_{cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"", "HGCalHEScintillatorSensitive"})} {}
 
-  void beginRun(const edm::EventSetup& es) final {
-    hgcons_ = es.getHandle(hgcToken_);
-  }
+  void beginRun(const edm::EventSetup& es) final { hgcons_ = es.getHandle(hgcToken_); }
 
   std::unique_ptr<SensitiveDetector> make(const std::string& iname,
                                           const SensitiveDetectorCatalog& clg,

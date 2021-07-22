@@ -40,7 +40,7 @@ HGCSD::HGCSD(const std::string& name,
              manager,
              (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")),
-  hgcons_(hgc),
+      hgcons_(hgc),
       slopeMin_(0),
       levelT_(99),
       tree_(nullptr) {

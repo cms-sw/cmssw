@@ -25,7 +25,7 @@ public:
     edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
     num_ = m_HGC.getUntrackedParameter<int>("Detectors");
     for (int k = 0; k < num_; ++k) {
-      hgcToken_.emplace_back(cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"",name0_[k]}));
+      hgcToken_.emplace_back(cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"", name0_[k]}));
       edm::LogVerbatim("HGCSim") << "HGCSensitiveDetectorBuilder::Initailize Token[" << k << "] for " << name0_[k];
     }
   }
@@ -43,9 +43,9 @@ public:
     const HGCalDDDConstants* hgc = nullptr;
     for (int k = 0; k < num_; ++k) {
       if (iname.find(name1_[k]) != std::string::npos) {
-	if (hgcons_[k].isValid())
-	  hgc = hgcons_[k].product();
-	break;
+        if (hgcons_[k].isValid())
+          hgc = hgcons_[k].product();
+        break;
       }
     }
     auto sd = std::make_unique<HGCSD>(iname, hgc, clg, p, man);

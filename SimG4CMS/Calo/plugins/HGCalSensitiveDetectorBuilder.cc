@@ -22,17 +22,19 @@
 class HGCalSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
 public:
   explicit HGCalSensitiveDetectorBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc)
-    : hgcEEToken_{cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"","HGCalEESensitive"})},
-    hgcHEToken_{cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"","HGCalHESiliconSensitive"})} {
-  edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
-  int num = m_HGC.getUntrackedParameter<int>("UseDetector");
-  doEE_ = ((num % 2) == 1);
-  doHE_ = (((num / 2) % 2) == 1);
-}
+      : hgcEEToken_{cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"", "HGCalEESensitive"})},
+        hgcHEToken_{cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"", "HGCalHESiliconSensitive"})} {
+    edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
+    int num = m_HGC.getUntrackedParameter<int>("UseDetector");
+    doEE_ = ((num % 2) == 1);
+    doHE_ = (((num / 2) % 2) == 1);
+  }
 
   void beginRun(const edm::EventSetup& es) final {
-    if (doEE_) hgcalEE_ = es.getHandle(hgcEEToken_);
-    if (doHE_) hgcalHE_ = es.getHandle(hgcHEToken_);
+    if (doEE_)
+      hgcalEE_ = es.getHandle(hgcEEToken_);
+    if (doHE_)
+      hgcalHE_ = es.getHandle(hgcHEToken_);
   }
 
   std::unique_ptr<SensitiveDetector> make(const std::string& iname,
@@ -40,7 +42,11 @@ public:
                                           const edm::ParameterSet& p,
                                           const SimTrackManager* man,
                                           SimActivityRegistry& reg) const final {
-    auto hgc = (((iname.find("HitsEE") != std::string::npos) && doEE_ && hgcalEE_.isValid()) ? hgcalEE_.product() : (((iname.find("HitsHEfront") != std::string::npos) && doHE_ && hgcalHE_.isValid()) ? hgcalHE_.product() : nullptr));
+    auto hgc =
+        (((iname.find("HitsEE") != std::string::npos) && doEE_ && hgcalEE_.isValid())
+             ? hgcalEE_.product()
+             : (((iname.find("HitsHEfront") != std::string::npos) && doHE_ && hgcalHE_.isValid()) ? hgcalHE_.product()
+                                                                                                  : nullptr));
     auto sd = std::make_unique<HGCalSD>(iname, hgc, clg, p, man);
     SimActivityRegistryEnroller::enroll(reg, sd.get());
     return sd;
