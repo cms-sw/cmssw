@@ -204,7 +204,7 @@ void PixelCPEFast::fillParamsForGpu() {
     g.sy2 = std::max(55, toMicron(cp.sy2));  // sometimes sy2 is smaller than others (due to angle?)
 
     // sample xerr as function of position
-    auto const xoff = -float(phase1PixelTopology::xOffset) * commonParamsGPU_.thePitchX;
+    auto const xoff = float(phase1PixelTopology::xOffset) * commonParamsGPU_.thePitchX;
 
     for (int ix = 0; ix < CPEFastParametrisation::NumErrorBins; ++ix) {
       auto x = xoff * (1.f - (0.5f + float(ix)) / 8.f);
@@ -221,7 +221,7 @@ void PixelCPEFast::fillParamsForGpu() {
     }
 #ifdef EDM_ML_DEBUG
     // sample yerr as function of position
-    auto const yoff = -float(phase1PixelTopology::yOffset) * commonParamsGPU_.thePitchY;
+    auto const yoff = float(phase1PixelTopology::yOffset) * commonParamsGPU_.thePitchY;
     for (int ix = 0; ix < CPEFastParametrisation::NumErrorBins; ++ix) {
       auto y = yoff * (1.f - (0.5f + float(ix)) / 8.f);
       auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchY;

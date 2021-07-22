@@ -367,8 +367,12 @@ namespace pixelCPEforGPU {
     cp.status[ic].isOneY = isOneY;
     cp.status[ic].isBigY = (isOneY & isBigY) | isEdgeY;
 
-    auto xoff = float(phase1PixelTopology::xOffset) * comParams.thePitchX;
-    int jx = std::min((NumErrorBins - 1), std::max(0, int(float(NumErrorBins) * (cp.xpos[ic] + xoff) / (2 * xoff))));
+    auto xoff = -float(phase1PixelTopology::xOffset) * comParams.thePitchX;
+    int low_value = 0;
+    int high_value = NumErrorBins - 1;
+    int bin_value = float(NumErrorBins) * (cp.xpos[ic] + xoff) / (2 * xoff);
+    // return estimated bin value truncated to [0, 15]
+    int jx = std::clamp(bin_value, low_value, high_value);
 
     auto toCM = [](uint8_t x) { return float(x) * 1.e-4; };
 
