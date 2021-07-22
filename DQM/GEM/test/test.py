@@ -2,8 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 import os
 
-from Configuration.StandardSequences.Eras import eras
-process = cms.Process('DQM', eras.Run3)
+from Configuration.Eras.Era_Run3_cff import Run3
+#from Configuration.StandardSequences.Eras import eras
+process = cms.Process('DQM', Run3)
 
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -15,8 +16,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(None, 'auto:phase1_2021_cosmics', '')
+#process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 
 process.load("DQM.Integration.config.environment_cfi")
@@ -34,9 +36,17 @@ process.source = cms.Source("PoolSource",
     #'keep FEDRawDataCollection_*_*_*'
   )
 )
+import sys
+AddFile = lambda l: [ s if s.startswith("root://") else "file:" + s for s in l ]
+listCand = [ s for s in sys.argv if s.endswith(".root") ]
+listSrc  = AddFile(listCand)
+listCand = [ s for s in sys.argv if s.endswith(".txt") ]
+for s in listCand: 
+  with open(s) as fSrc: listSrc += AddFile(fSrc.read().splitlines())
+if len(listSrc) > 0: process.source.fileNames = cms.untracked.vstring(*listSrc)
 
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(8000)
+  input = cms.untracked.int32(-1)
 )
 
 process.load("EventFilter.GEMRawToDigi.muonGEMDigis_cfi")
@@ -44,10 +54,12 @@ process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
 process.load("DQM.GEM.GEMDQM_cff")
 
 process.muonGEMDigis.useDBEMap = True
-process.muonGEMDigis.unPackStatusDigis = True
+#process.muonGEMDigis.unPackStatusDigis = True  # DEFAULT
+process.muonGEMDigis.keepDAQStatus = True  # DEFAULT
+#process.muonGEMDigis.unPackStatusDigis = False
 
-process.GEMDQMStatusDigi.pathOfPrevDQMRoot = "DQM_V0001_GEM_R000030000.root"
-process.GEMDQMHarvester.fromFile = "DQM_V0001_GEM_R000020150.root"
+#process.GEMDQMStatusDigi.pathOfPrevDQMRoot = "DQM_V0001_GEM_R000030000.root"
+#process.GEMDQMHarvester.fromFile = "DQM_V0001_GEM_R000020150.root"
 
 ############## DB file ################# 
 #from CondCore.CondDB.CondDB_cfi import *
@@ -63,8 +75,8 @@ process.GEMDQMHarvester.fromFile = "DQM_V0001_GEM_R000020150.root"
 #)
 ####################################
 process.path = cms.Path(
-  #process.muonGEMDigis *
-  #process.gemRecHits *
+  process.muonGEMDigis *  # DEFAULT
+  process.gemRecHits *    # DEFAULT
   process.GEMDQM
 )
 
