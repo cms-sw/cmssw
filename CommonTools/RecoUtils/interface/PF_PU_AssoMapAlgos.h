@@ -93,15 +93,13 @@ public:
 
   //create the track-to-vertex and vertex-to-track maps in one go
   std::pair<std::unique_ptr<TrackToVertexAssMap>, std::unique_ptr<VertexToTrackAssMap>> createMappings(
-      edm::Handle<reco::TrackCollection> trkcollH, const edm::EventSetup& iSetup);
+      edm::Handle<reco::TrackCollection> trkcollH);
 
   //create the track to vertex association map
-  std::unique_ptr<TrackToVertexAssMap> CreateTrackToVertexMap(edm::Handle<reco::TrackCollection>,
-                                                              const edm::EventSetup&);
+  std::unique_ptr<TrackToVertexAssMap> CreateTrackToVertexMap(edm::Handle<reco::TrackCollection>);
 
   //create the vertex to track association map
-  std::unique_ptr<VertexToTrackAssMap> CreateVertexToTrackMap(edm::Handle<reco::TrackCollection>,
-                                                              const edm::EventSetup&);
+  std::unique_ptr<VertexToTrackAssMap> CreateVertexToTrackMap(edm::Handle<reco::TrackCollection>);
 
   //function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2
   std::unique_ptr<TrackToVertexAssMap> SortAssociationMap(TrackToVertexAssMap*, edm::Handle<reco::TrackCollection>);
@@ -119,7 +117,7 @@ protected:
   VertexStepPair FindAssociation(const reco::TrackRef&,
                                  const std::vector<reco::VertexRef>&,
                                  edm::ESHandle<MagneticField>,
-                                 const edm::EventSetup&,
+                                 edm::ESHandle<GlobalTrackingGeometry>,
                                  edm::Handle<reco::BeamSpot>,
                                  int);
 
@@ -149,7 +147,7 @@ private:
   static reco::VertexRef FindConversionVertex(const reco::TrackRef,
                                               const reco::Conversion&,
                                               edm::ESHandle<MagneticField>,
-                                              const edm::EventSetup&,
+                                              edm::ESHandle<GlobalTrackingGeometry>,
                                               edm::Handle<reco::BeamSpot>,
                                               const std::vector<reco::VertexRef>&,
                                               double);
@@ -171,7 +169,7 @@ private:
   static reco::VertexRef FindV0Vertex(const reco::TrackRef,
                                       const reco::VertexCompositeCandidate&,
                                       edm::ESHandle<MagneticField>,
-                                      const edm::EventSetup&,
+                                      edm::ESHandle<GlobalTrackingGeometry>,
                                       edm::Handle<reco::BeamSpot>,
                                       const std::vector<reco::VertexRef>&,
                                       double);
@@ -187,7 +185,7 @@ private:
   static reco::VertexRef FindNIVertex(const reco::TrackRef,
                                       const reco::PFDisplacedVertex&,
                                       edm::ESHandle<MagneticField>,
-                                      const edm::EventSetup&,
+                                      edm::ESHandle<GlobalTrackingGeometry>,
                                       edm::Handle<reco::BeamSpot>,
                                       const std::vector<reco::VertexRef>&,
                                       double);
@@ -207,6 +205,7 @@ private:
   edm::Handle<reco::BeamSpot> beamspotH;
 
   edm::ESHandle<MagneticField> bFieldH;
+  edm::ESHandle<GlobalTrackingGeometry> trackingGeometryH;
 
   bool input_doReassociation_;
   bool cleanedColls_;
