@@ -133,7 +133,7 @@ process.p = cms.Path(
 
 if runType == 'data':
     from PhysicsTools.PatAlgos.tools.coreTools import runOnData
-    runOnData(process, names = ['Taus'], outputModules = [])
+    runOnData(process, names = ['Taus'], outputModules = [], postfix = (postfix if not runBoosted else 'Boosted'+postfix))
 
 #####
 process.load('FWCore.MessageService.MessageLogger_cfi')
