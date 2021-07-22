@@ -122,11 +122,13 @@ lowPtElectronTable = cms.EDProducer(
 # electronTable (MC)
 ################################################################################
 
+# Depends on tautaggerForMatching being run in electrons_cff
 matchingLowPtElecPhoton = cms.EDProducer(
     "GenJetGenPartMerger",
-    srcJet =cms.InputTag("particleLevelForMatchingLowPt:leptons"),
-    srcPart=cms.InputTag("particleLevelForMatchingLowPt:photons"),
-    hasTauAnc=cms.InputTag("tautaggerForMatchingLowPt"),
+    srcJet =cms.InputTag("particleLevel:leptons"),
+    srcPart=cms.InputTag("particleLevel:photons"),
+    cut = cms.string(""),
+    hasTauAnc=cms.InputTag("tautaggerForMatching"),
 )
 
 lowPtElectronsMCMatchForTableAlt = cms.EDProducer(
@@ -181,9 +183,7 @@ lowPtElectronSequence = cms.Sequence(modifiedLowPtElectrons
                                      +finalLowPtElectrons)
 lowPtElectronTables = cms.Sequence(lowPtElectronTable)
 lowPtElectronMC = cms.Sequence(
-    particleLevelForMatchingLowPt
-    +tautaggerForMatchingLowPt
-    +matchingLowPtElecPhoton
+    matchingLowPtElecPhoton
     +lowPtElectronsMCMatchForTable
     +lowPtElectronsMCMatchForTableAlt
     +lowPtElectronMCTable)
