@@ -16,6 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -117,6 +118,9 @@ void TwoBodyDecayMomConstraintProducer::produce(edm::StreamID streamid,
   ESHandle<MagneticField> magField;
   iSetup.get<IdealMagneticFieldRecord>().get(magField);
 
+  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
+  iSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
+
   edm::RefProd<std::vector<MomentumConstraint> > rPairs = iEvent.getRefBeforePut<std::vector<MomentumConstraint> >();
   std::unique_ptr<std::vector<MomentumConstraint> > pairs(new std::vector<MomentumConstraint>);
   std::unique_ptr<TrackMomConstraintAssociationCollection> output(
@@ -129,9 +133,9 @@ void TwoBodyDecayMomConstraintProducer::produce(edm::StreamID streamid,
     /// Get transient tracks from track collection
     std::vector<reco::TransientTrack> ttracks(2);
     ttracks[0] = reco::TransientTrack(reco::TrackRef(trackColl, 0), magField.product());
-    ttracks[0].setES(iSetup);
+    ttracks[0].setTrackingGeometry(trackingGeometry);
     ttracks[1] = reco::TransientTrack(reco::TrackRef(trackColl, 1), magField.product());
-    ttracks[1].setES(iSetup);
+    ttracks[1].setTrackingGeometry(trackingGeometry);
 
     /// Fit the TBD
     TwoBodyDecay tbd = tbdFitter_.estimate(ttracks, vm);
