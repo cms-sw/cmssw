@@ -274,7 +274,8 @@ public:
 };
 
 template <typename T, typename TProd>
-class SimpleFlatTableProducerBaseLumi : public edm::one::EDProducer<edm::EndLuminosityBlockProducer> {
+class SimpleFlatTableProducerBaseLumi
+    : public edm::one::EDProducer<edm::EndLuminosityBlockProducer, edm::LuminosityBlockCache<int>> {
 public:
   SimpleFlatTableProducerBaseLumi(edm::ParameterSet const &params)
       : name_(params.getParameter<std::string>("name")),
@@ -304,6 +305,13 @@ public:
   }
 
   ~SimpleFlatTableProducerBaseLumi() override {}
+
+  std::shared_ptr<int> globalBeginLuminosityBlock(edm::LuminosityBlock const &,
+                                                  edm::EventSetup const &) const override {
+    return nullptr;
+  }
+
+  void globalEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override {}
 
   // this is to be overriden by the child class
   virtual std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::LuminosityBlock &iLumi,
