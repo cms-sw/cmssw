@@ -48,11 +48,9 @@ private:
   MEMap3Inf mapStripOcc_ieta_;
   MEMap3Inf mapStripOcc_phi_;
   MEMap3Inf mapTotalStripPerEvt_;
-  //MEMap3Inf mapBX_layer_;
   MEMap3Inf mapBX_iEta_;
 
   MEMap4Inf mapStripOccPerCh_;
-  MEMap4Inf mapBXPerCh_;
 
   MonitorElement *h2SummaryOcc, *h2SummaryMal;
 
@@ -104,26 +102,13 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
                                    "Number of fired strips",
                                    "Events");
   
-  //mapBX_layer_ =
-  //    MEMap3Inf(this, "bx", "Strip Digi Bunch Crossing ", 21, nBXMin_ - 0.5, nBXMax_ + 0.5, "Bunch crossing");
   mapBX_iEta_ =
       MEMap3Inf(this, "bx", "Strip Digi Bunch Crossing ", 21, nBXMin_ - 0.5, nBXMax_ + 0.5, "Bunch crossing");
 
   mapStripOccPerCh_ = MEMap4Inf(this, "strip_occ", "Strip Digi Occupancy ", 1, 0.5, 1.5, 1, 0.5, 1.5, "Strip", "iEta");
-  mapBXPerCh_ = MEMap4Inf(this,
-                          "bx_ch",
-                          "Strip Digi Bunch Crossing ",
-                          21,
-                          nBXMin_ - 0.5,
-                          nBXMax_ + 0.5,
-                          1,
-                          0.5,
-                          1.5,
-                          "Bunch crossing",
-                          "VFAT");
 
   ibooker.cd();
-  ibooker.setCurrentFolder("GEM/digi");
+  ibooker.setCurrentFolder("GEM/Digis");
   GenerateMEPerChamber(ibooker);
 
   h2SummaryOcc = CreateSummaryHist(ibooker, "summaryOccDigi");
@@ -151,7 +136,6 @@ int GEMDigiSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
 
   mapStripOcc_phi_.bookND(bh, key);
   mapTotalStripPerEvt_.bookND(bh, key);
-  //mapBX_layer_.bookND(bh, key);
 
   return 0;
 }
@@ -167,10 +151,6 @@ int GEMDigiSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key
   mapStripOccPerCh_.SetBinConfY(stationInfo.nNumEtaPartitions_);
   mapStripOccPerCh_.bookND(bh, key);
   mapStripOccPerCh_.SetLabelForChambers(key, 2);  // For eta partitions
-
-  mapBXPerCh_.SetBinConfY(stationInfo.nMaxVFAT_);
-  mapBXPerCh_.bookND(bh, key);
-  mapBXPerCh_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
   return 0;
 }
@@ -218,9 +198,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
         // Filling of bx
         Int_t nBX = std::min(std::max((Int_t)d->bx(), nBXMin_), nBXMax_);  // For under/overflow
         if (bTagVFAT.find(nIdxVFAT) == bTagVFAT.end()) {
-          //mapBX_layer_.Fill(key3, nBX);
           mapBX_iEta_.Fill(key3IEta, nBX);
-          mapBXPerCh_.Fill(key4Ch, nBX, nIdxVFAT);
         }
 
         // Occupancy on a chamber
