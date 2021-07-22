@@ -66,7 +66,7 @@ GEMDQMHarvester::GEMDQMHarvester(const edm::ParameterSet &cfg) {
   fReportSummary_ = -1.0;
   strOutFile_ = cfg.getParameter<std::string>("fromFile");
   strDirSummary_ = "GEM/EventInfo";
-  strDirRecHit_ = "GEM/recHit";
+  strDirRecHit_ = "GEM/RecHits";
   strDirStatus_ = "GEM/DAQStatus";
 }
 
@@ -86,12 +86,12 @@ void GEMDQMHarvester::dqmEndLuminosityBlock(DQMStore::IBooker &,
 }
 
 void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store) {
-  std::string strSrcDigiOcc = "GEM/digi/summaryOccDigi";
-  std::string strSrcDigiMal = "GEM/digi/summaryMalfuncDigi";
+  std::string strSrcDigiOcc = "GEM/Digis/summaryOccDigi";
+  std::string strSrcDigiMal = "GEM/Digis/summaryMalfuncDigi";
   std::string strSrcStatusW = "GEM/DAQStatus/summaryStatusWarning";
   std::string strSrcStatusE = "GEM/DAQStatus/summaryStatusError";
 
-  std::string strSrcVFATOcc = "GEM/digi/digi_det";
+  std::string strSrcVFATOcc = "GEM/Digis/digi_det";
   std::string strSrcVFATStatusW = "GEM/DAQStatus/vfat_statusWarnSum";
   std::string strSrcVFATStatusE = "GEM/DAQStatus/vfat_statusErrSum";
 
@@ -212,9 +212,9 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(MonitorElement *h2Sum,
 }
 
 void GEMDQMHarvester::synthesisCLSPlots(edm::Service<DQMStore> &store) {
-  std::string strHeadSrcCLSNum = "GEM/recHit/rechitNumber";
-  std::string strHeadSrcCLSAve = "GEM/recHit/rechit_average_pre";
-  std::string strHeadSrcCLSOv5 = "GEM/recHit/rechit_over5_pre";
+  std::string strHeadSrcCLSNum = "GEM/RecHits/rechitNumber";
+  std::string strHeadSrcCLSAve = "GEM/RecHits/rechit_average_pre";
+  std::string strHeadSrcCLSOv5 = "GEM/RecHits/rechit_over5_pre";
 
   std::string strHeadDstCLSAve = "rechit_average";
   std::string strHeadDstCLSOv5 = "rechit_over5";
