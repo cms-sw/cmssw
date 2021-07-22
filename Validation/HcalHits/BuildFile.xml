@@ -14,6 +14,5 @@
 <use name="SimG4Core/Watcher"/>
 <use name="geant4core"/>
 <use name="hepmc"/>
-<use name="boost"/>
 <use name="rootmath"/>
 <flags EDM_PLUGIN="1"/>
