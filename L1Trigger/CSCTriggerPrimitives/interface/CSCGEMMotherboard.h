@@ -44,9 +44,9 @@ public:
     5) ALCT-2GEM (requires ALCT with at least 4 layers)
     Sort LCTs according to the cross-bunch-crossing algorithm, and send out best 2 LCTs
   */
-  virtual void run(const CSCWireDigiCollection* wiredc,
-                   const CSCComparatorDigiCollection* compdc,
-                   const GEMPadDigiClusterCollection* gemPads);
+  void run(const CSCWireDigiCollection* wiredc,
+           const CSCComparatorDigiCollection* compdc,
+           const GEMPadDigiClusterCollection* gemPads);
 
   /* GEM cluster processor */
   std::shared_ptr<GEMClusterProcessor> clusterProc() const { return clusterProc_; }
