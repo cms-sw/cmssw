@@ -2,7 +2,6 @@
 #include "CommonTools/RecoUtils/interface/PFCand_AssoMapAlgos.h"
 
 #include "TrackingTools/IPTools/interface/IPTools.h"
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 using namespace edm;
 using namespace std;
@@ -13,7 +12,7 @@ using namespace reco;
 /*************************************************************************************/
 
 PFCand_AssoMapAlgos::PFCand_AssoMapAlgos(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
-    : PF_PU_AssoMapAlgos(iConfig, iC) {
+    : PF_PU_AssoMapAlgos(iConfig, iC), token_bField_(iC.esConsumes()), token_TrackingGeometry_(iC.esConsumes()) {
   input_MaxNumAssociations_ = iConfig.getParameter<int>("MaxNumberOfAssociations");
 
   token_VertexCollection_ = iC.consumes<VertexCollection>(iConfig.getParameter<InputTag>("VertexCollection"));
@@ -34,8 +33,8 @@ void PFCand_AssoMapAlgos::GetInputCollections(edm::Event& iEvent, const edm::Eve
   //get the input vertex collection
   iEvent.getByToken(token_VertexCollection_, vtxcollH);
 
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  iSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometryH);
+  bFieldH = iSetup.getHandle(token_bField_);
+  trackingGeometryH = iSetup.getHandle(token_TrackingGeometry_);
 }
 
 /*************************************************************************************/
