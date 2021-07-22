@@ -25,7 +25,12 @@ using namespace reco;
 /*************************************************************************************/
 
 PF_PU_AssoMapAlgos::PF_PU_AssoMapAlgos(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
-    : maxNumWarnings_(3), numWarnings_(0) {
+    : token_bField_(iC.esConsumes()),
+      token_TrackingGeometry_(iC.esConsumes()),
+      maxNumWarnings_(3),
+      numWarnings_(0)
+
+{
   input_MaxNumAssociations_ = iConfig.getParameter<int>("MaxNumberOfAssociations");
 
   token_VertexCollection_ = iC.consumes<VertexCollection>(iConfig.getParameter<InputTag>("VertexCollection"));
@@ -93,8 +98,8 @@ void PF_PU_AssoMapAlgos::GetInputCollections(edm::Event& iEvent, const edm::Even
   //get the input vertex collection
   iEvent.getByToken(token_VertexCollection_, vtxcollH);
 
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  iSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometryH);
+  bFieldH = iSetup.getHandle(token_bField_);
+  trackingGeometryH = iSetup.getHandle(token_TrackingGeometry_);
 }
 
 /*************************************************************************************/

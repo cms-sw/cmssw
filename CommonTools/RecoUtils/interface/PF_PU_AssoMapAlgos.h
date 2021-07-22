@@ -45,6 +45,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 //
 // constants, enums and typedefs
@@ -204,7 +205,9 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot_;
   edm::Handle<reco::BeamSpot> beamspotH;
 
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> token_bField_;
   edm::ESHandle<MagneticField> bFieldH;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> token_TrackingGeometry_;
   edm::ESHandle<GlobalTrackingGeometry> trackingGeometryH;
 
   bool input_doReassociation_;
