@@ -75,6 +75,8 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> trackCollToken_;
   edm::EDGetTokenT<reco::BeamSpot> bsToken_;
 
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeometryToken_;
   //   // debug
   //   std::map<std::string, TH1F*> histos_;
 };
@@ -89,7 +91,9 @@ TwoBodyDecayMomConstraintProducer::TwoBodyDecayMomConstraintProducer(const edm::
       sigmaPositionCutValue_(iConfig.getParameter<double>("sigmaPositionCut")),
       chi2CutValue_(iConfig.getParameter<double>("chi2Cut")),
       fixedMomentumError_(iConfig.getParameter<double>("fixedMomentumError")),
-      momentumForRefitting_(momentumForRefittingFromString(iConfig.getParameter<std::string>("momentumForRefitting"))) {
+      momentumForRefitting_(momentumForRefittingFromString(iConfig.getParameter<std::string>("momentumForRefitting"))),
+      magFieldToken_(esConsumes()),
+      trackingGeometryToken_(esConsumes()) {
   trackCollToken_ = consumes<reco::TrackCollection>(edm::InputTag(srcTag_));
   bsToken_ = consumes<reco::BeamSpot>(edm::InputTag(bsSrcTag_));
 
@@ -115,11 +119,9 @@ void TwoBodyDecayMomConstraintProducer::produce(edm::StreamID streamid,
   Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(bsToken_, beamSpot);
 
-  ESHandle<MagneticField> magField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magField);
+  auto const* magField = &iSetup.getData(magFieldToken_);
 
-  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
+  auto trackingGeometry = iSetup.getHandle(trackingGeometryToken_);
 
   edm::RefProd<std::vector<MomentumConstraint> > rPairs = iEvent.getRefBeforePut<std::vector<MomentumConstraint> >();
   std::unique_ptr<std::vector<MomentumConstraint> > pairs(new std::vector<MomentumConstraint>);
@@ -132,9 +134,9 @@ void TwoBodyDecayMomConstraintProducer::produce(edm::StreamID streamid,
 
     /// Get transient tracks from track collection
     std::vector<reco::TransientTrack> ttracks(2);
-    ttracks[0] = reco::TransientTrack(reco::TrackRef(trackColl, 0), magField.product());
+    ttracks[0] = reco::TransientTrack(reco::TrackRef(trackColl, 0), magField);
     ttracks[0].setTrackingGeometry(trackingGeometry);
-    ttracks[1] = reco::TransientTrack(reco::TrackRef(trackColl, 1), magField.product());
+    ttracks[1] = reco::TransientTrack(reco::TrackRef(trackColl, 1), magField);
     ttracks[1].setTrackingGeometry(trackingGeometry);
 
     /// Fit the TBD
@@ -147,7 +149,7 @@ void TwoBodyDecayMomConstraintProducer::produce(edm::StreamID streamid,
     if (momentumForRefitting_ == atVertex) {
       fitMomenta = momentaAtVertex(tbd);
     } else if (momentumForRefitting_ == atInnermostSurface) {
-      fitMomenta = momentaAtInnermostSurface(tbd, ttracks, magField.product());
+      fitMomenta = momentaAtInnermostSurface(tbd, ttracks, magField);
     }  // no other possibility!!!
 
     if ((fitMomenta.first > 0.) and (fitMomenta.second > 0.)) {
