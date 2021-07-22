@@ -19,7 +19,6 @@ public:
       uint16_t DAQclocklocked : 1;
       uint16_t DAQnotReday : 1;
       uint16_t BC0locked : 1;
-      uint16_t InvalidAMCSize : 1;
     };
   };
   union Warnings {
@@ -38,12 +37,10 @@ public:
     error.badBC = (amc13->bunchCrossing() != amc.bunchCrossing());
     error.badRunType = amc.runType() != 0x1;
     error.badOC = (amc13->orbitNumber() != amc.orbitNumber());
-    error.badCRC = (amc13->crc() != amc.crc());
     error.MMCMlocked = !amc.mmcmLocked();
     error.DAQclocklocked = !amc.daqClockLocked();
     error.DAQnotReday = !amc.daqReady();
     error.BC0locked = !amc.bc0locked();
-    //error.InvalidAMCSize = amc13->getAMCsize(i) != amc.dataLength();
     errors_ = error.ecodes;
 
     Warnings warn{0};
@@ -58,7 +55,6 @@ public:
   }
 
   uint8_t amcNumber() const { return amcNum_; };
-  bool isGood() const { return errors_ == 0; }
   bool isBad() const { return errors_ != 0; }
   uint16_t errors() const { return errors_; }
   uint8_t warnings() const { return warnings_; }
