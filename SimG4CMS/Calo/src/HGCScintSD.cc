@@ -28,7 +28,7 @@
 //#define EDM_ML_DEBUG
 
 HGCScintSD::HGCScintSD(const std::string& name,
-                       const HGCalDDDConstants *hgc,
+                       const HGCalDDDConstants* hgc,
                        const SensitiveDetectorCatalog& clg,
                        edm::ParameterSet const& p,
                        const SimTrackManager* manager)

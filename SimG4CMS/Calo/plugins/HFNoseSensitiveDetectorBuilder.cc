@@ -22,12 +22,10 @@
 class HFNoseSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
 public:
   explicit HFNoseSensitiveDetectorBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc)
-    : hgcToken_{cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"","HGCalHFNoseSensitive"})},
-    hgcons_{nullptr} {}
+      : hgcToken_{cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"", "HGCalHFNoseSensitive"})},
+        hgcons_{nullptr} {}
 
-  void beginRun(const edm::EventSetup& es) final {
-    hgcons_ = es.getHandle(hgcToken_);
-  }
+  void beginRun(const edm::EventSetup& es) final { hgcons_ = es.getHandle(hgcToken_); }
 
   std::unique_ptr<SensitiveDetector> make(const std::string& iname,
                                           const SensitiveDetectorCatalog& clg,

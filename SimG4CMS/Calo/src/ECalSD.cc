@@ -39,7 +39,7 @@ bool any(const std::vector<T>& v, const T& what) {
 }
 
 ECalSD::ECalSD(const std::string& name,
-               const EcalSimulationParameters *ecpar,
+               const EcalSimulationParameters* ecpar,
                const SensitiveDetectorCatalog& clg,
                edm::ParameterSet const& p,
                const SimTrackManager* manager)

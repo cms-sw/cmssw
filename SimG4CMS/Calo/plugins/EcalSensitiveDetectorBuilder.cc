@@ -25,7 +25,7 @@ public:
     edm::ParameterSet m_EC = p.getParameter<edm::ParameterSet>("ECalSD");
     num_ = m_EC.getUntrackedParameter<int>("Detectors");
     for (int k = 0; k < num_; ++k)
-      ecToken_.emplace_back(cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"",name_[k]}));
+      ecToken_.emplace_back(cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag{"", name_[k]}));
   }
 
   void beginRun(const edm::EventSetup& es) final {
@@ -55,4 +55,3 @@ private:
 
 typedef ECalSD EcalSensitiveDetector;
 DEFINE_SENSITIVEDETECTORBUILDER(EcalSensitiveDetectorBuilder, EcalSensitiveDetector);
-
