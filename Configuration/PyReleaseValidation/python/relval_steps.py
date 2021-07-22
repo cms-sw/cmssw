@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 from .MatrixUtil import *
-import six
 
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL
@@ -3313,7 +3312,7 @@ for ds in defaultDataSets:
 
 
 upgradeStepDict={}
-for specialType,specialWF in six.iteritems(upgradeWFs):
+for specialType,specialWF in upgradeWFs.items():
 	specialWF.init(upgradeStepDict)
 
 # just make all combinations - yes, some will be nonsense.. but then these are not used unless specified above
@@ -3465,12 +3464,12 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       }
 
     # setup baseline and variations
-    for specialType,specialWF in six.iteritems(upgradeWFs):
+    for specialType,specialWF in upgradeWFs.items():
         specialWF.setup(upgradeStepDict, k, upgradeProperties[year][k])
 
     # setup PU
     if k2 in PUDataSets:
-        for specialType,specialWF in six.iteritems(upgradeWFs):
+        for specialType,specialWF in upgradeWFs.items():
             for step in specialWF.PU:
                 stepName = specialWF.getStepName(step)
                 stepNamePU = specialWF.getStepNamePU(step)
@@ -3485,7 +3484,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 for step in upgradeStepDict.keys():
     # we need to do this for each fragment
    if 'Sim' in step or 'Premix' in step:
-        for frag,info in six.iteritems(upgradeFragments):
+        for frag,info in upgradeFragments.items():
             howMuch=info.howMuch
             for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
                 k=frag[:-4]+'_'+key+'_'+step

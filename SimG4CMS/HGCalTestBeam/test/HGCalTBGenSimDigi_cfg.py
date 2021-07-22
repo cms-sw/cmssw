@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import six
 
 process = cms.Process('SIMDIGI')
 
@@ -120,7 +119,7 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 
-for label, prod in six.iteritems(process.producers_()):
+for label, prod in process.producers_().items():
         if prod.type_() == "OscarMTProducer":
             # ugly hack
             prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"

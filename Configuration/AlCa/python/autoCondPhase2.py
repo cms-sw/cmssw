@@ -1,4 +1,3 @@
-import six
 from Configuration.StandardSequences.CondDBESSource_cff import GlobalTag as essource
 connectionString = essource.connect.value()
 
@@ -131,7 +130,7 @@ for det in activeDets:
 
 # method called in autoCond
 def autoCondPhase2(autoCond):
-    for key,val in six.iteritems(phase2GTs):
+    for key,val in phase2GTs.items():
         if len(val)==1 :
            autoCond[key] = ( autoCond[val[0]] )
         else:

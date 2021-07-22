@@ -3,7 +3,6 @@
 from builtins import range
 import sys, os.path, json
 from collections import defaultdict
-import six
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(True)
@@ -12,7 +11,7 @@ ROOT.gROOT.SetBatch(True)
 class FileData:
     def __init__(self,data):
         self._json = data
-        for k,v in six.iteritems(data):
+        for k,v in data.items():
             setattr(self,k,v)
         self.Events = self.trees["Events"]
         self.nevents = self.Events["entries"]
@@ -105,7 +104,7 @@ def inspectRootFile(infile):
             else:
                 b.entries = entries
         c1 = ROOT.TCanvas("c1","c1")
-        for counter,countees in six.iteritems(counters):
+        for counter,countees in counters.items():
             n = tree.Draw(counter+">>htemp")
             if n != 0:
                 htemp = ROOT.gROOT.FindObject("htemp")
@@ -129,7 +128,7 @@ def inspectRootFile(infile):
             if head not in branchgroups:
                 branchgroups[head] = BranchGroup(head)
             branchgroups[head].append(b)
-        for bg in six.itervalues(branchgroups):
+        for bg in branchgroups.values():
             if bg.name in toplevelDoc:
                 bg.doc = toplevelDoc[bg.name]
             kind = bg.getKind()
@@ -140,14 +139,14 @@ def inspectRootFile(infile):
                 for counter in set(s.counter for s in bg.subs if not s.single):
                     bg.append(branchmap[counter])
         allsize_c = sum(b.tot for b in allbranches)
-        allsize = sum(b.tot for b in six.itervalues(branchgroups))
+        allsize = sum(b.tot for b in branchgroups.values())
         if abs(allsize_c - allsize) > 1e-6*(allsize_c+allsize):
             sys.stderr.write("Total size mismatch for tree %s: %10.4f kb vs %10.4f kb\n" % (treeName, allsize, allsize_c))
         trees[treeName] =  dict(
                 entries = entries,
                 allsize = allsize,
                 branches = dict(b.toJSON() for b in allbranches),
-                branchgroups = dict(bg.toJSON() for bg in six.itervalues(branchgroups)),
+                branchgroups = dict(bg.toJSON() for bg in branchgroups.values()),
             )
         c1.Close()
         break # only Event tree for now
@@ -157,7 +156,7 @@ def inspectRootFile(infile):
 def makeSurvey(treeName, treeData):
     allsize = treeData['allsize']
     entries = treeData['entries']
-    survey = list(six.itervalues(treeData['branchgroups']))
+    survey = list(treeData['branchgroups'].values())
     survey.sort(key = lambda bg : - bg['tot'])
     scriptdata = []
     runningtotal = 0
