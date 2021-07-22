@@ -34,8 +34,6 @@
 using namespace std;
 
 L1TMuonBarrelTrackProducer::L1TMuonBarrelTrackProducer(const edm::ParameterSet& pset) {
-  m_ps = &pset;
-
   produces<l1t::RegionalMuonCandBxCollection>("BMTF");
   produces<l1t::RegionalMuonCandBxCollection>("UnsortedBMTF");
   produces<vector<L1MuBMTrack> >("BMTF");
@@ -43,10 +41,10 @@ L1TMuonBarrelTrackProducer::L1TMuonBarrelTrackProducer(const edm::ParameterSet& 
   produces<vector<L1MuBMTrackSegEta> >("BMTF");
 
   usesResource("L1TMuonBarrelTrackProducer");
-  setup1 = new L1MuBMTFSetup(*m_ps, consumesCollector());
+  setup1 = std::make_unique<L1MuBMTFSetup>(pset, consumesCollector());
 }
 
-L1TMuonBarrelTrackProducer::~L1TMuonBarrelTrackProducer() { delete setup1; }
+L1TMuonBarrelTrackProducer::~L1TMuonBarrelTrackProducer() {}
 
 void L1TMuonBarrelTrackProducer::produce(edm::Event& e, const edm::EventSetup& c) {
   if (L1MuBMTFConfig::Debug(1))
