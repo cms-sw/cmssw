@@ -52,7 +52,7 @@ if options.fromDB :
    from Configuration.AlCa.GlobalTag import GlobalTag
    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 else:
-   process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+   process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.nEvents)
