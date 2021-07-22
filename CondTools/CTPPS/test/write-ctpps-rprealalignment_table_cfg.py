@@ -21,14 +21,14 @@ process.source = cms.Source("EmptyIOVSource",
 
 # load the alignment xml file
 process.load("CalibPPS.ESProducers.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi")
-#process.ctppsRPAlignmentCorrectionsDataESSourceXML.XMLFile = cms.string("CalibPPS.ESProducers/xml/sample_alignment_corrections.xml")
+#process.ctppsRPAlignmentCorrectionsDataESSourceXML.XMLFile = cms.string("CondFormats/PPSObjects/xml/sample_alignment_corrections.xml")
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = cms.vstring(
-    #"CalibPPS.ESProducers/xml/sample_alignment_corrections.xml"
-    "CondTools/CTPPS/test/RPixGeometryCorrections.xml",
-    "CondTools/CTPPS/test/"+subdir+"real_alignment_iov"+startrun+".xml"
+    "CondFormats/PPSObjects/xml/sample_alignment_corrections.xml"
+    #"CondTools/CTPPS/test/RPixGeometryCorrections.xml",
+    #"CondTools/CTPPS/test/"+subdir+"real_alignment_iov"+startrun+".xml"
     )
-process.ctppsRPAlignmentCorrectionsDataESSourceXML.MeasuredFiles = cms.vstring("CalibPPS.ESProducers/xml/sample_alignment_corrections.xml")
-process.ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles = cms.vstring("CalibPPS.ESProducers/xml/sample_alignment_corrections.xml")
+process.ctppsRPAlignmentCorrectionsDataESSourceXML.MeasuredFiles = cms.vstring("CondFormats/PPSObjects/xml/sample_alignment_corrections.xml")
+process.ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles = cms.vstring("CondFormats/PPSObjects/xml/sample_alignment_corrections.xml")
 
 
 #Database output service
