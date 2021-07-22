@@ -11,7 +11,6 @@ process.load('SimG4CMS.HGCalTestBeam.HGCalTB161Module8XML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
 process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
-process.load('Geometry.HcalCommonData.caloSimulationParameters_cff')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
@@ -102,16 +101,11 @@ process.VtxSmeared.MinY = -7.5
 process.VtxSmeared.MaxY =  7.5
 process.HGCalTBAnalyzer.doDigis = False
 process.HGCalTBAnalyzer.doRecHits = False
-process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector', 
-                             'AHcalSensitiveDetector',
-                             'CaloTrkProcessing',
-                             'HGCSensitiveDetector',
-                             'EcalTBH4BeamDetector',
-                             'HGCalTB1601SensitiveDetector',
-                             'HcalTB02SensitiveDetector',
+process.g4SimHits.OnlySDs = ['HGCSensitiveDetector',
                              'HcalTB06BeamDetector',
-                             'EcalSensitiveDetector',
-                             'HcalSensitiveDetector']
+                             'HGCalTB1601SensitiveDetector']
+process.g4SimHits.HGCSD.Detectors = 1
+process.g4SimHits.HGCSD.UseDetector = 1
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
