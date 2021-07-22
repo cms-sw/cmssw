@@ -26,6 +26,7 @@ genParticles2HepMCHiggsVtx = cms.EDProducer("GenParticles2HepMCConverter",
 particleLevel = cms.EDProducer("ParticleLevelProducer",
     src = cms.InputTag("genParticles2HepMC:unsmeared"),
     
+    doJetClustering = cms.bool(False), # Not needed as Rivet jets aren't used currently
     usePromptFinalStates = cms.bool(True), # for leptons, photons, neutrinos
     excludePromptLeptonsFromJetClustering = cms.bool(False),
     excludeNeutrinosFromJetClustering = cms.bool(True),
