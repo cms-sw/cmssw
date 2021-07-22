@@ -36,6 +36,7 @@ protected:
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
 private:
+  int ProcessWithMEMap2WithEta(BookingHelper& bh, ME3IdsKey key) override;
   int ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) override;
   int ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) override;
 
@@ -47,7 +48,8 @@ private:
   MEMap3Inf mapStripOcc_ieta_;
   MEMap3Inf mapStripOcc_phi_;
   MEMap3Inf mapTotalStripPerEvt_;
-  MEMap3Inf mapBX_layer_;
+  //MEMap3Inf mapBX_layer_;
+  MEMap3Inf mapBX_iEta_;
 
   MEMap4Inf mapStripOccPerCh_;
   MEMap4Inf mapBXPerCh_;
@@ -101,7 +103,10 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
                                    99.5,
                                    "Number of fired strips",
                                    "Events");
-  mapBX_layer_ =
+  
+  //mapBX_layer_ =
+  //    MEMap3Inf(this, "bx", "Strip Digi Bunch Crossing ", 21, nBXMin_ - 0.5, nBXMax_ + 0.5, "Bunch crossing");
+  mapBX_iEta_ =
       MEMap3Inf(this, "bx", "Strip Digi Bunch Crossing ", 21, nBXMin_ - 0.5, nBXMax_ + 0.5, "Bunch crossing");
 
   mapStripOccPerCh_ = MEMap4Inf(this, "strip_occ", "Strip Digi Occupancy ", 1, 0.5, 1.5, 1, 0.5, 1.5, "Strip", "iEta");
@@ -125,6 +130,12 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
   h2SummaryMal = CreateSummaryHist(ibooker, "summaryMalfuncDigi");
 }
 
+int GEMDigiSource::ProcessWithMEMap2WithEta(BookingHelper& bh, ME3IdsKey key) {
+  mapBX_iEta_.bookND(bh, key);
+
+  return 0;
+}
+
 int GEMDigiSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   MEStationInfo& stationInfo = mapStationInfo_[key];
 
@@ -140,7 +151,7 @@ int GEMDigiSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
 
   mapStripOcc_phi_.bookND(bh, key);
   mapTotalStripPerEvt_.bookND(bh, key);
-  mapBX_layer_.bookND(bh, key);
+  //mapBX_layer_.bookND(bh, key);
 
   return 0;
 }
@@ -182,15 +193,16 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
     if (total_strip_layer.find(key3) == total_strip_layer.end())
       total_strip_layer[key3] = 0;
     for (auto iEta : ch.etaPartitions()) {
-      GEMDetId rId = iEta->id();
-      const auto& digis_in_det = gemDigis->get(rId);
+      GEMDetId eId = iEta->id();
+      ME3IdsKey key3IEta{gid.region(), gid.station(), eId.ieta()};
+      const auto& digis_in_det = gemDigis->get(eId);
       for (auto d = digis_in_det.first; d != digis_in_det.second; ++d) {
         // Filling of digi occupancy
-        Int_t nIdxVFAT = getVFATNumberByStrip(gid.station(), rId.ieta(), d->strip());
+        Int_t nIdxVFAT = getVFATNumberByStrip(gid.station(), eId.ieta(), d->strip());
         mapTotalDigi_layer_.Fill(key3, gid.chamber(), nIdxVFAT + 1);
 
         // Filling of strip
-        mapStripOcc_ieta_.Fill(key3, rId.ieta());  // Roll
+        mapStripOcc_ieta_.Fill(key3, eId.ieta());  // Roll
 
         GlobalPoint strip_global_pos = surface.toGlobal(iEta->centreOfStrip(d->strip()));
         Float_t fPhiDeg = ((Float_t)strip_global_pos.phi()) * 180.0 / 3.141592;
@@ -198,7 +210,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
           fPhiDeg += 360.0;
         mapStripOcc_phi_.Fill(key3, fPhiDeg);  // Phi
 
-        mapStripOccPerCh_.Fill(key4Ch, d->strip(), rId.ieta());  // Per chamber
+        mapStripOccPerCh_.Fill(key4Ch, d->strip(), eId.ieta());  // Per chamber
 
         // For total strips
         total_strip_layer[key3]++;
@@ -206,7 +218,8 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
         // Filling of bx
         Int_t nBX = std::min(std::max((Int_t)d->bx(), nBXMin_), nBXMax_);  // For under/overflow
         if (bTagVFAT.find(nIdxVFAT) == bTagVFAT.end()) {
-          mapBX_layer_.Fill(key3, nBX);
+          //mapBX_layer_.Fill(key3, nBX);
+          mapBX_iEta_.Fill(key3IEta, nBX);
           mapBXPerCh_.Fill(key4Ch, nBX, nIdxVFAT);
         }
 

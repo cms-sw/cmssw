@@ -237,7 +237,7 @@ public:
 
     dqm::impl::MonitorElement *FindHist(K key) {
       if (mapHist.find(key) == mapHist.end()) {
-        std::cout << "" << std::endl;  // FIXME: It's about sending a message
+        std::cout << "WARNING: Cannot find the histogram corresponing to the given key" << std::endl;  // FIXME: It's about sending a message
         return nullptr;
       }
       return mapHist[key];
@@ -287,20 +287,20 @@ public:
       if (hist == nullptr)
         return -999;
       hist->Fill(x);
-      return 0;
+      return 1;
     };
 
-    int Fill(K key, Double_t x, Double_t y) {
+    int Fill(K key, Double_t x, Double_t y, Double_t w = 1.0) {
       if (!bOperating_)
         return 0;
       dqm::impl::MonitorElement *hist = FindHist(key);
       if (hist == nullptr)
         return -999;
-      hist->Fill(x, y);
-      return 0;
+      hist->Fill(x, y, w);
+      return 1;
     };
 
-    int FillBits(K key, Double_t x, UInt_t bits) {
+    int FillBits(K key, Double_t x, UInt_t bits, Double_t w = 1.0) {
       if (!bOperating_)
         return 0;
       dqm::impl::MonitorElement *hist = FindHist(key);
@@ -312,11 +312,11 @@ public:
       UInt_t unMask = 0x1;
       for (Int_t i = 1; i <= nBinsY_; i++) {
         if ((unMask & bits) != 0)
-          hist->Fill(x, i);
+          hist->Fill(x, i, w);
         unMask <<= 1;
       }
 
-      return 0;
+      return 1;
     };
 
   private:
@@ -381,6 +381,8 @@ protected:
 
   int GenerateMEPerChamber(DQMStore::IBooker &ibooker);
   virtual int ProcessWithMEMap2(BookingHelper &bh, ME2IdsKey key) { return 0; };             // must be overrided
+  virtual int ProcessWithMEMap2WithEta(BookingHelper &bh, ME3IdsKey key) { return 0; };             // must be overrided
+  virtual int ProcessWithMEMap2AbsReWithEta(BookingHelper &bh, ME3IdsKey key) { return 0; };             // must be overrided
   virtual int ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) { return 0; };             // must be overrided
   virtual int ProcessWithMEMap4(BookingHelper &bh, ME4IdsKey key) { return 0; };             // must be overrided
   virtual int ProcessWithMEMap3WithChamber(BookingHelper &bh, ME4IdsKey key) { return 0; };  // must be overrided
@@ -394,7 +396,13 @@ protected:
   int keyToLayer(ME3IdsKey key) { return std::get<2>(key); };
   int keyToLayer(ME4IdsKey key) { return std::get<2>(key); };
   int keyToChamber(ME4IdsKey key) { return std::get<3>(key); };
+  int keyToIEta(ME3IdsKey key) { return std::get<2>(key); };
   int keyToIEta(ME4IdsKey key) { return std::get<3>(key); };
+
+  ME2IdsKey key3Tokey2(ME3IdsKey key) {
+    auto keyNew = ME2IdsKey{keyToRegion(key), keyToStation(key)};
+    return keyNew;
+  };
 
   ME3IdsKey key4Tokey3(ME4IdsKey key) {
     auto keyNew = ME3IdsKey{keyToRegion(key), keyToStation(key), keyToLayer(key)};
@@ -423,6 +431,8 @@ protected:
   std::vector<GEMChamber> gemChambers_;
 
   std::map<ME2IdsKey, bool> MEMap2Check_;
+  std::map<ME3IdsKey, bool> MEMap2WithEtaCheck_;
+  std::map<ME3IdsKey, bool> MEMap2AbsReWithEtaCheck_;
   std::map<ME3IdsKey, bool> MEMap3Check_;
   std::map<ME4IdsKey, bool> MEMap3WithChCheck_;
   std::map<ME4IdsKey, bool> MEMap4Check_;
