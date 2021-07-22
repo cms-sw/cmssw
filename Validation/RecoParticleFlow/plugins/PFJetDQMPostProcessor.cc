@@ -120,7 +120,7 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
     stitle = offsetDir + "mu";
     std::vector<std::string>::const_iterator it = std::find(sME_offset.begin(), sME_offset.end(), stitle);
     if (it == sME_offset.end())
-      std::cout << "ERROR: Offset Folder does not exist." << std::endl;
+      continue;
     me = iget_.get(stitle);
     int nEvents = ((TH1F*)me->getTH1F())->GetEntries();
     iget_.setCurrentFolder(jetResponseDir[idir]);
@@ -164,8 +164,6 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
         me = iget_.get(stitle);
         h_recojet_unmatched_pt = (TH1F*)me->getTH1F();
       }
-
-      //std::cout << "\n\n === Min Reco: " << h_recojet_pt->GetMinimum() << " Min Gen: " << h_genjet_pt->GetMinimum() << std::endl;
 
       stitle = "presponse_eta" + seta(etaBins[ieta]);
       // adding "Raw" to the title of raw jet response histograms
