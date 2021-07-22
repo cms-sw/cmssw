@@ -42,6 +42,42 @@
 <class name="MuonDigiCollection<GEMDetId,GEMCoPadDigi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMCoPadDigi> >" splitLevel="0"/>
 
+<class name="GEMAMC13Status" ClassVersion="-1">
+ <version ClassVersion="-1" checksum="3469985462"/>
+</class>
+<class name="std::vector<GEMAMC13Status>"/>
+<class name="std::map<uint16_t,std::vector<GEMAMC13Status> >"/>
+<class name="std::pair<uint16_t,std::vector<GEMAMC13Status> >"/>
+<class name="MuonDigiCollection<uint16_t,GEMAMC13Status>"/>
+<class name="edm::Wrapper<MuonDigiCollection<uint16_t,GEMAMC13Status> >" splitLevel="0"/>
+
+<class name="GEMAMCStatus" ClassVersion="-1">
+ <version ClassVersion="-1" checksum="2120084327"/>
+</class>
+<class name="std::vector<GEMAMCStatus>"/>
+<class name="std::map<uint16_t,std::vector<GEMAMCStatus> >"/>
+<class name="std::pair<uint16_t,std::vector<GEMAMCStatus> >"/>
+<class name="MuonDigiCollection<uint16_t,GEMAMCStatus>"/>
+<class name="edm::Wrapper<MuonDigiCollection<uint16_t,GEMAMCStatus> >" splitLevel="0"/>
+
+<class name="GEMOHStatus" ClassVersion="-1">
+ <version ClassVersion="-1" checksum="1715607020"/>
+</class>
+<class name="std::vector<GEMOHStatus>"/>
+<class name="std::map<GEMDetId,std::vector<GEMOHStatus> >"/>
+<class name="std::pair<GEMDetId,std::vector<GEMOHStatus> >"/>
+<class name="MuonDigiCollection<GEMDetId,GEMOHStatus>"/>
+<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMOHStatus> >" splitLevel="0"/>
+
+<class name="GEMVFATStatus" ClassVersion="-1">
+ <version ClassVersion="-1" checksum="2994917778"/>
+</class>
+<class name="std::vector<GEMVFATStatus>"/>
+<class name="std::map<GEMDetId,std::vector<GEMVFATStatus> >"/>
+<class name="std::pair<GEMDetId,std::vector<GEMVFATStatus> >"/>
+<class name="MuonDigiCollection<GEMDetId,GEMVFATStatus>"/>
+<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMVFATStatus> >" splitLevel="0"/>
+
 <class name="GEMVfatStatusDigi" ClassVersion="4">
  <version ClassVersion="4" checksum="1981269550"/>
  <version ClassVersion="3" checksum="569767420"/>
