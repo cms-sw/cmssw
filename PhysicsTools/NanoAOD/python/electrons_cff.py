@@ -483,7 +483,7 @@ tautaggerForMatching = cms.EDProducer("GenJetTauTaggerProducer",
 matchingElecPhoton = cms.EDProducer("GenJetGenPartMerger",
                                     srcJet =cms.InputTag("particleLevel:leptons"),
                                     srcPart=cms.InputTag("particleLevel:photons"),
-                                    cut = "pt > 3",
+                                    cut = cms.string("pt > 3"),
                                     hasTauAnc=cms.InputTag("tautaggerForMatching"),
 )
 electronsMCMatchForTableAlt = cms.EDProducer("GenJetMatcherDRPtByDR",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
