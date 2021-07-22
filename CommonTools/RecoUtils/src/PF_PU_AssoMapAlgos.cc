@@ -94,13 +94,14 @@ void PF_PU_AssoMapAlgos::GetInputCollections(edm::Event& iEvent, const edm::Even
   iEvent.getByToken(token_VertexCollection_, vtxcollH);
 
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
+  iSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometryH);
 }
 
 /*************************************************************************************/
 /* create the track-to-vertex and vertex-to-track maps in one go                     */
 /*************************************************************************************/
 std::pair<std::unique_ptr<TrackToVertexAssMap>, std::unique_ptr<VertexToTrackAssMap>>
-PF_PU_AssoMapAlgos::createMappings(edm::Handle<reco::TrackCollection> trkcollH, const edm::EventSetup& iSetup) {
+PF_PU_AssoMapAlgos::createMappings(edm::Handle<reco::TrackCollection> trkcollH) {
   unique_ptr<TrackToVertexAssMap> track2vertex(new TrackToVertexAssMap(vtxcollH, trkcollH));
   unique_ptr<VertexToTrackAssMap> vertex2track(new VertexToTrackAssMap(trkcollH, vtxcollH));
 
@@ -117,15 +118,14 @@ PF_PU_AssoMapAlgos::createMappings(edm::Handle<reco::TrackCollection> trkcollH, 
 
     TransientTrack transtrk(trackref, &(*bFieldH));
     transtrk.setBeamSpot(*beamspotH);
-    edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
-    iSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
-    transtrk.setTrackingGeometry(trackingGeometry);
+    transtrk.setTrackingGeometry(trackingGeometryH);
 
     if (input_MaxNumAssociations_ > 1)
       vtxColl_help = CreateVertexVector(vtxcollH);
 
     for (int assoc_ite = 0; assoc_ite < input_MaxNumAssociations_; ++assoc_ite) {
-      VertexStepPair assocVtx = FindAssociation(trackref, vtxColl_help, bFieldH, iSetup, beamspotH, assoc_ite);
+      VertexStepPair assocVtx =
+          FindAssociation(trackref, vtxColl_help, bFieldH, trackingGeometryH, beamspotH, assoc_ite);
       int step = assocVtx.second;
       double distance = (IPTools::absoluteImpactParameter3D(transtrk, *(assocVtx.first))).second.value();
 
@@ -153,8 +153,8 @@ PF_PU_AssoMapAlgos::createMappings(edm::Handle<reco::TrackCollection> trkcollH, 
 /*************************************************************************************/
 
 std::unique_ptr<TrackToVertexAssMap> PF_PU_AssoMapAlgos::CreateTrackToVertexMap(
-    edm::Handle<reco::TrackCollection> trkcollH, const edm::EventSetup& iSetup) {
-  return createMappings(trkcollH, iSetup).first;
+    edm::Handle<reco::TrackCollection> trkcollH) {
+  return createMappings(trkcollH).first;
 }
 
 /*************************************************************************************/
@@ -162,8 +162,8 @@ std::unique_ptr<TrackToVertexAssMap> PF_PU_AssoMapAlgos::CreateTrackToVertexMap(
 /*************************************************************************************/
 
 std::unique_ptr<VertexToTrackAssMap> PF_PU_AssoMapAlgos::CreateVertexToTrackMap(
-    edm::Handle<reco::TrackCollection> trkcollH, const edm::EventSetup& iSetup) {
-  return createMappings(trkcollH, iSetup).second;
+    edm::Handle<reco::TrackCollection> trkcollH) {
+  return createMappings(trkcollH).second;
 }
 
 /*****************************************************************************************/
@@ -411,7 +411,7 @@ bool PF_PU_AssoMapAlgos::ComesFromConversion(const TrackRef trackref,
 VertexRef PF_PU_AssoMapAlgos::FindConversionVertex(const reco::TrackRef trackref,
                                                    const reco::Conversion& gamma,
                                                    ESHandle<MagneticField> bfH,
-                                                   const EventSetup& iSetup,
+                                                   edm::ESHandle<GlobalTrackingGeometry> tgH,
                                                    edm::Handle<reco::BeamSpot> bsH,
                                                    const std::vector<reco::VertexRef>& vtxcollV,
                                                    double tWeight) {
@@ -424,9 +424,7 @@ VertexRef PF_PU_AssoMapAlgos::FindConversionVertex(const reco::TrackRef trackref
 
   TransientTrack transpho(photon, &(*bfH));
   transpho.setBeamSpot(*bsH);
-  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
-  transpho.setTrackingGeometry(trackingGeometry);
+  transpho.setTrackingGeometry(tgH);
 
   return FindClosest3D(transpho, vtxcollV, tWeight);
 }
@@ -570,7 +568,7 @@ bool PF_PU_AssoMapAlgos::ComesFromV0Decay(const TrackRef trackref,
 VertexRef PF_PU_AssoMapAlgos::FindV0Vertex(const TrackRef trackref,
                                            const VertexCompositeCandidate& V0_vtx,
                                            ESHandle<MagneticField> bFieldH,
-                                           const EventSetup& iSetup,
+                                           edm::ESHandle<GlobalTrackingGeometry> trackingGeometryH,
                                            Handle<BeamSpot> bsH,
                                            const std::vector<reco::VertexRef>& vtxcollV,
                                            double tWeight) {
@@ -582,9 +580,7 @@ VertexRef PF_PU_AssoMapAlgos::FindV0Vertex(const TrackRef trackref,
 
   TransientTrack transV0(V0, &(*bFieldH));
   transV0.setBeamSpot(*bsH);
-  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
-  transV0.setTrackingGeometry(trackingGeometry);
+  transV0.setTrackingGeometry(trackingGeometryH);
 
   return FindClosest3D(transV0, vtxcollV, tWeight);
 }
@@ -655,14 +651,12 @@ bool PF_PU_AssoMapAlgos::ComesFromNI(const TrackRef trackref,
 VertexRef PF_PU_AssoMapAlgos::FindNIVertex(const TrackRef trackref,
                                            const PFDisplacedVertex& displVtx,
                                            ESHandle<MagneticField> bFieldH,
-                                           const EventSetup& iSetup,
+                                           edm::ESHandle<GlobalTrackingGeometry> trackingGeometryH,
                                            Handle<BeamSpot> bsH,
                                            const std::vector<reco::VertexRef>& vtxcollV,
                                            double tWeight) {
   TrackCollection refittedTracks = displVtx.refittedTracks();
 
-  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
   if ((displVtx.isTherePrimaryTracks()) || (displVtx.isThereMergedTracks())) {
     for (TrackCollection::const_iterator trkcoll_ite = refittedTracks.begin(); trkcoll_ite != refittedTracks.end();
          trkcoll_ite++) {
@@ -677,7 +671,7 @@ VertexRef PF_PU_AssoMapAlgos::FindNIVertex(const TrackRef trackref,
 
         TransientTrack transIncom(*retrackbaseref, &(*bFieldH));
         transIncom.setBeamSpot(*bsH);
-        transIncom.setTrackingGeometry(trackingGeometry);
+        transIncom.setTrackingGeometry(trackingGeometryH);
 
         return FindClosest3D(transIncom, vtxcollV, tWeight);
       }
@@ -693,7 +687,7 @@ VertexRef PF_PU_AssoMapAlgos::FindNIVertex(const TrackRef trackref,
 
   TransientTrack transIncom(incom, &(*bFieldH));
   transIncom.setBeamSpot(*bsH);
-  transIncom.setTrackingGeometry(trackingGeometry);
+  transIncom.setTrackingGeometry(trackingGeometryH);
 
   return FindClosest3D(transIncom, vtxcollV, tWeight);
 }
@@ -727,7 +721,7 @@ VertexRef PF_PU_AssoMapAlgos::TrackWeightAssociation(const TREF& trackRef,
 VertexStepPair PF_PU_AssoMapAlgos::FindAssociation(const reco::TrackRef& trackref,
                                                    const std::vector<reco::VertexRef>& vtxColl,
                                                    edm::ESHandle<MagneticField> bfH,
-                                                   const edm::EventSetup& iSetup,
+                                                   edm::ESHandle<GlobalTrackingGeometry> tgH,
                                                    edm::Handle<reco::BeamSpot> bsH,
                                                    int assocNum) {
   VertexRef foundVertex;
@@ -755,7 +749,7 @@ VertexStepPair PF_PU_AssoMapAlgos::FindAssociation(const reco::TrackRef& trackre
     // If so, try to find the vertex of the mother particle
     Conversion gamma;
     if (ComesFromConversion(trackref, *cleanedConvCollP, &gamma)) {
-      foundVertex = FindConversionVertex(trackref, gamma, bfH, iSetup, bsH, vtxColl, input_nTrack_);
+      foundVertex = FindConversionVertex(trackref, gamma, bfH, tgH, bsH, vtxColl, input_nTrack_);
       return make_pair(foundVertex, 1.);
     }
 
@@ -763,7 +757,7 @@ VertexStepPair PF_PU_AssoMapAlgos::FindAssociation(const reco::TrackRef& trackre
     // If so, reassociate the track to the vertex of the V0
     VertexCompositeCandidate V0;
     if (ComesFromV0Decay(trackref, *cleanedKshortCollP, *cleanedLambdaCollP, &V0)) {
-      foundVertex = FindV0Vertex(trackref, V0, bfH, iSetup, bsH, vtxColl, input_nTrack_);
+      foundVertex = FindV0Vertex(trackref, V0, bfH, tgH, bsH, vtxColl, input_nTrack_);
       return make_pair(foundVertex, 1.);
     }
 
@@ -772,7 +766,7 @@ VertexStepPair PF_PU_AssoMapAlgos::FindAssociation(const reco::TrackRef& trackre
       // If so, reassociate the track to the vertex of the incoming particle
       PFDisplacedVertex displVtx;
       if (ComesFromNI(trackref, *cleanedNICollP, &displVtx)) {
-        foundVertex = FindNIVertex(trackref, displVtx, bfH, iSetup, bsH, vtxColl, input_nTrack_);
+        foundVertex = FindNIVertex(trackref, displVtx, bfH, tgH, bsH, vtxColl, input_nTrack_);
         return make_pair(foundVertex, 1.);
       }
     }
@@ -786,8 +780,6 @@ VertexStepPair PF_PU_AssoMapAlgos::FindAssociation(const reco::TrackRef& trackre
 
 finalStep:
 
-  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
   switch (input_FinalAssociation_) {
     case 1: {
       // closest in z
@@ -799,7 +791,7 @@ finalStep:
       // closest in 3D
       TransientTrack transtrk(trackref, &(*bfH));
       transtrk.setBeamSpot(*bsH);
-      transtrk.setTrackingGeometry(trackingGeometry);
+      transtrk.setTrackingGeometry(trackingGeometryH);
 
       foundVertex = FindClosest3D(transtrk, vtxColl, input_nTrack_);
       break;
