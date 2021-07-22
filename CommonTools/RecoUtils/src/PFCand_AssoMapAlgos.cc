@@ -2,6 +2,7 @@
 #include "CommonTools/RecoUtils/interface/PFCand_AssoMapAlgos.h"
 
 #include "TrackingTools/IPTools/interface/IPTools.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 using namespace edm;
 using namespace std;
@@ -77,7 +78,9 @@ PFCand_AssoMapAlgos::createMappings(edm::Handle<reco::PFCandidateCollection> pfC
     } else {
       TransientTrack transtrk(PFCtrackref, &(*bFieldH));
       transtrk.setBeamSpot(*beamspotH);
-      transtrk.setES(iSetup);
+      edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
+      iSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
+      transtrk.setTrackingGeometry(trackingGeometry);
 
       for (int assoc_ite = 0; assoc_ite < input_MaxNumAssociations_; ++assoc_ite) {
         VertexStepPair assocVtx = FindAssociation(PFCtrackref, vtxColl_help, bFieldH, iSetup, beamspotH, assoc_ite);
