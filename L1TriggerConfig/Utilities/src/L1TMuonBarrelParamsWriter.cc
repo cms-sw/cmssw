@@ -9,8 +9,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsO2ORcd.h"
-#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"  // includes both Old-Phase1 and Kalman Rcds
+#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
+#include "CondFormats/DataRecord/interface/L1TMuonBarrelKalmanParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelKalmanParams.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"

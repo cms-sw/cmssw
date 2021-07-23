@@ -31,13 +31,13 @@ public:
     std::string kalmanLUTsPath_;
     unsigned fwVersion_;
     l1t::LUT LUT_;
-    /* std::vector<double> dparams_; */
-    /* std::vector<unsigned> uparams_; */
-    /* std::vector<int> iparams_; */
-    /* std::vector<std::string> sparams_; */
     COND_SERIALIZABLE;
   };
 
+  // for future extention
+  // Kalman TF params as (statically) defined in file
+  // L1Trigger/L1TMuonBarrel/python/simKBmtfDigis_cfi.py
+  // -------
   //enum {
   //  initialK,
   //  initialK2,
