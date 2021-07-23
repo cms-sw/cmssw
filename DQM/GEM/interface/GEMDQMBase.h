@@ -261,6 +261,10 @@ public:
       return 0;
     };
 
+    int SetLabelForIEta(K key, Int_t nAxis, Int_t nNumBin = -1) {
+      return SetLabelForChambers(key, nAxis, nNumBin);
+    };
+
     int SetLabelForVFATs(K key, Int_t nNumEtaPartitions, Int_t nAxis, Int_t nNumBin = -1) {
       if (nNumBin <= 0) {
         if (nAxis == 1)

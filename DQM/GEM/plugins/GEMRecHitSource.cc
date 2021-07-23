@@ -174,7 +174,7 @@ int GEMRecHitSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   mapTotalRecHit_layer_.SetBinConfY(stationInfo.nNumEtaPartitions_);
   mapTotalRecHit_layer_.bookND(bh, key);
   mapTotalRecHit_layer_.SetLabelForChambers(key, 1);
-  mapTotalRecHit_layer_.SetLabelForChambers(key, 2);  // No worries, it's same as the eta partition labelling
+  mapTotalRecHit_layer_.SetLabelForIEta(key, 2);
 
   mapRecHitWheel_layer_.SetBinLowEdgeX(-0.088344);  // FIXME: It could be different for other stations...
   mapRecHitWheel_layer_.SetBinHighEdgeX(-0.088344 + 2 * 3.141592);
@@ -192,6 +192,10 @@ int GEMRecHitSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   mapCLSNumber_.bookND(bh, key);
   mapCLSAverage_.bookND(bh, key);
   mapCLSOver5_.bookND(bh, key);
+  mapCLSAverage_.SetLabelForChambers(key, 1);
+  mapCLSAverage_.SetLabelForIEta(key, 2);
+  mapCLSOver5_.SetLabelForChambers(key, 1);
+  mapCLSOver5_.SetLabelForIEta(key, 2);
 
   return 0;
 }
@@ -208,7 +212,7 @@ int GEMRecHitSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey k
 
   mapCLSPerCh_.SetBinConfY(stationInfo.nNumEtaPartitions_);
   mapCLSPerCh_.bookND(bh, key);
-  mapCLSPerCh_.SetLabelForChambers(key, 2);  // For eta partitions
+  mapCLSPerCh_.SetLabelForIEta(key, 2);
 
   return 0;
 }
