@@ -36,9 +36,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-#include "HcalTB02HcalNumberingScheme.h"
-#include "HcalTB02XtalNumberingScheme.h"
-#include "HcalTB02Histo.h"
+#include "SimG4CMS/HcalTestBeam/plugins/HcalTB02HcalNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/plugins/HcalTB02XtalNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/plugins/HcalTB02Histo.h"
 
 #include "G4HCofThisEvent.hh"
 #include "G4SDManager.hh"
@@ -51,6 +51,8 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "Randomize.hh"
+
+//#define EDM_ML_DEBUG
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -129,7 +131,9 @@ void HcalTB02Analysis::produce(edm::Event& e, const edm::EventSetup&) {
 }
 
 void HcalTB02Analysis::update(const BeginOfEvent* evt) {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis: =====> Begin of event = " << (*evt)()->GetEventID();
+#endif
   clear();
 }
 
