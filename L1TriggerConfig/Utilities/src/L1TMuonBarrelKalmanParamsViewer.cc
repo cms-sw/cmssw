@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonBarrelKalmanParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelKalmanParams.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
