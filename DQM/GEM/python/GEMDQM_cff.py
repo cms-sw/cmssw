@@ -11,3 +11,8 @@ GEMDQM = cms.Sequence(
   *GEMDAQStatusSource
   +GEMDQMHarvester
 )
+
+GEMDQMForRelval = cms.Sequence(
+  GEMDigiSource
+  *GEMRecHitSource
+)

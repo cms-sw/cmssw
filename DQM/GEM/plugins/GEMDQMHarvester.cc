@@ -91,7 +91,7 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store) {
   std::string strSrcStatusW = "GEM/DAQStatus/summaryStatusWarning";
   std::string strSrcStatusE = "GEM/DAQStatus/summaryStatusError";
 
-  std::string strSrcVFATOcc = "GEM/Digis/digi_det";
+  std::string strSrcVFATOcc = "GEM/Digis/det";
   std::string strSrcVFATStatusW = "GEM/DAQStatus/vfat_statusWarnSum";
   std::string strSrcVFATStatusE = "GEM/DAQStatus/vfat_statusErrSum";
 
@@ -212,20 +212,22 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(MonitorElement *h2Sum,
 }
 
 void GEMDQMHarvester::synthesisCLSPlots(edm::Service<DQMStore> &store) {
-  std::string strHeadSrcCLSNum = "GEM/RecHits/rechitNumber";
-  std::string strHeadSrcCLSAve = "GEM/RecHits/rechit_average_pre";
-  std::string strHeadSrcCLSOv5 = "GEM/RecHits/rechit_over5_pre";
+  std::string strHeadSrcCLSNumAve = "GEM/RecHits/rechitNumberAve";
+  std::string strHeadSrcCLSNumOv5 = "GEM/RecHits/rechitNumberOv5";
+  std::string strHeadSrcCLSAve    = "GEM/RecHits/rechit_average_pre";
+  std::string strHeadSrcCLSOv5    = "GEM/RecHits/rechit_over5_pre";
 
   std::string strHeadDstCLSAve = "rechit_average";
   std::string strHeadDstCLSOv5 = "rechit_over5";
 
   for (const auto &strSuffix : listLayer_) {
-    MonitorElement *h2SrcCLSNum = store->get(strHeadSrcCLSNum + strSuffix);
-    MonitorElement *h2SrcCLSAve = store->get(strHeadSrcCLSAve + strSuffix);
-    MonitorElement *h2SrcCLSOv5 = store->get(strHeadSrcCLSOv5 + strSuffix);
-    if (h2SrcCLSNum == nullptr || h2SrcCLSAve == nullptr || h2SrcCLSOv5 == nullptr)
+    MonitorElement *h2SrcCLSNumAve = store->get(strHeadSrcCLSNumAve + strSuffix);
+    MonitorElement *h2SrcCLSNumOv5 = store->get(strHeadSrcCLSNumOv5 + strSuffix);
+    MonitorElement *h2SrcCLSAve    = store->get(strHeadSrcCLSAve    + strSuffix);
+    MonitorElement *h2SrcCLSOv5    = store->get(strHeadSrcCLSOv5    + strSuffix);
+    if (h2SrcCLSNumAve == nullptr || h2SrcCLSNumOv5 == nullptr || h2SrcCLSAve == nullptr || h2SrcCLSOv5 == nullptr)
       continue;
-    Int_t nBinX = h2SrcCLSNum->getNbinsX(), nBinY = h2SrcCLSNum->getNbinsY();
+    Int_t nBinX = h2SrcCLSNumAve->getNbinsX(), nBinY = h2SrcCLSNumAve->getNbinsY();
     //store->setCurrentFolder(strDirRecHit_);
     //store->setCurrentFolder(strDirSummary_);
     MonitorElement *h2Ave = store->book2D(strHeadDstCLSAve + strSuffix, "", nBinX, 0.5, nBinX + 0.5, nBinY, 0.5, nBinY + 0.5);
@@ -234,9 +236,15 @@ void GEMDQMHarvester::synthesisCLSPlots(edm::Service<DQMStore> &store) {
     copyLabels(h2SrcCLSOv5, h2Ov5);
     for (Int_t j = 1; j <= nBinY; j++) {
       for (Int_t i = 1; i <= nBinX; i++) {
-        Int_t nNum = h2SrcCLSNum->getBinContent(i, j);
+        Int_t nNum = h2SrcCLSNumAve->getBinContent(i, j);
         if (nNum <= 0) continue;
         h2Ave->setBinContent(i, j, h2SrcCLSAve->getBinContent(i, j) / nNum);
+      }
+    }
+    for (Int_t j = 1; j <= nBinY; j++) {
+      for (Int_t i = 1; i <= nBinX; i++) {
+        Int_t nNum = h2SrcCLSNumOv5->getBinContent(i, j);
+        if (nNum <= 0) continue;
         h2Ov5->setBinContent(i, j, h2SrcCLSOv5->getBinContent(i, j) / nNum);
       }
     }
