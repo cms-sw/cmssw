@@ -11,4 +11,4 @@ gemRecHits = gemRecHitsDef.clone(
     )
 
 from Configuration.Eras.Modifier_phase2_GEM_cff import phase2_GEM
-phase2_GEM.toModify(gemRecHits, gemDigiLabel = cms.InputTag("simMuonGEMDigis"))
+phase2_GEM.toModify(gemRecHits, gemDigiLabel = "simMuonGEMDigis")
