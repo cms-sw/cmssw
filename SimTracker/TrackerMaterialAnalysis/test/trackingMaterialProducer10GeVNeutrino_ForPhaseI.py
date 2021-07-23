@@ -11,10 +11,11 @@ readGeometryFromDB = False
 # only a temporary hack, since the material description has
 # been updated in release via XML and the DB is behind.
 if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2017_cff')
+  process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 else:
 # GlobalTag and geometry via GT
   process.load('Configuration.Geometry.GeometrySimDB_cff')
+  process.load('Configuration.Geometry.GeometryRecoDB_cff')
   process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
   from Configuration.AlCa.GlobalTag import GlobalTag
   process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')

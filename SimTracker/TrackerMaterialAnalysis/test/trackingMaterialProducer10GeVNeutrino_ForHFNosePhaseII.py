@@ -11,7 +11,7 @@ readGeometryFromDB = False
 # only a temporary hack, since the material description has
 # been updated in release via XML and the DB is behind.
 if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2026D44_cff')
+  process.load('Configuration.Geometry.GeometryExtended2026D82Reco_cff')
 else:
 # GlobalTag and geometry via GT
   process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
