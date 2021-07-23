@@ -35,7 +35,8 @@ public:
   /** Create module id from raw id (0=invalid id) */
   HGCalTriggerModuleDetId(uint32_t rawid);
   /** Constructor from subdetector, zplus, type, layer, sector, module numbers */
-  HGCalTriggerModuleDetId(HGCalTriggerSubdetector subdet, int zp, int type, int layer, int sector, int moduleU, int moduleV);
+  HGCalTriggerModuleDetId(
+      HGCalTriggerSubdetector subdet, int zp, int type, int layer, int sector, int moduleU, int moduleV);
   /** Constructor from a generic det id */
   HGCalTriggerModuleDetId(const DetId& id);
   /** Assignment from a generic det id */

@@ -730,8 +730,8 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
       for (auto stage1fpga : stage1fpgas) {
         if (stage1FPGAs.find(stage1fpga) == stage1FPGAs.end()) {
           edm::LogProblem("BadStage2") << "Error: \n Stage-1 FPGA " << stage1fpga << "("
-                                       << HGCalTriggerBackendDetId(stage1fpga) << ")\n has not been found in \n stage-2 "
-                                       << HGCalTriggerBackendDetId(stage2);
+                                       << HGCalTriggerBackendDetId(stage1fpga)
+                                       << ")\n has not been found in \n stage-2 " << HGCalTriggerBackendDetId(stage2);
           std::stringstream output;
           output << "   Available Stage-1 FPGAs are:\n";
           for (auto stage1FPGA : stage1FPGAs) {

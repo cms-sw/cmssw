@@ -266,7 +266,8 @@ unsigned HGCalTriggerGeometryV9Imp3::getModuleFromTriggerCell(const unsigned tri
     int ieta = ((trigger_cell_sc_id.ietaAbs() - ietamin_tc) / hSc_module_size_ + 1);
     int iphi = (trigger_cell_sc_id.iphi() - 1) / hSc_module_size_ + 1;
     unsigned sector = etaphiMappingToSector0(ieta, iphi);
-    module_id = HGCalTriggerModuleDetId(HGCalTriggerSubdetector::HGCalHScTrigger, zside, tc_type, layer, sector, ieta, iphi);
+    module_id =
+        HGCalTriggerModuleDetId(HGCalTriggerSubdetector::HGCalHScTrigger, zside, tc_type, layer, sector, ieta, iphi);
   }
   // HFNose
   else if (det == DetId::HGCalTrigger and
@@ -279,7 +280,8 @@ unsigned HGCalTriggerGeometryV9Imp3::getModuleFromTriggerCell(const unsigned tri
     int waferv = trigger_cell_trig_id.waferV();
     unsigned sector = geom_rotation_120_.uvMappingToSector0(
         getWaferCentring(layer, HGCalTriggerSubdetector::HFNoseTrigger), waferu, waferv);
-    module_id = HGCalTriggerModuleDetId(HGCalTriggerSubdetector::HFNoseTrigger, zside, tc_type, layer, sector, waferu, waferv);
+    module_id =
+        HGCalTriggerModuleDetId(HGCalTriggerSubdetector::HFNoseTrigger, zside, tc_type, layer, sector, waferu, waferv);
   }
   // Silicon
   else {
@@ -577,11 +579,13 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getStage1LinksFro
   auto stage2_itrs = stage2_to_stage1links_.equal_range(id.label());
   for (auto stage2_itr = stage2_itrs.first; stage2_itr != stage2_itrs.second; stage2_itr++) {
     if (stage2_itr->second == true) {  //link and stage2 FPGA are the same sector
-      stage1link_ids.emplace(
-          HGCalTriggerBackendDetId(id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1Link, id.sector(), stage2_itr->second));
-    } else {  //link is from the next sector (anti-clockwise)
       stage1link_ids.emplace(HGCalTriggerBackendDetId(
-          id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1Link, getNextSector(id.sector()), stage2_itr->second));
+          id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1Link, id.sector(), stage2_itr->second));
+    } else {  //link is from the next sector (anti-clockwise)
+      stage1link_ids.emplace(HGCalTriggerBackendDetId(id.zside(),
+                                                      HGCalTriggerBackendDetId::BackendType::Stage1Link,
+                                                      getNextSector(id.sector()),
+                                                      stage2_itr->second));
     }
   }
 
@@ -592,7 +596,8 @@ unsigned HGCalTriggerGeometryV9Imp3::getStage1FpgaFromStage1Link(const unsigned 
   HGCalTriggerBackendDetId id(link_id);
   unsigned stage1_label = stage1link_to_stage1_.at(id.label());
 
-  return HGCalTriggerBackendDetId(id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1FPGA, id.sector(), stage1_label);
+  return HGCalTriggerBackendDetId(
+      id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1FPGA, id.sector(), stage1_label);
 }
 
 unsigned HGCalTriggerGeometryV9Imp3::getStage2FpgaFromStage1Link(const unsigned link_id) const {
@@ -615,8 +620,8 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getStage1LinksFro
 
   auto stage1_itrs = stage1_to_stage1links_.equal_range(id.label());
   for (auto stage1_itr = stage1_itrs.first; stage1_itr != stage1_itrs.second; stage1_itr++) {
-    stage1link_ids.emplace(
-        HGCalTriggerBackendDetId(id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1Link, id.sector(), stage1_itr->second));
+    stage1link_ids.emplace(HGCalTriggerBackendDetId(
+        id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1Link, id.sector(), stage1_itr->second));
   }
 
   return stage1link_ids;
@@ -628,8 +633,8 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getLpgbtsFromStag
 
   auto stage1_itrs = stage1_to_lpgbts_.equal_range(id.label());
   for (auto stage1_itr = stage1_itrs.first; stage1_itr != stage1_itrs.second; stage1_itr++) {
-    lpgbt_ids.emplace(
-        HGCalTriggerBackendDetId(id.zside(), HGCalTriggerBackendDetId::BackendType::LpGBT, id.sector(), stage1_itr->second));
+    lpgbt_ids.emplace(HGCalTriggerBackendDetId(
+        id.zside(), HGCalTriggerBackendDetId::BackendType::LpGBT, id.sector(), stage1_itr->second));
   }
 
   return lpgbt_ids;
@@ -639,7 +644,8 @@ unsigned HGCalTriggerGeometryV9Imp3::getStage1FpgaFromLpgbt(const unsigned lpgbt
   HGCalTriggerBackendDetId id(lpgbt_id);
   unsigned stage1_label = lpgbt_to_stage1_.at(id.label());
 
-  return HGCalTriggerBackendDetId(id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1FPGA, id.sector(), stage1_label);
+  return HGCalTriggerBackendDetId(
+      id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1FPGA, id.sector(), stage1_label);
 }
 
 HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getModulesFromLpgbt(const unsigned lpgbt_id) const {
@@ -670,8 +676,8 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getModulesFromLpg
     }
 
     int type = detIdWaferType(det, layer, moduleU, moduleV);
-    modules.emplace(
-        HGCalTriggerModuleDetId(HGCalTriggerSubdetector(subdet), id.zside(), type, layer, id.sector(), moduleU, moduleV));
+    modules.emplace(HGCalTriggerModuleDetId(
+        HGCalTriggerSubdetector(subdet), id.zside(), type, layer, id.sector(), moduleU, moduleV));
   }
 
   return modules;
@@ -684,8 +690,8 @@ HGCalTriggerGeometryV9Imp3::geom_set HGCalTriggerGeometryV9Imp3::getLpgbtsFromMo
   auto module_itrs = module_to_lpgbts_.equal_range(
       packLayerSubdetWaferId(id.layer(), id.triggerSubdetId(), id.moduleU(), id.moduleV()));
   for (auto module_itr = module_itrs.first; module_itr != module_itrs.second; module_itr++) {
-    lpgbt_ids.emplace(
-        HGCalTriggerBackendDetId(id.zside(), HGCalTriggerBackendDetId::BackendType::LpGBT, id.sector(), module_itr->second));
+    lpgbt_ids.emplace(HGCalTriggerBackendDetId(
+        id.zside(), HGCalTriggerBackendDetId::BackendType::LpGBT, id.sector(), module_itr->second));
   }
 
   return lpgbt_ids;
@@ -697,7 +703,8 @@ unsigned HGCalTriggerGeometryV9Imp3::getStage1FpgaFromModule(const unsigned modu
   unsigned stage1_label =
       module_to_stage1_.at(packLayerSubdetWaferId(id.layer(), id.triggerSubdetId(), id.moduleU(), id.moduleV()));
 
-  return HGCalTriggerBackendDetId(id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1FPGA, id.sector(), stage1_label);
+  return HGCalTriggerBackendDetId(
+      id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1FPGA, id.sector(), stage1_label);
 }
 
 GlobalPoint HGCalTriggerGeometryV9Imp3::getTriggerCellPosition(const unsigned trigger_cell_det_id) const {
@@ -872,9 +879,12 @@ void HGCalTriggerGeometryV9Imp3::fillMaps() {
 unsigned HGCalTriggerGeometryV9Imp3::packLayerSubdetWaferId(unsigned layer, int subdet, int waferU, int waferV) const {
   unsigned packed_value = 0;
 
-  packed_value |= ((waferU & HGCalTriggerModuleDetId::kHGCalModuleUMask) << HGCalTriggerModuleDetId::kHGCalModuleUOffset);
-  packed_value |= ((waferV & HGCalTriggerModuleDetId::kHGCalModuleVMask) << HGCalTriggerModuleDetId::kHGCalModuleVOffset);
-  packed_value |= ((subdet & HGCalTriggerModuleDetId::kHGCalTriggerSubdetMask) << HGCalTriggerModuleDetId::kHGCalTriggerSubdetOffset);
+  packed_value |=
+      ((waferU & HGCalTriggerModuleDetId::kHGCalModuleUMask) << HGCalTriggerModuleDetId::kHGCalModuleUOffset);
+  packed_value |=
+      ((waferV & HGCalTriggerModuleDetId::kHGCalModuleVMask) << HGCalTriggerModuleDetId::kHGCalModuleVOffset);
+  packed_value |= ((subdet & HGCalTriggerModuleDetId::kHGCalTriggerSubdetMask)
+                   << HGCalTriggerModuleDetId::kHGCalTriggerSubdetOffset);
   packed_value |= ((layer & HGCalTriggerModuleDetId::kHGCalLayerMask) << HGCalTriggerModuleDetId::kHGCalLayerOffset);
   return packed_value;
 }
@@ -883,7 +893,8 @@ void HGCalTriggerGeometryV9Imp3::unpackLayerSubdetWaferId(
     unsigned wafer, unsigned& layer, int& subdet, int& waferU, int& waferV) const {
   waferU = (wafer >> HGCalTriggerModuleDetId::kHGCalModuleUOffset) & HGCalTriggerModuleDetId::kHGCalModuleUMask;
   waferV = (wafer >> HGCalTriggerModuleDetId::kHGCalModuleVOffset) & HGCalTriggerModuleDetId::kHGCalModuleVMask;
-  subdet = (wafer >> HGCalTriggerModuleDetId::kHGCalTriggerSubdetOffset) & HGCalTriggerModuleDetId::kHGCalTriggerSubdetMask;
+  subdet =
+      (wafer >> HGCalTriggerModuleDetId::kHGCalTriggerSubdetOffset) & HGCalTriggerModuleDetId::kHGCalTriggerSubdetMask;
   layer = (wafer >> HGCalTriggerModuleDetId::kHGCalLayerOffset) & HGCalTriggerModuleDetId::kHGCalLayerMask;
 }
 
