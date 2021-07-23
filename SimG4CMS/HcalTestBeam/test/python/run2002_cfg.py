@@ -76,11 +76,7 @@ process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
-                             'EcalTBH4BeamDetector',
-                             'HcalTB02SensitiveDetector',
-                             'HcalTB06BeamDetector',
-                             'EcalSensitiveDetector',
-                             'HcalSensitiveDetector']
+                             'HcalTB02SensitiveDetector']
 process.g4SimHits.CaloSD.EminHits = [0.0,0.0,0.0,0.0]
 process.g4SimHits.CaloSD.TmaxHits = [1000.0,1000.0,1000.0,1000.0]
 process.g4SimHits.CaloSD.UseMap = True
