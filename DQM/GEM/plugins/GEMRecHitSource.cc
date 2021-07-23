@@ -107,7 +107,7 @@ void GEMRecHitSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   loadChambers();
 
   ibooker.cd();
-  ibooker.setCurrentFolder("GEM/recHit");
+  ibooker.setCurrentFolder("GEM/RecHits");
 
   nCLSMax_ = 10;
   fRadiusMin_ = 120.0;

@@ -50,7 +50,6 @@ private:
   void SetLabelOHStatus(MonitorElement *h2Status);
   void SetLabelVFATStatus(MonitorElement *h2Status);
 
-  edm::EDGetToken tagDigi_;
   edm::EDGetToken tagVFAT_;
   edm::EDGetToken tagOH_;
   edm::EDGetToken tagAMC_;
@@ -79,7 +78,7 @@ private:
   Int_t nAMCSlots_;
 
   int nBitAMC13_ = 10;
-  int nBitAMC_ = 13;
+  int nBitAMC_ = 12;
   int nBitOH_ = 17;
   int nBitVFAT_ = 7;
 };
@@ -88,7 +87,6 @@ using namespace std;
 using namespace edm;
 
 GEMDAQStatusSource::GEMDAQStatusSource(const edm::ParameterSet &cfg) : GEMDQMBase(cfg) {
-  tagDigi_ = consumes<GEMDigiCollection>(cfg.getParameter<edm::InputTag>("digisInputLabel"));
   tagVFAT_ = consumes<GEMVFATStatusCollection>(cfg.getParameter<edm::InputTag>("VFATInputLabel"));
   tagOH_ = consumes<GEMOHStatusCollection>(cfg.getParameter<edm::InputTag>("OHInputLabel"));
   tagAMC_ = consumes<GEMAMCStatusCollection>(cfg.getParameter<edm::InputTag>("AMCInputLabel"));
@@ -99,7 +97,6 @@ GEMDAQStatusSource::GEMDAQStatusSource(const edm::ParameterSet &cfg) : GEMDQMBas
 
 void GEMDAQStatusSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("digisInputLabel", edm::InputTag("muonGEMDigis", ""));
   desc.add<edm::InputTag>("VFATInputLabel", edm::InputTag("muonGEMDigis", "VFATStatus"));
   desc.add<edm::InputTag>("OHInputLabel", edm::InputTag("muonGEMDigis", "OHStatus"));
   desc.add<edm::InputTag>("AMCInputLabel", edm::InputTag("muonGEMDigis", "AMCStatus"));
@@ -116,13 +113,16 @@ void GEMDAQStatusSource::SetLabelAMC13Status(MonitorElement *h2Status) {
   h2Status->setBinLabel(unBinPos++, "Good", 2);
   h2Status->setBinLabel(unBinPos++, "Invalid AMC", 2);
   h2Status->setBinLabel(unBinPos++, "Invalid size", 2);
-  h2Status->setBinLabel(unBinPos++, "Fail on trailer check", 2);
-  h2Status->setBinLabel(unBinPos++, "Fail on fragment length", 2);
-  h2Status->setBinLabel(unBinPos++, "Fail on trailer match", 2);
+  h2Status->setBinLabel(unBinPos++, "Fail trailer check", 2);
+  h2Status->setBinLabel(unBinPos++, "Fail fragment length", 2);
+  h2Status->setBinLabel(unBinPos++, "Fail trailer match", 2);
   h2Status->setBinLabel(unBinPos++, "More trailer", 2);
   h2Status->setBinLabel(unBinPos++, "CRC modified", 2);
   h2Status->setBinLabel(unBinPos++, "S-link error", 2);
   h2Status->setBinLabel(unBinPos++, "Wrong FED ID", 2);
+
+  h2Status->setBinLabel(1, "Negative region", 1);
+  h2Status->setBinLabel(2, "Positive region", 1);
 }
 
 void GEMDAQStatusSource::SetLabelAMCStatus(MonitorElement *h2Status) {
@@ -156,7 +156,7 @@ void GEMDAQStatusSource::SetLabelOHStatus(MonitorElement *h2Status) {
   h2Status->setBinLabel(unBinPos++, "Out of Sync AMC vs VFAT", 2);
   h2Status->setBinLabel(unBinPos++, "Out of Sync VFAT vs VFAT", 2);
   h2Status->setBinLabel(unBinPos++, "BX mismatch AMC vs VFAT", 2);
-  h2Status->setBinLabel(unBinPos++, "1st bit BX mismatch VFAT vs VFAT", 2);
+  h2Status->setBinLabel(unBinPos++, "BX mismatch VFAT vs VFAT", 2);
   h2Status->setBinLabel(unBinPos++, "Input FIFO underflow", 2);
 }
 
@@ -189,8 +189,8 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
   h2AMC13Status_ = ibooker.book2D("amc13_statusflag",
                                   "Status of AMC13;AMC13;",
                                   2,
-                                  -0.5,
                                   0.5,
+                                  2.5,
                                   nBitAMC13_,
                                   0.5,
                                   nBitAMC13_ + 0.5);
@@ -234,7 +234,7 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
   mapStatusOH_ =
       MEMap3Inf(this, "oh_input_status", "OctoHybrid Input Status", 36, 0.5, 36.5, nBitOH_, 0.5, nBitOH_ + 0.5, "Chamber");
   mapStatusVFAT_ =
-      MEMap3Inf(this, "vfat_status", "VFAT Quality Status", 24, 0.5, 24.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
+      MEMap3Inf(this, "vfat_status", "VFAT Status", 24, 0.5, 24.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
   mapOHNumVFAT_ = MEMap3Inf(this,
                              "oh_numVFATs",
                              "Number of VFATs in OHs",
@@ -246,11 +246,11 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
                              24 + 0.5);  // FIXME: The maximum number of VFATs is different for each stations
 
   mapStatusWarnVFATPerLayer_ = MEMap3Inf(
-      this, "vfat_statusWarnSum", "Summary on VFAT Quality Status", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
+      this, "vfat_statusWarnSum", "Summary on VFAT Status", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
   mapStatusErrVFATPerLayer_ = MEMap3Inf(
-      this, "vfat_statusErrSum", "Summary on VFAT Quality Status", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
+      this, "vfat_statusErrSum", "Summary on VFAT Status", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
   mapStatusVFATPerCh_ =
-      MEMap4Inf(this, "vfat_status", "VFAT Quality Status", 24, 0.5, 24.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
+      MEMap4Inf(this, "vfat_status", "VFAT Status", 24, 0.5, 24.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
 
   GenerateMEPerChamber(ibooker);
 
@@ -305,13 +305,11 @@ int GEMDAQStatusSource::ProcessWithMEMap3WithChamber(BookingHelper &bh, ME4IdsKe
 }
 
 void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const &eventSetup) {
-  edm::Handle<GEMDigiCollection> gemDigis;
   edm::Handle<GEMVFATStatusCollection> gemVFAT;
   edm::Handle<GEMOHStatusCollection> gemOH;
   edm::Handle<GEMAMCStatusCollection> gemAMC;
   edm::Handle<GEMAMC13StatusCollection> gemAMC13;
 
-  event.getByToken(tagDigi_, gemDigis);
   event.getByToken(tagVFAT_, gemVFAT);
   event.getByToken(tagOH_, gemOH);
   event.getByToken(tagAMC_, gemAMC);
@@ -321,9 +319,9 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
     int fedId = (*amc13It).first;
     if (mapFEDIdToRe_.find(fedId) == mapFEDIdToRe_.end()) continue;
     int nXBin = 0;
-    if (mapFEDIdToRe_[fedId] > 0 ) {
+    if (mapFEDIdToRe_[fedId] < 0 ) {
       nXBin = 1;
-    } else if (mapFEDIdToRe_[fedId] < 0) {
+    } else if (mapFEDIdToRe_[fedId] > 0) {
       nXBin = 2;
     } else {
       edm::LogError(log_category_) << "+++ Error : Unknown FED Id +++\n" << std::endl;
@@ -357,10 +355,10 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
   for (auto amcIt = gemAMC->begin(); amcIt != gemAMC->end(); ++amcIt) {
     int fedId = (*amcIt).first;
     if (mapFEDIdToRe_.find(fedId) == mapFEDIdToRe_.end()) continue;
-    if (mapFEDIdToRe_[fedId] > 0) {
-      h2AMCStatus = h2AMCStatusPos_;
-    } else if (mapFEDIdToRe_[fedId] < 0) {
+    if (mapFEDIdToRe_[fedId] < 0) {
       h2AMCStatus = h2AMCStatusNeg_;
+    } else if (mapFEDIdToRe_[fedId] > 0) {
+      h2AMCStatus = h2AMCStatusPos_;
     } else {
       edm::LogError(log_category_) << "+++ Error : Unknown FED Id +++\n" << std::endl;
       continue;
