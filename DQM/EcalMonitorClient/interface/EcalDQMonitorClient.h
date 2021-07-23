@@ -6,10 +6,15 @@
 #include "DQM/EcalCommon/interface/StatusManager.h"
 
 #include "DQM/EcalMonitorClient/interface/DQWorkerClient.h"
+#include "CondFormats/EcalObjects/interface/EcalDQMChannelStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalDQMTowerStatus.h"
+#include "CondFormats/DataRecord/interface/EcalDQMChannelStatusRcd.h"
+#include "CondFormats/DataRecord/interface/EcalDQMTowerStatusRcd.h"
+
 
 class EcalDQMonitorClient : public DQMEDHarvester, public ecaldqm::EcalDQMonitor {
 public:
-  EcalDQMonitorClient(edm::ParameterSet const&);
+  EcalDQMonitorClient(edm::ParameterSet const&);//, edm::ConsumesCollector& );
   ~EcalDQMonitorClient() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
@@ -27,8 +32,10 @@ private:
 
   unsigned eventCycleLength_;
   unsigned iEvt_;
-
+  edm::ESGetToken<EcalDQMChannelStatus, EcalDQMChannelStatusRcd> cStHndl;
+  edm::ESGetToken<EcalDQMTowerStatus, EcalDQMTowerStatusRcd> tStHndl;
   ecaldqm::StatusManager statusManager_;
+
 };
 
 #endif

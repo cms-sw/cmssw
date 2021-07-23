@@ -10,9 +10,13 @@
 #include <limits>
 
 EcalMEFormatter::EcalMEFormatter(edm::ParameterSet const &_ps) : DQMEDHarvester(), ecaldqm::DQWorker() {
-  initialize("EcalMEFormatter", _ps);
+  //edm::ConsumesCollector collector(consumesCollector()); 
+  initialize("EcalMEFormatter", _ps);//, collector);
   setME(_ps.getUntrackedParameterSet("MEs"));
   verbosity_ = _ps.getUntrackedParameter<int>("verbosity", 0);
+  //edm::ConsumesCollector collector(consumesCollector());
+  //DQWorker *worker;//(workerFactories_.at(_name)());
+  //worker->setTokens(collector); 
 }
 
 /*static*/

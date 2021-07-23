@@ -14,17 +14,21 @@
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include <ctime>
 #include <sstream>
 
 namespace ecaldqm {
   EcalDQMonitor::EcalDQMonitor(edm::ParameterSet const &_ps)
       : workers_(),
+        //collector(),
         moduleName_(_ps.getUntrackedParameter<std::string>("moduleName")),
-        verbosity_(_ps.getUntrackedParameter<int>("verbosity")) {
+        verbosity_(_ps.getUntrackedParameter<int>("verbosity")){
     std::vector<std::string> workerNames(_ps.getUntrackedParameter<std::vector<std::string>>("workers"));
     edm::ParameterSet const &workerParams(_ps.getUntrackedParameterSet("workerParameters"));
     edm::ParameterSet const &commonParams(_ps.getUntrackedParameterSet("commonParameters"));
+    //edm::ConsumesCollector collector(consumesCollector());
 
     std::for_each(workerNames.begin(), workerNames.end(), [&](std::string const &name) {
       if (verbosity_ > 0)
@@ -34,6 +38,7 @@ namespace ecaldqm {
             name, verbosity_, commonParams, workerParams.getUntrackedParameterSet(name)));
         if (worker->onlineMode())
           worker->setTime(time(nullptr));
+	 // worker->setTokens(collector);}
         workers_.push_back(worker);
       } catch (std::exception &) {
         edm::LogError("EcalDQM") << "Worker " << name << " not defined";
