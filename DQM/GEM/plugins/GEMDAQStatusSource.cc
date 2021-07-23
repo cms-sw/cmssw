@@ -1,87 +1,4 @@
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-#include "Validation/MuonGEMHits/interface/GEMValidationUtils.h"
-
-#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMVFATStatusCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMOHStatusCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMAMCStatusCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMAMC13StatusCollection.h"
-
-#include "DQM/GEM/interface/GEMDQMBase.h"
-
-#include <string>
-
-//----------------------------------------------------------------------------------------------------
-
-class GEMDAQStatusSource : public GEMDQMBase {
-public:
-  explicit GEMDAQStatusSource(const edm::ParameterSet &cfg);
-  ~GEMDAQStatusSource() override{};
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
-
-protected:
-  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override{};
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
-
-  void FillWithRiseErr(MonitorElement *h, Int_t nX, Int_t nY, Bool_t &bErr) {
-    h->Fill(nX, nY);
-    bErr = true;
-  };
-
-private:
-  int ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) override;
-  int ProcessWithMEMap3WithChamber(BookingHelper &bh, ME4IdsKey key) override;
-
-  void SetLabelAMC13Status(MonitorElement *h2Status);
-  void SetLabelAMCStatus(MonitorElement *h2Status);
-  void SetLabelOHStatus(MonitorElement *h2Status);
-  void SetLabelVFATStatus(MonitorElement *h2Status);
-
-  edm::EDGetToken tagVFAT_;
-  edm::EDGetToken tagOH_;
-  edm::EDGetToken tagAMC_;
-  edm::EDGetToken tagAMC13_;
-
-  MonitorElement *h2AMC13Status_;
-  MonitorElement *h2AMCStatusPos_;
-  MonitorElement *h2AMCStatusNeg_;
-  MonitorElement *h2AMCNumOHPos_;
-  MonitorElement *h2AMCNumOHNeg_;
-
-  MEMap3Inf mapStatusOH_;
-  MEMap3Inf mapStatusVFAT_;
-  MEMap3Inf mapOHNumVFAT_;
-
-  MEMap3Inf mapStatusWarnVFATPerLayer_;
-  MEMap3Inf mapStatusErrVFATPerLayer_;
-  MEMap4Inf mapStatusVFATPerCh_;
-
-  MonitorElement *h2SummaryStatusWarning;
-  MonitorElement *h2SummaryStatusError;
-
-  Int_t nBXMin_, nBXMax_;
-
-  std::map<UInt_t, int> mapFEDIdToRe_;
-  Int_t nAMCSlots_;
-
-  int nBitAMC13_ = 10;
-  int nBitAMC_ = 12;
-  int nBitOH_ = 17;
-  int nBitVFAT_ = 7;
-};
+#include "DQM/GEM/interface/GEMDAQStatusSource.h"
 
 using namespace std;
 using namespace edm;
@@ -121,8 +38,8 @@ void GEMDAQStatusSource::SetLabelAMC13Status(MonitorElement *h2Status) {
   h2Status->setBinLabel(unBinPos++, "S-link error", 2);
   h2Status->setBinLabel(unBinPos++, "Wrong FED ID", 2);
 
-  h2Status->setBinLabel(1, "Negative region", 1);
-  h2Status->setBinLabel(2, "Positive region", 1);
+  h2Status->setBinLabel(1, "GE11-N", 1);
+  h2Status->setBinLabel(2, "GE11-P", 1);
 }
 
 void GEMDAQStatusSource::SetLabelAMCStatus(MonitorElement *h2Status) {
@@ -148,6 +65,7 @@ void GEMDAQStatusSource::SetLabelOHStatus(MonitorElement *h2Status) {
   h2Status->setBinLabel(unBinPos++, "Input FIFO near full", 2);
   h2Status->setBinLabel(unBinPos++, "L1A FIFO near full", 2);
   h2Status->setBinLabel(unBinPos++, "Event size warn", 2);
+  h2Status->setBinLabel(unBinPos++, "Invalid VFAT", 2);
   h2Status->setBinLabel(unBinPos++, "Event FIFO full", 2);
   h2Status->setBinLabel(unBinPos++, "Input FIFO full", 2);
   h2Status->setBinLabel(unBinPos++, "L1A FIFO full", 2);
@@ -158,6 +76,7 @@ void GEMDAQStatusSource::SetLabelOHStatus(MonitorElement *h2Status) {
   h2Status->setBinLabel(unBinPos++, "BX mismatch AMC vs VFAT", 2);
   h2Status->setBinLabel(unBinPos++, "BX mismatch VFAT vs VFAT", 2);
   h2Status->setBinLabel(unBinPos++, "Input FIFO underflow", 2);
+  h2Status->setBinLabel(unBinPos++, "Bad VFAT count", 2);
 }
 
 void GEMDAQStatusSource::SetLabelVFATStatus(MonitorElement *h2Status) {
@@ -187,7 +106,7 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
   ibooker.setCurrentFolder("GEM/DAQStatus");
 
   h2AMC13Status_ = ibooker.book2D("amc13_statusflag",
-                                  "Status of AMC13;AMC13;",
+                                  "AMC13 Status;AMC13;",
                                   2,
                                   0.5,
                                   2.5,
@@ -195,7 +114,7 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
                                   0.5,
                                   nBitAMC13_ + 0.5);
   h2AMCStatusPos_ = ibooker.book2D("amc_statusflagPos",
-                                   "Status of AMC slots (positive region);AMC slot;",
+                                   "AMC Status GE11-P;AMC slot;",
                                    nAMCSlots_,
                                    -0.5,
                                    nAMCSlots_ - 0.5,
@@ -203,52 +122,27 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
                                    0.5,
                                    nBitAMC_ + 0.5);
   h2AMCStatusNeg_ = ibooker.book2D("amc_statusflagNeg",
-                                   "Status of AMC slots (negative region);AMC slot;",
+                                   "AMC Status GE11-N;AMC slot;",
                                    nAMCSlots_,
                                    -0.5,
                                    nAMCSlots_ - 0.5,
                                    nBitAMC_,
                                    0.5,
                                    nBitAMC_ + 0.5);
-  h2AMCNumOHPos_ = ibooker.book2D("amc_numOHsPos",
-                                  "Number of OHs in AMCs (positive region);AMC slot;Number of OHs",
-                                  nAMCSlots_,
-                                  -0.5,
-                                  nAMCSlots_ - 0.5,
-                                  41,
-                                  -0.5,
-                                  41 - 0.5);
-  h2AMCNumOHNeg_ = ibooker.book2D("amc_numOHsNeg",
-                                  "Number of OHs in AMCs (negative region);AMC slot;Number of OHs",
-                                  nAMCSlots_,
-                                  -0.5,
-                                  nAMCSlots_ - 0.5,
-                                  41,
-                                  -0.5,
-                                  41 - 0.5);
 
   SetLabelAMC13Status(h2AMC13Status_);
   SetLabelAMCStatus(h2AMCStatusPos_);
   SetLabelAMCStatus(h2AMCStatusNeg_);
 
   mapStatusOH_ =
-      MEMap3Inf(this, "oh_input_status", "OctoHybrid Input Status", 36, 0.5, 36.5, nBitOH_, 0.5, nBitOH_ + 0.5, "Chamber");
+      MEMap3Inf(this, "oh_status", "OctoHybrid Status", 36, 0.5, 36.5, nBitOH_, 0.5, nBitOH_ + 0.5, "Chamber");
   mapStatusVFAT_ =
       MEMap3Inf(this, "vfat_status", "VFAT Status", 24, 0.5, 24.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
-  mapOHNumVFAT_ = MEMap3Inf(this,
-                             "oh_numVFATs",
-                             "Number of VFATs in OHs",
-                             36,
-                             0.5,
-                             36.5,
-                             24 + 1,
-                             -0.5,
-                             24 + 0.5);  // FIXME: The maximum number of VFATs is different for each stations
 
   mapStatusWarnVFATPerLayer_ = MEMap3Inf(
-      this, "vfat_statusWarnSum", "Summary on VFAT Status", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
+      this, "vfat_statusWarnSum", "VFAT reporting errors/warnings", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
   mapStatusErrVFATPerLayer_ = MEMap3Inf(
-      this, "vfat_statusErrSum", "Summary on VFAT Status", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
+      this, "vfat_statusErrSum", "VFAT reporting errors/warnings", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
   mapStatusVFATPerCh_ =
       MEMap4Inf(this, "vfat_status", "VFAT Status", 24, 0.5, 24.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
 
@@ -256,6 +150,9 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
 
   h2SummaryStatusWarning = CreateSummaryHist(ibooker, "summaryStatusWarning");
   h2SummaryStatusError   = CreateSummaryHist(ibooker, "summaryStatusError");
+
+  h2SummaryStatusWarning->setTitle("Chambers with OH or VFAT errors");
+  h2SummaryStatusError->setTitle("Chambers with OH or VFAT warnings");
 }
 
 int GEMDAQStatusSource::ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) {
@@ -284,10 +181,6 @@ int GEMDAQStatusSource::ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) {
   mapStatusVFAT_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 1);
 
   SetLabelVFATStatus(mapStatusVFAT_.FindHist(key));
-
-  mapOHNumVFAT_.SetBinConfX(stationInfo.nNumChambers_);
-  mapOHNumVFAT_.bookND(bh, key);
-  mapOHNumVFAT_.SetLabelForChambers(key, 1);
 
   return 0;
 }
