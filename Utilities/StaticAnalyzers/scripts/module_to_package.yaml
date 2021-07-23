@@ -6,8 +6,6 @@ Alignment/CommonAlignmentProducer:
   reco::modules::NoEventSetupInit<TrackConfigSelector> >
 Alignment/LaserAlignment:
 - LaserAlignmentEventFilter
-Alignment/MuonAlignmentAlgorithms:
-- MuonMillepedeTrackRefitter
 CommonTools/RecoAlgos:
 - ObjectSelector<CosmicTrackingParticleSelector, std::vector<TrackingParticle, std::allocator<TrackingParticle>
   >, NonNullNumberSelector, helper::NullPostProcessor<std::vector<TrackingParticle,
