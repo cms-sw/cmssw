@@ -40,6 +40,7 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCALCTCrossCLCT.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeCathodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityAssignment.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 
@@ -58,7 +59,7 @@ public:
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
-  virtual void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
+  void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
 
   /*
     Returns vector of good correlated LCTs in the read-out time window.

@@ -21,14 +21,14 @@ public:
   GEMInternalCluster(const GEMDetId& id, const GEMPadDigiCluster& cluster1, const GEMPadDigiCluster& cluster2);
 
   // empty object
-  GEMInternalCluster() {}
+  GEMInternalCluster();
 
   GEMDetId id() const { return id_; }
   GEMPadDigiCluster cl1() const { return cl1_; }
   GEMPadDigiCluster cl2() const { return cl2_; }
 
   // an internal cluster is valid if at least one is valid
-  bool isValid() const { return cl1_.isValid() or cl2_.isValid(); }
+  bool isValid() const { return isValid_; }
 
   // return the centers of the pads
   GEMPadDigi mid1() const;
@@ -148,6 +148,8 @@ private:
   GEMDetId id_;
   GEMPadDigiCluster cl1_;
   GEMPadDigiCluster cl2_;
+
+  bool isValid_;
 
   // bunch crossing
   int bx_;
