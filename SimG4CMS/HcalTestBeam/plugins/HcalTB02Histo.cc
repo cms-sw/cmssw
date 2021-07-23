@@ -55,10 +55,10 @@ HcalTB02Histo::HcalTB02Histo(const edm::ParameterSet& ps) : rt_tbTimes(nullptr),
 #endif
 }
 
-HcalTB02Histo::~HcalTB02Histo() { 
+HcalTB02Histo::~HcalTB02Histo() {
 #ifdef EDM_ML_DEBUG
-edm::LogVerbatim("HcalTBSim") << " Deleting HcalTB02Histo";
-#endif 
+  edm::LogVerbatim("HcalTBSim") << " Deleting HcalTB02Histo";
+#endif
 }
 
 //
