@@ -1,6 +1,7 @@
 #include "L1Trigger/L1TMuonEndCap/interface/ConditionHelper.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsRcd.h"
@@ -10,18 +11,19 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
 
-ConditionHelper::ConditionHelper() : params_cache_id_(0ULL), forest_cache_id_(0ULL) {}
+ConditionHelper::ConditionHelper(edm::ConsumesCollector iC)
+    : params_cache_id_(0ULL), forest_cache_id_(0ULL), paramsToken_(iC.esConsumes()), forestToken_(iC.esConsumes()) {}
 
 ConditionHelper::~ConditionHelper() {}
 
-void ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void ConditionHelper::checkAndUpdateConditions(const edm::EventSetup& iSetup) {
   bool new_params = false;
   bool new_forests = false;
 
   // Pull configuration from the EventSetup
   auto params_setup = iSetup.get<L1TMuonEndCapParamsRcd>();
   if (params_setup.cacheIdentifier() != params_cache_id_) {
-    params_setup.get(params_);
+    params_ = params_setup.getHandle(paramsToken_);
 
     // with the magic above you can use params_->fwVersion to change emulator's behavior
     // ...
@@ -34,7 +36,7 @@ void ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const e
   // Pull pt LUT from the EventSetup
   auto forest_setup = iSetup.get<L1TMuonEndCapForestRcd>();
   if (forest_setup.cacheIdentifier() != forest_cache_id_) {
-    forest_setup.get(forest_);
+    forest_ = forest_setup.getHandle(forestToken_);
 
     // at this point we want to reload the newly pulled pT LUT
     // ...
