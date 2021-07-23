@@ -505,39 +505,39 @@ namespace SingleTopTChannelLepton {
         return;
     }
 
-    edm::Handle<reco::JetCorrector> corrector;
+    /*edm::Handle<reco::JetCorrector> corrector;
     event.getByToken(mJetCorrector, corrector);
     if (!event.getByToken(mJetCorrector, corrector))
-      return;
+      return;*/
     // load jet
     // corrector if configured such
-    //  const JetCorrector* corrector = 0;
-    //  if (!jetCorrector_.isInitialized()) {
+    const JetCorrector* corrector = nullptr;
+    if (!jetCorrector_.isInitialized()) {
 
     // check whether a jet correcto is in the event setup or not
-    //    if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<
-    //            JetCorrectionsRecord>())) {
-    //      corrector = &setup.getData(jetCorrector_);;
-    //    } else {
-    //      edm::LogVerbatim("SingleTopTChannelLeptonDQM")
-    //          << "\n"
-    //          << "-----------------------------------------------------------------"
-    //             "-------------------- \n"
-    //          << " No JetCorrectionsRecord available from EventSetup:\n"
-    //          << "  - Jets will not be corrected.\n"
-    //          << "  - If you want to change this add the following lines to your "
-    //             "cfg file:\n"
-    //          << "\n"
-    //          << "  ## load jet corrections\n"
-    //          << "  "
-    //             "process.load(\"JetMETCorrections.Configuration."
-    //             "JetCorrectionServicesAllAlgos_cff\") \n"
-    //          << "  process.prefer(\"ak5CaloL2L3\")\n"
-    //          << "\n"
-    //          << "-----------------------------------------------------------------"
-    //             "-------------------- \n";
-    //    }
-    //}
+        if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<
+                JetCorrectionsRecord>())) {
+          corrector = &setup.getData(jetCorrector_);;
+        } else {
+          edm::LogVerbatim("SingleTopTChannelLeptonDQM")
+              << "\n"
+              << "-----------------------------------------------------------------"
+                 "-------------------- \n"
+              << " No JetCorrectionsRecord available from EventSetup:\n"
+              << "  - Jets will not be corrected.\n"
+              << "  - If you want to change this add the following lines to your "
+                 "cfg file:\n"
+              << "\n"
+              << "  ## load jet corrections\n"
+              << "  "
+                 "process.load(\"JetMETCorrections.Configuration."
+                 "JetCorrectionServicesAllAlgos_cff\") \n"
+              << "  process.prefer(\"ak5CaloL2L3\")\n"
+              << "\n"
+              << "-----------------------------------------------------------------"
+                 "-------------------- \n";
+        }
+    }
     // loop jet collection
     std::vector<reco::Jet> correctedJets;
     std::vector<double> JetTagValues;
