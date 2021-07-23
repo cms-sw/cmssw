@@ -548,7 +548,6 @@ unsigned HGCalTriggerGeometryV9Imp3::getPreviousSector(const unsigned sector) co
 HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getStage1FpgasFromStage2Fpga(
     const unsigned stage2_id) const {
   geom_set stage1_ids;
-  HGCalBackendDetId id(stage2_id);
 
   geom_set stage1_links = getStage1LinksFromStage2Fpga(stage2_id);
   for (const auto& stage1_link : stage1_links) {
@@ -561,7 +560,6 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getStage1FpgasFro
 HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getStage2FpgasFromStage1Fpga(
     const unsigned stage1_id) const {
   geom_set stage2_ids;
-  HGCalBackendDetId id(stage1_id);
 
   geom_set stage1_links = getStage1LinksFromStage1Fpga(stage1_id);
   for (const auto& stage1_link : stage1_links) {
@@ -613,9 +611,12 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getStage1LinksFro
     const unsigned stage1_id) const {
   geom_set stage1link_ids;
 
-  auto stage1_itrs = stage1_to_stage1links_.equal_range(stage1_id);
+  HGCalTriggerBackendDetId id(stage1_id);
+
+  auto stage1_itrs = stage1_to_stage1links_.equal_range(id.label());
   for (auto stage1_itr = stage1_itrs.first; stage1_itr != stage1_itrs.second; stage1_itr++) {
-    stage1link_ids.emplace(stage1_itr->second);
+    stage1link_ids.emplace(
+        HGCalTriggerBackendDetId(id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1Link, id.sector(), stage1_itr->second));
   }
 
   return stage1link_ids;
