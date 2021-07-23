@@ -244,7 +244,7 @@ bool CSCGEMMatcher::matchedClusterLocHS(const CSCCLCTDigi& clct, const GEMIntern
   // 98% acceptance for clusters in odd/even chambers for muons with 5 GeV
   // {5, 0.02123785, 0.00928431}
   // This corresponds to 0.12 and 0.052 fractions of the chamber
-  // or 20 and 9 half-strips
+  // or 16 and 7 half-strips
 
   // 20 degree chamber is ~0.35 radian wide
   // 98% acceptance for clusters in odd/even chambers for muons with 5 GeV
