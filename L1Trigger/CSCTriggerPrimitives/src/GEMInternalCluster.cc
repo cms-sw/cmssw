@@ -8,14 +8,17 @@ GEMInternalCluster::GEMInternalCluster(const GEMDetId& id,
 
   // set coincidence to false first
   isCoincidence_ = false;
+  isValid_ = false;
 
   if (cluster1.isValid()) {
+    isValid_ = true;
     cl1_ = cluster1;
     bx_ = cluster1.bx() + CSCConstants::LCT_CENTRAL_BX;
     layer1_pad_ = cluster1.pads()[0];
     layer1_size_ = cluster1.pads().size();
   }
   if (cluster2.isValid()) {
+    isValid_ = true;
     cl2_ = cluster2;
     bx_ = cluster2.bx() + CSCConstants::LCT_CENTRAL_BX;
     layer2_pad_ = cluster2.pads()[0];
@@ -26,6 +29,49 @@ GEMInternalCluster::GEMInternalCluster(const GEMDetId& id,
     bx_ = cluster1.bx() + CSCConstants::LCT_CENTRAL_BX;
     isCoincidence_ = true;
   }
+
+  layer1_min_wg_ = -1;
+  layer1_max_wg_ = -1;
+  layer2_min_wg_ = -1;
+  layer2_max_wg_ = -1;
+
+  layer1_first_hs_ = -1;
+  layer2_first_hs_ = -1;
+  layer1_last_hs_ = -1;
+  layer2_last_hs_ = -1;
+
+  layer1_first_hs_me1a_ = -1;
+  layer2_first_hs_me1a_ = -1;
+  layer1_last_hs_me1a_ = -1;
+  layer2_last_hs_me1a_ = -1;
+
+  layer1_middle_hs_ = -1;
+  layer2_middle_hs_ = -1;
+
+  layer1_middle_hs_me1a_ = -1;
+  layer2_middle_hs_me1a_ = -1;
+
+  layer1_first_es_ = -1;
+  layer2_first_es_ = -1;
+  layer1_last_es_ = -1;
+  layer2_last_es_ = -1;
+
+  layer1_first_es_me1a_ = -1;
+  layer2_first_es_me1a_ = -1;
+  layer1_last_es_me1a_ = -1;
+  layer2_last_es_me1a_ = -1;
+
+  layer1_middle_es_ = -1;
+  layer2_middle_es_ = -1;
+
+  layer1_middle_es_me1a_ = -1;
+  layer2_middle_es_me1a_ = -1;
+}
+
+GEMInternalCluster::GEMInternalCluster() {
+  // set coincidence to false first
+  isCoincidence_ = false;
+  isValid_ = false;
 
   layer1_min_wg_ = -1;
   layer1_max_wg_ = -1;

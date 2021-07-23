@@ -1,5 +1,5 @@
-#ifndef L1Trigger_CSCTriggerPrimitives_LCTQualityAssignment
-#define L1Trigger_CSCTriggerPrimitives_LCTQualityAssignment
+#ifndef L1Trigger_CSCTriggerPrimitives_LCTQualityAssignment_h
+#define L1Trigger_CSCTriggerPrimitives_LCTQualityAssignment_h
 
 /** \class LCTQualityAssignment
  *
@@ -13,14 +13,12 @@
  *
  */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/GEMInternalCluster.h"
 
-class CSCALCTDigi;
-class CSCCLCTDigi;
-class GEMInternalCluster;
-
-class LCTQualityAssignment {
+class LCTQualityAssignment : public CSCBaseboard {
 public:
   // 4-bit LCT quality number. Made by TMB lookup tables and used for MPC sorting.
   enum class LCT_QualityRun2 : unsigned int {
@@ -58,31 +56,42 @@ public:
   };
 
   // constructor
-  LCTQualityAssignment(unsigned station);
+  LCTQualityAssignment(unsigned endcap,
+                       unsigned station,
+                       unsigned sector,
+                       unsigned subsector,
+                       unsigned chamber,
+                       const edm::ParameterSet& conf);
+
+  /** Default destructor. */
+  ~LCTQualityAssignment() override {}
+
+  // setter
+  void setGEMCSCBending(const bool setBend) { assignGEMCSCBending_ = setBend; }
 
   // quality for all LCTs in Run-1/2 or Run-3
-  unsigned findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, bool runCCLUT) const;
+  unsigned findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
+  unsigned findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, const GEMInternalCluster& cl) const;
+  unsigned findQuality(const CSCALCTDigi& aLCT, const GEMInternalCluster& cl) const;
+  unsigned findQuality(const CSCCLCTDigi& cLCT, const GEMInternalCluster& cl) const;
 
-  // quality for all LCTs in Run-1 and Run-2
+private:
+  // quality for all LCTs in Run-1 and Run-2 (CCLUT off)
   unsigned findQualityRun2(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
 
-  // quality for non-ME1/1 LCTs in Run-3 without GEMs
+  // quality for non-ME1/1 LCTs in Run-3 without GEMs (CCLUT on)
   unsigned findQualityRun3(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
 
-  // quality for LCTs in Run-3 with GEMs (old-style to be compatible with EMTF Run-2)
-  unsigned findQualityGEMv1(const CSCALCTDigi&, const CSCCLCTDigi&, int gemlayer) const;
+  // quality for LCTs in Run-3 with GEMs (CCLUT off)
+  // old-style to be compatible with EMTF Run-2
   unsigned findQualityGEMv1(const CSCCLCTDigi&, const GEMInternalCluster& cl) const;
   unsigned findQualityGEMv1(const CSCALCTDigi&, const CSCCLCTDigi&, const GEMInternalCluster& cl) const;
 
-  // quality for LCTs in Run-3 with GEMs
-  unsigned findQualityGEMv2(const CSCALCTDigi&, const CSCCLCTDigi&, int gemlayer) const;
-  unsigned findQualityGEMv2(const CSCALCTDigi&,
-                            const CSCCLCTDigi&,
-                            const GEMInternalCluster& cl,
-                            bool assignGEMCSCBending) const;
+  // quality for LCTs in Run-3 with GEMs (CCLUT on(
+  unsigned findQualityGEMv2(const CSCALCTDigi&, const CSCCLCTDigi&, const GEMInternalCluster& cl) const;
 
-private:
-  unsigned station_;
+  bool assignGEMCSCBending_;
+  bool runILT_;
 };
 
 #endif

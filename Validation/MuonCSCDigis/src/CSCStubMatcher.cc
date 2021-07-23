@@ -275,28 +275,9 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
       // Add ghost LCTs when there are two in bx
       // and the two don't share half-strip or wiregroup
       if (bx_to_lcts[bx].size() == 2 and addGhostLCTs_) {
-        // don't do this in station ME1/1 or ME2/1
-        if (!(ch_id.ring() == 1 and (ch_id.station() == 1 or ch_id.station() == 2))) {
-          auto lct11 = bx_to_lcts[bx][0];
-          auto lct22 = bx_to_lcts[bx][1];
-          int wg1 = lct11.getKeyWG();
-          int wg2 = lct22.getKeyWG();
-          int hs1 = lct11.getStrip();
-          int hs2 = lct22.getStrip();
-
-          if (!(wg1 == wg2 || hs1 == hs2) and lct11.getType() == CSCCorrelatedLCTDigi::ALCTCLCT and
-              lct22.getType() == CSCCorrelatedLCTDigi::ALCTCLCT) {
-            CSCCorrelatedLCTDigi lct12 = lct11;
-            lct12.setWireGroup(wg2);
-            lct12.setALCT(lct22.getALCT());
-            lcts_tmp.push_back(lct12);
-
-            CSCCorrelatedLCTDigi lct21 = lct22;
-            lct21.setWireGroup(wg1);
-            lct21.setALCT(lct11.getALCT());
-            lcts_tmp.push_back(lct21);
-          }
-        }
+        auto lct11 = bx_to_lcts[bx][0];
+        auto lct22 = bx_to_lcts[bx][1];
+        addGhostLCTs(lct11, lct22, lcts_tmp);
       }
     }
 
@@ -662,4 +643,28 @@ void CSCStubMatcher::clear() {
   chamber_to_alcts_.clear();
   chamber_to_lcts_.clear();
   chamber_to_mplcts_.clear();
+}
+
+void CSCStubMatcher::addGhostLCTs(const CSCCorrelatedLCTDigi& lct11,
+                                  const CSCCorrelatedLCTDigi& lct22,
+                                  CSCCorrelatedLCTDigiContainer& lcts_tmp) const {
+  int wg1 = lct11.getKeyWG();
+  int wg2 = lct22.getKeyWG();
+  int hs1 = lct11.getStrip();
+  int hs2 = lct22.getStrip();
+
+  if (!(wg1 == wg2 || hs1 == hs2)) {
+    // flip the ALCTs
+    CSCCorrelatedLCTDigi lct12 = lct11;
+    lct12.setWireGroup(wg2);
+    lct12.setALCT(lct22.getALCT());
+    lct12.setCLCT(lct11.getCLCT());
+    lcts_tmp.push_back(lct12);
+
+    CSCCorrelatedLCTDigi lct21 = lct22;
+    lct21.setWireGroup(wg1);
+    lct21.setALCT(lct11.getALCT());
+    lct21.setCLCT(lct22.getCLCT());
+    lcts_tmp.push_back(lct21);
+  }
 }

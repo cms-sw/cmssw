@@ -58,7 +58,7 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
   preferred_bx_match_ = tmbParams_.getParameter<std::vector<int> >("preferredBxMatch");
 
   // quality assignment
-  qualityAssignment_ = std::make_unique<LCTQualityAssignment>(station);
+  qualityAssignment_ = std::make_unique<LCTQualityAssignment>(endcap, station, sector, subsector, chamber, conf);
 
   // quality control of stubs
   qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, subsector, chamber, conf);
@@ -444,8 +444,7 @@ void CSCMotherboard::constructLCTs(
   // Bunch crossing: get it from cathode LCT if anode LCT is not there.
   int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
   thisLCT.setBX(bx);
-  thisLCT.setQuality(qualityAssignment_->findQuality(aLCT, cLCT, runCCLUT_));
-
+  thisLCT.setQuality(qualityAssignment_->findQuality(aLCT, cLCT));
   if (runCCLUT_) {
     thisLCT.setRun3(true);
     // 4-bit slope value derived with the CCLUT algorithm
@@ -537,7 +536,7 @@ void CSCMotherboard::dumpConfigParams() const {
 
 CSCALCTDigi CSCMotherboard::getBXShiftedALCT(const CSCALCTDigi& aLCT) const {
   CSCALCTDigi aLCT_shifted = aLCT;
-  aLCT_shifted.setBX(aLCT_shifted.getBX() - (CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2));
+  aLCT_shifted.setBX(aLCT_shifted.getBX() - (CSCConstants::LCT_CENTRAL_BX - CSCConstants::ALCT_CENTRAL_BX));
   return aLCT_shifted;
 }
 
