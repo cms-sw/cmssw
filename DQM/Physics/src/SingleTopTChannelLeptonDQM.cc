@@ -512,12 +512,12 @@ namespace SingleTopTChannelLepton {
     // load jet
     // corrector if configured such
     //  const JetCorrector* corrector = 0;
-    //  if (!jetCorrector_.empty()) {
+    //  if (!jetCorrector_.isInitialized()) {
 
     // check whether a jet correcto is in the event setup or not
     //    if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<
     //            JetCorrectionsRecord>())) {
-    //      corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
+    //      corrector = &setup.getData(jetCorrector_);;
     //    } else {
     //      edm::LogVerbatim("SingleTopTChannelLeptonDQM")
     //          << "\n"
