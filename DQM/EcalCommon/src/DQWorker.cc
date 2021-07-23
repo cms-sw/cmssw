@@ -9,10 +9,17 @@
 
 #include "DataFormats/Provenance/interface/EventID.h"
 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+//#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 namespace ecaldqm {
   DQWorker::DQWorker()
@@ -23,7 +30,8 @@ namespace ecaldqm {
         verbosity_(0),
         onlineMode_(false),
         willConvertToEDM_(true),
-        edso_() {}
+        //_collector(consumesCollector()), 
+        edso_() { }
 
   DQWorker::~DQWorker() noexcept(false) {}
 
@@ -44,10 +52,20 @@ namespace ecaldqm {
     _desc.addUntracked("params", workerParameters);
   }
 
+
+  void DQWorker::setToken(edm::ConsumesCollector& _collector) { 
+        std::cout<<"*** Inside SetTokens **** \n";
+  	elecMapHandle= _collector.esConsumes();
+        ttMapHandle = _collector.esConsumes(); 
+	geomHandle = _collector.esConsumes();
+ 	topoHandle = _collector.esConsumes(); 	
+  }
+//*/
   void DQWorker::initialize(std::string const &_name, edm::ParameterSet const &_commonParams) {
     name_ = _name;
     onlineMode_ = _commonParams.getUntrackedParameter<bool>("onlineMode");
     willConvertToEDM_ = _commonParams.getUntrackedParameter<bool>("willConvertToEDM");
+    //elecMapHandle= _collector.esConsumes(); 
   }
 
   void DQWorker::setME(edm::ParameterSet const &_meParams) {
@@ -84,21 +102,26 @@ namespace ecaldqm {
   }
 
   void DQWorker::setSetupObjects(edm::EventSetup const &_es) {
-    edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
-    _es.get<EcalMappingRcd>().get(elecMapHandle);
-    edso_.electronicsMap = elecMapHandle.product();
+     //edm::ESHandle<EcalElectronicsMapping> elecMapHandle_;
+     //_es.get<EcalMappingRcd>().get(elecMapHandle_);
+     //edso_.electronicsMap = elecMapHandle_.product();
+     //auto const* emap = &_es.getData(elecMapHandle);
+     edso_.electronicsMap = &_es.getData(elecMapHandle);
 
-    edm::ESHandle<EcalTrigTowerConstituentsMap> ttMapHandle;
-    _es.get<IdealGeometryRecord>().get(ttMapHandle);
-    edso_.trigtowerMap = ttMapHandle.product();
+    //edm::ESHandle<EcalTrigTowerConstituentsMap> ttMapHandle_;
+    //_es.get<IdealGeometryRecord>().get(ttMapHandle_);
+    //edso_.trigtowerMap = ttMapHandle_.product();
+    edso_.trigtowerMap = &_es.getData(ttMapHandle);
 
-    edm::ESHandle<CaloGeometry> geomHandle;
-    _es.get<CaloGeometryRecord>().get(geomHandle);
-    edso_.geometry = geomHandle.product();
+    //edm::ESHandle<CaloGeometry> geomHandle_;
+    //_es.get<CaloGeometryRecord>().get(geomHandle_);
+    //edso_.geometry = geomHandle_.product();
+    edso_.geometry = &_es.getData(geomHandle);
 
-    edm::ESHandle<CaloTopology> topoHandle;
-    _es.get<CaloTopologyRecord>().get(topoHandle);
-    edso_.topology = topoHandle.product();
+   // edm::ESHandle<CaloTopology> topoHandle_;
+   // _es.get<CaloTopologyRecord>().get(topoHandle_);
+   // edso_.topology = topoHandle_.product();
+    edso_.topology = &_es.getData(topoHandle);
   }
 
   EcalElectronicsMapping const *DQWorker::GetElectronicsMap() {
@@ -149,7 +172,7 @@ namespace ecaldqm {
     DQWorker *worker(workerFactories_.at(_name)());
     worker->setVerbosity(_verbosity);
     worker->initialize(_name, _commonParams);
-    worker->setME(_workerParams.getUntrackedParameterSet("MEs"));
+    worker->setME(_workerParams.getUntrackedParameterSet("MEs")); 
     if (_workerParams.existsAs<edm::ParameterSet>("sources", false))
       worker->setSource(_workerParams.getUntrackedParameterSet("sources"));
     if (_workerParams.existsAs<edm::ParameterSet>("params", false))
