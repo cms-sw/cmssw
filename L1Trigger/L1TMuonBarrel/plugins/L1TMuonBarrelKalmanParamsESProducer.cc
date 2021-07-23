@@ -14,25 +14,17 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESProducts.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelKalmanParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
-#include "L1Trigger/L1TMuon/interface/MicroGMTLUTFactories.h"
+#include "CondFormats/DataRecord/interface/L1TMuonBarrelKalmanParamsRcd.h"
 
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-
-#include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
-#include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
-#include "L1Trigger/L1TCommon/interface/Parameter.h"
-#include "L1Trigger/L1TCommon/interface/Mask.h"
-
-#include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsHelper.h"
+// for future, LUTs implementaion
+//#include "L1Trigger/L1TMuon/interface/MicroGMTLUTFactories.h"
+// for future, masks
+//#include "L1Trigger/L1TCommon/interface/Mask.h"
 
 // class declaration
 //
-// typedef std::map<short, short, std::less<short> > LUT;
 
 class L1TMuonBarrelKalmanParamsESProducer : public edm::ESProducer {
 public:

@@ -13,7 +13,7 @@
 
 class L1TMuonBarrelParamsRcd : public edm::eventsetup::EventSetupRecordImplementation<L1TMuonBarrelParamsRcd> {};
 
-class L1TMuonBarrelKalmanParamsRcd
-    : public edm::eventsetup::EventSetupRecordImplementation<L1TMuonBarrelKalmanParamsRcd> {};
+class L1TMuonBarrelKalmanParamsRcd :
+public edm::eventsetup::EventSetupRecordImplementation<L1TMuonBarrelKalmanParamsRcd> {};
 
 #endif
