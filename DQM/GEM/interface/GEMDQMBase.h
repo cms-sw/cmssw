@@ -174,8 +174,8 @@ public:
 
     Bool_t isOperating() { return bOperating_; };
     void SetOperating(Bool_t bOperating) { bOperating_ = bOperating; };
-    void turnOn() { bOperating_ = true; };
-    void turnOff() { bOperating_ = false; };
+    void TurnOn() { bOperating_ = true; };
+    void TurnOff() { bOperating_ = false; };
 
     TString GetName() { return strName_; };
     void SetName(TString strName) { strName_ = strName; };
@@ -244,6 +244,8 @@ public:
     };
 
     int SetLabelForChambers(K key, Int_t nAxis, Int_t nNumBin = -1) {
+      if (!bOperating_)
+        return 0;
       if (nNumBin <= 0) {
         if (nAxis == 1)
           nNumBin = nBinsX_;
@@ -266,6 +268,8 @@ public:
     };
 
     int SetLabelForVFATs(K key, Int_t nNumEtaPartitions, Int_t nAxis, Int_t nNumBin = -1) {
+      if (!bOperating_)
+        return 0;
       if (nNumBin <= 0) {
         if (nAxis == 1)
           nNumBin = nBinsX_;
@@ -350,19 +354,19 @@ public:
                   Int_t nNumChambers,
                   Int_t nNumEtaPartitions,
                   Int_t nMaxVFAT,
-                  Int_t nNumStrip)
+                  Int_t nNumDigi)
         : nRegion_(nRegion),
           nStation_(nStation),
           nLayer_(nLayer),
           nNumChambers_(nNumChambers),
           nNumEtaPartitions_(nNumEtaPartitions),
           nMaxVFAT_(nMaxVFAT),
-          nNumStrip_(nNumStrip){};
+          nNumDigi_(nNumDigi){};
 
     bool operator==(const MEStationInfo &other) const {
       return (nRegion_ == other.nRegion_ && nStation_ == other.nStation_ && nLayer_ == other.nLayer_ &&
               nNumChambers_ == other.nNumChambers_ && nNumEtaPartitions_ == other.nNumEtaPartitions_ &&
-              nMaxVFAT_ == other.nMaxVFAT_ && nNumStrip_ == other.nNumStrip_);
+              nMaxVFAT_ == other.nMaxVFAT_ && nNumDigi_ == other.nNumDigi_);
     };
 
     Int_t nRegion_;            // the region index
@@ -371,7 +375,7 @@ public:
     Int_t nNumChambers_;       // the number of chambers in the current station
     Int_t nNumEtaPartitions_;  // the number of eta partitions of the chambers
     Int_t nMaxVFAT_;   // the number of all VFATs in each chamber (= # of VFATs in eta partition * nNumEtaPartitions_)
-    Int_t nNumStrip_;  // the number of strips of each VFAT
+    Int_t nNumDigi_;  // the number of digis of each VFAT
   };
 
 public:
@@ -422,7 +426,7 @@ protected:
   int getNumEtaPartitions(const GEMStation *);
   inline int getVFATNumber(const int, const int, const int);
   inline int getVFATNumberGE11(const int, const int, const int);
-  inline int getVFATNumberByStrip(const int, const int, const int);
+  inline int getVFATNumberByDigi(const int, const int, const int);
   inline int getIEtaFromVFAT(const int station, const int vfat);
   inline int getIEtaFromVFATGE11(const int vfat);
   inline int getMaxVFAT(const int);
@@ -480,8 +484,8 @@ inline int GEMDQMBase::getVFATNumberGE11(const int station, const int ieta, cons
   return vfat_phi * nNumEtaPartitionGE11_ + (8 - ieta);
 }
 
-inline int GEMDQMBase::getVFATNumberByStrip(const int station, const int ieta, const int strip) {
-  const int vfat_phi = (strip % GEMeMap::maxChan_) ? strip / GEMeMap::maxChan_ : strip / GEMeMap::maxChan_ - 1;
+inline int GEMDQMBase::getVFATNumberByDigi(const int station, const int ieta, const int digi) {
+  const int vfat_phi = (digi % GEMeMap::maxChan_) ? digi / GEMeMap::maxChan_ : digi / GEMeMap::maxChan_ - 1;
   return getVFATNumber(station, ieta, vfat_phi);
 }
 

@@ -176,7 +176,7 @@ int GEMDQMBase::GenerateMEPerChamber(DQMStore::IBooker& ibooker) {
     }
     if (!MEMap3WithChCheck_[key3WithChamber]) {
       auto strSuffixName = GEMUtils::getSuffixName(key2) + Form("-%02i-L%i", gid.chamber(), gid.layer());
-      auto strSuffixTitle = GEMUtils::getSuffixTitle(key3) + Form(" Chamber %02i", gid.chamber());
+      auto strSuffixTitle = GEMUtils::getSuffixTitle(key2) + Form("-%02i-L%i", gid.chamber(), gid.layer());
       BookingHelper bh3Ch(ibooker, strSuffixName, strSuffixTitle);
       ProcessWithMEMap3WithChamber(bh3Ch, key3WithChamber);
       MEMap3WithChCheck_[key3WithChamber] = true;
@@ -187,22 +187,22 @@ int GEMDQMBase::GenerateMEPerChamber(DQMStore::IBooker& ibooker) {
       ME3IdsKey key2WithEta{gid.region(), gid.station(), eId.ieta()};
       ME3IdsKey key2AbsReWithEta{std::abs(gid.region()), gid.station(), eId.ieta()};
       if (!MEMap4Check_[key4]) {
-        auto strSuffixName = GEMUtils::getSuffixName(key3) + Form("_ieta%02i", eId.ieta());
-        auto strSuffixTitle = GEMUtils::getSuffixTitle(key3) + Form(" iEta %02i", eId.ieta());
+        auto strSuffixName = GEMUtils::getSuffixName(key3) + Form("-E%02i", eId.ieta());
+        auto strSuffixTitle = GEMUtils::getSuffixTitle(key3) + Form("-E%02i", eId.ieta());
         BookingHelper bh4(ibooker, strSuffixName, strSuffixTitle);
         ProcessWithMEMap4(bh4, key4);
         MEMap4Check_[key4] = true;
       }
       if (!MEMap2WithEtaCheck_[key2WithEta]) {
-        auto strSuffixName = GEMUtils::getSuffixName(key2) + Form("_ieta%02i", eId.ieta());
-        auto strSuffixTitle = GEMUtils::getSuffixTitle(key2) + Form(" iEta %02i", eId.ieta());
+        auto strSuffixName = GEMUtils::getSuffixName(key2) + Form("-E%02i", eId.ieta());
+        auto strSuffixTitle = GEMUtils::getSuffixTitle(key2) + Form("-E%02i", eId.ieta());
         BookingHelper bh3(ibooker, strSuffixName, strSuffixTitle);
         ProcessWithMEMap2WithEta(bh3, key2WithEta);
         MEMap2WithEtaCheck_[key2WithEta] = true;
       }
       if (!MEMap2AbsReWithEtaCheck_[key2AbsReWithEta]) {
-        auto strSuffixName = Form("_GE%i%i_ieta%02i", std::abs(gid.region()), gid.station(), eId.ieta());
-        auto strSuffixTitle = Form("_GE%i%i iEta %02i", std::abs(gid.region()), gid.station(), eId.ieta());
+        auto strSuffixName = Form("_GE%i%i-E%02i", std::abs(gid.region()), gid.station(), eId.ieta());
+        auto strSuffixTitle = Form(" GE%i%i-E%02i", std::abs(gid.region()), gid.station(), eId.ieta());
         BookingHelper bh3(ibooker, strSuffixName, strSuffixTitle);
         ProcessWithMEMap2AbsReWithEta(bh3, key2AbsReWithEta);
         MEMap2AbsReWithEtaCheck_[key2AbsReWithEta] = true;
