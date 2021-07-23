@@ -73,7 +73,7 @@ public:
         beamSpotToken_(iC.consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))),
         trackerDigiGeomToken_(iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
         globalTrackingGeomToken_(iC.esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()),
-        theMFToken_(iC.esConsumes<MagneticField, IdealMagneticFieldRecord>()){}
+        theMFToken_(iC.esConsumes<MagneticField, IdealMagneticFieldRecord>()) {}
 
   void select(const edm::Handle<collection>& c, const edm::Event& event, const edm::EventSetup& setup) {
     selected_.clear();

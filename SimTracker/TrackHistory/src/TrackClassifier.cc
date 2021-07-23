@@ -19,8 +19,8 @@ TrackClassifier::TrackClassifier(edm::ParameterSet const &config, edm::ConsumesC
       tracer_(config, std::move(collector)),
       quality_(config, collector),
       magneticFieldToken_(collector.esConsumes<MagneticField, IdealMagneticFieldRecord>()),
-      transientTrackBuilderToken_(collector.esConsumes<TransientTrackBuilder, TransientTrackRecord>()), 
-      tTopoHandToken_(collector.esConsumes<TrackerTopology,TrackerTopologyRcd>()) {
+      transientTrackBuilderToken_(collector.esConsumes<TransientTrackBuilder, TransientTrackRecord>()),
+      tTopoHandToken_(collector.esConsumes<TrackerTopology, TrackerTopologyRcd>()) {
   collector.consumes<edm::HepMCProduct>(hepMCLabel_);
   collector.consumes<reco::BeamSpot>(beamSpotLabel_);
 
