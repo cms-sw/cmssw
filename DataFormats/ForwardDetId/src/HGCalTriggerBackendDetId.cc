@@ -6,7 +6,8 @@ HGCalTriggerBackendDetId::HGCalTriggerBackendDetId() : DetId() {}
 
 HGCalTriggerBackendDetId::HGCalTriggerBackendDetId(uint32_t rawid) : DetId(rawid) {}
 
-HGCalTriggerBackendDetId::HGCalTriggerBackendDetId(int zp, int type, int sector, int label) : DetId(Forward, HGCTrigger) {
+HGCalTriggerBackendDetId::HGCalTriggerBackendDetId(int zp, int type, int sector, int label)
+    : DetId(Forward, HGCTrigger) {
   int classid = HGCalTriggerClassIdentifier::ModuleDetId;
   int zside = (zp < 0) ? 1 : 0;
   id_ |= (((label & kHGCalLabelMask) << kHGCalLabelOffset) | ((sector & kHGCalSectorMask) << kHGCalSectorOffset) |
@@ -36,7 +37,7 @@ HGCalTriggerBackendDetId& HGCalTriggerBackendDetId::operator=(const DetId& gen) 
 }
 
 std::ostream& operator<<(std::ostream& s, const HGCalTriggerBackendDetId& id) {
-  return s << "HGCalTriggerBackendDetId::lpGBT:Stage1 FPGA:Stage2 FPGA= " << id.isLpGBT() << ":" << id.isStage1FPGA() << ":"
-           << id.isStage1Link() << ":" << id.isStage2FPGA() << " z= " << id.zside() << " sector= " << id.sector()
+  return s << "HGCalTriggerBackendDetId::lpGBT:Stage1 FPGA:Stage2 FPGA= " << id.isLpGBT() << ":" << id.isStage1FPGA()
+           << ":" << id.isStage1Link() << ":" << id.isStage2FPGA() << " z= " << id.zside() << " sector= " << id.sector()
            << " id= " << id.label();
 }
