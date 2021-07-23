@@ -13,7 +13,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string('GeometryFileRcd'),
-             tag = cms.string('XMLFILE_Geometry_120DD4hepV4X_Extended2017_mc'),
+             tag = cms.string('XMLFILE_Geometry_TagXX_Extended2017_mc'),
              connect = cms.string("sqlite_file:myfile.db"),
 #             label = cms.string("Extended")
              )

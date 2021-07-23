@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryTest")
 
-process.load('Configuration.Geometry.GeometryExtended2021_cff')
-process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended_cff')
+process.load('Configuration.Geometry.GeometryExtendedReco_cff')
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(4) )

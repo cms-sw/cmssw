@@ -5,11 +5,9 @@ process = cms.Process("GeometryTest")
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('CondCore.CondDB.CondDB_cfi')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.XMLFromDBSource.label = cms.string('Extended')
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '120X_mcRun3_2021_realistic_dd4hep_v1', '')
 
 from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['run1_mc']
 
 process.source = cms.Source("EmptySource")
 
