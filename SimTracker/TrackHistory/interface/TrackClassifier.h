@@ -77,7 +77,7 @@ private:
 
   edm::ESHandle<TransientTrackBuilder> transientTrackBuilder_;
   edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
-  
+
   edm::Handle<reco::BeamSpot> beamSpot_;
 
   const TrackerTopology *tTopo_;
