@@ -132,7 +132,7 @@ int GEMDigiSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
 
   mapStripOcc_ieta_.SetBinConfX(stationInfo.nNumEtaPartitions_);
   mapStripOcc_ieta_.bookND(bh, key);
-  mapTotalDigi_layer_.SetLabelForChambers(key, 1);  // For eta partitions
+  mapTotalDigi_layer_.SetLabelForIEta(key, 1);
 
   mapStripOcc_phi_.bookND(bh, key);
   mapTotalStripPerEvt_.bookND(bh, key);
@@ -150,7 +150,7 @@ int GEMDigiSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key
   mapStripOccPerCh_.SetBinConfX(nNumCh * nNumVFATPerRoll);
   mapStripOccPerCh_.SetBinConfY(stationInfo.nNumEtaPartitions_);
   mapStripOccPerCh_.bookND(bh, key);
-  mapStripOccPerCh_.SetLabelForChambers(key, 2);  // For eta partitions
+  mapStripOccPerCh_.SetLabelForIEta(key, 2);
 
   return 0;
 }

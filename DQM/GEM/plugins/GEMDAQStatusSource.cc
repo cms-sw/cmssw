@@ -401,29 +401,28 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
 
     const GEMOHStatusCollection::Range &range = (*ohIt).second;
     for (auto OHStatus = range.first; OHStatus != range.second; ++OHStatus) {
-      Bool_t bWarn = false;
-      Bool_t bErr  = false;
-
       GEMOHStatus::Warnings warnings{OHStatus->warnings()};
-      if (warnings.EvtNF)       bWarn = mapStatusOH_.Fill(key3, gid.chamber(), 2) > 0;
-      if (warnings.InNF)        bWarn = mapStatusOH_.Fill(key3, gid.chamber(), 3) > 0;
-      if (warnings.L1aNF)       bWarn = mapStatusOH_.Fill(key3, gid.chamber(), 4) > 0;
-      if (warnings.EvtSzW)      bWarn = mapStatusOH_.Fill(key3, gid.chamber(), 5) > 0;
-      if (warnings.InValidVFAT) bWarn = mapStatusOH_.Fill(key3, gid.chamber(), 6) > 0;
+      if (warnings.EvtNF)       mapStatusOH_.Fill(key3, gid.chamber(), 2);
+      if (warnings.InNF)        mapStatusOH_.Fill(key3, gid.chamber(), 3);
+      if (warnings.L1aNF)       mapStatusOH_.Fill(key3, gid.chamber(), 4);
+      if (warnings.EvtSzW)      mapStatusOH_.Fill(key3, gid.chamber(), 5);
+      if (warnings.InValidVFAT) mapStatusOH_.Fill(key3, gid.chamber(), 6);
 
       GEMOHStatus::Errors errors{OHStatus->errors()};
-      if (errors.EvtF)         bErr = mapStatusOH_.Fill(key3, gid.chamber(),  7) > 0;
-      if (errors.InF)          bErr = mapStatusOH_.Fill(key3, gid.chamber(),  8) > 0;
-      if (errors.L1aF)         bErr = mapStatusOH_.Fill(key3, gid.chamber(),  9) > 0;
-      if (errors.EvtSzOFW)     bErr = mapStatusOH_.Fill(key3, gid.chamber(), 10) > 0;
-      if (errors.Inv)          bErr = mapStatusOH_.Fill(key3, gid.chamber(), 11) > 0;
-      if (errors.OOScAvV)      bErr = mapStatusOH_.Fill(key3, gid.chamber(), 12) > 0;
-      if (errors.OOScVvV)      bErr = mapStatusOH_.Fill(key3, gid.chamber(), 13) > 0;
-      if (errors.BxmAvV)       bErr = mapStatusOH_.Fill(key3, gid.chamber(), 14) > 0;
-      if (errors.BxmVvV)       bErr = mapStatusOH_.Fill(key3, gid.chamber(), 15) > 0;
-      if (errors.InUfw)        bErr = mapStatusOH_.Fill(key3, gid.chamber(), 16) > 0;
-      if (errors.badVFatCount) bErr = mapStatusOH_.Fill(key3, gid.chamber(), 17) > 0;
+      if (errors.EvtF)         mapStatusOH_.Fill(key3, gid.chamber(),  7);
+      if (errors.InF)          mapStatusOH_.Fill(key3, gid.chamber(),  8);
+      if (errors.L1aF)         mapStatusOH_.Fill(key3, gid.chamber(),  9);
+      if (errors.EvtSzOFW)     mapStatusOH_.Fill(key3, gid.chamber(), 10);
+      if (errors.Inv)          mapStatusOH_.Fill(key3, gid.chamber(), 11);
+      if (errors.OOScAvV)      mapStatusOH_.Fill(key3, gid.chamber(), 12);
+      if (errors.OOScVvV)      mapStatusOH_.Fill(key3, gid.chamber(), 13);
+      if (errors.BxmAvV)       mapStatusOH_.Fill(key3, gid.chamber(), 14);
+      if (errors.BxmVvV)       mapStatusOH_.Fill(key3, gid.chamber(), 15);
+      if (errors.InUfw)        mapStatusOH_.Fill(key3, gid.chamber(), 16);
+      if (errors.badVFatCount) mapStatusOH_.Fill(key3, gid.chamber(), 17);
 
+      Bool_t bWarn = warnings.wcodes != 0;
+      Bool_t bErr  = errors.codes != 0;
       if (!bWarn && !bErr) mapStatusOH_.Fill(key3, gid.chamber(), 1);
       if (bWarn) mapChamberWarning[key4] = false;
       if (bErr)  mapChamberError[key4] = false;
@@ -439,25 +438,25 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
     for (auto vfatStat = range.first; vfatStat != range.second; ++vfatStat) {
       // NOTE: nIdxVFAT starts from 1
       Int_t nIdxVFAT = getVFATNumber(gid.station(), gid.ieta(), vfatStat->vfatPosition()) + 1;
-      Bool_t bWarn = false;
-      Bool_t bErr  = false;
 
       GEMVFATStatus::Warnings warnings{vfatStat->warnings()};
-      if (warnings.basicOFW)   bWarn = mapStatusVFAT_.Fill(key3, nIdxVFAT, 2);
-      if (warnings.zeroSupOFW) bWarn = mapStatusVFAT_.Fill(key3, nIdxVFAT, 3);
-      if (warnings.basicOFW)   bWarn = mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 2);
-      if (warnings.zeroSupOFW) bWarn = mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 3);
+      if (warnings.basicOFW)   mapStatusVFAT_.Fill(key3, nIdxVFAT, 2);
+      if (warnings.zeroSupOFW) mapStatusVFAT_.Fill(key3, nIdxVFAT, 3);
+      if (warnings.basicOFW)   mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 2);
+      if (warnings.zeroSupOFW) mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 3);
 
       GEMVFATStatus::Errors errors{(uint8_t)vfatStat->errors()};
-      if (errors.vc)            bErr = mapStatusVFAT_.Fill(key3, nIdxVFAT, 4);
-      if (errors.InValidHeader) bErr = mapStatusVFAT_.Fill(key3, nIdxVFAT, 5);
-      if (errors.EC)            bErr = mapStatusVFAT_.Fill(key3, nIdxVFAT, 6);
-      if (errors.BC)            bErr = mapStatusVFAT_.Fill(key3, nIdxVFAT, 7);
-      if (errors.vc)            bErr = mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 4);
-      if (errors.InValidHeader) bErr = mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 5);
-      if (errors.EC)            bErr = mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 6);
-      if (errors.BC)            bErr = mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 7);
+      if (errors.vc)            mapStatusVFAT_.Fill(key3, nIdxVFAT, 4);
+      if (errors.InValidHeader) mapStatusVFAT_.Fill(key3, nIdxVFAT, 5);
+      if (errors.EC)            mapStatusVFAT_.Fill(key3, nIdxVFAT, 6);
+      if (errors.BC)            mapStatusVFAT_.Fill(key3, nIdxVFAT, 7);
+      if (errors.vc)            mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 4);
+      if (errors.InValidHeader) mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 5);
+      if (errors.EC)            mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 6);
+      if (errors.BC)            mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 7);
 
+      Bool_t bWarn = warnings.wcodes != 0;
+      Bool_t bErr  = errors.codes != 0;
       if (!bWarn && !bErr) mapStatusVFAT_.Fill(key3, nIdxVFAT, 1);
       if (!bWarn && !bErr) mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 1);
       if (bWarn) mapChamberWarning[key4Ch] = false;
