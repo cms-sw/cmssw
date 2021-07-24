@@ -1,34 +1,67 @@
-#include "Validation/RecoParticleFlow/plugins/GenericBenchmarkAnalyzer.h"
 // author: Mike Schmitt, University of Florida
 // first version 11/7/2007
 // extension: Leo Neuhaus & Joanna Weng 09.2008
 // Performs matching and basic resolution plots of 2 candidate
 // (or candidate based) collections
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "RecoParticleFlow/Benchmark/interface/GenericBenchmark.h"
 
 #include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <ostream>
 #include <vector>
+
+class GenericBenchmarkAnalyzer : public edm::EDAnalyzer, public GenericBenchmark {
+public:
+  explicit GenericBenchmarkAnalyzer(const edm::ParameterSet &);
+  ~GenericBenchmarkAnalyzer() override;
+
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void beginJob() override;
+  void endJob() override;
+
+private:
+  // Inputs from Configuration File
+  std::string outputFile_;
+  edm::EDGetTokenT<edm::View<reco::Candidate>> myTruth_;
+  edm::EDGetTokenT<edm::View<reco::Candidate>> myReco_;
+  edm::InputTag inputTruthLabel_;
+  edm::InputTag inputRecoLabel_;
+  std::string benchmarkLabel_;
+  bool startFromGen_;
+  bool plotAgainstRecoQuantities_;
+  bool onlyTwoJets_;
+  double recPt_cut;
+  double minEta_cut;
+  double maxEta_cut;
+  double deltaR_cut;
+  float minDeltaEt_;
+  float maxDeltaEt_;
+  float minDeltaPhi_;
+  float maxDeltaPhi_;
+  bool doMetPlots_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(GenericBenchmarkAnalyzer);
 
 using namespace reco;
 using namespace edm;
