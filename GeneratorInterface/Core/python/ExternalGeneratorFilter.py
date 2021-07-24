@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 class ExternalGeneratorFilter(cms.EDFilter):
-    def __init__(self, prod, _external_process_waitTime_ = cms.untracked.uint32(60), _external_process_verbose_ = cms.untracked.bool(False),
+    def __init__(self, prod, _external_process_waitTime_ = cms.untracked.uint32(300), _external_process_verbose_ = cms.untracked.bool(False),
                  _external_process_components_ = cms.vstring()):
         self.__dict__['_external_process_verbose_']=_external_process_verbose_
         self.__dict__['_external_process_waitTime_']=_external_process_waitTime_
