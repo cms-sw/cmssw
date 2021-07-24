@@ -280,8 +280,9 @@ public:
     int bookND(BookingHelper &bh, K key) {
       if (!bOperating_)
         return 0;
-      if ( bIsProfile_ ) {
-        mapHist[key] = bh.bookProfile2D(strName_, strTitle_, nBinsX_, dXL_, dXH_, nBinsY_, dYL_, dYH_, dZL_, dZH_, strTitleX_, strTitleY_);
+      if (bIsProfile_) {
+        mapHist[key] = bh.bookProfile2D(
+            strName_, strTitle_, nBinsX_, dXL_, dXH_, nBinsY_, dYL_, dYH_, dZL_, dZH_, strTitleX_, strTitleY_);
       } else if (nBinsY_ > 0 && nBinsX_ > 0) {
         mapHist[key] = bh.book2D(strName_, strTitle_, nBinsX_, dXL_, dXH_, nBinsY_, dYL_, dYH_, strTitleX_, strTitleY_);
         return 0;
@@ -298,7 +299,8 @@ public:
 
     dqm::impl::MonitorElement *FindHist(K key) {
       if (mapHist.find(key) == mapHist.end()) {
-        std::cout << "WARNING: Cannot find the histogram corresponing to the given key" << std::endl;  // FIXME: It's about sending a message
+        std::cout << "WARNING: Cannot find the histogram corresponing to the given key"
+                  << std::endl;  // FIXME: It's about sending a message
         return nullptr;
       }
       return mapHist[key];
@@ -324,9 +326,7 @@ public:
       return 0;
     };
 
-    int SetLabelForIEta(K key, Int_t nAxis, Int_t nNumBin = -1) {
-      return SetLabelForChambers(key, nAxis, nNumBin);
-    };
+    int SetLabelForIEta(K key, Int_t nAxis, Int_t nNumBin = -1) { return SetLabelForChambers(key, nAxis, nNumBin); };
 
     int SetLabelForVFATs(K key, Int_t nNumEtaPartitions, Int_t nAxis, Int_t nNumBin = -1) {
       if (!bOperating_)
@@ -437,7 +437,7 @@ public:
     Int_t nLayer_;             // the layer
     Int_t nNumChambers_;       // the number of chambers in the current station
     Int_t nNumEtaPartitions_;  // the number of eta partitions of the chambers
-    Int_t nMaxVFAT_;   // the number of all VFATs in each chamber (= # of VFATs in eta partition * nNumEtaPartitions_)
+    Int_t nMaxVFAT_;  // the number of all VFATs in each chamber (= # of VFATs in eta partition * nNumEtaPartitions_)
     Int_t nNumDigi_;  // the number of digis of each VFAT
   };
 
@@ -451,12 +451,12 @@ protected:
   int readRadiusEtaPartition(int nRegion, int nStation);
 
   int GenerateMEPerChamber(DQMStore::IBooker &ibooker);
-  virtual int ProcessWithMEMap2(BookingHelper &bh, ME2IdsKey key) { return 0; };             // must be overrided
-  virtual int ProcessWithMEMap2WithEta(BookingHelper &bh, ME3IdsKey key) { return 0; };             // must be overrided
-  virtual int ProcessWithMEMap2AbsReWithEta(BookingHelper &bh, ME3IdsKey key) { return 0; };             // must be overrided
-  virtual int ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) { return 0; };             // must be overrided
-  virtual int ProcessWithMEMap4(BookingHelper &bh, ME4IdsKey key) { return 0; };             // must be overrided
-  virtual int ProcessWithMEMap3WithChamber(BookingHelper &bh, ME4IdsKey key) { return 0; };  // must be overrided
+  virtual int ProcessWithMEMap2(BookingHelper &bh, ME2IdsKey key) { return 0; };              // must be overrided
+  virtual int ProcessWithMEMap2WithEta(BookingHelper &bh, ME3IdsKey key) { return 0; };       // must be overrided
+  virtual int ProcessWithMEMap2AbsReWithEta(BookingHelper &bh, ME3IdsKey key) { return 0; };  // must be overrided
+  virtual int ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) { return 0; };              // must be overrided
+  virtual int ProcessWithMEMap4(BookingHelper &bh, ME4IdsKey key) { return 0; };              // must be overrided
+  virtual int ProcessWithMEMap3WithChamber(BookingHelper &bh, ME4IdsKey key) { return 0; };   // must be overrided
 
   int keyToRegion(ME2IdsKey key) { return std::get<0>(key); };
   int keyToRegion(ME3IdsKey key) { return std::get<0>(key); };
@@ -544,11 +544,11 @@ inline int GEMDQMBase::getVFATNumber(const int station, const int ieta, const in
 }
 
 inline int GEMDQMBase::getVFATNumberGE11(const int station, const int ieta, const int vfat_phi) {
-  return vfat_phi * nNumEtaPartitionGE11_ + (8 - ieta);
+  return vfat_phi * nNumEtaPartitionGE11_ + (nNumEtaPartitionGE11_ - ieta);
 }
 
 inline int GEMDQMBase::getVFATNumberByDigi(const int station, const int ieta, const int digi) {
-  const int vfat_phi = (digi % GEMeMap::maxChan_) ? digi / GEMeMap::maxChan_ : digi / GEMeMap::maxChan_ - 1;
+  const int vfat_phi = digi / GEMeMap::maxChan_;
   return getVFATNumber(station, ieta, vfat_phi);
 }
 

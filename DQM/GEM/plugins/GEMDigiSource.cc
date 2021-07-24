@@ -28,39 +28,31 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
   nBXMax_ = 10;
 
   mapTotalDigi_layer_ = MEMap3Inf(this, "det", "Digi Occupancy", 36, 0.5, 36.5, 24, -0.5, 24 - 0.5, "Chamber", "VFAT");
-  mapDigiOcc_ieta_ = MEMap3Inf(
-      this, "occ_ieta", "Digi iEta Occupancy", 8, 0.5, 8.5, "iEta", "Number of fired digis");
-  mapDigiOcc_phi_ = MEMap3Inf(this,
-                               "occ_phi",
-                               "Digi Phi Occupancy",
-                               108,
-                               -5,
-                               355,
-                               "#phi (degree)",
-                               "Number of fired digis");
+  mapDigiOcc_ieta_ = MEMap3Inf(this, "occ_ieta", "Digi iEta Occupancy", 8, 0.5, 8.5, "iEta", "Number of fired digis");
+  mapDigiOcc_phi_ =
+      MEMap3Inf(this, "occ_phi", "Digi Phi Occupancy", 108, -5, 355, "#phi (degree)", "Number of fired digis");
   mapTotalDigiPerEvtLayer_ = MEMap3Inf(this,
-                                  "digis_per_layer",
-                                  "Total number of digis per event for each layers",
-                                  50,
-                                  -0.5,
-                                  99.5,
-                                  "Number of fired digis",
-                                  "Events");
+                                       "digis_per_layer",
+                                       "Total number of digis per event for each layers",
+                                       50,
+                                       -0.5,
+                                       99.5,
+                                       "Number of fired digis",
+                                       "Events");
   mapTotalDigiPerEvtIEta_ = MEMap3Inf(this,
-                                  "digis_per_ieta",
-                                  "Total number of digis per event for each eta partitions",
-                                  50,
-                                  -0.5,
-                                  99.5,
-                                  "Number of fired digis",
-                                  "Events");
-  
-  mapBX_iEta_ =
-      MEMap3Inf(this, "bx", "Digi Bunch Crossing", 21, nBXMin_ - 0.5, nBXMax_ + 0.5, "Bunch crossing");
+                                      "digis_per_ieta",
+                                      "Total number of digis per event for each eta partitions",
+                                      50,
+                                      -0.5,
+                                      99.5,
+                                      "Number of fired digis",
+                                      "Events");
 
-  mapDigiOccPerCh_ = MEMap4Inf(this, "occ", "Digi Occupancy", 1, 0.5, 1.5, 1, 0.5, 1.5, "Digi", "iEta");
+  mapBX_iEta_ = MEMap3Inf(this, "bx", "Digi Bunch Crossing", 21, nBXMin_ - 0.5, nBXMax_ + 0.5, "Bunch crossing");
 
-  if ( bModeRelVal_ ) {
+  mapDigiOccPerCh_ = MEMap4Inf(this, "occ", "Digi Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Digi", "iEta");
+
+  if (bModeRelVal_) {
     mapTotalDigi_layer_.TurnOff();
     mapDigiOccPerCh_.TurnOff();
   }
@@ -70,7 +62,7 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
   GenerateMEPerChamber(ibooker);
 
   h2SummaryOcc_ = nullptr;
-  if ( !bModeRelVal_ ) {
+  if (!bModeRelVal_) {
     h2SummaryOcc_ = CreateSummaryHist(ibooker, "summaryOccDigi");
     h2SummaryOcc_->setTitle("Summary of occupancy on chambers");
     h2SummaryOcc_->setXTitle("Chamber");
@@ -169,7 +161,8 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
         }
 
         // Occupancy on a chamber
-        if ( h2SummaryOcc_ ) h2SummaryOcc_->Fill(gid.chamber(), mapStationToIdx_[key3]);
+        if (h2SummaryOcc_)
+          h2SummaryOcc_->Fill(gid.chamber(), mapStationToIdx_[key3]);
 
         bTagVFAT[nIdxVFAT] = true;
       }

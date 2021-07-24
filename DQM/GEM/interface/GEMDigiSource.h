@@ -56,12 +56,11 @@ private:
 
   MEMap4Inf mapDigiOccPerCh_;
 
-  MonitorElement *h2SummaryOcc_;
+  MonitorElement* h2SummaryOcc_;
 
   Int_t nBXMin_, nBXMax_;
 
   Bool_t bModeRelVal_;
 };
-
 
 #endif  // DQM_GEM_INTERFACE_GEMDigiSource_h
