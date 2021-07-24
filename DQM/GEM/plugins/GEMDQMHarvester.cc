@@ -48,9 +48,7 @@ protected:
                               MonitorElement *h2SrcOcc,
                               MonitorElement *h2SrcStatusE,
                               MonitorElement *h2SrcStatusW = nullptr,
-                              MonitorElement *h2SrcMal = nullptr,
                               Bool_t bVarXBin = false);
-  void synthesisCLSPlots(edm::Service<DQMStore> &store);
 
   Float_t fReportSummary_;
   std::string strOutFile_;
@@ -82,14 +80,12 @@ void GEMDQMHarvester::dqmEndLuminosityBlock(DQMStore::IBooker &,
                                             edm::EventSetup const &) {
   edm::Service<DQMStore> store;
   drawSummaryHistogram(store);
-  synthesisCLSPlots(store);
 }
 
 void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store) {
   std::string strSrcDigiOcc = "GEM/Digis/summaryOccDigi";
-  std::string strSrcDigiMal = "GEM/Digis/summaryMalfuncDigi";
-  std::string strSrcStatusW = "GEM/DAQStatus/summaryStatusWarning";
-  std::string strSrcStatusE = "GEM/DAQStatus/summaryStatusError";
+  std::string strSrcStatusW = "GEM/DAQStatus/chamberWarnings";
+  std::string strSrcStatusE = "GEM/DAQStatus/chamberErrors";
 
   std::string strSrcVFATOcc = "GEM/Digis/det";
   std::string strSrcVFATStatusW = "GEM/DAQStatus/vfat_statusWarnSum";
@@ -98,14 +94,13 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store) {
   store->setCurrentFolder(strDirSummary_);
 
   MonitorElement *h2SrcDigiOcc = store->get(strSrcDigiOcc);
-  MonitorElement *h2SrcDigiMal = store->get(strSrcDigiMal);
   MonitorElement *h2SrcStatusW = store->get(strSrcStatusW);
   MonitorElement *h2SrcStatusE = store->get(strSrcStatusE);
 
-  if (h2SrcDigiOcc != nullptr && h2SrcDigiMal != nullptr && h2SrcStatusW != nullptr && h2SrcStatusE != nullptr) {
+  if (h2SrcDigiOcc != nullptr && h2SrcStatusW != nullptr && h2SrcStatusE != nullptr) {
     MonitorElement *h2Sum = nullptr;
     createSummaryHist(store, h2SrcStatusE, h2Sum, listLayer_);
-    fReportSummary_ = refineSummaryHistogram(h2Sum, h2SrcDigiOcc, h2SrcStatusE, h2SrcStatusW, h2SrcDigiMal, true);
+    fReportSummary_ = refineSummaryHistogram(h2Sum, h2SrcDigiOcc, h2SrcStatusE, h2SrcStatusW, true);
 
     for (const auto &strSuffix : listLayer_) {
       MonitorElement *h2SrcVFATOcc = store->get(strSrcVFATOcc + strSuffix);
@@ -116,7 +111,8 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store) {
       MonitorElement *h2SumVFAT = nullptr;
       createSummaryVFAT(store, h2SrcVFATStatusE, strSuffix, h2SumVFAT);
       refineSummaryHistogram(h2SumVFAT, h2SrcVFATOcc, h2SrcVFATStatusE, h2SrcVFATStatusW);
-      h2SumVFAT->setTitle(h2SrcVFATStatusE->getTitle());
+      TString strNewTitle = h2SrcVFATStatusE->getTitle();
+      h2SumVFAT->setTitle((const char *)strNewTitle.ReplaceAll("errors", "errors/warnings"));
       h2SumVFAT->setXTitle(h2SrcVFATStatusE->getAxisTitle(1));
       h2SumVFAT->setYTitle(h2SrcVFATStatusE->getAxisTitle(2));
     }
@@ -147,6 +143,8 @@ void GEMDQMHarvester::createSummaryHist(edm::Service<DQMStore> &store,
 
   Int_t nBinX = h2Src->getNbinsX(), nBinY = h2Src->getNbinsY();
   h2Sum = store->book2D("reportSummaryMap", "", nBinX, 0.5, nBinX + 0.5, nBinY, 0.5, nBinY + 0.5);
+  h2Sum->setTitle("Summary plot");
+  h2Sum->setXTitle("Chamber");
 
   listLayers.clear();
   for (Int_t i = 1; i <= nBinX; i++)
@@ -177,7 +175,6 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(MonitorElement *h2Sum,
                                              MonitorElement *h2SrcOcc,
                                              MonitorElement *h2SrcStatusE,
                                              MonitorElement *h2SrcStatusW,
-                                             MonitorElement *h2SrcMal,
                                              Bool_t bVarXBin) {
   Int_t nBinY = h2Sum->getNbinsY();
   Int_t nAllBin = 0, nFineBin = 0;
@@ -191,10 +188,9 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(MonitorElement *h2Sum,
       Float_t fOcc = h2SrcOcc->getBinContent(i, j);
       Float_t fStatusWarn = (h2SrcStatusW != nullptr ? h2SrcStatusW->getBinContent(i, j) : 0.0);
       Float_t fStatusErr  = h2SrcStatusE->getBinContent(i, j);
-      Float_t fMal = (h2SrcMal != nullptr ? h2SrcMal->getBinContent(i, j) : 0.0);
 
       Float_t fRes = 0;
-      if (fStatusErr > 0 || fMal > 0)
+      if (fStatusErr > 0)
         fRes = 2;
       else if (fStatusWarn > 0)
         fRes = 3;
@@ -209,46 +205,6 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(MonitorElement *h2Sum,
   }
 
   return ( (Float_t)nFineBin ) / nAllBin;
-}
-
-void GEMDQMHarvester::synthesisCLSPlots(edm::Service<DQMStore> &store) {
-  std::string strHeadSrcCLSNumAve = "GEM/RecHits/rechitNumberAve";
-  std::string strHeadSrcCLSNumOv5 = "GEM/RecHits/rechitNumberOv5";
-  std::string strHeadSrcCLSAve    = "GEM/RecHits/rechit_average_pre";
-  std::string strHeadSrcCLSOv5    = "GEM/RecHits/rechit_over5_pre";
-
-  std::string strHeadDstCLSAve = "rechit_average";
-  std::string strHeadDstCLSOv5 = "rechit_over5";
-
-  for (const auto &strSuffix : listLayer_) {
-    MonitorElement *h2SrcCLSNumAve = store->get(strHeadSrcCLSNumAve + strSuffix);
-    MonitorElement *h2SrcCLSNumOv5 = store->get(strHeadSrcCLSNumOv5 + strSuffix);
-    MonitorElement *h2SrcCLSAve    = store->get(strHeadSrcCLSAve    + strSuffix);
-    MonitorElement *h2SrcCLSOv5    = store->get(strHeadSrcCLSOv5    + strSuffix);
-    if (h2SrcCLSNumAve == nullptr || h2SrcCLSNumOv5 == nullptr || h2SrcCLSAve == nullptr || h2SrcCLSOv5 == nullptr)
-      continue;
-    Int_t nBinX = h2SrcCLSNumAve->getNbinsX(), nBinY = h2SrcCLSNumAve->getNbinsY();
-    //store->setCurrentFolder(strDirRecHit_);
-    //store->setCurrentFolder(strDirSummary_);
-    MonitorElement *h2Ave = store->book2D(strHeadDstCLSAve + strSuffix, "", nBinX, 0.5, nBinX + 0.5, nBinY, 0.5, nBinY + 0.5);
-    MonitorElement *h2Ov5 = store->book2D(strHeadDstCLSOv5 + strSuffix, "", nBinX, 0.5, nBinX + 0.5, nBinY, 0.5, nBinY + 0.5);
-    copyLabels(h2SrcCLSAve, h2Ave);
-    copyLabels(h2SrcCLSOv5, h2Ov5);
-    for (Int_t j = 1; j <= nBinY; j++) {
-      for (Int_t i = 1; i <= nBinX; i++) {
-        Int_t nNum = h2SrcCLSNumAve->getBinContent(i, j);
-        if (nNum <= 0) continue;
-        h2Ave->setBinContent(i, j, h2SrcCLSAve->getBinContent(i, j) / nNum);
-      }
-    }
-    for (Int_t j = 1; j <= nBinY; j++) {
-      for (Int_t i = 1; i <= nBinX; i++) {
-        Int_t nNum = h2SrcCLSNumOv5->getBinContent(i, j);
-        if (nNum <= 0) continue;
-        h2Ov5->setBinContent(i, j, h2SrcCLSOv5->getBinContent(i, j) / nNum);
-      }
-    }
-  }
 }
 
 DEFINE_FWK_MODULE(GEMDQMHarvester);
