@@ -36,8 +36,10 @@ DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config)
       // Option to force going back to digi time at Step 2
       stepTwoFromDigi(config.getParameter<bool>("stepTwoFromDigi")),
       useUncertDB(config.getParameter<bool>("useUncertDB")),
-      readLegacyTTrigDB(config.getParameter<bool>("readLegacyTTrigDB")),
-      readLegacyVDriftDB(config.getParameter<bool>("readLegacyVDriftDB")),
+      readLegacyTTrigDB(config.existsAs<bool>("readLegacyTTrigDB") ? config.getParameter<bool>("readLegacyTTrigDB")
+                                                                   : true),
+      readLegacyVDriftDB(config.existsAs<bool>("readLegacyVDriftDB") ? config.getParameter<bool>("readLegacyVDriftDB")
+                                                                     : true),
       // Set verbose output
       debug(config.getUntrackedParameter<bool>("debug")) {}
 
