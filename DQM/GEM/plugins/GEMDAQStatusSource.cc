@@ -105,7 +105,7 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
   ibooker.cd();
   ibooker.setCurrentFolder("GEM/DAQStatus");
 
-  h2AMC13Status_ = ibooker.book2D("amc13_statusflag",
+  h2AMC13Status_ = ibooker.book2D("amc13_status",
                                   "AMC13 Status;AMC13;",
                                   2,
                                   0.5,
@@ -113,16 +113,16 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
                                   nBitAMC13_,
                                   0.5,
                                   nBitAMC13_ + 0.5);
-  h2AMCStatusPos_ = ibooker.book2D("amc_statusflagPos",
-                                   "AMC Status GE11-P;AMC slot;",
+  h2AMCStatusNeg_ = ibooker.book2D("amc_status_GE11-N",
+                                   "AMC Status GE11-N;AMC slot;",
                                    nAMCSlots_,
                                    -0.5,
                                    nAMCSlots_ - 0.5,
                                    nBitAMC_,
                                    0.5,
                                    nBitAMC_ + 0.5);
-  h2AMCStatusNeg_ = ibooker.book2D("amc_statusflagNeg",
-                                   "AMC Status GE11-N;AMC slot;",
+  h2AMCStatusPos_ = ibooker.book2D("amc_status_GE11-P",
+                                   "AMC Status GE11-P;AMC slot;",
                                    nAMCSlots_,
                                    -0.5,
                                    nAMCSlots_ - 0.5,
@@ -131,8 +131,8 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
                                    nBitAMC_ + 0.5);
 
   SetLabelAMC13Status(h2AMC13Status_);
-  SetLabelAMCStatus(h2AMCStatusPos_);
   SetLabelAMCStatus(h2AMCStatusNeg_);
+  SetLabelAMCStatus(h2AMCStatusPos_);
 
   mapStatusOH_ =
       MEMap3Inf(this, "oh_status", "OctoHybrid Status", 36, 0.5, 36.5, nBitOH_, 0.5, nBitOH_ + 0.5, "Chamber");
@@ -140,19 +140,19 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
       MEMap3Inf(this, "vfat_status", "VFAT Status", 24, 0.5, 24.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
 
   mapStatusWarnVFATPerLayer_ = MEMap3Inf(
-      this, "vfat_statusWarnSum", "VFAT reporting errors/warnings", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
+      this, "vfat_statusWarnSum", "VFAT reporting warnings", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
   mapStatusErrVFATPerLayer_ = MEMap3Inf(
-      this, "vfat_statusErrSum", "VFAT reporting errors/warnings", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
+      this, "vfat_statusErrSum", "VFAT reporting errors", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
   mapStatusVFATPerCh_ =
       MEMap4Inf(this, "vfat_status", "VFAT Status", 24, 0.5, 24.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
 
   GenerateMEPerChamber(ibooker);
 
-  h2SummaryStatusWarning = CreateSummaryHist(ibooker, "summaryStatusWarning");
-  h2SummaryStatusError   = CreateSummaryHist(ibooker, "summaryStatusError");
+  h2SummaryStatusWarning = CreateSummaryHist(ibooker, "chamberWarnings");
+  h2SummaryStatusError   = CreateSummaryHist(ibooker, "chamberErrors");
 
-  h2SummaryStatusWarning->setTitle("Chambers with OH or VFAT errors");
-  h2SummaryStatusError->setTitle("Chambers with OH or VFAT warnings");
+  h2SummaryStatusWarning->setTitle("Summary of OH or VFAT warnings of each chambers");
+  h2SummaryStatusError->setTitle("Summary of OH or VFAT errors of each chambers");
 }
 
 int GEMDAQStatusSource::ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) {

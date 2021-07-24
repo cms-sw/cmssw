@@ -17,8 +17,6 @@ public:
   ~GEMRecHitSource() override{};
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  typedef std::map<ME4IdsKey, std::map<Int_t, Int_t>> ME5map;
-
 protected:
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override{};
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
@@ -29,11 +27,6 @@ private:
   int ProcessWithMEMap2AbsReWithEta(BookingHelper& bh, ME3IdsKey key) override;
   int ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) override;
   int ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) override;
-  
-  void InitKey5MultiMap(ME5map &map, ME4IdsKey key1, Int_t key2) {
-    if (map.find(key1) == map.end()) map[key1][key2] = 0;
-    else if (map[key1].find(key2) == map[key1].end()) map[key1][key2] = 0;
-  };
 
   edm::EDGetToken tagRecHit_;
 
@@ -46,10 +39,7 @@ private:
   MEMap3Inf mapRecHitOcc_phi_;
   MEMap3Inf mapTotalRecHitPerEvtLayer_;
   MEMap3Inf mapTotalRecHitPerEvtIEta_;
-  //MEMap4Inf mapCLSRecHit_ieta_;
   MEMap3Inf mapCLSRecHit_ieta_;
-  MEMap3Inf mapCLSNumberAve_;
-  MEMap3Inf mapCLSNumberOv5_;
   MEMap3Inf mapCLSAverage_;
   MEMap3Inf mapCLSOver5_;
 
