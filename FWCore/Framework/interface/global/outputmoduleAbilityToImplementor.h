@@ -131,6 +131,24 @@ namespace edm {
       };
 
       template <typename T>
+      class ExternalWork : public virtual T {
+      public:
+        ExternalWork(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
+        ExternalWork(ExternalWork const&) = delete;
+        ExternalWork& operator=(ExternalWork const&) = delete;
+        ~ExternalWork() noexcept(false) override{};
+
+      private:
+        bool hasAcquire() const override { return true; }
+
+        void doAcquire_(StreamID id, EventForOutput const& event, WaitingTaskWithArenaHolder& holder) final {
+          acquire(id, event, holder);
+        }
+
+        virtual void acquire(StreamID, EventForOutput const&, WaitingTaskWithArenaHolder) const = 0;
+      };
+
+      template <typename T>
       struct AbilityToImplementor;
 
       template <>
@@ -151,6 +169,11 @@ namespace edm {
       template <typename C>
       struct AbilityToImplementor<edm::StreamCache<C>> {
         typedef edm::global::outputmodule::StreamCacheHolder<edm::global::OutputModuleBase, C> Type;
+      };
+
+      template <>
+      struct AbilityToImplementor<edm::ExternalWork> {
+        typedef edm::global::outputmodule::ExternalWork<edm::global::OutputModuleBase> Type;
       };
 
     }  // namespace outputmodule
