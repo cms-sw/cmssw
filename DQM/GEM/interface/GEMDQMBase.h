@@ -74,6 +74,23 @@ public:
       return ibooker_->book2D(name, title, nbinsx, xlow, xup, nbinsy, ylow, yup);
     }
 
+    MonitorElement *bookProfile2D(TString name,
+                                  TString title,
+                                  int nbinsx,
+                                  double xlow,
+                                  double xup,
+                                  int nbinsy,
+                                  double ylow,
+                                  double yup,
+                                  double zlow,
+                                  double zup,
+                                  TString x_title = "",
+                                  TString y_title = "") {
+      name += name_suffix_;
+      title += title_suffix_ + ";" + x_title + ";" + y_title;
+      return ibooker_->bookProfile2D(name, title, nbinsx, xlow, xup, nbinsy, ylow, yup, zlow, zup);
+    }
+
   private:
     DQMStore::IBooker *ibooker_;
     const TString name_suffix_;
@@ -103,6 +120,7 @@ public:
           strTitleX_(strTitleX),
           strTitleY_(strTitleY),
           bOperating_(true),
+          bIsProfile_(false),
           nBinsX_(nBinsX),
           dXL_(dXL),
           dXH_(dXH),
@@ -120,6 +138,7 @@ public:
           strTitleX_(strTitleX),
           strTitleY_(strTitleY),
           bOperating_(true),
+          bIsProfile_(false),
           nBinsX_(-1),
           nBinsY_(-1) {
       for (Int_t i = 0; i < (Int_t)x_binning.size(); i++)
@@ -143,12 +162,44 @@ public:
           strTitleX_(strTitleX),
           strTitleY_(strTitleY),
           bOperating_(true),
+          bIsProfile_(false),
           nBinsX_(nBinsX),
           dXL_(dXL),
           dXH_(dXH),
           nBinsY_(nBinsY),
           dYL_(dYL),
-          dYH_(dYH){};
+          dYH_(dYH),
+          dZL_(0),
+          dZH_(1024){};
+
+    MEMapInfT(GEMDQMBase *pDQMBase,  // For TProfile2D
+              TString strName,
+              TString strTitle,
+              Int_t nBinsX,
+              Double_t dXL,
+              Double_t dXH,
+              Int_t nBinsY,
+              Double_t dYL,
+              Double_t dYH,
+              Double_t dZL,
+              Double_t dZH,
+              TString strTitleX = "",
+              TString strTitleY = "")
+        : pDQMBase_(pDQMBase),
+          strName_(strName),
+          strTitle_(strTitle),
+          strTitleX_(strTitleX),
+          strTitleY_(strTitleY),
+          bOperating_(true),
+          bIsProfile_(true),
+          nBinsX_(nBinsX),
+          dXL_(dXL),
+          dXH_(dXH),
+          nBinsY_(nBinsY),
+          dYL_(dYL),
+          dYH_(dYH),
+          dZL_(dZL),
+          dZH_(dZH){};
 
     //MEMapInfT(GEMDQMBase *pDQMBase,
     //          TString strName,
@@ -177,6 +228,9 @@ public:
     void TurnOn() { bOperating_ = true; };
     void TurnOff() { bOperating_ = false; };
 
+    Bool_t isProfile() { return bIsProfile_; };
+    void SetProfile(Bool_t bIsProfile) { bIsProfile_ = bIsProfile; };
+
     TString GetName() { return strName_; };
     void SetName(TString strName) { strName_ = strName; };
     TString GetTitle() { return strTitle_; };
@@ -201,6 +255,11 @@ public:
     Double_t GetBinHighEdgeY() { return dYH_; };
     void SetBinHighEdgeY(Double_t dYH) { dYH_ = dYH; };
 
+    Double_t GetBinLowEdgeZ() { return dZL_; };
+    void SetBinLowEdgeZ(Double_t dZL) { dZL_ = dZL; };
+    Double_t GetBinHighEdgeZ() { return dZH_; };
+    void SetBinHighEdgeZ(Double_t dZH) { dZH_ = dZH; };
+
     void SetBinConfX(Int_t nBins, Double_t dL = 0.5, Double_t dH = -1048576.0) {
       nBinsX_ = nBins;
       dXL_ = dL;
@@ -221,7 +280,9 @@ public:
     int bookND(BookingHelper &bh, K key) {
       if (!bOperating_)
         return 0;
-      if (nBinsY_ > 0 && nBinsX_ > 0) {
+      if ( bIsProfile_ ) {
+        mapHist[key] = bh.bookProfile2D(strName_, strTitle_, nBinsX_, dXL_, dXH_, nBinsY_, dYL_, dYH_, dZL_, dZH_, strTitleX_, strTitleY_);
+      } else if (nBinsY_ > 0 && nBinsX_ > 0) {
         mapHist[key] = bh.book2D(strName_, strTitle_, nBinsX_, dXL_, dXH_, nBinsY_, dYL_, dYH_, strTitleX_, strTitleY_);
         return 0;
       } else if (!x_binning_.empty()) {
@@ -333,12 +394,14 @@ public:
     M mapHist;
     TString strName_, strTitle_, strTitleX_, strTitleY_;
     Bool_t bOperating_;
+    Bool_t bIsProfile_;
 
     std::vector<double> x_binning_;
     Int_t nBinsX_;
     Double_t dXL_, dXH_;
     Int_t nBinsY_;
     Double_t dYL_, dYH_;
+    Double_t dZL_, dZH_;
   };
 
   typedef MEMapInfT<MEMap2Ids, ME2IdsKey> MEMap2Inf;

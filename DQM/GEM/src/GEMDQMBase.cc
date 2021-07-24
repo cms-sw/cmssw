@@ -129,6 +129,8 @@ dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& iboo
 
   auto h2Res =
       ibooker.book2D(strName, "", nMaxNumCh_, 0.5, nMaxNumCh_ + 0.5, listLayers.size(), 0.5, listLayers.size() + 0.5);
+  h2Res->setXTitle("Chamber");
+  h2Res->setYTitle("Layer");
 
   if (h2Res == nullptr)
     return nullptr;

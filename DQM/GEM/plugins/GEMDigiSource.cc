@@ -29,23 +29,23 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
 
   mapTotalDigi_layer_ = MEMap3Inf(this, "det", "Digi Occupancy", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
   mapDigiOcc_ieta_ = MEMap3Inf(
-      this, "occ_ieta", "Digi Occupancy per eta partition", 8, 0.5, 8.5, "iEta", "Number of fired digis");
+      this, "occ_ieta", "Digi iEta Occupancy", 8, 0.5, 8.5, "iEta", "Number of fired digis");
   mapDigiOcc_phi_ = MEMap3Inf(this,
                                "occ_phi",
-                               "Digi Phi (degree) Occupancy",
+                               "Digi Phi Occupancy",
                                108,
                                -5,
                                355,
                                "#phi (degree)",
                                "Number of fired digis");
   mapTotalDigiPerEvt_ = MEMap3Inf(this,
-                                   "total_digis_per_event",
-                                   "Total number of digis per event for each layers",
-                                   50,
-                                   -0.5,
-                                   99.5,
-                                   "Number of fired digis",
-                                   "Events");
+                                  "digis_per_layer",
+                                  "Total number of digis per event for each layers",
+                                  50,
+                                  -0.5,
+                                  99.5,
+                                  "Number of fired digis",
+                                  "Events");
   
   mapBX_iEta_ =
       MEMap3Inf(this, "bx", "Digi Bunch Crossing", 21, nBXMin_ - 0.5, nBXMax_ + 0.5, "Bunch crossing");
@@ -61,11 +61,11 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
   ibooker.setCurrentFolder("GEM/Digis");
   GenerateMEPerChamber(ibooker);
 
-  h2SummaryOcc = nullptr;
-  h2SummaryMal = nullptr;
+  h2SummaryOcc_ = nullptr;
   if ( !bModeRelVal_ ) {
-    h2SummaryOcc = CreateSummaryHist(ibooker, "summaryOccDigi");
-    h2SummaryMal = CreateSummaryHist(ibooker, "summaryMalfuncDigi");
+    h2SummaryOcc_ = CreateSummaryHist(ibooker, "summaryOccDigi");
+    h2SummaryOcc_->setTitle("Summary of occupancy on chambers");
+    h2SummaryOcc_->setXTitle("Chamber");
   }
 }
 
@@ -156,7 +156,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
         }
 
         // Occupancy on a chamber
-        if ( h2SummaryOcc ) h2SummaryOcc->Fill(gid.chamber(), mapStationToIdx_[key3]);
+        if ( h2SummaryOcc_ ) h2SummaryOcc_->Fill(gid.chamber(), mapStationToIdx_[key3]);
 
         bTagVFAT[nIdxVFAT] = true;
       }
