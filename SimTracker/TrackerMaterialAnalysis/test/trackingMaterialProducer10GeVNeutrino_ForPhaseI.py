@@ -2,7 +2,8 @@
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Geometry")
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+process = cms.Process("Geometry",run2_common)
 
 readGeometryFromDB = False
 
