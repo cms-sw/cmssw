@@ -55,7 +55,7 @@ private:
 
   MEMap4Inf mapDigiOccPerCh_;
 
-  MonitorElement *h2SummaryOcc, *h2SummaryMal;
+  MonitorElement *h2SummaryOcc_;
 
   Int_t nBXMin_, nBXMax_;
 
