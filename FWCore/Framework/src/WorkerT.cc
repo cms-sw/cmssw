@@ -248,6 +248,13 @@ namespace edm {
   }
 
   template <>
+  inline void WorkerT<global::OutputModuleBase>::implDoAcquire(EventTransitionInfo const& info,
+                                                               ModuleCallingContext const* mcc,
+                                                               WaitingTaskWithArenaHolder& holder) {
+    module_->doAcquire(info, activityRegistry(), mcc, holder);
+  }
+
+  template <>
   inline void WorkerT<stream::EDProducerAdaptorBase>::implDoAcquire(EventTransitionInfo const& info,
                                                                     ModuleCallingContext const* mcc,
                                                                     WaitingTaskWithArenaHolder& holder) {

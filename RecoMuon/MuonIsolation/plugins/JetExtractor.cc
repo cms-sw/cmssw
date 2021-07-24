@@ -10,11 +10,6 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -29,9 +24,12 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
+JetExtractor::JetExtractor() {}
+
 JetExtractor::JetExtractor(const ParameterSet& par, edm::ConsumesCollector&& iC)
     : theJetCollectionToken(iC.consumes<CaloJetCollection>(par.getParameter<edm::InputTag>("JetCollectionLabel"))),
       thePropagatorName(par.getParameter<std::string>("PropagatorName")),
+      theFieldToken(iC.esConsumes()),
       theThreshold(par.getParameter<double>("Threshold")),
       theDR_Veto(par.getParameter<double>("DR_Veto")),
       theDR_Max(par.getParameter<double>("DR_Max")),
@@ -40,22 +38,15 @@ JetExtractor::JetExtractor(const ParameterSet& par, edm::ConsumesCollector&& iC)
       theAssociator(nullptr),
       thePrintTimeReport(par.getUntrackedParameter<bool>("PrintTimeReport")) {
   ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters, edm::ConsumesCollector(iC));
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, edm::ConsumesCollector(iC));
 
   //  theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC_);
-  theAssociatorParameters = new TrackAssociatorParameters();
+  theAssociatorParameters = std::make_unique<TrackAssociatorParameters>();
   theAssociatorParameters->loadParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC);
-  theAssociator = new TrackDetectorAssociator();
+  theAssociator = std::make_unique<TrackDetectorAssociator>();
 }
 
-JetExtractor::~JetExtractor() {
-  if (theAssociatorParameters)
-    delete theAssociatorParameters;
-  if (theService)
-    delete theService;
-  if (theAssociator)
-    delete theAssociator;
-}
+JetExtractor::~JetExtractor() {}
 
 void JetExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& eventSetup, const TrackCollection& muons) {
   //   LogWarning("JetExtractor")
@@ -72,10 +63,9 @@ IsoDeposit JetExtractor::deposit(const Event& event, const EventSetup& eventSetu
 
   IsoDeposit depJet(muonDir);
 
-  edm::ESHandle<MagneticField> bField;
-  eventSetup.get<IdealMagneticFieldRecord>().get(bField);
+  auto const& bField = eventSetup.getData(theFieldToken);
 
-  reco::TransientTrack tMuon(muon, &*bField);
+  reco::TransientTrack tMuon(muon, &bField);
   FreeTrajectoryState iFTS = tMuon.initialFreeState();
   TrackDetMatchInfo mInfo = theAssociator->associate(event, eventSetup, iFTS, *theAssociatorParameters);
 

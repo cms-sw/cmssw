@@ -15,6 +15,11 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 namespace muonisolation {
 
   class CaloExtractor : public reco::isodeposit::IsoDepositExtractor {
@@ -39,6 +44,9 @@ namespace muonisolation {
 
     // Label of deposit
     std::string theDepositLabel;
+
+    const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> theCaloGeomToken;
+    const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
 
     // Cone cuts and thresholds
     double theWeight_E;
