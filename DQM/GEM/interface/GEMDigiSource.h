@@ -50,7 +50,8 @@ private:
   MEMap3Inf mapTotalDigi_layer_;
   MEMap3Inf mapDigiOcc_ieta_;
   MEMap3Inf mapDigiOcc_phi_;
-  MEMap3Inf mapTotalDigiPerEvt_;
+  MEMap3Inf mapTotalDigiPerEvtLayer_;
+  MEMap3Inf mapTotalDigiPerEvtIEta_;
   MEMap3Inf mapBX_iEta_;
 
   MEMap4Inf mapDigiOccPerCh_;

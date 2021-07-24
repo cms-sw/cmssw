@@ -27,7 +27,7 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
   nBXMin_ = -10;
   nBXMax_ = 10;
 
-  mapTotalDigi_layer_ = MEMap3Inf(this, "det", "Digi Occupancy", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
+  mapTotalDigi_layer_ = MEMap3Inf(this, "det", "Digi Occupancy", 36, 0.5, 36.5, 24, -0.5, 24 - 0.5, "Chamber", "VFAT");
   mapDigiOcc_ieta_ = MEMap3Inf(
       this, "occ_ieta", "Digi iEta Occupancy", 8, 0.5, 8.5, "iEta", "Number of fired digis");
   mapDigiOcc_phi_ = MEMap3Inf(this,
@@ -38,9 +38,17 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
                                355,
                                "#phi (degree)",
                                "Number of fired digis");
-  mapTotalDigiPerEvt_ = MEMap3Inf(this,
+  mapTotalDigiPerEvtLayer_ = MEMap3Inf(this,
                                   "digis_per_layer",
                                   "Total number of digis per event for each layers",
+                                  50,
+                                  -0.5,
+                                  99.5,
+                                  "Number of fired digis",
+                                  "Events");
+  mapTotalDigiPerEvtIEta_ = MEMap3Inf(this,
+                                  "digis_per_ieta",
+                                  "Total number of digis per event for each eta partitions",
                                   50,
                                   -0.5,
                                   99.5,
@@ -71,6 +79,7 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
 
 int GEMDigiSource::ProcessWithMEMap2WithEta(BookingHelper& bh, ME3IdsKey key) {
   mapBX_iEta_.bookND(bh, key);
+  mapTotalDigiPerEvtIEta_.bookND(bh, key);
 
   return 0;
 }
@@ -79,17 +88,17 @@ int GEMDigiSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   MEStationInfo& stationInfo = mapStationInfo_[key];
 
   mapTotalDigi_layer_.SetBinConfX(stationInfo.nNumChambers_);
-  mapTotalDigi_layer_.SetBinConfY(stationInfo.nMaxVFAT_);
+  mapTotalDigi_layer_.SetBinConfY(stationInfo.nMaxVFAT_, -0.5);
   mapTotalDigi_layer_.bookND(bh, key);
   mapTotalDigi_layer_.SetLabelForChambers(key, 1);
   mapTotalDigi_layer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
   mapDigiOcc_ieta_.SetBinConfX(stationInfo.nNumEtaPartitions_);
   mapDigiOcc_ieta_.bookND(bh, key);
-  mapTotalDigi_layer_.SetLabelForIEta(key, 1);
+  mapDigiOcc_ieta_.SetLabelForIEta(key, 1);
 
   mapDigiOcc_phi_.bookND(bh, key);
-  mapTotalDigiPerEvt_.bookND(bh, key);
+  mapTotalDigiPerEvtLayer_.bookND(bh, key);
 
   return 0;
 }
@@ -116,6 +125,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
   event.getByToken(lumiScalers_, lumiScalers);
 
   std::map<ME3IdsKey, Int_t> total_digi_layer;
+  std::map<ME3IdsKey, Int_t> total_digi_eta;
   for (const auto& ch : gemChambers_) {
     GEMDetId gid = ch.id();
     ME2IdsKey key2{gid.region(), gid.station()};
@@ -129,11 +139,13 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
     for (auto iEta : ch.etaPartitions()) {
       GEMDetId eId = iEta->id();
       ME3IdsKey key3IEta{gid.region(), gid.station(), eId.ieta()};
+      if (total_digi_eta.find(key3IEta) == total_digi_eta.end())
+        total_digi_eta[key3IEta] = 0;
       const auto& digis_in_det = gemDigis->get(eId);
       for (auto d = digis_in_det.first; d != digis_in_det.second; ++d) {
         // Filling of digi occupancy
         Int_t nIdxVFAT = getVFATNumberByDigi(gid.station(), eId.ieta(), d->strip());
-        mapTotalDigi_layer_.Fill(key3, gid.chamber(), nIdxVFAT + 1);
+        mapTotalDigi_layer_.Fill(key3, gid.chamber(), nIdxVFAT);
 
         // Filling of digi
         mapDigiOcc_ieta_.Fill(key3, eId.ieta());  // Eta (partition)
@@ -148,6 +160,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
 
         // For total digis
         total_digi_layer[key3]++;
+        total_digi_eta[key3IEta]++;
 
         // Filling of bx
         Int_t nBX = std::min(std::max((Int_t)d->bx(), nBXMin_), nBXMax_);  // For under/overflow
@@ -163,7 +176,9 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
     }
   }
   for (auto [key, num_total_digi] : total_digi_layer)
-    mapTotalDigiPerEvt_.Fill(key, num_total_digi);
+    mapTotalDigiPerEvtLayer_.Fill(key, num_total_digi);
+  for (auto [key, num_total_digi] : total_digi_eta)
+    mapTotalDigiPerEvtIEta_.Fill(key, num_total_digi);
 }
 
 DEFINE_FWK_MODULE(GEMDigiSource);
