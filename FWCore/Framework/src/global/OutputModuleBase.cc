@@ -30,6 +30,7 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/EventAcquireSignalsSentry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -274,6 +275,16 @@ namespace edm {
         }
       }
       return true;
+    }
+
+    void OutputModuleBase::doAcquire(EventTransitionInfo const& info,
+                                     ActivityRegistry* act,
+                                     ModuleCallingContext const* mcc,
+                                     WaitingTaskWithArenaHolder& holder) {
+      EventForOutput e(info, moduleDescription_, mcc);
+      e.setConsumer(this);
+      EventAcquireSignalsSentry sentry(act, mcc);
+      this->doAcquire_(e.streamID(), e, holder);
     }
 
     bool OutputModuleBase::doBeginRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
