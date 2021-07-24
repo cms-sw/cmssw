@@ -9,8 +9,6 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 using namespace edm;
 using namespace std;
@@ -19,7 +17,8 @@ using namespace muonisolation;
 using reco::isodeposit::Direction;
 
 PixelTrackExtractor::PixelTrackExtractor(const ParameterSet& par, edm::ConsumesCollector&& iC)
-    : theTrackCollectionToken(iC.consumes<TrackCollection>(par.getParameter<edm::InputTag>("inputTrackCollection"))),
+    : theFieldToken(iC.esConsumes()),
+      theTrackCollectionToken(iC.consumes<TrackCollection>(par.getParameter<edm::InputTag>("inputTrackCollection"))),
       theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
       theDiff_r(par.getParameter<double>("Diff_r")),
       theDiff_z(par.getParameter<double>("Diff_z")),
@@ -71,9 +70,8 @@ Direction PixelTrackExtractor::directionAtPresetRadius(const Track& tk, double b
 IsoDeposit PixelTrackExtractor::deposit(const Event& event, const EventSetup& eventSetup, const Track& muon) const {
   static const std::string metname = "MuonIsolation|PixelTrackExtractor";
 
-  edm::ESHandle<MagneticField> bField;
-  eventSetup.get<IdealMagneticFieldRecord>().get(bField);
-  double bz = bField->inInverseGeV(GlobalPoint(0., 0., 0.)).z();
+  auto const& bField = eventSetup.getData(theFieldToken);
+  double bz = bField.inInverseGeV(GlobalPoint(0., 0., 0.)).z();
 
   Direction muonDir(directionAtPresetRadius(muon, bz));
   IsoDeposit deposit(muonDir);
