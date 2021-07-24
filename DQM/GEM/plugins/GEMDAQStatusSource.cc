@@ -86,8 +86,8 @@ void GEMDAQStatusSource::SetLabelVFATStatus(MonitorElement *h2Status) {
   h2Status->setBinLabel(unBinPos++, "Zero-sup overflow", 2);
   h2Status->setBinLabel(unBinPos++, "VFAT CRC error", 2);
   h2Status->setBinLabel(unBinPos++, "Invalid header", 2);
-  h2Status->setBinLabel(unBinPos++, "No match AMC EC", 2);
-  h2Status->setBinLabel(unBinPos++, "No match AMC BC", 2);
+  h2Status->setBinLabel(unBinPos++, "AMC EC mismatch", 2);
+  h2Status->setBinLabel(unBinPos++, "AMC BC mismatch", 2);
 }
 
 void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &iSetup) {
@@ -137,14 +137,14 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
   mapStatusOH_ =
       MEMap3Inf(this, "oh_status", "OctoHybrid Status", 36, 0.5, 36.5, nBitOH_, 0.5, nBitOH_ + 0.5, "Chamber");
   mapStatusVFAT_ =
-      MEMap3Inf(this, "vfat_status", "VFAT Status", 24, 0.5, 24.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
+      MEMap3Inf(this, "vfat_status", "VFAT Status", 24, -0.5, 24 - 0.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
 
   mapStatusWarnVFATPerLayer_ = MEMap3Inf(
-      this, "vfat_statusWarnSum", "VFAT reporting warnings", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
+      this, "vfat_statusWarnSum", "VFAT reporting warnings", 36, 0.5, 36.5, 24, -0.5, 24 - 0.5, "Chamber", "VFAT");
   mapStatusErrVFATPerLayer_ = MEMap3Inf(
-      this, "vfat_statusErrSum", "VFAT reporting errors", 36, 0.5, 36.5, 24, 0.5, 24.5, "Chamber", "VFAT");
+      this, "vfat_statusErrSum", "VFAT reporting errors", 36, 0.5, 36.5, 24, -0.5, 24 - 0.5, "Chamber", "VFAT");
   mapStatusVFATPerCh_ =
-      MEMap4Inf(this, "vfat_status", "VFAT Status", 24, 0.5, 24.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
+      MEMap4Inf(this, "vfat_status", "VFAT Status", 24, -0.5, 24 - 0.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
 
   GenerateMEPerChamber(ibooker);
 
@@ -165,18 +165,18 @@ int GEMDAQStatusSource::ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) {
   SetLabelOHStatus(mapStatusOH_.FindHist(key));
 
   mapStatusWarnVFATPerLayer_.SetBinConfX(stationInfo.nNumChambers_);
-  mapStatusWarnVFATPerLayer_.SetBinConfY(stationInfo.nMaxVFAT_);
+  mapStatusWarnVFATPerLayer_.SetBinConfY(stationInfo.nMaxVFAT_, -0.5);
   mapStatusWarnVFATPerLayer_.bookND(bh, key);
   mapStatusWarnVFATPerLayer_.SetLabelForChambers(key, 1);
   mapStatusWarnVFATPerLayer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
   mapStatusErrVFATPerLayer_.SetBinConfX(stationInfo.nNumChambers_);
-  mapStatusErrVFATPerLayer_.SetBinConfY(stationInfo.nMaxVFAT_);
+  mapStatusErrVFATPerLayer_.SetBinConfY(stationInfo.nMaxVFAT_, -0.5);
   mapStatusErrVFATPerLayer_.bookND(bh, key);
   mapStatusErrVFATPerLayer_.SetLabelForChambers(key, 1);
   mapStatusErrVFATPerLayer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
-  mapStatusVFAT_.SetBinConfX(stationInfo.nMaxVFAT_);
+  mapStatusVFAT_.SetBinConfX(stationInfo.nMaxVFAT_, -0.5);
   mapStatusVFAT_.bookND(bh, key);
   mapStatusVFAT_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 1);
 
@@ -189,7 +189,7 @@ int GEMDAQStatusSource::ProcessWithMEMap3WithChamber(BookingHelper &bh, ME4IdsKe
   ME3IdsKey key3 = key4Tokey3(key);
   MEStationInfo &stationInfo = mapStationInfo_[key3];
 
-  mapStatusVFATPerCh_.SetBinConfX(stationInfo.nMaxVFAT_);
+  mapStatusVFATPerCh_.SetBinConfX(stationInfo.nMaxVFAT_, -0.5);
   mapStatusVFATPerCh_.bookND(bh, key);
   mapStatusVFATPerCh_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 1);
   SetLabelVFATStatus(mapStatusVFATPerCh_.FindHist(key));
@@ -329,8 +329,7 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
     const GEMVFATStatusCollection::Range &range = (*vfatIt).second;
 
     for (auto vfatStat = range.first; vfatStat != range.second; ++vfatStat) {
-      // NOTE: nIdxVFAT starts from 1
-      Int_t nIdxVFAT = getVFATNumber(gid.station(), gid.ieta(), vfatStat->vfatPosition()) + 1;
+      Int_t nIdxVFAT = getVFATNumber(gid.station(), gid.ieta(), vfatStat->vfatPosition());
 
       GEMVFATStatus::Warnings warnings{vfatStat->warnings()};
       if (warnings.basicOFW)   mapStatusVFAT_.Fill(key3, nIdxVFAT, 2);

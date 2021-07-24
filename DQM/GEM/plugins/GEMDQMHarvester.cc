@@ -145,6 +145,7 @@ void GEMDQMHarvester::createSummaryHist(edm::Service<DQMStore> &store,
   h2Sum = store->book2D("reportSummaryMap", "", nBinX, 0.5, nBinX + 0.5, nBinY, 0.5, nBinY + 0.5);
   h2Sum->setTitle("Summary plot");
   h2Sum->setXTitle("Chamber");
+  h2Sum->setYTitle("Layer");
 
   listLayers.clear();
   for (Int_t i = 1; i <= nBinX; i++)
@@ -166,7 +167,7 @@ void GEMDQMHarvester::createSummaryVFAT(edm::Service<DQMStore> &store,
   //store->setCurrentFolder(strDirSummary_);
 
   Int_t nBinX = h2Src->getNbinsX(), nBinY = h2Src->getNbinsY();
-  h2Sum = store->book2D("vfat_statusSummary" + strSuffix, "", nBinX, 0.5, nBinX + 0.5, nBinY, 0.5, nBinY + 0.5);
+  h2Sum = store->book2D("vfat_statusSummary" + strSuffix, "", nBinX, 0.5, nBinX + 0.5, nBinY, -0.5, nBinY - 0.5);
   copyLabels(h2Src, h2Sum);
 }
 

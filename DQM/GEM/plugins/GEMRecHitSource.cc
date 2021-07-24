@@ -44,7 +44,7 @@ void GEMRecHitSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   mapTotalRecHit_layer_ =
       MEMap3Inf(this, "det", "RecHit Occupancy", 36, 0.5, 36.5, 8, 0.5, 8.5, "Chamber", "iEta");
   mapRecHitWheel_layer_ =
-      MEMap3Inf(this, "rphi_occ", "RecHit R-Phi Occupancy", 108, radS, radL, 8, fRadiusMin_, fRadiusMax_, "", "");
+      MEMap3Inf(this, "rphi_occ", "RecHit R-Phi Occupancy", 108, radS, radL, 8, fRadiusMin_, fRadiusMax_, "#phi (rad)", "R [cm]");
   mapRecHitOcc_ieta_ = MEMap3Inf(
       this, "occ_ieta", "RecHit iEta Occupancy", 8, 0.5, 8.5, "iEta", "Number of RecHits");
   mapRecHitOcc_phi_ = MEMap3Inf(
@@ -82,7 +82,7 @@ void GEMRecHitSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
                              "iEta");
   mapCLSOver5_   = MEMap3Inf(this, 
                              "largeCls_occ", 
-                             "iEta vs Chamber if cluster is bigger than 5", 
+                             "Occupancy of Large Clusters (>5)", 
                              36, 
                              0.5, 
                              36.5, 
@@ -137,6 +137,7 @@ int GEMRecHitSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
 
   mapRecHitOcc_ieta_.SetBinConfX(stationInfo.nNumEtaPartitions_);
   mapRecHitOcc_ieta_.bookND(bh, key);
+  mapRecHitOcc_ieta_.SetLabelForIEta(key, 1);
 
   mapRecHitOcc_phi_.bookND(bh, key);
   mapTotalRecHitPerEvtLayer_.bookND(bh, key);
