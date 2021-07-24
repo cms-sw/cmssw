@@ -45,10 +45,10 @@ protected:
                          std::string strSuffix,
                          MonitorElement *&h2Sum);
   Float_t refineSummaryHistogram(MonitorElement *h2Sum,
-                              MonitorElement *h2SrcOcc,
-                              MonitorElement *h2SrcStatusE,
-                              MonitorElement *h2SrcStatusW = nullptr,
-                              Bool_t bVarXBin = false);
+                                 MonitorElement *h2SrcOcc,
+                                 MonitorElement *h2SrcStatusE,
+                                 MonitorElement *h2SrcStatusW = nullptr,
+                                 Bool_t bVarXBin = false);
 
   Float_t fReportSummary_;
   std::string strOutFile_;
@@ -173,10 +173,10 @@ void GEMDQMHarvester::createSummaryVFAT(edm::Service<DQMStore> &store,
 
 // FIXME: Need more study about how to summarize
 Float_t GEMDQMHarvester::refineSummaryHistogram(MonitorElement *h2Sum,
-                                             MonitorElement *h2SrcOcc,
-                                             MonitorElement *h2SrcStatusE,
-                                             MonitorElement *h2SrcStatusW,
-                                             Bool_t bVarXBin) {
+                                                MonitorElement *h2SrcOcc,
+                                                MonitorElement *h2SrcStatusE,
+                                                MonitorElement *h2SrcStatusW,
+                                                Bool_t bVarXBin) {
   Int_t nBinY = h2Sum->getNbinsY();
   Int_t nAllBin = 0, nFineBin = 0;
   for (Int_t j = 1; j <= nBinY; j++) {
@@ -188,7 +188,7 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(MonitorElement *h2Sum,
     for (Int_t i = 1; i <= nBinX; i++) {
       Float_t fOcc = h2SrcOcc->getBinContent(i, j);
       Float_t fStatusWarn = (h2SrcStatusW != nullptr ? h2SrcStatusW->getBinContent(i, j) : 0.0);
-      Float_t fStatusErr  = h2SrcStatusE->getBinContent(i, j);
+      Float_t fStatusErr = h2SrcStatusE->getBinContent(i, j);
 
       Float_t fRes = 0;
       if (fStatusErr > 0)
@@ -205,7 +205,7 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(MonitorElement *h2Sum,
     }
   }
 
-  return ( (Float_t)nFineBin ) / nAllBin;
+  return ((Float_t)nFineBin) / nAllBin;
 }
 
 DEFINE_FWK_MODULE(GEMDQMHarvester);

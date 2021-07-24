@@ -105,14 +105,8 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
   ibooker.cd();
   ibooker.setCurrentFolder("GEM/DAQStatus");
 
-  h2AMC13Status_ = ibooker.book2D("amc13_status",
-                                  "AMC13 Status;AMC13;",
-                                  2,
-                                  0.5,
-                                  2.5,
-                                  nBitAMC13_,
-                                  0.5,
-                                  nBitAMC13_ + 0.5);
+  h2AMC13Status_ =
+      ibooker.book2D("amc13_status", "AMC13 Status;AMC13;", 2, 0.5, 2.5, nBitAMC13_, 0.5, nBitAMC13_ + 0.5);
   h2AMCStatusNeg_ = ibooker.book2D("amc_status_GE11-N",
                                    "AMC Status GE11-N;AMC slot;",
                                    nAMCSlots_,
@@ -149,7 +143,7 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
   GenerateMEPerChamber(ibooker);
 
   h2SummaryStatusWarning = CreateSummaryHist(ibooker, "chamberWarnings");
-  h2SummaryStatusError   = CreateSummaryHist(ibooker, "chamberErrors");
+  h2SummaryStatusError = CreateSummaryHist(ibooker, "chamberErrors");
 
   h2SummaryStatusWarning->setTitle("Summary of OH or VFAT warnings of each chambers");
   h2SummaryStatusError->setTitle("Summary of OH or VFAT errors of each chambers");
@@ -207,12 +201,13 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
   event.getByToken(tagOH_, gemOH);
   event.getByToken(tagAMC_, gemAMC);
   event.getByToken(tagAMC13_, gemAMC13);
-  
+
   for (auto amc13It = gemAMC13->begin(); amc13It != gemAMC13->end(); ++amc13It) {
     int fedId = (*amc13It).first;
-    if (mapFEDIdToRe_.find(fedId) == mapFEDIdToRe_.end()) continue;
+    if (mapFEDIdToRe_.find(fedId) == mapFEDIdToRe_.end())
+      continue;
     int nXBin = 0;
-    if (mapFEDIdToRe_[fedId] < 0 ) {
+    if (mapFEDIdToRe_[fedId] < 0) {
       nXBin = 1;
     } else if (mapFEDIdToRe_[fedId] > 0) {
       nXBin = 2;
@@ -224,22 +219,32 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
     const auto &range = (*amc13It).second;
     for (auto amc13 = range.first; amc13 != range.second; ++amc13) {
       Bool_t bWarn = false;
-      Bool_t bErr  = false;
+      Bool_t bErr = false;
 
       GEMAMC13Status::Warnings warnings{amc13->warnings()};
-      if (warnings.InValidAMC) FillWithRiseErr(h2AMC13Status_, nXBin, 2, bWarn);
+      if (warnings.InValidAMC)
+        FillWithRiseErr(h2AMC13Status_, nXBin, 2, bWarn);
 
       GEMAMC13Status::Errors errors{amc13->errors()};
-      if (errors.InValidSize)        FillWithRiseErr(h2AMC13Status_, nXBin,  3, bErr);
-      if (errors.failTrailerCheck)   FillWithRiseErr(h2AMC13Status_, nXBin,  4, bErr);
-      if (errors.failFragmentLength) FillWithRiseErr(h2AMC13Status_, nXBin,  5, bErr);
-      if (errors.failTrailerMatch)   FillWithRiseErr(h2AMC13Status_, nXBin,  6, bErr);
-      if (errors.moreTrailers)       FillWithRiseErr(h2AMC13Status_, nXBin,  7, bErr);
-      if (errors.crcModified)        FillWithRiseErr(h2AMC13Status_, nXBin,  8, bErr);
-      if (errors.slinkError)         FillWithRiseErr(h2AMC13Status_, nXBin,  9, bErr);
-      if (errors.wrongFedId)         FillWithRiseErr(h2AMC13Status_, nXBin, 10, bErr);
+      if (errors.InValidSize)
+        FillWithRiseErr(h2AMC13Status_, nXBin, 3, bErr);
+      if (errors.failTrailerCheck)
+        FillWithRiseErr(h2AMC13Status_, nXBin, 4, bErr);
+      if (errors.failFragmentLength)
+        FillWithRiseErr(h2AMC13Status_, nXBin, 5, bErr);
+      if (errors.failTrailerMatch)
+        FillWithRiseErr(h2AMC13Status_, nXBin, 6, bErr);
+      if (errors.moreTrailers)
+        FillWithRiseErr(h2AMC13Status_, nXBin, 7, bErr);
+      if (errors.crcModified)
+        FillWithRiseErr(h2AMC13Status_, nXBin, 8, bErr);
+      if (errors.slinkError)
+        FillWithRiseErr(h2AMC13Status_, nXBin, 9, bErr);
+      if (errors.wrongFedId)
+        FillWithRiseErr(h2AMC13Status_, nXBin, 10, bErr);
 
-      if (!bWarn && !bErr) h2AMC13Status_->Fill(nXBin, 1);
+      if (!bWarn && !bErr)
+        h2AMC13Status_->Fill(nXBin, 1);
     }
   }
 
@@ -247,7 +252,8 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
 
   for (auto amcIt = gemAMC->begin(); amcIt != gemAMC->end(); ++amcIt) {
     int fedId = (*amcIt).first;
-    if (mapFEDIdToRe_.find(fedId) == mapFEDIdToRe_.end()) continue;
+    if (mapFEDIdToRe_.find(fedId) == mapFEDIdToRe_.end())
+      continue;
     if (mapFEDIdToRe_[fedId] < 0) {
       h2AMCStatus = h2AMCStatusNeg_;
     } else if (mapFEDIdToRe_[fedId] > 0) {
@@ -260,26 +266,38 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
     const GEMAMCStatusCollection::Range &range = (*amcIt).second;
     for (auto amc = range.first; amc != range.second; ++amc) {
       Bool_t bWarn = false;
-      Bool_t bErr  = false;
+      Bool_t bErr = false;
 
       Int_t nAMCNum = amc->amcNumber();
 
       GEMAMCStatus::Warnings warnings{amc->warnings()};
-      if (warnings.InValidOH)    FillWithRiseErr(h2AMCStatus, nAMCNum, 2, bWarn);
-      if (warnings.backPressure) FillWithRiseErr(h2AMCStatus, nAMCNum, 3, bWarn);
+      if (warnings.InValidOH)
+        FillWithRiseErr(h2AMCStatus, nAMCNum, 2, bWarn);
+      if (warnings.backPressure)
+        FillWithRiseErr(h2AMCStatus, nAMCNum, 3, bWarn);
 
       GEMAMCStatus::Errors errors{amc->errors()};
-      if (errors.badEC)          FillWithRiseErr(h2AMCStatus, nAMCNum,  4, bErr);
-      if (errors.badBC)          FillWithRiseErr(h2AMCStatus, nAMCNum,  5, bErr);
-      if (errors.badOC)          FillWithRiseErr(h2AMCStatus, nAMCNum,  6, bErr);
-      if (errors.badRunType)     FillWithRiseErr(h2AMCStatus, nAMCNum,  7, bErr);
-      if (errors.badCRC)         FillWithRiseErr(h2AMCStatus, nAMCNum,  8, bErr);
-      if (errors.MMCMlocked)     FillWithRiseErr(h2AMCStatus, nAMCNum,  9, bErr);
-      if (errors.DAQclocklocked) FillWithRiseErr(h2AMCStatus, nAMCNum, 10, bErr);
-      if (errors.DAQnotReday)    FillWithRiseErr(h2AMCStatus, nAMCNum, 11, bErr);
-      if (errors.BC0locked)      FillWithRiseErr(h2AMCStatus, nAMCNum, 12, bErr);
+      if (errors.badEC)
+        FillWithRiseErr(h2AMCStatus, nAMCNum, 4, bErr);
+      if (errors.badBC)
+        FillWithRiseErr(h2AMCStatus, nAMCNum, 5, bErr);
+      if (errors.badOC)
+        FillWithRiseErr(h2AMCStatus, nAMCNum, 6, bErr);
+      if (errors.badRunType)
+        FillWithRiseErr(h2AMCStatus, nAMCNum, 7, bErr);
+      if (errors.badCRC)
+        FillWithRiseErr(h2AMCStatus, nAMCNum, 8, bErr);
+      if (errors.MMCMlocked)
+        FillWithRiseErr(h2AMCStatus, nAMCNum, 9, bErr);
+      if (errors.DAQclocklocked)
+        FillWithRiseErr(h2AMCStatus, nAMCNum, 10, bErr);
+      if (errors.DAQnotReday)
+        FillWithRiseErr(h2AMCStatus, nAMCNum, 11, bErr);
+      if (errors.BC0locked)
+        FillWithRiseErr(h2AMCStatus, nAMCNum, 12, bErr);
 
-      if (!bWarn && !bErr) h2AMCStatus->Fill(nAMCNum, 1);
+      if (!bWarn && !bErr)
+        h2AMCStatus->Fill(nAMCNum, 1);
     }
   }
 
@@ -295,30 +313,49 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
     const GEMOHStatusCollection::Range &range = (*ohIt).second;
     for (auto OHStatus = range.first; OHStatus != range.second; ++OHStatus) {
       GEMOHStatus::Warnings warnings{OHStatus->warnings()};
-      if (warnings.EvtNF)       mapStatusOH_.Fill(key3, gid.chamber(), 2);
-      if (warnings.InNF)        mapStatusOH_.Fill(key3, gid.chamber(), 3);
-      if (warnings.L1aNF)       mapStatusOH_.Fill(key3, gid.chamber(), 4);
-      if (warnings.EvtSzW)      mapStatusOH_.Fill(key3, gid.chamber(), 5);
-      if (warnings.InValidVFAT) mapStatusOH_.Fill(key3, gid.chamber(), 6);
+      if (warnings.EvtNF)
+        mapStatusOH_.Fill(key3, gid.chamber(), 2);
+      if (warnings.InNF)
+        mapStatusOH_.Fill(key3, gid.chamber(), 3);
+      if (warnings.L1aNF)
+        mapStatusOH_.Fill(key3, gid.chamber(), 4);
+      if (warnings.EvtSzW)
+        mapStatusOH_.Fill(key3, gid.chamber(), 5);
+      if (warnings.InValidVFAT)
+        mapStatusOH_.Fill(key3, gid.chamber(), 6);
 
       GEMOHStatus::Errors errors{OHStatus->errors()};
-      if (errors.EvtF)         mapStatusOH_.Fill(key3, gid.chamber(),  7);
-      if (errors.InF)          mapStatusOH_.Fill(key3, gid.chamber(),  8);
-      if (errors.L1aF)         mapStatusOH_.Fill(key3, gid.chamber(),  9);
-      if (errors.EvtSzOFW)     mapStatusOH_.Fill(key3, gid.chamber(), 10);
-      if (errors.Inv)          mapStatusOH_.Fill(key3, gid.chamber(), 11);
-      if (errors.OOScAvV)      mapStatusOH_.Fill(key3, gid.chamber(), 12);
-      if (errors.OOScVvV)      mapStatusOH_.Fill(key3, gid.chamber(), 13);
-      if (errors.BxmAvV)       mapStatusOH_.Fill(key3, gid.chamber(), 14);
-      if (errors.BxmVvV)       mapStatusOH_.Fill(key3, gid.chamber(), 15);
-      if (errors.InUfw)        mapStatusOH_.Fill(key3, gid.chamber(), 16);
-      if (errors.badVFatCount) mapStatusOH_.Fill(key3, gid.chamber(), 17);
+      if (errors.EvtF)
+        mapStatusOH_.Fill(key3, gid.chamber(), 7);
+      if (errors.InF)
+        mapStatusOH_.Fill(key3, gid.chamber(), 8);
+      if (errors.L1aF)
+        mapStatusOH_.Fill(key3, gid.chamber(), 9);
+      if (errors.EvtSzOFW)
+        mapStatusOH_.Fill(key3, gid.chamber(), 10);
+      if (errors.Inv)
+        mapStatusOH_.Fill(key3, gid.chamber(), 11);
+      if (errors.OOScAvV)
+        mapStatusOH_.Fill(key3, gid.chamber(), 12);
+      if (errors.OOScVvV)
+        mapStatusOH_.Fill(key3, gid.chamber(), 13);
+      if (errors.BxmAvV)
+        mapStatusOH_.Fill(key3, gid.chamber(), 14);
+      if (errors.BxmVvV)
+        mapStatusOH_.Fill(key3, gid.chamber(), 15);
+      if (errors.InUfw)
+        mapStatusOH_.Fill(key3, gid.chamber(), 16);
+      if (errors.badVFatCount)
+        mapStatusOH_.Fill(key3, gid.chamber(), 17);
 
       Bool_t bWarn = warnings.wcodes != 0;
-      Bool_t bErr  = errors.codes != 0;
-      if (!bWarn && !bErr) mapStatusOH_.Fill(key3, gid.chamber(), 1);
-      if (bWarn) mapChamberWarning[key4] = false;
-      if (bErr)  mapChamberError[key4] = false;
+      Bool_t bErr = errors.codes != 0;
+      if (!bWarn && !bErr)
+        mapStatusOH_.Fill(key3, gid.chamber(), 1);
+      if (bWarn)
+        mapChamberWarning[key4] = false;
+      if (bErr)
+        mapChamberError[key4] = false;
     }
   }
 
@@ -332,29 +369,47 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
       Int_t nIdxVFAT = getVFATNumber(gid.station(), gid.ieta(), vfatStat->vfatPosition());
 
       GEMVFATStatus::Warnings warnings{vfatStat->warnings()};
-      if (warnings.basicOFW)   mapStatusVFAT_.Fill(key3, nIdxVFAT, 2);
-      if (warnings.zeroSupOFW) mapStatusVFAT_.Fill(key3, nIdxVFAT, 3);
-      if (warnings.basicOFW)   mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 2);
-      if (warnings.zeroSupOFW) mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 3);
+      if (warnings.basicOFW)
+        mapStatusVFAT_.Fill(key3, nIdxVFAT, 2);
+      if (warnings.zeroSupOFW)
+        mapStatusVFAT_.Fill(key3, nIdxVFAT, 3);
+      if (warnings.basicOFW)
+        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 2);
+      if (warnings.zeroSupOFW)
+        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 3);
 
       GEMVFATStatus::Errors errors{(uint8_t)vfatStat->errors()};
-      if (errors.vc)            mapStatusVFAT_.Fill(key3, nIdxVFAT, 4);
-      if (errors.InValidHeader) mapStatusVFAT_.Fill(key3, nIdxVFAT, 5);
-      if (errors.EC)            mapStatusVFAT_.Fill(key3, nIdxVFAT, 6);
-      if (errors.BC)            mapStatusVFAT_.Fill(key3, nIdxVFAT, 7);
-      if (errors.vc)            mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 4);
-      if (errors.InValidHeader) mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 5);
-      if (errors.EC)            mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 6);
-      if (errors.BC)            mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 7);
+      if (errors.vc)
+        mapStatusVFAT_.Fill(key3, nIdxVFAT, 4);
+      if (errors.InValidHeader)
+        mapStatusVFAT_.Fill(key3, nIdxVFAT, 5);
+      if (errors.EC)
+        mapStatusVFAT_.Fill(key3, nIdxVFAT, 6);
+      if (errors.BC)
+        mapStatusVFAT_.Fill(key3, nIdxVFAT, 7);
+      if (errors.vc)
+        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 4);
+      if (errors.InValidHeader)
+        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 5);
+      if (errors.EC)
+        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 6);
+      if (errors.BC)
+        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 7);
 
       Bool_t bWarn = warnings.wcodes != 0;
-      Bool_t bErr  = errors.codes != 0;
-      if (!bWarn && !bErr) mapStatusVFAT_.Fill(key3, nIdxVFAT, 1);
-      if (!bWarn && !bErr) mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 1);
-      if (bWarn) mapChamberWarning[key4Ch] = false;
-      if (bErr)  mapChamberError[key4Ch] = false;
-      if (bWarn) mapStatusWarnVFATPerLayer_.Fill(key3, gid.chamber(), nIdxVFAT);
-      if (bErr)  mapStatusErrVFATPerLayer_.Fill(key3, gid.chamber(), nIdxVFAT);
+      Bool_t bErr = errors.codes != 0;
+      if (!bWarn && !bErr)
+        mapStatusVFAT_.Fill(key3, nIdxVFAT, 1);
+      if (!bWarn && !bErr)
+        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 1);
+      if (bWarn)
+        mapChamberWarning[key4Ch] = false;
+      if (bErr)
+        mapChamberError[key4Ch] = false;
+      if (bWarn)
+        mapStatusWarnVFATPerLayer_.Fill(key3, gid.chamber(), nIdxVFAT);
+      if (bErr)
+        mapStatusErrVFATPerLayer_.Fill(key3, gid.chamber(), nIdxVFAT);
     }
   }
 

@@ -78,14 +78,14 @@ int GEMDQMBase::loadChambers() {
       const int max_vfat = getMaxVFAT(station->station());  // the number of VFATs per GEMEtaPartition
       const int num_etas = getNumEtaPartitions(station);    // the number of eta partitions per GEMChamber
       const int num_vfat = num_etas * max_vfat;             // the number of VFATs per GEMChamber
-      const int num_strip = GEMeMap::maxChan_;              // the number of strips (channels) per VFAT
+      const int num_digi = GEMeMap::maxChan_;               // the number of digis (channels) per VFAT
 
       nMaxNumCh_ = std::max(nMaxNumCh_, num_superchambers);
 
       for (int layer_number = 1; layer_number <= num_layers; layer_number++) {
         ME3IdsKey key3(region_number, station_number, layer_number);
-        mapStationInfo_[key3] = MEStationInfo(
-            region_number, station_number, layer_number, num_superchambers, num_etas, num_vfat, num_strip);
+        mapStationInfo_[key3] =
+            MEStationInfo(region_number, station_number, layer_number, num_superchambers, num_etas, num_vfat, num_digi);
       }
     }
   }
@@ -141,7 +141,12 @@ dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& iboo
     auto key = listLayers[i - 1];
     auto strInfo = GEMUtils::getSuffixName(key);  // NOTE: It starts with '_'
     auto region = keyToRegion(key);
-    auto label = Form("GE%i%i-%c-L%i;%s", std::abs(region), keyToStation(key), (region > 0 ? 'P' : 'N'), keyToLayer(key), strInfo.Data());
+    auto label = Form("GE%i%i-%c-L%i;%s",
+                      std::abs(region),
+                      keyToStation(key),
+                      (region > 0 ? 'P' : 'N'),
+                      keyToLayer(key),
+                      strInfo.Data());
     h2Res->setBinLabel(i, label, 2);
     Int_t nNumCh = mapStationInfo_[key].nNumChambers_;
     h2Res->setBinContent(0, i, nNumCh);
