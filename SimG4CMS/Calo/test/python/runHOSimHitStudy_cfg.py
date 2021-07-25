@@ -34,10 +34,10 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('simHitStudy_30_13.root')
 )
 
-process.hoSimHitStudy.MaxEnergy = 60.0
-process.hoSimHitStudy.ScaleEB   = 1.02
-process.hoSimHitStudy.ScaleHB   = 104.4
-process.hoSimHitStudy.ScaleHO   = 2.33
+process.HOSimHitStudy.MaxEnergy = 60.0
+process.HOSimHitStudy.ScaleEB   = 1.02
+process.HOSimHitStudy.ScaleHB   = 104.4
+process.HOSimHitStudy.ScaleHO   = 2.33
 
-process.p1 = cms.Path(process.hoSimHitStudy)
+process.p1 = cms.Path(process.HOSimHitStudy)
 
