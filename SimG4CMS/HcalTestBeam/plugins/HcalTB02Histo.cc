@@ -18,7 +18,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "SimG4CMS/HcalTestBeam/plugins/HcalTB02Histo.h"
+#include "HcalTB02Histo.h"
 
 //#define EDM_ML_DEBUG
 //
