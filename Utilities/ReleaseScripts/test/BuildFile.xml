@@ -1,4 +1,6 @@
 <test name="TestSCRAM" command="run.sh"/>
+
+
 <test name="test-clang-tidy" command="test-clang-tidy.sh">
   <use name="llvm"/>
 </test>
