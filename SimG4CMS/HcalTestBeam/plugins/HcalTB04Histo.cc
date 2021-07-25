@@ -18,7 +18,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "SimG4CMS/HcalTestBeam/plugins/HcalTB04Histo.h"
+#include "HcalTB04Histo.h"
 
 //
 // constructors and destructor

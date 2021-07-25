@@ -46,9 +46,9 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimG4CMS/HcalTestBeam/plugins/HcalTBNumberingScheme.h"
-#include "SimG4CMS/HcalTestBeam/plugins/HcalTB04Histo.h"
-#include "SimG4CMS/HcalTestBeam/plugins/HcalTB04XtalNumberingScheme.h"
+#include "HcalTBNumberingScheme.h"
+#include "HcalTB04Histo.h"
+#include "HcalTB04XtalNumberingScheme.h"
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"

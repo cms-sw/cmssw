@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "SimG4CMS/HcalTestBeam/plugins/HcalTB02XtalNumberingScheme.h"
+#include "HcalTB02XtalNumberingScheme.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG

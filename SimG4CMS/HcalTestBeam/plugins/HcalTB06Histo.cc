@@ -19,7 +19,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "SimG4CMS/HcalTestBeam/plugins/HcalTB06Histo.h"
+#include "HcalTB06Histo.h"
 
 //
 // constructors and destructor
