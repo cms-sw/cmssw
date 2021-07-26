@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "CondFormats/DataRecord/interface/L1TTwinMuxParamsRcd.h"
@@ -29,13 +29,11 @@
 
 using namespace std;
 
-//class L1TTwinMuxProducer: public edm::one::EDProducer<edm::one::SharedResources>
-//class L1TTwinMuxProducer: public edm::EDProducer
-class L1TTwinMuxProducer : public edm::stream::EDProducer<> {
+class L1TTwinMuxProducer : public edm::global::EDProducer<> {
 public:
   L1TTwinMuxProducer(const edm::ParameterSet& pset);
   ~L1TTwinMuxProducer() override {}
-  void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const override;
 
 private:
   const edm::EDGetTokenT<L1MuDTChambPhContainer> m_dtdigi;
@@ -58,7 +56,7 @@ L1TTwinMuxProducer::L1TTwinMuxProducer(const edm::ParameterSet& pset)
       m_phContainerToken(produces<L1MuDTChambPhContainer>()),
       m_thContainerToken(produces<L1MuDTChambThContainer>()) {}
 
-void L1TTwinMuxProducer::produce(edm::Event& e, const edm::EventSetup& c) {
+void L1TTwinMuxProducer::produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const {
   ///Check consistency of the paramters
   auto const& tmParams = c.getData(m_tmParamsToken);
 
