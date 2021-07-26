@@ -66,7 +66,7 @@ requireDecayMode = cms.PSet(
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits
 import RecoTauTag.RecoTau.pfRecoTauDiscriminationAgainstMuon2_cfi as _mod
 
-PFTauDiscriminationAgainstMuon2 = _mod.pfRecoTauDiscriminationAgainstMuon2.clone(
+hpsPFTauDiscriminationAgainstMuon2 = _mod.pfRecoTauDiscriminationAgainstMuon2.clone(
     PFTauProducer = 'hpsPFTauProducer',
     Prediscriminants = requireDecayMode.clone(),
     discriminatorOption = 'loose', # available options are: 'loose', 'medium', 'tight'
