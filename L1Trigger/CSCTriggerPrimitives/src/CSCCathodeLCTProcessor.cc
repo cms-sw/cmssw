@@ -87,6 +87,8 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   // which patterns should we use?
   if (runCCLUT_) {
     clct_pattern_ = CSCPatternBank::clct_pattern_run3_;
+    // comparator code lookup table algorithm for Phase-2
+    cclut_ = std::make_unique<ComparatorCodeLUT>(conf);
   } else {
     clct_pattern_ = CSCPatternBank::clct_pattern_legacy_;
   }
@@ -102,9 +104,6 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
 
   // quality control of stubs
   qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, subsector, chamber, conf);
-
-  // comparator code lookup table algorithm for Phase-2
-  cclut_ = std::make_unique<ComparatorCodeLUT>(conf);
 }
 
 void CSCCathodeLCTProcessor::setDefaultConfigParameters() {
