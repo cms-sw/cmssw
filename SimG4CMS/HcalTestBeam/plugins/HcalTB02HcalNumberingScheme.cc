@@ -17,7 +17,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4SystemOfUnits.hh"
-
+//#define EDM_ML_DEBUG
 //
 // constructors and destructor
 //
@@ -28,7 +28,9 @@ HcalTB02HcalNumberingScheme::HcalTB02HcalNumberingScheme()
 }
 
 HcalTB02HcalNumberingScheme::~HcalTB02HcalNumberingScheme() {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "Deleting HcalTB02HcalNumberingScheme";
+#endif
 }
 
 //
@@ -64,10 +66,11 @@ int HcalTB02HcalNumberingScheme::getUnitID(const G4Step* aStep) const {
 
   G4VPhysicalVolume* thePV = preStepPoint->GetPhysicalVolume();
   int ilayer = ((thePV->GetCopyNo()) / 10) % 100;
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB02HcalNumberingScheme:: Layer " << thePV->GetName()
                                 << " found at phi = " << phi << " eta = " << eta << " lay = " << thePV->GetCopyNo()
                                 << " " << ilayer;
-
+#endif
   scintID = phiScale * phi + etaScale * eta + ilayer;
   if (hy < 0.)
     scintID = -scintID;
@@ -81,7 +84,9 @@ int HcalTB02HcalNumberingScheme::getlayerID(int sID) const {
   if ((layerID != 17) && (layerID != 18))
     layerID = sID - int(float(sID) / float(etaScale)) * etaScale;
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB02HcalNumberingScheme:: scintID " << sID << " layer = " << layerID;
+#endif
   return layerID;
 }
 
@@ -91,7 +96,9 @@ int HcalTB02HcalNumberingScheme::getphiID(int sID) const {
     IDsign = -1;
   sID = abs(sID);
   int phiID = int(float(sID) / float(phiScale));
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB02HcalNumberingScheme:: scintID " << sID << " phi = " << phiID;
+#endif
   if (IDsign > 0) {
     phiID += 4;
   } else {
@@ -105,6 +112,8 @@ int HcalTB02HcalNumberingScheme::getetaID(int sID) const {
   int aux = sID - int(float(sID) / float(phiScale)) * phiScale;
   int etaID = int(float(aux) / float(etaScale));
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB02HcalNumberingScheme:: scintID " << sID << " eta = " << etaID;
+#endif
   return etaID;
 }
