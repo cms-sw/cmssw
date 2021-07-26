@@ -6,7 +6,7 @@ import sys
 from DataFormats.FWLite import Events, Handle
 
 from FWCore.ParameterSet.VarParsing import VarParsing
-options = VarParsing ('python3')
+options = VarParsing ('python')
 options.parseArguments()
 
 print("maxEvents", options.maxEvents)
