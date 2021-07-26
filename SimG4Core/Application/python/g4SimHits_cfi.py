@@ -86,7 +86,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     RestorePhysicsTables = cms.untracked.bool(False),
     UseParametrisedEMPhysics = cms.untracked.bool(True),
     CheckGeometry = cms.untracked.bool(False),
-    OnlySDs = cms.vstring('ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'HGCalSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HGCSensitiveDetector', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'),
+    OnlySDs = cms.vstring('ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'),
     G4CheckOverlap = cms.untracked.PSet(
         OutputBaseName = cms.string('2017'),
         MaterialFlag = cms.bool(True),
@@ -371,6 +371,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         ScaleRadLength  = cms.untracked.double(1.0),
         StoreLayerTimeSim = cms.untracked.bool(False),
         AgeingWithSlopeLY = cms.untracked.bool(False),
+        Detectors         = cms.untracked.int32(3),
         DumpGeometry      = cms.untracked.int32(0)
         ),
     HCalSD = cms.PSet(
@@ -504,6 +505,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         WaferSize        = cms.untracked.double(123.7),
         MouseBite        = cms.untracked.double(2.5),
         CheckID          = cms.untracked.bool(True),
+        UseDetector      = cms.untracked.int32(3),
+        Detectors        = cms.untracked.int32(2)
     ),
     HGCScintSD = cms.PSet(
         Verbosity        = cms.untracked.int32(0),
@@ -636,6 +639,7 @@ phase2_timing.toModify( g4SimHits.ECalSD,
 ##
 ## Change CALO Thresholds
 ##
+from Configuration.Eras.Modifier_h2tb_cff import h2tb
 h2tb.toModify(g4SimHits.CaloSD,
               EminHits  = cms.vdouble(0.0,0.0,0.0,0.0,0.0),
               TmaxHits  = cms.vdouble(1000.0,1000.0,1000.0,1000.0,2000.0) )
@@ -645,3 +649,11 @@ h2tb.toModify(g4SimHits.CaloSD,
 ##
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )
+
+##
+## Selection of SD's for Phase2
+##
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(g4SimHits,
+                       OnlySDs = cms.vstring('ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'HGCalSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector') )
