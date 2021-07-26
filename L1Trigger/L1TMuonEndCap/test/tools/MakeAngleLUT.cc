@@ -20,6 +20,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
@@ -73,7 +74,7 @@ private:
 
 // _____________________________________________________________________________
 MakeAngleLUT::MakeAngleLUT(const edm::ParameterSet& iConfig)
-    : geometry_translator_(),
+    : geometry_translator_(consumesCollector()),
       config_(iConfig),
       verbose_(iConfig.getUntrackedParameter<int>("verbosity")),
       outfile_(iConfig.getParameter<std::string>("outfile")),

@@ -110,6 +110,7 @@ process.g4SimHits.ECalSD.BirkL3Parametrization = True
 process.g4SimHits.ECalSD.BirkC1 = 0.033
 process.g4SimHits.ECalSD.BirkC2 = 0.0
 process.g4SimHits.ECalSD.SlopeLightYield = 0.05
+process.g4SimHits.ECalSD.Detectors = 1
 process.g4SimHits.HCalSD.UseBirkLaw = True
 process.g4SimHits.HCalSD.BirkC1 = 0.0052
 process.g4SimHits.HCalSD.BirkC2 = 0.142
@@ -121,11 +122,9 @@ process.g4SimHits.HCalSD.TestNumberingScheme = True
 process.g4SimHits.HCalSD.UseHF   = False
 process.g4SimHits.HCalSD.ForTBHCAL = True
 process.g4SimHits.HCalSD.ForTBH2 = True
-process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
-                             'EcalTBH4BeamDetector',
-                             'HcalTB02SensitiveDetector',
-                             'HcalTB06BeamDetector',
+process.g4SimHits.OnlySDs = ['HcalTB06BeamDetector',
                              'EcalSensitiveDetector',
+                             'CaloTrkProcessing',
                              'HcalSensitiveDetector']
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     HcalTB04Analysis = cms.PSet(

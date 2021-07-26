@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "SimG4CMS/HcalTestBeam/plugins/HcalTB06BeamSD.h"
+#include "HcalTB06BeamSD.h"
 
 #include "G4Step.hh"
 #include "G4Track.hh"
