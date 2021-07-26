@@ -15,6 +15,8 @@ namespace CondFormats_CTPPSPixelObjects {
     std::pair<PPSTimingCalibration::Key, std::vector<double> > tc_v_tm;
     std::pair<PPSTimingCalibration::Key, std::pair<double, double> > tc_v_pm;
 
+    PPSAssociationCuts ppsac;
+    std::map<unsigned int, PPSAssociationCuts::CutsPerArm> ppsac_pm;
     LHCOpticalFunctionsSet lhc_ofs;
     LHCOpticalFunctionsSetCollection lhc_ofsc;
     LHCInterpolatedOpticalFunctionsSet lhc_iofs;
