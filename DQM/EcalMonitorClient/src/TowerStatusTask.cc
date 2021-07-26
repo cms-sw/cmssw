@@ -37,14 +37,14 @@ namespace ecaldqm {
 
   void TowerStatusTask::setTokens(edm::ConsumesCollector& _collector) {
     daqHndlToken = _collector.esConsumes<edm::Transition::EndLuminosityBlock>();
-    dcsHndlToken = _collector.esConsumes<edm::Transition::EndLuminosityBlock>();	
+    dcsHndlToken = _collector.esConsumes<edm::Transition::EndLuminosityBlock>();
   }
 
   void TowerStatusTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& _es) {
     if (doDAQInfo_) {
       std::fill_n(daqStatus_, nDCC, 1.);
- 
-      const EcalDAQTowerStatus* daqHndl= &_es.getData(daqHndlToken);
+
+      const EcalDAQTowerStatus* daqHndl = &_es.getData(daqHndlToken);
       auto daqhandle = _es.getHandle(daqHndlToken);
       if (daqhandle.isValid()) {
         for (unsigned id(0); id < EcalTrigTowerDetId::kEBTotalTowers; id++) {

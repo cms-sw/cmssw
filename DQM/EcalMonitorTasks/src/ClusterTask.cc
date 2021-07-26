@@ -65,7 +65,7 @@ namespace ecaldqm {
       trigTypeToME_[iT] = occupancy.getIndex(repl);
     }
   }
-  
+
   void ClusterTask::addDependencies(DependencySet& _dependencies) {
     _dependencies.push_back(Dependency(kEBSuperCluster, kEBRecHit));
     _dependencies.push_back(Dependency(kEESuperCluster, kEERecHit));
@@ -517,7 +517,7 @@ namespace ecaldqm {
     L1GlobalTriggerReadoutRecordToken_ =
         _collector.consumes<L1GlobalTriggerReadoutRecord>(L1GlobalTriggerReadoutRecordTag_);
     L1MuGMTReadoutCollectionToken_ = _collector.consumes<L1MuGMTReadoutCollection>(L1MuGMTReadoutCollectionTag_);
-    menuRcd  = _collector.esConsumes();
+    menuRcd = _collector.esConsumes();
   }
 
   DEFINE_ECALDQM_WORKER(ClusterTask);

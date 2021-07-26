@@ -48,7 +48,8 @@ namespace ecaldqm {
       edm::LuminosityBlockNumber_t iLumi;
       edm::EventNumber_t iEvt;
       Timestamp() : now(0), iRun(0), iLumi(0), iEvt(0) {}
-    }; 
+    };
+
   protected:
     typedef dqm::legacy::DQMStore DQMStore;
     typedef dqm::legacy::MonitorElement MonitorElement;
@@ -58,14 +59,14 @@ namespace ecaldqm {
 
     virtual void setME(edm::ParameterSet const &);
     virtual void setSource(edm::ParameterSet const &) {}  // for clients
-    virtual void setParams(edm::ParameterSet const &) {} 
+    virtual void setParams(edm::ParameterSet const &) {}
 
   public:
-    DQWorker(); 
+    DQWorker();
     virtual ~DQWorker() noexcept(false);
 
     static void fillDescriptions(edm::ParameterSetDescription &_desc);
-    void setToken(edm::ConsumesCollector&) ; 
+    void setTokens(edm::ConsumesCollector &);
 
     virtual void beginRun(edm::Run const &, edm::EventSetup const &) {}
     virtual void endRun(edm::Run const &, edm::EventSetup const &) {}
@@ -75,7 +76,7 @@ namespace ecaldqm {
 
     virtual void bookMEs(DQMStore::IBooker &);
     virtual void releaseMEs();
-    
+
     // old ecaldqmGetSetupObjects (old global vars)
     // These are objects obtained from EventSetup and stored
     // inside each module (which inherit from DQWorker).
@@ -90,24 +91,30 @@ namespace ecaldqm {
     // which leads to poor multi-threading performance.
     // Original issue here:
     // https://github.com/cms-sw/cmssw/issues/28858
-   
+
     void setSetupObjects(edm::EventSetup const &);
+    void setSetupObjectsEndLumi(edm::EventSetup const &);
     EcalElectronicsMapping const *GetElectronicsMap();
     EcalTrigTowerConstituentsMap const *GetTrigTowerMap();
     CaloGeometry const *GetGeometry();
     CaloTopology const *GetTopology();
     EcalDQMSetupObjects const getEcalDQMSetupObjects();
-    
+
     edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> elecMapHandle;
     edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> ttMapHandle;
     edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomHandle;
-    edm::ESGetToken<CaloTopology, CaloTopologyRecord> topoHandle; 
-   
+    edm::ESGetToken<CaloTopology, CaloTopologyRecord> topoHandle;
+
+    edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> elecMapHandleEndLumi;
+    edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> ttMapHandleEndLumi;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomHandleEndLumi;
+    edm::ESGetToken<CaloTopology, CaloTopologyRecord> topoHandleEndLumi;
+
     void setTime(time_t _t) { timestamp_.now = _t; }
     void setRunNumber(edm::RunNumber_t _r) { timestamp_.iRun = _r; }
     void setLumiNumber(edm::LuminosityBlockNumber_t _l) { timestamp_.iLumi = _l; }
-    void setEventNumber(edm::EventNumber_t _e) { timestamp_.iEvt = _e; } 
-  
+    void setEventNumber(edm::EventNumber_t _e) { timestamp_.iEvt = _e; }
+
     std::string const &getName() const { return name_; }
     bool onlineMode() const { return onlineMode_; }
 
