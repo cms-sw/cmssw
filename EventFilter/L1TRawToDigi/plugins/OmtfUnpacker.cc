@@ -43,6 +43,10 @@
 #include "EventFilter/L1TRawToDigi/interface/OmtfDtUnpacker.h"
 #include "EventFilter/L1TRawToDigi/interface/OmtfMuonUnpacker.h"
 
+#include "CondFormats/RPCObjects/interface/RPCEMap.h"
+#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
+#include "CondFormats/DataRecord/interface/RPCOMTFLinkMapRcd.h"
+
 namespace omtf {
 
   class OmtfUnpacker : public edm::stream::EDProducer<> {
@@ -108,10 +112,15 @@ namespace omtf {
     // rpc unpacker
     //
     if (!theSkipRpc) {
+      edm::ESTransientHandle<RPCEMap> readoutMapping;
+      es.get<RPCEMapRcd>().get(readoutMapping);
       if (theConfig.getParameter<bool>("useRpcConnectionFile")) {
-        theRpcUnpacker.init(es, edm::FileInPath(theConfig.getParameter<std::string>("rpcConnectionFile")).fullPath());
+        theRpcUnpacker.init(*readoutMapping,
+                            edm::FileInPath(theConfig.getParameter<std::string>("rpcConnectionFile")).fullPath());
       } else {
-        theRpcUnpacker.init(es);
+        edm::ESHandle<RPCAMCLinkMap> amcMapping;
+        es.get<RPCOMTFLinkMapRcd>().get(amcMapping);
+        theRpcUnpacker.init(*readoutMapping, *amcMapping);
       }
     }
 
