@@ -8,6 +8,7 @@
 <use name="PhysicsTools/PatAlgos"/>
 <use name="DataFormats/NanoAOD"/>
 <use name="roothistmatrix"/>
+<use name="rootntuple"/>
 <use name="RecoVertex/VertexTools"/>
 <use name="RecoVertex/VertexPrimitives"/>
 <use name="DataFormats/L1TGlobal"/>
