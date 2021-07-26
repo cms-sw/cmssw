@@ -25,7 +25,7 @@ namespace ecaldqm {
     void producePlotsTask_(float const*, std::string const&);
     edm::ESGetToken<EcalDAQTowerStatus, EcalDAQTowerStatusRcd> daqHndlToken;
     edm::ESGetToken<EcalDCSTowerStatus, EcalDCSTowerStatusRcd> dcsHndlToken;
-    void setTokens(edm::ConsumesCollector&);
+    void setTokens(edm::ConsumesCollector&) override;
 
     bool doDAQInfo_;
     bool doDCSInfo_;

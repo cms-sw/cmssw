@@ -20,7 +20,7 @@ namespace ecaldqm {
     void setParams(edm::ParameterSet const&) override;
     edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> chStatusToken;
     const EcalChannelStatus* chStatus;
-    void setTokens(edm::ConsumesCollector&);
+    void setTokens(edm::ConsumesCollector&) override;
 
     float errFractionThreshold_;
   };
