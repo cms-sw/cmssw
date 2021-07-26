@@ -179,7 +179,13 @@ run3_common.toModify( hcalSimParameters,
     he = dict(
                readoutFrameSize = cms.int32(10), 
                binOfMaximum     = cms.int32(6)
-              )
+              ),
+    hf1 = dict( samplingFactor = 0.35,
+                timePhase = -6.0 
+               ),
+    hf2 = dict( samplingFactor = 0.35,
+                timePhase = -7.0
+               )
 ) 
 
 
