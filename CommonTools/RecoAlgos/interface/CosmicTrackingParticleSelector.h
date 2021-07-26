@@ -71,9 +71,8 @@ public:
         chargedOnly_(cfg.getParameter<bool>("chargedOnly")),
         pdgId_(cfg.getParameter<std::vector<int> >("pdgId")),
         beamSpotToken_(iC.consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))),
-        trackerDigiGeomToken_(iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
-        globalTrackingGeomToken_(iC.esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()),
-        theMFToken_(iC.esConsumes<MagneticField, IdealMagneticFieldRecord>()) {}
+        globalTrackingGeomToken_(iC.esConsumes()),
+        theMFToken_(iC.esConsumes()) {}
 
   void select(const edm::Handle<collection>& c, const edm::Event& event, const edm::EventSetup& setup) {
     selected_.clear();
@@ -106,10 +105,7 @@ public:
     //if (tpr->pdgId()==pdgId_[it]) testId = true;
     //}
 
-    edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerDigiGeomToken_);
     edm::ESHandle<GlobalTrackingGeometry> theGeometry = iSetup.getHandle(globalTrackingGeomToken_);
-
-    edm::ESHandle<MagneticField> theMF = iSetup.getHandle(theMFToken_);
 
     GlobalVector finalGV(0, 0, 0);
     GlobalPoint finalGP(0, 0, 0);
@@ -180,7 +176,7 @@ public:
     if (!found)
       return false;
     else {
-      FreeTrajectoryState ftsAtProduction(finalGP, finalGV, TrackCharge(tpr->charge()), theMF.product());
+      FreeTrajectoryState ftsAtProduction(finalGP, finalGV, TrackCharge(tpr->charge()), &iSetup.getData(theMFToken_));
       TSCBLBuilderNoMaterial tscblBuilder;
       //as in TrackProducerAlgorithm
       TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction, *bs);
@@ -217,7 +213,6 @@ private:
   std::vector<int> pdgId_;
   container selected_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerDigiGeomToken_;
   edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globalTrackingGeomToken_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMFToken_;
 
