@@ -66,6 +66,7 @@ private:
   edm::EDGetTokenT<reco::SuperClusterCollection> EndcapSuperClusterCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollection_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> pTopologyToken;
 
   int nMCphotons;
   std::vector<float> mcEnergy, mcEta, mcPhi, mcPt;
