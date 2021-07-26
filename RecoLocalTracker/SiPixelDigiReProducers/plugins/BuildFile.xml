@@ -2,6 +2,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/SiPixelDigi"/>
 <use name="CalibTracker/SiPixelESProducers"/>
-<library file="*.cc" name="RecoLocalTrackerSiPixelDigiMorphingPlugins">
+<library file="*.cc" name="RecoLocalTrackerSiPixelDigiReProducersPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

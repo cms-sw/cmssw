@@ -28,6 +28,6 @@ from Configuration.ProcessModifiers.siPixelDigiMorphing_cff import siPixelDigiMo
 siPixelDigiMorphing.toModify(
     siPixelClustersPreSplitting,
     cpu = dict(
-         src = cms.InputTag('siPixelDigisMorphed')
+         src = 'siPixelDigisMorphed'
     )
 )
