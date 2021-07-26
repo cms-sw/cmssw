@@ -19,7 +19,7 @@
 
 class EMTFSetup {
 public:
-  explicit EMTFSetup(const edm::ParameterSet& iConfig);
+  explicit EMTFSetup(const edm::ParameterSet& iConfig, edm::ConsumesCollector iCollector);
   ~EMTFSetup();
 
   // Check and update geometry, conditions, versions, sp LUTs, and pt assignment engine
