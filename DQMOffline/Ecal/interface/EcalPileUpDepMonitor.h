@@ -19,7 +19,6 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"

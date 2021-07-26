@@ -26,9 +26,7 @@
 
 // Framework
 
-EcalPileUpDepMonitor::EcalPileUpDepMonitor(const edm::ParameterSet &ps) 
-  :geomH(esConsumes()),
-   caloTop(esConsumes()) {
+EcalPileUpDepMonitor::EcalPileUpDepMonitor(const edm::ParameterSet &ps) : geomH(esConsumes()), caloTop(esConsumes()) {
   VertexCollection_ = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("VertexCollection"));
 
   if (ps.existsAs<edm::InputTag>("basicClusterCollection") &&

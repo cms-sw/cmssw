@@ -106,8 +106,7 @@ private:
 // constructors and destructor
 //
 ECALMultifitAnalyzer_HI::ECALMultifitAnalyzer_HI(const edm::ParameterSet &iConfig)
-    : 
-      recoPhotonsCollection_(consumes<std::vector<reco::Photon>>(iConfig.getParameter<edm::InputTag>("recoPhotonSrc"))),
+    : recoPhotonsCollection_(consumes<std::vector<reco::Photon>>(iConfig.getParameter<edm::InputTag>("recoPhotonSrc"))),
       caloJetToken_(consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("recoJetSrc"))),
       RecHitCollection_EB_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("RecHitCollection_EB"))),
       RecHitCollection_EE_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("RecHitCollection_EE"))),
