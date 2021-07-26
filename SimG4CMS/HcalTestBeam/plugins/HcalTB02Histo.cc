@@ -20,6 +20,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "HcalTB02Histo.h"
 
+//#define EDM_ML_DEBUG
 //
 // constructors and destructor
 HcalTB02Histo::HcalTB02Histo(const edm::ParameterSet& ps) : rt_tbTimes(nullptr), rt_TransProf(nullptr) {
@@ -38,17 +39,27 @@ HcalTB02Histo::HcalTB02Histo(const edm::ParameterSet& ps) : rt_tbTimes(nullptr),
     sprintf(title, "Scint. Energy in Layer %d ", ilayer);
     TH1D* h = tfile->make<TH1D>(title, title, 500, 0., 1.5);
     rt_histoProf.push_back(h);
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalTBSim") << "HcalTB02Histo:: Initialise Histo " << title;
+#endif
   }
   sprintf(title, "All Hit Time slices");
   rt_tbTimes = tfile->make<TH1D>(title, title, 100, 0., 100.);
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB02Histo:: Initialise Histo " << title;
+#endif
   sprintf(title, "Transv. Shower Profile");
   rt_TransProf = tfile->make<TH2D>(title, title, 100, 0., 1., 1000, 0., 0.5);
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB02Histo:: Initialise Histo " << title;
+#endif
 }
 
-HcalTB02Histo::~HcalTB02Histo() { edm::LogVerbatim("HcalTBSim") << " Deleting HcalTB02Histo"; }
+HcalTB02Histo::~HcalTB02Histo() {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalTBSim") << " Deleting HcalTB02Histo";
+#endif
+}
 
 //
 // member functions

@@ -15,9 +15,9 @@
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimG4CMS/HcalTestBeam/plugins/HcalTB02SD.h"
-#include "SimG4CMS/HcalTestBeam/plugins/HcalTB02HcalNumberingScheme.h"
-#include "SimG4CMS/HcalTestBeam/plugins/HcalTB02XtalNumberingScheme.h"
+#include "HcalTB02SD.h"
+#include "HcalTB02HcalNumberingScheme.h"
+#include "HcalTB02XtalNumberingScheme.h"
 
 #include "G4Step.hh"
 #include "G4Track.hh"
