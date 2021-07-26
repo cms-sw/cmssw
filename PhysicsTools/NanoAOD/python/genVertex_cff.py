@@ -10,7 +10,7 @@ genVertexTable = cms.EDProducer("SimpleXYZPointFlatTableProducer",
     singleton = cms.bool(True), 
     extension = cms.bool(False), 
     variables = cms.PSet(
-         x  = Var("X", float, doc="gen vertex x", precision=10),
+         x = Var("X", float, doc="gen vertex x", precision=10),
          y = Var("Y", float, doc="gen vertex y", precision=10),
          z = Var("Z", float, doc="gen vertex z", precision=16),
     ) 
@@ -27,7 +27,5 @@ genVertexT0Table = cms.EDProducer("GlobalVariablesTableProducer",
 genVertexTablesTask = cms.Task(genVertexTable,genVertexT0Table)
 
 # GenVertex only stored in newer MiniAOD
-(run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94X2016 | \
-    run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | \
-    run2_nanoAOD_102Xv1).toReplaceWith(genVertexTablesTask,cms.Task(genVertexTable))
+(run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toReplaceWith(genVertexTablesTask,cms.Task())    
 
