@@ -14,7 +14,6 @@ namespace edm {
   class Run;
   class LuminosityBlock;
   class EventSetup;
-  //class ConsumesCollector;
 }  // namespace edm
 
 namespace ecaldqm {
@@ -29,7 +28,7 @@ namespace ecaldqm {
     virtual ~EcalDQMonitor() noexcept(false);
 
     static void fillDescriptions(edm::ParameterSetDescription &);
-    //edm::ConsumesCollector& collector;
+
   protected:
     void ecaldqmBeginRun(edm::Run const &, edm::EventSetup const &);
     void ecaldqmEndRun(edm::Run const &, edm::EventSetup const &);

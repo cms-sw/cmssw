@@ -11,10 +11,9 @@
 #include "CondFormats/DataRecord/interface/EcalDQMChannelStatusRcd.h"
 #include "CondFormats/DataRecord/interface/EcalDQMTowerStatusRcd.h"
 
-
 class EcalDQMonitorClient : public DQMEDHarvester, public ecaldqm::EcalDQMonitor {
 public:
-  EcalDQMonitorClient(edm::ParameterSet const&);//, edm::ConsumesCollector& );
+  EcalDQMonitorClient(edm::ParameterSet const&);
   ~EcalDQMonitorClient() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
@@ -35,7 +34,6 @@ private:
   edm::ESGetToken<EcalDQMChannelStatus, EcalDQMChannelStatusRcd> cStHndl;
   edm::ESGetToken<EcalDQMTowerStatus, EcalDQMTowerStatusRcd> tStHndl;
   ecaldqm::StatusManager statusManager_;
-
 };
 
 #endif

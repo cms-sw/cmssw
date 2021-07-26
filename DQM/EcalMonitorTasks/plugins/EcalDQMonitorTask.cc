@@ -47,7 +47,7 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
           if (task->analyze(nullptr, ecaldqm::Collections(iCol)))  // "dry run" mode
             hasTaskToRun.set(iCol);
         }
-
+        worker->setTokens(collector);
         task->setTokens(collector);
       },
       "initialization");

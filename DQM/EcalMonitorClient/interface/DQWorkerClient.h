@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class DetId;
-namespace edm { 
+namespace edm {
   class ConsumesCollector;
 }  // namespace edm
 
@@ -36,7 +36,6 @@ namespace ecaldqm {
     virtual void resetMEs();
     virtual void producePlots(ProcessType) = 0;
 
-    //edm::ConsumesCollector collector(consumesCollector()); 
     // mechanisms to register EDGetTokens for any additional objects used internally
     virtual void setTokens(edm::ConsumesCollector&) {}
 

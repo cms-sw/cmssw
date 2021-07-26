@@ -31,8 +31,10 @@ namespace ecaldqm {
       setFIRWeights_(normWeights);
     }
   }
-  
-  void SelectiveReadoutTask::setTokens(edm::ConsumesCollector& _collector) { hSr = _collector.esConsumes<edm::Transition::BeginRun>(); }
+
+  void SelectiveReadoutTask::setTokens(edm::ConsumesCollector& _collector) {
+    hSr = _collector.esConsumes<edm::Transition::BeginRun>();
+  }
 
   void SelectiveReadoutTask::addDependencies(DependencySet& _dependencies) {
     _dependencies.push_back(Dependency(kEBDigi, kEcalRawData, kEBSrFlag));
@@ -43,7 +45,7 @@ namespace ecaldqm {
     using namespace std;
 
     if (useCondDb_) {
-      auto const& vSr =  &_es.getData(hSr);
+      auto const& vSr = &_es.getData(hSr);
       vector<vector<float> > weights(vSr->dccNormalizedWeights_);
       if (weights.size() == 1) {
         vector<double> normWeights;

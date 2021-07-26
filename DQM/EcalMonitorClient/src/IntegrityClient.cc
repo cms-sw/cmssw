@@ -19,14 +19,14 @@ namespace ecaldqm {
     errFractionThreshold_ = _params.getUntrackedParameter<double>("errFractionThreshold");
   }
 
-  void IntegrityClient::setTokens(edm::ConsumesCollector& _collector) { 
-    chStatusToken = _collector.esConsumes<edm::Transition::EndLuminosityBlock>(); 
+  void IntegrityClient::setTokens(edm::ConsumesCollector& _collector) {
+    chStatusToken = _collector.esConsumes<edm::Transition::EndLuminosityBlock>();
   }
-  
+
   // Check Channel Status Record at every endLumi
   // Used to fill Channel Status Map MEs
-  void IntegrityClient::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& _es) { 
-   chStatus = &_es.getData(chStatusToken);
+  void IntegrityClient::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& _es) {
+    chStatus = &_es.getData(chStatusToken);
   }
 
   void IntegrityClient::producePlots(ProcessType) {

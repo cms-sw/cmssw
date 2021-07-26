@@ -20,7 +20,12 @@
 #include <fstream>
 
 EcalDQMonitorClient::EcalDQMonitorClient(edm::ParameterSet const& _ps)
-    : DQMEDHarvester(), ecaldqm::EcalDQMonitor(_ps), iEvt_(0), cStHndl(esConsumes<edm::Transition::BeginRun>()), tStHndl(esConsumes<edm::Transition::BeginRun>()), statusManager_() {
+    : DQMEDHarvester(),
+      ecaldqm::EcalDQMonitor(_ps),
+      iEvt_(0),
+      cStHndl(esConsumes<edm::Transition::BeginRun>()),
+      tStHndl(esConsumes<edm::Transition::BeginRun>()),
+      statusManager_() {
   edm::ConsumesCollector collector(consumesCollector());
   executeOnWorkers_(
       [this, &collector](ecaldqm::DQWorker* worker) {
@@ -28,8 +33,8 @@ EcalDQMonitorClient::EcalDQMonitorClient(edm::ParameterSet const& _ps)
         if (!client)
           throw cms::Exception("InvalidConfiguration") << "Non-client DQWorker " << worker->getName() << " passed";
         client->setStatusManager(this->statusManager_);
-	client->setTokens(collector);
-	//worker->setTokens(collector);
+        client->setTokens(collector);
+        worker->setTokens(collector);
       },
       "initialization");
 
@@ -62,17 +67,13 @@ void EcalDQMonitorClient::fillDescriptions(edm::ConfigurationDescriptions& _desc
 }
 
 void EcalDQMonitorClient::beginRun(edm::Run const& _run, edm::EventSetup const& _es) {
-  edm::ConsumesCollector iC(consumesCollector());
-  executeOnWorkers_([&_es, &iC](ecaldqm::DQWorker* worker) { 
-		    worker->setToken(iC); 
-		    worker->setSetupObjects(_es); },
+  executeOnWorkers_([&_es](ecaldqm::DQWorker* worker) { worker->setSetupObjects(_es); },
                     "ecaldqmGetSetupObjects",
                     "Getting EventSetup Objects");
 
   if (_es.find(edm::eventsetup::EventSetupRecordKey::makeKey<EcalDQMChannelStatusRcd>()) &&
       _es.find(edm::eventsetup::EventSetupRecordKey::makeKey<EcalDQMTowerStatusRcd>())) {
-     
-    const EcalDQMChannelStatus* ChStatus =  &_es.getData(cStHndl); 
+    const EcalDQMChannelStatus* ChStatus = &_es.getData(cStHndl);
     const EcalDQMTowerStatus* TStatus = &_es.getData(tStHndl);
 
     statusManager_.readFromObj(*ChStatus, *TStatus);
