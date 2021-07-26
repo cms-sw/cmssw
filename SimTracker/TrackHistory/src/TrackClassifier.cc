@@ -70,8 +70,7 @@ void TrackClassifier::newEvent(edm::Event const &event, edm::EventSetup const &s
   genPrimaryVertices();
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand = setup.getHandle(tTopoHandToken_);
-  tTopo_ = tTopoHand.product();
+  tTopo_ = &setup.getData(tTopoHandToken_);
 }
 
 TrackClassifier const &TrackClassifier::evaluate(reco::TrackBaseRef const &track) {
