@@ -5,7 +5,8 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
-process = cms.Process("Geometry")
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+process = cms.Process("Geometry",phase2_common)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.files.debugTrackingMaterialProducer = dict()
