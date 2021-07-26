@@ -11,17 +11,17 @@
 
 #include <vector>
 
-class LUTPackedCandidatesProducer : public edm::global::EDProducer<> {
+class PackedCandidatesTrackLiteModifier : public edm::global::EDProducer<> {
 public:
-  explicit LUTPackedCandidatesProducer(const edm::ParameterSet &);
-  ~LUTPackedCandidatesProducer() override;
+  explicit PackedCandidatesTrackLiteModifier(const edm::ParameterSet &);
+  ~PackedCandidatesTrackLiteModifier() override = default;
 
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   const edm::EDGetTokenT<pat::PackedCandidateCollection> inputCandidates_;
-  edm::EDPutTokenT<pat::PackedCandidateCollection> outputCandidates_;
+  const edm::EDPutTokenT<pat::PackedCandidateCollection> outputCandidates_;
   const unsigned int covSchema_;
   const unsigned int covVersion_;
   const unsigned int nHits_;
@@ -29,26 +29,23 @@ private:
 };
 
 //____________________________________________________________________________||
-LUTPackedCandidatesProducer::LUTPackedCandidatesProducer(const edm::ParameterSet &iConfig)
+PackedCandidatesTrackLiteModifier::PackedCandidatesTrackLiteModifier(const edm::ParameterSet &iConfig)
     : inputCandidates_(
           consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("inputCandidates"))),
+      outputCandidates_(produces<pat::PackedCandidateCollection>("")),
       covSchema_(iConfig.getParameter<unsigned int>("covSchema")),
       covVersion_(iConfig.getParameter<unsigned int>("covVersion")),
       nHits_(iConfig.getParameter<unsigned int>("nHits")),
       nPixelHits_(iConfig.getParameter<unsigned int>("nPixelHits")) {
-  outputCandidates_ = produces<pat::PackedCandidateCollection>("");
 }
 
-LUTPackedCandidatesProducer::~LUTPackedCandidatesProducer() {}
+void PackedCandidatesTrackLiteModifier::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
 
-void LUTPackedCandidatesProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
-  edm::Handle<pat::PackedCandidateCollection> packedCandidates;
-  iEvent.getByToken(inputCandidates_, packedCandidates);
+  auto const& packedCandidates = iEvent.get(inputCandidates_);
 
   pat::PackedCandidateCollection output;
-  output.reserve(packedCandidates->size());
-  for (unsigned int ic = 0, nc = packedCandidates->size(); ic < nc; ++ic) {
-    const pat::PackedCandidate &cand = (*packedCandidates)[ic];
+  output.reserve(packedCandidates.size());
+  for (auto const& cand: packedCandidates) {
     output.push_back(pat::PackedCandidate(cand));
 
     if (!output.back().hasTrackDetails() && output.back().covarianceVersion() == int(covVersion_))
@@ -58,7 +55,7 @@ void LUTPackedCandidatesProducer::produce(edm::StreamID, edm::Event &iEvent, con
   iEvent.emplace(outputCandidates_, std::move(output));
 };
 
-void LUTPackedCandidatesProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void PackedCandidatesTrackLiteModifier::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("inputCandidates", edm::InputTag("packedPFCandidates"));
@@ -72,4 +69,4 @@ void LUTPackedCandidatesProducer::fillDescriptions(edm::ConfigurationDescription
 
 //____________________________________________________________________________||
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(LUTPackedCandidatesProducer);
+DEFINE_FWK_MODULE(PackedCandidatesTrackLiteModifier);
