@@ -55,7 +55,7 @@ private:
   edm::ParameterSet conf_;
   bool validPixelSeeds_;
   bool risolveAmbiguity_;
-  bool hgcalOnly_;
+  bool endcapOnly_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -75,7 +75,7 @@ PhotonCoreProducer::PhotonCoreProducer(const edm::ParameterSet& config)
   pixelSeedProducer_ = consumes<reco::ElectronSeedCollection>(conf_.getParameter<edm::InputTag>("pixelSeedProducer"));
   minSCEt_ = conf_.getParameter<double>("minSCEt");
   risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");
-  hgcalOnly_ = conf_.getParameter<bool>("hgcalOnly");
+  endcapOnly_ = conf_.getParameter<bool>("endcapOnly");
 
   // Register the product
   produces<reco::PhotonCoreCollection>(PhotonCoreCollection_);
@@ -92,13 +92,13 @@ void PhotonCoreProducer::produce(edm::Event& theEvent, const edm::EventSetup& th
 
   // Get the  Barrel Super Cluster collection
   bool validBarrelSCHandle = true;
-  if (hgcalOnly_) {
+  if (endcapOnly_) {
     validBarrelSCHandle = false;
   }
 
   Handle<reco::SuperClusterCollection> scBarrelHandle;
   theEvent.getByToken(scHybridBarrelProducer_, scBarrelHandle);
-  if (!hgcalOnly_ && !scBarrelHandle.isValid()) {
+  if (!endcapOnly_ && !scBarrelHandle.isValid()) {
     edm::LogError("PhotonCoreProducer") << "Error! Can't get the scHybridBarrelProducer";
     validBarrelSCHandle = false;
   }
