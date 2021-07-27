@@ -15,7 +15,6 @@
 
 #include <bitset>
 
-
 class SiPixelDigiMorphing : public edm::stream::EDProducer<> {
 public:
   explicit SiPixelDigiMorphing(const edm::ParameterSet& conf);
@@ -46,7 +45,6 @@ private:
 
   void morph(uint64_t* imap, uint64_t* omap, uint64_t* kernel, MorphOption op);
 };
-
 
 SiPixelDigiMorphing::SiPixelDigiMorphing(edm::ParameterSet const& conf)
     : tPutPixelDigi(produces<edm::DetSetVector<PixelDigi>>()),
