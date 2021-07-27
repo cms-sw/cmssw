@@ -415,7 +415,7 @@ namespace TopDiLeptonOffline {
   */
 
     const JetCorrector* corrector = nullptr;
-    if (!jetCorrector_.isInitialized()) {
+    if (!jetCorrector_.isInitialized() && jetCorrector_.hasValidIndex()) {
       // check whether a jet correcto is in the event setup or not
       if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>())) {
         corrector = &setup.getData(jetCorrector_);
