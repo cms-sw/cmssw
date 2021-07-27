@@ -23,7 +23,8 @@ SimG4FluxProducer::SimG4FluxProducer(const edm::ParameterSet& p) : count_(0), in
   for (unsigned int k = 0; k < LVNames_.size(); ++k) {
     produces<ParticleFlux>(Form("%sParticleFlux", LVNames_[k].c_str()));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("SimG4FluxProducer") << "SimG4FluxProducer::Collection name[" << k << "] ParticleFlux" << LVNames_[k] << " and type " << LVTypes_[k];
+    edm::LogVerbatim("SimG4FluxProducer")
+        << "SimG4FluxProducer::Collection name[" << k << "] ParticleFlux" << LVNames_[k] << " and type " << LVTypes_[k];
 #endif
   }
 }
@@ -60,7 +61,8 @@ void SimG4FluxProducer::update(const BeginOfRun* run) {
     edm::LogVerbatim("SimG4FluxProducer") << "SimG4FluxProducer::Finds " << mapLV_.size() << " logical volumes";
     unsigned int k(0);
     for (const auto& lvs : mapLV_) {
-      edm::LogVerbatim("SimG4FluxProducer") << "Entry[" << k << "] " << lvs.first << ": (" << (lvs.second).first << ", " << (lvs.second).second << ")";
+      edm::LogVerbatim("SimG4FluxProducer")
+          << "Entry[" << k << "] " << lvs.first << ": (" << (lvs.second).first << ", " << (lvs.second).second << ")";
       ++k;
     }
 #endif
@@ -106,7 +108,10 @@ void SimG4FluxProducer::update(const G4Step* aStep) {
                                           MeVToGeV * track->GetMomentum().z());
         (itr->second).addFlux(flx);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("SimG4FluxProducer") << "SimG4FluxProducer: Element " << (it->second).first << ":" << (it->second).second << ":" << copy  << " ID " << pdgid << " VxType " << vxtyp << " TOF " << time << " Hit Point " << flx.hitPoint << " p "  << flx.momentum << " Vertex " << flx.vertex;
+        edm::LogVerbatim("SimG4FluxProducer")
+            << "SimG4FluxProducer: Element " << (it->second).first << ":" << (it->second).second << ":" << copy
+            << " ID " << pdgid << " VxType " << vxtyp << " TOF " << time << " Hit Point " << flx.hitPoint << " p "
+            << flx.momentum << " Vertex " << flx.vertex;
 #endif
       }  //if(Step ok)
     }    //if( it != map.end() )
@@ -123,11 +128,14 @@ void SimG4FluxProducer::endOfEvent(ParticleFlux& flux, unsigned int k) {
         flux = element.second;
         done = true;
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("SimG4FluxProducer") << "SimG4FluxProducer[" << k << "] Flux " << flux.getName() << ":" << flux.getId() << " with " << flux.getComponents() << " elements";
+        edm::LogVerbatim("SimG4FluxProducer") << "SimG4FluxProducer[" << k << "] Flux " << flux.getName() << ":"
+                                              << flux.getId() << " with " << flux.getComponents() << " elements";
         std::vector<ParticleFlux::flux> fluxes = flux.getFlux();
         unsigned int k(0);
         for (auto element : fluxes) {
-          edm::LogVerbatim("SimG4FluxProducer") << "Flux[" << k << "] PDGId " << element.pdgId << " VT " << element.vxType << " ToF " << element.tof << " Vertex " << element.vertex << " Hit " << element.hitPoint << " p " << element.momentum;
+          edm::LogVerbatim("SimG4FluxProducer")
+              << "Flux[" << k << "] PDGId " << element.pdgId << " VT " << element.vxType << " ToF " << element.tof
+              << " Vertex " << element.vertex << " Hit " << element.hitPoint << " p " << element.momentum;
           ++k;
         }
 #endif
