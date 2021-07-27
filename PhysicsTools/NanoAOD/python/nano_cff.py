@@ -140,7 +140,7 @@ def nanoAOD_addDeepMET(process, addDeepMETProducer, ResponseTune_Graph):
         # produce DeepMET on the fly if it is not in MiniAOD
         print("add DeepMET Producers")
         process.load('RecoMET.METPUSubtraction.deepMETProducer_cfi')
-        process.deepMETsResolutionTune = process.deepMETProducer.clone()
+#        process.deepMETsResolutionTune = process.deepMETProducer.clone()
         process.deepMETsResponseTune = process.deepMETProducer.clone()
         #process.deepMETsResponseTune.graph_path = 'RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb'
         process.deepMETsResponseTune.graph_path = ResponseTune_Graph.value()
