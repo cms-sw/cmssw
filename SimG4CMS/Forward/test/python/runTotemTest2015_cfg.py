@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
 
-process = cms.Process("PROD")
+process = cms.Process("PROD",Run2_2016)
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedFlat_cfi")
 process.load("Geometry.ForwardCommonData.totemTest2015_cff")
@@ -113,4 +114,3 @@ process.schedule = cms.Schedule(process.generation_step,
 # filter all path with the production filter sequence
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
-
