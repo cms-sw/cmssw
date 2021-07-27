@@ -88,10 +88,6 @@ TransientTrackFromFTS::TransientTrackFromFTS(const TransientTrackFromFTS& tt)
   }
 }
 
-void TransientTrackFromFTS::setES(const edm::EventSetup& setup) {
-  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-}
-
 void TransientTrackFromFTS::setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& tg) {
   theTrackingGeometry = tg;
 }
