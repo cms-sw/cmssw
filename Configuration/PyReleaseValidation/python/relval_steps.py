@@ -491,7 +491,6 @@ steps['RunCosmics2015C']={'INPUT':InputInfo(dataSet='/Cosmics/Run2015C-v1/RAW',l
 steps['RunCosmics2016B']={'INPUT':InputInfo(dataSet='/Cosmics/Run2016B-v1/RAW',label='2016B',run=[272133],events=100000,location='STD')}
 
 ### LS2 - MWGR#5 2020 - CSC, DAQ, DCS, DQM, DT, ECAL, GEM, HCAL, RPC, TCDS, TRACKER, TRG ###
-steps['RunCosmics2020']={'INPUT':InputInfo(dataSet='/ExpressCosmics/Commissioning2020-Express-v1/FEVT',label='2020GR5',ls={338714: [[1, 10000]]},events=100000,location='STD')}
 steps['RunCosmics2021']={'INPUT':InputInfo(dataSet='/ExpressCosmics/Commissioning2021-Express-v1/FEVT',label='2021GR5',ls={343498: [[1, 10000]]},events=100000,location='STD')}
 
 
