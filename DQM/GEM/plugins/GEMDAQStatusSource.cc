@@ -129,7 +129,7 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
   SetLabelAMCStatus(h2AMCStatusPos_);
 
   mapStatusOH_ =
-      MEMap3Inf(this, "oh_status", "OctoHybrid Status", 36, 0.5, 36.5, nBitOH_, 0.5, nBitOH_ + 0.5, "Chamber");
+      MEMap3Inf(this, "oh_status", "OptoHybrid Status", 36, 0.5, 36.5, nBitOH_, 0.5, nBitOH_ + 0.5, "Chamber");
   mapStatusVFAT_ =
       MEMap3Inf(this, "vfat_status", "VFAT Status", 24, -0.5, 24 - 0.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
 
