@@ -16,29 +16,10 @@ process.GlobalTag.globaltag = autoCond['run2_mc']
 process.VtxSmeared.MinZ = -10.5
 process.VtxSmeared.MaxZ = -9.5
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        enable = cms.untracked.bool(False)
-    ),
-    cout = cms.untracked.PSet(
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        ForwardSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        enable = cms.untracked.bool(True)
-    )
-)
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.ForwardSim=dict()
+    process.MessageLogger.SimG4FluxProducer=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
