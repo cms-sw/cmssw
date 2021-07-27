@@ -72,7 +72,7 @@ public:
   /// constructor from parameter set
   CandidateProducer(const edm::ParameterSet& cfg)
       : srcToken_(consumes<TColl>(cfg.template getParameter<edm::InputTag>("src"))),
-        converter_(cfg),
+        converter_(cfg, consumesCollector()),
         selector_(reco::modules::make<Selector>(cfg, consumesCollector())),
         initialized_(false) {
     produces<CColl>();
