@@ -214,7 +214,7 @@
     </LogicalPart>
     <LogicalPart name="FrontModerator" category="unspecified">
       <rSolid name="etl:FrontModerator"/>
-      <rMaterial name="materials:Borated Polyethyl."/>
+      <rMaterial name="mtdMaterial:Borated_Polyethyl."/>
     </LogicalPart>
     <LogicalPart name="Cables" category="unspecified">
       <rSolid name="etl:Cables"/>
