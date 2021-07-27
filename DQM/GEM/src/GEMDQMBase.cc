@@ -141,10 +141,10 @@ dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& iboo
     auto key = listLayers[i - 1];
     auto strInfo = GEMUtils::getSuffixName(key);  // NOTE: It starts with '_'
     auto region = keyToRegion(key);
-    auto label = Form("GE%i%i-%c-L%i;%s",
+    auto label = Form("GE%i%i-%cL%i;%s",
                       std::abs(region),
                       keyToStation(key),
-                      (region > 0 ? 'P' : 'N'),
+                      (region > 0 ? 'P' : 'M'),
                       keyToLayer(key),
                       strInfo.Data());
     h2Res->setBinLabel(i, label, 2);
@@ -182,8 +182,11 @@ int GEMDQMBase::GenerateMEPerChamber(DQMStore::IBooker& ibooker) {
       MEMap3Check_[key3] = true;
     }
     if (!MEMap3WithChCheck_[key3WithChamber]) {
-      auto strSuffixName = GEMUtils::getSuffixName(key2) + Form("-%02i-L%i", gid.chamber(), gid.layer());
-      auto strSuffixTitle = GEMUtils::getSuffixTitle(key2) + Form("-%02i-L%i", gid.chamber(), gid.layer());
+      Int_t nCh = gid.chamber();
+      Int_t nLa = gid.layer();
+      char cLS = (nCh % 2 == 0 ? 'L' : 'S');  // FIXME: Is it general enough?
+      auto strSuffixName = GEMUtils::getSuffixName(key2) + Form("-%02iL%i-%c", nCh, nLa, cLS);
+      auto strSuffixTitle = GEMUtils::getSuffixTitle(key2) + Form("-%02iL%i-%c", nCh, nLa, cLS);
       BookingHelper bh3Ch(ibooker, strSuffixName, strSuffixTitle);
       ProcessWithMEMap3WithChamber(bh3Ch, key3WithChamber);
       MEMap3WithChCheck_[key3WithChamber] = true;

@@ -104,7 +104,12 @@ public:
 
     MEMapInfT(
         GEMDQMBase *pDQMBase, TString strName, TString strTitle, TString strTitleX = "", TString strTitleY = "Entries")
-        : pDQMBase_(pDQMBase), strName_(strName), strTitle_(strTitle), strTitleX_(strTitleX), strTitleY_(strTitleY){};
+        : pDQMBase_(pDQMBase),
+          strName_(strName),
+          strTitle_(strTitle),
+          strTitleX_(strTitleX),
+          strTitleY_(strTitleY),
+          log_category_own_(pDQMBase->log_category_){};
 
     MEMapInfT(GEMDQMBase *pDQMBase,
               TString strName,
@@ -124,7 +129,8 @@ public:
           nBinsX_(nBinsX),
           dXL_(dXL),
           dXH_(dXH),
-          nBinsY_(-1){};
+          nBinsY_(-1),
+          log_category_own_(pDQMBase->log_category_){};
 
     MEMapInfT(GEMDQMBase *pDQMBase,
               TString strName,
@@ -140,7 +146,8 @@ public:
           bOperating_(true),
           bIsProfile_(false),
           nBinsX_(-1),
-          nBinsY_(-1) {
+          nBinsY_(-1),
+          log_category_own_(pDQMBase->log_category_) {
       for (Int_t i = 0; i < (Int_t)x_binning.size(); i++)
         x_binning_.push_back(x_binning[i]);
     };
@@ -170,7 +177,8 @@ public:
           dYL_(dYL),
           dYH_(dYH),
           dZL_(0),
-          dZH_(1024){};
+          dZH_(1024),
+          log_category_own_(pDQMBase->log_category_){};
 
     MEMapInfT(GEMDQMBase *pDQMBase,  // For TProfile2D
               TString strName,
@@ -199,7 +207,8 @@ public:
           dYL_(dYL),
           dYH_(dYH),
           dZL_(dZL),
-          dZH_(dZH){};
+          dZH_(dZH),
+          log_category_own_(pDQMBase->log_category_){};
 
     //MEMapInfT(GEMDQMBase *pDQMBase,
     //          TString strName,
@@ -219,7 +228,8 @@ public:
     //      dXH_(dXH),
     //      nBinsY_(nBinsY),
     //      dYL_(dYL),
-    //      dYH_(dYH){};
+    //      dYH_(dYH),
+    //      log_category_own_(pDQMBase->log_category_){};
 
     ~MEMapInfT(){};
 
@@ -299,9 +309,8 @@ public:
 
     dqm::impl::MonitorElement *FindHist(K key) {
       if (mapHist.find(key) == mapHist.end()) {
-        std::cout << "WARNING: Cannot find the histogram corresponing to the given key"
-                  << std::endl;  // FIXME: It's about sending a message
-        return nullptr;
+        edm::LogError(log_category_own_)
+            << "WARNING: Cannot find the histogram corresponing to the given key\n";  // FIXME: It's about sending a message
       }
       return mapHist[key];
     };
@@ -402,6 +411,8 @@ public:
     Int_t nBinsY_;
     Double_t dYL_, dYH_;
     Double_t dZL_, dZH_;
+
+    std::string log_category_own_;
   };
 
   typedef MEMapInfT<MEMap2Ids, ME2IdsKey> MEMap2Inf;
@@ -444,6 +455,8 @@ public:
 public:
   explicit GEMDQMBase(const edm::ParameterSet &cfg);
   ~GEMDQMBase() override{};
+
+  std::string log_category_;
 
 protected:
   int initGeometry(edm::EventSetup const &iSetup);
@@ -494,8 +507,6 @@ protected:
   inline int getIEtaFromVFATGE11(const int vfat);
   inline int getMaxVFAT(const int);
   inline int getDetOccXBin(const int, const int, const int);
-
-  std::string log_category_;
 
   const GEMGeometry *GEMGeometry_;
 
