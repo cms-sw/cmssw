@@ -150,6 +150,11 @@ For products only read from previous processes, 'skip current process' is added
   EndPathStatusInserter/'e'
   EndPathStatusInserter/'p1ep2'
 
+The following legacy modules are configured. Support for legacy modules
+is going to end soon. These modules need to be converted to have type
+edm::global, edm::stream, edm::one, or in rare cases edm::limited.
+  IntVectorProducer intVectorProducer
+%MSG
 Process name = PROD2
 paths:
   path1

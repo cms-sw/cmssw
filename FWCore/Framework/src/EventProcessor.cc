@@ -644,6 +644,8 @@ namespace edm {
     if (preallocations_.numberOfLuminosityBlocks() > 1) {
       warnAboutModulesRequiringLuminosityBLockSynchronization();
     }
+    warnAboutLegacyModules();
+
     //NOTE:  This implementation assumes 'Job' means one call
     // the EventProcessor::run
     // If it really means once per 'application' then this code will
@@ -1992,6 +1994,21 @@ namespace edm {
         if (not s) {
           s = std::make_unique<LogSystem>("ModulesSynchingOnLumis");
           (*s) << "The following modules require synchronizing on LuminosityBlock boundaries:";
+        }
+        (*s) << "\n  " << worker->description()->moduleName() << " " << worker->description()->moduleLabel();
+      }
+    }
+  }
+
+  void EventProcessor::warnAboutLegacyModules() const {
+    std::unique_ptr<LogSystem> s;
+    for (auto worker : schedule_->allWorkers()) {
+      if (worker->moduleConcurrencyType() == Worker::kLegacy) {
+        if (not s) {
+          s = std::make_unique<LogSystem>("LegacyModules");
+          (*s) << "The following legacy modules are configured. Support for legacy modules\n"
+                  "is going to end soon. These modules need to be converted to have type\n"
+                  "edm::global, edm::stream, edm::one, or in rare cases edm::limited.";
         }
         (*s) << "\n  " << worker->description()->moduleName() << " " << worker->description()->moduleLabel();
       }
