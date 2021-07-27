@@ -1,9 +1,12 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Run3_cff import Run3
+
+process = cms.Process("PROD",Run3)
 
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedFlat_cfi")
-process.load("Geometry.ForwardCommonData.totemTest2019_cff")
+process.load("Geometry.ForwardCommonData.totemTest2021_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -111,4 +114,3 @@ process.schedule = cms.Schedule(process.generation_step,
 # filter all path with the production filter sequence
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
-
