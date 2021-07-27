@@ -9,6 +9,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,10 +41,13 @@ private:
   void analyze(const edm::Event& e, const edm::EventSetup& es) override;
 
   void printInfo(const CTPPSRPAlignmentCorrectionsData& alignments, const edm::Event& event) const;
-  edm::ESWatcher<CTPPSRPAlignmentCorrectionsDataRcd> watcherAlignments_;
 
-  cond::Time_t iov_;
+  edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, CTPPSRPAlignmentCorrectionsDataRcd> tokenAlignmentIdeal_;
+  edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord> tokenAlignmentReal_;
+  edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord> tokenAlignmentMisaligned_;
+
   std::string record_;
+  cond::Time_t iov_;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -54,30 +58,35 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSRPAlignmentInfoAnalyzer::CTPPSRPAlignmentInfoAnalyzer(const edm::ParameterSet& iConfig) {
-  record_ = iConfig.getParameter<string>("record");
-  iov_ = iConfig.getParameter<unsigned long long>("iov");
+CTPPSRPAlignmentInfoAnalyzer::CTPPSRPAlignmentInfoAnalyzer(const edm::ParameterSet& iConfig)
+    : record_(iConfig.getParameter<string>("record")), iov_(iConfig.getParameter<unsigned long long>("iov")) {
+  if (strcmp(record_.c_str(), "CTPPSRPAlignmentCorrectionsDataRcd") == 0) {
+    tokenAlignmentIdeal_ = esConsumes<CTPPSRPAlignmentCorrectionsData, CTPPSRPAlignmentCorrectionsDataRcd>();
+  } else if (strcmp(record_.c_str(), "RPRealAlignmentRecord") == 0) {
+    tokenAlignmentReal_ = esConsumes<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord>();
+  } else {
+    tokenAlignmentMisaligned_ = esConsumes<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>();
+  }
 }
 
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSRPAlignmentInfoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<CTPPSRPAlignmentCorrectionsData> alignments;
-  if (watcherAlignments_.check(iSetup)) {
-    if (strcmp(record_.c_str(), "CTPPSRPAlignmentCorrectionsDataRcd") == 0) {
-      iSetup.get<CTPPSRPAlignmentCorrectionsDataRcd>().get(alignments);
-    } else if (strcmp(record_.c_str(), "RPRealAlignmentRecord") == 0) {
-      iSetup.get<RPRealAlignmentRecord>().get(alignments);
-    } else {
-      iSetup.get<RPMisalignedAlignmentRecord>().get(alignments);
-    }
-    const CTPPSRPAlignmentCorrectionsData* pCTPPSRPAlignmentCorrectionsData = alignments.product();
-    edm::Service<cond::service::PoolDBOutputService> poolDbService;
-    if (poolDbService.isAvailable()) {
-      poolDbService->writeOne(pCTPPSRPAlignmentCorrectionsData, iov_, record_);
-    }
+
+  if (strcmp(record_.c_str(), "CTPPSRPAlignmentCorrectionsDataRcd") == 0) {
+    alignments = iSetup.getHandle(tokenAlignmentIdeal_);
+  } else if (strcmp(record_.c_str(), "RPRealAlignmentRecord") == 0) {
+    alignments = iSetup.getHandle(tokenAlignmentReal_);
+  } else {
+    alignments = iSetup.getHandle(tokenAlignmentMisaligned_);
   }
-  return;
+
+  const CTPPSRPAlignmentCorrectionsData* pCTPPSRPAlignmentCorrectionsData = alignments.product();
+  edm::Service<cond::service::PoolDBOutputService> poolDbService;
+  if (poolDbService.isAvailable()) {
+    poolDbService->writeOne(pCTPPSRPAlignmentCorrectionsData, iov_, record_);
+  }
 }
 
 //----------------------------------------------------------------------------------------------------
