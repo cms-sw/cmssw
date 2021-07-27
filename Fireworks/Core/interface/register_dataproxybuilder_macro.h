@@ -46,7 +46,7 @@
     return s_type;                                                        \
   }                                                                       \
   const std::string& _builder_::classView() {                             \
-    static std::string s_view(std::to_string(_view_));  \
+    static std::string s_view(std::to_string(_view_));                    \
     return s_view;                                                        \
   }                                                                       \
   const std::string& _builder_::classPurpose() {                          \
