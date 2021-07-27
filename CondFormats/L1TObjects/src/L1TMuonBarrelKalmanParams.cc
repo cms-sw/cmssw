@@ -1,7 +1,8 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelKalmanParams.h"
 
 L1TMuonBarrelKalmanParams::L1TMuonBarrelKalmanParams()
-    : pnodes_(NUM_BMTF_PARAM_NODES)  //, l1mudttfmasks_(1) // auto masking (future)
+  : pnodes_(NUM_BMTF_PARAM_NODES),
+    l1mudttfmasks_(1)
 {
   version_ = Version;
   pnodes_[CONFIG].type_ = "unspecified";
