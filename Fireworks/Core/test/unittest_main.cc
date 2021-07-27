@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     unittest_main
-// 
+//
 // Implementation:
 //     Creates the 'main' routine for the auto tests
 //
