@@ -8,12 +8,12 @@
 class TrackExtraRekeyer : public edm::stream::EDProducer<> {
 public:
   explicit TrackExtraRekeyer(const edm::ParameterSet &);
-  ~TrackExtraRekeyer() {}
+  ~TrackExtraRekeyer() override {}
 
   //   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  virtual void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
   edm::EDGetTokenT<reco::TrackCollection> inputTrack_;
   edm::EDGetTokenT<edm::Association<reco::TrackExtraCollection>> inputAssoc_;
