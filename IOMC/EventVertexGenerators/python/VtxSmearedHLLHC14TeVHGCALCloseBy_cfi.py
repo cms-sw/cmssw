@@ -7,5 +7,3 @@ VtxSmeared = cms.EDProducer("HLLHCEvtVtxGenerator",
     VtxSmearedCommon
 )
 VtxSmeared.SigmaZ = cms.double(0)
-
-
