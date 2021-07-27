@@ -468,7 +468,7 @@ bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetu
 
   // load jet corrector if configured such
   const JetCorrector* corrector = nullptr;
-  if (!jetCorrector_.isInitialized()) {
+  if (!jetCorrector_.isInitialized() && jetCorrector_.hasValidIndex()) {
     // check whether a jet correcto is in the event setup or not
     if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>())) {
       corrector = &setup.getData(jetCorrector_);
