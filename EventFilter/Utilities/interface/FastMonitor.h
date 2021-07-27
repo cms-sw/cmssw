@@ -23,7 +23,7 @@ namespace jsoncollector {
                 bool strictChecking,
                 bool useSource = true,
                 bool useDefinition = true);
-    FastMonitor(DataPointDefinition* dpd, bool strictChecking, bool useSource = true, bool useDefinition = true);
+    FastMonitor(DataPointDefinition const* dpd, bool strictChecking, bool useSource = true, bool useDefinition = true);
 
     virtual ~FastMonitor();
 
@@ -104,8 +104,8 @@ namespace jsoncollector {
     unsigned int nStreams_;
 
     std::string sourceInfo_;
-    DataPointDefinition* dpd_;
-    DataPointDefinition* dpdFast_;
+    DataPointDefinition const* dpd_;
+    DataPointDefinition const* dpdFast_;
     bool deleteDef_ = false;
     bool deleteDefFast_ = false;
 
