@@ -59,7 +59,6 @@ private:
   const string confGeomXMLFiles_;
   const string rootDDName_;
   const string label_;
-  const bool makePayload_;
   edm::ESGetToken<FileBlob, MFGeometryFileRcd> mfToken_;
   edm::ESGetToken<FileBlob, GeometryFileRcd> geomToken_;
 };
@@ -69,8 +68,7 @@ DDDetectorESProducer::DDDetectorESProducer(const ParameterSet& iConfig)
       appendToDataLabel_(iConfig.getParameter<string>("appendToDataLabel")),
       confGeomXMLFiles_(fromDB_ ? "none" : iConfig.getParameter<FileInPath>("confGeomXMLFiles").fullPath()),
       rootDDName_(iConfig.getParameter<string>("rootDDName")),
-      label_(iConfig.getParameter<string>("label")),
-      makePayload_(iConfig.getParameter<bool>("makePayload")) {
+      label_(iConfig.getParameter<string>("label")) {
   usesResources({edm::ESSharedResourceNames::kDD4Hep});
   if (rootDDName_ == "MagneticFieldVolumes:MAGF" || rootDDName_ == "cmsMagneticField:MAGF") {
     auto c = setWhatProduced(this,
@@ -98,14 +96,12 @@ void DDDetectorESProducer::fillDescriptions(ConfigurationDescriptions& descripti
   desc.add<string>("rootDDName", "cms:OCMS");
   desc.add<string>("label", "");
   desc.add<bool>("fromDB", false);
-  desc.add<bool>("makePayload", false);
   descriptions.add("DDDetectorESProducer", desc);
 
   edm::ParameterSetDescription descDB;
   descDB.add<string>("rootDDName", "cms:OCMS");
   descDB.add<string>("label", "Extended");
   descDB.add<bool>("fromDB", true);
-  descDB.add<bool>("makePayload", false);
   descriptions.add("DDDetectorESProducerFromDB", descDB);
 }
 
@@ -135,13 +131,13 @@ DDDetectorESProducer::ReturnType DDDetectorESProducer::produceGeom(const IdealGe
 
     return make_unique<cms::DDDetector>(label_, string(tb->begin(), tb->end()), true);
   } else {
-    return make_unique<DDDetector>(appendToDataLabel_, confGeomXMLFiles_, false, makePayload_);
+    return make_unique<DDDetector>(appendToDataLabel_, confGeomXMLFiles_, false);
   }
 }
 
 DDDetectorESProducer::ReturnType DDDetectorESProducer::produce() {
   LogVerbatim("Geometry") << "DDDetectorESProducer::Produce " << appendToDataLabel_;
-  return make_unique<DDDetector>(appendToDataLabel_, confGeomXMLFiles_, false, makePayload_);
+  return make_unique<DDDetector>(appendToDataLabel_, confGeomXMLFiles_, false);
 }
 
 DEFINE_FWK_EVENTSETUP_SOURCE(DDDetectorESProducer);

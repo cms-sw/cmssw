@@ -553,7 +553,7 @@ const std::vector<double> DDFilteredView::parameters() const {
 const cms::DDSolidShape DDFilteredView::shape() const {
   assert(node_);
   if ((volume().volume())->IsAssembly()) {
-    return (cms::DDSolidShape::ddbox);  // Return dummy box
+    return (cms::DDSolidShape::ddbox);  // Needs to be box to match DDFilteredView::solid()
   }
   return cms::dd::value(cms::DDSolidShapeMap, std::string(node_->GetVolume()->GetShape()->GetTitle()));
 }
@@ -865,6 +865,7 @@ std::string_view DDFilteredView::fullName() const {
 dd4hep::Solid DDFilteredView::solid() const {
   if ((volume().volume())->IsAssembly()) {
     std::string solName(name());
+    // Valid solid is needed, use a dummy box
     return (dd4hep::Box(solName, 1., 1., 1.));
   }
   return (volume().volume().solid());
