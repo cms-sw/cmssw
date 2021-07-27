@@ -475,19 +475,15 @@ run2_miniAOD_80XLegacy.toModify(electronTable.variables,
 
 )
 #############electron Table END#####################
-from PhysicsTools.NanoAOD.particlelevel_cff import particleLevel
-particleLevelForMatching = particleLevel.clone(
-    lepMinPt    = cms.double(3.),
-    phoMinPt = cms.double(3),
-)
-#as above should be cloned from @ PhysicsTools/NanoAOD/python/particlelevel_cff.py
+# Depends on particlelevel producer run in particlelevel_cff
 tautaggerForMatching = cms.EDProducer("GenJetTauTaggerProducer",
-                                      src = cms.InputTag('particleLevelForMatching:leptons')
+                                      src = cms.InputTag('particleLevel:leptons')
 )
-##PhysicsTools/NanoAOD/plugins/GenJetGenPartMerger.cc##this class misses fillDescription#TODO
+ ##PhysicsTools/NanoAOD/plugins/GenJetGenPartMerger.cc##this class misses fillDescription#TODO
 matchingElecPhoton = cms.EDProducer("GenJetGenPartMerger",
-                                    srcJet =cms.InputTag("particleLevelForMatching:leptons"),
-                                    srcPart=cms.InputTag("particleLevelForMatching:photons"),
+                                    srcJet =cms.InputTag("particleLevel:leptons"),
+                                    srcPart=cms.InputTag("particleLevel:photons"),
+                                    cut = cms.string("pt > 3"),
                                     hasTauAnc=cms.InputTag("tautaggerForMatching"),
 )
 electronsMCMatchForTableAlt = cms.EDProducer("GenJetMatcherDRPtByDR",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
@@ -527,7 +523,7 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
 
 electronSequence = cms.Sequence(bitmapVIDForEle + bitmapVIDForEleHEEP + isoForEle + ptRatioRelForEle + seedGainEle + slimmedElectronsWithUserData + finalElectrons)
 electronTables = cms.Sequence (electronMVATTH + electronTable)
-electronMC = cms.Sequence(particleLevelForMatching + tautaggerForMatching + matchingElecPhoton + electronsMCMatchForTable + electronsMCMatchForTableAlt + electronMCTable)
+electronMC = cms.Sequence(tautaggerForMatching + matchingElecPhoton + electronsMCMatchForTable + electronsMCMatchForTableAlt + electronMCTable)
 
 #for NANO from reminAOD, no need to run slimmedElectronsUpdated, other modules of electron sequence will run on slimmedElectrons
 for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
