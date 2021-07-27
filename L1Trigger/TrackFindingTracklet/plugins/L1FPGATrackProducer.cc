@@ -170,9 +170,6 @@ private:
 
   std::map<string, vector<int>> dtclayerdisk;
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  edm::ESHandle<TrackerGeometry> tGeomHandle;
-
   edm::InputTag MCTruthClusterInputTag;
   edm::InputTag MCTruthStubInputTag;
   edm::InputTag TrackingParticleInputTag;
@@ -188,6 +185,10 @@ private:
 
   // Setup token
   edm::ESGetToken<trackerDTC::Setup, trackerDTC::SetupRcd> esGetToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 
   /// ///////////////// ///
   /// MANDATORY METHODS ///
@@ -208,7 +209,10 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
       TrackingParticleInputTag(readMoreMcTruth_ ? iConfig.getParameter<edm::InputTag>("TrackingParticleInputTag")
                                                 : edm::InputTag()),
       bsToken_(consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("BeamSpotSource"))),
-      tokenDTC_(consumes<TTDTC>(edm::InputTag(iConfig.getParameter<edm::InputTag>("InputTagTTDTC")))) {
+      tokenDTC_(consumes<TTDTC>(edm::InputTag(iConfig.getParameter<edm::InputTag>("InputTagTTDTC")))),
+      magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()),
+      tGeomToken_(esConsumes()),
+      tTopoToken_(esConsumes()) {
   if (readMoreMcTruth_) {
     ttClusterMCTruthToken_ = consumes<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>(MCTruthClusterInputTag);
     TrackingParticleToken_ = consumes<std::vector<TrackingParticle>>(TrackingParticleInputTag);
@@ -295,9 +299,7 @@ void L1FPGATrackProducer::endRun(const edm::Run& run, const edm::EventSetup& iSe
 void L1FPGATrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   ////////////////////////
   // GET MAGNETIC FIELD //
-  edm::ESHandle<MagneticField> magneticFieldHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
-  const MagneticField* theMagneticField = magneticFieldHandle.product();
+  const MagneticField* theMagneticField = &iSetup.getData(magneticFieldToken_);
   double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0, 0, 0)).z();
   settings.setBfield(mMagneticFieldStrength);
 
@@ -322,20 +324,11 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   stubMapType stubMap;
 
-  /// Geometry handles etc
-  edm::ESHandle<TrackerGeometry> geometryHandle;
-
-  /// Set pointers to Stacked Modules
-  iSetup.get<TrackerDigiGeometryRecord>().get(geometryHandle);
-
   ////////////
   // GET BS //
   edm::Handle<reco::BeamSpot> beamSpotHandle;
   iEvent.getByToken(bsToken_, beamSpotHandle);
   math::XYZPoint bsPosition = beamSpotHandle->position();
-
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  iSetup.get<TrackerDigiGeometryRecord>().get(tGeomHandle);
 
   eventnum++;
   trklet::SLHCEvent ev;
@@ -348,8 +341,8 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     iEvent.getByToken(TrackingParticleToken_, TrackingParticleHandle);
 
   // tracker topology
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-  const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
+  const TrackerGeometry* const theTrackerGeom = &iSetup.getData(tGeomToken_);
 
   ////////////////////////
   // GET THE PRIMITIVES //
