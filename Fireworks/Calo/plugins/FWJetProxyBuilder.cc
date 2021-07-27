@@ -134,7 +134,6 @@ void FWJetProxyBuilder::buildViewType(const reco::Jet& iData,
   if (FWViewType::isProjected(type)) {
     fireworks::jetScaleMarker markers(new TEveScalableStraightLineSet("jetline"), iData.et(), iData.energy(), vc);
 
-
     float size = 1.f;  // values are saved in scale
     double theta = iData.theta();
     double phi = iData.phi();
@@ -189,9 +188,7 @@ void FWJetProxyBuilder::localModelChanges(const FWModelId& iId,
   increaseComponentTransparency(iId.index(), iCompound, "TEveJetCone", 80);
 }
 
-void FWJetProxyBuilder::cleanLocal() {
-  m_common->DestroyElements();
-}
+void FWJetProxyBuilder::cleanLocal() { m_common->DestroyElements(); }
 
 void FWJetProxyBuilder::scaleProduct(TEveElementList* product, FWViewType::EType viewType, const FWViewContext* vc) {
   // move jets to eventCenter
