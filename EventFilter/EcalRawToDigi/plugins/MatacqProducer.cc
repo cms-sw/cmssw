@@ -547,8 +547,8 @@ bool MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId, bool* f
   //before the matacq data are available. In such case we would have
   //orbitId > maxOrb (maxOrb: orbit of last written matacq event)
   //  for(int itry = 0; itry < 2 && (orbitId > maxOrb); ++itry){
-  for(int itry = 0; itry < 1 && (orbitId > maxOrb); ++itry){
-    if(itry > 0){
+  for (int itry = 0; itry < 1 && (orbitId > maxOrb); ++itry) {
+    if (itry > 0) {
       int n_sec = 1;
       std::cout << "[Matacq " << now() << "] Event orbit id (" << orbitId
                 << ") goes "
@@ -565,61 +565,68 @@ bool MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId, bool* f
       boost::algorithm::replace_all(fname, "%run_number%", sRunNumber);
 
       glob_t g;
-      int rc  = glob(fname.c_str(), GLOB_BRACE, nullptr, &g);
-      if(rc){
-	if(verbosity_ > 1){
-	  switch(rc){
-	  case GLOB_NOSPACE:
-	    std::cout << "[Matacq " << now() << "] Running out of memory while calling glob function to look for matacq file paths\n";
-	    break;
-	  case GLOB_ABORTED:
-	    std::cout << "[Matacq " << now() << "] Read error while calling glob function to look for matacq file paths\n";
-	    break;
-	  case GLOB_NOMATCH:
-	    //ok. No message to report.
-	    break;
-	  }
-	  continue;
-	}
-      } //rc
-      for(unsigned iglob = 0; iglob < g.gl_pathc; ++iglob){
-	char* thePath = g.gl_pathv[iglob];
-	//FIXME: add sanity check on the path
-	static std::atomic<int> nOpenErrors {0};
-	const int maxOpenErrors = 50;
-	if(!mopen(thePath) && nOpenErrors < maxOpenErrors){
-	  std::cout << "[Matacq " << now() << "] Failed to open file " << thePath;
-	  ++nOpenErrors;
-	  if(nOpenErrors == maxOpenErrors){
-	    std::cout << nOpenErrors << "This is the " << maxOpenErrors
-		      << "th occurence of this error. Report of this error is now disabled.\n";
-	  } else{
-	    std::cout << "\n";
-	  }
-	}
-	uint32_t firstOrb;
-	uint32_t lastOrb;
-	bool goodRange = getOrbitRange(firstOrb, lastOrb);
-	std::cout << "Get orbit range " << (goodRange ? "succeeded":"failed") << ". Range: " <<
-	  firstOrb << "..." << lastOrb << "\n";
-	if(goodRange && lastOrb > maxOrb) maxOrb = lastOrb;
-	if(goodRange && firstOrb <= orbitId && orbitId <= lastOrb){
-	  found = true;
-	  //continue;
-	  fname = thePath;
-	  if(verbosity_ > 1) std::cout << "[Matacq " << now() << "] Switching to file " << fname << "\n";
-	  break;
-	}
-      } //next iglob
+      int rc = glob(fname.c_str(), GLOB_BRACE, nullptr, &g);
+      if (rc) {
+        if (verbosity_ > 1) {
+          switch (rc) {
+            case GLOB_NOSPACE:
+              std::cout << "[Matacq " << now()
+                        << "] Running out of memory while calling glob function to look for matacq file paths\n";
+              break;
+            case GLOB_ABORTED:
+              std::cout << "[Matacq " << now()
+                        << "] Read error while calling glob function to look for matacq file paths\n";
+              break;
+            case GLOB_NOMATCH:
+              //ok. No message to report.
+              break;
+          }
+          continue;
+        }
+      }  //rc
+      for (unsigned iglob = 0; iglob < g.gl_pathc; ++iglob) {
+        char* thePath = g.gl_pathv[iglob];
+        //FIXME: add sanity check on the path
+        static std::atomic<int> nOpenErrors{0};
+        const int maxOpenErrors = 50;
+        if (!mopen(thePath) && nOpenErrors < maxOpenErrors) {
+          std::cout << "[Matacq " << now() << "] Failed to open file " << thePath;
+          ++nOpenErrors;
+          if (nOpenErrors == maxOpenErrors) {
+            std::cout << nOpenErrors << "This is the " << maxOpenErrors
+                      << "th occurence of this error. Report of this error is now disabled.\n";
+          } else {
+            std::cout << "\n";
+          }
+        }
+        uint32_t firstOrb;
+        uint32_t lastOrb;
+        bool goodRange = getOrbitRange(firstOrb, lastOrb);
+        std::cout << "Get orbit range " << (goodRange ? "succeeded" : "failed") << ". Range: " << firstOrb << "..."
+                  << lastOrb << "\n";
+        if (goodRange && lastOrb > maxOrb)
+          maxOrb = lastOrb;
+        if (goodRange && firstOrb <= orbitId && orbitId <= lastOrb) {
+          found = true;
+          //continue;
+          fname = thePath;
+          if (verbosity_ > 1)
+            std::cout << "[Matacq " << now() << "] Switching to file " << fname << "\n";
+          break;
+        }
+      }  //next iglob
       globfree(&g);
     }  //next filenames
   }    //next itry
 
   if (found) {
     LogInfo("Matacq") << "Uses matacq data file: '" << fname << "'\n";
-  } else{
-    if(verbosity_>=0) cout << "[Matacq " << now() << "] no matacq file found "
-			"for run " << runNumber << ", orbit " << orbitId << "\n";
+  } else {
+    if (verbosity_ >= 0)
+      cout << "[Matacq " << now()
+           << "] no matacq file found "
+              "for run "
+           << runNumber << ", orbit " << orbitId << "\n";
     eventSkipCounter_ = onErrorDisablingEvtCnt_;
     openedFileRunNumber_ = 0;
     if (fileChange != nullptr)
@@ -1138,14 +1145,15 @@ bool MatacqProducer::getOrbitRange(uint32_t& firstOrb, uint32_t& lastOrb) {
   int len = (int)MatacqRawEvent::getDccLen(header, headerSize);
   //number of complete events. If last event is partially written,
   //it won't be included in the count.
-  unsigned nEvts = fsize / (len*8);
+  unsigned nEvts = fsize / (len * 8);
   //Position of last complete event:
   filepos_t lastEvtPos = (filepos_t)(nEvts - 1) * len * 8;
-  //  std::cout << "Move to position : " << lastEvtPos 
+  //  std::cout << "Move to position : " << lastEvtPos
   //	    << "(" << (nEvts - 1) << "*" << len << "*" << 64 << ")"
-  //<< "\n"; 
+  //<< "\n";
   mseek(lastEvtPos);
-  filepos_t tmp; mtell(tmp);
+  filepos_t tmp;
+  mtell(tmp);
   //std::cout << "New position, sizeof(tmp): " << tmp << "," << sizeof(tmp) << "\n";
   mread((char*)header, headerSize, nullptr, false);
   lastOrb = MatacqRawEvent::getOrbitId(header, headerSize);

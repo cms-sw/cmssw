@@ -72,7 +72,6 @@ private:
   bool end_;
 
   int verbosity_;
-
 };
 
 #endif
