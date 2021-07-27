@@ -35,18 +35,21 @@
 
 class WriteCTPPSBeamParameters : public edm::one::EDAnalyzer<> {
 public:
-  WriteCTPPSBeamParameters(const edm::ParameterSet&) {}
+  WriteCTPPSBeamParameters(const edm::ParameterSet&)
+      : tokenBeamParameters_(esConsumes<CTPPSBeamParameters, CTPPSBeamParametersRcd>()) {}
+
   ~WriteCTPPSBeamParameters() override = default;
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> tokenBeamParameters_;
 };
 
 //---------------------------------------------------------------------------------------
 
 void WriteCTPPSBeamParameters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CTPPSBeamParameters> bp;
-  iSetup.get<CTPPSBeamParametersRcd>().get(bp);
+  edm::ESHandle<CTPPSBeamParameters> bp = iSetup.getHandle(tokenBeamParameters_);
 
   // Pointer for the conditions data object
   const CTPPSBeamParameters* p = bp.product();

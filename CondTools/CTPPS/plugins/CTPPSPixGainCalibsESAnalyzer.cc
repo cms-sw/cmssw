@@ -15,8 +15,8 @@
 class CTPPSPixGainCalibsESAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit CTPPSPixGainCalibsESAnalyzer(edm::ParameterSet const& p)
-      : m_outfilename(p.getUntrackedParameter<std::string>("outputrootfile", "output.root")) {
-    //    std::cout<<"CTPPSPixGainCalibsESAnalyzer"<<std::endl;
+      : m_outfilename(p.getUntrackedParameter<std::string>("outputrootfile", "output.root")),
+        tokenCalibration_(esConsumes<CTPPSPixelGainCalibrations, CTPPSPixelGainCalibrationsRcd>()) {
     setReadablePlaneNames();
   }
   explicit CTPPSPixGainCalibsESAnalyzer(int i) {
@@ -32,6 +32,8 @@ public:
 private:
   std::map<uint32_t, std::string> detId_readable;
   std::string m_outfilename;
+
+  edm::ESGetToken<CTPPSPixelGainCalibrations, CTPPSPixelGainCalibrationsRcd> tokenCalibration_;
 };
 
 void CTPPSPixGainCalibsESAnalyzer::setReadablePlaneNames() {
@@ -73,9 +75,8 @@ void CTPPSPixGainCalibsESAnalyzer::analyze(const edm::Event& e, const edm::Event
                                               << "\" does not exist ";
   }
   //this part gets the handle of the event source and the record (i.e. the Database)
-  edm::ESHandle<CTPPSPixelGainCalibrations> calhandle;
+  edm::ESHandle<CTPPSPixelGainCalibrations> calhandle = context.getHandle(tokenCalibration_);
   edm::LogPrint("CTPPSPixGainCalibsReader") << "got eshandle";
-  context.get<CTPPSPixelGainCalibrationsRcd>().get(calhandle);
   edm::LogPrint("CTPPSPixGainCalibsReader") << "got context";
   const CTPPSPixelGainCalibrations* pPixelGainCalibrations = calhandle.product();
   edm::LogPrint("CTPPSPixGainCalibsReader") << "got CTPPSPixelGainCalibrations* ";
