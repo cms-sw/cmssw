@@ -4,7 +4,7 @@ from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process('PROD',Run3)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("Configuration.Geometry.GeometryExtended2021_cff")
+process.load("Configuration.Geometry.GeometryExtended2021Reco_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 

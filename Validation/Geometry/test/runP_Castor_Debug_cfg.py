@@ -6,8 +6,8 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 #Geometry
 #
-process.load("Geometry.CMSCommonData.cmsAllGeometryXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Configuration.Geometry.GeometrySimAll_cff")
+process.load("Configuration.Geometry.GeometryReco_cff")
 
 #Magnetic Field
 #
