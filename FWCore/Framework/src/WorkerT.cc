@@ -803,6 +803,82 @@ namespace edm {
     return Worker::kAnalyzer;
   }
 
+  template <>
+  Worker::ConcurrencyTypes WorkerT<EDAnalyzer>::moduleConcurrencyType() const {
+    return Worker::kLegacy;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<EDProducer>::moduleConcurrencyType() const {
+    return Worker::kLegacy;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<EDFilter>::moduleConcurrencyType() const {
+    return Worker::kLegacy;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::one::EDProducerBase>::moduleConcurrencyType() const {
+    return Worker::kOne;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::one::EDFilterBase>::moduleConcurrencyType() const {
+    return Worker::kOne;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::one::EDAnalyzerBase>::moduleConcurrencyType() const {
+    return Worker::kOne;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::one::OutputModuleBase>::moduleConcurrencyType() const {
+    return Worker::kOne;
+  }
+
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::global::EDProducerBase>::moduleConcurrencyType() const {
+    return Worker::kGlobal;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::global::EDFilterBase>::moduleConcurrencyType() const {
+    return Worker::kGlobal;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::global::EDAnalyzerBase>::moduleConcurrencyType() const {
+    return Worker::kGlobal;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::global::OutputModuleBase>::moduleConcurrencyType() const {
+    return Worker::kGlobal;
+  }
+
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::limited::EDProducerBase>::moduleConcurrencyType() const {
+    return Worker::kLimited;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::limited::EDFilterBase>::moduleConcurrencyType() const {
+    return Worker::kLimited;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::limited::EDAnalyzerBase>::moduleConcurrencyType() const {
+    return Worker::kLimited;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::limited::OutputModuleBase>::moduleConcurrencyType() const {
+    return Worker::kLimited;
+  }
+
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::stream::EDProducerAdaptorBase>::moduleConcurrencyType() const {
+    return Worker::kStream;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::stream::EDFilterAdaptorBase>::moduleConcurrencyType() const {
+    return Worker::kStream;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::stream::EDAnalyzerAdaptorBase>::moduleConcurrencyType() const {
+    return Worker::kStream;
+  }
+
   //Explicitly instantiate our needed templates to avoid having the compiler
   // instantiate them in all of our libraries
   template class WorkerT<EDProducer>;
