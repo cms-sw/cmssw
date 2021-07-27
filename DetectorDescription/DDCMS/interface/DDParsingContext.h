@@ -20,7 +20,6 @@ namespace cms {
       rotations.reserve(3000);
       shapes.reserve(4000);
       volumes.reserve(3000);
-      volPtrs.reserve(3000);
       unresolvedMaterials.reserve(300);
       unresolvedVectors.reserve(300);
       unresolvedShapes.reserve(1000);
@@ -82,7 +81,6 @@ namespace cms {
     std::unordered_map<std::string, std::string> rotRevMap;
     std::unordered_map<std::string, dd4hep::Solid> shapes;
     std::unordered_map<std::string, dd4hep::Volume> volumes;
-    std::unordered_map<std::string, dd4hep::Volume*> volPtrs;
     std::vector<std::string> namespaces;
 
     std::unordered_map<std::string, std::vector<CompositeMaterial>> unresolvedMaterials;
