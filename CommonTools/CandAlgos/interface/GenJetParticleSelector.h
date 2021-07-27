@@ -8,6 +8,8 @@
  *
  */
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include <set>
 
 namespace edm {
@@ -33,6 +35,7 @@ private:
   vpdt pdtList_;
   bool bInclude_;
   std::set<int> pIds_;
+  const edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> tableToken_;
 };
 
 #include "CommonTools/UtilAlgos/interface/EventSetupInitTrait.h"
