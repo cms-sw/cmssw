@@ -92,6 +92,7 @@ namespace edm {
   public:
     enum State { Ready, Pass, Fail, Exception };
     enum Types { kAnalyzer, kFilter, kProducer, kOutputModule };
+    enum ConcurrencyTypes { kGlobal, kLimited, kOne, kStream, kLegacy };
     struct TaskQueueAdaptor {
       SerialTaskQueueChain* serial_ = nullptr;
       LimitedTaskQueue* limited_ = nullptr;
@@ -216,6 +217,7 @@ namespace edm {
     virtual std::vector<ConsumesInfo> consumesInfo() const = 0;
 
     virtual Types moduleType() const = 0;
+    virtual ConcurrencyTypes moduleConcurrencyType() const = 0;
 
     void clearCounters() {
       timesRun_.store(0, std::memory_order_release);
