@@ -41,6 +41,10 @@
 #include "EventFilter/L1TRawToDigi/interface/OmtfCscPacker.h"
 #include "EventFilter/L1TRawToDigi/interface/OmtfDtPacker.h"
 
+#include "CondFormats/RPCObjects/interface/RPCEMap.h"
+#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
+#include "CondFormats/DataRecord/interface/RPCOMTFLinkMapRcd.h"
+
 namespace omtf {
 
   class OmtfPacker : public edm::stream::EDProducer<> {
@@ -68,6 +72,9 @@ namespace omtf {
     edm::EDGetTokenT<L1MuDTChambThContainer> theDtThToken;
     edm::EDGetTokenT<L1MuDTChambPhContainer> theDtPhToken;
 
+    edm::ESGetToken<RPCEMap, RPCEMapRcd> theRPCEMapToken;
+    edm::ESGetToken<RPCAMCLinkMap, RPCOMTFLinkMapRcd> theAmcMappingToken;
+
     CscPacker theCscPacker;
     RpcPacker theRpcPacker;
     DtPacker theDtPacker;
@@ -86,6 +93,13 @@ namespace omtf {
     theSkipDt = pset.getParameter<bool>("skipDt");
     theSkipRpc = pset.getParameter<bool>("skipRpc");
     theSkipCsc = pset.getParameter<bool>("skipCsc");
+
+    if (!theSkipRpc) {
+      theRPCEMapToken = esConsumes<edm::Transition::BeginRun>();
+      if (not theConfig.getParameter<bool>("useRpcConnectionFile")) {
+        theAmcMappingToken = esConsumes<edm::Transition::BeginRun>();
+      }
+    }
   }
 
   void OmtfPacker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -108,10 +122,13 @@ namespace omtf {
     // initialise RPC packer
     //
     if (!theSkipRpc) {
+      edm::ESTransientHandle<RPCEMap> readoutMapping = es.getTransientHandle(theRPCEMapToken);
       if (theConfig.getParameter<bool>("useRpcConnectionFile")) {
-        theRpcPacker.init(es, edm::FileInPath(theConfig.getParameter<std::string>("rpcConnectionFile")).fullPath());
+        theRpcPacker.init(*readoutMapping,
+                          edm::FileInPath(theConfig.getParameter<std::string>("rpcConnectionFile")).fullPath());
       } else {
-        theRpcPacker.init(es);
+        auto const& amcMapping = es.getData(theAmcMappingToken);
+        theRpcPacker.init(*readoutMapping, amcMapping);
       }
     }
 
