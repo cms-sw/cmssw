@@ -1,9 +1,9 @@
-#include "PhysicsTools/HepMCCandAlgos/interface/PdgEntryReplacer.h"
+#include "PhysicsTools/HepMCCandAlgos/interface/pdgEntryReplace.h"
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 #include <sstream>
 using namespace std;
 
-string PdgEntryReplacer::replace(const string& in) const {
+string pdgEntryReplace(const string& in, HepPDT::ParticleDataTable const& pdt) {
   string out = in;
   for (;;) {
     size_t p1 = out.find_first_of('{');
@@ -15,7 +15,7 @@ string PdgEntryReplacer::replace(const string& in) const {
     size_t n = p2 - p1 - 1;
     string name(out, p1 + 1, n);
     PdtEntry particle(name);
-    particle.setup(*es_);
+    particle.setup(pdt);
     ostringstream o;
     o << particle.pdgId();
     string s = o.str();
