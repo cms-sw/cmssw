@@ -10,7 +10,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -26,8 +25,6 @@ namespace reco {
 
   public:
     virtual ~BasicTransientTrack() {}
-
-    virtual void setES(const edm::EventSetup& es) = 0;
 
     virtual void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& tg) = 0;
 
