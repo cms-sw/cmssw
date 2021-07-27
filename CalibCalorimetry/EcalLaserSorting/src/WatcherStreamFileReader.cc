@@ -196,9 +196,9 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile() {
   size_t n = 0;
   static stringstream cmd;
   static bool cmdSet = false;
-  static char curDir[PATH_MAX>0?PATH_MAX:4096];
+  static char curDir[PATH_MAX > 0 ? PATH_MAX : 4096];
 
-  if(!cmdSet){
+  if (!cmdSet) {
     cmd.str("");
     //    cmd << "/bin/ls -rt " << inputDir_ << " | egrep '(";
     //by default ls will sort the file alphabetically which will results
@@ -207,15 +207,15 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile() {
     //    cmd << "/bin/ls " << inputDir_ << " | egrep '(";
     cmd << "/bin/find " << inputDir_ << " -maxdepth 2 -print | egrep '(";
     //TODO: validate patternDir (see ;, &&, ||) and escape special character
-    if(filePatterns_.size()==0) return 0;
-    if(getcwd(curDir, sizeof(curDir))==0){
-      throw cms::Exception("WatcherSource")
-        << "Failed to retreived working directory path: "
-        << strerror(errno);
+    if (filePatterns_.empty())
+      return nullptr;
+    if (getcwd(curDir, sizeof(curDir)) == nullptr) {
+      throw cms::Exception("WatcherSource") << "Failed to retreived working directory path: " << strerror(errno);
     }
 
-    for(unsigned i = 0 ; i < filePatterns_.size(); ++i){
-      if(i>0) cmd << "|";
+    for (unsigned i = 0; i < filePatterns_.size(); ++i) {
+      if (i > 0)
+        cmd << "|";
       //     if(filePatterns_[i].size()>0 && filePatterns_[0] != "/"){//relative path
       //       cmd << curDir << "/";
       //     }
@@ -224,8 +224,7 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile() {
     cmd << ")' | sort";
 
     cout << "[WatcherSource " << now() << "]"
-         << " Command to retrieve input files: "
-         << cmd.str() << "\n";
+         << " Command to retrieve input files: " << cmd.str() << "\n";
     cmdSet = true;
   }
 
@@ -249,35 +248,35 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile() {
         break;
       }
       FILE* s = popen(cmd.str().c_str(), "r");
-      if(s==nullptr){
-        throw cms::Exception("WatcherSource")
-          << "Failed to retrieve list of input file: " << strerror(errno);
+      if (s == nullptr) {
+        throw cms::Exception("WatcherSource") << "Failed to retrieve list of input file: " << strerror(errno);
       }
-      
+
       ssize_t len;
-      while(!feof(s)){
-        if((len=getline(&lineptr, &n, s))>0){
+      while (!feof(s)) {
+        if ((len = getline(&lineptr, &n, s)) > 0) {
           //remove end-of-line character:
-          lineptr[len-1] = 0;
+          lineptr[len - 1] = 0;
           string fileName;
-          if(lineptr[0] != '/'){
-            if(!inputDir_.empty() && inputDir_[0] != '/'){//relative path
+          if (lineptr[0] != '/') {
+            if (!inputDir_.empty() && inputDir_[0] != '/') {  //relative path
               fileName.assign(curDir);
               fileName.append("/");
               fileName.append(inputDir_);
-            } else{
+            } else {
               fileName.assign(inputDir_);
             }
             fileName.append("/");
           }
           fileName.append(lineptr);
           filesInQueue_.push_back(fileName);
-          if(verbosity_) cout << "[WatcherSource " << now() << "]"
-                              << " File to process: '"
-                              << fileName << "'\n";
+          if (verbosity_)
+            cout << "[WatcherSource " << now() << "]"
+                 << " File to process: '" << fileName << "'\n";
         }
       }
-      while(!feof(s)) fgetc(s);
+      while (!feof(s))
+        fgetc(s);
       pclose(s);
       if (filesInQueue_.empty()) {
         if (!waiting) {
@@ -289,8 +288,7 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile() {
         } else if (!firstWait) {
           timeval t;
           gettimeofday(&t, nullptr);
-	  float dt = (t.tv_sec-waitStart.tv_sec) * 1.
-	    + (t.tv_usec-waitStart.tv_usec) * 1.e-6;
+          float dt = (t.tv_sec - waitStart.tv_sec) * 1. + (t.tv_usec - waitStart.tv_usec) * 1.e-6;
           if ((timeOut_ >= 0) && (dt > timeOut_)) {
             cout << "[WatcherSource " << now() << "]"
                  << " Having waited for new file for " << (int)dt << " sec. "
@@ -311,29 +309,33 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile() {
       fileName_ = filesInQueue_.front();
       filesInQueue_.pop_front();
       int fd = open(fileName_.c_str(), 0);
-      if(fd!=0){
+      if (fd != 0) {
         struct stat buf;
         off_t size = -1;
         //check that file transfer is finished, by monitoring its size:
         time_t t = time(nullptr);
-        for(;;){
+        for (;;) {
           fstat(fd, &buf);
-          if(verbosity_) cout << "file size: " << buf.st_size << ", prev size: "  << size << "\n";
-          if(buf.st_size==size) break; else size = buf.st_size;
-          if(difftime(t,buf.st_mtime)>60) break; //file older then 1 min=> tansfer must be finished
+          if (verbosity_)
+            cout << "file size: " << buf.st_size << ", prev size: " << size << "\n";
+          if (buf.st_size == size)
+            break;
+          else
+            size = buf.st_size;
+          if (difftime(t, buf.st_mtime) > 60)
+            break;  //file older then 1 min=> tansfer must be finished
           sleep(1);
         }
 
-        if(fd!=0 && buf.st_size == 0){//file is empty. streamer reader
+        if (fd != 0 && buf.st_size == 0) {  //file is empty. streamer reader
           //                   does not like empty file=> skip it
           stringstream c;
-          c << "/bin/mv -f \"" << fileName_ << "\" \"" << corruptedDir_
-            << "/.\"";
-          if(verbosity_) cout << "[WatcherSource " << now() << "]"
-                              << " Executing "
-                              << c.str() << "\n";
+          c << "/bin/mv -f \"" << fileName_ << "\" \"" << corruptedDir_ << "/.\"";
+          if (verbosity_)
+            cout << "[WatcherSource " << now() << "]"
+                 << " Executing " << c.str() << "\n";
           int i = system(c.str().c_str());
-          if(i!=0){
+          if (i != 0) {
             //throw cms::Exception("WatcherSource")
             cout << "[WatcherSource " << now() << "] "
                  << "Failed to move empty file '" << fileName_ << "'"
@@ -344,56 +346,55 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile() {
 
         close(fd);
 
-        vector<char> buf1(fileName_.size()+1);
+        vector<char> buf1(fileName_.size() + 1);
         copy(fileName_.begin(), fileName_.end(), buf1.begin());
-        buf1[buf1.size()-1] = 0;
+        buf1[buf1.size() - 1] = 0;
 
-        vector<char> buf2(fileName_.size()+1);
+        vector<char> buf2(fileName_.size() + 1);
         copy(fileName_.begin(), fileName_.end(), buf2.begin());
-        buf2[buf2.size()-1] = 0;
+        buf2[buf2.size() - 1] = 0;
 
         string dirnam(dirname(&buf1[0]));
         string filenam(basename(&buf2[0]));
 
-        string dest  = inprocessDir_ + "/" + filenam;
+        string dest = inprocessDir_ + "/" + filenam;
 
-        if(verbosity_) cout << "[WatcherSource " << now() << "]"
-                            << " Moving file "
-                            << fileName_ << " to " << dest << "\n";
+        if (verbosity_)
+          cout << "[WatcherSource " << now() << "]"
+               << " Moving file " << fileName_ << " to " << dest << "\n";
 
         //	stringstream c;
         //c << "/bin/mv -f \"" << fileName_ << "\" \"" << dest
         // << "/.\"";
 
-
-        if(0!=rename(fileName_.c_str(), dest.c_str())){
+        if (0 != rename(fileName_.c_str(), dest.c_str())) {
           //if(0!=system(c.str().c_str())){
-          throw cms::Exception("WatcherSource")
-            << "Failed to move file '" << fileName_ << "' "
-            << "to processing directory " << inprocessDir_
-            << ": " << strerror(errno)  << " (Error no " << errno << ")";
+          throw cms::Exception("WatcherSource") << "Failed to move file '" << fileName_ << "' "
+                                                << "to processing directory " << inprocessDir_ << ": "
+                                                << strerror(errno) << " (Error no " << errno << ")";
         }
 
         fileName_ = dest;
 
         cout << "[WatcherSource " << now() << "]"
-             << " Opening file " << fileName_ << "\n" << flush;
-        streamerInputFile_
-          = unique_ptr<edm::StreamerInputFile>(new edm::StreamerInputFile(fileName_));
+             << " Opening file " << fileName_ << "\n"
+             << flush;
+        streamerInputFile_ = std::make_unique<edm::StreamerInputFile>(fileName_);
 
         ofstream f(".watcherfile");
         f << fileName_;
-      } else{
+      } else {
         cout << "[WatcherSource " << now() << "]"
              << " Failed to open file " << fileName_ << endl;
       }
-    } //loop on file queue to find one file which opening succeeded
+    }  //loop on file queue to find one file which opening succeeded
   }
   return streamerInputFile_.get();
 }
 
-void WatcherStreamFileReader::closeFile(){
-  if(streamerInputFile_.get()==nullptr) return;
+void WatcherStreamFileReader::closeFile() {
+  if (streamerInputFile_.get() == nullptr)
+    return;
   //delete the streamer input file:
   streamerInputFile_.reset();
   stringstream cmd;
@@ -403,23 +404,24 @@ void WatcherStreamFileReader::closeFile(){
   //<< " Executing (in closeFile())" << cmd.str() << "\n";
   //int i = system(cmd.str().c_str());
   //cout << "move command done at " << now() << "\n";
-  vector<char> buf(fileName_.size()+1);
+  vector<char> buf(fileName_.size() + 1);
   copy(fileName_.begin(), fileName_.end(), buf.begin());
-  buf[buf.size()-1] = 0;
+  buf[buf.size() - 1] = 0;
   string dest = processedDir_ + "/" + basename(&buf[0]);
-  if(verbosity_) cout << "[WatcherSource " << now() << "]"
-                      << " Moving " << fileName_ << " to " << dest << "... ";
+  if (verbosity_)
+    cout << "[WatcherSource " << now() << "]"
+         << " Moving " << fileName_ << " to " << dest << "... ";
   int i = rename(fileName_.c_str(), dest.c_str());
-  if(i!=0){
+  if (i != 0) {
     throw cms::Exception("WatcherSource")
-      << "Failed to move processed file '" << fileName_ << "'"
-      << " to processed directory '" << processedDir_
-      << ": " << strerror(errno) << " (Error no " << errno << ")";
-    
+        << "Failed to move processed file '" << fileName_ << "'"
+        << " to processed directory '" << processedDir_ << ": " << strerror(errno) << " (Error no " << errno << ")";
+
     //Stop further processing to prevent endless loop:
     end_ = true;
   }
-  if(verbosity_) cout << "Done at " << now() << "\n";
-  
+  if (verbosity_)
+    cout << "Done at " << now() << "\n";
+
   //  cout << flush;
 }
