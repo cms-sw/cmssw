@@ -10,8 +10,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/HGCalCommonData/data/TB160/hgcalBeam.xml',
         'Geometry/HGCalCommonData/data/TB160/hgcalsense.xml',
         'Geometry/HGCalCommonData/data/TB160/hgcProdCuts.xml',
-        'Geometry/HGCalCommonData/data/TB160/4Module/hgcalCons.xml',
-        'SimG4CMS/HGCalTestBeam/data/CaloUtil.xml'),
+        'Geometry/HGCalCommonData/data/TB160/4Module/hgcalCons.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )
 
