@@ -12,7 +12,6 @@ process.load('SimG4CMS.HGCalTestBeam.HGCalTB181Oct1XML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
 process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
-process.load('Geometry.HcalCommonData.caloSimulationParameters_cff')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
@@ -29,10 +28,10 @@ process.maxEvents = cms.untracked.PSet(
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.HGCalGeom=dict()
-    process.MessageLogger.SimG4CoreGeometry=dict()
     process.MessageLogger.HGCSim=dict()
     process.MessageLogger.HcalSim=dict()
     process.MessageLogger.HcalTB06BeamSD=dict()
+#    process.MessageLogger.SimG4CoreGeometry=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -95,16 +94,10 @@ process.VtxSmeared.MinY                 = -7.5
 process.VtxSmeared.MaxY                 =  7.5
 process.g4SimHits.HGCSD.RejectMouseBite = True
 process.g4SimHits.HGCSD.RotatedWafer    = True
-process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector', 
-                             'AHcalSensitiveDetector',
-                             'CaloTrkProcessing',
+process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
                              'HGCSensitiveDetector',
-                             'EcalTBH4BeamDetector',
                              'HGCalTB1601SensitiveDetector',
-                             'HcalTB02SensitiveDetector',
-                             'HcalTB06BeamDetector',
-                             'EcalSensitiveDetector',
-                             'HcalSensitiveDetector']
+                             'HcalTB06BeamDetector']
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 		HGCPassive = cms.PSet(
 			LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'HGCalBeam', 'CMSE'),

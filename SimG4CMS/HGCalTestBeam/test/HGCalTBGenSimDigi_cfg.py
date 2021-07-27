@@ -93,16 +93,10 @@ process.VtxSmeared.SigmaY = 0.65
 process.VtxSmeared.MeanZ  = -3500.0
 process.VtxSmeared.SigmaZ = 0
 process.HGCalTBAnalyzer.doRecHits = False
-process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector', 
-                             'AHcalSensitiveDetector',
-                             'CaloTrkProcessing',
+process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
                              'HGCSensitiveDetector',
-                             'EcalTBH4BeamDetector',
                              'HGCalTB1601SensitiveDetector',
-                             'HcalTB02SensitiveDetector',
-                             'HcalTB06BeamDetector',
-                             'EcalSensitiveDetector',
-                             'HcalSensitiveDetector']
+                             'HcalTB06BeamDetector']
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
