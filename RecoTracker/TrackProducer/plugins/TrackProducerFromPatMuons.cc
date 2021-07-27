@@ -9,12 +9,12 @@
 class TrackProducerFromPatMuons : public edm::stream::EDProducer<> {
 public:
   explicit TrackProducerFromPatMuons(const edm::ParameterSet &);
-  ~TrackProducerFromPatMuons() {}
+  ~TrackProducerFromPatMuons() override {}
 
   //   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  virtual void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
   edm::EDGetTokenT<std::vector<pat::Muon>> inputMuons_;
   edm::EDPutTokenT<reco::TrackCollection> outputTrack_;
