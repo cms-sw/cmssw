@@ -13,7 +13,6 @@ process.load('SimG4CMS.HGCalTestBeam.HGCalTB160Module4XML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
 process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
-process.load('Geometry.CaloEventSetup.HGCalTopology_cfi')
 process.load('Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -94,16 +93,10 @@ process.VtxSmeared.SigmaY = 0.65
 process.VtxSmeared.MeanZ  = -3500.0
 process.VtxSmeared.SigmaZ = 0
 process.HGCalUncalibRecHit.HGCHEFConfig.isSiFE = False
-process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector', 
-                             'AHcalSensitiveDetector',
-                             'CaloTrkProcessing',
+process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
                              'HGCSensitiveDetector',
-                             'EcalTBH4BeamDetector',
                              'HGCalTB1601SensitiveDetector',
-                             'HcalTB02SensitiveDetector',
-                             'HcalTB06BeamDetector',
-                             'EcalSensitiveDetector',
-                             'HcalSensitiveDetector']
+                             'HcalTB06BeamDetector']
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
