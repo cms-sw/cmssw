@@ -60,7 +60,7 @@ namespace fwlite {
     // at least as long as LuminosityBlock
     LuminosityBlock(TFile* iFile);
     LuminosityBlock(std::shared_ptr<BranchMapReader> branchMap, std::shared_ptr<RunFactory> runFactory);
-    LuminosityBlock(const LuminosityBlock&) = delete;  // stop default
+    LuminosityBlock(const LuminosityBlock&) = delete;                   // stop default
     const LuminosityBlock& operator=(const LuminosityBlock&) = delete;  // stop default
 
     ~LuminosityBlock() override;

@@ -47,7 +47,7 @@ namespace fwlite {
   class Record {
   public:
     Record(const char* iName, TTree*);
-    Record(const Record&) = delete;  // stop default
+    Record(const Record&) = delete;                   // stop default
     const Record& operator=(const Record&) = delete;  // stop default
 
     virtual ~Record();

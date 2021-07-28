@@ -57,7 +57,7 @@ namespace fwlite {
     // at least as long as Run
     Run(TFile* iFile);
     Run(std::shared_ptr<BranchMapReader> branchMap);
-    Run(const Run&) = delete;  // stop default
+    Run(const Run&) = delete;                   // stop default
     const Run& operator=(const Run&) = delete;  // stop default
 
     ~Run() override;
