@@ -103,6 +103,15 @@ L1GtTrigReport::L1GtTrigReport(const edm::ParameterSet& pSet)
                                   ? consumes<L1GlobalTriggerReadoutRecord>(m_l1GtRecordInputTag)
                                   : edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>()),
 
+      m_stableParToken(esConsumes()),
+      m_pfAlgoToken(esConsumes()),
+      m_pfTechToken(esConsumes()),
+      m_tmAlgoToken(esConsumes()),
+      m_tmTechToken(esConsumes()),
+      m_tmVetoAlgoToken(esConsumes()),
+      m_tmVetoTechToken(esConsumes()),
+      m_menuToken(esConsumes()),
+
       // print verbosity
       m_printVerbosity(pSet.getUntrackedParameter<int>("PrintVerbosity", 2)),
 
@@ -169,9 +178,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
   unsigned long long l1GtStableParCacheID = evSetup.get<L1GtStableParametersRcd>().cacheIdentifier();
 
   if (m_l1GtStableParCacheID != l1GtStableParCacheID) {
-    edm::ESHandle<L1GtStableParameters> l1GtStablePar;
-    evSetup.get<L1GtStableParametersRcd>().get(l1GtStablePar);
-    m_l1GtStablePar = l1GtStablePar.product();
+    m_l1GtStablePar = &evSetup.getData(m_stableParToken);
 
     // number of physics triggers
     m_numberPhysTriggers = m_l1GtStablePar->gtNumberPhysTriggers();
@@ -205,9 +212,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
   unsigned long long l1GtPfAlgoCacheID = evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().cacheIdentifier();
 
   if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
-    edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
-    evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
-    m_l1GtPfAlgo = l1GtPfAlgo.product();
+    m_l1GtPfAlgo = &evSetup.getData(m_pfAlgoToken);
 
     m_prescaleFactorsAlgoTrig = &(m_l1GtPfAlgo->gtPrescaleFactors());
 
@@ -217,9 +222,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
   unsigned long long l1GtPfTechCacheID = evSetup.get<L1GtPrescaleFactorsTechTrigRcd>().cacheIdentifier();
 
   if (m_l1GtPfTechCacheID != l1GtPfTechCacheID) {
-    edm::ESHandle<L1GtPrescaleFactors> l1GtPfTech;
-    evSetup.get<L1GtPrescaleFactorsTechTrigRcd>().get(l1GtPfTech);
-    m_l1GtPfTech = l1GtPfTech.product();
+    m_l1GtPfTech = &evSetup.getData(m_pfTechToken);
 
     m_prescaleFactorsTechTrig = &(m_l1GtPfTech->gtPrescaleFactors());
 
@@ -232,9 +235,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
   unsigned long long l1GtTmAlgoCacheID = evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().cacheIdentifier();
 
   if (m_l1GtTmAlgoCacheID != l1GtTmAlgoCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo;
-    evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().get(l1GtTmAlgo);
-    m_l1GtTmAlgo = l1GtTmAlgo.product();
+    m_l1GtTmAlgo = &evSetup.getData(m_tmAlgoToken);
 
     m_triggerMaskAlgoTrig = m_l1GtTmAlgo->gtTriggerMask();
 
@@ -244,9 +245,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
   unsigned long long l1GtTmTechCacheID = evSetup.get<L1GtTriggerMaskTechTrigRcd>().cacheIdentifier();
 
   if (m_l1GtTmTechCacheID != l1GtTmTechCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmTech;
-    evSetup.get<L1GtTriggerMaskTechTrigRcd>().get(l1GtTmTech);
-    m_l1GtTmTech = l1GtTmTech.product();
+    m_l1GtTmTech = &evSetup.getData(m_tmTechToken);
 
     m_triggerMaskTechTrig = m_l1GtTmTech->gtTriggerMask();
 
@@ -256,9 +255,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
   unsigned long long l1GtTmVetoAlgoCacheID = evSetup.get<L1GtTriggerMaskVetoAlgoTrigRcd>().cacheIdentifier();
 
   if (m_l1GtTmVetoAlgoCacheID != l1GtTmVetoAlgoCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmVetoAlgo;
-    evSetup.get<L1GtTriggerMaskVetoAlgoTrigRcd>().get(l1GtTmVetoAlgo);
-    m_l1GtTmVetoAlgo = l1GtTmVetoAlgo.product();
+    m_l1GtTmVetoAlgo = &evSetup.getData(m_tmVetoAlgoToken);
 
     m_triggerMaskVetoAlgoTrig = m_l1GtTmVetoAlgo->gtTriggerMask();
 
@@ -268,9 +265,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
   unsigned long long l1GtTmVetoTechCacheID = evSetup.get<L1GtTriggerMaskVetoTechTrigRcd>().cacheIdentifier();
 
   if (m_l1GtTmVetoTechCacheID != l1GtTmVetoTechCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmVetoTech;
-    evSetup.get<L1GtTriggerMaskVetoTechTrigRcd>().get(l1GtTmVetoTech);
-    m_l1GtTmVetoTech = l1GtTmVetoTech.product();
+    m_l1GtTmVetoTech = &evSetup.getData(m_tmVetoTechToken);
 
     m_triggerMaskVetoTechTrig = m_l1GtTmVetoTech->gtTriggerMask();
 
@@ -283,9 +278,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
   unsigned long long l1GtMenuCacheID = evSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
 
   if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-    edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
-    evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
-    m_l1GtMenu = l1GtMenu.product();
+    m_l1GtMenu = &evSetup.getData(m_menuToken);
 
     m_l1GtMenuCacheID = l1GtMenuCacheID;
 
