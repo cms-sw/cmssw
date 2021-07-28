@@ -35,7 +35,6 @@ namespace edm {
       return iElement - &(iContainer->front());
     }
 
-  public:
     ContainerMaskTraits() = delete;
     ContainerMaskTraits(const ContainerMaskTraits&) = delete;                   // stop default
     const ContainerMaskTraits& operator=(const ContainerMaskTraits&) = delete;  // stop default
