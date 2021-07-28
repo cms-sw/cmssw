@@ -272,9 +272,11 @@ void HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame) {
     samples2.setPresamples(frame.presamples());
     addSignal(samples2);
     addUpgradeFG(ids[1], detId.depth(), msb);
+    addUpgradeTDCFG(ids[1], frame);
   }
   addSignal(samples1);
   addUpgradeFG(ids[0], detId.depth(), msb);
+  addUpgradeTDCFG(ids[0], frame);
 }
 
 void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples& samples) {
@@ -422,6 +424,7 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
   unsigned int shrink = filterSamples - 1;
 
   auto& msb = fgUpgradeMap_[samples.id()];
+  auto& timingTDC = fgUpgradeTDCMap_[samples.id()];
   IntegerCaloSamples sum(samples.id(), samples.size());
 
   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
@@ -496,7 +499,8 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
       output[ibin] = 0;
     }
     // peak-finding is not applied for FG bits
-    finegrain[ibin] = fg_algo.compute(msb[idx]).to_ulong();
+    // compute(msb) returns two bits (MIP). compute(timingTDC,ids) returns 6 bits (1 depth, 2 reserved, 1 prompt, 1 delayed 01, 1 delayed 10)
+    finegrain[ibin] = fg_algo.compute(timingTDC[idx], ids[0]).to_ulong() | fg_algo.compute(msb[idx]).to_ulong() << 1;
   }
   outcoder_->compress(output, finegrain, result);
 }
@@ -896,6 +900,28 @@ void HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id,
   for (unsigned int i = 0; i < bits.size(); ++i) {
     it->second[i][0][depth - 1] = bits[i][0];
     it->second[i][1][depth - 1] = bits[i][1];
+  }
+}
+
+void HcalTriggerPrimitiveAlgo::addUpgradeTDCFG(const HcalTrigTowerDetId& id, const QIE11DataFrame& frame) {
+  HcalDetId detId(frame.id());
+  if (detId.subdet() != HcalEndcap && detId.subdet() != HcalBarrel)
+    return;
+
+  std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
+  assert(ids.size() == 1 || ids.size() == 2);
+  IntegerCaloSamples samples1(ids[0], int(frame.samples()));
+  samples1.setPresamples(frame.presamples());
+  incoder_->adc2Linear(frame, samples1);  // use linearization LUT
+
+  auto it = fgUpgradeTDCMap_.find(id);
+  if (it == fgUpgradeTDCMap_.end()) {
+    FGUpgradeTDCContainer element;
+    element.resize(frame.samples());
+    it = fgUpgradeTDCMap_.insert(std::make_pair(id, element)).first;
+  }
+  for (int i = 0; i < frame.samples(); i++) {
+    it->second[i][detId.depth() - 1] = std::make_pair(samples1[i], frame[i].tdc());
   }
 }
 
