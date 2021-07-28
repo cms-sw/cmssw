@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.nano_eras_cff import *
 
 ##################### Import reusable funtions and objects from std taus ########
 from PhysicsTools.NanoAOD.taus_cff import _tauId2WPMask,_tauId5WPMask,_tauId7WPMask,tausMCMatchLepTauForTable,tausMCMatchHadTauForTable,tauMCTable
@@ -68,7 +69,12 @@ boostedTauMCTable = tauMCTable.clone(
 )
 
 
-boostedTauSequence = cms.Sequence(finalBoostedTaus)
-boostedTauTables = cms.Sequence(boostedTauTable)
-boostedTauMC = cms.Sequence(boostedTausMCMatchLepTauForTable + boostedTausMCMatchHadTauForTable + boostedTauMCTable)
+boostedTauTask = cms.Task(finalBoostedTaus)
+boostedTauTablesTask = cms.Task(boostedTauTable)
+boostedTauMCTask = cms.Task(boostedTausMCMatchLepTauForTable,boostedTausMCMatchHadTauForTable,boostedTauMCTable)
 
+#remove boosted tau from previous eras
+_modifiers = (run2_miniAOD_80XLegacy | run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1)
+(_modifiers).toReplaceWith(boostedTauTask,cms.Task())
+(_modifiers).toReplaceWith(boostedTauTablesTask,cms.Task())
+(_modifiers).toReplaceWith(boostedTauMCTask,cms.Task())

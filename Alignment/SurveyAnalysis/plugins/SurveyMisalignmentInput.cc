@@ -4,6 +4,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
@@ -20,6 +21,7 @@ SurveyMisalignmentInput::SurveyMisalignmentInput(const edm::ParameterSet& cfg)
     : tTopoToken_(esConsumes()),
       geomDetToken_(esConsumes()),
       ptpToken_(esConsumes()),
+      ptitpToken_(esConsumes()),
       aliToken_(esConsumes()),
       textFileName(cfg.getParameter<std::string>("textFileName")) {}
 
@@ -29,7 +31,8 @@ void SurveyMisalignmentInput::analyze(const edm::Event&, const edm::EventSetup& 
     const TrackerTopology* const tTopo = &setup.getData(tTopoToken_);
     const GeometricDet* geom = &setup.getData(geomDetToken_);
     const PTrackerParameters& ptp = setup.getData(ptpToken_);
-    TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(geom, ptp, tTopo);
+    const PTrackerAdditionalParametersPerDet* ptitp = &setup.getData(ptitpToken_);
+    TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(geom, ptitp, ptp, tTopo);
 
     addComponent(new AlignableTracker(tracker, tTopo));
 
