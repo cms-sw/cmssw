@@ -19,7 +19,7 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   const GEMGeometry* gem = &setup.getData(geomTokenBeginRun_);
 
   // NOTE Time of flight
-  booker.setCurrentFolder("GEM/SimHits/TimeOfFlight");
+  booker.setCurrentFolder("GEM/SimHits");
 
   TString tof_xtitle = "Time of flight [ns]";
   TString tof_ytitle = "Entries";
@@ -72,8 +72,6 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   }          // detail plot
 
   // NOTE Energy Loss
-  booker.setCurrentFolder("GEM/SimHits/EnergyLoss");
-
   TString eloss_xtitle = "Energy loss [eV]";
   TString eloss_ytitle = "Entries / 0.5 keV";
 
@@ -127,8 +125,6 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   }          // detail plot
 
   // NOTE Occupancy
-  booker.setCurrentFolder("GEM/SimHits/Occupancy");
-
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 

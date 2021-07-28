@@ -26,7 +26,7 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   const GEMGeometry* gem = &setup.getData(geomTokenBeginRun_);
 
   // NOTE Cluster Size
-  booker.setCurrentFolder("GEM/RecHits/ClusterSize");
+  booker.setCurrentFolder("GEM/RecHits");
 
   TString cls_title = "Cluster Size Distribution";
   TString cls_x_title = "Cluster size";
@@ -74,8 +74,6 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   }            // detail plot
 
   // NOTE Residual
-  booker.setCurrentFolder("GEM/RecHits/Residual");
-
   for (const auto& station : gem->regions()[0]->stations()) {
     Int_t station_id = station->station();
     for (const auto& roll : station->superChambers()[0]->chambers()[0]->etaPartitions()) {
@@ -141,8 +139,6 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   }            // detail plot
 
   // NOTE Pull
-  booker.setCurrentFolder("GEM/RecHits/Pull");
-
   if (detail_plot_) {
     for (const auto& station : gem->regions()[0]->stations()) {
       Int_t station_id = station->station();
@@ -190,7 +186,6 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   }            // detail plot
 
   // NOTE Occupancy
-  booker.setCurrentFolder("GEM/RecHits/Occupancy");
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
