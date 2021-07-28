@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
@@ -22,6 +23,7 @@ CreateSurveyRcds::CreateSurveyRcds(const edm::ParameterSet& cfg)
     : tTopoToken_(esConsumes()),
       geomDetToken_(esConsumes()),
       ptpToken_(esConsumes()),
+      ptitpToken_(esConsumes()),
       aliToken_(esConsumes()),
       aliErrToken_(esConsumes()) {
   m_inputGeom = cfg.getUntrackedParameter<std::string>("inputGeom");
@@ -35,7 +37,8 @@ void CreateSurveyRcds::analyze(const edm::Event& event, const edm::EventSetup& s
   const TrackerTopology* const tTopo = &setup.getData(tTopoToken_);
   const GeometricDet* geom = &setup.getData(geomDetToken_);
   const PTrackerParameters& ptp = setup.getData(ptpToken_);
-  TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(geom, ptp, tTopo);
+  const PTrackerAdditionalParametersPerDet* ptitp = &setup.getData(ptitpToken_);
+  TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(geom, ptitp, ptp, tTopo);
 
   //take geometry from DB or randomly generate geometry
   if (m_inputGeom == "sqlite") {
