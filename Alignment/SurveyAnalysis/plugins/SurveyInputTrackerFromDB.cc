@@ -8,6 +8,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 
 // Database
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -23,6 +24,7 @@ SurveyInputTrackerFromDB::SurveyInputTrackerFromDB(const edm::ParameterSet& cfg)
     : tTopoToken_(esConsumes()),
       geomDetToken_(esConsumes()),
       ptpToken_(esConsumes()),
+      ptitpToken_(esConsumes()),
       textFileName(cfg.getParameter<std::string>("textFileName")) {}
 
 void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup& setup) {
@@ -39,7 +41,8 @@ void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup&
 
     const GeometricDet* geom = &setup.getData(geomDetToken_);
     const PTrackerParameters& ptp = setup.getData(ptpToken_);
-    TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(geom, ptp, tTopo);
+    const PTrackerAdditionalParametersPerDet* ptitp = &setup.getData(ptitpToken_);
+    TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(geom, ptitp, ptp, tTopo);
 
     addComponent(new AlignableTracker(tracker, tTopo));
     addSurveyInfo(detector());
