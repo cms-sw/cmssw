@@ -102,7 +102,7 @@ namespace TopSingleLepton {
       // jetCorrector is optional; in case it's not found
       // the InputTag will remain empty
       if (jetExtras.existsAs<std::string>("jetCorrector")) {
-         jetCorrector_ = iC.esConsumes(edm::ESInputTag("", jetExtras.getParameter<std::string>("jetCorrector")));
+        jetCorrector_ = iC.esConsumes(edm::ESInputTag("", jetExtras.getParameter<std::string>("jetCorrector")));
       }
       // read jetID information if it exists
       if (jetExtras.existsAs<edm::ParameterSet>("jetID")) {
@@ -516,11 +516,10 @@ namespace TopSingleLepton {
   ------------------------------------------------------------
   */
 
-
     const JetCorrector* corrector = nullptr;
     if (!jetCorrector_.isInitialized() && jetCorrector_.hasValidIndex()) {
-    // check whether a jet correcto is in the event setup or not
-          if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>())) {
+      // check whether a jet correcto is in the event setup or not
+      if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>())) {
         corrector = &setup.getData(jetCorrector_);
       } else {
         edm::LogVerbatim("TopDiLeptonOfflineDQM") << "\n"
@@ -548,14 +547,12 @@ namespace TopSingleLepton {
       }
     }
 
-
     // check availability of the btaggers
     edm::Handle<reco::JetTagCollection> btagEff, btagPur, btagVtx, btagCSV;
     if (includeBTag_) {
       if (!event.getByToken(btagCSV_, btagCSV))
         return;
     }
-
 
     // loop jet collection
     std::vector<reco::Jet> correctedJets;
