@@ -1,6 +1,7 @@
 #include "L1Trigger/L1TMuon/interface/GeometryTranslator.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -21,7 +22,15 @@
 
 using namespace L1TMuon;
 
-GeometryTranslator::GeometryTranslator() : _geom_cache_id(0ULL), _magfield_cache_id(0ULL) {}
+GeometryTranslator::GeometryTranslator(edm::ConsumesCollector iC)
+    : _geom_cache_id(0ULL),
+      geodtToken_(iC.esConsumes()),
+      geocscToken_(iC.esConsumes()),
+      georpcToken_(iC.esConsumes()),
+      geogemToken_(iC.esConsumes()),
+      geome0Token_(iC.esConsumes()),
+      _magfield_cache_id(0ULL),
+      magfieldToken_(iC.esConsumes()) {}
 
 GeometryTranslator::~GeometryTranslator() {}
 
@@ -123,18 +132,18 @@ void GeometryTranslator::checkAndUpdateGeometry(const edm::EventSetup& es) {
   const MuonGeometryRecord& geom = es.get<MuonGeometryRecord>();
   unsigned long long geomid = geom.cacheIdentifier();
   if (_geom_cache_id != geomid) {
-    geom.get(_geodt);
-    geom.get(_geocsc);
-    geom.get(_georpc);
-    geom.get(_geogem);
-    geom.get(_geome0);
+    _geodt = geom.getHandle(geodtToken_);
+    _geocsc = geom.getHandle(geocscToken_);
+    _georpc = geom.getHandle(georpcToken_);
+    _geogem = geom.getHandle(geogemToken_);
+    _geome0 = geom.getHandle(geome0Token_);
     _geom_cache_id = geomid;
   }
 
   const IdealMagneticFieldRecord& magfield = es.get<IdealMagneticFieldRecord>();
   unsigned long long magfieldid = magfield.cacheIdentifier();
   if (_magfield_cache_id != magfieldid) {
-    magfield.get(_magfield);
+    _magfield = magfield.getHandle(magfieldToken_);
     _magfield_cache_id = magfieldid;
   }
 }

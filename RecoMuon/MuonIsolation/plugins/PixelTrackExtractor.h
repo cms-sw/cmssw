@@ -12,6 +12,8 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 namespace muonisolation {
 
@@ -39,6 +41,7 @@ namespace muonisolation {
 
   private:
     // Parameter set
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
     edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken;  //! Track Collection Token
     std::string theDepositLabel;                                      //! name for deposit
     double theDiff_r;                                                 //! transverse distance to vertex

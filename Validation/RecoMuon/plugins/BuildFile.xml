@@ -2,7 +2,6 @@
 <use name="FWCore/Framework"/>
 <use name="DataFormats/TrackReco"/>
 <use name="clhep"/>
-<use name="boost"/>
 <use name="DQMServices/Core"/>
 <use name="FWCore/ParameterSet"/>
 <use name="MagneticField/Records"/>

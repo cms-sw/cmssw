@@ -18,6 +18,11 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
       printProvenanceInfo(false),
       G4VtxSrc_Token_(consumes<edm::SimVertexContainer>((iPSet.getParameter<edm::InputTag>("G4VtxSrc")))),
       G4TrkSrc_Token_(consumes<edm::SimTrackContainer>(iPSet.getParameter<edm::InputTag>("G4TrkSrc"))),
+      tGeomToken_(esConsumes()),
+      cscGeomToken_(esConsumes()),
+      dtGeomToken_(esConsumes()),
+      rpcGeomToken_(esConsumes()),
+      caloGeomToken_(esConsumes()),
       count(0) {
   std::string MsgLoggerCat = "GlobalHitsProdHist_GlobalHitsProdHist";
 
@@ -849,8 +854,7 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent, const edm::EventSetup &iSet
     eventout = "\nGathering info:";
 
   // access the tracker geometry
-  edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
+  const auto &theTrackerGeometry = iSetup.getHandle(tGeomToken_);
   if (!theTrackerGeometry.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find TrackerDigiGeometryRecord in event!";
     return;
@@ -1210,8 +1214,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent, const edm::EventSetup &iSe
   // access the CSC Muon
   ///////////////////////
   // access the CSC Muon geometry
-  edm::ESHandle<CSCGeometry> theCSCGeometry;
-  iSetup.get<MuonGeometryRecord>().get(theCSCGeometry);
+  const auto &theCSCGeometry = iSetup.getHandle(cscGeomToken_);
   if (!theCSCGeometry.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find MuonGeometryRecord for the CSCGeometry in event!";
     return;
@@ -1280,8 +1283,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent, const edm::EventSetup &iSe
   // access the DT Muon
   /////////////////////
   // access the DT Muon geometry
-  edm::ESHandle<DTGeometry> theDTGeometry;
-  iSetup.get<MuonGeometryRecord>().get(theDTGeometry);
+  const auto &theDTGeometry = iSetup.getHandle(dtGeomToken_);
   if (!theDTGeometry.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find MuonGeometryRecord for the DTGeometry in event!";
     return;
@@ -1355,8 +1357,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent, const edm::EventSetup &iSe
   // access the RPC Muon
   ///////////////////////
   // access the RPC Muon geometry
-  edm::ESHandle<RPCGeometry> theRPCGeometry;
-  iSetup.get<MuonGeometryRecord>().get(theRPCGeometry);
+  const auto &theRPCGeometry = iSetup.getHandle(rpcGeomToken_);
   if (!theRPCGeometry.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find MuonGeometryRecord for the RPCGeometry in event!";
     return;
@@ -1473,8 +1474,7 @@ void GlobalHitsProdHist::fillECal(edm::Event &iEvent, const edm::EventSetup &iSe
     eventout = "\nGathering info:";
 
   // access the calorimeter geometry
-  edm::ESHandle<CaloGeometry> theCaloGeometry;
-  iSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
+  const auto &theCaloGeometry = iSetup.getHandle(caloGeomToken_);
   if (!theCaloGeometry.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find CaloGeometryRecord in event!";
     return;
@@ -1642,8 +1642,7 @@ void GlobalHitsProdHist::fillHCal(edm::Event &iEvent, const edm::EventSetup &iSe
     eventout = "\nGathering info:";
 
   // access the calorimeter geometry
-  edm::ESHandle<CaloGeometry> theCaloGeometry;
-  iSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
+  const auto &theCaloGeometry = iSetup.getHandle(caloGeomToken_);
   if (!theCaloGeometry.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find CaloGeometryRecord in event!";
     return;

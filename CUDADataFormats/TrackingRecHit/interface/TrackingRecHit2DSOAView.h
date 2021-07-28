@@ -59,6 +59,8 @@ public:
     m_chargeAndStatus[i] = ich;
   }
 
+  __device__ __forceinline__ uint32_t charge(int i) const { return __ldg(m_chargeAndStatus + i) & 0xFFFFFF; }
+
   __device__ __forceinline__ Status status(int i) const {
     uint8_t w = __ldg(m_chargeAndStatus + i) >> 24;
     return *reinterpret_cast<Status*>(&w);

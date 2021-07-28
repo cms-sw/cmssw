@@ -18,7 +18,7 @@ int main() {
   auto nHits = 200;
   // inner scope to deallocate memory before destroying the stream
   {
-    TrackingRecHit2DCUDA tkhit(nHits, nullptr, nullptr, stream);
+    TrackingRecHit2DGPU tkhit(nHits, nullptr, nullptr, stream);
 
     testTrackingRecHit2D::runKernels(tkhit.view());
 

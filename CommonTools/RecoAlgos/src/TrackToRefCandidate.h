@@ -13,7 +13,7 @@ namespace converter {
     typedef reco::Track value_type;
     typedef reco::TrackCollection Components;
     typedef reco::RecoChargedRefCandidate Candidate;
-    TrackToRefCandidate(const edm::ParameterSet& cfg) : MassiveCandidateConverter(cfg) {}
+    TrackToRefCandidate(const edm::ParameterSet& cfg, edm::ConsumesCollector iC) : MassiveCandidateConverter(cfg, iC) {}
     void convert(reco::TrackRef trkRef, reco::RecoChargedRefCandidate& c) const {
       c = reco::RecoChargedRefCandidate(trkRef, sqrt(massSqr_));
     }

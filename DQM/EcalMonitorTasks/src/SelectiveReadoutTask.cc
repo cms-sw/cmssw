@@ -3,10 +3,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
-#include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -14,6 +10,7 @@
 
 #include "DQM/EcalCommon/interface/FEFlags.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace ecaldqm {
 
@@ -35,6 +32,10 @@ namespace ecaldqm {
     }
   }
 
+  void SelectiveReadoutTask::setTokens(edm::ConsumesCollector& _collector) {
+    hSr = _collector.esConsumes<edm::Transition::BeginRun>();
+  }
+
   void SelectiveReadoutTask::addDependencies(DependencySet& _dependencies) {
     _dependencies.push_back(Dependency(kEBDigi, kEcalRawData, kEBSrFlag));
     _dependencies.push_back(Dependency(kEEDigi, kEcalRawData, kEESrFlag));
@@ -44,10 +45,8 @@ namespace ecaldqm {
     using namespace std;
 
     if (useCondDb_) {
-      edm::ESHandle<EcalSRSettings> hSr;
-      _es.get<EcalSRSettingsRcd>().get(hSr);
-
-      vector<vector<float> > weights(hSr->dccNormalizedWeights_);
+      auto const& vSr = &_es.getData(hSr);
+      vector<vector<float> > weights(vSr->dccNormalizedWeights_);
       if (weights.size() == 1) {
         vector<double> normWeights;
         for (vector<float>::iterator it(weights[0].begin()); it != weights[0].end(); it++)

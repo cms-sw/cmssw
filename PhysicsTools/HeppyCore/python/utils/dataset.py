@@ -12,7 +12,6 @@ import sys
 from .castorBaseDir import castorBaseDir
 from . import eostools as castortools
 import fnmatch
-import six
 
 class IntegrityCheckError(Exception):
     def __init__(self, value):
@@ -296,7 +295,7 @@ class Dataset( BaseDataset ):
                 self.maskExists = True
                 self.report = report
                 dup = report.get('ValidDuplicates',{})
-                for name, status in six.iteritems(report['Files']):
+                for name, status in report['Files'].items():
                     # print name, status
                     if not status[0]:
                         self.bad_files[name] = 'MarkedBad'

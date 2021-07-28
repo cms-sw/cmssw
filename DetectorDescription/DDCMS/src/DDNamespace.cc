@@ -182,7 +182,6 @@ dd4hep::Volume DDNamespace::addVolumeNS(dd4hep::Volume vol) const {
   dd4hep::Material m = vol.material();
   vol->SetName(n.c_str());
   m_context->volumes[n] = vol;
-  m_context->volPtrs[n] = &(m_context->volumes[n]);
   const char* solidName = "Invalid solid";
   if (s.isValid())         // Protect against seg fault
     solidName = s.name();  // If Solid is not valid, s.name() will seg fault.
@@ -201,7 +200,6 @@ dd4hep::Volume DDNamespace::addVolume(dd4hep::Volume vol) const {
   dd4hep::Solid s = vol.solid();
   dd4hep::Material m = vol.material();
   m_context->volumes[n] = vol;
-  m_context->volPtrs[n] = &(m_context->volumes[n]);
   const char* solidName = "Invalid solid";
   if (s.isValid())         // Protect against seg fault
     solidName = s.name();  // If Solid is not valid, s.name() will seg fault.
@@ -219,7 +217,6 @@ dd4hep::Volume DDNamespace::addVolume(dd4hep::Volume vol) const {
 dd4hep::Assembly DDNamespace::addAssembly(dd4hep::Assembly assembly, bool addSolid) const {
   string n = assembly.name();
   m_context->assemblies[n] = assembly;
-  m_context->volPtrs[n] = &(m_context->assemblies[n]);
   if (addSolid) {  // In algorithms, Assembly solids are not added separately, so add it here
     m_context->assemblySolids.emplace(n);
   }
@@ -236,7 +233,7 @@ dd4hep::Assembly DDNamespace::addAssemblySolid(dd4hep::Assembly assembly) const 
   return assembly;
 }
 
-dd4hep::Assembly DDNamespace::assembly(const std::string& name) const {
+dd4hep::Assembly DDNamespace::assembly(const std::string& name, bool exception) const {
   auto i = m_context->assemblies.find(name);
   if (i != m_context->assemblies.end()) {
     return (*i).second;
@@ -246,7 +243,11 @@ dd4hep::Assembly DDNamespace::assembly(const std::string& name) const {
     if (i != m_context->assemblies.end())
       return (*i).second;
   }
-  throw runtime_error("Unknown assembly identifier:" + name);
+  if (exception) {
+    throw runtime_error("Unknown assembly identifier: " + name);
+  }
+  dd4hep::Volume nullVol(nullptr);
+  return nullVol;
 }
 
 dd4hep::Volume DDNamespace::volume(const string& name, bool exc) const {
@@ -261,19 +262,6 @@ dd4hep::Volume DDNamespace::volume(const string& name, bool exc) const {
   }
   if (exc) {
     throw runtime_error("Unknown volume identifier:" + name);
-  }
-  return nullptr;
-}
-
-dd4hep::Volume* DDNamespace::getVolPtr(const string& name) const {
-  auto i = m_context->volPtrs.find(name);
-  if (i != m_context->volPtrs.end()) {
-    return (*i).second;
-  }
-  if (name.front() == NAMESPACE_SEP) {
-    i = m_context->volPtrs.find(name.substr(1, name.size()));
-    if (i != m_context->volPtrs.end())
-      return (*i).second;
   }
   return nullptr;
 }

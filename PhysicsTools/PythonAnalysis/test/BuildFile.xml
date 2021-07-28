@@ -120,7 +120,6 @@
 <test name="import-send2trash" command="python3 -c 'import send2trash'"/>
 <test name="import-simplegeneric" command="python3 -c 'import simplegeneric'"/>
 <test name="import-singledispatch" command="python3 -c 'import singledispatch'"/>
-<test name="import-six" command="python3 -c 'import six'"/>
 <test name="import-sqlalchemy" command="python3 -c 'import sqlalchemy'"/>
 <test name="import-sympy" command="python3 -c 'import sympy'"/>
 <test name="import-tables" command="python3 -c 'import tables'"/>

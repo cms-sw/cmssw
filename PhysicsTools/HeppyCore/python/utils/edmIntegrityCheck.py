@@ -13,7 +13,6 @@ from . import eostools as castortools
 from .timeout import timed_out, TimedOutExc
 from .castorBaseDir import castorBaseDir
 from .dataset import CMSDataset
-import six
 
 class PublishToFileSystem(object):
     """Write a report to storage"""
@@ -110,8 +109,8 @@ class IntegrityCheck(object):
         import re
         
         filemask = {}
-        for dirname, files in six.iteritems(self.test_result):
-            for name, status in six.iteritems(files):
+        for dirname, files in self.test_result.items():
+            for name, status in files.items():
                 fname = os.path.join(dirname, name)
                 filemask[fname] = status
         
@@ -170,11 +169,11 @@ class IntegrityCheck(object):
         #support updating to speed things up
         prev_results = {}
         if previous is not None:
-            for name, status in six.iteritems(previous['Files']):
+            for name, status in previous['Files'].items():
                 prev_results[name] = status
         
         filesToTest = self.sortByBaseDir(self.listRootFiles(self.directory))
-        for dir, filelist in six.iteritems(filesToTest):
+        for dir, filelist in filesToTest.items():
             filemask = {}
             #apply a UNIX wildcard if specified
             filtered = filelist
@@ -219,9 +218,9 @@ class IntegrityCheck(object):
         print('DBS Dataset name: %s' % self.options.name)
         print('Storage path: %s' % self.topdir)
         
-        for dirname, files in six.iteritems(self.test_result):
+        for dirname, files in self.test_result.items():
             print('Directory: %s' % dirname)
-            for name, status in six.iteritems(files):
+            for name, status in files.items():
                 fname = os.path.join(dirname, name)
                 if not fname in self.duplicates:
                     print('\t\t %s: %s' % (name, str(status)))
@@ -260,9 +259,9 @@ class IntegrityCheck(object):
                   'DateCreated':datetime.datetime.now().strftime("%s"),
                   'Files':{}}
         
-        for dirname, files in six.iteritems(self.test_result):
+        for dirname, files in self.test_result.items():
             report['PathList'].append(dirname)
-            for name, status in six.iteritems(files):
+            for name, status in files.items():
                 fname = os.path.join(dirname, name)
                 report['Files'][fname] = status
                 if status[0]:

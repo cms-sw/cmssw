@@ -48,7 +48,8 @@ public:
     NUM_WIREGROUPS_ME42 = 64,
     // this number should really be 112, but has always been 119 since the
     // CSC trigger was developed in 2006. Probably it would not hurt to change it to 112
-    MAX_NUM_WIREGROUPS = 119
+    MAX_NUM_WIREGROUPS = 119,
+    INVALID_WIREGROUP = 65535
   };
 
   // distrips, strips, half-strips
@@ -105,6 +106,9 @@ public:
   enum Pattern_Info {
     NUM_ALCT_PATTERNS = 3,
     ALCT_PATTERN_WIDTH = 5,
+    ALCT_ACCELERATOR_PATTERN = 0,
+    ALCT_COLLISIONA_PATTERN = 1,
+    ALCT_COLLISIONB_PATTERN = 2,
     // Run-1 and Run-2 CSC trigger patterns
     NUM_CLCT_PATTERNS = 11,
     // Run-3 CSC trigger patterns

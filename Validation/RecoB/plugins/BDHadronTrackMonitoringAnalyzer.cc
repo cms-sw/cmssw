@@ -38,6 +38,7 @@ BDHadronTrackMonitoringAnalyzer::BDHadronTrackMonitoringAnalyzer(const edm::Para
   TrackCollectionTag_ = consumes<reco::TrackCollection>(TrackSrc_);
   PrimaryVertexColl_ = consumes<reco::VertexCollection>(PVSrc_);
   clusterTPMapToken_ = consumes<ClusterTPAssociation>(ClusterTPMapSrc_);
+  ttrackToken_ = esConsumes(edm::ESInputTag("", "TransientTrackBuilder"));
   // TrkHistCat = {"BCWeakDecay", "BWeakDecay", "CWeakDecay", "PU", "Other",
   // "Fake"};
 }
@@ -213,8 +214,8 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event &iEvent, const ed
   iEvent.getByToken(clusterTPMapToken_, pCluster2TPListH);
   const ClusterTPAssociation &clusterToTPMap = *pCluster2TPListH;
 
-  edm::ESHandle<TransientTrackBuilder> trackBuilder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
+  //edm::ESHandle<TransientTrackBuilder>
+  const auto &trackBuilder = iSetup.getHandle(ttrackToken_);
 
   classifier_.newEvent(iEvent, iSetup);
 

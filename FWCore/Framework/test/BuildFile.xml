@@ -395,3 +395,4 @@
 <test name="testFWCoreFrameworkNonEventOrdering" command="test_non_event_ordering.sh"/>
 <test name="testFWCoreFramework1ThreadESPrefetch" command="run_test_1_thread_es_prefetching.sh"/>
 <test name="testFWCoreFrameworkModuleDeletion" command="run_module_delete_tests.sh"/>
+<test name="testFWCoreFrameworkExternalWorkOutputModule" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testExternalWorkGlobalOutputModule_cfg.py"/>

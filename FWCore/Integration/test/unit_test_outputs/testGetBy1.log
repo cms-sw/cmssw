@@ -36,6 +36,11 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e81
 ++++ finished: constructing module with label 'intVectorProducer' id = 14
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
 ++ starting: begin job
+The following legacy modules are configured. Support for legacy modules
+is going to end soon. These modules need to be converted to have type
+edm::global, edm::stream, edm::one, or in rare cases edm::limited.
+  IntVectorProducer intVectorProducer
+%MSG
 ++++ starting: begin job for module with label 'intProducerA' id = 9
 Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
 ++++ finished: begin job for module with label 'intProducerA' id = 9
@@ -1429,6 +1434,34 @@ GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++ starting: access input process block
+GlobalContext: transition = AccessInputProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++ finished: access input process block
+GlobalContext: transition = AccessInputProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++ starting: write process block
+GlobalContext: transition = WriteProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++ finished: write process block
+GlobalContext: transition = WriteProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
 ++++ starting: end process block
 GlobalContext: transition = EndProcessBlock

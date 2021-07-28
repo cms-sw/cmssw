@@ -8,7 +8,7 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
-function runTest { echo $1 ; python $1 || die "Failure for configuration: $1" $?; }
+function runTest { echo $1 ; python3 $1 || die "Failure for configuration: $1" $?; }
 
 
 runTest "${LOCAL_TEST_DIR}/RunRepack.py --select-events HLT:path1,HLT:path2 --lfn /store/whatever"

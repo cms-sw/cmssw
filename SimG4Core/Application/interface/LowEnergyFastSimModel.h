@@ -9,6 +9,7 @@
 #include "GFlashHitMaker.hh"
 #include "G4Region.hh"
 #include "G4Types.hh"
+#include "G4ThreeVector.hh"
 
 class TrackingAction;
 
@@ -24,8 +25,10 @@ private:
   G4double fEmax;
   const G4Envelope* fRegion;
   const TrackingAction* fTrackingAction;
+  G4bool fCheck;
+  G4ThreeVector fTailPos;
   GFlashHitMaker fHitMaker;
-  LowEnergyFastSimParam param;
+  LowEnergyFastSimParam fParam;
 };
 
 #endif

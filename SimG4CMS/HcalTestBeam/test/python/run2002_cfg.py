@@ -8,7 +8,7 @@ process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
 process.load("SimG4CMS.HcalTestBeam.TB2002GeometryXML_cfi")
 process.load("Geometry.HcalTestBeamData.hcalDDDSimConstants_cff")
-
+process.load('GeneratorInterface.Core.generatorSmeared_cfi')
 process.load("Configuration.EventContent.EventContent_cff")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
@@ -64,7 +64,7 @@ process.Tracer = cms.Service("Tracer")
 
 process.Timing = cms.Service("Timing")
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.VtxSmeared.MeanX = -420.0
 process.VtxSmeared.MeanY = 18.338
@@ -76,11 +76,7 @@ process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
-                             'EcalTBH4BeamDetector',
-                             'HcalTB02SensitiveDetector',
-                             'HcalTB06BeamDetector',
-                             'EcalSensitiveDetector',
-                             'HcalSensitiveDetector']
+                             'HcalTB02SensitiveDetector']
 process.g4SimHits.CaloSD.EminHits = [0.0,0.0,0.0,0.0]
 process.g4SimHits.CaloSD.TmaxHits = [1000.0,1000.0,1000.0,1000.0]
 process.g4SimHits.CaloSD.UseMap = True

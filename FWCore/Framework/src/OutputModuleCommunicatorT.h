@@ -5,6 +5,7 @@
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/OutputModuleCommunicator.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 
 namespace edm {
   class ActivityRegistry;
@@ -65,7 +66,9 @@ namespace edm {
 
     edm::SelectedProductsForBranchType const& keptProducts() const override;
 
-    void selectProducts(edm::ProductRegistry const& preg, ThinnedAssociationsHelper const&) override;
+    void selectProducts(edm::ProductRegistry const& preg,
+                        ThinnedAssociationsHelper const&,
+                        ProcessBlockHelperBase const&) override;
 
     void setEventSelectionInfo(
         std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,

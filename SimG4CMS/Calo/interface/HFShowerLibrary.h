@@ -71,6 +71,8 @@ private:
   float libVers, listVersion;
   std::vector<double> pmom;
 
+  int fileVersion_;
+  bool ignoreTimeShift_;
   double probMax, backProb;
   double dphi, rMin, rMax;
   std::vector<double> gpar;

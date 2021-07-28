@@ -4,17 +4,19 @@
 #include <string>
 #include <memory>
 
-#include <boost/python.hpp>
-#include "boost/archive/xml_oarchive.hpp"
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
 
 #include "CondFormats/Serialization/interface/Archive.h"
 
 #define XML_CONVERTER_NAME(CLASS_NAME) (std::string(#CLASS_NAME) + "2xml").c_str()
 
-#define PAYLOAD_2XML_MODULE(MODULE_NAME) BOOST_PYTHON_MODULE(MODULE_NAME)
+#define PAYLOAD_2XML_MODULE(MODULE_NAME) PYBIND11_MODULE(MODULE_NAME, m)
 
-#define PAYLOAD_2XML_CLASS(CLASS_NAME)                                                                     \
-  boost::python::class_<Payload2xml<CLASS_NAME> >(XML_CONVERTER_NAME(CLASS_NAME), boost::python::init<>()) \
+#define PAYLOAD_2XML_CLASS(CLASS_NAME)                                    \
+  py::class_<Payload2xml<CLASS_NAME> >(m, XML_CONVERTER_NAME(CLASS_NAME)) \
+      .def(py::init<>())                                                  \
       .def("write", &Payload2xml<CLASS_NAME>::write);
 
 namespace {  // Avoid cluttering the global namespace.

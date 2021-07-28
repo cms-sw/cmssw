@@ -9,7 +9,6 @@
 <use name="SimDataFormats/CaloHit"/>
 <use name="SimDataFormats/ValidationFormats"/>
 <use name="geant4core"/>
-<use name="boost"/>
 <use name="hepmc"/>
 <use name="clhep"/>
 <use name="root"/>

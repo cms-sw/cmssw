@@ -17,7 +17,11 @@ HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
                                            const std::string& name)
     : hgcons_(hgc), mode_(hgc.geomMode()), det_(det), name_(name) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "Creating HGCalNumberingScheme for " << name_ << " Det " << det_;
+  edm::LogVerbatim("HGCSim") << "Creating HGCalNumberingScheme for " << name_ << " Det " << det_ << " Mode " << mode_
+                             << ":" << HGCalGeometryMode::Hexagon8Full << ":" << HGCalGeometryMode::Hexagon8 << ":"
+                             << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Trapezoid << ":"
+                             << HGCalGeometryMode::TrapezoidFile << ":" << HGCalGeometryMode::Hexagon8Module << ":"
+                             << HGCalGeometryMode::TrapezoidModule;
 #endif
 }
 
@@ -33,10 +37,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
   wt = 1.0;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme:: input Layer " << layer << " Module " << module << " Cell "
-                             << cell << " iz " << iz << " Position " << pos << " Mode " << mode_ << ":"
-                             << HGCalGeometryMode::Hexagon8Full << ":" << HGCalGeometryMode::Hexagon8 << ":"
-                             << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Trapezoid << ":"
-                             << HGCalGeometryMode::TrapezoidFile;
+                             << cell << " iz " << iz << " Position " << pos;
 #endif
   if (hgcons_.waferHexagon8()) {
     int cellU(0), cellV(0), waferType(-1), waferU(0), waferV(0);
@@ -51,7 +52,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       hgcons_.waferFromPosition(xx, pos.y(), layer, waferU, waferV, cellU, cellV, waferType, wt);
     }
     if (waferType >= 0) {
-      if (mode_ == HGCalGeometryMode::Hexagon8File) {
+      if ((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module)) {
         int type = hgcons_.waferType(layer, waferU, waferV, true);
         if (type != waferType) {
 #ifdef EDM_ML_DEBUG
@@ -98,12 +99,14 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
   edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme::i/p " << det_ << ":" << layer << ":" << module << ":" << cell
                              << ":" << iz << ":" << pos.x() << ":" << pos.y() << ":" << pos.z() << " ID " << std::hex
                              << index << std::dec << " wt " << wt;
-  checkPosition(index, pos);
+  bool matchOnly = (mode_ == HGCalGeometryMode::Hexagon8Module) ? true : false;
+  bool debug = (mode_ == HGCalGeometryMode::Hexagon8Module) ? true : false;
+  checkPosition(index, pos, matchOnly, debug);
 #endif
   return index;
 }
 
-void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& pos) const {
+void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& pos, bool matchOnly, bool debug) const {
   std::pair<float, float> xy;
   bool ok(false);
   double z1(0), tolR(12.0), tolZ(1.0);
@@ -139,7 +142,9 @@ void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
                        (z1 > zrange.second + tolZ))
                           ? "***** ERROR *****"
                           : "");
-    if (!(match && inok && outok)) {
+    if (matchOnly && match)
+      ck = "";
+    if (!(match && inok && outok) || debug) {
       edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme::Detector " << det_ << " Layer " << lay << " R " << r2 << ":"
                                  << r1 << ":" << rrange.first << ":" << rrange.second << " Z " << z2 << ":" << z1 << ":"
                                  << zrange.first << ":" << zrange.second << " Match " << match << ":" << inok << ":"
