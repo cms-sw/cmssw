@@ -67,6 +67,7 @@ private:
   edm::EDGetTokenT<reco::CaloJetCollection> caloJetToken_;
   edm::EDGetTokenT<EcalRecHitCollection> RecHitCollection_EB_;
   edm::EDGetTokenT<EcalRecHitCollection> RecHitCollection_EE_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomH;
 
   double mRechitEnergyThreshold;
   double mRecoPhotonPtThreshold;
@@ -105,12 +106,11 @@ private:
 // constructors and destructor
 //
 ECALMultifitAnalyzer_HI::ECALMultifitAnalyzer_HI(const edm::ParameterSet &iConfig)
-    :
-
-      recoPhotonsCollection_(consumes<std::vector<reco::Photon>>(iConfig.getParameter<edm::InputTag>("recoPhotonSrc"))),
+    : recoPhotonsCollection_(consumes<std::vector<reco::Photon>>(iConfig.getParameter<edm::InputTag>("recoPhotonSrc"))),
       caloJetToken_(consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("recoJetSrc"))),
       RecHitCollection_EB_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("RecHitCollection_EB"))),
       RecHitCollection_EE_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("RecHitCollection_EE"))),
+      geomH(esConsumes()),
       mRechitEnergyThreshold(iConfig.getParameter<double>("rechitEnergyThreshold")),
       mRecoPhotonPtThreshold(iConfig.getParameter<double>("recoPhotonPtThreshold")),
       mRecoJetPtThreshold(iConfig.getParameter<double>("recoJetPtThreshold")),
@@ -125,9 +125,7 @@ ECALMultifitAnalyzer_HI::ECALMultifitAnalyzer_HI(const edm::ParameterSet &iConfi
 void ECALMultifitAnalyzer_HI::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
 
-  edm::ESHandle<CaloGeometry> geomH;
-  iSetup.get<CaloGeometryRecord>().get(geomH);
-  const CaloGeometry *geom = geomH.product();
+  const CaloGeometry *geom = &iSetup.getData(geomH);
 
   Handle<std::vector<reco::Photon>> recoPhotonsHandle;
   iEvent.getByToken(recoPhotonsCollection_, recoPhotonsHandle);
