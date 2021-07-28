@@ -15,7 +15,7 @@ using namespace std;
 
 EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps)
     : EBdigiCollection_(consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBdigiCollection"))),
-      pAgc(esConsumes()) {
+      pAgc(esConsumes<edm::Transition::BeginRun>()) {
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 

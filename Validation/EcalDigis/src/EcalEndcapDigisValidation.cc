@@ -14,7 +14,7 @@ using namespace std;
 
 EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps)
     : EEdigiCollectionToken_(consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigiCollection"))),
-      pAgc(esConsumes()) {
+      pAgc(esConsumes<edm::Transition::BeginRun>()) {
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 

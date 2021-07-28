@@ -27,11 +27,11 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
           edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEE")))),
       crossingFramePCaloHitESToken_(consumes<CrossingFrame<PCaloHit> >(
           edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsES")))),
-      pAgc(esConsumes()),
-      esgain_(esConsumes()),
-      esMIPToGeV_(esConsumes()),
-      esPedestals_(esConsumes()),
-      esMIPs_(esConsumes()),
+      pAgc(esConsumes<edm::Transition::BeginRun>()),
+      esgain_(esConsumes<edm::Transition::BeginRun>()),
+      esMIPToGeV_(esConsumes<edm::Transition::BeginRun>()),
+      esPedestals_(esConsumes<edm::Transition::BeginRun>()),
+      esMIPs_(esConsumes<edm::Transition::BeginRun>()),
       dbPed(esConsumes()),
       hGeometry(esConsumes()) {
   // needed for MixingModule checks

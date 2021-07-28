@@ -97,8 +97,8 @@ const int EcalSelectiveReadoutValidation::nDccRus_[nDccs_] = {
 
 EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSet& ps)
     : geoToken(esConsumes()),
-      ecalmapping(esConsumes()),
-      hTriggerTowerMap(esConsumes()),
+      ecalmapping(esConsumes<edm::Transition::BeginRun>()),
+      hTriggerTowerMap(esConsumes<edm::Transition::BeginRun>()),
       physHandle(esConsumes()),
       lutGrpHandle(esConsumes()),
       lutMapHandle(esConsumes()),
