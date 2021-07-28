@@ -32,7 +32,7 @@
 #include <iostream>
 #include <string>
 
-class CSCTriggerPrimitivesAnalyzer : public edm::one::EDAnalyzer<> {
+class CSCTriggerPrimitivesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// Constructor
   explicit CSCTriggerPrimitivesAnalyzer(const edm::ParameterSet &conf);
@@ -96,7 +96,9 @@ CSCTriggerPrimitivesAnalyzer::CSCTriggerPrimitivesAnalyzer(const edm::ParameterS
       mcEfficiencyPlots_(conf.getParameter<bool>("mcEfficiencyPlots")),
       mcResolutionPlots_(conf.getParameter<bool>("mcResolutionPlots")),
       B904Setup_(conf.getParameter<bool>("B904Setup")),
-      B904RunNumber_(conf.getParameter<std::string>("B904RunNumber")) {}
+      B904RunNumber_(conf.getParameter<std::string>("B904RunNumber")) {
+  usesResource("TFileService");
+}
 
 void CSCTriggerPrimitivesAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &setup) {
   // efficiency and resolution analysis is done here

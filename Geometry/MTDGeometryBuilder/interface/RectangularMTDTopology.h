@@ -170,6 +170,7 @@ public:
   float gapyInterpadFrac() const { return m_GAPyInterpadFrac; }
   float gapxBorderFrac() const { return m_GAPxBorderFrac; }
   float gapyBorderFrac() const { return m_GAPyBorderFrac; }
+  bool isBricked() const override { return false; }
 
 private:
   float m_pitchx;

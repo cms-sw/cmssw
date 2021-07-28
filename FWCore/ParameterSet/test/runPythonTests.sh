@@ -8,6 +8,6 @@ do
   bn=`basename $file`
   if [ "$bn" != "__init__.py" ]; then
      bnm=${bn%.*} 
-     python -m FWCore.ParameterSet."$bnm" || die "unit tests for $bn failed" $?
+     python3 -m FWCore.ParameterSet."$bnm" || die "unit tests for $bn failed" $?
   fi
 done

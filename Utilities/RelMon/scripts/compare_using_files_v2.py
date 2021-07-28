@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """
 The script compares two ROOT files and fills specified database file with
 comparison information.

@@ -40,6 +40,7 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCALCTCrossCLCT.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeCathodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityAssignment.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 
@@ -58,7 +59,7 @@ public:
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
-  virtual void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
+  void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
 
   /*
     Returns vector of good correlated LCTs in the read-out time window.
@@ -184,14 +185,21 @@ protected:
                      const CSCCLCTDigi& secondCLCT,
                      CSCCorrelatedLCTDigi& bLCT,
                      CSCCorrelatedLCTDigi& sLCT,
-                     int type);
+                     int type) const;
 
   /*
      This method calculates all the TMB words and then passes them to the
      constructor of correlated LCTs. The LCT data members are filled with
      information from the ALCT-CLCT combination.
   */
-  CSCCorrelatedLCTDigi constructLCTs(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb) const;
+  void constructLCTs(
+      const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb, CSCCorrelatedLCTDigi& lct) const;
+
+  /*
+    This function copies valid ALCT/CLCT information to invalid the ALCT/CLCT
+    if present, so that we always construct the maximum number of valid LCts
+  */
+  void copyValidToInValid(CSCALCTDigi&, CSCALCTDigi&, CSCCLCTDigi&, CSCCLCTDigi&) const;
 
   // CLCT pattern number: encodes the pattern number itself
   unsigned int encodePattern(const int clctPattern) const;

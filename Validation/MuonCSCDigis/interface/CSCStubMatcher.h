@@ -92,6 +92,10 @@ private:
 
   void clear();
 
+  void addGhostLCTs(const CSCCorrelatedLCTDigi& lct11,
+                    const CSCCorrelatedLCTDigi& lct22,
+                    CSCCorrelatedLCTDigiContainer& lctcontainer) const;
+
   edm::EDGetTokenT<CSCCLCTDigiCollection> clctToken_;
   edm::EDGetTokenT<CSCALCTDigiCollection> alctToken_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lctToken_;

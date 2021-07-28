@@ -133,7 +133,7 @@ def main(argv) :
             for j in range(0,alen):
                 mystat=cdone[j]
                 pingle=clist[j]
-                isA=pingle.isAlive()
+                isA=pingle.is_alive()
                 if ( isA ): i+=1
                 if ( not isA and mystat==0 ): 
                     nfail+=pingle.nfail

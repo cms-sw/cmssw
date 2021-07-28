@@ -133,6 +133,7 @@ namespace pat {
     bool packPathNames_;                          // configuration (optional width default)
     bool packLabels_;                             // configuration (optional width default)
     bool packPrescales_;                          // configuration (optional width default)
+    const edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> handleL1GtTriggerMenuToken_;
 
     class ModuleLabelToPathAndFlags {
     public:
@@ -212,7 +213,8 @@ PATTriggerProducer::PATTriggerProducer(const ParameterSet& iConfig)
                                                                     : false),
       packLabels_(iConfig.existsAs<bool>("packTriggerLabels") ? iConfig.getParameter<bool>("packTriggerLabels") : true),
       packPrescales_(iConfig.existsAs<bool>("packTriggerPrescales") ? iConfig.getParameter<bool>("packTriggerPrescales")
-                                                                    : true) {
+                                                                    : true),
+      handleL1GtTriggerMenuToken_{esConsumes()} {
   // L1 configuration parameters
   if (iConfig.exists("addL1Algos"))
     addL1Algos_ = iConfig.getParameter<bool>("addL1Algos");
@@ -1073,8 +1075,7 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       mapObjectTypes.insert(std::make_pair(HTM, trigger::TriggerL1HTM));
       // get and cache L1 menu
       L1GtUtils const& l1GtUtils = hltPrescaleProvider_.l1GtUtils();
-      ESHandle<L1GtTriggerMenu> handleL1GtTriggerMenu;
-      iSetup.get<L1GtTriggerMenuRcd>().get(handleL1GtTriggerMenu);
+      auto handleL1GtTriggerMenu = iSetup.getHandle(handleL1GtTriggerMenuToken_);
       auto const& l1GtAlgorithms = handleL1GtTriggerMenu->gtAlgorithmMap();
       auto const& l1GtTechTriggers = handleL1GtTriggerMenu->gtTechnicalTriggerMap();
       auto const& l1GtConditionsVector = handleL1GtTriggerMenu->gtConditionMap();

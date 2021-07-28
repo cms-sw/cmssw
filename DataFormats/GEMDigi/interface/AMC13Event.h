@@ -33,7 +33,8 @@ namespace gem {
       uint64_t bxIdT : 12;  // bx id
       uint64_t lv1IdT : 8;  // level 1 id
       uint64_t blkN : 8;    // block number
-      uint64_t crc32 : 36;  // Overall CRC (first 32 bits)
+      uint64_t : 4;
+      uint64_t crc32 : 32;  // Overall CRC
     };
   };
   union CDFTrailer {
@@ -89,21 +90,22 @@ namespace gem {
     void setCDFTrailer(uint32_t EvtLength);
     uint64_t getCDFTrailer() const { return cdft_; }
     uint32_t fragmentLength() const { return CDFTrailer{cdft_}.evtLength; }
-    uint16_t crc() const { return CDFTrailer{cdft_}.crcCDF; }
     uint8_t evtStatus() const { return CDFTrailer{cdft_}.evtStat; }
     uint8_t ttsBits() const { return CDFTrailer{cdft_}.tts; }
 
-    int bxId() const { return (int8_t)CDFHeader{cdfh_}.bxId; }
+    uint16_t bunchCrossing() const { return CDFHeader{cdfh_}.bxId; }
     uint32_t lv1Id() const { return CDFHeader{cdfh_}.lv1Id; }
     uint16_t sourceId() const { return CDFHeader{cdfh_}.sourceId; }
 
-    int orbitNumber() const { return AMC13Header{amc13h_}.orbitN; }
+    uint16_t orbitNumber() const { return AMC13Header{amc13h_}.orbitN; }
     uint8_t nAMC() const { return AMC13Header{amc13h_}.nAMC; }
 
     const std::vector<uint64_t>* getAMCheaders() const { return &amcHeaders_; }
     uint32_t getAMCsize(int i) const { return AMCHeader{amcHeaders_.at(i)}.amcSize; }
     void addAMCheader(uint64_t word);
     void addAMCheader(uint32_t AMC_size, uint8_t Blk_No, uint8_t AMC_No, uint16_t BoardID);
+
+    uint32_t crc() const { return AMC13Trailer{amc13t_}.crc32; }
 
     const std::vector<AMCdata>* getAMCpayloads() const { return &amcs_; }
     void addAMCpayload(const AMCdata& a) { amcs_.push_back(a); }

@@ -272,34 +272,15 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     // seed
     const auto seedIndex = cand.label();
     LogTrace("MkFitOutputConverter") << " from seed " << seedIndex << " seed hits";
-    const auto& mkseed = mkFitSeeds.at(cand.label());
-    for (int i = 0; i < mkseed.nTotalHits(); ++i) {
-      const auto& hitOnTrack = mkseed.getHitOnTrack(i);
-      LogTrace("MkFitOutputConverter") << "  hit on layer " << hitOnTrack.layer << " index " << hitOnTrack.index;
-      // sanity check for now
-      const auto& candHitOnTrack = cand.getHitOnTrack(i);
-      if (hitOnTrack.layer != candHitOnTrack.layer) {
-        throw cms::Exception("LogicError")
-            << "Candidate " << candIndex << " from seed " << seedIndex << " hit " << i
-            << " has different layer in candidate (" << candHitOnTrack.layer << ") and seed (" << hitOnTrack.layer
-            << ")."
-            << " Hit indices are " << candHitOnTrack.index << " and " << hitOnTrack.index << ", respectively";
-      }
-      if (hitOnTrack.index != candHitOnTrack.index) {
-        throw cms::Exception("LogicError") << "Candidate " << candIndex << " from seed " << seedIndex << " hit " << i
-                                           << " has different hit index in candidate (" << candHitOnTrack.index
-                                           << ") and seed (" << hitOnTrack.index << ") on layer " << hitOnTrack.layer;
-      }
-    }
 
     // state
     auto state = cand.state();  // copy because have to modify
-    state.convertFromCCSToCartesian();
+    state.convertFromCCSToGlbCurvilinear();
     const auto& param = state.parameters;
     const auto& err = state.errors;
-    AlgebraicSymMatrix66 cov;
-    for (int i = 0; i < 6; ++i) {
-      for (int j = i; j < 6; ++j) {
+    AlgebraicSymMatrix55 cov;
+    for (int i = 0; i < 5; ++i) {
+      for (int j = i; j < 5; ++j) {
         cov[i][j] = err.At(i, j);
       }
     }
@@ -307,11 +288,10 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     auto fts = FreeTrajectoryState(
         GlobalTrajectoryParameters(
             GlobalPoint(param[0], param[1], param[2]), GlobalVector(param[3], param[4], param[5]), state.charge, &mf),
-        CartesianTrajectoryError(cov));
+        CurvilinearTrajectoryError(cov));
     if (!fts.curvilinearError().posDef()) {
       edm::LogWarning("MkFitOutputConverter") << "Curvilinear error not pos-def\n"
-                                              << fts.curvilinearError().matrix() << "\noriginal 6x6 covariance matrix\n"
-                                              << cov << "\ncandidate ignored";
+                                              << fts.curvilinearError().matrix() << "\ncandidate ignored";
       continue;
     }
 

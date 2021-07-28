@@ -4,7 +4,7 @@ from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
 process = cms.Process('PROD',Run3_dd4hep)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff')
+process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("GeneratorInterface.Core.generatorSmeared_cfi")

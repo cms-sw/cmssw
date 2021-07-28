@@ -9,12 +9,13 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 import sys, re
 
 from FWCore.PythonFramework.CmsRun import CmsRun
+from Configuration.Eras.Era_Phase2_cff import Phase2
 
-process = cms.Process("PROD")
+process = cms.Process("PROD", Phase2)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-# The default geometry is Extended2023D28. If a different geoemtry
+# The default geometry is Extended2026D77Reco. If a different geoemtry
 # is needed, the appropriate flag has to be passed at command line,
 # e.g.: cmsRun runP_HGCal_cfg.py geom="XYZ"
 
@@ -29,7 +30,7 @@ _ALLOWED_LABELS = _LABELS2COMPS.keys()
 
 options = VarParsing('analysis')
 options.register('geom',             #name
-                 'Extended2023D28',      #default value
+                 'Extended2026D77',      #default value
                  VarParsing.multiplicity.singleton,   # kind of options
                  VarParsing.varType.string,           # type of option
                  "Select the geometry to be studied"  # help message
@@ -56,7 +57,7 @@ if options.label not in _ALLOWED_LABELS:
 _components = _LABELS2COMPS[options.label]
 
 # Load geometry either from the Database of from files
-process.load("Configuration.Geometry.Geometry%s_cff" % options.geom)
+process.load("Configuration.Geometry.Geometry%sReco_cff" % options.geom)
 
 #
 #Magnetic Field

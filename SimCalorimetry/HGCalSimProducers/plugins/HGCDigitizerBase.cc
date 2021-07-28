@@ -144,6 +144,7 @@ void HGCDigitizerBase::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
     uint32_t gainIdx = 0;
     std::array<float, 6>& adcPulse = myFEelectronics_->getDefaultADCPulse();
 
+    double tdcOnsetAuto = -1;
     if (scaleByDose_) {
       if (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose) {
         HGCalSiNoiseMap<HFNoseDetId>::SiCellOpCharacteristicsCore siop = scalHFNose_.getSiCellOpCharacteristicsCore(id);
@@ -154,6 +155,7 @@ void HGCDigitizerBase::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
         maxADC = scalHFNose_.getMaxADCPerGain()[gain];
         adcPulse = scalHFNose_.adcPulseForGain(gain);
         gainIdx = siop.gain;
+        tdcOnsetAuto = scal_.getTDCOnsetAuto(gainIdx);
         if (thresholdFollowsMIP_)
           thrADC = siop.thrADC;
       } else {
@@ -165,6 +167,7 @@ void HGCDigitizerBase::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
         maxADC = scal_.getMaxADCPerGain()[gain];
         adcPulse = scal_.adcPulseForGain(gain);
         gainIdx = siop.gain;
+        tdcOnsetAuto = scal_.getTDCOnsetAuto(gainIdx);
         if (thresholdFollowsMIP_)
           thrADC = siop.thrADC;
       }
@@ -205,7 +208,7 @@ void HGCDigitizerBase::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
     DFr rawDataFrame(id);
     int thickness = cell.thickness > 0 ? cell.thickness : 1;
     myFEelectronics_->runShaper(
-        rawDataFrame, chargeColl, toa, adcPulse, engine, thrADC, lsbADC, gainIdx, maxADC, thickness);
+        rawDataFrame, chargeColl, toa, adcPulse, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, tdcOnsetAuto);
 
     //update the output according to the final shape
     updateOutput(coll, rawDataFrame);

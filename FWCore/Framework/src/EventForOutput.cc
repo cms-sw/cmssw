@@ -45,4 +45,8 @@ namespace edm {
 
   BranchListIndexes const& EventForOutput::branchListIndexes() const { return eventPrincipal().branchListIndexes(); }
 
+  EventToProcessBlockIndexes const& EventForOutput::eventToProcessBlockIndexes() const {
+    return eventPrincipal().eventToProcessBlockIndexes();
+  }
+
 }  // namespace edm

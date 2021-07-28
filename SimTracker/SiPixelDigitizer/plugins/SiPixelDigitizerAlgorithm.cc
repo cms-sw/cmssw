@@ -329,7 +329,6 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
     // invent something new (similar to mayConsume in the ESProducer
     // side). So for now, let's consume both payloads.
     SiPixelDynamicInefficiencyToken_ = iC.esConsumes();
-    SiPixelDynamicInefficiencyToken50ns_ = iC.esConsumes(edm::ESInputTag("", "50ns"));
   }
   if (KillBadFEDChannels) {
     scenarioProbabilityToken_ = iC.esConsumes();
@@ -596,12 +595,11 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
 }
 
 // Read DynIneff Scale factors from DB
-void SiPixelDigitizerAlgorithm::init_DynIneffDB(const edm::EventSetup& es, const unsigned int& bunchspace) {
+void SiPixelDigitizerAlgorithm::init_DynIneffDB(const edm::EventSetup& es) {
+  LogDebug("PixelDigitizer ") << " In SiPixelDigitizerAlgorithm::init_DynIneffDB " << AddPixelInefficiency << "  "
+                              << pixelEfficiencies_.FromConfig << "\n";
   if (AddPixelInefficiency && !pixelEfficiencies_.FromConfig) {
-    if (bunchspace == 50)
-      SiPixelDynamicInefficiency_ = &es.getData(SiPixelDynamicInefficiencyToken50ns_);
-    else
-      SiPixelDynamicInefficiency_ = &es.getData(SiPixelDynamicInefficiencyToken_);
+    SiPixelDynamicInefficiency_ = &es.getData(SiPixelDynamicInefficiencyToken_);
     pixelEfficiencies_.init_from_db(geom_, SiPixelDynamicInefficiency_);
   }
 }
@@ -631,8 +629,12 @@ void SiPixelDigitizerAlgorithm::PixelEfficiencies::init_from_db(
   // ROC level inefficiency for phase 1 (disentangle scale factors for big and std size pixels)
   std::map<uint32_t, double> PixelGeomFactorsDB;
 
+  LogDebug("PixelDigitizer ") << " Check PixelEfficiencies -- PixelGeomFactorsDBIn "
+                              << "\n";
   if (geom->isThere(GeomDetEnumerators::P1PXB) || geom->isThere(GeomDetEnumerators::P1PXEC)) {
     for (auto db_factor : PixelGeomFactorsDBIn) {
+      LogDebug("PixelDigitizer ") << "      db_factor  " << db_factor.first << "  " << db_factor.second << "\n";
+
       int shift = DetId(db_factor.first).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) ? BPixRocIdShift
                                                                                                        : FPixRocIdShift;
       unsigned int rocMask = rocIdMaskBits << shift;
@@ -664,27 +666,47 @@ void SiPixelDigitizerAlgorithm::PixelEfficiencies::init_from_db(
     PixelGeomFactorsDB = PixelGeomFactorsDBIn;
   }
 
+  LogDebug("PixelDigitizer ")
+      << " Check PixelEfficiencies -- Loop on all modules and store module level geometrical scale factors  "
+      << "\n";
   // Loop on all modules, store module level geometrical scale factors
   for (const auto& it_module : geom->detUnits()) {
     if (dynamic_cast<PixelGeomDetUnit const*>(it_module) == nullptr)
       continue;
     const DetId detid = it_module->geographicalId();
     uint32_t rawid = detid.rawId();
-    for (auto db_factor : PixelGeomFactorsDB)
+    for (auto db_factor : PixelGeomFactorsDB) {
+      LogDebug("PixelDigitizer ") << "      db_factor PixelGeomFactorsDB  " << db_factor.first << "  "
+                                  << db_factor.second << "\n";
       if (matches(detid, DetId(db_factor.first), DetIdmasks))
         PixelGeomFactors[rawid] *= db_factor.second;
-    for (auto db_factor : ColGeomFactorsDB)
+    }
+    for (auto db_factor : ColGeomFactorsDB) {
+      LogDebug("PixelDigitizer ") << "      db_factor ColGeomFactorsDB  " << db_factor.first << "  " << db_factor.second
+                                  << "\n";
       if (matches(detid, DetId(db_factor.first), DetIdmasks))
         ColGeomFactors[rawid] *= db_factor.second;
-    for (auto db_factor : ChipGeomFactorsDB)
+    }
+    for (auto db_factor : ChipGeomFactorsDB) {
+      LogDebug("PixelDigitizer ") << "      db_factor ChipGeomFactorsDB  " << db_factor.first << "  "
+                                  << db_factor.second << "\n";
       if (matches(detid, DetId(db_factor.first), DetIdmasks))
         ChipGeomFactors[rawid] *= db_factor.second;
+    }
   }
 
   // piluep scale factors are calculated once per event
   // therefore vector index is stored in a map for each module that matches to a db_id
   size_t i = 0;
+  LogDebug("PixelDigitizer ") << " Check PixelEfficiencies -- PUFactors "
+                              << "\n";
   for (const auto& factor : PUFactors) {
+    //
+    LogDebug("PixelDigitizer ") << "      factor  " << factor.first << "  " << factor.second.size() << "\n";
+    for (size_t i = 0, n = factor.second.size(); i < n; i++) {
+      LogDebug("PixelDigitizer ") << "     print factor.second for " << i << "   " << factor.second[i] << "\n";
+    }
+    //
     const DetId db_id = DetId(factor.first);
     for (const auto& it_module : geom->detUnits()) {
       if (dynamic_cast<PixelGeomDetUnit const*>(it_module) == nullptr)

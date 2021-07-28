@@ -12,21 +12,18 @@ CSCALCTCrossCLCT::CSCALCTCrossCLCT(
   gangedME1a_ = commonParams.getParameter<bool>("gangedME1a");
   ignoreAlctCrossClct_ = ignoreAlctCrossClct;
 
-  const edm::ParameterSet me11luts(conf.getParameter<edm::ParameterSet>("wgCrossHsME11Params"));
-  wgCrossHsME1aFiles_ = me11luts.getParameter<std::vector<std::string>>("wgCrossHsME1aFiles");
-  wgCrossHsME1aGangedFiles_ = me11luts.getParameter<std::vector<std::string>>("wgCrossHsME1aGangedFiles");
-  wgCrossHsME1bFiles_ = me11luts.getParameter<std::vector<std::string>>("wgCrossHsME1bFiles");
-  wg_cross_min_hs_ME1a_ = std::make_unique<CSCLUTReader>(wgCrossHsME1aFiles_[0]);
-  wg_cross_max_hs_ME1a_ = std::make_unique<CSCLUTReader>(wgCrossHsME1aFiles_[1]);
-  wg_cross_min_hs_ME1a_ganged_ = std::make_unique<CSCLUTReader>(wgCrossHsME1aGangedFiles_[0]);
-  wg_cross_max_hs_ME1a_ganged_ = std::make_unique<CSCLUTReader>(wgCrossHsME1aGangedFiles_[1]);
-  wg_cross_min_hs_ME1b_ = std::make_unique<CSCLUTReader>(wgCrossHsME1bFiles_[0]);
-  wg_cross_max_hs_ME1b_ = std::make_unique<CSCLUTReader>(wgCrossHsME1bFiles_[1]);
-
-  const edm::ParameterSet lctCodeluts(conf.getParameter<edm::ParameterSet>("lctCodeParams"));
-  lctCombinationCodeFiles_ = lctCodeluts.getParameter<std::vector<std::string>>("lctCodeFiles");
-  code_to_best_lct_ = std::make_unique<CSCLUTReader>(lctCombinationCodeFiles_[0]);
-  code_to_second_lct_ = std::make_unique<CSCLUTReader>(lctCombinationCodeFiles_[1]);
+  if (!ignoreAlctCrossClct_) {
+    const edm::ParameterSet me11luts(conf.getParameter<edm::ParameterSet>("wgCrossHsME11Params"));
+    wgCrossHsME1aFiles_ = me11luts.getParameter<std::vector<std::string>>("wgCrossHsME1aFiles");
+    wgCrossHsME1aGangedFiles_ = me11luts.getParameter<std::vector<std::string>>("wgCrossHsME1aGangedFiles");
+    wgCrossHsME1bFiles_ = me11luts.getParameter<std::vector<std::string>>("wgCrossHsME1bFiles");
+    wg_cross_min_hs_ME1a_ = std::make_unique<CSCLUTReader>(wgCrossHsME1aFiles_[0]);
+    wg_cross_max_hs_ME1a_ = std::make_unique<CSCLUTReader>(wgCrossHsME1aFiles_[1]);
+    wg_cross_min_hs_ME1a_ganged_ = std::make_unique<CSCLUTReader>(wgCrossHsME1aGangedFiles_[0]);
+    wg_cross_max_hs_ME1a_ganged_ = std::make_unique<CSCLUTReader>(wgCrossHsME1aGangedFiles_[1]);
+    wg_cross_min_hs_ME1b_ = std::make_unique<CSCLUTReader>(wgCrossHsME1bFiles_[0]);
+    wg_cross_max_hs_ME1b_ = std::make_unique<CSCLUTReader>(wgCrossHsME1bFiles_[1]);
+  }
 }
 
 void CSCALCTCrossCLCT::calculateLCTCodes(const CSCALCTDigi& bestALCT,

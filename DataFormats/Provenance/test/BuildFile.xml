@@ -10,6 +10,10 @@
   <use name="catch2"/>
 </bin>
 
+<bin file="StoredProcessBlockHelper_t.cpp">
+  <use name="catch2"/>
+</bin>
+
 <bin name="testProductResolverIndexHelper" file="testRunner.cpp productResolverIndexHelper_t.cppunit.cc">
   <use name="DataFormats/TestObjects"/>
 </bin>

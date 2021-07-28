@@ -7,7 +7,7 @@ std::function<float(const reco::GsfElectron&)> hltdqm::getUnaryFuncExtraFloat<re
   if (varName == "scEta")
     varFunc = scEtaFunc<reco::GsfElectron>;
   else if (varName == "hOverE")
-    varFunc = &reco::GsfElectron::hcalOverEcal;
+    varFunc = [](const reco::GsfElectron& ele) -> float { return ele.hcalOverEcal(); };
   return varFunc;
 }
 
@@ -17,6 +17,6 @@ std::function<float(const reco::Photon&)> hltdqm::getUnaryFuncExtraFloat<reco::P
   if (varName == "scEta")
     varFunc = scEtaFunc<reco::Photon>;
   else if (varName == "hOverE")
-    varFunc = &reco::Photon::hadTowOverEm;
+    varFunc = [](const reco::Photon& pho) -> float { return pho.hadTowOverEm(); };
   return varFunc;
 }

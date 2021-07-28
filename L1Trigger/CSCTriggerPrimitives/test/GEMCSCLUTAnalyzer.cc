@@ -17,6 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
@@ -156,46 +157,78 @@ void GEMCSCLUTAnalyzer::generateLUTsME11(const CSCDetId& id) const {
 
   const std::string oddeven(id.chamber() % 2 == 0 ? "_even" : "_odd");
 
+  unsigned i = 0;
   std::ofstream ofos;
   // simulation LUTs
   ofos.open("GEMCSCLUT_pad_hs_ME1a" + oddeven + ".txt");
-  for (const auto& p : gemPadToCscHsME1a)
-    ofos << p << std::endl;
+  ofos << "#<header> v1.0 8 32 </header>\n";
+  for (const auto& p : gemPadToCscHsME1a) {
+    ofos << i << " " << p << std::endl;
+    i++;
+  }
   ofos.close();
 
   ofos.open("GEMCSCLUT_pad_hs_ME1b" + oddeven + ".txt");
-  for (const auto& p : gemPadToCscHsME1b)
-    ofos << p << std::endl;
+  ofos << "#<header> v1.0 8 32 </header>\n";
+  i = 0;
+  for (const auto& p : gemPadToCscHsME1b) {
+    ofos << i << " " << p << std::endl;
+    i++;
+  }
   ofos.close();
 
   ofos.open("GEMCSCLUT_pad_es_ME1a" + oddeven + ".txt");
-  for (const auto& p : gemPadToCscEsME1a)
-    ofos << p << std::endl;
+  ofos << "#<header> v1.0 8 32 </header>\n";
+  i = 0;
+  for (const auto& p : gemPadToCscEsME1a) {
+    ofos << i << " " << p << std::endl;
+    i++;
+  }
   ofos.close();
 
   ofos.open("GEMCSCLUT_pad_es_ME1b" + oddeven + ".txt");
-  for (const auto& p : gemPadToCscEsME1b)
-    ofos << p << std::endl;
+  ofos << "#<header> v1.0 8 32 </header>\n";
+  i = 0;
+  for (const auto& p : gemPadToCscEsME1b) {
+    ofos << i << " " << p << std::endl;
+    i++;
+  }
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_l1_min_wg_ME11" + oddeven + ".txt");
-  for (const auto& p : gemRollL1ToCscWg)
-    ofos << p.first << std::endl;
+  ofos << "#<header> v1.0 3 32 </header>\n";
+  i = 0;
+  for (const auto& p : gemRollL1ToCscWg) {
+    ofos << i << " " << p.first << std::endl;
+    i++;
+  }
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_l1_max_wg_ME11" + oddeven + ".txt");
-  for (const auto& p : gemRollL1ToCscWg)
-    ofos << p.second << std::endl;
+  ofos << "#<header> v1.0 3 32 </header>\n";
+  i = 0;
+  for (const auto& p : gemRollL1ToCscWg) {
+    ofos << i << " " << p.second << std::endl;
+    i++;
+  }
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_l2_min_wg_ME11" + oddeven + ".txt");
-  for (const auto& p : gemRollL2ToCscWg)
-    ofos << p.first << std::endl;
+  ofos << "#<header> v1.0 3 32 </header>\n";
+  i = 0;
+  for (const auto& p : gemRollL2ToCscWg) {
+    ofos << i << " " << p.first << std::endl;
+    i++;
+  }
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_l2_max_wg_ME11" + oddeven + ".txt");
-  for (const auto& p : gemRollL2ToCscWg)
-    ofos << p.second << std::endl;
+  ofos << "#<header> v1.0 3 32 </header>\n";
+  i = 0;
+  for (const auto& p : gemRollL2ToCscWg) {
+    ofos << i << " " << p.second << std::endl;
+    i++;
+  }
   ofos.close();
 
   // firmware LUTs
@@ -276,36 +309,60 @@ void GEMCSCLUTAnalyzer::generateLUTsME21(const CSCDetId& csc_id) const {
 
   const std::string oddeven(csc_id.chamber() % 2 == 0 ? "_even" : "_odd");
 
+  unsigned i = 0;
   std::ofstream ofos;
   // simulation LUTs
   ofos.open("GEMCSCLUT_pad_hs_ME21" + oddeven + ".txt");
-  for (const auto& p : gemPadToCscHs)
-    ofos << p << std::endl;
+  ofos << "#<header> v1.0 9 32 </header>\n";
+  for (const auto& p : gemPadToCscHs) {
+    ofos << i << " " << p << std::endl;
+    i++;
+  }
   ofos.close();
 
   ofos.open("GEMCSCLUT_pad_es_ME21" + oddeven + ".txt");
-  for (const auto& p : gemPadToCscEs)
-    ofos << p << std::endl;
+  ofos << "#<header> v1.0 9 32 </header>\n";
+  i = 0;
+  for (const auto& p : gemPadToCscEs) {
+    ofos << i << " " << p << std::endl;
+    i++;
+  }
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_l1_min_wg_ME21" + oddeven + ".txt");
-  for (const auto& p : gemRollL1ToCscWg)
-    ofos << p.first << std::endl;
+  ofos << "#<header> v1.0 4 32 </header>\n";
+  i = 0;
+  for (const auto& p : gemRollL1ToCscWg) {
+    ofos << i << " " << p.first << std::endl;
+    i++;
+  }
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_l2_min_wg_ME21" + oddeven + ".txt");
-  for (const auto& p : gemRollL2ToCscWg)
-    ofos << p.first << std::endl;
+  ofos << "#<header> v1.0 4 32 </header>\n";
+  i = 0;
+  for (const auto& p : gemRollL2ToCscWg) {
+    ofos << i << " " << p.first << std::endl;
+    i++;
+  }
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_l1_max_wg_ME21" + oddeven + ".txt");
-  for (const auto& p : gemRollL1ToCscWg)
-    ofos << p.second << std::endl;
+  ofos << "#<header> v1.0 4 32 </header>\n";
+  i = 0;
+  for (const auto& p : gemRollL1ToCscWg) {
+    ofos << i << " " << p.second << std::endl;
+    i++;
+  }
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_l2_max_wg_ME21" + oddeven + ".txt");
-  for (const auto& p : gemRollL2ToCscWg)
-    ofos << p.second << std::endl;
+  ofos << "#<header> v1.0 4 32 </header>\n";
+  i = 0;
+  for (const auto& p : gemRollL2ToCscWg) {
+    ofos << i << " " << p.second << std::endl;
+    i++;
+  }
   ofos.close();
 
   // firmware LUTs
@@ -361,8 +418,8 @@ void GEMCSCLUTAnalyzer::gemRollToEtaLimitsLUT(const GEMChamber* gemChamber,
     const float half_striplength(roll->specs()->specificTopology().stripLength() / 2.);
     const LocalPoint lp_top(0., half_striplength, 0.);
     const LocalPoint lp_bottom(0., -half_striplength, 0.);
-    const GlobalPoint gp_top(roll->toGlobal(lp_top));
-    const GlobalPoint gp_bottom(roll->toGlobal(lp_bottom));
+    const GlobalPoint& gp_top(roll->toGlobal(lp_top));
+    const GlobalPoint& gp_bottom(roll->toGlobal(lp_bottom));
     const double bottom_eta(std::abs(gp_bottom.eta()));
     const double top_eta(std::abs(gp_top.eta()));
     lut.emplace_back(std::min(bottom_eta, top_eta), std::max(bottom_eta, top_eta));
@@ -386,8 +443,8 @@ void GEMCSCLUTAnalyzer::cscWgToEtaLimitsLUT(const CSCLayer* keyLayer,
   for (int i = 0; i < numberOfWG; ++i) {
     const float middle_wire(keyLayerGeometry->middleWireOfGroup(i));
     const std::pair<LocalPoint, LocalPoint> wire_ends(keyLayerGeometry->wireTopology()->wireEnds(middle_wire));
-    const GlobalPoint gp_top(keyLayer->toGlobal(wire_ends.first));
-    const GlobalPoint gp_bottom(keyLayer->toGlobal(wire_ends.second));
+    const GlobalPoint& gp_top(keyLayer->toGlobal(wire_ends.first));
+    const GlobalPoint& gp_bottom(keyLayer->toGlobal(wire_ends.second));
     const double bottom_eta(std::abs(gp_bottom.eta()));
     const double top_eta(std::abs(gp_top.eta()));
     lut.emplace_back(std::min(bottom_eta, top_eta), std::max(bottom_eta, top_eta));
@@ -402,9 +459,9 @@ void GEMCSCLUTAnalyzer::cscEsToGemPadLUT(const CSCLayer* keyLayer,
   const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
   auto nStrips(keyLayerGeometry->numberOfStrips());
   for (float i = 0; i < nStrips; i = i + 0.125) {
-    const LocalPoint lpCSC(keyLayerGeometry->topology()->localPosition(i));
-    const GlobalPoint gp(keyLayer->toGlobal(lpCSC));
-    const LocalPoint lpGEM(randRoll->toLocal(gp));
+    const LocalPoint& lpCSC(keyLayerGeometry->topology()->localPosition(i));
+    const GlobalPoint& gp(keyLayer->toGlobal(lpCSC));
+    const LocalPoint& lpGEM(randRoll->toLocal(gp));
     const float pad(randRoll->pad(lpGEM));
     lut.emplace_back(std::floor(pad), std::ceil(pad));
   }
@@ -419,9 +476,9 @@ void GEMCSCLUTAnalyzer::gemPadToCscHsLUT(const CSCLayer* keyLayer,
   const int nGEMPads(randRoll->npads());
   const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
   for (int i = 0; i < nGEMPads; ++i) {
-    const LocalPoint lpGEM(randRoll->centreOfPad(i));
-    const GlobalPoint gp(randRoll->toGlobal(lpGEM));
-    const LocalPoint lpCSC(keyLayer->toLocal(gp));
+    const LocalPoint& lpGEM(randRoll->centreOfPad(i));
+    const GlobalPoint& gp(randRoll->toGlobal(lpGEM));
+    const LocalPoint& lpCSC(keyLayer->toLocal(gp));
     const float strip(keyLayerGeometry->strip(lpCSC));
     lut.push_back(int((strip + offset) * 2));
   }
@@ -432,13 +489,13 @@ void GEMCSCLUTAnalyzer::gemPadToCscEsLUT(const CSCLayer* keyLayer,
                                          std::vector<int>& lut) const {
   int offset(0);
   if (keyLayer->id().ring() == 4)
-    offset = 64;
+    offset = CSCConstants::NUM_STRIPS_ME1B;
   const int nGEMPads(randRoll->npads());
   const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
   for (int i = 0; i < nGEMPads; ++i) {
-    const LocalPoint lpGEM(randRoll->centreOfPad(i));
-    const GlobalPoint gp(randRoll->toGlobal(lpGEM));
-    const LocalPoint lpCSC(keyLayer->toLocal(gp));
+    const LocalPoint& lpGEM(randRoll->centreOfPad(i));
+    const GlobalPoint& gp(randRoll->toGlobal(lpGEM));
+    const LocalPoint& lpCSC(keyLayer->toLocal(gp));
     const float strip(keyLayerGeometry->strip(lpCSC));
     lut.push_back(int((strip + offset) * 8));
   }
@@ -453,11 +510,11 @@ void GEMCSCLUTAnalyzer::gemRollToCscWgLUT(const CSCLayer* keyLayer,
     const LocalPoint lp_top(0., half_striplength, 0.);
     const LocalPoint lp_bottom(0., -half_striplength, 0.);
 
-    const GlobalPoint gp_top(roll->toGlobal(lp_top));
-    const GlobalPoint gp_bottom(roll->toGlobal(lp_bottom));
+    const GlobalPoint& gp_top(roll->toGlobal(lp_top));
+    const GlobalPoint& gp_bottom(roll->toGlobal(lp_bottom));
 
-    const LocalPoint lp_csc_top(keyLayer->toLocal(gp_top));
-    const LocalPoint lp_csc_bottom(keyLayer->toLocal(gp_bottom));
+    const LocalPoint& lp_csc_top(keyLayer->toLocal(gp_top));
+    const LocalPoint& lp_csc_bottom(keyLayer->toLocal(gp_bottom));
 
     const int wire_top(keyLayerGeometry->nearestWire(lp_csc_top));
     const int wire_bottom(keyLayerGeometry->nearestWire(lp_csc_bottom));

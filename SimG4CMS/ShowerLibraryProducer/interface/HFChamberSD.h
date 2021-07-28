@@ -21,10 +21,8 @@ class G4HCofThisEvent;
 class HFChamberSD : public SensitiveCaloDetector {
 public:
   explicit HFChamberSD(const std::string&,
-                       const edm::EventSetup&,
-                       const SensitiveDetectorCatalog&,
-                       const edm::ParameterSet&,
-                       const SimTrackManager*);
+		       const SensitiveDetectorCatalog&,
+		       const SimTrackManager*);
   ~HFChamberSD() override;
 
   void Initialize(G4HCofThisEvent* HCE) override;
@@ -39,8 +37,6 @@ public:
   void fillHits(edm::PCaloHitContainer&, const std::string&) override;
 
 private:
-  const SimTrackManager* m_trackManager;
-
   G4int theHCID;
   HFShowerG4HitsCollection* theHC;
   int theNSteps;

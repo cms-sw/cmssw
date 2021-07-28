@@ -49,6 +49,37 @@ namespace edm {
       };
 
       template <typename T, typename C>
+      class StreamCacheHolder : public virtual T {
+      public:
+        explicit StreamCacheHolder(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
+        StreamCacheHolder(StreamCacheHolder<T, C> const&) = delete;
+        StreamCacheHolder<T, C>& operator=(StreamCacheHolder<T, C> const&) = delete;
+        ~StreamCacheHolder() override {
+          for (auto c : caches_) {
+            delete c;
+          }
+        }
+
+      protected:
+        C* streamCache(edm::StreamID iID) const { return caches_[iID.value()]; }
+
+      private:
+        void preallocStreams(unsigned int iNStreams) final { caches_.resize(iNStreams, static_cast<C*>(nullptr)); }
+        void doBeginStream_(StreamID id) final { caches_[id.value()] = beginStream(id).release(); }
+        void doEndStream_(StreamID id) final {
+          endStream(id);
+          delete caches_[id.value()];
+          caches_[id.value()] = nullptr;
+        }
+
+        virtual std::unique_ptr<C> beginStream(edm::StreamID) const = 0;
+        virtual void endStream(edm::StreamID) const {}
+
+        //When threaded we will have a container for N items whre N is # of streams
+        std::vector<C*> caches_;
+      };
+
+      template <typename T, typename C>
       class RunCacheHolder : public virtual T {
       public:
         RunCacheHolder(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
@@ -100,6 +131,24 @@ namespace edm {
       };
 
       template <typename T>
+      class ExternalWork : public virtual T {
+      public:
+        ExternalWork(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
+        ExternalWork(ExternalWork const&) = delete;
+        ExternalWork& operator=(ExternalWork const&) = delete;
+        ~ExternalWork() noexcept(false) override{};
+
+      private:
+        bool hasAcquire() const override { return true; }
+
+        void doAcquire_(StreamID id, EventForOutput const& event, WaitingTaskWithArenaHolder& holder) final {
+          acquire(id, event, holder);
+        }
+
+        virtual void acquire(StreamID, EventForOutput const&, WaitingTaskWithArenaHolder) const = 0;
+      };
+
+      template <typename T>
       struct AbilityToImplementor;
 
       template <>
@@ -115,6 +164,16 @@ namespace edm {
       template <typename C>
       struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
         typedef edm::global::outputmodule::LuminosityBlockCacheHolder<edm::global::OutputModuleBase, C> Type;
+      };
+
+      template <typename C>
+      struct AbilityToImplementor<edm::StreamCache<C>> {
+        typedef edm::global::outputmodule::StreamCacheHolder<edm::global::OutputModuleBase, C> Type;
+      };
+
+      template <>
+      struct AbilityToImplementor<edm::ExternalWork> {
+        typedef edm::global::outputmodule::ExternalWork<edm::global::OutputModuleBase> Type;
       };
 
     }  // namespace outputmodule

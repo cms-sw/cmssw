@@ -1,6 +1,5 @@
 from copy import copy, deepcopy
 from collections import OrderedDict
-import six
 from .MatrixUtil import merge, Kby
 import re
 
@@ -54,6 +53,12 @@ upgradeKeys[2026] = [
     '2026D83PU',
     '2026D84',
     '2026D84PU',
+    '2026D85',
+    '2026D85PU',
+    '2026D86',
+    '2026D86PU',
+    '2026D87',
+    '2026D87PU',
 ]
 
 # pre-generation of WF numbers
@@ -1011,7 +1016,7 @@ upgradeWFs['DD4hep'].allowReuse = False
 class UpgradeWorkflow_DD4hepDB(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Run3' in stepDict[step][k]['--era']:
-            stepDict[stepName][k] = merge([{'--conditions': 'specialDD4hepTEST_120X_mcRun3_2021_realistic_v1_Candidate_2021_07_07_12_35_50', '--geometry': 'DB:Extended', '--procModifiers': 'dd4hep'}, stepDict[step][k]])
+            stepDict[stepName][k] = merge([{'--conditions': '120X_mcRun3_2021_realistic_dd4hep_v1', '--geometry': 'DB:Extended', '--procModifiers': 'dd4hep'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return '2021' in key
 upgradeWFs['DD4hepDB'] = UpgradeWorkflow_DD4hepDB(
@@ -1069,7 +1074,7 @@ upgradeWFs['SonicTriton'] = UpgradeWorkflow_SonicTriton(
 )
 
 # check for duplicate offsets
-offsets = [specialWF.offset for specialType,specialWF in six.iteritems(upgradeWFs)]
+offsets = [specialWF.offset for specialType,specialWF in upgradeWFs.items()]
 seen = set()
 dups = set(x for x in offsets if x in seen or seen.add(x))
 if len(dups)>0:
@@ -1242,6 +1247,27 @@ upgradeProperties[2026] = {
         'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D85' : {
+        'Geom' : 'Extended2026D85',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D86' : {
+        'Geom' : 'Extended2026D86',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D87' : {
+        'Geom' : 'Extended2026D87', # N.B.: Geometry with 3D pixels in the Inner Tracker L1.
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T27',
+        'Era' : 'Phase2C11I13T25M9', # customized for 3D pixels and Muon M9
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger'],
     },
 }
 

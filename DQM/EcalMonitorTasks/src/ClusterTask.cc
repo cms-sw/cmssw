@@ -9,9 +9,6 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -87,9 +84,8 @@ namespace ecaldqm {
     DecisionWord const& dWord(l1GTHndl->decisionWord());
 
     //Ecal
-    edm::ESHandle<L1GtTriggerMenu> menuRcd;
-    _es.get<L1GtTriggerMenuRcd>().get(menuRcd);
-    L1GtTriggerMenu const* menu(menuRcd.product());
+
+    L1GtTriggerMenu const* menu(&_es.getData(menuRcd));
 
     if (!dWord.empty()) {  //protect against no L1GT in run
       for (unsigned iT(0); iT != egTriggerAlgos_.size(); ++iT) {
@@ -521,6 +517,7 @@ namespace ecaldqm {
     L1GlobalTriggerReadoutRecordToken_ =
         _collector.consumes<L1GlobalTriggerReadoutRecord>(L1GlobalTriggerReadoutRecordTag_);
     L1MuGMTReadoutCollectionToken_ = _collector.consumes<L1MuGMTReadoutCollection>(L1MuGMTReadoutCollectionTag_);
+    menuRcd = _collector.esConsumes();
   }
 
   DEFINE_ECALDQM_WORKER(ClusterTask);

@@ -172,6 +172,11 @@ bool OpticalFunctionsTransport::transportProton(const HepMC::GenParticle* in_trk
         << "    proton transported: a_x = " << a_x << " rad, a_y = " << a_y << " rad, b_x = " << b_x
         << " mm, b_y = " << b_y << " mm, z = " << z_scoringPlane << " mm" << std::endl;
   }
+  //
+  // Project the track back to the starting of PPS region
+  b_x -= (abs(z_scoringPlane) - (double)((z_scoringPlane < 0) ? fPPSRegionStart_45 : fPPSRegionStart_56) * 1e3) *
+         a_x;  // z_scoringPlane is in mm
+  b_y -= (abs(z_scoringPlane) - (double)((z_scoringPlane < 0) ? fPPSRegionStart_45 : fPPSRegionStart_56) * 1e3) * a_y;
 
   unsigned int line = in_trk->barcode();
   double px = -p * a_x;

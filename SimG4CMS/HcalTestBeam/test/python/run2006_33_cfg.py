@@ -128,8 +128,6 @@ process.g4SimHits.HCalSD.UseHF   = False
 process.g4SimHits.HCalSD.ForTBHCAL = True
 process.g4SimHits.HCalSD.ForTBH2 = True
 process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
-                             'EcalTBH4BeamDetector',
-                             'HcalTB02SensitiveDetector',
                              'HcalTB06BeamDetector',
                              'EcalSensitiveDetector',
                              'HcalSensitiveDetector']

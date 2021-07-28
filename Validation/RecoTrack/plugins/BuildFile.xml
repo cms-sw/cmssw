@@ -4,7 +4,6 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/TrackReco"/>
 <use name="clhep"/>
-<use name="boost"/>
 <use name="SimDataFormats/TrackerDigiSimLink"/>
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/TrackerGeometryBuilder"/>

@@ -19,6 +19,12 @@ GlobalRecHitsProducer::GlobalRecHitsProducer(const edm::ParameterSet& iPSet)
       getAllProvenances(false),
       printProvenanceInfo(false),
       trackerHitAssociatorConfig_(iPSet, consumesCollector()),
+      caloGeomToken_(esConsumes()),
+      tTopoToken_(esConsumes()),
+      tGeomToken_(esConsumes()),
+      dtGeomToken_(esConsumes()),
+      cscGeomToken_(esConsumes()),
+      rpcGeomToken_(esConsumes()),
       count(0) {
   std::string MsgLoggerCat = "GlobalRecHitsProducer_GlobalRecHitsProducer";
 
@@ -462,8 +468,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent, const edm::EventSetup& 
     eventout = "\nGathering info:";
 
   // get geometry
-  edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<CaloGeometryRecord>().get(geometry);
+  const auto& geometry = iSetup.getHandle(caloGeomToken_);
   if (!geometry.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find CaloGeometry in event!";
     return;
@@ -801,12 +806,9 @@ void GlobalRecHitsProducer::storeHCal(PGlobalRecHit& product) {
 
 void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
+  const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
+  ;
   std::string MsgLoggerCat = "GlobalRecHitsProducer_fillTrk";
-
   TString eventout;
   if (verbosity > 0)
     eventout = "\nGathering info:";
@@ -821,18 +823,18 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent, const edm::EventSetup& i
 
   TrackerHitAssociator associate(iEvent, trackerHitAssociatorConfig_);
 
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  if (!pDD.isValid()) {
+  const auto& tGeomHandle = iSetup.getHandle(tGeomToken_);
+  if (!tGeomHandle.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find TrackerDigiGeometry in event!";
     return;
   }
-  const TrackerGeometry& tracker(*pDD);
+  const TrackerGeometry& tracker(*tGeomHandle);
 
   int nStripBrl = 0, nStripFwd = 0;
 
   // loop over det units
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); ++it) {
+  for (TrackerGeometry::DetContainer::const_iterator it = tGeomHandle->dets().begin(); it != tGeomHandle->dets().end();
+       ++it) {
     uint32_t myid = ((*it)->geographicalId()).rawId();
     DetId detid = ((*it)->geographicalId());
 
@@ -1043,18 +1045,10 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent, const edm::EventSetup& i
     return;
   }
 
-  //Get event setup
-  edm::ESHandle<TrackerGeometry> geom;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geom);
-  if (!geom.isValid()) {
-    edm::LogWarning(MsgLoggerCat) << "Unable to find TrackerDigiGeometry in event!";
-    return;
-  }
-  //const TrackerGeometry& theTracker(*geom);
-
   int nPxlBrl = 0, nPxlFwd = 0;
   //iterate over detunits
-  for (TrackerGeometry::DetContainer::const_iterator it = geom->dets().begin(); it != geom->dets().end(); ++it) {
+  for (TrackerGeometry::DetContainer::const_iterator it = tGeomHandle->dets().begin(); it != tGeomHandle->dets().end();
+       ++it) {
     uint32_t myid = ((*it)->geographicalId()).rawId();
     DetId detId = ((*it)->geographicalId());
     int subid = detId.subdetId();
@@ -1578,8 +1572,7 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent, const edm::EventSetup& 
     eventout = "\nGathering info:";
 
   // get DT information
-  edm::ESHandle<DTGeometry> dtGeom;
-  iSetup.get<MuonGeometryRecord>().get(dtGeom);
+  const auto& dtGeom = iSetup.getHandle(dtGeomToken_);
   if (!dtGeom.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find DTMuonGeometryRecord in event!";
     return;
@@ -1636,8 +1629,7 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent, const edm::EventSetup& 
   }
 
   // get geometry
-  edm::ESHandle<CSCGeometry> hGeom;
-  iSetup.get<MuonGeometryRecord>().get(hGeom);
+  const auto& hGeom = iSetup.getHandle(cscGeomToken_);
   if (!hGeom.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find CSCMuonGeometryRecord in event!";
     return;
@@ -1684,8 +1676,7 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent, const edm::EventSetup& 
   std::map<double, int> mapsim, maprec;
   std::map<int, double> nmapsim, nmaprec;
 
-  edm::ESHandle<RPCGeometry> rpcGeom;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  const auto& rpcGeom = iSetup.getHandle(rpcGeomToken_);
   if (!rpcGeom.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find RPCMuonGeometryRecord in event!";
     return;

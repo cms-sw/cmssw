@@ -101,16 +101,11 @@ process.VtxSmeared.MinY = -7.5
 process.VtxSmeared.MaxY =  7.5
 process.HGCalTBAnalyzer.doDigis = False
 process.HGCalTBAnalyzer.doRecHits = False
-process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector', 
-                             'AHcalSensitiveDetector',
-                             'CaloTrkProcessing',
-                             'HGCSensitiveDetector',
-                             'EcalTBH4BeamDetector',
-                             'HGCalTB1601SensitiveDetector',
-                             'HcalTB02SensitiveDetector',
+process.g4SimHits.OnlySDs = ['HGCSensitiveDetector',
                              'HcalTB06BeamDetector',
-                             'EcalSensitiveDetector',
-                             'HcalSensitiveDetector']
+                             'HGCalTB1601SensitiveDetector']
+process.g4SimHits.HGCSD.Detectors = 1
+process.g4SimHits.HGCSD.UseDetector = 1
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)

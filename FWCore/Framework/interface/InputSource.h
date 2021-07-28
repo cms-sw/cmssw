@@ -3,39 +3,14 @@
 
 /*----------------------------------------------------------------------
 
-InputSource: Abstract interface for all input sources. Input
-sources are responsible for creating an EventPrincipal, using data
-controlled by the source, and external to the EventPrincipal itself.
+InputSource: Abstract interface for all input sources.
 
-The InputSource is also responsible for dealing with the "process
-name list" contained within the EventPrincipal. Each InputSource has
-to know what "process" (HLT, PROD, USER, USER1, etc.) the program is
-part of. The InputSource is repsonsible for pushing this process name
-onto the end of the process name list.
+Some examples of InputSource subclasses are:
 
-For now, we specify this process name to the constructor of the
-InputSource. This should be improved.
-
- Some questions about this remain:
-
-   1. What should happen if we "rerun" a process? i.e., if "USER1" is
-   already last in our input file, and we run again a job which claims
-   to be "USER1", what should happen? For now, we just quietly add
-   this to the history.
-
-   2. Do we need to detect a problem with a history like:
-         HLT PROD USER1 PROD
-   or is it up to the user not to do something silly? Right now, there
-   is no protection against such sillyness.
-
-Some examples of InputSource subclasses may be:
-
- 1) EmptySource: creates EventPrincipals which contain no EDProducts.
- 2) PoolSource: creates EventPrincipals which "contain" the data
-    read from a EDM/ROOT file. This source should provide for delayed loading
-    of data, thus the quotation marks around contain.
- 3) DAQSource: creats EventPrincipals which contain raw data, as
-    delivered by the L1 trigger and event builder.
+ 1) PoolSource: Handles things related to reading from an EDM/ROOT file.
+ This source provides for delayed loading of data.
+ 2) EmptySource: Handles similar tasks for the case where there is no
+ data in the input.
 
 ----------------------------------------------------------------------*/
 
@@ -45,6 +20,7 @@ Some examples of InputSource subclasses may be:
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
@@ -120,11 +96,17 @@ namespace edm {
     /// Read next luminosity block (same as a prior lumi)
     void readAndMergeLumi(LuminosityBlockPrincipal& lbp);
 
+    /// Fill the ProcessBlockHelper with info for the current file
+    void fillProcessBlockHelper();
+
+    /// Next process block, return false if there is none, sets the processName in the principal
+    bool nextProcessBlock(ProcessBlockPrincipal&);
+
     /// Read next process block
-    bool readProcessBlock();
+    void readProcessBlock(ProcessBlockPrincipal&);
 
     /// Read next file
-    std::unique_ptr<FileBlock> readFile();
+    std::shared_ptr<FileBlock> readFile();
 
     /// close current file
     void closeFile(FileBlock*, bool cleaningUpAfterException);
@@ -163,6 +145,12 @@ namespace edm {
       return get_underlying_safe(branchIDListHelper_);
     }
     std::shared_ptr<BranchIDListHelper>& branchIDListHelper() { return get_underlying_safe(branchIDListHelper_); }
+
+    /// Accessors for processBlockHelper
+    std::shared_ptr<ProcessBlockHelper const> processBlockHelper() const {
+      return get_underlying_safe(processBlockHelper_);
+    }
+    std::shared_ptr<ProcessBlockHelper>& processBlockHelper() { return get_underlying_safe(processBlockHelper_); }
 
     /// Accessors for thinnedAssociationsHelper
     std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {
@@ -287,6 +275,19 @@ namespace edm {
       RunIndex index_;
     };
 
+    class ProcessBlockSourceSentry {
+    public:
+      ProcessBlockSourceSentry(InputSource const&, std::string const&);
+      ~ProcessBlockSourceSentry();
+
+      ProcessBlockSourceSentry(ProcessBlockSourceSentry const&) = delete;             // Disallow copying and moving
+      ProcessBlockSourceSentry& operator=(ProcessBlockSourceSentry const&) = delete;  // Disallow copying and moving
+
+    private:
+      InputSource const& source_;
+      std::string const& processName_;
+    };
+
     class FileOpenSentry {
     public:
       typedef signalslot::Signal<void(std::string const&, bool)> Sig;
@@ -389,11 +390,14 @@ namespace edm {
     ItemType nextItemType_();
     virtual std::shared_ptr<RunAuxiliary> readRunAuxiliary_() = 0;
     virtual std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() = 0;
+    virtual void fillProcessBlockHelper_();
+    virtual bool nextProcessBlock_(ProcessBlockPrincipal&);
+    virtual void readProcessBlock_(ProcessBlockPrincipal&);
     virtual void readRun_(RunPrincipal& runPrincipal);
     virtual void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
     virtual void readEvent_(EventPrincipal& eventPrincipal) = 0;
     virtual bool readIt(EventID const& id, EventPrincipal& eventPrincipal, StreamContext& streamContext);
-    virtual std::unique_ptr<FileBlock> readFile_();
+    virtual std::shared_ptr<FileBlock> readFile_();
     virtual void closeFile_() {}
     virtual bool goToEvent_(EventID const& eventID);
     virtual void setRun(RunNumber_t r);
@@ -420,6 +424,7 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<ProductRegistry>> productRegistry_;
     edm::propagate_const<std::unique_ptr<ProcessHistoryRegistry>> processHistoryRegistry_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<ProcessBlockHelper>> processBlockHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     std::string processGUID_;
     Timestamp time_;

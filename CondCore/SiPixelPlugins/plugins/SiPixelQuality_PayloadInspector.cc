@@ -42,9 +42,6 @@ namespace {
 
   using namespace cond::payloadInspector;
 
-  const std::string k_Ph0_geo = "CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt";
-  const std::string k_Ph1_geo = "SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt";
-
   /************************************************
     test class
   *************************************************/
@@ -228,7 +225,8 @@ namespace {
 
     //_________________________________________________
     bool isPhase0(std::vector<SiPixelQuality::disabledModuleType> mods) {
-      SiPixelDetInfoFileReader reader = SiPixelDetInfoFileReader(edm::FileInPath(k_Ph0_geo).fullPath());
+      SiPixelDetInfoFileReader reader =
+          SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh0DefaultFile).fullPath());
       const auto& p0detIds = reader.getAllDetIds();
 
       std::vector<uint32_t> ownDetIds;
@@ -360,7 +358,8 @@ namespace {
     //_________________________________________________
     bool isPhase0(const std::shared_ptr<SiPixelQuality>& payload) {
       const auto mods = payload->getBadComponentList();
-      SiPixelDetInfoFileReader reader = SiPixelDetInfoFileReader(edm::FileInPath(k_Ph0_geo).fullPath());
+      SiPixelDetInfoFileReader reader =
+          SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh0DefaultFile).fullPath());
       const auto& p0detIds = reader.getAllDetIds();
 
       std::vector<uint32_t> ownDetIds;

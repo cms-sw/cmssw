@@ -16,12 +16,12 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 
+//#define EDM_ML_DEBUG
+
 HFWedgeSD::HFWedgeSD(const std::string& iname,
-                     const edm::EventSetup& es,
-                     const SensitiveDetectorCatalog& clg,
-                     edm::ParameterSet const& p,
-                     const SimTrackManager* manager)
-    : SensitiveCaloDetector(iname, clg), m_trackManager(manager), hcID(-1), theHC(nullptr), currentHit(nullptr) {
+						   const SensitiveDetectorCatalog& clg,
+						   const SimTrackManager* manager)
+    : SensitiveCaloDetector(iname, clg), hcID(-1), theHC(nullptr), currentHit(nullptr) {
   edm::LogVerbatim("FiberSim") << "HFWedgeSD : Instantiated for " << iname;
 }
 
@@ -33,8 +33,7 @@ void HFWedgeSD::Initialize(G4HCofThisEvent* HCE) {
   if (hcID < 0)
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(hcID, theHC);
-  edm::LogVerbatim("FiberSim") << "HFWedgeSD : Add hit collectrion for " << collectionName[0] << ":" << hcID << ":"
-                               << theHC;
+  edm::LogVerbatim("FiberSim") << "HFWedgeSD : Add hit collectrion for " << collectionName[0] << ":" << hcID << ":" << theHC;
 
   clearHits();
 }
@@ -86,9 +85,11 @@ G4bool HFWedgeSD::hitExists() {
 }
 
 HFShowerG4Hit* HFWedgeSD::createNewHit() {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("FiberSim") << "HFWedgeSD::CreateNewHit for ID " << currentID << " Track " << trackID
                                << " Edep: " << edep / CLHEP::MeV << " MeV; Time: " << time << " ns; Position (local) "
                                << localPos << " (global ) " << globalPos << " direction " << momDir;
+#endif
   HFShowerG4Hit* aHit = new HFShowerG4Hit;
   aHit->setHitId(currentID);
   aHit->setTrackId(trackID);
@@ -107,8 +108,9 @@ HFShowerG4Hit* HFWedgeSD::createNewHit() {
 void HFWedgeSD::updateHit(HFShowerG4Hit* aHit) {
   if (edep != 0) {
     aHit->updateEnergy(edep);
-    edm::LogVerbatim("FiberSim") << "HFWedgeSD: Add energy deposit in " << currentID << " edep " << edep / CLHEP::MeV
-                                 << " MeV";
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("FiberSim") << "HFWedgeSD: Add energy deposit in " << currentID << " edep " << edep / CLHEP::MeV << " MeV";
+#endif
   }
   previousID = currentID;
 }

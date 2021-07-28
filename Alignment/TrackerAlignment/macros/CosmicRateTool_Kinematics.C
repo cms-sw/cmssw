@@ -5,237 +5,190 @@
 #include <cmath>
 #include <TString.h>
 
-void CosmicRateTool_Kinematics(const char* fileName)
-{
-        
-   TString InputFile= Form("%s",fileName); 
-   TFile *file = new TFile(InputFile);
+void Get_Plot(TH1D, TString);
 
-   bool IsFileExist;
-   IsFileExist = file->IsZombie();
-   if(IsFileExist)
-   {   
-      cout<<endl<<"====================================================================================================="<<endl;
-      cout<<fileName << " is not found. Check the file!"<<endl;
-      cout<<"====================================================================================================="<<endl<<endl;
-      exit (EXIT_FAILURE);
-   }
+void CosmicRateTool_Kinematics(const char *fileName) {
+  TString InputFile = Form("%s", fileName);
+  TFile *file = new TFile(InputFile);
 
-   TTree *tree;
-   tree = (TTree*)file->Get("cosmicRateAnalyzer/Event");
-	
-   vector<double>  *pt;
-   vector<double>  *charge;
-   vector<double>  *chi2;
-   vector<double>  *chi2_ndof;
-   vector<double>  *eta;
-   vector<double>  *theta;
-   vector<double>  *phi;
-   vector<double>  *p;
-   vector<double>  *d0;
-   vector<double>  *dz;
-   vector<double>  *nvh;
-   vector<int>  *v_ntrk;
-   
-   pt = 0;
-   charge = 0;
-   chi2 = 0;
-   chi2_ndof = 0;
-   eta = 0;
-   theta = 0;
-   phi = 0;
-   p = 0;
-   d0 = 0;
-   dz = 0;
-   nvh = 0;
+  bool IsFileExist;
+  IsFileExist = file->IsZombie();
+  if (IsFileExist) {
+    cout << endl
+         << "====================================================================================================="
+         << endl;
+    cout << fileName << " is not found. Check the file!" << endl;
+    cout << "====================================================================================================="
+         << endl
+         << endl;
+    exit(EXIT_FAILURE);
+  }
 
-   tree->SetBranchAddress("pt", &pt);
-   tree->SetBranchAddress("charge", &charge);
-   tree->SetBranchAddress("chi2", &chi2);
-   tree->SetBranchAddress("chi2_ndof", &chi2_ndof);
-   tree->SetBranchAddress("eta", &eta);
-   tree->SetBranchAddress("theta", &theta);
-   tree->SetBranchAddress("phi", &phi);
-   tree->SetBranchAddress("p", &p);
-   tree->SetBranchAddress("d0", &d0);
-   tree->SetBranchAddress("dz", &dz);
-   tree->SetBranchAddress("nvh", &nvh);
-//   tree->SetBranchAddress("v_ntrk", &v_ntrk);
+  TTree *tree = (TTree *)file->Get("cosmicRateAnalyzer/Event");
 
-   Long64_t n = tree->GetEntriesFast();
+  vector<double> *pt;
+  vector<double> *charge;
+  vector<double> *chi2;
+  vector<double> *chi2_ndof;
+  vector<double> *eta;
+  vector<double> *theta;
+  vector<double> *phi;
+  vector<double> *p;
+  vector<double> *d0;
+  vector<double> *dz;
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//					Various Kinematical Histograms Declerations				
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  pt = 0;
+  charge = 0;
+  chi2 = 0;
+  chi2_ndof = 0;
+  eta = 0;
+  theta = 0;
+  phi = 0;
+  p = 0;
+  d0 = 0;
+  dz = 0;
 
-   TH1D h_pt 		("h_pt","h_pt",200,0,200);
-   TH1D h_charge 	("h_charge","h_charge",10,-5,5);
-   TH1D h_chi2 		("h_chi2","h_chi2",200,0,100);
-   TH1D h_chi2_ndof 	("h_chi2_ndof","h_chi2_ndof",200,0,20);
-   TH1D h_eta 		("h_eta","h_eta",500,-3,3);
-   TH1D h_theta 	("h_theta","h_theta",500,-3,3);
-   TH1D h_phi 		("h_phi","h_phi",400,-3.5,3.5);
-   TH1D h_d0 		("h_d0","h_d0",1000,-85,85);
-   TH1D h_dz 		("h_dz","h_dz",1500,-350,350);
-//   TH1D *h_ntrk		= new TH1D("h_ntrk","h_ntrk",20,0,20);
+  tree->SetBranchAddress("pt", &pt);
+  tree->SetBranchAddress("charge", &charge);
+  tree->SetBranchAddress("chi2", &chi2);
+  tree->SetBranchAddress("chi2_ndof", &chi2_ndof);
+  tree->SetBranchAddress("eta", &eta);
+  tree->SetBranchAddress("theta", &theta);
+  tree->SetBranchAddress("phi", &phi);
+  tree->SetBranchAddress("p", &p);
+  tree->SetBranchAddress("d0", &d0);
+  tree->SetBranchAddress("dz", &dz);
 
-//----------------------------------------------------------------------------------------------------------------
+  //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //					Various Kinematical Histograms Declerations
+  //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-   
-   for (Long64_t jentry=0; jentry<n;jentry++) 
-   {
-     tree->GetEntry(jentry);
+  TH1D h_pt("h_pt", "h_pt", 100, 0, 100);
+  TH1D h_charge("h_charge", "h_charge", 10, -5, 5);
+  TH1D h_chi2("h_chi2", "h_chi2", 200, 0, 100);
+  TH1D h_chi2_ndof("h_chi2_ndof", "h_chi2_ndof", 100, 0, 10);
+  TH1D h_eta("h_eta", "h_eta", 500, -3, 3);
+  TH1D h_theta("h_theta", "h_theta", 500, -3, 3);
+  TH1D h_phi("h_phi", "h_phi", 400, -3.5, 3.5);
+  TH1D h_d0("h_d0", "h_d0", 1000, -85, 85);
+  TH1D h_dz("h_dz", "h_dz", 1500, -350, 350);
 
-      for (int k = 0; k < pt->size() ; k++)			// Loop to calculate Kinematical distributions
-      {
-	h_pt.Fill(pt->at(k));
-	h_charge.Fill(charge->at(k));
-	h_chi2.Fill(chi2->at(k));
-	h_chi2_ndof.Fill(chi2_ndof->at(k));
-	h_eta.Fill(eta->at(k));
-	h_theta.Fill(theta->at(k));
-	h_phi.Fill(phi->at(k));
-	h_d0.Fill(d0->at(k));
-	h_dz.Fill(dz->at(k));
+  //----------------------------------------------------------------------------------------------------------------
 
+  int nTotalEvents = 0, nTotalTracks = 0;
+  Long64_t n = tree->GetEntriesFast();
+  for (Long64_t jentry = 0; jentry < n; jentry++)  // Loop over events
+  {
+    tree->GetEntry(jentry);
 
-      }								// Loop Closed to calculate Kinematical distributions
-     }								// Loop Closed to calculate rates
+    for (int k = 0; k < pt->size(); k++)  // Loop over tracks
+    {
+      h_pt.Fill(pt->at(k));
+      h_charge.Fill(charge->at(k));
+      h_chi2.Fill(chi2->at(k));
+      h_chi2_ndof.Fill(chi2_ndof->at(k));
+      h_eta.Fill(eta->at(k));
+      h_theta.Fill(theta->at(k));
+      h_phi.Fill(phi->at(k));
+      h_d0.Fill(d0->at(k));
+      h_dz.Fill(dz->at(k));
 
+      nTotalTracks++;
+    }  // Tracks Loop
 
-//++++++++++++++++++++++++++++++++++       Make Directory     ++++++++++++++++++++++++++++++++++++++
+    nTotalEvents++;
+  }  // Event Loop
 
-	gSystem->Exec("mkdir -p Kinematical_Plots");
+  std::cout << "Total Events: " << nTotalEvents << std::endl;
+  std::cout << "Total Tracks: " << nTotalTracks << std::endl;
 
-//---------------------------------------------------------------------------------------------------
-	
-	TCanvas c("c","c",800,600);    // Declare canvas
+  //++++++++++++++++++++++++++++++++++       Make Directory     ++++++++++++++++++++++++++++++++++++++
+  gSystem->Exec("mkdir -p Kinematical_Plots");
 
-//+++++++++++++++++++++++++++++++       pT Distribution      ++++++++++++++++++++++++++++++++++++++++     
-	h_pt.SetLineColor(kBlue);
-	h_pt.SetLineWidth(2);
-	h_pt.SetTitle("pT distribution");
-	h_pt.SetXTitle("pT (in GeV)");
-	h_pt.Draw();
-	h_pt.SetStats();
-	c.SetGrid();
-	c.SaveAs("pt.png");
-	c.Clear();
-	gSystem->Exec("mv pt.png Kinematical_Plots");
-//---------------------------------------------------------------------------------------------------
-
-
-//+++++++++++++++++++++++++++++++       charge Distribution      ++++++++++++++++++++++++++++++++++++++++     
-
-	h_charge.SetLineColor(kBlue);
-	h_charge.SetLineWidth(2);
-	h_charge.SetTitle("charge");
-	h_charge.SetXTitle("");
-	h_charge.Draw();
-	c.SetGrid();
-	c.SaveAs("charge.png");
-	c.Clear();
-	gSystem->Exec("mv charge.png Kinematical_Plots");
-//---------------------------------------------------------------------------------------------------
-
-
-//+++++++++++++++++++++++++++++++       chi2 Distribution      ++++++++++++++++++++++++++++++++++++++++     
-
-        h_chi2.SetLineColor(kBlue);
-        h_chi2.SetLineWidth(2); 
-        h_chi2.SetTitle("chi2 distribution");
-        h_chi2.SetXTitle("");
-        h_chi2.Draw();
-        c.SetGrid();                         
-        c.SaveAs("chi2.png");                                                                                                                  
-        c.Clear();      
-	gSystem->Exec("mv chi2.png Kinematical_Plots");
-//---------------------------------------------------------------------------------------------------
-
-
-//+++++++++++++++++++++++++++++++       chi2/ndof Distribution      ++++++++++++++++++++++++++++++++++++++++     
-
-        h_chi2_ndof.SetLineColor(kBlue);
-        h_chi2_ndof.SetLineWidth(2); 
-        h_chi2_ndof.SetTitle("chi2 per ndof");
-        h_chi2_ndof.SetXTitle("");
-        h_chi2_ndof.Draw();
-        c.SetGrid();    
-        c.SaveAs("chi2_ndof.png");                                                                                                                       c.Clear();      
-	c.Clear();
-	gSystem->Exec("mv chi2_ndof.png Kinematical_Plots");
-//---------------------------------------------------------------------------------------------------
-
-
-//+++++++++++++++++++++++++++++++       eta Distribution      ++++++++++++++++++++++++++++++++++++++++     
-
-        h_eta.SetLineColor(kBlue);
-        h_eta.SetLineWidth(2); 
-        h_eta.SetTitle("eta Distribution");
-        h_eta.SetXTitle("#eta");
-        h_eta.Draw();
-        c.SetGrid();                            
-        c.SaveAs("eta.png");                                                                                                                  
-        c.Clear();      
-	gSystem->Exec("mv eta.png Kinematical_Plots");
-//---------------------------------------------------------------------------------------------------
-
-
-//+++++++++++++++++++++++++++++++       theta Distribution      ++++++++++++++++++++++++++++++++++++++++     
-
-        h_theta.SetLineColor(kBlue);
-        h_theta.SetLineWidth(2); 
-        h_theta.SetTitle("theta distribution");
-        h_theta.SetXTitle("#theta");
-        h_theta.Draw();
-        c.SetGrid();    
-        c.SaveAs("theta.png");                                                                                                                  
-        c.Clear();      
-	gSystem->Exec("mv theta.png Kinematical_Plots");
-//---------------------------------------------------------------------------------------------------
-
-
-//+++++++++++++++++++++++++++++++       phi Distribution      ++++++++++++++++++++++++++++++++++++++++     
-
-        h_phi.SetLineColor(kBlue);
-        h_phi.SetLineWidth(2); 
-        h_phi.SetTitle("phi distribution");
-        h_phi.SetXTitle("#phi");
-        h_phi.Draw();
-        c.SetGrid();    
-        c.SaveAs("phi.png");                                                                                                                  
-        c.Clear();      
-	gSystem->Exec("mv phi.png Kinematical_Plots");
-//---------------------------------------------------------------------------------------------------
-
-
-//+++++++++++++++++++++++++++++++       d0 Distribution      ++++++++++++++++++++++++++++++++++++++++     
-
-        h_d0.SetLineColor(kBlue);
-        h_d0.SetLineWidth(2); 
-        h_d0.SetTitle("d0 distribution");
-        h_d0.SetXTitle("d0");
-        h_d0.Draw();
-        c.SetGrid();                         
-        c.SaveAs("d0.png");                                                                                                                  
-        c.Clear();      
-	gSystem->Exec("mv d0.png Kinematical_Plots");
-//---------------------------------------------------------------------------------------------------
-
-
-//+++++++++++++++++++++++++++++++       dz Distribution      ++++++++++++++++++++++++++++++++++++++++     
-
-        h_dz.SetLineColor(kBlue);
-        h_dz.SetLineWidth(2); 
-        h_dz.SetTitle("dz distribution");
-        h_dz.SetXTitle("dz");
-        h_dz.Draw();
-        c.SetGrid();                         
-        c.SaveAs("dz.png");                                                                                                                  
-        c.Close();      
-	gSystem->Exec("mv dz.png Kinematical_Plots");
-//---------------------------------------------------------------------------------------------------
-
+  //++++++++++++++++++++++++++++++++++         Plotting         ++++++++++++++++++++++++++++++++++++++
+  Get_Plot(h_pt, "pt");
+  Get_Plot(h_eta, "eta");
+  Get_Plot(h_phi, "phi");
+  Get_Plot(h_theta, "theta");
+  Get_Plot(h_d0, "d0");
+  Get_Plot(h_dz, "dz");
+  Get_Plot(h_chi2, "chi2");
+  Get_Plot(h_chi2_ndof, "chi2_ndof");
+  Get_Plot(h_charge, "charge");
 }
 
+void Get_Plot(TH1D h1, TString variable) {
+  TCanvas c("c", "c", 556, 214, 661, 641);
+  gStyle->SetOptStat(0);   // Dont show statistics
+  gStyle->SetOptTitle(0);  // Dont show Title
+  c.Range(-7.156863, -810349, 5.764706, 4951034);
+  c.SetFillColor(0);
+  c.SetBorderMode(0);
+  c.SetBorderSize(3);
+  c.SetGridx();
+  c.SetGridy();
+  c.SetTickx(1);
+  c.SetTicky(1);
+  c.SetLeftMargin(0.1669196);
+  c.SetRightMargin(0.05918058);
+  c.SetTopMargin(0.08233276);
+  c.SetBottomMargin(0.1406518);
+  c.SetFrameLineWidth(3);
+  c.SetFrameBorderMode(0);
+  c.SetFrameLineWidth(3);
+  c.SetFrameBorderMode(0);
 
+  TGaxis::SetMaxDigits(3);
+
+  h1.SetLineColor(kRed);
+  h1.SetLineWidth(3);
+
+  //---- X-axis Titles -----//
+  TString TempEta = "eta", TempChi2 = "chi2";
+  if (variable.Contains("pt")) {
+    h1.SetXTitle("Track p_{T} (GeV)");
+  } else if (variable.Contains("charge")) {
+    h1.SetXTitle("Track charge (e)");
+  } else if (variable.Data() == TempEta) {
+    h1.SetXTitle("Track #eta");
+  } else if (variable.Contains("phi")) {
+    h1.SetXTitle("Track #phi (rad)");
+  } else if (variable.Contains("theta")) {
+    h1.SetXTitle("Track #theta (rad)");
+  } else if (variable.Contains("d0")) {
+    h1.SetXTitle("Track d_{0} (cm)");
+  } else if (variable.Contains("dz")) {
+    h1.SetXTitle("Track d_{z} (cm)");
+  } else if (variable.Data() == TempChi2) {
+    h1.SetXTitle("Track #chi^{2}");
+  } else if (variable.Contains("ndof")) {
+    h1.SetXTitle("Track #chi^{2} per NDF");
+  } else {
+    std::cout << "Title does not match anything in the categories defined!" << std::endl;
+  }
+
+  h1.SetYTitle("Tracks (#)");
+  h1.SetLabelSize(0.05);
+  h1.GetXaxis()->SetLabelSize(0.05);
+  h1.GetXaxis()->SetTitleSize(0.05);
+  h1.GetYaxis()->SetLabelSize(0.05);
+  h1.GetYaxis()->SetTitleSize(0.06);
+  h1.GetXaxis()->SetTitleOffset(1.12);
+  h1.Draw();
+
+  // Text on upper right corner of plot //
+  TLatex Title = TLatex();
+  Title.SetTextFont(42);
+  Title.SetTextSize(0.039);
+  Title.DrawLatexNDC(0.76, 0.94, "cosmic rays");  //Bv1
+
+  //============== Saving as PDF, png and C ============= //
+  TString PlotFormat[] = {"png", "pdf", "C"};
+  for (int k = 0; k < 3; k++) {
+    TString Format = variable + "." + PlotFormat[k];
+    c.SaveAs(Format.Data());
+    TString mv_folder_string = "mv " + Format + " Kinematical_Plots";
+    gSystem->Exec(mv_folder_string.Data());
+  }
+  c.Close();
+}

@@ -24,7 +24,7 @@ muonCSCStubPSet = cms.PSet(
         minBX = cms.int32(7),
         maxBX = cms.int32(9),
         minNHitsChamber = cms.int32(4),
-        addGhosts = cms.bool(True)
+        addGhosts = cms.bool(False)
     ),
     #csc LCT, central BX 8
     cscMPLCT = cms.PSet(

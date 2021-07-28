@@ -50,6 +50,7 @@ private:
 
   int chkFibre_;
   bool applyFidCut_;
+  bool ignoreTimeShift_;
   double probMax_;
   std::vector<double> gpar_;
 };

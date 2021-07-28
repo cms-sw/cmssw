@@ -174,14 +174,6 @@ namespace edm {
       commit_(lb);
     }
 
-    void EDFilterBase::doRespondToOpenInputFile(FileBlock const& fb) {
-      //respondToOpenInputFile(fb);
-    }
-
-    void EDFilterBase::doRespondToCloseInputFile(FileBlock const& fb) {
-      //respondToCloseInputFile(fb);
-    }
-
     void EDFilterBase::doBeginProcessBlock_(ProcessBlock const&) {}
     void EDFilterBase::doAccessInputProcessBlock_(ProcessBlock const&) {}
     void EDFilterBase::doEndProcessBlock_(ProcessBlock const&) {}
@@ -196,6 +188,8 @@ namespace edm {
     void EDFilterBase::doEndRunProduce_(Run& rp, EventSetup const& c) {}
     void EDFilterBase::doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}
     void EDFilterBase::doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}
+
+    void EDFilterBase::clearInputProcessBlockCaches() {}
 
     void EDFilterBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;

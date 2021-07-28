@@ -8,7 +8,6 @@ import sys
 import pprint
 import subprocess
 from XML2Python import xml2obj
-import six
 try:
   from subprocess import getoutput
 except:
@@ -188,7 +187,7 @@ def searchClassDefXml ():
             className = stdRE.sub    ('', className)
             # print "  ", className
             # Now get rid of any typedefs
-            for typedef, tdList in six.iteritems(typedefsDict):
+            for typedef, tdList in typedefsDict.items():
                 for alias in tdList:
                     className = re.sub (alias, typedef, className)
             classDict.setdefault (className, set()).add (filename)
@@ -234,7 +233,7 @@ def searchClassDefXml ():
             print('\n%s\n%s\n' % (filename, dupProblems))
     # for filename
     if options.dups:
-        for name, fileSet in sorted( six.iteritems(classDict) ):
+        for name, fileSet in sorted( classDict.items() ):
             if len (fileSet) < 2:
                 continue
             print(name)

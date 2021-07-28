@@ -1,32 +1,29 @@
-#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "OscarMTProducer.h"
 
+#include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "OscarMTProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
+#include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
 #include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
+#include "SimG4Core/Watcher/interface/SimProducer.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-#include "SimG4Core/Watcher/interface/SimProducer.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "Randomize.hh"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <memory>
@@ -70,7 +67,9 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
 
   m_runManagerWorker = std::make_unique<RunManagerMTWorker>(p, consumesCollector());
   m_masterThread = ms;
+  m_masterThread->callConsumes(consumesCollector());
 
+  // List of produced containers
   produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
   produces<edm::SimVertexContainer>().setBranchAlias("SimVertices");
   produces<edm::PSimHitContainer>("TrackerHitsPixelBarrelLowTof");
@@ -128,9 +127,8 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
 
   //register any products
   auto& producers = m_runManagerWorker->producers();
-
-  for (Producers::iterator itProd = producers.begin(); itProd != producers.end(); ++itProd) {
-    (*itProd)->registerProducts(producesCollector());
+  for (auto& ptr : producers) {
+    ptr->registerProducts(producesCollector());
   }
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer is constructed";
 }
@@ -145,19 +143,18 @@ std::unique_ptr<OscarMTMasterThread> OscarMTProducer::initializeGlobalCache(cons
   return std::make_unique<OscarMTMasterThread>(iConfig);
 }
 
-std::shared_ptr<int> OscarMTProducer::globalBeginRun(const edm::Run& iRun,
+std::shared_ptr<int> OscarMTProducer::globalBeginRun(const edm::Run&,
                                                      const edm::EventSetup& iSetup,
                                                      const OscarMTMasterThread* masterThread) {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
-
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::globalBeginRun";
   masterThread->beginRun(iSetup);
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::globalBeginRun done";
   return std::shared_ptr<int>();
 }
 
-void OscarMTProducer::globalEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const RunContext* iContext) {
+void OscarMTProducer::globalEndRun(const edm::Run&, const edm::EventSetup&, const RunContext* iContext) {
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::globalEndRun";
   iContext->global()->endRun();
 }
@@ -185,7 +182,7 @@ void OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&) {
 void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   StaticRandomEngineSetUnset random(e.streamID());
   edm::LogVerbatim("SimG4CoreApplication") << "Produce event " << e.id() << " stream " << e.streamID();
-  LogDebug("SimG4CoreApplication") << "Before event rand= " << G4UniformRand();
+  //edm::LogVerbatim("SimG4CoreApplication") << " rand= " << G4UniformRand();
 
   auto& sTk = m_runManagerWorker->sensTkDetectors();
   auto& sCalo = m_runManagerWorker->sensCaloDetectors();
@@ -215,7 +212,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       std::unique_ptr<edm::PSimHitContainer> product(new edm::PSimHitContainer);
       tracker->fillHits(*product, name);
       if (product != nullptr && !product->empty())
-        edm::LogVerbatim("SimG4CoreApplication") << "Produced " << product->size() << " traker hits <" << name << ">";
+        edm::LogVerbatim("SimG4CoreApplication") << "Produced " << product->size() << " tracker hits <" << name << ">";
       e.put(std::move(product), name);
     }
   }
@@ -236,7 +233,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     prod.get()->produce(e, es);
   }
   edm::LogVerbatim("SimG4CoreApplication") << "Event is produced " << e.id() << " stream " << e.streamID();
-  LogDebug("SimG4CoreApplication") << "End of event rand= " << G4UniformRand();
+  //edm::LogVerbatim("SimG4CoreApplication") << " rand= " << G4UniformRand();
 }
 
 StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(edm::StreamID const& streamID) {

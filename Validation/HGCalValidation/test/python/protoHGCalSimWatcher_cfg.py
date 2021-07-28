@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun protoHGCalSimWatcher_cfg.py geometry=D77
 #
-#   Options for geometry D49, D68, D77, D83, D84
+#   Options for geometry D49, D68, D77, D83, D84, D86
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -13,10 +13,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D71",
+                 "D86",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D49, D68, D84, D77, D83")
+                  "geometry of operations: D49, D68, D84, D77, D83, D86")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -46,6 +46,11 @@ elif (options.geometry == "D84"):
     process = cms.Process('PROD',Phase2C11)
     process.load('Configuration.Geometry.GeometryExtended2026D84_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D84Reco_cff')
+elif (options.geometry == "D86"):
+    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+    process = cms.Process('PROD',Phase2C11)
+    process.load('Configuration.Geometry.GeometryExtended2026D86_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D86Reco_cff')
 else:
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('PROD',Phase2C11M9)

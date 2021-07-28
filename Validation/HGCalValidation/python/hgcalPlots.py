@@ -4,7 +4,6 @@ import sys
 import copy
 import collections
 
-import six
 import ROOT
 from ROOT import TFile, TString
 from ROOT import gDirectory

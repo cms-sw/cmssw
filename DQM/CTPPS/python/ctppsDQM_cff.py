@@ -49,6 +49,12 @@ ctppsCommonDQMSourceOffline = ctppsCommonDQMSource.clone(
   makeProtonRecoPlots = True
 )
 
+#Check if perLSsaving is enabled to mask MEs vs LS
+from Configuration.ProcessModifiers.dqmPerLSsaving_cff import dqmPerLSsaving
+dqmPerLSsaving.toModify(ctppsDiamondDQMSource, perLSsaving=True)
+dqmPerLSsaving.toModify(totemTimingDQMSource, perLSsaving=True)
+dqmPerLSsaving.toModify(ctppsCommonDQMSourceOffline, perLSsaving=True)
+
 _ctppsDQMOfflineSource = cms.Sequence(
   ctppsPixelDQMOfflineSource
   + ctppsDiamondDQMSource

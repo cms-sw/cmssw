@@ -12,9 +12,15 @@
 #include "RecoTracker/MkFit/interface/MkFitHitWrapper.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
+
 // mkFit includes
 #include "mkFit/HitStructures.h"
 #include "mkFit/MkStdSeqs.h"
+#include "LayerNumberConverter.h"
 
 class MkFitEventOfHitsProducer : public edm::global::EDProducer<> {
 public:
@@ -35,7 +41,10 @@ private:
   const edm::EDGetTokenT<MkFitClusterIndexToHit> pixelClusterIndexToHitToken_;
   const edm::EDGetTokenT<MkFitClusterIndexToHit> stripClusterIndexToHitToken_;
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::EDPutTokenT<MkFitEventOfHits> putToken_;
+  const bool useStripStripQualityDB_;
 };
 
 MkFitEventOfHitsProducer::MkFitEventOfHitsProducer(edm::ParameterSet const& iConfig)
@@ -44,13 +53,20 @@ MkFitEventOfHitsProducer::MkFitEventOfHitsProducer(edm::ParameterSet const& iCon
       pixelClusterIndexToHitToken_{consumes(iConfig.getParameter<edm::InputTag>("pixelHits"))},
       stripClusterIndexToHitToken_{consumes(iConfig.getParameter<edm::InputTag>("stripHits"))},
       mkFitGeomToken_{esConsumes()},
-      putToken_{produces<MkFitEventOfHits>()} {}
+      putToken_{produces<MkFitEventOfHits>()},
+      useStripStripQualityDB_{iConfig.getParameter<bool>("useStripStripQualityDB")} {
+  if (useStripStripQualityDB_) {
+    qualityToken_ = esConsumes();
+    geomToken_ = esConsumes();
+  }
+}
 
 void MkFitEventOfHitsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add("pixelHits", edm::InputTag{"mkFitSiPixelHits"});
   desc.add("stripHits", edm::InputTag{"mkFitSiStripHits"});
+  desc.add("useStripStripQualityDB", false)->setComment("Use SiStrip quality DB information");
 
   descriptions.addWithDefaultLabel(desc);
 }
@@ -62,6 +78,24 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
 
   auto eventOfHits = std::make_unique<mkfit::EventOfHits>(mkFitGeom.trackerInfo());
   mkfit::StdSeq::Cmssw_LoadHits_Begin(*eventOfHits, {&pixelHits.hits(), &stripHits.hits()});
+
+  if (useStripStripQualityDB_) {
+    std::vector<mkfit::DeadVec> deadvectors(mkFitGeom.layerNumberConverter().nLayers());
+    const auto& siStripQuality = iSetup.getData(qualityToken_);
+    const auto& trackerGeom = iSetup.getData(geomToken_);
+    const auto& badStrips = siStripQuality.getBadComponentList();
+    for (const auto& bs : badStrips) {
+      const auto& surf = trackerGeom.idToDet(DetId(bs.detid))->surface();
+      const DetId detid(bs.detid);
+      bool isBarrel = (mkFitGeom.topology()->side(detid) == static_cast<unsigned>(TrackerDetSide::Barrel));
+      const auto ilay = mkFitGeom.mkFitLayerNumber(detid);
+      deadvectors[ilay].push_back({surf.phiSpan().first,
+                                   surf.phiSpan().second,
+                                   (isBarrel ? surf.zSpan().first : surf.rSpan().first),
+                                   (isBarrel ? surf.zSpan().second : surf.rSpan().second)});
+    }
+    mkfit::StdSeq::LoadDeads(*eventOfHits, deadvectors);
+  }
 
   fill(iEvent.get(pixelClusterIndexToHitToken_).hits(), *eventOfHits, mkFitGeom);
   fill(iEvent.get(stripClusterIndexToHitToken_).hits(), *eventOfHits, mkFitGeom);

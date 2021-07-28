@@ -325,7 +325,7 @@ private:
 
   edm::InputSource::ItemType getNextItemType() override;
 
-  std::unique_ptr<edm::FileBlock> readFile_() override;
+  std::shared_ptr<edm::FileBlock> readFile_() override;
   std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override;
   std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
   void readRun_(edm::RunPrincipal& rpCache) override;
@@ -465,7 +465,7 @@ DQMRootSource::~DQMRootSource() {
 edm::InputSource::ItemType DQMRootSource::getNextItemType() { return m_nextItemType; }
 
 // We will read the metadata of all files and fill m_fileMetadatas vector
-std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
+std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
   const int numFiles = m_catalog.fileNames(0).size();
   m_openFiles.reserve(numFiles);
 
@@ -601,7 +601,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
     m_nextItemType = edm::InputSource::IsRun;
 
   // We have to return something but not sure why
-  return std::make_unique<edm::FileBlock>();
+  return std::make_shared<edm::FileBlock>();
 }
 
 std::shared_ptr<edm::RunAuxiliary> DQMRootSource::readRunAuxiliary_() {

@@ -1,5 +1,6 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
+from __future__ import print_function
 import sys, imp, re, itertools
 from HLTrigger.Configuration.Tools.frozendict import frozendict
 import FWCore.ParameterSet.Config as cms
@@ -145,11 +146,11 @@ class ModuleList(object):
 
   def dump(self):
     for m in self.modules:
-      print "%s = (%s) {" % (m.label, m.type)
+      print("%s = (%s) {" % (m.label, m.type))
       for k, v in m.params.iteritems():
-        print "\t%s = %s" % (k, v)
-      print '}'
-      print
+        print("\t%s = %s" % (k, v))
+      print('}')
+      print()
 
 
 
@@ -175,7 +176,7 @@ def findDuplicates(process):
       for target, (group, regexp) in groups.iteritems():
         dump.write('#%s\n%s\n\n' % ( target, '\n'.join(group)))
       dump.close()
-    print "found %3d duplicates in %3d groups" % (dups, len(groups))
+    print("found %3d duplicates in %3d groups" % (dups, len(groups)))
     oldups = dups
     modules.apply_rename(groups)
     groups = modules.group()
@@ -203,7 +204,7 @@ def main():
     config = sys.stdin
   else:
     config = open(configname)
-  exec config in globals(), hlt.__dict__
+  exec(config, globals(), hlt.__dict__)
   config.close()
   findDuplicates(hlt.process)
 

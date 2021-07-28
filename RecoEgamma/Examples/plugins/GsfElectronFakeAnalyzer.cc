@@ -2591,12 +2591,12 @@ void GsfElectronFakeAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
 
       h_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
       h_ele_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
-      h_ele_hcalDepth1TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalDepth1TowerSumEt());
-      h_ele_hcalDepth2TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalDepth2TowerSumEt());
+      h_ele_hcalDepth1TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt(1));
+      h_ele_hcalDepth2TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt(2));
       h_ele_tkSumPt_dr04->Fill(bestGsfElectron.dr04TkSumPt());
       h_ele_ecalRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
-      h_ele_hcalDepth1TowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalDepth1TowerSumEt());
-      h_ele_hcalDepth2TowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalDepth2TowerSumEt());
+      h_ele_hcalDepth1TowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalTowerSumEt(1));
+      h_ele_hcalDepth2TowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalTowerSumEt(2));
 
     }  // gsf electron found
 

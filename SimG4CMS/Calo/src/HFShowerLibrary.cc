@@ -28,6 +28,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
   edm::ParameterSet m_HF =
       (p.getParameter<edm::ParameterSet>("HFShower")).getParameter<edm::ParameterSet>("HFShowerBlock");
   probMax = m_HF.getParameter<double>("ProbMax");
+  ignoreTimeShift_ = m_HF.getParameter<bool>("IgnoreTimeShift");
 
   edm::ParameterSet m_HS =
       (p.getParameter<edm::ParameterSet>("HFShowerLibrary")).getParameter<edm::ParameterSet>("HFLibraryFileBlock");
@@ -42,6 +43,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
   std::string branchPost = m_HS.getUntrackedParameter<std::string>("BranchPost", "_R.obj");
   verbose = m_HS.getUntrackedParameter<bool>("Verbosity", false);
   applyFidCut = m_HS.getParameter<bool>("ApplyFiducialCut");
+  fileVersion_ = m_HS.getParameter<int>("FileVersion");
 
   if (pTreeName.find('.') == 0)
     pTreeName.erase(0, 2);
@@ -80,10 +82,9 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
     throw cms::Exception("Unknown", "HFShowerLibrary") << "Events tree absent\n";
   }
 
-#ifdef EDM_ML_DEBUG
   std::stringstream ss;
-  ss << "HFShowerLibrary: Library " << libVers << " ListVersion " << listVersion << " Events Total " << totEvents
-     << " and " << evtPerBin << " per bin\n";
+  ss << "HFShowerLibrary: Library " << libVers << " ListVersion " << listVersion << " File version " << fileVersion_
+     << " Events Total " << totEvents << " and " << evtPerBin << " per bin\n";
   ss << "HFShowerLibrary: Energies (GeV) with " << nMomBin << " bins\n";
   for (int i = 0; i < nMomBin; ++i) {
     if (i / 10 * 10 == i && i > 0) {
@@ -92,7 +93,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
     ss << "  " << pmom[i] / CLHEP::GeV;
   }
   edm::LogVerbatim("HFShower") << ss.str();
-#endif
+
   std::string nameBr = branchPre + emName + branchPost;
   emBranch = event->GetBranch(nameBr.c_str());
   if (verbose)
@@ -107,14 +108,13 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
     v3version = true;
   }
 
-#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << " HFShowerLibrary:Branch " << emName << " has " << emBranch->GetEntries()
-                               << " entries and Branch " << hadName << " has " << hadBranch->GetEntries() << " entries"
-                               << "\n HFShowerLibrary::No packing information -"
-                               << " Assume x, y, z are not in packed form"
-                               << "\n Maximum probability cut off " << probMax << "  Back propagation of light prob. "
-                               << backProb;
-#endif
+                               << " entries and Branch " << hadName << " has " << hadBranch->GetEntries()
+                               << " entries\n HFShowerLibrary::No packing information - Assume x, y, z are not in "
+                                  "packed form\n Maximum probability cut off "
+                               << probMax << "  Back propagation of light probability " << backProb
+                               << " Flag for ignoring Time Shift " << ignoreTimeShift_;
+
   fibre_ = std::make_unique<HFFibre>(name, hcalConstant_, hps, p);
   photo = new HFShowerPhotonCollection;
 
@@ -126,10 +126,10 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
   //Delta phi
   std::vector<double> phibin = hcalConstant_->getPhiTableHF();
   dphi = phibin[0];
-#ifdef EDM_ML_DEBUG
+
   edm::LogVerbatim("HFShower") << "HFShowerLibrary: rMIN " << rMin / CLHEP::cm << " cm and rMax " << rMax / CLHEP::cm
                                << " (Half) Phi Width of wedge " << dphi / CLHEP::deg;
-#endif
+
   //Special Geometry parameters
   gpar = hcalConstant_->getGparHF();
 }
@@ -165,7 +165,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step* aStep,
   double zoff = localPos.z() + 0.5 * gpar[1];
 
   edm::LogVerbatim("HFShower") << "HFShowerLibrary::getHits " << partType << " of energy "
-                               << track->GetKineticEnergy() / GeV << " GeV weight= " << weight
+                               << track->GetKineticEnergy() / CLHEP::GeV << " GeV weight= " << weight
                                << " onlyLong: " << onlyLong << "  dir.orts " << momDir.x() << ", " << momDir.y() << ", "
                                << momDir.z() << "  Pos x,y,z = " << hitPoint.x() << "," << hitPoint.y() << ","
                                << hitPoint.z() << " (" << zoff << ")   sphi,cphi,stheta,ctheta  = " << sin(momDir.phi())
@@ -298,14 +298,15 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
 #endif
       if (rInside(r) && r1 <= exp(-p * zv) && r2 <= probMax * weight && dfir > gpar[5] && zz >= gpar[4] &&
           zz <= gpar[4] + gpar[1] && r3 <= backProb && (depth != 2 || zz >= gpar[4] + gpar[0])) {
+        double tdiff = (ignoreTimeShift_) ? 0 : (fibre_->tShift(lpos, depth, 1));
         oneHit.position = pos;
         oneHit.depth = depth;
-        oneHit.time = (tSlice + (pe[i].t()) + (fibre_->tShift(lpos, depth, 1)));
+        oneHit.time = (tSlice + (pe[i].t()) + tdiff);
         hit.push_back(oneHit);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HFShower") << "HFShowerLibrary: Final Hit " << nHit << " position " << (hit[nHit].position)
                                      << " Depth " << (hit[nHit].depth) << " Time " << tSlice << ":" << pe[i].t() << ":"
-                                     << fibre_->tShift(lpos, depth, 1) << ":" << (hit[nHit].time);
+                                     << tdiff << ":" << (hit[nHit].time);
 #endif
         ++nHit;
       }
@@ -317,14 +318,15 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
         r1 = G4UniformRand();
         r2 = G4UniformRand();
         if (rInside(r) && r1 <= exp(-p * zv) && r2 <= probMax && dfir > gpar[5]) {
+          double tdiff = (ignoreTimeShift_) ? 0 : (fibre_->tShift(lpos, 2, 1));
           oneHit.position = pos;
           oneHit.depth = 2;
-          oneHit.time = (tSlice + (pe[i].t()) + (fibre_->tShift(lpos, 2, 1)));
+          oneHit.time = (tSlice + (pe[i].t()) + tdiff);
           hit.push_back(oneHit);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HFShower") << "HFShowerLibrary: Final Hit " << nHit << " position " << (hit[nHit].position)
                                        << " Depth " << (hit[nHit].depth) << " Time " << tSlice << ":" << pe[i].t()
-                                       << ":" << fibre_->tShift(lpos, 2, 1) << ":" << (hit[nHit].time);
+                                       << ":" << tdiff << ":" << (hit[nHit].time);
 #endif
           ++nHit;
         }
@@ -407,10 +409,9 @@ void HFShowerLibrary::loadEventInfo(TBranch* branch) {
     std::vector<HFShowerLibraryEventInfo> eventInfoCollection;
     branch->SetAddress(&eventInfoCollection);
     branch->GetEntry(0);
-#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HFShower") << "HFShowerLibrary::loadEventInfo loads EventInfo Collection of size "
                                  << eventInfoCollection.size() << " records";
-#endif
+
     totEvents = eventInfoCollection[0].totalEvents();
     nMomBin = eventInfoCollection[0].numberOfBins();
     evtPerBin = eventInfoCollection[0].eventsPerBin();
@@ -418,25 +419,25 @@ void HFShowerLibrary::loadEventInfo(TBranch* branch) {
     listVersion = eventInfoCollection[0].physListVersion();
     pmom = eventInfoCollection[0].energyBins();
   } else {
-#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HFShower") << "HFShowerLibrary::loadEventInfo loads EventInfo from hardwired"
                                  << " numbers";
-#endif
+
     nMomBin = 16;
-    evtPerBin = 5000;
+    evtPerBin = (fileVersion_ == 0) ? 5000 : 10000;
     totEvents = nMomBin * evtPerBin;
-    libVers = 1.1;
+    libVers = (fileVersion_ == 0) ? 1.1 : 1.2;
     listVersion = 3.6;
     pmom = {2, 3, 5, 7, 10, 15, 20, 30, 50, 75, 100, 150, 250, 350, 500, 1000};
   }
   for (int i = 0; i < nMomBin; i++)
-    pmom[i] *= GeV;
+    pmom[i] *= CLHEP::GeV;
 }
 
 void HFShowerLibrary::interpolate(int type, double pin) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFShowerLibrary:: Interpolate for Energy " << pin / GeV << " GeV with " << nMomBin
-                               << " momentum bins and " << evtPerBin << " entries/bin -- total " << totEvents;
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary:: Interpolate for Energy " << pin / CLHEP::GeV << " GeV with "
+                               << nMomBin << " momentum bins and " << evtPerBin << " entries/bin -- total "
+                               << totEvents;
 #endif
   int irc[2] = {0, 0};
   double w = 0.;
@@ -515,8 +516,8 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
   double w = (pin - pmom[nMomBin - 1] * nrec) / pmom[nMomBin - 1];
   nrec++;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFShowerLibrary:: Extrapolate for Energy " << pin << " GeV with " << nMomBin
-                               << " momentum bins and " << evtPerBin << " entries/bin -- "
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary:: Extrapolate for Energy " << pin / CLHEP::GeV << " GeV with "
+                               << nMomBin << " momentum bins and " << evtPerBin << " entries/bin -- "
                                << "total " << totEvents << " using " << nrec << " records";
 #endif
   std::vector<int> irc(nrec);
@@ -580,8 +581,8 @@ void HFShowerLibrary::storePhoton(int j) {
     pe.push_back(photo->at(j));
   else
     pe.push_back(photon[j]);
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFShowerLibrary: storePhoton " << j << " npe " << npe << " " << pe[npe];
-#endif
   npe++;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary: storePhoton " << j << " npe " << npe << " " << pe[npe - 1];
+#endif
 }

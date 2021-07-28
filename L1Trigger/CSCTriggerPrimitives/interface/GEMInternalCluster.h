@@ -21,14 +21,14 @@ public:
   GEMInternalCluster(const GEMDetId& id, const GEMPadDigiCluster& cluster1, const GEMPadDigiCluster& cluster2);
 
   // empty object
-  GEMInternalCluster() {}
+  GEMInternalCluster();
 
   GEMDetId id() const { return id_; }
   GEMPadDigiCluster cl1() const { return cl1_; }
   GEMPadDigiCluster cl2() const { return cl2_; }
 
   // an internal cluster is valid if at least one is valid
-  bool isValid() const { return cl1_.isValid() or cl2_.isValid(); }
+  bool isValid() const { return isValid_; }
 
   // return the centers of the pads
   GEMPadDigi mid1() const;
@@ -55,6 +55,7 @@ public:
   // these are approximate numbers obviously for LCTs with lower quality
   unsigned getKeyWG() const { return (min_wg() + max_wg()) / 2.; }
   uint16_t getKeyStrip(int n = 2) const;
+  uint16_t getKeyStripME1a(int n = 2) const;
 
   // first and last 1/2-strips
   int layer1_first_hs() const { return layer1_first_hs_; }
@@ -148,6 +149,8 @@ private:
   GEMPadDigiCluster cl1_;
   GEMPadDigiCluster cl2_;
 
+  bool isValid_;
+
   // bunch crossing
   int bx_;
 
@@ -206,5 +209,7 @@ private:
   // flag to signal if it is a coincidence
   bool isCoincidence_;
 };
+
+std::ostream& operator<<(std::ostream& os, const GEMInternalCluster& cl);
 
 #endif
