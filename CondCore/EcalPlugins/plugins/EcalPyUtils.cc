@@ -11,11 +11,6 @@
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 
-//#include <boost/python.hpp>
-//#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
-
-//using namespace boost::python;
-
 namespace ecalpyutils {
 
   std::vector<int> hashedIndexToEtaPhi(int hashedindex) {
