@@ -22,7 +22,7 @@ namespace edm {
   class IterateNTimesLooper : public EDLooper {
   public:
     IterateNTimesLooper(ParameterSet const&);
-    IterateNTimesLooper(IterateNTimesLooper const&) = delete;  // stop default
+    IterateNTimesLooper(IterateNTimesLooper const&) = delete;                   // stop default
     IterateNTimesLooper const& operator=(IterateNTimesLooper const&) = delete;  // stop default
     ~IterateNTimesLooper() override;
 

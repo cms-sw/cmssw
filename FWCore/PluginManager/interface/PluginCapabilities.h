@@ -33,7 +33,7 @@ namespace edmplugin {
     friend class DummyFriend;
 
   public:
-    PluginCapabilities(const PluginCapabilities&) = delete;  // stop default
+    PluginCapabilities(const PluginCapabilities&) = delete;                   // stop default
     const PluginCapabilities& operator=(const PluginCapabilities&) = delete;  // stop default
     ~PluginCapabilities() override;
 

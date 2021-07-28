@@ -33,7 +33,7 @@ namespace edmplugin {
   public:
     friend class DummyFriend;
 
-    PluginFactoryManager(const PluginFactoryManager&) = delete;  // stop default
+    PluginFactoryManager(const PluginFactoryManager&) = delete;                   // stop default
     const PluginFactoryManager& operator=(const PluginFactoryManager&) = delete;  // stop default
     ~PluginFactoryManager();
 

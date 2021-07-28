@@ -29,7 +29,7 @@ namespace edm {
     public:
       OutputModule(edm::ParameterSet const& iPSet)
           : OutputModuleBase(iPSet), outputmodule::AbilityToImplementor<T>::Type(iPSet)... {}
-      OutputModule(const OutputModule&) = delete;  // stop default
+      OutputModule(const OutputModule&) = delete;                   // stop default
       const OutputModule& operator=(const OutputModule&) = delete;  // stop default
 
       // Required to work around ICC bug, but possible source of bloat in gcc.
