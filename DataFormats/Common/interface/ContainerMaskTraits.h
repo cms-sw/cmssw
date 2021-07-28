@@ -37,7 +37,7 @@ namespace edm {
 
   public:
     ContainerMaskTraits() = delete;
-    ContainerMaskTraits(const ContainerMaskTraits&) = delete;  // stop default
+    ContainerMaskTraits(const ContainerMaskTraits&) = delete;                   // stop default
     const ContainerMaskTraits& operator=(const ContainerMaskTraits&) = delete;  // stop default
 
   private:
