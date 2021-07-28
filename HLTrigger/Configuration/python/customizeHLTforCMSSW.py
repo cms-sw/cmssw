@@ -17,6 +17,20 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+# New cards in DT local reco to control which format for DT DB is used
+def customiseFor34612(process):    
+    for producer in producers_by_type(process, "DTRecHitProducer"):
+        producer.recAlgoConfig.readLegacyTTrigDB = cms.bool(True)
+        producer.recAlgoConfig.readLegacyVDriftDB = cms.bool(True)
+
+    for producer in producers_by_type(process, "DTRecSegment4DProducer"):
+        producer.Reco4DAlgoConfig.recAlgoConfig.readLegacyTTrigDB = cms.bool(True)
+        producer.Reco4DAlgoConfig.recAlgoConfig.readLegacyVDriftDB = cms.bool(True)
+        producer.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.readLegacyTTrigDB = cms.bool(True)
+        producer.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.readLegacyVDriftDB = cms.bool(True)
+
+    return process
+
 
 def customiseHCALFor2018Input(process):
     """Customise the HLT to run on Run 2 data/MC using the old readout for the HCAL barel"""
@@ -135,5 +149,8 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+
+    # New cards for DT local reco
+    process = customiseFor34612(process)
 
     return process
