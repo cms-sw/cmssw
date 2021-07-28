@@ -62,7 +62,7 @@ public:
 
   void resetNameEntry();
 
-  FWGUIEventDataAdder(const FWGUIEventDataAdder&) = delete;  // stop default
+  FWGUIEventDataAdder(const FWGUIEventDataAdder&) = delete;                   // stop default
   const FWGUIEventDataAdder& operator=(const FWGUIEventDataAdder&) = delete;  // stop default
 
 private:

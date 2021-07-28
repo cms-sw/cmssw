@@ -20,7 +20,8 @@ public:
   REGISTER_PROXYBUILDER_METHODS();
 
   FWHGCalMultiClusterLegoProxyBuilder(const FWHGCalMultiClusterLegoProxyBuilder &) = delete;  // stop default
-  const FWHGCalMultiClusterLegoProxyBuilder &operator=(const FWHGCalMultiClusterLegoProxyBuilder &) = delete;  // stop default
+  const FWHGCalMultiClusterLegoProxyBuilder &operator=(const FWHGCalMultiClusterLegoProxyBuilder &) =
+      delete;  // stop default
 
 private:
   void fillCaloData() override;
