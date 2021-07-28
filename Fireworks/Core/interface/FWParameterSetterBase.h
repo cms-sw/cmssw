@@ -50,11 +50,12 @@ protected:
   void update() const;
   FWParameterSetterEditorBase* frame() const { return m_frame; }
 
-private:
-  virtual void attach(FWParameterBase*) = 0;
-
+public:
   FWParameterSetterBase(const FWParameterSetterBase&) = delete;                   // stop default
   const FWParameterSetterBase& operator=(const FWParameterSetterBase&) = delete;  // stop default
+
+private:
+  virtual void attach(FWParameterBase*) = 0;
 
   // ---------- member data --------------------------------
 

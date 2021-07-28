@@ -46,11 +46,11 @@ public:
   // ---------- member functions ---------------------------
   void setType(const edm::TypeWithDict&);
 
-private:
   FWExpressionValidator(const FWExpressionValidator&) = delete;  // stop default
 
   const FWExpressionValidator& operator=(const FWExpressionValidator&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   edm::TypeWithDict m_type;
   std::vector<std::shared_ptr<fireworks::OptionNode> > m_options;

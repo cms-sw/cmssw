@@ -28,10 +28,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWSecVertexCandidateProxyBuilder(const FWSecVertexCandidateProxyBuilder&) = delete;                   // stop default
   const FWSecVertexCandidateProxyBuilder& operator=(const FWSecVertexCandidateProxyBuilder&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   using FWSimpleProxyBuilderTemplate<reco::CandSecondaryVertexTagInfo>::build;
   void build(const reco::CandSecondaryVertexTagInfo& iData,

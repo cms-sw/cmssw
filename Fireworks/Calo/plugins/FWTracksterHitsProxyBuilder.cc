@@ -20,6 +20,9 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
+  FWTracksterHitsProxyBuilder(const FWTracksterHitsProxyBuilder &) = delete;                   // stop default
+  const FWTracksterHitsProxyBuilder &operator=(const FWTracksterHitsProxyBuilder &) = delete;  // stop default
+
 private:
   edm::Handle<edm::ValueMap<std::pair<float, float>>> TimeValueMapHandle;
   edm::Handle<std::vector<reco::CaloCluster>> layerClustersHandle;
@@ -33,9 +36,6 @@ private:
   bool enableSeedLines;
   bool enablePositionLines;
   bool enableEdges;
-
-  FWTracksterHitsProxyBuilder(const FWTracksterHitsProxyBuilder &) = delete;                   // stop default
-  const FWTracksterHitsProxyBuilder &operator=(const FWTracksterHitsProxyBuilder &) = delete;  // stop default
 
   void setItem(const FWEventItem *iItem) override;
 

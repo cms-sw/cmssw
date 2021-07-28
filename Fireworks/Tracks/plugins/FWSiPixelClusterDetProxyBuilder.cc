@@ -27,6 +27,7 @@ public:
 private:
   using FWProxyBuilderBase::build;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+public:
   FWSiPixelClusterDetProxyBuilder(const FWSiPixelClusterDetProxyBuilder&) = delete;
   const FWSiPixelClusterDetProxyBuilder& operator=(const FWSiPixelClusterDetProxyBuilder&) = delete;
 };
