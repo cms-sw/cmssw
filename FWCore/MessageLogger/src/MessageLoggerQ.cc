@@ -58,13 +58,13 @@ namespace {
   public:
     StandAloneScribe() {}
 
-    // ---------- member functions ---------------------------
-
-    void runCommand(edm::MessageLoggerQ::OpCode opcode, void *operand) override;
-
     StandAloneScribe(const StandAloneScribe &) = delete;  // stop default
 
     const StandAloneScribe &operator=(const StandAloneScribe &) = delete;  // stop default
+
+    // ---------- member functions ---------------------------
+
+    void runCommand(edm::MessageLoggerQ::OpCode opcode, void *operand) override;
 
   private:
     // ---------- member data --------------------------------

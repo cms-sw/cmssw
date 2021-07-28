@@ -48,6 +48,7 @@ namespace edm {
       ELoutput(std::ostream& os, bool emitAtStart = false);  // 6/11/07 mf
       ELoutput(const std::string& fileName, bool emitAtStart = false);
       ELoutput(const ELoutput& orig);
+      ELoutput& operator=(const ELoutput& orig) = delete;
       ~ELoutput() override;
 
       // ---  Methods invoked by the ELadministrator:
@@ -98,10 +99,9 @@ namespace edm {
       bool wantTimestamp, wantModule, wantSubroutine, wantText, wantSomeContext, wantSerial, wantFullContext,
           wantTimeSeparate, wantEpilogueSeparate, preambleMode;
 
-    public:
+    private:
       // --- Verboten method:
       //
-      ELoutput& operator=(const ELoutput& orig) = delete;
 
     };  // ELoutput
 

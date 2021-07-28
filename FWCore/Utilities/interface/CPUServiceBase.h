@@ -27,15 +27,14 @@ namespace edm {
   class CPUServiceBase {
   public:
     CPUServiceBase();
+    CPUServiceBase(const CPUServiceBase &) = delete;                   // stop default
+    const CPUServiceBase &operator=(const CPUServiceBase &) = delete;  // stop default
+
     virtual ~CPUServiceBase();
 
     // ---------- member functions ---------------------------
     ///CPU information - the models present and average speed.
     virtual bool cpuInfo(std::string &models, double &avgSpeed) = 0;
-
-    CPUServiceBase(const CPUServiceBase &) = delete;  // stop default
-
-    const CPUServiceBase &operator=(const CPUServiceBase &) = delete;  // stop default
   };
 }  // namespace edm
 

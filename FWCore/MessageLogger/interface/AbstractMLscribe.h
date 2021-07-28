@@ -10,14 +10,15 @@ namespace edm {
     public:
       // ---  birth/death:
       AbstractMLscribe();
-      virtual ~AbstractMLscribe();
-
-      // ---  methods needed for logging
-      virtual void runCommand(MessageLoggerQ::OpCode opcode, void *operand);
 
       // --- no copying:
       AbstractMLscribe(AbstractMLscribe const &) = delete;
       void operator=(AbstractMLscribe const &) = delete;
+
+      virtual ~AbstractMLscribe();
+
+      // ---  methods needed for logging
+      virtual void runCommand(MessageLoggerQ::OpCode opcode, void *operand);
 
     };  // AbstractMLscribe
 
