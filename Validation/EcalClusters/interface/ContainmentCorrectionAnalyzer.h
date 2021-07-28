@@ -5,7 +5,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -45,7 +45,7 @@ class TFile;
 
 class EcalSimPhotonMCTruth;
 
-class ContainmentCorrectionAnalyzer : public edm::EDAnalyzer {
+class ContainmentCorrectionAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit ContainmentCorrectionAnalyzer(const edm::ParameterSet &);
   ~ContainmentCorrectionAnalyzer() override;
