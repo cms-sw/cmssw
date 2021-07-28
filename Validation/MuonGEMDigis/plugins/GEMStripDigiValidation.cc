@@ -28,7 +28,7 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
   }
 
   // NOTE Bunch Crossing
-  booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/Strip/BunchCrossing");
+  booker.setCurrentFolder("GEM/Digis/BunchCrossing");
 
   me_bx_ = booker.book1D("strip_bx", "Strip Digi Bunch Crossing", 5, -2.5, 2.5);
 
@@ -68,7 +68,7 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
   }      // region loop
 
   // NOTE Occupancy
-  booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/Strip/Occupancy");
+  booker.setCurrentFolder("GEM/Digis/Occupancy");
 
   me_total_strip_ = booker.book1D("total_strips_per_event", "Number of strip digi per event", 50, -0.5, 395.5);
 

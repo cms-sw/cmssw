@@ -15,9 +15,9 @@ MuonGEMRecHitsHarvestor::MuonGEMRecHitsHarvestor(const edm::ParameterSet& pset)
 MuonGEMRecHitsHarvestor::~MuonGEMRecHitsHarvestor() {}
 
 void MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
-  TString simhit_occ_folder = "MuonGEMHitsV/GEMHitsTask/Occupancy/";
-  TString occ_folder = "MuonGEMRecHitsV/GEMRecHitsTask/Occupancy/";
-  TString eff_folder = "MuonGEMRecHitsV/GEMRecHitsTask/Efficiency/";
+  TString simhit_occ_folder = "GEM/SimHits/Occupancy/";
+  TString occ_folder = "GEM/RecHits/Occupancy/";
+  TString eff_folder = "GEM/RecHits/Efficiency/";
 
   for (const auto& region_id : region_ids_) {
     for (const auto& station_id : station_ids_) {

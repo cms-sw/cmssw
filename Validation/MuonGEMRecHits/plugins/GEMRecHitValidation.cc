@@ -26,7 +26,7 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   const GEMGeometry* gem = &setup.getData(geomTokenBeginRun_);
 
   // NOTE Cluster Size
-  booker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask/ClusterSize");
+  booker.setCurrentFolder("GEM/RecHits/ClusterSize");
 
   TString cls_title = "Cluster Size Distribution";
   TString cls_x_title = "Cluster size";
@@ -74,7 +74,7 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   }            // detail plot
 
   // NOTE Residual
-  booker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask/Residual");
+  booker.setCurrentFolder("GEM/RecHits/Residual");
 
   for (const auto& station : gem->regions()[0]->stations()) {
     Int_t station_id = station->station();
@@ -141,7 +141,7 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   }            // detail plot
 
   // NOTE Pull
-  booker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask/Pull");
+  booker.setCurrentFolder("GEM/RecHits/Pull");
 
   if (detail_plot_) {
     for (const auto& station : gem->regions()[0]->stations()) {
@@ -190,7 +190,7 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   }            // detail plot
 
   // NOTE Occupancy
-  booker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask/Occupancy");
+  booker.setCurrentFolder("GEM/RecHits/Occupancy");
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
