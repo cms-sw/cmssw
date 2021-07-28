@@ -36,7 +36,7 @@ private:
   edm::EDGetTokenT<reco::CandidateView> genParticlesToken_;
   edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
   edm::EDGetTokenT<GenRunInfoProduct> genRunInfoToken_;
-  edm::ESHandle<ParticleDataTable> pTable_;
+  edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pTable_;
 
   std::vector<int> signalParticlePdgIds_;
   const double cmEnergy_;
@@ -59,6 +59,7 @@ GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet
   genParticlesToken_ = consumes<reco::CandidateView>(pset.getParameter<edm::InputTag>("genParticles"));
   genEventInfoToken_ = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genEventInfo"));
   genRunInfoToken_ = consumes<GenRunInfoProduct, edm::InRun>(pset.getParameter<edm::InputTag>("genEventInfo"));
+  pTable_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>();
   signalParticlePdgIds_ = pset.getParameter<std::vector<int>>("signalParticlePdgIds");
 
   produces<edm::HepMCProduct>("unsmeared");
@@ -78,7 +79,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   edm::Handle<GenEventInfoProduct> genEventInfoHandle;
   event.getByToken(genEventInfoToken_, genEventInfoHandle);
 
-  eventSetup.getData(pTable_);
+  auto const& pTableData = eventSetup.getData(pTable_);
 
   HepMC::GenEvent* hepmc_event = new HepMC::GenEvent();
   hepmc_event->set_event_number(event.id().event());
@@ -114,8 +115,8 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
     // Assign particle's generated mass from the standard particle data table
     double particleMass;
-    if (pTable_->particle(p->pdgId()))
-      particleMass = pTable_->particle(p->pdgId())->mass();
+    if (pTableData.particle(p->pdgId()))
+      particleMass = pTableData.particle(p->pdgId())->mass();
     else
       particleMass = p->mass();
 
