@@ -43,6 +43,8 @@ private:
   int nshowers;
   int bsize;
   int splitlevel;
+  int compressionAlgo;
+  int compressionLevel;
 
   TFile* theFile;
   TTree* theTree;
