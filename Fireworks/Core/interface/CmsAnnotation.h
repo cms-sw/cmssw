@@ -36,10 +36,10 @@ public:
   bool getAllowDestroy() const { return fAllowDestroy; }
   void setAllowDestroy(bool x) { fAllowDestroy = x; }
 
-private:
   CmsAnnotation(const CmsAnnotation&) = delete;                   // stop default
   const CmsAnnotation& operator=(const CmsAnnotation&) = delete;  // stop default
 
+private:
   Float_t fPosX;  // x position [0, 1]
   Float_t fPosY;  // y position [0, 1]
 

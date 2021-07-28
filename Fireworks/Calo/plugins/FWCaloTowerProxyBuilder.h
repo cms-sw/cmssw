@@ -43,10 +43,11 @@ protected:
   FWHistSliceSelector* instantiateSliceSelector() override;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 
-private:
+public:
   FWCaloTowerProxyBuilderBase(const FWCaloTowerProxyBuilderBase&) = delete;                   // stop default
   const FWCaloTowerProxyBuilderBase& operator=(const FWCaloTowerProxyBuilderBase&) = delete;  // stop default
 
+private:
   const CaloTowerCollection* m_towers;
 };
 
@@ -65,7 +66,6 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWECalCaloTowerProxyBuilder(const FWECalCaloTowerProxyBuilder&) = delete;                   // stop default
   const FWECalCaloTowerProxyBuilder& operator=(const FWECalCaloTowerProxyBuilder&) = delete;  // stop default
 };
@@ -85,7 +85,6 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWHCalCaloTowerProxyBuilder(const FWHCalCaloTowerProxyBuilder&) = delete;  // stop default
 
   const FWHCalCaloTowerProxyBuilder& operator=(const FWHCalCaloTowerProxyBuilder&) = delete;  // stop default
@@ -106,7 +105,6 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWHOCaloTowerProxyBuilder(const FWHOCaloTowerProxyBuilder&) = delete;                   // stop default
   const FWHOCaloTowerProxyBuilder& operator=(const FWHOCaloTowerProxyBuilder&) = delete;  // stop default
 };

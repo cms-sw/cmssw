@@ -62,12 +62,12 @@ public:
 
   void resetNameEntry();
 
-private:
   FWGUIEventDataAdder(const FWGUIEventDataAdder&) = delete;  // stop default
-  void createWindow();
-
-  void newIndexSelected(int);
   const FWGUIEventDataAdder& operator=(const FWGUIEventDataAdder&) = delete;  // stop default
+
+private:
+  void createWindow();
+  void newIndexSelected(int);
 
   // ---------- member data --------------------------------
   FWEventItemsManager* m_manager;

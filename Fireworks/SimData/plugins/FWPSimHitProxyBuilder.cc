@@ -24,12 +24,12 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   // Disable default copy constructor
   FWPSimHitProxyBuilder(const FWPSimHitProxyBuilder&) = delete;
   // Disable default assignment operator
   const FWPSimHitProxyBuilder& operator=(const FWPSimHitProxyBuilder&) = delete;
 
+private:
   using FWSimpleProxyBuilderTemplate<PSimHit>::buildViewType;
   void buildViewType(const PSimHit& iData,
                      unsigned int iIndex,

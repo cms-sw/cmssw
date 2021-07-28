@@ -19,10 +19,11 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
-  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
   FWME0DigiProxyBuilder(const FWME0DigiProxyBuilder&) = delete;
   const FWME0DigiProxyBuilder& operator=(const FWME0DigiProxyBuilder&) = delete;
+
+private:
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 };
 
 void FWME0DigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) {

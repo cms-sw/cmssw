@@ -26,11 +26,10 @@ public:
   FWPFCandidateDetailView();
   ~FWPFCandidateDetailView() override;
 
-protected:
-private:
   FWPFCandidateDetailView(const FWPFCandidateDetailView &) = delete;                   // stop default
   const FWPFCandidateDetailView &operator=(const FWPFCandidateDetailView &) = delete;  // stop default
 
+private:
   using FWDetailView<reco::PFCandidate>::build;
   void build(const FWModelId &id, const reco::PFCandidate *) override;
   void setTextInfo(const FWModelId &id, const reco::PFCandidate *) override;
