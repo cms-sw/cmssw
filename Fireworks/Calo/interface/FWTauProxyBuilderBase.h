@@ -74,7 +74,6 @@ private:
   void addConstituentTracks(const reco::BaseTau& tau, class TEveElement* product);
   // Add leading Track
   void addLeadTrack(const reco::BaseTau& tau, class TEveElement* product);
-  std::vector<fireworks::scaleMarker> m_lines;
 };
 
 #endif
