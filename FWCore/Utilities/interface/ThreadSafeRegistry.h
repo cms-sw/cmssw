@@ -42,6 +42,11 @@ namespace edm {
 
       static ThreadSafeRegistry* instance();
 
+      // The following two are not implemented.
+      ThreadSafeRegistry(ThreadSafeRegistry<KEY, T> const&) = delete;
+
+      ThreadSafeRegistry<KEY, T>& operator=(ThreadSafeRegistry<KEY, T> const&) = delete;
+
       /// Retrieve the value_type object with the given key.
       /// If we return 'true', then 'result' carries the
       /// value_type object.
@@ -79,11 +84,6 @@ namespace edm {
 
       /// Print the contents of this registry to the given ostream.
       void print(std::ostream& os) const;
-
-      // The following two are not implemented.
-      ThreadSafeRegistry(ThreadSafeRegistry<KEY, T> const&) = delete;
-
-      ThreadSafeRegistry<KEY, T>& operator=(ThreadSafeRegistry<KEY, T> const&) = delete;
 
     private:
       ThreadSafeRegistry();
