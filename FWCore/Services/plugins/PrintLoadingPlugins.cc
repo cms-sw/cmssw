@@ -32,7 +32,7 @@
 class PrintLoadingPlugins {
 public:
   PrintLoadingPlugins();
-  PrintLoadingPlugins(const PrintLoadingPlugins&) = delete;  // stop default
+  PrintLoadingPlugins(const PrintLoadingPlugins&) = delete;                   // stop default
   const PrintLoadingPlugins& operator=(const PrintLoadingPlugins&) = delete;  // stop default
 
   virtual ~PrintLoadingPlugins();

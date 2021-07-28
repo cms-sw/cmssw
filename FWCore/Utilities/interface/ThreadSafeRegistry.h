@@ -82,8 +82,9 @@ namespace edm {
 
       // The following two are not implemented.
       ThreadSafeRegistry(ThreadSafeRegistry<KEY, T> const&) = delete;
-      
+
       ThreadSafeRegistry<KEY, T>& operator=(ThreadSafeRegistry<KEY, T> const&) = delete;
+
     private:
       ThreadSafeRegistry();
       ~ThreadSafeRegistry();

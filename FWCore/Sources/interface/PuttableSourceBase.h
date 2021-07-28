@@ -33,7 +33,6 @@ namespace edm {
     PuttableSourceBase(const PuttableSourceBase&) = delete;
     PuttableSourceBase& operator=(const PuttableSourceBase&) = delete;
 
-
     // ---------- const member functions ---------------------
 
     // ---------- static member functions --------------------

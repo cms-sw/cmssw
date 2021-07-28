@@ -32,7 +32,7 @@ namespace edm {
     class LoadAllDictionaries {
     public:
       LoadAllDictionaries(const edm::ParameterSet&);
-      LoadAllDictionaries(const LoadAllDictionaries&) = delete;  // stop default
+      LoadAllDictionaries(const LoadAllDictionaries&) = delete;                   // stop default
       const LoadAllDictionaries& operator=(const LoadAllDictionaries&) = delete;  // stop default
 
       //virtual ~LoadAllDictionaries();

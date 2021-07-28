@@ -44,7 +44,7 @@ class BareRootProductGetter : public edm::EDProductGetter {
 public:
   BareRootProductGetter();
   ~BareRootProductGetter() override;
-  BareRootProductGetter(BareRootProductGetter const&) = delete;  // stop default
+  BareRootProductGetter(BareRootProductGetter const&) = delete;                   // stop default
   BareRootProductGetter const& operator=(BareRootProductGetter const&) = delete;  // stop default
 
   // ---------- const member functions ---------------------

@@ -41,7 +41,6 @@ namespace edm::eventsetup {
     ESSourceDataProxyTemplate(const ESSourceDataProxyTemplate&) = delete;
     const ESSourceDataProxyTemplate& operator=(const ESSourceDataProxyTemplate&) = delete;
 
-
     // ---------- const member functions ---------------------
 
     // ---------- static member functions --------------------
