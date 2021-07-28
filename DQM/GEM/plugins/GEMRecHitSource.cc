@@ -209,7 +209,7 @@ void GEMRecHitSource::analyze(edm::Event const& event, edm::EventSetup const& ev
         Int_t nCLS = hit->clusterSize();
         Int_t nCLSCutOff = std::min(nCLS, nCLSMax_);  // For overflow
         mapCLSRecHit_ieta_.Fill(key3AbsReIEta, nCLSCutOff);
-        mapCLSPerCh_.Fill(key4Ch, eId.ieta(), nCLSCutOff);
+        mapCLSPerCh_.Fill(key4Ch, nCLSCutOff, eId.ieta());
         mapCLSAverage_.Fill(key3, (Double_t)chamber, (Double_t)eId.ieta(), nCLS);
         if (nCLS > 5)
           mapCLSOver5[key4IEta][chamber] = true;
