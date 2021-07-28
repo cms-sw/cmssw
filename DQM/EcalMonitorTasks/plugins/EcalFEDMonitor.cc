@@ -16,6 +16,7 @@ EcalFEDMonitorTemp<SUBDET>::EcalFEDMonitorTemp(edm::ParameterSet const& _ps)
           consumes<EcalElectronicsIdCollection>(_ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1"))),
       blockSizeErrorsToken_(
           consumes<EcalElectronicsIdCollection>(_ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2"))),
+      elecMapHandle(esConsumes<edm::Transition::BeginRun>()),
       MEs_(nMEs, nullptr) {
   if (_ps.existsAs<edm::InputTag>("EBDetIdCollection1"))
     ebGainErrorsToken_ = consumes<EBDetIdCollection>(_ps.getParameter<edm::InputTag>("EBDetIdCollection1"));
@@ -226,9 +227,7 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
 
 template <int SUBDET>
 void EcalFEDMonitorTemp<SUBDET>::setElectronicsMap(edm::EventSetup const& _es) {
-  edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
-  _es.get<EcalMappingRcd>().get(elecMapHandle);
-  electronicsMap = elecMapHandle.product();
+  electronicsMap = &_es.getData(elecMapHandle);
 }
 
 template <int SUBDET>
