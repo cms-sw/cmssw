@@ -243,6 +243,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE(HcalParameters)
       FETCH_PAYLOAD_CASE(PGeometricDet)
       FETCH_PAYLOAD_CASE(PTrackerParameters)
+      FETCH_PAYLOAD_CASE(PTrackerAdditionalParametersPerDet)
       FETCH_PAYLOAD_CASE(PHGCalParameters)
       //FETCH_PAYLOAD_CASE( PerformancePayload )
       FETCH_PAYLOAD_CASE(PerformancePayloadFromTable)
