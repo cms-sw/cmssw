@@ -45,11 +45,11 @@ public:
 
   virtual AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const;
 
-private:
   MuonAlignmentInputMethod(const MuonAlignmentInputMethod &) = delete;  // stop default
 
   const MuonAlignmentInputMethod &operator=(const MuonAlignmentInputMethod &) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   std::string idealGeometryLabel;
 };

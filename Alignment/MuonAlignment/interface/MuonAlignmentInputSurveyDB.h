@@ -42,11 +42,11 @@ public:
 
   AlignableMuon* newAlignableMuon(const edm::EventSetup& iSetup) const override;
 
-private:
   MuonAlignmentInputSurveyDB(const MuonAlignmentInputSurveyDB&) = delete;  // stop default
 
   const MuonAlignmentInputSurveyDB& operator=(const MuonAlignmentInputSurveyDB&) = delete;  // stop default
 
+private:
   void addSurveyInfo_(Alignable* ali,
                       unsigned int* theSurveyIndex,
                       const Alignments* theSurveyValues,
