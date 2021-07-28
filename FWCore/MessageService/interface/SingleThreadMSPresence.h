@@ -15,7 +15,6 @@ namespace edm {
       // --- Access to the scribe
       // REMOVED AbstractMLscribe * scribe_ptr() { return &m; }
 
-    private:
       // --- no copying:
       SingleThreadMSPresence(SingleThreadMSPresence const &) = delete;
       void operator=(SingleThreadMSPresence const &) = delete;

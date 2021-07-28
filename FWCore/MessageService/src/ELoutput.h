@@ -98,6 +98,7 @@ namespace edm {
       bool wantTimestamp, wantModule, wantSubroutine, wantText, wantSomeContext, wantSerial, wantFullContext,
           wantTimeSeparate, wantEpilogueSeparate, preambleMode;
 
+    public:
       // --- Verboten method:
       //
       ELoutput& operator=(const ELoutput& orig) = delete;

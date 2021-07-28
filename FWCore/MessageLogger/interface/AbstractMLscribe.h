@@ -15,7 +15,6 @@ namespace edm {
       // ---  methods needed for logging
       virtual void runCommand(MessageLoggerQ::OpCode opcode, void *operand);
 
-    private:
       // --- no copying:
       AbstractMLscribe(AbstractMLscribe const &) = delete;
       void operator=(AbstractMLscribe const &) = delete;
