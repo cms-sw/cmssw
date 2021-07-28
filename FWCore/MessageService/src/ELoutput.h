@@ -99,7 +99,6 @@ namespace edm {
       bool wantTimestamp, wantModule, wantSubroutine, wantText, wantSomeContext, wantSerial, wantFullContext,
           wantTimeSeparate, wantEpilogueSeparate, preambleMode;
 
-    private:
       // --- Verboten method:
       //
 
