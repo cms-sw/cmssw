@@ -23,7 +23,8 @@ SimG4FluxProducer::SimG4FluxProducer(const edm::ParameterSet& p) : count_(0), in
   for (unsigned int k = 0; k < LVNames_.size(); ++k) {
     produces<ParticleFlux>(Form("%sParticleFlux", LVNames_[k].c_str()));
 #ifdef EDM_ML_DEBUG
-    std::cout << "Collection name[" << k << "] ParticleFlux" << LVNames_[k] << " and type " << LVTypes_[k] << std::endl;
+    edm::LogVerbatim("SimG4FluxProducer")
+        << "SimG4FluxProducer::Collection name[" << k << "] ParticleFlux" << LVNames_[k] << " and type " << LVTypes_[k];
 #endif
   }
 }
@@ -31,6 +32,9 @@ SimG4FluxProducer::SimG4FluxProducer(const edm::ParameterSet& p) : count_(0), in
 SimG4FluxProducer::~SimG4FluxProducer() {}
 
 void SimG4FluxProducer::produce(edm::Event& e, const edm::EventSetup&) {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("SimG4FluxProducer") << "SimG4FluxProducer: enters produce with " << LVNames_.size() << " LV's";
+#endif
   for (unsigned int k = 0; k < LVNames_.size(); ++k) {
     std::unique_ptr<ParticleFlux> pflux(new ParticleFlux);
     endOfEvent(*pflux, k);
@@ -40,6 +44,9 @@ void SimG4FluxProducer::produce(edm::Event& e, const edm::EventSetup&) {
 }
 
 void SimG4FluxProducer::update(const BeginOfRun* run) {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("SimG4FluxProducer") << "SimG4FluxProducer: enters BeginOfRun";
+#endif
   topPV_ = getTopPV();
   if (topPV_ == nullptr) {
     edm::LogWarning("SimG4FluxProducer") << "Cannot find top level volume\n";
@@ -51,11 +58,11 @@ void SimG4FluxProducer::update(const BeginOfRun* run) {
     }
 
 #ifdef EDM_ML_DEBUG
-    std::cout << "SimG4FluxProducer::Finds " << mapLV_.size() << " logical volumes\n";
+    edm::LogVerbatim("SimG4FluxProducer") << "SimG4FluxProducer::Finds " << mapLV_.size() << " logical volumes";
     unsigned int k(0);
     for (const auto& lvs : mapLV_) {
-      std::cout << "Entry[" << k << "] " << lvs.first << ": (" << (lvs.second).first << ", " << (lvs.second).second
-                << ")\n";
+      edm::LogVerbatim("SimG4FluxProducer")
+          << "Entry[" << k << "] " << lvs.first << ": (" << (lvs.second).first << ", " << (lvs.second).second << ")";
       ++k;
     }
 #endif
@@ -64,7 +71,7 @@ void SimG4FluxProducer::update(const BeginOfRun* run) {
 
 void SimG4FluxProducer::update(const BeginOfEvent* evt) {
   int iev = (*evt)()->GetEventID();
-  edm::LogInfo("ValidHGCal") << "SimG4FluxProducer: =====> Begin event = " << iev << std::endl;
+  edm::LogVerbatim("SimG4FluxProducer") << "SimG4FluxProducer: =====> Begin event = " << iev;
   ++count_;
   store_.clear();
 }
@@ -74,7 +81,7 @@ void SimG4FluxProducer::update(const G4Step* aStep) {
     G4TouchableHistory* touchable = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
     G4LogicalVolume* plv = (G4LogicalVolume*)touchable->GetVolume()->GetLogicalVolume();
     auto it = (init_) ? mapLV_.find(plv) : findLV(plv);
-    //  std::cout << plv->GetName() << " Flag " << (it != mapLV_.end()) << " step " << aStep->IsFirstStepInVolume() << ":"  << aStep->IsLastStepInVolume() << std::endl;
+    //  edm::LogVerbatim("SimG4FluxProducer") << plv->GetName() << " Flag " << (it != mapLV_.end()) << " step " << aStep->IsFirstStepInVolume() << ":"  << aStep->IsLastStepInVolume();
     if (it != mapLV_.end()) {
       int type = LVTypes_[(it->second).first];
       if ((type == 0 && aStep->IsFirstStepInVolume()) || (type == 1 && aStep->IsLastStepInVolume())) {
@@ -101,9 +108,10 @@ void SimG4FluxProducer::update(const G4Step* aStep) {
                                           MeVToGeV * track->GetMomentum().z());
         (itr->second).addFlux(flx);
 #ifdef EDM_ML_DEBUG
-        std::cout << "SimG4FluxProducer: Element " << (it->second).first << ":" << (it->second).second << ":" << copy
-                  << " ID " << pdgid << " VxType " << vxtyp << " TOF " << time << " Hit Point " << flx.hitPoint << " p "
-                  << flx.momentum << " Vertex " << flx.vertex << std::endl;
+        edm::LogVerbatim("SimG4FluxProducer")
+            << "SimG4FluxProducer: Element " << (it->second).first << ":" << (it->second).second << ":" << copy
+            << " ID " << pdgid << " VxType " << vxtyp << " TOF " << time << " Hit Point " << flx.hitPoint << " p "
+            << flx.momentum << " Vertex " << flx.vertex;
 #endif
       }  //if(Step ok)
     }    //if( it != map.end() )
@@ -120,14 +128,14 @@ void SimG4FluxProducer::endOfEvent(ParticleFlux& flux, unsigned int k) {
         flux = element.second;
         done = true;
 #ifdef EDM_ML_DEBUG
-        std::cout << "SimG4FluxProducer[" << k << "] Flux " << flux.getName() << ":" << flux.getId() << " with "
-                  << flux.getComponents() << " elements" << std::endl;
+        edm::LogVerbatim("SimG4FluxProducer") << "SimG4FluxProducer[" << k << "] Flux " << flux.getName() << ":"
+                                              << flux.getId() << " with " << flux.getComponents() << " elements";
         std::vector<ParticleFlux::flux> fluxes = flux.getFlux();
         unsigned int k(0);
         for (auto element : fluxes) {
-          std::cout << "Flux[" << k << "] PDGId " << element.pdgId << " VT " << element.vxType << " ToF " << element.tof
-                    << " Vertex " << element.vertex << " Hit " << element.hitPoint << " p " << element.momentum
-                    << std::endl;
+          edm::LogVerbatim("SimG4FluxProducer")
+              << "Flux[" << k << "] PDGId " << element.pdgId << " VT " << element.vxType << " ToF " << element.tof
+              << " Vertex " << element.vertex << " Hit " << element.hitPoint << " p " << element.momentum;
           ++k;
         }
 #endif
