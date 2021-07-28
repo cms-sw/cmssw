@@ -13,6 +13,8 @@
 
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
+#include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
 
 namespace ecaldqm {
 
@@ -56,8 +58,10 @@ namespace ecaldqm {
 
     std::map<uint32_t, unsigned> towerReadouts_;
 
-    edm::ESHandle<EcalTPGTowerStatus> TTStatusRcd;
-    edm::ESHandle<EcalTPGStripStatus> StripStatusRcd;
+    edm::ESGetToken<EcalTPGTowerStatus, EcalTPGTowerStatusRcd> TTStatusRcd_;
+    edm::ESGetToken<EcalTPGStripStatus, EcalTPGStripStatusRcd> StripStatusRcd_;
+    const EcalTPGTowerStatus* TTStatus;
+    const EcalTPGStripStatus* StripStatus;
 
     edm::InputTag lhcStatusInfoCollectionTag_;
     edm::EDGetTokenT<TCDSRecord> lhcStatusInfoRecordToken_;

@@ -6,7 +6,6 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
@@ -20,10 +19,14 @@ namespace ecaldqm {
     errFractionThreshold_ = _params.getUntrackedParameter<double>("errFractionThreshold");
   }
 
+  void IntegrityClient::setTokens(edm::ConsumesCollector& _collector) {
+    chStatusToken = _collector.esConsumes<edm::Transition::EndLuminosityBlock>();
+  }
+
   // Check Channel Status Record at every endLumi
   // Used to fill Channel Status Map MEs
   void IntegrityClient::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& _es) {
-    _es.get<EcalChannelStatusRcd>().get(chStatus);
+    chStatus = &_es.getData(chStatusToken);
   }
 
   void IntegrityClient::producePlots(ProcessType) {
