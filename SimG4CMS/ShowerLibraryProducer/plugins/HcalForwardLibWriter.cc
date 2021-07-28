@@ -10,6 +10,8 @@ HcalForwardLibWriter::HcalForwardLibWriter(const edm::ParameterSet& iConfig) {
   nshowers = theParms.getParameter<int>("Nshowers");
   bsize = theParms.getParameter<int>("BufSize");
   splitlevel = theParms.getParameter<int>("SplitLevel");
+  compressionAlgo = theParms.getParameter<int>("CompressionAlgo");
+  compressionLevel = theParms.getParameter<int>("CompressionLevel");
 
   std::string pName = fp.fullPath();
   if (pName.find('.') == 0)
@@ -18,6 +20,9 @@ HcalForwardLibWriter::HcalForwardLibWriter(const edm::ParameterSet& iConfig) {
   readUserData();
 
   fs->file().cd();
+  fs->file().SetCompressionAlgorithm(compressionAlgo);
+  fs->file().SetCompressionLevel(compressionLevel);
+
   LibTree = new TTree("HFSimHits", "HFSimHits");
 
   //https://root.cern/root/html534/TTree.html
