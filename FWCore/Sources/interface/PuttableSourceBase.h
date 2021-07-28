@@ -30,6 +30,9 @@ namespace edm {
   class PuttableSourceBase : public InputSource, public ProducerBase {
   public:
     PuttableSourceBase(ParameterSet const&, InputSourceDescription const&);
+    PuttableSourceBase(const PuttableSourceBase&) = delete;
+    PuttableSourceBase& operator=(const PuttableSourceBase&) = delete;
+
 
     // ---------- const member functions ---------------------
 
@@ -54,10 +57,6 @@ namespace edm {
 
     virtual void beginRun(Run&);
     virtual void beginLuminosityBlock(LuminosityBlock&);
-
-    PuttableSourceBase(const PuttableSourceBase&) = delete;
-
-    PuttableSourceBase& operator=(const PuttableSourceBase&) = delete;
 
     // ---------- member data --------------------------------
   };

@@ -80,14 +80,13 @@ namespace edm {
       /// Print the contents of this registry to the given ostream.
       void print(std::ostream& os) const;
 
+      // The following two are not implemented.
+      ThreadSafeRegistry(ThreadSafeRegistry<KEY, T> const&) = delete;
+      
+      ThreadSafeRegistry<KEY, T>& operator=(ThreadSafeRegistry<KEY, T> const&) = delete;
     private:
       ThreadSafeRegistry();
       ~ThreadSafeRegistry();
-
-      // The following two are not implemented.
-      ThreadSafeRegistry(ThreadSafeRegistry<KEY, T> const&) = delete;
-
-      ThreadSafeRegistry<KEY, T>& operator=(ThreadSafeRegistry<KEY, T> const&) = delete;
 
       mutable std::mutex mutex_;
       collection_type data_;

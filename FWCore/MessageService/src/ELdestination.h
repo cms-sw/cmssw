@@ -134,7 +134,7 @@ namespace edm {
 
       // -----  Verboten methods:
       //
-    private:
+    public:
       ELdestination(const ELdestination& orig) = delete;
       ELdestination& operator=(const ELdestination& orig) = delete;
 
