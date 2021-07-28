@@ -151,11 +151,13 @@ void FWTauProxyBuilderBase::localModelChanges(const FWModelId& iId,
     increaseComponentTransparency(iId.index(), iCompound, "TEveJetCone", 80);
 }
 
-void FWTauProxyBuilderBase::scaleProduct(TEveElementList* product, FWViewType::EType viewType, const FWViewContext* vc) {
+void FWTauProxyBuilderBase::scaleProduct(TEveElementList* product,
+                                         FWViewType::EType viewType,
+                                         const FWViewContext* vc) {
   int idx = 0;
   for (auto& c : product->RefChildren()) {
     // check the compound has more than one element (the first one is jet)
-    for (auto& compChld : c->RefChildren()){
+    for (auto& compChld : c->RefChildren()) {
       TEveScalableStraightLineSet* lineSet = dynamic_cast<TEveScalableStraightLineSet*>(compChld);
       if (lineSet) {
         // compund index in the product is an index of model data in the collection
@@ -172,4 +174,4 @@ void FWTauProxyBuilderBase::scaleProduct(TEveElementList* product, FWViewType::E
   }
 }
 
-void FWTauProxyBuilderBase::cleanLocal() { }
+void FWTauProxyBuilderBase::cleanLocal() {}
