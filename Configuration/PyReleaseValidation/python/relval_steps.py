@@ -3263,16 +3263,16 @@ steps['NanoFullHEfail']={'-s':'NANO',
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 # imported from above, only non-empty values should be provided here
-defaultDataSets['2017']='CMSSW_11_3_0_pre4-113X_mc2017_realistic_v4-v'
-defaultDataSets['2017Design']='CMSSW_11_3_0_pre4-113X_mc2017_design_v4-v'
-defaultDataSets['2018']='CMSSW_11_3_0_pre4-113X_upgrade2018_realistic_v4-v'
-defaultDataSets['2018Design']='CMSSW_11_3_0_pre4-113X_upgrade2018_design_v4-v'
-defaultDataSets['2021']='CMSSW_11_3_0_pre4-113X_mcRun3_2021_realistic_v7-v'
-defaultDataSets['2021Design']='CMSSW_11_3_0_pre4-113X_mcRun3_2021_design_v5-v'
-defaultDataSets['2023']='CMSSW_11_3_0_pre4-113X_mcRun3_2023_realistic_v5-v'
-defaultDataSets['2024']='CMSSW_11_3_0_pre4-113X_mcRun3_2024_realistic_v5-v'
-defaultDataSets['2026D49']='CMSSW_11_3_0_pre4-113X_mcRun4_realistic_v4_2026D49noPU_rsb-v'
-defaultDataSets['2026D76']='CMSSW_11_3_0_pre3-113X_mcRun4_realistic_v3_2026D76noPU-v'
+defaultDataSets['2017']='CMSSW_12_0_0_pre4-113X_mc2017_realistic_v5-v'
+defaultDataSets['2017Design']='CMSSW_12_0_0_pre4-113X_mc2017_design_v5-v'
+defaultDataSets['2018']='CMSSW_12_0_0_pre4-113X_upgrade2018_realistic_v5-v'
+defaultDataSets['2018Design']='CMSSW_12_0_0_pre4-113X_upgrade2018_design_v5-v'
+defaultDataSets['2021']='CMSSW_12_0_0_pre4-120X_mcRun3_2021_realistic_v2-v'
+defaultDataSets['2021Design']='CMSSW_12_0_0_pre4-120X_mcRun3_2021_design_v2-v'
+defaultDataSets['2023']='CMSSW_12_0_0_pre4-120X_mcRun3_2023_realistic_v2-v'
+defaultDataSets['2024']='CMSSW_12_0_0_pre4-120X_mcRun3_2024_realistic_v2-v'
+defaultDataSets['2026D49']='CMSSW_12_0_0_pre4-113X_mcRun4_realistic_v7_2026D49noPU-v'
+defaultDataSets['2026D76']='CMSSW_12_0_0_pre4-113X_mcRun4_realistic_v7_2026D76noPU-v'
 
 puDataSets = {}
 for key, value in defaultDataSets.items(): puDataSets[key+'PU'] = value
