@@ -11,25 +11,26 @@ using std::vector;
 
 using std::cout;
 using std::endl;
-const int L1RCTProducer::crateFED[18][6] = {{613, 614, 603, 702, 718, 1118},
-                                            {611, 612, 602, 700, 718, 1118},
-                                            {627, 610, 601, 716, 722, 1122},
-                                            {625, 626, 609, 714, 722, 1122},
-                                            {623, 624, 608, 712, 722, 1122},
-                                            {621, 622, 607, 710, 720, 1120},
-                                            {619, 620, 606, 708, 720, 1120},
-                                            {617, 618, 605, 706, 720, 1120},
-                                            {615, 616, 604, 704, 718, 1118},
-                                            {631, 632, 648, 703, 719, 1118},
-                                            {629, 630, 647, 701, 719, 1118},
-                                            {645, 628, 646, 717, 723, 1122},
-                                            {643, 644, 654, 715, 723, 1122},
-                                            {641, 642, 653, 713, 723, 1122},
-                                            {639, 640, 652, 711, 721, 1120},
-                                            {637, 638, 651, 709, 721, 1120},
-                                            {635, 636, 650, 707, 721, 1120},
-                                            {633, 634, 649, 705, 719, 1118}};
-
+namespace {
+  constexpr int crateFED[18][6] = {{613, 614, 603, 702, 718, 1118},
+                                   {611, 612, 602, 700, 718, 1118},
+                                   {627, 610, 601, 716, 722, 1122},
+                                   {625, 626, 609, 714, 722, 1122},
+                                   {623, 624, 608, 712, 722, 1122},
+                                   {621, 622, 607, 710, 720, 1120},
+                                   {619, 620, 606, 708, 720, 1120},
+                                   {617, 618, 605, 706, 720, 1120},
+                                   {615, 616, 604, 704, 718, 1118},
+                                   {631, 632, 648, 703, 719, 1118},
+                                   {629, 630, 647, 701, 719, 1118},
+                                   {645, 628, 646, 717, 723, 1122},
+                                   {643, 644, 654, 715, 723, 1122},
+                                   {641, 642, 653, 713, 723, 1122},
+                                   {639, 640, 652, 711, 721, 1120},
+                                   {637, 638, 651, 709, 721, 1120},
+                                   {635, 636, 650, 707, 721, 1120},
+                                   {633, 634, 649, 705, 719, 1118}};
+}
 L1RCTProducer::L1RCTProducer(const edm::ParameterSet &conf)
     : rctLookupTables(new L1RCTLookupTables),
       rct(new L1RCT(rctLookupTables.get())),
@@ -42,9 +43,26 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet &conf)
       queryDelayInLS(conf.getParameter<unsigned int>("queryDelayInLS")),
       queryIntervalInLS(conf.getParameter<unsigned int>("queryIntervalInLS")),
       conditionsLabel(conf.getParameter<std::string>("conditionsLabel")),
-      fedUpdatedMask(nullptr) {
+      fedUpdatedMask(nullptr),
+
+      rctParamsToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", conditionsLabel))),
+      emScaleToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", conditionsLabel))),
+      ecalScaleToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", conditionsLabel))),
+      hcalScaleToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", conditionsLabel))),
+
+      beginRunRunInfoToken_(esConsumes<edm::Transition::BeginRun>()),
+
+      beginRunChannelMaskToken_(esConsumes<edm::Transition::BeginRun>()),
+      beginRunHotChannelMaskToken_(esConsumes<edm::Transition::BeginRun>()) {
   produces<L1CaloEmCollection>();
   produces<L1CaloRegionCollection>();
+
+  if (getFedsFromOmds) {
+    beginLumiChannelMaskToken_ = esConsumes<edm::Transition::BeginLuminosityBlock>();
+    beginLumiHotChannelMaskToken_ = esConsumes<edm::Transition::BeginLuminosityBlock>();
+    beginLumiRunInfoToken_ = esConsumes<edm::Transition::BeginLuminosityBlock>();
+    omdsRunInfoToken_ = esConsumes<edm::Transition::BeginLuminosityBlock>(edm::ESInputTag("", "OmdsFedVector"));
+  }
 
   for (unsigned int ihc = 0; ihc < hcalDigis.size(); ihc++) {
     consumes<edm::SortedCollection<HcalTriggerPrimitiveDigi, edm::StrictWeakOrdering<HcalTriggerPrimitiveDigi>>>(
@@ -62,9 +80,13 @@ void L1RCTProducer::beginRun(edm::Run const &run, const edm::EventSetup &eventSe
 
   updateConfiguration(eventSetup);
 
-  int runNumber = run.run();
-  updateFedVector(eventSetup, false,
-                  runNumber);  // RUNINFO ONLY at beginning of run
+  // list of RCT channels to mask
+  L1RCTChannelMask const &channelMask = eventSetup.getData(beginRunChannelMaskToken_);
+
+  // list of Noisy RCT channels to mask
+  L1RCTNoisyChannelMask const &hotChannelMask = eventSetup.getData(beginRunHotChannelMaskToken_);
+
+  updateFedVector(channelMask, hotChannelMask, getFedVectorFromRunInfo(beginRunRunInfoToken_, eventSetup));
 }
 
 void L1RCTProducer::beginLuminosityBlock(edm::LuminosityBlock const &lumiSeg, const edm::EventSetup &context) {
@@ -82,10 +104,16 @@ void L1RCTProducer::beginLuminosityBlock(edm::LuminosityBlock const &lumiSeg, co
                                            // LS is ~20-30 minutes, not too big a load, hopefully not too
                                            // long between
     {
-      int runNumber = lumiSeg.run();
       //	  std::cout << "Lumi section for this FED vector update is " <<
       // nLumi << std::endl;
-      updateFedVector(context, true, runNumber);  // OMDS
+
+      // list of RCT channels to mask
+      L1RCTChannelMask const &channelMask = context.getData(beginLumiChannelMaskToken_);
+
+      // list of Noisy RCT channels to mask
+      L1RCTNoisyChannelMask const &hotChannelMask = context.getData(beginLumiHotChannelMaskToken_);
+
+      updateFedVector(channelMask, hotChannelMask, getFedVectorFromOmds(context));
     } else if (queryIntervalInLS <= 0) {
       // don't do interval checking... cout message??
     }
@@ -98,26 +126,18 @@ void L1RCTProducer::updateConfiguration(const edm::EventSetup &eventSetup) {
   // There should be a call back function in future to
   // handle changes in configuration
   // parameters to configure RCT (thresholds, etc)
-  edm::ESHandle<L1RCTParameters> rctParameters;
-  eventSetup.get<L1RCTParametersRcd>().get(conditionsLabel, rctParameters);
-  const L1RCTParameters *r = rctParameters.product();
+  const L1RCTParameters *r = &eventSetup.getData(rctParamsToken_);
 
   // SCALES
 
   // energy scale to convert eGamma output
-  edm::ESHandle<L1CaloEtScale> emScale;
-  eventSetup.get<L1EmEtScaleRcd>().get(conditionsLabel, emScale);
-  const L1CaloEtScale *s = emScale.product();
+  const L1CaloEtScale *s = &eventSetup.getData(emScaleToken_);
 
   // get energy scale to convert input from ECAL
-  edm::ESHandle<L1CaloEcalScale> ecalScale;
-  eventSetup.get<L1CaloEcalScaleRcd>().get(conditionsLabel, ecalScale);
-  const L1CaloEcalScale *e = ecalScale.product();
+  const L1CaloEcalScale *e = &eventSetup.getData(ecalScaleToken_);
 
   // get energy scale to convert input from HCAL
-  edm::ESHandle<L1CaloHcalScale> hcalScale;
-  eventSetup.get<L1CaloHcalScaleRcd>().get(conditionsLabel, hcalScale);
-  const L1CaloHcalScale *h = hcalScale.product();
+  const L1CaloHcalScale *h = &eventSetup.getData(hcalScaleToken_);
 
   // set scales
   rctLookupTables->setEcalScale(e);
@@ -127,21 +147,12 @@ void L1RCTProducer::updateConfiguration(const edm::EventSetup &eventSetup) {
   rctLookupTables->setL1CaloEtScale(s);
 }
 
-void L1RCTProducer::updateFedVector(const edm::EventSetup &eventSetup,
-                                    bool getFromOmds,
-                                    int runNumber)  // eventSetup apparently doesn't include run number:
+void L1RCTProducer::updateFedVector(const L1RCTChannelMask &channelMask,
+                                    const L1RCTNoisyChannelMask &hotChannelMask,
+                                    const std::vector<int> &Feds)
 // http://cmslxr.fnal.gov/lxr/source/FWCore/Framework/interface/EventSetup.h
 {
-  // list of RCT channels to mask
-  edm::ESHandle<L1RCTChannelMask> channelMask;
-  eventSetup.get<L1RCTChannelMaskRcd>().get(channelMask);
-  const L1RCTChannelMask *cEs = channelMask.product();
-
-  // list of Noisy RCT channels to mask
-  edm::ESHandle<L1RCTNoisyChannelMask> hotChannelMask;
-  eventSetup.get<L1RCTNoisyChannelMaskRcd>().get(hotChannelMask);
-  const L1RCTNoisyChannelMask *cEsNoise = hotChannelMask.product();
-  rctLookupTables->setNoisyChannelMask(cEsNoise);
+  rctLookupTables->setNoisyChannelMask(&hotChannelMask);
 
   // Update the channel mask according to the FED VECTOR
   // This is the beginning of run. We delete the old
@@ -152,18 +163,15 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup &eventSetup,
   for (int i = 0; i < 18; i++) {
     for (int j = 0; j < 2; j++) {
       for (int k = 0; k < 28; k++) {
-        fedUpdatedMask->ecalMask[i][j][k] = cEs->ecalMask[i][j][k];
-        fedUpdatedMask->hcalMask[i][j][k] = cEs->hcalMask[i][j][k];
+        fedUpdatedMask->ecalMask[i][j][k] = channelMask.ecalMask[i][j][k];
+        fedUpdatedMask->hcalMask[i][j][k] = channelMask.hcalMask[i][j][k];
       }
       for (int k = 0; k < 4; k++) {
-        fedUpdatedMask->hfMask[i][j][k] = cEs->hfMask[i][j][k];
+        fedUpdatedMask->hfMask[i][j][k] = channelMask.hfMask[i][j][k];
       }
     }
   }
 
-  //   // adding fed mask into channel mask
-
-  const std::vector<int> Feds = getFromOmds ? getFedVectorFromOmds(eventSetup) : getFedVectorFromRunInfo(eventSetup);
   // so can create/initialize/assign const quantity in one line accounting for
   // if statement wikipedia says this is exactly what it's for:
   // http://en.wikipedia.org/wiki/%3F:#C.2B.2B
@@ -282,34 +290,25 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup &eventSetup,
   rctLookupTables->setChannelMask(fedUpdatedMask.get());
 }
 
-const std::vector<int> L1RCTProducer::getFedVectorFromRunInfo(const edm::EventSetup &eventSetup) {
+const std::vector<int> L1RCTProducer::getFedVectorFromRunInfo(const edm::ESGetToken<RunInfo, RunInfoRcd> &token,
+                                                              const edm::EventSetup &eventSetup) const {
   //  std::cout << "Getting FED vector from standard RunInfo object" <<
   //  std::endl;
   // get FULL FED vector from RUNINFO
-  edm::ESHandle<RunInfo> sum;
-  eventSetup.get<RunInfoRcd>().get(sum);
-  const RunInfo *summary = sum.product();
-  const std::vector<int> fedvector = summary->m_fed_in;
-
-  return fedvector;
+  return eventSetup.getData(token).m_fed_in;
 }
 
-const std::vector<int> L1RCTProducer::getFedVectorFromOmds(const edm::EventSetup &eventSetup) {
+const std::vector<int> L1RCTProducer::getFedVectorFromOmds(const edm::EventSetup &eventSetup) const {
   //  std::cout << "Getting FED vector from my specific ES RunInfo object" <<
   //  std::endl;
 
   // get FULL FED vector from RunInfo object specifically created to have OMDS
   // fed vector
-  edm::ESHandle<RunInfo> sum;
-  eventSetup.get<RunInfoRcd>().get("OmdsFedVector",
-                                   sum);  // using label to get my specific instance of RunInfo
+  edm::ESHandle<RunInfo> sum = eventSetup.getHandle(omdsRunInfoToken_);
   if (sum.isValid()) {
-    const RunInfo *summary = sum.product();
-    const std::vector<int> fedvector = summary->m_fed_in;
-
-    return fedvector;
+    return sum->m_fed_in;
   } else {
-    return getFedVectorFromRunInfo(eventSetup);
+    return getFedVectorFromRunInfo(beginLumiRunInfoToken_, eventSetup);
   }
 }
 
