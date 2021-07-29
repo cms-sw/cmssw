@@ -12,6 +12,9 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
 
 int main(int argc, char** argv) {
   Py_Initialize();
@@ -33,7 +36,7 @@ int main(int argc, char** argv) {
   std::string tag = "SiStripApvGain_FromParticles_GR10_v11_offline";
   cond::Time_t start = boost::lexical_cast<unsigned long long>(132440);
   cond::Time_t end = boost::lexical_cast<unsigned long long>(285368);
-  boost::python::dict inputs;
+  py::dict inputs;
 
   edm::LogPrint("testSiStripPayloadInspector") << "## Exercising Gains plots " << std::endl;
 
@@ -112,7 +115,9 @@ int main(int argc, char** argv) {
   edm::LogPrint("testSiStripPayloadInspector") << histo11.data() << std::endl;
 
   SiStripPedestalPerDetId histoPedestalForDetId;
-  inputs["DetIds"] += ",470065830,369121594,369124670,470177668";  // add a bunch of other DetIds
+  std::string tmp = inputs["DetIds"].cast<std::string>();
+  tmp = tmp + ",470065830,369121594,369124670,470177668";
+  inputs["DetIds"] = tmp;  // add a bunch of other DetIds
   histoPedestalForDetId.setInputParamValues(inputs);
   histoPedestalForDetId.process(connectionString, PI::mk_input(tag, start, start));
   edm::LogPrint("testSiStripPayloadInspector") << histoPedestalForDetId.data() << std::endl;
