@@ -65,6 +65,8 @@ public:
   /** Constructor
    */
   DTRangeT0();
+  DTRangeT0(DTRangeT0 const&) = delete;
+  DTRangeT0& operator=(DTRangeT0 const&) = delete;
   DTRangeT0(const std::string& version);
 
   /** Destructor
@@ -103,9 +105,6 @@ public:
   void initialize();
 
 private:
-  DTRangeT0(DTRangeT0 const&) = delete;
-  DTRangeT0& operator=(DTRangeT0 const&) = delete;
-
   std::string dataVersion;
 
   std::vector<std::pair<DTRangeT0Id, DTRangeT0Data> > dataList;
