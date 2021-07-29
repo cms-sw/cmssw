@@ -50,6 +50,10 @@ class FourVector;
 class MixBoostEvtVtxGenerator : public edm::EDProducer {
 public:
   MixBoostEvtVtxGenerator(const edm::ParameterSet& p);
+  /** Copy constructor */
+  MixBoostEvtVtxGenerator(const MixBoostEvtVtxGenerator& p) = delete;
+  /** Copy assignment operator */
+  MixBoostEvtVtxGenerator& operator=(const MixBoostEvtVtxGenerator& rhs) = delete;
   ~MixBoostEvtVtxGenerator() override;
 
   /// return a new event vertex
@@ -83,11 +87,6 @@ public:
   double BetaFunction(double z, double z0);
 
 private:
-  /** Copy constructor */
-  MixBoostEvtVtxGenerator(const MixBoostEvtVtxGenerator& p) = delete;
-  /** Copy assignment operator */
-  MixBoostEvtVtxGenerator& operator=(const MixBoostEvtVtxGenerator& rhs) = delete;
-
   double alpha_, phi_;
   //TMatrixD boost_;
   double beta_;
