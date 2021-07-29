@@ -72,10 +72,6 @@ private:
   bool end_;
 
   int verbosity_;
-
-  std::string fileListCmd_;
-
-  std::string curDir_;
 };
 
 #endif
