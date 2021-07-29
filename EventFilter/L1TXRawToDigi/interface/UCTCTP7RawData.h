@@ -16,6 +16,10 @@ public:
     }
   }
 
+  // No copy constructor and equality operator are needed
+  UCTCTP7RawData(const UCTCTP7RawData&) = delete;
+  const UCTCTP7RawData& operator=(const UCTCTP7RawData& i) = delete;
+
   virtual ~UCTCTP7RawData() { ; }
 
   // Access functions for convenience
@@ -330,11 +334,6 @@ public:
   }
 
 private:
-  // No copy constructor and equality operator are needed
-
-  UCTCTP7RawData(const UCTCTP7RawData&) = delete;
-  const UCTCTP7RawData& operator=(const UCTCTP7RawData& i) = delete;
-
   // RawData data
 
   const uint32_t* myDataPtr;
