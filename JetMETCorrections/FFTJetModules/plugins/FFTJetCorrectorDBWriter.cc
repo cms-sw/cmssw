@@ -42,13 +42,12 @@
 class FFTJetCorrectorDBWriter : public edm::EDAnalyzer {
 public:
   explicit FFTJetCorrectorDBWriter(const edm::ParameterSet&);
-  ~FFTJetCorrectorDBWriter() override {}
-
-private:
   FFTJetCorrectorDBWriter() = delete;
   FFTJetCorrectorDBWriter(const FFTJetCorrectorDBWriter&) = delete;
   FFTJetCorrectorDBWriter& operator=(const FFTJetCorrectorDBWriter&) = delete;
+  ~FFTJetCorrectorDBWriter() override {}
 
+private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string inputFile;
