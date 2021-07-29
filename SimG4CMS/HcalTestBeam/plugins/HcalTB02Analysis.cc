@@ -61,14 +61,13 @@ namespace CLHEP {
 class HcalTB02Analysis : public SimProducer, public Observer<const BeginOfEvent*>, public Observer<const EndOfEvent*> {
 public:
   HcalTB02Analysis(const edm::ParameterSet& p);
+  HcalTB02Analysis(const HcalTB02Analysis&) = delete;  // stop default
+  const HcalTB02Analysis& operator=(const HcalTB02Analysis&) = delete;
   ~HcalTB02Analysis() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  HcalTB02Analysis(const HcalTB02Analysis&) = delete;  // stop default
-  const HcalTB02Analysis& operator=(const HcalTB02Analysis&) = delete;
-
   // observer methods
   void update(const BeginOfEvent* evt) override;
   void update(const EndOfEvent* evt) override;
