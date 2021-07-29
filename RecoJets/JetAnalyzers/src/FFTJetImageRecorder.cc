@@ -47,13 +47,12 @@
 class FFTJetImageRecorder : public edm::EDAnalyzer {
 public:
   explicit FFTJetImageRecorder(const edm::ParameterSet&);
-  ~FFTJetImageRecorder() override;
-
-private:
   FFTJetImageRecorder() = delete;
   FFTJetImageRecorder(const FFTJetImageRecorder&) = delete;
   FFTJetImageRecorder& operator=(const FFTJetImageRecorder&) = delete;
+  ~FFTJetImageRecorder() override;
 
+private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
