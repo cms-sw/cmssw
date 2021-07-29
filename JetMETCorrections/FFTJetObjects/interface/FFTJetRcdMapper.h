@@ -70,7 +70,6 @@ struct DefaultFFTJetRcdMapper : public std::map<std::string, AbsFFTJetRcdMapper<
     it->second->load(iSetup, label, handle);
   }
 
-private:
   DefaultFFTJetRcdMapper(const DefaultFFTJetRcdMapper&) = delete;
   DefaultFFTJetRcdMapper& operator=(const DefaultFFTJetRcdMapper&) = delete;
 };
@@ -95,7 +94,6 @@ public:
     rd[record] = new ConcreteFFTJetRcdMapper<data_type, Record>();
   }
 
-private:
   StaticFFTJetRcdMapper() = delete;
 };
 

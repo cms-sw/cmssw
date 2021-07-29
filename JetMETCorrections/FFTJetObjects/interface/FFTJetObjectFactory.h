@@ -42,7 +42,6 @@ struct DefaultFFTJetObjectFactory : public std::map<std::string, AbsFFTJetObject
     return it->second->create(ps);
   }
 
-private:
   DefaultFFTJetObjectFactory(const DefaultFFTJetObjectFactory&) = delete;
   DefaultFFTJetObjectFactory& operator=(const DefaultFFTJetObjectFactory&) = delete;
 };
@@ -67,7 +66,6 @@ public:
     rd[className] = new ConcreteFFTJetObjectFactory<base_type, T>();
   }
 
-private:
   StaticFFTJetObjectFactory() = delete;
 };
 
