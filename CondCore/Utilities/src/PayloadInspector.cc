@@ -5,7 +5,11 @@
 
 #include <sstream>
 #include <iostream>
-#include <boost/python/extract.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/embed.h>
+
+namespace py = pybind11;
 
 namespace cond {
 
@@ -20,8 +24,6 @@ namespace cond {
         ret = im->second;
       return ret;
     }
-
-    constexpr const char* const ModuleVersion::label;
 
     PlotBase::PlotBase()
         : m_plotAnnotations(),
@@ -49,36 +51,40 @@ namespace cond {
 
     bool PlotBase::isTwoTags() const { return m_plotAnnotations.ntags == 2; }
 
-    boost::python::list PlotBase::inputParams() const {
-      boost::python::list tmp;
+    py::list PlotBase::inputParams() const {
+      py::list tmp;
       for (const auto& ip : m_inputParams) {
         tmp.append(ip);
       }
       return tmp;
     }
 
-    void PlotBase::setInputParamValues(const boost::python::dict& values) {
-      for (const auto& ip : m_inputParams) {
-        if (values.has_key(ip)) {
-          std::string val = boost::python::extract<std::string>(values.get(ip));
-          m_inputParamValues.insert(std::make_pair(ip, val));
-        }
-      }
+     void PlotBase::setInputParamValues(const py::dict& values) {
+       for(auto item : values){
+          std::string key = item.first.cast<std::string>();
+          std::string val = item.second.cast<std::string>();
+          m_inputParamValues.insert(std::make_pair(key, val));            
+       }
     }
 
     std::string PlotBase::data() const { return m_data; }
 
-    bool PlotBase::process(const std::string& connectionString, const boost::python::list& tagsWithTimeBoundaries) {
-      size_t nt = boost::python::len(tagsWithTimeBoundaries);
+    bool PlotBase::process(const std::string& connectionString, const py::list& tagsWithTimeBoundaries) {
+      size_t nt = tagsWithTimeBoundaries.size();
       bool ret = false;
+      py::object obj1,obj2,obj3,obj4;
       if (nt) {
         std::vector<std::tuple<std::string, cond::Time_t, cond::Time_t> > tags;
         tags.resize(nt);
         for (size_t i = 0; i < nt; i++) {
-          boost::python::tuple entry = boost::python::extract<boost::python::tuple>(tagsWithTimeBoundaries[i]);
-          std::string tagName = boost::python::extract<std::string>(entry[0]);
-          std::string time0s = boost::python::extract<std::string>(entry[1]);
-          std::string time1s = boost::python::extract<std::string>(entry[2]);
+          obj1=tagsWithTimeBoundaries[i];
+          py::tuple entry = obj1.cast<py::tuple>();
+          obj2=entry[0];
+          obj3=entry[1];
+          obj4=entry[2];
+          std::string tagName = obj2.cast<std::string>();
+          std::string time0s = obj3.cast<std::string>();
+          std::string time1s = obj4.cast<std::string>();
           cond::Time_t time0 = boost::lexical_cast<cond::Time_t>(time0s);
           cond::Time_t time1 = boost::lexical_cast<cond::Time_t>(time1s);
           tags[i] = std::make_tuple(tagName, time0, time1);
