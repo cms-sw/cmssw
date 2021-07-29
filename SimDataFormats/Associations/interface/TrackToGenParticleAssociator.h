@@ -41,7 +41,7 @@ namespace reco {
     ~TrackToGenParticleAssociator() = default;
     TrackToGenParticleAssociator(TrackToGenParticleAssociator &&) = default;
     TrackToGenParticleAssociator &operator=(TrackToGenParticleAssociator &&) = default;
-    TrackToGenParticleAssociator(const TrackToGenParticleAssociator &) = delete;  // stop default
+    TrackToGenParticleAssociator(const TrackToGenParticleAssociator &) = delete;                   // stop default
     const TrackToGenParticleAssociator &operator=(const TrackToGenParticleAssociator &) = delete;  // stop default
 
     /// Association Sim To Reco with Collections (Gen Particle version)

@@ -58,7 +58,7 @@ namespace reco {
     TrackToTrackingParticleAssociator &operator=(TrackToTrackingParticleAssociator &&) = default;
     TrackToTrackingParticleAssociator(const TrackToTrackingParticleAssociator &) = delete;  // stop default
     const TrackToTrackingParticleAssociator &operator=(const TrackToTrackingParticleAssociator &) =
-    delete;  // stop default
+        delete;  // stop default
 
     ~TrackToTrackingParticleAssociator() = default;
 

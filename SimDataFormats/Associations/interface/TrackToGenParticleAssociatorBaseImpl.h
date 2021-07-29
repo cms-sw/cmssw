@@ -30,7 +30,8 @@ namespace reco {
     /// Constructor
     TrackToGenParticleAssociatorBaseImpl();
     TrackToGenParticleAssociatorBaseImpl(const TrackToGenParticleAssociatorBaseImpl &) = delete;  // stop default
-    const TrackToGenParticleAssociatorBaseImpl &operator=(const TrackToGenParticleAssociatorBaseImpl &) =  delete;  // stop default
+    const TrackToGenParticleAssociatorBaseImpl &operator=(const TrackToGenParticleAssociatorBaseImpl &) =
+        delete;  // stop default
     virtual ~TrackToGenParticleAssociatorBaseImpl();
 
     /// Association Sim To Reco with Collections (Gen Particle version)
