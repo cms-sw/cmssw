@@ -20,14 +20,13 @@ namespace magneticfield {
   class UniformMagneticFieldESProducer : public edm::ESProducer {
   public:
     UniformMagneticFieldESProducer(const edm::ParameterSet& pset);
-
-    std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord&);
-
-  private:
     // forbid copy ctor and assignment op.
     UniformMagneticFieldESProducer(const UniformMagneticFieldESProducer&) = delete;
     const UniformMagneticFieldESProducer& operator=(const UniformMagneticFieldESProducer&) = delete;
 
+    std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord&);
+
+  private:
     float value;
   };
 }  // namespace magneticfield
