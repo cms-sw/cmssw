@@ -78,13 +78,11 @@ run3_common.toModify( cscTriggerPrimitiveDigis,
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify( cscTriggerPrimitiveDigis,
                    GEMPadDigiClusterProducer = cms.InputTag("simMuonGEMPadDigiClusters"),
-                   commonParam = dict(runME11ILT = True)
 )
 
 ## GEM-CSC integrated local trigger in ME2/1
 ## enable the Phase-2 ALCT processors
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( cscTriggerPrimitiveDigis,
-                      commonParam = dict(runME21ILT = True,
-                                         enableAlctPhase2 = True)
+                      commonParam = dict(enableAlctPhase2 = True)
 )
