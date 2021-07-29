@@ -177,7 +177,10 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecH
                                                                     float bfield,
                                                                     cudaStream_t stream) const {
   PixelTrackHeterogeneous tracks(cms::cuda::make_device_unique<pixelTrack::TrackSoA>(stream));
-
+  
+  if (0 == hits_d.nHits())
+    return tracks;
+  
   auto* soa = tracks.get();
 
   CAHitNtupletGeneratorKernelsGPU kernels(m_params);
@@ -204,6 +207,9 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecH
 PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuples(TrackingRecHit2DCPU const& hits_d, float bfield) const {
   PixelTrackHeterogeneous tracks(std::make_unique<pixelTrack::TrackSoA>());
 
+  if (0 == hits_d.nHits())
+    return tracks;
+
   auto* soa = tracks.get();
   assert(soa);
 
@@ -214,9 +220,6 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuples(TrackingRecHit2DC
   kernels.buildDoublets(hits_d, nullptr);
   kernels.launchKernels(hits_d, soa, nullptr);
   kernels.fillHitDetIndices(hits_d.view(), soa, nullptr);  // in principle needed only if Hits not "available"
-
-  if (0 == hits_d.nHits())
-    return tracks;
 
   // now fit
   HelixFitOnGPU fitter(bfield, m_params.fit5as4_);
