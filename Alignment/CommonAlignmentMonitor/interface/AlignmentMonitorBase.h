@@ -116,10 +116,11 @@ protected:
 
   const edm::InputTag m_beamSpotTag;
 
-private:
+public:
   AlignmentMonitorBase(const AlignmentMonitorBase &) = delete;                   // stop default
   const AlignmentMonitorBase &operator=(const AlignmentMonitorBase &) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
 
   int m_iteration;

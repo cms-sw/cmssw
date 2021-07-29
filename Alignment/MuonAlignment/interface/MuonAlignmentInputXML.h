@@ -43,11 +43,11 @@ public:
 
   AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const override;
 
-private:
   MuonAlignmentInputXML(const MuonAlignmentInputXML &) = delete;  // stop default
 
   const MuonAlignmentInputXML &operator=(const MuonAlignmentInputXML &) = delete;  // stop default
 
+private:
   void recursiveGetId(std::map<unsigned int, Alignable *> &alignableNavigator,
                       const align::Alignables &alignables) const;
 

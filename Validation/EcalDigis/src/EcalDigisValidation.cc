@@ -18,6 +18,7 @@ EcalDigisValidation::EcalDigisValidation(const edm::ParameterSet& ps)
       EBdigiCollectionToken_(consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBdigiCollection"))),
       EEdigiCollectionToken_(consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigiCollection"))),
       ESdigiCollectionToken_(consumes<ESDigiCollection>(ps.getParameter<edm::InputTag>("ESdigiCollection"))),
+      pAgc(esConsumes<edm::Transition::BeginRun>()),
       crossingFramePCaloHitEBToken_(consumes<CrossingFrame<PCaloHit> >(edm::InputTag(
           std::string("mix"), ps.getParameter<std::string>("moduleLabelG4") + std::string("EcalHitsEB")))),
       crossingFramePCaloHitEEToken_(consumes<CrossingFrame<PCaloHit> >(edm::InputTag(
@@ -382,9 +383,7 @@ void EcalDigisValidation::analyze(edm::Event const& e, edm::EventSetup const& c)
 
 void EcalDigisValidation::checkCalibrations(edm::EventSetup const& eventSetup) {
   // ADC -> GeV Scale
-  edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  eventSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
-  const EcalADCToGeVConstant* agc = pAgc.product();
+  const EcalADCToGeVConstant* agc = &eventSetup.getData(pAgc);
 
   EcalMGPAGainRatio* defaultRatios = new EcalMGPAGainRatio();
 
