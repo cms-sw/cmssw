@@ -11,6 +11,9 @@ namespace gs {
   public:
     // The output stream should be dedicated exclusively to this catalog
     WriteOnlyCatalog(std::ostream &os, unsigned long long firstId = 1);
+    WriteOnlyCatalog(const WriteOnlyCatalog &) = delete;
+    WriteOnlyCatalog &operator=(const WriteOnlyCatalog &) = delete;
+
     inline ~WriteOnlyCatalog() override {}
 
     inline unsigned long long size() const override { return count_; }
@@ -56,9 +59,6 @@ namespace gs {
     inline bool isEqual(const AbsCatalog &) const override { return false; }
 
   private:
-    WriteOnlyCatalog(const WriteOnlyCatalog &) = delete;
-    WriteOnlyCatalog &operator=(const WriteOnlyCatalog &) = delete;
-
     std::ostream &os_;
     unsigned long long count_;
     unsigned long long smallestId_;

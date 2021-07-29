@@ -17,11 +17,11 @@ namespace gs {
     explicit BZ2InflateHandle(bz_stream &strm);
     ~BZ2InflateHandle();
 
-  private:
     BZ2InflateHandle() = delete;
     BZ2InflateHandle(const BZ2InflateHandle &) = delete;
     BZ2InflateHandle &operator=(const BZ2InflateHandle &) = delete;
 
+  private:
     bz_stream *strm_;
   };
 
@@ -30,11 +30,11 @@ namespace gs {
     explicit BZ2DeflateHandle(bz_stream &strm);
     ~BZ2DeflateHandle();
 
-  private:
     BZ2DeflateHandle() = delete;
     BZ2DeflateHandle(const BZ2DeflateHandle &) = delete;
     BZ2DeflateHandle &operator=(const BZ2DeflateHandle &) = delete;
 
+  private:
     bz_stream *strm_;
   };
 }  // namespace gs
