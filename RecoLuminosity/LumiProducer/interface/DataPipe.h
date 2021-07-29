@@ -33,6 +33,6 @@ namespace lumi {
     bool m_novalidate;
     float m_norm;                 //Lumi2DB specific
     bool m_nocheckingstablebeam;  //Lumi2DB specific
-  };  //class DataPipe
+  };                              //class DataPipe
 }  // namespace lumi
 #endif
