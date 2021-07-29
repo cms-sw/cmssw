@@ -8,6 +8,7 @@ namespace fftjetcms {
   public:
     LookupTable2d(
         unsigned nx, double xmin, double xmax, unsigned ny, double ymin, double ymax, const std::vector<double>& data);
+    LookupTable2d() = delete;
 
     inline const std::vector<double>& data() const { return data_; }
     inline unsigned nx() const { return nx_; }
@@ -23,8 +24,6 @@ namespace fftjetcms {
     double closest(double x, double y) const;
 
   private:
-    LookupTable2d() = delete;
-
     std::vector<double> data_;
     unsigned nx_;
     unsigned ny_;
