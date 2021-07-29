@@ -4,14 +4,6 @@
 #include "XrdCl/XrdClXRootDResponses.hh"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
-#if defined(__linux__)
-  #define HAVE_ATOMICS 1
-  #include "XrdSys/XrdSysLinuxSemaphore.hh"
-  typedef XrdSys::LinuxSemaphore Semaphore;
-#else
-  typedef XrdSysSemaphore Semaphore;
-#endif
-
 /**
  * The SyncResponseHandler from the XrdCl does not
  * preserve the hostinfo list, which we would like to
@@ -73,9 +65,9 @@ public:
 private:
 
   edm::propagate_const<std::unique_ptr<XrdCl::XRootDStatus>> pStatus_;
-  edm::propagate_const<std::unique_ptr<XrdCl::AnyObject>>    pResponse_;
-  edm::propagate_const<std::unique_ptr<XrdCl::HostList>>     pHostList_;
-  Semaphore                            sem;
+  edm::propagate_const<std::unique_ptr<XrdCl::AnyObject>> pResponse_;
+  edm::propagate_const<std::unique_ptr<XrdCl::HostList>> pHostList_;
+  XrdSysSemaphore sem;
 };
 
 #endif
