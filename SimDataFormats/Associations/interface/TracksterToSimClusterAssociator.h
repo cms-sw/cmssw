@@ -19,7 +19,7 @@ namespace hgcal {
     TracksterToSimClusterAssociator() = default;
     TracksterToSimClusterAssociator(TracksterToSimClusterAssociator &&) = default;
     TracksterToSimClusterAssociator &operator=(TracksterToSimClusterAssociator &&) = default;
-    TracksterToSimClusterAssociator(const TracksterToSimClusterAssociator &) = delete;  // stop default
+    TracksterToSimClusterAssociator(const TracksterToSimClusterAssociator &) = delete;                   // stop default
     const TracksterToSimClusterAssociator &operator=(const TracksterToSimClusterAssociator &) = delete;  // stop default
 
     ~TracksterToSimClusterAssociator() = default;

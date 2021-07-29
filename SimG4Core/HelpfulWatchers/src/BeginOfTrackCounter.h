@@ -38,7 +38,7 @@ namespace simwatcher {
   class BeginOfTrackCounter : public SimProducer, public Observer<const BeginOfTrack *> {
   public:
     BeginOfTrackCounter(const edm::ParameterSet &);
-    BeginOfTrackCounter(const BeginOfTrackCounter &) = delete;  // stop default
+    BeginOfTrackCounter(const BeginOfTrackCounter &) = delete;                   // stop default
     const BeginOfTrackCounter &operator=(const BeginOfTrackCounter &) = delete;  // stop default
 
     // ---------- const member functions ---------------------

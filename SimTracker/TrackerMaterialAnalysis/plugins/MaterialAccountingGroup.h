@@ -66,7 +66,7 @@ public:
 
   /// stop default assignment operator
   MaterialAccountingGroup& operator=(const MaterialAccountingGroup& layer) = delete;
-      
+
   /// destructor
   ~MaterialAccountingGroup(void);
 
