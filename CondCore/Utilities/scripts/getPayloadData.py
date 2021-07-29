@@ -97,12 +97,12 @@ def deserialize_iovs(db, plugin_name, plot_name, tags, time_type, input_params):
     modv = getattr(plugin_base,'ModuleVersion')
 
     success = False
-    if modv.label == '1.0':
+    if modv.label() == '1.0':
         if len(tags)==1:
             success = plot.process(db_name, tags[0][0], time_type, int(tags[0][1]), int(tags[0][2]) )
         elif len(tags)==2:
             success = plot.processTwoTags(db_name, tags[0][0], tags[1][0], int(tags[0][1]),int(tags[1][1]) )
-    elif modv.label == '2.0':
+    elif modv.label() == '2.0':
         success = plot.process(db_name, tags)
 
     output('plot processed data successfully: ', success)
