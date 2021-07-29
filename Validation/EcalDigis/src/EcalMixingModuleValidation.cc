@@ -25,8 +25,15 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
           edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEB")))),
       crossingFramePCaloHitEEToken_(consumes<CrossingFrame<PCaloHit> >(
           edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEE")))),
-      crossingFramePCaloHitESToken_(consumes<CrossingFrame<PCaloHit> >(edm::InputTag(
-          std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsES")))) {
+      crossingFramePCaloHitESToken_(consumes<CrossingFrame<PCaloHit> >(
+          edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsES")))),
+      pAgc(esConsumes<edm::Transition::BeginRun>()),
+      esgain_(esConsumes<edm::Transition::BeginRun>()),
+      esMIPToGeV_(esConsumes<edm::Transition::BeginRun>()),
+      esPedestals_(esConsumes<edm::Transition::BeginRun>()),
+      esMIPs_(esConsumes<edm::Transition::BeginRun>()),
+      dbPed(esConsumes()),
+      hGeometry(esConsumes()) {
   // needed for MixingModule checks
 
   double simHitToPhotoelectronsBarrel = ps.getParameter<double>("simHitToPhotoelectronsBarrel");
@@ -605,9 +612,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const& e, edm::EventSetup co
 
 void EcalMixingModuleValidation::checkCalibrations(edm::EventSetup const& eventSetup) {
   // ADC -> GeV Scale
-  edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  eventSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
-  const EcalADCToGeVConstant* agc = pAgc.product();
+  const EcalADCToGeVConstant* agc = &eventSetup.getData(pAgc);
 
   EcalMGPAGainRatio* defaultRatios = new EcalMGPAGainRatio();
 
@@ -630,20 +635,10 @@ void EcalMixingModuleValidation::checkCalibrations(edm::EventSetup const& eventS
   LogDebug("EcalDigi") << " Endcap GeV/ADC = " << endcapADCtoGeV_;
 
   // ES condition objects
-  edm::ESHandle<ESGain> esgain_;
-  edm::ESHandle<ESMIPToGeVConstant> esMIPToGeV_;
-  edm::ESHandle<ESPedestals> esPedestals_;
-  edm::ESHandle<ESIntercalibConstants> esMIPs_;
-
-  eventSetup.get<ESGainRcd>().get(esgain_);
-  eventSetup.get<ESMIPToGeVConstantRcd>().get(esMIPToGeV_);
-  eventSetup.get<ESPedestalsRcd>().get(esPedestals_);
-  eventSetup.get<ESIntercalibConstantsRcd>().get(esMIPs_);
-
-  const ESGain* esgain = esgain_.product();
-  m_ESpeds = esPedestals_.product();
-  m_ESmips = esMIPs_.product();
-  const ESMIPToGeVConstant* esMipToGeV = esMIPToGeV_.product();
+  const ESGain* esgain = &eventSetup.getData(esgain_);
+  m_ESpeds = &eventSetup.getData(esPedestals_);
+  m_ESmips = &eventSetup.getData(esMIPs_);
+  const ESMIPToGeVConstant* esMipToGeV = &eventSetup.getData(esMIPToGeV_);
   m_ESgain = (int)esgain->getESGain();
   const double valESMIPToGeV = (m_ESgain == 1) ? esMipToGeV->getESValueLow() : esMipToGeV->getESValueHigh();
 
@@ -657,9 +652,7 @@ void EcalMixingModuleValidation::checkCalibrations(edm::EventSetup const& eventS
 void EcalMixingModuleValidation::checkPedestals(const edm::EventSetup& eventSetup) {
   // Pedestals from event setup
 
-  edm::ESHandle<EcalPedestals> dbPed;
-  eventSetup.get<EcalPedestalsRcd>().get(dbPed);
-  thePedestals = dbPed.product();
+  thePedestals = &eventSetup.getData(dbPed);
 }
 
 void EcalMixingModuleValidation::findPedestal(const DetId& detId, int gainId, double& ped) const {
@@ -708,10 +701,8 @@ void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup& event
 
   // load the geometry
 
-  edm::ESHandle<CaloGeometry> hGeometry;
-  eventSetup.get<CaloGeometryRecord>().get(hGeometry);
-
-  const CaloGeometry* pGeometry = &*hGeometry;
+  auto hGeomHandle = eventSetup.getHandle(hGeometry);
+  const CaloGeometry* pGeometry = &*hGeomHandle;
 
   // see if we need to update
   if (pGeometry != theGeometry) {
