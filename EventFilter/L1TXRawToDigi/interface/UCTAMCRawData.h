@@ -9,7 +9,6 @@ public:
   UCTAMCRawData(const UCTAMCRawData &) = delete;
   const UCTAMCRawData &operator=(const UCTAMCRawData &i) = delete;
 
-
   virtual ~UCTAMCRawData() { ; }
 
   // Access functions for convenience

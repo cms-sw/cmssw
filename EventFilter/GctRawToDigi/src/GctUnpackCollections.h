@@ -24,7 +24,7 @@ public:
   GctUnpackCollections(edm::Event& event);
 
   /// deliberately not implemented!
-  GctUnpackCollections(const GctUnpackCollections&) = delete;  ///< Copy ctor
+  GctUnpackCollections(const GctUnpackCollections&) = delete;             ///< Copy ctor
   GctUnpackCollections& operator=(const GctUnpackCollections&) = delete;  ///< Assignment op
 
   /// Destructor - the last action of this object is to put the gct collections into the event provided on construction.

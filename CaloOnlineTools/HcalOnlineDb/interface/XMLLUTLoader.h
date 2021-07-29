@@ -50,7 +50,7 @@ public:
   XMLLUTLoader();
   XMLLUTLoader(XMLProcessor::loaderBaseConfig* config,
                std::string templateBase = "HCAL_TRIG_PRIM_LOOKUP_TABLE.XMLloader.template");
-  XMLLUTLoader(const XMLLUTLoader&) = delete;  // stop default
+  XMLLUTLoader(const XMLLUTLoader&) = delete;                   // stop default
   const XMLLUTLoader& operator=(const XMLLUTLoader&) = delete;  // stop default
   ~XMLLUTLoader() override;
 
