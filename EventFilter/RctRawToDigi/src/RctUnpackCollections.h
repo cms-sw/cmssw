@@ -21,7 +21,7 @@ public:
   RctUnpackCollections(edm::Event& event);
 
   /// deliberately not implemented!
-  RctUnpackCollections(const RctUnpackCollections&) = delete;  ///< Copy ctor
+  RctUnpackCollections(const RctUnpackCollections&) = delete;             ///< Copy ctor
   RctUnpackCollections& operator=(const RctUnpackCollections&) = delete;  ///< Assignment op
 
   /// Destructor - the last action of this object is to put the rct collections into the event provided on construction.
