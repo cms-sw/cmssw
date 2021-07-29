@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <pybind11/pybind11.h>
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/SiPixelPlugins/plugins/SiPixelLorentzAngle_PayloadInspector.cc"
 #include "CondCore/SiPixelPlugins/plugins/SiPixelQuality_PayloadInspector.cc"
@@ -14,6 +15,8 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+
+namespace py = pybind11;
 
 int main(int argc, char** argv) {
   Py_Initialize();
@@ -132,7 +135,7 @@ int main(int argc, char** argv) {
   histo16.process(connectionString, PI::mk_input(tag, end, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo16.data() << std::endl;
 
-  boost::python::dict inputs;
+  py::dict inputs;
   inputs["SetLog"] = "True";  // sets to true, 1,True,Yes will work
 
   SiPixelGainCalibrationOfflineGainsValuesBarrel histo17;
