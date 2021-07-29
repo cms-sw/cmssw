@@ -490,7 +490,7 @@ steps['RunSingleMu2015HLHS']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2015D-v1
 steps['RunCosmics2015C']={'INPUT':InputInfo(dataSet='/Cosmics/Run2015C-v1/RAW',label='2015C',run=[256259],events=100000,location='STD')}
 steps['RunCosmics2016B']={'INPUT':InputInfo(dataSet='/Cosmics/Run2016B-v1/RAW',label='2016B',run=[272133],events=100000,location='STD')}
 
-### LS2 - MWGR 2021 - CSC, DAQ, DCS, DQM, DT, ECAL, GEM, HCAL, RPC, TCDS, TRACKER, TRG ###
+### LS2 - MWGR 2021 - CSC, DAQ, DCS, DQM, DT, ECAL, GEM, HCAL, L1SCOUT, PIXEL, RPC, TCDS, TRACKER, TRG ###
 steps['RunCosmics2021']={'INPUT':InputInfo(dataSet='/ExpressCosmics/Commissioning2021-Express-v1/FEVT',label='2021GR5',ls={343498: [[1, 10000]]},events=100000,location='STD')}
 
 
