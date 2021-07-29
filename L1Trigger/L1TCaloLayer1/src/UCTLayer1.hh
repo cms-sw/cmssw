@@ -22,6 +22,14 @@ public:
   //
   UCTLayer1(int fwv = 0);
 
+  // No copy constructor is needed
+
+  UCTLayer1(const UCTLayer1&) = delete;
+
+  // No equality operator is needed
+
+  const UCTLayer1& operator=(const UCTLayer1&) = delete;
+
   virtual ~UCTLayer1();
 
   // To access Layer1 information
@@ -47,14 +55,6 @@ public:
   friend std::ostream& operator<<(std::ostream&, const UCTLayer1&);
 
 private:
-  // No copy constructor is needed
-
-  UCTLayer1(const UCTLayer1&) = delete;
-
-  // No equality operator is needed
-
-  const UCTLayer1& operator=(const UCTLayer1&) = delete;
-
   // Helper functions
 
   const UCTRegion* getRegion(int regionEtaIndex, uint32_t regionPhiIndex) const;
