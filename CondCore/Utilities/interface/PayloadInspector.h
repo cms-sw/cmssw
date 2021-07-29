@@ -25,11 +25,11 @@ namespace PI {
     return ret;
   }
   inline py::list mk_input(const std::string& tagName0,
-                                      cond::Time_t start0,
-                                      cond::Time_t end0,
-                                      const std::string& tagName1,
-                                      cond::Time_t start1,
-                                      cond::Time_t end1) {
+                           cond::Time_t start0,
+                           cond::Time_t end0,
+                           const std::string& tagName1,
+                           cond::Time_t start1,
+                           cond::Time_t end1) {
     py::list ret;
     ret.append(py::make_tuple(tagName0, std::to_string(start0), std::to_string(end0)));
     ret.append(py::make_tuple(tagName1, std::to_string(start1), std::to_string(end1)));
@@ -237,7 +237,8 @@ namespace cond {
       std::string data() const;
 
       // triggers the processing producing the plot
-      __attribute__((visibility("default"))) bool process(const std::string& connectionString, const py::list& tagsWithTimeBoundaries);
+      __attribute__((visibility("default"))) bool process(const std::string& connectionString,
+                                                          const py::list& tagsWithTimeBoundaries);
 
       // called by the above method - to be used in C++ unit tests...
       bool exec_process(const std::string& connectionString,

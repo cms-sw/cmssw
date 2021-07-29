@@ -59,12 +59,12 @@ namespace cond {
       return tmp;
     }
 
-     void PlotBase::setInputParamValues(const py::dict& values) {
-       for(auto item : values){
-          std::string key = item.first.cast<std::string>();
-          std::string val = item.second.cast<std::string>();
-          m_inputParamValues.insert(std::make_pair(key, val));            
-       }
+    void PlotBase::setInputParamValues(const py::dict& values) {
+      for (auto item : values) {
+        std::string key = item.first.cast<std::string>();
+        std::string val = item.second.cast<std::string>();
+        m_inputParamValues.insert(std::make_pair(key, val));
+      }
     }
 
     std::string PlotBase::data() const { return m_data; }
@@ -72,16 +72,16 @@ namespace cond {
     bool PlotBase::process(const std::string& connectionString, const py::list& tagsWithTimeBoundaries) {
       size_t nt = tagsWithTimeBoundaries.size();
       bool ret = false;
-      py::object obj1,obj2,obj3,obj4;
+      py::object obj1, obj2, obj3, obj4;
       if (nt) {
         std::vector<std::tuple<std::string, cond::Time_t, cond::Time_t> > tags;
         tags.resize(nt);
         for (size_t i = 0; i < nt; i++) {
-          obj1=tagsWithTimeBoundaries[i];
+          obj1 = tagsWithTimeBoundaries[i];
           py::tuple entry = obj1.cast<py::tuple>();
-          obj2=entry[0];
-          obj3=entry[1];
-          obj4=entry[2];
+          obj2 = entry[0];
+          obj3 = entry[1];
+          obj4 = entry[2];
           std::string tagName = obj2.cast<std::string>();
           std::string time0s = obj3.cast<std::string>();
           std::string time1s = obj4.cast<std::string>();
