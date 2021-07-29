@@ -118,6 +118,9 @@ namespace npstat {
     template <class Num2>
     LinInterpolatedTableND(const LinInterpolatedTableND<Num2, Axis>&);
 
+    /** Default constructor not implemented  **/
+    LinInterpolatedTableND() = delete;
+
     /**
         // Basic interpolation result. Argument point dimensionality must be
         // compatible with the interpolator dimensionality.
@@ -230,8 +233,6 @@ namespace npstat {
     static LinInterpolatedTableND* read(const gs::ClassId& id, std::istream& in);
 
   private:
-    LinInterpolatedTableND() = delete;
-
     LinInterpolatedTableND(const ArrayND<Numeric>& data,
                            const std::vector<Axis>& axes,
                            const char* leftInterpolation,
