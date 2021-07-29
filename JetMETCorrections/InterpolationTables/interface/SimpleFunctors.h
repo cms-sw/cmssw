@@ -123,6 +123,7 @@ namespace npstat {
     inline Result operator()() const { return fcn_(); }
 
     FcnFunctor0() = delete;
+
   private:
     Result (*fcn_)();
   };
@@ -138,6 +139,7 @@ namespace npstat {
     inline Result operator()(const Arg1& a) const { return fcn_(a); }
 
     FcnFunctor1() = delete;
+
   private:
     Result (*fcn_)(Arg1);
   };
@@ -153,6 +155,7 @@ namespace npstat {
     inline Result operator()(const Arg1& x, const Arg2& y) const { return fcn_(x, y); }
 
     FcnFunctor2() = delete;
+
   private:
     Result (*fcn_)(Arg1, Arg2);
   };
@@ -168,6 +171,7 @@ namespace npstat {
     inline Result operator()(const Arg1& x, const Arg2& y, const Arg3& z) const { return fcn_(x, y, z); }
 
     FcnFunctor3() = delete;
+
   private:
     Result (*fcn_)(Arg1, Arg2, Arg3);
   };
@@ -183,6 +187,7 @@ namespace npstat {
     inline Result operator()(const Container& c) const { return c[idx]; }
 
     Element1D() = delete;
+
   private:
     unsigned long idx;
   };
@@ -198,6 +203,7 @@ namespace npstat {
     inline Result operator()(const Container& c) const { return c.at(idx); }
 
     Element1DAt() = delete;
+
   private:
     unsigned long idx;
   };
@@ -243,6 +249,7 @@ namespace npstat {
     inline T1& operator()(T1& left, const T2& right) const { return left += w_ * right; }
 
     addmul_left() = delete;
+
   private:
     double w_;
   };
@@ -258,6 +265,7 @@ namespace npstat {
     inline T1& operator()(T1& left, const T2& right) const { return right += w_ * left; }
 
     addmul_right() = delete;
+
   private:
     double w_;
   };

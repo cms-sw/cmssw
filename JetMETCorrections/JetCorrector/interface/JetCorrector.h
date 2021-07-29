@@ -39,7 +39,6 @@ namespace reco {
     JetCorrector(const JetCorrector&) = delete;
     JetCorrector& operator=(const JetCorrector&) = delete;
 
-
     typedef reco::Particle::LorentzVector LorentzVector;
 
     // ---------- const member functions ---------------------
