@@ -137,16 +137,16 @@ namespace {
           if ((payload->m_avg_current) <= -1) {
             // go in error state
             h2_RunInfoState->SetBinContent(1, yBin, 0.);
-            theState = RunInfoPI::invalid;
+            theState = RunInfoPI::k_invalid;
           } else {
             // all is OK
             h2_RunInfoState->SetBinContent(1, yBin, 1.);
-            theState = RunInfoPI::valid;
+            theState = RunInfoPI::k_valid;
           }
         } else {
           // this is a fake payload
           h2_RunInfoState->SetBinContent(1, yBin, 0.9);
-          theState = RunInfoPI::fake;
+          theState = RunInfoPI::k_fake;
         }
         yBin--;
       }
@@ -187,13 +187,13 @@ namespace {
       ksPt.SetFillColor(0);
       const char* textToAdd;
       switch (theState) {
-        case RunInfoPI::fake:
+        case RunInfoPI::k_fake:
           textToAdd = "This is a fake RunInfoPayload";
           break;
-        case RunInfoPI::valid:
+        case RunInfoPI::k_valid:
           textToAdd = "This is a valid RunInfoPayload";
           break;
-        case RunInfoPI::invalid:
+        case RunInfoPI::k_invalid:
           textToAdd = "This is an invalid RunInfoPayload";
           break;
         default:

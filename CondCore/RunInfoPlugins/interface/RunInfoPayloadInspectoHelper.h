@@ -14,11 +14,11 @@
 // for the FED intervals
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#define PAIR(a, b) std::make_pair(a, b)
+#define MK_P(a, b) std::make_pair(a, b)
 
 namespace RunInfoPI {
 
-  enum state { fake = 0, valid = 1, invalid = 2 };
+  enum state { k_fake = 0, k_valid = 1, k_invalid = 2 };
 
   // values are taken from https://github.com/cms-sw/cmssw/blob/master/MagneticField/GeomBuilder/plugins/VolumeBasedMagneticFieldESProducerFromDB.cc#L74-L75
   constexpr std::array<int, 7> nominalCurrents{{-1, 0, 9558, 14416, 16819, 18268, 19262}};
@@ -160,22 +160,22 @@ namespace RunInfoPI {
 
   inline FEDMAP_T buildFEDBounds() {
     static RunInfoPI::FEDMAP_T fb;
-    fb.insert(PAIR(SIPIXEL, PAIR(FEDNumbering::MINSiPixelFEDID, FEDNumbering::MAXSiPixelFEDID)));
-    fb.insert(PAIR(SISTRIP, PAIR(FEDNumbering::MINSiStripFEDID, FEDNumbering::MAXSiStripFEDID)));
-    fb.insert(PAIR(PRESHOWER, PAIR(FEDNumbering::MINPreShowerFEDID, FEDNumbering::MAXPreShowerFEDID)));
-    fb.insert(PAIR(TOTEMRP_H, PAIR(FEDNumbering::MINTotemRPHorizontalFEDID, FEDNumbering::MAXTotemRPHorizontalFEDID)));
-    fb.insert(PAIR(CTPPSDIAMOND, PAIR(FEDNumbering::MINCTPPSDiamondFEDID, FEDNumbering::MAXCTPPSDiamondFEDID)));
-    fb.insert(PAIR(TOTEMRP_V, PAIR(FEDNumbering::MINTotemRPVerticalFEDID, FEDNumbering::MAXTotemRPVerticalFEDID)));
-    fb.insert(PAIR(TOTEMRP_T,
-                   PAIR(FEDNumbering::MINTotemRPTimingVerticalFEDID, FEDNumbering::MAXTotemRPTimingVerticalFEDID)));
-    fb.insert(PAIR(ECAL, PAIR(FEDNumbering::MINECALFEDID, FEDNumbering::MAXECALFEDID)));
-    fb.insert(PAIR(CASTOR, PAIR(FEDNumbering::MINCASTORFEDID, FEDNumbering::MAXCASTORFEDID)));
-    fb.insert(PAIR(HCAL, PAIR(FEDNumbering::MINHCALFEDID, FEDNumbering::MAXHCALFEDID)));
-    fb.insert(PAIR(CSC, PAIR(FEDNumbering::MINCSCFEDID, FEDNumbering::MAXCSCFEDID)));
-    fb.insert(PAIR(RPC, PAIR(FEDNumbering::MINRPCFEDID, FEDNumbering::MAXRPCFEDID)));
-    fb.insert(PAIR(HCALPHASE1, PAIR(FEDNumbering::MINHCALuTCAFEDID, FEDNumbering::MAXHCALuTCAFEDID)));
-    fb.insert(PAIR(SIPIXELPHASE1, PAIR(FEDNumbering::MINSiPixeluTCAFEDID, FEDNumbering::MAXSiPixeluTCAFEDID)));
-    fb.insert(PAIR(GEM, PAIR(FEDNumbering::MINGEMFEDID, FEDNumbering::MAXGEMFEDID)));
+    fb.insert(MK_P(SIPIXEL, MK_P(FEDNumbering::MINSiPixelFEDID, FEDNumbering::MAXSiPixelFEDID)));
+    fb.insert(MK_P(SISTRIP, MK_P(FEDNumbering::MINSiStripFEDID, FEDNumbering::MAXSiStripFEDID)));
+    fb.insert(MK_P(PRESHOWER, MK_P(FEDNumbering::MINPreShowerFEDID, FEDNumbering::MAXPreShowerFEDID)));
+    fb.insert(MK_P(TOTEMRP_H, MK_P(FEDNumbering::MINTotemRPHorizontalFEDID, FEDNumbering::MAXTotemRPHorizontalFEDID)));
+    fb.insert(MK_P(CTPPSDIAMOND, MK_P(FEDNumbering::MINCTPPSDiamondFEDID, FEDNumbering::MAXCTPPSDiamondFEDID)));
+    fb.insert(MK_P(TOTEMRP_V, MK_P(FEDNumbering::MINTotemRPVerticalFEDID, FEDNumbering::MAXTotemRPVerticalFEDID)));
+    fb.insert(MK_P(TOTEMRP_T,
+                   MK_P(FEDNumbering::MINTotemRPTimingVerticalFEDID, FEDNumbering::MAXTotemRPTimingVerticalFEDID)));
+    fb.insert(MK_P(ECAL, MK_P(FEDNumbering::MINECALFEDID, FEDNumbering::MAXECALFEDID)));
+    fb.insert(MK_P(CASTOR, MK_P(FEDNumbering::MINCASTORFEDID, FEDNumbering::MAXCASTORFEDID)));
+    fb.insert(MK_P(HCAL, MK_P(FEDNumbering::MINHCALFEDID, FEDNumbering::MAXHCALFEDID)));
+    fb.insert(MK_P(CSC, MK_P(FEDNumbering::MINCSCFEDID, FEDNumbering::MAXCSCFEDID)));
+    fb.insert(MK_P(RPC, MK_P(FEDNumbering::MINRPCFEDID, FEDNumbering::MAXRPCFEDID)));
+    fb.insert(MK_P(HCALPHASE1, MK_P(FEDNumbering::MINHCALuTCAFEDID, FEDNumbering::MAXHCALuTCAFEDID)));
+    fb.insert(MK_P(SIPIXELPHASE1, MK_P(FEDNumbering::MINSiPixeluTCAFEDID, FEDNumbering::MAXSiPixeluTCAFEDID)));
+    fb.insert(MK_P(GEM, MK_P(FEDNumbering::MINGEMFEDID, FEDNumbering::MAXGEMFEDID)));
     return fb;
   }
 };  // namespace RunInfoPI
