@@ -42,7 +42,6 @@ public:
   FactorizedJetCorrector(const FactorizedJetCorrector&) = delete;
   FactorizedJetCorrector& operator=(const FactorizedJetCorrector&) = delete;
 
-
   void setNPV(int fNPV);
   void setJetEta(float fEta);
   void setJetPt(float fPt);
