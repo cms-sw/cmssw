@@ -23,6 +23,7 @@
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/chain_first.h"
 
 #include <vector>
 
@@ -69,25 +70,28 @@ namespace edm {
     //When we are done processing the stream for this process,
     // we need to run the stream for all SubProcesses
     //NOTE: The subprocesses set their own service tokens
-    auto subs = make_waiting_task(
-        [&iSubProcesses, iWait, iStreamIndex, info = transitionInfo](std::exception_ptr const* iPtr) mutable {
-          if (iPtr) {
-            auto excpt = *iPtr;
-            auto delayError =
-                make_waiting_task([iWait, excpt](std::exception_ptr const*) mutable { iWait.doneWaiting(excpt); });
-            WaitingTaskHolder h(*iWait.group(), delayError);
-            for (auto& subProcess : iSubProcesses) {
-              subProcessDoStreamBeginTransitionAsync(h, subProcess, iStreamIndex, info);
-            };
-          } else {
-            for (auto& subProcess : iSubProcesses) {
-              subProcessDoStreamBeginTransitionAsync(iWait, subProcess, iStreamIndex, info);
-            };
-          }
-        });
-
-    WaitingTaskHolder h(*iWait.group(), subs);
-    iSchedule.processOneStreamAsync<Traits>(std::move(h), iStreamIndex, transitionInfo, token);
+    using namespace edm::waiting_task;
+    chain::first([&](auto nextTask) {
+      iSchedule.processOneStreamAsync<Traits>(std::move(nextTask), iStreamIndex, transitionInfo, token);
+    }) |
+        chain::then(
+            [&iSubProcesses, iStreamIndex, info = transitionInfo](std::exception_ptr const* iPtr, auto nextTask) {
+              if (iPtr) {
+                auto excpt = *iPtr;
+                //defer handling exception until after sub processes run
+                chain::first([&](std::exception_ptr const*, auto nextTask) {
+                  for (auto& subProcess : iSubProcesses) {
+                    subProcessDoStreamBeginTransitionAsync(nextTask, subProcess, iStreamIndex, info);
+                  };
+                }) | chain::then([excpt](std::exception_ptr const*, auto nextTask) { nextTask.doneWaiting(excpt); }) |
+                    chain::runLast(nextTask);
+              } else {
+                for (auto& subProcess : iSubProcesses) {
+                  subProcessDoStreamBeginTransitionAsync(nextTask, subProcess, iStreamIndex, info);
+                };
+              }
+            }) |
+        chain::runLast(iWait);
   }
 
   template <typename Traits>
@@ -114,26 +118,28 @@ namespace edm {
     // we need to run the stream for all SubProcesses
     //NOTE: The subprocesses set their own service tokens
 
-    auto subs =
-        make_waiting_task([&iSubProcesses, iWait, iStreamIndex, info = transitionInfo, cleaningUpAfterException](
-                              std::exception_ptr const* iPtr) mutable {
+    using namespace edm::waiting_task;
+    chain::first([&](auto nextTask) {
+      iSchedule.processOneStreamAsync<Traits>(nextTask, iStreamIndex, transitionInfo, token, cleaningUpAfterException);
+    }) |
+        chain::then([&iSubProcesses, iStreamIndex, info = transitionInfo, cleaningUpAfterException](
+                        std::exception_ptr const* iPtr, auto nextTask) {
           if (iPtr) {
             auto excpt = *iPtr;
-            auto delayError =
-                make_waiting_task([iWait, excpt](std::exception_ptr const*) mutable { iWait.doneWaiting(excpt); });
-            WaitingTaskHolder h(*iWait.group(), delayError);
-            for (auto& subProcess : iSubProcesses) {
-              subProcessDoStreamEndTransitionAsync(h, subProcess, iStreamIndex, info, cleaningUpAfterException);
-            }
+            chain::first([&](std::exception_ptr const*, auto nextTask) {
+              for (auto& subProcess : iSubProcesses) {
+                subProcessDoStreamEndTransitionAsync(
+                    nextTask, subProcess, iStreamIndex, info, cleaningUpAfterException);
+              }
+            }) | chain::then([excpt](std::exception_ptr const*, auto nextTask) { nextTask.doneWaiting(excpt); }) |
+                chain::runLast(nextTask);
           } else {
             for (auto& subProcess : iSubProcesses) {
-              subProcessDoStreamEndTransitionAsync(iWait, subProcess, iStreamIndex, info, cleaningUpAfterException);
+              subProcessDoStreamEndTransitionAsync(nextTask, subProcess, iStreamIndex, info, cleaningUpAfterException);
             }
           }
-        });
-
-    iSchedule.processOneStreamAsync<Traits>(
-        WaitingTaskHolder(*iWait.group(), subs), iStreamIndex, transitionInfo, token, cleaningUpAfterException);
+        }) |
+        chain::runLast(iWait);
   }
 
   template <typename Traits>

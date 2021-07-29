@@ -23,6 +23,7 @@
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/chain_first.h"
 
 #include <exception>
 #include <utility>
@@ -85,25 +86,29 @@ namespace edm {
                                   bool cleaningUpAfterException = false) {
     // When we are done processing the global for this process,
     // we need to run the global for all SubProcesses
-    auto subs = make_waiting_task([&iSubProcesses, iWait, info = transitionInfo, cleaningUpAfterException](
-                                      std::exception_ptr const* iPtr) mutable {
-      if (iPtr) {
-        auto excpt = *iPtr;
-        auto delayError =
-            make_waiting_task([iWait, excpt](std::exception_ptr const*) mutable { iWait.doneWaiting(excpt); });
-        WaitingTaskHolder h(*iWait.group(), delayError);
-        for (auto& subProcess : iSubProcesses) {
-          subProcessDoGlobalBeginTransitionAsync<Traits>(h, subProcess, info, cleaningUpAfterException);
-        }
-      } else {
-        for (auto& subProcess : iSubProcesses) {
-          subProcessDoGlobalBeginTransitionAsync<Traits>(iWait, subProcess, info, cleaningUpAfterException);
-        }
-      }
-    });
+    using namespace edm::waiting_task;
 
-    WaitingTaskHolder h(*iWait.group(), subs);
-    iSchedule.processOneGlobalAsync<Traits>(std::move(h), transitionInfo, token, cleaningUpAfterException);
+    chain::first([&](auto nextTask) {
+      iSchedule.processOneGlobalAsync<Traits>(std::move(nextTask), transitionInfo, token, cleaningUpAfterException);
+    }) |
+        chain::then([&iSubProcesses, info = transitionInfo, cleaningUpAfterException](std::exception_ptr const* iPtr,
+                                                                                      auto nextTask) {
+          if (iPtr) {
+            //delay handling exception until after subProcesses run
+            chain::first([&](auto nextTask) {
+              for (auto& subProcess : iSubProcesses) {
+                subProcessDoGlobalBeginTransitionAsync<Traits>(nextTask, subProcess, info, cleaningUpAfterException);
+              }
+            }) | chain::then([excpt = *iPtr](std::exception_ptr const*, auto nextTask) {
+              nextTask.doneWaiting(excpt);
+            }) | chain::runLast(nextTask);
+          } else {
+            for (auto& subProcess : iSubProcesses) {
+              subProcessDoGlobalBeginTransitionAsync<Traits>(nextTask, subProcess, info, cleaningUpAfterException);
+            }
+          }
+        }) |
+        chain::runLast(iWait);
   }
 
   template <typename Traits>
@@ -113,27 +118,30 @@ namespace edm {
                                 ServiceToken const& token,
                                 std::vector<SubProcess>& iSubProcesses,
                                 bool cleaningUpAfterException) {
-    // When we are done processing the global for this process,
-    // we need to run the global for all SubProcesses
-    auto subs = make_waiting_task([&iSubProcesses, iWait, info = transitionInfo, cleaningUpAfterException](
-                                      std::exception_ptr const* iPtr) mutable {
-      if (iPtr) {
-        auto excpt = *iPtr;
-        auto delayError =
-            make_waiting_task([iWait, excpt](std::exception_ptr const*) mutable { iWait.doneWaiting(excpt); });
-        WaitingTaskHolder h(*iWait.group(), delayError);
-        for (auto& subProcess : iSubProcesses) {
-          subProcessDoGlobalEndTransitionAsync(h, subProcess, info, cleaningUpAfterException);
-        }
-      } else {
-        for (auto& subProcess : iSubProcesses) {
-          subProcessDoGlobalEndTransitionAsync(iWait, subProcess, info, cleaningUpAfterException);
-        }
-      }
-    });
-
-    WaitingTaskHolder h(*iWait.group(), subs);
-    iSchedule.processOneGlobalAsync<Traits>(std::move(h), transitionInfo, token, cleaningUpAfterException);
+    using namespace edm::waiting_task;
+    chain::first([&](auto nextTask) {
+      iSchedule.processOneGlobalAsync<Traits>(std::move(nextTask), transitionInfo, token, cleaningUpAfterException);
+    })
+        // When we are done processing the global for this process,
+        // we need to run the global for all SubProcesses
+        | chain::then([&iSubProcesses, info = transitionInfo, cleaningUpAfterException](std::exception_ptr const* iPtr,
+                                                                                        auto nextTask) {
+            if (iPtr) {
+              //still run the sub process but pass this exception to the nextTask
+              auto excpt = *iPtr;
+              chain::first([&](auto nextTask) {
+                for (auto& subProcess : iSubProcesses) {
+                  subProcessDoGlobalEndTransitionAsync(nextTask, subProcess, info, cleaningUpAfterException);
+                }
+              }) | chain::then([excpt](std::exception_ptr const*, auto nextTask) { nextTask.doneWaiting(excpt); }) |
+                  chain::runLast(std::move(nextTask));
+            } else {
+              for (auto& subProcess : iSubProcesses) {
+                subProcessDoGlobalEndTransitionAsync(nextTask, subProcess, info, cleaningUpAfterException);
+              }
+            }
+          }) |
+        chain::runLast(iWait);
   }
 
 };  // namespace edm
