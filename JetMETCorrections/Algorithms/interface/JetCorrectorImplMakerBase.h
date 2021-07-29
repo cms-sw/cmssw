@@ -36,7 +36,7 @@ namespace edm {
 class JetCorrectorImplMakerBase {
 public:
   JetCorrectorImplMakerBase(edm::ParameterSet const&);
-  JetCorrectorImplMakerBase(const JetCorrectorImplMakerBase&) = delete;  // stop default
+  JetCorrectorImplMakerBase(const JetCorrectorImplMakerBase&) = delete;                   // stop default
   const JetCorrectorImplMakerBase& operator=(const JetCorrectorImplMakerBase&) = delete;  // stop default
   virtual ~JetCorrectorImplMakerBase();
 
