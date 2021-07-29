@@ -48,11 +48,11 @@ public:
     T::Maker::fillDescriptions(iDescriptions);
   }
 
-private:
   JetCorrectorProducer(const JetCorrectorProducer&) = delete;  // stop default
 
   const JetCorrectorProducer& operator=(const JetCorrectorProducer&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   typename T::Maker maker_;
 };

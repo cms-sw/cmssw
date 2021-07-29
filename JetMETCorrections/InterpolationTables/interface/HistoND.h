@@ -166,6 +166,9 @@ namespace npstat {
         */
     HistoND& operator=(const HistoND&);
 
+    /** Default constructor not implemented **/
+    HistoND() = delete;
+
     /** Histogram dimensionality */
     inline unsigned dim() const { return dim_; }
 
@@ -927,8 +930,6 @@ namespace npstat {
     static HistoND* read(const gs::ClassId& id, std::istream& in);
 
   private:
-    HistoND() = delete;
-
     // Special constructor which speeds up the "transpose" operation.
     // Does not do full error checking (some of it is done in transpose).
     HistoND(const HistoND& r, unsigned ax1, unsigned ax2);
