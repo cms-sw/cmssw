@@ -17,7 +17,10 @@ TrackClassifier::TrackClassifier(edm::ParameterSet const &config, edm::ConsumesC
       hepMCLabel_(config.getUntrackedParameter<edm::InputTag>("hepMC")),
       beamSpotLabel_(config.getUntrackedParameter<edm::InputTag>("beamSpot")),
       tracer_(config, std::move(collector)),
-      quality_(config, collector) {
+      quality_(config, collector),
+      magneticFieldToken_(collector.esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      transientTrackBuilderToken_(collector.esConsumes<TransientTrackBuilder, TransientTrackRecord>()),
+      tTopoHandToken_(collector.esConsumes<TrackerTopology, TrackerTopologyRcd>()) {
   collector.consumes<edm::HepMCProduct>(hepMCLabel_);
   collector.consumes<reco::BeamSpot>(beamSpotLabel_);
 
@@ -52,7 +55,7 @@ void TrackClassifier::newEvent(edm::Event const &event, edm::EventSetup const &s
   event.getByLabel(hepMCLabel_, mcInformation_);
 
   // Magnetic field
-  setup.get<IdealMagneticFieldRecord>().get(magneticField_);
+  magneticField_ = setup.getHandle(magneticFieldToken_);
 
   // Get the partivle data table
   setup.getData(particleDataTable_);
@@ -61,15 +64,13 @@ void TrackClassifier::newEvent(edm::Event const &event, edm::EventSetup const &s
   event.getByLabel(beamSpotLabel_, beamSpot_);
 
   // Transient track builder
-  setup.get<TransientTrackRecord>().get("TransientTrackBuilder", transientTrackBuilder_);
+  transientTrackBuilder_ = setup.getHandle(transientTrackBuilderToken_);
 
   // Create the list of primary vertices associated to the event
   genPrimaryVertices();
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  setup.get<TrackerTopologyRcd>().get(tTopoHand);
-  tTopo_ = tTopoHand.product();
+  tTopo_ = &setup.getData(tTopoHandToken_);
 }
 
 TrackClassifier const &TrackClassifier::evaluate(reco::TrackBaseRef const &track) {

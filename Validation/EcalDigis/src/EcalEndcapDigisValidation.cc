@@ -13,7 +13,8 @@ using namespace edm;
 using namespace std;
 
 EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps)
-    : EEdigiCollectionToken_(consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigiCollection"))) {
+    : EEdigiCollectionToken_(consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigiCollection"))),
+      pAgc(esConsumes<edm::Transition::BeginRun>()) {
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
@@ -258,9 +259,7 @@ void EcalEndcapDigisValidation::analyze(Event const& e, EventSetup const& c) {
 
 void EcalEndcapDigisValidation::checkCalibrations(edm::EventSetup const& eventSetup) {
   // ADC -> GeV Scale
-  edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  eventSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
-  const EcalADCToGeVConstant* agc = pAgc.product();
+  const EcalADCToGeVConstant* agc = &eventSetup.getData(pAgc);
 
   EcalMGPAGainRatio* defaultRatios = new EcalMGPAGainRatio();
 

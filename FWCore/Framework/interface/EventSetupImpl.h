@@ -49,7 +49,7 @@ namespace edm {
   class EventSetupImpl {
   public:
     ~EventSetupImpl();
-
+    EventSetupImpl() = delete;
     EventSetupImpl(EventSetupImpl const&) = delete;
     EventSetupImpl& operator=(EventSetupImpl const&) = delete;
 
@@ -83,7 +83,6 @@ namespace edm {
     void addRecordImpl(const eventsetup::EventSetupRecordImpl& iRecord);
 
   private:
-    EventSetupImpl() = delete;
     explicit EventSetupImpl(tbb::task_arena*);
 
     void insertRecordImpl(const eventsetup::EventSetupRecordKey&, const eventsetup::EventSetupRecordImpl*);
