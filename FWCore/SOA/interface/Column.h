@@ -72,11 +72,12 @@ namespace edm {
         return {iF};
       }
 
-    private:
-      Column() = default;
       Column(const Column&) = delete;  // stop default
 
       const Column& operator=(const Column&) = delete;  // stop default
+
+    private:
+      Column() = default;
     };
 
   }  // namespace soa
