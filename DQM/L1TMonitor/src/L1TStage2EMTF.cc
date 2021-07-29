@@ -637,7 +637,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
         cscLCTOccupancy->Fill(cscid_n + cscid_offset, endcap * 5.5);
       }
       if (Hit->Neighbor() == true) {
-        cscDQMOccupancy->Fill(sector * 7 - 4, hist_index, evt_wgt);
+        cscDQMOccupancy->Fill( (sector % 6 + 1) * 7 - 4, hist_index, evt_wgt);
       }
     }
 
@@ -773,8 +773,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
           } else {
             // Map neighbor chambers to "fake" CSC IDs: 1/3 --> 1, 1/6 --> 2, 1/9 --> 3, 2/3 --> 4, 2/9 --> 5, etc.
             //int cscid_n = (station == 1 ? (cscid / 3) : (station * 2) + ((cscid - 3) / 6) );
-            cscLCTTiming[histIndexBX.at(trackHitBX)]->Fill(sector * 7 - 4, hist_index, evt_wgt);
-            cscTimingTot->Fill(sector * 7 - 4, hist_index, evt_wgt);
+            cscLCTTiming[histIndexBX.at(trackHitBX)]->Fill( (sector % 6 + 1) * 7 - 4, hist_index, evt_wgt);
+            cscTimingTot->Fill( (sector % 6 + 1) * 7 - 4, hist_index, evt_wgt);
           }
 
           // Fill RPC timing with matched CSC LCTs
