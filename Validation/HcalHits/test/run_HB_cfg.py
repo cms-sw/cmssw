@@ -18,30 +18,22 @@ process.load("DQMServices.Core.DQM_cfg")
 
 process.load("Validation.HcalHits.HcalHitValidation_cfi")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HcalHitValid = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-    categories = cms.untracked.vstring('HcalHitValid'),
-    destinations = cms.untracked.vstring('cout')
-)
+process.load("FWCore.MessageService.MessageLogger_cfi")
+#if 'MessageLogger' in process.__dict__:
+#    process.MessageLogger.HcalHitValid=dict()
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(5000)
 )
 
 process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/3_1_X/mc_pi50_etaphi-+44.root')
+    fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/12_X/mc_pi50_etaphi-+44.root')
 )
 
-process.Timing = cms.Service("Timing")
+#process.Timing = cms.Service("Timing")
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
