@@ -10,15 +10,14 @@ namespace edm {
     public:
       // ---  birth/death:
       SingleThreadMSPresence();
+      // --- no copying:
+      SingleThreadMSPresence(SingleThreadMSPresence const &) = delete;
+      void operator=(SingleThreadMSPresence const &) = delete;
+
       ~SingleThreadMSPresence() override;
 
       // --- Access to the scribe
       // REMOVED AbstractMLscribe * scribe_ptr() { return &m; }
-
-    private:
-      // --- no copying:
-      SingleThreadMSPresence(SingleThreadMSPresence const &) = delete;
-      void operator=(SingleThreadMSPresence const &) = delete;
 
     };  // SingleThreadMSPresence
 
