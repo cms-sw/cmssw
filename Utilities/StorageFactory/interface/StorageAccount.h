@@ -104,12 +104,12 @@ public:
   class StorageClassToken {
   public:
     StorageClassToken(StorageClassToken const&) = default;
+    StorageClassToken() = delete;
     int value() const { return m_value; }
 
     friend class StorageAccount;
 
   private:
-    StorageClassToken() = delete;
     explicit StorageClassToken(int iValue) : m_value{iValue} {}
 
     int m_value;

@@ -41,6 +41,8 @@ class MaterialBudgetVolume : public SimProducer,
                              public Observer<const EndOfTrack*> {
 public:
   MaterialBudgetVolume(const edm::ParameterSet& p);
+  MaterialBudgetVolume(const MaterialBudgetVolume&) = delete;  // stop default
+  const MaterialBudgetVolume& operator=(const MaterialBudgetVolume&) = delete;
   ~MaterialBudgetVolume() override {}
 
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -51,9 +53,6 @@ public:
   };
 
 private:
-  MaterialBudgetVolume(const MaterialBudgetVolume&) = delete;  // stop default
-  const MaterialBudgetVolume& operator=(const MaterialBudgetVolume&) = delete;
-
   // observer classes
   void update(const BeginOfRun* run) override;
   void update(const BeginOfEvent* evt) override;
