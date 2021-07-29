@@ -31,14 +31,13 @@ class EcalSimHitsValidProducer : public SimProducer,
 
 public:
   EcalSimHitsValidProducer(const edm::ParameterSet &);
+  EcalSimHitsValidProducer(const EcalSimHitsValidProducer &) = delete;                   // stop default
+  const EcalSimHitsValidProducer &operator=(const EcalSimHitsValidProducer &) = delete;  // stop default
   ~EcalSimHitsValidProducer() override;
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:
-  EcalSimHitsValidProducer(const EcalSimHitsValidProducer &) = delete;                   // stop default
-  const EcalSimHitsValidProducer &operator=(const EcalSimHitsValidProducer &) = delete;  // stop default
-
   void update(const BeginOfEvent *) override;
   void update(const G4Step *) override;
   void update(const EndOfEvent *) override;
