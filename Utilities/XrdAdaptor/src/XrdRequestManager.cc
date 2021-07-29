@@ -545,30 +545,37 @@ std::future<IOSize> RequestManager::handle(std::shared_ptr<XrdAdaptor::ClientReq
 }
 
 std::string RequestManager::prepareOpaqueString() const {
-  std::stringstream ss;
-  ss << "tried=";
-  size_t count = 0;
+  struct {
+    std::stringstream ss;
+    size_t count = 0;
+    bool   has_active = false;
+
+    void append_tried(const std::string& id, bool active = false) {
+      ss << (count ? "," : "tried=") << id;
+      count++;
+      if (active) {
+        has_active = true;
+      }
+    }
+  } state;
   {
     std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
 
     for (const auto &it : m_activeSources) {
-      count++;
-      ss << it->ExcludeID().substr(0, it->ExcludeID().find(":")) << ",";
+      state.append_tried(it->ExcludeID().substr(0, it->ExcludeID().find(':')), true);
     }
     for (const auto &it : m_inactiveSources) {
-      count++;
-      ss << it->ExcludeID().substr(0, it->ExcludeID().find(":")) << ",";
+      state.append_tried(it->ExcludeID().substr(0, it->ExcludeID().find(':')));
     }
   }
   for (const auto &it : m_disabledExcludeStrings) {
-    count++;
-    ss << it.substr(0, it.find(":")) << ",";
+    state.append_tried(it.substr(0, it.find(':')));
   }
-  if (count) {
-    std::string tmp_str = ss.str();
-    return tmp_str.substr(0, tmp_str.size() - 1);
+  if (state.has_active) {
+      state.ss << "&triedrc=resel";
   }
-  return "";
+
+  return state.ss.str();
 }
 
 void XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_ptr<Source> source) {
@@ -1011,6 +1018,13 @@ void XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRo
          << "' (errno=" << status->errNo << ", code=" << status->code << ")";
       ex.addContext("In XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts()");
       manager->addConnections(ex);
+
+      // Brian, should we do something like this:
+      // if (status.status == XrdCl::errRedirectLimit) {
+      //   // The following method does not exist (yet), would probaly need a multiplier for OPEN_DELAY.
+      //   // Note that with XCache cluster one will never get multiple sources.
+      //   manager->increaseMultiSourceInterval();
+      // }
 
       m_promise.set_exception(std::make_exception_ptr(ex));
     }
