@@ -26,6 +26,8 @@ namespace npstat {
   public:
     inline explicit CoordinateSelector(const unsigned i) : index_(i) {}
 
+    CoordinateSelector() = delete;
+
     inline ~CoordinateSelector() override {}
 
     inline double operator()(const double* point, const unsigned dim) const override {
@@ -39,7 +41,6 @@ namespace npstat {
     inline unsigned maxDim() const override { return UINT_MAX; }
 
   private:
-    CoordinateSelector() = delete;
     unsigned index_;
   };
 }  // namespace npstat

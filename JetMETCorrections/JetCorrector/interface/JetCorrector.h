@@ -36,6 +36,9 @@ namespace reco {
     JetCorrector(std::unique_ptr<JetCorrectorImpl const> fImpl) : impl_(std::move(fImpl)) {}
     JetCorrector(JetCorrector&&) = default;
     JetCorrector& operator=(JetCorrector&&) = default;
+    JetCorrector(const JetCorrector&) = delete;
+    JetCorrector& operator=(const JetCorrector&) = delete;
+
 
     typedef reco::Particle::LorentzVector LorentzVector;
 
@@ -67,10 +70,6 @@ namespace reco {
     // ---------- member functions ---------------------------
 
   private:
-    JetCorrector(const JetCorrector&) = delete;
-
-    JetCorrector& operator=(const JetCorrector&) = delete;
-
     // ---------- member data --------------------------------
     std::unique_ptr<JetCorrectorImpl const> impl_;
   };
