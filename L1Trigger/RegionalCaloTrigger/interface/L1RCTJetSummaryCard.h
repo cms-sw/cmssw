@@ -112,6 +112,5 @@ private:
 
   void asicSort(std::vector<unsigned short> &electrons);
   void asicCompare(std::vector<unsigned short> &array);
-
 };
 #endif

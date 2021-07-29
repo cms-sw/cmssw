@@ -19,7 +19,6 @@ namespace emtf {
     Node(const Node &) = delete;
     Node &operator=(const Node &) = delete;
 
-
     std::string getName();
     void setName(std::string sName);
 
