@@ -34,8 +34,8 @@ for year in upgradeKeys:
                     if 'HLBeamSpot' in step:
                         if '14TeV' in frag:
                             step = 'GenSimHLBeamSpot14'
-                        if 'CloseByParticle' in frag:
-                            step = 'GenSimHLBeamSpot14HGCALCloseBy'                
+                        if 'CloseByParticle' in frag or 'CE_E' in frag or 'CE_H' in frag:
+                            step = 'GenSimHLBeamSpot14HGCALCloseBy'
                     stepMaker = makeStepNameSim
                 
                 if 'HARVEST' in step: hasHarvest = True
