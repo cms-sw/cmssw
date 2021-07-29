@@ -13,7 +13,7 @@ class LocalFileSystem {
 
 public:
   LocalFileSystem(void);
-  
+
   // undefined, no semantics
   LocalFileSystem(LocalFileSystem &) = delete;
   void operator=(LocalFileSystem &) = delete;
