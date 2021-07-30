@@ -189,7 +189,7 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         cutBased = Var(
             "userInt('cutbasedID_loose')+userInt('cutbasedID_medium')+userInt('cutbasedID_tight')",
             int,
-            doc="cut-based ID bitmap, Fall17V2, (0:fail, 1:loose, 2:medium, 3:tight)"
+            doc="cut-based ID bitmap, Fall17V2, (0:fail, 1:loose, 2:medium, 3:tight)",
         ),
         cutBased_Fall17V1Bitmap = Var(
             "userInt('cutbasedIDV1_loose')+2*userInt('cutbasedIDV1_medium')+4*userInt('cutbasedIDV1_tight')",
@@ -199,7 +199,7 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         vidNestedWPBitmap = Var(
             "userInt('VIDNestedWPBitmap')",
             int,
-            doc="Fall17V2 " + make_bitmapVID_docstring(photon_id_modules_WorkingPoints_nanoAOD)
+            doc="Fall17V2 " + make_bitmapVID_docstring(photon_id_modules_WorkingPoints_nanoAOD),
         ),
         electronVeto = Var("passElectronVeto()",bool,doc="pass electron veto"),
         pixelSeed = Var("hasPixelSeed()",bool,doc="has pixel seed"),

@@ -23,6 +23,7 @@
     <class name="nanoaod::MergeableCounterTable::VIntColumn" ClassVersion="3">
         <version ClassVersion="3" checksum="2535066991"/>
     </class>
+    <class name="std::vector<int8_t>" />
     <class name="std::vector<nanoaod::MergeableCounterTable::FloatColumn>" />
     <class name="std::vector<nanoaod::MergeableCounterTable::VFloatColumn>" />
     <class name="std::vector<nanoaod::MergeableCounterTable::IntColumn>" />
