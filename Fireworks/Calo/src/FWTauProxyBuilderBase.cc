@@ -88,6 +88,11 @@ void FWTauProxyBuilderBase::buildBaseTau(const reco::BaseTau& iTau,
       std::pair<double, double> phiRange = fireworks::getPhiRange(m_phis, phi);
       double min_phi = phiRange.first - M_PI / 36 / 2;
       double max_phi = phiRange.second + M_PI / 36 / 2;
+      if (fabs(phiRange.first - phiRange.first) < 1e-3)
+      {
+        min_phi = phi - M_PI / 36 / 2;
+        max_phi = phi + M_PI / 36 / 2;
+      }
       TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
       TGeoBBox* sc_box = new TGeoTubeSeg(ecalR - 1, ecalR + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI);
       TEveGeoShape* shape = fireworks::getShape("spread", sc_box, item()->defaultDisplayProperties().color());
