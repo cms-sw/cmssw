@@ -65,7 +65,7 @@ nanoSequenceCommon = cms.Sequence(
         nanoMetadata + jetSequence + cms.Sequence(extraFlagsProducersTask, muonTask, tauTask, boostedTauTask, electronTask, lowPtElectronTask, photonTask,
         vertexTablesTask,isoTrackTask) + jetLepSequence + # must be after all the leptons
         linkedObjects  +
-        jetTables + cms.Sequence(muonTablesTask,tauTablesTask,boostedTauTablesTask) + cms.Sequence(electronTablesTask, lowPtElectronTablesTask, photonTablesTask, globalTablesTask) + metTables + simpleCleanerTable + cms.Sequence(extraFlagsTableTask,isoTrackTablesTask)
+        jetTables + cms.Sequence(muonTablesTask, tauTablesTask, boostedTauTablesTask, electronTablesTask, lowPtElectronTablesTask, photonTablesTask, globalTablesTask) + metTables + simpleCleanerTable + cms.Sequence(extraFlagsTableTask,isoTrackTablesTask)
         )
 
 nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTablesTask)
@@ -242,7 +242,7 @@ def nanoAOD_activateVID(process):
 
     photonTask_ = process.egmPhotonIDTask.copy()
     photonTask_.add(photonTask.copy())
-    process.photonTak = photonTask_.copy()
+    process.photonTask = photonTask_.copy()
     for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1:
         modifier.toModify(process.photonMVAValueMapProducer, src = "slimmedPhotonsTo106X")
         modifier.toModify(process.egmPhotonIDs, physicsObjectSrc = "slimmedPhotonsTo106X")
