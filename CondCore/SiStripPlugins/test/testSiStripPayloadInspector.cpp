@@ -115,7 +115,8 @@ int main(int argc, char** argv) {
   edm::LogPrint("testSiStripPayloadInspector") << histo11.data() << std::endl;
 
   SiStripPedestalPerDetId histoPedestalForDetId;
-  inputs["DetIds"] = inputs["DetIds"].cast<std::string>() + ",470065830,369121594,369124670,470177668";  // add a bunch of other DetIds
+  inputs["DetIds"] =
+      inputs["DetIds"].cast<std::string>() + ",470065830,369121594,369124670,470177668";  // add a bunch of other DetIds
   histoPedestalForDetId.setInputParamValues(inputs);
   histoPedestalForDetId.process(connectionString, PI::mk_input(tag, start, start));
   edm::LogPrint("testSiStripPayloadInspector") << histoPedestalForDetId.data() << std::endl;
