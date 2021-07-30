@@ -751,6 +751,7 @@ namespace pat {
       maybeUnpackBoth();
       return dxy_;
     }
+
     /// dz with respect to the PV[ipv]
     virtual float dz(size_t ipv = 0) const {
       maybeUnpackBoth();
@@ -761,6 +762,7 @@ namespace pat {
       maybeUnpackBoth();
       return dz_;
     }
+
     /// dxy with respect to another point
     virtual float dxy(const Point &p) const;
     /// dz  with respect to another point
@@ -795,7 +797,9 @@ namespace pat {
     }
     /// Return true if a bestTrack can be extracted from this Candidate
     bool hasTrackDetails() const { return (packedHits_ != 0 || packedLayers_ != 0); }
-
+    /// Return true if the original candidate had a track associated
+    /// even if the PackedCandidate has no track
+    bool fromTrackCandidate() const { return (packedDz_ != 0 || packedDxy_ != 0); }
     /// true if the track had the highPurity quality bit
     bool trackHighPurity() const { return (qualityFlags_ & trackHighPurityMask) >> trackHighPurityShift; }
     /// set to true if the track had the highPurity quality bit
