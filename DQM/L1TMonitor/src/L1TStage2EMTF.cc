@@ -1026,8 +1026,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
                 gemHitVScscLCTTheta[ihist]->Fill( Hit->Theta_fp() - TrkHit.Theta_fp(), chamber);
                 gemHitVScscLCTBX[ihist]->Fill( Hit->BX() - TrkHit.BX(), chamber);
               } else {
-                gemHitTiming[histIndexBX.at(Hit->BX())]->Fill(sector * 7 - 4, (endcap > 0) ? 1.5 : 0.5);
-                gemHitTimingTot->Fill(sector * 7 - 4, (endcap > 0) ? 1.5 : 0.5);
+                gemHitTiming[histIndexBX.at(Hit->BX())]->Fill( (sector % 6 + 1) * 7 - 4, (endcap > 0) ? 1.5 : 0.5);
+                gemHitTimingTot->Fill( (sector % 6 + 1) * 7 - 4, (endcap > 0) ? 1.5 : 0.5);
               }
 
             }  // End loop: for (auto Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit)
@@ -1061,8 +1061,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
             gemHitTiming[histIndexBX.at(trackHitBX)]->Fill(chamber_bin(1, 1, chamber), (endcap > 0) ? 1.5 : 0.5);
             gemHitTimingTot->Fill(chamber_bin(1, 1, chamber), (endcap > 0) ? 1.5 : 0.5);
           } else {
-            gemHitTiming[histIndexBX.at(trackHitBX)]->Fill(sector * 7 - 4, (endcap > 0) ? 1.5 : 0.5);
-            gemHitTimingTot->Fill(sector * 7 - 4, (endcap > 0) ? 1.5 : 0.5);
+            gemHitTiming[histIndexBX.at(trackHitBX)]->Fill( (sector % 6 + 1) * 7 - 4, (endcap > 0) ? 1.5 : 0.5);
+            gemHitTimingTot->Fill( (sector % 6 + 1) * 7 - 4, (endcap > 0) ? 1.5 : 0.5);
           }
         } // End condition: if (TrkHit.Is_GEM() == true)
       }  // End loop: for (int iHit = 0; iHit < numHits; ++iHit)
