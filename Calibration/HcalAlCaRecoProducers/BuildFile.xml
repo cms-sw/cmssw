@@ -24,6 +24,7 @@
 <use name="TrackPropagation/SteppingHelixPropagator"/>
 <use name="DataFormats/Scalers"/>
 <use name="boost"/>
+<use name="hls"/>
 <use name="clhep"/>
 <use name="root"/>
 <flags EDM_PLUGIN="1"/>
