@@ -147,17 +147,18 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
       const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
       const std::vector<std::string>& triggerNames_ = triggerNames.triggerNames();
       for (unsigned int iHLT = 0; iHLT < triggerResults->size(); iHLT++) {
-	int hlt = triggerResults->accept(iHLT);
-	for (unsigned int i = 0; i < trigNames_.size(); ++i) {
-	  if (triggerNames_[iHLT].find(trigNames_[i]) != std::string::npos) {
-	    if (hlt > 0) {
-	      ok = true;
-	    }
+        int hlt = triggerResults->accept(iHLT);
+        for (unsigned int i = 0; i < trigNames_.size(); ++i) {
+          if (triggerNames_[iHLT].find(trigNames_[i]) != std::string::npos) {
+            if (hlt > 0) {
+              ok = true;
+            }
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Trigger " << triggerNames_[iHLT] << " Flag " << hlt << ":" << ok << std::endl;
+            edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Trigger " << triggerNames_[iHLT] << " Flag " << hlt
+                                         << ":" << ok << std::endl;
 #endif
-	  }
-	}
+          }
+        }
       }
     }
   }
@@ -175,28 +176,33 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
     if (_Muon.isValid()) {
       for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull()
-				     << " innerTrack " << RecMuon->innerTrack().isNonnull() << " outerTrack "
-				     << RecMuon->outerTrack().isNonnull() << " globalTrack "
-				     << RecMuon->globalTrack().isNonnull() << std::endl;
+        edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull()
+                                     << " innerTrack " << RecMuon->innerTrack().isNonnull() << " outerTrack "
+                                     << RecMuon->outerTrack().isNonnull() << " globalTrack "
+                                     << RecMuon->globalTrack().isNonnull() << std::endl;
 #endif
-	if ((RecMuon->track().isNonnull()) && (RecMuon->innerTrack().isNonnull()) &&
-	    (RecMuon->outerTrack().isNonnull()) && (RecMuon->globalTrack().isNonnull())) {
-	  const reco::Track* pTrack = (RecMuon->innerTrack()).get();
-	  spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo, bField, false);
+        if ((RecMuon->track().isNonnull()) && (RecMuon->innerTrack().isNonnull()) &&
+            (RecMuon->outerTrack().isNonnull()) && (RecMuon->globalTrack().isNonnull())) {
+          const reco::Track* pTrack = (RecMuon->innerTrack()).get();
+          spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo, bField, false);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Propagate: ECAL " << trackID.okECAL << " to HCAL "
-				       << trackID.okHCAL << std::endl;
+          edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Propagate: ECAL " << trackID.okECAL << " to HCAL "
+                                       << trackID.okHCAL << std::endl;
 #endif
-	  double trackIso = RecMuon->isolationR03().sumPt;
-	  double caloIso = RecMuon->isolationR03().emEt + RecMuon->isolationR03().hadEt;
-	  double isolR04 = ((RecMuon->pfIsolationR04().sumChargedHadronPt + std::max(0., RecMuon->pfIsolationR04().sumNeutralHadronEt + RecMuon->pfIsolationR04().sumPhotonEt - (0.5 * RecMuon->pfIsolationR04().sumPUPt))) / RecMuon->pt());
-	  bool isoCut = (pfCut_) ? (isolR04 < pfIsoCut_) : ((trackIso < trackIsoCut_) && (caloIso < caloIsoCut_));
-	  if ((trackID.okECAL) && (trackID.okHCAL) && isoCut) {
-	    accept = true;
-	    break;
-	  }
-	}
+          double trackIso = RecMuon->isolationR03().sumPt;
+          double caloIso = RecMuon->isolationR03().emEt + RecMuon->isolationR03().hadEt;
+          double isolR04 =
+              ((RecMuon->pfIsolationR04().sumChargedHadronPt +
+                std::max(0.,
+                         RecMuon->pfIsolationR04().sumNeutralHadronEt + RecMuon->pfIsolationR04().sumPhotonEt -
+                             (0.5 * RecMuon->pfIsolationR04().sumPUPt))) /
+               RecMuon->pt());
+          bool isoCut = (pfCut_) ? (isolR04 < pfIsoCut_) : ((trackIso < trackIsoCut_) && (caloIso < caloIsoCut_));
+          if ((trackID.okECAL) && (trackID.okHCAL) && isoCut) {
+            accept = true;
+            break;
+          }
+        }
       }
     }
   }
@@ -243,9 +249,9 @@ void AlCaHBHEMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  std::vector<std::string> triggers = {"HLT_IsoMu","HLT_Mu"};
+  std::vector<std::string> triggers = {"HLT_IsoMu", "HLT_Mu"};
   desc.add<std::string>("ProcessName", "HLT");
-  desc.add<edm::InputTag>("TriggerResultLabel", edm::InputTag("TriggerResults","","HLT"));
+  desc.add<edm::InputTag>("TriggerResultLabel", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("MuonLabel", edm::InputTag("muons"));
   desc.add<double>("MinimumMuonP", 10.0);
   desc.add<std::vector<std::string> >("Triggers", triggers);
