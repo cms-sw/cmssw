@@ -161,7 +161,7 @@ summlc = [
 
 #Plots to keep in summary from ticlMultiClustersFromTrackstersEM
 summmcEM = [
-    'ticlTrackstersEM/Efficiencies/globalEfficiencies.png' ,
+    'ticlTrackstersEM/Purities/globalEfficiencies.png' ,
     'ticlTrackstersEM/Duplicates/globalEfficiencies.png' ,
     'ticlTrackstersEM/FakeRate/globalEfficiencies.png' ,
     'ticlTrackstersEM/MergeRate/globalEfficiencies.png'
@@ -169,7 +169,7 @@ summmcEM = [
 
 #Plots to keep in summary from ticlMultiClustersFromTrackstersHAD
 summmcHAD = [
-    'ticlTrackstersHAD/Efficiencies/globalEfficiencies.png' ,
+    'ticlTrackstersHAD/Purities/globalEfficiencies.png' ,
     'ticlTrackstersHAD/Duplicates/globalEfficiencies.png' ,
     'ticlTrackstersHAD/FakeRate/globalEfficiencies.png' ,
     'ticlTrackstersHAD/MergeRate/globalEfficiencies.png'
