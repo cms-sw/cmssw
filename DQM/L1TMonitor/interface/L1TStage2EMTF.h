@@ -44,7 +44,7 @@ private:
   MonitorElement* cscLCTTiming[5];
   MonitorElement* cscLCTTimingFrac[5];
   MonitorElement* cscTimingTot;
-  MonitorElement* emtfTrackModeVsCSCBXDiff[8]; // Add mode vs BXdiff comparison Dec 07 2020
+  MonitorElement* emtfTrackModeVsCSCBXDiff[8];  // Add mode vs BXdiff comparison Dec 07 2020
 
   MonitorElement* emtfnTracks;
   MonitorElement* emtfTracknHits;
@@ -85,7 +85,7 @@ private:
   MonitorElement* rpcChamberTheta[12];
 
   MonitorElement* rpcHitTimingInTrack;
-  MonitorElement* emtfTrackModeVsRPCBXDiff[6]; // Add mode vs BXdiff comparison Dec 07 2020
+  MonitorElement* emtfTrackModeVsRPCBXDiff[6];  // Add mode vs BXdiff comparison Dec 07 2020
 
   // Add GEMs Oct 27 2020
   MonitorElement* hitTypeBX;
@@ -97,9 +97,9 @@ private:
   MonitorElement* gemChamberPad[2];
   MonitorElement* gemChamberPartition[2];
   MonitorElement* emtfTrackBXVsGEMHit[3];
-  MonitorElement* emtfTrackModeVsGEMBXDiff[2]; // Add mode vs BXdiff comparison Dec 07 2020
+  MonitorElement* emtfTrackModeVsGEMBXDiff[2];  // Add mode vs BXdiff comparison Dec 07 2020
 
-  // GEM vs CSC Dec 06 2020 
+  // GEM vs CSC Dec 06 2020
   MonitorElement* gemHitPhi[2];
   MonitorElement* gemHitTheta[2];
   MonitorElement* gemHitVScscLCTPhi[2];
