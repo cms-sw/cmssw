@@ -548,9 +548,9 @@ std::string RequestManager::prepareOpaqueString() const {
   struct {
     std::stringstream ss;
     size_t count = 0;
-    bool   has_active = false;
+    bool has_active = false;
 
-    void append_tried(const std::string& id, bool active = false) {
+    void append_tried(const std::string &id, bool active = false) {
       ss << (count ? "," : "tried=") << id;
       count++;
       if (active) {
@@ -572,7 +572,7 @@ std::string RequestManager::prepareOpaqueString() const {
     state.append_tried(it.substr(0, it.find(':')));
   }
   if (state.has_active) {
-      state.ss << "&triedrc=resel";
+    state.ss << "&triedrc=resel";
   }
 
   return state.ss.str();
