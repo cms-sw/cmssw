@@ -104,14 +104,12 @@ vjetResponseDir = [jetResponseDir + "slimmedJets/JEC/",
                    jetResponseDir + "slimmedJetsPuppi/noJEC/"]
 
 pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
-
     jetResponseDir = cms.vstring( vjetResponseDir ),
     genjetDir = cms.string( genjetDir ),
     offsetDir = cms.string( offsetDir ),
     ptBins = cms.vdouble( ptbins ),
     etaBins = cms.vdouble( etabins ),
     recoPtCut = cms.double( 10. )
-
 )
 
 
