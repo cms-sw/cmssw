@@ -15,9 +15,7 @@ simClustersIters = ["ClusterLevel","ticlSimTracksters"]
 trackstersIters = ['ticlTracksters'+iteration for iteration in ticlIterLabelsMerge]
 trackstersIters.extend(["ticlSimTracksters"])
 
-#hitLabel = 'recHits'
-hitValLabel = 'hitValidation'
-hitCalLabel = 'hitCalibration'
+hitLabel = 'recHits'
 layerClustersLabel = 'layerClusters'
 trackstersLabel = 'tracksters'
 trackstersWithEdgesLabel = 'trackstersWithEdges'
@@ -25,7 +23,7 @@ simLabel = 'simulation'
 allLabel = 'all'
 
 collection_choices = [allLabel]
-collection_choices.extend([hitCalLabel]+[hitValLabel]+[layerClustersLabel]+[trackstersLabel]+[trackstersWithEdgesLabel]+[simLabel])
+collection_choices.extend([hitLabel]+[layerClustersLabel]+[trackstersLabel]+[trackstersWithEdgesLabel]+[simLabel])
 
 def main(opts):
 
@@ -103,7 +101,7 @@ def main(opts):
         val.doPlots(hgchitcalib, plotterDrawArgs=drawArgs)
 
 
-    plotDict = {hitCalLabel:[plot_hitCal], hitValLabel:[plot_hitVal], layerClustersLabel:[plot_LC], trackstersLabel:[plot_Tst], trackstersWithEdgesLabel:[plot_TstEdges], simLabel:[plot_SC, plot_CP]}
+    plotDict = {hitLabel:[plot_hitVal, plot_hitCal], layerClustersLabel:[plot_LC], trackstersLabel:[plot_Tst], trackstersWithEdgesLabel:[plot_TstEdges], simLabel:[plot_SC, plot_CP]}
 
     if (opts.collection != allLabel):
         for task in plotDict[opts.collection]:
