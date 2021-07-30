@@ -36,19 +36,19 @@ PackedCandidatesTrackLiteModifier::PackedCandidatesTrackLiteModifier(const edm::
       covSchema_(iConfig.getParameter<unsigned int>("covSchema")),
       covVersion_(iConfig.getParameter<unsigned int>("covVersion")),
       nHits_(iConfig.getParameter<unsigned int>("nHits")),
-      nPixelHits_(iConfig.getParameter<unsigned int>("nPixelHits")) {
-}
+      nPixelHits_(iConfig.getParameter<unsigned int>("nPixelHits")) {}
 
-void PackedCandidatesTrackLiteModifier::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
-
-  auto const& packedCandidates = iEvent.get(inputCandidates_);
+void PackedCandidatesTrackLiteModifier::produce(edm::StreamID,
+                                                edm::Event &iEvent,
+                                                const edm::EventSetup &iSetup) const {
+  auto const &packedCandidates = iEvent.get(inputCandidates_);
 
   pat::PackedCandidateCollection output;
   output.reserve(packedCandidates.size());
-  for (auto const& cand: packedCandidates) {
+  for (auto const &cand : packedCandidates) {
     output.push_back(pat::PackedCandidate(cand));
 
-    if (!output.back().hasTrackDetails() && output.back().covarianceVersion() == int(covVersion_))
+    if (!output.back().hasTrackDetails() && output.back().fromTrackCandidate())
       output.back().setTrackPropertiesLite(covSchema_, covVersion_, nHits_, nPixelHits_);
   }
 
