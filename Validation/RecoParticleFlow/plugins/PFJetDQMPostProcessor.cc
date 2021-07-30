@@ -124,7 +124,10 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
     me = iget_.get(stitle);
     int nEvents = ((TH1F*)me->getTH1F())->GetEntries();
     iget_.setCurrentFolder(jetResponseDir[idir]);
-
+  
+    bool isNoJEC = (jetResponseDir[idir].find("noJEC") != std::string::npos);
+    bool isJEC;
+    if (!isNoJEC) isJEC = (jetResponseDir[idir].find("JEC") != std::string::npos);
     //
     // Response distributions
     //
@@ -137,7 +140,7 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
       me = iget_.get(stitle);
       h_genjet_pt = (TH1F*)me->getTH1F();
 
-      if (jetResponseDir[idir].find("noJEC") != std::string::npos) {
+      if (isNoJEC) {
         // getting the histogram for matched gen jets
         stitle = jetResponseDir[idir] + "genjet_pt" + "_eta" + seta(etaBins[ieta]) + "_matched";
         me = iget_.get(stitle);
@@ -148,7 +151,7 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
         me = iget_.get(stitle);
         h_genjet_unmatched_pt = (TH1F*)me->getTH1F();*/
       }
-      if (jetResponseDir[idir].find("JEC") != std::string::npos) {
+      if (isJEC) {
         // getting the histogram for reco jets
         stitle = jetResponseDir[idir] + "recojet_pt" + "_eta" + seta(etaBins[ieta]);
         me = iget_.get(stitle);
@@ -167,7 +170,7 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
 
       stitle = "presponse_eta" + seta(etaBins[ieta]);
       // adding "Raw" to the title of raw jet response histograms
-      if (jetResponseDir[idir].find("noJEC") != std::string::npos) {
+      if (isNoJEC) {
         sprintf(ctitle, "Raw Jet pT response, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
       } else {
         sprintf(ctitle, "Jet pT response, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
@@ -185,7 +188,7 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
 
       stitle = "presponse_eta" + seta(etaBins[ieta]) + "_median";
       // adding "Raw" to the title of raw jet response histograms
-      if (jetResponseDir[idir].find("noJEC") != std::string::npos) {
+      if (isNoJEC) {
         sprintf(ctitle, "Raw Jet pT response using Med., %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
       } else {
         sprintf(ctitle, "Jet pT response using Med., %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
@@ -193,7 +196,7 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
       TH1F* h_presponse_median = new TH1F(stitle.c_str(), ctitle, nPtBins, ptBinsArray);
 
       stitle = "preso_eta" + seta(etaBins[ieta]);
-      if (jetResponseDir[idir].find("noJEC") != std::string::npos) {
+      if (isNoJEC) {
         sprintf(ctitle, "Raw Jet pT resolution, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
       } else {
         sprintf(ctitle, "Jet pT resolution, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
@@ -223,10 +226,10 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
       sprintf(ctitle, "PU Jet Rate, %4.1f<|#eta|<%4.1f", etaBins[ieta - 1], etaBins[ieta]);
       TH1F* h_ratePUJet = new TH1F(stitle.c_str(), ctitle, nPtBins, ptBinsArray);
 
-      if (jetResponseDir[idir].find("noJEC") != std::string::npos) {
+      if (isNoJEC) {
         h_efficiency->Divide(h_genjet_matched_pt, h_genjet_pt, 1, 1, "B");
       }
-      if (jetResponseDir[idir].find("JEC") != std::string::npos) {
+      if (isJEC) {
         h_purity->Divide(h_recojet_matched_pt, h_recojet_pt, 1, 1, "B");
         h_ratePUJet = (TH1F*)h_recojet_unmatched_pt->Clone();
         h_ratePUJet->SetName("h_ratePUJet");
@@ -293,13 +296,13 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
 
       }  // ipt
 
-      if (jetResponseDir[idir].find("noJEC") != std::string::npos) {
+      if (isNoJEC) {
         stitle = "efficiency_eta" + seta(etaBins[ieta]);
         me = ibook_.book1D(stitle.c_str(), h_efficiency);
         vME_efficiency.push_back(me);
       }
 
-      if (jetResponseDir[idir].find("JEC") != std::string::npos) {
+      if (isJEC) {
         stitle = "purity_eta" + seta(etaBins[ieta]);
         me = ibook_.book1D(stitle.c_str(), h_purity);
         vME_purity.push_back(me);
@@ -335,11 +338,11 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
     // Checks
     //
     if (debug) {
-      if (jetResponseDir[idir].find("noJEC") != std::string::npos) {
+      if (isNoJEC) {
         for (std::vector<MonitorElement*>::const_iterator i = vME_efficiency.begin(); i != vME_efficiency.end(); ++i)
           (*i)->getTH1F()->Print();
       }
-      if (jetResponseDir[idir].find("noJEC") != std::string::npos) {
+      if (isJEC) {
         for (std::vector<MonitorElement*>::const_iterator i = vME_purity.begin(); i != vME_purity.end(); ++i)
           (*i)->getTH1F()->Print();
         for (std::vector<MonitorElement*>::const_iterator i = vME_ratePUJet.begin(); i != vME_ratePUJet.end(); ++i)
