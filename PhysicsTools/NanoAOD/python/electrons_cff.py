@@ -423,6 +423,7 @@ for modifier in run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_miniAOD
         mvaFall17V1noIso_WPL = Var("userInt('mvaFall17V1noIso_WPL')",bool,doc="MVA noIso ID V1 loose WP"),
         cutBased_Fall17_V1 = Var("userInt('cutbasedID_Fall17_V1_veto')+userInt('cutbasedID_Fall17_V1_loose')+userInt('cutbasedID_Fall17_V1_medium')+userInt('cutbasedID_Fall17_V1_tight')",int,doc="cut-based ID Fall17 V1 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
 )
+
 #the94X miniAOD V2 had a bug in the scale and smearing for electrons in the E/p comb
 #therefore we redo it but but we need use a new name for the userFloat as we cant override existing userfloats
 # scale and smearing only when available#ONLY needed for this era
@@ -521,9 +522,9 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     genparticles     = cms.InputTag("finalGenParticles"), 
 )
 
-electronSequence = cms.Sequence(bitmapVIDForEle + bitmapVIDForEleHEEP + isoForEle + ptRatioRelForEle + seedGainEle + slimmedElectronsWithUserData + finalElectrons)
-electronTables = cms.Sequence (electronMVATTH + electronTable)
-electronMC = cms.Sequence(tautaggerForMatching + matchingElecPhoton + electronsMCMatchForTable + electronsMCMatchForTableAlt + electronMCTable)
+electronTask = cms.Task(bitmapVIDForEle,bitmapVIDForEleHEEP,isoForEle,ptRatioRelForEle,seedGainEle,calibratedPatElectronsNano,slimmedElectronsWithUserData,finalElectrons)
+electronTablesTask = cms.Task(electronMVATTH, electronTable)
+electronMCTask = cms.Task(tautaggerForMatching, matchingElecPhoton, electronsMCMatchForTable, electronsMCMatchForTableAlt, electronMCTable)
 
 #for NANO from reminAOD, no need to run slimmedElectronsUpdated, other modules of electron sequence will run on slimmedElectrons
 for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
@@ -537,21 +538,23 @@ for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94
     modifier.toModify(slimmedElectronsWithUserData, src = "slimmedElectronsUpdated")
     modifier.toModify(calibratedPatElectronsNano, src = "slimmedElectronsUpdated")
     ###this sequence should run for all eras except run2_nanoAOD_106Xv2 which should run the electronSequence as above
-    _withULAndUpdate_sequence = cms.Sequence(slimmedElectronsUpdated + electronSequence.copy())
-    modifier.toReplaceWith(electronSequence, _withULAndUpdate_sequence)
-    
+    _withULAndUpdate_Task = cms.Task(slimmedElectronsUpdated)
+    _withULAndUpdate_Task.add(electronTask.copy())
+    modifier.toReplaceWith(electronTask, _withULAndUpdate_Task)
+
 from RecoEgamma.ElectronIdentification.heepIdVarValueMapProducer_cfi import heepIDVarValueMaps
-_updateTo106X_sequence =cms.Sequence(heepIDVarValueMaps + slimmedElectronsTo106X)
+_withTo106XAndUpdate_Task = cms.Task(heepIDVarValueMaps,slimmedElectronsTo106X)
+_withTo106XAndUpdate_Task.add(electronTask.copy())
 heepIDVarValueMaps.dataFormat = 2
-_withTo106XAndUpdate_sequence = cms.Sequence(_updateTo106X_sequence + electronSequence.copy())
+
+for modifier in run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_94XMiniAODv1:
+    modifier.toReplaceWith(electronTask, _withTo106XAndUpdate_Task)
 
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    _withTo106XAndUpdateAnd80XLegacyScale_sequence = _withTo106XAndUpdate_sequence.copy()
-    _withTo106XAndUpdateAnd80XLegacyScale_sequence.replace(slimmedElectronsWithUserData, bitmapVIDForEleSpring15 +bitmapVIDForEleSum16 + slimmedElectronsWithUserData)
-    modifier.toReplaceWith(electronSequence, _withTo106XAndUpdateAnd80XLegacyScale_sequence)
+    _withTo106XAndUpdateAnd80XLegacyScale_Task = cms.Task(bitmapVIDForEleSpring15,bitmapVIDForEleSum16)
+    _withTo106XAndUpdateAnd80XLegacyScale_Task.add(_withTo106XAndUpdate_Task.copy())
+    modifier.toReplaceWith(electronTask, _withTo106XAndUpdateAnd80XLegacyScale_Task)
 
-_withTo106XAndUpdateAnd94XScale_sequence = _withTo106XAndUpdate_sequence.copy()
+_withTo106XAndUpdateAnd94XScale_Task = _withTo106XAndUpdate_Task.copy()
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1:
-    modifier.toReplaceWith(electronSequence, _withTo106XAndUpdate_sequence)
-
-electronSequence.replace(slimmedElectronsWithUserData,calibratedPatElectronsNano + slimmedElectronsWithUserData)
+    modifier.toReplaceWith(electronTask, _withTo106XAndUpdate_Task)
