@@ -1,10 +1,10 @@
-#ifndef DataFormats_GEMDigi_GEBdata_h
-#define DataFormats_GEMDigi_GEBdata_h
-#include "VFATdata.h"
+#ifndef DataFormats_GEMDigi_GEMOptoHybrid_h
+#define DataFormats_GEMDigi_GEMOptoHybrid_h
+#include "GEMVFAT.h"
 #include <vector>
 
-namespace gem {
-
+  class GEMOptoHybrid {
+  public:
   union GEBchamberHeader {
     uint64_t word;
     struct {
@@ -42,10 +42,8 @@ namespace gem {
     };
   };
 
-  class GEBdata {
-  public:
-    GEBdata() : ch_(0), ct_(0){};
-    ~GEBdata() { vfatd_.clear(); }
+    GEMOptoHybrid() : ch_(0), ct_(0){};
+    ~GEMOptoHybrid() { vfatd_.clear(); }
 
     //!Read chamberHeader from the block.
     void setChamberHeader(uint64_t word) { ch_ = word; }
@@ -92,9 +90,9 @@ namespace gem {
     bool evUfw() const { return false; }      // to be removed
 
     //!Adds VFAT data to the vector
-    void addVFAT(VFATdata v) { vfatd_.push_back(v); }
+    void addVFAT(GEMVFAT v) { vfatd_.push_back(v); }
     //!Returns the vector of VFAT data
-    const std::vector<VFATdata>* vFATs() const { return &vfatd_; }
+    const std::vector<GEMVFAT>* vFATs() const { return &vfatd_; }
     //!Clear the vector rof VFAT data
     void clearVFATs() { vfatd_.clear(); }
 
@@ -104,7 +102,6 @@ namespace gem {
     uint64_t ch_;  // GEBchamberHeader
     uint64_t ct_;  // GEBchamberTrailer
 
-    std::vector<VFATdata> vfatd_;
+    std::vector<GEMVFAT> vfatd_;
   };
-}  // namespace gem
 #endif

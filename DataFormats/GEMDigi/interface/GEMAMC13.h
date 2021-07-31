@@ -1,10 +1,10 @@
-#ifndef DataFormats_GEMDigi_AMC13Event_h
-#define DataFormats_GEMDigi_AMC13Event_h
+#ifndef DataFormats_GEMDigi_GEMAMC13_h
+#define DataFormats_GEMDigi_GEMAMC13_h
 #include <vector>
-#include "AMCdata.h"
+#include "GEMAMC.h"
 
-namespace gem {
-
+  class GEMAMC13 {
+  public:
   union CDFHeader {
     uint64_t word;
     struct {
@@ -66,10 +66,8 @@ namespace gem {
     };
   };
 
-  class AMC13Event {
-  public:
-    AMC13Event() : cdfh_(0), amc13h_(0), amc13t_(0), cdft_(0) {}
-    ~AMC13Event() {
+    GEMAMC13() : cdfh_(0), amc13h_(0), amc13t_(0), cdft_(0) {}
+    ~GEMAMC13() {
       amcHeaders_.clear();
       amcs_.clear();
     }
@@ -107,8 +105,8 @@ namespace gem {
 
     uint32_t crc() const { return AMC13Trailer{amc13t_}.crc32; }
 
-    const std::vector<AMCdata>* getAMCpayloads() const { return &amcs_; }
-    void addAMCpayload(const AMCdata& a) { amcs_.push_back(a); }
+    const std::vector<GEMAMC>* getAMCpayloads() const { return &amcs_; }
+    void addAMCpayload(const GEMAMC& a) { amcs_.push_back(a); }
     void clearAMCpayloads() { amcs_.clear(); }
 
   private:
@@ -120,7 +118,7 @@ namespace gem {
     // AMC headers
     std::vector<uint64_t> amcHeaders_;
     // AMCs payload
-    std::vector<AMCdata> amcs_;
+    std::vector<GEMAMC> amcs_;
   };
-}  // namespace gem
+
 #endif

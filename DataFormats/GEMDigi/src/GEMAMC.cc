@@ -1,9 +1,8 @@
 #include <cstdint>
-#include "DataFormats/GEMDigi/interface/AMCdata.h"
+#include "DataFormats/GEMDigi/interface/GEMAMC.h"
 #include <iostream>
-using namespace gem;
 
-void AMCdata::setAMCheader1(uint32_t dataLength, uint16_t bxID, uint32_t l1AID, uint8_t AMCnum) {
+void GEMAMC::setAMCheader1(uint32_t dataLength, uint16_t bxID, uint32_t l1AID, uint8_t AMCnum) {
   AMCheader1 u{0};
   u.dataLength = dataLength;
   u.bxID = bxID;
@@ -17,7 +16,7 @@ void AMCdata::setAMCheader1(uint32_t dataLength, uint16_t bxID, uint32_t l1AID, 
   amct_ = ut.word;
 }
 
-void AMCdata::setAMCheader2(uint16_t boardID, uint16_t orbitNum, uint8_t runType) {
+void GEMAMC::setAMCheader2(uint16_t boardID, uint16_t orbitNum, uint8_t runType) {
   AMCheader2 u{0};
   u.boardID = boardID;
   u.orbitNum = orbitNum;
@@ -25,7 +24,7 @@ void AMCdata::setAMCheader2(uint16_t boardID, uint16_t orbitNum, uint8_t runType
   amch2_ = u.word;
 }
 
-void AMCdata::setGEMeventHeader(uint8_t davCnt, uint32_t davList) {
+void GEMAMC::setGEMeventHeader(uint8_t davCnt, uint32_t davList) {
   EventHeader u{0};
   u.davCnt = davCnt;
   u.davList = davList;
