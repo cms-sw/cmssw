@@ -1,5 +1,5 @@
-# TEST CSCDIGIPRODUCER (CSCDIGITIZER) BY RE-DIGITIZING A RUN3 SIMULATED DATA SAMPLE
-# AND DUMP THE *NEW* DIGIS WITH CSCDIGIDUMP
+# TEST CSCDIGIPRODUCER (CSCDIGITIZER) BY RE-DIGITIZING A RUN3 SIMULATED DATA SAMPLE                                                           
+# WITH *FULL DUMP* OF CSCDIGITIZER PROCESS (NOT THE DIGIS, BUT THAT COULD BE ACTIVATED)
 
 # Auto generated configuration file JULY 2021 - Tim Cox 
 # - modified until it works on a Run 3 relval file with simhits in 12_0_x.
@@ -42,24 +42,32 @@ process.source = cms.Source("PoolSource",
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_mc_FULL', '')
 
-# Activate LogVerbatim messages in CSCDigitizer and CSCDigiDump to cout
+# Activate LogTrace messages in CSCDigitizer to cout - 
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout.enable = True
-process.MessageLogger.cout.threshold = "INFO"
+process.MessageLogger.cout.threshold = "DEBUG"
+process.MessageLogger.debugModules = ["*"]
 process.MessageLogger.cout.default = dict( limit = 0 )
 process.MessageLogger.cout.INFO = dict (limit = 0 )
 process.MessageLogger.cout.CSCDigitizer = dict( limit = -1 )
+process.MessageLogger.cout.CSCStripElectronicsSim = dict( limit = -1 )
+process.MessageLogger.cout.CSCWireElectronicsSim = dict( limit = -1 )
+process.MessageLogger.cout.CSCBaseElectronicsSim = dict( limit = -1 )
+process.MessageLogger.cout.CSCWireHitSim = dict( limit = -1 )
+process.MessageLogger.cout.CSCDriftSim = dict( limit = -1 )
+process.MessageLogger.cout.CSCCrossGap = dict( limit = -1 )
+process.MessageLogger.cout.CSCGasCollisions = dict( limit = -1 )
 process.MessageLogger.cout.CSCDigi = dict( limit = -1 )
 
-## CSCDigiDump - cscDigiDump for real; cscSimDigiDump for sim (both in next cfi)
-## Note that MessageLogger category CSCDigi must also be active (see above)
-process.load('SimMuon.CSCDigitizer.cscDigiDump_cfi')
+# CSCDigiDump - cscDigiDump for real; cscSimDigiDump for sim (both in next cfi)
+# Note that MessageLogger category CSCDigi must also be active (see above)
+## process.load('SimMuon.CSCDigitizer.cscDigiDump_cfi')
 
-## Dump CSC sim digis from the latest process, i.e. the NEW digis not the OLD ones in the input file
-process.csc_digi_dump = cms.Path(process.cscSimDigiDump)
+# Dump CSC sim digis from the latest process, i.e. the NEW digis not the OLD ones in the input file
+## process.csc_digi_dump = cms.Path(process.cscSimDigiDump)
 
-# Further info from CSCDigitizer?
-## process.simMuonCSCDigis.dumpGasCollisions = cms.untracked.bool(True)
+# Activate LogVerbatim output from CSCGasCollisions
+process.simMuonCSCDigis.dumpGasCollisions = cms.untracked.bool(True)
 
 # Stuff in a Task is unscheduled - need unscheduled so digitizer will actually run
 # => explicitly add CSC digitizer to the path even though it's already part of 'pdigi'
@@ -70,5 +78,7 @@ process.csc_digi = cms.Path(process.simMuonCSCDigis)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.digi_step,process.csc_digi,process.csc_digi_dump,process.endjob_step)
+process.schedule = cms.Schedule(process.digi_step,process.csc_digi,process.endjob_step)
+# Replace the above by the following to add dump of the sim digis produced
+## process.schedule = cms.Schedule(process.digi_step,process.csc_digi,process.csc_digi_dump,process.endjob_step)
 
