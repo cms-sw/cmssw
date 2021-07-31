@@ -1,10 +1,9 @@
-#include "DataFormats/GEMDigi/interface/VFATdata.h"
+#include "DataFormats/GEMDigi/interface/GEMVFAT.h"
 #include <iostream>
-using namespace gem;
 
-VFATdata::VFATdata() : ver_(0), phiPos_(0), fw_(0), sw_(0), tw_(0) {}
+GEMVFAT::GEMVFAT() : ver_(0), phiPos_(0), fw_(0), sw_(0), tw_(0) {}
 
-VFATdata::VFATdata(const int vfatVer,
+GEMVFAT::GEMVFAT(const int vfatVer,
                    const uint16_t BC,
                    const uint32_t EC,
                    const uint16_t chipID,
@@ -47,7 +46,7 @@ VFATdata::VFATdata(const int vfatVer,
   tw_ = tw.word;
 }
 
-uint8_t VFATdata::quality() {
+uint8_t GEMVFAT::quality() {
   uint8_t q = 0;
   if (ver_ == 2) {
     if (VFATthird{tw_}.crc != checkCRC())
@@ -63,7 +62,7 @@ uint8_t VFATdata::quality() {
   return q;
 }
 
-uint16_t VFATdata::crc_cal(uint16_t crc_in, uint16_t dato) {
+uint16_t GEMVFAT::crc_cal(uint16_t crc_in, uint16_t dato) {
   uint16_t v = 0x0001;
   uint16_t mask = 0x0001;
   uint16_t d = 0x0000;
@@ -83,7 +82,7 @@ uint16_t VFATdata::crc_cal(uint16_t crc_in, uint16_t dato) {
   return crc_temp;
 }
 
-uint16_t VFATdata::checkCRC() {
+uint16_t GEMVFAT::checkCRC() {
   uint16_t vfatBlockWords[12];
   vfatBlockWords[11] = ((0x000f & VFATfirst{fw_}.b1010) << 12) | VFATfirst{fw_}.bcV2;
   vfatBlockWords[10] =

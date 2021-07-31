@@ -1,9 +1,9 @@
-#ifndef DataFormats_GEMDigi_VFATdata_h
-#define DataFormats_GEMDigi_VFATdata_h
-
+#ifndef DataFormats_GEMDigi_GEMVFAT_h
+#define DataFormats_GEMDigi_GEMVFAT_h
 #include <cstdint>
 
-namespace gem {
+  class GEMVFAT {
+  public:
   /// VFAT data structure - 3 words of 64 bits each
   union VFATfirst {
     uint64_t word;
@@ -45,17 +45,15 @@ namespace gem {
     };
   };
 
-  class VFATdata {
-  public:
-    VFATdata();
+    GEMVFAT();
     // this constructor only used for packing sim digis
-    VFATdata(const int vfatVer,
+    GEMVFAT(const int vfatVer,
              const uint16_t BC,
              const uint32_t EC,
              const uint16_t chipID,
              const uint64_t lsDatas,
              const uint64_t msDatas);
-    ~VFATdata() {}
+    ~GEMVFAT() {}
 
     //!Read first word from the block.
     void read_fw(uint64_t word) { fw_ = word; }
@@ -126,5 +124,5 @@ namespace gem {
     uint64_t sw_;  // VFAT second word
     uint64_t tw_;  // VFAT third word
   };
-}  // namespace gem
+
 #endif

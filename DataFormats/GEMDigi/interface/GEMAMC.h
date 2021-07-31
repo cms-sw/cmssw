@@ -1,11 +1,12 @@
-#ifndef DataFormats_GEMDigi_AMCdata_h
-#define DataFormats_GEMDigi_AMCdata_h
-#include "GEBdata.h"
+#ifndef DataFormats_GEMDigi_GEMAMC_h
+#define DataFormats_GEMDigi_GEMAMC_h
+#include "GEMOptoHybrid.h"
 #include <vector>
 
-namespace gem {
 
-  union AMCheader1 {
+  class GEMAMC {
+  public:
+    union AMCheader1 {
     uint64_t word;
     struct {
       uint64_t dataLength : 20;  // Always 0xfffff, use trailer dataLengthT
@@ -64,10 +65,8 @@ namespace gem {
     };
   };
 
-  class AMCdata {
-  public:
-    AMCdata() : amch1_(0), amch2_(0), amct_(0), eh_(0), et_(0){};
-    ~AMCdata() { gebd_.clear(); }
+    GEMAMC() : amch1_(0), amch2_(0), amct_(0), eh_(0), et_(0){};
+    ~GEMAMC() { gebd_.clear(); }
 
     int status();
 
@@ -119,9 +118,9 @@ namespace gem {
     uint32_t linkTo() const { return EventTrailer{et_}.linkTo; }
 
     //!Adds GEB data to vector
-    void addGEB(GEBdata g) { gebd_.push_back(g); }
+    void addGEB(GEMOptoHybrid g) { gebd_.push_back(g); }
     //!Returns a vector of GEB data
-    const std::vector<GEBdata>* gebs() const { return &gebd_; }
+    const std::vector<GEMOptoHybrid>* gebs() const { return &gebd_; }
     //!Clear a vector of GEB data
     void clearGEBs() { gebd_.clear(); }
 
@@ -132,7 +131,6 @@ namespace gem {
     uint64_t eh_;
     uint64_t et_;
 
-    std::vector<GEBdata> gebd_;  ///<Vector of GEB data
+    std::vector<GEMOptoHybrid> gebd_;  ///<Vector of GEB data
   };
-}  // namespace gem
 #endif

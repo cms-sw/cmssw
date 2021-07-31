@@ -1,7 +1,7 @@
 #ifndef DataFormats_GEMDigi_GEMAMC13Status_h
 #define DataFormats_GEMDigi_GEMAMC13Status_h
-#include "AMC13Event.h"
-#include "AMCdata.h"
+#include "GEMAMC13.h"
+#include "GEMAMC.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include <bitset>
