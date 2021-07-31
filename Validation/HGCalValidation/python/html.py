@@ -97,8 +97,8 @@ _pageNameMap = {
     "summary": "Summary",
     "hitCalibration": "Reconstructed hits calibration",
     "hitValidation" : "Simulated hits, digis, reconstructed hits validation" , 
-    "hgcalLayerClusters": "Layer clusters",
-    "allTiclMultiClusters":"TICL multiclusters", 
+    "layerClusters": "Layer clusters",
+    "tracksters":"Tracksters", 
     "ticlMultiClustersFromTrackstersEM": "Electromagnetic multiclusters",
     "ticlMultiClustersFromTrackstersHAD": "Hadronic multiclusters",
     "hgcalMultiClusters" : "Old multiclusters",
@@ -108,13 +108,13 @@ _pageNameMap = {
 _sectionNameMapOrder = collections.OrderedDict([
     # These are for the summary page
     # Will add later
-    # hgcalLayerClusters
-    ("hgcalLayerClusters", "Layer clusters"),
+    # layerClusters
+    ("layerClusters", "Layer clusters"),
     # ticlMultiClustersFromTrackstersEM
     ("ticlMultiClustersFromTrackstersEM","Electromagnetic multiclusters"),
     # ticlMultiClustersFromTrackstersHAD
     ("ticlMultiClustersFromTrackstersHAD","Hadronic multiclusters"),
-    ("allTiclMultiClusters","TICL multiclusters"),
+    ("tracksters","Tracksters"),
     # hgcalMultiClusters
     ("hgcalMultiClusters","Old multiclusters"),
 ])
@@ -124,8 +124,8 @@ _summary = {}
 
 #Objects to keep in summary
 #_summobj = ['hitCalibration','hitValidation', 'hgcalLayerClusters','ticlMultiClustersFromTrackstersEM','ticlMultiClustersFromTrackstersHAD']
-_summobj = ['hitCalibration','hitValidation', 'hgcalLayerClusters','allTiclMultiClusters']
-#_summobj = ['hitCalibration','hitValidation', 'hgcalLayerClusters']
+_summobj = ['hitCalibration','hitValidation', 'layerClusters','tracksters']
+#_summobj = ['hitCalibration','hitValidation', 'layerClusters']
 
 #Plots to keep in summary from hitCalibration
 summhitcalib=[
@@ -144,36 +144,35 @@ summhitvalid = [
                           
 #Plots to keep in summary from layer clusters
 summlc = [
-    'hgcalLayerClusters_zminus/Efficiencies_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_zplus/Efficiencies_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_zminus/Duplicates_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_zplus/Duplicates_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_zminus/FakeRate_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_zplus/FakeRate_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_zminus/MergeRate_vs_layer/globalEfficiencies.png' ,
-    'hgcalLayerClusters_zplus/MergeRate_vs_layer/globalEfficiencies.png',
+    'hgcalLayerClusters_Z-minus: LC_CP association/Efficiencies_vs_layer/globalEfficiencies.png' ,
+    'hgcalLayerClusters_Z-plus: LC_CP association/Efficiencies_vs_layer/globalEfficiencies.png' ,
+    'hgcalLayerClusters_Z-minus: LC_CP association/Duplicates_vs_layer/globalEfficiencies.png' ,
+    'hgcalLayerClusters_Z-plus: LC_CP association/Duplicates_vs_layer/globalEfficiencies.png' ,
+    'hgcalLayerClusters_Z-minus: LC_CP association/FakeRate_vs_layer/globalEfficiencies.png' ,
+    'hgcalLayerClusters_Z-plus: LC_CP association/FakeRate_vs_layer/globalEfficiencies.png' ,
+    'hgcalLayerClusters_Z-minus: LC_CP association/MergeRate_vs_layer/globalEfficiencies.png' ,
+    'hgcalLayerClusters_Z-plus: LC_CP association/MergeRate_vs_layer/globalEfficiencies.png',
     'SelectedCaloParticles_Photons/SelectedCaloParticles_num_caloparticle_eta.png',
     'SelectedCaloParticles_Photons/SelectedCaloParticles_caloparticle_pt.png',
     'SelectedCaloParticles_Photons/SelectedCaloParticles_caloparticle_phi.png',
     'SelectedCaloParticles_Photons/SelectedCaloParticles_caloparticle_energy.png',
     'SelectedCaloParticles_Photons/SelectedCaloParticles_Eta vs Zorigin.png'
     ]
-                          
 
 #Plots to keep in summary from ticlMultiClustersFromTrackstersEM
 summmcEM = [
-    'ticlMultiClustersFromTrackstersEM/Efficiencies/globalEfficiencies.png' ,
-    'ticlMultiClustersFromTrackstersEM/Duplicates/globalEfficiencies.png' ,
-    'ticlMultiClustersFromTrackstersEM/FakeRate/globalEfficiencies.png' ,
-    'ticlMultiClustersFromTrackstersEM/MergeRate/globalEfficiencies.png'
+    'ticlTrackstersEM/Purities/globalEfficiencies.png' ,
+    'ticlTrackstersEM/Duplicates/globalEfficiencies.png' ,
+    'ticlTrackstersEM/FakeRate/globalEfficiencies.png' ,
+    'ticlTrackstersEM/MergeRate/globalEfficiencies.png'
 ]
 
 #Plots to keep in summary from ticlMultiClustersFromTrackstersHAD
 summmcHAD = [
-    'ticlMultiClustersFromTrackstersHAD/Efficiencies/globalEfficiencies.png' ,
-    'ticlMultiClustersFromTrackstersHAD/Duplicates/globalEfficiencies.png' ,
-    'ticlMultiClustersFromTrackstersHAD/FakeRate/globalEfficiencies.png' ,
-    'ticlMultiClustersFromTrackstersHAD/MergeRate/globalEfficiencies.png'
+    'ticlTrackstersHAD/Purities/globalEfficiencies.png' ,
+    'ticlTrackstersHAD/Duplicates/globalEfficiencies.png' ,
+    'ticlTrackstersHAD/FakeRate/globalEfficiencies.png' ,
+    'ticlTrackstersHAD/MergeRate/globalEfficiencies.png'
 ]
 
 summmcTICL = summmcEM + summmcHAD
@@ -188,8 +187,9 @@ for obj in _summobj:
     _summary[obj] = {}
 _summary['hitCalibration'] = summhitcalib
 _summary['hitValidation'] = summhitvalid
-_summary['hgcalLayerClusters'] = summlc
-_summary['allTiclMultiClusters'] = summmcTICL
+_summary['layerClusters'] = summlc
+_summary['tracksters'] = summmcTICL
+#_summary['allTiclMultiClusters'] = summmcTICL
 #_summary['ticlMultiClustersFromTrackstersEM'] = summmcEM
 #_summary['ticlMultiClustersFromTrackstersHAD'] = summmcHAD                          
 
