@@ -319,6 +319,27 @@ photonTask = cms.Task(bitmapVIDForPho, isoForPho, seedGainPho, calibratedPatPhot
 photonTablesTask = cms.Task(photonTable)
 photonMCTask = cms.Task(photonsMCMatchForTable, photonMCTable)
 
+
+## TEMPORARY as no ID for Run3 yet
+(run3_nanoAOD_devel).toReplaceWith(photonTask, photonTask.copyAndExclude([bitmapVIDForPho]))
+(run3_nanoAOD_devel).toModify(slimmedPhotonsWithUserData, userIntFromBools = cms.PSet())
+(run3_nanoAOD_devel).toModify(slimmedPhotonsWithUserData.userInts,
+                              VIDNestedWPBitmap = None,)
+(run3_nanoAOD_devel).toModify(slimmedPhotonsWithUserData.userFloats,
+                              mvaID = None,
+                              mvaID_Fall17V1p1 = None,
+                              mvaID_Spring16nonTrigV1 = None)
+(run3_nanoAOD_devel).toModify(photonTable.variables,
+                              cutBased = None,
+                              cutBased_Fall17V1Bitmap = None,
+                              vidNestedWPBitmap = None,
+                              mvaID = None,
+                              mvaID_Fall17V1p1 = None,
+                              mvaID_WP90 = None,
+                              mvaID_WP80 = None,
+)
+#### end TEMPORARY Run3
+
 from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import egmPhotonIsolation
 from RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff import photonIDValueMapProducer
 
