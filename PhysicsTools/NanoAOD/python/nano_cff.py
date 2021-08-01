@@ -61,22 +61,30 @@ lhcInfoTable = cms.EDProducer("LHCInfoProducer",
                               precision = cms.int32(10),
 )
 
-nanoSequenceCommon = cms.Sequence(
-        nanoMetadata + cms.Sequence(jetTask,extraFlagsProducersTask, muonTask, tauTask, boostedTauTask, electronTask, lowPtElectronTask, photonTask,
-                                    vertexTablesTask,isoTrackTask,jetLepTask) + # must be after all the leptons
-        linkedObjects +
-        cms.Sequence(jetTablesTask, muonTablesTask, tauTablesTask, boostedTauTablesTask, electronTablesTask, lowPtElectronTablesTask, photonTablesTask, globalTablesTask, metTablesTask, cms.Task(simpleCleanerTable), extraFlagsTableTask,isoTrackTablesTask)
-)
+nanoTableTaskCommon = cms.Task(
+     cms.Task(nanoMetadata), jetTask, extraFlagsProducersTask, muonTask, tauTask, boostedTauTask,
+     electronTask , lowPtElectronTask, photonTask,
+     vertexTask, isoTrackTask, jetLepTask,  # must be after all the leptons
+     cms.Task(linkedObjects),
+     jetTablesTask, muonTablesTask, tauTablesTask, boostedTauTablesTask,
+     electronTablesTask, lowPtElectronTablesTask, photonTablesTask,
+     globalTablesTask, vertexTablesTask, metTablesTask, simpleCleanerTable, extraFlagsTableTask,
+     isoTrackTablesTask
+ )
+
+nanoSequenceCommon = cms.Sequence(nanoTableTaskCommon)
 
 nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTablesTask)
 nanoSequenceOnlyData = cms.Sequence(cms.Sequence(protonTablesTask) + lhcInfoTable)
 
 nanoSequence = cms.Sequence(nanoSequenceCommon + nanoSequenceOnlyData + nanoSequenceOnlyFullSim)
 
-nanoSequenceFS = cms.Sequence(
-    cms.Sequence(genParticleTask,particleLevelTask) + nanoSequenceCommon + cms.Sequence(jetMCTask, muonMCTask, electronMCTask, lowPtElectronMCTask, photonMCTask,
-    tauMCTask,boostedTauMCTask, metMCTask,
-    ttbarCatMCProducersTask,globalTablesMCTask,cms.Task(btagWeightTable),genWeightsTableTask,genVertexTablesTask,genParticleTablesTask,particleLevelTablesTask,ttbarCategoryTableTask) )
+nanoTableTaskFS = cms.Task(genParticleTask, particleLevelTask, jetMCTask, muonMCTask, electronMCTask, lowPtElectronMCTask, photonMCTask,
+                            tauMCTask, boostedTauMCTask,
+                            metMCTable, ttbarCatMCProducersTask, globalTablesMCTask, cms.Task(btagWeightTable), ttbarCategoryTableTask,
+                            genWeightsTableTask, genVertexTablesTask, genParticleTablesTask, particleLevelTablesTask)
+
+nanoSequenceFS = cms.Sequence(nanoSequenceCommon + cms.Sequence(nanoTableTaskFS))
 
 # GenVertex only stored in newer MiniAOD
 nanoSequenceMC = nanoSequenceFS.copy()
