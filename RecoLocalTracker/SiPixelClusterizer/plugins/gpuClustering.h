@@ -75,7 +75,8 @@ namespace gpuClustering {
       }
 
       //init hist  (ymax=416 < 512 : 9bits)
-      constexpr uint32_t maxPixInModule = 4000;
+      //6000 max pixels required for HI operations with no measurable impact on pp performance
+      constexpr uint32_t maxPixInModule = 6000;
       constexpr auto nbins = phase1PixelTopology::numColsInModule + 2;  //2+2;
       using Hist = cms::cuda::HistoContainer<uint16_t, nbins, maxPixInModule, 9, uint16_t>;
       __shared__ Hist hist;
