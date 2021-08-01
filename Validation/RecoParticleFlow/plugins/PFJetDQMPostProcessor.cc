@@ -124,10 +124,11 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
     me = iget_.get(stitle);
     int nEvents = ((TH1F*)me->getTH1F())->GetEntries();
     iget_.setCurrentFolder(jetResponseDir[idir]);
-  
+
     bool isNoJEC = (jetResponseDir[idir].find("noJEC") != std::string::npos);
-    bool isJEC;
-    if (!isNoJEC) isJEC = (jetResponseDir[idir].find("JEC") != std::string::npos);
+    bool isJEC = false;
+    if (!isNoJEC)
+      isJEC = (jetResponseDir[idir].find("JEC") != std::string::npos);
     //
     // Response distributions
     //
