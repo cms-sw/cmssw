@@ -8,6 +8,8 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #Geometry
 process.load("Geometry.CMSCommonData.ecalhcalGeometryXML_cfi")
+process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
+process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
 
 process.load("Validation.HcalHits.HcalSimHitStudy_cfi")
 
@@ -36,7 +38,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.p1 = cms.Path(process.hcalSimHitStudy)
-process.DQM.collectorHost = ''
+#process.DQM.collectorHost = ''
 process.hcalSimHitStudy.outputFile = 'hcalsimstudy.root'
 
 
