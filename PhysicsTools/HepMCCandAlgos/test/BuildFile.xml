@@ -1,6 +1,4 @@
 <library file="DummyHepMCAnalyzer.cc">
-  <use name="PhysicsTools/UtilAlgos"/>
-  <use name="FWCore/ServiceRegistry"/>
   <use name="PhysicsTools/HepMCCandAlgos"/>
   <use name="SimDataFormats/GeneratorProducts"/>
   <use name="FWCore/Framework"/>
