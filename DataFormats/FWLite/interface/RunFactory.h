@@ -32,10 +32,11 @@ namespace fwlite {
     // ---------- const member functions ---------------------
     std::shared_ptr<fwlite::Run> makeRun(std::shared_ptr<BranchMapReader> branchMap) const;
 
-  private:
     RunFactory(const RunFactory&) = delete;  // stop default
 
     const RunFactory& operator=(const RunFactory&) = delete;  // stop default
+
+  private:
     //This class is not inteded to be used across different threads
     CMS_SA_ALLOW mutable std::shared_ptr<fwlite::Run> run_;
 
