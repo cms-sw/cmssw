@@ -8,5 +8,4 @@
   <use name="CommonTools/UtilAlgos"/>
   <use name="CommonTools/Utils"/>
   <use name="CommonTools/CandAlgos"/>
-  <use name="SimGeneral/HepPDTRecord"/>
 </library>
