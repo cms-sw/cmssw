@@ -106,6 +106,7 @@ void DiamondSampicDigiProducer::produce(edm::Event& iEvent, const edm::EventSetu
   uint sample_timestampB[MAX_SAMPIC_CHANNELS];
   ULong64_t sample_timestampFPGA[MAX_SAMPIC_CHANNELS];
   double sample_amp[MAX_SAMPIC_CHANNELS][SAMPIC_SAMPLES];
+  double sample_triggerPosition[MAX_SAMPIC_CHANNELS][SAMPIC_SAMPLES];
 
   inputTree->SetBranchAddress("num_samples", &num_samples);
   inputTree->SetBranchAddress("trigger_time", &trigger_time);
@@ -115,6 +116,7 @@ void DiamondSampicDigiProducer::produce(edm::Event& iEvent, const edm::EventSetu
   inputTree->SetBranchAddress("sample_timestampB", sample_timestampB);
   inputTree->SetBranchAddress("sample_cellInfoForOrderedData", sample_cellInfoForOrderedData);
   inputTree->SetBranchAddress("sample_ampl", sample_amp);
+  inputTree->SetBranchAddress("sample_triggerPosition", sample_triggerPosition);
 
   inputTree->GetEntry(eventNum);
       
@@ -126,32 +128,41 @@ void DiamondSampicDigiProducer::produce(edm::Event& iEvent, const edm::EventSetu
   if(num_samples==0){
     iEvent.put(std::move(digi),"TotemTiming");
     return;
-  }
-  TotemTimingEventInfo eventInfoTmp(0,
-                                                  sample_timestampFPGA[0],//l1ATimestamp
-                                                  bunchNumber,
-                                                  orbitNumber,
-                                                  eventNum,
-                                                  1,//
-                                                  -1900,//l1ALatency
-                                                  64,//
-                                                  0,//
-                                                  1);
+  }                         
 
+  
   for(uint i=0;i<num_samples;i++){
 
     unsigned short ch_id=sample_channel[i];
 
     std::vector<uint8_t> samples;
 
+    unsigned int offsetOfSamples = 0;
+    bool search_for_white_cell=1;
     for(int y=0;y<SAMPIC_SAMPLES;y++){
       samples.push_back((int)(sample_amp[i][y]/1.2*256));
-      ssLog<<(int)(sample_amp[i][y]/1.2*256)<<endl;}
+      if(search_for_white_cell&&sample_triggerPosition[i][y] == 1){
+        offsetOfSamples=y;
+        search_for_white_cell=0;
+      }
+    }
         
 
     if(ch_id<8){
       continue;
     }
+
+    TotemTimingEventInfo eventInfoTmp(0,
+                                                  trigger_time*1E9/10,//l1ATimestamp
+                                                  bunchNumber,
+                                                  orbitNumber,
+                                                  eventNum,
+                                                  1,//
+                                                  1220/10,//l1ALatency
+                                                  64,//
+                                                  offsetOfSamples,//
+                                                  1);
+
 
     TotemTimingDigi digiTmp(2*32+ch_id,
                                         sample_timestampFPGA[i],
@@ -168,7 +179,6 @@ void DiamondSampicDigiProducer::produce(edm::Event& iEvent, const edm::EventSetu
       edm::DetSet<TotemTimingDigi>& digis_for_detid = digi->find_or_insert(detId);
       digis_for_detid.push_back(digiTmp);
     }
-
   }
   iEvent.put(std::move(digi),"TotemTiming");
   
