@@ -619,6 +619,13 @@ void test_checkForModuleDependencyCorrectness::twoPathsWithCycleTest() {
 
     CPPUNIT_ASSERT_THROW(testCase(md, paths), cms::Exception);
   }
+
+  {
+    ModuleDependsOnMap md = {{"B", {"A"}}, {"C", {"B"}}, {"cFilter", {"C"}}};
+    PathToModules paths = {{"p1", {"C", "cFilter", "D", "E", "F", "A", "B"}}, {"p2", {"oFilter", "D", "F", "B"}}};
+
+    CPPUNIT_ASSERT_THROW(testCase(md, paths), cms::Exception);
+  }
 }
 
 void test_checkForModuleDependencyCorrectness::selfCycleTest() {
