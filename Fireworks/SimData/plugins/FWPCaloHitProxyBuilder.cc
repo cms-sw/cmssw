@@ -21,10 +21,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPCaloHitProxyBuilder(const FWPCaloHitProxyBuilder&) = delete;
   const FWPCaloHitProxyBuilder& operator=(const FWPCaloHitProxyBuilder&) = delete;
 
+private:
   using FWDigitSetProxyBuilder::build;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 };
