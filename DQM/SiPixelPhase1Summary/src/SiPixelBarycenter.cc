@@ -27,9 +27,9 @@ using namespace edm;
 
 SiPixelBarycenter::SiPixelBarycenter(const edm::ParameterSet& iConfig)
     : DQMEDHarvester(iConfig),
-      alignmentToken_(esConsumes<edm::Transition::EndLuminosityBlock>()),
-      gprToken_(esConsumes<edm::Transition::EndLuminosityBlock>()),
-      trackerTopologyToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
+      alignmentToken_(esConsumes<edm::Transition::EndRun>()),
+      gprToken_(esConsumes<edm::Transition::EndRun>()),
+      trackerTopologyToken_(esConsumes<edm::Transition::EndRun>()) {
   LogInfo("PixelDQM") << "SiPixelBarycenter::SiPixelBarycenter: Got DQM BackEnd interface" << endl;
 }
 
@@ -43,10 +43,10 @@ void SiPixelBarycenter::beginRun(edm::Run const& run, edm::EventSetup const& eSe
 
 void SiPixelBarycenter::dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {}
 
-void SiPixelBarycenter::dqmEndLuminosityBlock(DQMStore::IBooker& iBooker,
-                                              DQMStore::IGetter& iGetter,
-                                              const edm::LuminosityBlock& lumiSeg,
-                                              edm::EventSetup const& c) {
+void SiPixelBarycenter::dqmEndRun(DQMStore::IBooker& iBooker,
+                                  DQMStore::IGetter& iGetter,
+                                  const edm::Run& iRun,
+                                  edm::EventSetup const& c) {
   bookBarycenterHistograms(iBooker);
 
   const Alignments* alignments = &c.getData(alignmentToken_);
