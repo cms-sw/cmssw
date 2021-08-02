@@ -157,7 +157,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'GenSim',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
-        'GenSimHLBeamSpot14HGCALCloseBy',
+        'GenSimHLBeamSpotHGCALCloseBy',
         'Digi',
         'DigiTrigger',
         'RecoLocal',
