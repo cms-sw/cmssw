@@ -32,7 +32,6 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   TString cls_x_title = "Cluster size";
 
   if (detail_plot_) {
-
     me_detail_cls_total_ = booker.book1D("cls", cls_title + ";" + cls_x_title + ";" + "Entries", 10, 0.5, 10.5);
 
     for (const auto& station : gem->regions()[0]->stations()) {
@@ -87,12 +86,12 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
                                           -15,
                                           15);
 
-      me_residual_rphi_[key] = booker.book1D(
-          Form("residual_rphi_GE%d1-E%d", station_id, ieta),
-          Form("Residual in R #times #phi : GE%d1-E%d; Residual in r #times #phi [cm]", station_id, ieta),
-          60,
-          -15,
-          15);
+      me_residual_rphi_[key] =
+          booker.book1D(Form("residual_rphi_GE%d1-E%d", station_id, ieta),
+                        Form("Residual in R #times #phi : GE%d1-E%d; Residual in r #times #phi [cm]", station_id, ieta),
+                        60,
+                        -15,
+                        15);
     }
   }
 
@@ -138,17 +137,11 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
         Int_t ieta = roll->id().ieta();
         ME2IdsKey key{station_id, ieta};
 
-        me_detail_pull_x_[key] = booker.book1D(Form("pull_x_GE%d1-E%d", station_id, ieta),
-                                               Form("Pull in X : GE%d1-E%d", station_id, ieta),
-                                               60,
-                                               -3,
-                                               3);
+        me_detail_pull_x_[key] = booker.book1D(
+            Form("pull_x_GE%d1-E%d", station_id, ieta), Form("Pull in X : GE%d1-E%d", station_id, ieta), 60, -3, 3);
 
-        me_detail_pull_y_[key] = booker.book1D(Form("pull_y_GE%d1-E%d", station_id, ieta),
-                                               Form("Pull in Y : GE%d1-E%d", station_id, ieta),
-                                               60,
-                                               -3,
-                                               3);
+        me_detail_pull_y_[key] = booker.book1D(
+            Form("pull_y_GE%d1-E%d", station_id, ieta), Form("Pull in Y : GE%d1-E%d", station_id, ieta), 60, -3, 3);
       }
     }
 
@@ -216,7 +209,8 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
             me_detail_total_rechit_[key3] =
                 bookHist1D(booker, key3, "total_rechit", "Number of rec hits per event", 25, -0.5, 24.5);
 
-            me_detail_occ_pid_[key3] = bookPIDHist(booker, key3, "rechit_occ_pid", "Number of entreis for each particle");
+            me_detail_occ_pid_[key3] =
+                bookPIDHist(booker, key3, "rechit_occ_pid", "Number of entreis for each particle");
 
             me_detail_occ_ieta_[key3] = bookHist1D(booker,
                                                    key3,
@@ -301,7 +295,6 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
     cls = cls > 10 ? 10 : cls;
 
     total_rechit[key3]++;
-
 
     if (detail_plot_) {
       me_detail_cls_total_->Fill(cls);

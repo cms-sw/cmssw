@@ -70,8 +70,9 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
   }
 
   // NOTE Occupancy
-  if (detail_plot_) 
-    me_detail_total_strip_all_ = booker.book1D("total_strips_per_event", "Number of strip digi per event", 50, -0.5, 395.5);
+  if (detail_plot_)
+    me_detail_total_strip_all_ =
+        booker.book1D("total_strips_per_event", "Number of strip digi per event", 50, -0.5, 395.5);
 
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
@@ -103,7 +104,8 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
         for (const auto& etaPart : superChamberVec[0]->chambers()[0]->etaPartitions()) {
           Int_t ieta = etaPart->id().ieta();
           ME3IdsKey key{region_id, station_id, ieta};
-          me_occ_pid_eta_[key] = bookPIDHist(booker, key2, ieta, "strip_occ_pid", "Number of entries for each particles");
+          me_occ_pid_eta_[key] =
+              bookPIDHist(booker, key2, ieta, "strip_occ_pid", "Number of entries for each particles");
         }
         for (const auto& chamber : superChamberVec[0]->chambers()) {
           if (chamber == nullptr) {

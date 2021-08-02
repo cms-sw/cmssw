@@ -62,7 +62,8 @@ protected:
   dqm::impl::MonitorElement* bookPIDHist(DQMStore::IBooker& booker, const T& key, const char* name, const char* title);
 
   template <typename T>
-  dqm::impl::MonitorElement* bookPIDHist(DQMStore::IBooker& booker, const T& key, Int_t ieta, const char* name, const char* title);
+  dqm::impl::MonitorElement* bookPIDHist(
+      DQMStore::IBooker& booker, const T& key, Int_t ieta, const char* name, const char* title);
 
   template <typename T>
   dqm::impl::MonitorElement* bookHist1D(DQMStore::IBooker& booker,
@@ -240,17 +241,15 @@ dqm::impl::MonitorElement* GEMBaseValidation::bookPIDHist(DQMStore::IBooker& boo
 }
 
 template <typename T>
-dqm::impl::MonitorElement* GEMBaseValidation::bookPIDHist(DQMStore::IBooker& booker,
-                                                          const T& key,
-                                                          Int_t ieta,
-                                                          const char* name,
-                                                          const char* title) {
+dqm::impl::MonitorElement* GEMBaseValidation::bookPIDHist(
+    DQMStore::IBooker& booker, const T& key, Int_t ieta, const char* name, const char* title) {
   auto name_suffix = GEMUtils::getSuffixName(key);
   auto title_suffix = GEMUtils::getSuffixTitle(key);
   TString x_title = "Particle Name";
   TString y_title = "Entries";
   TString hist_name = TString::Format("%s%s-E%d", name, name_suffix.Data(), ieta);
-  TString hist_title = TString::Format("%s :%s-E%d;%s;%s", title, title_suffix.Data(), ieta, x_title.Data(), y_title.Data());
+  TString hist_title =
+      TString::Format("%s :%s-E%d;%s;%s", title, title_suffix.Data(), ieta, x_title.Data(), y_title.Data());
   Int_t nbinsx = pid_list_.size();
   auto hist = booker.book1D(hist_name, hist_title, nbinsx + 1, 0, nbinsx + 1);
   TDatabasePDG* pdgDB = TDatabasePDG::Instance();
