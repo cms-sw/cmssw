@@ -166,6 +166,7 @@ class test_checkForModuleDependencyCorrectness : public CppUnit::TestFixture {
   CPPUNIT_TEST(onePathHasCycleTest);
   CPPUNIT_TEST(twoPathsNoCycleTest);
   CPPUNIT_TEST(twoPathsWithCycleTest);
+  CPPUNIT_TEST(duplicateModuleOnPathTest);
   CPPUNIT_TEST(selfCycleTest);
 
   CPPUNIT_TEST_SUITE_END();
@@ -182,11 +183,13 @@ public:
 
   void selfCycleTest();
 
+  void duplicateModuleOnPathTest();
+
 private:
   bool testCase(ModuleDependsOnMap const& iModDeps, PathToModules const& iPaths) const {
     PathsAndConsumesOfModulesForTest pAndC(iModDeps, iPaths);
 
-    checkForModuleDependencyCorrectness(pAndC, true);
+    checkForModuleDependencyCorrectness(pAndC, false);
     return true;
   }
 };
@@ -630,5 +633,14 @@ void test_checkForModuleDependencyCorrectness::selfCycleTest() {
     PathToModules paths = {{"p", {"B"}}};
 
     CPPUNIT_ASSERT_THROW(testCase(md, paths), cms::Exception);
+  }
+}
+
+void test_checkForModuleDependencyCorrectness::duplicateModuleOnPathTest() {
+  {
+    ModuleDependsOnMap md = {{"C", {"B"}}, {"B", {"A"}}};
+    PathToModules paths = {{"p", {"A", "B", "C", "A"}}};
+
+    CPPUNIT_ASSERT(testCase(md, paths));
   }
 }
