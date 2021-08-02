@@ -10,7 +10,7 @@
  * \version $Revision: 1.2 $
  *
  */
-#include "CommonTools/Utils/src/ExpressionPtr.h"
+#include "CommonTools/Utils/interface/ExpressionPtr.h"
 #include "CommonTools/Utils/src/ExpressionStack.h"
 
 namespace reco {
