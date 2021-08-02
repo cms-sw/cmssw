@@ -68,3 +68,14 @@ workflows[528]=['WTolNuJets_LO_Mad_13TeV_py8_Ta_taurhonu',['WTolNu01234Jets_5f_L
 workflows[560]=['',['ZprimeToll_M3000_13TeV_pythia8','HARVESTGEN']]
 workflows[561]=['',['WprimeTolNu_M3000_13TeV_pythia8','HARVESTGEN']]
 workflows[562]=['BulkG_ZZ_2L2Q_M1200_narrow_13TeV_pythia8',['BulkG_M1200_narrow_2L2Q_LHE_13TeV','Hadronizer_TuneCUETP8M1_Mad_pythia8','HARVESTGEN2']]
+
+# ExternalGeneratorFilter
+# validated GEN fragments are taken from other workflows. Annotation: generator, origin workflow id
+workflows[570]=['',['BuToKstarJPsiToMuMu_forSTEAM_13TeV_ExtGen','HARVESTGEN']]  # Pythia8+EvtGen130, 541
+workflows[571]=['',['BsToMuMu_forSTEAM_13TeV_ExtGen','HARVESTGEN']]  # Pythia8+EvtGen1, 545
+workflows[572]=['',['ZTTFS_ExtGen','HARVESTGEN']]  # Pythia8+Tauola, 124.2
+workflows[573]=['',['sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_ExtGen','HARVESTGEN']]  # Sherpa, 536
+workflows[574] = ['',['HydjetQ_B12_5020GeV_2018_ExtGen','HARVESTGEN']]  # Hydjet, 150
+workflows[575]= ['',['AMPT_PPb_5020GeV_MinimumBias_ExtGen','HARVESTGEN']]  # AMPT, 280
+workflows[576]= ['',['EPOS_PPb_8160GeV_MinimumBias_ExtGen','HARVESTGEN']]  # ReggeGribovPartonMC, 281
+workflows[577]=['',['Pyquen_ZeemumuJets_pt10_2760GeV_ExtGen','HARVESTGEN']]  # Pyquen, 302
