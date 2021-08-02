@@ -173,7 +173,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 
     AddRecalib = kTRUE;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CalibConstants")<<"   OK ";
+    edm::LogVerbatim("CalibConstants") << "   OK ";
 #endif
 
   } catch (const cms::Exception& e) {
@@ -379,9 +379,9 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     //zAtHcal = gPointHcal.z();
     /*       -----------------   ------------------------      */
 
-    if (gPointHcal.x() == 0 && gPointHcal.y() == 0 && gPointHcal.z() == 0) { 
+    if (gPointHcal.x() == 0 && gPointHcal.y() == 0 && gPointHcal.z() == 0) {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalCalib") <<"gPointHcal is Zero!";
+      edm::LogVerbatim("HcalCalib") << "gPointHcal is Zero!";
 #endif
       continue;
     }
@@ -391,9 +391,12 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       continue;
 #ifdef EDM_ML_DEBUG
     if (std::abs(etahcal) > 3.0 && std::abs(etahcal) < 5.191) {
-      edm::LogVerbatim("HcalCalib") <<gPointHcal.x() <<"   "<<gPointHcal.y() <<"   "<<gPointHcal.z()<<"    "<<gPointHcal.eta()<<"  "<<gPointHcal.phi()<<"   "<<ietatrue<<"   "<< iphitrue;
-      if (ietatrue==100 || iphitrue==-10) {
-	edm::LogVerbatim("HcalCalib")<<"ietatrue: "<<ietatrue<<"   iphitrue: "<<iphitrue<<"  etahcal: "<<etahcal<<"  phihcal: "<< gPointHcal.phi(); 
+      edm::LogVerbatim("HcalCalib") << gPointHcal.x() << "   " << gPointHcal.y() << "   " << gPointHcal.z() << "    "
+                                    << gPointHcal.eta() << "  " << gPointHcal.phi() << "   " << ietatrue << "   "
+                                    << iphitrue;
+      if (ietatrue == 100 || iphitrue == -10) {
+        edm::LogVerbatim("HcalCalib") << "ietatrue: " << ietatrue << "   iphitrue: " << iphitrue
+                                      << "  etahcal: " << etahcal << "  phihcal: " << gPointHcal.phi();
       }
     }
 #endif
@@ -512,8 +515,8 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     //    for (HcalRecHitCollection::const_iterator hhit=Hithcal.begin(); hhit!=Hithcal.end(); hhit++)
     {
       recal = RecalibFactor(hhit->detid());
-#ifdef EDM_ML_DEBUG      
-      edm::LogVerbatim("HcalCalib")<<"recal: "<<recal;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalCalib") << "recal: " << recal;
 #endif
       GlobalPoint pos = gHcal->getPosition(hhit->detid());
 
@@ -556,7 +559,8 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
           e3x3 += hhit->energy();
         }
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HcalCalib")<<"track: ieta "<<ietahit<<" iphi: "<<iphihit<<" depth: "<<depthhit<<" energydepos: "<<enehit;
+        edm::LogVerbatim("HcalCalib") << "track: ieta " << ietahit << " iphi: " << iphihit << " depth: " << depthhit
+                                      << " energydepos: " << enehit;
 #endif
         for (HBHERecHitCollection::const_iterator hhit2 = Hithbhe.begin(); hhit2 != Hithbhe.end(); hhit2++) {
           recal = RecalibFactor(hhit2->detid());
@@ -569,7 +573,8 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
             eHcalConeNoise += hhit2->energy() * recal;
             UsedCellsNoise++;
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("HcalCalib")<<"Noise: ieta "<<ietahit2<<" iphi: "<<iphihit2<<" depth: "<<depthhit2<<" energydepos: "<<enehit2;
+            edm::LogVerbatim("HcalCalib") << "Noise: ieta " << ietahit2 << " iphi: " << iphihit2
+                                          << " depth: " << depthhit2 << " energydepos: " << enehit2;
 #endif
           }
         }
@@ -682,11 +687,12 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     iDr = sqrt(diphi_M_P * diphi_M_P + dieta_M_P * dieta_M_P);
 
 #ifdef EDM_ML_DEBUG
-    if (iDr>15) {
-      edm::LogVerbatim("HcalCalib")<<"diphi: "<<diphi_M_P<<"  dieta: "<<dieta_M_P<<"   iDr: "<<iDr<<" ietatrue:"<<ietatrue<<"  iphitrue:"<<iphitrue;
-      edm::LogVerbatim("HcalCalib")<<"M ieta: "<<MaxHit.ietahitm<<"  M iphi: "<<MaxHit.iphihitm;
+    if (iDr > 15) {
+      edm::LogVerbatim("HcalCalib") << "diphi: " << diphi_M_P << "  dieta: " << dieta_M_P << "   iDr: " << iDr
+                                    << " ietatrue:" << ietatrue << "  iphitrue:" << iphitrue;
+      edm::LogVerbatim("HcalCalib") << "M ieta: " << MaxHit.ietahitm << "  M iphi: " << MaxHit.iphihitm;
     }
-#endif	
+#endif
 
     Bool_t passCuts = kFALSE;
     passCuts = kTRUE;

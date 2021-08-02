@@ -102,7 +102,7 @@ namespace cms {
     edm::LogVerbatim("HcalCalib") << " Start to read txt file " << fDataFile.c_str() << std::endl;
     while (std::getline(in, line)) {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalCalib")<<" Line size "<<line.size()<< " "<<line;
+      edm::LogVerbatim("HcalCalib") << " Line size " << line.size() << " " << line;
 #endif
 
       if (!line.size() || line[0] == '#')
@@ -111,8 +111,9 @@ namespace cms {
 
       linestream >> mysubd >> depth >> ieta >> iphi >> coradd >> corerr;
 #ifdef EDM_ML_DEBUG
-      HcalDetId  hid(HcalSubdetector(mysubd),ieta,iphi,depth);
-      edm::LogVerbatim("HcalCalib")<<" Check mysubd "<<hid.subdet()<<" depth "<<hid.depth()<<" ieta "<<hid.ieta()<<" iphi "<<hid.iphi()<<" "<<hid.rawId();
+      HcalDetId hid(HcalSubdetector(mysubd), ieta, iphi, depth);
+      edm::LogVerbatim("HcalCalib") << " Check mysubd " << hid.subdet() << " depth " << hid.depth() << " ieta "
+                                    << hid.ieta() << " iphi " << hid.iphi() << " " << hid.rawId();
 #endif
       int ietak = ieta;
       if (ieta < 0)
@@ -121,8 +122,8 @@ namespace cms {
         corrnew_p[mysubd][depth][ietak][iphi] = coradd;
       if (ieta < 0)
         corrnew_m[mysubd][depth][ietak][iphi] = coradd;
-      edm::LogVerbatim("HcalCalib") << " Try to initialize mysubd " << mysubd << " depth " << depth << " ieta " << ieta << " " << ietak
-                << " iphi " << iphi << " " << coradd;
+      edm::LogVerbatim("HcalCalib") << " Try to initialize mysubd " << mysubd << " depth " << depth << " ieta " << ieta
+                                    << " " << ietak << " iphi " << iphi << " " << coradd;
     }
 
     HcalRespCorrs* mycorrections = new HcalRespCorrs(oldRespCorrs->topo());
@@ -142,8 +143,9 @@ namespace cms {
         cc2 = corrnew_m[(*it).subdet()][(*it).depth()][ietak][(*it).iphi()];
 
       float cc = cc1 * cc2;
-      edm::LogVerbatim("HcalCalib") << " Multiply " << (*it).subdet() << " " << (*it).depth() << " " << (*it).ieta() << " " << ietak << " "
-                << (*it).iphi() << " " << (*it).rawId() << " " << cc1 << " " << cc2;
+      edm::LogVerbatim("HcalCalib") << " Multiply " << (*it).subdet() << " " << (*it).depth() << " " << (*it).ieta()
+                                    << " " << ietak << " " << (*it).iphi() << " " << (*it).rawId() << " " << cc1 << " "
+                                    << cc2;
 
       // now make the basic object for one cell with HcalDetId myDetId containing the value myValue
       HcalRespCorr item((*it).rawId(), cc);

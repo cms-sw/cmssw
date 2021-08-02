@@ -197,7 +197,8 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
     edm::LogVerbatim("HcalCalib") << "Run: " << iEvent.id().run() << "; Event: " << iEvent.id().event();
     for (reco::PFJetCollection::const_iterator it = pfjets->begin(); it != pfjets->end(); ++it) {
       const reco::PFJet* jet = &(*it);
-      edm::LogVerbatim("HcalCalib") << "istag=" << (jet == pf_tag.jet()) << "; isprobe=" << (jet == pf_probe.jet()) << "; et=" << jet->et() << "; eta=" << jet->eta();
+      edm::LogVerbatim("HcalCalib") << "istag=" << (jet == pf_tag.jet()) << "; isprobe=" << (jet == pf_probe.jet())
+                                    << "; et=" << jet->et() << "; eta=" << jet->eta();
     }
   }
 

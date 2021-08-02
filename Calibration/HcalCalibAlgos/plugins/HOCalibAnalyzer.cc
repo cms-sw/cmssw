@@ -1043,7 +1043,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   }
   if (Nevents % 5000 == 1)
     edm::LogVerbatim("HOCalib") << "nmuon event # " << Nevents << " Run # " << iEvent.id().run() << " Evt # "
-                            << iEvent.id().event() << " " << ipass;
+                                << iEvent.id().event() << " " << ipass;
 
   if (isCosMu && !(*HOCalib).empty()) {
     nmuon = (*HOCalib).size();
@@ -1521,11 +1521,12 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
               tmpphi = abs(tmpphi - 2);
             if (int((hocorsig[fact * tmpeta + tmpphi] - hosig[4]) * 10000) / 10000. != 0) {
               iaxxx++;
-              edm::LogVerbatim("HOCalib") << "iring2xxx " << irun << " " << ievt << " " << isect << " " << iring << " "
-                                      << tmpsect << " " << ieta << " " << iphi << " " << npixel << " " << tmpeta << " "
-                                      << tmpphi << " " << tmpeta1 << " " << tmpphi1 << " itag " << itag << " " << iflip
-                                      << " " << fact << " " << hocorsig[fact * tmpeta + tmpphi] << " "
-                                      << fact * tmpeta + tmpphi << " " << hosig[4] << " " << hodx << " " << hody;
+              edm::LogVerbatim("HOCalib")
+                  << "iring2xxx " << irun << " " << ievt << " " << isect << " " << iring << " " << tmpsect << " "
+                  << ieta << " " << iphi << " " << npixel << " " << tmpeta << " " << tmpphi << " " << tmpeta1 << " "
+                  << tmpphi1 << " itag " << itag << " " << iflip << " " << fact << " "
+                  << hocorsig[fact * tmpeta + tmpphi] << " " << fact * tmpeta + tmpphi << " " << hosig[4] << " " << hodx
+                  << " " << hody;
 
               for (int ij = 0; ij < 18; ij++) {
                 edm::LogVerbatim("HOCalib") << " " << ij << " " << hocorsig[ij];
@@ -2367,12 +2368,13 @@ void HOCalibAnalyzer::endJob() {
             int kl = (jk < 15) ? jk + 1 : 14 - jk;
 
             edm::LogVerbatim("HOCalib") << "histinfo" << iijj << " fit " << std::setw(3) << kl << " " << std::setw(3)
-                                    << ij + 1 << " " << std::setw(5) << pedstll[izone]->GetEntries() << " "
-                                    << std::setw(6) << pedstll[izone]->GetMean() << " " << std::setw(6)
-                                    << pedstll[izone]->GetRMS() << " " << std::setw(5) << signall[izone]->GetEntries()
-                                    << " " << std::setw(6) << signall[izone]->GetMean() << " " << std::setw(6)
-                                    << signall[izone]->GetRMS() << " " << std::setw(6) << signal[izone]->GetChisquare()
-                                    << " " << std::setw(3) << signal[izone]->GetNDF();
+                                        << ij + 1 << " " << std::setw(5) << pedstll[izone]->GetEntries() << " "
+                                        << std::setw(6) << pedstll[izone]->GetMean() << " " << std::setw(6)
+                                        << pedstll[izone]->GetRMS() << " " << std::setw(5)
+                                        << signall[izone]->GetEntries() << " " << std::setw(6)
+                                        << signall[izone]->GetMean() << " " << std::setw(6) << signall[izone]->GetRMS()
+                                        << " " << std::setw(6) << signal[izone]->GetChisquare() << " " << std::setw(3)
+                                        << signal[izone]->GetNDF();
 
             file_out << "histinfo" << iijj << " fit " << std::setw(3) << kl << " " << std::setw(3) << ij + 1 << " "
                      << std::setw(5) << pedstll[izone]->GetEntries() << " " << std::setw(6) << pedstll[izone]->GetMean()
