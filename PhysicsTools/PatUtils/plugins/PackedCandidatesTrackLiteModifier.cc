@@ -59,7 +59,7 @@ void PackedCandidatesTrackLiteModifier::fillDescriptions(edm::ConfigurationDescr
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("inputCandidates", edm::InputTag("packedPFCandidates"));
-  desc.add<unsigned int>("covSchema", 523);
+  desc.add<unsigned int>("covSchema", 1025);
   desc.add<unsigned int>("covVersion", 1);
   desc.add<unsigned int>("nHits", 8);
   desc.add<unsigned int>("nPixelHits", 3);
