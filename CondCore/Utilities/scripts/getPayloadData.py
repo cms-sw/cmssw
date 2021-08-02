@@ -307,6 +307,6 @@ if __name__ == '__main__':
 
                         
         # Else -> output result json string with base 64 encoding
-        else: 
+        else:
             import base64
             os.write( 1, base64.b64encode(bytes(result, 'utf-8')))
