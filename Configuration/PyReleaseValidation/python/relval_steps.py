@@ -946,12 +946,10 @@ steps['QCD_Pt_170_230']=genS('QCD_Pt_170_230_8TeV_TuneCUETP8M1_cfi',Kby(25,100))
 ## pPb tests
 step1PPbDefaults={'--beamspot':'Realistic8TeVCollision'}
 steps['AMPT_PPb_5020GeV_MinimumBias']=merge([{'-n':10},step1PPbDefaults,genS('AMPT_PPb_5020GeV_MinimumBias_cfi',Kby(9,100))])
-steps['AMPT_PPb_5020GeV_MinimumBias_ExtGen']=merge([{'-n':10},step1PPbDefaults,genS('AMPT_PPb_5020GeV_MinimumBias_ExtGen_cfi',Kby(9,100))])
 
 ## pPb Run2
 step1PPbDefaultsUp15={'--beamspot':'RealisticPPbBoost8TeV2016Collision','--conditions':'auto:run2_mc_pa','--eventcontent':'RAWSIM', '--era':'Run2_2016_pA'}
 steps['EPOS_PPb_8160GeV_MinimumBias']=merge([{'-n':10},step1PPbDefaultsUp15,gen2015('ReggeGribovPartonMC_EposLHC_4080_4080GeV_pPb_cfi',Kby(9,100))])
-steps['EPOS_PPb_8160GeV_MinimumBias_ExtGen']=merge([{'-n':10},step1PPbDefaultsUp15,gen2015('ReggeGribovPartonMC_EposLHC_4080_4080GeV_pPb_ExtGen_cfi',Kby(9,100))])
 
 ## heavy ions tests
 U2000by1={'--relval': '2000,1'}
@@ -976,7 +974,6 @@ steps['HydjetQ_B12_5020GeV_2011']=merge([{'-n':1,'--beamspot':'RealisticHI2011Co
 steps['HydjetQ_B12_5020GeV_2015']=merge([{'-n':1,'--beamspot':'RealisticHICollisionFixZ2015'},hiDefaults2015,genS('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_MinBias_XeXe_5442GeV_2017']=merge([{'-n':1},hiDefaults2017,gen2017('Hydjet_Quenched_MinBias_XeXe_5442GeV_cfi',U2000by1)])
 steps['HydjetQ_B12_5020GeV_2018']=merge([{'-n':1},hiDefaults2018,gen2018prod('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
-steps['HydjetQ_B12_5020GeV_2018_ExtGen']=merge([{'-n':1},hiDefaults2018,gen2018prod('Hydjet_Quenched_B12_5020GeV_ExtGen_cfi',U2000by1)])
 steps['HydjetQ_B12_5020GeV_2018_ppReco']=merge([{'-n':1},hiDefaults2018_ppReco,gen2018hiprod('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_B12_5020GeV_2021_ppReco']=merge([{'-n':1},hiDefaults2021_ppReco,gen2021hiprod('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
 
@@ -1065,7 +1062,6 @@ steps['SinglePiPt10FS']=merge([{'cfg':'SinglePiPt10_pythia8_cfi'},step1FastDefau
 steps['SinglePiPt100FS']=merge([{'cfg':'SinglePiPt100_pythia8_cfi'},step1FastDefaults])
 steps['ZEEFS']=merge([{'cfg':'ZEE_8TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastDefaults])
 steps['ZTTFS']=merge([{'cfg':'ZTT_Tauola_OneLepton_OtherHadrons_8TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastDefaults])
-steps['ZTTFS_ExtGen']=merge([{'cfg':'ZTT_Tauola_OneLepton_OtherHadrons_8TeV_TuneCUETP8M1_ExtGen_cfi'},Kby(100,2000),step1FastDefaults])
 steps['QCDFlatPt153000FS']=merge([{'cfg':'QCDForPF_8TeV_TuneCUETP8M1_cfi'},Kby(27,2000),step1FastDefaults])
 steps['QCD_Pt_80_120FS']=merge([{'cfg':'QCD_Pt_80_120_8TeV_TuneCUETP8M1_cfi'},Kby(100,500),stCond,step1FastDefaults])
 steps['QCD_Pt_3000_3500FS']=merge([{'cfg':'QCD_Pt_3000_3500_8TeV_TuneCUETP8M1_cfi'},Kby(100,500),stCond,step1FastDefaults])
@@ -1357,6 +1353,15 @@ steps['QCD_Pt-30_13TeV_aMCatNLO_herwig7']=genvalid('Herwig7_Matchbox_aMCatNLO_He
 steps['ZprimeToll_M3000_13TeV_pythia8']=genvalid('ZprimeToll_M3000_13TeV_pythia8_cff',step1GenDefaults)
 steps['WprimeTolNu_M3000_13TeV_pythia8']=genvalid('WprimeTolNu_M3000_13TeV_pythia8_cff',step1GenDefaults)
 
+steps['BsToMuMu_forSTEAM_13TeV_ExtGen']=genvalid('BsToMuMu_forSTEAM_13TeV_ExtGen_cfi',step1GenDefaults)
+steps['BuToKstarJPsiToMuMu_forSTEAM_13TeV_ExtGen']=genvalid('BuToKstarJPsiToMuMu_forSTEAM_13TeV_ExtGen_cfi',step1GenDefaults)
+steps['ZTTFS_ExtGen']=genvalid('ZTT_Tauola_OneLepton_OtherHadrons_8TeV_TuneCUETP8M1_ExtGen_cfi',step1GenDefaults)
+steps['sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_ExtGen']=genvalid('sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_ExtGen_cff',step1GenDefaults)
+steps['HydjetQ_B12_5020GeV_2018_ExtGen']=genvalid('Hydjet_Quenched_B12_5020GeV_ExtGen_cfi',step1GenDefaults)
+steps['AMPT_PPb_5020GeV_MinimumBias_ExtGen']=genvalid('AMPT_PPb_5020GeV_MinimumBias_ExtGen_cfi',step1GenDefaults)
+steps['EPOS_PPb_8160GeV_MinimumBias_ExtGen']=genvalid('ReggeGribovPartonMC_EposLHC_4080_4080GeV_pPb_ExtGen_cfi',step1GenDefaults)
+steps['Pyquen_ZeemumuJets_pt10_2760GeV_ExtGen']=genvalid('Pyquen_ZeemumuJets_pt10_2760GeV_ExtGen_cfi',step1GenDefaults)
+
 # Generator Hadronization (Hadronization of LHE)
 steps['WJetsLNu_13TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_cff',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
 steps['Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_cff',step1HadronizerDefaults)
@@ -1543,7 +1548,6 @@ steps['Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_13UP18']=g
 steps['sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER']=genvalid('sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER_cff',step1GenDefaults)
 steps['sherpa_ZtoLL_2j_MEPSatNLO_13TeV_MASTER']=genvalid('sherpa_ZtoLL_2j_MEPSatNLO_13TeV_MASTER_cff',step1GenDefaults)
 steps['sherpa_ttbar_2j_MENLOPS_13TeV_MASTER']=genvalid('sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_cff',step1GenDefaults)
-steps['sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_ExtGen']=genvalid('sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_ExtGen_cff',step1GenDefaults)
 
 #Herwig7
 steps['TTbar_13TeV_Pow_herwig7']=genvalid('Configuration/Generator/python/TT_13TeV_Pow_Herwig7_cff',step1LHEGenDQM)
@@ -1556,12 +1560,10 @@ steps['ReggeGribovPartonMC_EposLHC_5TeV_pPb']=genvalid('GeneratorInterface/Regge
 
 # B-physics
 steps['BuToKstarJPsiToMuMu_forSTEAM_13TeV']=genvalid('BuToKstarJPsiToMuMu_forSTEAM_13TeV_cfi',step1GenDefaults)
-steps['BuToKstarJPsiToMuMu_forSTEAM_13TeV_ExtGen']=genvalid('BuToKstarJPsiToMuMu_forSTEAM_13TeV_ExtGen_cfi',step1GenDefaults)
 steps['Upsilon4swithBuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('Upsilon4swithBuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
 steps['Upsilon4sBaBarExample_BpBm_Dstarpipi_D0Kpi_nonres_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('Upsilon4sBaBarExample_BpBm_Dstarpipi_D0Kpi_nonres_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
 steps['LambdaBToLambdaMuMuToPPiMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('LambdaBToLambdaMuMuToPPiMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
 steps['BsToMuMu_forSTEAM_13TeV']=genvalid('BsToMuMu_forSTEAM_13TeV_cfi',step1GenDefaults)
-steps['BsToMuMu_forSTEAM_13TeV_ExtGen']=genvalid('BsToMuMu_forSTEAM_13TeV_ExtGen_cfi',step1GenDefaults)
 
 # Workflows for multiple concurrent lumi blocks
 
@@ -2193,7 +2195,6 @@ def gen2021HiMix(fragment,howMuch):
 steps['Pyquen_GammaJet_pt20_2760GeV']=gen2018HiMix('Pyquen_GammaJet_pt20_2760GeV_cfi',Kby(9,100))
 steps['Pyquen_DiJet_pt80to120_2760GeV']=gen2018HiMix('Pyquen_DiJet_pt80to120_2760GeV_cfi',Kby(9,100))
 steps['Pyquen_ZeemumuJets_pt10_2760GeV']=gen2018HiMix('Pyquen_ZeemumuJets_pt10_2760GeV_cfi',Kby(9,100))
-steps['Pyquen_ZeemumuJets_pt10_2760GeV_ExtGen']=gen2018HiMix('Pyquen_ZeemumuJets_pt10_2760GeV_ExtGen_cfi',Kby(9,100))
 steps['Pyquen_GammaJet_pt20_2760GeV_2021']=gen2021HiMix('Pyquen_GammaJet_pt20_2760GeV_cfi',Kby(9,100))
 steps['Pyquen_DiJet_pt80to120_2760GeV_2021']=gen2021HiMix('Pyquen_DiJet_pt80to120_2760GeV_cfi',Kby(9,100))
 steps['Pyquen_ZeemumuJets_pt10_2760GeV_2021']=gen2021HiMix('Pyquen_ZeemumuJets_pt10_2760GeV_cfi',Kby(9,100))
