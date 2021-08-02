@@ -22,7 +22,7 @@ class MatrixReader(object):
 
         self.wm=opt.wmcontrol
         self.revertDqmio=opt.revertDqmio
-        self.addCommand=opt.command
+        self.addCommand=' '.join(opt.command)
         self.apply=opt.apply
         self.commandLineWf=opt.workflow
         self.overWrite=opt.overWrite

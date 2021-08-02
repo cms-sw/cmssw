@@ -229,6 +229,7 @@ if __name__ == '__main__':
     parser.add_option('--command',
                       help='provide a way to add additional command to all of the cmsDriver commands in the matrix',
                       dest='command',
+                      action='append',
                       default=None
                       )
     parser.add_option('--apply',
