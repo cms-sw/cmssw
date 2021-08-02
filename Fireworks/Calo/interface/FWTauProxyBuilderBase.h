@@ -63,11 +63,11 @@ protected:
                          FWViewType::EType viewType,
                          const FWViewContext* vc) override;
 
-private:
+public:
   FWTauProxyBuilderBase(const FWTauProxyBuilderBase&) = delete;  // stop default
 
   const FWTauProxyBuilderBase& operator=(const FWTauProxyBuilderBase&) = delete;  // stop default
-
+private:
   // ---------- member data --------------------------------
   // Add Tracks which passed quality cuts and
   // are inside a tracker signal cone around leading Track

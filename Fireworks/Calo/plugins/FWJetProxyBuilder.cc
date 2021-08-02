@@ -64,6 +64,9 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
+  FWJetProxyBuilder(const FWJetProxyBuilder&) = delete;                   // stop default
+  const FWJetProxyBuilder& operator=(const FWJetProxyBuilder&) = delete;  // stop default
+
 protected:
   using FWSimpleProxyBuilderTemplate<reco::Jet>::buildViewType;
   void buildViewType(const reco::Jet& iData,
@@ -81,9 +84,6 @@ protected:
 
 private:
   typedef std::vector<fireworks::jetScaleMarker> Lines_t;
-
-  FWJetProxyBuilder(const FWJetProxyBuilder&) = delete;                   // stop default
-  const FWJetProxyBuilder& operator=(const FWJetProxyBuilder&) = delete;  // stop default
 
   TEveElementList* requestCommon();
   void setTextPos(fireworks::jetScaleMarker& s, const FWViewContext* vc, FWViewType::EType);

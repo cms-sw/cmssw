@@ -38,11 +38,10 @@ public:
   // ---------- member functions ---------------------------
   virtual void setFrom(const FWConfiguration&) = 0;
 
-private:
   FWConfigurable(const FWConfigurable&) = delete;  // stop default
 
   const FWConfigurable& operator=(const FWConfigurable&) = delete;  // stop default
-
+private:
   // ---------- member data --------------------------------
 };
 
