@@ -60,7 +60,7 @@ protected:
   ~FWViewBase() override;
   FWViewType m_type;
 
-private:
+public:
   FWViewBase(const FWViewBase&) = delete;  // stop default
 
   const FWViewBase& operator=(const FWViewBase&) = delete;  // stop default

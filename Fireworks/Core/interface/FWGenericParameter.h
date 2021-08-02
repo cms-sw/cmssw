@@ -74,10 +74,10 @@ public:
 
   sigc::signal<void, T> changed_;
 
-private:
   FWGenericParameter(const FWGenericParameter&) = delete;                   // stop default
   const FWGenericParameter& operator=(const FWGenericParameter&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
 
   T m_value;

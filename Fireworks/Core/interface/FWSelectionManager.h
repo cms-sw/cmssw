@@ -53,6 +53,9 @@ public:
   sigc::signal<void, const FWSelectionManager&> selectionChanged_;
   sigc::signal<void, const FWSelectionManager&> itemSelectionChanged_;
 
+  FWSelectionManager(const FWSelectionManager&) = delete;  // stop default
+
+  const FWSelectionManager& operator=(const FWSelectionManager&) = delete;  // stop default
 private:
   void finishedAllSelections();
   void select(const FWModelId& iId);
@@ -61,10 +64,6 @@ private:
 
   void selectItem(FWEventItem*);
   void unselectItem(FWEventItem*);
-
-  FWSelectionManager(const FWSelectionManager&) = delete;  // stop default
-
-  const FWSelectionManager& operator=(const FWSelectionManager&) = delete;  // stop default
 
   // ---------- member data --------------------------------
   FWModelChangeManager* m_changeManager;

@@ -44,10 +44,10 @@ public:
   void checkFieldInfo(const edm::EventBase*);
   void setFFFieldMag(float);
 
-private:
   FWMagField(const FWMagField&) = delete;                   // stop default
   const FWMagField& operator=(const FWMagField&) = delete;  // stop default
 
+private:
   ESource m_source;
   float m_userField;
   float m_eventField;

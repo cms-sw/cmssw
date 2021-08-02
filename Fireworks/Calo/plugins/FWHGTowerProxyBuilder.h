@@ -49,11 +49,11 @@ protected:
 
   void itemBeingDestroyed(const FWEventItem*) override;
 
-private:
+public:
   FWHGTowerProxyBuilderBase(const FWHGTowerProxyBuilderBase&) = delete;  // stop default
 
   const FWHGTowerProxyBuilderBase& operator=(const FWHGTowerProxyBuilderBase&) = delete;  // stop default
-
+private:
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 
   int fillTowerForDetId(unsigned int rawid, float);

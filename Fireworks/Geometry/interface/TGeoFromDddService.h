@@ -59,10 +59,10 @@ public:
 
   TGeoManager* getGeoManager();
 
-private:
   TGeoFromDddService(const TGeoFromDddService&) = delete;                   // stop default
   const TGeoFromDddService& operator=(const TGeoFromDddService&) = delete;  // stop default
 
+private:
   TGeoManager* createManager(int level);
 
   TGeoShape* createShape(const std::string& iName, const DDSolid& iSolid);
