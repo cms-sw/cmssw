@@ -69,7 +69,7 @@ void HLTPPSCalFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<int>("maxTracks", -1)->setComment("maximum number of tracks in pot");
 
   desc.add<bool>("do_express", true)->setComment("toggle on filter type; true for Express, false for Prompt");
-  
+
   desc.add<int>("triggerType", trigger::TriggerTrack);
 
   descriptions.add("hltPPSCalFilter", desc);
@@ -84,13 +84,11 @@ HLTPPSCalFilter::HLTPPSCalFilter(const edm::ParameterSet& iConfig)
 
       diamondLocalTrackInputTag_(iConfig.getParameter<edm::InputTag>("diamondLocalTrackInputTag")),
       diamondLocalTrackToken_(consumes<edm::DetSetVector<CTPPSDiamondLocalTrack>>(diamondLocalTrackInputTag_)),
-    
+
       minTracks_(iConfig.getParameter<int>("minTracks")),
       maxTracks_(iConfig.getParameter<int>("maxTracks")),
-      
-      do_express_(iConfig.getParameter<bool>("do_express"))
-{
-}
+
+      do_express_(iConfig.getParameter<bool>("do_express")) {}
 
 bool HLTPPSCalFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // Helper tool to count valid tracks
@@ -109,7 +107,7 @@ bool HLTPPSCalFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
 
   // strip map definition
   // diamond map definition
-  
+
   // First filter on pixels (2017+) selection
   if (!pixel_filter_.empty()) {
     edm::Handle<edm::DetSetVector<CTPPSPixelLocalTrack>> pixelTracks;
@@ -127,17 +125,16 @@ bool HLTPPSCalFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
         fltr = false;
       if (maxTracks_ > 0 && ntrks > maxTracks_)
         fltr = false;
-
     }
 
     // compilation of filter conditions
-    if(do_express_) {
-      return (pixel_filter_.at(CTPPSPixelDetId(0,0,3)) && pixel_filter_.at(CTPPSPixelDetId(0,2,3))) || (pixel_filter_.at(CTPPSPixelDetId(1,0,3)) && pixel_filter_.at(CTPPSPixelDetId(1,2,3)));
+    if (do_express_) {
+      return (pixel_filter_.at(CTPPSPixelDetId(0, 0, 3)) && pixel_filter_.at(CTPPSPixelDetId(0, 2, 3))) ||
+             (pixel_filter_.at(CTPPSPixelDetId(1, 0, 3)) && pixel_filter_.at(CTPPSPixelDetId(1, 2, 3)));
+    } else {
+      return (pixel_filter_.at(CTPPSPixelDetId(0, 0, 3)) || pixel_filter_.at(CTPPSPixelDetId(0, 2, 3))) ||
+             (pixel_filter_.at(CTPPSPixelDetId(1, 0, 3)) || pixel_filter_.at(CTPPSPixelDetId(1, 2, 3)));
     }
-    else {
-      return (pixel_filter_.at(CTPPSPixelDetId(0,0,3)) || pixel_filter_.at(CTPPSPixelDetId(0,2,3))) || (pixel_filter_.at(CTPPSPixelDetId(1,0,3)) || pixel_filter_.at(CTPPSPixelDetId(1,2,3))); 
-    }
-
   }
 
   // Then filter on strips (2016-17) selection
@@ -150,7 +147,7 @@ bool HLTPPSCalFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
         continue;
       auto& fltr = strip_filter_.at(rpv.id);
       fltr = true;
-      
+
       const auto ntrks = std::count_if(rpv.begin(), rpv.end(), valid_trks);
       if (minTracks_ > 0 && ntrks < minTracks_)
         fltr = false;
@@ -169,7 +166,7 @@ bool HLTPPSCalFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
         continue;
       auto& fltr = diam_filter_.at(rpv.id);
       fltr = true;
-      
+
       const auto ntrks = std::count_if(rpv.begin(), rpv.end(), valid_trks);
       if (minTracks_ > 0 && ntrks < minTracks_)
         fltr = false;
