@@ -306,6 +306,7 @@ if __name__ == '__main__':
                       action='store')
 
     opt,args = parser.parse_args()
+    if opt.command: opt.command = ' '.join(opt.command)
     os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
     if opt.IBEos:
       try:from commands import getstatusoutput as run_cmd
