@@ -1,5 +1,5 @@
 #include "FWCore/Utilities/interface/Exception.h"
-#include "Utilities/StorageFactory/test/Test.h"
+#include "Utilities/StorageFactory/interface/Test.h"
 
 int main(int, char ** /*argv*/) try {
   initTest();

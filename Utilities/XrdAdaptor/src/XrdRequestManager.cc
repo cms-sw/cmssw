@@ -17,8 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "Utilities/StorageFactory/interface/StatisticsSenderService.h"
-
-#include "XrdStatistics.h"
+#include "Utilities/XrdAdaptor/interface/XrdStatistics.h"
 #include "Utilities/XrdAdaptor/src/XrdRequestManager.h"
 #include "Utilities/XrdAdaptor/src/XrdHostHandler.hh"
 

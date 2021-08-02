@@ -18,7 +18,6 @@ namespace XrdAdaptor {
   class RequestList;
   class ClientRequest;
   class XrdSiteStatistics;
-  class XrdStatisticsService;
 
   class Source : public std::enable_shared_from_this<Source> {
   public:

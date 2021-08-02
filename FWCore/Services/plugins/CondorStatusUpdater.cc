@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include "Utilities/XrdAdaptor/src/XrdStatistics.h"
+#include "Utilities/XrdAdaptor/interface/XrdStatistics.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <fcntl.h>

@@ -14,11 +14,11 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Utilities/XrdAdaptor/interface/XrdStatistics.h"
 
 #include "XrdSource.h"
 #include "XrdRequest.h"
 #include "QualityMetric.h"
-#include "XrdStatistics.h"
 
 #define MAX_REQUEST 256 * 1024
 #define XRD_CL_MAX_CHUNK 512 * 1024

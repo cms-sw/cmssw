@@ -1,4 +1,4 @@
-#include "Utilities/StorageFactory/test/Test.h"
+#include "Utilities/StorageFactory/interface/Test.h"
 #include "Utilities/StorageFactory/interface/Storage.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <cassert>

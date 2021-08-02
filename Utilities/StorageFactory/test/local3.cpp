@@ -1,4 +1,4 @@
-#include "Utilities/StorageFactory/test/Test.h"
+#include "Utilities/StorageFactory/interface/Test.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 int main(int, char** /*argv*/) try {
