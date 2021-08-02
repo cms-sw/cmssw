@@ -1,5 +1,5 @@
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/interface/EcalSelectiveReadoutSuppressor.h"
-#include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
+#include "SimCalorimetry/EcalSelectiveReadoutAlgos/interface/EcalSelectiveReadout.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
