@@ -144,7 +144,16 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
-
+process.GlobalTag.toGet = cms.VPSet(
+  cms.PSet(
+    record = cms.string("BeamSpotOnlineLegacyObjectsRcd"),
+    refreshTime = cms.uint64(1)
+  ),
+  cms.PSet(
+    record = cms.string("BeamSpotOnlineHLTObjectsRcd"),
+    refreshTime = cms.uint64(1)
+  )
+)
 
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                * process.dqmSaver * process.dqmSaverPB)
