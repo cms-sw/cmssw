@@ -251,7 +251,8 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
   for (reco::IsolatedPixelTrackCandidateCollection::const_iterator bll = recoIsoTracks->begin();
        bll != recoIsoTracks->end();
        bll++) {
-    edm::LogVerbatim("HcalIsoTrack") << "ISO Pt " << bll->pt() << " P     " << bll->p() << " Eta " << bll->eta() << " Phi " << bll->phi();
+    edm::LogVerbatim("HcalIsoTrack") << "ISO Pt " << bll->pt() << " P     " << bll->p() << " Eta " << bll->eta()
+                                     << " Phi " << bll->phi();
 
     double distanceMin = 1.;
     double SimPtMatched = 1.;
@@ -285,7 +286,10 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
                              tracksCI->momentum().pz() * tracksCI->momentum().pz());
         }
 
-        edm::LogVerbatim("HcalIsoTrack") << "    Pt " << tracksCI->momentum().pt() << " Energy " << tracksCI->momentum().e() << " Eta " << tracksCI->momentum().eta() << " Phi " << tracksCI->momentum().phi() << " Ind " << partIndex << " Cha " << tracksCI->charge() << " Dis " << distance << " DCM " << distanceCM;
+        edm::LogVerbatim("HcalIsoTrack") << "    Pt " << tracksCI->momentum().pt() << " Energy "
+                                         << tracksCI->momentum().e() << " Eta " << tracksCI->momentum().eta() << " Phi "
+                                         << tracksCI->momentum().phi() << " Ind " << partIndex << " Cha "
+                                         << tracksCI->charge() << " Dis " << distance << " DCM " << distanceCM;
       }
 
       if (tracksCI->momentum().eta() > (bll->eta() - 0.5) && tracksCI->momentum().eta() < (bll->eta() + 0.5) &&
@@ -296,7 +300,10 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
         double distance = getDist(tracksCI->momentum().eta(), tracksCI->momentum().phi(), bll->eta(), bll->phi());
         double distanceCM = getDistInCM(tracksCI->momentum().eta(), tracksCI->momentum().phi(), bll->eta(), bll->phi());
 
-        edm::LogVerbatim("HcalIsoTrack") << "NEU Pt " << tracksCI->momentum().pt() << " Energy " << tracksCI->momentum().e() << " Eta " << tracksCI->momentum().eta() << " Phi " << tracksCI->momentum().phi() << " Ind " << partIndex << " Cha " << tracksCI->charge() << " Dis " << distance << " DCM " << distanceCM;
+        edm::LogVerbatim("HcalIsoTrack") << "NEU Pt " << tracksCI->momentum().pt() << " Energy "
+                                         << tracksCI->momentum().e() << " Eta " << tracksCI->momentum().eta() << " Phi "
+                                         << tracksCI->momentum().phi() << " Ind " << partIndex << " Cha "
+                                         << tracksCI->charge() << " Dis " << distance << " DCM " << distanceCM;
 
         if (distanceCM < 40.) {
           neuen = neuen + tracksCI->momentum().e();

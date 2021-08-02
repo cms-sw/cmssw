@@ -1229,7 +1229,8 @@ double HcalIsoTrackStudy::trackP(const reco::Track* pTrack,
         mindR = dR;
         pmom = p.momentum().R();
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HcalIsoTrack") << "p.E() :" << p.energy() << "   p.p() :" << p.momentum().R() << " p.M  :" << p.mass();
+        edm::LogVerbatim("HcalIsoTrack") << "p.E() :" << p.energy() << "   p.p() :" << p.momentum().R()
+                                         << " p.M  :" << p.mass();
 #endif
       }
     }
@@ -1248,7 +1249,8 @@ double HcalIsoTrackStudy::trackE(const reco::Track* pTrack,
         mindR = dR;
         pE = p.energy();
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HcalIsoTrack") << "p.E() :" << p.energy() << "   p.p() :" << p.momentum().R() << " p.M  :" << p.mass();
+        edm::LogVerbatim("HcalIsoTrack") << "p.E() :" << p.energy() << "   p.p() :" << p.momentum().R()
+                                         << " p.M  :" << p.mass();
 #endif
       }
     }

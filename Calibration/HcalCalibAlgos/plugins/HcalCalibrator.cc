@@ -117,7 +117,8 @@ void HcalCalibrator::endJob() {
 
   if (mCalibMethod != "L3" && mCalibMethod != "MATRIX_INV_OF_ETA_AVE" && mCalibMethod != "L3_AND_MTRX_INV") {
     edm::LogVerbatim("HcalCalib") << "\n\nUnknown calibration method " << mCalibMethod;
-    edm::LogVerbatim("HcalCalib") << "Supported methods for IsoTrack calibration are: L3, MATRIX_INV_OF_ETA_AVE, L3_AND_MTRX_INV";
+    edm::LogVerbatim("HcalCalib")
+        << "Supported methods for IsoTrack calibration are: L3, MATRIX_INV_OF_ETA_AVE, L3_AND_MTRX_INV";
     edm::LogVerbatim("HcalCalib") << "For DiJets the supported method is L3";
     return;
   }
