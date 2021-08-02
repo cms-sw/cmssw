@@ -34,8 +34,8 @@ zmumugammaOldAnalysis.phoProducer = cms.InputTag('photons')
 # HGCal customizations
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 stdPhotonAnalysisHGCal = stdPhotonAnalysis.clone()
-stdPhotonAnalysisHGCal.ComponentName = 'stdPhotonAnalyzerHGCalFromMultiCl'
-stdPhotonAnalysisHGCal.analyzerName = 'stdPhotonAnalyzerHGCalFromMultiCl'
+stdPhotonAnalysisHGCal.ComponentName = 'stdPhotonAnalyzerHGCal'
+stdPhotonAnalysisHGCal.analyzerName = 'stdPhotonAnalyzerHGCal'
 stdPhotonAnalysisHGCal.phoProducer = 'photonsHGC'
 stdPhotonAnalysisHGCal.isolationStrength = 2
 stdPhotonAnalysisHGCal.etaMin = -3.0
