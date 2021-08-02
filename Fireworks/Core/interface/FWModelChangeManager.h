@@ -52,11 +52,11 @@ public:
   void newItemSlot(FWEventItem*);
   void itemsGoingToBeClearedSlot(void);
 
-private:
   FWModelChangeManager(const FWModelChangeManager&) = delete;  // stop default
 
   const FWModelChangeManager& operator=(const FWModelChangeManager&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   unsigned int m_depth;
   std::vector<FWModelIds> m_changes;

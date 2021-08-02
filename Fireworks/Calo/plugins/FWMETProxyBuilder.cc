@@ -47,10 +47,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWMETProxyBuilder(const FWMETProxyBuilder&) = delete;                   // stop default
   const FWMETProxyBuilder& operator=(const FWMETProxyBuilder&) = delete;  // stop default
 
+private:
   using FWSimpleProxyBuilderTemplate<reco::MET>::buildViewType;
   void buildViewType(const reco::MET& iData,
                      unsigned int iIndex,

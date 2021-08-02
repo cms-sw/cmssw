@@ -49,11 +49,11 @@ public:
   void modelChanges(const std::set<FWModelId>&);
   void itemChanged();
 
-private:
   FWInteractionList(const FWInteractionList&) = delete;  // stop default
 
   const FWInteractionList& operator=(const FWInteractionList&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
 
   std::vector<TEveCompound*> m_compounds;
