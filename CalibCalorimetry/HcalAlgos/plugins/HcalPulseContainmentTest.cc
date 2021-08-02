@@ -64,10 +64,13 @@ void HcalPulseContainmentTest::analyze(const edm::Event& iEvent, const edm::Even
   // HB and HE have the same shape here
   double corr4 = manager->correction(he1, 4, fixedphase_ns, fc);
   assert(corr4 == corr1);
-  std::cout << corr1 << " " << corr2 << " " << corr3 << " " << corr4 << " " << std::endl;
+  edm::LogPrint("HcalPulseContainmentTest") << corr1 << " " << corr2 << " " << corr3 << " " << corr4;
   // test 1TS correction at high energy
   double corr5 = manager->correction(hb1, 1, fixedphase_ns, 100000.);
-  std::cout << corr5 << std::endl;
+  edm::LogPrint("HcalPulseContainmentTest") << corr5;
+  // test 2TS correction at high energy
+  double corr6 = manager->correction(hb1, 2, fixedphase_ns, 100000.);
+  edm::LogPrint("HcalPulseContainmentTest") << corr6;
 }
 
 //define this as a plug-in

@@ -54,7 +54,7 @@ void HcalPulseContainmentAlgo::init(int num_samples) {
 #if 0
     char s[80];
     sprintf (s, "%7.3f %8.5f %8.5f\n", tmin, bin0val, bin1val);
-    std::cout << s << std::endl;
+    edm::LogPrint("HcalPulseContainmentAlgo") << s;
 #endif
 
     if (bin1val > bin0val) {
@@ -63,7 +63,7 @@ void HcalPulseContainmentAlgo::init(int num_samples) {
     }
   }
 #if 0
-  std::cout << "time0shiftns_ = " << time0shiftns_ << std::endl;
+  edm::LogPrint("HcalPulseContainmentAlgo") << "time0shiftns_ = " << time0shiftns_;
 #endif
 }
 
@@ -75,14 +75,14 @@ std::pair<double, double> HcalPulseContainmentAlgo::calcpair(double truefc) {
     tmin = fixedphasens_ - timeslew_ns;
   } else {  // Run 2: timePhase opposite to SIM, time0shift
     double shift_ns = fixedphasens_ - time0shiftns_ + timeslew_ns;
-    //std::cout << "SHIFT " << fixedphasens_ << " " << time0shiftns_ << " " << timeslew_ns << std::endl;
+    //edm::LogPrint("HcalPulseContainmentAlgo") << "SHIFT " << fixedphasens_ << " " << time0shiftns_ << " " << timeslew_ns;
     tmin = -shift_ns;
   }
   double tmax = tmin + integrationwindowns_;
 
   //double integral  = shape_.integrate( tmin, tmax );
   double integral = integrator_(tmin, tmax);
-  //std::cout << "INTEGRAL " << integral << " " << truefc << " " << tmin << " "  << tmax << std::endl;
+  //edm::LogPrint("HcalPulseContainmentAlgo") << "INTEGRAL " << integral << " " << truefc << " " << tmin << " "  << tmax;
   double corfactor = 1.0 / integral;
   double recofc = (double)truefc * integral;
 
@@ -90,7 +90,7 @@ std::pair<double, double> HcalPulseContainmentAlgo::calcpair(double truefc) {
   char s[80];
   sprintf (s, "%8.2f %8.4f %8.4f %8.5f %8.5f %8.5f ",
 	   truefc, tmin, tmax, integral, corfactor, recofc);
-  std::cout << s << std::endl;
+  edm::LogPrint("HcalPulseContainmentAlgo") << s;
 #endif
 
   std::pair<double, double> thepair(recofc, corfactor);
