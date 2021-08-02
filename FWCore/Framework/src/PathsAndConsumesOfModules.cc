@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <unordered_set>
 namespace edm {
 
   PathsAndConsumesOfModules::PathsAndConsumesOfModules() = default;
@@ -369,14 +370,18 @@ namespace edm {
       auto nPaths = iPnC.paths().size();
       for (unsigned int p = 0; p < nPaths; ++p) {
         auto& status = statusOfPaths[p];
-        status.nModules_ = iPnC.modulesOnPath(p).size() + 1;
         status.index_ = p;
         status.modulesOnPath_.reserve(status.nModules_);
+        std::unordered_set<unsigned int> uniqueModules;
         for (auto const& mod : iPnC.modulesOnPath(p)) {
-          status.modulesOnPath_.push_back(mod->id());
-          statusOfModules[mod->id()].onPath_ = true;
-          statusOfModules[mod->id()].pathsOn_.push_back(p);
+          if (uniqueModules.insert(mod->id()).second) {
+            status.modulesOnPath_.push_back(mod->id());
+            statusOfModules[mod->id()].onPath_ = true;
+            statusOfModules[mod->id()].pathsOn_.push_back(p);
+          }
         }
+        status.nModules_ = uniqueModules.size() + 1;
+
         //add the PathStatusInserter at the end
         auto found = pathStatusInserterModuleLabelToModuleID.find(iPnC.paths()[p]);
         assert(found != pathStatusInserterModuleLabelToModuleID.end());
@@ -388,15 +393,19 @@ namespace edm {
       auto nPaths = iPnC.endPaths().size();
       for (unsigned int p = 0; p < nPaths; ++p) {
         auto& status = statusOfPaths[p + offset];
-        status.nModules_ = iPnC.modulesOnEndPath(p).size() + 1;
         status.endPath_ = true;
         status.index_ = p;
         status.modulesOnPath_.reserve(status.nModules_);
+        std::unordered_set<unsigned int> uniqueModules;
         for (auto const& mod : iPnC.modulesOnEndPath(p)) {
-          status.modulesOnPath_.push_back(mod->id());
-          statusOfModules[mod->id()].onPath_ = true;
-          statusOfModules[mod->id()].pathsOn_.push_back(p + offset);
+          if (uniqueModules.insert(mod->id()).second) {
+            status.modulesOnPath_.push_back(mod->id());
+            statusOfModules[mod->id()].onPath_ = true;
+            statusOfModules[mod->id()].pathsOn_.push_back(p + offset);
+          }
         }
+        status.nModules_ = uniqueModules.size() + 1;
+
         //add the EndPathStatusInserter at the end
         auto found = pathStatusInserterModuleLabelToModuleID.find(iPnC.endPaths()[p]);
         assert(found != pathStatusInserterModuleLabelToModuleID.end());
