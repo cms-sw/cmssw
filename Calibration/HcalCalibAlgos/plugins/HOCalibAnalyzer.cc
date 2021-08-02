@@ -573,7 +573,7 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   if (nbn > nbin)
     nbn = nbin;
 
-  edm::LogInfo("HOCalib") << "nbin " << nbin << " " << alow << " " << ahigh << " " << tmpwid << " " << nbn;
+  edm::LogVerbatim("HOCalib") << "nbin " << nbin << " " << alow << " " << ahigh << " " << tmpwid << " " << nbn;
 
   for (int ij = 0; ij < 15; ij++) {
     sprintf(title, "sigvsndof_ring%i", ij + 1);
@@ -926,7 +926,7 @@ HOCalibAnalyzer::~HOCalibAnalyzer() {
   theFile->cd();
   theFile->Write();
   theFile->Close();
-  edm::LogInfo("HOCalib") << " Ttoal events = " << Nevents << " Selected events # is " << ipass;
+  edm::LogVerbatim("HOCalib") << " Ttoal events = " << Nevents << " Selected events # is " << ipass;
 }
 
 //
@@ -982,7 +982,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   //swapped phi map for R0+/R0- (15/03/07)  
   for (int ij=0; ij<4; ij++) {
     for (int jk=0; jk<21; jk++) {
-      edm::LogInfo("HOCalib") <<"ieta "<<ij<<" "<<jk<<" "<<etamap[ij][jk];
+      edm::LogVerbatim("HOCalib") <<"ieta "<<ij<<" "<<jk<<" "<<etamap[ij][jk];
     }
   }
 
@@ -1042,7 +1042,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     isCosMu = false;
   }
   if (Nevents % 5000 == 1)
-    edm::LogInfo("HOCalib") << "nmuon event # " << Nevents << " Run # " << iEvent.id().run() << " Evt # "
+    edm::LogVerbatim("HOCalib") << "nmuon event # " << Nevents << " Run # " << iEvent.id().run() << " Evt # "
                             << iEvent.id().event() << " " << ipass;
 
   if (isCosMu && !(*HOCalib).empty()) {
@@ -1087,10 +1087,10 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       hoflag = (*hoC).hoflag;
       for (int ij = 0; ij < 9; ij++) {
         hosig[ij] = (*hoC).hosig[ij];
-      }  //edm::LogInfo("HOCalib")<<"hosig "<<i<<" "<<hosig[ij];}
+      }  //edm::LogVerbatim("HOCalib")<<"hosig "<<i<<" "<<hosig[ij];}
       for (int ij = 0; ij < 18; ij++) {
         hocorsig[ij] = (*hoC).hocorsig[ij];
-      }  // edm::LogInfo("HOCalib")<<"hocorsig "<<i<<" "<<hocorsig[ij];}
+      }  // edm::LogVerbatim("HOCalib")<<"hocorsig "<<i<<" "<<hocorsig[ij];}
       hocro = (*hoC).hocro;
       for (int ij = 0; ij < 3; ij++) {
         caloen[ij] = (*hoC).caloen[ij];
@@ -1100,7 +1100,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         for (int ij = 0; ij < 9; ij++) {
           hbhesig[ij] = (*hoC).hbhesig[ij];
         }
-      }  // edm::LogInfo("HOCalib")<<"hbhesig "<<ij<<" "<<hbhesig[ij];}}
+      }  // edm::LogVerbatim("HOCalib")<<"hbhesig "<<ij<<" "<<hbhesig[ij];}}
 
       T1->Fill();
 
@@ -1451,7 +1451,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         }
       }
 
-      //      edm::LogInfo("HOCalib") <<"cosmic "<<hosig[4]<<" "<<caloen[3]<<" "<<int(iselect2)<<" "<<int(m_cosmic);
+      //      edm::LogVerbatim("HOCalib") <<"cosmic "<<hosig[4]<<" "<<caloen[3]<<" "<<int(iselect2)<<" "<<int(m_cosmic);
 
       if (iselect2 == 1) {
         int tmpphi2 = (iphi + 6 <= nphimx) ? iphi + 5 : iphi + 5 - nphimx;
@@ -1521,16 +1521,16 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
               tmpphi = abs(tmpphi - 2);
             if (int((hocorsig[fact * tmpeta + tmpphi] - hosig[4]) * 10000) / 10000. != 0) {
               iaxxx++;
-              edm::LogInfo("HOCalib") << "iring2xxx " << irun << " " << ievt << " " << isect << " " << iring << " "
+              edm::LogVerbatim("HOCalib") << "iring2xxx " << irun << " " << ievt << " " << isect << " " << iring << " "
                                       << tmpsect << " " << ieta << " " << iphi << " " << npixel << " " << tmpeta << " "
                                       << tmpphi << " " << tmpeta1 << " " << tmpphi1 << " itag " << itag << " " << iflip
                                       << " " << fact << " " << hocorsig[fact * tmpeta + tmpphi] << " "
                                       << fact * tmpeta + tmpphi << " " << hosig[4] << " " << hodx << " " << hody;
 
               for (int ij = 0; ij < 18; ij++) {
-                edm::LogInfo("HOCalib") << " " << ij << " " << hocorsig[ij];
+                edm::LogVerbatim("HOCalib") << " " << ij << " " << hocorsig[ij];
               }
-              edm::LogInfo("HOCalib") << " ix " << iaxxx << " " << ibxxx;
+              edm::LogVerbatim("HOCalib") << " ix " << iaxxx << " " << ibxxx;
             } else {
               ibxxx++;
             }
@@ -1643,7 +1643,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           }
           if (m_hbinfo) {  // #ifdef HBINFO
             hbhe_sig[k]->Fill(hbhesig[k]);
-            //	    edm::LogInfo("HOCalib") <<"hbhe "<<k<<" "<<hbhesig[k];
+            //	    edm::LogVerbatim("HOCalib") <<"hbhe "<<k<<" "<<hbhesig[k];
           }  //m_hbinfo #endif
         }
       }  //if (iselect==1)
@@ -2176,7 +2176,7 @@ void HOCalibAnalyzer::endJob() {
                   if (step[k] > -10) {
                     gMinuit->mnpout(k, chnam, parv, err, xlo, xup, iuit);
                     gMinuit->mnerrs(k, plerr, mierr, eparab, gcc);
-                    //		    edm::LogInfo("HOCalib") <<"k "<< k<<" "<<chnam<<" "<<parv<<" "<<err<<" "<<xlo<<" "<<xup<<" "<<plerr<<" "<<mierr<<" "<<eparab;
+                    //		    edm::LogVerbatim("HOCalib") <<"k "<< k<<" "<<chnam<<" "<<parv<<" "<<err<<" "<<xlo<<" "<<xup<<" "<<plerr<<" "<<mierr<<" "<<eparab;
                     if (k == 0) {
                       gaupr[k] = parv * binwid;
                       parer[k] = err * binwid;
@@ -2366,7 +2366,7 @@ void HOCalibAnalyzer::endJob() {
 
             int kl = (jk < 15) ? jk + 1 : 14 - jk;
 
-            edm::LogInfo("HOCalib") << "histinfo" << iijj << " fit " << std::setw(3) << kl << " " << std::setw(3)
+            edm::LogVerbatim("HOCalib") << "histinfo" << iijj << " fit " << std::setw(3) << kl << " " << std::setw(3)
                                     << ij + 1 << " " << std::setw(5) << pedstll[izone]->GetEntries() << " "
                                     << std::setw(6) << pedstll[izone]->GetMean() << " " << std::setw(6)
                                     << pedstll[izone]->GetRMS() << " " << std::setw(5) << signall[izone]->GetEntries()

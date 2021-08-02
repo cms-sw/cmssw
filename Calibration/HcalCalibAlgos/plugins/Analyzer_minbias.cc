@@ -390,7 +390,7 @@ namespace cms {
  
       if (!gtRecord.isValid()) {
 
-      //     LogDebug("L1GlobalTriggerRecordProducer")
+      //     edm::LogVerbatim("AnalyzerMB")
       //       << "\n\n Error: no L1GlobalTriggerReadoutRecord found with input tag "
       //       << m_l1GtReadoutRecord
       //       << "\n Returning empty L1GlobalTriggerRecord.\n\n";
