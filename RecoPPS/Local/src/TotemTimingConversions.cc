@@ -13,8 +13,8 @@
 
 //----------------------------------------------------------------------------------------------------
 
-TotemTimingConversions::TotemTimingConversions(bool mergeTimePeaks, const PPSTimingCalibration& calibration)
-    : calibration_(calibration), mergeTimePeaks_(mergeTimePeaks), calibrationFunction_(calibration_.formula()) {}
+TotemTimingConversions::TotemTimingConversions(double sampicSamplingPeriodNs, bool mergeTimePeaks, const PPSTimingCalibration& calibration)
+    : calibration_(calibration),sampicSamplingPeriodNs_(sampicSamplingPeriodNs), mergeTimePeaks_(mergeTimePeaks), calibrationFunction_(calibration_.formula()) {}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -28,13 +28,13 @@ float TotemTimingConversions::timeOfFirstSample(const TotemTimingDigi& digi) con
                        digi.eventInfo().l1ALatency();       
 
   // time of first cell
-  float cell0TimeInstant = SAMPIC_MAX_NUMBER_OF_SAMPLES * SAMPIC_SAMPLING_PERIOD_NS * cell0TimeClock;
+  float cell0TimeInstant = SAMPIC_MAX_NUMBER_OF_SAMPLES * sampicSamplingPeriodNs_ * cell0TimeClock;
 
   // time of triggered cell
   float firstCellTimeInstant =
       (digi.cellInfo() < offsetOfSamples)
-          ? cell0TimeInstant + digi.cellInfo() * SAMPIC_SAMPLING_PERIOD_NS
-          : cell0TimeInstant - (SAMPIC_MAX_NUMBER_OF_SAMPLES - digi.cellInfo()) * SAMPIC_SAMPLING_PERIOD_NS;
+          ? cell0TimeInstant + digi.cellInfo() * sampicSamplingPeriodNs_
+          : cell0TimeInstant - (SAMPIC_MAX_NUMBER_OF_SAMPLES - digi.cellInfo()) * sampicSamplingPeriodNs_;
 
   int db = digi.hardwareBoardId();
   int sampic = digi.hardwareSampicId();
@@ -44,9 +44,9 @@ float TotemTimingConversions::timeOfFirstSample(const TotemTimingDigi& digi) con
 
   if (mergeTimePeaks_) {
     if (t < -ACCEPTED_TIME_RADIUS)
-      t += SAMPIC_MAX_NUMBER_OF_SAMPLES * SAMPIC_SAMPLING_PERIOD_NS;
+      t += SAMPIC_MAX_NUMBER_OF_SAMPLES * sampicSamplingPeriodNs_;
     if (t > ACCEPTED_TIME_RADIUS)
-      t -= SAMPIC_MAX_NUMBER_OF_SAMPLES * SAMPIC_SAMPLING_PERIOD_NS;
+      t -= SAMPIC_MAX_NUMBER_OF_SAMPLES * sampicSamplingPeriodNs_;
   }
 
   return t;
@@ -56,7 +56,7 @@ float TotemTimingConversions::timeOfFirstSample(const TotemTimingDigi& digi) con
 
 float TotemTimingConversions::triggerTime(const TotemTimingDigi& digi) const {
   unsigned int offsetOfSamples = digi.eventInfo().offsetOfSamples();
-  return timeOfFirstSample(digi) + (SAMPIC_MAX_NUMBER_OF_SAMPLES - offsetOfSamples) * SAMPIC_SAMPLING_PERIOD_NS;
+  return timeOfFirstSample(digi) + (SAMPIC_MAX_NUMBER_OF_SAMPLES - offsetOfSamples) * sampicSamplingPeriodNs_;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ float TotemTimingConversions::timePrecision(const TotemTimingDigi& digi) const {
 std::vector<float> TotemTimingConversions::timeSamples(const TotemTimingDigi& digi) const {
   std::vector<float> time(digi.numberOfSamples());
   for (unsigned int i = 0; i < time.size(); ++i)
-    time.at(i) = timeOfFirstSample(digi) + i * SAMPIC_SAMPLING_PERIOD_NS;
+    time.at(i) = timeOfFirstSample(digi) + i * sampicSamplingPeriodNs_;
   return time;
 }
 

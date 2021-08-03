@@ -18,8 +18,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #digi converter
 ################
 process.totemTimingRawToDigi = cms.EDProducer('DiamondSampicDigiProducer',
-	#input file path
-	sampicFilesVec=cms.vstring("RecoPPS/Local/data/10k_0.root"),#testbeam data
+	#input path of the testbeam data
+	sampicFilesVec=cms.vstring("../data/10k_0.root"),
 	################
 	#channel mapping
 	################
@@ -69,8 +69,11 @@ process.ppsTimingCalibrationESSource = cms.ESSource('PPSTimingCalibrationESSourc
 )
 
 
+
+process.totemTimingRecHits.mergeTimePeaks= cms.bool(False)
+
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('file:sampicReco.root')
+    fileName = cms.untracked.string('file:diamondSampicReco.root')
     
 )
 
@@ -78,6 +81,6 @@ process.p = cms.Path(process.totemTimingRawToDigi*
 	process.diamondSampicLocalReconstruction
 )
 
-process.outpath = cms.EndPath(process.output)
+process.outpath = cms.EndPath(process.out)
 
 

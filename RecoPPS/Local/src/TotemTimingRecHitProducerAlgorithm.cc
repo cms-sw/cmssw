@@ -25,12 +25,13 @@ TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm(const edm
       smoothingPoints_(iConfig.getParameter<int>("smoothingPoints")),
       lowPassFrequency_(iConfig.getParameter<double>("lowPassFrequency")),
       hysteresis_(iConfig.getParameter<double>("hysteresis")),
-      sampicOffset_(iConfig.getParameter<double>("sampicOffset")){}
+      sampicOffset_(iConfig.getParameter<double>("sampicOffset")),
+      sampicSamplingPeriodNs_(iConfig.getParameter<double>("sampicSamplingPeriodNs")){}
 
 //----------------------------------------------------------------------------------------------------
 
 void TotemTimingRecHitProducerAlgorithm::setCalibration(const PPSTimingCalibration& calib) {
-  sampicConversions_ = std::make_unique<TotemTimingConversions>(mergeTimePeaks_, calib);
+  sampicConversions_ = std::make_unique<TotemTimingConversions>(sampicSamplingPeriodNs_, mergeTimePeaks_, calib);
 }
 
 //----------------------------------------------------------------------------------------------------

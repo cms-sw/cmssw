@@ -59,6 +59,7 @@ private:
   double lowPassFrequency_;
   double hysteresis_;
   double sampicOffset_;
+  double sampicSamplingPeriodNs_;
   TotemTimingRecHit::TimingAlgorithm mode_;
 };
 
