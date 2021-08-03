@@ -447,7 +447,6 @@ namespace cms {
           edm::LogVerbatim("AnalyzerMB") << " Run " << rnnum << " ieta,iphi " << hid.ieta() << " " << hid.iphi()
                                          << energyhit;
 
-
       }  // depth=1
 
     }  // HBHE_NS
