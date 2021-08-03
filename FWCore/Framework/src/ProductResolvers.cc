@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 #include "ProductResolvers.h"
-#include "Worker.h"
+#include "FWCore/Framework/interface/maker/Worker.h"
 #include "UnscheduledAuxiliary.h"
 #include "UnscheduledConfigurator.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -9,7 +9,7 @@
 #include "FWCore/Framework/src/ProductDeletedException.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"

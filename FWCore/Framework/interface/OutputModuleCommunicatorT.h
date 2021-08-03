@@ -4,7 +4,7 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/src/OutputModuleCommunicator.h"
+#include "FWCore/Framework/interface/OutputModuleCommunicator.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 
 namespace edm {

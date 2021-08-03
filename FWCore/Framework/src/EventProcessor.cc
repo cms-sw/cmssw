@@ -36,7 +36,7 @@
 #include "FWCore/Framework/src/InputSourceFactory.h"
 #include "FWCore/Framework/src/SharedResourcesRegistry.h"
 #include "FWCore/Framework/src/streamTransitionAsync.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/src/globalTransitionAsync.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

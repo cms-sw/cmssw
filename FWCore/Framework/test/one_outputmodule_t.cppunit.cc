@@ -12,9 +12,9 @@
 #include <functional>
 #include "tbb/global_control.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
-#include "FWCore/Framework/src/OutputModuleCommunicatorT.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
-#include "FWCore/Framework/src/WorkerT.h"
+#include "FWCore/Framework/interface/OutputModuleCommunicatorT.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"

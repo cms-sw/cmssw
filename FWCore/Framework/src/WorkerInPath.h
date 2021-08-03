@@ -11,7 +11,7 @@
 
 */
 
-#include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"

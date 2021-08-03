@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/WorkerManager.h"
-#include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"

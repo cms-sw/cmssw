@@ -64,7 +64,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/WorkerManager.h"
-#include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Framework/src/GlobalSchedule.h"
 #include "FWCore/Framework/src/StreamSchedule.h"

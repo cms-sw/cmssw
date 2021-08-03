@@ -1,5 +1,5 @@
 #include "FWCore/Framework/src/GlobalSchedule.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/Framework/interface/maker/WorkerMaker.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/src/EndPathStatusInserter.h"
