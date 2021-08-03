@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ValidHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -62,31 +62,28 @@ VtxTester::VtxTester(const edm::ParameterSet& cfg)
 }
 
 void VtxTester::analyze(const edm::Event& e, const edm::EventSetup&) {
-  edm::Handle<edm::HepMCProduct> theGenEvent;
-  e.getByToken(srcHepMCToken_, theGenEvent);
+  auto theGenEvent = makeValid(e.getHandle(srcHepMCToken_));
 
-  if (theGenEvent.isValid()) {
-    const HepMC::GenEvent* Evt = theGenEvent->GetEvent();
+  const HepMC::GenEvent* Evt = theGenEvent->GetEvent();
 
-    // take only 1st vertex for now - it's been tested only of PGuns...
+  // take only 1st vertex for now - it's been tested only of PGuns...
 
-    HepMC::GenEvent::vertex_const_iterator Vtx = Evt->vertices_begin();
+  HepMC::GenEvent::vertex_const_iterator Vtx = Evt->vertices_begin();
 
-    fVtxHistTime_->Fill((*Vtx)->position().t() * CLHEP::mm / CLHEP::c_light);
-    fVtxHistz_->Fill((*Vtx)->position().z() * CLHEP::mm);
-    fVtxHistzTime_->Fill((*Vtx)->position().z() * CLHEP::mm, (*Vtx)->position().t() * CLHEP::mm / CLHEP::c_light);
-    fVtxHistx_->Fill((*Vtx)->position().x() * CLHEP::mm);
-    fVtxHisty_->Fill((*Vtx)->position().y() * CLHEP::mm);
-    fVtxHistxy_->Fill((*Vtx)->position().x() * CLHEP::mm, (*Vtx)->position().y() * CLHEP::mm);
+  fVtxHistTime_->Fill((*Vtx)->position().t() * CLHEP::mm / CLHEP::c_light);
+  fVtxHistz_->Fill((*Vtx)->position().z() * CLHEP::mm);
+  fVtxHistzTime_->Fill((*Vtx)->position().z() * CLHEP::mm, (*Vtx)->position().t() * CLHEP::mm / CLHEP::c_light);
+  fVtxHistx_->Fill((*Vtx)->position().x() * CLHEP::mm);
+  fVtxHisty_->Fill((*Vtx)->position().y() * CLHEP::mm);
+  fVtxHistxy_->Fill((*Vtx)->position().x() * CLHEP::mm, (*Vtx)->position().y() * CLHEP::mm);
 
-    for (HepMC::GenEvent::particle_const_iterator Part = Evt->particles_begin(); Part != Evt->particles_end(); Part++) {
-      HepMC::FourVector Mom = (*Part)->momentum();
-      double Phi = Mom.phi();
-      double Eta = -log(tan(Mom.theta() / 2.));
+  for (HepMC::GenEvent::particle_const_iterator Part = Evt->particles_begin(); Part != Evt->particles_end(); Part++) {
+    HepMC::FourVector Mom = (*Part)->momentum();
+    double Phi = Mom.phi();
+    double Eta = -log(tan(Mom.theta() / 2.));
 
-      fPhiHist_->Fill(Phi);
-      fEtaHist_->Fill(Eta);
-    }
+    fPhiHist_->Fill(Phi);
+    fEtaHist_->Fill(Eta);
   }
 
   return;
