@@ -16,6 +16,8 @@ namespace emtf {
     ~Node();
 
     Node(Node &&) = default;
+    Node(const Node &) = delete;
+    Node &operator=(const Node &) = delete;
 
     std::string getName();
     void setName(std::string sName);
@@ -60,9 +62,6 @@ namespace emtf {
     void theMiracleOfChildBirth();
 
   private:
-    Node(const Node &) = delete;
-    Node &operator=(const Node &) = delete;
-
     std::string name;
 
     Node *leftDaughter;

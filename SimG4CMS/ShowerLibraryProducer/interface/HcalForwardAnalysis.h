@@ -48,14 +48,13 @@ public:
   };
 
   HcalForwardAnalysis(const edm::ParameterSet& p);
+  HcalForwardAnalysis(const HcalForwardAnalysis&) = delete;  // stop default
+  const HcalForwardAnalysis& operator=(const HcalForwardAnalysis&) = delete;
   ~HcalForwardAnalysis() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  HcalForwardAnalysis(const HcalForwardAnalysis&) = delete;  // stop default
-  const HcalForwardAnalysis& operator=(const HcalForwardAnalysis&) = delete;
-
   void init();
 
   // observer methods
