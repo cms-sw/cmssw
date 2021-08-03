@@ -377,7 +377,7 @@ namespace edm {
       for (unsigned int p = 0; p < nPaths; ++p) {
         auto& status = statusOfPaths[p];
         status.index_ = p;
-        status.modulesOnPath_.reserve(status.nModules_);
+        status.modulesOnPath_.reserve(iPnC.modulesOnPath(p).size() + 1);
         std::unordered_set<unsigned int> uniqueModules;
         for (auto const& mod : iPnC.modulesOnPath(p)) {
           if (uniqueModules.insert(mod->id()).second) {
@@ -401,7 +401,7 @@ namespace edm {
         auto& status = statusOfPaths[p + offset];
         status.endPath_ = true;
         status.index_ = p;
-        status.modulesOnPath_.reserve(status.nModules_);
+        status.modulesOnPath_.reserve(iPnC.modulesOnEndPath(p).size() + 1);
         std::unordered_set<unsigned int> uniqueModules;
         for (auto const& mod : iPnC.modulesOnEndPath(p)) {
           if (uniqueModules.insert(mod->id()).second) {
