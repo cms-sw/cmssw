@@ -68,14 +68,15 @@ public:
     XrdCl::FileSystem fs(url);
     std::vector<std::string> fileList;
     fileList.push_back(url.GetPath());
-    XrdCl::Buffer *buffer = nullptr;
-    auto status = fs.Prepare(fileList, XrdCl::PrepareFlags::Stage, 0, buffer);
+    XrdCl::Buffer *raw_buffer = nullptr;
+    auto status = fs.Prepare(fileList, XrdCl::PrepareFlags::Stage, 0, raw_buffer);
+    std::unique_ptr<XrdCl::Buffer> smart_buffer(raw_buffer);
+    raw_buffer = nullptr;
+
     if (!status.IsOK()) {
       edm::LogWarning("StageInError") << "XrdCl::FileSystem::Prepare failed with error '" << status.ToStr()
                                       << "' (errNo = " << status.errNo << ")";
     }
-
-    delete buffer;
   }
 
   bool check(const std::string &proto,
