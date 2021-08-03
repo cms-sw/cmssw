@@ -100,8 +100,8 @@ void HGCPassive::update(const G4Step* aStep) {
       if (((aStep->GetPostStepPoint() == nullptr) || (aStep->GetTrack()->GetNextVolume() == nullptr)) &&
           (aStep->IsLastStepInVolume())) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCSim") << static_cast<std::string>(dd4hep::dd::noNamespace(plv->GetName())) << " F|L Step " << aStep->IsFirstStepInVolume() << ":"
-                                   << aStep->IsLastStepInVolume() << " Position"
+        edm::LogVerbatim("HGCSim") << static_cast<std::string>(dd4hep::dd::noNamespace(plv->GetName())) << " F|L Step "
+                                   << aStep->IsFirstStepInVolume() << ":" << aStep->IsLastStepInVolume() << " Position"
                                    << aStep->GetPreStepPoint()->GetPosition() << " Track "
                                    << aStep->GetTrack()->GetDefinition()->GetParticleName() << " at"
                                    << aStep->GetTrack()->GetPosition() << " Volume " << aStep->GetTrack()->GetVolume()
@@ -113,7 +113,9 @@ void HGCPassive::update(const G4Step* aStep) {
         energy += (aStep->GetPreStepPoint()->GetKineticEnergy() / CLHEP::GeV);
       } else {
         time = (aStep->GetPostStepPoint()->GetGlobalTime());
-        copy = (level < 2) ? 0 : static_cast<unsigned int>(touchable->GetReplicaNumber(0) + 1000 * touchable->GetReplicaNumber(1));
+        copy = (level < 2)
+                   ? 0
+                   : static_cast<unsigned int>(touchable->GetReplicaNumber(0) + 1000 * touchable->GetReplicaNumber(1));
       }
       if (it != mapLV_.end()) {
         storeInfo(it, plv, copy, time, energy, true);
@@ -134,8 +136,9 @@ void HGCPassive::update(const G4Step* aStep) {
         G4LogicalVolume* plv = touchable->GetVolume(i)->GetLogicalVolume();
         auto it = (init_) ? mapLV_.find(plv) : findLV(plv);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCSim") << "Level: " << level << ":" << i << " " << static_cast<std::string>(dd4hep::dd::noNamespace(plv->GetName())) << " flag in the List "
-                                   << (it != mapLV_.end());
+        edm::LogVerbatim("HGCSim") << "Level: " << level << ":" << i << " "
+                                   << static_cast<std::string>(dd4hep::dd::noNamespace(plv->GetName()))
+                                   << " flag in the List " << (it != mapLV_.end());
 #endif
         if (it != mapLV_.end()) {
           unsigned int copy =
