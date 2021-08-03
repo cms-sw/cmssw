@@ -295,10 +295,16 @@ namespace edm {
         return true;
       }
 
-      stackTrace.push_back(iModuleToCheckID);
       if (status.lastSearch == searchIndex) {
-        throw CircularDependencyException();
+        //check to see if the module is already on the stack
+        // checking searchIndex is insufficient as multiple modules
+        // in this search may be dependent upon the same module
+        auto itFound = std::find(stackTrace.begin(), stackTrace.end(), iModuleToCheckID);
+        if (itFound != stackTrace.end()) {
+          throw CircularDependencyException();
+        }
       }
+      stackTrace.push_back(iModuleToCheckID);
       status.lastSearch = searchIndex;
 
       bool allDependenciesRan = true;
