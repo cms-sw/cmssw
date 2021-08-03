@@ -24,7 +24,7 @@
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"

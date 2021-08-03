@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/BranchActionType.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/src/UnscheduledAuxiliary.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"

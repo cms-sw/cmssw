@@ -15,7 +15,7 @@
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
 
-#include "FWCore/Framework/src/OutputModuleCommunicatorT.h"
+#include "FWCore/Framework/interface/OutputModuleCommunicatorT.h"
 
 #include "FWCore/Framework/interface/global/OutputModuleBase.h"
 #include "FWCore/Framework/interface/one/OutputModuleBase.h"

@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"

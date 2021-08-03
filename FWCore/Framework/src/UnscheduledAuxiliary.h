@@ -21,7 +21,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Utilities/interface/Signal.h"
 
 // forward declarations

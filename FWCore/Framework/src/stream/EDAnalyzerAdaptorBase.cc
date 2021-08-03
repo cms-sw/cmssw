@@ -27,7 +27,7 @@
 
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 
 using namespace edm::stream;
 //
