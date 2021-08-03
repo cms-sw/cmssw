@@ -110,9 +110,8 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // ECAL Barrel
 
   bool isBarrel = true;
-  edm::Handle<EBDigiCollection> EcalDigiEB;
   const EBDigiCollection* EBdigis = 0;
-  iEvent.getByToken(ECalEBSrc_, EcalDigiEB);
+  auto EcalDigiEB = iEvent.getHandle(ECalEBSrc_);
   if (!EcalDigiEB.isValid()) {
     edm::LogPrint("SimDigiDumper") << "Unable to find EcalDigiEB in event!";
   } else {
@@ -132,9 +131,8 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // ECAL Endcap
   bool isEndcap = true;
-  edm::Handle<EEDigiCollection> EcalDigiEE;
   const EEDigiCollection* EEdigis = 0;
-  iEvent.getByToken(ECalEESrc_, EcalDigiEE);
+  auto EcalDigiEE = iEvent.getHandle(ECalEESrc_);
   if (!EcalDigiEE.isValid()) {
     edm::LogPrint("SimDigiDumper") << "Unable to find EcalDigiEE in event!";
   } else {
@@ -154,9 +152,8 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // ECAL Preshower
   bool isPreshower = true;
-  edm::Handle<ESDigiCollection> EcalDigiES;
   const ESDigiCollection* ESdigis = 0;
-  iEvent.getByToken(ECalESSrc_, EcalDigiES);
+  auto EcalDigiES = iEvent.getHandle(ECalESSrc_);
   if (!EcalDigiES.isValid()) {
     edm::LogPrint("SimDigiDumper") << "Unable to find EcalDigiES in event!";
   } else {
@@ -173,11 +170,11 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }
     }
   }
+
   // HBHE
   bool isHBHE = true;
-  edm::Handle<HBHEDigiCollection> hbhe;
   const HBHEDigiCollection* HBHEdigis = 0;
-  iEvent.getByToken(HCalSrc_, hbhe);
+  auto hbhe = iEvent.getHandle(HCalSrc_);
   if (!hbhe.isValid()) {
     edm::LogPrint("SimDigiDumper") << "Unable to find HBHEDataFrame in event!";
   } else {
@@ -201,9 +198,8 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // HO
   bool isHO = true;
-  edm::Handle<HODigiCollection> ho;
   const HODigiCollection* HOdigis = 0;
-  iEvent.getByToken(HCalHOSrc_, ho);
+  auto ho = iEvent.getHandle(HCalHOSrc_);
   if (!ho.isValid()) {
     edm::LogPrint("SimDigiDumper") << "Unable to find HODataFrame in event!";
   } else {
@@ -223,9 +219,8 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // HF
   bool isHF = true;
-  edm::Handle<HFDigiCollection> hf;
   const HFDigiCollection* HFdigis = 0;
-  iEvent.getByToken(HCalHFSrc_, hf);
+  auto hf = iEvent.getHandle(HCalHFSrc_);
   if (!hf.isValid()) {
     edm::LogPrint("SimDigiDumper") << "Unable to find HFDataFrame in event!";
   } else {
@@ -245,9 +240,8 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // ZDC
   bool isZDC = true;
-  edm::Handle<ZDCDigiCollection> zdc;
   const ZDCDigiCollection* ZDCdigis = 0;
-  iEvent.getByToken(ZdcSrc_, zdc);
+  auto zdc = iEvent.getHandle(ZdcSrc_);
   if (!zdc.isValid()) {
     edm::LogPrint("SimDigiDumper") << "Unable to find ZDCDataFrame in event!";
   } else {
@@ -267,8 +261,7 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // Strip Tracker
   bool isStrip = true;
-  edm::Handle<edm::DetSetVector<SiStripDigi> > stripDigis;
-  iEvent.getByToken(SiStripSrc_, stripDigis);
+  auto stripDigis = iEvent.getHandle(SiStripSrc_);
   if (!stripDigis.isValid()) {
     edm::LogPrint("SimDigiDumper") << "Unable to find stripDigis in event!";
   } else {
@@ -303,8 +296,7 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // Pixel Tracker
   bool isPixel = true;
-  edm::Handle<edm::DetSetVector<PixelDigi> > pixelDigis;
-  iEvent.getByToken(SiPxlSrc_, pixelDigis);
+  auto pixelDigis = iEvent.getHandle(SiPxlSrc_);
   if (!pixelDigis.isValid()) {
     edm::LogPrint("SimDigiDumper") << "Unable to find pixelDigis in event!";
   } else {
@@ -335,9 +327,7 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // DT
   bool isDT = true;
-  edm::Handle<DTDigiCollection> dtDigis;
-  //edm::Handle<DTLayerIdDTDigiMuonDigiCollection> dtDigis;
-  iEvent.getByToken(MuDTSrc_, dtDigis);
+  auto dtDigis = iEvent.getHandle(MuDTSrc_);
   if (!dtDigis.isValid()) {
     edm::LogPrint("SimDigiDumper") << "Unable to find dtDigis in event!";
   }
@@ -361,8 +351,7 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // CSC strip
   bool isCSCStrip = true;
-  edm::Handle<CSCStripDigiCollection> cscStripDigis;
-  iEvent.getByToken(MuCSCStripSrc_, cscStripDigis);
+  auto cscStripDigis = iEvent.getHandle(MuCSCStripSrc_);
   if (!cscStripDigis.isValid()) {
     edm::LogPrint("SimDigiDumper") << "Unable to find cscStripDigis in event!";
   }
@@ -385,8 +374,7 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // CSC wire
   bool isCSCWire = true;
-  edm::Handle<CSCWireDigiCollection> cscWireDigis;
-  iEvent.getByToken(MuCSCWireSrc_, cscWireDigis);
+  auto cscWireDigis = iEvent.getHandle(MuCSCWireSrc_);
   if (!cscWireDigis.isValid()) {
     edm::LogPrint("SimDigiDumper") << "Unable to find cscWireDigis in event!";
   }
@@ -409,8 +397,7 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // RPC
   bool isRPC = true;
-  edm::Handle<RPCDigiCollection> rpcDigis;
-  iEvent.getByToken(MuRPCSrc_, rpcDigis);
+  auto rpcDigis = iEvent.getHandle(MuRPCSrc_);
   if (!rpcDigis.isValid()) {
     edm::LogPrint("SimDigiDumper") << "Unable to find rpcDigis in event!";
   }
@@ -433,9 +420,8 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // BTL
   bool isBTL = true;
-  edm::Handle<BTLDigiCollection> BTLDigi;
   const BTLDigiCollection* BTLdigis = 0;
-  iEvent.getByToken(BTLSrc_, BTLDigi);
+  auto BTLDigi = iEvent.getHandle(BTLSrc_);
   if (!BTLDigi.isValid()) {
     edm::LogPrint("SimDigiDumper") << "Unable to find BTLDigi in event!";
   } else {
@@ -456,9 +442,8 @@ void SimDigiDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // ETL
   bool isETL = true;
-  edm::Handle<ETLDigiCollection> ETLDigi;
   const ETLDigiCollection* ETLdigis = 0;
-  iEvent.getByToken(ETLSrc_, ETLDigi);
+  auto ETLDigi = iEvent.getHandle(ETLSrc_);
   if (!ETLDigi.isValid()) {
     edm::LogPrint("SimDigiDumper") << "Unable to find ETLDigi in event!";
   } else {

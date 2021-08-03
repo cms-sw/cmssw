@@ -121,67 +121,36 @@ void SimHitCaloHitDumper::analyze(const edm::Event& iEvent, const edm::EventSetu
   std::vector<std::pair<int, std::string> > theMTDComposition;
   std::vector<std::pair<int, std::string> > theCaloComposition;
 
-  edm::Handle<edm::PSimHitContainer> PixelBarrelHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> PixelBarrelHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> PixelEndcapHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> PixelEndcapHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> TIBHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TIBHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> TIDHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TIDHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> TOBHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TOBHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> TECHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TECHitsHighTof;
+  auto PixelBarrelHitsLowTof = iEvent.getHandle(PixelBarrelLowTofToken_);
+  auto PixelBarrelHitsHighTof = iEvent.getHandle(PixelBarrelHighTofToken_);
+  auto PixelEndcapHitsLowTof = iEvent.getHandle(PixelEndcapLowTofToken_);
+  auto PixelEndcapHitsHighTof = iEvent.getHandle(PixelEndcapHighTofToken_);
+  auto TIBHitsLowTof = iEvent.getHandle(TrackerTIBLowTofToken_);
+  auto TIBHitsHighTof = iEvent.getHandle(TrackerTIBHighTofToken_);
+  auto TIDHitsLowTof = iEvent.getHandle(TrackerTIDLowTofToken_);
+  auto TIDHitsHighTof = iEvent.getHandle(TrackerTIDHighTofToken_);
+  auto TOBHitsLowTof = iEvent.getHandle(TrackerTOBLowTofToken_);
+  auto TOBHitsHighTof = iEvent.getHandle(TrackerTOBHighTofToken_);
+  auto TECHitsLowTof = iEvent.getHandle(TrackerTECLowTofToken_);
+  auto TECHitsHighTof = iEvent.getHandle(TrackerTECHighTofToken_);
 
-  edm::Handle<edm::PSimHitContainer> DTHits;
-  edm::Handle<edm::PSimHitContainer> CSCHits;
-  edm::Handle<edm::PSimHitContainer> RPCHits;
+  auto DTHits = iEvent.getHandle(MuonDTToken_);
+  auto CSCHits = iEvent.getHandle(MuonCSCToken_);
+  auto RPCHits = iEvent.getHandle(MuonRPCToken_);
 
-  edm::Handle<edm::PSimHitContainer> BTLHits;
-  edm::Handle<edm::PSimHitContainer> ETLHits;
+  auto EBHits = iEvent.getHandle(EcalEBToken_);
+  auto EEHits = iEvent.getHandle(EcalEEToken_);
+  auto ESHits = iEvent.getHandle(EcalESToken_);
+  auto HcalHits = iEvent.getHandle(HcalToken_);
+  auto CaloTkHits = iEvent.getHandle(CaloTkToken_);
+  auto ZDCHits = iEvent.getHandle(ZDCToken_);
+  auto CastorTUHits = iEvent.getHandle(CastorTUToken_);
+  auto CastorPLHits = iEvent.getHandle(CastorPLToken_);
+  auto CastorFIHits = iEvent.getHandle(CastorFIToken_);
+  auto CastorBUHits = iEvent.getHandle(CastorBUToken_);
 
-  edm::Handle<edm::PCaloHitContainer> EBHits;
-  edm::Handle<edm::PCaloHitContainer> EEHits;
-  edm::Handle<edm::PCaloHitContainer> ESHits;
-  edm::Handle<edm::PCaloHitContainer> HcalHits;
-  edm::Handle<edm::PCaloHitContainer> CaloTkHits;
-  edm::Handle<edm::PCaloHitContainer> ZDCHits;
-  edm::Handle<edm::PCaloHitContainer> CastorTUHits;
-  edm::Handle<edm::PCaloHitContainer> CastorPLHits;
-  edm::Handle<edm::PCaloHitContainer> CastorFIHits;
-  edm::Handle<edm::PCaloHitContainer> CastorBUHits;
-
-  iEvent.getByToken(PixelBarrelLowTofToken_, PixelBarrelHitsLowTof);
-  iEvent.getByToken(PixelBarrelHighTofToken_, PixelBarrelHitsHighTof);
-  iEvent.getByToken(PixelEndcapLowTofToken_, PixelEndcapHitsLowTof);
-  iEvent.getByToken(PixelEndcapHighTofToken_, PixelEndcapHitsHighTof);
-  iEvent.getByToken(TrackerTIBLowTofToken_, TIBHitsLowTof);
-  iEvent.getByToken(TrackerTIBHighTofToken_, TIBHitsHighTof);
-  iEvent.getByToken(TrackerTIDLowTofToken_, TIDHitsLowTof);
-  iEvent.getByToken(TrackerTIDHighTofToken_, TIDHitsHighTof);
-  iEvent.getByToken(TrackerTOBLowTofToken_, TOBHitsLowTof);
-  iEvent.getByToken(TrackerTOBHighTofToken_, TOBHitsHighTof);
-  iEvent.getByToken(TrackerTECLowTofToken_, TECHitsLowTof);
-  iEvent.getByToken(TrackerTECHighTofToken_, TECHitsHighTof);
-
-  iEvent.getByToken(MuonDTToken_, DTHits);
-  iEvent.getByToken(MuonCSCToken_, CSCHits);
-  iEvent.getByToken(MuonRPCToken_, RPCHits);
-
-  iEvent.getByToken(EcalEBToken_, EBHits);
-  iEvent.getByToken(EcalEEToken_, EEHits);
-  iEvent.getByToken(EcalESToken_, ESHits);
-  iEvent.getByToken(HcalToken_, HcalHits);
-  iEvent.getByToken(CaloTkToken_, CaloTkHits);
-  iEvent.getByToken(ZDCToken_, ZDCHits);
-  iEvent.getByToken(CastorTUToken_, CastorTUHits);
-  iEvent.getByToken(CastorPLToken_, CastorPLHits);
-  iEvent.getByToken(CastorFIToken_, CastorFIHits);
-  iEvent.getByToken(CastorBUToken_, CastorBUHits);
-
-  iEvent.getByToken(FastTimerBTLToken_, BTLHits);
-  iEvent.getByToken(FastTimerETLToken_, ETLHits);
+  auto BTLHits = iEvent.getHandle(FastTimerBTLToken_);
+  auto ETLHits = iEvent.getHandle(FastTimerETLToken_);
 
   int oldsize = 0;
 
