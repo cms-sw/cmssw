@@ -178,8 +178,8 @@ class _SequenceCollection(_Sequenceable):
             returnValue += '&'+m.dumpSequenceConfig()
         return returnValue
 
-    def directDependencies(self):
-        return findDirectDependencies(self, self._collection)
+    def directDependencies(self,sortByType=True):
+        return findDirectDependencies(self, self._collection,sortByType=sortByType)
 
     def visitNode(self,visitor):
         for m in self._collection:
@@ -200,18 +200,19 @@ class _SequenceCollection(_Sequenceable):
             if original == i:
                 self._collection[self._collection.index(original)] = replacement
                 didReplace = True
-            elif isinstance(i,_UnarySequenceOperator):
-                if i._replace(original, replacement):
-                    didReplace = True
-                    if replacement is None:
-                        self._collection[self._collection.index(i)] = None
+            elif isinstance(i,_UnarySequenceOperator) and i._has(original):
+                didReplace = True
+                if replacement is None:
+                    self._collection[self._collection.index(i)] = None
+                else:
+                    self._collection[self._collection.index(i)] = type(i)(replacement)
         if replacement is None:
             self._collection = [ i for i in self._collection if i is not None]
         return didReplace
 
 
-def findDirectDependencies(element, collection):
-    dependencies = set()
+def findDirectDependencies(element, collection,sortByType=True):
+    dependencies = []
     for item in collection:
         # skip null items
         if item is None:
@@ -223,23 +224,23 @@ def findDirectDependencies(element, collection):
         # cms.ignore(module), ~(module)
         elif isinstance(item, (_SequenceIgnore, _SequenceNegation)):
             if isinstance(item._operand, _SequenceCollection):
-                dependencies.update(item.directDependencies())
+                dependencies += item.directDependencies(sortByType)
                 continue
             t = 'modules'
         # _SequenceCollection
         elif isinstance(item, _SequenceCollection):
-            dependencies.update(item.directDependencies())
+            dependencies += item.directDependencies(sortByType)
             continue
         # cms.Sequence
         elif isinstance(item, Sequence):
             if not item.hasLabel_():
-                dependencies.update(item.directDependencies())
+                dependencies += item.directDependencies(sortByType)
                 continue
             t = 'sequences'
         # cms.Task
         elif isinstance(item, Task):
             if not item.hasLabel_():
-                dependencies.update(item.directDependencies())
+                dependencies += item.directDependencies(sortByType)
                 continue
             t = 'tasks'
         # SequencePlaceholder and TaskPlaceholder do not add an explicit dependency
@@ -249,8 +250,11 @@ def findDirectDependencies(element, collection):
         else:
             sys.stderr.write("Warning: unsupported element '%s' in %s '%s'\n" % (str(item), type(element).__name__, element.label_()))
             continue
-        dependencies.add((t, item.label_()))
-    return sorted(dependencies, key = lambda t_item: (t_item[0].lower(), t_item[1].lower().replace('_cfi', '')))
+        dependencies.append((t, item.label_()))
+    if sortByType:
+        return sorted(set(dependencies), key = lambda t_item: (t_item[0].lower(), t_item[1].lower().replace('_cfi', '')))
+    else:
+        return dependencies
 
 
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
@@ -369,13 +373,13 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
            s = str(self._seq)
         return "cms."+type(self).__name__+'('+s+')\n'
 
-    def directDependencies(self):
+    def directDependencies(self,sortByType=True):
         """Returns the list of modules and other entities that are directly used"""
         result = []
         if self._seq:
-          result += self._seq.directDependencies()
+          result += self._seq.directDependencies(sortByType=sortByType)
         if self._tasks:
-          result += findDirectDependencies(self, self._tasks)
+          result += findDirectDependencies(self, self._tasks,sortByType=sortByType)
         return result
 
     def moduleNames(self):
@@ -542,34 +546,28 @@ class _UnarySequenceOperator(_BooleanLogicSequenceable):
            raise RuntimeError("This operator cannot accept a non sequenceable type")
     def __eq__(self, other):
         # allows replace(~a, b)
-        return isinstance(self, type(other)) and self._operand==other._operand
+        return type(self) is type(other) and self._operand==other._operand
     def __ne__(self, other):
         return not self.__eq__(other)
+    def __hash__(self):
+        # this definition implies that self._operand MUST NOT be changed after the construction
+        return hash((type(self), self._operand))
     def _findDependencies(self,knownDeps, presentDeps):
         self._operand._findDependencies(knownDeps, presentDeps)
     def _clonesequence(self, lookuptable):
         return type(self)(self._operand._clonesequence(lookuptable))
-    def _replace(self, original, replacement):
-        if self._operand == original:
-            self._operand = replacement
-            return True
-        return False
-    def _remove(self, original):
-        if (self._operand == original): return (None, True)
-        (self._operand, found) = self._operand._remove(original)
-        if self._operand == None: return (None, True)
-        return (self, found)
+    def _has(self, op):
+        return self._operand == op
     def resolve(self, processDict,keepIfCannotResolve=False):
-        self._operand = self._operand.resolve(processDict,keepIfCannotResolve)
-        return self
+        return type(self)(self._operand.resolve(processDict,keepIfCannotResolve))
     def isOperation(self):
         return True
     def _visitSubNodes(self,visitor):
         self._operand.visitNode(visitor)
     def decoration(self):
         self._operand.decoration()
-    def directDependencies(self):
-        return self._operand.directDependencies()
+    def directDependencies(self,sortByType=True):
+        return self._operand.directDependencies(sortByType=sortByType)
     def label_(self):
         return self._operand.label_()
 
@@ -1474,8 +1472,8 @@ class Task(_ConfigureComponent, _Labelable) :
             return "cms.Task(*[" + s + "])"
         return "cms.Task(" + s + ")"
 
-    def directDependencies(self):
-        return findDirectDependencies(self, self._collection)
+    def directDependencies(self,sortByType=True):
+        return findDirectDependencies(self, self._collection,sortByType=sortByType)
 
     def _isTaskComponent(self):
         return True
@@ -1926,16 +1924,12 @@ if __name__=="__main__":
             s3 = Sequence(m2)
             p = Path(s1*s2)
             l = list()
-            d = dict()
-            d['s1'] = s1
-            d['s2'] = s2
-            d['s3'] = s3
             #resolver = ResolveVisitor(d)
             #p.visit(resolver)
             namesVisitor = DecoratedNodeNameVisitor(l)
             p.visit(namesVisitor)
             self.assertEqual(l, ['m1'])
-            p.resolve(d)
+            p.resolve(dict(s1=s1, s2=s2, s3=s3))
             l[:] = []
             p.visit(namesVisitor)
             self.assertEqual(l, ['m1', 'm2'])
@@ -1945,9 +1939,21 @@ if __name__=="__main__":
             s3 = Sequence(m2)
             s4 = SequencePlaceholder("s2")
             p=Path(s1+s4)
-            p.resolve(d)
+            p.resolve(dict(s1=s1, s2=s2, s3=s3, s4=s4))
             p.visit(namesVisitor)
             self.assertEqual(l, ['m1', 'm2'])
+            l[:]=[]
+            m3 = DummyModule("m3")
+            m4 = DummyModule("m4")
+            s1 = Sequence(~m1)
+            s2 = SequencePlaceholder("s3")
+            s3 = Sequence(ignore(m2))
+            s4 = Sequence(wait(m3) + ignore(wait(m4)))
+            d = dict(s1=s1, s2=s2, s3=s3, s4=s4)
+            p = Path(s1*s2*s4)
+            p.resolve(dict(s1=s1, s2=s2, s3=s3, s4=s4))
+            p.visit(namesVisitor)
+            self.assertEqual(l, ['!m1', '-m2', '|m3', '+m4'])
         def testReplace(self):
             m1 = DummyModule("m1")
             m2 = DummyModule("m2")

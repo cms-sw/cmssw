@@ -16,6 +16,8 @@
 class XMLIdealGeometryESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   XMLIdealGeometryESSource(const edm::ParameterSet &p);
+  XMLIdealGeometryESSource(const XMLIdealGeometryESSource &) = delete;
+  const XMLIdealGeometryESSource &operator=(const XMLIdealGeometryESSource &) = delete;
   ~XMLIdealGeometryESSource() override;
   std::unique_ptr<DDCompactView> produceGeom(const IdealGeometryRecord &);
   std::unique_ptr<DDCompactView> produceMagField(const IdealMagneticFieldRecord &);
@@ -25,8 +27,6 @@ protected:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
                       const edm::IOVSyncValue &,
                       edm::ValidityInterval &) override;
-  XMLIdealGeometryESSource(const XMLIdealGeometryESSource &) = delete;
-  const XMLIdealGeometryESSource &operator=(const XMLIdealGeometryESSource &) = delete;
 
 private:
   std::string rootNodeName_;

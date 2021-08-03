@@ -10,6 +10,8 @@
 #include <functional>
 #include <utility>
 
+#include "grpc_client.h"
+
 //forward declarations
 namespace edm {
   class ActivityRegistry;
@@ -34,7 +36,9 @@ public:
           retries(pset.getUntrackedParameter<int>("retries")),
           wait(pset.getUntrackedParameter<int>("wait")),
           instanceName(pset.getUntrackedParameter<std::string>("instanceName")),
-          tempDir(pset.getUntrackedParameter<std::string>("tempDir")) {}
+          tempDir(pset.getUntrackedParameter<std::string>("tempDir")),
+          imageName(pset.getUntrackedParameter<std::string>("imageName")),
+          sandboxName(pset.getUntrackedParameter<std::string>("sandboxName")) {}
 
     bool enable;
     bool debug;
@@ -45,17 +49,31 @@ public:
     int wait;
     std::string instanceName;
     std::string tempDir;
+    std::string imageName;
+    std::string sandboxName;
   };
   struct Server {
     Server(const edm::ParameterSet& pset)
         : url(pset.getUntrackedParameter<std::string>("address") + ":" +
               std::to_string(pset.getUntrackedParameter<unsigned>("port"))),
-          isFallback(pset.getUntrackedParameter<std::string>("name") == fallbackName) {}
-    Server(const std::string& name_, const std::string& url_) : url(url_), isFallback(name_ == fallbackName) {}
+          isFallback(pset.getUntrackedParameter<std::string>("name") == fallbackName),
+          useSsl(pset.getUntrackedParameter<bool>("useSsl")),
+          type(TritonServerType::Remote) {
+      if (useSsl) {
+        sslOptions.root_certificates = pset.getUntrackedParameter<std::string>("rootCertificates");
+        sslOptions.private_key = pset.getUntrackedParameter<std::string>("privateKey");
+        sslOptions.certificate_chain = pset.getUntrackedParameter<std::string>("certificateChain");
+      }
+    }
+    Server(const std::string& name_, const std::string& url_, TritonServerType type_)
+        : url(url_), isFallback(name_ == fallbackName), useSsl(false), type(type_) {}
 
     //members
     std::string url;
     bool isFallback;
+    bool useSsl;
+    TritonServerType type;
+    triton::client::SslOptions sslOptions;
     std::unordered_set<std::string> models;
     static const std::string fallbackName;
     static const std::string fallbackAddress;
@@ -81,8 +99,7 @@ public:
 
   //accessors
   void addModel(const std::string& modelName, const std::string& path);
-  std::pair<std::string, TritonServerType> serverAddress(const std::string& model,
-                                                         const std::string& preferred = "") const;
+  Server serverInfo(const std::string& model, const std::string& preferred = "") const;
   const std::string& pid() const { return pid_; }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

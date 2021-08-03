@@ -1,17 +1,17 @@
 #include <DetectorDescription/Core/interface/DDSolid.h>
 #include <DetectorDescription/Core/interface/DDSolidShapes.h>
 
-#include <DetectorDescription/Core/src/Box.h>
-#include <DetectorDescription/Core/src/Cons.h>
-#include <DetectorDescription/Core/src/CutTubs.h>
-#include <DetectorDescription/Core/src/EllipticalTube.h>
-#include <DetectorDescription/Core/src/ExtrudedPolygon.h>
-#include <DetectorDescription/Core/src/Polycone.h>
-#include <DetectorDescription/Core/src/Polyhedra.h>
-#include <DetectorDescription/Core/src/Sphere.h>
-#include <DetectorDescription/Core/src/Torus.h>
-#include <DetectorDescription/Core/src/Trap.h>
-#include <DetectorDescription/Core/src/Tubs.h>
+#include <DetectorDescription/Core/interface/Box.h>
+#include <DetectorDescription/Core/interface/Cons.h>
+#include <DetectorDescription/Core/interface/CutTubs.h>
+#include <DetectorDescription/Core/interface/EllipticalTube.h>
+#include <DetectorDescription/Core/interface/ExtrudedPolygon.h>
+#include <DetectorDescription/Core/interface/Polycone.h>
+#include <DetectorDescription/Core/interface/Polyhedra.h>
+#include <DetectorDescription/Core/interface/Sphere.h>
+#include <DetectorDescription/Core/interface/Torus.h>
+#include <DetectorDescription/Core/interface/Trap.h>
+#include <DetectorDescription/Core/interface/Tubs.h>
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <DataFormats/GeometryVector/interface/Pi.h>

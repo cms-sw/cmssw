@@ -4,7 +4,6 @@ import os
 import copy
 import collections
 
-import six
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -632,7 +631,7 @@ def _mapCollectionToAlgoQuality(collName):
                 break
         # next try "old style"
         if algo is None:
-            for coll, name in six.iteritems(_possibleTrackingCollsOld):
+            for coll, name in _possibleTrackingCollsOld.items():
                 if testColl(coll.lower()):
                     algo = name
                     break
@@ -962,7 +961,7 @@ class TrackingSummaryTable:
 
     def create(self, tdirectory):
         def _getAlgoQuality(data, algo, quality):
-            for label, value in six.iteritems(data):
+            for label, value in data.items():
                 (a, q) = _mapCollectionToAlgoQuality(label)
                 if a == algo and q == quality:
                     return value[0] # value is (value, uncertainty) tuple

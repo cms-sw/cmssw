@@ -54,10 +54,10 @@ public:
   const uint8_t* copyOutput() override { return nullptr; }
 };
 
-using TritonInputHeapResource = TritonHeapResource<nvidia::inferenceserver::client::InferInput>;
-using TritonInputCpuShmResource = TritonCpuShmResource<nvidia::inferenceserver::client::InferInput>;
-using TritonOutputHeapResource = TritonHeapResource<nvidia::inferenceserver::client::InferRequestedOutput>;
-using TritonOutputCpuShmResource = TritonCpuShmResource<nvidia::inferenceserver::client::InferRequestedOutput>;
+using TritonInputHeapResource = TritonHeapResource<triton::client::InferInput>;
+using TritonInputCpuShmResource = TritonCpuShmResource<triton::client::InferInput>;
+using TritonOutputHeapResource = TritonHeapResource<triton::client::InferRequestedOutput>;
+using TritonOutputCpuShmResource = TritonCpuShmResource<triton::client::InferRequestedOutput>;
 
 //avoid "explicit specialization after instantiation" error
 template <>
@@ -86,8 +86,8 @@ protected:
   std::shared_ptr<cudaIpcMemHandle_t> handle_;
 };
 
-using TritonInputGpuShmResource = TritonGpuShmResource<nvidia::inferenceserver::client::InferInput>;
-using TritonOutputGpuShmResource = TritonGpuShmResource<nvidia::inferenceserver::client::InferRequestedOutput>;
+using TritonInputGpuShmResource = TritonGpuShmResource<triton::client::InferInput>;
+using TritonOutputGpuShmResource = TritonGpuShmResource<triton::client::InferRequestedOutput>;
 
 //avoid "explicit specialization after instantiation" error
 template <>

@@ -64,6 +64,9 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
+  FWJetProxyBuilder(const FWJetProxyBuilder&) = delete;                   // stop default
+  const FWJetProxyBuilder& operator=(const FWJetProxyBuilder&) = delete;  // stop default
+
 protected:
   using FWSimpleProxyBuilderTemplate<reco::Jet>::buildViewType;
   void buildViewType(const reco::Jet& iData,
@@ -82,15 +85,10 @@ protected:
 private:
   typedef std::vector<fireworks::jetScaleMarker> Lines_t;
 
-  FWJetProxyBuilder(const FWJetProxyBuilder&) = delete;                   // stop default
-  const FWJetProxyBuilder& operator=(const FWJetProxyBuilder&) = delete;  // stop default
-
   TEveElementList* requestCommon();
   void setTextPos(fireworks::jetScaleMarker& s, const FWViewContext* vc, FWViewType::EType);
 
   TEveElementList* m_common;
-
-  std::vector<fireworks::jetScaleMarker> m_lines;
 };
 
 //______________________________________________________________________________
@@ -134,9 +132,7 @@ void FWJetProxyBuilder::buildViewType(const reco::Jet& iData,
 
   // scale markers in projected views
   if (FWViewType::isProjected(type)) {
-    m_lines.push_back(
-        fireworks::jetScaleMarker(new TEveScalableStraightLineSet("jetline"), iData.et(), iData.energy(), vc));
-    fireworks::jetScaleMarker& markers = m_lines.back();
+    fireworks::jetScaleMarker markers(new TEveScalableStraightLineSet("jetline"), iData.et(), iData.energy(), vc);
 
     float size = 1.f;  // values are saved in scale
     double theta = iData.theta();
@@ -190,34 +186,11 @@ void FWJetProxyBuilder::localModelChanges(const FWModelId& iId,
                                           FWViewType::EType viewType,
                                           const FWViewContext* vc) {
   increaseComponentTransparency(iId.index(), iCompound, "TEveJetCone", 80);
-
-  for (Lines_t::iterator i = m_lines.begin(); i != m_lines.end(); ++i) {
-    TEveStraightLineSetProjected* projLineSet = (TEveStraightLineSetProjected*)(*(*i).m_ls->BeginProjecteds());
-    if (projLineSet)
-      projLineSet->UpdateProjection();
-  }
 }
 
-void FWJetProxyBuilder::cleanLocal() {
-  m_lines.clear();
-  m_common->DestroyElements();
-}
+void FWJetProxyBuilder::cleanLocal() { m_common->DestroyElements(); }
 
-void FWJetProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc) {
-  for (Lines_t::iterator i = m_lines.begin(); i != m_lines.end(); ++i) {
-    if (vc == (*i).m_vc) {
-      float value = vc->getEnergyScale()->getPlotEt() ? (*i).m_et : (*i).m_energy;
-
-      (*i).m_ls->SetScale(vc->getEnergyScale()->getScaleFactor3D() * value);
-      if ((*i).m_text) {
-        (*i).m_text->SetText(Form("%.1f", value));
-        setTextPos(*i, vc, type);
-      }
-      TEveStraightLineSetProjected* projLineSet = (TEveStraightLineSetProjected*)(*(*i).m_ls->BeginProjecteds());
-      projLineSet->UpdateProjection();
-    }
-  }
-
+void FWJetProxyBuilder::scaleProduct(TEveElementList* product, FWViewType::EType viewType, const FWViewContext* vc) {
   // move jets to eventCenter
   fireworks::Context* contextGl = fireworks::Context::getInstance();
   TEveVector cv;
@@ -227,6 +200,29 @@ void FWJetProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType 
     if (cone) {
       cone->SetApex(cv);
     }
+  }
+
+  // loop compounds in projected product
+  int idx = 0;
+  for (auto& c : product->RefChildren()) {
+    TEveElement* parent = c;
+    // check the compound has more than one element (the first one is jet)
+    if (parent->NumChildren() > 1) {
+      auto compIt = parent->BeginChildren();
+      compIt++;
+      TEveScalableStraightLineSet* lineSet = dynamic_cast<TEveScalableStraightLineSet*>(*compIt);
+      if (lineSet) {
+        // compund index in the product is an index of model data in the collection
+        const void* modelData = item()->modelData(idx);
+        const reco::Jet* jet = (const reco::Jet*)(modelData);
+        float value = vc->getEnergyScale()->getPlotEt() ? jet->et() : jet->energy();
+        lineSet->SetScale(vc->getEnergyScale()->getScaleFactor3D() * value);
+        for (TEveProjectable::ProjList_i j = lineSet->BeginProjecteds(); j != lineSet->EndProjecteds(); ++j) {
+          (*j)->UpdateProjection();
+        }
+      }
+    }
+    idx++;
   }
 }
 

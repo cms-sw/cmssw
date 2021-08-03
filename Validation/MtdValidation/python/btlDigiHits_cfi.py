@@ -3,4 +3,4 @@ from Validation.MtdValidation.btlDigiHitsDefault_cfi import btlDigiHitsDefault a
 btlDigiHits = _btlDigiHitsDefault.clone()
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-premix_stage2.toModify(btlDigiHits, inputTag = cms.InputTag("mixData","FTLBarrel"))
+premix_stage2.toModify(btlDigiHits, inputTag = "mixData:FTLBarrel")

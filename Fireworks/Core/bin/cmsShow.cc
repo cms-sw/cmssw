@@ -29,7 +29,6 @@ namespace {
 
     void runCommand(edm::MessageLoggerQ::OpCode opcode, void* operand) override;
 
-  private:
     SilentMLscribe(const SilentMLscribe&) = delete;  // stop default
 
     const SilentMLscribe& operator=(const SilentMLscribe&) = delete;  // stop default

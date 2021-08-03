@@ -77,6 +77,9 @@ void testDDSolidLegacyShapes::checkDDSolidLegacyShapes() {
   LegacySolidShape legacyShapeless = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddshapeless);
   CPPUNIT_ASSERT(legacyShapeless == LegacySolidShape::ddshapeless);
 
+  LegacySolidShape legacyAssembly = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddassembly);
+  CPPUNIT_ASSERT(legacyAssembly == LegacySolidShape::ddassembly);
+
   LegacySolidShape legacyPseudotrap = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddpseudotrap);
   CPPUNIT_ASSERT(legacyPseudotrap == LegacySolidShape::ddpseudotrap);
 
@@ -96,8 +99,8 @@ void testDDSolidLegacyShapes::checkDDSolidLegacyShapes() {
       cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddextrudedpolygon);
   CPPUNIT_ASSERT(legacyExtrudedpolygon == LegacySolidShape::ddextrudedpolygon);
 
-  int ids[] = {0,  0,  1,  1,  2,  2,  3,  3,  4,  4,  5,  5,  7,  5,  6,  6,  8,  6,  9,  9,
-               10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19};
+  int ids[] = {0,  0,  1,  1,  2,  2,  3,  3,  4,  4,  5,  5,  7,  5,  6,  6,  8,  6,  9,  9,  10,
+               10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 22};
   int i = 0;
   for (const auto it : LegacySolidShapeMap) {
     CPPUNIT_ASSERT(static_cast<int>(it.value) == ids[i++]);

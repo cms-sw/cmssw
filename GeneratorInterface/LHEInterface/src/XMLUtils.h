@@ -48,13 +48,12 @@ namespace lhef {
     class XercesPlatform {
     public:
       XercesPlatform();
-      ~XercesPlatform();
-
-    private:
       // do not make any kind of copies
       XercesPlatform(const XercesPlatform &orig) = delete;
       XercesPlatform &operator=(const XercesPlatform &orig) = delete;
+      ~XercesPlatform();
 
+    private:
       static unsigned int instances;
     };
 

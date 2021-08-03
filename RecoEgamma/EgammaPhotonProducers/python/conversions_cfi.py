@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
+from RecoEgamma.EgammaIsolationAlgos.egammaHBHERecHitThreshold_cff import egammaHBHERecHit
 #from RecoEgamma.EgammaTools.PhotonConversionMVAComputer_cfi import *
 #
 #  configuration for producer of converted photons
@@ -18,14 +18,17 @@ conversions = cms.EDProducer("ConvertedPhotonProducer",
     outInTrackSCAssociation = cms.string('outInTrackSCAssociationCollection'),
     convertedPhotonCollection = cms.string('uncleanedConversions'),
     generalTracksSrc = cms.InputTag("generalTracks"),
-    hcalTowers = cms.InputTag("towerMaker"),                         
-    cleanedConvertedPhotonCollection = cms.string(''),                         
+    cleanedConvertedPhotonCollection = cms.string(''),
     AlgorithmName = cms.string('ecalSeeded'),
     minSCEt = cms.double(20.0),
     hOverEConeSize = cms.double(0.15),
-    maxHOverE = cms.double(0.15),                         
+    hbheRecHits = egammaHBHERecHit.hbheRecHits,
+    recHitEThresholdHB = egammaHBHERecHit.recHitEThresholdHB,
+    recHitEThresholdHE = egammaHBHERecHit.recHitEThresholdHE,
+    maxHcalRecHitSeverity = egammaHBHERecHit.maxHcalRecHitSeverity,
+    maxHOverE = cms.double(0.15),
     recoverOneTrackCase = cms.bool(True),
-    dRForConversionRecovery = cms.double(0.3),                      
+    dRForConversionRecovery = cms.double(0.3),
     deltaCotCut = cms.double(0.05),
     minApproachDisCut  = cms.double(0.),
     maxNumOfCandidates = cms.int32(3),

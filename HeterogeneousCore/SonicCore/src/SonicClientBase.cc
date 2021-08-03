@@ -40,11 +40,7 @@ void SonicClientBase::start(edm::WaitingTaskWithArenaHolder holder) {
   holder_ = std::move(holder);
 }
 
-void SonicClientBase::start() {
-  tries_ = 0;
-  if (!debugName_.empty())
-    t0_ = std::chrono::high_resolution_clock::now();
-}
+void SonicClientBase::start() { tries_ = 0; }
 
 void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
   //retries are only allowed if no exception was raised
@@ -62,11 +58,6 @@ void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
       ex << "call failed after max " << tries_ << " tries";
       eptr = make_exception_ptr(ex);
     }
-  }
-  if (!debugName_.empty()) {
-    auto t1 = std::chrono::high_resolution_clock::now();
-    edm::LogInfo(fullDebugName_) << "Client time: "
-                                 << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0_).count();
   }
   if (holder_) {
     holder_->doneWaiting(eptr);

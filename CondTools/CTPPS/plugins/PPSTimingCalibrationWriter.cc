@@ -25,18 +25,20 @@
 
 class PPSTimingCalibrationWriter : public edm::one::EDAnalyzer<> {
 public:
-  explicit PPSTimingCalibrationWriter(const edm::ParameterSet&) {}
+  explicit PPSTimingCalibrationWriter(const edm::ParameterSet&)
+      : tokenCalibration_(esConsumes<PPSTimingCalibration, PPSTimingCalibrationRcd>()) {}
 
 private:
   void beginJob() override {}
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override {}
+
+  edm::ESGetToken<PPSTimingCalibration, PPSTimingCalibrationRcd> tokenCalibration_;
 };
 
 void PPSTimingCalibrationWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get timing calibration parameters
-  edm::ESHandle<PPSTimingCalibration> hTimingCalib;
-  iSetup.get<PPSTimingCalibrationRcd>().get(hTimingCalib);
+  edm::ESHandle<PPSTimingCalibration> hTimingCalib = iSetup.getHandle(tokenCalibration_);
 
   // store the calibration into a DB object
   edm::Service<cond::service::PoolDBOutputService> poolDbService;

@@ -2,6 +2,7 @@
 #define FWCore_Framework_SubProcess_h
 
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
@@ -16,6 +17,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 
@@ -53,6 +55,7 @@ namespace edm {
                ParameterSet const& topLevelParameterSet,
                std::shared_ptr<ProductRegistry const> parentProductRegistry,
                std::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
+               ProcessBlockHelperBase const& parentProcessBlockHelper,
                ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
                SubProcessParentageHelper const& parentSubProcessParentageHelper,
                eventsetup::EventSetupsController& esController,
@@ -88,7 +91,9 @@ namespace edm {
                       std::vector<std::shared_ptr<const EventSetupImpl>> const*);
 
     template <typename Traits>
-    void doBeginProcessBlockAsync(WaitingTaskHolder iHolder, ProcessBlockTransitionInfo const& iTransitionInfo);
+    void doBeginProcessBlockAsync(WaitingTaskHolder iHolder,
+                                  ProcessBlockTransitionInfo const& iTransitionInfo,
+                                  bool cleaningUpAfterException);
 
     void doEndProcessBlockAsync(WaitingTaskHolder iHolder,
                                 ProcessBlockTransitionInfo const& iTransitionInfo,
@@ -254,6 +259,7 @@ namespace edm {
                       std::vector<std::shared_ptr<const EventSetupImpl>> const*);
 
     void propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const;
+    bool parentProducedProductIsKept(Principal const& parentPrincipal, Principal& principal) const;
     void fixBranchIDListsForEDAliases(
         std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
     void keepThisBranch(BranchDescription const& desc,
@@ -280,6 +286,7 @@ namespace edm {
     std::shared_ptr<ProductRegistry const> parentPreg_;
     std::shared_ptr<ProductRegistry const> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<SubProcessBlockHelper>> processBlockHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     edm::propagate_const<std::shared_ptr<SubProcessParentageHelper>> subProcessParentageHelper_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;

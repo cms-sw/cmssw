@@ -436,6 +436,15 @@ namespace hcaldqm {
       _mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), _qy->getValue(y));
   }
 
+  void Container2D::fill(HcalTrigTowerDetId const &did, HcalElectronicsId const &eid, int x, int y) {
+    if (_qx->isCoordinate() && !_qy->isCoordinate())
+      _mes[_hashmap.getHash(did, eid)]->Fill(_qx->getValue(did), _qy->getValue(x), y);
+    else if (!_qx->isCoordinate() && _qy->isCoordinate())
+      _mes[_hashmap.getHash(did, eid)]->Fill(_qx->getValue(x), _qy->getValue(did), y);
+    else if (!_qx->isCoordinate() && !_qy->isCoordinate())
+      _mes[_hashmap.getHash(did, eid)]->Fill(_qx->getValue(x), _qy->getValue(y));
+  }
+
   /* virtual */ double Container2D::getBinEntries(HcalTrigTowerDetId const &id) {
     return _mes[_hashmap.getHash(id)]->getBinEntries(_qx->getBin(id) + _qy->getBin(id) * _qx->wofnbins());
   }
@@ -635,6 +644,31 @@ namespace hcaldqm {
 
         customize(_mes[hash]);
       }
+    } else if (_hashmap.isMixHash()) {
+      //      for Mixed hashes
+      std::vector<HcalTrigTowerDetId> tids = emap->allTriggerId();
+      for (std::vector<HcalTrigTowerDetId>::const_iterator it = tids.begin(); it != tids.end(); ++it) {
+        HcalTrigTowerDetId tid = HcalTrigTowerDetId(it->rawId());
+        HcalElectronicsId eid = HcalElectronicsId(emap->lookupTrigger(*it).rawId());
+        _logger.debug(_hashmap.getName(tid, eid));
+        uint32_t hash = _hashmap.getHash(tid, eid);
+        MEMap::iterator mit = _mes.find(hash);
+        if (mit != _mes.end())
+          continue;
+
+        _logger.debug(_hashmap.getName(tid, eid));
+        _mes.insert(std::make_pair(hash,
+                                   ib.book2D(_hashmap.getName(tid, eid),
+                                             _hashmap.getName(tid, eid),
+                                             _qx->nbins(),
+                                             _qx->min(),
+                                             _qx->max(),
+                                             _qy->nbins(),
+                                             _qy->min(),
+                                             _qy->max())));
+
+        customize(_mes[hash]);
+      }
     }
   }
 
@@ -716,6 +750,33 @@ namespace hcaldqm {
         _mes.insert(std::make_pair(hash,
                                    ib.book2D(_hashmap.getName(tid),
                                              _hashmap.getName(tid),
+                                             _qx->nbins(),
+                                             _qx->min(),
+                                             _qx->max(),
+                                             _qy->nbins(),
+                                             _qy->min(),
+                                             _qy->max())));
+
+        customize(_mes[hash]);
+      }
+    } else if (_hashmap.isMixHash()) {
+      //      for Mixed hashes
+      std::vector<HcalTrigTowerDetId> tids = emap->allTriggerId();
+      for (std::vector<HcalTrigTowerDetId>::const_iterator it = tids.begin(); it != tids.end(); ++it) {
+        HcalTrigTowerDetId tid = HcalTrigTowerDetId(it->rawId());
+        HcalElectronicsId eid = HcalElectronicsId(emap->lookupTrigger(*it).rawId());
+        _logger.debug(_hashmap.getName(tid, eid));
+        uint32_t hash = _hashmap.getHash(tid, eid);
+        MEMap::iterator mit = _mes.find(hash);
+        if (mit != _mes.end())
+          continue;
+        if (filter.filter(tid))
+          continue;
+
+        _logger.debug(_hashmap.getName(tid, eid));
+        _mes.insert(std::make_pair(hash,
+                                   ib.book2D(_hashmap.getName(tid, eid),
+                                             _hashmap.getName(tid, eid),
                                              _qx->nbins(),
                                              _qx->min(),
                                              _qx->max(),

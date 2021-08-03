@@ -19,6 +19,18 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLutIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
 
 #include "Validation/EcalDigis/src/CollHandle.h"
 
@@ -392,6 +404,13 @@ private:
     double eta;   ///eta crystal position
     bool gain12;  //all MGPA samples at gain 12?
   };
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoToken;
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> ecalmapping;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> hTriggerTowerMap;
+  edm::ESGetToken<EcalTPGPhysicsConst, EcalTPGPhysicsConstRcd> physHandle;
+  edm::ESGetToken<EcalTPGLutGroup, EcalTPGLutGroupRcd> lutGrpHandle;
+  edm::ESGetToken<EcalTPGLutIdMap, EcalTPGLutIdMapRcd> lutMapHandle;
 
   /// number of bytes in 1 kByte:
   static const int kByte_ = 1024;

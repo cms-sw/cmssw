@@ -1,4 +1,4 @@
 <environment>
-  <test name="test2026Geometry" command="python ${LOCALTOP}/src/Configuration/Geometry/scripts/generate2026Geometry.py -t"/>
-  <test name="test2021Geometry" command="python ${LOCALTOP}/src/Configuration/Geometry/scripts/generate2021Geometry.py -t"/>
+  <test name="test2026Geometry" command="python3 ${LOCALTOP}/src/Configuration/Geometry/scripts/generate2026Geometry.py -t"/>
+  <test name="test2021Geometry" command="python3 ${LOCALTOP}/src/Configuration/Geometry/scripts/generate2021Geometry.py -t"/>
 </environment>

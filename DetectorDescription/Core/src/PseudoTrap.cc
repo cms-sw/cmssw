@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/src/PseudoTrap.h"
+#include "DetectorDescription/Core/interface/PseudoTrap.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 
 using namespace geant_units::operators;

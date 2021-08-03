@@ -89,7 +89,7 @@ public:
 
   static constexpr int32_t WaferCornerMin = 3;
   static constexpr int32_t WaferCornerMax = 6;
-  static constexpr int32_t WaferSizeMax = 7;
+  static constexpr int32_t WaferSizeMax = 9;
 
   static constexpr double c00 = 0.0;
   static constexpr double c22 = 0.225;

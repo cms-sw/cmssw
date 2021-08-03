@@ -99,7 +99,6 @@ import copy
 from inspect import getargspec
 from random import choice
 
-import six
 
 # These we need to communicate with DBS global DBSAPI
 from DBSAPI.dbsApi import DbsApi
@@ -1445,7 +1444,7 @@ class CMSHarvester(object):
 
         # Now call the checker for all (unique) subdirs.
         castor_dirs = []
-        for (dataset_name, runs) in six.iteritems(self.datasets_to_use):
+        for (dataset_name, runs) in self.datasets_to_use.items():
 
             for run in runs:
                 castor_dirs.append(self.datasets_information[dataset_name] \
@@ -2310,7 +2309,7 @@ class CMSHarvester(object):
         ###
 
         # Dump some info about the Frontier connections used.
-        for (key, value) in six.iteritems(self.frontier_connection_name):
+        for (key, value) in self.frontier_connection_name.items():
             frontier_type_str = "unknown"
             if key == "globaltag":
                 frontier_type_str = "the GlobalTag"
@@ -2924,7 +2923,7 @@ class CMSHarvester(object):
 
 ##        # Now translate this into a slightly more usable mapping.
 ##        sites = {}
-##        for (run_number, site_info) in six.iteritems(sample_info):
+##        for (run_number, site_info) in sample_info.items():
 ##            # Quick-n-dirty trick to see if all file counts are the
 ##            # same.
 ##            unique_file_counts = set([i[1] for i in site_info])
@@ -3043,7 +3042,7 @@ class CMSHarvester(object):
 
 ##        # Now translate this into a slightly more usable mapping.
 ##        sites = {}
-##        for (run_number, site_info) in six.iteritems(sample_info):
+##        for (run_number, site_info) in sample_info.items():
 ##            # Quick-n-dirty trick to see if all file counts are the
 ##            # same.
 ##            unique_file_counts = set([i[1] for i in site_info])
@@ -4022,7 +4021,7 @@ class CMSHarvester(object):
         # If we emptied out a complete dataset, remove the whole
         # thing.
         dataset_names_after_checks_tmp = copy.deepcopy(dataset_names_after_checks)
-        for (dataset_name, runs) in six.iteritems(dataset_names_after_checks):
+        for (dataset_name, runs) in dataset_names_after_checks.items():
             if len(runs) < 1:
                 self.logger.warning("  Removing dataset without any runs " \
                                     "(left) `%s'" % \
@@ -4868,7 +4867,7 @@ class CMSHarvester(object):
             # exists.
             customisations.append("print \"Not using reference histograms\"")
             customisations.append("if hasattr(process, \"dqmRefHistoRootFileGetter\"):")
-            customisations.append("    for (sequence_name, sequence) in six.iteritems(process.sequences):")
+            customisations.append("    for (sequence_name, sequence) in process.sequences.items():")
             customisations.append("        if sequence.remove(process.dqmRefHistoRootFileGetter):")
             customisations.append("            print \"Removed process.dqmRefHistoRootFileGetter from sequence `%s'\" % \\")
             customisations.append("                  sequence_name")
@@ -5270,7 +5269,7 @@ class CMSHarvester(object):
         self.logger.info("  Successfully loaded %d mapping(s)" % \
                          len(self.ref_hist_mappings))
         max_len = max([len(i) for i in self.ref_hist_mappings.keys()])
-        for (map_from, map_to) in six.iteritems(self.ref_hist_mappings):
+        for (map_from, map_to) in self.ref_hist_mappings.items():
             self.logger.info("    %-*s -> %s" % \
                               (max_len, map_from, map_to))
 

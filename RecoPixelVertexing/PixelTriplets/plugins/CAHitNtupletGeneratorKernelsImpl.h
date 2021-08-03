@@ -22,7 +22,7 @@
 #include "gpuPixelDoublets.h"
 
 using HitsOnGPU = TrackingRecHit2DSOAView;
-using HitsOnCPU = TrackingRecHit2DCUDA;
+using HitsOnCPU = TrackingRecHit2DGPU;
 
 using HitToTuple = caConstants::HitToTuple;
 using TupleMultiplicity = caConstants::TupleMultiplicity;
@@ -447,23 +447,39 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
     quality[it] = pixelTrack::Quality::strict;
 
     // compute a pT-dependent chi2 cut
-    // default parameters:
-    //   - chi2MaxPt = 10 GeV
-    //   - chi2Coeff = { 0.68177776, 0.74609577, -0.08035491, 0.00315399 }
-    //   - chi2Scale = 30 for broken line fit, 45 for Riemann fit
+
+    auto roughLog = [](float x) {
+      // max diff [0.5,12] at 1.25 0.16143
+      // average diff  0.0662998
+      union IF {
+        uint32_t i;
+        float f;
+      };
+      IF z;
+      z.f = x;
+      uint32_t lsb = 1 < 21;
+      z.i += lsb;
+      z.i >>= 21;
+      auto f = z.i & 3;
+      int ex = int(z.i >> 2) - 127;
+
+      // log2(1+0.25*f)
+      // averaged over bins
+      const float frac[4] = {0.160497f, 0.452172f, 0.694562f, 0.901964f};
+      return float(ex) + frac[f];
+    };
+
     // (see CAHitNtupletGeneratorGPU.cc)
     float pt = std::min<float>(tracks->pt(it), cuts.chi2MaxPt);
-    float chi2Cut = cuts.chi2Scale *
-                    (cuts.chi2Coeff[0] + pt * (cuts.chi2Coeff[1] + pt * (cuts.chi2Coeff[2] + pt * cuts.chi2Coeff[3])));
-    // above number were for Quads not normalized so for the time being just multiple by ndof for Quads  (triplets to be understood)
-    if (3.f * tracks->chi2(it) >= chi2Cut) {
+    float chi2Cut = cuts.chi2Scale * (cuts.chi2Coeff[0] + roughLog(pt) * cuts.chi2Coeff[1]);
+    if (tracks->chi2(it) >= chi2Cut) {
 #ifdef NTUPLE_FIT_DEBUG
-      printf("Bad fit %d size %d pt %f eta %f chi2 %f\n",
+      printf("Bad chi2 %d size %d pt %f eta %f chi2 %f\n",
              it,
              tuples->size(it),
              tracks->pt(it),
              tracks->eta(it),
-             3.f * tracks->chi2(it));
+             tracks->chi2(it));
 #endif
       continue;
     }

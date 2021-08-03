@@ -2,7 +2,7 @@
 import sys, os
 import os.path
 import tempfile
-import urllib
+import urllib.request
 import shutil
 import subprocess
 import atexit
@@ -97,7 +97,7 @@ class OfflineConverter:
                 # download to a temporay name and use an atomic rename (in case an other istance is downloading the same file
                 handle, temp = tempfile.mkstemp(dir = self.workDir, prefix = jar + '.')
                 os.close(handle)
-                urllib.urlretrieve(self.baseUrl + '/' + jar, temp)
+                urllib.request.urlretrieve(self.baseUrl + '/' + jar, temp)
                 if not os.path.exists(self.workDir + '/' + jar):
                     os.rename(temp, self.workDir + '/' + jar)
                 else:

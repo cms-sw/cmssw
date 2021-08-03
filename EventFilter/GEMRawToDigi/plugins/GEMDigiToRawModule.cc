@@ -173,16 +173,16 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
                 msData |= 1UL << (chMap.chNum - 64);
 
               LogDebug("GEMDigiToRawModule")
-                  << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId)
-                  << " vfat:" << vfat_dc.localPhi << ",type: " << vfat_dc.vfatType << " id:" << gemId
-                  << " ch:" << chMap.chNum << " st:" << digi.strip() << " bx:" << digi.bx();
+                  << "fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId) << " vfat id:" << int(vfatId)
+                  << ",type:" << vfat_dc.vfatType << " id:" << gemId << " ch:" << chMap.chNum << " st:" << digi.strip()
+                  << " bx:" << digi.bx();
             }
 
             if (!hasDigi)
               continue;
             // only make vfat with hits
             amcSize += 3;
-            auto vfatData = std::make_unique<VFATdata>(geb_dc.vfatVer, bc, 0, vfatId, lsData, msData);
+            auto vfatData = std::make_unique<VFATdata>(geb_dc.vfatVer, bc, LV1_id, vfatId, lsData, msData);
             gebData->addVFAT(*vfatData);
           }
         }  // end of vfats in GEB

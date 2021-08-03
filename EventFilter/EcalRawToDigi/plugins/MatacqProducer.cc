@@ -546,7 +546,8 @@ bool MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId, bool* f
   //we make two iterations to handle the case where the event is procesed
   //before the matacq data are available. In such case we would have
   //orbitId > maxOrb (maxOrb: orbit of last written matacq event)
-  for (int itry = 0; itry < 2 && (orbitId > maxOrb); ++itry) {
+  //  for(int itry = 0; itry < 2 && (orbitId > maxOrb); ++itry){
+  for (int itry = 0; itry < 1 && (orbitId > maxOrb); ++itry) {
     if (itry > 0) {
       int n_sec = 1;
       std::cout << "[Matacq " << now() << "] Event orbit id (" << orbitId
@@ -601,6 +602,8 @@ bool MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId, bool* f
         uint32_t firstOrb;
         uint32_t lastOrb;
         bool goodRange = getOrbitRange(firstOrb, lastOrb);
+        std::cout << "Get orbit range " << (goodRange ? "succeeded" : "failed") << ". Range: " << firstOrb << "..."
+                  << lastOrb << "\n";
         if (goodRange && lastOrb > maxOrb)
           maxOrb = lastOrb;
         if (goodRange && firstOrb <= orbitId && orbitId <= lastOrb) {
@@ -623,7 +626,7 @@ bool MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId, bool* f
       cout << "[Matacq " << now()
            << "] no matacq file found "
               "for run "
-           << runNumber << "\n";
+           << runNumber << ", orbit " << orbitId << "\n";
     eventSkipCounter_ = onErrorDisablingEvtCnt_;
     openedFileRunNumber_ = 0;
     if (fileChange != nullptr)
@@ -1142,10 +1145,16 @@ bool MatacqProducer::getOrbitRange(uint32_t& firstOrb, uint32_t& lastOrb) {
   int len = (int)MatacqRawEvent::getDccLen(header, headerSize);
   //number of complete events. If last event is partially written,
   //it won't be included in the count.
-  unsigned nEvts = fsize / (len * 64);
+  unsigned nEvts = fsize / (len * 8);
   //Position of last complete event:
-  filepos_t lastEvtPos = (nEvts - 1) * len * 64;
+  filepos_t lastEvtPos = (filepos_t)(nEvts - 1) * len * 8;
+  //  std::cout << "Move to position : " << lastEvtPos
+  //	    << "(" << (nEvts - 1) << "*" << len << "*" << 64 << ")"
+  //<< "\n";
   mseek(lastEvtPos);
+  filepos_t tmp;
+  mtell(tmp);
+  //std::cout << "New position, sizeof(tmp): " << tmp << "," << sizeof(tmp) << "\n";
   mread((char*)header, headerSize, nullptr, false);
   lastOrb = MatacqRawEvent::getOrbitId(header, headerSize);
 

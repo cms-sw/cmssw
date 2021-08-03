@@ -40,11 +40,11 @@ public:
   // ---------- member functions ---------------------------
   void setFrom(const FWConfiguration&) override;
 
-private:
   FWConfigurableParameterizable(const FWConfigurableParameterizable&) = delete;  // stop default
 
   const FWConfigurableParameterizable& operator=(const FWConfigurableParameterizable&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   unsigned int m_version;
 };

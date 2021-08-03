@@ -6,7 +6,6 @@
 #include "UnscheduledConfigurator.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
-#include "FWCore/Framework/interface/Principal.h"
 #include "FWCore/Framework/src/ProductDeletedException.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
@@ -168,12 +167,12 @@ namespace edm {
         // The file may already be closed so the reader is invalid
         return;
       }
-      if (mcc and (branchType == InEvent || branchType == InProcess) and aux_) {
+      if (mcc and branchType == InEvent and aux_) {
         aux_->preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()), *mcc);
       }
 
       auto sentry(make_sentry(mcc, [this, branchType](ModuleCallingContext const* iContext) {
-        if ((branchType == InEvent || branchType == InProcess) and aux_) {
+        if (branchType == InEvent and aux_) {
           aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext);
         }
       }));
@@ -270,7 +269,7 @@ namespace edm {
         // Caught exception is propagated via WaitingTaskList
         CMS_SA_ALLOW try {
           resolveProductImpl<true>([this, &principal, mcc]() {
-            if (principal.branchType() != InEvent) {
+            if (principal.branchType() != InEvent && principal.branchType() != InProcess) {
               return;
             }
             if (auto reader = principal.reader()) {
@@ -371,11 +370,19 @@ namespace edm {
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const {
     if (not skipCurrentProcess) {
+      if (branchDescription().branchType() == InProcess &&
+          mcc->parent().globalContext()->transition() == GlobalContext::Transition::kAccessInputProcessBlock) {
+        // This is an accessInputProcessBlock transition
+        // We cannot access produced products in those transitions
+        // except for in SubProcesses where they should have already run.
+        return;
+      }
       if (branchDescription().availableOnlyAtEndTransition() and mcc) {
         if (not mcc->parent().isAtEndTransition()) {
           return;
         }
       }
+
       //Need to try modifying prefetchRequested_ before adding to m_waitingTasks
       bool expected = false;
       bool prefetchRequested = prefetchRequested_.compare_exchange_strong(expected, true);

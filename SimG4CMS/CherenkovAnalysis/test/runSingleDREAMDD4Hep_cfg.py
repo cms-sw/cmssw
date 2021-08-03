@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
-process = cms.Process("CaloTest")
+process = cms.Process("CaloTest", dd4hep)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -31,21 +32,16 @@ process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
-process.analyzer = cms.EDAnalyzer("CherenkovAnalysis",
-    maxEnergy = cms.double(2.0),
-    caloHitSource = cms.InputTag("g4SimHits","EcalHitsEB"),
-    nBinsEnergy = cms.uint32(50)
-)
+process.load("SimG4CMS.CherenkovAnalysis.cherenkovAnalysis_cfi")
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.analyzer)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.cherenkovAnalysis)
 
 process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("SimG4CMS/CherenkovAnalysis/data/SingleDREAMDD4Hep.xml")
 process.generator.PGunParameters.MinE = 10.0
 process.generator.PGunParameters.MaxE = 10.0
 process.g4SimHits.UseMagneticField = False
-process.g4SimHits.g4GeometryDD4hepSource = True
-process.g4SimHits.OnlySDs = ['CaloTrkProcessing', 'DreamSensitiveDetector']
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
+process.g4SimHits.OnlySDs = ['CaloTrkProcessing', 'DreamSensitiveDetector']
 process.g4SimHits.ECalSD = cms.PSet(
     TestBeam = cms.untracked.bool(False),
     ReadBothSide = cms.untracked.bool(True),

@@ -27,9 +27,11 @@ HFShower::HFShower(const std::string &name,
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   applyFidCut_ = m_HF.getParameter<bool>("ApplyFiducialCut");
   edm::ParameterSet m_HF2 = m_HF.getParameter<edm::ParameterSet>("HFShowerBlock");
+  ignoreTimeShift_ = m_HF2.getParameter<bool>("IgnoreTimeShift");
   probMax_ = m_HF2.getParameter<double>("ProbMax");
 
-  edm::LogVerbatim("HFShower") << "HFShower:: Maximum probability cut off " << probMax_ << " Check flag " << chkFibre_;
+  edm::LogVerbatim("HFShower") << "HFShower:: Maximum probability cut off " << probMax_ << " Check flag " << chkFibre_
+                               << " ignoreTimeShift " << ignoreTimeShift_;
 
   cherenkov_ = std::make_unique<HFCherenkov>(m_HF);
   fibre_ = std::make_unique<HFFibre>(name, hcalConstant_, hps, p);
@@ -112,7 +114,7 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight)
   double zCoor = localPos.z();
   double zFibre = (0.5 * gpar_[1] - zCoor - translation.z());
   double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-  double time = fibre_->tShift(localPos, depth, chkFibre_);
+  double time = (ignoreTimeShift_) ? 0 : fibre_->tShift(localPos, depth, chkFibre_);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor << "(" << globalPos.z() << ") "
@@ -219,7 +221,7 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
 
 #ifdef EDM_ML_DEBUG
-  double time = fibre_->tShift(localPos, depth, chkFibre_);
+  double time = (ignoreTimeShift_) ? 0 : fibre_->tShift(localPos, depth, chkFibre_);
   edm::LogVerbatim("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor << "(" << globalPos.z() << ") "
                                << zFibre << " Trans " << translation << " Time " << tSlice << " " << time
                                << "\n                  Direction " << momentumDir << " Local " << localMom;
@@ -323,7 +325,7 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   double zCoor = localPos.z();
   double zFibre = (0.5 * gpar_[1] - zCoor - translation.z());
   double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-  double time = fibre_->tShift(localPos, depth, chkFibre_);
+  double time = (ignoreTimeShift_) ? 0 : fibre_->tShift(localPos, depth, chkFibre_);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShower::getHits(SL): in " << name << " Z " << zCoor << "(" << globalPos.z() << ") "

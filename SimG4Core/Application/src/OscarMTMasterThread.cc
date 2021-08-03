@@ -1,40 +1,24 @@
 #include <memory>
 
 #include "SimG4Core/Application/interface/OscarMTMasterThread.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Geometry/interface/CustomUIsession.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-
-#include "HepPDT/ParticleDataTable.hh"
-#include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
 
 #include "G4PhysicalVolumeStore.hh"
 
 OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
     : m_pGeoFromDD4hep(iConfig.getParameter<bool>("g4GeometryDD4hepSource")),
-      m_pDD(nullptr),
-      m_pDD4hep(nullptr),
-      m_pTable(nullptr),
-      m_masterThreadState(ThreadState::NotExist),
-      m_masterCanProceed(false),
-      m_mainCanProceed(false),
-      m_firstRun(true),
-      m_stopped(false) {
+      m_masterThreadState(ThreadState::NotExist) {
   // Lock the mutex
   std::unique_lock<std::mutex> lk(m_threadMutex);
 
-  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread: creating master thread";
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "OscarMTMasterThread: creating master thread DD4Hep: " << m_pGeoFromDD4hep;
 
-  // Create Genat4 master thread
+  // Create Geant4 master thread
   m_masterThread = std::thread([&]() {
     /////////////////
     // Initialization
@@ -64,6 +48,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
       m_masterCanProceed = false;
       edm::LogVerbatim("OscarMTMasterThread") << "Master thread: State loop, starting wait";
       m_notifyMasterCv.wait(lk2, [&] { return m_masterCanProceed; });
+      //m_notifyMasterCv.wait(lk2, [&] { return false; });
 
       // Act according to the state
       edm::LogVerbatim("OscarMTMasterThread")
@@ -71,7 +56,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
       if (m_masterThreadState == ThreadState::BeginRun) {
         // Initialize Geant4
         edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Initializing Geant4";
-        m_runManagerMaster->initG4(m_pDD, m_pDD4hep, m_pTable);
+        m_runManagerMaster->initG4(m_pDDD, m_pDD4Hep, m_pTable);
         isG4Alive = true;
       } else if (m_masterThreadState == ThreadState::EndRun) {
         // Stop Geant4
@@ -119,14 +104,33 @@ OscarMTMasterThread::~OscarMTMasterThread() {
   }
 }
 
+void OscarMTMasterThread::callConsumes(edm::ConsumesCollector&& iC) const {
+  if (m_hasToken) {
+    return;
+  }
+  if (m_pGeoFromDD4hep) {
+    m_DD4Hep = iC.esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
+  } else {
+    m_DDD = iC.esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
+  }
+  m_PDT = iC.esConsumes<HepPDT::ParticleDataTable, PDTRecord, edm::Transition::BeginRun>();
+  m_hasToken = true;
+}
+
 void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
   std::lock_guard<std::mutex> lk(m_protectMutex);
-
   std::unique_lock<std::mutex> lk2(m_threadMutex);
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread::beginRun";
 
-  // Reading from ES must be done in the main (CMSSW) thread
-  readES(iSetup);
-
+  if (m_firstRun) {
+    if (m_pGeoFromDD4hep) {
+      m_pDD4Hep = &(*iSetup.getTransientHandle(m_DD4Hep));
+    } else {
+      m_pDDD = &(*iSetup.getTransientHandle(m_DDD));
+    }
+    m_pTable = &iSetup.getData(m_PDT);
+    m_firstRun = false;
+  }
   m_masterThreadState = ThreadState::BeginRun;
   m_masterCanProceed = true;
   m_mainCanProceed = false;
@@ -140,8 +144,8 @@ void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
 
 void OscarMTMasterThread::endRun() const {
   std::lock_guard<std::mutex> lk(m_protectMutex);
-
   std::unique_lock<std::mutex> lk2(m_threadMutex);
+
   m_masterThreadState = ThreadState::EndRun;
   m_mainCanProceed = false;
   m_masterCanProceed = true;
@@ -175,34 +179,4 @@ void OscarMTMasterThread::stopThread() {
   m_masterThread.join();
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread::stopTread: main thread finished";
   m_stopped = true;
-}
-
-void OscarMTMasterThread::readES(const edm::EventSetup& iSetup) const {
-  bool geomChanged = idealGeomRcdWatcher_.check(iSetup);
-  if (geomChanged && (!m_firstRun)) {
-    throw edm::Exception(edm::errors::Configuration)
-        << "[SimG4Core OscarMTMasterThread]\n"
-        << "The Geometry configuration is changed during the job execution\n"
-        << "this is not allowed, the geometry must stay unchanged";
-  }
-  // Don't read from ES if not the first run, just as in
-  if (!m_firstRun)
-    return;
-
-  // DDDWorld: get the DDCV from the ES and use it to build the World
-  if (m_pGeoFromDD4hep) {
-    edm::ESTransientHandle<cms::DDCompactView> pDD;
-    iSetup.get<IdealGeometryRecord>().get(pDD);
-    m_pDD4hep = pDD.product();
-  } else {
-    edm::ESTransientHandle<DDCompactView> pDD;
-    iSetup.get<IdealGeometryRecord>().get(pDD);
-    m_pDD = pDD.product();
-  }
-
-  edm::ESHandle<HepPDT::ParticleDataTable> fTable;
-  iSetup.get<PDTRecord>().get(fTable);
-  m_pTable = fTable.product();
-
-  m_firstRun = false;
 }

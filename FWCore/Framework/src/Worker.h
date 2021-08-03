@@ -22,6 +22,7 @@ the worker is reset().
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/Framework/src/WorkerParams.h"
@@ -91,6 +92,7 @@ namespace edm {
   public:
     enum State { Ready, Pass, Fail, Exception };
     enum Types { kAnalyzer, kFilter, kProducer, kOutputModule };
+    enum ConcurrencyTypes { kGlobal, kLimited, kOne, kStream, kLegacy };
     struct TaskQueueAdaptor {
       SerialTaskQueueChain* serial_ = nullptr;
       LimitedTaskQueue* limited_ = nullptr;
@@ -170,7 +172,7 @@ namespace edm {
     void endStream(StreamID id, StreamContext& streamContext);
     void respondToOpenInputFile(FileBlock const& fb) { implRespondToOpenInputFile(fb); }
     void respondToCloseInputFile(FileBlock const& fb) { implRespondToCloseInputFile(fb); }
-
+    void respondToCloseOutputFile() { implRespondToCloseOutputFile(); }
     void registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper);
 
     void reset() {
@@ -198,6 +200,7 @@ namespace edm {
     //Used to make EDGetToken work
     virtual void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&) = 0;
     virtual void updateLookup(eventsetup::ESRecordsToProxyIndices const&) = 0;
+    virtual void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) = 0;
     virtual void resolvePutIndicies(
         BranchType iBranchType,
         std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
@@ -214,6 +217,7 @@ namespace edm {
     virtual std::vector<ConsumesInfo> consumesInfo() const = 0;
 
     virtual Types moduleType() const = 0;
+    virtual ConcurrencyTypes moduleConcurrencyType() const = 0;
 
     void clearCounters() {
       timesRun_.store(0, std::memory_order_release);
@@ -292,6 +296,7 @@ namespace edm {
 
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
+    virtual void implRespondToCloseOutputFile() = 0;
 
     virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) = 0;
 
@@ -951,7 +956,7 @@ namespace edm {
       if (workerhelper::CallImpl<T>::needToRunSelection(this)) {
         //We need to run the selection in a different task so that
         // we can prefetch the data needed for the selection
-        auto runTask =
+        WaitingTask* moduleTask =
             new RunModuleTask<T>(this, transitionInfo, token, streamID, parentContext, context, task.group());
 
         //make sure the task is either run or destroyed
@@ -970,14 +975,28 @@ namespace edm {
         private:
           std::atomic<edm::WaitingTask*> m_task;
         };
+        if constexpr (T::isEvent_) {
+          if (hasAcquire()) {
+            auto ownRunTask = std::make_shared<DestroyTask>(moduleTask);
+            ServiceWeakToken weakToken = token;
+            auto* group = task.group();
+            moduleTask = make_waiting_task(
+                [this, weakToken, transitionInfo, parentContext, ownRunTask, group](std::exception_ptr const* iExcept) {
+                  WaitingTaskWithArenaHolder runTaskHolder(
+                      *group, new HandleExternalWorkExceptionTask(this, group, ownRunTask->release(), parentContext));
+                  AcquireTask<T> t(this, transitionInfo, weakToken.lock(), parentContext, runTaskHolder);
+                  t.execute();
+                });
+          }
+        }
         auto* group = task.group();
-        auto ownRunTask = std::make_shared<DestroyTask>(runTask);
+        auto ownModuleTask = std::make_shared<DestroyTask>(moduleTask);
         ServiceWeakToken weakToken = token;
         auto selectionTask =
-            make_waiting_task([ownRunTask, parentContext, info = transitionInfo, weakToken, group, this](
+            make_waiting_task([ownModuleTask, parentContext, info = transitionInfo, weakToken, group, this](
                                   std::exception_ptr const*) mutable {
               ServiceRegistry::Operate guard(weakToken.lock());
-              prefetchAsync<T>(WaitingTaskHolder(*group, ownRunTask->release()),
+              prefetchAsync<T>(WaitingTaskHolder(*group, ownModuleTask->release()),
                                weakToken.lock(),
                                parentContext,
                                info,

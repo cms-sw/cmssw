@@ -404,27 +404,41 @@ namespace {
       SiPixelLorentzAngleValuesComparisonPerRegion<false, SINGLE_IOV, 2>;
 
   /************************************************
-    1d histogram of SiPixelLorentzAngle of 1 IOV 
+    1d histogram of SiPixelLorentzAngle comparisons
   *************************************************/
-  class SiPixelLorentzAngleValueComparisonBase : public PlotImage<SiPixelLorentzAngle> {
+  template <IOVMultiplicity nIOVs, int ntags>
+  class SiPixelLorentzAngleValueComparisonBase : public PlotImage<SiPixelLorentzAngle, nIOVs, ntags> {
   public:
     SiPixelLorentzAngleValueComparisonBase()
-        : PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Values Comparison") {}
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
-      TH1F::SetDefaultSumw2(true);
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+        : PlotImage<SiPixelLorentzAngle, nIOVs, ntags>(Form("SiPixelLorentzAngle Values Comparison %i tag(s)", ntags)) {
+    }
 
-      std::shared_ptr<SiPixelLorentzAngle> last_payload = fetchPayload(std::get<1>(lastiov));
+    bool fill() override {
+      TH1F::SetDefaultSumw2(true);
+
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto f_tagname = PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        l_tagname = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<SiPixelLorentzAngle> last_payload = this->fetchPayload(std::get<1>(lastiov));
       std::map<uint32_t, float> l_LAMap_ = last_payload->getLorentzAngles();
       auto l_extrema = SiPixelPI::findMinMaxInMap(l_LAMap_);
 
-      std::shared_ptr<SiPixelLorentzAngle> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiPixelLorentzAngle> first_payload = this->fetchPayload(std::get<1>(firstiov));
       std::map<uint32_t, float> f_LAMap_ = first_payload->getLorentzAngles();
       auto f_extrema = SiPixelPI::findMinMaxInMap(f_LAMap_);
 
@@ -495,28 +509,30 @@ namespace {
       //ltx.SetTextColor(kBlue);
       ltx.SetTextSize(0.047);
       ltx.SetTextAlign(11);
-      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                       1 - gPad->GetTopMargin() + 0.01,
-                       ("SiPixel Lorentz Angle IOV: #color[2]{" + std::to_string(std::get<0>(firstiov)) +
-                        "} vs IOV: #color[4]{" + std::to_string(std::get<0>(lastiov)) + "}")
-                           .c_str());
+      std::string ltxText;
+      if (this->m_plotAnnotations.ntags == 2) {
+        ltxText = fmt::sprintf("#color[2]{%s, %s} vs #color[4]{%s, %s}",
+                               f_tagname,
+                               std::to_string(std::get<0>(firstiov)),
+                               l_tagname,
+                               std::to_string(std::get<0>(lastiov)));
+      } else {
+        ltxText = fmt::sprintf("%s IOV: #color[2]{%s} vs IOV: #color[4]{%s}",
+                               f_tagname,
+                               std::to_string(std::get<0>(firstiov)),
+                               std::to_string(std::get<0>(lastiov)));
+      }
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(), 1 - gPad->GetTopMargin() + 0.01, ltxText.c_str());
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
     }
   };
 
-  class SiPixelLorentzAngleValueComparisonSingleTag : public SiPixelLorentzAngleValueComparisonBase {
-  public:
-    SiPixelLorentzAngleValueComparisonSingleTag() : SiPixelLorentzAngleValueComparisonBase() { setSingleIov(false); }
-  };
-
-  class SiPixelLorentzAngleValueComparisonTwoTags : public SiPixelLorentzAngleValueComparisonBase {
-  public:
-    SiPixelLorentzAngleValueComparisonTwoTags() : SiPixelLorentzAngleValueComparisonBase() { setTwoTags(true); }
-  };
+  using SiPixelLorentzAngleValueComparisonSingleTag = SiPixelLorentzAngleValueComparisonBase<MULTI_IOV, 1>;
+  using SiPixelLorentzAngleValueComparisonTwoTags = SiPixelLorentzAngleValueComparisonBase<SINGLE_IOV, 2>;
 
   /************************************************
    Summary Comparison per region of SiPixelLorentzAngle between 2 IOVs

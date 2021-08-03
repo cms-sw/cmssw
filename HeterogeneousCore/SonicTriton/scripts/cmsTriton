@@ -18,8 +18,16 @@ PARENTPID=""
 BASEPORT=8000
 AUTOPORT=""
 NPORTS=3
-IMAGE=fastml/triton-torchgeo:20.09-py3-geometric
-SANDBOX=/cvmfs/unpacked.cern.ch/registry.hub.docker.com/${IMAGE}
+IMAGE=fastml/triton-torchgeo:21.06-py3-geometric
+SANDBOX=""
+
+get_sandbox(){
+	if [ -z "$SANDBOX" ]; then
+		echo /cvmfs/unpacked.cern.ch/registry.hub.docker.com/${IMAGE}
+	else
+		echo "$SANDBOX"
+	fi
+}
 
 usage() {
 	ECHO="echo -e"
@@ -33,12 +41,12 @@ usage() {
 	$ECHO "-g          \t use GPU instead of CPU"
 	$ECHO "-i [name]   \t server image name (default: ${IMAGE})"
 	$ECHO "-M [dir]    \t model repository (can be given more than once)"
-	$ECHO "-m [dir]    \t specific model directory (can be given more than one)"
+	$ECHO "-m [dir]    \t specific model directory (can be given more than once)"
 	$ECHO "-n [name]   \t name of container instance, also used for default hidden temporary dir (default: ${SERVER})"
 	$ECHO "-P [port]   \t base port number for services (-1: automatically find an unused port range) (default: ${BASEPORT})"
 	$ECHO "-p [pid]    \t automatically shut down server when process w/ specified PID ends (-1: use parent process PID)"
 	$ECHO "-r [num]    \t number of retries when starting container (default: ${RETRIES})"
-	$ECHO "-s [dir]    \t Singularity sandbox directory (default: ${SANDBOX})"
+	$ECHO "-s [dir]    \t Singularity sandbox directory (default: $(get_sandbox))"
 	$ECHO "-t [dir]    \t non-default hidden temporary dir"
 	$ECHO "-v          \t (verbose) start: activate server debugging info; stop: keep server logs"
 	$ECHO "-w [time]   \t maximum time to wait for server to start (default: ${WTIME} seconds)"
@@ -106,7 +114,6 @@ if [ "$RETRIES" -le 0 ]; then
 	RETRIES=1
 fi
 
-
 TOPDIR=$PWD
 if [ -z "$TMPDIR" ]; then
 	TMPDIR="${TOPDIR}/.${SERVER}"
@@ -114,6 +121,7 @@ else
 	TMPDIR=$(readlink -f $TMPDIR)
 fi
 
+SANDBOX=$(get_sandbox)
 SANDBOX=$(readlink -f ${SANDBOX})
 DOCKER="sudo docker"
 LOG="log_${SERVER}.log"

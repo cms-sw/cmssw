@@ -80,9 +80,15 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
     ElectronHcalHelper::Configuration hcalCfg{};
     hcalCfg.hOverEConeSize = conf.getParameter<double>("hOverEConeSize");
     if (hcalCfg.hOverEConeSize > 0) {
-      hcalCfg.useTowers = true;
-      hcalCfg.hcalTowers = consumes(conf.getParameter<edm::InputTag>("hcalTowers"));
-      hcalCfg.hOverEPtMin = conf.getParameter<double>("hOverEPtMin");
+      hcalCfg.onlyBehindCluster = false;
+      hcalCfg.checkHcalStatus = false;
+
+      hcalCfg.hbheRecHits = consumes<HBHERecHitCollection>(conf.getParameter<edm::InputTag>("hbheRecHits"));
+
+      hcalCfg.eThresHB = conf.getParameter<EgammaHcalIsolation::arrayHB>("recHitEThresholdHB");
+      hcalCfg.maxSeverityHB = conf.getParameter<int>("maxHcalRecHitSeverity");
+      hcalCfg.eThresHE = conf.getParameter<EgammaHcalIsolation::arrayHE>("recHitEThresholdHE");
+      hcalCfg.maxSeverityHE = hcalCfg.maxSeverityHB;
     }
     hcalHelper_ = std::make_unique<ElectronHcalHelper>(hcalCfg, consumesCollector());
 
@@ -168,7 +174,7 @@ SuperClusterRefVector ElectronSeedProducer::filterClusters(
     if (scl.energy() / cosh(sclEta) > SCEtCut_) {
       if (applyHOverECut_) {
         bool hoeVeto = false;
-        double had = hcalHelper_->hcalESumDepth1(scl) + hcalHelper_->hcalESumDepth2(scl);
+        double had = hcalHelper_->hcalESum(scl, 0);
         double scle = scl.energy();
         int det_group = scl.seed()->hitsAndFractions()[0].first.det();
         int detector = scl.seed()->hitsAndFractions()[0].first.subdetId();
@@ -212,10 +218,10 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("hOverEConeSize", 0.15);
   desc.add<double>("maxHOverEBarrel", 0.15);
   desc.add<double>("maxHOverEEndcaps", 0.15);
-
-  // H/E towers
-  desc.add<edm::InputTag>("hcalTowers", {"towerMaker"});
-  desc.add<double>("hOverEPtMin", 0.0);
+  desc.add<edm::InputTag>("hbheRecHits", {"hbhereco"});
+  desc.add<std::vector<double>>("recHitEThresholdHB", {0., 0., 0., 0.});
+  desc.add<std::vector<double>>("recHitEThresholdHE", {0., 0., 0., 0., 0., 0., 0.});
+  desc.add<int>("maxHcalRecHitSeverity", 999999);
 
   // H/E equivalent for HGCal
   desc.add<bool>("allowHGCal", false);
@@ -252,7 +258,7 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("endcapSuperClusters",
                           {"particleFlowSuperClusterECAL", "particleFlowSuperClusterECALEndcapWithPreshower"});
 
-  descriptions.add("ecalDrivenElectronSeeds", desc);
+  descriptions.add("ecalDrivenElectronSeedsDefault", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -6,7 +6,8 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "PhysicsTools/HepMCCandAlgos/interface/PdgEntryReplacer.h"
+#include "PhysicsTools/HepMCCandAlgos/interface/pdgEntryReplace.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/Common/interface/Association.h"
 
 namespace helper {
@@ -27,6 +28,7 @@ private:
   void produce(edm::Event &, const edm::EventSetup &) override;
   bool firstEvent_;
   edm::EDGetTokenT<reco::GenParticleCollection> srcToken_;
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> tableToken_;
   int keepOrDropAll_;
   std::vector<std::string> selection_;
   std::vector<std::pair<StringCutObjectSelector<reco::GenParticle>, helper::SelectCode>> select_;
@@ -98,6 +100,7 @@ void GenParticlePruner::parse(const std::string &selection, ::helper::SelectCode
 GenParticlePruner::GenParticlePruner(const ParameterSet &cfg)
     : firstEvent_(true),
       srcToken_(consumes<GenParticleCollection>(cfg.getParameter<InputTag>("src"))),
+      tableToken_(esConsumes()),
       keepOrDropAll_(drop),
       selection_(cfg.getParameter<vector<string>>("select")) {
   using namespace ::helper;
@@ -161,7 +164,8 @@ void GenParticlePruner::recursiveFlagMothers(size_t index,
 
 void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
   if (firstEvent_) {
-    PdgEntryReplacer rep(es);
+    auto const &pdt = es.getData(tableToken_);
+
     for (vector<string>::const_iterator i = selection_.begin(); i != selection_.end(); ++i) {
       string cut;
       ::helper::SelectCode code;
@@ -180,7 +184,7 @@ void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
             keepOrDropAll_ = keep;
         };
       } else {
-        cut = rep.replace(cut);
+        cut = pdgEntryReplace(cut, pdt);
         select_.push_back(make_pair(StringCutObjectSelector<GenParticle>(cut), code));
       }
     }

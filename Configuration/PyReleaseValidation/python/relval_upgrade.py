@@ -1,4 +1,3 @@
-import six
 # import the definition of the steps and input files:
 from  Configuration.PyReleaseValidation.relval_steps import *
 
@@ -20,7 +19,7 @@ def makeStepName(key,frag,step,suffix):
 for year in upgradeKeys:
     for i,key in enumerate(upgradeKeys[year]):
         numWF=numWFAll[year][i]
-        for frag,info in six.iteritems(upgradeFragments):
+        for frag,info in upgradeFragments.items():
             # phase2-specific fragments are skipped in phase1
             if ("CE_E" in frag or "CE_H" in frag) and year==2017:
                 numWF += 1
@@ -32,13 +31,16 @@ for year in upgradeKeys:
             for step in upgradeProperties[year][key]['ScenToRun']:                    
                 stepMaker = makeStepName
                 if 'Sim' in step:
-                    if 'HLBeamSpot' in step and '14TeV' in frag:
-                        step = 'GenSimHLBeamSpot14'
+                    if 'HLBeamSpot' in step:
+                        if '14TeV' in frag:
+                            step = 'GenSimHLBeamSpot14'
+                        if 'CloseByParticle' in frag or 'CE_E' in frag or 'CE_H' in frag:
+                            step = 'GenSimHLBeamSpotHGCALCloseBy'
                     stepMaker = makeStepNameSim
                 
                 if 'HARVEST' in step: hasHarvest = True
 
-                for specialType,specialWF in six.iteritems(upgradeWFs):
+                for specialType,specialWF in upgradeWFs.items():
                     if (specialType != 'baseline') and ( ('PU' in step and step.replace('PU','') in specialWF.PU) or (step in specialWF.steps) ):
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,specialWF.suffix))
                         # hack to add an extra step
@@ -58,7 +60,7 @@ for year in upgradeKeys:
                     else:
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,''))
 
-            for specialType,specialWF in six.iteritems(upgradeWFs):
+            for specialType,specialWF in upgradeWFs.items():
                 # remove other steps for premixS1
                 if specialType=="PMXS1":
                     stepList[specialType] = stepList[specialType][:1]

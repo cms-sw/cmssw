@@ -1,7 +1,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
-#include "DetectorDescription/Core/src/ExtrudedPolygon.h"
+#include "DetectorDescription/Core/interface/ExtrudedPolygon.h"
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"
 #include <G4ExtrudedSolid.hh>

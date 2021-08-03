@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
+#include "DataFormats/Math/interface/Rounding.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
@@ -136,20 +137,24 @@ void PGeometricDetBuilder::putOne(const GeometricDet* gd, PGeometricDet* pgd, in
   item._name = gd->name();
   item._ns = std::string();
   item._level = lev;
-  item._x = tran.X();
-  item._y = tran.Y();
-  item._z = tran.Z();
+  using cms_rounding::roundIfNear0;
+  const double tol = 1.e-10;
+  // Round very small calculated values to 0 to avoid discrepancies
+  // between +0 and -0 in comparisons.
+  item._x = roundIfNear0(tran.X(), tol);
+  item._y = roundIfNear0(tran.Y(), tol);
+  item._z = roundIfNear0(tran.Z(), tol);
   item._phi = gd->phi();
   item._rho = gd->rho();
-  item._a11 = x.X();
-  item._a12 = y.X();
-  item._a13 = z.X();
-  item._a21 = x.Y();
-  item._a22 = y.Y();
-  item._a23 = z.Y();
-  item._a31 = x.Z();
-  item._a32 = y.Z();
-  item._a33 = z.Z();
+  item._a11 = roundIfNear0(x.X(), tol);
+  item._a12 = roundIfNear0(y.X(), tol);
+  item._a13 = roundIfNear0(z.X(), tol);
+  item._a21 = roundIfNear0(x.Y(), tol);
+  item._a22 = roundIfNear0(y.Y(), tol);
+  item._a23 = roundIfNear0(z.Y(), tol);
+  item._a31 = roundIfNear0(x.Z(), tol);
+  item._a32 = roundIfNear0(y.Z(), tol);
+  item._a33 = roundIfNear0(z.Z(), tol);
   item._shape = static_cast<int>(gd->shape_dd4hep());
   item._type = gd->type();
   if (gd->shape_dd4hep() == cms::DDSolidShape::ddbox) {

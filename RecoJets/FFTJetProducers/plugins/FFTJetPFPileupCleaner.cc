@@ -45,6 +45,9 @@
 class FFTJetPFPileupCleaner : public edm::EDProducer {
 public:
   explicit FFTJetPFPileupCleaner(const edm::ParameterSet&);
+  FFTJetPFPileupCleaner() = delete;
+  FFTJetPFPileupCleaner(const FFTJetPFPileupCleaner&) = delete;
+  FFTJetPFPileupCleaner& operator=(const FFTJetPFPileupCleaner&) = delete;
   ~FFTJetPFPileupCleaner() override;
 
 protected:
@@ -54,10 +57,6 @@ protected:
   void endJob() override;
 
 private:
-  FFTJetPFPileupCleaner() = delete;
-  FFTJetPFPileupCleaner(const FFTJetPFPileupCleaner&) = delete;
-  FFTJetPFPileupCleaner& operator=(const FFTJetPFPileupCleaner&) = delete;
-
   bool isRemovable(reco::PFCandidate::ParticleType ptype) const;
   void setRemovalBit(reco::PFCandidate::ParticleType ptype, bool onOff);
   void buildRemovalMask();
