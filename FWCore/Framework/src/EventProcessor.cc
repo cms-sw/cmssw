@@ -33,7 +33,7 @@
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/Framework/src/Breakpoints.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
-#include "FWCore/Framework/src/InputSourceFactory.h"
+#include "FWCore/Framework/interface/maker/InputSourceFactory.h"
 #include "FWCore/Framework/src/SharedResourcesRegistry.h"
 #include "FWCore/Framework/src/streamTransitionAsync.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"

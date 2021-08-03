@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/ScheduleItems.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/streamTransitionAsync.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/src/globalTransitionAsync.h"

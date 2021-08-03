@@ -25,7 +25,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include "FWCore/Utilities/interface/Exception.h"

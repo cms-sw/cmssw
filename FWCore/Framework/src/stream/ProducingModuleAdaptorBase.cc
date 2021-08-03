@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
