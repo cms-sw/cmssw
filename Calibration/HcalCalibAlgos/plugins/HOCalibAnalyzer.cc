@@ -625,7 +625,7 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
     }
 
     for (int ij = 0; ij < nphimx; ij++) {
-      if (m_hotime) { 
+      if (m_hotime) {
         sprintf(title, "hotime_eta%i_phi%i", (jk <= 14) ? jk + 1 : 14 - jk, ij + 1);
         hotime[jk][ij] = fs->make<TProfile>(title, title, 10, -0.5, 9.5, -1.0, 30.0);
 
@@ -659,7 +659,7 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
 
         sprintf(title, "corrsg_eta%i_phi%i_right", ieta, ij + 1);
         corrsgr[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);
-      }                  //m_correl 
+      }                  //m_correl
       if (m_checkmap) {  // CHECKMAP
         sprintf(title, "corrsg_eta%i_phi%i_centrl", ieta, ij + 1);
         corrsgc[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);
@@ -801,7 +801,7 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
 
           sprintf(title, "com_corrsg_ring%i_sect%i_right", jk - 2, ij + 1);
           com_corrsgr[jk][ij] = fs->make<TH1F>(title, title, nbin, alow, ahigh);
-        }  //m_correl 
+        }  //m_correl
 
         if (m_checkmap) {  // CHECKMAP
           sprintf(title, "com_corrsg_ring%i_sect%i_centrl", jk - 2, ij + 1);
@@ -942,7 +942,6 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   int mypow_2_11 = 2048;  // 2^11
   int mypow_2_12 = 4096;  // 2^12
 
-
   int iaxxx = 0;
   int ibxxx = 0;
 
@@ -1024,10 +1023,10 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       hoflag = (*hoC).hoflag;
       for (int ij = 0; ij < 9; ij++) {
         hosig[ij] = (*hoC).hosig[ij];
-      } 
+      }
       for (int ij = 0; ij < 18; ij++) {
         hocorsig[ij] = (*hoC).hocorsig[ij];
-      } 
+      }
       hocro = (*hoC).hocro;
       for (int ij = 0; ij < 3; ij++) {
         caloen[ij] = (*hoC).caloen[ij];
@@ -1037,7 +1036,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         for (int ij = 0; ij < 9; ij++) {
           hbhesig[ij] = (*hoC).hbhesig[ij];
         }
-      } 
+      }
 
       T1->Fill();
 
@@ -1646,7 +1645,7 @@ void HOCalibAnalyzer::endJob() {
         nevcorrsgr->Fill(netamx * ij + jk, corrsgr[jk][ij]->GetEntries());
         mncorrsgr->Fill(netamx * ij + jk, corrsgr[jk][ij]->GetMean());
         rmscorrsgr->Fill(netamx * ij + jk, corrsgr[jk][ij]->GetRMS());
-      }                  //m_correl 
+      }                  //m_correl
       if (m_checkmap) {  // CHECKMAP
         nevcorrsgc->Fill(netamx * ij + jk, corrsgc[jk][ij]->GetEntries());
         mncorrsgc->Fill(netamx * ij + jk, corrsgc[jk][ij]->GetMean());
@@ -2809,7 +2808,6 @@ void HOCalibAnalyzer::endJob() {
       c1y->SaveAs(out_file);
 
       delete c1y;
-
     }
 
   }  // if (m_constant){
