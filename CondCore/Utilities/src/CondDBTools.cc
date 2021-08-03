@@ -2,7 +2,7 @@
 #include "CondCore/Utilities/interface/CondDBImport.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 //
-#include "CondCore/CondDB/src/DbCore.h"
+#include "CondCore/CondDB/interface/DbCore.h"
 //
 #include <boost/regex.hpp>
 
