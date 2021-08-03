@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ValidHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -60,15 +60,11 @@ void SimTrackSimVertexDumper::analyze(const edm::Event& iEvent, const edm::Event
   std::vector<SimTrack> theSimTracks;
   std::vector<SimVertex> theSimVertexes;
 
-  edm::Handle<edm::HepMCProduct> MCEvt;
-  edm::Handle<edm::SimTrackContainer> SimTk;
-  edm::Handle<edm::SimVertexContainer> SimVtx;
-
-  iEvent.getByToken(hepmcToken_, MCEvt);
+  auto MCEvt = edm::makeValid(iEvent.getHandle(hepmcToken_));
   const HepMC::GenEvent* evt = MCEvt->GetEvent();
 
-  iEvent.getByToken(simTrackToken_, SimTk);
-  iEvent.getByToken(simVertexToken_, SimVtx);
+  auto SimTk = edm::makeValid(iEvent.getHandle(simTrackToken_));
+  auto SimVtx = edm::makeValid(iEvent.getHandle(simVertexToken_));
 
   theSimTracks.insert(theSimTracks.end(), SimTk->begin(), SimTk->end());
   theSimVertexes.insert(theSimVertexes.end(), SimVtx->begin(), SimVtx->end());

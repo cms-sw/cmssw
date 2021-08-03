@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ValidHandle.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,13 +36,9 @@ public:
   }
 
   void analyze(const edm::Event& evt, const edm::EventSetup& es) override {
-    edm::Handle<edm::HepMCProduct> hepMC;
-    evt.getByToken(srcToken_, hepMC);
+    auto hepMC = makeValid(evt.getHandle(srcToken_));
 
     const HepMC::GenEvent* mc = hepMC->GetEvent();
-    if (mc == 0) {
-      throw edm::Exception(edm::errors::InvalidReference) << "HepMC has null pointer to GenEvent";
-    }
     edm::LogPrint("HepMCAnalyzer") << "\n particles #: " << mc->particles_size();
 
     if (dumpPDF_) {
