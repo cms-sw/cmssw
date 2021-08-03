@@ -4,7 +4,6 @@
 /** Comparison operator for Dets based on the Z.
  */
 
-#include "TrackingTools/DetLayers/src/DetLessZ.h"
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 
 inline bool isDetLessZ(const GeometricSearchDet* a, const GeometricSearchDet* b) {
