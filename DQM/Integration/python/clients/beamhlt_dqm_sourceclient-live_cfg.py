@@ -76,10 +76,10 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 # DQM Live Environment
 #-----------------------------
 process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder = 'BeamMonitor'
-process.dqmSaver.tag           = 'BeamMonitor'
+process.dqmEnv.subSystemFolder = 'BeamMonitorHLT'
+process.dqmSaver.tag           = 'BeamMonitorHLT'
 process.dqmSaver.runNumber     = options.runNumber
-process.dqmSaverPB.tag         = 'BeamMonitor'
+process.dqmSaverPB.tag         = 'BeamMonitorHLT'
 process.dqmSaverPB.runNumber   = options.runNumber
 
 #-----------------------------

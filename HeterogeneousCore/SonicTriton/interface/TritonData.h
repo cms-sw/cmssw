@@ -39,10 +39,12 @@ template <typename DT>
 using TritonInputContainer = std::shared_ptr<TritonInput<DT>>;
 
 //store all the info needed for triton input and output
+//NOTE: this class is not const-thread-safe, and should only be used with stream or one modules
+//(generally recommended for SONIC, but especially necessary here)
 template <typename IO>
 class TritonData {
 public:
-  using Result = nvidia::inferenceserver::client::InferResult;
+  using Result = triton::client::InferResult;
   using TensorMetadata = inference::ModelMetadataResponse_TensorMetadata;
   using ShapeType = std::vector<int64_t>;
   using ShapeView = edm::Span<ShapeType::const_iterator>;
@@ -93,7 +95,7 @@ private:
   void updateMem(size_t size);
   void computeSizes();
   void resetSizes();
-  nvidia::inferenceserver::client::InferenceServerGrpcClient* client();
+  triton::client::InferenceServerGrpcClient* client();
 
   //helpers
   bool anyNeg(const ShapeView& vec) const {
@@ -129,14 +131,19 @@ private:
   size_t sizeShape_;
   size_t byteSizePerBatch_;
   size_t totalByteSize_;
+  //can be modified in otherwise-const fromServer() method in TritonMemResource::copyOutput():
+  //TritonMemResource holds a non-const pointer to an instance of this class
+  //so that TritonOutputGpuShmResource can store data here
   std::shared_ptr<void> holder_;
   std::shared_ptr<TritonMemResource<IO>> memResource_;
   std::shared_ptr<Result> result_;
+  //can be modified in otherwise-const fromServer() method to prevent multiple calls
+  CMS_SA_ALLOW mutable bool done_{};
 };
 
-using TritonInputData = TritonData<nvidia::inferenceserver::client::InferInput>;
+using TritonInputData = TritonData<triton::client::InferInput>;
 using TritonInputMap = std::unordered_map<std::string, TritonInputData>;
-using TritonOutputData = TritonData<nvidia::inferenceserver::client::InferRequestedOutput>;
+using TritonOutputData = TritonData<triton::client::InferRequestedOutput>;
 using TritonOutputMap = std::unordered_map<std::string, TritonOutputData>;
 
 //avoid "explicit specialization after instantiation" error
@@ -160,12 +167,12 @@ void TritonInputData::reset();
 template <>
 void TritonOutputData::reset();
 template <>
-void TritonInputData::createObject(nvidia::inferenceserver::client::InferInput** ioptr);
+void TritonInputData::createObject(triton::client::InferInput** ioptr);
 template <>
-void TritonOutputData::createObject(nvidia::inferenceserver::client::InferRequestedOutput** ioptr);
+void TritonOutputData::createObject(triton::client::InferRequestedOutput** ioptr);
 
 //explicit template instantiation declarations
-extern template class TritonData<nvidia::inferenceserver::client::InferInput>;
-extern template class TritonData<nvidia::inferenceserver::client::InferRequestedOutput>;
+extern template class TritonData<triton::client::InferInput>;
+extern template class TritonData<triton::client::InferRequestedOutput>;
 
 #endif

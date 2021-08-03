@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import six
 
 def _label(tag):
     if hasattr(tag, "getModuleLabel"):
@@ -71,7 +70,7 @@ def customiseTrackingNtupleTool(process, isRECO = True, mergeIters = False):
 
     # remove the validation_stepN and prevalidatin_stepN of phase2 validation...    
     for p in [process.paths_(), process.endpaths_()]:    
-        for pathName, path in six.iteritems(p):    
+        for pathName, path in p.items():    
             if "prevalidation_step" in pathName:    
                 if len(pathName.replace("prevalidation_step", "")) > 0:    
                     modifier.toReplaceWith(path, cms.Path())    
@@ -80,10 +79,10 @@ def customiseTrackingNtupleTool(process, isRECO = True, mergeIters = False):
                     modifier.toReplaceWith(path, cms.EndPath())
 
     # Remove all output modules
-    for outputModule in six.itervalues(process.outputModules_()):
-        for path in six.itervalues(process.paths_()):
+    for outputModule in process.outputModules_().values():
+        for path in process.paths_().values():
             path.remove(outputModule)
-        for path in six.itervalues(process.endpaths_()):
+        for path in process.endpaths_().values():
             path.remove(outputModule)
         
 

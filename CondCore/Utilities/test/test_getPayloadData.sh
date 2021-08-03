@@ -9,10 +9,12 @@ check_for_failure() {
 }
 
 check_for_full(){
-    count=`echo ${@} | python3 -c 'import json,sys;print(len(json.load(sys.stdin)["cond::BasicPayload"]))'`
-    if [[ $count -gt 1 ]] 
+    count=`echo ${@} | python3 -c 'import json,sys;data=json.load(sys.stdin);print(len(data.keys()))'`
+    echo $count
+    if [[ $count -gt 0 ]]
     then 
-	echo -e "\n ---> passed getPayloadData.py --discover test : found $count entries"
+	entries=`echo ${@} | python3 -c 'import json,sys;data=json.load(sys.stdin);print(list(data.keys()))'`
+	echo -e "\n ---> passed getPayloadData.py --discover test : found $count entries: $entries"
     else 
 	echo -e "getPayloadData.py --discover test not passed... found no entries"
 	exit 1
@@ -85,4 +87,31 @@ check_for_success getPayloadData.py \
     --iovstwo '{"start_iov": "101", "end_iov": "101"}' \
     --db Prod \
     --test ;
+
+########################################
+# Test BasicPayload single-iov, with suppress output
+########################################
+check_for_success getPayloadData.py \
+    --plugin pluginBasicPayload_PayloadInspector \
+    --plot plot_BasicPayload_data5 \
+    --tag BasicPayload_v10.0 \
+    --input_params '{}' \
+    --time_type Run \
+    --iovs '{"start_iov": "601", "end_iov": "601"}' \
+    --db Prod \
+    --suppress-output ;
+
+########################################
+# Test in production style
+########################################
+check_for_success getPayloadData.py \
+    --plugin pluginBasicPayload_PayloadInspector \
+    --plot plot_BasicPayload_data6 \
+    --tag BasicPayload_v0 \
+    --input_params '{}' \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --suppress-output \
+    --image_plot;
 

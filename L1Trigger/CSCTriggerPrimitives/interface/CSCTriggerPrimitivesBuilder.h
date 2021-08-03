@@ -103,8 +103,9 @@ private:
   static const int min_chamber;  // chambers per trigger subsector
   static const int max_chamber;
 
-  //debug
+  // debug
   int infoV;
+
   /// a flag whether to skip chambers from the bad chambers map
   bool checkBadChambers_;
 
@@ -112,16 +113,11 @@ private:
   bool runPhase2_;
 
   /** Phase2: special switch for disabling ME42 */
-  bool disableME1a_;
-
-  /** Phase2: special switch for disabling ME42 */
   bool disableME42_;
 
   /** Phase2: individual switches */
   bool runME11Up_;
   bool runME21Up_;
-  bool runME31Up_;
-  bool runME41Up_;
 
   /** Phase2: special switch for the upgrade ME1/1 TMB */
   bool runME11ILT_;

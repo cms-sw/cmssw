@@ -12,11 +12,7 @@ class SimTrackManager;
 
 class PltSD : public TimingSD {
 public:
-  PltSD(const std::string &,
-        const edm::EventSetup &,
-        const SensitiveDetectorCatalog &,
-        edm::ParameterSet const &,
-        const SimTrackManager *);
+  PltSD(const std::string &, const SensitiveDetectorCatalog &, edm::ParameterSet const &, const SimTrackManager *);
   ~PltSD() override;
 
   uint32_t setDetUnitId(const G4Step *) override;

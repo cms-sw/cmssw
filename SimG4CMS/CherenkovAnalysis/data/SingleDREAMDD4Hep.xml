@@ -1,10 +1,26 @@
 <?xml version="1.0"?>
 <DDDefinition>
+  <debug>
+    <debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
+    <debug_includes/>
+    <debug_volumes/>
+    <debug_constants/>
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_materials/>
+<!-- 
+    <debug_algorithms/>
+    <debug_visattr/>
+-->
+  </debug>
+
   <open_geometry/>
   <close_geometry/>
 
   <IncludeSection>
-   <Include ref='Geometry/CMSCommonData/data/materials/2021/v2/materials.xml'/> 
+   <Include ref='Geometry/CMSCommonData/data/materials/2021/v2/materials.xml'/>
    <Include ref='SimG4CMS/CherenkovAnalysis/data/singleDREAM.xml'/>
   </IncludeSection>
 </DDDefinition>

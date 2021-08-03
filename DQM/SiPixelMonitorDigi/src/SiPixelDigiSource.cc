@@ -50,6 +50,7 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig)
       isPIB(conf_.getUntrackedParameter<bool>("isPIB", false)),
       slowDown(conf_.getUntrackedParameter<bool>("slowDown", false)),
       modOn(conf_.getUntrackedParameter<bool>("modOn", true)),
+      perLSsaving(conf_.getUntrackedParameter<bool>("perLSsaving", false)),
       twoDimOn(conf_.getUntrackedParameter<bool>("twoDimOn", true)),
       twoDimModOn(conf_.getUntrackedParameter<bool>("twoDimModOn", true)),
       twoDimOnlyLayDisk(conf_.getUntrackedParameter<bool>("twoDimOnlyLayDisk", false)),
@@ -1254,7 +1255,7 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker& iBooker, const edm::EventSetu
         0.,
         3200.);
   }
-  if (!modOn) {
+  if (!modOn && !perLSsaving) {
     averageDigiOccupancy = iBooker.book1D(
         "averageDigiOccupancy", title7, 40, -0.5, 39.5);  //Book as TH1 for offline to ensure thread-safe behaviour
     avgfedDigiOccvsLumi = iBooker.book2D("avgfedDigiOccvsLumi", title8, 3200, 0., 3200., 40, -0.5, 39.5);

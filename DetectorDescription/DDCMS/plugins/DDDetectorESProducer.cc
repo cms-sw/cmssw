@@ -131,13 +131,13 @@ DDDetectorESProducer::ReturnType DDDetectorESProducer::produceGeom(const IdealGe
 
     return make_unique<cms::DDDetector>(label_, string(tb->begin(), tb->end()), true);
   } else {
-    return make_unique<DDDetector>(appendToDataLabel_, confGeomXMLFiles_);
+    return make_unique<DDDetector>(appendToDataLabel_, confGeomXMLFiles_, false);
   }
 }
 
 DDDetectorESProducer::ReturnType DDDetectorESProducer::produce() {
   LogVerbatim("Geometry") << "DDDetectorESProducer::Produce " << appendToDataLabel_;
-  return make_unique<DDDetector>(appendToDataLabel_, confGeomXMLFiles_);
+  return make_unique<DDDetector>(appendToDataLabel_, confGeomXMLFiles_, false);
 }
 
 DEFINE_FWK_EVENTSETUP_SOURCE(DDDetectorESProducer);

@@ -43,11 +43,11 @@ public:
   void setData(const edm::ObjectWithDict&) override;
   void reset() override;
 
-private:
   FWItemSingleAccessor(const FWItemSingleAccessor&) = delete;  // stop default
 
   const FWItemSingleAccessor& operator=(const FWItemSingleAccessor&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   const TClass* m_type;
   const void* m_data;

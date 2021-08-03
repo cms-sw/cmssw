@@ -7,7 +7,6 @@ import pprint
 import re
 import os
 import sys
-import six
 
 piecesRE     = re.compile (r'(.+?)\s+"(\S+)"\s+"(\S*)"\s+"(\S+)"')
 #colonRE      = re.compile (r':+')
@@ -238,7 +237,7 @@ if __name__ == "__main__":
    #########################################
    ## Run useReflexToDescribeForGenObject ##
    #########################################
-    for key, value in sorted (six.iteritems(collection)):
+    for key, value in sorted (collection.items()):
         name      = value[0].name
         prettyName = nonAlphaRE.sub('', name)
         descriptionName = prettyName + '.txt'
@@ -279,7 +278,7 @@ if __name__ == "__main__":
     ##################################
     ## Run edmOneToOneComparison.py ##
     ##################################
-    for key, value in sorted (six.iteritems(collection)):
+    for key, value in sorted (collection.items()):
         #print "%-40s" % key,
         for obj in value:
             # print "  ", obj.label(),

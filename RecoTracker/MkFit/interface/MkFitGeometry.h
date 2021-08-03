@@ -36,6 +36,7 @@ public:
   mkfit::IterationsInfo const& iterationsInfo() const { return *iterationsInfo_; }
   const std::vector<const DetLayer*>& detLayers() const { return dets_; }
   unsigned int uniqueIdInLayer(int layer, unsigned int detId) const { return detIdToShortId_.at(layer).at(detId); }
+  const TrackerTopology* topology() const { return ttopo_; }
 
 private:
   const TrackerTopology* ttopo_;

@@ -311,9 +311,12 @@ struct DQMTTreeIO {
 class DQMRootSource : public edm::PuttableSourceBase, DQMTTreeIO {
 public:
   DQMRootSource(edm::ParameterSet const&, const edm::InputSourceDescription&);
+  DQMRootSource(const DQMRootSource&) = delete;
   ~DQMRootSource() override;
 
   // ---------- const member functions ---------------------
+
+  const DQMRootSource& operator=(const DQMRootSource&) = delete;  // stop default
 
   // ---------- static member functions --------------------
 
@@ -321,11 +324,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  DQMRootSource(const DQMRootSource&) = delete;
-
   edm::InputSource::ItemType getNextItemType() override;
 
-  std::unique_ptr<edm::FileBlock> readFile_() override;
+  std::shared_ptr<edm::FileBlock> readFile_() override;
   std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override;
   std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
   void readRun_(edm::RunPrincipal& rpCache) override;
@@ -352,8 +353,6 @@ private:
   // If at least one lumi of a run needs to be kept, per run MEs of that run will also be kept.
   bool keepIt(edm::RunNumber_t, edm::LuminosityBlockNumber_t) const;
   void logFileAction(char const* msg, char const* fileName) const;
-
-  const DQMRootSource& operator=(const DQMRootSource&) = delete;  // stop default
 
   // ---------- member data --------------------------------
 
@@ -465,7 +464,7 @@ DQMRootSource::~DQMRootSource() {
 edm::InputSource::ItemType DQMRootSource::getNextItemType() { return m_nextItemType; }
 
 // We will read the metadata of all files and fill m_fileMetadatas vector
-std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
+std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
   const int numFiles = m_catalog.fileNames(0).size();
   m_openFiles.reserve(numFiles);
 
@@ -601,7 +600,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
     m_nextItemType = edm::InputSource::IsRun;
 
   // We have to return something but not sure why
-  return std::make_unique<edm::FileBlock>();
+  return std::make_shared<edm::FileBlock>();
 }
 
 std::shared_ptr<edm::RunAuxiliary> DQMRootSource::readRunAuxiliary_() {

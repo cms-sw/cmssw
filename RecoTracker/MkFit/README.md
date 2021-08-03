@@ -39,6 +39,7 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 * *m_track_algorithm:* CMSSW track algorithm (used internally for reporting and consistency checks)
 * *m_requires_seed_hit_sorting:* do hits on seed tracks need to be sorted (required for seeds that include strip layers)
 * *m_require_quality_filter:* is additional post-processing required for result tracks
+* *m_require_dupclean_tight:* is tight duplicate removal post-processing required for result tracks
 * *m_params:* IterationParams structure for this iteration
 * *m_layer_configs:* std::vector of per-layer parameters
 
@@ -68,6 +69,9 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 
 * *minHitsQF:* min number of hits on track candidate to apply duplicate cleaning based on fraction of shared hits
 * *fracSharedHits:* min fraction of shared hits to determine duplicate track candidate
+* *drth_central:* dR cut used to identify duplicate candidates if std::abs(cotan(theta))<1.99 (abs(eta)<1.44)
+* *drth_obarrel:* dR cut used to identify duplicate candidates if 1.99<std::abs(cotan(theta))<6.05 (1.44<abs(eta)<2.5)
+* *drth_forward:* dR cut used to identify duplicate candidates if std::abs(cotan(theta))>6.05 (abs(eta)>2.5)
 
 ### Per-layer parameters [class IterationLayerConfig]
 

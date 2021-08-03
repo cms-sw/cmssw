@@ -51,11 +51,11 @@ public:
   void showHGCalHSc(bool);
   TEveElementList const* const getHGCalHSc() { return m_HGCalHScElements; }
 
-private:
   FW3DViewGeometry(const FW3DViewGeometry&) = delete;  // stop default
 
   const FW3DViewGeometry& operator=(const FW3DViewGeometry&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
 
   TEveElementList* m_muonBarrelElements;

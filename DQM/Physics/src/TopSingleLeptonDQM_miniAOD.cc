@@ -115,7 +115,7 @@ namespace TopSingleLepton_miniAOD {
       // jetCorrector is optional; in case it's not found
       // the InputTag will remain empty
       if (jetExtras.existsAs<std::string>("jetCorrector")) {
-        jetCorrector_ = jetExtras.getParameter<std::string>("jetCorrector");
+        jetCorrector_ = iC.esConsumes(edm::ESInputTag("", jetExtras.getParameter<std::string>("jetCorrector")));
       }
       // read jetID information if it exists
       if (jetExtras.existsAs<edm::ParameterSet>("jetID")) {

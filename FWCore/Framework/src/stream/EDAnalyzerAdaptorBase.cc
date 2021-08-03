@@ -227,9 +227,6 @@ void EDAnalyzerAdaptorBase::doStreamEndLuminosityBlock(StreamID id,
   streamEndLuminosityBlockSummary(mod, lb, c);
 }
 
-void EDAnalyzerAdaptorBase::doRespondToOpenInputFile(FileBlock const&) {}
-void EDAnalyzerAdaptorBase::doRespondToCloseInputFile(FileBlock const&) {}
-
 void EDAnalyzerAdaptorBase::setModuleDescriptionPtr(EDAnalyzerBase* m) {
   m->setModuleDescriptionPtr(&moduleDescription_);
 }

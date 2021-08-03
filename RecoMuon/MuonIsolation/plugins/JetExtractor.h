@@ -25,6 +25,9 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 class TrackAssociatorParameters;
 class TrackDetectorAssociator;
 class MuonServiceProxy;
@@ -33,7 +36,7 @@ namespace muonisolation {
 
   class JetExtractor : public reco::isodeposit::IsoDepositExtractor {
   public:
-    JetExtractor(){};
+    JetExtractor();
     JetExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC);
 
     ~JetExtractor() override;
@@ -48,6 +51,8 @@ namespace muonisolation {
 
     std::string thePropagatorName;
 
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+
     // Cone cuts and thresholds
     double theThreshold;
     double theDR_Veto;
@@ -57,10 +62,10 @@ namespace muonisolation {
     bool theExcludeMuonVeto;
 
     //! the event setup proxy, it takes care the services update
-    MuonServiceProxy* theService;
+    std::unique_ptr<MuonServiceProxy> theService;
 
-    TrackAssociatorParameters* theAssociatorParameters;
-    TrackDetectorAssociator* theAssociator;
+    std::unique_ptr<TrackAssociatorParameters> theAssociatorParameters;
+    std::unique_ptr<TrackDetectorAssociator> theAssociator;
 
     bool thePrintTimeReport;
   };

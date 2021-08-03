@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -65,6 +64,7 @@ private:
   const bool testNumber_, passive_;
   const int allSteps_;
   const std::vector<std::string> detNames_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tokGeom_;
   std::vector<edm::EDGetTokenT<edm::PCaloHitContainer> > toks_calo_;
   edm::EDGetTokenT<edm::PassiveHitContainer> tok_passive_;
 
@@ -95,7 +95,8 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
       testNumber_(ps.getUntrackedParameter<bool>("testNumbering", false)),
       passive_(ps.getUntrackedParameter<bool>("passiveHits", false)),
       allSteps_(ps.getUntrackedParameter<int>("allSteps", 100)),
-      detNames_(ps.getUntrackedParameter<std::vector<std::string> >("detNames")) {
+      detNames_(ps.getUntrackedParameter<std::vector<std::string> >("detNames")),
+      tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   usesResource(TFileService::kSharedResource);
 
   // register for data access
@@ -277,9 +278,7 @@ void CaloSimHitAnalysis::fillDescriptions(edm::ConfigurationDescriptions& descri
 void CaloSimHitAnalysis::analyze(edm::Event const& e, edm::EventSetup const& set) {
   edm::LogVerbatim("HitStudy") << "CaloSimHitAnalysis:Run = " << e.id().run() << " Event = " << e.id().event();
 
-  edm::ESHandle<CaloGeometry> calo_handle;
-  set.get<CaloGeometryRecord>().get(calo_handle);
-  caloGeometry_ = calo_handle.product();
+  caloGeometry_ = &set.getData(tokGeom_);
   hcalGeom_ = static_cast<const HcalGeometry*>(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
 
   for (unsigned int i = 0; i < toks_calo_.size(); i++) {

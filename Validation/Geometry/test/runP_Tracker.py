@@ -81,7 +81,7 @@ def _adaptToRun2(det):
   return det
 
 # Load geometry either from the Database of from files
-process.load("Configuration.Geometry.Geometry%s_cff" % options.geom)
+process.load("Configuration.Geometry.Geometry%sReco_cff" % options.geom)
 
 # Customise names for Run2
 if re.match('.*2016.*', options.geom):

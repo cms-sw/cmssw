@@ -32,6 +32,8 @@ public:
   /** @name constructors and destructor */
   //@{
   StreamOutFormatTarget(std::ostream& fStream);
+  StreamOutFormatTarget(const StreamOutFormatTarget&) = delete;
+  StreamOutFormatTarget& operator=(const StreamOutFormatTarget&) = delete;
   ~StreamOutFormatTarget() override;
   //@}
 
@@ -47,8 +49,6 @@ private:
   // -----------------------------------------------------------------------
   //  Unimplemented methods.
   // -----------------------------------------------------------------------
-  StreamOutFormatTarget(const StreamOutFormatTarget&) = delete;
-  StreamOutFormatTarget& operator=(const StreamOutFormatTarget&) = delete;
 };
 
 XERCES_CPP_NAMESPACE_END

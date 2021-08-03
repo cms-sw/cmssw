@@ -68,7 +68,7 @@ namespace {
   };
 }  // namespace
 
-void RPCtoDTTranslator::run(const edm::EventSetup& c) {
+void RPCtoDTTranslator::run(const RPCGeometry& rpcGeometry) {
   std::vector<L1MuDTChambPhDigi> l1ttma_out;
   std::vector<L1MuDTChambPhDigi> l1ttma_hits_out;
 
@@ -169,14 +169,14 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
         for (unsigned int l1 = 0; l1 < vrpc_hit_layer1.size(); l1++) {
           RPCHitCleaner::detId_Ext tmp{vrpc_hit_layer1[l1].detid, vrpc_hit_layer1[l1].bx, vrpc_hit_layer1[l1].strip};
           int id = hits[tmp];
-          int phi1 = radialAngle(vrpc_hit_layer1[l1].detid, c, vrpc_hit_layer1[l1].strip);
+          int phi1 = radialAngle(vrpc_hit_layer1[l1].detid, rpcGeometry, vrpc_hit_layer1[l1].strip);
           if (vcluster_size[id] == 2 && itr1 == 0) {
             itr1++;
             continue;
           }
           if (vcluster_size[id] == 2 && itr1 == 1) {
             itr1 = 0;
-            phi1 = phi1 + (radialAngle(vrpc_hit_layer1[l1 - 1].detid, c, vrpc_hit_layer1[l1 - 1].strip));
+            phi1 = phi1 + (radialAngle(vrpc_hit_layer1[l1 - 1].detid, rpcGeometry, vrpc_hit_layer1[l1 - 1].strip));
             phi1 /= 2;
           }
           int itr2 = 0;
@@ -198,10 +198,10 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
             }
 
             //int phi1 = radialAngle(vrpc_hit_layer1[l1].detid, c, vrpc_hit_layer1[l1].strip) ;
-            int phi2 = radialAngle(vrpc_hit_layer2[l2].detid, c, vrpc_hit_layer2[l2].strip);
+            int phi2 = radialAngle(vrpc_hit_layer2[l2].detid, rpcGeometry, vrpc_hit_layer2[l2].strip);
             if (vcluster_size[id] == 2 && itr2 == 1) {
               itr2 = 0;
-              phi2 = phi2 + (radialAngle(vrpc_hit_layer2[l2 - 1].detid, c, vrpc_hit_layer2[l2 - 1].strip));
+              phi2 = phi2 + (radialAngle(vrpc_hit_layer2[l2 - 1].detid, rpcGeometry, vrpc_hit_layer2[l2 - 1].strip));
               phi2 /= 2;
             }
             int average = ((phi1 + phi2) / 2) << 2;  //10-bit->12-bit
@@ -213,8 +213,8 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
             int xin = localXX((phi1 << 2), 1, vrpc_hit_layer1[l1].station);
             int xout = localXX((phi2 << 2), 2, vrpc_hit_layer2[l2].station);
             if (vcluster_size[id] == 2 && itr2 == 1) {
-              int phi1_n1 = radialAngle(vrpc_hit_layer1[l1 - 1].detid, c, vrpc_hit_layer1[l1 - 1].strip);
-              int phi2_n1 = radialAngle(vrpc_hit_layer2[l2 - 1].detid, c, vrpc_hit_layer2[l2 - 1].strip);
+              int phi1_n1 = radialAngle(vrpc_hit_layer1[l1 - 1].detid, rpcGeometry, vrpc_hit_layer1[l1 - 1].strip);
+              int phi2_n1 = radialAngle(vrpc_hit_layer2[l2 - 1].detid, rpcGeometry, vrpc_hit_layer2[l2 - 1].strip);
               xin += localXX((phi1_n1 << 2), 1, vrpc_hit_layer1[l1].station);
               xout += localXX((phi2_n1 << 2), 2, vrpc_hit_layer2[l2].station);
               xin /= 2;
@@ -250,11 +250,11 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
             itr1++;
             continue;
           }
-          int phi2 = radialAngle(vrpc_hit_layer1[l1].detid, c, vrpc_hit_layer1[l1].strip);
+          int phi2 = radialAngle(vrpc_hit_layer1[l1].detid, rpcGeometry, vrpc_hit_layer1[l1].strip);
           phi2 = phi2 << 2;
           if (vcluster_size[id] == 2 && itr1 == 1) {
             itr1 = 0;
-            phi2 = phi2 + (radialAngle(vrpc_hit_layer1[l1 - 1].detid, c, vrpc_hit_layer1[l1 - 1].strip) << 2);
+            phi2 = phi2 + (radialAngle(vrpc_hit_layer1[l1 - 1].detid, rpcGeometry, vrpc_hit_layer1[l1 - 1].strip) << 2);
             phi2 /= 2;
           }
 
@@ -274,11 +274,11 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
             itr1++;
             continue;
           }
-          int phi2 = radialAngle(vrpc_hit_layer2[l2].detid, c, vrpc_hit_layer2[l2].strip);
+          int phi2 = radialAngle(vrpc_hit_layer2[l2].detid, rpcGeometry, vrpc_hit_layer2[l2].strip);
           phi2 = phi2 << 2;
           if (vcluster_size[id] == 2 && itr1 == 1) {
             itr1 = 0;
-            phi2 = phi2 + (radialAngle(vrpc_hit_layer2[l2 - 1].detid, c, vrpc_hit_layer2[l2 - 1].strip) << 2);
+            phi2 = phi2 + (radialAngle(vrpc_hit_layer2[l2 - 1].detid, rpcGeometry, vrpc_hit_layer2[l2 - 1].strip) << 2);
             phi2 /= 2;
           }
           l1ttma_hits_out.emplace_back(
@@ -298,11 +298,11 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
             itr1++;
             continue;
           }
-          int phi2 = radialAngle(vrpc_hit_st3[l1].detid, c, vrpc_hit_st3[l1].strip);
+          int phi2 = radialAngle(vrpc_hit_st3[l1].detid, rpcGeometry, vrpc_hit_st3[l1].strip);
           phi2 = phi2 << 2;
           if (vcluster_size[id] == 2 && itr1 == 1) {
             itr1 = 0;
-            phi2 = phi2 + (radialAngle(vrpc_hit_st3[l1 - 1].detid, c, vrpc_hit_st3[l1 - 1].strip) << 2);
+            phi2 = phi2 + (radialAngle(vrpc_hit_st3[l1 - 1].detid, rpcGeometry, vrpc_hit_st3[l1 - 1].strip) << 2);
             phi2 /= 2;
           }
           l1ttma_hits_out.emplace_back(
@@ -322,11 +322,11 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
             itr1++;
             continue;
           }
-          int phi2 = radialAngle(vrpc_hit_st4[l1].detid, c, vrpc_hit_st4[l1].strip);
+          int phi2 = radialAngle(vrpc_hit_st4[l1].detid, rpcGeometry, vrpc_hit_st4[l1].strip);
           phi2 = phi2 << 2;
           if (vcluster_size[id] == 2 && itr1 == 1) {
             itr1 = 0;
-            phi2 = phi2 + (radialAngle(vrpc_hit_st4[l1 - 1].detid, c, vrpc_hit_st4[l1 - 1].strip) << 2);
+            phi2 = phi2 + (radialAngle(vrpc_hit_st4[l1 - 1].detid, rpcGeometry, vrpc_hit_st4[l1 - 1].strip) << 2);
             phi2 /= 2;
           }
           l1ttma_hits_out.emplace_back(
@@ -346,13 +346,11 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
 }
 
 ///function - will be replaced by LUTs(?)
-int RPCtoDTTranslator::radialAngle(RPCDetId detid, const edm::EventSetup& c, int strip) {
+int RPCtoDTTranslator::radialAngle(RPCDetId detid, const RPCGeometry& rpcGeometry, int strip) {
   int radialAngle;
   // from phiGlobal to radialAngle of the primitive in sector sec in [1..12] <- RPC scheme
-  edm::ESHandle<RPCGeometry> rpcGeometry;
-  c.get<MuonGeometryRecord>().get(rpcGeometry);
 
-  const RPCRoll* roll = rpcGeometry->roll(detid);
+  const RPCRoll* roll = rpcGeometry.roll(detid);
   GlobalPoint stripPosition = roll->toGlobal(roll->centreOfStrip(strip));
 
   double globalphi = stripPosition.phi();
@@ -369,11 +367,8 @@ int RPCtoDTTranslator::radialAngle(RPCDetId detid, const edm::EventSetup& c, int
 }
 
 ///function - will be replaced by LUTs(?)
-int RPCtoDTTranslator::localX(RPCDetId detid, const edm::EventSetup& c, int strip) {
-  edm::ESHandle<RPCGeometry> rpcGeometry;
-  c.get<MuonGeometryRecord>().get(rpcGeometry);
-
-  const RPCRoll* roll = rpcGeometry->roll(detid);
+int RPCtoDTTranslator::localX(RPCDetId detid, const RPCGeometry& rpcGeometry, int strip) {
+  const RPCRoll* roll = rpcGeometry.roll(detid);
 
   ///Orientaion of RPCs
   GlobalPoint p1cmPRG = roll->toGlobal(LocalPoint(1, 0, 0));

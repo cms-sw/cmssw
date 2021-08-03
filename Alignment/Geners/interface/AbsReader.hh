@@ -73,7 +73,6 @@ namespace gs {
       return it->second->read(id, in);
     }
 
-  private:
     DefaultReader(const DefaultReader &) = delete;
     DefaultReader &operator=(const DefaultReader &) = delete;
   };
@@ -106,7 +105,6 @@ namespace gs {
       rd[id.name()] = new ConcreteReader<InheritanceBase, Derived>();
     }
 
-  private:
     // Disable the constructor
     StaticReader() = delete;
   };

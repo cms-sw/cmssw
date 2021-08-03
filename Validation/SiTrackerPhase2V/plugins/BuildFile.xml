@@ -18,6 +18,5 @@
 <use name="DQMServices/Core"/>
 <use name="DQM/SiTrackerPhase2"/>
 <use name="Validation/SiTrackerPhase2V"/>
-<use name="boost_system"/>
 <use name="rootcling"/>
 <flags EDM_PLUGIN="1"/>

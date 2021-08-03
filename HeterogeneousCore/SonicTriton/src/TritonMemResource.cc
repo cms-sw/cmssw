@@ -9,8 +9,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-namespace ni = nvidia::inferenceserver;
-namespace nic = ni::client;
+namespace tc = triton::client;
 
 template <typename IO>
 TritonMemResource<IO>::TritonMemResource(TritonData<IO>* data, const std::string& name, size_t size)
@@ -116,10 +115,10 @@ const uint8_t* TritonOutputCpuShmResource::copyOutput() {
   return addr_;
 }
 
-template class TritonHeapResource<nic::InferInput>;
-template class TritonCpuShmResource<nic::InferInput>;
-template class TritonHeapResource<nic::InferRequestedOutput>;
-template class TritonCpuShmResource<nic::InferRequestedOutput>;
+template class TritonHeapResource<tc::InferInput>;
+template class TritonCpuShmResource<tc::InferInput>;
+template class TritonHeapResource<tc::InferRequestedOutput>;
+template class TritonCpuShmResource<tc::InferRequestedOutput>;
 
 #ifdef TRITON_ENABLE_GPU
 template <typename IO>
@@ -167,6 +166,6 @@ const uint8_t* TritonOutputGpuShmResource::copyOutput() {
   return ptr->data();
 }
 
-template class TritonGpuShmResource<nic::InferInput>;
-template class TritonGpuShmResource<nic::InferRequestedOutput>;
+template class TritonGpuShmResource<tc::InferInput>;
+template class TritonGpuShmResource<tc::InferRequestedOutput>;
 #endif

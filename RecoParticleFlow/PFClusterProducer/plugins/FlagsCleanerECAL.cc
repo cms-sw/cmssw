@@ -1,6 +1,23 @@
-#include "FlagsCleanerECAL.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
+
+class FlagsCleanerECAL : public RecHitTopologicalCleanerBase {
+public:
+  FlagsCleanerECAL(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
+  FlagsCleanerECAL(const FlagsCleanerECAL&) = delete;
+  FlagsCleanerECAL& operator=(const FlagsCleanerECAL&) = delete;
+
+  // mark rechits which are flagged as one of the values provided in the vector
+  void clean(const edm::Handle<reco::PFRecHitCollection>& input, std::vector<bool>& mask) override;
+
+private:
+  std::vector<int> v_chstatus_excl_;  // list of rechit status flags to be excluded from seeding
+  bool checkFlags(const reco::PFRecHit& hit);
+};
+
+DEFINE_EDM_PLUGIN(RecHitTopologicalCleanerFactory, FlagsCleanerECAL, "FlagsCleanerECAL");
 
 FlagsCleanerECAL::FlagsCleanerECAL(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
     : RecHitTopologicalCleanerBase(conf, cc) {

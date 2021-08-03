@@ -80,10 +80,11 @@ protected:
   void modelChangesDone() override;
   void colorsChanged() override;
 
-private:
+public:
   FWEveViewManager(const FWEveViewManager&) = delete;                   // stop default
   const FWEveViewManager& operator=(const FWEveViewManager&) = delete;  // stop default
 
+private:
   FWViewBase* buildView(TEveWindowSlot* iParent, const std::string& type);
   FWEveView* finishViewCreate(std::shared_ptr<FWEveView>);
 

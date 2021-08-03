@@ -134,7 +134,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection &digis, CLHEP::HepRa
     // Only create a wire digi if there is a wire hit within [-6 bx, +9 bx]
     if (timeWord != 0) {
       CSCWireDigi newDigi(wireGroup, timeWord);
-      LogTrace("CSCWireElectronicsSim") << newDigi;
+      LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: " << newDigi;
       digis.insertDigi(layerId(), newDigi);
       addLinks(channelIndex(wireGroup));
     }

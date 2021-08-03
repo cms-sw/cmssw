@@ -52,6 +52,8 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "Randomize.hh"
 
+//#define EDM_ML_DEBUG
+
 namespace CLHEP {
   class HepRandomEngine;
 }
@@ -59,14 +61,13 @@ namespace CLHEP {
 class HcalTB02Analysis : public SimProducer, public Observer<const BeginOfEvent*>, public Observer<const EndOfEvent*> {
 public:
   HcalTB02Analysis(const edm::ParameterSet& p);
+  HcalTB02Analysis(const HcalTB02Analysis&) = delete;  // stop default
+  const HcalTB02Analysis& operator=(const HcalTB02Analysis&) = delete;
   ~HcalTB02Analysis() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  HcalTB02Analysis(const HcalTB02Analysis&) = delete;  // stop default
-  const HcalTB02Analysis& operator=(const HcalTB02Analysis&) = delete;
-
   // observer methods
   void update(const BeginOfEvent* evt) override;
   void update(const EndOfEvent* evt) override;
@@ -129,7 +130,9 @@ void HcalTB02Analysis::produce(edm::Event& e, const edm::EventSetup&) {
 }
 
 void HcalTB02Analysis::update(const BeginOfEvent* evt) {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis: =====> Begin of event = " << (*evt)()->GetEventID();
+#endif
   clear();
 }
 

@@ -86,8 +86,9 @@ namespace pat {
     edm::EDGetTokenT<edm::ConditionsInEventBlock> tagCondGtEventToken_;
     edm::ConditionsInRunBlock condRun_;
     edm::ConditionsInLumiBlock condLumi_;
-    bool gtCondRunInit_;
-    bool gtCondLumiInit_;
+    bool gtCondRunInit_ = false;
+    bool gtCondLumiInit_ = false;
+    const edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> handleL1GtTriggerMenuToken_;
   };
 
 }  // namespace pat
@@ -112,8 +113,7 @@ PATTriggerEventProducer::PATTriggerEventProducer(const ParameterSet& iConfig)
       // Conditions
       condRun_(),
       condLumi_(),
-      gtCondRunInit_(false),
-      gtCondLumiInit_(false) {
+      handleL1GtTriggerMenuToken_{esConsumes()} {
   if (iConfig.exists("triggerResults"))
     tagTriggerResults_ = iConfig.getParameter<InputTag>("triggerResults");
   triggerResultsGetter_ =
@@ -248,8 +248,7 @@ void PATTriggerEventProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   if (!hltConfigInit_)
     return;
 
-  ESHandle<L1GtTriggerMenu> handleL1GtTriggerMenu;
-  iSetup.get<L1GtTriggerMenuRcd>().get(handleL1GtTriggerMenu);
+  auto handleL1GtTriggerMenu = iSetup.getHandle(handleL1GtTriggerMenuToken_);
   Handle<TriggerResults> handleTriggerResults;
   iEvent.getByLabel(tagTriggerResults_, handleTriggerResults);
   //   iEvent.getByToken( triggerResultsToken_, handleTriggerResults );

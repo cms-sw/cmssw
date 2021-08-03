@@ -9,9 +9,12 @@
 #include "FWCore/Utilities/interface/BranchType.h"
 
 namespace edm {
+
   std::string const& BranchTypeToString(BranchType const& branchType);
 
+  constexpr unsigned int numberOfRunLumiEventProductTrees = 3;
   std::string const& BranchTypeToProductTreeName(BranchType const& branchType);
+  std::string BranchTypeToProductTreeName(BranchType const& branchType, std::string const& processName);
 
   std::string const& BranchTypeToMetaDataTreeName(BranchType const& branchType);
 
@@ -49,6 +52,7 @@ namespace edm {
     // Other branches on Events Tree
     std::string const& eventSelectionsBranchName();
     std::string const& branchListIndexesBranchName();
+    std::string const& eventToProcessBlockIndexesBranchName();
 
     //------------------------------------------------------------------
     //------------------------------------------------------------------
@@ -70,6 +74,7 @@ namespace edm {
     std::string const& fileIndexBranchName();  // backward compatibility
     std::string const& indexIntoFileBranchName();
     std::string const& mergeableRunProductMetadataBranchName();
+    std::string const& processBlockHelperBranchName();
 
     // Event History Tree // backward compatibility
     std::string const& eventHistoryTreeName();  // backward compatibility

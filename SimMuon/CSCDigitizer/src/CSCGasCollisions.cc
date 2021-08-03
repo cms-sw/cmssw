@@ -122,25 +122,22 @@ void CSCGasCollisions::readCollisionTable() {
   // @@ We had better have the right sizes everywhere or all
   // hell will break loose. There's no trapping.
   LogTrace(me) << "Reading gamma bins";
-  int j = 0;
   for (int i = 0; i < N_GAMMA; ++i) {
     fin >> theGammaBins[i];
-    LogTrace(me) << ++j << "   " << theGammaBins[i];
+    LogTrace(me) << i + 1 << "   " << theGammaBins[i];
   }
 
-  j = 0;
   LogTrace(me) << "Reading energy bins \n";
   for (int i = 0; i < N_ENERGY; ++i) {
     fin >> theEnergyBins[i];
-    LogTrace(me) << ++j << "   " << theEnergyBins[i];
+    LogTrace(me) << i + 1 << "   " << theEnergyBins[i];
   }
 
-  j = 0;
   LogTrace(me) << "Reading collisions table \n";
 
   for (int i = 0; i < N_ENTRIES; ++i) {
     fin >> theCollisionTable[i];
-    LogTrace(me) << ++j << "   " << theCollisionTable[i];
+    LogTrace(me) << i + 1 << "   " << theCollisionTable[i];
   }
 
   fin.close();
@@ -170,6 +167,8 @@ void CSCGasCollisions::simulate(const PSimHit &simhit,
     edm::LogError("CSCGasCollisions") << "Cannot find particle of type " << simhit.particleType() << " in the PDT";
   } else {
     mass = particle->mass();
+    LogTrace(me) << "[CSCGasCollisions] Found particle of type " << simhit.particleType()
+                 << " in the PDT; mass = " << mass;
   }
 
   theCrossGap = new CSCCrossGap(mass, mom, simhit.exitPoint() - simhit.entryPoint());

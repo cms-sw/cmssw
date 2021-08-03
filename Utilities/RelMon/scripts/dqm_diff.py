@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 '''
 Script prints out histogram names that are in one ROOT file but not in another.
 

@@ -47,11 +47,7 @@ class PPSPixelSD : public SensitiveTkDetector,
                    public Observer<const BeginOfEvent*>,
                    public Observer<const EndOfEvent*> {
 public:
-  PPSPixelSD(const std::string&,
-             const edm::EventSetup&,
-             const SensitiveDetectorCatalog&,
-             edm::ParameterSet const&,
-             SimTrackManager const*);
+  PPSPixelSD(const std::string&, const SensitiveDetectorCatalog&, edm::ParameterSet const&, SimTrackManager const*);
   ~PPSPixelSD() override;
 
   bool ProcessHits(G4Step*, G4TouchableHistory*) override;

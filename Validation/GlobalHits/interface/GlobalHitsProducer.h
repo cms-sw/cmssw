@@ -14,7 +14,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -71,8 +71,8 @@
 #include "TString.h"
 
 class PGlobalSimHit;
-
-class GlobalHitsProducer : public edm::EDProducer {
+class CaloGeometryRecord;
+class GlobalHitsProducer : public edm::one::EDProducer<> {
 public:
   typedef std::vector<float> FloatVector;
 
@@ -123,6 +123,11 @@ private:
   edm::EDGetTokenT<edm::SimVertexContainer> G4VtxSrc_Token_;
   edm::EDGetTokenT<edm::SimTrackContainer> G4TrkSrc_Token_;
 
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   // Electromagnetic info
   // ECal info
   FloatVector ECalE;

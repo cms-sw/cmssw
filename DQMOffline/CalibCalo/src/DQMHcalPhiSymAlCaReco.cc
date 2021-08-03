@@ -62,6 +62,8 @@ DQMHcalPhiSymAlCaReco::DQMHcalPhiSymAlCaReco(const edm::ParameterSet &ps) : even
   saveToFile_ = ps.getUntrackedParameter<bool>("SaveToFile", false);
   fileName_ = ps.getUntrackedParameter<string>("FileName", "MonitorAlCaHcalPhiSym.root");
 
+  perLSsaving_ = (ps.getUntrackedParameter<bool>("perLSsaving", false));
+
   // histogram parameters
 
   // Distribution of rechits in iPhi, iEta
@@ -441,7 +443,7 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetu
 //--------------------------------------------------------
 void DQMHcalPhiSymAlCaReco::dqmEndRun(const Run &r, const EventSetup &context) {
   // Keep Variances
-  if (eventCounter_ > 0) {
+  if (eventCounter_ > 0 && !perLSsaving_) {
     for (int k = 0; k <= hiDistr_x_nbin_; k++) {
       for (int j = 0; j <= hiDistr_y_nbin_; j++) {
         // First moment

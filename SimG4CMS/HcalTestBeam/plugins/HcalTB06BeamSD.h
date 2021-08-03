@@ -20,7 +20,7 @@ class G4Material;
 class HcalTB06BeamSD : public CaloSD {
 public:
   HcalTB06BeamSD(const std::string &,
-                 const edm::EventSetup &,
+                 const HcalTB06BeamParameters *,
                  const SensitiveDetectorCatalog &,
                  edm::ParameterSet const &,
                  const SimTrackManager *);

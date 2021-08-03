@@ -76,28 +76,12 @@ AlignmentProducer = cms.EDProducer("AlignmentProducerAsAnalyzer",
                     # update alignables if triggered by corresponding input IOV boundary
                     enableAlignableUpdates = cms.bool(False),
                     )
-DTGeometryAlignmentProducerAsAnalyzer = cms.ESProducer("DTGeometryESModule",
-    appendToDataLabel = cms.string('idealForAlignmentProducerBase'),
-    applyAlignment = cms.bool(False), 
-    alignmentsLabel = cms.string(''),
-    fromDDD = cms.bool(True)
-)
-CSCGeometryAlignmentProducerAsAnalyzer = cms.ESProducer("CSCGeometryESModule",
-    appendToDataLabel = cms.string('idealForAlignmentProducerBase'),
-    debugV = cms.untracked.bool(False),
-    useGangedStripsInME1a = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    useOnlyWiresInME1a = cms.bool(False),
-    useRealWireGeometry = cms.bool(True),
-    useCentreTIOffsets = cms.bool(False),
-    applyAlignment = cms.bool(False), 
-    fromDDD = cms.bool(True),
-    fromDD4hep = cms.bool(False)
-)
-GEMGeometryAlignmentProducerAsAnalyzer = cms.ESProducer("GEMGeometryESModule",
-    appendToDataLabel = cms.string('idealForAlignmentProducerBase'),
-    applyAlignment = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    fromDDD = cms.bool(True),
-    fromDD4Hep = cms.bool(False)
-)
+import Geometry.DTGeometryBuilder.dtGeometryDB_cfi
+DTGeometryAlignmentProducerAsAnalyzer = Geometry.DTGeometryBuilder.dtGeometryDB_cfi.DTGeometryESModule.clone()
+DTGeometryAlignmentProducerAsAnalyzer.appendToDataLabel = 'idealForAlignmentProducerBase'
+import Geometry.CSCGeometryBuilder.cscGeometryDB_cfi
+CSCGeometryAlignmentProducerAsAnalyzer = Geometry.CSCGeometryBuilder.cscGeometryDB_cfi.CSCGeometryESModule.clone()
+CSCGeometryAlignmentProducerAsAnalyzer.appendToDataLabel = 'idealForAlignmentProducerBase'
+import   Geometry.GEMGeometryBuilder.gemGeometryDB_cfi
+GEMGeometryAlignmentProducerAsAnalyzer = Geometry.GEMGeometryBuilder.gemGeometryDB_cfi.GEMGeometryESModule.clone()
+GEMGeometryAlignmentProducerAsAnalyzer.appendToDataLabel = 'idealForAlignmentProducerBase'

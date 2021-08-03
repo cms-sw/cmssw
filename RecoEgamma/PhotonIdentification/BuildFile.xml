@@ -2,6 +2,8 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="CondFormats/EcalObjects"/>
+<use name="CondFormats/HcalObjects"/>
+<use name="CondFormats/DataRecord"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/DetId"/>
@@ -14,10 +16,12 @@
 <use name="DataFormats/TrackReco"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/Records"/>
+<use name="Geometry/CaloTopology"/>
 <use name="PhysicsTools/SelectorUtils"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="RecoEgamma/EgammaIsolationAlgos"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
+<use name="RecoLocalCalo/HcalRecAlgos"/>
 <export>
   <lib name="1"/>
 </export>

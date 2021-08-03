@@ -16,6 +16,8 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
 
 //
 // class declaration
@@ -33,6 +35,7 @@ private:
 
   const edm::EDGetTokenT<reco::GenJetCollection> jetToken_;
   const edm::EDGetTokenT<reco::GenParticleCollection> partToken_;
+  const StringCutObjectSelector<reco::Candidate> cut_;
   const edm::EDGetTokenT<edm::ValueMap<bool>> tauAncToken_;
 };
 
@@ -50,6 +53,7 @@ private:
 GenJetGenPartMerger::GenJetGenPartMerger(const edm::ParameterSet& iConfig)
     : jetToken_(consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("srcJet"))),
       partToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("srcPart"))),
+      cut_(iConfig.getParameter<std::string>("cut")),
       tauAncToken_(consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("hasTauAnc"))) {
   produces<reco::GenJetCollection>("merged");
   produces<edm::ValueMap<bool>>("hasTauAnc");
@@ -79,9 +83,11 @@ void GenJetGenPartMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   for (unsigned int ijet = 0; ijet < jetHandle->size(); ++ijet) {
     auto jet = jetHandle->at(ijet);
-    merged->push_back(reco::GenJet(jet));
-    reco::GenJetRef jetRef(jetHandle, ijet);
-    hasTauAncValues.push_back((*tauAncHandle)[jetRef]);
+    if (cut_(jet)) {
+      merged->push_back(reco::GenJet(jet));
+      reco::GenJetRef jetRef(jetHandle, ijet);
+      hasTauAncValues.push_back((*tauAncHandle)[jetRef]);
+    }
   }
 
   for (auto& part : *partHandle) {

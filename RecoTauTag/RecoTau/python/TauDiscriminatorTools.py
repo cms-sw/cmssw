@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import six
 
 # require the EXISTANCE of a track - not necessarily above any pt cut (above the basic 0.5 GeV filter)
 leadTrackFinding = cms.PSet(
@@ -27,7 +26,7 @@ requireLeadPion = cms.PSet(
 
 def subParameterSets(pSet):
    ''' Generator to return all sub-PSets in a PSet '''
-   for name, value in six.iteritems(pSet.parameters_()):
+   for name, value in pSet.parameters_().items():
       if isinstance(value, cms.PSet):
          yield getattr(pSet, name)
 

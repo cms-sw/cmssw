@@ -25,6 +25,9 @@
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
+#include <Validation/EcalDigis/interface/EcalEndcapDigisValidation.h>
+#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -56,6 +59,7 @@ private:
   std::string outputFile_;
 
   edm::EDGetTokenT<EEDigiCollection> EEdigiCollectionToken_;
+  edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> pAgc;
 
   std::map<int, double, std::less<int> > gainConv_;
 

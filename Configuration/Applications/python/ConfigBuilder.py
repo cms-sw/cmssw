@@ -6,7 +6,6 @@ __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
-import six
 # The following import is provided for backward compatibility reasons.
 # The function used to be defined in this file.
 from FWCore.ParameterSet.MassReplace import massReplaceInputTag as MassReplaceInputTag
@@ -1540,7 +1539,7 @@ class ConfigBuilder(object):
                 optionsForHLT['type'] = 'HIon'
             else:
                 optionsForHLT['type'] = 'GRun'
-            optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in six.iteritems(optionsForHLT))
+            optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.items())
             if sequence == 'run,fromSource':
                 if hasattr(self.process.source,'firstRun'):
                     self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.firstRun.value()),%s)'%(optionsForHLTConfig))
@@ -2263,7 +2262,7 @@ class ConfigBuilder(object):
         self.pythonCfgCode+="from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask\n"
         self.pythonCfgCode+="associatePatAlgosToolsTask(process)\n"
 
-        if self._options.nThreads is not "1":
+        if self._options.nThreads != "1":
             self.pythonCfgCode +="\n"
             self.pythonCfgCode +="#Setup FWK for multithreaded\n"
             self.pythonCfgCode +="process.options.numberOfThreads = "+self._options.nThreads+"\n"

@@ -16,6 +16,7 @@
 #include "HcalTB02XtalNumberingScheme.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+//#define EDM_ML_DEBUG
 //
 // constructors and destructor
 //
@@ -25,7 +26,9 @@ HcalTB02XtalNumberingScheme::HcalTB02XtalNumberingScheme() : HcalTB02NumberingSc
 }
 
 HcalTB02XtalNumberingScheme::~HcalTB02XtalNumberingScheme() {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "Deleting HcalTB02XtalNumberingScheme";
+#endif
 }
 
 //
@@ -39,7 +42,9 @@ int HcalTB02XtalNumberingScheme::getUnitID(const G4Step* aStep) const {
   if (touch->GetHistoryDepth() > 0)
     idl = touch->GetReplicaNumber(1);
   int idunit = idl * 100 + idx;
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB02XtalNumberingScheme:: Row " << idl << " Column " << idl
                                 << " idunit = " << idunit;
+#endif
   return idunit;
 }

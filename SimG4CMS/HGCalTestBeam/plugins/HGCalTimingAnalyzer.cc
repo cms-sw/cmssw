@@ -12,7 +12,6 @@
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -59,9 +58,10 @@ private:
                         edm::Handle<edm::SimVertexContainer> const& SimVtx);
 
   edm::Service<TFileService> fs_;
+  const std::string detectorEE_, detectorBeam_;
+  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tokDDD_;
   const HGCalDDDConstants* hgcons_;
   bool doTree_, groupHits_;
-  std::string detectorEE_, detectorBeam_;
   double timeUnit_;
   std::vector<int> idBeams_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hitsEE_, tok_hitsBeam_;
@@ -75,12 +75,14 @@ private:
   double xBeam_, yBeam_, zBeam_, pBeam_;
 };
 
-HGCalTimingAnalyzer::HGCalTimingAnalyzer(const edm::ParameterSet& iConfig) {
+HGCalTimingAnalyzer::HGCalTimingAnalyzer(const edm::ParameterSet& iConfig)
+    : detectorEE_(iConfig.getParameter<std::string>("DetectorEE")),
+      detectorBeam_(iConfig.getParameter<std::string>("DetectorBeam")),
+      tokDDD_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", detectorEE_))) {
   usesResource("TFileService");
 
   // now do whatever initialization is needed
-  detectorEE_ = iConfig.getParameter<std::string>("DetectorEE");
-  detectorBeam_ = iConfig.getParameter<std::string>("DetectorBeam");
   // Group hits (if groupHits_ = true) if hits come within timeUnit_
   groupHits_ = iConfig.getParameter<bool>("GroupHits");
   timeUnit_ = iConfig.getParameter<double>("TimeUnit");
@@ -153,9 +155,7 @@ void HGCalTimingAnalyzer::beginJob() {
 }
 
 void HGCalTimingAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<HGCalDDDConstants> pHGDC;
-  iSetup.get<IdealGeometryRecord>().get(detectorEE_, pHGDC);
-  hgcons_ = &(*pHGDC);
+  hgcons_ = &iSetup.getData(tokDDD_);
 
 #ifdef EDM_ML_DEBUG
   std::cout << "HGCalTimingAnalyzer::" << detectorEE_ << " defined with " << hgcons_->layers(false) << " layers"

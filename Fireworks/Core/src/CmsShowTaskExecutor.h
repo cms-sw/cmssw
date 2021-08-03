@@ -46,11 +46,12 @@ protected:
   void doNextTaskImp() override;
   bool moreTasksAvailable() override;
 
-private:
+public:
   CmsShowTaskExecutor(const CmsShowTaskExecutor&) = delete;  // stop default
 
   const CmsShowTaskExecutor& operator=(const CmsShowTaskExecutor&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   std::deque<TaskFunctor> m_tasks;
 };

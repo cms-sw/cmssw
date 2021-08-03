@@ -174,14 +174,6 @@ namespace edm {
       commit_(lb);
     }
 
-    void EDProducerBase::doRespondToOpenInputFile(FileBlock const& fb) {
-      //respondToOpenInputFile(fb);
-    }
-
-    void EDProducerBase::doRespondToCloseInputFile(FileBlock const& fb) {
-      //respondToCloseInputFile(fb);
-    }
-
     void EDProducerBase::doBeginProcessBlock_(ProcessBlock const&) {}
     void EDProducerBase::doAccessInputProcessBlock_(ProcessBlock const&) {}
     void EDProducerBase::doEndProcessBlock_(ProcessBlock const&) {}
@@ -196,6 +188,8 @@ namespace edm {
     void EDProducerBase::doEndRunProduce_(Run& rp, EventSetup const& c) {}
     void EDProducerBase::doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}
     void EDProducerBase::doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}
+
+    void EDProducerBase::clearInputProcessBlockCaches() {}
 
     void EDProducerBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;

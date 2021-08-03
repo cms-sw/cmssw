@@ -4,7 +4,6 @@
 // E. Garcia June 2008
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SimG4CMS/Forward/interface/ZdcSD.h"
 #include "SimG4CMS/Forward/interface/ZdcShowerLibrary.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "FWCore/Utilities/interface/Exception.h"

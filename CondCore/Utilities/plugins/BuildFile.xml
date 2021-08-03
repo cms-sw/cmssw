@@ -22,4 +22,6 @@
 
 <library file="Module_2XML.cc" name="Utilities_payload2xml">
   <use name="CondCore/Utilities"/>
+  <use name="py3-pybind11"/>
+  <use name="python3"/>
 </library>

@@ -238,7 +238,7 @@ void l1t::MuonRawDigiTranslator::generatePackedDataWordsRun3(const Muon& mu,
   }
 
   // Adjust if we're packing the November 2020 MWGR
-  if (wasSpecialMWGR) {
+  if (wasSpecialMWGR && (muInBx == 1 || muInBx == 2)) {
     --absEtaShiftRun3;
     --etaSignShiftRun3;
   }

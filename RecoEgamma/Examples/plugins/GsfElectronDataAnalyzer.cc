@@ -1225,7 +1225,7 @@ void GsfElectronDataAnalyzer::beginJob() {
       new TH1F("h_ele_hcalDepth1TowerSumEt_dr03", "hcal depth1 isolation sum, dR=0.3", 100, 0.0, 20.);
   h_ele_hcalDepth2TowerSumEt_dr03 =
       new TH1F("h_ele_hcalDepth2TowerSumEt_dr03", "hcal depth2 isolation sum, dR=0.3", 100, 0.0, 20.);
-  h_ele_tkSumPt_dr04 = new TH1F("h_ele_tkSumPt_dr04", "hcal isolation sum", 100, 0.0, 20.);
+  h_ele_tkSumPt_dr04 = new TH1F("h_ele_tkSumPt_dr04", "trk isolation sum", 100, 0.0, 20.);
   h_ele_ecalRecHitSumEt_dr04 = new TH1F("h_ele_ecalRecHitSumEt_dr04", "ecal isolation sum, dR=0.4", 100, 0.0, 20.);
   h_ele_hcalDepth1TowerSumEt_dr04 =
       new TH1F("h_ele_hcalDepth1TowerSumEt_dr04", "hcal depth1 isolation sum, dR=0.4", 100, 0.0, 20.);
@@ -1954,11 +1954,11 @@ void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
 
     if (gsfIter->dr03TkSumPt() > tkIso03Max_)
       continue;
-    if (gsfIter->isEB() && gsfIter->dr03HcalDepth1TowerSumEt() > hcalIso03Depth1MaxBarrel_)
+    if (gsfIter->isEB() && gsfIter->dr03HcalTowerSumEt(1) > hcalIso03Depth1MaxBarrel_)
       continue;
-    if (gsfIter->isEE() && gsfIter->dr03HcalDepth1TowerSumEt() > hcalIso03Depth1MaxEndcaps_)
+    if (gsfIter->isEE() && gsfIter->dr03HcalTowerSumEt(1) > hcalIso03Depth1MaxEndcaps_)
       continue;
-    if (gsfIter->isEE() && gsfIter->dr03HcalDepth2TowerSumEt() > hcalIso03Depth2MaxEndcaps_)
+    if (gsfIter->isEE() && gsfIter->dr03HcalTowerSumEt(2) > hcalIso03Depth2MaxEndcaps_)
       continue;
     if (gsfIter->isEB() && gsfIter->dr03EcalRecHitSumEt() > ecalIso03MaxBarrel_)
       continue;
@@ -2189,12 +2189,12 @@ void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
 
     h_ele_tkSumPt_dr03->Fill(gsfIter->dr03TkSumPt());
     h_ele_ecalRecHitSumEt_dr03->Fill(gsfIter->dr03EcalRecHitSumEt());
-    h_ele_hcalDepth1TowerSumEt_dr03->Fill(gsfIter->dr03HcalDepth1TowerSumEt());
-    h_ele_hcalDepth2TowerSumEt_dr03->Fill(gsfIter->dr03HcalDepth2TowerSumEt());
+    h_ele_hcalDepth1TowerSumEt_dr03->Fill(gsfIter->dr03HcalTowerSumEt(1));
+    h_ele_hcalDepth2TowerSumEt_dr03->Fill(gsfIter->dr03HcalTowerSumEt(2));
     h_ele_tkSumPt_dr04->Fill(gsfIter->dr04TkSumPt());
     h_ele_ecalRecHitSumEt_dr04->Fill(gsfIter->dr04EcalRecHitSumEt());
-    h_ele_hcalDepth1TowerSumEt_dr04->Fill(gsfIter->dr04HcalDepth1TowerSumEt());
-    h_ele_hcalDepth2TowerSumEt_dr04->Fill(gsfIter->dr04HcalDepth2TowerSumEt());
+    h_ele_hcalDepth1TowerSumEt_dr04->Fill(gsfIter->dr04HcalTowerSumEt(1));
+    h_ele_hcalDepth2TowerSumEt_dr04->Fill(gsfIter->dr04HcalTowerSumEt(2));
 
     float enrj1 = gsfIter->superCluster()->energy();
     // mee

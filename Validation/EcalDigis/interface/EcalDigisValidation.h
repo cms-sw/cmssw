@@ -37,6 +37,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include <Validation/EcalDigis/interface/EcalDigisValidation.h>
+#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
 #include <iostream>
 #include <fstream>
@@ -75,6 +77,7 @@ private:
   edm::EDGetTokenT<EBDigiCollection> EBdigiCollectionToken_;
   edm::EDGetTokenT<EEDigiCollection> EEdigiCollectionToken_;
   edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
+  edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> pAgc;
 
   edm::EDGetTokenT<CrossingFrame<PCaloHit> > crossingFramePCaloHitEBToken_, crossingFramePCaloHitEEToken_,
       crossingFramePCaloHitESToken_;

@@ -31,6 +31,9 @@
 #include <map>
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include <Validation/EcalDigis/interface/EcalBarrelDigisValidation.h>
+#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
+
 class EcalBarrelDigisValidation : public DQMEDAnalyzer {
   typedef std::map<uint32_t, float, std::less<uint32_t> > MapType;
 
@@ -55,7 +58,7 @@ private:
   std::string outputFile_;
 
   edm::EDGetTokenT<EBDigiCollection> EBdigiCollection_;
-
+  edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> pAgc;
   std::map<int, double, std::less<int> > gainConv_;
 
   double barrelADCtoGeV_;

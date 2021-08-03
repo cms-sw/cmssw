@@ -32,6 +32,7 @@ The model information from the server can be printed by enabling `verbose` outpu
 * `outputs`: optional, specify which output(s) the server should send
 * `verbose`: enable verbose printouts (default: false)
 * `useSharedMemory`: enable use of shared memory (see [below](#shared-memory)) with local servers (default: true)
+* `compression`: enable compression of input and output data to reduce bandwidth (using gzip or deflate) (default: none)
 
 The batch size should be set using the client accessor, in order to ensure a consistent value across all inputs:
 * `setBatchSize()`: set a new batch size
@@ -143,6 +144,15 @@ If the process modifiers `enableSonicTriton` or `allSonicTriton` are activated,
 the fallback server will launch automatically if needed and will use a local GPU if one is available.
 If the fallback server uses CPU, clients that use the fallback server will automatically be set to `Sync` mode.
 
+Servers have several available parameters:
+* `name`: unique identifier for each server (clients use this when specifying preferred server; also used internally by `TritonService`)
+* `address`: web address for server
+* `port`: port number for server (Triton server provides gRPC service on port 8001 by default)
+* `useSsl`: connect to server via SSL (default: false)
+* `rootCertificates`: for SSL, name of file containing PEM encoding of server root certificates, if any
+* `privateKey`: for SSL, name of file containing PEM encoding of user's private key, if any
+* `certificateChain`: for SSL, name of file containing PEM encoding of user's certificate chain, if any
+
 ## Examples
 
-Several example producers (running ResNet50 or Graph Attention Network) can be found in the [test](./test) directory.
+Several example producers (running image classification networks or Graph Attention Network) can be found in the [test](./test) directory.
