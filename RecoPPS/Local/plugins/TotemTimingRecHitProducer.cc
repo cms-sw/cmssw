@@ -97,7 +97,7 @@ void TotemTimingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
       ->setComment("input tag for timing calibrations retrieval");
   desc.add<int>("baselinePoints", 8)->setComment("number of points to be used for the baseline");
   desc.add<double>("saturationLimit", 0.1)
-      ->setComment("all signals with max > saturationLimit will be considered as saturated");
+      ->setComment("all signals with max > saturationLimit will be considered as saturated for UFSD, similarly with min<saturationLimit for a Diamond");
   desc.add<double>("cfdFraction", 0.3)->setComment("fraction of the CFD");
   desc.add<int>("smoothingPoints", 20)
       ->setComment("number of points to be used for the smoothing using sinc (lowpass)");
@@ -106,6 +106,7 @@ void TotemTimingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<double>("hysteresis", 5.e-3)->setComment("hysteresis of the discriminator");
   desc.add<bool>("mergeTimePeaks", true)->setComment("if time peaks schould be merged");
   desc.add<double>("sampicOffset", 1.0)->setComment("offset of the flipped sampic signal");
+  desc.add<double>("sampicSamplingPeriodNs", 1. / 7.695)->setComment("sapic sampling period in ns");
   descr.add("totemTimingRecHits", desc);
 }
 
