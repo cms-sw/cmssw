@@ -301,6 +301,7 @@ namespace edm {
         // in this search may be dependent upon the same module
         auto itFound = std::find(stackTrace.begin(), stackTrace.end(), iModuleToCheckID);
         if (itFound != stackTrace.end()) {
+          stackTrace.push_back(iModuleToCheckID);
           throw CircularDependencyException();
         }
         //we have already checked this module's dependencies during this search
