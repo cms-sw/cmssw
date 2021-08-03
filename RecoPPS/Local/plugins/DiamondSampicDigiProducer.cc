@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// Original Author:  Krzysztof Misan
+// Original Author:  Christopher Misan (krzysztof.misan@cern.ch)
 //         Created:  Sun, 07 Mar 2021 14:42:52 GMT
 //
 //
@@ -126,7 +126,6 @@ void DiamondSampicDigiProducer::produce(edm::Event& iEvent, const edm::EventSetu
   }                         
   
   for(uint i=0;i<num_samples;i++){
-
     unsigned short ch_id=sample_channel[i];
 
     //for testbeam data channels<8 don't contain measurements

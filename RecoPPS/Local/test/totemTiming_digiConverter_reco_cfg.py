@@ -14,12 +14,15 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+
 ################
 #digi converter
 ################
 process.totemTimingRawToDigi = cms.EDProducer('DiamondSampicDigiProducer',
 	#input path of the testbeam data
-	sampicFilesVec=cms.vstring("../data/10k_0.root"),
+	sampicFilesVec=cms.vstring("/eos/cms/store/group/dpg_ctpps/comm_ctpps/201905_DesyTestbeam/MergedDev/Ntuple_runsampic_159_runtelescope_636.root"),
 	################
 	#channel mapping
 	################
@@ -61,12 +64,14 @@ process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_2021_cfi')
 ################
 #calib
 ################
-process.totemTimingRecHits.timingCalibrationTag= cms.string('ppsTimingCalibrationESSource:TotemTimingCalibration')
-process.ppsTimingCalibrationESSource = cms.ESSource('PPSTimingCalibrationESSource',
-  calibrationFile = cms.FileInPath('RecoPPS/Local/data/UFSD_cal_new_0_offset.json'),#calibration file does not yet exist in db
-  subDetector = cms.uint32(1),
-  appendToDataLabel = cms.string('TotemTimingCalibration')
-)
+ 
+#load calibrations from json    
+#process.totemTimingRecHits.timingCalibrationTag= cms.string('ppsTimingCalibrationESSource:TotemTimingCalibration')
+#process.ppsTimingCalibrationESSource = cms.ESSource('PPSTimingCalibrationESSource',
+#  calibrationFile = cms.FileInPath('RecoPPS/Local/data/timing_offsets_ufsd_2018.dec18.cal.json'),#calibration file does not yet exist in db
+#  subDetector = cms.uint32(1),
+#  appendToDataLabel = cms.string('TotemTimingCalibration')
+#)
 
 
 

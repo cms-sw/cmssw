@@ -5,6 +5,7 @@
  *   Laurent Forthomme (laurent.forthomme@cern.ch)
  *   Nicola Minafra (nicola.minafra@cern.ch)
  *   Filip Dej
+ *   Christopher Misan (krzysztof.misan@cern.ch)
  *
  ****************************************************************************/
 
