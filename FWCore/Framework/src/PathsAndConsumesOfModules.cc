@@ -303,6 +303,8 @@ namespace edm {
         if (itFound != stackTrace.end()) {
           throw CircularDependencyException();
         }
+        //we have already checked this module's dependencies during this search
+        return false;
       }
       stackTrace.push_back(iModuleToCheckID);
       status.lastSearch = searchIndex;
