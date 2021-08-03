@@ -34,7 +34,8 @@ Implementation:
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitComparison.h"
 // -- Hcal
-#include "EventFilter/HcalRawToDigi/plugins/HcalRawToDigi.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+
 // -- Ecal Preshower
 #include "EventFilter/ESRawToDigi/interface/ESRawToDigi.h"
 // -- Muons DT
@@ -56,7 +57,7 @@ Implementation:
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 // --- GCT
-#include "EventFilter/GctRawToDigi/plugins/GctRawToDigi.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
 // -- ObjectMap
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
