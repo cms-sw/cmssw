@@ -11,7 +11,7 @@
 
 #include "TFile.h"
 
-#include "SimMuon/DTDigitizer/test/Histograms.h"
+#include "SimMuon/DTDigitizer/interface/Histograms.h"
 
 using namespace edm;
 using namespace std;
