@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_0_0/PIon --type PIon
 
-# /dev/CMSSW_12_0_0/PIon/V3 (CMSSW_12_0_0_pre4)
+# /dev/CMSSW_12_0_0/PIon/V5 (CMSSW_12_0_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_0_0/PIon/V3')
+  tableName = cms.string('/dev/CMSSW_12_0_0/PIon/V5')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -3849,6 +3849,9 @@ fragment.SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorES
   ApplyRadX0Correction = cms.bool( True ),
   useMagVolumes = cms.bool( True ),
   returnTangentPlane = cms.bool( True )
+)
+fragment.TrackerAdditionalParametersPerDetESModule = cms.ESProducer( "TrackerAdditionalParametersPerDetESModule",
+  appendToDataLabel = cms.string( "" )
 )
 fragment.TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProducer",
   ComponentName = cms.string( "TransientTrackBuilder" )
