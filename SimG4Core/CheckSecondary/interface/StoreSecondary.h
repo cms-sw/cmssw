@@ -22,14 +22,13 @@ class StoreSecondary : public SimProducer,
                        public Observer<const G4Step *> {
 public:
   StoreSecondary(const edm::ParameterSet &p);
+  StoreSecondary(const StoreSecondary &) = delete;  // stop default
+  const StoreSecondary &operator=(const StoreSecondary &) = delete;
   ~StoreSecondary() override;
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:
-  StoreSecondary(const StoreSecondary &) = delete;  // stop default
-  const StoreSecondary &operator=(const StoreSecondary &) = delete;
-
   // observer classes
   void update(const BeginOfEvent *evt) override;
   void update(const BeginOfTrack *trk) override;

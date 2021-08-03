@@ -27,12 +27,11 @@ class HGCalTBMB : public SimWatcher,
                   public Observer<const EndOfTrack*> {
 public:
   HGCalTBMB(const edm::ParameterSet&);
+  HGCalTBMB(const HGCalTBMB&) = delete;                   // stop default
+  const HGCalTBMB& operator=(const HGCalTBMB&) = delete;  // ...
   ~HGCalTBMB() override;
 
 private:
-  HGCalTBMB(const HGCalTBMB&) = delete;                   // stop default
-  const HGCalTBMB& operator=(const HGCalTBMB&) = delete;  // ...
-
   void update(const BeginOfTrack*) override;
   void update(const G4Step*) override;
   void update(const EndOfTrack*) override;
