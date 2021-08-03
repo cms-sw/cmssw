@@ -4,7 +4,7 @@
 
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
+#include "DetectorDescription/Core/interface/LogicalPart.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class DDValue;
