@@ -20,14 +20,12 @@ TotemTimingConversions::TotemTimingConversions(bool mergeTimePeaks, const PPSTim
 
 float TotemTimingConversions::timeOfFirstSample(const TotemTimingDigi& digi) const {
   unsigned int offsetOfSamples = digi.eventInfo().offsetOfSamples();
-  if (offsetOfSamples == 0)
-    offsetOfSamples = SAMPIC_DEFAULT_OFFSET;  // FW 0 is not sending this, FW > 0 yes
 
   unsigned int timestamp =
       (digi.cellInfo() <= SAMPIC_MAX_NUMBER_OF_SAMPLES / 2) ? digi.timestampA() : digi.timestampB();
 
   int cell0TimeClock = timestamp + ((digi.fpgaTimestamp() - timestamp) & CELL0_MASK) - digi.eventInfo().l1ATimestamp() +
-                       digi.eventInfo().l1ALatency();
+                       digi.eventInfo().l1ALatency();       
 
   // time of first cell
   float cell0TimeInstant = SAMPIC_MAX_NUMBER_OF_SAMPLES * SAMPIC_SAMPLING_PERIOD_NS * cell0TimeClock;
@@ -50,6 +48,7 @@ float TotemTimingConversions::timeOfFirstSample(const TotemTimingDigi& digi) con
     if (t > ACCEPTED_TIME_RADIUS)
       t -= SAMPIC_MAX_NUMBER_OF_SAMPLES * SAMPIC_SAMPLING_PERIOD_NS;
   }
+
   return t;
 }
 
@@ -57,9 +56,6 @@ float TotemTimingConversions::timeOfFirstSample(const TotemTimingDigi& digi) con
 
 float TotemTimingConversions::triggerTime(const TotemTimingDigi& digi) const {
   unsigned int offsetOfSamples = digi.eventInfo().offsetOfSamples();
-  if (offsetOfSamples == 0)
-    offsetOfSamples = 30;  // FW 0 is not sending this, FW > 0 yes
-
   return timeOfFirstSample(digi) + (SAMPIC_MAX_NUMBER_OF_SAMPLES - offsetOfSamples) * SAMPIC_SAMPLING_PERIOD_NS;
 }
 
