@@ -5,7 +5,7 @@
 //
 /**\class DiamondSampicDigiProducer DiamondSampicDigiProducer.cc SampicDigi/DiamondSampicDigiProducer/plugins/DiamondSampicDigiProducer.cc
 
- Description: This plugin takes sampic digi as input and converts them to TotemTimingDigi
+ Description: This plugin takes testbeam data as input and converts them to TotemTimingDigi which could be then passed to reco
 
  Implementation:
      [Notes on implementation]
@@ -66,12 +66,12 @@ private:
 //
 // constructors and destructor
 //
+
 using namespace edm;
 using namespace std;
 
 DiamondSampicDigiProducer::DiamondSampicDigiProducer(const edm::ParameterSet& iConfig)
-: sampicFilesVec(iConfig.getParameter<std::vector<std::string>>("sampicFilesVec"))
-{
+: sampicFilesVec(iConfig.getParameter<std::vector<std::string>>("sampicFilesVec")){
 
   for (const auto& id_map : iConfig.getParameter<std::vector<edm::ParameterSet>>("idsMapping"))
     detid_vs_chid_[id_map.getParameter<unsigned int>("treeChId")] =id_map.getParameter<vector<unsigned int>>("detId");
@@ -79,7 +79,6 @@ DiamondSampicDigiProducer::DiamondSampicDigiProducer(const edm::ParameterSet& iC
   inputTree = new TChain("desy");
 	for ( uint i = 0; i < sampicFilesVec.size() ; i++)
 		inputTree->Add(sampicFilesVec[i].c_str());
-
 
   produces<DetSetVector<TotemTimingDigi>>("TotemTiming");
 }
@@ -92,7 +91,6 @@ DiamondSampicDigiProducer::~DiamondSampicDigiProducer() {
 // member functions
 //
 
-// ------------ method called to produce the data  ------------
 void DiamondSampicDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   int eventNum=iEvent.id().event();
@@ -117,62 +115,55 @@ void DiamondSampicDigiProducer::produce(edm::Event& iEvent, const edm::EventSetu
   inputTree->SetBranchAddress("sample_cellInfoForOrderedData", sample_cellInfoForOrderedData);
   inputTree->SetBranchAddress("sample_ampl", sample_amp);
   inputTree->SetBranchAddress("sample_triggerPosition", sample_triggerPosition);
-
   inputTree->GetEntry(eventNum);
       
   int bunchNumber = ((int) trigger_time/25 ) % 3564;
   int orbitNumber = (int) (trigger_time / 88924.45);
 
-
-  
   if(num_samples==0){
     iEvent.put(std::move(digi),"TotemTiming");
     return;
   }                         
-
   
   for(uint i=0;i<num_samples;i++){
 
     unsigned short ch_id=sample_channel[i];
 
+    //for testbeam data channels<8 don't contain measurements
+    if(ch_id<8)
+      continue;
+    
     std::vector<uint8_t> samples;
-
     unsigned int offsetOfSamples = 0;
-    bool search_for_white_cell=1;
+    bool search_for_white_cell=true;
+
     for(int y=0;y<SAMPIC_SAMPLES;y++){
       samples.push_back((int)(sample_amp[i][y]/1.2*256));
       if(search_for_white_cell&&sample_triggerPosition[i][y] == 1){
         offsetOfSamples=y;
-        search_for_white_cell=0;
+        search_for_white_cell=false;
       }
-    }
-        
-
-    if(ch_id<8){
-      continue;
-    }
+    }   
 
     TotemTimingEventInfo eventInfoTmp(0,
-                                                  trigger_time*1E9/10,//l1ATimestamp
-                                                  bunchNumber,
-                                                  orbitNumber,
-                                                  eventNum,
-                                                  1,//
-                                                  1220/10,//l1ALatency
-                                                  64,//
-                                                  offsetOfSamples,//
-                                                  1);
-
+                                      trigger_time*1E9/10,//l1ATimestamp
+                                      bunchNumber,
+                                      orbitNumber,
+                                      eventNum,
+                                      1,
+                                      1220/10,//l1ALatency
+                                      64,
+                                      offsetOfSamples,
+                                      1);
 
     TotemTimingDigi digiTmp(2*32+ch_id,
-                                        sample_timestampFPGA[i],
-                                        sample_timestampA[i],
-                                        sample_timestampB[i],
-                                        sample_cellInfoForOrderedData[i],
-                                        samples,
-                                        eventInfoTmp);
+                            sample_timestampFPGA[i],
+                            sample_timestampA[i],
+                            sample_timestampB[i],
+                            sample_cellInfoForOrderedData[i],
+                            samples,
+                            eventInfoTmp);
         
-
     auto vec=detid_vs_chid_.at(ch_id);
     for(auto id:vec){
       CTPPSDiamondDetId detId(id);
@@ -181,10 +172,8 @@ void DiamondSampicDigiProducer::produce(edm::Event& iEvent, const edm::EventSetu
     }
   }
   iEvent.put(std::move(digi),"TotemTiming");
-  
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void DiamondSampicDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   edm::ParameterSetDescription desc;
@@ -199,5 +188,4 @@ void DiamondSampicDigiProducer::fillDescriptions(edm::ConfigurationDescriptions&
   descriptions.add("DiamondSampicDigiProducer",desc);
 }
 
-//define this as a plug-in
 DEFINE_FWK_MODULE(DiamondSampicDigiProducer);
