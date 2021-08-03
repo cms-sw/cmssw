@@ -519,6 +519,32 @@ void test_checkForModuleDependencyCorrectness::twoPathsNoCycleTest() {
 
     CPPUNIT_ASSERT(testCase(md, paths));
   }
+
+  {
+    //Have a module which can not be run initially be needed by two other modules
+    ModuleDependsOnMap md = {{"out", {"A", "B"}}, {"A", {"D"}}, {"B", {"D"}}};
+    PathToModules paths = {{"p1", {"filter", "D"}}, {"p2", {"out"}}};
+    CPPUNIT_ASSERT(testCase(md, paths));
+  }
+  {
+    //like above, but with path names reversed
+    ModuleDependsOnMap md = {{"out", {"A", "B"}}, {"A", {"D"}}, {"B", {"D"}}};
+    PathToModules paths = {{"p1", {"out"}}, {"p2", {"filter", "D"}}};
+    CPPUNIT_ASSERT(testCase(md, paths));
+  }
+
+  {
+    //Have a module which can not be run initially be needed by two other modules
+    ModuleDependsOnMap md = {{"out", {"A", "B"}}, {"A", {"D"}}, {"B", {"D"}}, {"D", {"E"}}};
+    PathToModules paths = {{"p1", {"filter", "E"}}, {"p2", {"out"}}};
+    CPPUNIT_ASSERT(testCase(md, paths));
+  }
+  {
+    //like above, but with path names reversed
+    ModuleDependsOnMap md = {{"out", {"A", "B"}}, {"A", {"D"}}, {"B", {"D"}}, {"D", {"E"}}};
+    PathToModules paths = {{"p1", {"out"}}, {"p2", {"filter", "E"}}};
+    CPPUNIT_ASSERT(testCase(md, paths));
+  }
 }
 
 void test_checkForModuleDependencyCorrectness::twoPathsWithCycleTest() {
