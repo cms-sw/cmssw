@@ -10,6 +10,8 @@ namespace cond {
 
   namespace persistency {
 
+    cond::Hash makeHash(const std::string& objectType, const cond::Binary& data);
+
     conddb_table(TAG) {
       conddb_column(NAME, std::string);
       conddb_column(TIME_TYPE, cond::TimeType);

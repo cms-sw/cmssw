@@ -2,7 +2,7 @@
 #include "CondCore/CondDB/interface/IOVProxy.h"
 #include "CondCore/CondDB/interface/GTProxy.h"
 
-#include "CondCore/CondDB/src/IOVSchema.cc"
+#include "CondCore/CondDB/interface/IOVSchema.h"
 
 #include "CondCore/Utilities/interface/Utilities.h"
 #include "CondCore/Utilities/interface/CondDBImport.h"

@@ -2,7 +2,7 @@
 #define CondCore_CondDB_SessionImpl_h
 
 #include "CondCore/CondDB/interface/Types.h"
-#include "IOVSchema.h"
+#include "../interface/IOVSchema.h"
 #include "GTSchema.h"
 #include "RunInfoSchema.h"
 //

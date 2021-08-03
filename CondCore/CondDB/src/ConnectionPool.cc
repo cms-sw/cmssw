@@ -2,7 +2,7 @@
 #include "DbConnectionString.h"
 #include "IDbAuthentication.h"
 #include "SessionImpl.h"
-#include "IOVSchema.h"
+#include "../interface/IOVSchema.h"
 #include "CoralMsgReporter.h"
 //
 #include "CondCore/CondDB/interface/CoralServiceManager.h"
