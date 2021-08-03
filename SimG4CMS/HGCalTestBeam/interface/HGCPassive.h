@@ -68,6 +68,7 @@ private:
   G4LogicalVolume *topLV_;
   std::map<G4LogicalVolume *, std::pair<unsigned int, std::string>> mapLV_;
   std::string motherName_;
+  int addlevel_;
 
   // some private members for ananlysis
   unsigned int count_;
