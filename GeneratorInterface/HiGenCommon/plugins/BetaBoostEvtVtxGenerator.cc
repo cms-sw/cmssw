@@ -52,6 +52,10 @@ namespace CLHEP {
 class BetaBoostEvtVtxGenerator : public edm::EDProducer {
 public:
   BetaBoostEvtVtxGenerator(const edm::ParameterSet& p);
+  /** Copy constructor */
+  BetaBoostEvtVtxGenerator(const BetaBoostEvtVtxGenerator& p) = delete;
+  /** Copy assignment operator */
+  BetaBoostEvtVtxGenerator& operator=(const BetaBoostEvtVtxGenerator& rhs) = delete;
   ~BetaBoostEvtVtxGenerator() override;
 
   /// return a new event vertex
@@ -85,11 +89,6 @@ public:
   double BetaFunction(double z, double z0);
 
 private:
-  /** Copy constructor */
-  BetaBoostEvtVtxGenerator(const BetaBoostEvtVtxGenerator& p) = delete;
-  /** Copy assignment operator */
-  BetaBoostEvtVtxGenerator& operator=(const BetaBoostEvtVtxGenerator& rhs) = delete;
-
   double alpha_, phi_;
   //TMatrixD boost_;
   double beta_;

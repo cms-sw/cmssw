@@ -311,9 +311,12 @@ struct DQMTTreeIO {
 class DQMRootSource : public edm::PuttableSourceBase, DQMTTreeIO {
 public:
   DQMRootSource(edm::ParameterSet const&, const edm::InputSourceDescription&);
+  DQMRootSource(const DQMRootSource&) = delete;
   ~DQMRootSource() override;
 
   // ---------- const member functions ---------------------
+
+  const DQMRootSource& operator=(const DQMRootSource&) = delete;  // stop default
 
   // ---------- static member functions --------------------
 
@@ -321,8 +324,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  DQMRootSource(const DQMRootSource&) = delete;
-
   edm::InputSource::ItemType getNextItemType() override;
 
   std::shared_ptr<edm::FileBlock> readFile_() override;
@@ -352,8 +353,6 @@ private:
   // If at least one lumi of a run needs to be kept, per run MEs of that run will also be kept.
   bool keepIt(edm::RunNumber_t, edm::LuminosityBlockNumber_t) const;
   void logFileAction(char const* msg, char const* fileName) const;
-
-  const DQMRootSource& operator=(const DQMRootSource&) = delete;  // stop default
 
   // ---------- member data --------------------------------
 
