@@ -157,10 +157,6 @@ namespace egHLT {
 
     std::vector<edm::ParameterSet> trigCutParams_;  //probably the least bad option
 
-  private:  //disabling copy / assignment
-    OffHelper& operator=(const OffHelper&) = delete;
-    OffHelper(const OffHelper&) = delete;
-
   public:
     OffHelper()
         : eleLooseCuts_(),
@@ -169,6 +165,8 @@ namespace egHLT {
           phoCuts_(),
           hltEleTrkIsolAlgo_(nullptr),
           hltPhoTrkIsolAlgo_(nullptr) {}
+    OffHelper& operator=(const OffHelper&) = delete;
+    OffHelper(const OffHelper&) = delete;
     ~OffHelper();
 
     void setup(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC);

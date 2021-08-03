@@ -17,6 +17,8 @@ class SiStripApvGainRcd;
 class SiStripGainESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripGainESSource(const edm::ParameterSet&);
+  SiStripGainESSource(const SiStripGainESSource&) = delete;
+  const SiStripGainESSource& operator=(const SiStripGainESSource&) = delete;
   ~SiStripGainESSource() override { ; }
 
   virtual std::unique_ptr<SiStripApvGain> produce(const SiStripApvGainRcd&);
@@ -27,9 +29,6 @@ protected:
                       edm::ValidityInterval&) override;
 
 private:
-  SiStripGainESSource(const SiStripGainESSource&) = delete;
-  const SiStripGainESSource& operator=(const SiStripGainESSource&) = delete;
-
   virtual SiStripApvGain* makeGain() = 0;
 };
 
