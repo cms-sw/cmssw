@@ -92,9 +92,10 @@ void GEMPackingTester::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           foundDigi = true;
       }
       if (!foundDigi) {
-        cout << "simMuonGEMDigi NOT found " << gemId << " " << digi->strip() << " " << digi->bx() << endl;
+        edm::LogInfo("GEMPackingTester") << "simMuonGEMDigi NOT found " << gemId << " " << digi->strip() << " "
+                                         << digi->bx();
         for (auto unpackeddigi = packed.first; unpackeddigi != packed.second; ++unpackeddigi) {
-          cout << "rec " << unpackeddigi->strip() << " " << unpackeddigi->bx() << endl;
+          edm::LogInfo("GEMPackingTester") << "rec " << unpackeddigi->strip() << " " << unpackeddigi->bx();
         }
       }
     }
