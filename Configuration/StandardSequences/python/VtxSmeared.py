@@ -37,6 +37,7 @@ VtxSmeared = {
     'RealisticPbPBoost5TeV2016Collision':  'GeneratorInterface.HiGenCommon.VtxSmearedPbP5TeVBoost_cff',
     'RealisticPPbBoost8TeV2016Collision':  'GeneratorInterface.HiGenCommon.VtxSmearedPPb8TeVBoost_cff',
     'RealisticPbPBoost8TeV2016Collision':  'GeneratorInterface.HiGenCommon.VtxSmearedPbP8TeVBoost_cff',
+    'HGCALCloseBy'  :                'IOMC.EventVertexGenerators.VtxSmearedHGCALCloseBy_cfi',
     'HLLHC'  :                       'IOMC.EventVertexGenerators.VtxSmearedHLLHC_cfi',
     'HLLHC14TeV'  :                  'IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi',
     'HLLHC_CK'  :                    'IOMC.EventVertexGenerators.VtxSmearedHLLHCCrabKissing_cfi',
