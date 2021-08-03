@@ -76,6 +76,11 @@ void HcalCPURecHitsProducer::acquire(edm::Event const& event,
   std::cout << "num rec Hits = " << recHits.size << std::endl;
 #endif
 
+  // do not try to copy the rechits if they are empty
+  if (recHits.size == 0) {
+    return;
+  }
+
   auto lambdaToTransfer = [&ctx](auto& dest, auto* src) {
     using vector_type = typename std::remove_reference<decltype(dest)>::type;
     using src_data_type = typename std::remove_pointer<decltype(src)>::type;
