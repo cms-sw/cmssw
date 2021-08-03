@@ -75,14 +75,13 @@ class HcalTB04Analysis : public SimProducer,
                          public Observer<const G4Step*> {
 public:
   HcalTB04Analysis(const edm::ParameterSet& p);
+  HcalTB04Analysis(const HcalTB04Analysis&) = delete;  // stop default
+  const HcalTB04Analysis& operator=(const HcalTB04Analysis&) = delete;
   ~HcalTB04Analysis() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  HcalTB04Analysis(const HcalTB04Analysis&) = delete;  // stop default
-  const HcalTB04Analysis& operator=(const HcalTB04Analysis&) = delete;
-
   void init();
 
   // observer methods

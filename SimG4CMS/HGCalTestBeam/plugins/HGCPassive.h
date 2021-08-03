@@ -40,14 +40,13 @@ class HGCPassive : public SimProducer,
                    public Observer<const G4Step *> {
 public:
   HGCPassive(const edm::ParameterSet &p);
+  HGCPassive(const HGCPassive &) = delete;  // stop default
+  const HGCPassive &operator=(const HGCPassive &) = delete;
   ~HGCPassive() override;
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:
-  HGCPassive(const HGCPassive &) = delete;  // stop default
-  const HGCPassive &operator=(const HGCPassive &) = delete;
-
   // observer classes
   void update(const BeginOfRun *run) override;
   void update(const BeginOfEvent *evt) override;

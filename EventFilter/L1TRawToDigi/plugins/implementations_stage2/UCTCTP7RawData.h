@@ -21,6 +21,10 @@ public:
     }
   }
 
+  // No copy constructor and equality operator are needed
+  UCTCTP7RawData(const UCTCTP7RawData&) = delete;
+  const UCTCTP7RawData& operator=(const UCTCTP7RawData& i) = delete;
+
   virtual ~UCTCTP7RawData() { ; }
 
   // Access functions for convenience
@@ -333,11 +337,6 @@ public:
   }
 
 private:
-  // No copy constructor and equality operator are needed
-
-  UCTCTP7RawData(const UCTCTP7RawData&) = delete;
-  const UCTCTP7RawData& operator=(const UCTCTP7RawData& i) = delete;
-
   // Pointer to contiguous array of 192 values
   // We assume instantiator of this class will gurantee that fact
   const uint32_t* myDataPtr;
