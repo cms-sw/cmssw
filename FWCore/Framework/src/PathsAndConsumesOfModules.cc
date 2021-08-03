@@ -439,13 +439,6 @@ namespace edm {
 
     unsigned int nPathsFinished = 0;
 
-    //account for possibly empty paths
-    for (auto& p : statusOfPaths) {
-      if (p.activeModuleSlot_ == p.nModules_) {
-        ++nPathsFinished;
-      }
-    }
-
     //if a circular dependency exception happens, stackTrace has the info
     std::vector<unsigned int> stackTrace;
     bool madeForwardProgress = true;
