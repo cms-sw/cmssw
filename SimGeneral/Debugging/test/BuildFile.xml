@@ -7,6 +7,9 @@
   <use name="DataFormats/DTDigi"/>
   <use name="DataFormats/CSCDigi"/>
   <use name="DataFormats/RPCDigi"/>
+  <use name="DataFormats/FTLDigi"/>
+  <use name="PhysicsTools/UtilAlgos"/>
+  <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <library file="SimDigiDumper.cc" name="SimDigiDumper">
