@@ -15,7 +15,7 @@
 // user include files
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "HcalTB04XtalNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB04XtalNumberingScheme.h"
 
 //#define EDM_ML_DEBUG
 

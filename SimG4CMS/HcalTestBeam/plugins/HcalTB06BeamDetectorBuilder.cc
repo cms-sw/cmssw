@@ -7,7 +7,7 @@
 
 #include "Geometry/HcalTestBeamData/interface/HcalTB06BeamParameters.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "HcalTB06BeamSD.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB06BeamSD.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
