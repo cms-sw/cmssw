@@ -27,7 +27,7 @@ TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm(const edm
       lowPassFrequency_(iConfig.getParameter<double>("lowPassFrequency")),
       hysteresis_(iConfig.getParameter<double>("hysteresis")),
       sampicOffset_(iConfig.getParameter<double>("sampicOffset")),
-      sampicSamplingPeriodNs_(iConfig.getParameter<double>("sampicSamplingPeriodNs")){}
+      sampicSamplingPeriodNs_(iConfig.getParameter<double>("sampicSamplingPeriodNs")) {}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -74,9 +74,9 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
 
       auto [min_it, max_it] = std::minmax_element(data.begin(), data.end());
 
-      if(det->name()=="CTPPS_Diamond_Segment"){
+      if (det->name() == "CTPPS_Diamond_Segment") {
         for (unsigned int i = 0; i < data.size(); ++i)
-          data[i] = -data[i]+sampicOffset_;
+          data[i] = -data[i] + sampicOffset_;
       }
       RegressionResults baselineRegression = simplifiedLinearRegression(time, data, 0, baselinePoints_);
 
@@ -84,12 +84,11 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
       std::vector<float> dataCorrected(data.size());
       for (unsigned int i = 0; i < data.size(); ++i)
         dataCorrected[i] = data[i] - (baselineRegression.q + baselineRegression.m * time[i]);
-      
+
       auto max_corrected_it = std::max_element(dataCorrected.begin(), dataCorrected.end());
 
-
       float t = TotemTimingRecHit::NO_T_AVAILABLE;
-      if (det->name()=="CTPPS_Diamond_Segment"&&(*min_it) > saturationLimit_||(*max_it) < saturationLimit_)
+      if (det->name() == "CTPPS_Diamond_Segment" && (*min_it) > saturationLimit_ || (*max_it) < saturationLimit_)
         t = constantFractionDiscriminator(time, dataCorrected);
       mode_ = TotemTimingRecHit::CFD;
       rec_hits.emplace_back(x_pos,

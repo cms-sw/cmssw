@@ -98,7 +98,9 @@ void TotemTimingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
       ->setComment("input tag for timing calibrations retrieval");
   desc.add<int>("baselinePoints", 8)->setComment("number of points to be used for the baseline");
   desc.add<double>("saturationLimit", 0.1)
-      ->setComment("all signals with max > saturationLimit will be considered as saturated for UFSD, similarly with min<saturationLimit for a Diamond");
+      ->setComment(
+          "all signals with max > saturationLimit will be considered as saturated for UFSD, similarly with "
+          "min<saturationLimit for a Diamond");
   desc.add<double>("cfdFraction", 0.3)->setComment("fraction of the CFD");
   desc.add<int>("smoothingPoints", 20)
       ->setComment("number of points to be used for the smoothing using sinc (lowpass)");
