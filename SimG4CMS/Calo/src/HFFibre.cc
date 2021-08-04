@@ -112,15 +112,15 @@ double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) { 
     for (int i = nBinR - 1; i > 0; --i)
       if (hR < radius[i])
         ieta = nBinR - i - 1;
-  }
 
-  // Defines the full length of the fibre
-  if (depth == 2) {
-    if (static_cast<int>(shortFL.size()) > ieta)
-      length = shortFL[ieta] + gpar[0];
-  } else {
-    if (static_cast<int>(longFL.size()) > ieta)
-      length = longFL[ieta];
+    // Defines the full length of the fibre
+    if (depth == 2) {
+      if (static_cast<int>(shortFL.size()) > ieta)
+	length = shortFL[ieta] + gpar[0];
+    } else {
+      if (static_cast<int>(longFL.size()) > ieta)
+	length = longFL[ieta];
+    }
   }
   zFibre = length;  // from beginning of abs (full length)
 
