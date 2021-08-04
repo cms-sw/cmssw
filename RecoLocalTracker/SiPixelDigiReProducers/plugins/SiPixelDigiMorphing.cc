@@ -25,21 +25,20 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi_;
   edm::EDPutTokenT<edm::DetSetVector<PixelDigi>> tPutPixelDigi_;
 
-  int32_t nrows_;
-  int32_t ncols_;
-  int32_t nrocs_;  // in Phase 1, this is ROCs, but could be any subset of a pixel row
-  int32_t ncols_r_;
+  const int32_t nrows_;
+  const int32_t ncols_;
+  const int32_t nrocs_;  // in Phase 1, this is ROCs, but could be any subset of a pixel row
+  const int32_t iters_;
+  const uint32_t fakeAdc_;
 
-  int32_t iters_;
-  int32_t ksize_;
+  int32_t ncols_r_;  // number of columns per ROC
+  int32_t ksize_;    // kernel size
 
   std::vector<uint64_t> kernel1_;
   std::vector<uint64_t> kernel2_;
   uint64_t mask_;
 
   enum MorphOption { kDilate, kErode };
-
-  uint32_t fakeAdc_;
 
   void morph(uint64_t* const imap, uint64_t* omap, uint64_t* const kernel, MorphOption op) const;
 };
