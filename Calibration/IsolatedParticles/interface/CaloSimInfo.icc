@@ -955,7 +955,6 @@ namespace spr {
       matchedId = trkInfo->type();  //pdgid
 
       edm::SimTrackContainer::const_iterator simTrkItr;
-      edm::SimVertexContainer::const_iterator simVtxItr;
 
       for (unsigned int ihit = 0; ihit < hit.size(); ihit++) {
         DetId id_ = (DetId)(hit[ihit]->id());
@@ -1129,9 +1128,6 @@ namespace spr {
                 << std::endl;
     }
 
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
-
     std::vector<typename T::const_iterator> ecalHits;
     spr::hitECALmatrix(navigator, hits, ieta, iphi, ecalHits, debug);
 
@@ -1160,9 +1156,6 @@ namespace spr {
       std::cout << "trkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize()
                 << std::endl;
     }
-
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
     std::vector<typename T::const_iterator> hit;
     spr::hitHCALmatrix(topology, det, hits, ieta, iphi, hit, includeHO, debug);
