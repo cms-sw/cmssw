@@ -19,7 +19,7 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   const GEMGeometry* gem = &setup.getData(geomTokenBeginRun_);
 
   // NOTE Time of flight
-  booker.setCurrentFolder("MuonGEMHitsV/GEMHitsTask/TimeOfFlight");
+  booker.setCurrentFolder("GEM/SimHits");
 
   TString tof_xtitle = "Time of flight [ns]";
   TString tof_ytitle = "Entries";
@@ -72,22 +72,20 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   }          // detail plot
 
   // NOTE Energy Loss
-  booker.setCurrentFolder("MuonGEMHitsV/GEMHitsTask/EnergyLoss");
-
   TString eloss_xtitle = "Energy loss [eV]";
   TString eloss_ytitle = "Entries / 0.5 keV";
 
   for (const auto& station : gem->regions()[0]->stations()) {
     Int_t station_id = station->station();
 
-    auto eloss_mu_name = TString::Format("eloss_muon_st%d", station_id);
-    auto eloss_mu_title = TString::Format("SimHit Energy Loss (Muon only) : Station %d", station_id);
+    auto eloss_mu_name = TString::Format("eloss_muon_GE%d1", station_id);
+    auto eloss_mu_title = TString::Format("SimHit Energy Loss (Muon only) : GE%d1", station_id);
 
     me_eloss_mu_[station_id] =
         booker.book1D(eloss_mu_name, eloss_mu_title + ";" + eloss_xtitle + ";" + eloss_ytitle, 20, 0.0, 10.0);
 
-    auto eloss_others_name = TString::Format("eloss_others_st%d", station_id);
-    auto eloss_others_title = TString::Format("SimHit Energy Loss (Other Particles) : Station %d", station_id);
+    auto eloss_others_name = TString::Format("eloss_others_GE%d1", station_id);
+    auto eloss_others_title = TString::Format("SimHit Energy Loss (Other Particles) : GE%d1", station_id);
 
     me_eloss_others_[station_id] =
         booker.book1D(eloss_others_name, eloss_others_title + ";" + eloss_xtitle + ";" + eloss_ytitle, 20, 0.0, 10.0);
@@ -127,8 +125,6 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   }          // detail plot
 
   // NOTE Occupancy
-  booker.setCurrentFolder("MuonGEMHitsV/GEMHitsTask/Occupancy");
-
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 

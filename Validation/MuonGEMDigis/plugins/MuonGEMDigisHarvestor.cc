@@ -14,9 +14,9 @@ MuonGEMDigisHarvestor::MuonGEMDigisHarvestor(const edm::ParameterSet& pset)
 MuonGEMDigisHarvestor::~MuonGEMDigisHarvestor() {}
 
 void MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
-  TString simhit_occ_folder = "MuonGEMHitsV/GEMHitsTask/Occupancy/";
-  TString occ_folder = "MuonGEMDigisV/GEMDigisTask/Strip/Occupancy/";
-  TString eff_folder = "MuonGEMDigisV/GEMDigisTask/Strip/Efficiency/";
+  TString simhit_occ_folder = "GEM/SimHits/";
+  TString occ_folder = "GEM/Digis/";
+  TString eff_folder = "GEM/Digis/";
   TString occ_folder_pad = "MuonGEMDigisV/GEMDigisTask/Pad/Occupancy/";
   TString eff_folder_pad = "MuonGEMDigisV/GEMDigisTask/Pad/Efficiency/";
   TString occ_folder_cluster = "MuonGEMDigisV/GEMDigisTask/PadCluster/Occupancy/";
