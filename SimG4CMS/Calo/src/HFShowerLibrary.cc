@@ -28,7 +28,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
   edm::ParameterSet m_HF =
       (p.getParameter<edm::ParameterSet>("HFShower")).getParameter<edm::ParameterSet>("HFShowerBlock");
   probMax = m_HF.getParameter<double>("ProbMax");
-  equalizeTimeShift_ = m_HF.getParameter<bool>("equalizeTimeShift");
+  equalizeTimeShift_ = m_HF.getParameter<bool>("EqualizeTimeShift");
 
   edm::ParameterSet m_HS =
       (p.getParameter<edm::ParameterSet>("HFShowerLibrary")).getParameter<edm::ParameterSet>("HFLibraryFileBlock");
