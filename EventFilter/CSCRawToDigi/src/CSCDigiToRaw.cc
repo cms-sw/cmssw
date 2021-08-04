@@ -38,7 +38,8 @@ CSCDigiToRaw::CSCDigiToRaw(const edm::ParameterSet& pset)
       // don't check for consistency with trig primitives
       // overrides usePreTriggers
       packEverything_(pset.getParameter<bool>("packEverything")),
-      usePreTriggers_(pset.getParameter<bool>("usePreTriggers")) {}
+      usePreTriggers_(pset.getParameter<bool>("usePreTriggers")),
+      packByCFEB_(pset.getParameter<bool>("packByCFEB")) {}
 
 CSCEventData& CSCDigiToRaw::findEventData(const CSCDetId& cscDetId, FindEventDataInfo& info) const {
   CSCDetId chamberId = CSCDigiToRawAccept::chamberID(cscDetId);
@@ -77,6 +78,11 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
     // only digitize if there are pre-triggers
 
     bool me1abCheck = fedInfo.formatVersion_ == 2013;
+
+    // determine where the pretriggers are
+    std::vector<bool> preTriggerInCFEB;
+    preTriggerInCFEB.resize(CSCConstants::MAX_CFEBS_RUN2);
+
     // pretrigger flag must be set and the pretrigger collection must be nonzero!
     const bool usePreTriggers = usePreTriggers_ and preTriggers != nullptr;
     if (!usePreTriggers || packEverything_ ||
@@ -98,6 +104,17 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
       for (; digiItr != last; ++digiItr) {
         CSCStripDigi digi = *digiItr;
         int strip = digi.getStrip();
+        int cfeb = digi.getCFEB();
+        // CSC strip digis in ME1/a have CFEB number 0, 1, or 2
+        // But a pretrigger in ME1/a has CFEB number 4, 5, or 6 (+4)
+        if (me1a)
+          cfeb += CSCConstants::NUM_CFEBS_ME1B ;
+
+        // At this point, if we are packing by CFEBs and there is no
+        // pretrigger in this CFEB, ignore this strip digi
+        if (packByCFEB_ and not preTriggerInCFEB[cfeb])
+          continue;
+
         // From LS1 on ME1a strips are unganged
         if (fedInfo.formatVersion_ == 2013) {
           if (me1a && zplus) {
