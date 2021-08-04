@@ -19,7 +19,7 @@
 // system include files
 
 // user include files
-#include "HcalTB02NumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB02NumberingScheme.h"
 
 class HcalTB02XtalNumberingScheme : public HcalTB02NumberingScheme {
 public:

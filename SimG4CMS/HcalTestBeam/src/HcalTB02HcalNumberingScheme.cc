@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "HcalTB02HcalNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB02HcalNumberingScheme.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4SystemOfUnits.hh"

@@ -11,14 +11,12 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="CommonTools/UtilAlgos"/>
-<use name="SimG4CMS/HcalTestBeam"/>
 <use name="geant4core"/>
 <use name="hepmc"/>
 <use name="clhep"/>
 <use name="rootmath"/>
 <use name="rootphysics"/>
 <use name="root"/>
-<flags EDM_PLUGIN="1"/>
-<library file="*.cc" name="SimG4CMSHcalTestBeamPlugins">
-  <flags EDM_PLUGIN="1"/>
-</library>
+<export>
+  <lib name="1"/>
+</export>
