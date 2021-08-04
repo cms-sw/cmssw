@@ -34,7 +34,6 @@ public:
   explicit TotemTimingLocalTrackFitter(const edm::ParameterSet&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
-  
 
 private:
   static edm::ParameterSetDescription fillDescriptionsShared(edm::ConfigurationDescriptions&);
@@ -51,7 +50,6 @@ TotemTimingLocalTrackFitter<T>::TotemTimingLocalTrackFitter(const edm::Parameter
       maxPlaneActiveChannels_(iConfig.getParameter<int>("maxPlaneActiveChannels")),
       trk_algo_params_(iConfig.getParameter<edm::ParameterSet>("trackingAlgorithmParams")) {
   produces<edm::DetSetVector<TotemTimingLocalTrack> >();
-
 }
 template <typename T>
 void TotemTimingLocalTrackFitter<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -93,7 +91,7 @@ void TotemTimingLocalTrackFitter<T>::produce(edm::Event& iEvent, const edm::Even
   }
 
   // retrieves tracks for all hit sets
-  for (auto& trk_algo_entry : trk_algo_map_){
+  for (auto& trk_algo_entry : trk_algo_map_) {
     pOut->find_or_insert(trk_algo_entry.first);
     trk_algo_entry.second.produceTracks(pOut->operator[](trk_algo_entry.first));
   }
@@ -105,7 +103,8 @@ void TotemTimingLocalTrackFitter<T>::produce(edm::Event& iEvent, const edm::Even
     trk_algo_entry.second.clear();
 }
 template <typename T>
-edm::ParameterSetDescription TotemTimingLocalTrackFitter<T>::fillDescriptionsShared(edm::ConfigurationDescriptions& descr) {
+edm::ParameterSetDescription TotemTimingLocalTrackFitter<T>::fillDescriptionsShared(
+    edm::ConfigurationDescriptions& descr) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("recHitsTag", edm::InputTag("totemTimingRecHits"))
       ->setComment("input rechits collection to retrieve");
@@ -148,17 +147,16 @@ edm::ParameterSetDescription TotemTimingLocalTrackFitter<T>::fillDescriptionsSha
 }
 template <>
 void TotemTimingLocalTrackFitter<TotemTimingDetId>::fillDescriptions(edm::ConfigurationDescriptions& descr) {
-  auto desc=fillDescriptionsShared(descr);
+  auto desc = fillDescriptionsShared(descr);
   descr.add("totemTimingLocalTracks", desc);
 }
 
 template <>
 void TotemTimingLocalTrackFitter<CTPPSDiamondDetId>::fillDescriptions(edm::ConfigurationDescriptions& descr) {
-  auto desc=fillDescriptionsShared(descr);
+  auto desc = fillDescriptionsShared(descr);
   descr.add("diamondSampicLocalTracks", desc);
 }
 template class TotemTimingLocalTrackFitter<CTPPSDiamondDetId>;
 template class TotemTimingLocalTrackFitter<TotemTimingDetId>;
 DEFINE_FWK_MODULE(TotemTimingLocalTrackFitter<TotemTimingDetId>);
 DEFINE_FWK_MODULE(TotemTimingLocalTrackFitter<CTPPSDiamondDetId>);
-

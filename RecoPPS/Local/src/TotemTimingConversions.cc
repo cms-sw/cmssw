@@ -14,8 +14,13 @@
 
 //----------------------------------------------------------------------------------------------------
 
-TotemTimingConversions::TotemTimingConversions(double sampicSamplingPeriodNs, bool mergeTimePeaks, const PPSTimingCalibration& calibration)
-    : calibration_(calibration),sampicSamplingPeriodNs_(sampicSamplingPeriodNs), mergeTimePeaks_(mergeTimePeaks), calibrationFunction_(calibration_.formula()) {}
+TotemTimingConversions::TotemTimingConversions(double sampicSamplingPeriodNs,
+                                               bool mergeTimePeaks,
+                                               const PPSTimingCalibration& calibration)
+    : calibration_(calibration),
+      sampicSamplingPeriodNs_(sampicSamplingPeriodNs),
+      mergeTimePeaks_(mergeTimePeaks),
+      calibrationFunction_(calibration_.formula()) {}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -26,7 +31,7 @@ float TotemTimingConversions::timeOfFirstSample(const TotemTimingDigi& digi) con
       (digi.cellInfo() <= SAMPIC_MAX_NUMBER_OF_SAMPLES / 2) ? digi.timestampA() : digi.timestampB();
 
   int cell0TimeClock = timestamp + ((digi.fpgaTimestamp() - timestamp) & CELL0_MASK) - digi.eventInfo().l1ATimestamp() +
-                       digi.eventInfo().l1ALatency();       
+                       digi.eventInfo().l1ALatency();
 
   // time of first cell
   float cell0TimeInstant = SAMPIC_MAX_NUMBER_OF_SAMPLES * sampicSamplingPeriodNs_ * cell0TimeClock;
