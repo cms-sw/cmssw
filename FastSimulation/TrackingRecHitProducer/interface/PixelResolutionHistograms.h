@@ -21,7 +21,17 @@ static constexpr unsigned int QBIN_HIST_MAX = 4;
 
 class PixelResolutionHistograms {
 public:
-  //--- Constructor to use when generating resolution histograms.
+  //--- Constructor to use when generating resolution histograms with variable binning.
+  //    We make empty histograms (which we own), but generator pointers
+  //    remain null.
+  //
+  PixelResolutionHistograms(std::string filename,     // ROOT file for histograms
+                            std::string rootdir,      // Subdirectory in the file, "" if none
+                            std::string descTitle,    // Descriptive title
+                            unsigned int detType,     // Where we are... (&&& do we need this?)
+                            std::vector<double> cotbetaEdges,  // List of bin edges in cot beta
+                            std::vector<double> cotalphaEdges);// List of bin edges in cot alpha
+  //--- Constructor to use when generating resolution histograms with consistent binning.
   //    We make empty histograms (which we own), but generator pointers
   //    remain null.
   //
@@ -35,8 +45,6 @@ public:
                             double cotalphaBinWidth,  // cot(alpha): bin width,
                             double cotalphaLowEdge,   //           : low endpoint,
                             int cotalphaBins);        //           : # of bins
-                                                      //int	qbinWidth,
-                                                      //int	qbins )
 
   //--- Constructor to use when reading the histograms from a file (e.g. when
   //    inside a running FastSim job).  We get the histograms from a
@@ -67,8 +75,8 @@ public:
            int nypix);  // length of cluster along x,y (only care if ==1 or not)
 
   //--- Get generators, for resolution in X and Y.  Use in FastSim.
+  const SimpleHistogramGenerator* getGenerator(double cotalpha, double cotbeta,  int qbin, bool single, bool isX);
   const SimpleHistogramGenerator* getGeneratorX(double cotalpha, double cotbeta, int qbin, bool singlex);
-
   const SimpleHistogramGenerator* getGeneratorY(double cotalpha, double cotbeta, int qbin, bool singley);
 
 private:
@@ -79,12 +87,6 @@ private:
   unsigned int detType_;  // 1 for barrel, 0 for forward  /// May not need this?
 
   // Resolution binning
-  double cotbetaBinWidth_;
-  double cotbetaLowEdge_;
-  int cotbetaBins_;
-  double cotalphaBinWidth_;
-  double cotalphaLowEdge_;
-  int cotalphaBins_;
   int qbinWidth_;
   int qbins_;
 
@@ -92,6 +94,8 @@ private:
   TH2F* binningHisto_;
   TAxis* cotbetaAxis_;
   TAxis* cotalphaAxis_;
+  std::vector<double> getBinEdges(double width, double lowEdge, int nbins);
+  void histCheck(TH1F* hist, std::string histname, const int& statusToSet);
 
   // Resolution histograms.  I (Petar) tried to dynamically allocate
   // these histograms, but all possible implementations were somewhat

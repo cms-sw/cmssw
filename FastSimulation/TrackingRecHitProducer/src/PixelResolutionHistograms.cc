@@ -63,22 +63,10 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,   // 
                                                      std::string rootdir,    // Subdirectory in the file, "" if none
                                                      std::string descTitle,  // Descriptive title
                                                      unsigned int detType,   // Where we are... (&&& do we need this?)
-                                                     double cotbetaBinWidth,
-                                                     double cotbetaLowEdge,
-                                                     int cotbetaBins,
-                                                     double cotalphaBinWidth,
-                                                     double cotalphaLowEdge,
-                                                     int cotalphaBins)  //,
-                                                                        //int	qbinWidth,
-                                                                        //int	qbins )
+                                                     std::vector<double> cotbetaEdges,
+                                                     std::vector<double> cotalphaEdges)  
     : weOwnHistograms_(true),                                           // we'll be making some histos
       detType_(detType),
-      cotbetaBinWidth_(cotbetaBinWidth),
-      cotbetaLowEdge_(cotbetaLowEdge),
-      cotbetaBins_(cotbetaBins),
-      cotalphaBinWidth_(cotalphaBinWidth),
-      cotalphaLowEdge_(cotalphaLowEdge),
-      cotalphaBins_(cotalphaBins),
       qbinWidth_(1),
       qbins_(4),
       binningHisto_(nullptr),
@@ -95,25 +83,16 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,   // 
       resSinglePixelYGen_(),
       qbinGen_() {
   file_ = std::make_unique<TFile>(filename.c_str(), "RECREATE");
-  //Resolution binning
-  // const double 	cotbetaBinWidth = 1.0;
-  // const double 	cotbetaLowEdge	= -11.5 ;
-  // const int	cotbetaBins	= 23;
-  // const double	cotalphaBinWidth	= 0.08 ;
-  // const double	cotalphaLowEdge	= -0.36 ;
-  // const int	cotalphaBins	= 9;
-  // const int	qbinWidth	= 1;
-  // const int	qbins		= 4;
 
   // Dummy 2D histogram to store binning:
   binningHisto_ = new TH2F("ResHistoBinning",
                            descTitle.c_str(),
-                           cotbetaBins,
-                           cotbetaLowEdge,
-                           cotbetaLowEdge + cotbetaBins * cotbetaBinWidth,
-                           cotalphaBins,
-                           cotalphaLowEdge,
-                           cotalphaLowEdge + cotalphaBins * cotalphaBinWidth);
+                           cotbetaEdges.size()-1,
+                           cotbetaEdges.data(),
+                           cotalphaEdges.size()-1,
+                           cotalphaEdges.data());
+  cotbetaAxis_ = binningHisto_->GetXaxis();
+  cotalphaAxis_ = binningHisto_->GetYaxis();
 
   // Store detType in the underflow bin
   binningHisto_->SetBinContent(0, 0, detType_);
@@ -121,75 +100,93 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,   // 
   // All other histograms:
   Char_t histo[200];
   Char_t title[200];
-  //
-  //--- Histograms for clusters with multiple pixels hit in a given direction.
-  //
-  for (int ii = 0; ii < cotbetaBins_; ii++) {
-    for (int jj = 0; jj < cotalphaBins_; jj++) {
+  Char_t binstr[200];
+
+  for (int ii = 0; ii < cotbetaAxis_->GetNbins(); ii++) {
+    for (int jj = 0; jj < cotalphaAxis_->GetNbins(); jj++) {
+      sprintf(binstr, "cotbeta %.1f-%.1f cotalpha %.2f-%.2f",
+                cotbetaEdges[ii],
+                cotbetaEdges[ii+1],
+                cotalphaEdges[jj],
+                cotalphaEdges[jj+1]);
+      //
+      //--- Histograms for clusters with multiple pixels hit in a given direction.
+      //
       for (int kk = 0; kk < qbins_; kk++) {
-        //
-        sprintf(histo, "hx%d1%02d%d%d", detType_, ii + 1, jj + 1, kk + 1);  //information of bits of histogram names
+        //information of bits of histogram names
         //--- First bit 1/0 barrel/forward, second 1/0 multi/single, cotbeta, cotalpha, qbins
-        sprintf(title,
-                "cotbeta %.1f-%.1f cotalpha %.2f-%.2f qbin %d npixel>1 X",
-                cotbetaLowEdge_ + ii * cotbetaBinWidth_,
-                cotbetaLowEdge_ + (ii + 1) * cotbetaBinWidth_,
-                cotalphaLowEdge_ + jj * cotalphaBinWidth_,
-                cotalphaLowEdge_ + (jj + 1) * cotalphaBinWidth_,
-                kk + 1);
-        //
+        sprintf(histo, "hx%d1%02d%d%d", detType_, ii + 1, jj + 1, kk + 1);  
+        sprintf(title, "%s qbin %d npixel>1 X", binstr, kk + 1);
         resMultiPixelXHist_[ii][jj][kk] = new TH1F(histo, title, 1000, -0.05, 0.05);
 
         sprintf(histo, "hy%d1%02d%d%d", detType_, ii + 1, jj + 1, kk + 1);
-        sprintf(title,
-                "cotbeta %.1f-%.1f cotalpha %.2f-%.2f qbin %d npixel>1 Y",
-                cotbetaLowEdge_ + ii * cotbetaBinWidth_,
-                cotbetaLowEdge_ + (ii + 1) * cotbetaBinWidth_,
-                cotalphaLowEdge_ + jj * cotalphaBinWidth_,
-                cotalphaLowEdge_ + (jj + 1) * cotalphaBinWidth_,
-                kk + 1);
-        //
+        sprintf(title, "%s qbin %d npixel>1 Y", binstr, kk + 1);
         resMultiPixelYHist_[ii][jj][kk] = new TH1F(histo, title, 1000, -0.05, 0.05);
       }
-    }
-  }
-
-  //
-  //--- Histograms for clusters where only a single pixel was hit in a given direction.
-  //
-  for (int ii = 0; ii < cotbetaBins_; ii++) {
-    for (int jj = 0; jj < cotalphaBins_; jj++) {
-      sprintf(histo, "hx%d0%02d%d", detType_, ii + 1, jj + 1);  //information of bits of histogram names
-      //first bit 1/0 barrel/forward, second 1/0 multi/single, cotbeta, cotalpha
-      sprintf(title,
-              "cotbeta %.1f-%.1f cotalpha %.2f-%.2f npixel=1 X",
-              cotbetaLowEdge_ + ii * cotbetaBinWidth_,
-              cotbetaLowEdge_ + (ii + 1) * cotbetaBinWidth_,
-              cotalphaLowEdge_ + jj * cotalphaBinWidth_,
-              cotalphaLowEdge_ + (jj + 1) * cotalphaBinWidth_);
       //
+      //--- Histograms for clusters where only a single pixel was hit in a given direction.
+      //
+      sprintf(histo, "hx%d0%02d%d", detType_, ii + 1, jj + 1);  
+      sprintf(title, "%s npixel=1 X", binstr);
       resSinglePixelXHist_[ii][jj] = new TH1F(histo, title, 1000, -0.05, 0.05);
 
       sprintf(histo, "hy%d0%02d%d", detType_, ii + 1, jj + 1);
-      sprintf(title,
-              "cotbeta %.1f-%.1f cotalpha %.2f-%.2f npixel=1 Y",
-              cotbetaLowEdge_ + ii * cotbetaBinWidth_,
-              cotbetaLowEdge_ + (ii + 1) * cotbetaBinWidth_,
-              cotalphaLowEdge_ + jj * cotalphaBinWidth_,
-              cotalphaLowEdge_ + (jj + 1) * cotalphaBinWidth_);
-      //
+      sprintf(title, "%s npixel=1 Y", binstr);
       resSinglePixelYHist_[ii][jj] = new TH1F(histo, title, 1000, -0.05, 0.05);
 
       sprintf(histo, "hqbin%d%02d%d", detType_, ii + 1, jj + 1);
-      sprintf(title,
-              "cotbeta %.1f-%.1f cotalpha %.2f-%.2f qbin",
-              cotbetaLowEdge_ + ii * cotbetaBinWidth_,
-              cotbetaLowEdge_ + (ii + 1) * cotbetaBinWidth_,
-              cotalphaLowEdge_ + jj * cotalphaBinWidth_,
-              cotalphaLowEdge_ + (jj + 1) * cotalphaBinWidth_);
-      //
+      sprintf(title, "%s qbin", binstr);
       qbinHist_[ii][jj] = new TH1F(histo, title, 4, -0.49, 3.51);
     }
+  }
+}
+
+//------------------------------------------------------------------------------
+//  Another constructor: consistent bin width scheme.
+//
+//  The other parameters are the same (needed later) and must correspond
+//  to the histograms we are loading from the file.
+//------------------------------------------------------------------------------
+PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,   // ROOT file for histograms
+                                                     std::string rootdir,    // Subdirectory in the file, "" if none
+                                                     std::string descTitle,  // Descriptive title
+                                                     unsigned int detType,   // Where we are... (&&& do we need this?)
+                                                     double cotbetaBinWidth,
+                                                     double cotbetaLowEdge,
+                                                     int cotbetaBins,
+                                                     double cotalphaBinWidth,
+                                                     double cotalphaLowEdge,
+                                                     int cotalphaBins) : 
+  PixelResolutionHistograms(filename,rootdir,descTitle,detType,
+                            getBinEdges(cotbetaBinWidth,cotbetaLowEdge,cotbetaBins),
+                            getBinEdges(cotalphaBinWidth,cotalphaLowEdge,cotalphaBins)) {}
+
+//------------------------------------------------------------------------------
+// Method to create a list of bin edges based on input width, lower edge, and
+// number of bins.
+//------------------------------------------------------------------------------
+std::vector<double> PixelResolutionHistograms::getBinEdges(double width, double lowEdge, int nbins) {
+  std::vector<double> binedges(nbins+1);
+  for (int ibin = 0; ibin <= nbins; ibin++) {
+    binedges.emplace_back(lowEdge+ibin*width);
+  }
+  return binedges;
+}
+
+//------------------------------------------------------------------------------
+// Sanity check for histograms
+//------------------------------------------------------------------------------
+inline void PixelResolutionHistograms::histCheck(TH1F* hist, std::string histname, const int& statusToSet) {
+  if (!hist) {
+    status_ = statusToSet;
+    LOGERROR << "Failed to find histogram=" << std::string(histname);
+    return;
+  }
+  LOGDEBUG << "Found histo " << std::string(histname) << " with title = " << std::string(hist->GetTitle())
+            << std::endl;
+  if (hist->GetEntries() < 5) {
+    LOGINFO << "Histogram " << std::string(histname) << " has only " << hist->GetEntries()
+            << " entries. Trouble ahead." << std::endl;
   }
 }
 
@@ -209,12 +206,6 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
                                                      bool ignore_qBin)
     : weOwnHistograms_(false),  // resolution histograms are owned by the ROOT file
       detType_(-1),
-      cotbetaBinWidth_(0),
-      cotbetaLowEdge_(0),
-      cotbetaBins_(0),
-      cotalphaBinWidth_(0),
-      cotalphaLowEdge_(0),
-      cotalphaBins_(0),
       qbinWidth_(1),
       qbins_(4),
       binningHisto_(nullptr),
@@ -232,6 +223,7 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
       qbinGen_() {
   Char_t histo[200];        // the name of the histogram
   Char_t title[200];        // histo title, for debugging and sanity checking (compare inside file)
+  Char_t binstr[200];
   TH1F* tmphist = nullptr;  // cache for histo pointer
 
   //--- Open the file for reading.
@@ -250,8 +242,7 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
     return;  // PixelTemplateSmearerBase will throw an exception upon our return.
   }
 
-  if (detType == -1) {
-    //--- Fish out detType from the underflow bin:
+  if (detType == -1) {   //--- Fish out detType from the underflow bin:
     detType_ = binningHisto_->GetBinContent(0, 0);
   } else {
     detType_ = detType;  // constructor's argument overrides what's in ResHistoBinning histogram.
@@ -259,163 +250,65 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
 
   //--- Now we fill the binning variables:
   cotbetaAxis_ = binningHisto_->GetXaxis();
-  cotbetaBinWidth_ = binningHisto_->GetXaxis()->GetBinWidth(1);  // assume all same width
-  cotbetaLowEdge_ = binningHisto_->GetXaxis()->GetXmin();        // low edge of the first bin
-  cotbetaBins_ = binningHisto_->GetXaxis()->GetNbins();
   cotalphaAxis_ = binningHisto_->GetYaxis();
-  cotalphaBinWidth_ = binningHisto_->GetYaxis()->GetBinWidth(1);  // assume all same width;
-  cotalphaLowEdge_ = binningHisto_->GetYaxis()->GetXmin();        // low edge of the first bin;
-  cotalphaBins_ = binningHisto_->GetYaxis()->GetNbins();
+  const TArrayD* cotbetaEdges = cotbetaAxis_->GetXbins();
+  const TArrayD* cotalphaEdges = cotalphaAxis_->GetXbins();
 
   if (!ignore_multi) {
-    //
     //--- Histograms for clusters with multiple pixels hit in a given direction.
-    //
-    for (int ii = 0; ii < cotbetaBins_; ii++) {
-      for (int jj = 0; jj < cotalphaBins_; jj++) {
+    for (int ii = 0; ii < cotbetaAxis_->GetNbins(); ii++) {
+      for (int jj = 0; jj < cotalphaAxis_->GetNbins(); jj++) {
+        sprintf(binstr, "cotbeta %.1f-%.1f cotalpha %.2f-%.2f",
+                cotbetaEdges->At(ii),
+                cotbetaEdges->At(ii+1),
+                cotalphaEdges->At(jj),
+                cotalphaEdges->At(jj+1));
         for (int kk = 0; kk < qbins_; kk++) {
-          //
-          sprintf(histo, "hx%d1%02d%d%d", detType_, ii + 1, jj + 1, kk + 1);  //information of bits of histogram names
+          //information of bits of histogram names
           //--- First bit 1/0 barrel/forward, second 1/0 multi/single, cotbeta, cotalpha, qbins
-          sprintf(title,
-                  "cotbeta %.1f-%.1f cotalpha %.2f-%.2f qbin %d npixel>1 X",
-                  cotbetaLowEdge_ + ii * cotbetaBinWidth_,
-                  cotbetaLowEdge_ + (ii + 1) * cotbetaBinWidth_,
-                  cotalphaLowEdge_ + jj * cotalphaBinWidth_,
-                  cotalphaLowEdge_ + (jj + 1) * cotalphaBinWidth_,
-                  kk + 1);
-          //
+          sprintf(histo, "hx%d1%02d%d%d", detType_, ii + 1, jj + 1, kk + 1);  
+          sprintf(title, "%s qbin %d npixel>1 X", binstr, kk + 1);
           tmphist = (TH1F*)file_->Get(Form("%s%s", rootdir.c_str(), histo));
-          if (!tmphist) {
-            status_ = 2;
-            LOGERROR << "Failed to find histogram=" << std::string(histo);
-            return;
-          }
-          LOGDEBUG << "Found histo " << std::string(histo) << " with title = " << std::string(tmphist->GetTitle())
-                   << std::endl;
-          if (tmphist->GetEntries() < 5) {
-            LOGINFO << "Histogram " << std::string(histo) << " has only " << tmphist->GetEntries()
-                    << " entries. Trouble ahead." << std::endl;
-          }
+
+          histCheck(tmphist,histo,2);
           resMultiPixelXHist_[ii][jj][kk] = tmphist;
           resMultiPixelXGen_[ii][jj][kk] = new SimpleHistogramGenerator(tmphist);
 
           sprintf(histo, "hy%d1%02d%d%d", detType_, ii + 1, jj + 1, kk + 1);
-          sprintf(title,
-                  "cotbeta %.1f-%.1f cotalpha %.2f-%.2f qbin %d npixel>1 Y",
-                  cotbetaLowEdge_ + ii * cotbetaBinWidth_,
-                  cotbetaLowEdge_ + (ii + 1) * cotbetaBinWidth_,
-                  cotalphaLowEdge_ + jj * cotalphaBinWidth_,
-                  cotalphaLowEdge_ + (jj + 1) * cotalphaBinWidth_,
-                  kk + 1);
-          //
+          sprintf(title, "%s qbin %d npixel>1 Y", binstr, kk + 1);
           tmphist = (TH1F*)file_->Get(Form("%s%s", rootdir.c_str(), histo));
-          if (!tmphist) {
-            status_ = 3;
-            LOGERROR << "Failed to find histogram=" << std::string(histo);
-            return;
-          }
-          LOGDEBUG << "Found histo " << std::string(histo) << " with title = " << std::string(tmphist->GetTitle())
-                   << std::endl;
-          if (tmphist->GetEntries() < 5) {
-            LOGINFO << "Histogram " << std::string(histo) << " has only " << tmphist->GetEntries()
-                    << " entries. Trouble ahead." << std::endl;
-          }
+          
+          histCheck(tmphist,histo,3);
           resMultiPixelYHist_[ii][jj][kk] = tmphist;
           resMultiPixelYGen_[ii][jj][kk] = new SimpleHistogramGenerator(tmphist);
         }
-      }
-    }
-    //
-  }  // if (not ignore multi)
 
-  //
-  //--- Histograms for clusters where only a single pixel was hit in a given direction.
-  //
-  for (int ii = 0; ii < cotbetaBins_; ii++) {
-    for (int jj = 0; jj < cotalphaBins_; jj++) {
-      //--- Single pixel, along X.
-      //
-      sprintf(histo, "hx%d0%02d%d", detType_, ii + 1, jj + 1);  //information of bits of histogram names
-      //--- First bit 1/0 barrel/forward, second 1/0 multi/single, cotbeta, cotalpha
-      sprintf(title,
-              "cotbeta %.1f-%.1f cotalpha %.2f-%.2f npixel=1 X",
-              cotbetaLowEdge_ + ii * cotbetaBinWidth_,
-              cotbetaLowEdge_ + (ii + 1) * cotbetaBinWidth_,
-              cotalphaLowEdge_ + jj * cotalphaBinWidth_,
-              cotalphaLowEdge_ + (jj + 1) * cotalphaBinWidth_);
-      //
-      tmphist = (TH1F*)file_->Get(Form("%s%s", rootdir.c_str(), histo));
-      if (!tmphist) {
-        if (!ignore_single) {
-          LOGERROR << "Failed to find histogram=" << std::string(histo);
-          status_ = 4;
-          return;
-        }
-      } else {
-        LOGDEBUG << "Found histo " << std::string(histo) << " with title = " << std::string(tmphist->GetTitle())
-                 << std::endl;
-        LOGDEBUG << "Found histo with title = " << std::string(tmphist->GetTitle()) << std::endl;
-        if (tmphist->GetEntries() < 5) {
-          LOGINFO << "Histogram " << std::string(histo) << " has only " << tmphist->GetEntries()
-                  << " entries. Trouble ahead." << std::endl;
-        }
+        //--- Histograms for clusters where only a single pixel was hit in a given direction.
+        //
+        //--- Single pixel, along X.
+        sprintf(histo, "hx%d0%02d%d", detType_, ii + 1, jj + 1);
+        sprintf(title, "%s npixel=1 X", binstr);
+        tmphist = (TH1F*)file_->Get(Form("%s%s", rootdir.c_str(), histo));
+
+        histCheck(tmphist,histo,4);
         resSinglePixelXHist_[ii][jj] = tmphist;
         resSinglePixelXGen_[ii][jj] = new SimpleHistogramGenerator(tmphist);
-      }
 
-      //--- Single pixel, along Y.
-      //
-      sprintf(histo, "hy%d0%02d%d", detType_, ii + 1, jj + 1);
-      sprintf(title,
-              "cotbeta %.1f-%.1f cotalpha %.2f-%.2f npixel=1 Y",
-              cotbetaLowEdge_ + ii * cotbetaBinWidth_,
-              cotbetaLowEdge_ + (ii + 1) * cotbetaBinWidth_,
-              cotalphaLowEdge_ + jj * cotalphaBinWidth_,
-              cotalphaLowEdge_ + (jj + 1) * cotalphaBinWidth_);
-      //
-      tmphist = (TH1F*)file_->Get(Form("%s%s", rootdir.c_str(), histo));
-      if (!tmphist) {
-        if (!ignore_single) {
-          LOGERROR << "Failed to find histogram=" << std::string(histo);
-          status_ = 5;
-          return;
-        }
-      } else {
-        LOGDEBUG << "Found histo " << std::string(histo) << " with title = " << std::string(tmphist->GetTitle())
-                 << std::endl;
-        if (tmphist->GetEntries() < 5) {
-          LOGINFO << "Histogram " << std::string(histo) << " has only " << tmphist->GetEntries()
-                  << " entries. Trouble ahead." << std::endl;
-        }
+        //--- Single pixel, along Y.
+        sprintf(histo, "hy%d0%02d%d", detType_, ii + 1, jj + 1);
+        sprintf(title, "%s npixel=1 Y", binstr);
+        tmphist = (TH1F*)file_->Get(Form("%s%s", rootdir.c_str(), histo));
+
+        histCheck(tmphist,histo,5);
         resSinglePixelYHist_[ii][jj] = tmphist;
         resSinglePixelYGen_[ii][jj] = new SimpleHistogramGenerator(tmphist);
-      }
 
-      //--- qBin distribution, for this (cotbeta, cotalpha) bin.
-      //
-      sprintf(histo, "hqbin%d%02d%d", detType_, ii + 1, jj + 1);
-      sprintf(title,
-              "cotbeta %.1f-%.1f cotalpha %.2f-%.2f qbin",
-              cotbetaLowEdge_ + ii * cotbetaBinWidth_,
-              cotbetaLowEdge_ + (ii + 1) * cotbetaBinWidth_,
-              cotalphaLowEdge_ + jj * cotalphaBinWidth_,
-              cotalphaLowEdge_ + (jj + 1) * cotalphaBinWidth_);
-      //
-      tmphist = (TH1F*)file_->Get(Form("%s%s", rootdir.c_str(), histo));
-      if (!tmphist) {
-        if (!ignore_qBin) {
-          LOGERROR << "Failed to find histogram=" << std::string(histo);
-          status_ = 6;
-          return;
-        }
-      } else {
-        LOGDEBUG << "Found histo " << std::string(histo) << " with title = " << std::string(tmphist->GetTitle())
-                 << std::endl;
-        if (tmphist->GetEntries() < 5) {
-          LOGINFO << "Histogram " << std::string(histo) << " has only " << tmphist->GetEntries()
-                  << " entries. Trouble ahead." << std::endl;
-        }
+        //--- qBin distribution, for this (cotbeta, cotalpha) bin.
+        sprintf(histo, "hqbin%d%02d%d", detType_, ii + 1, jj + 1);
+        sprintf(title, "%s qbin", binstr);
+        tmphist = (TH1F*)file_->Get(Form("%s%s", rootdir.c_str(), histo));
+
+        histCheck(tmphist,histo,6);
         qbinHist_[ii][jj] = tmphist;
         qbinGen_[ii][jj] = new SimpleHistogramGenerator(tmphist);
       }
@@ -449,16 +342,12 @@ PixelResolutionHistograms::~PixelResolutionHistograms() {
   }  // else
 
   //--- Delete FastSim generators. (It's safe to delete a nullptr.)
-  for (int ii = 0; ii < cotbetaBins_; ii++) {
-    for (int jj = 0; jj < cotalphaBins_; jj++) {
+  for (int ii = 0; ii < cotbetaAxis_->GetNbins(); ii++) {
+    for (int jj = 0; jj < cotalphaAxis_->GetNbins(); jj++) {
       for (int kk = 0; kk < qbins_; kk++) {
         delete resMultiPixelXGen_[ii][jj][kk];
         delete resMultiPixelYGen_[ii][jj][kk];
       }
-    }
-  }
-  for (int ii = 0; ii < cotbetaBins_; ii++) {
-    for (int jj = 0; jj < cotalphaBins_; jj++) {
       delete resSinglePixelXGen_[ii][jj];
       delete resSinglePixelYGen_[ii][jj];
       delete qbinGen_[ii][jj];
@@ -473,10 +362,10 @@ PixelResolutionHistograms::~PixelResolutionHistograms() {
 int PixelResolutionHistograms::Fill(
     double dx, double dy, double cotalpha, double cotbeta, int qbin, int nxpix, int nypix) {
   int icotalpha, icotbeta, iqbin;
-  icotalpha = (int)floor((cotalpha - cotalphaLowEdge_) / cotalphaBinWidth_);
-  icotbeta = (int)floor((cotbeta - cotbetaLowEdge_) / cotbetaBinWidth_);
+  icotalpha = cotalphaAxis_->FindFixBin(cotalpha)-1;
+  icotbeta = cotbetaAxis_->FindFixBin(cotbeta)-1;
   iqbin = qbin > 2 ? 3 : qbin;
-  if (icotalpha >= 0 && icotalpha < cotalphaBins_ && icotbeta >= 0 && icotbeta < cotbetaBins_) {
+  if (icotalpha >= 0 && icotalpha < cotalphaAxis_->GetNbins() && icotbeta >= 0 && icotbeta < cotbetaAxis_->GetNbins()) {
     qbinHist_[icotbeta][icotalpha]->Fill((double)iqbin);
     if (nxpix == 1)
       resSinglePixelXHist_[icotbeta][icotalpha]->Fill(dx / cmtomicron);
@@ -491,43 +380,40 @@ int PixelResolutionHistograms::Fill(
   return 0;
 }
 
+const SimpleHistogramGenerator* PixelResolutionHistograms::getGenerator(double cotalpha,
+                                                                         double cotbeta,
+                                                                         int qbin,
+                                                                         bool single,
+                                                                         bool isX) {
+  int icotalpha, icotbeta, iqbin;
+  icotalpha = std::max(0, std::min(cotalphaAxis_->GetNbins() - 1, cotalphaAxis_->FindFixBin(cotalpha)-1) );
+  icotbeta = std::max(0, std::min(cotbetaAxis_->GetNbins() - 1, cotbetaAxis_->FindFixBin(cotbeta)-1) );
+  iqbin = qbin > 2 ? 3 : qbin;  // if (qbin>2) then = 3, else return qbin
+
+  // At this point we are sure to return *some bin* from the 3D histogram
+  if (single) {
+    if (isX) {
+      return resSinglePixelXGen_[icotbeta][icotalpha];
+    } else {
+      return resSinglePixelYGen_[icotbeta][icotalpha];
+    }
+  } else {
+    if (isX) {
+      return resMultiPixelXGen_[icotbeta][icotalpha][iqbin];
+    } else {
+      return resMultiPixelYGen_[icotbeta][icotalpha][iqbin];
+    }
+  }
+}
+
 //------------------------------------------------------------------------------
 //  Return the histogram generator for resolution in X.  A generator contains
 //  both the histogram and knows how to throw a random number off it.  It is
 //  called from FastSim (from PixelTemplateSmearerBase).
 //  If cotalpha or cotbeta are outside of the range, return the end of the range.
 //------------------------------------------------------------------------------
-const SimpleHistogramGenerator* PixelResolutionHistograms::getGeneratorX(double cotalpha,
-                                                                         double cotbeta,
-                                                                         int qbin,
-                                                                         bool single) {
-  int icotalpha, icotbeta, iqbin;
-  icotalpha = (int)floor((cotalpha - cotalphaLowEdge_) / cotalphaBinWidth_);
-  icotbeta = (int)floor((cotbeta - cotbetaLowEdge_) / cotbetaBinWidth_);
-  iqbin = qbin > 2 ? 3 : qbin;  // if (qbin>2) then = 3, else return qbin
-  //
-  //if( icotalpha >= 0 && icotalpha < cotalphaBins_ && icotbeta >= 0 && icotbeta < cotbetaBins_ ) {
-
-  if (icotalpha < 0)
-    icotalpha = 0;
-  if (icotalpha >= cotalphaBins_)
-    icotalpha = cotalphaBins_ - 1;
-
-  if (icotbeta < 0)
-    icotbeta = 0;
-  if (icotbeta >= cotbetaBins_)
-    icotbeta = cotbetaBins_ - 1;
-
-  // At this point we are sure to return *some bin* from the 3D histogram
-
-  if (single)
-    return resSinglePixelXGen_[icotbeta][icotalpha];
-  else
-    return resMultiPixelXGen_[icotbeta][icotalpha][iqbin];
-
-  // }
-  //else
-  //return nullptr;
+const SimpleHistogramGenerator* PixelResolutionHistograms::getGeneratorX(double cotalpha, double cotbeta, int qbin, bool single) {
+  return getGenerator(cotalpha,cotbeta,qbin,single,true);
 }
 
 //------------------------------------------------------------------------------
@@ -536,35 +422,6 @@ const SimpleHistogramGenerator* PixelResolutionHistograms::getGeneratorX(double 
 //  called from FastSim (from PixelTemplateSmearerBase).
 //  If cotalpha or cotbeta are outside of the range, return the end of the range.
 //------------------------------------------------------------------------------
-const SimpleHistogramGenerator* PixelResolutionHistograms::getGeneratorY(double cotalpha,
-                                                                         double cotbeta,
-                                                                         int qbin,
-                                                                         bool single) {
-  int icotalpha, icotbeta, iqbin;
-  icotalpha = (int)floor((cotalpha - cotalphaLowEdge_) / cotalphaBinWidth_);
-  icotbeta = (int)floor((cotbeta - cotbetaLowEdge_) / cotbetaBinWidth_);
-  iqbin = qbin > 2 ? 3 : qbin;  // if (qbin>2) then = 3, else return qbin
-  //
-  //if( icotalpha >= 0 && icotalpha < cotalphaBins_ && icotbeta >= 0 && icotbeta < cotbetaBins_ ) {
-
-  if (icotalpha < 0)
-    icotalpha = 0;
-  if (icotalpha >= cotalphaBins_)
-    icotalpha = cotalphaBins_ - 1;
-
-  if (icotbeta < 0)
-    icotbeta = 0;
-  if (icotbeta >= cotbetaBins_)
-    icotbeta = cotbetaBins_ - 1;
-
-  // At this point we are sure to return *some bin* from the 3D histogram
-
-  if (single)
-    return resSinglePixelYGen_[icotbeta][icotalpha];
-  else
-    return resMultiPixelYGen_[icotbeta][icotalpha][iqbin];
-
-  //}
-  //else
-  //return nullptr;
+const SimpleHistogramGenerator* PixelResolutionHistograms::getGeneratorY(double cotalpha, double cotbeta, int qbin, bool single) {
+  return getGenerator(cotalpha,cotbeta,qbin,single,false);
 }
