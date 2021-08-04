@@ -12,8 +12,8 @@ process = cms.Process("TEST", Run3)
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.GeometrySimDB_cff')
-process.load("Configuration/StandardSequences/GeometryRecoDB_cff")
-process.load("Configuration/StandardSequences/MagneticField_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
@@ -81,6 +81,7 @@ process.mix.digitizers = cms.PSet(process.theDigitizersValid)
 
 process.muonCSCDigis.InputObjects = "cscpacker:CSCRawData"
 
+## specification of the test with the packer expert settings
 process.cscPackerUnpackerUnitTestDef.usePreTriggers = process.cscpacker.usePreTriggers
 process.cscPackerUnpackerUnitTestDef.packEverything = process.cscpacker.packEverything
 process.cscPackerUnpackerUnitTestDef.formatVersion = process.cscpacker.formatVersion

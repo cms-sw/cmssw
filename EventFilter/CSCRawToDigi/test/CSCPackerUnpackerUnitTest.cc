@@ -16,6 +16,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "DataFormats/CSCDigi/interface/CSCConstants.h"
@@ -45,7 +46,8 @@ private:
                       const CSCALCTDigiCollection& alct,
                       const CSCCLCTDigiCollection& clct,
                       const CSCCLCTPreTriggerDigiCollection& pre,
-                      const CSCCorrelatedLCTDigiCollection& lct) const;
+                      const CSCCorrelatedLCTDigiCollection& lct,
+                      const CSCShowerDigiCollection* showers) const;
 
   // the return value indicates the number of failed tests
   unsigned analyzeALCT(const CSCDetId& cscDetId,
@@ -85,6 +87,7 @@ private:
   unsigned formatVersion_;
   bool packEverything_;
   bool usePreTriggers_;
+  bool useCSCShowers_;
   bool packByCFEB_;
   bool testALCT_;
   bool testCLCT_;
@@ -100,6 +103,7 @@ private:
   edm::EDGetTokenT<CSCCLCTDigiCollection> cl_token_;
   edm::EDGetTokenT<CSCCLCTPreTriggerDigiCollection> clpre_token_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> co_token_;
+  edm::EDGetTokenT<CSCShowerDigiCollection> shower_token;
 };
 
 CSCPackerUnpackerUnitTest::CSCPackerUnpackerUnitTest(const edm::ParameterSet& conf) :
@@ -112,6 +116,7 @@ CSCPackerUnpackerUnitTest::CSCPackerUnpackerUnitTest(const edm::ParameterSet& co
   formatVersion_(conf.getParameter<unsigned>("formatVersion")),
   packEverything_(conf.getParameter<bool>("packEverything")),
   usePreTriggers_(conf.getParameter<bool>("usePreTriggers")),
+  useCSCShowers_(conf.getParameter<bool>("useCSCShowers")),
   packByCFEB_(conf.getParameter<bool>("packByCFEB")),
   testALCT_(conf.getParameter<bool>("testALCT")),
   testCLCT_(conf.getParameter<bool>("testCLCT")),
@@ -127,6 +132,9 @@ CSCPackerUnpackerUnitTest::CSCPackerUnpackerUnitTest(const edm::ParameterSet& co
   clpre_token_(consumes<CSCCLCTPreTriggerDigiCollection>(conf.getParameter<edm::InputTag>("clctpreTag"))),
   co_token_(consumes<CSCCorrelatedLCTDigiCollection>(conf.getParameter<edm::InputTag>("corrclctTag")))
 {
+  if (useCSCShowers_) {
+    shower_token = consumes<CSCShowerDigiCollection>(conf.getParameter<edm::InputTag>("showerDigiTag"));
+  }
 }
 
 void CSCPackerUnpackerUnitTest::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -144,6 +152,7 @@ void CSCPackerUnpackerUnitTest::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("clctTag", edm::InputTag("simCscTriggerPrimitiveDigis"));
   desc.add<edm::InputTag>("clctpreTag", edm::InputTag("simCscTriggerPrimitiveDigis"));
   desc.add<edm::InputTag>("corrclctTag", edm::InputTag("simCscTriggerPrimitiveDigis"));
+  desc.add<edm::InputTag>("showerDigiTag", edm::InputTag("simCscTriggerPrimitiveDigis"));
   // readout windows
   desc.add<int32_t>("alctWindowMin", -3);
   desc.add<int32_t>("alctWindowMax", 3);
@@ -158,6 +167,7 @@ void CSCPackerUnpackerUnitTest::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<bool>("testPreCLCT", true);
   desc.add<bool>("usePreTriggers", true);
   desc.add<bool>("packEverything", false);
+  desc.add<bool>("useCSCShowers", false);
   desc.add<bool>("packByCFEB", true);
   descriptions.add("cscPackerUnpackerUnitTestDef", desc);
 }
@@ -194,6 +204,11 @@ void CSCPackerUnpackerUnitTest::analyze(const edm::Event& iEvent, const edm::Eve
   edm::Handle<CSCCorrelatedLCTDigiCollection> lcts;
   iEvent.getByToken(co_token_, lcts);
 
+  const CSCShowerDigiCollection* cscShowerDigisPtr = nullptr;
+  if (useCSCShowers_) {
+    cscShowerDigisPtr = &iEvent.get(shower_token);
+  }
+
   const int min_endcap = CSCDetId::minEndcapId();
   const int max_endcap = CSCDetId::maxEndcapId();
   const int min_station = CSCDetId::minStationId();
@@ -229,7 +244,8 @@ void CSCPackerUnpackerUnitTest::analyze(const edm::Event& iEvent, const edm::Eve
                            *alcts,
                            *clcts,
                            *preclcts,
-                           *lcts);
+                           *lcts,
+                           cscShowerDigisPtr);
           }
         }
       }
@@ -247,7 +263,8 @@ void CSCPackerUnpackerUnitTest::analyzeChamber(const CSCDetId& cscDetId,
                                                const CSCALCTDigiCollection& alcts,
                                                const CSCCLCTDigiCollection& clcts,
                                                const CSCCLCTPreTriggerDigiCollection& preclcts,
-                                               const CSCCorrelatedLCTDigiCollection& lcts) const {
+                                               const CSCCorrelatedLCTDigiCollection& lcts,
+                                               const CSCShowerDigiCollection* showers) const {
   if (testALCT_) {
     const unsigned nFailedTestsALCT = analyzeALCT(cscDetId, wires, wires_unpacked, alcts);
     if (nFailedTestsALCT) {
