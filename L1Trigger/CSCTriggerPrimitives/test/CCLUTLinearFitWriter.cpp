@@ -128,12 +128,12 @@ int convertToLegacyPattern(const int code_hits[CSCConstants::NUM_LAYERS][CSCCons
 void getErrors(const vector<float>& x, const vector<float>& y, float& sigmaM, float& sigmaB);
 void writeHeaderPosOffsetLUT(ofstream& file);
 void writeHeaderSlopeLUT(ofstream& file);
-unsigned firmwareWord(const unsigned quality, const unsigned slope, const unsigned offset);
+unsigned firmwareWord(const unsigned quality, const unsigned slope, const unsigned offset, bool use9bitquality = false);
 void setDataWord(unsigned& word, const unsigned newWord, const unsigned shift, const unsigned mask);
 unsigned assignPosition(const float fvalue, const float fmin, const float fmax, const unsigned nbits);
 unsigned assignBending(const float fvalue);
 
-int CCLUTLinearFitWriter(unsigned N_LAYER_REQUIREMENT = 3) {
+int CCLUTLinearFitWriter(unsigned N_LAYER_REQUIREMENT = 3, bool use9bitquality = false) {
   //all the patterns we will fit
   std::unique_ptr<std::vector<CSCPattern>> newPatterns(new std::vector<CSCPattern>());
   for (unsigned ipat = 0; ipat < 5; ipat++) {
@@ -350,7 +350,7 @@ int CCLUTLinearFitWriter(unsigned N_LAYER_REQUIREMENT = 3) {
       unsigned slope_bin = assignBending(std::abs(slope));
       if (slope_sign)
         slope_bin += 16;
-      const unsigned fwword = firmwareWord(0, slope_bin, offset_bin);
+      const unsigned fwword = firmwareWord(0, slope_bin, offset_bin, use9bitquality);
 
       // write to output files
       outoffset_sw << code << " " << offset << "\n";
@@ -543,21 +543,34 @@ unsigned assignBending(const float fvalue) {
   return value;
 }
 
-unsigned firmwareWord(const unsigned quality, const unsigned slope, const unsigned offset) {
-  /* construct fw dataword:
-     [8:0] is quality (set all to 0 for now)
-     [12:9] is slope value
-     [13] is slope sign
-     [17:14] is offset
-  */
-  enum Masks { OffsetMask = 0xf, SlopeMask = 0x1f, QualityMask = 0x1ff };
-  enum Shifts { OffsetShift = 14, SlopeShift = 9, QualityShift = 0 };
-
+unsigned firmwareWord(const unsigned quality, const unsigned slope, const unsigned offset, bool use9bitquality) {
   unsigned fwword = 0;
-  setDataWord(fwword, quality, QualityShift, QualityMask);
-  setDataWord(fwword, slope, SlopeShift, SlopeMask);
-  setDataWord(fwword, offset, OffsetShift, OffsetMask);
+  if (use9bitquality) {
+    /* construct fw dataword:
+       [8:0] is quality (set all to 0 for now)
+       [12:9] is slope value
+       [13] is slope sign
+       [17:14] is offset
+    */
+    enum Masks { OffsetMask = 0xf, SlopeMask = 0x1f, QualityMask = 0x1ff };
+    enum Shifts { OffsetShift = 14, SlopeShift = 9, QualityShift = 0 };
 
+    setDataWord(fwword, quality, QualityShift, QualityMask);
+    setDataWord(fwword, slope, SlopeShift, SlopeMask);
+    setDataWord(fwword, offset, OffsetShift, OffsetMask);
+
+  } else {
+    /* construct fw dataword without quality (to reduce resources in Virtex-6 and Virtex-2 FPGAs
+       [3:0] is slope value
+       [4] is slope sign
+       [8:5] is offset
+    */
+    enum Masks { OffsetMask = 0xf, SlopeMask = 0x1f};
+    enum Shifts { OffsetShift = 5, SlopeShift = 0};
+
+    setDataWord(fwword, slope, SlopeShift, SlopeMask);
+    setDataWord(fwword, offset, OffsetShift, OffsetMask);
+  }
   return fwword;
 }
 
