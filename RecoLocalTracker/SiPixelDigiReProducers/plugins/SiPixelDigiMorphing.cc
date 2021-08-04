@@ -15,7 +15,7 @@
 class SiPixelDigiMorphing : public edm::stream::EDProducer<> {
 public:
   explicit SiPixelDigiMorphing(const edm::ParameterSet& conf);
-  ~SiPixelDigiMorphing() override;
+  ~SiPixelDigiMorphing() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::Event& e, const edm::EventSetup& c) override;
@@ -44,14 +44,13 @@ private:
 };
 
 SiPixelDigiMorphing::SiPixelDigiMorphing(edm::ParameterSet const& conf)
-    : tPutPixelDigi_(produces<edm::DetSetVector<PixelDigi>>()),
+    : tPixelDigi_(consumes<edm::DetSetVector<PixelDigi>>(conf.getParameter<edm::InputTag>("src"))),
+      tPutPixelDigi_(produces<edm::DetSetVector<PixelDigi>>()),
       nrows_(conf.getParameter<int32_t>("nrows")),
       ncols_(conf.getParameter<int32_t>("ncols")),
       nrocs_(conf.getParameter<int32_t>("nrocs")),
       iters_(conf.getParameter<int32_t>("iters")),
       fakeAdc_(conf.getParameter<uint32_t>("fakeAdc")) {
-  tPixelDigi_ = consumes<edm::DetSetVector<PixelDigi>>(conf.getParameter<edm::InputTag>("src"));
-
   if (ncols_ % nrocs_ == 0) {
     ncols_r_ = ncols_ / nrocs_;
   } else {
@@ -60,7 +59,7 @@ SiPixelDigiMorphing::SiPixelDigiMorphing(edm::ParameterSet const& conf)
                                           << " number of ROCs\n";
   }
 
-  if (ncols_r_ + 2 * iters_ <= int(sizeof(uint64_t) * 8)) {
+  if (ncols_r_ + 2 * iters_ <= int(sizeof(uint64_t))) {
     ksize_ = 2 * iters_ + 1;
   } else {
     throw cms::Exception("Configuration") << "[SiPixelDigiMorphing]:"
@@ -90,8 +89,6 @@ SiPixelDigiMorphing::SiPixelDigiMorphing(edm::ParameterSet const& conf)
   mask_ <<= iters_;
 }
 
-SiPixelDigiMorphing::~SiPixelDigiMorphing() = default;
-
 void SiPixelDigiMorphing::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
@@ -108,8 +105,7 @@ void SiPixelDigiMorphing::fillDescriptions(edm::ConfigurationDescriptions& descr
 }
 
 void SiPixelDigiMorphing::produce(edm::Event& e, const edm::EventSetup& es) {
-  edm::Handle<edm::DetSetVector<PixelDigi>> inputDigi;
-  e.getByToken(tPixelDigi_, inputDigi);
+  auto const& inputDigi = e.get(tPixelDigi_);
 
   auto outputDigis = std::make_unique<edm::DetSetVector<PixelDigi>>();
 
@@ -117,8 +113,8 @@ void SiPixelDigiMorphing::produce(edm::Event& e, const edm::EventSetup& es) {
   uint64_t map1[nrocs_ * (nrows_ + 2 * iters_)];
   uint64_t map2[nrocs_ * (nrows_ + 2 * iters_)];
 
-  edm::DetSetVector<PixelDigi>::const_iterator DSViter = (*inputDigi).begin();
-  for (; DSViter != (*inputDigi).end(); DSViter++) {
+  edm::DetSetVector<PixelDigi>::const_iterator DSViter = inputDigi.begin();
+  for (; DSViter != inputDigi.end(); DSViter++) {
     auto rawId = DSViter->detId();
     edm::DetSet<PixelDigi>* detDigis = nullptr;
     detDigis = &(outputDigis->find_or_insert(rawId));
