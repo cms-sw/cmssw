@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
-#include "FWCore/Framework/src/WorkerRegistry.h"
+#include "FWCore/Framework/interface/WorkerRegistry.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"

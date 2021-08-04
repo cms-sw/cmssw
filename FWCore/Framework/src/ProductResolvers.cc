@@ -2,7 +2,7 @@
 ----------------------------------------------------------------------*/
 #include "ProductResolvers.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
-#include "UnscheduledAuxiliary.h"
+#include "FWCore/Framework/interface/UnscheduledAuxiliary.h"
 #include "UnscheduledConfigurator.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"

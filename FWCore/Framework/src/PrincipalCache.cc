@@ -1,4 +1,4 @@
-#include "FWCore/Framework/src/PrincipalCache.h"
+#include "FWCore/Framework/interface/PrincipalCache.h"
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"

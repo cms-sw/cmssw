@@ -12,7 +12,7 @@
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
