@@ -70,11 +70,9 @@ private:
   template <typename DIGICollection>
   unsigned nDigisLayer(const CSCDetId& cscId, const DIGICollection& digis) const;
 
-  unsigned nDigisCFEB(const CSCDetId& cscId,
-                      const CSCStripDigiCollection& digis, int cfeb) const;
+  unsigned nDigisCFEB(const CSCDetId& cscId, const CSCStripDigiCollection& digis, int cfeb) const;
 
-  unsigned nDigisCFEBLayer(const CSCDetId& cscId,
-                           const CSCStripDigiCollection& digis, int cfeb) const;
+  unsigned nDigisCFEBLayer(const CSCDetId& cscId, const CSCStripDigiCollection& digis, int cfeb) const;
 
   unsigned getNCFEBs(unsigned type) const;
 
@@ -106,32 +104,32 @@ private:
   edm::EDGetTokenT<CSCShowerDigiCollection> shower_token;
 };
 
-CSCPackerUnpackerUnitTest::CSCPackerUnpackerUnitTest(const edm::ParameterSet& conf) :
-  alctWindowMin_(conf.getParameter<int>("alctWindowMin")),
-  alctWindowMax_(conf.getParameter<int>("alctWindowMax")),
-  clctWindowMin_(conf.getParameter<int>("clctWindowMin")),
-  clctWindowMax_(conf.getParameter<int>("clctWindowMax")),
-  preTriggerWindowMin_(conf.getParameter<int>("preTriggerWindowMin")),
-  preTriggerWindowMax_(conf.getParameter<int>("preTriggerWindowMax")),
-  formatVersion_(conf.getParameter<unsigned>("formatVersion")),
-  packEverything_(conf.getParameter<bool>("packEverything")),
-  usePreTriggers_(conf.getParameter<bool>("usePreTriggers")),
-  useCSCShowers_(conf.getParameter<bool>("useCSCShowers")),
-  packByCFEB_(conf.getParameter<bool>("packByCFEB")),
-  testALCT_(conf.getParameter<bool>("testALCT")),
-  testCLCT_(conf.getParameter<bool>("testCLCT")),
-  testPreCLCT_(conf.getParameter<bool>("testPreCLCT")),
-  wd_token_(consumes<CSCWireDigiCollection>(conf.getParameter<edm::InputTag>("wireTag"))),
-  wd_unpacked_token_(consumes<CSCWireDigiCollection>(conf.getParameter<edm::InputTag>("wireUnpackedTag"))),
-  sd_token_(consumes<CSCStripDigiCollection>(conf.getParameter<edm::InputTag>("stripTag"))),
-  sd_unpacked_token_(consumes<CSCStripDigiCollection>(conf.getParameter<edm::InputTag>("stripUnpackedTag"))),
-  cd_token_(consumes<CSCComparatorDigiCollection>(conf.getParameter<edm::InputTag>("comparatorTag"))),
-  cd_unpacked_token_(consumes<CSCComparatorDigiCollection>(conf.getParameter<edm::InputTag>("comparatorUnpackedTag"))),
-  al_token_(consumes<CSCALCTDigiCollection>(conf.getParameter<edm::InputTag>("alctTag"))),
-  cl_token_(consumes<CSCCLCTDigiCollection>(conf.getParameter<edm::InputTag>("clctTag"))),
-  clpre_token_(consumes<CSCCLCTPreTriggerDigiCollection>(conf.getParameter<edm::InputTag>("clctpreTag"))),
-  co_token_(consumes<CSCCorrelatedLCTDigiCollection>(conf.getParameter<edm::InputTag>("corrclctTag")))
-{
+CSCPackerUnpackerUnitTest::CSCPackerUnpackerUnitTest(const edm::ParameterSet& conf)
+    : alctWindowMin_(conf.getParameter<int>("alctWindowMin")),
+      alctWindowMax_(conf.getParameter<int>("alctWindowMax")),
+      clctWindowMin_(conf.getParameter<int>("clctWindowMin")),
+      clctWindowMax_(conf.getParameter<int>("clctWindowMax")),
+      preTriggerWindowMin_(conf.getParameter<int>("preTriggerWindowMin")),
+      preTriggerWindowMax_(conf.getParameter<int>("preTriggerWindowMax")),
+      formatVersion_(conf.getParameter<unsigned>("formatVersion")),
+      packEverything_(conf.getParameter<bool>("packEverything")),
+      usePreTriggers_(conf.getParameter<bool>("usePreTriggers")),
+      useCSCShowers_(conf.getParameter<bool>("useCSCShowers")),
+      packByCFEB_(conf.getParameter<bool>("packByCFEB")),
+      testALCT_(conf.getParameter<bool>("testALCT")),
+      testCLCT_(conf.getParameter<bool>("testCLCT")),
+      testPreCLCT_(conf.getParameter<bool>("testPreCLCT")),
+      wd_token_(consumes<CSCWireDigiCollection>(conf.getParameter<edm::InputTag>("wireTag"))),
+      wd_unpacked_token_(consumes<CSCWireDigiCollection>(conf.getParameter<edm::InputTag>("wireUnpackedTag"))),
+      sd_token_(consumes<CSCStripDigiCollection>(conf.getParameter<edm::InputTag>("stripTag"))),
+      sd_unpacked_token_(consumes<CSCStripDigiCollection>(conf.getParameter<edm::InputTag>("stripUnpackedTag"))),
+      cd_token_(consumes<CSCComparatorDigiCollection>(conf.getParameter<edm::InputTag>("comparatorTag"))),
+      cd_unpacked_token_(
+          consumes<CSCComparatorDigiCollection>(conf.getParameter<edm::InputTag>("comparatorUnpackedTag"))),
+      al_token_(consumes<CSCALCTDigiCollection>(conf.getParameter<edm::InputTag>("alctTag"))),
+      cl_token_(consumes<CSCCLCTDigiCollection>(conf.getParameter<edm::InputTag>("clctTag"))),
+      clpre_token_(consumes<CSCCLCTPreTriggerDigiCollection>(conf.getParameter<edm::InputTag>("clctpreTag"))),
+      co_token_(consumes<CSCCorrelatedLCTDigiCollection>(conf.getParameter<edm::InputTag>("corrclctTag"))) {
   if (useCSCShowers_) {
     shower_token = consumes<CSCShowerDigiCollection>(conf.getParameter<edm::InputTag>("showerDigiTag"));
   }
@@ -269,7 +267,7 @@ void CSCPackerUnpackerUnitTest::analyzeChamber(const CSCDetId& cscDetId,
     const unsigned nFailedTestsALCT = analyzeALCT(cscDetId, wires, wires_unpacked, alcts);
     if (nFailedTestsALCT) {
       edm::LogWarning("CSCPackerUnpackerUnitTest")
-        << nFailedTestsALCT << " ALCT test(s) failed in " << cscDetId.chamberName();
+          << nFailedTestsALCT << " ALCT test(s) failed in " << cscDetId.chamberName();
     }
   }
 
@@ -277,7 +275,7 @@ void CSCPackerUnpackerUnitTest::analyzeChamber(const CSCDetId& cscDetId,
     const unsigned nFailedTestsCLCT = analyzeCLCT(cscDetId, comparators, comparators_unpacked, clcts);
     if (nFailedTestsCLCT) {
       edm::LogWarning("CSCPackerUnpackerUnitTest")
-        << nFailedTestsCLCT << " CLCT test(s) failed in " << cscDetId.chamberName();
+          << nFailedTestsCLCT << " CLCT test(s) failed in " << cscDetId.chamberName();
     }
   }
 
@@ -285,7 +283,7 @@ void CSCPackerUnpackerUnitTest::analyzeChamber(const CSCDetId& cscDetId,
     const unsigned nFailedTestsPreCLCT = analyzePreCLCT(cscDetId, strips, strips_unpacked, preclcts);
     if (nFailedTestsPreCLCT) {
       edm::LogWarning("CSCPackerUnpackerUnitTest")
-        << nFailedTestsPreCLCT << " PreCLCT test(s) failed in " << cscDetId.chamberName();
+          << nFailedTestsPreCLCT << " PreCLCT test(s) failed in " << cscDetId.chamberName();
     }
   }
 }
@@ -294,7 +292,6 @@ unsigned CSCPackerUnpackerUnitTest::analyzeALCT(const CSCDetId& cscDetId,
                                                 const CSCWireDigiCollection& wires,
                                                 const CSCWireDigiCollection& wires_unpacked,
                                                 const CSCALCTDigiCollection& alcts) const {
-
   unsigned numWireDigis = nDigis(cscDetId, wires);
   // no simulated wire digis means that all tests pass
   if (numWireDigis == 0) {
@@ -303,8 +300,8 @@ unsigned CSCPackerUnpackerUnitTest::analyzeALCT(const CSCDetId& cscDetId,
 
   // readout condition for wires: L1A + ALCT
   const bool me1abCheck = formatVersion_ == 2013;
-  bool hasALCT =
-    CSCDigiToRawAccept::accept(cscDetId, alcts, alctWindowMin_, alctWindowMax_, CSCConstants::ALCT_CENTRAL_BX, me1abCheck);
+  bool hasALCT = CSCDigiToRawAccept::accept(
+      cscDetId, alcts, alctWindowMin_, alctWindowMax_, CSCConstants::ALCT_CENTRAL_BX, me1abCheck);
 
   unsigned numWireDigisUnpacked = nDigis(cscDetId, wires_unpacked);
 
@@ -312,13 +309,12 @@ unsigned CSCPackerUnpackerUnitTest::analyzeALCT(const CSCDetId& cscDetId,
 
   // these tests are only done when the trigger/pretriggers are enabled
   if (!packEverything_ and usePreTriggers_) {
-
     // test 1: check that an ALCT in this chamber kept the wire digis
     if (hasALCT) {
       if (numWireDigisUnpacked == 0) {
         testsFailed++;
-        edm::LogWarning("analyzeALCT::Test1Failure")
-          << "hasALCT " << hasALCT << " numWireDigisUnpacked " << numWireDigisUnpacked << " " << cscDetId.chamberName();
+        edm::LogWarning("analyzeALCT::Test1Failure") << "hasALCT " << hasALCT << " numWireDigisUnpacked "
+                                                     << numWireDigisUnpacked << " " << cscDetId.chamberName();
       }
     }
 
@@ -326,8 +322,8 @@ unsigned CSCPackerUnpackerUnitTest::analyzeALCT(const CSCDetId& cscDetId,
     if (numWireDigisUnpacked != 0) {
       if (!hasALCT) {
         testsFailed++;
-        edm::LogWarning("analyzeALCT::Test2Failure")
-          << "hasALCT " << hasALCT << " numWireDigisUnpacked " << numWireDigisUnpacked << " " << cscDetId.chamberName();
+        edm::LogWarning("analyzeALCT::Test2Failure") << "hasALCT " << hasALCT << " numWireDigisUnpacked "
+                                                     << numWireDigisUnpacked << " " << cscDetId.chamberName();
       }
     }
   }
@@ -346,7 +342,6 @@ unsigned CSCPackerUnpackerUnitTest::analyzeCLCT(const CSCDetId& cscDetId,
                                                 const CSCComparatorDigiCollection& comparators,
                                                 const CSCComparatorDigiCollection& comparators_unpacked,
                                                 const CSCCLCTDigiCollection& clcts) const {
-
   unsigned numCompDigis = nDigis(cscDetId, comparators);
   // no simulated comparator digis means that all tests pass
   if (numCompDigis == 0) {
@@ -355,8 +350,8 @@ unsigned CSCPackerUnpackerUnitTest::analyzeCLCT(const CSCDetId& cscDetId,
 
   // readout condition for comparators in (O)TMB; L1A + CLCT
   const bool me1abCheck = formatVersion_ == 2013;
-  bool hasCLCT =
-    CSCDigiToRawAccept::accept(cscDetId, clcts, clctWindowMin_, clctWindowMax_, CSCConstants::CLCT_CENTRAL_BX, me1abCheck);
+  bool hasCLCT = CSCDigiToRawAccept::accept(
+      cscDetId, clcts, clctWindowMin_, clctWindowMax_, CSCConstants::CLCT_CENTRAL_BX, me1abCheck);
 
   unsigned numCompDigisUnpacked = nDigis(cscDetId, comparators_unpacked);
 
@@ -364,13 +359,12 @@ unsigned CSCPackerUnpackerUnitTest::analyzeCLCT(const CSCDetId& cscDetId,
 
   // these tests are only done when the trigger/pretriggers are enabled
   if (!packEverything_ and usePreTriggers_) {
-
     // test 1: check that an CLCT in this chamber kept the comp digis
     if (hasCLCT) {
       if (numCompDigisUnpacked == 0) {
         testsFailed++;
-        edm::LogWarning("analyzeCLCT::Test1Failure")
-          << "hasCLCT " << hasCLCT << " numCompDigisUnpacked " << numCompDigisUnpacked << " " << cscDetId.chamberName();
+        edm::LogWarning("analyzeCLCT::Test1Failure") << "hasCLCT " << hasCLCT << " numCompDigisUnpacked "
+                                                     << numCompDigisUnpacked << " " << cscDetId.chamberName();
       }
     }
 
@@ -378,8 +372,8 @@ unsigned CSCPackerUnpackerUnitTest::analyzeCLCT(const CSCDetId& cscDetId,
     if (numCompDigisUnpacked != 0) {
       if (!hasCLCT) {
         testsFailed++;
-        edm::LogWarning("analyzeCLCT::Test2Failure")
-          << "hasCLCT " << hasCLCT << " numCompDigisUnpacked " << numCompDigisUnpacked << " " << cscDetId.chamberName();
+        edm::LogWarning("analyzeCLCT::Test2Failure") << "hasCLCT " << hasCLCT << " numCompDigisUnpacked "
+                                                     << numCompDigisUnpacked << " " << cscDetId.chamberName();
       }
     }
   }
@@ -388,7 +382,7 @@ unsigned CSCPackerUnpackerUnitTest::analyzeCLCT(const CSCDetId& cscDetId,
   if (numCompDigis < numCompDigisUnpacked) {
     testsFailed++;
     edm::LogWarning("analyzeCLCT::Test3Failure") << "numCompDigis " << numCompDigis << " numCompDigisUnpacked "
-                                                << numCompDigisUnpacked << " " << cscDetId.chamberName();
+                                                 << numCompDigisUnpacked << " " << cscDetId.chamberName();
   }
 
   return testsFailed;
@@ -410,7 +404,13 @@ unsigned CSCPackerUnpackerUnitTest::analyzePreCLCT(const CSCDetId& cscDetId,
 
   // readout condition for strips: L1A + preCLCT in CFEB
   const bool me1abCheck = formatVersion_ == 2013;
-  bool hasPreCLCT = CSCDigiToRawAccept::accept(cscDetId, preclcts, preTriggerWindowMin_, preTriggerWindowMax_, CSCConstants::CLCT_CENTRAL_BX, me1abCheck, preTriggerInCFEB);
+  bool hasPreCLCT = CSCDigiToRawAccept::accept(cscDetId,
+                                               preclcts,
+                                               preTriggerWindowMin_,
+                                               preTriggerWindowMax_,
+                                               CSCConstants::CLCT_CENTRAL_BX,
+                                               me1abCheck,
+                                               preTriggerInCFEB);
 
   unsigned testsFailed = 0;
 
@@ -418,17 +418,14 @@ unsigned CSCPackerUnpackerUnitTest::analyzePreCLCT(const CSCDetId& cscDetId,
 
   // these tests are only done when the trigger/pretriggers are enabled
   if (!packEverything_ and usePreTriggers_) {
-
     // Test when NOT packing by CFEB
     if (!packByCFEB_) {
-
       // test 1: check that a PreCLCT in this chamber kept the strip digis
       if (hasPreCLCT) {
         if (nStripDigisUnpacked == 0) {
           testsFailed++;
-          edm::LogWarning("analyzePreCLCT::Test1Failure")
-            << "preTrigger " << hasPreCLCT << " nStripDigisUnpacked "
-            << nStripDigisUnpacked << " " << cscDetId.chamberName();
+          edm::LogWarning("analyzePreCLCT::Test1Failure") << "preTrigger " << hasPreCLCT << " nStripDigisUnpacked "
+                                                          << nStripDigisUnpacked << " " << cscDetId.chamberName();
         }
       }
 
@@ -436,16 +433,14 @@ unsigned CSCPackerUnpackerUnitTest::analyzePreCLCT(const CSCDetId& cscDetId,
       if (nStripDigisUnpacked != 0) {
         if (!hasPreCLCT) {
           testsFailed++;
-          edm::LogWarning("analyzePreCLCT::Test2Failure")
-            << "preTrigger " << hasPreCLCT << " nStripDigisUnpacked "
-            << nStripDigisUnpacked << " " << cscDetId.chamberName();
+          edm::LogWarning("analyzePreCLCT::Test2Failure") << "preTrigger " << hasPreCLCT << " nStripDigisUnpacked "
+                                                          << nStripDigisUnpacked << " " << cscDetId.chamberName();
         }
       }
     }
 
     // Test when packing by CFEBs
     else {
-
       // tests are performed for each CFEB
       for (unsigned i = 0; i < CSCConstants::MAX_CFEBS_RUN2; i++) {
         // only do the tests for the CFEBs in this chamber (4,5,7)
@@ -459,8 +454,8 @@ unsigned CSCPackerUnpackerUnitTest::analyzePreCLCT(const CSCDetId& cscDetId,
           if (nStripDigisUnpackedCFEB == 0) {
             testsFailed++;
             edm::LogWarning("analyzePreCLCT::Test1Failure")
-              << "CFEB " << i << "preTriggerInCFEB " << preTriggerInCFEB[i] << " nStripDigisUnpackedCFEB "
-              << nStripDigisUnpackedCFEB << " " << cscDetId.chamberName();
+                << "CFEB " << i << "preTriggerInCFEB " << preTriggerInCFEB[i] << " nStripDigisUnpackedCFEB "
+                << nStripDigisUnpackedCFEB << " " << cscDetId.chamberName();
           }
         }
 
@@ -469,8 +464,8 @@ unsigned CSCPackerUnpackerUnitTest::analyzePreCLCT(const CSCDetId& cscDetId,
           if (!preTriggerInCFEB[i]) {
             testsFailed++;
             edm::LogWarning("analyzePreCLCT::Test2Failure")
-              << "CFEB " << i << "preTriggerInCFEB " << preTriggerInCFEB[i] << " nStripDigisUnpackedCFEB "
-              << nStripDigisUnpackedCFEB << " " << cscDetId.chamberName();
+                << "CFEB " << i << "preTriggerInCFEB " << preTriggerInCFEB[i] << " nStripDigisUnpackedCFEB "
+                << nStripDigisUnpackedCFEB << " " << cscDetId.chamberName();
           }
         }
       }
@@ -484,7 +479,6 @@ template <typename DIGICollection>
 unsigned CSCPackerUnpackerUnitTest::nDigis(const CSCDetId& detid, const DIGICollection& digis) const {
   unsigned nDigis = 0;
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-
     CSCDetId ldetid(detid.endcap(), detid.station(), detid.ring(), detid.chamber(), i_layer + 1);
     nDigis += nDigisLayer(ldetid, digis);
 
@@ -513,7 +507,7 @@ unsigned CSCPackerUnpackerUnitTest::nDigisCFEB(const CSCDetId& detid,
 
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
     // ME1/A case
-    if (detid.station() == 1 and detid.ring() == 1 and cfeb >=4) {
+    if (detid.station() == 1 and detid.ring() == 1 and cfeb >= 4) {
       CSCDetId ldetid(detid.endcap(), detid.station(), 4, detid.chamber(), i_layer + 1);
       nDigis += nDigisCFEBLayer(ldetid, digis, cfeb);
     }
@@ -537,7 +531,7 @@ unsigned CSCPackerUnpackerUnitTest::nDigisCFEBLayer(const CSCDetId& cscId,
     if (cscId.station() == 1 and cscId.ring() == 4) {
       cfb += CSCConstants::NUM_CFEBS_ME1B;
     }
-    if (cfeb == cfb){
+    if (cfeb == cfb) {
       nDigis++;
     }
   }
