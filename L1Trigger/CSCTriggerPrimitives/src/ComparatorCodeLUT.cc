@@ -2,18 +2,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ComparatorCodeLUT::ComparatorCodeLUT(const edm::ParameterSet& conf) {
-  positionLUTFiles_ = conf.getParameter<std::vector<std::string>>("positionLUTFiles");
-  slopeLUTFiles_ = conf.getParameter<std::vector<std::string>>("slopeLUTFiles");
-  patternConversionLUTFiles_ = conf.getParameter<std::vector<std::string>>("patternConversionLUTFiles");
-
-  for (int i = 0; i < 5; ++i) {
-    lutpos_[i] = std::make_unique<CSCLUTReader>(positionLUTFiles_[i]);
-    lutslope_[i] = std::make_unique<CSCLUTReader>(slopeLUTFiles_[i]);
-    lutpatconv_[i] = std::make_unique<CSCLUTReader>(patternConversionLUTFiles_[i]);
-  }
-
   clct_pattern_ = CSCPatternBank::clct_pattern_run3_;
 }
+
+void ComparatorCodeLUT::setESLookupTables(const CSCL1TPLookupTableCCLUT* conf) { lookupTableCCLUT_ = conf; }
 
 void ComparatorCodeLUT::run(CSCCLCTDigi& digi, unsigned numCFEBs) const {
   // print out the old CLCT for debugging
@@ -67,8 +59,8 @@ void ComparatorCodeLUT::run(CSCCLCTDigi& digi, unsigned numCFEBs) const {
   digi.setRun3Pattern(pattern);
 
   // look-up the unsigned values
-  const unsigned positionCC(lutpos_[pattern]->lookup(comparatorCode));
-  const unsigned slopeCC(lutslope_[pattern]->lookup(comparatorCode));
+  const unsigned positionCC(lookupTableCCLUT_->cclutPosition(pattern, comparatorCode));
+  const unsigned slopeCC(lookupTableCCLUT_->cclutSlope(pattern, comparatorCode));
   const unsigned run2PatternCC(convertSlopeToRun2Pattern(slopeCC));
 
   // if the slope is negative, set bending to 0

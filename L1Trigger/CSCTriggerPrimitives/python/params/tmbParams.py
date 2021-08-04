@@ -105,36 +105,9 @@ tmbPhase2GE21 = tmbPhase2GEM.clone(
     dropLowQualityALCTsNoGEMs = True,
 )
 
-# LUTs to map wiregroup onto min and max half-strip number that it crosses in ME1/1
-wgCrossHsME11Params = cms.PSet(
-    wgCrossHsME1aFiles = cms.vstring(
-        "L1Trigger/CSCTriggerPrimitives/data/ME11/CSCLUT_wg_min_hs_ME1a.txt",
-        "L1Trigger/CSCTriggerPrimitives/data/ME11/CSCLUT_wg_max_hs_ME1a.txt",
-    ),
-    wgCrossHsME1aGangedFiles = cms.vstring(
-        "L1Trigger/CSCTriggerPrimitives/data/ME11/CSCLUT_wg_min_hs_ME1a_ganged.txt",
-        "L1Trigger/CSCTriggerPrimitives/data/ME11/CSCLUT_wg_max_hs_ME1a_ganged.txt",
-    ),
-    wgCrossHsME1bFiles = cms.vstring(
-        "L1Trigger/CSCTriggerPrimitives/data/ME11/CSCLUT_wg_min_hs_ME1b.txt",
-        "L1Trigger/CSCTriggerPrimitives/data/ME11/CSCLUT_wg_max_hs_ME1b.txt",
-    )
-)
-
-# LUTs with correspondence between ALCT-CLCT combination
-# code and the resulting best/second lct1
-lctCodeParams = cms.PSet(
-    lctCodeFiles = cms.vstring(
-        "L1Trigger/CSCTriggerPrimitives/data/LCTCode/CSCLUT_code_to_bestLCT.txt",
-        "L1Trigger/CSCTriggerPrimitives/data/LCTCode/CSCLUT_code_to_secondLCT.txt",
-    )
-)
-
 tmbPSets = cms.PSet(
     tmbPhase1 = tmbPhase1.clone(),
     tmbPhase2 = tmbPhase2.clone(),
     tmbPhase2GE11 = tmbPhase2GE11.clone(),
-    tmbPhase2GE21 = tmbPhase2GE21.clone(),
-    wgCrossHsME11Params = wgCrossHsME11Params.clone(),
-    lctCodeParams = lctCodeParams.clone()
+    tmbPhase2GE21 = tmbPhase2GE21.clone()
 )
