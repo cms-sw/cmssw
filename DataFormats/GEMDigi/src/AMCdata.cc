@@ -1,6 +1,6 @@
 #include <cstdint>
 #include "DataFormats/GEMDigi/interface/AMCdata.h"
-
+#include <iostream>
 using namespace gem;
 
 void AMCdata::setAMCheader1(uint32_t dataLength, uint16_t bxID, uint32_t l1AID, uint8_t AMCnum) {
@@ -13,7 +13,7 @@ void AMCdata::setAMCheader1(uint32_t dataLength, uint16_t bxID, uint32_t l1AID, 
 
   AMCTrailer ut{0};
   ut.dataLength = dataLength;
-  ut.l1AIDT = l1AID;
+  ut.l1AID = l1AID;
   amct_ = ut.word;
 }
 
