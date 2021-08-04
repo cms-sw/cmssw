@@ -565,8 +565,8 @@ unsigned firmwareWord(const unsigned quality, const unsigned slope, const unsign
        [4] is slope sign
        [8:5] is offset
     */
-    enum Masks { OffsetMask = 0xf, SlopeMask = 0x1f};
-    enum Shifts { OffsetShift = 5, SlopeShift = 0};
+    enum Masks { OffsetMask = 0xf, SlopeMask = 0x1f };
+    enum Shifts { OffsetShift = 5, SlopeShift = 0 };
 
     setDataWord(fwword, slope, SlopeShift, SlopeMask);
     setDataWord(fwword, offset, OffsetShift, OffsetMask);
