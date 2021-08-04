@@ -11,7 +11,7 @@
 #include "Geometry/Records/interface/CSCRecoDigiParametersRcd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
-#include "Geometry/CSCGeometryBuilder/src/CSCGeometryParsFromDD.h"
+#include "Geometry/CSCGeometryBuilder/interface/CSCGeometryParsFromDD.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
