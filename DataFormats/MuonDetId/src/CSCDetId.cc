@@ -78,7 +78,8 @@ std::string CSCDetId::chamberName(int endcap, int station, int ring, int chamber
 
 std::string CSCDetId::layerName(int endcap, int station, int ring, int chamber, int layer) {
   const std::string eSign = endcap == 1 ? "+" : "-";
-  return "ME" + eSign + std::to_string(station) + "/" + std::to_string(ring) + "/" + std::to_string(chamber) + "/" + std::to_string(layer);
+  return "ME" + eSign + std::to_string(station) + "/" + std::to_string(ring) + "/" + std::to_string(chamber) + "/" +
+         std::to_string(layer);
 }
 
 std::string CSCDetId::chamberName(int chamberType) {

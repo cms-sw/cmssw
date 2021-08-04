@@ -108,7 +108,7 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
         // CSC strip digis in ME1/a have CFEB number 0, 1, or 2
         // But a pretrigger in ME1/a has CFEB number 4, 5, or 6 (+4)
         if (me1a)
-          cfeb += CSCConstants::NUM_CFEBS_ME1B ;
+          cfeb += CSCConstants::NUM_CFEBS_ME1B;
 
         // At this point, if we are packing by CFEBs and there is no
         // pretrigger in this CFEB, ignore this strip digi
