@@ -129,18 +129,11 @@ def customiseFor2018Input(process):
 
     return process
 
-def customiseFor34120(process):
-    """Ensure TrackerAdditionalParametersPerDetRcd ESProducer is run"""
-    process.load("Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi")
-    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-
-    if menuType in ["GRun","HIon","PIon","PRef"]:
-        process = customiseFor34120(process)
 
     return process
