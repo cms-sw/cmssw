@@ -21,8 +21,8 @@ public:
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-  edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi;
-  edm::EDPutTokenT<edm::DetSetVector<PixelDigi>> tPutPixelDigi;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi_;
+  edm::EDPutTokenT<edm::DetSetVector<PixelDigi>> tPutPixelDigi_;
 
   int32_t nrows_;
   int32_t ncols_;
@@ -44,13 +44,13 @@ private:
 };
 
 SiPixelDigiMorphing::SiPixelDigiMorphing(edm::ParameterSet const& conf)
-    : tPutPixelDigi(produces<edm::DetSetVector<PixelDigi>>()),
+    : tPutPixelDigi_(produces<edm::DetSetVector<PixelDigi>>()),
       nrows_(conf.getParameter<int32_t>("nrows")),
       ncols_(conf.getParameter<int32_t>("ncols")),
       nrocs_(conf.getParameter<int32_t>("nrocs")),
       iters_(conf.getParameter<int32_t>("iters")),
       fakeAdc_(conf.getParameter<uint32_t>("fakeAdc")) {
-  tPixelDigi = consumes<edm::DetSetVector<PixelDigi>>(conf.getParameter<edm::InputTag>("src"));
+  tPixelDigi_ = consumes<edm::DetSetVector<PixelDigi>>(conf.getParameter<edm::InputTag>("src"));
 
   if (ncols_ % nrocs_ == 0) {
     ncols_r_ = ncols_ / nrocs_;
@@ -109,7 +109,7 @@ void SiPixelDigiMorphing::fillDescriptions(edm::ConfigurationDescriptions& descr
 
 void SiPixelDigiMorphing::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<edm::DetSetVector<PixelDigi>> inputDigi;
-  e.getByToken(tPixelDigi, inputDigi);
+  e.getByToken(tPixelDigi_, inputDigi);
 
   auto outputDigis = std::make_unique<edm::DetSetVector<PixelDigi>>();
 
@@ -163,7 +163,7 @@ void SiPixelDigiMorphing::produce(edm::Event& e, const edm::EventSetup& es) {
       }
     }
   }
-  e.put(tPutPixelDigi, std::move(outputDigis));
+  e.put(tPutPixelDigi_, std::move(outputDigis));
 }
 
 void SiPixelDigiMorphing::morph(uint64_t* imap, uint64_t* omap, uint64_t* kernel, MorphOption op) {
