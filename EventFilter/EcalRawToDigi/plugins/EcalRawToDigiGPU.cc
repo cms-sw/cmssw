@@ -103,6 +103,9 @@ void EcalRawToDigiGPU::acquire(edm::Event const& event,
 
   // output cpu
   outputCPU_ = {cms::cuda::make_host_unique<uint32_t[]>(2, ctx.stream())};
+  // initialize the number of channels
+  outputCPU_.nchannels[0] = 0;
+  outputCPU_.nchannels[1] = 0;
 
   // output gpu
   outputGPU_.allocate(config_, ctx.stream());
@@ -138,10 +141,6 @@ void EcalRawToDigiGPU::acquire(edm::Event const& event,
   if (counter > 0) {
     ecal::raw::entryPoint(
         inputCPU, inputGPU, outputGPU_, scratchGPU, outputCPU_, conditions, ctx.stream(), counter, currentCummOffset);
-  } else {
-    // reset the number of channels
-    outputCPU_.nchannels[0] = 0;
-    outputCPU_.nchannels[1] = 0;
   }
 }
 
