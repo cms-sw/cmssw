@@ -27,7 +27,7 @@ April 2015
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -200,7 +200,7 @@ void set_sigma(double& x, bool mdigi) {
   }
 }
 
-class HOCalibAnalyzer : public edm::EDAnalyzer {
+class HOCalibAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HOCalibAnalyzer(const edm::ParameterSet&);
   ~HOCalibAnalyzer() override;
@@ -208,6 +208,8 @@ public:
 private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
   void endJob() override;
 
   int getHOieta(int ij) { return (ij < netamx / 2) ? -netamx / 2 + ij : -netamx / 2 + ij + 1; }
@@ -428,10 +430,10 @@ const int HOCalibAnalyzer::neffip;
 // constructors and destructor
 //
 
-HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
-// It is very likely you want the following in your configuration
-// hoCalibVariableCollectionTag = cms.InputTag('hoCalibProducer', 'HOCalibVariableCollection')
-{
+HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig) {
+  // It is very likely you want the following in your configuration
+  // hoCalibVariableCollectionTag = cms.InputTag('hoCalibProducer', 'HOCalibVariableCollection')
+  usesResource(TFileService::kSharedResource);
   tok_ho_ = consumes<HOCalibVariableCollection>(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag"));
   tok_allho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputTag"));
   //now do what ever initialization is needed
@@ -461,7 +463,7 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   theFile->cd();
 
-  T1 = new TTree("T1", "DT+CSC+HO");
+  T1 = fs->make<TTree>("T1", "DT+CSC+HO");
 
   T1->Branch("irun", &irun, "irun/I");
   T1->Branch("ievt", &ievt, "ievt/i");

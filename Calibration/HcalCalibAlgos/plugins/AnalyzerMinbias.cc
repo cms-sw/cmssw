@@ -13,6 +13,9 @@
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -41,7 +44,7 @@
 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -56,13 +59,15 @@
 namespace HcalMinbias {}
 
 // constructors and destructor
-class AnalyzerMinbias : public edm::EDAnalyzer {
+class AnalyzerMinbias : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit AnalyzerMinbias(const edm::ParameterSet&);
   ~AnalyzerMinbias() override;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
   void endJob() override;
 
 private:
@@ -112,6 +117,7 @@ private:
 };
 
 AnalyzerMinbias::AnalyzerMinbias(const edm::ParameterSet& iConfig) {
+  usesResource(TFileService::kSharedResource);
   // get name of output file with histogramms
   fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistOutFile");
 
@@ -148,8 +154,9 @@ void AnalyzerMinbias::beginJob() {
     h_Signal[subd] = new TH1D(name, title, 100, -10., 10.);
   }
 
+  edm::Service<TFileService> fs;
   hOutputFile = new TFile(fOutputFileName.c_str(), "RECREATE");
-  myTree = new TTree("RecJet", "RecJet Tree");
+  myTree = fs->make<TTree>("RecJet", "RecJet Tree");
   myTree->Branch("mydet", &mydet, "mydet/I");
   myTree->Branch("mysubd", &mysubd, "mysubd/I");
   myTree->Branch("cells", &cells, "cells");
