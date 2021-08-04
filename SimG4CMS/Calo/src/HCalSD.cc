@@ -137,6 +137,8 @@ HCalSD::HCalSD(const std::string& name,
   if (forTBHC) {
     useHF = false;
     matNames.emplace_back("Scintillator");
+  } else {
+    matNames = hcalSimConstants_->hcalsimpar()->hcalMaterialNames_;
   }
 
   HcalNumberingScheme* scheme;
@@ -508,11 +510,13 @@ double HCalSD::getEnergyDeposit(const G4Step* aStep) {
       }
     }
   }
+  double wt0(1.0);
   if (useBirk) {
     const G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
     if (isItScintillator(mat))
-      weight_ *= getAttenuation(aStep, birk1, birk2, birk3);
+      wt0 = getAttenuation(aStep, birk1, birk2, birk3);
   }
+  weight_ *= wt0;
   double wt1 = getResponseWt(theTrack);
   double wt2 = theTrack->GetWeight();
   double edep = weight_ * wt1 * destep;
@@ -521,7 +525,7 @@ double HCalSD::getEnergyDeposit(const G4Step* aStep) {
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalSim") << "HCalSD: edep= " << edep << " Det: " << det + 2 << " depth= " << depth_
-                              << " weight= " << weight_ << " wt1= " << wt1 << " wt2= " << wt2;
+                              << " weight= " << weight_ << " wt0= " << wt0 << " wt1= " << wt1 << " wt2= " << wt2;
 #endif
   return edep;
 }
