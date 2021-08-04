@@ -2,6 +2,7 @@
 #define DATAFORMATS_PIXELCHANMNELIDENTIFIER_H
 
 #include <utility>
+#include <cstdint>
 
 namespace pixelchanelidentifierimpl {
   /**
@@ -10,7 +11,7 @@ namespace pixelchanelidentifierimpl {
 
   class Packing {
   public:
-    using PackedDigiType = unsigned int;
+    using PackedDigiType = uint32_t;
 
     // Constructor: pre-computes masks and shifts from field widths
     constexpr Packing(unsigned int row_w, unsigned int column_w, unsigned int flag_w, unsigned int adc_w)
@@ -30,14 +31,14 @@ namespace pixelchanelidentifierimpl {
           max_column(column_mask),
           max_adc(adc_mask) {}
 
-    const int row_width;
-    const int column_width;
-    const int adc_width;
+    const uint32_t row_width;
+    const uint32_t column_width;
+    const uint32_t adc_width;
 
-    const int row_shift;
-    const int column_shift;
-    const int flag_shift;
-    const int adc_shift;
+    const uint32_t row_shift;
+    const uint32_t column_shift;
+    const uint32_t flag_shift;
+    const uint32_t adc_shift;
 
     const PackedDigiType row_mask;
     const PackedDigiType column_mask;
