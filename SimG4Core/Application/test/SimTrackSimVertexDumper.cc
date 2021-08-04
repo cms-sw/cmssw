@@ -43,10 +43,8 @@ private:
 
 SimTrackSimVertexDumper::SimTrackSimVertexDumper(const edm::ParameterSet& iConfig)
     : hepmcToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("moduleLabelHepMC"))),
-      simTrackToken_(
-          consumes<edm::SimTrackContainer>(edm::InputTag(iConfig.getParameter<std::string>("moduleLabelG4")))),
-      simVertexToken_(
-          consumes<edm::SimVertexContainer>(edm::InputTag(iConfig.getParameter<std::string>("moduleLabelG4")))),
+      simTrackToken_(consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("moduleLabelTk"))),
+      simVertexToken_(consumes<edm::SimVertexContainer>(iConfig.getParameter<edm::InputTag>("moduleLabelVtx"))),
       dumpHepMC_(iConfig.getUntrackedParameter<bool>("dumpHepMC")) {}
 
 //
@@ -110,7 +108,10 @@ void SimTrackSimVertexDumper::fillDescriptions(edm::ConfigurationDescriptions& d
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("moduleLabelHepMC", edm::InputTag("generatorSmeared"))
       ->setComment("Input generated HepMC event after vtx smearing");
-  desc.add<std::string>("moduleLabelG4", "g4SimHits")->setComment("Module for input SimTrack/SimVertex collection");
+  desc.add<edm::InputTag>("moduleLabelTk", edm::InputTag("g4SimHits"))
+      ->setComment("Module for input SimTrack collection");
+  desc.add<edm::InputTag>("moduleLabelVtx", edm::InputTag("g4SimHits"))
+      ->setComment("Module for input SimVertex collection");
   desc.addUntracked<bool>("dumpHepMC", false);
   descriptions.add("simTrackSimVertexDumper", desc);
 }
