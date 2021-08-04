@@ -16,7 +16,6 @@ namespace edm {
   class ConfigurationDescriptions;
   class ModuleDescription;
   class ParameterSet;
-  class Maker;
   class ExceptionToActionTable;
 
   class Maker {
