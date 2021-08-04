@@ -361,7 +361,6 @@ namespace spr {
     return isIsolated;
   }
 
-
   double chargeIsolation(const edm::Event& iEvent,
                          const edm::EventSetup& iSetup,
                          CaloNavigator<DetId>& theNavigator,
