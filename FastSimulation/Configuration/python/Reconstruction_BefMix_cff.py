@@ -42,11 +42,23 @@ from RecoTracker.TkNavigation.NavigationSchoolESProducer_cfi import navigationSc
 from FastSimulation.Tracking.iterativeTk_cff import *
 from TrackingTools.TrackFitters.TrackFitters_cff import *
 
-reconstruction_befmix = cms.Sequence(
-    offlineBeamSpot
-    * fastTrackerRecHits
-    * fastMatchedTrackerRecHits
-    * fastMatchedTrackerRecHitCombinations
-    * MeasurementTrackerEvent
-    * iterTracking
-    )
+ApplyULHistos = cms.bool(False)
+
+if not ApplyULHistos:
+    reconstruction_befmix = cms.Sequence(
+        offlineBeamSpot
+        * fastTrackerRecHits
+        * fastMatchedTrackerRecHits
+        * fastMatchedTrackerRecHitCombinations
+        * MeasurementTrackerEvent
+        * iterTracking
+        )
+else:
+    reconstruction_befmix = cms.Sequence(
+        offlineBeamSpot
+        * fastTrackerRecHitsUL
+        * fastMatchedTrackerRecHits
+        * fastMatchedTrackerRecHitCombinations
+        * MeasurementTrackerEvent
+        * iterTracking
+        )
