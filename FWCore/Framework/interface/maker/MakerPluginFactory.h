@@ -4,9 +4,9 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 namespace edm {
-struct Maker;
+  struct Maker;
 
-using  MakerPluginFactory = edmplugin::PluginFactory<Maker*()>;
+  using MakerPluginFactory = edmplugin::PluginFactory<Maker*()>;
 }  // namespace edm
 
 #endif
