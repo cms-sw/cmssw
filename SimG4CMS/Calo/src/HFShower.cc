@@ -114,7 +114,8 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight)
   double zCoor = localPos.z();
   double zFibre = (0.5 * gpar_[1] - zCoor - translation.z());
   double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-  double time = (equalizeTimeShift_) ? (fibre_->tShift(localPos, depth, -1)) : (fibre_->tShift(localPos, depth, chkFibre_));
+  double time =
+      (equalizeTimeShift_) ? (fibre_->tShift(localPos, depth, -1)) : (fibre_->tShift(localPos, depth, chkFibre_));
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor << "(" << globalPos.z() << ") "
