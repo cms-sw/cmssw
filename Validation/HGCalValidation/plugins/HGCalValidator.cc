@@ -12,6 +12,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
     : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       label_lcl(pset.getParameter<edm::InputTag>("label_lcl")),
       label_tst(pset.getParameter<std::vector<edm::InputTag>>("label_tst")),
+      label_simTSFromCP(pset.getParameter<edm::InputTag>("label_simTSFromCP")),
       associator_(pset.getUntrackedParameter<edm::InputTag>("associator")),
       associatorSim_(pset.getUntrackedParameter<edm::InputTag>("associatorSim")),
       SaveGeneralInfo_(pset.getUntrackedParameter<bool>("SaveGeneralInfo")),
@@ -49,6 +50,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
   for (auto& itag : label_tst) {
     label_tstTokens.push_back(consumes<ticl::TracksterCollection>(itag));
   }
+
+  simTrackstersFromCPs_ = consumes<ticl::TracksterCollection>(label_simTSFromCP);
 
   associatorMapRtS = consumes<hgcal::RecoToSimCollection>(associator_);
   associatorMapStR = consumes<hgcal::SimToRecoCollection>(associator_);
@@ -242,6 +245,10 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(label_cp_effic, caloParticleHandle);
   std::vector<CaloParticle> const& caloParticles = *caloParticleHandle;
 
+  edm::Handle<ticl::TracksterCollection> simTracksterFromCPHandle;
+  event.getByToken(simTrackstersFromCPs_, simTracksterFromCPHandle);
+  ticl::TracksterCollection const& simTrackstersFromCPs = *simTracksterFromCPHandle;
+
   edm::ESHandle<CaloGeometry> geom = setup.getHandle(caloGeomToken_);
   tools_->setGeometry(*geom);
   histoProducerAlgo_->setRecHitTools(tools_);
@@ -386,6 +393,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                 wml,
                                                 tracksters,
                                                 clusters,
+                                                simTrackstersFromCPs,
                                                 caloParticles,
                                                 cPIndices,
                                                 selected_cPeff,
