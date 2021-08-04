@@ -414,7 +414,6 @@ unsigned CSCPackerUnpackerUnitTest::analyzePreCLCT(const CSCDetId& cscDetId,
 
   unsigned testsFailed = 0;
 
-  unsigned nStripDigis = nDigis(cscDetId, strips);
   unsigned nStripDigisUnpacked = nDigis(cscDetId, strips_unpacked);
 
   // these tests are only done when the trigger/pretriggers are enabled
@@ -442,14 +441,6 @@ unsigned CSCPackerUnpackerUnitTest::analyzePreCLCT(const CSCDetId& cscDetId,
             << nStripDigisUnpacked << " " << cscDetId.chamberName();
         }
       }
-
-      // test 3: count the number of strip digis before and after unpacking
-      if (nStripDigis < nStripDigisUnpacked) {
-        testsFailed++;
-        edm::LogWarning("analyzePreCLCT::Test3Failure")
-          << ": numStripDigis " << nStripDigis << " numStripDigisUnpacked "
-          << nStripDigisUnpacked << " " << cscDetId.chamberName();
-      }
     }
 
     // Test when packing by CFEBs
@@ -460,8 +451,6 @@ unsigned CSCPackerUnpackerUnitTest::analyzePreCLCT(const CSCDetId& cscDetId,
         // only do the tests for the CFEBs in this chamber (4,5,7)
         if (i >= getNCFEBs(cscDetId.iChamberType() - 1))
           continue;
-
-        unsigned nStripDigisCFEB = nDigisCFEB(cscDetId, strips, i);
 
         unsigned nStripDigisUnpackedCFEB = nDigisCFEB(cscDetId, strips_unpacked, i);
 
@@ -483,14 +472,6 @@ unsigned CSCPackerUnpackerUnitTest::analyzePreCLCT(const CSCDetId& cscDetId,
               << "CFEB " << i << "preTriggerInCFEB " << preTriggerInCFEB[i] << " nStripDigisUnpackedCFEB "
               << nStripDigisUnpackedCFEB << " " << cscDetId.chamberName();
           }
-        }
-
-        // test 3: count the number of strip digis before and after unpacking
-        if (nStripDigisCFEB < nStripDigisUnpackedCFEB) {
-          testsFailed++;
-          edm::LogWarning("analyzePreCLCT::Test3Failure")
-            << "CFEB " << i << ": numStripDigisCFEB " << nStripDigisCFEB << " numStripDigisUnpackedCFEB "
-            << nStripDigisUnpackedCFEB << " " << cscDetId.chamberName();
         }
       }
     }

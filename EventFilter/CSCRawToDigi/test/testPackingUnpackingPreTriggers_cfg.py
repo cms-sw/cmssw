@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Run3_cff import Run3
 
@@ -84,6 +82,7 @@ process.muonCSCDigis.InputObjects = "cscpacker:CSCRawData"
 ## specification of the test with the packer expert settings
 process.cscPackerUnpackerUnitTestDef.usePreTriggers = process.cscpacker.usePreTriggers
 process.cscPackerUnpackerUnitTestDef.packEverything = process.cscpacker.packEverything
+process.cscPackerUnpackerUnitTestDef.packByCFEB = process.cscpacker.packByCFEB
 process.cscPackerUnpackerUnitTestDef.formatVersion = process.cscpacker.formatVersion
 process.cscPackerUnpackerUnitTestDef.useCSCShowers = process.cscpacker.useCSCShowers
 
