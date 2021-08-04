@@ -64,50 +64,45 @@ private:
   edm::EDGetTokenT<edm::PCaloHitContainer> CastorBUToken_;
 };
 
-SimHitCaloHitDumper::SimHitCaloHitDumper(const edm::ParameterSet& iConfig)
-    : moduleName(iConfig.getParameter<std::string>("moduleLabelG4")) {
+SimHitCaloHitDumper::SimHitCaloHitDumper(const edm::ParameterSet& iConfig) {
   PixelBarrelLowTofToken_ =
-      consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "TrackerHitsPixelBarrelLowTof"));
+      consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("TrackerHitsPixelBarrelLowTof"));
   PixelBarrelHighTofToken_ =
-      consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "TrackerHitsPixelBarrelHighTof"));
+      consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("TrackerHitsPixelBarrelHighTof"));
   PixelEndcapLowTofToken_ =
-      consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "TrackerHitsPixelEndcapLowTof"));
+      consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("TrackerHitsPixelEndcapLowTof"));
   PixelEndcapHighTofToken_ =
-      consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "TrackerHitsPixelEndcapHighTof"));
-  TrackerTIBLowTofToken_ =
-      consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "TrackerHitsTIBLowTof"));
+      consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("TrackerHitsPixelEndcapHighTof"));
+  TrackerTIBLowTofToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("TrackerHitsTIBLowTof"));
   TrackerTIBHighTofToken_ =
-      consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "TrackerHitsTIBHighTof"));
-  TrackerTIDLowTofToken_ =
-      consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "TrackerHitsTIDLowTof"));
+      consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("TrackerHitsTIBHighTof"));
+  TrackerTIDLowTofToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("TrackerHitsTIDLowTof"));
   TrackerTIDHighTofToken_ =
-      consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "TrackerHitsTIDHighTof"));
-  TrackerTOBLowTofToken_ =
-      consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "TrackerHitsTOBLowTof"));
+      consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("TrackerHitsTIDHighTof"));
+  TrackerTOBLowTofToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("TrackerHitsTOBLowTof"));
   TrackerTOBHighTofToken_ =
-      consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "TrackerHitsTOBHighTof"));
-  TrackerTECLowTofToken_ =
-      consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "TrackerHitsTECLowTof"));
+      consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("TrackerHitsTOBHighTof"));
+  TrackerTECLowTofToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("TrackerHitsTECLowTof"));
   TrackerTECHighTofToken_ =
-      consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "TrackerHitsTECHighTof"));
+      consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("TrackerHitsTECHighTof"));
 
-  MuonDTToken_ = consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "MuonDTHits"));
-  MuonCSCToken_ = consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "MuonCSCHits"));
-  MuonRPCToken_ = consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "MuonRPCHits"));
+  MuonDTToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("MuonDTHits"));
+  MuonCSCToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("MuonCSCHits"));
+  MuonRPCToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("MuonRPCHits"));
 
-  FastTimerBTLToken_ = consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "FastTimerHitsBarrel"));
-  FastTimerETLToken_ = consumes<edm::PSimHitContainer>(edm::InputTag(std::string(moduleName), "FastTimerHitsEndcap"));
+  FastTimerBTLToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("FastTimerHitsBarrel"));
+  FastTimerETLToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("FastTimerHitsEndcap"));
 
-  EcalEBToken_ = consumes<edm::PCaloHitContainer>(edm::InputTag(std::string(moduleName), "EBHits"));
-  EcalEEToken_ = consumes<edm::PCaloHitContainer>(edm::InputTag(std::string(moduleName), "EEHits"));
-  EcalESToken_ = consumes<edm::PCaloHitContainer>(edm::InputTag(std::string(moduleName), "ESHits"));
-  HcalToken_ = consumes<edm::PCaloHitContainer>(edm::InputTag(std::string(moduleName), "HcalHits"));
-  CaloTkToken_ = consumes<edm::PCaloHitContainer>(edm::InputTag(std::string(moduleName), "CaloTkHits"));
-  ZDCToken_ = consumes<edm::PCaloHitContainer>(edm::InputTag(std::string(moduleName), "ZDC"));
-  CastorTUToken_ = consumes<edm::PCaloHitContainer>(edm::InputTag(std::string(moduleName), "CastorTUHits"));
-  CastorPLToken_ = consumes<edm::PCaloHitContainer>(edm::InputTag(std::string(moduleName), "CastorPLHits"));
-  CastorFIToken_ = consumes<edm::PCaloHitContainer>(edm::InputTag(std::string(moduleName), "CastorFIHits"));
-  CastorBUToken_ = consumes<edm::PCaloHitContainer>(edm::InputTag(std::string(moduleName), "CastorBUHits"));
+  EcalEBToken_ = consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("EcalHitsEB"));
+  EcalEEToken_ = consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("EcalHitsEE"));
+  EcalESToken_ = consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("EcalHitsES"));
+  HcalToken_ = consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("HcalHits"));
+  CaloTkToken_ = consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("CaloHitsTk"));
+  ZDCToken_ = consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("ZDCHITS"));
+  CastorTUToken_ = consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("CastorTU"));
+  CastorPLToken_ = consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("CastorPL"));
+  CastorFIToken_ = consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("CastorFI"));
+  CastorBUToken_ = consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("CastorBU"));
 }
 
 void SimHitCaloHitDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -405,7 +400,33 @@ void SimHitCaloHitDumper::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 void SimHitCaloHitDumper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("moduleLabelG4", "g4SimHits")->setComment("Module for input SimHit/CaloHit collections");
+  desc.add<edm::InputTag>("TrackerHitsPixelBarrelLowTof", edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"));
+  desc.add<edm::InputTag>("TrackerHitsPixelBarrelHighTof", edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelHighTof"));
+  desc.add<edm::InputTag>("TrackerHitsPixelEndcapLowTof", edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapLowTof"));
+  desc.add<edm::InputTag>("TrackerHitsPixelEndcapHighTof", edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapHighTof"));
+  desc.add<edm::InputTag>("TrackerHitsTIBLowTof", edm::InputTag("g4SimHits", "TrackerHitsTIBLowTof"));
+  desc.add<edm::InputTag>("TrackerHitsTIBHighTof", edm::InputTag("g4SimHits", "TrackerHitsTIBHighTof"));
+  desc.add<edm::InputTag>("TrackerHitsTIDLowTof", edm::InputTag("g4SimHits", "TrackerHitsTIDLowTof"));
+  desc.add<edm::InputTag>("TrackerHitsTIDHighTof", edm::InputTag("g4SimHits", "TrackerHitsTIDHighTof"));
+  desc.add<edm::InputTag>("TrackerHitsTOBLowTof", edm::InputTag("g4SimHits", "TrackerHitsTOBLowTof"));
+  desc.add<edm::InputTag>("TrackerHitsTOBHighTof", edm::InputTag("g4SimHits", "TrackerHitsTOBHighTof"));
+  desc.add<edm::InputTag>("TrackerHitsTECLowTof", edm::InputTag("g4SimHits", "TrackerHitsTECLowTof"));
+  desc.add<edm::InputTag>("TrackerHitsTECHighTof", edm::InputTag("g4SimHits", "TrackerHitsTECHighTof"));
+  desc.add<edm::InputTag>("MuonDTHits", edm::InputTag("g4SimHits", "MuonDTHits"));
+  desc.add<edm::InputTag>("MuonCSCHits", edm::InputTag("g4SimHits", "MuonCSCHits"));
+  desc.add<edm::InputTag>("MuonRPCHits", edm::InputTag("g4SimHits", "MuonRPCHits"));
+  desc.add<edm::InputTag>("FastTimerHitsBarrel", edm::InputTag("g4SimHits", "FastTimerHitsBarrel"));
+  desc.add<edm::InputTag>("FastTimerHitsEndcap", edm::InputTag("g4SimHits", "FastTimerHitsEndcap"));
+  desc.add<edm::InputTag>("EcalHitsEB", edm::InputTag("g4SimHits", "EcalHitsEB"));
+  desc.add<edm::InputTag>("EcalHitsEE", edm::InputTag("g4SimHits", "EcalHitsEE"));
+  desc.add<edm::InputTag>("EcalHitsES", edm::InputTag("g4SimHits", "EcalHitsES"));
+  desc.add<edm::InputTag>("HcalHits", edm::InputTag("g4SimHits", "HcalHits"));
+  desc.add<edm::InputTag>("CaloHitsTk", edm::InputTag("g4SimHits", "CaloHitsTk"));
+  desc.add<edm::InputTag>("ZDCHITS", edm::InputTag("g4SimHits", "ZDCHITS"));
+  desc.add<edm::InputTag>("CastorTU", edm::InputTag("g4SimHits", "CastorTU"));
+  desc.add<edm::InputTag>("CastorPL", edm::InputTag("g4SimHits", "CastorPL"));
+  desc.add<edm::InputTag>("CastorFI", edm::InputTag("g4SimHits", "CastorFI"));
+  desc.add<edm::InputTag>("CastorBU", edm::InputTag("g4SimHits", "CastorBU"));
   descriptions.add("simHitCaloHitDumper", desc);
 }
 

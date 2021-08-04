@@ -471,7 +471,7 @@ void SimDigiDumper::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<edm::InputTag>("ECalEESrc", edm::InputTag("simEcalDigis", "eeDigis"))->setComment("ECAL endcap digis");
   desc.add<edm::InputTag>("ECalESSrc", edm::InputTag("simEcalPreshowerDigis"))->setComment("ECAL preshower digis");
   desc.add<edm::InputTag>("HCalSrc", edm::InputTag("simHcalDigis"))->setComment("HCAL digis");
-  desc.add<edm::InputTag>("ZdcSrc", edm::InputTag("simHcaliUnsuppressedDigis"))->setComment("ZDC digis");
+  desc.add<edm::InputTag>("ZdcSrc", edm::InputTag("simHcalUnsuppressedDigis"))->setComment("ZDC digis");
   desc.add<edm::InputTag>("SiStripSrc", edm::InputTag("simSiStripDigis", "ZeroSuppressed"))
       ->setComment("Si strip digis");
   desc.add<edm::InputTag>("SiPxlSrc", edm::InputTag("simSiPixelDigis"))->setComment("Si pixel digis");
