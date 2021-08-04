@@ -106,6 +106,9 @@ void EcalRawToDigiGPU::acquire(edm::Event const& event,
 
   // output cpu
   outputCPU_ = {cms::cuda::make_host_unique<uint32_t[]>(2, ctx.stream())};
+  // initialize the number of channels
+  outputCPU_.nchannels[0] = 0;
+  outputCPU_.nchannels[1] = 0;
 
   // output gpu
   outputGPU_.allocate(config_, ctx.stream());
