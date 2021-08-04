@@ -11,7 +11,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-#include "Geometry/GEMGeometryBuilder/src/ME0GeometryParsFromDD.h"
+#include "Geometry/GEMGeometryBuilder/interface/ME0GeometryParsFromDD.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/Records/interface/ME0RecoGeometryRcd.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
