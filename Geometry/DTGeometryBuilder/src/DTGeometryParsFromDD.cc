@@ -7,7 +7,7 @@
  *  Created:  Tue, 26 Jan 2021 
  *
  */
-#include <Geometry/DTGeometryBuilder/src/DTGeometryParsFromDD.h>
+#include <Geometry/DTGeometryBuilder/interface/DTGeometryParsFromDD.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/DTGeometry/interface/DTChamber.h>
 #include <Geometry/DTGeometry/interface/DTLayer.h>
