@@ -10,7 +10,7 @@
 //         Modified: Wed, 23 December 2020 
 //         Original author: Tim Cox
 */
-#include "../interface/CSCGeometryParsFromDD.h"
+#include "Geometry/CSCGeometryBuilder/interface/CSCGeometryParsFromDD.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
