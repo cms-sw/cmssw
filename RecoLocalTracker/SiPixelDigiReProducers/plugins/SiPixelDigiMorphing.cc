@@ -1,6 +1,3 @@
-#ifndef RecoLocalTracker_SiPixelDigiMorphing_SiPixelDigiMorphing_h
-#define RecoLocalTracker_SiPixelDigiMorphing_SiPixelDigiMorphing_h
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -211,5 +208,3 @@ void SiPixelDigiMorphing::morph(uint64_t* imap, uint64_t* omap, uint64_t* kernel
 }
 
 DEFINE_FWK_MODULE(SiPixelDigiMorphing);
-
-#endif
