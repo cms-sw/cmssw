@@ -12,7 +12,7 @@
 #include "Geometry/CSCGeometry/interface/WireTopology.h"
 #include "Geometry/CSCGeometry/interface/CSCWireGeometry.h"
 #include "Geometry/CSCGeometry/src/CSCWireGrouping.h"
-#include "Geometry/CSCGeometry/src/CSCWireGroupPackage.h"
+#include "Geometry/CSCGeometry/interface/CSCWireGroupPackage.h"
 #include <utility>  // for std::pair
 
 class CSCWireTopology : public WireTopology {
