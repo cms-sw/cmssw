@@ -39,7 +39,7 @@ private:
   std::vector<uint64_t> kernel2_;
   uint64_t mask_;
 
-  enum MorphOption { Dilate, Erode };
+  enum MorphOption { kDilate, kErode };
 
   uint32_t fakeAdc_;
 
@@ -143,8 +143,8 @@ void SiPixelDigiMorphing::produce(edm::Event& e, const edm::EventSetup& es) {
     std::memcpy(map1, imap, nrocs_ * (nrows_ + 2 * iters_) * sizeof(uint64_t));
     memset(map2, 0, nrocs_ * (nrows_ + 2 * iters_) * sizeof(uint64_t));
 
-    morph(map1, map2, kernel1_.data(), Dilate);
-    morph(map2, map1, kernel2_.data(), Erode);
+    morph(map1, map2, kernel1_.data(), kDilate);
+    morph(map2, map1, kernel2_.data(), kErode);
 
     uint64_t* i = imap + iters_;
     uint64_t* o = map1 + iters_;
@@ -188,14 +188,14 @@ void SiPixelDigiMorphing::morph(uint64_t* imap, uint64_t* omap, uint64_t* kernel
         for (int jj = 0; jj < ksize_; jj++) {
           for (int ii = 0; ii < ksize_; ii++) {
             uint64_t v = (*i[ii]) & (kernel[ii] << jj);
-            if (op == Erode)
+            if (op == kErode)
               v ^= (kernel[ii] << jj);
             uint64_t vv = v;
             for (int b = 1; b < ksize_; b++)
               vv |= (v >> b);
             *o |= ((vv << iters_) & m[jj]);
           }
-          if (op == Erode)
+          if (op == kErode)
             *o ^= m[jj];
         }
       }
