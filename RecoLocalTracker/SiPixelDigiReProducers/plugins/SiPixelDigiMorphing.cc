@@ -11,6 +11,7 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 
 #include <bitset>
+#include <iterator>
 
 class SiPixelDigiMorphing : public edm::stream::EDProducer<> {
 public:
@@ -40,7 +41,7 @@ private:
 
   uint32_t fakeAdc_;
 
-  void morph(uint64_t* imap, uint64_t* omap, uint64_t* kernel, MorphOption op);
+  void morph(uint64_t* const imap, uint64_t* omap, uint64_t* const kernel, MorphOption op) const;
 };
 
 SiPixelDigiMorphing::SiPixelDigiMorphing(edm::ParameterSet const& conf)
@@ -109,32 +110,33 @@ void SiPixelDigiMorphing::produce(edm::Event& e, const edm::EventSetup& es) {
 
   auto outputDigis = std::make_unique<edm::DetSetVector<PixelDigi>>();
 
-  uint64_t imap[nrocs_ * (nrows_ + 2 * iters_)];
-  uint64_t map1[nrocs_ * (nrows_ + 2 * iters_)];
-  uint64_t map2[nrocs_ * (nrows_ + 2 * iters_)];
+  const int rocSize = nrows_ + 2 * iters_;
+  const int arrSize = nrocs_ * rocSize;
 
-  edm::DetSetVector<PixelDigi>::const_iterator DSViter = inputDigi.begin();
-  for (; DSViter != inputDigi.end(); DSViter++) {
-    auto rawId = DSViter->detId();
+  uint64_t imap[arrSize];
+  uint64_t map1[arrSize];
+  uint64_t map2[arrSize];
+
+  for (auto const& ds : inputDigi) {
+    auto rawId = ds.detId();
     edm::DetSet<PixelDigi>* detDigis = nullptr;
     detDigis = &(outputDigis->find_or_insert(rawId));
 
-    edm::DetSet<PixelDigi>::const_iterator di;
-    memset(imap, 0, nrocs_ * (nrows_ + 2 * iters_) * sizeof(uint64_t));
-    for (di = DSViter->data.begin(); di != DSViter->data.end(); di++) {
-      int r = int(di->column()) / ncols_r_;
-      int c = int(di->column()) % ncols_r_;
-      imap[r * (nrows_ + 2 * iters_) + di->row() + iters_] |= uint64_t(1) << (c + iters_);
+    memset(imap, 0, arrSize * sizeof(uint64_t));
+    for (auto const& di : ds) {
+      int r = int(di.column()) / ncols_r_;
+      int c = int(di.column()) % ncols_r_;
+      imap[r * rocSize + di.row() + iters_] |= uint64_t(1) << (c + iters_);
       if (r > 0 && c < iters_) {
-        imap[(r - 1) * (nrows_ + 2 * iters_) + di->row() + iters_] |= uint64_t(1) << (c + ncols_r_ + iters_);
+        imap[(r - 1) * rocSize + di.row() + iters_] |= uint64_t(1) << (c + ncols_r_ + iters_);
       } else if (++r < nrocs_ && c >= ncols_r_ - iters_) {
-        imap[r * (nrows_ + 2 * iters_) + di->row() + iters_] |= uint64_t(1) << (c - ncols_r_ + iters_);
+        imap[r * rocSize + di.row() + iters_] |= uint64_t(1) << (c - ncols_r_ + iters_);
       }
-      (*detDigis).data.emplace_back(di->row(), di->column(), di->adc(), 0);
+      (*detDigis).data.emplace_back(di.row(), di.column(), di.adc(), 0);
     }
 
-    std::memcpy(map1, imap, nrocs_ * (nrows_ + 2 * iters_) * sizeof(uint64_t));
-    memset(map2, 0, nrocs_ * (nrows_ + 2 * iters_) * sizeof(uint64_t));
+    std::memcpy(map1, imap, arrSize * sizeof(uint64_t));
+    memset(map2, 0, arrSize * sizeof(uint64_t));
 
     morph(map1, map2, kernel1_.data(), kDilate);
     morph(map2, map1, kernel2_.data(), kErode);
@@ -162,12 +164,12 @@ void SiPixelDigiMorphing::produce(edm::Event& e, const edm::EventSetup& es) {
   e.put(tPutPixelDigi_, std::move(outputDigis));
 }
 
-void SiPixelDigiMorphing::morph(uint64_t* imap, uint64_t* omap, uint64_t* kernel, MorphOption op) {
-  uint64_t* i[ksize_];
-  uint64_t* o = omap + iters_;
+void SiPixelDigiMorphing::morph(uint64_t* const imap, uint64_t* omap, uint64_t* const kernel, MorphOption op) const {
+  uint64_t* i[ksize_];          // i(nput)
+  uint64_t* o = omap + iters_;  // o(output)
   unsigned char valid = 0;
-  unsigned char validMask = (1 << ksize_) - 1;
-  uint64_t m[ksize_];
+  unsigned char const validMask = (1 << ksize_) - 1;
+  uint64_t m[ksize_];  // m(ask)
 
   for (int ii = 0; ii < ksize_; ii++) {
     i[ii] = imap + ii;
@@ -180,10 +182,10 @@ void SiPixelDigiMorphing::morph(uint64_t* imap, uint64_t* omap, uint64_t* kernel
       if ((valid & validMask) != 0) {
         for (int jj = 0; jj < ksize_; jj++) {
           for (int ii = 0; ii < ksize_; ii++) {
-            uint64_t v = (*i[ii]) & (kernel[ii] << jj);
+            uint64_t v = (*i[ii]) & (kernel[ii] << jj);  // v(ector)
             if (op == kErode)
               v ^= (kernel[ii] << jj);
-            uint64_t vv = v;
+            uint64_t vv = v;  // vv(vector bit - shifted and contracted)
             for (int b = 1; b < ksize_; b++)
               vv |= (v >> b);
             *o |= ((vv << iters_) & m[jj]);
