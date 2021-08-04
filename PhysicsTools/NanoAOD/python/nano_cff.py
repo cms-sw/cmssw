@@ -62,10 +62,10 @@ lhcInfoTable = cms.EDProducer("LHCInfoProducer",
 )
 
 nanoSequenceCommon = cms.Sequence(
-        nanoMetadata + jetSequence + cms.Sequence(extraFlagsProducersTask, muonTask, tauTask, boostedTauTask) + electronSequence + lowPtElectronSequence + photonSequence +
-        cms.Sequence(vertexTablesTask,isoTrackTask) + jetLepSequence + # must be after all the leptons
+        nanoMetadata + jetSequence + cms.Sequence(extraFlagsProducersTask, muonTask, tauTask, boostedTauTask, electronTask, lowPtElectronTask, photonTask,
+        vertexTablesTask,isoTrackTask) + jetLepSequence + # must be after all the leptons
         linkedObjects  +
-        jetTables + cms.Sequence(muonTablesTask,tauTablesTask,boostedTauTablesTask) + electronTables + lowPtElectronTables + photonTables + cms.Sequence(globalTablesTask) + metTables + simpleCleanerTable + cms.Sequence(extraFlagsTableTask,isoTrackTablesTask)
+        jetTables + cms.Sequence(muonTablesTask, tauTablesTask, boostedTauTablesTask, electronTablesTask, lowPtElectronTablesTask, photonTablesTask, globalTablesTask) + metTables + simpleCleanerTable + cms.Sequence(extraFlagsTableTask,isoTrackTablesTask)
         )
 
 nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTablesTask)
@@ -74,8 +74,8 @@ nanoSequenceOnlyData = cms.Sequence(cms.Sequence(protonTablesTask) + lhcInfoTabl
 nanoSequence = cms.Sequence(nanoSequenceCommon + nanoSequenceOnlyData + nanoSequenceOnlyFullSim)
 
 nanoSequenceFS = cms.Sequence(
-    cms.Sequence(genParticleTask,particleLevelTask) + nanoSequenceCommon + jetMC + cms.Sequence(muonMCTask) + electronMC + lowPtElectronMC + photonMC + 
-    cms.Sequence(tauMCTask,boostedTauMCTask) + metMC +
+    cms.Sequence(genParticleTask,particleLevelTask) + nanoSequenceCommon + jetMC + cms.Sequence(muonMCTask, electronMCTask, lowPtElectronMCTask, photonMCTask,
+    tauMCTask,boostedTauMCTask) + metMC +
     cms.Sequence(ttbarCatMCProducersTask,globalTablesMCTask,cms.Task(btagWeightTable),genWeightsTableTask,genVertexTablesTask,genParticleTablesTask,particleLevelTablesTask,ttbarCategoryTableTask) )
 
 # GenVertex only stored in newer MiniAOD
@@ -150,6 +150,7 @@ def nanoAOD_addDeepMET(process, addDeepMETProducer, ResponseTune_Graph):
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
 def nanoAOD_recalibrateMETs(process,isData):
+
     # add DeepMETs
     nanoAOD_DeepMET_switch = cms.PSet(
         nanoAOD_addDeepMET_switch = cms.untracked.bool(True), # decide if DeeMET should be included in Nano
@@ -184,6 +185,9 @@ def nanoAOD_recalibrateMETs(process,isData):
     for table in process.jetTable, process.corrT1METJetTable:
         table.variables.muonSubtrFactor = Var("1-userFloat('muonSubtrRawPt')/(pt()*jecFactor('Uncorrected'))",float,doc="1-(muon-subtracted raw pt)/(raw pt)",precision=6)
     process.metTables += process.corrT1METJetTable
+
+
+#
 #    makePuppiesFromMiniAOD(process,True) # call this before in the global customizer otherwise it would reset photon IDs in VID
     nanoAOD_PuppiV15_switch = cms.PSet(
             recoMetFromPFCs = cms.untracked.bool(False),
@@ -220,18 +224,25 @@ def nanoAOD_recalibrateMETs(process,isData):
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 def nanoAOD_activateVID(process):
-    switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD)
+
+    switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD,electronTask)
     for modname in electron_id_modules_WorkingPoints_nanoAOD.modules:
         setupAllVIDIdsInModule(process,modname,setupVIDElectronSelection)
-    process.electronSequence.insert(process.electronSequence.index(process.bitmapVIDForEle),process.egmGsfElectronIDSequence)
+
+    electronTask_ = process.egmGsfElectronIDTask.copy()
+    electronTask_.add(electronTask.copy())
+    process.electronTask = electronTask_.copy()
     for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
         modifier.toModify(process.electronMVAValueMapProducer, src = "slimmedElectronsUpdated")
         modifier.toModify(process.egmGsfElectronIDs, physicsObjectSrc = "slimmedElectronsUpdated")
 
-    switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD) # do not call this to avoid resetting photon IDs in VID, if called before inside makePuppiesFromMiniAOD
+    switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD,photonTask) # do not call this to avoid resetting photon IDs in VID, if called before inside makePuppiesFromMiniAOD
     for modname in photon_id_modules_WorkingPoints_nanoAOD.modules:
         setupAllVIDIdsInModule(process,modname,setupVIDPhotonSelection)
-    process.photonSequence.insert(process.photonSequence.index(bitmapVIDForPho),process.egmPhotonIDSequence)
+
+    photonTask_ = process.egmPhotonIDTask.copy()
+    photonTask_.add(photonTask.copy())
+    process.photonTask = photonTask_.copy()
     for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1:
         modifier.toModify(process.photonMVAValueMapProducer, src = "slimmedPhotonsTo106X")
         modifier.toModify(process.egmPhotonIDs, physicsObjectSrc = "slimmedPhotonsTo106X")
