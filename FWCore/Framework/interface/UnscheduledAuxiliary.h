@@ -5,7 +5,7 @@
 // Package:     FWCore/Framework
 // Class  :     UnscheduledAuxiliary
 //
-/**\class UnscheduledAuxiliary UnscheduledAuxiliary.h "UnscheduledAuxiliary.h"
+/**\class UnscheduledAuxiliary UnscheduledAuxiliary.h "FWCore/Framework/interface/UnscheduledAuxiliary.h"
 
  Description: Holds auxiliary information needed for unscheduled calls to EDProducers
 

@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
-#include "FWCore/Framework/src/UnscheduledAuxiliary.h"
+#include "FWCore/Framework/interface/UnscheduledAuxiliary.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"

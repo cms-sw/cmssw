@@ -11,7 +11,7 @@
   can be kept for each worker.
 */
 
-#include "FWCore/Framework/src/WorkerInPath.h"
+#include "FWCore/Framework/interface/WorkerInPath.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/Common/interface/TriggerResults.h"

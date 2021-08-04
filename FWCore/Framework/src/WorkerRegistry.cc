@@ -6,7 +6,7 @@
    \date 18 May 2005
 */
 #include <memory>
-#include "FWCore/Framework/src/WorkerRegistry.h"
+#include "FWCore/Framework/interface/WorkerRegistry.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/maker/MakeModuleParams.h"
