@@ -7,6 +7,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDigiToRaw.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDigiToRawAccept.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -25,87 +26,6 @@
 using namespace edm;
 using namespace std;
 
-namespace cscd2r {
-  /// takes layer ID, converts to chamber ID, switching ME1A to ME11
-  CSCDetId chamberID(const CSCDetId& cscDetId) {
-    CSCDetId chamberId = cscDetId.chamberId();
-    if (chamberId.ring() == 4) {
-      chamberId = CSCDetId(chamberId.endcap(), chamberId.station(), 1, chamberId.chamber(), 0);
-    }
-    return chamberId;
-  }
-
-  template <typename LCTCollection>
-  bool accept(
-      const CSCDetId& cscId, const LCTCollection& lcts, int bxMin, int bxMax, int nominalBX, bool me1abCheck = false) {
-    if (bxMin == -999)
-      return true;
-    CSCDetId chamberId = chamberID(cscId);
-    typename LCTCollection::Range lctRange = lcts.get(chamberId);
-    bool result = false;
-    for (typename LCTCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
-      int bx = lctItr->getBX() - nominalBX;
-      if (bx >= bxMin && bx <= bxMax) {
-        result = true;
-        break;
-      }
-    }
-
-    bool me1 = cscId.station() == 1 && cscId.ring() == 1;
-    //this is another "creative" recovery of smart ME1A-ME1B TMB logic cases:
-    //wire selective readout requires at least one (A)LCT in the full chamber
-    if (me1 && result == false && me1abCheck) {
-      CSCDetId me1aId = CSCDetId(chamberId.endcap(), chamberId.station(), 4, chamberId.chamber(), 0);
-      lctRange = lcts.get(me1aId);
-      for (typename LCTCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
-        int bx = lctItr->getBX() - nominalBX;
-        if (bx >= bxMin && bx <= bxMax) {
-          result = true;
-          break;
-        }
-      }
-    }
-
-    return result;
-  }
-
-  // need to specialize for pretriggers, since they don't have a getBX()
-  template <>
-  bool accept(const CSCDetId& cscId,
-              const CSCCLCTPreTriggerCollection& lcts,
-              int bxMin,
-              int bxMax,
-              int nominalBX,
-              bool me1abCheck) {
-    if (bxMin == -999)
-      return true;
-    CSCDetId chamberId = chamberID(cscId);
-    CSCCLCTPreTriggerCollection::Range lctRange = lcts.get(chamberId);
-    bool result = false;
-    for (CSCCLCTPreTriggerCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
-      int bx = *lctItr - nominalBX;
-      if (bx >= bxMin && bx <= bxMax) {
-        result = true;
-        break;
-      }
-    }
-    bool me1a = cscId.station() == 1 && cscId.ring() == 4;
-    if (me1a && result == false && me1abCheck) {
-      //check pretriggers in me1a as well; relevant for TMB emulator writing to separate detIds
-      lctRange = lcts.get(cscId);
-      for (CSCCLCTPreTriggerCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
-        int bx = *lctItr - nominalBX;
-        if (bx >= bxMin && bx <= bxMax) {
-          result = true;
-          break;
-        }
-      }
-    }
-    return result;
-  }
-
-}  // namespace cscd2r
-
 CSCDigiToRaw::CSCDigiToRaw(const edm::ParameterSet& pset)
     : alctWindowMin_(pset.getParameter<int>("alctWindowMin")),
       alctWindowMax_(pset.getParameter<int>("alctWindowMax")),
@@ -121,7 +41,7 @@ CSCDigiToRaw::CSCDigiToRaw(const edm::ParameterSet& pset)
       usePreTriggers_(pset.getParameter<bool>("usePreTriggers")) {}
 
 CSCEventData& CSCDigiToRaw::findEventData(const CSCDetId& cscDetId, FindEventDataInfo& info) const {
-  CSCDetId chamberId = cscd2r::chamberID(cscDetId);
+  CSCDetId chamberId = CSCDigiToRawAccept::chamberID(cscDetId);
   // find the entry into the map
   map<CSCDetId, CSCEventData>::iterator chamberMapItr = info.theChamberDataMap.find(chamberId);
   if (chamberMapItr == info.theChamberDataMap.end()) {
@@ -160,12 +80,13 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
     // pretrigger flag must be set and the pretrigger collection must be nonzero!
     const bool usePreTriggers = usePreTriggers_ and preTriggers != nullptr;
     if (!usePreTriggers || packEverything_ ||
-        (usePreTriggers && cscd2r::accept(cscDetId,
-                                          *preTriggerDigis,
-                                          preTriggerWindowMin_,
-                                          preTriggerWindowMax_,
-                                          CSCConstants::CLCT_CENTRAL_BX,
-                                          me1abCheck))) {
+        (usePreTriggers && CSCDigiToRawAccept::accept(cscDetId,
+                                                      *preTriggerDigis,
+                                                      preTriggerWindowMin_,
+                                                      preTriggerWindowMax_,
+                                                      CSCConstants::CLCT_CENTRAL_BX,
+                                                      me1abCheck,
+                                                      preTriggerInCFEB))) {
       bool me1a = (cscDetId.station() == 1) && (cscDetId.ring() == 4);
       bool zplus = (cscDetId.endcap() == 1);
       bool me1b = (cscDetId.station() == 1) && (cscDetId.ring() == 1);
@@ -217,7 +138,7 @@ void CSCDigiToRaw::add(const CSCWireDigiCollection& wireDigis,
     CSCDetId cscDetId = (*j).first;
     bool me1abCheck = fedInfo.formatVersion_ == 2013;
     if (packEverything_ ||
-        cscd2r::accept(
+        CSCDigiToRawAccept::accept(
             cscDetId, alctDigis, alctWindowMin_, alctWindowMax_, CSCConstants::ALCT_CENTRAL_BX, me1abCheck)) {
       CSCEventData& cscData = findEventData(cscDetId, fedInfo);
       std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
@@ -238,7 +159,7 @@ void CSCDigiToRaw::add(const CSCComparatorDigiCollection& comparatorDigis,
     CSCEventData& cscData = findEventData(cscDetId, fedInfo);
     bool me1abCheck = fedInfo.formatVersion_ == 2013;
     if (packEverything_ ||
-        cscd2r::accept(
+        CSCDigiToRawAccept::accept(
             cscDetId, clctDigis, clctWindowMin_, clctWindowMax_, CSCConstants::CLCT_CENTRAL_BX, me1abCheck)) {
       bool me1a = (cscDetId.station() == 1) && (cscDetId.ring() == 4);
 
