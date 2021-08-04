@@ -16,13 +16,8 @@ pixeltrackerlocalrecoTask = cms.Task(
     siPixelClustersPreSplittingTask,
     siPixelRecHitsPreSplittingTask)
 
-pixeltrackerlocalrecoTask_withMorphing = cms.Task(
-    cms.Task(siPixelDigisMorphed),
-    siPixelClustersPreSplittingTask,
-    siPixelRecHitsPreSplittingTask)
-
 from Configuration.ProcessModifiers.siPixelDigiMorphing_cff import *
-siPixelDigiMorphing.toReplaceWith(pixeltrackerlocalrecoTask, pixeltrackerlocalrecoTask_withMorphing)
+siPixelDigiMorphing.toReplaceWith(pixeltrackerlocalrecoTask, func = lambda task: task.add(siPixelDigisMorphed))
 
 striptrackerlocalrecoTask = cms.Task(
     siStripZeroSuppression,
