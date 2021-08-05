@@ -11,7 +11,7 @@
  *
  */
 #include <vector>
-#include "CommonTools/Utils/src/SelectorPtr.h"
+#include "CommonTools/Utils/interface/SelectorPtr.h"
 
 namespace reco {
   namespace parser {

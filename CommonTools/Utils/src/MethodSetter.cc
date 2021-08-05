@@ -5,7 +5,7 @@
 #include "CommonTools/Utils/src/MethodInvoker.h"
 #include "CommonTools/Utils/src/findDataMember.h"
 #include "CommonTools/Utils/src/findMethod.h"
-#include "CommonTools/Utils/src/returnType.h"
+#include "CommonTools/Utils/interface/returnType.h"
 
 #include <string>
 
