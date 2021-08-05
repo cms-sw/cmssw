@@ -965,108 +965,6 @@ void HGVHistoProducerAlgo::bookClusterHistos_CellLevel(DQMStore::IBooker& ibook,
 //----------------------------------------------------------------------------------------------------------------------------
 
 void HGVHistoProducerAlgo::bookTracksterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers) {
-  histograms.h_score_trackster2caloparticle.push_back(ibook.book1D(
-      "Score_trackster2caloparticle", "Score of Trackster per CaloParticle", nintScore_, minScore_, maxScore_));
-  histograms.h_score_caloparticle2trackster.push_back(ibook.book1D(
-      "Score_caloparticle2trackster", "Score of CaloParticle per Trackster", nintScore_, minScore_, maxScore_));
-  histograms.h_energy_vs_score_trackster2caloparticle.push_back(
-      ibook.book2D("Energy_vs_Score_trackster2caloparticle",
-                   "Energy vs Score of Trackster per CaloParticle",
-                   nintScore_,
-                   minScore_,
-                   maxScore_,
-                   nintSharedEneFrac_,
-                   minTSTSharedEneFrac_,
-                   maxTSTSharedEneFrac_));
-  histograms.h_energy_vs_score_caloparticle2trackster.push_back(
-      ibook.book2D("Energy_vs_Score_caloparticle2trackster",
-                   "Energy vs Score of CaloParticle per Trackster",
-                   nintScore_,
-                   minScore_,
-                   maxScore_,
-                   nintSharedEneFrac_,
-                   minTSTSharedEneFrac_,
-                   maxTSTSharedEneFrac_));
-
-  //back to all Tracksters
-  histograms.h_num_trackster_eta.push_back(
-      ibook.book1D("Num_Trackster_Eta", "Num Trackster Eta per Trackster ", nintEta_, minEta_, maxEta_));
-  histograms.h_numMerge_trackster_eta.push_back(
-      ibook.book1D("NumMerge_Trackster_Eta", "Num Merge Trackster Eta per Trackster ", nintEta_, minEta_, maxEta_));
-  histograms.h_denom_trackster_eta.push_back(
-      ibook.book1D("Denom_Trackster_Eta", "Denom Trackster Eta per Trackster", nintEta_, minEta_, maxEta_));
-  histograms.h_num_trackster_phi.push_back(
-      ibook.book1D("Num_Trackster_Phi", "Num Trackster Phi per Trackster ", nintPhi_, minPhi_, maxPhi_));
-  histograms.h_numMerge_trackster_phi.push_back(
-      ibook.book1D("NumMerge_Trackster_Phi", "Num Merge Trackster Phi per Trackster", nintPhi_, minPhi_, maxPhi_));
-  histograms.h_denom_trackster_phi.push_back(
-      ibook.book1D("Denom_Trackster_Phi", "Denom Trackster Phi per Trackster", nintPhi_, minPhi_, maxPhi_));
-  histograms.h_sharedenergy_trackster2caloparticle.push_back(
-      ibook.book1D("SharedEnergy_trackster2caloparticle",
-                   "Shared Energy of Trackster per Calo Particle in each layer",
-                   nintSharedEneFrac_,
-                   minTSTSharedEneFrac_,
-                   maxTSTSharedEneFrac_));
-  histograms.h_sharedenergy_trackster2caloparticle_vs_eta.push_back(
-      ibook.bookProfile("SharedEnergy_trackster2caloparticle_vs_eta",
-                        "Shared Energy of Trackster vs #eta per best Calo Particle in each layer",
-                        nintEta_,
-                        minEta_,
-                        maxEta_,
-                        minTSTSharedEneFrac_,
-                        maxTSTSharedEneFrac_));
-  histograms.h_sharedenergy_trackster2caloparticle_vs_phi.push_back(
-      ibook.bookProfile("SharedEnergy_trackster2caloparticle_vs_phi",
-                        "Shared Energy of Trackster vs #phi per best Calo Particle in each layer",
-                        nintPhi_,
-                        minPhi_,
-                        maxPhi_,
-                        minTSTSharedEneFrac_,
-                        maxTSTSharedEneFrac_));
-  histograms.h_sharedenergy_caloparticle2trackster.push_back(ibook.book1D("SharedEnergy_caloparticle2trackster",
-                                                                          "Shared Energy of CaloParticle per Trackster",
-                                                                          nintSharedEneFrac_,
-                                                                          minTSTSharedEneFrac_,
-                                                                          maxTSTSharedEneFrac_));
-  histograms.h_sharedenergy_caloparticle2trackster_assoc.push_back(
-      ibook.book1D("SharedEnergy_caloparticle2trackster_assoc",
-                   "Shared Energy of Associated CaloParticle per Trackster",
-                   nintSharedEneFrac_,
-                   minTSTSharedEneFrac_,
-                   maxTSTSharedEneFrac_));
-  histograms.h_sharedenergy_caloparticle2trackster_vs_eta.push_back(
-      ibook.bookProfile("SharedEnergy_caloparticle2trackster_vs_eta",
-                        "Shared Energy of CaloParticle vs #eta per best Trackster",
-                        nintEta_,
-                        minEta_,
-                        maxEta_,
-                        minTSTSharedEneFrac_,
-                        maxTSTSharedEneFrac_));
-  histograms.h_sharedenergy_caloparticle2trackster_vs_phi.push_back(
-      ibook.bookProfile("SharedEnergy_caloparticle2trackster_vs_phi",
-                        "Shared Energy of CaloParticle vs #phi per best Trackster",
-                        nintPhi_,
-                        minPhi_,
-                        maxPhi_,
-                        minTSTSharedEneFrac_,
-                        maxTSTSharedEneFrac_));
-  histograms.h_numEff_caloparticle_eta.push_back(ibook.book1D(
-      "NumEff_CaloParticle_Eta", "Num Efficiency CaloParticle Eta per Trackster", nintEta_, minEta_, maxEta_));
-  histograms.h_num_caloparticle_eta.push_back(
-      ibook.book1D("Num_CaloParticle_Eta", "Num Purity CaloParticle Eta per Trackster", nintEta_, minEta_, maxEta_));
-  histograms.h_numDup_trackster_eta.push_back(
-      ibook.book1D("NumDup_Trackster_Eta", "Num Duplicate Trackster vs Eta", nintEta_, minEta_, maxEta_));
-  histograms.h_denom_caloparticle_eta.push_back(
-      ibook.book1D("Denom_CaloParticle_Eta", "Denom CaloParticle Eta per Trackster", nintEta_, minEta_, maxEta_));
-  histograms.h_numEff_caloparticle_phi.push_back(ibook.book1D(
-      "NumEff_CaloParticle_Phi", "Num Efficiency CaloParticle Phi per Trackster", nintPhi_, minPhi_, maxPhi_));
-  histograms.h_num_caloparticle_phi.push_back(
-      ibook.book1D("Num_CaloParticle_Phi", "Num Purity CaloParticle Phi per Trackster", nintPhi_, minPhi_, maxPhi_));
-  histograms.h_numDup_trackster_phi.push_back(
-      ibook.book1D("NumDup_Trackster_Phi", "Num Duplicate Trackster vs Phi", nintPhi_, minPhi_, maxPhi_));
-  histograms.h_denom_caloparticle_phi.push_back(
-      ibook.book1D("Denom_CaloParticle_Phi", "Denom CaloParticle Phi per Trackster", nintPhi_, minPhi_, maxPhi_));
-
   std::unordered_map<int, dqm::reco::MonitorElement*> clusternum_in_trackster_perlayer;
   clusternum_in_trackster_perlayer.clear();
 
@@ -1195,6 +1093,113 @@ void HGVHistoProducerAlgo::bookTracksterHistos(DQMStore::IBooker& ibook, Histogr
       ibook.book1D("trackster_lastlayer", "Last layer of the Trackster", 2 * layers, 0., (float)2 * layers));
   histograms.h_trackster_layersnum.push_back(
       ibook.book1D("trackster_layersnum", "Number of layers of the Trackster", 2 * layers, 0., (float)2 * layers));
+}
+
+void HGVHistoProducerAlgo::bookTracksterCPLinkingHistos(DQMStore::IBooker& ibook, Histograms& histograms) {
+  histograms.h_score_trackster2caloparticle.push_back(ibook.book1D(
+      "Score_trackster2caloparticle", "Score of Trackster per CaloParticle", nintScore_, minScore_, maxScore_));
+  histograms.h_score_caloparticle2trackster.push_back(ibook.book1D(
+      "Score_caloparticle2trackster", "Score of CaloParticle per Trackster", nintScore_, minScore_, maxScore_));
+  histograms.h_energy_vs_score_trackster2caloparticle.push_back(
+      ibook.book2D("Energy_vs_Score_trackster2caloparticle",
+                   "Energy vs Score of Trackster per CaloParticle",
+                   nintScore_,
+                   minScore_,
+                   maxScore_,
+                   nintSharedEneFrac_,
+                   minTSTSharedEneFrac_,
+                   maxTSTSharedEneFrac_));
+  histograms.h_energy_vs_score_caloparticle2trackster.push_back(
+      ibook.book2D("Energy_vs_Score_caloparticle2trackster",
+                   "Energy vs Score of CaloParticle per Trackster",
+                   nintScore_,
+                   minScore_,
+                   maxScore_,
+                   nintSharedEneFrac_,
+                   minTSTSharedEneFrac_,
+                   maxTSTSharedEneFrac_));
+
+  //back to all Tracksters
+  histograms.h_num_trackster_eta.push_back(
+      ibook.book1D("Num_Trackster_Eta", "Num Trackster Eta per Trackster ", nintEta_, minEta_, maxEta_));
+  histograms.h_numMerge_trackster_eta.push_back(
+      ibook.book1D("NumMerge_Trackster_Eta", "Num Merge Trackster Eta per Trackster ", nintEta_, minEta_, maxEta_));
+  histograms.h_denom_trackster_eta.push_back(
+      ibook.book1D("Denom_Trackster_Eta", "Denom Trackster Eta per Trackster", nintEta_, minEta_, maxEta_));
+  histograms.h_num_trackster_phi.push_back(
+      ibook.book1D("Num_Trackster_Phi", "Num Trackster Phi per Trackster ", nintPhi_, minPhi_, maxPhi_));
+  histograms.h_numMerge_trackster_phi.push_back(
+      ibook.book1D("NumMerge_Trackster_Phi", "Num Merge Trackster Phi per Trackster", nintPhi_, minPhi_, maxPhi_));
+  histograms.h_denom_trackster_phi.push_back(
+      ibook.book1D("Denom_Trackster_Phi", "Denom Trackster Phi per Trackster", nintPhi_, minPhi_, maxPhi_));
+
+  histograms.h_sharedenergy_trackster2caloparticle.push_back(
+      ibook.book1D("SharedEnergy_trackster2caloparticle",
+                   "Shared Energy of Trackster per Calo Particle in each layer",
+                   nintSharedEneFrac_,
+                   minTSTSharedEneFrac_,
+                   maxTSTSharedEneFrac_));
+  histograms.h_sharedenergy_trackster2caloparticle_vs_eta.push_back(
+      ibook.bookProfile("SharedEnergy_trackster2caloparticle_vs_eta",
+                        "Shared Energy of Trackster vs #eta per best Calo Particle in each layer",
+                        nintEta_,
+                        minEta_,
+                        maxEta_,
+                        minTSTSharedEneFrac_,
+                        maxTSTSharedEneFrac_));
+  histograms.h_sharedenergy_trackster2caloparticle_vs_phi.push_back(
+      ibook.bookProfile("SharedEnergy_trackster2caloparticle_vs_phi",
+                        "Shared Energy of Trackster vs #phi per best Calo Particle in each layer",
+                        nintPhi_,
+                        minPhi_,
+                        maxPhi_,
+                        minTSTSharedEneFrac_,
+                        maxTSTSharedEneFrac_));
+
+  histograms.h_sharedenergy_caloparticle2trackster.push_back(ibook.book1D("SharedEnergy_caloparticle2trackster",
+                                                                          "Shared Energy of CaloParticle per Trackster",
+                                                                          nintSharedEneFrac_,
+                                                                          minTSTSharedEneFrac_,
+                                                                          maxTSTSharedEneFrac_));
+  histograms.h_sharedenergy_caloparticle2trackster_assoc.push_back(
+      ibook.book1D("SharedEnergy_caloparticle2trackster_assoc",
+                   "Shared Energy of Associated CaloParticle per Trackster",
+                   nintSharedEneFrac_,
+                   minTSTSharedEneFrac_,
+                   maxTSTSharedEneFrac_));
+  histograms.h_sharedenergy_caloparticle2trackster_vs_eta.push_back(
+      ibook.bookProfile("SharedEnergy_caloparticle2trackster_vs_eta",
+                        "Shared Energy of CaloParticle vs #eta per best Trackster",
+                        nintEta_,
+                        minEta_,
+                        maxEta_,
+                        minTSTSharedEneFrac_,
+                        maxTSTSharedEneFrac_));
+  histograms.h_sharedenergy_caloparticle2trackster_vs_phi.push_back(
+      ibook.bookProfile("SharedEnergy_caloparticle2trackster_vs_phi",
+                        "Shared Energy of CaloParticle vs #phi per best Trackster",
+                        nintPhi_,
+                        minPhi_,
+                        maxPhi_,
+                        minTSTSharedEneFrac_,
+                        maxTSTSharedEneFrac_));
+
+  histograms.h_numEff_caloparticle_eta.push_back(ibook.book1D(
+      "NumEff_CaloParticle_Eta", "Num Efficiency CaloParticle Eta per Trackster", nintEta_, minEta_, maxEta_));
+  histograms.h_num_caloparticle_eta.push_back(
+      ibook.book1D("Num_CaloParticle_Eta", "Num Purity CaloParticle Eta per Trackster", nintEta_, minEta_, maxEta_));
+  histograms.h_numDup_trackster_eta.push_back(
+      ibook.book1D("NumDup_Trackster_Eta", "Num Duplicate Trackster vs Eta", nintEta_, minEta_, maxEta_));
+  histograms.h_denom_caloparticle_eta.push_back(
+      ibook.book1D("Denom_CaloParticle_Eta", "Denom CaloParticle Eta per Trackster", nintEta_, minEta_, maxEta_));
+  histograms.h_numEff_caloparticle_phi.push_back(ibook.book1D(
+      "NumEff_CaloParticle_Phi", "Num Efficiency CaloParticle Phi per Trackster", nintPhi_, minPhi_, maxPhi_));
+  histograms.h_num_caloparticle_phi.push_back(
+      ibook.book1D("Num_CaloParticle_Phi", "Num Purity CaloParticle Phi per Trackster", nintPhi_, minPhi_, maxPhi_));
+  histograms.h_numDup_trackster_phi.push_back(
+      ibook.book1D("NumDup_Trackster_Phi", "Num Duplicate Trackster vs Phi", nintPhi_, minPhi_, maxPhi_));
+  histograms.h_denom_caloparticle_phi.push_back(
+      ibook.book1D("Denom_CaloParticle_Phi", "Denom CaloParticle Phi per Trackster", nintPhi_, minPhi_, maxPhi_));
 }
 
 void HGVHistoProducerAlgo::fill_info_histos(const Histograms& histograms, unsigned int layers) const {

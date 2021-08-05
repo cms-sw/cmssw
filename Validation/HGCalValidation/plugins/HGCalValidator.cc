@@ -21,6 +21,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       doSimClustersPlots_(pset.getUntrackedParameter<bool>("doSimClustersPlots")),
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
       doTrackstersPlots_(pset.getUntrackedParameter<bool>("doTrackstersPlots")),
+      label_TSToCPLinking_(pset.getParameter<edm::InputTag>("label_TSToCPLinking")),
       label_clustersmask(pset.getParameter<std::vector<edm::InputTag>>("LayerClustersInputMask")),
       cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")) {
   //In this way we can easily generalize to associations between other objects also.
@@ -162,7 +163,7 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
                                                        thicknesses_to_monitor_,
                                                        cummatbudinxo_.fullPath());
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters/LCtoCP_association");
+    ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters/LCToCP_association");
     histoProducerAlgo_->bookClusterHistos_LCtoCP_association(
         ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
 
@@ -195,9 +196,11 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
 
     ibook.setCurrentFolder(dirName);
 
-    //Booking histograms concerning for HGCal tracksters
+    //Booking histograms concerning HGCal tracksters
     if (doTrackstersPlots_) {
       histoProducerAlgo_->bookTracksterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
+      ibook.setCurrentFolder(dirName+"/"+label_TSToCPLinking_.label());
+      histoProducerAlgo_->bookTracksterCPLinkingHistos(ibook, histograms.histoProducerAlgo);
     }
   }  //end of booking Tracksters loop
 }
