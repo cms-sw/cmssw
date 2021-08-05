@@ -25,7 +25,7 @@ public:
   DQMHcalIterativePhiSymAlCaReco(const edm::ParameterSet &);
   ~DQMHcalIterativePhiSymAlCaReco() override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
   //  void beginRun(const edm::Run& r, const edm::EventSetup& c);

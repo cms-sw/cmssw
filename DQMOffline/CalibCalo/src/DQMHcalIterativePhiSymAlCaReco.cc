@@ -27,7 +27,6 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
-
 #include "DQMOffline/CalibCalo/interface/DQMHcalIterativePhiSymAlCaReco.h"
 
 // ******************************************
@@ -45,7 +44,6 @@ DQMHcalIterativePhiSymAlCaReco::DQMHcalIterativePhiSymAlCaReco(const edm::Parame
   tok_hf_ = consumes<HFRecHitCollection>(ps.getParameter<edm::InputTag>("hfInput"));
   tok_hbhe_ = consumes<HBHERecHitCollection>(ps.getParameter<edm::InputTag>("hbheInput"));
 
-
   // Distribution of rechits in iPhi, iEta
   hiDistr_y_nbin_ = ps.getUntrackedParameter<int>("hiDistr_y_nbin", 72);
   hiDistr_y_min_ = ps.getUntrackedParameter<double>("hiDistr_y_min", 0.5);
@@ -53,12 +51,11 @@ DQMHcalIterativePhiSymAlCaReco::DQMHcalIterativePhiSymAlCaReco(const edm::Parame
   hiDistr_x_nbin_ = ps.getUntrackedParameter<int>("hiDistr_x_nbin", 83);
   hiDistr_x_min_ = ps.getUntrackedParameter<double>("hiDistr_x_min", -41.5);
   hiDistr_x_max_ = ps.getUntrackedParameter<double>("hiDistr_x_max", 41.5);
-
 }
 
 DQMHcalIterativePhiSymAlCaReco::~DQMHcalIterativePhiSymAlCaReco() {}
 
-void DQMHcalIterativePhiSymAlCaReco::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void DQMHcalIterativePhiSymAlCaReco::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("folderName", "ALCAStreamHcalIterativePhiSym");
   desc.add<edm::InputTag>("hbheInput", edm::InputTag("hbhereco"));
@@ -75,8 +72,8 @@ void DQMHcalIterativePhiSymAlCaReco::fillDescriptions(edm::ConfigurationDescript
 
 //--------------------------------------------------------
 void DQMHcalIterativePhiSymAlCaReco::bookHistograms(DQMStore::IBooker &ibooker,
-						    edm::Run const &irun,
-						    edm::EventSetup const &isetup) {
+                                                    edm::Run const &irun,
+                                                    edm::EventSetup const &isetup) {
   // create and cd into new folder
   ibooker.setCurrentFolder(folderName_);
 
@@ -90,14 +87,8 @@ void DQMHcalIterativePhiSymAlCaReco::bookHistograms(DQMStore::IBooker &ibooker,
     char name[20], title[20];
     sprintf(name, "MBdepth%d", (k + 1));
     sprintf(title, "Depth %d", (k + 1));
-    hiDistr2D_[k] = ibooker.book2D(name,
-				   title,
-				   hiDistr_x_nbin_,
-				   hiDistr_x_min_,
-				   hiDistr_x_max_,
-				   hiDistr_y_nbin_,
-				   hiDistr_y_min_,
-				   hiDistr_y_max_);
+    hiDistr2D_[k] = ibooker.book2D(
+        name, title, hiDistr_x_nbin_, hiDistr_x_min_, hiDistr_x_max_, hiDistr_y_nbin_, hiDistr_y_min_, hiDistr_y_max_);
     hiDistr2D_[k]->setAxisTitle("i#phi ", 2);
     hiDistr2D_[k]->setAxisTitle("i#eta ", 1);
   }
@@ -108,7 +99,6 @@ void DQMHcalIterativePhiSymAlCaReco::bookHistograms(DQMStore::IBooker &ibooker,
 //-------------------------------------------------------------
 
 void DQMHcalIterativePhiSymAlCaReco::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-
   // First HBHE RecHits
   edm::Handle<HBHERecHitCollection> hbheMB;
   iEvent.getByToken(tok_hbhe_, hbheMB);
@@ -120,7 +110,7 @@ void DQMHcalIterativePhiSymAlCaReco::analyze(const edm::Event &iEvent, const edm
     for (HBHERecHitCollection::const_iterator hbheItr = Hithbhe.begin(); hbheItr != Hithbhe.end(); hbheItr++) {
       HcalDetId hid = HcalDetId(hbheItr->detid());
       int id = hid.depth() - 1;
-      if ((id >= 0) && (id  < maxDepth_))
+      if ((id >= 0) && (id < maxDepth_))
         hiDistr2D_[id]->Fill(hid.ieta(), hid.iphi(), hbheItr->energy());
     }
   }
@@ -136,7 +126,7 @@ void DQMHcalIterativePhiSymAlCaReco::analyze(const edm::Event &iEvent, const edm
     for (HFRecHitCollection::const_iterator hfItr = Hithf.begin(); hfItr != Hithf.end(); hfItr++) {
       HcalDetId hid = HcalDetId(hfItr->detid());
       int id = hid.depth() - 1;
-      if ((id >= 0) && (id  < maxDepth_))
+      if ((id >= 0) && (id < maxDepth_))
         hiDistr2D_[id]->Fill(hid.ieta(), hid.iphi(), hfItr->energy());
     }
   }
@@ -152,7 +142,7 @@ void DQMHcalIterativePhiSymAlCaReco::analyze(const edm::Event &iEvent, const edm
     for (HORecHitCollection::const_iterator hoItr = Hitho.begin(); hoItr != Hitho.end(); hoItr++) {
       HcalDetId hid = HcalDetId(hoItr->detid());
       int id = hid.depth() - 1;
-      if ((id >= 0) && (id  < maxDepth_))
+      if ((id >= 0) && (id < maxDepth_))
         hiDistr2D_[id]->Fill(hid.ieta(), hid.iphi(), hoItr->energy());
     }
   }
