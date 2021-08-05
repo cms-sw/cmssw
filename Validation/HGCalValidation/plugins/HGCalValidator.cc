@@ -20,6 +20,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       doCaloParticleSelection_(pset.getUntrackedParameter<bool>("doCaloParticleSelection")),
       doSimClustersPlots_(pset.getUntrackedParameter<bool>("doSimClustersPlots")),
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
+      label_LCToCPLinking_(pset.getParameter<edm::InputTag>("label_LCToCPLinking")),
       doTrackstersPlots_(pset.getUntrackedParameter<bool>("doTrackstersPlots")),
       label_TSToCPLinking_(pset.getParameter<edm::InputTag>("label_TSToCPLinking")),
       label_clustersmask(pset.getParameter<std::vector<edm::InputTag>>("LayerClustersInputMask")),
@@ -163,7 +164,7 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
                                                        thicknesses_to_monitor_,
                                                        cummatbudinxo_.fullPath());
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters/LCToCP_association");
+    ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters/" + label_LCToCPLinking_.label());
     histoProducerAlgo_->bookClusterHistos_LCtoCP_association(
         ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
 
