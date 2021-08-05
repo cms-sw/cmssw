@@ -220,5 +220,3 @@ void HGCPassive::storeInfo(const HGCPassive::volumeIterator it,
                              << (itr->second)[2];
 #endif
 }
-
-DEFINE_SIMWATCHER(HGCPassive);
