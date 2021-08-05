@@ -100,12 +100,13 @@ process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
                              'HGCalTB1601SensitiveDetector',
                              'HcalTB06BeamDetector']
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-		HGCPassive = cms.PSet(
-			LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'HGCalBeam', 'CMSE'),
-			MotherName = cms.string('OCMS'),
-			),
-		type = cms.string('HGCPassive'),
-		)
+        HGCPassive = cms.PSet(
+                LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'HGCalBeam', 'CMSE'),
+                MotherName = cms.string('OCMS'),
+                IfDD4Hep = cms.bool(False),
+        ),
+        type = cms.string('HGCPassive'),
+)
 				       )
 process.HGCalTBAnalyzer.doDigis         = False
 process.HGCalTBAnalyzer.doRecHits       = False
