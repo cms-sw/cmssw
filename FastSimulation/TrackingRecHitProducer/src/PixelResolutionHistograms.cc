@@ -100,7 +100,7 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,   // 
   // All other histograms:
   Char_t histo[200];
   Char_t title[200];
-  Char_t binstr[200];
+  Char_t binstr[50];
 
   for (int ii = 0; ii < cotbetaAxis_->GetNbins(); ii++) {
     for (int jj = 0; jj < cotalphaAxis_->GetNbins(); jj++) {
@@ -112,7 +112,7 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,   // 
       //
       //--- Histograms for clusters with multiple pixels hit in a given direction.
       //
-      for (int kk = 0; kk < qbins_; kk++) {
+      for (unsigned short kk = 0; kk < qbins_; kk++) {
         //information of bits of histogram names
         //--- First bit 1/0 barrel/forward, second 1/0 multi/single, cotbeta, cotalpha, qbins
         sprintf(histo, "hx%d1%02d%d%d", detType_, ii + 1, jj + 1, kk + 1);  
@@ -223,7 +223,7 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
       qbinGen_() {
   Char_t histo[200];        // the name of the histogram
   Char_t title[200];        // histo title, for debugging and sanity checking (compare inside file)
-  Char_t binstr[200];
+  Char_t binstr[50];
   TH1F* tmphist = nullptr;  // cache for histo pointer
 
   //--- Open the file for reading.
@@ -263,7 +263,7 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
                 cotbetaEdges->At(ii+1),
                 cotalphaEdges->At(jj),
                 cotalphaEdges->At(jj+1));
-        for (int kk = 0; kk < qbins_; kk++) {
+        for (unsigned short kk = 0; kk < qbins_; kk++) {
           //information of bits of histogram names
           //--- First bit 1/0 barrel/forward, second 1/0 multi/single, cotbeta, cotalpha, qbins
           sprintf(histo, "hx%d1%02d%d%d", detType_, ii + 1, jj + 1, kk + 1);  
