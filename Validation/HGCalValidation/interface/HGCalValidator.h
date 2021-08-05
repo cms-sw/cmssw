@@ -71,6 +71,7 @@ protected:
   const bool doSimClustersPlots_;
   const bool doLayerClustersPlots_;
   const bool doTrackstersPlots_;
+  edm::InputTag label_TSToCPLinking_;
   std::vector<edm::InputTag> label_clustersmask;
   const edm::FileInPath cummatbudinxo_;
 
