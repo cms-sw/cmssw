@@ -1,1 +1,1 @@
-#include "GeneratorInterface/Herwig6Interface/src/hwudat.f"
+#include "GeneratorInterface/Herwig6Interface/interface/hwudat.f"
