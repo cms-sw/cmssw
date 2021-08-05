@@ -42,6 +42,8 @@
 
 //================================================================
 
+//#define EDM_ML_DEBUG
+
 //UserVerbosity BscTest::std::cout("BscTest","info","BscTest");
 enum ntbsc_elements { ntbsc_evt };
 
@@ -57,8 +59,8 @@ BscTest::BscTest(const edm::ParameterSet& p) {
   fRecreateFile = m_Anal.getParameter<std::string>("FRecreateFile");
 
   if (verbosity > 0) {
-    std::cout << "============================================================================" << std::endl;
-    std::cout << "BscTestconstructor :: Initialized as observer" << std::endl;
+    edm::LogVerbatim("BscTest") << "============================================================================";
+    edm::LogVerbatim("BscTest") << "BscTestconstructor :: Initialized as observer";
   }
   // Initialization:
 
@@ -68,7 +70,7 @@ BscTest::BscTest(const edm::ParameterSet& p) {
   TheHistManager = new BscAnalysisHistManager(fDataLabel);
 
   if (verbosity > 0) {
-    std::cout << "BscTest constructor :: Initialized BscAnalysisHistManager" << std::endl;
+    edm::LogVerbatim("BscTest") << "BscTest constructor :: Initialized BscAnalysisHistManager";
   }
 }
 
@@ -77,23 +79,23 @@ BscTest::~BscTest() {
   delete theBscNumberingScheme;
 
   TFile bscOutputFile("newntbsc.root", "RECREATE");
-  std::cout << "Bsc output root file has been created";
+  edm::LogVerbatim("BscTest") << "Bsc output root file has been created";
   bsceventntuple->Write();
-  std::cout << ", written";
+  edm::LogVerbatim("BscTest") << ", written";
   bscOutputFile.Close();
-  std::cout << ", closed";
+  edm::LogVerbatim("BscTest") << ", closed";
   delete bsceventntuple;
-  std::cout << ", and deleted" << std::endl;
+  edm::LogVerbatim("BscTest") << ", and deleted";
 
   //------->while end
 
   // Write histograms to file
   TheHistManager->WriteToFile(fOutputFile, fRecreateFile);
   if (verbosity > 0) {
-    std::cout << std::endl << "BscTest Destructor  -------->  End of BscTest : " << std::endl;
+    edm::LogVerbatim("BscTest") << std::endl << "BscTest Destructor  -------->  End of BscTest : ";
   }
 
-  std::cout << "BscTest: End of process" << std::endl;
+  edm::LogVerbatim("BscTest") << "BscTest: End of process";
 }
 
 //================================================================
@@ -143,9 +145,9 @@ void BscAnalysisHistManager::BookHistos() {
 void BscAnalysisHistManager::WriteToFile(const TString& fOutputFile, const TString& fRecreateFile) {
   //Write to file = fOutputFile
 
-  std::cout << "================================================================" << std::endl;
-  std::cout << " Write this Analysis to File " << fOutputFile << std::endl;
-  std::cout << "================================================================" << std::endl;
+  edm::LogVerbatim("BscTest") << "================================================================";
+  edm::LogVerbatim("BscTest") << " Write this Analysis to File " << fOutputFile;
+  edm::LogVerbatim("BscTest") << "================================================================";
 
   TFile* file = new TFile(fOutputFile, fRecreateFile);
 
@@ -188,9 +190,9 @@ TH1F* BscAnalysisHistManager::GetHisto(Int_t Number) {
     return (TH1F*)(fHistArray->At(Number));
 
   } else {
-    std::cout << "!!!!!!!!!!!!!!!!!!GetHisto!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-    std::cout << " WARNING ERROR - HIST ID INCORRECT (TOO HIGH) - " << Number << std::endl;
-    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+    edm::LogVerbatim("BscTest") << "!!!!!!!!!!!!!!!!!!GetHisto!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+    edm::LogVerbatim("BscTest") << " WARNING ERROR - HIST ID INCORRECT (TOO HIGH) - " << Number;
+    edm::LogVerbatim("BscTest") << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
 
     return (TH1F*)(fHistArray->At(0));
   }
@@ -204,9 +206,9 @@ TH2F* BscAnalysisHistManager::GetHisto2(Int_t Number) {
     return (TH2F*)(fHistArray->At(Number));
 
   } else {
-    std::cout << "!!!!!!!!!!!!!!!!GetHisto2!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-    std::cout << " WARNING ERROR - HIST ID INCORRECT (TOO HIGH) - " << Number << std::endl;
-    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+    edm::LogVerbatim("BscTest") << "!!!!!!!!!!!!!!!!GetHisto2!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+    edm::LogVerbatim("BscTest") << " WARNING ERROR - HIST ID INCORRECT (TOO HIGH) - " << Number;
+    edm::LogVerbatim("BscTest") << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
 
     return (TH2F*)(fHistArray->At(0));
   }
@@ -240,7 +242,7 @@ void BscAnalysisHistManager::StoreWeights() {
 //==================================================================== per JOB
 void BscTest::update(const BeginOfJob* job) {
   //job
-  std::cout << "BscTest:beggining of job" << std::endl;
+  edm::LogVerbatim("BscTest") << "BscTest:beggining of job";
   ;
 }
 
@@ -248,7 +250,7 @@ void BscTest::update(const BeginOfJob* job) {
 void BscTest::update(const BeginOfRun* run) {
   //run
 
-  std::cout << std::endl << "BscTest:: Begining of Run" << std::endl;
+  edm::LogVerbatim("BscTest") << std::endl << "BscTest:: Begining of Run";
 }
 
 void BscTest::update(const EndOfRun* run) { ; }
@@ -257,7 +259,7 @@ void BscTest::update(const EndOfRun* run) { ; }
 void BscTest::update(const BeginOfEvent* evt) {
   iev = (*evt)()->GetEventID();
   if (verbosity > 0) {
-    std::cout << "BscTest:update Event number = " << iev << std::endl;
+    edm::LogVerbatim("BscTest") << "BscTest:update Event number = " << iev;
   }
   whichevent++;
 }
@@ -266,7 +268,7 @@ void BscTest::update(const BeginOfEvent* evt) {
 void BscTest::update(const BeginOfTrack* trk) {
   itrk = (*trk)()->GetTrackID();
   if (verbosity > 1) {
-    std::cout << "BscTest:update BeginOfTrack number = " << itrk << std::endl;
+    edm::LogVerbatim("BscTest") << "BscTest:update BeginOfTrack number = " << itrk;
   }
   if (itrk == 1) {
     SumEnerDeposit = 0.;
@@ -281,7 +283,7 @@ void BscTest::update(const BeginOfTrack* trk) {
 void BscTest::update(const EndOfTrack* trk) {
   itrk = (*trk)()->GetTrackID();
   if (verbosity > 1) {
-    std::cout << "BscTest:update EndOfTrack number = " << itrk << std::endl;
+    edm::LogVerbatim("BscTest") << "BscTest:update EndOfTrack number = " << itrk;
   }
   if (itrk == 1) {
     G4double tracklength = (*trk)()->GetTrackLength();  // Accumulated track length
@@ -308,13 +310,13 @@ void BscTest::update(const G4Step* aStep) {
 
   if (verbosity > 2) {
     G4int stepnumber = aStep->GetTrack()->GetCurrentStepNumber();
-    std::cout << "BscTest:update Step number = " << stepnumber << std::endl;
+    edm::LogVerbatim("BscTest") << "BscTest:update Step number = " << stepnumber;
   }
   // track on aStep:                                                                                         !
   G4Track* theTrack = aStep->GetTrack();
   TrackInformation* trkInfo = dynamic_cast<TrackInformation*>(theTrack->GetUserInformation());
   if (trkInfo == nullptr) {
-    std::cout << "BscTest on aStep: No trk info !!!! abort " << std::endl;
+    edm::LogVerbatim("BscTest") << "BscTest on aStep: No trk info !!!! abort ";
   }
   G4int id = theTrack->GetTrackID();
   G4String particleType = theTrack->GetDefinition()->GetParticleName();  //   !!!
@@ -518,7 +520,7 @@ void BscTest::update(const EndOfEvent* evt) {
 
   if (verbosity > 1) {
     iev = (*evt)()->GetEventID();
-    std::cout << "BscTest:update EndOfEvent = " << iev << std::endl;
+    edm::LogVerbatim("BscTest") << "BscTest:update EndOfEvent = " << iev;
   }
   // Fill-in ntuple
   bsceventarray[ntbsc_evt] = (float)whichevent;
@@ -530,17 +532,17 @@ void BscTest::update(const EndOfEvent* evt) {
   // prim.vertex:
   G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
   if (nvertex != 1)
-    std::cout << "BscTest: My warning: NumberOfPrimaryVertex != 1  -->  = " << nvertex << std::endl;
+    edm::LogVerbatim("BscTest") << "BscTest: My warning: NumberOfPrimaryVertex != 1  -->  = " << nvertex;
 
   for (int i = 0; i < nvertex; i++) {
     G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
     if (avertex == nullptr)
-      std::cout << "BscTest  End Of Event ERR: pointer to vertex = 0" << std::endl;
+      edm::LogVerbatim("BscTest") << "BscTest  End Of Event ERR: pointer to vertex = 0";
     G4int npart = avertex->GetNumberOfParticle();
     if (npart != 1)
-      std::cout << "BscTest: My warning: NumberOfPrimaryPart != 1  -->  = " << npart << std::endl;
+      edm::LogVerbatim("BscTest") << "BscTest: My warning: NumberOfPrimaryPart != 1  -->  = " << npart;
     if (npart == 0)
-      std::cout << "BscTest End Of Event ERR: no NumberOfParticle" << std::endl;
+      edm::LogVerbatim("BscTest") << "BscTest End Of Event ERR: no NumberOfParticle";
 
     if (thePrim == nullptr)
       thePrim = avertex->GetPrimary(trackID);
@@ -606,19 +608,22 @@ void BscTest::update(const EndOfEvent* evt) {
     std::map<int, float, std::less<int> > themapxy;
     std::map<int, float, std::less<int> > themapz;
     // access to the G4 hit collections:  -----> this work OK:
-
-    //  edm::LogInfo("BscTest") << "1";
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("BscTest") << "1";
+#endif
     G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
-    //  edm::LogInfo("BscTest") << "2";
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("BscTest") << "2";
+#endif
     if (verbosity > 0) {
-      std::cout << "BscTest:  accessed all HC" << std::endl;
+      edm::LogVerbatim("BscTest") << "BscTest:  accessed all HC";
       ;
     }
     int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("BSCHits");
 
     BscG4HitCollection* theCAFI = (BscG4HitCollection*)allHC->GetHC(CAFIid);
     if (verbosity > 0) {
-      std::cout << "BscTest: theCAFI->entries = " << theCAFI->entries() << std::endl;
+      edm::LogVerbatim("BscTest") << "BscTest: theCAFI->entries = " << theCAFI->entries();
     }
     int varia;  // = 0 -all; =1 - MI; =2 - noMI
     //varia = 0;
@@ -655,7 +660,7 @@ void BscTest::update(const EndOfEvent* evt) {
         TheHistManager->GetHisto("zHitsnoMI")->Fill(zz);
 
         if (verbosity > 2) {
-          std::cout << "BscTest:zHits = " << zz << std::endl;
+          edm::LogVerbatim("BscTest") << "BscTest:zHits = " << zz;
         }
 
         themap[unitID] += losenergy;
@@ -782,11 +787,11 @@ void BscTest::update(const EndOfEvent* evt) {
         }
       }  // MIonly or noMIonly ENDED
       if (totallosenergy == 0.0) {
-        std::cout << "BscTest:     number of hits = " << theCAFI->entries() << std::endl;
+        edm::LogVerbatim("BscTest") << "BscTest:     number of hits = " << theCAFI->entries();
         for (int j = 0; j < nhits; j++) {
           BscG4Hit* aHit = (*theCAFI)[j];
           double losenergy = aHit->getEnergyLoss();
-          std::cout << " j hits = " << j << "losenergy = " << losenergy << std::endl;
+          edm::LogVerbatim("BscTest") << " j hits = " << j << "losenergy = " << losenergy;
         }
       }
       //   FIBRE Hit collected analysis
@@ -837,6 +842,6 @@ void BscTest::update(const EndOfEvent* evt) {
   }    // primary end
 
   if (verbosity > 0) {
-    std::cout << "BscTest:  END OF Event " << (*evt)()->GetEventID() << std::endl;
+    edm::LogVerbatim("BscTest") << "BscTest:  END OF Event " << (*evt)()->GetEventID();
   }
 }
