@@ -300,7 +300,7 @@ void TotemT1Organization ::_FromDataToUnitID(void) {
       _currentDetectorPosition = 0;
       currDP = 0;
       edm::LogVerbatim("ForwardSim") << "Invalid _currentDetectorPosition value (" << _currentDetectorPosition
-                                 << "). Now is \"Undefined\"";
+                                     << "). Now is \"Undefined\"";
   }
 
   if (_currentPlane < -1) {

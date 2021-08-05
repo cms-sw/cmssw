@@ -326,7 +326,8 @@ void TimingSD::EndOfEvent(G4HCofThisEvent*) {
     Local3DPoint locExitPoint = ConvertToLocal3DPoint(aHit->getExitLocalP());
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("TimingSim") << "TimingSD: Hit for storage \n" << *aHit << "\n Entry point: " << locEntryPoint << "\n Exit  point: " << locExitPoint;
+    edm::LogVerbatim("TimingSim") << "TimingSD: Hit for storage \n"
+                                  << *aHit << "\n Entry point: " << locEntryPoint << "\n Exit  point: " << locExitPoint;
 #endif
 
     slave->processHits(PSimHit(locEntryPoint,
