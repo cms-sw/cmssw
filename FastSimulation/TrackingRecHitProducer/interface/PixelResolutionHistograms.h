@@ -10,6 +10,7 @@ class SimpleHistogramGenerator;
 
 #include <memory>
 #include <string>
+#include <vector>
 
 /// #define COTBETA_HIST_MAX  30
 /// #define COTALPHA_HIST_MAX 20

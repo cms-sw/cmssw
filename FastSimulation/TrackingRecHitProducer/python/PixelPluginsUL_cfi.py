@@ -70,7 +70,7 @@ pixelPlugins2016UL.append(
 #
 pixelPlugins2016UL.append(
     cms.PSet(
-        select=cms.string("subdetId==FPX"),
+        select=cms.string("subdetId==FPX && pxfModule==1"),
         isBarrel = cms.bool(False),
         name = cms.string("pixelSmearerForward"),
         type = cms.string("PixelTemplateSmearerPlugin"),
@@ -87,7 +87,7 @@ pixelPlugins2016UL.append(
 #--- Plaq2
 pixelPlugins2016UL.append(
     cms.PSet(
-        select=cms.string("subdetId==FPX"),
+        select=cms.string("subdetId==FPX && pxfModule==2"),
         isBarrel = cms.bool(False),
         name = cms.string("pixelSmearerForward"),
         type = cms.string("PixelTemplateSmearerPlugin"),
@@ -101,10 +101,10 @@ pixelPlugins2016UL.append(
     )
 )
 
-#--- Plaq3
+#--- Plaq3 and 4
 pixelPlugins2016UL.append(
     cms.PSet(
-        select=cms.string("subdetId==FPX"),
+        select=cms.string("subdetId==FPX && pxfModule>2"),
         isBarrel = cms.bool(False),
         name = cms.string("pixelSmearerForward"),
         type = cms.string("PixelTemplateSmearerPlugin"),
