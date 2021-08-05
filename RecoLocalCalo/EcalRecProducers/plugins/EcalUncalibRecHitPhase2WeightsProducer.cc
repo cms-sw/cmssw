@@ -9,10 +9,14 @@
 
 #include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 class EcalUncalibRecHitPhase2WeightsProducer : public edm::stream::EDProducer<> {
 public:
-  explicit EcalUncalibRecHitPhase2WeightsProducer(const edm::ParameterSet& ps);  //, edm::ConsumesCollector& c);
+  explicit EcalUncalibRecHitPhase2WeightsProducer(const edm::ParameterSet& ps);
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   float tRise_;
@@ -23,26 +27,34 @@ private:
   std::string hitCollection_;
 };
 
-EcalUncalibRecHitPhase2WeightsProducer::EcalUncalibRecHitPhase2WeightsProducer(const edm::ParameterSet& ps) {
+void EcalUncalibRecHitPhase2WeightsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<std::string>("EBhitCollection","EcalUncalibRecHitsEB");
+  desc.add<double>("tRise", 0.2);
+  desc.add<double>("tFall", 2.);
+  desc.add<std::vector<double>>(
+      "weights",
+      {-0.121016, -0.119899, -0.120923, -0.0848959, 0.261041, 0.509881, 0.373591, 0.134899, -0.0233605, -0.0913195,
+       -0.112452, -0.118596, -0,        121737,     -0,       121737,   -0,       121737,   -0,         121737});
+  desc.add<edm::InputTag>("BarrelDigis", edm::InputTag("simEcalUnsuppressedDigis",""));
+
+  descriptions.add("EcalUncalibRecHitPhase2WeightsProducer", desc);
+}
+
+EcalUncalibRecHitPhase2WeightsProducer::EcalUncalibRecHitPhase2WeightsProducer(const edm::ParameterSet& ps)
+    : tRise_(ps.getParameter<double>("tRise")),
+      tFall_(ps.getParameter<double>("tFall")),
+      ebDigiCollectionToken_(consumes<EBDigiCollectionPh2>(ps.getParameter<edm::InputTag>("BarrelDigis"))) {
   hitCollection_ = ps.getParameter<std::string>("EBhitCollection");
   produces<EBUncalibratedRecHitCollection>(hitCollection_);
 
-  tRise_ = ps.getParameter<double>("tRise");
-  tFall_ = ps.getParameter<double>("tFall");
-
-  ebDigiCollectionToken_ = consumes<EBDigiCollectionPh2>(ps.getParameter<edm::InputTag>("BarrelDigis"));
-
-  weights_ = ps.getParameter<std::vector<double> >("weights");
+  weights_ = ps.getParameter<std::vector<double>>("weights");
 }
 
 void EcalUncalibRecHitPhase2WeightsProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // retrieve digis
-  edm::Handle<EBDigiCollectionPh2> pdigis_;
-
-  evt.getByToken(ebDigiCollectionToken_, pdigis_);
-
-  const EBDigiCollectionPh2* pdigis = nullptr;
-  pdigis = pdigis_.product();
+  const EBDigiCollectionPh2* pdigis = &evt.get(ebDigiCollectionToken_);
 
   // prepare output
   auto ebUncalibRechits = std::make_unique<EBUncalibratedRecHitCollection>();
