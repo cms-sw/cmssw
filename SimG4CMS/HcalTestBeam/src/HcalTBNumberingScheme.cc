@@ -17,7 +17,7 @@
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "HcalTBNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTBNumberingScheme.h"
 
 //
 // member functions
