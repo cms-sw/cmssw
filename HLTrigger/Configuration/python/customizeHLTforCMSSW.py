@@ -129,10 +129,23 @@ def customiseFor2018Input(process):
     return process
 
 
+#temporary solution to add GEM geometry for hltGetConfiguration
+def customiseForRun3GEMGeometry34788(process):
+    """Add GEM geometry to output from hltGetConfiguration"""
+    process.GEMGeometryESModule = cms.ESProducer(
+        "GEMGeometryESModule",
+        fromDD4Hep = cms.bool( False ),
+        appendToDataLabel = cms.string( "" ),
+        fromDDD = cms.bool( False )
+    )
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+    
+    if menuType in ["GRun","HIon","PIon","PRef"]:
+        process = customiseForRun3GEMGeometry34788(process)
 
     return process

@@ -25,6 +25,10 @@ import EventFilter.CSCRawToDigi.cscUnpacker_cfi
 unpackCSC = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone(
     InputObjects = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
 
+import EventFilter.GEMRawToDigi.muonGEMDigis_cfi
+unpackGEM = EventFilter.GEMRawToDigi.muonGEMDigis_cfi.muonGEMDigis.clone(
+    InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
+
 import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
 unpackEcal = EventFilter.EcalRawToDigi.EcalUnpackerData_cfi.ecalEBunpacker.clone(
     InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
@@ -84,6 +88,9 @@ simEmtfDigis.RPCInput            = 'unpackRPC'
 simCaloStage2Layer1Digis.ecalToken = 'unpackEcal:EcalTriggerPrimitives'
 simCaloStage2Layer1Digis.hcalToken = 'simHcalTriggerPrimitiveDigis'
 
+# GEM
+simMuonGEMPadDigis.InputCollection = 'unpackGEM'
+
 # Finally, pack the new L1T output back into RAW
 from EventFilter.L1TRawToDigi.caloStage2Raw_cfi import caloStage2Raw as packCaloStage2
 from EventFilter.L1TRawToDigi.gmtStage2Raw_cfi import gmtStage2Raw as packGmtStage2
@@ -105,6 +112,7 @@ SimL1EmulatorTask = cms.Task()
 stage2L1Trigger.toReplaceWith(SimL1EmulatorTask, cms.Task(unpackRPC
                                                           , unpackDT
                                                           , unpackCSC
+                                                          , unpackGEM
                                                           , unpackEcal
                                                           , unpackHcal
                                                           #, simEcalTriggerPrimitiveDigis
