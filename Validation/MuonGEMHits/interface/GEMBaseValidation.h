@@ -224,8 +224,8 @@ dqm::impl::MonitorElement* GEMBaseValidation::bookPIDHist(DQMStore::IBooker& boo
                                                           const char* title) {
   auto name_suffix = GEMUtils::getSuffixName(key);
   auto title_suffix = GEMUtils::getSuffixTitle(key);
-  TString x_title = "Particle Name";
-  TString y_title = "Entries";
+  TString x_title = "Particle Type";
+  TString y_title = "Particles";
   TString hist_name = TString::Format("%s%s", name, name_suffix.Data());
   TString hist_title = TString::Format("%s :%s;%s;%s", title, title_suffix.Data(), x_title.Data(), y_title.Data());
   Int_t nbinsx = pid_list_.size();
@@ -245,8 +245,8 @@ dqm::impl::MonitorElement* GEMBaseValidation::bookPIDHist(
     DQMStore::IBooker& booker, const T& key, Int_t ieta, const char* name, const char* title) {
   auto name_suffix = GEMUtils::getSuffixName(key);
   auto title_suffix = GEMUtils::getSuffixTitle(key);
-  TString x_title = "Particle Name";
-  TString y_title = "Entries";
+  TString x_title = "Particle Type";
+  TString y_title = "Particles";
   TString hist_name = TString::Format("%s%s-E%d", name, name_suffix.Data(), ieta);
   TString hist_title =
       TString::Format("%s :%s-E%d;%s;%s", title, title_suffix.Data(), ieta, x_title.Data(), y_title.Data());
