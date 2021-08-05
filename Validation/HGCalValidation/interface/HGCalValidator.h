@@ -70,6 +70,7 @@ protected:
   const bool doCaloParticleSelection_;
   const bool doSimClustersPlots_;
   const bool doLayerClustersPlots_;
+  edm::InputTag label_LCToCPLinking_;
   const bool doTrackstersPlots_;
   edm::InputTag label_TSToCPLinking_;
   std::vector<edm::InputTag> label_clustersmask;

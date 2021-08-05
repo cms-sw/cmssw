@@ -16,7 +16,7 @@ import Validation.RecoTrack.plotting.plotting as plotting
 import Validation.RecoTrack.plotting.validation as validation
 import Validation.RecoTrack.plotting.html as html
 
-from Validation.HGCalValidation.PostProcessorHGCAL_cfi import tsToCP_linking
+from Validation.HGCalValidation.PostProcessorHGCAL_cfi import tsToCP_linking, lcToCP_linking
 
 #To be able to spot any issues both in -z and +z a layer id was introduced
 #that spans from 0 to 103 for hgcal_v9 geometry. The mapping for hgcal_v9 is:
@@ -2311,7 +2311,7 @@ def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_colle
                 purpose=PlotPurpose.Timing, page=layerClustersLabel, section=reg))
   for reg, setPlot in zip(regions_LCtoCP_association, setPlots_LCtoCP_association):
     hgcalLayerClustersPlotter.append(collection+"_"+reg, [
-                _hgcalFolders(collection + "/LCtoCP_association")
+                _hgcalFolders(collection + "/" + lcToCP_linking)
                 ], PlotFolder(
                 *setPlot,
                 loopSubFolders=False,
@@ -2473,7 +2473,7 @@ def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collect
 
   # Appending plots for Tracksters to CP linking
   hgcalTrackstersPlotter.append(collection, [
-              _hgcalFolders(collection + "/"+tsToCP_linking)
+              _hgcalFolders(collection + "/" + tsToCP_linking)
               ], PlotFolder(
               *_trackstersToCPLinkPlots,
               loopSubFolders=False,
