@@ -1,10 +1,8 @@
 <export>
   <lib   name="1"/>
 </export>
-<use   name="Utilities/StorageFactory"/>
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="xrootd"/>
-<lib   name="XrdCl"/>
-<lib   name="XrdUtils"/>
-<flags   CPPDEFINES="_FILE_OFFSET_BITS=64"/>
+<use name="Utilities/StorageFactory"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/MessageLogger"/>
+<use name="xrootd"/>
+<flags CPPDEFINES="_FILE_OFFSET_BITS=64"/>
