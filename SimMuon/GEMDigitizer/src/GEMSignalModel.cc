@@ -68,7 +68,8 @@ void GEMSignalModel::simulate(const GEMEtaPartition* roll,
     if (!(digiMuon || digiElec))
       continue;
     const int bx(getSimHitBx(&hit, engine));
-    if (bx != 0 and bx0filter_) continue;
+    if (bx != 0 and bx0filter_)
+      continue;
     const std::vector<std::pair<int, int> >& cluster(simulateClustering(top, &hit, bx, engine));
     for (const auto& digi : cluster) {
       detectorHitMap_.emplace(digi, &hit);
