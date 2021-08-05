@@ -86,12 +86,14 @@ public:
     std::string fullpath(proto + ":" + path);
     XrdCl::URL url(fullpath);
     XrdCl::FileSystem fs(url);
-    std::vector<std::string> fileList; fileList.push_back(url.GetPath());
-    auto status = fs.Prepare(fileList, XrdCl::PrepareFlags::Stage, 0, &m_null_handler);
-    if (!status.IsOK())
-    {
-        edm::LogWarning("StageInError") << "XrdCl::FileSystem::Prepare failed with error '"
-                                        << status.ToStr() << "' (errNo = " << status.errNo << ")";
+    XrdCl::Buffer *buffer = nullptr;
+    std::vector<std::string> fileList;
+    fileList.push_back(url.GetPath());
+    auto status = fs.Prepare(fileList, XrdCl::PrepareFlags::Stage, 0, buffer);
+    delete buffer;
+    if (!status.IsOK()) {
+      edm::LogWarning("StageInError") << "XrdCl::FileSystem::Prepare failed with error '" << status.ToStr()
+                                      << "' (errNo = " << status.errNo << ")";
     }
   }
 
