@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
-from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
+from Configuration.Generator.MCTunes2017.PythiaCP5Settings_cfi import *
 from GeneratorInterface.EvtGenInterface.EvtGenSetting_cff import *
 
 generator = cms.EDFilter("Pythia8GeneratorFilter",
@@ -26,8 +26,8 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                         ),
                         PythiaParameters = cms.PSet(
                            pythia8CommonSettingsBlock,
-                           pythia8CUEP8M1SettingsBlock,
-                           processParameters = cms.vstring(            
+                           pythia8CP5SettingsBlock,
+                           processParameters = cms.vstring(
                               #filter of a b-quark before hadronizing, and use a better data-like process
                               'PTFilter:filter = on',
                               'PTFilter:quarkToFilter = 5',
@@ -35,7 +35,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                               'SoftQCD:nonDiffractive = on',
                            ),
                            parameterSets = cms.vstring('pythia8CommonSettings',
-                                    'pythia8CUEP8M1Settings',
+                                    'pythia8CP5Settings',
                                     'processParameters',
                            )
                         )

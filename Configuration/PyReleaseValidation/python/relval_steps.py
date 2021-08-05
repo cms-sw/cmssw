@@ -1305,10 +1305,12 @@ step1GENNormal = {'--relval'     : '9000,50',
                  }
 
 steps['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
+steps['DYToll012Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/DYToll012Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['TTbar_Pow_LHE_13TeV']=genvalid('Configuration/Generator/python/TTbar_Pow_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['DYToll012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/DYToll012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['WTolNu01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/WTolNu01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
+steps['WTolNu012Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/WTolNu012Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['GGToH_Pow_LHE_13TeV']=genvalid('Configuration/Generator/python/GGToH_Pow_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['VHToH_Pow_LHE_13TeV']=genvalid('Configuration/Generator/python/VHToH_Pow_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['VBFToH_Pow_JHU4l_LHE_13TeV']=genvalid('Configuration/Generator/python/VBFToH_Pow_JHU4l_LHE_13TeV_cff.py',step1LHEDefaults)
@@ -1461,7 +1463,7 @@ steps['VBFHToBB_M125_Pow_py8_Evt_13UP18']=lhegensim2018('Configuration/Generator
 
 #Sherpa
 steps['sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER']=genvalid('sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER_cff',step1GenDefaults)
-steps['sherpa_ZtoEE_0j_OpenLoops_13TeV_MASTER']=genvalid('sherpa_ZtoEE_0j_OpenLoops_13TeV_MASTER_cff',step1GenDefaults)
+steps['sherpa_ZtoLL_2j_MEPSatNLO_13TeV_MASTER']=genvalid('sherpa_ZtoLL_2j_MEPSatNLO_13TeV_MASTER_cff',step1GenDefaults)
 steps['sherpa_ttbar_2j_MENLOPS_13TeV_MASTER']=genvalid('sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_cff',step1GenDefaults)
 
 #Herwig7
@@ -1472,11 +1474,11 @@ steps['TTbar_13TeV_Pow_herwig7']=genvalid('Configuration/Generator/python/TT_13T
 steps['ReggeGribovPartonMC_EposLHC_5TeV_pPb']=genvalid('GeneratorInterface/ReggeGribovPartonMCInterface/ReggeGribovPartonMC_EposLHC_5TeV_pPb_cfi',step1GenDefaults)
 
 # B-physics
-steps['BuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('BuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
+steps['BuToKstarJPsiToMuMu_forSTEAM_13TeV']=genvalid('BuToKstarJPsiToMuMu_forSTEAM_13TeV_cfi',step1GenDefaults)
 steps['Upsilon4swithBuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('Upsilon4swithBuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
 steps['Upsilon4sBaBarExample_BpBm_Dstarpipi_D0Kpi_nonres_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('Upsilon4sBaBarExample_BpBm_Dstarpipi_D0Kpi_nonres_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
 steps['LambdaBToLambdaMuMuToPPiMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('LambdaBToLambdaMuMuToPPiMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
-steps['BsToMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('BsToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
+steps['BsToMuMu_forSTEAM_13TeV']=genvalid('BsToMuMu_forSTEAM_13TeV_cfi',step1GenDefaults)
 
 
 # sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
