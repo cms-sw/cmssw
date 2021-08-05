@@ -36,9 +36,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-#include "HcalTB02HcalNumberingScheme.h"
-#include "HcalTB02XtalNumberingScheme.h"
-#include "HcalTB02Histo.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB02HcalNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB02XtalNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB02Histo.h"
 
 #include "G4HCofThisEvent.hh"
 #include "G4SDManager.hh"

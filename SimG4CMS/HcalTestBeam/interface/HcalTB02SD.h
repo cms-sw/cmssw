@@ -26,7 +26,7 @@
 #include "Geometry/HcalTestBeamData/interface/HcalTB02Parameters.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "HcalTB02NumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB02NumberingScheme.h"
 
 class HcalTB02SD : public CaloSD {
 public:
