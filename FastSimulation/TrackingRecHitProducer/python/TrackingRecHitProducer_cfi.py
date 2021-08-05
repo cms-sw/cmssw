@@ -2,41 +2,44 @@
 
 import FWCore.ParameterSet.Config as cms
 
+ULresolutionHistograms = False
+
 # Load the detailed configurations of pixel plugins.
 # NB: for any new detector geometry (e.g. Phase 2 varians), we should write a new plugin
 # config file, and import it here, and below use its own Era to load it.
 #
-from FastSimulation.TrackingRecHitProducer.PixelPluginsPhase0_cfi import pixelPluginsPhase0
-from FastSimulation.TrackingRecHitProducer.PixelPluginsPhase1_cfi import pixelPluginsPhase1
-from FastSimulation.TrackingRecHitProducer.PixelPluginsPhase2_cfi import pixelPluginsPhase2
+if ULresolutionHistograms:
+    from FastSimulation.TrackingRecHitProducer.PixelPluginsUL_cfi import pixelPlugins2016UL, pixelPlugins2017UL, pixelPlugins2018UL
+    fastTrackerRecHits = cms.EDProducer("TrackingRecHitProducer",
+        simHits = cms.InputTag("fastSimProducer","TrackerHits"),
+        plugins = pixelPlugins2016UL
+    )
 
-# The default is (for better of worse) Phase 0:
-fastTrackerRecHits = cms.EDProducer("TrackingRecHitProducer",
-    simHits = cms.InputTag("fastSimProducer","TrackerHits"),
-    plugins = pixelPluginsPhase0
-)
+    # Modify 2017 and 2018 eras directly
+    from Configuration.Eras.Era_Run2_2017_FastSim_cff import Run2_2017_FastSim
+    Run2_2017_FastSim.toModify(fastTrackerRecHits, plugins = pixelPlugins2017UL)
 
-# Phase 1 Era: replace plugins by Phase 1 plugins
-from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toModify(fastTrackerRecHits, plugins = pixelPluginsPhase1)
+    from Configuration.Eras.Era_Run2_2018_FastSim_cff import Run2_2018_FastSim
+    Run2_2018_FastSim.toModify(fastTrackerRecHits, plugins = pixelPlugins2018UL)
 
-# Phase 2 Era: replace plugins by Phase 2 plugins, etc...
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(fastTrackerRecHits, plugins = pixelPluginsPhase2)
+else:
+    from FastSimulation.TrackingRecHitProducer.PixelPluginsPhase0_cfi import pixelPluginsPhase0
+    from FastSimulation.TrackingRecHitProducer.PixelPluginsPhase1_cfi import pixelPluginsPhase1
+    from FastSimulation.TrackingRecHitProducer.PixelPluginsPhase2_cfi import pixelPluginsPhase2
 
-# UL version of the same
-from FastSimulation.TrackingRecHitProducer.PixelPluginsUL_cfi import pixelPlugins2016UL, pixelPlugins2017UL, pixelPlugins2018UL
-fastTrackerRecHitsUL = cms.EDProducer("TrackingRecHitProducer",
-    simHits = cms.InputTag("fastSimProducer","TrackerHits"),
-    plugins = pixelPlugins2016UL
-)
+    # The default is (for better of worse) Phase 0:
+    fastTrackerRecHits = cms.EDProducer("TrackingRecHitProducer",
+        simHits = cms.InputTag("fastSimProducer","TrackerHits"),
+        plugins = pixelPluginsPhase0
+    )
 
-# Modify 2017 and 2018 eras directly
-from Configuration.Eras.Era_Run2_2017_FastSim_cff import Run2_2017_FastSim
-Run2_2017_FastSim.toModify(fastTrackerRecHitsUL, plugins = pixelPlugins2017UL)
+    # Phase 1 Era: replace plugins by Phase 1 plugins
+    from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+    phase1Pixel.toModify(fastTrackerRecHits, plugins = pixelPluginsPhase1)
 
-from Configuration.Eras.Era_Run2_2018_FastSim_cff import Run2_2018_FastSim
-Run2_2018_FastSim.toModify(fastTrackerRecHitsUL, plugins = pixelPlugins2018UL)
+    # Phase 2 Era: replace plugins by Phase 2 plugins, etc...
+    from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+    phase2_tracker.toModify(fastTrackerRecHits, plugins = pixelPluginsPhase2)
 
 # Configure strip tracker Gaussian-smearing plugins:
 trackerStripGaussianResolutions={
