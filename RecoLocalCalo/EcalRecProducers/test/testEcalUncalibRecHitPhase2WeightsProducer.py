@@ -30,7 +30,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/b/bpinolin/public/EcalPh2/step2.root'),
+    fileNames = cms.untracked.vstring('file:/eos/cms/store/group/dpg_ecal/comm_ecal/upgrade/Phase2CMSSW/step2_digi_cmssw_12_X.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
