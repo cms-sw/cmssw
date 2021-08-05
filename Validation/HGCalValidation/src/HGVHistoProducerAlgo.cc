@@ -2317,8 +2317,8 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(const Histograms& histogr
     }
   }
 
-  for (unsigned int i = 0; i < nSimTracksters; ++i) {
-    const auto& cpId = simTSFromCP[i].seedIndex();
+  for (unsigned int iSTS = 0; iSTS < nSimTracksters; ++iSTS) {
+    const auto& cpId = simTSFromCP[iSTS].seedIndex();
     if (std::find(cPIndices.begin(), cPIndices.end(), cpId) == cPIndices.end())
       continue;
 
@@ -2347,17 +2347,15 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(const Histograms& histogr
           auto hit_find_it = detIdSimTSId_Map.find(hitid);
           if (hit_find_it == detIdSimTSId_Map.end()) {
             detIdSimTSId_Map[hitid] = std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>();
-            detIdSimTSId_Map[hitid].emplace_back(
-                HGVHistoProducerAlgo::detIdInfoInCluster{i, it_haf.second});
+            detIdSimTSId_Map[hitid].emplace_back(HGVHistoProducerAlgo::detIdInfoInCluster{iSTS, it_haf.second});
           } else {
             auto findHitIt = std::find(detIdSimTSId_Map[hitid].begin(),
                                        detIdSimTSId_Map[hitid].end(),
-                                       HGVHistoProducerAlgo::detIdInfoInCluster{i, it_haf.second});
+                                       HGVHistoProducerAlgo::detIdInfoInCluster{iSTS, it_haf.second});
             if (findHitIt != detIdSimTSId_Map[hitid].end()) {
               findHitIt->fraction += it_haf.second;
             } else {
-              detIdSimTSId_Map[hitid].emplace_back(
-                  HGVHistoProducerAlgo::detIdInfoInCluster{i, it_haf.second});
+              detIdSimTSId_Map[hitid].emplace_back(HGVHistoProducerAlgo::detIdInfoInCluster{iSTS, it_haf.second});
             }
           }
           //Since the current hit from sim cluster has a reconstructed hit with the same detid,
@@ -2381,7 +2379,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(const Histograms& histogr
         }
       }  // end of loop through simhits
     }    // end of loop through SimClusters
-  }      // end of loop through CaloParticles
+  }      // end of loop through SimTracksters
 
   auto apply_LCMultiplicity = [](const ticl::Trackster& trackster, const reco::CaloClusterCollection& layerClusters) {
     std::vector<std::pair<DetId, float>> hits_and_fractions_norm;
@@ -2494,8 +2492,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(const Histograms& histogr
           CPEnergyInTS[cpId] += shared_fraction * hit->energy();
           //Here cPOnLayer[caloparticle][layer] describe above is set.
           //Here for Tracksters with matched rechit the CP fraction times hit energy is added and saved .
-          cPOnLayer[cpId][lcLayerId].layerClusterIdToEnergyAndScore[tstId].first +=
-              shared_fraction * hit->energy();
+          cPOnLayer[cpId][lcLayerId].layerClusterIdToEnergyAndScore[tstId].first += shared_fraction * hit->energy();
           cPOnLayer[cpId][lcLayerId].layerClusterIdToEnergyAndScore[tstId].second = FLT_MAX;
           //stsInTrackster[trackster][STSids]
           //Connects a Trackster with all related SimTracksters.
@@ -2728,9 +2725,9 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(const Histograms& histogr
                                  << "maxEnergyTSinCP\t" << std::setw(20) << "CPEnergyFractionInTS"
                                  << "\n";
       LogDebug("HGCalValidator") << std::setw(8) << layerId << "\t" << std::setw(12) << cpId << "\t" << std::setw(15)
-                                 << simTSFromCP[cpId].raw_energy() << "\t" << std::setw(15) << CPenergy << "\t" << std::setw(14)
-                                 << CPNumberOfHits << "\t" << std::setw(18) << tstWithMaxEnergyInCP << "\t"
-                                 << std::setw(15) << maxEnergyTSperlayerinCP << "\t" << std::setw(20)
+                                 << simTSFromCP[cpId].raw_energy() << "\t" << std::setw(15) << CPenergy << "\t"
+                                 << std::setw(14) << CPNumberOfHits << "\t" << std::setw(18) << tstWithMaxEnergyInCP
+                                 << "\t" << std::setw(15) << maxEnergyTSperlayerinCP << "\t" << std::setw(20)
                                  << CPEnergyFractionInTSperlayer << "\n";
 
       for (unsigned int i = 0; i < CPNumberOfHits; ++i) {

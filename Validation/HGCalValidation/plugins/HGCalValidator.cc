@@ -199,7 +199,7 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
     //Booking histograms concerning HGCal tracksters
     if (doTrackstersPlots_) {
       histoProducerAlgo_->bookTracksterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
-      ibook.setCurrentFolder(dirName+"/"+label_TSToCPLinking_.label());
+      ibook.setCurrentFolder(dirName + "/" + label_TSToCPLinking_.label());
       histoProducerAlgo_->bookTracksterCPLinkingHistos(ibook, histograms.histoProducerAlgo);
     }
   }  //end of booking Tracksters loop
