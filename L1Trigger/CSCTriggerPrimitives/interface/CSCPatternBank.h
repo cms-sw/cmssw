@@ -53,6 +53,10 @@ public:
   // New patterns for Run-3
   static const LCTPatterns clct_pattern_run3_;
 
+  // New patterns for Run-3
+  // 11-bit version where only 1 half-strip position is allowed on the key layer
+  static const LCTPatterns clct_pattern_run3_11bit_;
+
   // half strip offsets per layer for each half strip in the pattern envelope
   static const int clct_pattern_offset_[CSCConstants::CLCT_PATTERN_WIDTH];
 
