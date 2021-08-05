@@ -62,6 +62,8 @@ _generator = cms.EDFilter("SherpaGeneratorFilter",
 )
 
 from GeneratorInterface.Core.ExternalGeneratorFilter import ExternalGeneratorFilter
-generator = ExternalGeneratorFilter(_generator)
+generator = ExternalGeneratorFilter(_generator,
+                                    _external_process_waitTime_=cms.untracked.uint32(1200), # increase the max waitTime for Sherpa
+                                    )
 
 ProductionFilterSequence = cms.Sequence(generator)
