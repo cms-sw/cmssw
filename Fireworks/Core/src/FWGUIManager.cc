@@ -69,7 +69,7 @@
 
 #include "Fireworks/Core/interface/CmsShowHelpPopup.h"
 
-#include "Fireworks/Core/src/CmsShowTaskExecutor.h"
+#include "Fireworks/Core/interface/CmsShowTaskExecutor.h"
 
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 #include "Fireworks/Core/interface/FWIntValueListener.h"

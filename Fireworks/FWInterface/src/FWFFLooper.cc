@@ -9,7 +9,7 @@
 #include "Fireworks/Core/interface/FWConfigurationManager.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
-#include "Fireworks/Core/src/CmsShowTaskExecutor.h"
+#include "Fireworks/Core/interface/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/CSGContinuousAction.h"
