@@ -19,7 +19,6 @@
 // User include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"
 
