@@ -2,6 +2,7 @@
 #define __XRD_STATISTICS_SERVICE_H_
 
 #include "Utilities/StorageFactory/interface/IOTypes.h"
+#include "Utilities/XrdAdaptor/interface/XrdStatistics.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <atomic>
@@ -32,24 +33,19 @@ namespace XrdAdaptor {
  * singleton on non-CMSSW-created threads.  Services are only available to threads
  * created by CMSSW.
  */
-  class XrdStatisticsService {
+  class XrdStatisticsService : public xrd_adaptor::XrdStatistics {
   public:
     XrdStatisticsService(const edm::ParameterSet &iPS, edm::ActivityRegistry &iRegistry);
 
     void postEndJob();
 
-    void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
-
-    struct CondorIOStats {
-      uint64_t bytesRead{0};
-      std::chrono::nanoseconds transferTime{0};
-    };
+    static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
     // Provide an update of per-site transfer statistics to the CondorStatusService.
     // Returns a mapping of "site name" to transfer statistics.  The "site name" is
     // as self-identified by the Xrootd host; may not necessarily match up with the
     // "CMS site name".
-    std::vector<std::pair<std::string, CondorIOStats>> condorUpdate();
+    std::vector<std::pair<std::string, CondorIOStats>> condorUpdate() final;
   };
 
   class XrdSiteStatisticsInformation {
