@@ -31,7 +31,7 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
   booker.setCurrentFolder("GEM/Digis");
 
   if (detail_plot_) {
-    me_detail_bx_ = booker.book1D("strip_bx", "Strip Digi Bunch Crossing", 5, -2.5, 2.5);
+    me_detail_bx_ = booker.book1D("bx", "Strip Digi Bunch Crossing", 5, -2.5, 2.5);
 
     for (const auto& region : gem->regions()) {
       if (region == nullptr) {
@@ -63,7 +63,7 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
           ME3IdsKey key3(region_id, station_id, layer_id);
 
           me_detail_bx_layer_[key3] =
-              bookHist1D(booker, key3, "strip_bx", "Strip Digi Bunch Crossing", 5, -2.5, 2.5, "Bunch crossing");
+              bookHist1D(booker, key3, "bx", "Strip Digi Bunch Crossing", 5, -2.5, 2.5, "Bunch crossing");
         }  // chamber loop
       }    // station loop
     }      // region loop
@@ -84,7 +84,7 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
       Int_t station_id = station->station();
       ME2IdsKey key2{region_id, station_id};
 
-      me_occ_pid_[key2] = bookPIDHist(booker, key2, "strip_occ_pid", "Number of entreis for each particle");
+      me_occ_pid_[key2] = bookPIDHist(booker, key2, "sim_occ_pid", "Particle population");
 
       if (detail_plot_) {
         me_detail_total_strip_[key2] =
@@ -93,7 +93,7 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
         me_detail_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "strip", "Strip Digi");
 
         me_detail_strip_occ_det_[key2] =
-            bookDetectorOccupancy(booker, key2, station, "matched_strip", "Matched Strip Digi");
+            bookDetectorOccupancy(booker, key2, station, "sim_matched_strip", "Matched Strip Digi");
       }
 
       const auto& superChamberVec = station->superChambers();
@@ -104,8 +104,7 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
         for (const auto& etaPart : superChamberVec[0]->chambers()[0]->etaPartitions()) {
           Int_t ieta = etaPart->id().ieta();
           ME3IdsKey key{region_id, station_id, ieta};
-          me_occ_pid_eta_[key] =
-              bookPIDHist(booker, key2, ieta, "strip_occ_pid", "Number of entries for each particles");
+          me_occ_pid_eta_[key] = bookPIDHist(booker, key2, ieta, "sim_occ_pid", "Particle population");
         }
         for (const auto& chamber : superChamberVec[0]->chambers()) {
           if (chamber == nullptr) {
@@ -129,7 +128,7 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 
             me_detail_strip_occ_eta_[key3] = bookHist1D(booker,
                                                         key3,
-                                                        "matched_strip_occ_eta",
+                                                        "sim_matched_occ_eta",
                                                         "Matched Strip Eta Occupancy",
                                                         16,
                                                         eta_range_[station_id * 2 + 0],
@@ -137,13 +136,13 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker& booker,
                                                         "#eta");
 
             me_detail_strip_occ_phi_[key3] = bookHist1D(
-                booker, key3, "matched_strip_occ_phi", "Matched Strip Phi Occupancy", 36, -5, 355, "#phi [degrees]");
+                booker, key3, "sim_matched_occ_phi", "Matched Strip Phi Occupancy", 36, -5, 355, "#phi [degrees]");
 
             me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "strip", "Strip Digi");
 
             me_detail_occ_strip_[key3] = bookHist1D(booker,
                                                     key3,
-                                                    "strip_occ_strip",
+                                                    "occ_strip",
                                                     "Strip Digi Occupancy per strip number",
                                                     num_strips,
                                                     0.5,

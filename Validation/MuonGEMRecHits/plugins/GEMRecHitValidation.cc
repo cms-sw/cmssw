@@ -182,8 +182,7 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
       ME2IdsKey key2{region_id, station_id};
 
       if (detail_plot_)
-        me_detail_rechit_occ_det_[key2] =
-            bookDetectorOccupancy(booker, key2, station, "matched_rechit", "Matched RecHit");
+        me_detail_rechit_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "sim_matched", "Matched RecHit");
 
       const auto& superChamberVec = station->superChambers();
       if (!superChamberVec.empty() && superChamberVec[0] != nullptr) {
@@ -195,7 +194,7 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
 
           me_rechit_occ_eta_[key3] = bookHist1D(booker,
                                                 key3,
-                                                "matched_rechit_occ_eta",
+                                                "sim_matched_occ_eta",
                                                 "Matched RecHit Eta Occupancy",
                                                 16,
                                                 eta_range_[station_id * 2 + 0],
@@ -203,24 +202,23 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
                                                 "|#eta|");
 
           me_rechit_occ_phi_[key3] =
-              bookHist1D(booker, key3, "matched_rechit_occ_phi", "Matched RecHit Phi Occupancy", 36, -5, 355, "#phi");
+              bookHist1D(booker, key3, "sim_matched_occ_phi", "Matched RecHit Phi Occupancy", 36, -5, 355, "#phi");
 
           if (detail_plot_) {
             me_detail_total_rechit_[key3] =
                 bookHist1D(booker, key3, "total_rechit", "Number of rec hits per event", 25, -0.5, 24.5);
 
-            me_detail_occ_pid_[key3] =
-                bookPIDHist(booker, key3, "rechit_occ_pid", "Number of entreis for each particle");
+            me_detail_occ_pid_[key3] = bookPIDHist(booker, key3, "sim_occ_pid", "Number of entreis for each particle");
 
             me_detail_occ_ieta_[key3] = bookHist1D(booker,
                                                    key3,
-                                                   "rechit_occ_ieta",
+                                                   "occ_ieta",
                                                    "Rechit Occupancy per eta partition",
                                                    num_eta_partitions,
                                                    0.5,
                                                    num_eta_partitions + 0.5);
 
-            me_detail_occ_phi_[key3] = bookHist1D(booker, key3, "rechit_occ_phi", "Rechit Phi Occupancy", 108, -5, 355);
+            me_detail_occ_phi_[key3] = bookHist1D(booker, key3, "occ_phi", "Rechit Phi Occupancy", 108, -5, 355);
 
             me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "rechit", "RecHit");
 
