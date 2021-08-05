@@ -37,7 +37,7 @@ DQMHcalIterativePhiSymAlCaReco::DQMHcalIterativePhiSymAlCaReco(const edm::Parame
   //
   // Input from configurator file
   //
-  folderName_ = ps.getParameter<std::string>("FolderName");
+  folderName_ = ps.getParameter<std::string>("folderName");
 
   // histogram parameters
   tok_ho_ = consumes<HORecHitCollection>(ps.getParameter<edm::InputTag>("hoInput"));
