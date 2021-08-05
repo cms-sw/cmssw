@@ -85,7 +85,7 @@
 
 #include "FWCore/Common/interface/EventBase.h"
 
-#include "CommonTools/Utils/src/Grammar.h"
+#include "CommonTools/Utils/interface/Grammar.h"
 #include "CommonTools/Utils/interface/Exception.h"
 
 // constants, enums and typedefs
