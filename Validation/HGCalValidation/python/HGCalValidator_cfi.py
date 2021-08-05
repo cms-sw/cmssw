@@ -41,10 +41,10 @@ hgcalValidator = DQMEDAnalyzer(
     doSimClustersPlots = cms.untracked.bool(True),
     #Layer Cluster related plots
     doLayerClustersPlots = cms.untracked.bool(True),
-    label_LCToCPLinking = cms.untracked.InputTag("LCToCP_association"),
+    label_LCToCPLinking = cms.InputTag("LCToCP_association"),
     #Trackster related plots
     doTrackstersPlots = cms.untracked.bool(True),
-    label_TSToCPLinking = cms.untracked.InputTag("TSToCP_linking"),
+    label_TSToCPLinking = cms.InputTag("TSToCP_linking"),
 
     #The cumulative material budget in front of each layer. To be more specific, it
     #is the material budget just in front of the active material (not including it).
