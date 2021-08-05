@@ -4,7 +4,7 @@
  *  \author G. Cerminara - INFN Torino
  */
 
-#include "DTTTrigSyncT0Only.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigSyncT0Only.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"

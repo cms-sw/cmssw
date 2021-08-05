@@ -4,7 +4,7 @@
  *  \author G. Cerminara - INFN Torino
  */
 
-#include "DTTTrigSyncTOFCorr.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigSyncTOFCorr.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
