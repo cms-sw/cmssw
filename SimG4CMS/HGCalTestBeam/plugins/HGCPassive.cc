@@ -14,7 +14,6 @@
 
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
-#include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 
@@ -24,19 +23,12 @@
 #include "G4TransportationManager.hh"
 #include "G4TouchableHistory.hh"
 #include "G4Track.hh"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "DD4hep/Filter.h"
 
 #include <array>
 #include <cmath>
-#include <iomanip>
-#include <iostream>
 #include <map>
-#include <memory>
 #include <string>
-
-#include <utility>
 #include <vector>
 
 //#define EDM_ML_DEBUG
