@@ -20,7 +20,7 @@ namespace l1t {
       for (auto imu = muons->begin(); imu != muons->end(); imu++) {
         if (imu->processor() + 1 == board_id) {
           uint32_t firstWord(0), lastWord(0);
-          RegionalMuonRawDigiTranslator::generatePackedDataWords(*imu, firstWord, lastWord, isKalman_);
+          RegionalMuonRawDigiTranslator::generatePackedDataWords(*imu, firstWord, lastWord, isKalman_, false);
           payloadMap_[bmtfBlockID].push_back(firstWord);  //imu->link()*2+1
           payloadMap_[bmtfBlockID].push_back(lastWord);   //imu->link()*2+1
         }
