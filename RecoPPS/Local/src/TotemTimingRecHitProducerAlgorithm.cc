@@ -75,6 +75,7 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
       auto [min_it, max_it] = std::minmax_element(data.begin(), data.end());
 
       if (det->name() == "CTPPS_Diamond_Segment") {
+        //flip the signal
         for (unsigned int i = 0; i < data.size(); ++i)
           data[i] = -data[i] + sampicOffset_;
       }
@@ -88,7 +89,12 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
       auto max_corrected_it = std::max_element(dataCorrected.begin(), dataCorrected.end());
 
       float t = TotemTimingRecHit::NO_T_AVAILABLE;
-      if (det->name() == "CTPPS_Diamond_Segment" && (*min_it) > saturationLimit_ || (*max_it) < saturationLimit_)
+
+      //if det==diamond then if (*min_it) > saturationLimit_), calculate the t, otherwise t=-100
+      //if det==ufsd then if (*max_it) < saturationLimit_), calculate the t, otherwise t=-100
+      //the difference between ufsd and sampic conditions comes from the signal flip
+      if ((det->name() == "CTPPS_Diamond_Segment" && (*min_it) > saturationLimit_) ||
+          (det->name() == "CTPPS_UFSD_Segment" && (*max_it) < saturationLimit_))
         t = constantFractionDiscriminator(time, dataCorrected);
       mode_ = TotemTimingRecHit::CFD;
       rec_hits.emplace_back(x_pos,
