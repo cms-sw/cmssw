@@ -59,13 +59,51 @@ namespace edm::shared_memory {
       iF();
       using namespace boost::posix_time;
       //std::cout << id_ << " waiting for external process" << std::endl;
-
+      *transitionID_ = std::numeric_limits<unsigned long long>::max();
       if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(maxWaitInSeconds_))) {
         //std::cout << id_ << " FAILED waiting for external process" << std::endl;
-        throw cms::Exception("ExternalFailed");
+        if (*transitionID_ == std::numeric_limits<unsigned long long>::max()) {
+          *stop_ = true;
+          throw cms::Exception("ExternalFailed")
+              << "Failed waiting for external process while setting up the process. Timed out after "
+              << maxWaitInSeconds_ << " seconds.";
+        }
       } else {
         //std::cout << id_ << " done waiting for external process" << std::endl;
       }
+    }
+
+    /** setupWorkerWithRetry works just like setupWorker except it gives a way to continue waiting. The functor iRetry should return true if, after a timeout,
+     the code should continue to wait.
+     */
+    template <typename F, typename FRETRY>
+    void setupWorkerWithRetry(F&& iF, FRETRY&& iRetry) {
+      using namespace boost::interprocess;
+      scoped_lock<named_mutex> lock(mutex_);
+      iF();
+      using namespace boost::posix_time;
+      *transitionID_ = std::numeric_limits<unsigned long long>::max();
+      //std::cout << id_ << " waiting for external process" << std::endl;
+      bool shouldContinue = true;
+      long long int retryCount = 0;
+      do {
+        if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(maxWaitInSeconds_))) {
+          if (*transitionID_ == std::numeric_limits<unsigned long long>::max()) {
+            if (not iRetry()) {
+              *stop_ = true;
+              throw cms::Exception("ExternalFailed")
+                  << "Failed waiting for external process while setting up the process. Timed out after "
+                  << maxWaitInSeconds_ << " seconds with " << retryCount << " retries.";
+            }
+            //std::cerr<<"retrying\n";
+            ++retryCount;
+          } else {
+            shouldContinue = false;
+          }
+        } else {
+          shouldContinue = false;
+        }
+      } while (shouldContinue);
     }
 
     template <typename F>
@@ -75,8 +113,36 @@ namespace edm::shared_memory {
       //std::cout << id_ << " taking from lock" << std::endl;
       scoped_lock<named_mutex> lock(mutex_);
 
-      if (not wait(lock, iTrans, iTransitionID)) {
+      if (not wait(lock, iTrans, iTransitionID) and *transitionID_ == iTransitionID) {
         return false;
+      }
+      //std::cout <<id_<<"running doTranstion command"<<std::endl;
+      iF();
+      return true;
+    }
+
+    template <typename F, typename FRETRY>
+    bool doTransitionWithRetry(F&& iF, FRETRY&& iRetry, edm::Transition iTrans, unsigned long long iTransitionID) {
+      using namespace boost::interprocess;
+
+      //std::cout << id_ << " taking from lock" << std::endl;
+      scoped_lock<named_mutex> lock(mutex_);
+      if (not wait(lock, iTrans, iTransitionID) and *transitionID_ == iTransitionID) {
+        if (not iRetry()) {
+          return false;
+        }
+        bool shouldContinue = true;
+        do {
+          using namespace boost::posix_time;
+          if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(maxWaitInSeconds_)) and
+              *transitionID_ == iTransitionID) {
+            if (not iRetry()) {
+              return false;
+            }
+          } else {
+            shouldContinue = false;
+          }
+        } while (shouldContinue);
       }
       //std::cout <<id_<<"running doTranstion command"<<std::endl;
       iF();
