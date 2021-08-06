@@ -164,7 +164,3 @@ _withFixEE2017_task = cms.Task(metTablesTask.copy(), metFixEE2017Table)
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
     modifier.toReplaceWith(metTablesTask,_withFixEE2017_task) # only in old miniAOD, the new ones will come from the UL rereco
 metMCTask = cms.Task( metMCTable )
-
-
-#TEMPORARY since neede to disable the met-reconstruction
-(run2_miniAOD_80XLegacy).toReplaceWith(metTablesTask, metTablesTask.copyAndExclude([tkMetTable,chsMetTable]))
