@@ -53,17 +53,17 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
-  std::vector<std::string> sampicFilesVec;
+  std::vector<std::string> sampicFilesVec_;
   std::unordered_map<unsigned int, std::vector<unsigned int>> detid_vs_chid_;
-  std::unique_ptr<TChain> inputTree;
+  std::unique_ptr<TChain> inputTree_;
 
   //constants
-  const int MAX_SAMPIC_CHANNELS = 32;
-  const int SAMPIC_SAMPLES = 64;
-  const int LHC_CLK_PERIOD_NS = 25;
-  const int MAX_BUNCH_NUMBER = 3564;
-  const double LHC_ORBIT_PERIOD_NS = 88924.45;
-  const double SAMPIC_OFFSET = 1.2;
+  const int kMaxSampicChannels = 32;
+  const int kSampicSamples = 64;
+  const int kLhcClkPeriod = 25;
+  const int kMaxBunchNumber = 3564;
+  const double kLhcOrbitPeriodNs = 88924.45;
+  const double kSampicOffset = 1.2;
 };
 
 //
@@ -74,13 +74,13 @@ using namespace edm;
 using namespace std;
 
 DiamondSampicDigiProducer::DiamondSampicDigiProducer(const edm::ParameterSet& iConfig)
-    : sampicFilesVec(iConfig.getParameter<std::vector<std::string>>("sampicFilesVec")) {
+    : sampicFilesVec_(iConfig.getParameter<std::vector<std::string>>("sampicFilesVec")) {
   for (const auto& id_map : iConfig.getParameter<std::vector<edm::ParameterSet>>("idsMapping"))
     detid_vs_chid_[id_map.getParameter<unsigned int>("treeChId")] = id_map.getParameter<vector<unsigned int>>("detId");
 
-  inputTree = std::make_unique<TChain>("desy");
-  for (const auto& fname : sampicFilesVec)
-    inputTree->Add(fname.c_str());
+  inputTree_ = std::make_unique<TChain>("desy");
+  for (const auto& fname : sampicFilesVec_)
+    inputTree_->Add(fname.c_str());
 
   produces<DetSetVector<TotemTimingDigi>>("TotemTiming");
 }
@@ -95,27 +95,27 @@ void DiamondSampicDigiProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   uint num_samples;
   double trigger_time;
-  int sample_channel[MAX_SAMPIC_CHANNELS];
-  int sample_cellInfoForOrderedData[MAX_SAMPIC_CHANNELS];
-  unsigned int sample_timestampA[MAX_SAMPIC_CHANNELS];
-  unsigned int sample_timestampB[MAX_SAMPIC_CHANNELS];
-  unsigned long long sample_timestampFPGA[MAX_SAMPIC_CHANNELS];
-  double sample_amp[MAX_SAMPIC_CHANNELS][SAMPIC_SAMPLES];
-  double sample_triggerPosition[MAX_SAMPIC_CHANNELS][SAMPIC_SAMPLES];
+  int sample_channel[kMaxSampicChannels];
+  int sample_cellInfoForOrderedData[kMaxSampicChannels];
+  unsigned int sample_timestampA[kMaxSampicChannels];
+  unsigned int sample_timestampB[kMaxSampicChannels];
+  unsigned long long sample_timestampFPGA[kMaxSampicChannels];
+  double sample_amp[kMaxSampicChannels][kSampicSamples];
+  double sample_triggerPosition[kMaxSampicChannels][kSampicSamples];
 
-  inputTree->SetBranchAddress("num_samples", &num_samples);
-  inputTree->SetBranchAddress("trigger_time", &trigger_time);
-  inputTree->SetBranchAddress("sample_channel", sample_channel);
-  inputTree->SetBranchAddress("sample_timestampFPGA", sample_timestampFPGA);
-  inputTree->SetBranchAddress("sample_timestampA", sample_timestampA);
-  inputTree->SetBranchAddress("sample_timestampB", sample_timestampB);
-  inputTree->SetBranchAddress("sample_cellInfoForOrderedData", sample_cellInfoForOrderedData);
-  inputTree->SetBranchAddress("sample_ampl", sample_amp);
-  inputTree->SetBranchAddress("sample_triggerPosition", sample_triggerPosition);
-  inputTree->GetEntry(eventNum);
+  inputTree_->SetBranchAddress("num_samples", &num_samples);
+  inputTree_->SetBranchAddress("trigger_time", &trigger_time);
+  inputTree_->SetBranchAddress("sample_channel", sample_channel);
+  inputTree_->SetBranchAddress("sample_timestampFPGA", sample_timestampFPGA);
+  inputTree_->SetBranchAddress("sample_timestampA", sample_timestampA);
+  inputTree_->SetBranchAddress("sample_timestampB", sample_timestampB);
+  inputTree_->SetBranchAddress("sample_cellInfoForOrderedData", sample_cellInfoForOrderedData);
+  inputTree_->SetBranchAddress("sample_ampl", sample_amp);
+  inputTree_->SetBranchAddress("sample_triggerPosition", sample_triggerPosition);
+  inputTree_->GetEntry(eventNum);
 
-  int bunchNumber = ((int)trigger_time / LHC_CLK_PERIOD_NS) % MAX_BUNCH_NUMBER;
-  int orbitNumber = (int)(trigger_time / LHC_ORBIT_PERIOD_NS);
+  int bunchNumber = ((int)trigger_time / kLhcClkPeriod) % kMaxBunchNumber;
+  int orbitNumber = (int)(trigger_time / kLhcOrbitPeriodNs);
 
   if (num_samples == 0) {
     iEvent.put(std::move(digi), "TotemTiming");
@@ -133,8 +133,8 @@ void DiamondSampicDigiProducer::produce(edm::Event& iEvent, const edm::EventSetu
     unsigned int offsetOfSamples = 0;
     bool search_for_white_cell = true;
 
-    for (int y = 0; y < SAMPIC_SAMPLES; y++) {
-      samples.push_back((int)(sample_amp[i][y] / SAMPIC_OFFSET * 256));
+    for (int y = 0; y < kSampicSamples; y++) {
+      samples.push_back((int)(sample_amp[i][y] / kSampicOffset * 256));
       if (search_for_white_cell && sample_triggerPosition[i][y] == 1) {
         offsetOfSamples = y;
         search_for_white_cell = false;
