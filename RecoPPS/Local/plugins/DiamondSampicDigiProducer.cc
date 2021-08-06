@@ -39,9 +39,6 @@
 #include "TTree.h"
 #include "TChain.h"
 
-const int MAX_SAMPIC_CHANNELS = 32;
-const int SAMPIC_SAMPLES = 64;
-
 //
 // class declaration
 //
@@ -49,7 +46,6 @@ const int SAMPIC_SAMPLES = 64;
 class DiamondSampicDigiProducer : public edm::stream::EDProducer<> {
 public:
   explicit DiamondSampicDigiProducer(const edm::ParameterSet&);
-  ~DiamondSampicDigiProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -59,8 +55,15 @@ private:
   // ----------member data ---------------------------
   std::vector<std::string> sampicFilesVec;
   std::unordered_map<unsigned int, std::vector<unsigned int>> detid_vs_chid_;
-  TChain* inputTree;
-  std::stringstream ssLog;
+  std::unique_ptr<TChain> inputTree;
+
+  //constants
+  const int MAX_SAMPIC_CHANNELS = 32;
+  const int SAMPIC_SAMPLES = 64;
+  const int LHC_CLK_PERIOD_NS = 25;
+  const int MAX_BUNCH_NUMBER = 3564;
+  const double LHC_ORBIT_PERIOD_NS = 88924.45;
+  const double SAMPIC_OFFSET = 1.2;
 };
 
 //
@@ -75,14 +78,12 @@ DiamondSampicDigiProducer::DiamondSampicDigiProducer(const edm::ParameterSet& iC
   for (const auto& id_map : iConfig.getParameter<std::vector<edm::ParameterSet>>("idsMapping"))
     detid_vs_chid_[id_map.getParameter<unsigned int>("treeChId")] = id_map.getParameter<vector<unsigned int>>("detId");
 
-  inputTree = new TChain("desy");
-  for (uint i = 0; i < sampicFilesVec.size(); i++)
-    inputTree->Add(sampicFilesVec[i].c_str());
+  inputTree = std::make_unique<TChain>("desy");
+  for (const auto& fname : sampicFilesVec)
+    inputTree->Add(fname.c_str());
 
   produces<DetSetVector<TotemTimingDigi>>("TotemTiming");
 }
-
-DiamondSampicDigiProducer::~DiamondSampicDigiProducer() { delete inputTree; }
 
 //
 // member functions
@@ -96,9 +97,9 @@ void DiamondSampicDigiProducer::produce(edm::Event& iEvent, const edm::EventSetu
   double trigger_time;
   int sample_channel[MAX_SAMPIC_CHANNELS];
   int sample_cellInfoForOrderedData[MAX_SAMPIC_CHANNELS];
-  uint sample_timestampA[MAX_SAMPIC_CHANNELS];
-  uint sample_timestampB[MAX_SAMPIC_CHANNELS];
-  ULong64_t sample_timestampFPGA[MAX_SAMPIC_CHANNELS];
+  unsigned int sample_timestampA[MAX_SAMPIC_CHANNELS];
+  unsigned int sample_timestampB[MAX_SAMPIC_CHANNELS];
+  unsigned long long sample_timestampFPGA[MAX_SAMPIC_CHANNELS];
   double sample_amp[MAX_SAMPIC_CHANNELS][SAMPIC_SAMPLES];
   double sample_triggerPosition[MAX_SAMPIC_CHANNELS][SAMPIC_SAMPLES];
 
@@ -113,8 +114,8 @@ void DiamondSampicDigiProducer::produce(edm::Event& iEvent, const edm::EventSetu
   inputTree->SetBranchAddress("sample_triggerPosition", sample_triggerPosition);
   inputTree->GetEntry(eventNum);
 
-  int bunchNumber = ((int)trigger_time / 25) % 3564;
-  int orbitNumber = (int)(trigger_time / 88924.45);
+  int bunchNumber = ((int)trigger_time / LHC_CLK_PERIOD_NS) % MAX_BUNCH_NUMBER;
+  int orbitNumber = (int)(trigger_time / LHC_ORBIT_PERIOD_NS);
 
   if (num_samples == 0) {
     iEvent.put(std::move(digi), "TotemTiming");
@@ -133,7 +134,7 @@ void DiamondSampicDigiProducer::produce(edm::Event& iEvent, const edm::EventSetu
     bool search_for_white_cell = true;
 
     for (int y = 0; y < SAMPIC_SAMPLES; y++) {
-      samples.push_back((int)(sample_amp[i][y] / 1.2 * 256));
+      samples.push_back((int)(sample_amp[i][y] / SAMPIC_OFFSET * 256));
       if (search_for_white_cell && sample_triggerPosition[i][y] == 1) {
         offsetOfSamples = y;
         search_for_white_cell = false;
@@ -160,7 +161,7 @@ void DiamondSampicDigiProducer::produce(edm::Event& iEvent, const edm::EventSetu
                             eventInfoTmp);
 
     auto vec = detid_vs_chid_.at(ch_id);
-    for (auto id : vec) {
+    for (const auto& id : vec) {
       CTPPSDiamondDetId detId(id);
       edm::DetSet<TotemTimingDigi>& digis_for_detid = digi->find_or_insert(detId);
       digis_for_detid.push_back(digiTmp);
