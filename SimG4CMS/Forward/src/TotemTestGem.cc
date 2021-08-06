@@ -39,8 +39,8 @@ TotemTestGem::TotemTestGem(const edm::ParameterSet& p) {
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("TotemTestGem");
   names = m_Anal.getParameter<std::vector<std::string> >("Names");
 
-  edm::LogInfo("ForwardSim") << "TotemTestGem:: Initialised as observer of "
-                             << "begin of job, begin/end events and of G4step";
+  edm::LogVerbatim("ForwardSim")
+      << "TotemTestGem:: Initialised as observer of begin of job, begin/end events and of G4step";
 }
 
 TotemTestGem::~TotemTestGem() {}
