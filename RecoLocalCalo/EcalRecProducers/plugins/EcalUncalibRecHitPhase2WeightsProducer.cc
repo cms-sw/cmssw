@@ -25,7 +25,6 @@ private:
 
   edm::EDGetTokenT<EBDigiCollectionPh2> ebDigiCollectionToken_;
   edm::EDPutTokenT<EBUncalibratedRecHitCollection> ebUncalibRecHitCollectionToken_;
-  
 };
 
 void EcalUncalibRecHitPhase2WeightsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
