@@ -37,7 +37,7 @@ Implementation:
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 // -- Ecal Preshower
-#include "EventFilter/ESRawToDigi/interface/ESRawToDigi.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 // -- Muons DT
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <DataFormats/DTDigi/interface/DTLocalTriggerCollection.h>
