@@ -8,7 +8,7 @@
 
 // CMSSW includes
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "L1Trigger/TextToDigi/src/SourceCardRouting.h"
+#include "L1Trigger/TextToDigi/interface/SourceCardRouting.h"
 #include "EventFilter/GctRawToDigi/src/GctBlockHeader.h"
 #include "EventFilter/GctRawToDigi/src/GctUnpackCollections.h"
 
