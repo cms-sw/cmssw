@@ -1,6 +1,6 @@
 #include "CondCore/CondDB/interface/Exception.h"
 #include "CondCore/CondDB/interface/Auth.h"
-#include "../interface/IOVSchema.h"
+#include "CondCore/CondDB/interface/IOVSchema.h"
 //
 #include <openssl/sha.h>
 
