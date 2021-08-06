@@ -2,7 +2,7 @@
 #include "CondCore/CondDB/interface/Auth.h"
 #include "CondCore/CondDB/interface/Exception.h"
 //
-#include "../interface/DbCore.h"
+#include "CondCore/CondDB/interface/DbCore.h"
 #include "CoralMsgReporter.h"
 #include "RelationalAccess/ITransaction.h"
 //
