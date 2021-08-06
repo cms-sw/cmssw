@@ -44,7 +44,7 @@ private:
 };
 
 SiPixelDigiMorphing::SiPixelDigiMorphing(edm::ParameterSet const& conf)
-    : tPixelDigi_(consumes<edm::DetSetVector<PixelDigi>>(conf.getParameter<edm::InputTag>("src"))),
+    : tPixelDigi_(consumes(conf.getParameter<edm::InputTag>("src"))),
       tPutPixelDigi_(produces<edm::DetSetVector<PixelDigi>>()),
       nrows_(conf.getParameter<int32_t>("nrows")),
       ncols_(conf.getParameter<int32_t>("ncols")),
