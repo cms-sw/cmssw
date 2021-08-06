@@ -67,29 +67,29 @@
 #include <vector>
 
 class CaloSteppingAction : public SimProducer,
-                           public Observer<const BeginOfJob *>,
-                           public Observer<const BeginOfRun *>,
-                           public Observer<const BeginOfEvent *>,
-                           public Observer<const EndOfEvent *>,
-                           public Observer<const G4Step *> {
+                           public Observer<const BeginOfJob*>,
+                           public Observer<const BeginOfRun*>,
+                           public Observer<const BeginOfEvent*>,
+                           public Observer<const EndOfEvent*>,
+                           public Observer<const G4Step*> {
 public:
-  CaloSteppingAction(const edm::ParameterSet &p);
+  CaloSteppingAction(const edm::ParameterSet& p);
   ~CaloSteppingAction() override;
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  void fillHits(edm::PCaloHitContainer &cc, int type);
-  void fillPassiveHits(edm::PassiveHitContainer &cc);
+  void fillHits(edm::PCaloHitContainer& cc, int type);
+  void fillPassiveHits(edm::PassiveHitContainer& cc);
   // observer classes
-  void update(const BeginOfJob *job) override;
-  void update(const BeginOfRun *run) override;
-  void update(const BeginOfEvent *evt) override;
-  void update(const G4Step *step) override;
-  void update(const EndOfEvent *evt) override;
+  void update(const BeginOfJob* job) override;
+  void update(const BeginOfRun* run) override;
+  void update(const BeginOfEvent* evt) override;
+  void update(const G4Step* step) override;
+  void update(const EndOfEvent* evt) override;
 
-  void NaNTrap(const G4Step *) const;
-  uint32_t getDetIDHC(int det, int lay, int depth, const math::XYZVectorD &pos) const;
+  void NaNTrap(const G4Step*) const;
+  uint32_t getDetIDHC(int det, int lay, int depth, const math::XYZVectorD& pos) const;
   void fillHit(uint32_t id, double dE, double time, int primID, uint16_t depth, double em, int flag);
   uint16_t getDepth(bool flag, double crystalDepth, double radl) const;
   double curve_LY(double crystalLength, double crystalDepth) const;
@@ -109,15 +109,15 @@ private:
 
   std::vector<std::string> nameEBSD_, nameEESD_, nameHCSD_;
   std::vector<std::string> nameHitC_;
-  std::vector<const G4LogicalVolume *> volEBSD_, volEESD_, volHCSD_;
-  std::map<const G4LogicalVolume *, double> xtalMap_;
-  std::map<const G4LogicalVolume *, std::string> mapLV_;
+  std::vector<const G4LogicalVolume*> volEBSD_, volEESD_, volHCSD_;
+  std::map<const G4LogicalVolume*, double> xtalMap_;
+  std::map<const G4LogicalVolume*, std::string> mapLV_;
   int allSteps_, count_, eventID_;
   double slopeLY_, birkC1EC_, birkSlopeEC_;
   double birkCutEC_, birkC1HC_, birkC2HC_;
   double birkC3HC_, timeSliceUnit_;
   std::map<std::pair<int, CaloHitID>, CaloGVHit> hitMap_[nSD_];
-  typedef std::tuple<const G4LogicalVolume *, uint32_t, int, int, double, double, double, double, double, double, double>
+  typedef std::tuple<const G4LogicalVolume*, uint32_t, int, int, double, double, double, double, double, double, double>
       PassiveData;
   std::vector<PassiveData> store_;
 };
