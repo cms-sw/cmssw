@@ -29,7 +29,8 @@ namespace spr {
         (dynamic_cast<const EcalEndcapGeometry*>(geo->getSubdetectorGeometry(DetId::Ecal, EcalEndcap)));
 
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "matrixECALIds::Add " << ieta << " rows and " << iphi << " columns of cells for 1 cell" << spr::debugEcalDet(0, det).str();
+      edm::LogVerbatim("IsoTrack") << "matrixECALIds::Add " << ieta << " rows and " << iphi
+                                   << " columns of cells for 1 cell" << spr::debugEcalDet(0, det).str();
     }
     std::vector<DetId> dets(1, det);
     std::vector<CaloDirection> dirs(1, NORTH);
@@ -102,7 +103,7 @@ namespace spr {
 
     if (debug) {
       edm::LogVerbatim("IsoTrack") << "matrixECALIds::Final List of cells for dR " << dR << " is with " << vdetx.size()
-                << " from original list of " << vdets.size();
+                                   << " from original list of " << vdets.size();
       spr::debugEcalDets(0, vdetx);
     }
     return vdetx;
@@ -126,7 +127,8 @@ namespace spr {
         (dynamic_cast<const EcalEndcapGeometry*>(geo->getSubdetectorGeometry(DetId::Ecal, EcalEndcap)));
 
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "matrixECALIds::Add " << ietaE << "|" << ietaW << " rows and " << iphiN << "|" << iphiS << " columns of cells for 1 cell" << spr::debugEcalDet(0, det).str();
+      edm::LogVerbatim("IsoTrack") << "matrixECALIds::Add " << ietaE << "|" << ietaW << " rows and " << iphiN << "|"
+                                   << iphiS << " columns of cells for 1 cell" << spr::debugEcalDet(0, det).str();
     }
     std::vector<DetId> dets(1, det);
     std::vector<CaloDirection> dirs(1, NORTH);
@@ -204,7 +206,8 @@ namespace spr {
                                  bool debug,
                                  bool ignoreTransition) {
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "newECALIdNS::Add " << iphi << " columns of cells for " << (dets.size() - last) << " cells (last " << last << ")";
+      edm::LogVerbatim("IsoTrack") << "newECALIdNS::Add " << iphi << " columns of cells for " << (dets.size() - last)
+                                   << " cells (last " << last << ")";
       spr::debugEcalDets(last, dets, dir);
     }
     std::vector<DetId> vdets;
@@ -233,7 +236,8 @@ namespace spr {
         }
       }
       if (debug) {
-        edm::LogVerbatim("IsoTrack") << "newECALIdNS::With Added cells along E/W results a set of " << (vdets.size() - dets.size()) << " new  cells";
+        edm::LogVerbatim("IsoTrack") << "newECALIdNS::With Added cells along E/W results a set of "
+                                     << (vdets.size() - dets.size()) << " new  cells";
         spr::debugEcalDets(dets.size(), vdets, dirs);
       }
     }
@@ -292,7 +296,8 @@ namespace spr {
         }
       }
       if (debug) {
-        edm::LogVerbatim("IsoTrack") << "newECALIdNS::Addition results a set of " << (vdets.size() - last0) << " new  cells (last " << last0 << ", iphi " << iphi << ")";
+        edm::LogVerbatim("IsoTrack") << "newECALIdNS::Addition results a set of " << (vdets.size() - last0)
+                                     << " new  cells (last " << last0 << ", iphi " << iphi << ")";
         spr::debugEcalDets(last0, vdets, dirs);
       }
       last0 = last;
@@ -325,9 +330,11 @@ namespace spr {
                                  bool debug,
                                  bool ignoreTransition) {
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "newECALIdNS::Add columns of cells for " << (dets.size() - last) << " cells (last) " << last;
+      edm::LogVerbatim("IsoTrack") << "newECALIdNS::Add columns of cells for " << (dets.size() - last)
+                                   << " cells (last) " << last;
       for (unsigned int i1 = last; i1 < dets.size(); i1++) {
-        edm::LogVerbatim("IsoTrack") << spr::debugEcalDet(i1, dets[i1]).str() << " along " << dir[i1] << " # " << iphiN[i1] << "|" << iphiS[i1];
+        edm::LogVerbatim("IsoTrack") << spr::debugEcalDet(i1, dets[i1]).str() << " along " << dir[i1] << " # "
+                                     << iphiN[i1] << "|" << iphiS[i1];
       }
     }
     std::vector<DetId> vdets;
@@ -368,7 +375,8 @@ namespace spr {
         }
       }
       if (debug) {
-        edm::LogVerbatim("IsoTrack") << "newECALIdNS::With Added cells along E/W results a set of " << (vdets.size() - dets.size()) << " new  cells";
+        edm::LogVerbatim("IsoTrack") << "newECALIdNS::With Added cells along E/W results a set of "
+                                     << (vdets.size() - dets.size()) << " new  cells";
         spr::debugEcalDets(dets.size(), vdets, dirs);
       }
     }
@@ -465,9 +473,11 @@ namespace spr {
       }
     }
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "newECALIdNS::Addition results a set of " << (vdets.size() - last0) << " new  cells (last " << last0 << ", iphi " << kphi << ")";
+      edm::LogVerbatim("IsoTrack") << "newECALIdNS::Addition results a set of " << (vdets.size() - last0)
+                                   << " new  cells (last " << last0 << ", iphi " << kphi << ")";
       for (unsigned int i1 = last0; i1 < vdets.size(); i1++) {
-	edm::LogVerbatim("IsoTrack") << spr::debugEcalDet(i1, vdets[i1]).str() << " along " << dirs[i1] << " iphi " << jphiN[i1] << "|" << jphiS[i1] << " ieta " << jetaE[i1] << "|" << jetaW[i1];
+        edm::LogVerbatim("IsoTrack") << spr::debugEcalDet(i1, vdets[i1]).str() << " along " << dirs[i1] << " iphi "
+                                     << jphiN[i1] << "|" << jphiS[i1] << " ieta " << jetaE[i1] << "|" << jetaW[i1];
       }
     }
     last0 = last;
@@ -507,7 +517,8 @@ namespace spr {
                                  bool debug,
                                  bool ignoreTransition) {
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "newECALIdEW::Add " << ieta << " rows of cells for " << last << ":" << dets.size() << ":" << (dets.size() - last) << " cells" << std::endl;
+      edm::LogVerbatim("IsoTrack") << "newECALIdEW::Add " << ieta << " rows of cells for " << last << ":" << dets.size()
+                                   << ":" << (dets.size() - last) << " cells" << std::endl;
       spr::debugEcalDets(last, dets, dir);
     }
     std::vector<DetId> vdets;
@@ -541,7 +552,8 @@ namespace spr {
     }
 
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "newECALIdEW::Addition results a set of " << (vdets.size() - dets.size()) << " new  cells";
+      edm::LogVerbatim("IsoTrack") << "newECALIdEW::Addition results a set of " << (vdets.size() - dets.size())
+                                   << " new  cells";
       spr::debugEcalDets(dets.size(), vdets, dirs);
     }
     if (ieta > 0) {
@@ -569,7 +581,8 @@ namespace spr {
                                  bool debug,
                                  bool ignoreTransition) {
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "newECALIdEW::Add " << ietaE[0] << "|" << ietaW[0] << " rows of cells for " << (dets.size() - last) << " cells (last " << last << ")";
+      edm::LogVerbatim("IsoTrack") << "newECALIdEW::Add " << ietaE[0] << "|" << ietaW[0] << " rows of cells for "
+                                   << (dets.size() - last) << " cells (last " << last << ")";
       spr::debugEcalDets(last, dets, dir);
     }
     std::vector<DetId> vdets;
@@ -624,7 +637,8 @@ namespace spr {
     }
 
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "newECALIdEW::Addition results a set of " << (vdets.size() - dets.size()) << " new  cells (last " << dets.size() << ", ieta " << keta << ")";
+      edm::LogVerbatim("IsoTrack") << "newECALIdEW::Addition results a set of " << (vdets.size() - dets.size())
+                                   << " new  cells (last " << dets.size() << ", ieta " << keta << ")";
       spr::debugEcalDets(dets.size(), vdets);
     }
     if (keta > 0) {
@@ -650,7 +664,6 @@ namespace spr {
                   int& ok,
                   bool debug,
                   bool ignoreTransition) {
-
     DetId cell;
     ok = 0;
     if (det.subdetId() == EcalBarrel) {
@@ -706,7 +719,9 @@ namespace spr {
       std::ostringstream st1;
       for (unsigned int i1 = 0; i1 < cells.size(); ++i1)
         st1 << " " << std::hex << cells[0]() << std::dec;
-      edm::LogVerbatim("IsoTrack") << "simpleMove:: Move DetId 0x" << std::hex << det() << std::dec << " along " << dir << " to get 0x" << std::hex << cell() << std::dec << " with flag " << ok << " # " << cells.size() << st1.str();
+      edm::LogVerbatim("IsoTrack") << "simpleMove:: Move DetId 0x" << std::hex << det() << std::dec << " along " << dir
+                                   << " to get 0x" << std::hex << cell() << std::dec << " with flag " << ok << " # "
+                                   << cells.size() << st1.str();
     }
   }
 
@@ -720,11 +735,11 @@ namespace spr {
                 const EcalEndcapGeometry* endcapGeom,
                 std::vector<DetId>& cells,
                 bool debug) {
-
     if (det.subdetId() == EcalBarrel) {
       EBDetId id = det;
       if (debug)
-        edm::LogVerbatim("IsoTrack") << "extraIds::Cell " << id << " rows " << ietaW << "|" << ietaE << " columns " << iphiS << "|" << iphiN;
+        edm::LogVerbatim("IsoTrack") << "extraIds::Cell " << id << " rows " << ietaW << "|" << ietaE << " columns "
+                                     << iphiS << "|" << iphiN;
       int etaC = id.ietaAbs();
       int phiC = id.iphi();
       int zsid = id.zside();
@@ -749,7 +764,8 @@ namespace spr {
     } else if (det.subdetId() == EcalEndcap && endcapGeom) {
       EEDetId id = det;
       if (debug)
-        edm::LogVerbatim("IsoTrack") << "extraIds::Cell " << id << " rows " << ietaW << "|" << ietaE << " columns " << iphiS << "|" << iphiN;
+        edm::LogVerbatim("IsoTrack") << "extraIds::Cell " << id << " rows " << ietaW << "|" << ietaE << " columns "
+                                     << iphiS << "|" << iphiN;
       int ixC = id.ix();
       int iyC = id.iy();
       int zsid = id.zside();
