@@ -13,10 +13,10 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 
-class CSCDigiToRawAccept {
-public:
+namespace CSCDigiToRawAccept {
+
   // takes layer ID, converts to chamber ID, switching ME1A to ME11
-  static CSCDetId chamberID(const CSCDetId& cscDetId);
+  CSCDetId chamberID(const CSCDetId& cscDetId);
 
   /* Was there a trigger primitive in the BX range between bxMin and bxMax?
      The nominalBX argument is 3 for ALCTs and 7 for CLCTs. This is subtracted
@@ -28,49 +28,12 @@ public:
      or CLCT CFEB.
   */
   template <typename LCTCollection>
-  static bool accept(
-      const CSCDetId& cscId, const LCTCollection& lcts, int bxMin, int bxMax, int nominalBX, bool me1abCheck = false);
-
-  // older implementation for CLCT pretrigger objects that only have BX information
-  static bool accept(const CSCDetId& cscId,
-                     const CSCCLCTPreTriggerCollection& lcts,
-                     int bxMin,
-                     int bxMax,
-                     int nominalBX,
-                     bool me1abCheck);
-
-  // newer implementation for CLCT pretrigger objects that have BX and CFEB information
-  static bool accept(const CSCDetId& cscId,
-                     const CSCCLCTPreTriggerDigiCollection& lcts,
-                     int bxMin,
-                     int bxMax,
-                     int nominalBX,
-                     bool me1abCheck,
-                     std::vector<bool>& preTriggerInCFEB);
-};
-
-template <typename LCTCollection>
-bool CSCDigiToRawAccept::accept(
-    const CSCDetId& cscId, const LCTCollection& lcts, int bxMin, int bxMax, int nominalBX, bool me1abCheck) {
-  if (bxMin == -999)
-    return true;
-  CSCDetId chamberId = chamberID(cscId);
-  typename LCTCollection::Range lctRange = lcts.get(chamberId);
-  bool result = false;
-  for (typename LCTCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
-    int bx = lctItr->getBX() - nominalBX;
-    if (bx >= bxMin && bx <= bxMax) {
-      result = true;
-      break;
-    }
-  }
-
-  bool me1 = cscId.station() == 1 && cscId.ring() == 1;
-  //this is another "creative" recovery of smart ME1A-ME1B TMB logic cases:
-  //wire selective readout requires at least one (A)LCT in the full chamber
-  if (me1 && result == false && me1abCheck) {
-    CSCDetId me1aId = CSCDetId(chamberId.endcap(), chamberId.station(), 4, chamberId.chamber(), 0);
-    lctRange = lcts.get(me1aId);
+  bool accept(const CSCDetId& cscId, const LCTCollection& lcts, int bxMin, int bxMax, int nominalBX, bool me1abCheck) {
+    if (bxMin == -999)
+      return true;
+    CSCDetId chamberId = chamberID(cscId);
+    typename LCTCollection::Range lctRange = lcts.get(chamberId);
+    bool result = false;
     for (typename LCTCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
       int bx = lctItr->getBX() - nominalBX;
       if (bx >= bxMin && bx <= bxMax) {
@@ -78,8 +41,40 @@ bool CSCDigiToRawAccept::accept(
         break;
       }
     }
+
+    bool me1 = cscId.station() == 1 && cscId.ring() == 1;
+    //this is another "creative" recovery of smart ME1A-ME1B TMB logic cases:
+    //wire selective readout requires at least one (A)LCT in the full chamber
+    if (me1 && result == false && me1abCheck) {
+      CSCDetId me1aId = CSCDetId(chamberId.endcap(), chamberId.station(), 4, chamberId.chamber(), 0);
+      lctRange = lcts.get(me1aId);
+      for (typename LCTCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
+        int bx = lctItr->getBX() - nominalBX;
+        if (bx >= bxMin && bx <= bxMax) {
+          result = true;
+          break;
+        }
+      }
+    }
+    return result;
   }
-  return result;
-}
+
+  // older implementation for CLCT pretrigger objects that only have BX information
+  bool accept(const CSCDetId& cscId,
+              const CSCCLCTPreTriggerCollection& lcts,
+              int bxMin,
+              int bxMax,
+              int nominalBX,
+              bool me1abCheck);
+
+  // newer implementation for CLCT pretrigger objects that have BX and CFEB information
+  bool accept(const CSCDetId& cscId,
+              const CSCCLCTPreTriggerDigiCollection& lcts,
+              int bxMin,
+              int bxMax,
+              int nominalBX,
+              bool me1abCheck,
+              std::vector<bool>& preTriggerInCFEB);
+};  // namespace CSCDigiToRawAccept
 
 #endif
