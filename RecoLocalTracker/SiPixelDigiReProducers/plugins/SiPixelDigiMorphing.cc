@@ -59,14 +59,14 @@ SiPixelDigiMorphing::SiPixelDigiMorphing(edm::ParameterSet const& conf)
                                           << " number of ROCs\n";
   }
 
-  if (ncols_r_ + 2 * iters_ <= int(sizeof(uint64_t))) {
+  if (ncols_r_ + 2 * iters_ <= int(sizeof(uint64_t)*8)) {
     ksize_ = 2 * iters_ + 1;
   } else {
     throw cms::Exception("Configuration") << "[SiPixelDigiMorphing]:"
                                           << " too many columns per ROC"
                                           << " or too many iterations set\n"
                                           << " Ncol/Nrocs+2*iters should not be"
-                                          << " more than " << sizeof(uint64_t) << "\n";
+                                          << " more than " << sizeof(uint64_t)*8 << "\n";
   }
 
   std::vector<int32_t> k1(conf.getParameter<std::vector<int32_t>>("kernel1"));
