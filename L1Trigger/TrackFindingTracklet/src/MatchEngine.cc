@@ -60,11 +60,11 @@ void MatchEngine::addInput(MemoryBase* memory, string input) {
   throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " could not find input: " << input;
 }
 
-void MatchEngine::execute() {
+void MatchEngine::execute(unsigned int iSector) {
   unsigned int countall = 0;
   unsigned int countpass = 0;
 
-  bool print = (getName() == "ME_L3PHIC20");
+  bool print = (iSector == 3 && getName() == "ME_L3PHIC20");
   print = false;
 
   constexpr unsigned int kNBitsBuffer = 3;

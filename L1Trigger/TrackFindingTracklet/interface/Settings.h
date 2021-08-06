@@ -764,21 +764,37 @@ namespace trklet {
                                                            {"TRE", 108}};
 
     // If set to true this will generate debub printout in text files
-    std::unordered_map<std::string, bool> writeMonitorData_{{"IL", false},           {"TE", false},
-                                                            {"CT", false},           {"HitPattern", false},
-                                                            {"ChiSq", false},        {"Seeds", false},
-                                                            {"FT", false},           {"Residuals", false},
-                                                            {"StubBend", false},     {"MC", false},
-                                                            {"MP", false},           {"ME", false},
-                                                            {"AP", false},           {"VMP", false},
-                                                            {"TrackProjOcc", false}, {"TC", false},
-                                                            {"Pars", false},         {"TPars", false},
-                                                            {"TPD", false},          {"TrackletPars", false},
-                                                            {"TED", false},          {"TP", false},
-                                                            {"TRE", false},          {"VMR", false},
-                                                            {"StubsLayer", false},   {"StubsLayerSector", false},
-                                                            {"HitEff", false},       {"MatchEff", false},
-                                                            {"IFit", false},         {"AS", false}};
+    std::unordered_map<std::string, bool> writeMonitorData_{{"IL", false},
+                                                            {"TE", false},
+                                                            {"CT", false},
+                                                            {"HitPattern", false},
+                                                            {"ChiSq", false},
+                                                            {"Seeds", false},
+                                                            {"FT", false},
+                                                            {"Residuals", false},
+                                                            {"StubBend", false},
+                                                            {"MC", false},
+                                                            {"MP", false},
+                                                            {"ME", false},
+                                                            {"AP", false},
+                                                            {"VMP", false},
+                                                            {"TrackProjOcc", false},
+                                                            {"TC", false},
+                                                            {"Pars", false},
+                                                            {"TPars", false},
+                                                            {"TPD", false},
+                                                            {"TrackletPars", false},
+                                                            {"TED", false},
+                                                            {"TP", false},
+                                                            {"TRE", false},
+                                                            {"VMR", false},
+                                                            {"StubsLayer", false},
+                                                            {"StubsLayerSector", false},
+                                                            {"HitEff", false},
+                                                            {"MatchEff", false},
+                                                            {"IFit", false},
+                                                            {"AS", false},
+                                                            {"WriteEmptyProj", false}};
 
     std::array<double, N_DSS_MOD> rDSSinner_mod_{{68.9391, 78.7750, 85.4550, 96.3150, 102.3160}};
     std::array<double, N_DSS_MOD> rDSSouter_mod_{{66.4903, 76.7750, 84.4562, 94.9920, 102.3160}};
@@ -832,8 +848,8 @@ namespace trklet {
     int nrinvBitsTable_{3};  //number of bits for tabulating rinv dependence
 
     unsigned int MEBinsBits_{3};
-    unsigned int MEBinsDisks_{8};  //on each side
-    unsigned int maxStubsPerBin_{16};
+    unsigned int MEBinsDisks_{8};      //on each side
+    unsigned int maxStubsPerBin_{15};  //16 causes overflow!
 
     // Options for chisq fit
     bool exactderivatives_{false};

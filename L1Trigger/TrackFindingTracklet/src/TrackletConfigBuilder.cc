@@ -214,6 +214,33 @@ std::pair<double, double> TrackletConfigBuilder::seedPhiRange(double rproj, unsi
 }
 
 void TrackletConfigBuilder::buildProjections() {
+  set<string> emptyProjStandard = {
+      "TPROJ_L1L2H_L3PHIB", "TPROJ_L1L2E_L3PHIC", "TPROJ_L1L2K_L3PHIC", "TPROJ_L1L2H_L3PHID", "TPROJ_L1L2F_L5PHIA",
+      "TPROJ_L1L2G_L5PHID", "TPROJ_L1L2A_L6PHIA", "TPROJ_L1L2J_L6PHIB", "TPROJ_L1L2C_L6PHIC", "TPROJ_L1L2L_L6PHID",
+      "TPROJ_L3L4D_D1PHIB", "TPROJ_L2L3A_D1PHIC", "TPROJ_L3L4A_D1PHIC", "TPROJ_L1L2G_D2PHIA", "TPROJ_L1D1D_D2PHIA",
+      "TPROJ_L1D1E_D2PHIA", "TPROJ_L1L2J_D2PHIB", "TPROJ_L3L4D_D2PHIB", "TPROJ_L1D1A_D2PHIB", "TPROJ_L1D1F_D2PHIB",
+      "TPROJ_L1D1G_D2PHIB", "TPROJ_L1L2C_D2PHIC", "TPROJ_L2L3A_D2PHIC", "TPROJ_L3L4A_D2PHIC", "TPROJ_L1D1B_D2PHIC",
+      "TPROJ_L1D1C_D2PHIC", "TPROJ_L1D1H_D2PHIC", "TPROJ_L2D1A_D2PHIC", "TPROJ_L1L2F_D2PHID", "TPROJ_L1D1D_D2PHID",
+      "TPROJ_L1D1E_D2PHID", "TPROJ_L1L2G_D3PHIA", "TPROJ_L1D1D_D3PHIA", "TPROJ_L1D1E_D3PHIA", "TPROJ_L1L2J_D3PHIB",
+      "TPROJ_L1D1A_D3PHIB", "TPROJ_L1D1F_D3PHIB", "TPROJ_L1D1G_D3PHIB", "TPROJ_L1L2C_D3PHIC", "TPROJ_L2L3A_D3PHIC",
+      "TPROJ_L1D1B_D3PHIC", "TPROJ_L1D1C_D3PHIC", "TPROJ_L1D1H_D3PHIC", "TPROJ_L2D1A_D3PHIC", "TPROJ_L1L2F_D3PHID",
+      "TPROJ_L1D1D_D3PHID", "TPROJ_L1D1E_D3PHID", "TPROJ_L1L2G_D4PHIA", "TPROJ_L1D1D_D4PHIA", "TPROJ_L1D1E_D4PHIA",
+      "TPROJ_L1L2J_D4PHIB", "TPROJ_L1D1G_D4PHIB", "TPROJ_L1L2C_D4PHIC", "TPROJ_L2L3A_D4PHIC", "TPROJ_L1D1B_D4PHIC",
+      "TPROJ_L2D1A_D4PHIC", "TPROJ_L1L2F_D4PHID", "TPROJ_L1D1D_D4PHID", "TPROJ_L1D1E_D5PHIA", "TPROJ_L1D1G_D5PHIB",
+      "TPROJ_L1D1B_D5PHIC", "TPROJ_L1D1D_D5PHID"};
+
+  set<string> emptyProjCombined = {
+      "TPROJ_L1L2J_L6PHIB", "TPROJ_L1L2C_L6PHIC", "TPROJ_L1L2G_D1PHIA", "TPROJ_L1L2J_D1PHIB", "TPROJ_L2L3D_D1PHIB",
+      "TPROJ_L3L4D_D1PHIB", "TPROJ_L1L2C_D1PHIC", "TPROJ_L2L3A_D1PHIC", "TPROJ_L3L4A_D1PHIC", "TPROJ_L1L2F_D1PHID",
+      "TPROJ_L1L2G_D2PHIA", "TPROJ_L1D1E_D2PHIA", "TPROJ_L1L2J_D2PHIB", "TPROJ_L2L3D_D2PHIB", "TPROJ_L3L4D_D2PHIB",
+      "TPROJ_L1D1G_D2PHIB", "TPROJ_L1L2C_D2PHIC", "TPROJ_L2L3A_D2PHIC", "TPROJ_L3L4A_D2PHIC", "TPROJ_L1D1B_D2PHIC",
+      "TPROJ_L2D1A_D2PHIC", "TPROJ_L1L2F_D2PHID", "TPROJ_L1D1D_D2PHID", "TPROJ_L1L2G_D3PHIA", "TPROJ_L1D1E_D3PHIA",
+      "TPROJ_L1L2J_D3PHIB", "TPROJ_L2L3D_D3PHIB", "TPROJ_L1D1G_D3PHIB", "TPROJ_L1L2C_D3PHIC", "TPROJ_L2L3A_D3PHIC",
+      "TPROJ_L1D1B_D3PHIC", "TPROJ_L2D1A_D3PHIC", "TPROJ_L1L2F_D3PHID", "TPROJ_L1D1D_D3PHID", "TPROJ_L1L2G_D4PHIA",
+      "TPROJ_L1D1E_D4PHIA", "TPROJ_L1L2J_D4PHIB", "TPROJ_L2L3D_D4PHIB", "TPROJ_L1D1G_D4PHIB", "TPROJ_L1L2C_D4PHIC",
+      "TPROJ_L2L3A_D4PHIC", "TPROJ_L1D1B_D4PHIC", "TPROJ_L2D1A_D4PHIC", "TPROJ_L1L2F_D4PHID", "TPROJ_L1D1D_D4PHID",
+      "TPROJ_L1D1E_D5PHIA", "TPROJ_L1D1G_D5PHIB", "TPROJ_L1D1B_D5PHIC", "TPROJ_L1D1D_D5PHID"};
+
   for (unsigned int iseed = 0; iseed < N_SEED_PROMPT; iseed++) {
     std::vector<std::vector<unsigned int> >& TCs = TC_[iseed];
 
@@ -228,7 +255,16 @@ void TrackletConfigBuilder::buildProjections() {
           std::pair<double, double> phiRange = seedPhiRange(rproj, iseed, iTC);
           if (phiRange.first < allStubs_[ilayer][iReg].second && phiRange.second > allStubs_[ilayer][iReg].first) {
             std::pair<unsigned int, unsigned int> tmp(iseed, iTC);  //seedindex and TC
-            projections_[ilayer][iReg].push_back(tmp);
+            string projName = TPROJName(iseed, iTC, ilayer, iReg);
+            if (combinedmodules_) {
+              if (emptyProjCombined.find(projName) == emptyProjCombined.end()) {
+                projections_[ilayer][iReg].push_back(tmp);
+              }
+            } else {
+              if (emptyProjStandard.find(projName) == emptyProjStandard.end()) {
+                projections_[ilayer][iReg].push_back(tmp);
+              }
+            }
           }
         }
       }

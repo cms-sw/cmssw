@@ -12,6 +12,7 @@ TrackletProjectionsMemory::TrackletProjectionsMemory(string name, Settings const
   size_t pos = find_nth(name, 0, "_", 1);
   assert(pos != string::npos);
   initLayerDisk(pos + 1, layer_, disk_);
+  hasProj_ = false;
 }
 
 void TrackletProjectionsMemory::addProj(Tracklet* tracklet) {
@@ -29,6 +30,7 @@ void TrackletProjectionsMemory::addProj(Tracklet* tracklet) {
     assert(itracklet != tracklet);
   }
 
+  hasProj_ = true;
   tracklets_.push_back(tracklet);
 }
 

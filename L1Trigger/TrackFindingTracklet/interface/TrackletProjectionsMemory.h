@@ -16,7 +16,11 @@ namespace trklet {
   public:
     TrackletProjectionsMemory(std::string name, Settings const& settings);
 
-    ~TrackletProjectionsMemory() override = default;
+    ~TrackletProjectionsMemory() override {
+      if (settings_.writeMonitorData("WriteEmptyProj") && (!hasProj_)) {
+        edm::LogPrint("Tracklet") << "Empty Projection Memory : " << getName() << std::endl;
+      }
+    };
 
     void addProj(Tracklet* tracklet);
 
@@ -34,6 +38,7 @@ namespace trklet {
   private:
     std::vector<Tracklet*> tracklets_;
 
+    bool hasProj_;
     int layer_;
     int disk_;
   };
