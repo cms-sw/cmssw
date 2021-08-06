@@ -200,7 +200,7 @@ void set_sigma(double& x, bool mdigi) {
   }
 }
 
-class HOCalibAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
+class HOCalibAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit HOCalibAnalyzer(const edm::ParameterSet&);
   ~HOCalibAnalyzer() override;
@@ -208,8 +208,6 @@ public:
 private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
-  void endRun(edm::Run const&, edm::EventSetup const&) override {}
   void endJob() override;
 
   int getHOieta(int ij) { return (ij < netamx / 2) ? -netamx / 2 + ij : -netamx / 2 + ij + 1; }

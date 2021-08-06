@@ -59,15 +59,13 @@
 namespace HcalMinbias {}
 
 // constructors and destructor
-class AnalyzerMinbias : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
+class AnalyzerMinbias : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit AnalyzerMinbias(const edm::ParameterSet&);
   ~AnalyzerMinbias() override;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
-  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
-  void endRun(edm::Run const&, edm::EventSetup const&) override {}
   void endJob() override;
 
 private:
