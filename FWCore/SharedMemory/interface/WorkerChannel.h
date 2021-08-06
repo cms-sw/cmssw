@@ -55,6 +55,7 @@ namespace edm::shared_memory {
     ///Matches the ControllerChannel::setupWorker call
     void workerSetupDone() {
       //The controller is waiting for the worker to be setup
+      *transitionID_ = 0;
       notifyController();
     }
 
@@ -63,6 +64,9 @@ namespace edm::shared_memory {
      */
     template <typename F>
     void handleTransitions(F&& iF) {
+      if (stopRequested()) {
+        return;
+      }
       while (true) {
         waitForController();
         if (stopRequested()) {
@@ -78,7 +82,10 @@ namespace edm::shared_memory {
     void shouldKeepEvent(bool iChoice) { *keepEvent_ = iChoice; }
 
     ///These are here for expert use
-    void notifyController() { cndToController_.notify_all(); }
+    void notifyController() {
+      *transitionID_ = (*transitionID_ == 0 ? 1 : 0);
+      cndToController_.notify_all();
+    }
     void waitForController() { cndFromController_.wait(lock_); }
 
     // ---------- const member functions ---------------------------
