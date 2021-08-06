@@ -19,7 +19,7 @@ HFShowerBlock = cms.PSet(
         ProbMax           = cms.double(1.0),
         CFibre            = cms.double(0.5),
         OnlyLong          = cms.bool(True),
-        IgnoreTimeShift   = cms.bool(False)
+        EqualizeTimeShift   = cms.bool(False)
 )
 
 ##
@@ -34,4 +34,4 @@ run2_common.toModify( HFShowerBlock, ProbMax = 0.5 )
 ##
 from Configuration.Eras.Modifier_run3_HFSL_cff import run3_HFSL
 run3_HFSL.toModify( HFLibraryFileBlock, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_run3_v5.root', FileVersion = 1 )
-run3_HFSL.toModify( HFShowerBlock, IgnoreTimeShift = True )
+run3_HFSL.toModify( HFShowerBlock, EqualizeTimeShift = True )

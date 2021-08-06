@@ -43,9 +43,8 @@ namespace {
   using namespace cond::payloadInspector;
 
   /************************************************
-   ***************  test class ******************
+  // test class
   *************************************************/
-
   class SiStripLatencyTest : public Histogram1D<SiStripLatency, SINGLE_IOV> {
   public:
     SiStripLatencyTest()
@@ -91,10 +90,9 @@ namespace {
     }
   };
 
-  /****************************************************************************
-   *******************1D histo of mode as a function of the run****************
-   *****************************************************************************/
-
+  /************************************************
+  // historic trend plot of mode as a function of the run
+  ************************************************/
   class SiStripLatencyModeHistory : public HistoryPlot<SiStripLatency, uint16_t> {
   public:
     SiStripLatencyModeHistory() : HistoryPlot<SiStripLatency, uint16_t>("Mode vs run number", "Mode vs run number") {}
@@ -105,9 +103,21 @@ namespace {
     }
   };
 
-  /****************************************************************************    
-   *****************number of modes  per run *************************************
-   **************************************************************************/
+  /************************************************
+  // historic trend plot of mode as a function of the run
+  ************************************************/
+  class SiStripIsPeakModeHistory : public HistoryPlot<SiStripLatency, int16_t> {
+  public:
+    SiStripIsPeakModeHistory() : HistoryPlot<SiStripLatency, int16_t>("Mode vs run number", "Mode vs run number") {}
+    int16_t getFromPayload(SiStripLatency& payload) override {
+      uint16_t mode = payload.singleReadOutMode();
+      return mode;
+    }
+  };
+
+  /************************************************
+  // historic trend plot of number of modes per run
+  ************************************************/
   class SiStripLatencyNumbOfModeHistory : public HistoryPlot<SiStripLatency, int> {
   public:
     SiStripLatencyNumbOfModeHistory()
@@ -120,7 +130,6 @@ namespace {
       return modes.size();
     }
   };
-
 }  // namespace
 
 // Register the classes as boost python plugin
@@ -128,5 +137,6 @@ PAYLOAD_INSPECTOR_MODULE(SiStripLatency) {
   PAYLOAD_INSPECTOR_CLASS(SiStripLatencyTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripLatencyMode);
   PAYLOAD_INSPECTOR_CLASS(SiStripLatencyModeHistory);
+  PAYLOAD_INSPECTOR_CLASS(SiStripIsPeakModeHistory);
   PAYLOAD_INSPECTOR_CLASS(SiStripLatencyNumbOfModeHistory);
 }

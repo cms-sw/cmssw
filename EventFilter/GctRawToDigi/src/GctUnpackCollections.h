@@ -23,6 +23,10 @@ public:
   /// Construct with an event. The collections get put into the event when the object instance goes out of scope (i.e. in the destructor).
   GctUnpackCollections(edm::Event& event);
 
+  /// deliberately not implemented!
+  GctUnpackCollections(const GctUnpackCollections&) = delete;             ///< Copy ctor
+  GctUnpackCollections& operator=(const GctUnpackCollections&) = delete;  ///< Assignment op
+
   /// Destructor - the last action of this object is to put the gct collections into the event provided on construction.
   ~GctUnpackCollections();
 
@@ -84,10 +88,6 @@ public:
   L1TriggerErrorCollection* const errors() const { return m_errors.get(); }  ///< Unpack error code collection.
 
 private:
-  GctUnpackCollections(const GctUnpackCollections&) = delete;  ///< Copy ctor - deliberately not implemented!
-  GctUnpackCollections& operator=(const GctUnpackCollections&) =
-      delete;  ///< Assignment op - deliberately not implemented!
-
   edm::Event&
       m_event;  ///< The event the collections will be put into on destruction of the GctUnpackCollections instance.
 

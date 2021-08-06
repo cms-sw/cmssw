@@ -75,7 +75,7 @@ protected:
         "implemented by inherited class");
   };
 
-private:
+public:
   FWSimpleProxyBuilderTemplate(const FWSimpleProxyBuilderTemplate&) = delete;  // stop default
 
   const FWSimpleProxyBuilderTemplate& operator=(const FWSimpleProxyBuilderTemplate&) = delete;  // stop default

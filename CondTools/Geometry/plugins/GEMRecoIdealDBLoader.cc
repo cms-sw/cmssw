@@ -10,7 +10,7 @@
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-#include "Geometry/GEMGeometryBuilder/src/GEMGeometryParsFromDD.h"
+#include "Geometry/GEMGeometryBuilder/interface/GEMGeometryParsFromDD.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/Records/interface/GEMRecoGeometryRcd.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"

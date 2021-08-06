@@ -52,6 +52,9 @@ using namespace fftjetcms;
 class FFTJetTreeDump : public edm::EDAnalyzer {
 public:
   explicit FFTJetTreeDump(const edm::ParameterSet&);
+  FFTJetTreeDump() = delete;
+  FFTJetTreeDump(const FFTJetTreeDump&) = delete;
+  FFTJetTreeDump& operator=(const FFTJetTreeDump&) = delete;
   ~FFTJetTreeDump() override;
 
 private:
@@ -62,10 +65,6 @@ private:
   typedef fftjet::OpenDXPeakTree<long, fftjet::SparseClusteringTree> SparseFormatter;
   typedef fftjet::Functor1<double, fftjet::Peak> PeakProperty;
   typedef reco::PattRecoTree<Real, reco::PattRecoPeak<Real> > StoredTree;
-
-  FFTJetTreeDump() = delete;
-  FFTJetTreeDump(const FFTJetTreeDump&) = delete;
-  FFTJetTreeDump& operator=(const FFTJetTreeDump&) = delete;
 
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;

@@ -11,8 +11,8 @@
 //
 
 // user include files
-#include "HcalTB06Histo.h"
-#include "HcalTB06BeamSD.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB06Histo.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB06BeamSD.h"
 
 // to retreive hits
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"

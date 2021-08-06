@@ -33,6 +33,7 @@ private:
 
   cms::cuda::ContextState cudaState_;
 
+  const uint32_t maxFedSize_;
   std::vector<int> fedsToUnpack_;
 
   ecal::raw::ConfigurationParameters config_;
@@ -44,6 +45,7 @@ void EcalRawToDigiGPU::fillDescriptions(edm::ConfigurationDescriptions& confDesc
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
+  desc.add<uint32_t>("maxFedSize", ecal::raw::nbytes_per_fed_max);
   std::vector<int> feds(54);
   for (uint32_t i = 0; i < 54; ++i)
     feds[i] = i + 601;
@@ -62,6 +64,7 @@ EcalRawToDigiGPU::EcalRawToDigiGPU(const edm::ParameterSet& ps)
       digisEBToken_{produces<OutputProduct>(ps.getParameter<std::string>("digisLabelEB"))},
       digisEEToken_{produces<OutputProduct>(ps.getParameter<std::string>("digisLabelEE"))},
       eMappingToken_{esConsumes<ecal::raw::ElectronicsMappingGPU, EcalMappingElectronicsRcd>()},
+      maxFedSize_{ps.getParameter<uint32_t>("maxFedSize")},
       fedsToUnpack_{ps.getParameter<std::vector<int>>("FEDs")} {
   config_.maxChannelsEB = ps.getParameter<uint32_t>("maxChannelsEB");
   config_.maxChannelsEE = ps.getParameter<uint32_t>("maxChannelsEE");
@@ -91,18 +94,21 @@ void EcalRawToDigiGPU::acquire(edm::Event const& event,
 
   // input cpu data
   ecal::raw::InputDataCPU inputCPU = {
-      cms::cuda::make_host_unique<unsigned char[]>(ecal::raw::nfeds_max * ecal::raw::nbytes_per_fed_max, ctx.stream()),
+      cms::cuda::make_host_unique<unsigned char[]>(ecal::raw::nfeds_max * maxFedSize_, ctx.stream()),
       cms::cuda::make_host_unique<uint32_t[]>(ecal::raw::nfeds_max, ctx.stream()),
       cms::cuda::make_host_unique<int[]>(ecal::raw::nfeds_max, ctx.stream())};
 
   // input data gpu
-  ecal::raw::InputDataGPU inputGPU = {cms::cuda::make_device_unique<unsigned char[]>(
-                                          ecal::raw::nfeds_max * ecal::raw::nbytes_per_fed_max, ctx.stream()),
-                                      cms::cuda::make_device_unique<uint32_t[]>(ecal::raw::nfeds_max, ctx.stream()),
-                                      cms::cuda::make_device_unique<int[]>(ecal::raw::nfeds_max, ctx.stream())};
+  ecal::raw::InputDataGPU inputGPU = {
+      cms::cuda::make_device_unique<unsigned char[]>(ecal::raw::nfeds_max * maxFedSize_, ctx.stream()),
+      cms::cuda::make_device_unique<uint32_t[]>(ecal::raw::nfeds_max, ctx.stream()),
+      cms::cuda::make_device_unique<int[]>(ecal::raw::nfeds_max, ctx.stream())};
 
   // output cpu
   outputCPU_ = {cms::cuda::make_host_unique<uint32_t[]>(2, ctx.stream())};
+  // initialize the number of channels
+  outputCPU_.nchannels[0] = 0;
+  outputCPU_.nchannels[1] = 0;
 
   // output gpu
   outputGPU_.allocate(config_, ctx.stream());

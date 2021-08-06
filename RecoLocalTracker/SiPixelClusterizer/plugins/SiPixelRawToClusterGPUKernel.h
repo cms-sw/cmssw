@@ -120,6 +120,7 @@ namespace pixelgpudetails {
     class WordFedAppender {
     public:
       WordFedAppender();
+      WordFedAppender(uint32_t maxFedWords);
       ~WordFedAppender() = default;
 
       void initializeWordFed(int fedId, unsigned int wordCounterGPU, const cms_uint32_t* src, unsigned int length);
@@ -149,6 +150,7 @@ namespace pixelgpudetails {
                            SiPixelFormatterErrors&& errors,
                            const uint32_t wordCounter,
                            const uint32_t fedCounter,
+                           const uint32_t maxFedWords,
                            bool useQualityInfo,
                            bool includeErrors,
                            bool debug,

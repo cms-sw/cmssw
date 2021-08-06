@@ -32,6 +32,9 @@ namespace edm {
     class EDAnalyzer : public analyzer::AbilityToImplementor<T>::Type..., public virtual EDAnalyzerBase {
     public:
       EDAnalyzer() = default;
+      EDAnalyzer(const EDAnalyzer&) = delete;
+      const EDAnalyzer& operator=(const EDAnalyzer&) = delete;
+
 // We do this only in the case of the intel compiler as this might
 // end up creating a lot of code bloat due to inline symbols being generated
 // in each DSO which uses this header.
@@ -52,10 +55,6 @@ namespace edm {
       // ---------- member functions ---------------------------
 
     private:
-      EDAnalyzer(const EDAnalyzer&) = delete;
-
-      const EDAnalyzer& operator=(const EDAnalyzer&) = delete;
-
       // ---------- member data --------------------------------
     };
 

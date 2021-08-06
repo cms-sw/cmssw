@@ -39,14 +39,13 @@ class SimG4HcalValidation : public SimProducer,
                             public Observer<const G4Step *> {
 public:
   SimG4HcalValidation(const edm::ParameterSet &p);
+  SimG4HcalValidation(const SimG4HcalValidation &) = delete;  // stop default
+  const SimG4HcalValidation &operator=(const SimG4HcalValidation &) = delete;
   ~SimG4HcalValidation() override;
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:
-  SimG4HcalValidation(const SimG4HcalValidation &) = delete;  // stop default
-  const SimG4HcalValidation &operator=(const SimG4HcalValidation &) = delete;
-
   void init();
 
   // observer classes

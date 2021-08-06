@@ -19,6 +19,10 @@ namespace hgcal {
     LayerClusterToSimTracksterAssociator() = default;
     LayerClusterToSimTracksterAssociator(LayerClusterToSimTracksterAssociator &&) = default;
     LayerClusterToSimTracksterAssociator &operator=(LayerClusterToSimTracksterAssociator &&) = default;
+    LayerClusterToSimTracksterAssociator(const LayerClusterToSimTracksterAssociator &) = delete;  // stop default
+    const LayerClusterToSimTracksterAssociator &operator=(const LayerClusterToSimTracksterAssociator &) =
+        delete;  // stop default
+
     ~LayerClusterToSimTracksterAssociator() = default;
 
     // ---------- const member functions ---------------------
@@ -45,11 +49,6 @@ namespace hgcal {
     }
 
   private:
-    LayerClusterToSimTracksterAssociator(const LayerClusterToSimTracksterAssociator &) = delete;  // stop default
-
-    const LayerClusterToSimTracksterAssociator &operator=(const LayerClusterToSimTracksterAssociator &) =
-        delete;  // stop default
-
     // ---------- member data --------------------------------
     std::unique_ptr<LayerClusterToSimTracksterAssociatorBaseImpl> m_impl;
   };

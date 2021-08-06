@@ -64,6 +64,7 @@ public:
   /** Constructor
    */
   DTTPGParameters();
+  DTTPGParameters(DTTPGParameters const&) = delete;
   DTTPGParameters(const std::string& version);
 
   /** Destructor
@@ -102,8 +103,6 @@ public:
   DTTPGParameters& operator=(DTTPGParameters const&);
 
 private:
-  DTTPGParameters(DTTPGParameters const&) = delete;
-
   std::string dataVersion;
   float nsPerCount;
   int clockLength;

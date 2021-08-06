@@ -14,7 +14,8 @@ using namespace edm;
 using namespace std;
 
 EcalBarrelDigisValidation::EcalBarrelDigisValidation(const ParameterSet& ps)
-    : EBdigiCollection_(consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBdigiCollection"))) {
+    : EBdigiCollection_(consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBdigiCollection"))),
+      pAgc(esConsumes<edm::Transition::BeginRun>()) {
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
@@ -249,9 +250,7 @@ void EcalBarrelDigisValidation::analyze(Event const& e, EventSetup const& c) {
 
 void EcalBarrelDigisValidation::checkCalibrations(edm::EventSetup const& eventSetup) {
   // ADC -> GeV Scale
-  edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  eventSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
-  const EcalADCToGeVConstant* agc = pAgc.product();
+  const EcalADCToGeVConstant* agc = &eventSetup.getData(pAgc);
 
   EcalMGPAGainRatio* defaultRatios = new EcalMGPAGainRatio();
 

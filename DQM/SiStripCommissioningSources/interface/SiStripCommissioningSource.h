@@ -41,6 +41,10 @@ public:  // ---------- Public interface ----------
   typedef dqm::legacy::MonitorElement MonitorElement;
 
   SiStripCommissioningSource(const edm::ParameterSet&);
+
+  /** Private default constructor. */
+  SiStripCommissioningSource() = delete;
+
   ~SiStripCommissioningSource() override;
 
   void beginRun(edm::Run const&, const edm::EventSetup&) override;
@@ -48,9 +52,6 @@ public:  // ---------- Public interface ----------
   void endJob() override;
 
 private:  // ---------- Private methods ----------
-  /** Private default constructor. */
-  SiStripCommissioningSource() = delete;
-
   /** */
   DQMStore* const dqm(std::string method = "") const;
 

@@ -28,7 +28,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
   edm::ParameterSet m_HF =
       (p.getParameter<edm::ParameterSet>("HFShower")).getParameter<edm::ParameterSet>("HFShowerBlock");
   probMax = m_HF.getParameter<double>("ProbMax");
-  ignoreTimeShift_ = m_HF.getParameter<bool>("IgnoreTimeShift");
+  equalizeTimeShift_ = m_HF.getParameter<bool>("EqualizeTimeShift");
 
   edm::ParameterSet m_HS =
       (p.getParameter<edm::ParameterSet>("HFShowerLibrary")).getParameter<edm::ParameterSet>("HFLibraryFileBlock");
@@ -113,7 +113,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
                                << " entries\n HFShowerLibrary::No packing information - Assume x, y, z are not in "
                                   "packed form\n Maximum probability cut off "
                                << probMax << "  Back propagation of light probability " << backProb
-                               << " Flag for ignoring Time Shift " << ignoreTimeShift_;
+                               << " Flag for equalizing Time Shift for different eta " << equalizeTimeShift_;
 
   fibre_ = std::make_unique<HFFibre>(name, hcalConstant_, hps, p);
   photo = new HFShowerPhotonCollection;
@@ -298,11 +298,12 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
 #endif
       if (rInside(r) && r1 <= exp(-p * zv) && r2 <= probMax * weight && dfir > gpar[5] && zz >= gpar[4] &&
           zz <= gpar[4] + gpar[1] && r3 <= backProb && (depth != 2 || zz >= gpar[4] + gpar[0])) {
-        double tdiff = (ignoreTimeShift_) ? 0 : (fibre_->tShift(lpos, depth, 1));
+        double tdiff = (equalizeTimeShift_) ? (fibre_->tShift(lpos, depth, -1)) : (fibre_->tShift(lpos, depth, 1));
         oneHit.position = pos;
         oneHit.depth = depth;
         oneHit.time = (tSlice + (pe[i].t()) + tdiff);
         hit.push_back(oneHit);
+
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HFShower") << "HFShowerLibrary: Final Hit " << nHit << " position " << (hit[nHit].position)
                                      << " Depth " << (hit[nHit].depth) << " Time " << tSlice << ":" << pe[i].t() << ":"
@@ -318,7 +319,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
         r1 = G4UniformRand();
         r2 = G4UniformRand();
         if (rInside(r) && r1 <= exp(-p * zv) && r2 <= probMax && dfir > gpar[5]) {
-          double tdiff = (ignoreTimeShift_) ? 0 : (fibre_->tShift(lpos, 2, 1));
+          double tdiff = (equalizeTimeShift_) ? (fibre_->tShift(lpos, 2, -1)) : (fibre_->tShift(lpos, 2, 1));
           oneHit.position = pos;
           oneHit.depth = 2;
           oneHit.time = (tSlice + (pe[i].t()) + tdiff);

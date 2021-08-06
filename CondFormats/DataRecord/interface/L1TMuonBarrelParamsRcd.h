@@ -5,6 +5,7 @@
 // Class  :     L1TMuonBarrelParamsRcd
 //
 // Author:      Giannis Flouris
+// Kalman Mod:  Panos Katsoulis
 // Created:
 //
 
