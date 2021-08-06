@@ -754,7 +754,7 @@ namespace trklet {
     std::unordered_map<std::string, unsigned int> maxstep_{{"IR", 156},  //IR will run at a higher clock speed to handle
                                                                          //input links running at 25 Gbits/s
                                                            {"VMR", 108},
-                                                           {"TE", 108},
+                                                           {"TE", 107},
                                                            {"TC", 108},
                                                            {"PR", 108},
                                                            {"ME", 108},
