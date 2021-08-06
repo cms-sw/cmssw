@@ -89,9 +89,11 @@ void CaloPropagationTest::analyze(const edm::Event& iEvent, const edm::EventSetu
           }
         }
         if ((info.first).subdetId() == EcalBarrel) {
-          edm::LogVerbatim("IsoTrack") << "Find " << EBDetId(info.first) << " as partner of " << hid << " and mtaching with tower " << found;
+          edm::LogVerbatim("IsoTrack") << "Find " << EBDetId(info.first) << " as partner of " << hid
+                                       << " and mtaching with tower " << found;
         } else {
-          edm::LogVerbatim("IsoTrack") << "Find " << EEDetId(info.first) << " as partner of " << hid << " and mtaching with tower " << found;
+          edm::LogVerbatim("IsoTrack") << "Find " << EEDetId(info.first) << " as partner of " << hid
+                                       << " and mtaching with tower " << found;
         }
       }
     }
