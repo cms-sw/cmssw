@@ -2009,8 +2009,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
   for (const auto& cpId : cPIndices) {
     if (cP[cpId].eta() >= 0.) {
       caloparteneplus = caloparteneplus + cP[cpId].energy();
-    }
-    if (cP[cpId].eta() < 0.) {
+    } else if (cP[cpId].eta() < 0.) {
       caloparteneminus = caloparteneminus + cP[cpId].energy();
     }
   }
@@ -2173,8 +2172,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
       bigamoth.push_back(nthhits200p);
       bigamoth.push_back(nthhits300p);
       bigamoth.push_back(nthhitsscintp);
-    }
-    if (zside < 0) {
+    } else if (zside < 0) {
       bigamoth.push_back(nthhits120m);
       bigamoth.push_back(nthhits200m);
       bigamoth.push_back(nthhits300m);
@@ -2590,8 +2588,8 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(const Histograms& histogr
       for (auto& stsPair : stsInTrackster[tstId]) {
         //In case of a Trackster with zero energy but related CaloParticles the score is set to 1.
         stsPair.second = 1.;
-        LogDebug("HGCalValidator") << "Trackster Id: \t" << tstId << "\t SimTrackster id: \t" << stsPair.first << "\t score \t"
-                                   << stsPair.second << std::endl;
+        LogDebug("HGCalValidator") << "Trackster Id: \t" << tstId << "\t SimTrackster id: \t" << stsPair.first
+                                   << "\t score \t" << stsPair.second << std::endl;
         histograms.h_score_trackster2caloparticle[count]->Fill(stsPair.second);
       }
       continue;
@@ -2859,12 +2857,13 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(const Histograms& histogr
                                  << " " << CPenergy << " " << (tracksters[bestTstId].raw_energy() / CPenergy) << " "
                                  << tstSharedEnergyFrac[cpId][bestTstId] << '\n';
       histograms.h_sharedenergy_caloparticle2trackster_assoc[count]->Fill(tstSharedEnergyFrac[cpId][bestTstId]);
-    }
-    if (assocDup >= 2) {
-      auto match = std::find_if(std::begin(score3d[cpId]), std::end(score3d[cpId]), is_assoc);
-      while (match != score3d[cpId].end()) {
-        tracksters_duplicate[std::distance(std::begin(score3d[cpId]), match)] = 1;
-        match = std::find_if(std::next(match), std::end(score3d[cpId]), is_assoc);
+
+      if (assocDup >= 2) {
+        auto match = std::find_if(std::begin(score3d[cpId]), std::end(score3d[cpId]), is_assoc);
+        while (match != score3d[cpId].end()) {
+          tracksters_duplicate[std::distance(std::begin(score3d[cpId]), match)] = 1;
+          match = std::find_if(std::next(match), std::end(score3d[cpId]), is_assoc);
+        }
       }
     }
     histograms.h_denom_caloparticle_eta[count]->Fill(simTSFromCP[iSTS].barycenter().eta());
@@ -2895,17 +2894,19 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(const Histograms& histogr
       float sharedeneCPallLayers = 0.;
       //Loop through all layers
       for (unsigned int j = 0; j < layers * 2; ++j) {
-        auto const& best_cp_linked = cPOnLayer[simTSFromCP[best->first].seedIndex()][j].layerClusterIdToEnergyAndScore[tstId];
+        auto const& best_cp_linked =
+            cPOnLayer[simTSFromCP[best->first].seedIndex()][j].layerClusterIdToEnergyAndScore[tstId];
         sharedeneCPallLayers += best_cp_linked.first;
       }  //end of loop through layers
       histograms.h_sharedenergy_trackster2caloparticle_vs_eta[count]->Fill(
           tracksters[tstId].barycenter().eta(), sharedeneCPallLayers / tracksters[tstId].raw_energy());
       histograms.h_sharedenergy_trackster2caloparticle_vs_phi[count]->Fill(
           tracksters[tstId].barycenter().phi(), sharedeneCPallLayers / tracksters[tstId].raw_energy());
-    }
-    if (assocFakeMerge >= 2) {
-      histograms.h_numMerge_trackster_eta[count]->Fill(tracksters[tstId].barycenter().eta());
-      histograms.h_numMerge_trackster_phi[count]->Fill(tracksters[tstId].barycenter().phi());
+
+      if (assocFakeMerge >= 2) {
+        histograms.h_numMerge_trackster_eta[count]->Fill(tracksters[tstId].barycenter().eta());
+        histograms.h_numMerge_trackster_phi[count]->Fill(tracksters[tstId].barycenter().phi());
+      }
     }
     histograms.h_denom_trackster_eta[count]->Fill(tracksters[tstId].barycenter().eta());
     histograms.h_denom_trackster_phi[count]->Fill(tracksters[tstId].barycenter().phi());
