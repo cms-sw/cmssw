@@ -26,12 +26,12 @@ public:
   //    We make empty histograms (which we own), but generator pointers
   //    remain null.
   //
-  PixelResolutionHistograms(std::string filename,     // ROOT file for histograms
-                            std::string rootdir,      // Subdirectory in the file, "" if none
-                            std::string descTitle,    // Descriptive title
-                            unsigned int detType,     // Where we are... (&&& do we need this?)
-                            std::vector<double> cotbetaEdges,  // List of bin edges in cot beta
-                            std::vector<double> cotalphaEdges);// List of bin edges in cot alpha
+  PixelResolutionHistograms(std::string filename,                // ROOT file for histograms
+                            std::string rootdir,                 // Subdirectory in the file, "" if none
+                            std::string descTitle,               // Descriptive title
+                            unsigned int detType,                // Where we are... (&&& do we need this?)
+                            std::vector<double> cotbetaEdges,    // List of bin edges in cot beta
+                            std::vector<double> cotalphaEdges);  // List of bin edges in cot alpha
   //--- Constructor to use when generating resolution histograms with consistent binning.
   //    We make empty histograms (which we own), but generator pointers
   //    remain null.
@@ -76,7 +76,7 @@ public:
            int nypix);  // length of cluster along x,y (only care if ==1 or not)
 
   //--- Get generators, for resolution in X and Y.  Use in FastSim.
-  const SimpleHistogramGenerator* getGenerator(double cotalpha, double cotbeta,  int qbin, bool single, bool isX);
+  const SimpleHistogramGenerator* getGenerator(double cotalpha, double cotbeta, int qbin, bool single, bool isX);
   const SimpleHistogramGenerator* getGeneratorX(double cotalpha, double cotbeta, int qbin, bool singlex);
   const SimpleHistogramGenerator* getGeneratorY(double cotalpha, double cotbeta, int qbin, bool singley);
 
