@@ -629,7 +629,8 @@ void TrackletLUT::initVMRTable(unsigned int layerdisk, VMRTableType type, int re
   } else {
     if (type == VMRTableType::me) {
       //This if a hack where the same memory is used in both ME and TE modules
-      if (layerdisk == 1 || layerdisk == 2 || layerdisk == 3 || layerdisk == 4) {
+      if (layerdisk == LayerDisk::L2 || layerdisk == LayerDisk::L3 || layerdisk == LayerDisk::L4 ||
+          layerdisk == LayerDisk::L6) {
         positive_ = false;
         name_ = "VMTableOuter" + TrackletConfigBuilder::LayerName(layerdisk) + ".tab";
         writeTable();
