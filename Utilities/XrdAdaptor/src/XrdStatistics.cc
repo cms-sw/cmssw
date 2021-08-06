@@ -11,6 +11,10 @@
 
 #include <chrono>
 
+namespace xrd_adaptor {
+  XrdStatistics::~XrdStatistics() {}
+}  // namespace xrd_adaptor
+
 using namespace XrdAdaptor;
 
 std::atomic<XrdSiteStatisticsInformation *> XrdSiteStatisticsInformation::m_instance;
@@ -94,7 +98,7 @@ void XrdStatisticsService::fillDescriptions(edm::ConfigurationDescriptions &desc
       ->setComment(
           "True: Add per-site Xrootd statistics to the framework job report.\n"
           "False: Collect no site-specific statistics.\n");
-  descriptions.add("XrdAdaptor::XrdStatisticsService", desc);
+  descriptions.add("XrdStatisticsService", desc);
 }
 
 XrdSiteStatistics::XrdSiteStatistics(std::string const &site)
