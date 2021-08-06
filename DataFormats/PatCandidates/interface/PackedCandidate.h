@@ -799,7 +799,7 @@ namespace pat {
     bool hasTrackDetails() const { return (packedHits_ != 0 || packedLayers_ != 0); }
     /// Return true if the original candidate had a track associated
     /// even if the PackedCandidate has no track
-    bool fromTrackCandidate() const { return (packedDz_ != 0 || packedDxy_ != 0); }
+    bool fromTrackCandidate() const { return (packedDz_ != 0 || (packedDxy_ != 0 && packedDxy_ != 32768) ); }
     /// true if the track had the highPurity quality bit
     bool trackHighPurity() const { return (qualityFlags_ & trackHighPurityMask) >> trackHighPurityShift; }
     /// set to true if the track had the highPurity quality bit
