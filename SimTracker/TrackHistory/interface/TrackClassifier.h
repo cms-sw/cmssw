@@ -69,16 +69,19 @@ private:
   const G4toCMSLegacyProcTypeMap g4toCMSProcMap_;
 
   edm::ESHandle<MagneticField> magneticField_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
 
   edm::Handle<edm::HepMCProduct> mcInformation_;
 
   edm::ESHandle<ParticleDataTable> particleDataTable_;
 
   edm::ESHandle<TransientTrackBuilder> transientTrackBuilder_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
 
   edm::Handle<reco::BeamSpot> beamSpot_;
 
   const TrackerTopology *tTopo_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoHandToken_;
 
   //! Classify all the tracks by their association and reconstruction
   //! information

@@ -35,11 +35,11 @@ namespace reco {
       double evaluate(double const* iVariables, double const* iParameters) const final;
       std::vector<std::string> abstractSyntaxTree() const final;
 
-    private:
       ConstantEvaluator(const ConstantEvaluator&) = delete;
 
       const ConstantEvaluator& operator=(const ConstantEvaluator&) = delete;
 
+    private:
       // ---------- member data --------------------------------
       double m_value;
     };

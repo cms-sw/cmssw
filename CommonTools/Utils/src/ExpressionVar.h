@@ -10,7 +10,7 @@
  *
  */
 
-#include "CommonTools/Utils/src/ExpressionBase.h"
+#include "CommonTools/Utils/interface/ExpressionBase.h"
 #include "CommonTools/Utils/src/MethodInvoker.h"
 #include "CommonTools/Utils/src/TypeCode.h"
 

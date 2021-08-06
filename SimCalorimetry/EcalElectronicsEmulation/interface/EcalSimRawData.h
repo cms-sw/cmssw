@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
-#include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
+#include "SimCalorimetry/EcalSelectiveReadoutAlgos/interface/EcalSelectiveReadout.h"
 #include <fstream>
 #include <string>
 

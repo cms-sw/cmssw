@@ -38,7 +38,7 @@ HFShowerParam::HFShowerParam(const std::string& name,
   bool useShowerLibrary = m_HF.getParameter<bool>("UseShowerLibrary");
   bool useGflash = m_HF.getParameter<bool>("UseHFGflash");
   edMin_ = m_HF.getParameter<double>("EminLibrary");
-  ignoreTimeShift_ = m_HF2.getParameter<bool>("IgnoreTimeShift");
+  equalizeTimeShift_ = m_HF2.getParameter<bool>("EqualizeTimeShift");
   onlyLong_ = m_HF2.getParameter<bool>("OnlyLong");
   ref_index_ = m_HF.getParameter<double>("RefIndex");
   double lambdaMean = m_HF.getParameter<double>("LambdaMean");
@@ -52,7 +52,7 @@ HFShowerParam::HFShowerParam(const std::string& name,
                                << ", ref. index of fibre " << ref_index_ << ", Track EM Flag " << trackEM_ << ", edMin "
                                << edMin_ << " GeV, use of Short fibre info in"
                                << " shower library set to " << !(onlyLong_)
-                               << " ignore flag for time shift in fire is set to " << ignoreTimeShift_
+                               << " equalize flag for time shift in fibre is set to " << equalizeTimeShift_
                                << ", use of parametrization for last part set to " << parametrizeLast_
                                << ", Mean lambda " << lambdaMean << ", aperture (cutoff) " << aperture_
                                << ", Application of Fiducial Cut " << applyFidCut_;
@@ -266,7 +266,8 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
                   << "HFShowerParam:Extra exclusion " << r2 << ">" << weight << " " << (r2 > weight);
 #endif
               if (r2 < weight) {
-                double time = (ignoreTimeShift_) ? 0 : fibre_->tShift(localPoint, depth, 0);
+                double time = (equalizeTimeShift_) ? (fibre_->tShift(localPoint, depth, -1))
+                                                   : (fibre_->tShift(localPoint, depth, 0));
 
                 hit.position = hitSL[i].position;
                 hit.depth = depth;
@@ -302,7 +303,8 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
         path = "Rest";
         edep *= pePerGeV_;
         double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-        double time = (ignoreTimeShift_) ? 0 : fibre_->tShift(localPoint, 1, 0);  // remaining part
+        double time = (equalizeTimeShift_) ? (fibre_->tShift(localPoint, 1, -1))
+                                           : (fibre_->tShift(localPoint, 1, 0));  // remaining part
         bool ok = true;
         if (applyFidCut_) {  // @@ For showerlibrary no z-cut for Short (no z)
           int npmt = HFFibreFiducial::PMTNumber(hitPoint);
@@ -328,7 +330,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
           }
 #endif
           if (zz >= gpar_[0]) {
-            time = (ignoreTimeShift_) ? 0 : fibre_->tShift(localPoint, 2, 0);
+            time = (equalizeTimeShift_) ? (fibre_->tShift(localPoint, 2, -1)) : (fibre_->tShift(localPoint, 2, 0));
             hit.depth = 2;
             hit.time = tSlice + time;
             hits.push_back(hit);

@@ -34,6 +34,7 @@ namespace math {
     //! creates a walker rooted by the node given
     GraphWalker(const Graph<N, E> &, const N &);
 
+    GraphWalker() = delete;
     // operations
 
     result_type firstChild();
@@ -59,9 +60,6 @@ namespace math {
     bfs_type queue_;    // breath first search queue
     edge_list root_;    // root of the walker
     const Graph<N, E> &graph_;
-
-  private:
-    GraphWalker() = delete;
   };
 
   template <class N, class E>

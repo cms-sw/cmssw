@@ -49,10 +49,10 @@ public:
   FWTrackResidualDetailView();
   ~FWTrackResidualDetailView() override;
 
-private:
   FWTrackResidualDetailView(const FWTrackResidualDetailView &) = delete;                   // stop default
   const FWTrackResidualDetailView &operator=(const FWTrackResidualDetailView &) = delete;  // stop default
 
+private:
   using FWDetailViewCanvas<reco::Track>::build;
   void build(const FWModelId &id, const reco::Track *) override;
   using FWDetailViewCanvas<reco::Track>::setTextInfo;

@@ -22,10 +22,10 @@ public:
   virtual void viewContextBoxScale(
       const float* corners, float scale, bool plotEt, std::vector<float>& scaledCorners, const CaloRecHit*);
 
-private:
   FWCaloRecHitDigitSetProxyBuilder(const FWCaloRecHitDigitSetProxyBuilder&) = delete;
   const FWCaloRecHitDigitSetProxyBuilder& operator=(const FWCaloRecHitDigitSetProxyBuilder&) = delete;
 
+private:
   bool m_invertBox;
   bool m_ignoreGeoShapeSize;
   double m_enlarge;

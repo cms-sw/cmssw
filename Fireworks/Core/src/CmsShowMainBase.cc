@@ -39,7 +39,7 @@
 #include "Fireworks/Core/interface/FWTriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWGeometryTableViewManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
-#include "Fireworks/Core/src/CmsShowTaskExecutor.h"
+#include "Fireworks/Core/interface/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/src/SimpleSAXParser.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"

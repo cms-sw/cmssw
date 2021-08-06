@@ -24,7 +24,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "Fireworks/Core/interface/FWItemRandomAccessor.h"
-#include "Fireworks/Core/src/FWItemSingleAccessor.h"
+#include "Fireworks/Core/interface/FWItemSingleAccessor.h"
 
 class BeamSpotSingleAccessor : public FWItemSingleAccessor {
 public:

@@ -14,12 +14,12 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   // Disable default copy constructor
   FWECaloParticleProxyBuilder(const FWECaloParticleProxyBuilder &) = delete;
   // Disable default assignment operator
   const FWECaloParticleProxyBuilder &operator=(const FWECaloParticleProxyBuilder &) = delete;
 
+private:
   void build(const CaloParticle &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *) override;
 };
 

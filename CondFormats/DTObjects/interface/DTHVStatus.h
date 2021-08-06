@@ -72,6 +72,8 @@ public:
   /** Constructor
    */
   DTHVStatus();
+  DTHVStatus(DTHVStatus const&) = delete;
+  DTHVStatus& operator=(DTHVStatus const&) = delete;
   DTHVStatus(const std::string& version);
 
   /** Destructor
@@ -132,9 +134,6 @@ public:
   void initialize();
 
 private:
-  DTHVStatus(DTHVStatus const&) = delete;
-  DTHVStatus& operator=(DTHVStatus const&) = delete;
-
   std::string dataVersion;
 
   std::vector<std::pair<DTHVStatusId, DTHVStatusData> > dataList;

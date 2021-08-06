@@ -41,9 +41,7 @@ public:
                         const GEMPadDigiClusterCollection* padDigiClusters,
                         FEDRawDataCollection& fed_buffers,
                         const CSCChamberMap* theMapping,
-                        const edm::EventID& eid,
-                        uint16_t theFormatVersion = 2005,
-                        bool packEverything = false) const;
+                        const edm::EventID& eid) const;
 
 private:
   struct FindEventDataInfo {
@@ -59,17 +57,12 @@ private:
   void add(const CSCStripDigiCollection& stripDigis,
            const CSCCLCTPreTriggerCollection* preTriggers,
            const CSCCLCTPreTriggerDigiCollection* preTriggerDigis,
-           FindEventDataInfo&,
-           bool packEverything) const;
-  void add(const CSCWireDigiCollection& wireDigis,
-           const CSCALCTDigiCollection& alctDigis,
-           FindEventDataInfo&,
-           bool packEverything) const;
+           FindEventDataInfo&) const;
+  void add(const CSCWireDigiCollection& wireDigis, const CSCALCTDigiCollection& alctDigis, FindEventDataInfo&) const;
   // may require CLCTs to read out comparators.  Doesn't add CLCTs.
   void add(const CSCComparatorDigiCollection& comparatorDigis,
            const CSCCLCTDigiCollection& clctDigis,
-           FindEventDataInfo&,
-           bool packEverything) const;
+           FindEventDataInfo&) const;
   void add(const CSCALCTDigiCollection& alctDigis, FindEventDataInfo&) const;
   void add(const CSCCLCTDigiCollection& clctDigis, FindEventDataInfo&) const;
   void add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindEventDataInfo&) const;
@@ -84,6 +77,10 @@ private:
   const int clctWindowMax_;
   const int preTriggerWindowMin_;
   const int preTriggerWindowMax_;
+
+  uint16_t formatVersion_;
+  bool packEverything_;
+  bool usePreTriggers_;
 };
 
 #endif

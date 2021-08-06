@@ -75,6 +75,9 @@ namespace cms {
             transferAsync(data.m_data, cudaStream);
             assert(data.m_fillingStream == nullptr);
             data.m_fillingStream = cudaStream;
+            // Record in the cudaStream an event to mark the readiness of the
+            // EventSetup data on the GPU, so other streams can check for it
+            cudaCheck(cudaEventRecord(data.m_event.get(), cudaStream));
             // Now the filling has been enqueued to the cudaStream, so we
             // can return the GPU data immediately, since all subsequent
             // work must be either enqueued to the cudaStream, or the cudaStream

@@ -27,12 +27,12 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   // Disable default copy constructor
   FWSiPixelDigiProxyBuilder(const FWSiPixelDigiProxyBuilder&) = delete;
   // Disable default assignment operator
   const FWSiPixelDigiProxyBuilder& operator=(const FWSiPixelDigiProxyBuilder&) = delete;
 
+private:
   using FWProxyBuilderBase::build;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 };

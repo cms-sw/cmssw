@@ -10,7 +10,7 @@
  * \version $Revision: 1.3 $
  *
  */
-#include "CommonTools/Utils/src/SelectorPtr.h"
+#include "CommonTools/Utils/interface/SelectorPtr.h"
 #include "CommonTools/Utils/src/SelectorStack.h"
 #include <cassert>
 
