@@ -667,7 +667,7 @@ namespace pat {
                                 unsigned int nPixelHits) {
       covarianceVersion_ = covarianceVersion;
       covarianceSchema_ = covSchema;
-      packedHits_ = (nHits & trackPixelHitsMask) | (nPixelHits << trackStripHitsShift);
+      packedHits_ = (nPixelHits & trackPixelHitsMask) | ( ((nHits-nPixelHits) & trackStripHitsMask) << trackStripHitsShift);
     }
 
     int numberOfPixelHits() const { return (packedHits_ & trackPixelHitsMask) + pixelLayersWithMeasurement(); }
