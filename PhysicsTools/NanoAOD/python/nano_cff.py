@@ -156,7 +156,6 @@ def nanoAOD_addDeepMET(process, addDeepMETProducer, ResponseTune_Graph):
     return process
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-#from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
 def nanoAOD_recalibrateMETs(process,isData):
 
     # add DeepMETs
@@ -196,7 +195,14 @@ def nanoAOD_recalibrateMETs(process,isData):
     process.metTablesTask.add(process.corrT1METJetTable)
 
 
-#
+    from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
+    makePuppiesFromMiniAOD(process,True)
+    process.puppiNoLep.useExistingWeights = True
+    process.puppi.useExistingWeights = True
+    run2_nanoAOD_106Xv1.toModify(process.puppiNoLep, useExistingWeights = False)
+    run2_nanoAOD_106Xv1.toModify(process.puppi, useExistingWeights = False)
+    print("will make Puppies on top of MINIAOD")
+
 #    makePuppiesFromMiniAOD(process,True) # call this before in the global customizer otherwise it would reset photon IDs in VID
     nanoAOD_PuppiV15_switch = cms.PSet(
             recoMetFromPFCs = cms.untracked.bool(False),
@@ -224,8 +230,7 @@ def nanoAOD_recalibrateMETs(process,isData):
                             getJetMCFlavour= False
         )
 
-        process.patJetsPuppi.addGenPartonMatch = cms.bool(False)
-        process.patJetsPuppi.addGenJetMatch = cms.bool(False)
+        print("nanoAOD_PuppiV15_switch.reclusterJets is true")
     
     runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi", recoMetFromPFCs=bool(nanoAOD_PuppiV15_switch.recoMetFromPFCs), reclusterJets=bool(nanoAOD_PuppiV15_switch.reclusterJets))
     process.nanoSequenceCommon.insert(2,cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
@@ -313,11 +318,6 @@ def nanoAOD_runMETfixEE2017(process,isData):
     process.nanoSequenceCommon.insert(2,process.fullPatMetSequenceFixEE2017)
 
 def nanoAOD_customizeCommon(process):
-#    makePuppiesFromMiniAOD(process,True)
-#    process.puppiNoLep.useExistingWeights = True
-#    process.puppi.useExistingWeights = True
-#    run2_nanoAOD_106Xv1.toModify(process.puppiNoLep, useExistingWeights = False)
-#    run2_nanoAOD_106Xv1.toModify(process.puppi, useExistingWeights = False)
     process = nanoAOD_activateVID(process)
     nanoAOD_addDeepInfo_switch = cms.PSet(
         nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
@@ -378,14 +378,17 @@ def nanoAOD_customizeCommon(process):
 
 def nanoAOD_customizeData(process):
     process = nanoAOD_customizeCommon(process)
-#    process = nanoAOD_recalibrateMETs(process,isData=True)
+
+    for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
+        modifier.toModify(process, lambda p: nanoAOD_recalibrateMETs(process,isData=True))
     for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         modifier.toModify(process, lambda p: nanoAOD_runMETfixEE2017(p,isData=True))
     return process
 
 def nanoAOD_customizeMC(process):
     process = nanoAOD_customizeCommon(process)
-#    process = nanoAOD_recalibrateMETs(process,isData=False)
+    for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
+        modifier.toModify(process, lambda p: nanoAOD_recalibrateMETs(process,isData=False))
     for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         modifier.toModify(process, lambda p: nanoAOD_runMETfixEE2017(p,isData=False))
     return process
