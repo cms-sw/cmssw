@@ -23,8 +23,9 @@ private:
   float tFall_;
   std::vector<double> weights_;
 
-  edm::EDGetTokenT<EBDigiCollectionPh2> ebDigiCollectionInToken_;
-  edm::EDPutTokenT<EBUncalibratedRecHitCollection> ebDigiCollectionOutToken_;
+  edm::EDGetTokenT<EBDigiCollectionPh2> ebDigiCollectionToken_;
+  edm::EDPutTokenT<EBUncalibratedRecHitCollection> ebUncalibRecHitCollectionToken_;
+  
 };
 
 void EcalUncalibRecHitPhase2WeightsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -46,13 +47,13 @@ EcalUncalibRecHitPhase2WeightsProducer::EcalUncalibRecHitPhase2WeightsProducer(c
     : tRise_(ps.getParameter<double>("tRise")),
       tFall_(ps.getParameter<double>("tFall")),
       weights_(ps.getParameter<std::vector<double>>("weights")),
-      ebDigiCollectionInToken_(consumes<EBDigiCollectionPh2>(ps.getParameter<edm::InputTag>("BarrelDigis"))),
-      ebDigiCollectionOutToken_(
+      ebDigiCollectionToken_(consumes<EBDigiCollectionPh2>(ps.getParameter<edm::InputTag>("BarrelDigis"))),
+      ebUncalibRecHitCollectionToken_(
           produces<EBUncalibratedRecHitCollection>(ps.getParameter<std::string>("EBhitCollection"))) {}
 
 void EcalUncalibRecHitPhase2WeightsProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // retrieve digis
-  const EBDigiCollectionPh2* pdigis = &evt.get(ebDigiCollectionInToken_);
+  const EBDigiCollectionPh2* pdigis = &evt.get(ebDigiCollectionToken_);
 
   // prepare output
   auto ebUncalibRechits = std::make_unique<EBUncalibratedRecHitCollection>();
@@ -102,7 +103,7 @@ void EcalUncalibRecHitPhase2WeightsProducer::produce(edm::Event& evt, const edm:
 
   }  // loop on digis
 
-  evt.put(ebDigiCollectionOutToken_, std::move(ebUncalibRechits));
+  evt.put(ebUncalibRecHitCollectionToken_, std::move(ebUncalibRechits));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
