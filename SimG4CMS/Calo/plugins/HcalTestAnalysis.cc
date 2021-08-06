@@ -41,28 +41,28 @@
 #include <vector>
 
 class HcalTestAnalysis : public SimWatcher,
-                         public Observer<const BeginOfJob *>,
-                         public Observer<const BeginOfRun *>,
-                         public Observer<const BeginOfEvent *>,
-                         public Observer<const EndOfEvent *>,
-                         public Observer<const G4Step *> {
+                         public Observer<const BeginOfJob*>,
+                         public Observer<const BeginOfRun*>,
+                         public Observer<const BeginOfEvent*>,
+                         public Observer<const EndOfEvent*>,
+                         public Observer<const G4Step*> {
 public:
-  HcalTestAnalysis(const edm::ParameterSet &p);
+  HcalTestAnalysis(const edm::ParameterSet& p);
   ~HcalTestAnalysis() override;
 
 private:
   // observer classes
-  void update(const BeginOfJob *run) override;
-  void update(const BeginOfRun *run) override;
-  void update(const BeginOfEvent *evt) override;
-  void update(const EndOfEvent *evt) override;
-  void update(const G4Step *step) override;
+  void update(const BeginOfJob* run) override;
+  void update(const BeginOfRun* run) override;
+  void update(const BeginOfEvent* evt) override;
+  void update(const EndOfEvent* evt) override;
+  void update(const G4Step* step) override;
 
   // analysis-related stuff
   std::vector<int> layerGrouping(int);
   std::vector<int> towersToAdd(int centre, int nadd);
-  void fill(const EndOfEvent *ev);
-  void qieAnalysis(CLHEP::HepRandomEngine *);
+  void fill(const EndOfEvent* ev);
+  void qieAnalysis(CLHEP::HepRandomEngine*);
   void layerAnalysis();
   double timeOfFlight(int det, int layer, double eta);
 
@@ -76,12 +76,12 @@ private:
 
   // Private Tuples
   std::unique_ptr<HcalTestHistoManager> tuplesManager_;
-  HcalTestHistoClass *tuples_;
+  HcalTestHistoClass* tuples_;
 
   // Numbering scheme
   std::unique_ptr<HcalNumberingFromDDD> numberingFromDDD_;
-  const HcalDDDSimConstants *hcons_;
-  HcalTestNumberingScheme *org_;
+  const HcalDDDSimConstants* hcons_;
+  HcalTestNumberingScheme* org_;
 
   // Hits for qie analysis
   std::vector<CaloHit> caloHitCache_;
