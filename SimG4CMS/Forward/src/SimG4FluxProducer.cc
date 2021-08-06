@@ -1,4 +1,4 @@
-#include "SimG4FluxProducer.h"
+#include "SimG4CMS/Forward/interface/SimG4FluxProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4Track.hh"
