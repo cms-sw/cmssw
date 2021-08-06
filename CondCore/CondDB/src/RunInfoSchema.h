@@ -2,7 +2,7 @@
 #define CondCore_CondDB_RunInfoSchema_h
 
 #include "CondCore/CondDB/interface/DbCore.h"
-#include "../interface/IDbSchema.h"
+#include "CondCore/CondDB/interface/IDbSchema.h"
 //
 #include <boost/date_time/posix_time/posix_time.hpp>
 
