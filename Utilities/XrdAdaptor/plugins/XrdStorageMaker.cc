@@ -180,4 +180,7 @@ private:
 };
 
 DEFINE_EDM_PLUGIN(StorageMakerFactory, XrdStorageMaker, "root");
-DEFINE_FWK_SERVICE(XrdAdaptor::XrdStatisticsService);
+using XrdStatisticsMaker =
+    edm::serviceregistry::AllArgsMaker<xrd_adaptor::XrdStatistics, XrdAdaptor::XrdStatisticsService>;
+using XrdAdaptor::XrdStatisticsService;
+DEFINE_FWK_SERVICE_MAKER(XrdStatisticsService, XrdStatisticsMaker);
