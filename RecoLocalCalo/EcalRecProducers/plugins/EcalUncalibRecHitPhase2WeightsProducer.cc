@@ -30,14 +30,14 @@ private:
 void EcalUncalibRecHitPhase2WeightsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<std::string>("EBhitCollection","EcalUncalibRecHitsEB");
+  desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
   desc.add<double>("tRise", 0.2);
   desc.add<double>("tFall", 2.);
   desc.add<std::vector<double>>(
       "weights",
       {-0.121016, -0.119899, -0.120923, -0.0848959, 0.261041, 0.509881, 0.373591, 0.134899, -0.0233605, -0.0913195,
        -0.112452, -0.118596, -0,        121737,     -0,       121737,   -0,       121737,   -0,         121737});
-  desc.add<edm::InputTag>("BarrelDigis", edm::InputTag("simEcalUnsuppressedDigis",""));
+  desc.add<edm::InputTag>("BarrelDigis", edm::InputTag("simEcalUnsuppressedDigis", ""));
 
   descriptions.add("EcalUncalibRecHitPhase2WeightsProducer", desc);
 }
