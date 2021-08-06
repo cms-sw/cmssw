@@ -9,7 +9,9 @@ ULresolutionHistograms = False
 # config file, and import it here, and below use its own Era to load it.
 #
 if ULresolutionHistograms:
-    from FastSimulation.TrackingRecHitProducer.PixelPluginsUL_cfi import pixelPlugins2016UL, pixelPlugins2017UL, pixelPlugins2018UL
+    from FastSimulation.TrackingRecHitProducer.PixelPlugins2016UL_cfi import pixelPlugins2016UL
+    from FastSimulation.TrackingRecHitProducer.PixelPlugins2017UL_cfi import pixelPlugins2017UL
+    from FastSimulation.TrackingRecHitProducer.PixelPlugins2018UL_cfi import pixelPlugins2018UL
     fastTrackerRecHits = cms.EDProducer("TrackingRecHitProducer",
         simHits = cms.InputTag("fastSimProducer","TrackerHits"),
         plugins = pixelPlugins2016UL
