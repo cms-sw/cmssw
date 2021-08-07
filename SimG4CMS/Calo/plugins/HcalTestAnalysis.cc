@@ -2,18 +2,28 @@
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Watcher/interface/SimWatcher.h"
 
 // to retreive hits
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "SimG4CMS/Calo/interface/HcalTestAnalysis.h"
-#include "SimG4CMS/Calo/interface/HCalSD.h"
-#include "SimG4CMS/Calo/interface/CaloG4Hit.h"
-#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "SimDataFormats/CaloHit/interface/CaloHit.h"
+#include "SimDataFormats/CaloTest/interface/HcalTestHistoClass.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
+
+#include "SimG4CMS/Calo/interface/CaloG4Hit.h"
+#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
+#include "SimG4CMS/Calo/interface/HCalSD.h"
+#include "SimG4CMS/Calo/interface/HcalQie.h"
+#include "SimG4CMS/Calo/interface/HcalTestHistoManager.h"
+#include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"
@@ -27,7 +37,68 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
-#include <memory>
+#include <string>
+#include <vector>
+
+class HcalTestAnalysis : public SimWatcher,
+                         public Observer<const BeginOfJob*>,
+                         public Observer<const BeginOfRun*>,
+                         public Observer<const BeginOfEvent*>,
+                         public Observer<const EndOfEvent*>,
+                         public Observer<const G4Step*> {
+public:
+  HcalTestAnalysis(const edm::ParameterSet& p);
+  ~HcalTestAnalysis() override;
+
+private:
+  // observer classes
+  void update(const BeginOfJob* run) override;
+  void update(const BeginOfRun* run) override;
+  void update(const BeginOfEvent* evt) override;
+  void update(const EndOfEvent* evt) override;
+  void update(const G4Step* step) override;
+
+  // analysis-related stuff
+  std::vector<int> layerGrouping(int);
+  std::vector<int> towersToAdd(int centre, int nadd);
+  void fill(const EndOfEvent* ev);
+  void qieAnalysis(CLHEP::HepRandomEngine*);
+  void layerAnalysis();
+  double timeOfFlight(int det, int layer, double eta);
+
+private:
+  //Keep parameters to instantiate HcalTestHistoClass later
+  std::string fileName_;
+
+  // Qie Analysis
+  std::unique_ptr<HcalQie> myqie_;
+  int addTower_;
+
+  // Private Tuples
+  std::unique_ptr<HcalTestHistoManager> tuplesManager_;
+  HcalTestHistoClass* tuples_;
+
+  // Numbering scheme
+  std::unique_ptr<HcalNumberingFromDDD> numberingFromDDD_;
+  const HcalDDDSimConstants* hcons_;
+  HcalTestNumberingScheme* org_;
+
+  // Hits for qie analysis
+  std::vector<CaloHit> caloHitCache_;
+  std::vector<int> group_, tower_;
+  int nGroup_, nTower_;
+
+  // to read from ParameterSet
+  std::vector<std::string> names_;
+  double eta0_, phi0_;
+  int centralTower_;
+
+  // some private members for ananlysis
+  unsigned int count_;
+  double edepEB_, edepEE_, edepHB_, edepHE_;
+  double edepHO_, edepl_[20];
+  double mudist_[20];  // Distance of muon from central part
+};
 
 HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p)
     : addTower_(3), tuples_(nullptr), hcons_(nullptr), org_(nullptr) {
@@ -633,3 +704,8 @@ double HcalTestAnalysis::timeOfFlight(int det, int layer, double eta) {
                               << " eta/theta " << eta << " " << theta / deg << " dist " << dist;
   return tmp;
 }
+
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
+DEFINE_SIMWATCHER(HcalTestAnalysis);
