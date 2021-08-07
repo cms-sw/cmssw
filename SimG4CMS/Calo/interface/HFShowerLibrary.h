@@ -72,7 +72,7 @@ private:
   std::vector<double> pmom;
 
   int fileVersion_;
-  bool ignoreTimeShift_;
+  bool equalizeTimeShift_;
   double probMax, backProb;
   double dphi, rMin, rMax;
   std::vector<double> gpar;
