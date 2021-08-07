@@ -55,7 +55,6 @@ namespace edm::shared_memory {
     ///Matches the ControllerChannel::setupWorker call
     void workerSetupDone() {
       //The controller is waiting for the worker to be setup
-      *transitionID_ = 0;
       notifyController();
     }
 
@@ -83,7 +82,8 @@ namespace edm::shared_memory {
 
     ///These are here for expert use
     void notifyController() {
-      *transitionID_ = (*transitionID_ == 0 ? 1 : 0);
+      //change in transitionID_ used to signal worker finished
+      *transitionID_ = ~(*transitionID_);
       cndToController_.notify_all();
     }
     void waitForController() { cndFromController_.wait(lock_); }
