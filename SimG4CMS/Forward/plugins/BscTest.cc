@@ -97,7 +97,6 @@ private:
   TObjArray* fHistNamesArray;
 };
 
-
 /*
 class ObserveBeginOfRun : private Observer<const BeginOfRun *> 
 {

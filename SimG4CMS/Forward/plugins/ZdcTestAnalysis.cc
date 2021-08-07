@@ -55,24 +55,24 @@
 #include <vector>
 
 class ZdcTestAnalysis : public SimWatcher,
-                        public Observer<const BeginOfJob *>,
-                        public Observer<const BeginOfRun *>,
-                        public Observer<const EndOfRun *>,
-                        public Observer<const BeginOfEvent *>,
-                        public Observer<const EndOfEvent *>,
-                        public Observer<const G4Step *> {
+                        public Observer<const BeginOfJob*>,
+                        public Observer<const BeginOfRun*>,
+                        public Observer<const EndOfRun*>,
+                        public Observer<const BeginOfEvent*>,
+                        public Observer<const EndOfEvent*>,
+                        public Observer<const G4Step*> {
 public:
-  ZdcTestAnalysis(const edm::ParameterSet &p);
+  ZdcTestAnalysis(const edm::ParameterSet& p);
   ~ZdcTestAnalysis() override;
 
 private:
   // observer classes
-  void update(const BeginOfJob *run) override;
-  void update(const BeginOfRun *run) override;
-  void update(const EndOfRun *run) override;
-  void update(const BeginOfEvent *evt) override;
-  void update(const EndOfEvent *evt) override;
-  void update(const G4Step *step) override;
+  void update(const BeginOfJob* run) override;
+  void update(const BeginOfRun* run) override;
+  void update(const EndOfRun* run) override;
+  void update(const BeginOfEvent* evt) override;
+  void update(const EndOfEvent* evt) override;
+  void update(const G4Step* step) override;
 
 private:
   void finish();
@@ -83,11 +83,11 @@ private:
   std::string stepNtFileName;
   std::string eventNtFileName;
 
-  TFile *zdcOutputEventFile;
-  TFile *zdcOutputStepFile;
+  TFile* zdcOutputEventFile;
+  TFile* zdcOutputStepFile;
 
-  TNtuple *zdcstepntuple;
-  TNtuple *zdceventntuple;
+  TNtuple* zdcstepntuple;
+  TNtuple* zdceventntuple;
 
   int eventIndex;
   int stepIndex;
@@ -95,7 +95,7 @@ private:
   Float_t zdcsteparray[18];
   Float_t zdceventarray[16];
 
-  ZdcNumberingScheme *theZdcNumScheme;
+  ZdcNumberingScheme* theZdcNumScheme;
 };
 
 enum ntzdcs_elements {
@@ -158,7 +158,8 @@ ZdcTestAnalysis::ZdcTestAnalysis(const edm::ParameterSet& p) {
     edm::LogVerbatim("ZdcAnalysis") << " Event Ntuple will be created";
     edm::LogVerbatim("ZdcAnalysis") << " Step Ntuple file: " << stepNtFileName;
   }
-  edm::LogVerbatim("ZdcAnalysis") << "============================================================================" << std::endl;
+  edm::LogVerbatim("ZdcAnalysis") << "============================================================================"
+                                  << std::endl;
 
   if (doNTzdcstep > 0)
     zdcstepntuple =
@@ -268,8 +269,8 @@ void ZdcTestAnalysis::update(const G4Step* aStep) {
         theMaterials[jj] = theLogicalVolumes[jj]->GetMaterial();
         theMaterialNames[jj] = theMaterials[jj]->GetName();
         if (verbosity >= 2)
-          edm::LogVerbatim("ZdcAnalysis") << " GHD " << jj << ": " << theReplicaNumbers[jj] << "," << thePVnames[jj] << "," << theLVnames[jj]
-                    << "," << theMaterialNames[jj];
+          edm::LogVerbatim("ZdcAnalysis") << " GHD " << jj << ": " << theReplicaNumbers[jj] << "," << thePVnames[jj]
+                                          << "," << theLVnames[jj] << "," << theMaterialNames[jj];
       }
 
       idLayer = theReplicaNumbers[1];
@@ -294,8 +295,8 @@ void ZdcTestAnalysis::update(const G4Step* aStep) {
       else {
         thePVtype = 0;
         if (verbosity >= 2)
-          edm::LogVerbatim("ZdcAnalysis") << " pvtype=0 hd=" << historyDepth << " " << theReplicaNumbers[0] << "," << thePVnames[0] << ","
-                    << theLVnames[0] << "," << theMaterialNames[0];
+          edm::LogVerbatim("ZdcAnalysis") << " pvtype=0 hd=" << historyDepth << " " << theReplicaNumbers[0] << ","
+                                          << thePVnames[0] << "," << theLVnames[0] << "," << theMaterialNames[0];
       }
     } else if (historyDepth == 0) {
       int theReplicaNumber = touch->GetReplicaNumber(0);
@@ -306,7 +307,8 @@ void ZdcTestAnalysis::update(const G4Step* aStep) {
       G4Material* theMaterial = theLogicalVolume->GetMaterial();
       const G4String& theMaterialName = theMaterial->GetName();
       if (verbosity >= 2)
-        edm::LogVerbatim("ZdcAnalysis") << " hd=0 " << theReplicaNumber << "," << thePVname << "," << theLVname << "," << theMaterialName;
+        edm::LogVerbatim("ZdcAnalysis") << " hd=0 " << theReplicaNumber << "," << thePVname << "," << theLVname << ","
+                                        << theMaterialName;
     } else {
       edm::LogVerbatim("ZdcAnalysis") << " hd<0:  hd=" << historyDepth;
     }
@@ -338,7 +340,8 @@ void ZdcTestAnalysis::update(const EndOfEvent* evt) {
   //end of event
 
   // Look for the Hit Collection
-  edm::LogVerbatim("ZdcAnalysis") << "\nZdcTest::upDate(const EndOfEvent * evt) - event #" << (*evt)()->GetEventID() << "\n  # of aSteps followed in event = " << stepIndex;
+  edm::LogVerbatim("ZdcAnalysis") << "\nZdcTest::upDate(const EndOfEvent * evt) - event #" << (*evt)()->GetEventID()
+                                  << "\n  # of aSteps followed in event = " << stepIndex;
 
   // access to the G4 hit collections
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
@@ -380,8 +383,9 @@ void ZdcTestAnalysis::update(const EndOfEvent* evt) {
         math::XYZPoint hitPoint = aHit->getPosition();
         double hitEnergy = aHit->getEnergyDeposit();
         if (verbosity >= 1)
-          edm::LogVerbatim("ZdcAnalysis") << " entry #" << ihit << ": fiberID=0x" << std::hex << fiberID << std::dec << "; enEm=" << enEm
-                    << "; enHad=" << enHad << "; hitEnergy=" << hitEnergy << "z=" << hitPoint.z();
+          edm::LogVerbatim("ZdcAnalysis")
+              << " entry #" << ihit << ": fiberID=0x" << std::hex << fiberID << std::dec << "; enEm=" << enEm
+              << "; enHad=" << enHad << "; hitEnergy=" << hitEnergy << "z=" << hitPoint.z();
         energyInFibers[fiberID] += enEm + enHad;
         primaries[aHit->getTrackID()] += enEm + enHad;
         float time = aHit->getTimeSliceID();
