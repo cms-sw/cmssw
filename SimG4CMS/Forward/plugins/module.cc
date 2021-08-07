@@ -3,7 +3,7 @@
 #include "SimG4CMS/Forward/interface/ZdcTestAnalysis.h"
 #include "SimG4CMS/Forward/interface/DoCastorAnalysis.h"
 #include "SimG4CMS/Forward/interface/BscTest.h"
-#include "SimG4CMS/Forward/plugins/SimG4FluxProducer.h"
+#include "SimG4CMS/Forward/interface/SimG4FluxProducer.h"
 
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
