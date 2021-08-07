@@ -110,28 +110,27 @@ void HcalCalibrator::beginJob() {}
 
 void HcalCalibrator::endJob() {
   if (mCalibType != "DI_JET" && mCalibType != "ISO_TRACK") {
-    std::cout << "\n\nUnknown calibration type " << mCalibType << std::endl;
-    std::cout << "Please select ISO_TRACK or DI_JET in the python file." << std::endl;
+    edm::LogVerbatim("HcalCalib") << "\n\nUnknown calibration type " << mCalibType;
+    edm::LogVerbatim("HcalCalib") << "Please select ISO_TRACK or DI_JET in the python file.";
     return;
   }
 
   if (mCalibMethod != "L3" && mCalibMethod != "MATRIX_INV_OF_ETA_AVE" && mCalibMethod != "L3_AND_MTRX_INV") {
-    std::cout << "\n\nUnknown calibration method " << mCalibMethod << std::endl;
-    std::cout << "Supported methods for IsoTrack calibration are: L3, MATRIX_INV_OF_ETA_AVE, L3_AND_MTRX_INV"
-              << std::endl;
-    std::cout << "For DiJets the supported method is L3" << std::endl;
+    edm::LogVerbatim("HcalCalib") << "\n\nUnknown calibration method " << mCalibMethod;
+    edm::LogVerbatim("HcalCalib")
+        << "Supported methods for IsoTrack calibration are: L3, MATRIX_INV_OF_ETA_AVE, L3_AND_MTRX_INV";
+    edm::LogVerbatim("HcalCalib") << "For DiJets the supported method is L3";
     return;
   }
 
   if (mCalibType == "DI_JET" && mCalibMethod != "L3") {
-    std::cout << "\n\nDiJet calibration can use only the L3 method. Please change the python file." << std::endl;
+    edm::LogVerbatim("HcalCalib") << "\n\nDiJet calibration can use only the L3 method. Please change the python file.";
     return;
   }
 
   if (mCalibAbsIEtaMin < 1 || mCalibAbsIEtaMax > 41 || mCalibAbsIEtaMin > mCalibAbsIEtaMax) {
-    std::cout
-        << "\n\nInvalid ABS(iEta) calibration range. Check calibAbsIEtaMin and calibAbsIEtaMax in the python file."
-        << std::endl;
+    edm::LogVerbatim("HcalCalib")
+        << "\n\nInvalid ABS(iEta) calibration range. Check calibAbsIEtaMin and calibAbsIEtaMax in the python file.";
     return;
   }
 
@@ -189,11 +188,10 @@ void HcalCalibrator::endJob() {
   }
   inputFileList.close();
 
-  std::cout << "\nInput files for processing:" << std::endl;
+  edm::LogVerbatim("HcalCalib") << "\nInput files for processing:";
   for (std::vector<TString>::iterator it = inputFiles.begin(); it != inputFiles.end(); ++it) {
-    std::cout << "file: " << it->Data() << std::endl;
+    edm::LogVerbatim("HcalCalib") << "file: " << it->Data();
   }
-  std::cout << std::endl;
 
   TChain* fChain = new TChain("hcalCalibTree");
 
