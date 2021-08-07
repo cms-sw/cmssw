@@ -194,9 +194,6 @@ void DTTrigTest::beginJob() {
 }
 
 void DTTrigTest::beginRun(const edm::Run& iRun, const edm::EventSetup& iEventSetup) {
-  if (!my_trig)
-    return;
-
   my_trig->createTUs(iEventSetup);
   if (my_debug)
     cout << "[DTTrigTest] TU's Created" << endl;
