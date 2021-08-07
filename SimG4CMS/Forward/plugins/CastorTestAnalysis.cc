@@ -138,7 +138,7 @@ enum ntcastore_elements {
   ntcastore_z
 };
 
-CastorTestAnalysis::CastorTestAnalysis(const edm::ParameterSet& p) {
+CastorTestAnalysis::CastorTestAnalysis(const edm::ParameterSet &p) {
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("CastorTestAnalysis");
   verbosity = m_Anal.getParameter<int>("Verbosity");
   doNTcastorstep = m_Anal.getParameter<int>("StepNtupleFlag");
@@ -182,10 +182,10 @@ CastorTestAnalysis::~CastorTestAnalysis() {
 }
 
 //=================================================================== per EVENT
-void CastorTestAnalysis::update(const BeginOfJob* job) { edm::LogVerbatim("ForwardSim") << " Starting new job "; }
+void CastorTestAnalysis::update(const BeginOfJob *job) { edm::LogVerbatim("ForwardSim") << " Starting new job "; }
 
 //==================================================================== per RUN
-void CastorTestAnalysis::update(const BeginOfRun* run) {
+void CastorTestAnalysis::update(const BeginOfRun *run) {
   edm::LogVerbatim("ForwardSim") << std::endl << "CastorTestAnalysis: Starting Run";
   if (doNTcastorstep) {
     edm::LogVerbatim("ForwardSim") << "CastorTestAnalysis: output step root file created";
@@ -202,17 +202,17 @@ void CastorTestAnalysis::update(const BeginOfRun* run) {
   eventIndex = 0;
 }
 
-void CastorTestAnalysis::update(const BeginOfEvent* evt) {
+void CastorTestAnalysis::update(const BeginOfEvent *evt) {
   edm::LogVerbatim("ForwardSim") << "CastorTestAnalysis: Processing Event Number: " << eventIndex;
   eventIndex++;
   stepIndex = 0;
 }
 
-void CastorTestAnalysis::update(const G4Step* aStep) {
+void CastorTestAnalysis::update(const G4Step *aStep) {
   stepIndex++;
 
   if (doNTcastorstep) {
-    G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
+    G4StepPoint *preStepPoint = aStep->GetPreStepPoint();
     //  G4StepPoint * postStepPoint= aStep->GetPostStepPoint();
     G4double stepL = aStep->GetStepLength();
     G4double stepE = aStep->GetTotalEnergyDeposit();
@@ -220,20 +220,20 @@ void CastorTestAnalysis::update(const G4Step* aStep) {
     if (verbosity >= 2)
       edm::LogVerbatim("ForwardSim") << "Step " << stepL << ", " << stepE;
 
-    G4Track* theTrack = aStep->GetTrack();
+    G4Track *theTrack = aStep->GetTrack();
     G4int theTrackID = theTrack->GetTrackID();
     G4double theCharge = theTrack->GetDynamicParticle()->GetCharge();
     //  G4String particleType = theTrack->GetDefinition()->GetParticleName();
     G4int pdgcode = theTrack->GetDefinition()->GetPDGEncoding();
 
-    const G4ThreeVector& vert_mom = theTrack->GetVertexMomentumDirection();
+    const G4ThreeVector &vert_mom = theTrack->GetVertexMomentumDirection();
     G4double vpx = vert_mom.x();
     G4double vpy = vert_mom.y();
     G4double vpz = vert_mom.z();
     double eta = 0.5 * log((1. + vpz) / (1. - vpz));
     double phi = atan2(vpy, vpx);
 
-    const G4ThreeVector& hitPoint = preStepPoint->GetPosition();
+    const G4ThreeVector &hitPoint = preStepPoint->GetPosition();
 
     // Fill-in ntuple
     //  castorsteparray[ntcastors_evt] = (*evt)()->GetEventID();
@@ -290,18 +290,18 @@ void CastorTestAnalysis::update(const G4Step* aStep) {
 }
 
 //================= End of EVENT ===============
-void CastorTestAnalysis::update(const EndOfEvent* evt) {
+void CastorTestAnalysis::update(const EndOfEvent *evt) {
   // Look for the Hit Collection
   edm::LogVerbatim("ForwardSim") << std::endl
                                  << "CastorTest::update(EndOfEvent * evt) - event #" << (*evt)()->GetEventID();
 
   // access to the G4 hit collections
-  G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
+  G4HCofThisEvent *allHC = (*evt)()->GetHCofThisEvent();
   edm::LogVerbatim("ForwardSim") << "update(*evt) --> accessed all HC";
 
   int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorFI");
 
-  CaloG4HitCollection* theCAFI = (CaloG4HitCollection*)allHC->GetHC(CAFIid);
+  CaloG4HitCollection *theCAFI = (CaloG4HitCollection *)allHC->GetHC(CAFIid);
 
   theCastorNumScheme = new CastorNumberingScheme();
   // CastorNumberingScheme *theCastorNumScheme = new CastorNumberingScheme();
@@ -331,14 +331,14 @@ void CastorTestAnalysis::update(const EndOfEvent* evt) {
 #ifdef EDM_ML_DEBUG
     int particleType = 0;
 #endif
-    G4PrimaryParticle* thePrim = nullptr;
+    G4PrimaryParticle *thePrim = nullptr;
     G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
     edm::LogVerbatim("ForwardSim") << "Event has " << nvertex << " vertex";
     if (nvertex == 0)
       edm::LogVerbatim("ForwardSim") << "CASTORTest End Of Event  ERROR: no vertex";
 
     for (int i = 0; i < nvertex; i++) {
-      G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
+      G4PrimaryVertex *avertex = (*evt)()->GetPrimaryVertex(i);
       if (avertex == nullptr)
         edm::LogVerbatim("ForwardSim") << "CASTORTest End Of Event ERR: pointer to vertex = 0";
       edm::LogVerbatim("ForwardSim") << "Vertex number :" << i;
@@ -395,10 +395,10 @@ void CastorTestAnalysis::update(const EndOfEvent* evt) {
   edm::LogVerbatim("ForwardSim") << std::endl << "===>>> Done writing user histograms ";
 }
 
-void CastorTestAnalysis::update(const EndOfRun* run) { ; }
+void CastorTestAnalysis::update(const EndOfRun *run) { ; }
 
 //===================================================================
-void CastorTestAnalysis::getCastorBranchData(const CaloG4HitCollection* hc) {
+void CastorTestAnalysis::getCastorBranchData(const CaloG4HitCollection *hc) {
   int nentries = hc->entries();
 
   if (nentries > 0) {
@@ -410,12 +410,12 @@ void CastorTestAnalysis::getCastorBranchData(const CaloG4HitCollection* hc) {
     double en_in_sd = 0.;
 
     for (int ihit = 0; ihit < nentries; ihit++) {
-      CaloG4Hit* aHit = (*hc)[ihit];
+      CaloG4Hit *aHit = (*hc)[ihit];
       totalEnergy += aHit->getEnergyDeposit();
     }
 
     for (int ihit = 0; ihit < nentries; ihit++) {
-      CaloG4Hit* aHit = (*hc)[ihit];
+      CaloG4Hit *aHit = (*hc)[ihit];
       volumeID = aHit->getUnitID();
       hitEnergy = aHit->getEnergyDeposit();
       en_in_sd += aHit->getEnergyDeposit();

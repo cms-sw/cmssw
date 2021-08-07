@@ -43,27 +43,27 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
-class TotemTestGem : public SimProducer, public Observer<const BeginOfEvent *>, public Observer<const EndOfEvent *> {
+class TotemTestGem : public SimProducer, public Observer<const BeginOfEvent*>, public Observer<const EndOfEvent*> {
 public:
-  TotemTestGem(const edm::ParameterSet &p);
+  TotemTestGem(const edm::ParameterSet& p);
   ~TotemTestGem() override;
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 protected:
   // observer classes
-  void update(const BeginOfEvent *evt) override;
-  void update(const EndOfEvent *evt) override;
+  void update(const BeginOfEvent* evt) override;
+  void update(const EndOfEvent* evt) override;
 
 private:
   void clear();
-  void fillEvent(TotemTestHistoClass &);
+  void fillEvent(TotemTestHistoClass&);
 
 private:
   //Keep parameters and internal memory
   std::vector<std::string> names;
   int evtnum;
-  std::vector<TotemG4Hit *> hits;
+  std::vector<TotemG4Hit*> hits;
 };
 
 //

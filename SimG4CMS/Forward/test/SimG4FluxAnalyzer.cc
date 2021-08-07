@@ -133,7 +133,8 @@ void SimG4FluxAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       int id = pflux->getId();
       std::vector<ParticleFlux::flux> flux = pflux->getFlux();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SimG4FluxProducer") << "SimG4FluxAnalyzer:: ParticleFlux for " << lvNames_[k] << " has " << pflux->getComponents() << " entries";
+      edm::LogVerbatim("SimG4FluxProducer")
+          << "SimG4FluxAnalyzer:: ParticleFlux for " << lvNames_[k] << " has " << pflux->getComponents() << " entries";
       ++k;
       unsigned k1(0);
 #endif
@@ -153,7 +154,9 @@ void SimG4FluxAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
         momY_.push_back(element.momentum.Y());
         momZ_.push_back(element.momentum.Z());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("SimG4FluxProducer") << "Flux[" << k1 << "] PDGId " << element.pdgId << " VT " << element.vxType << " ToF " << element.tof << " Vertex " << element.vertex << " Hit " << element.hitPoint << " p " << element.momentum;
+        edm::LogVerbatim("SimG4FluxProducer")
+            << "Flux[" << k1 << "] PDGId " << element.pdgId << " VT " << element.vxType << " ToF " << element.tof
+            << " Vertex " << element.vertex << " Hit " << element.hitPoint << " p " << element.momentum;
         ++k1;
 #endif
       }

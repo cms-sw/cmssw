@@ -106,7 +106,7 @@ private:
   double simhit_etot;
 };
 
-DoCastorAnalysis::DoCastorAnalysis(const edm::ParameterSet& p) {
+DoCastorAnalysis::DoCastorAnalysis(const edm::ParameterSet &p) {
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("DoCastorAnalysis");
   verbosity = m_Anal.getParameter<int>("Verbosity");
 
@@ -173,11 +173,11 @@ DoCastorAnalysis::~DoCastorAnalysis() {
 
 //=================================================================== per EVENT
 
-void DoCastorAnalysis::update(const BeginOfJob* job) { edm::LogVerbatim("ForwardSim") << " Starting new job "; }
+void DoCastorAnalysis::update(const BeginOfJob *job) { edm::LogVerbatim("ForwardSim") << " Starting new job "; }
 
 //==================================================================== per RUN
 
-void DoCastorAnalysis::update(const BeginOfRun* run) {
+void DoCastorAnalysis::update(const BeginOfRun *run) {
   edm::LogVerbatim("ForwardSim") << std::endl << "DoCastorAnalysis: Starting Run";
 
   // edm::LogVerbatim("ForwardSim") << "DoCastorAnalysis: output event root file created";
@@ -187,23 +187,23 @@ void DoCastorAnalysis::update(const BeginOfRun* run) {
   eventIndex = 1;
 }
 
-void DoCastorAnalysis::update(const BeginOfEvent* evt) {
+void DoCastorAnalysis::update(const BeginOfEvent *evt) {
   edm::LogVerbatim("ForwardSim") << "DoCastorAnalysis: Processing Event Number: " << eventIndex;
   eventIndex++;
 }
 
 //================= End of EVENT ===============
 
-void DoCastorAnalysis::update(const EndOfEvent* evt) {
+void DoCastorAnalysis::update(const EndOfEvent *evt) {
   // Look for the Hit Collection
 
   // access to the G4 hit collections
-  G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
+  G4HCofThisEvent *allHC = (*evt)()->GetHCofThisEvent();
 
   int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorFI");
-  CaloG4HitCollection* theCAFI = (CaloG4HitCollection*)allHC->GetHC(CAFIid);
+  CaloG4HitCollection *theCAFI = (CaloG4HitCollection *)allHC->GetHC(CAFIid);
 
-  CastorNumberingScheme* theCastorNumScheme = new CastorNumberingScheme();
+  CastorNumberingScheme *theCastorNumScheme = new CastorNumberingScheme();
 
   unsigned int volumeID = 0;
   // std::map<int,float,std::less<int> > themap;
@@ -254,7 +254,7 @@ void DoCastorAnalysis::update(const EndOfEvent* evt) {
 
   if (nentries > 0) {
     for (int ihit = 0; ihit < nentries; ihit++) {
-      CaloG4Hit* aHit = (*theCAFI)[ihit];
+      CaloG4Hit *aHit = (*theCAFI)[ihit];
       volumeID = aHit->getUnitID();
 
       //themap[volumeID] += aHit->getEnergyDeposit();
@@ -301,9 +301,9 @@ void DoCastorAnalysis::update(const EndOfEvent* evt) {
   delete theCastorNumScheme;
 }
 
-void DoCastorAnalysis::update(const EndOfRun* run) { ; }
+void DoCastorAnalysis::update(const EndOfRun *run) { ; }
 
-void DoCastorAnalysis::update(const G4Step* aStep) { ; }
+void DoCastorAnalysis::update(const G4Step *aStep) { ; }
 
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"

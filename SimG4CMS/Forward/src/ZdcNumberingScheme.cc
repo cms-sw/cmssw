@@ -105,9 +105,12 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
     edm::LogVerbatim("ForwardSim") << "DetectorId: " << zdcId;
 
     edm::LogVerbatim("ForwardSim") << "ZdcNumberingScheme:"
-				   << "  getUnitID - # of levels = " << level;
+                                   << "  getUnitID - # of levels = " << level;
     for (int ich = 0; ich < level; ich++)
-      edm::LogVerbatim("ForwardSim") << "  " << ich << ": copyno " << copyno[ich] << " name=" << name[ich] << "  section " << section << " zside " << zside << " layer " << layer << " fiber " << fiber << " channel " << channel << "packedIndex =" << intindex << " detId raw: " << std::hex << index << std::dec;
+      edm::LogVerbatim("ForwardSim") << "  " << ich << ": copyno " << copyno[ich] << " name=" << name[ich]
+                                     << "  section " << section << " zside " << zside << " layer " << layer << " fiber "
+                                     << fiber << " channel " << channel << "packedIndex =" << intindex
+                                     << " detId raw: " << std::hex << index << std::dec;
 
 #endif
 
@@ -126,7 +129,8 @@ unsigned ZdcNumberingScheme::packZdcIndex(int section, int layer, int fiber, int
   idx += (section & 3);                    //bits 0-1
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ForwardSim") << "ZDC packing: section " << section << " layer  " << layer << " fiber " << fiber << " channel " << channel << " zside " << z << "idx: " << std::hex << idx << std::dec;
+  edm::LogVerbatim("ForwardSim") << "ZDC packing: section " << section << " layer  " << layer << " fiber " << fiber
+                                 << " channel " << channel << " zside " << z << "idx: " << std::hex << idx << std::dec;
   int newsubdet, newlayer, newfiber, newchannel, newz;
   unpackZdcIndex(idx, newsubdet, newlayer, newfiber, newchannel, newz);
 #endif
@@ -143,8 +147,8 @@ void ZdcNumberingScheme::unpackZdcIndex(
   section = idx & 3;
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ForwardSim") << "ZDC unpacking: idx:" << idx << " -> section " << section << " layer " << layer << " fiber " << fiber
-				 << " channel " << channel << " zside " << z;
+  edm::LogVerbatim("ForwardSim") << "ZDC unpacking: idx:" << idx << " -> section " << section << " layer " << layer
+                                 << " fiber " << fiber << " channel " << channel << " zside " << z;
 #endif
 }
 
