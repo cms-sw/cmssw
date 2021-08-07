@@ -10,18 +10,102 @@
 //         Created: 02/2007
 //
 
-#include "SimG4CMS/Forward/interface/CastorTestAnalysis.h"
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
+#include "SimG4Core/Notification/interface/BeginOfRun.h"
+#include "SimG4Core/Notification/interface/EndOfRun.h"
+#include "SimG4Core/Notification/interface/BeginOfEvent.h"
+#include "SimG4Core/Notification/interface/EndOfEvent.h"
+#include "SimG4Core/Watcher/interface/SimWatcher.h"
+
+#include "SimG4CMS/Calo/interface/CaloG4Hit.h"
+#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 #include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "G4SDManager.hh"
+#include "G4Step.hh"
+#include "G4Track.hh"
+#include "G4Event.hh"
+#include "G4PrimaryVertex.hh"
+#include "G4VProcess.hh"
+#include "G4HCofThisEvent.hh"
+#include "G4UserEventAction.hh"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Random/Randomize.h"
+
+#include "TROOT.h"
 #include "TFile.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TProfile.h"
+#include "TNtuple.h"
+#include "TRandom.h"
+#include "TLorentzVector.h"
+#include "TUnixSystem.h"
+#include "TSystem.h"
+#include "TMath.h"
+#include "TF1.h"
+
+#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <iomanip>
+#include <map>
+#include <string>
+#include <vector>
 
 //#define EDM_ML_DEBUG
+
+class CastorTestAnalysis : public SimWatcher,
+                           public Observer<const BeginOfJob *>,
+                           public Observer<const BeginOfRun *>,
+                           public Observer<const EndOfRun *>,
+                           public Observer<const BeginOfEvent *>,
+                           public Observer<const EndOfEvent *>,
+                           public Observer<const G4Step *> {
+public:
+  CastorTestAnalysis(const edm::ParameterSet &p);
+  ~CastorTestAnalysis() override;
+
+private:
+  // observer classes
+  void update(const BeginOfJob *run) override;
+  void update(const BeginOfRun *run) override;
+  void update(const EndOfRun *run) override;
+  void update(const BeginOfEvent *evt) override;
+  void update(const EndOfEvent *evt) override;
+  void update(const G4Step *step) override;
+
+private:
+  void getCastorBranchData(const CaloG4HitCollection *hc);
+  void Finish();
+
+  int verbosity;
+  int doNTcastorstep;
+  int doNTcastorevent;
+  std::string stepNtFileName;
+  std::string eventNtFileName;
+
+  TFile *castorOutputEventFile;
+  TFile *castorOutputStepFile;
+
+  TNtuple *castorstepntuple;
+  TNtuple *castoreventntuple;
+
+  CastorNumberingScheme *theCastorNumScheme;
+
+  int eventIndex;
+  int stepIndex;
+  int eventGlobalHit;
+
+  Float_t castorsteparray[14];
+  Float_t castoreventarray[11];
+};
 
 enum ntcastors_elements {
   ntcastors_evt,
@@ -386,3 +470,8 @@ void CastorTestAnalysis::Finish() {
     edm::LogVerbatim("ForwardSim") << "CastorTestAnalysis: Event file closed";
   }
 }
+
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
+DEFINE_SIMWATCHER(CastorTestAnalysis);
