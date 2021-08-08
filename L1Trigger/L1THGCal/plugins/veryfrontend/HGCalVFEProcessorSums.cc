@@ -66,7 +66,7 @@ void HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
   bool isSilicon = triggerTools_.isSilicon(dataframes[0].id());
   bool isEM = triggerTools_.isEm(dataframes[0].id());
   bool isNose = triggerTools_.isNose(dataframes[0].id());
-  int thickness = triggerTools_.thicknessIndex(dataframes[0].id(), true);
+  int thickness = triggerTools_.thicknessIndex(dataframes[0].id());
   // Linearization of ADC and TOT values to the same LSB
   if (isSilicon) {
     vfeLinearizationSiImpl_->linearize(dataframes, linearized_dataframes);
