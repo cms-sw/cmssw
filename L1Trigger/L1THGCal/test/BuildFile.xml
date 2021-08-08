@@ -2,6 +2,8 @@
 <use name="L1Trigger/L1THGCal"/>
 <use name="Geometry/Records"/>
 <use name="CommonTools/UtilAlgos"/>
-<library name="testL1TriggerL1THGCal" file="HGCalTriggerGeomTester.cc,HGCalTriggerGeomTesterV9.cc,HGCalTriggerGeomTesterV9Imp2.cc">
+<use name="DataFormats/L1Trigger"/>
+<use name="SimDataFormats/CaloTest"/>
+<library name="testL1TriggerL1THGCal" file="HGCalTriggerGeomTesterV9Imp2.cc,HGCalTriggerGeomTesterV9Imp3.cc">
   <flags EDM_PLUGIN="1"/>
 </library>

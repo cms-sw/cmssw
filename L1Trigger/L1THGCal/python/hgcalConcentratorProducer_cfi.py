@@ -229,7 +229,7 @@ autoEncoder_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorP
 
 
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
-# V9 samples have a different definition of the dEdx calibrations. To account for it
+# >= V9 samples have a different definition of the dEdx calibrations. To account for it
 # we rescale the thresholds of the FE selection
 # (see https://indico.cern.ch/event/806845/contributions/3359859/attachments/1815187/2966402/19-03-20_EGPerf_HGCBE.pdf
 # for more details)
