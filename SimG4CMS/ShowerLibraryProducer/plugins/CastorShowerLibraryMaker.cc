@@ -941,7 +941,8 @@ std::vector<G4PrimaryParticle*> CastorShowerLibraryMaker::GetPrimary(const G4Eve
   for (int i = 0; i < nvertex; i++) {
     G4PrimaryVertex* avertex = evt->GetPrimaryVertex(i);
     if (avertex == nullptr) {
-      edm::LogVerbatim("CastorShowerLibraryMaker") << "CastorShowerLibraryMaker::GetPrimary ERROR: pointer to vertex = 0";
+      edm::LogVerbatim("CastorShowerLibraryMaker")
+          << "CastorShowerLibraryMaker::GetPrimary ERROR: pointer to vertex = 0";
       continue;
     }
     unsigned int npart = avertex->GetNumberOfParticle();
@@ -1071,8 +1072,8 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
     entry = aHit->getEntry();
     position = aHit->getPosition();
     if (verbosity)
-      edm::LogVerbatim("CastorShowerLibraryMaker") << "\n side , sector , module = " << zside << " , " << sector << " , "
-                                               << zmodule << "\n nphotons = " << hitEnergy;
+      edm::LogVerbatim("CastorShowerLibraryMaker") << "\n side , sector , module = " << zside << " , " << sector
+                                                   << " , " << zmodule << "\n nphotons = " << hitEnergy;
 
     if (verbosity)
       edm::LogVerbatim("CastorShowerLibraryMaker")
@@ -1098,7 +1099,8 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
   }
   // Write number of hits to CastorShowerEvent instance
   if (nHits == 0) {
-    edm::LogVerbatim("CastorShowerLibraryMaker") << "No hits found for this track (trackID=" << ipart << ")." << std::endl;
+    edm::LogVerbatim("CastorShowerLibraryMaker")
+        << "No hits found for this track (trackID=" << ipart << ")." << std::endl;
     if (theCastorNumScheme)
       delete theCastorNumScheme;
     return false;
