@@ -36,10 +36,10 @@
 //#define EDM_ML_DEBUG
 
 class HcalForwardAnalysis : public SimProducer,
-			    public Observer<const BeginOfRun*>,
-			    public Observer<const BeginOfEvent*>,
-			    public Observer<const EndOfEvent*>,
-			    public Observer<const G4Step*> {
+                            public Observer<const BeginOfRun*>,
+                            public Observer<const BeginOfEvent*>,
+                            public Observer<const EndOfEvent*>,
+                            public Observer<const G4Step*> {
 public:
   struct Photon {
     Photon(int id, float X, float Y, float Z, float T, float Lambda)
