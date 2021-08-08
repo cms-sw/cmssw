@@ -90,7 +90,7 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
     std::vector<l1t::HGCalTriggerSums> trigSumsVecOutput;
     std::vector<l1t::HGCalConcentratorData> ae_EncodedLayerOutput;
 
-    int thickness = triggerTools_.thicknessIndex(module_trigcell.second.at(0).detId(), true);
+    int thickness = triggerTools_.thicknessIndex(module_trigcell.second.at(0).detId());
 
     HGCalTriggerTools::SubDetectorType subdet = triggerTools_.getSubDetectorType(module_trigcell.second.at(0).detId());
 

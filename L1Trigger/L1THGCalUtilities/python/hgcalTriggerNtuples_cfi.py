@@ -49,7 +49,7 @@ ntuple_digis = cms.PSet(
     HGCDigisBH = cms.InputTag('simHGCalUnsuppressedDigis:HEback'),
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
-    bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
+    bhSimHits = cms.InputTag('g4SimHits:HGCHitsHEback'),
     isSimhitComp = cms.bool(False),
     digiBXselect = cms.vuint32(2)
 )
@@ -60,7 +60,7 @@ ntuple_triggercells = cms.PSet(
     Multiclusters = cms.InputTag('hgcalBackEndLayer2Producer:HGCalBackendLayer2Processor3DClustering'),
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
-    bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
+    bhSimHits = cms.InputTag('g4SimHits:HGCHitsHEback'), 
     FillSimEnergy = cms.bool(False),
     FillTruthMap = cms.bool(False),
     fcPerMip = fcPerMip,
@@ -94,11 +94,6 @@ ntuple_multiclusters = cms.PSet(
     EGIdentification = egamma_identification_histomax.clone(),
     FillLayerInfo = cms.bool(False),
     FillInterpretationInfo = cms.bool(True)
-)
-
-ntuple_panels = cms.PSet(
-    NtupleName = cms.string('HGCalTriggerNtupleHGCPanels'),
-    TriggerCells = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection')
 )
 
 ntuple_towers = cms.PSet(
