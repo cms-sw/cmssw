@@ -8,49 +8,8 @@
 #include <cassert>
 #include <thread>
 
+#include "controller.h"
 namespace {
-  int controller(int argc, char** argv) {
-    using namespace edm::shared_memory;
-
-    ControllerChannel channel("TestChannel", 0, 5);
-
-    //Pipe has to close AFTER we tell the worker to stop
-    auto closePipe = [](FILE* iFile) { pclose(iFile); };
-    std::unique_ptr<FILE, decltype(closePipe)> pipe(nullptr, closePipe);
-
-    auto stopWorkerCmd = [](ControllerChannel* iChannel) { iChannel->stopWorker(); };
-    std::unique_ptr<ControllerChannel, decltype(stopWorkerCmd)> stopWorkerGuard(&channel, stopWorkerCmd);
-
-    {
-      std::string command(argv[0]);
-      command += " ";
-      command += channel.sharedMemoryName();
-      command += " ";
-      command += channel.uniqueID();
-      //make sure output is flushed before popen does any writing
-      fflush(stdout);
-      fflush(stderr);
-
-      channel.setupWorker([&]() {
-        pipe.reset(popen(command.c_str(), "w"));
-
-        if (not pipe) {
-          throw cms::Exception("PipeFailed") << "pipe failed to open " << command;
-        }
-      });
-    }
-    {
-      *channel.toWorkerBufferInfo() = {0, 0};
-      auto result = channel.doTransition([&]() { /*job will fail before calling*/ }, edm::Transition::Event, 2);
-      if (not result) {
-        //this should happen as we should time out
-        throw cms::Exception("TimeOut") << "doTransition timed out";
-      }
-    }
-    //std::cout <<"controller going to stop"<<std::endl;
-    return 0;
-  }
-
   int worker(int argc, char** argv) {
     using namespace edm::shared_memory;
 
@@ -81,7 +40,7 @@ int main(int argc, char** argv) {
       retValue = worker(argc, argv);
     } else {
       isWorker = false;
-      retValue = controller(argc, argv);
+      retValue = controller(argc, argv, 5);
     }
   } catch (cms::Exception const& iException) {
     if (iException.category() != "TimeOut") {
