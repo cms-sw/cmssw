@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-y
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
@@ -34,13 +33,13 @@ y
 #include "TFile.h"
 #include "TTree.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class HcalForwardAnalysis : public SimProducer,
-                            public Observer<const BeginOfRun*>,
-                            public Observer<const BeginOfEvent*>,
-                            public Observer<const EndOfEvent*>,
-                            public Observer<const G4Step*> {
+			    public Observer<const BeginOfRun*>,
+			    public Observer<const BeginOfEvent*>,
+			    public Observer<const EndOfEvent*>,
+			    public Observer<const G4Step*> {
 public:
   struct Photon {
     Photon(int id, float X, float Y, float Z, float T, float Lambda)
@@ -339,7 +338,7 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
 
 void HcalForwardAnalysis::fillEvent() {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis: =====> filledEvent";
+  edm::LogVerbatim("HcalForwardLib") << "HcalForwardAnalysis: =====> filledEvent";
 #endif
   nphot = int(thePhotons.size());
   for (int i = 0; i < nphot; ++i) {
