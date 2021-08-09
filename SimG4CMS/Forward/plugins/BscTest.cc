@@ -97,7 +97,6 @@ private:
   TObjArray* fHistNamesArray;
 };
 
-
 class BscTest : public SimWatcher,
                 public Observer<const BeginOfJob*>,
                 public Observer<const BeginOfRun*>,
