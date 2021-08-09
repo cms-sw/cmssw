@@ -6,14 +6,14 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 
 #include <iostream>
-
-//#define EDM_ML_DEBUG
+#include <sstream>
 
 namespace spr {
 
@@ -38,11 +38,9 @@ namespace spr {
       vdet.detIdECAL = DetId(0);
       vdet.detIdHCAL = DetId(0);
       vdet.detIdEHCAL = DetId(0);
-#ifdef EDM_ML_DEBUG
       if (debug)
-        std::cout << "Propagate track " << indx << " p " << trkItr->p() << " eta " << trkItr->eta() << " phi "
-                  << trkItr->phi() << " Flag " << vdet.ok << std::endl;
-#endif
+        edm::LogVerbatim("IsoTrack") << "Propagate track " << indx << " p " << trkItr->p() << " eta " << trkItr->eta()
+                                     << " phi " << trkItr->phi() << " Flag " << vdet.ok;
       GlobalPoint vertex;
       GlobalVector momentum;
       int charge(pTrack->charge());
@@ -57,16 +55,12 @@ namespace spr {
         momentum = GlobalVector(
             ((pTrack->outerMomentum()).X()), ((pTrack->outerMomentum()).Y()), ((pTrack->outerMomentum()).Z()));
       }
-#ifdef EDM_ML_DEBUG
       if (debug)
-        std::cout << "Track charge " << charge << " p " << momentum << " position " << vertex << std::endl;
-#endif
+        edm::LogVerbatim("IsoTrack") << "Track charge " << charge << " p " << momentum << " position " << vertex;
       std::pair<math::XYZPoint, bool> info = spr::propagateECAL(vertex, momentum, charge, bField, debug);
-#ifdef EDM_ML_DEBUG
       if (debug)
-        std::cout << "Propagate to ECAL " << info.second << " at (" << info.first.x() << ", " << info.first.y() << ", "
-                  << info.first.z() << ")\n";
-#endif
+        edm::LogVerbatim("IsoTrack") << "Propagate to ECAL " << info.second << " at (" << info.first.x() << ", "
+                                     << info.first.y() << ", " << info.first.z() << ")";
 
       vdet.okECAL = info.second;
       if (vdet.okECAL) {
@@ -82,23 +76,20 @@ namespace spr {
             vdet.okECAL = false;
         }
         vdet.detIdEHCAL = gHB->getClosestCell(point);
-#ifdef EDM_ML_DEBUG
         if (debug) {
-          std::cout << "Point at ECAL (" << vdet.etaECAL << ", " << vdet.phiECAL << " ";
+          std::ostringstream st1;
           if (std::abs(point.eta()) < spr::etaBEEcal)
-            std::cout << EBDetId(vdet.detIdECAL);
+            st1 << EBDetId(vdet.detIdECAL);
           else
-            std::cout << EEDetId(vdet.detIdECAL);
-          std::cout << " " << HcalDetId(vdet.detIdEHCAL) << std::endl;
+            st1 << EEDetId(vdet.detIdECAL);
+          edm::LogVerbatim("IsoTrack") << "Point at ECAL (" << vdet.etaECAL << ", " << vdet.phiECAL << " " << st1.str()
+                                       << " " << HcalDetId(vdet.detIdEHCAL);
         }
-#endif
       }
       info = spr::propagateHCAL(vertex, momentum, charge, bField, debug);
-#ifdef EDM_ML_DEBUG
       if (debug)
-        std::cout << "Propagate to HCAL " << info.second << " at (" << info.first.x() << ", " << info.first.y() << ", "
-                  << info.first.z() << ")\n";
-#endif
+        edm::LogVerbatim("IsoTrack") << "Propagate to HCAL " << info.second << " at (" << info.first.x() << ", "
+                                     << info.first.y() << ", " << info.first.z() << ")";
       vdet.okHCAL = info.second;
       if (vdet.okHCAL) {
         const GlobalPoint point(info.first.x(), info.first.y(), info.first.z());
@@ -106,35 +97,33 @@ namespace spr {
         vdet.phiHCAL = point.phi();
         vdet.detIdHCAL = gHB->getClosestCell(point);
       }
-#ifdef EDM_ML_DEBUG
       if (debug) {
-        std::cout << "Track [" << indx << "] Flag: " << vdet.ok << " ECAL (" << vdet.okECAL << ") ";
+        std::ostringstream st1;
         if (vdet.detIdECAL.subdetId() == EcalBarrel)
-          std::cout << (EBDetId)(vdet.detIdECAL);
+          st1 << (EBDetId)(vdet.detIdECAL);
         else
-          std::cout << (EEDetId)(vdet.detIdECAL);
-        std::cout << " HCAL (" << vdet.okHCAL << ") " << (HcalDetId)(vdet.detIdHCAL) << " Or "
-                  << (HcalDetId)(vdet.detIdEHCAL) << std::endl;
+          st1 << (EEDetId)(vdet.detIdECAL);
+        edm::LogVerbatim("IsoTrack") << "Track [" << indx << "] Flag: " << vdet.ok << " ECAL (" << vdet.okECAL << ") "
+                                     << st1.str() << " HCAL (" << vdet.okHCAL << ") " << (HcalDetId)(vdet.detIdHCAL)
+                                     << " Or " << (HcalDetId)(vdet.detIdEHCAL);
       }
-#endif
       vdets.push_back(vdet);
     }
 
-#ifdef EDM_ML_DEBUG
     if (debug) {
-      std::cout << "propagateCALO:: for " << vdets.size() << " tracks" << std::endl;
+      edm::LogVerbatim("IsoTrack") << "propagateCALO:: for " << vdets.size() << " tracks";
       for (unsigned int i = 0; i < vdets.size(); ++i) {
-        std::cout << "Track [" << i << "] Flag: " << vdets[i].ok << " ECAL (" << vdets[i].okECAL << ") ";
+        std::ostringstream st1;
         if (vdets[i].detIdECAL.subdetId() == EcalBarrel) {
-          std::cout << (EBDetId)(vdets[i].detIdECAL);
+          st1 << (EBDetId)(vdets[i].detIdECAL);
         } else {
-          std::cout << (EEDetId)(vdets[i].detIdECAL);
+          st1 << (EEDetId)(vdets[i].detIdECAL);
         }
-        std::cout << " HCAL (" << vdets[i].okHCAL << ") " << (HcalDetId)(vdets[i].detIdHCAL) << " Or "
-                  << (HcalDetId)(vdets[i].detIdEHCAL) << std::endl;
+        edm::LogVerbatim("IsoTrack") << "Track [" << i << "] Flag: " << vdets[i].ok << " ECAL (" << vdets[i].okECAL
+                                     << ") " << st1.str() << " HCAL (" << vdets[i].okHCAL << ") "
+                                     << (HcalDetId)(vdets[i].detIdHCAL) << " Or " << (HcalDetId)(vdets[i].detIdEHCAL);
       }
     }
-#endif
     return vdets;
   }
 
@@ -169,11 +158,9 @@ namespace spr {
       vdet.detIdECAL = DetId(0);
       vdet.detIdHCAL = DetId(0);
       vdet.detIdEHCAL = DetId(0);
-#ifdef EDM_ML_DEBUG
       if (debug)
-        std::cout << "Propagate track " << indx << " p " << trkItr->p() << " eta " << trkItr->eta() << " phi "
-                  << trkItr->phi() << " Flag " << vdet.ok << std::endl;
-#endif
+        edm::LogVerbatim("IsoTrack") << "Propagate track " << indx << " p " << trkItr->p() << " eta " << trkItr->eta()
+                                     << " phi " << trkItr->phi() << " Flag " << vdet.ok;
       std::pair<math::XYZPoint, bool> info = spr::propagateECAL(pTrack, bField, debug);
       vdet.okECAL = info.second;
       if (vdet.okECAL) {
@@ -198,34 +185,32 @@ namespace spr {
         vdet.phiHCAL = point.phi();
         vdet.detIdHCAL = gHB->getClosestCell(point);
       }
-#ifdef EDM_ML_DEBUG
       if (debug) {
-        std::cout << "Track [" << indx << "] Flag: " << vdet.ok << " ECAL (" << vdet.okECAL << ") ";
+        std::ostringstream st1;
         if (vdet.detIdECAL.subdetId() == EcalBarrel)
-          std::cout << (EBDetId)(vdet.detIdECAL);
+          st1 << (EBDetId)(vdet.detIdECAL);
         else
-          std::cout << (EEDetId)(vdet.detIdECAL);
-        std::cout << " HCAL (" << vdet.okHCAL << ") " << (HcalDetId)(vdet.detIdHCAL) << " Or "
-                  << (HcalDetId)(vdet.detIdEHCAL) << std::endl;
+          st1 << (EEDetId)(vdet.detIdECAL);
+        edm::LogVerbatim("IsoTrack") << "Track [" << indx << "] Flag: " << vdet.ok << " ECAL (" << vdet.okECAL << ") "
+                                     << st1.str() << " HCAL (" << vdet.okHCAL << ") " << (HcalDetId)(vdet.detIdHCAL)
+                                     << " Or " << (HcalDetId)(vdet.detIdEHCAL);
       }
-#endif
       vdets.push_back(vdet);
     }
-#ifdef EDM_ML_DEBUG
     if (debug) {
-      std::cout << "propagateCALO:: for " << vdets.size() << " tracks" << std::endl;
+      edm::LogVerbatim("IsoTrack") << "propagateCALO:: for " << vdets.size() << " tracks";
       for (unsigned int i = 0; i < vdets.size(); ++i) {
-        std::cout << "Track [" << i << "] Flag: " << vdets[i].ok << " ECAL (" << vdets[i].okECAL << ") ";
+        std::ostringstream st1;
         if (vdets[i].detIdECAL.subdetId() == EcalBarrel) {
-          std::cout << (EBDetId)(vdets[i].detIdECAL);
+          st1 << (EBDetId)(vdets[i].detIdECAL);
         } else {
-          std::cout << (EEDetId)(vdets[i].detIdECAL);
+          st1 << (EEDetId)(vdets[i].detIdECAL);
         }
-        std::cout << " HCAL (" << vdets[i].okHCAL << ") " << (HcalDetId)(vdets[i].detIdHCAL) << " Or "
-                  << (HcalDetId)(vdets[i].detIdEHCAL) << std::endl;
+        edm::LogVerbatim("IsoTrack") << "Track [" << i << "] Flag: " << vdets[i].ok << " ECAL (" << vdets[i].okECAL
+                                     << ") " << st1.str() << " HCAL (" << vdets[i].okHCAL << ") "
+                                     << (HcalDetId)(vdets[i].detIdHCAL) << " Or " << (HcalDetId)(vdets[i].detIdEHCAL);
       }
     }
-#endif
   }
 
   void propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection,
@@ -249,11 +234,9 @@ namespace spr {
       trkD.detIdECAL = DetId(0);
       trkD.detIdHCAL = DetId(0);
       trkD.detIdEHCAL = DetId(0);
-#ifdef EDM_ML_DEBUG
       if (debug)
-        std::cout << "Propagate track " << indx << " p " << trkItr->p() << " eta " << trkItr->eta() << " phi "
-                  << trkItr->phi() << " Flag " << trkD.ok << std::endl;
-#endif
+        edm::LogVerbatim("IsoTrack") << "Propagate track " << indx << " p " << trkItr->p() << " eta " << trkItr->eta()
+                                     << " phi " << trkItr->phi() << " Flag " << trkD.ok;
       spr::propagatedTrack info = spr::propagateTrackToECAL(pTrack, bField, debug);
       GlobalPoint point(info.point.x(), info.point.y(), info.point.z());
       trkD.okECAL = info.ok;
@@ -280,28 +263,27 @@ namespace spr {
       }
       trkDir.push_back(trkD);
     }
-#ifdef EDM_ML_DEBUG
     if (debug) {
-      std::cout << "propagateCALO:: for " << trkDir.size() << " tracks" << std::endl;
+      edm::LogVerbatim("IsoTrack") << "propagateCALO:: for " << trkDir.size() << " tracks";
       for (unsigned int i = 0; i < trkDir.size(); ++i) {
-        std::cout << "Track [" << i << "] Flag: " << trkDir[i].ok << " ECAL (" << trkDir[i].okECAL << ")";
+        std::ostringstream st1, st2;
         if (trkDir[i].okECAL) {
-          std::cout << " point " << trkDir[i].pointECAL << " direction " << trkDir[i].directionECAL << " ";
+          st1 << " point " << trkDir[i].pointECAL << " direction " << trkDir[i].directionECAL << " ";
           if (trkDir[i].detIdECAL.subdetId() == EcalBarrel) {
-            std::cout << (EBDetId)(trkDir[i].detIdECAL);
+            st1 << (EBDetId)(trkDir[i].detIdECAL);
           } else {
-            std::cout << (EEDetId)(trkDir[i].detIdECAL);
+            st1 << (EEDetId)(trkDir[i].detIdECAL);
           }
         }
-        std::cout << " HCAL (" << trkDir[i].okHCAL << ")";
         if (trkDir[i].okHCAL) {
-          std::cout << " point " << trkDir[i].pointHCAL << " direction " << trkDir[i].directionHCAL << " "
-                    << (HcalDetId)(trkDir[i].detIdHCAL);
+          st2 << " point " << trkDir[i].pointHCAL << " direction " << trkDir[i].directionHCAL << " "
+              << (HcalDetId)(trkDir[i].detIdHCAL);
         }
-        std::cout << " Or " << (HcalDetId)(trkDir[i].detIdEHCAL) << std::endl;
+        edm::LogVerbatim("IsoTrack") << "Track [" << i << "] Flag: " << trkDir[i].ok << " ECAL (" << trkDir[i].okECAL
+                                     << ")" << st1.str() << " HCAL (" << trkDir[i].okHCAL << ")" << st2.str() << " Or "
+                                     << (HcalDetId)(trkDir[i].detIdEHCAL);
       }
     }
-#endif
   }
 
   spr::propagatedTrackID propagateCALO(const reco::Track* pTrack,
@@ -317,11 +299,9 @@ namespace spr {
     vdet.detIdECAL = DetId(0);
     vdet.detIdHCAL = DetId(0);
     vdet.detIdEHCAL = DetId(0);
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "Propagate track:  p " << pTrack->p() << " eta " << pTrack->eta() << " phi " << pTrack->phi()
-                << " Flag " << vdet.ok << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "Propagate track:  p " << pTrack->p() << " eta " << pTrack->eta() << " phi "
+                                   << pTrack->phi() << " Flag " << vdet.ok;
     std::pair<math::XYZPoint, bool> info = spr::propagateECAL(pTrack, bField, debug);
     vdet.okECAL = info.second;
     if (vdet.okECAL) {
@@ -346,19 +326,18 @@ namespace spr {
       vdet.phiHCAL = point.phi();
       vdet.detIdHCAL = gHB->getClosestCell(point);
     }
-#ifdef EDM_ML_DEBUG
     if (debug) {
-      std::cout << "propagateCALO:: for 1 track" << std::endl;
-      std::cout << "Track [0] Flag: " << vdet.ok << " ECAL (" << vdet.okECAL << ") ";
+      edm::LogVerbatim("IsoTrack") << "propagateCALO:: for 1 track";
+      std::ostringstream st1;
       if (vdet.detIdECAL.subdetId() == EcalBarrel) {
-        std::cout << (EBDetId)(vdet.detIdECAL);
+        st1 << (EBDetId)(vdet.detIdECAL);
       } else {
-        std::cout << (EEDetId)(vdet.detIdECAL);
+        st1 << (EEDetId)(vdet.detIdECAL);
       }
-      std::cout << " HCAL (" << vdet.okHCAL << ") " << (HcalDetId)(vdet.detIdHCAL) << " Or "
-                << (HcalDetId)(vdet.detIdEHCAL) << std::endl;
+      edm::LogVerbatim("IsoTrack") << "Track [0] Flag: " << vdet.ok << " ECAL (" << vdet.okECAL << ") " << st1.str()
+                                   << " HCAL (" << vdet.okHCAL << ") " << (HcalDetId)(vdet.detIdHCAL) << " Or "
+                                   << (HcalDetId)(vdet.detIdEHCAL);
     }
-#endif
     return vdet;
   }
 
@@ -384,11 +363,9 @@ namespace spr {
       trkD.pdgId = ((*p)->pdg_id());
       trkD.charge = ((pdt->particle(trkD.pdgId))->ID().threeCharge()) / 3;
       const GlobalVector momentum = GlobalVector((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz());
-#ifdef EDM_ML_DEBUG
       if (debug)
-        std::cout << "Propagate track " << indx << " pdg " << trkD.pdgId << " charge " << trkD.charge << " p "
-                  << momentum << std::endl;
-#endif
+        edm::LogVerbatim("IsoTrack") << "Propagate track " << indx << " pdg " << trkD.pdgId << " charge " << trkD.charge
+                                     << " p " << momentum;
       // consider stable particles
       if ((*p)->status() == 1 && std::abs((*p)->momentum().eta()) < etaMax) {
         const GlobalPoint vertex = GlobalPoint(0.1 * (*p)->production_vertex()->position().x(),
@@ -425,31 +402,27 @@ namespace spr {
       }
       trkDir.push_back(trkD);
     }
-#ifdef EDM_ML_DEBUG
     if (debug) {
-      std::cout << "propagateCALO:: for " << trkDir.size() << " tracks" << std::endl;
+      edm::LogVerbatim("IsoTrack") << "propagateCALO:: for " << trkDir.size() << " tracks";
       for (unsigned int i = 0; i < trkDir.size(); ++i) {
-        if (trkDir[i].okECAL)
-          std::cout << "Track [" << i << "] Flag: " << trkDir[i].ok << " ECAL (" << trkDir[i].okECAL << ")";
+        std::ostringstream st1, st2;
         if (trkDir[i].okECAL) {
-          std::cout << " point " << trkDir[i].pointECAL << " direction " << trkDir[i].directionECAL << " ";
+          st1 << " point " << trkDir[i].pointECAL << " direction " << trkDir[i].directionECAL << " ";
           if (trkDir[i].detIdECAL.subdetId() == EcalBarrel) {
-            std::cout << (EBDetId)(trkDir[i].detIdECAL);
+            st1 << (EBDetId)(trkDir[i].detIdECAL);
           } else {
-            std::cout << (EEDetId)(trkDir[i].detIdECAL);
+            st1 << (EEDetId)(trkDir[i].detIdECAL);
           }
         }
-        if (trkDir[i].okECAL)
-          std::cout << " HCAL (" << trkDir[i].okHCAL << ")";
+        st2 << " HCAL (" << trkDir[i].okHCAL << ")";
         if (trkDir[i].okHCAL) {
-          std::cout << " point " << trkDir[i].pointHCAL << " direction " << trkDir[i].directionHCAL << " "
-                    << (HcalDetId)(trkDir[i].detIdHCAL);
+          st2 << " point " << trkDir[i].pointHCAL << " direction " << trkDir[i].directionHCAL << " "
+              << (HcalDetId)(trkDir[i].detIdHCAL);
         }
-        if (trkDir[i].okECAL)
-          std::cout << " Or " << (HcalDetId)(trkDir[i].detIdEHCAL) << std::endl;
+        edm::LogVerbatim("IsoTrack") << "Track [" << i << "] Flag: " << trkDir[i].ok << " ECAL (" << trkDir[i].okECAL
+                                     << ")" << st1.str() << st2.str() << " Or " << (HcalDetId)(trkDir[i].detIdEHCAL);
       }
     }
-#endif
     return trkDir;
   }
 
@@ -475,11 +448,9 @@ namespace spr {
       trkD.pdgId = (p->pdgId());
       trkD.charge = p->charge();
       const GlobalVector momentum = GlobalVector(p->momentum().x(), p->momentum().y(), p->momentum().z());
-#ifdef EDM_ML_DEBUG
       if (debug)
-        std::cout << "Propagate track " << indx << " pdg " << trkD.pdgId << " charge " << trkD.charge << " p "
-                  << momentum << std::endl;
-#endif
+        edm::LogVerbatim("IsoTrack") << "Propagate track " << indx << " pdg " << trkD.pdgId << " charge " << trkD.charge
+                                     << " p " << momentum;
       // consider stable particles
       if (p->status() == 1 && std::abs(momentum.eta()) < etaMax) {
         const GlobalPoint vertex = GlobalPoint(p->vertex().x(), p->vertex().y(), p->vertex().z());
@@ -514,31 +485,27 @@ namespace spr {
       }
       trkDir.push_back(trkD);
     }
-#ifdef EDM_ML_DEBUG
     if (debug) {
-      std::cout << "propagateCALO:: for " << trkDir.size() << " tracks" << std::endl;
+      edm::LogVerbatim("IsoTrack") << "propagateCALO:: for " << trkDir.size() << " tracks" << std::endl;
       for (unsigned int i = 0; i < trkDir.size(); ++i) {
-        if (trkDir[i].okECAL)
-          std::cout << "Track [" << i << "] Flag: " << trkDir[i].ok << " ECAL (" << trkDir[i].okECAL << ")";
+        std::ostringstream st1, st2;
         if (trkDir[i].okECAL) {
-          std::cout << " point " << trkDir[i].pointECAL << " direction " << trkDir[i].directionECAL << " ";
+          st1 << " point " << trkDir[i].pointECAL << " direction " << trkDir[i].directionECAL << " ";
           if (trkDir[i].detIdECAL.subdetId() == EcalBarrel) {
-            std::cout << (EBDetId)(trkDir[i].detIdECAL);
+            st1 << (EBDetId)(trkDir[i].detIdECAL);
           } else {
-            std::cout << (EEDetId)(trkDir[i].detIdECAL);
+            st1 << (EEDetId)(trkDir[i].detIdECAL);
           }
         }
-        if (trkDir[i].okECAL)
-          std::cout << " HCAL (" << trkDir[i].okHCAL << ")";
+        st2 << " HCAL (" << trkDir[i].okHCAL << ")";
         if (trkDir[i].okHCAL) {
-          std::cout << " point " << trkDir[i].pointHCAL << " direction " << trkDir[i].directionHCAL << " "
-                    << (HcalDetId)(trkDir[i].detIdHCAL);
+          st2 << " point " << trkDir[i].pointHCAL << " direction " << trkDir[i].directionHCAL << " "
+              << (HcalDetId)(trkDir[i].detIdHCAL);
         }
-        if (trkDir[i].okECAL)
-          std::cout << " Or " << (HcalDetId)(trkDir[i].detIdEHCAL) << std::endl;
+        edm::LogVerbatim("IsoTrack") << "Track [" << i << "] Flag: " << trkDir[i].ok << " ECAL (" << trkDir[i].okECAL
+                                     << ")" << st1.str() << st2.str() << " Or " << (HcalDetId)(trkDir[i].detIdEHCAL);
       }
     }
-#endif
     return trkDir;
   }
 
@@ -558,11 +525,9 @@ namespace spr {
     trkD.detIdECAL = DetId(0);
     trkD.detIdHCAL = DetId(0);
     trkD.detIdEHCAL = DetId(0);
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "Propagate track " << thisTrk << " charge " << trk.charge << " position " << trk.position << " p "
-                << trk.momentum << " Flag " << trkD.ok << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "Propagate track " << thisTrk << " charge " << trk.charge << " position "
+                                   << trk.position << " p " << trk.momentum << " Flag " << trkD.ok;
     if (trkD.ok) {
       spr::propagatedTrack info = spr::propagateCalo(
           trk.position, trk.momentum, trk.charge, bField, spr::zFrontEE, spr::rFrontEB, spr::etaBEEcal, debug);
@@ -592,27 +557,26 @@ namespace spr {
         trkD.detIdHCAL = gHB->getClosestCell(point);
       }
     }
-#ifdef EDM_ML_DEBUG
     if (debug) {
-      std::cout << "propagateCALO:: for track [" << thisTrk << "] Flag: " << trkD.ok << " ECAL (" << trkD.okECAL
-                << ") HCAL (" << trkD.okHCAL << ")" << std::endl;
+      edm::LogVerbatim("IsoTrack") << "propagateCALO:: for track [" << thisTrk << "] Flag: " << trkD.ok << " ECAL ("
+                                   << trkD.okECAL << ") HCAL (" << trkD.okHCAL << ")";
+      std::ostringstream st1;
       if (trkD.okECAL) {
-        std::cout << "ECAL point " << trkD.pointECAL << " direction " << trkD.directionECAL << " ";
+        st1 << "ECAL point " << trkD.pointECAL << " direction " << trkD.directionECAL << " ";
         if (trkD.detIdECAL.subdetId() == EcalBarrel) {
-          std::cout << (EBDetId)(trkD.detIdECAL);
+          st1 << (EBDetId)(trkD.detIdECAL);
         } else {
-          std::cout << (EEDetId)(trkD.detIdECAL);
+          st1 << (EEDetId)(trkD.detIdECAL);
         }
       }
       if (trkD.okHCAL) {
-        std::cout << " HCAL point " << trkD.pointHCAL << " direction " << trkD.directionHCAL << " "
-                  << (HcalDetId)(trkD.detIdHCAL);
+        st1 << " HCAL point " << trkD.pointHCAL << " direction " << trkD.directionHCAL << " "
+            << (HcalDetId)(trkD.detIdHCAL);
       }
       if (trkD.okECAL)
-        std::cout << " Or " << (HcalDetId)(trkD.detIdEHCAL);
-      std::cout << std::endl;
+        st1 << " Or " << (HcalDetId)(trkD.detIdEHCAL);
+      edm::LogVerbatim("IsoTrack") << st1.str();
     }
-#endif
     return trkD;
   }
 
@@ -629,11 +593,9 @@ namespace spr {
     trkD.detIdECAL = DetId(0);
     trkD.detIdHCAL = DetId(0);
     trkD.detIdEHCAL = DetId(0);
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "Propagate track " << thisTrk << " charge " << trk.charge << " position " << trk.position << " p "
-                << trk.momentum << " Flag " << trkD.ok << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "Propagate track " << thisTrk << " charge " << trk.charge << " position "
+                                   << trk.position << " p " << trk.momentum << " Flag " << trkD.ok;
     if (trkD.ok) {
       spr::propagatedTrack info = spr::propagateCalo(
           trk.position, trk.momentum, trk.charge, bField, spr::zBackHE, spr::rBackHB, spr::etaBEHcal, debug);
@@ -645,16 +607,15 @@ namespace spr {
         trkD.detIdHCAL = gHB->getClosestCell(point);
       }
     }
-#ifdef EDM_ML_DEBUG
     if (debug) {
-      std::cout << "propagateCALO:: for track [" << thisTrk << "] Flag: " << trkD.ok << " ECAL (" << trkD.okECAL
-                << ") HCAL (" << trkD.okHCAL << ")" << std::endl;
+      std::ostringstream st1;
       if (trkD.okHCAL) {
-        std::cout << " HCAL point " << trkD.pointHCAL << " direction " << trkD.directionHCAL << " "
-                  << (HcalDetId)(trkD.detIdHCAL);
+        st1 << " HCAL point " << trkD.pointHCAL << " direction " << trkD.directionHCAL << " "
+            << (HcalDetId)(trkD.detIdHCAL);
       }
+      edm::LogVerbatim("IsoTrack") << "propagateCALO:: for track [" << thisTrk << "] Flag: " << trkD.ok << " ECAL ("
+                                   << trkD.okECAL << ") HCAL (" << trkD.okHCAL << ")" << st1.str();
     }
-#endif
     return trkD;
   }
 
@@ -781,22 +742,15 @@ namespace spr {
 
   std::pair<math::XYZPoint, double> propagateTrackerEnd(const reco::Track* track,
                                                         const MagneticField* bField,
-                                                        bool
-#ifdef EDM_ML_DEBUG
-                                                            debug
-#endif
-  ) {
-
+                                                        bool debug) {
     const GlobalPoint vertex(track->vx(), track->vy(), track->vz());
     const GlobalVector momentum(track->px(), track->py(), track->pz());
     int charge(track->charge());
     float radius = track->outerPosition().Rho();
     float zdist = track->outerPosition().Z();
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "propagateTrackerEnd:: Vertex " << vertex << " Momentum " << momentum << " Charge " << charge
-                << " Radius " << radius << " Z " << zdist << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "propagateTrackerEnd:: Vertex " << vertex << " Momentum " << momentum
+                                   << " Charge " << charge << " Radius " << radius << " Z " << zdist;
     FreeTrajectoryState fts(vertex, momentum, charge, bField);
     Plane::PlanePointer endcap = Plane::build(Plane::PositionType(0, 0, zdist), Plane::RotationType());
     Cylinder::CylinderPointer barrel =
@@ -829,13 +783,11 @@ namespace spr {
       double dZ = vDiff.z();
       double dS = rdist * rat;  //dZ*momentum.z()/momentum.perp();
       length = std::sqrt(dS * dS + dZ * dZ);
-#ifdef EDM_ML_DEBUG
       if (debug)
-        std::cout << "propagateTracker:: Barrel " << tsosb.isValid() << " Endcap " << tsose.isValid() << " OverAll "
-                  << ok << " Point " << point << " RDist " << rdist << " dS " << dS << " dS/pt "
-                  << rdist * rat / momentum.perp() << " zdist " << dZ << " dz/pz " << dZ / momentum.z() << " Length "
-                  << length << std::endl;
-#endif
+        edm::LogVerbatim("IsoTrack") << "propagateTracker:: Barrel " << tsosb.isValid() << " Endcap " << tsose.isValid()
+                                     << " OverAll " << ok << " Point " << point << " RDist " << rdist << " dS " << dS
+                                     << " dS/pt " << rdist * rat / momentum.perp() << " zdist " << dZ << " dz/pz "
+                                     << dZ / momentum.z() << " Length " << length;
     }
 
     return std::pair<math::XYZPoint, double>(point, length);
@@ -848,18 +800,11 @@ namespace spr {
                                      float zdist,
                                      float radius,
                                      float corner,
-                                     bool
-#ifdef EDM_ML_DEBUG
-                                         debug
-#endif
-  ) {
-
+                                     bool debug) {
     spr::propagatedTrack track;
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "propagateCalo:: Vertex " << tpVertex << " Momentum " << tpMomentum << " Charge " << tpCharge
-                << " Radius " << radius << " Z " << zdist << " Corner " << corner << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "propagateCalo:: Vertex " << tpVertex << " Momentum " << tpMomentum << " Charge "
+                                   << tpCharge << " Radius " << radius << " Z " << zdist << " Corner " << corner;
     FreeTrajectoryState fts(tpVertex, tpMomentum, tpCharge, bField);
 
     Plane::PlanePointer lendcap = Plane::build(Plane::PositionType(0, 0, -zdist), Plane::RotationType());
@@ -900,10 +845,10 @@ namespace spr {
       track.direction = GlobalVector(0, 0, 1);
       track.ok = false;
     }
-#ifdef EDM_ML_DEBUG
     if (debug) {
-      std::cout << "propagateCalo:: Barrel " << tsosb.isValid() << " Endcap " << tsose.isValid() << " OverAll "
-                << track.ok << " Point " << track.point << " Direction " << track.direction << std::endl;
+      edm::LogVerbatim("IsoTrack") << "propagateCalo:: Barrel " << tsosb.isValid() << " Endcap " << tsose.isValid()
+                                   << " OverAll " << track.ok << " Point " << track.point << " Direction "
+                                   << track.direction;
       if (track.ok) {
         math::XYZPoint vDiff(
             track.point.x() - tpVertex.x(), track.point.y() - tpVertex.y(), track.point.z() - tpVertex.z());
@@ -911,32 +856,26 @@ namespace spr {
         double rdist = std::sqrt(vDiff.x() * vDiff.x() + vDiff.y() * vDiff.y());
         double pt = tpMomentum.perp();
         double rat = 0.5 * dphi / std::sin(0.5 * dphi);
-        std::cout << "RDist " << rdist << " pt " << pt << " r/pt " << rdist * rat / pt << " zdist " << vDiff.z()
-                  << " pz " << tpMomentum.z() << " z/pz " << vDiff.z() / tpMomentum.z() << std::endl;
+        edm::LogVerbatim("IsoTrack") << "RDist " << rdist << " pt " << pt << " r/pt " << rdist * rat / pt << " zdist "
+                                     << vDiff.z() << " pz " << tpMomentum.z() << " z/pz " << vDiff.z() / tpMomentum.z()
+                                     << std::endl;
       }
     }
-#endif
     return track;
   }
 
   spr::trackAtOrigin simTrackAtOrigin(unsigned int thisTrk,
                                       edm::Handle<edm::SimTrackContainer>& SimTk,
                                       edm::Handle<edm::SimVertexContainer>& SimVtx,
-                                      bool
-#ifdef EDM_ML_DEBUG
-                                          debug
-#endif
-  ) {
-
+                                      bool debug) {
     spr::trackAtOrigin trk;
 
     edm::SimTrackContainer::const_iterator itr = SimTk->end();
     for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
       if (simTrkItr->trackId() == thisTrk) {
-#ifdef EDM_ML_DEBUG
         if (debug)
-          std::cout << "matched trackId (maximum occurance) " << thisTrk << " type " << simTrkItr->type() << std::endl;
-#endif
+          edm::LogVerbatim("IsoTrack") << "matched trackId (maximum occurance) " << thisTrk << " type "
+                                       << simTrkItr->type();
         itr = simTrkItr;
         break;
       }
@@ -956,10 +895,9 @@ namespace spr {
         trk.momentum = GlobalVector(mom.x(), mom.y(), mom.z());
       }
     }
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "Track flag " << trk.ok << " Position " << trk.position << " Momentum " << trk.momentum << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "Track flag " << trk.ok << " Position " << trk.position << " Momentum "
+                                   << trk.momentum;
     return trk;
   }
 
@@ -972,10 +910,9 @@ namespace spr {
     const GlobalPoint vertex(track->vx(), track->vy(), track->vz());
     const GlobalVector momentum(track->px(), track->py(), track->pz());
     int charge(track->charge());
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "Propagate track with charge " << charge << " position " << vertex << " p " << momentum << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "Propagate track with charge " << charge << " position " << vertex << " p "
+                                   << momentum;
     std::pair<HcalDetId, HcalDetId> ids = propagateHCAL(geo, bField, vertex, momentum, charge, typeRZ, rz, debug);
     bool ok = ((ids.first != HcalDetId()) && (ids.first.ieta() == ids.second.ieta()) &&
                (ids.first.iphi() == ids.second.iphi()));
@@ -991,11 +928,9 @@ namespace spr {
                      const std::pair<double, double> rz,
                      bool debug) {
     spr::trackAtOrigin trk = spr::simTrackAtOrigin(thisTrk, SimTk, SimVtx, debug);
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "Propagate track " << thisTrk << " charge " << trk.charge << " position " << trk.position << " p "
-                << trk.momentum << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "Propagate track " << thisTrk << " charge " << trk.charge << " position "
+                                   << trk.position << " p " << trk.momentum;
     std::pair<HcalDetId, HcalDetId> ids =
         propagateHCAL(geo, bField, trk.position, trk.momentum, trk.charge, typeRZ, rz, debug);
     bool ok = ((ids.first != HcalDetId()) && (ids.first.ieta() == ids.second.ieta()) &&
@@ -1010,17 +945,10 @@ namespace spr {
                                                 int charge,
                                                 bool typeRZ,
                                                 const std::pair<double, double> rz,
-                                                bool
-#ifdef EDM_ML_DEBUG
-                                                    debug
-#endif
-  ) {
-
-#ifdef EDM_ML_DEBUG
+                                                bool debug) {
     if (debug)
-      std::cout << "propagateCalo:: Vertex " << vertex << " Momentum " << momentum << " Charge " << charge << " R/Z "
-                << rz.first << " : " << rz.second << " Type " << typeRZ << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "propagateCalo:: Vertex " << vertex << " Momentum " << momentum << " Charge "
+                                   << charge << " R/Z " << rz.first << " : " << rz.second << " Type " << typeRZ;
     const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
     FreeTrajectoryState fts(vertex, momentum, charge, bField);
     AnalyticalPropagator myAP(bField, alongMomentum, 2 * M_PI);
@@ -1044,22 +972,18 @@ namespace spr {
           id1 = gHB->getClosestCell(point);
         else
           id2 = gHB->getClosestCell(point);
-#ifdef EDM_ML_DEBUG
         if (debug) {
-          std::cout << "Iteration " << k << " Point " << point << " ID ";
+          std::ostringstream st1;
           if (k == 0)
-            std::cout << id1;
+            st1 << id1;
           else
-            std::cout << id2;
-          std::cout << std::endl;
+            st1 << id2;
+          edm::LogVerbatim("IsoTrack") << "Iteration " << k << " Point " << point << " ID " << st1.str();
         }
-#endif
       }
     }
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "propagateCalo:: Front " << id1 << " Back " << id2 << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "propagateCalo:: Front " << id1 << " Back " << id2;
     return std::pair<HcalDetId, HcalDetId>(id1, id2);
   }
 }  // namespace spr
