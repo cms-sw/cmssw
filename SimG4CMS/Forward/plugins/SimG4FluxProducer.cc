@@ -53,7 +53,6 @@ private:
   G4VPhysicalVolume *getTopPV();
   std::map<G4LogicalVolume *, std::pair<unsigned int, std::string>>::iterator findLV(G4LogicalVolume *plv);
 
-private:
   std::vector<std::string> LVNames_;
   std::vector<int> LVTypes_;
   G4VPhysicalVolume *topPV_;

@@ -96,12 +96,10 @@ private:
   std::vector<double> simhit_x, simhit_y, simhit_z;
   std::vector<double> simhit_eta, simhit_phi, simhit_energy;
   std::vector<int> simhit_sector, simhit_module;
-  //std::vector<double> simhit_time;
 
   std::vector<double> *psimhit_x, *psimhit_y, *psimhit_z;
   std::vector<double> *psimhit_eta, *psimhit_phi, *psimhit_energy;
   std::vector<int> *psimhit_sector, *psimhit_module;
-  //std::vector<double> *psimhit_time;
 
   double simhit_etot;
 };
@@ -140,7 +138,6 @@ DoCastorAnalysis::DoCastorAnalysis(const edm::ParameterSet &p) {
   CastorTree->Branch("simhit_phi", "std::vector<double>", &psimhit_phi);
   CastorTree->Branch("simhit_energy", "std::vector<double>", &psimhit_energy);
 
-  // CastorTree->Branch("simhit_time","std::vector<double>",&psimhit_time);
   CastorTree->Branch("simhit_sector", "std::vector<int>", &psimhit_sector);
   CastorTree->Branch("simhit_module", "std::vector<int>", &psimhit_module);
 
@@ -238,10 +235,6 @@ void DoCastorAnalysis::update(const EndOfEvent *evt) {
   psimhit_energy->clear();
   psimhit_energy->reserve(nentries);
 
-  //psimhit_time=&simhit_time;
-  //psimhit_time->clear();
-  //psimhit_time->reserve(nentries);
-
   psimhit_sector = &simhit_sector;
   psimhit_sector->clear();
   psimhit_sector->reserve(nentries);
@@ -278,7 +271,6 @@ void DoCastorAnalysis::update(const EndOfEvent *evt) {
       psimhit_phi->push_back(phi);
       psimhit_energy->push_back(energy);
 
-      // psimhit_time->push_back(time);
       psimhit_sector->push_back(sector);
       psimhit_module->push_back(zmodule);
 
