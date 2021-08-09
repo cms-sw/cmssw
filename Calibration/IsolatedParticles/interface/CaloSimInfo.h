@@ -16,7 +16,6 @@ Created: August 2009
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/Common/interface/Handle.h"
