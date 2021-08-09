@@ -12,28 +12,174 @@
 // Adapted by W. Carvalho , 02/2009
 //
 //////////////////////////////////////////////////////////////
+
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/Math/interface/Point3D.h"
+
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
-#include "SimG4CMS/Calo/interface/CaloG4Hit.h"
-#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
-#include "DataFormats/Math/interface/Point3D.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "SimG4CMS/ShowerLibraryProducer/interface/CastorShowerLibraryMaker.h"
-#include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
-
+// Classes for shower library Root file
+#include "SimDataFormats/CaloHit/interface/CastorShowerLibraryInfo.h"
 #include "SimDataFormats/CaloHit/interface/CastorShowerEvent.h"
 
+#include "SimG4Core/Notification/interface/SimG4Exception.h"
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
+#include "SimG4Core/Notification/interface/BeginOfRun.h"
+#include "SimG4Core/Notification/interface/EndOfRun.h"
+#include "SimG4Core/Notification/interface/BeginOfEvent.h"
+#include "SimG4Core/Notification/interface/EndOfEvent.h"
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Watcher/interface/SimWatcher.h"
+
+#include "SimG4CMS/Calo/interface/CaloG4Hit.h"
+#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
+
+#include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
+
+#include "G4RunManager.hh"
+#include "G4SDManager.hh"
+#include "G4Step.hh"
+#include "G4Track.hh"
+#include "G4Event.hh"
+#include "G4PrimaryVertex.hh"
+#include "G4VProcess.hh"
+#include "G4HCofThisEvent.hh"
+#include "G4UserEventAction.hh"
+
+#include "CLHEP/Random/Randomize.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
+#include "TROOT.h"
 #include "TFile.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TProfile.h"
+#include "TNtuple.h"
+#include "TRandom.h"
+#include "TLorentzVector.h"
+#include "TUnixSystem.h"
+#include "TSystem.h"
+#include "TMath.h"
+#include "TF1.h"
+
+#include <cassert>
 #include <cmath>
-#include <iostream>
-#include <sstream>
-#include <iomanip>
 #include <cstdlib>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <set>
+#include <sstream>
+#include <string>
+#include <vector>
+
+typedef std::vector<std::vector<std::vector<std::vector<CastorShowerEvent> > > > SLBin3D;  // bin in energy, eta and phi
+
+class CastorShowerLibraryMaker : public SimWatcher,
+                                 public Observer<const BeginOfJob*>,
+                                 public Observer<const BeginOfRun*>,
+                                 public Observer<const EndOfRun*>,
+                                 public Observer<const BeginOfEvent*>,
+                                 public Observer<const EndOfEvent*>,
+                                 public Observer<const G4Step*> {
+public:
+  CastorShowerLibraryMaker(const edm::ParameterSet& p);
+  ~CastorShowerLibraryMaker() override;
+
+private:
+  typedef int ebin;
+  typedef int etabin;
+  typedef int phibin;
+  // private structures
+  struct ShowerLib {
+    CastorShowerLibraryInfo SLInfo;  // the info
+    SLBin3D SLCollection;            // the showers
+    std::vector<double> SLEnergyBins;
+    std::vector<double> SLEtaBins;
+    std::vector<double> SLPhiBins;
+    unsigned int nEvtPerBinE;
+    unsigned int nEvtPerBinEta;
+    unsigned int nEvtPerBinPhi;
+    std::vector<int> nEvtInBinE;
+    std::vector<std::vector<int> > nEvtInBinEta;
+    std::vector<std::vector<std::vector<int> > > nEvtInBinPhi;
+  };
+
+  // observer classes
+  void update(const BeginOfJob* run) override;
+  void update(const BeginOfRun* run) override;
+  void update(const EndOfRun* run) override;
+  void update(const BeginOfEvent* evt) override;
+  void update(const EndOfEvent* evt) override;
+  void update(const G4Step* step) override;
+
+private:
+  void Finish();
+
+  // Job general parameters
+  int verbosity;
+  std::string eventNtFileName;
+
+  unsigned int NPGParticle;                  // number of particles requested to Particle Gun
+  std::vector<int> PGParticleIDs;            //p. gun particle IDs
+  bool DoHadSL;                              // true if hadronic SL should be produced
+  bool DoEmSL;                               // true if electromag. SL should be produced
+  bool InsideCastor;                         // true if particle step inside CASTOR
+  bool DeActivatePhysicsProcess;             //cfg parameter: True if phys. proc. should be off from IP to Castor
+  std::vector<G4PrimaryParticle*> thePrims;  // list of primaries for this event
+
+  // Pointers for user defined class objects to be stored to Root file
+  CastorShowerLibraryInfo* emInfo;
+  CastorShowerLibraryInfo* hadInfo;
+  CastorShowerEvent* emShower;
+  CastorShowerEvent* hadShower;
+  ShowerLib emSLHolder;
+  ShowerLib hadSLHolder;
+  ShowerLib* SLShowerptr;                          // pointer to the current shower collection (above)
+  std::map<int, std::set<int> > MapOfSecondaries;  // map to hold all secondaries ID keyed by
+                                                   // the PDG code of the primary
+
+  std::map<int, G4ThreeVector> PrimaryMomentum;
+  std::map<int, G4ThreeVector> PrimaryPosition;
+  double MaxEta;  // limits the eta region, the lower limit is given by the SL bins
+  double MaxPhi;  // limits the phi region, the lower limit is given by the SL bins
+                  // private methods
+  int FindEnergyBin(double e);
+  int FindEtaBin(double eta);
+  int FindPhiBin(double phi);
+  bool SLacceptEvent(int, int, int);
+  bool IsSLReady();
+  void GetKinematics(G4PrimaryParticle*, double& px, double& py, double& pz, double& pInit, double& eta, double& phi);
+  void GetKinematics(int, double& px, double& py, double& pz, double& pInit, double& eta, double& phi);
+
+  std::vector<G4PrimaryParticle*> GetPrimary(const G4Event*);
+  bool FillShowerEvent(CaloG4HitCollection*, CastorShowerEvent*, int);
+  void InitSLHolder(ShowerLib&);
+
+  void printSLstatus(int, int, int);
+  int& SLnEvtInBinE(int ebin);
+  int& SLnEvtInBinEta(int ebin, int etabin);
+  int& SLnEvtInBinPhi(int ebin, int etabin, int phibin);
+  bool SLisEBinFilled(int ebin);
+  bool SLisEtaBinFilled(int ebin, int etabin);
+  bool SLisPhiBinFilled(int ebin, int etabin, int phibin);
+  void KillSecondaries(const G4Step* step);
+  void GetMissingEnergy(CaloG4HitCollection*, double&, double&);
+
+  // Root pointers
+  TFile* theFile;
+  TTree* theTree;
+
+  int eventIndex;
+  int stepIndex;  // ignore, please
+};
 
 CastorShowerLibraryMaker::CastorShowerLibraryMaker(const edm::ParameterSet& p)
     : NPGParticle(0),
@@ -210,10 +356,10 @@ void CastorShowerLibraryMaker::update(const BeginOfRun* run) {
   // If no data are written, because e.g. the branch is disabled,
   // the number of bytes returned is 0.
   // if(flag==-1) {
-  //    edm::LogInfo("CastorAnalyzer") << " WARNING: Error writing to Branch \"CastorShowerLibInfo\" \n" ;
+  //    edm::LogVerbatim("CastorAnalyzer") << " WARNING: Error writing to Branch \"CastorShowerLibInfo\" \n" ;
   // } else
   // if(flag==0) {
-  //    edm::LogInfo("CastorAnalyzer") << " WARNING: No data written to Branch \"CastorShowerLibInfo\" \n" ;
+  //    edm::LogVerbatim("CastorAnalyzer") << " WARNING: No data written to Branch \"CastorShowerLibInfo\" \n" ;
   // }
 
   // Initialize "accounting" variables
@@ -287,7 +433,7 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent* evt) {
         }
 */
       if (!accept)
-        edm::LogInfo("CastorShowerLibraryMaker")
+        edm::LogVerbatim("CastorShowerLibraryMaker")
             << "Event not accepted for ebin=" << ebin << ",etabin=" << etabin << ",phibin=" << phibin << std::endl;
     } else {
       accept = true;
@@ -401,7 +547,7 @@ void CastorShowerLibraryMaker::update(const G4Step* aStep) {
 */
   /*
   if(aStep->IsFirstStepInVolume()) { 
-    edm::LogInfo("CastorShowerLibraryMaker") << "CastorShowerLibraryMaker::update(const G4Step * aStep):"
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "CastorShowerLibraryMaker::update(const G4Step * aStep):"
                                              << "\n IsFirstStepInVolume , " 
                                              << "time = " << aStep->GetTrack()->GetGlobalTime() ; 
   }
@@ -428,7 +574,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
     std::cout << "CastorShowerLibraryMaker: End of Event: " << eventIndex << std::endl;
   // Get the pointer to the primary particle
   if (thePrims.empty()) {
-    edm::LogInfo("CastorShowerLibraryMaker") << "No valid primary particle found. Skipping event" << std::endl;
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "No valid primary particle found. Skipping event" << std::endl;
     return;
   }
   // access to the G4 hit collections
@@ -436,10 +582,10 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
   int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorFI");
   CaloG4HitCollection* theCAFI = (CaloG4HitCollection*)allHC->GetHC(CAFIid);
   if (verbosity)
-    edm::LogInfo("CastorShowerLibraryMaker") << " update(*evt) --> accessed all HC ";
-  edm::LogInfo("CastorShowerLibraryMaker") << "Found " << theCAFI->entries() << " hits in G4HitCollection";
+    edm::LogVerbatim("CastorShowerLibraryMaker") << " update(*evt) --> accessed all HC ";
+  edm::LogVerbatim("CastorShowerLibraryMaker") << "Found " << theCAFI->entries() << " hits in G4HitCollection";
   if (theCAFI->entries() == 0) {
-    edm::LogInfo("CastorShowerLibraryMaker") << "\n Empty G4HitCollection";
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "\n Empty G4HitCollection";
     return;
   }
 
@@ -449,7 +595,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
   for (unsigned int i = 0; i < thePrims.size(); i++) {
     G4PrimaryParticle* thePrim = thePrims.at(i);
     if (!thePrim) {
-      edm::LogInfo("CastorShowerLibraryMaker") << "nullptr Pointer to the primary" << std::endl;
+      edm::LogVerbatim("CastorShowerLibraryMaker") << "nullptr Pointer to the primary" << std::endl;
       continue;
     }
     // Check primary particle type
@@ -464,7 +610,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
       SLShowerptr = &hadSLHolder;
       SLType = "Hadronic";
     }
-    edm::LogInfo("CastorShowerLibraryMaker") << "\n Primary (thePrim) trackID is " << thePrim->GetTrackID() << "\n";
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "\n Primary (thePrim) trackID is " << thePrim->GetTrackID() << "\n";
 
     // Obtain primary particle's initial momentum (pInit)
     double px = 0., py = 0., pz = 0., pInit = 0., eta = 0., phi = 0.;
@@ -472,7 +618,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
     // Check if current event falls into any bin
     // first: energy
     if (pInit == 0) {
-      edm::LogInfo("CastorShowerLibraryMaker") << "Primary did not hit CASTOR" << std::endl;
+      edm::LogVerbatim("CastorShowerLibraryMaker") << "Primary did not hit CASTOR" << std::endl;
       continue;
     }
     int ebin = FindEnergyBin(pInit);
@@ -481,7 +627,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
     std::cout << SLType << std::endl;
     printSLstatus(ebin, etabin, phibin);
     if (!SLacceptEvent(ebin, etabin, phibin)) {
-      edm::LogInfo("CastorShowerLibraryMaker")
+      edm::LogVerbatim("CastorShowerLibraryMaker")
           << "Event not accepted for ebin=" << ebin << ",etabin=" << etabin << ",phibin=" << phibin << "(" << pInit
           << "," << eta << "," << phi << ")" << std::endl;
       continue;
@@ -490,7 +636,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
     // event passed. Fill the vector accordingly
     //
     // Look for the Hit Collection
-    edm::LogInfo("CastorShowerLibraryMaker")
+    edm::LogVerbatim("CastorShowerLibraryMaker")
         << "\n CastorShowerLibraryMaker::update(EndOfEvent * evt) - event #" << (*evt)()->GetEventID();
 
     /*
@@ -507,7 +653,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
     if (FillShowerEvent(theCAFI, shower, particleType)) {
       //  Primary particle information
       /*
-        edm::LogInfo("CastorShowerLibraryMaker") << "New SL event: Primary = " << particleType
+        edm::LogVerbatim("CastorShowerLibraryMaker") << "New SL event: Primary = " << particleType
              << "; Energy = " << pInit << "; Eta = " << eta << "; Phi = " << phi
              << "; Nhits = " << shower->getNhit() << std::endl;
 */
@@ -651,7 +797,7 @@ int CastorShowerLibraryMaker::FindEnergyBin(double energy) {
   // returns -1 if ouside valid range
   //
   if (!SLShowerptr) {
-    edm::LogInfo("CastorShowerLibraryMaker") << "\n\nFindEnergyBin can be called only after BeginOfEvent\n\n";
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "\n\nFindEnergyBin can be called only after BeginOfEvent\n\n";
     throw SimG4Exception("\n\nnullptr Pointer to the shower library.\n\n");
   }
   const std::vector<double>& SLenergies = SLShowerptr->SLEnergyBins;
@@ -675,7 +821,7 @@ int CastorShowerLibraryMaker::FindEtaBin(double eta) {
   // returns -1 if ouside valid range
   //
   if (!SLShowerptr) {
-    edm::LogInfo("CastorShowerLibraryMaker") << "\n\nFindEtaBin can be called only after BeginOfEvent\n\n";
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "\n\nFindEtaBin can be called only after BeginOfEvent\n\n";
     throw SimG4Exception("\n\nnullptr Pointer to the shower library.\n\n");
   }
   const std::vector<double>& SLetas = SLShowerptr->SLEtaBins;
@@ -699,7 +845,7 @@ int CastorShowerLibraryMaker::FindPhiBin(double phi) {
   // needs protection in case phi is outside range -pi,pi
   //
   if (!SLShowerptr) {
-    edm::LogInfo("CastorShowerLibraryMaker") << "\n\nFindPhiBin can be called only after BeginOfEvent\n\n";
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "\n\nFindPhiBin can be called only after BeginOfEvent\n\n";
     throw SimG4Exception("\n\nnullptr Pointer to the shower library.\n\n");
   }
   const std::vector<double>& SLphis = SLShowerptr->SLPhiBins;
@@ -718,7 +864,7 @@ int CastorShowerLibraryMaker::FindPhiBin(double phi) {
 bool CastorShowerLibraryMaker::IsSLReady() {
   // at this point, the pointer to the shower library should be nullptr
   if (SLShowerptr) {
-    edm::LogInfo("CastorShowerLibraryMaker") << "\n\nIsSLReady must be called when a new event starts.\n\n";
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "\n\nIsSLReady must be called when a new event starts.\n\n";
     throw SimG4Exception("\n\nNOT nullptr Pointer to the shower library.\n\n");
   }
   // it is enough to check if all the energy bin is filled
@@ -786,16 +932,17 @@ std::vector<G4PrimaryParticle*> CastorShowerLibraryMaker::GetPrimary(const G4Eve
   std::vector<G4PrimaryParticle*> thePrims;
   G4PrimaryParticle* thePrim = nullptr;
   G4int nvertex = evt->GetNumberOfPrimaryVertex();
-  edm::LogInfo("CastorShowerLibraryMaker") << "Event has " << nvertex << " vertex";
+  edm::LogVerbatim("CastorShowerLibraryMaker") << "Event has " << nvertex << " vertex";
   if (nvertex != 1) {
-    edm::LogInfo("CastorShowerLibraryMaker") << "CastorShowerLibraryMaker::GetPrimary ERROR: no vertex";
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "CastorShowerLibraryMaker::GetPrimary ERROR: no vertex";
     return thePrims;
   }
 
   for (int i = 0; i < nvertex; i++) {
     G4PrimaryVertex* avertex = evt->GetPrimaryVertex(i);
     if (avertex == nullptr) {
-      edm::LogInfo("CastorShowerLibraryMaker") << "CastorShowerLibraryMaker::GetPrimary ERROR: pointer to vertex = 0";
+      edm::LogVerbatim("CastorShowerLibraryMaker")
+          << "CastorShowerLibraryMaker::GetPrimary ERROR: pointer to vertex = 0";
       continue;
     }
     unsigned int npart = avertex->GetNumberOfParticle();
@@ -818,7 +965,7 @@ std::vector<G4PrimaryParticle*> CastorShowerLibraryMaker::GetPrimary(const G4Eve
 }
 void CastorShowerLibraryMaker::printSLstatus(int ebin, int etabin, int phibin) {
   if (!SLShowerptr) {
-    edm::LogInfo("CastorShowerLibraryInfo") << "nullptr shower pointer. Printing both";
+    edm::LogVerbatim("CastorShowerLibraryInfo") << "nullptr shower pointer. Printing both";
     std::cout << "Electromagnetic" << std::endl;
     SLShowerptr = &emSLHolder;
     this->printSLstatus(ebin, etabin, phibin);
@@ -864,7 +1011,7 @@ void CastorShowerLibraryMaker::printSLstatus(int ebin, int etabin, int phibin) {
 }
 bool CastorShowerLibraryMaker::SLacceptEvent(int ebin, int etabin, int phibin) {
   if (SLShowerptr == nullptr) {
-    edm::LogInfo("CastorShowerLibraryMaker::SLacceptEvent:") << "Error. nullptr pointer to CastorShowerEvent";
+    edm::LogVerbatim("CastorShowerLibraryMaker::SLacceptEvent:") << "Error. nullptr pointer to CastorShowerEvent";
     return false;
   }
   if (ebin < 0 || ebin >= int(SLShowerptr->SLEnergyBins.size()))
@@ -898,7 +1045,7 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
      }
 */
   if (!shower) {
-    edm::LogInfo("CastorShowerLibraryMaker") << "Error. nullptr pointer to CastorShowerEvent";
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "Error. nullptr pointer to CastorShowerEvent";
     return false;
   }
 
@@ -913,7 +1060,7 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
     int hit_particleID = aHit->getTrackID();
     if (MapOfSecondaries[ipart].find(hit_particleID) == MapOfSecondaries[ipart].end()) {
       if (verbosity)
-        edm::LogInfo("CastorShowerLibraryMaker") << "Skipping hit from trackID " << hit_particleID;
+        edm::LogVerbatim("CastorShowerLibraryMaker") << "Skipping hit from trackID " << hit_particleID;
       continue;
     }
     volumeID = aHit->getUnitID();
@@ -925,15 +1072,15 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
     entry = aHit->getEntry();
     position = aHit->getPosition();
     if (verbosity)
-      edm::LogInfo("CastorShowerLibraryMaker") << "\n side , sector , module = " << zside << " , " << sector << " , "
-                                               << zmodule << "\n nphotons = " << hitEnergy;
+      edm::LogVerbatim("CastorShowerLibraryMaker") << "\n side , sector , module = " << zside << " , " << sector
+                                                   << " , " << zmodule << "\n nphotons = " << hitEnergy;
 
     if (verbosity)
-      edm::LogInfo("CastorShowerLibraryMaker")
+      edm::LogVerbatim("CastorShowerLibraryMaker")
           << "\n packIndex = " << theCastorNumScheme->packIndex(zside, sector, zmodule);
 
     if (verbosity && time > 100.) {
-      edm::LogInfo("CastorShowerLibraryMaker")
+      edm::LogVerbatim("CastorShowerLibraryMaker")
           << "\n nentries = " << nentries << "\n     time[" << ihit << "] = " << time << "\n  trackID[" << ihit
           << "] = " << aHit->getTrackID() << "\n volumeID[" << ihit << "] = " << volumeID << "\n nphotons[" << ihit
           << "] = " << hitEnergy << "\n side, sector, module  = " << zside << ", " << sector << ", " << zmodule
@@ -941,7 +1088,7 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
           << "," << entry.y() << "," << entry.z();
     }
     if (verbosity)
-      edm::LogInfo("CastorShowerLibraryMaker") << "\n    Incident Energy = " << aHit->getIncidentEnergy() << " \n";
+      edm::LogVerbatim("CastorShowerLibraryMaker") << "\n    Incident Energy = " << aHit->getIncidentEnergy() << " \n";
 
     //  CaloG4Hit information
     shower->setDetID(volumeID);
@@ -952,7 +1099,8 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
   }
   // Write number of hits to CastorShowerEvent instance
   if (nHits == 0) {
-    edm::LogInfo("CastorShowerLibraryMaker") << "No hits found for this track (trackID=" << ipart << ")." << std::endl;
+    edm::LogVerbatim("CastorShowerLibraryMaker")
+        << "No hits found for this track (trackID=" << ipart << ")." << std::endl;
     if (theCastorNumScheme)
       delete theCastorNumScheme;
     return false;
@@ -966,7 +1114,7 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
 }
 int& CastorShowerLibraryMaker::SLnEvtInBinE(int ebin) {
   if (!SLShowerptr) {
-    edm::LogInfo("CastorShowerLibraryMaker") << "\n\nSLnEvtInBinE can be called only after BeginOfEvent\n\n";
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "\n\nSLnEvtInBinE can be called only after BeginOfEvent\n\n";
     throw SimG4Exception("\n\nnullptr Pointer to the shower library.");
   }
   return SLShowerptr->nEvtInBinE.at(ebin);
@@ -974,7 +1122,7 @@ int& CastorShowerLibraryMaker::SLnEvtInBinE(int ebin) {
 
 int& CastorShowerLibraryMaker::SLnEvtInBinEta(int ebin, int etabin) {
   if (!SLShowerptr) {
-    edm::LogInfo("CastorShowerLibraryMaker") << "\n\nSLnEvtInBinEta can be called only after BeginOfEvent\n\n";
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "\n\nSLnEvtInBinEta can be called only after BeginOfEvent\n\n";
     throw SimG4Exception("\n\nnullptr Pointer to the shower library.");
   }
   return SLShowerptr->nEvtInBinEta.at(ebin).at(etabin);
@@ -982,14 +1130,14 @@ int& CastorShowerLibraryMaker::SLnEvtInBinEta(int ebin, int etabin) {
 
 int& CastorShowerLibraryMaker::SLnEvtInBinPhi(int ebin, int etabin, int phibin) {
   if (!SLShowerptr) {
-    edm::LogInfo("CastorShowerLibraryMaker") << "\n\nSLnEvtInBinPhi can be called only after BeginOfEvent\n\n";
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "\n\nSLnEvtInBinPhi can be called only after BeginOfEvent\n\n";
     throw SimG4Exception("\n\nnullptr Pointer to the shower library.");
   }
   return SLShowerptr->nEvtInBinPhi.at(ebin).at(etabin).at(phibin);
 }
 bool CastorShowerLibraryMaker::SLisEBinFilled(int ebin) {
   if (!SLShowerptr) {
-    edm::LogInfo("CastorShowerLibraryMaker") << "\n\nSLisEBinFilled can be called only after BeginOfEvent\n\n";
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "\n\nSLisEBinFilled can be called only after BeginOfEvent\n\n";
     throw SimG4Exception("\n\nnullptr Pointer to the shower library.");
   }
   if (SLShowerptr->nEvtInBinE.at(ebin) < (int)SLShowerptr->nEvtPerBinE)
@@ -998,7 +1146,7 @@ bool CastorShowerLibraryMaker::SLisEBinFilled(int ebin) {
 }
 bool CastorShowerLibraryMaker::SLisEtaBinFilled(int ebin, int etabin) {
   if (!SLShowerptr) {
-    edm::LogInfo("CastorShowerLibraryMaker") << "\n\nSLisEtaBinFilled can be called only after BeginOfEvent\n\n";
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "\n\nSLisEtaBinFilled can be called only after BeginOfEvent\n\n";
     throw SimG4Exception("\n\nnullptr Pointer to the shower library.");
   }
   if (SLShowerptr->nEvtInBinEta.at(ebin).at(etabin) < (int)SLShowerptr->nEvtPerBinEta)
@@ -1007,7 +1155,7 @@ bool CastorShowerLibraryMaker::SLisEtaBinFilled(int ebin, int etabin) {
 }
 bool CastorShowerLibraryMaker::SLisPhiBinFilled(int ebin, int etabin, int phibin) {
   if (!SLShowerptr) {
-    edm::LogInfo("CastorShowerLibraryMaker") << "\n\nSLisPhiBinFilled can be called only after BeginOfEvent\n\n";
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "\n\nSLisPhiBinFilled can be called only after BeginOfEvent\n\n";
     throw SimG4Exception("\n\nnullptr Pointer to the shower library.");
   }
   if (SLShowerptr->nEvtInBinPhi.at(ebin).at(etabin).at(phibin) < (int)SLShowerptr->nEvtPerBinPhi)
@@ -1044,3 +1192,8 @@ void CastorShowerLibraryMaker::GetMissingEnergy(CaloG4HitCollection* theCAFI, do
     }
   }
 }
+
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
+DEFINE_SIMWATCHER(CastorShowerLibraryMaker);
