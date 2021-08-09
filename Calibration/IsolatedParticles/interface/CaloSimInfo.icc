@@ -62,7 +62,9 @@ namespace spr {
                     double timeCut,
                     bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "Processing eECALSimInfo " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize();
+      edm::LogVerbatim("IsoTrack") << "Processing eECALSimInfo " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << "\ntrkMom "
+                                   << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits "
+                                   << pTrack->recHitsSize();
 
     //matching SimTrack
     edm::SimTrackContainer::const_iterator trkInfo =
@@ -94,7 +96,9 @@ namespace spr {
                     double timeCut,
                     bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "Processing eECALSimInfo " << ietaE + ietaW + 1 << "x" << iphiN + iphiS + 1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize();
+      edm::LogVerbatim("IsoTrack") << "Processing eECALSimInfo " << ietaE + ietaW + 1 << "x" << iphiN + iphiS + 1
+                                   << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits "
+                                   << pTrack->recHitsSize();
 
     //matching SimTrack
     edm::SimTrackContainer::const_iterator trkInfo =
@@ -146,7 +150,9 @@ namespace spr {
                     bool includeHO,
                     bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "Processing eHCALSimInfo " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize();
+      edm::LogVerbatim("IsoTrack") << "Processing eHCALSimInfo " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << "\ntrkMom "
+                                   << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits "
+                                   << pTrack->recHitsSize();
 
     // get the matching SimTrack pointer
     edm::SimTrackContainer::const_iterator trkInfo =
@@ -178,7 +184,9 @@ namespace spr {
                     bool includeHO,
                     bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "Processing eHCALSimInfo " << ietaE + ietaW + 1 << "x" << iphiN + iphiS + 1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize();
+      edm::LogVerbatim("IsoTrack") << "Processing eHCALSimInfo " << ietaE + ietaW + 1 << "x" << iphiN + iphiS + 1
+                                   << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits "
+                                   << pTrack->recHitsSize();
 
     // get the matching SimTrack pointer
     edm::SimTrackContainer::const_iterator trkInfo =
@@ -208,7 +216,8 @@ namespace spr {
                                              bool debug) {
     if (debug) {
       edm::LogVerbatim("IsoTrack") << "Processing HcalSimInfo " << 2 * ieta + 1 << "x" << 2 * iphi + 1;
-      edm::LogVerbatim("IsoTrack") << "trkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize();
+      edm::LogVerbatim("IsoTrack") << "trkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits "
+                                   << pTrack->recHitsSize();
     }
 
     // Get SimTrack matched to RecoTrack
@@ -339,7 +348,9 @@ namespace spr {
     info.eRest += eeInfo.eRest;
     info.eTotal += eeInfo.eTotal;
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << " energyMatched " << info.eMatched << " energyGamma   " << info.eGamma << " energyNeutral " << info.eNeutralHad << " energyCharged " << info.eChargedHad << " energyRest    " << info.eRest << " energyTotal   " << info.eTotal;
+      edm::LogVerbatim("IsoTrack") << " energyMatched " << info.eMatched << " energyGamma   " << info.eGamma
+                                   << " energyNeutral " << info.eNeutralHad << " energyCharged " << info.eChargedHad
+                                   << " energyRest    " << info.eRest << " energyTotal   " << info.eTotal;
     }
   }
 
@@ -357,7 +368,8 @@ namespace spr {
     int matchedId = 0;  //pdgid
     if (debug) {
       if (trkInfo != SimTk->end())
-        edm::LogVerbatim("IsoTrack") << "In eCaloSimInfo::  matchSimTrk:" << trkInfo->trackId() << " matchedId " << trkInfo->type();
+        edm::LogVerbatim("IsoTrack") << "In eCaloSimInfo::  matchSimTrk:" << trkInfo->trackId() << " matchedId "
+                                     << trkInfo->type();
       else
         edm::LogVerbatim("IsoTrack") << "In eCaloSimInfo::  not valid track pointer";
     }
@@ -392,9 +404,12 @@ namespace spr {
                       spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
                   if (debug) {
                     if (parentItr != SimTk->end())
-                      edm::LogVerbatim("IsoTrack") << "original parent of " << simTrkItr->trackId() << " " << parentItr->trackId() << ", " << parentItr->type() << " Energy " << hit[ihit]->energy();
+                      edm::LogVerbatim("IsoTrack")
+                          << "original parent of " << simTrkItr->trackId() << " " << parentItr->trackId() << ", "
+                          << parentItr->type() << " Energy " << hit[ihit]->energy();
                     else
-                      edm::LogVerbatim("IsoTrack") << "original parent of " << simTrkItr->trackId() << " not found; Energy " << hit[ihit]->energy();
+                      edm::LogVerbatim("IsoTrack") << "original parent of " << simTrkItr->trackId()
+                                                   << " not found; Energy " << hit[ihit]->energy();
                   }
                   if (parentItr == SimTk->end()) {
                     info.eRest += hit[ihit]->energy();
@@ -420,7 +435,9 @@ namespace spr {
     info.eTotal = info.eMatched + info.eGamma + info.eNeutralHad + info.eChargedHad + info.eRest;
     info.pdgMatched = matchedId;
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << " Energy (matched) " << info.eMatched << " (gamma) " << info.eGamma << " (neutral) " << info.eNeutralHad << " (charged) " << info.eChargedHad << " (rest) " << info.eRest << " (total) " << info.eTotal;
+      edm::LogVerbatim("IsoTrack") << " Energy (matched) " << info.eMatched << " (gamma) " << info.eGamma
+                                   << " (neutral) " << info.eNeutralHad << " (charged) " << info.eChargedHad
+                                   << " (rest) " << info.eRest << " (total) " << info.eTotal;
     }
   }
 
@@ -455,7 +472,8 @@ namespace spr {
       std::ostringstream st1;
       for (unsigned int it = 0; it < matchedId.size(); ++it)
         st1 << " " << matchedId[it];
-      edm::LogVerbatim("IsoTrack") << "eCaloSimInfo:: Found " << matchedId.size() << " track IDs originating from the current track" << st1.str();
+      edm::LogVerbatim("IsoTrack") << "eCaloSimInfo:: Found " << matchedId.size()
+                                   << " track IDs originating from the current track" << st1.str();
     }
     if (!matchedId.empty()) {
       typename T::const_iterator ihit;
@@ -506,7 +524,8 @@ namespace spr {
       std::ostringstream st1;
       for (unsigned int it = 0; it < matchedId.size(); ++it)
         st1 << " " << matchedId[it];
-      edm::LogVerbatim("IsoTrack") << "eCaloSimInfo:: Found " << matchedId.size() << " track IDs originating from the current track" << st1.str();
+      edm::LogVerbatim("IsoTrack") << "eCaloSimInfo:: Found " << matchedId.size()
+                                   << " track IDs originating from the current track" << st1.str();
     }
     if (!matchedId.empty()) {
       typename T::const_iterator ihit;
@@ -564,7 +583,8 @@ namespace spr {
 
     if (debug) {
       if (trkInfo != SimTk->end()) {
-        edm::LogVerbatim("IsoTrack") << "In eCaloSimInfo::  matchSimTrk:" << trkInfo->trackId() << " matchedId " << trkInfo->type();
+        edm::LogVerbatim("IsoTrack") << "In eCaloSimInfo::  matchSimTrk:" << trkInfo->trackId() << " matchedId "
+                                     << trkInfo->type();
       } else {
         edm::LogVerbatim("IsoTrack") << "In eCaloSimInfo::  not valid track pointer";
       }
@@ -625,9 +645,12 @@ namespace spr {
                 edm::SimTrackContainer::const_iterator parentItr = spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
                 if (debug) {
                   if (parentItr != SimTk->end()) {
-                    edm::LogVerbatim("IsoTrack") << "original parent of " << simTrkItr->trackId() << " " << parentItr->trackId() << ", " << parentItr->type() << " Energy " << spr::getEnergy(hit[ihit]);
+                    edm::LogVerbatim("IsoTrack")
+                        << "original parent of " << simTrkItr->trackId() << " " << parentItr->trackId() << ", "
+                        << parentItr->type() << " Energy " << spr::getEnergy(hit[ihit]);
                   } else {
-                    edm::LogVerbatim("IsoTrack") << "original parent of " << simTrkItr->trackId() << " not found; Energy " << spr::getEnergy(hit[ihit]);
+                    edm::LogVerbatim("IsoTrack") << "original parent of " << simTrkItr->trackId()
+                                                 << " not found; Energy " << spr::getEnergy(hit[ihit]);
                   }
                 }
                 if (parentItr == SimTk->end()) {
@@ -667,7 +690,7 @@ namespace spr {
             edm::LogVerbatim("IsoTrack") << "Hit " << ihit << ": " << *hit[ihit];
         }  // else condition, i.e. (hit[ihit]->geantTrackId() != (int)matchSimTrk )
       }    // loop over hits
-    }  // if (trkInfo != SimTk->end())
+    }      // if (trkInfo != SimTk->end())
 
     double energyTot = energySum + energyGamma + energyNeutral + energyCharged + energyRest;
     multiplicityVector.push_back(uniqueIds_matched.size());
@@ -686,7 +709,9 @@ namespace spr {
     simInfo.insert(std::pair<std::string, double>("eRest", energyRest));
     simInfo.insert(std::pair<std::string, double>("eTotal", energyTot));
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << " energySum " << energySum << "  energyGamma " << energyGamma << "  energyNeutral " << energyNeutral << "  energyCharged " << energyCharged << "  energyRest " << energyRest << "  energyTot " << energyTot;
+      edm::LogVerbatim("IsoTrack") << " energySum " << energySum << "  energyGamma " << energyGamma
+                                   << "  energyNeutral " << energyNeutral << "  energyCharged " << energyCharged
+                                   << "  energyRest " << energyRest << "  energyTot " << energyTot;
     }
     return simInfo;
   }  // eCaloSimInfo
@@ -705,7 +730,9 @@ namespace spr {
                                              double timeCut,
                                              bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "Processing eECALSimInfo " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize();
+      edm::LogVerbatim("IsoTrack") << "Processing eECALSimInfo " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << "\ntrkMom "
+                                   << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits "
+                                   << pTrack->recHitsSize();
 
     //matching SimTrack
     edm::SimTrackContainer::const_iterator trkInfo =
@@ -737,7 +764,9 @@ namespace spr {
                                                   double timeCut,
                                                   bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "Processing eECALSimInfo " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize();
+      edm::LogVerbatim("IsoTrack") << "Processing eECALSimInfo " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << "\ntrkMom "
+                                   << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits "
+                                   << pTrack->recHitsSize();
 
     //matching SimTrack
     edm::SimTrackContainer::const_iterator trkInfo =
@@ -807,7 +836,9 @@ namespace spr {
                                                   bool includeHO,
                                                   bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "Processing eHCALSimInfo " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize();
+      edm::LogVerbatim("IsoTrack") << "Processing eHCALSimInfo " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << "\ntrkMom "
+                                   << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits "
+                                   << pTrack->recHitsSize();
 
     // get the matching SimTrack pointer
     edm::SimTrackContainer::const_iterator trkInfo =
@@ -888,7 +919,9 @@ namespace spr {
                                     bool includeHO,
                                     bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "Processing eHCALSimInfoMatrix " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize();
+      edm::LogVerbatim("IsoTrack") << "Processing eHCALSimInfoMatrix " << 2 * ieta + 1 << "x" << 2 * iphi + 1
+                                   << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits "
+                                   << pTrack->recHitsSize();
 
     // get the matching SimTrack pointer
     edm::SimTrackContainer::const_iterator trkInfo =
@@ -915,7 +948,8 @@ namespace spr {
 
     if (debug) {
       if (trkInfo != SimTk->end())
-        edm::LogVerbatim("IsoTrack") << "In eCaloSimInfo::  matchSimTrk:" << trkInfo->trackId() << " matchedId " << trkInfo->type();
+        edm::LogVerbatim("IsoTrack") << "In eCaloSimInfo::  matchSimTrk:" << trkInfo->trackId() << " matchedId "
+                                     << trkInfo->type();
       else
         edm::LogVerbatim("IsoTrack") << "In eCaloSimInfo::  not valid track pointer";
     }
@@ -956,9 +990,12 @@ namespace spr {
                       spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
                   if (debug) {
                     if (parentItr != SimTk->end())
-                      edm::LogVerbatim("IsoTrack") << "original parent of " << simTrkItr->trackId() << " " << parentItr->trackId() << ", " << parentItr->type() << " Energy " << hit[ihit]->energy();
+                      edm::LogVerbatim("IsoTrack")
+                          << "original parent of " << simTrkItr->trackId() << " " << parentItr->trackId() << ", "
+                          << parentItr->type() << " Energy " << hit[ihit]->energy();
                     else
-                      edm::LogVerbatim("IsoTrack") << "original parent of " << simTrkItr->trackId() << " not found; Energy " << hit[ihit]->energy();
+                      edm::LogVerbatim("IsoTrack") << "original parent of " << simTrkItr->trackId()
+                                                   << " not found; Energy " << hit[ihit]->energy();
                   }
                   if (parentItr == SimTk->end()) {
                     energyRest = hit[ihit]->energy();
@@ -1053,24 +1090,31 @@ namespace spr {
     simInfo.rest = detRest;
     simInfo.all = detAll;
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "CaloSimInfo:: for particle " << simInfo.pdgId << "\n" << "All detIds " << detAll.size();
+      edm::LogVerbatim("IsoTrack") << "CaloSimInfo:: for particle " << simInfo.pdgId << "\n"
+                                   << "All detIds " << detAll.size();
       for (unsigned int k = 0; k < detAll.size(); ++k)
-        edm::LogVerbatim("IsoTrack") << k << " detId 0x" << std::hex << detAll[k].first.rawId() << std::dec << detAll[k].second;
+        edm::LogVerbatim("IsoTrack") << k << " detId 0x" << std::hex << detAll[k].first.rawId() << std::dec
+                                     << detAll[k].second;
       edm::LogVerbatim("IsoTrack") << "Matched detIds" << detSum.size();
       for (unsigned int k = 0; k < detSum.size(); ++k)
-        edm::LogVerbatim("IsoTrack") << k << " detId 0x" << std::hex << detSum[k].first.rawId() << std::dec << detSum[k].second;
+        edm::LogVerbatim("IsoTrack") << k << " detId 0x" << std::hex << detSum[k].first.rawId() << std::dec
+                                     << detSum[k].second;
       edm::LogVerbatim("IsoTrack") << "Gamma detIds" << detGamma.size();
       for (unsigned int k = 0; k < detGamma.size(); ++k)
-        edm::LogVerbatim("IsoTrack") << k << " detId 0x" << std::hex << detGamma[k].first.rawId() << std::dec << detGamma[k].second;
+        edm::LogVerbatim("IsoTrack") << k << " detId 0x" << std::hex << detGamma[k].first.rawId() << std::dec
+                                     << detGamma[k].second;
       edm::LogVerbatim("IsoTrack") << "Charged detIds" << detSum.size();
       for (unsigned int k = 0; k < detCharged.size(); ++k)
-        edm::LogVerbatim("IsoTrack") << k << " detId 0x" << std::hex << detCharged[k].first.rawId() << std::dec << detCharged[k].second;
+        edm::LogVerbatim("IsoTrack") << k << " detId 0x" << std::hex << detCharged[k].first.rawId() << std::dec
+                                     << detCharged[k].second;
       edm::LogVerbatim("IsoTrack") << "Neutral detIds" << detNeutral.size();
       for (unsigned int k = 0; k < detNeutral.size(); ++k)
-        edm::LogVerbatim("IsoTrack") << k << " detId 0x" << std::hex << detNeutral[k].first.rawId() << std::dec << detNeutral[k].second;
+        edm::LogVerbatim("IsoTrack") << k << " detId 0x" << std::hex << detNeutral[k].first.rawId() << std::dec
+                                     << detNeutral[k].second;
       edm::LogVerbatim("IsoTrack") << "Rest detIds" << detRest.size();
       for (unsigned int k = 0; k < detRest.size(); ++k)
-        edm::LogVerbatim("IsoTrack") << k << " detId 0x" << std::hex << detRest[k].first.rawId() << std::dec << detRest[k].second;
+        edm::LogVerbatim("IsoTrack") << k << " detId 0x" << std::hex << detRest[k].first.rawId() << std::dec
+                                     << detRest[k].second;
     }
     return simInfo;
   }
@@ -1088,8 +1132,10 @@ namespace spr {
                                                          bool flag,
                                                          bool debug) {
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "Processing missedECALHits " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << " and Flag " << flag;
-      edm::LogVerbatim("IsoTrack") << "trkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize();
+      edm::LogVerbatim("IsoTrack") << "Processing missedECALHits " << 2 * ieta + 1 << "x" << 2 * iphi + 1
+                                   << " and Flag " << flag;
+      edm::LogVerbatim("IsoTrack") << "trkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits "
+                                   << pTrack->recHitsSize();
     }
 
     std::vector<typename T::const_iterator> ecalHits;
@@ -1115,8 +1161,10 @@ namespace spr {
                                                          bool includeHO,
                                                          bool debug) {
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "Processing missedHCALHits " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << " and Flag " << flag;
-      edm::LogVerbatim("IsoTrack") << "trkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize();
+      edm::LogVerbatim("IsoTrack") << "Processing missedHCALHits " << 2 * ieta + 1 << "x" << 2 * iphi + 1
+                                   << " and Flag " << flag;
+      edm::LogVerbatim("IsoTrack") << "trkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits "
+                                   << pTrack->recHitsSize();
     }
 
     std::vector<typename T::const_iterator> hit;
@@ -1136,7 +1184,7 @@ namespace spr {
                                                          bool debug) {
     std::vector<typename T::const_iterator> missedHits;
     std::vector<typename T::const_iterator> usedHits;
-    if (matchedId.size() > 0) {
+    if (!matchedId.empty()) {
       typename T::const_iterator ihit;
       for (ihit = hits->begin(); ihit != hits->end(); ihit++) {
         int id = ihit->geantTrackId();
