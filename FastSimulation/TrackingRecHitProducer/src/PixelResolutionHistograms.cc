@@ -184,7 +184,8 @@ std::vector<double> PixelResolutionHistograms::getBinEdges(TAxis* axis) {
 //------------------------------------------------------------------------------
 // Sanity check for histograms
 //------------------------------------------------------------------------------
-inline bool PixelResolutionHistograms::histCheck(TH1F* hist, std::string histname, bool ignore_single, bool ignore_qBit, const int& statusToSet) {
+inline bool PixelResolutionHistograms::histCheck(
+    TH1F* hist, std::string histname, bool ignore_single, bool ignore_qBit, const int& statusToSet) {
   std::cout << histname << std::endl;
   if (!hist) {
     if (!ignore_single && !ignore_qBit) {
@@ -194,10 +195,11 @@ inline bool PixelResolutionHistograms::histCheck(TH1F* hist, std::string histnam
     }
     return false;
   } else {
-    LOGDEBUG << "Found histo " << std::string(histname) << " with title = " << std::string(hist->GetTitle()) << std::endl;
+    LOGDEBUG << "Found histo " << std::string(histname) << " with title = " << std::string(hist->GetTitle())
+             << std::endl;
     if (hist->GetEntries() < 5) {
-      LOGINFO << "Histogram " << std::string(histname) << " has only " << hist->GetEntries() << " entries. Trouble ahead."
-              << std::endl;
+      LOGINFO << "Histogram " << std::string(histname) << " has only " << hist->GetEntries()
+              << " entries. Trouble ahead." << std::endl;
     }
     return true;
   }
@@ -284,8 +286,8 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
 
   if (!ignore_multi) {
     //--- Histograms for clusters with multiple pixels hit in a given direction.
-    for (size_t ii = 0; ii < cotbetaEdges.size()-1; ii++) {
-      for (size_t jj = 0; jj < cotalphaEdges.size()-1; jj++) {
+    for (size_t ii = 0; ii < cotbetaEdges.size() - 1; ii++) {
+      for (size_t jj = 0; jj < cotalphaEdges.size() - 1; jj++) {
         sprintf(binstr,
                 "cotbeta %.1f-%.1f cotalpha %.2f-%.2f",
                 cotbetaEdges[ii],
@@ -299,7 +301,8 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
           sprintf(title, "%s qbin %zu npixel>1 X", binstr, kk + 1);
           tmphist = (TH1F*)file_->Get(Form("%s%s", rootdir.c_str(), histo));
 
-          if (!histCheck(tmphist, histo, false, false, 2)) {return;}
+          if (!histCheck(tmphist, histo, false, false, 2))
+            return;
           resMultiPixelXHist_[ii][jj][kk] = tmphist;
           resMultiPixelXGen_[ii][jj][kk] = new SimpleHistogramGenerator(tmphist);
 
@@ -307,7 +310,8 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
           sprintf(title, "%s qbin %zu npixel>1 Y", binstr, kk + 1);
           tmphist = (TH1F*)file_->Get(Form("%s%s", rootdir.c_str(), histo));
 
-          if (!histCheck(tmphist, histo, false, false, 3)) {return;}
+          if (!histCheck(tmphist, histo, false, false, 3))
+            return;
           resMultiPixelYHist_[ii][jj][kk] = tmphist;
           resMultiPixelYGen_[ii][jj][kk] = new SimpleHistogramGenerator(tmphist);
         }
@@ -319,7 +323,8 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
         sprintf(title, "%s npixel=1 X", binstr);
         tmphist = (TH1F*)file_->Get(Form("%s%s", rootdir.c_str(), histo));
 
-        if (!histCheck(tmphist, histo, ignore_single, false, 4)) {return;}
+        if (!histCheck(tmphist, histo, ignore_single, false, 4))
+          return;
         resSinglePixelXHist_[ii][jj] = tmphist;
         resSinglePixelXGen_[ii][jj] = new SimpleHistogramGenerator(tmphist);
 
@@ -328,7 +333,8 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
         sprintf(title, "%s npixel=1 Y", binstr);
         tmphist = (TH1F*)file_->Get(Form("%s%s", rootdir.c_str(), histo));
 
-        if (!histCheck(tmphist, histo, ignore_single, false, 5)) {return;}
+        if (!histCheck(tmphist, histo, ignore_single, false, 5))
+          return;
         resSinglePixelYHist_[ii][jj] = tmphist;
         resSinglePixelYGen_[ii][jj] = new SimpleHistogramGenerator(tmphist);
 
@@ -337,7 +343,8 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
         sprintf(title, "%s qbin", binstr);
         tmphist = (TH1F*)file_->Get(Form("%s%s", rootdir.c_str(), histo));
 
-        if (!histCheck(tmphist, histo, false, ignore_qBin, 6)) {return;}
+        if (!histCheck(tmphist, histo, false, ignore_qBin, 6))
+          return;
         qbinHist_[ii][jj] = tmphist;
         qbinGen_[ii][jj] = new SimpleHistogramGenerator(tmphist);
       }
