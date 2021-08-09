@@ -3,10 +3,7 @@
 
 namespace spr {
 
-  spr::EtaPhi getEtaPhi(int ieta,
-                        int iphi,
-                        bool debug) {
-
+  spr::EtaPhi getEtaPhi(int ieta, int iphi, bool debug) {
     int ietal = (ieta - 1) / 2;
     int ietar = ieta - ietal - 1;
     int iphil = (iphi - 1) / 2;
@@ -41,9 +38,12 @@ namespace spr {
     }
 
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "getEtaPhi:: Has " << etaphi.ntrys << " possibilites for " << ieta << "X" << iphi << " matrix";
+      edm::LogVerbatim("IsoTrack") << "getEtaPhi:: Has " << etaphi.ntrys << " possibilites for " << ieta << "X" << iphi
+                                   << " matrix";
       for (int itry = 0; itry < etaphi.ntrys; itry++) {
-        edm::LogVerbatim("IsoTrack") << "Trial " << itry << " with etaE|etaW " << etaphi.ietaE[itry] << "|" << etaphi.ietaW[itry] << " and phiN|PhiS " << etaphi.iphiN[itry] << "|" << etaphi.iphiS[itry];
+        edm::LogVerbatim("IsoTrack") << "Trial " << itry << " with etaE|etaW " << etaphi.ietaE[itry] << "|"
+                                     << etaphi.ietaW[itry] << " and phiN|PhiS " << etaphi.iphiN[itry] << "|"
+                                     << etaphi.iphiS[itry];
       }
     }
     return etaphi;

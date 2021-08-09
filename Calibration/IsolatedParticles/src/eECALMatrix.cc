@@ -35,13 +35,13 @@ namespace spr {
         tt = hit->time();
       }
       if (debug)
-	st1 << " " << tt << " " << en;
+        st1 << " " << tt << " " << en;
       if (tt > tMin && tt < tMax)
         ener += en;
     }
     if (debug) {
       if (!flag)
-	st1 << " detected to be a spike";
+        st1 << " detected to be a spike";
       edm::LogVerbatim("IsoTrack") << st1.str();
     }
     return std::pair<double, bool>(ener, flag);
@@ -89,7 +89,8 @@ namespace spr {
     std::vector<DetId> vdets;
     spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, debug);
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals " << vdets.size();
+      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals "
+                                   << vdets.size();
     bool flag(true);
     for (const auto& id : vdets) {
       if ((id.det() == DetId::Ecal) && (id.subdetId() == EcalBarrel)) {
@@ -120,8 +121,9 @@ namespace spr {
                                       bool debug) {
     std::vector<DetId> vdets;
     spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, debug);
-    if (debug) 
-      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals " << vdets.size();
+    if (debug)
+      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals "
+                                   << vdets.size();
 
     bool flag(true);
     double energySum = 0.0;
@@ -161,9 +163,10 @@ namespace spr {
     CaloTowerDetId tower = ctmap->towerOf(detId);
     std::vector<DetId> ids = ctmap->constituentsOf(tower);
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "eECALmatrix: " << detId << " belongs to " << tower << " which has " << ids.size() << " constituents";
+      edm::LogVerbatim("IsoTrack") << "eECALmatrix: " << detId << " belongs to " << tower << " which has " << ids.size()
+                                   << " constituents";
       for (unsigned int i = 0; i < ids.size(); ++i) {
-	std::ostringstream st1;
+        std::ostringstream st1;
         st1 << "[" << i << "] " << std::hex << ids[i].rawId() << std::dec;
         if (ids[i].det() == DetId::Ecal && ids[i].subdetId() == EcalBarrel) {
           st1 << " " << EBDetId(ids[i]);
@@ -172,9 +175,9 @@ namespace spr {
         } else if (ids[i].det() == DetId::Ecal && ids[i].subdetId() == EcalPreshower) {
           st1 << " " << ESDetId(ids[i]);
         } else if (ids[i].det() == DetId::Hcal) {
-          st1<< " " << HcalDetId(ids[i]);
-	}
-	edm::LogVerbatim("IsoTrack") << st1.str();
+          st1 << " " << HcalDetId(ids[i]);
+        }
+        edm::LogVerbatim("IsoTrack") << st1.str();
       }
     }
 
@@ -193,7 +196,8 @@ namespace spr {
     }
 
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "eECALmatrix: with " << idEBEE.size() << " EB+EE hits and " << "spike flag " << flag;
+      edm::LogVerbatim("IsoTrack") << "eECALmatrix: with " << idEBEE.size() << " EB+EE hits and "
+                                   << "spike flag " << flag;
     double etot = (!idEBEE.empty()) ? spr::energyECAL(idEBEE, hitsEB, hitsEE, ebThr, eeThr, tMin, tMax, debug) : 0;
     return std::pair<double, bool>(etot, flag);
   }

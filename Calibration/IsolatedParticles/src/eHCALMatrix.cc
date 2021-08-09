@@ -20,12 +20,12 @@ namespace spr {
                      double tMin,
                      double tMax,
                      bool debug) {
-
     HcalDetId hcid0(det0.rawId());
     HcalDetId hcid(hcid0.subdet(), hcid0.ieta(), hcid0.iphi(), 1);
     DetId det(hcid.rawId());
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "Inside eHCALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " Inclusion of HO Flag " << includeHO;
+      edm::LogVerbatim("IsoTrack") << "Inside eHCALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1
+                                   << " Inclusion of HO Flag " << includeHO;
 
     double energySum(0);
     std::vector<DetId> dets(1, det);
@@ -45,7 +45,8 @@ namespace spr {
         if (hit[ihit] != hits.end()) {
           khit++;
           if (debug)
-            edm::LogVerbatim("IsoTrack") << "energyHCAL:: Hit " << khit << " " << (HcalDetId)vdets[i] << " E " << hit[ihit]->energy() << " t " << hit[ihit]->time();
+            edm::LogVerbatim("IsoTrack") << "energyHCAL:: Hit " << khit << " " << (HcalDetId)vdets[i] << " E "
+                                         << hit[ihit]->energy() << " t " << hit[ihit]->time();
 
           if (hit[ihit]->time() > tMin && hit[ihit]->time() < tMax) {
             energy += hit[ihit]->energy();
@@ -131,13 +132,13 @@ namespace spr {
                       double tMax,
                       int depthHE,
                       bool debug) {
-
     energyCell.clear();
     int subdet = detId.subdet();
     double eThr = spr::eHCALThreshold(subdet, hbThr, heThr, hfThr, hoThr);
     bool hbhe = (detId.ietaAbs() == 16);
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "energyHCALCell: input ID " << detId << " MaxDepth " << maxDepth << " Threshold (E) " << eThr << " (T) " << tMin << ":" << tMax;
+      edm::LogVerbatim("IsoTrack") << "energyHCALCell: input ID " << detId << " MaxDepth " << maxDepth
+                                   << " Threshold (E) " << eThr << " (T) " << tMin << ":" << tMax;
 
     for (int i = 0; i < maxDepth; i++) {
       HcalSubdetector subdet0 = (hbhe) ? ((i + 1 >= depthHE) ? HcalEndcap : HcalBarrel) : detId.subdet();
@@ -149,11 +150,13 @@ namespace spr {
         if (hit[ihit]->time() > tMin && hit[ihit]->time() < tMax)
           energy += hit[ihit]->energy();
         if (debug)
-          edm::LogVerbatim("IsoTrack") << "energyHCALCell:: Hit[" << ihit << "] " << hcid << " E " << hit[ihit]->energy() << " t " << hit[ihit]->time();
+          edm::LogVerbatim("IsoTrack") << "energyHCALCell:: Hit[" << ihit << "] " << hcid << " E "
+                                       << hit[ihit]->energy() << " t " << hit[ihit]->time();
       }
 
       if (debug)
-        edm::LogVerbatim("IsoTrack") << "energyHCALCell:: Cell " << hcid << " E " << energy << " from " << hit.size() << " threshold " << eThr;
+        edm::LogVerbatim("IsoTrack") << "energyHCALCell:: Cell " << hcid << " E " << energy << " from " << hit.size()
+                                     << " threshold " << eThr;
       if (energy > eThr && !hit.empty()) {
         energyCell.push_back(std::pair<double, int>(energy, i + 1));
       }

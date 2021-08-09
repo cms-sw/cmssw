@@ -10,7 +10,6 @@ namespace spr {
                  math::XYZPoint leadPV,
                  spr::trackSelectionParameters parameters,
                  bool debug) {
-
     bool select = pTrack->quality(parameters.minQuality);
     double dxy = pTrack->dxy(leadPV);
     double dz = pTrack->dz(leadPV);
@@ -19,7 +18,8 @@ namespace spr {
       dpbyp = std::abs(pTrack->qoverpError() / pTrack->qoverp());
 
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "Track:: Pt " << pTrack->pt() << " dxy " << dxy << " dz " << dz << " Chi2 " << pTrack->normalizedChi2() << " dpbyp " << dpbyp << " Quality " << select;
+      edm::LogVerbatim("IsoTrack") << "Track:: Pt " << pTrack->pt() << " dxy " << dxy << " dz " << dz << " Chi2 "
+                                   << pTrack->normalizedChi2() << " dpbyp " << dpbyp << " Quality " << select;
 
     if (pTrack->pt() < parameters.minPt)
       select = false;
@@ -39,12 +39,13 @@ namespace spr {
         select = false;
 
       if (debug) {
-        edm::LogVerbatim("IsoTrack") << "Default Hit Pattern with " << hitp.numberOfAllHits(reco::HitPattern::TRACK_HITS) << " hits";
+        edm::LogVerbatim("IsoTrack") << "Default Hit Pattern with "
+                                     << hitp.numberOfAllHits(reco::HitPattern::TRACK_HITS) << " hits";
         for (int i = 0; i < hitp.numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) {
-	  std::ostringstream st1;
-	  hitp.printHitPattern(reco::HitPattern::TRACK_HITS, i, st1);
-	  edm::LogVerbatim("IsoTrack") << st1.str();
-	}
+          std::ostringstream st1;
+          hitp.printHitPattern(reco::HitPattern::TRACK_HITS, i, st1);
+          edm::LogVerbatim("IsoTrack") << st1.str();
+        }
       }
     }
     if (parameters.maxInMiss >= 0) {
@@ -52,12 +53,13 @@ namespace spr {
       if (hitp.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS) > parameters.maxInMiss)
         select = false;
       if (debug) {
-        edm::LogVerbatim("IsoTrack") << "Inner Hit Pattern with " << hitp.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS) << " hits";
+        edm::LogVerbatim("IsoTrack") << "Inner Hit Pattern with "
+                                     << hitp.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS) << " hits";
         for (int i = 0; i < hitp.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS); i++) {
-	  std::ostringstream st1;
+          std::ostringstream st1;
           hitp.printHitPattern(reco::HitPattern::MISSING_INNER_HITS, i, st1);
-	  edm::LogVerbatim("IsoTrack") << st1.str();
-	}
+          edm::LogVerbatim("IsoTrack") << st1.str();
+        }
       }
     }
     if (parameters.maxOutMiss >= 0) {
@@ -65,12 +67,13 @@ namespace spr {
       if (hitp.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS) > parameters.maxOutMiss)
         select = false;
       if (debug) {
-        edm::LogVerbatim("IsoTrack") << "Outer Hit Pattern with " << hitp.numberOfAllHits(reco::HitPattern::MISSING_OUTER_HITS) << " hits";
+        edm::LogVerbatim("IsoTrack") << "Outer Hit Pattern with "
+                                     << hitp.numberOfAllHits(reco::HitPattern::MISSING_OUTER_HITS) << " hits";
         for (int i = 0; i < hitp.numberOfAllHits(reco::HitPattern::MISSING_OUTER_HITS); i++) {
-	  std::ostringstream st1;
-	  hitp.printHitPattern(reco::HitPattern::MISSING_OUTER_HITS, i, st1);
-	  edm::LogVerbatim("IsoTrack") << st1.str();
-	}
+          std::ostringstream st1;
+          hitp.printHitPattern(reco::HitPattern::MISSING_OUTER_HITS, i, st1);
+          edm::LogVerbatim("IsoTrack") << st1.str();
+        }
       }
     }
     if (debug)

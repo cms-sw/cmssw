@@ -13,7 +13,6 @@ namespace spr {
                                                          const reco::Track* pTrack,
                                                          TrackerHitAssociator& associate,
                                                          bool debug) {
-
     edm::SimTrackContainer::const_iterator itr = SimTk->end();
     ;
 
@@ -62,7 +61,8 @@ namespace spr {
         if (simTrkItr->trackId() == matchSimTrk) {
           matchedId = simTrkItr->type();
           if (debug)
-            edm::LogVerbatim("IsoTrack") << "matched trackId (maximum occurance) " << matchSimTrk << " type " << matchedId;
+            edm::LogVerbatim("IsoTrack") << "matched trackId (maximum occurance) " << matchSimTrk << " type "
+                                         << matchedId;
           itr = simTrkItr;
           break;
         }
@@ -87,7 +87,8 @@ namespace spr {
         spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
     unsigned int matchSimTrk = trkInfo->trackId();
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "matchedSimTrackId finds the SimTrk ID of the current track to be " << matchSimTrk;
+      edm::LogVerbatim("IsoTrack") << "matchedSimTrackId finds the SimTrk ID of the current track to be "
+                                   << matchSimTrk;
     std::vector<int> matchTkid;
     if (trkInfo->type() != 0) {
       for (auto simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
@@ -113,7 +114,8 @@ namespace spr {
           edm::SimTrackContainer::const_iterator parentItr = spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
           if (debug) {
             if (parentItr != SimTk->end())
-              edm::LogVerbatim("IsoTrack") << "original parent of " << simTrkItr->trackId() << " " << parentItr->trackId() << ", " << parentItr->type();
+              edm::LogVerbatim("IsoTrack") << "original parent of " << simTrkItr->trackId() << " "
+                                           << parentItr->trackId() << ", " << parentItr->type();
             else
               edm::LogVerbatim("IsoTrack") << "original parent of " << simTrkItr->trackId() << " not found";
           }
@@ -136,7 +138,8 @@ namespace spr {
                      edm::Handle<edm::SimVertexContainer>& SimVtx,
                      bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "Inside validSimTrack: trackId " << thisTrkItr->trackId() << " vtxIndex " << thisTrkItr->vertIndex() << " to be matched to " << simTkId;
+      edm::LogVerbatim("IsoTrack") << "Inside validSimTrack: trackId " << thisTrkItr->trackId() << " vtxIndex "
+                                   << thisTrkItr->vertIndex() << " to be matched to " << simTkId;
 
     //This track originates from simTkId
     if (thisTrkItr->trackId() == simTkId)
@@ -187,7 +190,8 @@ namespace spr {
 
     int vertIndex = thisTrkItr->vertIndex();
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "SimTrackParent " << thisTrkItr->trackId() << " Vertex " << vertIndex << " Type " << thisTrkItr->type() << " Charge " << static_cast<int>(thisTrkItr->charge());
+      edm::LogVerbatim("IsoTrack") << "SimTrackParent " << thisTrkItr->trackId() << " Vertex " << vertIndex << " Type "
+                                   << thisTrkItr->type() << " Charge " << static_cast<int>(thisTrkItr->charge());
     if (vertIndex == -1)
       return thisTrkItr;
     else if (vertIndex >= static_cast<int>(SimVtx->size()))

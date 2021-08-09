@@ -10,7 +10,6 @@ namespace spr {
                                 const GlobalVector& caloVector,
                                 const GlobalPoint& rechitPoint,
                                 bool debug) {
-
     const GlobalVector caloIntersectVector(caloPoint.x(), caloPoint.y(),
                                            caloPoint.z());  //p
 
@@ -25,7 +24,9 @@ namespace spr {
         effectiveRechitVector.x(), effectiveRechitVector.y(), effectiveRechitVector.z());
     GlobalVector distance_vector = effectiveRechitPoint - caloPoint;
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "getDistInPlaneTrackDir: point " << caloPoint << " dirn " << caloVector << " numerator " << dotprod_numerator << " denominator " << dotprod_denominator << " distance " << distance_vector.mag();
+      edm::LogVerbatim("IsoTrack") << "getDistInPlaneTrackDir: point " << caloPoint << " dirn " << caloVector
+                                   << " numerator " << dotprod_numerator << " denominator " << dotprod_denominator
+                                   << " distance " << distance_vector.mag();
     }
     if (dotprod_denominator > 0. && dotprod_numerator > 0.) {
       return distance_vector.mag();
@@ -35,12 +36,7 @@ namespace spr {
   }
 
   // Not used, but here for reference
-  double getDistInCMatEcal(double eta1,
-                           double phi1,
-                           double eta2,
-                           double phi2,
-                           bool debug) {
-
+  double getDistInCMatEcal(double eta1, double phi1, double eta2, double phi2, bool debug) {
     double dR, Rec;
     if (fabs(eta1) < spr::etaBEEcal)
       Rec = spr::rFrontEB;
@@ -57,17 +53,13 @@ namespace spr {
     else
       dR = 999999.;
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "getDistInCMatEcal: between (" << eta1 << ", " << phi1 << ") and (" << eta2 << ", " << phi2 << " is " << dR;
+      edm::LogVerbatim("IsoTrack") << "getDistInCMatEcal: between (" << eta1 << ", " << phi1 << ") and (" << eta2
+                                   << ", " << phi2 << " is " << dR;
     return dR;
   }
 
   // Not used, but here for reference
-  double getDistInCMatHcal(double eta1,
-                           double phi1,
-                           double eta2,
-                           double phi2,
-                           bool debug) {
-
+  double getDistInCMatHcal(double eta1, double phi1, double eta2, double phi2, bool debug) {
     // Radii and eta from Geometry/HcalCommonData/data/hcalendcapalgo.xml
     // and Geometry/HcalCommonData/data/hcalbarrelalgo.xml
 
@@ -88,7 +80,8 @@ namespace spr {
       dR = 999999.;
     return dR;
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "getDistInCMatHcal: between (" << eta1 << ", " << phi1 << ") and (" << eta2 << ", " << phi2 << " is " << dR;
+      edm::LogVerbatim("IsoTrack") << "getDistInCMatHcal: between (" << eta1 << ", " << phi1 << ") and (" << eta2
+                                   << ", " << phi2 << " is " << dR;
   }
 
   void getEtaPhi(HBHERecHitCollection::const_iterator hit,
