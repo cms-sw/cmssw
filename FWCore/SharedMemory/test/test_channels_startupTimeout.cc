@@ -6,6 +6,7 @@
 #include <string>
 #include <stdio.h>
 #include <cassert>
+#include <thread>
 
 #include "controller.h"
 #include "worker.h"
@@ -23,10 +24,17 @@ int main(int argc, char** argv) {
   int retValue = 0;
   try {
     if (argc > 1) {
-      retValue = worker(argc, argv, WorkerType::kStandard);
+      retValue = worker(argc, argv, WorkerType::kStartupTimeout);
     } else {
       isWorker = false;
-      retValue = controller(argc, argv, 60);
+      retValue = controller(argc, argv, 5);
+    }
+  } catch (cms::Exception const& iException) {
+    if (iException.category() != "ExternalFailed") {
+      throw;
+    } else {
+      std::cout << "expected failure occurred\n";
+      return 0;
     }
   } catch (std::exception const& iException) {
     std::cerr << "Caught exception\n" << iException.what() << "\n";
@@ -42,5 +50,5 @@ int main(int argc, char** argv) {
   } else {
     std::cout << jobType(isWorker) << " failed" << std::endl;
   }
-  return 0;
+  return 1;
 }
