@@ -23,7 +23,8 @@ namespace spr {
     spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, false);
 
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals " << vdets.size();
+      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals "
+                                   << vdets.size();
       spr::debugEcalDets(0, vdets);
     }
 
@@ -48,7 +49,8 @@ namespace spr {
     spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, debug);
 
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals " << vdets.size();
+      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals "
+                                   << vdets.size();
     }
 
     return spr::energyECAL(vdets, hitsEB, hitsEE, ttMap, ebThr, eeThr, tMin, tMax, debug);
@@ -73,7 +75,8 @@ namespace spr {
     spr::matrixECALIds(detId, ietaE, ietaW, iphiN, iphiS, geo, caloTopology, vdets, debug);
 
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrix " << ietaE + ietaW + 1 << "X" << iphiN + iphiS + 1 << " nXtals " << vdets.size();
+      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrix " << ietaE + ietaW + 1 << "X" << iphiN + iphiS + 1
+                                   << " nXtals " << vdets.size();
     }
 
     return spr::energyECAL(vdets, hitsEB, hitsEE, ebThr, eeThr, tMin, tMax, debug);
@@ -307,7 +310,8 @@ namespace spr {
     spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, false);
 
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals " << vdets.size();
+      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals "
+                                   << vdets.size();
       spr::debugEcalDets(0, vdets);
     }
 
@@ -405,7 +409,8 @@ namespace spr {
     std::vector<DetId> vdets = spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, debug);
 
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrixCell " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals " << vdets.size();
+      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrixCell " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals "
+                                   << vdets.size();
     }
 
     return spr::energyECALCell(vdets, hitsEB, hitsEE, ebThr, eeThr, debug);
@@ -446,7 +451,8 @@ namespace spr {
     }
 
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "eECALmatrixTotal:: energy deposit in " << ieta << "X" << iphi << " matrix is " << energySum << " for trial # " << itrym;
+      edm::LogVerbatim("IsoTrack") << "eECALmatrixTotal:: energy deposit in " << ieta << "X" << iphi << " matrix is "
+                                   << energySum << " for trial # " << itrym;
     return std::pair<double, int>(energySum, itrym);
   }
 

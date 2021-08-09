@@ -27,7 +27,8 @@ namespace spr {
     if (vdetIds[trkIndex].okECAL) {
       std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, debug);
       if (debug)
-        edm::LogVerbatim("IsoTrack") << "chargeIsolationEcal:: eta/phi/dets " << ieta << " " << iphi << " " << vdets.size();
+        edm::LogVerbatim("IsoTrack") << "chargeIsolationEcal:: eta/phi/dets " << ieta << " " << iphi << " "
+                                     << vdets.size();
 
       for (unsigned int indx = 0; indx < vdetIds.size(); ++indx) {
         if (indx != trkIndex && vdetIds[indx].ok && vdetIds[indx].okECAL) {
@@ -78,7 +79,8 @@ namespace spr {
             const DetId anyCell = barrelGeom->getClosestCell(point2);
             if (!spr::chargeIsolation(anyCell, vdets)) {
               if (debug)
-                edm::LogVerbatim("IsoTrack") << "chargeIsolationEcal Cell " << (EBDetId)(anyCell) << " pt " << pTrack2->p();
+                edm::LogVerbatim("IsoTrack")
+                    << "chargeIsolationEcal Cell " << (EBDetId)(anyCell) << " pt " << pTrack2->p();
               if (maxNearP < pTrack2->p())
                 maxNearP = pTrack2->p();
             }
@@ -87,7 +89,8 @@ namespace spr {
               const DetId anyCell = endcapGeom->getClosestCell(point2);
               if (!spr::chargeIsolation(anyCell, vdets)) {
                 if (debug)
-                  edm::LogVerbatim("IsoTrack") << "chargeIsolationEcal Cell " << (EEDetId)(anyCell) << " pt " << pTrack2->p();
+                  edm::LogVerbatim("IsoTrack")
+                      << "chargeIsolationEcal Cell " << (EEDetId)(anyCell) << " pt " << pTrack2->p();
                 if (maxNearP < pTrack2->p())
                   maxNearP = pTrack2->p();
               }
@@ -114,7 +117,8 @@ namespace spr {
     if (vdetIds[trkIndex].okHCAL) {
       std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, false, debug);
       if (debug)
-        edm::LogVerbatim("IsoTrack") << "chargeIsolationHcal:: eta/phi/dets " << ieta << " " << iphi << " " << vdets.size();
+        edm::LogVerbatim("IsoTrack") << "chargeIsolationHcal:: eta/phi/dets " << ieta << " " << iphi << " "
+                                     << vdets.size();
 
       for (unsigned indx = 0; indx < vdetIds.size(); ++indx) {
         if (indx != trkIndex && vdetIds[indx].ok && vdetIds[indx].okHCAL) {
@@ -122,7 +126,8 @@ namespace spr {
           if (!spr::chargeIsolation(anyCell, vdets)) {
             const reco::Track* pTrack = &(*(vdetIds[indx].trkItr));
             if (debug)
-              edm::LogVerbatim("IsoTrack") << "chargeIsolationHcal Cell " << (HcalDetId)(anyCell) << " pt " << pTrack->p();
+              edm::LogVerbatim("IsoTrack")
+                  << "chargeIsolationHcal Cell " << (HcalDetId)(anyCell) << " pt " << pTrack->p();
             if (maxNearP < pTrack->p())
               maxNearP = pTrack->p();
           }
@@ -151,7 +156,8 @@ namespace spr {
 
     if (debug) {
       for (unsigned int i = 0; i < vdets.size(); i++) {
-        edm::LogVerbatim("IsoTrack") << "HcalDetId in " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << " " << static_cast<HcalDetId>(vdets[i]);
+        edm::LogVerbatim("IsoTrack") << "HcalDetId in " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << " "
+                                     << static_cast<HcalDetId>(vdets[i]);
       }
     }
 
@@ -168,7 +174,8 @@ namespace spr {
         const GlobalPoint point2(info.first.x(), info.first.y(), info.first.z());
 
         if (debug)
-          edm::LogVerbatim("IsoTrack") << "Track2 (p,eta,phi) " << pTrack2->p() << " " << pTrack2->eta() << " " << pTrack2->phi();
+          edm::LogVerbatim("IsoTrack") << "Track2 (p,eta,phi) " << pTrack2->p() << " " << pTrack2->eta() << " "
+                                       << pTrack2->phi();
         if (info.second) {
           const DetId anyCell = gHB->getClosestCell(point2);
           if (!spr::chargeIsolation(anyCell, vdets)) {
@@ -177,7 +184,9 @@ namespace spr {
           }
 
           if (debug)
-            edm::LogVerbatim("IsoTrack") << "maxNearP " << maxNearP << " thisCell " << static_cast<HcalDetId>(anyCell) << " (" << info.first.x() << "," << info.first.y() << "," << info.first.z() << ")";
+            edm::LogVerbatim("IsoTrack") << "maxNearP " << maxNearP << " thisCell " << static_cast<HcalDetId>(anyCell)
+                                         << " (" << info.first.x() << "," << info.first.y() << "," << info.first.z()
+                                         << ")";
         }
       }
     }
@@ -284,7 +293,8 @@ namespace spr {
     }
 
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "chargeIsolationCone Track " << trkDirs[trkIndex].okHCAL << " maxNearP " << maxNearP;
+      edm::LogVerbatim("IsoTrack") << "chargeIsolationCone Track " << trkDirs[trkIndex].okHCAL << " maxNearP "
+                                   << maxNearP;
     return maxNearP;
   }
 
@@ -312,7 +322,8 @@ namespace spr {
     }
 
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "chargeIsolationCone Track " << trkDirs[trkIndex].okHCAL << " maxNearP " << maxNearP << ":" << sumP;
+      edm::LogVerbatim("IsoTrack") << "chargeIsolationCone Track " << trkDirs[trkIndex].okHCAL << " maxNearP "
+                                   << maxNearP << ":" << sumP;
     return std::pair<double, double>(maxNearP, sumP);
   }
 
@@ -341,7 +352,6 @@ namespace spr {
                          int iphi,
                          const std::string& theTrackQuality,
                          bool debug) {
-
     double maxNearP = -1.0;
     reco::TrackBase::TrackQuality trackQuality_ = reco::TrackBase::qualityByName(theTrackQuality);
 
@@ -361,7 +371,8 @@ namespace spr {
           if (std::abs(point2.eta()) < spr::etaBEEcal) {
             const DetId anyCell = gEB->getClosestCell(point2);
             if (debug)
-              edm::LogVerbatim("IsoTrack") << "chargeIsolation:: EB cell " << (EBDetId)(anyCell) << " for pt " << pTrack2->p();
+              edm::LogVerbatim("IsoTrack")
+                  << "chargeIsolation:: EB cell " << (EBDetId)(anyCell) << " for pt " << pTrack2->p();
             if (!spr::chargeIsolation(anyCell, theNavigator, ieta, iphi)) {
               if (maxNearP < pTrack2->p())
                 maxNearP = pTrack2->p();
@@ -369,7 +380,8 @@ namespace spr {
           } else {
             const DetId anyCell = gEE->getClosestCell(point2);
             if (debug)
-              edm::LogVerbatim("IsoTrack") << "chargeIsolation:: EE cell " << (EEDetId)(anyCell) << " for pt " << pTrack2->p();
+              edm::LogVerbatim("IsoTrack")
+                  << "chargeIsolation:: EE cell " << (EEDetId)(anyCell) << " for pt " << pTrack2->p();
             if (!spr::chargeIsolation(anyCell, theNavigator, ieta, iphi)) {
               if (maxNearP < pTrack2->p())
                 maxNearP = pTrack2->p();
@@ -445,7 +457,8 @@ namespace spr {
           if (std::abs(point2.eta()) < spr::etaBEEcal) {
             const DetId anyCell = barrelGeom->getClosestCell(point2);
             if (debug)
-              edm::LogVerbatim("IsoTrack") << "chargeIsolation:: EB cell " << (EBDetId)(anyCell) << " for pt " << pTrack2->p();
+              edm::LogVerbatim("IsoTrack")
+                  << "chargeIsolation:: EB cell " << (EBDetId)(anyCell) << " for pt " << pTrack2->p();
             if (!spr::chargeIsolation(anyCell, vdets)) {
               if (maxNearP < pTrack2->p())
                 maxNearP = pTrack2->p();
@@ -453,7 +466,8 @@ namespace spr {
           } else {
             const DetId anyCell = endcapGeom->getClosestCell(point2);
             if (debug)
-              edm::LogVerbatim("IsoTrack") << "chargeIsolation:: EE cell " << (EEDetId)(anyCell) << " for pt " << pTrack2->p();
+              edm::LogVerbatim("IsoTrack")
+                  << "chargeIsolation:: EE cell " << (EEDetId)(anyCell) << " for pt " << pTrack2->p();
             if (!spr::chargeIsolation(anyCell, vdets)) {
               if (maxNearP < pTrack2->p())
                 maxNearP = pTrack2->p();
@@ -488,7 +502,8 @@ namespace spr {
 
     if (debug) {
       for (unsigned int i = 0; i < vdets.size(); i++) {
-        edm::LogVerbatim("IsoTrack") << "HcalDetId in " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << " " << static_cast<HcalDetId>(vdets[i]);
+        edm::LogVerbatim("IsoTrack") << "HcalDetId in " << 2 * ieta + 1 << "x" << 2 * iphi + 1 << " "
+                                     << static_cast<HcalDetId>(vdets[i]);
       }
     }
 
@@ -507,18 +522,22 @@ namespace spr {
         const GlobalPoint point2(info2.trkGlobPosAtHcal.x(), info2.trkGlobPosAtHcal.y(), info2.trkGlobPosAtHcal.z());
 
         if (debug)
-          edm::LogVerbatim("IsoTrack") << "Track2 (p,eta,phi) " << pTrack2->p() << " " << pTrack2->eta() << " " << pTrack2->phi();
+          edm::LogVerbatim("IsoTrack") << "Track2 (p,eta,phi) " << pTrack2->p() << " " << pTrack2->eta() << " "
+                                       << pTrack2->phi();
 
         if (info2.isGoodHcal) {
           const DetId anyCell = gHB->getClosestCell(point2);
           if (debug)
-            edm::LogVerbatim("IsoTrack") << "chargeIsolation:: HCAL cell " << static_cast<HcalDetId>(anyCell) << " for pt " << pTrack2->p();
+            edm::LogVerbatim("IsoTrack") << "chargeIsolation:: HCAL cell " << static_cast<HcalDetId>(anyCell)
+                                         << " for pt " << pTrack2->p();
           if (!spr::chargeIsolation(anyCell, vdets)) {
             if (maxNearP < pTrack2->p())
               maxNearP = pTrack2->p();
           }
           if (debug) {
-            edm::LogVerbatim("IsoTrack") << "maxNearP " << maxNearP << " thisCell " << static_cast<HcalDetId>(anyCell) << " (" << info2.trkGlobPosAtHcal.x() << "," << info2.trkGlobPosAtHcal.y() << "," << info2.trkGlobPosAtHcal.z() << ")";
+            edm::LogVerbatim("IsoTrack") << "maxNearP " << maxNearP << " thisCell " << static_cast<HcalDetId>(anyCell)
+                                         << " (" << info2.trkGlobPosAtHcal.x() << "," << info2.trkGlobPosAtHcal.y()
+                                         << "," << info2.trkGlobPosAtHcal.z() << ")";
           }
         }
       }

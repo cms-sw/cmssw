@@ -52,7 +52,9 @@ namespace spr {
       }
       double tmp1 = dist / CLHEP::c_light / CLHEP::ns;
 
-      edm::LogVerbatim("IsoTrack") << "Detector " << det << "/" << subdet << " Eta/Theta " << eta << "/" << theta / CLHEP::deg << " Dist " << dist / CLHEP::cm << " R " << R << " TOF " << tmp << ":" << tmp1;
+      edm::LogVerbatim("IsoTrack") << "Detector " << det << "/" << subdet << " Eta/Theta " << eta << "/"
+                                   << theta / CLHEP::deg << " Dist " << dist / CLHEP::cm << " R " << R << " TOF " << tmp
+                                   << ":" << tmp1;
     }
     return tmp;
   }
