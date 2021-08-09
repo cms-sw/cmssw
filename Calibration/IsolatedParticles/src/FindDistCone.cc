@@ -1,10 +1,7 @@
 #include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-
-#include <iostream>
-
-//#define EDM_ML_DEBUG
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace spr {
 
@@ -12,11 +9,7 @@ namespace spr {
   double getDistInPlaneTrackDir(const GlobalPoint& caloPoint,
                                 const GlobalVector& caloVector,
                                 const GlobalPoint& rechitPoint,
-                                bool
-#ifdef EDM_ML_DEBUG
-                                    debug
-#endif
-  ) {
+                                bool debug) {
 
     const GlobalVector caloIntersectVector(caloPoint.x(), caloPoint.y(),
                                            caloPoint.z());  //p
@@ -31,13 +24,9 @@ namespace spr {
     const GlobalPoint effectiveRechitPoint(
         effectiveRechitVector.x(), effectiveRechitVector.y(), effectiveRechitVector.z());
     GlobalVector distance_vector = effectiveRechitPoint - caloPoint;
-#ifdef EDM_ML_DEBUG
     if (debug) {
-      std::cout << "getDistInPlaneTrackDir: point " << caloPoint << " dirn " << caloVector << " numerator "
-                << dotprod_numerator << " denominator " << dotprod_denominator << " distance " << distance_vector.mag()
-                << std::endl;
+      edm::LogVerbatim("IsoTrack") << "getDistInPlaneTrackDir: point " << caloPoint << " dirn " << caloVector << " numerator " << dotprod_numerator << " denominator " << dotprod_denominator << " distance " << distance_vector.mag();
     }
-#endif
     if (dotprod_denominator > 0. && dotprod_numerator > 0.) {
       return distance_vector.mag();
     } else {
@@ -50,11 +39,7 @@ namespace spr {
                            double phi1,
                            double eta2,
                            double phi2,
-                           bool
-#ifdef EDM_ML_DEBUG
-                               debug
-#endif
-  ) {
+                           bool debug) {
 
     double dR, Rec;
     if (fabs(eta1) < spr::etaBEEcal)
@@ -71,11 +56,8 @@ namespace spr {
       dR = fabs(Rec * ce1 * sqrt(1. / z / z - 1.));
     else
       dR = 999999.;
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "getDistInCMatEcal: between (" << eta1 << ", " << phi1 << ") and (" << eta2 << ", " << phi2 << " is "
-                << dR << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "getDistInCMatEcal: between (" << eta1 << ", " << phi1 << ") and (" << eta2 << ", " << phi2 << " is " << dR;
     return dR;
   }
 
@@ -84,11 +66,7 @@ namespace spr {
                            double phi1,
                            double eta2,
                            double phi2,
-                           bool
-#ifdef EDM_ML_DEBUG
-                               debug
-#endif
-  ) {
+                           bool debug) {
 
     // Radii and eta from Geometry/HcalCommonData/data/hcalendcapalgo.xml
     // and Geometry/HcalCommonData/data/hcalbarrelalgo.xml
@@ -109,11 +87,8 @@ namespace spr {
     else
       dR = 999999.;
     return dR;
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "getDistInCMatHcal: between (" << eta1 << ", " << phi1 << ") and (" << eta2 << ", " << phi2 << " is "
-                << dR << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "getDistInCMatHcal: between (" << eta1 << ", " << phi1 << ") and (" << eta2 << ", " << phi2 << " is " << dR;
   }
 
   void getEtaPhi(HBHERecHitCollection::const_iterator hit,
