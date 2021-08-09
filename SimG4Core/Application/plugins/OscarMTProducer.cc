@@ -1,4 +1,11 @@
-#include "OscarMTProducer.h"
+#include <iostream>
+#include <memory>
+
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -10,12 +17,16 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
+#include "SimG4Core/Application/interface/OscarMTMasterThread.h"
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
+
+#include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/G4SimEvent.h"
+
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
+
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -25,8 +36,29 @@
 
 #include "Randomize.hh"
 
-#include <iostream>
-#include <memory>
+// for some reason void doesn't compile
+class OscarMTProducer : public edm::stream::EDProducer<edm::GlobalCache<OscarMTMasterThread>, edm::RunCache<int> > {
+public:
+  typedef std::vector<std::shared_ptr<SimProducer> > Producers;
+
+  explicit OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread*);
+  ~OscarMTProducer() override;
+
+  static std::unique_ptr<OscarMTMasterThread> initializeGlobalCache(const edm::ParameterSet& iConfig);
+  static std::shared_ptr<int> globalBeginRun(const edm::Run& iRun,
+                                             const edm::EventSetup& iSetup,
+                                             const OscarMTMasterThread* masterThread);
+  static void globalEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const RunContext* iContext);
+  static void globalEndJob(OscarMTMasterThread* masterThread);
+
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+private:
+  std::unique_ptr<RunManagerMTWorker> m_runManagerWorker;
+  const OscarMTMasterThread* m_masterThread = nullptr;
+};
 
 namespace edm {
   class StreamID;

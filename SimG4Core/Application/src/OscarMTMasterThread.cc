@@ -66,8 +66,8 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
       } else if (m_masterThreadState == ThreadState::Destruct) {
         edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Breaking out of state loop";
         if (isG4Alive)
-          throw edm::Exception(edm::errors::LogicError)
-              << "Geant4 is still alive, master thread state must be set to EndRun before Destruct";
+          throw edm::Exception(edm::errors::LogicError) << "OscarMTMasterThread: Geant4 is still alive, master thread "
+                                                           "state must be set to EndRun before Destruct";
         break;
       } else {
         throw edm::Exception(edm::errors::LogicError)
@@ -83,7 +83,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
     m_runManagerMaster.reset();
     G4PhysicalVolumeStore::Clean();
 
-    edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Reseted shared_ptr";
+    edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread: physics and geometry are cleaned";
     lk2.unlock();
     edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread: Master thread is finished";
   });
@@ -161,22 +161,13 @@ void OscarMTMasterThread::stopThread() {
     return;
   }
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread::stopTread: stop main thread";
-
-  // Release our instance of the shared master run manager, so that
-  // the G4 master thread can do the cleanup. Then notify the master
-  // thread, and join it.
   std::unique_lock<std::mutex> lk2(m_threadMutex);
-  m_runManagerMaster.reset();
-  LogDebug("OscarMTMasterThread") << "Main thread: reseted shared_ptr";
-
   m_masterThreadState = ThreadState::Destruct;
   m_masterCanProceed = true;
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread::stopTread: notify";
   m_notifyMasterCv.notify_one();
   lk2.unlock();
-
-  LogDebug("OscarMTMasterThread") << "Main thread: joining master thread";
   m_masterThread.join();
-  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread::stopTread: main thread finished";
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread::stopTread: is done";
   m_stopped = true;
 }
