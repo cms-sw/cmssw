@@ -59,7 +59,6 @@ private:
   void clear();
   void fillEvent(TotemTestHistoClass&);
 
-private:
   //Keep parameters and internal memory
   std::vector<std::string> names;
   int evtnum;

@@ -74,7 +74,6 @@ private:
   void update(const EndOfEvent* evt) override;
   void update(const G4Step* step) override;
 
-private:
   void finish();
 
   int verbosity;
