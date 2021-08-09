@@ -89,14 +89,15 @@ private:
 
   // Resolution binning
   int qbinWidth_;
-  int qbins_;
+  size_t qbins_;
 
   // The dummy histogram to hold the binning, and the two cached axes.
   TH2F* binningHisto_;
   TAxis* cotbetaAxis_;
   TAxis* cotalphaAxis_;
   std::vector<double> getBinEdges(double width, double lowEdge, int nbins);
-  void histCheck(TH1F* hist, std::string histname, const int& statusToSet);
+  std::vector<double> getBinEdges(TAxis* axis);
+  bool histCheck(TH1F* hist, std::string histname, bool ignore_single, bool ignore_qBin, const int& statusToSet);
 
   // Resolution histograms.  I (Petar) tried to dynamically allocate
   // these histograms, but all possible implementations were somewhat
