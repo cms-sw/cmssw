@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
-process = cms.Process('SIM')
+process = cms.Process('SIM',dd4hep)
 
 # import of standard configurations
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -8,7 +9,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('SimG4CMS.HGCalTestBeam.HGCalTB181Oct4XML_cfi')
+process.load("Configuration.Geometry.GeometryDD4hep_cff")
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
 process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
@@ -28,10 +29,10 @@ process.maxEvents = cms.untracked.PSet(
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.HGCalGeom=dict()
-#   process.MessageLogger.SimG4CoreGeometry=dict()
     process.MessageLogger.HGCSim=dict()
     process.MessageLogger.HcalSim=dict()
     process.MessageLogger.HcalTB06BeamSD=dict()
+#    process.MessageLogger.SimG4CoreGeometry=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -56,14 +57,14 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:TBGenSim181Oct1.root'),
+    fileName = cms.untracked.string('file:TBGenSim181Oct1DD4Hep.root'),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
 
 # Additional output definition
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('TBGenSim.root')
+                                   fileName = cms.string('TBGenSimDD4Hep.root')
                                    )
 
 # Other statements
@@ -98,12 +99,14 @@ process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
                              'HGCSensitiveDetector',
                              'HGCalTB1601SensitiveDetector',
                              'HcalTB06BeamDetector']
+process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("SimG4CMS/HGCalTestBeam/data/dd4hep/HGCalTB181Oct1.xml")
+
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 		HGCPassive = cms.PSet(
                     LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'HGCalBeam', 'CMSE'),
-                    MotherName = cms.string('OCMS'),	
-                    IfDD4Hep = cms.bool(False),
-		),
+                    MotherName = cms.string('OCMS'),
+                    IfDD4Hep = cms.bool(True),
+                ),
 		type = cms.string('HGCPassive'),
 		)
 				       )
