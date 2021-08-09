@@ -17,7 +17,9 @@ namespace spr {
                    genSimInfo& info,
                    bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "eGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/" << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi() << " with ieta:iphi " << ieta << ":" << iphi;
+      edm::LogVerbatim("IsoTrack") << "eGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/"
+                                   << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi()
+                                   << " with ieta:iphi " << ieta << ":" << iphi;
 
     std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, false);
     if (debug)
@@ -35,7 +37,9 @@ namespace spr {
                    spr::genSimInfo& info,
                    bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "eGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/" << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi() << " with dR,tMom " << dR << " " << trackMom;
+      edm::LogVerbatim("IsoTrack") << "eGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/"
+                                   << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi()
+                                   << " with dR,tMom " << dR << " " << trackMom;
 
     std::vector<DetId> vdets = spr::matrixECALIds(coreDet, dR, trackMom, geo, caloTopology, false);
     if (debug)
@@ -53,7 +57,9 @@ namespace spr {
                    genSimInfo& info,
                    bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "eGenSimInfo:: For track " << trkItr->momentum().R() << "/" << trkItr->momentum().eta() << "/" << trkItr->momentum().phi() << " with ieta:iphi " << ieta << ":" << iphi;
+      edm::LogVerbatim("IsoTrack") << "eGenSimInfo:: For track " << trkItr->momentum().R() << "/"
+                                   << trkItr->momentum().eta() << "/" << trkItr->momentum().phi() << " with ieta:iphi "
+                                   << ieta << ":" << iphi;
 
     std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, false);
     if (debug)
@@ -71,7 +77,9 @@ namespace spr {
                    spr::genSimInfo& info,
                    bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "eGenSimInfo:: For track " << trkItr->momentum().R() << "/" << trkItr->momentum().eta() << "/" << trkItr->momentum().phi() << " with dR,tMom " << dR << " " << trackMom;
+      edm::LogVerbatim("IsoTrack") << "eGenSimInfo:: For track " << trkItr->momentum().R() << "/"
+                                   << trkItr->momentum().eta() << "/" << trkItr->momentum().phi() << " with dR,tMom "
+                                   << dR << " " << trackMom;
 
     std::vector<DetId> vdets = spr::matrixECALIds(coreDet, dR, trackMom, geo, caloTopology, false);
     if (debug)
@@ -89,7 +97,9 @@ namespace spr {
                    bool includeHO,
                    bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "hGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/" << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi() << " with ieta:iphi " << ieta << ":" << iphi;
+      edm::LogVerbatim("IsoTrack") << "hGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/"
+                                   << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi()
+                                   << " with ieta:iphi " << ieta << ":" << iphi;
 
     std::vector<DetId> dets;
     dets.push_back(coreDet);
@@ -110,7 +120,9 @@ namespace spr {
                    bool includeHO,
                    bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "hGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/" << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi() << " with dR,tMom " << dR << " " << trackMom;
+      edm::LogVerbatim("IsoTrack") << "hGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/"
+                                   << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi()
+                                   << " with dR,tMom " << dR << " " << trackMom;
 
     std::vector<DetId> vdets = spr::matrixHCALIds(coreDet, geo, topology, dR, trackMom, includeHO, false);
     if (debug)
@@ -128,7 +140,9 @@ namespace spr {
                    bool includeHO,
                    bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "hGenSimInfo:: For track " << trkItr->momentum().R() << "/" << trkItr->momentum().eta() << "/" << trkItr->momentum().phi() << " with ieta:iphi " << ieta << ":" << iphi;
+      edm::LogVerbatim("IsoTrack") << "hGenSimInfo:: For track " << trkItr->momentum().R() << "/"
+                                   << trkItr->momentum().eta() << "/" << trkItr->momentum().phi() << " with ieta:iphi "
+                                   << ieta << ":" << iphi;
 
     std::vector<DetId> dets;
     dets.push_back(coreDet);
@@ -149,7 +163,9 @@ namespace spr {
                    bool includeHO,
                    bool debug) {
     if (debug)
-      edm::LogVerbatim("IsoTrack") << "hGenSimInfo:: For track " << trkItr->momentum().R() << "/" << trkItr->momentum().eta() << "/" << trkItr->momentum().phi() << " with dR,tMom " << dR << " " << trackMom;
+      edm::LogVerbatim("IsoTrack") << "hGenSimInfo:: For track " << trkItr->momentum().R() << "/"
+                                   << trkItr->momentum().eta() << "/" << trkItr->momentum().phi() << " with dR,tMom "
+                                   << dR << " " << trackMom;
 
     std::vector<DetId> vdets = spr::matrixHCALIds(coreDet, geo, topology, dR, trackMom, includeHO, false);
     if (debug)
@@ -189,7 +205,11 @@ namespace spr {
     }
 
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "Isolation variables: isChargedIso :" << info.isChargedIso << " maxNearP " << info.maxNearP << " Energy e/mu/g/ch/nh " << info.eleEne << "," << info.muEne << "," << info.photonEne << "," << info.cHadronEne << "," << info.nHadronEne << " charge " << info.cHadronEne_[0] << "," << info.cHadronEne_[1] << "," << info.cHadronEne_[2];
+      edm::LogVerbatim("IsoTrack") << "Isolation variables: isChargedIso :" << info.isChargedIso << " maxNearP "
+                                   << info.maxNearP << " Energy e/mu/g/ch/nh " << info.eleEne << "," << info.muEne
+                                   << "," << info.photonEne << "," << info.cHadronEne << "," << info.nHadronEne
+                                   << " charge " << info.cHadronEne_[0] << "," << info.cHadronEne_[1] << ","
+                                   << info.cHadronEne_[2];
     }
   }
 
@@ -225,7 +245,11 @@ namespace spr {
     }
 
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "Isolation variables: isChargedIso :" << info.isChargedIso << " maxNearP " << info.maxNearP << " Energy e/mu/g/ch/nh " << info.eleEne << "," << info.muEne << "," << info.photonEne << "," << info.cHadronEne << "," << info.nHadronEne << " charge " << info.cHadronEne_[0] << "," << info.cHadronEne_[1] << "," << info.cHadronEne_[2];
+      edm::LogVerbatim("IsoTrack") << "Isolation variables: isChargedIso :" << info.isChargedIso << " maxNearP "
+                                   << info.maxNearP << " Energy e/mu/g/ch/nh " << info.eleEne << "," << info.muEne
+                                   << "," << info.photonEne << "," << info.cHadronEne << "," << info.nHadronEne
+                                   << " charge " << info.cHadronEne_[0] << "," << info.cHadronEne_[1] << ","
+                                   << info.cHadronEne_[2];
     }
   }
 

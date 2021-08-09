@@ -13,7 +13,8 @@ namespace spr {
   std::vector<DetId> matrixHCALIds(
       std::vector<DetId>& dets, const HcalTopology* topology, int ieta, int iphi, bool includeHO, bool debug) {
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "matrixHCALIds::Add " << ieta << " rows and " << iphi << " columns of cells for " << dets.size() << " cells";
+      edm::LogVerbatim("IsoTrack") << "matrixHCALIds::Add " << ieta << " rows and " << iphi << " columns of cells for "
+                                   << dets.size() << " cells";
       spr::debugHcalDets(0, dets);
     }
 
@@ -55,7 +56,8 @@ namespace spr {
     }
 
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "matrixHCALIds::Final List of cells for dR " << dR << " is with " << vdetx.size() << " from original list of " << vdets.size() << " cells";
+      edm::LogVerbatim("IsoTrack") << "matrixHCALIds::Final List of cells for dR " << dR << " is with " << vdetx.size()
+                                   << " from original list of " << vdets.size() << " cells";
       spr::debugHcalDets(0, vdetx);
     }
     return vdetx;
@@ -70,7 +72,8 @@ namespace spr {
                                    bool includeHO,
                                    bool debug) {
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "matrixHCALIds::Add " << ietaE << "|" << ietaW << " rows and " << iphiN << "|" << iphiS << " columns of cells for " << dets.size() << " cells";
+      edm::LogVerbatim("IsoTrack") << "matrixHCALIds::Add " << ietaE << "|" << ietaW << " rows and " << iphiN << "|"
+                                   << iphiS << " columns of cells for " << dets.size() << " cells";
       spr::debugHcalDets(0, dets);
     }
 
@@ -98,7 +101,8 @@ namespace spr {
                                  int iphi,
                                  bool debug) {
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "newHCALIdNS::Add " << iphi << " columns of cells along " << shiftNorth << " for " << (dets.size() - last) << " cells";
+      edm::LogVerbatim("IsoTrack") << "newHCALIdNS::Add " << iphi << " columns of cells along " << shiftNorth << " for "
+                                   << (dets.size() - last) << " cells";
       spr::debugHcalDets(last, dets);
     }
 
@@ -118,7 +122,8 @@ namespace spr {
       }
 
       if (debug) {
-        edm::LogVerbatim("IsoTrack") << "newHCALIdNS::With Added cells along E/W results a set of " << (vdets.size() - dets.size()) << " new  cells";
+        edm::LogVerbatim("IsoTrack") << "newHCALIdNS::With Added cells along E/W results a set of "
+                                     << (vdets.size() - dets.size()) << " new  cells";
         spr::debugHcalDets(dets.size(), vdets);
       }
     }
@@ -153,7 +158,8 @@ namespace spr {
       vdets.insert(vdets.end(), vdetnew.begin(), vdetnew.end());
 
       if (debug) {
-        edm::LogVerbatim("IsoTrack") << "newHCALIdNS::Addition results a set of " << (vdets.size() - last0) << " new  cells";
+        edm::LogVerbatim("IsoTrack") << "newHCALIdNS::Addition results a set of " << (vdets.size() - last0)
+                                     << " new  cells";
         spr::debugHcalDets(last0, vdets);
       }
       last0 = last;
@@ -181,7 +187,8 @@ namespace spr {
                                  int iphiS,
                                  bool debug) {
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "newHCALIdNS::Add " << iphiN << "|" << iphiS << " columns of cells along " << shiftNorth << " for " << (dets.size() - last) << " cells";
+      edm::LogVerbatim("IsoTrack") << "newHCALIdNS::Add " << iphiN << "|" << iphiS << " columns of cells along "
+                                   << shiftNorth << " for " << (dets.size() - last) << " cells";
       spr::debugHcalDets(last, dets);
     }
 
@@ -201,7 +208,8 @@ namespace spr {
       }
 
       if (debug) {
-        edm::LogVerbatim("IsoTrack") << "newHCALIdNS::With Added cells along E/W results a set of " << (vdets.size() - dets.size()) << " new  cells";
+        edm::LogVerbatim("IsoTrack") << "newHCALIdNS::With Added cells along E/W results a set of "
+                                     << (vdets.size() - dets.size()) << " new  cells";
         spr::debugHcalDets(dets.size(), vdets);
       }
     }
@@ -239,7 +247,8 @@ namespace spr {
       vdets.insert(vdets.end(), vdetnew.begin(), vdetnew.end());
 
       if (debug) {
-        edm::LogVerbatim("IsoTrack") << "newHCALIdNS::Addition results a set of " << (vdets.size() - last0) << " new  cells";
+        edm::LogVerbatim("IsoTrack") << "newHCALIdNS::Addition results a set of " << (vdets.size() - last0)
+                                     << " new  cells";
         spr::debugHcalDets(last0, vdets);
       }
       last0 = last;
@@ -264,7 +273,8 @@ namespace spr {
   std::vector<DetId> newHCALIdEW(
       std::vector<DetId>& dets, unsigned int last, const HcalTopology* topology, bool shiftEast, int ieta, bool debug) {
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "newHCALIdEW::Add " << ieta << " rows of cells along " << shiftEast << " for " << (dets.size() - last) << " cells";
+      edm::LogVerbatim("IsoTrack") << "newHCALIdEW::Add " << ieta << " rows of cells along " << shiftEast << " for "
+                                   << (dets.size() - last) << " cells";
       spr::debugHcalDets(last, dets);
     }
 
@@ -286,7 +296,8 @@ namespace spr {
     }
 
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "newHCALIdEW::Addition results a set of " << (vdets.size() - dets.size()) << " new  cells";
+      edm::LogVerbatim("IsoTrack") << "newHCALIdEW::Addition results a set of " << (vdets.size() - dets.size())
+                                   << " new  cells";
       spr::debugHcalDets(dets.size(), vdets);
     }
     if (ieta > 0) {
@@ -309,7 +320,8 @@ namespace spr {
                                  int ietaW,
                                  bool debug) {
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "newHCALIdEW::Add " << ietaE << "|" << ietaW << " rows of cells along " << shiftEast << " for " << (dets.size() - last) << " cells";
+      edm::LogVerbatim("IsoTrack") << "newHCALIdEW::Add " << ietaE << "|" << ietaW << " rows of cells along "
+                                   << shiftEast << " for " << (dets.size() - last) << " cells";
       spr::debugHcalDets(last, dets);
     }
 
@@ -338,7 +350,8 @@ namespace spr {
       ietaW = ieta;
 
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "newHCALIdEW::Addition results a set of " << (vdets.size() - dets.size()) << " new  cells";
+      edm::LogVerbatim("IsoTrack") << "newHCALIdEW::Addition results a set of " << (vdets.size() - dets.size())
+                                   << " new  cells";
       spr::debugHcalDets(dets.size(), vdets);
     }
 
@@ -358,9 +371,9 @@ namespace spr {
                                         const HcalTopology* topology,
                                         bool includeHO,
                                         bool debug) {
-
     if (debug) {
-      edm::LogVerbatim("IsoTrack") << "matrixHCALIdsDepth::Add cells with higher depths with HO" << "Flag set to " << includeHO << " to existing " << dets.size() << " cells";
+      edm::LogVerbatim("IsoTrack") << "matrixHCALIdsDepth::Add cells with higher depths with HO"
+                                   << "Flag set to " << includeHO << " to existing " << dets.size() << " cells";
       spr::debugHcalDets(0, dets);
     }
     std::vector<DetId> vdets(dets);
@@ -373,7 +386,8 @@ namespace spr {
             int n = std::count(vdets.begin(), vdets.end(), vUpDetId[0]);
             if (n == 0) {
               if (debug)
-                edm::LogVerbatim("IsoTrack") << "matrixHCALIdsDepth:: Depth " << idepth << " " << vdet << " " << (HcalDetId)vUpDetId[0];
+                edm::LogVerbatim("IsoTrack")
+                    << "matrixHCALIdsDepth:: Depth " << idepth << " " << vdet << " " << (HcalDetId)vUpDetId[0];
               vdets.push_back(vUpDetId[0]);
             }
           }
