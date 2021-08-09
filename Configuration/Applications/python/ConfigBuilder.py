@@ -1848,7 +1848,7 @@ class ConfigBuilder(object):
             if self._options.restoreRNDSeeds==False and not self._options.restoreRNDSeeds==True:
                 self._options.restoreRNDSeeds=True
 
-        if not 'DIGI' in self.stepMap and not self._options.fast:
+        if not 'DIGI' in self.stepMap and not self._options.isData and not self._options.fast:
             self.executeAndRemember("process.mix.playback = True")
             self.executeAndRemember("process.mix.digitizers = cms.PSet()")
             self.executeAndRemember("for a in process.aliases: delattr(process, a)")
