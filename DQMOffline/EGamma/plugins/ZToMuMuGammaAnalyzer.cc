@@ -78,7 +78,6 @@
 #include <iostream>
 #include <iomanip>
 
-
 class ZToMuMuGammaAnalyzer : public DQMEDAnalyzer {
 public:
   explicit ZToMuMuGammaAnalyzer(const edm::ParameterSet&);
@@ -300,8 +299,6 @@ private:
   MonitorElement* h_SumPtOverPhoPt_NeuHad_unCleaned_[3];
   MonitorElement* h_SumPtOverPhoPt_Pho_unCleaned_[3];
 };
-
-
 
 using namespace std;
 
@@ -1398,14 +1395,14 @@ void ZToMuMuGammaAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& e
           for (unsigned int lCand = 0; lCand < pfCandidateHandle->size(); lCand++) {
             reco::PFCandidateRef pfCandRef(reco::PFCandidateRef(pfCandidateHandle, lCand));
             float dR = deltaR2(aPho->eta(), aPho->phi(), pfCandRef->eta(), pfCandRef->phi());
-            if (dR < 0.4*0.4) {
+            if (dR < 0.4 * 0.4) {
               /// uncleaned
               reco::PFCandidate::ParticleType type = pfCandRef->particleId();
               if (type == reco::PFCandidate::e)
                 continue;
               if (type == reco::PFCandidate::gamma && pfCandRef->mva_nothing_gamma() > 0.)
                 continue;
-	      dR = sqrt(dR);
+              dR = sqrt(dR);
 
               if (type == reco::PFCandidate::h) {
                 SumPtIsoValCh += pfCandRef->pt();
