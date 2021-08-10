@@ -1,15 +1,101 @@
+///////////////////////////////////////////////////////////////////////////////
+// File: ZdcTestAnalysis.cc
+// Date: 03.06 Edmundo Garcia
+// Description: simulation analysis steering code
+//
+///////////////////////////////////////////////////////////////////////////////
+#include "DataFormats/Math/interface/Point3D.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
-#include "DataFormats/Math/interface/Point3D.h"
-
-#include "SimG4CMS/Forward/interface/ZdcTestAnalysis.h"
 #include "SimG4CMS/Forward/interface/ZdcNumberingScheme.h"
 
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
+#include "SimG4Core/Notification/interface/BeginOfRun.h"
+#include "SimG4Core/Notification/interface/EndOfRun.h"
+#include "SimG4Core/Notification/interface/BeginOfEvent.h"
+#include "SimG4Core/Notification/interface/EndOfEvent.h"
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Watcher/interface/SimWatcher.h"
+
+#include "G4SDManager.hh"
+#include "G4Step.hh"
+#include "G4Track.hh"
+#include "G4Event.hh"
+#include "G4PrimaryVertex.hh"
+#include "G4VProcess.hh"
+#include "G4HCofThisEvent.hh"
+#include "G4UserEventAction.hh"
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Random/Randomize.h"
+
+#include "TROOT.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TProfile.h"
+#include "TNtuple.h"
+#include "TRandom.h"
+#include "TLorentzVector.h"
+#include "TUnixSystem.h"
+#include "TSystem.h"
+#include "TMath.h"
+#include "TF1.h"
 #include "TFile.h"
+
+#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <iomanip>
+#include <map>
+#include <string>
+#include <vector>
+
+class ZdcTestAnalysis : public SimWatcher,
+                        public Observer<const BeginOfJob*>,
+                        public Observer<const BeginOfRun*>,
+                        public Observer<const EndOfRun*>,
+                        public Observer<const BeginOfEvent*>,
+                        public Observer<const EndOfEvent*>,
+                        public Observer<const G4Step*> {
+public:
+  ZdcTestAnalysis(const edm::ParameterSet& p);
+  ~ZdcTestAnalysis() override;
+
+private:
+  // observer classes
+  void update(const BeginOfJob* run) override;
+  void update(const BeginOfRun* run) override;
+  void update(const EndOfRun* run) override;
+  void update(const BeginOfEvent* evt) override;
+  void update(const EndOfEvent* evt) override;
+  void update(const G4Step* step) override;
+
+  void finish();
+
+  int verbosity;
+  int doNTzdcstep;
+  int doNTzdcevent;
+  std::string stepNtFileName;
+  std::string eventNtFileName;
+
+  TFile* zdcOutputEventFile;
+  TFile* zdcOutputStepFile;
+
+  TNtuple* zdcstepntuple;
+  TNtuple* zdceventntuple;
+
+  int eventIndex;
+  int stepIndex;
+
+  Float_t zdcsteparray[18];
+  Float_t zdceventarray[16];
+
+  ZdcNumberingScheme* theZdcNumScheme;
+};
 
 enum ntzdcs_elements {
   ntzdcs_evt,
@@ -61,19 +147,18 @@ ZdcTestAnalysis::ZdcTestAnalysis(const edm::ParameterSet& p) {
   eventNtFileName = m_Anal.getParameter<std::string>("EventNtupleFileName");
 
   if (verbosity > 0)
-    std::cout << std::endl;
-  std::cout << "============================================================================" << std::endl;
-  std::cout << "ZdcTestAnalysis:: Initialized as observer" << std::endl;
+    edm::LogVerbatim("ZdcAnalysis") << "\n============================================================================";
+  edm::LogVerbatim("ZdcAnalysis") << "ZdcTestAnalysis:: Initialized as observer";
   if (doNTzdcstep > 0) {
-    std::cout << " Step Ntuple will be created" << std::endl;
-    std::cout << " Step Ntuple file: " << stepNtFileName << std::endl;
+    edm::LogVerbatim("ZdcAnalysis") << " Step Ntuple will be created";
+    edm::LogVerbatim("ZdcAnalysis") << " Step Ntuple file: " << stepNtFileName;
   }
   if (doNTzdcevent > 0) {
-    std::cout << " Event Ntuple will be created" << std::endl;
-    std::cout << " Step Ntuple file: " << stepNtFileName << std::endl;
+    edm::LogVerbatim("ZdcAnalysis") << " Event Ntuple will be created";
+    edm::LogVerbatim("ZdcAnalysis") << " Step Ntuple file: " << stepNtFileName;
   }
-  std::cout << "============================================================================" << std::endl;
-  std::cout << std::endl;
+  edm::LogVerbatim("ZdcAnalysis") << "============================================================================"
+                                  << std::endl;
 
   if (doNTzdcstep > 0)
     zdcstepntuple =
@@ -99,23 +184,22 @@ ZdcTestAnalysis::~ZdcTestAnalysis() {
 
 void ZdcTestAnalysis::update(const BeginOfJob* job) {
   //job
-  std::cout << "beggining of job" << std::endl;
-  ;
+  edm::LogVerbatim("ZdcAnalysis") << "beggining of job";
 }
 
 //==================================================================== per RUN
 void ZdcTestAnalysis::update(const BeginOfRun* run) {
   //run
 
-  std::cout << std::endl << "ZdcTestAnalysis: Begining of Run" << std::endl;
+  edm::LogVerbatim("ZdcAnalysis") << "\nZdcTestAnalysis: Begining of Run";
   if (doNTzdcstep) {
-    std::cout << "ZDCTestAnalysis: output step file created" << std::endl;
+    edm::LogVerbatim("ZdcAnalysis") << "ZDCTestAnalysis: output step file created";
     TString stepfilename = stepNtFileName;
     zdcOutputStepFile = new TFile(stepfilename, "RECREATE");
   }
 
   if (doNTzdcevent) {
-    std::cout << "ZDCTestAnalysis: output event file created" << std::endl;
+    edm::LogVerbatim("ZdcAnalysis") << "ZDCTestAnalysis: output event file created";
     TString stepfilename = eventNtFileName;
     zdcOutputEventFile = new TFile(stepfilename, "RECREATE");
   }
@@ -125,7 +209,7 @@ void ZdcTestAnalysis::update(const BeginOfRun* run) {
 
 void ZdcTestAnalysis::update(const BeginOfEvent* evt) {
   //event
-  std::cout << "ZdcTest: Processing Event Number: " << eventIndex << std::endl;
+  edm::LogVerbatim("ZdcAnalysis") << "ZdcTest: Processing Event Number: " << eventIndex;
   eventIndex++;
   stepIndex = 0;
 }
@@ -141,7 +225,7 @@ void ZdcTestAnalysis::update(const G4Step* aStep) {
     G4double stepE = aStep->GetTotalEnergyDeposit();
 
     if (verbosity >= 2)
-      std::cout << "Step " << stepL << "," << stepE << std::endl;
+      edm::LogVerbatim("ZdcAnalysis") << "Step " << stepL << "," << stepE;
 
     G4Track* theTrack = aStep->GetTrack();
     G4int theTrackID = theTrack->GetTrackID();
@@ -184,8 +268,8 @@ void ZdcTestAnalysis::update(const G4Step* aStep) {
         theMaterials[jj] = theLogicalVolumes[jj]->GetMaterial();
         theMaterialNames[jj] = theMaterials[jj]->GetName();
         if (verbosity >= 2)
-          std::cout << " GHD " << jj << ": " << theReplicaNumbers[jj] << "," << thePVnames[jj] << "," << theLVnames[jj]
-                    << "," << theMaterialNames[jj] << std::endl;
+          edm::LogVerbatim("ZdcAnalysis") << " GHD " << jj << ": " << theReplicaNumbers[jj] << "," << thePVnames[jj]
+                                          << "," << theLVnames[jj] << "," << theMaterialNames[jj];
       }
 
       idLayer = theReplicaNumbers[1];
@@ -210,8 +294,8 @@ void ZdcTestAnalysis::update(const G4Step* aStep) {
       else {
         thePVtype = 0;
         if (verbosity >= 2)
-          std::cout << " pvtype=0 hd=" << historyDepth << " " << theReplicaNumbers[0] << "," << thePVnames[0] << ","
-                    << theLVnames[0] << "," << theMaterialNames[0] << std::endl;
+          edm::LogVerbatim("ZdcAnalysis") << " pvtype=0 hd=" << historyDepth << " " << theReplicaNumbers[0] << ","
+                                          << thePVnames[0] << "," << theLVnames[0] << "," << theMaterialNames[0];
       }
     } else if (historyDepth == 0) {
       int theReplicaNumber = touch->GetReplicaNumber(0);
@@ -222,10 +306,10 @@ void ZdcTestAnalysis::update(const G4Step* aStep) {
       G4Material* theMaterial = theLogicalVolume->GetMaterial();
       const G4String& theMaterialName = theMaterial->GetName();
       if (verbosity >= 2)
-        std::cout << " hd=0 " << theReplicaNumber << "," << thePVname << "," << theLVname << "," << theMaterialName
-                  << std::endl;
+        edm::LogVerbatim("ZdcAnalysis") << " hd=0 " << theReplicaNumber << "," << thePVname << "," << theLVname << ","
+                                        << theMaterialName;
     } else {
-      std::cout << " hd<0:  hd=" << historyDepth << std::endl;
+      edm::LogVerbatim("ZdcAnalysis") << " hd<0:  hd=" << historyDepth;
     }
 
     double NCherPhot = -1;
@@ -255,19 +339,18 @@ void ZdcTestAnalysis::update(const EndOfEvent* evt) {
   //end of event
 
   // Look for the Hit Collection
-  std::cout << std::endl
-            << "ZdcTest::upDate(const EndOfEvent * evt) - event #" << (*evt)()->GetEventID() << std::endl
-            << "  # of aSteps followed in event = " << stepIndex << std::endl;
+  edm::LogVerbatim("ZdcAnalysis") << "\nZdcTest::upDate(const EndOfEvent * evt) - event #" << (*evt)()->GetEventID()
+                                  << "\n  # of aSteps followed in event = " << stepIndex;
 
   // access to the G4 hit collections
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
-  std::cout << "  accessed all HC";
+  edm::LogVerbatim("ZdcAnalysis") << "  accessed all HC";
 
   int theZDCHCid = G4SDManager::GetSDMpointer()->GetCollectionID("ZDCHITS");
-  std::cout << " - theZDCHCid = " << theZDCHCid;
+  edm::LogVerbatim("ZdcAnalysis") << " - theZDCHCid = " << theZDCHCid;
 
   CaloG4HitCollection* theZDCHC = (CaloG4HitCollection*)allHC->GetHC(theZDCHCid);
-  std::cout << " - theZDCHC = " << theZDCHC << std::endl;
+  edm::LogVerbatim("ZdcAnalysis") << " - theZDCHC = " << theZDCHC;
 
   if (!theZdcNumScheme) {
     theZdcNumScheme = new ZdcNumberingScheme(1);
@@ -281,7 +364,7 @@ void ZdcTestAnalysis::update(const EndOfEvent* evt) {
   std::map<int, float, std::less<int> > primaries;
   float totalEnergy = 0;
   int nentries = theZDCHC->entries();
-  std::cout << "  theZDCHC has " << nentries << " entries" << std::endl;
+  edm::LogVerbatim("ZdcAnalysis") << "  theZDCHC has " << nentries << " entries";
 
   if (doNTzdcevent) {
     if (nentries > 0) {
@@ -299,8 +382,9 @@ void ZdcTestAnalysis::update(const EndOfEvent* evt) {
         math::XYZPoint hitPoint = aHit->getPosition();
         double hitEnergy = aHit->getEnergyDeposit();
         if (verbosity >= 1)
-          std::cout << " entry #" << ihit << ": fiberID=0x" << std::hex << fiberID << std::dec << "; enEm=" << enEm
-                    << "; enHad=" << enHad << "; hitEnergy=" << hitEnergy << "z=" << hitPoint.z() << std::endl;
+          edm::LogVerbatim("ZdcAnalysis")
+              << " entry #" << ihit << ": fiberID=0x" << std::hex << fiberID << std::dec << "; enEm=" << enEm
+              << "; enHad=" << enHad << "; hitEnergy=" << hitEnergy << "z=" << hitPoint.z();
         energyInFibers[fiberID] += enEm + enHad;
         primaries[aHit->getTrackID()] += enEm + enHad;
         float time = aHit->getTimeSliceID();
@@ -347,19 +431,19 @@ void ZdcTestAnalysis::update(const EndOfEvent* evt) {
       int trackID = 0;
       G4PrimaryParticle* thePrim = nullptr;
       G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
-      std::cout << "Event has " << nvertex << " vertex" << std::endl;
+      edm::LogVerbatim("ZdcAnalysis") << "Event has " << nvertex << " vertex";
       if (nvertex == 0)
-        std::cout << "ZdcTest End Of Event  ERROR: no vertex" << std::endl;
+        edm::LogVerbatim("ZdcAnalysis") << "ZdcTest End Of Event  ERROR: no vertex";
 
       for (int i = 0; i < nvertex; i++) {
         G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
         if (avertex == nullptr) {
-          std::cout << "ZdcTest End Of Event ERR: pointer to vertex = 0" << std::endl;
+          edm::LogVerbatim("ZdcAnalysis") << "ZdcTest End Of Event ERR: pointer to vertex = 0";
         } else {
-          std::cout << "Vertex number :" << i << std::endl;
+          edm::LogVerbatim("ZdcAnalysis") << "Vertex number :" << i;
           int npart = avertex->GetNumberOfParticle();
           if (npart == 0)
-            std::cout << "ZdcTest End Of Event ERR: no primary!" << std::endl;
+            edm::LogVerbatim("ZdcAnalysis") << "ZdcTest End Of Event ERR: no primary!";
           if (thePrim == nullptr)
             thePrim = avertex->GetPrimary(trackID);
         }
@@ -374,10 +458,10 @@ void ZdcTestAnalysis::update(const EndOfEvent* evt) {
         pz = thePrim->GetPz();
         pInit = sqrt(pow(px, 2.) + pow(py, 2.) + pow(pz, 2.));
         if (pInit == 0) {
-          std::cout << "ZdcTest End Of Event  ERR: primary has p=0 " << std::endl;
+          edm::LogVerbatim("ZdcAnalysis") << "ZdcTest End Of Event  ERR: primary has p=0 ";
         }
       } else {
-        std::cout << "ZdcTest End Of Event ERR: could not find primary " << std::endl;
+        edm::LogVerbatim("ZdcAnalysis") << "ZdcTest End Of Event ERR: could not find primary ";
       }
 
     }  // nentries > 0
@@ -386,31 +470,36 @@ void ZdcTestAnalysis::update(const EndOfEvent* evt) {
 
   int iEvt = (*evt)()->GetEventID();
   if (iEvt < 10)
-    std::cout << " ZdcTest Event " << iEvt << std::endl;
+    edm::LogVerbatim("ZdcAnalysis") << " ZdcTest Event " << iEvt;
   else if ((iEvt < 100) && (iEvt % 10 == 0))
-    std::cout << " ZdcTest Event " << iEvt << std::endl;
+    edm::LogVerbatim("ZdcAnalysis") << " ZdcTest Event " << iEvt;
   else if ((iEvt < 1000) && (iEvt % 100 == 0))
-    std::cout << " ZdcTest Event " << iEvt << std::endl;
+    edm::LogVerbatim("ZdcAnalysis") << " ZdcTest Event " << iEvt;
   else if ((iEvt < 10000) && (iEvt % 1000 == 0))
-    std::cout << " ZdcTest Event " << iEvt << std::endl;
+    edm::LogVerbatim("ZdcAnalysis") << " ZdcTest Event " << iEvt;
 }
 
-void ZdcTestAnalysis::update(const EndOfRun* run) { ; }
+void ZdcTestAnalysis::update(const EndOfRun* run) {}
 
 void ZdcTestAnalysis::finish() {
   if (doNTzdcstep) {
     zdcOutputStepFile->cd();
     zdcstepntuple->Write();
-    std::cout << "ZdcTestAnalysis: Ntuple step  written for event: " << eventIndex << std::endl;
+    edm::LogVerbatim("ZdcAnalysis") << "ZdcTestAnalysis: Ntuple step  written for event: " << eventIndex;
     zdcOutputStepFile->Close();
-    std::cout << "ZdcTestAnalysis: Step file closed" << std::endl;
+    edm::LogVerbatim("ZdcAnalysis") << "ZdcTestAnalysis: Step file closed";
   }
 
   if (doNTzdcevent) {
     zdcOutputEventFile->cd();
     zdceventntuple->Write("", TObject::kOverwrite);
-    std::cout << "ZdcTestAnalysis: Ntuple event written for event: " << eventIndex << std::endl;
+    edm::LogVerbatim("ZdcAnalysis") << "ZdcTestAnalysis: Ntuple event written for event: " << eventIndex;
     zdcOutputEventFile->Close();
-    std::cout << "ZdcTestAnalysis: Event file closed" << std::endl;
+    edm::LogVerbatim("ZdcAnalysis") << "ZdcTestAnalysis: Event file closed";
   }
 }
+
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
+DEFINE_SIMWATCHER(ZdcTestAnalysis);
