@@ -6,7 +6,7 @@
 using namespace ticl;
 
 namespace {
-  Trackster::ParticleType tracksterParticleTypeFromPdgId(int pdgId, int charge) {
+  inline Trackster::ParticleType tracksterParticleTypeFromPdgId(int pdgId, int charge) {
     if (pdgId == 111) {
       return Trackster::ParticleType::neutral_pion;
     } else {
