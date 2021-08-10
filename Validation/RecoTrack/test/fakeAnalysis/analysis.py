@@ -825,7 +825,7 @@ def ClassifyEventFakes(ntuple_file, nEvents = 100, return_fakes = False, real_cr
     Returns a dictionary of class items, with class index as a key and number of fakes in the class as the value.
     '''
     i = 0
-    results = {class_item: 0 for class_item in classes} # This line has issues with the python version, worked with Python 2.17.12. Comment something to compile with older version
+    results = {class_item: 0 for class_item in classes} # This line has issues with the python3 version, worked with Python 2.17.12. Comment something to compile with older version
     fake_list = []
     for event in ntuple_file:
 	fakes = FindFakes(event)

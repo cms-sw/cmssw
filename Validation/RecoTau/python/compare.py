@@ -17,7 +17,7 @@ argvs = sys.argv
 argc = len(argvs)
 
 if argc != 2:
-    print('Please specify the runtype : python tauPOGplot.py <ZTT, ZEE, ZMM, QCD>')
+    print('Please specify the runtype : python3 tauPOGplot.py <ZTT, ZEE, ZMM, QCD>')
     sys.exit(0)
 
 runtype = argvs[1]
