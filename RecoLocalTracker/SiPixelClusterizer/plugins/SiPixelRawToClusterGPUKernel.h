@@ -57,13 +57,11 @@ namespace pixelgpudetails {
     uint32_t col;
   };
 
-  __host__ __device__ inline constexpr pixelchanelidentifierimpl::Packing packing() {
-    return pixelchanelidentifierimpl::Packing(11, 10, 1, 10);
-  }
+  inline constexpr pixelchanelidentifierimpl::Packing packing() { return PixelChannelIdentifier::thePacking; }
 
-  __host__ __device__ inline uint32_t pack(uint32_t row, uint32_t col, uint32_t adc, uint32_t flag = 0) {
+  inline constexpr uint32_t pack(uint32_t row, uint32_t col, uint32_t adc, uint32_t flag = 0) {
     constexpr pixelchanelidentifierimpl::Packing thePacking = packing();
-    adc = std::min(adc, thePacking.max_adc);
+    adc = std::min(adc, uint32_t(thePacking.max_adc));
 
     return (row << thePacking.row_shift) | (col << thePacking.column_shift) | (adc << thePacking.adc_shift);
   }
