@@ -1118,7 +1118,8 @@ void FP420Test::update(const EndOfEvent* evt) {
         themapz[unitID] = hitPoint.z() + fabs(middle.z());
         if (verbosity > 2) {
           edm::LogVerbatim("FP420Test") << "1111111111111111111111111111111111111111111111111111111111111111111111111 ";
-          edm::LogVerbatim("FP420Test") << "FP420Test: det, zside, sector, zmodule = " << det << zside << sector << zmodule;
+          edm::LogVerbatim("FP420Test") << "FP420Test: det, zside, sector, zmodule = " << det << zside << sector
+                                        << zmodule;
           edm::LogVerbatim("FP420Test") << "FP420Test: justlayer = " << justlayer;
           edm::LogVerbatim("FP420Test") << "FP420Test: hitExitLocalPoint = " << hitExitLocalPoint;
           edm::LogVerbatim("FP420Test") << "FP420Test: hitEntryLocalPoint = " << hitEntryLocalPoint;
@@ -1282,7 +1283,7 @@ void FP420Test::update(const EndOfEvent* evt) {
             int zside = FP420NumberingScheme::realzside(rn00, zsideinorder);  //1,3,5,2,4,6
             if (verbosity > 2) {
               edm::LogVerbatim("FP420Test") << "FP420Test:  sector= " << sector << " zmodule= " << zmodule
-                        << " zsideinorder= " << zsideinorder << " zside= " << zside;
+                                            << " zsideinorder= " << zsideinorder << " zside= " << zside;
             }
             if (zside != 0) {
               int justlayer = FP420NumberingScheme::unpackLayerIndex(rn00, zside);  // 1,2
@@ -1306,8 +1307,9 @@ void FP420Test::update(const EndOfEvent* evt) {
                   FP420NumberingScheme::packMYIndex(rn00, pn0, sn0, detfixed, justlayer, sector, zmodule) - 1;
               // ii = 0-19   --> 20 items
               if (verbosity > 2) {
-                edm::LogVerbatim("FP420Test") << "FP420Test:  justlayer = " << justlayer << " copyinlayer = " << copyinlayer
-                          << " orientation = " << orientation << " ii= " << ii;
+                edm::LogVerbatim("FP420Test")
+                    << "FP420Test:  justlayer = " << justlayer << " copyinlayer = " << copyinlayer
+                    << " orientation = " << orientation << " ii= " << ii;
               }
               double zdiststat = 0.;
               if (sn0 < 4) {
@@ -1353,7 +1355,8 @@ void FP420Test::update(const EndOfEvent* evt) {
       }        // for sector
 
       if (verbosity > 2) {
-        edm::LogVerbatim("FP420Test") << "----------------------------------------------------------------------------- ";
+        edm::LogVerbatim("FP420Test")
+            << "----------------------------------------------------------------------------- ";
       }
 
       //======================================================================================================CHECK
