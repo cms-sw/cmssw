@@ -117,21 +117,26 @@ class adaptToRunAtMiniAOD(object):
 				       pfCandSrc = cms.InputTag("packedPFCandidates"),
 				       src = cms.InputTag(jetCollection)
 		))
-		self.miniAODTausTask.add(getattr(self.process,'recoTauAK4Jets08RegionPAT'+self.postfix))
+		_jetRegionProducer = getattr(self.process,'recoTauAK4Jets08RegionPAT'+self.postfix)
+		self.miniAODTausTask.add(_jetRegionProducer)
 		if self.runBoosted:
-			getattr(self.process,'recoTauAK4Jets08RegionPAT'+self.postfix).pfCandAssocMapSrc = cms.InputTag('boostedTauSeedsPAT'+self.postfix, 'pfCandAssocMapForIsolation')
-			getattr(self.process,'recoTauPileUpVertices'+self.postfix).src = "offlineSlimmedPrimaryVertices"
+			_jetRegionProducer.pfCandAssocMapSrc = cms.InputTag(jetCollection, 'pfCandAssocMapForIsolation')
+
+		getattr(self.process,'recoTauPileUpVertices'+self.postfix).src = "offlineSlimmedPrimaryVertices"
 
 		for moduleName in self.miniAODTausTask.moduleNames():
 			self.convertModuleToMiniAODInput(moduleName)
 
 
 		# Adapt TauPiZeros producer
-		getattr(self.process,'ak4PFJetsLegacyHPSPiZeros'+self.postfix).builders[0].qualityCuts.primaryVertexSrc = "offlineSlimmedPrimaryVertices"
-		getattr(self.process,'ak4PFJetsLegacyHPSPiZeros'+self.postfix).jetSrc = jetCollection
+		_piZeroProducer = getattr(self.process,'ak4PFJetsLegacyHPSPiZeros'+self.postfix)
+		for builder in _piZeroProducer.builders:
+			builder.qualityCuts.primaryVertexSrc = "offlineSlimmedPrimaryVertices"
+		_piZeroProducer.jetSrc = jetCollection
 
 		# Adapt TauChargedHadrons producer
-		for builder in getattr(self.process,'ak4PFJetsRecoTauChargedHadrons'+self.postfix).builders:
+		_chargedHadronProducer = getattr(self.process,'ak4PFJetsRecoTauChargedHadrons'+self.postfix)
+		for builder in _chargedHadronProducer.builders:
 			builder.qualityCuts.primaryVertexSrc = "offlineSlimmedPrimaryVertices"
 			if builder.name.value() == 'tracks': #replace plugin based on generalTracks by one based on lostTracks
 				builder.name = 'lostTracks'
@@ -140,32 +145,33 @@ class adaptToRunAtMiniAOD(object):
 				if self.runBoosted:
 					builder.dRcone = 0.3
 					builder.dRconeLimitedToJetArea = True
-		getattr(self.process,'ak4PFJetsRecoTauChargedHadrons'+self.postfix).jetSrc = jetCollection
+		_chargedHadronProducer.jetSrc = jetCollection
 
 		# Adapt combinatoricRecoTau producer
-		getattr(self.process,'combinatoricRecoTaus'+self.postfix).jetRegionSrc = 'recoTauAK4Jets08RegionPAT'+self.postfix
-		getattr(self.process,'combinatoricRecoTaus'+self.postfix).jetSrc = jetCollection
+		_combinatoricRecoTauProducer = getattr(self.process,'combinatoricRecoTaus'+self.postfix)
+		_combinatoricRecoTauProducer.jetRegionSrc = 'recoTauAK4Jets08RegionPAT'+self.postfix
+		_combinatoricRecoTauProducer.jetSrc = jetCollection
 		# Adapt builders
-		for builder in getattr(self.process,'combinatoricRecoTaus'+self.postfix).builders:
+		for builder in _combinatoricRecoTauProducer.builders:
 			for name,value in builder.parameters_().items():
 				if name == 'qualityCuts':
 					builder.qualityCuts.primaryVertexSrc = 'offlineSlimmedPrimaryVertices'
 				elif name == 'pfCandSrc':
 					builder.pfCandSrc = 'packedPFCandidates'
 		# Adapt supported modifiers and remove unsupported ones
-		modifiersToRemove_ = cms.VPSet()
-		for mod in getattr(self.process,'combinatoricRecoTaus'+self.postfix).modifiers:
+		_modifiersToRemove = cms.VPSet()
+		for mod in _combinatoricRecoTauProducer.modifiers:
 			if mod.name.value() == 'elec_rej':
-				modifiersToRemove_.append(mod)
+				_modifiersToRemove.append(mod)
 				continue
 			elif mod.name.value() == 'TTIworkaround':
-				modifiersToRemove_.append(mod)
+				_modifiersToRemove.append(mod)
 				continue
 			for name,value in mod.parameters_().items():
 				if name == 'qualityCuts':
 					mod.qualityCuts.primaryVertexSrc = 'offlineSlimmedPrimaryVertices'
-		for mod in modifiersToRemove_:
-			getattr(self.process,'combinatoricRecoTaus'+self.postfix).modifiers.remove(mod)
+		for mod in _modifiersToRemove:
+			_combinatoricRecoTauProducer.modifiers.remove(mod)
 		        #print "\t\t Removing '%s' modifier from 'combinatoricRecoTaus'" %mod.name.value()
 
 		# Redefine tau PV producer
@@ -193,9 +199,10 @@ class adaptToRunAtMiniAOD(object):
 		setattr(self.process,'hpsPFTauDiscriminationByMuonRejectionSimple'+self.postfix,
 		hpsPFTauDiscriminationByMuonRejectionSimple.clone(
 			PFTauProducer = "hpsPFTauProducer"+self.postfix))
+		_tauIDAntiMuSimple = getattr(self.process,'hpsPFTauDiscriminationByMuonRejectionSimple'+self.postfix)
 		if self.runBoosted:
-			getattr(self.process,'hpsPFTauDiscriminationByMuonRejectionSimple'+self.postfix).dRmuonMatch = 0.1
-		self.miniAODTausTask.add(getattr(self.process,'hpsPFTauDiscriminationByMuonRejectionSimple'+self.postfix))
+			_tauIDAntiMuSimple.dRmuonMatch = 0.1
+		self.miniAODTausTask.add(_tauIDAntiMuSimple)
 
 	        #####
 		# PAT part in the following
