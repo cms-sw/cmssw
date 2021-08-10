@@ -189,7 +189,7 @@
   <use name="FWCore/ParameterSet"/>
 </library>
 
-<bin name="TestFWCoreFramework" file="testRunner.cpp,maker2_t.cppunit.cc,maker_t.cppunit.cc,productregistry.cppunit.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.cppunit.cc,generichandle_t.cppunit.cc,edconsumerbase_t.cppunit.cc,global_producer_t.cppunit.cc,global_filter_t.cppunit.cc,one_outputmodule_t.cppunit.cc,global_outputmodule_t.cppunit.cc,stream_producer_t.cppunit.cc,stream_filter_t.cppunit.cc,limited_producer_t.cppunit.cc,limited_filter_t.cppunit.cc,limited_outputmodule_t.cppunit.cc,throwIfImproperDependencies_t.cppunit.cc">
+<bin name="TestFWCoreFramework" file="testRunner.cpp,maker2_t.cppunit.cc,maker_t.cppunit.cc,productregistry.cppunit.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.cppunit.cc,generichandle_t.cppunit.cc,edconsumerbase_t.cppunit.cc,global_producer_t.cppunit.cc,global_filter_t.cppunit.cc,one_outputmodule_t.cppunit.cc,global_outputmodule_t.cppunit.cc,stream_producer_t.cppunit.cc,stream_filter_t.cppunit.cc,limited_producer_t.cppunit.cc,limited_filter_t.cppunit.cc,limited_outputmodule_t.cppunit.cc,checkForModuleDependencyCorrectness_t.cppunit.cc">
   <use name="DataFormats/Common"/>
   <use name="DataFormats/Provenance"/>
   <use name="DataFormats/TestObjects"/>
@@ -396,3 +396,11 @@
 <test name="testFWCoreFramework1ThreadESPrefetch" command="run_test_1_thread_es_prefetching.sh"/>
 <test name="testFWCoreFrameworkModuleDeletion" command="run_module_delete_tests.sh"/>
 <test name="testFWCoreFrameworkExternalWorkOutputModule" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testExternalWorkGlobalOutputModule_cfg.py"/>
+<test name="testFWCoreFrameworkBadScheduleException0" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_bad_schedule_exception_message_cfg.py 0; grep -v 'Fatal Exception' test_bad_schedule_0.log | diff -q ${LOCALTOP}/src/FWCore/Framework/test/unit_test_outputs/test_bad_schedule_0.log -"/>
+<test name="testFWCoreFrameworkBadScheduleException1" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_bad_schedule_exception_message_cfg.py 1; grep -v 'Fatal Exception' test_bad_schedule_1.log | diff -q ${LOCALTOP}/src/FWCore/Framework/test/unit_test_outputs/test_bad_schedule_1.log -"/>
+<test name="testFWCoreFrameworkBadScheduleException2" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_bad_schedule_exception_message_cfg.py 2; grep -v 'Fatal Exception' test_bad_schedule_2.log | diff -q ${LOCALTOP}/src/FWCore/Framework/test/unit_test_outputs/test_bad_schedule_2.log -"/>
+<test name="testFWCoreFrameworkBadScheduleException3" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_bad_schedule_exception_message_cfg.py 3; grep -v 'Fatal Exception' test_bad_schedule_3.log | diff -q ${LOCALTOP}/src/FWCore/Framework/test/unit_test_outputs/test_bad_schedule_3.log -"/>
+<test name="testFWCoreFrameworkBadScheduleException4" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_bad_schedule_exception_message_cfg.py 4; grep -v 'Fatal Exception' test_bad_schedule_4.log | diff -q ${LOCALTOP}/src/FWCore/Framework/test/unit_test_outputs/test_bad_schedule_4.log -"/>
+<test name="testFWCoreFrameworkBadScheduleException5" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_bad_schedule_exception_message_cfg.py 5; grep -v 'Fatal Exception' test_bad_schedule_5.log | diff -q ${LOCALTOP}/src/FWCore/Framework/test/unit_test_outputs/test_bad_schedule_5.log -"/>
+<test name="testFWCoreFrameworkBadScheduleException6" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_bad_schedule_exception_message_cfg.py 6; grep -v 'Fatal Exception' test_bad_schedule_6.log | diff -q ${LOCALTOP}/src/FWCore/Framework/test/unit_test_outputs/test_bad_schedule_6.log -"/>
+<test name="testFWCoreFrameworkBadScheduleException7" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_bad_schedule_exception_message_cfg.py 7; grep -v 'Fatal Exception' test_bad_schedule_7.log | diff -q ${LOCALTOP}/src/FWCore/Framework/test/unit_test_outputs/test_bad_schedule_7.log -"/>
