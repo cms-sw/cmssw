@@ -146,8 +146,7 @@ namespace cond {
         service = matches[1];
         account = matches[2];
         match = true;
-      }
-      else if (std::regex_match(input, matches, long_frontier)) {
+      } else if (std::regex_match(input, matches, long_frontier)) {
         std::string frontier_config(matches[1]);
         std::smatch matches2;
         if (not std::regex_search(frontier_config, matches2, long_frontier_serverurl))
