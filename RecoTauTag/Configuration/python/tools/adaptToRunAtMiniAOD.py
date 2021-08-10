@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 # Created: 9 Nov. 2017
 ######
 
-import RecoTauTag.Configuration.tools.helpers as configtools
+import PhysicsTools.PatAlgos.tools.helpers as configtools
 #####
 class adaptToRunAtMiniAOD(object):
 	def __init__(self, process, runBoosted=False, postfix=""):
