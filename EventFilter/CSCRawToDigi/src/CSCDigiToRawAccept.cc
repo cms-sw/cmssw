@@ -57,7 +57,6 @@ bool CSCDigiToRawAccept::accept(const CSCDetId& cscId,
 
   CSCDetId chamberId = chamberID(cscId);
   CSCCLCTPreTriggerDigiCollection::Range lctRange = lcts.get(chamberId);
-  bool result = false;
   for (CSCCLCTPreTriggerDigiCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
     int bx = lctItr->getBX() - nominalBX;
     if (bx >= bxMin && bx <= bxMax) {
@@ -67,7 +66,7 @@ bool CSCDigiToRawAccept::accept(const CSCDetId& cscId,
     }
   }
   bool me1a = cscId.station() == 1 && cscId.ring() == 4;
-  if (me1a && result == false && me1abCheck) {
+  if (me1a && !atLeastOnePreTrigger && me1abCheck) {
     //check pretriggers in me1a as well; relevant for TMB emulator writing to separate detIds
     lctRange = lcts.get(cscId);
     for (CSCCLCTPreTriggerDigiCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
