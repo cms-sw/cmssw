@@ -9,6 +9,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <set>
 #include <type_traits>
 
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
