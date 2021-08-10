@@ -10,32 +10,110 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM include files
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 // work on collections
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 
-#include "DQMOffline/CalibCalo/src/DQMHcalPhiSymAlCaReco.h"
+class DQMHcalPhiSymAlCaReco : public DQMOneEDAnalyzer<> {
+public:
+  DQMHcalPhiSymAlCaReco(const edm::ParameterSet &);
+  ~DQMHcalPhiSymAlCaReco() override;
 
-using namespace std;
-using namespace edm;
+protected:
+  //  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
+
+  void dqmEndRun(const edm::Run &r, const edm::EventSetup &c) override;
+
+private:
+  int eventCounter_;
+
+  //
+  // Monitor elements
+  //
+  MonitorElement *hiDistrMBPl2D_;
+  MonitorElement *hiDistrNoisePl2D_;
+  MonitorElement *hiDistrMBMin2D_;
+  MonitorElement *hiDistrNoiseMin2D_;
+
+  MonitorElement *hiDistrMB2Pl2D_;
+  MonitorElement *hiDistrNoise2Pl2D_;
+  MonitorElement *hiDistrMB2Min2D_;
+  MonitorElement *hiDistrNoise2Min2D_;
+
+  MonitorElement *hiDistrVarMBPl2D_;
+  MonitorElement *hiDistrVarNoisePl2D_;
+  MonitorElement *hiDistrVarMBMin2D_;
+  MonitorElement *hiDistrVarNoiseMin2D_;
+
+  MonitorElement *hiDistrHBHEsize1D_;
+  MonitorElement *hiDistrHFsize1D_;
+
+  MonitorElement *hFEDsize;
+  MonitorElement *hHcalIsZS;
+  MonitorElement *hL1Id;
+
+  int hiDistr_y_nbin_;
+  int hiDistr_x_nbin_;
+  double hiDistr_y_min_;
+  double hiDistr_y_max_;
+  double hiDistr_x_min_;
+  double hiDistr_x_max_;
+
+  int hiDistr_r_nbin_;
+  double ihbhe_size_;
+  double ihf_size_;
+
+  bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
+
+  /// object to monitor
+
+  edm::EDGetTokenT<HBHERecHitCollection> hbherecoMB;
+  edm::InputTag horecoMB;
+  edm::EDGetTokenT<HFRecHitCollection> hfrecoMB;
+
+  edm::EDGetTokenT<HBHERecHitCollection> hbherecoNoise;
+  edm::InputTag horecoNoise;
+  edm::EDGetTokenT<HFRecHitCollection> hfrecoNoise;
+
+  edm::EDGetTokenT<FEDRawDataCollection> rawInLabel_;
+
+  /// DQM folder name
+  std::string folderName_;
+
+  /// Write to file
+  bool saveToFile_;
+
+  // period of ZS
+  unsigned int period_;
+
+  /// Output file name if required
+  std::string fileName_;
+};
 
 // ******************************************
 // constructors
@@ -45,7 +123,7 @@ DQMHcalPhiSymAlCaReco::DQMHcalPhiSymAlCaReco(const edm::ParameterSet &ps) : even
   //
   // Input from configurator file
   //
-  folderName_ = ps.getUntrackedParameter<string>("FolderName", "ALCAStreamHcalPhiSym");
+  folderName_ = ps.getUntrackedParameter<std::string>("FolderName", "ALCAStreamHcalPhiSym");
 
   hbherecoMB = consumes<HBHERecHitCollection>(ps.getParameter<edm::InputTag>("hbheInputMB"));
   horecoMB = ps.getParameter<edm::InputTag>("hoInputMB");
@@ -60,7 +138,7 @@ DQMHcalPhiSymAlCaReco::DQMHcalPhiSymAlCaReco(const edm::ParameterSet &ps) : even
   period_ = ps.getParameter<unsigned int>("period");
 
   saveToFile_ = ps.getUntrackedParameter<bool>("SaveToFile", false);
-  fileName_ = ps.getUntrackedParameter<string>("FileName", "MonitorAlCaHcalPhiSym.root");
+  fileName_ = ps.getUntrackedParameter<std::string>("FileName", "MonitorAlCaHcalPhiSym.root");
 
   perLSsaving_ = (ps.getUntrackedParameter<bool>("perLSsaving", false));
 
@@ -268,7 +346,7 @@ void DQMHcalPhiSymAlCaReco::bookHistograms(DQMStore::IBooker &ibooker,
 
 //-------------------------------------------------------------
 
-void DQMHcalPhiSymAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetup) {
+void DQMHcalPhiSymAlCaReco::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   eventCounter_++;
 
   edm::Handle<FEDRawDataCollection> rawIn;
@@ -441,7 +519,7 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetu
 
 //--------------------------------------------------------
 //--------------------------------------------------------
-void DQMHcalPhiSymAlCaReco::dqmEndRun(const Run &r, const EventSetup &context) {
+void DQMHcalPhiSymAlCaReco::dqmEndRun(const edm::Run &r, const edm::EventSetup &context) {
   // Keep Variances
   if (eventCounter_ > 0 && !perLSsaving_) {
     for (int k = 0; k <= hiDistr_x_nbin_; k++) {
@@ -472,3 +550,5 @@ void DQMHcalPhiSymAlCaReco::dqmEndRun(const Run &r, const EventSetup &context) {
     }
   }
 }
+
+DEFINE_FWK_MODULE(DQMHcalPhiSymAlCaReco);

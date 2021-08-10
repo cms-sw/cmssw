@@ -18,38 +18,67 @@
 //
 
 // system include files
-#include <memory>
+#include <string>
 
 // user include files
+#include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMOffline/CalibCalo/src/DQMHOAlCaRecoStream.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include <string>
 
 //
 // class decleration
 //
-using namespace std;
-using namespace edm;
 
-//
-// constants, enums and typedefs
-//
+class DQMHOAlCaRecoStream : public DQMEDAnalyzer {
+public:
+  explicit DQMHOAlCaRecoStream(const edm::ParameterSet &);
+  ~DQMHOAlCaRecoStream() override;
 
-//
-// static data member definitions
-//
+private:
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
+  // ----------member data ---------------------------
+
+  MonitorElement *hMuonMultipl;
+  MonitorElement *hMuonMom;
+  MonitorElement *hMuonEta;
+  MonitorElement *hMuonPhi;
+
+  MonitorElement *hDirCosine;
+  MonitorElement *hHOTime;
+
+  MonitorElement *hSigRing[5];
+  MonitorElement *hPedRing[5];
+  MonitorElement *hSignal3x3[9];
+
+  int Nevents;
+  int Nmuons;
+
+  std::string theRootFileName;
+  std::string folderName_;
+  double m_sigmaValue;
+
+  double m_lowRadPosInMuch;
+  double m_highRadPosInMuch;
+
+  int m_nbins;
+  double m_lowEdge;
+  double m_highEdge;
+
+  bool saveToFile_;
+  edm::EDGetTokenT<HOCalibVariableCollection> hoCalibVariableCollectionTag;
+};
 
 //
 // constructors and destructor
@@ -59,8 +88,8 @@ DQMHOAlCaRecoStream::DQMHOAlCaRecoStream(const edm::ParameterSet &iConfig)
           consumes<HOCalibVariableCollection>(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag"))) {
   // now do what ever initialization is needed
 
-  theRootFileName = iConfig.getUntrackedParameter<string>("RootFileName", "tmp.root");
-  folderName_ = iConfig.getUntrackedParameter<string>("folderName");
+  theRootFileName = iConfig.getUntrackedParameter<std::string>("RootFileName", "tmp.root");
+  folderName_ = iConfig.getUntrackedParameter<std::string>("folderName");
   m_sigmaValue = iConfig.getUntrackedParameter<double>("sigmaval", 0.2);
   m_lowRadPosInMuch = iConfig.getUntrackedParameter<double>("lowradposinmuch", 400.0);
   m_highRadPosInMuch = iConfig.getUntrackedParameter<double>("highradposinmuch", 480.0);
@@ -81,8 +110,6 @@ DQMHOAlCaRecoStream::~DQMHOAlCaRecoStream() {
 
 // ------------ method called to for each event  ------------
 void DQMHOAlCaRecoStream::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  using namespace edm;
-
   Nevents++;
 
   edm::Handle<HOCalibVariableCollection> HOCalib;
@@ -188,27 +215,6 @@ void DQMHOAlCaRecoStream::bookHistograms(DQMStore::IBooker &ibooker,
     hPedRing[i]->setAxisTitle(title, 1);
   }
 
-  //  hSigRingm1 = ibooker.book1D("hSigRingm1", "HO signal in Ring-1", m_nbins,
-  //  m_lowEdge, m_highEdge); hSigRingm1->setAxisTitle("HO signal in Ring-1",1);
-
-  //  hSigRing00 = ibooker.book1D("hSigRing00", "HO signal in Ring_0", m_nbins,
-  //  m_lowEdge, m_highEdge); hSigRing00->setAxisTitle("HO signal in Ring_0",1);
-
-  //  hSigRingp1 = ibooker.book1D("hSigRingp1", "HO signal in Ring-1", m_nbins,
-  //  m_lowEdge, m_highEdge); hSigRingp1->setAxisTitle("HO signal in Ring+1",1);
-
-  //  hSigRingp2 = ibooker.book1D("hSigRingp2", "HO signal in Ring-2", m_nbins,
-  //  m_lowEdge, m_highEdge); hSigRingp2->setAxisTitle("HO signal in Ring+2",1);
-
-  //  hPedRingm2 = ibooker.book1D("hPedRingm2", "HO pedestal in Ring-2",
-  //  m_nbins, m_lowEdge, m_highEdge); hPedRingm1 = ibooker.book1D("hPedRingm1",
-  //  "HO pedestal in Ring-1", m_nbins, m_lowEdge, m_highEdge); hPedRing00 =
-  //  ibooker.book1D("hPedRing00", "HO pedestal in Ring_0", m_nbins, m_lowEdge,
-  //  m_highEdge); hPedRingp1 = ibooker.book1D("hPedRingp1", "HO pedestal in
-  //  Ring-1", m_nbins, m_lowEdge, m_highEdge); hPedRingp2 =
-  //  ibooker.book1D("hPedRingp2", "HO pedestal in Ring-2", m_nbins, m_lowEdge,
-  //  m_highEdge);
-
   for (int i = -1; i <= 1; i++) {
     for (int j = -1; j <= 1; j++) {
       int k = 3 * (i + 1) + j + 1;
@@ -222,3 +228,5 @@ void DQMHOAlCaRecoStream::bookHistograms(DQMStore::IBooker &ibooker,
   Nevents = 0;
   Nmuons = 0;
 }
+
+DEFINE_FWK_MODULE(DQMHOAlCaRecoStream);
