@@ -2,23 +2,37 @@
 //
 
 // system include files
+#include <cmath>
 #include <iostream>
 #include <iomanip>
-#include <cmath>
+#include <map>
+#include <string>
 #include <vector>
-//
-#include "SimG4Core/Notification/interface/BeginOfEvent.h"
-#include "SimG4Core/Notification/interface/EndOfEvent.h"
-#include "SimG4Core/Notification/interface/TrackWithHistory.h"
-#include "SimG4Core/Notification/interface/TrackInformation.h"
 
+//
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "SimG4Core/Notification/interface/TrackWithHistory.h"
+#include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
+#include "SimG4Core/Notification/interface/BeginOfRun.h"
+#include "SimG4Core/Notification/interface/EndOfRun.h"
+#include "SimG4Core/Notification/interface/BeginOfEvent.h"
+#include "SimG4Core/Notification/interface/EndOfEvent.h"
+#include "SimG4Core/Notification/interface/BeginOfTrack.h"
+#include "SimG4Core/Notification/interface/EndOfTrack.h"
+#include "SimG4Core/Watcher/interface/SimWatcher.h"
+
 // to retreive hits
+#include "SimG4CMS/Forward/interface/BscG4Hit.h"
 #include "SimG4CMS/Forward/interface/BscNumberingScheme.h"
 #include "SimG4CMS/Forward/interface/BscG4HitCollection.h"
-#include "SimG4CMS/Forward/interface/BscTest.h"
 
 // G4 stuff
 #include "G4SDManager.hh"
@@ -29,22 +43,123 @@
 #include "G4UserEventAction.hh"
 #include "G4TransportationManager.hh"
 #include "G4ProcessManager.hh"
+#include "G4VTouchable.hh"
 
+#include "CLHEP/Vector/ThreeVector.h"
+#include "CLHEP/Vector/LorentzVector.h"
+#include "CLHEP/Random/Randomize.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
-//================================================================
-// Root stuff
-
-// Include the standard header <cassert> to effectively include
-// the standard header <assert.h> within the std namespace.
-#include <cassert>
-
-//================================================================
+// ----------------------------------------------------------------
+// Includes needed for Root ntupling
+//
+#include "TROOT.h"
+#include "TFile.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TProfile.h"
+#include "TNtuple.h"
+#include "TRandom.h"
+#include "TLorentzVector.h"
+#include "TUnixSystem.h"
+#include "TSystem.h"
+#include "TMath.h"
+#include "TF1.h"
+#include "TObjArray.h"
+#include "TObjString.h"
+#include "TNamed.h"
 
 //#define EDM_ML_DEBUG
 
-//UserVerbosity BscTest::std::cout("BscTest","info","BscTest");
+class BscAnalysisHistManager : public TNamed {
+public:
+  BscAnalysisHistManager(const TString& managername);
+  ~BscAnalysisHistManager() override;
+
+  TH1F* getHisto(Int_t Number);
+  TH1F* getHisto(const TObjString& histname);
+
+  TH2F* getHisto2(Int_t Number);
+  TH2F* getHisto2(const TObjString& histname);
+
+  void writeToFile(const TString& fOutputFile, const TString& fRecreateFile);
+
+private:
+  void bookHistos();
+  void storeWeights();
+  void histInit(const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup);
+  void histInit(
+      const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup, Int_t nbinsy, Axis_t ylow, Axis_t yup);
+
+  const char* fTypeTitle;
+  TObjArray* fHistArray;
+  TObjArray* fHistNamesArray;
+};
+
+class BscTest : public SimWatcher,
+                public Observer<const BeginOfJob*>,
+                public Observer<const BeginOfRun*>,
+                public Observer<const EndOfRun*>,
+                public Observer<const BeginOfEvent*>,
+                public Observer<const BeginOfTrack*>,
+                public Observer<const G4Step*>,
+                public Observer<const EndOfTrack*>,
+                public Observer<const EndOfEvent*> {
+public:
+  BscTest(const edm::ParameterSet& p);
+  ~BscTest() override;
+
+private:
+  // observer classes
+  void update(const BeginOfJob* run) override;
+  void update(const BeginOfRun* run) override;
+  void update(const EndOfRun* run) override;
+  void update(const BeginOfEvent* evt) override;
+  void update(const BeginOfTrack* trk) override;
+  void update(const G4Step* step) override;
+  void update(const EndOfTrack* trk) override;
+  void update(const EndOfEvent* evt) override;
+
+  //UHB_Analysis* UserNtuples;
+  BscNumberingScheme* theBscNumberingScheme;
+
+  int iev;
+  int itrk;
+  G4double entot0, tracklength0;
+
+  // Utilities to get detector levels during a step
+
+  int detLevels(const G4VTouchable*) const;
+  G4String detName(const G4VTouchable*, int, int) const;
+  void detectorLevel(const G4VTouchable*, int&, int*, G4String*) const;
+
+  double rinCalo, zinCalo;
+  int lastTrackID;
+  int verbosity;
+
+  // sumEnerDeposit - all deposited energy on all steps ;  sumStepl - length in steel !!!
+  G4double sumEnerDeposit, sumStepl, sumStepc;
+  // numofpart - # particles produced along primary track
+  int numofpart;
+  // last point of the primary track
+  G4ThreeVector lastpo;
+
+  // z:
+  double z1, z2, z3, z4;
+
+private:
+  Float_t bsceventarray[1];
+  TNtuple* bsceventntuple;
+  TFile bscOutputFile;
+  int whichevent;
+
+  BscAnalysisHistManager* TheHistManager;  //Histogram Manager of the analysis
+  std::string fDataLabel;                  // Data type label
+  std::string fOutputFile;                 // The output file name
+  std::string fRecreateFile;               // Recreate the file flag, default="RECREATE"
+};
+
 enum ntbsc_elements { ntbsc_evt };
 
 //================================================================
@@ -90,7 +205,7 @@ BscTest::~BscTest() {
   //------->while end
 
   // Write histograms to file
-  TheHistManager->WriteToFile(fOutputFile, fRecreateFile);
+  TheHistManager->writeToFile(fOutputFile, fRecreateFile);
   if (verbosity > 0) {
     edm::LogVerbatim("BscTest") << std::endl << "BscTest Destructor  -------->  End of BscTest : ";
   }
@@ -109,7 +224,7 @@ BscAnalysisHistManager::BscAnalysisHistManager(const TString& managername) {
   fHistArray = new TObjArray();       // Array to store histos
   fHistNamesArray = new TObjArray();  // Array to store histos's names
 
-  BookHistos();
+  bookHistos();
 
   fHistArray->Compress();  // Removes empty space
   fHistNamesArray->Compress();
@@ -131,18 +246,18 @@ BscAnalysisHistManager::~BscAnalysisHistManager() {
 }
 //-----------------------------------------------------------------------------
 
-void BscAnalysisHistManager::BookHistos() {
+void BscAnalysisHistManager::bookHistos() {
   // at Start: (mm)
-  HistInit("TrackPhi", "Primary Phi", 100, 0., 360.);
-  HistInit("TrackTheta", "Primary Theta", 100, 0., 180.);
-  HistInit("TrackP", "Track XY position Z+ ", 80, -80., 80., 80, -80., 80.);
-  HistInit("TrackM", "Track XY position Z-", 80, -80., 80., 80, -80., 80.);
-  HistInit("DetIDs", "Track DetId - vs +", 16, -0.5, 15.5, 16, 15.5, 31.5);
+  histInit("TrackPhi", "Primary Phi", 100, 0., 360.);
+  histInit("TrackTheta", "Primary Theta", 100, 0., 180.);
+  histInit("TrackP", "Track XY position Z+ ", 80, -80., 80., 80, -80., 80.);
+  histInit("TrackM", "Track XY position Z-", 80, -80., 80., 80, -80., 80.);
+  histInit("DetIDs", "Track DetId - vs +", 16, -0.5, 15.5, 16, 15.5, 31.5);
 }
 
 //-----------------------------------------------------------------------------
 
-void BscAnalysisHistManager::WriteToFile(const TString& fOutputFile, const TString& fRecreateFile) {
+void BscAnalysisHistManager::writeToFile(const TString& fOutputFile, const TString& fRecreateFile) {
   //Write to file = fOutputFile
 
   edm::LogVerbatim("BscTest") << "================================================================";
@@ -156,7 +271,7 @@ void BscAnalysisHistManager::WriteToFile(const TString& fOutputFile, const TStri
 }
 //-----------------------------------------------------------------------------
 
-void BscAnalysisHistManager::HistInit(const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup) {
+void BscAnalysisHistManager::histInit(const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup) {
   // Add histograms and histograms names to the array
 
   char* newtitle = new char[strlen(title) + strlen(fTypeTitle) + 5];
@@ -169,7 +284,7 @@ void BscAnalysisHistManager::HistInit(const char* name, const char* title, Int_t
 }
 //-----------------------------------------------------------------------------
 
-void BscAnalysisHistManager::HistInit(
+void BscAnalysisHistManager::histInit(
     const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup, Int_t nbinsy, Axis_t ylow, Axis_t yup) {
   // Add histograms and histograms names to the array
 
@@ -183,14 +298,14 @@ void BscAnalysisHistManager::HistInit(
 }
 //-----------------------------------------------------------------------------
 
-TH1F* BscAnalysisHistManager::GetHisto(Int_t Number) {
+TH1F* BscAnalysisHistManager::getHisto(Int_t Number) {
   // Get a histogram from the array with index = Number
 
   if (Number <= fHistArray->GetLast() && fHistArray->At(Number) != (TObject*)nullptr) {
     return (TH1F*)(fHistArray->At(Number));
 
   } else {
-    edm::LogVerbatim("BscTest") << "!!!!!!!!!!!!!!!!!!GetHisto!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+    edm::LogVerbatim("BscTest") << "!!!!!!!!!!!!!!!!!!getHisto!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
     edm::LogVerbatim("BscTest") << " WARNING ERROR - HIST ID INCORRECT (TOO HIGH) - " << Number;
     edm::LogVerbatim("BscTest") << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
 
@@ -199,14 +314,14 @@ TH1F* BscAnalysisHistManager::GetHisto(Int_t Number) {
 }
 //-----------------------------------------------------------------------------
 
-TH2F* BscAnalysisHistManager::GetHisto2(Int_t Number) {
+TH2F* BscAnalysisHistManager::getHisto2(Int_t Number) {
   // Get a histogram from the array with index = Number
 
   if (Number <= fHistArray->GetLast() && fHistArray->At(Number) != (TObject*)nullptr) {
     return (TH2F*)(fHistArray->At(Number));
 
   } else {
-    edm::LogVerbatim("BscTest") << "!!!!!!!!!!!!!!!!GetHisto2!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+    edm::LogVerbatim("BscTest") << "!!!!!!!!!!!!!!!!getHisto2!!!!!!!!!!!!!!!!!!!!!!!!!!!";
     edm::LogVerbatim("BscTest") << " WARNING ERROR - HIST ID INCORRECT (TOO HIGH) - " << Number;
     edm::LogVerbatim("BscTest") << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
 
@@ -215,23 +330,23 @@ TH2F* BscAnalysisHistManager::GetHisto2(Int_t Number) {
 }
 //-----------------------------------------------------------------------------
 
-TH1F* BscAnalysisHistManager::GetHisto(const TObjString& histname) {
+TH1F* BscAnalysisHistManager::getHisto(const TObjString& histname) {
   // Get a histogram from the array with name = histname
 
   Int_t index = fHistNamesArray->IndexOf(&histname);
-  return GetHisto(index);
+  return getHisto(index);
 }
 //-----------------------------------------------------------------------------
 
-TH2F* BscAnalysisHistManager::GetHisto2(const TObjString& histname) {
+TH2F* BscAnalysisHistManager::getHisto2(const TObjString& histname) {
   // Get a histogram from the array with name = histname
 
   Int_t index = fHistNamesArray->IndexOf(&histname);
-  return GetHisto2(index);
+  return getHisto2(index);
 }
 //-----------------------------------------------------------------------------
 
-void BscAnalysisHistManager::StoreWeights() {
+void BscAnalysisHistManager::storeWeights() {
   // Add structure to each histogram to store the weights
 
   for (int i = 0; i < fHistArray->GetEntries(); i++) {
@@ -271,10 +386,10 @@ void BscTest::update(const BeginOfTrack* trk) {
     edm::LogVerbatim("BscTest") << "BscTest:update BeginOfTrack number = " << itrk;
   }
   if (itrk == 1) {
-    SumEnerDeposit = 0.;
+    sumEnerDeposit = 0.;
     numofpart = 0;
-    SumStepl = 0.;
-    SumStepc = 0.;
+    sumStepl = 0.;
+    sumStepc = 0.;
     tracklength0 = 0.;
   }
 }
@@ -288,8 +403,8 @@ void BscTest::update(const EndOfTrack* trk) {
   if (itrk == 1) {
     G4double tracklength = (*trk)()->GetTrackLength();  // Accumulated track length
 
-    TheHistManager->GetHisto("SumEDep")->Fill(SumEnerDeposit);
-    TheHistManager->GetHisto("TrackL")->Fill(tracklength);
+    TheHistManager->getHisto("SumEDep")->Fill(sumEnerDeposit);
+    TheHistManager->getHisto("TrackL")->Fill(tracklength);
 
     // direction !!!
     G4ThreeVector vert_mom = (*trk)()->GetVertexMomentumDirection();
@@ -357,13 +472,13 @@ void BscTest::update(const G4Step* aStep) {
 
     // for Copper:
     if (prename == "SBST") {
-      SumStepc += stepl;
+      sumStepc += stepl;
       // =========
     }
     // for ststeel:
     //	 if(prename == "SBSTs") {
     if (prename == "SBSTs") {
-      SumStepl += stepl;
+      sumStepl += stepl;
       // =========
     }
     // =========
@@ -457,7 +572,7 @@ void BscTest::update(const G4Step* aStep) {
     }
     // end of trackstatus != 2
 
-    SumEnerDeposit += EnerDeposit;
+    sumEnerDeposit += EnerDeposit;
     if (trackstatus == 2) {
       // primary track length
       //      //UserNtuples->fillg508(tracklength,1.);
@@ -556,9 +671,9 @@ void BscTest::update(const EndOfEvent* evt) {
       //UserNtuples->fillh01(vx);
       //UserNtuples->fillh02(vy);
       //UserNtuples->fillh03(vz);
-      TheHistManager->GetHisto("VtxX")->Fill(vx);
-      TheHistManager->GetHisto("VtxY")->Fill(vy);
-      TheHistManager->GetHisto("VtxZ")->Fill(vz);
+      TheHistManager->getHisto("VtxX")->Fill(vx);
+      TheHistManager->getHisto("VtxY")->Fill(vy);
+      TheHistManager->getHisto("VtxZ")->Fill(vz);
     }
   }
   // prim.vertex loop end
@@ -583,18 +698,18 @@ void BscTest::update(const EndOfEvent* evt) {
 
     double th = mom.theta();
     double eta = -log(tan(th / 2));
-    TheHistManager->GetHisto("PrimaryEta")->Fill(eta);
-    TheHistManager->GetHisto("PrimaryPhigrad")->Fill(phigrad);
-    TheHistManager->GetHisto("PrimaryTh")->Fill(th * 180. / pi);
+    TheHistManager->getHisto("PrimaryEta")->Fill(eta);
+    TheHistManager->getHisto("PrimaryPhigrad")->Fill(phigrad);
+    TheHistManager->getHisto("PrimaryTh")->Fill(th * 180. / pi);
 
-    TheHistManager->GetHisto("PrimaryLastpoZ")->Fill(lastpo.z());
+    TheHistManager->getHisto("PrimaryLastpoZ")->Fill(lastpo.z());
     if (lastpo.z() < z4) {
-      TheHistManager->GetHisto("PrimaryLastpoX")->Fill(lastpo.x());
-      TheHistManager->GetHisto("PrimaryLastpoY")->Fill(lastpo.y());
+      TheHistManager->getHisto("PrimaryLastpoX")->Fill(lastpo.x());
+      TheHistManager->getHisto("PrimaryLastpoY")->Fill(lastpo.y());
     }
     if (numofpart > 4) {
-      TheHistManager->GetHisto("XLastpoNumofpart")->Fill(lastpo.x());
-      TheHistManager->GetHisto("YLastpoNumofpart")->Fill(lastpo.y());
+      TheHistManager->getHisto("XLastpoNumofpart")->Fill(lastpo.x());
+      TheHistManager->getHisto("YLastpoNumofpart")->Fill(lastpo.y());
     }
 
     // ==========================================================================
@@ -637,9 +752,9 @@ void BscTest::update(const EndOfEvent* evt) {
       BscG4Hit* aHit = (*theCAFI)[j];
       const CLHEP::Hep3Vector& hitPoint = aHit->getEntry();
       double zz = hitPoint.z();
-      TheHistManager->GetHisto("zHits")->Fill(zz);
+      TheHistManager->getHisto("zHits")->Fill(zz);
       if (tracklength0 > 8300.)
-        TheHistManager->GetHisto("zHitsTrLoLe")->Fill(zz);
+        TheHistManager->getHisto("zHitsTrLoLe")->Fill(zz);
     }
 
     if (varia == 2) {
@@ -657,7 +772,7 @@ void BscTest::update(const EndOfEvent* evt) {
 
         double zz = hitPoint.z();
 
-        TheHistManager->GetHisto("zHitsnoMI")->Fill(zz);
+        TheHistManager->getHisto("zHitsnoMI")->Fill(zz);
 
         if (verbosity > 2) {
           edm::LogVerbatim("BscTest") << "BscTest:zHits = " << zz;
@@ -739,7 +854,7 @@ void BscTest::update(const EndOfEvent* evt) {
             //UserNtuples->fillg56(dx,1.);
             //UserNtuples->fillg57(dy,1.);
             //UserNtuples->fillg20(numofpart,1.);
-            //UserNtuples->fillg21(SumEnerDeposit,1.);
+            //UserNtuples->fillg21(sumEnerDeposit,1.);
             if (zside == 1) {
               //UserNtuples->fillg26(losenergy,1.);
             }
@@ -759,7 +874,7 @@ void BscTest::update(const EndOfEvent* evt) {
             //UserNtuples->fillg52(dx,1.);
             //UserNtuples->fillg53(dy,1.);
             //UserNtuples->fillg22(numofpart,1.);
-            //UserNtuples->fillg23(SumEnerDeposit,1.);
+            //UserNtuples->fillg23(sumEnerDeposit,1.);
             //UserNtuples->fillg80(incidentEnergyHit,1.);
             //UserNtuples->fillg81(float(trackIDhit),1.);
             if (zside == 1) {
@@ -845,3 +960,8 @@ void BscTest::update(const EndOfEvent* evt) {
     edm::LogVerbatim("BscTest") << "BscTest:  END OF Event " << (*evt)()->GetEventID();
   }
 }
+
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
+DEFINE_SIMWATCHER(BscTest);
