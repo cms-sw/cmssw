@@ -66,10 +66,8 @@ electronMcFakeValidator = DQMEDAnalyzer('ElectronMcFakeValidator',
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
     electronMcFakeValidator,
-    electronCollection = 'ecalDrivenGsfElectronsFromMultiCl',
-    electronCoreCollection = 'ecalDrivenGsfElectronCoresFromMultiCl',
-    electronTrackCollection = 'electronGsfTracksFromMultiCl',
-    electronSeedCollection = 'electronMergedSeedsFromMultiCl',
+    electronCollection = 'ecalDrivenGsfElectronsHGC',
+    electronCoreCollection = 'ecalDrivenGsfElectronCoresHGC',
     MaxAbsEta = cms.double(3.0),
     histosCfg = dict( 
         Nbineta = 60 ,
