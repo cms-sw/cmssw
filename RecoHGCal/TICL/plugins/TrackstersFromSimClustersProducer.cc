@@ -25,39 +25,14 @@
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
+#include "RecoHGCal/TICL/interface/commons.h"
+
 #include "TrackstersPCA.h"
 #include <vector>
 #include <iterator>
 #include <algorithm>
-using namespace ticl;
 
-namespace {
-  Trackster::ParticleType tracksterParticleTypeFromPdgId(int pdgId, int charge) {
-    if (pdgId == 111) {
-      return Trackster::ParticleType::neutral_pion;
-    } else {
-      pdgId = std::abs(pdgId);
-      if (pdgId == 22) {
-        return Trackster::ParticleType::photon;
-      } else if (pdgId == 11) {
-        return Trackster::ParticleType::electron;
-      } else if (pdgId == 13) {
-        return Trackster::ParticleType::muon;
-      } else {
-        bool isHadron = (pdgId > 100 and pdgId < 900) or (pdgId > 1000 and pdgId < 9000);
-        if (isHadron) {
-          if (charge != 0) {
-            return Trackster::ParticleType::charged_hadron;
-          } else {
-            return Trackster::ParticleType::neutral_hadron;
-          }
-        } else {
-          return Trackster::ParticleType::unknown;
-        }
-      }
-    }
-  }
-}  // namespace
+using namespace ticl;
 
 class TrackstersFromSimClustersProducer : public edm::stream::EDProducer<> {
 public:
@@ -145,62 +120,40 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
   auto num_simclusters = simclusters.size();
   result->reserve(num_simclusters);
 
-  for (const auto& [key, values] : caloParticlesToRecoColl) {
+  for (const auto& [key, lcVec] : caloParticlesToRecoColl) {
     auto const& cp = *(key);
     auto cpIndex = &cp - &caloparticles[0];
     if (cp.g4Tracks()[0].crossedBoundary()) {
-      if (values.empty())
-        continue;
-      Trackster tmpTrackster;
-      tmpTrackster.zeroProbabilities();
-      tmpTrackster.vertices().reserve(values.size());
-      tmpTrackster.vertex_multiplicity().reserve(values.size());
-      for (auto const& [lc, energyScorePair] : values) {
-        if (inputClusterMask[lc.index()] > 0) {
-          double fraction = energyScorePair.first / lc->energy();
-          if (fraction < fractionCut_)
-            continue;
-          tmpTrackster.vertices().push_back(lc.index());
-          (*output_mask)[lc.index()] -= fraction;
-          tmpTrackster.vertex_multiplicity().push_back(1. / fraction);
-        }
-      }
-      tmpTrackster.setIdProbability(tracksterParticleTypeFromPdgId(cp.pdgId(), cp.charge()), 1.f);
-      float energyAtBoundary = cp.g4Tracks()[0].getMomentumAtBoundary().energy();
-      tmpTrackster.setRegressedEnergy(energyAtBoundary);
-      tmpTrackster.setSeed(key.id(), cpIndex);
-      result->emplace_back(tmpTrackster);
+      addTrackster(cpIndex,
+                   lcVec,
+                   inputClusterMask,
+                   fractionCut_,
+                   cp.g4Tracks()[0].getMomentumAtBoundary().energy(),
+                   cp.pdgId(),
+                   cp.charge(),
+                   key.id(),
+                   *output_mask,
+                   *result);
+
     } else {
       for (const auto& scRef : cp.simClusters()) {
         const auto& it = simClustersToRecoColl.find(scRef);
         if (it == simClustersToRecoColl.end())
           continue;
         const auto& lcVec = it->val;
-        if (lcVec.empty())
-          continue;
         auto const& sc = *(scRef);
-        auto simClusterIndex = &sc - &simclusters[0];
-        Trackster tmpTrackster;
+        auto const scIndex = &sc - &simclusters[0];
 
-        tmpTrackster.zeroProbabilities();
-        tmpTrackster.vertices().reserve(lcVec.size());
-        tmpTrackster.vertex_multiplicity().reserve(lcVec.size());
-
-        for (auto const& [lc, energyScorePair] : lcVec) {
-          if (inputClusterMask[lc.index()] > 0) {
-            double fraction = energyScorePair.first / lc->energy();
-            if (fraction < fractionCut_)
-              continue;
-            tmpTrackster.vertices().push_back(lc.index());
-            (*output_mask)[lc.index()] -= fraction;
-            tmpTrackster.vertex_multiplicity().push_back(1. / fraction);
-          }
-        }
-        tmpTrackster.setIdProbability(tracksterParticleTypeFromPdgId(sc.pdgId(), sc.charge()), 1.f);
-        float energyAtBoundary = sc.g4Tracks()[0].getMomentumAtBoundary().energy();
-        tmpTrackster.setRegressedEnergy(energyAtBoundary);
-        tmpTrackster.setSeed(scRef.id(), simClusterIndex);
-        result->emplace_back(tmpTrackster);
+        addTrackster(scIndex,
+                     lcVec,
+                     inputClusterMask,
+                     fractionCut_,
+                     sc.g4Tracks()[0].getMomentumAtBoundary().energy(),
+                     sc.pdgId(),
+                     sc.charge(),
+                     scRef.id(),
+                     *output_mask,
+                     *result);
       }
     }
   }
