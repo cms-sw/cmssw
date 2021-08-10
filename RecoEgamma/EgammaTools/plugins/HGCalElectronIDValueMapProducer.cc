@@ -220,7 +220,7 @@ void HGCalElectronIDValueMapProducer::endStream() {}
 void HGCalElectronIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // Auto-generate hgcalElectronIDValueMap_cfi
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("electrons", edm::InputTag("ecalDrivenGsfElectronsFromMultiCl"));
+  desc.add<edm::InputTag>("electrons", edm::InputTag("ecalDrivenGsfElectronsHGC"));
   desc.add<double>("pcaRadius", 3.0);
   desc.add<std::vector<std::string>>("variables", valuesProduced_);
   desc.add<std::vector<double>>("dEdXWeights")

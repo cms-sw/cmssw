@@ -186,7 +186,7 @@ cms.untracked.PSet(branch = cms.untracked.string("patJets_slimmedJetsPuppi__*"),
 cms.untracked.PSet(branch = cms.untracked.string("EcalRecHitsSorted_reducedEgamma_reducedESRecHits_*"),splitLevel=cms.untracked.int32(99)),
 ])
 
-_phase2_hgc_extraCommands = ["keep *_slimmedElectronsFromMultiCl_*_*", "keep *_slimmedPhotonsFromMultiCl_*_*"]
+_phase2_hgc_extraCommands = ["keep *_slimmedElectronsHGC_*_*", "keep *_slimmedPhotonsHGC_*_*"]
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + _phase2_hgc_extraCommands)
 
