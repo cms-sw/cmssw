@@ -105,12 +105,12 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet &ps) {
   }
 
   edm::LogVerbatim("EcalTBInfo") << "Initialize TB MC ECAL info producer with parameters: \n"
-				 << "Crystal map file:  " << CrystalMapFile << "\n"
-				 << "Beam average eta = " << beamEta << "\n"
-				 << "Beam average phi = " << beamPhi << "\n"
-				 << "Corresponding to crystal number = " << crysNumber << "\n"
-				 << "Beam X offset =    " << beamXoff << "\n"
-				 << "Beam Y offset =    " << beamYoff;
+                                 << "Crystal map file:  " << CrystalMapFile << "\n"
+                                 << "Beam average eta = " << beamEta << "\n"
+                                 << "Beam average phi = " << beamPhi << "\n"
+                                 << "Corresponding to crystal number = " << crysNumber << "\n"
+                                 << "Beam X offset =    " << beamXoff << "\n"
+                                 << "Beam Y offset =    " << beamYoff;
 
   // rotation matrix to move from the CMS reference frame to the test beam one
 

@@ -38,9 +38,9 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 class EcalTBH4Trigger : public SimWatcher,
-                        public Observer<const BeginOfEvent*>,
-                        public Observer<const G4Step*>,
-                        public Observer<const EndOfEvent*> {
+                        public Observer<const BeginOfEvent *>,
+                        public Observer<const G4Step *>,
+                        public Observer<const EndOfEvent *> {
 public:
   EcalTBH4Trigger(const edm::ParameterSet &pSet)
       : m_verbose(pSet.getUntrackedParameter<bool>("verbose", false)),
@@ -90,7 +90,8 @@ void EcalTBH4Trigger::update(const G4Step *iStep) {
     // Get name and copy numbers
     if (touch->GetHistoryDepth() > 0) {
       for (int ii = 0; ii <= touch->GetHistoryDepth(); ii++) {
-	st1 << "EcalTBH4::Level " << ii << ": " << touch->GetVolume(ii)->GetName() << "[" << touch->GetReplicaNumber(ii) << "]";
+        st1 << "EcalTBH4::Level " << ii << ": " << touch->GetVolume(ii)->GetName() << "[" << touch->GetReplicaNumber(ii)
+            << "]";
       }
     }
     edm::LogVerbatim("EcalTBInfo") << st1.str();
@@ -102,9 +103,11 @@ void EcalTBH4Trigger::update(const G4Step *iStep) {
     st2 << " released energy (MeV) " << iStep->GetTotalEnergyDeposit() / CLHEP::MeV;
     if (theTrack) {
       const G4ThreeVector mom = theTrack->GetMomentum();
-      st2 << " track length (cm) " << theTrack->GetTrackLength() / CLHEP::cm << " particle type " << theTrack->GetDefinition()->GetParticleName() << " momentum " << "( " << mom.x() << "," << mom.y() << "," << mom.z() << ") ";
+      st2 << " track length (cm) " << theTrack->GetTrackLength() / CLHEP::cm << " particle type "
+          << theTrack->GetDefinition()->GetParticleName() << " momentum "
+          << "( " << mom.x() << "," << mom.y() << "," << mom.z() << ") ";
       if (theTrack->GetCreatorProcess()) {
-	st2 << " created by " << theTrack->GetCreatorProcess()->GetProcessName();
+        st2 << " created by " << theTrack->GetCreatorProcess()->GetProcessName();
       }
     }
     if (post->GetPhysicalVolume()) {
@@ -126,7 +129,7 @@ void EcalTBH4Trigger::update(const G4Step *iStep) {
       m_passedTrg6 = true;
     if (post->GetPhysicalVolume()->GetName() == "CMSSE")  // Exiting TBH4BeamLine
       if (!(m_passedTrg1 && m_passedTrg6))                // Trigger defined as Trg4 && Trg6
-	throw SimG4Exception("Event is not triggered by ECALTBH4");
+        throw SimG4Exception("Event is not triggered by ECALTBH4");
   }
 
   /*     if (!m_enteringTBH4BeamLine && ( post->GetPhysicalVolume()->GetName()
@@ -134,7 +137,7 @@ void EcalTBH4Trigger::update(const G4Step *iStep) {
 }
 
 void EcalTBH4Trigger::update(const EndOfEvent *anEvent) {
-  edm::LogVerbatim("EcalTBInfo") << "++ signal BeginOfEvent " ;
+  edm::LogVerbatim("EcalTBInfo") << "++ signal BeginOfEvent ";
   nTriggeredEvents_++;
 }
 
