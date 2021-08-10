@@ -100,7 +100,8 @@ DQMSourceEleCalib::DQMSourceEleCalib(const edm::ParameterSet &ps) : eventCounter
 
   saveToFile_ = ps.getUntrackedParameter<bool>("SaveToFile", false);
   fileName_ = ps.getUntrackedParameter<std::string>("FileName", "MonitorAlCaEcalSingleEle.root");
-  productMonitoredElectrons_ = consumes<reco::GsfElectronCollection>(ps.getParameter<edm::InputTag>("electronCollection"));
+  productMonitoredElectrons_ =
+      consumes<reco::GsfElectronCollection>(ps.getParameter<edm::InputTag>("electronCollection"));
   prescaleFactor_ = ps.getUntrackedParameter<unsigned int>("prescaleFactor", 1);
 }
 
