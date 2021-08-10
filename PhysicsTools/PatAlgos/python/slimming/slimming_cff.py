@@ -7,6 +7,7 @@ from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices_cfi import *
 from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices4D_cfi import *
 from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import *
 from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
+from PhysicsTools.PatAlgos.slimming.genParticleAssociation_cff import *
 from PhysicsTools.PatAlgos.slimming.selectedPatTrigger_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedPatTrigger_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi      import *
@@ -86,6 +87,10 @@ from RecoHI.HiTracking.miniAODVertexRecovery_cff import offlinePrimaryVerticesRe
 pp_on_AA.toReplaceWith(
     slimmingTask,
     cms.Task(slimmingTask.copy(), offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery))
+
+from Configuration.Eras.Modifier_bParking_cff import bParking
+_bParking_slimmingTask = cms.Task(slimmingTask.copy(),packedCandidateToGenAssociationTask)
+bParking.toReplaceWith(slimmingTask,_bParking_slimmingTask)
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _phase2_timing_slimmingTask = cms.Task(slimmingTask.copy(),
