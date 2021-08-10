@@ -135,7 +135,7 @@ fi
 
 for t in BeamPipe Tracker Phase2PixelBarrel Phase2OTBarrel Phase2PixelEndcap Phase2OTForward; do
   if [ ! -e matbdg_${t}.root ]; then
-    python runP_Tracker.py geom=${geometry} label=$t >& /dev/null &
+    python3 runP_Tracker.py geom=${geometry} label=$t >& /dev/null &
   fi
 done
 
@@ -144,7 +144,7 @@ waitPendingJobs
 # Always run the comparison at this stage, since you are guaranteed that all the ingredients are there
 
 for t in BeamPipe Tracker TrackerSumPhaseII Phase2PixelBarrel Phase2OTBarrel Phase2PixelEndcap Phase2OTForward; do
-  python MaterialBudget.py -s -d ${t}
+  python3 MaterialBudget.py -s -d ${t}
   if [ $? -ne 0 ]; then
     echo "Error while producing simulation material for ${t}, aborting"
     exit 1

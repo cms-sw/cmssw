@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 from __future__ import print_function
 import os
@@ -157,7 +157,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
         if(os.path.isfile(newdir+'/val.'+sample+'.rootytootie' )!=True):    
             
             #search the primary dataset
-            cmd='python $DBSCMD_HOME/dbsCommandLine.py "find dataset where dataset like *'
+            cmd='python3 $DBSCMD_HOME/dbsCommandLine.py "find dataset where dataset like *'
             #search for correct EventContent (and site)
             if (FastSimUse=="True"):
                 cmd+=sample+'/'+NewRelease+'-'+GlobalTagUse+'*GEN-SIM-DIGI-RECO* AND site like *cern* "'
@@ -176,7 +176,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             if(dataset!="" or DBS==False):
                 print('dataset found ', dataset[:-1])
                 #Find and format the list of files
-                cmd2='python $DBSCMD_HOME/dbsCommandLine.py "find file where dataset like '+ dataset[:-1] +'"|grep ' + sample 
+                cmd2='python3 $DBSCMD_HOME/dbsCommandLine.py "find file where dataset like '+ dataset[:-1] +'"|grep ' + sample 
 
                 thisFile=0
                 for thisFilename in os.popen(cmd2).readlines():
@@ -202,13 +202,13 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                         if (FastSimUse=="True"):
                             cmd3=cmd
                         else:
-                            cmd3='python $DBSCMD_HOME/dbsCommandLine.py "find dataset.parent where dataset like '+ dataset[:-1] +'"|grep ' + sample
+                            cmd3='python3 $DBSCMD_HOME/dbsCommandLine.py "find dataset.parent where dataset like '+ dataset[:-1] +'"|grep ' + sample
                         parentdataset=os.popen(cmd3).readline()
                         print('Parent DataSet:  ', parentdataset, '\n')
                     
                         #Check if a dataset is found
                         if parentdataset!="":
-                            cmd4='python $DBSCMD_HOME/dbsCommandLine.py "find file where dataset like '+ parentdataset[:-1] +'"|grep ' + sample 
+                            cmd4='python3 $DBSCMD_HOME/dbsCommandLine.py "find file where dataset like '+ parentdataset[:-1] +'"|grep ' + sample 
                             filenames+='secFiles.extend( [\n'
                             first=True                        
                             for line in os.popen(cmd4).readlines():

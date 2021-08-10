@@ -155,7 +155,7 @@ def checkOptionsForBadInput():
          sys.exit()
 
 def calledBycmsRun():
-   ''' Returns true of this python file is being called via cmsRun '''
+   ''' Returns true of this python3 file is being called via cmsRun '''
    if sys.argv[0].find('cmsRun') == -1:
       return False
    else:
