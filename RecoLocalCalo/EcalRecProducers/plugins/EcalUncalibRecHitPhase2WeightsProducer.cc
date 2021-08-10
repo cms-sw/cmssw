@@ -19,12 +19,12 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  float tRise_;
-  float tFall_;
-  std::vector<double> weights_;
+  const float tRise_;
+  const float tFall_;
+  const std::vector<double> weights_;
 
-  edm::EDGetTokenT<EBDigiCollectionPh2> ebDigiCollectionToken_;
-  edm::EDPutTokenT<EBUncalibratedRecHitCollection> ebUncalibRecHitCollectionToken_;
+  const edm::EDGetTokenT<EBDigiCollectionPh2> ebDigiCollectionToken_;
+  const edm::EDPutTokenT<EBUncalibratedRecHitCollection> ebUncalibRecHitCollectionToken_;
 };
 
 void EcalUncalibRecHitPhase2WeightsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -33,13 +33,27 @@ void EcalUncalibRecHitPhase2WeightsProducer::fillDescriptions(edm::Configuration
   desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
   desc.add<double>("tRise", 0.2);
   desc.add<double>("tFall", 2.);
-  desc.add<std::vector<double>>(
-      "weights",
-      {-0.121016, -0.119899, -0.120923, -0.0848959, 0.261041, 0.509881, 0.373591, 0.134899, -0.0233605, -0.0913195,
-       -0.112452, -0.118596, -0,        121737,     -0,       121737,   -0,       121737,   -0,         121737});
+  desc.add<std::vector<double>>("weights",
+                                {-0.121016,
+                                 -0.119899,
+                                 -0.120923,
+                                 -0.0848959,
+                                 0.261041,
+                                 0.509881,
+                                 0.373591,
+                                 0.134899,
+                                 -0.0233605,
+                                 -0.0913195,
+                                 -0.112452,
+                                 -0.118596,
+                                 -0.121737,
+                                 -0.121737,
+                                 -0.121737,
+                                 -0.121737});
+
   desc.add<edm::InputTag>("BarrelDigis", edm::InputTag("simEcalUnsuppressedDigis", ""));
 
-  descriptions.add("ecalUncalibRecHitPhase2Weights", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 EcalUncalibRecHitPhase2WeightsProducer::EcalUncalibRecHitPhase2WeightsProducer(const edm::ParameterSet& ps)
