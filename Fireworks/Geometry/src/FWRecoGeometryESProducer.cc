@@ -74,10 +74,12 @@ using Phase2TrackerTopology = PixelTopology;
       fwRecoGeometry.idToName[rawid].topology[4] = rtop->originToIntersection();                           \
       fwRecoGeometry.idToName[rawid].topology[5] = rtop->phiOfOneEdge();                                   \
       fwRecoGeometry.idToName[rawid].topology[6] = rtop->angularWidth();                                   \
-    } else if (dynamic_cast<const RectangularStripTopology*>(&(det->specificType().specificTopology()))) { \
+    } else if (const RectangularStripTopology* topo =                                                      \
+                   dynamic_cast<const RectangularStripTopology*>(&(det->specificType().specificTopology()))) { \
       fwRecoGeometry.idToName[rawid].topology[0] = 2;                                                      \
       fwRecoGeometry.idToName[rawid].topology[3] = topo->pitch();                                          \
-    } else if (dynamic_cast<const TrapezoidalStripTopology*>(&(det->specificType().specificTopology()))) { \
+    } else if (const TrapezoidalStripTopology* topo =                                                      \
+                   dynamic_cast<const TrapezoidalStripTopology*>(&(det->specificType().specificTopology()))) { \
       fwRecoGeometry.idToName[rawid].topology[0] = 3;                                                      \
       fwRecoGeometry.idToName[rawid].topology[3] = topo->pitch();                                          \
     }                                                                                                      \
