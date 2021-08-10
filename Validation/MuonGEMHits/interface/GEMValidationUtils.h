@@ -28,7 +28,7 @@ namespace GEMUtils {
   TString getSuffixName(Int_t region_id);
   TString getSuffixName(Int_t region_id, Int_t station_id);
   TString getSuffixName(Int_t region_id, Int_t station_id, Int_t layer_id);
-  TString getSuffixName(Int_t region_id, Int_t station_id, Int_t layer_id, Int_t roll_id);
+  TString getSuffixName(Int_t region_id, Int_t station_id, Int_t layer_id, Int_t eta_id);
 
   TString getSuffixName(const ME2IdsKey& key);
   TString getSuffixName(const ME3IdsKey& key);
@@ -37,7 +37,7 @@ namespace GEMUtils {
   TString getSuffixTitle(Int_t region_id);
   TString getSuffixTitle(Int_t region_id, Int_t station_id);
   TString getSuffixTitle(Int_t region_id, Int_t station_id, Int_t layer_id);
-  TString getSuffixTitle(Int_t region_id, Int_t station_id, Int_t layer_id, Int_t roll_id);
+  TString getSuffixTitle(Int_t region_id, Int_t station_id, Int_t layer_id, Int_t eta_id);
 
   TString getSuffixTitle(const ME2IdsKey& key);
   TString getSuffixTitle(const ME3IdsKey& key);
