@@ -1,16 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEgamma.EgammaTools.cleanedEcalDrivenGsfElectronsFromMultiCl_cfi import cleanedEcalDrivenGsfElectronsFromMultiCl
+from RecoEgamma.EgammaTools.cleanedEcalDrivenGsfElectronsHGC_cfi import cleanedEcalDrivenGsfElectronsHGC
 from RecoEgamma.EgammaTools.hgcalElectronIDValueMap_cff import hgcalElectronIDValueMap
 from PhysicsTools.PatAlgos.PATElectronProducer_cfi import PATElectronProducer
 from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import slimmedElectrons
 from RecoLocalCalo.HGCalRecProducers.hgcalRecHitMapProducer_cfi import hgcalRecHitMapProducer
 
 hgcElectronID = hgcalElectronIDValueMap.clone(
-    electrons = "cleanedEcalDrivenGsfElectronsFromMultiCl",
+    electrons = "cleanedEcalDrivenGsfElectronsHGC",
 )
-patElectronsFromMultiCl = PATElectronProducer.clone(
-    electronSource             = "cleanedEcalDrivenGsfElectronsFromMultiCl",
+patElectronsHGC = PATElectronProducer.clone(
+    electronSource             = "cleanedEcalDrivenGsfElectronsHGC",
     beamLineSrc                = "offlineBeamSpot",
     pvSrc                      = "offlinePrimaryVertices",
     addElectronID              = False,
@@ -41,23 +41,23 @@ patElectronsFromMultiCl = PATElectronProducer.clone(
         userFunctionLabels = cms.vstring()
     ),
 )
-selectedPatElectronsFromMultiCl = cms.EDFilter("PATElectronSelector",
-    src = cms.InputTag("patElectronsFromMultiCl"),
+selectedPatElectronsHGC = cms.EDFilter("PATElectronSelector",
+    src = cms.InputTag("patElectronsHGC"),
     cut = cms.string("!isEB && pt >= 10."),
 )
-slimmedElectronsFromMultiCl = slimmedElectrons.clone(
-    src = "selectedPatElectronsFromMultiCl",
+slimmedElectronsHGC = slimmedElectrons.clone(
+    src = "selectedPatElectronsHGC",
     linkToPackedPFCandidates = False,
     saveNonZSClusterShapes   = "0",
     modifyElectrons          = False,
 )
 
-slimmedElectronsFromMultiClTask = cms.Task(
-    cleanedEcalDrivenGsfElectronsFromMultiCl,
+slimmedElectronsHGCTask = cms.Task(
+    cleanedEcalDrivenGsfElectronsHGC,
     hgcElectronID,
-    patElectronsFromMultiCl,
-    selectedPatElectronsFromMultiCl,
-    slimmedElectronsFromMultiCl
+    patElectronsHGC,
+    selectedPatElectronsHGC,
+    slimmedElectronsHGC
 )
 
 
@@ -67,9 +67,9 @@ from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi import slimmedPhotons
 
 hgcPhotonID = hgcalPhotonIDValueMap.clone()
 
-patPhotonsFromMultiCl = PATPhotonProducer.clone(
-    photonSource           = "photonsFromMultiCl",
-    electronSource         = "ecalDrivenGsfElectronsFromMultiCl",
+patPhotonsHGC = PATPhotonProducer.clone(
+    photonSource           = "photonsHGC",
+    electronSource         = "ecalDrivenGsfElectronsHGC",
     beamLineSrc            = "offlineBeamSpot",
     addPhotonID            = False,
     addGenMatch            = False,
@@ -92,26 +92,26 @@ patPhotonsFromMultiCl = PATPhotonProducer.clone(
         userFunctionLabels = cms.vstring()
     ),
 )
-selectedPatPhotonsFromMultiCl = cms.EDFilter("PATPhotonSelector",
-    src = cms.InputTag("patPhotonsFromMultiCl"),
+selectedPatPhotonsHGC = cms.EDFilter("PATPhotonSelector",
+    src = cms.InputTag("patPhotonsHGC"),
     cut = cms.string("!isEB && pt >= 15."),
 )
-slimmedPhotonsFromMultiCl = slimmedPhotons.clone(
-    src = "selectedPatPhotonsFromMultiCl",
+slimmedPhotonsHGC = slimmedPhotons.clone(
+    src = "selectedPatPhotonsHGC",
     linkToPackedPFCandidates = False,
     saveNonZSClusterShapes   = "0",
     modifyPhotons            = False,
 )
 
-slimmedPhotonsFromMultiClTask = cms.Task(
+slimmedPhotonsHGCTask = cms.Task(
     hgcPhotonID,
-    patPhotonsFromMultiCl,
-    selectedPatPhotonsFromMultiCl,
-    slimmedPhotonsFromMultiCl
+    patPhotonsHGC,
+    selectedPatPhotonsHGC,
+    slimmedPhotonsHGC
 )
 
-slimmedEgammaFromMultiClTask = cms.Task(
+slimmedEgammaHGCTask = cms.Task(
     hgcalRecHitMapProducer,
-    slimmedElectronsFromMultiClTask,
-    slimmedPhotonsFromMultiClTask
+    slimmedElectronsHGCTask,
+    slimmedPhotonsHGCTask
 )

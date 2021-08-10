@@ -113,12 +113,12 @@ void HGCalElectronFilter::endStream() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HGCalElectronFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // cleanedEcalDrivenGsfElectronsFromMultiCl
+  // cleanedEcalDrivenGsfElectronsHGC
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("inputGsfElectrons", edm::InputTag("ecalDrivenGsfElectronsFromMultiCl"));
+  desc.add<edm::InputTag>("inputGsfElectrons", edm::InputTag("ecalDrivenGsfElectronsHGC"));
   desc.add<bool>("cleanBarrel", false);
   desc.add<std::string>("outputCollection", "");
-  descriptions.add("cleanedEcalDrivenGsfElectronsFromMultiCl", desc);
+  descriptions.add("cleanedEcalDrivenGsfElectronsHGC", desc);
 }
 
 //define this as a plug-in
