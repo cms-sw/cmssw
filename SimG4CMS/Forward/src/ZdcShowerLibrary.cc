@@ -6,9 +6,10 @@
 
 #include "SimG4CMS/Forward/interface/ZdcShowerLibrary.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4Step.hh"
@@ -116,11 +117,12 @@ std::vector<ZdcShowerLibrary::Hit>& ZdcShowerLibrary::getHits(const G4Step* aSte
 
     hits.push_back(oneHit);
 
-    LogDebug("ZdcShower") << "\nZdcShowerLibrary:Generated Hit " << nHit << " orig hit pos " << hitPointOrig
-                          << " orig hit pos local coord" << hitPoint << " new position " << (hits[nHit].position)
-                          << " Channel " << (hits[nHit].depth) << " side " << side << " Time " << (hits[nHit].time)
-                          << " DetectorID " << (hits[nHit].detID) << " Had Energy " << (hits[nHit].DeHad)
-                          << " EM Energy  " << (hits[nHit].DeEM) << "\n";
+    edm::LogVerbatim("ZdcShower") << "\nZdcShowerLibrary:Generated Hit " << nHit << " orig hit pos " << hitPointOrig
+                                  << " orig hit pos local coord" << hitPoint << " new position "
+                                  << (hits[nHit].position) << " Channel " << (hits[nHit].depth) << " side " << side
+                                  << " Time " << (hits[nHit].time) << " DetectorID " << (hits[nHit].detID)
+                                  << " Had Energy " << (hits[nHit].DeHad) << " EM Energy  " << (hits[nHit].DeEM)
+                                  << "\n";
     nHit++;
   }
   return hits;
@@ -137,12 +139,12 @@ int ZdcShowerLibrary::getEnergyFromLibrary(const G4ThreeVector& hitPoint,
 
   energy = energy / GeV;
 
-  LogDebug("ZdcShower") << "\n ZdcShowerLibrary::getEnergyFromLibrary input/output variables:"
-                        << " phi: " << 59.2956 * momDir.phi() << " theta: " << 59.2956 * momDir.theta()
-                        << " xin : " << hitPoint.x() << " yin : " << hitPoint.y() << " zin : " << hitPoint.z()
-                        << " track en: " << energy << "(GeV)"
-                        << " section: " << section << " side: " << side << " channel: " << channel
-                        << " partID: " << parCode;
+  edm::LogVerbatim("ZdcShower") << "\n ZdcShowerLibrary::getEnergyFromLibrary input/output variables:"
+                                << " phi: " << 59.2956 * momDir.phi() << " theta: " << 59.2956 * momDir.theta()
+                                << " xin : " << hitPoint.x() << " yin : " << hitPoint.y() << " zin : " << hitPoint.z()
+                                << " track en: " << energy << "(GeV)"
+                                << " section: " << section << " side: " << side << " channel: " << channel
+                                << " partID: " << parCode;
 
   double eav = 0.;
   double esig = 0.;
@@ -203,13 +205,13 @@ int ZdcShowerLibrary::getEnergyFromLibrary(const G4ThreeVector& hitPoint,
   }
 
   if (eav < 0. || esig < 0.) {
-    LogDebug("ZdcShower") << " Negative everage energy or esigma from parametrization \n"
-                          << " xin: " << xin << "(cm)"
-                          << " yin: " << yin << "(cm)"
-                          << " track en: " << energy << "(GeV)"
-                          << " eaverage: " << eav << " (GeV)"
-                          << " esigma: " << esig << "  (GeV)"
-                          << " edist: " << edis << " (GeV)";
+    edm::LogVerbatim("ZdcShower") << " Negative everage energy or esigma from parametrization \n"
+                                  << " xin: " << xin << "(cm)"
+                                  << " yin: " << yin << "(cm)"
+                                  << " track en: " << energy << "(GeV)"
+                                  << " eaverage: " << eav << " (GeV)"
+                                  << " esigma: " << esig << "  (GeV)"
+                                  << " edist: " << edis << " (GeV)";
     return 0;
   }
 
@@ -220,13 +222,11 @@ int ZdcShowerLibrary::getEnergyFromLibrary(const G4ThreeVector& hitPoint,
   while (nphotons == -1 || nphotons > int(eav + 5. * esig))
     nphotons = (int)(fact * photonFluctuation(eav, esig, edis));
 
-  LogDebug("ZdcShower")
-      //std::cout
-      << " track en: " << energy << "(GeV)"
-      << " eaverage: " << eav / GeV << " (GeV)"
-      << " esigma: " << esig / GeV << "  (GeV)"
-      << " edist: " << edis << " (GeV)"
-      << " dE hit: " << nphotons / GeV << " (GeV)";
+  edm::LogVerbatim("ZdcShower") << " track en: " << energy << "(GeV)"
+                                << " eaverage: " << eav / GeV << " (GeV)"
+                                << " esigma: " << esig / GeV << "  (GeV)"
+                                << " edist: " << edis << " (GeV)"
+                                << " dE hit: " << nphotons / GeV << " (GeV)";
 
   return nphotons;
 }

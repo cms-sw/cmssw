@@ -11,25 +11,59 @@
 //
 
 // system include files
-#include <iostream>
-#include <iomanip>
 #include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
 
 // user include files
-#include "SimG4Core/Notification/interface/BeginOfEvent.h"
-#include "SimG4Core/Notification/interface/EndOfEvent.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimG4CMS/Forward/interface/TotemTestGem.h"
+#include "SimDataFormats/Forward/interface/TotemTestHistoClass.h"
+
 #include "SimG4CMS/Forward/interface/TotemG4HitCollection.h"
+#include "SimG4CMS/Forward/interface/TotemG4Hit.h"
+
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
+#include "SimG4Core/Notification/interface/BeginOfEvent.h"
+#include "SimG4Core/Notification/interface/EndOfEvent.h"
+#include "SimG4Core/Watcher/interface/SimProducer.h"
 
 #include "G4SDManager.hh"
+#include "G4Step.hh"
 #include "G4HCofThisEvent.hh"
+
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
+
+class TotemTestGem : public SimProducer, public Observer<const BeginOfEvent*>, public Observer<const EndOfEvent*> {
+public:
+  TotemTestGem(const edm::ParameterSet& p);
+  ~TotemTestGem() override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+protected:
+  // observer classes
+  void update(const BeginOfEvent* evt) override;
+  void update(const EndOfEvent* evt) override;
+
+private:
+  void clear();
+  void fillEvent(TotemTestHistoClass&);
+
+  //Keep parameters and internal memory
+  std::vector<std::string> names;
+  int evtnum;
+  std::vector<TotemG4Hit*> hits;
+};
 
 //
 // constructors and destructor
@@ -115,3 +149,8 @@ void TotemTestGem::clear() {
   evtnum = 0;
   hits.clear();
 }
+
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
+DEFINE_SIMWATCHER(TotemTestGem);

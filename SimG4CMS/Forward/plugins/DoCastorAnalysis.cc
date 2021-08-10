@@ -9,24 +9,102 @@
 // Original Author: P. Katsas
 //         Created: 02/2007
 //
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimG4CMS/Calo/interface/CaloG4Hit.h"
-#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
+
 #include "DataFormats/Math/interface/Point3D.h"
 
-#include "SimG4CMS/Forward/interface/DoCastorAnalysis.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "SimG4CMS/Calo/interface/CaloG4Hit.h"
+#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 #include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
 
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
+#include "SimG4Core/Notification/interface/BeginOfRun.h"
+#include "SimG4Core/Notification/interface/EndOfRun.h"
+#include "SimG4Core/Notification/interface/BeginOfEvent.h"
+#include "SimG4Core/Notification/interface/EndOfEvent.h"
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Watcher/interface/SimWatcher.h"
+
+#include "G4SDManager.hh"
+#include "G4Step.hh"
+#include "G4Track.hh"
+#include "G4Event.hh"
+#include "G4PrimaryVertex.hh"
+#include "G4VProcess.hh"
+#include "G4HCofThisEvent.hh"
+#include "G4UserEventAction.hh"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Random/Randomize.h"
+
+#include "TROOT.h"
 #include "TFile.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TProfile.h"
+#include "TNtuple.h"
+#include "TRandom.h"
+#include "TLorentzVector.h"
+#include "TUnixSystem.h"
+#include "TSystem.h"
+#include "TMath.h"
+#include "TF1.h"
+
+#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <iomanip>
+#include <map>
 #include <memory>
+#include <string>
 #include <vector>
 
 //#define EDM_ML_DEBUG
 
-DoCastorAnalysis::DoCastorAnalysis(const edm::ParameterSet& p) {
+class DoCastorAnalysis : public SimWatcher,
+                         public Observer<const BeginOfJob *>,
+                         public Observer<const BeginOfRun *>,
+                         public Observer<const EndOfRun *>,
+                         public Observer<const BeginOfEvent *>,
+                         public Observer<const EndOfEvent *>,
+                         public Observer<const G4Step *> {
+public:
+  DoCastorAnalysis(const edm::ParameterSet &p);
+  ~DoCastorAnalysis() override;
+
+private:
+  // observer classes
+  void update(const BeginOfJob *run) override;
+  void update(const BeginOfRun *run) override;
+  void update(const EndOfRun *run) override;
+  void update(const BeginOfEvent *evt) override;
+  void update(const EndOfEvent *evt) override;
+  void update(const G4Step *step) override;
+
+private:
+  int verbosity;
+
+  std::string TreeFileName;
+
+  TFile *CastorOutputEventFile;
+  TTree *CastorTree;
+
+  int eventIndex;
+
+  std::vector<double> simhit_x, simhit_y, simhit_z;
+  std::vector<double> simhit_eta, simhit_phi, simhit_energy;
+  std::vector<int> simhit_sector, simhit_module;
+
+  std::vector<double> *psimhit_x, *psimhit_y, *psimhit_z;
+  std::vector<double> *psimhit_eta, *psimhit_phi, *psimhit_energy;
+  std::vector<int> *psimhit_sector, *psimhit_module;
+
+  double simhit_etot;
+};
+
+DoCastorAnalysis::DoCastorAnalysis(const edm::ParameterSet &p) {
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("DoCastorAnalysis");
   verbosity = m_Anal.getParameter<int>("Verbosity");
 
@@ -60,7 +138,6 @@ DoCastorAnalysis::DoCastorAnalysis(const edm::ParameterSet& p) {
   CastorTree->Branch("simhit_phi", "std::vector<double>", &psimhit_phi);
   CastorTree->Branch("simhit_energy", "std::vector<double>", &psimhit_energy);
 
-  // CastorTree->Branch("simhit_time","std::vector<double>",&psimhit_time);
   CastorTree->Branch("simhit_sector", "std::vector<int>", &psimhit_sector);
   CastorTree->Branch("simhit_module", "std::vector<int>", &psimhit_module);
 
@@ -93,11 +170,11 @@ DoCastorAnalysis::~DoCastorAnalysis() {
 
 //=================================================================== per EVENT
 
-void DoCastorAnalysis::update(const BeginOfJob* job) { edm::LogVerbatim("ForwardSim") << " Starting new job "; }
+void DoCastorAnalysis::update(const BeginOfJob *job) { edm::LogVerbatim("ForwardSim") << " Starting new job "; }
 
 //==================================================================== per RUN
 
-void DoCastorAnalysis::update(const BeginOfRun* run) {
+void DoCastorAnalysis::update(const BeginOfRun *run) {
   edm::LogVerbatim("ForwardSim") << std::endl << "DoCastorAnalysis: Starting Run";
 
   // edm::LogVerbatim("ForwardSim") << "DoCastorAnalysis: output event root file created";
@@ -107,23 +184,23 @@ void DoCastorAnalysis::update(const BeginOfRun* run) {
   eventIndex = 1;
 }
 
-void DoCastorAnalysis::update(const BeginOfEvent* evt) {
+void DoCastorAnalysis::update(const BeginOfEvent *evt) {
   edm::LogVerbatim("ForwardSim") << "DoCastorAnalysis: Processing Event Number: " << eventIndex;
   eventIndex++;
 }
 
 //================= End of EVENT ===============
 
-void DoCastorAnalysis::update(const EndOfEvent* evt) {
+void DoCastorAnalysis::update(const EndOfEvent *evt) {
   // Look for the Hit Collection
 
   // access to the G4 hit collections
-  G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
+  G4HCofThisEvent *allHC = (*evt)()->GetHCofThisEvent();
 
   int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorFI");
-  CaloG4HitCollection* theCAFI = (CaloG4HitCollection*)allHC->GetHC(CAFIid);
+  CaloG4HitCollection *theCAFI = (CaloG4HitCollection *)allHC->GetHC(CAFIid);
 
-  CastorNumberingScheme* theCastorNumScheme = new CastorNumberingScheme();
+  CastorNumberingScheme *theCastorNumScheme = new CastorNumberingScheme();
 
   unsigned int volumeID = 0;
   // std::map<int,float,std::less<int> > themap;
@@ -158,10 +235,6 @@ void DoCastorAnalysis::update(const EndOfEvent* evt) {
   psimhit_energy->clear();
   psimhit_energy->reserve(nentries);
 
-  //psimhit_time=&simhit_time;
-  //psimhit_time->clear();
-  //psimhit_time->reserve(nentries);
-
   psimhit_sector = &simhit_sector;
   psimhit_sector->clear();
   psimhit_sector->reserve(nentries);
@@ -174,7 +247,7 @@ void DoCastorAnalysis::update(const EndOfEvent* evt) {
 
   if (nentries > 0) {
     for (int ihit = 0; ihit < nentries; ihit++) {
-      CaloG4Hit* aHit = (*theCAFI)[ihit];
+      CaloG4Hit *aHit = (*theCAFI)[ihit];
       volumeID = aHit->getUnitID();
 
       //themap[volumeID] += aHit->getEnergyDeposit();
@@ -198,7 +271,6 @@ void DoCastorAnalysis::update(const EndOfEvent* evt) {
       psimhit_phi->push_back(phi);
       psimhit_energy->push_back(energy);
 
-      // psimhit_time->push_back(time);
       psimhit_sector->push_back(sector);
       psimhit_module->push_back(zmodule);
 
@@ -221,6 +293,11 @@ void DoCastorAnalysis::update(const EndOfEvent* evt) {
   delete theCastorNumScheme;
 }
 
-void DoCastorAnalysis::update(const EndOfRun* run) { ; }
+void DoCastorAnalysis::update(const EndOfRun *run) { ; }
 
-void DoCastorAnalysis::update(const G4Step* aStep) { ; }
+void DoCastorAnalysis::update(const G4Step *aStep) { ; }
+
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
+DEFINE_SIMWATCHER(DoCastorAnalysis);
