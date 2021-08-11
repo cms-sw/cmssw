@@ -9,7 +9,7 @@ packedPrimaryVertexAssociationJME = sortedPackedPrimaryVertices.clone(
 )
 adapt(packedPrimaryVertexAssociationJME)
 
-pfCHS = cms.EDProducer("PFnoPileUp",
+pfCHS = cms.EDProducer("PFnoPileUpPacked",
   candidates = cms.InputTag("packedPFCandidates"),
   vertexAssociationQuality = pfPileUpJME.vertexAssociationQuality,
   vertexAssociation = cms.InputTag("packedPrimaryVertexAssociationJME","original")

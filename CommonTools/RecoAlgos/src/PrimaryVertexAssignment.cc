@@ -104,28 +104,30 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
     }
   }
 
-  // first use "closest in Z" with tight cuts (targetting primary particles)
-  const float add_cov = vtxIdMinSignif >= 0 ? vertices[vtxIdMinSignif].covariance(2, 2) : 0.f;
-  const float dzE = sqrt(track->dzError() * track->dzError() + add_cov);
-  if (!fOnlyUseFirstDz_ and vtxIdMinSignif >= 0 and
-      (dzmin < maxDzForPrimaryAssignment_ and dzmin / dzE < maxDzSigForPrimaryAssignment_ and
-       track->dzError() < maxDzErrorForPrimaryAssignment_) and
-      (!useTime or dtmin / timeReso < maxDtSigForPrimaryAssignment_)) {
-    iVertex = vtxIdMinSignif;
-  }
-
-  // consider only distances to first vertex for association of pileup vertices (originally used in PUPPI)
-  if ((fOnlyUseFirstDz_) && (vtxIdMinSignif >= 0) && (std::abs(track->eta()) > fEtaMinUseDz_))
-    iVertex = ((std::abs(track->dz(vertices.at(0).position())) < maxDzForPrimaryAssignment_ and
-                std::abs(track->dz(vertices.at(0).position())) / dzE < maxDzSigForPrimaryAssignment_ and
-                track->dzError() < maxDzErrorForPrimaryAssignment_) and
-               (!useTime or std::abs(time - vertices.at(0).t()) / timeReso < maxDtSigForPrimaryAssignment_))
-                  ? 0
-                  : vtxIdMinSignif;
-
   // protect high pT particles from association to pileup vertices and assign them to the first vertex
-  if ((fPtMaxCharged_ > 0) && (vtxIdMinSignif >= 0) && (track->pt() > fPtMaxCharged_))
+  if ((fPtMaxCharged_ > 0) && (vtxIdMinSignif >= 0) && (track->pt() > fPtMaxCharged_)) {
     iVertex = 0;
+  } else {
+    // first use "closest in Z" with tight cuts (targetting primary particles)
+    const float add_cov = vtxIdMinSignif >= 0 ? vertices[vtxIdMinSignif].covariance(2, 2) : 0.f;
+    const float dzE = sqrt(track->dzError() * track->dzError() + add_cov);
+    if (!fOnlyUseFirstDz_) {
+      if (vtxIdMinSignif >= 0 and
+          (dzmin < maxDzForPrimaryAssignment_ and dzmin / dzE < maxDzSigForPrimaryAssignment_ and
+           track->dzError() < maxDzErrorForPrimaryAssignment_) and
+          (!useTime or dtmin / timeReso < maxDtSigForPrimaryAssignment_))
+        iVertex = vtxIdMinSignif;
+    } else {
+      // consider only distances to first vertex for association of pileup vertices (originally used in PUPPI)
+      if ((vtxIdMinSignif >= 0) && (std::abs(track->eta()) > fEtaMinUseDz_))
+        iVertex = ((std::abs(track->dz(vertices.at(0).position())) < maxDzForPrimaryAssignment_ and
+                    std::abs(track->dz(vertices.at(0).position())) / dzE < maxDzSigForPrimaryAssignment_ and
+                    track->dzError() < maxDzErrorForPrimaryAssignment_) and
+                   (!useTime or std::abs(time - vertices.at(0).t()) / timeReso < maxDtSigForPrimaryAssignment_))
+                      ? 0
+                      : vtxIdMinSignif;
+    }
+  }
 
   if (iVertex >= 0)
     return std::pair<int, PrimaryVertexAssignment::Quality>(iVertex, PrimaryVertexAssignment::PrimaryDz);
@@ -133,14 +135,14 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
   // if track not assigned yet, it could be a b-decay secondary , use jet axis dist criterion
   // first find the closest jet within maxJetDeltaR_
   int jetIdx = -1;
-  double minDeltaR = maxJetDeltaR_;
+  double minDeltaR2 = maxJetDeltaR_ * maxJetDeltaR_;
   for (edm::View<reco::Candidate>::const_iterator ij = jets.begin(); ij != jets.end(); ++ij) {
     if (ij->pt() < minJetPt_)
       continue;  // skip jets below the jet Pt threshold
 
-    double deltaR = reco::deltaR(*ij, *track);
-    if (deltaR < minDeltaR and track->dzError() < maxDzErrorForPrimaryAssignment_) {
-      minDeltaR = deltaR;
+    double deltaR2 = reco::deltaR2(*ij, *track);
+    if (deltaR2 < minDeltaR2 and track->dzError() < maxDzErrorForPrimaryAssignment_) {
+      minDeltaR2 = deltaR2;
       jetIdx = std::distance(jets.begin(), ij);
     }
   }

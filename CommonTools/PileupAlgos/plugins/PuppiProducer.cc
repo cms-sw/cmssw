@@ -87,15 +87,11 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(tokenVertices_, hVertexProduct);
   const reco::VertexCollection* pvCol = hVertexProduct.product();
 
-  edm::Handle<edm::Association<reco::VertexCollection>> assoHandle;
-  const edm::Association<reco::VertexCollection>* associatedPV = nullptr;
-  edm::Handle<edm::ValueMap<int>> assoQualityHandle;
-  const edm::ValueMap<int>* associationQuality = nullptr;
+  edm::Association<reco::VertexCollection> associatedPV;
+  edm::ValueMap<int> associationQuality;
   if ((fUseVertexAssociation) && (!fUseExistingWeights)) {
-    iEvent.getByToken(tokenVertexAssociation_, assoHandle);
-    associatedPV = assoHandle.product();
-    iEvent.getByToken(tokenVertexAssociationQuality_, assoQualityHandle);
-    associationQuality = assoQualityHandle.product();
+    associatedPV = iEvent.get(tokenVertexAssociation_);
+    associationQuality = iEvent.get(tokenVertexAssociationQuality_);
   }
 
   double puProxyValue = 0.;
@@ -113,7 +109,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     //Fill the reco objects
     fRecoObjCollection.clear();
     fRecoObjCollection.reserve(pfCol->size());
-    size_t ic = 0;
+    int ic = 0;
     for (auto const& aPF : *pfCol) {
       RecoObj pReco;
       pReco.pt = aPF.pt();
@@ -131,8 +127,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
 
       if (fUseVertexAssociation) {
-        const reco::VertexRef& PVOrig = (*associatedPV)[reco::CandidatePtr(hPFProduct, ic)];
-        int quality = (*associationQuality)[reco::CandidatePtr(hPFProduct, ic)];
+        const reco::VertexRef& PVOrig = associatedPV[reco::CandidatePtr(hPFProduct, ic)];
+        int quality = associationQuality[reco::CandidatePtr(hPFProduct, ic)];
         if (PVOrig.isNonnull() && (quality >= vertexAssociationQuality_)) {
           closestVtx = PVOrig.get();
           pVtxId = PVOrig.key();

@@ -113,7 +113,9 @@ public:
     else
       return chargedHadronVertex(
           vertices,
-          (useVertexFit_ && (pfcand.pvAssociationQuality() >= pat::PackedCandidate::UsedInFitLoose)) ? pfcand.vertexRef().key() : -1,
+          (useVertexFit_ && (pfcand.pvAssociationQuality() >= pat::PackedCandidate::UsedInFitLoose))
+              ? pfcand.vertexRef().key()
+              : -1,
           &pfcand.pseudoTrack(),
           time,
           timeResolution,
