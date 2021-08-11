@@ -4,11 +4,11 @@
 GEMVFAT::GEMVFAT() : ver_(0), phiPos_(0), fw_(0), sw_(0), tw_(0) {}
 
 GEMVFAT::GEMVFAT(const int vfatVer,
-                   const uint16_t BC,
-                   const uint32_t EC,
-                   const uint16_t chipID,
-                   const uint64_t lsDatas,
-                   const uint64_t msDatas) {
+                 const uint16_t BC,
+                 const uint32_t EC,
+                 const uint16_t chipID,
+                 const uint64_t lsDatas,
+                 const uint64_t msDatas) {
   // this constructor only used for packing sim digis
   VFATfirst fw{0};
   VFATsecond sw{0};
