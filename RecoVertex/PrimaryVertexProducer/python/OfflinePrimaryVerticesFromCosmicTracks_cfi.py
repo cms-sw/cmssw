@@ -11,7 +11,6 @@ offlinePrimaryVerticesFromCosmicTracks = _mod.primaryVertexProducer.clone(
         maxD0Significance = 5.0, ## keep most primary tracks
         maxD0Error = 10.0,
         maxDzError = 10.0,
-        minPt = 0.0, ## better for softish events
         maxEta = 5.0, 
         minPixelLayersWithHits = 2, ## hits > 2
     ),
