@@ -26,7 +26,7 @@ adapt(primaryVertexAssociationJME)
 pfPileUpJME = _pfPileUp.clone(PFCandidates='particleFlowPtrs',
                               useVertexAssociation = True,
                               vertexAssociationQuality = 7,
-                              vertexAssociation = cms.InputTag('primaryVertexAssociationJME','original'),
+                              vertexAssociation = ('primaryVertexAssociationJME','original'),
                               )
 pfNoPileUpJME = _pfNoPileUp.clone(topCollection = 'pfPileUpJME',
                                   bottomCollection = 'particleFlowPtrs' )
