@@ -16,6 +16,7 @@
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 #include "FWCore/TestProcessor/interface/EventSetupTestHelper.h"
 
+#include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/ScheduleItems.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -119,7 +120,6 @@ namespace edm {
       auto nConcurrentRuns = 1U;
       preallocations_ = PreallocationConfiguration{nThreads, nStreams, nConcurrentLumis, nConcurrentRuns};
 
-      espController_->setMaxConcurrentIOVs(nStreams, nConcurrentLumis);
       if (not iConfig.esProduceEntries().empty()) {
         esHelper_ = std::make_unique<EventSetupTestHelper>(iConfig.esProduceEntries());
         esp_->add(std::dynamic_pointer_cast<eventsetup::DataProxyProvider>(esHelper_));
@@ -162,7 +162,9 @@ namespace edm {
         preg_->addProduct(product);
       }
 
-      schedule_ = items.initSchedule(*psetPtr, false, preallocations_, &processContext_);
+      processBlockHelper_ = std::make_shared<ProcessBlockHelper>();
+
+      schedule_ = items.initSchedule(*psetPtr, false, preallocations_, &processContext_, *processBlockHelper_);
       // set the data members
       act_table_ = std::move(items.act_table_);
       actReg_ = items.actReg_;
@@ -411,7 +413,7 @@ namespace edm {
 
       espController_->finishConfiguration();
 
-      schedule_->beginJob(*preg_, esp_->recordsToProxyIndices());
+      schedule_->beginJob(*preg_, esp_->recordsToProxyIndices(), *processBlockHelper_);
       actReg_->postBeginJobSignal_();
 
       for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {

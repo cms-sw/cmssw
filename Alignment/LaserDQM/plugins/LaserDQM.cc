@@ -14,7 +14,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 LaserDQM::LaserDQM(edm::ParameterSet const &theConf)
-    : theDebugLevel(theConf.getUntrackedParameter<int>("DebugLevel", 0)),
+    : tTopoToken(esConsumes()),
+      tGeoToken(esConsumes()),
+      theDebugLevel(theConf.getUntrackedParameter<int>("DebugLevel", 0)),
       theSearchPhiTIB(theConf.getUntrackedParameter<double>("SearchWindowPhiTIB", 0.05)),
       theSearchPhiTOB(theConf.getUntrackedParameter<double>("SearchWindowPhiTOB", 0.05)),
       theSearchPhiTEC(theConf.getUntrackedParameter<double>("SearchWindowPhiTEC", 0.05)),

@@ -77,9 +77,10 @@ SiStripMonitorTrack_ckf.Mod_On             = False
 #SiStripMonitorTrack_rs.Mod_On              = True
 
 # Clone for General Tracks (for Collision)
-SiStripMonitorTrack_gentk = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrack_gentk.TrackProducer    = 'generalTracks'
-SiStripMonitorTrack_gentk.Mod_On           = False
+SiStripMonitorTrack_gentk = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
+   TrackProducer    = 'generalTracks',
+   Mod_On           = False
+)
 
 # Clone for Heavy Ion Tracks (for HI Collisions)
 SiStripMonitorTrack_hi = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
@@ -110,10 +111,11 @@ SiStripMonitorTrack_hi.Mod_On           = True
 
 # Clone for General Track (for Collision data)
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
-MonitorTrackResiduals_gentk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-MonitorTrackResiduals_gentk.Tracks                 = 'generalTracks'
-MonitorTrackResiduals_gentk.trajectoryInput        = 'generalTracks'
-MonitorTrackResiduals_gentk.Mod_On                 = False
+MonitorTrackResiduals_gentk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone(
+   Tracks                 = 'generalTracks',
+   trajectoryInput        = 'generalTracks',
+   Mod_On                 = False
+)
 
 # Clone for Heavy Ion Tracks (for HI Collisions)
 #import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi

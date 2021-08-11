@@ -4,7 +4,7 @@ from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 from RecoLocalCalo.Configuration.RecoLocalCalo_cff import *
 from RecoLocalFastTime.Configuration.RecoLocalFastTime_cff import *
-from RecoMTD.Configuration.RecoMTD_cff import *
+from RecoMTD.Configuration.mtdGlobalReco_cff import *
 from RecoTracker.Configuration.RecoTracker_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 from TrackingTools.Configuration.TrackingTools_cff import *
@@ -206,7 +206,7 @@ reconstruction         = cms.Sequence(reconstructionTask)
 #logErrorHarvester should only wait for items produced in the reconstruction sequence
 _modulesInReconstruction = list()
 reconstructionTask.visit(cms.ModuleNamesFromGlobalsVisitor(globals(),_modulesInReconstruction))
-logErrorHarvester.includeModules = cms.untracked.vstring(set(_modulesInReconstruction))
+logErrorHarvester.includeModules = cms.untracked.vstring(sorted(set(_modulesInReconstruction)))
 
 reconstruction_trackingOnlyTask = cms.Task(localrecoTask,globalreco_trackingTask)
 #calo parts removed as long as tracking is not running jetCore in phase2
@@ -235,6 +235,7 @@ reconstruction_hcalOnlyTask = cms.Task(
     bunchSpacingProducer,
     offlineBeamSpot,
     hcalOnlyLocalRecoTask,
+    hcalOnlyGlobalRecoTask,
     pfClusteringHBHEHFOnlyTask
 )
 

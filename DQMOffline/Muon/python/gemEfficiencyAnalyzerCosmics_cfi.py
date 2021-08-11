@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
 from DQMOffline.Muon.gemEfficiencyAnalyzerCosmicsDefault_cfi import gemEfficiencyAnalyzerCosmicsDefault as _gemEfficiencyAnalyzerCosmicsDefault
+from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 
 gemEfficiencyAnalyzerCosmics = _gemEfficiencyAnalyzerCosmicsDefault.clone(
     ServiceParameters = MuonServiceProxy.ServiceParameters.clone(),

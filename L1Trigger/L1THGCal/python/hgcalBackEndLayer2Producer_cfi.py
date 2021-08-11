@@ -100,12 +100,12 @@ histoMax_C3d_clustering_params = cms.PSet(dR_multicluster=cms.double(0.03),
                                )
 
 
-# V9 samples have a different definition of the dEdx calibrations. To account for it
+# >= V9 samples have a different definition of the dEdx calibrations. To account for it
 # we rescale the thresholds of the clustering seeds
 # (see https://indico.cern.ch/event/806845/contributions/3359859/attachments/1815187/2966402/19-03-20_EGPerf_HGCBE.pdf
 # for more details)
 phase2_hgcalV10.toModify(histoMax_C3d_seeding_params,
-                        threshold_histo_multicluster=7.5,  # MipT
+                        threshold_histo_multicluster=8.5,  # MipT
                         )
 
 

@@ -2,6 +2,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/SiStripSubStructure.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 #include "TCanvas.h"
 
@@ -10,8 +11,8 @@ SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(edm::RunNumber_t iRun,
                                              edm::ParameterSet const &fPSet,
                                              const TrackerTopology *tTopo)
     : hPSet_(hPSet), fPSet_(fPSet), tTopo_(tTopo), dqmStore_(edm::Service<DQMStore>().operator->()), runNumber_(iRun) {
-  reader = new SiStripDetInfoFileReader(
-      edm::FileInPath(std::string("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")).fullPath());
+  detInfo_ =
+      SiStripDetInfoFileReader::read(edm::FileInPath(std::string(SiStripDetInfoFileReader::kDefaultFile)).fullPath());
 
   Mod_On_ = fPSet_.getParameter<bool>("Mod_On");
   HistoMaps_On_ = fPSet_.getParameter<bool>("HistoMaps_On");
@@ -50,7 +51,7 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup &eSetup_) {
     if (fPSet_.getParameter<bool>("ActiveDetIds_On") || hPSet_.getParameter<bool>("ActiveDetIds_On"))
       getActiveDetIds(eSetup_);
     else
-      activeDetIds = reader->getAllDetIds();
+      activeDetIds = detInfo_.getAllDetIds();
 
     selectModules(activeDetIds);
 
@@ -409,13 +410,13 @@ void SiStripBaseCondObjDQM::bookProfileMEs(SiStripBaseCondObjDQM::ModMEs &CondOb
   hProfile_yTitle = hPSet_.getParameter<std::string>("Profile_yTitle");
 
   if (CondObj_name_ != "apvgain") {
-    int nStrip = reader->getNumberOfApvsAndStripLength(detId_).first * 128;
+    int nStrip = detInfo_.getNumberOfApvsAndStripLength(detId_).first * 128;
 
     hProfile_NchX = nStrip;
     hProfile_LowX = 0.5;
     hProfile_HighX = nStrip + 0.5;
   } else {
-    int nApv = reader->getNumberOfApvsAndStripLength(detId_).first;
+    int nApv = detInfo_.getNumberOfApvsAndStripLength(detId_).first;
 
     hProfile_NchX = nApv;
     hProfile_LowX = 0.5;
@@ -510,7 +511,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs 
         (layerId_ > 420 && layerId_ < 424)) {
       nStrip = 768;
     } else {
-      nStrip = reader->getNumberOfApvsAndStripLength(detId_).first * 128;
+      nStrip = detInfo_.getNumberOfApvsAndStripLength(detId_).first * 128;
     }
 
     hSummaryOfProfile_NchX = nStrip;
@@ -585,7 +586,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs 
         (layerId_ > 420 && layerId_ < 424)) {
       nApv = 6;
     } else {
-      nApv = reader->getNumberOfApvsAndStripLength(detId_).first;
+      nApv = detInfo_.getNumberOfApvsAndStripLength(detId_).first;
     }
 
     hSummaryOfProfile_NchX = nApv;

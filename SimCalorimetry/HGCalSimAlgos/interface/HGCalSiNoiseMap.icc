@@ -94,6 +94,16 @@ double HGCalSiNoiseMap<T>::getENCpad(double ileak) {
 
 //
 template <typename T>
+double HGCalSiNoiseMap<T>::getTDCOnsetAuto(uint32_t gainIdx) {
+  if (gainIdx < 3) {
+    return chargeAtFullScaleADCPerGain_[gainIdx] - 1e-6;
+  }
+
+  return -1;
+}
+
+//
+template <typename T>
 void HGCalSiNoiseMap<T>::setGeometry(const CaloSubdetectorGeometry *hgcGeom, GainRange_t gain, int aimMIPtoADC) {
   //call base class method
   HGCalRadiationMap::setGeometry(hgcGeom);

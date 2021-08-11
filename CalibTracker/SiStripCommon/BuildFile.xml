@@ -6,7 +6,6 @@
 <use name="DataFormats/OnlineMetaData"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 <use name="CondFormats/DataRecord"/>
 <use name="Geometry/TrackerGeometryBuilder"/>

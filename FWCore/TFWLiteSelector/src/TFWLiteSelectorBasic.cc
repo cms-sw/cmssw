@@ -20,11 +20,12 @@
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
-#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
+#include "FWCore/Framework/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventEntryDescription.h"  // kludge to allow compilation
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "DataFormats/Provenance/interface/EventToProcessBlockIndexes.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -322,6 +323,7 @@ Bool_t TFWLiteSelectorBasic::Process(Long64_t iEntry) {
     branchListIndexBranch->SetAddress(&pBranchListIndexes);
     branchListIndexBranch->GetEntry(iEntry);
     m_->branchIDListHelper_->fixBranchListIndexes(branchListIndexes);
+    edm::EventToProcessBlockIndexes dummyEventToProcessBlockIndexes;
 
     try {
       m_->reader_->setEntry(iEntry);
@@ -334,6 +336,7 @@ Bool_t TFWLiteSelectorBasic::Process(Long64_t iEntry) {
                                   history,
                                   std::move(eventSelectionIDs),
                                   std::move(branchListIndexes),
+                                  dummyEventToProcessBlockIndexes,
                                   *(m_->provRetriever_),
                                   m_->reader_.get());
       lbp->setRunPrincipal(rp);

@@ -27,10 +27,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWCandidatePtrProxyBuilder(const FWCandidatePtrProxyBuilder&) = delete;                   // stop default
   const FWCandidatePtrProxyBuilder& operator=(const FWCandidatePtrProxyBuilder&) = delete;  // stop default
 
+private:
   using FWSimpleProxyBuilderTemplate<reco::CandidatePtr>::build;
   void build(const reco::CandidatePtr& iData,
              unsigned int iIndex,

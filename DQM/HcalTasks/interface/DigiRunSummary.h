@@ -8,7 +8,7 @@
 namespace hcaldqm {
   class DigiRunSummary : public DQClient {
   public:
-    DigiRunSummary(std::string const &, std::string const &, edm::ParameterSet const &);
+    DigiRunSummary(std::string const &, std::string const &, edm::ParameterSet const &, edm::ConsumesCollector &iC);
     ~DigiRunSummary() override {}
 
     void beginRun(edm::Run const &, edm::EventSetup const &) override;

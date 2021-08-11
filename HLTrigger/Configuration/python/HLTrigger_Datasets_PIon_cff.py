@@ -1,4 +1,4 @@
-# /dev/CMSSW_11_3_0/PIon
+# /dev/CMSSW_12_0_0/PIon
 
 import FWCore.ParameterSet.Config as cms
 
@@ -16,7 +16,7 @@ streamPhysicsCommissioning_datasetZeroBias_selector.hltResults = cms.InputTag('T
 streamPhysicsCommissioning_datasetZeroBias_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetZeroBias_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetZeroBias_selector.triggerConditions = cms.vstring(
-    'HLT_Random_v3', 
+    'HLT_Random_v3',
     'HLT_ZeroBias_v6'
 )
 

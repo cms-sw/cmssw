@@ -7,8 +7,9 @@
 #include "CondCore/SiPixelPlugins/plugins/SiPixelTemplateDBObject_PayloadInspector.cc"
 #include "CondCore/SiPixelPlugins/plugins/SiPixelGenErrorDBObject_PayloadInspector.cc"
 #include "CondCore/SiPixelPlugins/plugins/SiPixelVCal_PayloadInspector.cc"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondCore/SiPixelPlugins/plugins/SiPixelQualityProbabilities_PayloadInspector.cc"
+#include "CondCore/SiPixelPlugins/plugins/SiPixelDynamicInefficiency_PayloadInspector.cc"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
@@ -195,11 +196,30 @@ int main(int argc, char** argv) {
   start = boost::lexical_cast<unsigned long long>(1);
   end = boost::lexical_cast<unsigned long long>(1);
 
-  std::cout << "## Exercising SiPixelQualityProbabilities plots " << std::endl;
+  edm::LogPrint("testSiPixelPayloadInspector") << "## Exercising SiPixelQualityProbabilities plots " << std::endl;
 
   SiPixelQualityProbabilitiesScenariosCount histo25;
   histo25.process(connectionString, PI::mk_input(tag, start, end));
-  std::cout << histo25.data() << std::endl;
+  edm::LogPrint("testSiPixelPayloadInspector") << histo25.data() << std::endl;
+
+  // SiPixelDynamicInefficiency
+
+  tag = "SiPixelDynamicInefficiency_PhaseI_v9";
+  start = boost::lexical_cast<unsigned long long>(1);
+  end = boost::lexical_cast<unsigned long long>(1);
+
+  edm::LogPrint("testSiPixelPayloadInspector") << "## Exercising SiPixeDynamicInefficiency plots " << std::endl;
+
+  SiPixelFullIneffROCfromDynIneffMap histo26;
+  histo26.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testSiPixelPayloadInspector") << histo26.data() << std::endl;
+
+  tag2 = "SiPixelDynamicInefficiency_PhaseI_v6";
+  start2 = boost::lexical_cast<unsigned long long>(1);
+
+  SiPixelFullIneffROCsMapCompareTwoTags histo27;
+  histo27.process(connectionString, PI::mk_input(tag, start, start, tag2, start2, start2));
+  edm::LogPrint("testSiPixelPayloadInspector") << histo27.data() << std::endl;
 
   inputs.clear();
 #if PY_MAJOR_VERSION >= 3

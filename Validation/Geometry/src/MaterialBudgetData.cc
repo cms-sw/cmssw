@@ -4,6 +4,7 @@
 #include "G4Material.hh"
 #include "G4EventManager.hh"
 #include "G4Event.hh"
+#include "DD4hep/Filter.h"
 
 MaterialBudgetData::MaterialBudgetData() {
   //instantiate categorizer to assign an ID to volumes and materials
@@ -193,12 +194,13 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
   G4double intlen = theMaterialPre->GetNuclearInterLength();
   G4double density = theMaterialPre->GetDensity() / densityConvertionFactor;  // always g/cm3
 
-  G4String materialName = theMaterialPre->GetName();
+  G4String materialName = static_cast<std::string>(dd4hep::dd::noNamespace(theMaterialPre->GetName()));
 
   LogDebug("MaterialBudget") << "MaterialBudgetData: Material " << materialName << " steplen " << steplen << " radlen "
                              << radlen << " mb " << steplen / radlen;
 
-  G4String volumeName = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume()->GetName();
+  G4String volumeName = static_cast<std::string>(
+      dd4hep::dd::noNamespace(aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume()->GetName()));
 
   LogDebug("MaterialBudget") << "MaterialBudgetData: Volume " << volumeName << " Material " << materialName;
 
@@ -225,8 +227,8 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
       } else {
         theOtherFractionMB = 1.f;
         theOtherFractionIL = 1.f;
-        edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material forced to 'Other': " << materialName
-                                          << " in volume " << volumeName << ". Check Categorization.";
+        edm::LogVerbatim("MaterialBudget") << "MaterialBudgetData: Material forced to 'Other': " << materialName
+                                           << " in volume " << volumeName << ". Check Categorization.";
       }
     } else {
       theSupportFractionMB = myMaterialBudgetCategorizer->x0fraction(materialName)[0];
@@ -238,7 +240,7 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
       theAirFractionMB = myMaterialBudgetCategorizer->x0fraction(materialName)[6];
 
       if (theOtherFractionMB > 0.f)
-        edm::LogWarning("MaterialBudget")
+        edm::LogVerbatim("MaterialBudget")
             << "MaterialBudgetData: Material found with no category: " << materialName << " in volume " << volumeName;
 
       theSupportFractionIL = myMaterialBudgetCategorizer->l0fraction(materialName)[0];
@@ -250,7 +252,7 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
       theAirFractionIL = myMaterialBudgetCategorizer->l0fraction(materialName)[6];
 
       if (theOtherFractionIL > 0.f)
-        edm::LogWarning("MaterialBudget")
+        edm::LogVerbatim("MaterialBudget")
             << "MaterialBudgetData: Material found with no category: " << materialName << " in volume " << volumeName;
     }
   } else {  // isHGCal
@@ -262,8 +264,8 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
       theOtherFractionMB = 1.f;
       theOtherFractionIL = 1.f;
 
-      edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material forced to 'Other': " << materialName
-                                        << " in volume " << volumeName;
+      edm::LogVerbatim("MaterialBudget") << "MaterialBudgetData: Material forced to 'Other': " << materialName
+                                         << " in volume " << volumeName;
     } else {
       theAirFractionMB = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[0];
       theCablesFractionMB = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[1];
@@ -280,7 +282,7 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
       theAluminiumFractionMB = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[12];
 
       if (theOtherFractionMB != 0)
-        // edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName
+        // edm::LogVerbatim("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName
         // 				  << " in volume " << volumeName << std::endl;
         std::cout << "MaterialBudgetData: Material found with no category: " << materialName << " in volume "
                   << volumeName << std::endl;
@@ -300,8 +302,8 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
       theAluminiumFractionIL = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[12];
 
       if (theOtherFractionIL != 0)
-        edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category " << materialName
-                                          << " in volume " << volumeName << std::endl;
+        edm::LogVerbatim("MaterialBudget") << "MaterialBudgetData: Material found with no category " << materialName
+                                           << " in volume " << volumeName << std::endl;
     }
   }
 
@@ -488,7 +490,7 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
   }
 
   theTrkLen = aStep->GetTrack()->GetTrackLength();
-  thePVname = pv->GetName();
+  thePVname = static_cast<std::string>(dd4hep::dd::noNamespace(pv->GetName()));
   thePVcopyNo = pv->GetCopyNo();
   theRadLen = radlen;
   theIntLen = intlen;

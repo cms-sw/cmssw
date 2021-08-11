@@ -29,11 +29,12 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
+  FWCSCWireDigiProxyBuilder(const FWCSCWireDigiProxyBuilder&) = delete;
+  const FWCSCWireDigiProxyBuilder& operator=(const FWCSCWireDigiProxyBuilder&) = delete;
+
 private:
   using FWProxyBuilderBase::build;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
-  FWCSCWireDigiProxyBuilder(const FWCSCWireDigiProxyBuilder&) = delete;
-  const FWCSCWireDigiProxyBuilder& operator=(const FWCSCWireDigiProxyBuilder&) = delete;
 
   // NOTE: these parameters are not available via a public interface
   // from the geometry or topology so must be hard-coded.

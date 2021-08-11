@@ -35,6 +35,7 @@ private:
   double thick_;                         // Module thickness
   double waferSize_;                     // Wafer size
   double waferSepar_;                    // Sensor separation
+  double waferThick_;                    // Wafer thickness
   std::vector<std::string> layerNames_;  // Names of the layers
   std::vector<std::string> materials_;   // Materials of the layers
   std::vector<double> layerThick_;       // Thickness of layers
@@ -64,9 +65,11 @@ void DDHGCalWaferF::initialize(const DDNumericArguments& nArgs,
   thick_ = nArgs["ModuleThickness"];
   waferSize_ = nArgs["WaferSize"];
   waferSepar_ = nArgs["SensorSeparation"];
+  waferThick_ = nArgs["WaferThickness"];
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Module " << parent().name() << " made of " << material_ << " T "
-                                << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_;
+                                << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_ << " T "
+                                << waferThick_;
 #endif
   layerNames_ = vsArgs["LayerNames"];
   materials_ = vsArgs["LayerMaterials"];
@@ -105,7 +108,7 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
 
   static constexpr double tol = 0.00001;
   static const double sqrt3 = std::sqrt(3.0);
-  double rM = 0.5 * (waferSize_ + waferSepar_);
+  double rM = 0.5 * waferSize_;
   double RM2 = rM / sqrt3;
   double R = waferSize_ / (3.0 * nCells_);
   double r = 0.5 * R * sqrt3;
@@ -131,7 +134,7 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << xM[k] << ":" << yM[k];
 #endif
 
-  // Then the types
+  // Then the layers
   std::vector<double> xL = {r2, 0, -r2, -r2, 0, r2};
   std::vector<double> yL = {R2, 2 * R2, R2, -R2, -2 * R2, -R2};
   std::vector<DDLogicalPart> glogs(materials_.size());
@@ -139,8 +142,13 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
   for (unsigned int l = 0; l < layers_.size(); l++) {
     unsigned int i = layers_[l];
     if (copyNumber_[i] == 1) {
-      zw[0] = -0.5 * layerThick_[i];
-      zw[1] = 0.5 * layerThick_[i];
+      if (layerType_[i] > 0) {
+        zw[0] = -0.5 * waferThick_;
+        zw[1] = 0.5 * waferThick_;
+      } else {
+        zw[0] = -0.5 * layerThick_[i];
+        zw[1] = 0.5 * layerThick_[i];
+      }
       solid = DDSolidFactory::extrudedpolygon(layerNames_[i], xL, yL, zw, zx, zy, scale);
       DDName matN(DDSplit(materials_[i]).first, DDSplit(materials_[i]).second);
       DDMaterial matter(matN);

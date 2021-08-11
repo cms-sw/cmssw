@@ -20,6 +20,7 @@
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 
 // system
 #include <algorithm>
@@ -40,6 +41,7 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
     : config_(iConfig),
       geomType_(iConfig.getParameter<std::string>("GeometryType")),
       //phiValues(iConfig.getParameter<std::vector<double> >("PhiAngles")),
+      thresholdInElectrons_(iConfig.getParameter<double>("ThresholdInElectrons")),
       electronsPerADC_(iConfig.getParameter<double>("ElectronsPerADC")),
       tracksEntryAngleX_(
           iConfig.getUntrackedParameter<std::vector<double>>("TracksEntryAngleX", std::vector<double>())),
@@ -50,6 +52,9 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
           consumes<edm::DetSetVector<PixelDigiSimLink>>(iConfig.getParameter<edm::InputTag>("PixelDigiSimSource"))),
       simTrackToken_(consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("SimTrackSource"))) {
   LogDebug("PixelTestBeamValidation") << ">>> Construct PixelTestBeamValidation ";
+
+  // The value to be used for ToT == 0 in electrons
+  electronsAtToT0_ = 0.5 * (thresholdInElectrons_ + electronsPerADC_);
 
   const std::vector<edm::InputTag> psimhit_v(config_.getParameter<std::vector<edm::InputTag>>("PSimHitSource"));
 
@@ -265,11 +270,14 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
         vME_digi_RZMap_->Fill(digi_global_pos.z(), std::hypot(digi_global_pos.x(), digi_global_pos.y()));
         // Create the MC-cluster
         cluster_tot += current_digi.adc();
-        // Add 0.5 to allow ToT = 0 (valid value)
-        cluster_tot_elec += (current_digi.adc() + 0.5) * electronsPerADC_;
+        // Assign the middle value between the threshold and the ElectronPerADC parameter
+        // to the first bin in order to allow ToT = 0 (valid value)
+        const double pixel_charge_elec =
+            (bool(current_digi.adc()) ? (current_digi.adc() * electronsPerADC_) : electronsAtToT0_);
+        cluster_tot_elec += pixel_charge_elec;
         // Use the center of the pixel
-        cluster_position.first += current_digi.adc() * (current_digi.row() + 0.5);
-        cluster_position.second += current_digi.adc() * (current_digi.column() + 0.5);
+        cluster_position.first += pixel_charge_elec * (current_digi.row() + 0.5);
+        cluster_position.second += pixel_charge_elec * (current_digi.column() + 0.5);
         // Size
         cluster_size_xy.first.insert(current_digi.row());
         cluster_size_xy.second.insert(current_digi.column());
@@ -282,8 +290,8 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
       vME_clsize1Dy_[me_unit]->Fill(cluster_size_xy.second.size());
 
       // mean weighted
-      cluster_position.first /= double(cluster_tot);
-      cluster_position.second /= double(cluster_tot);
+      cluster_position.first /= cluster_tot_elec;
+      cluster_position.second /= cluster_tot_elec;
 
       // -- XXX Be careful, secondaries with already used the digis
       //        are going the be lost (then lost on efficiency)
@@ -302,6 +310,7 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
         vME_charge_elec1D_[me_unit]->Fill(cluster_tot_elec);
         vME_dx1D_[me_unit]->Fill(dx_um);
         vME_dy1D_[me_unit]->Fill(dy_um);
+        vME_dxy2D_[me_unit]->Fill(dx_um, dy_um);
         // The track energy loss corresponding to that cluster
         vME_sim_cluster_charge_[me_unit]->Fill(psh->energyLoss() * 1.0_inv_keV, cluster_tot_elec);
       }
@@ -430,7 +439,11 @@ void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker,
       vME_dx1D_[me_unit] = setupH1D_(
           ibooker, "Dx1D", "MC-truth DIGI cluster residuals X;x_{PSimHit}-x^{cluster}_{digi} [#mum];N_{digi clusters}");
       vME_dy1D_[me_unit] = setupH1D_(
-          ibooker, "Dy1D", "MC-truth DIGI cluster residual Ys;y_{PSimHit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
+          ibooker, "Dy1D", "MC-truth DIGI cluster residual Y;y_{PSimHit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
+      vME_dxy2D_[me_unit] = setupH2D_(ibooker,
+                                      "Dxy2D",
+                                      "MC-truth DIGI cluster residuals;x_{PSimHit}-x^{cluster}_{digi} "
+                                      "[#mum];y_{PSimHit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
       vME_digi_charge1D_[me_unit] = setupH1D_(ibooker, "DigiCharge1D", "Digi charge;digi charge [ToT];N_{digi}");
       vME_sim_cluster_charge_[me_unit] =
           setupH2D_(ibooker,
@@ -712,8 +725,12 @@ std::set<std::pair<int, int>> PixelTestBeamValidation::get_illuminated_pixels_(c
   const double max_x = std::max(ps.entryPoint().x(), ps.exitPoint().x());
   const double max_y = std::max(ps.entryPoint().y(), ps.exitPoint().y());
   // Get the position in readout units for each point
-  const auto min_pos = tkDetUnit->specificTopology().measurementPosition(LocalPoint(min_x, min_y));
-  const auto max_pos = tkDetUnit->specificTopology().measurementPosition(LocalPoint(max_x, max_y));
+  const auto min_pos_pre = tkDetUnit->specificTopology().measurementPosition(LocalPoint(min_x, min_y));
+  const auto max_pos_pre = tkDetUnit->specificTopology().measurementPosition(LocalPoint(max_x, max_y));
+  // Adding a unit at each side in order to include charge migration
+  const MeasurementPoint min_pos(std::max(0.0, min_pos_pre.x() - 1.0), std::max(0.0, min_pos_pre.y() - 1.0));
+  const MeasurementPoint max_pos(std::min(max_pos_pre.x() + 1.0, tkDetUnit->specificTopology().nrows() - 1.0),
+                                 std::min(max_pos_pre.y() + 1.0, tkDetUnit->specificTopology().ncolumns() - 1.0));
   // Count how many cells has passed. Use the most conservative rounding:
   // round for maximums and int (floor) for minimums
   //const int ncells_x = std::round(max_pos.x())-std::floor(min_pos.x());

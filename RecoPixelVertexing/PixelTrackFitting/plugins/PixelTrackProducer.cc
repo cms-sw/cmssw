@@ -15,38 +15,60 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "PixelTrackProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstruction.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "storeTracks.h"
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+namespace edm {
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+  class ConfigurationDescriptions;
+}  // namespace edm
+class TrackerTopology;
 
 using namespace pixeltrackfitting;
 using edm::ParameterSet;
 
-PixelTrackProducer::PixelTrackProducer(const ParameterSet& cfg) : theReconstruction(cfg, consumesCollector()) {
-  edm::LogInfo("PixelTrackProducer") << " construction...";
-  produces<reco::TrackCollection>();
-  produces<TrackingRecHitCollection>();
-  produces<reco::TrackExtraCollection>();
-}
+class PixelTrackProducer : public edm::stream::EDProducer<> {
+public:
+  explicit PixelTrackProducer(const edm::ParameterSet& cfg)
+      : theReconstruction(cfg, consumesCollector()), htTopoToken_(esConsumes()) {
+    edm::LogInfo("PixelTrackProducer") << " construction...";
+    produces<reco::TrackCollection>();
+    produces<TrackingRecHitCollection>();
+    produces<reco::TrackExtraCollection>();
+  }
 
-PixelTrackProducer::~PixelTrackProducer() {}
+  ~PixelTrackProducer() override = default;
 
-void PixelTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
 
-  desc.add<std::string>("passLabel", "pixelTracks");  // What is this? It is not used anywhere in this code.
-  PixelTrackReconstruction::fillDescriptions(desc);
+    desc.add<std::string>("passLabel", "pixelTracks");  // What is this? It is not used anywhere in this code.
+    PixelTrackReconstruction::fillDescriptions(desc);
 
-  descriptions.add("pixelTracks", desc);
-}
+    descriptions.add("pixelTracks", desc);
+  }
 
-void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
-  LogDebug("PixelTrackProducer, produce") << "event# :" << ev.id();
+  void produce(edm::Event& ev, const edm::EventSetup& es) override {
+    LogDebug("PixelTrackProducer, produce") << "event# :" << ev.id();
 
-  TracksWithTTRHs tracks;
-  theReconstruction.run(tracks, ev, es);
-  edm::ESHandle<TrackerTopology> httopo;
-  es.get<TrackerTopologyRcd>().get(httopo);
+    TracksWithTTRHs tracks;
+    theReconstruction.run(tracks, ev, es);
+    auto htTopo = es.getData(htTopoToken_);
 
-  // store tracks
-  storeTracks(ev, tracks, *httopo);
-}
+    // store tracks
+    storeTracks(ev, tracks, htTopo);
+  }
+
+private:
+  PixelTrackReconstruction theReconstruction;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> htTopoToken_;
+};
+
+DEFINE_FWK_MODULE(PixelTrackProducer);

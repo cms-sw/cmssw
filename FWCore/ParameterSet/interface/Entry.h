@@ -14,7 +14,7 @@
 #include <vector>
 #include <iosfwd>
 
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 //@@ not needed, but there might be trouble if we take it out

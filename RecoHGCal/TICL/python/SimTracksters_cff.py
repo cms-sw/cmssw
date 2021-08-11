@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoHGCal.TICL.trackstersFromSimClustersProducer_cfi import trackstersFromSimClustersProducer as _trackstersFromSimClustersProducer
-from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClustersFromTrackstersProducer as _multiClustersFromTrackstersProducer
 from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer as _filteredLayerClustersProducer
 
 
@@ -20,12 +19,8 @@ ticlSimTracksters = _trackstersFromSimClustersProducer.clone(
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(ticlSimTracksters,
-    simclusters = "mixData:MergedCaloTruth"
+    simclusters = "mixData:MergedCaloTruth",
+    caloparticles = "mixData:MergedCaloTruth",
 )
 
-ticlMultiClustersFromSimTracksters = _multiClustersFromTrackstersProducer.clone(
-    Tracksters = "ticlSimTracksters"
-)
-
-ticlSimTrackstersTask = cms.Task(filteredLayerClustersSimTracksters, ticlSimTracksters, ticlMultiClustersFromSimTracksters)
-
+ticlSimTrackstersTask = cms.Task(filteredLayerClustersSimTracksters, ticlSimTracksters)

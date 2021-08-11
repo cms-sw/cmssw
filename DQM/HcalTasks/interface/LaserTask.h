@@ -54,6 +54,7 @@ protected:
   edm::EDGetTokenT<HODigiCollection> _tokHO;
   edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
   edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   enum LaserFlag { fBadTiming = 0, fMissingLaserMon = 1, nLaserFlag = 2 };
   std::vector<hcaldqm::flag::Flag> _vflags;

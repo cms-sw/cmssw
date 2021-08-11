@@ -33,6 +33,8 @@ namespace edmplugin {
     friend class DummyFriend;
 
   public:
+    PluginCapabilities(const PluginCapabilities&) = delete;                   // stop default
+    const PluginCapabilities& operator=(const PluginCapabilities&) = delete;  // stop default
     ~PluginCapabilities() override;
 
     // ---------- const member functions ---------------------
@@ -53,9 +55,6 @@ namespace edmplugin {
 
   private:
     PluginCapabilities();
-    PluginCapabilities(const PluginCapabilities&) = delete;  // stop default
-
-    const PluginCapabilities& operator=(const PluginCapabilities&) = delete;  // stop default
 
     // ---------- member data --------------------------------
     std::map<std::string, std::filesystem::path> classToLoadable_;

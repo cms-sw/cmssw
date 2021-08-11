@@ -24,7 +24,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
+#include "RecoEcal/EgammaCoreTools/interface/EgammaLocalCovParamDefaults.h"
 
 class EgammaHLTClusterShapeProducer : public edm::global::EDProducer<> {
 public:

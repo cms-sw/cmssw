@@ -1,5 +1,8 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Provenance"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="RecoTracker/TkDetLayers"/>
 <use name="mkfit"/>
 <use name="rootcore"/>
 <export>

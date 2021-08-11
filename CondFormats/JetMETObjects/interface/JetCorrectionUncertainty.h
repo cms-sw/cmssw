@@ -13,6 +13,8 @@ public:
   JetCorrectionUncertainty();
   JetCorrectionUncertainty(const std::string& fDataFile);
   JetCorrectionUncertainty(const JetCorrectorParameters& fParameters);
+  JetCorrectionUncertainty(const JetCorrectionUncertainty&) = delete;
+  JetCorrectionUncertainty& operator=(const JetCorrectionUncertainty&) = delete;
   ~JetCorrectionUncertainty();
 
   void setParameters(const std::string& fDataFile);
@@ -28,8 +30,6 @@ public:
   float getUncertainty(bool fDirection);
 
 private:
-  JetCorrectionUncertainty(const JetCorrectionUncertainty&) = delete;
-  JetCorrectionUncertainty& operator=(const JetCorrectionUncertainty&) = delete;
   std::vector<float> fillVector(const std::vector<std::string>& fNames);
   float getPtRel();
   //---- Member Data ---------

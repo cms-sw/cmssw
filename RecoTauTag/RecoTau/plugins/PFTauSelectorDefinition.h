@@ -70,7 +70,7 @@ struct PFTauSelectorDefinition {
 
     // Build a string cut if desired
     if (cfg.exists("cut")) {
-      cut_.reset(new StringCutObjectSelector<reco::PFTau>(cfg.getParameter<std::string>("cut")));
+      cut_ = std::make_unique<StringCutObjectSelector<reco::PFTau>>(cfg.getParameter<std::string>("cut"));
     }
   }
 

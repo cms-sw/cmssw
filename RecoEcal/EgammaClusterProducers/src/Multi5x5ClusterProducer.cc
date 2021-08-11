@@ -1,36 +1,76 @@
-// C/C++ headers
-#include <iostream>
-#include <vector>
-#include <memory>
-
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
-
-// Reconstruction Classes
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloID.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/CaloRecHit/interface/CaloID.h"
-
-// Geometry
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-
-// EgammaCoreTools
+#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/Multi5x5ClusterAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
-// Class header file
-#include "RecoEcal/EgammaClusterProducers/interface/Multi5x5ClusterProducer.h"
+#include <ctime>
+#include <iostream>
+#include <memory>
+#include <vector>
+
+class Multi5x5ClusterProducer : public edm::stream::EDProducer<> {
+public:
+  Multi5x5ClusterProducer(const edm::ParameterSet& ps);
+
+  ~Multi5x5ClusterProducer() override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  int nMaxPrintout_;  // max # of printouts
+  int nEvt_;          // internal counter of events
+
+  // cluster which regions
+  bool doBarrel_;
+  bool doEndcap_;
+
+  edm::EDGetTokenT<EcalRecHitCollection> barrelHitToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> endcapHitToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+
+  std::string barrelClusterCollection_;
+  std::string endcapClusterCollection_;
+
+  PositionCalc posCalculator_;  // position calculation algorithm
+  Multi5x5ClusterAlgo* island_p;
+
+  bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
+
+  const EcalRecHitCollection* getCollection(edm::Event& evt, const edm::EDGetTokenT<EcalRecHitCollection>& token);
+
+  void clusterizeECALPart(edm::Event& evt,
+                          const edm::EventSetup& es,
+                          const edm::EDGetTokenT<EcalRecHitCollection>& token,
+                          const std::string& clusterCollection,
+                          const reco::CaloID::Detectors detector);
+
+  void outputValidationInfo(reco::CaloClusterPtrVector& clusterPtrVector);
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(Multi5x5ClusterProducer);
 
 Multi5x5ClusterProducer::Multi5x5ClusterProducer(const edm::ParameterSet& ps) {
   // Parameters to identify the hit collections

@@ -1,13 +1,11 @@
 <use name="boost"/>
 <use name="CondFormats/Serialization"/>
 <use name="boost_serialization"/>
-<use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/L1GlobalCaloTrigger"/>
 <use name="DataFormats/L1GlobalTrigger"/>
 <use name="CondFormats/External"/>
 <use name="DataFormats/L1CaloTrigger"/>
-<use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <export>
   <lib name="1"/>

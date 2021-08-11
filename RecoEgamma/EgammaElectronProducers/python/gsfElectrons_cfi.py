@@ -28,8 +28,8 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(ecalDrivenGsfElectrons.preselection, minSCEtBarrel = 15.0)
 pp_on_AA.toModify(ecalDrivenGsfElectrons.preselection, minSCEtEndcaps = 15.0)
 
-ecalDrivenGsfElectronsFromMultiCl = ecalDrivenGsfElectrons.clone(
-    gsfElectronCoresTag = "ecalDrivenGsfElectronCoresFromMultiCl",
+ecalDrivenGsfElectronsHGC = ecalDrivenGsfElectrons.clone(
+    gsfElectronCoresTag = "ecalDrivenGsfElectronCoresHGC",
     useGsfPfRecTracks = False,
     useDefaultEnergyCorrection = False,
     ambClustersOverlapStrategy = 0,

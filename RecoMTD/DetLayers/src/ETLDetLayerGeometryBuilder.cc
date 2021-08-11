@@ -19,9 +19,10 @@
 using namespace std;
 
 pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo,
-                                                                                    const int mtdTopologyMode) {
+                                                                                    const MTDTopology& topo) {
   vector<DetLayer*> result[2];  // one for each endcap
 
+  const int mtdTopologyMode = topo.getMTDTopologyMode();
   if (mtdTopologyMode <= static_cast<int>(MTDTopologyMode::Mode::barphiflat)) {
     for (unsigned endcap = 0; endcap < 2; ++endcap) {
       // there is only one layer for ETL right now, maybe more later
@@ -60,12 +61,15 @@ pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLay
         for (unsigned sector = 1; sector <= nSector; ++sector) {
           sectors.push_back(sector);
         }
-        MTDSectorForwardDoubleLayer* thelayer = buildLayerNew(endcap, layer, sectors, geo);
+        MTDSectorForwardDoubleLayer* thelayer = buildLayerNew(endcap, layer, sectors, geo, topo);
         if (thelayer)
           result[endcap].push_back(thelayer);
       }
     }
   }
+  //
+  // the first entry is Z+ ( MTD side 1), the second is Z- (MTD side 0)
+  //
   pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[1], result[0]);
   return res_pair;
 }
@@ -133,10 +137,8 @@ MTDDetRing* ETLDetLayerGeometryBuilder::makeDetRing(vector<const GeomDet*>& geom
   return result;
 }
 
-MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(int endcap,
-                                                                       int layer,
-                                                                       vector<unsigned>& sectors,
-                                                                       const MTDGeometry& geo) {
+MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(
+    int endcap, int layer, vector<unsigned>& sectors, const MTDGeometry& geo, const MTDTopology& topo) {
   MTDSectorForwardDoubleLayer* result = nullptr;
 
   std::vector<const MTDDetSector*> frontSectors, backSectors;
@@ -176,15 +178,15 @@ MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(int endca
     }
 
     if (!backGeomDets.empty()) {
-      std::sort(backGeomDets.begin(), backGeomDets.end(), orderGeomDets);
+      std::sort(backGeomDets.begin(), backGeomDets.end(), topo.orderETLSector);
       LogDebug("MTDDetLayers") << "backGeomDets size = " << backGeomDets.size();
-      backSectors.emplace_back(makeDetSector(backGeomDets));
+      backSectors.emplace_back(makeDetSector(backGeomDets, topo));
     }
 
     if (!frontGeomDets.empty()) {
-      std::sort(frontGeomDets.begin(), frontGeomDets.end(), orderGeomDets);
+      std::sort(frontGeomDets.begin(), frontGeomDets.end(), topo.orderETLSector);
       LogDebug("MTDDetLayers") << "frontGeomDets size = " << frontGeomDets.size();
-      frontSectors.emplace_back(makeDetSector(frontGeomDets));
+      frontSectors.emplace_back(makeDetSector(frontGeomDets, topo));
       assert(!backGeomDets.empty());
       float frontz = frontSectors.back()->position().z();
       float backz = backSectors.back()->position().z();
@@ -202,15 +204,11 @@ MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(int endca
   return result;
 }
 
-MTDDetSector* ETLDetLayerGeometryBuilder::makeDetSector(vector<const GeomDet*>& geomDets) {
-  MTDDetSector* result = new MTDDetSector(geomDets);
+MTDDetSector* ETLDetLayerGeometryBuilder::makeDetSector(vector<const GeomDet*>& geomDets, const MTDTopology& topo) {
+  MTDDetSector* result = new MTDDetSector(geomDets, topo);
   LogTrace("MTDDetLayers") << "ETLDetLayerGeometryBuilder::makeDetSector new MTDDetSector with " << std::fixed
                            << std::setw(14) << geomDets.size() << " modules \n"
                            << (*result);
 
   return result;
-}
-
-bool ETLDetLayerGeometryBuilder::orderGeomDets(const GeomDet*& gd1, const GeomDet*& gd2) {
-  return gd1->geographicalId().rawId() < gd2->geographicalId().rawId();
 }

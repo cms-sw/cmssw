@@ -44,7 +44,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -124,10 +123,13 @@ protected:
                                                        const GeomDetUnit& det) const;
 
 private:
-  edm::ParameterSet const conf_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geom_esToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topo_esToken;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttkb_esToken;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> tthb_esToken;
+
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelRecHit>> pixelRecHits_token_;
-  std::string ttrhBuilder_;
   edm::EDGetTokenT<edm::View<reco::Track>> recoTracks_token_;
   edm::EDGetTokenT<TrajTrackAssociationCollection> tta_token_;
 
@@ -201,9 +203,12 @@ private:
 };
 
 Phase2PixelNtuple::Phase2PixelNtuple(edm::ParameterSet const& conf)
-    : trackerHitAssociatorConfig_(conf, consumesCollector()),
+    : geom_esToken(esConsumes()),
+      topo_esToken(esConsumes()),
+      ttkb_esToken(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      tthb_esToken(esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("ttrhBuilder")))),
+      trackerHitAssociatorConfig_(conf, consumesCollector()),
       pixelRecHits_token_(consumes<edmNew::DetSetVector<SiPixelRecHit>>(edm::InputTag("siPixelRecHits"))),
-      ttrhBuilder_(conf.getParameter<std::string>("ttrhBuilder")),  //ttrhBuilder_token def
       recoTracks_token_(consumes<edm::View<reco::Track>>(conf.getParameter<edm::InputTag>("trackProducer"))),
       tta_token_(consumes<TrajTrackAssociationCollection>(conf.getParameter<InputTag>("trajectoryInput"))),
       verbose_(conf.getUntrackedParameter<bool>("verbose", false)),
@@ -337,15 +342,10 @@ void Phase2PixelNtuple::beginJob() {
 // Functions that gets called by framework every event
 void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &es.getData(topo_esToken);
 
   // geometry setup
-  edm::ESHandle<TrackerGeometry> geometry;
-
-  es.get<TrackerDigiGeometryRecord>().get(geometry);
-  const TrackerGeometry* theGeometry = &(*geometry);
+  const TrackerGeometry* theGeometry = &es.getData(geom_esToken);
 
   std::vector<PSimHit> matched;
   const PSimHit* closest_simhit = nullptr;
@@ -357,14 +357,8 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es) 
   TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
 
   //Transient Rechit Builders
-  edm::ESHandle<TransientTrackBuilder> theB;
-  es.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
-
-  //ttrh builder def
-  ESHandle<TransientTrackingRecHitBuilder> hitBuilder;
-  es.get<TransientRecHitRecord>().get(ttrhBuilder_, hitBuilder);
   const TkTransientTrackingRecHitBuilder* builder =
-      static_cast<TkTransientTrackingRecHitBuilder const*>(hitBuilder.product());
+      static_cast<TkTransientTrackingRecHitBuilder const*>(&es.getData(tthb_esToken));
   auto hitCloner = builder->cloner();
 
   if ((recHitColl.product())->dataSize() > 0) {

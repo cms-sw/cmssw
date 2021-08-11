@@ -4,7 +4,8 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Validation/MuonGEMHits/interface/GEMValidationUtils.h"
 
-GEMOfflineMonitor::GEMOfflineMonitor(const edm::ParameterSet& pset) : GEMOfflineDQMBase(pset) {
+GEMOfflineMonitor::GEMOfflineMonitor(const edm::ParameterSet& pset)
+    : GEMOfflineDQMBase(pset), gemToken_(esConsumes<GEMGeometry, MuonGeometryRecord>()) {
   digi_token_ = consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("digiTag"));
   rechit_token_ = consumes<GEMRecHitCollection>(pset.getParameter<edm::InputTag>("recHitTag"));
   do_digi_occupancy_ = pset.getUntrackedParameter<bool>("doDigiOccupancy");
@@ -26,7 +27,8 @@ void GEMOfflineMonitor::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
 void GEMOfflineMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& run, edm::EventSetup const& setup) {
   edm::ESHandle<GEMGeometry> gem;
-  setup.get<MuonGeometryRecord>().get(gem);
+  gem = setup.getHandle(gemToken_);
+
   if (not gem.isValid()) {
     edm::LogError(log_category_) << "GEMGeometry is invalid" << std::endl;
     return;
@@ -132,7 +134,8 @@ void GEMOfflineMonitor::analyze(const edm::Event& event, const edm::EventSetup& 
   }
 
   edm::ESHandle<GEMGeometry> gem;
-  setup.get<MuonGeometryRecord>().get(gem);
+  gem = setup.getHandle(gemToken_);
+
   if (not gem.isValid()) {
     edm::LogError(log_category_) << "GEMGeometry is invalid" << std::endl;
     return;

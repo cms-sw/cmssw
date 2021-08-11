@@ -6,7 +6,7 @@
 <use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/DetLayers"/>
 <use name="TrackingTools/GeomPropagators"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="Geometry/CommonTopologies"/>
 <export>
   <lib name="1"/>

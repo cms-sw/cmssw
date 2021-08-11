@@ -18,10 +18,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWME0RecHitProxyBuilder(const FWME0RecHitProxyBuilder&) = delete;
   const FWME0RecHitProxyBuilder& operator=(const FWME0RecHitProxyBuilder&) = delete;
 
+private:
   void buildViewType(const ME0RecHit& iData,
                      unsigned int iIndex,
                      TEveElement& oItemHolder,

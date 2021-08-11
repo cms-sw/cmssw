@@ -362,15 +362,6 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         eInvMinusPInv = Var("(1-eSuperClusterOverP())/ecalEnergy()",float,doc="1/E_SC - 1/p_trk",precision=10),
         scEtOverPt = Var("(superCluster().energy()/(pt*cosh(superCluster().eta())))-1",float,doc="(supercluster transverse energy)/pt-1",precision=8),
 
-        mvaFall17V1Iso = Var("userFloat('mvaFall17V1Iso')",float,doc="MVA Iso ID V1 score"),
-        mvaFall17V1Iso_WP80 = Var("userInt('mvaFall17V1Iso_WP80')",bool,doc="MVA Iso ID V1 WP80"),
-        mvaFall17V1Iso_WP90 = Var("userInt('mvaFall17V1Iso_WP90')",bool,doc="MVA Iso ID V1 WP90"),
-        mvaFall17V1Iso_WPL = Var("userInt('mvaFall17V1Iso_WPL')",bool,doc="MVA Iso ID V1 loose WP"),
-        mvaFall17V1noIso = Var("userFloat('mvaFall17V1noIso')",float,doc="MVA noIso ID V1 score"),
-        mvaFall17V1noIso_WP80 = Var("userInt('mvaFall17V1noIso_WP80')",bool,doc="MVA noIso ID V1 WP80"),
-        mvaFall17V1noIso_WP90 = Var("userInt('mvaFall17V1noIso_WP90')",bool,doc="MVA noIso ID V1 WP90"),
-        mvaFall17V1noIso_WPL = Var("userInt('mvaFall17V1noIso_WPL')",bool,doc="MVA noIso ID V1 loose WP"),
-
         mvaFall17V2Iso = Var("userFloat('mvaFall17V2Iso')",float,doc="MVA Iso ID V2 score"),
         mvaFall17V2Iso_WP80 = Var("userInt('mvaFall17V2Iso_WP80')",bool,doc="MVA Iso ID V2 WP80"),
         mvaFall17V2Iso_WP90 = Var("userInt('mvaFall17V2Iso_WP90')",bool,doc="MVA Iso ID V2 WP90"),
@@ -381,7 +372,6 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         mvaFall17V2noIso_WPL = Var("userInt('mvaFall17V2noIso_WPL')",bool,doc="MVA noIso ID V2 loose WP"),
 
         cutBased = Var("userInt('cutbasedID_Fall17_V2_veto')+userInt('cutbasedID_Fall17_V2_loose')+userInt('cutbasedID_Fall17_V2_medium')+userInt('cutbasedID_Fall17_V2_tight')",int,doc="cut-based ID Fall17 V2 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
-        cutBased_Fall17_V1 = Var("userInt('cutbasedID_Fall17_V1_veto')+userInt('cutbasedID_Fall17_V1_loose')+userInt('cutbasedID_Fall17_V1_medium')+userInt('cutbasedID_Fall17_V1_tight')",int,doc="cut-based ID Fall17 V1 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
         vidNestedWPBitmap = Var("userInt('VIDNestedWPBitmap')",int,doc=_bitmapVIDForEle_docstring),
         vidNestedWPBitmapHEEP = Var("userInt('VIDNestedWPBitmapHEEP')",int,doc=_bitmapVIDForEleHEEP_docstring),
         cutBased_HEEP = Var("userInt('cutbasedID_HEEP')",bool,doc="cut-based HEEP ID"),
@@ -394,7 +384,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         dr03TkSumPt = Var("?pt>35?dr03TkSumPt():0",float,doc="Non-PF track isolation within a delta R cone of 0.3 with electron pt > 35 GeV",precision=8),
         dr03TkSumPtHEEP = Var("?pt>35?dr03TkSumPtHEEP():0",float,doc="Non-PF track isolation within a delta R cone of 0.3 with electron pt > 35 GeV used in HEEP ID",precision=8),
         dr03EcalRecHitSumEt = Var("?pt>35?dr03EcalRecHitSumEt():0",float,doc="Non-PF Ecal isolation within a delta R cone of 0.3 with electron pt > 35 GeV",precision=8),
-        dr03HcalDepth1TowerSumEt = Var("?pt>35?dr03HcalDepth1TowerSumEt():0",float,doc="Non-PF Hcal isolation within a delta R cone of 0.3 with electron pt > 35 GeV",precision=8),
+        dr03HcalDepth1TowerSumEt = Var("?pt>35?dr03HcalTowerSumEt(1):0",float,doc="Non-PF Hcal isolation within a delta R cone of 0.3 with electron pt > 35 GeV",precision=8),
         hoe = Var("hadronicOverEm()",float,doc="H over E",precision=8),
         tightCharge = Var("isGsfCtfScPixChargeConsistent() + isGsfScPixChargeConsistent()",int,doc="Tight charge criteria (0:none, 1:isGsfScPixChargeConsistent, 2:isGsfCtfScPixChargeConsistent)"),
         convVeto = Var("passConversionVeto()",bool,doc="pass conversion veto"),
@@ -421,6 +411,19 @@ for modifier in run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_miniAOD
         dEsigmaDown=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energySigmaDownNew')", float,  doc="ecal energy smearing value shifted 1 sigma up", precision=8),
 
 )
+##Keeping the possibilty of using V1 working points in older eras
+(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1).toModify(electronTable.variables,
+        mvaFall17V1Iso = Var("userFloat('mvaFall17V1Iso')",float,doc="MVA Iso ID V1 score"),
+        mvaFall17V1Iso_WP80 = Var("userInt('mvaFall17V1Iso_WP80')",bool,doc="MVA Iso ID V1 WP80"),
+        mvaFall17V1Iso_WP90 = Var("userInt('mvaFall17V1Iso_WP90')",bool,doc="MVA Iso ID V1 WP90"),
+        mvaFall17V1Iso_WPL = Var("userInt('mvaFall17V1Iso_WPL')",bool,doc="MVA Iso ID V1 loose WP"),
+        mvaFall17V1noIso = Var("userFloat('mvaFall17V1noIso')",float,doc="MVA noIso ID V1 score"),
+        mvaFall17V1noIso_WP80 = Var("userInt('mvaFall17V1noIso_WP80')",bool,doc="MVA noIso ID V1 WP80"),
+        mvaFall17V1noIso_WP90 = Var("userInt('mvaFall17V1noIso_WP90')",bool,doc="MVA noIso ID V1 WP90"),
+        mvaFall17V1noIso_WPL = Var("userInt('mvaFall17V1noIso_WPL')",bool,doc="MVA noIso ID V1 loose WP"),
+        cutBased_Fall17_V1 = Var("userInt('cutbasedID_Fall17_V1_veto')+userInt('cutbasedID_Fall17_V1_loose')+userInt('cutbasedID_Fall17_V1_medium')+userInt('cutbasedID_Fall17_V1_tight')",int,doc="cut-based ID Fall17 V1 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
+)
+
 #the94X miniAOD V2 had a bug in the scale and smearing for electrons in the E/p comb
 #therefore we redo it but but we need use a new name for the userFloat as we cant override existing userfloats
 # scale and smearing only when available#ONLY needed for this era
@@ -473,19 +476,15 @@ run2_miniAOD_80XLegacy.toModify(electronTable.variables,
 
 )
 #############electron Table END#####################
-from PhysicsTools.NanoAOD.particlelevel_cff import particleLevel
-particleLevelForMatching = particleLevel.clone(
-    lepMinPt    = cms.double(3.),
-    phoMinPt = cms.double(3),
-)
-#as above should be cloned from @ PhysicsTools/NanoAOD/python/particlelevel_cff.py
+# Depends on particlelevel producer run in particlelevel_cff
 tautaggerForMatching = cms.EDProducer("GenJetTauTaggerProducer",
-                                      src = cms.InputTag('particleLevelForMatching:leptons')
+                                      src = cms.InputTag('particleLevel:leptons')
 )
-##PhysicsTools/NanoAOD/plugins/GenJetGenPartMerger.cc##this class misses fillDescription#TODO
+ ##PhysicsTools/NanoAOD/plugins/GenJetGenPartMerger.cc##this class misses fillDescription#TODO
 matchingElecPhoton = cms.EDProducer("GenJetGenPartMerger",
-                                    srcJet =cms.InputTag("particleLevelForMatching:leptons"),
-                                    srcPart=cms.InputTag("particleLevelForMatching:photons"),
+                                    srcJet =cms.InputTag("particleLevel:leptons"),
+                                    srcPart=cms.InputTag("particleLevel:photons"),
+                                    cut = cms.string("pt > 3"),
                                     hasTauAnc=cms.InputTag("tautaggerForMatching"),
 )
 electronsMCMatchForTableAlt = cms.EDProducer("GenJetMatcherDRPtByDR",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
@@ -523,9 +522,9 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     genparticles     = cms.InputTag("finalGenParticles"), 
 )
 
-electronSequence = cms.Sequence(bitmapVIDForEle + bitmapVIDForEleHEEP + isoForEle + ptRatioRelForEle + seedGainEle + slimmedElectronsWithUserData + finalElectrons)
-electronTables = cms.Sequence (electronMVATTH + electronTable)
-electronMC = cms.Sequence(particleLevelForMatching + tautaggerForMatching + matchingElecPhoton + electronsMCMatchForTable + electronsMCMatchForTableAlt + electronMCTable)
+electronTask = cms.Task(bitmapVIDForEle,bitmapVIDForEleHEEP,isoForEle,ptRatioRelForEle,seedGainEle,calibratedPatElectronsNano,slimmedElectronsWithUserData,finalElectrons)
+electronTablesTask = cms.Task(electronMVATTH, electronTable)
+electronMCTask = cms.Task(tautaggerForMatching, matchingElecPhoton, electronsMCMatchForTable, electronsMCMatchForTableAlt, electronMCTable)
 
 #for NANO from reminAOD, no need to run slimmedElectronsUpdated, other modules of electron sequence will run on slimmedElectrons
 for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
@@ -539,21 +538,23 @@ for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94
     modifier.toModify(slimmedElectronsWithUserData, src = "slimmedElectronsUpdated")
     modifier.toModify(calibratedPatElectronsNano, src = "slimmedElectronsUpdated")
     ###this sequence should run for all eras except run2_nanoAOD_106Xv2 which should run the electronSequence as above
-    _withULAndUpdate_sequence = cms.Sequence(slimmedElectronsUpdated + electronSequence.copy())
-    modifier.toReplaceWith(electronSequence, _withULAndUpdate_sequence)
-    
+    _withULAndUpdate_Task = cms.Task(slimmedElectronsUpdated)
+    _withULAndUpdate_Task.add(electronTask.copy())
+    modifier.toReplaceWith(electronTask, _withULAndUpdate_Task)
+
 from RecoEgamma.ElectronIdentification.heepIdVarValueMapProducer_cfi import heepIDVarValueMaps
-_updateTo106X_sequence =cms.Sequence(heepIDVarValueMaps + slimmedElectronsTo106X)
+_withTo106XAndUpdate_Task = cms.Task(heepIDVarValueMaps,slimmedElectronsTo106X)
+_withTo106XAndUpdate_Task.add(electronTask.copy())
 heepIDVarValueMaps.dataFormat = 2
-_withTo106XAndUpdate_sequence = cms.Sequence(_updateTo106X_sequence + electronSequence.copy())
+
+for modifier in run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_94XMiniAODv1:
+    modifier.toReplaceWith(electronTask, _withTo106XAndUpdate_Task)
 
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    _withTo106XAndUpdateAnd80XLegacyScale_sequence = _withTo106XAndUpdate_sequence.copy()
-    _withTo106XAndUpdateAnd80XLegacyScale_sequence.replace(slimmedElectronsWithUserData, bitmapVIDForEleSpring15 +bitmapVIDForEleSum16 + slimmedElectronsWithUserData)
-    modifier.toReplaceWith(electronSequence, _withTo106XAndUpdateAnd80XLegacyScale_sequence)
+    _withTo106XAndUpdateAnd80XLegacyScale_Task = cms.Task(bitmapVIDForEleSpring15,bitmapVIDForEleSum16)
+    _withTo106XAndUpdateAnd80XLegacyScale_Task.add(_withTo106XAndUpdate_Task.copy())
+    modifier.toReplaceWith(electronTask, _withTo106XAndUpdateAnd80XLegacyScale_Task)
 
-_withTo106XAndUpdateAnd94XScale_sequence = _withTo106XAndUpdate_sequence.copy()
+_withTo106XAndUpdateAnd94XScale_Task = _withTo106XAndUpdate_Task.copy()
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1:
-    modifier.toReplaceWith(electronSequence, _withTo106XAndUpdate_sequence)
-
-electronSequence.replace(slimmedElectronsWithUserData,calibratedPatElectronsNano + slimmedElectronsWithUserData)
+    modifier.toReplaceWith(electronTask, _withTo106XAndUpdate_Task)

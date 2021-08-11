@@ -25,9 +25,10 @@
 
 class PFPSRecHitCreator final : public PFRecHitCreatorBase {
 public:
-  PFPSRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC) : PFRecHitCreatorBase(iConfig, iC) {
-    recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
-  }
+  PFPSRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitCreatorBase(iConfig, cc),
+        recHitToken_(cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+        geomToken_(cc.esConsumes()) {}
 
   void importRecHits(std::unique_ptr<reco::PFRecHitCollection>& out,
                      std::unique_ptr<reco::PFRecHitCollection>& cleaned,
@@ -36,8 +37,7 @@ public:
     beginEvent(iEvent, iSetup);
 
     edm::Handle<EcalRecHitCollection> recHitHandle;
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
 
     // get the ecal geometry
     const CaloSubdetectorGeometry* psGeometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
@@ -95,6 +95,9 @@ public:
 
 protected:
   edm::EDGetTokenT<EcalRecHitCollection> recHitToken_;
+
+private:
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 };
 
 #endif

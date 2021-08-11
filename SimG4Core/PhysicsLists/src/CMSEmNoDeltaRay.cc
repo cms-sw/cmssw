@@ -36,44 +36,23 @@
 #include "G4Positron.hh"
 #include "G4MuonPlus.hh"
 #include "G4MuonMinus.hh"
-#include "G4TauMinus.hh"
-#include "G4TauPlus.hh"
 #include "G4PionPlus.hh"
 #include "G4PionMinus.hh"
 #include "G4KaonPlus.hh"
 #include "G4KaonMinus.hh"
-#include "G4BMesonMinus.hh"
-#include "G4BMesonPlus.hh"
-#include "G4DMesonMinus.hh"
-#include "G4DMesonPlus.hh"
 #include "G4Proton.hh"
 #include "G4AntiProton.hh"
-#include "G4SigmaMinus.hh"
-#include "G4AntiSigmaMinus.hh"
-#include "G4SigmaPlus.hh"
-#include "G4AntiSigmaPlus.hh"
-#include "G4XiMinus.hh"
-#include "G4AntiXiMinus.hh"
-#include "G4OmegaMinus.hh"
-#include "G4AntiOmegaMinus.hh"
-#include "G4LambdacPlus.hh"
-#include "G4AntiLambdacPlus.hh"
-#include "G4XicPlus.hh"
-#include "G4AntiXicPlus.hh"
-#include "G4Deuteron.hh"
-#include "G4Triton.hh"
-#include "G4He3.hh"
-#include "G4Alpha.hh"
 #include "G4GenericIon.hh"
 
+#include "G4EmBuilder.hh"
 #include "G4BuilderType.hh"
 #include "G4SystemOfUnits.hh"
 
 CMSEmNoDeltaRay::CMSEmNoDeltaRay(const G4String& name, G4int ver, const std::string& reg)
-    : G4VPhysicsConstructor(name), verbose(ver), region(reg) {
+    : G4VPhysicsConstructor(name), region(reg) {
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
-  param->SetVerbose(verbose);
+  param->SetVerbose(ver);
   param->SetApplyCuts(true);
   param->SetMscRangeFactor(0.2);
   param->SetMscStepLimitType(fMinimal);
@@ -83,49 +62,8 @@ CMSEmNoDeltaRay::CMSEmNoDeltaRay(const G4String& name, G4int ver, const std::str
 CMSEmNoDeltaRay::~CMSEmNoDeltaRay() {}
 
 void CMSEmNoDeltaRay::ConstructParticle() {
-  // gamma
-  G4Gamma::Gamma();
-
-  // leptons
-  G4Electron::Electron();
-  G4Positron::Positron();
-  G4MuonPlus::MuonPlus();
-  G4MuonMinus::MuonMinus();
-  G4TauMinus::TauMinusDefinition();
-  G4TauPlus::TauPlusDefinition();
-
-  // mesons
-  G4PionPlus::PionPlusDefinition();
-  G4PionMinus::PionMinusDefinition();
-  G4KaonPlus::KaonPlusDefinition();
-  G4KaonMinus::KaonMinusDefinition();
-  G4DMesonMinus::DMesonMinusDefinition();
-  G4DMesonPlus::DMesonPlusDefinition();
-  G4BMesonMinus::BMesonMinusDefinition();
-  G4BMesonPlus::BMesonPlusDefinition();
-
-  // barions
-  G4Proton::Proton();
-  G4AntiProton::AntiProton();
-  G4SigmaMinus::SigmaMinusDefinition();
-  G4AntiSigmaMinus::AntiSigmaMinusDefinition();
-  G4SigmaPlus::SigmaPlusDefinition();
-  G4AntiSigmaPlus::AntiSigmaPlusDefinition();
-  G4XiMinus::XiMinusDefinition();
-  G4AntiXiMinus::AntiXiMinusDefinition();
-  G4OmegaMinus::OmegaMinusDefinition();
-  G4AntiOmegaMinus::AntiOmegaMinusDefinition();
-  G4LambdacPlus::LambdacPlusDefinition();
-  G4AntiLambdacPlus::AntiLambdacPlusDefinition();
-  G4XicPlus::XicPlusDefinition();
-  G4AntiXicPlus::AntiXicPlusDefinition();
-
-  // ions
-  G4Deuteron::Deuteron();
-  G4Triton::Triton();
-  G4He3::He3();
-  G4Alpha::Alpha();
-  G4GenericIon::GenericIonDefinition();
+  // minimal set of particles for EM physics
+  G4EmBuilder::ConstructMinimalEmSet();
 }
 
 void CMSEmNoDeltaRay::ConstructProcess() {
@@ -141,7 +79,7 @@ void CMSEmNoDeltaRay::ConstructProcess() {
   for (const auto& particleName : emList.PartNames()) {
     G4ParticleDefinition* particle = table->FindParticle(particleName);
     G4ProcessManager* pmanager = particle->GetProcessManager();
-    if (verbose > 1)
+    if (verboseLevel > 1)
       edm::LogVerbatim("PhysicsList") << "### " << GetPhysicsName() << " instantiates for " << particleName;
 
     if (particleName == "gamma") {

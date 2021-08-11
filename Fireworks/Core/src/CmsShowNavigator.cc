@@ -5,7 +5,7 @@
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
+#include "Fireworks/Core/interface/CmsShowMain.h"
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 

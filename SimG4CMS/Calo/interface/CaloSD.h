@@ -20,6 +20,7 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4Track.hh"
@@ -27,6 +28,7 @@
 
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <memory>
 
 class G4Step;
@@ -44,7 +46,6 @@ class CaloSD : public SensitiveCaloDetector,
                public Observer<const EndOfEvent*> {
 public:
   CaloSD(const std::string& aSDname,
-         const edm::EventSetup& es,
          const SensitiveDetectorCatalog& clg,
          edm::ParameterSet const& p,
          const SimTrackManager*,
@@ -85,7 +86,9 @@ protected:
   double getAttenuation(const G4Step* aStep, double birk1, double birk2, double birk3) const;
 
   static std::string printableDecayChain(const std::vector<unsigned int>& decayChain);
-  void hitBookkeepingFineCalo(const G4Step* step, const G4Track* currentTrack, CaloG4Hit* hit);
+  std::string shortreprID(const CaloHitID& ID);
+  std::string shortreprID(const CaloG4Hit* hit);
+  unsigned int findBoundaryCrossingParent(const G4Track* track, bool markParentAsSaveable = true);
 
   void update(const BeginOfRun*) override;
   void update(const BeginOfEvent*) override;
@@ -183,8 +186,10 @@ private:
 
   std::map<CaloHitID, CaloG4Hit*> hitMap;
   std::map<int, TrackWithHistory*> tkMap;
+  std::unordered_map<unsigned int, unsigned int> boundaryCrossingParentMap_;
   std::vector<std::unique_ptr<CaloG4Hit>> reusehit;
   std::vector<Detector> fineDetectors_;
+  bool doFineCaloThisStep_;
 };
 
 #endif  // SimG4CMS_CaloSD_h

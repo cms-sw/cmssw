@@ -36,7 +36,7 @@
 #include "DQMOffline/Trigger/interface/EgHLTTrigCodes.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
@@ -52,6 +52,7 @@
 class EgammaHLTTrackIsolation;
 class HLTConfigProvider;
 class EcalSeverityLevelAlgo;
+class EcalSeverityLevelAlgoRcd;
 
 namespace egHLT {
 
@@ -77,6 +78,11 @@ namespace egHLT {
     edm::EDGetTokenT<CaloTowerCollection> caloTowersToken;
     edm::EDGetTokenT<edm::TriggerResults> trigResultsToken;
     edm::EDGetTokenT<reco::VertexCollection> vertexToken;
+
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+    edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopoToken_;
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+    edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> ecalSeverityToken_;
 
     edm::ESHandle<CaloGeometry> caloGeom_;
     edm::ESHandle<CaloTopology> caloTopology_;
@@ -151,10 +157,6 @@ namespace egHLT {
 
     std::vector<edm::ParameterSet> trigCutParams_;  //probably the least bad option
 
-  private:  //disabling copy / assignment
-    OffHelper& operator=(const OffHelper&) = delete;
-    OffHelper(const OffHelper&) = delete;
-
   public:
     OffHelper()
         : eleLooseCuts_(),
@@ -163,6 +165,8 @@ namespace egHLT {
           phoCuts_(),
           hltEleTrkIsolAlgo_(nullptr),
           hltPhoTrkIsolAlgo_(nullptr) {}
+    OffHelper& operator=(const OffHelper&) = delete;
+    OffHelper(const OffHelper&) = delete;
     ~OffHelper();
 
     void setup(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC);

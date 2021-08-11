@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 bmtfKalmanTrackingSettings = cms.PSet(
     verbose = cms.bool(False),  # 
-    lutFile = cms.string("L1Trigger/L1TMuon/data/bmtf_luts/kalmanLUTs.root"),
+    lutFile = cms.string("L1Trigger/L1TMuon/data/bmtf_luts/kalmanLUTs_v302.root"),
     initialK = cms.vdouble(-1.196,-1.581,-2.133,-2.263),
     initialK2 = cms.vdouble(-3.26e-4,-7.165e-4,2.305e-3,-5.63e-3),
 #    eLoss = cms.vdouble(-2.85e-4,-6.21e-5,-1.26e-4,-1.23e-4), 

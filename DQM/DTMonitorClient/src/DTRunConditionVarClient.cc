@@ -14,15 +14,14 @@
  *
  *********************************/
 
-#include <DQM/DTMonitorClient/src/DTRunConditionVarClient.h>
-#include <DQMServices/Core/interface/DQMStore.h>
+#include "DQM/DTMonitorClient/src/DTRunConditionVarClient.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 
 #include <cstdio>
 #include <sstream>
@@ -31,7 +30,8 @@
 using namespace edm;
 using namespace std;
 
-DTRunConditionVarClient::DTRunConditionVarClient(const ParameterSet& pSet) {
+DTRunConditionVarClient::DTRunConditionVarClient(const ParameterSet& pSet)
+    : mTimeMapToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogVerbatim("DTDQM|DTMonitorClient|DTRunConditionVarClient") << "DTRunConditionVarClient: Constructor called";
 
   minRangeVDrift = pSet.getUntrackedParameter<double>("minRangeVDrift");
@@ -61,8 +61,7 @@ DTRunConditionVarClient::~DTRunConditionVarClient() {
 void DTRunConditionVarClient::beginRun(const Run& run, const EventSetup& context) {
   LogTrace("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "[DTRunConditionVarClient]: BeginRun";
   // Get the map of vdrift from the setup
-  context.get<DTMtimeRcd>().get(mTime);
-  mTimeMap_ = &*mTime;
+  mTimeMap_ = &context.getData(mTimeMapToken_);
 }
 
 void DTRunConditionVarClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,

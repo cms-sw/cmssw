@@ -4,8 +4,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "HepPDT/ParticleDataTable.hh"
+#include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
 
 #include <memory>
 #include <thread>
@@ -14,7 +18,8 @@
 
 namespace edm {
   class EventSetup;
-}
+  class ConsumesCollector;
+}  // namespace edm
 
 class RunManagerMT;
 
@@ -38,12 +43,12 @@ public:
   void endRun() const;
   void stopThread();
 
+  void callConsumes(edm::ConsumesCollector&& iC) const;
+
   inline RunManagerMT& runManagerMaster() const { return *m_runManagerMaster; }
   inline RunManagerMT* runManagerMasterPtr() const { return m_runManagerMaster.get(); }
 
 private:
-  void readES(const edm::EventSetup& iSetup) const;
-
   enum class ThreadState { NotExist = 0, BeginRun = 1, EndRun = 2, Destruct = 3 };
 
   const bool m_pGeoFromDD4hep;
@@ -52,12 +57,14 @@ private:
   std::thread m_masterThread;
 
   // ES products needed for Geant4 initialization
-  mutable edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
-  mutable edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;
-  mutable const DDCompactView* m_pDD;
-  mutable const cms::DDCompactView* m_pDD4hep;
-  mutable const HepPDT::ParticleDataTable* m_pTable;
+  mutable const DDCompactView* m_pDDD = nullptr;
+  mutable const cms::DDCompactView* m_pDD4Hep = nullptr;
+  mutable const HepPDT::ParticleDataTable* m_pTable = nullptr;
+  mutable edm::ESGetToken<DDCompactView, IdealGeometryRecord> m_DDD;
+  mutable edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> m_DD4Hep;
+  mutable edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> m_PDT;
 
+  // status flags
   mutable std::mutex m_protectMutex;
   mutable std::mutex m_threadMutex;
   mutable std::condition_variable m_notifyMasterCv;
@@ -65,10 +72,11 @@ private:
 
   mutable ThreadState m_masterThreadState;
 
-  mutable bool m_masterCanProceed;
-  mutable bool m_mainCanProceed;
-  mutable bool m_firstRun;
-  mutable bool m_stopped;
+  mutable bool m_hasToken = false;
+  mutable bool m_masterCanProceed = false;
+  mutable bool m_mainCanProceed = false;
+  mutable bool m_firstRun = true;
+  mutable bool m_stopped = false;
 };
 
 #endif

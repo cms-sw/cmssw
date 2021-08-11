@@ -11,8 +11,8 @@
 //
 
 // user include files
-#include "HcalTB06Histo.h"
-#include "HcalTB06BeamSD.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB06Histo.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB06BeamSD.h"
 
 // to retreive hits
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -23,7 +23,6 @@
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"

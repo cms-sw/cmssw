@@ -5,10 +5,10 @@ import time
 # Define here the BeamSpotOnline record name,
 # it will be used both in FakeBeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
-BSOnlineTag = 'BeamSpotOnlineTestLegacy'
-BSOnlineJobName = 'BeamSpotOnlineTestLegacy'
+BSOnlineTag = 'BeamSpotOnlineLegacy'
+BSOnlineJobName = 'BeamSpotOnlineLegacy'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
-
+useLockRecords = True
 import sys
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 process = cms.Process("FakeBeamMonitor", Run2_2018)
@@ -18,6 +18,7 @@ if "dqm_cmssw/playback" in str(sys.argv[1]):
     BSOnlineTag = BSOnlineTag + 'Playback'
     BSOnlineJobName = BSOnlineJobName + 'Playback'
     BSOnlineOmsServiceUrl = ''
+    useLockRecords = False
 
 #
 process.MessageLogger = cms.Service("MessageLogger",
@@ -35,8 +36,10 @@ unitTest = False
 if 'unitTest=True' in sys.argv:
     live=False
     unitTest=True
+    useLockRecords = False
 else:
     time.sleep(48.)
+
 
 #---------------
 # Input sources
@@ -59,10 +62,10 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 #----------------------------
 # DQM Live Environment
 process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder = 'FakeBeamMonitor'
-process.dqmSaver.tag           = 'FakeBeamMonitor'
+process.dqmEnv.subSystemFolder = 'FakeBeamMonitorLegacy'
+process.dqmSaver.tag           = 'FakeBeamMonitorLegacy'
 process.dqmSaver.runNumber     = options.runNumber
-process.dqmSaverPB.tag         = 'FakeBeamMonitor'
+process.dqmSaverPB.tag         = 'FakeBeamMonitorLegacy'
 process.dqmSaverPB.runNumber   = options.runNumber
 
 
@@ -81,6 +84,7 @@ else:
 #----------------------------
 # BeamMonitor
 process.load("DQM.BeamMonitor.FakeBeamMonitor_cff")
+
 
 
 #----------------
@@ -108,14 +112,14 @@ process = customise(process)
 #------------------------
 # Set rawDataRepacker (HI and live) or rawDataCollector (for all the rest)
 if (process.runType.getRunType() == process.runType.hi_run and live):
-    rawDataInputTag = cms.InputTag("rawDataRepacker")
+    rawDataInputTag = "rawDataRepacker"
 else:
-    rawDataInputTag = cms.InputTag("rawDataCollector")
+    rawDataInputTag = "rawDataCollector"
 
 """ process.castorDigis.InputLabel           = rawDataInputTag
 process.csctfDigis.producer              = rawDataInputTag 
 process.dttfDigis.DTTF_FED_Source        = rawDataInputTag
-process.ecalDigis.InputLabel             = rawDataInputTag
+process.ecalDigis.cpu.InputLabel         = rawDataInputTag
 process.ecalPreshowerDigis.sourceTag     = rawDataInputTag
 process.gctDigis.inputLabel              = rawDataInputTag
 process.gtDigis.DaqGtInputTag            = rawDataInputTag
@@ -132,7 +136,7 @@ process.dqmFakeBeamMonitor.recordName = BSOnlineRecordName
 
 process.dqmFakeBeamMonitor.resetEveryNLumi   = 5 # was 10 for HI
 process.dqmFakeBeamMonitor.resetPVEveryNLumi = 5 # was 10 for HI
-
+process.dqmFakeBeamMonitor.useLockRecords = cms.untracked.bool(useLockRecords)
 
 
 #---------
@@ -161,8 +165,10 @@ if unitTest == False:
             tag = cms.string(BSOnlineTag),
             timetype = cms.untracked.string('Lumi'),
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
-        ))
+        )),
+        frontierKey = cms.untracked.string(options.runUniqueKey)
     )
+
 else:
     process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
 
@@ -184,8 +190,11 @@ else:
             tag = cms.string(BSOnlineTag),
             timetype = cms.untracked.string('Lumi'),
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
-        ))
+        )),
+        frontierKey = cms.untracked.string(options.runUniqueKey)
     )
+
+print("Configured frontierKey", options.runUniqueKey)
 
 #---------
 # Final path

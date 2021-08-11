@@ -18,12 +18,10 @@ using namespace std;
 //  A constructor run for generic and templates
 //
 //-----------------------------------------------------------------------------
-MTDCPEBase::MTDCPEBase(edm::ParameterSet const& conf, const MTDGeometry& geom) : geom_(geom) { fillDetParams(); }
-
-//-----------------------------------------------------------------------------
-//  Fill all variables which are constant for an event (geometry)
-//-----------------------------------------------------------------------------
-void MTDCPEBase::fillDetParams() {
+MTDCPEBase::MTDCPEBase(edm::ParameterSet const& conf, const MTDGeometry& geom) : geom_(geom) {
+  //-----------------------------------------------------------------------------
+  //  Fill all variables which are constant for an event (geometry)
+  //-----------------------------------------------------------------------------
   auto const& dus = geom_.detUnits();
   unsigned detectors = dus.size();
   m_DetParams.resize(detectors);
@@ -57,11 +55,6 @@ void MTDCPEBase::fillDetParams() {
                                             << " thePitchX  = " << p.thePitchX << " thePitchY  = " << p.thePitchY;
   }
 }
-
-//-----------------------------------------------------------------------------
-//  One function to cache the variables common for one DetUnit.
-//-----------------------------------------------------------------------------
-void MTDCPEBase::setTheClu(DetParam const& dp, ClusterParam& cp) const {}
 
 //------------------------------------------------------------------------
 MTDCPEBase::DetParam const& MTDCPEBase::detParam(const GeomDetUnit& det) const { return m_DetParams.at(det.index()); }

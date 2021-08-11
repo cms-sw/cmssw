@@ -1,1 +1,1 @@
-#include "CAHitNtupletGeneratorKernelsAlloc.h"
+#include "CAHitNtupletGeneratorKernelsAlloc.cc"

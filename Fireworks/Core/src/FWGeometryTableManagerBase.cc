@@ -22,7 +22,7 @@
 #include "Fireworks/Core/interface/FWGeometryTableManagerBase.h"
 #include "Fireworks/Core/src/FWColorBoxIcon.h"
 #include "Fireworks/TableWidget/interface/GlobalContexts.h"
-#include "Fireworks/TableWidget/src/FWTabularWidget.h"
+#include "Fireworks/TableWidget/interface/FWTabularWidget.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "TMath.h"

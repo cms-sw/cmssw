@@ -14,3 +14,6 @@
 </environment>
 <bin file="testSerializationEcalObjects.cpp">
 </bin>
+<bin file="EcalPulseSymmCovariance_catch2.cc">
+  <use name="catch2"/>
+</bin>

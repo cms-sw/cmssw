@@ -118,10 +118,10 @@ public:
   virtual void endElement(const std::string & /*name*/) {}
   virtual void data(const std::string & /*data*/) {}
 
-private:
   SimpleSAXParser(const SimpleSAXParser &) = delete;                   // stop default
   const SimpleSAXParser &operator=(const SimpleSAXParser &) = delete;  // stop default
 
+private:
   std::string parseEntity(const std::string &entity);
   std::string getToken(const char *delim) {
     fgettoken(m_in, &m_buffer, &m_bufferSize, delim, &m_nextChar);

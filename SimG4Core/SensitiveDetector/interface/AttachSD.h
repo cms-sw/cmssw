@@ -2,6 +2,9 @@
 #define SimG4Core_SensitiveDetector_AttachSD_h
 
 #include <vector>
+#include <string>
+#include <unordered_map>
+#include <memory>
 
 namespace edm {
   class EventSetup;
@@ -11,20 +14,18 @@ namespace edm {
 class SensitiveDetectorCatalog;
 class SensitiveTkDetector;
 class SensitiveCaloDetector;
+class SensitiveDetectorMakerBase;
 class SimActivityRegistry;
 class SimTrackManager;
 
-class AttachSD {
-public:
-  AttachSD();
-  ~AttachSD();
-
-  std::pair<std::vector<SensitiveTkDetector *>, std::vector<SensitiveCaloDetector *> > create(
+namespace sim {
+  std::pair<std::vector<SensitiveTkDetector *>, std::vector<SensitiveCaloDetector *>> attachSD(
+      const std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> &,
       const edm::EventSetup &,
       const SensitiveDetectorCatalog &,
       edm::ParameterSet const &,
       const SimTrackManager *,
-      SimActivityRegistry &reg) const;
+      SimActivityRegistry &reg);
 };
 
 #endif

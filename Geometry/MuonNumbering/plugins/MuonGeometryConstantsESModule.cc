@@ -32,11 +32,13 @@ private:
 MuonGeometryConstantsESModule::MuonGeometryConstantsESModule(const edm::ParameterSet& ps) {
   fromDD4Hep_ = ps.getParameter<bool>("fromDD4Hep");
   auto cc = setWhatProduced(this);
-  cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
-  cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  if (fromDD4Hep_)
+    cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  else
+    cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonGeometryConstantsESModule::MuonGeometryConstantsESModule called with dd4hep: "
+  edm::LogVerbatim("MuonGeom") << "MuonGeometryConstantsESModule::MuonGeometryConstantsESModule called with dd4hep: "
                                << fromDD4Hep_;
 #endif
 }
@@ -48,20 +50,20 @@ void MuonGeometryConstantsESModule::fillDescriptions(edm::ConfigurationDescripti
 }
 
 MuonGeometryConstantsESModule::ReturnType MuonGeometryConstantsESModule::produce(const IdealGeometryRecord& iRecord) {
-  edm::LogInfo("Geometry") << "MuonGeometryConstantsESModule::produce(const IdealGeometryRecord& iRecord)";
+  edm::LogInfo("MuonGeom") << "MuonGeometryConstantsESModule::produce(const IdealGeometryRecord& iRecord)";
 
   auto ptp = std::make_unique<MuonGeometryConstants>();
   MuonGeometryConstantsBuild builder;
 
   if (fromDD4Hep_) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << "MuonGeometryConstantsESModule::Try to access cms::DDCompactView";
+    edm::LogVerbatim("MuonGeom") << "MuonGeometryConstantsESModule::Try to access cms::DDCompactView";
 #endif
     edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4Hep_);
     builder.build(&(*cpv), *ptp);
   } else {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << "MuonGeometryConstantsESModule::Try to access DDCompactView";
+    edm::LogVerbatim("MuonGeom") << "MuonGeometryConstantsESModule::Try to access DDCompactView";
 #endif
     edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDDD_);
     builder.build(&(*cpv), *ptp);

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 #  This script checks outputs from jobs that have FETCH status and updates if errors occured
 #  -> check STDOUT files

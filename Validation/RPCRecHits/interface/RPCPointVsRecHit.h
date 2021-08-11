@@ -10,6 +10,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "Validation/RPCRecHits/interface/RPCValidHistograms.h"
@@ -26,6 +28,7 @@ public:
 
 private:
   edm::EDGetTokenT<RPCRecHitCollection> refHitToken_, recHitToken_;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
 
   std::string subDir_;
   RPCValidHistograms h_;

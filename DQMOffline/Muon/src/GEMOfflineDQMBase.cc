@@ -52,17 +52,11 @@ void GEMOfflineDQMBase::setDetLabelsEta(MonitorElement* me, const GEMStation* st
     return;
   }
 
-  me->setAxisTitle("Superchamber / Chamber", 1);
+  me->setAxisTitle("Chamber", 1);
   for (const GEMSuperChamber* superchamber : station->superChambers()) {
-    const int num_chambers = superchamber->nChambers();
-
-    for (const GEMChamber* chamber : superchamber->chambers()) {
-      const int sc = chamber->id().chamber();
-      const int ch = chamber->id().layer();
-      const int xbin = getDetOccXBin(sc, ch, num_chambers);
-      const char* label = Form("%d/%d", sc, ch);
-      me->setBinLabel(xbin, label, 1);
-    }
+    const int chamber = superchamber->id().chamber();
+    const std::string&& label = std::to_string(chamber);
+    me->setBinLabel(chamber, label, 1);
   }
 
   const int num_etas = getNumEtaPartitions(station);
@@ -91,9 +85,8 @@ int GEMOfflineDQMBase::getNumEtaPartitions(const GEMStation* station) {
 
 void GEMOfflineDQMBase::fillME(MEMap& me_map, const GEMDetId& key, const float x) {
   if UNLIKELY (me_map.find(key) == me_map.end()) {
-    const std::string hint = !me_map.empty() ? me_map.begin()->second->getName() : "empty";
-
-    edm::LogError(log_category_) << "got invalid key: " << key << ", hint=" << hint << std::endl;
+    const std::string hint = me_map.empty() ? "empty" : me_map.begin()->second->getName();
+    edm::LogError(log_category_) << "got an invalid key: " << key << ", hint=" << hint << std::endl;
 
   } else {
     me_map[key]->Fill(x);
@@ -102,7 +95,8 @@ void GEMOfflineDQMBase::fillME(MEMap& me_map, const GEMDetId& key, const float x
 
 void GEMOfflineDQMBase::fillME(MEMap& me_map, const GEMDetId& key, const float x, const float y) {
   if UNLIKELY (me_map.find(key) == me_map.end()) {
-    edm::LogError(log_category_) << "got invalid key: " << key << std::endl;
+    const std::string hint = me_map.empty() ? "empty" : me_map.begin()->second->getName();
+    edm::LogError(log_category_) << "got an invalid key: " << key << ", hint=" << hint << std::endl;
 
   } else {
     me_map[key]->Fill(x, y);

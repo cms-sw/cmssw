@@ -18,6 +18,7 @@
     <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThickness]"/>
     <Vector name="LayerNames" type="string" nEntries="7">
       HGCalEEMotherBoard0Fine, HGCalEEConnector0Fine, HGCalEEPCB0Fine,
       HGCalEEEpoxy0Fine, HGCalEEKapton0Fine, HGCalEESensitive0Fine, 
@@ -50,6 +51,7 @@
     <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThickness]"/>
     <Vector name="LayerNames" type="string" nEntries="7">
       HGCalEEMotherBoard1Fine, HGCalEEConnector1Fine, HGCalEEPCB1Fine,
       HGCalEEEpoxy1Fine, HGCalEEKapton1Fine, HGCalEESensitive1Fine, 
@@ -82,6 +84,7 @@
     <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThickness]"/>
     <Vector name="LayerNames" type="string" nEntries="7">
       HGCalEEMotherBoard0Coarse1, HGCalEEConnector0Coarse1, HGCalEEPCB0Coarse1,
       HGCalEEEpoxy0Coarse1, HGCalEEKapton0Coarse1, HGCalEESensitive0Coarse1, 
@@ -114,6 +117,7 @@
     <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThickness]"/>
     <Vector name="LayerNames" type="string" nEntries="7">
       HGCalEEMotherBoard1Coarse1, HGCalEEConnector1Coarse1, HGCalEEPCB1Coarse1,
       HGCalEEEpoxy1Coarse1, HGCalEEKapton1Coarse1, HGCalEESensitive1Coarse1, 
@@ -146,6 +150,7 @@
     <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThickness]"/>
     <Vector name="LayerNames" type="string" nEntries="7">
       HGCalEEMotherBoard0Coarse2, HGCalEEConnector0Coarse2, HGCalEEPCB0Coarse2,
       HGCalEEEpoxy0Coarse2, HGCalEEKapton0Coarse2, HGCalEESensitive0Coarse2, 
@@ -178,6 +183,7 @@
     <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThickness]"/>
     <Vector name="LayerNames" type="string" nEntries="7">
       HGCalEEMotherBoard1Coarse2, HGCalEEConnector1Coarse2, HGCalEEPCB1Coarse2,
       HGCalEEEpoxy1Coarse2, HGCalEEKapton1Coarse2, HGCalEESensitive1Coarse2, 
@@ -210,6 +216,7 @@
     <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThickness]"/>
     <Vector name="LayerNames" type="string" nEntries="7">
       HGCalHEMotherBoard0Fine, HGCalHEConnector0Fine, HGCalHEPCB0Fine,
       HGCalHEEpoxy0Fine, HGCalHEKapton0Fine, HGCalHESiliconSensitive0Fine, 
@@ -242,6 +249,7 @@
     <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThickness]"/>
     <Vector name="LayerNames" type="string" nEntries="7">
       HGCalHEMotherBoard0Coarse1, HGCalHEConnector0Coarse1, HGCalHEPCB0Coarse1,
       HGCalHEEpoxy0Coarse1, HGCalHEKapton0Coarse1, HGCalHESiliconSensitive0Coarse1, 
@@ -274,6 +282,7 @@
     <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThickness]"/>
     <Vector name="LayerNames" type="string" nEntries="7">
       HGCalHEMotherBoard0Coarse2, HGCalHEConnector0Coarse2, HGCalHEPCB0Coarse2,
       HGCalHEEpoxy0Coarse2, HGCalHEKapton0Coarse2, HGCalHESiliconSensitive0Coarse2, 

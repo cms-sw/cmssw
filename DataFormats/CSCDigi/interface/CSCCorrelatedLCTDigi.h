@@ -18,14 +18,21 @@
 
 class CSCCorrelatedLCTDigi {
 public:
-  enum LCTKeyStripMasks { kEighthStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0xff };
-  enum LCTKeyStripShifts { kEighthStripShift = 9, kQuartStripShift = 8, kHalfStripShift = 0 };
-  // temporary to facilitate CCLUT-EMTF/OMTF integration studies
-  enum LCTPatternMasks { kRun3SlopeMask = 0xf, kRun3PatternMask = 0x7, kLegacyPatternMask = 0xf };
-  enum LCTPatternShifts { kRun3SlopeShift = 7, kRun3PatternShift = 4, kLegacyPatternShift = 0 };
   enum class Version { Legacy = 0, Run3 };
   // for data vs emulator studies
   enum LCTBXMask { kBXDataMask = 0x1 };
+
+  /// SIMULATION ONLY ////
+  enum Type {
+    CLCTALCT,      // CLCT-centric
+    ALCTCLCT,      // ALCT-centric
+    ALCTCLCTGEM,   // ALCT-CLCT-1 GEM pad
+    ALCTCLCT2GEM,  // ALCT-CLCT-2 GEM pads in coincidence
+    ALCT2GEM,      // ALCT-2 GEM pads in coincidence
+    CLCT2GEM,      // CLCT-2 GEM pads in coincidence
+    CLCTONLY,      // Missing ALCT
+    ALCTONLY       // Missing CLCT
+  };
 
   /// Constructors
   CSCCorrelatedLCTDigi(const uint16_t trknmb,
@@ -40,9 +47,14 @@ public:
                        const uint16_t bx0 = 0,
                        const uint16_t syncErr = 0,
                        const uint16_t cscID = 0,
-                       const uint16_t hmt = 0,
-                       const Version version = Version::Legacy);
-  /// default
+                       const Version version = Version::Legacy,
+                       const bool run3_quart_strip_bit = false,
+                       const bool run3_eighth_strip_bit = false,
+                       const uint16_t run3_pattern = 0,
+                       const uint16_t run3_slope = 0,
+                       const int type = ALCTCLCT);
+
+  /// default (calls clear())
   CSCCorrelatedLCTDigi();
 
   /// clear this LCT
@@ -64,16 +76,16 @@ public:
   uint16_t getStrip(uint16_t n = 2) const;
 
   /// set single quart strip bit
-  void setQuartStrip(const bool quartStrip);
+  void setQuartStripBit(const bool quartStripBit) { run3_quart_strip_bit_ = quartStripBit; }
 
   /// get single quart strip bit
-  bool getQuartStrip() const;
+  bool getQuartStripBit() const { return run3_quart_strip_bit_; }
 
   /// set single eighth strip bit
-  void setEighthStrip(const bool eighthStrip);
+  void setEighthStripBit(const bool eighthStripBit) { run3_eighth_strip_bit_ = eighthStripBit; }
 
   /// get single eighth strip bit
-  bool getEighthStrip() const;
+  bool getEighthStripBit() const { return run3_eighth_strip_bit_; }
 
   /*
     Strips are numbered starting from 1 in CMSSW
@@ -94,15 +106,14 @@ public:
    */
   float getFractionalStrip(uint16_t n = 2) const;
 
-  /// Legacy: return pattern ID
-  /// Run-3: return the bending angle value
-  uint16_t getPattern() const;
+  /// return the Run-2 pattern ID
+  uint16_t getPattern() const { return pattern; }
 
-  /// return pattern
-  uint16_t getRun3Pattern() const;
+  /// return the Run-3 pattern ID
+  uint16_t getRun3Pattern() const { return run3_pattern_; }
 
   /// return the slope
-  uint16_t getSlope() const;
+  uint16_t getSlope() const { return run3_slope_; }
 
   /// slope in number of half-strips/layer
   /// negative means left-bending
@@ -166,13 +177,13 @@ public:
   void setStrip(const uint16_t s) { strip = s; }
 
   /// set pattern
-  void setPattern(const uint16_t p);
+  void setPattern(const uint16_t p) { pattern = p; }
 
-  /// set pattern
-  void setRun3Pattern(const uint16_t pattern);
+  /// set Run-3 pattern
+  void setRun3Pattern(const uint16_t pattern) { run3_pattern_ = pattern; }
 
   /// set the slope
-  void setSlope(const uint16_t slope);
+  void setSlope(const uint16_t slope) { run3_slope_ = slope; }
 
   /// set bend
   void setBend(const uint16_t b) { bend = b; }
@@ -197,18 +208,6 @@ public:
 
   void setRun3(const bool isRun3);
 
-  /// SIMULATION ONLY ////
-  enum Type {
-    CLCTALCT,      // CLCT-centric
-    ALCTCLCT,      // ALCT-centric
-    ALCTCLCTGEM,   // ALCT-CLCT-1 GEM pad
-    ALCTCLCT2GEM,  // ALCT-CLCT-2 GEM pads in coincidence
-    ALCT2GEM,      // ALCT-2 GEM pads in coincidence
-    CLCT2GEM,      // CLCT-2 GEM pads in coincidence
-    CLCTONLY,      // Missing ALCT
-    ALCTONLY       // Missing CLCT
-  };
-
   int getType() const { return type_; }
 
   void setType(int type) { type_ = type; }
@@ -223,9 +222,6 @@ public:
   const GEMPadDigi& getGEM2() const { return gem2_; }
 
 private:
-  void setDataWord(const uint16_t newWord, uint16_t& word, const unsigned shift, const unsigned mask);
-  uint16_t getDataWord(const uint16_t word, const unsigned shift, const unsigned mask) const;
-
   // Note: The Run-3 data format is substantially different than the
   // Run-1/2 data format. Some explanation is provided below. For
   // more information, please check "DN-20-016".
@@ -241,13 +237,12 @@ private:
   uint16_t quality;
   // 7-bit key wire
   uint16_t keywire;
-  // In Run-3, the strip number receives two additional bits
-  // strip[7:0] -> 1/2 strip value
-  // strip[8]   -> 1/4 strip bit
-  // strip[9]   -> 1/8 strip bit
+  // actually the 8-bit half-strip number
   uint16_t strip;
-  // In Run-3, the 4-bit pattern number is reinterpreted as the
-  // 4-bit bending value. There will be 16 bending values * 2 (left/right)
+  // Run-1/2 pattern number.
+  // For Run-3 CLCTs, please use run3_pattern_. For some backward
+  // compatibility the trigger emulator translates run3_pattern_
+  // approximately into pattern_ with a lookup table
   uint16_t pattern;
   // Common definition for left/right bending in Run-1, Run-2 and Run-3.
   // 0: right; 1: left
@@ -259,12 +254,22 @@ private:
   uint16_t syncErr;
   // 4-bit CSC chamber identifier
   uint16_t cscID;
-  // In Run-3, LCT data will be carrying the high-multiplicity bits
-  // for chamber. These bits may indicate the observation of "exotic" events
-  // Depending on the chamber type 2 or 3 bits will be repurposed
-  // in the 32-bit LCT data word from the synchronization bit and
-  // quality bits.
+
+  // new members in Run-3:
+
+  // In Run-3, CSC trigger data will include the high-multiplicity
+  // bits for a chamber. These bits may indicate the observation of
+  // "exotic" events. This data member was included in a prototype.
+  // Later on, we developed a dedicated object: "CSCShowerDigi"
   uint16_t hmt;
+  // 1/4-strip bit set by CCLUT (see DN-19-059)
+  bool run3_quart_strip_bit_;
+  // 1/8-strip bit set by CCLUT
+  bool run3_eighth_strip_bit_;
+  // In Run-3, the CLCT digi has 3-bit pattern ID, 0 through 4
+  uint16_t run3_pattern_;
+  // 4-bit bending value. There will be 16 bending values * 2 (left/right)
+  uint16_t run3_slope_;
 
   /// SIMULATION ONLY ////
   int type_;

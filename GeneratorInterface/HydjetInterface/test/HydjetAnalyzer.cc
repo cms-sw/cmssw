@@ -6,6 +6,7 @@
 */
 
 // system include files
+#include <cmath>
 #include <memory>
 #include <iostream>
 #include <string>
@@ -577,25 +578,25 @@ void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
             phiTrue = phi;
           }
           ///
-          v2 = TMath::Cos(2 * (phiTrue));
-          v3 = TMath::Cos(3 * (phiTrue - phi3));
-          v4 = TMath::Cos(4 * (phiTrue));
-          v5 = TMath::Cos(5 * (phiTrue - phi3));
-          v6 = TMath::Cos(6 * (phiTrue));
+          v2 = std::cos(2 * (phiTrue));
+          v3 = std::cos(3 * (phiTrue - phi3));
+          v4 = std::cos(4 * (phiTrue));
+          v5 = std::cos(5 * (phiTrue - phi3));
+          v6 = std::cos(6 * (phiTrue));
 
           if (doHistos_) {
             //common histos
             if ((*it)->status() < 10) {  //status 1
               dheta->Fill(eta);
 
-              if (TMath::Abs(eta) < 0.8) {
+              if (std::abs(eta) < 0.8) {
                 dhpt->Fill(pt);
                 dhphi->Fill(phiTrue);
               }
 
-              if (TMath::Abs(pdg_id) == 211 || TMath::Abs(pdg_id) == 321 || TMath::Abs(pdg_id) == 2212) {  //ch
+              if (std::abs(pdg_id) == 211 || std::abs(pdg_id) == 321 || std::abs(pdg_id) == 2212) {  //ch
 
-                if (TMath::Abs(eta) < 0.8) {
+                if (std::abs(eta) < 0.8) {
                   dhv0pt->Fill(pt, 1.);
                   dhv2pt->Fill(pt, v2);
                   dhpt_ch->Fill(pt);
@@ -613,12 +614,11 @@ void HydjetAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
                                 (((*it)->status() > 10) && (uStatus_ == 2)))) {  //user status
 
               //set1
-              if (TMath::Abs(pdg_id) == uPDG_1 || TMath::Abs(pdg_id) == uPDG_2 ||
-                  TMath::Abs(pdg_id) == uPDG_3) {  //uPDG
+              if (std::abs(pdg_id) == uPDG_1 || std::abs(pdg_id) == uPDG_2 || std::abs(pdg_id) == uPDG_3) {  //uPDG
                 if ((uStatus_ == 3) && ((*it)->status() < 10))
                   cout << "ustatus=3, but stab. part. found!!!" << endl;
 
-                if (TMath::Abs(eta) > downTetaCut_ && TMath::Abs(eta) < upTetaCut_) {  //eta cut
+                if (std::abs(eta) > downTetaCut_ && std::abs(eta) < upTetaCut_) {  //eta cut
 
                   uhv0pt->Fill(pt, 1.);
                   uhv2pt->Fill(pt, v2);

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import sys
@@ -6,7 +6,6 @@ import os
 from ROOT import *
 from copy import deepcopy
 from array import array
-import six
 
 gROOT.SetBatch() # don't pop up canvases
 

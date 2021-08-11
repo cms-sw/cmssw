@@ -3,6 +3,7 @@
 <use name="TrackingTools/TrackFitters"/>
 <use name="CalibTracker/SiStripCommon"/>
 <use name="CalibFormats/SiStripObjects"/>
+<use name="FWCore/ServiceRegistry"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/RunInfo"/>

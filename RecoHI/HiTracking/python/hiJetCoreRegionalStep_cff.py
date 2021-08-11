@@ -21,29 +21,34 @@ hiFirstStepGoodPrimaryVertices = cms.EDFilter("PrimaryVertexObjectFilter",
      src=cms.InputTag('hiSelectedPixelVertex')
 )
 
+import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
+
 # SEEDING LAYERS
-hiJetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
-    layerList = cms.vstring('BPix1+BPix2+BPix3', 
-    'BPix1+BPix2+FPix1_pos', 
-    'BPix1+BPix2+FPix1_neg', 
-    'BPix1+FPix1_pos+FPix2_pos', 
-    'BPix1+FPix1_neg+FPix2_neg',
-    'BPix1+BPix2+TIB1', 
-    'BPix1+BPix3+TIB1', 
-    'BPix2+BPix3+TIB1', 
-),
-    TIB = cms.PSet(
+hiJetCoreRegionalStepSeedLayers = _mod.seedingLayersEDProducer.clone(
+    layerList = ['BPix1+BPix2+BPix3', 
+                 'BPix1+BPix2+FPix1_pos', 
+                 'BPix1+BPix2+FPix1_neg', 
+                 'BPix1+FPix1_pos+FPix2_pos', 
+                 'BPix1+FPix1_neg+FPix2_neg',
+                 'BPix1+BPix2+TIB1', 
+                 'BPix1+BPix3+TIB1', 
+                 'BPix2+BPix3+TIB1', 
+                ],
+    TIB = dict(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
+        TTRHBuilder = cms.string('WithTrackAngle'), 
+        clusterChargeCut = cms.PSet(
+            refToPSet_ = cms.string('SiStripClusterChargeCutNone')
+        )
     ),
-    BPix = cms.PSet(
+    BPix = dict(
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0027),
         hitErrorRZ = cms.double(0.006),
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
     ),
-    FPix = cms.PSet(
+    FPix = dict(
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0051),
         hitErrorRZ = cms.double(0.0036),

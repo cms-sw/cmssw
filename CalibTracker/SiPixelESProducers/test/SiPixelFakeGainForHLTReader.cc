@@ -9,7 +9,7 @@ namespace cms {
       : conf_(conf),
         trackerGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
         trackerGeomTokenBeginRun_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
-        SiPixelGainCalibrationForHLTService_(conf),
+        SiPixelGainCalibrationForHLTService_(conf, consumesCollector()),
         filename_(conf.getParameter<std::string>("fileName")) {}
 
   void SiPixelFakeGainForHLTReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

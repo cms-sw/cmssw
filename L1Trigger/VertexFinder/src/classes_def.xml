@@ -1,0 +1,28 @@
+<lcgdict>
+  <class name="l1tVertexFinder::InputData" persistent="false"/>
+  <class name="l1tVertexFinder::Vertex" persistent="false"/>
+  <class name="l1tVertexFinder::TP" persistent="false"/>
+  <class name="l1tVertexFinder::Stub" persistent="false"/>
+  <class name="edm::Ptr<l1tVertexFinder::Stub>" persistent="false"/>
+  <class name="edm::Ptr<l1tVertexFinder::TP>" persistent="false"/>
+  <class name="edm::ValueMap<edm::Ptr<l1tVertexFinder::Stub> >" persistent="false"/>
+  <class name="edm::ValueMap<edm::Ptr<l1tVertexFinder::TP> >" persistent="false"/>
+  <class name="edm::ValueMap<l1tVertexFinder::Stub>" persistent="false"/>
+  <class name="edm::ValueMap<l1tVertexFinder::TP>" persistent="false"/>
+  <class name="std::vector<l1tVertexFinder::Stub>" persistent="false"/>
+  <class name="std::vector<l1tVertexFinder::TP>" persistent="false"/>
+  <class name="std::vector<l1tVertexFinder::Vertex>" persistent="false"/>
+  <class name="std::vector<edm::Ptr<l1tVertexFinder::Stub> >" persistent="false"/>
+  <class name="std::vector<edm::Ptr<l1tVertexFinder::TP> >" persistent="false"/>
+  <class name="edm::Wrapper<l1tVertexFinder::Vertex>" persistent="false"/>
+  <class name="edm::Wrapper<l1tVertexFinder::TP>" persistent="false"/>
+  <class name="edm::Wrapper<l1tVertexFinder::Stub>" persistent="false"/>
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<l1tVertexFinder::Stub> > >" persistent="false"/>
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<l1tVertexFinder::TP> > >" persistent="false"/>
+  <class name="edm::Wrapper<edm::ValueMap<l1tVertexFinder::Stub> >" persistent="false"/>
+  <class name="edm::Wrapper<edm::ValueMap<l1tVertexFinder::TP> >" persistent="false"/>
+  <class name="edm::Wrapper<std::vector<l1tVertexFinder::Stub>>" persistent="false"/>
+  <class name="edm::Wrapper<std::vector<l1tVertexFinder::TP>>" persistent="false"/>
+  <class name="edm::Wrapper<std::vector<l1tVertexFinder::Vertex>>" persistent="false"/>
+  <class name="edm::Wrapper<l1tVertexFinder::InputData>" persistent="false"/>
+</lcgdict>

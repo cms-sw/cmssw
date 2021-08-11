@@ -1048,10 +1048,14 @@ namespace hcal {
                     cudaStream_t cudaStream) {
       auto const totalChannels = inputGPU.f01HEDigis.size + inputGPU.f5HBDigis.size + inputGPU.f3HBDigis.size;
 
-      // FIXME: may be move this assignment to emphasize this more clearly
-      // FIXME: number of channels for output might change given that
-      //   some channesl might be filtered out
+      // FIXME: the number of channels in output might change given that some channesl might be filtered out
+
+      // do not run when there are no rechits (e.g. if HCAL is not being read),
+      // but do set the size of the output collection to 0
       outputGPU.recHits.size = totalChannels;
+      if (totalChannels == 0) {
+        return;
+      }
 
       // TODO: this can be lifted by implementing a separate kernel
       // similar to the default one, but properly handling the diff in #sample

@@ -1,4 +1,5 @@
 <use name="boost"/>
+<use name="boost_regex"/>
 <use name="cuda"/>
 <use name="vdt_headers"/>
 <use name="CalibTracker/SiPixelESProducers"/>

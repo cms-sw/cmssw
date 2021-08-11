@@ -15,6 +15,14 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRatioMethodAlgo.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
@@ -36,7 +44,6 @@ namespace edm {
 class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerRunOneDigiBase {
 public:
   EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&, edm::ConsumesCollector& c);
-  EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&);
   EcalUncalibRecHitWorkerGlobal() : testbeamEEShape(EEShape(true)), testbeamEBShape(EBShape(true)) { ; }
   ~EcalUncalibRecHitWorkerGlobal() override{};
 
@@ -52,8 +59,10 @@ protected:
   double pedRMSVec[3];
   double gainRatios[3];
 
-  edm::ESHandle<EcalPedestals> peds;
-  edm::ESHandle<EcalGainRatios> gains;
+  edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> tokenPeds_;
+  edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> tokenGains_;
+  edm::ESHandle<EcalPedestals> peds_;
+  edm::ESHandle<EcalGainRatios> gains_;
 
   template <class C>
   int isSaturated(const C& digi);
@@ -61,8 +70,10 @@ protected:
   double timeCorrection(float ampli, const std::vector<float>& amplitudeBins, const std::vector<float>& shiftBins);
 
   // weights method
-  edm::ESHandle<EcalWeightXtalGroups> grps;
-  edm::ESHandle<EcalTBWeights> wgts;
+  edm::ESGetToken<EcalWeightXtalGroups, EcalWeightXtalGroupsRcd> tokenGrps_;
+  edm::ESGetToken<EcalTBWeights, EcalTBWeightsRcd> tokenWgts_;
+  edm::ESHandle<EcalWeightXtalGroups> grps_;
+  edm::ESHandle<EcalTBWeights> wgts_;
   const EcalWeightSet::EcalWeightMatrix* weights[2];
   const EcalWeightSet::EcalChi2WeightMatrix* chi2mat[2];
   EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> weightsMethod_barrel_;
@@ -71,6 +82,7 @@ protected:
   EBShape testbeamEBShape;  // can be replaced by simple shape arrays of float in the future
 
   // determie which of the samples must actually be used by ECAL local reco
+  edm::ESGetToken<EcalSampleMask, EcalSampleMaskRcd> tokenSampleMask_;
   edm::ESHandle<EcalSampleMask> sampleMaskHand_;
 
   // ratio method
@@ -100,10 +112,13 @@ protected:
   double amplitudeThreshEE_;
   double ebSpikeThresh_;
 
+  edm::ESGetToken<EcalTimeBiasCorrections, EcalTimeBiasCorrectionsRcd> tokenTimeCorrBias_;
   edm::ESHandle<EcalTimeBiasCorrections> timeCorrBias_;
 
-  edm::ESHandle<EcalTimeCalibConstants> itime;
-  edm::ESHandle<EcalTimeOffsetConstant> offtime;
+  edm::ESGetToken<EcalTimeCalibConstants, EcalTimeCalibConstantsRcd> tokenItime_;
+  edm::ESGetToken<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd> tokenOfftime_;
+  edm::ESHandle<EcalTimeCalibConstants> itime_;
+  edm::ESHandle<EcalTimeOffsetConstant> offtime_;
   std::vector<double> ebPulseShape_;
   std::vector<double> eePulseShape_;
 

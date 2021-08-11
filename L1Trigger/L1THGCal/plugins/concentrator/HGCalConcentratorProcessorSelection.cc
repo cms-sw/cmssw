@@ -8,6 +8,7 @@ DEFINE_EDM_PLUGIN(HGCalConcentratorFactory, HGCalConcentratorProcessorSelection,
 HGCalConcentratorProcessorSelection::HGCalConcentratorProcessorSelection(const edm::ParameterSet& conf)
     : HGCalConcentratorProcessorBase(conf),
       fixedDataSizePerHGCROC_(conf.getParameter<bool>("fixedDataSizePerHGCROC")),
+      allTrigCellsInTrigSums_(conf.getParameter<bool>("allTrigCellsInTrigSums")),
       coarsenTriggerCells_(conf.getParameter<std::vector<unsigned>>("coarsenTriggerCells")),
       selectionType_(kNSubDetectors_) {
   std::vector<std::string> selectionType(conf.getParameter<std::vector<std::string>>("Method"));
@@ -33,6 +34,10 @@ HGCalConcentratorProcessorSelection::HGCalConcentratorProcessorSelection(const e
       selectionType_[subdet] = superTriggerCellSelect;
       if (!superTriggerCellImpl_)
         superTriggerCellImpl_ = std::make_unique<HGCalConcentratorSuperTriggerCellImpl>(conf);
+    } else if (selectionType[subdet] == "autoEncoder") {
+      selectionType_[subdet] = autoEncoderSelect;
+      if (!autoEncoderImpl_)
+        autoEncoderImpl_ = std::make_unique<HGCalConcentratorAutoEncoderImpl>(conf);
     } else if (selectionType[subdet] == "noSelection") {
       selectionType_[subdet] = noSelection;
     } else {
@@ -47,24 +52,28 @@ HGCalConcentratorProcessorSelection::HGCalConcentratorProcessorSelection(const e
   }
 }
 
-void HGCalConcentratorProcessorSelection::run(
-    const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput,
-    std::pair<l1t::HGCalTriggerCellBxCollection, l1t::HGCalTriggerSumsBxCollection>& triggerCollOutput,
-    const edm::EventSetup& es) {
+void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput,
+                                              std::tuple<l1t::HGCalTriggerCellBxCollection,
+                                                         l1t::HGCalTriggerSumsBxCollection,
+                                                         l1t::HGCalConcentratorDataBxCollection>& triggerCollOutput,
+                                              const edm::EventSetup& es) {
   if (thresholdImpl_)
     thresholdImpl_->eventSetup(es);
   if (bestChoiceImpl_)
     bestChoiceImpl_->eventSetup(es);
   if (superTriggerCellImpl_)
     superTriggerCellImpl_->eventSetup(es);
+  if (autoEncoderImpl_)
+    autoEncoderImpl_->eventSetup(es);
   if (coarsenerImpl_)
     coarsenerImpl_->eventSetup(es);
   if (trigSumImpl_)
     trigSumImpl_->eventSetup(es);
   triggerTools_.eventSetup(es);
 
-  auto& triggerCellCollOutput = triggerCollOutput.first;
-  auto& triggerSumCollOutput = triggerCollOutput.second;
+  auto& triggerCellCollOutput = std::get<0>(triggerCollOutput);
+  auto& triggerSumCollOutput = std::get<1>(triggerCollOutput);
+  auto& autoEncoderCollOutput = std::get<2>(triggerCollOutput);
 
   const l1t::HGCalTriggerCellBxCollection& collInput = *triggerCellCollInput;
 
@@ -79,8 +88,9 @@ void HGCalConcentratorProcessorSelection::run(
     std::vector<l1t::HGCalTriggerCell> trigCellVecCoarsened;
     std::vector<l1t::HGCalTriggerCell> trigCellVecNotSelected;
     std::vector<l1t::HGCalTriggerSums> trigSumsVecOutput;
+    std::vector<l1t::HGCalConcentratorData> ae_EncodedLayerOutput;
 
-    int thickness = triggerTools_.thicknessIndex(module_trigcell.second.at(0).detId(), true);
+    int thickness = triggerTools_.thicknessIndex(module_trigcell.second.at(0).detId());
 
     HGCalTriggerTools::SubDetectorType subdet = triggerTools_.getSubDetectorType(module_trigcell.second.at(0).detId());
 
@@ -109,6 +119,12 @@ void HGCalConcentratorProcessorSelection::run(
         case superTriggerCellSelect:
           superTriggerCellImpl_->select(trigCellVecCoarsened, trigCellVecOutput);
           break;
+        case autoEncoderSelect:
+          autoEncoderImpl_->select(geometry_->getLinksInModule(module_trigcell.first),
+                                   trigCellVecCoarsened,
+                                   trigCellVecOutput,
+                                   ae_EncodedLayerOutput);
+          break;
         case noSelection:
           trigCellVecOutput = trigCellVecCoarsened;
           break;
@@ -132,6 +148,12 @@ void HGCalConcentratorProcessorSelection::run(
         case superTriggerCellSelect:
           superTriggerCellImpl_->select(module_trigcell.second, trigCellVecOutput);
           break;
+        case autoEncoderSelect:
+          autoEncoderImpl_->select(geometry_->getLinksInModule(module_trigcell.first),
+                                   module_trigcell.second,
+                                   trigCellVecOutput,
+                                   ae_EncodedLayerOutput);
+          break;
         case noSelection:
           trigCellVecOutput = module_trigcell.second;
           break;
@@ -143,7 +165,11 @@ void HGCalConcentratorProcessorSelection::run(
 
     // trigger sum
     if (trigSumImpl_) {
-      trigSumImpl_->doSum(module_trigcell.first, trigCellVecNotSelected, trigSumsVecOutput);
+      if (allTrigCellsInTrigSums_) {  // using all TCs
+        trigSumImpl_->doSum(module_trigcell.first, module_trigcell.second, trigSumsVecOutput);
+      } else {  // using only unselected TCs
+        trigSumImpl_->doSum(module_trigcell.first, trigCellVecNotSelected, trigSumsVecOutput);
+      }
     }
 
     for (const auto& trigCell : trigCellVecOutput) {
@@ -151,6 +177,9 @@ void HGCalConcentratorProcessorSelection::run(
     }
     for (const auto& trigSums : trigSumsVecOutput) {
       triggerSumCollOutput.push_back(0, trigSums);
+    }
+    for (const auto& aeVal : ae_EncodedLayerOutput) {
+      autoEncoderCollOutput.push_back(0, aeVal);
     }
   }
 }

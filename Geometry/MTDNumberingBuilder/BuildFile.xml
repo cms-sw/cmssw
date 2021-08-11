@@ -1,6 +1,7 @@
 <use name="DataFormats/GeometrySurface"/>
 <use name="DetectorDescription/Core"/>
 <use name="Geometry/TrackerNumberingBuilder"/>
+<use name="Geometry/CommonDetUnit"/> <!--Needed for typeinfo for GeomDet in UBSAN builds-->
 <use name="DataFormats/ForwardDetId"/>
 <export>
   <lib name="1"/>

@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/src/insertSelectedProcesses.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/ProcessBlockForOutput.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -81,7 +82,8 @@ namespace edm {
     }
 
     void OutputModuleBase::selectProducts(ProductRegistry const& preg,
-                                          ThinnedAssociationsHelper const& thinnedAssociationsHelper) {
+                                          ThinnedAssociationsHelper const& thinnedAssociationsHelper,
+                                          ProcessBlockHelperBase const& processBlockHelper) {
       if (productSelector_.initialized())
         return;
       productSelector_.initialize(productSelectorRules_, preg.allBranchDescriptions());
@@ -94,6 +96,7 @@ namespace edm {
       std::vector<BranchDescription const*> associationDescriptions;
       std::set<BranchID> keptProductsInEvent;
       std::set<std::string> processesWithSelectedMergeableRunProducts;
+      std::set<std::string> processesWithKeptProcessBlockProducts;
 
       for (auto const& it : preg.productList()) {
         BranchDescription const& desc = it.second;
@@ -106,7 +109,8 @@ namespace edm {
           associationDescriptions.push_back(&desc);
         } else if (selected(desc)) {
           keepThisBranch(desc, trueBranchIDToKeptBranchDesc, keptProductsInEvent);
-          insertSelectedProcesses(desc, processesWithSelectedMergeableRunProducts);
+          insertSelectedProcesses(
+              desc, processesWithSelectedMergeableRunProducts, processesWithKeptProcessBlockProducts);
         } else {
           // otherwise, output nothing,
           // and mark the fact that there is a newly dropped branch of this type.
@@ -132,6 +136,7 @@ namespace edm {
 
       thinnedAssociationsHelper_->updateFromParentProcess(
           thinnedAssociationsHelper, keepAssociation_, droppedBranchIDToKeptBranchID_);
+      outputProcessBlockHelper_.updateAfterProductSelection(processesWithKeptProcessBlockProducts, processBlockHelper);
     }
 
     void OutputModuleBase::updateBranchIDListsWithKeptAliases() {
@@ -284,6 +289,12 @@ namespace edm {
       r.setConsumer(this);
       doEndRun_(r);
       return true;
+    }
+
+    void OutputModuleBase::doWriteProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+      ProcessBlockForOutput pb(pbp, moduleDescription_, mcc, true);
+      pb.setConsumer(this);
+      writeProcessBlock(pb);
     }
 
     void OutputModuleBase::doWriteRun(RunPrincipal const& rp,

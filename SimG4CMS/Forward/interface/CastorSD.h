@@ -25,15 +25,14 @@
 #include "SimG4CMS/Forward/interface/CastorShowerLibrary.h"
 #include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
 #include "SimDataFormats/CaloHit/interface/CastorShowerEvent.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
 #include "G4LogicalVolume.hh"
 
 class CastorSD : public CaloSD {
 public:
-  CastorSD(const std::string &,
-           const edm::EventSetup &,
-           const SensitiveDetectorCatalog &clg,
-           edm::ParameterSet const &,
-           const SimTrackManager *);
+  CastorSD(const std::string &, const SensitiveDetectorCatalog &clg, edm::ParameterSet const &, const SimTrackManager *);
   ~CastorSD() override;
   uint32_t setDetUnitId(const G4Step *step) override;
   void setNumberingScheme(CastorNumberingScheme *scheme);

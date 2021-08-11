@@ -18,6 +18,12 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 class GEMEfficiencyAnalyzer : public GEMOfflineDQMBase {
 public:
@@ -31,13 +37,17 @@ protected:
 
 private:
   struct GEMLayerData {
-    GEMLayerData(Disk::DiskPointer surface, std::vector<const GEMChamber *> chambers, int region, int station, int layer)
-        : surface(surface), chambers(chambers), region(region), station(station), layer(layer) {}
-
-    Disk::DiskPointer surface;
+    GEMLayerData(Disk::DiskPointer disk, std::vector<const GEMChamber *> chambers, int region, int station, int layer)
+        : disk(disk), chambers(chambers), region(region), station(station), layer(layer) {}
+    Disk::DiskPointer disk;
     std::vector<const GEMChamber *> chambers;
     int region, station, layer;
   };
+
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemToken1_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemToken2_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globalGeomToken_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> trasientTrackToken_;
 
   MonitorElement *bookNumerator1D(DQMStore::IBooker &, MonitorElement *);
   MonitorElement *bookNumerator2D(DQMStore::IBooker &, MonitorElement *);
@@ -45,6 +55,7 @@ private:
   void bookEfficiencyMomentum(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
   void bookEfficiencyChamber(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
   void bookEfficiencyEtaPartition(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
+  void bookEfficiencyDetector(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
   void bookResolution(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
   void bookMisc(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
 
@@ -102,7 +113,9 @@ private:
   MEMap me_muon_phi_matched_;
   MEMap me_chamber_;  // 2D, region-station-layer
   MEMap me_chamber_matched_;
-  MEMap me_detector_;  // 2D, region-station
+  MEMap me_ieta_;  // 1D, region-station-layer
+  MEMap me_ieta_matched_;
+  MEMap me_detector_;  // 2D, region-station-layer
   MEMap me_detector_matched_;
   // resolution
   MEMap me_residual_rphi_;  // global

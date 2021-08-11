@@ -97,7 +97,7 @@ void DQMHistNormalizer::endRun(const edm::Run& r, const edm::EventSetup& c) {
     //Matches reference
     if (refregex->match(pathname)) {
       //cout << "Matched to ref" << endl;
-      string dir = pathname.substr(0, pathname.rfind("/"));
+      string dir = pathname.substr(0, pathname.rfind('/'));
       if (refsMap.find(dir) != refsMap.end()) {
         edm::LogInfo("DQMHistNormalizer")
             << "DQMHistNormalizer::endRun: Warning! found multiple normalizing references for dir: " << dir << "!";
@@ -126,7 +126,7 @@ void DQMHistNormalizer::endRun(const edm::Run& r, const edm::EventSetup& c) {
        matchingElement != toNormElements.end();
        ++matchingElement) {
     string meName = (*matchingElement)->getFullname();
-    string dir = meName.substr(0, meName.rfind("/"));
+    string dir = meName.substr(0, meName.rfind('/'));
 
     if (refsMap.find(dir) == refsMap.end()) {
       edm::LogInfo("DQMHistNormalizer") << "DQMHistNormalizer::endRun: Error! normalizing references for " << meName

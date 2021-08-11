@@ -205,14 +205,13 @@ namespace {
   /****************************************************************
      2d plot of ECAL LinearCorrections difference between 2 IOVs
   ****************************************************************/
-  class EcalLinearCorrectionsDiff : public cond::payloadInspector::PlotImage<EcalLinearCorrections> {
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class EcalLinearCorrectionsDiffBase : public cond::payloadInspector::PlotImage<EcalLinearCorrections, nIOVs, ntags> {
   public:
-    EcalLinearCorrectionsDiff()
-        : cond::payloadInspector::PlotImage<EcalLinearCorrections>("ECAL LinearCorrections - map ") {
-      setSingleIov(false);
-    }
+    EcalLinearCorrectionsDiffBase()
+        : cond::payloadInspector::PlotImage<EcalLinearCorrections, nIOVs, ntags>("ECAL LinearCorrections - map ") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
       TH2F** barrel = new TH2F*[kValues];
       TH2F** endc_p = new TH2F*[kValues];
       TH2F** endc_m = new TH2F*[kValues];
@@ -235,16 +234,39 @@ namespace {
       }
       float vEB[kValues][kEBChannels], vEE[kValues][kEEChannels];
 
-      unsigned int run[2] = {0, 0}, irun = 0;
+      unsigned int run[2] = {0, 0};
       unsigned long IOV = 0;
-      auto iov = iovs.front();
-      for (auto const& iov : iovs) {
-        std::shared_ptr<EcalLinearCorrections> payload = fetchPayload(std::get<1>(iov));
-        IOV = std::get<0>(iov);
-        if (IOV < 4294967296)
-          run[irun] = std::get<0>(iov);
-        else {  // time type IOV
-          run[irun] = IOV >> 32;
+      std::string l_tagname[2];
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      IOV = std::get<0>(firstiov);
+      if (IOV < 4294967296)
+        run[0] = IOV;
+      else {  // time type IOV
+        run[0] = IOV >> 32;
+      }
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      IOV = std::get<0>(lastiov);
+      if (IOV < 4294967296)
+        run[1] = IOV;
+      else {  // time type IOV
+        run[1] = IOV >> 32;
+      }
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalLinearCorrections> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
         }
         if (payload.get()) {
           for (int ieta = -MAX_IETA; ieta <= MAX_IETA; ieta++) {
@@ -345,7 +367,6 @@ namespace {
         }        // if payload.get()
         else
           return false;
-        irun++;
       }  // loop over IOVs
 
       gStyle->SetPalette(1);
@@ -355,6 +376,7 @@ namespace {
       t1.SetNDC();
       t1.SetTextAlign(26);
       //      t1.DrawLatex(0.5, 0.96, Form("Ecal Linear Corrections, IOV %lu", run));
+      int len = l_tagname[0].length() + l_tagname[1].length();
       if (IOV < 4294967296) {
         t1.SetTextSize(0.05);
         t1.DrawLatex(0.5, 0.96, Form("Ecal Linear Corrections, IOV %i - %i", run[1], run[0]));
@@ -369,8 +391,18 @@ namespace {
         localtime_r(&t, &lt);
         strftime(buf1, sizeof(buf1), "%F %R:%S", &lt);
         buf1[sizeof(buf1) - 1] = 0;
-        t1.SetTextSize(0.015);
-        t1.DrawLatex(0.5, 0.96, Form("Ecal Linear Corrections, IOV %s - %s", buf1, buf0));
+        if (ntags == 2) {
+          if (len < 80) {
+            t1.SetTextSize(0.02);
+            t1.DrawLatex(0.5, 0.96, Form("%s %s - %s %s", l_tagname[1].c_str(), buf1, l_tagname[0].c_str(), buf0));
+          } else {
+            t1.SetTextSize(0.03);
+            t1.DrawLatex(0.5, 0.96, Form("Ecal Linear Corrections, IOV %s - %s", buf1, buf0));
+          }
+        } else {
+          t1.SetTextSize(0.015);
+          t1.DrawLatex(0.5, 0.96, Form("%s, IOV %s - %s", l_tagname[0].c_str(), buf1, buf0));
+        }
       }
 
       float xmi[3] = {0.0, 0.26, 0.74};
@@ -418,16 +450,19 @@ namespace {
         DrawEE(endc_p[valId], pEEmin[valId], pEEmax[valId]);
       }
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalLinearCorrectionsDiff
+  };   // class EcalLinearCorrectionsDiffBase
+  using EcalLinearCorrectionsDiffOneTag = EcalLinearCorrectionsDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
+  using EcalLinearCorrectionsDiffTwoTags = EcalLinearCorrectionsDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 
 }  // namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(EcalLinearCorrections) {
   PAYLOAD_INSPECTOR_CLASS(EcalLinearCorrectionsPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalLinearCorrectionsDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalLinearCorrectionsDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLinearCorrectionsDiffTwoTags);
 }

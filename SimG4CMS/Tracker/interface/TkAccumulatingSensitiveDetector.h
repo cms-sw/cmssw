@@ -11,6 +11,9 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -31,7 +34,7 @@ class TkAccumulatingSensitiveDetector : public SensitiveTkDetector,
                                         public Observer<const BeginOfJob *> {
 public:
   TkAccumulatingSensitiveDetector(const std::string &,
-                                  const edm::EventSetup &,
+                                  const GeometricDet *,
                                   const SensitiveDetectorCatalog &,
                                   edm::ParameterSet const &,
                                   const SimTrackManager *);
@@ -57,6 +60,7 @@ protected:
 
 private:
   // data members initialised before run
+  const GeometricDet *pDD_;
   const SimTrackManager *theManager;
   std::unique_ptr<TrackingSlaveSD> slaveLowTof;
   std::unique_ptr<TrackingSlaveSD> slaveHighTof;

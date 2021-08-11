@@ -25,7 +25,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   float r_max = args.value<float>("rMax");
   float z_pos = args.value<float>("zPos");
 
-  const std::string solidOutput = args.value<std::string>("SolidName");
+  std::string solidOutput = args.value<std::string>("SolidName");
   const std::string material = args.value<std::string>("Material");
 
   auto phis = ns.vecFloat(args.str("Phi"));
@@ -49,6 +49,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   // non-zero phi distance. Sections with zero phi distance can be used to
   // create sharp jumps.
 
+  solidOutput = ns.prepend(solidOutput);
   edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints debug: Parent " << args.parentName() << "\tSolid "
                                   << solidOutput << " NameSpace " << ns.name() << "\tnumber of sections "
                                   << sections.size();
@@ -106,8 +107,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       float P3_z_l = (P1_z_l + P2_z_l) / 2;
       float P3_z_t = (P1_z_t + P2_z_t) / 2;
 
+      std::string segname(solidOutput + "_seg_" + std::to_string(segment));
       edm::LogVerbatim("TrackerGeom").log([&](auto& log) {
-        std::string segname(solidOutput + "_seg_" + std::to_string(segment));
         log << "DDCutTubsFromPoints: P1 l: " << segname << P1_x_l << " , " << P1_y_l << " , " << P1_z_l;
         log << "DDCutTubsFromPoints: P1 t: " << segname << P1_x_t << " , " << P1_y_t << " , " << P1_z_t;
         log << "DDCutTubsFromPoints: P2 l: " << segname << P2_x_l << " , " << P2_y_l << " , " << P2_z_l;
@@ -159,7 +160,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       n_y_t /= norm;
       n_z_t /= norm;
 
-      auto seg = dd4hep::CutTube(r_min, r_max, dz, phi1, phi2, n_x_l, n_y_l, n_z_l, n_x_t, n_y_t, n_z_t);
+      auto seg = dd4hep::CutTube(segname, r_min, r_max, dz, phi1, phi2, n_x_l, n_y_l, n_z_l, n_x_t, n_y_t, n_z_t);
 
       edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: CutTube(" << r_min << "," << r_max << "," << dz << ","
                                       << phi1 << "," << phi2 << "," << n_x_l << "," << n_y_l << "," << n_z_l << ","
@@ -180,8 +181,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   float shift = offsets[0];
 
   for (unsigned i = 1; i < segments.size() - 1; i++) {
-    solid = dd4hep::UnionSolid(
-        solidOutput + "_uni" + std::to_string(i + 1), solid, segments[i], dd4hep::Position(0., 0., offsets[i] - shift));
+    solid = dd4hep::UnionSolid(solidOutput + "_uni_" + std::to_string(i + 1),
+                               solid,
+                               segments[i],
+                               dd4hep::Position(0., 0., offsets[i] - shift));
   }
 
   solid = dd4hep::UnionSolid(solidOutput,

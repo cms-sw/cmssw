@@ -42,14 +42,13 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "HcalTBNumberingScheme.h"
-#include "HcalTB04Histo.h"
-#include "HcalTB04XtalNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTBNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB04Histo.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB04XtalNumberingScheme.h"
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"
@@ -76,14 +75,13 @@ class HcalTB04Analysis : public SimProducer,
                          public Observer<const G4Step*> {
 public:
   HcalTB04Analysis(const edm::ParameterSet& p);
+  HcalTB04Analysis(const HcalTB04Analysis&) = delete;  // stop default
+  const HcalTB04Analysis& operator=(const HcalTB04Analysis&) = delete;
   ~HcalTB04Analysis() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  HcalTB04Analysis(const HcalTB04Analysis&) = delete;  // stop default
-  const HcalTB04Analysis& operator=(const HcalTB04Analysis&) = delete;
-
   void init();
 
   // observer methods
@@ -191,8 +189,10 @@ HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet& p) : myQie(nullptr),
 }
 
 HcalTB04Analysis::~HcalTB04Analysis() {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "\n -------->  Total number of selected entries : " << count << "\nPointers:: QIE "
                                 << myQie << " Histo " << histo;
+#endif
   if (myQie) {
     delete myQie;
     myQie = nullptr;
@@ -216,7 +216,9 @@ void HcalTB04Analysis::produce(edm::Event& e, const edm::EventSetup&) {
 void HcalTB04Analysis::init() {
   idTower = HcalTBNumberingScheme::getUnitIDs(type, mode);
   nTower = idTower.size();
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Save information from " << nTower << " HCal towers";
+#endif
   idHcal.reserve(nTower);
   for (int i = 0; i < nTower; i++) {
     int id = unitID(idTower[i]);
@@ -317,9 +319,11 @@ void HcalTB04Analysis::update(const BeginOfRun* run) {
 }
 
 void HcalTB04Analysis::update(const BeginOfEvent* evt) {
-  evNum = (*evt)()->GetEventID();
   clear();
+#ifdef EDM_ML_DEBUG
+  evNum = (*evt)()->GetEventID();
   edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis: =====> Begin of event = " << evNum;
+#endif
 }
 
 void HcalTB04Analysis::update(const G4Step* aStep) {

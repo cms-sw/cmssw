@@ -36,7 +36,7 @@ private:
 
   bool rrApplicable(const G4Track*, const G4Track&) const;
 
-  bool isItOutOfTimeWindow(const G4Region*, const G4Track*) const;
+  bool isItOutOfTimeWindow(const G4Region*, const double&) const;
 
   bool isThisRegion(const G4Region*, std::vector<const G4Region*>&) const;
 

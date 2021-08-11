@@ -33,6 +33,8 @@ namespace edm {
     class ESPreFunctorDecorator {
     public:
       ESPreFunctorDecorator(const TFunctor& iCaller) : caller_(iCaller) {}
+      const ESPreFunctorDecorator& operator=(const ESPreFunctorDecorator&) = delete;  // stop default
+
       //virtual ~ESPreFunctorDecorator();
 
       // ---------- const member functions ---------------------
@@ -46,8 +48,6 @@ namespace edm {
 
     private:
       //ESPreFunctorDecorator(const ESPreFunctorDecorator&); // stop default
-
-      const ESPreFunctorDecorator& operator=(const ESPreFunctorDecorator&) = delete;  // stop default
 
       // ---------- member data --------------------------------
       TFunctor caller_;

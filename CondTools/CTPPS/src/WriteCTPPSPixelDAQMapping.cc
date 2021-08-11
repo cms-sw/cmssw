@@ -24,6 +24,7 @@
 #include "CondFormats/DataRecord/interface/CTPPSPixelAnalysisMaskRcd.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelAnalysisMask.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include <cstdint>
 
@@ -42,6 +43,8 @@ private:
   cond::Time_t daqmappingiov_;
   std::string record_;
   std::string label_;
+
+  edm::ESGetToken<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd> tokenMapping_;
 };
 
 using namespace std;
@@ -52,12 +55,12 @@ using namespace edm;
 WriteCTPPSPixelDAQMapping::WriteCTPPSPixelDAQMapping(const edm::ParameterSet &ps)
     : daqmappingiov_(ps.getParameter<unsigned long long>("daqmappingiov")),
       record_(ps.getParameter<string>("record")),
-      label_(ps.getParameter<string>("label")) {}
+      label_(ps.getParameter<string>("label")),
+      tokenMapping_(esConsumes<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd>(edm::ESInputTag("", label_))) {}
 
 void WriteCTPPSPixelDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es) {
   // get DAQ mapping
-  edm::ESHandle<CTPPSPixelDAQMapping> mapping;
-  es.get<CTPPSPixelDAQMappingRcd>().get(label_, mapping);
+  edm::ESHandle<CTPPSPixelDAQMapping> hMapping = es.getHandle(tokenMapping_);
 
   // print mapping
   /*printf("* DAQ mapping\n");
@@ -66,7 +69,7 @@ void WriteCTPPSPixelDAQMapping::analyze(const edm::Event &, edm::EventSetup cons
   */
 
   // Write DAQ Mapping to sqlite file:
-  const CTPPSPixelDAQMapping *pCTPPSPixelDAQMapping = mapping.product();  // DAQ Mapping
+  const CTPPSPixelDAQMapping *pCTPPSPixelDAQMapping = hMapping.product();  // DAQ Mapping
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
     poolDbService->writeOne(pCTPPSPixelDAQMapping, daqmappingiov_, /*m_record*/ record_);

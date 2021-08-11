@@ -75,7 +75,7 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
     double alpha = L1stubptr->alpha(settings_.stripPitch(psmodule));
     bool isTilted = L1stubptr->isTilted();
 
-    bool isBarrel = trackstublist[k]->isBarrel();
+    bool isBarrel = trackstublist[k]->layerdisk() < N_LAYER;
     int kflayer;
 
     if (isBarrel) {  // Barrel-specific
@@ -195,17 +195,29 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
                                   << ", phi0 = " << trk.phi0() << ", eta = " << trk.eta() << ", z0 = " << trk.z0()
                                   << ", chi2 = " << trk.chi2() << ", accepted = " << trk.accepted();
 
-    // Tracklet wants phi0 with respect to lower edge of sector, not global phi0.
-    double phi0fit = reco::reduceRange(trk.phi0() - iSector_ * 2 * M_PI / N_SECTOR + 0.5 * settings_.dphisectorHG());
+    double d0, chi2rphi, phi0, qoverpt = -999;
+    if (trk.done_bcon()) {
+      d0 = trk.d0_bcon();
+      chi2rphi = trk.chi2rphi_bcon();
+      phi0 = trk.phi0_bcon();
+      qoverpt = trk.qOverPt_bcon();
+    } else {
+      d0 = trk.d0();
+      chi2rphi = trk.chi2rphi();
+      phi0 = trk.phi0();
+      qoverpt = trk.qOverPt();
+    }
 
-    double rinvfit = 0.01 * settings_.c() * settings_.bfield() * trk.qOverPt();
+    // Tracklet wants phi0 with respect to lower edge of sector, not global phi0.
+    double phi0fit = reco::reduceRange(phi0 - iSector_ * 2 * M_PI / N_SECTOR + 0.5 * settings_.dphisectorHG());
+    double rinvfit = 0.01 * settings_.c() * settings_.bfield() * qoverpt;
 
     int irinvfit = rinvfit / settings_.krinvpars();
     int iphi0fit = phi0fit / settings_.kphi0pars();
     int itanlfit = trk.tanLambda() / settings_.ktpars();
     int iz0fit = trk.z0() / settings_.kz0pars();
-    int id0fit = trk.d0() / settings_.kd0pars();
-    int ichi2rphifit = trk.chi2rphi() / 16;
+    int id0fit = d0 / settings_.kd0pars();
+    int ichi2rphifit = chi2rphi / 16;
     int ichi2rzfit = trk.chi2rz() / 16;
 
     const vector<const tmtt::Stub*>& stubsFromFit = trk.stubs();
@@ -216,24 +228,19 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
       l1stubsFromFit.push_back(l1s);
     }
 
-    if (settings_.printDebugKF()) {
-      edm::LogVerbatim("L1track") << "#stubs before/after KF fit = " << TMTTstubs.size() << "/"
-                                  << l1stubsFromFit.size();
-    }
-
     tracklet->setFitPars(rinvfit,
                          phi0fit,
-                         trk.d0(),
+                         d0,
                          trk.tanLambda(),
                          trk.z0(),
-                         trk.chi2rphi(),
+                         chi2rphi,
                          trk.chi2rz(),
                          rinvfit,
                          phi0fit,
-                         trk.d0(),
+                         d0,
                          trk.tanLambda(),
                          trk.z0(),
-                         trk.chi2rphi(),
+                         chi2rphi,
                          trk.chi2rz(),
                          irinvfit,
                          iphi0fit,

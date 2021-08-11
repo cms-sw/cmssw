@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''Script that runs a single O2O for SiStrip DAQ.
 @author: Huilin Qu
 '''

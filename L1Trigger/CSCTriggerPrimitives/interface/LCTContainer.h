@@ -10,7 +10,7 @@
  */
 
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-#include "DataFormats/L1TMuon/interface/CSCConstants.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 
 #include <vector>
 #include <algorithm>
@@ -21,6 +21,9 @@ class LCTContainer {
 public:
   // constructor
   LCTContainer(unsigned int trig_window_size);
+
+  // default constructor
+  LCTContainer() {}
 
   // access the LCT in a particular ALCT BX, a particular CLCT matched BX
   // and particular LCT number
@@ -35,6 +38,9 @@ public:
   // clear the array with stubs
   void clear();
 
+  void setMatchTrigWindowSize(unsigned trig_window_size) { match_trig_window_size_ = trig_window_size; }
+
+private:
   // array with stored LCTs
   // 1st index: depth of pipeline that stores the ALCT and CLCT
   // 2nd index: BX number of the ALCT-CLCT match in the matching window
@@ -43,7 +49,7 @@ public:
                            [CSCConstants::MAX_LCTS_PER_CSC];
 
   // matching trigger window
-  const unsigned int match_trig_window_size_;
+  unsigned match_trig_window_size_;
 };
 
 #endif

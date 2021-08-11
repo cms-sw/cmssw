@@ -106,8 +106,8 @@ namespace SingleTopTChannelLepton {
       edm::ParameterSet jetExtras = cfg.getParameter<edm::ParameterSet>("jetExtras");
       // jetCorrector is optional; in case it's not found
       // the InputTag will remain empty
-      if (jetExtras.existsAs<edm::InputTag>("jetCorrector")) {
-        mJetCorrector = iC.consumes<reco::JetCorrector>(jetExtras.getParameter<edm::InputTag>("jetCorrector"));
+      if (jetExtras.existsAs<std::string>("jetCorrector")) {
+        jetCorrector_ = iC.esConsumes(edm::ESInputTag("", jetExtras.getParameter<std::string>("jetCorrector")));
       }
       // read jetID information if it exists
       if (jetExtras.existsAs<edm::ParameterSet>("jetID")) {
@@ -505,39 +505,34 @@ namespace SingleTopTChannelLepton {
         return;
     }
 
-    edm::Handle<reco::JetCorrector> corrector;
-    event.getByToken(mJetCorrector, corrector);
-    if (!event.getByToken(mJetCorrector, corrector))
-      return;
     // load jet
     // corrector if configured such
-    //  const JetCorrector* corrector = 0;
-    //  if (!jetCorrector_.empty()) {
-
-    // check whether a jet correcto is in the event setup or not
-    //    if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<
-    //            JetCorrectionsRecord>())) {
-    //      corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
-    //    } else {
-    //      edm::LogVerbatim("SingleTopTChannelLeptonDQM")
-    //          << "\n"
-    //          << "-----------------------------------------------------------------"
-    //             "-------------------- \n"
-    //          << " No JetCorrectionsRecord available from EventSetup:\n"
-    //          << "  - Jets will not be corrected.\n"
-    //          << "  - If you want to change this add the following lines to your "
-    //             "cfg file:\n"
-    //          << "\n"
-    //          << "  ## load jet corrections\n"
-    //          << "  "
-    //             "process.load(\"JetMETCorrections.Configuration."
-    //             "JetCorrectionServicesAllAlgos_cff\") \n"
-    //          << "  process.prefer(\"ak5CaloL2L3\")\n"
-    //          << "\n"
-    //          << "-----------------------------------------------------------------"
-    //             "-------------------- \n";
-    //    }
-    //}
+    const JetCorrector* corrector = nullptr;
+    if (!jetCorrector_.isInitialized() && jetCorrector_.hasValidIndex()) {
+      // check whether a jet correcto is in the event setup or not
+      if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>())) {
+        corrector = &setup.getData(jetCorrector_);
+        ;
+      } else {
+        edm::LogVerbatim("SingleTopTChannelLeptonDQM")
+            << "\n"
+            << "-----------------------------------------------------------------"
+               "-------------------- \n"
+            << " No JetCorrectionsRecord available from EventSetup:\n"
+            << "  - Jets will not be corrected.\n"
+            << "  - If you want to change this add the following lines to your "
+               "cfg file:\n"
+            << "\n"
+            << "  ## load jet corrections\n"
+            << "  "
+               "process.load(\"JetMETCorrections.Configuration."
+               "JetCorrectionServicesAllAlgos_cff\") \n"
+            << "  process.prefer(\"ak5CaloL2L3\")\n"
+            << "\n"
+            << "-----------------------------------------------------------------"
+               "-------------------- \n";
+      }
+    }
     // loop jet collection
     std::vector<reco::Jet> correctedJets;
     std::vector<double> JetTagValues;
@@ -566,32 +561,15 @@ namespace SingleTopTChannelLepton {
         reco::PFJet sel = dynamic_cast<const reco::PFJet&>(*jet);
         if ((*jetlooseSelection_)(sel))
           isLoose = true;
-        sel.scaleEnergy(corrector->correction(*jet));
+        sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
         if (!(*jetSelection_)(sel))
           continue;
-        //    else if (dynamic_cast<const reco::CaloJet*>(&*jet)) {
-        //      reco::CaloJet sel = dynamic_cast<const reco::CaloJet&>(*jet);
-        //      sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
-        //      if ( jetSelectCalo==nullptr)
-        //	jetSelectCalo.reset(new StringCutObjectSelector<reco::CaloJet>(jetSelect_));
-        //      if (!((*jetSelectCalo)(sel))) {
-        //        continue;
-        //      }
       }
-      //    else {
-      //      reco::Jet sel = *jet;
-      //      sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
-      //      if ( jetSelectJet==nullptr)
-      //	jetSelectJet.reset(new StringCutObjectSelector<reco::Jet>(jetSelect_));
-      //
-      //      if (!((*jetSelectJet)(sel))) continue;
-      //    }
-
       // prepare jet to fill monitor histograms
       reco::Jet monitorJet = *jet;
 
       ++mult;  // determine jet (no Id) multiplicity
-      monitorJet.scaleEnergy(corrector->correction(*jet));
+      monitorJet.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
 
       if (isLoose) {  //Loose Id
         unsigned int idx = jet - jets->begin();

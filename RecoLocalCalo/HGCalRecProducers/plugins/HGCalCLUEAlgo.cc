@@ -297,10 +297,9 @@ void HGCalCLUEAlgoT<T>::calculateLocalDensity(const T& lt, const unsigned int la
                 int iEta = HGCScintillatorDetId(cellsOnLayer.detid[i]).ieta();
                 int otherIEta = HGCScintillatorDetId(cellsOnLayer.detid[otherId]).ieta();
                 int dIPhi = otherIPhi - iPhi;
-                dIPhi += abs(dIPhi) < 2
-                             ? 0
-                             : dIPhi < 0 ? scintMaxIphi_
-                                         : -scintMaxIphi_;  // cells with iPhi=288 and iPhi=1 should be neiboring cells
+                dIPhi += abs(dIPhi) < 2 ? 0
+                         : dIPhi < 0    ? scintMaxIphi_
+                                        : -scintMaxIphi_;  // cells with iPhi=288 and iPhi=1 should be neiboring cells
                 int dIEta = otherIEta - iEta;
                 LogDebug("HGCalCLUEAlgo") << "  Debugging calculateLocalDensity for Scintillator: \n"
                                           << "    cell: " << otherId << " energy: " << cellsOnLayer.weight[otherId]

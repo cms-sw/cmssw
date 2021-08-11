@@ -8,7 +8,7 @@
  *  \author G. Cerminara - INFN Torino
  */
 
-#include <DataFormats/MuonDetId/interface/DTLayerId.h>
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
 class DTOccupancyPoint {
 public:

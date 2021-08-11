@@ -10,9 +10,11 @@
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
 #include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
+#include "CUDADataFormats/TrackingRecHit/interface/SiPixelHitStatus.h"
 
 namespace pixelCPEforGPU {
 
+  using Status = SiPixelHitStatus;
   using Frame = SOAFrame<float>;
   using Rotation = SOARotation<float>;
 
@@ -39,7 +41,11 @@ namespace pixelCPEforGPU {
 
     float x0, y0, z0;  // the vertex in the local coord of the detector
 
-    float sx[3], sy[3];  // the errors...
+    float apeXX, apeYY;  // ape^2
+    uint8_t sx2, sy1, sy2;
+    uint8_t sigmax[16], sigmax1[16], sigmay[16];  // in micron
+    float xfact[5], yfact[5];
+    int minCh[5];
 
     Frame frame;
   };
@@ -94,8 +100,10 @@ namespace pixelCPEforGPU {
     float xerr[N];
     float yerr[N];
 
-    int16_t xsize[N];  // clipped at 127 if negative is edge....
+    int16_t xsize[N];  // (*8) clipped at 127 if negative is edge....
     int16_t ysize[N];
+
+    Status status[N];
   };
 
   constexpr int32_t MaxHitsInIter = gpuClustering::maxHitsInIter();
@@ -206,8 +214,8 @@ namespace pixelCPEforGPU {
     if (phase1PixelTopology::isBigPixY(cp.maxCol[ic]))
       ++ysize;
 
-    int unbalanceX = 8. * std::abs(float(cp.q_f_X[ic] - cp.q_l_X[ic])) / float(cp.q_f_X[ic] + cp.q_l_X[ic]);
-    int unbalanceY = 8. * std::abs(float(cp.q_f_Y[ic] - cp.q_l_Y[ic])) / float(cp.q_f_Y[ic] + cp.q_l_Y[ic]);
+    int unbalanceX = 8.f * std::abs(float(cp.q_f_X[ic] - cp.q_l_X[ic])) / float(cp.q_f_X[ic] + cp.q_l_X[ic]);
+    int unbalanceY = 8.f * std::abs(float(cp.q_f_Y[ic] - cp.q_l_Y[ic])) / float(cp.q_f_Y[ic] + cp.q_l_Y[ic]);
     xsize = 8 * xsize - unbalanceX;
     ysize = 8 * ysize - unbalanceY;
 
@@ -285,8 +293,8 @@ namespace pixelCPEforGPU {
     auto sy = cp.maxCol[ic] - cp.minCol[ic];
 
     // is edgy ?
-    bool isEdgeX = cp.minRow[ic] == 0 or cp.maxRow[ic] == phase1PixelTopology::lastRowInModule;
-    bool isEdgeY = cp.minCol[ic] == 0 or cp.maxCol[ic] == phase1PixelTopology::lastColInModule;
+    bool isEdgeX = cp.xsize[ic] < 1;
+    bool isEdgeY = cp.ysize[ic] < 1;
     // is one and big?
     bool isBig1X = (0 == sx) && phase1PixelTopology::isBigPixX(cp.minRow[ic]);
     bool isBig1Y = (0 == sy) && phase1PixelTopology::isBigPixY(cp.minCol[ic]);
@@ -323,19 +331,42 @@ namespace pixelCPEforGPU {
     auto sx = cp.maxRow[ic] - cp.minRow[ic];
     auto sy = cp.maxCol[ic] - cp.minCol[ic];
 
-    // is edgy ?
-    bool isEdgeX = cp.minRow[ic] == 0 or cp.maxRow[ic] == phase1PixelTopology::lastRowInModule;
-    bool isEdgeY = cp.minCol[ic] == 0 or cp.maxCol[ic] == phase1PixelTopology::lastColInModule;
+    // is edgy ?  (size is set negative: see above)
+    bool isEdgeX = cp.xsize[ic] < 1;
+    bool isEdgeY = cp.ysize[ic] < 1;
     // is one and big?
-    uint32_t ix = (0 == sx);
-    uint32_t iy = (0 == sy);
-    ix += (0 == sx) && phase1PixelTopology::isBigPixX(cp.minRow[ic]);
-    iy += (0 == sy) && phase1PixelTopology::isBigPixY(cp.minCol[ic]);
+    bool isOneX = (0 == sx);
+    bool isOneY = (0 == sy);
+    bool isBigX = phase1PixelTopology::isBigPixX(cp.minRow[ic]);
+    bool isBigY = phase1PixelTopology::isBigPixY(cp.minCol[ic]);
 
-    if (not isEdgeX)
-      cp.xerr[ic] = detParams.sx[ix];
-    if (not isEdgeY)
-      cp.yerr[ic] = detParams.sy[iy];
+    auto ch = cp.charge[ic];
+    auto bin = 0;
+    for (; bin < 4; ++bin)
+      if (ch < detParams.minCh[bin + 1])
+        break;
+    assert(bin < 5);
+
+    cp.status[ic].qBin = 4 - bin;
+    cp.status[ic].isOneX = isOneX;
+    cp.status[ic].isBigX = (isOneX & isBigX) | isEdgeX;
+    cp.status[ic].isOneY = isOneY;
+    cp.status[ic].isBigY = (isOneY & isBigY) | isEdgeY;
+
+    auto xoff = 81.f * comParams.thePitchX;
+    int jx = std::min(15, std::max(0, int(16.f * (cp.xpos[ic] + xoff) / (2 * xoff))));
+
+    auto toCM = [](uint8_t x) { return float(x) * 1.e-4; };
+
+    if (not isEdgeX) {
+      cp.xerr[ic] = isOneX ? toCM(isBigX ? detParams.sx2 : detParams.sigmax1[jx])
+                           : detParams.xfact[bin] * toCM(detParams.sigmax[jx]);
+    }
+
+    auto ey = cp.ysize[ic] > 8 ? detParams.sigmay[std::min(cp.ysize[ic] - 9, 15)] : detParams.sy1;
+    if (not isEdgeY) {
+      cp.yerr[ic] = isOneY ? toCM(isBigY ? detParams.sy2 : detParams.sy1) : detParams.yfact[bin] * toCM(ey);
+    }
   }
 
 }  // namespace pixelCPEforGPU

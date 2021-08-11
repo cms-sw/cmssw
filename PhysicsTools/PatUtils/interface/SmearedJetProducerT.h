@@ -113,8 +113,8 @@ public:
         std::string resolutionFile = cfg.getParameter<edm::FileInPath>("resolutionFile").fullPath();
         std::string scaleFactorFile = cfg.getParameter<edm::FileInPath>("scaleFactorFile").fullPath();
 
-        m_resolution_from_file.reset(new JME::JetResolution(resolutionFile));
-        m_scale_factor_from_file.reset(new JME::JetResolutionScaleFactor(scaleFactorFile));
+        m_resolution_from_file = std::make_unique<JME::JetResolution>(resolutionFile);
+        m_scale_factor_from_file = std::make_unique<JME::JetResolutionScaleFactor>(scaleFactorFile);
       } else {
         m_jets_algo = cfg.getParameter<std::string>("algo");
         m_jets_algo_pt = cfg.getParameter<std::string>("algopt");

@@ -27,7 +27,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 

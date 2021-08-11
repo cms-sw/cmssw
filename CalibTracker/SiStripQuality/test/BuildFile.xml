@@ -1,4 +1,9 @@
-<bin name="test_SiStripQualityStatistics" file="test_SiStripQualityStatistics.cpp">
+<bin name="test_SiStripQualityStatistics" file="TestDriver.cpp">
   <flags TEST_RUNNER_ARGS="/bin/bash CalibTracker/SiStripQuality/test test_SiStripQualityStatistics.sh"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+
+<bin name="test_makeMergedBadComponentsWithFedErr" file="TestDriver.cpp">
+  <flags TEST_RUNNER_ARGS="/bin/bash CalibTracker/SiStripQuality/test test_makeMergedBadComponentsWithFedErr.sh"/>
   <use name="FWCore/Utilities"/>
 </bin>

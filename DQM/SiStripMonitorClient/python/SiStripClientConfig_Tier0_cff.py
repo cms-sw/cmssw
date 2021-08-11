@@ -8,7 +8,6 @@ siStripOfflineAnalyser = cms.EDProducer("SiStripOfflineDQM",
     UsedWithEDMtoMEConverter = cms.untracked.bool(True),
     PrintFaultyModuleList    = cms.untracked.bool(True),
     CreateTkMap              = cms.untracked.bool(False), 
-    UseGoodTracks            = cms.untracked.bool(True),
     TrackRatePSet            = cms.PSet(
            Name     = cms.string("NumberOfGoodTracks_"),
                   LowerCut = cms.double(1.0),
@@ -60,11 +59,9 @@ mergedSiStripQualityProducer.ReduceGranularity = cms.bool(False)
 mergedSiStripQualityProducer.ThresholdForReducedGranularity = cms.double(0.3)
 mergedSiStripQualityProducer.appendToDataLabel = 'MergedBadComponent'
 
-siStripBadComponentInfo = cms.EDProducer("SiStripBadComponentInfo",
-    StripQualityLabel = cms.string('MergedBadComponent'),
-    AddBadComponentsFromFedErrors = cms.untracked.bool(True),
-    FedErrorBadComponentsCutoff = cms.untracked.double(0.8)
-)
+from DQM.SiStripMonitorClient.siStripBadComponentInfo_cfi import siStripBadComponentInfo
+siStripBadComponentInfo.StripQualityLabel = 'MergedBadComponent'
+siStripBadComponentInfo.BadComponentsFromFedErrors.Add = True
 
 # Sequence
 SiStripOfflineDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser*siStripBadComponentInfo)

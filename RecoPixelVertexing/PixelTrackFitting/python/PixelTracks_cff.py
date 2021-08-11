@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
@@ -23,9 +24,11 @@ from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi 
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 
+# Eras
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
 
-# SEEDING LAYERS
+# seeding layers
 from RecoTracker.IterativeTracking.InitialStep_cff import initialStepSeedLayers, initialStepHitDoublets, _initialStepCAHitQuadruplets
 
 # TrackingRegion
@@ -33,7 +36,7 @@ pixelTracksTrackingRegions = _globalTrackingRegion.clone()
 trackingLowPU.toReplaceWith(pixelTracksTrackingRegions, _globalTrackingRegionFromBeamSpot.clone())
 
 
-# Pixel Quadruplets Tracking
+# Pixel quadruplets tracking
 pixelTracksSeedLayers = initialStepSeedLayers.clone(
     BPix = dict(HitProducer = "siPixelRecHitsPreSplitting"),
     FPix = dict(HitProducer = "siPixelRecHitsPreSplitting")
@@ -50,19 +53,9 @@ pixelTracksHitQuadruplets = _initialStepCAHitQuadruplets.clone(
     SeedComparitorPSet = dict(clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting')
 )
 
-# for trackingLowPU
-pixelTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
-    doublets = "pixelTracksHitDoublets",
-    produceSeedingHitSets = True,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(
-        clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
-    )
-)
-
 pixelTracks = _pixelTracks.clone(
     SeedingHitSets = "pixelTracksHitQuadruplets"
 )
-trackingLowPU.toModify(pixelTracks, SeedingHitSets = "pixelTracksHitTriplets")
 
 pixelTracksTask = cms.Task(
     pixelTracksTrackingRegions,
@@ -73,30 +66,91 @@ pixelTracksTask = cms.Task(
     pixelTracksHitQuadruplets,
     pixelTracks
 )
+
+pixelTracksSequence = cms.Sequence(pixelTracksTask)
+
+
+# Pixel triplets for trackingLowPU
+pixelTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
+    doublets = "pixelTracksHitDoublets",
+    produceSeedingHitSets = True,
+    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(
+        clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
+    )
+)
+
+trackingLowPU.toModify(pixelTracks,
+    SeedingHitSets = "pixelTracksHitTriplets"
+)
+
 _pixelTracksTask_lowPU = pixelTracksTask.copy()
 _pixelTracksTask_lowPU.replace(pixelTracksHitQuadruplets, pixelTracksHitTriplets)
 trackingLowPU.toReplaceWith(pixelTracksTask, _pixelTracksTask_lowPU)
 
-# Use ntuple fit and substitute previous Fitter producer with the ntuple one
-from Configuration.ProcessModifiers.pixelNtupleFit_cff import pixelNtupleFit as ntupleFit
-ntupleFit.toModify(pixelTracks, Fitter = "pixelNtupletsFitter")
-_pixelTracksTask_ntupleFit = pixelTracksTask.copy()
-_pixelTracksTask_ntupleFit.replace(pixelFitterByHelixProjections, pixelNtupletsFitter)
-ntupleFit.toReplaceWith(pixelTracksTask, _pixelTracksTask_ntupleFit)
 
+# "Patatrack" pixel ntuplets, fishbone cleaning, Broken Line fit, and density-based vertex reconstruction
+from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
 
-from Configuration.ProcessModifiers.gpu_cff import gpu
-from RecoPixelVertexing.PixelTriplets.caHitNtupletCUDA_cfi import caHitNtupletCUDA
-from RecoPixelVertexing.PixelTrackFitting.pixelTrackSoA_cfi import pixelTrackSoA
-from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import pixelTrackProducerFromSoA as _pixelTrackFromSoA
-_pixelTracksGPUTask = cms.Task(
-  caHitNtupletCUDA,
-  pixelTrackSoA,
-  pixelTracks # FromSoA
+from RecoPixelVertexing.PixelTriplets.pixelTracksCUDA_cfi import pixelTracksCUDA as _pixelTracksCUDA
+
+# SwitchProducer providing the pixel tracks in SoA format on the CPU
+pixelTracksSoA = SwitchProducerCUDA(
+    # build pixel ntuplets and pixel tracks in SoA format on the CPU
+    cpu = _pixelTracksCUDA.clone(
+        pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA",
+        idealConditions = False,
+        onGPU = False
+    )
+)
+# use quality cuts tuned for Run 2 ideal conditions for all Run 3 workflows
+run3_common.toModify(pixelTracksSoA.cpu,
+    idealConditions = True
 )
 
-gpu.toReplaceWith(pixelTracksTask, _pixelTracksGPUTask)
-gpu.toReplaceWith(pixelTracks,_pixelTrackFromSoA)
+# convert the pixel tracks from SoA to legacy format
+from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import pixelTrackProducerFromSoA as _pixelTrackProducerFromSoA
+pixelNtupletFit.toReplaceWith(pixelTracks, _pixelTrackProducerFromSoA.clone(
+    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
+))
+
+pixelNtupletFit.toReplaceWith(pixelTracksTask, cms.Task(
+    #pixelTracksTrackingRegions,
+    #pixelFitterByHelixProjections,
+    #pixelTrackFilterByKinematics,
+    #pixelTracksSeedLayers,
+    #pixelTracksHitDoublets,
+    #pixelTracksHitQuadruplets,
+    # build the pixel ntuplets and the pixel tracks in SoA format on the GPU
+    pixelTracksSoA,
+    # convert the pixel tracks from SoA to legacy format
+    pixelTracks
+))
 
 
-pixelTracksSequence = cms.Sequence(pixelTracksTask)
+# "Patatrack" sequence running on GPU
+from Configuration.ProcessModifiers.gpu_cff import gpu
+
+# build the pixel ntuplets and pixel tracks in SoA format on the GPU
+pixelTracksCUDA = _pixelTracksCUDA.clone(
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingCUDA",
+    idealConditions = False,
+    onGPU = True
+)
+# use quality cuts tuned for Run 2 ideal conditions for all Run 3 workflows
+run3_common.toModify(pixelTracksCUDA,
+    idealConditions = True
+)
+
+# SwitchProducer providing the pixel tracks in SoA format on the CPU
+from RecoPixelVertexing.PixelTrackFitting.pixelTracksSoA_cfi import pixelTracksSoA as _pixelTracksSoA
+gpu.toModify(pixelTracksSoA,
+    # transfer the pixel tracks in SoA format to the host
+    cuda = _pixelTracksSoA.clone()
+)
+
+(pixelNtupletFit & gpu).toReplaceWith(pixelTracksTask, cms.Task(
+    # build the pixel ntuplets and pixel tracks in SoA format on the GPU
+    pixelTracksCUDA,
+    # transfer the pixel tracks in SoA format to the CPU, and convert them to legacy format
+    pixelTracksTask.copy()
+))

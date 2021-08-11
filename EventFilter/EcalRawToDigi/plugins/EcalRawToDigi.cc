@@ -110,36 +110,51 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf)
   edm::InputTag dataLabel = conf.getParameter<edm::InputTag>("InputLabel");
   edm::InputTag fedsLabel = conf.getParameter<edm::InputTag>("FedLabel");
 
-  // Producer products :
-  produces<EBDigiCollection>("ebDigis");
-  produces<EEDigiCollection>("eeDigis");
-  produces<EBSrFlagCollection>();
-  produces<EESrFlagCollection>();
-  produces<EcalRawDataCollection>();
-  produces<EcalPnDiodeDigiCollection>();
-  produces<EcalTrigPrimDigiCollection>("EcalTriggerPrimitives");
-  produces<EcalPSInputDigiCollection>("EcalPseudoStripInputs");
+  // Producer products
+  if (headerUnpacking_) {
+    produces<EcalRawDataCollection>();
+  }
 
-  // Integrity for xtal data
-  produces<EBDetIdCollection>("EcalIntegrityGainErrors");
-  produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors");
-  produces<EBDetIdCollection>("EcalIntegrityChIdErrors");
+  if (feUnpacking_) {
+    produces<EBDigiCollection>("ebDigis");
+    produces<EEDigiCollection>("eeDigis");
 
-  // Integrity for xtal data - EE specific (to be rivisited towards EB+EE common collection)
-  produces<EEDetIdCollection>("EcalIntegrityGainErrors");
-  produces<EEDetIdCollection>("EcalIntegrityGainSwitchErrors");
-  produces<EEDetIdCollection>("EcalIntegrityChIdErrors");
+    // Integrity for xtal data
+    produces<EBDetIdCollection>("EcalIntegrityGainErrors");
+    produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors");
+    produces<EBDetIdCollection>("EcalIntegrityChIdErrors");
 
-  // Integrity Errors
-  produces<EcalElectronicsIdCollection>("EcalIntegrityTTIdErrors");
-  produces<EcalElectronicsIdCollection>("EcalIntegrityZSXtalIdErrors");
-  produces<EcalElectronicsIdCollection>("EcalIntegrityBlockSizeErrors");
+    // Integrity for xtal data - EE specific (to be rivisited towards EB+EE common collection)
+    produces<EEDetIdCollection>("EcalIntegrityGainErrors");
+    produces<EEDetIdCollection>("EcalIntegrityGainSwitchErrors");
+    produces<EEDetIdCollection>("EcalIntegrityChIdErrors");
+
+    // Integrity Errors
+    produces<EcalElectronicsIdCollection>("EcalIntegrityTTIdErrors");
+    produces<EcalElectronicsIdCollection>("EcalIntegrityZSXtalIdErrors");
+    produces<EcalElectronicsIdCollection>("EcalIntegrityBlockSizeErrors");
+
+    //
+    produces<EcalPnDiodeDigiCollection>();
+  }
+
+  if (srpUnpacking_) {
+    produces<EBSrFlagCollection>();
+    produces<EESrFlagCollection>();
+  }
+
+  if (tccUnpacking_) {
+    produces<EcalTrigPrimDigiCollection>("EcalTriggerPrimitives");
+    produces<EcalPSInputDigiCollection>("EcalPseudoStripInputs");
+  }
 
   // Mem channels' integrity
-  produces<EcalElectronicsIdCollection>("EcalIntegrityMemTtIdErrors");
-  produces<EcalElectronicsIdCollection>("EcalIntegrityMemBlockSizeErrors");
-  produces<EcalElectronicsIdCollection>("EcalIntegrityMemChIdErrors");
-  produces<EcalElectronicsIdCollection>("EcalIntegrityMemGainErrors");
+  if (memUnpacking_) {
+    produces<EcalElectronicsIdCollection>("EcalIntegrityMemTtIdErrors");
+    produces<EcalElectronicsIdCollection>("EcalIntegrityMemBlockSizeErrors");
+    produces<EcalElectronicsIdCollection>("EcalIntegrityMemChIdErrors");
+    produces<EcalElectronicsIdCollection>("EcalIntegrityMemGainErrors");
+  }
 
   dataToken_ = consumes<FEDRawDataCollection>(dataLabel);
   if (REGIONAL_) {

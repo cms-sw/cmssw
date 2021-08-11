@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/ESProducerLooper.h"
 #include "FWCore/Framework/interface/Run.h"
 
-class AlignmentProducer : public AlignmentProducerBase, public edm::ESProducerLooper {
+class AlignmentProducer : public edm::ESProducerLooper, public AlignmentProducerBase {
 public:
   /// Constructor
   AlignmentProducer(const edm::ParameterSet&);

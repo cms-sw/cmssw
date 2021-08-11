@@ -1,18 +1,15 @@
 #ifndef RPCRecHitProbabilityClient_H
 #define RPCRecHitProbabilityClient_H
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "DQMServices/Core/interface/DQMStore.h"
+
+#include <string>
 
 class RPCRecHitProbabilityClient : public DQMEDHarvester {
 public:
-  /// Constructor
   RPCRecHitProbabilityClient(const edm::ParameterSet &ps);
-
-  /// Destructor
-  ~RPCRecHitProbabilityClient() override;
+  ~RPCRecHitProbabilityClient() override = default;
 
 protected:
   void beginJob() override;

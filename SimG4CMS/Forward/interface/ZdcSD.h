@@ -9,14 +9,12 @@
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4CMS/Forward/interface/ZdcShowerLibrary.h"
 #include "SimG4CMS/Forward/interface/ZdcNumberingScheme.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 class ZdcSD : public CaloSD {
 public:
-  ZdcSD(const std::string &,
-        const edm::EventSetup &,
-        const SensitiveDetectorCatalog &,
-        edm::ParameterSet const &,
-        const SimTrackManager *);
+  ZdcSD(const std::string &, const SensitiveDetectorCatalog &, edm::ParameterSet const &, const SimTrackManager *);
 
   ~ZdcSD() override = default;
 

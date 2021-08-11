@@ -12,9 +12,7 @@
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4Track.hh"
@@ -31,11 +29,10 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 Bcm1fSD::Bcm1fSD(const std::string& name,
-                 const edm::EventSetup& es,
                  const SensitiveDetectorCatalog& clg,
                  edm::ParameterSet const& p,
                  const SimTrackManager* manager)
-    : TimingSD(name, es, clg, p, manager) {
+    : TimingSD(name, clg, manager) {
   edm::ParameterSet m_TrackerSD = p.getParameter<edm::ParameterSet>("Bcm1fSD");
   energyCut = m_TrackerSD.getParameter<double>("EnergyThresholdForPersistencyInGeV") * GeV;  //default must be 0.5 (?)
   energyHistoryCut =

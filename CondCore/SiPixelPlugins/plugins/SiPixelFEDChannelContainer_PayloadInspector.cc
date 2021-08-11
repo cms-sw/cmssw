@@ -58,9 +58,10 @@ namespace {
   1d histogram of SiPixelFEDChannelContainer of 1 IOV 
   *************************************************/
 
-  class SiPixelFEDChannelContainerTest : public PlotImage<SiPixelFEDChannelContainer, SINGLE_IOV> {
+  template <SiPixelPI::DetType myType>
+  class SiPixelFEDChannelContainerMap : public PlotImage<SiPixelFEDChannelContainer, SINGLE_IOV> {
   public:
-    SiPixelFEDChannelContainerTest()
+    SiPixelFEDChannelContainerMap()
         : PlotImage<SiPixelFEDChannelContainer, SINGLE_IOV>("SiPixelFEDChannelContainer scenarios count"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
@@ -99,6 +100,7 @@ namespace {
       Phase1PixelROCMaps theROCMap("");
 
       auto tag = PlotBase::getTag<0>();
+      auto tagname = tag.name;
       auto iov = tag.iovs.front();
 
       // open db session for the cabling map
@@ -217,37 +219,29 @@ namespace {
 
       gStyle->SetOptStat(0);
       //=========================
-      TCanvas canvas("Summary", "Summary", 1200, 1600);
-      theROCMap.drawMaps(canvas);
+      TCanvas canvas("Summary", "Summary", 1200, k_height[myType]);
+      canvas.cd();
 
       auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
 
-      for (unsigned int lay = 1; lay <= n_layers; lay++) {
-        canvas.cd(lay);
-        auto ltx = TLatex();
-        ltx.SetTextFont(62);
-        ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.055);
-        ltx.SetTextAlign(11);
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.01,
-                         unpacked.first == 0
-                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
-                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
-      }
+      std::string IOVstring = (unpacked.first == 0)
+                                  ? std::to_string(unpacked.second)
+                                  : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second));
 
-      for (unsigned int ring = 1; ring <= n_rings; ring++) {
-        canvas.cd(n_layers + ring);
-        auto ltx = TLatex();
-        ltx.SetTextFont(62);
-        ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.050);
-        ltx.SetTextAlign(11);
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.01,
-                         unpacked.first == 0
-                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
-                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+      const auto headerText = fmt::sprintf("#color[4]{%s},  IOV: #color[4]{%s}", tagname, IOVstring);
+
+      switch (myType) {
+        case SiPixelPI::t_barrel:
+          theROCMap.drawBarrelMaps(canvas, headerText);
+          break;
+        case SiPixelPI::t_forward:
+          theROCMap.drawForwardMaps(canvas, headerText);
+          break;
+        case SiPixelPI::t_all:
+          theROCMap.drawMaps(canvas, headerText);
+          break;
+        default:
+          throw cms::Exception("SiPixelQualityMap") << "\nERROR: unrecognized Pixel Detector part " << std::endl;
       }
 
       std::string fileName(m_imageFileName);
@@ -285,12 +279,19 @@ namespace {
     static constexpr int n_rings = 2;
     static constexpr int n_layers = 4;
 
+    // graphics
+    static constexpr std::array<int, 3> k_height = {{1200, 600, 1600}};
+
     TrackerTopology m_trackerTopo;
     edm::ParameterSet m_connectionPset;
     cond::persistency::ConnectionPool m_connectionPool;
     std::string m_CablingTagName;
     std::string m_condDbCabling;
   };
+
+  using SiPixelBPixFEDChannelContainerMap = SiPixelFEDChannelContainerMap<SiPixelPI::t_barrel>;
+  using SiPixelFPixFEDChannelContainerMap = SiPixelFEDChannelContainerMap<SiPixelPI::t_forward>;
+  using SiPixelFullFEDChannelContainerMap = SiPixelFEDChannelContainerMap<SiPixelPI::t_all>;
 
   /************************************************
   1d histogram of SiPixelFEDChannelContainer of 1 IOV
@@ -387,6 +388,8 @@ namespace {
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(SiPixelFEDChannelContainer) {
-  PAYLOAD_INSPECTOR_CLASS(SiPixelFEDChannelContainerTest);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelBPixFEDChannelContainerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelFPixFEDChannelContainerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelFullFEDChannelContainerMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFEDChannelContainerScenarios);
 }

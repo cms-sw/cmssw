@@ -36,7 +36,7 @@ namespace Ph1PMapSummaryHelper {
   //============================================================================
   // utility to tokenize std::string
   //============================================================================
-  std::vector<std::string> tokenize(std::string line, char delimiter) {
+  inline std::vector<std::string> tokenize(std::string line, char delimiter) {
     // Vector of string to save tokens
     std::vector<std::string> tokens;
     std::stringstream check1(line);

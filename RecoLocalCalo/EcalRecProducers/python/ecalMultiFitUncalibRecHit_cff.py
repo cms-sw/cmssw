@@ -1,10 +1,17 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 from Configuration.ProcessModifiers.gpu_cff import gpu
 
 # ECAL multifit running on CPU
-from RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi import ecalMultiFitUncalibRecHit
+from RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi import ecalMultiFitUncalibRecHit as _ecalMultiFitUncalibRecHit
+ecalMultiFitUncalibRecHit = SwitchProducerCUDA(
+  cpu = _ecalMultiFitUncalibRecHit.clone()
+)
 
-ecalMultiFitUncalibRecHitTask = cms.Task(ecalMultiFitUncalibRecHit)
+ecalMultiFitUncalibRecHitTask = cms.Task(
+  # ECAL multifit running on CPU
+  ecalMultiFitUncalibRecHit
+)
 
 # ECAL conditions used by the multifit running on GPU
 from RecoLocalCalo.EcalRecProducers.ecalPedestalsGPUESProducer_cfi import ecalPedestalsGPUESProducer
@@ -32,11 +39,12 @@ ecalMultiFitUncalibRecHitSoA = _ecalCPUUncalibRecHitProducer.clone(
 
 # convert the uncalibrated rechits from SoA to legacy format
 from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitConvertGPU2CPUFormat_cfi import ecalUncalibRecHitConvertGPU2CPUFormat as _ecalUncalibRecHitConvertGPU2CPUFormat
-_ecalMultiFitUncalibRecHit_gpu = _ecalUncalibRecHitConvertGPU2CPUFormat.clone(
-  recHitsLabelGPUEB = cms.InputTag('ecalMultiFitUncalibRecHitSoA', 'EcalUncalibRecHitsEB'),
-  recHitsLabelGPUEE = cms.InputTag('ecalMultiFitUncalibRecHitSoA', 'EcalUncalibRecHitsEE'),
+gpu.toModify(ecalMultiFitUncalibRecHit,
+  cuda = _ecalUncalibRecHitConvertGPU2CPUFormat.clone(
+    recHitsLabelGPUEB = cms.InputTag('ecalMultiFitUncalibRecHitSoA', 'EcalUncalibRecHitsEB'),
+    recHitsLabelGPUEE = cms.InputTag('ecalMultiFitUncalibRecHitSoA', 'EcalUncalibRecHitsEE'),
+  )
 )
-gpu.toReplaceWith(ecalMultiFitUncalibRecHit, _ecalMultiFitUncalibRecHit_gpu)
 
 gpu.toReplaceWith(ecalMultiFitUncalibRecHitTask, cms.Task(
   # ECAL conditions used by the multifit running on GPU
@@ -48,10 +56,10 @@ gpu.toReplaceWith(ecalMultiFitUncalibRecHitTask, cms.Task(
   ecalTimeBiasCorrectionsGPUESProducer,
   ecalTimeCalibConstantsGPUESProducer,
   ecalMultifitParametersGPUESProducer,
-  # ECAL multifit running on GP
+  # ECAL multifit running on GPU
   ecalMultiFitUncalibRecHitGPU,
   # copy the uncalibrated rechits from GPU to CPU
   ecalMultiFitUncalibRecHitSoA,
-  # convert the uncalibrated rechits legacy format
+  # ECAL multifit running on CPU, or convert the uncalibrated rechits from SoA to legacy format
   ecalMultiFitUncalibRecHit,
 ))

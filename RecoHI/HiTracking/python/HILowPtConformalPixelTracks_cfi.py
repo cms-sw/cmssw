@@ -23,27 +23,19 @@ hiConformalPixelTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
     produceSeedingHitSets = True,
 )
 
+import RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi as _mod
 # Pixel tracks
-hiConformalPixelTracks = cms.EDProducer("PixelTrackProducer",
-                                        
-                                        #passLabel  = cms.string('Pixel triplet low-pt tracks with vertex constraint'),
-                                        
-                                        # Ordered Hits
-                                        SeedingHitSets = cms.InputTag("hiConformalPixelTracksHitTriplets"),
-                                        
-                                        # Fitter
-                                        Fitter = cms.InputTag('pixelFitterByConformalMappingAndLine'),
-                                        
-                                        # Filter
-                                        Filter = cms.InputTag("hiConformalPixelFilter"),
-                                        
-                                        # Cleaner
-                                        Cleaner = cms.string("trackCleaner")
-                                        )
-
-
-
-
+hiConformalPixelTracks = _mod.pixelTracks.clone(
+    #passLabel  = 'Pixel triplet low-pt tracks with vertex constraint',
+    # Ordered Hits
+    SeedingHitSets = "hiConformalPixelTracksHitTriplets",
+    # Fitter
+    Fitter = 'pixelFitterByConformalMappingAndLine',
+    # Filter
+    Filter = "hiConformalPixelFilter",   
+    # Cleaner
+    Cleaner = "trackCleaner"
+)
 
 ###Pixel Tracking -  PhaseI geometry
 

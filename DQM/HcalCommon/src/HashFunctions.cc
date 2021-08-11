@@ -566,5 +566,50 @@ namespace hcaldqm {
 
     //	TODO: implement - not used right now
     uint32_t hash_TChannel(std::string const &) { return HcalTrigTowerDetId().rawId(); }
+
+    /**
+ *      by Mixed Id
+ */
+    uint32_t hash_TTSubdetFW(HcalTrigTowerDetId const &tid, HcalElectronicsId const &eid) {
+      if (tid.ietaAbs() < 29) {
+        if (eid.slot() % 3 == 1)
+          return utilities::hash(HcalTrigTowerDetId(1, 1));
+        else if (eid.slot() % 3 == 2)
+          return utilities::hash(HcalTrigTowerDetId(17, 1));
+        else if (eid.slot() % 3 == 0)
+          return utilities::hash(HcalTrigTowerDetId(19, 1));
+      } else
+        return utilities::hash(HcalTrigTowerDetId(29, 1));
+
+      return HcalTrigTowerDetId().rawId();
+    }
+
+    std::string name_TTSubdetFW(HcalTrigTowerDetId const &tid, HcalElectronicsId const &eid) {
+      int idx = -1;
+      if (tid.ietaAbs() < 29) {
+        if (eid.slot() % 3 == 1)
+          idx = 0;
+        else if (eid.slot() % 3 == 2)
+          idx = 1;
+        else if (eid.slot() % 3 == 0)
+          idx = 2;
+      } else
+        idx = 3;
+      return constants::TPSUBDETFW_NAME[idx];
+    }
+
+    uint32_t hash_TTSubdetFW(std::string const &name) {
+      if (name == "HB")
+        return HcalTrigTowerDetId(1, 1).rawId();
+      else if (name == "HBHE")
+        return HcalTrigTowerDetId(17, 1).rawId();
+      else if (name == "HE")
+        return HcalTrigTowerDetId(19, 1).rawId();
+      else
+        return HcalTrigTowerDetId(29, 1).rawId();
+
+      return HcalTrigTowerDetId().rawId();
+    }
+
   }  // namespace hashfunctions
 }  // namespace hcaldqm

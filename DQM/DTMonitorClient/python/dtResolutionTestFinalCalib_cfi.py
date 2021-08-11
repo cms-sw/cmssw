@@ -6,6 +6,6 @@ resolutionTest = DQMEDHarvester("DTResolutionAnalysisTest",
                                  permittedMeanRange = cms.untracked.double(0.02),
                                  permittedSigmaRange = cms.untracked.double(0.12),
                                  # top folder for the histograms in DQMStore
-                                 topHistoFolder = cms.untracked.string("DT/CalibrationSummary"),
+                                 topHistoFolder = cms.untracked.string('DT/CalibrationSummary'),
                                  doCalibAnalysis = cms.untracked.bool(True)
                                 )

@@ -22,8 +22,8 @@
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariablesIORoot.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/src/Mille.h"        // 'unpublished' interface located in src
-#include "Alignment/MillePedeAlignmentAlgorithm/src/PedeSteerer.h"  // dito
-#include "Alignment/MillePedeAlignmentAlgorithm/src/PedeReader.h"   // dito
+#include "Alignment/MillePedeAlignmentAlgorithm/src/PedeSteerer.h"  // ditto
+#include "Alignment/MillePedeAlignmentAlgorithm/src/PedeReader.h"   // ditto
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerPluginFactory.h"
 
@@ -54,14 +54,9 @@
 #include "DataFormats/Alignment/interface/TkFittedLasBeam.h"
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
-#include <Geometry/CommonDetUnit/interface/GeomDetType.h>
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-
-#include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
-#include "CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 
@@ -89,8 +84,10 @@ using namespace gbl;
 
 // Constructor ----------------------------------------------------------------
 //____________________________________________________
-MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg)
-    : AlignmentAlgorithmBase(cfg),
+MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC)
+    : AlignmentAlgorithmBase(cfg, iC),
+      topoToken_(iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
+      aliThrToken_(iC.esConsumes<AlignPCLThresholds, AlignPCLThresholdsRcd, edm::Transition::BeginRun>()),
       theConfig(cfg),
       theMode(this->decodeMode(theConfig.getUntrackedParameter<std::string>("mode"))),
       theDir(theConfig.getUntrackedParameter<std::string>("fileDir")),
@@ -176,15 +173,11 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   }
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const TrackerTopology *const tTopo = &setup.getData(topoToken_);
 
   //Retrieve the thresolds cuts from DB for the PCL
   if (runAtPCL_) {
-    edm::ESHandle<AlignPCLThresholds> thresholdHandle;
-    setup.get<AlignPCLThresholdsRcd>().get(thresholdHandle);
-    auto th = thresholdHandle.product();
+    const auto &th = &setup.getData(aliThrToken_);
     theThresholds = std::make_shared<AlignPCLThresholds>();
     storeThresholds(th->getNrecords(), th->getThreshold_Map());
   }
@@ -339,6 +332,9 @@ bool MillePedeAlignmentAlgorithm::storeAlignments() {
 //____________________________________________________
 bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runrange) {
   if (this->isMode(myPedeReadBit)) {
+    if (not theAlignmentParameterStore) {
+      return false;
+    }
     // restore initial positions, rotations and deformations
     if (enableAlignableUpdates_) {
       theAlignmentParameterStore->restoreCachedTransformations(runrange.first);
@@ -386,6 +382,9 @@ void MillePedeAlignmentAlgorithm::terminate() {
                               << "files as input (assigned weights are indicated by ' -- <weight>'):"
                               << filesForLogOutput;
   }
+
+  if (not theAlignmentParameterStore)
+    return;
 
   // cache all positions, rotations and deformations
   theAlignmentParameterStore->cacheTransformations();

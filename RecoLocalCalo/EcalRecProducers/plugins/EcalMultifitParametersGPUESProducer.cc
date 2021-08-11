@@ -72,7 +72,11 @@ void EcalMultifitParametersGPUESProducer::fillDescriptions(edm::ConfigurationDes
 
 std::unique_ptr<EcalMultifitParametersGPU> EcalMultifitParametersGPUESProducer::produce(
     JobConfigurationGPURecord const&) {
-  return std::make_unique<EcalMultifitParametersGPU>(pset_);
+  return std::make_unique<EcalMultifitParametersGPU>(
+      pset_.getParameter<std::vector<double>>("EBamplitudeFitParameters"),
+      pset_.getParameter<std::vector<double>>("EEamplitudeFitParameters"),
+      pset_.getParameter<std::vector<double>>("EBtimeFitParameters"),
+      pset_.getParameter<std::vector<double>>("EEtimeFitParameters"));
 }
 
 DEFINE_FWK_EVENTSETUP_SOURCE(EcalMultifitParametersGPUESProducer);

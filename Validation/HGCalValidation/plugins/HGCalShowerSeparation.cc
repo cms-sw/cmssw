@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -55,6 +54,7 @@ private:
 
   edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit*>> hitMap_;
   edm::EDGetTokenT<std::vector<CaloParticle>> caloParticles_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 
   int debug_;
   bool filterOnEnergyAndCaloP_;
@@ -82,7 +82,8 @@ private:
 };
 
 HGCalShowerSeparation::HGCalShowerSeparation(const edm::ParameterSet& iConfig)
-    : debug_(iConfig.getParameter<int>("debug")),
+    : tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      debug_(iConfig.getParameter<int>("debug")),
       filterOnEnergyAndCaloP_(iConfig.getParameter<bool>("filterOnEnergyAndCaloP")) {
   auto hitMapInputTag = iConfig.getParameter<edm::InputTag>("hitMapTag");
   auto caloParticles = iConfig.getParameter<edm::InputTag>("caloParticles");
@@ -160,9 +161,7 @@ void HGCalShowerSeparation::bookHistograms(DQMStore::IBooker& ibooker,
 void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  edm::ESHandle<CaloGeometry> geom;
-  iSetup.get<CaloGeometryRecord>().get(geom);
-  recHitTools_.setGeometry(*geom);
+  recHitTools_.setGeometry(iSetup.getData(tok_geom_));
 
   Handle<std::vector<CaloParticle>> caloParticleHandle;
   iEvent.getByToken(caloParticles_, caloParticleHandle);

@@ -9,7 +9,7 @@
 #include "G4TouchableHistory.hh"
 #include "G4VSensitiveDetector.hh"
 
-//#define DEBUG
+//#define EDM_ML_DEBUG
 
 TrackerG4SimHitNumberingScheme::TrackerG4SimHitNumberingScheme(const GeometricDet& det)
     : alreadySet_(false), geomDet_(&det) {}
@@ -55,7 +55,7 @@ void TrackerG4SimHitNumberingScheme::buildAll() {
 
 void TrackerG4SimHitNumberingScheme::touchToNavStory(const G4VTouchable* v,
                                                      TrackerG4SimHitNumberingScheme::Nav_Story& st) {
-#ifdef DEBUG
+#ifdef EDM_ML_DEBUG
   std::vector<int> debugint;
   std::vector<std::string> debugstring;
 #endif
@@ -65,13 +65,13 @@ void TrackerG4SimHitNumberingScheme::touchToNavStory(const G4VTouchable* v,
     if (dd4hep::dd::noNamespace(v->GetVolume(k)->GetLogicalVolume()->GetName()) != "TOBInactive") {
       st.emplace_back(
           std::pair<int, std::string>(v->GetVolume(k)->GetCopyNo(), v->GetVolume(k)->GetLogicalVolume()->GetName()));
-#ifdef DEBUG
+#ifdef EDM_ML_DEBUG
       debugint.emplace_back(v->GetVolume(k)->GetCopyNo());
       debugstring.emplace_back(v->GetVolume(k)->GetLogicalVolume()->GetName());
 #endif
     }
   }
-#ifdef DEBUG
+#ifdef EDM_ML_DEBUG
   LogDebug("TrackerSimDebugNumbering") << " G4 TrackerG4SimHitNumberingScheme " << debugint;
   for (u_int32_t jj = 0; jj < debugstring.size(); jj++)
     LogDebug("TrackerSimDebugNumbering") << " " << debugstring[jj];
@@ -85,7 +85,7 @@ unsigned int TrackerG4SimHitNumberingScheme::g4ToNumberingScheme(const G4VToucha
   TrackerG4SimHitNumberingScheme::Nav_Story st;
   touchToNavStory(v, st);
 
-#ifdef DEBUG
+#ifdef EDM_ML_DEBUG
   dumpG4VPV(v);
   LogDebug("TrackerSimDebugNumbering") << " Returning: " << directMap_[st];
 #endif

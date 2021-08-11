@@ -47,7 +47,7 @@ public:
     chi2cut(conf.getParameter<double>("chi2cut")),
     onlyDiagonal(conf.getParameter<bool>("onlyDiagonal")),
     bsSrc(conf.getParameter<edm::InputTag>("beamSpot")) {
-    theMF=mF;  
+    mF_=mF;  
     if (onlyDiagonal)
       edm::LogInfo("TrackAssociator") << " ---- Using Off Diagonal Covariance Terms = 0 ---- " <<  "\n";
     else 
@@ -61,7 +61,7 @@ public:
                             const reco::BeamSpot& bs,
                             double chi2Cut,
                             bool onlyDiag)
-      : productGetter_(&productGetter), theMF(&mF), theBeamSpot(&bs), chi2cut(chi2Cut), onlyDiagonal(onlyDiag) {}
+      : productGetter_(&productGetter), mF_(&mF), beamSpot_(&bs), chi2cut_(chi2Cut), onlyDiagonal_(onlyDiag) {}
 
   /// Association Reco To Sim with Collections
 
@@ -87,19 +87,11 @@ public:
   }
 
 private:
-  /// basic method where chi2 is computed
-  double getChi2(const reco::TrackBase::ParameterVector& rParameters,
-                 const reco::TrackBase::CovarianceMatrix& recoTrackCovMatrix,
-                 const Basic3DVector<double>& momAtVtx,
-                 const Basic3DVector<double>& vert,
-                 int charge,
-                 const reco::BeamSpot&) const;
-
   edm::EDProductGetter const* productGetter_;
-  const MagneticField* theMF;
-  const reco::BeamSpot* theBeamSpot;
-  double chi2cut;
-  bool onlyDiagonal;
+  const MagneticField* mF_;
+  const reco::BeamSpot* beamSpot_;
+  double chi2cut_;
+  bool onlyDiagonal_;
 };
 
 #endif

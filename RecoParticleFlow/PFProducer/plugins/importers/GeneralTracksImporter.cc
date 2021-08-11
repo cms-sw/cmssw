@@ -11,11 +11,11 @@
 
 class GeneralTracksImporter : public BlockElementImporterBase {
 public:
-  GeneralTracksImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : BlockElementImporterBase(conf, sumes),
-        src_(sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("source"))),
+  GeneralTracksImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : BlockElementImporterBase(conf, cc),
+        src_(cc.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("source"))),
         vetoEndcap_(conf.getParameter<bool>("vetoEndcap")),
-        muons_(sumes.consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
+        muons_(cc.consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
         trackQuality_(reco::TrackBase::qualityByName(conf.getParameter<std::string>("trackQuality"))),
         DPtovPtCut_(conf.getParameter<std::vector<double>>("DPtOverPtCuts_byTrackAlgo")),
         NHitCut_(conf.getParameter<std::vector<unsigned>>("NHitCuts_byTrackAlgo")),
@@ -26,16 +26,15 @@ public:
       vetoMode_ = conf.getParameter<unsigned>("vetoMode");
       switch (vetoMode_) {
         case pfRecTrackCollection:
-          vetoPFTracksSrc_ = sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
+          vetoPFTracksSrc_ = cc.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
           break;
         case ticlSeedingRegion:
           vetoTICLSeedingSrc_ =
-              sumes.consumes<std::vector<TICLSeedingRegion>>(conf.getParameter<edm::InputTag>("vetoSrc"));
-          tracksSrc_ = sumes.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracksSrc"));
+              cc.consumes<std::vector<TICLSeedingRegion>>(conf.getParameter<edm::InputTag>("vetoSrc"));
+          tracksSrc_ = cc.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracksSrc"));
           break;
         case pfCandidateCollection:
-          vetoPFCandidatesSrc_ =
-              sumes.consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
+          vetoPFCandidatesSrc_ = cc.consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
           break;
       }  // switch
     }

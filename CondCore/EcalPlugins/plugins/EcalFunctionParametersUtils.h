@@ -2,7 +2,7 @@
 #include <string>
 #include <cmath>
 
-int countEmptyRows(std::vector<float>& vec) {
+inline int countEmptyRows(std::vector<float>& vec) {
   int cnt = 0;
   for (std::vector<float>::const_iterator it = vec.begin(); it != vec.end(); it++)
     if ((*it) == 0.0f)
@@ -11,7 +11,7 @@ int countEmptyRows(std::vector<float>& vec) {
   return cnt;
 }
 
-void fillFunctionParamsValues(
+inline void fillFunctionParamsValues(
     TH2F*& align, std::vector<float>& m_params, std::string title, int& gridRows, int& NbColumns) {
   const int maxInCol = 25;
   int NbRows = 0;

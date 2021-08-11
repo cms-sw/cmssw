@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 import sys, os
 
@@ -87,7 +87,8 @@ if __name__ == '__main__':
                      10024.0, #2017 ttbar
                      10224.0, #2017 ttbar PU
                      10824.0, #2018 ttbar
-                     11634.911, #2021 DD4hep ttbar
+                     11634.911, #2021 DD4hep ttbar reading geometry from XML
+                     11634.912, #2021 DD4hep ttbar reading geometry from the DB
                      11634.0, #2021 ttbar
                      12434.0, #2023 ttbar
                      23234.0, #2026D49 ttbar (HLT TDR baseline w/ HGCal v11)
@@ -228,6 +229,7 @@ if __name__ == '__main__':
     parser.add_option('--command',
                       help='provide a way to add additional command to all of the cmsDriver commands in the matrix',
                       dest='command',
+                      action='append',
                       default=None
                       )
     parser.add_option('--apply',
@@ -304,6 +306,7 @@ if __name__ == '__main__':
                       action='store')
 
     opt,args = parser.parse_args()
+    if opt.command: opt.command = ' '.join(opt.command)
     os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
     if opt.IBEos:
       try:from commands import getstatusoutput as run_cmd

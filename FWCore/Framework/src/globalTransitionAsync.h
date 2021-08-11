@@ -34,22 +34,25 @@ namespace edm {
   template <typename T>
   inline void subProcessDoGlobalBeginTransitionAsync(WaitingTaskHolder iHolder,
                                                      SubProcess& iSubProcess,
-                                                     LumiTransitionInfo const& iTransitionInfo) {
+                                                     LumiTransitionInfo const& iTransitionInfo,
+                                                     bool) {
     iSubProcess.doBeginLuminosityBlockAsync(std::move(iHolder), iTransitionInfo);
   }
 
   template <typename T>
   inline void subProcessDoGlobalBeginTransitionAsync(WaitingTaskHolder iHolder,
                                                      SubProcess& iSubProcess,
-                                                     RunTransitionInfo const& iTransitionInfo) {
+                                                     RunTransitionInfo const& iTransitionInfo,
+                                                     bool) {
     iSubProcess.doBeginRunAsync(std::move(iHolder), iTransitionInfo);
   }
 
   template <typename Traits>
   inline void subProcessDoGlobalBeginTransitionAsync(WaitingTaskHolder iHolder,
                                                      SubProcess& iSubProcess,
-                                                     ProcessBlockTransitionInfo const& iTransitionInfo) {
-    iSubProcess.doBeginProcessBlockAsync<Traits>(std::move(iHolder), iTransitionInfo);
+                                                     ProcessBlockTransitionInfo const& iTransitionInfo,
+                                                     bool cleaningUpAfterException) {
+    iSubProcess.doBeginProcessBlockAsync<Traits>(std::move(iHolder), iTransitionInfo, cleaningUpAfterException);
   }
 
   inline void subProcessDoGlobalEndTransitionAsync(WaitingTaskHolder iHolder,
@@ -78,28 +81,29 @@ namespace edm {
                                   Schedule& iSchedule,
                                   typename Traits::TransitionInfoType& transitionInfo,
                                   ServiceToken const& token,
-                                  std::vector<SubProcess>& iSubProcesses) {
+                                  std::vector<SubProcess>& iSubProcesses,
+                                  bool cleaningUpAfterException = false) {
     // When we are done processing the global for this process,
     // we need to run the global for all SubProcesses
-    auto subs =
-        make_waiting_task([&iSubProcesses, iWait, info = transitionInfo](std::exception_ptr const* iPtr) mutable {
-          if (iPtr) {
-            auto excpt = *iPtr;
-            auto delayError =
-                make_waiting_task([iWait, excpt](std::exception_ptr const*) mutable { iWait.doneWaiting(excpt); });
-            WaitingTaskHolder h(*iWait.group(), delayError);
-            for (auto& subProcess : iSubProcesses) {
-              subProcessDoGlobalBeginTransitionAsync<Traits>(h, subProcess, info);
-            }
-          } else {
-            for (auto& subProcess : iSubProcesses) {
-              subProcessDoGlobalBeginTransitionAsync<Traits>(iWait, subProcess, info);
-            }
-          }
-        });
+    auto subs = make_waiting_task([&iSubProcesses, iWait, info = transitionInfo, cleaningUpAfterException](
+                                      std::exception_ptr const* iPtr) mutable {
+      if (iPtr) {
+        auto excpt = *iPtr;
+        auto delayError =
+            make_waiting_task([iWait, excpt](std::exception_ptr const*) mutable { iWait.doneWaiting(excpt); });
+        WaitingTaskHolder h(*iWait.group(), delayError);
+        for (auto& subProcess : iSubProcesses) {
+          subProcessDoGlobalBeginTransitionAsync<Traits>(h, subProcess, info, cleaningUpAfterException);
+        }
+      } else {
+        for (auto& subProcess : iSubProcesses) {
+          subProcessDoGlobalBeginTransitionAsync<Traits>(iWait, subProcess, info, cleaningUpAfterException);
+        }
+      }
+    });
 
     WaitingTaskHolder h(*iWait.group(), subs);
-    iSchedule.processOneGlobalAsync<Traits>(std::move(h), transitionInfo, token);
+    iSchedule.processOneGlobalAsync<Traits>(std::move(h), transitionInfo, token, cleaningUpAfterException);
   }
 
   template <typename Traits>

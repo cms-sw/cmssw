@@ -11,7 +11,7 @@ using namespace edm;
 HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
     : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       label_lcl(pset.getParameter<edm::InputTag>("label_lcl")),
-      label_mcl(pset.getParameter<std::vector<edm::InputTag>>("label_mcl")),
+      label_tst(pset.getParameter<std::vector<edm::InputTag>>("label_tst")),
       associator_(pset.getUntrackedParameter<edm::InputTag>("associator")),
       associatorSim_(pset.getUntrackedParameter<edm::InputTag>("associatorSim")),
       SaveGeneralInfo_(pset.getUntrackedParameter<bool>("SaveGeneralInfo")),
@@ -19,7 +19,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       doCaloParticleSelection_(pset.getUntrackedParameter<bool>("doCaloParticleSelection")),
       doSimClustersPlots_(pset.getUntrackedParameter<bool>("doSimClustersPlots")),
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
-      doMultiClustersPlots_(pset.getUntrackedParameter<bool>("doMultiClustersPlots")),
+      doTrackstersPlots_(pset.getUntrackedParameter<bool>("doTrackstersPlots")),
       label_clustersmask(pset.getParameter<std::vector<edm::InputTag>>("LayerClustersInputMask")),
       cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")) {
   //In this way we can easily generalize to associations between other objects also.
@@ -42,12 +42,12 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   density_ = consumes<Density>(edm::InputTag("hgcalLayerClusters"));
 
-  simclusters_ = consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("label_scl"));
+  simClusters_ = consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("label_scl"));
 
   layerclusters_ = consumes<reco::CaloClusterCollection>(label_lcl);
 
-  for (auto& itag : label_mcl) {
-    label_mclTokens.push_back(consumes<std::vector<reco::HGCalMultiCluster>>(itag));
+  for (auto& itag : label_tst) {
+    label_tstTokens.push_back(consumes<ticl::TracksterCollection>(itag));
   }
 
   associatorMapRtS = consumes<hgcal::RecoToSimCollection>(associator_);
@@ -115,7 +115,7 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
     ibook.setCurrentFolder(dirName_);
   }
 
-  //Booking histograms concerning with simclusters
+  //Booking histograms concerning with simClusters
   if (doSimClustersPlots_) {
     ibook.cd();
     ibook.setCurrentFolder(dirName_ + "simClusters/ClusterLevel");
@@ -147,7 +147,7 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
       histoProducerAlgo_->bookSimClusterAssociationHistos(
           ibook, histograms.histoProducerAlgo, totallayers_to_monitor_, thicknesses_to_monitor_);
     }  //end of loop over masks
-  }    //if for simcluster plots
+  }    //if for simCluster plots
 
   //Booking histograms concerning with hgcal layer clusters
   if (doLayerClustersPlots_) {
@@ -169,10 +169,10 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
         ibook, histograms.histoProducerAlgo, totallayers_to_monitor_, thicknesses_to_monitor_);
   }
 
-  //Booking histograms for multiclusters
-  for (unsigned int www = 0; www < label_mcl.size(); www++) {
+  //Booking histograms for Tracksters
+  for (unsigned int www = 0; www < label_tst.size(); www++) {
     ibook.cd();
-    InputTag algo = label_mcl[www];
+    InputTag algo = label_tst[www];
     string dirName = dirName_;
     if (!algo.process().empty())
       dirName += algo.process() + "_";
@@ -192,11 +192,11 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
 
     ibook.setCurrentFolder(dirName);
 
-    //Booking histograms concerning for hgcal multi clusters
-    if (doMultiClustersPlots_) {
-      histoProducerAlgo_->bookMultiClusterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
+    //Booking histograms concerning for HGCal tracksters
+    if (doTrackstersPlots_) {
+      histoProducerAlgo_->bookTracksterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
     }
-  }  //end of booking multiclusters loop
+  }  //end of booking Tracksters loop
 }
 
 void HGCalValidator::cpParametersAndSelection(const Histograms& histograms,
@@ -278,8 +278,8 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   //get collections from the event
   //simClusters
   edm::Handle<std::vector<SimCluster>> simClustersHandle;
-  event.getByToken(simclusters_, simClustersHandle);
-  std::vector<SimCluster> const& simclusters = *simClustersHandle;
+  event.getByToken(simClusters_, simClustersHandle);
+  std::vector<SimCluster> const& simClusters = *simClustersHandle;
 
   //Layer clusters
   edm::Handle<reco::CaloClusterCollection> clusterHandle;
@@ -291,16 +291,16 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(density_, densityHandle);
   const Density& densities = *densityHandle;
 
-  auto nSimClusters = simclusters.size();
+  auto nSimClusters = simClusters.size();
   std::vector<size_t> sCIndices;
   //There shouldn't be any SimTracks from different crossings, but maybe they will be added later.
   //At the moment there should be one SimTrack in each SimCluster.
   for (unsigned int scId = 0; scId < nSimClusters; ++scId) {
-    if (simclusters[scId].g4Tracks()[0].eventId().event() != 0 or
-        simclusters[scId].g4Tracks()[0].eventId().bunchCrossing() != 0) {
+    if (simClusters[scId].g4Tracks()[0].eventId().event() != 0 or
+        simClusters[scId].g4Tracks()[0].eventId().bunchCrossing() != 0) {
       LogDebug("HGCalValidator") << "Excluding SimClusters from event: "
-                                 << simclusters[scId].g4Tracks()[0].eventId().event()
-                                 << " with BX: " << simclusters[scId].g4Tracks()[0].eventId().bunchCrossing()
+                                 << simClusters[scId].g4Tracks()[0].eventId().event()
+                                 << " with BX: " << simClusters[scId].g4Tracks()[0].eventId().bunchCrossing()
                                  << std::endl;
       continue;
     }
@@ -308,11 +308,11 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   }
 
   // ##############################################
-  // fill simcluster histograms
+  // fill simCluster histograms
   // ##############################################
   if (doSimClustersPlots_) {
-    histoProducerAlgo_->fill_simcluster_histos(
-        histograms.histoProducerAlgo, simclusters, totallayers_to_monitor_, thicknesses_to_monitor_);
+    histoProducerAlgo_->fill_simCluster_histos(
+        histograms.histoProducerAlgo, simClusters, totallayers_to_monitor_, thicknesses_to_monitor_);
 
     for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
       const auto& inputClusterMask = event.get(clustersMaskTokens_[ws]);
@@ -324,12 +324,12 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
       event.getByToken(associatorMapRtSim, recotosimCollectionH);
       auto recSimColl = *recotosimCollectionH;
 
-      histoProducerAlgo_->fill_simclusterassosiation_histos(histograms.histoProducerAlgo,
+      histoProducerAlgo_->fill_simClusterAssociation_histos(histograms.histoProducerAlgo,
                                                             ws,
                                                             clusterHandle,
                                                             clusters,
                                                             simClustersHandle,
-                                                            simclusters,
+                                                            simClusters,
                                                             sCIndices,
                                                             inputClusterMask,
                                                             *hitMap,
@@ -338,8 +338,8 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                             simRecColl);
 
       //General Info on simClusters
-      LogTrace("HGCalValidator") << "\n# of simclusters: " << nSimClusters << " label_clustersmask[ws].label() "
-                                 << label_clustersmask[ws].label() << "\n";
+      LogTrace("HGCalValidator") << "\n# of SimClusters: " << nSimClusters
+                                 << ", layerClusters mask label: " << label_clustersmask[ws].label() << "\n";
     }  //end of loop overs masks
   }
 
@@ -374,28 +374,29 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   }
 
   // ##############################################
-  // fill multicluster histograms
+  // fill Trackster histograms
   // ##############################################
-  for (unsigned int wml = 0; wml < label_mclTokens.size(); wml++) {
-    if (doMultiClustersPlots_) {
-      edm::Handle<std::vector<reco::HGCalMultiCluster>> multiClusterHandle;
-      event.getByToken(label_mclTokens[wml], multiClusterHandle);
-      const std::vector<reco::HGCalMultiCluster>& multiClusters = *multiClusterHandle;
+  for (unsigned int wml = 0; wml < label_tstTokens.size(); wml++) {
+    if (doTrackstersPlots_) {
+      edm::Handle<ticl::TracksterCollection> tracksterHandle;
+      event.getByToken(label_tstTokens[wml], tracksterHandle);
+      const ticl::TracksterCollection& tracksters = *tracksterHandle;
 
-      histoProducerAlgo_->fill_multi_cluster_histos(histograms.histoProducerAlgo,
-                                                    wml,
-                                                    multiClusters,
-                                                    caloParticles,
-                                                    cPIndices,
-                                                    selected_cPeff,
-                                                    *hitMap,
-                                                    totallayers_to_monitor_);
+      histoProducerAlgo_->fill_trackster_histos(histograms.histoProducerAlgo,
+                                                wml,
+                                                tracksters,
+                                                clusters,
+                                                caloParticles,
+                                                cPIndices,
+                                                selected_cPeff,
+                                                *hitMap,
+                                                totallayers_to_monitor_);
 
-      //General Info on multiclusters
-      LogTrace("HGCalValidator") << "\n# of multi clusters with " << label_mcl[wml].process() << ":"
-                                 << label_mcl[wml].label() << ":" << label_mcl[wml].instance() << ": "
-                                 << multiClusters.size() << "\n"
+      //General Info on Tracksters
+      LogTrace("HGCalValidator") << "\n# of Tracksters with " << label_tst[wml].process() << ":"
+                                 << label_tst[wml].label() << ":" << label_tst[wml].instance() << ": "
+                                 << tracksters.size() << "\n"
                                  << std::endl;
     }
-  }  //end of loop over multicluster input labels
+  }  //end of loop over Trackster input labels
 }

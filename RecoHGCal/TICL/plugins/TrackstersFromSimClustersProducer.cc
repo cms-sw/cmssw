@@ -19,6 +19,9 @@
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
+#include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
+
+#include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
@@ -72,11 +75,15 @@ private:
   const edm::EDGetTokenT<std::vector<float>> filtered_layerclusters_mask_token_;
 
   edm::EDGetTokenT<std::vector<SimCluster>> simclusters_token_;
+  edm::EDGetTokenT<std::vector<CaloParticle>> caloparticles_token_;
 
   edm::InputTag associatorLayerClusterSimCluster_;
-  edm::EDGetTokenT<hgcal::SimToRecoCollectionWithSimClusters> associatorMapSimToReco_token_;
+  edm::EDGetTokenT<hgcal::SimToRecoCollectionWithSimClusters> associatorMapSimClusterToReco_token_;
+  edm::InputTag associatorLayerClusterCaloParticle_;
+  edm::EDGetTokenT<hgcal::SimToRecoCollection> associatorMapCaloParticleToReco_token_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
   hgcal::RecHitTools rhtools_;
+  const double fractionCut_;
 };
 DEFINE_FWK_MODULE(TrackstersFromSimClustersProducer);
 
@@ -88,10 +95,15 @@ TrackstersFromSimClustersProducer::TrackstersFromSimClustersProducer(const edm::
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("time_layerclusters"))),
       filtered_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"))),
       simclusters_token_(consumes<std::vector<SimCluster>>(ps.getParameter<edm::InputTag>("simclusters"))),
+      caloparticles_token_(consumes<std::vector<CaloParticle>>(ps.getParameter<edm::InputTag>("caloparticles"))),
       associatorLayerClusterSimCluster_(ps.getUntrackedParameter<edm::InputTag>("layerClusterSimClusterAssociator")),
-      associatorMapSimToReco_token_(
+      associatorMapSimClusterToReco_token_(
           consumes<hgcal::SimToRecoCollectionWithSimClusters>(associatorLayerClusterSimCluster_)),
-      geom_token_(esConsumes()) {
+      associatorLayerClusterCaloParticle_(
+          ps.getUntrackedParameter<edm::InputTag>("layerClusterCaloParticleAssociator")),
+      associatorMapCaloParticleToReco_token_(consumes<hgcal::SimToRecoCollection>(associatorLayerClusterCaloParticle_)),
+      geom_token_(esConsumes()),
+      fractionCut_(ps.getParameter<double>("fractionCut")) {
   produces<std::vector<Trackster>>();
   produces<std::vector<float>>();
 }
@@ -104,8 +116,13 @@ void TrackstersFromSimClustersProducer::fillDescriptions(edm::ConfigurationDescr
   desc.add<edm::InputTag>("time_layerclusters", edm::InputTag("hgcalLayerClusters", "timeLayerCluster"));
   desc.add<edm::InputTag>("filtered_mask", edm::InputTag("filteredLayerClustersSimTracksters", "ticlSimTracksters"));
   desc.add<edm::InputTag>("simclusters", edm::InputTag("mix", "MergedCaloTruth"));
+  desc.add<edm::InputTag>("caloparticles", edm::InputTag("mix", "MergedCaloTruth"));
   desc.addUntracked<edm::InputTag>("layerClusterSimClusterAssociator",
                                    edm::InputTag("layerClusterSimClusterAssociationProducer"));
+  desc.addUntracked<edm::InputTag>("layerClusterCaloParticleAssociator",
+                                   edm::InputTag("layerClusterCaloParticleAssociationProducer"));
+  desc.add<double>("fractionCut", 0.);
+
   descriptions.add("trackstersFromSimClustersProducer", desc);
 }
 
@@ -118,34 +135,80 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
   output_mask->resize(layerClusters.size(), 1.f);
 
   const auto& simclusters = evt.get(simclusters_token_);
-  const auto& simToRecoColl = evt.get(associatorMapSimToReco_token_);
+  const auto& caloparticles = evt.get(caloparticles_token_);
+
+  const auto& simClustersToRecoColl = evt.get(associatorMapSimClusterToReco_token_);
+  const auto& caloParticlesToRecoColl = evt.get(associatorMapCaloParticleToReco_token_);
 
   const auto& geom = es.getData(geom_token_);
   rhtools_.setGeometry(geom);
   auto num_simclusters = simclusters.size();
   result->reserve(num_simclusters);
-  for (const auto& [key, values] : simToRecoColl) {
-    auto const& sc = *(key);
-    auto simClusterIndex = &sc - &simclusters[0];
-    Trackster tmpTrackster;
-    tmpTrackster.zeroProbabilities();
-    tmpTrackster.vertices().reserve(values.size());
-    tmpTrackster.vertex_multiplicity().reserve(values.size());
 
-    for (auto const& [lc, energyScorePair] : values) {
-      if (inputClusterMask[lc.index()] > 0) {
-        tmpTrackster.vertices().push_back(lc.index());
-        double fraction = energyScorePair.first / lc->energy();
-        (*output_mask)[lc.index()] -= fraction;
-        tmpTrackster.vertex_multiplicity().push_back(static_cast<uint8_t>(std::clamp(1. / fraction, 0., 255.)));
+  for (const auto& [key, values] : caloParticlesToRecoColl) {
+    auto const& cp = *(key);
+    auto cpIndex = &cp - &caloparticles[0];
+    if (cp.g4Tracks()[0].crossedBoundary()) {
+      if (values.empty())
+        continue;
+      Trackster tmpTrackster;
+      tmpTrackster.zeroProbabilities();
+      tmpTrackster.vertices().reserve(values.size());
+      tmpTrackster.vertex_multiplicity().reserve(values.size());
+      for (auto const& [lc, energyScorePair] : values) {
+        if (inputClusterMask[lc.index()] > 0) {
+          double fraction = energyScorePair.first / lc->energy();
+          if (fraction < fractionCut_)
+            continue;
+          tmpTrackster.vertices().push_back(lc.index());
+          (*output_mask)[lc.index()] -= fraction;
+          tmpTrackster.vertex_multiplicity().push_back(1. / fraction);
+        }
+      }
+      tmpTrackster.setIdProbability(tracksterParticleTypeFromPdgId(cp.pdgId(), cp.charge()), 1.f);
+      float energyAtBoundary = cp.g4Tracks()[0].getMomentumAtBoundary().energy();
+      tmpTrackster.setRegressedEnergy(energyAtBoundary);
+      tmpTrackster.setSeed(key.id(), cpIndex);
+      result->emplace_back(tmpTrackster);
+    } else {
+      for (const auto& scRef : cp.simClusters()) {
+        const auto& it = simClustersToRecoColl.find(scRef);
+        if (it == simClustersToRecoColl.end())
+          continue;
+        const auto& lcVec = it->val;
+        if (lcVec.empty())
+          continue;
+        auto const& sc = *(scRef);
+        auto simClusterIndex = &sc - &simclusters[0];
+        Trackster tmpTrackster;
+
+        tmpTrackster.zeroProbabilities();
+        tmpTrackster.vertices().reserve(lcVec.size());
+        tmpTrackster.vertex_multiplicity().reserve(lcVec.size());
+
+        for (auto const& [lc, energyScorePair] : lcVec) {
+          if (inputClusterMask[lc.index()] > 0) {
+            double fraction = energyScorePair.first / lc->energy();
+            if (fraction < fractionCut_)
+              continue;
+            tmpTrackster.vertices().push_back(lc.index());
+            (*output_mask)[lc.index()] -= fraction;
+            tmpTrackster.vertex_multiplicity().push_back(1. / fraction);
+          }
+        }
+        tmpTrackster.setIdProbability(tracksterParticleTypeFromPdgId(sc.pdgId(), sc.charge()), 1.f);
+        float energyAtBoundary = sc.g4Tracks()[0].getMomentumAtBoundary().energy();
+        tmpTrackster.setRegressedEnergy(energyAtBoundary);
+        tmpTrackster.setSeed(scRef.id(), simClusterIndex);
+        result->emplace_back(tmpTrackster);
       }
     }
-    tmpTrackster.setIdProbability(tracksterParticleTypeFromPdgId(sc.pdgId(), sc.charge()), 1.f);
-    tmpTrackster.setSeed(key.id(), simClusterIndex);
-    result->emplace_back(tmpTrackster);
   }
+
   ticl::assignPCAtoTracksters(
       *result, layerClusters, layerClustersTimes, rhtools_.getPositionLayer(rhtools_.lastLayerEE(doNose_)).z());
+  result->shrink_to_fit();
+
   evt.put(std::move(result));
   evt.put(std::move(output_mask));
 }

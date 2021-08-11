@@ -1,10 +1,10 @@
 /****************************************************************************
-*
-* This is a part of TOTEM offline software.
-* Authors: 
-*  Jan Kašpar (jan.kaspar@gmail.com) 
-*
-****************************************************************************/
+ *
+ * This is a part of TOTEM offline software.
+ * Authors: 
+ *  Jan Kašpar (jan.kaspar@gmail.com) 
+ *
+ ****************************************************************************/
 
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -30,39 +30,33 @@ public:
 private:
   /// label of the CTPPS sub-system
   std::string subSystemName;
-
+  edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> mappingToken_;
+  edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> maskToken_;
   void analyze(const edm::Event &e, const edm::EventSetup &es) override;
 };
 
-using namespace std;
-using namespace edm;
-
-//----------------------------------------------------------------------------------------------------
-
 PrintTotemDAQMapping::PrintTotemDAQMapping(const edm::ParameterSet &ps)
-    : subSystemName(ps.getUntrackedParameter<string>("subSystem")) {}
+    : subSystemName(ps.getUntrackedParameter<std::string>("subSystem")),
+      mappingToken_(esConsumes(edm::ESInputTag("", subSystemName))),
+      maskToken_(esConsumes(edm::ESInputTag("", subSystemName))) {}
 
 //----------------------------------------------------------------------------------------------------
 
 void PrintTotemDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es) {
   // get mapping
-  ESHandle<TotemDAQMapping> mapping;
-  es.get<TotemReadoutRcd>().get(subSystemName, mapping);
+  auto const &mapping = es.getData(mappingToken_);
 
   // get analysis mask to mask channels
-  ESHandle<TotemAnalysisMask> analysisMask;
-  es.get<TotemReadoutRcd>().get(subSystemName, analysisMask);
+  auto const &analysisMask = es.getData(maskToken_);
 
   // print mapping
-  printf("* DAQ mapping\n");
-  for (const auto &p : mapping->VFATMapping)
-    cout << "    " << p.first << " -> " << p.second << endl;
+  for (const auto &p : mapping.VFATMapping)
+    edm::LogInfo("PrintTotemDAQMapping mapping") << "    " << p.first << " -> " << p.second;
 
   // print mapping
-  printf("* mask\n");
-  for (const auto &p : analysisMask->analysisMask)
-    cout << "    " << p.first << ": fullMask=" << p.second.fullMask << ", number of masked channels "
-         << p.second.maskedChannels.size() << endl;
+  for (const auto &p : analysisMask.analysisMask)
+    edm::LogInfo("PrintTotemDAQMapping mask") << "    " << p.first << ": fullMask=" << p.second.fullMask
+                                              << ", number of masked channels " << p.second.maskedChannels.size();
 }
 
 //----------------------------------------------------------------------------------------------------

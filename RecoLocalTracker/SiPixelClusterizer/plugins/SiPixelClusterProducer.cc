@@ -59,11 +59,11 @@ SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf)
 
   const auto& payloadType = conf.getParameter<std::string>("payloadType");
   if (payloadType == "HLT")
-    theSiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationForHLTService>(conf);
+    theSiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationForHLTService>(conf, consumesCollector());
   else if (payloadType == "Offline")
-    theSiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationOfflineService>(conf);
+    theSiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationOfflineService>(conf, consumesCollector());
   else if (payloadType == "Full")
-    theSiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationService>(conf);
+    theSiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationService>(conf, consumesCollector());
 
   //--- Make the algorithm(s) according to what the user specified
   //--- in the ParameterSet.

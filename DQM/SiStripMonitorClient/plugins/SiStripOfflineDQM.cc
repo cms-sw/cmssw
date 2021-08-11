@@ -82,9 +82,7 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet)
   }
 
   if (createTkInfoFile_) {
-    tkinfoTree_ = edm::Service<TFileService> {}
-    ->make<TTree>("TkDetIdInfo", "");
-  }
+    tkinfoTree_ = edm::Service<TFileService> { } -> make<TTree>("TkDetIdInfo", ""); }
 
   // explicit dependency to make sure the QTest reults needed here are present
   // already in endRun.

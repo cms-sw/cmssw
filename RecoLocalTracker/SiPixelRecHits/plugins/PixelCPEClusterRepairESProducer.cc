@@ -34,7 +34,8 @@ private:
   edm::ESGetToken<SiPixel2DTemplateDBObject, SiPixel2DTemplateDBObjectESProducerRcd> templateDBobject2DToken_;
 
   edm::ParameterSet pset_;
-  bool DoLorentz_;
+  bool doLorentzFromAlignment_;
+  bool useLAFromDB_;
 };
 
 using namespace edm;
@@ -42,8 +43,8 @@ using namespace edm;
 PixelCPEClusterRepairESProducer::PixelCPEClusterRepairESProducer(const edm::ParameterSet& p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
 
-  //DoLorentz_ = p.getParameter<bool>("DoLorentz"); // True when LA from alignment is used
-  DoLorentz_ = p.getParameter<bool>("DoLorentz");
+  useLAFromDB_ = p.getParameter<bool>("useLAFromDB");
+  doLorentzFromAlignment_ = p.getParameter<bool>("doLorentzFromAlignment");
 
   pset_ = p;
   auto c = setWhatProduced(this, myname);
@@ -52,11 +53,10 @@ PixelCPEClusterRepairESProducer::PixelCPEClusterRepairESProducer(const edm::Para
   hTTToken_ = c.consumes();
   templateDBobjectToken_ = c.consumes();
   templateDBobject2DToken_ = c.consumes();
-  if (DoLorentz_) {
-    lorentzAngleToken_ = c.consumes(edm::ESInputTag("", "fromAlignment"));
+  if (useLAFromDB_ || doLorentzFromAlignment_) {
+    char const* laLabel = doLorentzFromAlignment_ ? "fromAlignment" : "";
+    lorentzAngleToken_ = c.consumes(edm::ESInputTag("", laLabel));
   }
-
-  //std::cout<<" from ES Producer Templates "<<myname<<" "<<DoLorentz_<<std::endl;  //dk
 }
 
 PixelCPEClusterRepairESProducer::~PixelCPEClusterRepairESProducer() {}
@@ -73,16 +73,16 @@ void PixelCPEClusterRepairESProducer::fillDescriptions(edm::ConfigurationDescrip
   PixelCPEClusterRepair::fillPSetDescription(desc);
 
   // specific to PixelCPEClusterRepairESProducer
-  desc.add<bool>("DoLorentz", true);
   descriptions.add("_templates2_default", desc);
 }
 
 std::unique_ptr<PixelClusterParameterEstimator> PixelCPEClusterRepairESProducer::produce(
     const TkPixelCPERecord& iRecord) {
-  // Normal, default LA actually is NOT needed
-  // null is ok becuse LA is not use by templates in this mode
+  // Normal, default LA is used in case of template failure, load it unless
+  // turned off
+  // if turned off, null is ok, becomes zero
   const SiPixelLorentzAngle* lorentzAngleProduct = nullptr;
-  if (DoLorentz_) {  //  LA correction from alignment
+  if (useLAFromDB_ || doLorentzFromAlignment_) {
     lorentzAngleProduct = &iRecord.get(lorentzAngleToken_);
   }
 

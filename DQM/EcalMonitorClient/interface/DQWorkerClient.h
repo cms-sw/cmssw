@@ -4,8 +4,12 @@
 #include <utility>
 
 #include "DQM/EcalCommon/interface/DQWorker.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class DetId;
+namespace edm {
+  class ConsumesCollector;
+}  // namespace edm
 
 namespace ecaldqm {
   class StatusManager;
@@ -31,6 +35,9 @@ namespace ecaldqm {
     bool runsOn(ProcessType _type) const { return _type == kJob || hasLumiPlots_; }
     virtual void resetMEs();
     virtual void producePlots(ProcessType) = 0;
+
+    // mechanisms to register EDGetTokens for any additional objects used internally
+    virtual void setTokens(edm::ConsumesCollector&) {}
 
     void setStatusManager(StatusManager const& _manager) { statusManager_ = &_manager; }
 

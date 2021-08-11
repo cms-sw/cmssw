@@ -14,11 +14,14 @@ namespace dtbayesam {
 
   typedef std::bitset<8> qualitybits;
 
+  typedef std::shared_ptr<DTPattern> DTPatternPtr;
+  typedef std::vector<DTPatternPtr> DTPatternPtrs;
+
   class CandidateGroup {
   public:
     //Constructors and destructors
     CandidateGroup();
-    CandidateGroup(DTPattern* p);
+    CandidateGroup(DTPatternPtr p);
     ~CandidateGroup();
 
     //Hit operation procedures
@@ -34,7 +37,7 @@ namespace dtbayesam {
     int nLayerDown() const { return nLayerDown_; };
     DTPrimitivePtrs candHits() const { return candHits_; };
     qualitybits quality() const { return quality_; };
-    const DTPattern* pattern() const { return pattern_; };
+    const DTPatternPtr pattern() const { return pattern_; };
 
     //Set Methods
     void setCandId(int cId) { candId_ = cId; };
@@ -51,7 +54,7 @@ namespace dtbayesam {
     int nLayerUp_;
     int nLayerDown_;
     int nisGood_;
-    DTPattern* pattern_;
+    DTPatternPtr pattern_;
     int candId_;
   };
 

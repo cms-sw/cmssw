@@ -1,32 +1,29 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import os
 import argparse
 from time import time
 
+from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels, ticlIterLabelsMerge
+
 from Validation.RecoTrack.plotting.validation import SeparateValidation, SimpleValidation, SimpleSample
 import Validation.HGCalValidation.hgcalPlots as hgcalPlots
 import Validation.RecoTrack.plotting.plotting as plotting
 
-simClustersIters = ["ClusterLevel","ticlTrackstersTrkEM","ticlTrackstersEM","ticlTrackstersTrk","ticlTrackstersHAD","ticlSimTracksters"]
+simClustersIters = ["ClusterLevel","ticlSimTracksters"]
+trackstersIters = ['ticlTracksters'+iteration for iteration in ticlIterLabelsMerge]
+trackstersIters.extend(["ticlSimTracksters"])
 
-trackstersIters = ["ticlMultiClustersFromTrackstersMerge", "ticlMultiClustersFromTrackstersMIP",
-                   "ticlMultiClustersFromTrackstersTrk","ticlMultiClustersFromTrackstersTrkEM",
-                   "ticlMultiClustersFromTrackstersEM", "ticlMultiClustersFromTrackstersHAD",
-                   "ticlMultiClustersFromSimTracksters"]
-
-simClustersGeneralLabel = 'simClusters'
-layerClustersGeneralLabel = 'hgcalLayerClusters'
-multiclustersGeneralLabel = 'hgcalMultiClusters'
-trackstersGeneralLabel = 'allTiclMultiClusters'
-hitValidationLabel = 'hitValidation'
-hitCalibrationLabel = 'hitCalibration'
-caloParticlesLabel = 'caloParticles'
+hitLabel = 'recHits'
+layerClustersLabel = 'layerClusters'
+trackstersLabel = 'tracksters'
+trackstersWithEdgesLabel = 'trackstersWithEdges'
+simLabel = 'simulation'
 allLabel = 'all'
 
-collection_choices = [layerClustersGeneralLabel]
-collection_choices.extend([simClustersGeneralLabel]+[multiclustersGeneralLabel]+[trackstersGeneralLabel]+[hitValidationLabel]+[hitCalibrationLabel]+[allLabel]+[caloParticlesLabel])
+collection_choices = [allLabel]
+collection_choices.extend([hitLabel]+[layerClustersLabel]+[trackstersLabel]+[trackstersWithEdgesLabel]+[simLabel])
 
 def main(opts):
 
@@ -52,34 +49,34 @@ def main(opts):
     htmlReport = val.createHtmlReport(validationName=opts.html_validation_name[0])   
 
     #layerClusters
-    if (opts.collection == layerClustersGeneralLabel):
+    def plot_LC():
         hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
         hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters", extendedFlag)
         val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
+
     #simClusters
-    elif (opts.collection == simClustersGeneralLabel):
+    def plot_SC():
         hgcsimclus = [hgcalPlots.hgcalSimClustersPlotter]
         for i_iter in simClustersIters:
             hgcalPlots.append_hgcalSimClustersPlots(i_iter, i_iter)
         val.doPlots(hgcsimclus, plotterDrawArgs=drawArgs)
-    #multiClusters
-    elif (opts.collection == multiclustersGeneralLabel):
-        hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
-        hgcalPlots.append_hgcalMultiClustersPlots(multiclustersGeneralLabel, "MultiClusters")
-        val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
-    #ticlTracksters
-    elif (opts.collection == trackstersGeneralLabel):
-        hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
-        for i_iter in trackstersIters :
-            tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
-            hgcalPlots.append_hgcalMultiClustersPlots(i_iter, tracksterCollection)
-        val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
-        # TICLTrackstersEdges plots
-        for i_iter in trackstersIters :
-            tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
+
+    #tracksters
+    def plot_Tst():
+        hgctrackster = [hgcalPlots.hgcalTrackstersPlotter]
+        for tracksterCollection in trackstersIters :
+            hgcalPlots.append_hgcalTrackstersPlots(tracksterCollection, tracksterCollection)
+        val.doPlots(hgctrackster, plotterDrawArgs=drawArgs)
+
+    #trackstersWithEdges
+    def plot_TstEdges():
+        plot_Tst()
+        for tracksterCollection in trackstersIters :
             hgctracksters = [hgcalPlots.create_hgcalTrackstersPlotter(sample.files(), tracksterCollection, tracksterCollection)]
             val.doPlots(hgctracksters, plotterDrawArgs=drawArgs)
-    elif (opts.collection == caloParticlesLabel):
+
+    #caloParticles
+    def plot_CP():
         particletypes = {"pion-":"-211", "pion+":"211", "pion0": "111",
                          "muon-": "-13", "muon+":"13", 
                          "electron-": "-11", "electron+": "11", "photon": "22", 
@@ -89,63 +86,31 @@ def main(opts):
         for i_part, i_partID in particletypes.iteritems() :
             hgcalPlots.append_hgcalCaloParticlesPlots(sample.files(), i_partID, i_part)
         val.doPlots(hgcaloPart, plotterDrawArgs=drawArgs)
+
     #hitValidation
-    elif (opts.collection == hitValidationLabel):
+    def plot_hitVal():
         hgchit = [hgcalPlots.hgcalHitPlotter]
         hgcalPlots.append_hgcalHitsPlots('HGCalSimHitsV', "Simulated Hits")
         hgcalPlots.append_hgcalHitsPlots('HGCalRecHitsV', "Reconstruced Hits")
         hgcalPlots.append_hgcalDigisPlots('HGCalDigisV', "Digis")
         val.doPlots(hgchit, plotterDrawArgs=drawArgs)
+
     #hitCalibration
-    elif (opts.collection == hitCalibrationLabel):
-        hgchitcalib = [hgcalPlots.hgcalHitCalibPlotter]
-        val.doPlots(hgchitcalib, plotterDrawArgs=drawArgs)
-    elif (opts.collection == allLabel):
-        #caloparticles
-        particletypes = {"pion-":"-211", "pion+":"211", "pion0": "111",
-                         "muon-": "-13", "muon+":"13", 
-                         "electron-": "-11", "electron+": "11", "photon": "22", 
-                         "kaon0L": "310", "kaon0S": "130",
-                         "kaon-": "-321", "kaon+": "321"}
-        hgcaloPart = [hgcalPlots.hgcalCaloParticlesPlotter]
-        for i_part, i_partID in particletypes.iteritems() :
-            hgcalPlots.append_hgcalCaloParticlesPlots(sample.files(), i_partID, i_part)
-        val.doPlots(hgcaloPart, plotterDrawArgs=drawArgs)
-
-        #hits
-        hgchit = [hgcalPlots.hgcalHitPlotter]
-        hgcalPlots.append_hgcalHitsPlots('HGCalSimHitsV', "Simulated Hits")
-        hgcalPlots.append_hgcalHitsPlots('HGCalRecHitsV', "Reconstruced Hits")
-        hgcalPlots.append_hgcalDigisPlots('HGCalDigisV', "Digis")
-        val.doPlots(hgchit, plotterDrawArgs=drawArgs)   
-
-        #calib
+    def plot_hitCal():
         hgchitcalib = [hgcalPlots.hgcalHitCalibPlotter]
         val.doPlots(hgchitcalib, plotterDrawArgs=drawArgs)
 
-        #simClusters
-        hgcsimclus = [hgcalPlots.hgcalSimClustersPlotter]
-        for i_iter in simClustersIters :
-            hgcalPlots.append_hgcalSimClustersPlots(i_iter, i_iter)
-        val.doPlots(hgcsimclus, plotterDrawArgs=drawArgs)
 
-        #layer clusters
-        hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter] 
-        hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters", extendedFlag)
-        val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
+    plotDict = {hitLabel:[plot_hitVal, plot_hitCal], layerClustersLabel:[plot_LC], trackstersLabel:[plot_Tst], trackstersWithEdgesLabel:[plot_TstEdges], simLabel:[plot_SC, plot_CP]}
 
-        #multiclusters
-        hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
-        for i_iter in trackstersIters :
-            tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
-            hgcalPlots.append_hgcalMultiClustersPlots(i_iter, tracksterCollection)
-        val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
-        #TICLTrackstersEdges plots
-        for i_iter in trackstersIters :
-            tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
-            hgctracksters = [hgcalPlots.create_hgcalTrackstersPlotter(sample.files(), tracksterCollection, tracksterCollection)]
-            val.doPlots(hgctracksters, plotterDrawArgs=drawArgs)
-
+    if (opts.collection != allLabel):
+        for task in plotDict[opts.collection]:
+            task()
+    else:
+        for label in plotDict:
+            if (label == trackstersLabel): continue # already run in trackstersWithEdges
+            for task in plotDict[label]:
+                task()
 
     if opts.no_html:
         print("Plots created into directory '%s'." % opts.outputDir)
@@ -175,7 +140,7 @@ if __name__ == "__main__":
                         help="Sample name for HTML page generation (default 'Sample')")
     parser.add_argument("--html-validation-name", type=str, default=["",""], nargs="+",
                         help="Validation name for HTML page generation (enters to <title> element) (default '')")
-    parser.add_argument("--collection", choices=collection_choices, default=layerClustersGeneralLabel,
+    parser.add_argument("--collection", choices=collection_choices, default=layerClustersLabel,
                         help="Choose output plots collections among possible choices")    
     parser.add_argument("--extended", action="store_true", default = False,
                         help="Include extended set of plots (e.g. bunch of distributions; default off)")

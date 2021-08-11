@@ -240,14 +240,14 @@ private:
 
   edm::EDGetTokenT<EcalEBTrigPrimDigiCollection> ecalTPEBToken_;
   edm::EDGetTokenT<edm::SortedCollection<HcalTriggerPrimitiveDigi> > hcalTPToken_;
-  edm::ESHandle<CaloTPGTranscoder> decoder_;
+  edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> decoderTag_;
 
   l1tp2::ParametricCalibration calib_;
 
-  edm::ESHandle<CaloGeometry> caloGeometry_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryTag_;
   const CaloSubdetectorGeometry* ebGeometry;
   const CaloSubdetectorGeometry* hbGeometry;
-  edm::ESHandle<HcalTopology> hbTopology;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hbTopologyTag_;
   const HcalTopology* hcTopology_;
 
   struct mycluster {
@@ -341,10 +341,13 @@ L1EGCrystalClusterEmulatorProducer::L1EGCrystalClusterEmulatorProducer(const edm
     : ecalTPEBToken_(consumes<EcalEBTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("ecalTPEB"))),
       hcalTPToken_(
           consumes<edm::SortedCollection<HcalTriggerPrimitiveDigi> >(iConfig.getParameter<edm::InputTag>("hcalTP"))),
-      calib_(iConfig.getParameter<edm::ParameterSet>("calib")) {
+      decoderTag_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>(edm::ESInputTag("", ""))),
+      calib_(iConfig.getParameter<edm::ParameterSet>("calib")),
+      caloGeometryTag_(esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+      hbTopologyTag_(esConsumes<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag("", ""))) {
   produces<l1tp2::CaloCrystalClusterCollection>();
   produces<BXVector<l1t::EGamma> >();
-  produces<l1tp2::CaloTowerCollection>();
+  produces<l1tp2::CaloTowerCollection>("L1CaloTowerCollection");
 }
 
 L1EGCrystalClusterEmulatorProducer::~L1EGCrystalClusterEmulatorProducer() {}
@@ -355,13 +358,14 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
   edm::Handle<EcalEBTrigPrimDigiCollection> pcalohits;
   iEvent.getByToken(ecalTPEBToken_, pcalohits);
 
-  iSetup.get<CaloGeometryRecord>().get(caloGeometry_);
-  ebGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  hbGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-  iSetup.get<HcalRecNumberingRecord>().get(hbTopology);
-  hcTopology_ = hbTopology.product();
+  const auto& caloGeometry = iSetup.getData(caloGeometryTag_);
+  ebGeometry = caloGeometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  hbGeometry = caloGeometry.getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
+  const auto& hbTopology = iSetup.getData(hbTopologyTag_);
+  hcTopology_ = &hbTopology;
   HcalTrigTowerGeometry theTrigTowerGeometry(hcTopology_);
-  iSetup.get<CaloTPGRecord>().get(decoder_);
+
+  const auto& decoder = iSetup.getData(decoderTag_);
 
   //****************************************************************
   //******************* Get all the hits ***************************
@@ -395,7 +399,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
   edm::Handle<edm::SortedCollection<HcalTriggerPrimitiveDigi> > hbhecoll;
   iEvent.getByToken(hcalTPToken_, hbhecoll);
   for (const auto& hit : *hbhecoll.product()) {
-    float et = decoder_->hcaletValue(hit.id(), hit.t0());
+    float et = decoder.hcaletValue(hit.id(), hit.t0());
     if (et <= 0)
       continue;
     if (!(hcTopology_->validHT(hit.id()))) {
@@ -1173,7 +1177,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 
   iEvent.put(std::move(L1EGXtalClusters));
   iEvent.put(std::move(L1EGammas));
-  iEvent.put(std::move(L1CaloTowers));
+  iEvent.put(std::move(L1CaloTowers), "L1CaloTowerCollection");
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_iso(float pt, float iso) {

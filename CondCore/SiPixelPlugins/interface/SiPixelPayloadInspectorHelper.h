@@ -111,7 +111,7 @@ namespace SiPixelPI {
   };
 
   //============================================================================
-  std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
+  inline std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
     auto kLowMask = 0XFFFFFFFF;
     auto run = (since >> 32);
     auto lumi = (since & kLowMask);
@@ -121,7 +121,7 @@ namespace SiPixelPI {
   //============================================================================
   // Taken from pixel naming classes
   // BmO (-z-x) = 1, BmI (-z+x) = 2 , BpO (+z-x) = 3 , BpI (+z+x) = 4
-  int quadrant(const DetId& detid, const TrackerTopology* tTopo_, bool phase_) {
+  inline int quadrant(const DetId& detid, const TrackerTopology* tTopo_, bool phase_) {
     if (detid.subdetId() == PixelSubdetector::PixelBarrel) {
       return PixelBarrelName(detid, tTopo_, phase_).shell();
     } else {
@@ -132,7 +132,7 @@ namespace SiPixelPI {
   //============================================================================
   // Online ladder convention taken from pixel naming class for barrel
   // Apply sign convention (- sign for BmO and BpO)
-  int signed_ladder(const DetId& detid, const TrackerTopology& tTopo_, bool phase_) {
+  inline int signed_ladder(const DetId& detid, const TrackerTopology& tTopo_, bool phase_) {
     if (detid.subdetId() != PixelSubdetector::PixelBarrel)
       return -9999;
     int signed_ladder = PixelBarrelName(detid, &tTopo_, phase_).ladderName();
@@ -144,7 +144,7 @@ namespace SiPixelPI {
   //============================================================================
   // Online mdoule convention taken from pixel naming class for barrel
   // Apply sign convention (- sign for BmO and BmI)
-  int signed_module(const DetId& detid, const TrackerTopology& tTopo_, bool phase_) {
+  inline int signed_module(const DetId& detid, const TrackerTopology& tTopo_, bool phase_) {
     if (detid.subdetId() != PixelSubdetector::PixelBarrel)
       return -9999;
     int signed_module = PixelBarrelName(detid, &tTopo_, phase_).moduleName();
@@ -160,7 +160,7 @@ namespace SiPixelPI {
   //   Panel 1 plq 1-2, Panel 2, plq 1   = Ring 1
   //   Panel 1 plq 3-4, Panel 2, plq 2-3 = Ring 2
   // Phase 1: Using pixel naming class for endcap
-  int ring(const DetId& detid, const TrackerTopology& tTopo_, bool phase_) {
+  inline int ring(const DetId& detid, const TrackerTopology& tTopo_, bool phase_) {
     if (detid.subdetId() != PixelSubdetector::PixelEndcap)
       return -9999;
     int ring = -9999;
@@ -175,7 +175,7 @@ namespace SiPixelPI {
   //============================================================================
   // Online blade convention taken from pixel naming class for endcap
   // Apply sign convention (- sign for BmO and BpO)
-  int signed_blade(const DetId& detid, const TrackerTopology& tTopo_, bool phase_) {
+  inline int signed_blade(const DetId& detid, const TrackerTopology& tTopo_, bool phase_) {
     if (detid.subdetId() != PixelSubdetector::PixelEndcap)
       return -9999;
     int signed_blade = PixelEndcapName(detid, &tTopo_, phase_).bladeName();
@@ -185,7 +185,7 @@ namespace SiPixelPI {
   }
 
   //============================================================================
-  int signed_blade_panel(const DetId& detid, const TrackerTopology& tTopo_, bool phase_) {
+  inline int signed_blade_panel(const DetId& detid, const TrackerTopology& tTopo_, bool phase_) {
     if (detid.subdetId() != PixelSubdetector::PixelEndcap)
       return -9999;
     int signed_blade_panel = signed_blade(detid, tTopo_, phase_) + (tTopo_.pxfPanel(detid) - 1);
@@ -195,7 +195,7 @@ namespace SiPixelPI {
   //============================================================================
   // Online disk convention
   // Apply sign convention (- sign for BmO and BmI)
-  int signed_disk(const DetId& detid, const TrackerTopology& tTopo_, bool phase_) {
+  inline int signed_disk(const DetId& detid, const TrackerTopology& tTopo_, bool phase_) {
     if (detid.subdetId() != PixelSubdetector::PixelEndcap)
       return -9999;
     int signed_disk = tTopo_.pxfDisk(DetId(detid));
@@ -205,7 +205,7 @@ namespace SiPixelPI {
   }
 
   //============================================================================
-  void draw_line(double x1, double x2, double y1, double y2, int width = 2, int style = 1, int color = 1) {
+  inline void draw_line(double x1, double x2, double y1, double y2, int width = 2, int style = 1, int color = 1) {
     TLine* l = new TLine(x1, y1, x2, y2);
     l->SetBit(kCanDelete);
     l->SetLineWidth(width);
@@ -215,14 +215,14 @@ namespace SiPixelPI {
   }
 
   //============================================================================
-  void dress_occup_plot(TCanvas& canv,
-                        TH2* h,
-                        int lay,
-                        int ring = 0,
-                        int phase = 0,
-                        bool half_shift = true,
-                        bool mark_zero = true,
-                        bool standard_palette = true) {
+  inline void dress_occup_plot(TCanvas& canv,
+                               TH2* h,
+                               int lay,
+                               int ring = 0,
+                               int phase = 0,
+                               bool half_shift = true,
+                               bool mark_zero = true,
+                               bool standard_palette = true) {
     std::string s_title;
 
     if (lay > 0) {
@@ -505,7 +505,7 @@ namespace SiPixelPI {
   }
 
   /*--------------------------------------------------------------------*/
-  void adjustCanvasMargins(TVirtualPad* pad, float top, float bottom, float left, float right)
+  inline void adjustCanvasMargins(TVirtualPad* pad, float top, float bottom, float left, float right)
   /*--------------------------------------------------------------------*/
   {
     if (top > 0)
@@ -519,7 +519,7 @@ namespace SiPixelPI {
   }
 
   /*--------------------------------------------------------------------*/
-  void adjustStats(TPaveStats* stats, float X1, float Y1, float X2, float Y2)
+  inline void adjustStats(TPaveStats* stats, float X1, float Y1, float X2, float Y2)
   /*--------------------------------------------------------------------*/
   {
     stats->SetX1NDC(X1);  //new x start position
@@ -529,7 +529,7 @@ namespace SiPixelPI {
   }
 
   /*--------------------------------------------------------------------*/
-  std::pair<float, float> getExtrema(TH1* h1, TH1* h2)
+  inline std::pair<float, float> getExtrema(TH1* h1, TH1* h2)
   /*--------------------------------------------------------------------*/
   {
     float theMax(-9999.);
@@ -545,7 +545,7 @@ namespace SiPixelPI {
   }
 
   /*--------------------------------------------------------------------*/
-  void makeNicePlotStyle(TH1* hist)
+  inline void makeNicePlotStyle(TH1* hist)
   /*--------------------------------------------------------------------*/
   {
     hist->SetStats(kFALSE);
@@ -572,6 +572,7 @@ namespace SiPixelPI {
   }
 
   enum DetType { t_barrel = 0, t_forward = 1, t_all = 2 };
+  const std::array<std::string, 3> DetNames = {{"Barrel", "End Caps", "Whole"}};
 
   enum regions {
     BPixL1o,        //0  Barrel Pixel Layer 1 outer
@@ -592,7 +593,7 @@ namespace SiPixelPI {
   };
 
   /*--------------------------------------------------------------------*/
-  std::string getStringFromRegionEnum(SiPixelPI::regions e)
+  inline std::string getStringFromRegionEnum(SiPixelPI::regions e)
   /*--------------------------------------------------------------------*/
   {
     switch (e) {
@@ -631,7 +632,7 @@ namespace SiPixelPI {
   }
 
   /*--------------------------------------------------------------------*/
-  bool isBPixOuterLadder(const DetId& detid, const TrackerTopology& tTopo, bool isPhase0)
+  inline bool isBPixOuterLadder(const DetId& detid, const TrackerTopology& tTopo, bool isPhase0)
   /*--------------------------------------------------------------------*/
   {
     bool isOuter = false;
@@ -674,7 +675,7 @@ namespace SiPixelPI {
   };
 
   /*--------------------------------------------------------------------*/
-  void topolInfo::printAll()
+  inline void topolInfo::printAll()
   /*--------------------------------------------------------------------*/
   {
     std::cout << " detId:" << m_rawid << " subdetid: " << m_subdetid << " layer: " << m_layer << " side: " << m_side
@@ -682,7 +683,7 @@ namespace SiPixelPI {
   }
 
   /*--------------------------------------------------------------------*/
-  void topolInfo::init()
+  inline void topolInfo::init()
   /*--------------------------------------------------------------------*/
   {
     m_rawid = 0;
@@ -694,7 +695,7 @@ namespace SiPixelPI {
   };
 
   /*--------------------------------------------------------------------*/
-  bool topolInfo::sanityCheck()
+  inline bool topolInfo::sanityCheck()
   /*--------------------------------------------------------------------*/
   {
     if (m_layer == 0 || (m_subdetid == 1 && m_layer > 4) || (m_subdetid == 2 && m_layer > 3)) {
@@ -704,7 +705,7 @@ namespace SiPixelPI {
     }
   }
   /*--------------------------------------------------------------------*/
-  void topolInfo::fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, const SiPixelPI::phase& ph)
+  inline void topolInfo::fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, const SiPixelPI::phase& ph)
   /*--------------------------------------------------------------------*/
   {
     // set the phase
@@ -726,7 +727,7 @@ namespace SiPixelPI {
   // ------------ method to assign a partition based on the topology struct info ---------------
 
   /*--------------------------------------------------------------------*/
-  SiPixelPI::regions topolInfo::filterThePartition()
+  inline SiPixelPI::regions topolInfo::filterThePartition()
   /*--------------------------------------------------------------------*/
   {
     SiPixelPI::regions ret = SiPixelPI::NUM_OF_REGIONS;
@@ -778,7 +779,7 @@ namespace SiPixelPI {
   }
 
   /*--------------------------------------------------------------------*/
-  void displayNotSupported(TCanvas& canv, const unsigned int size)
+  inline void displayNotSupported(TCanvas& canv, const unsigned int size)
   /*--------------------------------------------------------------------*/
   {
     std::string phase = (size < SiPixelPI::phase1size) ? "Phase-0" : "Phase-2";
@@ -805,7 +806,7 @@ namespace SiPixelPI {
   }
 
   /*--------------------------------------------------------------------*/
-  bool checkAnswerOK(std::string& answer, bool& result)
+  inline bool checkAnswerOK(std::string& answer, bool& result)
   /*--------------------------------------------------------------------*/
   {
     std::transform(answer.begin(), answer.end(), answer.begin(), [](unsigned char x) { return ::tolower(x); });

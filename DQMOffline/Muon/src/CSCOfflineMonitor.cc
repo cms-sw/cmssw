@@ -10,7 +10,9 @@ using namespace std;
 ///////////////////
 //  CONSTRUCTOR  //
 ///////////////////
-CSCOfflineMonitor::CSCOfflineMonitor(const edm::ParameterSet& pset) {
+CSCOfflineMonitor::CSCOfflineMonitor(const edm::ParameterSet& pset)
+    : cscGeomToken_(esConsumes<CSCGeometry, MuonGeometryRecord>()),
+      hcrateToken_(esConsumes<CSCCrateMap, CSCCrateMapRcd>()) {
   rd_token = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("FEDRawDataCollectionTag"));
   sd_token = consumes<CSCStripDigiCollection>(pset.getParameter<edm::InputTag>("stripDigiTag"));
   wd_token = consumes<CSCWireDigiCollection>(pset.getParameter<edm::InputTag>("wireDigiTag"));
@@ -817,7 +819,8 @@ void CSCOfflineMonitor::analyze(const edm::Event& event, const edm::EventSetup& 
 
   // Get the CSC Geometry :
   edm::ESHandle<CSCGeometry> cscGeom;
-  eventSetup.get<MuonGeometryRecord>().get(cscGeom);
+
+  cscGeom = eventSetup.getHandle(cscGeomToken_);
 
   // Get the RecHits collection :
   edm::Handle<CSCRecHit2DCollection> recHits;
@@ -1802,7 +1805,9 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts,
   // Loop over raw data to get TMBHeader information
   // Taking code from EventFilter/CSCRawToDigis/CSCDCCUnpacker.cc
   edm::ESHandle<CSCCrateMap> hcrate;
-  eventSetup.get<CSCCrateMapRcd>().get(hcrate);
+
+  hcrate = eventSetup.getHandle(hcrateToken_);
+
   const CSCCrateMap* pcrate = hcrate.product();
 
   // Try to get raw data

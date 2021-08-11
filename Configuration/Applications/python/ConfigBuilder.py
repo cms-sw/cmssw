@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 from __future__ import print_function
 __version__ = "$Revision: 1.19 $"
@@ -6,7 +6,6 @@ __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
-import six
 # The following import is provided for backward compatibility reasons.
 # The function used to be defined in this file.
 from FWCore.ParameterSet.MassReplace import massReplaceInputTag as MassReplaceInputTag
@@ -82,6 +81,8 @@ defaultOptions.lumiToProcess=None
 defaultOptions.fast=False
 defaultOptions.runsAndWeightsForMC = None
 defaultOptions.runsScenarioForMC = None
+defaultOptions.runsAndWeightsForMCIntegerWeights = None
+defaultOptions.runsScenarioForMCIntegerWeights = None
 defaultOptions.runUnscheduled = False
 defaultOptions.timeoutOutput = False
 defaultOptions.nThreads = '1'
@@ -496,6 +497,30 @@ class ConfigBuilder(object):
             self.additionalCommands.append('import SimGeneral.Configuration.ThrowAndSetRandomRun as ThrowAndSetRandomRun')
             self.additionalCommands.append('ThrowAndSetRandomRun.throwAndSetRandomRun(process.source,%s)'%(self.runsAndWeights))
 
+        # modify source in case of run-dependent MC (Run-3 method)
+        self.runsAndWeightsInt=None
+        if self._options.runsAndWeightsForMCIntegerWeights or self._options.runsScenarioForMCIntegerWeights:
+            if not self._options.isMC :
+                raise Exception("options --runsAndWeightsForMCIntegerWeights and --runsScenarioForMCIntegerWeights are only valid for MC")
+            if self._options.runsAndWeightsForMCIntegerWeights:
+                self.runsAndWeightsInt = eval(self._options.runsAndWeightsForMCIntegerWeights)
+            else:
+                from Configuration.StandardSequences.RunsAndWeights import RunsAndWeights
+                if isinstance(RunsAndWeights[self._options.runsScenarioForMCIntegerWeights], str):
+                    __import__(RunsAndWeights[self._options.runsScenarioForMCIntegerWeights])
+                    self.runsAndWeightsInt = sys.modules[RunsAndWeights[self._options.runsScenarioForMCIntegerWeights]].runProbabilityDistribution
+                else:
+                    self.runsAndWeightsInt = RunsAndWeights[self._options.runsScenarioForMCIntegerWeights]
+
+        if self.runsAndWeightsInt:
+            if not self._options.relval:
+                raise Exception("--relval option required when using --runsAndWeightsInt")
+            if 'DATAMIX' in self._options.step:
+                from SimGeneral.Configuration.LumiToRun import lumi_to_run
+                total_events, events_per_job  = self._options.relval.split(',')
+                lumi_to_run_mapping = lumi_to_run(self.runsAndWeightsInt, int(total_events), int(events_per_job))
+                self.additionalCommands.append("process.source.firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID(*[cms.LuminosityBlockID(x,y) for x,y in " + str(lumi_to_run_mapping) + "])")
+
         return
 
     def addOutput(self):
@@ -737,7 +762,9 @@ class ConfigBuilder(object):
                 if ('SIM' in self.stepMap or 'reSIM' in self.stepMap) and not self._options.fast:
                     self.loadAndRemember(self.SimGeometryCFF)
                     if self.geometryDBLabel:
-                        self.executeAndRemember('process.XMLFromDBSource.label = cms.string("%s")'%(self.geometryDBLabel))
+                        self.executeAndRemember('if hasattr(process, "XMLFromDBSource"): process.XMLFromDBSource.label="%s"'%(self.geometryDBLabel))
+                        self.executeAndRemember('if hasattr(process, "DDDetectorESProducerFromDB"): process.DDDetectorESProducerFromDB.label="%s"'%(self.geometryDBLabel))
+
         except ImportError:
             print("Geometry option",self._options.geometry,"unknown.")
             raise
@@ -1512,7 +1539,7 @@ class ConfigBuilder(object):
                 optionsForHLT['type'] = 'HIon'
             else:
                 optionsForHLT['type'] = 'GRun'
-            optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in six.iteritems(optionsForHLT))
+            optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.items())
             if sequence == 'run,fromSource':
                 if hasattr(self.process.source,'firstRun'):
                     self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.firstRun.value()),%s)'%(optionsForHLTConfig))
@@ -1821,7 +1848,7 @@ class ConfigBuilder(object):
             if self._options.restoreRNDSeeds==False and not self._options.restoreRNDSeeds==True:
                 self._options.restoreRNDSeeds=True
 
-        if not 'DIGI' in self.stepMap and not self._options.fast:
+        if not 'DIGI' in self.stepMap and not self._options.isData and not self._options.fast:
             self.executeAndRemember("process.mix.playback = True")
             self.executeAndRemember("process.mix.digitizers = cms.PSet()")
             self.executeAndRemember("for a in process.aliases: delattr(process, a)")
@@ -2235,7 +2262,7 @@ class ConfigBuilder(object):
         self.pythonCfgCode+="from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask\n"
         self.pythonCfgCode+="associatePatAlgosToolsTask(process)\n"
 
-        if self._options.nThreads is not "1":
+        if self._options.nThreads != "1":
             self.pythonCfgCode +="\n"
             self.pythonCfgCode +="#Setup FWK for multithreaded\n"
             self.pythonCfgCode +="process.options.numberOfThreads = "+self._options.nThreads+"\n"

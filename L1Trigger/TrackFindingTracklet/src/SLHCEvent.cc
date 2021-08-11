@@ -1,73 +1,28 @@
 #include "L1Trigger/TrackFindingTracklet/interface/SLHCEvent.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace trklet;
 
-L1SimTrack::L1SimTrack() {
-  eventid_ = -1;
-  trackid_ = -1;
-}
-
-L1SimTrack::L1SimTrack(
-    int eventid, int trackid, int type, double pt, double eta, double phi, double vx, double vy, double vz) {
-  eventid_ = eventid;
-  trackid_ = trackid;
-  type_ = type;
-  pt_ = pt;
-  eta_ = eta;
-  phi_ = phi;
-  vx_ = vx;
-  vy_ = vy;
-  vz_ = vz;
-}
-
-void L1SimTrack::write(ofstream& out) {
-  if (pt_ > -2.0) {
-    out << "SimTrack: " << eventid_ << "\t" << trackid_ << "\t" << type_ << "\t" << pt_ << "\t" << eta_ << "\t" << phi_
-        << "\t" << vx_ << "\t" << vy_ << "\t" << vz_ << "\t" << endl;
-  }
-}
-
-void L1SimTrack::write(ostream& out) {
-  if (pt_ > -2) {
-    out << "SimTrack: " << eventid_ << "\t" << trackid_ << "\t" << type_ << "\t" << pt_ << "\t" << eta_ << "\t" << phi_
-        << "\t" << vx_ << "\t" << vy_ << "\t" << vz_ << "\t" << endl;
-  }
-}
-
 void SLHCEvent::addL1SimTrack(
     int eventid, int trackid, int type, double pt, double eta, double phi, double vx, double vy, double vz) {
-  vx -= x_offset_;
-  vy -= y_offset_;
   L1SimTrack simtrack(eventid, trackid, type, pt, eta, phi, vx, vy, vz);
   simtracks_.push_back(simtrack);
 }
 
-bool SLHCEvent::addStub(int layer,
-                        int ladder,
-                        int module,
-                        int strip,
-                        int eventid,
-                        vector<int> tps,
-                        double pt,
-                        double bend,
+bool SLHCEvent::addStub(string DTClink,
+                        int region,
+                        int layerdisk,
+                        string stubword,
+                        int isPSmodule,
+                        int isFlipped,
                         double x,
                         double y,
                         double z,
-                        int isPSmodule,
-                        int isFlipped) {
-  if (layer > 999 && layer < 1999 && z < 0.0) {
-    layer += 1000;
-  }
-
-  layer--;
-  x -= x_offset_;
-  y -= y_offset_;
-
-  L1TStub stub(
-      eventid, tps, -1, -1, layer, ladder, module, strip, x, y, z, -1.0, -1.0, pt, bend, isPSmodule, isFlipped);
+                        double bend,
+                        double strip,
+                        vector<int> tps) {
+  L1TStub stub(DTClink, region, layerdisk, stubword, isPSmodule, isFlipped, x, y, z, bend, strip, tps);
 
   stubs_.push_back(stub);
   return true;
@@ -76,13 +31,6 @@ bool SLHCEvent::addStub(int layer,
 SLHCEvent::SLHCEvent(istream& in) {
   string tmp;
   in >> tmp;
-  while (tmp == "Map:") {
-    in >> tmp >> tmp >> tmp >> tmp >> tmp >> tmp >> tmp >> tmp;
-    in >> tmp >> tmp >> tmp >> tmp >> tmp >> tmp >> tmp >> tmp;
-  }
-  if (tmp == "EndMap") {
-    in >> tmp;
-  }
   if (tmp != "Event:") {
     edm::LogVerbatim("Tracklet") << "Expected to read 'Event:' but found:" << tmp;
     if (tmp.empty()) {
@@ -105,67 +53,44 @@ SLHCEvent::SLHCEvent(istream& in) {
     int eventid;
     int trackid;
     int type;
-    string pt_str;
-    string eta_str;
-    string phi_str;
-    string vx_str;
-    string vy_str;
-    string vz_str;
     double pt;
     double eta;
     double phi;
     double vx;
     double vy;
     double vz;
-    in >> eventid >> trackid >> type >> pt_str >> eta_str >> phi_str >> vx_str >> vy_str >> vz_str;
-    pt = strtod(pt_str.c_str(), nullptr);
-    eta = strtod(eta_str.c_str(), nullptr);
-    phi = strtod(phi_str.c_str(), nullptr);
-    vx = strtod(vx_str.c_str(), nullptr);
-    vy = strtod(vy_str.c_str(), nullptr);
-    vz = strtod(vz_str.c_str(), nullptr);
-    vx -= x_offset_;
-    vy -= y_offset_;
+    in >> eventid >> trackid >> type >> pt >> eta >> phi >> vx >> vy >> vz;
     L1SimTrack simtrack(eventid, trackid, type, pt, eta, phi, vx, vy, vz);
     simtracks_.push_back(simtrack);
     in >> tmp;
   }
 
-  int oldlayer = 0;
-  int oldladder = 0;
-  int oldmodule = 0;
-  int oldcbc = -1;
-  int count = 1;
-  double oldz = -1000.0;
-
   //read stubs
   in >> tmp;
-  while (tmp != "StubEnd") {
+  while (tmp != "Stubend") {
     if (!in.good()) {
-      edm::LogVerbatim("Tracklet") << "File not good";
+      edm::LogVerbatim("Tracklet") << "File not good (SLHCEvent)";
       abort();
     };
-    if (!(tmp == "Stub:" || tmp == "StubEnd")) {
+    if (!(tmp == "Stub:" || tmp == "Stubend")) {
       edm::LogVerbatim("Tracklet") << "Expected to read 'Stub:' or 'StubEnd' but found:" << tmp;
       abort();
     }
-    int layer;
-    int ladder;
-    int module;
-    int eventid;
-    vector<int> tps;
-    int strip;
-    double pt;
+    string DTClink;
+    int region;
+    int layerdisk;
+    string stubword;
+    int isPSmodule;
+    int isFlipped;
     double x;
     double y;
     double z;
     double bend;
-    int isPSmodule;
-    int isFlipped;
-
+    double strip;
     unsigned int ntps;
+    vector<int> tps;
 
-    in >> layer >> ladder >> module >> strip >> eventid >> pt >> x >> y >> z >> bend >> isPSmodule >> isFlipped >> ntps;
+    in >> DTClink >> region >> layerdisk >> stubword >> isPSmodule >> isFlipped >> x >> y >> z >> bend >> strip >> ntps;
 
     for (unsigned int itps = 0; itps < ntps; itps++) {
       int tp;
@@ -173,36 +98,14 @@ SLHCEvent::SLHCEvent(istream& in) {
       tps.push_back(tp);
     }
 
-    if (layer > 999 && layer < 1999 && z < 0.0) {  //negative disk
-      layer += 1000;
-    }
-
-    int cbc = strip / 126;
-    if (layer > 3 && layer == oldlayer && ladder == oldladder && module == oldmodule && cbc == oldcbc &&
-        std::abs(oldz - z) < 1.0) {
-      count++;
-    } else {
-      oldlayer = layer;
-      oldladder = ladder;
-      oldmodule = module;
-      oldcbc = cbc;
-      oldz = z;
-      count = 1;
-    }
-
-    layer--;
-    x -= x_offset_;
-    y -= y_offset_;
-
-    L1TStub stub(
-        eventid, tps, -1, -1, layer, ladder, module, strip, x, y, z, -1.0, -1.0, pt, bend, isPSmodule, isFlipped);
+    L1TStub stub(DTClink, region, layerdisk, stubword, isPSmodule, isFlipped, x, y, z, bend, strip, tps);
 
     in >> tmp;
 
     double t = std::abs(stub.z()) / stub.r();
     double eta = asinh(t);
 
-    if (std::abs(eta) < 2.6 && count <= 100) {
+    if (std::abs(eta) < 2.6) {
       stubs_.push_back(stub);
     }
   }
@@ -219,21 +122,7 @@ void SLHCEvent::write(ofstream& out) {
   for (auto& stub : stubs_) {
     stub.write(out);
   }
-  out << "StubEnd" << endl;
-}
-
-void SLHCEvent::write(ostream& out) {
-  out << "Event: " << eventnum_ << endl;
-
-  for (auto& simtrack : simtracks_) {
-    simtrack.write(out);
-  }
-  out << "SimTrackEnd" << endl;
-
-  for (auto& stub : stubs_) {
-    stub.write(out);
-  }
-  out << "StubEnd" << endl;
+  out << "Stubend" << endl;
 }
 
 unsigned int SLHCEvent::layersHit(int tpid, int& nlayers, int& ndisks) {
@@ -282,12 +171,4 @@ unsigned int SLHCEvent::layersHit(int tpid, int& nlayers, int& ndisks) {
   ndisks = d1 + d2 + d3 + d4 + d5;
 
   return l1 + 2 * l2 + 4 * l3 + 8 * l4 + 16 * l5 + 32 * l6 + 64 * d1 + 128 * d2 + 256 * d3 + 512 * d4 + 1024 * d5;
-}
-
-int SLHCEvent::getSimtrackFromSimtrackid(int simtrackid, int eventid) const {
-  for (unsigned int i = 0; i < simtracks_.size(); i++) {
-    if (simtracks_[i].trackid() == simtrackid && simtracks_[i].eventid() == eventid)
-      return i;
-  }
-  return -1;
 }

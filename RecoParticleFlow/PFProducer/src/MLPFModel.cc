@@ -1,5 +1,6 @@
 #include "RecoParticleFlow/PFProducer/interface/MLPFModel.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
@@ -148,7 +149,7 @@ namespace reco::mlpf {
   float normalize(float in) {
     if (std::abs(in) > 1e4f) {
       return 0.0;
-    } else if (std::isnan(in)) {
+    } else if (edm::isNotFinite(in)) {
       return 0.0;
     }
     return in;

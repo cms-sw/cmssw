@@ -23,10 +23,8 @@ class SiPixelGainCalibrationOfflineSimService
     : public SiPixelGainCalibrationServicePayloadGetter<SiPixelGainCalibrationOffline,
                                                         SiPixelGainCalibrationOfflineSimRcd> {
 public:
-  explicit SiPixelGainCalibrationOfflineSimService(const edm::ParameterSet& conf)
-      : SiPixelGainCalibrationServicePayloadGetter<SiPixelGainCalibrationOffline, SiPixelGainCalibrationOfflineSimRcd>(
-            conf){};
-  ~SiPixelGainCalibrationOfflineSimService() override{};
+  explicit SiPixelGainCalibrationOfflineSimService(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
+      : SiPixelGainCalibrationServicePayloadGetter(conf, iC){};
 
   // pixel granularity
   float getPedestal(const uint32_t& detID, const int& col, const int& row) override;

@@ -85,9 +85,9 @@ void PixelVertexProducerCUDA::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("chi2max", 9.);   // max normalized distance to cluster
 
   desc.add<double>("PtMin", 0.5);
-  desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("caHitNtupletCUDA"));
+  desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksCUDA"));
 
-  auto label = "pixelVertexCUDA";
+  auto label = "pixelVerticesCUDA";
   descriptions.add(label, desc);
 }
 

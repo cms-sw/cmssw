@@ -14,7 +14,7 @@
  *
  */
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -28,16 +28,18 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
+#include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <vector>
 #include <string>
 
+class DTGeometry;
 class DetLayer;
 class DetId;
 
@@ -65,9 +67,11 @@ private:
 
   edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegmentsToken_;
 
-  edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* dtGeom;
 
-  edm::ESHandle<DTMtime> mTime;
+  edm::ESGetToken<DTMtime, DTMtimeRcd> mTimeToken_;
+  const DTMtime* mTime;
   const DTMtime* mTimeMap_;
 
   std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;

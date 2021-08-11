@@ -4,7 +4,7 @@ process = cms.Process("HFShowerLib")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 #process.load("Geometry.HcalCommonData.hcalforwardshowerLong_cfi")
 process.load("SimG4CMS.ShowerLibraryProducer.hcalforwardshower_cfi")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
+process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
@@ -17,6 +17,7 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.FlatThetaGun=dict()
     process.MessageLogger.HFShower=dict()
     process.MessageLogger.HcalForwardLib=dict()
+    process.MessageLogger.HCalGeom=dict()
     process.MessageLogger.SensitiveDetector=dict()
 
 process.RandomNumberGeneratorService.generator.initialSeed = 12345
@@ -75,6 +76,11 @@ process.g4SimHits.HCalSD.UseShowerLibrary = True
 process.g4SimHits.HCalSD.UseParametrize = False
 process.g4SimHits.HCalSD.UsePMTHits = False
 process.g4SimHits.HCalSD.UseFibreBundleHits = False
+process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
+                             'HFWedgeSensitiveDetector',
+                             'FiberSensitiveDetector',
+                             'HFChamberSensitiveDetector',
+                             'HcalSensitiveDetector']
 
 process.g4SimHits.HFShower.UseShowerLibrary= True
 process.g4SimHits.HFShower.UseR7600UPMT    = True

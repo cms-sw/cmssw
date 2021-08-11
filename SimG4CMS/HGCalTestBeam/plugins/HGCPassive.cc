@@ -4,31 +4,88 @@
 // Description: Main analysis class for HGCal Validation of G4 Hits
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "HGCPassive.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+// to retreive hits
+#include "SimDataFormats/CaloHit/interface/PassiveHit.h"
+
+#include "SimG4Core/Notification/interface/BeginOfEvent.h"
+#include "SimG4Core/Notification/interface/BeginOfRun.h"
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Watcher/interface/SimProducer.h"
+
+#include "G4LogicalVolumeStore.hh"
+#include "G4PhysicalVolumeStore.hh"
+#include "G4Step.hh"
 #include "G4TransportationManager.hh"
+#include "G4TouchableHistory.hh"
+#include "G4Track.hh"
+#include "DD4hep/Filter.h"
 
+#include <array>
 #include <cmath>
-#include <iomanip>
-#include <iostream>
-#include <memory>
-#include <utility>
+#include <map>
+#include <string>
+#include <vector>
 
 //#define EDM_ML_DEBUG
 
-HGCPassive::HGCPassive(const edm::ParameterSet& p) : topPV_(nullptr), topLV_(nullptr), count_(0), init_(false) {
+class HGCPassive : public SimProducer,
+                   public Observer<const BeginOfRun *>,
+                   public Observer<const BeginOfEvent *>,
+                   public Observer<const G4Step *> {
+public:
+  HGCPassive(const edm::ParameterSet &p);
+  HGCPassive(const HGCPassive &) = delete;  // stop default
+  const HGCPassive &operator=(const HGCPassive &) = delete;
+  ~HGCPassive() override;
+
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+private:
+  // observer classes
+  void update(const BeginOfRun *run) override;
+  void update(const BeginOfEvent *evt) override;
+  void update(const G4Step *step) override;
+
+  // void endOfEvent(edm::PassiveHitContainer &HGCEEAbsE);
+  void endOfEvent(edm::PassiveHitContainer &hgcPH, unsigned int k);
+
+  typedef std::map<G4LogicalVolume *, std::pair<unsigned int, std::string>>::iterator volumeIterator;
+  G4VPhysicalVolume *getTopPV();
+  volumeIterator findLV(G4LogicalVolume *plv);
+  void storeInfo(
+      const volumeIterator itr, G4LogicalVolume *plv, unsigned int copy, double time, double energy, bool flag);
+
+private:
+  std::vector<std::string> LVNames_;
+  G4VPhysicalVolume *topPV_;
+  G4LogicalVolume *topLV_;
+  std::map<G4LogicalVolume *, std::pair<unsigned int, std::string>> mapLV_;
+  std::string motherName_;
+  int addlevel_;
+
+  // some private members for ananlysis
+  unsigned int count_;
+  bool init_;
+  std::map<std::pair<G4LogicalVolume *, unsigned int>, std::array<double, 3>> store_;
+};
+
+HGCPassive::HGCPassive(const edm::ParameterSet &p) : topPV_(nullptr), topLV_(nullptr), count_(0), init_(false) {
   edm::ParameterSet m_Passive = p.getParameter<edm::ParameterSet>("HGCPassive");
-  LVNames_ = m_Passive.getParameter<std::vector<std::string> >("LVNames");
+  LVNames_ = m_Passive.getParameter<std::vector<std::string>>("LVNames");
   motherName_ = m_Passive.getParameter<std::string>("MotherName");
+  bool dd4hep = m_Passive.getParameter<bool>("IfDD4Hep");
+  addlevel_ = dd4hep ? 1 : 0;
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "Name of the mother volume " << motherName_;
+  edm::LogVerbatim("HGCSim") << "Name of the mother volume " << motherName_ << " AddLevel " << addlevel_;
   unsigned k(0);
 #endif
-  for (const auto& name : LVNames_) {
+  for (const auto &name : LVNames_) {
     produces<edm::PassiveHitContainer>(Form("%sPassiveHits", name.c_str()));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "Collection name[" << k << "] " << name;
@@ -39,7 +96,7 @@ HGCPassive::HGCPassive(const edm::ParameterSet& p) : topPV_(nullptr), topLV_(nul
 
 HGCPassive::~HGCPassive() {}
 
-void HGCPassive::produce(edm::Event& e, const edm::EventSetup&) {
+void HGCPassive::produce(edm::Event &e, const edm::EventSetup &) {
   for (unsigned int k = 0; k < LVNames_.size(); ++k) {
     std::unique_ptr<edm::PassiveHitContainer> hgcPH(new edm::PassiveHitContainer);
     endOfEvent(*hgcPH, k);
@@ -47,13 +104,13 @@ void HGCPassive::produce(edm::Event& e, const edm::EventSetup&) {
   }
 }
 
-void HGCPassive::update(const BeginOfRun* run) {
+void HGCPassive::update(const BeginOfRun *run) {
   topPV_ = getTopPV();
   if (topPV_ == nullptr) {
     edm::LogWarning("HGCSim") << "Cannot find top level volume\n";
   } else {
     init_ = true;
-    const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
+    const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
     for (auto lvcite : *lvs) {
       findLV(lvcite);
     }
@@ -61,7 +118,7 @@ void HGCPassive::update(const BeginOfRun* run) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCPassive::Finds " << mapLV_.size() << " logical volumes";
     unsigned int k(0);
-    for (const auto& lvs : mapLV_) {
+    for (const auto &lvs : mapLV_) {
       edm::LogVerbatim("HGCSim") << "Entry[" << k << "] " << lvs.first << ": (" << (lvs.second).first << ", "
                                  << (lvs.second).second << ")";
       ++k;
@@ -71,7 +128,7 @@ void HGCPassive::update(const BeginOfRun* run) {
 }
 
 //=================================================================== per EVENT
-void HGCPassive::update(const BeginOfEvent* evt) {
+void HGCPassive::update(const BeginOfEvent *evt) {
   int iev = (*evt)()->GetEventID();
   edm::LogVerbatim("HGCSim") << "HGCPassive: =====> Begin event = " << iev << std::endl;
 
@@ -81,13 +138,14 @@ void HGCPassive::update(const BeginOfEvent* evt) {
 
 // //=================================================================== each
 // STEP
-void HGCPassive::update(const G4Step* aStep) {
+void HGCPassive::update(const G4Step *aStep) {
   if (aStep != nullptr) {
-    G4VSensitiveDetector* curSD = aStep->GetPreStepPoint()->GetSensitiveDetector();
-    const G4VTouchable* touchable = aStep->GetPreStepPoint()->GetTouchable();
+    G4VSensitiveDetector *curSD = aStep->GetPreStepPoint()->GetSensitiveDetector();
+    const G4VTouchable *touchable = aStep->GetPreStepPoint()->GetTouchable();
 
+    int level = (touchable->GetHistoryDepth());
     if (curSD == nullptr) {
-      G4LogicalVolume* plv = touchable->GetVolume()->GetLogicalVolume();
+      G4LogicalVolume *plv = touchable->GetVolume()->GetLogicalVolume();
       auto it = (init_) ? mapLV_.find(plv) : findLV(plv);
       double time = aStep->GetTrack()->GetGlobalTime();
       double energy = (aStep->GetTotalEnergyDeposit()) / CLHEP::GeV;
@@ -96,8 +154,8 @@ void HGCPassive::update(const G4Step* aStep) {
       if (((aStep->GetPostStepPoint() == nullptr) || (aStep->GetTrack()->GetNextVolume() == nullptr)) &&
           (aStep->IsLastStepInVolume())) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCSim") << plv->GetName() << " F|L Step " << aStep->IsFirstStepInVolume() << ":"
-                                   << aStep->IsLastStepInVolume() << " Position"
+        edm::LogVerbatim("HGCSim") << static_cast<std::string>(dd4hep::dd::noNamespace(plv->GetName())) << " F|L Step "
+                                   << aStep->IsFirstStepInVolume() << ":" << aStep->IsLastStepInVolume() << " Position"
                                    << aStep->GetPreStepPoint()->GetPosition() << " Track "
                                    << aStep->GetTrack()->GetDefinition()->GetParticleName() << " at"
                                    << aStep->GetTrack()->GetPosition() << " Volume " << aStep->GetTrack()->GetVolume()
@@ -109,7 +167,9 @@ void HGCPassive::update(const G4Step* aStep) {
         energy += (aStep->GetPreStepPoint()->GetKineticEnergy() / CLHEP::GeV);
       } else {
         time = (aStep->GetPostStepPoint()->GetGlobalTime());
-        copy = (unsigned int)(touchable->GetReplicaNumber(0) + 1000 * touchable->GetReplicaNumber(1));
+        copy = (level < 2)
+                   ? 0
+                   : static_cast<unsigned int>(touchable->GetReplicaNumber(0) + 1000 * touchable->GetReplicaNumber(1));
       }
       if (it != mapLV_.end()) {
         storeInfo(it, plv, copy, time, energy, true);
@@ -122,17 +182,17 @@ void HGCPassive::update(const G4Step* aStep) {
     }  // if (curSD==NULL)
 
     // Now for the mother volumes
-    int level = (touchable->GetHistoryDepth());
     if (level > 0) {
       double energy = (aStep->GetTotalEnergyDeposit()) / CLHEP::GeV;
       double time = (aStep->GetTrack()->GetGlobalTime());
 
       for (int i = level; i > 0; --i) {
-        G4LogicalVolume* plv = touchable->GetVolume(i)->GetLogicalVolume();
+        G4LogicalVolume *plv = touchable->GetVolume(i)->GetLogicalVolume();
         auto it = (init_) ? mapLV_.find(plv) : findLV(plv);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCSim") << "Level: " << level << ":" << i << " " << plv->GetName() << " flag in the List "
-                                   << (it != mapLV_.end());
+        edm::LogVerbatim("HGCSim") << "Level: " << level << ":" << i << " "
+                                   << static_cast<std::string>(dd4hep::dd::noNamespace(plv->GetName()))
+                                   << " flag in the List " << (it != mapLV_.end());
 #endif
         if (it != mapLV_.end()) {
           unsigned int copy =
@@ -148,12 +208,12 @@ void HGCPassive::update(const G4Step* aStep) {
 
 //================================================================ End of EVENT
 
-void HGCPassive::endOfEvent(edm::PassiveHitContainer& hgcPH, unsigned int k) {
+void HGCPassive::endOfEvent(edm::PassiveHitContainer &hgcPH, unsigned int k) {
 #ifdef EDM_ML_DEBUG
   unsigned int kount(0);
 #endif
-  for (const auto& element : store_) {
-    G4LogicalVolume* lv = (element.first).first;
+  for (const auto &element : store_) {
+    G4LogicalVolume *lv = (element.first).first;
     auto it = mapLV_.find(lv);
     if (it != mapLV_.end()) {
       if ((it->second).first == k) {
@@ -169,14 +229,14 @@ void HGCPassive::endOfEvent(edm::PassiveHitContainer& hgcPH, unsigned int k) {
   }
 }
 
-G4VPhysicalVolume* HGCPassive::getTopPV() {
+G4VPhysicalVolume *HGCPassive::getTopPV() {
   return G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
 }
 
-HGCPassive::volumeIterator HGCPassive::findLV(G4LogicalVolume* plv) {
+HGCPassive::volumeIterator HGCPassive::findLV(G4LogicalVolume *plv) {
   auto itr = mapLV_.find(plv);
   if (itr == mapLV_.end()) {
-    std::string name = plv->GetName();
+    std::string name = static_cast<std::string>(dd4hep::dd::noNamespace(plv->GetName()));
     for (unsigned int k = 0; k < LVNames_.size(); ++k) {
       if (name.find(LVNames_[k]) != std::string::npos) {
         mapLV_[plv] = std::pair<unsigned int, std::string>(k, name);
@@ -186,19 +246,19 @@ HGCPassive::volumeIterator HGCPassive::findLV(G4LogicalVolume* plv) {
     }
   }
   if (topLV_ == nullptr) {
-    if (std::string(plv->GetName()) == motherName_)
+    if (static_cast<std::string>(dd4hep::dd::noNamespace(plv->GetName())) == motherName_)
       topLV_ = plv;
   }
   return itr;
 }
 
 void HGCPassive::storeInfo(const HGCPassive::volumeIterator it,
-                           G4LogicalVolume* plv,
+                           G4LogicalVolume *plv,
                            unsigned int copy,
                            double time,
                            double energy,
                            bool flag) {
-  std::pair<G4LogicalVolume*, unsigned int> key(plv, copy);
+  std::pair<G4LogicalVolume *, unsigned int> key(plv, copy);
   auto itr = store_.find(key);
   double ee = (flag) ? energy : 0;
   if (itr == store_.end()) {
@@ -214,5 +274,8 @@ void HGCPassive::storeInfo(const HGCPassive::volumeIterator it,
                              << (itr->second)[2];
 #endif
 }
+
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 DEFINE_SIMWATCHER(HGCPassive);

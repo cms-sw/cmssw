@@ -75,46 +75,44 @@ std::pair<bool, TrajectoryStateOnSurface> GeomDetCompatibilityChecker::isCompati
   bool isIn = false;
   float sagitta = 99999999.0f;
   bool close = false;
-  if
-    LIKELY(sagCut > 0) {
-      // linear approximation
-      auto const& plane = theDet->specificSurface();
-      StraightLinePlaneCrossing crossing(
-          tsos.globalPosition().basicVector(), tsos.globalMomentum().basicVector(), prop.propagationDirection());
-      auto path = crossing.pathLength(plane);
-      isIn = path.first;
-      if
-        UNLIKELY(!path.first) stat.ns1++;
-      else {
-        auto gpos = GlobalPoint(crossing.position(path.second));
-        auto tpath2 = (gpos - tsos.globalPosition()).perp2();
-        // sagitta = d^2*c/2
-        sagitta = 0.5f * std::abs(tpath2 * tsos.globalParameters().transverseCurvature());
-        close = sagitta < sagCut;
-        LogDebug("TkDetLayer") << "GeomDetCompatibilityChecker: sagitta " << sagitta << std::endl;
-        if (close) {
-          stat.nth++;
-          auto pos = plane.toLocal(GlobalPoint(crossing.position(path.second)));
-          // auto toll = LocalError(tolerance2,0,tolerance2);
-          auto tollL2 = std::max(sagitta * sagitta, minTol2);
-          auto toll = LocalError(tollL2, 0, tollL2);
-          isIn = plane.bounds().inside(pos, toll);
-          if (!isIn) {
-            stat.ns2++;
-            LogDebug("TkDetLayer") << "GeomDetCompatibilityChecker: not in " << pos << std::endl;
-            return std::make_pair(false, TrajectoryStateOnSurface());
-          }
+  if LIKELY (sagCut > 0) {
+    // linear approximation
+    auto const& plane = theDet->specificSurface();
+    StraightLinePlaneCrossing crossing(
+        tsos.globalPosition().basicVector(), tsos.globalMomentum().basicVector(), prop.propagationDirection());
+    auto path = crossing.pathLength(plane);
+    isIn = path.first;
+    if UNLIKELY (!path.first)
+      stat.ns1++;
+    else {
+      auto gpos = GlobalPoint(crossing.position(path.second));
+      auto tpath2 = (gpos - tsos.globalPosition()).perp2();
+      // sagitta = d^2*c/2
+      sagitta = 0.5f * std::abs(tpath2 * tsos.globalParameters().transverseCurvature());
+      close = sagitta < sagCut;
+      LogDebug("TkDetLayer") << "GeomDetCompatibilityChecker: sagitta " << sagitta << std::endl;
+      if (close) {
+        stat.nth++;
+        auto pos = plane.toLocal(GlobalPoint(crossing.position(path.second)));
+        // auto toll = LocalError(tolerance2,0,tolerance2);
+        auto tollL2 = std::max(sagitta * sagitta, minTol2);
+        auto toll = LocalError(tollL2, 0, tollL2);
+        isIn = plane.bounds().inside(pos, toll);
+        if (!isIn) {
+          stat.ns2++;
+          LogDebug("TkDetLayer") << "GeomDetCompatibilityChecker: not in " << pos << std::endl;
+          return std::make_pair(false, TrajectoryStateOnSurface());
         }
       }
     }
+  }
 
   // precise propagation
   TrajectoryStateOnSurface&& propSt = prop.propagate(tsos, theDet->specificSurface());
-  if
-    UNLIKELY(!propSt.isValid()) {
-      stat.nf1++;
-      return std::make_pair(false, std::move(propSt));
-    }
+  if UNLIKELY (!propSt.isValid()) {
+    stat.nf1++;
+    return std::make_pair(false, std::move(propSt));
+  }
 
   auto es = est.estimate(propSt, theDet->specificSurface());
   if (!es)

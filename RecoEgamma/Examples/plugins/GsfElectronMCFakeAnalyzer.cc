@@ -38,7 +38,6 @@
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
-#include "TMath.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH1I.h"
@@ -2259,8 +2258,8 @@ void GsfElectronMCFakeAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
       if (!bestGsfElectron.ecalDrivenSeed() && bestGsfElectron.trackerDrivenSeed())
         sclRef = bestGsfElectron.parentSuperCluster();
       histSclEn_->Fill(sclRef->energy());
-      double R = TMath::Sqrt(sclRef->x() * sclRef->x() + sclRef->y() * sclRef->y() + sclRef->z() * sclRef->z());
-      double Rt = TMath::Sqrt(sclRef->x() * sclRef->x() + sclRef->y() * sclRef->y());
+      double R = std::sqrt(sclRef->x() * sclRef->x() + sclRef->y() * sclRef->y() + sclRef->z() * sclRef->z());
+      double Rt = std::sqrt(sclRef->x() * sclRef->x() + sclRef->y() * sclRef->y());
       histSclEt_->Fill(sclRef->energy() * (Rt / R));
       histSclEtVsEta_->Fill(sclRef->eta(), sclRef->energy() * (Rt / R));
       histSclEtVsPhi_->Fill(sclRef->phi(), sclRef->energy() * (Rt / R));
@@ -2578,12 +2577,12 @@ void GsfElectronMCFakeAnalyzer::analyze(const edm::Event &iEvent, const edm::Eve
 
       h_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
       h_ele_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
-      h_ele_hcalDepth1TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalDepth1TowerSumEt());
-      h_ele_hcalDepth2TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalDepth2TowerSumEt());
+      h_ele_hcalDepth1TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt(1));
+      h_ele_hcalDepth2TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt(2));
       h_ele_tkSumPt_dr04->Fill(bestGsfElectron.dr04TkSumPt());
       h_ele_ecalRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
-      h_ele_hcalDepth1TowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalDepth1TowerSumEt());
-      h_ele_hcalDepth2TowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalDepth2TowerSumEt());
+      h_ele_hcalDepth1TowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalTowerSumEt(1));
+      h_ele_hcalDepth2TowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalTowerSumEt(2));
 
     }  // gsf electron found
 

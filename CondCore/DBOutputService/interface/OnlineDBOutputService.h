@@ -84,6 +84,7 @@ namespace cond {
       std::string m_omsServiceUrl;
       std::string m_lastLumiFile;
       std::string m_preLoadConnectionString;
+      std::string m_frontierKey;
       bool m_debug;
 
     };  //OnlineDBOutputService

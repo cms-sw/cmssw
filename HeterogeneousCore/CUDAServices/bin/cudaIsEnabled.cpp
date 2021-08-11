@@ -1,10 +1,13 @@
-#include <algorithm>
-#include <array>
+// C/C++ headers
 #include <cstdlib>
-#include <iostream>
 
+// CUDA headers
 #include <cuda_runtime.h>
 
+// local headers
+#include "isCudaDeviceSupported.h"
+
+// returns EXIT_SUCCESS if at least one visible CUDA device can be used, or EXIT_FAILURE otherwise
 int main() {
   int devices = 0;
   auto status = cudaGetDeviceCount(&devices);
@@ -12,20 +15,12 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  int minimumMajor = 6;  // min minor is implicitly 0
-
-  // This approach (requiring all devices are supported) is rather
-  // conservative. In principle we could consider just dropping the
-  // unsupported devices. Currently that would be easiest to achieve
-  // in CUDAService though.
+  // check that at least one visible CUDA device can be used
   for (int i = 0; i < devices; ++i) {
-    cudaDeviceProp properties;
-    cudaGetDeviceProperties(&properties, i);
-
-    if ((not(properties.major == 3 and properties.minor == 5)) and properties.major < minimumMajor) {
-      return EXIT_FAILURE;
-    }
+    if (isCudaDeviceSupported(i))
+      return EXIT_SUCCESS;
   }
 
-  return EXIT_SUCCESS;
+  // no visible usable devices
+  return EXIT_FAILURE;
 }

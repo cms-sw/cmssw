@@ -15,10 +15,13 @@
 //
 
 // user include files
+#include "CondFormats/DataRecord/interface/SiPhase2OuterTrackerLorentzAngleRcd.h"
+#include "CondFormats/SiPhase2TrackerObjects/interface/SiPhase2OuterTrackerLorentzAngle.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "CalibTracker/SiPhase2TrackerESProducers/interface/SiPhase2OuterTrackerFakeLorentzAngleESSource.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerNumberingBuilder/interface/utils.h"
 //
 // constructors and destructor

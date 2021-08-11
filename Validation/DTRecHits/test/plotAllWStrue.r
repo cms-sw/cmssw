@@ -2,7 +2,7 @@ void plotAllWStrue(TString filename, int sector, int sl){
   
 
   if (! TString(gSystem->GetLibraries()).Contains("Histograms_h")) {
-    gROOT->LoadMacro("$CMSSW_BASE/src/Validation/DTRecHits/test/Histograms.h+"); 
+    gROOT->LoadMacro("$CMSSW_BASE/src/Validation/DTRecHits/interface/Histograms.h+"); 
      gROOT->LoadMacro("macros.C");
      gROOT->LoadMacro("ranges.C+");
      gROOT->LoadMacro("summaryPlot.C+");

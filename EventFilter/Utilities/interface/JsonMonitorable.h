@@ -33,11 +33,11 @@ namespace jsoncollector {
 
     unsigned int getUpdates() { return updates_; }
 
-    bool getNotSame() { return notSame_; }
+    bool getNotSame() const { return notSame_; }
 
     virtual void setName(std::string name) { name_ = name; }
 
-    virtual std::string& getName() { return name_; }
+    virtual std::string const& getName() const { return name_; }
 
   protected:
     std::string name_;
@@ -86,6 +86,7 @@ namespace jsoncollector {
       notSame_ = false;
     }
     long& value() { return theVar_; }
+    long value() const { return theVar_; }
 
     void update(long sth) {
       theVar_ = sth;
@@ -126,6 +127,7 @@ namespace jsoncollector {
       notSame_ = false;
     }
     double& value() { return theVar_; }
+    double value() const { return theVar_; }
     void update(double sth) {
       theVar_ = sth;
       if (updates_ && theVar_ != sth)
@@ -155,6 +157,7 @@ namespace jsoncollector {
       notSame_ = false;
     }
     std::string& value() { return theVar_; }
+    std::string const& value() const { return theVar_; }
     void concatenate(std::string const& added) {
       if (!updates_)
         theVar_ = added;
@@ -219,13 +222,14 @@ namespace jsoncollector {
       histo_.reserve(expectedSize_);
       updates_ = 0;
     }
-    void operator=(std::vector<T>& sth) { histo_ = sth; }
+    void operator=(std::vector<T> const& sth) { histo_ = sth; }
 
     std::vector<T>& value() { return histo_; }
+    std::vector<T> const& value() const { return histo_; }
 
-    unsigned int getExpectedSize() { return expectedSize_; }
+    unsigned int getExpectedSize() const { return expectedSize_; }
 
-    unsigned int getMaxUpdates() { return maxUpdates_; }
+    unsigned int getMaxUpdates() const { return maxUpdates_; }
 
     void setMaxUpdates(unsigned int maxUpdates) {
       maxUpdates_ = maxUpdates;
@@ -240,7 +244,7 @@ namespace jsoncollector {
         histo_.reserve(expectedSize_);
     }
 
-    unsigned int getSize() { return histo_.size(); }
+    unsigned int getSize() const { return histo_.size(); }
 
     void update(T val) {
       if (maxUpdates_ && updates_ >= maxUpdates_)

@@ -62,11 +62,11 @@ template <typename T1>
 TrackMergeremb<T1>::TrackMergeremb(const edm::ParameterSet& iConfig) {
   std::string alias(iConfig.getParameter<std::string>("@module_label"));
   std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag> >("mergCollections");
-  for (auto inCollection : inCollections) {
+  for (const auto& inCollection : inCollections) {
     inputs_[inCollection.instance()].push_back(consumes<TrackCollectionemb>(inCollection));
   }
   willconsume(iConfig);
-  for (auto toproduce : inputs_) {
+  for (const auto& toproduce : inputs_) {
     willproduce(toproduce.first, alias);
   }
 }

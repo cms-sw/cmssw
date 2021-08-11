@@ -48,6 +48,14 @@ Dy1D = cms.PSet(
     xmin = cms.double(-150),
     xmax = cms.double(150)
     )
+Dxy2D = cms.PSet(
+    Nxbins = cms.int32(Nx),
+    Nybins = cms.int32(Ny),
+    xmin   = cms.double(-50),
+    xmax   = cms.double(50),
+    ymin   = cms.double(-150),
+    ymax   = cms.double(150)
+    )
 SimClusterCharge = cms.PSet(
     Nxbins = cms.int32(300),
     Nybins = cms.int32(201),
@@ -109,6 +117,7 @@ Dy = cms.PSet(
 
 dqmcell = DQMEDAnalyzer('PixelTestBeamValidation',
     # WARNING: be sure it is the same value used with the Pixel3DDigitizer
+    ThresholdInElectrons = cms.double(1000.0),
     ElectronsPerADC   = cms.double(1600.0),
     TracksEntryAngleX = cms.untracked.vdouble(-np.radians(2.0),np.radians(2.0)),
     TracksEntryAngleY = cms.untracked.vdouble(-np.radians(2.0),np.radians(2.0)),
@@ -143,6 +152,7 @@ dqmcell = DQMEDAnalyzer('PixelTestBeamValidation',
     DigiRZ = TrackRZ.clone(),
     Dx1D = Dx1D.clone(),
     Dy1D = Dy1D.clone(),
+    Dxy2D = Dxy2D.clone(),
     DigiCharge1D = DigiCharge1D.clone(),
     SimClusterCharge = SimClusterCharge.clone(),
 

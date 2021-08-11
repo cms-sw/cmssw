@@ -13,7 +13,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
-#include "Geometry/DTGeometryBuilder/src/DTGeometryParsFromDD.h"
+#include "Geometry/DTGeometryBuilder/interface/DTGeometryParsFromDD.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"

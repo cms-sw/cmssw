@@ -67,12 +67,14 @@ void CSCWireDigi::print() const {
       << " BX # " << getWireGroupBX() << " | "
       << " BX + Wire " << std::hex << getBXandWireGroup() << " | " << std::dec << " First Time Bin On " << getTimeBin()
       << " | Time Bins On ";
-  std::copy(getTimeBinsOn().begin(), getTimeBinsOn().end(), std::ostream_iterator<int>(ost, " "));
+  std::vector<int> tbins = getTimeBinsOn();
+  std::copy(tbins.begin(), tbins.end(), std::ostream_iterator<int>(ost, " "));
   edm::LogVerbatim("CSCDigi") << ost.str();
 }
 
 std::ostream& operator<<(std::ostream& o, const CSCWireDigi& digi) {
   o << " CSCWireDigi wg: " << digi.getWireGroup() << ", First Time Bin On: " << digi.getTimeBin() << ", Time Bins On: ";
-  std::copy(digi.getTimeBinsOn().begin(), digi.getTimeBinsOn().end(), std::ostream_iterator<int>(o, " "));
+  std::vector<int> tbins = digi.getTimeBinsOn();
+  std::copy(tbins.begin(), tbins.end(), std::ostream_iterator<int>(o, " "));
   return o;
 }

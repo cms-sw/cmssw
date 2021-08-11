@@ -36,6 +36,7 @@ void L1TdeGEMTPG::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run&, co
                                     ")");
         chamberHistos[iType][key] =
             iBooker.book1D(histName, histTitle, clusterNBin_[iVar], clusterMinBin_[iVar], clusterMaxBin_[iVar]);
+        chamberHistos[iType][key]->getTH1()->SetMinimum(0);
       }
     }
   }

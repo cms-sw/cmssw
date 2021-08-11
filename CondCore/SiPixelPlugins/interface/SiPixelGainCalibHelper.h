@@ -38,6 +38,7 @@ namespace gainCalibHelper {
   namespace gainCalibPI {
 
     enum type { t_gain = 0, t_pedestal = 1, t_correlation = 2 };
+    static const std::array<std::string, 3> t_titles = {{"gain", "pedestal", "correlation"}};
 
     //===========================================================================
     // helper method to fill the ratio and diff distributions
@@ -1351,11 +1352,11 @@ namespace gainCalibHelper {
   /************************************************
    occupancy style map BPix
   *************************************************/
-  template <gainCalibPI::type myType, class PayloadType>
-  class SiPixelGainCalibrationBPIXMap
+  template <gainCalibPI::type myType, class PayloadType, SiPixelPI::DetType myDetType>
+  class SiPixelGainCalibrationMap
       : public cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV> {
   public:
-    SiPixelGainCalibrationBPIXMap()
+    SiPixelGainCalibrationMap()
         : cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV>(
               Form("SiPixelGainCalibration %s Barrel Pixel Map", TypeName[myType])),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
@@ -1370,13 +1371,17 @@ namespace gainCalibHelper {
     };
 
     bool fill() override {
+      TGaxis::SetMaxDigits(2);
+
       auto tag = cond::payloadInspector::PlotBase::getTag<0>();
+      auto tagname = tag.name;
       auto iov = tag.iovs.front();
 
       std::shared_ptr<PayloadType> payload = this->fetchPayload(std::get<1>(iov));
 
-      Phase1PixelROCMaps theBPixGainsMap("");
-      static constexpr int n_layers = 4;
+      std::string ztitle =
+          fmt::sprintf("average per %s %s", isForHLT_ ? "column" : "pixel", gainCalibPI::t_titles[myType]);
+      Phase1PixelROCMaps theGainsMap("", ztitle);
 
       std::map<uint32_t, float> GainCalibMap_;
       gainCalibPI::fillThePerModuleMap(payload, GainCalibMap_, myType);
@@ -1390,163 +1395,93 @@ namespace gainCalibHelper {
       }
 
       // hard-coded phase-I
-      std::array<double, n_layers> minima = {{999., 999., 999., 999.}};
+      std::array<double, n_layers> b_minima = {{999., 999., 999., 999.}};
+      std::array<double, n_rings> f_minima = {{999., 999.}};
 
       for (const auto& element : GainCalibMap_) {
         int subid = DetId(element.first).subdetId();
         if (subid == PixelSubdetector::PixelBarrel) {
           auto layer = m_trackerTopo.pxbLayer(DetId(element.first));
-
-          if (element.second < minima.at(layer - 1))
-            minima.at(layer - 1) = element.second;
-
-          theBPixGainsMap.fillWholeModule(element.first, element.second);
-        }
-      }
-
-      gStyle->SetOptStat(0);
-      //=========================
-      TCanvas canvas("Summary", "Summary", 1200, 1200);
-      theBPixGainsMap.drawBarrelMaps(canvas);
-
-      for (unsigned int lay = 1; lay <= n_layers; lay++) {
-        SiPixelPI::adjustCanvasMargins(canvas.cd(lay), -1, 0.08, 0.1, 0.13);
-
-        auto h_bpix_Gains = theBPixGainsMap.getLayerMaps();
-
-        COUT << " layer:" << lay << " max:" << h_bpix_Gains[lay - 1]->GetMaximum() << " min: " << minima.at(lay - 1)
-             << std::endl;
-
-        h_bpix_Gains[lay - 1]->GetZaxis()->SetRangeUser(minima.at(lay - 1) - 0.001,
-                                                        h_bpix_Gains[lay - 1]->GetMaximum() + 0.001);
-      }
-
-      auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
-
-      for (unsigned int lay = 1; lay <= n_layers; lay++) {
-        canvas.cd(lay);
-        auto ltx = TLatex();
-        ltx.SetTextFont(62);
-        ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.055);
-        ltx.SetTextAlign(11);
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.01,
-                         unpacked.first == 0
-                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
-                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
-      }
-
-      std::string fileName(this->m_imageFileName);
-      canvas.SaveAs(fileName.c_str());
-
-      return true;
-    }
-
-  private:
-    TrackerTopology m_trackerTopo;
-
-  protected:
-    bool isForHLT_;
-    std::string label_;
-  };
-
-  /************************************************
-   occupancy style map FPix
-  *************************************************/
-
-  template <gainCalibPI::type myType, class PayloadType>
-  class SiPixelGainCalibrationFPIXMap
-      : public cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV> {
-  public:
-    SiPixelGainCalibrationFPIXMap()
-        : cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV>(
-              Form("SiPixelGainCalibration %s Forward Pixel Map", TypeName[myType])),
-          m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
-      if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
-        isForHLT_ = false;
-        label_ = "SiPixelGainCalibrationOffline_PayloadInspector";
-      } else {
-        isForHLT_ = true;
-        label_ = "SiPixelGainCalibrationForHLT_PayloadInspector";
-      }
-    }
-
-    bool fill() override {
-      auto tag = cond::payloadInspector::PlotBase::getTag<0>();
-      auto iov = tag.iovs.front();
-      std::shared_ptr<PayloadType> payload = this->fetchPayload(std::get<1>(iov));
-
-      Phase1PixelROCMaps theFPixGainsMap("");
-      static constexpr int n_rings = 2;
-
-      std::map<uint32_t, float> GainCalibMap_;
-      gainCalibPI::fillThePerModuleMap(payload, GainCalibMap_, myType);
-      if (GainCalibMap_.size() != SiPixelPI::phase1size) {
-        edm::LogError(label_) << "SiPixelGainCalibration maps are not supported for non-Phase1 Pixel geometries !";
-        TCanvas canvas("Canv", "Canv", 1200, 1000);
-        SiPixelPI::displayNotSupported(canvas, GainCalibMap_.size());
-        std::string fileName(this->m_imageFileName);
-        canvas.SaveAs(fileName.c_str());
-        return false;
-      }
-
-      // hardcoded phase-I
-      std::array<double, n_rings> minima = {{999., 999.}};
-
-      for (const auto& element : GainCalibMap_) {
-        int subid = DetId(element.first).subdetId();
-        if (subid == PixelSubdetector::PixelEndcap) {
+          if (element.second < b_minima.at(layer - 1)) {
+            b_minima.at(layer - 1) = element.second;
+          }
+          theGainsMap.fillWholeModule(element.first, element.second);
+        } else if (subid == PixelSubdetector::PixelEndcap) {
           auto ring = SiPixelPI::ring(DetId(element.first), m_trackerTopo, true);
-
-          if (element.second < minima.at(ring - 1))
-            minima.at(ring - 1) = element.second;
-
-          theFPixGainsMap.fillWholeModule(element.first, element.second);
+          if (element.second < f_minima.at(ring - 1)) {
+            f_minima.at(ring - 1) = element.second;
+          }
+          theGainsMap.fillWholeModule(element.first, element.second);
         }
       }
 
       gStyle->SetOptStat(0);
       //=========================
-      TCanvas canvas("Summary", "Summary", 1200, 600);
-      theFPixGainsMap.drawForwardMaps(canvas);
-
-      for (unsigned int ring = 1; ring <= n_rings; ring++) {
-        SiPixelPI::adjustCanvasMargins(canvas.cd(ring), -1, 0.08, 0.1, 0.13);
-
-        auto h_fpix_Gains = theFPixGainsMap.getRingMaps();
-
-        COUT << " ring:" << ring << " max:" << h_fpix_Gains[ring - 1]->GetMaximum() << " min: " << minima.at(ring - 1)
-             << std::endl;
-
-        h_fpix_Gains[ring - 1]->GetZaxis()->SetRangeUser(minima.at(ring - 1) - 0.001,
-                                                         h_fpix_Gains[ring - 1]->GetMaximum() + 0.001);
-      }
+      TCanvas canvas("Summary", "Summary", 1200, k_height[myDetType]);
+      canvas.cd();
 
       auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
 
-      for (unsigned int ring = 1; ring <= n_rings; ring++) {
-        canvas.cd(ring);
-        auto ltx = TLatex();
-        ltx.SetTextFont(62);
-        ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.05);
-        ltx.SetTextAlign(11);
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.01,
-                         unpacked.first == 0
-                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
-                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+      std::string IOVstring = (unpacked.first == 0)
+                                  ? std::to_string(unpacked.second)
+                                  : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second));
+
+      const auto headerText = fmt::sprintf("#color[4]{%s},  IOV: #color[4]{%s}", tagname, IOVstring);
+
+      switch (myDetType) {
+        case SiPixelPI::t_barrel:
+          theGainsMap.drawBarrelMaps(canvas, headerText);
+          break;
+        case SiPixelPI::t_forward:
+          theGainsMap.drawForwardMaps(canvas, headerText);
+          break;
+        case SiPixelPI::t_all:
+          theGainsMap.drawMaps(canvas, headerText);
+          break;
+        default:
+          throw cms::Exception("SiPixelGainCalibrationMap")
+              << "\nERROR: unrecognized Pixel Detector part " << std::endl;
+      }
+
+      if (myDetType == SiPixelPI::t_barrel || myDetType == SiPixelPI::t_all) {
+        for (unsigned int lay = 1; lay <= n_layers; lay++) {
+          //SiPixelPI::adjustCanvasMargins(canvas.cd(lay), -1, 0.08, 0.1, 0.13);
+
+          auto h_bpix_Gains = theGainsMap.getLayerMaps();
+
+          COUT << " layer:" << lay << " max:" << h_bpix_Gains[lay - 1]->GetMaximum() << " min: " << b_minima.at(lay - 1)
+               << std::endl;
+
+          h_bpix_Gains[lay - 1]->GetZaxis()->SetRangeUser(b_minima.at(lay - 1) - 0.001,
+                                                          h_bpix_Gains[lay - 1]->GetMaximum() + 0.001);
+        }
+      }
+
+      if (myDetType == SiPixelPI::t_forward || myDetType == SiPixelPI::t_all) {
+        for (unsigned int ring = 1; ring <= n_rings; ring++) {
+          //SiPixelPI::adjustCanvasMargins(canvas.cd(ring), -1, 0.08, 0.1, 0.13);
+
+          auto h_fpix_Gains = theGainsMap.getRingMaps();
+
+          COUT << " ring:" << ring << " max:" << h_fpix_Gains[ring - 1]->GetMaximum()
+               << " min: " << f_minima.at(ring - 1) << std::endl;
+
+          h_fpix_Gains[ring - 1]->GetZaxis()->SetRangeUser(f_minima.at(ring - 1) - 0.001,
+                                                           h_fpix_Gains[ring - 1]->GetMaximum() + 0.001);
+        }
       }
 
       std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
+
       return true;
     }
 
   private:
     TrackerTopology m_trackerTopo;
+    static constexpr std::array<int, 3> k_height = {{1200, 600, 1600}};
+    static constexpr int n_layers = 4;
+    static constexpr int n_rings = 2;
 
   protected:
     bool isForHLT_;

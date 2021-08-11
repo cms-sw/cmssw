@@ -44,6 +44,7 @@ private:
   /// Takes over memory uresponsibility for 'bitsToWrite'.
   void writeBitsToDB(AlCaRecoTriggerBits *bitsToWrite) const;
 
+  edm::ESGetToken<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd> triggerBitsToken_;
   unsigned int nEventCalls_;
   const unsigned int firstRunIOV_;
   const int lastRunIOV_;
@@ -58,7 +59,8 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 AlCaRecoTriggerBitsRcdUpdate::AlCaRecoTriggerBitsRcdUpdate(const edm::ParameterSet &cfg)
-    : nEventCalls_(0),
+    : triggerBitsToken_(esConsumes()),
+      nEventCalls_(0),
       firstRunIOV_(cfg.getParameter<unsigned int>("firstRunIOV")),
       lastRunIOV_(cfg.getParameter<int>("lastRunIOV")),
       startEmpty_(cfg.getParameter<bool>("startEmpty")),
@@ -98,8 +100,7 @@ AlCaRecoTriggerBitsRcdUpdate::createStartTriggerBits(bool startEmpty, const edm:
   if (startEmpty) {
     return new AlCaRecoTriggerBits;
   } else {
-    edm::ESHandle<AlCaRecoTriggerBits> triggerBits;
-    evtSetup.get<AlCaRecoTriggerBitsRcd>().get(triggerBits);
+    const auto &triggerBits = &evtSetup.getData(triggerBitsToken_);
     return new AlCaRecoTriggerBits(*triggerBits);  // copy old one
   }
 }

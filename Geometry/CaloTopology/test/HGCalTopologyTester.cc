@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,6 +34,7 @@ private:
   // ----------member data ---------------------------
   const std::string detectorName_;
   const std::vector<int> type_, layer_, sec1_, sec2_, cell1_, cell2_;
+  const edm::ESGetToken<HGCalTopology, IdealGeometryRecord> tokTopo_;
 };
 
 HGCalTopologyTester::HGCalTopologyTester(const edm::ParameterSet& iC)
@@ -44,7 +44,8 @@ HGCalTopologyTester::HGCalTopologyTester(const edm::ParameterSet& iC)
       sec1_(iC.getParameter<std::vector<int> >("sector1")),
       sec2_(iC.getParameter<std::vector<int> >("sector2")),
       cell1_(iC.getParameter<std::vector<int> >("cell1")),
-      cell2_(iC.getParameter<std::vector<int> >("cell2")) {}
+      cell2_(iC.getParameter<std::vector<int> >("cell2")),
+      tokTopo_{esConsumes<HGCalTopology, IdealGeometryRecord>(edm::ESInputTag{"", detectorName_})} {}
 
 void HGCalTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -65,12 +66,7 @@ void HGCalTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descr
 }
 
 void HGCalTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
-  edm::ESHandle<HGCalTopology> topo;
-  iSetup.get<IdealGeometryRecord>().get(detectorName_, topo);
-  if (topo.isValid())
-    doTest(*topo);
-  else
-    std::cout << "Cannot get a valid Topology Object for " << detectorName_;
+  doTest(iSetup.getData(tokTopo_));
 }
 
 void HGCalTopologyTester::doTest(const HGCalTopology& topology) {

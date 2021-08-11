@@ -42,6 +42,7 @@ namespace tmtt {
         //kalmanDebugLevel_(2), // Good for debugging
         kalmanMinNumStubs_(4),
         kalmanMaxNumStubs_(6),
+        kalmanAddBeamConstr_(false),  // Apply post-fit beam-spot constraint to 5-param fit
         kalmanRemove2PScut_(true),
         kalmanMaxSkipLayersHard_(1),  // On "hard" input tracks
         kalmanMaxSkipLayersEasy_(2),  // On "easy" input tracks

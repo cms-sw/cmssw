@@ -22,11 +22,11 @@
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetInfo.h"
 #include <vector>
 
 class SiStripDetCabling;
-class SiStripDetInfoFileReader;
+class SiStripDetInfo;
 class TrackerTopology;
 
 class SiStripQuality final : public SiStripBadStrip {
@@ -43,11 +43,12 @@ public:
     bool operator()(const BadComponent &p, const uint32_t i) const { return p.detid < i; }
   };
 
-  SiStripQuality();  // takes default file for SiStripDetInfoFileReader
-  SiStripQuality(edm::FileInPath &);
-  SiStripQuality(const SiStripQuality &);  // copy constructor
+  SiStripQuality() = delete;
+  explicit SiStripQuality(SiStripDetInfo);
+  SiStripQuality(const SiStripQuality &) = default;
+  SiStripQuality(SiStripQuality &&) = default;
 
-  ~SiStripQuality() override;
+  ~SiStripQuality() override = default;
 
   void clear() {
     v_badstrips.clear();
@@ -76,13 +77,7 @@ public:
 
   void ReduceGranularity(double);
 
-  SiStripQuality &operator+=(const SiStripQuality &);
-  SiStripQuality &operator-=(const SiStripQuality &);
-  const SiStripQuality operator-(const SiStripQuality &) const;
-  bool operator==(const SiStripQuality &) const;
-  bool operator!=(const SiStripQuality &) const;
-
-  edm::FileInPath getFileInPath() const { return FileInPath_; }
+  SiStripQuality difference(const SiStripQuality &) const;
 
   //------- Interface for the user ----------//
   bool IsModuleUsable(const uint32_t &detid) const;
@@ -149,10 +144,8 @@ private:
                            const std::vector<int> &differentFeds,
                            const bool printDebug);
 
+  SiStripDetInfo info_;
   bool toCleanUp;
-  edm::FileInPath FileInPath_;
-  SiStripDetInfoFileReader *reader;
-
   std::vector<BadComponent> BadComponentVect;
 
   const SiStripDetCabling *SiStripDetCabling_;

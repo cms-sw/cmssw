@@ -1,14 +1,8 @@
 #include <DQM/RPCMonitorClient/interface/RPCNoisyStripTest.h>
-#include "DQM/RPCMonitorDigi/interface/utils.h"
+#include "DQM/RPCMonitorClient/interface/RPCRollMapHisto.h"
+#include "DQM/RPCMonitorClient/interface/utils.h"
 
-//DQM Services
-//#include "DQMServices/Core/interface/DQMStore.h"
-
-// Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include <FWCore/Framework/interface/ESHandle.h>
-
-//Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
 RPCNoisyStripTest::RPCNoisyStripTest(const edm::ParameterSet& ps) {
@@ -20,8 +14,6 @@ RPCNoisyStripTest::RPCNoisyStripTest(const edm::ParameterSet& ps) {
   useRollInfo_ = ps.getUntrackedParameter<bool>("UseRollInfo", false);
   testMode_ = ps.getUntrackedParameter<bool>("testMode", false);
 }
-
-RPCNoisyStripTest::~RPCNoisyStripTest() {}
 
 void RPCNoisyStripTest::beginJob(std::string& workingFolder) {
   edm::LogVerbatim("rpcnoisetest") << "[RPCNoisyStripTest]: Begin job ";
@@ -42,8 +34,6 @@ void RPCNoisyStripTest::myBooker(DQMStore::IBooker& ibooker) {
 
   std::stringstream histoName;
 
-  rpcdqm::utils rpcUtils;
-
   for (int w = -2; w <= 2; w++) {  //loop on wheels and disks
 
     if (testMode_) {
@@ -58,9 +48,8 @@ void RPCNoisyStripTest::myBooker(DQMStore::IBooker& ibooker) {
 
     histoName.str("");
     histoName << "RPCNoisyStrips_Roll_vs_Sector_Wheel" << w;
-    NOISEWheel[w + 2] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
-    rpcUtils.labelXAxisSector(NOISEWheel[w + 2]);
-    rpcUtils.labelYAxisRoll(NOISEWheel[w + 2], 0, w, useRollInfo_);
+    auto me = RPCRollMapHisto::bookBarrel(ibooker, w, histoName.str(), histoName.str(), useRollInfo_);
+    NOISEWheel[w + 2] = dynamic_cast<MonitorElement*>(me);
   }
 
   for (int d = -numberOfDisks_; d <= numberOfDisks_; d++) {  //ENDCAP
@@ -84,16 +73,8 @@ void RPCNoisyStripTest::myBooker(DQMStore::IBooker& ibooker) {
 
     histoName.str("");
     histoName << "RPCNoisyStrips_Ring_vs_Segment_Disk" << d;
-    NOISEDisk[d + offset] = ibooker.book2D(histoName.str().c_str(),
-                                           histoName.str().c_str(),
-                                           36,
-                                           0.5,
-                                           36.5,
-                                           3 * numberOfRings_,
-                                           0.5,
-                                           3 * numberOfRings_ + 0.5);
-    rpcUtils.labelXAxisSegment(NOISEDisk[d + offset]);
-    rpcUtils.labelYAxisRing(NOISEDisk[d + offset], numberOfRings_, useRollInfo_);
+    auto me = RPCRollMapHisto::bookEndcap(ibooker, d, histoName.str(), histoName.str(), useRollInfo_);
+    NOISEDisk[d + offset] = dynamic_cast<MonitorElement*>(me);
   }
 }
 

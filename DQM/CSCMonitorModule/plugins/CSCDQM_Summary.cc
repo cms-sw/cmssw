@@ -35,6 +35,7 @@ namespace cscdqm {
    */
   void Summary::Reset() {
     Address adr;
+    bzero(&adr, sizeof(Address));
 
     /**  Setting Zeros (no data) for each HW element (and beyond) */
     adr.mask.side = adr.mask.station = adr.mask.layer = false;
@@ -61,6 +62,7 @@ namespace cscdqm {
     if (h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= 36 && h2->GetYaxis()->GetXmin() <= 1 &&
         h2->GetYaxis()->GetXmax() >= 18) {
       Address adr;
+      bzero(&adr, sizeof(Address));
       double z = 0.0;
 
       for (unsigned int x = 1; x <= 36; x++) {
@@ -114,6 +116,7 @@ namespace cscdqm {
       double factor = num / denum;
 
       Address adr;
+      bzero(&adr, sizeof(Address));
       unsigned int N = 0, n = 0;
 
       for (unsigned int x = 1; x <= 36; x++) {
@@ -197,6 +200,7 @@ namespace cscdqm {
         evs->GetYaxis()->GetXmax() >= 18 && err->GetXaxis()->GetXmin() <= 1 && err->GetXaxis()->GetXmax() >= 36 &&
         err->GetYaxis()->GetXmin() <= 1 && err->GetYaxis()->GetXmax() >= 18) {
       Address adr;
+      bzero(&adr, sizeof(Address));
       unsigned int N = 0, n = 0;
 
       for (unsigned int x = 1; x <= 36; x++) {
@@ -225,6 +229,8 @@ namespace cscdqm {
   void Summary::Write(TH2*& h2, const unsigned int station) const {
     const AddressBox* box;
     Address adr, tadr;
+    bzero(&adr, sizeof(Address));
+    bzero(&tadr, sizeof(Address));
     float area_all = 0.0, area_rep = 0.0;
 
     if (station < 1 || station > N_STATIONS)
@@ -335,6 +341,7 @@ namespace cscdqm {
         h2->GetYaxis()->GetXmax() >= 18) {
       unsigned int x, y;
       Address adr;
+      bzero(&adr, sizeof(Address));
 
       adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = true;
       adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
@@ -385,6 +392,7 @@ namespace cscdqm {
    */
   void Summary::SetValue(const HWStatusBit bit, const int value) {
     Address adr;
+    bzero(&adr, sizeof(Address));
     adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv =
         false;
     SetValue(adr, bit, value);
@@ -503,6 +511,7 @@ namespace cscdqm {
    */
   const double Summary::GetEfficiencyHW() const {
     Address adr;
+    bzero(&adr, sizeof(Address));
     adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv =
         false;
     return GetEfficiencyHW(adr);
@@ -515,6 +524,7 @@ namespace cscdqm {
    */
   const double Summary::GetEfficiencyHW(const unsigned int station) const {
     Address adr;
+    bzero(&adr, sizeof(Address));
     adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv =
         false;
 
@@ -601,8 +611,9 @@ namespace cscdqm {
       return 0.0;
 
     Address adr;
+    bzero(&adr, sizeof(Address));
     adr.mask.side = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
-    adr.station = true;
+    adr.mask.station = true;
     adr.station = station;
 
     return GetEfficiencyArea(adr);
@@ -616,8 +627,8 @@ namespace cscdqm {
   const double Summary::GetEfficiencyArea(const Address& adr) const {
     double all_area = 1;
 
-    if (adr.mask.side == false && adr.mask.ring == false && adr.mask.chamber == false && adr.mask.layer == false &&
-        adr.mask.cfeb == false && adr.mask.hv == false && adr.mask.station == true)
+    if ((adr.mask.side == false) && (adr.mask.ring == false) && (adr.mask.chamber == false) &&
+        (adr.mask.layer == false) && (adr.mask.cfeb == false) && (adr.mask.hv == false) && (adr.mask.station == true))
       all_area = detector.Area(adr.station);
     else
       all_area = detector.Area(adr);
@@ -698,6 +709,7 @@ namespace cscdqm {
                                  unsigned int ring,
                                  unsigned int chamber) const {
     Address adr;
+    bzero(&adr, sizeof(Address));
     adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = true;
     adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
     adr.side = side;

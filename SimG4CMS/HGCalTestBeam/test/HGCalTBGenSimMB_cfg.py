@@ -95,8 +95,10 @@ process.VtxSmeared.SigmaZ = 0
 process.HGCalTBAnalyzer.doDigis = False
 process.HGCalTBAnalyzer.doRecHits = False
 process.g4SimHits.StackingAction.TrackNeutrino = True
-
-
+process.g4SimHits.OnlySDs = ['HGCSensitiveDetector',
+                             'HGCalTB1601SensitiveDetector']
+process.g4SimHits.HGCSD.Detectors = 1
+process.g4SimHits.HGCSD.UseDetector = 1
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)

@@ -10,16 +10,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Geometry
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 // DataFormats
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
-
-// tTrig
-#include "CondFormats/DTObjects/interface/DTTtrig.h"
-#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
 #include "TFile.h"
 #include <cmath>
@@ -31,10 +25,11 @@ using namespace std;
 
 DTtTrigDBValidation::DTtTrigDBValidation(const ParameterSet &pset)
     : metname_("TTrigDBValidation"),
-      labelDBRef_(pset.getParameter<string>("labelDBRef")),
-      labelDB_(pset.getParameter<string>("labelDB")),
+      labelDBRef_(esConsumes(edm::ESInputTag("", pset.getParameter<string>("labelDBRef")))),
+      labelDB_(esConsumes(edm::ESInputTag("", pset.getParameter<string>("labelDB")))),
       lowerLimit_(pset.getUntrackedParameter<int>("lowerLimit", 1)),
-      higherLimit_(pset.getUntrackedParameter<int>("higherLimit", 3)) {
+      higherLimit_(pset.getUntrackedParameter<int>("higherLimit", 3)),
+      muonGeomToken_(esConsumes()) {
   LogVerbatim(metname_) << "[DTtTrigDBValidation] Constructor called!";
 }
 
@@ -44,15 +39,11 @@ void DTtTrigDBValidation::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
   LogVerbatim(metname_) << "[DTtTrigDBValidation] Parameters initialization";
   iBooker.setCurrentFolder("DT/DtCalib/TTrigDBValidation");
 
-  ESHandle<DTTtrig> tTrig_Ref;
-  setup.get<DTTtrigRcd>().get(labelDBRef_, tTrig_Ref);
-  const DTTtrig *DTTtrigRefMap = &*tTrig_Ref;
-  LogVerbatim(metname_) << "[DTtTrigDBValidation] reference Ttrig version: " << tTrig_Ref->version();
+  DTTtrigRefMap = &setup.getData(labelDBRef_);
+  LogVerbatim(metname_) << "[DTtTrigDBValidation] reference Ttrig version: " << DTTtrigRefMap->version();
 
-  ESHandle<DTTtrig> tTrig;
-  setup.get<DTTtrigRcd>().get(labelDB_, tTrig);
-  const DTTtrig *DTTtrigMap = &*tTrig;
-  LogVerbatim(metname_) << "[DTtTrigDBValidation] Ttrig to validate version: " << tTrig->version();
+  DTTtrigMap = &setup.getData(labelDB_);
+  LogVerbatim(metname_) << "[DTtTrigDBValidation] Ttrig to validate version: " << DTTtrigMap->version();
 
   // book&reset the summary histos
   for (int wheel = -2; wheel <= 2; wheel++) {
@@ -61,7 +52,7 @@ void DTtTrigDBValidation::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
   }
 
   // Get the geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom_);
+  dtGeom = &setup.getData(muonGeomToken_);
 
   // Loop over Ref DB entries
   for (DTTtrig::const_iterator it = DTTtrigRefMap->begin(); it != DTTtrigRefMap->end(); ++it) {

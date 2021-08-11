@@ -17,6 +17,7 @@
 //
 
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripQualityFakeESSource.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripQualityFakeESSource::SiStripQualityFakeESSource(const edm::ParameterSet& iConfig) {
   setWhatProduced(this);
@@ -24,7 +25,9 @@ SiStripQualityFakeESSource::SiStripQualityFakeESSource(const edm::ParameterSet& 
 }
 
 std::unique_ptr<SiStripQuality> SiStripQualityFakeESSource::produce(const SiStripQualityRcd& iRecord) {
-  return std::make_unique<SiStripQuality>();
+  const auto detInfo =
+      SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+  return std::make_unique<SiStripQuality>(detInfo);
 }
 
 void SiStripQualityFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,

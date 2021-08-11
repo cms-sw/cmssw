@@ -7,12 +7,12 @@ struct A {
   virtual std::shared_ptr<A> clone() const = 0;
 
   template <typename T, typename... Args>
-  static std::shared_ptr<A> build(Args &&... args) {
+  static std::shared_ptr<A> build(Args &&...args) {
     return std::allocate_shared<T>(std::allocator<T>(), std::forward<Args>(args)...);
   }
 
   template <typename T, typename... Args>
-  static std::shared_ptr<A> churn(Args &&... args) {
+  static std::shared_ptr<A> churn(Args &&...args) {
     return std::allocate_shared<T>(churn_allocator<T>(), std::forward<Args>(args)...);
   }
 };

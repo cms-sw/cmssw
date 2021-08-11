@@ -53,7 +53,7 @@ int DTPattern::latHitIn(int slId, int chId, int allowedVariance) const {
   return temp;
 }
 
-std::ostream &operator<<(std::ostream &out, DTPattern &p) {
+std::ostream &operator<<(std::ostream &out, DTPattern const &p) {
   //Friend for printing pattern information trough iostream
   out << "Pattern id: " << std::get<0>(p.id()) << " , " << std::get<1>(p.id()) << " , " << std::get<2>(p.id())
       << std::endl;

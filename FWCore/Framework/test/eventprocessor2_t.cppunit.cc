@@ -15,6 +15,8 @@ Test of the EventProcessor class.
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 
+#include "tbb/global_control.h"
+
 // to be called also by the other cppunit...
 void doInit() {
   static bool firstTime = true;
@@ -32,8 +34,13 @@ class testeventprocessor2 : public CppUnit::TestFixture {
   CPPUNIT_TEST(eventprocessor2Test);
   CPPUNIT_TEST_SUITE_END();
 
+  edm::propagate_const<std::unique_ptr<tbb::global_control>> m_control;
+
 public:
   void setUp() {
+    if (not m_control) {
+      m_control = std::make_unique<tbb::global_control>(tbb::global_control::max_allowed_parallelism, 1);
+    }
     //std::cout << "setting up testeventprocessor2" << std::endl;
     doInit();
   }

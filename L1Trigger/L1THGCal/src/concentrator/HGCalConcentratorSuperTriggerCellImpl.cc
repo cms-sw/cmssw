@@ -44,7 +44,7 @@ void HGCalConcentratorSuperTriggerCellImpl::createAllTriggerCells(
       continue;
 
     HGCalTriggerTools::SubDetectorType subdet = triggerTools_.getSubDetectorType(output_ids.at(0));
-    int thickness = (!output_ids.empty() ? triggerTools_.thicknessIndex(output_ids.at(0), true) : 0);
+    int thickness = (!output_ids.empty() ? triggerTools_.thicknessIndex(output_ids.at(0)) : 0);
 
     for (const auto& id : output_ids) {
       if (((fixedDataSizePerHGCROC_ && thickness > kHighDensityThickness_) || coarsenTriggerCells_[subdet]) &&
@@ -64,17 +64,9 @@ void HGCalConcentratorSuperTriggerCellImpl::createAllTriggerCells(
 
       DetId tc_Id(id);
 
-      //To guard against the case in v8 geometry where
-      //there might be different thicknesses within a module
-      //This is a small effect, but in principle energy might
-      //be lost.
       if (superTCmapping_.getCoarseTriggerCellId(id) != s.second.getSTCId()) {
-        if (triggerTools_.getTriggerGeometry()->isV9Geometry()) {
-          throw cms::Exception("NonExistingCoarseTC")
-              << "The coarse trigger cell correponsing to the nominal trigger cell does not exist";
-        } else {
-          continue;
-        }
+        throw cms::Exception("NonExistingCoarseTC")
+            << "The coarse trigger cell correponsing to the nominal trigger cell does not exist";
       }
       trigCellVecOutput.push_back(triggerCell);
       if (energyDivisionType_ == oneBitFraction) {  //Get the 1 bit fractions
@@ -99,7 +91,7 @@ void HGCalConcentratorSuperTriggerCellImpl::assignSuperTriggerCellEnergyAndPosit
   uint32_t compressed_value = getCompressedSTCEnergy(stc);
 
   HGCalTriggerTools::SubDetectorType subdet = triggerTools_.getSubDetectorType(c.detId());
-  int thickness = triggerTools_.thicknessIndex(c.detId(), true);
+  int thickness = triggerTools_.thicknessIndex(c.detId());
 
   bool isSilicon = triggerTools_.isSilicon(c.detId());
   bool isEM = triggerTools_.isEm(c.detId());

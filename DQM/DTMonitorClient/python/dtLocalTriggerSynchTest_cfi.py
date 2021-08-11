@@ -22,9 +22,9 @@ triggerSynchTest = DQMEDHarvester("DTLocalTriggerSynchTest",
     dbFromTM       = cms.bool(False),
     fineParamDiff   = cms.bool(False),
     coarseParamDiff = cms.bool(False),
-    numHistoTag     = cms.string("TrackCrossingTimeAllInBX"),
-    denHistoTag     = cms.string("TrackCrossingTimeHHInBX"),
-    ratioHistoTag   = cms.string("TrackCrossingTimeAllOverHHInBX")                                  
+    numHistoTag     = cms.string('TrackCrossingTimeAllInBX'),
+    denHistoTag     = cms.string('TrackCrossingTimeHHInBX'),
+    ratioHistoTag   = cms.string('TrackCrossingTimeAllOverHHInBX')                                  
 )
 
 

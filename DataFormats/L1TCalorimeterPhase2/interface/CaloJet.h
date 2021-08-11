@@ -20,7 +20,7 @@ namespace l1tp2 {
     inline float hovere() const { return hovere_; };
     inline float isolation() const { return iso_; };
     inline float puCorrPt() const { return puCorrPt_; };
-    std::vector<std::vector<float>>& associated_l1EGs() { return associated_l1EGs_; };
+    const std::vector<std::vector<float>>& associated_l1EGs() const { return associated_l1EGs_; };
 
     void setExperimentalParams(const std::map<std::string, float>& params) { experimentalParams_ = params; };
     void setAssociated_l1EGs(const std::vector<std::vector<float>> l1EGs) { associated_l1EGs_ = l1EGs; };

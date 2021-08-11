@@ -43,7 +43,9 @@
 //                               l=2/1/0 for type of rcorFileName (2 for overall
 //                               response corrections; 1 for depth dependence
 //                               corrections; 0 for raddam corrections);
-//                               t =1/0 for applying cut or not on L1 closeness;
+//                               t = bit information (lower bit set will
+//                               apply a cut on L1 closeness; and higher bit
+//                               set read correction file with Marina format);
 //                               h =0/1 flag to create energy histograms
 //                               d =0/1 flag to create basic set of histograms;
 //                               o =0/1/2 for tight / loose / flexible
@@ -356,7 +358,9 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
   flexibleSelect_ = ((flag_ / 1) % 10);
   plotBasic_ = (((flag_ / 10) % 10) > 0);
   plotEnergy_ = (((flag_ / 10) % 10) > 0);
-  cutL1T_ = ((flag_ / 1000) % 10);
+  int oneplace = ((flag_ / 1000) % 10);
+  cutL1T_ = (oneplace % 2);
+  bool marina = ((oneplace / 2) % 2);
   bool ifDepth = (((flag_ / 10000) % 10) > 0);
   plotHists_ = (((flag_ / 100000) % 10) > 0);
   log2by18_ = std::log(2.5) / 18.0;
@@ -373,7 +377,7 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
             << "|" << plotEnergy_ << "|" << plotHists_ << "|" << corrPU_ << " cons " << log2by18_ << " eta range "
             << etalo_ << ":" << etahi_ << " run range " << runlo_ << ":" << runhi_ << " (inclusion flag " << includeRun_
             << ") Vertex Range " << nvxlo_ << ":" << nvxhi_ << std::endl;
-  corrFactor_ = new CalibCorrFactor(corrFileName, useScale, scl, etam, false);
+  corrFactor_ = new CalibCorrFactor(corrFileName, useScale, scl, etam, marina, false);
   if (!fillChain(chain, fname)) {
     std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
   } else {
@@ -778,7 +782,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
       break;
     nb = fChain->GetEntry(jentry);
     nbytes += nb;
-    if (jentry % 100000 == 0)
+    if (jentry % 1000000 == 0)
       std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
     bool select = (std::find(entries_.begin(), entries_.end(), jentry) == entries_.end());
     if (!select) {

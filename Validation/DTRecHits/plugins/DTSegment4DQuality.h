@@ -27,6 +27,7 @@
 
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
@@ -63,6 +64,9 @@ private:
   edm::InputTag segment4DLabel_;
   edm::EDGetTokenT<edm::PSimHitContainer> simHitToken_;
   edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;
+
+  //Get DT Geometry
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
 
   // Sigma resolution on position
   double sigmaResX_;

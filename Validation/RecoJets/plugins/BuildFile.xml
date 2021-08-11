@@ -9,6 +9,7 @@
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/HeavyIonEvent"/>
 <use name="JetMETCorrections/JetCorrector"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <use name="root"/>
 <library file="*.cc" name="ValidationRecoJetsPlugins">
   <flags EDM_PLUGIN="1"/>

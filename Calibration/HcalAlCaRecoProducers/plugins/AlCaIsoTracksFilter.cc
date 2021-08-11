@@ -44,7 +44,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -485,9 +485,9 @@ void AlCaIsoTracksFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   // Prescale events only containing isolated tracks in the range
   desc.add<double>("momentumRangeLow", 20.0);
   desc.add<double>("momentumRangeHigh", 40.0);
-  desc.add<int>("preScaleFactor", 10);
+  desc.add<int>("preScaleFactor", 1);
   desc.add<double>("momentumHigh", 60.0);
-  desc.add<int>("preScaleHigh", 2);
+  desc.add<int>("preScaleHigh", 1);
   descriptions.add("alcaIsoTracksFilter", desc);
 }
 

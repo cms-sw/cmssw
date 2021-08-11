@@ -28,9 +28,9 @@ private:
 
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, EGPhotonImporter, "EGPhotonImporter");
 
-EGPhotonImporter::EGPhotonImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-    : BlockElementImporterBase(conf, sumes),
-      _src(sumes.consumes<reco::PhotonCollection>(conf.getParameter<edm::InputTag>("source"))),
+EGPhotonImporter::EGPhotonImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+    : BlockElementImporterBase(conf, cc),
+      _src(cc.consumes<reco::PhotonCollection>(conf.getParameter<edm::InputTag>("source"))),
       _selectionTypes({{"SeparateDetectorIso", EGPhotonImporter::SeparateDetectorIso},
                        {"CombinedDetectorIso", EGPhotonImporter::CombinedDetectorIso}}),
       _superClustersArePF(conf.getParameter<bool>("superClustersArePF")) {

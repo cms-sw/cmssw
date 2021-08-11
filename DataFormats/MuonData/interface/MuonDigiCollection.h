@@ -56,7 +56,7 @@ public:
 
   bool operator!=(const DigiContainerIterator& x) const { return x.base_ != base_; }
 
-  value_type operator*(void)const {
+  value_type operator*(void) const {
     return std::make_pair(base_->first, std::make_pair(base_->second.begin(), base_->second.end()));
   }
 

@@ -1,25 +1,13 @@
 #include "EcalTPGParamBuilder.h"
 #include "EcalTPGDBApp.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
-#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
-#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
-#include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
 
 //modif-alex-27-july-2015
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
@@ -51,7 +39,21 @@ double oneOverEtResolEt(double* x, double* par) {
 }
 
 EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
-    : xtal_LSB_EB_(0), xtal_LSB_EE_(0), nSample_(5), complement2_(7), useDBShape_(true) {
+    : theEndcapGeometryToken_(esConsumes(edm::ESInputTag("", "EcalEndcap"))),
+      theBarrelGeometryToken_(esConsumes(edm::ESInputTag("", "EcalBarrel"))),
+      eTTmapToken_(esConsumes()),
+      ecalmappingToken_(esConsumes()),
+      ecalLaserAlphasToken_(esConsumes()),
+      ecalLaserAPDPNRatiosToken_(esConsumes()),
+      ecalPedestalsToken_(esConsumes()),
+      ecalIntercalibConstantsToken_(esConsumes()),
+      ecalGainRatiosToken_(esConsumes()),
+      ecalADCToGeVConstantToken_(esConsumes()),
+      xtal_LSB_EB_(0),
+      xtal_LSB_EE_(0),
+      nSample_(5),
+      complement2_(7),
+      useDBShape_(true) {
   ped_conf_id_ = 0;
   lin_conf_id_ = 0;
   lut_conf_id_ = 0;
@@ -392,27 +394,18 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   using namespace std;
 
   // geometry
-  ESHandle<CaloGeometry> theGeometry;
-  ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
-  evtSetup.get<CaloGeometryRecord>().get(theGeometry);
-  evtSetup.get<EcalEndcapGeometryRecord>().get("EcalEndcap", theEndcapGeometry_handle);
-  evtSetup.get<EcalBarrelGeometryRecord>().get("EcalBarrel", theBarrelGeometry_handle);
-  evtSetup.get<IdealGeometryRecord>().get(eTTmap_);
-  theEndcapGeometry_ = theEndcapGeometry_handle.product();
-  theBarrelGeometry_ = theBarrelGeometry_handle.product();
+  eTTmap_ = &evtSetup.getData(eTTmapToken_);
+  theEndcapGeometry_ = &evtSetup.getData(theEndcapGeometryToken_);
+  theBarrelGeometry_ = &evtSetup.getData(theBarrelGeometryToken_);
 
   // electronics mapping
-  ESHandle<EcalElectronicsMapping> ecalmapping;
-  evtSetup.get<EcalMappingRcd>().get(ecalmapping);
-  theMapping_ = ecalmapping.product();
+  theMapping_ = &evtSetup.getData(ecalmappingToken_);
 
   // get record for alpha
   std::ostringstream ss;
   ss << "EcalLaserDbAnalyzer::analyze\n";
-  edm::ESHandle<EcalLaserAlphas> handle;
-  evtSetup.get<EcalLaserAlphasRcd>().get(handle);
+  const EcalLaserAlphaMap& laserAlphaMap = evtSetup.getData(ecalLaserAlphasToken_).getMap();  // map of apdpns
   ss << "EcalLaserDbAnalyzer::analyze-> got EcalLaserDbRecord: \n";
-  const EcalLaserAlphaMap& laserAlphaMap = handle.product()->getMap();  // map of apdpns
 
   //modif-alex-27-july-2015-+ Jean june 2016 beg
   // use alpha to check
@@ -482,9 +475,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       edm::LogInfo("TopInfo") << "INFO: READING transparency correction tag"
                               << "\n";
       //      std::cout << "new feature, read a tag" << std::endl;
-      ESHandle<EcalLaserAPDPNRatios> pAPDPNRatios;
-      evtSetup.get<EcalLaserAPDPNRatiosRcd>().get(pAPDPNRatios);
-      const EcalLaserAPDPNRatios* lratio = pAPDPNRatios.product();
+      const EcalLaserAPDPNRatios* lratio = &evtSetup.getData(ecalLaserAPDPNRatiosToken_);
       //      std::cout << " laser map size " << lratio->getLaserMap().size() << std::endl;
 
       EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator itratio;
@@ -573,14 +564,18 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (m_write_ped == 1) {
     ss << "Getting the pedestals from offline DB...\n";
 
-    ESHandle<EcalPedestals> pedHandle;
-    evtSetup.get<EcalPedestalsRcd>().get(pedHandle);
-    pedMap = pedHandle.product()->getMap();
+    pedMap = evtSetup.getData(ecalPedestalsToken_).getMap();
 
+    const auto& pedMapEB = pedMap.barrelItems();
+    const auto& pedMapEE = pedMap.endcapItems();
     EcalPedestalsMapIterator pedIter;
     int nPed = 0;
-    for (pedIter = pedMap.begin(); pedIter != pedMap.end() && nPed < 10; ++pedIter, nPed++) {
-      EcalPedestals::Item aped = (*pedIter);
+    for (pedIter = pedMapEB.begin(); pedIter != pedMapEB.end() && nPed < 10; ++pedIter, ++nPed) {
+      const auto aped = (*pedIter);
+      ss << aped.mean_x12 << ", " << aped.mean_x6 << ", " << aped.mean_x1 << "\n";
+    }
+    for (pedIter = pedMapEE.begin(); pedIter != pedMapEE.end() && nPed < 10; ++pedIter, ++nPed) {
+      const auto aped = (*pedIter);
       ss << aped.mean_x12 << ", " << aped.mean_x6 << ", " << aped.mean_x1 << "\n";
     }
   } else if (m_write_ped == 0) {
@@ -653,10 +648,16 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
     pedMap = peds.getMap();
 
+    const auto& pedMapEB = pedMap.barrelItems();
+    const auto& pedMapEE = pedMap.endcapItems();
     EcalPedestalsMapIterator pedIter;
     int nPed = 0;
-    for (pedIter = pedMap.begin(); pedIter != pedMap.end() && nPed < 10; ++pedIter, nPed++) {
-      EcalPedestals::Item aped = (*pedIter);
+    for (pedIter = pedMapEB.begin(); pedIter != pedMapEB.end() && nPed < 10; ++pedIter, ++nPed) {
+      const auto aped = (*pedIter);
+      ss << aped.mean_x12 << ", " << aped.mean_x6 << ", " << aped.mean_x1 << "\n";
+    }
+    for (pedIter = pedMapEE.begin(); pedIter != pedMapEE.end() && nPed < 10; ++pedIter, ++nPed) {
+      const auto aped = (*pedIter);
       ss << aped.mean_x12 << ", " << aped.mean_x6 << ", " << aped.mean_x1 << "\n";
     }
 
@@ -721,10 +722,16 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
     pedMap = peds.getMap();
 
+    const auto& pedMapEB = pedMap.barrelItems();
+    const auto& pedMapEE = pedMap.endcapItems();
     EcalPedestalsMapIterator pedIter;
     int nPed = 0;
-    for (pedIter = pedMap.begin(); pedIter != pedMap.end() && nPed < 10; ++pedIter, nPed++) {
-      EcalPedestals::Item aped = (*pedIter);
+    for (pedIter = pedMapEB.begin(); pedIter != pedMapEB.end() && nPed < 10; ++pedIter, ++nPed) {
+      const auto aped = (*pedIter);
+      ss << aped.mean_x12 << ", " << aped.mean_x6 << ", " << aped.mean_x1 << "\n";
+    }
+    for (pedIter = pedMapEE.begin(); pedIter != pedMapEE.end() && nPed < 10; ++pedIter, ++nPed) {
+      const auto aped = (*pedIter);
       ss << aped.mean_x12 << ", " << aped.mean_x6 << ", " << aped.mean_x1 << "\n";
     }
   }
@@ -734,13 +741,16 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
   // Intercalib constants
   ss << "Getting intercalib from offline DB...\n";
-  ESHandle<EcalIntercalibConstants> pIntercalib;
-  evtSetup.get<EcalIntercalibConstantsRcd>().get(pIntercalib);
-  const EcalIntercalibConstants* intercalib = pIntercalib.product();
+  const EcalIntercalibConstants* intercalib = &evtSetup.getData(ecalIntercalibConstantsToken_);
   const EcalIntercalibConstantMap& calibMap = intercalib->getMap();
+  const auto& calibMapEB = calibMap.barrelItems();
+  const auto& calibMapEE = calibMap.endcapItems();
   EcalIntercalibConstantMap::const_iterator calIter;
   int nCal = 0;
-  for (calIter = calibMap.begin(); calIter != calibMap.end() && nCal < 10; ++calIter, nCal++) {
+  for (calIter = calibMapEB.begin(); calIter != calibMapEB.end() && nCal < 10; ++calIter, ++nCal) {
+    ss << (*calIter) << "\n";
+  }
+  for (calIter = calibMapEE.begin(); calIter != calibMapEE.end() && nCal < 10; ++calIter, ++nCal) {
     ss << (*calIter) << "\n";
   }
   edm::LogInfo("TopInfo") << ss.str();
@@ -767,13 +777,17 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
   // Gain Ratios
   ss << "Getting the gain ratios from offline DB...\n";
-  ESHandle<EcalGainRatios> pRatio;
-  evtSetup.get<EcalGainRatiosRcd>().get(pRatio);
-  const EcalGainRatioMap& gainMap = pRatio.product()->getMap();
+  const EcalGainRatioMap& gainMap = evtSetup.getData(ecalGainRatiosToken_).getMap();
+  const auto& gainMapEB = gainMap.barrelItems();
+  const auto& gainMapEE = gainMap.endcapItems();
   EcalGainRatioMap::const_iterator gainIter;
   int nGain = 0;
-  for (gainIter = gainMap.begin(); gainIter != gainMap.end() && nGain < 10; ++gainIter, nGain++) {
-    const EcalMGPAGainRatio& aGain = (*gainIter);
+  for (gainIter = gainMapEB.begin(); gainIter != gainMapEB.end() && nGain < 10; ++gainIter, ++nGain) {
+    const auto aGain = (*gainIter);
+    ss << aGain.gain12Over6() << ", " << aGain.gain6Over1() * aGain.gain12Over6() << "\n";
+  }
+  for (gainIter = gainMapEE.begin(); gainIter != gainMapEE.end() && nGain < 10; ++gainIter, ++nGain) {
+    const auto aGain = (*gainIter);
     ss << aGain.gain12Over6() << ", " << aGain.gain6Over1() * aGain.gain12Over6() << "\n";
   }
   edm::LogInfo("TopInfo") << ss.str();
@@ -781,9 +795,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
   // ADCtoGeV
   ss << "Getting the ADC to GeV from offline DB...\n";
-  ESHandle<EcalADCToGeVConstant> pADCToGeV;
-  evtSetup.get<EcalADCToGeVConstantRcd>().get(pADCToGeV);
-  const EcalADCToGeVConstant* ADCToGeV = pADCToGeV.product();
+  const EcalADCToGeVConstant* ADCToGeV = &evtSetup.getData(ecalADCToGeVConstantToken_);
   xtal_LSB_EB_ = ADCToGeV->getEBValue();
   xtal_LSB_EE_ = ADCToGeV->getEEValue();
   ss << "xtal_LSB_EB_ = " << xtal_LSB_EB_ << "\n";

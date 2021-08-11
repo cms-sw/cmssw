@@ -22,11 +22,16 @@ PythiaFilterMotherSister::PythiaFilterMotherSister(const edm::ParameterSet& iCon
       maxrapcut(iConfig.getUntrackedParameter("MaxRapidity", 20.)),
       minphicut(iConfig.getUntrackedParameter("MinPhi", -3.5)),
       maxphicut(iConfig.getUntrackedParameter("MaxPhi", 3.5)),
+      betaBoost(iConfig.getUntrackedParameter("BetaBoost", 0.)),
       motherIDs(iConfig.getUntrackedParameter("MotherIDs", std::vector<int>{0})),
       sisterID(iConfig.getUntrackedParameter("SisterID", 0)),
-      betaBoost(iConfig.getUntrackedParameter("BetaBoost", 0.)),
-      maxSisDisplacement(iConfig.getUntrackedParameter("MaxSisterDisplacement", -1.)) {
-  //now do what ever initialization is needed
+      maxSisDisplacement(iConfig.getUntrackedParameter("MaxSisterDisplacement", -1.)),
+      nephewIDs(iConfig.getUntrackedParameter("NephewIDs", std::vector<int>{0})),
+      minNephewPts(iConfig.getUntrackedParameter("MinNephewPts", std::vector<double>{0.})) {
+  if (nephewIDs.size() != minNephewPts.size()) {
+    throw cms::Exception("BadConfig") << "PythiaFilterMotherSister: "
+                                      << "'nephewIDs' and 'minNephewPts' need same length.";
+  }
 }
 
 PythiaFilterMotherSister::~PythiaFilterMotherSister() {
@@ -66,17 +71,29 @@ bool PythiaFilterMotherSister::filter(edm::StreamID, edm::Event& iEvent, const e
                ++dau) {
             // find the daugther you're interested in
             if (abs((*dau)->pdg_id()) == abs(sisterID)) {
+              int failNephewPt = 0;
+              // check pt of the nephews
+              for (HepMC::GenVertex::particle_iterator nephew = (*dau)->end_vertex()->particles_begin(HepMC::children);
+                   nephew != (*dau)->end_vertex()->particles_end(HepMC::children);
+                   ++nephew) {
+                int nephew_pdgId = abs((*nephew)->pdg_id());
+                for (unsigned int i = 0; i < nephewIDs.size(); i++) {
+                  if (nephew_pdgId == abs(nephewIDs.at(i)))
+                    failNephewPt += ((*nephew)->momentum().perp() < minNephewPts.at(i));
+                }
+              }
+              if (failNephewPt > 0)
+                return false;
               // calculate displacement of the sister particle, from production to decay
               HepMC::GenVertex* v1 = (*dau)->production_vertex();
               HepMC::GenVertex* v2 = (*dau)->end_vertex();
 
               double lx12 = v1->position().x() - v2->position().x();
               double ly12 = v1->position().y() - v2->position().y();
-              double lz12 = v1->position().z() - v2->position().z();
-              double lxyz12 = sqrt(lx12 * lx12 + ly12 * ly12 + lz12 * lz12);
+              double lxy12 = sqrt(lx12 * lx12 + ly12 * ly12);
 
               if (maxSisDisplacement != -1) {
-                if (lxyz12 < maxSisDisplacement) {
+                if (lxy12 < maxSisDisplacement) {
                   return true;
                 }
               } else {

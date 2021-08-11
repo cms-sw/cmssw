@@ -14,6 +14,9 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
 #include <string>
 
 class G4Step;
@@ -26,11 +29,7 @@ class TotemTestHitHBNtuple;
 
 class TotemRPSD : public SensitiveTkDetector, public Observer<const BeginOfEvent*>, public Observer<const EndOfEvent*> {
 public:
-  TotemRPSD(const std::string&,
-            const edm::EventSetup&,
-            const SensitiveDetectorCatalog&,
-            edm::ParameterSet const&,
-            const SimTrackManager*);
+  TotemRPSD(const std::string&, const SensitiveDetectorCatalog&, edm::ParameterSet const&, const SimTrackManager*);
   ~TotemRPSD() override;
 
   void printHitInfo();

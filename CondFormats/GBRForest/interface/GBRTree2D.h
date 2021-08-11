@@ -25,12 +25,10 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
-#include <map>
 
 class GBRTree2D {
 public:
   GBRTree2D() {}
-  ~GBRTree2D() {}
 
   void GetResponse(const float *vector, double &x, double &y) const;
   int TerminalIndex(const float *vector) const;

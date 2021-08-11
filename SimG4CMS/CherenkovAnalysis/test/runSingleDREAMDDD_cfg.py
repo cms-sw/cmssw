@@ -31,18 +31,15 @@ process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
-process.analyzer = cms.EDAnalyzer("CherenkovAnalysis",
-    maxEnergy = cms.double(2.0),
-    caloHitSource = cms.InputTag("g4SimHits","EcalHitsEB"),
-    nBinsEnergy = cms.uint32(50)
-)
+process.load("SimG4CMS.CherenkovAnalysis.cherenkovAnalysis_cfi")
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.analyzer)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.cherenkovAnalysis)
 
 process.generator.PGunParameters.MinE = 10.0
 process.generator.PGunParameters.MaxE = 10.0
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
+process.g4SimHits.OnlySDs = ['CaloTrkProcessing', 'DreamSensitiveDetector']
 process.g4SimHits.ECalSD = cms.PSet(
     TestBeam = cms.untracked.bool(False),
     ReadBothSide = cms.untracked.bool(True),

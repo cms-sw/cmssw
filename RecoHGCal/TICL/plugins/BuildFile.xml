@@ -1,11 +1,9 @@
 <use name="CommonTools/Utils"/>
 <use name="DataFormats/CaloRecHit"/>
-<use name="DataFormats/Candidate"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/HGCalReco"/>
 <use name="DataFormats/L1TCorrelator"/>
-<use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/ParticleFlowReco"/>
@@ -16,7 +14,7 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
 <use name="Geometry/CaloGeometry"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="Geometry/HGCalCommonData"/>
 <use name="Geometry/Records"/>
 <use name="MagneticField/Engine"/>

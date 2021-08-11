@@ -7,9 +7,11 @@
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
+#include <memory>
+
+#include <numeric>
 #include <regex>
 #include <sstream>
-#include <numeric>
 
 namespace {
   std::string replaceStringsToColumGets(const std::string &expr, const nanoaod::FlatTable &table) {
@@ -171,7 +173,7 @@ private:
         std::fill(out.begin(), out.end(), true);
       } else {
         if (!cutptr) {
-          cutptr.reset(new Selector(replaceStringsToColumGets(cutstr, table)));
+          cutptr = std::make_unique<Selector>(replaceStringsToColumGets(cutstr, table));
         }
         for (unsigned int i = 0, n = table.size(); i < n; ++i) {
           out[i] = (*cutptr)(table.row(i));

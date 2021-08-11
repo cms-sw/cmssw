@@ -8,6 +8,8 @@
 <use   name="DataFormats/Math"/>
 <use   name="L1Trigger/L1TMuon"/>
 <use   name="L1Trigger/L1TMuonEndCap"/>
+<use   name="boost"/>
+<use   name="xerces-c"/>
 <use   name="clhep"/>
 <use   name="root"/>
 <use   name="rootrflx"/>

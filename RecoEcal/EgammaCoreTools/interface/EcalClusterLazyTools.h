@@ -27,7 +27,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
@@ -35,7 +35,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
-#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
+#include "RecoEcal/EgammaCoreTools/interface/EgammaLocalCovParamDefaults.h"
 #include <optional>
 
 class CaloTopology;

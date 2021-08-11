@@ -23,10 +23,9 @@ class SiPixelGainCalibrationForHLTSimService
     : public SiPixelGainCalibrationServicePayloadGetter<SiPixelGainCalibrationForHLT,
                                                         SiPixelGainCalibrationForHLTSimRcd> {
 public:
-  explicit SiPixelGainCalibrationForHLTSimService(const edm::ParameterSet& conf)
+  explicit SiPixelGainCalibrationForHLTSimService(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
       : SiPixelGainCalibrationServicePayloadGetter<SiPixelGainCalibrationForHLT, SiPixelGainCalibrationForHLTSimRcd>(
-            conf){};
-  ~SiPixelGainCalibrationForHLTSimService() override{};
+            conf, std::move(iC)){};
 
   // column granularity
   float getPedestal(const uint32_t& detID, const int& col, const int& row) override;

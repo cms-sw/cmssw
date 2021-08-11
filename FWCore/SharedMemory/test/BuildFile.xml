@@ -9,6 +9,27 @@
   <use name="FWCore/Utilities"/>
 </bin>
 
+<bin file="test_channels_okTimeout.cc" name="testFWCoreSharedMemoryChannelsOkTimeout">
+  <use name="FWCore/SharedMemory"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+
+<bin file="test_channels_startupTimeout.cc" name="testFWCoreSharedMemoryChannelsStartupTimeout">
+  <use name="FWCore/SharedMemory"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+
+<bin file="test_channels_transitionTimeout.cc" name="testFWCoreSharedMemoryChannelsTransitionTimeout">
+  <use name="FWCore/SharedMemory"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+
+<bin file="test_channels_retry.cc" name="testFWCoreSharedMemoryChannelsRetry">
+  <use name="FWCore/SharedMemory"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+
+
 <bin file="test_monitorthread.cc" name="testFWCoreSharedMemoryMonitorThread">
   <use name="FWCore/SharedMemory"/>
   <use name="FWCore/Utilities"/>
