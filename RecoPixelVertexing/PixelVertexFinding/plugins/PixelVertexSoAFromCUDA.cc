@@ -43,8 +43,8 @@ PixelVertexSoAFromCUDA::PixelVertexSoAFromCUDA(const edm::ParameterSet& iConfig)
 void PixelVertexSoAFromCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("src", edm::InputTag("pixelVertexCUDA"));
-  descriptions.add("pixelVertexSoA", desc);
+  desc.add<edm::InputTag>("src", edm::InputTag("pixelVerticesCUDA"));
+  descriptions.add("pixelVerticesSoA", desc);
 }
 
 void PixelVertexSoAFromCUDA::acquire(edm::Event const& iEvent,

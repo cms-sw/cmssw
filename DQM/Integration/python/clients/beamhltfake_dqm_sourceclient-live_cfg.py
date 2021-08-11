@@ -4,9 +4,10 @@ import FWCore.ParameterSet.Config as cms
 # Define here the BeamSpotOnline record name,
 # it will be used both in FakeBeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineHLTObjectsRcd'
-BSOnlineTag = 'BeamSpotOnlineTestHLT'
-BSOnlineJobName = 'BeamSpotOnlineTestHLT'
+BSOnlineTag = 'BeamSpotOnlineHLT'
+BSOnlineJobName = 'BeamSpotOnlineHLT'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
+useLockRecords = True
 
 import sys
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
@@ -17,6 +18,7 @@ if "dqm_cmssw/playback" in str(sys.argv[1]):
   BSOnlineTag = BSOnlineTag + 'Playback'
   BSOnlineJobName = BSOnlineJobName + 'Playback'
   BSOnlineOmsServiceUrl = ''
+  useLockRecords = False
 
 # switch
 live = True # FIXME
@@ -25,7 +27,7 @@ unitTest = False
 if 'unitTest=True' in sys.argv:
   live=False
   unitTest=True
-
+  useLockRecords = False
 
 # Common part for PP and H.I Running
 #-----------------------------
@@ -58,10 +60,10 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 # DQM Live Environment
 #-----------------------------
 process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder = 'FakeBeamMonitor'
-process.dqmSaver.tag           = 'FakeBeamMonitor'
+process.dqmEnv.subSystemFolder = 'FakeBeamMonitorHLT'
+process.dqmSaver.tag           = 'FakeBeamMonitorHLT'
 process.dqmSaver.runNumber     = options.runNumber
-process.dqmSaverPB.tag         = 'FakeBeamMonitor'
+process.dqmSaverPB.tag         = 'FakeBeamMonitorHLT'
 process.dqmSaverPB.runNumber   = options.runNumber
 
 #---------------
@@ -80,7 +82,14 @@ else:
 # BeamMonitor
 #-----------------------------
 process.load("DQM.BeamMonitor.FakeBeamMonitor_cff")
-process.dqmBeamMonitor = process.dqmFakeBeamMonitor.clone()
+process.dqmBeamMonitor = process.dqmFakeBeamMonitor.clone(
+  monitorName = 'FakeBeamMonitor',
+  OnlineMode = True,
+  recordName = BSOnlineRecordName,
+  useLockRecords = useLockRecords,
+  resetEveryNLumi   = 5,
+  resetPVEveryNLumi = 5
+)  
 
 #---------------
 # Calibration
@@ -99,16 +108,9 @@ process = customise(process)
 
 # Set rawDataRepacker (HI and live) or rawDataCollector (for all the rest)
 if (process.runType.getRunType() == process.runType.hi_run and live):
-  rawDataInputTag = cms.InputTag("rawDataRepacker")
+  rawDataInputTag = "rawDataRepacker"
 else:
-  rawDataInputTag = cms.InputTag("rawDataCollector")
-
-process.dqmBeamMonitor.monitorName = 'FakeBeamMonitor'
-process.dqmBeamMonitor.OnlineMode = True              
-process.dqmBeamMonitor.recordName = BSOnlineRecordName
-
-process.dqmBeamMonitor.resetEveryNLumi   = 5
-process.dqmBeamMonitor.resetPVEveryNLumi = 5
+  rawDataInputTag = "rawDataCollector"
 
 #---------
 # Upload BeamSpotOnlineObject (HLTRcd) to CondDB
@@ -135,7 +137,8 @@ if unitTest == False:
           tag = cms.string(BSOnlineTag),
           timetype = cms.untracked.string('Lumi'),
           onlyAppendUpdatePolicy = cms.untracked.bool(True)
-      ))
+      )),
+      frontierKey = cms.untracked.string(options.runUniqueKey)
   )
 
 else:
@@ -159,8 +162,10 @@ else:
         tag = cms.string(BSOnlineTag),
         timetype = cms.untracked.string('Lumi'),
         onlyAppendUpdatePolicy = cms.untracked.bool(True)
-    ))
+    )),
+    frontierKey = cms.untracked.string(options.runUniqueKey)
 )
+print("Configured frontierKey", options.runUniqueKey)
 
 process.p = cms.Path(process.dqmcommon
                     * process.monitor )

@@ -7,6 +7,7 @@ WorkerT: Code common to all workers.
 
 ----------------------------------------------------------------------*/
 
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/Framework/src/Worker.h"
@@ -42,6 +43,7 @@ namespace edm {
     }
 
     Types moduleType() const override;
+    ConcurrencyTypes moduleConcurrencyType() const override;
 
     bool wantsProcessBlocks() const final;
     bool wantsInputProcessBlocks() const final;
@@ -55,6 +57,8 @@ namespace edm {
 
     void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&) final;
     void updateLookup(eventsetup::ESRecordsToProxyIndices const&) final;
+    void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) final;
+
     void resolvePutIndicies(
         BranchType iBranchType,
         std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
@@ -105,6 +109,7 @@ namespace edm {
     void implEndStream(StreamID) override;
     void implRespondToOpenInputFile(FileBlock const& fb) override;
     void implRespondToCloseInputFile(FileBlock const& fb) override;
+    void implRespondToCloseOutputFile() override;
     void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) override;
     std::string workerType() const override;
     TaskQueueAdaptor serializeRunModule() override;

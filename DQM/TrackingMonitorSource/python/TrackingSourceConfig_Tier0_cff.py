@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 import RecoTracker.IterativeTracking.iterativeTkUtils as _utils
-import six
 
 ### load which are the tracks collection 2 be monitored
 from DQM.TrackingMonitorSource.TrackCollections2monitor_cff import *
@@ -260,7 +259,7 @@ from DQM.TrackingMonitorSource.IterTrackingModules4seedMonitoring_cfi import *
 def _copyIfExists(mod, pset, name):
     if hasattr(pset, name):
         setattr(mod, name, getattr(pset, name))
-for _step, _pset in six.iteritems(seedMonitoring):
+for _step, _pset in seedMonitoring.items():
     _mod = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone(
         doTrackCandHistos = cms.bool(True)
     )
@@ -378,7 +377,16 @@ for _eraName, _postfix, _era in _cfg.allEras():
         locals()["TrackSeedMonSequence"] = _seq
     else:
         _era.toReplaceWith(TrackSeedMonSequence, _seq)
+
+_seedingDeepCore_TrackSeedMonSequence = TrackSeedMonSequence.copy()
+_seedingDeepCore_TrackSeedMonSequence.remove(locals()["TrackSeedMonjetCoreRegionalStep"])
+#_seedingDeepCore_TrackSeedMonSequence += (locals()["TrackSeedMonjetCoreRegionalStepBarrel"])
+_seedingDeepCore_TrackSeedMonSequence += (locals()["TrackSeedMonjetCoreRegionalStepEndcap"])
+from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
+seedingDeepCore.toReplaceWith(TrackSeedMonSequence,_seedingDeepCore_TrackSeedMonSequence)
+
 TrackingDQMSourceTier0 += TrackSeedMonSequence
+
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'

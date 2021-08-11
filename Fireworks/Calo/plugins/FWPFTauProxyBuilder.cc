@@ -34,10 +34,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPFTauProxyBuilder(const FWPFTauProxyBuilder&) = delete;                   // stop default
   const FWPFTauProxyBuilder& operator=(const FWPFTauProxyBuilder&) = delete;  // stop default
 
+private:
   using FWTauProxyBuilderBase::buildViewType;
   void buildViewType(const FWEventItem* iItem,
                      TEveElementList* product,

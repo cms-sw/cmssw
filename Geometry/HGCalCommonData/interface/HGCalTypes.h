@@ -41,12 +41,20 @@ public:
     CornerCenterYp = 1,
     CornerCenterYm = 2,
     CornerCenterXp = 3,
-    CornerCenterXm = 4
+    CornerCenterXm = 4,
+    WaferCenterB = 5,
+    WaferCenterR = 6
   };
 
-  enum WaferType { WaferFineThin = 0, WaferCoarseThin = 1, WaferCoarseThick = 2, WaferFineThick = 3 };
+  enum WaferType {
+    WaferTypeUndefined = -1,
+    WaferFineThin = 0,
+    WaferCoarseThin = 1,
+    WaferCoarseThick = 2,
+    WaferFineThick = 3
+  };
 
-  enum WaferSizeType {
+  enum WaferPartialType {
     WaferFull = 0,
     WaferFive = 1,
     WaferChopTwo = 2,
@@ -55,12 +63,33 @@ public:
     WaferSemi = 5,
     WaferSemi2 = 6,
     WaferThree = 7,
+    WaferHalf2 = 8,
+    WaferFive2 = 9,
+    WaferLDTop = 11,
+    WaferLDBottom = 12,
+    WaferLDLeft = 13,
+    WaferLDRight = 14,
+    WaferLDFive = 15,
+    WaferLDTree = 16,
+    WaferHDTop = 21,
+    WaferHDBottom = 22,
+    WaferHDLeft = 23,
+    WaferHDRight = 24,
+    WaferHDFive = 25,
     WaferOut = 99
+  };
+
+  enum LayerType {
+    WaferCenteredFront = 0,
+    WaferCenteredBack = 1,
+    CornerCenteredY = 2,
+    CornerCenteredLambda = 3,
+    WaferCenteredRotated = 4
   };
 
   static constexpr int32_t WaferCornerMin = 3;
   static constexpr int32_t WaferCornerMax = 6;
-  static constexpr int32_t WaferSizeMax = 7;
+  static constexpr int32_t WaferSizeMax = 9;
 
   static constexpr double c00 = 0.0;
   static constexpr double c22 = 0.225;

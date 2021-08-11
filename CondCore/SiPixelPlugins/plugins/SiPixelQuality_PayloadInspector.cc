@@ -14,6 +14,7 @@
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
 
 // the data format of the condition to be inspected
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
@@ -39,16 +40,16 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
     test class
   *************************************************/
 
-  class SiPixelQualityTest
-      : public cond::payloadInspector::Histogram1D<SiPixelQuality, cond::payloadInspector::SINGLE_IOV> {
+  class SiPixelQualityTest : public Histogram1D<SiPixelQuality, SINGLE_IOV> {
   public:
     SiPixelQualityTest()
-        : cond::payloadInspector::Histogram1D<SiPixelQuality, cond::payloadInspector::SINGLE_IOV>(
-              "SiPixelQuality test", "SiPixelQuality test", 10, 0.0, 10.0) {}
+        : Histogram1D<SiPixelQuality, SINGLE_IOV>("SiPixelQuality test", "SiPixelQuality test", 10, 0.0, 10.0) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -77,12 +78,9 @@ namespace {
     summary class
   *************************************************/
 
-  class SiPixelQualityBadRocsSummary
-      : public cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::MULTI_IOV, 1> {
+  class SiPixelQualityBadRocsSummary : public PlotImage<SiPixelQuality, MULTI_IOV, 1> {
   public:
-    SiPixelQualityBadRocsSummary()
-        : cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::MULTI_IOV, 1>(
-              "SiPixel Quality Summary") {}
+    SiPixelQualityBadRocsSummary() : PlotImage<SiPixelQuality, MULTI_IOV, 1>("SiPixel Quality Summary") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -99,16 +97,15 @@ namespace {
       }
 
       //=========================
-      TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
-      SiPixelPI::displayNotSupported(canvas, 0);
-      canvas.cd();
-      canvas.SetBottomMargin(0.11);
-      canvas.SetLeftMargin(0.13);
-      canvas.SetRightMargin(0.05);
-      canvas.Modified();
+      TCanvas canv("Partition summary", "partition summary", 1200, 1000);
+      canv.SetBottomMargin(0.11);
+      canv.SetLeftMargin(0.13);
+      canv.SetRightMargin(0.05);
+      canv.cd();
+      SiPixelPI::displayNotSupported(canv, 0);
 
       std::string fileName(m_imageFileName);
-      canvas.SaveAs(fileName.c_str());
+      canv.SaveAs(fileName.c_str());
 
       return true;
     }
@@ -118,12 +115,10 @@ namespace {
     time history class
   *************************************************/
 
-  class SiPixelQualityBadRocsTimeHistory
-      : public cond::payloadInspector::TimeHistoryPlot<SiPixelQuality, std::pair<double, double> > {
+  class SiPixelQualityBadRocsTimeHistory : public TimeHistoryPlot<SiPixelQuality, std::pair<double, double> > {
   public:
     SiPixelQualityBadRocsTimeHistory()
-        : cond::payloadInspector::TimeHistoryPlot<SiPixelQuality, std::pair<double, double> >("bad ROCs count vs time",
-                                                                                              "bad ROCs count") {}
+        : TimeHistoryPlot<SiPixelQuality, std::pair<double, double> >("bad ROCs count vs time", "bad ROCs count") {}
 
     std::pair<double, double> getFromPayload(SiPixelQuality& payload) override {
       return std::make_pair(extractBadRocCount(payload), 0.);
@@ -144,137 +139,271 @@ namespace {
   };
 
   /************************************************
-   occupancy style map BPix
+   occupancy style map whole Pixel
   *************************************************/
-
-  class SiPixelBPixQualityMap
-      : public cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::SINGLE_IOV> {
+  template <SiPixelPI::DetType myType>
+  class SiPixelQualityMap : public PlotImage<SiPixelQuality, SINGLE_IOV> {
   public:
-    SiPixelBPixQualityMap()
-        : cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::SINGLE_IOV>(
-              "SiPixelQuality Barrel Pixel Map"),
+    SiPixelQualityMap()
+        : PlotImage<SiPixelQuality, SINGLE_IOV>("SiPixelQuality Pixel Map"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
+      auto tagname = tag.name;
       std::shared_ptr<SiPixelQuality> payload = fetchPayload(std::get<1>(iov));
 
-      Phase1PixelROCMaps theBPixMap("");
+      Phase1PixelROCMaps theMap("");
 
       auto theDisabledModules = payload->getBadComponentList();
+      if (this->isPhase0(theDisabledModules)) {
+        edm::LogError("SiPixelQuality_PayloadInspector")
+            << "SiPixelQuality maps are not supported for non-Phase1 Pixel geometries !";
+        TCanvas canvas("Canv", "Canv", 1200, 1000);
+        SiPixelPI::displayNotSupported(canvas, 0);
+        std::string fileName(m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+        return false;
+      }
+
       for (const auto& mod : theDisabledModules) {
         int subid = DetId(mod.DetID).subdetId();
-        std::bitset<16> bad_rocs(mod.BadRocs);
-        if (subid == PixelSubdetector::PixelBarrel) {
+
+        if ((subid == PixelSubdetector::PixelBarrel && myType == SiPixelPI::t_barrel) ||
+            (subid == PixelSubdetector::PixelEndcap && myType == SiPixelPI::t_forward) ||
+            (myType == SiPixelPI::t_all)) {
+          std::bitset<16> bad_rocs(mod.BadRocs);
           if (payload->IsModuleBad(mod.DetID)) {
-            theBPixMap.fillWholeModule(mod.DetID, 1.);
+            theMap.fillWholeModule(mod.DetID, 1.);
           } else {
-            theBPixMap.fillSelectedRocs(mod.DetID, bad_rocs, 1.);
+            theMap.fillSelectedRocs(mod.DetID, bad_rocs, 1.);
           }
         }
       }
 
       gStyle->SetOptStat(0);
       //=========================
-      TCanvas canvas("Summary", "Summary", 1200, 1200);
-      theBPixMap.drawBarrelMaps(canvas);
+      TCanvas canvas("Summary", "Summary", 1200, k_height[myType]);
+      canvas.cd();
 
       auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
 
-      for (unsigned int lay = 1; lay <= 4; lay++) {
-        canvas.cd(lay);
-        auto ltx = TLatex();
-        ltx.SetTextFont(62);
-        ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.055);
-        ltx.SetTextAlign(11);
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.01,
-                         unpacked.first == 0
-                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
-                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+      std::string IOVstring = (unpacked.first == 0)
+                                  ? std::to_string(unpacked.second)
+                                  : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second));
+
+      const auto headerText = fmt::sprintf("#color[4]{%s},  IOV: #color[4]{%s}", tagname, IOVstring);
+
+      switch (myType) {
+        case SiPixelPI::t_barrel:
+          theMap.drawBarrelMaps(canvas, headerText);
+          break;
+        case SiPixelPI::t_forward:
+          theMap.drawForwardMaps(canvas, headerText);
+          break;
+        case SiPixelPI::t_all:
+          theMap.drawMaps(canvas, headerText);
+          break;
+        default:
+          throw cms::Exception("SiPixelQualityMap") << "\nERROR: unrecognized Pixel Detector part " << std::endl;
       }
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 #ifdef MMDEBUG
-      canvas.SaveAs("outBPix.root");
+      canvas.SaveAs("outAll.root");
 #endif
 
       return true;
     }
 
   private:
+    static constexpr std::array<int, 3> k_height = {{1200, 600, 1600}};
     TrackerTopology m_trackerTopo;
+
+    //_________________________________________________
+    bool isPhase0(std::vector<SiPixelQuality::disabledModuleType> mods) {
+      SiPixelDetInfoFileReader reader =
+          SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh0DefaultFile).fullPath());
+      const auto& p0detIds = reader.getAllDetIds();
+
+      std::vector<uint32_t> ownDetIds;
+      std::transform(mods.begin(),
+                     mods.end(),
+                     std::back_inserter(ownDetIds),
+                     [](SiPixelQuality::disabledModuleType d) -> uint32_t { return d.DetID; });
+
+      for (const auto& det : ownDetIds) {
+        // if found at least one phase-0 detId early return
+        if (std::find(p0detIds.begin(), p0detIds.end(), det) != p0detIds.end()) {
+          return true;
+        }
+      }
+      return false;
+    }
   };
 
-  /************************************************
-   occupancy style map FPix
-  *************************************************/
+  using SiPixelBPixQualityMap = SiPixelQualityMap<SiPixelPI::t_barrel>;
+  using SiPixelFPixQualityMap = SiPixelQualityMap<SiPixelPI::t_forward>;
+  using SiPixelFullQualityMap = SiPixelQualityMap<SiPixelPI::t_all>;
 
-  class SiPixelFPixQualityMap
-      : public cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::SINGLE_IOV> {
+  /************************************************
+   occupancy style map whole Pixel, difference of payloads
+  *************************************************/
+  template <SiPixelPI::DetType myType, IOVMultiplicity nIOVs, int ntags>
+  class SiPixelQualityMapComparisonBase : public PlotImage<SiPixelQuality, nIOVs, ntags> {
   public:
-    SiPixelFPixQualityMap()
-        : cond::payloadInspector::PlotImage<SiPixelQuality, cond::payloadInspector::SINGLE_IOV>(
-              "SiPixelQuality Forward Pixel Map"),
+    SiPixelQualityMapComparisonBase()
+        : PlotImage<SiPixelQuality, nIOVs, ntags>(
+              Form("SiPixelQuality %s Pixel Map", SiPixelPI::DetNames[myType].c_str())),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {}
 
     bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      auto iov = tag.iovs.front();
-      std::shared_ptr<SiPixelQuality> payload = fetchPayload(std::get<1>(iov));
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto f_tagname = PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      Phase1PixelROCMaps theFPixMap("");
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto theDisabledModules = payload->getBadComponentList();
-      for (const auto& mod : theDisabledModules) {
-        int subid = DetId(mod.DetID).subdetId();
-        std::bitset<16> bad_rocs(mod.BadRocs);
-        if (subid == PixelSubdetector::PixelEndcap) {
-          if (payload->IsModuleBad(mod.DetID)) {
-            theFPixMap.fillWholeModule(mod.DetID, 1.);
-          } else {
-            theFPixMap.fillSelectedRocs(mod.DetID, bad_rocs, 1.);
-          }
-        }  // if it's endcap
-      }    // loop on disable moduels
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        l_tagname = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<SiPixelQuality> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiPixelQuality> first_payload = this->fetchPayload(std::get<1>(firstiov));
+
+      if (this->isPhase0(first_payload) || this->isPhase0(last_payload)) {
+        edm::LogError("SiPixelQuality_PayloadInspector")
+            << "SiPixelQuality comparison maps are not supported for non-Phase1 Pixel geometries !";
+        TCanvas canvas("Canv", "Canv", 1200, 1000);
+        SiPixelPI::displayNotSupported(canvas, 0);
+        std::string fileName(this->m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+        return false;
+      }
+
+      Phase1PixelROCMaps theMap("", "#Delta payload A - payload B");
 
       gStyle->SetOptStat(0);
       //=========================
-      TCanvas canvas("Summary", "Summary", 1200, 600);
-      theFPixMap.drawForwardMaps(canvas);
+      TCanvas canvas("Summary", "Summary", 1200, k_height[myType]);
+      canvas.cd();
 
-      auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
+      auto f_unpacked = SiPixelPI::unpack(std::get<0>(firstiov));
+      auto l_unpacked = SiPixelPI::unpack(std::get<0>(lastiov));
 
-      for (unsigned int ring = 1; ring <= 2; ring++) {
-        canvas.cd(ring);
-        auto ltx = TLatex();
-        ltx.SetTextFont(62);
-        ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.050);
-        ltx.SetTextAlign(11);
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.01,
-                         unpacked.first == 0
-                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
-                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+      std::string f_IOVstring = (f_unpacked.first == 0)
+                                    ? std::to_string(f_unpacked.second)
+                                    : (std::to_string(f_unpacked.first) + "," + std::to_string(f_unpacked.second));
+
+      std::string l_IOVstring = (l_unpacked.first == 0)
+                                    ? std::to_string(l_unpacked.second)
+                                    : (std::to_string(l_unpacked.first) + "," + std::to_string(l_unpacked.second));
+
+      std::string headerText;
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        headerText = fmt::sprintf(
+            "#Delta #color[2]{A: %s, %s} - #color[4]{B: %s, %s}", f_tagname, f_IOVstring, l_tagname, l_IOVstring);
+      } else {
+        headerText =
+            fmt::sprintf("%s, #Delta IOV #color[2]{A: %s} - #color[4]{B: %s} ", f_tagname, f_IOVstring, l_IOVstring);
       }
 
-      std::string fileName(m_imageFileName);
+      switch (myType) {
+        case SiPixelPI::t_barrel:
+          theMap.drawBarrelMaps(canvas, headerText);
+          break;
+        case SiPixelPI::t_forward:
+          theMap.drawForwardMaps(canvas, headerText);
+          break;
+        case SiPixelPI::t_all:
+          theMap.drawMaps(canvas, headerText);
+          break;
+        default:
+          throw cms::Exception("SiPixelQualityMapComparison")
+              << "\nERROR: unrecognized Pixel Detector part " << std::endl;
+      }
+
+      // first loop on the first payload (newest)
+      fillTheMapFromPayload(theMap, first_payload, false);
+
+      // then loop on the second payload (oldest)
+      fillTheMapFromPayload(theMap, last_payload, true);  // true will subtract
+
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 #ifdef MMDEBUG
-      canvas.SaveAs("outFPix.root");
+      canvas.SaveAs("outAll.root");
 #endif
+
       return true;
     }
 
   private:
+    static constexpr std::array<int, 3> k_height = {{1200, 600, 1600}};
     TrackerTopology m_trackerTopo;
+
+    //_________________________________________________
+    bool isPhase0(const std::shared_ptr<SiPixelQuality>& payload) {
+      const auto mods = payload->getBadComponentList();
+      SiPixelDetInfoFileReader reader =
+          SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh0DefaultFile).fullPath());
+      const auto& p0detIds = reader.getAllDetIds();
+
+      std::vector<uint32_t> ownDetIds;
+      std::transform(mods.begin(),
+                     mods.end(),
+                     std::back_inserter(ownDetIds),
+                     [](SiPixelQuality::disabledModuleType d) -> uint32_t { return d.DetID; });
+
+      for (const auto& det : ownDetIds) {
+        // if found at least one phase-0 detId early return
+        if (std::find(p0detIds.begin(), p0detIds.end(), det) != p0detIds.end()) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    //____________________________________________________________________________________________
+    void fillTheMapFromPayload(Phase1PixelROCMaps& theMap,
+                               const std::shared_ptr<SiPixelQuality>& payload,
+                               bool subtract) {
+      const auto theDisabledModules = payload->getBadComponentList();
+      for (const auto& mod : theDisabledModules) {
+        int subid = DetId(mod.DetID).subdetId();
+        if ((subid == PixelSubdetector::PixelBarrel && myType == SiPixelPI::t_barrel) ||
+            (subid == PixelSubdetector::PixelEndcap && myType == SiPixelPI::t_forward) ||
+            (myType == SiPixelPI::t_all)) {
+          std::bitset<16> bad_rocs(mod.BadRocs);
+          if (payload->IsModuleBad(mod.DetID)) {
+            theMap.fillWholeModule(mod.DetID, (subtract ? -1. : 1.));
+          } else {
+            theMap.fillSelectedRocs(mod.DetID, bad_rocs, (subtract ? -1. : 1.));
+          }
+        }
+      }
+    }
   };
+
+  using SiPixelBPixQualityMapCompareSingleTag = SiPixelQualityMapComparisonBase<SiPixelPI::t_barrel, MULTI_IOV, 1>;
+  using SiPixelFPixQualityMapCompareSingleTag = SiPixelQualityMapComparisonBase<SiPixelPI::t_forward, MULTI_IOV, 1>;
+  using SiPixelFullQualityMapCompareSingleTag = SiPixelQualityMapComparisonBase<SiPixelPI::t_all, MULTI_IOV, 1>;
+  using SiPixelBPixQualityMapCompareTwoTags = SiPixelQualityMapComparisonBase<SiPixelPI::t_barrel, SINGLE_IOV, 2>;
+  using SiPixelFPixQualityMapCompareTwoTags = SiPixelQualityMapComparisonBase<SiPixelPI::t_forward, SINGLE_IOV, 2>;
+  using SiPixelFullQualityMapCompareTwoTags = SiPixelQualityMapComparisonBase<SiPixelPI::t_all, SINGLE_IOV, 2>;
 
 }  // namespace
 
@@ -285,4 +414,11 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelQuality) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsTimeHistory);
   PAYLOAD_INSPECTOR_CLASS(SiPixelBPixQualityMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFPixQualityMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelFullQualityMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelBPixQualityMapCompareSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelFPixQualityMapCompareSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelFullQualityMapCompareSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelBPixQualityMapCompareTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelFPixQualityMapCompareTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelFullQualityMapCompareTwoTags);
 }

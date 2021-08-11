@@ -21,18 +21,17 @@
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 #include <iterator>
-#include <TMath.h>
+#include "TMath.h"
 
 using namespace edm;
 using namespace std;
 
-DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : nevents(0) {
+DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()), statusMapToken_(esConsumes()), nevents(0) {
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Constructor called!";
 
   // switch for detailed analysis
@@ -57,7 +56,7 @@ DTSegmentAnalysisTask::~DTSegmentAnalysisTask() {
 
 void DTSegmentAnalysisTask::dqmBeginRun(const Run& run, const edm::EventSetup& context) {
   // Get the DT Geometry
-  context.get<MuonGeometryRecord>().get(dtGeom);
+  dtGeom = &context.getData(muonGeomToken_);
 }
 
 void DTSegmentAnalysisTask::bookHistograms(DQMStore::IBooker& ibooker,
@@ -113,9 +112,8 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
     edm::LogVerbatim("DTDQM|DTMonitorModule|DTSegmentAnalysisTask")
         << "[DTSegmentAnalysisTask] Analyze #Run: " << event.id().run() << " #Event: " << event.id().event();
 
-  ESHandle<DTStatusFlag> statusMap;
   if (checkNoisyChannels) {
-    setup.get<DTStatusFlagRcd>().get(statusMap);
+    statusMap = &setup.getData(statusMapToken_);
   }
 
   // -- 4D segment analysis  -----------------------------------------------------

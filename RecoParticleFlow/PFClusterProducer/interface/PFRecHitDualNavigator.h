@@ -3,15 +3,16 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 template <PFLayer::Layer D1, typename barrel, PFLayer::Layer D2, typename endcap>
 class PFRecHitDualNavigator : public PFRecHitNavigatorBase {
 public:
   PFRecHitDualNavigator() = default;
 
-  PFRecHitDualNavigator(const edm::ParameterSet& iConfig) {
-    barrelNav_ = new barrel(iConfig.getParameter<edm::ParameterSet>("barrel"));
-    endcapNav_ = new endcap(iConfig.getParameter<edm::ParameterSet>("endcap"));
+  PFRecHitDualNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {
+    barrelNav_ = new barrel(iConfig.getParameter<edm::ParameterSet>("barrel"), cc);
+    endcapNav_ = new endcap(iConfig.getParameter<edm::ParameterSet>("endcap"), cc);
   }
 
   void init(const edm::EventSetup& iSetup) override {

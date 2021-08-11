@@ -13,11 +13,9 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,11 +24,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
@@ -75,11 +70,8 @@ private:
   const double etamin_, etamax_;
   const int nbinR_, nbinZ_, nbinEta_, nLayers_, verbosity_;
   const bool ifNose_, ifLayer_;
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_hrndc_;
   std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> > tok_hgcGeom_;
   std::vector<const HGCalDDDConstants*> hgcons_;
-  const HcalDDDRecConstants* hcons_;
-  std::vector<bool> heRebuild_;
   std::vector<edm::EDGetTokenT<edm::PCaloHitContainer> > tok_hits_;
   std::vector<int> layers_, layerFront_;
 
@@ -107,21 +99,11 @@ HGCalSimHitStudy::HGCalSimHitStudy(const edm::ParameterSet& iConfig)
       ifLayer_(iConfig.getUntrackedParameter<bool>("ifLayer", false)) {
   usesResource(TFileService::kSharedResource);
 
-  for (auto const& name : nameDetectors_) {
-    if (name == "HCal") {
-      heRebuild_.emplace_back(true);
-      tok_hrndc_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-      tok_hgcGeom_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
-          edm::ESInputTag{"", "HGCalHEScintillatorSensitive"}));
-    } else {
-      heRebuild_.emplace_back(false);
-      tok_hgcGeom_.emplace_back(
-          esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
-    }
-  }
-  for (auto const& source : caloHitSources_) {
+  for (auto const& name : nameDetectors_)
+    tok_hgcGeom_.emplace_back(
+        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
+  for (auto const& source : caloHitSources_)
     tok_hits_.emplace_back(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", source)));
-  }
 }
 
 void HGCalSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -155,20 +137,7 @@ void HGCalSimHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       if (verbosity_ > 0)
         edm::LogVerbatim("HGCalValidation") << " PcalohitItr = " << theCaloHitContainers->size();
       std::vector<PCaloHit> caloHits;
-      if (heRebuild_[k]) {
-        for (auto const& hit : *(theCaloHitContainers.product())) {
-          unsigned int id = hit.id();
-          HcalDetId hid = HcalHitRelabeller::relabel(id, hcons_);
-          if (hid.subdet() != static_cast<int>(HcalEndcap)) {
-            caloHits.emplace_back(hit);
-            caloHits.back().setID(hid.rawId());
-            if (verbosity_ > 0)
-              edm::LogVerbatim("HGCalValidation") << "Hit[" << caloHits.size() << "] " << hid;
-          }
-        }
-      } else {
-        caloHits.insert(caloHits.end(), theCaloHitContainers->begin(), theCaloHitContainers->end());
-      }
+      caloHits.insert(caloHits.end(), theCaloHitContainers->begin(), theCaloHitContainers->end());
       analyzeHits(k, nameDetectors_[k], caloHits);
     } else if (verbosity_ > 0) {
       edm::LogVerbatim("HGCalValidation") << "PCaloHitContainer does not "
@@ -192,73 +161,55 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
     int cell, sector, sector2(0), layer, zside;
     int subdet(0), cell2(0), type(0);
     HepGeom::Point3D<float> gcoord;
-    if (heRebuild_[ih]) {
-      HcalDetId detId = HcalDetId(id);
-      subdet = detId.subdet();
-      cell = detId.ietaAbs();
-      sector = detId.iphi();
-      layer = detId.depth();
+    std::pair<float, float> xy;
+    if (ifNose_) {
+      HFNoseDetId detId = HFNoseDetId(id);
+      subdet = detId.subdetId();
+      cell = detId.cellU();
+      cell2 = detId.cellV();
+      sector = detId.waferU();
+      sector2 = detId.waferV();
+      type = detId.type();
+      layer = detId.layer();
       zside = detId.zside();
-      std::pair<double, double> etaphi = hcons_->getEtaPhi(subdet, zside * cell, sector);
-      double rz = hcons_->getRZ(subdet, zside * cell, layer);
-      if (verbosity_ > 2)
-        edm::LogVerbatim("HGCalValidation") << "i/p " << subdet << ":" << zside << ":" << cell << ":" << sector << ":"
-                                            << layer << " o/p " << etaphi.first << ":" << etaphi.second << ":" << rz;
-      gcoord = HepGeom::Point3D<float>(rz * cos(etaphi.second) / cosh(etaphi.first),
-                                       rz * sin(etaphi.second) / cosh(etaphi.first),
-                                       rz * tanh(etaphi.first));
+      xy = hgcons_[ih]->locateCell(layer, sector, sector2, cell, cell2, false, true);
+      h_W2_[ih]->Fill(sector2);
+      h_C2_[ih]->Fill(cell2);
+    } else if (hgcons_[ih]->waferHexagon8()) {
+      HGCSiliconDetId detId = HGCSiliconDetId(id);
+      subdet = static_cast<int>(detId.det());
+      cell = detId.cellU();
+      cell2 = detId.cellV();
+      sector = detId.waferU();
+      sector2 = detId.waferV();
+      type = detId.type();
+      layer = detId.layer();
+      zside = detId.zside();
+      xy = hgcons_[ih]->locateCell(layer, sector, sector2, cell, cell2, false, true);
+      h_W2_[ih]->Fill(sector2);
+      h_C2_[ih]->Fill(cell2);
+    } else if (hgcons_[ih]->tileTrapezoid()) {
+      HGCScintillatorDetId detId = HGCScintillatorDetId(id);
+      subdet = static_cast<int>(detId.det());
+      sector = detId.ieta();
+      cell = detId.iphi();
+      type = detId.type();
+      layer = detId.layer();
+      zside = detId.zside();
+      xy = hgcons_[ih]->locateCellTrap(layer, sector, cell, false);
     } else {
-      std::pair<float, float> xy;
-      if (ifNose_) {
-        HFNoseDetId detId = HFNoseDetId(id);
-        subdet = detId.subdetId();
-        cell = detId.cellU();
-        cell2 = detId.cellV();
-        sector = detId.waferU();
-        sector2 = detId.waferV();
-        type = detId.type();
-        layer = detId.layer();
-        zside = detId.zside();
-        xy = hgcons_[ih]->locateCell(layer, sector, sector2, cell, cell2, false, true);
-        h_W2_[ih]->Fill(sector2);
-        h_C2_[ih]->Fill(cell2);
-
-      } else if (hgcons_[ih]->waferHexagon8()) {
-        HGCSiliconDetId detId = HGCSiliconDetId(id);
-        subdet = static_cast<int>(detId.det());
-        cell = detId.cellU();
-        cell2 = detId.cellV();
-        sector = detId.waferU();
-        sector2 = detId.waferV();
-        type = detId.type();
-        layer = detId.layer();
-        zside = detId.zside();
-        xy = hgcons_[ih]->locateCell(layer, sector, sector2, cell, cell2, false, true);
-        h_W2_[ih]->Fill(sector2);
-        h_C2_[ih]->Fill(cell2);
-      } else if (hgcons_[ih]->tileTrapezoid()) {
-        HGCScintillatorDetId detId = HGCScintillatorDetId(id);
-        subdet = static_cast<int>(detId.det());
-        sector = detId.ieta();
-        cell = detId.iphi();
-        type = detId.type();
-        layer = detId.layer();
-        zside = detId.zside();
-        xy = hgcons_[ih]->locateCellTrap(layer, sector, cell, false);
-      } else {
-        HGCalTestNumbering::unpackHexagonIndex(id, subdet, zside, layer, sector, type, cell);
-        xy = hgcons_[ih]->locateCell(cell, layer, sector, false);
-      }
-      double zp = hgcons_[ih]->waferZ(layer, false);
-      if (zside < 0)
-        zp = -zp;
-      double xp = (zp < 0) ? -xy.first : xy.first;
-      gcoord = HepGeom::Point3D<float>(xp, xy.second, zp);
-      if (verbosity_ > 2)
-        edm::LogVerbatim("HGCalValidation")
-            << "i/p " << subdet << ":" << zside << ":" << layer << ":" << sector << ":" << sector2 << ":" << cell << ":"
-            << cell2 << " o/p " << xy.first << ":" << xy.second << ":" << zp;
+      HGCalTestNumbering::unpackHexagonIndex(id, subdet, zside, layer, sector, type, cell);
+      xy = hgcons_[ih]->locateCell(cell, layer, sector, false);
     }
+    double zp = hgcons_[ih]->waferZ(layer, false);
+    if (zside < 0)
+      zp = -zp;
+    double xp = (zp < 0) ? -xy.first : xy.first;
+    gcoord = HepGeom::Point3D<float>(xp, xy.second, zp);
+    if (verbosity_ > 2)
+      edm::LogVerbatim("HGCalValidation")
+          << "i/p " << subdet << ":" << zside << ":" << layer << ":" << sector << ":" << sector2 << ":" << cell << ":"
+          << cell2 << " o/p " << xy.first << ":" << xy.second << ":" << zp;
     nused++;
     double tof = (gcoord.mag() * CLHEP::mm) / CLHEP::c_light;
     if (verbosity_ > 1)
@@ -330,21 +281,9 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
 // ------------ method called when starting to processes a run  ------------
 void HGCalSimHitStudy::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   for (unsigned int k = 0; k < nameDetectors_.size(); ++k) {
-    if (heRebuild_[k]) {
-      edm::ESHandle<HcalDDDRecConstants> pHRNDC = iSetup.getHandle(tok_hrndc_);
-      hcons_ = pHRNDC.product();
-      layers_.emplace_back(hcons_->getMaxDepth(1));
-      hgcons_.emplace_back(nullptr);
-      layerFront_.emplace_back(40);
-    } else {
-      edm::ESHandle<HGCalDDDConstants> pHGDC = iSetup.getHandle(tok_hgcGeom_[k]);
-      hgcons_.emplace_back(pHGDC.product());
-      layers_.emplace_back(hgcons_.back()->layers(false));
-      if (k == 0)
-        layerFront_.emplace_back(0);
-      else
-        layerFront_.emplace_back(28);
-    }
+    hgcons_.emplace_back(&iSetup.getData(tok_hgcGeom_[k]));
+    layers_.emplace_back(hgcons_.back()->layers(false));
+    layerFront_.emplace_back(hgcons_.back()->firstLayer());
     if (verbosity_ > 0)
       edm::LogVerbatim("HGCalValidation") << nameDetectors_[k] << " defined with " << layers_.back() << " Layers with "
                                           << layerFront_.back() << " in front";
@@ -463,7 +402,7 @@ void HGCalSimHitStudy::beginJob() {
     name << "LY_" << nameDetectors_[ih];
     title << "Layer number for " << nameDetectors_[ih];
     h_Ly_.emplace_back(fs->make<TH1D>(name.str().c_str(), title.str().c_str(), 200, 0, 100));
-    if ((nameDetectors_[ih] == "HGCalHEScintillatorSensitive") || heRebuild_[ih]) {
+    if (nameDetectors_[ih] == "HGCalHEScintillatorSensitive") {
       name.str("");
       title.str("");
       name << "IR_" << nameDetectors_[ih];

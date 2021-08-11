@@ -1,37 +1,30 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-
+#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
-#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
-
-#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 
 #include <atomic>
 #include <memory>
@@ -177,7 +170,6 @@ void SiPixelDigiToRaw::fillDescriptions(edm::ConfigurationDescriptions& descript
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputLabel");
   desc.add<bool>("UsePhase1", false);
-  desc.addUntracked<bool>("Timing", false)->setComment("deprecated");
   descriptions.add("siPixelRawData", desc);
 }
 

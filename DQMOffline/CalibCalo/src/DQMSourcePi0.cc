@@ -53,6 +53,8 @@ DQMSourcePi0::DQMSourcePi0(const edm::ParameterSet &ps) : eventCounter_(0) {
       consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEEpi0Tag"));
   productMonitoredEEeta_ =
       consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEEetaTag"));
+  caloTopoToken_ = esConsumes();
+  caloGeomToken_ = esConsumes();
 
   isMonEBpi0_ = ps.getUntrackedParameter<bool>("isMonEBpi0", false);
   isMonEBeta_ = ps.getUntrackedParameter<bool>("isMonEBeta", false);
@@ -307,8 +309,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
     return;
   eventCounter_++;
 
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
+  auto const &theCaloTopology = iSetup.getHandle(caloTopoToken_);
 
   std::vector<EcalRecHit> seeds;
   seeds.clear();
@@ -335,8 +336,9 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
   // Initialize the Position Calc
 
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<CaloGeometryRecord>().get(geoHandle);
+  //edm::ESHandle<CaloGeometry> geoHandle;
+  //iSetup.get<CaloGeometryRecord>().get(geoHandle);
+  const auto &geoHandle = iSetup.getHandle(caloGeomToken_);
   const CaloSubdetectorGeometry *geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   const CaloSubdetectorGeometry *geometryEE_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   const CaloSubdetectorGeometry *geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);

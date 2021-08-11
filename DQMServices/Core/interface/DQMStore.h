@@ -715,6 +715,7 @@ namespace dqm {
 
       // Book MEs by lumi by default whenever possible.
       bool doSaveByLumi_;
+      std::vector<std::string> MEsToSave_;  //just if perLS is ON
 
       // if non-empty, debugTrackME calls will log some information whenever a
       // ME path contains this string.

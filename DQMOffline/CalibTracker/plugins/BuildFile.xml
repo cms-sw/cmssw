@@ -11,6 +11,7 @@
 <use name="DataFormats/SiStripDetId"/>
 <use name="CalibTracker/Records"/>
 <use name="CalibTracker/SiStripQuality"/>
+<use name="CalibTracker/SiStripCommon"/>
 <use name="CondCore/PopCon"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/TrackerRecHit2D"/>

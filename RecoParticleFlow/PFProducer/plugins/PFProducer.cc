@@ -46,6 +46,7 @@ public:
 private:
   const edm::EDPutTokenT<reco::PFCandidateCollection> pfCandidatesToken_;
   const edm::EDPutTokenT<reco::PFCandidateCollection> pfCleanedCandidatesToken_;
+  edm::ESGetToken<PerformancePayload, PFCalibrationRcd> perfToken_;
 
   const edm::EDGetTokenT<reco::PFBlockCollection> inputTagBlocks_;
   edm::EDGetTokenT<reco::MuonCollection> inputTagMuons_;
@@ -186,9 +187,10 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 
   useCalibrationsFromDB_ = iConfig.getParameter<bool>("useCalibrationsFromDB");
 
-  if (useCalibrationsFromDB_)
+  if (useCalibrationsFromDB_) {
     calibrationsLabel_ = iConfig.getParameter<std::string>("calibrationsLabel");
-
+    perfToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", calibrationsLabel_));
+  }
   // Secondary tracks and displaced vertices parameters
   pfAlgo_.setDisplacedVerticesParameters(
       rejectTracks_Bad, rejectTracks_Step45, usePFNuclearInteractions, usePFConversions, usePFDecays, dptRel_DispVtx);
@@ -221,8 +223,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 void PFProducer::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   if (useCalibrationsFromDB_) {
     // read the PFCalibration functions from the global tags
-    edm::ESHandle<PerformancePayload> perfH;
-    es.get<PFCalibrationRcd>().get(calibrationsLabel_, perfH);
+    auto perfH = es.getHandle(perfToken_);
 
     PerformancePayloadFromTFormula const* pfCalibrations =
         static_cast<const PerformancePayloadFromTFormula*>(perfH.product());

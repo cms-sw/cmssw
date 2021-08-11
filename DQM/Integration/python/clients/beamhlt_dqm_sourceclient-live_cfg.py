@@ -4,9 +4,10 @@ import FWCore.ParameterSet.Config as cms
 # Define once the BeamSpotOnline record name,
 # will be used both in BeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineHLTObjectsRcd'
-BSOnlineTag = 'BeamSpotOnlineTestHLT'
-BSOnlineJobName = 'BeamSpotOnlineTestHLT'
+BSOnlineTag = 'BeamSpotOnlineHLT'
+BSOnlineJobName = 'BeamSpotOnlineHLT'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
+useLockRecords = True
 
 #from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 #process = cms.Process("BeamMonitor", Run2_2018) # FIMXE
@@ -19,6 +20,7 @@ if "dqm_cmssw/playback" in str(sys.argv[1]):
   BSOnlineTag = BSOnlineTag + 'Playback'
   BSOnlineJobName = BSOnlineJobName + 'Playback'
   BSOnlineOmsServiceUrl = ''
+  useLockRecords = False
 
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -41,6 +43,7 @@ unitTest = False
 if 'unitTest=True' in sys.argv:
   live=False
   unitTest=True
+  useLockRecords = False
 
 # Common part for PP and H.I Running
 #-----------------------------
@@ -73,10 +76,10 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 # DQM Live Environment
 #-----------------------------
 process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder = 'BeamMonitor'
-process.dqmSaver.tag           = 'BeamMonitor'
+process.dqmEnv.subSystemFolder = 'BeamMonitorHLT'
+process.dqmSaver.tag           = 'BeamMonitorHLT'
 process.dqmSaver.runNumber     = options.runNumber
-process.dqmSaverPB.tag         = 'BeamMonitor'
+process.dqmSaverPB.tag         = 'BeamMonitorHLT'
 process.dqmSaverPB.runNumber   = options.runNumber
 
 #-----------------------------
@@ -95,6 +98,7 @@ process.GlobalTag.DBParameters.authenticationPath = cms.untracked.string('.')
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 # Change Beam Monitor variables
+process.dqmBeamMonitor.useLockRecords = cms.untracked.bool(useLockRecords)
 if process.dqmRunConfig.type.value() is "production":
   process.dqmBeamMonitor.BeamFitter.WriteAscii = True
   process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
@@ -162,7 +166,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
         "HLT_PAZeroBias_v", "HLT_ZeroBias_", "HLT_QuadJet",
         "HLT_HI")
 
-    process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
+    process.dqmBeamMonitor.hltResults = "TriggerResults::HLT"
 
     #---------
     # Upload BeamSpotOnlineObject (HLTRcd) to CondDB
@@ -188,8 +192,10 @@ if (process.runType.getRunType() == process.runType.pp_run or
             tag = cms.string(BSOnlineTag),
             timetype = cms.untracked.string('Lumi'),
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
-        ))
+        )),
+        frontierKey = cms.untracked.string(options.runUniqueKey)
       )
+
     else:
       process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
         DBParameters = cms.PSet(
@@ -210,8 +216,11 @@ if (process.runType.getRunType() == process.runType.pp_run or
             tag = cms.string(BSOnlineTag),
             timetype = cms.untracked.string('Lumi'),
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
-        ))
+        )),
+        frontierKey = cms.untracked.string(options.runUniqueKey)
       )
+
+    print("Configured frontierKey", options.runUniqueKey)
 
     process.p = cms.Path( process.hltTriggerTypeFilter
                         * process.dqmcommon

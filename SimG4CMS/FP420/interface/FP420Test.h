@@ -12,9 +12,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-// necessary objects:
-#include "FWCore/Framework/interface/ESHandle.h"
-
 //
 //
 #include "SimG4Core/Notification/interface/Observer.h"

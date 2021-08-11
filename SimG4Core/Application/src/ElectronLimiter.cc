@@ -80,7 +80,7 @@ G4double ElectronLimiter::PostStepGetPhysicalInteractionLength(const G4Track &aT
   if (!killTrack_ && rangeCheckFlag_) {
     G4double safety = aTrack.GetStep()->GetPreStepPoint()->GetSafety();
     if (safety > std::min(minStepLimit_, previousLimit)) {
-      G4double range = ionisation_->GetRangeForLoss(kinEnergy, aTrack.GetMaterialCutsCouple());
+      G4double range = ionisation_->GetRange(kinEnergy, aTrack.GetMaterialCutsCouple());
       if (safety >= range) {
         killTrack_ = true;
         limit = 0.0;

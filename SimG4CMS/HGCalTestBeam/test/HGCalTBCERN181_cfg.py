@@ -75,6 +75,10 @@ process.VtxSmeared.MinY = -7.5
 process.VtxSmeared.MaxY =  7.5
 process.g4SimHits.HGCSD.RejectMouseBite = True
 process.g4SimHits.HGCSD.RotatedWafer    = True
+process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
+                             'HGCSensitiveDetector',
+                             'HGCalTB1601SensitiveDetector',
+                             'HcalTB06BeamDetector']
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)

@@ -120,7 +120,7 @@ private:
   float calcPhi(float x, float y);
 
   edm::Service<TFileService> fs;
-  SiStripDetInfoFileReader* reader;
+  SiStripDetInfo _detInfo;
   edm::FileInPath FileInPath_;
   SiStripQuality* quality_;
   std::unique_ptr<SiStripBadStrip> getNewObject() override;
@@ -147,6 +147,9 @@ private:
   float _tkMapMin;
   float _effPlotMin;
   TString _title;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> _tkGeomToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> _tTopoToken;
 
   unsigned int nTEClayers;
 
@@ -183,7 +186,7 @@ private:
 };
 
 SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& conf)
-    : ConditionDBWriter<SiStripBadStrip>(conf), FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat") {
+    : ConditionDBWriter<SiStripBadStrip>(conf), FileInPath_(SiStripDetInfoFileReader::kDefaultFile) {
   CalibTreeFilenames = conf.getUntrackedParameter<vector<std::string> >("CalibTreeFilenames");
   threshold = conf.getParameter<double>("Threshold");
   nModsMin = conf.getParameter<int>("nModsMin");
@@ -205,13 +208,15 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
   _tkMapMin = conf.getUntrackedParameter<double>("TkMapMin", 0.9);
   _effPlotMin = conf.getUntrackedParameter<double>("EffPlotMin", 0.9);
   _title = conf.getParameter<std::string>("Title");
-  reader = new SiStripDetInfoFileReader(FileInPath_.fullPath());
+  _tkGeomToken = esConsumes();
+  _tTopoToken = esConsumes();
+  _detInfo = SiStripDetInfoFileReader::read(FileInPath_.fullPath());
 
   nTEClayers = 9;  // number of wheels
   if (_showRings)
     nTEClayers = 7;  // number of rings
 
-  quality_ = new SiStripQuality;
+  quality_ = new SiStripQuality(_detInfo);
 }
 
 SiStripHitEffFromCalibTree::~SiStripHitEffFromCalibTree() {}
@@ -226,14 +231,8 @@ void SiStripHitEffFromCalibTree::algoEndJob() {
 }
 
 void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::EventSetup& c) {
-  edm::ESHandle<TrackerGeometry> tracker;
-  c.get<TrackerDigiGeometryRecord>().get(tracker);
-  const TrackerGeometry* tkgeom = &(*tracker);
-
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  c.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const auto& tkgeom = c.getData(_tkGeomToken);
+  const auto& tTopo = c.getData(_tTopoToken);
 
   // read bad modules to mask
   ifstream badModules_file;
@@ -305,7 +304,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     cout << "A module is bad if efficiency < the avg in layer - " << threshold << " and has at least " << nModsMin
          << " nModsMin." << endl;
 
-  unsigned int run, evt, bx;
+  unsigned int run, evt, bx{0};
   double instLumi, PU;
 
   //Open the ROOT Calib Tree
@@ -493,7 +492,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
         stripCluster = ClusterLocX / Pitch + nstrips / 2.0;
       } else {
         DetId ClusterDetId(id);
-        const StripGeomDetUnit* stripdet = (const StripGeomDetUnit*)tkgeom->idToDetUnit(ClusterDetId);
+        const StripGeomDetUnit* stripdet = (const StripGeomDetUnit*)tkgeom.idToDetUnit(ClusterDetId);
         const StripTopology& Topo = stripdet->specificTopology();
         nstrips = Topo.nstrips();
         Pitch = stripdet->surface().bounds().width() / Topo.nstrips();
@@ -713,7 +712,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       //TIB
       //&&&&&&&&&&&&&&&&&
 
-      component = tTopo->tibLayer(BC[i].detid);
+      component = tTopo.tibLayer(BC[i].detid);
       SetBadComponents(0, component, BC[i], ssV, NBadComponent);
 
     } else if (a.subdetId() == SiStripDetId::TID) {
@@ -721,7 +720,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       //TID
       //&&&&&&&&&&&&&&&&&
 
-      component = tTopo->tidSide(BC[i].detid) == 2 ? tTopo->tidWheel(BC[i].detid) : tTopo->tidWheel(BC[i].detid) + 3;
+      component = tTopo.tidSide(BC[i].detid) == 2 ? tTopo.tidWheel(BC[i].detid) : tTopo.tidWheel(BC[i].detid) + 3;
       SetBadComponents(1, component, BC[i], ssV, NBadComponent);
 
     } else if (a.subdetId() == SiStripDetId::TOB) {
@@ -729,7 +728,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       //TOB
       //&&&&&&&&&&&&&&&&&
 
-      component = tTopo->tobLayer(BC[i].detid);
+      component = tTopo.tobLayer(BC[i].detid);
       SetBadComponents(2, component, BC[i], ssV, NBadComponent);
 
     } else if (a.subdetId() == SiStripDetId::TEC) {
@@ -737,7 +736,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       //TEC
       //&&&&&&&&&&&&&&&&&
 
-      component = tTopo->tecSide(BC[i].detid) == 2 ? tTopo->tecWheel(BC[i].detid) : tTopo->tecWheel(BC[i].detid) + 9;
+      component = tTopo.tecSide(BC[i].detid) == 2 ? tTopo.tecWheel(BC[i].detid) : tTopo.tecWheel(BC[i].detid) + 9;
       SetBadComponents(3, component, BC[i], ssV, NBadComponent);
     }
   }
@@ -758,16 +757,16 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     SiStripDetId a(detid);
     if (a.subdetId() == 3) {
       subdet = 0;
-      component = tTopo->tibLayer(detid);
+      component = tTopo.tibLayer(detid);
     } else if (a.subdetId() == 4) {
       subdet = 1;
-      component = tTopo->tidSide(detid) == 2 ? tTopo->tidWheel(detid) : tTopo->tidWheel(detid) + 3;
+      component = tTopo.tidSide(detid) == 2 ? tTopo.tidWheel(detid) : tTopo.tidWheel(detid) + 3;
     } else if (a.subdetId() == 5) {
       subdet = 2;
-      component = tTopo->tobLayer(detid);
+      component = tTopo.tobLayer(detid);
     } else if (a.subdetId() == 6) {
       subdet = 3;
-      component = tTopo->tecSide(detid) == 2 ? tTopo->tecWheel(detid) : tTopo->tecWheel(detid) + 9;
+      component = tTopo.tecSide(detid) == 2 ? tTopo.tecWheel(detid) : tTopo.tecWheel(detid) + 9;
     }
 
     SiStripQuality::Range sqrange =
@@ -782,7 +781,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       percentage += range;
     }
     if (percentage != 0)
-      percentage /= 128. * reader->getNumberOfApvsAndStripLength(detid).first;
+      percentage /= 128. * _detInfo.getNumberOfApvsAndStripLength(detid).first;
     if (percentage > 1)
       edm::LogError("SiStripQualityStatistics") << "PROBLEM detid " << detid << " value " << percentage << std::endl;
   }
@@ -1105,7 +1104,7 @@ void SiStripHitEffFromCalibTree::makeSQLite() {
   std::vector<unsigned int> BadStripList;
   unsigned short NStrips;
   unsigned int id1;
-  std::unique_ptr<SiStripQuality> pQuality = std::make_unique<SiStripQuality>();
+  std::unique_ptr<SiStripQuality> pQuality = std::make_unique<SiStripQuality>(_detInfo);
   //This is the list of the bad strips, use to mask out entire APVs
   //Now simply go through the bad hit list and mask out things that
   //are bad!
@@ -1113,7 +1112,7 @@ void SiStripHitEffFromCalibTree::makeSQLite() {
   for (it = BadModules.begin(); it != BadModules.end(); it++) {
     //We need to figure out how many strips are in this particular module
     //To Mask correctly!
-    NStrips = reader->getNumberOfApvsAndStripLength((*it).first).first * 128;
+    NStrips = _detInfo.getNumberOfApvsAndStripLength((*it).first).first * 128;
     cout << "Number of strips module " << (*it).first << " is " << NStrips << endl;
     BadStripList.push_back(pQuality->encode(0, NStrips, 0));
     //Now compact into a single bad module
@@ -1597,7 +1596,7 @@ float SiStripHitEffFromCalibTree::calcPhi(float x, float y) {
 
 void SiStripHitEffFromCalibTree::SetBadComponents(
     int i, int component, SiStripQuality::BadComponent& BC, std::stringstream ssV[4][19], int NBadComponent[4][19][4]) {
-  int napv = reader->getNumberOfApvsAndStripLength(BC.detid).first;
+  int napv = _detInfo.getNumberOfApvsAndStripLength(BC.detid).first;
 
   ssV[i][component] << "\n\t\t " << BC.detid << " \t " << BC.BadModule << " \t " << ((BC.BadFibers) & 0x1) << " ";
   if (napv == 4)

@@ -91,11 +91,9 @@ namespace {
     }  //fill method
   };
 
-  /*******************************************************
-   
+  /***************************************************************
      2d histogram of ECAL EndCaps Time Calib Constants of 1 IOV 
-
-  *******************************************************/
+   ***************************************************************/
 
   class EcalTimeCalibConstantsEEMap : public cond::payloadInspector::Histogram2D<EcalTimeCalibConstants> {
   private:
@@ -216,16 +214,16 @@ namespace {
   };
 
   /*****************************************************************
-     2d plot of Ecal Time Calib Constants difference between 2 IOVs
+    2d plot of Ecal Time Calib Constants difference between 2 IOVs
   *****************************************************************/
-  class EcalTimeCalibConstantsDiff : public cond::payloadInspector::PlotImage<EcalTimeCalibConstants> {
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags, int method>
+  class EcalTimeCalibConstantsBase : public cond::payloadInspector::PlotImage<EcalTimeCalibConstants, nIOVs, ntags> {
   public:
-    EcalTimeCalibConstantsDiff()
-        : cond::payloadInspector::PlotImage<EcalTimeCalibConstants>("Ecal Time Calib Constants difference ") {
-      setSingleIov(false);
-    }
+    EcalTimeCalibConstantsBase()
+        : cond::payloadInspector::PlotImage<EcalTimeCalibConstants, nIOVs, ntags>(
+              "Ecal Time Calib Constants comparison") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
       TH2F* barrel = new TH2F("EB", "mean EB", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F* endc_p = new TH2F("EE+", "mean EE+", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       TH2F* endc_m = new TH2F("EE-", "mean EE-", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
@@ -235,27 +233,43 @@ namespace {
       pEBmax = -10.;
       pEEmax = -10.;
 
-      unsigned int run[2], irun = 0;
+      unsigned int run[2];
       float pEB[kEBChannels], pEE[kEEChannels];
-      for (auto const& iov : iovs) {
-        std::shared_ptr<EcalTimeCalibConstants> payload = fetchPayload(std::get<1>(iov));
-        run[irun] = std::get<0>(iov);
-
+      std::string l_tagname[2];
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalTimeCalibConstants> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
         if (payload.get()) {
           if (payload->barrelItems().empty())
             return false;
 
-          fillEBMap_DiffIOV<EcalTimeCalibConstants>(payload, barrel, irun, pEB, pEBmin, pEBmax);
+          fillEBMap_TwoIOVs<EcalTimeCalibConstants>(payload, barrel, irun, pEB, pEBmin, pEBmax, method);
 
           if (payload->endcapItems().empty())
             return false;
 
-          fillEEMap_DiffIOV<EcalTimeCalibConstants>(payload, endc_m, endc_p, irun, pEE, pEEmin, pEEmax);
+          fillEEMap_TwoIOVs<EcalTimeCalibConstants>(payload, endc_m, endc_p, irun, pEE, pEEmin, pEEmax, method);
 
         }  // payload
-        irun++;
-
-      }  // loop over IOVs
+      }    // loop over IOVs
 
       gStyle->SetPalette(1);
       gStyle->SetOptStat(0);
@@ -263,8 +277,23 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal Time Calib Constants Diff, IOV %i - %i", run[1], run[0]));
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      std::string dr[2] = {"-", "/"};
+      if (ntags == 2) {
+        if (len < 180) {
+          t1.SetTextSize(0.05);
+          t1.DrawLatex(
+              0.5,
+              0.96,
+              Form("%s %i %s %s %i", l_tagname[1].c_str(), run[1], dr[method].c_str(), l_tagname[0].c_str(), run[0]));
+        } else {
+          t1.SetTextSize(0.05);
+          t1.DrawLatex(0.5, 0.96, Form("Ecal Time Calib Constants, IOV %i %s %i", run[1], dr[method].c_str(), run[0]));
+        }
+      } else {
+        t1.SetTextSize(0.05);
+        t1.DrawLatex(0.5, 0.96, Form("%s, IOV %i %s %i", l_tagname[0].c_str(), run[1], dr[method].c_str(), run[0]));
+      }
 
       float xmi[3] = {0.0, 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
@@ -282,15 +311,19 @@ namespace {
       pad[2]->cd();
       DrawEE(endc_p, pEEmin, pEEmax);
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };
+  };   // class EcalTimeCalibConstantsDiffBase
+  using EcalTimeCalibConstantsDiffOneTag = EcalTimeCalibConstantsBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
+  using EcalTimeCalibConstantsDiffTwoTags = EcalTimeCalibConstantsBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
+  using EcalTimeCalibConstantsRatioOneTag = EcalTimeCalibConstantsBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;
+  using EcalTimeCalibConstantsRatioTwoTags = EcalTimeCalibConstantsBase<cond::payloadInspector::SINGLE_IOV, 2, 1>;
 
   /*******************************************************
- 2d plot of Ecal Time Calib Constants Summary of 1 IOV
- *******************************************************/
+    2d plot of Ecal Time Calib Constants Summary of 1 IOV
+   *******************************************************/
   class EcalTimeCalibConstantsSummaryPlot : public cond::payloadInspector::PlotImage<EcalTimeCalibConstants> {
   public:
     EcalTimeCalibConstantsSummaryPlot()
@@ -355,6 +388,9 @@ PAYLOAD_INSPECTOR_MODULE(EcalTimeCalibConstants) {
   PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibConstantsEBMap);
   PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibConstantsEEMap);
   PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibConstantsPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibConstantsDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibConstantsDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibConstantsDiffTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibConstantsRatioOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibConstantsRatioTwoTags);
   PAYLOAD_INSPECTOR_CLASS(EcalTimeCalibConstantsSummaryPlot);
 }

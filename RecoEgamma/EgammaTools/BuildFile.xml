@@ -1,9 +1,13 @@
 <use name="CommonTools/Egamma"/>
+<use name="CommonTools/Statistics"/>
 <use name="CommonTools/Utils"/>
 <use name="FWCore/Framework"/>
+<use name="DataFormats/Common"/>
 <use name="DataFormats/HcalRecHit"/>
 <use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/TrackReco"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
 <use name="clhep"/>

@@ -46,7 +46,7 @@ public:
   ~PythiaFilterIsolatedTrack() override;
 
   static std::unique_ptr<PythiaFilterIsoTracks::Counters> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::unique_ptr<PythiaFilterIsoTracks::Counters>(new PythiaFilterIsoTracks::Counters());
+    return std::make_unique<PythiaFilterIsoTracks::Counters>();
   }
 
   bool filter(edm::Event&, edm::EventSetup const&) override;

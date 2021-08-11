@@ -3,7 +3,7 @@
 
 #ifndef __RecoHGCal_TICL_PRbyMultiClusters_H__
 #define __RecoHGCal_TICL_PRbyMultiClusters_H__
-#include "RecoHGCal/TICL/plugins/PatternRecognitionAlgoBase.h"
+#include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 
 #include <iostream>
 

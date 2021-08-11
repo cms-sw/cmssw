@@ -146,13 +146,12 @@ namespace {
         //=========================
         TCanvas canvas("ByDetId", "ByDetId", sides.second * 800, sides.first * 600);
         canvas.Divide(sides.second, sides.first);
-        edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-        auto reader = std::make_unique<SiStripDetInfoFileReader>(fp_.fullPath());
-
+        const auto detInfo =
+            SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
         for (const auto& the_detid : the_detids) {
           edm::LogPrint("SiStripNoisePerDetId") << "DetId:" << the_detid << std::endl;
 
-          unsigned int nAPVs = reader->getNumberOfApvsAndStripLength(the_detid).first;
+          unsigned int nAPVs = detInfo.getNumberOfApvsAndStripLength(the_detid).first;
           if (nAPVs == 0)
             nAPVs = 6;
           v_nAPVs.push_back(nAPVs);
@@ -171,7 +170,7 @@ namespace {
           if (the_detid != 0xFFFFFFFF) {
             fillHisto(payload, histo, the_detid);
           } else {
-            auto allDetIds = reader->getAllDetIds();
+            auto allDetIds = detInfo.getAllDetIds();
             for (const auto& id : allDetIds) {
               fillHisto(payload, histo, id);
             }
@@ -1396,8 +1395,8 @@ namespace {
       auto iov = tag.iovs.front();
       std::shared_ptr<SiStripNoises> payload = fetchPayload(std::get<1>(iov));
 
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       std::vector<uint32_t> detid;
       payload->getDetIds(detid);
@@ -1409,7 +1408,7 @@ namespace {
         for (int it = 0; it < (range.second - range.first) * 8 / 9; ++it) {
           auto noise = payload->getNoise(it, range);
           //to be used to fill the histogram
-          float stripL = reader->getNumberOfApvsAndStripLength(d).second;
+          float stripL = detInfo.getNumberOfApvsAndStripLength(d).second;
           std::get<0>(noisePerStripLength[stripL]) += 1;
           std::get<1>(noisePerStripLength[stripL]) += noise;
           std::get<2>(noisePerStripLength[stripL]) += (noise * noise);
@@ -1500,7 +1499,6 @@ namespace {
       canvas.SaveAs(fileName.c_str());
 
       delete f1;
-      delete reader;
       return true;
     }
   };

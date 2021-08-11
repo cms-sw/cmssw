@@ -21,10 +21,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -36,7 +33,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
-#include <TMath.h>
+#include "TMath.h"
 #include <cmath>
 
 using namespace std;
@@ -47,7 +44,9 @@ DTRunConditionVar::DTRunConditionVar(const ParameterSet& pSet)
       debug(pSet.getUntrackedParameter<bool>("debug", false)),
       nMinHitsPhi(pSet.getUntrackedParameter<int>("nMinHitsPhi")),
       maxAnglePhiSegm(pSet.getUntrackedParameter<double>("maxAnglePhiSegm")),
-      dt4DSegmentsToken_(consumes<DTRecSegment4DCollection>(pSet.getParameter<InputTag>("recoSegments"))) {}
+      dt4DSegmentsToken_(consumes<DTRecSegment4DCollection>(pSet.getParameter<InputTag>("recoSegments"))),
+      muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      mTimeToken_(esConsumes()) {}
 
 DTRunConditionVar::~DTRunConditionVar() {
   LogTrace("DTDQM|DTMonitorModule|DTRunConditionVar") << "DTRunConditionVar: destructor called";
@@ -74,8 +73,7 @@ void DTRunConditionVar::bookHistograms(DQMStore::IBooker& ibooker,
 
 void DTRunConditionVar::dqmBeginRun(const Run& run, const EventSetup& setup) {
   // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom);
-
+  dtGeom = &setup.getData(muonGeomToken_);
   return;
 }
 
@@ -84,12 +82,8 @@ void DTRunConditionVar::analyze(const Event& event, const EventSetup& eventSetup
       << "--- [DTRunConditionVar] Event analysed #Run: " << event.id().run() << " #Event: " << event.id().event()
       << endl;
 
-  // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
-
   // Get the map of vdrift from the setup
-  eventSetup.get<DTMtimeRcd>().get(mTime);
+  mTime = &eventSetup.getData(mTimeToken_);
   mTimeMap_ = &*mTime;
 
   // Get the segment collection from the event

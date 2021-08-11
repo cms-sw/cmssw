@@ -95,7 +95,7 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   if (doRefit) {
     // The outward-inward fitter (starts from theBWFilter innermost state)
     ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
-    theRefitter = new StandAloneMuonRefitter(refitterPSet, theService);
+    theRefitter = new StandAloneMuonRefitter(refitterPSet, iC, theService);
   }
 
   // The seed transformer (used to refit the seed and get the seed transient state)

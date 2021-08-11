@@ -43,7 +43,7 @@ public:
   const std::vector<RefDTPatternHit> &genHits() const { return genHits_; }
 
   //Printing
-  friend std::ostream &operator<<(std::ostream &out, DTPattern &p);
+  friend std::ostream &operator<<(std::ostream &out, DTPattern const &p);
 
 private:
   //Generated seeds

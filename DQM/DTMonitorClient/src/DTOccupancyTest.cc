@@ -7,13 +7,12 @@
  *
  */
 
-#include <DQM/DTMonitorClient/src/DTOccupancyTest.h>
+#include "DQM/DTMonitorClient/src/DTOccupancyTest.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -23,7 +22,8 @@
 using namespace edm;
 using namespace std;
 
-DTOccupancyTest::DTOccupancyTest(const edm::ParameterSet& ps) {
+DTOccupancyTest::DTOccupancyTest(const edm::ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogVerbatim("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest]: Constructor";
 
   // Get the DQM service
@@ -64,7 +64,7 @@ void DTOccupancyTest::beginRun(const edm::Run& run, const EventSetup& context) {
   LogVerbatim("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest]: BeginRun";
 
   // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &context.getData(muonGeomToken_);
 }
 
 void DTOccupancyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,

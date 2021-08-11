@@ -1,9 +1,10 @@
 #include "DQM/GEM/interface/GEMDQMBase.h"
+#include "Geometry/CommonTopologies/interface/GEMStripTopology.h"
 
 using namespace std;
 using namespace edm;
 
-GEMDQMBase::GEMDQMBase(const edm::ParameterSet& cfg) {
+GEMDQMBase::GEMDQMBase(const edm::ParameterSet& cfg) : geomToken_(esConsumes<edm::Transition::BeginRun>()) {
   log_category_ = cfg.getUntrackedParameter<std::string>("logCategory");
 
   nNumEtaPartitionGE0_ = 0;
@@ -14,9 +15,9 @@ GEMDQMBase::GEMDQMBase(const edm::ParameterSet& cfg) {
 int GEMDQMBase::initGeometry(edm::EventSetup const& iSetup) {
   GEMGeometry_ = nullptr;
   try {
-    edm::ESHandle<GEMGeometry> hGeom;
-    iSetup.get<MuonGeometryRecord>().get(hGeom);
-    GEMGeometry_ = &*hGeom;
+    //edm::ESHandle<GEMGeometry> hGeom;
+    //iSetup.get<MuonGeometryRecord>().get(hGeom);
+    GEMGeometry_ = &iSetup.getData(geomToken_);
   } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
     edm::LogError(log_category_) << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
     return -1;
@@ -74,17 +75,17 @@ int GEMDQMBase::loadChambers() {
       const int station_number = station->station();
       const int num_superchambers = superchambers.size();
       const int num_layers = superchambers.front()->nChambers();
-      const int max_vfat = getMaxVFAT(station->station());  // the numer of VFATs per GEMEtaPartition
+      const int max_vfat = getMaxVFAT(station->station());  // the number of VFATs per GEMEtaPartition
       const int num_etas = getNumEtaPartitions(station);    // the number of eta partitions per GEMChamber
       const int num_vfat = num_etas * max_vfat;             // the number of VFATs per GEMChamber
-      const int num_strip = GEMeMap::maxChan_;              // the number of strips (channels) per VFAT
+      const int num_digi = GEMeMap::maxChan_;               // the number of digis (channels) per VFAT
 
       nMaxNumCh_ = std::max(nMaxNumCh_, num_superchambers);
 
       for (int layer_number = 1; layer_number <= num_layers; layer_number++) {
         ME3IdsKey key3(region_number, station_number, layer_number);
-        mapStationInfo_[key3] = MEStationInfo(
-            region_number, station_number, layer_number, num_superchambers, num_etas, num_vfat, num_strip);
+        mapStationInfo_[key3] =
+            MEStationInfo(region_number, station_number, layer_number, num_superchambers, num_etas, num_vfat, num_digi);
       }
     }
   }
@@ -128,6 +129,8 @@ dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& iboo
 
   auto h2Res =
       ibooker.book2D(strName, "", nMaxNumCh_, 0.5, nMaxNumCh_ + 0.5, listLayers.size(), 0.5, listLayers.size() + 0.5);
+  h2Res->setXTitle("Chamber");
+  h2Res->setYTitle("Layer");
 
   if (h2Res == nullptr)
     return nullptr;
@@ -136,7 +139,15 @@ dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& iboo
     h2Res->setBinLabel(i, Form("%i", i), 1);
   for (Int_t i = 1; i <= (Int_t)listLayers.size(); i++) {
     auto key = listLayers[i - 1];
-    h2Res->setBinLabel(i, Form("GE%+i/%iL%i", keyToRegion(key), keyToStation(key), keyToLayer(key)), 2);
+    auto strInfo = GEMUtils::getSuffixName(key);  // NOTE: It starts with '_'
+    auto region = keyToRegion(key);
+    auto label = Form("GE%i%i-%cL%i;%s",
+                      std::abs(region),
+                      keyToStation(key),
+                      (region > 0 ? 'P' : 'M'),
+                      keyToLayer(key),
+                      strInfo.Data());
+    h2Res->setBinLabel(i, label, 2);
     Int_t nNumCh = mapStationInfo_[key].nNumChambers_;
     h2Res->setBinContent(0, i, nNumCh);
   }
@@ -146,6 +157,8 @@ dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& iboo
 
 int GEMDQMBase::GenerateMEPerChamber(DQMStore::IBooker& ibooker) {
   MEMap2Check_.clear();
+  MEMap2WithEtaCheck_.clear();
+  MEMap2AbsReWithEtaCheck_.clear();
   MEMap3Check_.clear();
   MEMap3WithChCheck_.clear();
   MEMap4Check_.clear();
@@ -169,21 +182,40 @@ int GEMDQMBase::GenerateMEPerChamber(DQMStore::IBooker& ibooker) {
       MEMap3Check_[key3] = true;
     }
     if (!MEMap3WithChCheck_[key3WithChamber]) {
-      auto strSuffixName = GEMUtils::getSuffixName(key3) + Form("_ch%02i", gid.chamber());
-      auto strSuffixTitle = GEMUtils::getSuffixTitle(key3) + Form(" Chamber %02i", gid.chamber());
+      Int_t nCh = gid.chamber();
+      Int_t nLa = gid.layer();
+      char cLS = (nCh % 2 == 0 ? 'L' : 'S');  // FIXME: Is it general enough?
+      auto strSuffixName = GEMUtils::getSuffixName(key2) + Form("-%02iL%i-%c", nCh, nLa, cLS);
+      auto strSuffixTitle = GEMUtils::getSuffixTitle(key2) + Form("-%02iL%i-%c", nCh, nLa, cLS);
       BookingHelper bh3Ch(ibooker, strSuffixName, strSuffixTitle);
       ProcessWithMEMap3WithChamber(bh3Ch, key3WithChamber);
       MEMap3WithChCheck_[key3WithChamber] = true;
     }
     for (auto iEta : ch.etaPartitions()) {
-      GEMDetId rId = iEta->id();
-      ME4IdsKey key4{gid.region(), gid.station(), gid.layer(), rId.roll()};
+      GEMDetId eId = iEta->id();
+      ME4IdsKey key4{gid.region(), gid.station(), gid.layer(), eId.ieta()};
+      ME3IdsKey key2WithEta{gid.region(), gid.station(), eId.ieta()};
+      ME3IdsKey key2AbsReWithEta{std::abs(gid.region()), gid.station(), eId.ieta()};
       if (!MEMap4Check_[key4]) {
-        auto strSuffixName = GEMUtils::getSuffixName(key3) + Form("_ieta%02i", rId.roll());
-        auto strSuffixTitle = GEMUtils::getSuffixTitle(key3) + Form(" iEta %02i", rId.roll());
+        auto strSuffixName = GEMUtils::getSuffixName(key3) + Form("-E%02i", eId.ieta());
+        auto strSuffixTitle = GEMUtils::getSuffixTitle(key3) + Form("-E%02i", eId.ieta());
         BookingHelper bh4(ibooker, strSuffixName, strSuffixTitle);
         ProcessWithMEMap4(bh4, key4);
         MEMap4Check_[key4] = true;
+      }
+      if (!MEMap2WithEtaCheck_[key2WithEta]) {
+        auto strSuffixName = GEMUtils::getSuffixName(key2) + Form("-E%02i", eId.ieta());
+        auto strSuffixTitle = GEMUtils::getSuffixTitle(key2) + Form("-E%02i", eId.ieta());
+        BookingHelper bh3(ibooker, strSuffixName, strSuffixTitle);
+        ProcessWithMEMap2WithEta(bh3, key2WithEta);
+        MEMap2WithEtaCheck_[key2WithEta] = true;
+      }
+      if (!MEMap2AbsReWithEtaCheck_[key2AbsReWithEta]) {
+        auto strSuffixName = Form("_GE%i%i-E%02i", std::abs(gid.region()), gid.station(), eId.ieta());
+        auto strSuffixTitle = Form(" GE%i%i-E%02i", std::abs(gid.region()), gid.station(), eId.ieta());
+        BookingHelper bh3(ibooker, strSuffixName, strSuffixTitle);
+        ProcessWithMEMap2AbsReWithEta(bh3, key2AbsReWithEta);
+        MEMap2AbsReWithEtaCheck_[key2AbsReWithEta] = true;
       }
     }
   }

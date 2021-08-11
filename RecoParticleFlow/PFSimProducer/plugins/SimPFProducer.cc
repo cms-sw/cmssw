@@ -78,7 +78,7 @@ DEFINE_FWK_MODULE(SimPFProducer);
 void SimPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // simPFProducer
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("simClustersSrc", {"particleFlowClusterHGCal"});
+  desc.add<edm::InputTag>("simClustersSrc", {"particleFlowClusterHGCalFromSimCl"});
   desc.add<edm::InputTag>("trackSrc", {"generalTracks"});
   desc.add<std::vector<edm::InputTag>>("associators",
                                        {

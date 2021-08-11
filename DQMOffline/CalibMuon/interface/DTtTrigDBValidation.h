@@ -12,7 +12,9 @@
 
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/DTObjects/interface/DTTtrig.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 #include <fstream>
 #include <string>
 #include <vector>
@@ -36,14 +38,17 @@ private:
   // Switch for verbosity
   std::string metname_;
   // The DB label
-  std::string labelDBRef_;
-  std::string labelDB_;
+  edm::ESGetToken<DTTtrig, DTTtrigRcd> labelDBRef_;
+  edm::ESGetToken<DTTtrig, DTTtrigRcd> labelDB_;
+  const DTTtrig *DTTtrigRefMap;
+  const DTTtrig *DTTtrigMap;
 
   int lowerLimit_;
   int higherLimit_;
 
   // The DTGeometry
-  edm::ESHandle<DTGeometry> dtGeom_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry *dtGeom;
 
   // Map of the tTrig and sigma by super-layer
   std::map<DTSuperLayerId, std::pair<float, float>> tTrigRefMap_;

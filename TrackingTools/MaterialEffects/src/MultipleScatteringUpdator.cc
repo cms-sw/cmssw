@@ -23,8 +23,8 @@ void MultipleScatteringUpdator::compute(const TrajectoryStateOnSurface& TSoS,
   // Now get information on medium
   //
   const MediumProperties& mp = surface.mediumProperties();
-  if
-    UNLIKELY(mp.radLen() == 0) return;
+  if UNLIKELY (mp.radLen() == 0)
+    return;
 
   // Momentum vector
   LocalVector d = TSoS.localMomentum();

@@ -18,22 +18,26 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //RecHit
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 
 #include <string>
 #include <map>
 #include <vector>
 
 class DTGeometry;
+class DTStatusFlag;
 
 class DTSegmentAnalysisTask : public DQMEDAnalyzer {
 public:
@@ -58,7 +62,12 @@ private:
   bool detailedAnalysis;
 
   // Get the DT Geometry
-  edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* dtGeom;
+
+  // Get the status Map
+  edm::ESGetToken<DTStatusFlag, DTStatusFlagRcd> statusMapToken_;
+  const DTStatusFlag* statusMap;
 
   // Label of 4D segments in the event
   edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;

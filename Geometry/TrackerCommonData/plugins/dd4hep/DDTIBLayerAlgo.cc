@@ -252,7 +252,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
     double dz = 0.5 * layerL - 2. * fillerDz;
     double _rmi = std::min(rin + 0.5 * dd4hep::mm, rout - 0.5 * dd4hep::mm);
     double _rma = std::max(rin + 0.5 * dd4hep::mm, rout - 0.5 * dd4hep::mm);
-    solid = ns.addSolidNS(name, Tube(_rmi, _rma, dz, -0.5 * width, width));
+    solid = ns.addSolidNS(name, Tube(_rmi, _rma, dz, -0.5 * width, 0.5 * width));
     LogDebug("TIBGeom") << solid.name() << " Tubs made of " << ribMat << " from " << -0.5 * convertRadToDeg(width)
                         << " to " << 0.5 * convertRadToDeg(width) << " with Rin " << rin + 0.5 * dd4hep::mm << " Rout "
                         << rout - 0.5 * dd4hep::mm << " ZHalf " << dz;
@@ -490,7 +490,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
         break;
     }
 
-    solid = ns.addSolidNS(name, Tube(pillarRin, pillarRout, pillarDz, -pillarDPhi, 2. * pillarDPhi));
+    solid = ns.addSolidNS(name, Tube(pillarRin, pillarRout, pillarDz, -pillarDPhi, pillarDPhi));
     Volume Pillar = ns.addVolumeNS(Volume(name, solid, ns.material(pillarMaterial)));
     LogDebug("TIBGeom") << solid.name() << " Tubs made of " << pillarMaterial << " from " << -pillarDPhi << " to "
                         << pillarDPhi << " with Rin " << pillarRin << " Rout " << pillarRout << " ZHalf " << pillarDz;

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 from __future__ import print_function
 from __future__ import division
@@ -13,7 +13,6 @@ from pprint import pprint
 import array
 import ROOT
 import math
-import six
 
 sepRE      = re.compile (r'[\s,;:]+')
 nonSpaceRE = re.compile (r'\S')
@@ -176,7 +175,7 @@ class LumiInfoCont (dict):
 
     def __str__ (self):
         retval = 'run,     lum     del ( dt  ) inst (#xng)\n'
-        for key, value in sorted (six.iteritems(self)):
+        for key, value in sorted (self.items()):
             retval += "%s\n" % value
         return retval
 
@@ -200,7 +199,7 @@ class LumiInfoCont (dict):
     def _integrateContainer (self):
         # calculate numbers for recorded integrated luminosity
         total = 0.
-        for key, lumi in six.iteritems(self):
+        for key, lumi in self.items():
             total += lumi.recorded
             lumi.totalRecorded = total
             lumi.fracRecorded  = old_div(total, self.totalRecLum)
@@ -210,7 +209,7 @@ class LumiInfoCont (dict):
             return
         xingKeyList = []
         maxAveInstLum = 0.
-        for key, lumi in six.iteritems(self):
+        for key, lumi in self.items():
             if not lumi.xingInfo and not lumi.fixXingInfo():
                 if not self.noWarnings:
                     print("Do not have lumi xing info for %s" % lumi.keyString)
@@ -307,7 +306,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
             expectedVals = []
             predVals   = []
         # loop over events
-        for key, eventList in sorted( six.iteritems(eventsDict) ):
+        for key, eventList in sorted( eventsDict.items() ):
             usePoints = True
             # should we add this point?
             if lumiCont.minRun and lumiCont.minRun > key[0] or \
@@ -410,7 +409,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
         eventTupList = []
         if not lumiCont.xingInfo:
             raise RuntimeError("Luminosity Xing information missing.")
-        for key, eventList in sorted( six.iteritems(eventsDict) ):
+        for key, eventList in sorted( eventsDict.items() ):
             try:
                 lumi =  lumiCont[key]
                 instLum   = lumi.aveInstLum
@@ -656,7 +655,7 @@ if __name__ == '__main__':
         recLumValue = recLumis [recLumIndex]
         prevRecLumi = 0.
         done = False
-        for key, lumi in six.iteritems(cont):
+        for key, lumi in cont.items():
             if prevRecLumi >= recLumValue and recLumValue < lumi.totalRecorded:
                 # found it
                 print("%s contains total recorded lumi %f" % \

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("PROD")
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+process = cms.Process("PROD", dd4hep)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
@@ -92,10 +93,6 @@ process.testH2HC = cms.EDAnalyzer("HcalTBParameterTester",
                                   Name = cms.untracked.string("HcalHits"),
                                   Mode = cms.untracked.int32(0)
 )
-
-process.hcalTB02XtalParameters.fromDD4Hep = True
-process.hcalTB02HcalParameters.fromDD4Hep = True
-process.hcalTB06BeamParameters.fromDD4Hep = True
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.testH4)
 #process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.testH2EE*process.testH2HC)

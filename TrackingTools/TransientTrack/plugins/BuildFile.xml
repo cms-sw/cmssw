@@ -1,5 +1,5 @@
 <library file="*.cc" name="TrackingToolsTransientTrackPlugins">
-  <use name="Geometry/CommonDetUnit"/>
+  <use name="Geometry/CommonDetUnit" source_only="1"/>
   <use name="Geometry/Records"/>
   <use name="TrackingTools/Records"/>
   <use name="TrackingTools/TransientTrack"/>

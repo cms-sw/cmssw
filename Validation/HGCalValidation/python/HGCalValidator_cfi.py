@@ -10,8 +10,8 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels, ticlIterLabelsMerge
 
-labelMcl = [cms.InputTag("ticlMultiClustersFromTracksters"+iteration) for iteration in ticlIterLabelsMerge]
-labelMcl.extend(["ticlMultiClustersFromSimTracksters"])
+labelTst = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabelsMerge]
+labelTst.extend(["ticlSimTracksters"])
 lcInputMask = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabels]
 lcInputMask.extend(["ticlSimTracksters"])
 hgcalValidator = DQMEDAnalyzer(
@@ -22,9 +22,9 @@ hgcalValidator = DQMEDAnalyzer(
     CaloParticleSelectionForEfficiency,
 
     ### reco input configuration ###
-    #2dlayerclusters, pfclusters, multiclusters
+    #2DLayerClusters, PFClusters, Tracksters
     label_lcl = layerClusterCaloParticleAssociation.label_lc,
-    label_mcl = cms.VInputTag(labelMcl),
+    label_tst = cms.VInputTag(labelTst),
 
     associator = cms.untracked.InputTag("layerClusterCaloParticleAssociationProducer"),
 
@@ -40,8 +40,8 @@ hgcalValidator = DQMEDAnalyzer(
     doSimClustersPlots = cms.untracked.bool(True),
     #Layer Cluster related plots
     doLayerClustersPlots = cms.untracked.bool(True),
-    #Multi Cluster related plots
-    doMultiClustersPlots = cms.untracked.bool(True),
+    #Trackster related plots
+    doTrackstersPlots = cms.untracked.bool(True),
 
     #The cumulative material budget in front of each layer. To be more specific, it
     #is the material budget just in front of the active material (not including it).

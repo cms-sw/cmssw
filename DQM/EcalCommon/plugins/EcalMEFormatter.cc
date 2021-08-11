@@ -11,6 +11,8 @@
 
 EcalMEFormatter::EcalMEFormatter(edm::ParameterSet const &_ps) : DQMEDHarvester(), ecaldqm::DQWorker() {
   initialize("EcalMEFormatter", _ps);
+  edm::ConsumesCollector collector(consumesCollector());
+  setTokens(collector);
   setME(_ps.getUntrackedParameterSet("MEs"));
   verbosity_ = _ps.getUntrackedParameter<int>("verbosity", 0);
 }
@@ -28,7 +30,7 @@ void EcalMEFormatter::dqmEndLuminosityBlock(DQMStore::IBooker &,
                                             DQMStore::IGetter &_igetter,
                                             edm::LuminosityBlock const &,
                                             edm::EventSetup const &_es) {
-  setSetupObjects(_es);
+  setSetupObjectsEndLumi(_es);
   format_(_igetter, true);
 }
 

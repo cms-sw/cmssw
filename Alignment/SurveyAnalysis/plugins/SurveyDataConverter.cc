@@ -1,6 +1,7 @@
 
 // Framework
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -15,14 +16,13 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //__________________________________________________________________________________________________
-SurveyDataConverter::SurveyDataConverter(const edm::ParameterSet& iConfig) : theParameterSet(iConfig) {}
-
+SurveyDataConverter::SurveyDataConverter(const edm::ParameterSet& iConfig)
+    : topoToken(esConsumes()), ttrackerGeometryToken(esConsumes()), theParameterSet(iConfig) {}
 //__________________________________________________________________________________________________
 void SurveyDataConverter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(topoToken);
+  const TrackerGeometry* const tGeom = &iSetup.getData(ttrackerGeometryToken);
 
   edm::LogInfo("SurveyDataConverter") << "Analyzer called";
   applyfineinfo = theParameterSet.getParameter<bool>("applyFineInfo");
@@ -50,8 +50,8 @@ void SurveyDataConverter::analyze(const edm::Event& iEvent, const edm::EventSetu
   const MapType& mapIdToInfo = dataReader.detIdMap();
   std::cout << "DATA HAS BEEN READ INTO THE MAP" << std::endl;
   std::cout << "DATA HAS BEEN CONVERTED IN ALIGNABLE COORDINATES" << std::endl;
+  TrackerAlignment tr_align(tTopo, tGeom);
 
-  TrackerAlignment tr_align(iSetup);
   if (applycoarseinfo)
     this->applyCoarseSurveyInfo(tr_align);
   if (applyfineinfo)

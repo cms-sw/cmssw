@@ -13,7 +13,7 @@ namespace trklet {
 
   class VMProjectionsMemory : public MemoryBase {
   public:
-    VMProjectionsMemory(std::string name, Settings const& settings, unsigned int iSector);
+    VMProjectionsMemory(std::string name, Settings const& settings);
 
     ~VMProjectionsMemory() override = default;
 
@@ -24,7 +24,7 @@ namespace trklet {
     Tracklet* getTracklet(unsigned int i) { return tracklets_[i].first; }
     int getAllProjIndex(unsigned int i) const { return tracklets_[i].second; }
 
-    void writeVMPROJ(bool first);
+    void writeVMPROJ(bool first, unsigned int iSector);
 
     void clean() override { tracklets_.clear(); }
 

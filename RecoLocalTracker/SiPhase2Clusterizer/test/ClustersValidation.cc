@@ -277,14 +277,14 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
       // Fill the position histograms
       trackerLayout_->Fill(globalPosClu.z(), globalPosClu.perp());
       trackerLayoutXY_->Fill(globalPosClu.x(), globalPosClu.y());
-      if (fabs(layer) < 1000) {
+      if (layer < 1000) {
         trackerLayoutXYBar_->Fill(globalPosClu.x(), globalPosClu.y());
       } else {
         trackerLayoutXYEC_->Fill(globalPosClu.x(), globalPosClu.y());
       }
 
       histogramLayer->second.localPosXY[det]->Fill(localPosClu.x(), localPosClu.y());
-      if (fabs(layer) < 1000) {
+      if (layer < 1000) {
         histogramLayer->second.globalPosXY[det]->Fill(globalPosClu.z(), globalPosClu.perp());
       } else {
         histogramLayer->second.globalPosXY[det]->Fill(globalPosClu.x(), globalPosClu.y());

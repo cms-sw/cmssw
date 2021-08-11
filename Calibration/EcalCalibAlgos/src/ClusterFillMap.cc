@@ -31,22 +31,20 @@ void ClusterFillMap::fillMap(const std::vector<std::pair<DetId, float> >& v1,
       itrechit = barrelHitsCollection->find(idsIt->first);
       dummy = itrechit->energy();
       dummy *= (*m_barrelMap)[idsIt->first];
-    }
-    if (idsIt->first.subdetId() == EcalEndcap) {
+    } else if (idsIt->first.subdetId() == EcalEndcap) {
       itrechit = endcapHitsCollection->find(idsIt->first);
       dummy = itrechit->energy();
       dummy *= (*m_endcapMap)[idsIt->first];
     }
-    int ID = idsIt->first.rawId();
     if (edm::isNotFinite(dummy)) {
       dummy = 0;
     }
     if (dummy < m_minEnergyPerCrystal)
       continue;  //return 1;
     if (dummy > m_maxEnergyPerCrystal) {
-      dummy = 0;
       continue;
     }
+    int ID = idsIt->first.rawId();
     if (m_xtalRegionId[ID] == RegionNumber)
       xtlMap[m_IndexInRegion[ID]] += dummy;
     else

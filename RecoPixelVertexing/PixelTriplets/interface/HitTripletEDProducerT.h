@@ -251,7 +251,7 @@ namespace hitTripletEDProducerT {
 
     auto beginRegion(const TrackingRegion* region, LayerHitMapCache*) {
       auto filler = intermediateHitTriplets_->beginRegion(region);
-      return std::make_tuple(&(filler.layerHitMapCache()), std::move(filler));
+      return std::make_tuple(&(filler.layerHitMapCache()), filler);
     }
 
     std::vector<int>* tripletLastLayerIndexVector() { return &tripletLastLayerIndex_; }

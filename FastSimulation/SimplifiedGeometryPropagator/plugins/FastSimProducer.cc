@@ -42,7 +42,7 @@
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "FastSimulation/ShowerDevelopment/interface/FastHFShowerLibrary.h"
 
 ///////////////////////////////////////////////

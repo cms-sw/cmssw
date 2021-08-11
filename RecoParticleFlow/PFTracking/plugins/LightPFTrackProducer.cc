@@ -1,11 +1,41 @@
-#include <memory>
-#include "RecoParticleFlow/PFTracking/interface/LightPFTrackProducer.h"
-#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+
+class LightPFTrackProducer : public edm::stream::EDProducer<> {
+public:
+  ///Constructor
+  explicit LightPFTrackProducer(const edm::ParameterSet&);
+
+  ///Destructor
+  ~LightPFTrackProducer() override;
+
+private:
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+
+  ///Produce the PFRecTrack collection
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  ///PFTrackTransformer
+  PFTrackTransformer* pfTransformer_;
+  std::vector<edm::EDGetTokenT<reco::TrackCollection> > tracksContainers_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  ///TRACK QUALITY
+  bool useQuality_;
+  reco::TrackBase::TrackQuality trackQuality_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(LightPFTrackProducer);
 
 using namespace std;
 using namespace edm;

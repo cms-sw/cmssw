@@ -1,19 +1,16 @@
 #include <DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h>
-#include <DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h>
-#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
+#include <DQM/RPCMonitorClient/interface/RPCBookFolderStructure.h>
+#include <DQM/RPCMonitorClient/interface/RPCRollMapHisto.h>
+#include <DQM/RPCMonitorClient/interface/RPCNameHelper.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <DQM/RPCMonitorDigi/interface/utils.h>
-#include <iomanip>
 
 void RPCMonitorDigi::bookRollME(DQMStore::IBooker& ibooker,
                                 const RPCDetId& detId,
                                 const RPCGeometry* rpcGeo,
                                 const std::string& recHitType,
                                 std::map<std::string, MonitorElement*>& meMap) {
-  RPCBookFolderStructure folderStr;
-  std::string folder = subsystemFolder_ + "/" + recHitType + "/" + folderStr.folderStructure(detId);
-
-  ibooker.setCurrentFolder(folder);
+  ibooker.setCurrentFolder(
+      fmt::format("{}/{}/{}", subsystemFolder_, recHitType, RPCBookFolderStructure::folderStructure(detId)));
 
   //get number of strips in current roll
   int nstrips = this->stripsInRoll(detId, rpcGeo);
@@ -22,14 +19,9 @@ void RPCMonitorDigi::bookRollME(DQMStore::IBooker& ibooker,
   }
 
   /// Name components common to current RPCDetId
-  RPCGeomServ RPCname(detId);
-  std::string nameRoll = "";
+  const std::string nameRoll = RPCNameHelper::name(detId, useRollInfo_);
 
-  if (RPCMonitorDigi::useRollInfo_) {
-    nameRoll = RPCname.name();
-  } else {
-    nameRoll = RPCname.chambername();
-
+  if (!RPCMonitorDigi::useRollInfo_) {
     if (detId.region() != 0 ||                                                     //Endcaps
         (abs(detId.ring()) == 2 && detId.station() == 2 && detId.layer() != 1) ||  //Wheel -/+2 RB2out
         (abs(detId.ring()) != 2 && detId.station() == 2 && detId.layer() == 1)) {
@@ -40,63 +32,52 @@ void RPCMonitorDigi::bookRollME(DQMStore::IBooker& ibooker,
     }
   }
 
-  std::stringstream os;
-  os.str("");
-  os << "Occupancy_" << nameRoll;
-  meMap[os.str()] = ibooker.book1D(os.str(), os.str(), nstrips, 0.5, nstrips + 0.5);
+  std::string tmpStr;
 
-  os.str("");
-  os << "BXDistribution_" << nameRoll;
-  meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 7, -3.5, 3.5);
+  tmpStr = "Occupancy_" + nameRoll;
+  meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, nstrips, 0.5, nstrips + 0.5);
+
+  tmpStr = "BXDistribution_" + nameRoll;
+  meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 7, -3.5, 3.5);
 
   if (detId.region() == 0) {
-    os.str("");
-    os << "ClusterSize_" << nameRoll;
-    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 15, 0.5, 15.5);
+    tmpStr = "ClusterSize_" + nameRoll;
+    meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 15, 0.5, 15.5);
 
-    os.str("");
-    os << "Multiplicity_" << nameRoll;
-    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 30, 0.5, 30.5);
+    tmpStr = "Multiplicity_" + nameRoll;
+    meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 30, 0.5, 30.5);
 
   } else {
-    os.str("");
-    os << "ClusterSize_" << nameRoll;
-    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 10, 0.5, 10.5);
+    tmpStr = "ClusterSize_" + nameRoll;
+    meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 10, 0.5, 10.5);
 
-    os.str("");
-    os << "Multiplicity_" << nameRoll;
-    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 15, 0.5, 15.5);
+    tmpStr = "Multiplicity_" + nameRoll;
+    meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 15, 0.5, 15.5);
   }
 
-  os.str("");
-  os << "NumberOfClusters_" << nameRoll;
-  meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 10, 0.5, 10.5);
+  tmpStr = "NumberOfClusters_" + nameRoll;
+  meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 10, 0.5, 10.5);
 }
 
 void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
                                       const std::string& recHitType,
                                       std::map<std::string, MonitorElement*>& meMap) {
-  std::stringstream os;
-
   for (int wheel = -2; wheel <= 2; wheel++) {
-    os.str("");
-    os << subsystemFolder_ << "/" << recHitType << "/Barrel/Wheel_" << wheel << "/SummaryBySectors";
-    ibooker.setCurrentFolder(os.str());
+    ibooker.setCurrentFolder(
+        fmt::format("{}/{}/Barrel/Wheel_{}/SummaryBySectors", subsystemFolder_, recHitType, wheel));
 
     for (int sector = 1; sector <= 12; sector++) {
-      os.str("");
-      os << "Occupancy_Wheel_" << wheel << "_Sector_" << sector;
+      const std::string meName = fmt::format("Occupancy_Wheel_{}_Sector_{}", wheel, sector);
 
       if (sector == 9 || sector == 11)
-        meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 91, 0.5, 91.5, 15, 0.5, 15.5);
+        meMap[meName] = ibooker.book2D(meName, meName, 91, 0.5, 91.5, 15, 0.5, 15.5);
       else if (sector == 4)
-        meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 91, 0.5, 91.5, 21, 0.5, 21.5);
+        meMap[meName] = ibooker.book2D(meName, meName, 91, 0.5, 91.5, 21, 0.5, 21.5);
       else
-        meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 91, 0.5, 91.5, 17, 0.5, 17.5);
+        meMap[meName] = ibooker.book2D(meName, meName, 91, 0.5, 91.5, 17, 0.5, 17.5);
 
-      meMap[os.str()]->setAxisTitle("strip", 1);
-      rpcdqm::utils rpcUtils;
-      rpcUtils.labelYAxisRoll(meMap[os.str()], 0, wheel, true);
+      meMap[meName]->setAxisTitle("strip", 1);
+      RPCRollMapHisto::setBarrelRollAxis(meMap[meName], wheel, 2, true);
     }
   }
 
@@ -109,86 +90,52 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
       regionName = "Endcap+";
 
     for (int disk = 1; disk <= RPCMonitorDigi::numberOfDisks_; disk++) {
-      os.str("");
-      os << subsystemFolder_ << "/" << recHitType << "/" << regionName << "/Disk_" << (region * disk)
-         << "/SummaryByRings/";
-
-      ibooker.setCurrentFolder(os.str());
+      ibooker.setCurrentFolder(
+          fmt::format("{}/{}/{}/Disk_{}/SummaryByRings/", subsystemFolder_, recHitType, regionName, region * disk));
 
       for (int ring = RPCMonitorDigi::numberOfInnerRings_; ring <= 3; ring++) {
-        os.str("");
-        os << "Occupancy_Disk_" << (region * disk) << "_Ring_" << ring << "_CH01-CH18";
+        const std::string meName1 = fmt::format("Occupancy_Disk_{}_Ring_{}_CH01-CH18", (region * disk), ring);
 
-        meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 96, 0.5, 96.5, 18, 0.5, 18.5);
-        meMap[os.str()]->setAxisTitle("strip", 1);
-        rpcdqm::RPCMEHelper::setNoAlphanumeric(meMap[os.str()]);
-
-        std::stringstream yLabel;
-        for (int i = 1; i <= 18; i++) {
-          yLabel.str("");
-          yLabel << "R" << ring << "_CH" << std::setw(2) << std::setfill('0') << i;
-          meMap[os.str()]->setBinLabel(i, yLabel.str(), 2);
-        }
-
-        for (int i = 1; i <= 96; i++) {
-          if (i == 1)
-            meMap[os.str()]->setBinLabel(i, "1", 1);
-          else if (i == 16)
-            meMap[os.str()]->setBinLabel(i, "RollA", 1);
-          else if (i == 32)
-            meMap[os.str()]->setBinLabel(i, "32", 1);
-          else if (i == 33)
-            meMap[os.str()]->setBinLabel(i, "1", 1);
-          else if (i == 48)
-            meMap[os.str()]->setBinLabel(i, "RollB", 1);
-          else if (i == 64)
-            meMap[os.str()]->setBinLabel(i, "32", 1);
-          else if (i == 65)
-            meMap[os.str()]->setBinLabel(i, "1", 1);
-          else if (i == 80)
-            meMap[os.str()]->setBinLabel(i, "RollC", 1);
-          else if (i == 96)
-            meMap[os.str()]->setBinLabel(i, "32", 1);
-          else
-            meMap[os.str()]->setBinLabel(i, "", 1);
-        }
-
-        os.str("");
-        os << "Occupancy_Disk_" << (region * disk) << "_Ring_" << ring << "_CH19-CH36";
-
-        meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 96, 0.5, 96.5, 18, 18.5, 36.5);
-        meMap[os.str()]->setAxisTitle("strip", 1);
-        rpcdqm::RPCMEHelper::setNoAlphanumeric(meMap[os.str()]);
+        auto me1 = ibooker.book2D(meName1, meName1, 96, 0.5, 96.5, 18, 0.5, 18.5);
+        me1->setAxisTitle("strip", 1);
 
         for (int i = 1; i <= 18; i++) {
-          yLabel.str("");
-          yLabel << "R" << ring << "_CH" << i + 18;
-          meMap[os.str()]->setBinLabel(i, yLabel.str(), 2);
+          const std::string ylabel = fmt::format("R{}_CH{:02d}", ring, i);
+          me1->setBinLabel(i, ylabel, 2);
         }
 
-        for (int i = 1; i <= 96; i++) {
-          if (i == 1)
-            meMap[os.str()]->setBinLabel(i, "1", 1);
-          else if (i == 16)
-            meMap[os.str()]->setBinLabel(i, "RollA", 1);
-          else if (i == 32)
-            meMap[os.str()]->setBinLabel(i, "32", 1);
-          else if (i == 33)
-            meMap[os.str()]->setBinLabel(i, "1", 1);
-          else if (i == 48)
-            meMap[os.str()]->setBinLabel(i, "RollB", 1);
-          else if (i == 64)
-            meMap[os.str()]->setBinLabel(i, "32", 1);
-          else if (i == 65)
-            meMap[os.str()]->setBinLabel(i, "1", 1);
-          else if (i == 80)
-            meMap[os.str()]->setBinLabel(i, "RollC", 1);
-          else if (i == 96)
-            meMap[os.str()]->setBinLabel(i, "32", 1);
-          else
-            meMap[os.str()]->setBinLabel(i, "", 1);
+        me1->setBinLabel(1, "1", 1);
+        me1->setBinLabel(16, "RollA", 1);
+        me1->setBinLabel(32, "32", 1);
+        me1->setBinLabel(33, "1", 1);
+        me1->setBinLabel(48, "RollB", 1);
+        me1->setBinLabel(64, "32", 1);
+        me1->setBinLabel(65, "1", 1);
+        me1->setBinLabel(80, "RollC", 1);
+        me1->setBinLabel(96, "32", 1);
+
+        const std::string meName2 = fmt::format("Occupancy_Disk_{}_Ring_{}_CH19-CH36", (region * disk), ring);
+
+        auto me2 = ibooker.book2D(meName2, meName2, 96, 0.5, 96.5, 18, 18.5, 36.5);
+        me2->setAxisTitle("strip", 1);
+
+        for (int i = 1; i <= 18; i++) {
+          const std::string ylabel = fmt::format("R{}_CH{:02d}", ring, i + 18);
+          me2->setBinLabel(i, ylabel, 2);
         }
 
+        me2->setBinLabel(1, "1", 1);
+        me2->setBinLabel(16, "RollA", 1);
+        me2->setBinLabel(32, "32", 1);
+        me2->setBinLabel(33, "1", 1);
+        me2->setBinLabel(48, "RollB", 1);
+        me2->setBinLabel(64, "32", 1);
+        me2->setBinLabel(65, "1", 1);
+        me2->setBinLabel(80, "RollC", 1);
+        me2->setBinLabel(96, "32", 1);
+
+        meMap[meName1] = me1;
+        meMap[meName2] = me2;
       }  //loop ring
     }    //loop disk
   }      //loop region
@@ -199,35 +146,25 @@ void RPCMonitorDigi::bookWheelDiskME(DQMStore::IBooker& ibooker,
                                      std::map<std::string, MonitorElement*>& meMap) {
   ibooker.setCurrentFolder(subsystemFolder_ + "/" + recHitType + "/" + globalFolder_);
 
-  std::stringstream os, label, name, title;
-  rpcdqm::utils rpcUtils;
+  std::string tmpStr;
 
   for (int wheel = -2; wheel <= 2; wheel++) {  //Loop on wheel
-    os.str("");
-    os << "1DOccupancy_Wheel_" << wheel;
-    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 12, 0.5, 12.5);
-    for (int i = 1; i < 12; i++) {
-      label.str("");
-      label << "Sec" << i;
-      meMap[os.str()]->setBinLabel(i, label.str(), 1);
+    tmpStr = fmt::format("1DOccupancy_Wheel_{}", wheel);
+    meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 12, 0.5, 12.5);
+    for (int i = 1; i <= 12; ++i) {
+      meMap[tmpStr]->setBinLabel(i, fmt::format("Sec{}", i), 1);
     }
 
-    os.str("");
-    os << "Occupancy_Roll_vs_Sector_Wheel_" << wheel;
-    meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
-    rpcUtils.labelXAxisSector(meMap[os.str()]);
-    rpcUtils.labelYAxisRoll(meMap[os.str()], 0, wheel, true);
+    tmpStr = fmt::format("Occupancy_Roll_vs_Sector_Wheel_{}", wheel);
+    meMap[tmpStr] = RPCRollMapHisto::bookBarrel(ibooker, wheel, tmpStr, tmpStr, true);
 
-    os.str("");
-    os << "BxDistribution_Wheel_" << wheel;
-    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 9, -4.5, 4.5);
+    tmpStr = fmt::format("BxDistribution_Wheel_{}", wheel);
+    meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 9, -4.5, 4.5);
 
     for (int layer = 1; layer <= 6; layer++) {
-      name.str("");
-      title.str("");
-      name << "ClusterSize_Wheel_" << wheel << "_Layer" << layer;
-      title << "ClusterSize - Wheel " << wheel << " Layer" << layer;
-      meMap[name.str()] = ibooker.book1D(name.str(), title.str(), 16, 0.5, 16.5);
+      const std::string name = fmt::format("ClusterSize_Wheel_{}_Layer{}", wheel, layer);
+      const std::string title = fmt::format("ClusterSize - Wheel {} Layer{}", wheel, layer);
+      meMap[name] = ibooker.book1D(name, title, 16, 0.5, 16.5);
     }
 
   }  //end loop on wheel
@@ -236,41 +173,30 @@ void RPCMonitorDigi::bookWheelDiskME(DQMStore::IBooker& ibooker,
     if (disk == 0)
       continue;
 
-    os.str("");
-    os << "Occupancy_Ring_vs_Segment_Disk_" << disk;
-    meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 36, 0.5, 36.5, 6, 0.5, 6.5);
+    tmpStr = fmt::format("Occupancy_Ring_vs_Segment_Disk_{}", disk);
+    meMap[tmpStr] = RPCRollMapHisto::bookEndcap(ibooker, disk, tmpStr, tmpStr, true);
 
-    rpcUtils.labelXAxisSegment(meMap[os.str()]);
-    rpcUtils.labelYAxisRing(meMap[os.str()], 2, true);
-
-    os.str("");
-    os << "BxDistribution_Disk_" << disk;
-    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 9, -4.5, 4.5);
+    tmpStr = fmt::format("BxDistribution_Disk_{}", disk);
+    meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 9, -4.5, 4.5);
 
     for (int ring = RPCMonitorDigi::numberOfInnerRings_; ring <= 3; ring++) {
-      name.str("");
-      title.str("");
-      name << "ClusterSize_Disk_" << disk << "_Ring" << ring;
-      title << "ClusterSize - Disk" << disk << " Ring" << ring;
-      meMap[name.str()] = ibooker.book1D(name.str(), title.str(), 16, 0.5, 16.5);
+      const std::string name = fmt::format("ClusterSize_Disk_{}_Ring{}", disk, ring);
+      const std::string title = fmt::format("ClusterSize - Disk{} Ring{}", disk, ring);
+      meMap[name] = ibooker.book1D(name, title, 16, 0.5, 16.5);
     }
   }
 
   for (int ring = RPCMonitorDigi::numberOfInnerRings_; ring <= 3; ring++) {
-    os.str("");
-    os << "1DOccupancy_Ring_" << ring;
-    meMap[os.str()] = ibooker.book1D(os.str(),
-                                     os.str(),
-                                     RPCMonitorDigi::numberOfDisks_ * 2,
-                                     0.5,
-                                     ((double)RPCMonitorDigi::numberOfDisks_ * 2.0) + 0.5);
+    const std::string meName = fmt::format("1DOccupancy_Ring_{}", ring);
+    meMap[meName] = ibooker.book1D(
+        meName, meName, RPCMonitorDigi::numberOfDisks_ * 2, 0.5, (RPCMonitorDigi::numberOfDisks_ * 2.0) + 0.5);
     for (int xbin = 1; xbin <= RPCMonitorDigi::numberOfDisks_ * 2; xbin++) {
-      label.str("");
+      std::string label;
       if (xbin < RPCMonitorDigi::numberOfDisks_ + 1)
-        label << "Disk " << (xbin - (RPCMonitorDigi::numberOfDisks_ + 1));
+        label = fmt::format("Disk {}", (xbin - (RPCMonitorDigi::numberOfDisks_ + 1)));
       else
-        label << "Disk " << (xbin - RPCMonitorDigi::numberOfDisks_);
-      meMap[os.str()]->setBinLabel(xbin, label.str(), 1);
+        label = fmt::format("Disk {}", (xbin - RPCMonitorDigi::numberOfDisks_));
+      meMap[meName]->setBinLabel(xbin, label, 1);
     }
   }
 }

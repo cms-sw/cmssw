@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Handle lists of lumi sections. Constuct in several different formats and filter

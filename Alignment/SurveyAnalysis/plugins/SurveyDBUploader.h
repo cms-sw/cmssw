@@ -17,14 +17,14 @@
  *  \author Chung Khim Lae
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 class Alignable;
 class Alignments;
 class AlignTransform;
 struct SurveyErrors;
 
-class SurveyDBUploader : public edm::EDAnalyzer {
+class SurveyDBUploader : public edm::one::EDAnalyzer<> {
   typedef AlignTransform SurveyValue;
   typedef Alignments SurveyValues;
 

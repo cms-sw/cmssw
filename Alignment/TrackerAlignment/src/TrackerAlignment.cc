@@ -1,6 +1,6 @@
 // Framework
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 // Conditions database
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -17,16 +17,9 @@
 
 //__________________________________________________________________
 //
-TrackerAlignment::TrackerAlignment(const edm::EventSetup& setup)
+TrackerAlignment::TrackerAlignment(const TrackerTopology* tTopo, const TrackerGeometry* tGeom)
     : theAlignRecordName("TrackerAlignmentRcd"), theErrorRecordName("TrackerAlignmentErrorExtendedRcd") {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  edm::ESHandle<TrackerGeometry> trackerGeometry;
-  setup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
-  theAlignableTracker = new AlignableTracker(&(*trackerGeometry), tTopo);
+  theAlignableTracker = new AlignableTracker(tGeom, tTopo);
 }
 
 //__________________________________________________________________

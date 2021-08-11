@@ -27,7 +27,7 @@ public:
 
   ~LHEEventProduct() = default;
 
-  void setPDF(const PDF &pdf) { pdf_.reset(new PDF(pdf)); }
+  void setPDF(const PDF &pdf) { pdf_ = std::make_unique<PDF>(pdf); }
   void addWeight(const WGT &wgt) { weights_.push_back(wgt); }
   void addComment(const std::string &line) { comments_.push_back(line); }
 

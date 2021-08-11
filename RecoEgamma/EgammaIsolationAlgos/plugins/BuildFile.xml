@@ -9,7 +9,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/Records"/>
-<use name="RecoCaloTools/Selectors"/>
+<use name="RecoCaloTools/Selectors" source_only="1"/>
 <use name="CommonTools/Statistics"/>
 <use name="RecoEgamma/EgammaIsolationAlgos"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>

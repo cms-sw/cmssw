@@ -5,6 +5,7 @@
 <use name="DataFormats/Math"/>
 <use name="DataFormats/ParticleFlowReco"/>
 <use name="DataFormats/VertexReco"/>
+<use name="CommonTools/ParticleFlow"/>
 <use name="CondFormats/ESObjects"/>
 <use name="CondFormats/GBRForest"/>
 <use name="CondFormats/DataRecord"/>

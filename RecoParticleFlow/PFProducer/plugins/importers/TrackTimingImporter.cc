@@ -14,20 +14,20 @@
 
 class TrackTimingImporter : public BlockElementImporterBase {
 public:
-  TrackTimingImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : BlockElementImporterBase(conf, sumes),
+  TrackTimingImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : BlockElementImporterBase(conf, cc),
         useTimeQuality_(conf.existsAs<edm::InputTag>("timeQualityMap")),
         timeQualityThreshold_(useTimeQuality_ ? conf.getParameter<double>("timeQualityThreshold") : -99.),
-        srcTime_(sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMap"))),
-        srcTimeError_(sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMap"))),
+        srcTime_(cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMap"))),
+        srcTimeError_(cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMap"))),
         srcTimeQuality_(useTimeQuality_
-                            ? sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeQualityMap"))
+                            ? cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeQualityMap"))
                             : edm::EDGetTokenT<edm::ValueMap<float>>()),
-        srcTimeGsf_(sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMapGsf"))),
-        srcTimeErrorGsf_(sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMapGsf"))),
-        srcTimeQualityGsf_(useTimeQuality_ ? sumes.consumes<edm::ValueMap<float>>(
-                                                 conf.getParameter<edm::InputTag>("timeQualityMapGsf"))
-                                           : edm::EDGetTokenT<edm::ValueMap<float>>()),
+        srcTimeGsf_(cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMapGsf"))),
+        srcTimeErrorGsf_(cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMapGsf"))),
+        srcTimeQualityGsf_(
+            useTimeQuality_ ? cc.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeQualityMapGsf"))
+                            : edm::EDGetTokenT<edm::ValueMap<float>>()),
         debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
   void importToBlock(const edm::Event&, ElementList&) const override;

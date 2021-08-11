@@ -88,7 +88,7 @@ PATH=/afs/cern.ch/work/r/rovere/protocolbuf/bin
 #include <thread>
 #include <mutex>
 #include <list>
-#include "DQMServices/Core/src/ROOTFilePB.pb.h"
+#include "DQMServices/Core/interface/ROOTFilePB.pb.h"
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/gzip_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>

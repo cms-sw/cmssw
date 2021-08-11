@@ -7,8 +7,6 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <cmath>
 
@@ -27,14 +25,15 @@ RPCDigiValid::RPCDigiValid(const ParameterSet &ps) {
       ps.getUntrackedParameter<edm::InputTag>("rpcDigiTag", edm::InputTag("simMuonRPCDigis")));
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "rpcDigiValidPlots.root");
+
+  rpcGeomToken_ = esConsumes();
 }
 
 RPCDigiValid::~RPCDigiValid() {}
 
 void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
   // Get the RPC Geometry
-  edm::ESHandle<RPCGeometry> rpcGeom;
-  eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  auto rpcGeom = eventSetup.getHandle(rpcGeomToken_);
 
   edm::Handle<PSimHitContainer> simHit;
   edm::Handle<RPCDigiCollection> rpcDigis;

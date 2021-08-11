@@ -315,3 +315,6 @@ phase2_hfnose.toModify(mixData,
     )
 )
 
+# Run-dependent MC
+from Configuration.ProcessModifiers.runDependent_cff import runDependent
+runDependent.toModify(mixData.workers.ecal, timeDependent=True)

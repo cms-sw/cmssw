@@ -13,7 +13,7 @@
 
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/ParameterSet/interface/Entry.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSetEntry.h"
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"
 

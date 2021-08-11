@@ -31,11 +31,16 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- *
+ * Extended for Run-3 and Phase-2 by Vadim Khotilovich, Tao Huang and Sven Dildick
  */
 
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTContainer.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCALCTCrossCLCT.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeAnodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeCathodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityAssignment.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 
@@ -49,21 +54,35 @@ public:
                  unsigned chamber,
                  const edm::ParameterSet& conf);
 
-  /** Constructor for use during testing. */
-  CSCMotherboard();
-
   /** Default destructor. */
   ~CSCMotherboard() override = default;
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
-  virtual void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
+  void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
 
-  /** Returns vector of correlated LCTs in the read-out time window, if any. */
+  /*
+    Returns vector of good correlated LCTs in the read-out time window.
+    LCTs in the BX window [early_tbins,...,late_tbins] are considered
+    good for physics. The central LCT BX is time bin 8.
+    - tmb_l1a_window_size = 7 (Run-1, Run-2) -> [5, 6, 7, 8, 9, 10, 11]
+    - tmb_l1a_window_size = 5 (Run-3)        ->    [6, 7, 8, 9, 10]
+    - tmb_l1a_window_size = 3 (Run-4?)       ->       [7, 8, 9]
+
+    Note, this function does not have an exact counterpart in the
+    firmware. The reason is that the DAQ of LCTs is not correctly
+    simulated in CMSSW - at least the simulation of the L1-accept.
+    So, this function corresponds to both the trigger path and the
+    DAQ path in the firmware. In general, the function will return
+    LCTs that would not be used in the OMTF or EMTF emulator,
+    because they are out-of-time relative for tracking purposes. For
+    instance an LCT with BX5 would be read out by the DAQ, but would
+    likely not be used by the EMTF.
+  */
   virtual std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const;
 
-  /** Returns vector of all found correlated LCTs, if any. */
-  std::vector<CSCCorrelatedLCTDigi> getLCTs() const;
+  // LCT selection: at most 2 in each BX
+  void selectLCTs();
 
   /** Returns shower bits */
   CSCShowerDigi readoutShower() const;
@@ -87,11 +106,11 @@ protected:
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV;
 
-  /** Container for first correlated LCT. */
-  CSCCorrelatedLCTDigi firstLCT[CSCConstants::MAX_LCT_TBINS];
+  /** Container with all LCTs prior to sorting and selecting. */
+  LCTContainer allLCTs_;
 
-  /** Container for second correlated LCT. */
-  CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_TBINS];
+  /* Container with sorted and selected LCTs */
+  std::vector<CSCCorrelatedLCTDigi> lctV;
 
   CSCShowerDigi shower_;
 
@@ -104,9 +123,6 @@ protected:
   unsigned int alct_trig_enable, clct_trig_enable, match_trig_enable;
   unsigned int match_trig_window_size, tmb_l1a_window_size;
 
-  /** Phase2: whether to not reuse ALCTs that were used by previous matching CLCTs */
-  bool drop_used_alcts;
-
   /** Phase2: whether to not reuse CLCTs that were used by previous matching ALCTs */
   bool drop_used_clcts;
 
@@ -116,12 +132,18 @@ protected:
   /** Phase2: whether to readout only the earliest two LCTs in readout window */
   bool readout_earliest_2;
 
-  /** if true: use regular CLCT-to-ALCT matching in TMB
-      if false: do ALCT-to-CLCT matching */
-  bool clct_to_alct;
+  // when set to true, ignore CLCTs found in later BX's
+  bool match_earliest_clct_only_;
 
   // encode special bits for high-multiplicity triggers
   unsigned showerSource_;
+
+  /*
+     Preferential index array in matching window, relative to the ALCT BX.
+     Where the central match BX goes first,
+     then the closest early, the closest late, etc.
+  */
+  std::vector<int> preferred_bx_match_;
 
   /** Default values of configuration parameters. */
   static const unsigned int def_mpc_block_me1a;
@@ -129,55 +151,58 @@ protected:
   static const unsigned int def_match_trig_enable, def_match_trig_window_size;
   static const unsigned int def_tmb_l1a_window_size;
 
+  /* quality assignment */
+  std::unique_ptr<LCTQualityAssignment> qualityAssignment_;
+
   /* quality control */
   std::unique_ptr<LCTQualityControl> qualityControl_;
+
+  /*
+    Helper class to check if an ALCT intersects with a CLCT. Normally
+    this class should not be used. It is left in the code as a potential
+    improvement for ME1/1 when unphysical LCTs are not desired. This
+    function is not implemented in the firmware.
+  */
+  std::unique_ptr<CSCALCTCrossCLCT> cscOverlap_;
 
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
 
+  /*
+    This function matches maximum two ALCTs with maximum two CLCTs in
+    a bunch crossing. The best ALCT is considered the one with the highest
+    quality in a BX. Similarly for the best CLCT. If there is just one
+    ALCT and just one CLCT, the correlated LCT is made from those two
+    components. If there are exactly two ALCTs and two CLCTs, the best
+    LCT and second best LCT are formed from the best ALCT-CLCT combination
+    and the second best ALCT-CLCT combination. In case there is missing
+    information (e.g. second best ALCT, but no second best CLCT), information
+    is copied over.
+   */
   void correlateLCTs(const CSCALCTDigi& bestALCT,
                      const CSCALCTDigi& secondALCT,
                      const CSCCLCTDigi& bestCLCT,
                      const CSCCLCTDigi& secondCLCT,
-                     int type);
+                     CSCCorrelatedLCTDigi& bLCT,
+                     CSCCorrelatedLCTDigi& sLCT,
+                     int type) const;
 
-  // This method calculates all the TMB words and then passes them to the
-  // constructor of correlated LCTs.
-  CSCCorrelatedLCTDigi constructLCTs(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb) const;
+  /*
+     This method calculates all the TMB words and then passes them to the
+     constructor of correlated LCTs. The LCT data members are filled with
+     information from the ALCT-CLCT combination.
+  */
+  void constructLCTs(
+      const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb, CSCCorrelatedLCTDigi& lct) const;
+
+  /*
+    This function copies valid ALCT/CLCT information to invalid the ALCT/CLCT
+    if present, so that we always construct the maximum number of valid LCts
+  */
+  void copyValidToInValid(CSCALCTDigi&, CSCALCTDigi&, CSCCLCTDigi&, CSCCLCTDigi&) const;
 
   // CLCT pattern number: encodes the pattern number itself
   unsigned int encodePattern(const int clctPattern) const;
-
-  // 4-bit LCT quality number.Made by TMB lookup tables and used for MPC sorting.
-  enum class LCT_Quality : unsigned int {
-    INVALID = 0,
-    NO_CLCT = 1,
-    NO_ALCT = 2,
-    CLCT_LAYER_TRIGGER = 3,
-    LOW_QUALITY = 4,
-    MARGINAL_ANODE_CATHODE = 5,
-    HQ_ANODE_MARGINAL_CATHODE = 6,
-    HQ_CATHODE_MARGINAL_ANODE = 7,
-    HQ_ACCEL_ALCT = 8,
-    HQ_RESERVED_1 = 9,
-    HQ_RESERVED_2 = 10,
-    HQ_PATTERN_2_3 = 11,
-    HQ_PATTERN_4_5 = 12,
-    HQ_PATTERN_6_7 = 13,
-    HQ_PATTERN_8_9 = 14,
-    HQ_PATTERN_10 = 15
-  };
-
-  enum class LCT_QualityRun3 : unsigned int {
-    INVALID = 0,
-    LowQ = 1,
-    MedQ = 2,
-    HighQ = 3,
-  };
-
-  LCT_Quality findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
-
-  LCT_QualityRun3 findQualityRun3(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
 
   /** Dump TMB/MPC configuration parameters. */
   void dumpConfigParams() const;

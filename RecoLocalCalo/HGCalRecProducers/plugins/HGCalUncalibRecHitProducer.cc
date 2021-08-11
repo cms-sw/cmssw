@@ -18,7 +18,8 @@ HGCalUncalibRecHitProducer::HGCalUncalibRecHitProducer(const edm::ParameterSet& 
       hefHitCollection_(ps.getParameter<std::string>("HGCHEFhitCollection")),
       hebHitCollection_(ps.getParameter<std::string>("HGCHEBhitCollection")),
       hfnoseHitCollection_(ps.getParameter<std::string>("HGCHFNosehitCollection")),
-      worker_{HGCalUncalibRecHitWorkerFactory::get()->create(ps.getParameter<std::string>("algo"), ps)} {
+      worker_{HGCalUncalibRecHitWorkerFactory::get()->create(
+          ps.getParameter<std::string>("algo"), ps, consumesCollector())} {
   produces<HGCeeUncalibratedRecHitCollection>(eeHitCollection_);
   produces<HGChefUncalibratedRecHitCollection>(hefHitCollection_);
   produces<HGChebUncalibratedRecHitCollection>(hebHitCollection_);

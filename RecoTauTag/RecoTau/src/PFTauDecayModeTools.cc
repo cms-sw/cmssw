@@ -30,8 +30,9 @@ namespace reco {
       constexpr bool same(char const *x, char const *y) { return !*x && !*y ? true : (*x == *y && same(x + 1, y + 1)); }
 
       constexpr enum reco::PFTau::hadronicDecayMode decayModeStringToId(char const *label, entry const *entries) {
-        return !entries->label ? reco::PFTau::kRareDecayMode
-                               : same(entries->label, label) ? entries->mode : decayModeStringToId(label, entries + 1);
+        return !entries->label               ? reco::PFTau::kRareDecayMode
+               : same(entries->label, label) ? entries->mode
+                                             : decayModeStringToId(label, entries + 1);
       }
 
       constexpr char const *decayModeIdToString(reco::PFTau::hadronicDecayMode mode, entry const *entries) {

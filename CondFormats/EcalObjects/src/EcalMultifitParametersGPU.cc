@@ -3,12 +3,10 @@
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
-EcalMultifitParametersGPU::EcalMultifitParametersGPU(edm::ParameterSet const& ps) {
-  auto const& amplitudeFitParametersEB = ps.getParameter<std::vector<double>>("EBamplitudeFitParameters");
-  auto const& amplitudeFitParametersEE = ps.getParameter<std::vector<double>>("EEamplitudeFitParameters");
-  auto const& timeFitParametersEB = ps.getParameter<std::vector<double>>("EBtimeFitParameters");
-  auto const& timeFitParametersEE = ps.getParameter<std::vector<double>>("EEtimeFitParameters");
-
+EcalMultifitParametersGPU::EcalMultifitParametersGPU(std::vector<double> const& amplitudeFitParametersEB,
+                                                     std::vector<double> const& amplitudeFitParametersEE,
+                                                     std::vector<double> const& timeFitParametersEB,
+                                                     std::vector<double> const& timeFitParametersEE) {
   amplitudeFitParametersEB_.resize(amplitudeFitParametersEB.size());
   amplitudeFitParametersEE_.resize(amplitudeFitParametersEE.size());
   timeFitParametersEB_.resize(timeFitParametersEB.size());

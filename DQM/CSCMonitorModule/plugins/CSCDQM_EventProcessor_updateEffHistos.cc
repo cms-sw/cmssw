@@ -140,6 +140,7 @@ namespace cscdqm {
       {  // Compute DQM information parameters
 
         Address adr;
+        bzero(&adr, sizeof(Address));
         adr.mask.side = adr.mask.station = adr.mask.ring = true;
         adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
 
@@ -347,6 +348,7 @@ namespace cscdqm {
    */
   void EventProcessor::standbyEfficiencyHistos(HWStandbyType& standby) {
     Address adr;
+    bzero(&adr, sizeof(Address));
     adr.mask.side = true;
     adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
 

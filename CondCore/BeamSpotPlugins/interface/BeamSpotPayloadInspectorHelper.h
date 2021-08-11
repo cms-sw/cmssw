@@ -20,7 +20,7 @@
 
 namespace BeamSpotPI {
 
-  std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
+  inline std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
     auto kLowMask = 0XFFFFFFFF;
     auto run = (since >> 32);
     auto lumi = (since & kLowMask);
@@ -46,7 +46,7 @@ namespace BeamSpotPI {
   };
 
   /************************************************/
-  std::string getStringFromParamEnum(const parameters& parameter) {
+  inline std::string getStringFromParamEnum(const parameters& parameter) {
     switch (parameter) {
       case X:
         return "X";
@@ -237,7 +237,7 @@ namespace BeamSpotPI {
       canvas.cd(1)->Modified();
       canvas.cd(1)->SetGrid();
 
-      auto h2_BSParameters = std::unique_ptr<TH2F>(new TH2F("Parameters", "", 2, 0.0, 2.0, 8, 0, 8.));
+      auto h2_BSParameters = std::make_unique<TH2F>("Parameters", "", 2, 0.0, 2.0, 8, 0, 8.);
       h2_BSParameters->SetStats(false);
 
       std::function<double(parameters, bool)> cutFunctor = [this](parameters my_param, bool isError) {

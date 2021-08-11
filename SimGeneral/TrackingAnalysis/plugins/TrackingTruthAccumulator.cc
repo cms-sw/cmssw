@@ -50,10 +50,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 // Turn on integrity checking
 //#define DO_DEBUG_TESTING
@@ -277,6 +274,7 @@ TrackingTruthAccumulator::TrackingTruthAccumulator(const edm::ParameterSet &conf
       collectionTags_(),
       genParticleLabel_(config.getParameter<edm::InputTag>("genParticleCollection")),
       hepMCproductLabel_(config.getParameter<edm::InputTag>("HepMCProductLabel")),
+      tTopoToken_(iC.esConsumes()),
       allowDifferentProcessTypeForDifferentDetectors_(config.getParameter<bool>("allowDifferentSimHitProcesses")) {
   //
   // Make sure at least one of the merged and unmerged collections have been set
@@ -468,9 +466,7 @@ void TrackingTruthAccumulator::accumulateEvent(const T &event,
   }
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const TrackerTopology *const tTopo = &setup.getData(tTopoToken_);
 
   // Run through the collections and work out the decay chain of each
   // track/vertex. The information in SimTrack and SimVertex only allows

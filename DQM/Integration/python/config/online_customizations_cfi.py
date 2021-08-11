@@ -5,7 +5,7 @@ def customise(process):
     if not hasattr(process, "options"):
         process.options = cms.untracked.PSet()
         
-    process.options.numberOfThreads = cms.untracked.uint32(1)
-    process.options.numberOfStreams = cms.untracked.uint32(1)
+    process.options.numberOfThreads = 1
+    process.options.numberOfStreams = 1
     
     return(process)

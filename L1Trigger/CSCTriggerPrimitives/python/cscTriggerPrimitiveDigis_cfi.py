@@ -3,13 +3,15 @@ import FWCore.ParameterSet.Config as cms
 ## Import minBX and maxBX for the MPC
 from L1Trigger.CSCTriggerPrimitives.CSCCommonTrigger_cfi import CSCCommonTrigger
 
-## The directory params/ contains common psets, psets for the processsors,
-## for the TMBs, MPC and CCLUT.
+## The directory params/ contains common psets, psets for the ALCT and CLCT
+## processsors, for the TMBs, MPC and CCLUT, the GEM-CSC integrated local trigger,
+## and the hadronic shower trigger.
 from L1Trigger.CSCTriggerPrimitives.params.alctParams import alctPSets
 from L1Trigger.CSCTriggerPrimitives.params.clctParams import clctPSets
 from L1Trigger.CSCTriggerPrimitives.params.tmbParams import tmbPSets
 from L1Trigger.CSCTriggerPrimitives.params.auxiliaryParams import auxPSets
 from L1Trigger.CSCTriggerPrimitives.params.cclutParams import cclutParams
+from L1Trigger.CSCTriggerPrimitives.params.gemcscParams import gemcscPSets
 from L1Trigger.CSCTriggerPrimitives.params.showerParams import showerPSet
 
 cscTriggerPrimitiveDigis = cms.EDProducer(
@@ -20,6 +22,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer(
     alctPSets,
     clctPSets,
     tmbPSets,
+    gemcscPSets,
 
     ## lookup tables for Run-3
     cclutParams.clone(),
@@ -36,11 +39,12 @@ cscTriggerPrimitiveDigis = cms.EDProducer(
     # If True, output collections will only be built for good chambers
     checkBadChambers = cms.bool(True),
 
-    # Write out special trigger collections
-    writeOutAllCLCTs = cms.bool(False),
-    writeOutAllALCTs = cms.bool(False),
-    savePreTriggers = cms.bool(False),
-    writeOutShowers = cms.bool(False),
+    # Anode-DAQ rate determined by pre-CLCTs
+    keepCLCTPreTriggers = cms.bool(True),
+    # Anode-DAQ rate determined by ALCTs
+    keepALCTPreTriggers = cms.bool(False),
+    # special triggers for showers in chambers
+    keepShowers = cms.bool(False),
 
     commonParam = auxPSets.commonParam.clone(),
     mpcParam = auxPSets.mpcParamRun1.clone(),
@@ -59,28 +63,28 @@ run2_common.toModify( cscTriggerPrimitiveDigis,
 )
 
 ## turn on upgrade CSC algorithm without GEMs
+## originally intended for Phase-2, but moved up to Run-3
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify( cscTriggerPrimitiveDigis,
+                      keepShowers = True,
                       commonParam = dict(runPhase2 = True,
-                                         runME11Up = True)
+                                         runME11Up = True,
+                                         runME21Up = True,
+                                         runME31Up = True,
+                                         runME41Up = True)
 )
 
-## GEM-CSC ILT in ME1/1
+## GEM-CSC integrated local trigger in ME1/1
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify( cscTriggerPrimitiveDigis,
                    GEMPadDigiClusterProducer = cms.InputTag("simMuonGEMPadDigiClusters"),
-                   commonParam = dict(runME11ILT = True),
-                   copadParamGE11 = auxPSets.copadParamGE11.clone()
+                   commonParam = dict(runME11ILT = True)
 )
 
-## GEM-CSC ILT in ME2/1
-## upgrade algorithms in ME3/1 and ME4/1
+## GEM-CSC integrated local trigger in ME2/1
+## enable the Phase-2 ALCT processors
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( cscTriggerPrimitiveDigis,
-                      commonParam = dict(runME21Up = True,
-                                         runME21ILT = True,
-                                         runME31Up = True,
-                                         runME41Up = True,
-                                         enableAlctPhase2 = True),
-                      copadParamGE21 = auxPSets.copadParamGE21.clone()
+                      commonParam = dict(runME21ILT = True,
+                                         enableAlctPhase2 = True)
 )

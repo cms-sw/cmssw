@@ -14,9 +14,11 @@ is the DataBlock.
 
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
-#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
+#include "FWCore/Framework/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "DataFormats/Provenance/interface/EventToProcessBlockIndexes.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
@@ -57,7 +59,8 @@ namespace edm {
                    ProcessConfiguration const& pc,
                    HistoryAppender* historyAppender,
                    unsigned int streamIndex = 0,
-                   bool isForPrimaryProcess = true);
+                   bool isForPrimaryProcess = true,
+                   ProcessBlockHelperBase const* processBlockHelper = nullptr);
     ~EventPrincipal() override {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,
@@ -72,6 +75,7 @@ namespace edm {
                             ProcessHistory const* processHistory,
                             EventSelectionIDVector eventSelectionIDs,
                             BranchListIndexes branchListIndexes,
+                            EventToProcessBlockIndexes const&,
                             ProductProvenanceRetriever const& provRetriever,
                             DelayedReader* reader = nullptr,
                             bool deepCopyRetriever = true);
@@ -117,6 +121,8 @@ namespace edm {
 
     BranchListIndexes const& branchListIndexes() const;
 
+    EventToProcessBlockIndexes const& eventToProcessBlockIndexes() const;
+
     Provenance const& getProvenance(ProductID const& pid) const;
     StableProvenance const& getStableProvenance(ProductID const& pid) const;
 
@@ -151,6 +157,8 @@ namespace edm {
     using Base::getProvenance;
     using Base::getStableProvenance;
 
+    unsigned int processBlockIndex(std::string const& processName) const override;
+
   private:
     BranchID pidToBid(ProductID const& pid) const;
 
@@ -181,9 +189,12 @@ namespace edm {
     EventSelectionIDVector eventSelectionIDs_;
 
     std::shared_ptr<BranchIDListHelper const> branchIDListHelper_;
+    ProcessBlockHelperBase const* processBlockHelper_;
     std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper_;
 
     BranchListIndexes branchListIndexes_;
+
+    EventToProcessBlockIndexes eventToProcessBlockIndexes_;
 
     std::vector<ProcessIndex> branchListIndexToProcessIndex_;
 

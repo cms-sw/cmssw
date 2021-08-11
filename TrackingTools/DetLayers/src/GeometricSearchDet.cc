@@ -10,8 +10,8 @@ void GeometricSearchDet::compatibleDetsV(const TrajectoryStateOnSurface& startin
                                          const Propagator& prop,
                                          const MeasurementEstimator& est,
                                          std::vector<DetWithState>& result) const {
-  if
-    UNLIKELY(!hasGroups()) edm::LogError("DetLayers") << "At the moment not a real implementation";
+  if UNLIKELY (!hasGroups())
+    edm::LogError("DetLayers") << "At the moment not a real implementation";
 
   // standard implementation of compatibleDets() for class which have
   // groupedCompatibleDets implemented.

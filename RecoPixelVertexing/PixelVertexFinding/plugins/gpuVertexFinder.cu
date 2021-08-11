@@ -1,1 +1,1 @@
-#include "gpuVertexFinderImpl.h"
+#include "gpuVertexFinder.cc"

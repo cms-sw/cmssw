@@ -2,33 +2,22 @@
 
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
-#include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "CondFormats/EcalObjects/interface/EcalRechitChannelStatusGPU.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
-EcalRecHitParametersGPU::EcalRecHitParametersGPU(edm::ParameterSet const& ps) {
-  auto const& channelStatusToBeExcluded = StringToEnumValue<EcalChannelStatusCode::Code>(
-      ps.getParameter<std::vector<std::string>>("ChannelStatusToBeExcluded"));
-
+EcalRecHitParametersGPU::EcalRecHitParametersGPU(std::vector<int> const& channelStatusToBeExcluded,
+                                                 std::vector<DBStatus> const& flagsMapDBReco) {
   channelStatusToBeExcluded_.resize(channelStatusToBeExcluded.size());
   std::copy(channelStatusToBeExcluded.begin(), channelStatusToBeExcluded.end(), channelStatusToBeExcluded_.begin());
 
-  //     https://github.com/cms-sw/cmssw/blob/266e21cfc9eb409b093e4cf064f4c0a24c6ac293/RecoLocalCalo/EcalRecProducers/plugins/EcalRecHitWorkerSimple.cc
-
-  // Translate string representation of flagsMapDBReco into enum values
-  const edm::ParameterSet& p = ps.getParameter<edm::ParameterSet>("flagsMapDBReco");
-  std::vector<std::string> recoflagbitsStrings = p.getParameterNames();
-
-  for (unsigned int i = 0; i != recoflagbitsStrings.size(); ++i) {
-    EcalRecHit::Flags recoflagbit = (EcalRecHit::Flags)StringToEnumValue<EcalRecHit::Flags>(recoflagbitsStrings[i]);
-    std::vector<std::string> dbstatus_s = p.getParameter<std::vector<std::string>>(recoflagbitsStrings[i]);
-    for (unsigned int j = 0; j != dbstatus_s.size(); ++j) {
-      EcalChannelStatusCode::Code dbstatus =
-          (EcalChannelStatusCode::Code)StringToEnumValue<EcalChannelStatusCode::Code>(dbstatus_s[j]);
+  for (auto const& flagInfo : flagsMapDBReco) {
+    EcalRecHit::Flags recoflagbit = static_cast<EcalRecHit::Flags>(flagInfo.recoflagbit);
+    for (auto v : flagInfo.dbstatus) {
+      EcalChannelStatusCode::Code dbstatus = static_cast<EcalChannelStatusCode::Code>(v);
       expanded_v_DB_reco_flags_.push_back(dbstatus);
     }
 
-    expanded_Sizes_v_DB_reco_flags_.push_back(dbstatus_s.size());
+    expanded_Sizes_v_DB_reco_flags_.push_back(flagInfo.dbstatus.size());
     expanded_flagbit_v_DB_reco_flags_.push_back(recoflagbit);
   }
 }

@@ -13,6 +13,7 @@
   <Constant name="NumberOfCellsFine"     value="12"/>
   <Constant name="NumberOfCellsCoarse"   value="8"/>
   <Constant name="FirstMixedLayer"       value="9"/>
+  <Constant name="LayerRotation"         value="0*deg"/>
   <Constant name="rad100200P0"           value="-2.152079E-05"/>
   <Constant name="rad100200P1"           value="3.040344E-02"/>
   <Constant name="rad100200P2"           value="-1.610902E+01"/>

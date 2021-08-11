@@ -27,7 +27,7 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
-#include "SimMuon/DTDigitizer/test/Histograms.h"
+#include "SimMuon/DTDigitizer/interface/Histograms.h"
 
 #include <vector>
 
@@ -65,6 +65,9 @@ private:
 
   edm::EDGetTokenT<edm::PSimHitContainer> SimHitToken_;
   edm::EDGetTokenT<DTDigiCollection> DigiToken_;
+  //Get DT Geometry
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry *muonGeom;
 
   // Switch for debug output
   bool verbose_;

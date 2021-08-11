@@ -5,10 +5,10 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include <iostream>
 
-//#define EDM_ML_DEBUG
+#include <sstream>
 
 namespace spr {
 
@@ -21,10 +21,10 @@ namespace spr {
                                      bool debug) {
     std::vector<EcalRecHitCollection::const_iterator> hits;
     spr::findHit(hitsEC, id, hits, debug);
-#ifdef EDM_ML_DEBUG
+
+    std::ostringstream st1;
     if (debug)
-      std::cout << "Xtal 0x" << std::hex << id() << std::dec;
-#endif
+      st1 << "Xtal 0x" << std::hex << id() << std::dec;
     const EcalRecHitCollection* recHitsEC = (hitsEC.isValid()) ? hitsEC.product() : nullptr;
     bool flag = (!testSpike) ? true : (sevlv->severityLevel(id, (*recHitsEC)) != EcalSeverityLevel::kWeird);
     double ener(0);
@@ -34,19 +34,16 @@ namespace spr {
         en = hit->energy();
         tt = hit->time();
       }
-#ifdef EDM_ML_DEBUG
       if (debug)
-        std::cout << " " << tt << " " << en;
-#endif
+        st1 << " " << tt << " " << en;
       if (tt > tMin && tt < tMax)
         ener += en;
     }
-#ifdef EDM_ML_DEBUG
-    if (!flag && debug)
-      std::cout << " detected to be a spike";
-    if (debug)
-      std::cout << std::endl;
-#endif
+    if (debug) {
+      if (!flag)
+        st1 << " detected to be a spike";
+      edm::LogVerbatim("IsoTrack") << st1.str();
+    }
     return std::pair<double, bool>(ener, flag);
   }
 
@@ -70,10 +67,8 @@ namespace spr {
           energySum += ecalEn.first;
       }
     }
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "energyECAL: energySum = " << energySum << " flag = " << flag << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "energyECAL: energySum = " << energySum << " flag = " << flag;
     return std::pair<double, bool>(energySum, flag);
   }
 
@@ -93,12 +88,9 @@ namespace spr {
                                       bool debug) {
     std::vector<DetId> vdets;
     spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, debug);
-#ifdef EDM_ML_DEBUG
-    if (debug) {
-      std::cout << "Inside eECALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals " << vdets.size()
-                << std::endl;
-    }
-#endif
+    if (debug)
+      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals "
+                                   << vdets.size();
     bool flag(true);
     for (const auto& id : vdets) {
       if ((id.det() == DetId::Ecal) && (id.subdetId() == EcalBarrel)) {
@@ -129,12 +121,9 @@ namespace spr {
                                       bool debug) {
     std::vector<DetId> vdets;
     spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, debug);
-#ifdef EDM_ML_DEBUG
-    if (debug) {
-      std::cout << "Inside eECALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals " << vdets.size()
-                << std::endl;
-    }
-#endif
+    if (debug)
+      edm::LogVerbatim("IsoTrack") << "Inside eECALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " nXtals "
+                                   << vdets.size();
 
     bool flag(true);
     double energySum = 0.0;
@@ -143,10 +132,8 @@ namespace spr {
           ((id.subdetId() == EcalBarrel) || (id.subdetId() == EcalEndcap))) {
         double eTower = spr::energyECALTower(id, hitsEB, hitsEE, ttMap, debug);
         bool ok = (id.subdetId() == EcalBarrel) ? (eTower > ebThr) : (eTower > eeThr);
-#ifdef EDM_ML_DEBUG
         if (debug && (!ok))
-          std::cout << "Crystal 0x" << std::hex << id() << std::dec << " Flag " << ok << std::endl;
-#endif
+          edm::LogVerbatim("IsoTrack") << "Crystal 0x" << std::hex << id() << std::dec << " Flag " << ok;
         if (ok) {
           std::pair<double, bool> ecalEn = (id.subdetId() == EcalBarrel)
                                                ? spr::energyECAL(id, hitsEB, sevlv, true, tMin, tMax, debug)
@@ -157,10 +144,8 @@ namespace spr {
         }
       }
     }
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "energyECAL: energySum = " << energySum << " flag = " << flag << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "energyECAL: energySum = " << energySum << " flag = " << flag;
     return std::pair<double, bool>(energySum, flag);
   }
 
@@ -177,26 +162,25 @@ namespace spr {
                                       bool debug) {
     CaloTowerDetId tower = ctmap->towerOf(detId);
     std::vector<DetId> ids = ctmap->constituentsOf(tower);
-#ifdef EDM_ML_DEBUG
     if (debug) {
-      std::cout << "eECALmatrix: " << detId << " belongs to " << tower << " which has " << ids.size() << " constituents"
-                << std::endl;
+      edm::LogVerbatim("IsoTrack") << "eECALmatrix: " << detId << " belongs to " << tower << " which has " << ids.size()
+                                   << " constituents";
       for (unsigned int i = 0; i < ids.size(); ++i) {
-        std::cout << "[" << i << "] " << std::hex << ids[i].rawId() << std::dec;
+        std::ostringstream st1;
+        st1 << "[" << i << "] " << std::hex << ids[i].rawId() << std::dec;
         if (ids[i].det() == DetId::Ecal && ids[i].subdetId() == EcalBarrel) {
-          std::cout << " " << EBDetId(ids[i]) << std::endl;
+          st1 << " " << EBDetId(ids[i]);
         } else if (ids[i].det() == DetId::Ecal && ids[i].subdetId() == EcalEndcap) {
-          std::cout << " " << EEDetId(ids[i]) << std::endl;
+          st1 << " " << EEDetId(ids[i]);
         } else if (ids[i].det() == DetId::Ecal && ids[i].subdetId() == EcalPreshower) {
-          std::cout << " " << ESDetId(ids[i]) << std::endl;
+          st1 << " " << ESDetId(ids[i]);
         } else if (ids[i].det() == DetId::Hcal) {
-          std::cout << " " << HcalDetId(ids[i]) << std::endl;
-        } else {
-          std::cout << std::endl;
+          st1 << " " << HcalDetId(ids[i]);
         }
+        edm::LogVerbatim("IsoTrack") << st1.str();
       }
     }
-#endif
+
     std::vector<DetId> idEBEE;
     bool flag(true);
     for (const auto& id : ids) {
@@ -210,11 +194,10 @@ namespace spr {
           flag = false;
       }
     }
-#ifdef EDM_ML_DEBUG
+
     if (debug)
-      std::cout << "eECALmatrix: with " << idEBEE.size() << " EB+EE hits and "
-                << "spike flag " << flag << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "eECALmatrix: with " << idEBEE.size() << " EB+EE hits and "
+                                   << "spike flag " << flag;
     double etot = (!idEBEE.empty()) ? spr::energyECAL(idEBEE, hitsEB, hitsEE, ebThr, eeThr, tMin, tMax, debug) : 0;
     return std::pair<double, bool>(etot, flag);
   }

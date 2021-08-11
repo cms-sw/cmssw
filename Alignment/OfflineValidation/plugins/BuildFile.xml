@@ -10,6 +10,7 @@
 <use name="CondFormats/BeamSpotObjects"/>
 <use name="CondFormats/RunInfo"/>
 <use name="CondFormats/SiPixelObjects"/>
+<use name="CalibTracker/SiStripCommon"/>
 <use name="DQM/TrackerRemapper"/>
 <use name="DQMServices/Core"/>
 <use name="DataFormats/BeamSpot"/>
@@ -29,7 +30,7 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 <use name="Geometry/CaloGeometry"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="Geometry/CommonTopologies"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>

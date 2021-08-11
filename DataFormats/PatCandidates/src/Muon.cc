@@ -164,11 +164,13 @@ void Muon::initSimInfo() {
   simPdgId_ = 0;
   simMotherPdgId_ = 0;
   simBX_ = 999;
+  simTpEvent_ = 0;
   simProdRho_ = 0.0;
   simProdZ_ = 0.0;
   simPt_ = 0.0;
   simEta_ = 0.0;
   simPhi_ = 0.0;
+  simMatchQuality_ = 0.0;
 }
 
 /// reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)

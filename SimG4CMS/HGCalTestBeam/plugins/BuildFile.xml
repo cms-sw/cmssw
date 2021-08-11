@@ -18,6 +18,7 @@
 <use name="SimG4Core/Watcher"/>
 <use name="geant4core"/>
 <use name="clhep"/>
+<use name="dd4hep"/>
 <use name="rootphysics"/>
 <use name="root"/>
 <use name="hepmc"/>

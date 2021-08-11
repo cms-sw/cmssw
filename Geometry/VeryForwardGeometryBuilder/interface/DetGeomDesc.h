@@ -17,6 +17,7 @@
 
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include <Math/Rotation3D.h>
@@ -59,7 +60,10 @@ public:
   // Constructor from DD4Hep DDFilteredView
   /// \param[in] isRun2 Switch between legacy run 2-like geometry and 2021+ scenarii
   DetGeomDesc(const cms::DDFilteredView& fv, const bool isRun2);
-
+  // Constructor from DB object PDetGeomDesc
+  DetGeomDesc(const PDetGeomDesc& gd);
+  // Constructor from DB object PDetGeomDesc::Item
+  DetGeomDesc(const PDetGeomDesc::Item& item);
   virtual ~DetGeomDesc();
 
   enum CopyMode { cmWithChildren, cmWithoutChildren };

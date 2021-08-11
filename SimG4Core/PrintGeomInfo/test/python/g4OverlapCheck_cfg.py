@@ -9,10 +9,6 @@ from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process('SIM',Run3)
 process.load('Configuration.Geometry.GeometryExtended2021_cff')
 
-#from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-#process = cms.Process('SIM',Phase2C11)
-#process.load('Configuration.Geometry.GeometryExtended2026D76_cff')
-
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 #if hasattr(process,'MessageLogger'):
@@ -27,7 +23,7 @@ process.g4SimHits.CheckGeometry = True
 # Geant4 geometry check 
 process.g4SimHits.G4CheckOverlap.OutputBaseName = cms.string("cms2021")
 process.g4SimHits.G4CheckOverlap.OverlapFlag = cms.bool(True)
-process.g4SimHits.G4CheckOverlap.Tolerance  = cms.double(0.01)
+process.g4SimHits.G4CheckOverlap.Tolerance  = cms.double(0.1)
 process.g4SimHits.G4CheckOverlap.Resolution = cms.int32(10000)
 process.g4SimHits.G4CheckOverlap.Depth      = cms.int32(-1)
 # tells if NodeName is G4Region or G4PhysicalVolume

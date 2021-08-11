@@ -19,12 +19,12 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
-<use name="MagneticField/UniformEngine"/>
+<use name="MagneticField/UniformEngine" source_only="1"/>
 <use name="PhysicsTools/TensorFlow"/>
 <use name="RecoPixelVertexing/PixelLowPtUtilities"/>
 <use name="RecoPixelVertexing/PixelTrackFitting"/>

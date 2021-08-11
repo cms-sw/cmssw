@@ -64,7 +64,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -83,7 +83,7 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class HcalIsoTrackStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
@@ -1228,7 +1228,10 @@ double HcalIsoTrackStudy::trackP(const reco::Track* pTrack,
       if (dR < mindR) {
         mindR = dR;
         pmom = p.momentum().R();
-        //	std::cout<<"p.E() :"<<p.energy()<<"   p.p() :"<<p.momentum().R()<<" p.M  :"<<p.mass()<<std::endl;
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HcalIsoTrack") << "p.E() :" << p.energy() << "   p.p() :" << p.momentum().R()
+                                         << " p.M  :" << p.mass();
+#endif
       }
     }
   }
@@ -1245,7 +1248,10 @@ double HcalIsoTrackStudy::trackE(const reco::Track* pTrack,
       if (dR < mindR) {
         mindR = dR;
         pE = p.energy();
-        //	std::cout<<"p.E() :"<<p.energy()<<"   p.p() :"<<p.momentum().R()<<" p.M  :"<<p.mass()<<std::endl;
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HcalIsoTrack") << "p.E() :" << p.energy() << "   p.p() :" << p.momentum().R()
+                                         << " p.M  :" << p.mass();
+#endif
       }
     }
   }
@@ -1373,7 +1379,9 @@ void HcalIsoTrackStudy::fillECALmatrix(const DetId& detId,
   int i = 0;
   for (auto const& id : vdets) {
     i++;
-    //    std::cout<<"counter inside vdet:"<<i<<std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalIsoTrack") << "counter inside vdet:" << i;
+#endif
     hits.clear();
     if (id.subdetId() == EcalBarrel) {
       spr::findHit(hitsEB, id, hits, false);

@@ -10,7 +10,7 @@ dtResolutionAnalysisMonitor = DQMEDAnalyzer('DTResolutionAnalysisTask',
                                              phiHitsCut = cms.untracked.uint32(6),
                                              zHitsCut = cms.untracked.uint32(3),
                                              # top folder for the histograms in DQMStore
-                                             topHistoFolder = cms.untracked.string("DT/02-Segments")
+                                             topHistoFolder = cms.untracked.string('DT/02-Segments')
                                              )
 
 

@@ -45,21 +45,23 @@ postProcessorHGCALsimclusters= DQMEDHarvester('DQMGenericClient',
     outputFileName = cms.untracked.string(""),
     verbose = cms.untracked.uint32(4))
 
-eff_multiclusters = ["effic_eta 'MultiCluster Efficiency vs #eta' Num_CaloParticle_Eta Denom_CaloParticle_Eta"]
-eff_multiclusters.extend(["effic_phi 'MultiCluster Efficiency vs #phi' Num_CaloParticle_Phi Denom_CaloParticle_Phi"])
-eff_multiclusters.extend(["duplicate_eta 'MultiCluster Duplicate(Split) Rate vs #eta' NumDup_MultiCluster_Eta Denom_MultiCluster_Eta"])
-eff_multiclusters.extend(["duplicate_phi 'MultiCluster Duplicate(Split) Rate vs #phi' NumDup_MultiCluster_Phi Denom_MultiCluster_Phi"])
-eff_multiclusters.extend(["fake_eta 'MultiCluster Fake Rate vs #eta' Num_MultiCluster_Eta Denom_MultiCluster_Eta fake"])
-eff_multiclusters.extend(["fake_phi 'MultiCluster Fake Rate vs #phi'  Num_MultiCluster_Phi Denom_MultiCluster_Phi fake"])
-eff_multiclusters.extend(["merge_eta 'MultiCluster Merge Rate vs #eta' NumMerge_MultiCluster_Eta Denom_MultiCluster_Eta"])
-eff_multiclusters.extend(["merge_phi 'MultiCluster Merge Rate vs #phi' NumMerge_MultiCluster_Phi Denom_MultiCluster_Phi"])
+eff_tracksters = ["purity_eta 'Trackster Purity vs #eta' Num_CaloParticle_Eta Denom_CaloParticle_Eta"]
+eff_tracksters.extend(["purity_phi 'Trackster Purity vs #phi' Num_CaloParticle_Phi Denom_CaloParticle_Phi"])
+eff_tracksters.extend(["effic_eta 'Trackster Efficiency vs #eta' NumEff_CaloParticle_Eta Denom_CaloParticle_Eta"])
+eff_tracksters.extend(["effic_phi 'Trackster Efficiency vs #phi' NumEff_CaloParticle_Phi Denom_CaloParticle_Phi"])
+eff_tracksters.extend(["duplicate_eta 'Trackster Duplicate(Split) Rate vs #eta' NumDup_Trackster_Eta Denom_Trackster_Eta"])
+eff_tracksters.extend(["duplicate_phi 'Trackster Duplicate(Split) Rate vs #phi' NumDup_Trackster_Phi Denom_Trackster_Phi"])
+eff_tracksters.extend(["fake_eta 'Trackster Fake Rate vs #eta' Num_Trackster_Eta Denom_Trackster_Eta fake"])
+eff_tracksters.extend(["fake_phi 'Trackster Fake Rate vs #phi'  Num_Trackster_Phi Denom_Trackster_Phi fake"])
+eff_tracksters.extend(["merge_eta 'Trackster Merge Rate vs #eta' NumMerge_Trackster_Eta Denom_Trackster_Eta"])
+eff_tracksters.extend(["merge_phi 'Trackster Merge Rate vs #phi' NumMerge_Trackster_Phi Denom_Trackster_Phi"])
 
-subdirsMult = ['HGCAL/HGCalValidator/hgcalMultiClusters/','HGCAL/HGCalValidator/ticlMultiClustersFromSimTracksters/']
-subdirsMult.extend('HGCAL/HGCalValidator/ticlMultiClustersFromTracksters'+iteration+'/' for iteration in ticlIterLabelsMerge)
+subdirsTracksters = ['HGCAL/HGCalValidator/hgcalTracksters/','HGCAL/HGCalValidator/ticlSimTracksters/']
+subdirsTracksters.extend('HGCAL/HGCalValidator/ticlTracksters'+iteration+'/' for iteration in ticlIterLabelsMerge)
 
-postProcessorHGCALmulticlusters = DQMEDHarvester('DQMGenericClient',
-  subDirs = cms.untracked.vstring(subdirsMult),
-  efficiency = cms.vstring(eff_multiclusters),
+postProcessorHGCALTracksters = DQMEDHarvester('DQMGenericClient',
+  subDirs = cms.untracked.vstring(subdirsTracksters),
+  efficiency = cms.vstring(eff_tracksters),
   resolution = cms.vstring(),
   cumulativeDists = cms.untracked.vstring(),
   noFlowDists = cms.untracked.vstring(),

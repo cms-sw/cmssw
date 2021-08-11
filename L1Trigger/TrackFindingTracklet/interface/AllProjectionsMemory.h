@@ -13,7 +13,7 @@ namespace trklet {
 
   class AllProjectionsMemory : public MemoryBase {
   public:
-    AllProjectionsMemory(std::string name, Settings const& settings, unsigned int iSector);
+    AllProjectionsMemory(std::string name, Settings const& settings);
 
     ~AllProjectionsMemory() override = default;
 
@@ -25,7 +25,7 @@ namespace trklet {
 
     void clean() override { tracklets_.clear(); }
 
-    void writeAP(bool first);
+    void writeAP(bool first, unsigned int iSector);
 
   private:
     std::vector<Tracklet*> tracklets_;

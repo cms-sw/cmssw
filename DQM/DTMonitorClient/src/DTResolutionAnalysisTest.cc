@@ -7,15 +7,14 @@
  *
  */
 
-#include <DQM/DTMonitorClient/src/DTResolutionAnalysisTest.h>
+#include "DQM/DTMonitorClient/src/DTResolutionAnalysisTest.h"
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Geometry
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -29,7 +28,8 @@
 using namespace edm;
 using namespace std;
 
-DTResolutionAnalysisTest::DTResolutionAnalysisTest(const ParameterSet& ps) {
+DTResolutionAnalysisTest::DTResolutionAnalysisTest(const ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogTrace("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "[DTResolutionAnalysisTest]: Constructor";
 
   prescaleFactor = ps.getUntrackedParameter<int>("diagnosticPrescale", 1);
@@ -55,7 +55,7 @@ void DTResolutionAnalysisTest::beginRun(const Run& run, const EventSetup& contex
   nevents = 0;
 
   // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &context.getData(muonGeomToken_);
 }
 
 void DTResolutionAnalysisTest::bookHistos(DQMStore::IBooker& ibooker) {

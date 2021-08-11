@@ -84,6 +84,9 @@ public:
   // PixelTopology interface.
   std::pair<float, float> pixel(const LocalPoint& p) const override;
 
+  //check whether LocalPoint is inside the pixel active area
+  bool isInPixel(const LocalPoint& p) const;
+
   // Errors
   // Error in local (cm) from the masurement errors
   LocalError localError(const MeasurementPoint&, const MeasurementError&) const override;
@@ -167,6 +170,7 @@ public:
   float gapyInterpadFrac() const { return m_GAPyInterpadFrac; }
   float gapxBorderFrac() const { return m_GAPxBorderFrac; }
   float gapyBorderFrac() const { return m_GAPyBorderFrac; }
+  bool isBricked() const override { return false; }
 
 private:
   float m_pitchx;

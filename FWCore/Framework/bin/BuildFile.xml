@@ -72,16 +72,17 @@
   <use name="FWCore/ParameterSetReader"/>
 </bin>
 
-<bin name="cmsRunPython3" file="cmsRunPython3.cpp">
+<bin name="cmsRunGP" file="cmsRun.cpp">
   <use name="tbb"/>
   <use name="boost"/>
   <use name="boost_program_options"/>
   <use name="jemalloc"/>
+  <use name="gperf"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/PluginManager"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
   <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/PyDevParameterSet"/>
+  <use name="FWCore/ParameterSetReader"/>
 </bin>

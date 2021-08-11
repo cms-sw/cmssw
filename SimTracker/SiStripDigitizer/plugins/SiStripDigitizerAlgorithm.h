@@ -24,6 +24,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvSimulationParameters.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "SimTracker/SiStripDigitizer/interface/SiTrivialDigitalConverter.h"
 #include "SimTracker/SiStripDigitizer/interface/SiGaussianTailNoiseAdder.h"
 #include "SiHitDigitizer.h"
@@ -35,6 +36,8 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "TH1F.h"
 
@@ -42,10 +45,6 @@
 #include <fstream>
 
 class TrackerTopology;
-
-namespace edm {
-  class EventSetup;
-}
 
 class SiStripLorentzAngle;
 class StripDigiSimLink;
@@ -63,7 +62,7 @@ public:
   typedef float Amplitude;
 
   // Constructor
-  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf);
+  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
 
   // Destructor
   ~SiStripDigitizerAlgorithm();
@@ -89,12 +88,12 @@ public:
                 edm::DetSet<SiStripRawDigi>& outStripAPVBaselines,
                 edm::DetSet<StripDigiSimLink>& outLink,
                 const StripGeomDetUnit* stripdet,
-                edm::ESHandle<SiStripGain>&,
-                edm::ESHandle<SiStripThreshold>&,
-                edm::ESHandle<SiStripNoises>&,
-                edm::ESHandle<SiStripPedestals>&,
+                const SiStripGain&,
+                const SiStripThreshold&,
+                const SiStripNoises&,
+                const SiStripPedestals&,
                 bool simulateAPVInThisEvent,
-                edm::ESHandle<SiStripApvSimulationParameters>&,
+                const SiStripApvSimulationParameters*,
                 std::vector<std::pair<int, std::bitset<6>>>& theAffectedAPVvector,
                 CLHEP::HepRandomEngine*,
                 const TrackerTopology* tTopo);
@@ -108,7 +107,6 @@ public:
   }
 
 private:
-  const std::string lorentzAngleName;
   const double theThreshold;
   const double cmnRMStib;
   const double cmnRMStob;
@@ -136,6 +134,9 @@ private:
   const double inefficiency;
   const double pedOffset;
   const bool PreMixing_;
+  const edm::ESGetToken<SiStripBadStrip, SiStripBadChannelRcd> deadChannelToken_;
+  const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pdtToken_;
+  const edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleSimRcd> lorentzAngleToken_;
 
   const ParticleDataTable* pdt;
   const ParticleData* particle;

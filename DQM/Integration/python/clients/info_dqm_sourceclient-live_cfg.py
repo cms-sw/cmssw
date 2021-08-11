@@ -70,11 +70,11 @@ process.dqmProvInfo.runType = process.runType.getRunTypeName()
 
 # Heavy Ion Specific Fed Raw Data Collection Label
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.tcdsDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
+    process.tcdsDigis.InputLabel = "rawDataRepacker"
 else:
-    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-    process.tcdsDigis.InputLabel = cms.InputTag("rawDataCollector")
+    process.scalersRawToDigi.scalersInputTag = "rawDataCollector"
+    process.tcdsDigis.InputLabel = "rawDataCollector"
 
 # Process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *

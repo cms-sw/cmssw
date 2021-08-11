@@ -13,20 +13,15 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.RawToDigi_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
-#process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2021_cfi")           # CMS frame
-
+#process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
+#process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2018_cfi") # CMS frame, 2021 = 2018
+#process.load('CalibPPS.ESProducers.ppsPixelTopologyESSourceRun2_cfi')          # temporary solution, the 2021 geometry is the same as run2, force the usage of run2 topology 
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
-)
-
-process.source = cms.Source("EmptyIOVSource",
-    timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(1),
-    lastValue = cms.uint64(1),
-    interval = cms.uint64(1)
 )
 
 # Input source
@@ -46,7 +41,7 @@ process.options = cms.untracked.PSet(
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('step3_RAW2DIGI_RECO2021.root'),
-    outputCommands = cms.untracked.vstring("drop *","keep SimVertexs_g4SimHits_*_*","keep PSimHits*_*_*_*","keep CTPPS*_*_*_*","keep *_*RP*_*_*",'keep *_LHCTransport_*_*')
+    outputCommands = cms.untracked.vstring("drop *","keep SimVertexs_g4SimHits_*_*","keep PSimHits*_*_*_*","keep CTPPS*_*_*_*","keep *_*RP*_*_*",'keep *_generatorSmeared_*_*')
 )
 
 
@@ -54,22 +49,13 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
-
-# modify CTPPS 2018 raw-to-digi modules ONLY FOR PARTICLE GUN, TO AVOID RUN THIS FOR THE WHOLE CMS
-process.load('Configuration.StandardSequences.RawToDigi_cff')
-             
-# do not make testID for simulation - keeping the frame
-from EventFilter.CTPPSRawToDigi.totemRPRawToDigi_cfi import totemRPRawToDigi
-totemRPRawToDigi.RawToDigi.testID = cms.uint32(1)
-
-from RecoPPS.Local.totemRPLocalReconstruction_cff import totemRPLocalReconstruction
-process.load('RecoPPS.Local.totemRPLocalReconstruction_cff')
-from RecoPPS.Local.ctppsPixelLocalReconstruction_cff import ctppsPixelLocalReconstruction
-process.load('RecoPPS.Local.ctppsPixelLocalReconstruction_cff')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '113X_mcRun3_2021_realistic_Candidate_2021_04_06_19_59_53', '')
 
 # Path and EndPath definitions
-process.raw2digi_step = cms.Path(process.ctppsRawToDigi)
-process.reco_step = cms.Path(process.totemRPLocalReconstruction*process.ctppsPixelLocalReconstruction)
+#process.raw2digi_step = cms.Path(process.RawToDigi)
+#process.reco_step = cms.Path(process.reconstruction)
+process.raw2digi_step = cms.Path(process.ctppsRawToDigi) # to avoid full CMS digitization
+process.reco_step = cms.Path(process.totemRPLocalReconstruction*process.ctppsPixelLocalReconstruction) # to avoid full CMS reconstruction
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.output_step = cms.EndPath(process.output)
 
@@ -80,4 +66,3 @@ process.schedule = cms.Schedule(process.raw2digi_step,process.reco_step,process.
 for path in process.paths:
     #  getattr(process,path)._seq = process.ProductionFilterSequence * getattr(process,path)._seq
     getattr(process,path)._seq = getattr(process,path)._seq
-

@@ -4,7 +4,8 @@
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
 
-DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps) : DQTask(ps) {
+DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps)
+    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   //	tags and tokens
   _tagHBHE1 = ps.getUntrackedParameter<edm::InputTag>("tagHBHE1", edm::InputTag("hcalDigis"));
   _tagHBHE2 = ps.getUntrackedParameter<edm::InputTag>("tagHBHE2", edm::InputTag("vmeDigis"));
@@ -17,11 +18,8 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps) : DQTask(ps)
   DQTask::bookHistograms(ib, r, es);
 
   //	GET WHAT YOU NEED
-  edm::ESHandle<HcalDbService> dbs;
-  es.get<HcalDbRecord>().get(dbs);
-  edm::ESHandle<HcalElectronicsMap> item;
-  es.get<HcalElectronicsMapRcd>().get("full", item);
-  _emap = item.product();
+  edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
+  _emap = dbs->getHcalMapping();
   if (_ptype != fOffline) {  // hidefed2crate
     std::vector<int> vFEDs = utilities::getFEDList(_emap);
     std::vector<int> vFEDsVME = utilities::getFEDVMEList(_emap);

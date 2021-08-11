@@ -57,7 +57,7 @@
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
-#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
+#include "RecoEcal/EgammaCoreTools/interface/EgammaLocalCovParamDefaults.h"
 
 class DetId;
 class CaloTopology;

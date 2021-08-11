@@ -14,12 +14,8 @@
 
 #include "G4FastSimulationManagerProcess.hh"
 #include "G4ProcessManager.hh"
+#include "G4EmBuilder.hh"
 
-#include "G4LeptonConstructor.hh"
-#include "G4MesonConstructor.hh"
-#include "G4BaryonConstructor.hh"
-#include "G4ShortLivedConstructor.hh"
-#include "G4IonConstructor.hh"
 #include "G4RegionStore.hh"
 #include "G4Electron.hh"
 #include "G4Positron.hh"
@@ -119,18 +115,13 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
 }
 
 ParametrisedEMPhysics::~ParametrisedEMPhysics() {
-  if (m_tpmod) {
-    delete m_tpmod;
-    m_tpmod = nullptr;
-  }
+  delete m_tpmod;
+  m_tpmod = nullptr;
 }
 
 void ParametrisedEMPhysics::ConstructParticle() {
-  G4LeptonConstructor pLeptonConstructor;
-  pLeptonConstructor.ConstructParticle();
-
-  G4BaryonConstructor pBaryonConstructor;
-  pBaryonConstructor.ConstructParticle();
+  // minimal set of particles for EM physics
+  G4EmBuilder::ConstructMinimalEmSet();
 }
 
 void ParametrisedEMPhysics::ConstructProcess() {

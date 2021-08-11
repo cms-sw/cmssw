@@ -404,27 +404,41 @@ namespace {
       SiPixelLorentzAngleValuesComparisonPerRegion<false, SINGLE_IOV, 2>;
 
   /************************************************
-    1d histogram of SiPixelLorentzAngle of 1 IOV 
+    1d histogram of SiPixelLorentzAngle comparisons
   *************************************************/
-  class SiPixelLorentzAngleValueComparisonBase : public PlotImage<SiPixelLorentzAngle> {
+  template <IOVMultiplicity nIOVs, int ntags>
+  class SiPixelLorentzAngleValueComparisonBase : public PlotImage<SiPixelLorentzAngle, nIOVs, ntags> {
   public:
     SiPixelLorentzAngleValueComparisonBase()
-        : PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Values Comparison") {}
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
-      TH1F::SetDefaultSumw2(true);
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+        : PlotImage<SiPixelLorentzAngle, nIOVs, ntags>(Form("SiPixelLorentzAngle Values Comparison %i tag(s)", ntags)) {
+    }
 
-      std::shared_ptr<SiPixelLorentzAngle> last_payload = fetchPayload(std::get<1>(lastiov));
+    bool fill() override {
+      TH1F::SetDefaultSumw2(true);
+
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto f_tagname = PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        l_tagname = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<SiPixelLorentzAngle> last_payload = this->fetchPayload(std::get<1>(lastiov));
       std::map<uint32_t, float> l_LAMap_ = last_payload->getLorentzAngles();
       auto l_extrema = SiPixelPI::findMinMaxInMap(l_LAMap_);
 
-      std::shared_ptr<SiPixelLorentzAngle> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiPixelLorentzAngle> first_payload = this->fetchPayload(std::get<1>(firstiov));
       std::map<uint32_t, float> f_LAMap_ = first_payload->getLorentzAngles();
       auto f_extrema = SiPixelPI::findMinMaxInMap(f_LAMap_);
 
@@ -495,28 +509,30 @@ namespace {
       //ltx.SetTextColor(kBlue);
       ltx.SetTextSize(0.047);
       ltx.SetTextAlign(11);
-      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                       1 - gPad->GetTopMargin() + 0.01,
-                       ("SiPixel Lorentz Angle IOV: #color[2]{" + std::to_string(std::get<0>(firstiov)) +
-                        "} vs IOV: #color[4]{" + std::to_string(std::get<0>(lastiov)) + "}")
-                           .c_str());
+      std::string ltxText;
+      if (this->m_plotAnnotations.ntags == 2) {
+        ltxText = fmt::sprintf("#color[2]{%s, %s} vs #color[4]{%s, %s}",
+                               f_tagname,
+                               std::to_string(std::get<0>(firstiov)),
+                               l_tagname,
+                               std::to_string(std::get<0>(lastiov)));
+      } else {
+        ltxText = fmt::sprintf("%s IOV: #color[2]{%s} vs IOV: #color[4]{%s}",
+                               f_tagname,
+                               std::to_string(std::get<0>(firstiov)),
+                               std::to_string(std::get<0>(lastiov)));
+      }
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(), 1 - gPad->GetTopMargin() + 0.01, ltxText.c_str());
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
     }
   };
 
-  class SiPixelLorentzAngleValueComparisonSingleTag : public SiPixelLorentzAngleValueComparisonBase {
-  public:
-    SiPixelLorentzAngleValueComparisonSingleTag() : SiPixelLorentzAngleValueComparisonBase() { setSingleIov(false); }
-  };
-
-  class SiPixelLorentzAngleValueComparisonTwoTags : public SiPixelLorentzAngleValueComparisonBase {
-  public:
-    SiPixelLorentzAngleValueComparisonTwoTags() : SiPixelLorentzAngleValueComparisonBase() { setTwoTags(true); }
-  };
+  using SiPixelLorentzAngleValueComparisonSingleTag = SiPixelLorentzAngleValueComparisonBase<MULTI_IOV, 1>;
+  using SiPixelLorentzAngleValueComparisonTwoTags = SiPixelLorentzAngleValueComparisonBase<SINGLE_IOV, 2>;
 
   /************************************************
    Summary Comparison per region of SiPixelLorentzAngle between 2 IOVs
@@ -740,23 +756,24 @@ namespace {
   using SiPixelLorentzAngleByRegionComparisonTwoTags = SiPixelLorentzAngleByRegionComparisonBase<SINGLE_IOV, 2>;
 
   /************************************************
-   occupancy style map BPix
+   occupancy style map Pixel LA
   *************************************************/
 
-  class SiPixelBPixLorentzAngleMap : public PlotImage<SiPixelLorentzAngle, SINGLE_IOV> {
+  template <SiPixelPI::DetType myType>
+  class SiPixelLorentzAngleMap : public PlotImage<SiPixelLorentzAngle, SINGLE_IOV> {
   public:
-    SiPixelBPixLorentzAngleMap()
-        : PlotImage<SiPixelLorentzAngle, SINGLE_IOV>("SiPixelLorentzAngle Barrel Pixel Map"),
+    SiPixelLorentzAngleMap()
+        : PlotImage<SiPixelLorentzAngle, SINGLE_IOV>("SiPixelLorentzAngle Pixel Map"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
+      auto tagname = tag.name;
       std::shared_ptr<SiPixelLorentzAngle> payload = fetchPayload(std::get<1>(iov));
 
-      Phase1PixelROCMaps theBPixLAMap("");
-      static constexpr int n_layers = 4;
+      Phase1PixelROCMaps thePixLAMap("");
 
       std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
       if (LAMap_.size() != SiPixelPI::phase1size) {
@@ -770,152 +787,82 @@ namespace {
       }
 
       // hard-coded phase-I
-      std::array<double, n_layers> minima = {{999., 999., 999., 999.}};
+      std::array<double, n_layers> b_minima = {{999., 999., 999., 999.}};
+      std::array<double, n_rings> f_minima = {{999., 999.}};
 
       for (const auto &element : LAMap_) {
         int subid = DetId(element.first).subdetId();
         if (subid == PixelSubdetector::PixelBarrel) {
           auto layer = m_trackerTopo.pxbLayer(DetId(element.first));
-
-          if (element.second < minima.at(layer - 1))
-            minima.at(layer - 1) = element.second;
-
-          theBPixLAMap.fillWholeModule(element.first, element.second);
-        }
-      }
-
-      gStyle->SetOptStat(0);
-      //=========================
-      TCanvas canvas("Summary", "Summary", 1200, 1200);
-      theBPixLAMap.drawBarrelMaps(canvas);
-
-      for (unsigned int lay = 1; lay <= n_layers; lay++) {
-        canvas.cd(lay)->SetBottomMargin(0.08);
-        canvas.cd(lay)->SetLeftMargin(0.1);
-        canvas.cd(lay)->SetRightMargin(0.13);
-
-        auto h_bpix_LA = theBPixLAMap.getLayerMaps();
-
-        COUT << " layer:" << lay << " max:" << h_bpix_LA[lay - 1]->GetMaximum() << " min: " << minima.at(lay - 1)
-             << std::endl;
-
-        h_bpix_LA[lay - 1]->GetZaxis()->SetRangeUser(minima.at(lay - 1) - 0.001,
-                                                     h_bpix_LA[lay - 1]->GetMaximum() + 0.001);
-      }
-
-      auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
-
-      for (unsigned int lay = 1; lay <= n_layers; lay++) {
-        canvas.cd(lay);
-        auto ltx = TLatex();
-        ltx.SetTextFont(62);
-        ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.055);
-        ltx.SetTextAlign(11);
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.01,
-                         unpacked.first == 0
-                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
-                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
-      }
-
-      std::string fileName(m_imageFileName);
-      canvas.SaveAs(fileName.c_str());
-#ifdef MMDEBUG
-      canvas.SaveAs("outBPix.root");
-#endif
-
-      return true;
-    }
-
-  private:
-    TrackerTopology m_trackerTopo;
-  };
-
-  /************************************************
-   occupancy style map FPix
-  *************************************************/
-
-  class SiPixelFPixLorentzAngleMap : public PlotImage<SiPixelLorentzAngle, SINGLE_IOV> {
-  public:
-    SiPixelFPixLorentzAngleMap()
-        : PlotImage<SiPixelLorentzAngle, SINGLE_IOV>("SiPixelLorentzAngle Forward Pixel Map"),
-          m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {}
-
-    bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      auto iov = tag.iovs.front();
-      std::shared_ptr<SiPixelLorentzAngle> payload = fetchPayload(std::get<1>(iov));
-
-      Phase1PixelROCMaps theFPixLAMap("");
-      static constexpr int n_rings = 2;
-
-      std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
-      if (LAMap_.size() != SiPixelPI::phase1size) {
-        edm::LogError("SiPixelLorentzAngle_PayloadInspector")
-            << "SiPixelLorentzAngle maps are not supported for non-Phase1 Pixel geometries !";
-        TCanvas canvas("Canv", "Canv", 1200, 1000);
-        SiPixelPI::displayNotSupported(canvas, LAMap_.size());
-        std::string fileName(m_imageFileName);
-        canvas.SaveAs(fileName.c_str());
-        return false;
-      }
-
-      // hardcoded phase-I
-      std::array<double, n_rings> minima = {{999., 999.}};
-
-      for (const auto &element : LAMap_) {
-        int subid = DetId(element.first).subdetId();
-        if (subid == PixelSubdetector::PixelEndcap) {
+          if (element.second < b_minima.at(layer - 1)) {
+            b_minima.at(layer - 1) = element.second;
+          }
+        } else if (subid == PixelSubdetector::PixelEndcap) {
           auto ring = SiPixelPI::ring(DetId(element.first), m_trackerTopo, true);
-
-          if (element.second < minima.at(ring - 1))
-            minima.at(ring - 1) = element.second;
-
-          theFPixLAMap.fillWholeModule(element.first, element.second);
+          if (element.second < f_minima.at(ring - 1)) {
+            f_minima.at(ring - 1) = element.second;
+          }
         }
+        thePixLAMap.fillWholeModule(element.first, element.second);
       }
 
       gStyle->SetOptStat(0);
       //=========================
-      TCanvas canvas("Summary", "Summary", 1200, 600);
-      theFPixLAMap.drawForwardMaps(canvas);
-
-      for (unsigned int ring = 1; ring <= n_rings; ring++) {
-        canvas.cd(ring)->SetBottomMargin(0.08);
-        canvas.cd(ring)->SetLeftMargin(0.1);
-        canvas.cd(ring)->SetRightMargin(0.13);
-
-        auto h_fpix_LA = theFPixLAMap.getRingMaps();
-
-        COUT << " ringer:" << ring << " max:" << h_fpix_LA[ring - 1]->GetMaximum() << " min: " << minima.at(ring - 1)
-             << std::endl;
-
-        h_fpix_LA[ring - 1]->GetZaxis()->SetRangeUser(minima.at(ring - 1) - 0.001,
-                                                      h_fpix_LA[ring - 1]->GetMaximum() + 0.001);
-      }
+      TCanvas canvas("Summary", "Summary", 1200, k_height[myType]);
+      canvas.cd();
 
       auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
 
-      for (unsigned int ring = 1; ring <= n_rings; ring++) {
-        canvas.cd(ring);
-        auto ltx = TLatex();
-        ltx.SetTextFont(62);
-        ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.05);
-        ltx.SetTextAlign(11);
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.01,
-                         unpacked.first == 0
-                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
-                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+      std::string IOVstring = (unpacked.first == 0)
+                                  ? std::to_string(unpacked.second)
+                                  : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second));
+
+      const auto headerText = fmt::sprintf("#color[4]{%s},  IOV: #color[4]{%s}", tagname, IOVstring);
+
+      switch (myType) {
+        case SiPixelPI::t_barrel:
+          thePixLAMap.drawBarrelMaps(canvas, headerText);
+          break;
+        case SiPixelPI::t_forward:
+          thePixLAMap.drawForwardMaps(canvas, headerText);
+          break;
+        case SiPixelPI::t_all:
+          thePixLAMap.drawMaps(canvas, headerText);
+          break;
+        default:
+          throw cms::Exception("SiPixelLorentzAngleMap") << "\nERROR: unrecognized Pixel Detector part " << std::endl;
+      }
+
+      if (myType == SiPixelPI::t_barrel || myType == SiPixelPI::t_all) {
+        // set the minima and maxima of the barrel
+        for (unsigned int lay = 1; lay <= n_layers; lay++) {
+          auto h_bpix_LA = thePixLAMap.getLayerMaps();
+
+          COUT << " layer:" << lay << " max:" << h_bpix_LA[lay - 1]->GetMaximum() << " min: " << b_minima.at(lay - 1)
+               << std::endl;
+
+          h_bpix_LA[lay - 1]->GetZaxis()->SetRangeUser(b_minima.at(lay - 1) - 0.001,
+                                                       h_bpix_LA[lay - 1]->GetMaximum() + 0.001);
+        }
+      }
+
+      if (myType == SiPixelPI::t_forward || myType == SiPixelPI::t_all) {
+        // set the minima and maxima of the endcaps
+        for (unsigned int ring = 1; ring <= n_rings; ring++) {
+          auto h_fpix_LA = thePixLAMap.getRingMaps();
+
+          COUT << " ringer:" << ring << " max:" << h_fpix_LA[ring - 1]->GetMaximum()
+               << " min: " << f_minima.at(ring - 1) << std::endl;
+
+          h_fpix_LA[ring - 1]->GetZaxis()->SetRangeUser(f_minima.at(ring - 1) - 0.001,
+                                                        h_fpix_LA[ring - 1]->GetMaximum() + 0.001);
+        }
       }
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 #ifdef MMDEBUG
-      canvas.SaveAs("outFPix.root");
+      canvas.SaveAs("outPixLA.root");
 #endif
 
       return true;
@@ -923,7 +870,14 @@ namespace {
 
   private:
     TrackerTopology m_trackerTopo;
+    static constexpr std::array<int, 3> k_height = {{1200, 600, 1600}};
+    static constexpr int n_layers = 4;
+    static constexpr int n_rings = 2;
   };
+
+  using SiPixelBPixLorentzAngleMap = SiPixelLorentzAngleMap<SiPixelPI::t_barrel>;
+  using SiPixelFPixLorentzAngleMap = SiPixelLorentzAngleMap<SiPixelPI::t_forward>;
+  using SiPixelFullLorentzAngleMapByROC = SiPixelLorentzAngleMap<SiPixelPI::t_all>;
 
   /************************************************
    Full Pixel Tracker Map class
@@ -1009,5 +963,6 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelLorentzAngle) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleByRegionComparisonTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiPixelBPixLorentzAngleMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFPixLorentzAngleMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelFullLorentzAngleMapByROC);
   PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleFullPixelMap);
 }

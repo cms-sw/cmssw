@@ -10,8 +10,6 @@ class CSCShowerDigi {
 public:
   // Run-3 definitions as provided in DN-20-033
   enum Run3Shower { kInvalid = 0, kLoose = 1, kNominal = 2, kTight = 3 };
-  enum BitMask { kInTimeMask = 0x2, kOutTimeMask = 0x2 };
-  enum BitShift { kInTimeShift = 0, kOutTimeShift = 2 };
 
   /// Constructors
   CSCShowerDigi(const uint16_t inTimeBits, const uint16_t outTimeBits, const uint16_t cscID);
@@ -19,7 +17,7 @@ public:
   CSCShowerDigi();
 
   /// clear this Shower
-  void clear() { bits_ = 0; }
+  void clear();
 
   /// data
   bool isValid() const;
@@ -27,13 +25,12 @@ public:
   bool isLooseInTime() const;
   bool isNominalInTime() const;
   bool isTightInTime() const;
-  bool isLooseOutTime() const;
-  bool isNominalOutTime() const;
-  bool isTightOutTime() const;
+  bool isLooseOutOfTime() const;
+  bool isNominalOutOfTime() const;
+  bool isTightOutOfTime() const;
 
-  uint16_t bits() const { return bits_; }
-  uint16_t bitsInTime() const;
-  uint16_t bitsOutTime() const;
+  uint16_t bitsInTime() const { return bitsInTime_; }
+  uint16_t bitsOutOfTime() const { return bitsOutOfTime_; }
 
   uint16_t getCSCID() const { return cscID_; }
 
@@ -41,10 +38,8 @@ public:
   void setCSCID(const uint16_t c) { cscID_ = c; }
 
 private:
-  void setDataWord(const uint16_t newWord, uint16_t& word, const unsigned shift, const unsigned mask);
-  uint16_t getDataWord(const uint16_t word, const unsigned shift, const unsigned mask) const;
-
-  uint16_t bits_;
+  uint16_t bitsInTime_;
+  uint16_t bitsOutOfTime_;
   // 4-bit CSC chamber identifier
   uint16_t cscID_;
 };

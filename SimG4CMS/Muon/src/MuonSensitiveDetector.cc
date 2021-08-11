@@ -14,14 +14,10 @@
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonSimHitNumberingScheme.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "G4VProcess.hh"
 #include "G4EventManager.hh"
@@ -37,23 +33,25 @@
 //#define EDM_ML_DEBUG
 
 MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
-                                             const edm::EventSetup& es,
+                                             const MuonOffsetMap* offmap,
+                                             const MuonGeometryConstants& constants,
                                              const SensitiveDetectorCatalog& clg,
-                                             edm::ParameterSet const& p,
+                                             double aEPersistentCutGeV,
+                                             bool aAllMuonsPersistent,
+                                             bool aPrintHits,
+                                             bool dd4hep,
                                              const SimTrackManager* manager)
-    : SensitiveTkDetector(name, es, clg, p),
+    : SensitiveTkDetector(name, clg),
       thePV(nullptr),
       theHit(nullptr),
       theDetUnitId(0),
       newDetUnitId(0),
       theTrackID(0),
+      printHits(aPrintHits),
+      thePrinter(nullptr),
+      ePersistentCutGeV(aEPersistentCutGeV),
+      allMuonsPersistent(aAllMuonsPersistent),
       theManager(manager) {
-  edm::ParameterSet m_MuonSD = p.getParameter<edm::ParameterSet>("MuonSD");
-  ePersistentCutGeV = m_MuonSD.getParameter<double>("EnergyThresholdForPersistency") / CLHEP::GeV;  //Default 1. GeV
-  allMuonsPersistent = m_MuonSD.getParameter<bool>("AllMuonsPersistent");
-  printHits = m_MuonSD.getParameter<bool>("PrintHits");
-  bool dd4hep = p.getParameter<bool>("g4GeometryDD4hepSource");
-  //
   // Here simply create 1 MuonSlaveSD for the moment
   //
 #ifdef EDM_ML_DEBUG
@@ -61,16 +59,6 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
 #endif
   detector = new MuonSubDetector(name);
 
-  //The constants take time to calculate and are needed by many helpers
-  edm::ESHandle<MuonOffsetMap> mom;
-  es.get<IdealGeometryRecord>().get(mom);
-  const MuonOffsetMap* offmap = (mom.isValid()) ? mom.product() : nullptr;
-  edm::LogVerbatim("MuonSim") << "Finds the offset map at " << offmap;
-  edm::ESHandle<MuonGeometryConstants> mdc;
-  es.get<IdealGeometryRecord>().get(mdc);
-  if (!mdc.isValid())
-    throw cms::Exception("MuonSensitiveDetector") << "Cannot find MuonGeometryConstants\n";
-  MuonGeometryConstants constants = *(mdc.product());
   G4String sdet = "unknown";
   if (detector->isEndcap()) {
     theRotation = new MuonEndcapFrameRotation();
@@ -86,6 +74,8 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
     sdet = "ME0";
   } else {
     theRotation = new MuonFrameRotation();
+    if (detector->isBarrel())
+      sdet = "Barrel";
   }
   slaveMuon = new MuonSlaveSD(detector, theManager);
   numbering = new MuonSimHitNumberingScheme(detector, constants);

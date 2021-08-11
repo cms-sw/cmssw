@@ -1,6 +1,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCComparatorData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <cstdio>
@@ -41,7 +42,7 @@ CSCComparatorData::CSCComparatorData(int ncfebs, int ntbins, const unsigned shor
 void CSCComparatorData::zero() {
   for (int ifeb = 0; ifeb < ncfebs_; ++ifeb) {
     for (int tbin = 0; tbin < ntbins_; ++tbin) {
-      for (int layer = 1; layer <= 6; ++layer) {
+      for (int layer = CSCDetId::minLayerId(); layer <= CSCDetId::maxLayerId(); ++layer) {
         dataWord(ifeb, tbin, layer) = CSCComparatorDataWord(ifeb, tbin, 0);
       }
     }
@@ -53,16 +54,18 @@ std::vector<CSCComparatorDigi> CSCComparatorData::comparatorDigis(uint32_t idlay
   bool me1a = (CSCDetId::station(idlayer) == 1) && (CSCDetId::ring(idlayer) == 4);
   bool zplus = (CSCDetId::endcap(idlayer) == 1);
   bool me1b = (CSCDetId::station(idlayer) == 1) && (CSCDetId::ring(idlayer) == 1);
-  //  bool me11 = (CSCDetId::station(idlayer)==1) && ((CSCDetId::ring(idlayer)==1) || (CSCDetId::ring(idlayer)==4));
-  unsigned layer = CSCDetId::layer(idlayer);
+  int layer = CSCDetId::layer(idlayer);
+
+  assert(layer >= CSCDetId::minLayerId());
+  assert(layer <= CSCDetId::maxLayerId());
 
   //looking for comp output on layer
   std::vector<CSCComparatorDigi> result;
-  assert(layer > 0 && layer <= 6);
+
   // this is pretty sparse data, so I wish we could check the
   // data word by word, not bit by bit, but I don't see how to
   // do the time sequencing that way.
-  for (int distrip = 0; distrip < 8; ++distrip) {
+  for (int distrip = 0; distrip < CSCConstants::NUM_DISTRIPS_PER_CFEB; ++distrip) {
     uint16_t tbinbitsS0HS0 = 0;
     uint16_t tbinbitsS0HS1 = 0;
     uint16_t tbinbitsS1HS0 = 0;
@@ -78,18 +81,18 @@ std::vector<CSCComparatorDigi> CSCComparatorData::comparatorDigis(uint32_t idlay
         int bit2 = bitValue(cfeb, tbin + 1, layer, distrip);
         int bit3 = bitValue(cfeb, tbin + 2, layer, distrip);
         // should count from zero
-        int chamberDistrip = distrip + cfeb * 8;
+        int chamberDistrip = distrip + cfeb * CSCConstants::NUM_DISTRIPS_PER_CFEB;
         int HalfStrip = 4 * chamberDistrip + bit2 * 2 + bit3;
         int output = 4 + bit2 * 2 + bit3;
         /*
-               * Handles distrip logic; comparator output is for pairs of strips:
-               * hit  bin  dec
-               * x--- 100   4
-               * -x-- 101   5
-               * --x- 110   6
-               * ---x 111   7
-               *
-               */
+         * Handles distrip logic; comparator output is for pairs of strips:
+         * hit  bin  dec
+         * x--- 100   4
+         * -x-- 101   5
+         * --x- 110   6
+         * ---x 111   7
+         *
+         */
 
         if (debug)
           LogTrace("CSCComparatorData|CSCRawToDigi")
@@ -177,10 +180,10 @@ std::vector<CSCComparatorDigi> CSCComparatorData::comparatorDigis(uint32_t idlay
 }
 
 std::vector<CSCComparatorDigi> CSCComparatorData::comparatorDigis(int layer) {
-  //returns comparators for one layer for all cfebs
-  std::vector<CSCComparatorDigi> result;
-  assert(layer > 0 && layer <= 6);
+  assert(layer >= CSCDetId::minLayerId());
+  assert(layer <= CSCDetId::maxLayerId());
 
+  std::vector<CSCComparatorDigi> result;
   for (int cfeb = 0; cfeb < ncfebs_; ++cfeb) {
     std::vector<CSCComparatorDigi> oneCfebDigi = comparatorDigis(layer, cfeb);
     result.insert(result.end(), oneCfebDigi.begin(), oneCfebDigi.end());
@@ -190,15 +193,16 @@ std::vector<CSCComparatorDigi> CSCComparatorData::comparatorDigis(int layer) {
 }
 
 void CSCComparatorData::add(const CSCComparatorDigi& digi, int layer) {
-  //FIXME do flipping
   int strip = digi.getStrip();
-  int halfStrip = (strip - 1) * 2 + digi.getComparator();
-  int cfeb = (strip - 1) / 16;
-  int distrip = ((strip - 1) % 16) / 2;
+  int halfstrip = digi.getHalfStrip();
+  int cfeb = digi.getCFEB();
+  int distrip = digi.getDiStrip();
 
-  // assert(distrip < 8 && cfeb < 6 && halfStrip < 161);
-  ///!!! Do we need to introduce format version here to accomodate 7 CFEBs
-  assert(distrip < 8 && cfeb < 8 && halfStrip < 225);
+  // Check the distrip and half-strip number
+  assert(cfeb < CSCConstants::MAX_CFEBS_RUN2);
+  assert(distrip < CSCConstants::NUM_DISTRIPS_PER_CFEB);
+  // note that half-strips are not staggered in the packer
+  assert(halfstrip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN2);
 
   std::vector<int> timeBinsOn = digi.getTimeBinsOn();
   for (std::vector<int>::const_iterator tbinItr = timeBinsOn.begin(); tbinItr != timeBinsOn.end(); ++tbinItr) {
@@ -225,52 +229,55 @@ void CSCComparatorData::add(const CSCComparatorDigi& digi, const CSCDetId& cid) 
   bool me1a = (cid.station() == 1) && (cid.ring() == 4);
   bool zplus = (cid.endcap() == 1);
   bool me1b = (cid.station() == 1) && (cid.ring() == 1);
-  //  bool me11 = (cid.station()==1) && ((cid.ring()==1) || (cid.ring()==4));
 
   unsigned layer = cid.layer();
 
   int strip = digi.getStrip();
-  int halfstrip = (strip - 1) * 2 + digi.getComparator();
-  int cfeb = (strip - 1) / 16;
-  int distrip = ((strip - 1) % 16) / 2;
+  int halfstrip = digi.getHalfStrip();
+  int cfeb = digi.getCFEB();
+  int distrip = digi.getDiStrip();
   int bit2 = (strip - 1) % 2;
   int bit3 = digi.getComparator();
 
-  // assert(distrip < 8 && cfeb < 6 && halfStrip < 161);
-  ///!!! Do we need to introduce format version here to accomodate 7 CFEBs
+  // Check the distrip and half-strip number
   if (theFirmwareVersion >= 2013) {
-    assert(distrip < 8 && cfeb < 8 && halfstrip < 225);
+    assert(cfeb < CSCConstants::MAX_CFEBS_RUN2);
+    assert(distrip < CSCConstants::NUM_DISTRIPS_PER_CFEB);
+    // note that half-strips are not staggered in the packer
+    assert(halfstrip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN2);
   } else {
-    assert(distrip < 8 && cfeb < 6 && halfstrip < 161);
+    assert(cfeb < CSCConstants::MAX_CFEBS_RUN1);
+    assert(distrip < CSCConstants::NUM_DISTRIPS_PER_CFEB);
+    // note that half-strips are not staggered in the packer
+    assert(halfstrip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN1);
   }
 
   // Lets try to do ME11 strip flipping
   if (doStripSwapping) {
     if (theFirmwareVersion >= 2013) {
-      if ((me1a || (me1b && (cfeb > 3))) && zplus) {
+      if ((me1a || (me1b && (cfeb > CSCConstants::NUM_CFEBS_ME1A_UNGANGED))) && zplus) {
         distrip = 7 - distrip;  // 0-7 -> 7-0
         cfeb = 10 - cfeb;
-        bit2 = ((31 - (halfstrip % 32)) % 4) / 2;
-        bit3 = ((31 - (halfstrip % 32)) % 4) % 2;
+        bit2 = ((31 - (halfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB)) % 4) / 2;
+        bit3 = ((31 - (halfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB)) % 4) % 2;
       }
-      if (me1b && !zplus && (cfeb < 4)) {
+      if (me1b && !zplus && (cfeb < CSCConstants::NUM_CFEBS_ME1B)) {
         distrip = 7 - distrip;
         cfeb = 3 - cfeb;
-        bit2 = ((31 - (halfstrip % 32)) % 4) / 2;
-        bit3 = ((31 - (halfstrip % 32)) % 4) % 2;
+        bit2 = ((31 - (halfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB)) % 4) / 2;
+        bit3 = ((31 - (halfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB)) % 4) % 2;
       }
     } else {
-      // if ( me1a )           { cfeb_corr = 0; } // reset 4 to 0
-      if ((me1a || (me1b && (cfeb > 3))) && zplus) {
+      if ((me1a || (me1b && (cfeb > CSCConstants::NUM_CFEBS_ME1A_UNGANGED))) && zplus) {
         distrip = 7 - distrip;  // 0-7 -> 7-0
-        bit2 = ((31 - (halfstrip % 32)) % 4) / 2;
-        bit3 = ((31 - (halfstrip % 32)) % 4) % 2;
+        bit2 = ((31 - (halfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB)) % 4) / 2;
+        bit3 = ((31 - (halfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB)) % 4) % 2;
       }
-      if (me1b && !zplus && (cfeb < 4)) {
+      if (me1b && !zplus && (cfeb < CSCConstants::NUM_CFEBS_ME1B)) {
         distrip = 7 - distrip;
         cfeb = 3 - cfeb;
-        bit2 = ((31 - (halfstrip % 32)) % 4) / 2;
-        bit3 = ((31 - (halfstrip % 32)) % 4) % 2;
+        bit2 = ((31 - (halfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB)) % 4) / 2;
+        bit3 = ((31 - (halfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB)) % 4) % 2;
       }
     }
   }
@@ -298,7 +305,7 @@ bool CSCComparatorData::check() const {
   bool result = true;
   for (int cfeb = 0; cfeb < ncfebs_; ++cfeb) {
     for (int tbin = 0; tbin < ntbins_; ++tbin) {
-      for (int layer = 1; layer <= 6; ++layer) {
+      for (int layer = CSCDetId::minLayerId(); layer <= CSCDetId::maxLayerId(); ++layer) {
         /// first do some checks
         const CSCComparatorDataWord& word = dataWord(cfeb, tbin, layer);
         bool wordIsGood = (word.tbin_ == tbin) && (word.cfeb_ == cfeb);

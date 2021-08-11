@@ -81,7 +81,7 @@ void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalTimeSlew* delay) 
   linearLSB_QIE8_ = 1.;
   linearLSB_QIE11_ = 1.;
   linearLSB_QIE11Overlap_ = 1.;
-  pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError);
+  pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError, false);
   firstHBEta_ = topo_->firstHBRing();
   lastHBEta_ = topo_->lastHBRing();
   nHBEta_ = (lastHBEta_ - firstHBEta_ + 1);

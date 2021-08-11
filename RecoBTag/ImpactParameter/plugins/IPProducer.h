@@ -307,8 +307,8 @@ void IPProducer<Container, Base, Helper>::produce(edm::Event& iEvent, const edm:
       reco::GhostTrackFitter fitter;
       GlobalPoint origin = RecoVertex::convertPos(pv->position());
       GlobalError error = RecoVertex::convertError(pv->error());
-      ghostTrack.reset(
-          new reco::GhostTrack(fitter.fit(origin, error, direction, m_ghostTrackPriorDeltaR, transientTracks)));
+      ghostTrack = std::make_unique<reco::GhostTrack>(
+          fitter.fit(origin, error, direction, m_ghostTrackPriorDeltaR, transientTracks));
 
       /*
 	if (std::sqrt(jetMomentum.Perp2()) > 30) {
@@ -432,7 +432,7 @@ void IPProducer<Container, Base, Helper>::checkEventSetup(const edm::EventSetup&
     const TrackProbabilityCalibration* ca2D = calib2DHandle.product();
     const TrackProbabilityCalibration* ca3D = calib3DHandle.product();
 
-    m_probabilityEstimator.reset(new HistogramProbabilityEstimator(ca3D, ca2D));
+    m_probabilityEstimator = std::make_unique<HistogramProbabilityEstimator>(ca3D, ca2D);
   }
   m_calibrationCacheId3D = cacheId3D;
   m_calibrationCacheId2D = cacheId2D;
@@ -441,7 +441,7 @@ void IPProducer<Container, Base, Helper>::checkEventSetup(const edm::EventSetup&
 // Specialized templates used to fill 'descriptions'
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
 template <>
-void IPProducer<reco::TrackRefVector, reco::JTATagInfo, IPProducerHelpers::FromJTA>::fillDescriptions(
+inline void IPProducer<reco::TrackRefVector, reco::JTATagInfo, IPProducerHelpers::FromJTA>::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<double>("maximumTransverseImpactParameter", 0.2);
@@ -462,7 +462,8 @@ void IPProducer<reco::TrackRefVector, reco::JTATagInfo, IPProducerHelpers::FromJ
 }
 
 template <>
-void IPProducer<std::vector<reco::CandidatePtr>, reco::JetTagInfo, IPProducerHelpers::FromJetAndCands>::fillDescriptions(
+inline void
+IPProducer<std::vector<reco::CandidatePtr>, reco::JetTagInfo, IPProducerHelpers::FromJetAndCands>::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<double>("maximumTransverseImpactParameter", 0.2);

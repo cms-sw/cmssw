@@ -55,7 +55,6 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 
-
 # Select the Message Logger output you would like to see:
 #
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -65,11 +64,14 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('L1Trigger/L1TGlobal/debug_messages_cfi')
 process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
 
-#
-#process.MessageLogger.debugModules = cms.untracked.vstring('*')
-#process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
+process.MessageLogger.categories.append('l1t|Global')
+# DEBUG
+#process.MessageLogger.debugModules = cms.untracked.vstring('simGtStage2Digis') 
+#process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG') 
 
+# set the number of events
 process.maxEvents = cms.untracked.PSet(
+    #input = cms.untracked.int32(10)
     input = cms.untracked.int32(neventsPerJob)
     )
 
@@ -77,24 +79,15 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-        "/store/mc/PhaseIFall16DR/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU28to62HcalNZSRAW_81X_upgrade2017_realistic_v26-v1/110000/444C2036-84FC-E611-A86D-02163E01433C.root",
-        "/store/mc/PhaseIFall16DR/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU28to62HcalNZSRAW_81X_upgrade2017_realistic_v26-v1/110000/E0A9F101-84FC-E611-9B29-02163E01A4AA.root",
-        "/store/mc/PhaseIFall16DR/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU28to62HcalNZSRAW_81X_upgrade2017_realistic_v26-v1/110000/563E9F08-84FC-E611-BEA2-02163E01A2F7.root",
-        ## "/store/mc/PhaseIFall16DR/QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8/GEN-SIM-RAW/FlatPU28to62HcalNZSRAW_81X_upgrade2017_realistic_v26-v2/120002/C023E584-8700-E711-AE30-002590747E28.root",
-        ## "/store/mc/RunIISpring16DR80/TT_TuneCUETP8M1_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU20to70HcalNZSRAW_withHLT_80X_mcRun2_asymptotic_v14_ext3-v1/50000/CE22C0CB-9965-E611-9101-0025905C4262.root",
-        ## "/store/mc/RunIISpring16DR80/TT_TuneCUETP8M1_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU20to70HcalNZSRAW_withHLT_80X_mcRun2_asymptotic_v14_ext3-v1/50000/D6D4CAF2-AD65-E611-9642-001EC94BA169.root",
-        ## "/store/mc/RunIISpring16DR80/TT_TuneCUETP8M1_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU20to70HcalNZSRAW_withHLT_80X_mcRun2_asymptotic_v14_ext3-v1/50000/DACA98C0-9A65-E611-8626-0025905C54C6.root"
-        #"/store/user/puigh/L1Upgrade/GEN-SIM-DIGI-RAW-HLTDEBUG/CMSSW_7_6_0/4C462F65-9F7F-E511-972A-0026189438A9.root",
+        "/store/mc/RunIISummer19UL18RECO/GluGluToContinToZZTo4mu_13TeV_MCFM701_pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/110000/664BBEBB-93A9-5B40-AD9C-DE835A79B712.root",
+        #"/store/mc/RunIISummer20UL18RECO/BuToTau_To3Mu_MuFilter_TuneCP5_13TeV-pythia8-evtgen/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/20000/00901296-D966-DF40-AA25-5F7A959B79CA.root",
+        #"/store/mc/RunIISummer20UL18RECO/DsToTau_To3Mu_MuFilter_TuneCP5_13TeV-pythia8-evtgen/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/00000/0003B7FD-6C1E-BF4C-8DA9-BA8A27AF0290.root",
+        #"/store/mc/RunIISummer19UL18RECO/ZZ_TuneCP5_13TeV-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/280000/04530FC4-E54D-D34A-950E-9F300321E037.root",
+        #"/store/mc/RunIIFall15DR76/TT_TuneCUETP8M1_13TeV-powheg-pythia8/AODSIM/25nsFlat10to25TSG_76X_mcRun2_asymptotic_v11_ext3-v1/20000/F03B8956-5D87-E511-8AE9-002590D0AFFC.root",
+        #"/store/mc/RunIISummer19UL18HLT/TTTo2L2Nu_mtop178p5_TuneCP5_13TeV-powheg-pythia8/GEN-SIM-RAW/102X_upgrade2018_realistic_v15-v2/280000/00429618-85B5-124F-9C16-0C9F07A39E73.root+"
+        #"/store/mc/PhaseIFall16DR/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU28to62HcalNZSRAW_81X_upgrade2017_realistic_v26-v1/110000/444C2036-84FC-E611-A86D-02163E01433C.root",
+        #"/store/mc/RunIISpring16DR80/TT_TuneCUETP8M1_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU20to70HcalNZSRAW_withHLT_80X_mcRun2_asymptotic_v14_ext3-v1/50000/D6D4CAF2-AD65-E611-9642-001EC94BA169.root",
         #"/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root",
-        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/4C462F65-9F7F-E511-972A-0026189438A9.root",
-        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/703E7EAB-9D7F-E511-B886-003048FFCBFC.root",
-        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/8AF07AAB-9D7F-E511-B8B4-003048FFCBFC.root",
-        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/962BEF7C-9D7F-E511-A2BB-0025905B85AA.root",
-        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/C409A519-9E7F-E511-BD4C-0025905B8590.root",
-        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/E8D41D6A-9F7F-E511-A10A-003048FFD740.root",
-        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/EE048767-9E7F-E511-B1AA-0025905B8606.root",
-        #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/4431031E-9E7F-E511-9F42-0025905938A4.root",
-        #"root://cmsxrootd.fnal.gov//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/4431031E-9E7F-E511-9F42-0025905938A4.root",
 	),
     skipEvents = cms.untracked.uint32(skip)
     )
@@ -104,7 +97,9 @@ process.output =cms.OutputModule("PoolOutputModule",
 	fileName = cms.untracked.string('testGlobalMCInputProducer_'+repr(job)+'.root')
 	)
 
-process.options = cms.untracked.PSet()
+process.options = cms.untracked.PSet(
+    wantSummary = cms.bool(True)
+)
 
 
 # Additional output definition
@@ -115,7 +110,9 @@ process.TFileService.fileName = cms.string('l1t_histos.root')
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
 ## process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, '90X_upgrade2017_realistic_PerfectEcalIc_EGM_PFCalib', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v11', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '112X_mcRun2_asymptotic_v2', '')
+## process.GlobalTag = GlobalTag(process.GlobalTag, '90X_upgrade2017_realistic_PerfectEcalIc_EGM_PFCalib', '')
 ## auto:upgradePLS1
 ## 81X_upgrade2017_realistic_v26
 ## 80X_mcRun2_asymptotic_v14
@@ -217,21 +214,13 @@ process.load('L1Trigger.L1TGlobal.GlobalParameters_cff')
 
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
 
-## process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_v2c.xml')
-## process.TriggerMenu.L1TriggerMenuFile = cms.string('towercount.xml')
-## process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_v3_HIDilepton_v5.xml')
-## process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_HeavyIons2016_v0.xml')
-## process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_HeavyIons2016_v2.xml')
-## process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_HeavyIons2016_v3_m2.xml')
-## process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_v8_m2.xml')
-## process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_test_mass_trv.xml')
-
-## xmlMenu="L1Menu_test_mass_trv.xml"
-##xmlMenu="L1Menu_BPH2017_v0.xml"
-xmlMenu="L1Menu_test_mass_tbpt.xml"
+xmlMenu="L1Menu_test_mass_3_body_reduced_v2.xml"
 process.TriggerMenu.L1TriggerMenuFile = cms.string(xmlMenu)
+process.ESPreferL1TXML = cms.ESPrefer("L1TUtmTriggerMenuESProducer","TriggerMenu")
 
-#process.menuDumper = cms.EDAnalyzer("L1TUtmTriggerMenuDumper")
+process.dumpMenu = cms.EDAnalyzer("L1MenuViewer")
+# DEBUG: Information about names and types of algos parsed by the emulator from the menu
+#process.menuDumper = cms.EDAnalyzer("L1TUtmTriggerMenuDumper") 
 
 ## Fill External conditions
 process.load('L1Trigger.L1TGlobal.simGtExtFakeProd_cfi')
@@ -285,14 +274,12 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                 unmaskL1Algos     = cms.bool(False)
 		 )
 
-
-
 process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
 process.l1GtTrigReport.L1GtRecordInputTag = "simGtStage2Digis"
 process.l1GtTrigReport.PrintVerbosity = 2
 process.report = cms.Path(process.l1GtTrigReport)
 
-process.MessageLogger.MuConditon=cms.untracked.PSet()
+process.MessageLogger.categories.append("MuConditon")
 
 if useMCtoGT:
     process.gtInput = process.mcL1GTinput.clone()
@@ -312,7 +299,8 @@ process.gtStage2Raw.MuonInputTag = cms.InputTag("gtInput")
 process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 process.newGtStage2Digis = process.gtStage2Digis.clone()
 process.newGtStage2Digis.InputLabel = cms.InputTag('gtStage2Raw')
-process.newGtStage2Digis.debug = cms.untracked.bool(False)
+# DEBUG 
+#process.newGtStage2Digis.debug = cms.untracked.bool(True) 
 
 process.dumpRaw = cms.EDAnalyzer(
     "DumpFEDRawDataProduct",
@@ -368,7 +356,8 @@ process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
 process.p1 = cms.Path(
 
 ## Generate input, emulate, dump results
-    process.gtInput
+    process.dumpMenu
+    *process.gtInput
 #    *process.dumpGT
     *process.simGtExtFakeProd
     *process.simGtStage2Digis
@@ -382,7 +371,7 @@ process.p1 = cms.Path(
 
 ## Analysis/Dumping
     *process.l1tGlobalAnalyzer
-#    *process.menuDumper
+#    *process.menuDumper # DEBUG -> to activate the menuDumper
 #    *process.debug
 #    *process.dumpED
 #    *process.dumpES

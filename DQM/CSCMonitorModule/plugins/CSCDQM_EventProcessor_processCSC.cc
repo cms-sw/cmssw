@@ -1562,7 +1562,7 @@ namespace cscdqm {
             /**  for(int nLayer = 1; nLayer <= N_Layers; ++nLayer)  */
             //             scaControllerWord[nCFEB][nSample][nLayer-1] = timeSlice(cfebData, nCFEB, nSample)->scaControllerWord(nLayer);
 
-            TrigTime = (int)(timeSlice(data, nCFEB, nSample)->scaControllerWord(nLayer).trig_time);
+            // TrigTime = (int)(timeSlice(data, nCFEB, nSample)->scaControllerWord(nLayer).trig_time);
             /** --------------B */
             FreeCells = timeSlice(data, nCFEB, nSample)->get_n_free_sca_blocks();
             LCT_Pipe_Empty = timeSlice(data, nCFEB, nSample)->get_lctpipe_empty();

@@ -88,10 +88,10 @@ rocBins Phase1PixelROCMaps::maskedBarrelRocsToBins(DetCoordinates coord, std::bi
     if (myRocs.test(idx)) {
       //////////////////////////////////////////////////////////////////////////////////////
       //		                        |					  //
-      // In BPix Layer1 and module>0 in L2,3,4  |   In BPix Layer 2,3,4 module > 0	  //
+      // In BPix Layer1 & module > 0 in L2,3,4  |   In BPix Layer 2,3,4 module < 0        //
       //                                        |					  //
       // ROCs are ordered in the following      |   ROCs are ordered in the following     //
-      // fashion for unplipped modules   	|   fashion for unplipped modules         //
+      // fashion for unflipped modules          |   fashion for unflipped modules         //
       //				        |  				          //
       // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
       // | 8 |9  |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
@@ -185,7 +185,7 @@ rocBins Phase1PixelROCMaps::maskedForwardRocsToBins(DetCoordinates coord, std::b
       // In FPix + (Disk 1,2,3)                 |   In FPix - (Disk -1,-2,-3)	          //
       //                                        |					  //
       // ROCs are ordered in the following      |   ROCs are ordered in the following     //
-      // fashion for unplipped modules 	        |   fashion for unplipped modules         //
+      // fashion for unflipped modules          |   fashion for unflipped modules         //
       //					|  				          //
       // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
       // | 8 |9  |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
@@ -290,35 +290,54 @@ void PixelROCMapHelper::draw_line(
 }
 
 /*--------------------------------------------------------------------*/
-void PixelROCMapHelper::dress_plot(TCanvas& canv,
+void PixelROCMapHelper::dress_plot(TPad*& canv,
                                    TH2* h,
                                    int lay,
                                    int ring = 0,
                                    int phase = 0,
+                                   bool standard_palette = true,
                                    bool half_shift = true,
-                                   bool mark_zero = true,
-                                   bool standard_palette = true)
+                                   bool mark_zero = true)
 /*--------------------------------------------------------------------*/
 {
   std::string s_title;
+  const auto zAxisTitle = fmt::sprintf("%s", h->GetZaxis()->GetTitle());
 
   if (lay > 0) {
-    canv.cd(lay);
+    canv->cd(lay);
+    canv->cd(lay)->SetTopMargin(0.05);
+    canv->cd(lay)->SetBottomMargin(0.07);
+    canv->cd(lay)->SetLeftMargin(0.1);
+    if (!zAxisTitle.empty()) {
+      h->GetZaxis()->SetTitleOffset(1.3);
+      h->GetZaxis()->CenterTitle(true);
+      canv->cd(lay)->SetRightMargin(0.14);
+    } else {
+      canv->cd(lay)->SetRightMargin(0.11);
+    }
     s_title = "Barrel Pixel Layer " + std::to_string(lay);
   } else {
-    canv.cd(ring);
+    canv->cd(ring);
+    canv->cd(ring)->SetTopMargin(0.05);
+    canv->cd(ring)->SetBottomMargin(0.07);
+    canv->cd(ring)->SetLeftMargin(0.1);
+    if (!zAxisTitle.empty()) {
+      h->GetZaxis()->SetTitleOffset(1.3);
+      h->GetZaxis()->CenterTitle(true);
+      canv->cd(ring)->SetRightMargin(0.14);
+    } else {
+      canv->cd(ring)->SetRightMargin(0.11);
+    }
     if (ring > 4) {
       ring = ring - 4;
     }
     s_title = "Forward Pixel Ring " + std::to_string(ring);
   }
 
-  gStyle->SetPadRightMargin(0.125);
-
   if (standard_palette) {
     gStyle->SetPalette(1);
   } else {
-    // this is the fine gradient palette
+    /*
     const Int_t NRGBs = 5;
     const Int_t NCont = 255;
 
@@ -328,6 +347,25 @@ void PixelROCMapHelper::dress_plot(TCanvas& canv,
     Double_t blue[NRGBs] = {0.51, 1.00, 0.12, 0.00, 0.00};
     TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
     gStyle->SetNumberContours(NCont);
+    */
+
+    // this is the fine gradient palette (blue to red)
+    double max = h->GetMaximum();
+    double min = h->GetMinimum();
+    double val_white = 0.;
+    double per_white = (max != min) ? ((val_white - min) / (max - min)) : 0.5;
+
+    const int Number = 3;
+    double Red[Number] = {0., 1., 1.};
+    double Green[Number] = {0., 1., 0.};
+    double Blue[Number] = {1., 1., 0.};
+    double Stops[Number] = {0., per_white, 1.};
+    int nb = 256;
+    h->SetContour(nb);
+    TColor::CreateGradientColorTable(Number, Stops, Red, Green, Blue, nb);
+    // if max == min impose the range to be the same as it was a real diff
+    if (max == min)
+      h->GetZaxis()->SetRangeUser(-1., 1.);
   }
 
   h->SetMarkerSize(0.7);
@@ -581,53 +619,105 @@ void PixelROCMapHelper::dress_plot(TCanvas& canv,
 }
 
 /*--------------------------------------------------------------------*/
-void Phase1PixelROCMaps::drawBarrelMaps(TCanvas& canvas)
+void Phase1PixelROCMaps::drawBarrelMaps(TCanvas& canvas, const std::string& text)
 /*--------------------------------------------------------------------*/
 {
-  canvas.Divide(2, 2);
-  canvas.SetBottomMargin(0.11);
-  canvas.SetLeftMargin(0.13);
-  canvas.SetRightMargin(0.05);
+  canvas.cd();
   canvas.Modified();
+
+  auto topPad = new TPad("pad1", "upper pad", 0.005, 0.96, 0.995, 0.995);
+  topPad->Draw();
+  topPad->cd();
+  auto ltx = TLatex();
+  ltx.SetTextFont(62);
+
+  std::size_t found = text.find("Delta");
+  if (found != std::string::npos) {
+    ltx.SetTextSize(0.7);
+  } else {
+    ltx.SetTextSize(1.);
+  }
+  ltx.DrawLatexNDC(0.02, 0.3, text.c_str());
+
+  canvas.cd();
+  auto bottomPad = new TPad("pad2", "lower pad", 0.005, 0.005, 0.995, 0.955);
+  bottomPad->Draw();
+  bottomPad->cd();
+  bottomPad->Divide(2, 2);
   for (unsigned int lay = 1; lay <= n_layers; lay++) {
-    PixelROCMapHelper::dress_plot(canvas, h_bpix_maps[lay - 1].get(), lay, 0, 1);
+    PixelROCMapHelper::dress_plot(bottomPad, h_bpix_maps[lay - 1].get(), lay, 0, 1, found == std::string::npos);
   }
 }
 
 /*--------------------------------------------------------------------*/
-void Phase1PixelROCMaps::drawForwardMaps(TCanvas& canvas)
+void Phase1PixelROCMaps::drawForwardMaps(TCanvas& canvas, const std::string& text)
 /*--------------------------------------------------------------------*/
 {
-  canvas.Divide(2, 1);
-  canvas.SetBottomMargin(0.11);
-  canvas.SetLeftMargin(0.13);
-  canvas.SetRightMargin(0.05);
+  canvas.cd();
   canvas.Modified();
+
+  auto topPad = new TPad("pad1", "upper pad", 0.005, 0.94, 0.995, 0.995);
+  topPad->Draw();
+  topPad->cd();
+  auto ltx = TLatex();
+  ltx.SetTextFont(62);
+
+  std::size_t found = text.find("Delta");
+  if (found != std::string::npos) {
+    ltx.SetTextSize(0.7);
+  } else {
+    ltx.SetTextSize(1.);
+  }
+  ltx.DrawLatexNDC(0.02, 0.3, text.c_str());
+
+  canvas.cd();
+  auto bottomPad = new TPad("pad2", "lower pad", 0.005, 0.005, 0.995, 0.935);
+  bottomPad->Draw();
+  bottomPad->cd();
+  bottomPad->Divide(2, 1);
   for (unsigned int ring = 1; ring <= n_rings; ring++) {
-    PixelROCMapHelper::dress_plot(canvas, h_fpix_maps[ring - 1].get(), 0, ring, 1);
+    PixelROCMapHelper::dress_plot(bottomPad, h_fpix_maps[ring - 1].get(), 0, ring, 1, found == std::string::npos);
   }
 }
 
 /*--------------------------------------------------------------------*/
-void Phase1PixelROCMaps::drawMaps(TCanvas& canvas)
+void Phase1PixelROCMaps::drawMaps(TCanvas& canvas, const std::string& text)
 /*--------------------------------------------------------------------*/
 {
-  canvas.Divide(2, 3);
-  canvas.SetBottomMargin(0.11);
-  canvas.SetLeftMargin(0.13);
-  canvas.SetRightMargin(0.05);
+  canvas.cd();
   canvas.Modified();
+
+  auto topPad = new TPad("pad1", "upper pad", 0.005, 0.97, 0.995, 0.995);
+  topPad->Draw();
+  topPad->cd();
+  auto ltx = TLatex();
+  ltx.SetTextFont(62);
+
+  std::size_t found = text.find("Delta");
+  if (found != std::string::npos) {
+    ltx.SetTextSize(0.7);
+  } else {
+    ltx.SetTextSize(1.);
+  }
+  ltx.DrawLatexNDC(0.02, 0.2, text.c_str());
+
+  canvas.cd();
+  auto bottomPad = new TPad("pad2", "lower pad", 0.005, 0.005, 0.995, 0.97);
+  bottomPad->Draw();
+  bottomPad->cd();
+  bottomPad->Divide(2, 3);
 
   // dress the plots
   for (unsigned int lay = 1; lay <= n_layers; lay++) {
-    PixelROCMapHelper::dress_plot(canvas, h_bpix_maps[lay - 1].get(), lay, 0, 1);
+    PixelROCMapHelper::dress_plot(bottomPad, h_bpix_maps[lay - 1].get(), lay, 0, 1, found == std::string::npos);
   }
 
-  canvas.Update();
-  canvas.Modified();
-  canvas.cd();
+  bottomPad->Update();
+  bottomPad->Modified();
+  bottomPad->cd();
 
   for (unsigned int ring = 1; ring <= n_rings; ring++) {
-    PixelROCMapHelper::dress_plot(canvas, h_fpix_maps[ring - 1].get(), 0, n_layers + ring, 1);
+    PixelROCMapHelper::dress_plot(
+        bottomPad, h_fpix_maps[ring - 1].get(), 0, n_layers + ring, 1, found == std::string::npos);
   }
 }

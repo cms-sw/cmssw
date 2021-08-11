@@ -4,11 +4,9 @@ from __future__ import absolute_import
 import sys
 import re
 import os
-import urllib, urllib2
 from .pipe import pipe as _pipe
 from .options import globalTag
 from itertools import islice
-import six
 
 def splitter(iterator, n):
   i = iterator.__iter__()
@@ -69,7 +67,7 @@ class HLTProcess(object):
     args = ['--configName', self.config.setup ]
     args.append('--noedsources')
     args.append('--nopaths')
-    for key, vals in six.iteritems(self.options):
+    for key, vals in self.options.items():
       if vals:
         args.extend(('--'+key, ','.join(vals)))
     args.append('--cff')
@@ -89,7 +87,7 @@ class HLTProcess(object):
     if not self.config.hilton:
         # keep the original Source when running on Hilton
         args.append('--noedsources')
-    for key, vals in six.iteritems(self.options):
+    for key, vals in self.options.items():
       if vals:
         args.extend(('--'+key, ','.join(vals)))
 
@@ -793,6 +791,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['esmodules'].append( "-SiStripRecHitMatcherESProducer" )
       self.options['esmodules'].append( "-SiStripQualityESProducer" )
       self.options['esmodules'].append( "-StripCPEfromTrackAngleESProducer" )
+      self.options['esmodules'].append( "-TrackerAdditionalParametersPerDetESModule" )
       self.options['esmodules'].append( "-TrackerDigiGeometryESModule" )
       self.options['esmodules'].append( "-TrackerGeometricDetESModule" )
       self.options['esmodules'].append( "-VolumeBasedMagneticFieldESProducer" )

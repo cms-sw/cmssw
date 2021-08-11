@@ -1,19 +1,14 @@
 #include "SimTracker/SiPhase2Digitizer/plugins/Pixel3DDigitizerAlgorithm.h"
 
 // Framework infrastructure
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // Calibration & Conditions
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
-#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
 // Geometry
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 //#include <iostream>
@@ -23,9 +18,11 @@
 
 using namespace sipixelobjects;
 
-// Analogously to CMSUnits (no um defined)
-constexpr double operator""_um(long double length) { return length * 1e-4; }
-constexpr double operator""_um_inv(long double length) { return length * 1e4; }
+namespace {
+  // Analogously to CMSUnits (no um defined)
+  constexpr double operator""_um(long double length) { return length * 1e-4; }
+  constexpr double operator""_um_inv(long double length) { return length * 1e4; }
+}  // namespace
 
 void Pixel3DDigitizerAlgorithm::init(const edm::EventSetup& es) {
   // XXX: Just copied from PixelDigitizer Algorithm
@@ -37,22 +34,23 @@ void Pixel3DDigitizerAlgorithm::init(const edm::EventSetup& es) {
   }
 
   if (use_deadmodule_DB_) {
-    es.get<SiPixelQualityRcd>().get(siPixelBadModule_);
+    siPixelBadModule_ = &es.getData(siPixelBadModuleToken_);
   }
 
   if (use_LorentzAngle_DB_) {
     // Get Lorentz angle from DB record
-    es.get<SiPixelLorentzAngleSimRcd>().get(siPixelLorentzAngle_);
+    siPixelLorentzAngle_ = &es.getData(siPixelLorentzAngleToken_);
   }
 
   // gets the map and geometry from the DB (to kill ROCs)
-  es.get<SiPixelFedCablingMapRcd>().get(fedCablingMap_);
-  es.get<TrackerDigiGeometryRecord>().get(geom_);
+  fedCablingMap_ = &es.getData(fedCablingMapToken_);
+  geom_ = &es.getData(geomToken_);
 }
 
-Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& conf)
+Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
     : Phase2TrackerDigitizerAlgorithm(conf.getParameter<edm::ParameterSet>("AlgorithmCommon"),
-                                      conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm")),
+                                      conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm"),
+                                      iC),
       np_column_radius_(
           (conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnRadius")) *
           1.0_um),
@@ -61,9 +59,16 @@ Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& co
           1.0_um),
       np_column_gap_(
           (conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnGap")) *
-          1.0_um) {
+          1.0_um),
+      fedCablingMapToken_(iC.esConsumes()),
+      geomToken_(iC.esConsumes()) {
   // XXX - NEEDED?
   pixelFlag_ = true;
+
+  if (use_deadmodule_DB_)
+    siPixelBadModuleToken_ = iC.esConsumes();
+  if (use_LorentzAngle_DB_)
+    siPixelLorentzAngleToken_ = iC.esConsumes();
 
   edm::LogInfo("Pixel3DDigitizerAlgorithm")
       << "Algorithm constructed \n"
@@ -158,56 +163,45 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
       << "\nMigration axis: " << displ_ind
       << "\n(super-)Charge distance to the pixel edge: " << (pitch - pos_moving[displ_ind]) * 1.0_um_inv << " [um]";
 
-  // FIXME -- Sigma reference, DM?
-  const float distance0 = 300.0_um;
-  const float sigma0 = 3.4_um;
-  // FIXME -- Tolerance, DM?
-  const float TOL = 1e-6;
   // How many sigmas (probably a configurable, to be decided not now)
   const float N_SIGMA = 3.0;
 
   // Start the drift and check every step
-  // initial position
-  int i = 0;
   // Some variables needed
   float current_carriers = ncarriers;
   std::vector<float> newpos({pos_moving[0], pos_moving[1], pos_moving[2]});
   float distance_edge = 0.0_um;
-  do {
+  // Current diffusion value
+  const float sigma = 0.4_um;
+  for (int i = 1;; ++i) {
     std::transform(pos_moving.begin(), pos_moving.end(), do_step(i).begin(), pos_moving.begin(), std::plus<float>());
     distance_edge = pitch - std::abs(pos_moving[displ_ind]);
-    // current diffusion value
-    double sigma = std::sqrt(i * diffusion_step / distance0) * (distance0 / thickness) * sigma0;
     // Get the amount of charge on the neighbor pixel: note the
     // transformation to a Normal
-    float migrated_e = current_carriers * 0.5 * (1.0 - std::erf(distance_edge / sigma));
+    float migrated_e = current_carriers * 0.5 * (1.0 - std::erf(distance_edge / (sigma * std::sqrt(2.0))));
 
-    LogDebug("(super-)charge diffusion") << "step-" << i << ", Initial Ne= " << ncarriers << ", "
+    LogDebug("(super-)charge diffusion") << "step-" << i << ", Current carriers Ne= " << current_carriers << ","
                                          << "r=(" << pos_moving[0] * 1.0_um_inv << ", " << pos_moving[1] * 1.0_um_inv
                                          << ", " << pos_moving[2] * 1.0_um_inv << ") [um], "
                                          << "Migrated charge: " << migrated_e;
 
-    // No charge was migrated (ignore creation time)
-    if (i != 0) {
-      // At least 1 electron migrated
-      if ((migrated_e - TOL) < 1.0) {
-        break;
-      }
-      // Move the migrated charge
-      current_carriers -= migrated_e;
-      // Create the ionization point:
-      // First update the newpos vector: the new charge positions at the neighbourg pixels
-      // are created in the same position that its "parent carriers"
-      // except the direction of migration
-      std::vector<float> newpos(pos_moving);
-      // Lest create the new charges around 3 sigmas away
-      newpos[displ_ind] += std::copysign(N_SIGMA * sigma, newpos[displ_ind]);
-      migrated_charge.push_back(DigitizerUtility::EnergyDepositUnit(migrated_e, newpos[0], newpos[1], newpos[2]));
-    }
-    // Next step
-    ++i;
-  } while (std::abs(distance_edge) < max_migration_radius && current_carriers > 0.5 * ncarriers);
+    // Move the migrated charge
+    current_carriers -= migrated_e;
 
+    // Either far away from the edge or almost half of the carriers already migrated
+    if (std::abs(distance_edge) >= max_migration_radius || current_carriers <= 0.5 * ncarriers) {
+      break;
+    }
+
+    // Create the ionization point:
+    // First update the newpos vector: the new charge position at the neighbouring pixel
+    // is created in the same position as its "parent carriers"
+    // except the direction of migration
+    std::vector<float> newpos(pos_moving);
+    // Let's create the new charge carriers around 3 sigmas away
+    newpos[displ_ind] += std::copysign(N_SIGMA * sigma, newpos[displ_ind]);
+    migrated_charge.push_back(DigitizerUtility::EnergyDepositUnit(migrated_e, newpos[0], newpos[1], newpos[2]));
+  }
   return migrated_charge;
 }
 
@@ -230,10 +224,10 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
     const GlobalVector& bfield,
     const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points,
     bool diffusion_activated) const {
-  // -- Current reference system is placed in the center on the module
+  // -- Current reference system is placed in the center of the module
   // -- The natural reference frame should be discribed taking advantatge of
   // -- the cylindrical nature of the pixel geometry -->
-  // -- the new reference frame should be place in the center of the columncy, and in the
+  // -- the new reference frame should be placed in the center of the n-column, and in the
   // -- surface of the ROC using cylindrical coordinates
 
   // Get ROC pitch, half_pitch and sensor thickness to be used to create the
@@ -245,7 +239,7 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
   const int ncolumns = pixdet->specificTopology().ncolumns();
   const float pix_rounding = 0.99;
 
-  // the maximum radial distance is going to be use to evaluate radiation damage XXX?
+  // The maximum radial distance is going to be used to evaluate radiation damage XXX?
   const float max_radial_distance =
       std::sqrt(half_pitch.first * half_pitch.first + half_pitch.second * half_pitch.second);
 
@@ -303,7 +297,7 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
         << "(super-)Charge\nlocal position: (" << super_charge.x() * 1.0_um_inv << ", " << super_charge.y() * 1.0_um_inv
         << ", " << super_charge.z() * 1.0_um_inv << ") [um]"
         << "\nMeasurement Point (row,column) (" << current_pixel.first << ", " << current_pixel.second << ")"
-        << "\nProxy pixel-cell frame (centered at  left-down corner): (" << relative_position_at_pc.first * 1.0_um_inv
+        << "\nProxy pixel-cell frame (centered at  left-back corner): (" << relative_position_at_pc.first * 1.0_um_inv
         << ", " << relative_position_at_pc.second * 1.0_um_inv << ") [um]"
         << "\nProxy pixel-cell frame (centered at n-column): (" << position_at_pc.x() * 1.0_um_inv << ", "
         << position_at_pc.y() * 1.0_um_inv << ") [um] "
@@ -319,8 +313,8 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
     // XXX -- Diffusion: using the center frame
     if (diffusion_activated) {
       auto migrated_charges = diffusion(position_at_pc, super_charge.energy(), drift_direction, half_pitch, thickness);
-      // remove the migrated charges
       for (auto& mc : migrated_charges) {
+        // Remove the migrated charges
         nelectrons -= mc.energy();
         // and convert back to the pixel ref. system
         // Low-left origin/pitch -> relative within the pixel (a)
@@ -328,8 +322,10 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
         const float pixel_x = current_pixel_int.first + (mc.x() + center_proxy_cell.x()) / pitch.first;
         const float pixel_y = current_pixel_int.second + (mc.y() + center_proxy_cell.y()) / pitch.second;
         const auto lp = pixdet->specificTopology().localPosition(MeasurementPoint(pixel_x, pixel_y));
-        //Remember: the drift function will move the reference system to the bottom. We need to add what we previously subtract
-        //in order to avoid a double translation when calling the drift function once again below
+        // Remember: the drift function will move the reference system to the top. We need to subtract
+        // (center_proxy_cell.z() is a constant negative value) what we previously added in order to
+        // avoid a double translation when calling the drift function below the drift function
+        // initially considers the reference system centered in the module at half thickness)
         mc.migrate_position(LocalPoint(lp.x(), lp.y(), mc.z() + center_proxy_cell.z()));
       }
       if (!migrated_charges.empty()) {
@@ -412,6 +408,5 @@ void Pixel3DDigitizerAlgorithm::induce_signal(const PSimHit& hit,
         << " Induce charge at row,col:" << pt.position() << " N_electrons:" << pt.amplitude() << " [Channel:" << channel
         << "]\n   [Accumulated signal in this channel:" << the_signal[channel].ampl() << "] "
         << " Global index linked PSimHit:" << hitIndex;
-    ;
   }
 }

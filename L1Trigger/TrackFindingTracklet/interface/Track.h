@@ -24,7 +24,7 @@ namespace trklet {
           double chisqrz,
           int hitpattern,
           std::map<int, int> stubID,
-          const std::vector<const L1TStub*>& l1stub,
+          const std::vector<L1TStub>& l1stub,
           int seed);
 
     ~Track() = default;
@@ -39,7 +39,7 @@ namespace trklet {
     int ichisq() const { return ichisqrphi_ + ichisqrz_; }
 
     const std::map<int, int>& stubID() const { return stubID_; }
-    const std::vector<const L1TStub*>& stubs() const { return l1stub_; }
+    const std::vector<L1TStub>& stubs() const { return l1stub_; }
 
     //These are not used? Should be removed?
     const std::vector<std::pair<int, int>>& stubIDpremerge() const { return stubIDpremerge_; }
@@ -68,8 +68,8 @@ namespace trklet {
 
     int nPSstubs() const {
       int npsstubs = 0;
-      for (auto istub : l1stub_) {
-        if (istub->layer() < N_PSLAYER)
+      for (const auto& istub : l1stub_) {
+        if (istub.layer() < N_PSLAYER)
           npsstubs++;
       }
       return npsstubs;
@@ -88,7 +88,7 @@ namespace trklet {
     std::vector<std::pair<int, int>> stubIDpremerge_;
     std::vector<std::pair<int, int>> stubIDprefit_;
     std::map<int, int> stubID_;
-    std::vector<const L1TStub*> l1stub_;
+    std::vector<L1TStub> l1stub_;
 
     unsigned int nstubs_;
     int seed_;

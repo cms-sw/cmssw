@@ -252,7 +252,7 @@ GammaJetAnalysis::~GammaJetAnalysis() {}
 void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   nProcessed_++;
 
-  edm::LogInfo("GammaJetAnalysis") << "nProcessed=" << nProcessed_ << "\n";
+  edm::LogVerbatim("GammaJetAnalysis") << "nProcessed=" << nProcessed_ << "\n";
 
   // 1st. Get Photons //
   edm::Handle<reco::PhotonCollection> photons;
@@ -264,12 +264,12 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   if ((photons->size() == 0) && !allowNoPhoton_) {
     if (debug_ > 0)
-      edm::LogInfo("GammaJetAnalysis") << "No photons in the event";
+      edm::LogVerbatim("GammaJetAnalysis") << "No photons in the event";
     return;
   }
 
   nPhotons_ = photons->size();
-  edm::LogInfo("GammaJetAnalysis") << "nPhotons_=" << nPhotons_;
+  edm::LogVerbatim("GammaJetAnalysis") << "nPhotons_=" << nPhotons_;
 
   // Get photon quality flags
   edm::Handle<edm::ValueMap<Bool_t>> loosePhotonQual, tightPhotonQual;
@@ -307,7 +307,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   if ((photonpairset.size() == 0) && !allowNoPhoton_) {
     if (debug_ > 0)
-      edm::LogInfo("GammaJetAnalysis") << "No good quality photons in the event";
+      edm::LogVerbatim("GammaJetAnalysis") << "No good quality photons in the event";
     return;
   }
 
@@ -341,7 +341,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   // cut on photon pt
   if (photon_tag.isValid() && (photon_tag.pt() < photonPtMin_)) {
     if (debug_ > 0)
-      edm::LogInfo("GammaJetAnalysis") << "largest photonPt=" << photon_tag.pt();
+      edm::LogVerbatim("GammaJetAnalysis") << "largest photonPt=" << photon_tag.pt();
     return;
   }
 
@@ -368,11 +368,11 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   if (anyJetCount == 0) {
     if (debug_ > 0)
-      edm::LogInfo("GammaJetAnalysis") << "Event contains no jets";
+      edm::LogVerbatim("GammaJetAnalysis") << "Event contains no jets";
     return;
   }
   if (debug_ > 0)
-    edm::LogInfo("GammaJetAnalysis") << "nPhotons=" << nPhotons_ << ", nPFJets=" << nPFJets_;
+    edm::LogVerbatim("GammaJetAnalysis") << "nPhotons=" << nPhotons_ << ", nPFJets=" << nPFJets_;
 
   HERE(Form("nPhotons_=%d, nPFJets_=%d", nPhotons_, nPFJets_));
 
@@ -405,16 +405,16 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     if (debugHLTTrigNames > 0) {
       if (debug_ > 1)
-        edm::LogInfo("GammaJetAnalysis") << "debugHLTTrigNames is on";
+        edm::LogVerbatim("GammaJetAnalysis") << "debugHLTTrigNames is on";
       const std::vector<std::string>* trNames = &evTrigNames.triggerNames();
       for (size_t i = 0; i < trNames->size(); ++i) {
         if (trNames->at(i).find("_Photon") != std::string::npos) {
           if (debug_ > 1)
-            edm::LogInfo("GammaJetAnalysis") << " - " << trNames->at(i);
+            edm::LogVerbatim("GammaJetAnalysis") << " - " << trNames->at(i);
         }
       }
       if (debug_ > 1)
-        edm::LogInfo("GammaJetAnalysis") << " ";
+        edm::LogVerbatim("GammaJetAnalysis") << " ";
       debugHLTTrigNames--;
     }
 
@@ -460,7 +460,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   if (!photonTrigFlag && !jetTrigFlag) {
     if (debug_ > 0)
-      edm::LogInfo("GammaJetAnalysis") << "no trigger fired";
+      edm::LogVerbatim("GammaJetAnalysis") << "no trigger fired";
     return;
   }
 
@@ -591,9 +591,10 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       edm::Ref<reco::PhotonCollection> photonRef(photons, photon_tag.idx());
       HERE(Form("got photon ref, photon_tag.idx()=%d", photon_tag.idx()));
-
-      //std::cout << "loosePhotonQual->at(photon_tag.idx())=" << loosePhotonQual->at(photon_tag.idx()) << std::endl;
-
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("GammaJetAnalysis")
+          << "loosePhotonQual->at(photon_tag.idx())=" << loosePhotonQual->at(photon_tag.idx());
+#endif
       tagPho_idLoose_ = (loosePhotonQual.isValid()) ? (*loosePhotonQual)[photonRef] : -1;
       tagPho_idTight_ = (tightPhotonQual.isValid()) ? (*tightPhotonQual)[photonRef] : -1;
     } else {
@@ -602,7 +603,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     if (debug_ > 1)
-      edm::LogInfo("GammaJetAnalysis") << "photon tag ID = " << tagPho_idLoose_ << " and " << tagPho_idTight_;
+      edm::LogVerbatim("GammaJetAnalysis") << "photon tag ID = " << tagPho_idLoose_ << " and " << tagPho_idTight_;
 
     HERE(Form("tagPhoID= %d and %d", tagPho_idLoose_, tagPho_idTight_));
 
@@ -680,7 +681,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         HBHE_n++;
         if (iEvent.id().event() == debugEvent) {
           if (debug_ > 1)
-            edm::LogInfo("GammaJetAnalysis") << (*ith).id().ieta() << " " << (*ith).id().iphi();
+            edm::LogVerbatim("GammaJetAnalysis") << (*ith).id().ieta() << " " << (*ith).id().iphi();
         }
       }
     }
@@ -1055,11 +1056,11 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           int HF_type_ = 0;
           int maxElement = (*it)->elementsInBlocks().size();
           if (debug_ > 1)
-            edm::LogInfo("GammaJetAnalysis") << "maxElement=" << maxElement;
+            edm::LogVerbatim("GammaJetAnalysis") << "maxElement=" << maxElement;
           if (workOnAOD_ == 1) {
             maxElement = 0;
             if (debug_ > 1)
-              edm::LogInfo("GammaJetAnalysis") << "forced 0";
+              edm::LogVerbatim("GammaJetAnalysis") << "forced 0";
           }
           HERE(Form("maxElement=%d", maxElement));
           for (int e = 0; e < maxElement; ++e) {
@@ -1119,7 +1120,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                               float avgphi =
                                   (static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi())) / 2.0;
                               if ((cv[0].phi() < cv[2].phi()) && (debug_ > 1))
-                                edm::LogInfo("GammaJetAnalysis") << "pHB" << cv[0].phi() << " " << cv[2].phi();
+                                edm::LogVerbatim("GammaJetAnalysis") << "pHB" << cv[0].phi() << " " << cv[2].phi();
                               if (cv[0].phi() < cv[2].phi())
                                 avgphi = (2.0 * 3.141592653 + static_cast<double>(cv[0].phi()) +
                                           static_cast<double>(cv[2].phi())) /
@@ -1133,7 +1134,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                               float avgphi =
                                   (static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi())) / 2.0;
                               if ((cv[0].phi() < cv[2].phi()) && (debug_ > 1))
-                                edm::LogInfo("GammaJetAnalysis") << "pHE" << cv[0].phi() << " " << cv[2].phi();
+                                edm::LogVerbatim("GammaJetAnalysis") << "pHE" << cv[0].phi() << " " << cv[2].phi();
                               if (cv[0].phi() < cv[2].phi())
                                 avgphi = (2.0 * 3.141592653 + static_cast<double>(cv[0].phi()) +
                                           static_cast<double>(cv[2].phi())) /
@@ -1203,7 +1204,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                       float avgeta = (cv[0].eta() + cv[2].eta()) / 2.0;
                       float avgphi = (static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi())) / 2.0;
                       if ((cv[0].phi() < cv[2].phi()) && (debug_ > 1))
-                        edm::LogInfo("GammaJetAnalysis") << "pHFhad" << cv[0].phi() << " " << cv[2].phi();
+                        edm::LogVerbatim("GammaJetAnalysis") << "pHFhad" << cv[0].phi() << " " << cv[2].phi();
                       if (cv[0].phi() < cv[2].phi())
                         avgphi =
                             (2.0 * 3.141592653 + static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi())) /
@@ -1255,7 +1256,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                       float avgeta = (cv[0].eta() + cv[2].eta()) / 2.0;
                       float avgphi = (static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi())) / 2.0;
                       if ((cv[0].phi() < cv[2].phi()) && (debug_ > 1))
-                        edm::LogInfo("GammaJetAnalysis") << "pHFem" << cv[0].phi() << " " << cv[2].phi();
+                        edm::LogVerbatim("GammaJetAnalysis") << "pHFem" << cv[0].phi() << " " << cv[2].phi();
                       if (cv[0].phi() < cv[2].phi())
                         avgphi =
                             (2.0 * 3.141592653 + static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi())) /
@@ -1314,7 +1315,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                           float avgeta = (cv[0].eta() + cv[2].eta()) / 2.0;
                           float avgphi = (static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi())) / 2.0;
                           if ((cv[0].phi() < cv[2].phi()) && (debug_ > 1))
-                            edm::LogInfo("GammaJetAnalysis") << "pHO" << cv[0].phi() << " " << cv[2].phi();
+                            edm::LogVerbatim("GammaJetAnalysis") << "pHO" << cv[0].phi() << " " << cv[2].phi();
                           if (cv[0].phi() < cv[2].phi())
                             avgphi = (2.0 * 3.141592653 + static_cast<double>(cv[0].phi()) +
                                       static_cast<double>(cv[2].phi())) /
@@ -1702,7 +1703,7 @@ void GammaJetAnalysis::endJob() {
 
 void GammaJetAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& setup) {
   if (debug_ > 1)
-    edm::LogInfo("GammaJetAnalysis") << "beginRun()";
+    edm::LogVerbatim("GammaJetAnalysis") << "beginRun()";
 
   if (!ignoreHLT_) {
     int noPhotonTrigger = (photonTrigNamesV_.size() == 0) ? 1 : 0;
@@ -1714,7 +1715,7 @@ void GammaJetAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& set
     if (noPhotonTrigger && noJetTrigger) {
       ignoreHLT_ = true;
       if (debug_ > 1)
-        edm::LogInfo("GammaJetAnalysis") << "HLT trigger ignored: no trigger requested";
+        edm::LogVerbatim("GammaJetAnalysis") << "HLT trigger ignored: no trigger requested";
     }
   } else {
     // clear trigger names, if needed
@@ -1724,7 +1725,7 @@ void GammaJetAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& set
 
   if (!ignoreHLT_) {
     if (debug_ > 0)
-      edm::LogInfo("GammaJetAnalysis") << "Initializing trigger information for individual run";
+      edm::LogVerbatim("GammaJetAnalysis") << "Initializing trigger information for individual run";
     bool changed(true);
     std::string processName = "HLT";
     if (hltPrescaleProvider_.init(iRun, setup, processName, changed)) {
@@ -1758,7 +1759,7 @@ float GammaJetAnalysis::pfEcalIso(const reco::Photon* localPho1,
                                   float energyEndcap,
                                   reco::PFCandidate::ParticleType pfToUse) {
   if (debug_ > 1)
-    edm::LogInfo("GammaJetAnalysis") << "Inside pfEcalIso";
+    edm::LogVerbatim("GammaJetAnalysis") << "Inside pfEcalIso";
   reco::Photon* localPho = localPho1->clone();
   float dRVeto;
   float etaStrip;
@@ -1819,7 +1820,7 @@ float GammaJetAnalysis::pfHcalIso(const reco::Photon* localPho,
                                   float dRveto,
                                   reco::PFCandidate::ParticleType pfToUse) {
   if (debug_ > 1)
-    edm::LogInfo("GammaJetAnalysis") << "Inside pfHcalIso";
+    edm::LogVerbatim("GammaJetAnalysis") << "Inside pfHcalIso";
   return pfEcalIso(localPho, pfHandle, dRmax, dRveto, dRveto, 0.0, 0.0, 0.0, 0.0, pfToUse);
 }
 
@@ -1836,7 +1837,7 @@ std::vector<float> GammaJetAnalysis::pfTkIsoWithVertex(const reco::Photon* local
                                                        float dxyMax,
                                                        reco::PFCandidate::ParticleType pfToUse) {
   if (debug_ > 1)
-    edm::LogInfo("GammaJetAnalysis") << "Inside pfTkIsoWithVertex()";
+    edm::LogVerbatim("GammaJetAnalysis") << "Inside pfTkIsoWithVertex()";
   reco::Photon* localPho = localPho1->clone();
 
   float dRveto;
@@ -1850,34 +1851,34 @@ std::vector<float> GammaJetAnalysis::pfTkIsoWithVertex(const reco::Photon* local
 
   //Calculate isolation sum separately for each vertex
   if (debug_ > 1)
-    edm::LogInfo("GammaJetAnalysis") << "vtxHandle->size() = " << vtxHandle->size();
+    edm::LogVerbatim("GammaJetAnalysis") << "vtxHandle->size() = " << vtxHandle->size();
   for (unsigned int ivtx = 0; ivtx < (vtxHandle->size()); ++ivtx) {
     if (debug_ > 1)
-      edm::LogInfo("GammaJetAnalysis") << "Vtx " << ivtx;
+      edm::LogVerbatim("GammaJetAnalysis") << "Vtx " << ivtx;
     // Shift the photon according to the vertex
     reco::VertexRef vtx(vtxHandle, ivtx);
     math::XYZVector photon_directionWrtVtx(localPho->superCluster()->x() - vtx->x(),
                                            localPho->superCluster()->y() - vtx->y(),
                                            localPho->superCluster()->z() - vtx->z());
     if (debug_ > 1)
-      edm::LogInfo("GammaJetAnalysis") << "pfTkIsoWithVertex :: Will Loop over the PFCandidates";
+      edm::LogVerbatim("GammaJetAnalysis") << "pfTkIsoWithVertex :: Will Loop over the PFCandidates";
     float sum = 0;
     // Loop over the PFCandidates
     for (unsigned i = 0; i < forIsolation->size(); i++) {
       if (debug_ > 1)
-        edm::LogInfo("GammaJetAnalysis") << "inside loop";
+        edm::LogVerbatim("GammaJetAnalysis") << "inside loop";
       const reco::PFCandidate& pfc = (*forIsolation)[i];
 
       //require that PFCandidate is a charged hadron
       if (debug_ > 1) {
-        edm::LogInfo("GammaJetAnalysis") << "pfToUse=" << pfToUse;
-        edm::LogInfo("GammaJetAnalysis") << "pfc.particleId()=" << pfc.particleId();
+        edm::LogVerbatim("GammaJetAnalysis") << "pfToUse=" << pfToUse;
+        edm::LogVerbatim("GammaJetAnalysis") << "pfc.particleId()=" << pfc.particleId();
       }
 
       if (pfc.particleId() == pfToUse) {
         if (debug_ > 1) {
-          edm::LogInfo("GammaJetAnalysis") << "\n ***** HERE pfc.particleId() == pfToUse ";
-          edm::LogInfo("GammaJetAnalysis") << "pfc.pt()=" << pfc.pt();
+          edm::LogVerbatim("GammaJetAnalysis") << "\n ***** HERE pfc.particleId() == pfToUse ";
+          edm::LogVerbatim("GammaJetAnalysis") << "pfc.pt()=" << pfc.pt();
         }
         if (pfc.pt() < ptMin)
           continue;
@@ -1895,18 +1896,18 @@ std::vector<float> GammaJetAnalysis::pfTkIsoWithVertex(const reco::Photon* local
           continue;
         sum += pfc.pt();
         if (debug_ > 1)
-          edm::LogInfo("GammaJetAnalysis") << "pt=" << pfc.pt();
+          edm::LogVerbatim("GammaJetAnalysis") << "pt=" << pfc.pt();
       }
     }
     if (debug_ > 1)
-      edm::LogInfo("GammaJetAnalysis") << "sum=" << sum;
+      edm::LogVerbatim("GammaJetAnalysis") << "sum=" << sum;
     sum = sum * 1.0;
     result.push_back(sum);
   }
   if (debug_ > 1) {
-    edm::LogInfo("GammaJetAnalysis") << "Will return result";
-    edm::LogInfo("GammaJetAnalysis") << "result" << &result;
-    edm::LogInfo("GammaJetAnalysis") << "Result returned";
+    edm::LogVerbatim("GammaJetAnalysis") << "Will return result";
+    edm::LogVerbatim("GammaJetAnalysis") << "result" << &result;
+    edm::LogVerbatim("GammaJetAnalysis") << "Result returned";
   }
   return result;
 }

@@ -22,7 +22,7 @@ class G4Step;
 class HGCSD : public CaloSD, public Observer<const BeginOfJob *> {
 public:
   HGCSD(const std::string &,
-        const edm::EventSetup &,
+        const HGCalDDDConstants *,
         const SensitiveDetectorCatalog &,
         edm::ParameterSet const &,
         const SimTrackManager *);
@@ -43,6 +43,7 @@ private:
   uint32_t setDetUnitId(ForwardSubdetector &, int, int, int, int, G4ThreeVector &);
   bool isItinFidVolume(const G4ThreeVector &) { return true; }
 
+  const HGCalDDDConstants *hgcons_;
   std::string nameX_;
   HGCalGeometryMode::GeometryMode geom_mode_;
   std::unique_ptr<HGCNumberingScheme> numberingScheme_;

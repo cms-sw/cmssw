@@ -17,19 +17,19 @@ namespace lheh5 {
   }
 
   Particle Events::mkParticle(size_t idx) const {
-    return {std::move(_vid[idx]),
-            std::move(_vstatus[idx]),
-            std::move(_vmother1[idx]),
-            std::move(_vmother2[idx]),
-            std::move(_vcolor1[idx]),
-            std::move(_vcolor2[idx]),
-            std::move(_vpx[idx]),
-            std::move(_vpy[idx]),
-            std::move(_vpz[idx]),
-            std::move(_ve[idx]),
-            std::move(_vm[idx]),
-            std::move(_vlifetime[idx]),
-            std::move(_vspin[idx])};
+    return {_vid[idx],
+            _vstatus[idx],
+            _vmother1[idx],
+            _vmother2[idx],
+            _vcolor1[idx],
+            _vcolor2[idx],
+            _vpx[idx],
+            _vpy[idx],
+            _vpz[idx],
+            _ve[idx],
+            _vm[idx],
+            _vlifetime[idx],
+            _vspin[idx]};
   }
 
   std::vector<Particle> Events::mkEvent(size_t ievent) const {
@@ -50,17 +50,17 @@ namespace lheh5 {
 
   EventHeader Events::mkEventHeader(int iev) const {
     return {
-        std::move(_vnparticles[iev]),
-        std::move(_vpid[iev]),
-        std::move(_vweight[iev]),
-        std::move(_vtrials[iev]),
-        std::move(_vscale[iev]),
-        std::move(_vrscale[iev]),
-        std::move(_vfscale[iev]),
-        std::move(_vaqed[iev]),
-        std::move(_vaqcd[iev]),
-        std::move(_vnpLO[iev]),
-        std::move(_vnpNLO[iev]),
+        _vnparticles[iev],
+        _vpid[iev],
+        _vweight[iev],
+        _vtrials[iev],
+        _vscale[iev],
+        _vrscale[iev],
+        _vfscale[iev],
+        _vaqed[iev],
+        _vaqcd[iev],
+        _vnpLO[iev],
+        _vnpNLO[iev],
     };
   }
 
@@ -195,19 +195,19 @@ namespace lheh5 {
   }
 
   Particle Events2::mkParticle(size_t idx) const {
-    return {std::move(_vid[idx]),
-            std::move(_vstatus[idx]),
-            std::move(_vmother1[idx]),
-            std::move(_vmother2[idx]),
-            std::move(_vcolor1[idx]),
-            std::move(_vcolor2[idx]),
-            std::move(_vpx[idx]),
-            std::move(_vpy[idx]),
-            std::move(_vpz[idx]),
-            std::move(_ve[idx]),
-            std::move(_vm[idx]),
-            std::move(_vlifetime[idx]),
-            std::move(_vspin[idx])};
+    return {_vid[idx],
+            _vstatus[idx],
+            _vmother1[idx],
+            _vmother2[idx],
+            _vcolor1[idx],
+            _vcolor2[idx],
+            _vpx[idx],
+            _vpy[idx],
+            _vpz[idx],
+            _ve[idx],
+            _vm[idx],
+            _vlifetime[idx],
+            _vspin[idx]};
   }
 
   std::vector<Particle> Events2::mkEvent(size_t ievent) const {
@@ -230,15 +230,15 @@ namespace lheh5 {
 
   EventHeader Events2::mkEventHeader(int iev) const {
     return {
-        std::move(_vnparticles[iev]),
-        std::move(_vpid[iev]),
-        std::move(_vweight[iev]),
-        std::move(_vtrials[iev]),
-        std::move(_vscale[iev]),
-        std::move(_vrscale[iev]),
-        std::move(_vfscale[iev]),
-        std::move(_vaqed[iev]),
-        std::move(_vaqcd[iev]),
+        _vnparticles[iev],
+        _vpid[iev],
+        _vweight[iev],
+        _vtrials[iev],
+        _vscale[iev],
+        _vrscale[iev],
+        _vfscale[iev],
+        _vaqed[iev],
+        _vaqcd[iev],
         npLO,
         npNLO,
     };

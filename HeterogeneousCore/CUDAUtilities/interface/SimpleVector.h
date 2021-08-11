@@ -35,7 +35,7 @@ namespace cms {
       }
 
       template <class... Ts>
-      constexpr int emplace_back_unsafe(Ts &&... args) {
+      constexpr int emplace_back_unsafe(Ts &&...args) {
         auto previousSize = m_size;
         m_size++;
         if (previousSize < m_capacity) {
@@ -69,7 +69,7 @@ namespace cms {
       }
 
       template <class... Ts>
-      __device__ int emplace_back(Ts &&... args) {
+      __device__ int emplace_back(Ts &&...args) {
         auto previousSize = atomicAdd(&m_size, 1);
         if (previousSize < m_capacity) {
           (new (&m_data[previousSize]) T(std::forward<Ts>(args)...));

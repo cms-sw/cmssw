@@ -1,9 +1,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -23,7 +20,10 @@
 #define SQR(x) ((x) * (x))
 
 SurveyInputCSCfromPins::SurveyInputCSCfromPins(const edm::ParameterSet &cfg)
-    : m_pinPositions(cfg.getParameter<std::string>("pinPositions")),
+    : DTGeoToken_(esConsumes()),
+      CSCGeoToken_(esConsumes()),
+      GEMGeoToken_(esConsumes()),
+      m_pinPositions(cfg.getParameter<std::string>("pinPositions")),
       m_rootFile(cfg.getParameter<std::string>("rootFile")),
       m_verbose(cfg.getParameter<bool>("verbose")),
       m_errorX(cfg.getParameter<double>("errorX")),
@@ -160,14 +160,11 @@ void SurveyInputCSCfromPins::analyze(const edm::Event &, const edm::EventSetup &
       tree1->Branch("chamber_rotation_z_rad", &PhZ, "PhZ/D");
     }
 
-    edm::ESHandle<DTGeometry> dtGeometry;
-    edm::ESHandle<CSCGeometry> cscGeometry;
-    edm::ESHandle<GEMGeometry> gemGeometry;
-    iSetup.get<MuonGeometryRecord>().get(dtGeometry);
-    iSetup.get<MuonGeometryRecord>().get(cscGeometry);
-    iSetup.get<MuonGeometryRecord>().get(gemGeometry);
+    const DTGeometry *dtGeometry = &iSetup.getData(DTGeoToken_);
+    const CSCGeometry *cscGeometry = &iSetup.getData(CSCGeoToken_);
+    const GEMGeometry *gemGeometry = &iSetup.getData(GEMGeoToken_);
 
-    AlignableMuon *theAlignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
+    AlignableMuon *theAlignableMuon = new AlignableMuon(dtGeometry, cscGeometry, gemGeometry);
     AlignableNavigator *theAlignableNavigator = new AlignableNavigator(theAlignableMuon);
 
     const auto &theEndcaps = theAlignableMuon->CSCEndcaps();

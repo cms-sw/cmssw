@@ -31,7 +31,7 @@ public:
                          edm::Transition transition = edm::Transition::BeginRun)
       : geometryInterface(iConfig.getParameter<edm::ParameterSet>("geometry"), std::move(iC), transition) {
     auto histograms = iConfig.getParameter<edm::VParameterSet>("histograms");
-    for (auto histoconf : histograms) {
+    for (const auto& histoconf : histograms) {
       histo.emplace_back(HistogramManager(histoconf, geometryInterface));
     }
   };

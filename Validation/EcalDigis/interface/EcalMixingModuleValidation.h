@@ -55,6 +55,9 @@
 #include "CondFormats/ESObjects/interface/ESPedestals.h"
 #include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
 #include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
+#include <Validation/EcalDigis/interface/EcalBarrelDigisValidation.h>
+#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include <iostream>
 #include <fstream>
@@ -106,9 +109,16 @@ private:
   edm::EDGetTokenT<EBDigiCollection> EBdigiCollectionToken_;
   edm::EDGetTokenT<EEDigiCollection> EEdigiCollectionToken_;
   edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
-
   edm::EDGetTokenT<CrossingFrame<PCaloHit> > crossingFramePCaloHitEBToken_, crossingFramePCaloHitEEToken_,
       crossingFramePCaloHitESToken_;
+
+  edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> pAgc;
+  edm::ESGetToken<ESGain, ESGainRcd> esgain_;
+  edm::ESGetToken<ESMIPToGeVConstant, ESMIPToGeVConstantRcd> esMIPToGeV_;
+  edm::ESGetToken<ESPedestals, ESPedestalsRcd> esPedestals_;
+  edm::ESGetToken<ESIntercalibConstants, ESIntercalibConstantsRcd> esMIPs_;
+  edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> dbPed;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> hGeometry;
 
   std::map<int, double, std::less<int> > gainConv_;
 

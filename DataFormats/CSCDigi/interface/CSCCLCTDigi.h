@@ -18,11 +18,6 @@ class CSCCLCTDigi {
 public:
   typedef std::vector<std::vector<uint16_t>> ComparatorContainer;
 
-  enum CLCTKeyStripMasks { kEighthStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0x1f };
-  enum CLCTKeyStripShifts { kEighthStripShift = 6, kQuartStripShift = 5, kHalfStripShift = 0 };
-  // temporary to facilitate CCLUT-EMTF/OMTF integration studies
-  enum CLCTPatternMasks { kRun3SlopeMask = 0xf, kRun3PatternMask = 0x7, kLegacyPatternMask = 0xf };
-  enum CLCTPatternShifts { kRun3SlopeShift = 7, kRun3PatternShift = 4, kLegacyPatternShift = 0 };
   enum class Version { Legacy = 0, Run3 };
   // for data vs emulator studies
   enum CLCTBXMask { kBXDataMask = 0x3 };
@@ -39,8 +34,13 @@ public:
               const uint16_t trknmb = 0,
               const uint16_t fullbx = 0,
               const int16_t compCode = -1,
-              const Version version = Version::Legacy);
-  /// default
+              const Version version = Version::Legacy,
+              const bool run3_quart_strip_bit = false,
+              const bool run3_eighth_strip_bit = false,
+              const uint16_t run3_pattern = 0,
+              const uint16_t run3_slope = 0);
+
+  /// default (calls clear())
   CSCCLCTDigi();
 
   /// clear this CLCT
@@ -59,22 +59,22 @@ public:
   void setQuality(const uint16_t quality) { quality_ = quality; }
 
   /// return pattern
-  uint16_t getPattern() const;
+  uint16_t getPattern() const { return pattern_; }
 
   /// set pattern
-  void setPattern(const uint16_t pattern);
+  void setPattern(const uint16_t pattern) { pattern_ = pattern; }
 
   /// return pattern
-  uint16_t getRun3Pattern() const;
+  uint16_t getRun3Pattern() const { return run3_pattern_; }
 
   /// set pattern
-  void setRun3Pattern(const uint16_t pattern);
+  void setRun3Pattern(const uint16_t pattern) { run3_pattern_ = pattern; }
 
   /// return the slope
-  uint16_t getSlope() const;
+  uint16_t getSlope() const { return run3_slope_; }
 
   /// set the slope
-  void setSlope(const uint16_t slope);
+  void setSlope(const uint16_t slope) { run3_slope_ = slope; }
 
   /// slope in number of half-strips/layer
   /// negative means left-bending
@@ -96,22 +96,22 @@ public:
   void setBend(const uint16_t bend) { bend_ = bend; }
 
   /// return halfstrip that goes from 0 to 31 in a (D)CFEB
-  uint16_t getStrip() const;
+  uint16_t getStrip() const { return strip_; }
 
   /// set strip
   void setStrip(const uint16_t strip) { strip_ = strip; }
 
   /// set single quart strip bit
-  void setQuartStrip(const bool quartStrip);
+  void setQuartStripBit(const bool quartStripBit) { run3_quart_strip_bit_ = quartStripBit; }
 
   /// get single quart strip bit
-  bool getQuartStrip() const;
+  bool getQuartStripBit() const { return run3_quart_strip_bit_; }
 
   /// set single eighth strip bit
-  void setEighthStrip(const bool eighthStrip);
+  void setEighthStripBit(const bool eighthStripBit) { run3_eighth_strip_bit_ = eighthStripBit; }
 
   /// get single eighth strip bit
-  bool getEighthStrip() const;
+  bool getEighthStripBit() const { return run3_eighth_strip_bit_; }
 
   /// return Key CFEB ID
   uint16_t getCFEB() const { return cfeb_; }
@@ -197,22 +197,18 @@ public:
   void setRun3(bool isRun3);
 
 private:
-  void setDataWord(const uint16_t newWord, uint16_t& word, const unsigned shift, const unsigned mask);
-  uint16_t getDataWord(const uint16_t word, const unsigned shift, const unsigned mask) const;
-
   uint16_t valid_;
   uint16_t quality_;
-  // In Run-3, the 4-bit pattern number is reinterpreted as the
-  // 4-bit bending value. There will be 16 bending values * 2 (left/right)
+  // Run-1/2 pattern number.
+  // For Run-3 CLCTs, please use run3_pattern_. For some backward
+  // compatibility the trigger emulator translates run3_pattern_
+  // approximately into pattern_ with a lookup table
   uint16_t pattern_;
   uint16_t striptype_;  // not used since mid-2008
   // Common definition for left/right bending in Run-1, Run-2 and Run-3.
   // 0: right; 1: left
   uint16_t bend_;
-  // In Run-3, the strip number receives two additional bits
-  // strip[4:0] -> 1/2 strip value
-  // strip[5]   -> 1/4 strip bit
-  // strip[6]   -> 1/8 strip bit
+  // actually the half-strip number
   uint16_t strip_;
   // There are up to 7 (D)CFEBs in a chamber
   uint16_t cfeb_;
@@ -220,9 +216,20 @@ private:
   uint16_t trknmb_;
   uint16_t fullbx_;
 
-  // new in Run-3: 12-bit comparator code
+  // new members in Run-3:
+
+  // 12-bit comparator code
   // set by default to -1 for Run-1 and Run-2 CLCTs
   int16_t compCode_;
+  // 1/4-strip bit set by CCLUT (see DN-19-059)
+  bool run3_quart_strip_bit_;
+  // 1/8-strip bit set by CCLUT
+  bool run3_eighth_strip_bit_;
+  // In Run-3, the CLCT digi has 3-bit pattern ID, 0 through 4
+  uint16_t run3_pattern_;
+  // 4-bit bending value. There will be 16 bending values * 2 (left/right)
+  uint16_t run3_slope_;
+
   // which hits are in this CLCT?
   ComparatorContainer hits_;
 

@@ -36,6 +36,7 @@ protected:
   edm::InputTag _tagHF;
   edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
   edm::EDGetTokenT<HFDigiCollection> _tokHF;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   //	cuts/constants from input
   double _cut;

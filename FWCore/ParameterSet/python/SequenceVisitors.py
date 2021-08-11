@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from .SequenceTypes import *
 from .Modules import OutputModule, EDProducer, EDFilter, EDAnalyzer, Service, ESProducer, ESSource, _Module
 from .Mixins import _Labelable
-import six
 
 # Use this on Tasks in the Schedule
 class ScheduleTaskValidator(object):
@@ -110,7 +109,7 @@ class ModuleNamesFromGlobalsVisitor(object):
     by using globals() to lookup the variable names assigned to the modules. This
     allows the determination of the labels before the modules have been attached to a Process."""
     def __init__(self,globals_,l):
-        self._moduleToName = { v[1]:v[0] for v in six.iteritems(globals_) if isinstance(v[1],_Module) }
+        self._moduleToName = { v[1]:v[0] for v in globals_.items() if isinstance(v[1],_Module) }
         self._names =l
     def enter(self,node):
         if isinstance(node,_Module):

@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 class GEMOfflineMonitor : public GEMOfflineDQMBase {
 public:
@@ -28,6 +29,8 @@ private:
 
   edm::EDGetTokenT<GEMDigiCollection> digi_token_;
   edm::EDGetTokenT<GEMRecHitCollection> rechit_token_;
+
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemToken_;
 
   bool do_digi_occupancy_;
   bool do_hit_occupancy_;

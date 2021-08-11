@@ -31,8 +31,9 @@ namespace gem {
     uint64_t word;
     struct {
       uint64_t dataLength : 20;  // Number of 64bit words in this event
-      uint64_t l1AIDT : 12;      // 8bit long GLIB serial number (first 8 bits)
-      uint64_t crc : 32;         // CRC added by the AMC13
+      uint64_t : 4;
+      uint64_t l1AID : 8;  // L1A number (first 8 bits)
+      uint64_t crc : 32;   // CRC added by the AMC13
     };
   };
   union EventHeader {
@@ -68,6 +69,8 @@ namespace gem {
     AMCdata() : amch1_(0), amch2_(0), amct_(0), eh_(0), et_(0){};
     ~AMCdata() { gebd_.clear(); }
 
+    int status();
+
     void setAMCheader1(uint64_t word) { amch1_ = word; }
     void setAMCheader1(uint32_t dataLength, uint16_t bxID, uint32_t l1AID, uint8_t AMCnum);
     uint64_t getAMCheader1() const { return amch1_; }
@@ -87,17 +90,20 @@ namespace gem {
     uint64_t getGEMeventTrailer() const { return et_; }
 
     uint32_t dataLength() const { return AMCTrailer{amct_}.dataLength; }
-    uint16_t bx() const { return AMCheader1{amch1_}.bxID; }
-    uint32_t l1A() const { return AMCheader1{amch1_}.l1AID; }
+    uint16_t bunchCrossing() const { return AMCheader1{amch1_}.bxID; }
+    uint32_t lv1Id() const { return AMCheader1{amch1_}.l1AID; }
     uint8_t amcNum() const { return AMCheader1{amch1_}.AMCnum; }
 
     uint16_t boardId() const { return AMCheader2{amch2_}.boardID; }
-    uint16_t orbitNum() const { return AMCheader2{amch2_}.orbitNum; }
+    uint16_t orbitNumber() const { return AMCheader2{amch2_}.orbitNum; }
     uint8_t param3() const { return AMCheader2{amch2_}.param3; }
     uint8_t param2() const { return AMCheader2{amch2_}.param2; }
     uint8_t param1() const { return AMCheader2{amch2_}.param1; }
     uint8_t runType() const { return AMCheader2{amch2_}.runType; }
     uint8_t formatVer() const { return AMCheader2{amch2_}.formatVer; }
+
+    uint8_t lv1Idt() const { return AMCTrailer{amct_}.l1AID; }
+    uint32_t crc() const { return AMCTrailer{amct_}.crc; }
 
     uint16_t ttsState() const { return EventHeader{eh_}.ttsState; }
     uint8_t davCnt() const { return EventHeader{eh_}.davCnt; }

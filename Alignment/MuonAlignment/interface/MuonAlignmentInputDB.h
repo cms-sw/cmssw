@@ -41,11 +41,11 @@ public:
 
   AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const override;
 
-private:
   MuonAlignmentInputDB(const MuonAlignmentInputDB &) = delete;  // stop default
 
   const MuonAlignmentInputDB &operator=(const MuonAlignmentInputDB &) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
 
   std::string m_dtLabel, m_cscLabel, m_gemLabel, idealGeometryLabel;

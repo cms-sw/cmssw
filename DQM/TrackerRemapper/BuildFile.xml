@@ -5,6 +5,7 @@
 <use name="rootgraphics"/>
 <use name="rootmath"/>
 <use name="roothistmatrix"/>
+<use name="roothistpainter"/> <!--Needed for typeinfo for TPaletteAxis in UBSAN builds-->
 <export>
   <lib name="1"/>
 </export>

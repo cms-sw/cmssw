@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -22,10 +22,11 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 // DT trigger
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
@@ -91,7 +92,8 @@ private:
 
   std::string baseDirectory;
 
-  edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* muonGeom;
   std::map<uint32_t, std::map<std::string, MonitorElement*> > triggerHistos;
   MonitorElement* tm_IDDataErrorPlot;
 

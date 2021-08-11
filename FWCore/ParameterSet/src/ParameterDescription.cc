@@ -6,7 +6,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/ParameterSet/src/FillDescriptionFromPSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"

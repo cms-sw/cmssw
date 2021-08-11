@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <DQM/DTMonitorModule/interface/DTTimeEvolutionHisto.h>
+#include "DQM/DTMonitorModule/interface/DTTimeEvolutionHisto.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"

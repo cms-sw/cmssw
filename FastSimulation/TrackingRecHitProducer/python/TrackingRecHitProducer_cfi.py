@@ -1,5 +1,4 @@
 # Python 2 vs 3 compatibility library:
-import six
 
 import FWCore.ParameterSet.Config as cms
 
@@ -61,8 +60,8 @@ trackerStripGaussianResolutions={
     }
 }
 
-for subdetId,trackerLayers in six.iteritems(trackerStripGaussianResolutions):
-    for trackerLayer, resolutionX in six.iteritems(trackerLayers):
+for subdetId,trackerLayers in trackerStripGaussianResolutions.items():
+    for trackerLayer, resolutionX in trackerLayers.items():
         pluginConfig = cms.PSet(
             name = cms.string(subdetId+str(trackerLayer)),
             type=cms.string("TrackingRecHitStripGSPlugin"),

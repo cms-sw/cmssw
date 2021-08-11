@@ -1,3 +1,9 @@
+<use name="DQM/SiTrackerPhase2"/>
+<use name="DQMServices/Core"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/TrackingHit"/>
 <export>

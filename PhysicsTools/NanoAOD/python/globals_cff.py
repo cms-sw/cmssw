@@ -38,5 +38,5 @@ genTable  = cms.EDProducer("SimpleGenEventFlatTableProducer",
         ),
 )
 
-globalTables = cms.Sequence(rhoTable)
-globalTablesMC = cms.Sequence(puTable+genTable)
+globalTablesTask = cms.Task(rhoTable)
+globalTablesMCTask = cms.Task(puTable,genTable)

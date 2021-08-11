@@ -32,6 +32,7 @@ threshold_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorPro
                                threshold_scintillator = cms.double(2.), # MipT
                                coarsenTriggerCells = cms.vuint32(0,0,0),
                                fixedDataSizePerHGCROC = cms.bool(False),
+                               allTrigCellsInTrigSums = cms.bool(True),
                                ctcSize = cms.vuint32(CTC_SIZE),
                                )
 
@@ -81,6 +82,7 @@ best_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcesso
                           NData = cms.vuint32(bestchoice_ndata_decentralized),
                           coarsenTriggerCells = cms.vuint32(0,0,0),
                           fixedDataSizePerHGCROC = cms.bool(False),
+                          allTrigCellsInTrigSums = cms.bool(False),
                           coarseTCCompression = coarseTCCompression_proc.clone(),
                           superTCCalibration_ee = vfe_proc.calibrationCfg_ee.clone(),
                           superTCCalibration_hesi = vfe_proc.calibrationCfg_hesi.clone(),
@@ -95,6 +97,7 @@ supertc_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProce
                              stcSize = cms.vuint32(STC_SIZE),
                              ctcSize = cms.vuint32(CTC_SIZE),
                              fixedDataSizePerHGCROC = cms.bool(False),
+                             allTrigCellsInTrigSums = cms.bool(False),
                              coarsenTriggerCells = cms.vuint32(0,0,0),
                              superTCCompression = superTCCompression_proc.clone(),
                              coarseTCCompression = coarseTCCompression_proc.clone(),
@@ -111,6 +114,7 @@ custom_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProces
                           threshold_scintillator = cms.double(2.), # MipT
                           coarsenTriggerCells = cms.vuint32(0,0,0),
                           fixedDataSizePerHGCROC = cms.bool(False),
+                          allTrigCellsInTrigSums = cms.bool(False),
                           type_energy_division = cms.string('superTriggerCell'),# superTriggerCell,oneBitFraction,equalShare
                           stcSize = cms.vuint32(STC_SIZE),
                           ctcSize = cms.vuint32(CTC_SIZE),
@@ -129,6 +133,7 @@ coarsetc_onebitfraction_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcen
                              stcSize = cms.vuint32([4]*(MAX_LAYERS+1)+ [8]*(MAX_LAYERS+1)*3),
                              ctcSize = cms.vuint32(CTC_SIZE),
                              fixedDataSizePerHGCROC = cms.bool(True),
+                             allTrigCellsInTrigSums = cms.bool(False),
                              coarsenTriggerCells = cms.vuint32(0,0,0),
                              oneBitFractionThreshold = cms.double(0.125),
                              oneBitFractionLowValue = cms.double(0.0625),
@@ -148,6 +153,7 @@ coarsetc_equalshare_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentrat
                              stcSize = cms.vuint32([4]*(MAX_LAYERS+1)+ [8]*(MAX_LAYERS+1)*3),
                              ctcSize = cms.vuint32(CTC_SIZE),
                              fixedDataSizePerHGCROC = cms.bool(True),
+                             allTrigCellsInTrigSums = cms.bool(False),
                              coarsenTriggerCells = cms.vuint32(0,0,0),
                              superTCCompression = superTCCompression_proc.clone(),
                              coarseTCCompression = coarseTCCompression_proc.clone(),
@@ -158,11 +164,72 @@ coarsetc_equalshare_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentrat
 )
 
 
+autoencoder_triggerCellRemap = [0,16, 32,
+                                1,17, 33,
+                                2,18, 34,
+                                3,19, 35,
+                                4,20, 36,
+                                5,21, 37,
+                                6,22, 38,
+                                7,23, 39,
+                                8,24, 40,
+                                9,25, 41,
+                                10,26, 42,
+                                11,27, 43,
+                                12,28, 44,
+                                13,29, 45,
+                                14,30, 46,
+                                15,31, 47]
+
+autoEncoder_bitsPerOutputLink = cms.vint32([0, 1, 3, 5, 7, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9])
+
+autoEncoder_training_2eLinks = cms.PSet(encoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/encoder_2eLinks_PUdriven_constantgraph.pb'),
+                                        decoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/decoder_2eLinks_PUdriven_constantgraph.pb'))
+
+autoEncoder_training_3eLinks = cms.PSet(encoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/encoder_3eLinks_PUdriven_constantgraph.pb'),
+                                        decoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/decoder_3eLinks_PUdriven_constantgraph.pb'))
+
+autoEncoder_training_4eLinks = cms.PSet(encoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/encoder_4eLinks_PUdriven_constantgraph.pb'),
+                                        decoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/decoder_4eLinks_PUdriven_constantgraph.pb'))
+
+autoEncoder_training_5eLinks = cms.PSet(encoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/encoder_5eLinks_PUdriven_constantgraph.pb'),
+                                        decoderModelFile = cms.FileInPath('L1Trigger/L1THGCal/data/decoder_5eLinks_PUdriven_constantgraph.pb'))
+
+linkToGraphMapping = [0,0,0,1,2,3,3,3,3,3,3,3,3,3,3]
+
+autoEncoder_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
+                                 Method = cms.vstring(['autoEncoder','autoEncoder','thresholdSelect']),
+                                 cellRemap = cms.vint32(autoencoder_triggerCellRemap),
+                                 cellRemapNoDuplicates = cms.vint32(autoencoder_triggerCellRemap),
+                                 encoderShape = cms.vuint32(1,4,4,3),
+                                 decoderShape = cms.vuint32(1,16),
+                                 nBitsPerInput = cms.int32(8),
+                                 maxBitsPerOutput = cms.int32(9),
+                                 bitsPerLink = autoEncoder_bitsPerOutputLink,
+                                 modelFiles = cms.VPSet([autoEncoder_training_2eLinks, autoEncoder_training_3eLinks, autoEncoder_training_4eLinks, autoEncoder_training_5eLinks]),
+                                 linkToGraphMap = cms.vuint32(linkToGraphMapping),
+                                 zeroSuppresionThreshold = cms.double(0.1),
+                                 bitShiftNormalization = cms.bool(True),
+                                 saveEncodedValues = cms.bool(False),
+                                 preserveModuleSum = cms.bool(True),
+                                 threshold_silicon = cms.double(2.), # MipT
+                                 threshold_scintillator = cms.double(2.), # MipT
+                                 type_energy_division = supertc_conc_proc.type_energy_division,
+                                 stcSize = supertc_conc_proc.stcSize,
+                                 ctcSize = supertc_conc_proc.ctcSize,
+                                 fixedDataSizePerHGCROC = supertc_conc_proc.fixedDataSizePerHGCROC,
+                                 allTrigCellsInTrigSums = supertc_conc_proc.allTrigCellsInTrigSums,
+                                 coarsenTriggerCells = supertc_conc_proc.coarsenTriggerCells,
+                                 superTCCompression = superTCCompression_proc.clone(),
+                                 coarseTCCompression = coarseTCCompression_proc.clone(),
+                                 superTCCalibration = vfe_proc.clone(),
+)
+
 
 
 
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
-# V9 samples have a different definition of the dEdx calibrations. To account for it
+# >= V9 samples have a different definition of the dEdx calibrations. To account for it
 # we rescale the thresholds of the FE selection
 # (see https://indico.cern.ch/event/806845/contributions/3359859/attachments/1815187/2966402/19-03-20_EGPerf_HGCBE.pdf
 # for more details)

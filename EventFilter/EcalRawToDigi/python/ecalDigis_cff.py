@@ -1,28 +1,49 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 
-# legacy raw to digi on the CPU
+# ECAL unpacker running on CPU
 from EventFilter.EcalRawToDigi.EcalUnpackerData_cfi import ecalEBunpacker as _ecalEBunpacker
-ecalDigis = _ecalEBunpacker.clone()
+ecalDigis = SwitchProducerCUDA(
+    cpu = _ecalEBunpacker.clone()
+)
 
-ecalDigisTask = cms.Task(ecalDigis)
+ecalDigisTask = cms.Task(
+    # ECAL unpacker running on CPU
+    ecalDigis
+)
 
 # process modifier to run on GPUs
 from Configuration.ProcessModifiers.gpu_cff import gpu
 
-# GPU-friendly EventSetup modules
+# ECAL conditions used by the unpacker running on GPU
 from EventFilter.EcalRawToDigi.ecalElectronicsMappingGPUESProducer_cfi import ecalElectronicsMappingGPUESProducer
 
-# raw to digi on GPUs
+# ECAL unpacker running on GPU
 from EventFilter.EcalRawToDigi.ecalRawToDigiGPU_cfi import ecalRawToDigiGPU as _ecalRawToDigiGPU
 ecalDigisGPU = _ecalRawToDigiGPU.clone()
 
-# copy the digi from the GPU to the CPU and convert to legacy format
-from EventFilter.EcalRawToDigi.ecalCPUDigisProducer_cfi import ecalCPUDigisProducer as _ecalCPUDigisProducer
-_ecalDigis_gpu = _ecalCPUDigisProducer.clone(
-  digisInLabelEB = ('ecalDigisGPU', 'ebDigis'),
-  digisInLabelEE = ('ecalDigisGPU', 'eeDigis'),
-  produceDummyIntegrityCollections = True
+# disable the ECAL unpacker collections that are not available in the GPU unpacker
+gpu.toModify(ecalDigis.cpu,
+    headerUnpacking = False,
+    memUnpacking = False
 )
-gpu.toReplaceWith(ecalDigis, _ecalDigis_gpu)
 
-gpu.toReplaceWith(ecalDigisTask, cms.Task(ecalElectronicsMappingGPUESProducer, ecalDigisGPU, ecalDigis))
+# extend the SwitchProducer to add a case to copy the ECAL digis from GPU to CPU and covert them from SoA to legacy format
+from EventFilter.EcalRawToDigi.ecalCPUDigisProducer_cfi import ecalCPUDigisProducer as _ecalCPUDigisProducer
+gpu.toModify(ecalDigis,
+    # copy the ECAL digis from GPU to CPU and covert them from SoA to legacy format
+    cuda = _ecalCPUDigisProducer.clone(
+        digisInLabelEB = ('ecalDigisGPU', 'ebDigis'),
+        digisInLabelEE = ('ecalDigisGPU', 'eeDigis'),
+        produceDummyIntegrityCollections = True
+    )
+)
+
+gpu.toReplaceWith(ecalDigisTask, cms.Task(
+    # ECAL conditions used by the unpacker running on GPU
+    ecalElectronicsMappingGPUESProducer,
+    # run the ECAL unpacker on GPU
+    ecalDigisGPU,
+    # run the ECAL unpacker on CPU, or copy the ECAL digis from GPU to CPU and covert them from SoA to legacy format
+    ecalDigis
+))

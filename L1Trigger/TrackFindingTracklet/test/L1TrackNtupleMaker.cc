@@ -56,6 +56,7 @@
 ////////////////
 // PHYSICS TOOLS
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
 ///////////////
 // ROOT HEADERS
@@ -172,6 +173,7 @@ private:
   std::vector<float>* m_trk_matchtp_phi;
   std::vector<float>* m_trk_matchtp_z0;
   std::vector<float>* m_trk_matchtp_dxy;
+  std::vector<float>* m_trk_matchtp_d0;
   std::vector<int>* m_trk_injet;          //is the track within dR<0.4 of a genjet with pt > 30 GeV?
   std::vector<int>* m_trk_injet_highpt;   //is the track within dR<0.4 of a genjet with pt > 100 GeV?
   std::vector<int>* m_trk_injet_vhighpt;  //is the track within dR<0.4 of a genjet with pt > 200 GeV?
@@ -340,6 +342,7 @@ void L1TrackNtupleMaker::beginJob() {
   m_trk_matchtp_phi = new std::vector<float>;
   m_trk_matchtp_z0 = new std::vector<float>;
   m_trk_matchtp_dxy = new std::vector<float>;
+  m_trk_matchtp_d0 = new std::vector<float>;
   m_trk_injet = new std::vector<int>;
   m_trk_injet_highpt = new std::vector<int>;
   m_trk_injet_vhighpt = new std::vector<int>;
@@ -437,6 +440,7 @@ void L1TrackNtupleMaker::beginJob() {
     eventTree->Branch("trk_matchtp_phi", &m_trk_matchtp_phi);
     eventTree->Branch("trk_matchtp_z0", &m_trk_matchtp_z0);
     eventTree->Branch("trk_matchtp_dxy", &m_trk_matchtp_dxy);
+    eventTree->Branch("trk_matchtp_d0", &m_trk_matchtp_d0);
     if (TrackingInJets) {
       eventTree->Branch("trk_injet", &m_trk_injet);
       eventTree->Branch("trk_injet_highpt", &m_trk_injet_highpt);
@@ -563,6 +567,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_trk_matchtp_phi->clear();
     m_trk_matchtp_z0->clear();
     m_trk_matchtp_dxy->clear();
+    m_trk_matchtp_d0->clear();
     m_trk_injet->clear();
     m_trk_injet_highpt->clear();
     m_trk_injet_vhighpt->clear();
@@ -670,6 +675,9 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   edm::ESHandle<TrackerGeometry> tGeomHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get(tGeomHandle);
+
+  edm::ESHandle<MagneticField> magneticFieldHandle;
+  iSetup.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
 
   const TrackerTopology* const tTopo = tTopoHandle.product();
   const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
@@ -861,7 +869,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       if (L1Tk_nPar == 5) {
         float tmp_trk_x0 = iterL1Track->POCA().x();
         float tmp_trk_y0 = iterL1Track->POCA().y();
-        tmp_trk_d0 = -tmp_trk_x0 * sin(tmp_trk_phi) + tmp_trk_y0 * cos(tmp_trk_phi);
+        tmp_trk_d0 = tmp_trk_x0 * sin(tmp_trk_phi) - tmp_trk_y0 * cos(tmp_trk_phi);
       }
 
       float tmp_trk_chi2 = iterL1Track->chi2();
@@ -981,12 +989,13 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       int myFake = 0;
 
-      int myTP_pdgid = -999;
-      float myTP_pt = -999;
-      float myTP_eta = -999;
-      float myTP_phi = -999;
-      float myTP_z0 = -999;
-      float myTP_dxy = -999;
+      int tmp_matchtp_pdgid = -999;
+      float tmp_matchtp_pt = -999;
+      float tmp_matchtp_eta = -999;
+      float tmp_matchtp_phi = -999;
+      float tmp_matchtp_z0 = -999;
+      float tmp_matchtp_dxy = -999;
+      float tmp_matchtp_d0 = -999;
 
       if (my_tp.isNull())
         myFake = 0;
@@ -998,32 +1007,59 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         else
           myFake = 1;
 
-        myTP_pdgid = my_tp->pdgId();
-        myTP_pt = my_tp->p4().pt();
-        myTP_eta = my_tp->p4().eta();
-        myTP_phi = my_tp->p4().phi();
-        myTP_z0 = my_tp->vertex().z();
+        tmp_matchtp_pdgid = my_tp->pdgId();
+        tmp_matchtp_pt = my_tp->pt();
+        tmp_matchtp_eta = my_tp->eta();
+        tmp_matchtp_phi = my_tp->phi();
 
-        float myTP_x0 = my_tp->vertex().x();
-        float myTP_y0 = my_tp->vertex().y();
-        myTP_dxy = sqrt(myTP_x0 * myTP_x0 + myTP_y0 * myTP_y0);
+        float tmp_matchtp_vz = my_tp->vz();
+        float tmp_matchtp_vx = my_tp->vx();
+        float tmp_matchtp_vy = my_tp->vy();
+        tmp_matchtp_dxy = sqrt(tmp_matchtp_vx * tmp_matchtp_vx + tmp_matchtp_vy * tmp_matchtp_vy);
+
+        // ----------------------------------------------------------------------------------------------
+        // get d0/z0 propagated back to the IP
+
+        float tmp_matchtp_t = tan(2.0 * atan(1.0) - 2.0 * atan(exp(-tmp_matchtp_eta)));
+
+        float delx = -tmp_matchtp_vx;
+        float dely = -tmp_matchtp_vy;
+
+        float b_field = magneticFieldHandle.product()->inTesla(GlobalPoint(0, 0, 0)).z();
+        float c_converted = CLHEP::c_light / 1.0E5;
+        float r2_inv = my_tp->charge() * c_converted * b_field / tmp_matchtp_pt / 2.0;
+
+        float tmp_matchtp_x0p = delx - (1. / (2. * r2_inv) * sin(tmp_matchtp_phi));
+        float tmp_matchtp_y0p = dely + (1. / (2. * r2_inv) * cos(tmp_matchtp_phi));
+        float tmp_matchtp_rp = sqrt(tmp_matchtp_x0p * tmp_matchtp_x0p + tmp_matchtp_y0p * tmp_matchtp_y0p);
+        tmp_matchtp_d0 = my_tp->charge() * tmp_matchtp_rp - (1. / (2. * r2_inv));
+
+        static double pi = M_PI;
+        float delphi = tmp_matchtp_phi - atan2(-r2_inv * tmp_matchtp_x0p, r2_inv * tmp_matchtp_y0p);
+        if (delphi < -pi)
+          delphi += 2.0 * pi;
+        if (delphi > pi)
+          delphi -= 2.0 * pi;
+        tmp_matchtp_z0 = tmp_matchtp_vz + tmp_matchtp_t * delphi / (2.0 * r2_inv);
+        // ----------------------------------------------------------------------------------------------
 
         if (DebugMode) {
           edm::LogVerbatim("Tracklet") << "TP matched to track has pt = " << my_tp->p4().pt()
                                        << " eta = " << my_tp->momentum().eta() << " phi = " << my_tp->momentum().phi()
                                        << " z0 = " << my_tp->vertex().z() << " pdgid = " << my_tp->pdgId()
-                                       << " dxy = " << myTP_dxy;
+                                       << " dxy = " << tmp_matchtp_dxy;
         }
       }
 
       m_trk_fake->push_back(myFake);
 
-      m_trk_matchtp_pdgid->push_back(myTP_pdgid);
-      m_trk_matchtp_pt->push_back(myTP_pt);
-      m_trk_matchtp_eta->push_back(myTP_eta);
-      m_trk_matchtp_phi->push_back(myTP_phi);
-      m_trk_matchtp_z0->push_back(myTP_z0);
-      m_trk_matchtp_dxy->push_back(myTP_dxy);
+      m_trk_matchtp_pdgid->push_back(tmp_matchtp_pdgid);
+      m_trk_matchtp_pt->push_back(tmp_matchtp_pt);
+      m_trk_matchtp_eta->push_back(tmp_matchtp_eta);
+      m_trk_matchtp_phi->push_back(tmp_matchtp_phi);
+      m_trk_matchtp_z0->push_back(tmp_matchtp_z0);
+      m_trk_matchtp_dxy->push_back(tmp_matchtp_dxy);
+      m_trk_matchtp_d0->push_back(tmp_matchtp_d0);
 
       // ----------------------------------------------------------------------------------------------
       // for tracking in jets
@@ -1092,6 +1128,33 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     float tmp_tp_z0_prod = tmp_tp_vz;
     float tmp_tp_d0_prod = tmp_tp_vx * sin(tmp_tp_phi) - tmp_tp_vy * cos(tmp_tp_phi);
 
+    // ----------------------------------------------------------------------------------------------
+    // get d0/z0 propagated back to the IP
+
+    float tmp_tp_t = tan(2.0 * atan(1.0) - 2.0 * atan(exp(-tmp_tp_eta)));
+    float tmp_tp_charge = iterTP->charge();
+
+    float delx = -tmp_tp_vx;
+    float dely = -tmp_tp_vy;
+
+    float b_field = magneticFieldHandle.product()->inTesla(GlobalPoint(0, 0, 0)).z();
+    float c_converted = CLHEP::c_light / 1.0E5;
+    float r2_inv = tmp_tp_charge * c_converted * b_field / tmp_tp_pt / 2.0;
+
+    float tmp_tp_x0p = delx - (1. / (2. * r2_inv) * sin(tmp_tp_phi));
+    float tmp_tp_y0p = dely + (1. / (2. * r2_inv) * cos(tmp_tp_phi));
+    float tmp_tp_rp = sqrt(tmp_tp_x0p * tmp_tp_x0p + tmp_tp_y0p * tmp_tp_y0p);
+    float tmp_tp_d0 = tmp_tp_charge * tmp_tp_rp - (1. / (2. * r2_inv));
+
+    static double pi = M_PI;
+    float delphi = tmp_tp_phi - atan2(-r2_inv * tmp_tp_x0p, r2_inv * tmp_tp_y0p);
+    if (delphi < -pi)
+      delphi += 2.0 * pi;
+    if (delphi > pi)
+      delphi -= 2.0 * pi;
+    float tmp_tp_z0 = tmp_tp_vz + tmp_tp_t * delphi / (2.0 * r2_inv);
+    // ----------------------------------------------------------------------------------------------
+
     if (MyProcess == 13 && abs(tmp_tp_pdgid) != 13)
       continue;
     if (MyProcess == 11 && abs(tmp_tp_pdgid) != 11)
@@ -1103,38 +1166,6 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       continue;
     if (std::abs(tmp_tp_eta) > TP_maxEta)
       continue;
-
-    // ----------------------------------------------------------------------------------------------
-    // get d0/z0 propagated back to the IP
-
-    float tmp_tp_t = tan(2.0 * atan(1.0) - 2.0 * atan(exp(-tmp_tp_eta)));
-
-    float delx = -tmp_tp_vx;
-    float dely = -tmp_tp_vy;
-
-    float A = 0.01 * 0.5696;
-    float Kmagnitude = A / tmp_tp_pt;
-
-    float tmp_tp_charge = tp_ptr->charge();
-    float K = Kmagnitude * tmp_tp_charge;
-    float d = 0;
-
-    float tmp_tp_x0p = delx - (d + 1. / (2. * K) * sin(tmp_tp_phi));
-    float tmp_tp_y0p = dely + (d + 1. / (2. * K) * cos(tmp_tp_phi));
-    float tmp_tp_rp = sqrt(tmp_tp_x0p * tmp_tp_x0p + tmp_tp_y0p * tmp_tp_y0p);
-    float tmp_tp_d0 = tmp_tp_charge * tmp_tp_rp - (1. / (2. * K));
-
-    tmp_tp_d0 = tmp_tp_d0 * (-1);  //fix d0 sign
-
-    static double pi = 4.0 * atan(1.0);
-    float delphi = tmp_tp_phi - atan2(-K * tmp_tp_x0p, K * tmp_tp_y0p);
-    if (delphi < -pi)
-      delphi += 2.0 * pi;
-    if (delphi > pi)
-      delphi -= 2.0 * pi;
-    float tmp_tp_z0 = tmp_tp_vz + tmp_tp_t * delphi / (2.0 * K);
-    // ----------------------------------------------------------------------------------------------
-
     if (std::abs(tmp_tp_z0) > TP_maxZ0)
       continue;
 
@@ -1349,7 +1380,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       if (L1Tk_nPar == 5) {
         float tmp_matchtrk_x0 = matchedTracks.at(i_track)->POCA().x();
         float tmp_matchtrk_y0 = matchedTracks.at(i_track)->POCA().y();
-        tmp_matchtrk_d0 = -tmp_matchtrk_x0 * sin(tmp_matchtrk_phi) + tmp_matchtrk_y0 * cos(tmp_matchtrk_phi);
+        tmp_matchtrk_d0 = tmp_matchtrk_x0 * sin(tmp_matchtrk_phi) - tmp_matchtrk_y0 * cos(tmp_matchtrk_phi);
       }
 
       tmp_matchtrk_chi2 = matchedTracks.at(i_track)->chi2();

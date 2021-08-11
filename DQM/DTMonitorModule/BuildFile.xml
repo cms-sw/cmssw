@@ -4,6 +4,7 @@
 <use name="DataFormats/DTDigi"/>
 <use name="DataFormats/L1DTTrackFinder"/>
 <use name="DataFormats/L1GlobalMuonTrigger"/>
+<use name="DataFormats/Scalers"/> <!--Needed for typeinfo for LumiScalers for UBSAN builds-->
 <use name="CondFormats/DTObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="Geometry/Records"/>

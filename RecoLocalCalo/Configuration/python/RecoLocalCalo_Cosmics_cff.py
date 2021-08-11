@@ -19,23 +19,20 @@ from RecoLocalCalo.HcalRecAlgos.hcalChannelPropertiesESProd_cfi import *
 # sequence CaloLocalReco
 #
 
-def hbheCosmic(module):
-    return module.clone(
-        tsFromDB = False,
-        recoParamsFromDB = False,
-        algorithm = dict(
-            useMahi = False,
-            useM2 = False,
-            useM3 = False,
-            firstSampleShift = -1000,
-            samplesToAdd = 10,
-            correctForPhaseContainment = False,
-        ),
-        sipmQTSShift = -100,
-        sipmQNTStoSum = 200,
-    )
-
-hbhereco = hbheCosmic(_hcalLocalReco_cff.hbheprereco)
+hbhereco = _hcalLocalReco_cff.hbheprereco.cpu.clone(
+    tsFromDB = False,
+    recoParamsFromDB = False,
+    algorithm = dict(
+        useMahi = False,
+        useM2 = False,
+        useM3 = False,
+        firstSampleShift = -1000,
+        samplesToAdd = 10,
+        correctForPhaseContainment = False,
+    ),
+    sipmQTSShift = -100,
+    sipmQNTStoSum = 200,
+)
 hfreco = _hcalLocalReco_cff._default_hfreco.clone(
     firstSample = 0,
     samplesToAdd = 10, ### min(10,size) in the algo

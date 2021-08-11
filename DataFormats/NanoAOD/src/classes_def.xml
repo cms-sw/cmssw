@@ -3,7 +3,8 @@
         <version ClassVersion="3" checksum="3066258528"/>
     </class>
     <class name="std::vector<nanoaod::FlatTable::Column>" />
-    <class name="nanoaod::FlatTable" ClassVersion="3">
+    <class name="nanoaod::FlatTable" ClassVersion="4">
+        <version ClassVersion="4" checksum="656493391"/>
         <version ClassVersion="3" checksum="2443023556"/>
     </class>
     <class name="nanoaod::FlatTable::RowView" transient="true" />

@@ -134,6 +134,7 @@ FakeBeamMonitor::FakeBeamMonitor(const ParameterSet& ps)
   minNrVertices_ = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<unsigned int>("minNrVerticesForFit");
   minVtxNdf_ = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexNdf");
   minVtxWgt_ = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexMeanWeight");
+  useLockRecords_ = ps.getUntrackedParameter<bool>("useLockRecords");
 
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
@@ -195,6 +196,12 @@ namespace {
     kNumHists
   };
 }  // namespace
+
+void FakeBeamMonitor::dqmBeginRun(edm::Run const&, edm::EventSetup const&) {
+  if (useLockRecords_ && onlineDbService_.isAvailable()) {
+    onlineDbService_->lockRecords();
+  }
+}
 
 void FakeBeamMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
   frun = iRun.run();
@@ -1499,7 +1506,7 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
 }
 
 //--------------------------------------------------------
-void FakeBeamMonitor::RestartFitting() {
+void FakeBeamMonitor::RestartFitting() {  //
   if (debug_)
     edm::LogInfo("FakeBeamMonitor")
         << " RestartingFitting:: Restart Beami everything to a fresh start !!! because Gap is > 10 LS" << endl;
@@ -1552,6 +1559,9 @@ void FakeBeamMonitor::dqmEndRun(const Run& r, const EventSetup& context) {
   mapLSBSTrkSize.clear();
   mapLSPVStoreSize.clear();
   mapLSCF.clear();
+  if (useLockRecords_ && onlineDbService_.isAvailable()) {
+    onlineDbService_->releaseLocks();
+  }
 }
 
 //--------------------------------------------------------

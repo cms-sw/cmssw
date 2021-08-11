@@ -15,7 +15,6 @@
 
 #include <vector>
 #include <memory>
-#include <ext/hash_map>
 
 class SiStripBadChannelBuilder : public ConditionDBWriter<SiStripBadStrip> {
 public:

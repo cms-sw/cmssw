@@ -31,6 +31,9 @@
 #include "SimG4CMS/Forward/interface/TotemG4HitCollection.h"
 #include "SimG4CMS/Forward/interface/TotemVDetectorOrganization.h"
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
 #include "G4Track.hh"
@@ -42,11 +45,7 @@ class SimTrackManager;
 
 class TotemSD : public SensitiveTkDetector, public Observer<const BeginOfEvent*> {
 public:
-  TotemSD(const std::string&,
-          const edm::EventSetup&,
-          const SensitiveDetectorCatalog&,
-          edm::ParameterSet const&,
-          const SimTrackManager*);
+  TotemSD(const std::string&, const SensitiveDetectorCatalog&, edm::ParameterSet const&, const SimTrackManager*);
   ~TotemSD() override;
 
   bool ProcessHits(G4Step*, G4TouchableHistory*) override;

@@ -5,10 +5,15 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Transition.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-HcalRecHitsDQMClient::HcalRecHitsDQMClient(const edm::ParameterSet &iConfig) : conf_(iConfig) {
+HcalRecHitsDQMClient::HcalRecHitsDQMClient(const edm::ParameterSet &iConfig)
+    : conf_(iConfig),
+      hcalDDDRecConstantsToken_{esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()},
+      caloGeometryRunToken_{esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()} {
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   debug_ = false;
   verbose_ = false;
@@ -19,23 +24,18 @@ HcalRecHitsDQMClient::~HcalRecHitsDQMClient() {}
 
 void HcalRecHitsDQMClient::beginJob() {}
 
-void HcalRecHitsDQMClient::beginRun(const edm::Run &run, const edm::EventSetup &es) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  es.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hcons = &(*pHRNDC);
-  maxDepthHB_ = hcons->getMaxDepth(0);
-  maxDepthHE_ = hcons->getMaxDepth(1);
-  maxDepthHF_ = hcons->getMaxDepth(2);
-  maxDepthHO_ = hcons->getMaxDepth(3);
+void HcalRecHitsDQMClient::beginRun(const edm::Run &run, const edm::EventSetup &iSetup) {
+  HcalDDDRecConstants const &hcons = iSetup.getData(hcalDDDRecConstantsToken_);
+  maxDepthHB_ = hcons.getMaxDepth(0);
+  maxDepthHE_ = hcons.getMaxDepth(1);
+  maxDepthHF_ = std::max(hcons.getMaxDepth(2), 1);
+  maxDepthHO_ = hcons.getMaxDepth(3);
 
-  edm::ESHandle<CaloGeometry> geometry;
-
-  es.get<CaloGeometryRecord>().get(geometry);
-
-  const std::vector<DetId> &hbCells = geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
-  const std::vector<DetId> &heCells = geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
-  const std::vector<DetId> &hoCells = geometry->getValidDetIds(DetId::Hcal, HcalOuter);
-  const std::vector<DetId> &hfCells = geometry->getValidDetIds(DetId::Hcal, HcalForward);
+  CaloGeometry const &geometry = iSetup.getData(caloGeometryRunToken_);
+  const std::vector<DetId> &hbCells = geometry.getValidDetIds(DetId::Hcal, HcalBarrel);
+  const std::vector<DetId> &heCells = geometry.getValidDetIds(DetId::Hcal, HcalEndcap);
+  const std::vector<DetId> &hoCells = geometry.getValidDetIds(DetId::Hcal, HcalOuter);
+  const std::vector<DetId> &hfCells = geometry.getValidDetIds(DetId::Hcal, HcalForward);
 
   nChannels_[1] = hbCells.size();
   nChannels_[2] = heCells.size();

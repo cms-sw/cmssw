@@ -1,4 +1,5 @@
 #include "DQM/EcalMonitorTasks/interface/PresampleTask.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
@@ -15,6 +16,7 @@ namespace ecaldqm {
     pulseMaxPosition_ = _params.getUntrackedParameter<int>("pulseMaxPosition");
     nSamples_ = _params.getUntrackedParameter<int>("nSamples");
   }
+  void PresampleTask::setTokens(edm::ConsumesCollector& _collector) { Pedtoken_ = _collector.esConsumes(); }
 
   bool PresampleTask::filterRunType(short const* _runType) {
     for (int iFED(0); iFED < nDCC; iFED++) {
@@ -28,6 +30,8 @@ namespace ecaldqm {
     return false;
   }
 
+  void PresampleTask::beginRun(edm::Run const&, edm::EventSetup const& _es) { FillPedestal = true; }
+
   void PresampleTask::beginEvent(edm::Event const& _evt,
                                  edm::EventSetup const& _es,
                                  bool const& ByLumiResetSwitch,
@@ -39,6 +43,39 @@ namespace ecaldqm {
       mePedestalByLS = &MEs_.at("PedestalByLS");
       if (timestamp_.iLumi % 10 == 0)
         mePedestalByLS->reset(GetElectronicsMap());
+    }
+
+    MESet& mePedestalProjEtaG1(MEs_.at("PedestalProjEtaG1"));
+    MESet& mePedestalProjEtaG6(MEs_.at("PedestalProjEtaG6"));
+    MESet& mePedestalProjEtaG12(MEs_.at("PedestalProjEtaG12"));
+
+    if (FillPedestal) {
+      const EcalPedestals* myped = &_es.getData(Pedtoken_);
+
+      for (int i = 0; i < EBDetId::kSizeForDenseIndexing; i++) {
+        if (!EBDetId::validDenseIndex(i))
+          continue;
+        EBDetId ebid(EBDetId::unhashIndex(i));
+        EcalPedestals::const_iterator it = myped->find(ebid.rawId());
+        if (it != myped->end()) {
+          mePedestalProjEtaG1.fill(getEcalDQMSetupObjects(), ebid, (*it).rms_x1);
+          mePedestalProjEtaG6.fill(getEcalDQMSetupObjects(), ebid, (*it).rms_x6);
+          mePedestalProjEtaG12.fill(getEcalDQMSetupObjects(), ebid, (*it).rms_x12);
+        }
+      }
+      for (int i = 0; i < EEDetId::kSizeForDenseIndexing; i++) {
+        if (!EEDetId::validDenseIndex(i))
+          continue;
+        EEDetId eeid(EEDetId::unhashIndex(i));
+        EcalPedestals::const_iterator it = myped->find(eeid.rawId());
+        if (it != myped->end()) {
+          mePedestalProjEtaG1.fill(getEcalDQMSetupObjects(), eeid, (*it).rms_x1);
+          mePedestalProjEtaG6.fill(getEcalDQMSetupObjects(), eeid, (*it).rms_x6);
+          mePedestalProjEtaG12.fill(getEcalDQMSetupObjects(), eeid, (*it).rms_x12);
+        }
+      }
+
+      FillPedestal = false;
     }
   }
 

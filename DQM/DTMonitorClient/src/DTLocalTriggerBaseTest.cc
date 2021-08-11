@@ -16,7 +16,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 // Geometry
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 
 // Root
@@ -39,7 +38,7 @@ void DTLocalTriggerBaseTest::beginRun(edm::Run const& run, edm::EventSetup const
   nLumiSegs = 0;
 
   LogVerbatim(category()) << "[" << testName << "Test]: BeginRun";
-  context.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &context.getData(muonGeomToken_);
 }
 
 void DTLocalTriggerBaseTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,

@@ -5,7 +5,6 @@
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 

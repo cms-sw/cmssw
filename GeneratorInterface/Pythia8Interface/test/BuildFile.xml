@@ -16,3 +16,4 @@
 <test name="TestGeneratorInterfacePythia8InterfaceCompareIdentical" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/Pythia8Interface/test/compare_identical_generators_cfg.py"/>
 <test name="TestGeneratorInterfacePythia8InterfaceCompareExternal" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/Pythia8Interface/test/compare_external_generators_cfg.py"/>
 <test name="TestGeneratorInterfacePythia8InterfaceCompareExternalStreams" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/Pythia8Interface/test/compare_external_generators_streams_cfg.py"/>
+<test name="TestGeneratorInterfacePythia8ConcurrentGeneratorFilter" command="${LOCALTOP}/src/GeneratorInterface/Pythia8Interface/test/test_Pythia8ConcurrentGeneratorFilter_WZ_TuneCP5_13TeV-pythia8.sh"/>

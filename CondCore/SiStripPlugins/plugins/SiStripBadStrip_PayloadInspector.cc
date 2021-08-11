@@ -143,8 +143,8 @@ namespace {
       auto tagname = PlotBase::getTag<0>().name;
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       auto theIOVsince = std::to_string(std::get<0>(iov));
 
@@ -165,7 +165,7 @@ namespace {
           badStripsPerDetId[d] += payload->decode(*badStrip).range;
           //ss << "DetId="<< d << " Strip=" << payload->decode(*badStrip).firstStrip <<":"<< payload->decode(*badStrip).range << " flag="<< payload->decode(*badStrip).flag << std::endl;
         }
-        float fraction = badStripsPerDetId[d] / (128. * reader->getNumberOfApvsAndStripLength(d).first);
+        float fraction = badStripsPerDetId[d] / (128. * detInfo.getNumberOfApvsAndStripLength(d).first);
         tmap->fill(d, fraction);
       }  // loop over detIds
 
@@ -182,7 +182,6 @@ namespace {
         tmap->save(true, extrema.first * 0.95, extrema.first * 1.05, fileName);
       }
 
-      delete reader;
       return true;
     }
   };
@@ -204,8 +203,8 @@ namespace {
       auto tagname = PlotBase::getTag<0>().name;
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       auto theIOVsince = std::to_string(std::get<0>(iov));
 
@@ -228,7 +227,7 @@ namespace {
         for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStripsPerDetId[d] += payload->decode(*badStrip).range;
         }
-        float fraction = badStripsPerDetId[d] / (128. * reader->getNumberOfApvsAndStripLength(d).first);
+        float fraction = badStripsPerDetId[d] / (128. * detInfo.getNumberOfApvsAndStripLength(d).first);
         if (fraction > 0.) {
           myMap.fill(d, fraction);
         }
@@ -242,7 +241,6 @@ namespace {
       ghost.drawMap(canvas, "same");
       canvas.SaveAs(fileName.c_str());
 
-      delete reader;
       return true;
     }
   };
@@ -258,8 +256,8 @@ namespace {
     ~SiStripBadStripFractionByRun() override = default;
 
     float getFromPayload(SiStripBadStrip& payload) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -276,14 +274,13 @@ namespace {
       }  // loop over detIds
 
       float numerator(0.), denominator(0.);
-      std::vector<uint32_t> all_detids = reader->getAllDetIds();
+      std::vector<uint32_t> all_detids = detInfo.getAllDetIds();
       for (const auto& det : all_detids) {
-        denominator += 128. * reader->getNumberOfApvsAndStripLength(det).first;
+        denominator += 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
         if (badStripsPerDetId.count(det) != 0)
           numerator += badStripsPerDetId[det];
       }
 
-      delete reader;
       return (numerator / denominator) * 100.;
 
     }  // payload
@@ -301,8 +298,8 @@ namespace {
     ~SiStripBadStripTIBFractionByRun() override = default;
 
     float getFromPayload(SiStripBadStrip& payload) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -319,17 +316,16 @@ namespace {
       }  // loop over detIds
 
       float numerator(0.), denominator(0.);
-      std::vector<uint32_t> all_detids = reader->getAllDetIds();
+      std::vector<uint32_t> all_detids = detInfo.getAllDetIds();
       for (const auto& det : all_detids) {
         int subid = DetId(det).subdetId();
         if (subid != StripSubdetector::TIB)
           continue;
-        denominator += 128. * reader->getNumberOfApvsAndStripLength(det).first;
+        denominator += 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
         if (badStripsPerDetId.count(det) != 0)
           numerator += badStripsPerDetId[det];
       }
 
-      delete reader;
       return (numerator / denominator) * 100.;
 
     }  // payload
@@ -347,8 +343,8 @@ namespace {
     ~SiStripBadStripTOBFractionByRun() override = default;
 
     float getFromPayload(SiStripBadStrip& payload) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -365,17 +361,16 @@ namespace {
       }  // loop over detIds
 
       float numerator(0.), denominator(0.);
-      std::vector<uint32_t> all_detids = reader->getAllDetIds();
+      std::vector<uint32_t> all_detids = detInfo.getAllDetIds();
       for (const auto& det : all_detids) {
         int subid = DetId(det).subdetId();
         if (subid != StripSubdetector::TOB)
           continue;
-        denominator += 128. * reader->getNumberOfApvsAndStripLength(det).first;
+        denominator += 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
         if (badStripsPerDetId.count(det) != 0)
           numerator += badStripsPerDetId[det];
       }
 
-      delete reader;
       return (numerator / denominator) * 100.;
 
     }  // payload
@@ -393,8 +388,8 @@ namespace {
     ~SiStripBadStripTIDFractionByRun() override = default;
 
     float getFromPayload(SiStripBadStrip& payload) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -411,17 +406,16 @@ namespace {
       }  // loop over detIds
 
       float numerator(0.), denominator(0.);
-      std::vector<uint32_t> all_detids = reader->getAllDetIds();
+      std::vector<uint32_t> all_detids = detInfo.getAllDetIds();
       for (const auto& det : all_detids) {
         int subid = DetId(det).subdetId();
         if (subid != StripSubdetector::TID)
           continue;
-        denominator += 128. * reader->getNumberOfApvsAndStripLength(det).first;
+        denominator += 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
         if (badStripsPerDetId.count(det) != 0)
           numerator += badStripsPerDetId[det];
       }
 
-      delete reader;
       return (numerator / denominator) * 100.;
 
     }  // payload
@@ -439,8 +433,8 @@ namespace {
     ~SiStripBadStripTECFractionByRun() override = default;
 
     float getFromPayload(SiStripBadStrip& payload) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -457,17 +451,16 @@ namespace {
       }  // loop over detIds
 
       float numerator(0.), denominator(0.);
-      std::vector<uint32_t> all_detids = reader->getAllDetIds();
+      std::vector<uint32_t> all_detids = detInfo.getAllDetIds();
       for (const auto& det : all_detids) {
         int subid = DetId(det).subdetId();
         if (subid != StripSubdetector::TEC)
           continue;
-        denominator += 128. * reader->getNumberOfApvsAndStripLength(det).first;
+        denominator += 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
         if (badStripsPerDetId.count(det) != 0)
           numerator += badStripsPerDetId[det];
       }
 
-      delete reader;
       return (numerator / denominator) * 100.;
 
     }  // payload
@@ -865,8 +858,8 @@ namespace {
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
 
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       std::string titleMap =
           "#Delta fraction of bad Strips per module (IOV:" + lastIOVsince + " - IOV:" + firstIOVsince + ")";
@@ -887,7 +880,7 @@ namespace {
           LastFractionPerDetId[d] += last_payload->decode(*badStrip).range;
         }
         // normalize to the number of strips per module
-        LastFractionPerDetId[d] /= (128. * reader->getNumberOfApvsAndStripLength(d).first);
+        LastFractionPerDetId[d] /= (128. * detInfo.getNumberOfApvsAndStripLength(d).first);
       }  // loop over detIds
 
       std::vector<uint32_t> detid2;
@@ -901,10 +894,10 @@ namespace {
           FirstFractionPerDetId[d] += first_payload->decode(*badStrip).range;
         }
         // normalize to the number of strips per module
-        FirstFractionPerDetId[d] /= (128. * reader->getNumberOfApvsAndStripLength(d).first);
+        FirstFractionPerDetId[d] /= (128. * detInfo.getNumberOfApvsAndStripLength(d).first);
       }  // loop over detIds
 
-      std::vector<uint32_t> allDetIds = reader->getAllDetIds();
+      std::vector<uint32_t> allDetIds = detInfo.getAllDetIds();
 
       int countLastButNotFirst(0);
       int countFirstButNotLast(0);
@@ -940,7 +933,6 @@ namespace {
       std::string fileName(this->m_imageFileName);
       tmap->save(true, 0, 0, fileName);
 
-      delete reader;
       return true;
     }
   };
@@ -966,7 +958,9 @@ namespace {
       auto iov = tag.iovs.front();
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
-      SiStripQuality* siStripQuality_ = new SiStripQuality();
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
+      SiStripQuality* siStripQuality_ = new SiStripQuality(detInfo);
       siStripQuality_->add(payload.get());
       siStripQuality_->cleanUp();
       siStripQuality_->fillBadComponents();
@@ -1187,7 +1181,9 @@ namespace {
       // for the total
       int totNComponents[4][19][4] = {{{0}}};
 
-      SiStripQuality* f_siStripQuality_ = new SiStripQuality();
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
+      SiStripQuality* f_siStripQuality_ = new SiStripQuality(detInfo);
       f_siStripQuality_->add(first_payload.get());
       f_siStripQuality_->cleanUp();
       f_siStripQuality_->fillBadComponents();
@@ -1195,7 +1191,7 @@ namespace {
       // call the filler
       SiStripPI::fillBCArrays(f_siStripQuality_, f_NTkBadComponent, f_NBadComponent, m_trackerTopo);
 
-      SiStripQuality* l_siStripQuality_ = new SiStripQuality();
+      SiStripQuality* l_siStripQuality_ = new SiStripQuality(detInfo);
       l_siStripQuality_->add(last_payload.get());
       l_siStripQuality_->cleanUp();
       l_siStripQuality_->fillBadComponents();

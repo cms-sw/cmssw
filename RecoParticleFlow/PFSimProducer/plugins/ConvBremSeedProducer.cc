@@ -90,6 +90,15 @@ private:
   int negLayerOffset_;
   ///B field
   math::XYZVector B_;
+
+  // Event setup tokens
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> geomSearchTrackerToken_;
+  const edm::ESGetToken<TrackerInteractionGeometry, TrackerInteractionGeometryRecord> geometryToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_beginRun_;
+  const edm::ESGetToken<MagneticFieldMap, MagneticFieldMapRecord> magFieldMapToken_;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> hitBuilderToken_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -111,7 +120,18 @@ using namespace std;
 using namespace reco;
 
 ConvBremSeedProducer::ConvBremSeedProducer(const ParameterSet& iConfig)
-    : conf_(iConfig), fieldMap_(nullptr), layerMap_(56, static_cast<const DetLayer*>(nullptr)), negLayerOffset_(27) {
+    : conf_(iConfig),
+      fieldMap_(nullptr),
+      layerMap_(56, static_cast<const DetLayer*>(nullptr)),
+      negLayerOffset_(27),
+      magFieldToken_(esConsumes()),
+      geomSearchTrackerToken_(esConsumes<edm::Transition::BeginRun>()),
+      geometryToken_(esConsumes<edm::Transition::BeginRun>()),
+      trackerToken_(esConsumes<edm::Transition::BeginRun>()),
+      magFieldToken_beginRun_(esConsumes<edm::Transition::BeginRun>()),
+      magFieldMapToken_(esConsumes<edm::Transition::BeginRun>()),
+      hitBuilderToken_(
+          esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", conf_.getParameter<string>("TTRHBuilder")))) {
   produces<ConvBremSeedCollection>();
 }
 
@@ -289,8 +309,7 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     float sineta_brem = sinh(eta_br);
 
     //OUTPUT COLLECTION
-    edm::ESHandle<MagneticField> bfield;
-    iSetup.get<IdealMagneticFieldRecord>().get(bfield);
+    auto bfield = iSetup.getHandle(magFieldToken_);
     float nomField = bfield->nominalValue();
 
     TransientTrackingRecHit::ConstRecHitContainer glob_hits;
@@ -398,32 +417,20 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 }
 
 void ConvBremSeedProducer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
-  ESHandle<GeometricSearchTracker> track;
-  iSetup.get<TrackerRecoGeometryRecord>().get(track);
-  geomSearchTracker_ = track.product();
+  geomSearchTracker_ = &iSetup.getData(geomSearchTrackerToken_);
 
-  ESHandle<TrackerInteractionGeometry> theTrackerInteractionGeometry;
-  iSetup.get<TrackerInteractionGeometryRecord>().get(theTrackerInteractionGeometry);
-  geometry_ = theTrackerInteractionGeometry.product();
+  geometry_ = &iSetup.getData(geometryToken_);
 
-  ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-  tracker_ = tracker.product();
+  tracker_ = &iSetup.getData(trackerToken_);
 
-  ESHandle<MagneticField> magfield;
-  iSetup.get<IdealMagneticFieldRecord>().get(magfield);
-  magfield_ = magfield.product();
+  magfield_ = &iSetup.getData(magFieldToken_beginRun_);
   B_ = magfield_->inTesla(GlobalPoint(0, 0, 0));
 
-  ESHandle<MagneticFieldMap> fieldMap;
-  iSetup.get<MagneticFieldMapRecord>().get(fieldMap);
-  fieldMap_ = fieldMap.product();
+  fieldMap_ = &iSetup.getData(magFieldMapToken_);
 
-  ESHandle<TransientTrackingRecHitBuilder> hitBuilder;
-  iSetup.get<TransientRecHitRecord>().get(conf_.getParameter<string>("TTRHBuilder"), hitBuilder);
-  hitBuilder_ = hitBuilder.product();
+  hitBuilder_ = &iSetup.getData(hitBuilderToken_);
 
-  propagator_ = new PropagatorWithMaterial(alongMomentum, 0.0005, &(*magfield));
+  propagator_ = new PropagatorWithMaterial(alongMomentum, 0.0005, magfield_);
   kfUpdator_ = new KFUpdator();
 }
 

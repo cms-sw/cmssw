@@ -125,7 +125,6 @@ def addL3ToHLT(process):
 	        Rescale_eta = cms.double( 3.0 ),
 	        Rescale_phi = cms.double( 3.0 ),
 	        Rescale_Dz = cms.double( 4.0 ),                 
-	        EscapePt = cms.double( 3.0 ),                   
 	        EtaR_UpperLimit_Par1 = cms.double( 0.25 ),      
 	        EtaR_UpperLimit_Par2 = cms.double( 0.15 ),      
 	        PhiR_UpperLimit_Par1 = cms.double( 0.6 ),       
@@ -346,7 +345,6 @@ def addL3ToHLT(process):
 	        Rescale_eta = cms.double( 3.0 ),
 	        Rescale_phi = cms.double( 3.0 ),
 	        Rescale_Dz = cms.double( 4.0 ),                 
-	        EscapePt = cms.double( 3.0 ),                   
 	        EtaR_UpperLimit_Par1 = cms.double( 0.25 ),      
 	        EtaR_UpperLimit_Par2 = cms.double( 0.15 ),      
 	        PhiR_UpperLimit_Par1 = cms.double( 0.6 ),       
@@ -840,7 +838,6 @@ def addL3ToHLT(process):
 	        Rescale_eta = cms.double( 3.0 ),
 	        Rescale_phi = cms.double( 3.0 ),
 	        Rescale_Dz = cms.double( 4.0 ),                 #Normally 4
-	        EscapePt = cms.double( 3.0 ),                   #Normally 1.5 but it should be at least 8 for us
 	        EtaR_UpperLimit_Par1 = cms.double( 0.25 ),      #Normally 0.25
 	        EtaR_UpperLimit_Par2 = cms.double( 0.15 ),      #Normally 0.15
 	        PhiR_UpperLimit_Par1 = cms.double( 0.6 ),       #Normally 0.6

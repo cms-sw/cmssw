@@ -18,7 +18,7 @@
 #include <vector>
 #include <iostream>
 
-class PCLMetadataWriter : public edm::one::EDAnalyzer<> {
+class PCLMetadataWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   /// Constructor
   PCLMetadataWriter(const edm::ParameterSet &);
@@ -28,8 +28,8 @@ public:
 
   // Operations
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void beginRun(const edm::Run &, const edm::EventSetup &);
-  void endRun(const edm::Run &, const edm::EventSetup &);
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override;
 
 protected:
 private:

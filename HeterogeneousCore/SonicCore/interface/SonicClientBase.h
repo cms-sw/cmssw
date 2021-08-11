@@ -9,7 +9,6 @@
 #include "HeterogeneousCore/SonicCore/interface/SonicDispatcherPseudoAsync.h"
 
 #include <string>
-#include <chrono>
 #include <exception>
 #include <memory>
 #include <optional>
@@ -59,7 +58,6 @@ protected:
 
   //for logging/debugging
   std::string debugName_, clientName_, fullDebugName_;
-  std::chrono::time_point<std::chrono::high_resolution_clock> t0_;
 
   friend class SonicDispatcher;
   friend class SonicDispatcherPseudoAsync;

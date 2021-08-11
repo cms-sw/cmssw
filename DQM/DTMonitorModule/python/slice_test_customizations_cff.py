@@ -30,11 +30,11 @@ def customise_for_slice_test(process, enableDigis, enableTPs):
     if enableDigis:
     
         from DQM.DTMonitorModule.dtDigiTask_cfi import dtDigiMonitor
-        process.dtAB7DigiMonitor = dtDigiMonitor.clone()
-
-        process.dtAB7DigiMonitor.dtDigiLabel = cms.InputTag("dtAB7Unpacker")
-        process.dtAB7DigiMonitor.sliceTestMode = True
-        process.dtAB7DigiMonitor.maxTDCHitsPerChamber = 5000
+        process.dtAB7DigiMonitor = dtDigiMonitor.clone(
+           dtDigiLabel = "dtAB7Unpacker",
+           sliceTestMode = True,
+           maxTDCHitsPerChamber = 5000
+        )
 
         process.dtAB7DigiMonitor.performPerWireT0Calibration = False
 

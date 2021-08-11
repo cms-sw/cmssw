@@ -77,7 +77,13 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
           continue;
         }
       }
-
+      /* roll back to verify if HLT tau is affected  
+      // all legacy tracks are "highPurity"
+      // setting all others bits as well (as in ckf)
+      track->setQuality(reco::TrackBase::loose);
+      track->setQuality(reco::TrackBase::tight);
+      track->setQuality(reco::TrackBase::highPurity);
+      */
       // add tracks
       tracks.emplace_back(track.release(), tuplet);
     }

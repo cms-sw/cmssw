@@ -16,13 +16,15 @@ for _eraName, _postfix, _era in _cfg.nonDefaultEras():
 
 # TRIPLET SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
-tobTecStepSeedLayersTripl = cms.EDProducer('SeedingLayersEDProducer',
-    layerList = cms.vstring(
+import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
+
+tobTecStepSeedLayersTripl = _mod.seedingLayersEDProducer.clone(
+    layerList = [
     #TOB
     'TOB1+TOB2+MTOB3','TOB1+TOB2+MTOB4',
     #TOB+MTEC
     'TOB1+TOB2+MTEC1_pos','TOB1+TOB2+MTEC1_neg',
-    ),
+    ],
     TOB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
          matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
@@ -119,14 +121,14 @@ _fastSim_tobTecStepSeedsTripl = FastSimulation.Tracking.TrajectorySeedProducer_c
 fastSim.toReplaceWith(tobTecStepSeedsTripl,_fastSim_tobTecStepSeedsTripl)
 
 # PAIR SEEDING LAYERS
-tobTecStepSeedLayersPair = cms.EDProducer('SeedingLayersEDProducer',
-    layerList = cms.vstring('TOB1+TEC1_pos','TOB1+TEC1_neg', 
-                            'TEC1_pos+TEC2_pos','TEC1_neg+TEC2_neg', 
-                            'TEC2_pos+TEC3_pos','TEC2_neg+TEC3_neg', 
-                            'TEC3_pos+TEC4_pos','TEC3_neg+TEC4_neg', 
-                            'TEC4_pos+TEC5_pos','TEC4_neg+TEC5_neg', 
-                            'TEC5_pos+TEC6_pos','TEC5_neg+TEC6_neg', 
-                            'TEC6_pos+TEC7_pos','TEC6_neg+TEC7_neg'),
+tobTecStepSeedLayersPair = _mod.seedingLayersEDProducer.clone( 
+    layerList = ['TOB1+TEC1_pos','TOB1+TEC1_neg', 
+                 'TEC1_pos+TEC2_pos','TEC1_neg+TEC2_neg', 
+                 'TEC2_pos+TEC3_pos','TEC2_neg+TEC3_neg', 
+                 'TEC3_pos+TEC4_pos','TEC3_neg+TEC4_neg', 
+                 'TEC4_pos+TEC5_pos','TEC4_neg+TEC5_neg', 
+                 'TEC5_pos+TEC6_pos','TEC5_neg+TEC6_neg', 
+                 'TEC6_pos+TEC7_pos','TEC6_neg+TEC7_neg'],
     TOB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
          matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
@@ -268,6 +270,30 @@ tobTecStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTra
     cleanTrajectoryAfterInOut   = True,
     TrajectoryCleaner = 'tobTecStepTrajectoryCleanerBySharedHits'
 )
+
+from Configuration.ProcessModifiers.trackingMkFitTobTecStep_cff import trackingMkFitTobTecStep
+import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationConfigESProducer_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
+tobTecStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+    seeds = 'tobTecStepSeeds',
+)
+tobTecStepTrackCandidatesMkFitConfig = mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+    ComponentName = 'tobTecStepTrackCandidatesMkFitConfig',
+    config = 'RecoTracker/MkFit/data/mkfit-phase1-tobTecStep.json',
+)
+tobTecStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+    seeds = 'tobTecStepTrackCandidatesMkFitSeeds',
+    config = ('', 'tobTecStepTrackCandidatesMkFitConfig'),
+    clustersToSkip = 'tobTecStepClusters',
+)
+trackingMkFitTobTecStep.toReplaceWith(tobTecStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = 'tobTecStepSeeds',
+    mkFitSeeds = 'tobTecStepTrackCandidatesMkFitSeeds',
+    tracks = 'tobTecStepTrackCandidatesMkFit',
+))
+
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(tobTecStepTrackCandidates,
                       FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
@@ -449,19 +475,22 @@ TobTecStepTask = cms.Task(tobTecStepClusters,
                           tobTecStep)
 TobTecStep = cms.Sequence(TobTecStepTask)
 
+_TobTecStepTask_trackingMkFit = TobTecStepTask.copy()
+_TobTecStepTask_trackingMkFit.add(tobTecStepTrackCandidatesMkFitSeeds, tobTecStepTrackCandidatesMkFit, tobTecStepTrackCandidatesMkFitConfig)
+trackingMkFitTobTecStep.toReplaceWith(TobTecStepTask, _TobTecStepTask_trackingMkFit)
 
 ### Following are specific for LowPU, they're collected here to
 ### not to interfere too much with the default configuration
 # SEEDING LAYERS
-tobTecStepSeedLayers = cms.EDProducer('SeedingLayersEDProducer',
-    layerList = cms.vstring('TOB1+TOB2', 
+tobTecStepSeedLayers = _mod.seedingLayersEDProducer.clone(
+    layerList = ['TOB1+TOB2', 
         'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
         'TEC1_pos+TEC2_pos', 'TEC2_pos+TEC3_pos', 
         'TEC3_pos+TEC4_pos', 'TEC4_pos+TEC5_pos', 
         'TEC5_pos+TEC6_pos', 'TEC6_pos+TEC7_pos', 
         'TEC1_neg+TEC2_neg', 'TEC2_neg+TEC3_neg', 
         'TEC3_neg+TEC4_neg', 'TEC4_neg+TEC5_neg', 
-        'TEC5_neg+TEC6_neg', 'TEC6_neg+TEC7_neg'),
+        'TEC5_neg+TEC6_neg', 'TEC6_neg+TEC7_neg'],
     TOB = cms.PSet(
         matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
         skipClusters = cms.InputTag('tobTecStepClusters'),

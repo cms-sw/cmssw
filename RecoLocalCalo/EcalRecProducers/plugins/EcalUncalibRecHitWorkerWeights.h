@@ -11,6 +11,11 @@
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerRunOneDigiBase.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecWeightsAlgo.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
@@ -40,10 +45,14 @@ public:
   edm::ParameterSetDescription getAlgoDescription() override;
 
 protected:
-  edm::ESHandle<EcalPedestals> peds;
-  edm::ESHandle<EcalGainRatios> gains;
-  edm::ESHandle<EcalWeightXtalGroups> grps;
-  edm::ESHandle<EcalTBWeights> wgts;
+  edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> tokenPeds_;
+  edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> tokenGains_;
+  edm::ESGetToken<EcalWeightXtalGroups, EcalWeightXtalGroupsRcd> tokenGrps_;
+  edm::ESGetToken<EcalTBWeights, EcalTBWeightsRcd> tokenWgts_;
+  edm::ESHandle<EcalPedestals> peds_;
+  edm::ESHandle<EcalGainRatios> gains_;
+  edm::ESHandle<EcalWeightXtalGroups> grps_;
+  edm::ESHandle<EcalTBWeights> wgts_;
 
   double pedVec[3];
   double pedRMSVec[3];

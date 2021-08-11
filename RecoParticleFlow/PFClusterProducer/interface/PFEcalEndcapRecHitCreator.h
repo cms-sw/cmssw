@@ -29,13 +29,15 @@
 
 class PFEcalEndcapRecHitCreator : public PFRecHitCreatorBase {
 public:
-  PFEcalEndcapRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
-      : PFRecHitCreatorBase(iConfig, iC) {
-    recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
+  PFEcalEndcapRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitCreatorBase(iConfig, cc),
+        recHitToken_(cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+        elecMap_(nullptr),
+        geomToken_(cc.esConsumes()),
+        mappingToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
     auto srF = iConfig.getParameter<edm::InputTag>("srFlags");
     if (not srF.label().empty())
-      srFlagToken_ = iC.consumes<EESrFlagCollection>(srF);
-    elecMap_ = nullptr;
+      srFlagToken_ = cc.consumes<EESrFlagCollection>(srF);
   }
 
   void importRecHits(std::unique_ptr<reco::PFRecHitCollection>& out,
@@ -46,8 +48,7 @@ public:
 
     edm::Handle<EcalRecHitCollection> recHitHandle;
 
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
 
     bool useSrF = false;
     if (not srFlagToken_.isUninitialized()) {
@@ -100,11 +101,7 @@ public:
     }
   }
 
-  void init(const edm::EventSetup& es) override {
-    edm::ESHandle<EcalElectronicsMapping> ecalmapping;
-    es.get<EcalMappingRcd>().get(ecalmapping);
-    elecMap_ = ecalmapping.product();
-  }
+  void init(const edm::EventSetup& es) override { elecMap_ = &es.getData(mappingToken_); }
 
 protected:
   bool isHighInterest(const EEDetId& detid) {
@@ -135,6 +132,10 @@ protected:
   const EcalElectronicsMapping* elecMap_;
   // selective readout flags collection
   edm::Handle<EESrFlagCollection> srFlagHandle_;
+
+private:
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> mappingToken_;
 };
 
 #endif

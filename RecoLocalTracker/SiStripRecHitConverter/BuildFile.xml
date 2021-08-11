@@ -7,7 +7,7 @@
 <use name="DataFormats/SiStripDetId"/>
 <use name="RecoLocalTracker/Records"/>
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="CondFormats/SiStripObjects"/>
 <use name="CalibFormats/SiStripObjects"/>

@@ -242,12 +242,13 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
 
     ## expand the btagDiscriminators to remove the meta taggers and substitute the equivalent sources
     discriminators = set(btagDiscriminators)
-    present_meta = discriminators.intersection(set(supportedMetaDiscr.keys()))
-    discriminators -= present_meta
-    for meta_tagger in present_meta:
+    present_metaSet = discriminators.intersection(set(supportedMetaDiscr.keys()))
+    discriminators -= present_metaSet
+    for meta_tagger in present_metaSet:
         for src in supportedMetaDiscr[meta_tagger]:
             discriminators.add(src)
-    btagDiscriminators = list(discriminators)
+    present_meta = sorted(present_metaSet)
+    btagDiscriminators = sorted(discriminators)
 
     ## expand tagInfos to what is explicitly required by user + implicit
     ## requirements that come in from one or the other discriminator

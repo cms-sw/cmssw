@@ -19,6 +19,9 @@
 #include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
 #include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
 #include "G4Track.hh"
@@ -43,11 +46,7 @@ class FP420SD : public SensitiveTkDetector,
                 public Observer<const BeginOfEvent*>,
                 public Observer<const EndOfEvent*> {
 public:
-  FP420SD(const std::string&,
-          const edm::EventSetup&,
-          const SensitiveDetectorCatalog&,
-          edm::ParameterSet const&,
-          const SimTrackManager*);
+  FP420SD(const std::string&, const SensitiveDetectorCatalog&, edm::ParameterSet const&, const SimTrackManager*);
 
   ~FP420SD() override;
 

@@ -169,7 +169,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     index++;
 
     if (trackAssoc[trackref] == -1) {
-      LogWarning("mtdTracks") << "Extended track not associated";
+      LogInfo("mtdTracks") << "Extended track not associated";
       continue;
     }
 
@@ -179,8 +179,8 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     if (track.pt() < trackMinPt_)
       continue;
 
-    meTracktmtd_->Fill(tMtd[mtdTrackref]);
-    if (std::round(SigmatMtd[mtdTrackref] - Sigmat0Pid[trackref]) != 0) {
+    meTracktmtd_->Fill(tMtd[trackref]);
+    if (std::round(SigmatMtd[trackref] - Sigmat0Pid[trackref]) != 0) {
       LogWarning("mtdTracks") << "TimeError associated to refitted track is different from TimeError stored in tofPID "
                                  "sigmat0 ValueMap: this should not happen";
     }
@@ -194,7 +194,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     meTrackSigmat0SafePid_->Fill(Sigmat0Safe[trackref]);
     meTrackMVAQual_->Fill(mtdQualMVA[trackref]);
 
-    meTrackPathLenghtvsEta_->Fill(std::abs(track.eta()), pathLength[mtdTrackref]);
+    meTrackPathLenghtvsEta_->Fill(std::abs(track.eta()), pathLength[trackref]);
 
     if (std::abs(track.eta()) < trackMinEta_) {
       // --- all BTL tracks (with and without hit in MTD) ---
@@ -397,13 +397,13 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("inputTagG", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("inputTagT", edm::InputTag("trackExtenderWithMTD"));
   desc.add<edm::InputTag>("inputTagV", edm::InputTag("offlinePrimaryVertices4D"));
-  desc.add<edm::InputTag>("tmtd", edm::InputTag("trackExtenderWithMTD:tmtd"));
-  desc.add<edm::InputTag>("sigmatmtd", edm::InputTag("trackExtenderWithMTD:sigmatmtd"));
+  desc.add<edm::InputTag>("tmtd", edm::InputTag("trackExtenderWithMTD:generalTracktmtd"));
+  desc.add<edm::InputTag>("sigmatmtd", edm::InputTag("trackExtenderWithMTD:generalTracksigmatmtd"));
   desc.add<edm::InputTag>("t0Src", edm::InputTag("trackExtenderWithMTD:generalTrackt0"));
   desc.add<edm::InputTag>("sigmat0Src", edm::InputTag("trackExtenderWithMTD:generalTracksigmat0"));
   desc.add<edm::InputTag>("trackAssocSrc", edm::InputTag("trackExtenderWithMTD:generalTrackassoc"))
       ->setComment("Association between General and MTD Extended tracks");
-  desc.add<edm::InputTag>("pathLengthSrc", edm::InputTag("trackExtenderWithMTD:pathLength"));
+  desc.add<edm::InputTag>("pathLengthSrc", edm::InputTag("trackExtenderWithMTD:generalTrackPathLength"));
   desc.add<edm::InputTag>("t0SafePID", edm::InputTag("tofPID:t0safe"));
   desc.add<edm::InputTag>("sigmat0SafePID", edm::InputTag("tofPID:sigmat0safe"));
   desc.add<edm::InputTag>("sigmat0PID", edm::InputTag("tofPID:sigmat0"));

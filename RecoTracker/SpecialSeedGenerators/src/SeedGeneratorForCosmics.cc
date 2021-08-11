@@ -2,6 +2,7 @@
 #include "RecoTracker/TkHitPairs/interface/CosmicLayerPairs.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/CosmicLayerTriplets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 void SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection& collstereo,
@@ -117,8 +118,8 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection& output,
     FastHelix helix(inner, middle, outer, magfield->nominalValue(), &(*magfield));
     GlobalVector gv = helix.stateAtVertex().momentum();
     float ch = helix.stateAtVertex().charge();
-    float Mom = sqrt(gv.x() * gv.x() + gv.y() * gv.y() + gv.z() * gv.z());
-    if (Mom > 1000 || std::isnan(Mom))
+    float mom2 = gv.x() * gv.x() + gv.y() * gv.y() + gv.z() * gv.z();
+    if (mom2 > 1e06f || edm::isNotFinite(mom2))
       continue;  // ChangedByDaniele
 
     if (gv.y() > 0) {

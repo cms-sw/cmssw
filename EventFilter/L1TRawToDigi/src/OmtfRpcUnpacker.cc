@@ -1,7 +1,5 @@
 #include "EventFilter/L1TRawToDigi/interface/OmtfRpcUnpacker.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
@@ -18,30 +16,28 @@
 
 namespace omtf {
 
-  void RpcUnpacker::initCabling(const edm::EventSetup &es) {
-    edm::ESTransientHandle<RPCEMap> readoutMapping;
-    es.get<RPCEMapRcd>().get(readoutMapping);
-    thePactCabling.reset(readoutMapping->convert());
+  void RpcUnpacker::initCabling(const RPCEMap& readoutMapping) {
+    thePactCabling.reset(readoutMapping.convert());
 
     LogDebug("OmtfUnpacker") << " Has PACT readout map, VERSION: " << thePactCabling->version() << std::endl;
   }
 
-  void RpcUnpacker::init(const edm::EventSetup &es) {
-    initCabling(es);
+  void RpcUnpacker::init(const RPCEMap& readoutMapping, const RPCAMCLinkMap& linkMap) {
+    initCabling(readoutMapping);
     RpcLinkMap omtfLink2Ele;
-    omtfLink2Ele.init(es);
+    omtfLink2Ele.init(linkMap);
     theOmtf2Pact = translateOmtf2Pact(omtfLink2Ele, thePactCabling.get());
   }
 
-  void RpcUnpacker::init(const edm::EventSetup &es, const std::string &connectionFile) {
-    initCabling(es);
+  void RpcUnpacker::init(const RPCEMap& readoutMapping, const std::string& connectionFile) {
+    initCabling(readoutMapping);
     RpcLinkMap omtfLink2Ele;
     omtfLink2Ele.init(connectionFile);
     theOmtf2Pact = translateOmtf2Pact(omtfLink2Ele, thePactCabling.get());
   }
 
   void RpcUnpacker::unpack(
-      int triggerBX, unsigned int fed, unsigned int amc, const RpcDataWord64 &data, RPCDigiCollection *prod) {
+      int triggerBX, unsigned int fed, unsigned int amc, const RpcDataWord64& data, RPCDigiCollection* prod) {
     LogTrace("RpcUnpacker:") << data;
 
     //  EleIndex omtfEle(fedHeader.sourceID(), bh.getAMCNumber()/2+1, data.linkNum());

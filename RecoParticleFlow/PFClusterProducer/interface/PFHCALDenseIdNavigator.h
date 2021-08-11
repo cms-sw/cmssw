@@ -6,6 +6,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -30,23 +31,22 @@ public:
     }
   }
 
-  PFHCALDenseIdNavigator(const edm::ParameterSet& iConfig) {
-    vhcalEnum_ = iConfig.getParameter<std::vector<int>>("hcalEnums");
-  }
+  PFHCALDenseIdNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : vhcalEnum_(iConfig.getParameter<std::vector<int>>("hcalEnums")),
+        hcalToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()),
+        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
 
   void init(const edm::EventSetup& iSetup) override {
     bool check = theRecNumberWatcher_.check(iSetup);
     if (!check)
       return;
 
-    edm::ESHandle<HcalTopology> hcalTopology;
-    iSetup.get<HcalRecNumberingRecord>().get(hcalTopology);
+    edm::ESHandle<HcalTopology> hcalTopology = iSetup.getHandle(hcalToken_);
     topology_.release();
     topology_.reset(hcalTopology.product());
 
     // Fill a vector of valid denseid's
-    edm::ESHandle<CaloGeometry> hGeom;
-    iSetup.get<CaloGeometryRecord>().get(hGeom);
+    edm::ESHandle<CaloGeometry> hGeom = iSetup.getHandle(geomToken_);
     const CaloGeometry& caloGeom = *hGeom;
 
     std::vector<DetId> vecHcal;
@@ -56,6 +56,7 @@ public:
       std::vector<DetId> vecDetIds(caloGeom.getValidDetIds(DetId::Hcal, hcalSubdet));
       vecHcal.insert(vecHcal.end(), vecDetIds.begin(), vecDetIds.end());
     }
+    vDenseIdHcal.reserve(vecHcal.size());
     for (auto hDetId : vecHcal) {
       vDenseIdHcal.push_back(topology_.get()->detId2denseId(hDetId));
     }
@@ -187,6 +188,10 @@ protected:
   std::vector<std::vector<DetId>> neighboursHcal_;
   unsigned int denseIdHcalMax_;
   unsigned int denseIdHcalMin_;
+
+private:
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcalToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 };
 
 #endif

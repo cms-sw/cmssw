@@ -1,8 +1,28 @@
-#include "ECALPFSeedCleaner.h"
+#include "CondFormats/DataRecord/interface/EcalPFSeedingThresholdsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalPFSeedingThresholds.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
 
-ECALPFSeedCleaner::ECALPFSeedCleaner(const edm::ParameterSet& conf) : RecHitTopologicalCleanerBase(conf) {}
+class ECALPFSeedCleaner : public RecHitTopologicalCleanerBase {
+public:
+  ECALPFSeedCleaner(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
+  ECALPFSeedCleaner(const ECALPFSeedCleaner&) = delete;
+  ECALPFSeedCleaner& operator=(const ECALPFSeedCleaner&) = delete;
 
-void ECALPFSeedCleaner::update(const edm::EventSetup& iSetup) { iSetup.get<EcalPFSeedingThresholdsRcd>().get(ths_); }
+  void update(const edm::EventSetup&) override;
+
+  void clean(const edm::Handle<reco::PFRecHitCollection>& input, std::vector<bool>& mask) override;
+
+private:
+  edm::ESHandle<EcalPFSeedingThresholds> ths_;
+  edm::ESGetToken<EcalPFSeedingThresholds, EcalPFSeedingThresholdsRcd> thsToken_;
+};
+
+DEFINE_EDM_PLUGIN(RecHitTopologicalCleanerFactory, ECALPFSeedCleaner, "ECALPFSeedCleaner");
+
+ECALPFSeedCleaner::ECALPFSeedCleaner(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+    : RecHitTopologicalCleanerBase(conf, cc), thsToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
+
+void ECALPFSeedCleaner::update(const edm::EventSetup& iSetup) { ths_ = iSetup.getHandle(thsToken_); }
 
 void ECALPFSeedCleaner::clean(const edm::Handle<reco::PFRecHitCollection>& input, std::vector<bool>& mask) {
   //need to run over energy sorted rechits, as this is order used in seeding step

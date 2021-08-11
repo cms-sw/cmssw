@@ -160,10 +160,11 @@ _fastSim_mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer
 )
 fastSim.toReplaceWith(mixedTripletStepSeedsA,_fastSim_mixedTripletStepSeedsA)
 
+import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 
 # SEEDING LAYERS
-mixedTripletStepSeedLayersB = cms.EDProducer('SeedingLayersEDProducer',
-    layerList = cms.vstring('BPix2+BPix3+TIB1'),
+mixedTripletStepSeedLayersB = _mod.seedingLayersEDProducer.clone(
+    layerList = ['BPix2+BPix3+TIB1'],
     BPix = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
@@ -291,6 +292,30 @@ mixedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.
     useHitsSplitting          = True,
     TrajectoryCleaner         = 'mixedTripletStepTrajectoryCleanerBySharedHits'
 )
+
+from Configuration.ProcessModifiers.trackingMkFitMixedTripletStep_cff import trackingMkFitMixedTripletStep
+import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationConfigESProducer_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
+mixedTripletStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+    seeds = 'mixedTripletStepSeeds',
+)
+mixedTripletStepTrackCandidatesMkFitConfig = mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+    ComponentName = 'mixedTripletStepTrackCandidatesMkFitConfig',
+    config = 'RecoTracker/MkFit/data/mkfit-phase1-mixedTripletStep.json',
+)
+mixedTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+    seeds = 'mixedTripletStepTrackCandidatesMkFitSeeds',
+    config = ('', 'mixedTripletStepTrackCandidatesMkFitConfig'),
+    clustersToSkip = 'mixedTripletStepClusters',
+)
+trackingMkFitMixedTripletStep.toReplaceWith(mixedTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = 'mixedTripletStepSeeds',
+    mkFitSeeds = 'mixedTripletStepTrackCandidatesMkFitSeeds',
+    tracks = 'mixedTripletStepTrackCandidatesMkFit',
+))
+
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(mixedTripletStepTrackCandidates,
                       FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
@@ -475,6 +500,11 @@ MixedTripletStepTask = cms.Task(chargeCut2069Clusters,mixedTripletStepClusters,
                                 mixedTripletStepClassifier1,mixedTripletStepClassifier2,
                                 mixedTripletStep)
 MixedTripletStep = cms.Sequence(MixedTripletStepTask)
+
+_MixedTripletStepTask_trackingMkFit = MixedTripletStepTask.copy()
+_MixedTripletStepTask_trackingMkFit.add(mixedTripletStepTrackCandidatesMkFitSeeds, mixedTripletStepTrackCandidatesMkFit, mixedTripletStepTrackCandidatesMkFitConfig)
+trackingMkFitMixedTripletStep.toReplaceWith(MixedTripletStepTask, _MixedTripletStepTask_trackingMkFit)
+
 _MixedTripletStepTask_LowPU = MixedTripletStepTask.copyAndExclude([chargeCut2069Clusters, mixedTripletStepClassifier1])
 _MixedTripletStepTask_LowPU.replace(mixedTripletStepClassifier2, mixedTripletStepSelector)
 trackingLowPU.toReplaceWith(MixedTripletStepTask, _MixedTripletStepTask_LowPU)

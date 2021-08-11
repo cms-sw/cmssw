@@ -57,10 +57,4 @@ void HGCDigiProducer::accumulate(PileUpEventPrincipal const& event,
   }
 }
 
-//
-void HGCDigiProducer::beginRun(edm::Run const&, edm::EventSetup const& es) { theDigitizer_.beginRun(es); }
-
-//
-void HGCDigiProducer::endRun(edm::Run const&, edm::EventSetup const&) { theDigitizer_.endRun(); }
-
 DEFINE_DIGI_ACCUMULATOR(HGCDigiProducer);

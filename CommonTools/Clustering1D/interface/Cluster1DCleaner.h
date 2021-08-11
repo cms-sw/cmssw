@@ -50,7 +50,7 @@ void Cluster1DCleaner<T>::cleanCluster1Ds(const std::vector<Cluster1D<T> >& _clu
   std::vector<Cluster1D<T> > clust = _clust;
   theCleanedCluster1Ds.clear();
   theDiscardedCluster1Ds.clear();
-  if (clust.size() == 0)
+  if (clust.empty())
     return;
   float oldPos = average(clust);
   for (typename std::vector<Cluster1D<T> >::const_iterator ic = clust.begin(); ic != clust.end(); ic++) {

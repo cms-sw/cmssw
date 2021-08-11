@@ -226,16 +226,17 @@ void SiStripConfigDb::usingDatabase() {
   // Retrieve connection params from CONFDB env. var. and override .cfg values
   std::string user = "";
   std::string passwd = "";
+  std::string pToPrint = "******";
   std::string path = "";
   DbAccess::getDbConfiguration(user, passwd, path);
   if (!user.empty() && !passwd.empty() && !path.empty()) {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
-       << " Setting \"user/passwd@path\" to \"" << user << "/" << passwd << "@" << path
+       << " Setting \"user/passwd@path\" to \"" << user << "/" << pToPrint << "@" << path
        << "\" using 'CONFDB' environmental variable";
     if (dbParams_.user() != null_ || dbParams_.passwd() != null_ || dbParams_.path() != null_) {
-      ss << " (Overwriting existing value of \"" << dbParams_.user() << "/" << dbParams_.passwd() << "@"
-         << dbParams_.path() << "\" read from .cfg file)";
+      ss << " (Overwriting existing value of \"" << dbParams_.user() << "/" << pToPrint << "@" << dbParams_.path()
+         << "\" read from .cfg file)";
     }
     edm::LogVerbatim(mlConfigDb_) << ss.str() << std::endl;
     dbParams_.confdb(user, passwd, path);
@@ -243,15 +244,15 @@ void SiStripConfigDb::usingDatabase() {
   } else if (dbParams_.user() != null_ && dbParams_.passwd() != null_ && dbParams_.path() != null_) {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
-       << " Setting \"user/passwd@path\" to \"" << dbParams_.user() << "/" << dbParams_.passwd() << "@"
-       << dbParams_.path() << "\" using 'ConfDb' configurable read from .cfg file";
+       << " Setting \"user/passwd@path\" to \"" << dbParams_.user() << "/" << pToPrint << "@" << dbParams_.path()
+       << "\" using 'ConfDb' configurable read from .cfg file";
     edm::LogVerbatim(mlConfigDb_) << ss.str();
 
   } else {
     edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                  << " Unable to retrieve 'user/passwd@path' parameters"
                                  << " from 'CONFDB' environmental variable or .cfg file"
-                                 << " (present value is \"" << user << "/" << passwd << "@" << path
+                                 << " (present value is \"" << user << "/" << pToPrint << "@" << path
                                  << "\"). Aborting connection to database...";
     return;
   }
@@ -327,7 +328,7 @@ void SiStripConfigDb::usingDatabase() {
                           << " Created DeviceFactory object!";
   } catch (...) {
     std::stringstream ss;
-    ss << "Failed to connect to database using parameters '" << dbParams_.user() << "/" << dbParams_.passwd() << "@"
+    ss << "Failed to connect to database using parameters '" << dbParams_.user() << "/" << pToPrint << "@"
        << dbParams_.path() << "' and partitions '" << dbParams_.partitionNames(dbParams_.partitionNames()) << "'";
     handleException(__func__, ss.str());
     return;
@@ -338,14 +339,14 @@ void SiStripConfigDb::usingDatabase() {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " DeviceFactory created at address 0x" << std::hex << std::setw(8) << std::setfill('0') << factory_
-       << std::dec << ", using database account with parameters '" << dbParams_.user() << "/" << dbParams_.passwd()
-       << "@" << dbParams_.path();
+       << std::dec << ", using database account with parameters '" << dbParams_.user() << "/" << pToPrint << "@"
+       << dbParams_.path();
     LogTrace(mlConfigDb_) << ss.str();
   } else {
     edm::LogError(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                << " NULL pointer to DeviceFactory!"
                                << " Unable to connect to database using connection parameters '" << dbParams_.user()
-                               << "/" << dbParams_.passwd() << "@" << dbParams_.path() << "' and partitions '"
+                               << "/" << pToPrint << "@" << dbParams_.path() << "' and partitions '"
                                << dbParams_.partitionNames(dbParams_.partitionNames()) << "'";
     return;
   }
