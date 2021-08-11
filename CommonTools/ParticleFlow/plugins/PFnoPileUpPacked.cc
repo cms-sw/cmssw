@@ -29,7 +29,6 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-
 /**\class PFnoPileUpPacked
 \brief Identifies pile-up candidates from a collection of Candidates, and
 produces the corresponding collection of NoPileUpCandidates.
@@ -50,7 +49,7 @@ public:
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   edm::EDGetTokenT<CandidateView> tokenCandidatesView_;
@@ -59,7 +58,6 @@ private:
   edm::EDGetTokenT<edm::ValueMap<int>> tokenVertexAssociationQuality_;
   int vertexAssociationQuality_;
 };
-
 
 PFnoPileUpPacked::PFnoPileUpPacked(const edm::ParameterSet& iConfig) {
   tokenCandidatesView_ = consumes<CandidateView>(iConfig.getParameter<InputTag>("candidates"));
@@ -74,9 +72,9 @@ void PFnoPileUpPacked::produce(Event& iEvent, const EventSetup& iSetup) {
   unique_ptr<edm::PtrVector<reco::Candidate>> pOutput(new edm::PtrVector<reco::Candidate>);
   Handle<CandidateView> candidateView;
   iEvent.getByToken(tokenCandidatesView_, candidateView);
-  const edm::Association<reco::VertexCollection> associatedPV = iEvent.get(tokenVertexAssociation_);
-  const edm::ValueMap<int> associationQuality = iEvent.get(tokenVertexAssociationQuality_);
-  for (auto p : candidateView->ptrs()) {
+  const edm::Association<reco::VertexCollection>& associatedPV = iEvent.get(tokenVertexAssociation_);
+  const edm::ValueMap<int>& associationQuality = iEvent.get(tokenVertexAssociationQuality_);
+  for (const auto& p : candidateView->ptrs()) {
     const reco::VertexRef& PVOrig = associatedPV[p];
     int quality = associationQuality[p];
     if (!(PVOrig.isNonnull() && (PVOrig.key() > 0) && (quality >= vertexAssociationQuality_)))
@@ -85,12 +83,12 @@ void PFnoPileUpPacked::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.put(std::move(pOutput));
 }
 
-void PFnoPileUpPacked::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
-   edm::ParameterSetDescription desc;
-   desc.add<edm::InputTag>("candidates", edm::InputTag("packedPFCandidates"));
-   desc.add<int>("vertexAssociationQuality", 7);
-   desc.add<edm::InputTag>("vertexAssociation", edm::InputTag("packedPrimaryVertexAssociationJME","original"));
-   descriptions.add("produceMuons", desc);
+void PFnoPileUpPacked::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("candidates", edm::InputTag("packedPFCandidates"));
+  desc.add<int>("vertexAssociationQuality", 7);
+  desc.add<edm::InputTag>("vertexAssociation", edm::InputTag("packedPrimaryVertexAssociationJME", "original"));
+  descriptions.add("produceMuons", desc);
 }
 
 DEFINE_FWK_MODULE(PFnoPileUpPacked);

@@ -313,7 +313,8 @@ inline void PrimaryVertexSorter<std::vector<reco::PFCandidate>>::doConsumesForTi
 }
 
 template <>
-inline void PrimaryVertexSorter<std::vector<pat::PackedCandidate>>::doConsumesForTiming(const edm::ParameterSet& iConfig) {}
+inline void PrimaryVertexSorter<std::vector<pat::PackedCandidate>>::doConsumesForTiming(
+    const edm::ParameterSet& iConfig) {}
 
 template <>
 inline bool PrimaryVertexSorter<std::vector<reco::RecoChargedRefCandidate>>::needsProductsForTiming() {
@@ -353,7 +354,7 @@ inline std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexSorter<std:
 }
 
 template <>
-std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexSorter<std::vector<pat::PackedCandidate>>::runAlgo(
+inline std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexSorter<std::vector<pat::PackedCandidate>>::runAlgo(
     const reco::VertexCollection& vertices,
     const pat::PackedCandidate& pf,
     const edm::ValueMap<float>* trackTimeTag,
