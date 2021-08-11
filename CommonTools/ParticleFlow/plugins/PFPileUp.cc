@@ -169,8 +169,8 @@ void PFPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
     }
 
     if (fUseVertexAssociation) {
-      const edm::Association<reco::VertexCollection> associatedPV = iEvent.get(tokenVertexAssociation_);
-      const edm::ValueMap<int> associationQuality = iEvent.get(tokenVertexAssociationQuality_);
+      const edm::Association<reco::VertexCollection>& associatedPV = iEvent.get(tokenVertexAssociation_);
+      const edm::ValueMap<int>& associationQuality = iEvent.get(tokenVertexAssociationQuality_);
       PFCollection pfCandidatesFromPU;
       for (auto& p : (*pfCandidatesRef)) {
         const reco::VertexRef& PVOrig = associatedPV[p];
