@@ -93,7 +93,8 @@ HGCalTimingAnalyzer::HGCalTimingAnalyzer(const edm::ParameterSet& iConfig)
     timeUnit_ = 0.000001;
 #ifdef EDM_ML_DEBUG
   std::ostringstream st1;
-  st1 << "HGCalTimingAnalyzer:: Group Hits " << groupHits_ << " in " << timeUnit_ << " IdBeam " << idBeams_.size() << ":";
+  st1 << "HGCalTimingAnalyzer:: Group Hits " << groupHits_ << " in " << timeUnit_ << " IdBeam " << idBeams_.size()
+      << ":";
   for (const auto& id : idBeams_)
     st1 << " " << id;
   edm::LogVerbatim("HGCSim") << st1.str();
@@ -158,7 +159,8 @@ void HGCalTimingAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetu
   hgcons_ = &iSetup.getData(tokDDD_);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "HGCalTimingAnalyzer::" << detectorEE_ << " defined with " << hgcons_->layers(false) << " layers";
+  edm::LogVerbatim("HGCSim") << "HGCalTimingAnalyzer::" << detectorEE_ << " defined with " << hgcons_->layers(false)
+                             << " layers";
 #endif
 }
 
@@ -174,7 +176,8 @@ void HGCalTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     unsigned int k(0);
     for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end();
          ++p, ++k) {
-      edm::LogVerbatim("HGCSim") << "Particle[" << k << "] with p " << (*p)->momentum().rho() << " theta " << (*p)->momentum().theta() << " phi " << (*p)->momentum().phi();
+      edm::LogVerbatim("HGCSim") << "Particle[" << k << "] with p " << (*p)->momentum().rho() << " theta "
+                                 << (*p)->momentum().theta() << " phi " << (*p)->momentum().phi();
     }
   }
 #endif
@@ -198,7 +201,8 @@ void HGCalTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   iEvent.getByToken(tok_hitsEE_, theCaloHitContainers);
   if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "PcalohitContainer for " << detectorEE_ << " has " << theCaloHitContainers->size() << " hits";
+    edm::LogVerbatim("HGCSim") << "PcalohitContainer for " << detectorEE_ << " has " << theCaloHitContainers->size()
+                               << " hits";
 #endif
     caloHits.clear();
     caloHits.insert(caloHits.end(), theCaloHitContainers->begin(), theCaloHitContainers->end());
@@ -212,7 +216,8 @@ void HGCalTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   iEvent.getByToken(tok_hitsBeam_, theCaloHitContainers);
   if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "PcalohitContainer for " << detectorBeam_ << " has " << theCaloHitContainers->size() << " hits";
+    edm::LogVerbatim("HGCSim") << "PcalohitContainer for " << detectorBeam_ << " has " << theCaloHitContainers->size()
+                               << " hits";
 #endif
     caloHits.clear();
     caloHits.insert(caloHits.end(), theCaloHitContainers->begin(), theCaloHitContainers->end());
@@ -242,13 +247,16 @@ void HGCalTimingAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit> const& 
       id = HGCalDetId((ForwardSubdetector)(subdet), zside, recoLayerCell.second, subsector, sector, recoLayerCell.first)
                .rawId();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCSim") << "SimHit:Hit[" << i << "] Id " << subdet << ":" << zside << ":" << layer << ":" << sector << ":" << subsector << ":" << recoLayerCell.first << ":" << recoLayerCell.second << " Energy " << energy << " Time " << time;
+      edm::LogVerbatim("HGCSim") << "SimHit:Hit[" << i << "] Id " << subdet << ":" << zside << ":" << layer << ":"
+                                 << sector << ":" << subsector << ":" << recoLayerCell.first << ":"
+                                 << recoLayerCell.second << " Energy " << energy << " Time " << time;
 #endif
     } else {
 #ifdef EDM_ML_DEBUG
       int subdet, layer, x, y;
       HcalTestBeamNumbering::unpackIndex(id, subdet, layer, x, y);
-      edm::LogVerbatim("HGCSim") << "SimHit:Hit[" << i << "] Beam Subdet " << subdet << " Layer " << layer << " x|y " << x << ":" << y << " Energy " << energy << " Time " << time;
+      edm::LogVerbatim("HGCSim") << "SimHit:Hit[" << i << "] Beam Subdet " << subdet << " Layer " << layer << " x|y "
+                                 << x << ":" << y << " Energy " << energy << " Time " << time;
 #endif
     }
     uint64_t tid = (uint64_t)((time + 50.0) / timeUnit_);
@@ -266,7 +274,8 @@ void HGCalTimingAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit> const& 
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "analyzeSimHits: Finds " << map_hits.size() << " hits " << " from the Hit Vector of size " << hits.size() << " for type " << type;
+  edm::LogVerbatim("HGCSim") << "analyzeSimHits: Finds " << map_hits.size() << " hits "
+                             << " from the Hit Vector of size " << hits.size() << " for type " << type;
 #endif
   for (const auto& itr : map_hits) {
     uint32_t id = (itr.first).first;
@@ -293,7 +302,9 @@ void HGCalTimingAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> c
   int vertIndex(-1);
   for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "Track " << simTrkItr->trackId() << " Vertex " << simTrkItr->vertIndex() << " Type " << simTrkItr->type() << " Charge " << simTrkItr->charge() << " momentum " << simTrkItr->momentum() << " " << simTrkItr->momentum().P();
+    edm::LogVerbatim("HGCSim") << "Track " << simTrkItr->trackId() << " Vertex " << simTrkItr->vertIndex() << " Type "
+                               << simTrkItr->type() << " Charge " << simTrkItr->charge() << " momentum "
+                               << simTrkItr->momentum() << " " << simTrkItr->momentum().P();
 #endif
     if (vertIndex == -1) {
       vertIndex = simTrkItr->vertIndex();
