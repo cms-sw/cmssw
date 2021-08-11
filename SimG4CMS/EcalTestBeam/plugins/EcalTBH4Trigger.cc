@@ -35,7 +35,7 @@
 #include "G4VProcess.hh"
 #include "G4VTouchable.hh"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 class EcalTBH4Trigger : public SimWatcher,
                         public Observer<const BeginOfEvent *>,

@@ -23,7 +23,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "Math/GenVector/Rotation3D.h"
-#include "CLHEP/Random/RandFlat.h"
+#include <CLHEP/Random/RandFlat.h>
 
 #include <fstream>
 #include <iostream>
