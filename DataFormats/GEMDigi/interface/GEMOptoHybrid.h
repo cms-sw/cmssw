@@ -3,8 +3,8 @@
 #include "GEMVFAT.h"
 #include <vector>
 
-  class GEMOptoHybrid {
-  public:
+class GEMOptoHybrid {
+public:
   union GEBchamberHeader {
     uint64_t word;
     struct {
@@ -42,66 +42,66 @@
     };
   };
 
-    GEMOptoHybrid() : ch_(0), ct_(0){};
-    ~GEMOptoHybrid() { vfatd_.clear(); }
+  GEMOptoHybrid() : ch_(0), ct_(0){};
+  ~GEMOptoHybrid() { vfatd_.clear(); }
 
-    //!Read chamberHeader from the block.
-    void setChamberHeader(uint64_t word) { ch_ = word; }
-    void setChamberHeader(uint16_t vfatWordCnt, uint8_t inputID) {
-      GEBchamberHeader u{0};
-      u.VfWdCnt = vfatWordCnt;
-      u.InputID = inputID;
-      ch_ = u.word;
-    }
-    uint64_t getChamberHeader() const { return ch_; }
+  //!Read chamberHeader from the block.
+  void setChamberHeader(uint64_t word) { ch_ = word; }
+  void setChamberHeader(uint16_t vfatWordCnt, uint8_t inputID) {
+    GEBchamberHeader u{0};
+    u.VfWdCnt = vfatWordCnt;
+    u.InputID = inputID;
+    ch_ = u.word;
+  }
+  uint64_t getChamberHeader() const { return ch_; }
 
-    //!Read chamberTrailer from the block.
-    void setChamberTrailer(uint64_t word) { ct_ = word; }
-    void setChamberTrailer(uint32_t ecOH, uint16_t bcOH, uint16_t vfatWordCntT) {
-      GEBchamberTrailer u{0};
-      u.ecOH = ecOH;
-      u.bcOH = bcOH;
-      u.VfWdCntT = vfatWordCntT;
-      ct_ = u.word;
-    }
-    uint64_t getChamberTrailer() const { return ct_; }
+  //!Read chamberTrailer from the block.
+  void setChamberTrailer(uint64_t word) { ct_ = word; }
+  void setChamberTrailer(uint32_t ecOH, uint16_t bcOH, uint16_t vfatWordCntT) {
+    GEBchamberTrailer u{0};
+    u.ecOH = ecOH;
+    u.bcOH = bcOH;
+    u.VfWdCntT = vfatWordCntT;
+    ct_ = u.word;
+  }
+  uint64_t getChamberTrailer() const { return ct_; }
 
-    uint16_t vfatWordCnt() const { return GEBchamberHeader{ch_}.VfWdCnt; }
-    uint8_t inputID() const { return GEBchamberHeader{ch_}.InputID; }
-    uint16_t vfatWordCntT() const { return GEBchamberTrailer{ct_}.VfWdCntT; }
+  uint16_t vfatWordCnt() const { return GEBchamberHeader{ch_}.VfWdCnt; }
+  uint8_t inputID() const { return GEBchamberHeader{ch_}.InputID; }
+  uint16_t vfatWordCntT() const { return GEBchamberTrailer{ct_}.VfWdCntT; }
 
-    bool bxmVvV() const { return GEBchamberHeader{ch_}.BxmVvV; }
-    bool bxmAvV() const { return GEBchamberHeader{ch_}.BxmAvV; }
-    bool oOScVvV() const { return GEBchamberHeader{ch_}.OOScVvV; }
-    bool oOScAvV() const { return GEBchamberHeader{ch_}.OOScAvV; }
-    bool inv() const { return GEBchamberHeader{ch_}.Inv; }
-    bool evtSzW() const { return GEBchamberHeader{ch_}.EvtSzW; }
-    bool l1aNF() const { return GEBchamberHeader{ch_}.L1aNF; }
-    bool inNF() const { return GEBchamberHeader{ch_}.InNF; }
-    bool evtNF() const { return GEBchamberHeader{ch_}.EvtNF; }
-    bool evtSzOFW() const { return GEBchamberHeader{ch_}.EvtSzOFW; }
-    bool l1aF() const { return GEBchamberHeader{ch_}.L1aF; }
-    bool inF() const { return GEBchamberHeader{ch_}.InF; }
-    bool evtF() const { return GEBchamberHeader{ch_}.EvtF; }
-    bool inUfw() const { return GEBchamberTrailer{ct_}.InUfw; }
+  bool bxmVvV() const { return GEBchamberHeader{ch_}.BxmVvV; }
+  bool bxmAvV() const { return GEBchamberHeader{ch_}.BxmAvV; }
+  bool oOScVvV() const { return GEBchamberHeader{ch_}.OOScVvV; }
+  bool oOScAvV() const { return GEBchamberHeader{ch_}.OOScAvV; }
+  bool inv() const { return GEBchamberHeader{ch_}.Inv; }
+  bool evtSzW() const { return GEBchamberHeader{ch_}.EvtSzW; }
+  bool l1aNF() const { return GEBchamberHeader{ch_}.L1aNF; }
+  bool inNF() const { return GEBchamberHeader{ch_}.InNF; }
+  bool evtNF() const { return GEBchamberHeader{ch_}.EvtNF; }
+  bool evtSzOFW() const { return GEBchamberHeader{ch_}.EvtSzOFW; }
+  bool l1aF() const { return GEBchamberHeader{ch_}.L1aF; }
+  bool inF() const { return GEBchamberHeader{ch_}.InF; }
+  bool evtF() const { return GEBchamberHeader{ch_}.EvtF; }
+  bool inUfw() const { return GEBchamberTrailer{ct_}.InUfw; }
 
-    bool noVFAT() const { return false; }     // to be removed
-    bool stuckData() const { return false; }  // to be removed
-    bool evUfw() const { return false; }      // to be removed
+  bool noVFAT() const { return false; }     // to be removed
+  bool stuckData() const { return false; }  // to be removed
+  bool evUfw() const { return false; }      // to be removed
 
-    //!Adds VFAT data to the vector
-    void addVFAT(GEMVFAT v) { vfatd_.push_back(v); }
-    //!Returns the vector of VFAT data
-    const std::vector<GEMVFAT>* vFATs() const { return &vfatd_; }
-    //!Clear the vector rof VFAT data
-    void clearVFATs() { vfatd_.clear(); }
+  //!Adds VFAT data to the vector
+  void addVFAT(GEMVFAT v) { vfatd_.push_back(v); }
+  //!Returns the vector of VFAT data
+  const std::vector<GEMVFAT>* vFATs() const { return &vfatd_; }
+  //!Clear the vector rof VFAT data
+  void clearVFATs() { vfatd_.clear(); }
 
-    static const int sizeGebID = 5;
+  static const int sizeGebID = 5;
 
-  private:
-    uint64_t ch_;  // GEBchamberHeader
-    uint64_t ct_;  // GEBchamberTrailer
+private:
+  uint64_t ch_;  // GEBchamberHeader
+  uint64_t ct_;  // GEBchamberTrailer
 
-    std::vector<GEMVFAT> vfatd_;
-  };
+  std::vector<GEMVFAT> vfatd_;
+};
 #endif

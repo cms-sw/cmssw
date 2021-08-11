@@ -3,8 +3,8 @@
 #include <vector>
 #include "GEMAMC.h"
 
-  class GEMAMC13 {
-  public:
+class GEMAMC13 {
+public:
   union CDFHeader {
     uint64_t word;
     struct {
@@ -66,59 +66,59 @@
     };
   };
 
-    GEMAMC13() : cdfh_(0), amc13h_(0), amc13t_(0), cdft_(0) {}
-    ~GEMAMC13() {
-      amcHeaders_.clear();
-      amcs_.clear();
-    }
+  GEMAMC13() : cdfh_(0), amc13h_(0), amc13t_(0), cdft_(0) {}
+  ~GEMAMC13() {
+    amcHeaders_.clear();
+    amcs_.clear();
+  }
 
-    void setCDFHeader(uint64_t word) { cdfh_ = word; }
-    void setCDFHeader(uint8_t Evt_ty, uint32_t LV1_id, uint16_t BX_id, uint16_t Source_id);
-    uint64_t getCDFHeader() const { return cdfh_; }
+  void setCDFHeader(uint64_t word) { cdfh_ = word; }
+  void setCDFHeader(uint8_t Evt_ty, uint32_t LV1_id, uint16_t BX_id, uint16_t Source_id);
+  uint64_t getCDFHeader() const { return cdfh_; }
 
-    void setAMC13Header(uint64_t word) { amc13h_ = word; }
-    void setAMC13Header(uint8_t CalTyp, uint8_t nAMC, uint32_t OrN);
-    uint64_t getAMC13Header() const { return amc13h_; }
+  void setAMC13Header(uint64_t word) { amc13h_ = word; }
+  void setAMC13Header(uint8_t CalTyp, uint8_t nAMC, uint32_t OrN);
+  uint64_t getAMC13Header() const { return amc13h_; }
 
-    void setAMC13Trailer(uint64_t word) { amc13t_ = word; }
-    void setAMC13Trailer(uint8_t Blk_NoT, uint8_t LV1_idT, uint16_t BX_idT);
-    uint64_t getAMC13Trailer() const { return amc13t_; }
+  void setAMC13Trailer(uint64_t word) { amc13t_ = word; }
+  void setAMC13Trailer(uint8_t Blk_NoT, uint8_t LV1_idT, uint16_t BX_idT);
+  uint64_t getAMC13Trailer() const { return amc13t_; }
 
-    void setCDFTrailer(uint64_t word) { cdft_ = word; }
-    void setCDFTrailer(uint32_t EvtLength);
-    uint64_t getCDFTrailer() const { return cdft_; }
-    uint32_t fragmentLength() const { return CDFTrailer{cdft_}.evtLength; }
-    uint8_t evtStatus() const { return CDFTrailer{cdft_}.evtStat; }
-    uint8_t ttsBits() const { return CDFTrailer{cdft_}.tts; }
+  void setCDFTrailer(uint64_t word) { cdft_ = word; }
+  void setCDFTrailer(uint32_t EvtLength);
+  uint64_t getCDFTrailer() const { return cdft_; }
+  uint32_t fragmentLength() const { return CDFTrailer{cdft_}.evtLength; }
+  uint8_t evtStatus() const { return CDFTrailer{cdft_}.evtStat; }
+  uint8_t ttsBits() const { return CDFTrailer{cdft_}.tts; }
 
-    uint16_t bunchCrossing() const { return CDFHeader{cdfh_}.bxId; }
-    uint32_t lv1Id() const { return CDFHeader{cdfh_}.lv1Id; }
-    uint16_t sourceId() const { return CDFHeader{cdfh_}.sourceId; }
+  uint16_t bunchCrossing() const { return CDFHeader{cdfh_}.bxId; }
+  uint32_t lv1Id() const { return CDFHeader{cdfh_}.lv1Id; }
+  uint16_t sourceId() const { return CDFHeader{cdfh_}.sourceId; }
 
-    uint16_t orbitNumber() const { return AMC13Header{amc13h_}.orbitN; }
-    uint8_t nAMC() const { return AMC13Header{amc13h_}.nAMC; }
+  uint16_t orbitNumber() const { return AMC13Header{amc13h_}.orbitN; }
+  uint8_t nAMC() const { return AMC13Header{amc13h_}.nAMC; }
 
-    const std::vector<uint64_t>* getAMCheaders() const { return &amcHeaders_; }
-    uint32_t getAMCsize(int i) const { return AMCHeader{amcHeaders_.at(i)}.amcSize; }
-    void addAMCheader(uint64_t word);
-    void addAMCheader(uint32_t AMC_size, uint8_t Blk_No, uint8_t AMC_No, uint16_t BoardID);
+  const std::vector<uint64_t>* getAMCheaders() const { return &amcHeaders_; }
+  uint32_t getAMCsize(int i) const { return AMCHeader{amcHeaders_.at(i)}.amcSize; }
+  void addAMCheader(uint64_t word);
+  void addAMCheader(uint32_t AMC_size, uint8_t Blk_No, uint8_t AMC_No, uint16_t BoardID);
 
-    uint32_t crc() const { return AMC13Trailer{amc13t_}.crc32; }
+  uint32_t crc() const { return AMC13Trailer{amc13t_}.crc32; }
 
-    const std::vector<GEMAMC>* getAMCpayloads() const { return &amcs_; }
-    void addAMCpayload(const GEMAMC& a) { amcs_.push_back(a); }
-    void clearAMCpayloads() { amcs_.clear(); }
+  const std::vector<GEMAMC>* getAMCpayloads() const { return &amcs_; }
+  void addAMCpayload(const GEMAMC& a) { amcs_.push_back(a); }
+  void clearAMCpayloads() { amcs_.clear(); }
 
-  private:
-    uint64_t cdfh_;    // CDFHeader
-    uint64_t amc13h_;  // AMC13Header
-    uint64_t amc13t_;  // AMC13Trailer
-    uint64_t cdft_;    // CDFTrailer
+private:
+  uint64_t cdfh_;    // CDFHeader
+  uint64_t amc13h_;  // AMC13Header
+  uint64_t amc13t_;  // AMC13Trailer
+  uint64_t cdft_;    // CDFTrailer
 
-    // AMC headers
-    std::vector<uint64_t> amcHeaders_;
-    // AMCs payload
-    std::vector<GEMAMC> amcs_;
-  };
+  // AMC headers
+  std::vector<uint64_t> amcHeaders_;
+  // AMCs payload
+  std::vector<GEMAMC> amcs_;
+};
 
 #endif

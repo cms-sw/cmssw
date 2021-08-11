@@ -2,8 +2,8 @@
 #define DataFormats_GEMDigi_GEMVFAT_h
 #include <cstdint>
 
-  class GEMVFAT {
-  public:
+class GEMVFAT {
+public:
   /// VFAT data structure - 3 words of 64 bits each
   union VFATfirst {
     uint64_t word;
@@ -45,84 +45,84 @@
     };
   };
 
-    GEMVFAT();
-    // this constructor only used for packing sim digis
-    GEMVFAT(const int vfatVer,
-             const uint16_t BC,
-             const uint32_t EC,
-             const uint16_t chipID,
-             const uint64_t lsDatas,
-             const uint64_t msDatas);
-    ~GEMVFAT() {}
+  GEMVFAT();
+  // this constructor only used for packing sim digis
+  GEMVFAT(const int vfatVer,
+          const uint16_t BC,
+          const uint32_t EC,
+          const uint16_t chipID,
+          const uint64_t lsDatas,
+          const uint64_t msDatas);
+  ~GEMVFAT() {}
 
-    //!Read first word from the block.
-    void read_fw(uint64_t word) { fw_ = word; }
-    uint64_t get_fw() const { return fw_; }
+  //!Read first word from the block.
+  void read_fw(uint64_t word) { fw_ = word; }
+  uint64_t get_fw() const { return fw_; }
 
-    //!Read second word from the block.
-    void read_sw(uint64_t word) { sw_ = word; }
-    uint64_t get_sw() const { return sw_; }
+  //!Read second word from the block.
+  void read_sw(uint64_t word) { sw_ = word; }
+  uint64_t get_sw() const { return sw_; }
 
-    //!Read third word from the block.
-    void read_tw(uint64_t word) { tw_ = word; }
-    uint64_t get_tw() const { return tw_; }
+  //!Read third word from the block.
+  void read_tw(uint64_t word) { tw_ = word; }
+  uint64_t get_tw() const { return tw_; }
 
-    // local phi in chamber
-    void setPhi(int i) { phiPos_ = i; }
-    int phi() const { return phiPos_; }
+  // local phi in chamber
+  void setPhi(int i) { phiPos_ = i; }
+  int phi() const { return phiPos_; }
 
-    uint64_t lsData() const { return uint64_t(VFATsecond{sw_}.lsData1) << 48 | VFATthird{tw_}.lsData2; }
-    uint64_t msData() const { return uint64_t(VFATfirst{fw_}.msData1) << 48 | VFATsecond{sw_}.msData2; }
+  uint64_t lsData() const { return uint64_t(VFATsecond{sw_}.lsData1) << 48 | VFATthird{tw_}.lsData2; }
+  uint64_t msData() const { return uint64_t(VFATfirst{fw_}.msData1) << 48 | VFATsecond{sw_}.msData2; }
 
-    uint16_t bc() const {
-      if (ver_ == 2)
-        return VFATfirst{fw_}.bcV2;
-      return VFATfirst{fw_}.bc;
-    }
-    uint8_t ec() const {
-      if (ver_ == 2)
-        return VFATfirst{fw_}.ecV2;
-      return VFATfirst{fw_}.ec;
-    }
-    uint16_t vfatId() const {
-      if (ver_ == 2)
-        return VFATfirst{fw_}.chipID;
-      return VFATfirst{fw_}.pos;
-    }
+  uint16_t bc() const {
+    if (ver_ == 2)
+      return VFATfirst{fw_}.bcV2;
+    return VFATfirst{fw_}.bc;
+  }
+  uint8_t ec() const {
+    if (ver_ == 2)
+      return VFATfirst{fw_}.ecV2;
+    return VFATfirst{fw_}.ec;
+  }
+  uint16_t vfatId() const {
+    if (ver_ == 2)
+      return VFATfirst{fw_}.chipID;
+    return VFATfirst{fw_}.pos;
+  }
 
-    void setVersion(int i) { ver_ = i; }
-    int version() const { return ver_; }
+  void setVersion(int i) { ver_ = i; }
+  int version() const { return ver_; }
 
-    /// quality flag - bit: 0 good, 1 crc fail, 2 b1010 fail, 3 b1100 fail, 4 b1110
-    uint8_t quality();
+  /// quality flag - bit: 0 good, 1 crc fail, 2 b1010 fail, 3 b1100 fail, 4 b1110
+  uint8_t quality();
 
-    /// v3
-    uint8_t header() const { return VFATfirst{fw_}.header; }
-    bool vc() const { return VFATfirst{fw_}.vc; }
-    uint8_t position() const { return VFATfirst{fw_}.pos; }
-    uint8_t crcCheck() const { return VFATfirst{fw_}.vc; }  // to be removed
+  /// v3
+  uint8_t header() const { return VFATfirst{fw_}.header; }
+  bool vc() const { return VFATfirst{fw_}.vc; }
+  uint8_t position() const { return VFATfirst{fw_}.pos; }
+  uint8_t crcCheck() const { return VFATfirst{fw_}.vc; }  // to be removed
 
-    /// v2
-    uint8_t b1010() const { return VFATfirst{fw_}.b1010; }
-    uint8_t b1100() const { return VFATfirst{fw_}.b1100; }
-    uint8_t b1110() const { return VFATfirst{fw_}.b1110; }
-    uint8_t flag() const { return VFATfirst{fw_}.flag; }
-    uint16_t chipID() const { return VFATfirst{fw_}.chipID; }
-    uint16_t crc() const { return VFATthird{tw_}.crc; }
+  /// v2
+  uint8_t b1010() const { return VFATfirst{fw_}.b1010; }
+  uint8_t b1100() const { return VFATfirst{fw_}.b1100; }
+  uint8_t b1110() const { return VFATfirst{fw_}.b1110; }
+  uint8_t flag() const { return VFATfirst{fw_}.flag; }
+  uint16_t chipID() const { return VFATfirst{fw_}.chipID; }
+  uint16_t crc() const { return VFATthird{tw_}.crc; }
 
-    uint16_t crc_cal(uint16_t crc_in, uint16_t dato);
-    uint16_t checkCRC();
+  uint16_t crc_cal(uint16_t crc_in, uint16_t dato);
+  uint16_t checkCRC();
 
-    static const int nChannels = 128;
-    static const int sizeChipID = 12;
+  static const int nChannels = 128;
+  static const int sizeChipID = 12;
 
-  private:
-    int ver_;     /// vfat version
-    int phiPos_;  /// phi position of vfat in chamber
+private:
+  int ver_;     /// vfat version
+  int phiPos_;  /// phi position of vfat in chamber
 
-    uint64_t fw_;  // VFAT first word
-    uint64_t sw_;  // VFAT second word
-    uint64_t tw_;  // VFAT third word
-  };
+  uint64_t fw_;  // VFAT first word
+  uint64_t sw_;  // VFAT second word
+  uint64_t tw_;  // VFAT third word
+};
 
 #endif
