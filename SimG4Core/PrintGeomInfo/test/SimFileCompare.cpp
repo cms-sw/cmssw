@@ -143,9 +143,9 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
     while (fInput1.getline(buffer, 100)) {
       std::vector<std::string> items = splitString(std::string(buffer));
       if (typeFile1) {
-	name = ((mode == 1) ? removeExtraName(items[0], debug) : items[0]);
+        name = ((mode == 1) ? removeExtraName(items[0], debug) : items[0]);
       } else {
-	name = reducedName(items[0], debug);
+        name = reducedName(items[0], debug);
       }
       double r1 = (items.size() > 1) ? atof(items[1].c_str()) : 0;
       double r2 = (items.size() > 2) ? atof(items[2].c_str()) : 0;
@@ -177,7 +177,8 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
       }
     }
     fInput1.close();
-    sizeFile1 = ((type == 0) ? matFile1.size() : ((type == 1) ? solidFile1.size() : ((type == 2) ? lvFile1.size() : pvFile1.size())));
+    sizeFile1 = ((type == 0) ? matFile1.size()
+                             : ((type == 1) ? solidFile1.size() : ((type == 2) ? lvFile1.size() : pvFile1.size())));
   }
   std::ifstream fInput2(fileFile2);
   if (!fInput2.good()) {
@@ -186,9 +187,9 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
     while (fInput2.getline(buffer, 100)) {
       std::vector<std::string> items = splitString(std::string(buffer));
       if (typeFile2) {
-	name = ((mode == 1) ? removeExtraName(items[0], debug) : items[0]);
+        name = ((mode == 1) ? removeExtraName(items[0], debug) : items[0]);
       } else {
-	name = reducedName(items[0], debug);
+        name = reducedName(items[0], debug);
       }
       double r1 = (items.size() > 1) ? atof(items[1].c_str()) : 0;
       double r2 = (items.size() > 2) ? atof(items[2].c_str()) : 0;
@@ -220,9 +221,11 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
       }
     }
     fInput2.close();
-    sizeFile2 = ((type == 0) ? matFile2.size() : ((type == 1) ? solidFile2.size() : ((type == 2) ? lvFile2.size() : pvFile2.size())));
+    sizeFile2 = ((type == 0) ? matFile2.size()
+                             : ((type == 1) ? solidFile2.size() : ((type == 2) ? lvFile2.size() : pvFile2.size())));
   }
-  std::cout << "Reads " << sizeFile1 << " names from " << fileFile1 << " and " << sizeFile2 << " names from " << fileFile2 << std::endl;
+  std::cout << "Reads " << sizeFile1 << " names from " << fileFile1 << " and " << sizeFile2 << " names from "
+            << fileFile2 << std::endl;
 
   std::cout << "\nMore than one entry for a given name in " << fileFile1 << std::endl;
   if (type == 0) {
@@ -284,8 +287,8 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
             0.5 * (it1.second.intl - it2->second.intl) / std::max(denmin, (it1.second.intl + it2->second.intl));
         if ((std::abs(rdif) > tol1) || (std::abs(idif) > tol1)) {
           ++kount2;
-          std::cout << it1.first << " X0 " << it1.second.radl << ":" << it2->second.radl << ":" << rdif
-                    << " #L " << it1.second.intl << ":" << it2->second.intl << ":" << idif << std::endl;
+          std::cout << it1.first << " X0 " << it1.second.radl << ":" << it2->second.radl << ":" << rdif << " #L "
+                    << it1.second.intl << ":" << it2->second.intl << ":" << idif << std::endl;
         }
       }
     }
@@ -352,7 +355,7 @@ int main(int argc, char* argv[]) {
               << "name of the first input file\n"
               << "name of the second input file\n"
               << "type (Material:0, Solid:1, LV:2, PV:3\n"
-	      << "files (10 if first file from DDD and second from DD4HEP)\n"
+              << "files (10 if first file from DDD and second from DD4HEP)\n"
               << "mode (treat the name for DDD or not == needed for PV)\n"
               << "debug flag (0 for minimum printout)\n"
               << std::endl;
