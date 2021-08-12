@@ -1,6 +1,3 @@
-#ifndef PhysicsTools_PFCandProducer_PFPileUp_
-#define PhysicsTools_PFCandProducer_PFPileUp_
-
 // system include files
 #include <memory>
 #include <string>
@@ -195,4 +192,3 @@ void PFPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.put(std::move(pOutput));
   // iEvent.put(std::move(pOutputByValue));
 }
-#endif

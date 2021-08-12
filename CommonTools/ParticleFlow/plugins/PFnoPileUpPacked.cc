@@ -1,6 +1,3 @@
-#ifndef CommonTools_ParticleFlow_PFnoPileUpPacked_
-#define CommonTools_ParticleFlow_PFnoPileUpPacked_
-
 // system include files
 #include <memory>
 #include <string>
@@ -92,4 +89,3 @@ void PFnoPileUpPacked::fillDescriptions(edm::ConfigurationDescriptions& descript
 }
 
 DEFINE_FWK_MODULE(PFnoPileUpPacked);
-#endif
