@@ -179,20 +179,6 @@ def nanoAOD_recalibrateMETs(process,isData):
 
     runMetCorAndUncFromMiniAOD(process,isData=isData, extractDeepMETs=extractDeepMETs)
     process.nanoSequenceCommon.insert(2,cms.Sequence(process.fullPatMetSequence))
-    process.basicJetsForMetForT1METNano = process.basicJetsForMet.clone(
-        src = process.updatedJetsWithUserData.src,
-        skipEM = False,
-        type1JetPtThreshold = 0.0,
-        calcMuonSubtrRawPtAsValueMap = cms.bool(True),
-    )
-
-    process.jetTask.add(process.basicJetsForMetForT1METNano)
-    process.updatedJetsWithUserData.userFloats.muonSubtrRawPt = cms.InputTag("basicJetsForMetForT1METNano:MuonSubtrRawPt")
-    process.corrT1METJetTable.src = process.finalJets.src
-    process.corrT1METJetTable.cut = "pt<15 && abs(eta)<9.9"
-    for table in process.jetTable, process.corrT1METJetTable:
-        table.variables.muonSubtrFactor = Var("1-userFloat('muonSubtrRawPt')/(pt()*jecFactor('Uncorrected'))",float,doc="1-(muon-subtracted raw pt)/(raw pt)",precision=6)
-    process.metTablesTask.add(process.corrT1METJetTable)
 
 
     from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
@@ -317,7 +303,36 @@ def nanoAOD_runMETfixEE2017(process,isData):
                                postfix = "FixEE2017")
     process.nanoSequenceCommon.insert(2,process.fullPatMetSequenceFixEE2017)
 
+
+def nanoAOD_jetForT1met(process):
+    process.basicJetsForMetForT1METNano = cms.EDProducer("PATJetCleanerForType1MET",
+                                                          src = process.updatedJetsWithUserData.src,
+                                                          jetCorrEtaMax = cms.double(9.9),
+                                                          jetCorrLabel = cms.InputTag("L3Absolute"),
+                                                          jetCorrLabelRes = cms.InputTag("L2L3Residual"),
+                                                          offsetCorrLabel = cms.InputTag("L1FastJet"),
+                                                          skipEM = cms.bool(False),
+                                                          skipEMfractionThreshold = cms.double(0.9),
+                                                          skipMuonSelection = cms.string('isGlobalMuon | isStandAloneMuon'),
+                                                          skipMuons = cms.bool(True),
+                                                          type1JetPtThreshold = cms.double(0.0),
+                                                          calcMuonSubtrRawPtAsValueMap = cms.bool(True)
+                                                      )
+
+    process.jetTask.add(process.basicJetsForMetForT1METNano)
+    process.updatedJetsWithUserData.userFloats.muonSubtrRawPt = cms.InputTag("basicJetsForMetForT1METNano:MuonSubtrRawPt")
+    process.corrT1METJetTable.src = process.finalJets.src
+    process.corrT1METJetTable.cut = "pt<15 && abs(eta)<9.9"
+    process.metTablesTask.add(process.corrT1METJetTable)
+
+    for table in process.jetTable, process.corrT1METJetTable:
+        table.variables.muonSubtrFactor = Var("1-userFloat('muonSubtrRawPt')/(pt()*jecFactor('Uncorrected'))",float,doc="1-(muon-subtracted raw pt)/(raw pt)",precision=6)
+
+    return process
+
 def nanoAOD_customizeCommon(process):
+
+    process = nanoAOD_jetForT1met(process)
     process = nanoAOD_activateVID(process)
     nanoAOD_addDeepInfo_switch = cms.PSet(
         nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
