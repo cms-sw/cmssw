@@ -54,6 +54,7 @@ namespace edm {
       file_->SetCacheRead(nullptr, &iTree, TFile::kDoNotDisconnect);
       return newCache;
     }
+    TTreeCache* getCacheRead(TTree* tree) { return dynamic_cast<TTreeCache*>(file_->GetCacheRead(tree)); }
 
     class CacheGuard {
     public:
