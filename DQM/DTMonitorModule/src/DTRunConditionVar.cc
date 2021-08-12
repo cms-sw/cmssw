@@ -46,7 +46,13 @@ DTRunConditionVar::DTRunConditionVar(const ParameterSet& pSet)
       maxAnglePhiSegm(pSet.getUntrackedParameter<double>("maxAnglePhiSegm")),
       dt4DSegmentsToken_(consumes<DTRecSegment4DCollection>(pSet.getParameter<InputTag>("recoSegments"))),
       muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
-      mTimeToken_(esConsumes()) {}
+      readLegacyVDriftDB(pSet.getParameter<bool>("readLegacyVDriftDB")) {
+  if (readLegacyVDriftDB) {
+    mTimeToken_ = esConsumes();
+  } else {
+    vDriftToken_ = esConsumes();
+  }
+}
 
 DTRunConditionVar::~DTRunConditionVar() {
   LogTrace("DTDQM|DTMonitorModule|DTRunConditionVar") << "DTRunConditionVar: destructor called";
@@ -83,8 +89,18 @@ void DTRunConditionVar::analyze(const Event& event, const EventSetup& eventSetup
       << endl;
 
   // Get the map of vdrift from the setup
-  mTime = &eventSetup.getData(mTimeToken_);
-  mTimeMap_ = &*mTime;
+  if (readLegacyVDriftDB) {
+    mTimeMap_ = &eventSetup.getData(mTimeToken_);
+    vDriftMap_ = nullptr;
+  } else {
+    vDriftMap_ = &eventSetup.getData(vDriftToken_);
+    mTimeMap_ = nullptr;
+    // Consistency check: no parametrization is implemented for the time being
+    int version = vDriftMap_->version();
+    if (version != 1) {
+      throw cms::Exception("Configuration") << "only version 1 is presently supported for VDriftDB";
+    }
+  }
 
   // Get the segment collection from the event
   Handle<DTRecSegment4DCollection> all4DSegments;
@@ -113,12 +129,17 @@ void DTRunConditionVar::analyze(const Event& event, const EventSetup& eventSetup
 
         float vDriftPhi1(0.), vDriftPhi2(0.);
         float ResPhi1(0.), ResPhi2(0.);
-        int status1 = mTimeMap_->get(indexSLPhi1, vDriftPhi1, ResPhi1, DTVelocityUnits::cm_per_ns);
-        int status2 = mTimeMap_->get(indexSLPhi2, vDriftPhi2, ResPhi2, DTVelocityUnits::cm_per_ns);
+        if (readLegacyVDriftDB) {  // Legacy format
+          int status1 = mTimeMap_->get(indexSLPhi1, vDriftPhi1, ResPhi1, DTVelocityUnits::cm_per_ns);
+          int status2 = mTimeMap_->get(indexSLPhi2, vDriftPhi2, ResPhi2, DTVelocityUnits::cm_per_ns);
 
-        if (status1 != 0 || status2 != 0) {
-          DTSuperLayerId sl = (status1 != 0) ? indexSLPhi1 : indexSLPhi2;
-          throw cms::Exception("DTRunConditionVarClient") << "Could not find vDrift entry in DB for" << sl << endl;
+          if (status1 != 0 || status2 != 0) {
+            DTSuperLayerId sl = (status1 != 0) ? indexSLPhi1 : indexSLPhi2;
+            throw cms::Exception("DTRunConditionVarClient") << "Could not find vDrift entry in DB for" << sl << endl;
+          }
+        } else {
+          vDriftPhi1 = vDriftMap_->get(DTWireId(indexSLPhi1.rawId()));
+          vDriftPhi2 = vDriftMap_->get(DTWireId(indexSLPhi2.rawId()));
         }
 
         float vDriftMed = (vDriftPhi1 + vDriftPhi2) / 2.;
