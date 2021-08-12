@@ -9,3 +9,7 @@
 <bin file="testSerializationLHCOpticalFunctionsSet.cc">
   <use name="CondFormats/PPSObjects"/>
 </bin>
+
+<bin file="testSerializationPPSAlignmentConfig.cc">
+  <use name="CondFormats/PPSObjects"/>
+</bin>
