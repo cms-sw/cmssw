@@ -8,6 +8,7 @@ namespace cms {
   namespace cuda {
     namespace allocator {
       struct TotalBytes {
+        // CMS: add explicit std namespace
         std::size_t free;
         std::size_t live;
         std::size_t liveRequested;  // CMS: monitor also requested amount
