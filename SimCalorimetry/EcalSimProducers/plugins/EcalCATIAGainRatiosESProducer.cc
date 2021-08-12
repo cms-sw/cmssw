@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/DataRecord/interface/EcalCATIAGainRatiosRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalCATIAGainRatios.h"
-#include "CondFormats/EcalObjects/src/classes.h"
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 //
 // class declaration
 //
