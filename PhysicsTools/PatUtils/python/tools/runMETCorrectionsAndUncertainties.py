@@ -1728,7 +1728,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         patMetModuleSequence += getattr(process, "pfMetCHS")
         patMetModuleSequence += getattr(process, "patCHSMet")
 
-        pfTrk = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV(0) > 0 && charge()!=0"))
+        pfTrk = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("pvAssociationQuality()>=4 && charge()!=0 && vertexRef().key()==0"))
         addToProcessAndTask("pfTrk", pfTrk, process, task)
         pfMetTrk = pfMet.clone(src = 'pfTrk')
         addToProcessAndTask("pfMetTrk", pfMetTrk, process, task)
