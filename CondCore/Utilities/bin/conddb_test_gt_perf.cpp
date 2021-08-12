@@ -2,8 +2,6 @@
 #include "CondCore/CondDB/interface/IOVProxy.h"
 #include "CondCore/CondDB/interface/GTProxy.h"
 
-#include "CondCore/CondDB/src/IOVSchema.cc"
-
 #include "CondCore/Utilities/interface/Utilities.h"
 #include "CondCore/Utilities/interface/CondDBImport.h"
 #include <iostream>
@@ -188,12 +186,6 @@ bool cond::UntypedPayloadProxy::get(cond::Time_t targetTime, bool debug) {
     } else {
       if (debug)
         std::cout << "Loaded payload of type \"" << payloadType << "\" (" << m_buffer.size() << " bytes)" << std::endl;
-    }
-    // check if hash is correct:
-    cond::Hash localHash = cond::persistency::makeHash(payloadType, m_buffer);
-    if (localHash != m_data->current.payloadId) {
-      std::cout << "ERROR: payload of type " << payloadType << " with id " << m_data->current.payloadId
-                << " in DB has wrong local hash: " << localHash << std::endl;
     }
   }
   return loaded;
