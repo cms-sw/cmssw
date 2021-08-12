@@ -18,6 +18,7 @@
 #include <vector>
 
 class DTMtime;
+class DTRecoConditions;
 class TFile;
 class TH1D;
 
@@ -45,7 +46,9 @@ private:
   TFile* theFile;
 
   //The t0 map
-  const DTMtime* mTimeMap;
+  const DTMtime* mTimeMap;             // legacy DB object
+  const DTRecoConditions* vDriftMap_;  // DB object in new format
+  bool readLegacyVDriftDB;             // which one to use
 
   // Map of the vdrift, reso histos by wheel/sector/SL
   std::map<std::pair<int, int>, TH1D*> theVDriftHistoMap;
