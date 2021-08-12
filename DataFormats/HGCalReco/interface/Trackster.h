@@ -37,7 +37,8 @@ namespace ticl {
     enum class PCAOrdering { ascending = 0, descending };
 
     Trackster()
-        : seedIndex_(0),
+        : iterationIndex_(0),
+          seedIndex_(0),
           time_(0.f),
           timeError_(-1.f),
           regressed_energy_(0.f),
