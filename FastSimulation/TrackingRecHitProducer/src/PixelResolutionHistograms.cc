@@ -190,9 +190,9 @@ inline int PixelResolutionHistograms::histCheck(
     if (!ignore_single && !ignore_qBit) {
       status_ = statusToSet;
       LOGERROR << "Failed to find histogram=" << std::string(histname);
-      return 0; // No hist found and we need it so eventually crash
+      return 0;  // No hist found and we need it so eventually crash
     } else {
-      return -1; // No hist found but don't want it anyway
+      return -1;  // No hist found but don't want it anyway
     }
   } else {
     LOGDEBUG << "Found histo " << std::string(histname) << " with title = " << std::string(hist->GetTitle())
@@ -201,7 +201,7 @@ inline int PixelResolutionHistograms::histCheck(
       LOGINFO << "Histogram " << std::string(histname) << " has only " << hist->GetEntries()
               << " entries. Trouble ahead." << std::endl;
     }
-    return 1; // Found hist we want
+    return 1;  // Found hist we want
   }
 }
 
@@ -309,7 +309,7 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
             resMultiPixelXHist_[ii][jj][kk] = tmphist;
             resMultiPixelXGen_[ii][jj][kk] = new SimpleHistogramGenerator(tmphist);
           }
-        
+
           sprintf(histo, "hy%d1%02zu%zu%zu", detType_, ii + 1, jj + 1, kk + 1);
           sprintf(title, "%s qbin %zu npixel>1 Y", binstr, kk + 1);
           tmphist = (TH1F*)file_->Get(Form("%s%s", rootdir.c_str(), histo));
