@@ -132,7 +132,7 @@ def customiseFor2018Input(process):
 #temporary solution to add GEM geometry for hltGetConfiguration
 def customiseForRun3GEMGeometry34788(process):
     """Add GEM geometry to output from hltGetConfiguration"""
-    process.GEMGeometryESModule = cms.ESProducer(
+    process.gemGeometry = cms.ESProducer(
         "GEMGeometryESModule",
         fromDD4Hep = cms.bool( False ),
         appendToDataLabel = cms.string( "" ),
