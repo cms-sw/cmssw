@@ -23,9 +23,13 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondTools/DT/test/validate/DTMtimeValidateDBRead.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
 
 DTMtimeValidateDBRead::DTMtimeValidateDBRead(edm::ParameterSet const& p)
-    : dataFileName(p.getParameter<std::string>("chkFile")), elogFileName(p.getParameter<std::string>("logFile")) {}
+    : dataFileName(p.getParameter<std::string>("chkFile")),
+      elogFileName(p.getParameter<std::string>("logFile")),
+      readLegacyVDriftDB(p.getParameter<bool>("readLegacyVDriftDB")) {}
 
 DTMtimeValidateDBRead::DTMtimeValidateDBRead(int i) {}
 
@@ -40,11 +44,7 @@ void DTMtimeValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& 
   run_fn << "run" << e.id().run() << dataFileName;
   std::ifstream chkFile(run_fn.str().c_str());
   std::ofstream logFile(elogFileName.c_str(), std::ios_base::app);
-  edm::ESHandle<DTMtime> mT;
-  context.get<DTMtimeRcd>().get(mT);
-  std::cout << mT->version() << std::endl;
-  std::cout << std::distance(mT->begin(), mT->end()) << " data in the container" << std::endl;
-  int status;
+
   int whe;
   int sta;
   int sec;
@@ -53,27 +53,50 @@ void DTMtimeValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& 
   float mTrms;
   float ckmt;
   float ckrms;
-  DTMtime::const_iterator iter = mT->begin();
-  DTMtime::const_iterator iend = mT->end();
-  while (iter != iend) {
-    const DTMtimeId& mTId = iter->first;
-    const DTMtimeData& mTData = iter->second;
-    status = mT->get(mTId.wheelId, mTId.stationId, mTId.sectorId, mTId.slId, mTime, mTrms, DTTimeUnits::counts);
-    if (status)
-      logFile << "ERROR while getting sl Mtime " << mTId.wheelId << " " << mTId.stationId << " " << mTId.sectorId << " "
-              << mTId.slId << " , status = " << status << std::endl;
-    if ((fabs(mTData.mTime - mTime) > 0.01) || (fabs(mTData.mTrms - mTrms) > 0.0001))
-      logFile << "MISMATCH WHEN READING sl Mtime " << mTId.wheelId << " " << mTId.stationId << " " << mTId.sectorId
-              << " " << mTId.slId << " : " << mTData.mTime << " " << mTData.mTrms << " -> " << mTime << " " << mTrms
-              << std::endl;
-    iter++;
-  }
+  if (readLegacyVDriftDB) {  //legacy format
+    edm::ESHandle<DTMtime> mT;
+    context.get<DTMtimeRcd>().get(mT);
+    std::cout << mT->version() << std::endl;
+    std::cout << std::distance(mT->begin(), mT->end()) << " data in the container" << std::endl;
 
-  while (chkFile >> whe >> sta >> sec >> qua >> ckmt >> ckrms) {
-    status = mT->get(whe, sta, sec, qua, mTime, mTrms, DTTimeUnits::counts);
-    if ((fabs(ckmt - mTime) > 0.01) || (fabs(ckrms - mTrms) > 0.0001))
-      logFile << "MISMATCH IN WRITING AND READING sl Mtime " << whe << " " << sta << " " << sec << " " << qua << " : "
-              << ckmt << " " << ckrms << " -> " << mTime << " " << mTrms << std::endl;
+    int status;
+    DTMtime::const_iterator iter = mT->begin();
+    DTMtime::const_iterator iend = mT->end();
+    while (iter != iend) {
+      const DTMtimeId& mTId = iter->first;
+      const DTMtimeData& mTData = iter->second;
+      status = mT->get(mTId.wheelId, mTId.stationId, mTId.sectorId, mTId.slId, mTime, mTrms, DTTimeUnits::counts);
+      if (status)
+        logFile << "ERROR while getting sl Mtime " << mTId.wheelId << " " << mTId.stationId << " " << mTId.sectorId
+                << " " << mTId.slId << " , status = " << status << std::endl;
+      if ((fabs(mTData.mTime - mTime) > 0.01) || (fabs(mTData.mTrms - mTrms) > 0.0001))
+        logFile << "MISMATCH WHEN READING sl Mtime " << mTId.wheelId << " " << mTId.stationId << " " << mTId.sectorId
+                << " " << mTId.slId << " : " << mTData.mTime << " " << mTData.mTrms << " -> " << mTime << " " << mTrms
+                << std::endl;
+      iter++;
+    }
+
+    while (chkFile >> whe >> sta >> sec >> qua >> ckmt >> ckrms) {
+      status = mT->get(whe, sta, sec, qua, mTime, mTrms, DTTimeUnits::counts);
+      if ((fabs(ckmt - mTime) > 0.01) || (fabs(ckrms - mTrms) > 0.0001))
+        logFile << "MISMATCH IN WRITING AND READING sl Mtime " << whe << " " << sta << " " << sec << " " << qua << " : "
+                << ckmt << " " << ckrms << " -> " << mTime << " " << mTrms << std::endl;
+    }
+  } else {
+    edm::ESHandle<DTRecoConditions> hVdrift;
+    context.get<DTRecoConditionsVdriftRcd>().get(hVdrift);
+    const DTRecoConditions* vDriftMap_ = &*hVdrift;
+    // Consistency check: no parametrization is implemented for the time being
+    int version = vDriftMap_->version();
+    if (version != 1) {
+      throw cms::Exception("Configuration") << "only version 1 is presently supported for VDriftDB";
+    }
+    while (chkFile >> whe >> sta >> sec >> qua >> ckmt >> ckrms) {
+      mTime = vDriftMap_->get(DTWireId(whe, sta, sec, 1, 0, 0));
+      if ((fabs(ckmt - mTime) > 0.01))
+        logFile << "MISMATCH IN WRITING AND READING sl Mtime " << whe << " " << sta << " " << sec << " " << qua << " : "
+                << ckmt << " " << ckrms << " -> " << mTime << " --- " << std::endl;
+    }
   }
 }
 
