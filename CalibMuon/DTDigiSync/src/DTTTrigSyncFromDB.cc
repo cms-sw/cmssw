@@ -4,7 +4,7 @@
  *  \author G. Cerminara - INFN Torino
  */
 
-#include "DTTTrigSyncFromDB.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFromDB.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"

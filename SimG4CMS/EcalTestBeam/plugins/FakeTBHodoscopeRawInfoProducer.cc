@@ -1,13 +1,42 @@
 /*
  * \file FakeTBHodoscopeRawInfoProducer.cc
  *
+ * Mimic the hodoscope raw information using
+ * the generated vertex of the test beam simulation
  *
  */
 
-#include "SimG4CMS/EcalTestBeam/interface/FakeTBHodoscopeRawInfoProducer.h"
+#include "DataFormats/Common/interface/Handle.h"
 
-using namespace cms;
-using namespace std;
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
+#include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
+#include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopePlaneRawHits.h"
+#include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRawInfo.h"
+
+class FakeTBHodoscopeRawInfoProducer : public edm::stream::EDProducer<> {
+public:
+  /// Constructor
+  explicit FakeTBHodoscopeRawInfoProducer(const edm::ParameterSet &ps);
+
+  /// Destructor
+  ~FakeTBHodoscopeRawInfoProducer() override;
+
+  /// Produce digis out of raw data
+  void produce(edm::Event &event, const edm::EventSetup &eventSetup) override;
+
+private:
+  EcalTBHodoscopeGeometry *theTBHodoGeom_;
+
+  edm::EDGetTokenT<PEcalTBInfo> ecalTBInfo_;
+};
 
 FakeTBHodoscopeRawInfoProducer::FakeTBHodoscopeRawInfoProducer(const edm::ParameterSet &ps) {
   ecalTBInfo_ = consumes<PEcalTBInfo>(edm::InputTag("EcalTBInfoLabel", "SimEcalTBG4Object"));
@@ -19,7 +48,7 @@ FakeTBHodoscopeRawInfoProducer::FakeTBHodoscopeRawInfoProducer(const edm::Parame
 FakeTBHodoscopeRawInfoProducer::~FakeTBHodoscopeRawInfoProducer() { delete theTBHodoGeom_; }
 
 void FakeTBHodoscopeRawInfoProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
-  unique_ptr<EcalTBHodoscopeRawInfo> product(new EcalTBHodoscopeRawInfo());
+  std::unique_ptr<EcalTBHodoscopeRawInfo> product(new EcalTBHodoscopeRawInfo());
 
   // get the vertex information from the event
 
@@ -36,7 +65,7 @@ void FakeTBHodoscopeRawInfoProducer::produce(edm::Event &event, const edm::Event
   // to the event vertex coordinates in the TB reference frame
   // plane 0/2 = x plane 1/3 = y
 
-  int nPlanes = (int)theTBHodoGeom_->getNPlanes();
+  int nPlanes = static_cast<int>(theTBHodoGeom_->getNPlanes());
   product->setPlanes(nPlanes);
 
   for (int iPlane = 0; iPlane < nPlanes; ++iPlane) {
@@ -44,7 +73,7 @@ void FakeTBHodoscopeRawInfoProducer::produce(edm::Event &event, const edm::Event
     if (iPlane == 1 || iPlane == 3)
       theCoord = (float)partYhodo;
 
-    vector<int> firedChannels = theTBHodoGeom_->getFiredFibresInPlane(theCoord, iPlane);
+    std::vector<int> firedChannels = theTBHodoGeom_->getFiredFibresInPlane(theCoord, iPlane);
     unsigned int nChannels = firedChannels.size();
 
     EcalTBHodoscopePlaneRawHits planeHit(nChannels);
@@ -52,10 +81,12 @@ void FakeTBHodoscopeRawInfoProducer::produce(edm::Event &event, const edm::Event
       planeHit.addHit(firedChannels[i]);
     }
 
-    product->setPlane((unsigned int)iPlane, planeHit);
+    product->setPlane(static_cast<unsigned int>(iPlane), planeHit);
   }
 
   LogDebug("EcalTBHodo") << (*product);
 
   event.put(std::move(product));
 }
+
+DEFINE_FWK_MODULE(FakeTBHodoscopeRawInfoProducer);
