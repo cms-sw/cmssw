@@ -129,5 +129,8 @@ private:
 
   // Choose the chamber you want to calibrate
   std::string theCalibChamber;
+
+  // which format to be created
+  bool writeLegacyVDriftDB;
 };
 #endif
