@@ -5,6 +5,7 @@ process = cms.Process("G4PrintGeometry")
 
 #process.load('Configuration.Geometry.GeometryExtended2015_cff')
 #process.load('Configuration.Geometry.GeometryExtended2017_cff')
+process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2021_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D17_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D45_cff')

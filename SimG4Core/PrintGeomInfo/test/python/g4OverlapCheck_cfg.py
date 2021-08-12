@@ -2,17 +2,21 @@ import FWCore.ParameterSet.Config as cms
 
 #from Configuration.Eras.Era_Run2_cff import Run2
 #process = cms.Process('SIM',Run2)
+#process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
 #process.load('Configuration.Geometry.GeometryExtended2015_cff')
+#process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 #process.load('Configuration.Geometry.GeometryExtended2017_cff')
+#process.load('Configuration.Geometry.GeometryExtended2018Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2018_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D87Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D87_cff')
 
 from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process('SIM',Run3)
+process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2021_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-
-#if hasattr(process,'MessageLogger'):
-#    process.MessageLogger.HCalGeom=dict()
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)
