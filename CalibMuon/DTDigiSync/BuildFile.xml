@@ -1,7 +1,5 @@
-<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
 <use name="Geometry/DTGeometry"/>
-<use name="CondFormats/DTObjects"/>
-<use name="CondFormats/DataRecord"/>
 <export>
   <lib name="1"/>
 </export>
