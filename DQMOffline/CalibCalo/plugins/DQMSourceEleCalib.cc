@@ -11,37 +11,97 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM include files
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 // work on collections
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
-#include "DQMOffline/CalibCalo/interface/DQMSourceEleCalib.h"
+class DQMSourceEleCalib : public DQMEDAnalyzer {
+public:
+  DQMSourceEleCalib(const edm::ParameterSet &);
+  ~DQMSourceEleCalib() override;
 
-using namespace std;
-using namespace edm;
+protected:
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
+
+private:
+  //! find the MOX
+  DetId findMaxHit(const std::vector<std::pair<DetId, float>> &,
+                   const EcalRecHitCollection *,
+                   const EcalRecHitCollection *);
+  //! fills local occupancy graphs
+  void fillAroundBarrel(const EcalRecHitCollection *, int, int);
+  void fillAroundEndcap(const EcalRecHitCollection *, int, int);
+
+  int eventCounter_;
+
+  //! Number of recHits per electron
+  MonitorElement *recHitsPerElectron_;
+  //! Number of electrons
+  MonitorElement *ElectronsNumber_;
+  //! ESCoP
+  MonitorElement *ESCoP_;
+  //! Occupancy
+  MonitorElement *OccupancyEB_;
+  MonitorElement *OccupancyEEP_;
+  MonitorElement *OccupancyEEM_;
+  MonitorElement *LocalOccupancyEB_;
+  MonitorElement *LocalOccupancyEE_;
+
+  //! recHits over associated recHits
+  MonitorElement *HitsVsAssociatedHits_;
+
+  /// object to monitor
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEB_;
+
+  /// object to monitor
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEE_;
+  //! electrons to monitor
+  edm::EDGetTokenT<reco::GsfElectronCollection> productMonitoredElectrons_;
+
+  /// Monitor every prescaleFactor_ events
+  unsigned int prescaleFactor_;
+
+  /// DQM folder name
+  std::string folderName_;
+
+  /// Write to file
+  bool saveToFile_;
+
+  /// Output file name if required
+  std::string fileName_;
+};
 
 // ******************************************
 // constructors
 // *****************************************
 
 DQMSourceEleCalib::DQMSourceEleCalib(const edm::ParameterSet &ps) : eventCounter_(0) {
-  folderName_ = ps.getUntrackedParameter<string>("FolderName", "ALCAStreamEcalSingleEle");
+  folderName_ = ps.getUntrackedParameter<std::string>("FolderName", "ALCAStreamEcalSingleEle");
   productMonitoredEB_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("AlCaStreamEBTag"));
   productMonitoredEE_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("AlCaStreamEETag"));
 
   saveToFile_ = ps.getUntrackedParameter<bool>("SaveToFile", false);
-  fileName_ = ps.getUntrackedParameter<string>("FileName", "MonitorAlCaEcalSingleEle.root");
-  productMonitoredElectrons_ = consumes<reco::GsfElectronCollection>(ps.getParameter<InputTag>("electronCollection"));
+  fileName_ = ps.getUntrackedParameter<std::string>("FileName", "MonitorAlCaEcalSingleEle.root");
+  productMonitoredElectrons_ =
+      consumes<reco::GsfElectronCollection>(ps.getParameter<edm::InputTag>("electronCollection"));
   prescaleFactor_ = ps.getUntrackedParameter<unsigned int>("prescaleFactor", 1);
 }
 
@@ -70,7 +130,7 @@ void DQMSourceEleCalib::bookHistograms(DQMStore::IBooker &ibooker,
 
 //-------------------------------------------------------------
 
-void DQMSourceEleCalib::analyze(const Event &iEvent, const EventSetup &iSetup) {
+void DQMSourceEleCalib::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //  if (eventCounter_% prescaleFactor_ ) return; //FIXME
   eventCounter_++;
   int numberOfHits = 0;
@@ -193,3 +253,5 @@ void DQMSourceEleCalib::fillAroundEndcap(const EcalRecHitCollection *recHits, in
   }
   return;
 }
+
+DEFINE_FWK_MODULE(DQMSourceEleCalib);

@@ -20,11 +20,54 @@
 
 // system include files
 #include <cmath>
+#include <fstream>
+#include <vector>
 
 // user include files
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HcalIsolatedTrack/interface/HcalIsolatedTrackCandidate.h"
+#include "DataFormats/HcalIsolatedTrack/interface/HcalIsolatedTrackCandidateFwd.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
-#include "DQMOffline/CalibCalo/src/DQMHcalIsoTrackAlCaReco.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+
+class DQMHcalIsoTrackAlCaReco : public DQMEDAnalyzer {
+public:
+  explicit DQMHcalIsoTrackAlCaReco(const edm::ParameterSet &);
+  ~DQMHcalIsoTrackAlCaReco() override;
+
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+
+private:
+  std::string folderName_;
+  std::vector<std::string> l1FilterTag_, hltFilterTag_;
+  std::vector<int> type_;
+  edm::InputTag labelTrigger_, labelTrack_;
+  edm::EDGetTokenT<trigger::TriggerEvent> tokTrigger_;
+  edm::EDGetTokenT<reco::HcalIsolatedTrackCandidateCollection> tokTrack_;
+
+  double pThr_;
+
+  std::vector<MonitorElement *> hL1Pt_, hL1Eta_, hL1phi_;
+  std::vector<MonitorElement *> hHltP_, hHltEta_, hHltPhi_;
+  MonitorElement *hL3Dr_, *hL3Rat_;
+  std::vector<MonitorElement *> hOffP_;
+  MonitorElement *hMaxP_, *hEnEcal_, *hIeta_, *hIphi_;
+
+  int nTotal_, nHLTaccepts_;
+  std::vector<double> etaRange_;
+  std::vector<unsigned int> indexH_;
+  std::vector<bool> ifL3_;
+};
 
 DQMHcalIsoTrackAlCaReco::DQMHcalIsoTrackAlCaReco(const edm::ParameterSet &iConfig) {
   folderName_ = iConfig.getParameter<std::string>("FolderName");
@@ -244,3 +287,5 @@ void DQMHcalIsoTrackAlCaReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
   hIphi_ = iBooker.book1D("hIPhi", "i#phi for HCAL tower", 72, 0, 72);
   hIphi_->setAxisTitle("i#phi", 1);
 }
+
+DEFINE_FWK_MODULE(DQMHcalIsoTrackAlCaReco);

@@ -1,19 +1,11 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
-#include <cmath>
-#include <cstring>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-
-#define DebugLog
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 class DQMHcalIsoTrackPostProcessor : public DQMEDHarvester {
 public:
@@ -74,15 +66,13 @@ void DQMHcalIsoTrackPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStor
   for (int i = 0; i < 4; ++i) {
     sprintf(name, "/heta%s", types[i].c_str());
     std::string hname1 = ibooker.pwd() + std::string(name);
-#ifdef DebugLog
-    std::cout << "PostProcesor " << hname1 << " " << igetter.get(hname1) << std::endl;
-#endif
+    edm::LogVerbatim("DQMHcal") << "PostProcesor " << hname1 << " " << igetter.get(hname1);
+
     hSumEta[i]->getTH1F()->Add(igetter.get(hname1)->getTH1F(), 1);
     sprintf(name, "/hphi%s", types[i].c_str());
     std::string hname2 = ibooker.pwd() + std::string(name);
-#ifdef DebugLog
-    std::cout << "PostProcesor " << hname2 << " " << igetter.get(hname2) << std::endl;
-#endif
+    edm::LogVerbatim("DQMHcal") << "PostProcesor " << hname2 << " " << igetter.get(hname2);
+
     hSumPhi[i]->getTH1F()->Add(igetter.get(hname2)->getTH1F(), 1);
   }
 
