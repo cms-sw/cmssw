@@ -29,7 +29,7 @@
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/globalTransitionAsync.h"
 #include "FWCore/Framework/src/streamTransitionAsync.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/src/ProductPutterBase.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 
