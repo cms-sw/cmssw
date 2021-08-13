@@ -31,6 +31,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -38,17 +39,15 @@
 #include "SimDataFormats/HcalTestBeam/interface/HcalTestBeamNumbering.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "globals.hh"
 #include "Randomize.hh"
+#include "globals.hh"
+
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 // system include files
-#include <iostream>
-#include <iomanip>
-#include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 //#define EDM_ML_DEBUG
 
@@ -182,9 +181,9 @@ void HcalTB06Analysis::analyze(const edm::Event& evt, const edm::EventSetup&) {
     for (unsigned int i = 0; i < ne; ++i) {
       EBDetId ecalid((*EcalHits)[i].id());
 #ifdef EDM_ML_DEBUG
-      std::cout << "EB " << i << " " << ecalid.ieta() << ":" << m_idxetaEcal << "   " << ecalid.iphi() << ":"
-                << m_idxphiEcal << "   " << (*EcalHits)[i].time() << ":" << m_timeLimit << "   "
-                << (*EcalHits)[i].energy() << std::endl;
+      edm::LogVerbatim("HcalTBSim") << "EB " << i << " " << ecalid.ieta() << ":" << m_idxetaEcal << "   "
+                                    << ecalid.iphi() << ":" << m_idxphiEcal << "   " << (*EcalHits)[i].time() << ":"
+                                    << m_timeLimit << "   " << (*EcalHits)[i].energy();
 #endif
       // 7x7 crystal selection
       if (std::abs(m_idxetaEcal - ecalid.ieta()) <= 3 && std::abs(m_idxphiEcal - ecalid.iphi()) <= 3 &&
@@ -202,9 +201,9 @@ void HcalTB06Analysis::analyze(const edm::Event& evt, const edm::EventSetup&) {
     for (unsigned int i = 0; i < nh; ++i) {
       HcalDetId hcalid((*HcalHits)[i].id());
 #ifdef EDM_ML_DEBUG
-      std::cout << "HC " << i << " " << hcalid.subdet() << "  " << hcalid.ieta() << ":" << m_idxetaHcal << "   "
-                << hcalid.iphi() << ":" << m_idxphiHcal << "   " << (*HcalHits)[i].time() << ":" << m_timeLimit << "   "
-                << (*HcalHits)[i].energy() << std::endl;
+      edm::LogVerbatim("HcalTBSim") << "HC " << i << " " << hcalid.subdet() << "  " << hcalid.ieta() << ":"
+                                    << m_idxetaHcal << "   " << hcalid.iphi() << ":" << m_idxphiHcal << "   "
+                                    << (*HcalHits)[i].time() << ":" << m_timeLimit << "   " << (*HcalHits)[i].energy();
 #endif
       // 3x3 towers selection
       if (std::abs(m_idxetaHcal - hcalid.ieta()) <= 1 && std::abs(m_idxphiHcal - hcalid.iphi()) <= 1 &&
