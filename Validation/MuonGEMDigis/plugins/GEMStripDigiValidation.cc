@@ -295,7 +295,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
         Int_t pid_idx = getPidIdx(pid);
 
         me_occ_pid_[key2]->Fill(pid_idx);
-        me_occ_pid_eta_[key3]->Fill(pid_idx);
+        me_occ_pid_eta_[key]->Fill(pid_idx);
 
         if (detail_plot_) {
           if (isMuonSimHit(simhit)) {
