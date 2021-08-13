@@ -24,7 +24,7 @@ def readPicFiles(directory, toSplit = False):
         ruleName = fileName[11:-4]
         rulesNames.append(ruleName)
 
-        file = open(file)
+        file = open(file, 'rb')
         ruleResult = pickle.load(file)
         if toSplit:
             ruleResult = splitToPackages(ruleResult)
