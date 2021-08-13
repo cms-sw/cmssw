@@ -37,7 +37,6 @@ using namespace ticl;
 class TrackstersFromSimClustersProducer : public edm::stream::EDProducer<> {
 public:
   explicit TrackstersFromSimClustersProducer(const edm::ParameterSet&);
-  ~TrackstersFromSimClustersProducer() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -49,14 +48,12 @@ private:
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
   const edm::EDGetTokenT<std::vector<float>> filtered_layerclusters_mask_token_;
 
-  edm::EDGetTokenT<std::vector<SimCluster>> simclusters_token_;
-  edm::EDGetTokenT<std::vector<CaloParticle>> caloparticles_token_;
+  const edm::EDGetTokenT<std::vector<SimCluster>> simclusters_token_;
+  const edm::EDGetTokenT<std::vector<CaloParticle>> caloparticles_token_;
 
-  edm::InputTag associatorLayerClusterSimCluster_;
-  edm::EDGetTokenT<hgcal::SimToRecoCollectionWithSimClusters> associatorMapSimClusterToReco_token_;
-  edm::InputTag associatorLayerClusterCaloParticle_;
-  edm::EDGetTokenT<hgcal::SimToRecoCollection> associatorMapCaloParticleToReco_token_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
+  const edm::EDGetTokenT<hgcal::SimToRecoCollectionWithSimClusters> associatorMapSimClusterToReco_token_;
+  const edm::EDGetTokenT<hgcal::SimToRecoCollection> associatorMapCaloParticleToReco_token_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
   hgcal::RecHitTools rhtools_;
   const double fractionCut_;
 };
@@ -65,18 +62,15 @@ DEFINE_FWK_MODULE(TrackstersFromSimClustersProducer);
 TrackstersFromSimClustersProducer::TrackstersFromSimClustersProducer(const edm::ParameterSet& ps)
     : detector_(ps.getParameter<std::string>("detector")),
       doNose_(detector_ == "HFNose"),
-      clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
-      clustersTime_token_(
-          consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("time_layerclusters"))),
-      filtered_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"))),
-      simclusters_token_(consumes<std::vector<SimCluster>>(ps.getParameter<edm::InputTag>("simclusters"))),
-      caloparticles_token_(consumes<std::vector<CaloParticle>>(ps.getParameter<edm::InputTag>("caloparticles"))),
-      associatorLayerClusterSimCluster_(ps.getUntrackedParameter<edm::InputTag>("layerClusterSimClusterAssociator")),
+      clusters_token_(consumes(ps.getParameter<edm::InputTag>("layer_clusters"))),
+      clustersTime_token_(consumes(ps.getParameter<edm::InputTag>("time_layerclusters"))),
+      filtered_layerclusters_mask_token_(consumes(ps.getParameter<edm::InputTag>("filtered_mask"))),
+      simclusters_token_(consumes(ps.getParameter<edm::InputTag>("simclusters"))),
+      caloparticles_token_(consumes(ps.getParameter<edm::InputTag>("caloparticles"))),
       associatorMapSimClusterToReco_token_(
-          consumes<hgcal::SimToRecoCollectionWithSimClusters>(associatorLayerClusterSimCluster_)),
-      associatorLayerClusterCaloParticle_(
-          ps.getUntrackedParameter<edm::InputTag>("layerClusterCaloParticleAssociator")),
-      associatorMapCaloParticleToReco_token_(consumes<hgcal::SimToRecoCollection>(associatorLayerClusterCaloParticle_)),
+          consumes(ps.getParameter<edm::InputTag>("layerClusterSimClusterAssociator"))),
+      associatorMapCaloParticleToReco_token_(
+          consumes(ps.getParameter<edm::InputTag>("layerClusterCaloParticleAssociator"))),
       geom_token_(esConsumes()),
       fractionCut_(ps.getParameter<double>("fractionCut")) {
   produces<std::vector<Trackster>>();
@@ -92,13 +86,13 @@ void TrackstersFromSimClustersProducer::fillDescriptions(edm::ConfigurationDescr
   desc.add<edm::InputTag>("filtered_mask", edm::InputTag("filteredLayerClustersSimTracksters", "ticlSimTracksters"));
   desc.add<edm::InputTag>("simclusters", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("caloparticles", edm::InputTag("mix", "MergedCaloTruth"));
-  desc.addUntracked<edm::InputTag>("layerClusterSimClusterAssociator",
-                                   edm::InputTag("layerClusterSimClusterAssociationProducer"));
-  desc.addUntracked<edm::InputTag>("layerClusterCaloParticleAssociator",
-                                   edm::InputTag("layerClusterCaloParticleAssociationProducer"));
+  desc.add<edm::InputTag>("layerClusterSimClusterAssociator",
+                          edm::InputTag("layerClusterSimClusterAssociationProducer"));
+  desc.add<edm::InputTag>("layerClusterCaloParticleAssociator",
+                          edm::InputTag("layerClusterCaloParticleAssociationProducer"));
   desc.add<double>("fractionCut", 0.);
 
-  descriptions.add("trackstersFromSimClustersProducer", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
