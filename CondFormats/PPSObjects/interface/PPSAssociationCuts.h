@@ -82,5 +82,4 @@ std::ostream &operator<<(std::ostream &os, const PPSAssociationCuts::CutsPerArm 
 
 std::ostream &operator<<(std::ostream &os, const PPSAssociationCuts &ppsAssociationCuts);
 
-
 #endif

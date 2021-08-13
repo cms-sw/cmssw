@@ -61,12 +61,12 @@ std::ostream &operator<<(std::ostream &os, const PPSAssociationCuts::CutsPerArm 
 }
 
 std::ostream &operator<<(std::ostream &os, const PPSAssociationCuts &ppsAssociationCuts) {
-    os << "PPSAssociationCuts {" << std::endl;
-    os << "45"<< std::endl;
-    os<< "\t"<<ppsAssociationCuts.getAssociationCuts(0);
-    os << "56"<< std::endl;
-    os<< "\t"<<ppsAssociationCuts.getAssociationCuts(1);
-    os << "}" << std::endl;
+  os << "PPSAssociationCuts {" << std::endl;
+  os << "45" << std::endl;
+  os << "\t" << ppsAssociationCuts.getAssociationCuts(0);
+  os << "56" << std::endl;
+  os << "\t" << ppsAssociationCuts.getAssociationCuts(1);
+  os << "}" << std::endl;
 
-    return os;
+  return os;
 }
