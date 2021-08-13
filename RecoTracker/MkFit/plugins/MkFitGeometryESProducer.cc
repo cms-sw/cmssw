@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
@@ -53,7 +54,6 @@ public:
 
 private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
-  // QQQQ edm::ESGetToken<TrackerGeometry, TrackerRecoGeometryRecord> geomTokenReco_;
   edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> trackerToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
 
@@ -65,7 +65,6 @@ private:
 MkFitGeometryESProducer::MkFitGeometryESProducer(const edm::ParameterSet& iConfig) {
   auto cc = setWhatProduced(this);
   geomToken_ = cc.consumes();
-  // QQQQ geomTokenReco_ = cc.consumes();
   trackerToken_ = cc.consumes();
   ttopoToken_ = cc.consumes();
 }
@@ -79,7 +78,8 @@ void MkFitGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions& d
 
 void MkFitGeometryESProducer::considerPoint(const GlobalPoint &gp, mkfit::LayerInfo &li)
 {
-  float r = gp.perp(), z = gp.z();
+  // Use radius squared during bounding-region search.
+  float r = gp.perp2(), z = gp.z();
   // need this is a function in LayerInfo
   // float  m_rin, m_rout, m_zmin, m_zmax;
   if (z > li.m_zmax) li.m_zmax = z;
@@ -157,7 +157,8 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet* det, mkfit::T
     xy[2][0] =  par[1]; xy[2][1] =  par[3];
     xy[3][0] =  par[0]; xy[3][1] = -par[3];
     dz = par[2];
-    printf("TRAP 0x%x %f %f %f %f\n", detid.rawId(), par[0], par[1], par[2], par[3]);
+
+    // printf("TRAP 0x%x %f %f %f %f\n", detid.rawId(), par[0], par[1], par[2], par[3]);
   }
   else if (const RectangularPlaneBounds* b2 = dynamic_cast<const RectangularPlaneBounds*>(b)) {
     // Rectangular
@@ -168,13 +169,14 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet* det, mkfit::T
     xy[2][0] =  dx; xy[2][1] =  dy;
     xy[3][0] =  dx; xy[3][1] = -dy;
     dz = b2->thickness() * 0.5;  // half thickness
-    printf("RECT 0x%x %f %f %f\n", detid.rawId(), dx, dy, dz);
+
+    // printf("RECT 0x%x %f %f %f\n", detid.rawId(), dx, dy, dz);
   }
 
   const bool useMatched = false;
-  int lay = m_layerNrConv.convertLayerNumber(detid.det(), m_trackerTopo->layer(detid), useMatched,
+  int lay = m_layerNrConv.convertLayerNumber(detid.subdetId(), m_trackerTopo->layer(detid), useMatched,
                                              m_trackerTopo->isStereo(detid),
-                                             m_trackerTopo->side(detid) == 1);
+                                             m_trackerTopo->side(detid) == static_cast<unsigned>(TrackerDetSide::PosEndcap));
 
   mkfit::LayerInfo &layer_info = trk_info.m_layers[lay];
   for (int i = 0; i < 4; ++i)
@@ -189,105 +191,53 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet* det, mkfit::T
 
 //==============================================================================
 
+// Ideally these functions would also:
+// 0. Setup LayerInfo data (which is now done in auto-generated code).
+//    Some data-members are a bit over specific, esp/ bools for CMS sub-detectors.
+// 1. Establish short module ids (now done in MkFitGeometry constructor).
+// 2. Store module normal and strip direction vectors
+// 3. ? Any other information ?
+// 4. Extract stereo coverage holes where they exist (TEC, all but last 3 double-layers).
+//
+// Plugin DumpMkFitGeometry.cc can then be used to export this for stand-alone.
+// Would also need to be picked up with tk-ntuple converter (to get module ids as
+// they will now be used as indices into module info vectors).
+//
+// An attempt at export cmsRun config is in python/dumpMkFitGeometry.py
+
 void MkFitGeometryESProducer::addPixBGeometry(mkfit::TrackerInfo &trk_info) {
-  for (TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXB().begin(),
-                                                     end = m_trackerGeom->detsPXB().end();
-       it != end;
-       ++it) {
-    const GeomDet* det = *it;
-
-    if (det) {
-      //DetId detid = det->geographicalId();
-      //unsigned int rawid = detid.rawId();
-      fillShapeAndPlacement(det, trk_info);
-
-      //ADD_PIXEL_TOPOLOGY(current, m_trackerGeom->idToDetUnit(detid), fwRecoGeometry);
-    }
+  for (auto &det : m_trackerGeom->detsPXB()) {
+    fillShapeAndPlacement(det, trk_info);
   }
 }
 
 void MkFitGeometryESProducer::addPixEGeometry(mkfit::TrackerInfo &trk_info) {
-  for (TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXF().begin(),
-                                                     end = m_trackerGeom->detsPXF().end();
-       it != end;
-       ++it) {
-    const GeomDet* det = *it;
-
-    if (det) {
-      //DetId detid = det->geographicalId();
-      //unsigned int rawid = detid.rawId();
-      fillShapeAndPlacement(det, trk_info);
-
-      //ADD_PIXEL_TOPOLOGY(current, m_trackerGeom->idToDetUnit(detid), fwRecoGeometry);
-    }
+  for (auto &det : m_trackerGeom->detsPXF()) {
+    fillShapeAndPlacement(det, trk_info);
   }
 }
 
 void MkFitGeometryESProducer::addTIBGeometry(mkfit::TrackerInfo &trk_info) {
-  for (TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTIB().begin(),
-                                                     end = m_trackerGeom->detsTIB().end();
-       it != end;
-       ++it) {
-    const GeomDet* det = *it;
-
-    if (det) {
-      //DetId detid = det->geographicalId();
-      //unsigned int rawid = detid.rawId();
-      fillShapeAndPlacement(det, trk_info);
-
-      //ADD_SISTRIP_TOPOLOGY(current, m_trackerGeom->idToDet(detid));
-    }
+  for (auto &det : m_trackerGeom->detsTIB()) {
+    fillShapeAndPlacement(det, trk_info);
   }
 }
 
 void MkFitGeometryESProducer::addTOBGeometry(mkfit::TrackerInfo &trk_info) {
-  for (TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTOB().begin(),
-                                                     end = m_trackerGeom->detsTOB().end();
-       it != end;
-       ++it) {
-    const GeomDet* det = *it;
-
-    if (det) {
-      //DetId detid = det->geographicalId();
-      //unsigned int rawid = detid.rawId();
-      fillShapeAndPlacement(det, trk_info);
-
-      //ADD_SISTRIP_TOPOLOGY(current, m_trackerGeom->idToDet(detid));
-    }
+  for (auto &det : m_trackerGeom->detsTOB()) {
+    fillShapeAndPlacement(det, trk_info);
   }
 }
 
 void MkFitGeometryESProducer::addTIDGeometry(mkfit::TrackerInfo &trk_info) {
-  for (TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTID().begin(),
-                                                     end = m_trackerGeom->detsTID().end();
-       it != end;
-       ++it) {
-    const GeomDet* det = *it;
-
-    if (det) {
-      //DetId detid = det->geographicalId();
-      //unsigned int rawid = detid.rawId();
-      fillShapeAndPlacement(det, trk_info);
-
-      //ADD_SISTRIP_TOPOLOGY(current, m_trackerGeom->idToDet(detid));
-    }
+  for (auto &det : m_trackerGeom->detsTID()) {
+    fillShapeAndPlacement(det, trk_info);
   }
 }
 
 void MkFitGeometryESProducer::addTECGeometry(mkfit::TrackerInfo &trk_info) {
-  for (TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTEC().begin(),
-                                                     end = m_trackerGeom->detsTEC().end();
-       it != end;
-       ++it) {
-    const GeomDet* det = *it;
-
-    if (det) {
-      //DetId detid = det->geographicalId();
-      //unsigned int rawid = detid.rawId();
-      fillShapeAndPlacement(det, trk_info);
-
-      //ADD_SISTRIP_TOPOLOGY(current, m_trackerGeom->idToDet(detid));
-    }
+  for (auto &det : m_trackerGeom->detsTEC()) {
+    fillShapeAndPlacement(det, trk_info);
   }
 }
 
@@ -298,6 +248,7 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
 
   // QQQQ m_trackerGeom = &iRecord.get(geomTokenReco_);
   m_trackerGeom = &iRecord.get(geomToken_);
+  m_trackerTopo = &iRecord.get(ttopoToken_);
 
   m_trackerTopo = &iRecord.get(ttopoToken_);
 
@@ -326,6 +277,13 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
   addTIDGeometry(*trackerInfo);
   addTOBGeometry(*trackerInfo);
   addTECGeometry(*trackerInfo);
+
+  // r_in/out kept as squres until here, root them
+  for (auto &li : trackerInfo->m_layers)
+  {
+    li.m_rin  = std::sqrt(li.m_rin);
+    li.m_rout = std::sqrt(li.m_rout);
+  }
 
   // missing setup of bins ets (as in standalone Geoms/CMS-2017.cc and mk_trk_info.C)
 
