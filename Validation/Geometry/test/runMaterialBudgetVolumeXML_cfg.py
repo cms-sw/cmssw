@@ -34,9 +34,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('matbdg_run3.root')
-#   fileName = cms.string('matbdg_run3_dd4hep.root')
-#   fileName = cms.string('matbdg_phase2.root')
+    fileName = cms.string('matbdgRun3dddXML.root')
+#   fileName = cms.string('matbdgRun3dd4hepXML.root')
+#   fileName = cms.string('matbdgPhase2XML.root')
 )
 
 process.g4SimHits.UseMagneticField = False
