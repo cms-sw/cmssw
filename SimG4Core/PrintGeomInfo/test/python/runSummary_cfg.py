@@ -3,12 +3,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("G4PrintGeometry")
 
 #process.load('Configuration.Geometry.GeometryIdeal_cff')
-#process.load('Configuration.Geometry.GeometryExtended_cff')
-#process.load('Configuration.Geometry.GeometryExtended2015_cff')
-#process.load('Configuration.Geometry.GeometryExtended2017_cff')
-process.load('Configuration.Geometry.GeometryExtended2021_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
+#process.load('Configuration.Geometry.GeometryExtendedReco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 

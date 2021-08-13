@@ -7,6 +7,7 @@ process.load('Geometry.CMSCommonData.cmsExtendedGeometry2015XML_cfi')
 process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
 process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
+process.load('Geometry.HcalCommonData.hcalDDDRecConstants_cfi')
 
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.files.MatBudget = dict(extension = "txt")

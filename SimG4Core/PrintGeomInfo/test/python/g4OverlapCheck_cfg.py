@@ -2,12 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 #from Configuration.Eras.Era_Run2_cff import Run2
 #process = cms.Process('SIM',Run2)
-#process.load('Configuration.Geometry.GeometryExtended2015_cff')
-#process.load('Configuration.Geometry.GeometryExtended2017_cff')
+#process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 
 from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process('SIM',Run3)
-process.load('Configuration.Geometry.GeometryExtended2021_cff')
+process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
