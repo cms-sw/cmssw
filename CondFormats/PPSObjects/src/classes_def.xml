@@ -28,24 +28,9 @@
     <class name="CTPPSPixelFramePosition"  class_version="0"/>
 
     <class name="PPSAssociationCuts"  class_version="0"/>
-    <class name="PPSAssociationCuts::CutsPerArm"  class_version="0">
-      <field name="x_cut_apply"/>
-      <field name="x_cut_value"/>
-      <field name="x_cut_mean"/>
-      <field name="y_cut_apply"/>
-      <field name="y_cut_value"/>
-      <field name="y_cut_mean"/>
-      <field name="xi_cut_apply"/>
-      <field name="xi_cut_value"/>
-      <field name="xi_cut_mean"/>
-      <field name="th_y_cut_apply"/>
-      <field name="th_y_cut_value"/>
-      <field name="th_y_cut_mean"/>
-      <field name="ti_tr_min"/>
-      <field name="ti_tr_max"/>
-    </class>
-
+    <class name="PPSAssociationCuts::CutsPerArm"  class_version="0"/>
     <class name="std::map<unsigned int,PPSAssociationCuts::CutsPerArm >"/>
+    <class name="std::pair<unsigned int, PPSAssociationCuts::CutsPerArm>"/>
 
     <class name="CTPPSPixelROCInfo"  class_version="0"/>
 

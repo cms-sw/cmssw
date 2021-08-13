@@ -32,6 +32,7 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(CTPPSPixelGainCalibrations);
   PAYLOAD_2XML_CLASS(PPSAlignmentConfig)
   PAYLOAD_2XML_CLASS(PPSAlignmentConfiguration)
+  PAYLOAD_2XML_CLASS(PPSAssociationCuts)
   PAYLOAD_2XML_CLASS(CastorChannelQuality);
   PAYLOAD_2XML_CLASS(CastorElectronicsMap);
   PAYLOAD_2XML_CLASS(CastorGainWidths);
