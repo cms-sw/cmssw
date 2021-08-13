@@ -45,11 +45,11 @@
 #include "G4ProcessManager.hh"
 #include "G4VTouchable.hh"
 
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Random/Randomize.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Vector/ThreeVector.h>
+#include <CLHEP/Vector/LorentzVector.h>
+#include <CLHEP/Random/Randomize.h>
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 // ----------------------------------------------------------------
 // Includes needed for Root ntupling

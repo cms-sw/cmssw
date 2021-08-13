@@ -40,8 +40,8 @@
 #include "G4Step.hh"
 #include "G4HCofThisEvent.hh"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 class TotemTestGem : public SimProducer, public Observer<const BeginOfEvent*>, public Observer<const EndOfEvent*> {
 public:

@@ -47,10 +47,10 @@
 #include "G4ThreeVector.hh"
 #include "G4VProcess.hh"
 
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "Randomize.hh"
+#include <CLHEP/Random/RandGaussQ.h>
+#include <CLHEP/Random/Randomize.h>
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 //#define EDM_ML_DEBUG
 
@@ -385,13 +385,13 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
 
   int iEvt = (*evt)()->GetEventID();
   if (iEvt < 10)
-    std::cout << " Event " << iEvt << std::endl;
+    edm::LogVerbatim("HcalTBSim") << " Event " << iEvt;
   else if ((iEvt < 100) && (iEvt % 10 == 0))
-    std::cout << " Event " << iEvt << std::endl;
+    edm::LogVerbatim("HcalTBSim") << " Event " << iEvt;
   else if ((iEvt < 1000) && (iEvt % 100 == 0))
-    std::cout << " Event " << iEvt << std::endl;
+    edm::LogVerbatim("HcalTBSim") << " Event " << iEvt;
   else if ((iEvt < 10000) && (iEvt % 1000 == 0))
-    std::cout << " Event " << iEvt << std::endl;
+    edm::LogVerbatim("HcalTBSim") << " Event " << iEvt;
 }
 
 void HcalTB02Analysis::fillEvent(HcalTB02HistoClass& product) {
