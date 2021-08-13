@@ -11,30 +11,61 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM include files
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 // work on collections
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 
-#include "DQMOffline/CalibCalo/src/DQMHcalIsolatedBunchAlCaReco.h"
+class DQMHcalIsolatedBunchAlCaReco : public DQMEDAnalyzer {
+public:
+  DQMHcalIsolatedBunchAlCaReco(const edm::ParameterSet &);
+  ~DQMHcalIsolatedBunchAlCaReco() override;
+
+protected:
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
+
+private:
+  //
+  // Monitor elements
+  //
+  MonitorElement *h_Event_, *h_hbhehit_, *h_hfhit_, *h_hohit_;
+
+  /// DQM folder name
+  std::string folderName_, trigName_;
+  bool plotAll_;
+
+  /// object to monitor
+  edm::EDGetTokenT<HBHERecHitCollection> hbhereco_;
+  edm::EDGetTokenT<HORecHitCollection> horeco_;
+  edm::EDGetTokenT<HFRecHitCollection> hfreco_;
+  edm::EDGetTokenT<edm::TriggerResults> trigResult_;
+};
 
 // ******************************************
 // constructors
@@ -119,3 +150,5 @@ void DQMHcalIsolatedBunchAlCaReco::analyze(const edm::Event &iEvent, const edm::
   }
 
 }  // analyze
+
+DEFINE_FWK_MODULE(DQMHcalIsolatedBunchAlCaReco);
