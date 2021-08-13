@@ -2,17 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 #from Configuration.Eras.Era_Run2_cff import Run2
 #process = cms.Process('G4PrintGeometry',Run2)
-#process.load('Configuration.Geometry.GeometryExtended2015_cff')
-#process.load('Configuration.Geometry.GeometryExtended2017_cff')
+#process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 
 from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process('G4PrintGeometry',Run3)
-process.load('Configuration.Geometry.GeometryExtended2021_cff')
+process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 
 #from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 #process = cms.Process('G4PrintGeometry',Phase2C11)
-#process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
