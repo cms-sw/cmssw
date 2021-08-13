@@ -90,7 +90,7 @@
 
 #include "Validation/RecoTrack/interface/trackFromSeedFitFailed.h"
 
-#include "RecoTracker/FinalTrackSelectors/plugins/getBestVertex.h"
+#include "RecoTracker/FinalTrackSelectors/interface/getBestVertex.h"
 
 #include <set>
 #include <map>
