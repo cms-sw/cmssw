@@ -5,7 +5,7 @@
 // Package:     FWCore/Framework
 // Class  :     ModuleHolder
 //
-/**\class edm::maker::ModuleHolder ModuleHolder.h "FWCore/Framework/src/ModuleHolder.h"
+/**\class edm::maker::ModuleHolder ModuleHolder.h "FWCore/Framework/interface/maker/ModuleHolder.h"
 
  Description: Base class used to own a module for the framework
 
@@ -22,8 +22,8 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/src/WorkerT.h"
-#include "FWCore/Framework/src/OutputModuleCommunicatorT.h"
+#include "FWCore/Framework/interface/maker/WorkerT.h"
+#include "FWCore/Framework/interface/OutputModuleCommunicatorT.h"
 
 // forward declarations
 namespace edm {

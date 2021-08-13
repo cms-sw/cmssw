@@ -2,8 +2,8 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 #include "FWCore/Concurrency/interface/include_first_syncWait.h"
-#include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/src/EarlyDeleteHelper.h"
+#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/EarlyDeleteHelper.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"

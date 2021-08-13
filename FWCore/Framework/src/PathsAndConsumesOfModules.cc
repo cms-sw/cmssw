@@ -2,7 +2,7 @@
 
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/ModuleProcessName.h"
-#include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/interface/maker/Worker.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 

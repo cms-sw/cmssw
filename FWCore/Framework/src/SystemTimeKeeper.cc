@@ -24,7 +24,7 @@
 #include "FWCore/Framework/src/TriggerTimingReport.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include "SystemTimeKeeper.h"
+#include "FWCore/Framework/interface/SystemTimeKeeper.h"
 
 using namespace edm;
 
