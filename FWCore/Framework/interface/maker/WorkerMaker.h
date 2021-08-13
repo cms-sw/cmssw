@@ -5,10 +5,10 @@
 #include <memory>
 #include <string>
 
-#include "FWCore/Framework/src/WorkerT.h"
-#include "FWCore/Framework/src/MakeModuleParams.h"
-#include "FWCore/Framework/src/ModuleHolder.h"
-#include "FWCore/Framework/src/MakeModuleHelper.h"
+#include "FWCore/Framework/interface/maker/WorkerT.h"
+#include "FWCore/Framework/interface/maker/MakeModuleParams.h"
+#include "FWCore/Framework/interface/maker/ModuleHolder.h"
+#include "FWCore/Framework/interface/maker/MakeModuleHelper.h"
 
 #include "FWCore/Utilities/interface/Signal.h"
 
@@ -16,7 +16,6 @@ namespace edm {
   class ConfigurationDescriptions;
   class ModuleDescription;
   class ParameterSet;
-  class Maker;
   class ExceptionToActionTable;
 
   class Maker {
