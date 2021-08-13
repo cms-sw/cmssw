@@ -3,11 +3,14 @@
 //    Compares output files from PrintGeomInfo created using DDD and DD4Hep
 //    inputs. Usage:
 //
-//    SimFileCompare infile1 infile2 mode debug
-//    infile1  (const char*)   File created using DDD
-//    infile2  (const char*)   File created using DD4Hep
+//    SimFileCompare infile1 infile2 type files mode debug
+//    infile1  (const char*)   First file name
+//    infile2  (const char*)   Second file name
 //    type     (int)           Type of file: material (0), solid (1),
 //                             LogicalVolume (2), PhysicalVolume (3)
+//    files    (int)           Double digits each inidicating the file source
+//                             (0 for DDD, 1 for DD4HEP). So if first file is
+//                             DDD and second is DD4HEP, it will be 10
 //    mode     (int)           Treat (0) or not treat (1) names from DDD
 //    deug     (int)           Single digit number (0 minimum printout)
 //
@@ -123,150 +126,160 @@ void myPrint2(std::map<std::string, T> const& obj1, std::map<std::string, T> con
   }
 }
 
-void CompareFiles(const char* fileDDD, const char* fileDD4Hep, int type, int mode, int debug) {
-  std::map<std::string, materials> matDDD, matDD4Hep;
-  std::map<std::string, solids> solidDDD, solidDD4Hep;
-  std::map<std::string, lvs> lvDDD, lvDD4Hep;
-  std::map<std::string, pvs> pvDDD, pvDD4Hep;
+void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int files, int mode, int debug) {
+  std::map<std::string, materials> matFile1, matFile2;
+  std::map<std::string, solids> solidFile1, solidFile2;
+  std::map<std::string, lvs> lvFile1, lvFile2;
+  std::map<std::string, pvs> pvFile1, pvFile2;
+  bool typeFile1 = ((files % 10) == 0);
+  bool typeFile2 = (((files / 10) % 10) == 0);
   char buffer[100];
   std::string name;
-  std::ifstream fInput1(fileDDD);
-  unsigned int sizeDDD(0), sizeDD4Hep(0);
+  std::ifstream fInput1(fileFile1);
+  unsigned int sizeFile1(0), sizeFile2(0);
   if (!fInput1.good()) {
-    std::cout << "Cannot open file " << fileDDD << std::endl;
+    std::cout << "Cannot open file " << fileFile1 << std::endl;
   } else {
     while (fInput1.getline(buffer, 100)) {
       std::vector<std::string> items = splitString(std::string(buffer));
-      name = ((mode == 1) ? removeExtraName(items[0], debug) : items[0]);
+      if (typeFile1) {
+        name = ((mode == 1) ? removeExtraName(items[0], debug) : items[0]);
+      } else {
+        name = reducedName(items[0], debug);
+      }
       double r1 = (items.size() > 1) ? atof(items[1].c_str()) : 0;
       double r2 = (items.size() > 2) ? atof(items[2].c_str()) : 0;
       double r3 = (items.size() > 3) ? atof(items[3].c_str()) : 0;
       if (type == 0) {
-        auto it = matDDD.find(name);
-        if (it == matDDD.end())
-          matDDD[name] = materials(1, r1, r2);
+        auto it = matFile1.find(name);
+        if (it == matFile1.end())
+          matFile1[name] = materials(1, r1, r2);
         else
           ++((it->second).occ);
       } else if (type == 1) {
-        auto it = solidDDD.find(name);
-        if (it == solidDDD.end())
-          solidDDD[name] = solids(1, r1);
+        auto it = solidFile1.find(name);
+        if (it == solidFile1.end())
+          solidFile1[name] = solids(1, r1);
         else
           ++((it->second).occ);
       } else if (type == 2) {
-        auto it = lvDDD.find(name);
-        if (it == lvDDD.end())
-          lvDDD[name] = lvs(1, r1);
+        auto it = lvFile1.find(name);
+        if (it == lvFile1.end())
+          lvFile1[name] = lvs(1, r1);
         else
           ++((it->second).occ);
       } else {
-        auto it = pvDDD.find(name);
-        if (it == pvDDD.end())
-          pvDDD[name] = pvs(1, r1, r2, r3);
+        auto it = pvFile1.find(name);
+        if (it == pvFile1.end())
+          pvFile1[name] = pvs(1, r1, r2, r3);
         else
           ++((it->second).occ);
       }
     }
     fInput1.close();
-    sizeDDD =
-        ((type == 0) ? matDDD.size() : ((type == 1) ? solidDDD.size() : ((type == 2) ? lvDDD.size() : pvDDD.size())));
+    sizeFile1 = ((type == 0) ? matFile1.size()
+                             : ((type == 1) ? solidFile1.size() : ((type == 2) ? lvFile1.size() : pvFile1.size())));
   }
-  std::ifstream fInput2(fileDD4Hep);
+  std::ifstream fInput2(fileFile2);
   if (!fInput2.good()) {
-    std::cout << "Cannot open file " << fileDD4Hep << std::endl;
+    std::cout << "Cannot open file " << fileFile2 << std::endl;
   } else {
     while (fInput2.getline(buffer, 100)) {
       std::vector<std::string> items = splitString(std::string(buffer));
-      name = reducedName(items[0], debug);
+      if (typeFile2) {
+        name = ((mode == 1) ? removeExtraName(items[0], debug) : items[0]);
+      } else {
+        name = reducedName(items[0], debug);
+      }
       double r1 = (items.size() > 1) ? atof(items[1].c_str()) : 0;
       double r2 = (items.size() > 2) ? atof(items[2].c_str()) : 0;
       double r3 = (items.size() > 3) ? atof(items[3].c_str()) : 0;
       if (type == 0) {
-        auto it = matDD4Hep.find(name);
-        if (it == matDD4Hep.end())
-          matDD4Hep[name] = materials(1, r1, r2);
+        auto it = matFile2.find(name);
+        if (it == matFile2.end())
+          matFile2[name] = materials(1, r1, r2);
         else
           ++((it->second).occ);
       } else if (type == 1) {
-        auto it = solidDD4Hep.find(name);
-        if (it == solidDD4Hep.end())
-          solidDD4Hep[name] = solids(1, r1);
+        auto it = solidFile2.find(name);
+        if (it == solidFile2.end())
+          solidFile2[name] = solids(1, r1);
         else
           ++((it->second).occ);
       } else if (type == 2) {
-        auto it = lvDD4Hep.find(name);
-        if (it == lvDD4Hep.end())
-          lvDD4Hep[name] = lvs(1, r1);
+        auto it = lvFile2.find(name);
+        if (it == lvFile2.end())
+          lvFile2[name] = lvs(1, r1);
         else
           ++((it->second).occ);
       } else {
-        auto it = pvDD4Hep.find(name);
-        if (it == pvDD4Hep.end())
-          pvDD4Hep[name] = pvs(1, r1, r2, r3);
+        auto it = pvFile2.find(name);
+        if (it == pvFile2.end())
+          pvFile2[name] = pvs(1, r1, r2, r3);
         else
           ++((it->second).occ);
       }
     }
     fInput2.close();
-    sizeDD4Hep = ((type == 0) ? matDD4Hep.size()
-                              : ((type == 1) ? solidDD4Hep.size() : ((type == 2) ? lvDD4Hep.size() : pvDD4Hep.size())));
+    sizeFile2 = ((type == 0) ? matFile2.size()
+                             : ((type == 1) ? solidFile2.size() : ((type == 2) ? lvFile2.size() : pvFile2.size())));
   }
-  std::cout << "Reads " << sizeDDD << " names from " << fileDDD << " and " << sizeDD4Hep << " names from " << fileDD4Hep
-            << std::endl;
+  std::cout << "Reads " << sizeFile1 << " names from " << fileFile1 << " and " << sizeFile2 << " names from "
+            << fileFile2 << std::endl;
 
-  std::cout << "\nMore than one entry for a given name in " << fileDDD << std::endl;
+  std::cout << "\nMore than one entry for a given name in " << fileFile1 << std::endl;
   if (type == 0) {
-    myPrint1(matDDD);
+    myPrint1(matFile1);
   } else if (type == 1) {
-    myPrint1(solidDDD);
+    myPrint1(solidFile1);
   } else if (type == 2) {
-    myPrint1(lvDDD);
+    myPrint1(lvFile1);
   } else {
-    myPrint1(pvDDD);
-  }
-
-  std::cout << "\nMore than one entry for a given name in " << fileDD4Hep << std::endl;
-  if (type == 0) {
-    myPrint1(matDD4Hep);
-  } else if (type == 1) {
-    myPrint1(solidDD4Hep);
-  } else if (type == 2) {
-    myPrint1(lvDD4Hep);
-  } else {
-    myPrint1(pvDD4Hep);
+    myPrint1(pvFile1);
   }
 
-  std::cout << "\nEntry in " << fileDDD << " not in " << fileDD4Hep << std::endl;
+  std::cout << "\nMore than one entry for a given name in " << fileFile2 << std::endl;
   if (type == 0) {
-    myPrint2(matDDD, matDD4Hep);
+    myPrint1(matFile2);
   } else if (type == 1) {
-    myPrint2(solidDDD, solidDD4Hep);
+    myPrint1(solidFile2);
   } else if (type == 2) {
-    myPrint2(lvDDD, lvDD4Hep);
+    myPrint1(lvFile2);
   } else {
-    myPrint2(pvDDD, pvDD4Hep);
+    myPrint1(pvFile2);
   }
 
-  std::cout << "\nEntry in " << fileDD4Hep << " not in " << fileDDD << std::endl;
+  std::cout << "\nEntry in " << fileFile1 << " not in " << fileFile2 << std::endl;
   if (type == 0) {
-    myPrint2(matDD4Hep, matDDD);
+    myPrint2(matFile1, matFile2);
   } else if (type == 1) {
-    myPrint2(solidDD4Hep, solidDDD);
+    myPrint2(solidFile1, solidFile2);
   } else if (type == 2) {
-    myPrint2(lvDD4Hep, lvDDD);
+    myPrint2(lvFile1, lvFile2);
   } else {
-    myPrint2(pvDD4Hep, pvDDD);
+    myPrint2(pvFile1, pvFile2);
+  }
+
+  std::cout << "\nEntry in " << fileFile2 << " not in " << fileFile1 << std::endl;
+  if (type == 0) {
+    myPrint2(matFile2, matFile1);
+  } else if (type == 1) {
+    myPrint2(solidFile2, solidFile1);
+  } else if (type == 2) {
+    myPrint2(lvFile2, lvFile1);
+  } else {
+    myPrint2(pvFile2, pvFile1);
   }
 
   //Now type specific changes
-  std::cout << "\nEntries in " << fileDDD << " and " << fileDD4Hep << " do not match in the content\n";
+  std::cout << "\nEntries in " << fileFile1 << " and " << fileFile2 << " do not match in the content\n";
   const double denmin = 0.0001;
   int kount1(0), kount2(0);
   if (type == 0) {
     const double tol1 = 0.00001;
-    for (auto it1 : matDDD) {
-      auto it2 = matDD4Hep.find(it1.first);
-      if (it2 != matDD4Hep.end()) {
+    for (auto it1 : matFile1) {
+      auto it2 = matFile2.find(it1.first);
+      if (it2 != matFile2.end()) {
         ++kount1;
         double rdif =
             0.5 * (it1.second.radl - it2->second.radl) / std::max(denmin, (it1.second.radl + it2->second.radl));
@@ -274,8 +287,8 @@ void CompareFiles(const char* fileDDD, const char* fileDD4Hep, int type, int mod
             0.5 * (it1.second.intl - it2->second.intl) / std::max(denmin, (it1.second.intl + it2->second.intl));
         if ((std::abs(rdif) > tol1) || (std::abs(idif) > tol1)) {
           ++kount2;
-          std::cout << it1.first << " Radiation Length " << it1.second.radl << ":" << it2->second.radl << ":" << rdif
-                    << " Interaction Length " << it1.second.intl << ":" << it2->second.intl << ":" << idif << std::endl;
+          std::cout << it1.first << " X0 " << it1.second.radl << ":" << it2->second.radl << ":" << rdif << " #L "
+                    << it1.second.intl << ":" << it2->second.intl << ":" << idif << std::endl;
         }
       }
     }
@@ -283,9 +296,9 @@ void CompareFiles(const char* fileDDD, const char* fileDD4Hep, int type, int mod
               << " or more\n";
   } else if (type == 1) {
     const double tol2 = 0.0001;
-    for (auto it1 : solidDDD) {
-      auto it2 = solidDD4Hep.find(it1.first);
-      if (it2 != solidDD4Hep.end()) {
+    for (auto it1 : solidFile1) {
+      auto it2 = solidFile2.find(it1.first);
+      if (it2 != solidFile2.end()) {
         ++kount1;
         double vdif =
             0.5 * (it1.second.volume - it2->second.volume) / std::max(denmin, (it1.second.volume + it2->second.volume));
@@ -300,9 +313,9 @@ void CompareFiles(const char* fileDDD, const char* fileDD4Hep, int type, int mod
               << " or more\n";
   } else if (type == 2) {
     const double tol3 = 0.0001;
-    for (auto it1 : lvDDD) {
-      auto it2 = lvDD4Hep.find(it1.first);
-      if (it2 != lvDD4Hep.end()) {
+    for (auto it1 : lvFile1) {
+      auto it2 = lvFile2.find(it1.first);
+      if (it2 != lvFile2.end()) {
         ++kount1;
         double vdif =
             0.5 * (it1.second.mass - it2->second.mass) / std::max(denmin, (it1.second.mass + it2->second.mass));
@@ -316,9 +329,9 @@ void CompareFiles(const char* fileDDD, const char* fileDD4Hep, int type, int mod
               << " or more\n";
   } else {
     const double tol4 = 0.0001;
-    for (auto it1 : pvDDD) {
-      auto it2 = pvDD4Hep.find(it1.first);
-      if (it2 != pvDD4Hep.end()) {
+    for (auto it1 : pvFile1) {
+      auto it2 = pvFile2.find(it1.first);
+      if (it2 != pvFile2.end()) {
         ++kount1;
         double xdif = (it1.second.xx - it2->second.xx);
         double ydif = (it1.second.yy - it2->second.yy);
@@ -337,11 +350,12 @@ void CompareFiles(const char* fileDDD, const char* fileDD4Hep, int type, int mod
 }
 
 int main(int argc, char* argv[]) {
-  if (argc <= 4) {
+  if (argc <= 5) {
     std::cout << "Please give a minimum of 2 arguments \n"
-              << "input file name from the DDD run\n"
-              << "input file name from the DD4Hep run\n"
+              << "name of the first input file\n"
+              << "name of the second input file\n"
               << "type (Material:0, Solid:1, LV:2, PV:3\n"
+              << "files (10 if first file from DDD and second from DD4HEP)\n"
               << "mode (treat the name for DDD or not == needed for PV)\n"
               << "debug flag (0 for minimum printout)\n"
               << std::endl;
@@ -353,8 +367,9 @@ int main(int argc, char* argv[]) {
   int type = ((argc > 3) ? atoi(argv[3]) : 0);
   if (type < 0 || type > 3)
     type = 0;
-  int mode = ((argc > 4) ? atoi(argv[4]) : 0);
-  int debug = ((argc > 5) ? atoi(argv[5]) : 0);
-  CompareFiles(infile1, infile2, type, mode, debug);
+  int files = ((argc > 4) ? atoi(argv[4]) : 10);
+  int mode = ((argc > 5) ? atoi(argv[5]) : 0);
+  int debug = ((argc > 6) ? atoi(argv[6]) : 0);
+  CompareFiles(infile1, infile2, type, files, mode, debug);
   return 0;
 }
