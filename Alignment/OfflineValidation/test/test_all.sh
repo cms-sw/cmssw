@@ -158,6 +158,16 @@ validateAlignments.py -c validation_config.ini -N testingAllInOneTool --dryRun |
 
 printf "\n\n"
 
+echo " TESTING all-in-one tool configuration ..."
+FILES="$PWD/testingAllInOneTool/*_cfg.py"
+for f in $FILES
+do
+  echo "Processing $f file..."
+  python3 $FILE/$f  || die "Failure compiling test configuration" $?
+done
+
+printf "\n\n"
+
 echo " TESTING Primary Vertex Validation run-by-run submission ..."
 submitPVValidationJobs.py -j UNIT_TEST -D /HLTPhysics/Run2016C-TkAlMinBias-07Dec2018-v1/ALCARECO -i ${LOCAL_TEST_DIR}/testPVValidation_Relvals_DATA.ini -r --unitTest || die "Failure running PV Validation run-by-run submission" $?
 
