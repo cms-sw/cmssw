@@ -14,8 +14,18 @@
 //      Make the 2-D plots as a function of eta and phi with same parameter
 //      meanings as those of *etaPhiPlot*
 //
-// etaPhiPlotComp(fileName1, fileName2, plot, ifEta, tag, debug)
+// etaPhiPlotComp(fileName1, fileName2, plot, ifEta, tag, txt, debug)
 //      Compares material budget plots from 2 different files
+//
+// etaPhiPlotComp4(filePreFix, tag, plot, ifEta, debug)
+//      Compares material budget plots from 4 different files:
+//      dddXML, dd4hepXML, dddDB, dd4hepDB
+//
+// filePreFix (std::string) Prefix to all 4 file names which will be followed
+//                          by one of dddXML/dd4hepXML/dddDB/dd4hepDB strings
+//                          and finally with *tag* and ".root"
+// txt        (std::string) Part of the y-title coming after #frac for the plot
+//                          ("{DDD}/{DD4Hep}")
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -56,8 +66,13 @@ void etaPhiPlotComp(TString fileName1 = "matbdg_run3.root",
                     std::string plot = "intl",
                     bool ifEta = true,
                     std::string tag = "Run3",
+                    std::string txt = "{DDD}/{DD4Hep}",
                     bool debug = false);
-
+void etaPhiPlotComp4(std::string filePreFix = "files/matbdgRun3",
+                     std::string tag = "pre6",
+                     std::string plot = "radl",
+                     bool ifEta = true,
+                     bool debug = false);
 void setStyle();
 
 const int nlay = 13;
@@ -227,7 +242,8 @@ void etaPhi2DPlot(TString fileName, std::string plot, bool drawLeg, double maxEt
   cc1->Modified();
 }
 
-void etaPhiPlotComp(TString fileName1, TString fileName2, std::string plot, bool ifEta, std::string tag, bool debug) {
+void etaPhiPlotComp(
+    TString fileName1, TString fileName2, std::string plot, bool ifEta, std::string tag, std::string txt, bool debug) {
   setStyle();
   gStyle->SetOptTitle(0);
   TFile *file1 = new TFile(fileName1);
@@ -243,14 +259,14 @@ void etaPhiPlotComp(TString fileName1, TString fileName2, std::string plot, bool
 
     std::string xtit = "#eta";
     std::string ztit = "Eta";
-    std::string ytit = "none";
+    char ytit[40];
     if (plot == "radl") {
-      ytit = "#frac{DDD}{DD4Hep} for MB (X_{0})";
+      sprintf(ytit, "#frac%s for MB (X_{0})", txt.c_str());
     } else if (plot == "step") {
-      ytit = "#frac{DDD}{DD4Hep} for MB (Step Length)";
+      sprintf(ytit, "#frac%s for MB (Step Length)", txt.c_str());
     } else {
       plot = "intl";
-      ytit = "#frac{DDD}{DD4Hep} for MB (#lambda)";
+      sprintf(ytit, "#frac%s for MB (#lambda)", txt.c_str());
     }
     if (!ifEta) {
       xtit = "#phi";
@@ -277,7 +293,7 @@ void etaPhiPlotComp(TString fileName1, TString fileName2, std::string plot, bool
             yy2.push_back(prof2->GetBinContent(k));
             dy1.push_back(prof1->GetBinError(k));
             dy2.push_back(prof2->GetBinError(k));
-            xx0.push_back(prof1->GetBinLowEdge(k) + prof2->GetBinWidth(k));
+            xx0.push_back(prof1->GetBinLowEdge(k) + prof1->GetBinWidth(k));
           }
         }
       }
@@ -338,11 +354,169 @@ void etaPhiPlotComp(TString fileName1, TString fileName2, std::string plot, bool
       vFrame->GetYaxis()->SetLabelSize(0.03);
       vFrame->GetYaxis()->SetTitleSize(0.035);
       vFrame->GetYaxis()->SetTitleOffset(1.3);
+      vFrame->GetYaxis()->SetTitle(ytit);
+      for (unsigned int i = 0; i < graphs.size(); ++i)
+        graphs[i]->Draw("P");
+      leg->Draw("sames");
+      cc1->Modified();
+    }
+  }
+}
+
+void etaPhiPlotComp4(std::string filePreFix, std::string tag, std::string plot, bool ifEta, bool debug) {
+  setStyle();
+  gStyle->SetOptTitle(0);
+  const int files = 4;
+  std::string nametype[files] = {"dddXML", "dd4hepXML", "dddDB", "dd4hepDB"};
+  int colortype[files] = {1, 2, 4, 6};
+  TFile *file[files];
+  char fname[40];
+  bool ok(true);
+  for (int k1 = 0; k1 < files; ++k1) {
+    sprintf(fname, "%s%s%s.root", filePreFix.c_str(), nametype[k1].c_str(), tag.c_str());
+    file[k1] = new TFile(fname);
+    if (file[k1] == nullptr)
+      ok = false;
+  }
+  if (ok) {
+    TDirectory *dir[files];
+    for (int k1 = 0; k1 < files; ++k1) {
+      dir[k1] = (TDirectory *)(file[k1]->FindObjectAny("materialBudgetVolumeAnalysis"));
+    }
+    TLegend *leg = new TLegend(0.84, 0.69, 0.99, 0.99);
+    leg->SetBorderSize(1);
+    leg->SetFillColor(10);
+    leg->SetMargin(0.25);
+    leg->SetTextSize(0.028);
+
+    std::string xtit = "#eta";
+    std::string ztit = "Eta";
+    std::string ytit = "none";
+    if (plot == "radl") {
+      ytit = "#frac{Sample}{dddXML} for MB (X_{0})";
+    } else if (plot == "step") {
+      ytit = "#frac{Sample}{dddXML} for MB (Step Length)";
+    } else {
+      plot = "intl";
+      ytit = "#frac{Sample}{dddXML} for MB (#lambda)";
+    }
+    if (!ifEta) {
+      xtit = "#phi";
+      ztit = "Phi";
+    }
+
+    std::vector<TGraphErrors *> graphs;
+    std::vector<int> index;
+    char hname[20], titlex[50];
+    int nb(0);
+    double xlow(0), xhigh(0);
+    for (int i = 0; i < ngrp; ++i) {
+      std::vector<double> xx0, yy0[files], dy0[files];
+      for (int j = 0; j < nlayers[i]; ++j) {
+        int ii = nflayer[i] + j;
+        sprintf(hname, "%s%s%s", plot.c_str(), ztit.c_str(), names[ii].c_str());
+        TProfile *prof[files];
+        bool okf(true);
+        for (int k1 = 0; k1 < files; ++k1) {
+          dir[k1]->GetObject(hname, prof[k1]);
+          if (dir[k1] == nullptr)
+            okf = false;
+        }
+        if (okf) {
+          int nb = prof[0]->GetNbinsX();
+          for (int k = 1; k <= nb; ++k) {
+            xx0.push_back(prof[0]->GetBinLowEdge(k) + prof[0]->GetBinWidth(k));
+            for (int k1 = 0; k1 < files; ++k1) {
+              yy0[k1].push_back(prof[k1]->GetBinContent(k));
+              dy0[k1].push_back(prof[k1]->GetBinError(k));
+            }
+          }
+        }
+      }
+      int ii = nflayer[i];
+      for (int k1 = 1; k1 < files; ++k1) {
+        std::vector<double> xx, yy, dx, dy;
+        double sumNum(0), sumDen(0), maxtmp(0), maxDev(0), dmaxDev(0);
+        for (unsigned int k = 0; k < xx0.size(); ++k) {
+          if ((yy0[0][k] > 0) && (yy0[k1][k] > 0)) {
+            double rat = yy0[k1][k] / yy0[0][k];
+            double drt = rat * sqrt((dy0[k1][k] / yy0[k1][k]) * (dy0[k1][k] / yy0[k1][k]) +
+                                    (dy0[0][k] / yy0[0][k]) * (dy0[0][k] / yy0[0][k]));
+            xx.push_back(xx0[k]);
+            dx.push_back(0);
+            yy.push_back(rat);
+            dy.push_back(drt);
+            if (debug) {
+              std::cout << nametype[k1] << ":" << title[ii] << " [" << (xx.size() - 1) << "] " << xx0[k] << " Ratio "
+                        << rat << " +- " << drt << std::endl;
+            }
+            double temp1 = (rat > 1.0) ? 1.0 / rat : rat;
+            double temp2 = (rat > 1.0) ? drt / (rat * rat) : drt;
+            double temp0 = (fabs(1.0 - temp1) / (temp2 * temp2));
+            sumNum += temp0;
+            sumDen += (1.0 / (temp2 * temp2));
+            if (temp0 >= maxtmp) {
+              maxtmp = temp0;
+              maxDev = fabs(1.0 - temp1);
+              dmaxDev = temp2;
+            }
+          }
+        }
+        sumNum = (sumDen > 0) ? (sumNum / sumDen) : 0;
+        sumDen = (sumDen > 0) ? 1.0 / sqrt(sumDen) : 0;
+        std::cout << title[ii] << " in " << nametype[k1] << " Mean " << sumNum << " +- " << sumDen << " Max " << maxDev
+                  << " +- " << dmaxDev << std::endl;
+        if (xx.size() > 0) {
+          TGraphErrors *graph = new TGraphErrors(xx.size(), &xx[0], &yy[0], &dx[0], &dy[0]);
+          graph->SetLineColor(colortype[k1]);
+          graph->SetFillColor(colorLay[ii]);
+          graph->SetMarkerStyle(styleLay[ii]);
+          if (k1 == 1) {
+            sprintf(titlex, "%s", title[ii].c_str());
+            leg->AddEntry(graph, titlex, "lep");
+          }
+          graphs.push_back(graph);
+          if (nb == 0) {
+            sprintf(hname, "%s%s%s", plot.c_str(), ztit.c_str(), names[0].c_str());
+            TProfile *prof;
+            dir[0]->GetObject(hname, prof);
+            nb = prof->GetNbinsX();
+            xlow = prof->GetBinLowEdge(1);
+            xhigh = prof->GetBinLowEdge(nb) + prof->GetBinWidth(nb);
+          }
+        }
+      }
+    }
+    if (graphs.size() > 0) {
+      std::string cname = "c_" + plot + ztit + "Ratio" + tag;
+      TCanvas *cc1 = new TCanvas(cname.c_str(), cname.c_str(), 700, 600);
+      cc1->SetLeftMargin(0.10);
+      cc1->SetRightMargin(0.10);
+      TH1F *vFrame = cc1->DrawFrame(xlow, 0.5, xhigh, 1.5);
+      vFrame->GetXaxis()->SetRangeUser(xlow, xhigh);
+      vFrame->GetXaxis()->SetLabelSize(0.03);
+      vFrame->GetXaxis()->SetTitleSize(0.035);
+      vFrame->GetXaxis()->SetTitleOffset(0.4);
+      vFrame->GetXaxis()->SetTitle(xtit.c_str());
+      vFrame->GetYaxis()->SetRangeUser(0.9, 1.1);
+      vFrame->GetYaxis()->SetLabelSize(0.03);
+      vFrame->GetYaxis()->SetTitleSize(0.035);
+      vFrame->GetYaxis()->SetTitleOffset(1.3);
       vFrame->GetYaxis()->SetTitle(ytit.c_str());
       for (unsigned int i = 0; i < graphs.size(); ++i)
         graphs[i]->Draw("P");
       leg->Draw("sames");
       cc1->Modified();
+      double ymx = 0.68;
+      for (int k1 = 1; k1 < files; ++k1) {
+        TPaveText *txt1 = new TPaveText(0.84, ymx - 0.03, 0.99, ymx, "blNDC");
+        txt1->SetFillColor(0);
+        sprintf(fname, "%s", nametype[k1].c_str());
+        txt1->AddText(fname);
+        ((TText *)txt1->GetListOfLines()->Last())->SetTextColor(colortype[k1]);
+        txt1->Draw();
+        ymx -= 0.03;
+      }
     }
   }
 }
