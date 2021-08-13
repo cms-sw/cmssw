@@ -249,7 +249,7 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
           d_qz = std::abs(d_qz);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("ForwardSim") << "  d_qz: " << r << "," << a << "," << d << " " << tan_arcos << " "
-                                                 << arg_arcos;
+                                         << arg_arcos;
           edm::LogVerbatim("ForwardSim") << "," << arg_arcos;
           edm::LogVerbatim("ForwardSim") << " " << d_qz;
           edm::LogVerbatim("ForwardSim") << " " << th_arcos;
