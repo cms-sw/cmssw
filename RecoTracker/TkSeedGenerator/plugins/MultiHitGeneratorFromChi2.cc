@@ -8,7 +8,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "RecoPixelVertexing/PixelTriplets/plugins/ThirdHitCorrection.h"
+#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
