@@ -8,31 +8,81 @@
  * Description: Monitoring of Phi Symmetry Calibration Stream
  */
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-// DQM include files
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
 // work on collections
 
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
-// #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-// #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-// #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+// DQM include files
 
-#include "DQMOffline/CalibCalo/src/DQMHcalDiJetsAlCaReco.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-using namespace std;
-using namespace edm;
-using namespace reco;
+#include <string>
+
+class DQMHcalDiJetsAlCaReco : public DQMEDAnalyzer {
+public:
+  DQMHcalDiJetsAlCaReco(const edm::ParameterSet &);
+  ~DQMHcalDiJetsAlCaReco() override;
+
+protected:
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
+
+private:
+  int eventCounter_;
+
+  //
+  // Monitor elements
+  //
+  MonitorElement *hiDistrRecHitEnergyEBEE_;
+  MonitorElement *hiDistrRecHitEnergyHBHE_;
+  MonitorElement *hiDistrRecHitEnergyHF_;
+  MonitorElement *hiDistrRecHitEnergyHO_;
+
+  MonitorElement *hiDistrProbeJetEnergy_;
+  MonitorElement *hiDistrProbeJetEta_;
+  MonitorElement *hiDistrProbeJetPhi_;
+
+  MonitorElement *hiDistrTagJetEnergy_;
+  MonitorElement *hiDistrTagJetEta_;
+  MonitorElement *hiDistrTagJetPhi_;
+
+  MonitorElement *hiDistrEtThirdJet_;
+
+  /// object to monitor
+  edm::EDGetTokenT<reco::CaloJetCollection> jets_;
+  edm::EDGetTokenT<EcalRecHitCollection> ec_;
+  edm::EDGetTokenT<HBHERecHitCollection> hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> ho_;
+  edm::EDGetTokenT<HFRecHitCollection> hf_;
+
+  /// DQM folder name
+  std::string folderName_;
+
+  /// Write to file
+  bool saveToFile_;
+
+  /// Output file name if required
+  std::string fileName_;
+
+  bool allowMissingInputs_;
+};
 
 // ******************************************
 // constructors
@@ -42,16 +92,16 @@ DQMHcalDiJetsAlCaReco::DQMHcalDiJetsAlCaReco(const edm::ParameterSet &iConfig) :
   //
   // Input from configurator file
   //
-  folderName_ = iConfig.getUntrackedParameter<string>("FolderName", "ALCAStreamHcalDiJets");
+  folderName_ = iConfig.getUntrackedParameter<std::string>("FolderName", "ALCAStreamHcalDiJets");
 
-  jets_ = consumes<CaloJetCollection>(iConfig.getParameter<edm::InputTag>("jetsInput"));
+  jets_ = consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("jetsInput"));
   ec_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecInput"));
   hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
   ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
   hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
 
   saveToFile_ = iConfig.getUntrackedParameter<bool>("SaveToFile", false);
-  fileName_ = iConfig.getUntrackedParameter<string>("FileName", "MonitorAlCaHcalDiJets.root");
+  fileName_ = iConfig.getUntrackedParameter<std::string>("FileName", "MonitorAlCaHcalDiJets.root");
 }
 
 DQMHcalDiJetsAlCaReco::~DQMHcalDiJetsAlCaReco() {}
@@ -111,13 +161,13 @@ void DQMHcalDiJetsAlCaReco::bookHistograms(DQMStore::IBooker &ibooker,
 
 //-------------------------------------------------------------
 
-void DQMHcalDiJetsAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetup) {
+void DQMHcalDiJetsAlCaReco::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   eventCounter_++;
 
-  CaloJet jet1, jet2, jet3;
+  reco::CaloJet jet1, jet2, jet3;
   Float_t etVetoJet;
 
-  edm::Handle<CaloJetCollection> jets;
+  edm::Handle<reco::CaloJetCollection> jets;
   iEvent.getByToken(jets_, jets);
 
   if (!jets.isValid()) {
@@ -129,7 +179,7 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetu
     jet1 = (*jets)[0];
     jet2 = (*jets)[1];
     if (fabs(jet1.eta()) > fabs(jet2.eta())) {
-      CaloJet jet = jet1;
+      reco::CaloJet jet = jet1;
       jet1 = jet2;
       jet2 = jet;
     }
@@ -156,7 +206,7 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetu
     hiDistrEtThirdJet_->Fill(etVetoJet);
   }
 
-  Handle<EcalRecHitCollection> ec;
+  edm::Handle<EcalRecHitCollection> ec;
   iEvent.getByToken(ec_, ec);
 
   if (!ec.isValid()) {
@@ -168,7 +218,7 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetu
     hiDistrRecHitEnergyEBEE_->Fill(ecItr->energy());
   }
 
-  Handle<HBHERecHitCollection> hbhe;
+  edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByToken(hbhe_, hbhe);
 
   if (!hbhe.isValid()) {
@@ -180,7 +230,7 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetu
     hiDistrRecHitEnergyHBHE_->Fill(hbheItr->energy());
   }
 
-  Handle<HORecHitCollection> ho;
+  edm::Handle<HORecHitCollection> ho;
   iEvent.getByToken(ho_, ho);
 
   if (!ho.isValid()) {
@@ -192,7 +242,7 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetu
     hiDistrRecHitEnergyHO_->Fill(hoItr->energy());
   }
 
-  Handle<HFRecHitCollection> hf;
+  edm::Handle<HFRecHitCollection> hf;
   iEvent.getByToken(hf_, hf);
 
   if (!hf.isValid()) {
@@ -205,3 +255,5 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetu
   }
 
 }  // analyze
+
+DEFINE_FWK_MODULE(DQMHcalDiJetsAlCaReco);
