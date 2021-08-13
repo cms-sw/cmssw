@@ -29,10 +29,10 @@ class GeometryGenerator(object):
     def generateGeom(self, detectorTuple, args):
         detectorVersion = self.detectorPrefix+str(args.detectorVersionManual)
         # reverse dict search if overall D# specified
-        if args.v_detector>0:
+        if args.v_detector!=self.detectorVersionType(0):
             detectorVersion = self.detectorPrefix+str(args.v_detector)
             if detectorVersion in self.detectorVersionDict.values():
-                detectorTuple = self.detectorVersionDict.keys()[self.detectorVersionDict.values().index(detectorVersion)]
+                detectorTuple = list(self.detectorVersionDict.keys())[list(self.detectorVersionDict.values()).index(detectorVersion)]
             else:
                 print("Unknown detector "+detectorVersion)
                 sys.exit(1)
