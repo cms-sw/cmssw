@@ -22,8 +22,8 @@
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
 
 #include <TH1F.h>
 #include <TProfile.h>

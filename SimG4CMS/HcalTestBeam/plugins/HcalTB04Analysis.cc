@@ -56,10 +56,12 @@
 #include "G4ThreeVector.hh"
 #include "G4VProcess.hh"
 #include "G4HCofThisEvent.hh"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "Randomize.hh"
+
+#include <CLHEP/Random/RandGaussQ.h>
+#include <CLHEP/Random/Randomize.h>
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+
 #include <cstdint>
 
 //#define EDM_ML_DEBUG
