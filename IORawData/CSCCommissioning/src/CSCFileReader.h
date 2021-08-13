@@ -2,7 +2,6 @@
 #define CSCFileReader_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "IORawData/DTCommissioning/plugins/RawFile.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Provenance/interface/EventID.h"
