@@ -35,7 +35,6 @@ using namespace ticl;
 class TrackstersFromCaloParticlesProducer : public edm::stream::EDProducer<> {
 public:
   explicit TrackstersFromCaloParticlesProducer(const edm::ParameterSet&);
-  ~TrackstersFromCaloParticlesProducer() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -47,11 +46,10 @@ private:
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
   const edm::EDGetTokenT<std::vector<float>> filtered_layerclusters_mask_token_;
 
-  edm::EDGetTokenT<std::vector<CaloParticle>> caloparticles_token_;
+  const edm::EDGetTokenT<std::vector<CaloParticle>> caloparticles_token_;
 
-  edm::InputTag associatorLayerClusterCaloParticle_;
-  edm::EDGetTokenT<hgcal::SimToRecoCollection> associatorMapCaloParticleToReco_token_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
+  const edm::EDGetTokenT<hgcal::SimToRecoCollection> associatorMapCaloParticleToReco_token_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
   hgcal::RecHitTools rhtools_;
   const double fractionCut_;
 };
@@ -60,14 +58,12 @@ DEFINE_FWK_MODULE(TrackstersFromCaloParticlesProducer);
 TrackstersFromCaloParticlesProducer::TrackstersFromCaloParticlesProducer(const edm::ParameterSet& ps)
     : detector_(ps.getParameter<std::string>("detector")),
       doNose_(detector_ == "HFNose"),
-      clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
-      clustersTime_token_(
-          consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("time_layerclusters"))),
-      filtered_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"))),
-      caloparticles_token_(consumes<std::vector<CaloParticle>>(ps.getParameter<edm::InputTag>("caloparticles"))),
-      associatorLayerClusterCaloParticle_(
-          ps.getUntrackedParameter<edm::InputTag>("layerClusterCaloParticleAssociator")),
-      associatorMapCaloParticleToReco_token_(consumes<hgcal::SimToRecoCollection>(associatorLayerClusterCaloParticle_)),
+      clusters_token_(consumes(ps.getParameter<edm::InputTag>("layer_clusters"))),
+      clustersTime_token_(consumes(ps.getParameter<edm::InputTag>("time_layerclusters"))),
+      filtered_layerclusters_mask_token_(consumes(ps.getParameter<edm::InputTag>("filtered_mask"))),
+      caloparticles_token_(consumes(ps.getParameter<edm::InputTag>("caloparticles"))),
+      associatorMapCaloParticleToReco_token_(
+          consumes(ps.getUntrackedParameter<edm::InputTag>("layerClusterCaloParticleAssociator"))),
       geom_token_(esConsumes()),
       fractionCut_(ps.getParameter<double>("fractionCut")) {
   produces<std::vector<Trackster>>();
@@ -75,18 +71,16 @@ TrackstersFromCaloParticlesProducer::TrackstersFromCaloParticlesProducer(const e
 }
 
 void TrackstersFromCaloParticlesProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // hgcalMultiClusters
   edm::ParameterSetDescription desc;
   desc.add<std::string>("detector", "HGCAL");
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalLayerClusters"));
   desc.add<edm::InputTag>("time_layerclusters", edm::InputTag("hgcalLayerClusters", "timeLayerCluster"));
   desc.add<edm::InputTag>("filtered_mask", edm::InputTag("filteredLayerClustersSimTracksters", "ticlSimTracksters"));
   desc.add<edm::InputTag>("caloparticles", edm::InputTag("mix", "MergedCaloTruth"));
-  desc.addUntracked<edm::InputTag>("layerClusterCaloParticleAssociator",
-                                   edm::InputTag("layerClusterCaloParticleAssociationProducer"));
+  desc.add<edm::InputTag>("associator", edm::InputTag("layerClusterCaloParticleAssociationProducer"));
   desc.add<double>("fractionCut", 0.);
 
-  descriptions.add("trackstersFromCaloParticlesProducer", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void TrackstersFromCaloParticlesProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
