@@ -11,7 +11,7 @@
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 
 #include "SharedResourcesRegistry.h"
 

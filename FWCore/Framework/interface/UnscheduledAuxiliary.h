@@ -5,7 +5,7 @@
 // Package:     FWCore/Framework
 // Class  :     UnscheduledAuxiliary
 //
-/**\class UnscheduledAuxiliary UnscheduledAuxiliary.h "UnscheduledAuxiliary.h"
+/**\class UnscheduledAuxiliary UnscheduledAuxiliary.h "FWCore/Framework/interface/UnscheduledAuxiliary.h"
 
  Description: Holds auxiliary information needed for unscheduled calls to EDProducers
 
@@ -21,7 +21,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Utilities/interface/Signal.h"
 
 // forward declarations
