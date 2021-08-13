@@ -3,6 +3,7 @@
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 //
 #include <memory>
+#include <set>
 
 namespace cond {
 
