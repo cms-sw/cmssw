@@ -62,8 +62,7 @@ TrackstersFromCaloParticlesProducer::TrackstersFromCaloParticlesProducer(const e
       clustersTime_token_(consumes(ps.getParameter<edm::InputTag>("time_layerclusters"))),
       filtered_layerclusters_mask_token_(consumes(ps.getParameter<edm::InputTag>("filtered_mask"))),
       caloparticles_token_(consumes(ps.getParameter<edm::InputTag>("caloparticles"))),
-      associatorMapCaloParticleToReco_token_(
-          consumes(ps.getUntrackedParameter<edm::InputTag>("layerClusterCaloParticleAssociator"))),
+      associatorMapCaloParticleToReco_token_(consumes(ps.getParameter<edm::InputTag>("associator"))),
       geom_token_(esConsumes()),
       fractionCut_(ps.getParameter<double>("fractionCut")) {
   produces<std::vector<Trackster>>();
