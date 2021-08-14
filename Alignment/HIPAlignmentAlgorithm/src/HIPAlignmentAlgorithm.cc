@@ -12,28 +12,28 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ValidityInterval.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
+#include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/SurveyResidual.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariables.h"
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariablesIORoot.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include <DataFormats/GeometrySurface/interface/LocalError.h>
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/CommonAlignment/interface/AlignableExtras.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "FWCore/Framework/interface/ValidityInterval.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPAlignmentAlgorithm.h"
 
@@ -83,7 +83,6 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg, edm::
   theIOVrangeSet = cfg.getParameter<std::vector<unsigned>>("IOVrange");
 
   defaultAlignableSpecs.minNHits = cfg.getParameter<int>("minimumNumberOfHits");
-  ;
   defaultAlignableSpecs.minRelParError = cfg.getParameter<double>("minRelParameterError");
   defaultAlignableSpecs.maxRelParError = cfg.getParameter<double>("maxRelParameterError");
   defaultAlignableSpecs.maxHitPull = cfg.getParameter<double>("maxAllowedHitPull");
