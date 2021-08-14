@@ -6,7 +6,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "getBestVertex.h"
+#include "RecoTracker/FinalTrackSelectors/interface/getBestVertex.h"
 
 //from lwtnn
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
