@@ -11,8 +11,6 @@
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
-#include "SimTracker/TrackAssociation/plugins/CosmicParametersDefinerForTPESProducer.h"
 #include "SimTracker/TrackAssociation/interface/TrackingParticleIP.h"
 
 #include "TMath.h"
