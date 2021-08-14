@@ -336,7 +336,7 @@ def getSequence(process, collection,
                                   **(mod[2])), src
         modules.append(getattr(process, src))
     else:
-        if mods[-1][-1]["method"] is "load" and \
+        if mods[-1][-1]["method"] == "load" and \
                 not mods[-1][-1].get("clone", False):
             print("Name of the last module needs to be modifiable.")
             sys.exit(1)
