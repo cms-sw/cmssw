@@ -4,6 +4,7 @@
  * Authors:
  *   Laurent Forthomme (laurent.forthomme@cern.ch)
  *   Nicola Minafra
+ *   Christopher Misan (krzysztof.misan@cern.ch)
  *
  ****************************************************************************/
 
@@ -24,12 +25,14 @@ TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm(const edm
       cfdFraction_(iConfig.getParameter<double>("cfdFraction")),
       smoothingPoints_(iConfig.getParameter<int>("smoothingPoints")),
       lowPassFrequency_(iConfig.getParameter<double>("lowPassFrequency")),
-      hysteresis_(iConfig.getParameter<double>("hysteresis")) {}
+      hysteresis_(iConfig.getParameter<double>("hysteresis")),
+      sampicOffset_(iConfig.getParameter<double>("sampicOffset")),
+      sampicSamplingPeriodNs_(iConfig.getParameter<double>("sampicSamplingPeriodNs")) {}
 
 //----------------------------------------------------------------------------------------------------
 
 void TotemTimingRecHitProducerAlgorithm::setCalibration(const PPSTimingCalibration& calib) {
-  sampicConversions_ = std::make_unique<TotemTimingConversions>(mergeTimePeaks_, calib);
+  sampicConversions_ = std::make_unique<TotemTimingConversions>(sampicSamplingPeriodNs_, mergeTimePeaks_, calib);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -38,7 +41,7 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
                                                const edm::DetSetVector<TotemTimingDigi>& input,
                                                edm::DetSetVector<TotemTimingRecHit>& output) {
   for (const auto& vec : input) {
-    const TotemTimingDetId detid(vec.detId());
+    const CTPPSDetId detid(vec.detId());
 
     float x_pos = 0.f, y_pos = 0.f, z_pos = 0.f;
     float x_width = 0.f, y_width = 0.f, z_width = 0.f;
@@ -69,22 +72,31 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
       const std::vector<float> time(sampicConversions_->timeSamples(digi));
       std::vector<float> data(sampicConversions_->voltSamples(digi));
 
-      auto max_it = std::max_element(data.begin(), data.end());
+      auto [min_it, max_it] = std::minmax_element(data.begin(), data.end());
 
+      if (det->name() == "CTPPS_Diamond_Segment") {
+        //flip the signal
+        for (unsigned int i = 0; i < data.size(); ++i)
+          data[i] = -data[i] + sampicOffset_;
+      }
       RegressionResults baselineRegression = simplifiedLinearRegression(time, data, 0, baselinePoints_);
 
       // remove baseline
       std::vector<float> dataCorrected(data.size());
       for (unsigned int i = 0; i < data.size(); ++i)
         dataCorrected[i] = data[i] - (baselineRegression.q + baselineRegression.m * time[i]);
+
       auto max_corrected_it = std::max_element(dataCorrected.begin(), dataCorrected.end());
 
       float t = TotemTimingRecHit::NO_T_AVAILABLE;
-      if (*max_it < saturationLimit_)
+
+      //if det==diamond then if (*min_it) > saturationLimit_), calculate the t, otherwise t=-100
+      //if det==ufsd then if (*max_it) < saturationLimit_), calculate the t, otherwise t=-100
+      //the difference between ufsd and sampic conditions comes from the signal flip
+      if ((det->name() == "CTPPS_Diamond_Segment" && (*min_it) > saturationLimit_) ||
+          (det->name() == "CTPPS_UFSD_Segment" && (*max_it) < saturationLimit_))
         t = constantFractionDiscriminator(time, dataCorrected);
-
       mode_ = TotemTimingRecHit::CFD;
-
       rec_hits.emplace_back(x_pos,
                             x_width,
                             y_pos,
