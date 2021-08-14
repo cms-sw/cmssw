@@ -46,10 +46,6 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 #include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
-#include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
-#include "RecoLocalMuon/DTSegment/src/DTSegmentCleaner.h"
-#include "RecoLocalMuon/DTSegment/src/DTHitPairForFit.h"
-#include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>

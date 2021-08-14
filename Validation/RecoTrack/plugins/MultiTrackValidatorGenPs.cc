@@ -17,8 +17,6 @@
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
-#include "SimTracker/TrackAssociation/plugins/CosmicParametersDefinerForTPESProducer.h"
 
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/Common/interface/ValueMap.h"
