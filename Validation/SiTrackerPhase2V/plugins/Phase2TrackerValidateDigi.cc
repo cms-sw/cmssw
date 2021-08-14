@@ -38,11 +38,12 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
-#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 
 // DQM Histograming
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
+
+using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
 
 //
 // constructors
