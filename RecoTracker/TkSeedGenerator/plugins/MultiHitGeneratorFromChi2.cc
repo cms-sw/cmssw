@@ -2,7 +2,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
-#include "RecoPixelVertexing/PixelTriplets/plugins/ThirdHitRZPrediction.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPrediction.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 
