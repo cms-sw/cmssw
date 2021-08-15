@@ -53,7 +53,7 @@ def main(opts):
     #layerClusters
     def plot_LC():
         hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-        hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters", extendedFlag)
+        hgcalPlots.append_hgcalLayerClustersPlots(hgcalValidator.label_layerClusterPlots._InputTag__moduleLabel, "Layer Clusters", extendedFlag)
         val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
 
     #simClusters
