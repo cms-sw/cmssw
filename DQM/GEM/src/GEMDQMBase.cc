@@ -211,8 +211,8 @@ int GEMDQMBase::GenerateMEPerChamber(DQMStore::IBooker& ibooker) {
         MEMap2WithEtaCheck_[key2WithEta] = true;
       }
       if (!MEMap2AbsReWithEtaCheck_[key2AbsReWithEta]) {
-        auto strSuffixName = Form("_GE%i%i-E%02i", std::abs(gid.region()), gid.station(), eId.ieta());
-        auto strSuffixTitle = Form(" GE%i%i-E%02i", std::abs(gid.region()), gid.station(), eId.ieta());
+        auto strSuffixName = Form("_GE%d1-E%02i", gid.station(), eId.ieta());
+        auto strSuffixTitle = Form(" GE%d1-E%02i", gid.station(), eId.ieta());
         BookingHelper bh3(ibooker, strSuffixName, strSuffixTitle);
         ProcessWithMEMap2AbsReWithEta(bh3, key2AbsReWithEta);
         MEMap2AbsReWithEtaCheck_[key2AbsReWithEta] = true;
