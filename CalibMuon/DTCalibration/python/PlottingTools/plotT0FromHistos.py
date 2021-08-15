@@ -4,8 +4,8 @@ import ROOT
 from .drawHistoAllChambers import drawHisto
 
 def binNumber(station,sl):
-    if sl is 3 and station is 4: return 11
-    if sl is 2 and station is 4: return None
+    if sl == 3 and station == 4: return 11
+    if sl == 2 and station == 4: return None
     start = (station - 1)*3
     return start + sl
 
