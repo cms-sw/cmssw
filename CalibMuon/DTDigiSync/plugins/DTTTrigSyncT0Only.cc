@@ -1,10 +1,57 @@
-/*
- *  See header file for a description of this class.
+/** \class DTTTrigSyncT0Only
+ *  Concrete implementation of a DTTTrigBaseSync.
+ *  This plugin reads only the t0 from pulses from the DB.
+ *
  *
  *  \author G. Cerminara - INFN Torino
  */
 
-#include "CalibMuon/DTDigiSync/interface/DTTTrigSyncT0Only.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
+
+class DTLayer;
+class DTWireId;
+class DTT0;
+
+namespace edm {
+  class ParameterSet;
+}
+
+class DTTTrigSyncT0Only : public DTTTrigBaseSync {
+public:
+  /// Constructor
+  DTTTrigSyncT0Only(const edm::ParameterSet& config);
+
+  /// Destructor
+  ~DTTTrigSyncT0Only() override;
+
+  // Operations
+
+  /// Pass the Event Setup to the algo at each event
+  void setES(const edm::EventSetup& setup) override;
+
+  /// Time (ns) to be subtracted to the digi time,
+  /// Parameters are the layer and the wireId to which the
+  /// digi is referred and the estimation of
+  /// the 3D hit position (globPos)
+  double offset(const DTLayer* layer,
+                const DTWireId& wireId,
+                const GlobalPoint& globPos,
+                double& tTrig,
+                double& wirePropCorr,
+                double& tofCorr) const override;
+
+  double offset(const DTWireId& wireId) const override;
+
+  /// Time (ns) to be subtracted to the digi time for emulation purposes
+  /// Returns just 0 in this implementation of the plugin
+  double emulatorOffset(const DTWireId& wireId, double& tTrig, double& t0cell) const override;
+
+private:
+  const DTT0* tZeroMap;
+
+  // Set the verbosity level
+  const bool debug;
+};
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -68,3 +115,8 @@ double DTTTrigSyncT0Only::emulatorOffset(const DTWireId& wireId, double& tTrig, 
   t0cell = 0.;
   return 0.;
 }
+
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
+
+DEFINE_EDM_PLUGIN(DTTTrigSyncFactory, DTTTrigSyncT0Only, "DTTTrigSyncT0Only");
