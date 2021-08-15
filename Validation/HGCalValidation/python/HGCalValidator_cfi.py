@@ -40,6 +40,7 @@ hgcalValidator = DQMEDAnalyzer(
     #SimCluster related plots
     doSimClustersPlots = cms.untracked.bool(True),
     label_SimClusters = cms.InputTag("SimClusters"),
+    label_SimClustersLevel = cms.InputTag("ClusterLevel"),
     #Layer Cluster related plots
     doLayerClustersPlots = cms.untracked.bool(True),
     label_LCToCPLinking = cms.InputTag("LCToCP_association"),
