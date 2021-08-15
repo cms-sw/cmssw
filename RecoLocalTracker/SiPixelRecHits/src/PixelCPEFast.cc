@@ -178,11 +178,14 @@ void PixelCPEFast::fillParamsForGpu() {
 
     auto toMicron = [&](float x) { return std::min(511, int(x * 1.e4f + 0.5f)); };
 
+    // average angle
+    auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchX;
+    auto gvy = p.theOrigin.y();
+    auto gvz = 1.f / p.theOrigin.z();
+    //--- Note that the normalization is not required as only the ratio used
+
     {
-      // average angle
-      auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchX;
-      auto gvy = p.theOrigin.y();
-      auto gvz = 1.f / p.theOrigin.z();
+      // calculate angles (fed into errorFromTemplates)
       cp.cotalpha = gvx * gvz;
       cp.cotbeta = gvy * gvz;
       errorFromTemplates(p, cp, 20000.);
@@ -235,13 +238,7 @@ void PixelCPEFast::fillParamsForGpu() {
     }
 #endif  // EDM_ML_DEBUG
 
-    // average angle
-    auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchX;
-    auto gvy = p.theOrigin.y();
-    auto gvz = 1.f / p.theOrigin.z();
-    //--- Note that the normalization is not required as only the ratio used
-
-    // calculate angles (fed into errorFromTemplates)
+    // calculate angles (repeated)
     cp.cotalpha = gvx * gvz;
     cp.cotbeta = gvy * gvz;
     auto aveCB = cp.cotbeta;
