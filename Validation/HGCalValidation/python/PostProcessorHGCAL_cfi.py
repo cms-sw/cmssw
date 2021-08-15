@@ -37,8 +37,8 @@ eff_simclusters.extend(["fake_phi_layer{:02d} 'LayerCluster Fake Rate vs #phi La
 eff_simclusters.extend(["merge_eta_layer{:02d} 'LayerCluster Merge Rate vs #eta Layer{:02d} in z-' NumMerge_LayerCluster_in_SimCluster_Eta_perlayer{:02d} Denom_LayerCluster_in_SimCluster_Eta_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) if (i<maxlayerzm) else "merge_eta_layer{:02d} 'LayerCluster Merge Rate vs #eta Layer{:02d} in z+' NumMerge_LayerCluster_in_SimCluster_Eta_perlayer{:02d} Denom_LayerCluster_in_SimCluster_Eta_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) for i in range(maxlayerzp) ])
 eff_simclusters.extend(["merge_phi_layer{:02d} 'LayerCluster Merge Rate vs #phi Layer{:02d} in z-' NumMerge_LayerCluster_in_SimCluster_Phi_perlayer{:02d} Denom_LayerCluster_in_SimCluster_Phi_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) if (i<maxlayerzm) else "merge_phi_layer{:02d} 'LayerCluster Merge Rate vs #phi Layer{:02d} in z+' NumMerge_LayerCluster_in_SimCluster_Phi_perlayer{:02d} Denom_LayerCluster_in_SimCluster_Phi_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) for i in range(maxlayerzp) ])
 
-subdirsSim = [prefix+'simClusters/ticlTracksters'+iteration+'/' for iteration in ticlIterLabelsMerge]
-subdirsSim.extend([prefix+'simClusters/ticlSimTracksters'])
+subdirsSim = [prefix + hgcalValidator.label_SimClusters._InputTag__moduleLabel + '/ticlTracksters'+iteration+'/' for iteration in ticlIterLabelsMerge]
+subdirsSim.extend([prefix + hgcalValidator.label_SimClusters._InputTag__moduleLabel + '/ticlSimTracksters'])
 postProcessorHGCALsimclusters= DQMEDHarvester('DQMGenericClient',
     subDirs = cms.untracked.vstring(subdirsSim),
     efficiency = cms.vstring(eff_simclusters),
