@@ -1,5 +1,11 @@
-<use name="FWCore/PluginManager"/>
 <use name="CalibMuon/DTDigiSync"/>
+<use name="CondFormats/DTObjects"/>
+<use name="CondFormats/DataRecord"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/DTGeometry"/>
 <library file="*.cc" name="CalibMuonDTDigiSyncPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
