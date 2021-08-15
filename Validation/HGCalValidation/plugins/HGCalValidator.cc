@@ -20,6 +20,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       doCaloParticleSelection_(pset.getUntrackedParameter<bool>("doCaloParticleSelection")),
       doSimClustersPlots_(pset.getUntrackedParameter<bool>("doSimClustersPlots")),
       label_SimClustersPlots_(pset.getParameter<edm::InputTag>("label_SimClusters")),
+      label_SimClustersLevel_(pset.getParameter<edm::InputTag>("label_SimClustersLevel")),
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
       label_LCToCPLinking_(pset.getParameter<edm::InputTag>("label_LCToCPLinking")),
       doTrackstersPlots_(pset.getUntrackedParameter<bool>("doTrackstersPlots")),
@@ -124,7 +125,7 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
   //Booking histograms concerning with simClusters
   if (doSimClustersPlots_) {
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + label_SimClustersPlots_.label() + "/ClusterLevel");
+    ibook.setCurrentFolder(dirName_ + label_SimClustersPlots_.label() + "/" + label_SimClustersLevel_.label());
     histoProducerAlgo_->bookSimClusterHistos(
         ibook, histograms.histoProducerAlgo, totallayers_to_monitor_, thicknesses_to_monitor_);
 
