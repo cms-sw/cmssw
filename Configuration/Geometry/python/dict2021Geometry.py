@@ -2480,4 +2480,4 @@ detectorVersionDict = {
     ("O5","T8","C1","M1","F1","P5") : "2021FlatPlus10Percent",
  }
 
-deprecatedSubdets = set([ "T1", "T2", "O1", "O2", "P1", "P2", "P3" ])
+deprecatedSubdets = set([ "T1", "T2", "O1", "O2", "P1", "P2", "P3", "P4" ])
