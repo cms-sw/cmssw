@@ -16,6 +16,7 @@ import Validation.RecoTrack.plotting.plotting as plotting
 import Validation.RecoTrack.plotting.validation as validation
 import Validation.RecoTrack.plotting.html as html
 
+from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
 from Validation.HGCalValidation.PostProcessorHGCAL_cfi import tsToCP_linking, lcToCP_linking
 
 #To be able to spot any issues both in -z and +z a layer id was introduced
@@ -2319,7 +2320,7 @@ def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_colle
 
 #=================================================================================================
 def _hgcalsimClustersFolders(lastDirName):
-    return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/simClusters/"+lastDirName
+    return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/" + hgcalValidator.label_SimClusters._InputTag__moduleLabel + "/"+lastDirName
 
 sc_clusterlevel = [
   # number of layer clusters per event in a) 120um, b) 200um, c) 300um, d) scint
