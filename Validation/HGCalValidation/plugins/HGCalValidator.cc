@@ -22,6 +22,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       label_SimClustersPlots_(pset.getParameter<edm::InputTag>("label_SimClusters")),
       label_SimClustersLevel_(pset.getParameter<edm::InputTag>("label_SimClustersLevel")),
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
+      label_layerClustersPlots_(pset.getParameter<edm::InputTag>("label_layerClusterPlots")),
       label_LCToCPLinking_(pset.getParameter<edm::InputTag>("label_LCToCPLinking")),
       doTrackstersPlots_(pset.getUntrackedParameter<bool>("doTrackstersPlots")),
       label_TSToCPLinking_(pset.getParameter<edm::InputTag>("label_TSToCPLinking")),
@@ -159,19 +160,19 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
   //Booking histograms concerning with hgcal layer clusters
   if (doLayerClustersPlots_) {
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters/ClusterLevel");
+    ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_.label() + "/ClusterLevel");
     histoProducerAlgo_->bookClusterHistos_ClusterLevel(ibook,
                                                        histograms.histoProducerAlgo,
                                                        totallayers_to_monitor_,
                                                        thicknesses_to_monitor_,
                                                        cummatbudinxo_.fullPath());
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters/" + label_LCToCPLinking_.label());
+    ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_.label() + "/" + label_LCToCPLinking_.label());
     histoProducerAlgo_->bookClusterHistos_LCtoCP_association(
         ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
 
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters/CellLevel");
+    ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_.label() + "/CellLevel");
     histoProducerAlgo_->bookClusterHistos_CellLevel(
         ibook, histograms.histoProducerAlgo, totallayers_to_monitor_, thicknesses_to_monitor_);
   }

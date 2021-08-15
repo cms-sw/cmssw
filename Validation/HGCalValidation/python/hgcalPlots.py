@@ -2271,7 +2271,7 @@ lc_zplus_extended = [
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus
 ]
 
-def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_collection = layerClustersLabel, extended = False):
+def append_hgcalLayerClustersPlots(collection = hgcalValidator.label_layerClusterPlots._InputTag__moduleLabel, name_collection = layerClustersLabel, extended = False):
   print('extended : ',extended)
   regions_ClusterLevel       = ["General: Cluster Level", "Z-minus: Cluster Level", "Z-plus: Cluster Level"]
   regions_CellLevel          = ["Z-minus: Cell Level", "Z-plus: Cell Level"]

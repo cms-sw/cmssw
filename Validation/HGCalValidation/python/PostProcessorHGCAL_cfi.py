@@ -19,7 +19,7 @@ eff_layers.extend(["merge_phi_layer{:02d} 'LayerCluster Merge Rate vs #phi Layer
 
 lcToCP_linking = hgcalValidator.label_LCToCPLinking._InputTag__moduleLabel
 postProcessorHGCALlayerclusters= DQMEDHarvester('DQMGenericClient',
-    subDirs = cms.untracked.vstring(prefix+'hgcalLayerClusters/' + lcToCP_linking),
+    subDirs = cms.untracked.vstring(prefix + hgcalValidator.label_layerClusterPlots._InputTag__moduleLabel + '/' + lcToCP_linking),
     efficiency = cms.vstring(eff_layers),
     resolution = cms.vstring(),
     cumulativeDists = cms.untracked.vstring(),
