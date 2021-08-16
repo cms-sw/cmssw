@@ -97,7 +97,8 @@ namespace {
   };
 }  // namespace
 
-OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread* ms) {
+OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread* ms)
+    : m_handoff{p.getUntrackedParameter<int>("workerThreadStackSize", 10 * 1024 * 1024)} {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 

@@ -32,7 +32,7 @@
 namespace omt {
   class ThreadHandoff {
   public:
-    explicit ThreadHandoff();
+    explicit ThreadHandoff(int stackSize);
     ~ThreadHandoff();
 
     ThreadHandoff(const ThreadHandoff&) = delete;                   // stop default
