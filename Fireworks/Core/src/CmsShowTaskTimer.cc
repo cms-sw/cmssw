@@ -14,7 +14,7 @@
 
 // user include files
 #include "Fireworks/Core/src/CmsShowTaskTimer.h"
-#include "Fireworks/Core/src/CmsShowTaskExecutorBase.h"
+#include "Fireworks/Core/interface/CmsShowTaskExecutorBase.h"
 
 //
 // constants, enums and typedefs

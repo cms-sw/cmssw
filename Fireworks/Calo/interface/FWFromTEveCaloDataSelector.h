@@ -23,7 +23,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWFromEveSelectorBase.h"
-#include "Fireworks/Calo/src/FWFromSliceSelector.h"
+#include "Fireworks/Calo/interface/FWFromSliceSelector.h"
 
 // forward declarations
 class FWEventItem;

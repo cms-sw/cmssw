@@ -2,7 +2,7 @@
 #define Fireworks_Core_FWXMLConfigParser
 #include <istream>
 #include <iostream>
-#include "Fireworks/Core/src/SimpleSAXParser.h"
+#include "Fireworks/Core/interface/SimpleSAXParser.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
