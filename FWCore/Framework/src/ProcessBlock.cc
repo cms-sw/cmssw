@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
-#include "FWCore/Framework/src/ProductPutterBase.h"
+#include "FWCore/Framework/interface/ProductPutterBase.h"
 
 namespace edm {
 

@@ -18,7 +18,7 @@
 #include "FWCore/Framework/src/Factory.h"
 #include "FWCore/Framework/interface/OutputModuleCommunicator.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
-#include "FWCore/Framework/src/ModuleRegistry.h"
+#include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/src/EndPathStatusInserter.h"

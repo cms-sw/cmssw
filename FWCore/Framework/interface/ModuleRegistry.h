@@ -5,7 +5,7 @@
 // Package:     FWCore/Framework
 // Class  :     ModuleRegistry
 //
-/**\class edm::ModuleRegistry ModuleRegistry.h "FWCore/Framework/src/ModuleRegistry.h"
+/**\class edm::ModuleRegistry ModuleRegistry.h "FWCore/Framework/interface/ModuleRegistry.h"
 
  Description: Constructs and owns framework modules
 
