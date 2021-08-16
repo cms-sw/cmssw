@@ -22,12 +22,12 @@
 
 namespace {
   std::string errorMessage(int erno) {
-      std::array<char, 1024> buffer;
-      strerror_r(erno, &buffer[0], buffer.size());
-      buffer.back() = '\0';
-      return std::string(&buffer[0]);
+    std::array<char, 1024> buffer;
+    strerror_r(erno, &buffer[0], buffer.size());
+    buffer.back() = '\0';
+    return std::string(&buffer[0]);
   }
-}
+}  // namespace
 //
 // static data member definitions
 //
@@ -38,28 +38,26 @@ namespace {
 using namespace omt;
 
 ThreadHandoff::ThreadHandoff() {
-    pthread_attr_t attr;
-    int erno;
-    if( 0 != (erno = pthread_attr_init(&attr)) ) {
-      throw cms::Exception("ThreadInitFailed") <<"Failed to initialize thread attributes ("
-                                               <<erno<<") "<<errorMessage(erno);
-    }
-    const int stackSize = 10*1024*1024;
-    
-    if( 0 != (erno = pthread_attr_setstacksize(&attr, stackSize) ) ){
-      throw cms::Exception("ThreadStackSizeFailed")<<"Failed to set stack size "<<stackSize<<" "<<errorMessage(erno);
-    }
-    std::unique_lock<std::mutex> lk(m_mutex);
+  pthread_attr_t attr;
+  int erno;
+  if (0 != (erno = pthread_attr_init(&attr))) {
+    throw cms::Exception("ThreadInitFailed")
+        << "Failed to initialize thread attributes (" << erno << ") " << errorMessage(erno);
+  }
+  const int stackSize = 10 * 1024 * 1024;
 
-    erno  = pthread_create(&m_thread, &attr,
-                           threadLoop, this);
-    if( 0 != erno) {
-      throw cms::Exception("ThreadCreateFailed")<<" failed to create a pthread ("
-                                                <<erno<<") "
-                                                << errorMessage(erno);
-    }
-    m_loopReady=false;
-    m_threadHandoff.wait(lk, [this]() { return m_loopReady;} );
+  if (0 != (erno = pthread_attr_setstacksize(&attr, stackSize))) {
+    throw cms::Exception("ThreadStackSizeFailed")
+        << "Failed to set stack size " << stackSize << " " << errorMessage(erno);
+  }
+  std::unique_lock<std::mutex> lk(m_mutex);
+
+  erno = pthread_create(&m_thread, &attr, threadLoop, this);
+  if (0 != erno) {
+    throw cms::Exception("ThreadCreateFailed") << " failed to create a pthread (" << erno << ") " << errorMessage(erno);
+  }
+  m_loopReady = false;
+  m_threadHandoff.wait(lk, [this]() { return m_loopReady; });
 }
 
 // ThreadHandoff::ThreadHandoff(const ThreadHandoff& rhs)
@@ -68,7 +66,7 @@ ThreadHandoff::ThreadHandoff() {
 // }
 
 ThreadHandoff::~ThreadHandoff() {
-  if(not m_stopThread) {
+  if (not m_stopThread) {
     stopThread();
   }
   void* ret;
@@ -105,15 +103,15 @@ void* ThreadHandoff::threadLoop(void* iArgs) {
     theThis->m_loopReady = true;
   }
   theThis->m_threadHandoff.notify_one();
-  
+
   std::unique_lock<std::mutex> lck(theThis->m_mutex);
   do {
-    theThis->m_toRun=nullptr;
-    theThis->m_threadHandoff.wait(lck, [theThis]() { return nullptr != theThis->m_toRun;});
+    theThis->m_toRun = nullptr;
+    theThis->m_threadHandoff.wait(lck, [theThis]() { return nullptr != theThis->m_toRun; });
     theThis->m_toRun->execute();
-    theThis->m_loopReady=true;
+    theThis->m_loopReady = true;
     theThis->m_threadHandoff.notify_one();
-  } while(not theThis->m_stopThread);
-  theThis->m_loopReady=true;
+  } while (not theThis->m_stopThread);
+  theThis->m_loopReady = true;
   return nullptr;
 }
