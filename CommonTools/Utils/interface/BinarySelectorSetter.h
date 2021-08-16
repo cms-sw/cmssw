@@ -10,10 +10,10 @@
  * \version $Revision: 1.2 $
  *
  */
-#include "CommonTools/Utils/src/SelectorStack.h"
-#include "CommonTools/Utils/src/ComparisonStack.h"
-#include "CommonTools/Utils/src/ExpressionStack.h"
-#include "CommonTools/Utils/src/BinarySelector.h"
+#include "CommonTools/Utils/interface/SelectorStack.h"
+#include "CommonTools/Utils/interface/ComparisonStack.h"
+#include "CommonTools/Utils/interface/ExpressionStack.h"
+#include "CommonTools/Utils/interface/BinarySelector.h"
 #include "CommonTools/Utils/interface/Exception.h"
 
 namespace reco {

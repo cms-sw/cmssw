@@ -10,8 +10,8 @@
  * \version $Revision: 1.2 $
  *
  */
-#include "CommonTools/Utils/src/SelectorStack.h"
-#include "CommonTools/Utils/src/LogicalBinaryOperator.h"
+#include "CommonTools/Utils/interface/SelectorStack.h"
+#include "CommonTools/Utils/interface/LogicalBinaryOperator.h"
 
 namespace reco {
   namespace parser {

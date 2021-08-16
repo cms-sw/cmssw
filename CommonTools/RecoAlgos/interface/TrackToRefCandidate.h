@@ -1,7 +1,7 @@
 #ifndef RecoAlgos_TrackToRefCandidate_h
 #define RecoAlgos_TrackToRefCandidate_h
-#include "CommonTools/RecoAlgos/src/MassiveCandidateConverter.h"
-#include "CommonTools/RecoAlgos/src/CandidateProducer.h"
+#include "CommonTools/RecoAlgos/interface/MassiveCandidateConverter.h"
+#include "CommonTools/RecoAlgos/interface/CandidateProducer.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedRefCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedRefCandidateFwd.h"
