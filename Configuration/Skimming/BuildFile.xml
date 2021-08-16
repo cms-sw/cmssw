@@ -15,7 +15,6 @@
 <use name="RecoVertex/KalmanVertexFit"/>
 <use name="TrackingTools/IPTools"/>
 <use name="MagneticField/Engine"/>
-<use name="MagneticField/ParametrizedEngine"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="TrackingTools/Records"/>
 <flags EDM_PLUGIN="1"/>
