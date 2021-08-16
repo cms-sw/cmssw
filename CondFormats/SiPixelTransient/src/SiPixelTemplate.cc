@@ -106,6 +106,7 @@
 #include "CondFormats/SiPixelTransient/interface/SimplePixel.h"
 #include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #define LOGERROR(x) LogError(x)
 #define LOGINFO(x) LogInfo(x)
 #define LOGWARNING(x) LogWarning(x)
@@ -1391,6 +1392,12 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
     if (index_id_ < 0 || index_id_ >= (int)thePixelTemp_.size()) {
       throw cms::Exception("DataCorrupt")
           << "SiPixelTemplate::interpolate can't find needed template ID = " << id << std::endl;
+    }
+
+    //check for nan's
+    if (!edm::isFinite(cotalpha) || !edm::isFinite(cotbeta)) {
+      success_ = false;
+      return success_;
     }
 #else
     assert(index_id_ >= 0 && index_id_ < (int)thePixelTemp_.size());
