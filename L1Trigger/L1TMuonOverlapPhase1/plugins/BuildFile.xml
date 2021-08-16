@@ -1,0 +1,13 @@
+<library file="*.cc" name="L1TriggerL1TMuonOverlapPhase1Plugins"> 
+  <use name="L1Trigger/L1TMuonOverlapPhase1"/>
+  <use name="CondFormats/L1TObjects"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="CondCore/DBOutputService"/>
+  <use name="SimDataFormats/Track"/>
+  <use name="root"/>
+  <use name="clhep"/>
+  <Use name="hepmc"/>
+  <flags EDM_PLUGIN="1"/>
+  <flags LDFLAGS="-lXMLIO"/>
+</library>
