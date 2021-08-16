@@ -117,7 +117,7 @@ namespace {
       auto paramValues = PlotBase::inputParamValues();
       auto ip = paramValues.find("DetIds");
       if (ip != paramValues.end()) {
-        auto input = boost::lexical_cast<std::string>(ip->second);
+        auto input = ip->second;
         typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
         boost::char_separator<char> sep{","};
         tokenizer tok{input, sep};
@@ -316,7 +316,7 @@ namespace {
         auto paramValues = PlotBase::inputParamValues();
         auto ip = paramValues.find("DetId");
         if (ip != paramValues.end()) {
-          the_detid = boost::lexical_cast<unsigned int>(ip->second);
+          the_detid = std::stoul(ip->second);
         }
 
         if (payload.get()) {
@@ -962,7 +962,7 @@ namespace {
       auto paramValues = PlotBase::inputParamValues();
       auto ip = paramValues.find("nsigma");
       if (ip != paramValues.end()) {
-        nsigma = boost::lexical_cast<unsigned int>(ip->second);
+        nsigma = std::stoul(ip->second);
       }
 
       // trick to deal with the multi-ioved tag and two tag case at the same time

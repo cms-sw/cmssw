@@ -53,7 +53,7 @@ int cond::TestReadUtilities::execute() {
     std::string siovs = getOptionValue<std::string>("iovs");
     tokenizer tok(siovs);
     for (auto &t : tok) {
-      iovs.push_back(boost::lexical_cast<unsigned long long>(t));
+      iovs.push_back(std::stoull(t));
     }
   }
 
