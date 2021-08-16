@@ -14,6 +14,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -33,6 +34,8 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+
+#include "SimG4Core/Application/interface/ThreadHandoff.h"
 
 #include "Randomize.hh"
 
@@ -56,6 +59,7 @@ public:
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
+  omt::ThreadHandoff m_handoff;
   std::unique_ptr<RunManagerMTWorker> m_runManagerWorker;
   const OscarMTMasterThread* m_masterThread = nullptr;
 };
@@ -97,7 +101,11 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
-  m_runManagerWorker = std::make_unique<RunManagerMTWorker>(p, consumesCollector());
+  auto token = edm::ServiceRegistry::instance().presentToken();
+  m_handoff.runAndWait([this, &p, token]() {
+      edm::ServiceRegistry::Operate guard{token};
+      m_runManagerWorker = std::make_unique<RunManagerMTWorker>(p, consumesCollector());
+    });
   m_masterThread = ms;
   m_masterThread->callConsumes(consumesCollector());
 
@@ -165,7 +173,11 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer is constructed";
 }
 
-OscarMTProducer::~OscarMTProducer() {}
+OscarMTProducer::~OscarMTProducer() {
+  auto token = edm::ServiceRegistry::instance().presentToken();
+  m_handoff.runAndWait([this, token]() {       edm::ServiceRegistry::Operate guard{token};
+      m_runManagerWorker.reset(); });
+}
 
 std::unique_ptr<OscarMTMasterThread> OscarMTProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
   // Random number generation not allowed here
@@ -198,8 +210,12 @@ void OscarMTProducer::globalEndJob(OscarMTMasterThread* masterThread) {
 
 void OscarMTProducer::beginRun(const edm::Run&, const edm::EventSetup& es) {
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun";
-  m_runManagerWorker->beginRun(es);
-  m_runManagerWorker->initializeG4(m_masterThread->runManagerMasterPtr(), es);
+  auto token = edm::ServiceRegistry::instance().presentToken();
+  m_handoff.runAndWait([this, &es, token]() {
+      edm::ServiceRegistry::Operate guard{token};
+      m_runManagerWorker->beginRun(es);
+      m_runManagerWorker->initializeG4(m_masterThread->runManagerMasterPtr(), es);
+    });
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun done";
 }
 
@@ -207,7 +223,10 @@ void OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&) {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::endRun";
-  m_runManagerWorker->endRun();
+  auto token = edm::ServiceRegistry::instance().presentToken();
+  m_handoff.runAndWait([this, token]() {
+      edm::ServiceRegistry::Operate guard{token};
+      m_runManagerWorker->endRun();});
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::endRun done";
 }
 
@@ -221,7 +240,11 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   std::unique_ptr<G4SimEvent> evt;
   try {
-    evt = m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster());
+    auto token = edm::ServiceRegistry::instance().presentToken();
+    m_handoff.runAndWait([this, &e, &es, &evt, token]() {
+      edm::ServiceRegistry::Operate guard{token};
+        evt = m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster());
+      });
   } catch (const SimG4Exception& simg4ex) {
     edm::LogWarning("SimG4CoreApplication") << "SimG4Exception caght! " << simg4ex.what();
 
