@@ -95,7 +95,7 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
       const auto q2 = isBarrel ? surf.zSpan().second : surf.rSpan().second;
       if (bs.BadModule)
         deadvectors[ilay].push_back({surf.phiSpan().first, surf.phiSpan().second, q1, q2});
-      else { //assume that BadApvs are filled in sync with BadFibers
+      else {  //assume that BadApvs are filled in sync with BadFibers
         auto const& topo = dynamic_cast<const StripTopology&>(trackerGeom.idToDet(detid)->topology());
         int firstApv = -1;
         int lastApv = -1;
@@ -106,15 +106,16 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
           float phi1 = firstPoint.phi();
           float phi2 = lastPoint.phi();
           if (reco::deltaPhi(phi1, phi2) > 0)
-	    std::swap(phi1, phi2);
-          LogTrace("SiStripBadComponents")<<"insert bad range "<<first<<" to "<<last<<" "<<phi1<<" "<<phi2;
+            std::swap(phi1, phi2);
+          LogTrace("SiStripBadComponents")
+              << "insert bad range " << first << " to " << last << " " << phi1 << " " << phi2;
           dv.push_back({phi1, phi2, q1, q2});
         };
 
         for (int apv = 0; apv < 6; ++apv) {
           const bool isBad = bs.BadApvs & (1 << apv);
           if (isBad)
-            LogTrace("SiStripBadComponents")<<"bad apv "<<apv<<" on "<<bs.detid;
+            LogTrace("SiStripBadComponents") << "bad apv " << apv << " on " << bs.detid;
           if (isBad) {
             if (lastApv == -1) {
               firstApv = apv;
