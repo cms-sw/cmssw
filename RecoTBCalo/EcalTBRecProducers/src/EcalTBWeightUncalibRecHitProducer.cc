@@ -46,10 +46,8 @@
 
 #define DEBUG
 EcalTBWeightUncalibRecHitProducer::EcalTBWeightUncalibRecHitProducer(const edm::ParameterSet& ps)
-    : testbeamEEShape(EEShape(
-          false)),  // Shapes have been updated in 2018 such as to be able to fetch shape from the DB if EBShape(true)//EEShape(true) are used
-      testbeamEBShape(EBShape(
-          false))  // use false as argument if you would rather prefer to use Phase I hardcoded shapes (18.05.2018 K. Theofilatos)
+    : testbeamEEShape(),  // Shapes have been updated in 2018 such as to be able to fetch shape from the DB if EBShape(consumesCollector())//EEShape(consumesCollector()) are used
+      testbeamEBShape()  // use default constructor if you would rather prefer to use Phase I hardcoded shapes (18.05.2018 K. Theofilatos)
 {
   EBdigiCollection_ = ps.getParameter<edm::InputTag>("EBdigiCollection");
   EEdigiCollection_ = ps.getParameter<edm::InputTag>("EEdigiCollection");

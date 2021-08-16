@@ -54,8 +54,8 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params,
 // version for Pre-Mixing, for use outside of MixingModule
 EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm::ConsumesCollector& iC)
     : DigiAccumulatorMixMod(),
-      m_APDShape(true),
-      m_EBShape(true),
+      m_APDShape(iC),
+      m_EBShape(iC),
 
       m_EBdigiCollection(params.getParameter<std::string>("EBdigiCollectionPh2")),
 

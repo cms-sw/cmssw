@@ -72,8 +72,8 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
 */
 
   theESShape = new ESShape();
-  theEBShape = new EBShape(true);
-  theEEShape = new EEShape(true);
+  theEBShape = new EBShape(consumesCollector());
+  theEEShape = new EEShape(consumesCollector());
 
   theESResponse = new CaloHitResponse(theParameterMap, theESShape);
   theEBResponse = new CaloHitResponse(theParameterMap, theEBShape);
