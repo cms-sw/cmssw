@@ -15,7 +15,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/SharedResourcesRegistry.h"
 
 namespace edm {
   EDProducer::EDProducer() : ProducerBase(), moduleDescription_(), previousParentage_(), previousParentageId_() {

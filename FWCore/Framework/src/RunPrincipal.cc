@@ -4,7 +4,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
-#include "FWCore/Framework/src/ProductPutterBase.h"
+#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/src/ProductPutOrMergerBase.h"
 
 namespace edm {

@@ -32,12 +32,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/Framework/src/Breakpoints.h"
-#include "FWCore/Framework/src/EventSetupsController.h"
+#include "FWCore/Framework/interface/EventSetupsController.h"
 #include "FWCore/Framework/interface/maker/InputSourceFactory.h"
-#include "FWCore/Framework/src/SharedResourcesRegistry.h"
-#include "FWCore/Framework/src/streamTransitionAsync.h"
+#include "FWCore/Framework/interface/SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/streamTransitionAsync.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
-#include "FWCore/Framework/src/globalTransitionAsync.h"
+#include "FWCore/Framework/interface/globalTransitionAsync.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
