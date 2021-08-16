@@ -591,10 +591,6 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       edm::Ref<reco::PhotonCollection> photonRef(photons, photon_tag.idx());
       HERE(Form("got photon ref, photon_tag.idx()=%d", photon_tag.idx()));
-#ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("GammaJetAnalysis")
-          << "loosePhotonQual->at(photon_tag.idx())=" << loosePhotonQual->at(photon_tag.idx());
-#endif
       tagPho_idLoose_ = (loosePhotonQual.isValid()) ? (*loosePhotonQual)[photonRef] : -1;
       tagPho_idTight_ = (tightPhotonQual.isValid()) ? (*tightPhotonQual)[photonRef] : -1;
     } else {
