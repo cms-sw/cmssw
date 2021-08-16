@@ -66,7 +66,7 @@ void MkFitEventOfHitsProducer::fillDescriptions(edm::ConfigurationDescriptions& 
 
   desc.add("pixelHits", edm::InputTag{"mkFitSiPixelHits"});
   desc.add("stripHits", edm::InputTag{"mkFitSiStripHits"});
-  desc.add("useStripStripQualityDB", false)->setComment("Use SiStrip quality DB information");
+  desc.add("useStripStripQualityDB", true)->setComment("Use SiStrip quality DB information");
 
   descriptions.addWithDefaultLabel(desc);
 }
