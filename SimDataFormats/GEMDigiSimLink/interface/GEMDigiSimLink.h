@@ -8,7 +8,7 @@
 
 class GEMDigiSimLink {
 public:
-  GEMDigiSimLink(uint16_t strip, int8_t bx, int8_t particleType, uint32_t trackId, EncodedEventId eventId) {
+  GEMDigiSimLink(uint16_t strip, int8_t bx, int16_t particleType, uint32_t trackId, EncodedEventId eventId) {
     strip_ = strip;
     bx_ = bx;
     particleType_ = particleType;
@@ -30,7 +30,7 @@ public:
 private:
   uint16_t strip_;
   int8_t bx_;
-  int8_t particleType_;
+  int16_t particleType_;
   uint32_t trackId_;
   EncodedEventId eventId_;
 };
