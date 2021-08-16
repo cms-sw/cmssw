@@ -31,8 +31,8 @@ int main(int argc, char** argv) {
   // Gains
 
   std::string tag = "SiStripApvGain_FromParticles_GR10_v11_offline";
-  cond::Time_t start = boost::lexical_cast<unsigned long long>(132440);
-  cond::Time_t end = boost::lexical_cast<unsigned long long>(285368);
+  cond::Time_t start = static_cast<unsigned long long>(132440);
+  cond::Time_t end = static_cast<unsigned long long>(285368);
   boost::python::dict inputs;
 
   edm::LogPrint("testSiStripPayloadInspector") << "## Exercising Gains plots " << std::endl;
@@ -72,8 +72,8 @@ int main(int argc, char** argv) {
   // Noise
 
   tag = "SiStripNoise_GR10_v1_hlt";
-  start = boost::lexical_cast<unsigned long long>(312968);
-  end = boost::lexical_cast<unsigned long long>(313120);
+  start = static_cast<unsigned long long>(312968);
+  end = static_cast<unsigned long long>(313120);
 
   edm::LogPrint("testSiStripPayloadInspector") << "## Exercising Noise plots " << std::endl;
 
@@ -98,8 +98,8 @@ int main(int argc, char** argv) {
   // Pedestals
 
   tag = "SiStripPedestals_v2_prompt";
-  start = boost::lexical_cast<unsigned long long>(303420);
-  end = boost::lexical_cast<unsigned long long>(313120);
+  start = static_cast<unsigned long long>(303420);
+  end = static_cast<unsigned long long>(313120);
 
   edm::LogPrint("testSiStripPayloadInspector") << "## Exercising Pedestal plots " << std::endl;
 
@@ -120,8 +120,8 @@ int main(int argc, char** argv) {
   //Latency
 
   tag = "SiStripLatency_v2_prompt";
-  start = boost::lexical_cast<unsigned long long>(315347);
-  end = boost::lexical_cast<unsigned long long>(316675);
+  start = static_cast<unsigned long long>(315347);
+  end = static_cast<unsigned long long>(316675);
 
   edm::LogPrint("testSiStripPayloadInspector") << "## Exercising Latency plots " << std::endl;
 
@@ -135,8 +135,8 @@ int main(int argc, char** argv) {
 
   //Threshold
   tag = "SiStripThreshold_v1_prompt";
-  start = boost::lexical_cast<unsigned long long>(315352);
-  end = boost::lexical_cast<unsigned long long>(315460);
+  start = static_cast<unsigned long long>(315352);
+  end = static_cast<unsigned long long>(315460);
 
   edm::LogPrint("testSiStripPayloadInspector") << "## Exercising Threshold plots " << std::endl;
 
@@ -146,8 +146,8 @@ int main(int argc, char** argv) {
 
   // test SiStripTkMaps
   tag = "SiStripBadComponents_startupMC_for2017_v1_mc";
-  start = boost::lexical_cast<unsigned long long>(1);
-  end = boost::lexical_cast<unsigned long long>(1);
+  start = static_cast<unsigned long long>(1);
+  end = static_cast<unsigned long long>(1);
 
   edm::LogPrint("testSiStripPayloadInspector") << "## Exercising SiStripTkMaps plots " << std::endl;
 

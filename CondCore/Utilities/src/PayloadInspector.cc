@@ -79,8 +79,8 @@ namespace cond {
           std::string tagName = boost::python::extract<std::string>(entry[0]);
           std::string time0s = boost::python::extract<std::string>(entry[1]);
           std::string time1s = boost::python::extract<std::string>(entry[2]);
-          cond::Time_t time0 = boost::lexical_cast<cond::Time_t>(time0s);
-          cond::Time_t time1 = boost::lexical_cast<cond::Time_t>(time1s);
+          cond::Time_t time0 = std::stoull(time0s);
+          cond::Time_t time1 = std::stoull(time1s);
           tags[i] = std::make_tuple(tagName, time0, time1);
         }
         ret = exec_process(connectionString, tags);
