@@ -10,4 +10,4 @@
 <use name="SimG4Core/SensitiveDetector"/>
 <flags EDM_PLUGIN="1"/>
 <library name="SimG4CMSHcalForwardLibWriter" file="HcalForwardLibWriter.cc"></library>
-<library name="SimG4CMSShowerLibraryProducerPlugins" file="HFWedgeSensitiveDetectorBuilder.cc,FiberSensitiveDetectorBuilder.cc,HFChamberSensitiveDetectorBuilder.cc,module.cc"></library>
+<library name="SimG4CMSShowerLibraryProducerPlugins" file="HFWedgeSensitiveDetectorBuilder.cc,FiberSensitiveDetectorBuilder.cc,HFChamberSensitiveDetectorBuilder.cc"></library>
