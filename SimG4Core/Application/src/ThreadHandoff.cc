@@ -37,14 +37,13 @@ namespace {
 //
 using namespace omt;
 
-ThreadHandoff::ThreadHandoff() {
+ThreadHandoff::ThreadHandoff(int stackSize) {
   pthread_attr_t attr;
   int erno;
   if (0 != (erno = pthread_attr_init(&attr))) {
     throw cms::Exception("ThreadInitFailed")
         << "Failed to initialize thread attributes (" << erno << ") " << errorMessage(erno);
   }
-  const int stackSize = 10 * 1024 * 1024;
 
   if (0 != (erno = pthread_attr_setstacksize(&attr, stackSize))) {
     throw cms::Exception("ThreadStackSizeFailed")
