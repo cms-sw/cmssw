@@ -5,13 +5,11 @@
 
 using namespace omt;
 TEST_CASE("Test omt::ThreadHandoff", "[ThreadHandoff]") {
-  SECTION("Do nothing") {
-    ThreadHandoff th;
-  }
+  SECTION("Do nothing") { ThreadHandoff th; }
   SECTION("Simple") {
     ThreadHandoff th;
     bool value = false;
-    th.runAndWait([&value]() { value = true;});
+    th.runAndWait([&value]() { value = true; });
     REQUIRE(value == true);
   }
 

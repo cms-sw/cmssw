@@ -103,9 +103,9 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
 
   auto token = edm::ServiceRegistry::instance().presentToken();
   m_handoff.runAndWait([this, &p, token]() {
-      edm::ServiceRegistry::Operate guard{token};
-      m_runManagerWorker = std::make_unique<RunManagerMTWorker>(p, consumesCollector());
-    });
+    edm::ServiceRegistry::Operate guard{token};
+    m_runManagerWorker = std::make_unique<RunManagerMTWorker>(p, consumesCollector());
+  });
   m_masterThread = ms;
   m_masterThread->callConsumes(consumesCollector());
 
@@ -175,8 +175,10 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
 
 OscarMTProducer::~OscarMTProducer() {
   auto token = edm::ServiceRegistry::instance().presentToken();
-  m_handoff.runAndWait([this, token]() {       edm::ServiceRegistry::Operate guard{token};
-      m_runManagerWorker.reset(); });
+  m_handoff.runAndWait([this, token]() {
+    edm::ServiceRegistry::Operate guard{token};
+    m_runManagerWorker.reset();
+  });
 }
 
 std::unique_ptr<OscarMTMasterThread> OscarMTProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
@@ -212,10 +214,10 @@ void OscarMTProducer::beginRun(const edm::Run&, const edm::EventSetup& es) {
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun";
   auto token = edm::ServiceRegistry::instance().presentToken();
   m_handoff.runAndWait([this, &es, token]() {
-      edm::ServiceRegistry::Operate guard{token};
-      m_runManagerWorker->beginRun(es);
-      m_runManagerWorker->initializeG4(m_masterThread->runManagerMasterPtr(), es);
-    });
+    edm::ServiceRegistry::Operate guard{token};
+    m_runManagerWorker->beginRun(es);
+    m_runManagerWorker->initializeG4(m_masterThread->runManagerMasterPtr(), es);
+  });
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun done";
 }
 
@@ -225,8 +227,9 @@ void OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&) {
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::endRun";
   auto token = edm::ServiceRegistry::instance().presentToken();
   m_handoff.runAndWait([this, token]() {
-      edm::ServiceRegistry::Operate guard{token};
-      m_runManagerWorker->endRun();});
+    edm::ServiceRegistry::Operate guard{token};
+    m_runManagerWorker->endRun();
+  });
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::endRun done";
 }
 
@@ -243,8 +246,8 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     auto token = edm::ServiceRegistry::instance().presentToken();
     m_handoff.runAndWait([this, &e, &es, &evt, token]() {
       edm::ServiceRegistry::Operate guard{token};
-        evt = m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster());
-      });
+      evt = m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster());
+    });
   } catch (const SimG4Exception& simg4ex) {
     edm::LogWarning("SimG4CoreApplication") << "SimG4Exception caght! " << simg4ex.what();
 
