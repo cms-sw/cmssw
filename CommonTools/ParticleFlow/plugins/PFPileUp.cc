@@ -192,3 +192,4 @@ void PFPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.put(std::move(pOutput));
   // iEvent.put(std::move(pOutputByValue));
 }
+DEFINE_FWK_MODULE(PFPileUp);
