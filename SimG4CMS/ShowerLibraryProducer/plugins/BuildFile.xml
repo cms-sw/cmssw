@@ -1,8 +1,6 @@
 <use name="root"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/MessageLogger"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/PluginManager"/>
 <use name="Geometry/HcalCommonData"/>
 <use name="Geometry/Records"/>

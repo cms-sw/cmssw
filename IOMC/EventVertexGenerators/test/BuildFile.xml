@@ -1,11 +1,11 @@
 <environment>
+  <use name="CommonTools/UtilAlgos"/>
   <use name="DataFormats/Common"/>
   <use name="FWCore/Framework"/>
   <use name="SimDataFormats/GeneratorProducts"/>
   <use name="clhep"/>
   <use name="root"/>
   <library file="VtxTester.cc" name="VtxSmearingTest">
-    <use name="PhysicsTools/UtilAlgos"/>
     <use name="FWCore/ServiceRegistry"/>
     <flags EDM_PLUGIN="1"/>
   </library>
