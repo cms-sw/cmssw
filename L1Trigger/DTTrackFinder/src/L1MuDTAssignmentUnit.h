@@ -37,7 +37,7 @@
 
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "CondFormats/L1TObjects/interface/L1MuDTAssParam.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTAddressArray.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTAddressArray.h"
 class L1MuDTPhiLut;
 class L1MuDTPtaLut;
 class L1MuDTTrackSegPhi;
