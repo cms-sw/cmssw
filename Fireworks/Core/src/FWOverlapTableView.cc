@@ -24,7 +24,7 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
-#include "Fireworks/Core/src/FWValidatorBase.h"
+#include "Fireworks/Core/interface/FWValidatorBase.h"
 #include "Fireworks/Core/src/FWEveDigitSetScalableMarker.h"
 
 #include "TEveScene.h"

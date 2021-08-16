@@ -24,7 +24,7 @@
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 
 // user include files
-#include "Fireworks/Core/src/FWValidatorBase.h"
+#include "Fireworks/Core/interface/FWValidatorBase.h"
 
 // forward declarations
 namespace fireworks {
