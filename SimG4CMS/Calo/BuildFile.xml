@@ -8,13 +8,13 @@
 <use name="DataFormats/Math"/>
 <use name="CondFormats/GeometryObjects"/>
 <use name="CondFormats/HcalObjects"/>
-<use name="CondFormats/DataRecord"/>
 <use name="SimDataFormats/SimHitMaker"/>
 <use name="SimDataFormats/CaloHit"/>
 <use name="SimDataFormats/CaloTest"/>
 <use name="Geometry/HcalCommonData"/>
 <use name="Geometry/EcalCommonData"/>
 <use name="Geometry/HGCalCommonData"/>
+<use name="Geometry/Records"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ServiceRegistry"/>
