@@ -8,7 +8,7 @@
  *
  */
 
-#include "Geometry/CSCGeometry/src/CSCWireGrouping.h"
+#include "Geometry/CSCGeometry/interface/CSCWireGrouping.h"
 
 class CSCUngangedWireGrouping : public CSCWireGrouping {
  public:
