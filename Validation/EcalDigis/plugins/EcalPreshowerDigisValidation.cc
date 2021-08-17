@@ -5,7 +5,7 @@
  *
 */
 
-#include <Validation/EcalDigis/interface/EcalPreshowerDigisValidation.h>
+#include "EcalPreshowerDigisValidation.h"
 
 EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const edm::ParameterSet& ps)
     : ESdigiCollectionToken_(consumes<ESDigiCollection>(ps.getParameter<edm::InputTag>("ESdigiCollection"))) {

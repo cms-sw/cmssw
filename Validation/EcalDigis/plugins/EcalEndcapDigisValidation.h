@@ -25,7 +25,7 @@
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-#include <Validation/EcalDigis/interface/EcalEndcapDigisValidation.h>
+#include "EcalEndcapDigisValidation.h"
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
 #include <iostream>
