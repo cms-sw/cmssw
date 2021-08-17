@@ -8,7 +8,7 @@
 #include "TSystem.h"
 #include "TROOT.h"
 
-#include "Fireworks/Core/src/SimpleSAXParser.h"
+#include "Fireworks/Core/interface/SimpleSAXParser.h"
 #include "Fireworks/Core/interface/FWXMLConfigParser.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"

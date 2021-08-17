@@ -6,7 +6,7 @@
 // Class  :     FWHLTValidator
 //
 
-#include "Fireworks/Core/src/FWValidatorBase.h"
+#include "Fireworks/Core/interface/FWValidatorBase.h"
 
 namespace edm {
   class TriggerNames;
