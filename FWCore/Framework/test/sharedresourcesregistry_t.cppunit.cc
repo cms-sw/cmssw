@@ -9,7 +9,7 @@
 #include "cppunit/extensions/HelperMacros.h"
 
 #define SHAREDRESOURCETESTACCESSORS 1
-#include "FWCore/Framework/src/SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/SharedResourcesRegistry.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 
 using namespace edm;

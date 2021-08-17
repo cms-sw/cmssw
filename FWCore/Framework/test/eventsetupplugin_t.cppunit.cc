@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
-#include "FWCore/Framework/src/EventSetupsController.h"
+#include "FWCore/Framework/interface/EventSetupsController.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 using namespace edm::eventsetup;

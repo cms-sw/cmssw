@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/SharedResourcesRegistry.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
