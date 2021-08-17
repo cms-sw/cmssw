@@ -22,7 +22,7 @@
 #include <string>
 
 #include "Fireworks/Calo/interface/FWCaloDataHistProxyBuilder.h"
-#include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
+#include "Fireworks/Calo/interface/FWFromTEveCaloDataSelector.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 
