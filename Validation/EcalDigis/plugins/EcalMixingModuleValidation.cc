@@ -49,16 +49,16 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
 
   doPhotostatistics = false;
 
-  theParameterMap = new EcalSimParameterMap(simHitToPhotoelectronsBarrel,
-                                            simHitToPhotoelectronsEndcap,
-                                            photoelectronsToAnalogBarrel,
-                                            photoelectronsToAnalogEndcap,
-                                            samplingFactor,
-                                            timePhase,
-                                            readoutFrameSize,
-                                            binOfMaximum,
-                                            doPhotostatistics,
-                                            syncPhase);
+  theParameterMap = std::make_unique<EcalSimParameterMap>(simHitToPhotoelectronsBarrel,
+                                                          simHitToPhotoelectronsEndcap,
+                                                          photoelectronsToAnalogBarrel,
+                                                          photoelectronsToAnalogEndcap,
+                                                          samplingFactor,
+                                                          timePhase,
+                                                          readoutFrameSize,
+                                                          binOfMaximum,
+                                                          doPhotostatistics,
+                                                          syncPhase);
   //theEcalShape = new EcalShape(timePhase);
 
   //theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
@@ -71,13 +71,13 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
   double ESMIPkeV = ps.getParameter<double>("ESMIPkeV");
 */
 
-  theESShape = new ESShape();
-  theEBShape = new EBShape(consumesCollector());
-  theEEShape = new EEShape(consumesCollector());
+  theESShape = std::make_unique<ESShape>();
+  theEBShape = std::make_unique<EBShape>(consumesCollector());
+  theEEShape = std::make_unique<EEShape>(consumesCollector());
 
-  theESResponse = new CaloHitResponse(theParameterMap, theESShape);
-  theEBResponse = new CaloHitResponse(theParameterMap, theEBShape);
-  theEEResponse = new CaloHitResponse(theParameterMap, theEEShape);
+  theESResponse = std::make_unique<CaloHitResponse>(theParameterMap.get(), theESShape.get());
+  theEBResponse = std::make_unique<CaloHitResponse>(theParameterMap.get(), theEBShape.get());
+  theEEResponse = std::make_unique<CaloHitResponse>(theParameterMap.get(), theEEShape.get());
 
   //  double effwei = 1.;
 
@@ -614,20 +614,18 @@ void EcalMixingModuleValidation::checkCalibrations(edm::EventSetup const& eventS
   // ADC -> GeV Scale
   const EcalADCToGeVConstant* agc = &eventSetup.getData(pAgc);
 
-  EcalMGPAGainRatio* defaultRatios = new EcalMGPAGainRatio();
+  EcalMGPAGainRatio defaultRatios;
 
   gainConv_[1] = 1.;
-  gainConv_[2] = defaultRatios->gain12Over6();
-  gainConv_[3] = gainConv_[2] * (defaultRatios->gain6Over1());
-  gainConv_[0] = gainConv_[2] * (defaultRatios->gain6Over1());
+  gainConv_[2] = defaultRatios.gain12Over6();
+  gainConv_[3] = gainConv_[2] * (defaultRatios.gain6Over1());
+  gainConv_[0] = gainConv_[2] * (defaultRatios.gain6Over1());
 
   LogDebug("EcalDigi") << " Gains conversions: "
                        << "\n"
                        << " g1 = " << gainConv_[1] << "\n"
                        << " g2 = " << gainConv_[2] << "\n"
                        << " g3 = " << gainConv_[3];
-
-  delete defaultRatios;
 
   const double barrelADCtoGeV_ = agc->getEBValue();
   LogDebug("EcalDigi") << " Barrel GeV/ADC = " << barrelADCtoGeV_;
