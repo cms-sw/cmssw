@@ -7,7 +7,7 @@
  *
  */
 
-#include "CommonTools/Utils/src/TypeCode.h"
+#include "CommonTools/Utils/interface/TypeCode.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 
 namespace edm {
