@@ -2,7 +2,7 @@
 #define RecoLocalMuon_RPCRecHit_CSCObjectMap_h
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "RecoLocalMuon/RPCRecHit/src/CSCStationIndex.h"
+#include "CSCStationIndex.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 #include <set>

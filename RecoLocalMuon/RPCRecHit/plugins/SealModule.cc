@@ -2,11 +2,11 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoLocalMuon/RPCRecHit/src/RPCRecHitProducer.h"
-#include "RecoLocalMuon/RPCRecHit/interface/RPCPointProducer.h"
+#include "RPCRecHitProducer.h"
+#include "RPCPointProducer.h"
 
-#include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitAlgoFactory.h"
-#include "RecoLocalMuon/RPCRecHit/src/RPCRecHitStandardAlgo.h"
+#include "RPCRecHitAlgoFactory.h"
+#include "RPCRecHitStandardAlgo.h"
 
 DEFINE_FWK_MODULE(RPCRecHitProducer);
 DEFINE_FWK_MODULE(RPCPointProducer);
