@@ -41,7 +41,7 @@
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
-#include "Fireworks/Core/src/SimpleSAXParser.h"
+#include "Fireworks/Core/interface/SimpleSAXParser.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/fwPaths.h"
