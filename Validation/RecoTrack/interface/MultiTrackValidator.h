@@ -20,7 +20,6 @@
 #include "CommonTools/RecoAlgos/interface/CosmicTrackingParticleSelector.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "CommonTools/RecoAlgos/interface/RecoTrackSelectorBase.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackAssociation/interface/ParametersDefinerForTP.h"
 #include "CommonTools/Utils/interface/DynArray.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -56,8 +55,7 @@ protected:
   // ES Tokens
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoEsToken;
 
-  std::string parametersDefiner;
-  const edm::ESGetToken<ParametersDefinerForTP, TrackAssociatorRecord> tpDefinerEsToken;
+  std::unique_ptr<ParametersDefinerForTP> parametersDefinerTP_;
   const bool parametersDefinerIsCosmic_;
 
   //these are used by MTVGenPs
@@ -104,7 +102,6 @@ private:
   void tpParametersAndSelection(
       const Histograms& histograms,
       const TrackingParticleRefVector& tPCeff,
-      const ParametersDefinerForTP& parametersDefinerTP,
       const edm::Event& event,
       const edm::EventSetup& setup,
       const reco::BeamSpot& bs,
