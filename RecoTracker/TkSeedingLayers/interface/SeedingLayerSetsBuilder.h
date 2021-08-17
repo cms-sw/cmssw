@@ -27,6 +27,10 @@ class TrackerRecoGeometryRecord;
 class TransientRecHitRecord;
 class TransientTrackingRecHitBuilder;
 class DetLayer;
+class TrackerTopology;
+class TrackerTopologyRcd;
+class GeometricSearchTracker;
+class TrackerRecoGeometryRecord;
 
 class SeedingLayerSetsBuilder {
 public:
@@ -68,6 +72,8 @@ private:
   edm::ESWatcher<TrackerRecoGeometryRecord> geometryWatcher_;
   edm::ESWatcher<TransientRecHitRecord> trhWatcher_;
   edm::EDGetTokenT<FastTrackerRecHitCollection> fastSimrecHitsToken_;
+  const edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> trackerToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
   struct LayerSpec {
     LayerSpec(unsigned short index,
               const std::string& layerName,
@@ -82,6 +88,7 @@ private:
     std::string pixelHitProducer;
     bool usePixelHitProducer;
     const std::string hitBuilder;
+    const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> hitBuilderToken;
 
     GeomDetEnumerators::SubDetector subdet;
     TrackerDetSide side;

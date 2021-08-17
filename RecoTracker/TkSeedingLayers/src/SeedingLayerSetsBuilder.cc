@@ -1,7 +1,6 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -102,7 +101,9 @@ SeedingLayerSetsBuilder::LayerSpec::LayerSpec(unsigned short index,
                                               const std::string& layerName,
                                               const edm::ParameterSet& cfgLayer,
                                               edm::ConsumesCollector& iC)
-    : nameIndex(index), hitBuilder(cfgLayer.getParameter<string>("TTRHBuilder")) {
+    : nameIndex(index),
+      hitBuilder(cfgLayer.getParameter<string>("TTRHBuilder")),
+      hitBuilderToken(iC.esConsumes(edm::ESInputTag("", hitBuilder))) {
   usePixelHitProducer = false;
   if (cfgLayer.exists("HitProducer")) {
     pixelHitProducer = cfgLayer.getParameter<string>("HitProducer");
@@ -123,7 +124,7 @@ SeedingLayerSetsBuilder::LayerSpec::LayerSpec(unsigned short index,
   if (subdet == GeomDetEnumerators::PixelBarrel || subdet == GeomDetEnumerators::PixelEndcap) {
     extractor = std::make_unique<HitExtractorPIX>(side, idLayer, pixelHitProducer, iC);
   } else if (subdet != GeomDetEnumerators::invalidDet) {  // strip
-    auto extr = std::make_unique<HitExtractorSTRP>(subdet, side, idLayer, clusterChargeCut(cfgLayer));
+    auto extr = std::make_unique<HitExtractorSTRP>(subdet, side, idLayer, clusterChargeCut(cfgLayer), iC);
     if (cfgLayer.exists("matchedRecHits")) {
       extr->useMatchedHits(cfgLayer.getParameter<edm::InputTag>("matchedRecHits"), iC);
     }
@@ -183,10 +184,12 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet& cfg,
                                                  const edm::InputTag& fastsimHitTag)
     : SeedingLayerSetsBuilder(cfg, iC) {
   fastSimrecHitsToken_ = iC.consumes<FastTrackerRecHitCollection>(fastsimHitTag);
+  trackerTopologyToken_ = iC.esConsumes();
 }
 SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
     : SeedingLayerSetsBuilder(cfg, iC) {}
-SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) {
+SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
+    : trackerToken_(iC.esConsumes()) {
   std::vector<std::string> namesPset = cfg.getParameter<std::vector<std::string> >("layerList");
   std::vector<std::vector<std::string> > layerNamesInSets = this->layerNamesInSets(namesPset);
   // debug printout of layers
@@ -296,9 +299,7 @@ void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
   if (!(geometryWatcher_.check(es) | trhWatcher_.check(es)))
     return;
 
-  edm::ESHandle<GeometricSearchTracker> htracker;
-  es.get<TrackerRecoGeometryRecord>().get(htracker);
-  const GeometricSearchTracker& tracker = *htracker;
+  const GeometricSearchTracker& tracker = es.getData(trackerToken_);
 
   const std::vector<BarrelDetLayer const*>& bpx = tracker.barrelLayers();
   const std::vector<BarrelDetLayer const*>& tib = tracker.tibLayers();
@@ -344,11 +345,8 @@ void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
       throw cms::Exception("Configuration") << "Did not find DetLayer for layer " << theLayerNames[layer.nameIndex];
     }
 
-    edm::ESHandle<TransientTrackingRecHitBuilder> builder;
-    es.get<TransientRecHitRecord>().get(layer.hitBuilder, builder);
-
     theLayerDets[layer.nameIndex] = detLayer;
-    theTTRHBuilders[layer.nameIndex] = builder.product();
+    theTTRHBuilders[layer.nameIndex] = &es.getData(layer.hitBuilderToken);
   }
 }
 
@@ -382,9 +380,7 @@ std::unique_ptr<SeedingLayerSetsHits> SeedingLayerSetsBuilder::makeSeedingLayerS
 
   edm::Handle<FastTrackerRecHitCollection> fastSimrechits_;
   ev.getByToken(fastSimrecHitsToken_, fastSimrechits_);  //using FastSim RecHits
-  edm::ESHandle<TrackerTopology> trackerTopology;
-  es.get<TrackerTopologyRcd>().get(trackerTopology);
-  const TrackerTopology* const tTopo = trackerTopology.product();
+  const TrackerTopology* const tTopo = &es.getData(trackerTopologyToken_);
   SeedingLayerSetsHits::OwnedHits layerhits_;
 
   auto ret = std::make_unique<SeedingLayerSetsHits>(
