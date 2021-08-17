@@ -6,6 +6,7 @@ import sys
 import shutil
 import subprocess
 import urllib.request
+import multiprocessing
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
@@ -1266,14 +1267,24 @@ class SimpleValidation:
 
     def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
         plotterInstance = plotter.readDirs(*self._openFiles)
+        manager = multiprocessing.Manager()
+        return_dict = manager.dict()
+        proc = []
+        iProc = 0
         for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
             if sample is not None and not _processPlotsForSample(plotterFolder, sample):
                 continue
-            plotFiles = self._doPlots(plotterFolder, dqmSubFolder)
-            if len(plotFiles) > 0:
-                self._htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
+            return_dict[iProc] = None
+            p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, iProc, return_dict))
+            proc.append((plotterFolder, dqmSubFolder, p))
+            p.start()
+            iProc += 1
+        for i in range(iProc):
+            proc[i][2].join()
+            if len(return_dict[i]) > 0:
+                self._htmlReport.addPlots(proc[i][0], proc[i][1], return_dict[i])
 
-    def _doPlots(self, plotterFolder, dqmSubFolder):
+    def _doPlots(self, plotterFolder, dqmSubFolder, iProc, return_dict):
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
         newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
         newdir = os.path.join(self._newdir, newsubdir)
@@ -1303,7 +1314,7 @@ class SimpleValidation:
                     urllib.request.urlretrieve("https://raw.githubusercontent.com/musella/php-plots/master/%s"%d, "%s/%s"%(newdir,d))
 
         print("Created plots in %s" % newdir)
-        return list(map(lambda n: n.replace(newdir, newsubdir), fileList))
+        return_dict[iProc] = list(map(lambda n: n.replace(newdir, newsubdir), fileList))
 
 class SeparateValidation:
     #Similar to the SimpleValidation
