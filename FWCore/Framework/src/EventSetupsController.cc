@@ -10,7 +10,7 @@
 //         Created:  Wed Jan 12 14:30:44 CST 2011
 //
 
-#include "FWCore/Framework/src/EventSetupsController.h"
+#include "FWCore/Framework/interface/EventSetupsController.h"
 
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"

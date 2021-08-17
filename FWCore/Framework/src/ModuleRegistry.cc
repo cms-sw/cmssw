@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/src/ModuleRegistry.h"
+#include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/src/Factory.h"
 
 namespace edm {

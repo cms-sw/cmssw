@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/maker/MakeModuleParams.h"
-#include "FWCore/Framework/src/ModuleRegistry.h"
+#include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 namespace edm {
