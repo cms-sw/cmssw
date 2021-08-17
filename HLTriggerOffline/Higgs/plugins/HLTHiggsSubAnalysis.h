@@ -47,7 +47,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "HLTriggerOffline/Higgs/interface/HLTHiggsPlotter.h"
+#include "HLTHiggsPlotter.h"
 
 #include <vector>
 #include <set>

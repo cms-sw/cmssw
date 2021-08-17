@@ -16,8 +16,8 @@
 
 //#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "HLTriggerOffline/Higgs/interface/HLTHiggsValidator.h"
-#include "HLTriggerOffline/Higgs/src/EVTColContainer.cc"
+#include "HLTHiggsValidator.h"
+#include "EVTColContainer.h"
 
 //////// Class Methods ///////////////////////////////////////////////////////
 // Constructor
