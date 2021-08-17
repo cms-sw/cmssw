@@ -123,7 +123,7 @@ namespace evf {
       socket_ = std::make_unique<boost::asio::ip::tcp::socket>(io_service_);
     }
 
-    char* startFromLSPtr = std::getenv("FFF_STARTFROMLS");
+    char* startFromLSPtr = std::getenv("FFF_START_LUMISECTION");
     if (startFromLSPtr) {
       try {
         startFromLS_ = boost::lexical_cast<unsigned int>(std::string(startFromLSPtr));
@@ -1863,7 +1863,7 @@ namespace evf {
     std::string fileprefix = run_dir_ + "/" + run_string_ + "_ls";
     std::string fullpath;
     struct stat buf;
-    unsigned int lscount = startFromLS_;
+    unsigned int lscount = 1;
     do {
       std::stringstream ss;
       ss << fileprefix << std::setfill('0') << std::setw(4) << lscount << "_EoLS.jsn";
