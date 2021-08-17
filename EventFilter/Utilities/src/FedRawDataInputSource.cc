@@ -921,7 +921,21 @@ void FedRawDataInputSource::readSupervisor() {
           } else {
             //new file service
             if (currentLumiSection == 0 && !alwaysStartFromFirstLS_) {
-              if (ls < 100) {
+              if (daqDirector_->getStartLumisectionFromEnv() > 1) {
+                //start transitions from LS specified by env, continue if not reached
+                if (ls < daqDirector_->getStartLumisectionFromEnv()) {
+                  //skip file if from earlier LS than specified by env
+                  if (rawFd != -1) {
+                    close(rawFd);
+                    rawFd = -1;
+                  }
+                  status = evf::EvFDaqDirector::noFile;
+                  continue;
+                } else {
+                  std::unique_ptr<InputFile> inf(new InputFile(evf::EvFDaqDirector::newLumi, ls));
+                  fileQueue_.push(std::move(inf));
+                }
+              } else if (ls < 100) {
                 //look at last LS file on disk to start from that lumisection (only within first 100 LS)
                 unsigned int lsToStart = daqDirector_->getLumisectionToStart();
 
