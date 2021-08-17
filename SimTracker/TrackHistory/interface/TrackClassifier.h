@@ -74,6 +74,7 @@ private:
   edm::Handle<edm::HepMCProduct> mcInformation_;
 
   edm::ESHandle<ParticleDataTable> particleDataTable_;
+  edm::ESGetToken<ParticleDataTable, PDTRecord> particleDataTableToken_;
 
   edm::ESHandle<TransientTrackBuilder> transientTrackBuilder_;
   edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
