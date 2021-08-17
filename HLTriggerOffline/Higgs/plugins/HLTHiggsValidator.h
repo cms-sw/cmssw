@@ -21,7 +21,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "HLTriggerOffline/Higgs/interface/HLTHiggsSubAnalysis.h"
+#include "HLTHiggsSubAnalysis.h"
 
 #include <vector>
 #include <cstring>
