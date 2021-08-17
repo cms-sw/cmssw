@@ -69,7 +69,7 @@ private:
   //=======================
   void SetVarToZero();
 
-  static const int nMaxtracks_ = 3000;
+  static constexpr int nMaxtracks_ = 3000;
   int nTracks_;
   int run_;
   int event_;
