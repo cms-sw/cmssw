@@ -9,7 +9,6 @@
 <use name="SimDataFormats/Vertex"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="SimTracker/Common"/>
-<use name="SimTracker/Records"/>
 <use name="root"/>
 <use name="SimTracker/TrackAssociation"/>
 <use name="SimTracker/TrackerHitAssociation"/>
