@@ -91,6 +91,8 @@ namespace {
     explicit StaticRandomEngineSetUnset(CLHEP::HepRandomEngine* engine);
     ~StaticRandomEngineSetUnset();
 
+    CLHEP::HepRandomEngine* currentEngine() { return m_currentEngine; }
+
   private:
     CLHEP::HepRandomEngine* m_currentEngine;
     CLHEP::HepRandomEngine* m_previousEngine;
@@ -105,6 +107,7 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
   auto token = edm::ServiceRegistry::instance().presentToken();
   m_handoff.runAndWait([this, &p, token]() {
     edm::ServiceRegistry::Operate guard{token};
+    StaticRandomEngineSetUnset random(nullptr);
     m_runManagerWorker = std::make_unique<RunManagerMTWorker>(p, consumesCollector());
   });
   m_masterThread = ms;
@@ -228,6 +231,7 @@ void OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&) {
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::endRun";
   auto token = edm::ServiceRegistry::instance().presentToken();
   m_handoff.runAndWait([this, token]() {
+    StaticRandomEngineSetUnset random(nullptr);
     edm::ServiceRegistry::Operate guard{token};
     m_runManagerWorker->endRun();
   });
@@ -236,6 +240,7 @@ void OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&) {
 
 void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   StaticRandomEngineSetUnset random(e.streamID());
+  auto engine = random.currentEngine();
   edm::LogVerbatim("SimG4CoreApplication") << "Produce event " << e.id() << " stream " << e.streamID();
   //edm::LogVerbatim("SimG4CoreApplication") << " rand= " << G4UniformRand();
 
@@ -245,8 +250,9 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   std::unique_ptr<G4SimEvent> evt;
   try {
     auto token = edm::ServiceRegistry::instance().presentToken();
-    m_handoff.runAndWait([this, &e, &es, &evt, token]() {
+    m_handoff.runAndWait([this, &e, &es, &evt, token, engine]() {
       edm::ServiceRegistry::Operate guard{token};
+      StaticRandomEngineSetUnset random(engine);
       evt = m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster());
     });
   } catch (const SimG4Exception& simg4ex) {
