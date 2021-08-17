@@ -11,9 +11,9 @@
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
-#include "HLTriggerOffline/Higgs/interface/HLTHiggsPlotter.h"
-#include "HLTriggerOffline/Higgs/interface/HLTHiggsSubAnalysis.h"
-#include "HLTriggerOffline/Higgs/src/EVTColContainer.cc"
+#include "HLTHiggsPlotter.h"
+#include "HLTHiggsSubAnalysis.h"
+#include "EVTColContainer.h"
 
 #include "TPRegexp.h"
 

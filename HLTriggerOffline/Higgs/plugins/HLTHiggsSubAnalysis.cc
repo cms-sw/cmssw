@@ -7,9 +7,9 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "HLTriggerOffline/Higgs/interface/HLTHiggsSubAnalysis.h"
-#include "HLTriggerOffline/Higgs/src/EVTColContainer.cc"
-#include "HLTriggerOffline/Higgs/src/MatchStruct.cc"
+#include "HLTHiggsSubAnalysis.h"
+#include "EVTColContainer.h"
+#include "MatchStruct.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
 
@@ -18,9 +18,6 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
-
-#include "HLTriggerOffline/Higgs/interface/HLTHiggsSubAnalysis.h"
-#include "HLTriggerOffline/Higgs/src/MatchStruct.cc"
 
 #include "TPRegexp.h"
 #include "TRegexp.h"
