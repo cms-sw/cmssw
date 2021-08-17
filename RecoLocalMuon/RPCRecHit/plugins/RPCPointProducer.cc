@@ -16,7 +16,7 @@
 //
 //
 
-#include "RecoLocalMuon/RPCRecHit/interface/RPCPointProducer.h"
+#include "RPCPointProducer.h"
 
 // system include files
 

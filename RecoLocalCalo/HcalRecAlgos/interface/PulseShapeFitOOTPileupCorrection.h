@@ -16,7 +16,7 @@
 #include "Minuit2/Minuit2Minimizer.h"
 #include "Math/Functor.h"
 
-#include "RecoLocalCalo/HcalRecAlgos/src/HybridMinimizer.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HybridMinimizer.h"
 
 class HcalTimeSlew;
 

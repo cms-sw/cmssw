@@ -15,8 +15,8 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
-#include "RecoLocalMuon/RPCRecHit/src/RPCRollMask.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RPCRollMask.h"
 
 class RPCCluster;
 class RPCRoll;

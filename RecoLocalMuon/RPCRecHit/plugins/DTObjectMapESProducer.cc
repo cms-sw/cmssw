@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "RecoLocalMuon/RPCRecHit/src/DTObjectMap.h"
+#include "DTObjectMap.h"
 
 class DTObjectMapESProducer : public edm::ESProducer {
 public:

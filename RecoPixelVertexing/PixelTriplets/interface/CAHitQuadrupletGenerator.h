@@ -16,7 +16,7 @@
 
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
-#include "RecoPixelVertexing/PixelTriplets/src/CACut.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CACut.h"
 
 class TrackingRegion;
 class SeedingLayerSetsHits;
