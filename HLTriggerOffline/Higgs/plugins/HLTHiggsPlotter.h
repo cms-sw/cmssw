@@ -32,7 +32,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "HLTriggerOffline/Higgs/src/MatchStruct.cc"
+#include "MatchStruct.h"
 
 #include <vector>
 #include <cstring>
