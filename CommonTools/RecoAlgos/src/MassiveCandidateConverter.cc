@@ -1,4 +1,4 @@
-#include "CommonTools/RecoAlgos/src/MassiveCandidateConverter.h"
+#include "CommonTools/RecoAlgos/interface/MassiveCandidateConverter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HepPDT/ParticleData.hh"
 #include "FWCore/Framework/interface/ESHandle.h"

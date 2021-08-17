@@ -11,8 +11,8 @@
  */
 
 #include "CommonTools/Utils/interface/ExpressionBase.h"
-#include "CommonTools/Utils/src/MethodInvoker.h"
-#include "CommonTools/Utils/src/TypeCode.h"
+#include "CommonTools/Utils/interface/MethodInvoker.h"
+#include "CommonTools/Utils/interface/TypeCode.h"
 
 #include <vector>
 

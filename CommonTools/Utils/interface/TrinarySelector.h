@@ -12,7 +12,7 @@
  */
 #include "CommonTools/Utils/interface/SelectorBase.h"
 #include "CommonTools/Utils/interface/ExpressionBase.h"
-#include "CommonTools/Utils/src/ComparisonBase.h"
+#include "CommonTools/Utils/interface/ComparisonBase.h"
 
 namespace reco {
   namespace parser {
