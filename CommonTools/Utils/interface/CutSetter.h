@@ -11,7 +11,7 @@
  *
  */
 #include "CommonTools/Utils/interface/SelectorPtr.h"
-#include "CommonTools/Utils/src/SelectorStack.h"
+#include "CommonTools/Utils/interface/SelectorStack.h"
 #include <cassert>
 
 namespace reco {
