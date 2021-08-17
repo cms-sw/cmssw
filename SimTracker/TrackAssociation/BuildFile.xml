@@ -11,8 +11,6 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="MagneticField/Records"/>
 <use name="clhep"/>
-<use name="boost"/>
-<use name="root"/>
 <export>
   <lib name="1"/>
 </export>
