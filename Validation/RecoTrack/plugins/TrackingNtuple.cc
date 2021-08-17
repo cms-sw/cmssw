@@ -75,7 +75,7 @@
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
-#include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
+#include "SimTracker/TrackAssociation/interface/ParametersDefinerForTP.h"
 #include "SimTracker/TrackAssociation/interface/TrackingParticleIP.h"
 #include "SimTracker/TrackAssociation/interface/trackAssociationChi2.h"
 #include "SimTracker/TrackAssociation/interface/trackHitsToClusterRefs.h"
