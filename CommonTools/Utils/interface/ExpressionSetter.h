@@ -11,7 +11,7 @@
  *
  */
 #include "CommonTools/Utils/interface/ExpressionPtr.h"
-#include "CommonTools/Utils/src/ExpressionStack.h"
+#include "CommonTools/Utils/interface/ExpressionStack.h"
 
 namespace reco {
   namespace parser {
