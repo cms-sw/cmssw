@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
-#include "SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/SharedResourcesRegistry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"

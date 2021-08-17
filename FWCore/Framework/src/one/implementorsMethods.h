@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/one/implementors.h"
-#include "FWCore/Framework/src/SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/SharedResourcesRegistry.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 
 // forward declarations

@@ -17,7 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/Services/src/SiteLocalConfigService.h"
+#include "FWCore/Services/interface/setupSiteLocalConfig.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -76,11 +76,7 @@ int main(int argc, char* argv[]) {
 
   int rc = 0;
   try {
-    std::unique_ptr<edm::SiteLocalConfig> slcptr =
-        std::make_unique<edm::service::SiteLocalConfigService>(edm::ParameterSet());
-    auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(std::move(slcptr));
-    edm::ServiceToken slcToken = edm::ServiceRegistry::createContaining(slc);
-    edm::ServiceRegistry::Operate operate(slcToken);
+    auto operate = edm::setupSiteLocalConfig();
 
     std::vector<std::string> in =
         (vm.count("file") ? vm["file"].as<std::vector<std::string> >() : std::vector<std::string>());

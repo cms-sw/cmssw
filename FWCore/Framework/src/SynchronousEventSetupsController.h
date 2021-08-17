@@ -18,7 +18,7 @@
 //          Created:  Wed Jan 12 14:30:42 CST 2011
 //
 
-#include "EventSetupsController.h"
+#include "FWCore/Framework/interface/EventSetupsController.h"
 
 #include "tbb/task_group.h"
 #include "tbb/global_control.h"
