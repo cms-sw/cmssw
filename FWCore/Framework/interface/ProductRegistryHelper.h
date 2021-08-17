@@ -79,6 +79,12 @@ namespace edm {
       TypeLabelItem& value_;
       EDPutTokenT<T> token_;
 
+      template <typename U>
+      EDPutTokenT<T> produces() {
+        static_assert(std::is_same_v<T, U>);
+        return token_;
+      }
+
       operator EDPutTokenT<T>() { return token_; }
       operator EDPutToken() { return EDPutToken(token_.index()); }
     };

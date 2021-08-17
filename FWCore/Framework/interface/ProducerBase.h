@@ -9,6 +9,7 @@ EDProducts into an Event.
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 
 #include <functional>
@@ -102,6 +103,15 @@ namespace edm {
   protected:
     ProducesCollector producesCollector();
     using ProductRegistryHelper::produces;
+
+    template <Transition Tr = Transition::Event>
+    [[nodiscard]] auto produces(std::string instanceName) noexcept {
+      return producesCollector().produces<Tr>(std::move(instanceName));
+    }
+    template <Transition Tr = Transition::Event>
+    [[nodiscard]] auto produces() noexcept {
+      return producesCollector().produces<Tr>();
+    }
 
   private:
     friend class EDProducer;
