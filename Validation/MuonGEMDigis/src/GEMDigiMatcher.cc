@@ -215,7 +215,7 @@ void GEMDigiMatcher::matchClustersToSimTrack(const GEMPadDigiClusterCollection& 
     auto clusters_in_det = clusters.get(p_id);
 
     for (auto cluster = clusters_in_det.first; cluster != clusters_in_det.second; ++cluster) {
-      bool isMatched;
+      bool isMatched = false;
 
       // ignore 16-partition GE2/1 pads
       if (p_id.isGE21() and cluster->nPartitions() == GEMPadDigiCluster::GE21SplitStrip)
