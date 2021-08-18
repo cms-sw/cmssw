@@ -29,7 +29,7 @@ void SiStripNoisesDQM::fillMEsForDet(const ModMEs &_selModME_, uint32_t selDetId
 
   const auto noiseRange = condObj_->getRange(selDetId_);
 
-  int nStrip = reader->getNumberOfApvsAndStripLength(selDetId_).first * 128;
+  int nStrip = detInfo_.getNumberOfApvsAndStripLength(selDetId_).first * 128;
 
   getModMEs(selModME_, selDetId_);
 
@@ -85,7 +85,7 @@ void SiStripNoisesDQM::fillMEsForLayer(
   getSummaryMEs(selME_, selDetId_);
 
   const auto noiseRange = condObj_->getRange(selDetId_);
-  int nStrip = reader->getNumberOfApvsAndStripLength(selDetId_).first * 128;
+  int nStrip = detInfo_.getNumberOfApvsAndStripLength(selDetId_).first * 128;
 
   float stripnoise = -1.;
   float meanNoise = 0;

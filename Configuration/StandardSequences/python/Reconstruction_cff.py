@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 from RecoLocalCalo.Configuration.RecoLocalCalo_cff import *
 from RecoLocalFastTime.Configuration.RecoLocalFastTime_cff import *
-from RecoMTD.Configuration.RecoMTD_cff import *
+from RecoMTD.Configuration.mtdGlobalReco_cff import *
 from RecoTracker.Configuration.RecoTracker_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 from TrackingTools.Configuration.TrackingTools_cff import *
@@ -76,14 +75,15 @@ _phase2_timing_layer_localreco_HcalNZSTask.add(fastTimingLocalRecoTask)
 phase2_timing_layer.toReplaceWith(localrecoTask,_phase2_timing_layer_localrecoTask)
 phase2_timing_layer.toReplaceWith(localreco_HcalNZSTask,_phase2_timing_layer_localreco_HcalNZSTask)
 
-_ctpps_2016_localrecoTask = localrecoTask.copy()
-_ctpps_2016_localrecoTask.add(recoCTPPSTask)
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-ctpps_2016.toReplaceWith(localrecoTask, _ctpps_2016_localrecoTask)
+from Configuration.Eras.Modifier_ctpps_cff import ctpps
 
-_ctpps_2016_localreco_HcalNZSTask = localreco_HcalNZSTask.copy()
-_ctpps_2016_localreco_HcalNZSTask.add(recoCTPPSTask)
-ctpps_2016.toReplaceWith(localreco_HcalNZSTask, _ctpps_2016_localreco_HcalNZSTask)
+_ctpps_localrecoTask = localrecoTask.copy()
+_ctpps_localrecoTask.add(recoCTPPSTask)
+ctpps.toReplaceWith(localrecoTask, _ctpps_localrecoTask)
+
+_ctpps_localreco_HcalNZSTask = localreco_HcalNZSTask.copy()
+_ctpps_localreco_HcalNZSTask.add(recoCTPPSTask)
+ctpps.toReplaceWith(localreco_HcalNZSTask, _ctpps_localreco_HcalNZSTask)
 
 ###########################################
 # no castor, zdc, Totem/CTPPS RP in FastSim
@@ -206,7 +206,7 @@ reconstruction         = cms.Sequence(reconstructionTask)
 #logErrorHarvester should only wait for items produced in the reconstruction sequence
 _modulesInReconstruction = list()
 reconstructionTask.visit(cms.ModuleNamesFromGlobalsVisitor(globals(),_modulesInReconstruction))
-logErrorHarvester.includeModules = cms.untracked.vstring(set(_modulesInReconstruction))
+logErrorHarvester.includeModules = cms.untracked.vstring(sorted(set(_modulesInReconstruction)))
 
 reconstruction_trackingOnlyTask = cms.Task(localrecoTask,globalreco_trackingTask)
 #calo parts removed as long as tracking is not running jetCore in phase2
@@ -235,6 +235,7 @@ reconstruction_hcalOnlyTask = cms.Task(
     bunchSpacingProducer,
     offlineBeamSpot,
     hcalOnlyLocalRecoTask,
+    hcalOnlyGlobalRecoTask,
     pfClusteringHBHEHFOnlyTask
 )
 

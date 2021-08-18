@@ -36,7 +36,7 @@ private:
   // For primitive conversion
   std::vector<int> zoneBoundaries_;
   int zoneOverlap_;
-  bool includeNeighbor_, duplicateTheta_, fixZonePhi_, useNewZones_, fixME11Edges_;
+  bool includeNeighbor_, duplicateTheta_, fixZonePhi_, useNewZones_, fixME11Edges_, useRun3CCLUT_;
 
   // For pattern recognition
   std::vector<std::string> pattDefinitions_, symPattDefinitions_;

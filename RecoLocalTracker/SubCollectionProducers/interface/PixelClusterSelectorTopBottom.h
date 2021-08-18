@@ -13,8 +13,6 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
@@ -28,7 +26,8 @@
 class PixelClusterSelectorTopBottom : public edm::global::EDProducer<> {
 public:
   explicit PixelClusterSelectorTopBottom(const edm::ParameterSet& cfg)
-      : token_(consumes<SiPixelClusterCollectionNew>(cfg.getParameter<edm::InputTag>("label"))),
+      : tTrackerGeom_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+        token_(consumes<SiPixelClusterCollectionNew>(cfg.getParameter<edm::InputTag>("label"))),
         y_(cfg.getParameter<double>("y")) {
     produces<SiPixelClusterCollectionNew>();
   }
@@ -36,6 +35,7 @@ public:
   void produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const override;
 
 private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
   edm::EDGetTokenT<SiPixelClusterCollectionNew> token_;
   double y_;
 };

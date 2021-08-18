@@ -8,6 +8,12 @@ rivetAnalyzer = cms.EDAnalyzer('RivetAnalyzer',
   # Info: useLHEWeights will create BIG yoda files with Rivet 3.
   # Default plotting fails with too many histos, use -m/M options
   useLHEweights = cms.bool(False),
+  weightCap = cms.double(0.),
+  NLOSmearing = cms.double(0.),
+  skipMultiWeights = cms.bool(False),
+  selectMultiWeights = cms.string(''),
+  deselectMultiWeights = cms.string(''),
+  setNominalWeightName = cms.string(''),
   LHECollection = cms.InputTag('externalLHEProducer'),
   CrossSection = cms.double(-1),
   DoFinalize = cms.bool(True),

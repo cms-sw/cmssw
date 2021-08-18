@@ -31,7 +31,49 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
+#include <sstream>
 #include <vector>
+
+namespace {
+  //changes double to string for product name
+  //ie "." is replaced with "p" and for -ve vals, string is M instead so -28 is M28
+  //has a fixed precision of precision although it removes trailing zeros and the .
+  std::string convertToProdNameStr(double val, int precision = 3) {
+    std::ostringstream valOStr;
+    valOStr << std::fixed << std::setprecision(precision) << val;
+    std::string valStr = valOStr.str();
+    while (valStr.size() > 1 && valStr.back() == '0') {
+      valStr.pop_back();
+    }
+    if (valStr.size() > 1 && valStr.back() == '.') {
+      valStr.pop_back();
+    }
+    auto decPoint = valStr.find('.');
+    if (decPoint != std::string::npos) {
+      valStr.replace(decPoint, 1, "p");
+    }
+    if (val < 0)
+      valStr.replace(0, 1, "M");
+    return valStr;
+  }
+
+  template <typename T>
+  std::vector<std::unique_ptr<int>> countRecHits(const T& recHitHandle, const std::vector<double>& thresholds) {
+    std::vector<std::unique_ptr<int>> counts(thresholds.size());
+    for (auto& count : counts)
+      count = std::make_unique<int>(0);
+    if (recHitHandle.isValid()) {
+      for (const auto& recHit : *recHitHandle) {
+        for (size_t thresNr = 0; thresNr < thresholds.size(); thresNr++) {
+          if (recHit.energy() >= thresholds[thresNr]) {
+            (*counts[thresNr])++;
+          }
+        }
+      }
+    }
+    return counts;
+  }
+}  // namespace
 
 class EgammaHLTExtraProducer : public edm::global::EDProducer<> {
 public:
@@ -138,6 +180,7 @@ private:
   float minPtToSaveHits_;
   bool saveHitsPlusPi_;
   bool saveHitsPlusHalfPi_;
+  std::vector<double> recHitCountThresholds_;
 };
 
 EgammaHLTExtraProducer::Tokens::Tokens(const edm::ParameterSet& pset, edm::ConsumesCollector&& cc) {
@@ -152,7 +195,8 @@ EgammaHLTExtraProducer::EgammaHLTExtraProducer(const edm::ParameterSet& pset)
     : tokens_(pset, consumesCollector()),
       minPtToSaveHits_(pset.getParameter<double>("minPtToSaveHits")),
       saveHitsPlusPi_(pset.getParameter<bool>("saveHitsPlusPi")),
-      saveHitsPlusHalfPi_(pset.getParameter<bool>("saveHitsPlusHalfPi")) {
+      saveHitsPlusHalfPi_(pset.getParameter<bool>("saveHitsPlusHalfPi")),
+      recHitCountThresholds_(pset.getParameter<std::vector<double>>("recHitCountThresholds")) {
   consumesMany<reco::RecoEcalCandidateIsolationMap>();
 
   for (auto& tokenLabel : tokens_.egCands) {
@@ -160,9 +204,15 @@ EgammaHLTExtraProducer::EgammaHLTExtraProducer(const edm::ParameterSet& pset)
   }
   for (auto& tokenLabel : tokens_.ecal) {
     produces<EcalRecHitCollection>(tokenLabel.second);
+    for (const auto& thres : recHitCountThresholds_) {
+      produces<int>("countEcalRecHits" + tokenLabel.second + "Thres" + convertToProdNameStr(thres) + "GeV");
+    }
   }
   for (auto& tokenLabel : tokens_.hcal) {
     produces<HBHERecHitCollection>(tokenLabel.second);
+    for (const auto& thres : recHitCountThresholds_) {
+      produces<int>("countHcalRecHits" + tokenLabel.second + "Thres" + convertToProdNameStr(thres) + "GeV");
+    }
   }
   for (auto& tokenLabel : tokens_.trks) {
     produces<reco::TrackCollection>(tokenLabel.second);
@@ -177,6 +227,7 @@ void EgammaHLTExtraProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<double>("minPtToSaveHits", 0.);
   desc.add<bool>("saveHitsPlusPi", false);
   desc.add<bool>("saveHitsPlusHalfPi", true);
+  desc.add<std::vector<double>>("recHitCountThresholds", std::vector{0., 0.5, 1.0, 1.5, 2.0});
 
   edm::ParameterSetDescription egCandsDesc;
   egCandsDesc.add<edm::InputTag>("ecalCands", edm::InputTag(""));
@@ -254,6 +305,19 @@ void EgammaHLTExtraProducer::produce(edm::StreamID streamID,
       event.put(std::move(recHits), tokenLabel.second);
     }
   };
+
+  auto storeCountRecHits = [&event](const auto& tokenLabels, const auto& thresholds, const std::string& prefixLabel) {
+    for (const auto& tokenLabel : tokenLabels) {
+      auto handle = event.getHandle(tokenLabel.first);
+      auto count = countRecHits(handle, thresholds);
+      for (size_t thresNr = 0; thresNr < thresholds.size(); thresNr++) {
+        const auto& thres = thresholds[thresNr];
+        event.put(std::move(count[thresNr]),
+                  prefixLabel + tokenLabel.second + "Thres" + convertToProdNameStr(thres) + "GeV");
+      }
+    }
+  };
+
   auto filterAndStore = [&event, this](const auto& egTrigObjs, const auto& tokenLabels, auto filterFunc) {
     for (const auto& tokenLabel : tokenLabels) {
       auto handle = event.getHandle(tokenLabel.first);
@@ -264,6 +328,8 @@ void EgammaHLTExtraProducer::produce(edm::StreamID streamID,
 
   filterAndStoreRecHits(egTrigObjColls, tokens_.ecal);
   filterAndStoreRecHits(egTrigObjColls, tokens_.hcal);
+  storeCountRecHits(tokens_.ecal, recHitCountThresholds_, "countEcalRecHits");
+  storeCountRecHits(tokens_.hcal, recHitCountThresholds_, "countHcalRecHits");
   filterAndStore(egTrigObjColls, tokens_.pfClusIso, &EgammaHLTExtraProducer::filterPFClusIso);
   filterAndStore(egTrigObjColls, tokens_.trks, &EgammaHLTExtraProducer::filterTrks);
 

@@ -27,67 +27,67 @@ namespace ecaldqm {
     return copy;
   }
 
-  void MESetDet0D::fill(DetId const &_id, double _value, double, double) {
+  void MESetDet0D::fill(EcalDQMSetupObjects const edso, DetId const &_id, double _value, double, double) {
     if (!active_)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     mes_[iME]->Fill(_value);
   }
 
-  void MESetDet0D::fill(EcalElectronicsId const &_id, double _value, double, double) {
+  void MESetDet0D::fill(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, double _value, double, double) {
     if (!active_)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     mes_[iME]->Fill(_value);
   }
 
-  void MESetDet0D::fill(int _dcctccid, double _value, double, double) {
+  void MESetDet0D::fill(EcalDQMSetupObjects const edso, int _dcctccid, double _value, double, double) {
     if (!active_)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _dcctccid, btype_));
     checkME_(iME);
 
     mes_[iME]->Fill(_value);
   }
 
-  double MESetDet0D::getBinContent(DetId const &_id, int) const {
+  double MESetDet0D::getBinContent(EcalDQMSetupObjects const edso, DetId const &_id, int) const {
     if (!active_)
       return 0.;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getFloatValue();
   }
 
-  double MESetDet0D::getBinContent(EcalElectronicsId const &_id, int) const {
+  double MESetDet0D::getBinContent(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, int) const {
     if (!active_)
       return 0.;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getFloatValue();
   }
 
-  double MESetDet0D::getBinContent(int _dcctccid, int) const {
+  double MESetDet0D::getBinContent(EcalDQMSetupObjects const edso, int _dcctccid, int) const {
     if (!active_)
       return 0.;
 
-    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _dcctccid, btype_));
     checkME_(iME);
 
     return mes_[iME]->getFloatValue();
   }
 
-  void MESetDet0D::reset(double _value /* = 0.*/, double, double) {
+  void MESetDet0D::reset(EcalElectronicsMapping const *electronicsMap, double _value /* = 0.*/, double, double) {
     unsigned nME(mes_.size());
     for (unsigned iME(0); iME < nME; iME++)
       mes_[iME]->Fill(_value);

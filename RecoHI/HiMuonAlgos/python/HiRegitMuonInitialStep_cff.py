@@ -45,7 +45,6 @@ hiRegitMuInitialStepSeeds = RecoTracker.IterativeTracking.InitialStep_cff.initia
     seedingHitSets = "hiRegitMuInitialStepHitTriplets"
 )
 
-
 # building: feed the new-named seeds
 hiRegitMuInitialStepTrajectoryFilterBase = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryFilterBase.clone(
     minPt = 2.5 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
@@ -90,45 +89,46 @@ hiRegitMuInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMult
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuInitialStepLoose',
            min_nhits = 8
-            ), #end of pset
+        ), #end of pset
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name = 'hiRegitMuInitialStepTight',
             preFilterName = 'hiRegitMuInitialStepLoose',
             min_nhits = 8,
             useMVA = True,
             minMVA = -0.38
-            ),
+        ),
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name = 'hiRegitMuInitialStep',
             preFilterName = 'hiRegitMuInitialStepTight',
             min_nhits = 8,
             useMVA = True,
             minMVA = -0.77
-            ),
-        ) #end of vpset
-    )
+        ),
+    ) #end of vpset
+)
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(hiRegitMuInitialStepSelector, useAnyMVA = False)
-trackingPhase1.toModify(hiRegitMuInitialStepSelector, trackSelectors= cms.VPSet(
+trackingPhase1.toModify(hiRegitMuInitialStepSelector, 
+    useAnyMVA = False,
+    trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuInitialStepLoose',
            min_nhits = 8
-            ), #end of pset
+        ), #end of pset
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name = 'hiRegitMuInitialStepTight',
             preFilterName = 'hiRegitMuInitialStepLoose',
             min_nhits = 8,
             useMVA = False,
             minMVA = -0.38
-            ),
+        ),
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name = 'hiRegitMuInitialStep',
             preFilterName = 'hiRegitMuInitialStepTight',
             min_nhits = 8,
             useMVA = False,
             minMVA = -0.77
-            ),
-        )
+        ),
+    )
 )
 
 hiRegitMuonInitialStepTask = cms.Task(hiRegitMuInitialStepSeedLayers,

@@ -32,7 +32,7 @@ void SiStripPedestalsDQM::fillMEsForDet(const ModMEs &_selModME_, uint32_t selDe
   getModMEs(selModME_, selDetId_);
 
   const auto pedRange = condObj_->getRange(selDetId_);
-  int nStrip = reader->getNumberOfApvsAndStripLength(selDetId_).first * 128;
+  int nStrip = detInfo_.getNumberOfApvsAndStripLength(selDetId_).first * 128;
 
   for (int istrip = 0; istrip < nStrip; ++istrip) {
     if (CondObj_fillId_ == "onlyProfile" || CondObj_fillId_ == "ProfileAndCumul") {
@@ -64,7 +64,7 @@ void SiStripPedestalsDQM::fillSummaryMEs(const std::vector<uint32_t> &selectedDe
         fPSet_.getParameter<bool>("OutputSummaryAtLayerLevelAsImage")) {
       TCanvas c1("c1");
       selME.SummaryDistr->getTH1()->Draw();
-      std::string name(selME.SummaryDistr->getTH1()->GetTitle());
+      std::string name(selME.SummaryDistr->getTitle());
       name += ".png";
       c1.Print(name.c_str());
     }
@@ -95,7 +95,7 @@ void SiStripPedestalsDQM::fillMEsForLayer(
 
   const auto pedRange = condObj_->getRange(selDetId_);
 
-  int nStrip = reader->getNumberOfApvsAndStripLength(selDetId_).first * 128;
+  int nStrip = detInfo_.getNumberOfApvsAndStripLength(selDetId_).first * 128;
 
   SiStripHistoId hidmanager;
 

@@ -46,8 +46,12 @@ private:
   // ------------ member data ------------
 
   const std::string folder_;
+  const bool LocalPosDebug_;
 
   edm::EDGetTokenT<ETLDigiCollection> etlDigiHitsToken_;
+
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
 
   // --- histograms declaration
 
@@ -57,6 +61,10 @@ private:
   MonitorElement* meHitTime_[4];
 
   MonitorElement* meOccupancy_[4];
+
+  MonitorElement* meLocalOccupancy_[2];  //folding the two ETL discs
+  MonitorElement* meHitXlocal_[2];
+  MonitorElement* meHitYlocal_[2];
 
   MonitorElement* meHitX_[4];
   MonitorElement* meHitY_[4];
@@ -73,8 +81,11 @@ private:
 
 // ------------ constructor and destructor --------------
 EtlDigiHitsValidation::EtlDigiHitsValidation(const edm::ParameterSet& iConfig)
-    : folder_(iConfig.getParameter<std::string>("folder")) {
+    : folder_(iConfig.getParameter<std::string>("folder")),
+      LocalPosDebug_(iConfig.getParameter<bool>("LocalPositionDebug")) {
   etlDigiHitsToken_ = consumes<ETLDigiCollection>(iConfig.getParameter<edm::InputTag>("inputTag"));
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
+  mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
 }
 
 EtlDigiHitsValidation::~EtlDigiHitsValidation() {}
@@ -83,8 +94,10 @@ EtlDigiHitsValidation::~EtlDigiHitsValidation() {}
 void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  edm::ESHandle<MTDTopology> topologyHandle;
-  iSetup.get<MTDTopologyRcd>().get(topologyHandle);
+  auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
+  const MTDGeometry* geom = geometryHandle.product();
+
+  auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
   const MTDTopology* topology = topologyHandle.product();
 
   bool topo1Dis = false;
@@ -95,10 +108,6 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   if (topology->getMTDTopologyMode() > static_cast<int>(MTDTopologyMode::Mode::barphiflat)) {
     topo2Dis = true;
   }
-
-  edm::ESHandle<MTDGeometry> geometryHandle;
-  iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
-  const MTDGeometry* geom = geometryHandle.product();
 
   auto etlDigiHitsHandle = makeValid(iEvent.getHandle(etlDigiHitsToken_));
 
@@ -157,6 +166,19 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     meHitCharge_[idet]->Fill(sample.data());
     meHitTime_[idet]->Fill(sample.toa());
     meOccupancy_[idet]->Fill(global_point.x(), global_point.y(), weight);
+
+    if (LocalPosDebug_) {
+      if ((idet == 0) || (idet == 1)) {
+        meLocalOccupancy_[0]->Fill(local_point.x(), local_point.y());
+        meHitXlocal_[0]->Fill(local_point.x());
+        meHitYlocal_[0]->Fill(local_point.y());
+
+      } else if ((idet == 2) || (idet == 3)) {
+        meLocalOccupancy_[1]->Fill(local_point.x(), local_point.y());
+        meHitXlocal_[1]->Fill(local_point.x());
+        meHitYlocal_[1]->Fill(local_point.y());
+      }
+    }
 
     meHitX_[idet]->Fill(global_point.x());
     meHitY_[idet]->Fill(global_point.y());
@@ -272,7 +294,28 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                                  135,
                                  -135.,
                                  135.);
-
+  if (LocalPosDebug_) {
+    meLocalOccupancy_[0] = ibook.book2D("EtlLocalOccupancyZneg",
+                                        "ETL DIGI hits local occupancy (-Z);X_{DIGI} [cm];Y_{DIGI} [cm]",
+                                        100,
+                                        -2.2,
+                                        2.2,
+                                        50,
+                                        -1.1,
+                                        1.1);
+    meLocalOccupancy_[1] = ibook.book2D("EtlLocalOccupancyZpos",
+                                        "ETL DIGI hits local occupancy (+Z);X_{DIGI} [cm];Y_{DIGI} [cm]",
+                                        100,
+                                        -2.2,
+                                        2.2,
+                                        50,
+                                        -1.1,
+                                        1.1);
+    meHitXlocal_[0] = ibook.book1D("EtlHitXlocalZneg", "ETL DIGI local X (-Z);X_{DIGI}^{LOC} [cm]", 100, -2.2, 2.2);
+    meHitXlocal_[1] = ibook.book1D("EtlHitXlocalZpos", "ETL DIGI local X (+Z);X_{DIGI}^{LOC} [cm]", 100, -2.2, 2.2);
+    meHitYlocal_[0] = ibook.book1D("EtlHitYlocalZneg", "ETL DIGI local Y (-Z);Y_{DIGI}^{LOC} [cm]", 50, -1.1, 1.1);
+    meHitYlocal_[1] = ibook.book1D("EtlHitYlocalZpos", "ETL DIGI local Y (-Z);Y_{DIGI}^{LOC} [cm]", 50, -1.1, 1.1);
+  }
   meHitX_[0] = ibook.book1D(
       "EtlHitXZnegD1", "ETL DIGI hits X (-Z, Single(topo1D)/First(topo2D) disk);X_{DIGI} [cm]", 100, -130., 130.);
   meHitX_[1] = ibook.book1D("EtlHitXZnegD2", "ETL DIGI hits X (-Z, Second disk);X_{DIGI} [cm]", 100, -130., 130.);
@@ -312,7 +355,6 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitEta_[2] = ibook.book1D(
       "EtlHitEtaZposD1", "ETL DIGI hits #eta (+Z, Single(topo1D)/First(topo2D) disk);#eta_{DIGI}", 100, 1.56, 3.2);
   meHitEta_[3] = ibook.book1D("EtlHitEtaZposD2", "ETL DIGI hits #eta (+Z, Second disk);#eta_{DIGI}", 100, 1.56, 3.2);
-
   meHitTvsQ_[0] = ibook.bookProfile(
       "EtlHitTvsQZnegD1",
       "ETL DIGI ToA vs charge (-Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
@@ -477,6 +519,7 @@ void EtlDigiHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& des
 
   desc.add<std::string>("folder", "MTD/ETL/DigiHits");
   desc.add<edm::InputTag>("inputTag", edm::InputTag("mix", "FTLEndcap"));
+  desc.add<bool>("LocalPositionDebug", false);
 
   descriptions.add("etlDigiHitsDefault", desc);
 }

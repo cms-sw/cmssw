@@ -57,6 +57,7 @@ private:
   bool isPIB;
   bool slowDown;
   bool modOn;
+  bool perLSsaving;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
   bool twoDimOn;
   bool twoDimModOn;
   bool twoDimOnlyLayDisk;

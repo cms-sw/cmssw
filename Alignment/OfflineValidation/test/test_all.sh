@@ -9,6 +9,8 @@ if test -f "validation_config.ini"; then
     rm -f validation_config.ini
 fi
 
+cmsRun ${LOCAL_TEST_DIR}/DiMuonVertexValidation_cfg.py maxEvents=10 || die "Failure running DiMuonVertexValidation_cfg.py" $?
+
 ## copy into local sqlite file the ideal alignment
 echo "COPYING locally Ideal Alignment ..."
 conddb --yes --db pro copy TrackerAlignment_Upgrade2017_design_v4 --destdb myfile.db
@@ -153,6 +155,16 @@ EOF
 
 echo " TESTING all-in-one tool ..."
 validateAlignments.py -c validation_config.ini -N testingAllInOneTool --dryRun || die "Failure running all-in-one test" $?
+
+printf "\n\n"
+
+echo " TESTING all-in-one tool configuration ..."
+FILES="$PWD/testingAllInOneTool/*_cfg.py"
+for f in $FILES
+do
+  echo "Processing $f file..."
+  python3 $FILE/$f  || die "Failure compiling test configuration" $?
+done
 
 printf "\n\n"
 

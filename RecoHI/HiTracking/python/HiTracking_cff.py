@@ -16,14 +16,14 @@ from RecoHI.HiTracking.hiDetachedQuadStep_cff import *
 
 from RecoHI.HiMuonAlgos.hiMuonIterativeTk_cff import *
 
-hiJetsForCoreTracking.cut = cms.string("pt > 100 && abs(eta) < 2.4")
-hiJetCoreRegionalStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = cms.double( 10. )
+hiJetsForCoreTracking.cut = "pt > 100 && abs(eta) < 2.4"
+hiJetCoreRegionalStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 10.
 hiJetCoreRegionalStepTrajectoryFilter.minPt = 10.0
-siPixelClusters.ptMin = cms.double(100)
-siPixelClusters.deltaRmax = cms.double(0.1)
+siPixelClusters.ptMin = 100
+siPixelClusters.deltaRmax = 0.1
 
 from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
-trackExtrapolator.trackSrc = cms.InputTag("hiGeneralTracks")
+trackExtrapolator.trackSrc = "hiGeneralTracks"
 
 hiTracking_noRegitMuTask = cms.Task(
     hiBasicTrackingTask

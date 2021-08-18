@@ -56,7 +56,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -475,7 +475,6 @@ void IsoTrackCalibration::beginRun(edm::Run const &iRun, edm::EventSetup const &
 
   // check if trigger names in (new) config
   if (changed_) {
-    changed_ = false;
     edm::LogInfo("HcalIsoTrack") << "New trigger menu found !!!";
     const unsigned int n(hltConfig_.size());
     for (unsigned itrig = 0; itrig < trigNames_.size(); itrig++) {

@@ -17,127 +17,66 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import _thresholdsHB
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi import _seedingThresholdsHB, _thresholdsHB
-from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHBHE_cfi import _thresholdsHB as _thresholdsHBRec
+# New cards in DT local reco to control which format for DT DB is used
+def customiseFor34612(process):    
+    for producer in producers_by_type(process, "DTRecHitProducer"):
+        producer.recAlgoConfig.readLegacyTTrigDB = cms.bool(True)
+        producer.recAlgoConfig.readLegacyVDriftDB = cms.bool(True)
 
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import _thresholdsHEphase1 as _thresholdsHEphase1HCAL
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi import _seedingThresholdsHEphase1, _thresholdsHEphase1
-from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHBHE_cfi import _thresholdsHEphase1 as _thresholdsHEphase1Rec
-
-
-logWeightDenominatorHCAL2018 = cms.VPSet(
-    cms.PSet(
-        depths = cms.vint32(1, 2, 3, 4),
-        detector = cms.string('HCAL_BARREL1'),
-        logWeightDenominator = _thresholdsHB
-        ),
-    cms.PSet(
-        depths = cms.vint32(
-    1, 2, 3, 4, 5, 6, 7
-        ),
-        detector = cms.string('HCAL_ENDCAP'),
-        logWeightDenominator = _thresholdsHEphase1HCAL
-    )
-)
-
-
-def synchronizeHCALHLTofflineRun3on2018data(process):
-    # this function bring back the Run3 menu to a Run2-2018 like meny, for testing in data 2018
-
-    #----------------------------------------------------------------------------------------------------------
-    # adapt threshold for HB  - in 2018 only one depth
-
-    for producer in producers_by_type(process, "PFClusterProducer"):
-        if producer.seedFinder.thresholdsByDetector[0].detector.value() == 'HCAL_BARREL1':
-            producer.seedFinder.thresholdsByDetector[0].seedingThreshold              = _seedingThresholdsHB
-            producer.initialClusteringStep.thresholdsByDetector[0].gatheringThreshold = _thresholdsHB
-            producer.pfClusterBuilder.recHitEnergyNorms[0].recHitEnergyNorm           = _thresholdsHB
-
-            producer.pfClusterBuilder.positionCalc.logWeightDenominatorByDetector = logWeightDenominatorHCAL2018
-            producer.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector = logWeightDenominatorHCAL2018
-
-    for producer in producers_by_type(process, "PFMultiDepthClusterProducer"):
-        producer.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector = logWeightDenominatorHCAL2018
-
-    for producer in producers_by_type(process, "PFRecHitProducer"):
-        if producer.producers[0].name.value() == 'PFHBHERecHitCreator':
-            producer.producers[0].qualityTests[0].cuts[0].threshold = _thresholdsHBRec
-
-    for producer in producers_by_type(process, "CaloTowersCreator"):
-        producer.HBThreshold1  = cms.double(0.7)
-        producer.HBThreshold2  = cms.double(0.7)
-        producer.HBThreshold   = cms.double(0.7)
-
-    #--------------------------------------------------------
-    # switch on the QI8 processing as in HB-Run2 (in Run3 we have only QIE11)
-    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-        producer.processQIE8 = cms.bool( True )
-        producer.setNoiseFlagsQIE8 = cms.bool( True )
-        producer.setPulseShapeFlagsQIE8 = cms.bool( True )
-
-    #----------------------------------------------------------
-    # Use 1+8p fit (PR29617) and apply HB- correction (PR26177)
-    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-        producer.algorithm.applyLegacyHBMCorrection = cms.bool( True )
-        producer.algorithm.chiSqSwitch = cms.double(15.0)
+    for producer in producers_by_type(process, "DTRecSegment4DProducer"):
+        producer.Reco4DAlgoConfig.recAlgoConfig.readLegacyTTrigDB = cms.bool(True)
+        producer.Reco4DAlgoConfig.recAlgoConfig.readLegacyVDriftDB = cms.bool(True)
+        producer.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.readLegacyTTrigDB = cms.bool(True)
+        producer.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.readLegacyVDriftDB = cms.bool(True)
 
     return process
 
-def synchronizeHCALHLTofflineRun2(process):
-    # this function bring forward the sw changes of Run3 to 2018 data starting from a Run2-2018 like menu
 
-    #-----------------------------------------------------------------------------------------------------------
-    # A) remove collapser from sequence
-    process.hltHbhereco = process.hltHbhePhase1Reco.clone()
-    process.HLTDoLocalHcalSequence      = cms.Sequence( process.hltHcalDigis + process.hltHbhereco + process.hltHfprereco + process.hltHfreco + process.hltHoreco )
-    process.HLTStoppedHSCPLocalHcalReco = cms.Sequence( process.hltHcalDigis + process.hltHbhereco )
-    process.HLTDoLocalHcalWithTowerSequence = cms.Sequence( process.hltHcalDigis + process.hltHbhereco + process.hltHfprereco + process.hltHfreco + process.hltHoreco + process.hltTowerMakerForAll )
+def customiseHCALFor2018Input(process):
+    """Customise the HLT to run on Run 2 data/MC using the old readout for the HCAL barel"""
 
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        # switch on the QI8 processing for 2018 HCAL barrel
+        producer.processQIE8 = True
 
-    #----------------------------------------------------------------------------------------------------------
-    # B) adapt threshold following removal of the collapser
-    # note this is done only for HE
+    # adapt CaloTowers threshold for 2018 HCAL barrel with only one depth
+    for producer in producers_by_type(process, "CaloTowersCreator"):
+        producer.HBThreshold1  = 0.7
+        producer.HBThreshold2  = 0.7
+        producer.HBThreshold   = 0.7
 
-    for producer in producers_by_type(process, "PFClusterProducer"):
-        if producer.seedFinder.thresholdsByDetector[1].detector.value() == 'HCAL_ENDCAP':
-            producer.seedFinder.thresholdsByDetector[1].seedingThreshold              = _seedingThresholdsHEphase1
-            producer.initialClusteringStep.thresholdsByDetector[1].gatheringThreshold = _thresholdsHEphase1
-            producer.pfClusterBuilder.recHitEnergyNorms[1].recHitEnergyNorm           = _thresholdsHEphase1
+    # adapt Particle Flow threshold for 2018 HCAL barrel with only one depth
+    from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi import _thresholdsHB, _thresholdsHEphase1, _seedingThresholdsHB
 
-            del producer.pfClusterBuilder.positionCalc.logWeightDenominator
-            producer.pfClusterBuilder.positionCalc.logWeightDenominatorByDetector = logWeightDenominatorHCAL2018
-            del producer.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator
-            producer.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector = logWeightDenominatorHCAL2018
-
-    for producer in producers_by_type(process, "PFMultiDepthClusterProducer"):
-        del producer.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator
-        producer.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector = logWeightDenominatorHCAL2018
+    logWeightDenominatorHCAL2018 = cms.VPSet(
+        cms.PSet(
+            depths = cms.vint32(1, 2, 3, 4),
+            detector = cms.string('HCAL_BARREL1'),
+            logWeightDenominator = _thresholdsHB
+        ),
+        cms.PSet(
+            depths = cms.vint32(1, 2, 3, 4, 5, 6, 7),
+            detector = cms.string('HCAL_ENDCAP'),
+            logWeightDenominator = _thresholdsHEphase1
+        )
+    )
 
     for producer in producers_by_type(process, "PFRecHitProducer"):
         if producer.producers[0].name.value() == 'PFHBHERecHitCreator':
-            producer.producers[0].qualityTests[0].cuts[1].threshold = _thresholdsHEphase1Rec
+            producer.producers[0].qualityTests[0].cuts[0].threshold = _thresholdsHB
 
-    for producer in producers_by_type(process, "CaloTowersCreator"):
-        producer.HcalPhase     = cms.int32(1)
-        producer.HESThreshold1 = cms.double(0.1)
-        producer.HESThreshold  = cms.double(0.2)
-        producer.HEDThreshold1 = cms.double(0.1)
-        producer.HEDThreshold  = cms.double(0.2)
+    for producer in producers_by_type(process, "PFClusterProducer"):
+        if producer.seedFinder.thresholdsByDetector[0].detector.value() == 'HCAL_BARREL1':
+            producer.seedFinder.thresholdsByDetector[0].seedingThreshold = _seedingThresholdsHB
+            producer.initialClusteringStep.thresholdsByDetector[0].gatheringThreshold = _thresholdsHB
+            producer.pfClusterBuilder.recHitEnergyNorms[0].recHitEnergyNorm = _thresholdsHB
+            producer.pfClusterBuilder.positionCalc.logWeightDenominatorByDetector = logWeightDenominatorHCAL2018
+            producer.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector = logWeightDenominatorHCAL2018
 
-    #--------------------------------------------------------
-    # C) add arrival time following PR 26270 (emulate what we will do in Run3 at HLT)
-    # (unused HLT quantity, set to false to save CPU)
-    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-        producer.algorithm.calculateArrivalTime  = cms.bool(False)
+    for producer in producers_by_type(process, "PFMultiDepthClusterProducer"):
+        producer.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector = logWeightDenominatorHCAL2018
 
-    #--------------------------------------------------------
-    # D) 3->8 pulse fit for PR 25469 (emulate what we will do in Run3 at HLT)
-    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
-        producer.use8ts = cms.bool(True)
-        producer.algorithm.dynamicPed = cms.bool(False)
-        producer.algorithm.activeBXs = cms.vint32(-3, -2, -1, 0, 1, 2, 3, 4)
-
+    # done
     return process
 
 
@@ -200,15 +139,18 @@ def customisePixelGainForRun2Input(process):
 def customiseFor2018Input(process):
     """Customise the HLT to run on Run 2 data/MC"""
     process = customisePixelGainForRun2Input(process)
-    process = synchronizeHCALHLTofflineRun3on2018data(process)
+    process = customiseHCALFor2018Input(process)
 
     return process
 
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
-
+    
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+
+    # New cards for DT local reco
+    process = customiseFor34612(process)
 
     return process

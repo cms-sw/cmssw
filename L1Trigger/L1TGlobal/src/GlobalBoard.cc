@@ -11,6 +11,7 @@
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version
  * \author: Vladimir Rekovic     - add correlation with overlap removal cases
  *                               - fractional prescales
+ * \author: Elisa Fontanesi      - extended for three-body correlation conditions
  *
  * $Date$
  * $Revision$
@@ -19,9 +20,6 @@
 
 // this class header
 #include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
-
-// system include files
-#include <ext/hash_map>
 
 // user include files
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMap.h"
@@ -33,6 +31,7 @@
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/CorrelationThreeBodyTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationWithOverlapRemovalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
@@ -46,7 +45,9 @@
 #include "L1Trigger/L1TGlobal/interface/CaloCondition.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumCondition.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalCondition.h"
-
+#include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
+#include "L1Trigger/L1TGlobal/interface/CorrThreeBodyCondition.h"
+#include "L1Trigger/L1TGlobal/interface/CorrWithOverlapRemovalCondition.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -627,6 +628,60 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
           //  		delete correlationCond;
 
         } break;
+        case CondCorrelationThreeBody: {
+          // get first the sub-conditions
+          const CorrelationThreeBodyTemplate* corrTemplate =
+              static_cast<const CorrelationThreeBodyTemplate*>(itCond->second);
+          const GtConditionCategory cond0Categ = corrTemplate->cond0Category();
+          const GtConditionCategory cond1Categ = corrTemplate->cond1Category();
+          const GtConditionCategory cond2Categ = corrTemplate->cond2Category();
+          const int cond0Ind = corrTemplate->cond0Index();
+          const int cond1Ind = corrTemplate->cond1Index();
+          const int cond2Ind = corrTemplate->cond2Index();
+
+          const GlobalCondition* cond0Condition = nullptr;
+          const GlobalCondition* cond1Condition = nullptr;
+          const GlobalCondition* cond2Condition = nullptr;
+
+          // maximum number of objects received for evaluation of l1t::Type1s condition
+          int cond0NrL1Objects = 0;
+          int cond1NrL1Objects = 0;
+          int cond2NrL1Objects = 0;
+          LogDebug("L1TGlobal") << "  cond0NrL1Objects  " << cond0NrL1Objects << "  cond1NrL1Objects  "
+                                << cond1NrL1Objects << "  cond2NrL1Objects  " << cond2NrL1Objects << std::endl;
+          if (cond0Categ == CondMuon) {
+            cond0Condition = &((corrMuon[iChip])[cond0Ind]);
+          } else {
+            LogDebug("L1TGlobal") << "No muon0 to evaluate three-body correlation condition";
+          }
+          if (cond1Categ == CondMuon) {
+            cond1Condition = &((corrMuon[iChip])[cond1Ind]);
+          } else {
+            LogDebug("L1TGlobal") << "No muon1 to evaluate three-body correlation condition";
+          }
+          if (cond2Categ == CondMuon) {
+            cond2Condition = &((corrMuon[iChip])[cond2Ind]);
+          } else {
+            LogDebug("L1TGlobal") << "No muon2 to evaluate three-body correlation condition";
+          }
+
+          CorrThreeBodyCondition* correlationThreeBodyCond =
+              new CorrThreeBodyCondition(itCond->second, cond0Condition, cond1Condition, cond2Condition, this);
+
+          correlationThreeBodyCond->setVerbosity(m_verbosity);
+          correlationThreeBodyCond->setScales(&gtScales);
+          correlationThreeBodyCond->evaluateConditionStoreResult(iBxInEvent);
+          cMapResults[itCond->first] = correlationThreeBodyCond;
+
+          if (m_verbosity && m_isDebugEnabled) {
+            std::ostringstream myCout;
+            correlationThreeBodyCond->print(myCout);
+
+            LogTrace("L1TGlobal") << myCout.str() << std::endl;
+          }
+          //              delete correlationThreeBodyCond;
+        } break;
+
         case CondCorrelationWithOverlapRemoval: {
           // get first the sub-conditions
           const CorrelationWithOverlapRemovalTemplate* corrTemplate =

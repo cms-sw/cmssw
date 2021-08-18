@@ -2,9 +2,12 @@
 #ifndef RecoParticleFlow_PFClusterProducer_PFRecHitCaloNavigatorWithTime_h
 #define RecoParticleFlow_PFClusterProducer_PFRecHitCaloNavigatorWithTime_h
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include <memory>
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -25,10 +28,10 @@
 template <typename D, typename T, bool ownsTopo = true>
 class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 public:
-  PFRecHitCaloNavigatorWithTime(const edm::ParameterSet& iConfig) {
+  PFRecHitCaloNavigatorWithTime(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {
     sigmaCut2_ = pow(iConfig.getParameter<double>("sigmaCut"), 2);
     const edm::ParameterSet& timeResConf = iConfig.getParameterSet("timeResolutionCalc");
-    _timeResolutionCalc.reset(new CaloRecHitResolutionProvider(timeResConf));
+    _timeResolutionCalc = std::make_unique<CaloRecHitResolutionProvider>(timeResConf);
   }
 
   ~PFRecHitCaloNavigatorWithTime() override {

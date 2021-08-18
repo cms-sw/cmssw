@@ -5,6 +5,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
 # NEW CLUSTERS (remove previously used clusters)
 lowPtTripletStepClusters = _cfg.clusterRemoverForIter('LowPtTripletStep')
@@ -241,6 +242,29 @@ trackingPhase2PU140.toModify(lowPtTripletStepTrackCandidates,
     phase2clustersToSkip = cms.InputTag('lowPtTripletStepClusters')
 )
 
+from Configuration.ProcessModifiers.trackingMkFitLowPtTripletStep_cff import trackingMkFitLowPtTripletStep
+import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationConfigESProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
+lowPtTripletStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+    seeds = 'lowPtTripletStepSeeds',
+)
+lowPtTripletStepTrackCandidatesMkFitConfig = mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+    ComponentName = 'lowPtTripletStepTrackCandidatesMkFitConfig',
+    config = 'RecoTracker/MkFit/data/mkfit-phase1-lowPtTripletStep.json',
+)
+lowPtTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+    seeds = 'lowPtTripletStepTrackCandidatesMkFitSeeds',
+    config = ('', 'lowPtTripletStepTrackCandidatesMkFitConfig'),
+    clustersToSkip = 'lowPtTripletStepClusters',
+)
+trackingMkFitLowPtTripletStep.toReplaceWith(lowPtTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = 'lowPtTripletStepSeeds',
+    mkFitSeeds = 'lowPtTripletStepTrackCandidatesMkFitSeeds',
+    tracks = 'lowPtTripletStepTrackCandidatesMkFit',
+))
+
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(lowPtTripletStepTrackCandidates,
                       FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
@@ -279,11 +303,11 @@ trackingPhase1.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
      qualityCuts = [-0.4,0.0,0.3],
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackdnn.toReplaceWith(lowPtTripletStep, TrackLwtnnClassifier.clone(
-    src         = 'lowPtTripletStepTracks',
-    qualityCuts = [0.2, 0.5, 0.8]
+from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
+trackdnn.toReplaceWith(lowPtTripletStep, TrackTfClassifier.clone(
+    src = 'lowPtTripletStepTracks',
+    qualityCuts = qualityCutDictionary['LowPtTripletStep']
 ))
 
 highBetaStar_2018.toModify(lowPtTripletStep,qualityCuts = [-0.7,-0.3,-0.1])
@@ -377,6 +401,10 @@ LowPtTripletStepTask = cms.Task(lowPtTripletStepClusters,
                                 lowPtTripletStepTracks,
                                 lowPtTripletStep)
 LowPtTripletStep = cms.Sequence(LowPtTripletStepTask)
+
+_LowPtTripletStepTask_trackingMkFit = LowPtTripletStepTask.copy()
+_LowPtTripletStepTask_trackingMkFit.add(lowPtTripletStepTrackCandidatesMkFitSeeds, lowPtTripletStepTrackCandidatesMkFit)
+trackingMkFitLowPtTripletStep.toReplaceWith(LowPtTripletStepTask, _LowPtTripletStepTask_trackingMkFit)
 
 _LowPtTripletStepTask_LowPU_Phase2PU140 = LowPtTripletStepTask.copy()
 _LowPtTripletStepTask_LowPU_Phase2PU140.replace(lowPtTripletStep, lowPtTripletStepSelector)

@@ -11,6 +11,9 @@ Description: Producer for EcalRecHits to be used for pi0/eta ECAL calibration.
 
 // system include files
 #include <memory>
+#include <algorithm>
+#include <utility>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -28,7 +31,7 @@ Description: Producer for EcalRecHits to be used for pi0/eta ECAL calibration.
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 // Geometry
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -53,18 +56,9 @@ Description: Producer for EcalRecHits to be used for pi0/eta ECAL calibration.
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 
-//
-//Ecal status
+// Ecal status
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-
-// class declaration
-//
-#include <algorithm>
-#include <utility>
-
-#include "TLorentzVector.h"
-#include <vector>
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -117,6 +111,10 @@ private:
 
   static float DeltaPhi(float phi1, float phi2);
   static float GetDeltaR(float eta1, float eta2, float phi1, float phi2);
+
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> const caloTopologyRecordToken_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> const ecalChannelStatusRcdToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> const caloGeometryRecordToken_;
 
   // Input hits & clusters
   edm::InputTag barrelHits_;

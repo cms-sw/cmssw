@@ -27,6 +27,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -68,14 +69,14 @@ public:
              const CSCComparatorDigiCollection* compdc,
              const GEMPadDigiClusterCollection* gemPadClusters,
              CSCALCTDigiCollection& oc_alct,
-             CSCALCTDigiCollection& oc_alct_all,
              CSCCLCTDigiCollection& oc_clct,
-             CSCCLCTDigiCollection& oc_clct_all,
              CSCALCTPreTriggerDigiCollection& oc_alctpretrigger,
              CSCCLCTPreTriggerDigiCollection& oc_clctpretrigger,
              CSCCLCTPreTriggerCollection& oc_pretrig,
              CSCCorrelatedLCTDigiCollection& oc_lct,
              CSCCorrelatedLCTDigiCollection& oc_sorted_lct,
+             CSCShowerDigiCollection& oc_shower,
+             CSCShowerDigiCollection& oc_shower_anode,
              GEMCoPadDigiCollection& oc_gemcopad);
 
   /** Max values of trigger labels for all CSCs; used to construct TMB
@@ -102,8 +103,9 @@ private:
   static const int min_chamber;  // chambers per trigger subsector
   static const int max_chamber;
 
-  //debug
+  // debug
   int infoV;
+
   /// a flag whether to skip chambers from the bad chambers map
   bool checkBadChambers_;
 
@@ -111,16 +113,11 @@ private:
   bool runPhase2_;
 
   /** Phase2: special switch for disabling ME42 */
-  bool disableME1a_;
-
-  /** Phase2: special switch for disabling ME42 */
   bool disableME42_;
 
   /** Phase2: individual switches */
   bool runME11Up_;
   bool runME21Up_;
-  bool runME31Up_;
-  bool runME41Up_;
 
   /** Phase2: special switch for the upgrade ME1/1 TMB */
   bool runME11ILT_;

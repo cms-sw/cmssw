@@ -17,16 +17,15 @@ class LumiBasedUpdateAnalyzer : public edm::EDAnalyzer {
 public:
   explicit LumiBasedUpdateAnalyzer(const edm::ParameterSet& iConfig);
   virtual ~LumiBasedUpdateAnalyzer();
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
+  virtual void beginJob();
   virtual void endJob();
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context);
+  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup);
+  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
 
 private:
   std::string m_record;
-  std::string m_lastLumiFile;
-  cond::Time_t m_prevLumi;
-  std::chrono::time_point<std::chrono::steady_clock> m_prevLumiTime;
-  std::string m_omsServiceUrl;
-  bool m_tagLocks;
+  int m_ret;
   // ----------member data ---------------------------
 };
 #endif

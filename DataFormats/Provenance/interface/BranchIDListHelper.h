@@ -25,7 +25,7 @@ namespace edm {
     void updateFromParent(BranchIDLists const& bidlists);
 
     ///Called by sources to convert their read indexes into the indexes used by the job
-    void fixBranchListIndexes(BranchListIndexes& indexes) const;
+    bool fixBranchListIndexes(BranchListIndexes& indexes, bool assertOnFailure = true) const;
 
     void updateFromRegistry(ProductRegistry const& reg);
 

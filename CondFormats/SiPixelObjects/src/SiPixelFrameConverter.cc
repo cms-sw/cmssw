@@ -25,12 +25,11 @@ PixelROC const* SiPixelFrameConverter::toRoc(int link, int roc) const {
   CablingPathToDetUnit path = {
       static_cast<unsigned int>(theFedId), static_cast<unsigned int>(link), static_cast<unsigned int>(roc)};
   const PixelROC* rocp = (theFed) ? theTree->findItemInFed(path, theFed) : theMap->findItem(path);
-  if
-    UNLIKELY(!rocp) {
-      stringstream stm;
-      stm << "Map shows no fed=" << theFedId << ", link=" << link << ", roc=" << roc;
-      edm::LogWarning("SiPixelFrameConverter") << stm.str();
-    }
+  if UNLIKELY (!rocp) {
+    stringstream stm;
+    stm << "Map shows no fed=" << theFedId << ", link=" << link << ", roc=" << roc;
+    edm::LogWarning("SiPixelFrameConverter") << stm.str();
+  }
   return rocp;
 }
 

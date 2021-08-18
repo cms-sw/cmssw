@@ -4,9 +4,10 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
+#include "RecoTracker/FinalTrackSelectors/interface/getBestVertex.h"
+
 #include <cassert>
 
-#include "getBestVertex.h"
 #include "powN.h"
 
 namespace {

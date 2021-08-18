@@ -69,7 +69,8 @@ namespace l1tcalo {
   constexpr uint32_t CaloVHFRegionStart{12};
 
   constexpr uint32_t MaxUCTRegionsPhi{MaxCaloPhi / NPhiInRegion};
-  constexpr uint32_t MaxUCTRegionsEta{2 * (NRegionsInCard + NHFRegionsInCard)};
+  constexpr uint32_t MaxUCTRegionsEta{NRegionsInCard +
+                                      NHFRegionsInCard};  // Labelled -MaxUCTRegionsEta to +MaxUCTRegionsEta skipping 0
 
   // Binning for Layer1 calibration LUTs
   const uint32_t nEtBins = 256;
@@ -109,6 +110,7 @@ public:
   uint32_t getRegion(int caloEta, int caloPhi);
   uint32_t getiEta(int caloEta);
   uint32_t getiPhi(int caloPhi);
+  bool getNegativeSide(int caloEta) { return (caloEta < 0); }
 
   bool checkCrate(uint32_t crate) { return !(crate < l1tcalo::NCrates); }
   bool checkCard(uint32_t card) { return !(card < l1tcalo::NCardsInCrate); }
@@ -171,8 +173,6 @@ public:
   uint32_t getUCTRegionPhiIndex(uint32_t crate, uint32_t card);
 
   int getUCTRegionEtaIndex(bool negativeSide, uint32_t region) {
-    if (!checkRegion(region))
-      return 0xDEADBEEF;
     if (negativeSide)
       return -(region + 1);
     else
@@ -191,6 +191,10 @@ public:
 
   double getUCTTowerEta(int caloEta);
   double getUCTTowerPhi(int caloPhi);
+
+  UCTRegionIndex getUCTRegionIndexFromL1CaloRegion(uint32_t caloRegionEta, uint32_t caloRegionPhi);
+
+  UCTTowerIndex getUCTTowerIndexFromL1CaloRegion(UCTRegionIndex r, uint32_t rawData);
 
 private:
 };

@@ -5,9 +5,12 @@
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProductHost.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 
 #include "CondFormats/RPCObjects/interface/RPCInverseAMCLinkMap.h"
+#include "CondFormats/RPCObjects/interface/RPCAMCLinkMap.h"
 
 namespace edm {
   class ParameterSet;
@@ -31,6 +34,8 @@ private:
   void setupRPCOMTFLinkMap(RPCOMTFLinkMapRcd const&, RPCInverseAMCLinkMap*);
 
   edm::ReusableObjectHolder<HostType> holder_;
+
+  edm::ESGetToken<RPCAMCLinkMap, RPCOMTFLinkMapRcd> es_rpc_omt_l_map_token_;
 };
 
 #endif  // CondTools_RPC_RPCInverseOMTFLinkMapESProducer_h

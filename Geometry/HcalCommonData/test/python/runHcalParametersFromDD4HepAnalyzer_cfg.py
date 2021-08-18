@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("HcalParametersTest")
+from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
 
-process.load('Geometry.HcalCommonData.hcalParameters_cff')
-process.load('Geometry.HcalCommonData.hcalSimulationParameters_cff')
+process = cms.Process("HcalParametersTest",Run3_dd4hep)
+
+process.load("Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
@@ -14,18 +15,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/HcalAlgo/data/cms-test-Phase2GeometryFine-algorithm.xml'),
-                                            appendToDataLabel = cms.string('')
-                                            )
-
-process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
-                                                appendToDataLabel = cms.string('')
-)
-
 process.hpa = cms.EDAnalyzer("HcalParametersAnalyzer")
-process.hcalParameters.fromDD4Hep = cms.bool(True)
-process.hcalSimulationParameters.fromDD4Hep = cms.bool(True)
 
 process.Timing = cms.Service("Timing")
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")

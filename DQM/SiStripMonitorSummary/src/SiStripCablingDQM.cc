@@ -114,12 +114,12 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup &eSetup) {
   ME->setAxisTitle("Sub Det", 1);
   ME->setAxisTitle("Layer", 2);
 
-  ME->getTH1()->GetXaxis()->SetBinLabel(1, "TIB");
-  ME->getTH1()->GetXaxis()->SetBinLabel(2, "TID F");
-  ME->getTH1()->GetXaxis()->SetBinLabel(3, "TID B");
-  ME->getTH1()->GetXaxis()->SetBinLabel(4, "TOB");
-  ME->getTH1()->GetXaxis()->SetBinLabel(5, "TEC F");
-  ME->getTH1()->GetXaxis()->SetBinLabel(6, "TEC B");
+  ME->setBinLabel(1, "TIB");
+  ME->setBinLabel(2, "TID F");
+  ME->setBinLabel(3, "TID B");
+  ME->setBinLabel(4, "TOB");
+  ME->setBinLabel(5, "TEC F");
+  ME->setBinLabel(6, "TEC B");
 
   for (int i = 0; i < 4; i++) {
     ME->Fill(1, i + 1, float(counterTIB[i]) / TIBDetIds[i]);
@@ -145,7 +145,7 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup &eSetup) {
     TCanvas c1("c1");
     ME->getTH1()->Draw("TEXT");
     ME->getTH1()->SetStats(kFALSE);
-    std::string name(ME->getTH1()->GetTitle());
+    std::string name(ME->getTitle());
     name += ".png";
     c1.Print(name.c_str());
   }

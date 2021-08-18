@@ -1,4 +1,5 @@
 #include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
+#include <algorithm>
 
 const EcalSCDynamicDPhiParameters::DynamicDPhiParameters* EcalSCDynamicDPhiParameters::dynamicDPhiParameters(
     double clustE, double absSeedEta) const {

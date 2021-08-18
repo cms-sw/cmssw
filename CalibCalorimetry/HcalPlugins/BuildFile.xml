@@ -3,7 +3,6 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/HcalObjects"/>
 <use name="DataFormats/HcalDetId"/>
-<use name="DataFormats/HcalCalibObjects"/>
 <use name="Geometry/ForwardGeometry"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>

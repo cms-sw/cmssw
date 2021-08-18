@@ -37,7 +37,7 @@ from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi impo
 from RecoHI.HiTracking.HIPixelTrackFilter_cff import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 
-hiDetachedQuadStepTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+hiDetachedQuadStepTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionPSet = dict(
     precise = True,
     useMultipleScattering = False,
     useFakeVertices       = False,
@@ -51,8 +51,8 @@ hiDetachedQuadStepTrackingRegions = _globalTrackingRegionWithVertices.clone(Regi
     useFoundVertices = True,
     #originHalfLength = 15.0, # 15 for pp, useTrackingRegionWithVertices, does not have this parameter. Only with BeamSpot
     originRadius = 1.5 # 1.5 for pp
-
-))
+    )
+)
 hiDetachedQuadStepTracksHitDoubletsCA = _hitPairEDProducer.clone(
     clusterCheck = "",
     seedingLayers = "hiDetachedQuadStepSeedLayers",
@@ -83,27 +83,25 @@ hiDetachedQuadStepPixelTracksFilter = hiFilter.clone(
     tipMax = 1.0,
     ptMin = 0.95, #seeding region is 0.3
 )
-hiDetachedQuadStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 
-    passLabel  = cms.string('Pixel detached tracks with vertex constraint'),
+import RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi as _mod
 
+hiDetachedQuadStepPixelTracks = _mod.pixelTracks.clone(
+    passLabel  = 'Pixel detached tracks with vertex constraint',
     # Ordered Hits
-    SeedingHitSets = cms.InputTag("hiDetachedQuadStepTracksHitQuadrupletsCA"),
-	
+    SeedingHitSets = "hiDetachedQuadStepTracksHitQuadrupletsCA",
     # Fitter
-    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
-	
+    Fitter = "pixelFitterByHelixProjections",
     # Filter
-    Filter = cms.InputTag("hiDetachedQuadStepPixelTracksFilter"),
-	
+    Filter = "hiDetachedQuadStepPixelTracksFilter",
     # Cleaner
-    Cleaner = cms.string("trackCleaner")
+    Cleaner = "trackCleaner"
 )
 
 
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
 hiDetachedQuadStepSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone(
-        InputCollection = 'hiDetachedQuadStepPixelTracks'
+    InputCollection = 'hiDetachedQuadStepPixelTracks'
 )
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -117,11 +115,10 @@ hiDetachedQuadStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.Trajector
 
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
 hiDetachedQuadStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
-        ComponentName = 'hiDetachedQuadStepChi2Est',
-            nSigma  = 3.0,
-            MaxChi2 = 9.0
+    ComponentName = 'hiDetachedQuadStepChi2Est',
+    nSigma = 3.0,
+    MaxChi2 = 9.0
 )
-
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
@@ -160,7 +157,7 @@ import RecoTracker.TrackProducer.TrackProducer_cfi
 hiDetachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'hiDetachedQuadStepTrackCandidates',
     AlgorithmName = 'detachedQuadStep',
-    Fitter = 'FlexibleKFFittingSmoother'
+    Fitter='FlexibleKFFittingSmoother'
 )
 
 # Final selection
@@ -171,50 +168,51 @@ hiDetachedQuadStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiT
     GBRForestLabel = 'HIMVASelectorIter10',#FIXME MVA for new iteration
     GBRForestVars = ['chi2perdofperlayer', 'nhits', 'nlayers', 'eta'],
     trackSelectors= cms.VPSet(
-       RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
-           name = 'hiDetachedQuadStepLoose',
-           applyAdaptedPVCuts = False,
-           useMVA = False,
-       ), #end of pset
-       RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-           name = 'hiDetachedQuadStepTight',
-           preFilterName = 'hiDetachedQuadStepLoose',
-           applyAdaptedPVCuts = True,
-           useMVA = True,
-           minMVA = -0.2
-       ),
-       RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-           name = 'hiDetachedQuadStep',
-           preFilterName = 'hiDetachedQuadStepTight',
-           applyAdaptedPVCuts = True,
-           useMVA = True,
-           minMVA = -0.09
-       ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+            name = 'hiDetachedQuadStepLoose',
+            applyAdaptedPVCuts = False,
+            useMVA = False,
+        ), #end of pset
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+            name = 'hiDetachedQuadStepTight',
+            preFilterName = 'hiDetachedQuadStepLoose',
+            applyAdaptedPVCuts = True,
+            useMVA = True,
+            minMVA = -0.2
+        ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+            name = 'hiDetachedQuadStep',
+            preFilterName = 'hiDetachedQuadStepTight',
+            applyAdaptedPVCuts = True,
+            useMVA = True,
+            minMVA = -0.09
+        ),
     ) #end of vpset
 ) #end of clone
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(hiDetachedQuadStepSelector, useAnyMVA = False)
-trackingPhase1.toModify(hiDetachedQuadStepSelector, trackSelectors= cms.VPSet(
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
-        name = 'hiDetachedQuadStepLoose',
-        applyAdaptedPVCuts = False,
-        useMVA = False,
-    ), #end of pset
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-        name = 'hiDetachedQuadStepTight',
-        preFilterName = 'hiDetachedQuadStepLoose',
-        applyAdaptedPVCuts = False,
-        useMVA = False,
-        minMVA = -0.2
-    ),
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-        name = 'hiDetachedQuadStep',
-        preFilterName = 'hiDetachedQuadStepTight',
-        applyAdaptedPVCuts = False,
-        useMVA = False,
-        minMVA = -0.09
-    ),
-  ) #end of vpset
+trackingPhase1.toModify(hiDetachedQuadStepSelector, 
+    useAnyMVA = False, 
+    trackSelectors= cms.VPSet(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+            name = 'hiDetachedQuadStepLoose',
+            applyAdaptedPVCuts = False,
+            useMVA = False,
+        ), #end of pset
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+            name = 'hiDetachedQuadStepTight',
+            preFilterName = 'hiDetachedQuadStepLoose',
+            applyAdaptedPVCuts = False,
+            useMVA = False,
+            minMVA = -0.2
+        ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+            name = 'hiDetachedQuadStep',
+            preFilterName = 'hiDetachedQuadStepTight',
+            applyAdaptedPVCuts = False,
+            useMVA = False,
+            minMVA = -0.09
+        ),
+    ) #end of vpset
 )
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi

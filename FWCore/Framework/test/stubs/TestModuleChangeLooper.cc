@@ -16,7 +16,6 @@
 //
 
 // user include files
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/EDLooper.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -38,21 +37,24 @@ public:
 
   void startingNewLoop(unsigned int) {}
   Status duringLoop(edm::Event const& iEvent, edm::EventSetup const&) {
-    edm::Handle<edmtest::IntProduct> handle;
-    iEvent.getByLabel(m_tag, handle);
-    if (handle->value != m_expectedValue) {
-      throw cms::Exception("WrongValue") << "expected value " << m_expectedValue << " but got " << handle->value;
+    auto const& product = iEvent.get(m_token);
+    if (product.value != m_expectedValue) {
+      throw cms::Exception("WrongValue") << "expected value " << m_expectedValue << " but got " << product.value;
     }
     return kContinue;
   }
   Status endOfLoop(edm::EventSetup const&, unsigned int iCount) {
     //modify the module
-    edm::ParameterSet const* pset = scheduleInfo()->parametersForModule(m_tag.label());
+    Labels labels;
+    labelsForToken(m_token, labels);
+    std::string const moduleLabel{labels.module};
+
+    edm::ParameterSet const* pset = scheduleInfo()->parametersForModule(moduleLabel);
     assert(0 != pset);
 
     edm::ParameterSet newPSet(*pset);
     newPSet.addParameter<int>("ivalue", ++m_expectedValue);
-    auto success = moduleChanger()->changeModule(m_tag.label(), newPSet);
+    auto success = moduleChanger()->changeModule(moduleLabel, newPSet);
     assert(success && "moduleChanger()->changeModule(m_tag.label(), newPSet)");
 
     return iCount == 2 ? kStop : kContinue;
@@ -61,7 +63,7 @@ public:
 private:
   // ----------member data ---------------------------
   int m_expectedValue;
-  edm::InputTag m_tag;
+  edm::EDGetTokenT<edmtest::IntProduct> m_token;
 };
 
 //
@@ -77,7 +79,7 @@ private:
 //
 TestModuleChangeLooper::TestModuleChangeLooper(edm::ParameterSet const& iConfig)
     : m_expectedValue(iConfig.getUntrackedParameter<int>("startingValue")),
-      m_tag(iConfig.getUntrackedParameter<edm::InputTag>("tag")) {
+      m_token(consumes(iConfig.getUntrackedParameter<edm::InputTag>("tag"))) {
   //now do what ever other initialization is needed
 }
 

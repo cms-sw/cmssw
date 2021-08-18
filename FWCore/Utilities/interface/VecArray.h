@@ -113,8 +113,8 @@ namespace edm {
       size_ = size;
     }
 
-    void swap(VecArray& other) noexcept(noexcept(std::swap(data_, other.data_)) &&
-                                        noexcept(std::swap(size_, other.size_))) {
+    void swap(VecArray& other) noexcept(noexcept(std::swap(data_, other.data_)) && noexcept(std::swap(size_,
+                                                                                                      other.size_))) {
       std::swap(data_, other.data_);
       std::swap(size_, other.size_);
     }

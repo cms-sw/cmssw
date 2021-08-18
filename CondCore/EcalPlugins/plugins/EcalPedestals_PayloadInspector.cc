@@ -22,9 +22,9 @@ namespace {
   enum { MIN_IETA = 1, MIN_IPHI = 1, MAX_IETA = 85, MAX_IPHI = 360 };  // barrel lower and upper bounds on eta and phi
   enum { IX_MIN = 1, IY_MIN = 1, IX_MAX = 100, IY_MAX = 100 };         // endcaps lower and upper bounds on x and y
 
-  /*************************************************
+  /**************************************
      1d plot of ECAL pedestal of 1 IOV
-  *************************************************/
+  ***************************************/
   class EcalPedestalsHist : public cond::payloadInspector::PlotImage<EcalPedestals> {
   public:
     EcalPedestalsHist() : cond::payloadInspector::PlotImage<EcalPedestals>("ECAL pedestal map") { setSingleIov(true); }
@@ -127,9 +127,9 @@ namespace {
     }  // fill method
   };   //   class EcalPedestalsHist
 
-  /*************************************************
+  /**************************************
      2d plot of ECAL pedestal of 1 IOV
-  *************************************************/
+  ***************************************/
 
   class EcalPedestalsPlot : public cond::payloadInspector::PlotImage<EcalPedestals> {
   public:
@@ -392,16 +392,14 @@ namespace {
 
   };  // class EcalPedestalsPlot
 
-  /************************************************************
-     2d plot of ECAL pedestals difference between 2 IOVs
-  *************************************************************/
-  class EcalPedestalsDiff : public cond::payloadInspector::PlotImage<EcalPedestals> {
+  /*****************************************************************
+     2d plot of ECAL pedestals difference or ratio between 2 IOVs
+  ******************************************************************/
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags, int method>
+  class EcalPedestalsBase : public cond::payloadInspector::PlotImage<EcalPedestals, nIOVs, ntags> {
   public:
-    EcalPedestalsDiff() : cond::payloadInspector::PlotImage<EcalPedestals>("ECAL Barrel channel status difference") {
-      setSingleIov(false);
-      setTwoTags(true);
-    }
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    EcalPedestalsBase() : cond::payloadInspector::PlotImage<EcalPedestals, nIOVs, ntags>("ECAL pedestals comparison") {}
+    bool fill() override {
       uint32_t gainValues[kGains] = {12, 6, 1};
       TH2F** barrel_m = new TH2F*[kGains];
       TH2F** endc_p_m = new TH2F*[kGains];
@@ -468,154 +466,278 @@ namespace {
         EBtot[gId] = 0;
         EEtot[gId] = 0;
       }
-      unsigned int run[2], irun = 0;
-      //      unsigned int irun = 0;
+      unsigned int run[2] = {0, 0};
+      std::string l_tagname[2];
       double meanEB[kGains][kEBChannels], rmsEB[kGains][kEBChannels], meanEE[kGains][kEEChannels],
           rmsEE[kGains][kEEChannels];
-      for (auto const& iov : iovs) {
-        std::shared_ptr<EcalPedestals> payload = fetchPayload(std::get<1>(iov));
-        run[irun] = std::get<0>(iov);
-        //	std::cout << "run " << irun << " : " << run[irun] << std::endl;
+
+      //     std::cout << " running with " << nIOVs << " IOVs and " << ntags << " tags " << std::endl;
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalPedestals> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
+        //	std::cout << " irun " << irun << " tag " << l_tagname[irun] << " IOV " << run[irun] << std ::endl;
         if (payload.get()) {
-          if (payload->barrelItems().empty())
-            return false;
-          for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
-            uint32_t rawid = EBDetId::unhashIndex(cellid);
-            if (payload->find(rawid) == payload->end())
-              continue;
+          if (!payload->barrelItems().empty()) {
+            for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
+              uint32_t rawid = EBDetId::unhashIndex(cellid);
+              if (payload->find(rawid) == payload->end())
+                continue;
 
-            if (irun == 0) {
-              meanEB[0][cellid] = (*payload)[rawid].mean_x12;
-              rmsEB[0][cellid] = (*payload)[rawid].rms_x12;
-              meanEB[1][cellid] = (*payload)[rawid].mean_x6;
-              rmsEB[1][cellid] = (*payload)[rawid].rms_x6;
-              meanEB[2][cellid] = (*payload)[rawid].mean_x1;
-              rmsEB[2][cellid] = (*payload)[rawid].rms_x1;
-            } else {
-              Double_t phi = (Double_t)(EBDetId(rawid)).iphi() - 0.5;
-              Double_t eta = (Double_t)(EBDetId(rawid)).ieta();
-              if (eta > 0.)
-                eta = eta - 0.5;  //   0.5 to 84.5
-              else
-                eta = eta + 0.5;  //  -84.5 to -0.5
-              barrel_m[0]->Fill(phi, eta, (*payload)[rawid].mean_x12 - meanEB[0][cellid]);
-              double diff = (*payload)[rawid].rms_x12 - rmsEB[0][cellid];
-              barrel_r[0]->Fill(phi, eta, diff);
-              if (std::abs(diff) < 1.) {
-                EBmean[0] = EBmean[0] + diff;
-                EBrms[0] = EBrms[0] + diff * diff;
-                EBtot[0]++;
+              if (irun == 0) {
+                meanEB[0][cellid] = (*payload)[rawid].mean_x12;
+                rmsEB[0][cellid] = (*payload)[rawid].rms_x12;
+                meanEB[1][cellid] = (*payload)[rawid].mean_x6;
+                rmsEB[1][cellid] = (*payload)[rawid].rms_x6;
+                meanEB[2][cellid] = (*payload)[rawid].mean_x1;
+                rmsEB[2][cellid] = (*payload)[rawid].rms_x1;
+              } else {
+                Double_t phi = (Double_t)(EBDetId(rawid)).iphi() - 0.5;
+                Double_t eta = (Double_t)(EBDetId(rawid)).ieta();
+                if (eta > 0.)
+                  eta = eta - 0.5;  //   0.5 to 84.5
+                else
+                  eta = eta + 0.5;  //  -84.5 to -0.5
+                double dr, drms;
+                //  gain 12
+                float val = (*payload)[rawid].mean_x12;
+                float valr = (*payload)[rawid].rms_x12;
+                if (method == 0) {
+                  dr = val - meanEB[0][cellid];
+                  drms = valr - rmsEB[0][cellid];
+                } else {  // ratio
+                  if (meanEB[0][cellid] == 0) {
+                    if (val == 0.)
+                      dr = 1.;
+                    else
+                      dr = 9999.;  // use a large value
+                  } else
+                    dr = val / meanEB[0][cellid];
+                  if (rmsEB[0][cellid] == 0) {
+                    if (valr == 0.)
+                      drms = 1.;
+                    else
+                      drms = 9999.;  // use a large value
+                  } else
+                    drms = valr / rmsEB[0][cellid];
+                }
+                barrel_m[0]->Fill(phi, eta, dr);
+                barrel_r[0]->Fill(phi, eta, drms);
+                if (std::abs(drms) < 1.) {
+                  EBmean[0] = EBmean[0] + drms;
+                  EBrms[0] = EBrms[0] + drms * drms;
+                  EBtot[0]++;
+                }
+                //  gain 6
+                val = (*payload)[rawid].mean_x6;
+                valr = (*payload)[rawid].rms_x6;
+                if (method == 0) {
+                  dr = val - meanEB[1][cellid];
+                  drms = valr - rmsEB[1][cellid];
+                } else {  // ratio
+                  if (meanEB[1][cellid] == 0) {
+                    if (val == 0.)
+                      dr = 1.;
+                    else
+                      dr = 9999.;  // use a large value
+                  } else
+                    dr = val / meanEB[1][cellid];
+                  if (rmsEB[1][cellid] == 0) {
+                    if (valr == 0.)
+                      drms = 1.;
+                    else
+                      drms = 9999.;  // use a large value
+                  } else
+                    drms = valr / rmsEB[1][cellid];
+                }
+                barrel_m[1]->Fill(phi, eta, dr);
+                barrel_r[1]->Fill(phi, eta, drms);
+                if (std::abs(drms) < 1.) {
+                  EBmean[1] = EBmean[1] + drms;
+                  EBrms[1] = EBrms[1] + drms * drms;
+                  EBtot[1]++;
+                }
+                //  gain 1
+                val = (*payload)[rawid].mean_x1;
+                valr = (*payload)[rawid].rms_x1;
+                if (method == 0) {
+                  dr = val - meanEB[2][cellid];
+                  drms = valr - rmsEB[2][cellid];
+                } else {  // ratio
+                  if (meanEB[2][cellid] == 0) {
+                    if (val == 0.)
+                      dr = 1.;
+                    else
+                      dr = 9999.;  // use a large value
+                  } else
+                    dr = val / meanEB[2][cellid];
+                  if (rmsEB[2][cellid] == 0) {
+                    if (valr == 0.)
+                      drms = 1.;
+                    else
+                      drms = 9999.;  // use a large value
+                  } else
+                    drms = valr / rmsEB[2][cellid];
+                }
+                barrel_m[2]->Fill(phi, eta, dr);
+                barrel_r[2]->Fill(phi, eta, drms);
+                if (std::abs(drms) < 1.) {
+                  EBmean[2] = EBmean[2] + drms;
+                  EBrms[2] = EBrms[2] + drms * drms;
+                  EBtot[2]++;
+                }
               }
-              //	      else std::cout << " gain 12 chan " << cellid << " diff " << diff << std::endl;
-              barrel_m[1]->Fill(phi, eta, (*payload)[rawid].mean_x6 - meanEB[1][cellid]);
-              diff = (*payload)[rawid].rms_x6 - rmsEB[1][cellid];
-              barrel_r[1]->Fill(phi, eta, diff);
-              if (std::abs(diff) < 1.) {
-                EBmean[1] = EBmean[1] + diff;
-                EBrms[1] = EBrms[1] + diff * diff;
-                EBtot[1]++;
-              }
-              //	      else std::cout << " gain 6 chan " << cellid << " diff " << diff << std::endl;
-              barrel_m[2]->Fill(phi, eta, (*payload)[rawid].mean_x1 - meanEB[2][cellid]);
-              diff = (*payload)[rawid].rms_x1 - rmsEB[2][cellid];
-              barrel_r[2]->Fill(phi, eta, diff);
-              if (std::abs(diff) < 1.) {
-                EBmean[2] = EBmean[2] + diff;
-                EBrms[2] = EBrms[2] + diff * diff;
-                EBtot[2]++;
-              }
-              //	      else std::cout << " gain 1 chan " << cellid << " diff " << diff << std::endl;
-            }
-          }  // loop over cellid
-
-          if (payload->endcapItems().empty())
-            return false;
-          // looping over the EE channels
-          for (int iz = -1; iz < 2; iz = iz + 2) {  // -1 or +1
-            for (int iy = IY_MIN; iy < IY_MAX + IY_MIN; iy++) {
-              for (int ix = IX_MIN; ix < IX_MAX + IX_MIN; ix++) {
-                if (EEDetId::validDetId(ix, iy, iz)) {
-                  EEDetId myEEId = EEDetId(ix, iy, iz, EEDetId::XYMODE);
-                  uint32_t rawid = myEEId.rawId();
-                  uint32_t index = myEEId.hashedIndex();
-                  if (payload->find(rawid) == payload->end())
-                    continue;
-                  if (irun == 0) {
-                    meanEE[0][index] = (*payload)[rawid].mean_x12;
-                    rmsEE[0][index] = (*payload)[rawid].rms_x12;
-                    meanEE[1][index] = (*payload)[rawid].mean_x6;
-                    rmsEE[1][index] = (*payload)[rawid].rms_x6;
-                    meanEE[2][index] = (*payload)[rawid].mean_x1;
-                    rmsEE[2][index] = (*payload)[rawid].rms_x1;
-                  }  // fist run
-                  else {
-                    if (iz == 1) {
-                      endc_p_m[0]->Fill(ix, iy, (*payload)[rawid].mean_x12 - meanEE[0][index]);
-                      double diff = (*payload)[rawid].rms_x12 - rmsEE[0][index];
-                      endc_p_r[0]->Fill(ix, iy, rmsEE[0][index] - (*payload)[rawid].rms_x12);
-                      if (std::abs(diff) < 1.) {
-                        EEmean[0] = EEmean[0] + diff;
-                        EErms[0] = EErms[0] + diff * diff;
-                        EEtot[0]++;
-                      }
-                      //else std::cout << " gain 12 chan " << index << " diff " << diff << std::endl;
-                      endc_p_m[1]->Fill(ix, iy, (*payload)[rawid].mean_x6 - meanEE[1][index]);
-                      diff = (*payload)[rawid].rms_x6 - rmsEE[1][index];
-                      endc_p_r[1]->Fill(ix, iy, diff);
-                      if (std::abs(diff) < 1.) {
-                        EEmean[1] = EEmean[1] + diff;
-                        EErms[1] = EErms[1] + diff * diff;
-                        EEtot[1]++;
-                      }
-                      //else std::cout << " gain 6 chan " << index << " diff " << diff << std::endl;
-                      endc_p_m[2]->Fill(ix, iy, (*payload)[rawid].mean_x1 - meanEE[2][index]);
-                      diff = (*payload)[rawid].rms_x1 - rmsEE[2][index];
-                      endc_p_r[2]->Fill(ix, iy, diff);
-                      if (std::abs(diff) < 1.) {
-                        EEmean[2] = EEmean[2] + diff;
-                        EErms[2] = EErms[2] + diff * diff;
-                        EEtot[2]++;
-                      }
-                      //else std::cout << " gain 1 chan " << index << " diff " << diff << std::endl;
-                    }  // EE+
+            }  // loop over cellid
+          }    //  barrel data present
+          if (payload->endcapItems().empty()) {
+            // looping over the EE channels
+            for (int iz = -1; iz < 2; iz = iz + 2) {  // -1 or +1
+              for (int iy = IY_MIN; iy < IY_MAX + IY_MIN; iy++) {
+                for (int ix = IX_MIN; ix < IX_MAX + IX_MIN; ix++) {
+                  if (EEDetId::validDetId(ix, iy, iz)) {
+                    EEDetId myEEId = EEDetId(ix, iy, iz, EEDetId::XYMODE);
+                    uint32_t rawid = myEEId.rawId();
+                    uint32_t index = myEEId.hashedIndex();
+                    if (payload->find(rawid) == payload->end())
+                      continue;
+                    if (irun == 0) {
+                      meanEE[0][index] = (*payload)[rawid].mean_x12;
+                      rmsEE[0][index] = (*payload)[rawid].rms_x12;
+                      meanEE[1][index] = (*payload)[rawid].mean_x6;
+                      rmsEE[1][index] = (*payload)[rawid].rms_x6;
+                      meanEE[2][index] = (*payload)[rawid].mean_x1;
+                      rmsEE[2][index] = (*payload)[rawid].rms_x1;
+                    }  // fist run
                     else {
-                      endc_m_m[0]->Fill(ix, iy, (*payload)[rawid].mean_x12 - meanEE[0][index]);
-                      double diff = (*payload)[rawid].rms_x12 - rmsEE[0][index];
-                      endc_m_r[0]->Fill(ix, iy, rmsEE[0][index] - (*payload)[rawid].rms_x12);
-                      if (std::abs(diff) < 1.) {
-                        EEmean[0] = EEmean[0] + diff;
-                        EErms[0] = EErms[0] + diff * diff;
+                      double dr, drms;
+                      //  gain 12
+                      float val = (*payload)[rawid].mean_x12;
+                      float valr = (*payload)[rawid].rms_x12;
+                      if (method == 0) {
+                        dr = val - meanEE[0][index];
+                        drms = valr - rmsEE[0][index];
+                      } else {  // ratio
+                        if (meanEE[0][index] == 0) {
+                          if (val == 0.)
+                            dr = 1.;
+                          else
+                            dr = 9999.;  // use a large value
+                        } else
+                          dr = val / meanEE[0][index];
+                        if (rmsEE[0][index] == 0) {
+                          if (valr == 0.)
+                            drms = 1.;
+                          else
+                            drms = 9999.;  // use a large value
+                        } else
+                          drms = valr / rmsEE[0][index];
+                      }
+                      if (iz == 1) {  // EE+
+                        endc_p_m[0]->Fill(ix, iy, dr);
+                        endc_p_r[0]->Fill(ix, iy, drms);
+                      } else {  // EE-
+                        endc_m_m[0]->Fill(ix, iy, dr);
+                        endc_m_r[0]->Fill(ix, iy, drms);
+                      }
+                      if (std::abs(drms) < 1.) {
+                        EEmean[0] = EEmean[0] + drms;
+                        EErms[0] = EErms[0] + drms * drms;
                         EEtot[0]++;
                       }
-                      //else std::cout << " gain 12 chan " << index << " diff " << diff << std::endl;
-                      endc_m_m[1]->Fill(ix, iy, (*payload)[rawid].mean_x6 - meanEE[1][index]);
-                      diff = (*payload)[rawid].rms_x6 - rmsEE[1][index];
-                      endc_m_r[1]->Fill(ix, iy, diff);
-                      if (std::abs(diff) < 1.) {
-                        EEmean[1] = EEmean[1] + diff;
-                        EErms[1] = EErms[1] + diff * diff;
+                      //  gain 6
+                      val = (*payload)[rawid].mean_x6;
+                      valr = (*payload)[rawid].rms_x6;
+                      if (method == 0) {
+                        dr = val - meanEE[1][index];
+                        drms = valr - rmsEE[1][index];
+                      } else {  // ratio
+                        if (meanEE[1][index] == 0) {
+                          if (val == 0.)
+                            dr = 1.;
+                          else
+                            dr = 9999.;  // use a large value
+                        } else
+                          dr = val / meanEE[1][index];
+                        if (rmsEE[1][index] == 0) {
+                          if (valr == 0.)
+                            drms = 1.;
+                          else
+                            drms = 9999.;  // use a large value
+                        } else
+                          drms = valr / rmsEE[1][index];
+                      }
+                      if (iz == 1) {  // EE+
+                        endc_p_m[1]->Fill(ix, iy, dr);
+                        endc_p_r[1]->Fill(ix, iy, drms);
+                      } else {  // EE-
+                        endc_m_m[1]->Fill(ix, iy, dr);
+                        endc_m_r[1]->Fill(ix, iy, drms);
+                      }
+                      if (std::abs(drms) < 1.) {
+                        EEmean[1] = EEmean[1] + drms;
+                        EErms[1] = EErms[1] + drms * drms;
                         EEtot[1]++;
                       }
-                      //else std::cout << " gain 6 chan " << index << " diff " << diff << std::endl;
-                      endc_m_m[2]->Fill(ix, iy, (*payload)[rawid].mean_x1 - meanEE[2][index]);
-                      diff = (*payload)[rawid].rms_x1 - rmsEE[2][index];
-                      endc_m_r[2]->Fill(ix, iy, diff);
-                      if (std::abs(diff) < 1.) {
-                        EEmean[2] = EEmean[2] + diff;
-                        EErms[2] = EErms[2] + diff * diff;
+                      //  gain 1
+                      val = (*payload)[rawid].mean_x1;
+                      valr = (*payload)[rawid].rms_x1;
+                      if (method == 0) {
+                        dr = val - meanEE[2][index];
+                        drms = valr - rmsEE[2][index];
+                      } else {  // ratio
+                        if (meanEE[2][index] == 0) {
+                          if (val == 0.)
+                            dr = 1.;
+                          else
+                            dr = 9999.;  // use a large value
+                        } else
+                          dr = val / meanEE[2][index];
+                        if (rmsEE[2][index] == 0) {
+                          if (valr == 0.)
+                            drms = 1.;
+                          else
+                            drms = 9999.;  // use a large value
+                        } else
+                          drms = valr / rmsEE[2][index];
+                      }
+                      if (iz == 1) {  // EE+
+                        endc_p_m[2]->Fill(ix, iy, dr);
+                        endc_p_r[2]->Fill(ix, iy, drms);
+                      } else {  // EE-
+                        endc_m_m[2]->Fill(ix, iy, dr);
+                        endc_m_r[2]->Fill(ix, iy, drms);
+                      }
+                      if (std::abs(drms) < 1.) {
+                        EEmean[2] = EEmean[2] + drms;
+                        EErms[2] = EErms[2] + drms * drms;
                         EEtot[2]++;
                       }
-                      //else std::cout << " gain 1 chan " << index << " diff " << diff << std::endl;
-                    }  // EE-
-                  }    // second run
-                }      // validDetId
-              }        //   loop over ix
-            }          //  loop over iy
-          }            //  loop over iz
+                    }  // second run
+                  }    // validDetId
+                }      //   loop over ix
+              }        //  loop over iy
+            }          //  loop over iz
+          }            //  endcap data present
         }              //  if payload.get()
         else
           return false;
-        irun++;
       }  // loop over IOVs
 
       gStyle->SetPalette(1);
@@ -624,9 +746,27 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal Pedestals, IOV %i - %i", run[1], run[0]));
-
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      std::string dr[2] = {"-", "/"};
+      if (ntags == 2) {
+        if (len < 58) {
+          t1.SetTextSize(0.025);
+          t1.DrawLatex(0.5,
+                       0.96,
+                       Form("%s IOV %i %s %s  IOV %i",
+                            l_tagname[1].c_str(),
+                            run[1],
+                            dr[method].c_str(),
+                            l_tagname[0].c_str(),
+                            run[0]));
+        } else {
+          t1.SetTextSize(0.05);
+          t1.DrawLatex(0.5, 0.96, Form("Ecal Pedestals, IOV %i %s %i", run[1], dr[method].c_str(), run[0]));
+        }
+      } else {
+        t1.SetTextSize(0.05);
+        t1.DrawLatex(0.5, 0.96, Form("%s, IOV %i %s %i", l_tagname[0].c_str(), run[1], dr[method].c_str(), run[0]));
+      }
       float xmi[3] = {0.0, 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
       TPad*** pad = new TPad**[6];
@@ -679,11 +819,15 @@ namespace {
         DrawEE(endc_p_r[gId], pEEmin[gId], pEEmax[gId]);
       }
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalPedestalsDiff
+  };   // class EcalPedestalsBase
+  using EcalPedestalsDiffOneTag = EcalPedestalsBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
+  using EcalPedestalsDiffTwoTags = EcalPedestalsBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
+  using EcalPedestalsRatioOneTag = EcalPedestalsBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;
+  using EcalPedestalsRatioTwoTags = EcalPedestalsBase<cond::payloadInspector::SINGLE_IOV, 2, 1>;
 
   /*************************************************  
      2d histogram of ECAL barrel pedestal of 1 IOV 
@@ -1428,7 +1572,10 @@ namespace {
 PAYLOAD_INSPECTOR_MODULE(EcalPedestals) {
   PAYLOAD_INSPECTOR_CLASS(EcalPedestalsHist);
   PAYLOAD_INSPECTOR_CLASS(EcalPedestalsPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalPedestalsDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalPedestalsDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalPedestalsDiffTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalPedestalsRatioOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalPedestalsRatioTwoTags);
   PAYLOAD_INSPECTOR_CLASS(EcalPedestalsEBMean12Map);
   PAYLOAD_INSPECTOR_CLASS(EcalPedestalsEBMean6Map);
   PAYLOAD_INSPECTOR_CLASS(EcalPedestalsEBMean1Map);

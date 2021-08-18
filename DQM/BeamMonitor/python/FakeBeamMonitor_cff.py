@@ -11,6 +11,7 @@ dqmFakeBeamMonitor = DQMEDAnalyzer("FakeBeamMonitor",
                               Debug = cms.untracked.bool(False),
                               OnlineMode = cms.untracked.bool(True),
                               recordName = cms.untracked.string('BeamSpotOnlineHLTObjectsRcd'),
+                              useLockRecords = cms.untracked.bool(False),
                               BeamFitter = cms.PSet(
                                 Debug = cms.untracked.bool(False),
                                 TrackCollection = cms.untracked.InputTag('pixelTracks'),

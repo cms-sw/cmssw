@@ -99,7 +99,8 @@ namespace hcal {
     };
 
     struct ScratchDataGPU {
-      cms::cuda::device::unique_ptr<float[]> amplitudes, noiseTerms, pulseMatrices, pulseMatricesM, pulseMatricesP;
+      cms::cuda::device::unique_ptr<float[]> amplitudes, noiseTerms, electronicNoiseTerms, pulseMatrices,
+          pulseMatricesM, pulseMatricesP;
       cms::cuda::device::unique_ptr<int8_t[]> soiSamples;
     };
 

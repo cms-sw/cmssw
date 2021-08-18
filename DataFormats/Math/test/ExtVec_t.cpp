@@ -5,9 +5,9 @@
 
 #include <iostream>
 
-#ifdef __AVX__
-#define CMS_USE_AVX
-#endif /* __AVX__ */
+#ifdef __AVX2__
+#define CMS_USE_AVX2
+#endif /* __AVX2__ */
 
 void addScaleddiff(Vec3F& res, float s, Vec3F const& a, Vec3F const& b) { res = res + s * (a - b); }
 
@@ -232,12 +232,12 @@ void go(bool dovec = true) {
 }
 
 int main() {
-#ifdef CMS_USE_AVX
+#ifdef CMS_USE_AVX2
   std::cout << "using AVX" << std::endl;
 #endif
   testBa();
   go<float>();
-#ifdef CMS_USE_AVX
+#ifdef CMS_USE_AVX2
   go<double>(false);
 #else
   go<double>();

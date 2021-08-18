@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+# Settings from $HERWIGPATH/LHE-MCatNLO.in, should be used together with the Herwig7LHECommonSettings
+
 herwig7LHEMG5aMCatNLOSettingsBlock = cms.PSet(
     hw_lhe_MG5aMCatNLO_settings = cms.vstring(
         'set /Herwig/Shower/KinematicsReconstructor:InitialInitialBoostOption LongTransBoost',

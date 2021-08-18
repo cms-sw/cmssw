@@ -260,6 +260,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   ptThresholdUnc_ = parameters_.getParameter<double>("ptThresholdUnc");
   asymmetryThirdJetCut_ = parameters_.getParameter<double>("asymmetryThirdJetCut");
   balanceThirdJetCut_ = parameters_.getParameter<double>("balanceThirdJetCut");
+
+  l1gtTrigMenuToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 // ***********************************************************
@@ -2233,9 +2235,7 @@ void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
     }
   }
 
-  edm::ESHandle<L1GtTriggerMenu> menuRcd;
-  iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
-  const L1GtTriggerMenu* menu = menuRcd.product();
+  const L1GtTriggerMenu* menu = &iSetup.getData(l1gtTrigMenuToken_);
   for (CItAlgo techTrig = menu->gtTechnicalTriggerMap().begin(); techTrig != menu->gtTechnicalTriggerMap().end();
        ++techTrig) {
     if ((techTrig->second).algoName() == m_l1algoname_) {

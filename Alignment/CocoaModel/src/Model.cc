@@ -19,8 +19,6 @@
 #include "Alignment/CocoaModel/interface/MeasurementDiffEntry.h"
 #include "Alignment/CocoaModel/interface/CocoaDaqReaderText.h"
 #include "Alignment/CocoaModel/interface/CocoaDaqReaderRoot.h"
-//t#include "Alignment/CocoaModel/interface/MeasurementDiffAngle.h"
-//t#include "Alignment/CocoaModel/interface/MeasurementCentreEntry.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaModel/interface/EntryAngle.h"
 #include "Alignment/CocoaModel/interface/ParameterMgr.h"
@@ -431,12 +429,6 @@ void Model::readSystemDescription() {
       } else if (measType == ALIstring("COPS")) {
         meastemp = new MeasurementCOPS(4, measType, measName);
         meastemp->setConversionFactor(wordlist);
-        meastemp->construct();
-      } else if (measType == ALIstring("DIFFCENTRE")) {
-        //t       meastemp = new MeasurementDiffCentre( 1, measType, measName );
-        meastemp->construct();
-      } else if (measType == ALIstring("DIFFANGLE")) {
-        //t        meastemp = new MeasurementDiffAngle( 2, measType, measName );
         meastemp->construct();
       } else if (measType == ALIstring("DIFFENTRY")) {
         meastemp = new MeasurementDiffEntry(1, measType, measName);

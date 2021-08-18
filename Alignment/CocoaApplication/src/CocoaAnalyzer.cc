@@ -2,7 +2,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/DataRecord/interface/OpticalAlignmentsRcd.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include <DD4hep/DD4hepUnits.h>
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -46,14 +46,14 @@ private:
   void runCocoa();
 
 private:
+  edm::ESGetToken<OpticalAlignments, OpticalAlignmentsRcd> optAliToken;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> ddcvToken;
   OpticalAlignments oaList_;
   OpticalAlignMeasurements measList_;
   std::string theCocoaDaqRootFileName_;
 };
 
-using namespace cms_units::operators;
-
-CocoaAnalyzer::CocoaAnalyzer(edm::ParameterSet const& pset) {
+CocoaAnalyzer::CocoaAnalyzer(edm::ParameterSet const& pset) : optAliToken(esConsumes()), ddcvToken(esConsumes()) {
   theCocoaDaqRootFileName_ = pset.getParameter<std::string>("cocoaDaqRootFile");
   int maxEvents = pset.getParameter<int32_t>("maxEvents");
   GlobalOptionMgr::getInstance()->setDefaultGlobalOptions();
@@ -85,9 +85,7 @@ void CocoaAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& evts) 
  * Resulting optical alignment info is stored in oaList_ and measList_.
  */
 void CocoaAnalyzer::readXMLFile(const edm::EventSetup& evts) {
-  edm::ESTransientHandle<cms::DDCompactView> myCompactView;
-  evts.get<IdealGeometryRecord>().get(myCompactView);
-
+  edm::ESTransientHandle<cms::DDCompactView> myCompactView = evts.getTransientHandle(ddcvToken);
   const cms::DDDetector* mySystem = myCompactView->detector();
 
   if (mySystem) {
@@ -180,41 +178,41 @@ void CocoaAnalyzer::readXMLFile(const edm::EventSetup& evts) {
       const dd4hep::Direction& transl = myPlacedVolume.position();
 
       if (ALIUtils::debug >= 4) {
-        edm::LogInfo("Alignment") << "Local translation in cm = " << transl;
+        edm::LogInfo("Alignment") << "Local translation in dd4hep units = " << transl;
       }
 
       // B) READ INFO FROM XMLS
       // X
       oaInfo.x_.name_ = "X";
       oaInfo.x_.dim_type_ = "centre";
-      oaInfo.x_.value_ = transl.x() / (1._m);  // COCOA units are m
+      oaInfo.x_.value_ = transl.x() / dd4hep::m;  // COCOA units are m
       oaInfo.x_.error_ = cms::getParameterValueFromSpecParSections<double>(allSpecParSections,
                                                                            nodePath,
                                                                            "centre_X_sigma",
                                                                            0) /
-                         (1._m);  // COCOA units are m
+                         dd4hep::m;  // COCOA units are m
       oaInfo.x_.quality_ = static_cast<int>(
           cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "centre_X_quality", 0));
       // Y
       oaInfo.y_.name_ = "Y";
       oaInfo.y_.dim_type_ = "centre";
-      oaInfo.y_.value_ = transl.y() / (1._m);  // COCOA units are m
+      oaInfo.y_.value_ = transl.y() / dd4hep::m;  // COCOA units are m
       oaInfo.y_.error_ = cms::getParameterValueFromSpecParSections<double>(allSpecParSections,
                                                                            nodePath,
                                                                            "centre_Y_sigma",
                                                                            0) /
-                         (1._m);  // COCOA units are m
+                         dd4hep::m;  // COCOA units are m
       oaInfo.y_.quality_ = static_cast<int>(
           cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "centre_Y_quality", 0));
       // Z
       oaInfo.z_.name_ = "Z";
       oaInfo.z_.dim_type_ = "centre";
-      oaInfo.z_.value_ = transl.z() / (1._m);  // COCOA units are m
+      oaInfo.z_.value_ = transl.z() / dd4hep::m;  // COCOA units are m
       oaInfo.z_.error_ = cms::getParameterValueFromSpecParSections<double>(allSpecParSections,
                                                                            nodePath,
                                                                            "centre_Z_sigma",
                                                                            0) /
-                         (1._m);  // COCOA units are m
+                         dd4hep::m;  // COCOA units are m
       oaInfo.z_.quality_ = static_cast<int>(
           cms::getParameterValueFromSpecParSections<double>(allSpecParSections, nodePath, "centre_Z_quality", 0));
 
@@ -328,7 +326,8 @@ void CocoaAnalyzer::readXMLFile(const edm::EventSetup& evts) {
           double dimFactor = 1.;
           const std::string& type = dims[i];
           if (type == "centre" || type == "length") {
-            dimFactor = 1. / (1._m);  // was converted to cm with getParameterValueFromSpecPar, COCOA unit is m
+            dimFactor =
+                1. / dd4hep::m;  // was converted to dd4hep unit with getParameterValueFromSpecPar, COCOA unit is m
           } else if (type == "angles" || type == "angle" || type == "nodim") {
             dimFactor = 1.;
           }
@@ -454,9 +453,8 @@ std::vector<OpticalAlignInfo> CocoaAnalyzer::readCalibrationDB(const edm::EventS
   }
 
   using namespace edm::eventsetup;
-  edm::ESHandle<OpticalAlignments> pObjs;
-  evts.get<OpticalAlignmentsRcd>().get(pObjs);
-  const std::vector<OpticalAlignInfo>& infoFromDB = pObjs.product()->opticalAlignments_;
+  const OpticalAlignments* pObjs = &evts.getData(optAliToken);
+  const std::vector<OpticalAlignInfo>& infoFromDB = pObjs->opticalAlignments_;
 
   if (ALIUtils::debug >= 5) {
     edm::LogInfo("Alignment") << "CocoaAnalyzer::readCalibrationDB:  Number of OpticalAlignInfo READ "
@@ -546,7 +544,7 @@ void CocoaAnalyzer::correctOpticalAlignmentParameter(OpticalAlignParam& myXMLPar
     double dimFactor = 1.;
 
     if (type == "centre" || type == "length") {
-      dimFactor = 1. / 1._m;  // in DB it is in cm
+      dimFactor = 1. / dd4hep::m;  // in DB values are stored in dd4hep unit
     } else if (type == "angles" || type == "angle" || type == "nodim") {
       dimFactor = 1.;
     } else {

@@ -1,9 +1,0 @@
-<use name="DataFormats/Provenance"/>
-<use name="FWCore/ParameterSet"/>
-<use name="FWCore/Utilities"/>
-<use name="py2-pybind11"/>
-<use name="python3"/>
-<export>
-  <use name="py2-pybind11"/>
-  <lib name="1"/>
-</export>

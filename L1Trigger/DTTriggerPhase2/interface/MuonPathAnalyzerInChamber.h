@@ -17,7 +17,9 @@ namespace {
 class MuonPathAnalyzerInChamber : public MuonPathAnalyzer {
 public:
   // Constructors and destructor
-  MuonPathAnalyzerInChamber(const edm::ParameterSet &pset, edm::ConsumesCollector &iC);
+  MuonPathAnalyzerInChamber(const edm::ParameterSet &pset,
+                            edm::ConsumesCollector &iC,
+                            std::shared_ptr<GlobalCoordsObtainer> &globalcoordsobtainer);
   ~MuonPathAnalyzerInChamber() override;
 
   // Main methods
@@ -25,7 +27,7 @@ public:
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
            MuonPathPtrs &inMpath,
-           std::vector<cmsdt::metaPrimitive> &metaPrimitives) override {}
+           std::vector<cmsdt::metaPrimitive> &metaPrimitives) override{};
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
            MuonPathPtrs &inMpath,
@@ -38,7 +40,7 @@ public:
   void setMinHits4Fit(int h) { minHits4Fit_ = h; };
   void setChiSquareThreshold(float ch2Thr) { chiSquareThreshold_ = ch2Thr; };
   void setMinimumQuality(cmsdt::MP_QUALITY q) {
-    if (minQuality_ >= cmsdt::LOWQGHOST)
+    if (minQuality_ >= cmsdt::LOWQ)
       minQuality_ = q;
   };
 
@@ -63,7 +65,7 @@ private:
   void buildLateralities(MuonPathPtr &mpath);
   void setLateralitiesInMP(MuonPathPtr &mpath, TLateralities lat);
   void setWirePosAndTimeInMP(MuonPathPtr &mpath);
-  void calculateFitParameters(MuonPathPtr &mpath, TLateralities lat, int present_layer[NLayers]);
+  void calculateFitParameters(MuonPathPtr &mpath, TLateralities lat, int present_layer[NLayers], int &lat_added);
 
   void evaluateQuality(MuonPathPtr &mPath);
   int totalNumValLateralities_;
@@ -78,6 +80,10 @@ private:
   float chiSquareThreshold_;
   short minHits4Fit_;
   int cellLayout_[NLayers];
+  bool splitPathPerSL_;
+
+  // global coordinates
+  std::shared_ptr<GlobalCoordsObtainer> globalcoordsobtainer_;
 };
 
 #endif

@@ -9,17 +9,16 @@
  *
  */
 
-#include <DQM/DTMonitorClient/src/DTResolutionTest.h>
+#include "DQM/DTMonitorClient/src/DTResolutionTest.h"
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Geometry
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 
@@ -36,7 +35,8 @@
 using namespace edm;
 using namespace std;
 
-DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps) {
+DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::EndLuminosityBlock>()) {
   edm::LogVerbatim("resolution") << "[DTResolutionTest]: Constructor";
   parameters = ps;
 
@@ -70,8 +70,7 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
   if (!bookingdone) {
     // Get the geometry
-    context.get<MuonGeometryRecord>().get(muonGeom);
-
+    muonGeom = &context.getData(muonGeomToken_);
     // book the histos
     for (int wheel = -2; wheel < 3; wheel++) {
       bookHistos(ibooker, wheel);

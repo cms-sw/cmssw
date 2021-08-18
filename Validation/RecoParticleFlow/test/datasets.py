@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 
 #Hack to get ROOT to ignore command line arguments that we want
@@ -113,7 +113,7 @@ class Dataset:
 
         nfiles = 0
         with open(self.get_das_cache_filename(), "w") as fi:
-            for line in ret.split("\n"):
+            for line in ret.decode().split("\n"):
                 if line.endswith(".root"):
                     fi.write(self.global_file_prefix + line + "\n")
                     nfiles += 1

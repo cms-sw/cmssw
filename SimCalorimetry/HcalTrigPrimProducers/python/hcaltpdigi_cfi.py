@@ -4,6 +4,7 @@ from CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi import tpScales
 from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
 
 LSParameter =cms.untracked.PSet(
 HcalFeatureHFEMBit= cms.bool(False),
@@ -66,6 +67,8 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     upgradeHB = cms.bool(False),
     upgradeHE = cms.bool(False),
 
+    applySaturationFix = cms.bool(False), # Apply the TP energy saturation fix for Peak Finder Algorithm only for Run3 
+
     # parameters = cms.untracked.PSet(
     #     FGVersionHBHE=cms.uint32(0),
     #     TDCMask=cms.uint64(0xFFFFFFFFFFFFFFFF),
@@ -81,6 +84,8 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
         cms.InputTag('simHcalUnsuppressedDigis:HBHEQIE11DigiCollection'),
         cms.InputTag('simHcalUnsuppressedDigis:HFQIE10DigiCollection')),
     InputTagFEDRaw = cms.InputTag("rawDataCollector"),
+    overrideDBweightsAndFilterHB = cms.bool(False),
+    overrideDBweightsAndFilterHE = cms.bool(False),
     RunZS = cms.bool(False),
     FrontEndFormatError = cms.bool(False), # Front End Format Error, for real data only
     PeakFinderAlgorithm = cms.int32(2),
@@ -96,4 +101,5 @@ run2_HF_2017.toModify(simHcalTriggerPrimitiveDigis,
 )
 run2_HF_2017.toModify(tpScales.HF, NCTShift=cms.int32(2))
 run3_HB.toModify(simHcalTriggerPrimitiveDigis, upgradeHB=cms.bool(True))
+run3_common.toModify(simHcalTriggerPrimitiveDigis, applySaturationFix=cms.bool(True))
 run3_HB.toModify(tpScales.HBHE, LSBQIE11Overlap=cms.double(1/16.))

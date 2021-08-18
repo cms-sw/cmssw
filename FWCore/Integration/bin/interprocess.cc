@@ -66,8 +66,9 @@ int main(int argc, char* argv[]) {
   boost::program_options::options_description desc(descString);
 
   desc.add_options()(kHelpCommandOpt, "produce help message")(
-      kMemoryNameCommandOpt, boost::program_options::value<std::string>(), "memory name")(
-      kUniqueIDCommandOpt, boost::program_options::value<std::string>(), "unique id");
+      kMemoryNameCommandOpt,
+      boost::program_options::value<std::string>(),
+      "memory name")(kUniqueIDCommandOpt, boost::program_options::value<std::string>(), "unique id");
 
   boost::program_options::positional_options_description p;
   p.add(kMemoryNameOpt, 1);

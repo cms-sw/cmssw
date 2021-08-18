@@ -8,9 +8,7 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include <iostream>
-
-//#define EDM_ML_DEBUG
+#include <sstream>
 
 namespace spr {
 
@@ -20,7 +18,6 @@ namespace spr {
                             : geo->getPosition(id);
     double R = point.mag();
     double tmp = R / CLHEP::c_light / CLHEP::ns;
-#ifdef EDM_ML_DEBUG
     if (debug) {
       DetId::Detector det = id.det();
       int subdet = id.subdetId();
@@ -55,10 +52,10 @@ namespace spr {
       }
       double tmp1 = dist / CLHEP::c_light / CLHEP::ns;
 
-      std::cout << "Detector " << det << "/" << subdet << " Eta/Theta " << eta << "/" << theta / CLHEP::deg << " Dist "
-                << dist / CLHEP::cm << " R " << R << " TOF " << tmp << ":" << tmp1 << std::endl;
+      edm::LogVerbatim("IsoTrack") << "Detector " << det << "/" << subdet << " Eta/Theta " << eta << "/"
+                                   << theta / CLHEP::deg << " Dist " << dist / CLHEP::cm << " R " << R << " TOF " << tmp
+                                   << ":" << tmp1;
     }
-#endif
     return tmp;
   }
 

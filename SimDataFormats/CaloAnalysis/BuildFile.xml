@@ -3,6 +3,7 @@
 <use name="DataFormats/HepMCCandidate"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/CaloHit"/>
+<use name="FWCore/MessageLogger"/>
 <use name="clhepheader"/>
 <export>
   <lib name="1"/>

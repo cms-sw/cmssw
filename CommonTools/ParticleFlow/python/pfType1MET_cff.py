@@ -9,6 +9,8 @@ pfType1MET.inputUncorMetLabel = 'pfRawMET'
 
 from JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff import *
 pfType1MET.corrector = 'ak4PFL2L3Corrector'
-pfType1METChain = cms.Sequence( ak4PFL2L3CorrectorChain * pfType1MET )
+pfType1METChainTask = cms.Task( ak4PFL2L3CorrectorChain , pfType1MET )
+pfType1METChain = cms.Sequence( pfType1METChainTask )
 
-pfCorMET = cms.Sequence( pfRawMET * pfType1METChain )
+pfCorMETTask = cms.Task( pfRawMET , pfType1METChainTask )
+pfCorMET = cms.Sequence( pfCorMETTask )

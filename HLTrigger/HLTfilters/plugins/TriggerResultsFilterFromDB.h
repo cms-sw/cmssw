@@ -53,6 +53,7 @@ private:
   /// read the triggerConditions from the database
   std::string m_eventSetupPathsKey;
   edm::ESWatcher<AlCaRecoTriggerBitsRcd> m_eventSetupWatcher;
+  edm::ESGetToken<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd> const m_alcaRecoTriggerBitsRcdToken;
 
   /// evaluator for the trigger condition
   triggerExpression::Evaluator *m_expression;

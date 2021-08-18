@@ -1,13 +1,14 @@
 <use name="RecoLocalTracker/SiStripClusterizer"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/DetId"/>
+<use name="DataFormats/Scalers"/> <!--Needed for typeinfo for LumiScalers for UBSAN builds-->
 <use name="DataFormats/SiStripDetId"/>
 <use name="DataFormats/TrackingRecHit"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/Common"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="MagneticField/Engine"/>

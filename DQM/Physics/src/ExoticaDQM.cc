@@ -57,6 +57,7 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps) {
 
   JetCorrectorToken_ = consumes<reco::JetCorrector>(ps.getParameter<edm::InputTag>("jetCorrector"));
 
+  magFieldToken_ = esConsumes();
   //Cuts - MultiJets
   jetID = new reco::helper::JetIDHelper(ps.getParameter<ParameterSet>("JetIDParams"), consumesCollector());
 
@@ -797,14 +798,13 @@ GlobalVector ExoticaDQM::getGenParticleTrajectoryAtBeamline(const edm::EventSetu
   //=== approach to the beam-line.
 
   // Get the magnetic field
-  edm::ESHandle<MagneticField> theMagField;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+  const MagneticField* theMagField = &iSetup.getData(magFieldToken_);
 
   // Make FreeTrajectoryState of this gen particle
   FreeTrajectoryState fts(GlobalPoint(gen->vx(), gen->vy(), gen->vz()),
                           GlobalVector(gen->px(), gen->py(), gen->pz()),
                           gen->charge(),
-                          theMagField.product());
+                          theMagField);
 
   // Get trajectory closest to beam line
   TSCBLBuilderNoMaterial tscblBuilder;

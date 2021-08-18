@@ -7,8 +7,8 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 process = cms.Process('PROD',Phase2C11)
-process.load('Configuration.Geometry.GeometryExtended2026D71_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D71Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D76_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D76Reco_cff')
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load('Geometry.HGCalGeometry.hgcalGeometryCheck_cfi')
@@ -42,7 +42,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hgcGeomStudy.root'),
+                                   fileName = cms.string('hgcGeomStudyV14.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 

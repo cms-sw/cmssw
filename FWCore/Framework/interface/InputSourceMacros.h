@@ -1,7 +1,7 @@
 #ifndef FWCore_Framework_InputSourceMacros_h
 #define FWCore_Framework_InputSourceMacros_h
 
-#include "FWCore/Framework/src/InputSourceFactory.h"
+#include "FWCore/Framework/interface/maker/InputSourceFactory.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
 

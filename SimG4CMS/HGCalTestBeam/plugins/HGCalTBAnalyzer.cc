@@ -13,7 +13,6 @@
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -96,6 +95,10 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> tok_hepMC_;
   edm::EDGetTokenT<edm::PassiveHitContainer> tok_hgcPHEE_, tok_hgcPHFH_;
   edm::EDGetTokenT<edm::PassiveHitContainer> tok_hgcPHBH_, tok_hgcPHCMSE_, tok_hgcPHBeam_;
+  edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tokDDDEE_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tokGeomEE_;
+  edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tokDDDFH_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tokGeomFH_;
 
   TTree* tree_;
   TH1D *hSimHitE_[4], *hSimHitT_[4];
@@ -256,6 +259,18 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig)
   if (ifBeam_)
     edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorBeam_ << " with tags " << tmp1;
 #endif
+  if (ifEE_) {
+    tokDDDEE_ =
+        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_));
+    tokGeomEE_ =
+        esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_));
+  }
+  if (ifFH_) {
+    tokDDDFH_ =
+        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorFH_));
+    tokGeomFH_ =
+        esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorFH_));
+  }
 }
 
 HGCalTBAnalyzer::~HGCalTBAnalyzer() {}
@@ -474,13 +489,9 @@ void HGCalTBAnalyzer::beginJob() {
 void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   char name[40], title[100];
   if (ifEE_) {
-    edm::ESHandle<HGCalDDDConstants> pHGDC;
-    iSetup.get<IdealGeometryRecord>().get(detectorEE_, pHGDC);
-    hgcons_[0] = &(*pHGDC);
+    hgcons_[0] = &iSetup.getData(tokDDDEE_);
     if (doDigis_ || doRecHits_) {
-      edm::ESHandle<HGCalGeometry> geom;
-      iSetup.get<IdealGeometryRecord>().get(detectorEE_, geom);
-      hgeom_[0] = geom.product();
+      hgeom_[0] = &iSetup.getData(tokGeomEE_);
     } else {
       hgeom_[0] = nullptr;
     }
@@ -504,13 +515,9 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   }
 
   if (ifFH_) {
-    edm::ESHandle<HGCalDDDConstants> pHGDC;
-    iSetup.get<IdealGeometryRecord>().get(detectorFH_, pHGDC);
-    hgcons_[1] = &(*pHGDC);
+    hgcons_[1] = &iSetup.getData(tokDDDFH_);
     if (doDigis_ || doRecHits_) {
-      edm::ESHandle<HGCalGeometry> geom;
-      iSetup.get<IdealGeometryRecord>().get(detectorFH_, geom);
-      hgeom_[1] = geom.product();
+      hgeom_[1] = &iSetup.getData(tokGeomFH_);
     } else {
       hgeom_[1] = nullptr;
     }
@@ -812,7 +819,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, double zFront) {
   std::map<uint32_t, double> map_hits, map_hitn;
   std::map<uint32_t, double> map_hittime_firsthit, map_hittime_lasthit, map_hittime_15Mip;
-  std::map<int, double> map_hitDepth;
+  std::map<int, double> map_hitDepth, map_hitWafer;
   std::map<int, std::pair<uint32_t, double>> map_hitLayer, map_hitCell;
   double entot(0);
   std::map<uint32_t, double> nhits;
@@ -854,9 +861,9 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
       idx = sector * 1000 + cell;
 #ifdef EDM_ML_DEBUG
       std::pair<float, float> xy = hgcons_[type]->locateCell(cell, layer, sector, false);
-      edm::LogVerbatim("HGCSim") << "detId " << std::hex << id << std::dec << " Layer:Wafer:Cell " << layer << ":"
-                                 << sector << ":" << cell << " Position " << xy.first << ":" << xy.second << ":"
-                                 << hgcons_[type]->waferZ(layer, false);
+      edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer::detId " << std::hex << id << std::dec << " Layer:Wafer:Cell "
+                                 << layer << ":" << sector << ":" << cell << " Position " << xy.first << ":"
+                                 << xy.second << ":" << hgcons_[type]->waferZ(layer, false);
 #endif
     }
 #ifdef EDM_ML_DEBUG
@@ -875,6 +882,10 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
     } else {
       map_hitLayer[layer] = std::make_pair(id, energy);
     }
+    if (map_hitWafer.count(sector) != 0)
+      map_hitWafer[sector] += energy;
+    else
+      map_hitWafer[sector] = energy;
     if (depth >= 0) {
       if (map_hitCell.count(idx) != 0) {
         double ee = energy + map_hitCell[idx].second;
@@ -912,6 +923,9 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
   }
 
   if (type < 2) {  //store only for EE and FH
+    edm::LogVerbatim("HGCSim") << "HGCalTAnalyzer:: " << map_hitWafer.size() << " wafers are hit in type " << type;
+    for (auto itr = map_hitWafer.begin(); itr != map_hitWafer.end(); ++itr)
+      edm::LogVerbatim("HGCSim") << "Wafer: " << itr->first << " Deposited Energy " << itr->second;
     ///now sort the vector of each cell hits
     for (const auto& itr : map_hitTimeEn) {
       uint32_t id = itr.first;

@@ -14,12 +14,8 @@
 
 #include "G4FastSimulationManagerProcess.hh"
 #include "G4ProcessManager.hh"
+#include "G4EmBuilder.hh"
 
-#include "G4LeptonConstructor.hh"
-#include "G4MesonConstructor.hh"
-#include "G4BaryonConstructor.hh"
-#include "G4ShortLivedConstructor.hh"
-#include "G4IonConstructor.hh"
 #include "G4RegionStore.hh"
 #include "G4Electron.hh"
 #include "G4Positron.hh"
@@ -66,13 +62,20 @@ G4ThreadLocal ParametrisedEMPhysics::TLSmod* ParametrisedEMPhysics::m_tpmod = nu
 
 ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm::ParameterSet& p)
     : G4VPhysicsConstructor(name), theParSet(p) {
-  // bremsstrahlung threshold and EM verbosity
   G4EmParameters* param = G4EmParameters::Instance();
   G4int verb = theParSet.getUntrackedParameter<int>("Verbosity", 0);
   param->SetVerbose(verb);
 
-  G4double bremth = theParSet.getParameter<double>("G4BremsstrahlungThreshold") * GeV;
+  G4double bremth = theParSet.getParameter<double>("G4BremsstrahlungThreshold") * CLHEP::GeV;
   param->SetBremsstrahlungTh(bremth);
+  G4double mubrth = theParSet.getParameter<double>("G4MuonBremsstrahlungThreshold") * CLHEP::GeV;
+  param->SetMuHadBremsstrahlungTh(mubrth);
+
+  bool genp = theParSet.getParameter<bool>("G4GeneralProcess");
+  param->SetGeneralProcessActive(genp);
+
+  bool mudat = theParSet.getParameter<bool>("ReadMuonData");
+  param->SetRetrieveMuDataFromFile(mudat);
 
   bool fluo = theParSet.getParameter<bool>("FlagFluo");
   param->SetFluo(fluo);
@@ -112,18 +115,13 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
 }
 
 ParametrisedEMPhysics::~ParametrisedEMPhysics() {
-  if (m_tpmod) {
-    delete m_tpmod;
-    m_tpmod = nullptr;
-  }
+  delete m_tpmod;
+  m_tpmod = nullptr;
 }
 
 void ParametrisedEMPhysics::ConstructParticle() {
-  G4LeptonConstructor pLeptonConstructor;
-  pLeptonConstructor.ConstructParticle();
-
-  G4BaryonConstructor pBaryonConstructor;
-  pBaryonConstructor.ConstructParticle();
+  // minimal set of particles for EM physics
+  G4EmBuilder::ConstructMinimalEmSet();
 }
 
 void ParametrisedEMPhysics::ConstructProcess() {

@@ -101,8 +101,7 @@ void Phase2ITMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
 
 void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
   // Get the RecHits
-  edm::Handle<SiPixelRecHitCollection> rechits;
-  iEvent.getByToken(tokenRecHitsIT_, rechits);
+  const auto& rechits = iEvent.getHandle(tokenRecHitsIT_);
   if (!rechits.isValid())
     return;
   std::map<std::string, unsigned int> nrechitLayerMap;
@@ -173,10 +172,8 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
 }
 
 void Phase2ITMonitorRecHit::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
-  tkGeom_ = &(*geomHandle);
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  tTopo_ = tTopoHandle.product();
+  tkGeom_ = &iSetup.getData(geomToken_);
+  tTopo_ = &iSetup.getData(topoToken_);
 }
 
 void Phase2ITMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
@@ -206,7 +203,6 @@ void Phase2ITMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
   //Now book layer wise histos
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
   if (theTkDigiGeomWatcher.check(iSetup)) {
-    edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
     for (auto const& det_u : tkGeom_->detUnits()) {
       //Always check TrackerNumberingBuilder before changing this part
       if (!(det_u->subDetector() == GeomDetEnumerators::SubDetector::P2PXB ||
@@ -270,8 +266,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
     psd0.add<std::string>("title", "NumberRecHits;Number of RecHits;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 0.0);
-    psd0.add<int>("NxBins", 50);
+    psd0.add<double>("xmax", 250000.0);
+    psd0.add<int>("NxBins", 250);
     desc.add<edm::ParameterSetDescription>("GlobalNumberRecHits", psd0);
   }
   {
@@ -333,8 +329,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
     psd0.add<std::string>("title", "NumberRecHits;Number of RecHits;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 0.0);
-    psd0.add<int>("NxBins", 50);
+    psd0.add<double>("xmax", 150000.0);
+    psd0.add<int>("NxBins", 150);
     desc.add<edm::ParameterSetDescription>("LocalNumberRecHits", psd0);
   }
   {
@@ -392,8 +388,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
     psd0.add<std::string>("title", "Cluster_SizeY;cluster size y;");
     psd0.add<double>("xmin", -0.5);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 20.5);
-    psd0.add<int>("NxBins", 21);
+    psd0.add<double>("xmax", 25.5);
+    psd0.add<int>("NxBins", 26);
     desc.add<edm::ParameterSetDescription>("LocalClusterSizeY", psd0);
   }
   {
@@ -419,7 +415,7 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "RecHit_X_error_Vs_eta");
-    psd0.add<std::string>("title", "RecHit_X_error_Vs_eta;#eta;x error #times 10^{6}");
+    psd0.add<std::string>("title", "RecHit_X_error_Vs_eta;#eta;x error [#mum]");
     psd0.add<bool>("switch", true);
     psd0.add<int>("NxBins", 82);
     psd0.add<double>("xmax", 4.1);
@@ -431,7 +427,7 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "RecHit_Y_error_Vs_eta");
-    psd0.add<std::string>("title", "RecHit_Y_error_Vs_eta;#eta;y error #times 10^{6}");
+    psd0.add<std::string>("title", "RecHit_Y_error_Vs_eta;#eta;y error [#mum]");
     psd0.add<bool>("switch", true);
     psd0.add<int>("NxBins", 82);
     psd0.add<double>("xmax", 4.1);

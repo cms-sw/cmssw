@@ -141,7 +141,7 @@ int main(int argc, char** argv) {
   edm::LogPrint("testSiStripPayloadInspector") << "## Exercising Threshold plots " << std::endl;
 
   SiStripThresholdValueHigh histo14;
-  histo14.process(connectionString, PI::mk_input(tag, start, start));
+  histo14.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiStripPayloadInspector") << histo14.data() << std::endl;
 
   // test SiStripTkMaps
@@ -152,7 +152,7 @@ int main(int argc, char** argv) {
   edm::LogPrint("testSiStripPayloadInspector") << "## Exercising SiStripTkMaps plots " << std::endl;
 
   SiStripBadStripFractionTkMap histoTkMap;
-  histoTkMap.process(connectionString, PI::mk_input(tag, start, start));
+  histoTkMap.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiStripPayloadInspector") << histoTkMap.data() << std::endl;
 
   inputs.clear();

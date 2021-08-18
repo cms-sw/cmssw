@@ -4,17 +4,26 @@ T1 beginJob warning with identifier 11 event 0
 %MSG-w cat_BJ:  UTC_V1:ssm_1b@beginJob pre-events
 T1 beginJob warning with identifier 12 event 0
 %MSG
+%MSG-e TestMessageLogger:  PreBeginProcessBlock pre-events
+test message from TestService::preBeginProcessBlock
+%MSG
 %MSG-i cat_BPB:  UTC_V1:ssm_1a@beginProcessBlock pre-events
 T1 beginProcessBlock info with identifier 11 event 0
 %MSG
 %MSG-i cat_BPB:  UTC_V1:ssm_1b@beginProcessBlock pre-events
 T1 beginProcessBlock info with identifier 12 event 0
 %MSG
+%MSG-e TestMessageLogger:  PreGlobalBeginRun Run: 1
+test message from TestService::preGlobalBeginRun
+%MSG
 %MSG-i cat_BR:  UTC_V1:ssm_1a@beginRun Run: 1
 T1 beginRun info with identifier 11 event 0
 %MSG
 %MSG-i cat_BR:  UTC_V1:ssm_1b@beginRun Run: 1
 T1 beginRun info with identifier 12 event 0
+%MSG
+%MSG-e TestMessageLogger:  PreGlobalBeginLumi Run: 1 Lumi: 1
+test message from TestService::preGlobalBeginLumi
 %MSG
 %MSG-w cat_BL:  UTC_V1:ssm_1a@beginLumi Run: 1 Lumi: 1
 T1 beginLumi warning with identifier 11 event 0
@@ -90,6 +99,15 @@ T1 analyze warning with identifier 22 event 1
 %MSG-i cat_A:  UTC_V2:ssm_2b Run: 1 Event: 2
 T1 analyze info with identifier 22 event 1
 %MSG
+%MSG-e TestMessageLogger:  PreGlobalEndLumi Run: 1 Lumi: 1
+test message from TestService::preGlobalEndLumi
+%MSG
+%MSG-e TestMessageLogger:  PreGlobalEndRun End Run: 1
+test message from TestService::preGlobalEndRun
+%MSG
+%MSG-e TestMessageLogger:  PreEndProcessBlock post-events
+test message from TestService::preEndProcessBlock
+%MSG
 %MSG-i cat_EPB:  UTC_V1:ssm_1a@endProcessBlock post-events
 T1 endProcessBlock info with identifier 11 event 2
 %MSG
@@ -121,10 +139,16 @@ MessageLogger Summary
    16 cat_BJ               -w UTC_V1:ssm_1b@be                       1        1
    17 cat_BL               -w UTC_V1:ssm_1a@be                       1        1
    18 cat_BL               -w UTC_V1:ssm_1b@be                       1        1
-   19 cat_A                -e UTC_V1:ssm_1a                          2        2
-   20 cat_A                -e UTC_V1:ssm_1b                          2        2
-   21 cat_A                -e UTC_V2:ssm_2a                          2        2
-   22 cat_A                -e UTC_V2:ssm_2b                          2        2
+   19 TestMessageLogger    -e PreBeginProcessB                       1        1
+   20 TestMessageLogger    -e PreEndProcessBlo                       1        1
+   21 TestMessageLogger    -e PreGlobalBeginLu                       1        1
+   22 TestMessageLogger    -e PreGlobalBeginRu                       1        1
+   23 TestMessageLogger    -e PreGlobalEndLumi                       1        1
+   24 TestMessageLogger    -e PreGlobalEndRun                        1        1
+   25 cat_A                -e UTC_V1:ssm_1a                          2        2
+   26 cat_A                -e UTC_V1:ssm_1b                          2        2
+   27 cat_A                -e UTC_V2:ssm_2a                          2        2
+   28 cat_A                -e UTC_V2:ssm_2b                          2        2
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
@@ -146,16 +170,22 @@ MessageLogger Summary
    16 cat_BJ               pre-events                        
    17 cat_BL               Run: 1 Lumi: 1                    
    18 cat_BL               Run: 1 Lumi: 1                    
-   19 cat_A                1/1              1/2              
-   20 cat_A                1/1              1/2              
-   21 cat_A                1/1              1/2              
-   22 cat_A                1/1              1/2              
+   19 TestMessageLogger    pre-events                        
+   20 TestMessageLogger    post-events                       
+   21 TestMessageLogger    Run: 1 Lumi: 1                    
+   22 TestMessageLogger    Run: 1                            
+   23 TestMessageLogger    Run: 1 Lumi: 1                    
+   24 TestMessageLogger    End Run: 1                        
+   25 cat_A                1/1              1/2              
+   26 cat_A                1/1              1/2              
+   27 cat_A                1/1              1/2              
+   28 cat_A                1/1              1/2              
 
 Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
 Info                   12                  12
 FwkInfo                 2                   2
 Warning                12                  12
-Error                   8                   8
+Error                  14                  14
 
 dropped waiting message count 0

@@ -8,7 +8,7 @@
   <bin name="testScanner.exe" file="testScanner.cc">
     <flags NO_TESTRUN="1"/>
     <use name="root"/>
-    <use name="roofit"/>
+    <use name="roofitcore"/>
     <use name="rootgraphics"/>
     <use name="FWCore/FWLite"/>
     <use name="DataFormats/TrackReco"/>

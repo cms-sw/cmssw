@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''Script that uploads to the new CMS conditions uploader.
 Adapted to the new infrastructure from v6 of the upload.py script for the DropBox from Miguel Ojeda.
 '''
@@ -43,17 +43,17 @@ waitForRetry = 15
 # common/http.py start (plus the "# Try to extract..." section bit)
 import time
 import logging
-import cStringIO
+import io
 
 import pycurl
 import socket
 import copy
 
 def getInput(default, prompt = ''):
-    '''Like raw_input() but with a default and automatic strip().
+    '''Like input() but with a default and automatic strip().
     '''
 
-    answer = raw_input(prompt)
+    answer = input(prompt)
     if answer:
         return answer.strip()
 
@@ -89,11 +89,11 @@ def getInputChoose(optionsList, default, prompt = ''):
 
 
 def getInputRepeat(prompt = ''):
-    '''Like raw_input() but repeats if nothing is provided and automatic strip().
+    '''Like input() but repeats if nothing is provided and automatic strip().
     '''
 
     while True:
-        answer = raw_input(prompt)
+        answer = input(prompt)
         if answer:
             return answer.strip()
 
@@ -107,32 +107,17 @@ def runWizard(basename, dataFilename, metadataFilename):
 I will ask you some questions to fill the metadata file. For some of the questions there are defaults between square brackets (i.e. []), leave empty (i.e. hit Enter) to use them.''' % basename)
 
         # Try to get the available inputTags
-        try:
-            dataConnection = sqlite3.connect(dataFilename)
-            dataCursor = dataConnection.cursor()
-            dataCursor.execute('select name from sqlite_master where type == "table"')
-            tables = set(zip(*dataCursor.fetchall())[0])
+        dataConnection = sqlite3.connect(dataFilename)
+        dataCursor = dataConnection.cursor()
 
-            # only conddb V2 supported...
-            if 'TAG' in tables:
-                dataCursor.execute('select NAME from TAG')
-            # In any other case, do not try to get the inputTags
-            else:
-                raise Exception()
-
-            inputTags = dataCursor.fetchall()
-            if len(inputTags) == 0:
-                raise Exception()
-            inputTags = zip(*inputTags)[0]
-
-        except Exception:
-            inputTags = []
+        dataCursor.execute('select NAME from TAG')
+        records = dataCursor.fetchall()
+        inputTags = []
+        for rec in records:
+            inputTags.append(rec[0])
 
         if len(inputTags) == 0:
-            print('\nI could not find any input tag in your data file, but you can still specify one manually.')
-
-            inputTag = getInputRepeat(
-                '\nWhich is the input tag (i.e. the tag to be read from the SQLite data file)?\ne.g. BeamSpotObject_ByRun\ninputTag: ')
+            raise Exception("Could not find any input tag in the data file.")
 
         else:
             print('\nI found the following input tags in your SQLite data file:')
@@ -147,7 +132,7 @@ I will ask you some questions to fill the metadata file. For some of the questio
         while ( destinationDatabase != 'oracle://cms_orcon_prod/CMS_CONDITIONS' and destinationDatabase != 'oracle://cms_orcoff_prep/CMS_CONDITIONS' ): 
             if ntry==0:
                 inputMessage = \
-                '\nWhich is the destination database where the tags should be exported? \nPossible choices: oracle://cms_orcon_prod/CMS_CONDITIONS (for prod) or oracle://cms_orcoff_prep/CMS_CONDITIONS (for prep) \ndestinationDatabase: '
+                '\nWhich is the destination database where the tags should be exported? \nPossible choices: oracle://cms_orcon_prod/CMS_CONDITIONS (or prod); oracle://cms_orcoff_prep/CMS_CONDITIONS (or prep) \ndestinationDatabase: '
             elif ntry==1:
                 inputMessage = \
                 '\nPlease choose one of the two valid destinations: \noracle://cms_orcon_prod/CMS_CONDITIONS (for prod) or oracle://cms_orcoff_prep/CMS_CONDITIONS (for prep) \
@@ -155,6 +140,10 @@ I will ask you some questions to fill the metadata file. For some of the questio
             else:
                 raise Exception('No valid destination chosen. Bailing out...')
             destinationDatabase = getInputRepeat(inputMessage)
+            if destinationDatabase == 'prod':
+                destinationDatabase = 'oracle://cms_orcon_prod/CMS_CONDITIONS'
+            if destinationDatabase == 'prep':
+                destinationDatabase = 'oracle://cms_orcoff_prep/CMS_CONDITIONS'
             ntry += 1
 
         while True:
@@ -205,7 +194,7 @@ I will ask you some questions to fill the metadata file. For some of the questio
                     '\nIs it fine (i.e. save in %s and *upload* the conditions if this is the latest file)?\nAnswer [n]: ' % metadataFilename).lower() == 'y':
             break
     logging.info('Saving generated metadata in %s...', metadataFilename)
-    with open(metadataFilename, 'wb') as metadataFile:
+    with open(metadataFilename, 'w') as metadataFile:
         metadataFile.write(metadata)
 
 class HTTPError(Exception):
@@ -314,7 +303,7 @@ class HTTP(object):
         # self.curl.setopt( self.curl.POST, {})
         self.curl.setopt(self.curl.HTTPGET, 0)
 
-        response = cStringIO.StringIO()
+        response = io.BytesIO()
         self.curl.setopt(pycurl.WRITEFUNCTION, response.write)
         self.curl.setopt(pycurl.USERPWD, '%s:%s' % (username, password) )
         logging.debug('going to connect to server at: %s' % url )
@@ -325,12 +314,12 @@ class HTTP(object):
         if code in ( 502,503,504 ):
             logging.debug('Trying again after %d seconds...', waitForRetry)
             time.sleep( waitForRetry )
-            response = cStringIO.StringIO()
+            response = io.StringIO()
             self.curl.setopt(pycurl.WRITEFUNCTION, response.write)
             self.curl.setopt(pycurl.USERPWD, '%s:%s' % (username, password) )
             self.curl.perform()
-            code = self.curl.getinfo(pycurl.RESPONSE_CODE)
-        resp = response.getvalue()
+            code = self.curl.getinfo(pycurl.RESPONSE_CODE)        
+        resp = response.getvalue().decode('UTF-8')
         errorMsg = None
         if code==500 and not resp.find("INVALID_CREDENTIALS")==-1:
             logging.error("Invalid credentials provided.")
@@ -355,9 +344,9 @@ class HTTP(object):
             raise Exception(errorMsg)
             
         logging.debug('token: %s', self.token)
-        logging.debug('returning: %s', response.getvalue())
+        logging.debug('returning: %s', response.getvalue().decode('UTF-8'))
 
-        return resp
+        return response.getvalue()
 
     def query(self, url, data = None, files = None, keepCookies = True):
         '''Queries a URL, optionally with some data (dictionary).
@@ -410,11 +399,11 @@ class HTTP(object):
                     if files is not None:
                         for (key, fileName) in files.items():
                             finalData[key] = (self.curl.FORM_FILE, fileName)
-                    self.curl.setopt( self.curl.HTTPPOST, finalData.items() )
+                    self.curl.setopt( self.curl.HTTPPOST, list(finalData.items()) )
 
                 self.curl.setopt(pycurl.VERBOSE, 0)
 
-                response = cStringIO.StringIO()
+                response = io.BytesIO()
                 self.curl.setopt(self.curl.WRITEFUNCTION, response.write)
                 self.curl.perform()
 
@@ -471,7 +460,6 @@ class ConditionsUploader(object):
             self.http.setBaseUrl(self.urlTemplate % self.hostname)
             '''Signs in the server.
             '''
-
             logging.info('%s: Signing in user %s ...', self.hostname, username)
             try:
                 self.token = self.http.getToken(username, password)
@@ -487,7 +475,6 @@ class ConditionsUploader(object):
             if not self.token:
                 logging.error("could not get token for user %s from %s" % (username, self.hostname) )
                 return -2
-
             logging.debug( "got: '%s'", str(self.token) )
             self.userName = username
             self.password = password
@@ -553,9 +540,9 @@ class ConditionsUploader(object):
             logging.error(msg)
             raise Exception(msg)
 
-        with tempfile.NamedTemporaryFile() as metadata:
-            with open('%s.txt' % basepath, 'rb') as originalMetadata:
-                json.dump(json.load(originalMetadata), metadata, sort_keys = True, indent = 4)
+        with tempfile.NamedTemporaryFile(mode='rb+') as metadata:
+            with open('%s.txt' % basepath, 'r') as originalMetadata:
+                metadata.write(json.dumps(json.load(originalMetadata), sort_keys = True, indent = 4).encode())
 
             metadata.seek(0)
             addToTarFile(tarFile, metadata, 'metadata.txt')
@@ -619,8 +606,11 @@ class ConditionsUploader(object):
         if len(skippedTags) > 0: logging.warning("tags SKIPped to upload   : %s ", str(skippedTags) )
         if len(failedTags)  > 0: logging.error  ("tags FAILed  to upload   : %s ", str(failedTags) )
 
-        fileLogURL = 'https://%s/logs/dropBox/getFileLog?fileHash=%s' 
-        logging.info('file log at: %s', fileLogURL % (self.hostname,fileHash))
+        fileLogURL = 'https://cms-conddb.cern.ch/cmsDbBrowser/logs/show_cond_uploader_log/%s/%s' 
+        backend = 'Prod'
+        if self.hostname=='cms-conddb-dev.cern.ch':
+            backend = 'Prep'
+        logging.info('file log at: %s', fileLogURL % (backend,fileHash))
 
         return len(okTags)>0
 
@@ -818,7 +808,6 @@ def re_upload( options ):
         netrcPath = os.path.join( options.authPath,'.netrc' )
     try:
         netrcKey = '%s/%s' %(logDbSrv,logDbSchema)
-        print('#netrc key=%s' %netrcKey)
         # Try to find the netrc entry
         (username, account, password) = netrc.netrc( netrcPath ).authenticators( netrcKey )
     except IOError as e:

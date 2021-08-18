@@ -133,6 +133,9 @@ namespace npstat {
                  functionLabel) {}
     //@}
 
+    /** Default constructor not implemented **/
+    StorableInterpolationFunctor() = delete;
+
     ~StorableInterpolationFunctor() override {}
 
     unsigned minDim() const override { return table_.dim(); };
@@ -174,8 +177,6 @@ namespace npstat {
     }
 
   private:
-    StorableInterpolationFunctor() = delete;
-
     Table table_;
     Converter conv_;
   };

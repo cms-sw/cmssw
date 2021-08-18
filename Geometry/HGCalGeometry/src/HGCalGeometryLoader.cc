@@ -62,7 +62,7 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
           int type = topology.dddConstants().waferTypeT(wafer);
           if (type != 1)
             type = 0;
-          DetId detId = (DetId)(HGCalDetId(subdet, zside, layer, type, wafer, 0));
+          DetId detId = static_cast<DetId>(HGCalDetId(subdet, zside, layer, type, wafer, 0));
           const auto& w = topology.dddConstants().waferPosition(wafer, true);
           double xx = (zside > 0) ? w.first : -w.first;
           CLHEP::Hep3Vector h3v(xx, w.second, mytr.h3v.z());
@@ -86,20 +86,26 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
       }
     } else if (topology.tileTrapezoid()) {
       int indx = topology.dddConstants().layerIndex(layer, true);
-      int irad = topology.dddConstants().getParameter()->iradMinBH_[indx];
+      int ring = topology.dddConstants().getParameter()->iradMinBH_[indx];
       int nphi = topology.dddConstants().getParameter()->scintCells(layer);
       int type = topology.dddConstants().getParameter()->scintType(layer);
       for (int md = topology.dddConstants().getParameter()->firstModule_[indx];
            md <= topology.dddConstants().getParameter()->lastModule_[indx];
            ++md) {
         for (int iphi = 1; iphi <= nphi; ++iphi) {
-          DetId detId = (DetId)(HGCScintillatorDetId(type, layer, zside * irad, iphi));
-          const auto& w = topology.dddConstants().locateCellTrap(layer, irad, iphi, true);
+          HGCScintillatorDetId id(type, layer, zside * ring, iphi);
+          std::pair<int, int> typm = topology.dddConstants().tileType(layer, ring, 0);
+          if (typm.first >= 0) {
+            id.setType(typm.first);
+            id.setSiPM(typm.second);
+          }
+          DetId detId = static_cast<DetId>(id);
+          const auto& w = topology.dddConstants().locateCellTrap(layer, ring, iphi, true);
           double xx = (zside > 0) ? w.first : -w.first;
           CLHEP::Hep3Vector h3v(xx, w.second, mytr.h3v.z());
           const HepGeom::Transform3D ht3d(mytr.hr, h3v);
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::rad:phi:type " << irad * zside << ":" << iphi << ":"
+          edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::rad:phi:type " << ring * zside << ":" << iphi << ":"
                                         << type << " DetId " << HGCScintillatorDetId(detId) << " " << std::hex
                                         << detId.rawId() << std::dec << " transf " << ht3d.getTranslation() << " R "
                                         << ht3d.getTranslation().perp() << " and " << ht3d.getRotation();
@@ -119,7 +125,7 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
           ++kount;
 #endif
         }
-        ++irad;
+        ++ring;
       }
     } else {
       DetId::Detector det = topology.detector();

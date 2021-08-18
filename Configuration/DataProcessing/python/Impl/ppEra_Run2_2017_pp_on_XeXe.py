@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 _ppEra_Run2_2017_pp_on_XeXe_
 

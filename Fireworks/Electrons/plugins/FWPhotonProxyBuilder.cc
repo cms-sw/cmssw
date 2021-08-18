@@ -32,10 +32,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPhotonProxyBuilder(const FWPhotonProxyBuilder&) = delete;
   const FWPhotonProxyBuilder& operator=(const FWPhotonProxyBuilder&) = delete;
 
+private:
   using FWSimpleProxyBuilderTemplate<reco::Photon>::buildViewType;
   void buildViewType(const reco::Photon& photon,
                      unsigned int iIndex,

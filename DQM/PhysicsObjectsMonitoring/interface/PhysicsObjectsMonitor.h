@@ -26,6 +26,8 @@ namespace edm {
 class TFile;
 class TH1F;
 class TH2F;
+class MagneticField;
+class IdealMagneticFieldRecord;
 
 class PhysicsObjectsMonitor : public DQMEDAnalyzer {
 public:
@@ -65,5 +67,6 @@ private:
 
   // define Token(-s)
   edm::EDGetTokenT<reco::TrackCollection> theSTAMuonToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFiledToken_;
 };
 #endif

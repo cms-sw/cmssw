@@ -4,8 +4,9 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi import *
 #get the module combinatorialbeamhaloseedfinder
 from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForBeamHalo_cfi import *
+import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 
-beamhaloTrackerSeedingLayers = cms.EDProducer("SeedingLayersEDProducer",
+beamhaloTrackerSeedingLayers = _mod.seedingLayersEDProducer.clone(
     layerInfo,
-    layerList = layerList
+    layerList = layerList,
 )

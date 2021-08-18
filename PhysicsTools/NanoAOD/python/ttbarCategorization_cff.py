@@ -32,7 +32,6 @@ categorizeGenTtbar = categorizeGenTtbar.clone(
 
 ### Era dependent customization
 run2_miniAOD_80XLegacy.toModify( matchGenBHadron, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
-
 run2_miniAOD_80XLegacy.toModify( matchGenCHadron, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
 
 
@@ -43,4 +42,5 @@ ttbarCategoryTable = cms.EDProducer("GlobalVariablesTableProducer",
                                     )
 )
 
-ttbarCatMCProducers = cms.Sequence(matchGenBHadron + matchGenCHadron + categorizeGenTtbar)
+ttbarCategoryTableTask = cms.Task(ttbarCategoryTable)
+ttbarCatMCProducersTask = cms.Task(matchGenBHadron,matchGenCHadron,categorizeGenTtbar)

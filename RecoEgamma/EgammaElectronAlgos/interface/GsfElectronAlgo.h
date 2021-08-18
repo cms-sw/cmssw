@@ -34,7 +34,6 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/RegressionHelper.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EleTkIsolFromCands.h"
 #include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimator.h"
 #include "RecoEgamma/ElectronIdentification/interface/SoftElectronMVAEstimator.h"
@@ -46,6 +45,8 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ConversionFinder.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 
 class GsfElectronAlgo {
 public:
@@ -58,7 +59,7 @@ public:
 
   struct Tokens {
     edm::EDGetTokenT<reco::GsfElectronCoreCollection> gsfElectronCores;
-    edm::EDGetTokenT<CaloTowerCollection> hcalTowersTag;
+    edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitsTag;
     edm::EDGetTokenT<reco::SuperClusterCollection> barrelSuperClusters;
     edm::EDGetTokenT<reco::SuperClusterCollection> endcapSuperClusters;
     edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitCollection;
@@ -112,10 +113,10 @@ public:
     double maxHOverEEndcapsCone;
     double maxHBarrelCone;
     double maxHEndcapsCone;
-    double maxHOverEBarrelTower;
-    double maxHOverEEndcapsTower;
-    double maxHBarrelTower;
-    double maxHEndcapsTower;
+    double maxHOverEBarrelBc;
+    double maxHOverEEndcapsBc;
+    double maxHBarrelBc;
+    double maxHEndcapsBc;
 
     // maximum eta difference between the supercluster position and the track position at the closest impact to the supercluster
     double maxDeltaEtaBarrel;
@@ -144,6 +145,10 @@ public:
 
     // only make sense for ecal driven electrons
     bool seedFromTEC;
+
+    // noise cleaning
+    double multThresEB;
+    double multThresEE;
   };
 
   // Ecal rec hits
@@ -173,7 +178,8 @@ public:
   GsfElectronAlgo(const Tokens&,
                   const StrategyConfiguration&,
                   const CutsConfiguration& cutsCfg,
-                  const ElectronHcalHelper::Configuration& hcalCfg,
+                  const ElectronHcalHelper::Configuration& hcalCone,
+                  const ElectronHcalHelper::Configuration& hcalBc,
                   const IsolationConfiguration&,
                   const EcalRecHitsConfiguration&,
                   std::unique_ptr<EcalClusterFunctionBaseClass>&& crackCorrectionFunction,
@@ -218,16 +224,19 @@ private:
                       double magneticFieldInTesla,
                       const HeavyObjectCache*,
                       egamma::conv::TrackTableView ctfTable,
-                      egamma::conv::TrackTableView gsfTable);
+                      egamma::conv::TrackTableView gsfTable,
+                      EcalPFRecHitThresholds const& thresholds);
 
   void setCutBasedPreselectionFlag(reco::GsfElectron& ele, const reco::BeamSpot&) const;
 
   template <bool full5x5>
   reco::GsfElectron::ShowerShape calculateShowerShape(const reco::SuperClusterRef&,
-                                                      ElectronHcalHelper const& hcalHelper,
+                                                      ElectronHcalHelper const& hcalHelperCone,
+                                                      ElectronHcalHelper const& hcalHelperBc,
                                                       EventData const& eventData,
                                                       CaloTopology const& topology,
-                                                      CaloGeometry const& geometry) const;
+                                                      CaloGeometry const& geometry,
+                                                      EcalPFRecHitThresholds const& thresholds) const;
   reco::GsfElectron::SaturationInfo calculateSaturationInfo(const reco::SuperClusterRef&,
                                                             EventData const& eventData) const;
 
@@ -247,9 +256,11 @@ private:
   const edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
   const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> ecalSeveretyLevelAlgoToken_;
+  const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_;
 
   // additional configuration and helpers
-  ElectronHcalHelper hcalHelper_;
+  ElectronHcalHelper hcalHelperCone_;
+  ElectronHcalHelper hcalHelperBc_;
   std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction_;
   RegressionHelper regHelper_;
 };

@@ -1,7 +1,19 @@
 <use name="root"/>
+<use name="CommonTools/Statistics"/>
 <use name="DQMOffline/RecoB"/>
 <use name="DQMServices/Core"/>
-<use name="CommonTools/Statistics"/>
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/VertexReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="JetMETCorrections/JetCorrector"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <library file="BTagPerformanceAnalyzerOnData.cc PrimaryVertexMonitor.cc BTagPerformanceHarvester.cc" name="DQMOfflineRecoBPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
+

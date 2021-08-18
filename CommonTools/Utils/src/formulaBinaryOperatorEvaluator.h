@@ -84,11 +84,11 @@ namespace reco {
         return ret;
       }
 
-    private:
       BinaryOperatorEvaluator(const BinaryOperatorEvaluator&) = delete;
 
       const BinaryOperatorEvaluator& operator=(const BinaryOperatorEvaluator&) = delete;
 
+    private:
       // ---------- member data --------------------------------
       Op m_operator;
     };

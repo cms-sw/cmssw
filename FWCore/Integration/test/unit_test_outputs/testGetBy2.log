@@ -22,6 +22,11 @@ Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196e
 ++++ finished: constructing module with label 'intVectorProducer' id = 7
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
 ++ starting: begin job
+The following legacy modules are configured. Support for legacy modules
+is going to end soon. These modules need to be converted to have type
+edm::global, edm::stream, edm::one, or in rare cases edm::limited.
+  IntVectorProducer intVectorProducer
+%MSG
 ++++ starting: begin job for module with label 'intProducerU' id = 6
 ++++ finished: begin job for module with label 'intProducerU' id = 6
 ++++ starting: begin job for module with label 'intVectorProducer' id = 7
@@ -83,6 +88,34 @@ GlobalContext: transition = BeginProcessBlock
 
 ++++ finished: begin process block
 GlobalContext: transition = BeginProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
+
+++++ starting: source process block
+++++ finished: source process block PROD1
+++++ starting: access input process block
+GlobalContext: transition = AccessInputProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
+
+++++ finished: access input process block
+GlobalContext: transition = AccessInputProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
+
+++++ starting: write process block
+GlobalContext: transition = WriteProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
+
+++++++ starting: write process block for module: label = 'out' id = 5
+++++++ finished: write process block for module: label = 'out' id = 5
+++++ finished: write process block
+GlobalContext: transition = WriteProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
     ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59

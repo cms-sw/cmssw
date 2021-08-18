@@ -55,7 +55,7 @@ HGCalRecHitProducer::HGCalRecHitProducer(const edm::ParameterSet& ps)
       hefRechitCollection_(ps.getParameter<std::string>("HGCHEFrechitCollection")),
       hebRechitCollection_(ps.getParameter<std::string>("HGCHEBrechitCollection")),
       hfnoseRechitCollection_(ps.getParameter<std::string>("HGCHFNoserechitCollection")),
-      worker_{HGCalRecHitWorkerFactory::get()->create(ps.getParameter<std::string>("algo"), ps)} {
+      worker_{HGCalRecHitWorkerFactory::get()->create(ps.getParameter<std::string>("algo"), ps, consumesCollector())} {
   produces<HGCeeRecHitCollection>(eeRechitCollection_);
   produces<HGChefRecHitCollection>(hefRechitCollection_);
   produces<HGChebRecHitCollection>(hebRechitCollection_);

@@ -61,7 +61,7 @@ inline bool TtFullLepKinSolutionProducer::HasPositiveCharge(const reco::Candidat
   return (l->charge() > 0);
 }
 
-TtFullLepKinSolutionProducer::TtFullLepKinSolutionProducer(const edm::ParameterSet& iConfig) {
+inline TtFullLepKinSolutionProducer::TtFullLepKinSolutionProducer(const edm::ParameterSet& iConfig) {
   // configurables
   jetsToken_ = consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jets"));
   electronsToken_ = consumes<std::vector<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electrons"));
@@ -87,15 +87,15 @@ TtFullLepKinSolutionProducer::TtFullLepKinSolutionProducer(const edm::ParameterS
   produces<bool>("isWrongCharge");              //true if leptons have the same charge
 }
 
-TtFullLepKinSolutionProducer::~TtFullLepKinSolutionProducer() {}
+inline TtFullLepKinSolutionProducer::~TtFullLepKinSolutionProducer() {}
 
-void TtFullLepKinSolutionProducer::beginJob() {
+inline void TtFullLepKinSolutionProducer::beginJob() {
   solver = new TtFullLepKinSolver(tmassbegin_, tmassend_, tmassstep_, nupars_);
 }
 
-void TtFullLepKinSolutionProducer::endJob() { delete solver; }
+inline void TtFullLepKinSolutionProducer::endJob() { delete solver; }
 
-void TtFullLepKinSolutionProducer::produce(edm::Event& evt, const edm::EventSetup& iSetup) {
+inline void TtFullLepKinSolutionProducer::produce(edm::Event& evt, const edm::EventSetup& iSetup) {
   //create vectors fo runsorted output
   std::vector<std::vector<int> > idcsV;
   std::vector<reco::LeafCandidate> nusV;
@@ -408,6 +408,7 @@ void TtFullLepKinSolutionProducer::produce(edm::Event& evt, const edm::EventSetu
   if (weightsV.empty()) {
     //create dmummy vector
     std::vector<int> idcs;
+    idcs.reserve(6);
     for (int i = 0; i < 6; ++i)
       idcs.push_back(-1);
 

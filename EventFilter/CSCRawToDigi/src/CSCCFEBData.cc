@@ -1,10 +1,10 @@
-
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCBadCFEBTimeSlice.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
 
@@ -200,8 +200,6 @@ CSCCFEBStatusDigi CSCCFEBData::statusDigi() const {
 }
 
 void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> &result) const {
-  // assert(layer>0 && layer <= 6);
-
   LogTrace("CSCCFEBData|CSCRawToDigi") << "nTimeSamples in CSCCFEBData::digis = " << nTimeSamples();
   if (nTimeSamples() == 0) {
     LogTrace("CSCCFEBData|CSCRawToDigi") << "nTimeSamples is zero - CFEB data corrupt?";
@@ -267,23 +265,23 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> &result) con
     if (theFormatVersion == 2013) {  /// Handle 2013 Format
 
       if (me1a)
-        strip = strip % 64;  // reset 65-112/ to 1-48 digi
+        strip = strip % CSCConstants::NUM_STRIPS_ME1B;  // reset 65-112/ to 1-48 digi
       if (me1a && zplus) {
-        strip = 49 - strip;
+        strip = CSCConstants::NUM_STRIPS_ME1A_UNGANGED + 1 - strip;
       }  // 1-48 -> 48-1
       if (me1b && !zplus) {
-        strip = 65 - strip;
+        strip = CSCConstants::NUM_STRIPS_ME1B + 1 - strip;
       }  // 1-64 -> 64-1 ...
 
     } else {  // Handle original 2005 format
 
       if (me1a)
-        strip = strip % 64;  // reset 65-80 to 1-16 digi
+        strip = strip % CSCConstants::NUM_STRIPS_ME1B;  // reset 65-80 to 1-16 digi
       if (me1a && zplus) {
-        strip = 17 - strip;
+        strip = CSCConstants::NUM_STRIPS_ME1A_GANGED + 1 - strip;
       }  // 1-16 -> 16-1
       if (me1b && !zplus) {
-        strip = 65 - strip;
+        strip = CSCConstants::NUM_STRIPS_ME1B + 1 - strip;
       }  // 1-64 -> 64-1 ...
     }
     result.push_back(CSCStripDigi(strip, sca, overflow, overlap, errorfl));
@@ -291,7 +289,6 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> &result) con
 }
 
 std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned idlayer) const {
-  //assert(layer>0 && layer <= 6);
   std::vector<CSCStripDigi> result;
   uint32_t layer = idlayer;
   digis(layer, result);
@@ -310,7 +307,7 @@ bool CSCCFEBData::check() const {
 
 std::ostream &operator<<(std::ostream &os, const CSCCFEBData &data) {
   os << "printing CFEB data sample by sample " << std::endl;
-  for (unsigned ilayer = 1; ilayer <= 6; ++ilayer) {
+  for (int ilayer = CSCDetId::minLayerId(); ilayer <= CSCDetId::maxLayerId(); ++ilayer) {
     for (unsigned channel = 1; channel <= 16; ++channel) {
       unsigned strip = channel + data.boardNumber_ * 16;
       os << "Strip " << strip << " ";
@@ -325,7 +322,7 @@ std::ostream &operator<<(std::ostream &os, const CSCCFEBData &data) {
 
 std::vector<std::vector<CSCStripDigi> > CSCCFEBData::stripDigis() {
   std::vector<std::vector<CSCStripDigi> > result;
-  for (int layer = 1; layer <= 6; ++layer) {
+  for (int layer = CSCDetId::minLayerId(); layer <= CSCDetId::maxLayerId(); ++layer) {
     result.push_back(digis(layer));
   }
   return result;

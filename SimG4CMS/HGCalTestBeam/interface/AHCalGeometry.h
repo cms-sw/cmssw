@@ -13,6 +13,7 @@ class AHCalGeometry {
 public:
   /** Create geometry of AHCal */
   AHCalGeometry(edm::ParameterSet const&);
+  AHCalGeometry() = delete;
   ~AHCalGeometry() {}
 
   /// get maximum number of layers
@@ -23,7 +24,6 @@ public:
   double getZ(const AHCalDetId& id) const;
 
 private:
-  AHCalGeometry() = delete;
   std::unique_ptr<AHCalParameters> ahcal_;
 };
 #endif

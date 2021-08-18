@@ -147,12 +147,13 @@ namespace ecaldqm {
           break;
       }
 
-      MESet::iterator qEnd(meQuality.end());
-      MESet::const_iterator pItr(sPedestal);
-      for (MESet::iterator qItr(meQuality.beginChannel()); qItr != qEnd; qItr.toNextChannel()) {
+      MESet::iterator qEnd(meQuality.end(GetElectronicsMap()));
+      MESet::const_iterator pItr(GetElectronicsMap(), sPedestal);
+      for (MESet::iterator qItr(meQuality.beginChannel(GetElectronicsMap())); qItr != qEnd;
+           qItr.toNextChannel(GetElectronicsMap())) {
         DetId id(qItr->getId());
 
-        bool doMask(meQuality.maskMatches(id, mask, statusManager_));
+        bool doMask(meQuality.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));
 
         pItr = qItr;
 
@@ -166,8 +167,8 @@ namespace ecaldqm {
         float mean(pItr->getBinContent());
         float rms(pItr->getBinError() * sqrt(entries));
 
-        meMean.fill(id, mean);
-        meRMS.fill(id, rms);
+        meMean.fill(getEcalDQMSetupObjects(), id, mean);
+        meRMS.fill(getEcalDQMSetupObjects(), id, rms);
 
         float toleranceRMS_ =
             (id.subdetId() == EcalBarrel) ? toleranceRMSEB_[gainItr->second] : toleranceRMSEE_[gainItr->second];
@@ -214,24 +215,24 @@ namespace ecaldqm {
 
           EcalPnDiodeDetId id(subdet, iDCC + 1, iPN + 1);
 
-          bool doMask(mePNQualitySummary.maskMatches(id, mask, statusManager_));
+          bool doMask(mePNQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));
 
-          float entries(sPNPedestal.getBinEntries(id));
+          float entries(sPNPedestal.getBinEntries(getEcalDQMSetupObjects(), id));
 
           if (entries < minChannelEntries_) {
-            mePNQualitySummary.setBinContent(id, doMask ? kMUnknown : kUnknown);
+            mePNQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMUnknown : kUnknown);
             continue;
           }
 
-          float mean(sPNPedestal.getBinContent(id));
-          float rms(sPNPedestal.getBinError(id) * sqrt(entries));
+          float mean(sPNPedestal.getBinContent(getEcalDQMSetupObjects(), id));
+          float rms(sPNPedestal.getBinError(getEcalDQMSetupObjects(), id) * sqrt(entries));
 
-          mePNRMS.fill(id, rms);
+          mePNRMS.fill(getEcalDQMSetupObjects(), id, rms);
 
           if (abs(mean - expectedPNMean_) > tolerancePNMean_ || rms > tolerancePNRMS_[gainItr->second])
-            mePNQualitySummary.setBinContent(id, doMask ? kMBad : kBad);
+            mePNQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMBad : kBad);
           else
-            mePNQualitySummary.setBinContent(id, doMask ? kMGood : kGood);
+            mePNQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMGood : kGood);
         }
       }
     }

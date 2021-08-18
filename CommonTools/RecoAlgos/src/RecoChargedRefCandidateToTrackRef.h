@@ -8,6 +8,7 @@
 namespace edm {
   class EventSetup;
   class ParameterSet;
+  class ConsumesCollector;
 }  // namespace edm
 
 namespace converter {
@@ -15,7 +16,7 @@ namespace converter {
     typedef reco::RecoChargedRefCandidate value_type;
     typedef reco::RecoChargedRefCandidateCollection Components;
     typedef reco::TrackRef Candidate;
-    RecoChargedRefCandidateToTrackRef(const edm::ParameterSet& cfg) {}
+    RecoChargedRefCandidateToTrackRef(const edm::ParameterSet& cfg, const edm::ConsumesCollector&) {}
     void beginFirstRun(const edm::EventSetup&) {}
     void convert(const reco::RecoChargedRefCandidateRef& c, reco::TrackRef& trkRef) const { trkRef = c->track(); }
   };

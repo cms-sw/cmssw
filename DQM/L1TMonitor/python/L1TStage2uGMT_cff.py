@@ -54,6 +54,10 @@ l1tStage2uGMTIntermediateEMTFPos = DQMEDAnalyzer(
     displacedQuantities = cms.untracked.bool(False)
 )
 
+## Era: Run3_2021; Displaced muons from EMTF used in uGMT from Run-3
+stage2L1Trigger_2021.toModify(l1tStage2uGMTIntermediateEMTFNeg, displacedQuantities = cms.untracked.bool(True))
+stage2L1Trigger_2021.toModify(l1tStage2uGMTIntermediateEMTFPos, displacedQuantities = cms.untracked.bool(True))
+
 # zero suppression DQM
 l1tStage2uGMTZeroSupp = DQMEDAnalyzer(
     "L1TMP7ZeroSupp",
@@ -129,7 +133,7 @@ l1tStage2BmtfOutVsuGMTIn = DQMEDAnalyzer(
 
 ## Era: Run3_2021; Displaced muons from BMTF used in uGMT from Run-3
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
-stage2L1Trigger_2021.toModify(l1tStage2BmtfOutVsuGMTIn, isBmtf = cms.untracked.bool(True))
+stage2L1Trigger_2021.toModify(l1tStage2BmtfOutVsuGMTIn, hasDisplacementInfo = cms.untracked.bool(True))
 
 # compares the unpacked OMTF output regional muon collection with the unpacked uGMT input regional muon collection from OMTF
 # only muons that do not match are filled in the histograms
@@ -158,6 +162,9 @@ l1tStage2EmtfOutVsuGMTIn = DQMEDAnalyzer(
     ignoreBin = cms.untracked.vint32(ignoreBins['Emtf']),
     verbose = cms.untracked.bool(False),
 )
+
+## Era: Run3_2021; Displaced muons from EMTF used in uGMT from Run-3
+stage2L1Trigger_2021.toModify(l1tStage2EmtfOutVsuGMTIn, hasDisplacementInfo = cms.untracked.bool(True))
 
 # The five modules below compare the primary unpacked uGMT muon collection to goes to uGT board 0
 # to the unpacked uGMT muon collections that are sent to uGT boards 1 to 5.

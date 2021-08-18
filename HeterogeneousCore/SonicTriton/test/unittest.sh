@@ -1,18 +1,28 @@
 #!/bin/bash
 
 LOCALTOP=$1
+DEVICE=$2
 
 # the test is not possible if:
-# 1. avx instructions not supported (needed for singularity on CPU)
+# 1. GPU not available (only if GPU test requested) / avx instructions not supported (needed for singularity on CPU)
 # 2. singularity not found or not usable
 # 3. inside singularity container w/o unprivileged user namespace enabled (needed for singularity-in-singularity)
 # so just return true in those cases
 
-if grep -q avx /proc/cpuinfo; then
-	echo "has avx"
+if [ "$DEVICE" = "GPU" ]; then
+	if nvidia-smi -L; then
+		echo "has GPU"
+	else
+		echo "missing GPU"
+		exit 0
+	fi
 else
-	echo "missing avx"
-	exit 0
+	if grep -q avx /proc/cpuinfo; then
+		echo "has avx"
+	else
+		echo "missing avx"
+		exit 0
+	fi
 fi
 
 if type singularity >& /dev/null; then
@@ -32,7 +42,7 @@ if [ -n "$SINGULARITY_CONTAINER" ]; then
 fi
 
 tmpFile=$(mktemp -p ${LOCALTOP} SonicTritonTestXXXXXXXX.log)
-cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py modules=TritonGraphProducer,TritonGraphFilter,TritonGraphAnalyzer maxEvents=1 unittest=1 verbose=1 >& $tmpFile
+cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py modules=TritonGraphProducer,TritonGraphFilter,TritonGraphAnalyzer maxEvents=2 unittest=1 verbose=1 device=${DEVICE} testother=1 >& $tmpFile
 CMSEXIT=$?
 
 cat $tmpFile

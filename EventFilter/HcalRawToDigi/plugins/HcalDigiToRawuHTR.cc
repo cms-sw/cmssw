@@ -50,42 +50,43 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  int _verbosity;
-  int tdc1_;
-  int tdc2_;
-  bool packHBTDC_;
+  const int _verbosity;
+  const vector<int> tdc1_;
+  const vector<int> tdc2_;
+  const bool packHBTDC_;
   static constexpr int tdcmax_ = 49;
-  std::string electronicsMapLabel_;
 
-  edm::EDGetTokenT<HcalDataFrameContainer<QIE10DataFrame> > tok_QIE10DigiCollection_;
-  edm::EDGetTokenT<HcalDataFrameContainer<QIE11DataFrame> > tok_QIE11DigiCollection_;
-  edm::EDGetTokenT<HBHEDigiCollection> tok_HBHEDigiCollection_;
-  edm::EDGetTokenT<HFDigiCollection> tok_HFDigiCollection_;
-  edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_TPDigiCollection_;
-  edm::ESGetToken<HcalElectronicsMap, HcalElectronicsMapRcd> tok_electronicsMap_;
+  const edm::EDGetTokenT<HcalDataFrameContainer<QIE10DataFrame>> tok_QIE10DigiCollection_;
+  const edm::EDGetTokenT<HcalDataFrameContainer<QIE11DataFrame>> tok_QIE11DigiCollection_;
+  const edm::EDGetTokenT<HBHEDigiCollection> tok_HBHEDigiCollection_;
+  const edm::EDGetTokenT<HFDigiCollection> tok_HFDigiCollection_;
+  const edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_TPDigiCollection_;
+  const edm::ESGetToken<HcalElectronicsMap, HcalElectronicsMapRcd> tok_electronicsMap_;
 
-  bool premix_;
+  const bool premix_;
 };
 
 HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig)
     : _verbosity(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
-      tdc1_(iConfig.getParameter<int>("tdc1")),
-      tdc2_(iConfig.getParameter<int>("tdc2")),
+      tdc1_(iConfig.getParameter<vector<int>>("tdc1")),
+      tdc2_(iConfig.getParameter<vector<int>>("tdc2")),
       packHBTDC_(iConfig.getParameter<bool>("packHBTDC")),
-      electronicsMapLabel_(iConfig.getParameter<std::string>("ElectronicsMap")),
       tok_QIE10DigiCollection_(
-          consumes<HcalDataFrameContainer<QIE10DataFrame> >(iConfig.getParameter<edm::InputTag>("QIE10"))),
+          consumes<HcalDataFrameContainer<QIE10DataFrame>>(iConfig.getParameter<edm::InputTag>("QIE10"))),
       tok_QIE11DigiCollection_(
-          consumes<HcalDataFrameContainer<QIE11DataFrame> >(iConfig.getParameter<edm::InputTag>("QIE11"))),
+          consumes<HcalDataFrameContainer<QIE11DataFrame>>(iConfig.getParameter<edm::InputTag>("QIE11"))),
       tok_HBHEDigiCollection_(consumes<HBHEDigiCollection>(iConfig.getParameter<edm::InputTag>("HBHEqie8"))),
       tok_HFDigiCollection_(consumes<HFDigiCollection>(iConfig.getParameter<edm::InputTag>("HFqie8"))),
       tok_TPDigiCollection_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("TP"))),
-      tok_electronicsMap_(
-          esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>(edm::ESInputTag("", electronicsMapLabel_))),
+      tok_electronicsMap_(esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>(
+          edm::ESInputTag("", iConfig.getParameter<std::string>("ElectronicsMap")))),
       premix_(iConfig.getParameter<bool>("premix")) {
   produces<FEDRawDataCollection>("");
-  if (!(tdc1_ >= 0 && tdc1_ <= tdc2_ && tdc2_ <= tdcmax_))
-    edm::LogWarning("HcalDigiToRawuHTR") << " incorrect TDC ranges " << tdc1_ << ", " << tdc2_ << ", " << tdcmax_;
+  for (size_t i = 0; i < tdc1_.size(); i++) {
+    if (!(tdc1_.at(i) >= 0 && tdc1_.at(i) <= tdc2_.at(i) && tdc2_.at(i) <= tdcmax_))
+      edm::LogWarning("HcalDigiToRawuHTR")
+          << " incorrect TDC ranges " << i << "-th element: " << tdc1_.at(i) << ", " << tdc2_.at(i) << ", " << tdcmax_;
+  }
 }
 
 HcalDigiToRawuHTR::~HcalDigiToRawuHTR() {}
@@ -113,7 +114,7 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
   iEvent.getByToken(tok_TPDigiCollection_, tpDigiCollection);
 
   // first argument is the fedid (minFEDID+crateId)
-  map<int, unique_ptr<HCalFED> > fedMap;
+  map<int, unique_ptr<HCalFED>> fedMap;
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // QIE10 precision data
@@ -262,7 +263,7 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
            putting together the FEDRawDataCollection
      ------------------------------------------------------
      ------------------------------------------------------ */
-  for (map<int, unique_ptr<HCalFED> >::iterator fed = fedMap.begin(); fed != fedMap.end(); ++fed) {
+  for (map<int, unique_ptr<HCalFED>>::iterator fed = fedMap.begin(); fed != fedMap.end(); ++fed) {
     int fedId = fed->first;
 
     auto& rawData = fed_buffers->FEDData(fedId);
@@ -288,9 +289,13 @@ void HcalDigiToRawuHTR::fillDescriptions(edm::ConfigurationDescriptions& descrip
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.addUntracked<int>("Verbosity", 0);
-  desc.add<int>("tdc1", 4);
-  desc.add<int>("tdc2", 20);
-  desc.add<bool>("packHBTDC", false);
+  desc.add<vector<int>>("tdc1", {8,  14, 15, 17, 8,  14, 15, 17, 8,  14, 14, 17, 8,  14, 14, 17, 8,  13, 14, 16, 8,  13,
+                                 14, 16, 8,  12, 14, 15, 8,  12, 14, 15, 7,  12, 13, 15, 7,  12, 13, 15, 7,  12, 13, 15,
+                                 7,  12, 13, 15, 7,  11, 12, 14, 7,  11, 12, 14, 7,  11, 12, 14, 7,  11, 12, 7});
+  desc.add<vector<int>>("tdc2", {10, 16, 17, 19, 10, 16, 17, 19, 10, 16, 16, 19, 10, 16, 16, 19, 10, 15, 16, 18, 10, 15,
+                                 16, 18, 10, 14, 16, 17, 10, 14, 16, 17, 9,  14, 15, 17, 9,  14, 15, 17, 9,  14, 15, 17,
+                                 9,  14, 15, 17, 9,  13, 14, 16, 9,  13, 14, 16, 9,  13, 14, 16, 9,  13, 14, 9});
+  desc.add<bool>("packHBTDC", true);
   desc.add<std::string>("ElectronicsMap", "");
   desc.add<edm::InputTag>("QIE10", edm::InputTag("simHcalDigis", "HFQIE10DigiCollection"));
   desc.add<edm::InputTag>("QIE11", edm::InputTag("simHcalDigis", "HBHEQIE11DigiCollection"));

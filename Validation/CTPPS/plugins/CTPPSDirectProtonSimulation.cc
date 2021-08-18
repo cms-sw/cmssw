@@ -42,7 +42,8 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
-#include "Geometry/VeryForwardGeometry/interface/CTPPSPixelTopology.h"
+#include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
+#include "CondFormats/DataRecord/interface/PPSPixelTopologyRcd.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -77,6 +78,7 @@ private:
                      const CTPPSGeometry &geometry,
                      const LHCInfo &lhcInfo,
                      const CTPPSBeamParameters &beamParameters,
+                     const PPSPixelTopology &ppt,
                      const LHCInterpolatedOpticalFunctionsSetCollection &opticalFunctions,
                      CLHEP::HepRandomEngine *rndEngine,
 
@@ -95,6 +97,7 @@ private:
   // conditions
   edm::ESGetToken<LHCInfo, LHCInfoRcd> tokenLHCInfo_;
   edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> tokenBeamParameters_;
+  edm::ESGetToken<PPSPixelTopology, PPSPixelTopologyRcd> pixelTopologyToken_;
   edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> tokenOpticalFunctions_;
   edm::ESGetToken<CTPPSGeometry, VeryForwardMisalignedGeometryRecord> tokenGeometry_;
   edm::ESGetToken<PPSDirectSimulationData, PPSDirectSimulationDataRcd> tokenDirectSimuData_;
@@ -149,6 +152,7 @@ private:
 CTPPSDirectProtonSimulation::CTPPSDirectProtonSimulation(const edm::ParameterSet &iConfig)
     : tokenLHCInfo_(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("lhcInfoLabel")})),
       tokenBeamParameters_(esConsumes()),
+      pixelTopologyToken_(esConsumes()),
       tokenOpticalFunctions_(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("opticsLabel")})),
       tokenGeometry_(esConsumes()),
       tokenDirectSimuData_(esConsumes()),
@@ -246,6 +250,7 @@ void CTPPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSe
   // get conditions
   auto const &lhcInfo = iSetup.getData(tokenLHCInfo_);
   auto const &beamParameters = iSetup.getData(tokenBeamParameters_);
+  auto const &ppt = iSetup.getData(pixelTopologyToken_);
   auto const &opticalFunctions = iSetup.getData(tokenOpticalFunctions_);
   auto const &geometry = iSetup.getData(tokenGeometry_);
   auto const &directSimuData = iSetup.getData(tokenDirectSimuData_);
@@ -304,6 +309,7 @@ void CTPPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSe
                     geometry,
                     lhcInfo,
                     beamParameters,
+                    ppt,
                     opticalFunctions,
                     engine,
                     *pTracks,
@@ -338,6 +344,7 @@ void CTPPSDirectProtonSimulation::processProton(
     const CTPPSGeometry &geometry,
     const LHCInfo &lhcInfo,
     const CTPPSBeamParameters &beamParameters,
+    const PPSPixelTopology &ppt,
     const LHCInterpolatedOpticalFunctionsSetCollection &opticalFunctions,
     CLHEP::HepRandomEngine *rndEngine,
     std::vector<CTPPSLocalTrackLite> &out_tracks,
@@ -648,7 +655,7 @@ void CTPPSDirectProtonSimulation::processProton(
         }
 
         bool module3By2 = (geometry.sensor(detIdInt)->sensorType() != DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2);
-        if (checkIsHit_ && !CTPPSPixelTopology::isPixelHit(h_loc.x(), h_loc.y(), module3By2))
+        if (checkIsHit_ && !ppt.isPixelHit(h_loc.x(), h_loc.y(), module3By2))
           continue;
 
         if (roundToPitch_) {

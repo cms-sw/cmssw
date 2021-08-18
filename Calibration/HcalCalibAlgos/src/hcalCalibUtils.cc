@@ -5,7 +5,7 @@
 
 #include "TString.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Calibration/HcalCalibAlgos/interface/hcalCalibUtils.h"
+#include "Calibration/HcalCalibAlgos/src/hcalCalibUtils.h"
 
 //#include "Calibration/HcalCalibAlgos/plugins/CommonUsefulStuff.h"
 #include "Calibration/HcalCalibAlgos/interface/CommonUsefulStuff.h"

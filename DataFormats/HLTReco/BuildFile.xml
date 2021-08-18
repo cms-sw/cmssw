@@ -11,7 +11,7 @@
 <use name="DataFormats/TauReco"/>
 <use name="DataFormats/L1TParticleFlow"/>
 <use name="DataFormats/L1TCorrelator"/>
-<use name="FWCore/MessageLogger"/>
+<use name="DataFormats/GsfTrackReco"/>
 <export>
   <lib name="1"/>
 </export>

@@ -157,7 +157,7 @@ bool HijingHadronizer::generatePartonsAndHadronize() {
 
   float f_bmin = bmin_;
   float f_bmax = bmax_;
-  HIJING(frame_.data(), f_bmin, f_bmax, strlen(frame_.data()));
+  HIJING(frame_.c_str(), f_bmin, f_bmax, frame_.length());
 
   // event information
   HepMC::GenEvent* evt = new HepMC::GenEvent();
@@ -245,17 +245,8 @@ bool HijingHadronizer::call_hijset(
     double efrm, std::string frame, std::string proj, std::string targ, int iap, int izp, int iat, int izt) {
   float ef = efrm;
   // initialize hydjet
-  HIJSET(ef,
-         frame.data(),
-         proj.data(),
-         targ.data(),
-         iap,
-         izp,
-         iat,
-         izt,
-         strlen(frame.data()),
-         strlen(proj.data()),
-         strlen(targ.data()));
+  HIJSET(
+      ef, frame.c_str(), proj.c_str(), targ.c_str(), iap, izp, iat, izt, frame.length(), proj.length(), targ.length());
   return true;
 }
 

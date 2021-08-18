@@ -15,6 +15,9 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGOddWeightIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGOddWeightGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGTPMode.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
@@ -32,6 +35,9 @@
 #include "CondFormats/DataRecord/interface/EcalTPGLutIdMapRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGWeightIdMapRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGWeightGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGOddWeightIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGOddWeightGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGTPModeRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBGroupRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
@@ -95,6 +101,12 @@ bool EcalTPGDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string cont
     cacheID = evtSetup.get<EcalTPGWeightIdMapRcd>().cacheIdentifier();
   } else if (container == "EcalTPGWeightGroup") {
     cacheID = evtSetup.get<EcalTPGWeightGroupRcd>().cacheIdentifier();
+  } else if (container == "EcalTPGOddWeightIdMap") {
+    cacheID = evtSetup.get<EcalTPGOddWeightIdMapRcd>().cacheIdentifier();
+  } else if (container == "EcalTPGOddWeightGroup") {
+    cacheID = evtSetup.get<EcalTPGOddWeightGroupRcd>().cacheIdentifier();
+  } else if (container == "EcalTPGTPMode") {
+    cacheID = evtSetup.get<EcalTPGTPModeRcd>().cacheIdentifier();
   } else if (container == "EcalTPGLutGroup") {
     cacheID = evtSetup.get<EcalTPGLutGroupRcd>().cacheIdentifier();
   } else if (container == "EcalTPGFineGrainEBGroup") {
@@ -193,6 +205,27 @@ void EcalTPGDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string contai
     const EcalTPGWeightGroup* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGWeightGroup>(
         new EcalTPGWeightGroup(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+
+  } else if (container == "EcalTPGOddWeightIdMap") {
+    edm::ESHandle<EcalTPGOddWeightIdMap> handle;
+    evtSetup.get<EcalTPGOddWeightIdMapRcd>().get(handle);
+    const EcalTPGOddWeightIdMap* obj = handle.product();
+    dbOutput->createNewIOV<const EcalTPGOddWeightIdMap>(
+        new EcalTPGOddWeightIdMap(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+
+  } else if (container == "EcalTPGOddWeightGroup") {
+    edm::ESHandle<EcalTPGOddWeightGroup> handle;
+    evtSetup.get<EcalTPGOddWeightGroupRcd>().get(handle);
+    const EcalTPGOddWeightGroup* obj = handle.product();
+    dbOutput->createNewIOV<const EcalTPGOddWeightGroup>(
+        new EcalTPGOddWeightGroup(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+
+  } else if (container == "EcalTPGTPMode") {
+    edm::ESHandle<EcalTPGTPMode> handle;
+    evtSetup.get<EcalTPGTPModeRcd>().get(handle);
+    const EcalTPGTPMode* obj = handle.product();
+    dbOutput->createNewIOV<const EcalTPGTPMode>(
+        new EcalTPGTPMode(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGLutGroup") {
     edm::ESHandle<EcalTPGLutGroup> handle;

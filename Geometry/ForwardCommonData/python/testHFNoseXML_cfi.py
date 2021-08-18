@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# This config was generated automatically using generate2026Geometry.py
-# If you notice a mistake, please update the generating script, not just this config
-
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring(
         'Geometry/CMSCommonData/data/materials.xml',
@@ -58,6 +55,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/hcalSimNumbering.xml',
         'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml',
         'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
+        'Geometry/HGCalCommonData/data/hgcalMaterial/v2/hgcalMaterial.xml',
         'Geometry/HGCalCommonData/data/hgcal/v9/hgcal.xml',
         'Geometry/HGCalCommonData/data/hgcalEE/v9/hgcalEE.xml',
         'Geometry/HGCalCommonData/data/hgcalHEsil/v9/hgcalHEsil.xml',

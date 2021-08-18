@@ -13,6 +13,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 #include "SiStripGainFactor.h"
 
@@ -91,14 +92,17 @@ SiStripGainESProducer::SiStripGainESProducer(const edm::ParameterSet& iConfig) :
 }
 
 std::unique_ptr<SiStripGain> SiStripGainESProducer::produce(const SiStripGainRcd& iRecord) {
+  const auto detInfo =
+      SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+
   const auto& apvGain = gainGetters_[0]->gain(iRecord);
   // Create a new gain object and insert the ApvGain
-  auto gain = std::make_unique<SiStripGain>(apvGain, factor_.get(apvGain, 0), gainGetters_[0]->recordLabel());
+  auto gain = std::make_unique<SiStripGain>(apvGain, factor_.get(apvGain, 0), gainGetters_[0]->recordLabel(), detInfo);
 
   for (unsigned int i = 1; i < gainGetters_.size(); ++i) {
     const auto& apvGain = gainGetters_[i]->gain(iRecord);
     // Add the new ApvGain to the gain object
-    gain->multiply(apvGain, factor_.get(apvGain, i), gainGetters_[i]->recordLabel());
+    gain->multiply(apvGain, factor_.get(apvGain, i), gainGetters_[i]->recordLabel(), detInfo);
   }
 
   return gain;

@@ -170,17 +170,23 @@ then
     echo "Creating Trigger Key..."
     echo 
 
-    dd=$(date +"%Y-%m-%d %H:%M:%S")
+    HcalInput=( "${inputConditions[@]/#/Hcal}" )
+    declare -A tagMap
+    eval $(conddb list $GlobalTag | grep -E "$(export IFS="|"; echo "${HcalInput[*]}")" | \
+	awk '{if($2=="-" || $2=="effective") if(!($1~/^HcalPed/ && $2=="-")) print "tagMap["$1"]="$3}')
+
     individualInputTags=""
     for i in ${inputConditions[@]}; do
 	t=$i
 	v=${!t}
-	if [[ -n $v ]]; then
-           individualInputTags="""$individualInputTags
+	if [[ -z $v ]]; then
+	    v=${tagMap[Hcal${i}Rcd]}
+	fi
+	individualInputTags="""$individualInputTags
     <Parameter type=\"string\" name=\"$t\">$v</Parameter>"""
-	fi 
     done
 
+    dd=$(date +"%Y-%m-%d %H:%M:%S")
     echo """<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>
 <CFGBrickSet>
 <CFGBrick>

@@ -14,9 +14,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationsSet.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationWidthsSet.h"
 
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 
 class HcalCalibrations;
@@ -57,7 +54,7 @@ public:
   const HcalQIEType* getHcalQIEType(const HcalGenericDetId& fId) const;
   const HcalSiPMParameter* getHcalSiPMParameter(const HcalGenericDetId& fId) const;
   const HcalSiPMCharacteristics* getHcalSiPMCharacteristics() const;
-  const HcalTPChannelParameter* getHcalTPChannelParameter(const HcalGenericDetId& fId) const;
+  const HcalTPChannelParameter* getHcalTPChannelParameter(const HcalGenericDetId& fId, bool throwOnFail = true) const;
   const HcalTPParameters* getHcalTPParameters() const;
   const HcalMCParam* getHcalMCParam(const HcalGenericDetId& fId) const;
   const HcalRecoParam* getHcalRecoParam(const HcalGenericDetId& fId) const;

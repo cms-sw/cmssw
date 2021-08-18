@@ -1,8 +1,9 @@
 #ifndef DATAFORMATS_HCALDIGI_HCALLASERDIGI_H
 #define DATAFORMATS_HCALDIGI_HCALLASERDIGI_H 1
 
-#include <vector>
+#include <cstddef>
 #include <cstdint>
+#include <vector>
 
 class HcalLaserDigi {
 public:

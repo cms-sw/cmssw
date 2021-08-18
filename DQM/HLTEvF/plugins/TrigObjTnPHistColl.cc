@@ -1,6 +1,7 @@
 #include "TrigObjTnPHistColl.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {
   std::vector<float> convertToFloat(const std::vector<double>& vecD) {

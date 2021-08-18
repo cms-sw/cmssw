@@ -1,4 +1,4 @@
-<use name="roofit"/>
+<use name="roofitcore"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/METReco"/>

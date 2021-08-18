@@ -10,7 +10,7 @@ from CalibPPS.ESProducers.ctppsOpticalFunctions_cff import *
 from RecoPPS.ProtonReconstruction.ctppsProtons_cfi import *
 ctppsProtons.lhcInfoLabel = ctppsLHCInfoLabel
 
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+from Configuration.Eras.Modifier_ctpps_cff import ctpps
 from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017
 from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
 
@@ -34,7 +34,7 @@ def applyDefaultSettings(ctppsProtons):
   ctppsProtons.pixelDiscardBXShiftedTracks = True
   ctppsProtons.default_time = -999.
 
-ctpps_2016.toModify(ctppsProtons, applyDefaultSettings) # applied for all Run2 years (2016, 2017 and 2018)
+ctpps.toModify(ctppsProtons, applyDefaultSettings)
 
 def apply2017Settings(ctppsProtons):
   ctppsProtons.association_cuts_45.x_cut_apply = False

@@ -30,9 +30,7 @@
 #include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsAllPublic.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Utilities/interface/InputTag.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
-#include "FWCore/Framework/interface/Event.h"
 
 //              ---------------------
 //              -- Class Interface --
@@ -43,7 +41,7 @@ public:
   /// constructor
   L1MuBMTFConfig(const edm::ParameterSet& ps);
 
-  void setDefaultsES(const edm::EventSetup& c);
+  void setDefaultsES(const L1TMuonBarrelParams&);
 
   /// destructor
   virtual ~L1MuBMTFConfig();
@@ -73,14 +71,9 @@ public:
   static int getNbitsPhiPhib() { return m_NbitsPhiPhib; }
 
 private:
-  void setDefaults();
-
-  edm::ESHandle<L1TMuonBarrelParams> bmtfParamsHandle;
+  void setDefaults(edm::ParameterSet const&);
 
 private:
-  const edm::ParameterSet* m_ps;
-  const edm::EventSetup* m_es;
-
   static edm::InputTag m_BMDigiInputTag;
   static edm::InputTag m_BMThetaDigiInputTag;
 

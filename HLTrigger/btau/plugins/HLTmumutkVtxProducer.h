@@ -24,6 +24,10 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include <vector>
 
 namespace edm {
@@ -52,6 +56,8 @@ private:
   static FreeTrajectoryState initialFreeState(const reco::Track&, const MagneticField*);
   bool checkPreviousCand(const reco::TrackRef& trackref, const std::vector<reco::RecoChargedCandidateRef>& ref2) const;
 
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackRecordToken_;
+
   const edm::InputTag muCandTag_;
   const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> muCandToken_;
   const edm::InputTag trkCandTag_;
@@ -60,6 +66,7 @@ private:
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
 
   const std::string mfName_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldRecordToken_;
 
   const double thirdTrackMass_;
   const double maxEta_;

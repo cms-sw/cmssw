@@ -23,7 +23,7 @@
 class HLTTriMuonIsolation : public edm::global::EDProducer<> {
 public:
   explicit HLTTriMuonIsolation(const edm::ParameterSet& iConfig);
-  ~HLTTriMuonIsolation() override;
+  ~HLTTriMuonIsolation() override = default;
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -64,7 +64,7 @@ private:
   const bool EnableAbsIso_;
 };
 
-HLTTriMuonIsolation::HLTTriMuonIsolation(const edm::ParameterSet& iConfig)
+inline HLTTriMuonIsolation::HLTTriMuonIsolation(const edm::ParameterSet& iConfig)
     : L3MuonsToken_(consumes<reco::RecoChargedCandidateCollection>(iConfig.getParameter<edm::InputTag>("L3MuonsSrc"))),
       AllMuonsToken_(
           consumes<reco::RecoChargedCandidateCollection>(iConfig.getParameter<edm::InputTag>("AllMuonsSrc"))),
@@ -92,9 +92,7 @@ HLTTriMuonIsolation::HLTTriMuonIsolation(const edm::ParameterSet& iConfig)
   produces<reco::CompositeCandidateCollection>("SelectedTaus");
 }
 
-HLTTriMuonIsolation::~HLTTriMuonIsolation() {}
-
-void HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
+inline void HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
   std::unique_ptr<reco::CompositeCandidateCollection> Taus(new reco::CompositeCandidateCollection);
   std::unique_ptr<reco::CompositeCandidateCollection> SelectedTaus(new reco::CompositeCandidateCollection);
 
@@ -268,7 +266,7 @@ void HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event& iEvent, edm::Ev
   iEvent.put(std::move(SelectedTaus), "SelectedTaus");
 }
 
-void HLTTriMuonIsolation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+inline void HLTTriMuonIsolation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("L3MuonsSrc", edm::InputTag("hltIterL3FromL2MuonCandidates"));
   desc.add<edm::InputTag>("AllMuonsSrc", edm::InputTag("hltGlbTrkMuonCands"));

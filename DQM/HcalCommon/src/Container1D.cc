@@ -614,7 +614,7 @@ namespace hcaldqm {
 
         _logger.debug(_hashmap.getName(did));
         _mes.insert(std::make_pair(
-            hash, ib.book1D(_hashmap.getName(did), _hashmap.getName(did), _qx->nbins(), _qx->min(), _qx->max())));
+            hash, ib.book1DD(_hashmap.getName(did), _hashmap.getName(did), _qx->nbins(), _qx->min(), _qx->max())));
 
         //  customize
         customize(_mes[hash]);
@@ -633,7 +633,7 @@ namespace hcaldqm {
 
         _logger.debug(_hashmap.getName(eid));
         _mes.insert(std::make_pair(
-            hash, ib.book1D(_hashmap.getName(eid), _hashmap.getName(eid), _qx->nbins(), _qx->min(), _qx->max())));
+            hash, ib.book1DD(_hashmap.getName(eid), _hashmap.getName(eid), _qx->nbins(), _qx->min(), _qx->max())));
 
         //  customize
         customize(_mes[hash]);
@@ -650,7 +650,7 @@ namespace hcaldqm {
 
         _logger.debug(_hashmap.getName(tid));
         _mes.insert(std::make_pair(
-            hash, ib.book1D(_hashmap.getName(tid), _hashmap.getName(tid), _qx->nbins(), _qx->min(), _qx->max())));
+            hash, ib.book1DD(_hashmap.getName(tid), _hashmap.getName(tid), _qx->nbins(), _qx->min(), _qx->max())));
         //  customize
         customize(_mes[hash]);
       }
@@ -687,7 +687,7 @@ namespace hcaldqm {
 
         _logger.debug(_hashmap.getName(did));
         _mes.insert(std::make_pair(
-            hash, ib.book1D(_hashmap.getName(did), _hashmap.getName(did), _qx->nbins(), _qx->min(), _qx->max())));
+            hash, ib.book1DD(_hashmap.getName(did), _hashmap.getName(did), _qx->nbins(), _qx->min(), _qx->max())));
 
         //  customize
         customize(_mes[hash]);
@@ -708,7 +708,7 @@ namespace hcaldqm {
 
         _logger.debug(_hashmap.getName(eid));
         _mes.insert(std::make_pair(
-            hash, ib.book1D(_hashmap.getName(eid), _hashmap.getName(eid), _qx->nbins(), _qx->min(), _qx->max())));
+            hash, ib.book1DD(_hashmap.getName(eid), _hashmap.getName(eid), _qx->nbins(), _qx->min(), _qx->max())));
 
         //  customize
         customize(_mes[hash]);
@@ -727,7 +727,7 @@ namespace hcaldqm {
 
         _logger.debug(_hashmap.getName(tid));
         _mes.insert(std::make_pair(
-            hash, ib.book1D(_hashmap.getName(tid), _hashmap.getName(tid), _qx->nbins(), _qx->min(), _qx->max())));
+            hash, ib.book1DD(_hashmap.getName(tid), _hashmap.getName(tid), _qx->nbins(), _qx->min(), _qx->max())));
         //  customize
         customize(_mes[hash]);
       }

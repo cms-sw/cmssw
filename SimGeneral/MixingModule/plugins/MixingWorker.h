@@ -109,6 +109,7 @@ namespace edm {
 
   public:
     void reload(const edm::EventSetup &setup) override {
+      // TODO for esConsumes migration: assume for now this function is mostly unused
       //get the required parameters from DB.
       // watch the label/tag
       edm::ESHandle<MixingModuleConfig> config;

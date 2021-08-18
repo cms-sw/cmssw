@@ -5,8 +5,8 @@ from RecoPPS.Local.ctppsLocalTrackLiteDefaultProducer_cfi import ctppsLocalTrack
 ctppsLocalTrackLiteProducer = ctppsLocalTrackLiteDefaultProducer.clone()
 
 # enable the module for CTPPS era(s)
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-ctpps_2016.toModify(
+from Configuration.Eras.Modifier_ctpps_cff import ctpps
+ctpps.toModify(
     ctppsLocalTrackLiteProducer,
     includeStrips = True,
     includeDiamonds = True,

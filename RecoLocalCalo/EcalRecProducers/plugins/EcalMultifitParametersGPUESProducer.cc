@@ -2,6 +2,7 @@
 #include <tuple>
 #include <utility>
 
+#include "CondFormats/EcalObjects/interface/EcalMultifitParametersGPU.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -14,7 +15,6 @@
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalMultifitParametersGPU.h"
 
 class EcalMultifitParametersGPUESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
@@ -72,7 +72,11 @@ void EcalMultifitParametersGPUESProducer::fillDescriptions(edm::ConfigurationDes
 
 std::unique_ptr<EcalMultifitParametersGPU> EcalMultifitParametersGPUESProducer::produce(
     JobConfigurationGPURecord const&) {
-  return std::make_unique<EcalMultifitParametersGPU>(pset_);
+  return std::make_unique<EcalMultifitParametersGPU>(
+      pset_.getParameter<std::vector<double>>("EBamplitudeFitParameters"),
+      pset_.getParameter<std::vector<double>>("EEamplitudeFitParameters"),
+      pset_.getParameter<std::vector<double>>("EBtimeFitParameters"),
+      pset_.getParameter<std::vector<double>>("EEtimeFitParameters"));
 }
 
 DEFINE_FWK_EVENTSETUP_SOURCE(EcalMultifitParametersGPUESProducer);

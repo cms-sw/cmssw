@@ -35,6 +35,7 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet& p, const
   maxTrackTimes = p.getParameter<std::vector<double> >("MaxTrackTimes");
   maxTimeNames = p.getParameter<std::vector<std::string> >("MaxTimeNames");
   deadRegionNames = p.getParameter<std::vector<std::string> >("DeadRegions");
+  maxNumberOfSteps = p.getParameter<int>("MaxNumberOfSteps");
   ekinMins = p.getParameter<std::vector<double> >("EkinThresholds");
   ekinNames = p.getParameter<std::vector<std::string> >("EkinNames");
   ekinParticles = p.getParameter<std::vector<std::string> >("EkinParticles");
@@ -45,7 +46,8 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet& p, const
       << "                 CriticalEnergyForVacuum = " << theCriticalEnergyForVacuum / CLHEP::MeV << " Mev;"
       << " MaxTrackTime = " << maxTrackTime / CLHEP::ns << " ns;"
       << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m"
-      << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns";
+      << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns"
+      << " MaxNumberOfSteps = " << maxNumberOfSteps;
 
   numberTimes = maxTrackTimes.size();
   if (numberTimes > 0) {
@@ -101,82 +103,103 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   const G4StepPoint* postStep = aStep->GetPostStepPoint();
 
   // NaN energy deposit
-  if (sAlive == tstat && edm::isNotFinite(aStep->GetTotalEnergyDeposit())) {
+  if (edm::isNotFinite(aStep->GetTotalEnergyDeposit())) {
     tstat = sEnergyDepNaN;
-    if (nWarnings < 20) {
+    if (nWarnings < 5) {
       ++nWarnings;
       edm::LogWarning("SimG4CoreApplication")
           << "Track #" << theTrack->GetTrackID() << " " << theTrack->GetDefinition()->GetParticleName()
-          << " E(MeV)= " << preStep->GetKineticEnergy() / MeV
+          << " E(MeV)= " << preStep->GetKineticEnergy() / MeV << " Nstep= " << theTrack->GetCurrentStepNumber()
           << " is killed due to edep=NaN inside PV: " << preStep->GetPhysicalVolume()->GetName() << " at "
           << theTrack->GetPosition() << " StepLen(mm)= " << aStep->GetStepLength();
     }
   }
 
+  // the track is killed by the process
+  if (tstat == sKilledByProcess) {
+    if (nullptr != steppingVerbose) {
+      steppingVerbose->NextStep(aStep, fpSteppingManager, false);
+    }
+    return;
+  }
+
+  if (sAlive == tstat && theTrack->GetCurrentStepNumber() > maxNumberOfSteps) {
+    tstat = sNumberOfSteps;
+    if (nWarnings < 5) {
+      ++nWarnings;
+      edm::LogWarning("SimG4CoreApplication")
+          << "Track #" << theTrack->GetTrackID() << " " << theTrack->GetDefinition()->GetParticleName()
+          << " E(MeV)= " << preStep->GetKineticEnergy() / MeV << " Nstep= " << theTrack->GetCurrentStepNumber()
+          << " is killed due to limit on number of steps;/n  PV: " << preStep->GetPhysicalVolume()->GetName() << " at "
+          << theTrack->GetPosition() << " StepLen(mm)= " << aStep->GetStepLength();
+    }
+  }
+  const double time = theTrack->GetGlobalTime();
+
   // check Z-coordinate
   if (sAlive == tstat && std::abs(theTrack->GetPosition().z()) >= maxZCentralCMS) {
-    tstat = (theTrack->GetGlobalTime() > maxTrackTimeForward) ? sOutOfTime : sVeryForward;
+    tstat = (time > maxTrackTimeForward) ? sOutOfTime : sVeryForward;
   }
 
   // check G4Region
-  if (sAlive == tstat && postStep->GetPhysicalVolume() != nullptr) {
-    const G4Region* theRegion = preStep->GetPhysicalVolume()->GetLogicalVolume()->GetRegion();
+  if (sAlive == tstat) {
+    // next logical volume and next region
+    const G4LogicalVolume* lv = postStep->GetPhysicalVolume()->GetLogicalVolume();
+    const G4Region* theRegion = lv->GetRegion();
 
     // kill in dead regions
-    if (isInsideDeadRegion(theRegion)) {
+    if (isInsideDeadRegion(theRegion))
       tstat = sDeadRegion;
-    }
 
     // kill out of time
-    if (sAlive == tstat && isOutOfTimeWindow(theTrack, theRegion)) {
-      tstat = sOutOfTime;
+    if (sAlive == tstat) {
+      if (isOutOfTimeWindow(theRegion, time))
+        tstat = sOutOfTime;
     }
 
     // kill low-energy in volumes on demand
-    if (sAlive == tstat && numberEkins > 0 && isLowEnergy(aStep)) {
-      tstat = sLowEnergy;
+    if (sAlive == tstat && numberEkins > 0) {
+      if (isLowEnergy(lv, theTrack))
+        tstat = sLowEnergy;
     }
 
     // kill low-energy in vacuum
-    G4double kinEnergy = theTrack->GetKineticEnergy();
-    if (sAlive == tstat && killBeamPipe && kinEnergy < theCriticalEnergyForVacuum &&
-        theTrack->GetDefinition()->GetPDGCharge() != 0.0 && kinEnergy > 0.0 &&
-        theTrack->GetNextVolume()->GetLogicalVolume()->GetMaterial()->GetDensity() <= theCriticalDensity) {
-      tstat = sLowEnergyInVacuum;
-    }
-
-    // check transition tracker/calo
-    if (sAlive == tstat || sVeryForward == tstat) {
-      if (isThisVolume(preStep->GetTouchable(), tracker) && isThisVolume(postStep->GetTouchable(), calo)) {
-        math::XYZVectorD pos((preStep->GetPosition()).x(), (preStep->GetPosition()).y(), (preStep->GetPosition()).z());
-
-        math::XYZTLorentzVectorD mom((preStep->GetMomentum()).x(),
-                                     (preStep->GetMomentum()).y(),
-                                     (preStep->GetMomentum()).z(),
-                                     preStep->GetTotalEnergy());
-
-        uint32_t id = theTrack->GetTrackID();
-
-        std::pair<math::XYZVectorD, math::XYZTLorentzVectorD> p(pos, mom);
-        eventAction_->addTkCaloStateInfo(id, p);
+    if (sAlive == tstat && killBeamPipe) {
+      if (theTrack->GetKineticEnergy() < theCriticalEnergyForVacuum &&
+          theTrack->GetDefinition()->GetPDGCharge() != 0.0 && lv->GetMaterial()->GetDensity() <= theCriticalDensity) {
+        tstat = sLowEnergyInVacuum;
       }
-    } else {
-      theTrack->SetTrackStatus(fStopAndKill);
-#ifdef DebugLog
-      PrintKilledTrack(theTrack, tstat);
-#endif
     }
+  }
+  // check transition tracker/calo
+  if (sAlive == tstat || sVeryForward == tstat) {
+    if (isThisVolume(preStep->GetTouchable(), tracker) && isThisVolume(postStep->GetTouchable(), calo)) {
+      math::XYZVectorD pos((preStep->GetPosition()).x(), (preStep->GetPosition()).y(), (preStep->GetPosition()).z());
+
+      math::XYZTLorentzVectorD mom((preStep->GetMomentum()).x(),
+                                   (preStep->GetMomentum()).y(),
+                                   (preStep->GetMomentum()).z(),
+                                   preStep->GetTotalEnergy());
+
+      uint32_t id = theTrack->GetTrackID();
+
+      std::pair<math::XYZVectorD, math::XYZTLorentzVectorD> p(pos, mom);
+      eventAction_->addTkCaloStateInfo(id, p);
+    }
+  } else {
+    theTrack->SetTrackStatus(fStopAndKill);
+#ifdef DebugLog
+    PrintKilledTrack(theTrack, tstat);
+#endif
   }
   if (nullptr != steppingVerbose) {
     steppingVerbose->NextStep(aStep, fpSteppingManager, (1 < tstat));
   }
 }
 
-bool SteppingAction::isLowEnergy(const G4Step* aStep) const {
-  const G4StepPoint* sp = aStep->GetPostStepPoint();
-  const G4LogicalVolume* lv = sp->GetPhysicalVolume()->GetLogicalVolume();
-  double ekin = sp->GetKineticEnergy();
-  int pCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+bool SteppingAction::isLowEnergy(const G4LogicalVolume* lv, const G4Track* theTrack) const {
+  const double ekin = theTrack->GetKineticEnergy();
+  int pCode = theTrack->GetDefinition()->GetPDGEncoding();
 
   for (auto& vol : ekinVolumes) {
     if (lv == vol) {
@@ -193,36 +216,28 @@ bool SteppingAction::isLowEnergy(const G4Step* aStep) const {
 
 bool SteppingAction::initPointer() {
   const G4PhysicalVolumeStore* pvs = G4PhysicalVolumeStore::GetInstance();
-  if (pvs) {
-    std::vector<G4VPhysicalVolume*>::const_iterator pvcite;
-    for (pvcite = pvs->begin(); pvcite != pvs->end(); ++pvcite) {
-      if ((*pvcite)->GetName() == "Tracker")
-        tracker = (*pvcite);
-      if ((*pvcite)->GetName() == "CALO")
-        calo = (*pvcite);
-      if (tracker && calo)
-        break;
-    }
-    if (tracker || calo) {
-      edm::LogVerbatim("SimG4CoreApplication") << "Pointer for Tracker " << tracker << " and for Calo " << calo;
-      if (tracker)
-        LogDebug("SimG4CoreApplication") << "Tracker vol name " << tracker->GetName();
-      if (calo)
-        LogDebug("SimG4CoreApplication") << "Calorimeter vol name " << calo->GetName();
-    }
+  for (auto const& pvcite : *pvs) {
+    const G4String& pvname = pvcite->GetName();
+    if (pvname == "Tracker")
+      tracker = pvcite;
+    else if (pvname == "CALO")
+      calo = pvcite;
+
+    if (tracker && calo)
+      break;
   }
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "SteppingAction: pointer for Tracker " << tracker << " and for Calo " << calo;
 
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   if (numberEkins > 0) {
-    if (lvs) {
-      ekinVolumes.resize(numberEkins, nullptr);
-      std::vector<G4LogicalVolume*>::const_iterator lvcite;
-      for (lvcite = lvs->begin(); lvcite != lvs->end(); ++lvcite) {
-        for (unsigned int i = 0; i < numberEkins; ++i) {
-          if ((*lvcite)->GetName() == (G4String)(ekinNames[i])) {
-            ekinVolumes[i] = (*lvcite);
-            break;
-          }
+    ekinVolumes.resize(numberEkins, nullptr);
+    for (auto const& lvcite : *lvs) {
+      const G4String& lvname = lvcite->GetName();
+      for (unsigned int i = 0; i < numberEkins; ++i) {
+        if (lvname == (G4String)(ekinNames[i])) {
+          ekinVolumes[i] = lvcite;
+          break;
         }
       }
     }
@@ -233,10 +248,11 @@ bool SteppingAction::initPointer() {
 
   if (numberPart > 0) {
     G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
-    G4String partName;
     ekinPDG.resize(numberPart, 0);
     for (unsigned int i = 0; i < numberPart; ++i) {
-      ekinPDG[i] = theParticleTable->FindParticle(partName = ekinParticles[i])->GetPDGEncoding();
+      const G4ParticleDefinition* part = theParticleTable->FindParticle(ekinParticles[i]);
+      if (nullptr != part)
+        ekinPDG[i] = part->GetPDGEncoding();
       edm::LogVerbatim("SimG4CoreApplication") << "Particle " << ekinParticles[i] << " with PDG code " << ekinPDG[i]
                                                << " and KE cut off " << ekinMins[i] / MeV << " MeV";
     }
@@ -245,11 +261,11 @@ bool SteppingAction::initPointer() {
   const G4RegionStore* rs = G4RegionStore::GetInstance();
   if (numberTimes > 0) {
     maxTimeRegions.resize(numberTimes, nullptr);
-    std::vector<G4Region*>::const_iterator rcite;
-    for (rcite = rs->begin(); rcite != rs->end(); ++rcite) {
+    for (auto const& rcite : *rs) {
+      const G4String& rname = rcite->GetName();
       for (unsigned int i = 0; i < numberTimes; ++i) {
-        if ((*rcite)->GetName() == (G4String)(maxTimeNames[i])) {
-          maxTimeRegions[i] = (*rcite);
+        if (rname == (G4String)(maxTimeNames[i])) {
+          maxTimeRegions[i] = rcite;
           break;
         }
       }
@@ -257,11 +273,11 @@ bool SteppingAction::initPointer() {
   }
   if (ndeadRegions > 0) {
     deadRegions.resize(ndeadRegions, nullptr);
-    std::vector<G4Region*>::const_iterator rcite;
-    for (rcite = rs->begin(); rcite != rs->end(); ++rcite) {
+    for (auto const& rcite : *rs) {
+      const G4String& rname = rcite->GetName();
       for (unsigned int i = 0; i < ndeadRegions; ++i) {
-        if ((*rcite)->GetName() == (G4String)(deadRegionNames[i])) {
-          deadRegions[i] = (*rcite);
+        if (rname == (G4String)(deadRegionNames[i])) {
+          deadRegions[i] = rcite;
           break;
         }
       }
@@ -275,9 +291,6 @@ void SteppingAction::PrintKilledTrack(const G4Track* aTrack, const TrackStatus& 
   std::string rname = "";
   std::string typ = " ";
   switch (tst) {
-    case sKilledByProcess:
-      typ = " G4Process ";
-      break;
     case sDeadRegion:
       typ = " in dead region ";
       break;
@@ -296,17 +309,23 @@ void SteppingAction::PrintKilledTrack(const G4Track* aTrack, const TrackStatus& 
     case sVeryForward:
       typ = " very forward track ";
       break;
+    case sNumberOfSteps:
+      typ = " too many steps ";
+      break;
     default:
       break;
   }
   G4VPhysicalVolume* pv = aTrack->GetNextVolume();
-  if (pv) {
-    vname = pv->GetLogicalVolume()->GetName();
-    rname = pv->GetLogicalVolume()->GetRegion()->GetName();
-  }
+  vname = pv->GetLogicalVolume()->GetName();
+  rname = pv->GetLogicalVolume()->GetRegion()->GetName();
 
-  edm::LogVerbatim("SimG4CoreApplication")
-      << "Track #" << aTrack->GetTrackID() << " " << aTrack->GetDefinition()->GetParticleName()
-      << " E(MeV)= " << aTrack->GetKineticEnergy() / MeV << " T(ns)= " << aTrack->GetGlobalTime() / ns
-      << " is killed due to " << typ << " inside LV: " << vname << " (" << rname << ") at " << aTrack->GetPosition();
+  const double ekin = aTrack->GetKineticEnergy();
+  if (ekin < 2 * CLHEP::MeV) {
+    return;
+  }
+  edm::LogWarning("SimG4CoreApplication")
+      << "Track #" << aTrack->GetTrackID() << " StepN= " << aTrack->GetCurrentStepNumber() << " "
+      << aTrack->GetDefinition()->GetParticleName() << " E(MeV)=" << ekin / CLHEP::MeV
+      << " T(ns)=" << aTrack->GetGlobalTime() / CLHEP::ns << " is killed due to " << typ << "\n  LV: " << vname << " ("
+      << rname << ") at " << aTrack->GetPosition() << " step(cm)=" << aTrack->GetStep()->GetStepLength() / CLHEP::cm;
 }

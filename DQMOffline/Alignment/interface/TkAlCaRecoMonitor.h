@@ -42,6 +42,9 @@ private:
   void fillRawIdMap(const TrackerGeometry &geometry);
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
+
   edm::ParameterSet conf_;
 
   double maxJetPt_;

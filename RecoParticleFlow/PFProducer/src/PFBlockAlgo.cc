@@ -121,11 +121,11 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
   }    // loop over confs
 }
 
-void PFBlockAlgo::setImporters(const std::vector<edm::ParameterSet>& confs, edm::ConsumesCollector& sumes) {
+void PFBlockAlgo::setImporters(const std::vector<edm::ParameterSet>& confs, edm::ConsumesCollector& cc) {
   importers_.reserve(confs.size());
   for (const auto& conf : confs) {
     const std::string& importerName = conf.getParameter<std::string>("importerName");
-    importers_.emplace_back(BlockElementImporterFactory::get()->create(importerName, conf, sumes));
+    importers_.emplace_back(BlockElementImporterFactory::get()->create(importerName, conf, cc));
   }
 }
 

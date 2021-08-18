@@ -12,10 +12,10 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-class SimHitTPAssociationProducer : public edm::global::EDProducer<> {
+class SimHitTPAssociationProducer final : public edm::global::EDProducer<> {
 public:
-  typedef std::pair<TrackingParticleRef, TrackPSimHitRef> SimHitTPPair;
-  typedef std::vector<SimHitTPPair> SimHitTPAssociationList;
+  using SimHitTPPair = std::pair<TrackingParticleRef, TrackPSimHitRef>;
+  using SimHitTPAssociationList = std::vector<SimHitTPPair>;
 
   explicit SimHitTPAssociationProducer(const edm::ParameterSet &);
   ~SimHitTPAssociationProducer() override;

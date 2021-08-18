@@ -26,8 +26,8 @@ void CSCTMBHeader2007_rev0x50c3::setEventInformation(const CSCDMBHeader& dmbHead
 std::vector<CSCCLCTDigi> CSCTMBHeader2007_rev0x50c3::CLCTDigis(uint32_t idlayer) {
   std::vector<CSCCLCTDigi> result;
   int halfstrip = bits.clct0_key_low + (bits.clct0_key_high << 7);
-  int strip = halfstrip % 32;
-  int cfeb = halfstrip / 32;
+  int strip = halfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
+  int cfeb = halfstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
   int pattern = bits.clct0_shape;
   int bend = pattern & 0x1;
 
@@ -37,8 +37,8 @@ std::vector<CSCCLCTDigi> CSCTMBHeader2007_rev0x50c3::CLCTDigis(uint32_t idlayer)
   //digi0.setFullBX(bits.bxnPreTrigger);
 
   halfstrip = bits.clct1_key_low + (bits.clct1_key_high << 7);
-  strip = halfstrip % 32;
-  cfeb = halfstrip / 32;
+  strip = halfstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
+  cfeb = halfstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
   pattern = bits.clct1_shape;
   bend = pattern & 0x1;
 

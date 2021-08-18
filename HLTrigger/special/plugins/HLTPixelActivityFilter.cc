@@ -1,9 +1,14 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -23,7 +28,7 @@ private:
                  const edm::EventSetup&,
                  trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
   //  int countLayersWithClusters(edm::Handle<edmNew::DetSetVector<SiPixelCluster> > & clusterCol,const TrackerTopology& tTopo);
-
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> const trackerTopologyRcdToken_;
   edm::InputTag inputTag_;         // input tag identifying product containing pixel clusters
   unsigned int min_clusters_;      // minimum number of clusters
   unsigned int max_clusters_;      // maximum number of clusters
@@ -38,18 +43,13 @@ private:
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > inputToken_;
 };
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 //
 // constructors and destructor
 //
 
 HLTPixelActivityFilter::HLTPixelActivityFilter(const edm::ParameterSet& config)
     : HLTFilter(config),
+      trackerTopologyRcdToken_(esConsumes()),
       inputTag_(config.getParameter<edm::InputTag>("inputTag")),
       min_clusters_(config.getParameter<unsigned int>("minClusters")),
       max_clusters_(config.getParameter<unsigned int>("maxClusters")),
@@ -121,8 +121,8 @@ bool HLTPixelActivityFilter::hltFilter(edm::Event& event,
     accept &= (clusterSize <= max_clusters_);
   if (min_layersBPix_ > 0 || max_layersBPix_ > 0 || min_layersFPix_ > 0 || max_layersFPix_ > 0 ||
       min_clustersBPix_ > 0 || max_clustersBPix_ > 0 || min_clustersFPix_ > 0 || max_clustersFPix_ > 0) {
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+    auto const& tTopoHandle = iSetup.getHandle(trackerTopologyRcdToken_);
+
     const TrackerTopology& tTopo = *tTopoHandle;
     unsigned int layerCountBPix = 0;
     unsigned int layerCountFPix = 0;

@@ -32,6 +32,9 @@
 #include "SimG4CMS/PPS/interface/PPSVDetectorOrganization.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
 #include <string>
 
 class TrackingSlaveSD;
@@ -44,11 +47,7 @@ class PPSPixelSD : public SensitiveTkDetector,
                    public Observer<const BeginOfEvent*>,
                    public Observer<const EndOfEvent*> {
 public:
-  PPSPixelSD(const std::string&,
-             const edm::EventSetup&,
-             const SensitiveDetectorCatalog&,
-             edm::ParameterSet const&,
-             SimTrackManager const*);
+  PPSPixelSD(const std::string&, const SensitiveDetectorCatalog&, edm::ParameterSet const&, SimTrackManager const*);
   ~PPSPixelSD() override;
 
   bool ProcessHits(G4Step*, G4TouchableHistory*) override;

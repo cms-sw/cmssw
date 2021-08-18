@@ -375,6 +375,7 @@ def miniAOD_customizeCommon(process):
     import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
     tauIdEmbedder = tauIdConfig.TauIDEmbedder(
         process, debug = False,
+        originalTauName = _noUpdatedTauName,
         updatedTauName = _updatedTauName,
         toKeep = ['deepTau2017v2p1']
     )
@@ -384,20 +385,9 @@ def miniAOD_customizeCommon(process):
     tauIdEmbedder.runTauID()
     addToProcessAndTask(_noUpdatedTauName, process.slimmedTaus.clone(),process,task)
     delattr(process, 'slimmedTaus')
-    process.deepTau2017v2p1.taus = _noUpdatedTauName
-    process.slimmedTaus = getattr(process, _updatedTauName).clone(
-        src = _noUpdatedTauName
-    )
-    process.deepTauIDTask = cms.Task(process.deepTau2017v2p1, process.slimmedTaus)
-    task.add(process.deepTauIDTask)
-    if 'newDMPhase2v1' in tauIdEmbedder.toKeep:
-        process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw.PATTauProducer=_noUpdatedTauName
-        process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2.PATTauProducer=_noUpdatedTauName
-        task.add(process.rerunIsolationMVADBnewDMwLTPhase2Task)
-    if 'againstElePhase2v1' in tauIdEmbedder.toKeep:
-        process.patTauDiscriminationByElectronRejectionMVA6Phase2v1Raw.PATTauProducer=_noUpdatedTauName
-        process.patTauDiscriminationByElectronRejectionMVA6Phase2v1.PATTauProducer=_noUpdatedTauName
-        task.add(process.patTauDiscriminationByElectronRejectionMVA6Phase2v1Task)
+    process.slimmedTaus = getattr(process, _updatedTauName).clone()
+    process.rerunMvaIsolationTask.add(process.slimmedTaus)
+    task.add(process.rerunMvaIsolationTask)
 
     #-- Rerun tauID against dead ECal towers to taus for the various re-MiniAOD eras
     # to enable default behoviour with leading track extrapolation to ECAL
@@ -544,16 +534,20 @@ def miniAOD_customizeCommon(process):
     # EGamma objects from HGCal are not yet in GED
     # so add companion collections for Phase-II MiniAOD production
     from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-    process.load("RecoEgamma.EgammaTools.slimmedEgammaFromMultiCl_cff")
-    phase2_hgcal.toModify(task, func=lambda t: t.add(process.slimmedEgammaFromMultiClTask))
+    process.load("RecoEgamma.EgammaTools.slimmedEgammaHGC_cff")
+    phase2_hgcal.toModify(task, func=lambda t: t.add(process.slimmedEgammaHGCTask))
 
-    # L1 pre-firing weights for 2016 and 2017
+    # L1 pre-firing weights for 2016, 2017, and 2018
     from Configuration.Eras.Modifier_run2_L1prefiring_cff import run2_L1prefiring
-    from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
+    from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
     from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
-    process.load("PhysicsTools.PatUtils.L1ECALPrefiringWeightProducer_cff")
-    stage1L1Trigger.toModify(process.prefiringweight, DataEra = "2016BtoH")
-    stage2L1Trigger_2017.toModify(process.prefiringweight, DataEra = "2017BtoF")
+    from Configuration.Eras.Modifier_stage2L1Trigger_2018_cff import stage2L1Trigger_2018
+    from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
+    process.load("PhysicsTools.PatUtils.L1PrefiringWeightProducer_cff")
+    (stage2L1Trigger & tracker_apv_vfp30_2016).toModify(process.prefiringweight, DataEraECAL = "UL2016preVFP", DataEraMuon = "2016preVFP" )
+    (stage2L1Trigger & ~tracker_apv_vfp30_2016).toModify(process.prefiringweight, DataEraECAL = "UL2016postVFP", DataEraMuon = "2016postVFP" )
+    stage2L1Trigger_2017.toModify(process.prefiringweight, DataEraECAL = "UL2017BtoF", DataEraMuon = "20172018")
+    stage2L1Trigger_2018.toModify(process.prefiringweight, DataEraECAL = "None", DataEraMuon = "20172018")
     run2_L1prefiring.toModify(task, func=lambda t: t.add(process.prefiringweight))
 
     from PhysicsTools.PatAlgos.producersHeavyIons.heavyIonJetSetup import removeL1FastJetJECs
@@ -628,9 +622,9 @@ def miniAOD_customizeData(process):
     process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
     process.load('L1Trigger.L1TGlobal.simGtExtFakeProd_cfi')
     task = getPatAlgosToolsTask(process)
-    from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-    ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer))
-    ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsProtons))
+    from Configuration.Eras.Modifier_ctpps_cff import ctpps
+    ctpps.toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer))
+    ctpps.toModify(task, func=lambda t: t.add(process.ctppsProtons))
     from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
     run2_miniAOD_UL.toModify(task, func=lambda t: t.add(process.simGtExtUnprefireable))
 

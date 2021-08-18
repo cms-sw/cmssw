@@ -25,7 +25,8 @@ enum TrackStatus {
   sLowEnergy = 4,
   sLowEnergyInVacuum = 5,
   sEnergyDepNaN = 6,
-  sVeryForward = 7
+  sVeryForward = 7,
+  sNumberOfSteps = 8
 };
 
 class SteppingAction : public G4UserSteppingAction {
@@ -41,10 +42,10 @@ private:
   bool initPointer();
 
   inline bool isInsideDeadRegion(const G4Region* reg) const;
-  inline bool isOutOfTimeWindow(const G4Track* theTrack, const G4Region* reg) const;
+  inline bool isOutOfTimeWindow(const G4Region* reg, const double& time) const;
   inline bool isThisVolume(const G4VTouchable* touch, const G4VPhysicalVolume* pv) const;
 
-  bool isLowEnergy(const G4Step* aStep) const;
+  bool isLowEnergy(const G4LogicalVolume*, const G4Track*) const;
   void PrintKilledTrack(const G4Track*, const TrackStatus&) const;
 
   EventAction* eventAction_;
@@ -55,6 +56,18 @@ private:
   double maxTrackTime;
   double maxTrackTimeForward;
   double maxZCentralCMS;
+
+  unsigned int numberTimes;
+  unsigned int numberEkins;
+  unsigned int numberPart;
+  unsigned int ndeadRegions;
+  unsigned int nWarnings;
+  G4int maxNumberOfSteps;
+
+  bool initialized;
+  bool killBeamPipe;
+  bool hasWatcher;
+
   std::vector<double> maxTrackTimes, ekinMins;
   std::vector<std::string> maxTimeNames, ekinNames, ekinParticles;
   std::vector<std::string> deadRegionNames;
@@ -62,15 +75,6 @@ private:
   std::vector<const G4Region*> deadRegions;
   std::vector<G4LogicalVolume*> ekinVolumes;
   std::vector<int> ekinPDG;
-  unsigned int numberTimes;
-  unsigned int numberEkins;
-  unsigned int numberPart;
-  unsigned int ndeadRegions;
-  unsigned int nWarnings;
-
-  bool initialized;
-  bool killBeamPipe;
-  bool hasWatcher;
 };
 
 inline bool SteppingAction::isInsideDeadRegion(const G4Region* reg) const {
@@ -84,7 +88,7 @@ inline bool SteppingAction::isInsideDeadRegion(const G4Region* reg) const {
   return res;
 }
 
-inline bool SteppingAction::isOutOfTimeWindow(const G4Track* theTrack, const G4Region* reg) const {
+inline bool SteppingAction::isOutOfTimeWindow(const G4Region* reg, const double& time) const {
   double tofM = maxTrackTime;
   for (unsigned int i = 0; i < numberTimes; ++i) {
     if (reg == maxTimeRegions[i]) {
@@ -92,7 +96,7 @@ inline bool SteppingAction::isOutOfTimeWindow(const G4Track* theTrack, const G4R
       break;
     }
   }
-  return (theTrack->GetGlobalTime() > tofM);
+  return (time > tofM);
 }
 
 inline bool SteppingAction::isThisVolume(const G4VTouchable* touch, const G4VPhysicalVolume* pv) const {

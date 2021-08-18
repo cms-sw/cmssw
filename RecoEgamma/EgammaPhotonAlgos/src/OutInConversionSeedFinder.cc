@@ -170,18 +170,17 @@ void OutInConversionSeedFinder::makeSeeds(const reco::CaloClusterPtr& aBC) {
 
 void OutInConversionSeedFinder::fillClusterSeeds(const reco::CaloClusterPtr& bc) {
   theFirstMeasurements_.clear();
-  FreeTrajectoryState fts;
 
   /// negative charge state
-  if (makeTrackState(-1).second) {
-    fts = makeTrackState(-1).first;
-    startSeed(fts);
+  auto const stateNeg = makeTrackState(-1);
+  if (stateNeg.second) {
+    startSeed(stateNeg.first);
   }
   /// positive charge state
 
-  if (makeTrackState(1).second) {
-    fts = makeTrackState(1).first;
-    startSeed(fts);
+  auto const statePos = makeTrackState(1);
+  if (statePos.second) {
+    startSeed(statePos.first);
   }
   theFirstMeasurements_.clear();
 }
@@ -203,6 +202,8 @@ std::pair<FreeTrajectoryState, bool> OutInConversionSeedFinder::makeTrackState(i
   // compute momentum direction at calo
   double curvature = theMF_->inTesla(theBCPosition_).z() * c_light * 1.e-3 / momentumWithoutCurvature.perp();
   curvature /= 100.;  // in cm-1 !!
+  if (curvature == 0)
+    return result;
 
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState gpOrigine " << gpOrigine.x()
                                         << " " << gpOrigine.y() << " " << gpOrigine.z() << " momentumWithoutCurvature "
@@ -220,6 +221,8 @@ std::pair<FreeTrajectoryState, bool> OutInConversionSeedFinder::makeTrackState(i
   //float u = rho + rho/d/d*(R*R-rho*rho) ;
   if (u <= R)
     result.second = true;
+  else
+    return result;
 
   double sinAlpha = 0.5 * u / R;
   if (sinAlpha > (1. - 10 * DBL_EPSILON))

@@ -229,7 +229,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const {
   double Pi = acos(-1.);
   float etaR = 0, ptR_front = 0, ptR_rear = 0, dphi12R = 0, dphi23R = 0;
   int charge12, charge23;
-  unsigned type, mode, eta, fr, quality, charge, absPhi12, absPhi23;
+  unsigned mode, eta, fr, quality, charge, absPhi12, absPhi23;
 
   mode = address.track_mode;
 
@@ -381,7 +381,6 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const {
             }
             if (bestLH_front_max > best_LH_front) {
               best_pt_front = ptR_front_max;
-              best_LH_front = bestLH_front_max;
             }
             ptR_front = best_pt_front;
 
@@ -393,7 +392,6 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const {
             }
             if (bestLH_rear_max > best_LH_rear) {
               best_pt_rear = ptR_rear_max;
-              best_LH_rear = bestLH_rear_max;
             }
             ptR_rear = best_pt_rear;
           } else {
@@ -960,7 +958,6 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const {
       case 9:
       case 10:
       case 13:  // ME1-ME4
-        type = mode - 5;
 
         if (charge)
           absPhi12 = address.delta_phi();
@@ -1054,6 +1051,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const {
   if (pt_method <= 5) {  //here we have only pt_methods less or equal to 5
     // mode definition you could find at https://twiki.cern.ch/twiki/pub/Main/PtLUTs/mode_codes.xls
     // it is valid till the end 2010
+    unsigned type;
 
     //  kluge to use 2-stn track in overlap region
     //  see also where this routine is called, and encode LUTaddress, and assignPT
@@ -1478,7 +1476,7 @@ void CSCTFPtLUT::readLUT() {
     unsigned short temp = 0;
     while (!PtLUT.eof() && i < 1 << CSCBitWidths::kPtAddressWidth) {
       PtLUT >> temp;
-      pt_lut[i++] = (*reinterpret_cast<ptdat*>(&temp));
+      pt_lut[i++] = temp;
     }
     PtLUT.close();
   }

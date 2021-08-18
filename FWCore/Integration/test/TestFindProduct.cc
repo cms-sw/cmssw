@@ -1,25 +1,27 @@
 
-// This test module will look for IntProducts in Events.
-// The number of IntProducts and their InputTags (label,
-// instance, process) must be configured.
+// This test module will try to get IntProducts in Events,
+// Lumis, Runs and ProcessBlocks. The number of IntProducts
+// and their InputTags (label, instance, process) must be configured.
 
 // One can also configure an expected value for the sum of
 // all the values in the IntProducts that are found.  Note
 // that an IntProduct is just a test product that simply
 // contains a single integer.
 
-// If the products are not found, then an exception is thrown.
-// If the sum does not match there is an error message and
-// an abort.
+// If the expected products are not found or some other
+// unexpected behavior occurs, an exception will be thrown.
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "FWCore/Framework/interface/CacheHandle.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/getProducerParameterSet.h"
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/moduleAbilities.h"
 #include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/ProcessMatch.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -28,13 +30,19 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+
+#include <functional>
 #include <iostream>
+#include <memory>
+#include <tuple>
 #include <vector>
 
 namespace edmtest {
 
-  class TestFindProduct
-      : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks, edm::WatchProcessBlock> {
+  class TestFindProduct : public edm::one::EDAnalyzer<edm::one::WatchRuns,
+                                                      edm::one::WatchLuminosityBlocks,
+                                                      edm::WatchProcessBlock,
+                                                      edm::InputProcessBlockCache<int, long long int>> {
   public:
     explicit TestFindProduct(edm::ParameterSet const& pset);
     virtual ~TestFindProduct();
@@ -45,12 +53,14 @@ namespace edmtest {
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
     void endRun(edm::Run const&, edm::EventSetup const&) override;
     void beginProcessBlock(edm::ProcessBlock const&) override;
+    void accessInputProcessBlock(edm::ProcessBlock const&) override;
     void endProcessBlock(edm::ProcessBlock const&) override;
     void endJob() override;
 
   private:
     std::vector<edm::InputTag> inputTags_;
     int expectedSum_;
+    int expectedCache_;
     int sum_;
     std::vector<edm::InputTag> inputTagsNotFound_;
     bool getByTokenFirst_;
@@ -62,6 +72,7 @@ namespace edmtest {
     std::vector<edm::InputTag> inputTagsEndLumi_;
     std::vector<edm::InputTag> inputTagsEndRun_;
     std::vector<edm::InputTag> inputTagsBeginProcessBlock_;
+    std::vector<edm::InputTag> inputTagsInputProcessBlock_;
     std::vector<edm::InputTag> inputTagsEndProcessBlock_;
     std::vector<edm::InputTag> inputTagsEndProcessBlock2_;
     std::vector<edm::InputTag> inputTagsEndProcessBlock3_;
@@ -74,6 +85,7 @@ namespace edmtest {
     std::vector<edm::EDGetTokenT<IntProduct>> tokensEndLumi_;
     std::vector<edm::EDGetTokenT<IntProduct>> tokensEndRun_;
     std::vector<edm::EDGetTokenT<IntProduct>> tokensBeginProcessBlock_;
+    std::vector<edm::EDGetTokenT<IntProduct>> tokensInputProcessBlock_;
     std::vector<edm::EDGetTokenT<IntProduct>> tokensEndProcessBlock_;
     std::vector<edm::EDGetToken> tokensEndProcessBlock2_;
     std::vector<edm::EDGetTokenT<IntProduct>> tokensEndProcessBlock3_;
@@ -90,6 +102,7 @@ namespace edmtest {
   TestFindProduct::TestFindProduct(edm::ParameterSet const& pset)
       : inputTags_(pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTags")),
         expectedSum_(pset.getUntrackedParameter<int>("expectedSum", 0)),
+        expectedCache_(pset.getUntrackedParameter<int>("expectedCache", 0)),
         sum_(0),
         inputTagsNotFound_(),
         getByTokenFirst_(pset.getUntrackedParameter<bool>("getByTokenFirst", false)),
@@ -108,6 +121,8 @@ namespace edmtest {
     inputTagsEndRun_ = pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsEndRun", emptyTagVector);
     inputTagsBeginProcessBlock_ =
         pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsBeginProcessBlock", emptyTagVector);
+    inputTagsInputProcessBlock_ =
+        pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsInputProcessBlock", emptyTagVector);
     inputTagsEndProcessBlock_ =
         pset.getUntrackedParameter<std::vector<edm::InputTag>>("inputTagsEndProcessBlock", emptyTagVector);
     inputTagsEndProcessBlock2_ =
@@ -138,6 +153,9 @@ namespace edmtest {
     for (auto const& tag : inputTagsBeginProcessBlock_) {
       tokensBeginProcessBlock_.push_back(consumes<IntProduct, edm::InProcess>(tag));
     }
+    for (auto const& tag : inputTagsInputProcessBlock_) {
+      tokensInputProcessBlock_.push_back(consumes<IntProduct, edm::InProcess>(tag));
+    }
     for (auto const& tag : inputTagsEndProcessBlock_) {
       tokensEndProcessBlock_.push_back(consumes<IntProduct, edm::InProcess>(tag));
     }
@@ -150,11 +168,32 @@ namespace edmtest {
     for (auto const& tag : inputTagsEndProcessBlock4_) {
       tokensEndProcessBlock4_.push_back(consumes<IntProduct, edm::InProcess>(tag));
     }
+
+    if (!tokensInputProcessBlock_.empty()) {
+      registerProcessBlockCacheFiller<int>(
+          tokensInputProcessBlock_[0],
+          [this](edm::ProcessBlock const& processBlock, std::shared_ptr<int> const& previousCache) {
+            auto returnValue = std::make_shared<int>(0);
+            for (auto const& token : tokensInputProcessBlock_) {
+              *returnValue += processBlock.get(token).value;
+            }
+            return returnValue;
+          });
+      registerProcessBlockCacheFiller<1>(
+          tokensInputProcessBlock_[0],
+          [this](edm::ProcessBlock const& processBlock, std::shared_ptr<long long int> const& previousCache) {
+            auto returnValue = std::make_shared<long long int>(0);
+            for (auto const& token : tokensInputProcessBlock_) {
+              *returnValue += processBlock.get(token).value;
+            }
+            return returnValue;
+          });
+    }
   }
 
   TestFindProduct::~TestFindProduct() {}
 
-  void TestFindProduct::analyze(edm::Event const& e, edm::EventSetup const&) {
+  void TestFindProduct::analyze(edm::Event const& event, edm::EventSetup const&) {
     edm::Handle<IntProduct> h;
     edm::Handle<IntProduct> hToken;
     edm::Handle<edm::View<int>> hView;
@@ -164,35 +203,35 @@ namespace edmtest {
     for (std::vector<edm::InputTag>::const_iterator iter = inputTags_.begin(), iEnd = inputTags_.end(); iter != iEnd;
          ++iter, ++iToken) {
       if (getByTokenFirst_) {
-        e.getByToken(*iToken, hToken);
+        event.getByToken(*iToken, hToken);
         *hToken;
       }
 
-      e.getByLabel(*iter, h);
+      event.getByLabel(*iter, h);
       sum_ += h->value;
 
-      e.getByToken(*iToken, hToken);
+      event.getByToken(*iToken, hToken);
       if (h->value != hToken->value) {
-        std::cerr << "TestFindProduct::analyze getByLabel and getByToken return inconsistent results " << std::endl;
-        abort();
+        throw cms::Exception("TestFail")
+            << "TestFindProduct::analyze getByLabel and getByToken return inconsistent results";
       }
 
       if (runProducerParameterCheck_) {
-        edm::ParameterSet const* producerPset = edm::getProducerParameterSet(*hToken.provenance(), e.processHistory());
+        edm::ParameterSet const* producerPset =
+            edm::getProducerParameterSet(*hToken.provenance(), event.processHistory());
         int par = producerPset->getParameter<int>("ivalue");
         // These expected values are just from knowing the values in the
         // configuration files for this test.
         int expectedParameterValue = 3;
         if (!iter->process().empty()) {
-          if (e.run() == 1) {
+          if (event.run() == 1) {
             expectedParameterValue = 1;
           } else {
             expectedParameterValue = 2;
           }
         }
         if (par != expectedParameterValue) {
-          std::cerr << "TestFindProduct::analyze unexpected value from producer parameter set" << std::endl;
-          abort();
+          throw cms::Exception("TestFail") << "TestFindProduct::analyze unexpected value from producer parameter set";
         }
       }
     }
@@ -200,18 +239,18 @@ namespace edmtest {
     for (std::vector<edm::InputTag>::const_iterator iter = inputTagsNotFound_.begin(), iEnd = inputTagsNotFound_.end();
          iter != iEnd;
          ++iter, ++iToken) {
-      e.getByLabel(*iter, h);
+      event.getByLabel(*iter, h);
       if (h.isValid()) {
-        std::cerr << "TestFindProduct::analyze: getByLabel found a product that should not be found "
-                  << h.provenance()->moduleLabel() << std::endl;
-        abort();
+        throw cms::Exception("TestFail")
+            << "TestFindProduct::analyze: getByLabel found a product that should not be found "
+            << h.provenance()->moduleLabel();
       }
 
-      e.getByToken(*iToken, hToken);
+      event.getByToken(*iToken, hToken);
       if (hToken.isValid()) {
-        std::cerr << "TestFindProduct::analyze: getByToken found a product that should not be found "
-                  << hToken.provenance()->moduleLabel() << std::endl;
-        abort();
+        throw cms::Exception("TestFail")
+            << "TestFindProduct::analyze: getByToken found a product that should not be found "
+            << hToken.provenance()->moduleLabel();
       }
     }
     std::vector<edm::EDGetTokenT<edm::View<int>>>::const_iterator iTokenView = tokensView_.begin();
@@ -219,25 +258,43 @@ namespace edmtest {
          iter != iEnd;
          ++iter, ++iTokenView) {
       if (getByTokenFirst_) {
-        e.getByToken(*iTokenView, hViewToken);
+        event.getByToken(*iTokenView, hViewToken);
         *hViewToken;
       }
 
-      e.getByLabel(*iter, hView);
+      event.getByLabel(*iter, hView);
       sum_ += hView->at(0);
 
-      e.getByToken(*iTokenView, hViewToken);
+      event.getByToken(*iTokenView, hViewToken);
       if (hView->at(0) != hViewToken->at(0)) {
-        std::cerr << "TestFindProduct::analyze getByLabel and getByToken return inconsistent results " << std::endl;
-        abort();
+        throw cms::Exception("TestFail")
+            << "TestFindProduct::analyze getByLabel and getByToken return inconsistent results";
       }
     }
 
     // Get these also and add them into the sum
     edm::Handle<UInt64Product> h64;
     for (auto const& token : tokensUInt64_) {
-      e.getByToken(token, h64);
+      event.getByToken(token, h64);
       sum_ += h64->value;
+    }
+
+    if (expectedCache_ != 0) {
+      std::tuple<edm::CacheHandle<int>, edm::CacheHandle<long long int>> valueTuple = processBlockCaches(event);
+      {
+        edm::CacheHandle<int> value = std::get<0>(valueTuple);
+        if (*value != expectedCache_) {
+          throw cms::Exception("TestFail") << "TestFindProduct::analyze 0 ProcessBlock cache has unexpected value "
+                                           << *value << " expected = " << expectedCache_;
+        }
+      }
+      {
+        edm::CacheHandle<long long int> value = std::get<1>(valueTuple);
+        if (*value != expectedCache_) {
+          throw cms::Exception("TestFail") << "TestFindProduct::analyze 1 ProcessBlock cache has unexpected value "
+                                           << *value << " expected = " << expectedCache_;
+        }
+      }
     }
   }
 
@@ -273,6 +330,13 @@ namespace edmtest {
       for (auto const& intHandle : handles) {
         sum_ += intHandle->value;
       }
+    }
+  }
+
+  void TestFindProduct::accessInputProcessBlock(edm::ProcessBlock const& processBlock) {
+    for (auto const& token : tokensInputProcessBlock_) {
+      int value = processBlock.get(token).value;
+      sum_ += value;
     }
   }
 
@@ -322,6 +386,7 @@ namespace edmtest {
           << "TestFindProduct::endJob - Sum of test object values does not equal expected value";
     }
   }
+
 }  // namespace edmtest
 
 using edmtest::TestFindProduct;

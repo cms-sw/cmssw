@@ -22,7 +22,7 @@
 
 #include "Fireworks/Core/interface/FWExpressionEvaluator.h"
 #include "Fireworks/Core/interface/FWExpressionException.h"
-#include "CommonTools/Utils/src/Grammar.h"
+#include "CommonTools/Utils/interface/Grammar.h"
 #include "CommonTools/Utils/interface/Exception.h"
 
 #include "Fireworks/Core/src/expressionFormatHelpers.h"
@@ -76,6 +76,10 @@ FWItemValueGetter::FWItemValueGetter(const edm::TypeWithDict& iType, const std::
     addEntry("energy", 3);
     addEntry("pdgId()", 3, "pdgId");
     addEntry("simClusters().size()", 3, "SimClSize");
+  } else if (iPurpose == "Trackster" || iPurpose == "Trackster hits" || iPurpose == "Trackster layers") {
+    addEntry("raw_energy", 3, "E", "GeV");
+    addEntry("barycenter().Eta()", 3, "eta");
+    addEntry("barycenter().Phi()", 3, "phi");
   } else if (iPurpose == "HGCal MultiCluster") {
     addEntry("energy", 3);
   } else {

@@ -1,12 +1,9 @@
 <use name="clhep"/>
-<use name="cuda"/>
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/EcalDigi"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Framework"/>
-<use name="HeterogeneousCore/CUDACore"/>
-<use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="CondFormats/ESObjects"/>
 <use name="CondFormats/EcalObjects"/>
 <use name="CondFormats/DataRecord"/>

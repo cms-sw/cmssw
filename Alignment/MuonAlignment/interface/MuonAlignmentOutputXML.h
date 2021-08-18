@@ -45,11 +45,11 @@ public:
 
   void write(AlignableMuon *alignableMuon, const edm::EventSetup &iSetup) const;
 
-private:
   MuonAlignmentOutputXML(const MuonAlignmentOutputXML &) = delete;  // stop default
 
   const MuonAlignmentOutputXML &operator=(const MuonAlignmentOutputXML &) = delete;  // stop default
 
+private:
   void writeComponents(align::Alignables &alignables,
                        align::Alignables &ideals,
                        std::map<align::ID, CLHEP::HepSymMatrix> &errors,

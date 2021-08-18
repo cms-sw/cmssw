@@ -18,6 +18,7 @@ class CSCWireDigiValidation;
 class CSCComparatorDigiValidation;
 class CSCALCTDigiValidation;
 class CSCCLCTDigiValidation;
+class CSCStubEfficiencyValidation;
 
 class CSCDigiValidation : public DQMEDAnalyzer {
 public:
@@ -31,12 +32,15 @@ private:
   PSimHitMap theSimHitMap;
   CSCGeometry *theCSCGeometry;
 
+  // validation modules
   std::unique_ptr<CSCStripDigiValidation> theStripDigiValidation;
   std::unique_ptr<CSCWireDigiValidation> theWireDigiValidation;
   std::unique_ptr<CSCComparatorDigiValidation> theComparatorDigiValidation;
   std::unique_ptr<CSCALCTDigiValidation> theALCTDigiValidation;
   std::unique_ptr<CSCCLCTDigiValidation> theCLCTDigiValidation;
+  std::unique_ptr<CSCStubEfficiencyValidation> theStubEfficiencyValidation;
 
+  // geometry
   edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
 };
 

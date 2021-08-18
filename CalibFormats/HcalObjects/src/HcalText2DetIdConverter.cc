@@ -26,17 +26,14 @@ namespace {
   }
 
   int calibChannel(const std::string& fName) {
-    return fName == "Mixer-High"
-               ? 1
-               : fName == "Mixer-Low"
-                     ? 2
-                     : fName == "Megatile"
-                           ? 3
-                           : fName == "Mixer-Scintillator"
-                                 ? 4
-                                 : fName == "RadDam1"
-                                       ? 5
-                                       : fName == "RadDam2" ? 6 : fName == "RadDam3" ? 7 : atoi(fName.c_str());
+    return fName == "Mixer-High"           ? 1
+           : fName == "Mixer-Low"          ? 2
+           : fName == "Megatile"           ? 3
+           : fName == "Mixer-Scintillator" ? 4
+           : fName == "RadDam1"            ? 5
+           : fName == "RadDam2"            ? 6
+           : fName == "RadDam3"            ? 7
+                                           : atoi(fName.c_str());
     //      0;
   }
 }  // namespace
@@ -73,13 +70,11 @@ bool HcalText2DetIdConverter::init(DetId fId) {
     flavorName = "NA";
   } else if (genId.isHcalDetId()) {
     HcalDetId hcalId(mId);
-    flavorName = genId.genericSubdet() == HcalGenericDetId::HcalGenBarrel
-                     ? "HB"
-                     : genId.genericSubdet() == HcalGenericDetId::HcalGenEndcap
-                           ? "HE"
-                           : genId.genericSubdet() == HcalGenericDetId::HcalGenOuter
-                                 ? "HO"
-                                 : genId.genericSubdet() == HcalGenericDetId::HcalGenForward ? "HF" : "H_UNKNOWN";
+    flavorName = genId.genericSubdet() == HcalGenericDetId::HcalGenBarrel    ? "HB"
+                 : genId.genericSubdet() == HcalGenericDetId::HcalGenEndcap  ? "HE"
+                 : genId.genericSubdet() == HcalGenericDetId::HcalGenOuter   ? "HO"
+                 : genId.genericSubdet() == HcalGenericDetId::HcalGenForward ? "HF"
+                                                                             : "H_UNKNOWN";
     setField(1, hcalId.ieta());
     setField(2, hcalId.iphi());
     setField(3, hcalId.depth());
@@ -199,9 +194,10 @@ bool HcalText2DetIdConverter::init(const std::string& fFlavor,
   field2 = strip(fField2);
   field3 = strip(fField3);
   if (flavorName == "HB" || flavorName == "HE" || flavorName == "HF" || flavorName == "HO") {
-    HcalSubdetector sub = flavorName == "HB"
-                              ? HcalBarrel
-                              : flavorName == "HE" ? HcalEndcap : flavorName == "HO" ? HcalOuter : HcalForward;
+    HcalSubdetector sub = flavorName == "HB"   ? HcalBarrel
+                          : flavorName == "HE" ? HcalEndcap
+                          : flavorName == "HO" ? HcalOuter
+                                               : HcalForward;
     mId = HcalDetId(sub, getField(1), getField(2), getField(3));
   } else if (flavorName == "HT") {
     // We use the depth to signal the "version" being used (RCT or 1x1 HF). RCT

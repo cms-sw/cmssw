@@ -1,5 +1,5 @@
-#ifndef CSCStripDigi_CSCStripDigi_h
-#define CSCStripDigi_CSCStripDigi_h
+#ifndef DataFormats_CSCDigi_CSCStripDigi_h
+#define DataFormats_CSCDigi_CSCStripDigi_h
 
 /** \class CSCStripDigi
  *
@@ -39,6 +39,9 @@ public:
 
   // Get the strip number. counts from 1.
   int getStrip() const { return strip; }
+
+  /// Get the CFEB number. Counts from 0.
+  int getCFEB() const;
 
   /// Get ADC readings
   std::vector<int> const& getADCCounts() const { return ADCCounts; }

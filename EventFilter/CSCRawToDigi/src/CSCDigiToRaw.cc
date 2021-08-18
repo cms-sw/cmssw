@@ -5,6 +5,7 @@
  */
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDigiToRaw.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -35,10 +36,10 @@ namespace cscd2r {
   }
 
   template <typename LCTCollection>
-  bool accept(const CSCDetId& cscId, const LCTCollection& lcts, int bxMin, int bxMax, bool me1abCheck = false) {
+  bool accept(
+      const CSCDetId& cscId, const LCTCollection& lcts, int bxMin, int bxMax, int nominalBX, bool me1abCheck = false) {
     if (bxMin == -999)
       return true;
-    int nominalBX = 6;
     CSCDetId chamberId = chamberID(cscId);
     typename LCTCollection::Range lctRange = lcts.get(chamberId);
     bool result = false;
@@ -70,10 +71,14 @@ namespace cscd2r {
 
   // need to specialize for pretriggers, since they don't have a getBX()
   template <>
-  bool accept(const CSCDetId& cscId, const CSCCLCTPreTriggerCollection& lcts, int bxMin, int bxMax, bool me1abCheck) {
+  bool accept(const CSCDetId& cscId,
+              const CSCCLCTPreTriggerCollection& lcts,
+              int bxMin,
+              int bxMax,
+              int nominalBX,
+              bool me1abCheck) {
     if (bxMin == -999)
       return true;
-    int nominalBX = 6;
     CSCDetId chamberId = chamberID(cscId);
     CSCCLCTPreTriggerCollection::Range lctRange = lcts.get(chamberId);
     bool result = false;
@@ -107,7 +112,13 @@ CSCDigiToRaw::CSCDigiToRaw(const edm::ParameterSet& pset)
       clctWindowMin_(pset.getParameter<int>("clctWindowMin")),
       clctWindowMax_(pset.getParameter<int>("clctWindowMax")),
       preTriggerWindowMin_(pset.getParameter<int>("preTriggerWindowMin")),
-      preTriggerWindowMax_(pset.getParameter<int>("preTriggerWindowMax")) {}
+      preTriggerWindowMax_(pset.getParameter<int>("preTriggerWindowMax")),
+      // pre-LS1 - '2005'. post-LS1 - '2013'
+      formatVersion_(pset.getParameter<unsigned>("formatVersion")),
+      // don't check for consistency with trig primitives
+      // overrides usePreTriggers
+      packEverything_(pset.getParameter<bool>("packEverything")),
+      usePreTriggers_(pset.getParameter<bool>("usePreTriggers")) {}
 
 CSCEventData& CSCDigiToRaw::findEventData(const CSCDetId& cscDetId, FindEventDataInfo& info) const {
   CSCDetId chamberId = cscd2r::chamberID(cscDetId);
@@ -138,18 +149,23 @@ CSCEventData& CSCDigiToRaw::findEventData(const CSCDetId& cscDetId, FindEventDat
 
 void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
                        const CSCCLCTPreTriggerCollection* preTriggers,
-                       FindEventDataInfo& fedInfo,
-                       bool packEverything) const {  //iterate over chambers with strip digis in them
+                       const CSCCLCTPreTriggerDigiCollection* preTriggerDigis,
+                       FindEventDataInfo& fedInfo) const {
+  //iterate over chambers with strip digis in them
   for (CSCStripDigiCollection::DigiRangeIterator j = stripDigis.begin(); j != stripDigis.end(); ++j) {
     CSCDetId cscDetId = (*j).first;
     // only digitize if there are pre-triggers
 
     bool me1abCheck = fedInfo.formatVersion_ == 2013;
-    /* !!! Testing. Uncomment for production */
-    const bool usePreTriggers = preTriggers != nullptr;
-    if (!usePreTriggers || packEverything ||
-        (usePreTriggers &&
-         cscd2r::accept(cscDetId, *preTriggers, preTriggerWindowMin_, preTriggerWindowMax_, me1abCheck))) {
+    // pretrigger flag must be set and the pretrigger collection must be nonzero!
+    const bool usePreTriggers = usePreTriggers_ and preTriggers != nullptr;
+    if (!usePreTriggers || packEverything_ ||
+        (usePreTriggers && cscd2r::accept(cscDetId,
+                                          *preTriggerDigis,
+                                          preTriggerWindowMin_,
+                                          preTriggerWindowMax_,
+                                          CSCConstants::CLCT_CENTRAL_BX,
+                                          me1abCheck))) {
       bool me1a = (cscDetId.station() == 1) && (cscDetId.ring() == 4);
       bool zplus = (cscDetId.endcap() == 1);
       bool me1b = (cscDetId.station() == 1) && (cscDetId.ring() == 1);
@@ -161,28 +177,30 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
       for (; digiItr != last; ++digiItr) {
         CSCStripDigi digi = *digiItr;
         int strip = digi.getStrip();
+        // From LS1 on ME1a strips are unganged
         if (fedInfo.formatVersion_ == 2013) {
           if (me1a && zplus) {
-            digi.setStrip(49 - strip);  // 1-48 -> 48-1
+            digi.setStrip(CSCConstants::NUM_STRIPS_ME1A_UNGANGED + 1 - strip);  // 1-48 -> 48-1
           }
           if (me1b && !zplus) {
-            digi.setStrip(65 - strip);  // 1-64 -> 64-1
+            digi.setStrip(CSCConstants::NUM_STRIPS_ME1B + 1 - strip);  // 1-64 -> 64-1
           }
           if (me1a) {
             strip = digi.getStrip();  // reset back 1-16 to 65-80 digi
-            digi.setStrip(strip + 64);
+            digi.setStrip(strip + CSCConstants::NUM_STRIPS_ME1B);
           }
-
-        } else {
+        }
+        // During Run-1 ME1a strips are triple-ganged
+        else {
           if (me1a && zplus) {
-            digi.setStrip(17 - strip);  // 1-16 -> 16-1
+            digi.setStrip(CSCConstants::NUM_STRIPS_ME1A_GANGED + 1 - strip);  // 1-16 -> 16-1
           }
           if (me1b && !zplus) {
-            digi.setStrip(65 - strip);  // 1-64 -> 64-1
+            digi.setStrip(CSCConstants::NUM_STRIPS_ME1B + 1 - strip);  // 1-64 -> 64-1
           }
           if (me1a) {
             strip = digi.getStrip();  // reset back 1-16 to 65-80 digi
-            digi.setStrip(strip + 64);
+            digi.setStrip(strip + CSCConstants::NUM_STRIPS_ME1B);
           }
         }
         cscData.add(digi, cscDetId.layer());
@@ -193,13 +211,14 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
 
 void CSCDigiToRaw::add(const CSCWireDigiCollection& wireDigis,
                        const CSCALCTDigiCollection& alctDigis,
-                       FindEventDataInfo& fedInfo,
-                       bool packEverything) const {
+                       FindEventDataInfo& fedInfo) const {
   add(alctDigis, fedInfo);
   for (CSCWireDigiCollection::DigiRangeIterator j = wireDigis.begin(); j != wireDigis.end(); ++j) {
     CSCDetId cscDetId = (*j).first;
     bool me1abCheck = fedInfo.formatVersion_ == 2013;
-    if (packEverything || cscd2r::accept(cscDetId, alctDigis, alctWindowMin_, alctWindowMax_, me1abCheck)) {
+    if (packEverything_ ||
+        cscd2r::accept(
+            cscDetId, alctDigis, alctWindowMin_, alctWindowMax_, CSCConstants::ALCT_CENTRAL_BX, me1abCheck)) {
       CSCEventData& cscData = findEventData(cscDetId, fedInfo);
       std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
       std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
@@ -212,33 +231,39 @@ void CSCDigiToRaw::add(const CSCWireDigiCollection& wireDigis,
 
 void CSCDigiToRaw::add(const CSCComparatorDigiCollection& comparatorDigis,
                        const CSCCLCTDigiCollection& clctDigis,
-                       FindEventDataInfo& fedInfo,
-                       bool packEverything) const {
+                       FindEventDataInfo& fedInfo) const {
   add(clctDigis, fedInfo);
   for (auto const& j : comparatorDigis) {
     CSCDetId cscDetId = j.first;
     CSCEventData& cscData = findEventData(cscDetId, fedInfo);
     bool me1abCheck = fedInfo.formatVersion_ == 2013;
-    if (packEverything || cscd2r::accept(cscDetId, clctDigis, clctWindowMin_, clctWindowMax_, me1abCheck)) {
+    if (packEverything_ ||
+        cscd2r::accept(
+            cscDetId, clctDigis, clctWindowMin_, clctWindowMax_, CSCConstants::CLCT_CENTRAL_BX, me1abCheck)) {
       bool me1a = (cscDetId.station() == 1) && (cscDetId.ring() == 4);
 
+      /*
+        Add the comparator digi to the fedInfo.
+        Move ME1/A comparators from CFEB=0 to CFEB=4 if this has not
+        been done already.
+        Consider the case for triple-ganged and unganged ME1A strips
+       */
       for (auto digi = j.second.first; digi != j.second.second; ++digi) {
         if (fedInfo.formatVersion_ == 2013) {
-          // Move ME1/A comparators from CFEB=0 to CFEB=4 if this has not
-          // been done already.
-          if (me1a && digi->getStrip() <= 48) {
-            CSCComparatorDigi digi_corr(64 + digi->getStrip(), digi->getComparator(), digi->getTimeBinWord());
-            cscData.add(digi_corr, cscDetId);  // This version does ME11 strips swapping
-                                               // cscData.add(digi_corr, cscDetId.layer());        // This one doesn't
+          // unganged case
+          if (me1a && digi->getStrip() <= CSCConstants::NUM_STRIPS_ME1A_UNGANGED) {
+            CSCComparatorDigi digi_corr(
+                CSCConstants::NUM_STRIPS_ME1B + digi->getStrip(), digi->getComparator(), digi->getTimeBinWord());
+            cscData.add(digi_corr, cscDetId);
           } else {
-            cscData.add(*digi, cscDetId);  // This version does ME11 strips swapping
-            // cscData.add(digi, cscDetId.layer());        // This one doesn't
+            cscData.add(*digi, cscDetId);
           }
-        } else {
-          // Move ME1/A comparators from CFEB=0 to CFEB=4 if this has not
-          // been done already.
-          if (me1a && digi->getStrip() <= 16) {
-            CSCComparatorDigi digi_corr(64 + digi->getStrip(), digi->getComparator(), digi->getTimeBinWord());
+        }
+        // triple-ganged case
+        else {
+          if (me1a && digi->getStrip() <= CSCConstants::NUM_STRIPS_ME1A_GANGED) {
+            CSCComparatorDigi digi_corr(
+                CSCConstants::NUM_STRIPS_ME1B + digi->getStrip(), digi->getComparator(), digi->getTimeBinWord());
             cscData.add(digi_corr, cscDetId.layer());
           } else {
             cscData.add(*digi, cscDetId.layer());
@@ -270,14 +295,14 @@ void CSCDigiToRaw::add(const CSCCLCTDigiCollection& clctDigis, FindEventDataInfo
     if (me11a && fedInfo.formatVersion_ == 2013) {
       std::vector<CSCCLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
       for (std::vector<CSCCLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
-        if (iC->getCFEB() < 3) {  //sanity check, mostly
+        if (iC->getCFEB() < CSCConstants::NUM_CFEBS_ME1A_UNGANGED) {  //sanity check, mostly
           (*iC) = CSCCLCTDigi(iC->isValid(),
                               iC->getQuality(),
                               iC->getPattern(),
                               iC->getStripType(),
                               iC->getBend(),
                               iC->getStrip(),
-                              iC->getCFEB() + 4,
+                              iC->getCFEB() + CSCConstants::NUM_CFEBS_ME1B,
                               iC->getBX(),
                               iC->getTrknmb(),
                               iC->getFullBX());
@@ -302,12 +327,12 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindE
     if (me11a && fedInfo.formatVersion_ == 2013) {
       std::vector<CSCCorrelatedLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
       for (std::vector<CSCCorrelatedLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
-        if (iC->getStrip() < 96) {  //sanity check, mostly
+        if (iC->getStrip() < CSCConstants::NUM_HALF_STRIPS_ME1A_UNGANGED) {  //sanity check, mostly
           (*iC) = CSCCorrelatedLCTDigi(iC->getTrknmb(),
                                        iC->isValid(),
                                        iC->getQuality(),
                                        iC->getKeyWG(),
-                                       iC->getStrip() + 128,
+                                       iC->getStrip() + CSCConstants::NUM_HALF_STRIPS_ME1B,
                                        iC->getPattern(),
                                        iC->getBend(),
                                        iC->getBX(),
@@ -321,6 +346,15 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindE
     } else {
       cscData.add(std::vector<CSCCorrelatedLCTDigi>((*j).second.first, (*j).second.second));
     }
+  }
+}
+
+void CSCDigiToRaw::add(const CSCShowerDigiCollection& cscShowerDigis, FindEventDataInfo& fedInfo) const {
+  for (const auto& shower : cscShowerDigis) {
+    const CSCDetId& cscDetId = shower.first;
+    CSCEventData& cscData = findEventData(cscDetId, fedInfo);
+
+    cscData.add(std::vector<CSCShowerDigi>(shower.second.first, shower.second.second));
   }
 }
 
@@ -342,42 +376,39 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                                     const CSCALCTDigiCollection& alctDigis,
                                     const CSCCLCTDigiCollection& clctDigis,
                                     const CSCCLCTPreTriggerCollection* preTriggers,
+                                    const CSCCLCTPreTriggerDigiCollection* preTriggerDigis,
                                     const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
+                                    const CSCShowerDigiCollection* cscShowerDigis,
                                     const GEMPadDigiClusterCollection* gemPadDigiClusters,
                                     FEDRawDataCollection& fed_buffers,
                                     const CSCChamberMap* mapping,
-                                    const EventID& eid,
-                                    uint16_t format_version,
-                                    bool packEverything) const {
-  //bits of code from ORCA/Muon/METBFormatter - thanks, Rick:)!
-
+                                    const EventID& eid) const {
   //get fed object from fed_buffers
   // make a map from the index of a chamber to the event data from it
-  FindEventDataInfo fedInfo{mapping, format_version};
-  add(stripDigis, preTriggers, fedInfo, packEverything);
-  add(wireDigis, alctDigis, fedInfo, packEverything);
-  add(comparatorDigis, clctDigis, fedInfo, packEverything);
+  FindEventDataInfo fedInfo{mapping, formatVersion_};
+  add(stripDigis, preTriggers, preTriggerDigis, fedInfo);
+  add(wireDigis, alctDigis, fedInfo);
+  add(comparatorDigis, clctDigis, fedInfo);
   add(correlatedLCTDigis, fedInfo);
+
+  // Starting Run-3, the CSC DAQ will pack/unpack CSC showers
+  if (cscShowerDigis) {
+    add(*cscShowerDigis, fedInfo);
+  }
+
   // Starting Run-3, the CSC DAQ will pack/unpack GEM clusters
   if (gemPadDigiClusters) {
     add(*gemPadDigiClusters, fedInfo);
   }
   int l1a = eid.event();  //need to add increments or get it from lct digis
   int bx = l1a;           //same as above
-  //int startingFED = FEDNumbering::MINCSCFEDID;
 
   if (fedInfo.formatVersion_ == 2005)  /// Handle pre-LS1 format data
   {
     std::map<int, CSCDCCEventData> dccMap;
+    //idcc goes from startingFed to startingFED+7
     for (int idcc = FEDNumbering::MINCSCFEDID; idcc <= FEDNumbering::MAXCSCFEDID; ++idcc) {
-      //idcc goes from startingFed to startingFED+7
-      // @@ if ReadoutMapping changes, this'll have to change
-      // DCCs 1,2,4,5 have 5 DDUs.  Otherwise, 4
-      //int nDDUs = (idcc < 2) || (idcc ==4) || (idcc ==5)
-      //          ? 5 : 4;
-      //@@ WARNING some DCCs only have 4 DDUs, but I'm giving them all 5, for now
-      int nDDUs = 5;
-      dccMap.insert(std::pair<int, CSCDCCEventData>(idcc, CSCDCCEventData(idcc, nDDUs, bx, l1a)));
+      dccMap.insert(std::pair<int, CSCDCCEventData>(idcc, CSCDCCEventData(idcc, CSCConstants::NUM_DDUS, bx, l1a)));
     }
 
     for (int idcc = FEDNumbering::MINCSCFEDID; idcc <= FEDNumbering::MAXCSCFEDID; ++idcc) {
@@ -398,7 +429,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
           int dduSlot = mapping->dduSlot(chamberItr->first);
           int dduInput = mapping->dduInput(chamberItr->first);
           int dmbId = mapping->dmb(chamberItr->first);
-          dccMapItr->second.addChamber(chamberItr->second, dduId, dduSlot, dduInput, dmbId, format_version);
+          dccMapItr->second.addChamber(chamberItr->second, dduId, dduSlot, dduInput, dmbId, formatVersion_);
         }
       }
     }
@@ -417,9 +448,9 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                         0,
                         0);
     }
-
-  } else if (format_version == 2013)  /// Handle post-LS1 format data
-  {
+  }
+  /// Handle post-LS1 format data
+  else if (formatVersion_ == 2013) {
     std::map<int, CSCDDUEventData> dduMap;
     unsigned int ddu_fmt_version = 0x7;  /// 2013 Format
     const unsigned postLS1_map[] = {841, 842, 843, 844, 845, 846, 847, 848, 849, 831, 832, 833,
@@ -471,7 +502,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
           int dduInput = mapping->dduInput(chamberItr->first);
           int dmbId = mapping->dmb(chamberItr->first);
           // int crateId  = mapping->crate(chamberItr->first);
-          dduMapItr->second.add(chamberItr->second, dmbId, dduInput, format_version);
+          dduMapItr->second.add(chamberItr->second, dmbId, dduInput, formatVersion_);
         }
       }
     }

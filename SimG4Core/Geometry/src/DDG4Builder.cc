@@ -144,6 +144,11 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
         G4Translate3D transl = tempTran;
         CLHEP::HepRep3x3 temp(x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z());  // matrix
         CLHEP::HepRotation hr(temp);
+        edm::LogVerbatim("SimG4CoreGeometry")
+            << "Position " << gra.nodeData(cit->first).name().name() << ":"
+            << gra.edgeData(cit->second)->copyno() + offset + tag << " in " << g4LV->GetName() << " at " << tempTran
+            << " with rotation matrix (" << x.X() << ", " << x.Y() << ", " << x.Z() << ", " << y.X() << ", " << y.Y()
+            << ", " << y.Z() << ", " << z.X() << ", " << z.Y() << ", " << z.Z() << ")";
 
         // G3 convention of defining rot-matrices ...
         G4Transform3D trfrm = transl * G4Rotate3D(hr.inverse());  //.inverse();

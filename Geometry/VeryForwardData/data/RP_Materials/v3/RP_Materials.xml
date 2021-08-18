@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+ <MaterialSection label="RP_Materials.xml">
+  <CompositeMaterial name="AISI-316L-Steel" density="8*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.0003">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.02">
+    <rMaterial name="materials:Manganese"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.01">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.00045">
+    <rMaterial name="materials:Phosphor"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0003">
+    <rMaterial name="materials:Sulfur"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.12">
+    <rMaterial name="materials:Nickel"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.18">
+    <rMaterial name="materials:Chromium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.025">
+    <rMaterial name="materials:Molybdenum"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.64395">
+    <rMaterial name="materials:Iron"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  
+  <CompositeMaterial name="Epoxy" density="1.32*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.53539691">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.13179314">
+    <rMaterial name="materials:Hydrogen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.33280996">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+
+  <CompositeMaterial name="PCB" density="1.957*g/cm3" symbol=" " method="mixture by weight">
+  <MaterialFraction fraction="0.2562774130">
+   <rMaterial name="materials:Silicon"/>
+  </MaterialFraction>
+  <MaterialFraction fraction="0.4720560530">
+   <rMaterial name="materials:Oxygen"/>
+  </MaterialFraction>
+  <MaterialFraction fraction="0.0054740637">
+   <rMaterial name="materials:Bor 10"/>
+  </MaterialFraction>
+  <MaterialFraction fraction="0.0240858800">
+   <rMaterial name="materials:Bor 11"/>
+  </MaterialFraction>
+  <MaterialFraction fraction="0.0419495748">
+   <rMaterial name="materials:Sodium"/>
+  </MaterialFraction>
+  <MaterialFraction fraction="0.1606190730">
+   <rMaterial name="materials:Carbon"/>
+  </MaterialFraction>
+  <MaterialFraction fraction="0.0395379420">
+   <rMaterial name="materials:Hydrogen"/>
+  </MaterialFraction>
+ </CompositeMaterial>
+ 
+  <CompositeMaterial name="CE7" density="2.44*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.7">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.3">
+    <rMaterial name="materials:Aluminium"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+ </MaterialSection>
+</DDDefinition>

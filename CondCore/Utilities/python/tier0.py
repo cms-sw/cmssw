@@ -116,6 +116,7 @@ class Tier0Handler( object ):
         end = time.time()
 
         if retcode != 0 or stderrdata:
+           
            # if the first curl has failed, logg its stderror and prepare and independent retry
            msg = "looks like curl returned an error: retcode=%s and took %s seconds" % (retcode,(end-start),)
            msg += ' msg = "'+str(stderrdata)+'"'
@@ -134,8 +135,8 @@ class Tier0Handler( object ):
            else :
               msg = "curl returned ok upon the second try"
               logging.info(msg)
-
-        return json.loads( ''.join(stdoutdata).replace( "'", '"').replace(' None', ' "None"') )
+        resp = json.loads( ''.join(stdoutdata.decode()).replace( "'", '"').replace(' None', ' "None"') )
+        return resp
 
 
     def getFirstSafeRun( self ):

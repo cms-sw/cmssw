@@ -75,7 +75,7 @@ RawToDigi_hcalOnly = cms.Sequence(RawToDigiTask_hcalOnly)
 
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 siPixelDigis.cpu.InputLabel = 'rawDataCollector'
-(~gpu).toModify(ecalDigis, InputLabel='rawDataCollector')
+ecalDigis.cpu.InputLabel = 'rawDataCollector'
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
 muonCSCDigis.InputObjects = 'rawDataCollector'
@@ -87,20 +87,20 @@ from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toReplaceWith(RawToDigiTask, RawToDigiTask.copyAndExclude([castorDigis]))
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-# Remove siPixelDigis until we have phase1 pixel digis
+# Remove siPixelDigis until we have Phase 2 pixel digis
 phase2_tracker.toReplaceWith(RawToDigiTask, RawToDigiTask.copyAndExclude([siPixelDigis])) # FIXME
 
 
 # add CTPPS 2016 raw-to-digi modules
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+from Configuration.Eras.Modifier_ctpps_cff import ctpps
 
-_ctpps_2016_RawToDigiTask = RawToDigiTask.copy()
-_ctpps_2016_RawToDigiTask.add(ctppsRawToDigiTask)
-ctpps_2016.toReplaceWith(RawToDigiTask, _ctpps_2016_RawToDigiTask)
+_ctpps_RawToDigiTask = RawToDigiTask.copy()
+_ctpps_RawToDigiTask.add(ctppsRawToDigiTask)
+ctpps.toReplaceWith(RawToDigiTask, _ctpps_RawToDigiTask)
 
-_ctpps_2016_RawToDigiTask_noTk = RawToDigiTask_noTk.copy()
-_ctpps_2016_RawToDigiTask_noTk.add(ctppsRawToDigiTask)
-ctpps_2016.toReplaceWith(RawToDigiTask_noTk, _ctpps_2016_RawToDigiTask_noTk)
+_ctpps_RawToDigiTask_noTk = RawToDigiTask_noTk.copy()
+_ctpps_RawToDigiTask_noTk.add(ctppsRawToDigiTask)
+ctpps.toReplaceWith(RawToDigiTask_noTk, _ctpps_RawToDigiTask_noTk)
 
 # GEM settings
 _gem_RawToDigiTask = RawToDigiTask.copy()
@@ -110,7 +110,8 @@ from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith(RawToDigiTask, _gem_RawToDigiTask)
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-run3_GEM.toReplaceWith(RawToDigiTask, _gem_RawToDigiTask)
+from Configuration.Eras.Modifier_phase2_GEM_cff import phase2_GEM
+(run3_GEM & ~phase2_GEM).toReplaceWith(RawToDigiTask, _gem_RawToDigiTask)
 
 from EventFilter.HGCalRawToDigi.HGCalRawToDigi_cfi import *
 _hgcal_RawToDigiTask = RawToDigiTask.copy()

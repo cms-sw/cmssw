@@ -95,17 +95,17 @@ from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
 ### DT slice test specific customisations
-if (process.dtDqmConfig.getProcessAB7Digis()) :
+if (process.dtDqmConfig.getProcessAB7Digis() or \
+    process.dtDqmConfig.getProcessAB7TPs()) :
     from DQM.DTMonitorModule.slice_test_customizations_cff import *
-    process = customise_for_slice_test(process)
+    process = customise_for_slice_test(process,
+                                       process.dtDqmConfig.getProcessAB7Digis(),
+                                       process.dtDqmConfig.getProcessAB7TPs())
 
 ### DT digi customisation
 if (process.dtDqmConfig.getRunWithLargeTB()) :
     process.dtDigiMonitor.maxTTMounts = 6400
 
 if (process.dtDqmConfig.getProcessAB7Digis()) :
-
-    if (process.dtDqmConfig.getRunWithLargeTB()) :
-        process.dtAB7DigiMonitor.maxTTMounts = 6400
-
+    process.dtAB7DigiMonitor.maxTTMounts = 6400
     process.dtAB7DigiMonitor.tdcPedestal = process.dtDqmConfig.getTBTDCPedestal()

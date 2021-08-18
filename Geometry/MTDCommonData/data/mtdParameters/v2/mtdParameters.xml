@@ -5,11 +5,13 @@
   <Vector name="vPars" type="numeric" nEntries="4">
     4, 4, 4, 24
   </Vector>
+  <!--BTL inter-crystal gaps approximated to nearest integer value in microns-->
+  <!--in y preserve total free space, move 0.5 microns for each inter-crystal to borders-->
   <Vector name="BTL" type="numeric" nEntries="12">
-    22, 24, 16, 10, 0x1, 0x3, 0x3F, 0x3F, 1, 16, 3, 1
+    0, 0, 0, 0, 3733, 1867, 112, 60, 1, 16, 3, 1
   </Vector>
   <Vector name="ETL" type="numeric" nEntries="12">
-    22, 24, 16, 7, 0x1, 0x3, 0x3F, 0xFF, 16, 16, 1, 2
+    0, 0, 0, 0, 50, 50, 50, 50, 16, 16, 2, 1
   </Vector>
 
   </ConstantsSection>

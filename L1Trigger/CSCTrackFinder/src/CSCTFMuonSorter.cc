@@ -1,6 +1,6 @@
-#include <L1Trigger/CSCTrackFinder/interface/CSCTFMuonSorter.h>
-#include "DataFormats/L1TMuon/interface/CSCConstants.h"
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFMuonSorter.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 CSCTFMuonSorter::CSCTFMuonSorter(const edm::ParameterSet& pset) {
   m_minBX = pset.getParameter<int>("MinBX");

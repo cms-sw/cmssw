@@ -3,7 +3,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeomDetType.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeomDetUnit.h"
-#include "Geometry/MTDGeometryBuilder/interface/MTDTopologyBuilder.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDPixelTopologyBuilder.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
 #include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
@@ -103,14 +103,23 @@ void MTDGeomBuilderFromGeometricTimingDet::buildPixel(
 
   // this is a hack while we put things into the DDD
   int ROCrows(0), ROCcols(0), ROCSx(0), ROCSy(0);
+  int GAPxInterpad(0), GAPxBorder(0), GAPyInterpad(0), GAPyBorder(0);
   switch (det) {
     case GeomDetType::SubDetector::TimingBarrel:
+      GAPxInterpad = ptp.vitems_[0].vpars_[4];  // Value given in microns
+      GAPxBorder = ptp.vitems_[0].vpars_[5];    // Value given in microns
+      GAPyInterpad = ptp.vitems_[0].vpars_[6];  // Value given in microns
+      GAPyBorder = ptp.vitems_[0].vpars_[7];    // Value given in microns
       ROCrows = ptp.vitems_[0].vpars_[8];
       ROCcols = ptp.vitems_[0].vpars_[9];
       ROCSx = ptp.vitems_[0].vpars_[10];
       ROCSy = ptp.vitems_[0].vpars_[11];
       break;
     case GeomDetType::SubDetector::TimingEndcap:
+      GAPxInterpad = ptp.vitems_[1].vpars_[4];
+      GAPxBorder = ptp.vitems_[1].vpars_[5];
+      GAPyInterpad = ptp.vitems_[1].vpars_[6];
+      GAPyBorder = ptp.vitems_[1].vpars_[7];
       ROCrows = ptp.vitems_[1].vpars_[8];
       ROCcols = ptp.vitems_[1].vpars_[9];
       ROCSx = ptp.vitems_[1].vpars_[10];
@@ -137,14 +146,8 @@ void MTDGeomBuilderFromGeometricTimingDet::buildPixel(
     if (theMTDDetTypeMap.find(detName) == theMTDDetTypeMap.end()) {
       std::unique_ptr<const Bounds> bounds(i->bounds());
 
-      PixelTopology* t = MTDTopologyBuilder().build(&*bounds,
-                                                    true,
-                                                    ROCrows,
-                                                    ROCcols,
-                                                    0,
-                                                    0,  // these are BIG_PIX_XXXXX
-                                                    ROCSx,
-                                                    ROCSy);
+      PixelTopology* t = MTDPixelTopologyBuilder().build(
+          &*bounds, ROCrows, ROCcols, ROCSx, ROCSy, GAPxInterpad, GAPxBorder, GAPyInterpad, GAPyBorder);
 
       theMTDDetTypeMap[detName] = new MTDGeomDetType(t, detName, det);
       tracker->addType(theMTDDetTypeMap[detName]);

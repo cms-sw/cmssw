@@ -71,7 +71,6 @@ workflows[25215.17]=['',['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP17','Hadroni
 workflows[25215.18]=['',['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP18','Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_13UP18','DIGIUP18_PU25','RECOUP18_PU25','HARVESTUP18_PU25']]
 
 workflows[11024.2]=['',['TTbar_13UP18HEfailINPUT','DigiFullHEfail','RecoFullHEfail','HARVESTFullHEfail','NanoFullHEfail']]
-workflows[11024.3]=['',['TTbar_13UP18BadHcalMitigINPUT','DigiFullBadHcalMitig','RecoFullBadHcalMitig','HARVESTFullBadHcalMitig','NanoFullBadHcalMitig']]
 
 #fastsim
 workflows[25400] = ['ZEE_13',["FS_ZEE_13_UP15_PU25","HARVESTUP15FS","MINIAODMCUP15FS"]]

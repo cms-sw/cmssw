@@ -8,10 +8,10 @@
  *
  */
 
-#include <DQM/DTMonitorModule/src/DTDCSByLumiTask.h>
+#include "DQM/DTMonitorModule/src/DTDCSByLumiTask.h"
 
 // Framework
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/EventSetup.h"
 
 // Geometry
 #include "Geometry/DTGeometry/interface/DTLayer.h"
@@ -19,8 +19,8 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <FWCore/Framework/interface/EventSetupRecord.h>
-#include <FWCore/Framework/interface/EventSetupRecordKey.h>
+#include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Utilities/interface/Transition.h"
 
 #include <iostream>

@@ -1,7 +1,7 @@
 #ifndef RecoAlgos_SuperClusterToCandidate_h
 #define RecoAlgos_SuperClusterToCandidate_h
-#include "CommonTools/RecoAlgos/src/MassiveCandidateConverter.h"
-#include "CommonTools/RecoAlgos/src/CandidateProducer.h"
+#include "CommonTools/RecoAlgos/interface/MassiveCandidateConverter.h"
+#include "CommonTools/RecoAlgos/interface/CandidateProducer.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
@@ -12,7 +12,8 @@ namespace converter {
     typedef reco::SuperCluster value_type;
     typedef reco::SuperClusterCollection Components;
     typedef reco::RecoEcalCandidate Candidate;
-    SuperClusterToCandidate(const edm::ParameterSet& cfg) : MassiveCandidateConverter(cfg) {}
+    SuperClusterToCandidate(const edm::ParameterSet& cfg, edm::ConsumesCollector iC)
+        : MassiveCandidateConverter(cfg, iC) {}
     void convert(reco::SuperClusterRef scRef, reco::RecoEcalCandidate& c) const {
       const reco::SuperCluster& sc = *scRef;
       math::XYZPoint v(0, 0, 0);  // this should be taken from something else...

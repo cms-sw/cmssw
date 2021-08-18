@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.MtdValidation.btlSimHitsPostProcessor_cfi import btlSimHitsPostProcessor
-from Validation.MtdValidation.MtdGlobalRecoPostProcessor_cfi import MtdGlobalRecoPostProcessor
+from Validation.MtdValidation.MtdTracksPostProcessor_cfi import MtdTracksPostProcessor
 
-mtdValidationPostProcessor = cms.Sequence(btlSimHitsPostProcessor + MtdGlobalRecoPostProcessor)
+mtdValidationPostProcessor = cms.Sequence(btlSimHitsPostProcessor + MtdTracksPostProcessor)

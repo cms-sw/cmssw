@@ -4,6 +4,9 @@
 <use name="Geometry/CommonDetUnit"/>
 <use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="FWCore/Utilities"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/Math"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>

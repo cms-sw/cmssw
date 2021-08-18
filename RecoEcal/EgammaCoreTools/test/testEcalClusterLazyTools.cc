@@ -28,7 +28,7 @@ Implementation:
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 
 #include <memory>
 
@@ -102,9 +102,9 @@ void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSet
     std::cout << std::endl;
     std::vector<float> vLat = lazyTools.lat(clus);
     std::cout << "lat...................... " << vLat[0] << " " << vLat[1] << " " << vLat[2] << std::endl;
-    std::vector<float> vCov = lazyTools.covariances(clus);
+    const auto& vCov = lazyTools.covariances(clus);
     std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;
-    std::vector<float> vLocCov = lazyTools.localCovariances(clus);
+    const auto& vLocCov = lazyTools.localCovariances(clus);
     std::cout << "local covariances........ " << vLocCov[0] << " " << vLocCov[1] << " " << vLocCov[2] << std::endl;
     std::cout << "zernike20................ " << lazyTools.zernike20(clus) << std::endl;
     std::cout << "zernike42................ " << lazyTools.zernike42(clus) << std::endl;
@@ -132,9 +132,9 @@ void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSet
     std::cout << "e2nd..................... " << lazyTools.e2nd(clus) << std::endl;
     std::vector<float> vLat = lazyTools.lat(clus);
     std::cout << "lat...................... " << vLat[0] << " " << vLat[1] << " " << vLat[2] << std::endl;
-    std::vector<float> vCov = lazyTools.covariances(clus);
+    const auto& vCov = lazyTools.covariances(clus);
     std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;
-    std::vector<float> vLocCov = lazyTools.localCovariances(clus);
+    const auto& vLocCov = lazyTools.localCovariances(clus);
     std::cout << "local covariances........ " << vLocCov[0] << " " << vLocCov[1] << " " << vLocCov[2] << std::endl;
     std::cout << "zernike20................ " << lazyTools.zernike20(clus) << std::endl;
     std::cout << "zernike42................ " << lazyTools.zernike42(clus) << std::endl;

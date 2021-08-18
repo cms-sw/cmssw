@@ -33,8 +33,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -46,7 +44,9 @@
 #include <cmath>
 
 SiPixelRecHitsValid::SiPixelRecHitsValid(const edm::ParameterSet& ps)
-    : trackerHitAssociatorConfig_(ps, consumesCollector()),
+    : tTopoEsToken(esConsumes()),
+      tGeomEsToken(esConsumes()),
+      trackerHitAssociatorConfig_(ps, consumesCollector()),
       siPixelRecHitCollectionToken_(consumes<SiPixelRecHitCollection>(ps.getParameter<edm::InputTag>("src"))) {}
 
 SiPixelRecHitsValid::~SiPixelRecHitsValid() {}
@@ -274,9 +274,7 @@ void SiPixelRecHitsValid::bookHistograms(DQMStore::IBooker& ibooker, const edm::
 
 void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology* tTopo = tTopoHand.product();
+  const TrackerTopology* tTopo = &es.getData(tTopoEsToken);
 
   edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
   if (e.id().event() % 1000 == 0)
@@ -287,21 +285,20 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   e.getByToken(siPixelRecHitCollectionToken_, recHitColl);
 
   //Get event setup
-  edm::ESHandle<TrackerGeometry> geom;
-  es.get<TrackerDigiGeometryRecord>().get(geom);
-  const TrackerGeometry& theTracker(*geom);
+  const TrackerGeometry* theTracker = &es.getData(tGeomEsToken);
 
   TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
 
   //iterate over detunits
-  for (TrackerGeometry::DetContainer::const_iterator it = geom->dets().begin(); it != geom->dets().end(); it++) {
-    DetId detId = ((*it)->geographicalId());
+  //for (TrackerGeometry::DetContainer::const_iterator it = geom->dets().begin(); it != geom->dets().end(); it++) {
+  for (const auto& it : theTracker->dets()) {
+    DetId detId = it->geographicalId();
     unsigned int subid = detId.subdetId();
 
     if (!((subid == 1) || (subid == 2)))
       continue;
 
-    const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));
+    const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker->idToDet(detId));
 
     SiPixelRecHitCollection::const_iterator pixeldet = recHitColl->find(detId);
     if (pixeldet == recHitColl->end())

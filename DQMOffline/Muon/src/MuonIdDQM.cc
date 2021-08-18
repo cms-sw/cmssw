@@ -1,6 +1,7 @@
 #include "DQMOffline/Muon/interface/MuonIdDQM.h"
 
-MuonIdDQM::MuonIdDQM(const edm::ParameterSet& iConfig) {
+MuonIdDQM::MuonIdDQM(const edm::ParameterSet& iConfig)
+    : trackingGeomToken_(esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()) {
   inputMuonCollection_ = consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("inputMuonCollection"));
   inputDTRecSegment4DCollection_ =
       consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("inputDTRecSegment4DCollection"));
@@ -130,7 +131,8 @@ void MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(inputMuonCollection_, muonCollectionH_);
   iEvent.getByToken(inputDTRecSegment4DCollection_, dtSegmentCollectionH_);
   iEvent.getByToken(inputCSCSegmentCollection_, cscSegmentCollectionH_);
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
+
+  geometry_ = iSetup.getHandle(trackingGeomToken_);
 
   for (MuonCollection::const_iterator muon = muonCollectionH_->begin(); muon != muonCollectionH_->end(); ++muon) {
     // trackerMuon == 0; globalMuon == 1; trackerMuon && !globalMuon == 2; globalMuon && !trackerMuon == 3

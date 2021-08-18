@@ -9,7 +9,7 @@
 //
 
 #include "Calibration/HcalCalibAlgos/interface/hcalCalib.h"
-#include "Calibration/HcalCalibAlgos/interface/hcalCalibUtils.h"
+#include "Calibration/HcalCalibAlgos/src/hcalCalibUtils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <TH2.h>

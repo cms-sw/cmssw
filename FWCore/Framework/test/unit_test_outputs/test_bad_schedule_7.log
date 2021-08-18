@@ -1,0 +1,8 @@
+An exception of category 'ScheduleExecutionFailure' occurred while
+   [0] Calling beginJob
+Exception Message:
+Unrunnable schedule
+Circular module dependency found in configuration
+  module 'a' depends on b
+  module 'b' depends on c
+  module 'c' depends on b

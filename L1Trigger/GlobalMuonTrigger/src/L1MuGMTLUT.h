@@ -179,7 +179,7 @@ protected:
       // decode std::string of style "phi(2) eta(4)"
       L1MuGMTLUTHelpers::Tokenizer tok(" ", input);
       for (unsigned int i = 0; i < tok.size(); i++) {
-        size_type obrace = tok[i].find("("), cbrace = tok[i].find(")");
+        size_type obrace = tok[i].find('('), cbrace = tok[i].find(')');
         if (obrace != std::string::npos && cbrace != std::string::npos)
           push_back(
               port(tok[i].substr(0, obrace), (unsigned)atoi(tok[i].substr(obrace + 1, cbrace - obrace - 1).c_str())));

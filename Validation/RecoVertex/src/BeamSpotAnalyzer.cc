@@ -26,7 +26,7 @@
 #include <limits>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -43,7 +43,7 @@
 // class decleration
 //
 
-class AnotherBeamSpotAnalyzer : public edm::EDAnalyzer {
+class AnotherBeamSpotAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit AnotherBeamSpotAnalyzer(const edm::ParameterSet&);
   ~AnotherBeamSpotAnalyzer() override;
@@ -76,7 +76,7 @@ AnotherBeamSpotAnalyzer::AnotherBeamSpotAnalyzer(const edm::ParameterSet& iConfi
     : _bshm(iConfig.getParameter<edm::ParameterSet>("bsHistogramMakerPSet"), consumesCollector()),
       _recoBeamSpotToken(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsCollection"))) {
   //now do what ever initialization is needed
-
+  usesResource(TFileService::kSharedResource);
   //
 
   _bshm.book();

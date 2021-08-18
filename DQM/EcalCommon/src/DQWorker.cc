@@ -9,9 +9,27 @@
 
 #include "DataFormats/Provenance/interface/EventID.h"
 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 namespace ecaldqm {
   DQWorker::DQWorker()
-      : name_(""), MEs_(), booked_(false), timestamp_(), verbosity_(0), onlineMode_(false), willConvertToEDM_(true) {}
+      : name_(""),
+        MEs_(),
+        booked_(false),
+        timestamp_(),
+        verbosity_(0),
+        onlineMode_(false),
+        willConvertToEDM_(true),
+        edso_() {}
 
   DQWorker::~DQWorker() noexcept(false) {}
 
@@ -30,6 +48,18 @@ namespace ecaldqm {
     edm::ParameterSetDescription workerParameters;
     workerParameters.setUnknown();
     _desc.addUntracked("params", workerParameters);
+  }
+
+  void DQWorker::setTokens(edm::ConsumesCollector &_collector) {
+    elecMapHandle = _collector.esConsumes<edm::Transition::BeginRun>();
+    ttMapHandle = _collector.esConsumes<edm::Transition::BeginRun>();
+    geomHandle = _collector.esConsumes<edm::Transition::BeginRun>();
+    topoHandle = _collector.esConsumes<edm::Transition::BeginRun>();
+
+    elecMapHandleEndLumi = _collector.esConsumes<edm::Transition::EndLuminosityBlock>();
+    ttMapHandleEndLumi = _collector.esConsumes<edm::Transition::EndLuminosityBlock>();
+    geomHandleEndLumi = _collector.esConsumes<edm::Transition::EndLuminosityBlock>();
+    topoHandleEndLumi = _collector.esConsumes<edm::Transition::EndLuminosityBlock>();
   }
 
   void DQWorker::initialize(std::string const &_name, edm::ParameterSet const &_commonParams) {
@@ -67,8 +97,58 @@ namespace ecaldqm {
     if (booked_)
       return;
     for (MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr)
-      mItr->second->book(_booker);
+      mItr->second->book(_booker, GetElectronicsMap());
     booked_ = true;
+  }
+
+  void DQWorker::setSetupObjects(edm::EventSetup const &_es) {
+    edso_.electronicsMap = &_es.getData(elecMapHandle);
+    edso_.trigtowerMap = &_es.getData(ttMapHandle);
+    edso_.geometry = &_es.getData(geomHandle);
+    edso_.topology = &_es.getData(topoHandle);
+  }
+
+  void DQWorker::setSetupObjectsEndLumi(edm::EventSetup const &_es) {
+    edso_.electronicsMap = &_es.getData(elecMapHandleEndLumi);
+    edso_.trigtowerMap = &_es.getData(ttMapHandleEndLumi);
+    edso_.geometry = &_es.getData(geomHandleEndLumi);
+    edso_.topology = &_es.getData(topoHandleEndLumi);
+  }
+
+  EcalElectronicsMapping const *DQWorker::GetElectronicsMap() {
+    if (!edso_.electronicsMap)
+      throw cms::Exception("InvalidCall") << "Electronics Mapping not initialized";
+    return edso_.electronicsMap;
+  }
+
+  EcalTrigTowerConstituentsMap const *DQWorker::GetTrigTowerMap() {
+    if (!edso_.trigtowerMap)
+      throw cms::Exception("InvalidCall") << "TrigTowerConstituentsMap not initialized";
+    return edso_.trigtowerMap;
+  }
+
+  CaloGeometry const *DQWorker::GetGeometry() {
+    if (!edso_.geometry)
+      throw cms::Exception("InvalidCall") << "CaloGeometry not initialized";
+    return edso_.geometry;
+  }
+
+  CaloTopology const *DQWorker::GetTopology() {
+    if (!edso_.topology)
+      throw cms::Exception("InvalidCall") << "CaloTopology not initialized";
+    return edso_.topology;
+  }
+
+  EcalDQMSetupObjects const DQWorker::getEcalDQMSetupObjects() {
+    if (!edso_.electronicsMap)
+      throw cms::Exception("InvalidCall") << "Electronics Mapping not initialized";
+    if (!edso_.trigtowerMap)
+      throw cms::Exception("InvalidCall") << "TrigTowerConstituentsMap not initialized";
+    if (!edso_.geometry)
+      throw cms::Exception("InvalidCall") << "CaloGeometry not initialized";
+    if (!edso_.topology)
+      throw cms::Exception("InvalidCall") << "CaloTopology not initialized";
+    return edso_;
   }
 
   void DQWorker::print_(std::string const &_message, int _threshold /* = 0*/) const {

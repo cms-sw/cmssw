@@ -6,8 +6,7 @@ process = cms.Process("NavigationSchoolAnalyze")
 
 # process.load("Configuration.StandardSequences.Geometry_cff")
 #process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D76Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -22,6 +21,13 @@ process.load("RecoTracker.TkNavigation.NavigationSchoolESProducer_cff")
 #process.Tracer = cms.Service("Tracer",
 #    indentation = cms.untracked.string('$$')
 #)
+
+
+#This has to be modified in order to read the tracker + MTD structure
+process.TrackerRecoGeometryESProducer = cms.ESProducer("TrackerMTDRecoGeometryESProducer",
+    usePhase2Stacks = cms.bool(False)
+)
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

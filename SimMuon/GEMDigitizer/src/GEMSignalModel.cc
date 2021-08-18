@@ -57,8 +57,8 @@ void GEMSignalModel::simulate(const GEMEtaPartition* roll,
       if (partMom <= elecMomCut1)
         elecEff = elecEffLowCoeff * std::exp(elecEffLowParam0 * partMom * momConvFact);
       if (partMom > elecMomCut1 && partMom < elecMomCut2)
-        elecEff = elecEffMidCoeff * log(elecEffMidParam1 * partMom * momConvFact - elecEffMidParam0) /
-                  (elecEffMidCoeff + log(elecEffMidParam1 * partMom * momConvFact - elecEffMidParam0));
+        elecEff = elecEffMidCoeff * log(elecEffMidParam1 * partMom * momConvFact + elecEffMidParam0) /
+                  (elecEffMidCoeff + log(elecEffMidParam1 * partMom * momConvFact + elecEffMidParam0));
       if (partMom > elecMomCut2)
         elecEff = 1.;
       if (checkElecEff < elecEff)

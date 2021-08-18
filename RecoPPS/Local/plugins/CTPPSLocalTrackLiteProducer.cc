@@ -238,7 +238,7 @@ void CTPPSLocalTrackLiteProducer::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription desc;
 
   // By default: all includeXYZ flags set to false.
-  // The includeXYZ are switched on when the "ctpps_2016" era is declared in
+  // The includeXYZ are switched on when the "ctpps" era modifier is declared in
   // python config, see:
   // RecoPPS/Local/python/ctppsLocalTrackLiteProducer_cff.py
 

@@ -16,6 +16,8 @@
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFeatureHFEMBit.h"
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFinegrainBit.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include <map>
 #include <vector>
 
@@ -78,10 +80,16 @@ public:
                         HcalTrigPrimDigiCollection& result);
   void setPeakFinderAlgorithm(int algo);
   void setWeightsQIE11(const edm::ParameterSet& weightsQIE11);
+  void setWeightQIE11(int aieta, double weight);
   void setNCTScaleShift(int);
   void setRCTScaleShift(int);
 
+  void setNumFilterPresamplesHBQIE11(int presamples) { numberOfFilterPresamplesHBQIE11_ = presamples; }
+
+  void setNumFilterPresamplesHEQIE11(int presamples) { numberOfFilterPresamplesHEQIE11_ = presamples; }
+
   void setUpgradeFlags(bool hb, bool he, bool hf);
+  void setFixSaturationFlag(bool fix_saturation);
   void overrideParameters(const edm::ParameterSet& ps);
 
 private:
@@ -93,6 +101,7 @@ private:
   void addSignal(const IntegerCaloSamples& samples);
   void addFG(const HcalTrigTowerDetId& id, std::vector<bool>& msb);
   void addUpgradeFG(const HcalTrigTowerDetId& id, int depth, const std::vector<std::bitset<2>>& bits);
+  void addUpgradeTDCFG(const HcalTrigTowerDetId& id, const QIE11DataFrame& frame);
 
   bool passTDC(const QIE10DataFrame& digi, int ts) const;
   bool validUpgradeFG(const HcalTrigTowerDetId& id, int depth) const;
@@ -103,7 +112,10 @@ private:
   /// adds the actual digis
   void analyze(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result);
   // 2017 and later: QIE11
-  void analyzeQIE11(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo);
+  void analyzeQIE11(IntegerCaloSamples& samples,
+                    std::vector<bool> sample_saturation,
+                    HcalTriggerPrimitiveDigi& result,
+                    const HcalFinegrainBit& fg_algo);
   // Version 0: RCT
   void analyzeHF(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const int hf_lumi_shift);
   // Version 1: 1x1
@@ -156,6 +168,9 @@ private:
   typedef std::map<HcalTrigTowerDetId, IntegerCaloSamples> SumMap;
   SumMap theSumMap;
 
+  typedef std::map<HcalTrigTowerDetId, std::vector<bool>> SatMap;
+  SatMap theSatMap;
+
   struct HFDetails {
     IntegerCaloSamples long_fiber;
     IntegerCaloSamples short_fiber;
@@ -199,9 +214,15 @@ private:
   typedef std::map<HcalTrigTowerDetId, FGUpgradeContainer> FGUpgradeMap;
   FGUpgradeMap fgUpgradeMap_;
 
+  typedef std::vector<HcalFinegrainBit::TowerTDC> FGUpgradeTDCContainer;
+  typedef std::map<HcalTrigTowerDetId, FGUpgradeTDCContainer> FGUpgradeTDCMap;
+  FGUpgradeTDCMap fgUpgradeTDCMap_;
+
   bool upgrade_hb_ = false;
   bool upgrade_he_ = false;
   bool upgrade_hf_ = false;
+
+  bool fix_saturation_ = false;
 
   edm::ParameterSet override_parameters_;
 
@@ -243,10 +264,12 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
   conditions_ = conditions;
 
   theSumMap.clear();
+  theSatMap.clear();
   theTowerMapFGSum.clear();
   HF_Veto.clear();
   fgMap_.clear();
   fgUpgradeMap_.clear();
+  fgUpgradeTDCMap_.clear();
   theHFDetailMap.clear();
   theHFUpgradeDetailMap.clear();
 
@@ -286,17 +309,23 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
       if (fgMap_.find(item.first) != fgMap_.end()) {
         analyze(item.second, result.back());
       } else if (fgUpgradeMap_.find(item.first) != fgUpgradeMap_.end()) {
-        analyzeQIE11(item.second, result.back(), fg_algo);
+        SatMap::iterator item_sat = theSatMap.find(detId);
+        if (item_sat == theSatMap.end())
+          analyzeQIE11(item.second, std::vector<bool>(), result.back(), fg_algo);
+        else
+          analyzeQIE11(item.second, item_sat->second, result.back(), fg_algo);
       }
     }
   }
 
   // Free up some memory
   theSumMap.clear();
+  theSatMap.clear();
   theTowerMapFGSum.clear();
   HF_Veto.clear();
   fgMap_.clear();
   fgUpgradeMap_.clear();
+  fgUpgradeTDCMap_.clear();
   theHFDetailMap.clear();
   theHFUpgradeDetailMap.clear();
 

@@ -2,15 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 MonojetPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v",
+#        "HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v",
         "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v",
-        "HLT_MET200_v",
+#        "HLT_MET200_v",
         "HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v",
-        "HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_v",
+#        "HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_v",
         #2016 menu
-        "HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v",
+#        "HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v",
         "HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v",
-        "HLT_MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight_v",
+#        "HLT_MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight_v",
         "HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_v",
         #2017 menu
         "HLT_PFMET110_PFMHT110_IDTight_v",
@@ -32,11 +32,11 @@ MonojetPSet = cms.PSet(
         "HLT_PFHT800_PFMET75_PFMHT75_IDTight_v",
         "HLT_PFHT800_PFMET85_PFMHT85_IDTight_v",
         # For backward compatibility
-        "HLT_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight_v",
-        "HLT_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight_v",
-        "HLT_MET200_JetIdCleaned_v",
-        "HLT_MonoCentralPFJet80_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight_v",
-        "HLT_MonoCentralPFJet80_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight_v"
+#        "HLT_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight_v",
+#        "HLT_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight_v",
+#        "HLT_MET200_JetIdCleaned_v",
+#        "HLT_MonoCentralPFJet80_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight_v",
+#        "HLT_MonoCentralPFJet80_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight_v"
     ),
 
     recCaloJetLabel    = cms.InputTag("ak4CaloJets"),

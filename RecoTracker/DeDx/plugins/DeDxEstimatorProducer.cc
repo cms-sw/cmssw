@@ -20,6 +20,7 @@
 
 // system include files
 #include "RecoTracker/DeDx/plugins/DeDxEstimatorProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 using namespace reco;
 using namespace std;
@@ -44,28 +45,30 @@ void DeDxEstimatorProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   descriptions.add("DeDxEstimatorProducer", desc);
 }
 
-DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig) {
+DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
+    : tkGeomToken(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()) {
   produces<ValueMap<DeDxData>>();
 
+  auto cCollector = consumesCollector();
   string estimatorName = iConfig.getParameter<string>("estimator");
   if (estimatorName == "median")
-    m_estimator = new MedianDeDxEstimator(iConfig);
+    m_estimator = std::make_unique<MedianDeDxEstimator>(iConfig);
   else if (estimatorName == "generic")
-    m_estimator = new GenericAverageDeDxEstimator(iConfig);
+    m_estimator = std::make_unique<GenericAverageDeDxEstimator>(iConfig);
   else if (estimatorName == "truncated")
-    m_estimator = new TruncatedAverageDeDxEstimator(iConfig);
+    m_estimator = std::make_unique<TruncatedAverageDeDxEstimator>(iConfig);
   else if (estimatorName == "genericTruncated")
-    m_estimator = new GenericTruncatedAverageDeDxEstimator(iConfig);
+    m_estimator = std::make_unique<GenericTruncatedAverageDeDxEstimator>(iConfig);
   else if (estimatorName == "unbinnedFit")
-    m_estimator = new UnbinnedFitDeDxEstimator(iConfig);
+    m_estimator = std::make_unique<UnbinnedFitDeDxEstimator>(iConfig);
   else if (estimatorName == "productDiscrim")
-    m_estimator = new ProductDeDxDiscriminator(iConfig);
+    m_estimator = std::make_unique<ProductDeDxDiscriminator>(iConfig, cCollector);
   else if (estimatorName == "btagDiscrim")
-    m_estimator = new BTagLikeDeDxDiscriminator(iConfig);
+    m_estimator = std::make_unique<BTagLikeDeDxDiscriminator>(iConfig, cCollector);
   else if (estimatorName == "smirnovDiscrim")
-    m_estimator = new SmirnovDeDxDiscriminator(iConfig);
+    m_estimator = std::make_unique<SmirnovDeDxDiscriminator>(iConfig, cCollector);
   else if (estimatorName == "asmirnovDiscrim")
-    m_estimator = new ASmirnovDeDxDiscriminator(iConfig);
+    m_estimator = std::make_unique<ASmirnovDeDxDiscriminator>(iConfig, cCollector);
 
   //Commented for now, might be used in the future
   //   MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  255);
@@ -86,11 +89,11 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig) {
         << "Pixel Hits AND Strip Hits will not be used to estimate dEdx --> BUG, Please Update the config file";
 }
 
-DeDxEstimatorProducer::~DeDxEstimatorProducer() { delete m_estimator; }
+DeDxEstimatorProducer::~DeDxEstimatorProducer() {}
 
 // ------------ method called once each job just before starting event loop  ------------
 void DeDxEstimatorProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {
-  iSetup.get<TrackerDigiGeometryRecord>().get(tkGeom);
+  tkGeom = &iSetup.getData(tkGeomToken);
   if (useCalibration && calibGains.empty()) {
     m_off = tkGeom->offsetDU(GeomDetEnumerators::PixelBarrel);  //index start at the first pixel
 

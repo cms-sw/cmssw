@@ -82,9 +82,9 @@ namespace cond {
       cond::Time_t m_runNumber;
       size_t m_latencyInLumisections;
       std::string m_omsServiceUrl;
-      std::string m_lastLumiUrl;
       std::string m_lastLumiFile;
       std::string m_preLoadConnectionString;
+      std::string m_frontierKey;
       bool m_debug;
 
     };  //OnlineDBOutputService

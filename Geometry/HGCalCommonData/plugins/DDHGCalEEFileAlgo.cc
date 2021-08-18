@@ -194,7 +194,7 @@ void DDHGCalEEFileAlgo::initialize(const DDNumericArguments& nArgs,
 #endif
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: NameSpace " << nameSpace_;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: NameSpace " << nameSpace_ << ":";
 #endif
 }
 
@@ -220,9 +220,6 @@ void DDHGCalEEFileAlgo::execute(DDCompactView& cpv) {
 }
 
 void DDHGCalEEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& cpv) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: \t\tInside Layers";
-#endif
   double zi(zMinBlock_);
   int laymin(0);
   for (unsigned int i = 0; i < layers_.size(); i++) {
@@ -250,38 +247,25 @@ void DDHGCalEEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
       DDLogicalPart glog;
       if (layerSense_[ly] < 1) {
         std::vector<double> pgonZ, pgonRin, pgonRout;
-        if (layerSense_[ly] == 0 || absorbMode_ == 0) {
-          double rmax = routF * cosAlpha_ - tol1_;
-          pgonZ.emplace_back(-hthick);
-          pgonZ.emplace_back(hthick);
-          pgonRin.emplace_back(rinB);
-          pgonRin.emplace_back(rinB);
-          pgonRout.emplace_back(rmax);
-          pgonRout.emplace_back(rmax);
-        } else {
-          HGCalGeomTools::radius(zz - hthick,
-                                 zz + hthick,
-                                 zFrontB_,
-                                 rMinFront_,
-                                 slopeB_,
-                                 zFrontT_,
-                                 rMaxFront_,
-                                 slopeT_,
-                                 -layerSense_[ly],
-                                 pgonZ,
-                                 pgonRin,
-                                 pgonRout);
-#ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: z " << (zz - hthick) << ":" << (zz + hthick) << " with "
-                                        << pgonZ.size() << " palnes";
-          for (unsigned int isec = 0; isec < pgonZ.size(); ++isec)
-            edm::LogVerbatim("HGCalGeom")
-                << "[" << isec << "] z " << pgonZ[isec] << " R " << pgonRin[isec] << ":" << pgonRout[isec];
-#endif
-          for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
-            pgonZ[isec] -= zz;
+        double rmax = routF * cosAlpha_ - tol1_;
+        HGCalGeomTools::radius(zz - hthick,
+                               zz + hthick,
+                               zFrontB_,
+                               rMinFront_,
+                               slopeB_,
+                               zFrontT_,
+                               rMaxFront_,
+                               slopeT_,
+                               -layerSense_[ly],
+                               pgonZ,
+                               pgonRin,
+                               pgonRout);
+        for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
+          pgonZ[isec] -= zz;
+          if (layerSense_[ly] == 0 || absorbMode_ == 0)
+            pgonRout[isec] = rmax;
+          else
             pgonRout[isec] = pgonRout[isec] * cosAlpha_ - tol1_;
-          }
         }
         DDSolid solid =
             DDSolidFactory::polyhedra(DDName(name, nameSpace_), sectors_, -alpha_, 2._pi, pgonZ, pgonRin, pgonRout);
@@ -290,7 +274,7 @@ void DDHGCalEEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
         edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: " << solid.name() << " polyhedra of " << sectors_
                                       << " sectors covering " << convertRadToDeg(-alpha_) << ":"
                                       << convertRadToDeg(-alpha_ + 2._pi) << " with " << pgonZ.size()
-                                      << " sections and filled with " << matName << ":" << &matter;
+                                      << " sections and filled with " << matName;
         for (unsigned int k = 0; k < pgonZ.size(); ++k)
           edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << pgonZ[k] << " R " << pgonRin[k] << ":" << pgonRout[k];
 #endif
@@ -302,10 +286,10 @@ void DDHGCalEEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
         DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), hthick, rins, routs, 0.0, 2._pi);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: " << solid.name() << " Tubs made of " << matName << ":"
-                                      << &matter << " of dimensions " << rinB << ":" << rins << ", " << routF << ":"
-                                      << routs << ", " << hthick << ", 0.0, 360.0 and position " << glog.name()
-                                      << " number " << copy << ":" << layerCenter_[copy - firstLayer_];
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: " << solid.name() << " Tubs made of " << matName
+                                      << " of dimensions " << rinB << ":" << rins << ", " << routF << ":" << routs
+                                      << ", " << hthick << ", 0.0, 360.0 and position " << glog.name() << " number "
+                                      << copy << ":" << layerCenter_[copy - firstLayer_];
 #endif
         positionSensitive(glog, rins, routs, zz, layerSense_[ly], (copy - firstLayer_), cpv);
       }
@@ -315,7 +299,7 @@ void DDHGCalEEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
       ++copyNumber_[ii];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: " << glog.name() << " number " << copy << " positioned in "
-                                    << module.name() << " at " << r1 << " with " << rot;
+                                    << module.name() << " at " << r1 << " with no rotation";
 #endif
       zz += hthick;
     }  // End of loop over layers in a block
@@ -404,7 +388,7 @@ void DDHGCalEEFileAlgo::positionSensitive(
           ++ntype[type];
           edm::LogVerbatim("HGCalGeom") << " DDHGCalEEFileAlgo: " << name << " number " << copy << " type " << layertype
                                         << ":" << type << " positioned in " << glog.ddname() << " at " << tran
-                                        << " with " << rotation;
+                                        << " with no rotation";
 #endif
         }
       }

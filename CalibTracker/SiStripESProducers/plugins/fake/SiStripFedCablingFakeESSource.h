@@ -2,7 +2,7 @@
 #define CalibTracker_SiStripESProducers_SiStripFedCablingFakeESSource_H
 
 #include "CalibTracker/SiStripESProducers/interface/SiStripFedCablingESProducer.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetInfo.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -32,7 +32,7 @@ private:
   /** Location of ascii file containing FedIds. */
   edm::FileInPath fedIds_;
   edm::ParameterSet pset_;
-  SiStripDetInfoFileReader m_detInfoFileReader;
+  SiStripDetInfo m_detInfo;
 };
 
 #endif  // CalibTracker_SiStripESProducers_SiStripFedCablingFakeESSource_H

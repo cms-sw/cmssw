@@ -9,7 +9,6 @@
 <use name="Geometry/DTGeometry"/>
 <use name="Geometry/RPCGeometry"/>
 <use name="Geometry/Records"/>
-<use name="roofitcore"/>
 <use name="vdt"/>
 <export>
   <lib name="1"/>

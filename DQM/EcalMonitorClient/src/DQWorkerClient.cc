@@ -100,7 +100,7 @@ namespace ecaldqm {
         continue;
       if (verbosity_ > 1)
         edm::LogInfo("EcalDQM") << name_ << ": Retrieving source " << sItr->first;
-      if (!sItr->second->retrieve(_igetter, &failedPath)) {
+      if (!sItr->second->retrieve(GetElectronicsMap(), _igetter, &failedPath)) {
         if (verbosity_ > 1)
           edm::LogWarning("EcalDQM") << name_ << ": Could not find source " << sItr->first << "@" << failedPath;
         return false;
@@ -126,19 +126,19 @@ namespace ecaldqm {
             multi->use(iS);
             if (multi->getKind() == MonitorElement::Kind::TH2F) {
               multi->resetAll(-1.);
-              multi->reset(kUnknown);
+              multi->reset(GetElectronicsMap(), kUnknown);
             } else
-              multi->reset(-1.);
+              multi->reset(GetElectronicsMap(), -1.);
           }
         } else {
           if (meset->getKind() == MonitorElement::Kind::TH2F) {
             meset->resetAll(-1.);
-            meset->reset(kUnknown);
+            meset->reset(GetElectronicsMap(), kUnknown);
           } else
-            meset->reset(-1.);
+            meset->reset(GetElectronicsMap(), -1.);
         }
       } else
-        meset->reset();
+        meset->reset(GetElectronicsMap());
     }
   }
 
@@ -159,13 +159,14 @@ namespace ecaldqm {
   void DQWorkerClient::towerAverage_(MESet& _target, MESet const& _source, float _threshold) {
     bool isQuality(_threshold > 0.);
 
-    MESet::iterator tEnd(_target.end());
-    for (MESet::iterator tItr(_target.beginChannel()); tItr != tEnd; tItr.toNextChannel()) {
+    MESet::iterator tEnd(_target.end(GetElectronicsMap()));
+    for (MESet::iterator tItr(_target.beginChannel(GetElectronicsMap())); tItr != tEnd;
+         tItr.toNextChannel(GetElectronicsMap())) {
       DetId towerId(tItr->getId());
 
       std::vector<DetId> cryIds;
       if (towerId.subdetId() == EcalTriggerTower)
-        cryIds = getTrigTowerMap()->constituentsOf(EcalTrigTowerDetId(towerId));
+        cryIds = GetTrigTowerMap()->constituentsOf(EcalTrigTowerDetId(towerId));
       else {
         cryIds = scConstituents(EcalScDetId(towerId));
       }
@@ -177,7 +178,7 @@ namespace ecaldqm {
       float nValid(0.);
       bool masked(false);
       for (unsigned iId(0); iId < cryIds.size(); ++iId) {
-        float content(_source.getBinContent(cryIds[iId]));
+        float content(_source.getBinContent(getEcalDQMSetupObjects(), cryIds[iId]));
         if (isQuality) {
           if (content < 0. || content == 2.)
             continue;

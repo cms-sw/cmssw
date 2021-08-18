@@ -8,6 +8,7 @@
 <use name="RecoVertex/KalmanVertexFit"/>
 <use name="RecoVertex/VertexPrimitives"/>
 <use name="RecoVertex/VertexTools"/>
+<use name="TrackingTools/Records"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="vdt_headers"/>
 <export>

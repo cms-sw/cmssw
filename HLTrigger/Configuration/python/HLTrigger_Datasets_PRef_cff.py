@@ -1,4 +1,4 @@
-# /dev/CMSSW_11_3_0/PRef
+# /dev/CMSSW_12_0_0/PRef
 
 import FWCore.ParameterSet.Config as cms
 
@@ -16,8 +16,8 @@ streamPhysicsCommissioning_datasetZeroBias_selector.hltResults = cms.InputTag('T
 streamPhysicsCommissioning_datasetZeroBias_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetZeroBias_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetZeroBias_selector.triggerConditions = cms.vstring(
-    'HLT_Random_v3', 
-    'HLT_ZeroBias_FirstCollisionAfterAbortGap_v5', 
+    'HLT_Random_v3',
+    'HLT_ZeroBias_FirstCollisionAfterAbortGap_v5',
     'HLT_ZeroBias_v6'
 )
 
@@ -29,8 +29,8 @@ streamPhysicsEndOfFill_datasetEmptyBX_selector.hltResults = cms.InputTag('Trigge
 streamPhysicsEndOfFill_datasetEmptyBX_selector.l1tResults = cms.InputTag('')
 streamPhysicsEndOfFill_datasetEmptyBX_selector.throw      = cms.bool(False)
 streamPhysicsEndOfFill_datasetEmptyBX_selector.triggerConditions = cms.vstring(
-    'HLT_HIL1NotBptxORForPPRef_v2', 
-    'HLT_HIL1UnpairedBunchBptxMinusForPPRef_v2', 
+    'HLT_HIL1NotBptxORForPPRef_v2',
+    'HLT_HIL1UnpairedBunchBptxMinusForPPRef_v2',
     'HLT_HIL1UnpairedBunchBptxPlusForPPRef_v2'
 )
 

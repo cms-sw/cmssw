@@ -1,5 +1,7 @@
 #include "CondTools/RPC/plugins/RPCInverseOMTFLinkMapESProducer.h"
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -10,7 +12,8 @@
 #include "CondFormats/DataRecord/interface/RPCInverseOMTFLinkMapRcd.h"
 
 RPCInverseOMTFLinkMapESProducer::RPCInverseOMTFLinkMapESProducer(edm::ParameterSet const& _config) {
-  setWhatProduced(this);
+  auto cc = setWhatProduced(this);
+  es_rpc_omt_l_map_token_ = cc.consumesFrom<RPCAMCLinkMap, RPCOMTFLinkMapRcd>();
 }
 
 void RPCInverseOMTFLinkMapESProducer::fillDescriptions(edm::ConfigurationDescriptions& _descs) {
@@ -23,10 +26,8 @@ void RPCInverseOMTFLinkMapESProducer::setupRPCOMTFLinkMap(RPCOMTFLinkMapRcd cons
   RPCInverseAMCLinkMap::map_type& _inverse_map(inverse_linkmap->getMap());
   _inverse_map.clear();
 
-  edm::ESHandle<RPCAMCLinkMap> _es_map;
-  _rcd.get(_es_map);
+  RPCAMCLinkMap const& _map = _rcd.get(es_rpc_omt_l_map_token_);
 
-  RPCAMCLinkMap const& _map = *(_es_map.product());
   for (auto const& _link : _map.getMap()) {
     _inverse_map.insert(RPCInverseAMCLinkMap::map_type::value_type(_link.second, _link.first));
   }

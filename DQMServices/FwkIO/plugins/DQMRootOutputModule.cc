@@ -20,13 +20,14 @@
 #include <string>
 #include <vector>
 
-#include <boost/filesystem.hpp>
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
+
+#include "tbb/task_arena.h"
 
 // user include files
 #include "FWCore/Framework/interface/one/OutputModule.h"
@@ -91,7 +92,7 @@ namespace {
       m_bufferPtr = dynamic_cast<T*>(iElement->getRootObject());
       assert(nullptr != m_bufferPtr);
       //std::cout <<"#entries: "<<m_bufferPtr->GetEntries()<<std::endl;
-      m_tree->Fill();
+      tbb::this_task_arena::isolate([&] { m_tree->Fill(); });
     }
 
   private:
@@ -119,7 +120,7 @@ namespace {
       *m_fullNameBufferPtr = iElement->getFullname();
       m_flagBuffer = 0;
       m_buffer = iElement->getIntValue();
-      m_tree->Fill();
+      tbb::this_task_arena::isolate([&] { m_tree->Fill(); });
     }
 
   private:
@@ -144,7 +145,7 @@ namespace {
       *m_fullNameBufferPtr = iElement->getFullname();
       m_flagBuffer = 0;
       m_buffer = iElement->getFloatValue();
-      m_tree->Fill();
+      tbb::this_task_arena::isolate([&] { m_tree->Fill(); });
     }
 
   private:
@@ -170,7 +171,7 @@ namespace {
       *m_fullNameBufferPtr = iElement->getFullname();
       m_flagBuffer = 0;
       m_buffer = iElement->getStringValue();
-      m_tree->Fill();
+      tbb::this_task_arena::isolate([&] { m_tree->Fill(); });
     }
 
   private:
@@ -421,7 +422,7 @@ void DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput con
       m_type = typeIndex;
       (*it)->getRangeAndReset(m_firstIndex, m_lastIndex);
       storedLumiIndex = true;
-      m_indicesTree->Fill();
+      tbb::this_task_arena::isolate([&] { m_indicesTree->Fill(); });
     }
   }
   if (not storedLumiIndex) {
@@ -430,7 +431,7 @@ void DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput con
     m_type = kNoTypesStored;
     m_firstIndex = 0;
     m_lastIndex = 0;
-    m_indicesTree->Fill();
+    tbb::this_task_arena::isolate([&] { m_indicesTree->Fill(); });
   }
 
   edm::Service<edm::JobReport> jr;
@@ -475,7 +476,7 @@ void DQMRootOutputModule::writeRun(edm::RunForOutput const& iRun) {
     if ((*it)->wasFilled()) {
       m_type = typeIndex;
       (*it)->getRangeAndReset(m_firstIndex, m_lastIndex);
-      m_indicesTree->Fill();
+      tbb::this_task_arena::isolate([&] { m_indicesTree->Fill(); });
     }
   }
 
@@ -522,7 +523,7 @@ void DQMRootOutputModule::startEndFile() {
       releaseVersion = itPC->releaseVersion();
       passID = itPC->passID();
       parameterSetID = itPC->parameterSetID().compactForm();
-      processHistoryTree->Fill();
+      tbb::this_task_arena::isolate([&] { processHistoryTree->Fill(); });
     }
   }
 
@@ -537,7 +538,7 @@ void DQMRootOutputModule::startEndFile() {
   for (edm::pset::Registry::const_iterator it = psr->begin(), itEnd = psr->end(); it != itEnd; ++it) {
     blob.clear();
     it->second.toString(blob);
-    parameterSetsTree->Fill();
+    tbb::this_task_arena::isolate([&] { parameterSetsTree->Fill(); });
   }
 }
 

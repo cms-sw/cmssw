@@ -104,7 +104,9 @@ private:
   edm::Handle<reco::MuonTimeExtraMap> dtMuonTimeExtraValueMapH_;
   edm::Handle<edm::ValueMap<reco::MuonCosmicCompatibility>> muonCosmicCompatibilityValueMapH_;
   edm::Handle<edm::ValueMap<reco::MuonShower>> muonShowerInformationValueMapH_;
+
   edm::ESHandle<GlobalTrackingGeometry> geometry_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeomToken_;
 
   // trackerMuon == 0; globalMuon == 1
   // energy deposits

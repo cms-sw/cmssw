@@ -76,7 +76,8 @@ void l1t::MuonRawDigiTranslator::fillMuonStableQuantities(Muon& mu, uint32_t raw
   mu.setPhiAtVtx(muAtVtx.phi());
 
   int hwPtUnconstrained{mu.hwPtUnconstrained()};
-  mu.setPtUnconstrained(hwPtUnconstrained == 0 ? 0 : (hwPtUnconstrained - 1) * 0.5);  // Don't want negative pT.
+  mu.setPtUnconstrained(
+      hwPtUnconstrained == 0 ? 0 : (hwPtUnconstrained - 1));  // Don't want negative pT, unconstr. pT has LSB of 1 GeV.
 }
 
 void l1t::MuonRawDigiTranslator::fillMuon(
@@ -237,7 +238,7 @@ void l1t::MuonRawDigiTranslator::generatePackedDataWordsRun3(const Muon& mu,
   }
 
   // Adjust if we're packing the November 2020 MWGR
-  if (wasSpecialMWGR) {
+  if (wasSpecialMWGR && (muInBx == 1 || muInBx == 2)) {
     --absEtaShiftRun3;
     --etaSignShiftRun3;
   }

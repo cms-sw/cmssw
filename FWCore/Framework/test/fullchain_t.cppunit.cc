@@ -18,7 +18,7 @@
 #include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/test/DummyProxyProvider.h"
 #include "FWCore/Framework/test/DummyRecord.h"
-#include "FWCore/Framework/src/EventSetupsController.h"
+#include "FWCore/Framework/src/SynchronousEventSetupsController.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Concurrency/interface/ThreadsController.h"
@@ -67,7 +67,7 @@ private:
 CPPUNIT_TEST_SUITE_REGISTRATION(testfullChain);
 
 void testfullChain::getfromDataproxyproviderTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -78,10 +78,11 @@ void testfullChain::getfromDataproxyproviderTest() {
   auto proxyProvider = std::make_shared<DummyProxyProvider>();
   provider.add(proxyProvider);
 
+  edm::ESParentContext pc;
   for (unsigned int iTime = 1; iTime != 6; ++iTime) {
     const Timestamp time(iTime);
     controller.eventSetupForInstance(IOVSyncValue(time));
-    EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, false);
+    EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, pc, false);
     ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());

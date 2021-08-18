@@ -120,10 +120,8 @@ Phase2ITValidateCluster::~Phase2ITValidateCluster() {
 // -- DQM Begin Run
 //
 void Phase2ITValidateCluster::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
-  tkGeom_ = &(*geomHandle);
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  tTopo_ = tTopoHandle.product();
+  tkGeom_ = &iSetup.getData(geomToken_);
+  tTopo_ = &iSetup.getData(topoToken_);
 }
 
 // -- Analyze
@@ -132,16 +130,13 @@ void Phase2ITValidateCluster::analyze(const edm::Event& iEvent, const edm::Event
   // Getting simHits
   std::vector<edm::Handle<edm::PSimHitContainer>> simHits;
   for (const auto& itoken : simHitTokens_) {
-    edm::Handle<edm::PSimHitContainer> simHitHandle;
-    iEvent.getByToken(itoken, simHitHandle);
+    const auto& simHitHandle = iEvent.getHandle(itoken);
     if (!simHitHandle.isValid())
       continue;
     simHits.emplace_back(simHitHandle);
   }
   // Get the SimTracks
-  edm::Handle<edm::SimTrackContainer> simTracksRaw;
-  iEvent.getByToken(simTracksToken_, simTracksRaw);
-
+  const auto& simTracksRaw = iEvent.getHandle(simTracksToken_);
   // Rearrange the simTracks for ease of use <simTrackID, simTrack>
   SimTracksMap simTracks;
   for (edm::SimTrackContainer::const_iterator simTrackIt(simTracksRaw->begin()); simTrackIt != simTracksRaw->end();
@@ -157,12 +152,9 @@ void Phase2ITValidateCluster::fillITHistos(const edm::Event& iEvent,
                                            const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
                                            const std::map<unsigned int, SimTrack>& simTracks) {
   // Getting the clusters
-  edm::Handle<edmNew::DetSetVector<SiPixelCluster>> clusterHandle;
-  iEvent.getByToken(clustersToken_, clusterHandle);
-
+  const auto& clusterHandle = iEvent.getHandle(clustersToken_);
   // Getting PixelDigiSimLinks
-  edm::Handle<edm::DetSetVector<PixelDigiSimLink>> pixelSimLinksHandle;
-  iEvent.getByToken(simITLinksToken_, pixelSimLinksHandle);
+  const auto& pixelSimLinksHandle = iEvent.getHandle(simITLinksToken_);
 
   for (const auto& DSVItr : *clusterHandle) {
     // Getting the id of detector unit
@@ -196,15 +188,18 @@ void Phase2ITValidateCluster::fillITHistos(const edm::Event& iEvent,
       }
       std::sort(clusterSimTrackIds.begin(), clusterSimTrackIds.end());
       const PSimHit* closestSimHit = nullptr;
-      float minx = 10000.;
+      float mind = 10000.;
       // Get the SimHit
       for (const auto& psimhitCont : simHits) {
         for (const auto& simhitIt : *psimhitCont) {
           if (rawid == simhitIt.detUnitId()) {
             auto it = std::lower_bound(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), simhitIt.trackId());
             if (it != clusterSimTrackIds.end() && *it == simhitIt.trackId()) {
-              if (!closestSimHit || fabs(simhitIt.localPosition().x() - localPosCluster.x()) < minx) {
-                minx = abs(simhitIt.localPosition().x() - localPosCluster.x());
+              float dx = simhitIt.localPosition().x() - localPosCluster.x();
+              float dy = simhitIt.localPosition().y() - localPosCluster.y();
+              float dist = dx * dx + dy * dy;
+              if (!closestSimHit || dist < mind) {
+                mind = dist;
                 closestSimHit = &simhitIt;
               }
             }
@@ -219,8 +214,8 @@ void Phase2ITValidateCluster::fillITHistos(const edm::Event& iEvent,
       if (simTrackIt == simTracks.end())
         continue;
       Local3DPoint localPosSimHit(closestSimHit->localPosition());
-      const double deltaX = localPosCluster.x() - localPosSimHit.x();
-      const double deltaY = localPosCluster.y() - localPosSimHit.y();
+      const double deltaX = phase2tkutil::cmtomicron * (localPosCluster.x() - localPosSimHit.x());
+      const double deltaY = phase2tkutil::cmtomicron * (localPosCluster.y() - localPosSimHit.y());
 
       auto layerMEIt = layerMEs_.find(folderkey);
       if (layerMEIt == layerMEs_.end())
@@ -312,40 +307,40 @@ void Phase2ITValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_Pixel");
-    psd0.add<std::string>("title", "#Delta X;Cluster resolution X dimension");
+    psd0.add<std::string>("title", "#Delta X;Cluster resolution X coordinate [#mum]");
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 5.0);
-    psd0.add<double>("xmin", -5.0);
+    psd0.add<double>("xmax", 250.);
+    psd0.add<double>("xmin", -250.);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_X_Pixel", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_Pixel");
-    psd0.add<std::string>("title", "#Delta Y ;Cluster resolution Y dimension");
-    psd0.add<double>("xmin", -5.0);
+    psd0.add<std::string>("title", "#Delta Y ;Cluster resolution Y coordinate [#mum]");
+    psd0.add<double>("xmin", -250.);
+    psd0.add<double>("xmax", 250.);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 5.0);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Y_Pixel", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_Pixel_Primary");
-    psd0.add<std::string>("title", "#Delta X ;cluster resolution X dimension");
-    psd0.add<double>("xmin", -5.0);
+    psd0.add<std::string>("title", "#Delta X ;cluster resolution X coordinate [#mum]");
+    psd0.add<double>("xmin", -250.);
+    psd0.add<double>("xmax", 250.);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 5.0);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_X_Pixel_Primary", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_Pixel_Primary");
-    psd0.add<std::string>("title", "#Delta Y ;cluster resolution Y dimension");
-    psd0.add<double>("xmin", -5.0);
+    psd0.add<std::string>("title", "#Delta Y ;cluster resolution Y coordinate [#mum]");
+    psd0.add<double>("xmin", -250.);
+    psd0.add<double>("xmax", 250.);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 5.0);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Y_Pixel_Primary", psd0);
   }

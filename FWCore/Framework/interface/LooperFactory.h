@@ -25,6 +25,7 @@
 // user include files
 #include "FWCore/Framework/interface/ComponentFactory.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
 
 // forward declarations
 namespace edm {
@@ -104,7 +105,8 @@ namespace edm {
   }  // namespace eventsetup
 }  // namespace edm
 
-#define DEFINE_FWK_LOOPER(type) \
-  DEFINE_EDM_PLUGIN(edm::eventsetup::LooperPluginFactory, edm::eventsetup::LooperMaker<type>, #type)
+#define DEFINE_FWK_LOOPER(type)                                                                       \
+  DEFINE_EDM_PLUGIN(edm::eventsetup::LooperPluginFactory, edm::eventsetup::LooperMaker<type>, #type); \
+  DEFINE_DESC_FILLER_FOR_EDLOOPERS(type)
 
 #endif

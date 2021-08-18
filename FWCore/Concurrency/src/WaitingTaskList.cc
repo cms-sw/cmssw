@@ -69,7 +69,7 @@ void WaitingTaskList::reset() {
   m_waiting = true;
 }
 
-WaitingTaskList::WaitNode* WaitingTaskList::createNode(WaitingTask* iTask) {
+WaitingTaskList::WaitNode* WaitingTaskList::createNode(tbb::task_group* iGroup, WaitingTask* iTask) {
   unsigned int index = m_lastAssignedCacheIndex++;
 
   WaitNode* returnValue;
@@ -80,6 +80,7 @@ WaitingTaskList::WaitNode* WaitingTaskList::createNode(WaitingTask* iTask) {
     returnValue->m_fromCache = false;
   }
   returnValue->m_task = iTask;
+  returnValue->m_group = iGroup;
   //No other thread can see m_next yet. The caller to create node
   // will be doing a synchronization operation anyway which will
   // make sure m_task and m_next are synched across threads
@@ -95,7 +96,7 @@ void WaitingTaskList::add(WaitingTaskHolder iTask) {
     }
   } else {
     auto task = iTask.release_no_decrement();
-    WaitNode* newHead = createNode(task);
+    WaitNode* newHead = createNode(iTask.group(), task);
     //This exchange is sequentially consistent thereby
     // ensuring ordering between it and setNextNode
     WaitNode* oldHead = m_head.exchange(newHead);
@@ -111,7 +112,7 @@ void WaitingTaskList::add(WaitingTaskHolder iTask) {
       newHead->setNextNode(nullptr);
       if (!m_waiting) {
         //if finished waiting right before we did the
-        // exchange our task will not be spawned. Also,
+        // exchange our task will not be run. Also,
         // additional threads may be calling add() and swapping
         // heads and linking us to the new head.
         // It is safe to call announce from multiple threads
@@ -121,17 +122,20 @@ void WaitingTaskList::add(WaitingTaskHolder iTask) {
   }
 }
 
-void WaitingTaskList::add(WaitingTask* iTask) {
+void WaitingTaskList::add(tbb::task_group* iGroup, WaitingTask* iTask) {
   iTask->increment_ref_count();
   if (!m_waiting) {
     if (UNLIKELY(bool(m_exceptionPtr))) {
       iTask->dependentTaskFailed(m_exceptionPtr);
     }
     if (0 == iTask->decrement_ref_count()) {
-      tbb::task::spawn(*iTask);
+      iGroup->run([iTask]() {
+        TaskSentry s{iTask};
+        iTask->execute();
+      });
     }
   } else {
-    WaitNode* newHead = createNode(iTask);
+    WaitNode* newHead = createNode(iGroup, iTask);
     //This exchange is sequentially consistent thereby
     // ensuring ordering between it and setNextNode
     WaitNode* oldHead = m_head.exchange(newHead);
@@ -146,7 +150,7 @@ void WaitingTaskList::add(WaitingTask* iTask) {
     if (nullptr == oldHead) {
       if (!m_waiting) {
         //if finished waiting right before we did the
-        // exchange our task will not be spawned. Also,
+        // exchange our task will not be run. Also,
         // additional threads may be calling add() and swapping
         // heads and linking us to the new head.
         // It is safe to call announce from multiple threads
@@ -185,6 +189,7 @@ void WaitingTaskList::announce() {
       hardware_pause();
     }
     auto t = n->m_task;
+    auto g = n->m_group;
     if (UNLIKELY(bool(m_exceptionPtr))) {
       t->dependentTaskFailed(m_exceptionPtr);
     }
@@ -196,7 +201,10 @@ void WaitingTaskList::announce() {
     //the task may indirectly call WaitingTaskList::reset
     // so we need to call spawn after we are done using the node.
     if (0 == t->decrement_ref_count()) {
-      tbb::task::spawn(*t);
+      g->run([t]() {
+        TaskSentry s{t};
+        t->execute();
+      });
     }
   }
 }

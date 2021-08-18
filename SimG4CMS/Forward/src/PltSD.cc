@@ -1,8 +1,6 @@
 #include "SimG4CMS/Forward/interface/PltSD.h"
 
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4Step.hh"
@@ -15,12 +13,13 @@
 
 #include <iostream>
 
+//#define EDM_ML_DEBUG
+
 PltSD::PltSD(const std::string& name,
-             const edm::EventSetup& es,
              const SensitiveDetectorCatalog& clg,
              edm::ParameterSet const& p,
              const SimTrackManager* manager)
-    : TimingSD(name, es, clg, p, manager) {
+    : TimingSD(name, clg, manager) {
   edm::ParameterSet m_TrackerSD = p.getParameter<edm::ParameterSet>("PltSD");
   energyCut =
       m_TrackerSD.getParameter<double>("EnergyThresholdForPersistencyInGeV") * CLHEP::GeV;  //default must be 0.5
@@ -35,8 +34,9 @@ PltSD::~PltSD() {}
 uint32_t PltSD::setDetUnitId(const G4Step* aStep) {
   unsigned int detId = 0;
 
-  LogDebug("PltSD") << " DetID = " << detId;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("PltSD") << " DetID = " << detId;
+#endif
   //Find number of levels
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   int level = 0;
@@ -50,11 +50,11 @@ uint32_t PltSD::setDetUnitId(const G4Step* aStep) {
     G4String telName = touch->GetVolume(3)->GetName();
     G4String volumeName = touch->GetVolume(4)->GetName();
     if (sensorName != "PLTSensorPlane")
-      std::cout << " PltSD::setDetUnitId -w- Sensor name not PLTSensorPlane " << std::endl;
+      edm::LogVerbatim("PltSD") << " PltSD::setDetUnitId -w- Sensor name not PLTSensorPlane ";
     if (telName != "Telescope")
-      std::cout << " PltSD::setDetUnitId -w- Telescope name not Telescope " << std::endl;
+      edm::LogVerbatim("PltSD") << " PltSD::setDetUnitId -w- Telescope name not Telescope ";
     if (volumeName != "PLT")
-      std::cout << " PltSD::setDetUnitId -w- Volume name not PLT " << std::endl;
+      edm::LogVerbatim("PltSD") << " PltSD::setDetUnitId -w- Volume name not PLT ";
 
     //Get the information about which telescope, plane, row/column was hit
     int columnNum = touch->GetReplicaNumber(0);
@@ -113,7 +113,11 @@ uint32_t PltSD::setDetUnitId(const G4Step* aStep) {
     //Define unique detId for each pixel.  See https://twiki.cern.ch/twiki/bin/viewauth/CMS/PLTSimulationGuide for more information
     detId =
         10000000 * pltNum + 1000000 * halfCarriageNum + 100000 * telNum + 10000 * sensorNum + 100 * rowNum + columnNum;
-    //std::cout <<  "Hit Recorded at " << "plt:" << pltNum << " hc:" << halfCarriageNum << " tel:" << telNum << " plane:" << sensorNum << std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("PltSD") << "Hit Recorded at "
+                              << "plt:" << pltNum << " hc:" << halfCarriageNum << " tel:" << telNum
+                              << " plane:" << sensorNum;
+#endif
   }
   return detId;
 }

@@ -135,6 +135,12 @@ namespace {
                                                       {align::AlignableCSCRing, "CSCRing"},
                                                       {align::AlignableCSCChamber, "CSCChamber"},
                                                       {align::AlignableCSCLayer, "CSCLayer"},
+                                                      {align::AlignableGEMEndcap, "GEMEndcap"},
+                                                      {align::AlignableGEMStation, "GEMStation"},
+                                                      {align::AlignableGEMRing, "GEMRing"},
+                                                      {align::AlignableGEMSuperChamber, "GEMSuperChamber"},
+                                                      {align::AlignableGEMChamber, "GEMChamber"},
+                                                      {align::AlignableGEMEtaPartition, "GEMEtaPartition"},
                                                       {align::AlignableMuon, "Muon"},
 
                                                       {align::BeamSpot, "BeamSpot"},
@@ -201,6 +207,12 @@ namespace {
                                                        {align::AlignableCSCRing, "CSCRing"},
                                                        {align::AlignableCSCChamber, "CSCChamber"},
                                                        {align::AlignableCSCLayer, "CSCLayer"},
+                                                       {align::AlignableGEMEndcap, "GEMEndcap"},
+                                                       {align::AlignableGEMStation, "GEMStation"},
+                                                       {align::AlignableGEMRing, "GEMRing"},
+                                                       {align::AlignableGEMSuperChamber, "GEMSuperChamber"},
+                                                       {align::AlignableGEMChamber, "GEMChamber"},
+                                                       {align::AlignableGEMEtaPartition, "GEMEtaPartition"},
                                                        {align::AlignableMuon, "Muon"},
 
                                                        {align::BeamSpot, "BeamSpot"},
@@ -213,8 +225,9 @@ namespace {
   }
 
   constexpr enum align::StructureType stringToObjectId(char const *name, AlignableObjectId::entry const *entries) {
-    return !entries->name ? align::invalid
-                          : same(entries->name, name) ? entries->type : stringToObjectId(name, entries + 1);
+    return !entries->name              ? align::invalid
+           : same(entries->name, name) ? entries->type
+                                       : stringToObjectId(name, entries + 1);
   }
 }  // namespace
 
@@ -246,8 +259,9 @@ AlignableObjectId ::AlignableObjectId(AlignableObjectId::Geometry geometry) : ge
 //_____________________________________________________________________________
 AlignableObjectId ::AlignableObjectId(const TrackerGeometry *tracker,
                                       const DTGeometry *muonDt,
-                                      const CSCGeometry *muonCsc)
-    : AlignableObjectId(commonGeometry(trackerGeometry(tracker), muonGeometry(muonDt, muonCsc))) {}
+                                      const CSCGeometry *muonCsc,
+                                      const GEMGeometry *muonGem)
+    : AlignableObjectId(commonGeometry(trackerGeometry(tracker), muonGeometry(muonDt, muonCsc, muonGem))) {}
 
 //_____________________________________________________________________________
 align::StructureType AlignableObjectId::nameToType(const std::string &name) const { return stringToId(name.c_str()); }
@@ -299,7 +313,9 @@ AlignableObjectId::Geometry AlignableObjectId ::trackerGeometry(const TrackerGeo
   }
 }
 
-AlignableObjectId::Geometry AlignableObjectId ::muonGeometry(const DTGeometry *, const CSCGeometry *) {
+AlignableObjectId::Geometry AlignableObjectId ::muonGeometry(const DTGeometry *,
+                                                             const CSCGeometry *,
+                                                             const GEMGeometry *) {
   // muon alignment structure types are identical for all kinds of geometries
   return Geometry::General;
 }

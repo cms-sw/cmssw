@@ -228,9 +228,10 @@ namespace cms {
     namespace impl {
       template <typename F>
       void ScopedContextHolderHelper::pushNextTask(F&& f, ContextState const* state) {
+        auto group = waitingTaskHolder_.group();
         replaceWaitingTaskHolder(edm::WaitingTaskWithArenaHolder{
-            edm::make_waiting_task_with_holder(tbb::task::allocate_root(),
-                                               std::move(waitingTaskHolder_),
+            *group,
+            edm::make_waiting_task_with_holder(std::move(waitingTaskHolder_),
                                                [state, func = std::forward<F>(f)](edm::WaitingTaskWithArenaHolder h) {
                                                  func(ScopedContextTask{state, std::move(h)});
                                                })});

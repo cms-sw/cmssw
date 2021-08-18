@@ -5,7 +5,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"
 #include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculatorDisk.h"
 #include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculatorOverlap.h"
-#include "L1Trigger/TrackFindingTracklet/interface/VMRouterPhiCorrTable.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 #include "L1Trigger/TrackFindingTracklet/interface/HistBase.h"
 
 using namespace std;

@@ -107,6 +107,7 @@ private:
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryEventToken_;
 
   bool excludeMultipleHits_;
+  bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
   double horizontalShiftBwDiamondPixels_;
   double horizontalShiftOfDiamond_;
   std::vector<std::pair<edm::EventRange, int>> runParameters_;
@@ -486,6 +487,7 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
       ctppsGeometryRunToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord, edm::Transition::BeginRun>()),
       ctppsGeometryEventToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
       excludeMultipleHits_(ps.getParameter<bool>("excludeMultipleHits")),
+      perLSsaving_(ps.getUntrackedParameter<bool>("perLSsaving", false)),
       centralOOT_(-999),
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
       EC_difference_56_(-500),
@@ -554,9 +556,11 @@ std::shared_ptr<dds::Cache> CTPPSDiamondDQMSource::globalBeginLuminosityBlock(co
                                                                               const edm::EventSetup&) const {
   auto d = std::make_shared<dds::Cache>();
   d->hitDistribution2dMap.reserve(potPlots_.size());
-  for (auto& plot : potPlots_)
-    d->hitDistribution2dMap[plot.first] =
-        std::unique_ptr<TH2F>(static_cast<TH2F*>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
+  if (!perLSsaving_) {
+    for (auto& plot : potPlots_)
+      d->hitDistribution2dMap[plot.first] =
+          std::unique_ptr<TH2F>(static_cast<TH2F*>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
+  }
   return d;
 }
 
@@ -747,12 +751,14 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
           hitHistoTmp->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
         }
 
-        hitHistoTmp = lumiCache->hitDistribution2dMap[detId_pot].get();
-        hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
-        startBin = hitHistoTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_ - 0.5 * rechit.xWidth());
-        numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-        for (int i = 0; i < numOfBins; ++i) {
-          hitHistoTmp->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
+        if (!perLSsaving_) {
+          hitHistoTmp = lumiCache->hitDistribution2dMap[detId_pot].get();
+          hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
+          startBin = hitHistoTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_ - 0.5 * rechit.xWidth());
+          numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+          for (int i = 0; i < numOfBins; ++i) {
+            hitHistoTmp->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
+          }
         }
       }
 
@@ -1129,71 +1135,74 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
 void CTPPSDiamondDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup&) {
   auto lumiCache = luminosityBlockCache(iLumi.index());
-  for (auto& plot : potPlots_) {
-    *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
-  }
-  for (auto& plot : channelPlots_) {
-    auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[plot.first];
-    if (hitsCounterPerLumisection != 0) {
-      plot.second.hit_rate->Fill((double)hitsCounterPerLumisection / SEC_PER_LUMI_SECTION);
+  if (!perLSsaving_) {
+    for (auto& plot : potPlots_) {
+      *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
     }
 
-    double HundredOverHitCounter = .0;
-    if (plot.second.HitCounter != 0)
-      HundredOverHitCounter = 100. / plot.second.HitCounter;
-    plot.second.HPTDCErrorFlags->setBinContent(16, HundredOverHitCounter * plot.second.MHCounter);
-    plot.second.leadingWithoutTrailing->setBinContent(1, HundredOverHitCounter * plot.second.LeadingOnlyCounter);
-    plot.second.leadingWithoutTrailing->setBinContent(2, HundredOverHitCounter * plot.second.TrailingOnlyCounter);
-    plot.second.leadingWithoutTrailing->setBinContent(3, HundredOverHitCounter * plot.second.CompleteCounter);
-  }
+    for (auto& plot : channelPlots_) {
+      auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[plot.first];
+      if (hitsCounterPerLumisection != 0) {
+        plot.second.hit_rate->Fill((double)hitsCounterPerLumisection / SEC_PER_LUMI_SECTION);
+      }
 
-  for (auto& plot : potPlots_) {
-    double HundredOverHitCounterPot = 0.;
-    if (plot.second.HitCounter != 0)
-      HundredOverHitCounterPot = 100. / plot.second.HitCounter;
-    plot.second.leadingWithoutTrailingCumulativePot->setBinContent(
-        1, HundredOverHitCounterPot * plot.second.LeadingOnlyCounter);
-    plot.second.leadingWithoutTrailingCumulativePot->setBinContent(
-        2, HundredOverHitCounterPot * plot.second.TrailingOnlyCounter);
-    plot.second.leadingWithoutTrailingCumulativePot->setBinContent(
-        3, HundredOverHitCounterPot * plot.second.CompleteCounter);
+      double HundredOverHitCounter = .0;
+      if (plot.second.HitCounter != 0)
+        HundredOverHitCounter = 100. / plot.second.HitCounter;
+      plot.second.HPTDCErrorFlags->setBinContent(16, HundredOverHitCounter * plot.second.MHCounter);
+      plot.second.leadingWithoutTrailing->setBinContent(1, HundredOverHitCounter * plot.second.LeadingOnlyCounter);
+      plot.second.leadingWithoutTrailing->setBinContent(2, HundredOverHitCounter * plot.second.TrailingOnlyCounter);
+      plot.second.leadingWithoutTrailing->setBinContent(3, HundredOverHitCounter * plot.second.CompleteCounter);
+    }
 
-    plot.second.MHComprensive->Reset();
-    CTPPSDiamondDetId rpId(plot.first);
-    for (auto& chPlot : channelPlots_) {
-      CTPPSDiamondDetId chId(chPlot.first);
-      if (chId.arm() == rpId.arm() && chId.rp() == rpId.rp()) {
-        plot.second.MHComprensive->Fill(chId.plane(), chId.channel(), chPlot.second.HPTDCErrorFlags->getBinContent(16));
+    for (auto& plot : potPlots_) {
+      double HundredOverHitCounterPot = 0.;
+      if (plot.second.HitCounter != 0)
+        HundredOverHitCounterPot = 100. / plot.second.HitCounter;
+      plot.second.leadingWithoutTrailingCumulativePot->setBinContent(
+          1, HundredOverHitCounterPot * plot.second.LeadingOnlyCounter);
+      plot.second.leadingWithoutTrailingCumulativePot->setBinContent(
+          2, HundredOverHitCounterPot * plot.second.TrailingOnlyCounter);
+      plot.second.leadingWithoutTrailingCumulativePot->setBinContent(
+          3, HundredOverHitCounterPot * plot.second.CompleteCounter);
+
+      plot.second.MHComprensive->Reset();
+      CTPPSDiamondDetId rpId(plot.first);
+      for (auto& chPlot : channelPlots_) {
+        CTPPSDiamondDetId chId(chPlot.first);
+        if (chId.arm() == rpId.arm() && chId.rp() == rpId.rp()) {
+          plot.second.MHComprensive->Fill(
+              chId.plane(), chId.channel(), chPlot.second.HPTDCErrorFlags->getBinContent(16));
+        }
       }
     }
-  }
+    // Efficiencies of single channels
+    for (auto& plot : potPlots_) {
+      plot.second.EfficiencyOfChannelsInPot->Reset();
+      for (auto& element : plot.second.effTriplecountingChMap) {
+        if (plot.second.effDoublecountingChMap[element.first] > 0) {
+          int plane = element.first / 100;
+          int channel = element.first % 100;
+          double counted = element.second;
+          double total = plot.second.effDoublecountingChMap[element.first];
+          double efficiency = counted / total;
+          //         double error = std::sqrt( efficiency * ( 1 - efficiency ) / total );
 
-  // Efficiencies of single channels
-  for (auto& plot : potPlots_) {
-    plot.second.EfficiencyOfChannelsInPot->Reset();
-    for (auto& element : plot.second.effTriplecountingChMap) {
-      if (plot.second.effDoublecountingChMap[element.first] > 0) {
-        int plane = element.first / 100;
-        int channel = element.first % 100;
-        double counted = element.second;
-        double total = plot.second.effDoublecountingChMap[element.first];
-        double efficiency = counted / total;
-        //         double error = std::sqrt( efficiency * ( 1 - efficiency ) / total );
-
-        plot.second.EfficiencyOfChannelsInPot->Fill(plane, channel, 100 * efficiency);
+          plot.second.EfficiencyOfChannelsInPot->Fill(plane, channel, 100 * efficiency);
+        }
       }
     }
-  }
 
-  // Efficeincy wrt pixels  //TODO
-  for (auto& plot : planePlots_) {
-    TH2F* hitHistoTmp = plot.second.EfficiencyWRTPixelsInPlane->getTH2F();
+    // Efficeincy wrt pixels  //TODO
+    for (auto& plot : planePlots_) {
+      TH2F* hitHistoTmp = plot.second.EfficiencyWRTPixelsInPlane->getTH2F();
 
-    CTPPSDiamondDetId detId_pot(plot.first);
-    detId_pot.setPlane(0);
+      CTPPSDiamondDetId detId_pot(plot.first);
+      detId_pot.setPlane(0);
 
-    hitHistoTmp->Divide(&(plot.second.pixelTracksMapWithDiamonds), &(potPlots_[detId_pot].pixelTracksMap));
-  }
+      hitHistoTmp->Divide(&(plot.second.pixelTracksMapWithDiamonds), &(potPlots_[detId_pot].pixelTracksMap));
+    }
+  }  //perLSsaving
 }
 
 //----------------------------------------------------------------------------------------------------

@@ -5,11 +5,12 @@
 
 */
 
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/UnscheduledCallProducer.h"
-#include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/src/WorkerRegistry.h"
+#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/WorkerRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -54,12 +55,6 @@ namespace edm {
                                  std::vector<std::string>& shouldBeUsedLabels);
 
     template <typename T, typename U>
-    void processOneOccurrence(typename T::TransitionInfoType&,
-                              StreamID,
-                              typename T::Context const* topContext,
-                              U const* context,
-                              bool cleaningUpAfterException = false);
-    template <typename T, typename U>
     void processOneOccurrenceAsync(WaitingTaskHolder,
                                    typename T::TransitionInfoType&,
                                    ServiceToken const&,
@@ -78,7 +73,9 @@ namespace edm {
     void setupResolvers(Principal& principal);
     void setupOnDemandSystem(EventTransitionInfo const&);
 
-    void beginJob(ProductRegistry const& iRegistry, eventsetup::ESRecordsToProxyIndices const&);
+    void beginJob(ProductRegistry const& iRegistry,
+                  eventsetup::ESRecordsToProxyIndices const&,
+                  ProcessBlockHelperBase const&);
     void endJob();
     void endJob(ExceptionCollector& collector);
 
@@ -106,38 +103,6 @@ namespace edm {
     UnscheduledCallProducer unscheduled_;
     void const* lastSetupEventPrincipal_;
   };
-
-  template <typename T, typename U>
-  void WorkerManager::processOneOccurrence(typename T::TransitionInfoType& info,
-                                           StreamID streamID,
-                                           typename T::Context const* topContext,
-                                           U const* context,
-                                           bool cleaningUpAfterException) {
-    this->resetAll();
-
-    auto waitTask = make_empty_waiting_task();
-    waitTask->increment_ref_count();
-    processOneOccurrenceAsync<T, U>(WaitingTaskHolder(waitTask.get()),
-                                    info,
-                                    ServiceRegistry::instance().presentToken(),
-                                    streamID,
-                                    topContext,
-                                    context);
-    waitTask->wait_for_all();
-    if (waitTask->exceptionPtr() != nullptr) {
-      try {
-        convertException::wrap([&]() { std::rethrow_exception(*(waitTask->exceptionPtr())); });
-      } catch (cms::Exception& ex) {
-        if (ex.context().empty()) {
-          addContextAndPrintException(
-              "Calling function WorkerManager::processOneOccurrence", ex, cleaningUpAfterException);
-        } else {
-          addContextAndPrintException("", ex, cleaningUpAfterException);
-        }
-        throw;
-      }
-    }
-  }
 
   template <typename T, typename U>
   void WorkerManager::processOneOccurrenceAsync(WaitingTaskHolder task,

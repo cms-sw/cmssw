@@ -77,6 +77,7 @@ namespace edm {
     void doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
+    void doRespondToCloseOutputFile() {}
     void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
     void registerProductsAndCallbacks(EDProducer* module, ProductRegistry* reg) {
       registerProducts(module, reg, moduleDescription_);

@@ -311,7 +311,7 @@ void SiStripDbParams::print(std::stringstream& ss) const {
 
   if (!usingDbCache_) {
     if (usingDb_) {
-      ss << " Database account (ConfDb)  : " << confdb_ << std::endl;
+      ss << " Database account (ConfDb)  : " << user_ + "/******@" + path_ << std::endl;
     }
 
     ss << " Number of partitions       : " << partitions_.size();

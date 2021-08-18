@@ -45,7 +45,12 @@ namespace tmtt {
                     unsigned int nHelixParam,
                     unsigned int iPhiSec,
                     unsigned int iEtaReg,
-                    bool accepted = true)
+                    bool accepted = true,
+                    bool done_bcon = false,
+                    float qOverPt_bcon = 0.,
+                    float d0_bcon = 0.,
+                    float phi0_bcon = 0.,
+                    float chi2rphi_bcon = 0.)
         : l1track3D_(l1track3D),
           stubs_(stubs),
           hitPattern_(hitPattern),
@@ -56,11 +61,11 @@ namespace tmtt {
           tanLambda_(tanLambda),
           chi2rphi_(chi2rphi),
           chi2rz_(chi2rz),
-          done_bcon_(false),
-          qOverPt_bcon_(qOverPt),
-          d0_bcon_(d0),
-          phi0_bcon_(phi0),
-          chi2rphi_bcon_(chi2rphi),
+          done_bcon_(done_bcon),
+          qOverPt_bcon_(qOverPt_bcon),
+          d0_bcon_(d0_bcon),
+          phi0_bcon_(phi0_bcon),
+          chi2rphi_bcon_(chi2rphi_bcon),
           nHelixParam_(nHelixParam),
           iPhiSec_(iPhiSec),
           iEtaReg_(iEtaReg),
@@ -69,14 +74,6 @@ namespace tmtt {
           numUpdateCalls_(0),
           numIterations_(0),
           accepted_(accepted) {}
-
-    //--- Optionally std::set track helix params & chi2 if beam-spot constraint is used (for 5-parameter fit).
-    void setBeamConstr(float qOverPt_bcon, float phi0_bcon, float chi2rphi_bcon) {
-      done_bcon_ = true;
-      qOverPt_bcon_ = qOverPt_bcon;
-      d0_bcon_ = 0.0, phi0_bcon_ = phi0_bcon;
-      chi2rphi_bcon_ = chi2rphi_bcon;
-    }
 
     //--- Set/get additional info about fitted track that is specific to individual track fit algorithms (KF, LR, chi2)
     //--- and is used for debugging/histogramming purposes.
@@ -131,6 +128,7 @@ namespace tmtt {
     float invPt_bcon() const { return std::abs(qOverPt_bcon_); }
     float pt_bcon() const { return 1. / (1.0e-6 + this->invPt_bcon()); }
     float phi0_bcon() const { return phi0_bcon_; }
+    float d0_bcon() const { return d0_bcon_; }
 
     // Phi and z coordinates at which track crosses "chosenR" values used by r-phi HT and rapidity sectors respectively.
     // (Optionally with beam-spot constraint applied).

@@ -6,7 +6,7 @@ dtResolutionTestHLT = DQMEDHarvester("DTResolutionAnalysisTest",
                                      permittedMeanRange = cms.untracked.double(0.01),
                                      permittedSigmaRange = cms.untracked.double(0.08),
                                      # top folder for the histograms in DQMStore
-                                     topHistoFolder = cms.untracked.string("HLT/HLTMonMuon/DT-Segments")
+                                     topHistoFolder = cms.untracked.string('HLT/HLTMonMuon/DT-Segments')
                                      )
 
 

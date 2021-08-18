@@ -11,7 +11,8 @@
 
 //------------------------------------------------------------------------------
 AlignmentProducer::AlignmentProducer(const edm::ParameterSet &config)
-    : AlignmentProducerBase{config}, maxLoops_{config.getUntrackedParameter<unsigned int>("maxLoops")} {
+    : AlignmentProducerBase(config, consumesCollector()),
+      maxLoops_{config.getUntrackedParameter<unsigned int>("maxLoops")} {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::AlignmentProducer";
 
   // Tell the framework what data is being produced

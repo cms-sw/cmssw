@@ -4,7 +4,6 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetIdToROC.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetIdToModule.h"
@@ -19,7 +18,6 @@ class HGCalTriggerGeometryV9Imp2 : public HGCalTriggerGeometryBase {
 public:
   HGCalTriggerGeometryV9Imp2(const edm::ParameterSet& conf);
 
-  void initialize(const CaloGeometry*) final;
   void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
   void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
   void reset() final;
@@ -36,6 +34,19 @@ public:
   geom_ordered_set getOrderedTriggerCellsFromModule(const unsigned) const final;
 
   geom_set getNeighborsFromTriggerCell(const unsigned) const final;
+
+  geom_set getStage1FpgasFromStage2Fpga(const unsigned) const final;
+  geom_set getStage2FpgasFromStage1Fpga(const unsigned) const final;
+
+  geom_set getStage1LinksFromStage2Fpga(const unsigned) const final;
+  unsigned getStage1FpgaFromStage1Link(const unsigned) const final;
+  unsigned getStage2FpgaFromStage1Link(const unsigned) const final;
+  geom_set getStage1LinksFromStage1Fpga(const unsigned) const final;
+  geom_set getLpgbtsFromStage1Fpga(const unsigned) const final;
+  unsigned getStage1FpgaFromLpgbt(const unsigned) const final;
+  geom_set getModulesFromLpgbt(const unsigned) const final;
+  geom_set getLpgbtsFromModule(const unsigned) const final;
+  unsigned getStage1FpgaFromModule(const unsigned module_id) const final;
 
   unsigned getLinksInModule(const unsigned module_id) const final;
   unsigned getModuleSize(const unsigned module_id) const final;
@@ -114,11 +125,6 @@ void HGCalTriggerGeometryV9Imp2::reset() {
   wafer_to_module_.clear();
   module_to_wafers_.clear();
   cache_missing_wafers_.clear();
-}
-
-void HGCalTriggerGeometryV9Imp2::initialize(const CaloGeometry* calo_geometry) {
-  throw cms::Exception("BadGeometry")
-      << "HGCalTriggerGeometryV9Imp2 geometry cannot be initialized with the V7/V8 HGCAL geometry";
 }
 
 void HGCalTriggerGeometryV9Imp2::initialize(const HGCalGeometry* hgc_ee_geometry,
@@ -825,6 +831,61 @@ unsigned HGCalTriggerGeometryV9Imp2::layerWithOffset(unsigned id) const {
     }
   }
   return layer;
+}
+
+HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp2::getStage1FpgasFromStage2Fpga(const unsigned) const {
+  geom_set stage1_ids;
+  return stage1_ids;
+}
+
+HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp2::getStage2FpgasFromStage1Fpga(const unsigned) const {
+  geom_set stage2_ids;
+  return stage2_ids;
+}
+
+HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp2::getStage1LinksFromStage2Fpga(const unsigned) const {
+  geom_set stage1link_ids;
+  return stage1link_ids;
+}
+
+unsigned HGCalTriggerGeometryV9Imp2::getStage1FpgaFromStage1Link(const unsigned) const {
+  unsigned stage1_id = 0;
+  return stage1_id;
+}
+
+unsigned HGCalTriggerGeometryV9Imp2::getStage2FpgaFromStage1Link(const unsigned) const {
+  unsigned stage2_id = 0;
+  return stage2_id;
+}
+
+HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp2::getStage1LinksFromStage1Fpga(const unsigned) const {
+  geom_set stage1link_ids;
+  return stage1link_ids;
+}
+
+HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp2::getLpgbtsFromStage1Fpga(const unsigned) const {
+  geom_set lpgbt_ids;
+  return lpgbt_ids;
+}
+
+unsigned HGCalTriggerGeometryV9Imp2::getStage1FpgaFromLpgbt(const unsigned) const {
+  unsigned stage1_id = 0;
+  return stage1_id;
+}
+
+HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp2::getModulesFromLpgbt(const unsigned) const {
+  geom_set modules;
+  return modules;
+}
+
+HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp2::getLpgbtsFromModule(const unsigned) const {
+  geom_set lpgbt_ids;
+  return lpgbt_ids;
+}
+
+unsigned HGCalTriggerGeometryV9Imp2::getStage1FpgaFromModule(const unsigned) const {
+  unsigned stage1_id = 0;
+  return stage1_id;
 }
 
 DEFINE_EDM_PLUGIN(HGCalTriggerGeometryFactory, HGCalTriggerGeometryV9Imp2, "HGCalTriggerGeometryV9Imp2");

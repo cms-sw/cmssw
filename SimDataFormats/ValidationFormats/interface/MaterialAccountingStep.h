@@ -35,7 +35,7 @@ public:
 
   double energyLoss(void) const { return m_energyLoss; }
 
-  const GlobalPoint& in(void)const { return m_in; }
+  const GlobalPoint& in(void) const { return m_in; }
 
   const GlobalPoint& out(void) const { return m_out; }
 

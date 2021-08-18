@@ -5,30 +5,23 @@
  *
  */
 
-#include <DQM/DTMonitorModule/interface/DTDigiTask.h>
+#include "DQM/DTMonitorModule/interface/DTDigiTask.h"
 
 // Framework
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/EventSetup.h"
 
 // Digis
-#include <DataFormats/MuonDetId/interface/DTLayerId.h>
-#include <DataFormats/MuonDetId/interface/DTChamberId.h>
-#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
 // Geometry
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
 // T0s
-#include <CondFormats/DTObjects/interface/DTT0.h>
-#include <CondFormats/DataRecord/interface/DTT0Rcd.h>
-#include <CondFormats/DTObjects/interface/DTTtrig.h>
-#include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
-
-#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
-#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+#include "CondFormats/DTObjects/interface/DTT0.h"
+#include "CondFormats/DTObjects/interface/DTTtrig.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -40,7 +33,12 @@ using namespace edm;
 using namespace std;
 
 // Contructor
-DTDigiTask::DTDigiTask(const edm::ParameterSet& ps) {
+DTDigiTask::DTDigiTask(const edm::ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      readOutMapToken_(esConsumes<edm::Transition::BeginRun>()),
+      TtrigToken_(esConsumes<edm::Transition::BeginRun>()),
+      T0Token_(esConsumes<edm::Transition::BeginRun>()),
+      statusMapToken_(esConsumes()) {
   // switch for the verbosity
   LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask]: Constructor" << endl;
 
@@ -88,8 +86,8 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps) {
 
   // switch on the mode for running on slice test (different top folder and other customizations)
   sliceTestMode = ps.getUntrackedParameter<bool>("sliceTestMode", false);
-  // time pedestal to be subtracted if sliceTestMode is true
-  tdcPedestal = ps.getUntrackedParameter<int>("tdcPedestal", 105100);
+  // time pedestal used to set the minimum in the time box plot
+  tdcPedestal = ps.getUntrackedParameter<int>("tdcPedestal", 0);
 
   // switch on production of time-boxes with layer granularity
   doLayerTimeBoxes = ps.getUntrackedParameter<bool>("doLayerTimeBoxes", false);
@@ -108,17 +106,17 @@ void DTDigiTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context
   nevents = 0;
 
   // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &context.getData(muonGeomToken_);
 
   // map of the channels
-  context.get<DTReadOutMappingRcd>().get(mapping);
+  mapping = &context.getData(readOutMapToken_);
 
   // tTrig
   if (readTTrigDB)
-    context.get<DTTtrigRcd>().get(tTrigMap);
+    tTrigMap = &context.getData(TtrigToken_);
   // t0s
   if (subtractT0)
-    context.get<DTT0Rcd>().get(t0Map);
+    t0Map = &context.getData(T0Token_);
   // FIXME: tMax (not yet from the DB)
   tMax = defaultTmax;
 
@@ -132,6 +130,9 @@ void DTDigiTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& run,
     nEventMonitor = ibooker.bookFloat(tpMode ? "nProcessedEventsDigiTP" : "nProcessedEventsDigi");
     ibooker.setCurrentFolder(topFolder());
     for (int wh = -2; wh <= 2; ++wh) {  // loop over wheels
+      if (sliceTestMode && wh != 2)
+        continue;
+
       if (doAllHitsOccupancies)
         bookHistos(ibooker, wh, string("Occupancies"), "OccupancyAllHits");
 
@@ -149,6 +150,10 @@ void DTDigiTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& run,
         for (int sect = 1; sect <= 14; ++sect) {  // loop over sectors
           if ((sect == 13 || sect == 14) && st != 4)
             continue;
+
+          if (sliceTestMode && (sect != 12 || wh != 2))
+            continue;
+
           // Get the chamber ID
           const DTChamberId dtChId(wh, st, sect);
 
@@ -205,6 +210,9 @@ void DTDigiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
     for (int wh = -2; wh <= 2; wh++) {
       for (int sect = 1; sect <= 14; sect++) {
         for (int st = 1; st <= 4; st++) {
+          if (sliceTestMode && (sect != 12 || wh != 2)) {
+            continue;
+          }
           if ((sect == 13 || sect == 14) && st != 4) {
             continue;
           }
@@ -260,15 +268,18 @@ void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker, const DTSuperLayerId& dt
     string histoTitle = histoName + " (TDC Counts)";
 
     if (!readTTrigDB) {
-      (digiHistos[histoTag])[dtSL.rawId()] =
-          ibooker.book1D(histoName, histoTitle, maxTTMounts / timeBoxGranularity, 0, maxTTMounts);
+      (digiHistos[histoTag])[dtSL.rawId()] = ibooker.book1D(
+          histoName, histoTitle, maxTTMounts / timeBoxGranularity, tdcPedestal, maxTTMounts + tdcPedestal);
       if (doLayerTimeBoxes) {  // Book TimeBoxes per layer
         for (int layer = 1; layer != 5; ++layer) {
           DTLayerId layerId(dtSL, layer);
           stringstream layerHistoName;
           layerHistoName << histoName << "_L" << layer;
-          (digiHistos[histoTag])[layerId.rawId()] = ibooker.book1D(
-              layerHistoName.str(), layerHistoName.str(), maxTTMounts / timeBoxGranularity, 0, maxTTMounts);
+          (digiHistos[histoTag])[layerId.rawId()] = ibooker.book1D(layerHistoName.str(),
+                                                                   layerHistoName.str(),
+                                                                   maxTTMounts / timeBoxGranularity,
+                                                                   tdcPedestal,
+                                                                   maxTTMounts + tdcPedestal);
         }
       }
     } else {
@@ -449,10 +460,9 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
     event.getByToken(ltcDigiCollectionToken_, ltcdigis);
 
   // Status map (for noisy channels)
-  ESHandle<DTStatusFlag> statusMap;
   if (checkNoisyChannels) {
     // Get the map of noisy channels
-    c.get<DTStatusFlagRcd>().get(statusMap);
+    statusMap = &c.getData(statusMapToken_);
   }
 
   string histoTag;
@@ -603,8 +613,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
       }
 
       if (sliceTestMode) {
-        tdcTime -= tdcPedestal;
-        tdcTime = std::max(1, std::min(maxTTMounts - 1, tdcTime));
+        tdcTime = std::max(tdcPedestal + 1, std::min(tdcPedestal + maxTTMounts - 1, tdcTime));
         // std::cout << tdcTime << std::endl;
       }
 

@@ -34,7 +34,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
 #include "TFile.h"
@@ -72,7 +71,6 @@ private:
     std::vector<float> values;
   };
 
-  SiStripDetInfoFileReader *fr;
   edm::ESWatcher<SiStripNoisesRcd> noiseWatcher_;
   edm::ESWatcher<SiStripApvGainRcd> gainWatcher_;
   edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;

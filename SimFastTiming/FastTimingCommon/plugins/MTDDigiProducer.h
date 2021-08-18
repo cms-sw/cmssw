@@ -1,18 +1,13 @@
 #ifndef SimFastTiming_FastTimingCommon_MTDDigiProducer_h
 #define SimFastTiming_FastTimingCommon_MTDDigiProducer_h
 
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerBase.h"
 
 #include <memory>
 #include <vector>
-
-namespace edm {
-  class ConsumesCollector;
-  class ParameterSet;
-  class StreamID;
-}  // namespace edm
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -30,8 +25,6 @@ public:
   void finalizeEvent(edm::Event&, edm::EventSetup const&) override;
   void accumulate(edm::Event const&, edm::EventSetup const&) override;
   void accumulate(PileUpEventPrincipal const&, edm::EventSetup const&, edm::StreamID const&) override;
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
   ~MTDDigiProducer() override;
 
 private:

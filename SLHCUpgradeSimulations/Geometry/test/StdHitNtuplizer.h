@@ -30,6 +30,11 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
 class TTree;
 class TFile;
 class RectangularPixelTopology;
@@ -68,6 +73,8 @@ protected:
   void fillPRecHit(const int subid, trackingRecHit_iterator pixeliter, const GeomDet* PixGeom);
 
 private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geom_esToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topo_esToken;
   edm::ParameterSet conf_;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   edm::InputTag src_;

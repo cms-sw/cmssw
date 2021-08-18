@@ -84,6 +84,7 @@ namespace edm {
     bool present() const { return !transient_.dropped_; }
     bool dropped() const { return transient_.dropped_; }
     void setDropped(bool isDropped) { transient_.dropped_ = isDropped; }
+    //returns true if unscheduled (produced()==true) or using delayed reader (produced()==false)
     bool onDemand() const { return transient_.onDemand_; }
     void setOnDemand(bool isOnDemand) { transient_.onDemand_ = isOnDemand; }
     bool availableOnlyAtEndTransition() const { return transient_.availableOnlyAtEndTransition_; }

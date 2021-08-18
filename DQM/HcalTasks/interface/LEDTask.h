@@ -50,6 +50,7 @@ protected:
   edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
   edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
   edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   //	emap
   hcaldqm::electronicsmap::ElectronicsMap _ehashmap;

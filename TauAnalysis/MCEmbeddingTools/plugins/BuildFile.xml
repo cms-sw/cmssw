@@ -8,4 +8,5 @@
 <use name="TrackingTools/TrackAssociator"/>
 <use name="DataFormats/TrackReco"/>
 <use name="CondFormats/BeamSpotObjects"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <flags EDM_PLUGIN="1"/>

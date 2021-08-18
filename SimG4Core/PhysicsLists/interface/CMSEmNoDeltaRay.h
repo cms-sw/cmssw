@@ -14,7 +14,6 @@ public:
   void ConstructProcess() override;
 
 private:
-  G4int verbose;
   std::string region;
 };
 

@@ -5,14 +5,20 @@
 #include <cstdio>
 
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
+#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
+
+// local include(s)
+#include "SiPixelClusterThresholds.h"
 
 namespace gpuClustering {
 
   __global__ void clusterChargeCut(
-      uint16_t* __restrict__ id,                 // module id of each pixel (modified if bad cluster)
-      uint16_t const* __restrict__ adc,          //  charge of each pixel
+      SiPixelClusterThresholds
+          clusterThresholds,             // charge cut on cluster in electrons (for layer 1 and for other layers)
+      uint16_t* __restrict__ id,         // module id of each pixel (modified if bad cluster)
+      uint16_t const* __restrict__ adc,  //  charge of each pixel
       uint32_t const* __restrict__ moduleStart,  // index of the first pixel of each module
       uint32_t* __restrict__ nClustersInModule,  // modified: number of clusters found in each module
       uint32_t const* __restrict__ moduleId,     // module id of each module
@@ -79,7 +85,8 @@ namespace gpuClustering {
       }
       __syncthreads();
 
-      auto chargeCut = thisModuleId < 96 ? 2000 : 4000;  // move in constants (calib?)
+      auto chargeCut =
+          clusterThresholds.getThresholdForLayerOnCondition(thisModuleId < phase1PixelTopology::layerStart[1]);
       for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
         newclusId[i] = ok[i] = charge[i] > chargeCut ? 1 : 0;
       }

@@ -34,7 +34,7 @@ Create input file lists under test/tmp/das_cache
 (You can modify which datasets are being used in the end of datasets.py script)
 
 ~~~
-cd test; python datasets.py; cd ..
+cd test; python3 datasets.py; cd ..
 ~~~
 
 Proceed to RECO step, about 30 minutes
@@ -123,7 +123,7 @@ be included in the DQM step, so delete files you don't want to study.
 
 
 Note that the default era, condition, and samples are now set to 2021. Change CONDITIONS and ERA in test/run_relval.sh when trying other era, before trying the above commands. Also check (and if necessary, update) input samples and conf.Site.storageSite specified in $CMSSW_BASE/src/Validation/RecoParticleFlow/crab/multicrab.py (default storage site is T2_US_Caltech, but change it to your favorite site you have access to. use crab checkwrite --site=<site> to check your permission).
-Take note that the CMSSW python configuration for running the RECO sequence is dumped into `crab/step3_dump.py`.
+Take note that the CMSSW python3 configuration for running the RECO sequence is dumped into `crab/step3_dump.py`.
 
 
 # Running DQM steps from existing MINIAOD samples

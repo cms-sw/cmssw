@@ -12,8 +12,8 @@
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
-#include "CondCore/SiPixelPlugins/interface/Phase1PixelMaps.h"
-
+#include "CondCore/SiPixelPlugins/interface/SiPixelTemplateHelper.h"
+#include "DQM/TrackerRemapper/interface/Phase1PixelMaps.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 // the data format of the condition to be inspected
@@ -28,7 +28,6 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
-#include <boost/range/adaptor/indexed.hpp>
 
 // include ROOT
 #include "TH2.h"
@@ -48,14 +47,15 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
     test class
   *************************************************/
-  class SiPixelTemplateDBObjectTest
-      : public cond::payloadInspector::Histogram1D<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV> {
+  class SiPixelTemplateDBObjectTest : public Histogram1D<SiPixelTemplateDBObject, SINGLE_IOV> {
   public:
     SiPixelTemplateDBObjectTest()
-        : cond::payloadInspector::Histogram1D<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV>(
+        : Histogram1D<SiPixelTemplateDBObject, SINGLE_IOV>(
               "SiPixelTemplateDBObject test", "SiPixelTemplateDBObject test", 10, 0.0, 100.) {}
 
     bool fill() override {
@@ -109,106 +109,10 @@ namespace {
   };
 
   /************************************************
-  // header plotting
-  *************************************************/
-  class SiPixelTemplateHeaderTable
-      : public cond::payloadInspector::PlotImage<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV> {
-  public:
-    SiPixelTemplateHeaderTable()
-        : cond::payloadInspector::PlotImage<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV>(
-              "SiPixelTemplateDBObject Header summary") {}
-
-    bool fill() override {
-      gStyle->SetHistMinimumZero();  // will display zero as zero in the text map
-
-      auto tag = PlotBase::getTag<0>();
-      auto iov = tag.iovs.front();
-      auto tagname = tag.name;
-      std::vector<SiPixelTemplateStore> thePixelTemp_;
-      std::shared_ptr<SiPixelTemplateDBObject> payload = fetchPayload(std::get<1>(iov));
-
-      if (payload.get()) {
-        if (!SiPixelTemplate::pushfile(*payload, thePixelTemp_)) {
-          throw cms::Exception("SiPixelTemplateDBObject_PayloadInspector")
-              << "\nERROR: Templates not filled correctly. Check the conditions. Using "
-                 "SiPixelTemplateDBObject version "
-              << payload->version() << "\n\n";
-        }
-
-        // store the map of ID / interesting quantities
-        SiPixelTemplate templ(thePixelTemp_);
-        TCanvas canvas("Template Header Summary", "Template Header summary", 1400, 1000);
-        canvas.cd();
-
-        unsigned int tempSize = thePixelTemp_.size();
-
-        canvas.SetTopMargin(0.07);
-        canvas.SetBottomMargin(0.06);
-        canvas.SetLeftMargin(0.17);
-        canvas.SetRightMargin(0.03);
-        canvas.Modified();
-        canvas.SetGrid();
-
-        auto h2_TemplateHeaders = std::make_unique<TH2F>("Header", ";;", tempSize, 0, tempSize, 6, 0., 6.);
-        h2_TemplateHeaders->SetStats(false);
-
-        for (const auto& theTemp : thePixelTemp_ | boost::adaptors::indexed(1)) {
-          auto tempValue = theTemp.value();
-          auto tempIndex = theTemp.index();
-          float uH = -99.;
-          if (tempValue.head.Bfield != 0.) {
-            uH = roundoff(tempValue.head.lorxwidth / tempValue.head.zsize / tempValue.head.Bfield, 4);
-          }
-          h2_TemplateHeaders->SetBinContent(tempIndex, 6, tempValue.head.ID);
-          h2_TemplateHeaders->SetBinContent(tempIndex, 5, tempValue.head.Bfield);
-          h2_TemplateHeaders->SetBinContent(tempIndex, 4, uH);
-          h2_TemplateHeaders->SetBinContent(tempIndex, 3, tempValue.head.xsize);
-          h2_TemplateHeaders->SetBinContent(tempIndex, 2, tempValue.head.ysize);
-          h2_TemplateHeaders->SetBinContent(tempIndex, 1, tempValue.head.zsize);
-          h2_TemplateHeaders->GetYaxis()->SetBinLabel(6, "TemplateID");
-          h2_TemplateHeaders->GetYaxis()->SetBinLabel(5, "B-field [T]");
-          h2_TemplateHeaders->GetYaxis()->SetBinLabel(4, "#mu_{H} [1/T]");
-          h2_TemplateHeaders->GetYaxis()->SetBinLabel(3, "x-size [#mum]");
-          h2_TemplateHeaders->GetYaxis()->SetBinLabel(2, "y-size [#mum]");
-          h2_TemplateHeaders->GetYaxis()->SetBinLabel(1, "z-size [#mum]");
-          h2_TemplateHeaders->GetXaxis()->SetBinLabel(tempIndex, "");
-        }
-
-        h2_TemplateHeaders->GetXaxis()->LabelsOption("h");
-        h2_TemplateHeaders->GetXaxis()->SetNdivisions(500 + tempSize, false);
-        h2_TemplateHeaders->GetYaxis()->SetLabelSize(0.05);
-        h2_TemplateHeaders->SetMarkerSize(1.5);
-
-        canvas.cd();
-        h2_TemplateHeaders->Draw("TEXT");
-
-        auto ltx = TLatex();
-        ltx.SetTextFont(62);
-        ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.045);
-        ltx.SetTextAlign(11);
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.01,
-                         (tagname + ", IOV:" + std::to_string(std::get<0>(iov))).c_str());
-
-        std::string fileName(m_imageFileName);
-        canvas.SaveAs(fileName.c_str());
-      }
-      return true;
-    }
-
-    float roundoff(float value, unsigned char prec) {
-      float pow_10 = pow(10.0f, (float)prec);
-      return round(value * pow_10) / pow_10;
-    }
-  };
-
-  /************************************************
   // testing TH2Poly classes for plotting
   *************************************************/
   template <SiPixelPI::DetType myType>
-  class SiPixelTemplateLA
-      : public cond::payloadInspector::PlotImage<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV> {
+  class SiPixelTemplateLA : public PlotImage<SiPixelTemplateDBObject, SINGLE_IOV> {
     struct header_info {
       int ID;             //!< template ID number
       float lorywidth;    //!< estimate of y-lorentz width for optimal resolution
@@ -225,9 +129,7 @@ namespace {
     };
 
   public:
-    SiPixelTemplateLA()
-        : cond::payloadInspector::PlotImage<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV>(
-              "SiPixelTemplate assumed value of uH") {}
+    SiPixelTemplateLA() : PlotImage<SiPixelTemplateDBObject, SINGLE_IOV>("SiPixelTemplate assumed value of uH") {}
 
     bool fill() override {
       gStyle->SetPalette(kRainBow);
@@ -268,14 +170,24 @@ namespace {
         }
 
         // Book the TH2Poly
-        Phase1PixelMaps theMaps("COLZ L");
+        Phase1PixelMaps theMaps("");
+        if (myType == SiPixelPI::t_all) {
+          theMaps.resetOption("COLZA L");
+        } else {
+          theMaps.resetOption("COLZL");
+        }
 
         if (myType == SiPixelPI::t_barrel) {
           theMaps.bookBarrelHistograms("templateLABarrel", "#muH", "#mu_{H} [1/T]");
-          theMaps.bookBarrelBins("templateLABarrel");
         } else if (myType == SiPixelPI::t_forward) {
           theMaps.bookForwardHistograms("templateLAForward", "#muH", "#mu_{H} [1/T]");
-          theMaps.bookForwardBins("templateLAForward");
+        } else if (myType == SiPixelPI::t_all) {
+          theMaps.bookBarrelHistograms("templateLA", "#muH", "#mu_{H} [1/T]");
+          theMaps.bookForwardHistograms("templateLA", "#muH", "#mu_{H} [1/T]");
+        } else {
+          edm::LogError("SiPixelTemplateDBObject_PayloadInspector")
+              << " un-recognized detector type " << myType << std::endl;
+          return false;
         }
 
         std::map<unsigned int, short> templMap = payload->getTemplateIDs();
@@ -306,7 +218,14 @@ namespace {
                << " B-field: " << theInfos[entry.second].Bfield << std::endl;
 
           auto detid = DetId(entry.first);
-          if ((detid.subdetId() == PixelSubdetector::PixelBarrel) && (myType == SiPixelPI::t_barrel)) {
+          if (myType == SiPixelPI::t_all) {
+            if ((detid.subdetId() == PixelSubdetector::PixelBarrel)) {
+              theMaps.fillBarrelBin("templateLA", entry.first, uH);
+            }
+            if ((detid.subdetId() == PixelSubdetector::PixelEndcap)) {
+              theMaps.fillForwardBin("templateLA", entry.first, uH);
+            }
+          } else if ((detid.subdetId() == PixelSubdetector::PixelBarrel) && (myType == SiPixelPI::t_barrel)) {
             theMaps.fillBarrelBin("templateLABarrel", entry.first, uH);
           } else if ((detid.subdetId() == PixelSubdetector::PixelEndcap) && (myType == SiPixelPI::t_forward)) {
             theMaps.fillForwardBin("templateLAForward", entry.first, uH);
@@ -317,9 +236,11 @@ namespace {
 
         TCanvas canvas("Canv", "Canv", (myType == SiPixelPI::t_barrel) ? 1200 : 1600, 1000);
         if (myType == SiPixelPI::t_barrel) {
-          theMaps.DrawBarrelMaps("templateLABarrel", canvas);
+          theMaps.drawBarrelMaps("templateLABarrel", canvas);
         } else if (myType == SiPixelPI::t_forward) {
-          theMaps.DrawForwardMaps("templateLAForward", canvas);
+          theMaps.drawForwardMaps("templateLAForward", canvas);
+        } else if (myType == SiPixelPI::t_all) {
+          theMaps.drawSummaryMaps("templateLA", canvas);
         }
 
         canvas.cd();
@@ -332,104 +253,46 @@ namespace {
 
   using SiPixelTemplateLABPixMap = SiPixelTemplateLA<SiPixelPI::t_barrel>;
   using SiPixelTemplateLAFPixMap = SiPixelTemplateLA<SiPixelPI::t_forward>;
+  using SiPixelTemplateLAMap = SiPixelTemplateLA<SiPixelPI::t_all>;
 
-  /************************************************
-  // testing TH2Poly classes for plotting
-  *************************************************/
-  template <SiPixelPI::DetType myType>
-  class SiPixelTemplateIDs
-      : public cond::payloadInspector::PlotImage<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV> {
-  public:
-    SiPixelTemplateIDs()
-        : cond::payloadInspector::PlotImage<SiPixelTemplateDBObject, cond::payloadInspector::SINGLE_IOV>(
-              "SiPixelTemplate ID Values") {}
+  using namespace templateHelper;
 
-    bool fill() override {
-      gStyle->SetPalette(kRainBow);
+  //************************************************
+  // Full Pixel Tracker Map of Template IDs
+  // ***********************************************/
+  using SiPixelTemplateIDsFullPixelMap =
+      SiPixelFullPixelIDMap<SiPixelTemplateDBObject, SiPixelTemplateStore, SiPixelTemplate>;
 
-      auto tag = PlotBase::getTag<0>();
-      auto iov = tag.iovs.front();
-      std::shared_ptr<SiPixelTemplateDBObject> payload = fetchPayload(std::get<1>(iov));
+  //************************************************
+  // Display of Template Titles
+  // **********************************************/
+  using SiPixelTemplateTitles_Display =
+      SiPixelTitles_Display<SiPixelTemplateDBObject, SiPixelTemplateStore, SiPixelTemplate>;
 
-      if (payload.get()) {
-        // Book the TH2Poly
-        Phase1PixelMaps theMaps("text");
-        if (myType == SiPixelPI::t_barrel) {
-          theMaps.bookBarrelHistograms("templateIDsBarrel", "templateIDs", "template IDs");
-          // book the barrel bins of the TH2Poly
-          theMaps.bookBarrelBins("templateIDsBarrel");
-        } else if (myType == SiPixelPI::t_forward) {
-          theMaps.bookForwardHistograms("templateIDsForward", "templateIDs", "template IDs");
-          // book the forward bins of the TH2Poly
-          theMaps.bookForwardBins("templateIDsForward");
-        }
+  //***********************************************
+  // Display of Template Header
+  // **********************************************/
+  using SiPixelTemplateHeaderTable = SiPixelHeaderTable<SiPixelTemplateDBObject, SiPixelTemplateStore, SiPixelTemplate>;
 
-        std::map<unsigned int, short> templMap = payload->getTemplateIDs();
-
-        if (templMap.size() == SiPixelPI::phase0size || templMap.size() > SiPixelPI::phase1size) {
-          edm::LogError("SiPixelTemplateDBObject_PayloadInspector")
-              << "There are " << templMap.size()
-              << " DetIds in this payload. SiPixelTempateIDs maps are not supported for non-Phase1 Pixel geometries !";
-          TCanvas canvas("Canv", "Canv", 1200, 1000);
-          SiPixelPI::displayNotSupported(canvas, templMap.size());
-          std::string fileName(m_imageFileName);
-          canvas.SaveAs(fileName.c_str());
-          return false;
-        } else {
-          if (templMap.size() < SiPixelPI::phase1size) {
-            edm::LogWarning("SiPixelTemplateDBObject_PayloadInspector")
-                << "\n ********* WARNING! ********* \n There are " << templMap.size() << " DetIds in this payload !"
-                << "\n **************************** \n";
-          }
-        }
-
-        /*
-        std::vector<unsigned int> detids;
-        std::transform(templMap.begin(),
-                       templMap.end(),
-                       std::back_inserter(detids),
-                       [](const std::map<unsigned int, short>::value_type& pair) { return pair.first; });
-	*/
-
-        for (auto const& entry : templMap) {
-          COUT << "DetID: " << entry.first << " template ID: " << entry.second << std::endl;
-          auto detid = DetId(entry.first);
-          if ((detid.subdetId() == PixelSubdetector::PixelBarrel) && (myType == SiPixelPI::t_barrel)) {
-            theMaps.fillBarrelBin("templateIDsBarrel", entry.first, entry.second);
-          } else if ((detid.subdetId() == PixelSubdetector::PixelEndcap) && (myType == SiPixelPI::t_forward)) {
-            theMaps.fillForwardBin("templateIDsForward", entry.first, entry.second);
-          }
-        }
-
-        theMaps.beautifyAllHistograms();
-
-        TCanvas canvas("Canv", "Canv", (myType == SiPixelPI::t_barrel) ? 1200 : 1500, 1000);
-        if (myType == SiPixelPI::t_barrel) {
-          theMaps.DrawBarrelMaps("templateIDsBarrel", canvas);
-        } else if (myType == SiPixelPI::t_forward) {
-          theMaps.DrawForwardMaps("templateIDsForward", canvas);
-        }
-
-        canvas.cd();
-
-        std::string fileName(m_imageFileName);
-        canvas.SaveAs(fileName.c_str());
-      }
-      return true;
-    }
-  };
-
-  using SiPixelTemplateIDsBPixMap = SiPixelTemplateIDs<SiPixelPI::t_barrel>;
-  using SiPixelTemplateIDsFPixMap = SiPixelTemplateIDs<SiPixelPI::t_forward>;
+  //***********************************************
+  // TH2Poly Map of IDs
+  //***********************************************/
+  using SiPixelTemplateIDsBPixMap = SiPixelIDs<SiPixelTemplateDBObject, SiPixelPI::t_barrel>;
+  using SiPixelTemplateIDsFPixMap = SiPixelIDs<SiPixelTemplateDBObject, SiPixelPI::t_forward>;
+  using SiPixelTemplateIDsMap = SiPixelIDs<SiPixelTemplateDBObject, SiPixelPI::t_all>;
 
 }  // namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(SiPixelTemplateDBObject) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateDBObjectTest);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsFullPixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateTitles_Display);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateHeaderTable);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsBPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsFPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLAMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLABPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLAFPixMap);
 }

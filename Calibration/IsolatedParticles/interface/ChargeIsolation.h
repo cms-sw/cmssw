@@ -34,6 +34,7 @@ Created: August 2009
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+#include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 
 namespace spr {
@@ -104,11 +105,13 @@ namespace spr {
                              const GlobalPoint& hpoint1,
                              const GlobalVector& trackMom,
                              double dR);
+
   double chargeIsolationCone(unsigned int trkIndex,
                              std::vector<spr::propagatedTrackDirection>& trkDirs,
                              double dR,
                              int& nNearTRKs,
                              bool debug = false);
+
   std::pair<double, double> chargeIsolationCone(unsigned int trkIndex,
                                                 std::vector<spr::propagatedTrackDirection>& trkDirs,
                                                 double dR,
@@ -118,6 +121,50 @@ namespace spr {
                           const GlobalPoint& point2,
                           const GlobalVector& trackMom,
                           double dR);
+
+  double chargeIsolation(const edm::Event& iEvent,
+                         const edm::EventSetup& iSetup,
+                         CaloNavigator<DetId>& navigator,
+                         reco::TrackCollection::const_iterator trkItr,
+                         edm::Handle<reco::TrackCollection> trkCollection,
+                         const CaloSubdetectorGeometry* gEB,
+                         const CaloSubdetectorGeometry* gEE,
+                         TrackDetectorAssociator& associator,
+                         TrackAssociatorParameters& parameters_,
+                         int ieta,
+                         int iphi,
+                         const std::string& theTrackQuality,
+                         bool debug = false);
+
+  bool chargeIsolation(const DetId anyCell, CaloNavigator<DetId>& navigator, int deta, int dphi);
+
+  double chargeIsolationEcal(const edm::Event& iEvent,
+                             const edm::EventSetup& iSetup,
+                             const DetId& coreDet,
+                             reco::TrackCollection::const_iterator trkItr,
+                             edm::Handle<reco::TrackCollection> trkCollection,
+                             const CaloGeometry* geo,
+                             const CaloTopology* caloTopology,
+                             TrackDetectorAssociator& associator,
+                             TrackAssociatorParameters& parameters_,
+                             int ieta,
+                             int iphi,
+                             const std::string& theTrackQuality,
+                             bool debug = false);
+
+  double chargeIsolationHcal(const edm::Event& iEvent,
+                             const edm::EventSetup& iSetup,
+                             reco::TrackCollection::const_iterator trkItr,
+                             edm::Handle<reco::TrackCollection> trkCollection,
+                             const DetId ClosestCell,
+                             const HcalTopology* topology,
+                             const CaloSubdetectorGeometry* gHB,
+                             TrackDetectorAssociator& associator,
+                             TrackAssociatorParameters& parameters_,
+                             int ieta,
+                             int iphi,
+                             const std::string& theTrackQuality,
+                             bool debug = false);
 
 }  // namespace spr
 

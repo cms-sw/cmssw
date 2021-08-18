@@ -3,6 +3,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TVector3.h"
@@ -183,7 +184,7 @@ namespace lowptgsfeleid {
 
     // GSF tracks
     if (ele.core().isNonnull()) {
-      reco::GsfTrackRef gsf = ele.core()->gsfTrack();
+      reco::GsfTrackRef gsf = ele.gsfTrack();
       if (gsf.isNonnull()) {
         gsf_mode_p = gsf->pMode();
         eid_gsf_nhits = (float)gsf->found();
@@ -198,7 +199,7 @@ namespace lowptgsfeleid {
 
     // Super clusters
     if (ele.core().isNonnull()) {
-      reco::SuperClusterRef sc = ele.core()->superCluster();
+      reco::SuperClusterRef sc = ele.superCluster();
       if (sc.isNonnull()) {
         eid_sc_E = sc->energy();
         eid_sc_eta = sc->eta();
@@ -230,9 +231,9 @@ namespace lowptgsfeleid {
 
     // Clusters
     if (ele.core().isNonnull()) {
-      reco::GsfTrackRef gsf = ele.core()->gsfTrack();
+      reco::GsfTrackRef gsf = ele.gsfTrack();
       if (gsf.isNonnull()) {
-        reco::SuperClusterRef sc = ele.core()->superCluster();
+        reco::SuperClusterRef sc = ele.superCluster();
         if (sc.isNonnull()) {
           // Propagate electron track to ECAL surface
           double mass2 = 0.000511 * 0.000511;

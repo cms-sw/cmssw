@@ -23,7 +23,7 @@ namespace jsoncollector {
                 bool strictChecking,
                 bool useSource = true,
                 bool useDefinition = true);
-    FastMonitor(DataPointDefinition* dpd, bool strictChecking, bool useSource = true, bool useDefinition = true);
+    FastMonitor(DataPointDefinition const* dpd, bool strictChecking, bool useSource = true, bool useDefinition = true);
 
     virtual ~FastMonitor();
 
@@ -83,8 +83,8 @@ namespace jsoncollector {
     JsonMonitorable* getMergedIntJForLumi(std::string const& name, unsigned int forLumi);
 
     // merges and outputs everything collected for the given stream to JSON file
-    bool outputFullJSONs(std::string const& pathstem, std::string const& ext, unsigned int lumi);
-    bool outputFullJSON(std::string const& path, unsigned int lumi);
+    bool outputFullJSONs(std::string const& pathstem, std::string const& ext, unsigned int lumi, bool output = true);
+    bool outputFullJSON(std::string const& path, unsigned int lumi, bool output = true);
 
     //discard what was collected for a lumisection
     void discardCollected(unsigned int forLumi);
@@ -104,8 +104,8 @@ namespace jsoncollector {
     unsigned int nStreams_;
 
     std::string sourceInfo_;
-    DataPointDefinition* dpd_;
-    DataPointDefinition* dpdFast_;
+    DataPointDefinition const* dpd_;
+    DataPointDefinition const* dpdFast_;
     bool deleteDef_ = false;
     bool deleteDefFast_ = false;
 

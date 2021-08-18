@@ -3,8 +3,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
@@ -12,8 +12,10 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 
-BTLDeviceSim::BTLDeviceSim(const edm::ParameterSet& pset)
-    : geom_(nullptr),
+BTLDeviceSim::BTLDeviceSim(const edm::ParameterSet& pset, edm::ConsumesCollector iC)
+    : geomToken_(iC.esConsumes()),
+      topoToken_(iC.esConsumes()),
+      geom_(nullptr),
       topo_(nullptr),
       bxTime_(pset.getParameter<double>("bxTime")),
       LightYield_(pset.getParameter<double>("LightYield")),
@@ -23,13 +25,8 @@ BTLDeviceSim::BTLDeviceSim(const edm::ParameterSet& pset)
       PDE_(pset.getParameter<double>("PhotonDetectionEff")) {}
 
 void BTLDeviceSim::getEventSetup(const edm::EventSetup& evs) {
-  edm::ESHandle<MTDGeometry> geom;
-  evs.get<MTDDigiGeometryRecord>().get(geom);
-  geom_ = geom.product();
-
-  edm::ESHandle<MTDTopology> mtdTopo;
-  evs.get<MTDTopologyRcd>().get(mtdTopo);
-  topo_ = mtdTopo.product();
+  geom_ = &evs.getData(geomToken_);
+  topo_ = &evs.getData(topoToken_);
 }
 
 void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, float> >& hitRefs,
@@ -53,8 +50,7 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
       continue;  // to be ignored at RECO level
 
     BTLDetId btlid(detId);
-    const int boundRef = btlid.modulesPerType(MTDTopologyMode::crysLayoutFromTopoMode(topo_->getMTDTopologyMode()));
-    DetId geoId = BTLDetId(btlid.mtdSide(), btlid.mtdRR(), btlid.module() + boundRef * (btlid.modType() - 1), 0, 1);
+    DetId geoId = btlid.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topo_->getMTDTopologyMode()));
     const MTDGeomDet* thedet = geom_->idToDet(geoId);
 
     if (thedet == nullptr) {

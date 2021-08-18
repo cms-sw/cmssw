@@ -29,6 +29,8 @@ L1TGMT::L1TGMT(const ParameterSet& ps)
       trsrc_old_(0) {
   if (verbose_)
     cout << "L1TGMT: constructor...." << endl;
+  l1muTrigscaleToken_ = esConsumes<edm::Transition::BeginRun>();
+  l1TrigptscaleToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 L1TGMT::~L1TGMT() {}
@@ -239,13 +241,8 @@ double L1TGMT::phiconv_(float phi) {
 void L1TGMT::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const& c) {
   std::string subs[5] = {"DTTF", "RPCb", "CSCTF", "RPCf", "GMT"};
 
-  edm::ESHandle<L1MuTriggerScales> trigscales_h;
-  c.get<L1MuTriggerScalesRcd>().get(trigscales_h);
-  const L1MuTriggerScales* scales = trigscales_h.product();
-
-  edm::ESHandle<L1MuTriggerPtScale> trigptscale_h;
-  c.get<L1MuTriggerPtScaleRcd>().get(trigptscale_h);
-  const L1MuTriggerPtScale* scalept = trigptscale_h.product();
+  const L1MuTriggerScales* scales = &c.getData(l1muTrigscaleToken_);
+  const L1MuTriggerPtScale* scalept = &c.getData(l1TrigptscaleToken_);
 
   ibooker.setCurrentFolder("L1T/L1TGMT");
 

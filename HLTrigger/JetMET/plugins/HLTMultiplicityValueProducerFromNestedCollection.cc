@@ -1,0 +1,12 @@
+#include "HLTMultiplicityValueProducerFromNestedCollection.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+typedef HLTMultiplicityValueProducerFromNestedCollection<SiPixelClusterCollectionNew, double>
+    HLTSiPixelClusterMultiplicityValueProducer;
+DEFINE_FWK_MODULE(HLTSiPixelClusterMultiplicityValueProducer);
+
+typedef HLTMultiplicityValueProducerFromNestedCollection<Phase2TrackerCluster1DCollectionNew, double>
+    HLTSiPhase2TrackerClusterMultiplicityValueProducer;
+DEFINE_FWK_MODULE(HLTSiPhase2TrackerClusterMultiplicityValueProducer);

@@ -5,20 +5,21 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
-
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
 EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet& ps, edm::ConsumesCollector& c)
-    : EcalUncalibRecHitWorkerRunOneDigiBase(ps, c), testbeamEEShape(EEShape(true)), testbeamEBShape(EBShape(true)) {
+    : EcalUncalibRecHitWorkerRunOneDigiBase(ps, c),
+      tokenPeds_(c.esConsumes<EcalPedestals, EcalPedestalsRcd>()),
+      tokenGains_(c.esConsumes<EcalGainRatios, EcalGainRatiosRcd>()),
+      tokenGrps_(c.esConsumes<EcalWeightXtalGroups, EcalWeightXtalGroupsRcd>()),
+      tokenWgts_(c.esConsumes<EcalTBWeights, EcalTBWeightsRcd>()),
+      testbeamEEShape(EEShape(true)),
+      testbeamEBShape(EBShape(true)),
+      tokenSampleMask_(c.esConsumes<EcalSampleMask, EcalSampleMaskRcd>()),
+      tokenTimeCorrBias_(c.esConsumes<EcalTimeBiasCorrections, EcalTimeBiasCorrectionsRcd>()),
+      tokenItime_(c.esConsumes<EcalTimeCalibConstants, EcalTimeCalibConstantsRcd>()),
+      tokenOfftime_(c.esConsumes<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd>()) {
   // ratio method parameters
   EBtimeFitParameters_ = ps.getParameter<std::vector<double>>("EBtimeFitParameters");
   EEtimeFitParameters_ = ps.getParameter<std::vector<double>>("EEtimeFitParameters");
@@ -52,48 +53,7 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
   // chi2 parameters
   kPoorRecoFlagEB_ = ps.getParameter<bool>("kPoorRecoFlagEB");
   kPoorRecoFlagEE_ = ps.getParameter<bool>("kPoorRecoFlagEE");
-  ;
-  chi2ThreshEB_ = ps.getParameter<double>("chi2ThreshEB_");
-  chi2ThreshEE_ = ps.getParameter<double>("chi2ThreshEE_");
-  EBchi2Parameters_ = ps.getParameter<std::vector<double>>("EBchi2Parameters");
-  EEchi2Parameters_ = ps.getParameter<std::vector<double>>("EEchi2Parameters");
-}
 
-EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet& ps)
-    : EcalUncalibRecHitWorkerRunOneDigiBase(ps), testbeamEEShape(EEShape(true)), testbeamEBShape(EBShape(true)) {
-  // ratio method parameters
-  EBtimeFitParameters_ = ps.getParameter<std::vector<double>>("EBtimeFitParameters");
-  EEtimeFitParameters_ = ps.getParameter<std::vector<double>>("EEtimeFitParameters");
-  EBamplitudeFitParameters_ = ps.getParameter<std::vector<double>>("EBamplitudeFitParameters");
-  EEamplitudeFitParameters_ = ps.getParameter<std::vector<double>>("EEamplitudeFitParameters");
-  EBtimeFitLimits_.first = ps.getParameter<double>("EBtimeFitLimits_Lower");
-  EBtimeFitLimits_.second = ps.getParameter<double>("EBtimeFitLimits_Upper");
-  EEtimeFitLimits_.first = ps.getParameter<double>("EEtimeFitLimits_Lower");
-  EEtimeFitLimits_.second = ps.getParameter<double>("EEtimeFitLimits_Upper");
-  EBtimeConstantTerm_ = ps.getParameter<double>("EBtimeConstantTerm");
-  EBtimeNconst_ = ps.getParameter<double>("EBtimeNconst");
-  EEtimeConstantTerm_ = ps.getParameter<double>("EEtimeConstantTerm");
-  EEtimeNconst_ = ps.getParameter<double>("EEtimeNconst");
-  outOfTimeThreshG12pEB_ = ps.getParameter<double>("outOfTimeThresholdGain12pEB");
-  outOfTimeThreshG12mEB_ = ps.getParameter<double>("outOfTimeThresholdGain12mEB");
-  outOfTimeThreshG61pEB_ = ps.getParameter<double>("outOfTimeThresholdGain61pEB");
-  outOfTimeThreshG61mEB_ = ps.getParameter<double>("outOfTimeThresholdGain61mEB");
-  outOfTimeThreshG12pEE_ = ps.getParameter<double>("outOfTimeThresholdGain12pEE");
-  outOfTimeThreshG12mEE_ = ps.getParameter<double>("outOfTimeThresholdGain12mEE");
-  outOfTimeThreshG61pEE_ = ps.getParameter<double>("outOfTimeThresholdGain61pEE");
-  outOfTimeThreshG61mEE_ = ps.getParameter<double>("outOfTimeThresholdGain61mEE");
-  amplitudeThreshEB_ = ps.getParameter<double>("amplitudeThresholdEB");
-  amplitudeThreshEE_ = ps.getParameter<double>("amplitudeThresholdEE");
-
-  // spike threshold
-  ebSpikeThresh_ = ps.getParameter<double>("ebSpikeThreshold");
-
-  ebPulseShape_ = ps.getParameter<std::vector<double>>("ebPulseShape");
-  eePulseShape_ = ps.getParameter<std::vector<double>>("eePulseShape");
-  // chi2 parameters
-  kPoorRecoFlagEB_ = ps.getParameter<bool>("kPoorRecoFlagEB");
-  kPoorRecoFlagEE_ = ps.getParameter<bool>("kPoorRecoFlagEE");
-  ;
   chi2ThreshEB_ = ps.getParameter<double>("chi2ThreshEB_");
   chi2ThreshEE_ = ps.getParameter<double>("chi2ThreshEE_");
   EBchi2Parameters_ = ps.getParameter<std::vector<double>>("EBchi2Parameters");
@@ -102,23 +62,23 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
 
 void EcalUncalibRecHitWorkerGlobal::set(const edm::EventSetup& es) {
   // common setup
-  es.get<EcalGainRatiosRcd>().get(gains);
-  es.get<EcalPedestalsRcd>().get(peds);
+  gains_ = es.getHandle(tokenGains_);
+  peds_ = es.getHandle(tokenPeds_);
 
   // for the weights method
-  es.get<EcalWeightXtalGroupsRcd>().get(grps);
-  es.get<EcalTBWeightsRcd>().get(wgts);
+  grps_ = es.getHandle(tokenGrps_);
+  wgts_ = es.getHandle(tokenWgts_);
 
   // which of the samples need be used
-  es.get<EcalSampleMaskRcd>().get(sampleMaskHand_);
+  sampleMaskHand_ = es.getHandle(tokenSampleMask_);
 
   // for the ratio method
 
-  es.get<EcalTimeCalibConstantsRcd>().get(itime);
-  es.get<EcalTimeOffsetConstantRcd>().get(offtime);
+  itime_ = es.getHandle(tokenItime_);
+  offtime_ = es.getHandle(tokenOfftime_);
 
   // for the time correction methods
-  es.get<EcalTimeBiasCorrectionsRcd>().get(timeCorrBias_);
+  timeCorrBias_ = es.getHandle(tokenTimeCorrBias_);
 
   // for the DB Ecal Pulse Sim Shape
   testbeamEEShape.setEventSetup(es);
@@ -217,16 +177,16 @@ bool EcalUncalibRecHitWorkerGlobal::run(const edm::Event& evt,
 
   if (detid.subdetId() == EcalEndcap) {
     unsigned int hashedIndex = EEDetId(detid).hashedIndex();
-    aped = &peds->endcap(hashedIndex);
-    aGain = &gains->endcap(hashedIndex);
-    gid = &grps->endcap(hashedIndex);
-    offsetTime = offtime->getEEValue();
+    aped = &peds_->endcap(hashedIndex);
+    aGain = &gains_->endcap(hashedIndex);
+    gid = &grps_->endcap(hashedIndex);
+    offsetTime = offtime_->getEEValue();
   } else {
     unsigned int hashedIndex = EBDetId(detid).hashedIndex();
-    aped = &peds->barrel(hashedIndex);
-    aGain = &gains->barrel(hashedIndex);
-    gid = &grps->barrel(hashedIndex);
-    offsetTime = offtime->getEBValue();
+    aped = &peds_->barrel(hashedIndex);
+    aGain = &gains_->barrel(hashedIndex);
+    gid = &grps_->barrel(hashedIndex);
+    offsetTime = offtime_->getEBValue();
   }
 
   pedVec[0] = aped->mean_x12;
@@ -240,9 +200,9 @@ bool EcalUncalibRecHitWorkerGlobal::run(const edm::Event& evt,
   gainRatios[2] = aGain->gain6Over1() * aGain->gain12Over6();
 
   // compute the right bin of the pulse shape using time calibration constants
-  EcalTimeCalibConstantMap::const_iterator it = itime->find(detid);
+  EcalTimeCalibConstantMap::const_iterator it = itime_->find(detid);
   EcalTimeCalibConstant itimeconst = 0;
-  if (it != itime->end()) {
+  if (it != itime_->end()) {
     itimeconst = (*it);
   } else {
     edm::LogError("EcalRecHitError") << "No time intercalib const found for xtal " << detid.rawId()
@@ -285,7 +245,7 @@ bool EcalUncalibRecHitWorkerGlobal::run(const edm::Event& evt,
   } else {
     // weights method
     EcalTBWeights::EcalTDCId tdcid(1);
-    EcalTBWeights::EcalTBWeightMap const& wgtsMap = wgts->getMap();
+    EcalTBWeights::EcalTBWeightMap const& wgtsMap = wgts_->getMap();
     EcalTBWeights::EcalTBWeightMap::const_iterator wit;
     wit = wgtsMap.find(std::make_pair(*gid, tdcid));
     if (wit == wgtsMap.end()) {

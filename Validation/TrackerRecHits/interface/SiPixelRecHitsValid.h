@@ -15,6 +15,8 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include <string>
 
@@ -23,6 +25,7 @@ class PSimHit;
 class PixelGeomDetUnit;
 class SiPixelRecHit;
 class TrackerTopology;
+class TrackerGeometry;
 
 class SiPixelRecHitsValid : public DQMEDAnalyzer {
 public:
@@ -39,6 +42,10 @@ protected:
 private:
   void fillBarrel(const SiPixelRecHit&, const PSimHit&, DetId, const PixelGeomDetUnit*, const TrackerTopology* tTopo);
   void fillForward(const SiPixelRecHit&, const PSimHit&, DetId, const PixelGeomDetUnit*, const TrackerTopology* tTopo);
+
+  // Es Tokens
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoEsToken;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomEsToken;
 
   //Clusters BPIX
   MonitorElement* clustYSizeModule[8];

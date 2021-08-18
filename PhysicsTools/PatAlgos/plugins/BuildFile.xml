@@ -10,6 +10,7 @@
   <use name="DataFormats/PatCandidates"/>
   <use name="DataFormats/BTauReco"/>
   <use name="DataFormats/Common"/>
+  <use name="DataFormats/JetMatching"/>
   <use name="DataFormats/JetReco"/>
   <use name="DataFormats/MuonReco"/>
   <use name="DataFormats/TrackReco"/>
@@ -27,7 +28,6 @@
   <use name="RecoEgamma/EgammaTools"/>
   <use name="SimDataFormats/Track"/>
   <use name="SimDataFormats/Vertex"/>
-  <use name="SimDataFormats/JetMatching"/>
   <use name="SimDataFormats/PileupSummaryInfo"/>
   <use name="SimGeneral/HepPDTRecord"/>
   <use name="RecoMET/METAlgorithms"/>

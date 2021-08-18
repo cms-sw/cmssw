@@ -1,15 +1,21 @@
 <use name="CommonTools/Utils"/>
 <use name="DataFormats/Candidate"/>
-<use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/MuonReco"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/RecoCandidate"/>
 <use name="DataFormats/TauReco"/>
+<use name="DataFormats/TrackReco"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Provenance"/>
 <use name="DataFormats/VertexReco"/>
 <use name="FWCore/Common"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/ParameterSetReader"/>
+<use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
 <use name="rootcore"/>
 <use name="root"/>
@@ -26,11 +32,5 @@
   <use name="FWCore/Common"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
-<use name="DataFormats/RecoCandidate"/>
-<use name="DataFormats/TrackReco"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/MessageLogger"/>
-<use name="FWCore/ParameterSetReader"/>
-<use name="FWCore/PluginManager"/>
   <use name="openssl"/>
 </export>

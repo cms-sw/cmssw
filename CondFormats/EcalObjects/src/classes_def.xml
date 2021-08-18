@@ -214,6 +214,10 @@
 
 <class name="EcalTPGSlidingWindow"/>
 <class name="EcalTPGWeightIdMap"/>
+<class name="EcalTPGOddWeightIdMap"/>
+
+<class name="EcalTPGTPMode"/>
+
 <class name="EcalTPGWeights"/>
 <class name="std::map<uint32_t, EcalTPGWeights>"/>
 <class name="std::pair<const uint32_t, EcalTPGWeights>"/>
@@ -223,6 +227,7 @@
 <class name="EcalTPGFineGrainEBGroup"/>
 <class name="EcalTPGLutGroup"/>
 <class name="EcalTPGWeightGroup"/>
+<class name="EcalTPGOddWeightGroup"/>
 <class name="EcalTPGPhysicsConst"/>
 <class name="EcalTPGPhysicsConst::Item"/>
 <class name="std::map<uint32_t, EcalTPGPhysicsConst::Item>"/>

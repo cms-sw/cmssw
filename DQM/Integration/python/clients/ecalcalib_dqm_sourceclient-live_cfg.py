@@ -186,10 +186,10 @@ process.ecalRecHit.EBuncalibRecHitCollection = "ecalGlobalUncalibRecHit:EcalUnca
 process.ecalPNDiodeMonitorTask.verbosity = 0
 process.ecalPNDiodeMonitorTask.commonParameters.onlineMode = True
 
-process.dqmEnv.subSystemFolder = cms.untracked.string('EcalCalibration')
-process.dqmSaver.tag = cms.untracked.string('EcalCalibration')
+process.dqmEnv.subSystemFolder = 'EcalCalibration'
+process.dqmSaver.tag = 'EcalCalibration'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = cms.untracked.string('EcalCalibration')
+process.dqmSaverPB.tag = 'EcalCalibration'
 process.dqmSaverPB.runNumber = options.runNumber
 
 ### Sequences ###

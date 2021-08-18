@@ -15,7 +15,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "Validation/DTRecHits/interface/DTHitQualityUtils.h"
 
@@ -44,7 +43,7 @@ namespace dtsegment2d {
 using namespace dtsegment2d;
 
 // Constructor
-DTSegment2DQuality::DTSegment2DQuality(const ParameterSet &pset) {
+DTSegment2DQuality::DTSegment2DQuality(const ParameterSet &pset) : muonGeomToken_(esConsumes()) {
   // get the debug parameter for verbose output
   debug_ = pset.getUntrackedParameter<bool>("debug");
   DTHitQualityUtils::debug = debug_;
@@ -90,8 +89,7 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const &event,
                                     edm::EventSetup const &setup,
                                     Histograms const &histograms) const {
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  const DTGeometry &dtGeom = setup.getData(muonGeomToken_);
 
   // Get the SimHit collection from the event
   edm::Handle<PSimHitContainer> simHits;
@@ -151,7 +149,7 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const &event,
 
     // Find direction and position of the sim Segment in SL RF
     pair<LocalVector, LocalPoint> dirAndPosSimSegm =
-        DTHitQualityUtils::findMuSimSegmentDirAndPos(inAndOutSimHit, (*slId), &(*dtGeom));
+        DTHitQualityUtils::findMuSimSegmentDirAndPos(inAndOutSimHit, (*slId), dtGeom);
 
     LocalVector simSegmLocalDir = dirAndPosSimSegm.first;
     LocalPoint simSegmLocalPos = dirAndPosSimSegm.second;
@@ -159,7 +157,7 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const &event,
       cout << "  Simulated segment:  local direction " << simSegmLocalDir << endl
            << "                      local position  " << simSegmLocalPos << endl;
     }
-    const DTSuperLayer *superLayer = dtGeom->superLayer(*slId);
+    const DTSuperLayer *superLayer = dtGeom.superLayer(*slId);
     GlobalPoint simSegmGlobalPos = superLayer->toGlobal(simSegmLocalPos);
 
     // Atan(x/z) angle and x position in SL RF

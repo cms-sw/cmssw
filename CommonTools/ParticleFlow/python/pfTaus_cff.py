@@ -95,15 +95,15 @@ pfTausDiscriminationByIsolation= hpsPFTauBasicDiscriminators.clone(
     Prediscriminants = pfTausrequireDecayMode.clone()
 )
 
-# Sequence to reproduce taus and compute our cloned discriminants
-pfTausBaseSequence = cms.Sequence(
-   pfJetsLegacyHPSPiZeros +
-   pfTauPFJetsRecoTauChargedHadrons +
-   pfTausCombiner +
-   pfTausSelectionDiscriminator +
-   pfTausProducerSansRefs +
-   pfTausProducer +
-   pfTausDiscriminationByDecayModeFinding *
+# Task to reproduce taus and compute our cloned discriminants
+pfTausBaseTask = cms.Task(
+   pfJetsLegacyHPSPiZeros ,
+   pfTauPFJetsRecoTauChargedHadrons ,
+   pfTausCombiner ,
+   pfTausSelectionDiscriminator ,
+   pfTausProducerSansRefs ,
+   pfTausProducer ,
+   pfTausDiscriminationByDecayModeFinding ,
    pfTausDiscriminationByIsolation
 )
 
@@ -124,10 +124,10 @@ pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone(
     PFCandidateProducer = jetConfig.ak4PFJets.src ,
     PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 )
-pfTausPreSequence = cms.Sequence(
-    pfJetTracksAssociatorAtVertex +
-    recoTauAK4PFJets08Region +
-    pfTauPileUpVertices +
+pfTausPreTask = cms.Task(
+    pfJetTracksAssociatorAtVertex ,
+    recoTauAK4PFJets08Region ,
+    pfTauPileUpVertices ,
     pfTauTagInfoProducer
 )
 
@@ -145,9 +145,10 @@ pfTausPtrs = cms.EDProducer("PFTauFwdPtrProducer",
                             src=cms.InputTag("pfTaus")
 )
 
-pfTauSequence = cms.Sequence(
-    pfTausPreSequence +
-    pfTausBaseSequence +
-    pfTaus +
+pfTauTask = cms.Task(
+    pfTausPreTask ,
+    pfTausBaseTask ,
+    pfTaus ,
     pfTausPtrs
 )
+pfTauSequence = cms.Sequence(pfTauTask)

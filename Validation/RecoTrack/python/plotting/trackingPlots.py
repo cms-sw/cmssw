@@ -4,7 +4,6 @@ import os
 import copy
 import collections
 
-import six
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -353,7 +352,9 @@ _tuning = PlotGroup("tuning", [
     Plot("chi2mean_vs_pt", title="", xtitle="p_{T}", ytitle="< #chi^{2} / ndf >", ymin=[0, 0.5], ymax=[2, 2.5, 3, 5], xlog=True, fallback={"name": "chi2_vs_pt", "profileX": True}),
     Plot("chi2mean_vs_drj", title="", xtitle="#DeltaR(track, jet)", ytitle="< #chi^{2} / ndf >", ymin=[0, 0.5], ymax=[2, 2.5, 3, 5], xlog=True, xmax=_maxDRJ, fallback={"name": "chi2_vs_drj", "profileX": True}),
     Plot("ptres_vs_pt_Mean", title="", xtitle="p_{T}", ytitle="< #delta p_{T}/p_{T} > (%)", scale=100, ymin=_minResidualPt, ymax=_maxResidualPt,xlog=True)
-])
+],
+                   legendDy=_legendDy_4rows
+)
 _common = {"stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "drawCommand": "", "xmin": -10, "xmax": 10, "ylog": True, "ymin": 5e-5, "ymax": [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025], "ratioUncertainty": False}
 _pulls = PlotGroup("pulls", [
     Plot("pullPt", **_common),
@@ -615,6 +616,8 @@ def _mapCollectionToAlgoQuality(collName):
     prefixes = ["cutsreco", "cutsrecofrompv", "cutsrecofrompv2", "cutsrecofrompvalltp", "cutsrecoetagreater2p7"]
     if collNameLow in ["general", "generalfrompv", "generaletagreater2p7"]+prefixes:
         algo = "ootb"
+    elif collNameLow in ["pixel", "pixelfrompv", "pixelfrompvalltp"]:
+        algo = "pixel"
     else:
         def testColl(coll):
             for pfx in prefixes:
@@ -628,7 +631,7 @@ def _mapCollectionToAlgoQuality(collName):
                 break
         # next try "old style"
         if algo is None:
-            for coll, name in six.iteritems(_possibleTrackingCollsOld):
+            for coll, name in _possibleTrackingCollsOld.items():
                 if testColl(coll.lower()):
                     algo = name
                     break
@@ -939,6 +942,7 @@ class TrackingSummaryTable:
     class BTVLike: pass
     class AK4PFJets: pass
     class Pixel: pass
+    class PixelPt09: pass
 
     def __init__(self, section, collection=GeneralTracks):
         self._collection = collection
@@ -957,7 +961,7 @@ class TrackingSummaryTable:
 
     def create(self, tdirectory):
         def _getAlgoQuality(data, algo, quality):
-            for label, value in six.iteritems(data):
+            for label, value in data.items():
                 (a, q) = _mapCollectionToAlgoQuality(label)
                 if a == algo and q == quality:
                     return value[0] # value is (value, uncertainty) tuple
@@ -981,6 +985,8 @@ class TrackingSummaryTable:
                 return _getAlgoQuality(data, "ak4PFJets", "")
             elif self._collection == TrackingSummaryTable.Pixel:
                 return _getAlgoQuality(data, "pixel", "")
+            elif self._collection == TrackingSummaryTable.PixelPt09:
+                return _getAlgoQuality(data, "pixel", "Pt09")
             else:
                 raise Exception("Collection not recognized, %s" % str(self._collection))
         def _formatOrNone(num, func):
@@ -1354,11 +1360,21 @@ _appendTrackingPlots("TrackGsf", "gsf", _simBasedPlots+_recoBasedPlots, onlyForE
 _appendTrackingPlots("TrackBHadron", "bhadron", _simBasedPlots+_recoBasedPlots, onlyForBHadron=True)
 _appendTrackingPlots("TrackDisplaced", "displaced", _simBasedPlots+_recoBasedPlots)
 # Pixel tracks
-_common = dict(purpose=PlotPurpose.Pixel, page="pixel")
-plotter.append("pixelTrack", _trackingFolders("PixelTrack"), TrackingPlotFolder(*(_simBasedPlots+_recoBasedPlots), **_common))
-plotterExt.append("pixelTrack", _trackingFolders("PixelTrack"), TrackingPlotFolder(*_extendedPlots, **_common))
-plotter.append("pixelTrack_summary",  _trackingFolders("PixelTrack"), PlotFolder(_summaryRaw, _summaryRawN, loopSubFolders=False, purpose=PlotPurpose.TrackingSummary, page="summary", section="pixel"))
-plotter.appendTable("pixelTrack_summary", _trackingFolders("PixelTrack"), TrackingSummaryTable(section="pixel", collection=TrackingSummaryTable.Pixel))
+def _appendPixelTrackingPlots(lastDirName, name):
+    _common = dict(purpose=PlotPurpose.Pixel, page="pixel")
+    _folders = _trackingFolders(lastDirName)
+
+    plotter.append(name, _folders, TrackingPlotFolder(*(_simBasedPlots+_recoBasedPlots), **_common))
+    plotterExt.append(name, _folders, TrackingPlotFolder(*_extendedPlots, **_common))
+
+    plotter.append(name+"_summary",  _folders, PlotFolder(_summaryRaw, _summaryRawN, loopSubFolders=False, purpose=PlotPurpose.TrackingSummary, page="summary", section=name))
+    plotter.append(name+"_summary",  _folders, PlotFolder(_summaryRaw, _summaryRawN, loopSubFolders=False, purpose=PlotPurpose.TrackingSummary, page="summary", section=name+"Pt09"))
+    plotter.appendTable(name+"_summary", _folders, TrackingSummaryTable(section=name, collection=TrackingSummaryTable.Pixel))
+    plotter.appendTable(name+"_summary", _folders, TrackingSummaryTable(section=name+"Pt09", collection=TrackingSummaryTable.PixelPt09))
+_appendPixelTrackingPlots("PixelTrack", "pixel")
+_appendPixelTrackingPlots("PixelTrackFromPV", "pixelFromPV")
+_appendPixelTrackingPlots("PixelTrackFromPVAllTP", "pixelFromPVAllTP")
+_appendPixelTrackingPlots("PixelTrackBHadron", "pixelbhadron")
 
 
 # MiniAOD
@@ -1394,7 +1410,8 @@ class Iteration:
         # it's fine to include e.g. quadruplets here also for pair
         # steps, as non-existing modules are just ignored
         _set(seeding, "_seeding", [self._name+"SeedingLayers", self._name+"TrackingRegions", self._name+"HitDoublets", self._name+"HitTriplets", self._name+"HitQuadruplets", self._name+"Seeds"])
-        _set(building, "_building", [self._name+"TrackCandidates"])
+        trackCandidates = self._name+"TrackCandidates"
+        _set(building, "_building", [trackCandidates+"MkFitSeeds", trackCandidates+"MkFit", trackCandidates])
         _set(fit, "_fit", [self._name+"Tracks"])
         _set(selection, "_selection", [self._name])
         self._other = other
@@ -1440,7 +1457,9 @@ _iterations = [
                        "initialStepHitTripletsPreSplitting",
                        "initialStepHitQuadrupletsPreSplitting",
                        "initialStepSeedsPreSplitting"],
-              building=["initialStepTrackCandidatesPreSplitting"],
+              building=["initialStepTrackCandidatesPreSplitting",
+                        "initialStepTrackCandidatesMkFitSeedsPreSplitting",
+                        "initialStepTrackCandidatesMkFitPreSplitting"],
               fit=["initialStepTracksPreSplitting"],
               other=["firstStepPrimaryVerticesPreSplitting",
                      "initialStepTrackRefsForJetsPreSplitting",
@@ -1450,21 +1469,23 @@ _iterations = [
                      "siPixelClusters",
                      "siPixelRecHits",
                      "MeasurementTrackerEvent",
-                     "siPixelClusterShapeCache"]),
+                     "siPixelClusterShapeCache",
+                     "mkFitSiPixelHitsPreSplitting",
+                     "mkFitSiStripHits",
+                     "mkFitEventOfHitsPreSplitting"]),
     Iteration("initialStep", clusterMasking=[],
               selection=["initialStepClassifier1",
                          "initialStepClassifier2",
                          "initialStepClassifier3",
                          "initialStep",
                          "initialStepSelector"],
-              building=["initialStepTrackCandidatesMkFitInput",
-                        "initialStepTrackCandidatesMkFit",
-                        "initialStepTrackCandidates"],
               other=["firstStepPrimaryVerticesUnsorted",
                      "initialStepTrackRefsForJets",
                      "caloTowerForTrk",
                      "ak4CaloJetsForTrk",
-                     "firstStepPrimaryVertices"]),
+                     "firstStepPrimaryVertices",
+                     "mkFitSiPixelHits",
+                     "mkFitEventOfHits"]),
     Iteration("highPtTripletStep",
               selection=["highPtTripletStepClassifier1",
                          "highPtTripletStepClassifier2",

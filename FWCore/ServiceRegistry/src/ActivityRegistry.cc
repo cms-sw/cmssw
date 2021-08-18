@@ -105,6 +105,9 @@ namespace edm {
     preSourceRunSignal_.connect(std::cref(iOther.preSourceRunSignal_));
     postSourceRunSignal_.connect(std::cref(iOther.postSourceRunSignal_));
 
+    preSourceProcessBlockSignal_.connect(std::cref(iOther.preSourceProcessBlockSignal_));
+    postSourceProcessBlockSignal_.connect(std::cref(iOther.postSourceProcessBlockSignal_));
+
     preOpenFileSignal_.connect(std::cref(iOther.preOpenFileSignal_));
     postOpenFileSignal_.connect(std::cref(iOther.postOpenFileSignal_));
 
@@ -275,6 +278,12 @@ namespace edm {
     preModuleWriteLumiSignal_.connect(std::cref(iOther.preModuleWriteLumiSignal_));
     postModuleWriteLumiSignal_.connect(std::cref(iOther.postModuleWriteLumiSignal_));
 
+    preESModulePrefetchingSignal_.connect(std::cref(iOther.preESModulePrefetchingSignal_));
+    postESModulePrefetchingSignal_.connect(std::cref(iOther.postESModulePrefetchingSignal_));
+
+    preESModuleSignal_.connect(std::cref(iOther.preESModuleSignal_));
+    postESModuleSignal_.connect(std::cref(iOther.postESModuleSignal_));
+
     //preModuleSignal_.connect(std::cref(iOther.preModuleSignal_));
     //postModuleSignal_.connect(std::cref(iOther.postModuleSignal_));
 
@@ -318,6 +327,9 @@ namespace edm {
 
     copySlotsToFrom(preSourceRunSignal_, iOther.preSourceRunSignal_);
     copySlotsToFromReverse(postSourceRunSignal_, iOther.postSourceRunSignal_);
+
+    copySlotsToFrom(preSourceProcessBlockSignal_, iOther.preSourceProcessBlockSignal_);
+    copySlotsToFromReverse(postSourceProcessBlockSignal_, iOther.postSourceProcessBlockSignal_);
 
     copySlotsToFrom(preOpenFileSignal_, iOther.preOpenFileSignal_);
     copySlotsToFromReverse(postOpenFileSignal_, iOther.postOpenFileSignal_);
@@ -483,6 +495,11 @@ namespace edm {
     copySlotsToFrom(preModuleWriteLumiSignal_, iOther.preModuleWriteLumiSignal_);
     copySlotsToFromReverse(postModuleWriteLumiSignal_, iOther.postModuleWriteLumiSignal_);
 
+    copySlotsToFrom(preESModulePrefetchingSignal_, iOther.preESModulePrefetchingSignal_);
+    copySlotsToFromReverse(postESModulePrefetchingSignal_, iOther.postESModulePrefetchingSignal_);
+
+    copySlotsToFrom(preESModuleSignal_, iOther.preESModuleSignal_);
+    copySlotsToFromReverse(postESModuleSignal_, iOther.postESModuleSignal_);
     /*
     copySlotsToFrom(preModuleSignal_, iOther.preModuleSignal_);
     copySlotsToFromReverse(postModuleSignal_, iOther.postModuleSignal_);

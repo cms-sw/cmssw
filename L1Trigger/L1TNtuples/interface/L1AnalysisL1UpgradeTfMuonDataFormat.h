@@ -13,6 +13,8 @@ namespace L1Analysis {
     void Reset() {
       nTfMuons = 0;
       tfMuonHwPt.clear();
+      tfMuonHwPtUnconstrained.clear();
+      tfMuonHwDxy.clear();
       tfMuonHwEta.clear();
       tfMuonHwPhi.clear();
       tfMuonGlobalPhi.clear();
@@ -32,6 +34,8 @@ namespace L1Analysis {
 
     unsigned short int nTfMuons;
     std::vector<short int> tfMuonHwPt;
+    std::vector<short int> tfMuonHwPtUnconstrained;
+    std::vector<short int> tfMuonHwDxy;
     std::vector<short int> tfMuonHwEta;
     std::vector<short int> tfMuonHwPhi;
     std::vector<short int> tfMuonGlobalPhi;

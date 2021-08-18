@@ -44,7 +44,7 @@ private:
   Parameters m_badAPVsList;
   bool m_printDebug;
   bool m_doByAPVs;
-  SiStripDetInfoFileReader m_detInfoFileReader;
+  SiStripDetInfo m_detInfo;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackTopoToken_;
 
   std::vector<uint32_t> selectDetectors(const TrackerTopology* tTopo, const std::vector<uint32_t>& detIds) const;
@@ -62,8 +62,7 @@ SiStripBadModuleConfigurableFakeESSource::SiStripBadModuleConfigurableFakeESSour
   m_doByAPVs = iConfig.getUntrackedParameter<bool>("doByAPVs", false);
   m_badAPVsList = iConfig.getUntrackedParameter<Parameters>("BadAPVList");
   m_printDebug = iConfig.getUntrackedParameter<bool>("printDebug", false);
-  m_detInfoFileReader =
-      SiStripDetInfoFileReader{iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
+  m_detInfo = SiStripDetInfoFileReader::read(iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath());
 }
 
 SiStripBadModuleConfigurableFakeESSource::~SiStripBadModuleConfigurableFakeESSource() {}
@@ -81,10 +80,10 @@ SiStripBadModuleConfigurableFakeESSource::ReturnType SiStripBadModuleConfigurabl
 
   TrackerTopology const& tTopo = iRecord.get(trackTopoToken_);
 
-  auto quality = std::make_unique<SiStripQuality>();
+  auto quality = std::make_unique<SiStripQuality>(m_detInfo);
 
   if (!m_doByAPVs) {
-    std::vector<uint32_t> selDetIds{selectDetectors(&tTopo, m_detInfoFileReader.getAllDetIds())};
+    std::vector<uint32_t> selDetIds{selectDetectors(&tTopo, m_detInfo.getAllDetIds())};
     edm::LogInfo("SiStripQualityConfigurableFakeESSource")
         << "[produce] number of selected dets to be removed " << selDetIds.size() << std::endl;
 
@@ -93,7 +92,7 @@ SiStripBadModuleConfigurableFakeESSource::ReturnType SiStripBadModuleConfigurabl
       SiStripQuality::InputVector theSiStripVector;
 
       unsigned short firstBadStrip{0};
-      unsigned short NconsecutiveBadStrips = m_detInfoFileReader.getNumberOfApvsAndStripLength(selId).first * 128;
+      unsigned short NconsecutiveBadStrips = m_detInfo.getNumberOfApvsAndStripLength(selId).first * 128;
       unsigned int theBadStripRange{quality->encode(firstBadStrip, NconsecutiveBadStrips)};
 
       if (m_printDebug) {

@@ -13,11 +13,11 @@
 // system include files
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 
 #include <string>
 #include <sstream>
+#include <filesystem>
 
 // user include files
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -33,7 +33,6 @@ boost::property_tree::ptree dqmfilesaver::fillJson(int run,
                                                    const std::string& mergeTypeStr,
                                                    evf::FastMonitoringService* fms) {
   namespace bpt = boost::property_tree;
-  namespace bfs = boost::filesystem;
 
   bpt::ptree pt;
 
@@ -57,7 +56,7 @@ boost::property_tree::ptree dqmfilesaver::fillJson(int run,
     if (stat(dataFilePathName.c_str(), &dataFileStat) != 0)
       throw cms::Exception("fillJson") << "Internal error, cannot get data file: " << dataFilePathName;
     // Extract only the data file name from the full path
-    dataFileName = bfs::path(dataFilePathName).filename().string();
+    dataFileName = std::filesystem::path(dataFilePathName).filename().string();
   }
   // The availability test of the FastMonitoringService was done in the ctor.
   bpt::ptree data;
@@ -95,7 +94,7 @@ boost::property_tree::ptree dqmfilesaver::fillJson(int run,
     pt.put("definition", "/fakeDefinition.jsn");
   } else {
     // The availability test of the EvFDaqDirector Service was done in the ctor.
-    bfs::path outJsonDefName{
+    std::filesystem::path outJsonDefName{
         edm::Service<evf::EvFDaqDirector>()->baseRunDir()};  //we assume this file is written bu the EvF Output module
     outJsonDefName /= (std::string("output_") + oss_pid.str() + std::string(".jsd"));
     pt.put("definition", outJsonDefName.string());

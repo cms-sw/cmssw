@@ -1,21 +1,19 @@
-#include <L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h>
-#include <L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h>
-#include <L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h>
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h>
-#include <DataFormats/L1TMuon/interface/CSCConstants.h>
-#include <DataFormats/MuonDetId/interface/DTChamberId.h>
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFDTReceiver.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTFConfig.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
-#include <L1Trigger/CSCTrackFinder/src/CSCTFDTReceiverLUT.h>
+#include "L1Trigger/CSCTrackFinder/src/CSCTFDTReceiverLUT.h"
 
 CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChambPhContainer* dttrig) {
   dtstubs.clear();
   if (!dttrig)
     return dtstubs;
 
-  //Need a better way to get these values since this
-  // violates CMSSW coding policy
   const int dt_minBX = L1MuDTTFConfig::getBxMinGlobally();
   const int dt_maxBX = L1MuDTTFConfig::getBxMaxGlobally();
 

@@ -46,7 +46,7 @@ public:
 
 protected:
   void constructLayers(const DDLogicalPart&, DDCompactView& cpv);
-  void positionSensitive(const DDLogicalPart& glog, int layertype, int layer, DDCompactView& cpv);
+  void positionSensitive(const DDLogicalPart& glog, int layer, DDCompactView& cpv);
 
 private:
   HGCalGeomTools geomTools_;
@@ -65,6 +65,7 @@ private:
   double waferSize_;                    // Width of the wafer
   double waferSepar_;                   // Sensor separation
   int sectors_;                         // Sectors
+  std::string rotstr_;                  // Rotation matrix (if needed)
   std::vector<std::string> waferFull_;  // Names of full wafer modules
   std::vector<std::string> waferPart_;  // Names of partial wafer modules
   std::vector<std::string> materials_;  // names of materials
@@ -75,13 +76,13 @@ private:
   std::vector<double> layerThick_;      // Thickness of each section
   std::vector<int> layerType_;          // Type of the layer
   std::vector<int> layerSense_;         // Content of a layer (sensitive?)
-  std::vector<int> layerCenter_;        // Centering of the wafers
   std::vector<double> slopeB_;          // Slope at the lower R
   std::vector<double> zFrontB_;         // Starting Z values for the slopes
   std::vector<double> rMinFront_;       // Corresponding rMin's
   std::vector<double> slopeT_;          // Slopes at the larger R
   std::vector<double> zFrontT_;         // Starting Z values for the slopes
   std::vector<double> rMaxFront_;       // Corresponding rMax's
+  std::vector<int> layerTypes_;         // Layer type (Centering, rotations..)
   std::vector<int> waferIndex_;         // Wafer index for the types
   std::vector<int> waferProperty_;      // Wafer property
   std::vector<int> waferLayerStart_;    // Index of wafers in each layer
@@ -122,10 +123,11 @@ void DDHGCalSiliconModule::initialize(const DDNumericArguments& nArgs,
   sectors_ = (int)(nArgs["Sectors"]);
   alpha_ = (1._pi) / sectors_;
   cosAlpha_ = cos(alpha_);
+  rotstr_ = sArgs["LayerRotation"];
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "zStart " << zMinBlock_ << " wafer width " << waferSize_ << " separations "
                                 << waferSepar_ << " sectors " << sectors_ << ":" << convertRadToDeg(alpha_) << ":"
-                                << cosAlpha_;
+                                << cosAlpha_ << " rotation matrix " << rotstr_;
 #endif
   waferFull_ = vsArgs["WaferNamesFull"];
   waferPart_ = vsArgs["WaferNamesPartial"];
@@ -170,10 +172,10 @@ void DDHGCalSiliconModule::initialize(const DDNumericArguments& nArgs,
 #endif
   layerType_ = dbl_to_int(vArgs["LayerType"]);
   layerSense_ = dbl_to_int(vArgs["LayerSense"]);
-  layerCenter_ = dbl_to_int(vArgs["LayerCenter"]);
+  layerTypes_ = dbl_to_int(vArgs["LayerTypes"]);
 #ifdef EDM_ML_DEBUG
-  for (unsigned int i = 0; i < layerCenter_.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "LayerCenter [" << i << "] " << layerCenter_[i];
+  for (unsigned int i = 0; i < layerTypes_.size(); ++i)
+    edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerTypes_[i];
 #endif
   if (firstLayer_ > 0) {
     for (unsigned int i = 0; i < layerType_.size(); ++i) {
@@ -284,38 +286,25 @@ void DDHGCalSiliconModule::constructLayers(const DDLogicalPart& module, DDCompac
       DDLogicalPart glog;
       if (layerSense_[ly] < 1) {
         std::vector<double> pgonZ, pgonRin, pgonRout;
-        if (layerSense_[ly] == 0 || absorbMode_ == 0) {
-          double rmax = routF * cosAlpha_ - tol1_;
-          pgonZ.emplace_back(-hthick);
-          pgonZ.emplace_back(hthick);
-          pgonRin.emplace_back(rinB);
-          pgonRin.emplace_back(rinB);
-          pgonRout.emplace_back(rmax);
-          pgonRout.emplace_back(rmax);
-        } else {
-          HGCalGeomTools::radius(zz - hthick,
-                                 zz + hthick,
-                                 zFrontB_,
-                                 rMinFront_,
-                                 slopeB_,
-                                 zFrontT_,
-                                 rMaxFront_,
-                                 slopeT_,
-                                 -layerSense_[ly],
-                                 pgonZ,
-                                 pgonRin,
-                                 pgonRout);
-#ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: z " << (zz - hthick) << ":" << (zz + hthick)
-                                        << " with " << pgonZ.size() << " palnes";
-          for (unsigned int isec = 0; isec < pgonZ.size(); ++isec)
-            edm::LogVerbatim("HGCalGeom")
-                << "[" << isec << "] z " << pgonZ[isec] << " R " << pgonRin[isec] << ":" << pgonRout[isec];
-#endif
-          for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
-            pgonZ[isec] -= zz;
+        double rmax = routF * cosAlpha_ - tol1_;
+        HGCalGeomTools::radius(zz - hthick,
+                               zz + hthick,
+                               zFrontB_,
+                               rMinFront_,
+                               slopeB_,
+                               zFrontT_,
+                               rMaxFront_,
+                               slopeT_,
+                               -layerSense_[ly],
+                               pgonZ,
+                               pgonRin,
+                               pgonRout);
+        for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
+          pgonZ[isec] -= zz;
+          if (layerSense_[ly] == 0 || absorbMode_ == 0)
+            pgonRout[isec] = rmax;
+          else
             pgonRout[isec] = pgonRout[isec] * cosAlpha_ - tol1_;
-          }
         }
         DDSolid solid =
             DDSolidFactory::polyhedra(DDName(name, nameSpace_), sectors_, -alpha_, 2._pi, pgonZ, pgonRin, pgonRout);
@@ -339,18 +328,28 @@ void DDHGCalSiliconModule::constructLayers(const DDLogicalPart& module, DDCompac
         edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: " << solid.name() << " Tubs made of " << matName
                                       << " of dimensions " << rinB << ":" << rins << ", " << routF << ":" << routs
                                       << ", " << hthick << ", 0.0, 360.0 and position " << glog.name() << " number "
-                                      << copy << ":" << layerCenter_[copy - firstLayer_];
+                                      << copy << ":" << layerTypes_[copy - firstLayer_];
 #endif
-        positionSensitive(glog, layerSense_[ly], (copy - firstLayer_), cpv);
+        positionSensitive(glog, (copy - firstLayer_), cpv);
       }
       DDTranslation r1(0, 0, zz);
       DDRotation rot;
+#ifdef EDM_ML_DEBUG
+      std::string rotName("Null");
+#endif
+      if ((layerSense_[ly] > 0) && (layerTypes_[copy - firstLayer_] == HGCalTypes::WaferCenteredRotated)) {
+        rot = DDRotation(DDName(DDSplit(rotstr_).first, DDSplit(rotstr_).second));
+#ifdef EDM_ML_DEBUG
+        rotName = rotstr_;
+#endif
+      }
       cpv.position(glog, module, copy, r1, rot);
       int inc = ((layerSense_[ly] > 0) && (facingTypes_ > 1)) ? 2 : 1;
       copyNumber_[ii] = copy + inc;
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: " << glog.name() << " number " << copy
-                                    << " positioned in " << module.name() << " at " << r1 << " with no rotation";
+                                    << " positioned in " << module.name() << " at " << r1 << " with " << rotName
+                                    << " rotation";
 #endif
       zz += hthick;
     }  // End of loop over layers in a block
@@ -369,12 +368,15 @@ void DDHGCalSiliconModule::constructLayers(const DDLogicalPart& module, DDCompac
   }  // End of loop over blocks
 }
 
-void DDHGCalSiliconModule::positionSensitive(const DDLogicalPart& glog, int layertype, int layer, DDCompactView& cpv) {
+void DDHGCalSiliconModule::positionSensitive(const DDLogicalPart& glog, int layer, DDCompactView& cpv) {
   static const double sqrt3 = std::sqrt(3.0);
-  int layercenter = layerCenter_[layer];
+  int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda)
+                        ? 1
+                        : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? 2 : 0);
+  int layertype = (layerTypes_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
   int firstWafer = waferLayerStart_[layer];
   int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
-                                                                           : static_cast<int>(waferLayerStart_.size()));
+                                                                           : static_cast<int>(waferIndex_.size()));
   double r = 0.5 * (waferSize_ + waferSepar_);
   double R = 2.0 * r / sqrt3;
   double dy = 0.75 * R;
@@ -403,11 +405,11 @@ void DDHGCalSiliconModule::positionSensitive(const DDLogicalPart& glog, int laye
     std::string wafer;
     int i(999);
     if (part == HGCalTypes::WaferFull) {
-      i = (layertype - 1) * waferTypes_ + type;
+      i = layertype * waferTypes_ + type;
       wafer = waferFull_[i];
     } else {
-      i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ +
-          (layertype - 1) * waferTypes_ * orientationTypes_ + type * orientationTypes_ + orien;
+      i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ + layertype * waferTypes_ * orientationTypes_ +
+          type * orientationTypes_ + orien;
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:ind " << layertype << ":" << type << ":" << part
                                     << ":" << orien << ":" << i << ":" << waferPart_.size();

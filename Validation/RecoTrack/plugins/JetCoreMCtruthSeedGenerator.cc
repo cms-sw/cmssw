@@ -23,8 +23,8 @@
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
@@ -96,10 +96,10 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
-  std::string propagatorName_;
-  edm::ESHandle<MagneticField> magfield_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geomEsToken_;
+  const edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord> pixelCPEEsToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoEsToken_;
   edm::ESHandle<GlobalTrackingGeometry> geometry_;
-  edm::ESHandle<Propagator> propagator_;
 
   edm::EDGetTokenT<std::vector<reco::Vertex>> vertices_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> pixelClusters_;
@@ -114,7 +114,6 @@ private:
   double deltaR_;
   double chargeFracMin_;
   double centralMIPCharge_;
-  std::string pixelCPE_;
 
   std::pair<bool, Basic3DVector<float>> findIntersection(const GlobalVector&,
                                                          const reco::Candidate::Point&,
@@ -158,8 +157,9 @@ private:
 };
 
 JetCoreMCtruthSeedGenerator::JetCoreMCtruthSeedGenerator(const edm::ParameterSet& iConfig)
-    :
-
+    : geomEsToken_(esConsumes()),
+      pixelCPEEsToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("pixelCPE")))),
+      tTopoEsToken_(esConsumes()),
       vertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
       pixelClusters_(
           consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("pixelClusters"))),
@@ -170,10 +170,7 @@ JetCoreMCtruthSeedGenerator::JetCoreMCtruthSeedGenerator(const edm::ParameterSet
       ptMin_(iConfig.getParameter<double>("ptMin")),
       deltaR_(iConfig.getParameter<double>("deltaR")),
       chargeFracMin_(iConfig.getParameter<double>("chargeFractionMin")),
-      centralMIPCharge_(iConfig.getParameter<double>("centralMIPCharge")),
-      pixelCPE_(iConfig.getParameter<std::string>("pixelCPE"))
-
-{
+      centralMIPCharge_(iConfig.getParameter<double>("centralMIPCharge")) {
   produces<TrajectorySeedCollection>();
   produces<reco::TrackCollection>();
 }
@@ -187,9 +184,7 @@ void JetCoreMCtruthSeedGenerator::produce(edm::Event& iEvent, const edm::EventSe
   using namespace edm;
   using namespace reco;
 
-  iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
-  iSetup.get<TrackingComponentsRecord>().get("AnalyticalPropagator", propagator_);
+  geometry_ = iSetup.getHandle(geomEsToken_);
 
   const auto& inputPixelClusters_ = iEvent.get(pixelClusters_);
   const auto& simtracksVector = iEvent.get(simtracksToken_);
@@ -198,14 +193,8 @@ void JetCoreMCtruthSeedGenerator::produce(edm::Event& iEvent, const edm::EventSe
   const auto& vertices = iEvent.get(vertices_);
   const auto& cores = iEvent.get(cores_);
 
-  edm::ESHandle<PixelClusterParameterEstimator> pixelCPEhandle;
-  const PixelClusterParameterEstimator* pixelCPE;
-  iSetup.get<TkPixelCPERecord>().get(pixelCPE_, pixelCPEhandle);
-  pixelCPE = pixelCPEhandle.product();
-
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const PixelClusterParameterEstimator* pixelCPE = &iSetup.getData(pixelCPEEsToken_);
+  const TrackerTopology* const tTopo = &iSetup.getData(tTopoEsToken_);
 
   auto output = std::make_unique<edmNew::DetSetVector<SiPixelCluster>>();
 
@@ -338,7 +327,7 @@ const GeomDet* JetCoreMCtruthSeedGenerator::DetectorSelector(int llay,
   std::set<std::pair<int, const GeomDet*>, trkNumCompare> track4detSet;
 
   double minDist = 0.0;
-  GeomDet* output = (GeomDet*)nullptr;
+  const GeomDet* output = nullptr;
   for (const auto& detset : clusters) {
     auto aClusterID = detset.id();
     if (DetId(aClusterID).subdetId() != 1)
@@ -355,7 +344,7 @@ const GeomDet* JetCoreMCtruthSeedGenerator::DetectorSelector(int llay,
     auto localInter = det->specificSurface().toLocal((GlobalPoint)inter);
     if ((minDist == 0.0 || std::abs(localInter.x()) < minDist) && std::abs(localInter.y()) < 3.35) {
       minDist = std::abs(localInter.x());
-      output = (GeomDet*)det;
+      output = det;
     }
   }  //detset
   return output;

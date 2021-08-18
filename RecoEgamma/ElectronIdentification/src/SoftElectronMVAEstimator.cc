@@ -4,6 +4,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "CommonTools/MVAUtils/interface/GBRForestTools.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 SoftElectronMVAEstimator::SoftElectronMVAEstimator(const Configuration& cfg) : cfg_(cfg) {
   //Check number of weight files given

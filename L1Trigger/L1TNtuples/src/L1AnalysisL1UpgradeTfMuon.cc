@@ -12,6 +12,10 @@ void L1Analysis::L1AnalysisL1UpgradeTfMuon::SetTfMuon(const l1t::RegionalMuonCan
          ++it) {
       if (it->hwPt() > 0) {
         l1upgradetfmuon_.tfMuonHwPt.push_back(it->hwPt());
+        if (isKalman_) {
+          l1upgradetfmuon_.tfMuonHwPtUnconstrained.push_back(it->hwPtUnconstrained());
+          l1upgradetfmuon_.tfMuonHwDxy.push_back(it->hwDXY());
+        }
         l1upgradetfmuon_.tfMuonHwEta.push_back(it->hwEta());
         l1upgradetfmuon_.tfMuonHwPhi.push_back(it->hwPhi());
         l1upgradetfmuon_.tfMuonGlobalPhi.push_back(
@@ -60,8 +64,8 @@ void L1Analysis::L1AnalysisL1UpgradeTfMuon::SetTfMuon(const l1t::RegionalMuonCan
           decoded_track_address["kBX"] = it->trackSubAddress(l1t::RegionalMuonCand::kBX);
         }
         l1upgradetfmuon_.tfMuonDecodedTrAdd.push_back(decoded_track_address);
-        l1upgradetfmuon_.tfMuonHwTrAdd.push_back(l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(
-            *it, true));  // TODO: We're assuming that we're dealing with Kalman muons here.
+        l1upgradetfmuon_.tfMuonHwTrAdd.push_back(
+            l1t::RegionalMuonRawDigiTranslator::generateRawTrkAddress(*it, isKalman_));
         l1upgradetfmuon_.nTfMuons++;
       }
     }

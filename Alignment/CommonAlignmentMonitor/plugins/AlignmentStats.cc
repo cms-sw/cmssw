@@ -26,7 +26,9 @@
 using namespace std;
 
 AlignmentStats::AlignmentStats(const edm::ParameterSet &iConfig)
-    : src_(iConfig.getParameter<edm::InputTag>("src")),
+    : esTokenTTopo_(esConsumes()),
+      esTokenTkGeo_(esConsumes()),
+      src_(iConfig.getParameter<edm::InputTag>("src")),
       overlapAM_(iConfig.getParameter<edm::InputTag>("OverlapAssoMap")),
       keepTrackStats_(iConfig.getParameter<bool>("keepTrackStats")),
       keepHitPopulation_(iConfig.getParameter<bool>("keepHitStats")),
@@ -71,22 +73,17 @@ void AlignmentStats::beginJob() {  // const edm::EventSetup &iSetup
   */
 
   tmpPresc_ = prescale_;
-
-  //load the tracker geometry from the EventSetup
-  //  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry_);
-
 }  //end beginJob
 
 void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //load list of detunits needed then in endJob
+  if (!trackerGeometry_) {
+    trackerGeometry_ = std::make_unique<TrackerGeometry>(iSetup.getData(esTokenTkGeo_));
+  }
 
-  edm::ESHandle<TrackerGeometry> tmpTkGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometry);
-  trackerGeometry_ = &(*tmpTkGeometry);
-
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  trackerTopology_ = tTopoHandle.product();
+  if (!trackerTopology_) {
+    trackerTopology_ = std::make_unique<TrackerTopology>(iSetup.getData(esTokenTTopo_));
+  }
 
   //take trajectories and tracks to loop on
   // edm::Handle<TrajTrackAssociationCollection> TrackAssoMap;
@@ -300,7 +297,7 @@ void AlignmentStats::endJob() {
   */
 
   std::unique_ptr<AlignableTracker> theAliTracker =
-      std::make_unique<AlignableTracker>(&(*trackerGeometry_), trackerTopology_);
+      std::make_unique<AlignableTracker>(trackerGeometry_.get(), trackerTopology_.get());
   const auto &Detunitslist = theAliTracker->deepComponents();
   int ndetunits = Detunitslist.size();
   edm::LogInfo("AlignmentStats") << "Number of DetUnits in the AlignableTracker: " << ndetunits << std::endl;

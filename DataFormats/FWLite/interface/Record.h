@@ -47,6 +47,9 @@ namespace fwlite {
   class Record {
   public:
     Record(const char* iName, TTree*);
+    Record(const Record&) = delete;                   // stop default
+    const Record& operator=(const Record&) = delete;  // stop default
+
     virtual ~Record();
 
     // ---------- const member functions ---------------------
@@ -65,10 +68,6 @@ namespace fwlite {
     void syncTo(const edm::EventID&, const edm::Timestamp&);
 
   private:
-    Record(const Record&) = delete;  // stop default
-
-    const Record& operator=(const Record&) = delete;  // stop default
-
     cms::Exception* get(const edm::TypeID&, const char* iLabel, const void*&) const;
     void resetCaches();
     // ---------- member data --------------------------------

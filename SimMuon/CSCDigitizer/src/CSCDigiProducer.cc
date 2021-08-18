@@ -88,7 +88,6 @@ void CSCDigiProducer::produce(edm::Event &ev, const edm::EventSetup &eventSetup)
 
     // set the particle table
     edm::ESHandle<ParticleDataTable> pdt = eventSetup.getHandle(pdt_Token);
-    eventSetup.getData(pdt);
     theDigitizer.setParticleDataTable(&*pdt);
 
     theStripConditions->initializeEvent(eventSetup);

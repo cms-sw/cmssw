@@ -38,7 +38,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
@@ -63,6 +63,11 @@ private:
   bool filter(edm::Event&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyRecordToken_;
+  const edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> ecalIntercalibConstantsRcdToken_;
+  const edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> ecalLaserDbRecordToken_;
+  const edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> ecalADCToGeVConstantRcdToken_;
+
   const edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitToken_;
   const double minAmp1_;
   const double minAmp2_;
@@ -75,7 +80,11 @@ private:
 // constructors and destructor
 //
 EcalMIPRecHitFilter::EcalMIPRecHitFilter(const edm::ParameterSet& iConfig)
-    : EcalRecHitToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EcalRecHitCollection"))),
+    : caloTopologyRecordToken_(esConsumes()),
+      ecalIntercalibConstantsRcdToken_(esConsumes()),
+      ecalLaserDbRecordToken_(esConsumes()),
+      ecalADCToGeVConstantRcdToken_(esConsumes()),
+      EcalRecHitToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EcalRecHitCollection"))),
       minAmp1_(iConfig.getUntrackedParameter<double>("AmpMinSeed", 0.063)),
       minAmp2_(iConfig.getUntrackedParameter<double>("AmpMin2", 0.045)),
       minSingleAmp_(iConfig.getUntrackedParameter<double>("SingleAmpMin", 0.108)),
@@ -109,23 +118,17 @@ bool EcalMIPRecHitFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
     return false;
   }
 
-  edm::ESHandle<CaloTopology> caloTopo;
-  iSetup.get<CaloTopologyRecord>().get(caloTopo);
+  auto const& caloTopo = iSetup.getHandle(caloTopologyRecordToken_);
 
   // Intercalib constants
-  edm::ESHandle<EcalIntercalibConstants> pIcal;
-  iSetup.get<EcalIntercalibConstantsRcd>().get(pIcal);
-  const EcalIntercalibConstants* ical = pIcal.product();
-  const EcalIntercalibConstantMap& icalMap = ical->getMap();
+  auto const& ical = iSetup.getData(ecalIntercalibConstantsRcdToken_);
+  const EcalIntercalibConstantMap& icalMap = ical.getMap();
 
-  edm::ESHandle<EcalLaserDbService> pLaser;
-  iSetup.get<EcalLaserDbRecord>().get(pLaser);
+  auto const& pLaser = iSetup.getHandle(ecalLaserDbRecordToken_);
 
-  edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
-  const EcalADCToGeVConstant* agc = pAgc.product();
-  //std::cout << "Global EB ADC->GeV scale: " << agc->getEBValue() << " GeV/ADC count" ;
-  float adcconst = agc->getEBValue();
+  auto const& agc = iSetup.getData(ecalADCToGeVConstantRcdToken_);
+  //std::cout << "Global EB ADC->GeV scale: " << agc.getEBValue() << " GeV/ADC count" ;
+  float adcconst = agc.getEBValue();
 
   bool thereIsSignal = false;
   // loop on  rechits

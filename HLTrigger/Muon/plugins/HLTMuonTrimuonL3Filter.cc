@@ -25,8 +25,6 @@
 
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -43,6 +41,7 @@ using namespace trigger;
 //
 HLTMuonTrimuonL3Filter::HLTMuonTrimuonL3Filter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
+      idealMagneticFieldRecordToken_(esConsumes()),
       beamspotTag_(iConfig.getParameter<edm::InputTag>("BeamSpotTag")),
       beamspotToken_(consumes<reco::BeamSpot>(beamspotTag_)),
       candTag_(iConfig.getParameter<edm::InputTag>("CandTag")),
@@ -186,8 +185,7 @@ bool HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent,
   beamSpot = *recoBeamSpotHandle;
 
   // Needed for DCA calculation
-  ESHandle<MagneticField> bFieldHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
+  auto const& bFieldHandle = iSetup.getHandle(idealMagneticFieldRecordToken_);
 
   // needed to compare to L2
   vector<RecoChargedCandidateRef> vl2cands;
@@ -283,8 +281,8 @@ bool HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent,
 
           // Pt threshold cut
           double pt2 = cand2->pt();
-          //	      double err2 = tk2->error(0);
-          //	      double abspar2 = fabs(tk2->parameter(0));
+          //      double err2 = tk2->error(0);
+          //      double abspar2 = fabs(tk2->parameter(0));
           double ptLx2 = pt2;
           // Don't convert to 90% efficiency threshold
           LogDebug("HLTMuonTrimuonL3Filter") << " ... 2nd muon in loop, pt2= " << pt2 << ", ptLx2= " << ptLx2;

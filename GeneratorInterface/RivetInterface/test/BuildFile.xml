@@ -1,2 +1,11 @@
 <test name="test-rivet-list" command="test-rivet-list.sh"/>
 <test name="test-rivet-run" command="test-rivet-run.sh"/>
+<test name="test-rivet-nan" command="test-rivet-nan.sh">
+  <flags PRE_TEST="test-rivet-run"/>
+</test>
+<test name="test-yoda-merge" command="test-yoda-merge.sh">
+  <flags PRE_TEST="test-rivet-run"/>
+</test>
+<test name="test-yoda-root" command="test-yoda-root.sh">
+  <flags PRE_TEST="test-rivet-run"/>
+</test>

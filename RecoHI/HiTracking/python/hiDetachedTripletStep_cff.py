@@ -100,31 +100,29 @@ hiDetachedTripletStepPixelTracksFilter = hiFilter.clone(
     tipMax = 1.0,
     ptMin = 0.95,
 )
-hiDetachedTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 
-    passLabel  = cms.string('Pixel detached tracks with vertex constraint'),
+import RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi as _mod
 
+hiDetachedTripletStepPixelTracks = _mod.pixelTracks.clone(
+    passLabel  = 'Pixel detached tracks with vertex constraint',
     # Ordered Hits
-    SeedingHitSets = cms.InputTag("hiDetachedTripletStepTracksHitTriplets"),
-	
+    SeedingHitSets = "hiDetachedTripletStepTracksHitTriplets",
     # Fitter
-    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
-	
+    Fitter = "pixelFitterByHelixProjections",
     # Filter
-    Filter = cms.InputTag("hiDetachedTripletStepPixelTracksFilter"),
-	
+    Filter = "hiDetachedTripletStepPixelTracksFilter",
     # Cleaner
-    Cleaner = cms.string("trackCleaner")
+    Cleaner = "trackCleaner"
 )
 trackingPhase1.toModify(hiDetachedTripletStepPixelTracks,
-    SeedingHitSets = cms.InputTag("hiDetachedTripletStepTracksHitTripletsCA")
+    SeedingHitSets = "hiDetachedTripletStepTracksHitTripletsCA"
 )
 
 
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
 hiDetachedTripletStepSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone(
         InputCollection = 'hiDetachedTripletStepPixelTracks'
-  )
+)
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff

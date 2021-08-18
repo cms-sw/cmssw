@@ -80,6 +80,8 @@ private:
 
   bool doPtComp_;
   bool doTightChi2_;
+  float trkPtTightChi2_;
+  float trkChi2dofTightChi2_;
 
   int weight_;  // weight (power) of pT 0 , 1, 2
 
@@ -109,7 +111,7 @@ L1TkFastVertexProducer::L1TkFastVertexProducer(const edm::ParameterSet& iConfig)
           consumes<std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("GenParticleInputTag"))),
       trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
           iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()) {
+      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
   zMax_ = (float)iConfig.getParameter<double>("ZMAX");
   chi2Max_ = (float)iConfig.getParameter<double>("CHI2MAX");
   pTMinTra_ = (float)iConfig.getParameter<double>("PTMINTRA");
@@ -125,6 +127,8 @@ L1TkFastVertexProducer::L1TkFastVertexProducer(const edm::ParameterSet& iConfig)
   monteCarloVertex_ = iConfig.getParameter<bool>("MonteCarloVertex");
   doPtComp_ = iConfig.getParameter<bool>("doPtComp");
   doTightChi2_ = iConfig.getParameter<bool>("doTightChi2");
+  trkPtTightChi2_ = (float)iConfig.getParameter<double>("trk_ptTightChi2");
+  trkChi2dofTightChi2_ = (float)iConfig.getParameter<double>("trk_chi2dofTightChi2");
 
   weight_ = iConfig.getParameter<int>("WEIGHT");
 
@@ -147,8 +151,7 @@ void L1TkFastVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
   auto result = std::make_unique<TkPrimaryVertexCollection>();
 
   // Tracker Topology
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  const TrackerTopology* tTopo = tTopoHandle.product();
+  const TrackerTopology& tTopo = iSetup.getData(topoToken_);
 
   TH1F htmp("htmp", ";z (cm); Tracks", nBinning_, xmin_, xmax_);
   TH1F htmp_weight("htmp_weight", ";z (cm); Tracks", nBinning_, xmin_, xmax_);
@@ -271,9 +274,9 @@ void L1TkFastVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
       bool isPS = false;
       DetId detId(stub->getDetId());
       if (detId.det() == DetId::Detector::Tracker) {
-        if (detId.subdetId() == StripSubdetector::TOB && tTopo->tobLayer(detId) <= 3)
+        if (detId.subdetId() == StripSubdetector::TOB && tTopo.tobLayer(detId) <= 3)
           isPS = true;
-        else if (detId.subdetId() == StripSubdetector::TID && tTopo->tidRing(detId) <= 9)
+        else if (detId.subdetId() == StripSubdetector::TID && tTopo.tidRing(detId) <= 9)
           isPS = true;
       }
       if (isPS)
@@ -298,7 +301,7 @@ void L1TkFastVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
       }
     }
     if (doTightChi2_) {
-      if (pt > 10.0 && chi2dof > 5.0)
+      if (pt > trkPtTightChi2_ && chi2dof > trkChi2dofTightChi2_)
         continue;
     }
 
@@ -309,25 +312,10 @@ void L1TkFastVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
 
   // sliding windows... maximize bin i + i-1  + i+1
 
-  float zvtx_sliding = -999;
-  float sigma_max = -999;
-  int imax = -999;
+  float zvtx_sliding;
+  float sigma_max;
+  int imax;
   int nb = htmp.GetNbinsX();
-  for (int i = 2; i <= nb - 1; i++) {
-    float a0 = htmp.GetBinContent(i - 1);
-    float a1 = htmp.GetBinContent(i);
-    float a2 = htmp.GetBinContent(i + 1);
-    float sigma = a0 + a1 + a2;
-    if (sigma > sigma_max) {
-      sigma_max = sigma;
-      imax = i;
-      float z0 = htmp.GetBinCenter(i - 1);
-      float z1 = htmp.GetBinCenter(i);
-      float z2 = htmp.GetBinCenter(i + 1);
-      zvtx_sliding = (a0 * z0 + a1 * z1 + a2 * z2) / sigma;
-    }
-  }
-
   std::vector<int> found;
   found.reserve(nVtx_);
   for (int ivtx = 0; ivtx < nVtx_; ivtx++) {

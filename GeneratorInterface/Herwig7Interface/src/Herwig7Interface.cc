@@ -14,8 +14,6 @@
 
 #include <algorithm>
 
-#include <boost/filesystem.hpp>
-
 #include <HepMC/GenEvent.h>
 #include <HepMC/PdfInfo.h>
 #include <HepMC/IO_GenEvent.h>

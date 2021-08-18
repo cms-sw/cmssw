@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
+#include "FWCore/Framework/interface/ProductPutterBase.h"
 
 namespace edm {
 
@@ -18,6 +19,8 @@ namespace edm {
   ProcessBlock::CacheIdentifier_t ProcessBlock::cacheIdentifier() const {
     return processBlockPrincipal().cacheIdentifier();
   }
+
+  std::string const& ProcessBlock::processName() const { return processBlockPrincipal().processName(); }
 
   ProcessBlockPrincipal const& ProcessBlock::processBlockPrincipal() const {
     return dynamic_cast<ProcessBlockPrincipal const&>(provRecorder_.principal());
@@ -42,7 +45,7 @@ namespace edm {
         auto resolver = principal.getProductResolverByIndex(index);
         if (not resolver->productResolved() and isEndTransition(provRecorder_.transition()) ==
                                                     resolver->branchDescription().availableOnlyAtEndTransition()) {
-          resolver->putProduct(std::unique_ptr<WrapperBase>());
+          dynamic_cast<ProductPutterBase const*>(resolver)->putProduct(std::unique_ptr<WrapperBase>());
         }
       }
     }

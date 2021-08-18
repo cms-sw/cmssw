@@ -47,7 +47,7 @@ kwds = {
 
 # explicitly select the input collection, since we get multiple in online
 from EventFilter.RawDataCollector.rawDataMapperByLabel_cfi import rawDataMapperByLabel
-rawDataMapperByLabel.rawCollectionList = [cms.InputTag("rawDataRepacker")]
+rawDataMapperByLabel.rawCollectionList = ["rawDataRepacker"]
 
 
 # example of how to add a filer IN FRONT of all the paths, eg for HLT selection
@@ -61,11 +61,11 @@ if unitTest:
 process.source = source
 
 if not unitTest:
-    process.source.inputFileTransitionsEachEvent = cms.untracked.bool(True)
-    process.source.skipFirstLumis                = cms.untracked.bool(True)
-    process.source.minEventsPerLumi              = cms.untracked.int32(0)
-    process.source.nextLumiTimeoutMillis         = cms.untracked.int32(10000)
-    process.source.streamLabel                   = cms.untracked.string('streamDQM')
+    process.source.inputFileTransitionsEachEvent = True
+    process.source.skipFirstLumis                = True
+    process.source.minEventsPerLumi              = 0
+    process.source.nextLumiTimeoutMillis         = 10000
+    process.source.streamLabel                   = 'streamDQM'
 
     m = re.search(r"\((\w+)\)", str(source.runNumber))
     runno = str(m.group(1))

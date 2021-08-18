@@ -151,6 +151,8 @@ private:
   unsigned nBins2_ = 216;
   std::vector<unsigned> binsSumsHisto_;
   double histoThreshold_ = 20.;
+  static constexpr double area_per_triggercell_ =
+      4.91E-05;  // Hex_Wafer_Area (x/z units)/N_TC (per wafer) = (0.866*((hexWafer_minimal_diameter)*(1./319.))^2 / 48)
   std::vector<double> neighbour_weights_;
   std::vector<double> smoothing_ecal_;
   std::vector<double> smoothing_hcal_;

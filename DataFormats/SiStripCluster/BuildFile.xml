@@ -1,6 +1,7 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/TrajectoryState"/>
 <use name="DataFormats/SiStripDigi"/>
+<use name="DataFormats/SiStripDetId"/>
 <export>
   <lib name="1"/>
 </export>

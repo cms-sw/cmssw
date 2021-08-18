@@ -66,6 +66,10 @@ l1tStage2uGMTIntermediateEMTFPosEmul = DQMEDAnalyzer(
     verbose = cms.untracked.bool(False),
 )
 
+## Era: Run3_2021; Displaced muons from EMTF used in uGMT from Run-3
+stage2L1Trigger_2021.toModify(l1tStage2uGMTIntermediateEMTFNegEmul, displacedQuantities = cms.untracked.bool(True))
+stage2L1Trigger_2021.toModify(l1tStage2uGMTIntermediateEMTFPosEmul, displacedQuantities = cms.untracked.bool(True))
+
 # compares the unpacked uGMT muon collection to the emulated uGMT muon collection
 # only muons that do not match are filled in the histograms
 l1tdeStage2uGMT = DQMEDAnalyzer(

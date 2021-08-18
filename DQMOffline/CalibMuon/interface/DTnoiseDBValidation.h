@@ -15,6 +15,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <map>
 #include <string>
@@ -47,15 +49,18 @@ private:
 
   DQMStore *dbe_;
   // The DB label
-  std::string labelDBRef_;
-  std::string labelDB_;
+  edm::ESGetToken<DTStatusFlag, DTStatusFlagRcd> labelDBRef_;
+  edm::ESGetToken<DTStatusFlag, DTStatusFlagRcd> labelDB_;
+  const DTStatusFlag *noiseRefMap;
+  const DTStatusFlag *noiseMap;
   std::string diffTestName_, wheelTestName_, stationTestName_, sectorTestName_, layerTestName_;
 
   bool outputMEsInRootFile_;
   std::string outputFileName_;
 
   // The DTGeometry
-  edm::ESHandle<DTGeometry> dtGeom_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry *dtGeom;
 
   // The noise map
   const DTStatusFlag *noiseMap_;

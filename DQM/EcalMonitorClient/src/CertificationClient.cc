@@ -21,15 +21,17 @@ namespace ecaldqm {
 
     double meanValue(0.);
     for (int iDCC(0); iDCC < nDCC; ++iDCC) {
-      double certValue(sDAQ.getBinContent(iDCC + 1) * sDCS.getBinContent(iDCC + 1) * sDQM.getBinContent(iDCC + 1));
+      double certValue(sDAQ.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) *
+                       sDCS.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) *
+                       sDQM.getBinContent(getEcalDQMSetupObjects(), iDCC + 1));
 
-      meCertificationContents.fill(iDCC + 1, certValue);
-      meCertificationMap.setBinContent(iDCC + 1, certValue);
+      meCertificationContents.fill(getEcalDQMSetupObjects(), iDCC + 1, certValue);
+      meCertificationMap.setBinContent(getEcalDQMSetupObjects(), iDCC + 1, certValue);
 
       meanValue += certValue * nCrystals(iDCC + 1);
     }
 
-    meCertification.fill(meanValue / nChannels);
+    meCertification.fill(getEcalDQMSetupObjects(), meanValue / nChannels);
   }
 
   DEFINE_ECALDQM_WORKER(CertificationClient);

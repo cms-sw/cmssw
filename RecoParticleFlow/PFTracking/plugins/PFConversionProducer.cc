@@ -1,22 +1,54 @@
-#include <memory>
-#include "RecoParticleFlow/PFTracking/plugins/PFConversionProducer.h"
-#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+
+class PFConversionProducer : public edm::stream::EDProducer<> {
+public:
+  ///Constructor
+  explicit PFConversionProducer(const edm::ParameterSet&);
+
+  ///Destructor
+  ~PFConversionProducer() override;
+
+private:
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+
+  ///Produce the PFRecTrack collection
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  ///PFTrackTransformer
+  PFTrackTransformer* pfTransformer_;
+  edm::EDGetTokenT<reco::ConversionCollection> pfConversionContainer_;
+  edm::EDGetTokenT<reco::VertexCollection> vtx_h;
+
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFConversionProducer);
 
 typedef std::multimap<unsigned, std::vector<unsigned> > BlockMap;
 using namespace std;
 using namespace edm;
 
-PFConversionProducer::PFConversionProducer(const ParameterSet& iConfig) : pfTransformer_(nullptr) {
+PFConversionProducer::PFConversionProducer(const ParameterSet& iConfig)
+    : pfTransformer_(nullptr),
+      transientTrackToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()) {
   produces<reco::PFRecTrackCollection>();
   produces<reco::PFConversionCollection>();
 
@@ -32,9 +64,8 @@ void PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   auto pfConversionColl = std::make_unique<reco::PFConversionCollection>();
   auto pfRecTrackColl = std::make_unique<reco::PFRecTrackCollection>();
 
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
-  TransientTrackBuilder thebuilder = *(builder.product());
+  TransientTrackBuilder const& thebuilder = iSetup.getData(transientTrackToken_);
+
   reco::PFRecTrackRefProd pfTrackRefProd = iEvent.getRefBeforePut<reco::PFRecTrackCollection>();
   Handle<reco::ConversionCollection> convCollH;
   iEvent.getByToken(pfConversionContainer_, convCollH);
@@ -164,8 +195,7 @@ void PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void PFConversionProducer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
-  ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  auto const& magneticField = &iSetup.getData(magneticFieldToken_);
   pfTransformer_ = new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
   pfTransformer_->OnlyProp();
 }

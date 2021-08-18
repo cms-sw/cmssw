@@ -3,7 +3,8 @@
 
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
-PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
+PedestalTask::PedestalTask(edm::ParameterSet const& ps)
+    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   //	tags
   _tagQIE11 = ps.getUntrackedParameter<edm::InputTag>("tagHE", edm::InputTag("hcalDigis"));
   _tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("hcalDigis"));
@@ -35,8 +36,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
       return;
   DQTask::bookHistograms(ib, r, es);
 
-  edm::ESHandle<HcalDbService> dbs;
-  es.get<HcalDbRecord>().get(dbs);
+  edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
   _emap = dbs->getHcalMapping();
   std::vector<uint32_t> vhashVME;
   std::vector<uint32_t> vhashuTCA;

@@ -1,6 +1,7 @@
 #include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalUncalibRecHitWorkerWeights.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -56,8 +57,11 @@ void configureIt(const edm::ParameterSet& conf, HGCalUncalibRecHitRecWeightsAlgo
   }
 }
 
-HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet& ps)
-    : HGCalUncalibRecHitWorkerBaseClass(ps) {
+HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet& ps, edm::ConsumesCollector iC)
+    : HGCalUncalibRecHitWorkerBaseClass(ps, iC),
+      ee_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalEESensitive"))),
+      hef_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHESiliconSensitive"))),
+      hfnose_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHFNoseSensitive"))) {
   const edm::ParameterSet& ee_cfg = ps.getParameterSet("HGCEEConfig");
   const edm::ParameterSet& hef_cfg = ps.getParameterSet("HGCHEFConfig");
   const edm::ParameterSet& heb_cfg = ps.getParameterSet("HGCHEBConfig");
@@ -70,20 +74,14 @@ HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::Para
 
 void HGCalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es) {
   if (uncalibMaker_ee_.isSiFESim()) {
-    edm::ESHandle<HGCalGeometry> hgceeGeoHandle;
-    es.get<IdealGeometryRecord>().get("HGCalEESensitive", hgceeGeoHandle);
-    uncalibMaker_ee_.setGeometry(hgceeGeoHandle.product());
+    uncalibMaker_ee_.setGeometry(&es.getData(ee_geometry_token_));
   }
   if (uncalibMaker_hef_.isSiFESim()) {
-    edm::ESHandle<HGCalGeometry> hgchefGeoHandle;
-    es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive", hgchefGeoHandle);
-    uncalibMaker_hef_.setGeometry(hgchefGeoHandle.product());
+    uncalibMaker_hef_.setGeometry(&es.getData(hef_geometry_token_));
   }
   uncalibMaker_heb_.setGeometry(nullptr);
   if (uncalibMaker_hfnose_.isSiFESim()) {
-    edm::ESHandle<HGCalGeometry> hgchfnoseGeoHandle;
-    es.get<IdealGeometryRecord>().get("HGCalHFNoseSensitive", hgchfnoseGeoHandle);
-    uncalibMaker_hfnose_.setGeometry(hgchfnoseGeoHandle.product());
+    uncalibMaker_hfnose_.setGeometry(&es.getData(hfnose_geometry_token_));
   }
 }
 

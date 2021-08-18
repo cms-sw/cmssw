@@ -5,10 +5,9 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
-
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include <pybind11/pybind11.h>
 
-#include <boost/python.hpp>
 #include <iostream>
 
 namespace edmtest {
@@ -22,34 +21,29 @@ namespace edmtest {
     edm::EDGetTokenT<IntProduct> get_;
     edm::EDPutTokenT<int> put_;
     int value_;
-    boost::python::list outputList_;
+    pybind11::list outputList_;
   };
 
   PythonTestProducer::PythonTestProducer(edm::ParameterSet const& iPS)
       : get_(consumes<IntProduct>(iPS.getParameter<edm::InputTag>("source"))) {
-    using namespace boost::python;
-    object main_module{
-        boost::python::handle<>(boost::python::borrowed(PyImport_AddModule(const_cast<char*>("__main__"))))};
+    pybind11::module main_module = pybind11::module::import("__main__");
     auto main_namespace = main_module.attr("__dict__");
 
     //NOTE attempts to hold the object directly and read it in `produce` lead to segmentation faults
-    value_ = extract<int>(main_namespace[iPS.getParameter<std::string>("inputVariable")]);
-
-    outputList_ = extract<list>(main_namespace[iPS.getParameter<std::string>("outputListVariable")]);
-
+    value_ = main_namespace[(iPS.getParameter<std::string>("inputVariable")).c_str()].cast<int>();
+    outputList_ = main_namespace[(iPS.getParameter<std::string>("outputListVariable")).c_str()].cast<pybind11::list>();
     put_ = produces<int>();
 
     usesResource("python");
   }
 
   void PythonTestProducer::produce(edm::Event& iEvent, edm::EventSetup const&) {
-    using namespace boost::python;
-
     edm::Handle<IntProduct> h;
     iEvent.getByToken(get_, h);
-
-    outputList_.append(h->value);
-
+    {
+      pybind11::gil_scoped_acquire acquire;
+      outputList_.append(h->value);
+    }
     iEvent.emplace(put_, h->value + value_);
   }
 }  // namespace edmtest

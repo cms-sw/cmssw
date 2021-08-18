@@ -1,5 +1,5 @@
-#ifndef EventFilter_CSCDigiToRaw_h
-#define EventFilter_CSCDigiToRaw_h
+#ifndef EventFilter_CSCRawToDigi_CSCDigiToRaw_h
+#define EventFilter_CSCRawToDigi_CSCDigiToRaw_h
 
 /** \class CSCDigiToRaw
  *
@@ -13,13 +13,14 @@
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class FEDRawDataCollection;
-class CSCReadoutMappingFromFile;
 class CSCChamberMap;
 
 class CSCDigiToRaw {
@@ -34,13 +35,13 @@ public:
                         const CSCALCTDigiCollection& alctDigis,
                         const CSCCLCTDigiCollection& clctDigis,
                         const CSCCLCTPreTriggerCollection* preTriggers,
+                        const CSCCLCTPreTriggerDigiCollection* preTriggerDigis,
                         const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
+                        const CSCShowerDigiCollection* showerDigis,
                         const GEMPadDigiClusterCollection* padDigiClusters,
                         FEDRawDataCollection& fed_buffers,
                         const CSCChamberMap* theMapping,
-                        const edm::EventID& eid,
-                        uint16_t theFormatVersion = 2005,
-                        bool packEverything = false) const;
+                        const edm::EventID& eid) const;
 
 private:
   struct FindEventDataInfo {
@@ -55,20 +56,17 @@ private:
   // specialized because it reverses strip direction
   void add(const CSCStripDigiCollection& stripDigis,
            const CSCCLCTPreTriggerCollection* preTriggers,
-           FindEventDataInfo&,
-           bool packEverything) const;
-  void add(const CSCWireDigiCollection& wireDigis,
-           const CSCALCTDigiCollection& alctDigis,
-           FindEventDataInfo&,
-           bool packEverything) const;
+           const CSCCLCTPreTriggerDigiCollection* preTriggerDigis,
+           FindEventDataInfo&) const;
+  void add(const CSCWireDigiCollection& wireDigis, const CSCALCTDigiCollection& alctDigis, FindEventDataInfo&) const;
   // may require CLCTs to read out comparators.  Doesn't add CLCTs.
   void add(const CSCComparatorDigiCollection& comparatorDigis,
            const CSCCLCTDigiCollection& clctDigis,
-           FindEventDataInfo&,
-           bool packEverything) const;
+           FindEventDataInfo&) const;
   void add(const CSCALCTDigiCollection& alctDigis, FindEventDataInfo&) const;
   void add(const CSCCLCTDigiCollection& clctDigis, FindEventDataInfo&) const;
   void add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindEventDataInfo&) const;
+  void add(const CSCShowerDigiCollection& cscShowerDigis, FindEventDataInfo&) const;
   void add(const GEMPadDigiClusterCollection& gemPadClusters, FindEventDataInfo&) const;
   /// pick out the correct data object for this chamber
   CSCEventData& findEventData(const CSCDetId& cscDetId, FindEventDataInfo&) const;
@@ -79,6 +77,10 @@ private:
   const int clctWindowMax_;
   const int preTriggerWindowMin_;
   const int preTriggerWindowMax_;
+
+  uint16_t formatVersion_;
+  bool packEverything_;
+  bool usePreTriggers_;
 };
 
 #endif

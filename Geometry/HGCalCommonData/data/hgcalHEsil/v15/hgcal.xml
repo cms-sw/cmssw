@@ -14,6 +14,7 @@
   <Constant name="NumberOfCellsFine"     value="12"/>
   <Constant name="NumberOfCellsCoarse"   value="8"/>
   <Constant name="FirstMixedLayer"       value="9"/>
+  <Constant name="LayerRotation"         value="0*deg"/>
   <Constant name="zMinForRadPar"         value="335.0*cm"/>
   <Constant name="ChoiceType"            value="0"/>
   <Constant name="NCornerCut"            value="2"/>
@@ -109,6 +110,12 @@
   <Constant name="rMaxHGCalHEmix4"       value="[rMaxHGCal10]"/>
   <Constant name="rMaxHGCalHEmix5"       value="[rMaxHGCal12]"/>
 </ConstantsSection>
+
+<RotationSection label="hgcal.xml">
+  <Rotation name="LayerRotation" phiX="[LayerRotation]" thetaX="90*deg" 
+	    phiY="(90*deg+[LayerRotation])" thetaY="90*deg" 
+	    phiZ="0*deg" thetaZ="0*deg"/>
+</RotationSection>
 
 <SolidSection label="hgcal.xml" eval="true">
   <Polycone name="HGCalService" startPhi="0*deg" deltaPhi="360*deg">

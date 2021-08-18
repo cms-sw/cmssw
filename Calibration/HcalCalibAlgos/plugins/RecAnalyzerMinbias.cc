@@ -195,12 +195,11 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) : init_
   edm::LogVerbatim("RecAnalyzer") << "Thresholds for HB " << eLowHB_ << ":" << eHighHB_ << "  for HE " << eLowHE_ << ":"
                                   << eHighHE_ << "  for HF " << eLowHF_ << ":" << eHighHF_;
   for (unsigned int k = 0; k < ieta.size(); ++k) {
-    HcalSubdetector subd =
-        ((std::abs(ieta[k]) > 29) ? HcalForward
-                                  : (std::abs(ieta[k]) > 16) ? HcalEndcap
-                                                             : ((std::abs(ieta[k]) == 16) && (depth[k] == 3))
-                                                                   ? HcalEndcap
-                                                                   : (depth[k] == 4) ? HcalOuter : HcalBarrel);
+    HcalSubdetector subd = ((std::abs(ieta[k]) > 29)                         ? HcalForward
+                            : (std::abs(ieta[k]) > 16)                       ? HcalEndcap
+                            : ((std::abs(ieta[k]) == 16) && (depth[k] == 3)) ? HcalEndcap
+                            : (depth[k] == 4)                                ? HcalOuter
+                                                                             : HcalBarrel);
     unsigned int id = (HcalDetId(subd, ieta[k], iphi[k], depth[k])).rawId();
     hcalID_.push_back(id);
     edm::LogVerbatim("RecAnalyzer") << "DetId[" << k << "] " << HcalDetId(id);

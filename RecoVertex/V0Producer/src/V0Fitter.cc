@@ -46,7 +46,7 @@ namespace {
 typedef ROOT::Math::SMatrix<double, 3, 3, ROOT::Math::MatRepSym<double, 3>> SMatrixSym3D;
 typedef ROOT::Math::SVector<double, 3> SVector3;
 
-V0Fitter::V0Fitter(const edm::ParameterSet& theParameters, edm::ConsumesCollector&& iC) {
+V0Fitter::V0Fitter(const edm::ParameterSet& theParameters, edm::ConsumesCollector&& iC) : esTokenMF_(iC.esConsumes()) {
   token_beamSpot = iC.consumes<reco::BeamSpot>(theParameters.getParameter<edm::InputTag>("beamSpot"));
   useVertex_ = theParameters.getParameter<bool>("useVertex");
   token_vertices = iC.consumes<std::vector<reco::Vertex>>(theParameters.getParameter<edm::InputTag>("vertices"));
@@ -108,9 +108,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
     referencePos = referenceVtx.position();
   }
 
-  edm::ESHandle<MagneticField> theMagneticFieldHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagneticFieldHandle);
-  const MagneticField* theMagneticField = theMagneticFieldHandle.product();
+  const MagneticField* theMagneticField = &iSetup.getData(esTokenMF_);
 
   std::vector<reco::TrackRef> theTrackRefs;
   std::vector<reco::TransientTrack> theTransTracks;

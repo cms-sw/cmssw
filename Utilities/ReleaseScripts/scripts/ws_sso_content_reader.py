@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###Description: The tool reads cern web services behind SSO using user certificates
 from __future__ import print_function
 import os, urllib, urllib2, httplib, cookielib, sys, HTMLParser, re

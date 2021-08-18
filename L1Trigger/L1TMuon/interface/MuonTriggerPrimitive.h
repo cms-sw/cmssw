@@ -105,7 +105,14 @@ namespace L1TMuon {
             syncErr(0),
             cscID(0),
             alct_quality(0),
-            clct_quality(0) {}
+            clct_quality(0),
+            // run-3
+            pattern_run3(0),
+            strip_quart_bit(0),
+            strip_eighth_bit(0),
+            strip_quart(0),
+            strip_eighth(0),
+            slope(0) {}
       uint16_t trknmb;
       uint16_t valid;
       uint16_t quality;
@@ -120,6 +127,13 @@ namespace L1TMuon {
       uint16_t cscID;
       uint16_t alct_quality;  // extra info for ALCT (wires)
       uint16_t clct_quality;  // extra info for CLCT (strips)
+      // run-3
+      uint16_t pattern_run3;
+      uint16_t strip_quart_bit;
+      uint16_t strip_eighth_bit;
+      uint16_t strip_quart;
+      uint16_t strip_eighth;
+      uint16_t slope;
     };
 
     struct DTData {

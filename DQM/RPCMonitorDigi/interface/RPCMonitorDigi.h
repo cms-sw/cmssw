@@ -1,14 +1,13 @@
 #ifndef RPCMonitorDigi_h
 #define RPCMonitorDigi_h
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
@@ -76,6 +75,8 @@ private:
   edm::EDGetTokenT<reco::CandidateView> muonLabel_;
   edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitLabel_;
   edm::EDGetTokenT<DcsStatusCollection> scalersRawToDigiLabel_;
+
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
 };
 
 #endif

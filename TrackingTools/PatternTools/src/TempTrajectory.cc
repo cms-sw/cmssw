@@ -124,8 +124,8 @@ void TempTrajectory::check() const {
 }
 
 bool TempTrajectory::lost(const TrackingRecHit& hit) {
-  if
-    LIKELY(hit.isValid()) return false;
+  if LIKELY (hit.isValid())
+    return false;
 
   //     // A DetLayer is always inactive in this logic.
   //     // The DetLayer is the Det of an invalid RecHit only if no DetUnit

@@ -72,7 +72,6 @@ private:
 
   // ----------member data ---------------------------
 
-  SiStripDetInfoFileReader *fr;
   edm::ESWatcher<SiStripQualityRcd> qualityWatcher_;
   edm::ESWatcher<SiStripNoisesRcd> noiseWatcher_;
   edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;

@@ -9,6 +9,8 @@ import FWCore.ParameterSet.Config as cms
 ###############################################################
 # AlCaReco for track based alignment using ZMuMu events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMuHI_cff import *
+# AlCaReco for track based alignment using ZMuMu and primary vertex events
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlDiMuonAndVertex_cff import *
 # AlCaReco for track based alignment using Cosmic muon events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsInCollisions_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics_cff import *
@@ -27,8 +29,10 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBiasHI_cff import *
 ###############################################################
 # Tracker Calibration
 ###############################################################
-# AlCaReco for pixel calibration using muons 
+# AlCaReco for pixel calibration using muons
 from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuon_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuonLoose_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuonTight_cff import *
 # AlCaReco for tracker calibration using MinBias events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasHI_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasAAGHI_cff import *
@@ -116,11 +120,14 @@ from DQMOffline.Configuration.AlCaRecoDQMHI_cff import *
 # AlCaReco path definitions:
 
 pathALCARECOTkAlZMuMuHI = cms.Path(seqALCARECOTkAlZMuMuHI*ALCARECOTkAlZMuMuHIDQM)
+pathALCARECOTkAlDiMuonAndVertex = cms.Path(seqALCARECOTkAlDiMuonAndVertex)
 pathALCARECOTkAlMuonIsolatedHI = cms.Path(seqALCARECOTkAlMuonIsolatedHI*ALCARECOTkAlMuonIsolatedHIDQM)
 pathALCARECOTkAlJpsiMuMuHI = cms.Path(seqALCARECOTkAlJpsiMuMuHI*ALCARECOTkAlJpsiMuMuHIDQM)
 pathALCARECOTkAlUpsilonMuMuHI = cms.Path(seqALCARECOTkAlUpsilonMuMuHI*ALCARECOTkAlUpsilonMuMuHIDQM)
 pathALCARECOTkAlMinBiasHI = cms.Path(seqALCARECOTkAlMinBiasHI*ALCARECOTkAlMinBiasHIDQM)
 pathALCARECOSiPixelCalSingleMuon = cms.Path(seqALCARECOSiPixelCalSingleMuon)
+pathALCARECOSiPixelCalSingleMuonLoose = cms.Path(seqALCARECOSiPixelCalSingleMuonLoose)
+pathALCARECOSiPixelCalSingleMuonTight = cms.Path(seqALCARECOSiPixelCalSingleMuonTight)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSiStripCalMinBiasDQM)
 pathALCARECOSiStripCalMinBiasAAG = cms.Path(seqALCARECOSiStripCalMinBiasAAG*ALCARECOSiStripCalMinBiasAAGDQM)
 pathALCARECOSiStripCalCosmics = cms.Path(seqALCARECOSiStripCalCosmics)
@@ -204,6 +211,15 @@ ALCARECOStreamTkAlZMuMuHI = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
+ALCARECOStreamTkAlDiMuonAndVertex = cms.FilteredStream(
+	responsible = 'Marco Musich',
+	name = 'TkAlDiMuonAndVertex',
+	paths  = (pathALCARECOTkAlDiMuonAndVertex),
+	content = OutALCARECOTkAlDiMuonAndVertex.outputCommands,
+	selectEvents = OutALCARECOTkAlDiMuonAndVertex.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
 ALCARECOStreamTkAlJpsiMuMuHI = cms.FilteredStream(
 	responsible = 'James Castle',
 	name = 'TkAlJpsiMuMuHI',
@@ -228,6 +244,24 @@ ALCARECOStreamSiPixelCalSingleMuon = cms.FilteredStream(
 	paths  = (pathALCARECOSiPixelCalSingleMuon),
 	content = OutALCARECOSiPixelCalSingleMuon.outputCommands,
 	selectEvents = OutALCARECOSiPixelCalSingleMuon.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamSiPixelCalSingleMuonTight = cms.FilteredStream(
+	responsible = 'Marco Musich',
+	name = 'SiPixelCalSingleMuonTight',
+	paths  = (pathALCARECOSiPixelCalSingleMuonTight),
+	content = OutALCARECOSiPixelCalSingleMuonTight.outputCommands,
+	selectEvents = OutALCARECOSiPixelCalSingleMuonTight.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamSiPixelCalSingleMuonLoose = cms.FilteredStream(
+	responsible = 'Marco Musich',
+	name = 'SiPixelCalSingleMuonLoose',
+	paths  = (pathALCARECOSiPixelCalSingleMuonLoose),
+	content = OutALCARECOSiPixelCalSingleMuonLoose.outputCommands,
+	selectEvents = OutALCARECOSiPixelCalSingleMuonLoose.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 

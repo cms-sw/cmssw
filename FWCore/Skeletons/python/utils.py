@@ -84,14 +84,14 @@ def functor(code, kwds, debug=0):
             raise Exception(msg)
         args.append(arg)
     func  = '\nimport sys'
-    func += '\nimport StringIO'
+    func += '\nimport io'
     func += "\ndef func(%s):\n" % ','.join(args)
     func += code
     func += """
 def capture():
     "Capture snippet printous"
     old_stdout = sys.stdout
-    sys.stdout = StringIO.StringIO()
+    sys.stdout = io.StringIO()
     func()
     out = sys.stdout.getvalue()
     sys.stdout = old_stdout

@@ -1,12 +1,14 @@
 #include "SimFastTiming/FastTimingCommon/interface/ETLElectronicsSim.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
 using namespace mtd;
 
-ETLElectronicsSim::ETLElectronicsSim(const edm::ParameterSet& pset)
-    : geom_(nullptr),
+ETLElectronicsSim::ETLElectronicsSim(const edm::ParameterSet& pset, edm::ConsumesCollector iC)
+    : geomToken_(iC.esConsumes()),
+      geom_(nullptr),
       debug_(pset.getUntrackedParameter<bool>("debug", false)),
       bxTime_(pset.getParameter<double>("bxTime")),
       integratedLum_(pset.getParameter<double>("IntegratedLuminosity")),
@@ -22,11 +24,7 @@ ETLElectronicsSim::ETLElectronicsSim(const edm::ParameterSet& pset)
       toaLSB_ns_(pset.getParameter<double>("toaLSB_ns")),
       tdcBitSaturation_(std::pow(2, tdcNbits_) - 1) {}
 
-void ETLElectronicsSim::getEventSetup(const edm::EventSetup& evs) {
-  edm::ESHandle<MTDGeometry> geom;
-  evs.get<MTDDigiGeometryRecord>().get(geom);
-  geom_ = geom.product();
-}
+void ETLElectronicsSim::getEventSetup(const edm::EventSetup& evs) { geom_ = &evs.getData(geomToken_); }
 
 void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
                             ETLDigiCollection& output,

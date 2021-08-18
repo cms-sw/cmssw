@@ -1,7 +1,7 @@
 #ifndef L1Trigger_CSCTriggerPrimitives_CSCPatternBank_h
 #define L1Trigger_CSCTriggerPrimitives_CSCPatternBank_h
 
-#include "DataFormats/L1TMuon/interface/CSCConstants.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include <vector>
 
 //
@@ -55,6 +55,11 @@ public:
 
   // half strip offsets per layer for each half strip in the pattern envelope
   static const int clct_pattern_offset_[CSCConstants::CLCT_PATTERN_WIDTH];
+
+  // static function to return the sign of the bending in a CLCT pattern
+  static int getPatternBend(const LCTPattern& pattern) {
+    return pattern[CSCConstants::NUM_LAYERS - 1][CSCConstants::CLCT_PATTERN_WIDTH];
+  }
 };
 
 #endif

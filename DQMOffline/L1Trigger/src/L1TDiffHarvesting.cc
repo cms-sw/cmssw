@@ -75,8 +75,10 @@ namespace dqmoffline {
 
       if (!h1_ || !h2_) {
         edm::LogWarning("L1TDiffHarvesting::L1TDiffPlotHandler::loadHistograms")
-            << (!h1_ && !h2_ ? h1Name + " && " + h2Name : !h1_ ? h1Name : h2Name) << " not gettable. Quitting booking"
-            << std::endl;
+            << (!h1_ && !h2_ ? h1Name + " && " + h2Name
+                : !h1_       ? h1Name
+                             : h2Name)
+            << " not gettable. Quitting booking" << std::endl;
 
         return;
       }

@@ -112,7 +112,8 @@ pfNoElectronJME.bottomCollection = 'pfNoMuonJME'
 pfJetsEI = pfJets.clone()
 pfJetsPtrsEI = pfJetsPtrs.clone( src = "pfJetsEI" )
 
-pfJetSequenceEI = cms.Sequence( pfJetsEI+ pfJetsPtrsEI )
+pfJetTaskEI = cms.Task( pfJetsEI, pfJetsPtrsEI )
+pfJetSequenceEI = cms.Sequence( pfJetTaskEI )
 
 pfNoJetEI = pfNoJet.clone(
     topCollection = 'pfJetsPtrsEI',
@@ -127,12 +128,13 @@ pfNoTauEI = pfNoTau.clone(
     bottomCollection = 'pfJetsPtrsEI'
 )
 
-pfTauEISequence = cms.Sequence(
-    pfTausPreSequence+
-    pfTausBaseSequence+
-    pfTausEI+
+pfTauEITask = cms.Task(
+    pfTausPreTask,
+    pfTausBaseTask,
+    pfTausEI,
     pfTausPtrsEI
     )
+pfTauEISequence = cms.Sequence(pfTauEITask)
 
 #### B-tagging ####
 pfImpactParameterTagInfosEI = pfImpactParameterTagInfos.clone(
@@ -151,30 +153,31 @@ pfCombinedInclusiveSecondaryVertexV2BJetTagsEI = pfCombinedInclusiveSecondaryVer
 #### MET ####
 pfMetEI = pfMET.clone(srcJets="pfJetsEI")
 
-#EITopPAG = cms.Sequence(
-EIsequence = cms.Sequence(
-    goodOfflinePrimaryVertices +
-    pfPileUpEI +
-    pfPileUpJMEEI +
-    pfNoPileUpEI +
-    pfNoPileUpJMEEI +
-    pfAllMuonsEI +
-    pfMuonsFromVertexEI +
-    pfIsolatedMuonsEI +
-    pfNoMuon +
-    pfNoMuonJME +
-    pfAllElectronsEI +
-    pfElectronsFromVertexEI +
-    pfIsolatedElectronsEI +
-    pfNoElectron +
-    pfNoElectronJME +
-    pfJetSequenceEI +
-    pfNoJetEI +
-    pfTauEISequence +
-    pfNoTauEI +
-    pfMetEI+
-    pfImpactParameterTagInfosEI+
-    pfInclusiveSecondaryVertexFinderTagInfosEI+
+#EITopPAG = cms.Task(
+EITask = cms.Task(
+    goodOfflinePrimaryVertices ,
+    pfPileUpEI ,
+    pfPileUpJMEEI ,
+    pfNoPileUpEI ,
+    pfNoPileUpJMEEI ,
+    pfAllMuonsEI ,
+    pfMuonsFromVertexEI ,
+    pfIsolatedMuonsEI ,
+    pfNoMuon ,
+    pfNoMuonJME ,
+    pfAllElectronsEI ,
+    pfElectronsFromVertexEI ,
+    pfIsolatedElectronsEI ,
+    pfNoElectron ,
+    pfNoElectronJME ,
+    pfJetTaskEI ,
+    pfNoJetEI ,
+    pfTauEITask ,
+    pfNoTauEI ,
+    pfMetEI,
+    pfImpactParameterTagInfosEI,
+    pfInclusiveSecondaryVertexFinderTagInfosEI,
     pfCombinedInclusiveSecondaryVertexV2BJetTagsEI
     )
+EIsequence = cms.Sequence(EITask)
 

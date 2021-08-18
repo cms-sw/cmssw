@@ -14,6 +14,8 @@ public:
   uint32_t getUnitID(const EcalBaseNumber& baseNumber) const override;
 
 private:
+  std::pair<int, int> numbers(const std::string&) const;
+
   int L3ax[3];
   int L3ay[3];
   int L3bx[1];

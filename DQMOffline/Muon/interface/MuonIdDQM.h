@@ -73,6 +73,8 @@ private:
   edm::Handle<CSCSegmentCollection> cscSegmentCollectionH_;
   edm::ESHandle<GlobalTrackingGeometry> geometry_;
 
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeomToken_;
+
   // trackerMuon == 0; globalMuon == 1
   MonitorElement* hNumChambers[4];
   MonitorElement* hNumMatches[4];

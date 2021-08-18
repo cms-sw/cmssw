@@ -4,7 +4,7 @@
 #ifndef __RecoHGCal_TICL_PRbyCA_H__
 #define __RecoHGCal_TICL_PRbyCA_H__
 #include <memory>  // unique_ptr
-#include "RecoHGCal/TICL/plugins/PatternRecognitionAlgoBase.h"
+#include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "HGCGraph.h"
@@ -13,7 +13,7 @@ namespace ticl {
   template <typename TILES>
   class PatternRecognitionbyCA final : public PatternRecognitionAlgoBaseT<TILES> {
   public:
-    PatternRecognitionbyCA(const edm::ParameterSet& conf, const CacheBase* cache);
+    PatternRecognitionbyCA(const edm::ParameterSet& conf, const CacheBase* cache, edm::ConsumesCollector iC);
     ~PatternRecognitionbyCA() override;
 
     void makeTracksters(const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
@@ -25,11 +25,14 @@ namespace ticl {
                                      std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation,
                                      const edm::ProductID& collectionID) const;
 
+    static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
+
   private:
     void mergeTrackstersTRK(const std::vector<Trackster>&,
                             const std::vector<reco::CaloCluster>&,
                             std::vector<Trackster>&,
                             std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) const;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     const std::unique_ptr<HGCGraphT<TILES>> theGraph_;
     const bool oneTracksterPerTrackSeed_;
     const bool promoteEmptyRegionToTrackster_;

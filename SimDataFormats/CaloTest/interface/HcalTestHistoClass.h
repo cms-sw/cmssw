@@ -5,7 +5,6 @@
 // Histogram handling class for analysis in HcalTest
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/CaloHit/interface/CaloHit.h"
 
 #include <string>

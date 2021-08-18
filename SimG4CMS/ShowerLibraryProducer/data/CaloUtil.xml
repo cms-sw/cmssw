@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<DDDefinition>
+ <SpecParSection label="caloutil.xml" eval="true">
+  <SpecPar name="calo">
+   <PartSelector path="//HFWorld"/>
+   <Parameter name="SensitiveDetector" value="CaloTrkProcessing" eval="false"/>
+   <Parameter name="ReadOutName" value="CaloHitsTk" eval="false"/>
+   <Parameter name="Calorimeter" value="HFWedge" eval="false"/>
+   <Parameter name="Levels" value="2" eval="true"/>
+   <Parameter name="Neighbours" value="1" eval="true"/>
+   <Parameter name="Inside" value="NotFound" eval="false"/>
+   <Parameter name="InsideLevel" value="3" eval="true"/>
+   <Parameter name="FineCalorimeter" value="HFwedge" eval="false"/>
+   <Parameter name="FineLevels" value="1" eval="true"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>

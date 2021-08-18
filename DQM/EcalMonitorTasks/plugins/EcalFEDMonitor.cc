@@ -16,6 +16,7 @@ EcalFEDMonitorTemp<SUBDET>::EcalFEDMonitorTemp(edm::ParameterSet const& _ps)
           consumes<EcalElectronicsIdCollection>(_ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1"))),
       blockSizeErrorsToken_(
           consumes<EcalElectronicsIdCollection>(_ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2"))),
+      elecMapHandle(esConsumes<edm::Transition::BeginRun>()),
       MEs_(nMEs, nullptr) {
   if (_ps.existsAs<edm::InputTag>("EBDetIdCollection1"))
     ebGainErrorsToken_ = consumes<EBDetIdCollection>(_ps.getParameter<edm::InputTag>("EBDetIdCollection1"));
@@ -33,12 +34,7 @@ EcalFEDMonitorTemp<SUBDET>::EcalFEDMonitorTemp(edm::ParameterSet const& _ps)
 
 template <int SUBDET>
 void EcalFEDMonitorTemp<SUBDET>::dqmBeginRun(edm::Run const&, edm::EventSetup const& _es) {
-  if (!ecaldqm::checkElectronicsMap(false)) {
-    // set up ecaldqm::electronicsMap in EcalDQMCommonUtils
-    edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
-    _es.get<EcalMappingRcd>().get(elecMapHandle);
-    ecaldqm::setElectronicsMap(elecMapHandle.product());
-  }
+  setElectronicsMap(_es);
 }
 
 template <int SUBDET>
@@ -114,7 +110,7 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
   if ((SUBDET == EcalBarrel || SUBDET < 0) && _evt.getByToken(ebGainErrorsToken_, ebHndl)) {
     EBDetIdCollection::const_iterator ebEnd(ebHndl->end());
     for (EBDetIdCollection::const_iterator ebItr(ebHndl->begin()); ebItr != ebEnd; ++ebItr) {
-      unsigned iDCC(ecaldqm::dccId(*ebItr) - 1);
+      unsigned iDCC(ecaldqm::dccId(*ebItr, GetElectronicsMap()) - 1);
 
       double normalization(ecaldqm::nCrystals(iDCC + 1));
       if (normalization < 1.)
@@ -126,7 +122,7 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
   if ((SUBDET == EcalEndcap || SUBDET < 0) && _evt.getByToken(eeGainErrorsToken_, eeHndl)) {
     EEDetIdCollection::const_iterator eeEnd(eeHndl->end());
     for (EEDetIdCollection::const_iterator eeItr(eeHndl->begin()); eeItr != eeEnd; ++eeItr) {
-      unsigned iDCC(ecaldqm::dccId(*eeItr) - 1);
+      unsigned iDCC(ecaldqm::dccId(*eeItr, GetElectronicsMap()) - 1);
 
       double normalization(ecaldqm::nCrystals(iDCC + 1));
       if (normalization < 1.)
@@ -139,7 +135,7 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
   if ((SUBDET == EcalBarrel || SUBDET < 0) && _evt.getByToken(ebChIdErrorsToken_, ebHndl)) {
     EBDetIdCollection::const_iterator ebEnd(ebHndl->end());
     for (EBDetIdCollection::const_iterator ebItr(ebHndl->begin()); ebItr != ebEnd; ++ebItr) {
-      unsigned iDCC(ecaldqm::dccId(*ebItr) - 1);
+      unsigned iDCC(ecaldqm::dccId(*ebItr, GetElectronicsMap()) - 1);
 
       double normalization(ecaldqm::nCrystals(iDCC + 1));
       if (normalization < 1.)
@@ -151,7 +147,7 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
   if ((SUBDET == EcalEndcap || SUBDET < 0) && _evt.getByToken(eeChIdErrorsToken_, eeHndl)) {
     EEDetIdCollection::const_iterator eeEnd(eeHndl->end());
     for (EEDetIdCollection::const_iterator eeItr(eeHndl->begin()); eeItr != eeEnd; ++eeItr) {
-      unsigned iDCC(ecaldqm::dccId(*eeItr) - 1);
+      unsigned iDCC(ecaldqm::dccId(*eeItr, GetElectronicsMap()) - 1);
 
       double normalization(ecaldqm::nCrystals(iDCC + 1));
       if (normalization < 1.)
@@ -164,7 +160,7 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
   if ((SUBDET == EcalBarrel || SUBDET < 0) && _evt.getByToken(ebGainSwitchErrorsToken_, ebHndl)) {
     EBDetIdCollection::const_iterator ebEnd(ebHndl->end());
     for (EBDetIdCollection::const_iterator ebItr(ebHndl->begin()); ebItr != ebEnd; ++ebItr) {
-      unsigned iDCC(ecaldqm::dccId(*ebItr) - 1);
+      unsigned iDCC(ecaldqm::dccId(*ebItr, GetElectronicsMap()) - 1);
 
       double normalization(ecaldqm::nCrystals(iDCC + 1));
       if (normalization < 1.)
@@ -176,7 +172,7 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
   if ((SUBDET == EcalEndcap || SUBDET < 0) && _evt.getByToken(eeGainSwitchErrorsToken_, eeHndl)) {
     EEDetIdCollection::const_iterator eeEnd(eeHndl->end());
     for (EEDetIdCollection::const_iterator eeItr(eeHndl->begin()); eeItr != eeEnd; ++eeItr) {
-      unsigned iDCC(ecaldqm::dccId(*eeItr) - 1);
+      unsigned iDCC(ecaldqm::dccId(*eeItr, GetElectronicsMap()) - 1);
 
       double normalization(ecaldqm::nCrystals(iDCC + 1));
       if (normalization < 1.)
@@ -227,6 +223,18 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
       MEs_[nonfatal]->Fill(iDCC + 601.5, 25. / normalization);
     }
   }
+}
+
+template <int SUBDET>
+void EcalFEDMonitorTemp<SUBDET>::setElectronicsMap(edm::EventSetup const& _es) {
+  electronicsMap = &_es.getData(elecMapHandle);
+}
+
+template <int SUBDET>
+EcalElectronicsMapping const* EcalFEDMonitorTemp<SUBDET>::GetElectronicsMap() {
+  if (!electronicsMap)
+    throw cms::Exception("InvalidCall") << "Electronics Mapping not initialized";
+  return electronicsMap;
 }
 
 typedef EcalFEDMonitorTemp<EcalBarrel> EBHltTask;

@@ -7,10 +7,10 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/src/Division.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
-#include "DetectorDescription/Core/src/Material.h"
-#include "DetectorDescription/Core/src/Solid.h"
-#include "DetectorDescription/Core/src/Specific.h"
+#include "DetectorDescription/Core/interface/LogicalPart.h"
+#include "DetectorDescription/Core/interface/Material.h"
+#include "DetectorDescription/Core/interface/Solid.h"
+#include "DetectorDescription/Core/interface/Specific.h"
 
 #include <map>
 #include <memory>
@@ -35,6 +35,5 @@ template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<DDRotationMatri
 template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<DDI::Division>, std::unique_ptr<DDI::Division> > >;
 template class DDI::Singleton<std::map<std::string, std::vector<DDName> > >;  //Used internally by DDLogicalPart
 //The following are used by DDName
-template class DDI::Singleton<tbb::concurrent_unordered_map<std::pair<std::string, std::string>, int> >;
-template class DDI::Singleton<
-    tbb::concurrent_vector<tbb::concurrent_unordered_map<std::pair<std::string, std::string>, int>::const_iterator> >;
+template class DDI::Singleton<DDName::Registry>;
+template class DDI::Singleton<DDName::IdToName>;

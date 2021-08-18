@@ -1,14 +1,17 @@
 <library file="*.cc" name="RecoTrackerMkFitPlugins">
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/SiStripCluster"/>
+  <use name="DataFormats/SiPixelCluster"/>
   <use name="DataFormats/TrackCandidate"/>
   <use name="DataFormats/TrackReco"/>
   <use name="DataFormats/TrackerCommon"/>
   <use name="DataFormats/TrackerRecHit2D"/>
+  <use name="DataFormats/TrackingRecHit"/>
   <use name="DataFormats/TrajectorySeed"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="Geometry/Records"/>
   <use name="Geometry/TrackerGeometryBuilder"/>
-  <use name="RecoTracker/MeasurementDet"/>
   <use name="RecoTracker/MkFit"/>
   <use name="RecoTracker/TkDetLayers"/>
   <use name="RecoTracker/TransientTrackingRecHit"/>

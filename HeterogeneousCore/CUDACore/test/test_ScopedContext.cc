@@ -75,8 +75,8 @@ TEST_CASE("Use of cms::cuda::ScopedContext", "[CUDACore]") {
       {  // acquire
         std::unique_ptr<cms::cuda::Product<int>> dataPtr = ctx.wrap(10);
         const auto& data = *dataPtr;
-        edm::WaitingTaskWithArenaHolder dummy{
-            edm::make_waiting_task(tbb::task::allocate_root(), [](std::exception_ptr const* iPtr) {})};
+        tbb::task_group group;
+        edm::WaitingTaskWithArenaHolder dummy{group, edm::make_waiting_task([](std::exception_ptr const* iPtr) {})};
         cms::cuda::ScopedContextAcquire ctx2{data, std::move(dummy), ctxstate};
       }
 

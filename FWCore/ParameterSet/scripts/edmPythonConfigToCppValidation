@@ -1,11 +1,10 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 from __future__ import print_function
 from builtins import str
 from FWCore.ParameterSet.Modules import _TypedParameterizable
 from FWCore.ParameterSet.Mixins import _ValidatingParameterListBase
 import FWCore.ParameterSet.Config as cms
-import six
 
 def simpleItemToString(param):
     return str(param)
@@ -130,7 +129,7 @@ def expandRefToPSet(pset):
 
 def printParameterSetDescription(spacing,descName, pset, depth):
     pset = expandRefToPSet(pset)
-    for l,p in six.iteritems(pset.parameters_()):
+    for l,p in pset.parameters_().items():
         if isinstance(p,cms.PSet):
             print(spacing+"{")
             newSpacing = spacing+"  "
@@ -195,7 +194,7 @@ def printListTypeParameter(spacing,psetName,pList,label,depth):
 
 def printParameterSet(spacing, psetName, pset, depth):
     pset = expandRefToPSet(pset)
-    for l,p in six.iteritems(pset.parameters_()):
+    for l,p in pset.parameters_().items():
         if isinstance(p,cms.PSet):
             print(spacing+"{")
             newSpacing = spacing+"  "
@@ -251,7 +250,7 @@ for item in config:
 if not modules:
     raise RuntimeError("No module found in file '"+filename+"'")
 
-modulesTypes = set(module.type_() for module in six.itervalues(modules))
+modulesTypes = set(module.type_() for module in modules.values())
 if len(modulesTypes) > 1:
     raise RuntimeError("The file '"+filename+"' contains modules of different C++ types");
 moduleType = modulesTypes.pop()
@@ -266,7 +265,7 @@ if len(modules) > 1:
   newSpacing = spacing + '  ';
 else:
   newSpacing = spacing
-for label, module in six.iteritems(modules):
+for label, module in modules.items():
   if len(modules) > 1:
     print(spacing+'{')
   print(newSpacing + '// ' + label)

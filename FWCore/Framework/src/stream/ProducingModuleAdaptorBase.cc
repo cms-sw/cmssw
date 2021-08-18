@@ -20,8 +20,9 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 //
 // constants, enums and typedefs
@@ -190,8 +191,12 @@ namespace edm {
 
       Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(mod);
-      const EventSetup c{
-          info, static_cast<unsigned int>(Transition::BeginRun), mod->esGetTokenIndices(Transition::BeginRun), false};
+      ESParentContext parentC(mcc);
+      const EventSetup c{info,
+                         static_cast<unsigned int>(Transition::BeginRun),
+                         mod->esGetTokenIndices(Transition::BeginRun),
+                         parentC,
+                         false};
       mod->beginRun(r, c);
     }
 
@@ -202,8 +207,12 @@ namespace edm {
       auto mod = m_streamModules[id];
       Run r(info, moduleDescription_, mcc, true);
       r.setConsumer(mod);
-      const EventSetup c{
-          info, static_cast<unsigned int>(Transition::EndRun), mod->esGetTokenIndices(Transition::EndRun), false};
+      ESParentContext parentC(mcc);
+      const EventSetup c{info,
+                         static_cast<unsigned int>(Transition::EndRun),
+                         mod->esGetTokenIndices(Transition::EndRun),
+                         parentC,
+                         false};
       mod->endRun(r, c);
       streamEndRunSummary(mod, r, c);
     }
@@ -218,9 +227,11 @@ namespace edm {
 
       LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(mod);
+      ESParentContext parentC(mcc);
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          mod->esGetTokenIndices(Transition::BeginLuminosityBlock),
+                         parentC,
                          false};
       mod->beginLuminosityBlock(lb, c);
     }
@@ -232,18 +243,15 @@ namespace edm {
       auto mod = m_streamModules[id];
       LuminosityBlock lb(info, moduleDescription_, mcc, true);
       lb.setConsumer(mod);
+      ESParentContext parentC(mcc);
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          mod->esGetTokenIndices(Transition::EndLuminosityBlock),
+                         parentC,
                          false};
       mod->endLuminosityBlock(lb, c);
       streamEndLuminosityBlockSummary(mod, lb, c);
     }
-
-    template <typename T>
-    void ProducingModuleAdaptorBase<T>::doRespondToOpenInputFile(FileBlock const&) {}
-    template <typename T>
-    void ProducingModuleAdaptorBase<T>::doRespondToCloseInputFile(FileBlock const&) {}
 
     template <typename T>
     void ProducingModuleAdaptorBase<T>::doRegisterThinnedAssociations(ProductRegistry const& registry,

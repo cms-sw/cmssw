@@ -1,3 +1,4 @@
+from __future__ import print_function
 # In order to produce what you need (or in a loop)
 #time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label=BeamPipe
 #time cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom=Extended2023D41 label=Tracker
@@ -24,7 +25,7 @@ process = cms.Process("PROD")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-# The default geometry is Extended2023D41. If a different geoemtry
+# The default geometry is Extended2026D77Reco. If a different geoemtry
 # is needed, the appropriate flag has to be passed at command line,
 # e.g.: cmsRun runP_FromVertexUpToInFrontOfMuonStations_cfg.py geom="XYZ"
 
@@ -39,7 +40,7 @@ _ALLOWED_LABELS = _LABELS2COMPS.keys()
 
 options = VarParsing('analysis')
 options.register('geom',             #name
-                 'Extended2023D41',      #default value
+                 'Extended2026D77Reco',      #default value
                  VarParsing.multiplicity.singleton,   # kind of options
                  VarParsing.varType.string,           # type of option
                  "Select the geometry to be studied"  # help message
@@ -58,9 +59,9 @@ options.parseArguments()
 # Option validation
 
 if options.label not in _ALLOWED_LABELS:
-    print "\n*** Error, '%s' not registered as a valid components to monitor." % options.label
-    print "Allowed components:", _ALLOWED_LABELS
-    print
+    print("\n*** Error, '%s' not registered as a valid components to monitor." % options.label)
+    print("Allowed components:", _ALLOWED_LABELS)
+    print()
     raise RuntimeError("Unknown label")
 
 _components = _LABELS2COMPS[options.label]

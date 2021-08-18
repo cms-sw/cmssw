@@ -1,28 +1,35 @@
 import FWCore.ParameterSet.Config as cms
 
 bxBins = [
-    "1",
-    "271",
-    "541",
-    "892",
-    "1162",
-    "1432",
-    "1783",
-    "2053",
-    "2323",
-    "2674",
-    "2944",
-    "3214",
-    "3446",
-    "3490",
-    "3491",
-    "3565"
+    1,
+    271,
+    541,
+    892,
+    1162,
+    1432,
+    1783,
+    2053,
+    2323,
+    2674,
+    2944,
+    3214,
+    3446,
+    3490,
+    3491,
+    3565
 ]
+bxBinLabels = [str(i) for i in bxBins]
+
+bxBinsFine = [i for i in range(1, 3601)]
+bxBinLabelsFine = [str(i) for i in bxBinsFine]
+nBXBinsFine = len(bxBinsFine)
 
 ecalTrigPrimTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
         #    HLTMuonPath = cms.untracked.string('HLT_Mu5_v*'),
         #    HLTCaloPath = cms.untracked.string('HLT_SingleJet*'),
+        bxBins = cms.untracked.vint32(bxBins),
+        bxBinsFine = cms.untracked.vint32(bxBinsFine),
         runOnEmul = cms.untracked.bool(True),
         lhcStatusInfoCollectionTag = cms.untracked.InputTag("tcdsDigis","tcdsRecord")
     ),
@@ -60,14 +67,14 @@ ecalTrigPrimTask = cms.untracked.PSet(
             kind = cms.untracked.string('TProfile'),
             otype = cms.untracked.string('Ecal3P'),
             xaxis = cms.untracked.PSet(
-                high = cms.untracked.double(16.0),
-                nbins = cms.untracked.int32(16),
+                high = cms.untracked.double(1.0*nBXBinsFine),
+                nbins = cms.untracked.int32(nBXBinsFine),
                 low = cms.untracked.double(0.0),
-                title = cms.untracked.string('bunch crossing'),
-                labels = cms.untracked.vstring(bxBins)
+                title = cms.untracked.string('BX Id'),
+                labels = cms.untracked.vstring(bxBinLabelsFine)
             ),
             btype = cms.untracked.string('User'),
-            description = cms.untracked.string('TP occupancy in different bunch crossing intervals. This plot is filled by data from physics data stream. It is normal to have very little entries in BX >= 3490.')
+            description = cms.untracked.string('TP occupancy in different bunch crossing intervals. This plot is filled by data from physics data stream. BX ids start at 1. It is normal to have very little entries in BX >= 3490. The Customize button can be used to zoom in.')
         ),
         HighIntMap = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sSelectiveReadoutTask/Counters/%(prefix)sSRT tower high interest counter%(suffix)s'),
@@ -85,13 +92,13 @@ ecalTrigPrimTask = cms.untracked.PSet(
                 high = cms.untracked.double(16.0),
                 nbins = cms.untracked.int32(16),
                 low = cms.untracked.double(0.0),
-                title = cms.untracked.string('bunch crossing'),
-                labels = cms.untracked.vstring(bxBins)
+                title = cms.untracked.string('BX Id'),
+                labels = cms.untracked.vstring(bxBinLabels)
             ),
             yaxis = cms.untracked.PSet(
                 title = cms.untracked.string('TP Et')
             ),
-            description = cms.untracked.string('Mean TP Et in different bunch crossing intervals. This plot is filled by data from physics data stream. It is normal to have very little entries in BX >= 3490.')
+            description = cms.untracked.string('Mean TP Et in different bunch crossing intervals. This plot is filled by data from physics data stream. BX ids start at 1. It is normal to have very little entries in BX >= 3490.')
         ),
         EtEmulError = cms.untracked.PSet(
 #            path = cms.untracked.string('Ecal/Errors/TriggerPrimitives/EtEmulation/'),

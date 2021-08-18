@@ -27,6 +27,7 @@
 
 #include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
 #include "CondFormats/HLTObjects/interface/HLTPrescaleTableCond.h"
+#include "CondFormats/DataRecord/interface/HLTPrescaleTableRcd.h"
 
 #include <map>
 #include <string>
@@ -76,6 +77,7 @@ private:
   edm::EDGetTokenT<trigger::HLTPrescaleTable> hltInputToken_;
   /// Tag of DB entry (HLT Key Name) (src=4)
   std::string hltDBTag_;
+  edm::ESGetToken<trigger::HLTPrescaleTableCond, HLTPrescaleTableRcd> const hltPrescaleTableCondToken_;
 
   /// Prescale service
   edm::service::PrescaleService* ps_;
@@ -84,7 +86,6 @@ private:
 
   /// Handle and ESHandle for existing HLT object
   edm::Handle<trigger::HLTPrescaleTable> hltHandle_;
-  edm::ESHandle<trigger::HLTPrescaleTableCond> hltESHandle_;
 
   /// payload HLT object
   trigger::HLTPrescaleTable hlt_;

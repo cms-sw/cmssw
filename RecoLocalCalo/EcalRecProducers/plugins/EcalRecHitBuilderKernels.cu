@@ -285,11 +285,9 @@ namespace ecal {
         //
         // Check for channels to be excluded from reconstruction
         //
-        //
-        // Default energy? Not to be updated if "ChannelStatusToBeExcluded"
+        // Default energy not to be updated if "ChannelStatusToBeExcluded"
         // Exploited later by the module "EcalRecHitConvertGPU2CPUFormat"
-        //
-        energy[inputCh] = -1;  //---- AM: default, un-physical, ok
+        energy[inputCh] = -1;  //un-physical default
 
         // truncate the chi2
         if (chi2_in[inputCh] > 64)

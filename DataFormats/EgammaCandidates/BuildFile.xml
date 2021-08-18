@@ -13,6 +13,7 @@
 <use name="DataFormats/GsfTrackReco"/>
 <use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="FWCore/MessageLogger"/>
+<use name="DataFormats/GeometryVector"/>
 <export>
   <lib name="1"/>
 </export>

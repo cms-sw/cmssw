@@ -91,6 +91,10 @@ private:
   edm::EDGetTokenT<CSCRecHit2DCollection> rh_token;
   edm::EDGetTokenT<CSCSegmentCollection> se_token;
 
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+
+  const edm::ESGetToken<CSCCrateMap, CSCCrateMapRcd> hcrateToken_;
+
   // modules
   void doOccupancies(edm::Handle<CSCStripDigiCollection> strips,
                      edm::Handle<CSCWireDigiCollection> wires,

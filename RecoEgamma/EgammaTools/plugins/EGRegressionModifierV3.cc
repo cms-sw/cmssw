@@ -109,8 +109,7 @@ void EGRegressionModifierV3::modifyObject(reco::GsfElectron& ele) const {
     return;
 
   // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
-  if (!superClus->clusters().isAvailable())
-    return;
+  bool rescaleDependentValues = superClus->clusters().isAvailable();
 
   //check if fbrem is filled as its needed for E/p combination so abort if its set to the default value
   //this will be the case for <5 (or current cuts) for miniAOD electrons
@@ -141,7 +140,7 @@ void EGRegressionModifierV3::modifyObject(reco::GsfElectron& ele) const {
   const float corrEnergy = (rawEnergy + rawESEnergy) * ecalMeanCorr;
   const float corrEnergyErr = corrEnergy * ecalSigma;
 
-  ele.setCorrectedEcalEnergy(corrEnergy);
+  ele.setCorrectedEcalEnergy(corrEnergy, rescaleDependentValues);
   ele.setCorrectedEcalEnergyError(corrEnergyErr);
 
   std::pair<float, float> combEnergyAndErr = eleRegs_->epComb.combine(ele);

@@ -57,7 +57,7 @@ TrackerCleaner<T>::TrackerCleaner(const edm::ParameterSet& iConfig)
 
 {
   std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag> >("oldCollection");
-  for (auto inCollection : inCollections) {
+  for (const auto& inCollection : inCollections) {
     inputs_[inCollection.instance()] = consumes<TrackClusterCollection>(inCollection);
     produces<TrackClusterCollection>(inCollection.instance());
   }

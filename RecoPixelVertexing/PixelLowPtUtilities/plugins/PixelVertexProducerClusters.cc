@@ -11,14 +11,11 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
@@ -56,7 +53,7 @@ namespace {
 
 /*****************************************************************************/
 PixelVertexProducerClusters::PixelVertexProducerClusters(const edm::ParameterSet& ps)
-    : pixelToken_(consumes<SiPixelRecHitCollection>(edm::InputTag("siPixelRecHits"))) {
+    : geomToken_(esConsumes()), pixelToken_(consumes<SiPixelRecHitCollection>(edm::InputTag("siPixelRecHits"))) {
   // Product
   produces<reco::VertexCollection>();
 }
@@ -66,14 +63,8 @@ PixelVertexProducerClusters::~PixelVertexProducerClusters() {}
 
 /*****************************************************************************/
 void PixelVertexProducerClusters::produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<TrackerTopologyRcd>().get(tTopo);
-
   // Get tracker geometry
-  edm::ESHandle<TrackerGeometry> trackerHandle;
-  es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
-  const TrackerGeometry* theTracker = trackerHandle.product();
+  const TrackerGeometry* theTracker = &es.getData(geomToken_);
 
   // Get pixel hit collections
   edm::Handle<SiPixelRecHitCollection> pixelColl;

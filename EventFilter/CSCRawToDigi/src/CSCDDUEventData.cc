@@ -243,7 +243,7 @@ void CSCDDUEventData::unpack_data(const uint16_t* buf, CSCDCCExaminer* examiner)
       // ++i;
       if (debug)
         LogTrace("CSCDDUEventData|CSCRawToDigi") << "unpack csc data loop started";
-      theData.push_back(CSCEventData(buf));
+      theData.push_back(CSCEventData(buf, theFormatVersion));
       buf += (theData.back()).size();
       if (debug) {
         LogTrace("CSCDDUEventData|CSCRawToDigi") << "size of vector of cscData = " << theData.size();

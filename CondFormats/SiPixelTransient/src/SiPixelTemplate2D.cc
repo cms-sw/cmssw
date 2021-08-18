@@ -38,8 +38,9 @@
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #define LOGERROR(x) LogError(x)
 #define LOGINFO(x) LogInfo(x)
 #define ENDL " "
@@ -166,10 +167,9 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector<SiPixelTemplateStore2D
 
     // next, layout the 2-d structure needed to store template
 
-    theCurrentTemp.entry = new SiPixelTemplateEntry2D*[theCurrentTemp.head.NTyx];
-    theCurrentTemp.entry[0] = new SiPixelTemplateEntry2D[theCurrentTemp.head.NTyx * theCurrentTemp.head.NTxx];
-    for (int i = 1; i < theCurrentTemp.head.NTyx; ++i)
-      theCurrentTemp.entry[i] = theCurrentTemp.entry[i - 1] + theCurrentTemp.head.NTxx;
+    theCurrentTemp.entry.resize(theCurrentTemp.head.NTyx);
+    for (auto& item : theCurrentTemp.entry)
+      item.resize(theCurrentTemp.head.NTxx);
 
     // Read in the file info
 
@@ -181,8 +181,6 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector<SiPixelTemplateStore2D
         if (in_file.fail()) {
           LOGERROR("SiPixelTemplate2D") << "Error reading file 1, no template load, run # "
                                         << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-          delete[] theCurrentTemp.entry[0];
-          delete[] theCurrentTemp.entry;
           return false;
         }
 
@@ -202,8 +200,6 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector<SiPixelTemplateStore2D
         if (in_file.fail()) {
           LOGERROR("SiPixelTemplate2D") << "Error reading file 2, no template load, run # "
                                         << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-          delete[] theCurrentTemp.entry[0];
-          delete[] theCurrentTemp.entry;
           return false;
         }
 
@@ -215,8 +211,6 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector<SiPixelTemplateStore2D
           if (in_file.fail()) {
             LOGERROR("SiPixelTemplate2D")
                 << "Error reading file 3, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-            delete[] theCurrentTemp.entry[0];
-            delete[] theCurrentTemp.entry;
             return false;
           }
         }
@@ -229,8 +223,6 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector<SiPixelTemplateStore2D
           if (in_file.fail()) {
             LOGERROR("SiPixelTemplate2D")
                 << "Error reading file 4, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-            delete[] theCurrentTemp.entry[0];
-            delete[] theCurrentTemp.entry;
             return false;
           }
         }
@@ -247,8 +239,6 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector<SiPixelTemplateStore2D
               if (in_file.fail()) {
                 LOGERROR("SiPixelTemplate2D")
                     << "Error reading file 5, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-                delete[] theCurrentTemp.entry[0];
-                delete[] theCurrentTemp.entry;
                 return false;
               }
               for (int i = 0; i < T2YSIZE; ++i) {
@@ -267,8 +257,6 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector<SiPixelTemplateStore2D
         if (in_file.fail()) {
           LOGERROR("SiPixelTemplate2D") << "Error reading file 6, no template load, run # "
                                         << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-          delete[] theCurrentTemp.entry[0];
-          delete[] theCurrentTemp.entry;
           return false;
         }
 
@@ -281,8 +269,6 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector<SiPixelTemplateStore2D
         if (in_file.fail()) {
           LOGERROR("SiPixelTemplate2D") << "Error reading file 7, no template load, run # "
                                         << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-          delete[] theCurrentTemp.entry[0];
-          delete[] theCurrentTemp.entry;
           return false;
         }
 
@@ -295,8 +281,6 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector<SiPixelTemplateStore2D
         if (in_file.fail()) {
           LOGERROR("SiPixelTemplate2D") << "Error reading file 8, no template load, run # "
                                         << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-          delete[] theCurrentTemp.entry[0];
-          delete[] theCurrentTemp.entry;
           return false;
         }
       }
@@ -419,10 +403,9 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject,
 
     // next, layout the 2-d structure needed to store template
 
-    theCurrentTemp.entry = new SiPixelTemplateEntry2D*[theCurrentTemp.head.NTyx];
-    theCurrentTemp.entry[0] = new SiPixelTemplateEntry2D[theCurrentTemp.head.NTyx * theCurrentTemp.head.NTxx];
-    for (int i = 1; i < theCurrentTemp.head.NTyx; ++i)
-      theCurrentTemp.entry[i] = theCurrentTemp.entry[i - 1] + theCurrentTemp.head.NTxx;
+    theCurrentTemp.entry.resize(theCurrentTemp.head.NTyx);
+    for (auto& item : theCurrentTemp.entry)
+      item.resize(theCurrentTemp.head.NTxx);
 
     // Read in the file info
 
@@ -434,8 +417,6 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject,
         if (db.fail()) {
           LOGERROR("SiPixelTemplate2D") << "Error reading file 1, no template load, run # "
                                         << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-          delete[] theCurrentTemp.entry[0];
-          delete[] theCurrentTemp.entry;
           return false;
         }
 
@@ -455,8 +436,6 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject,
         if (db.fail()) {
           LOGERROR("SiPixelTemplate2D") << "Error reading file 2, no template load, run # "
                                         << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-          delete[] theCurrentTemp.entry[0];
-          delete[] theCurrentTemp.entry;
           return false;
         }
 
@@ -468,8 +447,6 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject,
           if (db.fail()) {
             LOGERROR("SiPixelTemplate2D")
                 << "Error reading file 3, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-            delete[] theCurrentTemp.entry[0];
-            delete[] theCurrentTemp.entry;
             return false;
           }
         }
@@ -482,8 +459,6 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject,
           if (db.fail()) {
             LOGERROR("SiPixelTemplate2D")
                 << "Error reading file 4, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-            delete[] theCurrentTemp.entry[0];
-            delete[] theCurrentTemp.entry;
             return false;
           }
         }
@@ -500,8 +475,6 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject,
               if (db.fail()) {
                 LOGERROR("SiPixelTemplate2D")
                     << "Error reading file 5, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-                delete[] theCurrentTemp.entry[0];
-                delete[] theCurrentTemp.entry;
                 return false;
               }
               for (int i = 0; i < T2YSIZE; ++i) {
@@ -520,8 +493,6 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject,
         if (db.fail()) {
           LOGERROR("SiPixelTemplate2D") << "Error reading file 6, no template load, run # "
                                         << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-          delete[] theCurrentTemp.entry[0];
-          delete[] theCurrentTemp.entry;
           return false;
         }
 
@@ -534,8 +505,6 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject,
         if (db.fail()) {
           LOGERROR("SiPixelTemplate2D") << "Error reading file 7, no template load, run # "
                                         << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-          delete[] theCurrentTemp.entry[0];
-          delete[] theCurrentTemp.entry;
           return false;
         }
 
@@ -548,8 +517,6 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject,
         if (db.fail()) {
           LOGERROR("SiPixelTemplate2D") << "Error reading file 8, no template load, run # "
                                         << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-          delete[] theCurrentTemp.entry[0];
-          delete[] theCurrentTemp.entry;
           return false;
         }
       }
@@ -713,6 +680,12 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
       throw cms::Exception("DataCorrupt")
           << "SiPixelTemplate2D::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
+
+      //check for nan's
+      if (!edm::isFinite(cotalpha) || !edm::isFinite(cotbeta)) {
+        success_ = false;
+        return success_;
+      }
 #else
       std::cout << "SiPixelTemplate:2D:illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
 #endif

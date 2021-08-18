@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 _cosmics_
 
@@ -74,8 +74,6 @@ class cosmics(Reco):
         else:
             args['customs'].append('Configuration/DataProcessing/RecoTLR.customiseCosmicData')
         process = Reco.visualizationProcessing(self,globalTag, **args)
-
-        process.reconstructionCosmics.remove(process.lumiProducer)
 
         return process
 
