@@ -5,8 +5,8 @@
  *      Author: kbunkow
  */
 
-#ifndef OMTF__TOOLS_STUBSSIMHITSMATCHER_H_
-#define OMTF__TOOLS_STUBSSIMHITSMATCHER_H_
+#ifndef L1T_OmtfP1_TOOLS_STUBSSIMHITSMATCHER_H_
+#define L1T_OmtfP1_TOOLS_STUBSSIMHITSMATCHER_H_
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/AlgoMuon.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFinput.h"
@@ -101,4 +101,4 @@ private:
   TH2I* rhoByPdgId = nullptr;
 };
 
-#endif /* OMTF__TOOLS_STUBSSIMHITSMATCHER_H_ */
+#endif /* L1T_OmtfP1_TOOLS_STUBSSIMHITSMATCHER_H_ */

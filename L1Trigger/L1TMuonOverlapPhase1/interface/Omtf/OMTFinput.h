@@ -1,5 +1,5 @@
-#ifndef OMTF_OMTFinput_H
-#define OMTF_OMTFinput_H
+#ifndef L1T_OmtfP1_OMTFinput_H
+#define L1T_OmtfP1_OMTFinput_H
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/MuonStubsInput.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/MuonStub.h"

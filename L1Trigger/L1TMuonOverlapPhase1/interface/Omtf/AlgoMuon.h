@@ -1,5 +1,5 @@
-#ifndef AlgoMuon_H
-#define AlgoMuon_H
+#ifndef L1T_OmtfP1_AlgoMuon_H
+#define L1T_OmtfP1_AlgoMuon_H
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/AlgoMuonBase.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GoldenPatternBase.h"
@@ -138,4 +138,4 @@ private:
 typedef std::shared_ptr<AlgoMuon> AlgoMuonPtr;
 typedef std::vector<AlgoMuonPtr> AlgoMuons;
 
-#endif
+#endif //L1T_OmtfP1_AlgoMuon_H

@@ -1,5 +1,5 @@
-#ifndef OMTF_GhostBusterPreferRefDt_H
-#define OMTF_GhostBusterPreferRefDt_H
+#ifndef L1T_OmtfP1_GhostBusterPreferRefDt_H
+#define L1T_OmtfP1_GhostBusterPreferRefDt_H
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/AlgoMuon.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/IGhostBuster.h"

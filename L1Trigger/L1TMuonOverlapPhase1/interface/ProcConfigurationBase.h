@@ -5,8 +5,8 @@
  *      Author: Karol Bunkowski kbunkow@cern.ch
  */
 
-#ifndef MUONOVERLAP_PROCCONFIGURATIONBASE_H_
-#define MUONOVERLAP_PROCCONFIGURATIONBASE_H_
+#ifndef L1T_OmtfP1_PROCCONFIGURATIONBASE_H_
+#define L1T_OmtfP1_PROCCONFIGURATIONBASE_H_
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class ProcConfigurationBase {
@@ -96,4 +96,4 @@ private:
   bool fixCscGeometryOffset = false;
 };
 
-#endif /* INTERFACE_PROCCONFIGURATIONBASE_H_ */
+#endif /* L1T_OmtfP1_PROCCONFIGURATIONBASE_H_ */

@@ -5,8 +5,8 @@
  *      Author: kbunkow
  */
 
-#ifndef OMTF_TOOLS_MUONCANDIDATEMATCHER_H_
-#define OMTF_TOOLS_MUONCANDIDATEMATCHER_H_
+#ifndef L1T_OmtfP1_TOOLS_MUONCANDIDATEMATCHER_H_
+#define L1T_OmtfP1_TOOLS_MUONCANDIDATEMATCHER_H_
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/AlgoMuon.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/IOMTFEmulationObserver.h"
@@ -190,4 +190,4 @@ private:
   TH1D* deltaPhiPropCandStdDev = nullptr;
 };
 
-#endif /* OMTF_TOOLS_MUONCANDIDATEMATCHER_H_ */
+#endif /* L1T_OmtfP1_TOOLS_MUONCANDIDATEMATCHER_H_ */

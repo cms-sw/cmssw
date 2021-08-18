@@ -1,5 +1,5 @@
-#ifndef OMTF_GOLDENPATTERNRESULTS_H
-#define OMTF_GOLDENPATTERNRESULTS_H
+#ifndef L1T_OmtfP1_GOLDENPATTERNRESULTS_H
+#define L1T_OmtfP1_GOLDENPATTERNRESULTS_H
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/MuonStub.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFConfiguration.h"
@@ -136,4 +136,4 @@ private:
   const OMTFConfiguration* omtfConfig = nullptr;
 };
 
-#endif  //OMTF_GOLDENPATTERNRESULTS_H
+#endif  //L1T_OmtfP1_GOLDENPATTERNRESULTS_H

@@ -1,3 +1,6 @@
+#ifndef L1T_OmtfP1_L1TMuonOverlapPhase1ParamsESProducer_H
+#define L1T_OmtfP1_L1TMuonOverlapPhase1ParamsESProducer_H
+
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFConfiguration.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/XMLConfigReader.h"
 
@@ -34,3 +37,5 @@ private:
   L1TMuonOverlapParams params;
   L1TMuonOverlapParams patterns;
 };
+
+#endif //L1T_OmtfP1_L1TMuonOverlapPhase1ParamsESProducer_H

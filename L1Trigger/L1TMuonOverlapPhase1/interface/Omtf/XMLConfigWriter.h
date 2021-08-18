@@ -1,8 +1,9 @@
-#ifndef OMTF_XMLConfigWriter_H
-#define OMTF_XMLConfigWriter_H
+#ifndef L1T_OmtfP1_XMLConfigWriter_H
+#define L1T_OmtfP1_XMLConfigWriter_H
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OmtfName.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFConfiguration.h"
+#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GoldenPatternBase.h"
 #include <string>
 #include <vector>
 
@@ -52,7 +53,7 @@ public:
   void writeGPData(GoldenPattern* aGP1, GoldenPattern* aGP2, GoldenPattern* aGP3, GoldenPattern* aGP4);
 
   template <class GoldenPatternType>
-  void writeGPs(const std::vector<std::shared_ptr<GoldenPatternType> >& goldenPats, std::string fName);
+  void writeGPs(const GoldenPatternVec<GoldenPatternType>& goldenPats, std::string fName);
 
   void writeConnectionsData(const std::vector<std::vector<OMTFConfiguration::vector2D> >& measurements4D);
 

@@ -5,8 +5,8 @@
  *      Author: kbunkow
  */
 
-#ifndef INTERFACE_OMTF_GPRESULTSTOPT_H_
-#define INTERFACE_OMTF_GPRESULTSTOPT_H_
+#ifndef L1T_OmtfP1_GPRESULTSTOPT_H_
+#define L1T_OmtfP1_GPRESULTSTOPT_H_
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GoldenPattern.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/AlgoMuon.h"
@@ -64,4 +64,4 @@ private:
   std::vector<TH1*> ptGenInPats;
 };
 
-#endif /* INTERFACE_OMTF_GPRESULTSTOPT_H_ */
+#endif /* L1T_OmtfP1_GPRESULTSTOPT_H_ */

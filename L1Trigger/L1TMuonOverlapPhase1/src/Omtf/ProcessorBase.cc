@@ -18,6 +18,19 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 template <class GoldenPatternType>
+ProcessorBase<GoldenPatternType>::ProcessorBase(OMTFConfiguration* omtfConfig, GoldenPatternVec<GoldenPatternType>&& gps) :
+myOmtfConfig(omtfConfig), theGPs(std::move(gps)) {
+  for (auto& gp : theGPs) {
+    gp->setConfig(myOmtfConfig);
+  }
+
+  initPatternPtRange(true);
+
+  //initPatternPtRange(true); is called in the setGPs
+  omtfConfig->setPatternPtRange(getPatternPtRange());
+};
+
+template <class GoldenPatternType>
 void ProcessorBase<GoldenPatternType>::resetConfiguration() {
   theGPs.clear();
 }
@@ -45,7 +58,7 @@ bool ProcessorBase<GoldenPatternType>::configure(OMTFConfiguration* omtfConfig,
   unsigned int address = 0;
   unsigned int iEta, iPt;
   int iCharge;
-  int meanDistPhiSize = myOmtfConfig->nLayers() * myOmtfConfig->nRefLayers() * myOmtfConfig->nGoldenPatterns();
+  //int meanDistPhiSize = myOmtfConfig->nLayers() * myOmtfConfig->nRefLayers() * myOmtfConfig->nGoldenPatterns();
 
   unsigned int group = 0;
   unsigned int indexInGroup = 0;
@@ -129,17 +142,6 @@ void ProcessorBase<GoldenPatternType>::addGP(GoldenPatternType* aGP) {
   theGPs.emplace_back(std::unique_ptr<GoldenPatternType>(aGP));
 }
 
-////////////////////////////////////////////
-////////////////////////////////////////////
-template <class GoldenPatternType>
-void ProcessorBase<GoldenPatternType>::setGPs(const GoldenPatternVec& gps) {
-  theGPs = gps;
-  for (auto& gp : theGPs) {
-    gp->setConfig(myOmtfConfig);
-  }
-
-  initPatternPtRange(true);
-}
 ////////////////////////////////////////////
 ////////////////////////////////////////////
 template <class GoldenPatternType>

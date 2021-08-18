@@ -5,8 +5,8 @@
  *      Author: Karol Bunkowski kbunkow@cern.ch
  */
 
-#ifndef INTERFACE_STUBRESULT_H_
-#define INTERFACE_STUBRESULT_H_
+#ifndef L1T_OmtfP1_STUBRESULT_H_
+#define L1T_OmtfP1_STUBRESULT_H_
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/MuonStub.h"
 #include <vector>
@@ -55,4 +55,4 @@ private:
 
 typedef std::vector<StubResult> StubResults;
 
-#endif /* INTERFACE_STUBRESULT_H_ */
+#endif /* L1T_OmtfP1_STUBRESULT_H_ */

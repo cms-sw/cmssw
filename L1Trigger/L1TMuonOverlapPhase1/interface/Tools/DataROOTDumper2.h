@@ -5,12 +5,10 @@
  *      Author: kbunkow
  */
 
-#ifndef INTERFACE_TOOLS_DATAROOTDUMPER2_H_
-#define INTERFACE_TOOLS_DATAROOTDUMPER2_H_
+#ifndef L1T_OmtfP1_TOOLS_DATAROOTDUMPER2_H_
+#define L1T_OmtfP1_TOOLS_DATAROOTDUMPER2_H_
 
-#include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/GpResultsToPt.h"
-#include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/PatternOptimizerBase.h"
-#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/IOMTFEmulationObserver.h"
+#include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/EmulationObserverBase.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -19,6 +17,8 @@
 
 #include "TMap.h"
 #include "TArrayI.h"
+#include "TFile.h"
+#include "TH2.h"
 
 #include <functional>
 
@@ -55,19 +55,14 @@ public:
 
   std::vector<unsigned long> hits;
 
-  boost::multi_array<float, 2> omtfGpResultsPdfSum;              //[iREfHit][iGp]
-  boost::multi_array<unsigned int, 2> omtfGpResultsFiredLayers;  //[iREfHit][iGp]
 
-  OmtfEvent(unsigned int nRefHits, unsigned int nGoldenPatterns)
-      : omtfGpResultsPdfSum(boost::extents[nRefHits][nGoldenPatterns]),
-        omtfGpResultsFiredLayers(boost::extents[nRefHits][nGoldenPatterns]) {}
+  //OmtfEvent() {}
 };
 
-class DataROOTDumper2 : public PatternOptimizerBase {
+class DataROOTDumper2 : public EmulationObserverBase {
 public:
   DataROOTDumper2(const edm::ParameterSet& edmCfg,
                   const OMTFConfiguration* omtfConfig,
-                  const std::vector<std::shared_ptr<GoldenPattern> >& gps,
                   std::string rootFileName);
 
   ~DataROOTDumper2() override;
@@ -78,26 +73,20 @@ public:
   void endJob() override;
 
 private:
-  std::vector<std::shared_ptr<GoldenPattern> > gps;
-
   void initializeTTree(std::string rootFileName);
   void saveTTree();
 
   TFile* rootFile = nullptr;
   TTree* rootTree = nullptr;
 
-  OmtfEvent event;
+  OmtfEvent omtfEvent;
 
   unsigned int evntCnt = 0;
 
   TH1I* ptGenPos = nullptr;
   TH1I* ptGenNeg = nullptr;
 
-  bool dumpGpResults = false;
-
-  GpResultsToPt* gpResultsToPt = nullptr;  //TODO move to OmtfProcessor
-
   std::vector<TH2*> hitVsPt;
 };
 
-#endif /* INTERFACE_TOOLS_DATAROOTDUMPER2_H_ */
+#endif /* L1T_OmtfP1_TOOLS_DATAROOTDUMPER2_H_ */

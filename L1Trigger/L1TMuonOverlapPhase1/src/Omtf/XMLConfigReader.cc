@@ -63,7 +63,7 @@ void XMLConfigReader::readLUTs(std::vector<l1t::LUT *> luts,
                                const L1TMuonOverlapParams &aConfig,
                                const std::vector<std::string> &types) {
   ///Fill payload string
-  std::vector<std::shared_ptr<GoldenPattern> > aGPs = readPatterns<GoldenPattern>(aConfig, patternsFiles, true);
+  auto aGPs = readPatterns<GoldenPattern>(aConfig, patternsFiles, true);
 
 
   edm::LogVerbatim("OMTFReconstruction") << "XMLConfigReader::readLUTs: aGPs.size() " << aGPs.size()
@@ -131,7 +131,7 @@ void XMLConfigReader::readLUTs(std::vector<l1t::LUT *> luts,
 
     unsigned int in = 0;
     int out = 0;
-    for (auto it : aGPs) {
+    for (auto& it : aGPs) {
       if (type == "iCharge")
         out = it->key().theCharge == -1 ? 0 : 1;
       //changing only -1 (negative charge) to 0 (to avoid negative numbers in LUT?) -N.B. that this is not the uGMT charge convention!!!!
@@ -233,10 +233,10 @@ unsigned int XMLConfigReader::getPatternsVersion() const {
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 template <class GoldenPatternType>
-std::vector<std::shared_ptr<GoldenPatternType> > XMLConfigReader::readPatterns(const L1TMuonOverlapParams &aConfig,
+GoldenPatternVec<GoldenPatternType> XMLConfigReader::readPatterns(const L1TMuonOverlapParams &aConfig,
                                                                                const std::string &patternsFile,
 																			   bool buildEmptyPatterns, bool resetNumbering) {
-  std::vector<std::shared_ptr<GoldenPatternType> > aGPs;
+  GoldenPatternVec<GoldenPatternType> aGPs;
   aGPs.clear();
 
   XMLPlatformUtils::Initialize();
@@ -310,14 +310,15 @@ std::vector<std::shared_ptr<GoldenPatternType> > XMLConfigReader::readPatterns(c
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 template <class GoldenPatternType>
-std::vector<std::shared_ptr<GoldenPatternType> > XMLConfigReader::readPatterns(
+GoldenPatternVec<GoldenPatternType> XMLConfigReader::readPatterns(
     const L1TMuonOverlapParams &aConfig, const std::vector<std::string> &patternsFiles, bool buildEmptyPatterns) {
   iGPNumber = 0;
   iPatternGroup = 0;
-  std::vector<std::shared_ptr<GoldenPatternType> > aGPs;
+  GoldenPatternVec<GoldenPatternType> aGPs;
   for (auto aPatternsFile : patternsFiles) {
     auto tmpGPs = readPatterns<GoldenPatternType>(aConfig, aPatternsFile, buildEmptyPatterns, false);
-    aGPs.insert(aGPs.end(), tmpGPs.begin(), tmpGPs.end());
+    for(auto& gp : tmpGPs)
+      aGPs.push_back(std::move(gp));
   }
   return aGPs;
 }
@@ -771,14 +772,20 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const {
 //  xercesc::XercesDOMParser *parser;
 //  xercesc::DOMDocument* doc;
 
-template std::vector<std::shared_ptr<GoldenPatternWithStat> > XMLConfigReader::readPatterns<GoldenPatternWithStat>(
+template GoldenPatternVec<GoldenPattern> XMLConfigReader::readPatterns<GoldenPattern>(
     const L1TMuonOverlapParams &aConfig, const std::string &patternsFile, bool buildEmptyPatterns, bool resetNumbering = true);
 
-template std::vector<std::shared_ptr<GoldenPatternWithStat> > XMLConfigReader::readPatterns<GoldenPatternWithStat>(
-    const L1TMuonOverlapParams &aConfig, const std::vector<std::string> &patternsFiles, bool buildEmptyPatterns);
+template GoldenPatternVec<GoldenPattern> XMLConfigReader::readPatterns<GoldenPattern>(
+    const L1TMuonOverlapParams &aConfig, const std::vector<std::string>& patternsFiles, bool buildEmptyPatterns);
 
-template std::vector<std::shared_ptr<GoldenPatternWithThresh> > XMLConfigReader::readPatterns<GoldenPatternWithThresh>(
+template GoldenPatternVec<GoldenPatternWithStat> XMLConfigReader::readPatterns<GoldenPatternWithStat>(
     const L1TMuonOverlapParams &aConfig, const std::string &patternsFile, bool buildEmptyPatterns, bool resetNumbering = true);
 
-template std::vector<std::shared_ptr<GoldenPatternWithThresh> > XMLConfigReader::readPatterns<GoldenPatternWithThresh>(
-    const L1TMuonOverlapParams &aConfig, const std::vector<std::string> &patternsFiles, bool buildEmptyPatterns);
+template GoldenPatternVec<GoldenPatternWithStat> XMLConfigReader::readPatterns<GoldenPatternWithStat>(
+    const L1TMuonOverlapParams &aConfig, const std::vector<std::string>& patternsFiles, bool buildEmptyPatterns);
+
+/*template std::vector<std::unique_ptr<GoldenPatternWithThresh> > XMLConfigReader::readPatterns<GoldenPatternWithThresh>(
+    const L1TMuonOverlapParams &aConfig, const std::string &patternsFile, bool buildEmptyPatterns, bool resetNumbering = true);
+
+template std::vector<std::unique_ptr<GoldenPatternWithThresh> > XMLConfigReader::readPatterns<GoldenPatternWithThresh>(
+    const L1TMuonOverlapParams &aConfig, const std::vector<std::string> &patternsFiles, bool buildEmptyPatterns);*/
