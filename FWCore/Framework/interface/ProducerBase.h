@@ -104,15 +104,6 @@ namespace edm {
     ProducesCollector producesCollector();
     using ProductRegistryHelper::produces;
 
-    template <Transition Tr = Transition::Event>
-    [[nodiscard]] auto produces(std::string instanceName) noexcept {
-      return producesCollector().produces<Tr>(std::move(instanceName));
-    }
-    template <Transition Tr = Transition::Event>
-    [[nodiscard]] auto produces() noexcept {
-      return producesCollector().produces<Tr>();
-    }
-
   private:
     friend class EDProducer;
     friend class EDFilter;
