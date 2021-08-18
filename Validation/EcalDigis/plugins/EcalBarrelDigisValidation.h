@@ -31,7 +31,6 @@
 #include <map>
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-#include "EcalBarrelDigisValidation.h"
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
 class EcalBarrelDigisValidation : public DQMEDAnalyzer {
