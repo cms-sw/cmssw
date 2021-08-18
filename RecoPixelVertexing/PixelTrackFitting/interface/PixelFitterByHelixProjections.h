@@ -4,7 +4,6 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterBase.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -14,7 +13,7 @@ class TrackerTopology;
 
 class PixelFitterByHelixProjections final : public PixelFitterBase {
 public:
-  explicit PixelFitterByHelixProjections(const edm::EventSetup *es,
+  explicit PixelFitterByHelixProjections(const TrackerTopology *ttopo,
                                          const MagneticField *field,
                                          bool scaleErrorsForBPix1,
                                          float scaleFactor);
@@ -24,9 +23,9 @@ public:
                                    const edm::EventSetup &setup) const override;
 
 private:
+  const TrackerTopology *theTopo;
   const MagneticField *theField;
   const bool thescaleErrorsForBPix1;
   const float thescaleFactor;
-  TrackerTopology const *theTopo = nullptr;
 };
 #endif
