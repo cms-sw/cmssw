@@ -72,7 +72,6 @@ void MultiTrackValidatorGenPs::dqmAnalyze(const edm::Event& event,
                                  << "====================================================\n"
                                  << "\n";
 
-  const auto& parametersDefinerTP = &setup.getData(tpDefinerEsToken);
   const TrackerTopology& ttopo = setup.getData(tTopoEsToken);
 
   edm::Handle<GenParticleCollection> TPCollectionHeff;
@@ -199,8 +198,8 @@ void MultiTrackValidatorGenPs::dqmAnalyze(const edm::Event& event,
         momentumTP = tp->momentum();
         vertexTP = tp->vertex();
         //Calcualte the impact parameters w.r.t. PCA
-        TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event, setup, *tp);
-        TrackingParticle::Point vertex = parametersDefinerTP->vertex(event, setup, *tp);
+        TrackingParticle::Vector momentum = parametersDefinerTP_->momentum(event, setup, *tp);
+        TrackingParticle::Point vertex = parametersDefinerTP_->vertex(event, setup, *tp);
         dxyGen = (-vertex.x() * sin(momentum.phi()) + vertex.y() * cos(momentum.phi()));
         dzGen = vertex.z() - (vertex.x() * momentum.x() + vertex.y() * momentum.y()) / sqrt(momentum.perp2()) *
                                  momentum.z() / sqrt(momentum.perp2());
@@ -208,8 +207,8 @@ void MultiTrackValidatorGenPs::dqmAnalyze(const edm::Event& event,
       //If the GenParticle is comics, get the momentum and vertex at PCA
       else {
         //if(! cosmictpSelector(*tp,&bs,event,setup)) continue;
-        momentumTP = parametersDefinerTP->momentum(event, setup, *tp);
-        vertexTP = parametersDefinerTP->vertex(event, setup, *tp);
+        momentumTP = parametersDefinerTP_->momentum(event, setup, *tp);
+        vertexTP = parametersDefinerTP_->vertex(event, setup, *tp);
         dxyGen = (-vertexTP.x() * sin(momentumTP.phi()) + vertexTP.y() * cos(momentumTP.phi()));
         dzGen = vertexTP.z() - (vertexTP.x() * momentumTP.x() + vertexTP.y() * momentumTP.y()) /
                                    sqrt(momentumTP.perp2()) * momentumTP.z() / sqrt(momentumTP.perp2());
@@ -385,8 +384,8 @@ void MultiTrackValidatorGenPs::dqmAnalyze(const edm::Event& event,
       */
 
       //Get tracking particle parameters at point of closest approach to the beamline
-      TrackingParticle::Vector momentumTP = parametersDefinerTP->momentum(event, setup, *(tpr.get()));
-      TrackingParticle::Point vertexTP = parametersDefinerTP->vertex(event, setup, *(tpr.get()));
+      TrackingParticle::Vector momentumTP = parametersDefinerTP_->momentum(event, setup, *(tpr.get()));
+      TrackingParticle::Point vertexTP = parametersDefinerTP_->vertex(event, setup, *(tpr.get()));
       int chargeTP = tpr->charge();
 
       histoProducerAlgo_->fill_ResoAndPull_recoTrack_histos(
