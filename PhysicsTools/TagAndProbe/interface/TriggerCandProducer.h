@@ -56,5 +56,5 @@ private:
   bool skipEvent_;
   bool matchUnprescaledTriggerOnly_;
 };
-#include "PhysicsTools/TagAndProbe/src/TriggerCandProducer.icc"
+#include "PhysicsTools/TagAndProbe/interface/TriggerCandProducer.icc"
 #endif
