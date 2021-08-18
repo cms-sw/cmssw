@@ -11,6 +11,7 @@
 #define RecoPixelVertexing_PixelTriplets_src_CACut_h
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CAGraph.h"
 
 class CACut {
