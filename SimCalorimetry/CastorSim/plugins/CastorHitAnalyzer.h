@@ -7,8 +7,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitAnalyzer.h"
-#include "SimCalorimetry/CastorSim/src/CastorHitFilter.h"
-#include "SimCalorimetry/CastorSim/src/CastorSimParameterMap.h"
+#include "SimCalorimetry/CastorSim/interface/CastorHitFilter.h"
+#include "SimCalorimetry/CastorSim/interface/CastorSimParameterMap.h"
 #include <string>
 
 /** Compares RecHits to SimHit
