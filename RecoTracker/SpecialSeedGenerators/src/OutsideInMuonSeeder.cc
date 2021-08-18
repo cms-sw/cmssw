@@ -73,11 +73,11 @@ private:
   float const minEtaForTEC_;
   float const maxEtaForTOB_;
 
-  const MagneticField* magfield_;
-  const Propagator* muonPropagator_;
-  const GlobalTrackingGeometry* geometry_;
-  const Chi2MeasurementEstimatorBase* estimator_;
-  const TrajectoryStateUpdator* updator_;
+  const MagneticField *magfield_;
+  const Propagator *muonPropagator_;
+  const GlobalTrackingGeometry *geometry_;
+  const Chi2MeasurementEstimatorBase *estimator_;
+  const TrajectoryStateUpdator *updator_;
 
   /// Dump deug information
   const bool debug_;
@@ -99,13 +99,13 @@ OutsideInMuonSeeder::OutsideInMuonSeeder(const edm::ParameterSet &iConfig)
       fromVertex_(iConfig.getParameter<bool>("fromVertex")),
       errorRescaling_(iConfig.getParameter<double>("errorRescaleFactor")),
       trackerPropagatorToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("trackerPropagator")))),
-  muonPropagatorToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("muonPropagator")))),
+      muonPropagatorToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("muonPropagator")))),
       measurementTrackerTag_(consumes<MeasurementTrackerEvent>(edm::InputTag("MeasurementTrackerEvent"))),
-  estimatorToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("hitCollector")))),
-  updatorToken_(esConsumes(edm::ESInputTag("", "KFUpdator"))),
-  magfieldToken_(esConsumes()),
-  geometryToken_(esConsumes()),
-  tkGeometryToken_(esConsumes()),
+      estimatorToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("hitCollector")))),
+      updatorToken_(esConsumes(edm::ESInputTag("", "KFUpdator"))),
+      magfieldToken_(esConsumes()),
+      geometryToken_(esConsumes()),
+      tkGeometryToken_(esConsumes()),
       minEtaForTEC_(iConfig.getParameter<double>("minEtaForTEC")),
       maxEtaForTOB_(iConfig.getParameter<double>("maxEtaForTOB")),
       debug_(iConfig.getUntrackedParameter<bool>("debug", false)) {
@@ -117,7 +117,7 @@ void OutsideInMuonSeeder::produce(edm::Event &iEvent, const edm::EventSetup &iSe
   using namespace std;
 
   magfield_ = &iSetup.getData(magfieldToken_);
-  auto const& trackerPropagator = iSetup.getData(trackerPropagatorToken_);
+  auto const &trackerPropagator = iSetup.getData(trackerPropagatorToken_);
   muonPropagator_ = &iSetup.getData(muonPropagatorToken_);
   geometry_ = &iSetup.getData(geometryToken_);
   estimator_ = &iSetup.getData(estimatorToken_);
@@ -126,7 +126,7 @@ void OutsideInMuonSeeder::produce(edm::Event &iEvent, const edm::EventSetup &iSe
   Handle<MeasurementTrackerEvent> measurementTracker;
   iEvent.getByToken(measurementTrackerTag_, measurementTracker);
 
-  const auto& tmpTkGeometry = iSetup.getData(tkGeometryToken_);
+  const auto &tmpTkGeometry = iSetup.getData(tkGeometryToken_);
 
   Handle<View<reco::Muon>> src;
   iEvent.getByToken(src_, src);
