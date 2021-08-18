@@ -5,12 +5,11 @@
  *      Author: kbunkow
  */
 
-#ifndef OMTF_PATTERNOPTIMIZERBASE_H_
-#define OMTF_PATTERNOPTIMIZERBASE_H_
+#ifndef L1T_OmtfP1_PATTERNOPTIMIZERBASE_H_
+#define L1T_OmtfP1_PATTERNOPTIMIZERBASE_H_
 
+#include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/EmulationObserverBase.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GoldenPatternWithStat.h"
-#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/IOMTFEmulationObserver.h"
-#include <functional>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,34 +20,32 @@
 #include "TH2I.h"
 #include "TFile.h"
 
-class PatternOptimizerBase : public IOMTFEmulationObserver {
+#include <functional>
+
+class PatternOptimizerBase : public EmulationObserverBase {
 public:
   static double vxMuRate(double pt_GeV);
   static double vxIntegMuRate(double pt_GeV, double dpt, double etaFrom, double etaTo);
-
-  PatternOptimizerBase(const edm::ParameterSet& edmCfg, const OMTFConfiguration* omtfConfig);
-
+  
   PatternOptimizerBase(const edm::ParameterSet& edmCfg,
                        const OMTFConfiguration* omtfConfig,
-                       std::vector<std::shared_ptr<GoldenPatternWithStat> >& gps);
+                       GoldenPatternVec<GoldenPatternWithStat>& gps);
 
   ~PatternOptimizerBase() override;
 
-  void observeProcesorEmulation(unsigned int iProcessor,
+/*  void observeProcesorEmulation(unsigned int iProcessor,
                                 l1t::tftype mtfType,
                                 const std::shared_ptr<OMTFinput>& input,
                                 const AlgoMuons& algoCandidates,
                                 const AlgoMuons& gbCandidates,
                                 const std::vector<l1t::RegionalMuonCand>& candMuons) override;
 
-  void observeEventBegin(const edm::Event& iEvent) override;
+  void observeEventBegin(const edm::Event& iEvent) override;*/
 
   void observeEventEnd(const edm::Event& iEvent,
                        std::unique_ptr<l1t::RegionalMuonCandBxCollection>& finalCandidates) override;
 
   void endJob() override;
-
-  const SimTrack* findSimMuon(const edm::Event& event, const SimTrack* previous = nullptr);
 
 protected:
   void savePatternsInRoot(std::string rootFileName);
@@ -59,20 +56,7 @@ protected:
 
   virtual void saveHists(TFile& outfile){};
 
-  edm::ParameterSet edmCfg;
-  const OMTFConfiguration* omtfConfig;
-
-  std::vector<std::shared_ptr<GoldenPatternWithStat> > goldenPatterns;
-
-  const SimTrack* simMuon = nullptr;
-
-  //candidate found by omtf in a given event
-  AlgoMuons::value_type omtfCand;
-  l1t::RegionalMuonCand regionalMuonCand;
-
-  AlgoMuons algoCandidates;
-
-  unsigned int candProcIndx = 0;
+  GoldenPatternVec<GoldenPatternWithStat>& goldenPatterns;
 
   //GoldenPatternResult omtfResult;
   //GoldenPatternResult exptResult;
@@ -85,4 +69,4 @@ protected:
   bool writeLayerStat = false;
 };
 
-#endif /* OMTF_PATTERNOPTIMIZERBASE_H_ */
+#endif /* L1T_OmtfP1_PATTERNOPTIMIZERBASE_H_ */

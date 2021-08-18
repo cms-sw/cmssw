@@ -5,8 +5,8 @@
  *      Author: kbunkow
  */
 
-#ifndef INTERFACE_OMTF_XMLEVENTWRITER_H_
-#define INTERFACE_OMTF_XMLEVENTWRITER_H_
+#ifndef L1T_OmtfP1_XMLEVENTWRITER_H_
+#define L1T_OmtfP1_XMLEVENTWRITER_H_
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
@@ -50,4 +50,4 @@ private:
   unsigned int eventId = 0;
 };
 
-#endif /* INTERFACE_OMTF_XMLEVENTWRITER_H_ */
+#endif /* L1T_OmtfP1_XMLEVENTWRITER_H_ */

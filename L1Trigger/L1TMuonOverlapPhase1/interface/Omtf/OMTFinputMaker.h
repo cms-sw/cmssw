@@ -1,5 +1,5 @@
-#ifndef OMTFinputMaker_H
-#define OMTFinputMaker_H
+#ifndef L1T_OmtfP1_OMTFinputMaker_H
+#define L1T_OmtfP1_OMTFinputMaker_H
 
 #include "FWCore/Framework/interface/EventSetup.h"
 

@@ -1,5 +1,5 @@
-#ifndef L1MuonOverlapParamsDBProducer_H
-#define L1MuonOverlapParamsDBProducer_H
+#ifndef L1T_OmtfP1_L1MuonOverlapParamsDBProducer_H
+#define L1T_OmtfP1_L1MuonOverlapParamsDBProducer_H
 
 #include <vector>
 

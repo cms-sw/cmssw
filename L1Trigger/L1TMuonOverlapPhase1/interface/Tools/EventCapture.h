@@ -5,8 +5,8 @@
  *      Author: kbunkow
  */
 
-#ifndef OMTF_EVENTCAPTURE_H_
-#define OMTF_EVENTCAPTURE_H_
+#ifndef L1T_OmtfP1_EVENTCAPTURE_H_
+#define L1T_OmtfP1_EVENTCAPTURE_H_
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 
@@ -21,9 +21,9 @@ class EventCapture : public IOMTFEmulationObserver {
 public:
   EventCapture(const edm::ParameterSet& edmCfg,
                const OMTFConfiguration* omtfConfig,
-               const std::vector<std::shared_ptr<GoldenPattern> >& gps,
                CandidateSimMuonMatcher* candidateSimMuonMatcher,
-               const MuonGeometryTokens& muonGeometryTokens);
+               const MuonGeometryTokens& muonGeometryTokens,
+               const GoldenPatternVec<GoldenPattern>* gps = nullptr);
 
   ~EventCapture() override;
 
@@ -47,7 +47,7 @@ private:
   edm::InputTag simTracksTag;
   const OMTFConfiguration* omtfConfig = nullptr;
 
-  std::vector<std::shared_ptr<GoldenPattern> > goldenPatterns;
+  const GoldenPatternVec<GoldenPattern>* goldenPatterns = nullptr;
 
   CandidateSimMuonMatcher* candidateSimMuonMatcher = nullptr;
 
@@ -60,4 +60,4 @@ private:
   std::unique_ptr<StubsSimHitsMatcher> stubsSimHitsMatcher;
 };
 
-#endif /* OMTF_EVENTCAPTURE_H_ */
+#endif /* L1T_OmtfP1_EVENTCAPTURE_H_ */

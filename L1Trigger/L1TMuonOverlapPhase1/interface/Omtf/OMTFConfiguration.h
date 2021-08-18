@@ -1,5 +1,5 @@
-#ifndef OMTF_OMTFConfiguration_H
-#define OMTF_OMTFConfiguration_H
+#ifndef L1T_OmtfP1_OMTFConfiguration_H
+#define L1T_OmtfP1_OMTFConfiguration_H
 
 #include <map>
 #include <set>
@@ -7,7 +7,7 @@
 #include <ostream>
 #include <memory>
 
-#undef BOOST_DISABLE_ASSERTS  //TODO remove for production version
+//#undef BOOST_DISABLE_ASSERTS  //TODO remove for production version
 #include "boost/multi_array.hpp"
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/ProcConfigurationBase.h"
@@ -204,10 +204,9 @@ public:
 
   static const unsigned int patternsInGroup = 4;
 
-  ///and this based on the actual goldenPats
-  //takes the groups from the kye, it should be set during xml reading, or creating the goldenPats
+  //takes the groups from the key, it should be set during xml reading, or creating the goldenPats
   template <class GoldenPatternType>
-  vector2D getPatternGroups(const std::vector<std::shared_ptr<GoldenPatternType> >& goldenPats) const {
+  vector2D getPatternGroups(const std::vector<std::unique_ptr<GoldenPatternType> >& goldenPats) const {
     //unsigned int mergedCnt = 4;
     vector2D mergedPatterns;
     for (unsigned int iPat = 0; iPat < goldenPats.size(); iPat++) {

@@ -1,5 +1,5 @@
-#ifndef L1Trigger_L1TMuonOverlap_OmtfName_H
-#define L1Trigger_L1TMuonOverlap_OmtfName_H
+#ifndef L1Trigger_L1TMuonOverlapP1_OmtfName_H
+#define L1Trigger_L1TMuonOverlapP1_OmtfName_H
 
 #include <string>
 #include <ostream>

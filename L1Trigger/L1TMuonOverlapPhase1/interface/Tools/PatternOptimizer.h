@@ -5,8 +5,8 @@
  *      Author: kbunkow
  */
 
-#ifndef OMTF_PATTERNOPTIMIZER_H_
-#define OMTF_PATTERNOPTIMIZER_H_
+#ifndef L1T_OmtfP1_PATTERNOPTIMIZER_H_
+#define L1T_OmtfP1_PATTERNOPTIMIZER_H_
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GoldenPatternWithStat.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/IOMTFEmulationObserver.h"
@@ -26,7 +26,7 @@ class PatternOptimizer : public PatternOptimizerBase {
 public:
   PatternOptimizer(const edm::ParameterSet& edmCfg,
                    const OMTFConfiguration* omtfConfig,
-                   std::vector<std::shared_ptr<GoldenPatternWithStat> >& gps);
+                   GoldenPatternVec<GoldenPatternWithStat>& gps);
   ~PatternOptimizer() override;
 
   /*  virtual void observeProcesorEmulation(unsigned int iProcessor, l1t::tftype mtfType,  const OMTFinput &input,
@@ -135,4 +135,4 @@ private:
   void modifyPatterns1(double step);
 };
 
-#endif /* OMTF_PATTERNOPTIMIZER_H_ */
+#endif /* L1T_OmtfP1_PATTERNOPTIMIZER_H_ */

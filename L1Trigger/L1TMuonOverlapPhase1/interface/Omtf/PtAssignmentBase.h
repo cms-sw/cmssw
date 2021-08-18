@@ -5,8 +5,8 @@
  *      Author: kbunkow
  */
 
-#ifndef INTERFACE_OMTF_PTASSIGNMENTBASE_H_
-#define INTERFACE_OMTF_PTASSIGNMENTBASE_H_
+#ifndef L1T_OmtfP1_PTASSIGNMENTBASE_H_
+#define L1T_OmtfP1_PTASSIGNMENTBASE_H_
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/AlgoMuon.h"
 
@@ -25,4 +25,4 @@ protected:
   const OMTFConfiguration* omtfConfig = nullptr;
 };
 
-#endif /* INTERFACE_OMTF_PTASSIGNMENTBASE_H_ */
+#endif /* L1T_OmtfP1_PTASSIGNMENTBASE_H_ */

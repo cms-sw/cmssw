@@ -63,6 +63,7 @@ void CandidateSimMuonMatcher::beginRun(const edm::EventSetup& eventSetup) {
   //eventSetup.get<IdealMagneticFieldRecord>().get(magField);
   //eventSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", propagator);
 
+  //TODO use edm::ESWatcher<MagneticField> magneticFieldRecordWatcher;
   magField = eventSetup.getHandle(magneticFieldEsToken);
   propagator = eventSetup.getHandle(propagatorEsToken);
 }
@@ -91,8 +92,8 @@ bool simTrackIsMuonInOmtf(const SimTrack& simTrack) {
   } else
     return false;
 
-  if (simTrack.momentum().pt() <
-      2.5)  //in the overlap, the propagation of muons with pt less then ~3.2 fails - the actual threshold depends slightly on eta,
+  //in the overlap, the propagation of muons with pt less then ~3.2 fails - the actual threshold depends slightly on eta,
+  if (simTrack.momentum().pt() < 2.5)
     return false;
 
   LogTrace("l1tOmtfEventPrint") << "simTrackIsMuonInOmtf, simTrack type " << std::setw(3) << simTrack.type() << " pt "

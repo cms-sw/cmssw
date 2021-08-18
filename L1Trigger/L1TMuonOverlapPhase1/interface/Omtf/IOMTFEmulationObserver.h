@@ -5,8 +5,8 @@
  *      Author: kbunkow
  */
 
-#ifndef OMTF_IOMTFRECONSTRUCTIONOBSERVER_H_
-#define OMTF_IOMTFRECONSTRUCTIONOBSERVER_H_
+#ifndef L1T_OmtfP1_IOMTFRECONSTRUCTIONOBSERVER_H_
+#define L1T_OmtfP1_IOMTFRECONSTRUCTIONOBSERVER_H_
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/AlgoMuon.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFinput.h"
@@ -43,4 +43,4 @@ public:
   virtual void endJob() = 0;
 };
 
-#endif /* OMTF_IOMTFRECONSTRUCTIONOBSERVER_H_ */
+#endif /* L1T_OmtfP1_IOMTFRECONSTRUCTIONOBSERVER_H_ */

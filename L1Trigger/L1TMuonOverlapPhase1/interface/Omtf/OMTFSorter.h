@@ -1,5 +1,5 @@
-#ifndef OMTF_OMTFSorter_H
-#define OMTF_OMTFSorter_H
+#ifndef L1T_OmtfP1_OMTFSorter_H
+#define L1T_OmtfP1_OMTFSorter_H
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/SorterBase.h"
 #include <vector>
@@ -17,7 +17,7 @@ public:
   ///as we allow two candidates with opposite charge from single 10deg region
   AlgoMuons::value_type sortRefHitResults(unsigned int procIndx,
                                           unsigned int iRefHit,
-                                          const std::vector<std::shared_ptr<GoldenPatternType> >& gPatterns,
+                                          const GoldenPatternVec<GoldenPatternType>& gPatterns,
                                           int charge = 0) override;
 
 private:

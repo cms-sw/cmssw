@@ -5,8 +5,8 @@
  *      Author: kbunkow
  */
 
-#ifndef OMTF_IPROCESSOREMULATOR_H_
-#define OMTF_IPROCESSOREMULATOR_H_
+#ifndef L1T_OmtfP1_IPROCESSOREMULATOR_H_
+#define L1T_OmtfP1_IPROCESSOREMULATOR_H_
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GhostBuster.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GoldenPatternResult.h"
@@ -51,4 +51,4 @@ public:
   virtual void printInfo() const = 0;
 };
 
-#endif /* OMTF_IPROCESSOREMULATOR_H_ */
+#endif /* L1T_OmtfP1_IPROCESSOREMULATOR_H_ */

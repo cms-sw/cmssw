@@ -5,8 +5,8 @@
  *      Author: Karol Bunkowski kbunkow@cern.ch
  */
 
-#ifndef L1TMuonOverlapPhase1_MUONSTUBSINPUT_H_
-#define L1TMuonOverlapPhase1_MUONSTUBSINPUT_H_
+#ifndef L1T_OmtfP1_MUONSTUBSINPUT_H_
+#define L1T_OmtfP1_MUONSTUBSINPUT_H_
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/ProcConfigurationBase.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/MuonStub.h"
@@ -50,4 +50,4 @@ protected:
   MuonStubPtrs2D muonStubsInLayers;
 };
 
-#endif /* L1TMuonOverlapPhase1_MUONSTUBSINPUT_H_ */
+#endif /* L1T_OmtfP1_MUONSTUBSINPUT_H_ */

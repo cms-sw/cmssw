@@ -1,5 +1,5 @@
-#ifndef OMTF_OMTFConfigMaker_H
-#define OMTF_OMTFConfigMaker_H
+#ifndef L1T_OmtfP1_OMTFConfigMaker_H
+#define L1T_OmtfP1_OMTFConfigMaker_H
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFConfiguration.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GoldenPattern.h"

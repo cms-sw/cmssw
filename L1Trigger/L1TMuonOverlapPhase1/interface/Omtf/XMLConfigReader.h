@@ -1,7 +1,9 @@
-#ifndef OMTF_XMLConfigReader_H
-#define OMTF_XMLConfigReader_H
+#ifndef L1T_OmtfP1_XMLConfigReader_H
+#define L1T_OmtfP1_XMLConfigReader_H
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFConfiguration.h"
+#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GoldenPatternBase.h"
+
 #include "CondFormats/L1TObjects/interface/LUT.h"
 
 #include <string>
@@ -41,12 +43,12 @@ public:
    * it is needed in the readLUTs, as only with the empty patterns it is possible to obtain the patterns grouping from the LUTs in the L1TMuonOverlapParams
    */
   template <class GoldenPatternType>
-  std::vector<std::shared_ptr<GoldenPatternType> > readPatterns(const L1TMuonOverlapParams& aConfig,
+  GoldenPatternVec<GoldenPatternType> readPatterns(const L1TMuonOverlapParams& aConfig,
                                                                 const std::string& patternsFile,
 																bool buildEmptyPatterns, bool resetNumbering = true);
 
   template <class GoldenPatternType>
-  std::vector<std::shared_ptr<GoldenPatternType> > readPatterns(const L1TMuonOverlapParams& aConfig,
+  GoldenPatternVec<GoldenPatternType> readPatterns(const L1TMuonOverlapParams& aConfig,
                                                                 const std::vector<std::string>& patternsFiles, bool buildEmptyPatterns);
 
   void readLUTs(std::vector<l1t::LUT*> luts,

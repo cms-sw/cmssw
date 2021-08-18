@@ -5,8 +5,8 @@
  *      Author: kbunkow
  */
 
-#ifndef OMTF_OMTFANGLECONVERTER_H_
-#define OMTF_OMTFANGLECONVERTER_H_
+#ifndef L1T_OmtfP1_OMTFANGLECONVERTER_H_
+#define L1T_OmtfP1_OMTFANGLECONVERTER_H_
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/AngleConverterBase.h"
 
@@ -27,4 +27,4 @@ public:
   virtual int getGlobalEtaRpc(unsigned int rawid, const unsigned int &aDigi) const;
 };
 
-#endif /* INTERFACE_OMTF_OMTFANGLECONVERTER_H_ */
+#endif /* L1T_OmtfP1_OMTFANGLECONVERTER_H_ */

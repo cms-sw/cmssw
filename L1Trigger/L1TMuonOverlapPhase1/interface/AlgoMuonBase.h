@@ -5,8 +5,8 @@
  *      Author: Karol Bunkowski kbunkow@cern.ch
  */
 
-#ifndef INTERFACE_ALGOMUONBASE_H_
-#define INTERFACE_ALGOMUONBASE_H_
+#ifndef L1T_OmtfP1_ALGOMUONBASE_H_
+#define L1T_OmtfP1_ALGOMUONBASE_H_
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/ProcConfigurationBase.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/MuonStub.h"
@@ -79,4 +79,4 @@ protected:
   std::vector<boost::dynamic_bitset<> > firedLayerBitsInBx;
 };
 
-#endif /* INTERFACE_ALGOMUONBASE_H_ */
+#endif /* L1T_OmtfP1_ALGOMUONBASE_H_ */

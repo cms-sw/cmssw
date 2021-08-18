@@ -1,5 +1,5 @@
-#ifndef OMTF_GoldenPattern_H
-#define OMTF_GoldenPattern_H
+#ifndef L1T_OmtfP1_GoldenPattern_H
+#define L1T_OmtfP1_GoldenPattern_H
 
 #include "boost/multi_array/base.hpp"
 #include "boost/multi_array.hpp"

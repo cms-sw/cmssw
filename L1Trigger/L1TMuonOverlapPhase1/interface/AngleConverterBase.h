@@ -1,5 +1,5 @@
-#ifndef ANGLECONVERTER_H
-#define ANGLECONVERTER_H
+#ifndef L1T_OmtfP1_ANGLECONVERTER_H
+#define L1T_OmtfP1_ANGLECONVERTER_H
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/ProcConfigurationBase.h"
 

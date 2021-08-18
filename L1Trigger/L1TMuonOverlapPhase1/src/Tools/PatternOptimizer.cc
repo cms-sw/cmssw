@@ -41,7 +41,7 @@
 
 PatternOptimizer::PatternOptimizer(const edm::ParameterSet& edmCfg,
                                    const OMTFConfiguration* omtfConfig,
-                                   std::vector<std::shared_ptr<GoldenPatternWithStat> >& gps)
+                                   GoldenPatternVec<GoldenPatternWithStat>& gps)
     : PatternOptimizerBase(edmCfg, omtfConfig, gps),
       //TODO set desire function here, see https://www.cprogramming.com/c++11/c++11-lambda-closures.html
       updateStatFunc([this](GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp) {
@@ -803,23 +803,23 @@ void PatternOptimizer::calculateThresholds(GoldenPatternWithStat* omtfCandGp, Go
 
 /*
 void PatternOptimizer::calculateThresholds(double targetEff) {
-  cout<<__FUNCTION__<<":"<<__LINE__<<" targetEff "<<targetEff<<std::endl;
-/*  TFile outfile("optimisedPats_2.root", "READ"); //FIXME the file name
+//  cout<<__FUNCTION__<<":"<<__LINE__<<" targetEff "<<targetEff<<std::endl;
+//  TFile outfile("optimisedPats_2.root", "READ"); //FIXME the file name
+//
+//  ostringstream ostrName;
+//  ostringstream ostrTitle;
+//  for(unsigned int iPat = 0; iPat < this->myOmtfConfig->nGoldenPatterns(); iPat++) {
+//    ostrName.str("");
+//    ostrTitle.str("");
+//    OMTFConfiguration::PatternPt patternPt = this->myOmtfConfig->getPatternPtRange(iPat);
+//    ostrName<<"gpProbabilityStat_GP_"<<key().theNumber<<"_ptBinNum_"<<iPat;//<<"_muPtFrom_"<<patternPt.ptFrom<<"_GeV";
+//    ostrTitle<<"gpProbabilityStat_GP_"<<key().theNumber<<"_ptBinNum_"<<iPat<<"_muPtFrom_"<<patternPt.ptFrom<<"_GeV";
+//    if(patternPt.ptFrom > 0)
+//      gpProbabilityStat.emplace_back(TH1I(ostrName.str().c_str(), ostrTitle.str().c_str(), 100, 0., 1.)); //TODO find proper range
+//    else
+//      gpProbabilityStat.emplace_back(TH1I(ostrName.str().c_str(), ostrTitle.str().c_str(), 1, 0., 1.)); //to save some memory, for empty patterns just "empty" hits
+//  }
 
-  ostringstream ostrName;
-  ostringstream ostrTitle;
-  for(unsigned int iPat = 0; iPat < this->myOmtfConfig->nGoldenPatterns(); iPat++) {
-    ostrName.str("");
-    ostrTitle.str("");
-    OMTFConfiguration::PatternPt patternPt = this->myOmtfConfig->getPatternPtRange(iPat);
-    ostrName<<"gpProbabilityStat_GP_"<<key().theNumber<<"_ptBinNum_"<<iPat;//<<"_muPtFrom_"<<patternPt.ptFrom<<"_GeV";
-    ostrTitle<<"gpProbabilityStat_GP_"<<key().theNumber<<"_ptBinNum_"<<iPat<<"_muPtFrom_"<<patternPt.ptFrom<<"_GeV";
-    if(patternPt.ptFrom > 0)
-      gpProbabilityStat.emplace_back(TH1I(ostrName.str().c_str(), ostrTitle.str().c_str(), 100, 0., 1.)); //TODO find proper range
-    else
-      gpProbabilityStat.emplace_back(TH1I(ostrName.str().c_str(), ostrTitle.str().c_str(), 1, 0., 1.)); //to save some memory, for empty patterns just "empty" hits
-  }
-  *
 
   //cout<<__FUNCTION__<<":"<<__LINE__<<" "<<omtfCandGp->key()<<" omtfCand->getGpResult()\n"<<omtfCand->getGpResult()<<std::endl;
   //cout<<__FUNCTION__<<":"<<__LINE__<<" "<<exptCandGp->key()<<" exptResult\n"<<exptResult<<std::endl;

@@ -5,8 +5,8 @@
  *      Author: kbunkow
  */
 
-#ifndef INTERFACE_RPCCLUSTERIZATION_H_
-#define INTERFACE_RPCCLUSTERIZATION_H_
+#ifndef L1T_OmtfP1_RPCCLUSTERIZATION_H_
+#define L1T_OmtfP1_RPCCLUSTERIZATION_H_
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
@@ -54,4 +54,4 @@ private:
       true;  // if true no  cluster is return if there is more clusters then maxClusterCnt (counted regardless of the size)
 };
 
-#endif /* INTERFACE_RPCCLUSTERIZATION_H_ */
+#endif /* L1T_OmtfP1_RPCCLUSTERIZATION_H_ */

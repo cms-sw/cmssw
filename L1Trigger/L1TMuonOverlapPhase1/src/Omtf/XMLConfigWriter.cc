@@ -529,7 +529,7 @@ void XMLConfigWriter::writeGPData(GoldenPattern* aGP1, GoldenPattern* aGP2, Gold
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 template <class GoldenPatternType>
-void XMLConfigWriter::writeGPs(const std::vector<std::shared_ptr<GoldenPatternType> >& goldenPats, std::string fName) {
+void XMLConfigWriter::writeGPs(const GoldenPatternVec<GoldenPatternType>& goldenPats, std::string fName) {
   initialiseXMLDocument("OMTF");
   GoldenPattern* dummy = new GoldenPatternWithThresh(Key(0, 0, 0), myOMTFConfig);
 
@@ -707,12 +707,12 @@ unsigned int XMLConfigWriter::findMaxInput(const OMTFConfiguration::vector1D& my
 }
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
-template void XMLConfigWriter::writeGPs(const std::vector<std::shared_ptr<GoldenPattern> >& goldenPats,
+template void XMLConfigWriter::writeGPs(const GoldenPatternVec<GoldenPattern>& goldenPats,
                                         std::string fName);
 
-template void XMLConfigWriter::writeGPs(const std::vector<std::shared_ptr<GoldenPatternWithStat> >& goldenPats,
+template void XMLConfigWriter::writeGPs(const GoldenPatternVec<GoldenPatternWithStat>& goldenPats,
                                         std::string fName);
 
 
-template void XMLConfigWriter::writeGPs(const std::vector<std::shared_ptr<GoldenPatternWithThresh> >& goldenPats,
+template void XMLConfigWriter::writeGPs(const GoldenPatternVec<GoldenPatternWithThresh>& goldenPats,
                                         std::string fName);

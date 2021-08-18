@@ -20,9 +20,9 @@
 
 EventCapture::EventCapture(const edm::ParameterSet& edmCfg,
                            const OMTFConfiguration* omtfConfig,
-                           const std::vector<std::shared_ptr<GoldenPattern> >& gps,
                            CandidateSimMuonMatcher* candidateSimMuonMatcher,
-                           const MuonGeometryTokens& muonGeometryTokens)
+                           const MuonGeometryTokens& muonGeometryTokens,
+                           const GoldenPatternVec<GoldenPattern>* gps)
     : omtfConfig(omtfConfig),
       goldenPatterns(gps),
       candidateSimMuonMatcher(candidateSimMuonMatcher),
@@ -264,18 +264,19 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
               << board.name() << " " << *algoMuon << " RefHitNum " << algoMuon->getRefHitNumber() << std::endl;
           edm::LogVerbatim("l1tOmtfEventPrint") << algoMuon->getGpResult() << std::endl;
 
-          for (auto& gp : goldenPatterns) {
-            if (gp->key().thePt == 0)
-              continue;
+          if(goldenPatterns) //watch out with the golden patterns
+            for (auto& gp : *goldenPatterns) {
+              if (gp->key().thePt == 0)
+                continue;
 
-            //printing GoldenPatternResult, uncomment if needed
-            /*auto& gpResult = gp->getResults()[iProc][algoMuon->getRefHitNumber()];
+              //printing GoldenPatternResult, uncomment if needed
+              /*auto& gpResult = gp->getResults()[iProc][algoMuon->getRefHitNumber()];
             edm::LogVerbatim("l1tOmtfEventPrint") << " "<<gp->key() << "  "
               //<< "  refLayer: " << gpResult.getRefLayer() << "\t"
               << " Sum over layers: " << gpResult.getPdfSum() << "\t"
               << " Number of hits: " << gpResult.getFiredLayerCnt() << "\t"
               << std::endl;*/
-          }
+            }
           edm::LogVerbatim("l1tOmtfEventPrint") << std::endl << std::endl;
         }
       }

@@ -1,5 +1,5 @@
-#ifndef OMTFReconstruction_H
-#define OMTFReconstruction_H
+#ifndef L1T_OmtfP1_OMTFReconstruction_H
+#define L1T_OmtfP1_OMTFReconstruction_H
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GhostBuster.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/IOMTFEmulationObserver.h"
@@ -18,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
@@ -76,6 +77,8 @@ protected:
   OMTFConfigMaker* m_OMTFConfigMaker;
 
   std::vector<std::unique_ptr<IOMTFEmulationObserver> > observers;
+  
+  edm::ESWatcher<L1TMuonOverlapParamsRcd> omtfParamsRecordWatcher;
 };
 
 #endif

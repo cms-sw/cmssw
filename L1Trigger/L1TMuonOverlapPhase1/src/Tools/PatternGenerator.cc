@@ -15,12 +15,10 @@
 
 PatternGenerator::PatternGenerator(const edm::ParameterSet& edmCfg,
                                    const OMTFConfiguration* omtfConfig,
-                                   std::vector<std::shared_ptr<GoldenPatternWithStat> >& gps)
+                                   GoldenPatternVec<GoldenPatternWithStat>& gps)
     : PatternOptimizerBase(edmCfg, omtfConfig, gps), eventCntPerGp(gps.size(), 0) {
   edm::LogImportant("l1tOmtfEventPrint") << "constructing PatternGenerator, type: "
                                          << edmCfg.getParameter<string>("patternGenerator") << std::endl;
-
-  goldenPatterns = gps;
 
   if (edmCfg.getParameter<string>("patternGenerator") == "patternGen")
     initPatternGen();

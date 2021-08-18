@@ -1,5 +1,5 @@
-#ifndef OMTF_GoldenPatternBase_H
-#define OMTF_GoldenPatternBase_H
+#ifndef L1T_OmtfP1_GoldenPatternBase_H
+#define L1T_OmtfP1_GoldenPatternBase_H
 
 #include "boost/multi_array.hpp"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/MuonStub.h"
@@ -156,6 +156,9 @@ protected:
   //second index: myOmtfConfig->nTestRefHits
   resultsArrayType results;
 };
+
+
+template <class GoldenPatternType> using GoldenPatternVec = std::vector<std::unique_ptr<GoldenPatternType> > ;
 //////////////////////////////////
 //////////////////////////////////
 #endif
