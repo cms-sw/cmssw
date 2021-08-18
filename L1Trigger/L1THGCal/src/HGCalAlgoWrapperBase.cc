@@ -3,3 +3,5 @@
 EDM_REGISTER_PLUGINFACTORY(HGCalHistoClusteringWrapperBaseFactory, "HGCalHistoClusteringWrapperBaseFactory");
 
 EDM_REGISTER_PLUGINFACTORY(HGCalTowerMapsWrapperBaseFactory, "HGCalTowerMapsWrapperBaseFactory");
+
+EDM_REGISTER_PLUGINFACTORY(HGCalStage2FilteringWrapperBaseFactory, "HGCalStage2FilteringWrapperBaseFactory");

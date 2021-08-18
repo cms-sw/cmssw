@@ -19,9 +19,17 @@ public:
 
     const edm::ParameterSet& clusteringParamConfig =
         conf.getParameterSet("C3d_parameters").getParameterSet("histoMax_C3d_clustering_parameters");
+    const edm::ParameterSet& sortingTruncationParamConfig =
+        conf.getParameterSet("C3d_parameters").getParameterSet("histoMax_C3d_sorting_truncation_parameters");
     const std::string& clusteringAlgoWrapperName = clusteringParamConfig.getParameter<std::string>("AlgoName");
+    const std::string& sortingTruncationAlgoWrapperName =
+        sortingTruncationParamConfig.getParameter<std::string>("AlgoName");
+
     multiclusteringHistoClusteringWrapper_ = std::unique_ptr<HGCalHistoClusteringWrapperBase>{
         HGCalHistoClusteringWrapperBaseFactory::get()->create(clusteringAlgoWrapperName, clusteringParamConfig)};
+    multiclusteringSortingTruncationWrapper_ =
+        std::unique_ptr<HGCalStage2FilteringWrapperBase>{HGCalStage2FilteringWrapperBaseFactory::get()->create(
+            sortingTruncationAlgoWrapperName, sortingTruncationParamConfig)};
 
     for (const auto& interpretationPset : conf.getParameter<std::vector<edm::ParameterSet>>("energy_interpretations")) {
       std::unique_ptr<HGCalTriggerClusterInterpreterBase> interpreter{
@@ -37,7 +45,7 @@ public:
     es.get<CaloGeometryRecord>().get("", triggerGeometry_);
     if (multiclusteringHistoSeeding_)
       multiclusteringHistoSeeding_->eventSetup(es);
-    l1t::HGCalMulticlusterBxCollection& collCluster3D = be_output.first;
+    l1t::HGCalMulticlusterBxCollection& collCluster3D_sorted = be_output.first;
     l1t::HGCalClusterBxCollection& rejectedClusters = be_output.second;
 
     /* create a persistent vector of pointers to the trigger-cells */
@@ -57,14 +65,20 @@ public:
     std::pair<const std::vector<edm::Ptr<l1t::HGCalCluster>>&, const std::vector<std::pair<GlobalPoint, double>>&>
         inputClustersAndSeeds{clustersPtrs, seedPositionsEnergy};
     // Outputs
+    l1t::HGCalMulticlusterBxCollection collCluster3D;
+
     std::pair<l1t::HGCalMulticlusterBxCollection&, l1t::HGCalClusterBxCollection&>
         outputMulticlustersAndRejectedClusters{collCluster3D, rejectedClusters};
+
     // Configuration
     const std::pair<const edm::EventSetup&, const edm::ParameterSet&> configuration{es, conf_};
 
     // Configure and process
     multiclusteringHistoClusteringWrapper_->configure(configuration);
     multiclusteringHistoClusteringWrapper_->process(inputClustersAndSeeds, outputMulticlustersAndRejectedClusters);
+
+    multiclusteringSortingTruncationWrapper_->configure(configuration);
+    multiclusteringSortingTruncationWrapper_->process(collCluster3D, collCluster3D_sorted);
 
     // Call all the energy interpretation modules on the cluster collection
     for (const auto& interpreter : energy_interpreters_) {
@@ -80,6 +94,8 @@ private:
   std::unique_ptr<HGCalHistoSeedingImpl> multiclusteringHistoSeeding_;
 
   std::unique_ptr<HGCalHistoClusteringWrapperBase> multiclusteringHistoClusteringWrapper_;
+
+  std::unique_ptr<HGCalStage2FilteringWrapperBase> multiclusteringSortingTruncationWrapper_;
 
   std::vector<std::unique_ptr<HGCalTriggerClusterInterpreterBase>> energy_interpreters_;
 
