@@ -46,7 +46,7 @@ public:
 #include <iostream>
 #include <iomanip>
 
-CSCTFAnalyzer::CSCTFAnalyzer(const edm::ParameterSet& conf) : edm::EDAnalyzer() {
+CSCTFAnalyzer::CSCTFAnalyzer(const edm::ParameterSet &conf) : edm::EDAnalyzer() {
   mbProducer = conf.getUntrackedParameter<edm::InputTag>("mbProducer", edm::InputTag("csctfunpacker"));
   lctProducer = conf.getUntrackedParameter<edm::InputTag>("lctProducer", edm::InputTag("csctfunpacker"));
   trackProducer = conf.getUntrackedParameter<edm::InputTag>("trackProducer", edm::InputTag("csctfunpacker"));
@@ -85,7 +85,7 @@ CSCTFAnalyzer::CSCTFAnalyzer(const edm::ParameterSet& conf) : edm::EDAnalyzer() 
   L1CST_Tok = consumes<L1CSCTrackCollection>(edm::InputTag(trackProducer.label(), trackProducer.instance()));
 }
 
-void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
+void CSCTFAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c) {
   /*	edm::Handle<FEDRawDataCollection> rawdata;
 	e.getByToken("source","",rawdata);
 
