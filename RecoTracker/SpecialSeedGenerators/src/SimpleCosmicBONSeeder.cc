@@ -25,6 +25,9 @@ using namespace std;
 SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const &conf)
     : conf_(conf),
       seedingLayerToken_(consumes<SeedingLayerSetsHits>(conf.getParameter<edm::InputTag>("TripletsSrc"))),
+      magfieldToken_(esConsumes()),
+      trackerToken_(esConsumes()),
+      ttrhBuilderToken_(esConsumes(edm::ESInputTag("", conf_.getParameter<std::string>("TTRHBuilder")))),
       writeTriplets_(conf.getParameter<bool>("writeTriplets")),
       seedOnMiddle_(conf.existsAs<bool>("seedOnMiddle") ? conf.getParameter<bool>("seedOnMiddle") : false),
       rescaleError_(conf.existsAs<double>("rescaleError") ? conf.getParameter<double>("rescaleError") : 1.0),
@@ -41,8 +44,6 @@ SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const &conf)
   float originz = regionConf.getParameter<double>("originZPosition");
   region_ = GlobalTrackingRegion(ptmin, originradius, halflength, originz);
   pMin_ = regionConf.getParameter<double>("pMin");
-
-  builderName = conf_.getParameter<std::string>("TTRHBuilder");
 
   //***top-bottom
   positiveYOnly = conf_.getParameter<bool>("PositiveYOnly");
@@ -90,7 +91,7 @@ void SimpleCosmicBONSeeder::produce(edm::Event &ev, const edm::EventSetup &es) {
   auto output = std::make_unique<TrajectorySeedCollection>();
   auto outtriplets = std::make_unique<edm::OwnVector<TrackingRecHit>>();
 
-  es.get<IdealMagneticFieldRecord>().get(magfield);
+  magfield = &es.getData(magfieldToken_);
   if (magfield->inTesla(GlobalPoint(0, 0, 0)).mag() > 0.01) {
     size_t clustsOrZero = check_.tooManyClusters(ev);
     if (clustsOrZero) {
@@ -125,12 +126,11 @@ void SimpleCosmicBONSeeder::produce(edm::Event &ev, const edm::EventSetup &es) {
 }
 
 void SimpleCosmicBONSeeder::init(const edm::EventSetup &iSetup) {
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-  iSetup.get<TransientRecHitRecord>().get(builderName, TTTRHBuilder);
-  cloner = ((TkTransientTrackingRecHitBuilder const *)(TTTRHBuilder.product()))->cloner();
+  tracker = &iSetup.getData(trackerToken_);
+  cloner = dynamic_cast<TkTransientTrackingRecHitBuilder const &>(iSetup.getData(ttrhBuilderToken_)).cloner();
   // FIXME: these should come from ES too!!
-  thePropagatorAl = new PropagatorWithMaterial(alongMomentum, 0.1057, &(*magfield));
-  thePropagatorOp = new PropagatorWithMaterial(oppositeToMomentum, 0.1057, &(*magfield));
+  thePropagatorAl = new PropagatorWithMaterial(alongMomentum, 0.1057, magfield);
+  thePropagatorOp = new PropagatorWithMaterial(oppositeToMomentum, 0.1057, magfield);
   theUpdator = new KFUpdator();
 }
 
