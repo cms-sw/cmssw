@@ -7,6 +7,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
+#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
@@ -101,8 +102,8 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
         int lastApv = -1;
 
         auto addRangeAPV = [&topo, &surf, &q1, &q2](int first, int last, mkfit::DeadVec& dv) {
-          auto const firstPoint = surf.toGlobal(topo.localPosition(first * 128));
-          auto const lastPoint = surf.toGlobal(topo.localPosition((last + 1) * 128));
+          auto const firstPoint = surf.toGlobal(topo.localPosition(first * sistrip::STRIPS_PER_APV));
+          auto const lastPoint = surf.toGlobal(topo.localPosition((last + 1) * sistrip::STRIPS_PER_APV));
           float phi1 = firstPoint.phi();
           float phi2 = lastPoint.phi();
           if (reco::deltaPhi(phi1, phi2) > 0)
@@ -112,18 +113,18 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
           dv.push_back({phi1, phi2, q1, q2});
         };
 
-        for (int apv = 0; apv < 6; ++apv) {
+        const int nApvs = topo.nstrips() / sistrip::STRIPS_PER_APV;
+        for (int apv = 0; apv < nApvs; ++apv) {
           const bool isBad = bs.BadApvs & (1 << apv);
-          if (isBad)
-            LogTrace("SiStripBadComponents") << "bad apv " << apv << " on " << bs.detid;
           if (isBad) {
+            LogTrace("SiStripBadComponents") << "bad apv " << apv << " on " << bs.detid;
             if (lastApv == -1) {
               firstApv = apv;
               lastApv = apv;
             } else if (lastApv + 1 == apv)
               lastApv++;
 
-            if (apv == 5)
+            if (apv + 1 == nApvs)
               addRangeAPV(firstApv, lastApv, deadvectors[ilay]);
           } else if (firstApv != -1) {
             addRangeAPV(firstApv, lastApv, deadvectors[ilay]);
