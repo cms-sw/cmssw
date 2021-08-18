@@ -9,8 +9,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitAnalyzer.h"
 #include "SimCalorimetry/CastorSim/plugins/CastorDigiStatistics.h"
-#include "SimCalorimetry/CastorSim/src/CastorHitFilter.h"
-#include "SimCalorimetry/CastorSim/src/CastorSimParameterMap.h"
+#include "SimCalorimetry/CastorSim/interface/CastorHitFilter.h"
+#include "SimCalorimetry/CastorSim/interface/CastorSimParameterMap.h"
 #include <string>
 
 /**  Castor digis

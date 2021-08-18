@@ -4,7 +4,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
-#include "SimCalorimetry/CastorSim/src/CastorSimParameters.h"
+#include "SimCalorimetry/CastorSim/interface/CastorSimParameters.h"
 
 class CastorSimParameterMap : public CaloVSimParameterMap {
 public:
