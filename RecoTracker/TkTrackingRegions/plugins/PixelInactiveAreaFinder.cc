@@ -2,13 +2,10 @@
 
 #include "FWCore/Utilities/interface/VecArray.h"
 #include "FWCore/Utilities/interface/transform.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsLooper.h"
 
@@ -472,7 +469,10 @@ PixelInactiveAreaFinder::PixelInactiveAreaFinder(
                                 [&](const auto& tag) { return iC.consumes<DetIdCollection>(tag); })),
       badPixelFEDChannelsTokens_(
           edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag>>("badPixelFEDChannelCollectionLabels"),
-                                [&](const auto& tag) { return iC.consumes<PixelFEDChannelCollection>(tag); })) {
+                                [&](const auto& tag) { return iC.consumes<PixelFEDChannelCollection>(tag); })),
+      trackerGeometryToken_(iC.esConsumes()),
+      trackerTopologyToken_(iC.esConsumes()),
+      pixelQualityToken_(iC.esConsumes()) {
 #ifdef EDM_ML_DEBUG
   for (const auto& layer : seedingLayers) {
     LogTrace("PixelInactiveAreaFinder") << "Input layer subdet " << std::get<0>(layer) << " side "
@@ -554,15 +554,8 @@ void PixelInactiveAreaFinder::fillDescriptions(edm::ParameterSetDescription& des
 PixelInactiveAreaFinder::InactiveAreas PixelInactiveAreaFinder::inactiveAreas(const edm::Event& iEvent,
                                                                               const edm::EventSetup& iSetup) {
   // Set data to handles
-  {
-    edm::ESHandle<TrackerGeometry> trackerGeometry;
-    iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
-    trackerGeometry_ = trackerGeometry.product();
-
-    edm::ESHandle<TrackerTopology> trackerTopology;
-    iSetup.get<TrackerTopologyRcd>().get(trackerTopology);
-    trackerTopology_ = trackerTopology.product();
-  }
+  trackerGeometry_ = &iSetup.getData(trackerGeometryToken_);
+  trackerTopology_ = &iSetup.getData(trackerTopologyToken_);
 
   // assign data to instance variables
   updatePixelDets(iSetup);
@@ -700,10 +693,9 @@ void PixelInactiveAreaFinder::getBadPixelDets(const edm::Event& iEvent, const ed
   };
 
   // SiPixelQuality
-  edm::ESHandle<SiPixelQuality> pixelQuality;
-  iSetup.get<SiPixelQualityRcd>().get(pixelQuality);
+  auto const& pixelQuality = iSetup.getData(pixelQualityToken_);
 
-  for (auto const& disabledModule : pixelQuality->getBadComponentList()) {
+  for (auto const& disabledModule : pixelQuality.getBadComponentList()) {
     addDetId(disabledModule.DetID);
   }
 
