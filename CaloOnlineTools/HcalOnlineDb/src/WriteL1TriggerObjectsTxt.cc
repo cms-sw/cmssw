@@ -25,7 +25,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
@@ -47,17 +46,19 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string tagName_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
 };
 
 WriteL1TriggerObjectsTxt::WriteL1TriggerObjectsTxt(const edm::ParameterSet& iConfig)
-    : tagName_(iConfig.getParameter<std::string>("TagName")) {}
+    : tagName_(iConfig.getParameter<std::string>("TagName")),
+      tok_dbservice_(esConsumes<HcalDbService, HcalDbRecord>()) {}
+
 WriteL1TriggerObjectsTxt::~WriteL1TriggerObjectsTxt() {}
 
 void WriteL1TriggerObjectsTxt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  edm::ESHandle<HcalDbService> conditions;
-  iSetup.get<HcalDbRecord>().get(conditions);
+  const HcalDbService* conditions = &iSetup.getData(tok_dbservice_);
 
   const HcalLutMetadata* metadata = conditions->getHcalLutMetadata();
   const HcalTopology* topo = metadata->topo();

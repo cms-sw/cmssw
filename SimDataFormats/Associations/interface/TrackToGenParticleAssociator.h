@@ -11,7 +11,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+#include "SimDataFormats/Associations/interface/TrackAssociation.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
@@ -41,6 +41,8 @@ namespace reco {
     ~TrackToGenParticleAssociator() = default;
     TrackToGenParticleAssociator(TrackToGenParticleAssociator &&) = default;
     TrackToGenParticleAssociator &operator=(TrackToGenParticleAssociator &&) = default;
+    TrackToGenParticleAssociator(const TrackToGenParticleAssociator &) = delete;                   // stop default
+    const TrackToGenParticleAssociator &operator=(const TrackToGenParticleAssociator &) = delete;  // stop default
 
     /// Association Sim To Reco with Collections (Gen Particle version)
     reco::RecoToGenCollection associateRecoToGen(const edm::RefToBaseVector<reco::Track> &tracks,
@@ -66,10 +68,6 @@ namespace reco {
     }
 
   private:
-    TrackToGenParticleAssociator(const TrackToGenParticleAssociator &) = delete;  // stop default
-
-    const TrackToGenParticleAssociator &operator=(const TrackToGenParticleAssociator &) = delete;  // stop default
-
     std::unique_ptr<TrackToGenParticleAssociatorBaseImpl> m_impl;
   };
 }  // namespace reco

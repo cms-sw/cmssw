@@ -29,10 +29,11 @@ using Density = hgcal_clustering::Density;
 template <typename TILE>
 class HGCalCLUEAlgoT : public HGCalClusteringAlgoBase {
 public:
-  HGCalCLUEAlgoT(const edm::ParameterSet& ps)
+  HGCalCLUEAlgoT(const edm::ParameterSet& ps, edm::ConsumesCollector iC)
       : HGCalClusteringAlgoBase(
             (HGCalClusteringAlgoBase::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity", 3),
-            reco::CaloCluster::undefined),
+            reco::CaloCluster::undefined,
+            iC),
         thresholdW0_(ps.getParameter<std::vector<double>>("thresholdW0")),
         positionDeltaRho2_(ps.getParameter<double>("positionDeltaRho2")),
         vecDeltas_(ps.getParameter<std::vector<double>>("deltac")),

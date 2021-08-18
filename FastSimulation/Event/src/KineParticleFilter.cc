@@ -34,7 +34,7 @@ bool KineParticleFilter::acceptParticle(const RawParticle& particle) const {
 
   // keep all high-energy protons
   else if (pId == 2212 && particle.E() >= protonEMin) {
-    return true;
+    return acceptVertex(particle.vertex());
   }
 
   // cut on the energy

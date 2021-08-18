@@ -1,4 +1,4 @@
-#include "FWCore/Framework/src/WorkerT.h"
+#include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -73,6 +73,16 @@ namespace edm {
 
     template <>
     struct has_stream_functions<edm::stream::EDAnalyzerAdaptorBase> {
+      static bool constexpr value = true;
+    };
+
+    template <typename T>
+    struct has_only_stream_transition_functions {
+      static bool constexpr value = false;
+    };
+
+    template <>
+    struct has_only_stream_transition_functions<edm::global::OutputModuleBase> {
       static bool constexpr value = true;
     };
 
@@ -234,6 +244,13 @@ namespace edm {
   inline void WorkerT<global::EDFilterBase>::implDoAcquire(EventTransitionInfo const& info,
                                                            ModuleCallingContext const* mcc,
                                                            WaitingTaskWithArenaHolder& holder) {
+    module_->doAcquire(info, activityRegistry(), mcc, holder);
+  }
+
+  template <>
+  inline void WorkerT<global::OutputModuleBase>::implDoAcquire(EventTransitionInfo const& info,
+                                                               ModuleCallingContext const* mcc,
+                                                               WaitingTaskWithArenaHolder& holder) {
     module_->doAcquire(info, activityRegistry(), mcc, holder);
   }
 
@@ -456,7 +473,10 @@ namespace edm {
 
   template <typename T>
   inline void WorkerT<T>::implBeginStream(StreamID id) {
-    std::conditional_t<workerimpl::has_stream_functions<T>::value, workerimpl::DoBeginStream<T>, workerimpl::DoNothing>
+    std::conditional_t<workerimpl::has_stream_functions<T>::value or
+                           workerimpl::has_only_stream_transition_functions<T>::value,
+                       workerimpl::DoBeginStream<T>,
+                       workerimpl::DoNothing>
         might_call;
     might_call(this, id);
   }
@@ -469,7 +489,10 @@ namespace edm {
 
   template <typename T>
   inline void WorkerT<T>::implEndStream(StreamID id) {
-    std::conditional_t<workerimpl::has_stream_functions<T>::value, workerimpl::DoEndStream<T>, workerimpl::DoNothing>
+    std::conditional_t<workerimpl::has_stream_functions<T>::value or
+                           workerimpl::has_only_stream_transition_functions<T>::value,
+                       workerimpl::DoEndStream<T>,
+                       workerimpl::DoNothing>
         might_call;
     might_call(this, id);
   }
@@ -482,6 +505,11 @@ namespace edm {
   template <typename T>
   inline void WorkerT<T>::implRespondToCloseInputFile(FileBlock const& fb) {
     module_->doRespondToCloseInputFile(fb);
+  }
+
+  template <typename T>
+  void WorkerT<T>::implRespondToCloseOutputFile() {
+    module_->doRespondToCloseOutputFile();
   }
 
   template <typename T>
@@ -632,6 +660,12 @@ namespace edm {
     module_->updateLookup(iPI);
   }
 
+  template <typename T>
+  void WorkerT<T>::selectInputProcessBlocks(ProductRegistry const& productRegistry,
+                                            ProcessBlockHelperBase const& processBlockHelperBase) {
+    module_->selectInputProcessBlocks(productRegistry, processBlockHelperBase);
+  }
+
   namespace {
     using ModuleToResolverIndicies =
         std::unordered_multimap<std::string, std::tuple<edm::TypeID const*, const char*, edm::ProductResolverIndex>>;
@@ -767,6 +801,82 @@ namespace edm {
   template <>
   Worker::Types WorkerT<edm::stream::EDAnalyzerAdaptorBase>::moduleType() const {
     return Worker::kAnalyzer;
+  }
+
+  template <>
+  Worker::ConcurrencyTypes WorkerT<EDAnalyzer>::moduleConcurrencyType() const {
+    return Worker::kLegacy;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<EDProducer>::moduleConcurrencyType() const {
+    return Worker::kLegacy;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<EDFilter>::moduleConcurrencyType() const {
+    return Worker::kLegacy;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::one::EDProducerBase>::moduleConcurrencyType() const {
+    return Worker::kOne;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::one::EDFilterBase>::moduleConcurrencyType() const {
+    return Worker::kOne;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::one::EDAnalyzerBase>::moduleConcurrencyType() const {
+    return Worker::kOne;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::one::OutputModuleBase>::moduleConcurrencyType() const {
+    return Worker::kOne;
+  }
+
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::global::EDProducerBase>::moduleConcurrencyType() const {
+    return Worker::kGlobal;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::global::EDFilterBase>::moduleConcurrencyType() const {
+    return Worker::kGlobal;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::global::EDAnalyzerBase>::moduleConcurrencyType() const {
+    return Worker::kGlobal;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::global::OutputModuleBase>::moduleConcurrencyType() const {
+    return Worker::kGlobal;
+  }
+
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::limited::EDProducerBase>::moduleConcurrencyType() const {
+    return Worker::kLimited;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::limited::EDFilterBase>::moduleConcurrencyType() const {
+    return Worker::kLimited;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::limited::EDAnalyzerBase>::moduleConcurrencyType() const {
+    return Worker::kLimited;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::limited::OutputModuleBase>::moduleConcurrencyType() const {
+    return Worker::kLimited;
+  }
+
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::stream::EDProducerAdaptorBase>::moduleConcurrencyType() const {
+    return Worker::kStream;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::stream::EDFilterAdaptorBase>::moduleConcurrencyType() const {
+    return Worker::kStream;
+  }
+  template <>
+  Worker::ConcurrencyTypes WorkerT<edm::stream::EDAnalyzerAdaptorBase>::moduleConcurrencyType() const {
+    return Worker::kStream;
   }
 
   //Explicitly instantiate our needed templates to avoid having the compiler

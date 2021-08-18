@@ -25,6 +25,7 @@
 #include "G4ParticleDefinition.hh"
 #include "G4ProcessManager.hh"
 #include "G4TransportationManager.hh"
+#include "DD4hep/Filter.h"
 
 #include <iostream>
 
@@ -38,25 +39,25 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet) {
   std::string theHistoList = m_Anal.getParameter<std::string>("HistogramList");
   std::vector<std::string> volList = m_Anal.getParameter<std::vector<std::string> >("SelectedVolumes");
 
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: List of the selected volumes:";
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetAction: List of the selected volumes:";
   for (const auto& it : volList) {
     if (it != "None") {
       theVolumeList.push_back(it);
-      edm::LogInfo("MaterialBudget") << it;
+      edm::LogVerbatim("MaterialBudget") << it;
     }
   }
 
   // log
   if (theHistoList == "Tracker") {
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: running in Tracker Mode";
+    edm::LogVerbatim("MaterialBudget") << "MaterialBudgetAction: running in Tracker Mode";
   } else if (theHistoList == "ECAL") {
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: running in Ecal Mode";
+    edm::LogVerbatim("MaterialBudget") << "MaterialBudgetAction: running in Ecal Mode";
   } else if (theHistoList == "Mtd") {
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: running in Mtd Mode";
+    edm::LogVerbatim("MaterialBudget") << "MaterialBudgetAction: running in Mtd Mode";
   } else if (theHistoList == "HGCal") {
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: running in HGCal Mode";
+    edm::LogVerbatim("MaterialBudget") << "MaterialBudgetAction: running in HGCal Mode";
   } else {
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: running in General Mode";
+    edm::LogVerbatim("MaterialBudget") << "MaterialBudgetAction: running in General Mode";
   }
 
   //---- Stop track when a process occurs
@@ -67,7 +68,7 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet) {
   std::string saveToHistosFile = m_Anal.getParameter<std::string>("HistosFile");
   if (saveToHistosFile != "None") {
     saveToHistos = true;
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: saving histograms to " << saveToHistosFile;
+    edm::LogVerbatim("MaterialBudget") << "MaterialBudgetAction: saving histograms to " << saveToHistosFile;
     theHistoMgr = std::make_shared<TestHistoMgr>();
     if (theHistoList == "Tracker") {
       theHistos = std::make_shared<MaterialBudgetTrackerHistos>(theData, theHistoMgr, saveToHistosFile);
@@ -109,7 +110,7 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet) {
   std::string saveToTxtFile = m_Anal.getParameter<std::string>("TextFile");
   if (saveToTxtFile != "None") {
     saveToTxt = true;
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: saving text info to " << saveToTxtFile;
+    edm::LogVerbatim("MaterialBudget") << "MaterialBudgetAction: saving text info to " << saveToTxtFile;
     theTxt = std::make_shared<MaterialBudgetTxt>(theData, saveToTxtFile);
   } else {
     saveToTxt = false;
@@ -117,7 +118,7 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet) {
 
   //---- Compute all the steps even if not stored on file
   bool allSteps = m_Anal.getParameter<bool>("AllStepsToTree");
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: all steps are computed " << allSteps;
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetAction: all steps are computed " << allSteps;
   if (allSteps)
     theData->SetAllStepsToTree();
 
@@ -129,14 +130,14 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet) {
   } else {
     saveToTree = false;
   }
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: saving ROOT TTree to " << saveToTreeFile;
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetAction: saving ROOT TTree to " << saveToTreeFile;
 
   //---- Track the first decay products of the main particle
   // if their kinetic energy is greater than  Ekin
   storeDecay = m_Anal.getUntrackedParameter<bool>("storeDecay", false);
   Ekin = m_Anal.getUntrackedParameter<double>("EminDecayProd", 1000.0);  // MeV
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: decay products steps are stored (" << storeDecay
-                                 << ") if their kinetic energy is greater than " << Ekin << " MeV";
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetAction: decay products steps are stored (" << storeDecay
+                                     << ") if their kinetic energy is greater than " << Ekin << " MeV";
   firstParticle = false;
 }
 
@@ -151,7 +152,7 @@ void MaterialBudgetAction::update(const BeginOfRun*) {
   for (const auto& volcite : theVolumeList) {
     bool volFound = false;
     for (const auto& lvcite : *lvs) {
-      if (lvcite->GetName() == volcite) {
+      if (static_cast<std::string>(dd4hep::dd::noNamespace(lvcite->GetName())) == static_cast<std::string>(volcite)) {
         volFound = true;
         break;
       }
@@ -274,7 +275,7 @@ std::string MaterialBudgetAction::getSubDetectorName(G4StepPoint* aStepPoint) {
   G4int num_levels = theTouchable->GetHistoryDepth();
 
   if (theTouchable->GetVolume()) {
-    return theTouchable->GetVolume(num_levels - 1)->GetName();
+    return static_cast<std::string>(dd4hep::dd::noNamespace(theTouchable->GetVolume(num_levels - 1)->GetName()));
   } else {
     return "OutOfWorld";
   }
@@ -286,7 +287,7 @@ std::string MaterialBudgetAction::getPartName(G4StepPoint* aStepPoint) {
   G4int num_levels = theTouchable->GetHistoryDepth();
 
   if (theTouchable->GetVolume()) {
-    return theTouchable->GetVolume(num_levels - 3)->GetName();
+    return static_cast<std::string>(dd4hep::dd::noNamespace(theTouchable->GetVolume(num_levels - 3)->GetName()));
   } else {
     return "OutOfWorld";
   }
@@ -324,7 +325,8 @@ void MaterialBudgetAction::update(const EndOfRun*) {
 bool MaterialBudgetAction::CheckTouchableInSelectedVolumes(const G4VTouchable* touch) {
   size_t volh = touch->GetHistoryDepth();
   for (int ii = volh; ii >= 0; ii--) {
-    if (std::find(theVolumeList.begin(), theVolumeList.end(), touch->GetVolume(ii)->GetName()) != theVolumeList.end())
+    G4String name = static_cast<std::string>(dd4hep::dd::noNamespace(touch->GetVolume(ii)->GetName()));
+    if (std::find(theVolumeList.begin(), theVolumeList.end(), name) != theVolumeList.end())
       return true;
   }
   return false;
@@ -338,8 +340,8 @@ bool MaterialBudgetAction::StopAfterProcess(const G4Step* aStep) {
   if (aStep->GetPostStepPoint()->GetProcessDefinedStep() == nullptr)
     return false;
   if (aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() == theProcessToStop) {
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetAction :"
-                                   << aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
+    edm::LogVerbatim("MaterialBudget") << "MaterialBudgetAction :"
+                                       << aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
     return true;
   } else {
     return false;

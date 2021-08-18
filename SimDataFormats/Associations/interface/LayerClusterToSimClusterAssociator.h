@@ -19,8 +19,11 @@ namespace hgcal {
     LayerClusterToSimClusterAssociator() = default;
     LayerClusterToSimClusterAssociator(LayerClusterToSimClusterAssociator &&) = default;
     LayerClusterToSimClusterAssociator &operator=(LayerClusterToSimClusterAssociator &&) = default;
-    ~LayerClusterToSimClusterAssociator() = default;
+    LayerClusterToSimClusterAssociator(const LayerClusterToSimClusterAssociator &) = delete;  // stop default
 
+    ~LayerClusterToSimClusterAssociator() = default;
+    const LayerClusterToSimClusterAssociator &operator=(const LayerClusterToSimClusterAssociator &) =
+        delete;  // stop default
     // ---------- const member functions ---------------------
     /// Associate a LayerCluster to SimClusters
     hgcal::RecoToSimCollectionWithSimClusters associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCCH,
@@ -35,11 +38,6 @@ namespace hgcal {
     }
 
   private:
-    LayerClusterToSimClusterAssociator(const LayerClusterToSimClusterAssociator &) = delete;  // stop default
-
-    const LayerClusterToSimClusterAssociator &operator=(const LayerClusterToSimClusterAssociator &) =
-        delete;  // stop default
-
     // ---------- member data --------------------------------
     std::unique_ptr<LayerClusterToSimClusterAssociatorBaseImpl> m_impl;
   };

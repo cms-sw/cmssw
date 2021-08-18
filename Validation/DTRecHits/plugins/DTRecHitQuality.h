@@ -24,6 +24,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
@@ -61,6 +62,9 @@ private:
 private:
   // Switch for debug output
   bool debug_;
+
+  //Get DT Geometry
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
 
   // Root file name
   edm::EDGetTokenT<edm::PSimHitContainer> simHitToken_;
@@ -122,7 +126,7 @@ private:
 
   // Does the real job
   template <typename type>
-  void compute(const DTGeometry *dtGeom,
+  void compute(const DTGeometry &dtGeom,
                const std::map<DTWireId, std::vector<PSimHit>> &simHitsPerWire,
                const std::map<DTWireId, std::vector<type>> &recHitsPerWire,
                dtrechit::Histograms const &histograms,

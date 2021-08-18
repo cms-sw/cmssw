@@ -68,6 +68,7 @@ public:
   std::vector<HGCalParameters::hgtrform> getTrForms() const;
   int getTypeTrap(int layer) const;
   int getTypeHex(int layer, int waferU, int waferV) const;
+  std::pair<double, double> getXY(int layer, double x, double y, bool forwd) const;
   int getUVMax(int type) const { return ((type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_); }
   bool isHalfCell(int waferType, int cell) const;
   bool isValidHex(int lay, int mod, int cell, bool reco) const;
@@ -110,7 +111,8 @@ public:
   std::pair<int, int> simToReco(int cell, int layer, int mod, bool half) const;
   int tileSiPM(int sipm) const { return ((sipm > 0) ? HGCalTypes::SiPMSmall : HGCalTypes::SiPMLarge); }
   bool tileTrapezoid() const {
-    return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile));
+    return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile) ||
+            (mode_ == HGCalGeometryMode::TrapezoidModule));
   }
   std::pair<int, int> tileType(int layer, int ring, int phi) const {
     int indx = HGCalTileIndex::tileIndex(layer, ring, phi);
@@ -140,7 +142,7 @@ public:
   }
   bool waferHexagon8() const {
     return ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full) ||
-            (mode_ == HGCalGeometryMode::Hexagon8File));
+            (mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module));
   }
   bool waferInLayer(int wafer, int lay, bool reco) const;
   bool waferFullInLayer(int wafer, int lay, bool reco) const;

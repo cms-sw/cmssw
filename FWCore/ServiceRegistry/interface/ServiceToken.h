@@ -37,6 +37,8 @@ namespace edm {
     class ServicesManager;
   }
 
+  class ServiceWeakToken;
+
   class ServiceToken {
     friend class edm::ServiceRegistry;
     friend class edm::serviceregistry::ServicesManager;
@@ -47,6 +49,10 @@ namespace edm {
   public:
     ServiceToken() {}
     //virtual ~ServiceToken();
+    ServiceToken(ServiceToken&&) = default;
+    ServiceToken(ServiceToken const&) = default;
+    ServiceToken& operator=(ServiceToken&&) = default;
+    ServiceToken& operator=(ServiceToken const&) = default;
 
     // ---------- const member functions ---------------------
 
@@ -64,6 +70,8 @@ namespace edm {
     ///the copy the argument's slots to the token's signals
     void copySlotsFrom(ActivityRegistry&);
 
+    friend class ServiceWeakToken;
+
   private:
     ServiceToken(std::shared_ptr<edm::serviceregistry::ServicesManager> iManager) : manager_(iManager) {}
 
@@ -73,6 +81,27 @@ namespace edm {
 
     // ---------- member data --------------------------------
     std::shared_ptr<edm::serviceregistry::ServicesManager> manager_;
+  };
+
+  class ServiceWeakToken {
+  public:
+    ServiceWeakToken(ServiceToken const& iToken) : manager_(iToken.manager_) {}
+    ServiceWeakToken() = default;
+
+    ServiceWeakToken(ServiceWeakToken&&) = default;
+    ServiceWeakToken(ServiceWeakToken const&) = default;
+    ServiceWeakToken& operator=(ServiceWeakToken&&) = default;
+    ServiceWeakToken& operator=(ServiceWeakToken const&) = default;
+
+    ServiceWeakToken& operator=(ServiceToken const& iToken) {
+      manager_ = iToken.manager_;
+      return *this;
+    }
+
+    ServiceToken lock() const { return ServiceToken(manager_.lock()); }
+
+  private:
+    std::weak_ptr<edm::serviceregistry::ServicesManager> manager_;
   };
 }  // namespace edm
 

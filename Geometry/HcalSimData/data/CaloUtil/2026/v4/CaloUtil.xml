@@ -73,7 +73,7 @@
    <Parameter name="InsideLevel" value="3" eval="true"/>
    <Parameter name="FineCalorimeter" value="HGCal" eval="false"/>
    <Parameter name="FineCalorimeter" value="ECAL" eval="false"/>
-   <Parameter name="FineCalorimeter" value="HCAL" eval="false"/>
+   <Parameter name="FineCalorimeter" value="HCal" eval="false"/>
    <Parameter name="FineCalorimeter" value="VCAL" eval="false"/>
    <Parameter name="FineCalorimeter" value="HFNoseVol" eval="false"/>
    <Parameter name="FineLevels" value="8" eval="true"/> 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """Usage: test_fastHaddMerge.py [-t produce|check] [-n files]
 

@@ -5,6 +5,7 @@
 #include "Validation/MuonCSCDigis/interface/CSCComparatorDigiValidation.h"
 #include "Validation/MuonCSCDigis/interface/CSCStripDigiValidation.h"
 #include "Validation/MuonCSCDigis/interface/CSCWireDigiValidation.h"
+#include "Validation/MuonCSCDigis/interface/CSCStubEfficiencyValidation.h"
 #include <iostream>
 #include <memory>
 
@@ -16,20 +17,17 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet &ps)
       theWireDigiValidation(nullptr),
       theComparatorDigiValidation(nullptr),
       theALCTDigiValidation(nullptr),
-      theCLCTDigiValidation(nullptr) {
-  theStripDigiValidation =
-      std::make_unique<CSCStripDigiValidation>(ps.getParameter<edm::InputTag>("stripDigiTag"), consumesCollector());
-  theWireDigiValidation = std::make_unique<CSCWireDigiValidation>(
-      ps.getParameter<edm::InputTag>("wireDigiTag"), consumesCollector(), doSim_);
-  theComparatorDigiValidation =
-      std::make_unique<CSCComparatorDigiValidation>(ps.getParameter<edm::InputTag>("comparatorDigiTag"),
-                                                    ps.getParameter<edm::InputTag>("stripDigiTag"),
-                                                    consumesCollector());
-  theALCTDigiValidation =
-      std::make_unique<CSCALCTDigiValidation>(ps.getParameter<edm::InputTag>("alctDigiTag"), consumesCollector());
-  theCLCTDigiValidation =
-      std::make_unique<CSCCLCTDigiValidation>(ps.getParameter<edm::InputTag>("clctDigiTag"), consumesCollector());
+      theCLCTDigiValidation(nullptr),
+      theStubEfficiencyValidation(nullptr) {
+  // instantiatethe validation modules
+  theStripDigiValidation = std::make_unique<CSCStripDigiValidation>(ps, consumesCollector());
+  theWireDigiValidation = std::make_unique<CSCWireDigiValidation>(ps, consumesCollector());
+  theComparatorDigiValidation = std::make_unique<CSCComparatorDigiValidation>(ps, consumesCollector());
+  theALCTDigiValidation = std::make_unique<CSCALCTDigiValidation>(ps, consumesCollector());
+  theCLCTDigiValidation = std::make_unique<CSCCLCTDigiValidation>(ps, consumesCollector());
+  theStubEfficiencyValidation = std::make_unique<CSCStubEfficiencyValidation>(ps, consumesCollector());
 
+  // set the simhit map for resolution studies
   if (doSim_) {
     theStripDigiValidation->setSimHitMap(&theSimHitMap);
     theWireDigiValidation->setSimHitMap(&theSimHitMap);
@@ -44,11 +42,12 @@ void CSCDigiValidation::bookHistograms(DQMStore::IBooker &iBooker,
                                        edm::Run const &iRun,
                                        edm::EventSetup const & /* iSetup */) {
   iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask");
-  theStripDigiValidation->bookHistograms(iBooker, doSim_);
+  theStripDigiValidation->bookHistograms(iBooker);
   theWireDigiValidation->bookHistograms(iBooker);
   theComparatorDigiValidation->bookHistograms(iBooker);
   theALCTDigiValidation->bookHistograms(iBooker);
   theCLCTDigiValidation->bookHistograms(iBooker);
+  theStubEfficiencyValidation->bookHistograms(iBooker);
 }
 
 void CSCDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &eventSetup) {
@@ -62,10 +61,12 @@ void CSCDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &even
   theComparatorDigiValidation->setGeometry(pGeom);
   theALCTDigiValidation->setGeometry(pGeom);
   theCLCTDigiValidation->setGeometry(pGeom);
+  theStubEfficiencyValidation->setGeometry(pGeom);
 
   theStripDigiValidation->analyze(e, eventSetup);
   theWireDigiValidation->analyze(e, eventSetup);
   theComparatorDigiValidation->analyze(e, eventSetup);
   theALCTDigiValidation->analyze(e, eventSetup);
   theCLCTDigiValidation->analyze(e, eventSetup);
+  theStubEfficiencyValidation->analyze(e, eventSetup);
 }

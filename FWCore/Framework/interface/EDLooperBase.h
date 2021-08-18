@@ -54,6 +54,7 @@
 //
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -73,13 +74,15 @@ namespace edm {
   class ModuleChanger;
   class ProcessingController;
   class ActivityRegistry;
+  class ServiceToken;
+  class WaitingTaskHolder;
 
-  class EDLooperBase {
+  class EDLooperBase : public EDConsumerBase {
   public:
     enum Status { kContinue, kStop };
 
     EDLooperBase();
-    virtual ~EDLooperBase() noexcept(false);
+    ~EDLooperBase() noexcept(false) override;
 
     EDLooperBase(EDLooperBase const&) = delete;             // Disallow copying and moving
     EDLooperBase& operator=(EDLooperBase const&) = delete;  // Disallow copying and moving
@@ -99,6 +102,17 @@ namespace edm {
     virtual void beginOfJob();
 
     virtual void endOfJob();
+
+    void prefetchAsync(WaitingTaskHolder iTask,
+                       ServiceToken const& token,
+                       Transition iTrans,
+                       Principal const& iPrincipal,
+                       EventSetupImpl const& iImpl) const;
+
+    void esPrefetchAsync(WaitingTaskHolder iTask,
+                         EventSetupImpl const& iImpl,
+                         Transition iTrans,
+                         ServiceToken const& iToken) const;
 
     ///Override this method if you need to monitor the state of the processing
     virtual void attachTo(ActivityRegistry&);
@@ -144,6 +158,8 @@ namespace edm {
 
     ///Called after all event modules have processed the end of a LuminosityBlock
     virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&);
+
+    void edPrefetchAsync(WaitingTaskHolder iTask, ServiceToken const& token, Principal const& iPrincipal) const;
 
     unsigned int iCounter_;
     ExceptionToActionTable const* act_table_;

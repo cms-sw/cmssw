@@ -112,13 +112,12 @@ namespace {
   /************************************************************************
        2d plot of ES channel status difference between 2 IOVs
   ************************************************************************/
-  class ESIntercalibConstantsDiff : public cond::payloadInspector::PlotImage<ESIntercalibConstants> {
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class ESIntercalibConstantsDiffBase : public cond::payloadInspector::PlotImage<ESIntercalibConstants, nIOVs, ntags> {
   public:
-    ESIntercalibConstantsDiff()
-        : cond::payloadInspector::PlotImage<ESIntercalibConstants>("ES IntercalibConstants difference") {
-      setSingleIov(false);
-    }
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    ESIntercalibConstantsDiffBase()
+        : cond::payloadInspector::PlotImage<ESIntercalibConstants, nIOVs, ntags>("ES IntercalibConstants difference") {}
+    bool fill() override {
       TH2F*** esmap = new TH2F**[2];
       std::string title[2][2] = {{"ES+F", "ES-F"}, {"ES+R", "ES-R"}};
       for (int plane = 0; plane < 2; plane++) {
@@ -127,12 +126,30 @@ namespace {
           esmap[plane][side] = new TH2F(
               Form("esmap%i%i", plane, side), title[plane][side].c_str(), IX_MAX, 0, IX_MAX, IY_MAX, 0, IY_MAX);
       }
-      unsigned int run[2], irun = 0;
+      unsigned int run[2];
+      std::string l_tagname[2];
       float val[kESChannels], valmin = 999.;
-      for (auto const& iov : iovs) {
-        std::shared_ptr<ESIntercalibConstants> payload = fetchPayload(std::get<1>(iov));
-        run[irun] = std::get<0>(iov);
-        //	std::cout << " irun " << irun << " IOV " << run[irun] << std::endl;
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<ESIntercalibConstants> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
         if (payload.get()) {
           for (int id = 0; id < kESChannels; id++)  // looping over all the ES channels
             if (ESDetId::validHashIndex(id)) {
@@ -165,8 +182,7 @@ namespace {
               }  // 2nd IOV
             }    // validHashIndex
         }        // payload
-        irun++;
-      }  // loop over IOVs
+      }          // loop over IOVs
 
       gStyle->SetOptStat(0);
       gStyle->SetPalette(1);
@@ -174,10 +190,15 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("ES Intercalib Constants, IOV %i - %i", run[1], run[0]));
-      t1.SetTextSize(0.025);
-
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      if (ntags == 2 && len < 58) {
+        t1.SetTextSize(0.025);
+        t1.DrawLatex(
+            0.5, 0.96, Form("%s IOV %i - %s  IOV %i", l_tagname[1].c_str(), run[1], l_tagname[0].c_str(), run[0]));
+      } else {
+        t1.SetTextSize(0.03);
+        t1.DrawLatex(0.5, 0.96, Form("ES Intercalib Constants, IOV %i - %i", run[1], run[0]));
+      }
       float xmi[2] = {0.0, 0.5};
       float xma[2] = {0.5, 1.0};
       TPad*** pad = new TPad**[2];
@@ -203,15 +224,19 @@ namespace {
         }
       }
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };
+  };   // class ESIntercalibConstantsDiffBase
+  using ESIntercalibConstantsDiffOneTag = ESIntercalibConstantsDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
+  using ESIntercalibConstantsDiffTwoTags = ESIntercalibConstantsDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
+
 }  // namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(ESIntercalibConstants) {
   PAYLOAD_INSPECTOR_CLASS(ESIntercalibConstantsPlot);
-  PAYLOAD_INSPECTOR_CLASS(ESIntercalibConstantsDiff);
+  PAYLOAD_INSPECTOR_CLASS(ESIntercalibConstantsDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(ESIntercalibConstantsDiffTwoTags);
 }

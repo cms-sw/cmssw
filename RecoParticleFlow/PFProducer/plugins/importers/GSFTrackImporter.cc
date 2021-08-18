@@ -10,9 +10,9 @@
 
 class GSFTrackImporter : public BlockElementImporterBase {
 public:
-  GSFTrackImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : BlockElementImporterBase(conf, sumes),
-        _src(sumes.consumes<reco::GsfPFRecTrackCollection>(conf.getParameter<edm::InputTag>("source"))),
+  GSFTrackImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : BlockElementImporterBase(conf, cc),
+        _src(cc.consumes<reco::GsfPFRecTrackCollection>(conf.getParameter<edm::InputTag>("source"))),
         _isSecondary(conf.getParameter<bool>("gsfsAreSecondary")),
         _superClustersArePF(conf.getParameter<bool>("superClustersArePF")) {}
 

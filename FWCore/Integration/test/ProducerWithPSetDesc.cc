@@ -14,7 +14,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "FWCore/ParameterSet/interface/ValidatedPluginMacros.h"
 #include "FWCore/ParameterSet/interface/ValidatedPluginFactoryMacros.h"

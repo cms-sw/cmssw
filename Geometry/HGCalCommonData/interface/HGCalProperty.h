@@ -34,9 +34,10 @@ namespace HGCalProperty {
   constexpr int32_t kHGCalRingMask = 0x1FF;
 
   constexpr int32_t kHGCalFactor = 10;
+  constexpr int32_t kHGCalFactorPartial = 100;
   constexpr int32_t kHGCalOffsetThick = 1;
   constexpr int32_t kHGCalOffsetPartial = 10;
-  constexpr int32_t kHGCalOffsetOrient = 100;
+  constexpr int32_t kHGCalOffsetOrient = 1000;
   constexpr int32_t kHGCalOffsetType = 1;
   constexpr int32_t kHGCalOffsetSiPM = 10;
   constexpr int32_t kHGCalTilePack = 1000;

@@ -15,7 +15,6 @@
 
 #include "AmplitudeComputationCommonKernels.h"
 #include "AmplitudeComputationKernels.h"
-#include "Common.h"
 #include "EcalUncalibRecHitMultiFitAlgoGPU.h"
 #include "TimeComputationKernels.h"
 
@@ -262,10 +261,10 @@ namespace ecal {
             eventInputGPU.ebDigis.ids.get(),
             eventInputGPU.eeDigis.data.get(),
             eventInputGPU.eeDigis.ids.get(),
-            conditions.timeBiasCorrections.EBTimeCorrAmplitudeBins,
-            conditions.timeBiasCorrections.EETimeCorrAmplitudeBins,
-            conditions.timeBiasCorrections.EBTimeCorrShiftBins,
-            conditions.timeBiasCorrections.EETimeCorrShiftBins,
+            conditions.timeBiasCorrections.ebTimeCorrAmplitudeBins,
+            conditions.timeBiasCorrections.eeTimeCorrAmplitudeBins,
+            conditions.timeBiasCorrections.ebTimeCorrShiftBins,
+            conditions.timeBiasCorrections.eeTimeCorrShiftBins,
             scratch.timeMax.get(),
             scratch.timeError.get(),
             conditions.pedestals.rms_x12,
@@ -276,8 +275,8 @@ namespace ecal {
             eventOutputGPU.recHitsEE.jitterError.get(),
             eventOutputGPU.recHitsEB.flags.get(),
             eventOutputGPU.recHitsEE.flags.get(),
-            conditions.timeBiasCorrections.EBTimeCorrAmplitudeBinsSize,
-            conditions.timeBiasCorrections.EETimeCorrAmplitudeBinsSize,
+            conditions.timeBiasCorrections.ebTimeCorrAmplitudeBinsSize,
+            conditions.timeBiasCorrections.eeTimeCorrAmplitudeBinsSize,
             configParameters.timeConstantTermEB,
             configParameters.timeConstantTermEE,
             conditions.timeOffsetConstant.getEBValue(),

@@ -12,10 +12,12 @@ hgcalHESiParametersInitialize = hgcalEEParametersInitialize.clone(
     name  = cms.string("HGCalHESiliconSensitive"),
     nameW = cms.string("HGCalHEWafer"),
     nameC = cms.string("HGCalHECell"),
+    nameX  = cms.string("HGCalHESiliconSensitive"),
 )
 
 hgcalHEScParametersInitialize = hgcalEEParametersInitialize.clone(
     name  = cms.string("HGCalHEScintillatorSensitive"),
     nameW = cms.string("HGCalWafer"),
     nameC = cms.string("HGCalCell"),
+    nameX = cms.string("HGCalHEScintillatorSensitive"),
 )

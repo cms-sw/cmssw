@@ -3,7 +3,6 @@
 
 //--- pow():
 #include <cmath>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class SiPixelRecHitQuality {
 public:
@@ -56,22 +55,18 @@ public:
     //
     //--- We've obsoleted probX and probY in favor of probXY and probQ as of 09/10
     inline float probabilityX(QualWordType qualWord) const {
-      edm::LogWarning("ObsoleteVariable")
-          << "Since 39x, probabilityX and probabilityY have been replaced by probabilityXY and probabilityQ";
+      warningObsolete();
       return -10;
     }
     inline float probabilityY(QualWordType qualWord) const {
-      edm::LogWarning("ObsoleteVariable")
-          << "Since 39x, probabilityX and probabilityY have been replaced by probabilityXY and probabilityQ";
+      warningObsolete();
       return -10;
     }
 
     inline float probabilityXY(QualWordType qualWord) const {
       int raw = (qualWord >> probX_shift) & probX_mask;
       if (raw < 0 || raw > 16383) {
-        edm::LogWarning("OutOfBounds")
-            << "Probability XY outside the bounds of the quality word. Defaulting to Prob=0. Raw = " << raw
-            << " QualityWord = " << qualWord;
+        warningOutOfBoundRaw("XY", raw, qualWord);
         raw = 16383;
       }
       float prob = (raw == 16383) ? 0 : pow(probX_units, (float)(-raw));
@@ -81,9 +76,7 @@ public:
     inline float probabilityQ(QualWordType qualWord) const {
       int raw = (qualWord >> probY_shift) & probY_mask;
       if (raw < 0 || raw > 255) {
-        edm::LogWarning("OutOfBounds")
-            << "Probability Q outside the bounds of the quality word. Defaulting to Prob=0. Raw = " << raw
-            << " QualityWord = " << qualWord;
+        warningOutOfBoundRaw("Q", raw, qualWord);
         raw = 255;
       }
       float prob = (raw == 255) ? 0 : pow(probY_units, (float)(-raw));
@@ -95,8 +88,7 @@ public:
     inline int qBin(QualWordType qualWord) const {
       int qbin = (qualWord >> qBin_shift) & qBin_mask;
       if (qbin < 0 || qbin > 7) {
-        edm::LogWarning("OutOfBounds") << "Qbin outside the bounds of the quality word. Defaulting to Qbin=0. Qbin = "
-                                       << qbin << " QualityWord = " << qualWord;
+        warningOutOfBoundQbin(qbin, qualWord);
         qbin = 0;
       }
       return qbin;
@@ -119,9 +111,7 @@ public:
     //
     inline void setProbabilityXY(float prob, QualWordType& qualWord) const {
       if (prob < 0 || prob > 1) {
-        edm::LogWarning("OutOfBounds")
-            << "Prob XY outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob
-            << " QualityWord = " << qualWord;
+        warningOutOfBoundProb("XY", prob, qualWord);
         prob = 0;
       }
       double draw = (prob <= 1.6E-13) ? 16383 : -log((double)prob) * probX_1_over_log_units;
@@ -131,8 +121,7 @@ public:
     }
     inline void setProbabilityQ(float prob, QualWordType& qualWord) const {
       if (prob < 0 || prob > 1) {
-        edm::LogWarning("OutOfBounds") << "Prob Q outside the bounds of the quality word. Defaulting to Prob=0. Prob = "
-                                       << prob << " QualityWord = " << qualWord;
+        warningOutOfBoundProb("Q", prob, qualWord);
         prob = 0;
       }
       double draw = (prob <= 1E-5) ? 255 : -log((double)prob) * probY_1_over_log_units;
@@ -143,8 +132,7 @@ public:
 
     inline void setQBin(int qbin, QualWordType& qualWord) const {
       if (qbin < 0 || qbin > 7) {
-        edm::LogWarning("OutOfBounds") << "Qbin outside the bounds of the quality word. Defaulting to Qbin=0. Qbin = "
-                                       << qbin << " QualityWord = " << qualWord;
+        warningOutOfBoundQbin(qbin, qualWord);
         qbin = 0;
       }
       qualWord |= ((qbin & qBin_mask) << qBin_shift);
@@ -164,6 +152,12 @@ public:
 
 public:
   static const Packing thePacking;
+
+private:
+  static void warningObsolete();
+  static void warningOutOfBoundQbin(int, QualWordType const&);
+  static void warningOutOfBoundProb(const char* iVariable, float, QualWordType const&);
+  static void warningOutOfBoundRaw(const char* iVariable, int iRaw, QualWordType const&);
 };
 
 #endif

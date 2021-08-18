@@ -48,7 +48,7 @@ namespace ecaldqm {
     return copy;
   }
 
-  void MESetTrend::book(DQMStore::IBooker &_ibooker) {
+  void MESetTrend::book(DQMStore::IBooker &_ibooker, EcalElectronicsMapping const *electronicsMap) {
     binning::AxisSpecs xaxis;
     if (xaxis_)
       xaxis = *xaxis_;
@@ -74,7 +74,7 @@ namespace ecaldqm {
     binning::AxisSpecs const *xaxisTemp(xaxis_);
     xaxis_ = &xaxis;
 
-    MESetEcal::book(_ibooker);
+    MESetEcal::book(_ibooker, electronicsMap);
 
     xaxis_ = xaxisTemp;
 
@@ -86,40 +86,46 @@ namespace ecaldqm {
       setAxisTitle("LumiSections");
   }
 
-  void MESetTrend::fill(DetId const &_id, double _t, double _wy /* = 1.*/, double _w /* = 1.*/) {
+  void MESetTrend::fill(
+      EcalDQMSetupObjects const edso, DetId const &_id, double _t, double _wy /* = 1.*/, double _w /* = 1.*/) {
     if (!active_)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     if (shift_(unsigned(_t)))
       fill_(iME, _t + 0.5, _wy, _w);
   }
 
-  void MESetTrend::fill(EcalElectronicsId const &_id, double _t, double _wy /* = 1.*/, double _w /* = 1.*/) {
+  void MESetTrend::fill(EcalDQMSetupObjects const edso,
+                        EcalElectronicsId const &_id,
+                        double _t,
+                        double _wy /* = 1.*/,
+                        double _w /* = 1.*/) {
     if (!active_)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     if (shift_(unsigned(_t)))
       fill_(iME, _t + 0.5, _wy, _w);
   }
 
-  void MESetTrend::fill(int _dcctccid, double _t, double _wy /* = 1.*/, double _w /* = 1.*/) {
+  void MESetTrend::fill(
+      EcalDQMSetupObjects const edso, int _dcctccid, double _t, double _wy /* = 1.*/, double _w /* = 1.*/) {
     if (!active_)
       return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _dcctccid, btype_));
     checkME_(iME);
 
     if (shift_(unsigned(_t)))
       fill_(iME, _t + 0.5, _wy, _w);
   }
 
-  void MESetTrend::fill(double _t, double _wy /* = 1.*/, double _w /* = 1.*/) {
+  void MESetTrend::fill(EcalDQMSetupObjects const edso, double _t, double _wy /* = 1.*/, double _w /* = 1.*/) {
     if (!active_)
       return;
     if (mes_.size() != 1)
@@ -129,37 +135,40 @@ namespace ecaldqm {
       fill_(0, _t + 0.5, _wy, _w);
   }
 
-  int MESetTrend::findBin(DetId const &_id, double _t, double _y /* = 0.*/) const {
+  int MESetTrend::findBin(EcalDQMSetupObjects const edso, DetId const &_id, double _t, double _y /* = 0.*/) const {
     if (!active_)
       return -1;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getTH1()->FindBin(_t + 0.5, _y);
   }
 
-  int MESetTrend::findBin(EcalElectronicsId const &_id, double _t, double _y /* = 0.*/) const {
+  int MESetTrend::findBin(EcalDQMSetupObjects const edso,
+                          EcalElectronicsId const &_id,
+                          double _t,
+                          double _y /* = 0.*/) const {
     if (!active_)
       return -1;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getTH1()->FindBin(_t + 0.5, _y);
   }
 
-  int MESetTrend::findBin(int _dcctccid, double _t, double _y /* = 0.*/) const {
+  int MESetTrend::findBin(EcalDQMSetupObjects const edso, int _dcctccid, double _t, double _y /* = 0.*/) const {
     if (!active_)
       return -1;
 
-    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    unsigned iME(binning::findPlotIndex(edso.electronicsMap, otype_, _dcctccid, btype_));
     checkME_(iME);
 
     return mes_[iME]->getTH1()->FindBin(_t + 0.5, _y);
   }
 
-  int MESetTrend::findBin(double _t, double _y /* = 0.*/) const {
+  int MESetTrend::findBin(EcalDQMSetupObjects const edso, double _t, double _y /* = 0.*/) const {
     if (!active_)
       return -1;
     if (mes_.size() != 1)

@@ -50,7 +50,7 @@ SimpleVertexTree::SimpleVertexTree(const char *filterName, const MagneticField *
 
 void SimpleVertexTree::defineTrackBranch(const TString &prefix,
                                          const TString &type,
-                                         const float *(VertexFitterResult::*pfunc)(const int)const,
+                                         const float *(VertexFitterResult::*pfunc)(const int) const,
                                          const TString &index) {
   TString branchName, branchVariables;
   for (int i = 0; i < 5; i++) {

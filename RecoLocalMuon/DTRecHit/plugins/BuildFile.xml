@@ -1,6 +1,9 @@
+<use name="CondFormats/DTObjects"/>
+<use name="CondFormats/DataRecord"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="root"/>
+<use name="DataFormats/DTRecHit"/>
 <use name="RecoLocalMuon/DTRecHit"/>
 <use name="MagneticField/Records"/>
 <use name="MagneticField/Engine"/>

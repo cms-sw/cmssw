@@ -90,7 +90,37 @@ bool ControllerChannel::wait(scoped_lock<named_mutex>& lock, edm::Transition iTr
 
   //std::cout << id_ << " waiting" << std::endl;
   using namespace boost::posix_time;
-  if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(maxWaitInSeconds_))) {
+  //this has to be after change to *transitionID_ as that is the variable re-used for the check
+  auto workerStatus = initCheckWorkerStatus(transitionID_);
+  if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(maxWaitInSeconds_)) and
+      not workerStatus.workerFinished()) {
+    //std::cout << id_ << " waiting FAILED" << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool ControllerChannel::wait(scoped_lock<named_mutex>& lock) {
+  //std::cout << id_ << " waiting" << std::endl;
+  using namespace boost::posix_time;
+  *transitionID_ = 0;
+  auto workerStatus = initCheckWorkerStatus(transitionID_);
+  if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(maxWaitInSeconds_)) and
+      not workerStatus.workerFinished()) {
+    //std::cout << id_ << " waiting FAILED" << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool ControllerChannel::continueWait(scoped_lock<named_mutex>& lock) {
+  //std::cout << id_ << " waiting" << std::endl;
+  using namespace boost::posix_time;
+  //NOTE: value of *transitionID_ can not have been changed by the worker since call to wait()
+  //  as we've had the lock since the end of that call.
+  auto workerStatus = initCheckWorkerStatus(transitionID_);
+  if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(maxWaitInSeconds_)) and
+      not workerStatus.workerFinished()) {
     //std::cout << id_ << " waiting FAILED" << std::endl;
     return false;
   }

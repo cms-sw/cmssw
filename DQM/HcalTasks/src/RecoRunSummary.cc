@@ -3,8 +3,11 @@
 namespace hcaldqm {
   using namespace constants;
 
-  RecoRunSummary::RecoRunSummary(std::string const& name, std::string const& taskname, edm::ParameterSet const& ps)
-      : DQClient(name, taskname, ps) {
+  RecoRunSummary::RecoRunSummary(std::string const& name,
+                                 std::string const& taskname,
+                                 edm::ParameterSet const& ps,
+                                 edm::ConsumesCollector& iC)
+      : DQClient(name, taskname, ps, iC) {
     _thresh_unihf = ps.getUntrackedParameter<double>("thresh_unihf", 0.2);
     _thresh_tcds = ps.getUntrackedParameter<double>("thresh_tcds", 1.5);
   }

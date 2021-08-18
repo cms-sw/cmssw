@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import PhysicsTools.IsolationAlgos.CITKPFIsolationSumProducerForPUPPI_cfi as _mod
 
 IsoConeDefinitions = cms.VPSet(cms.PSet( isolationAlgo = cms.string('PhotonPFIsolationWithMapBasedVeto'),
                                       coneSize = cms.double(0.3),
@@ -25,15 +26,14 @@ IsoConeDefinitions = cms.VPSet(cms.PSet( isolationAlgo = cms.string('PhotonPFIso
     )
 
 
-egmPhotonIsolationAODPUPPI = cms.EDProducer( "CITKPFIsolationSumProducerForPUPPI",
-			  srcToIsolate = cms.InputTag("gedPhotons"),
-			  srcForIsolationCone = cms.InputTag('particleFlow'),
-                          puppiValueMap = cms.InputTag('puppi'),
+egmPhotonIsolationAODPUPPI = _mod.CITKPFIsolationSumProducerForPUPPI.clone(
+			  srcToIsolate = "gedPhotons",
+			  srcForIsolationCone = 'particleFlow',
 			  isolationConeDefinitions = IsoConeDefinitions
 )
 
 egmPhotonIsolationMiniAODPUPPI = egmPhotonIsolationAODPUPPI.clone(
-    srcForIsolationCone = "packedPFCandidates",
-    srcToIsolate        = "slimmedPhotons",
-    puppiValueMap       = ''
+                          srcForIsolationCone = "packedPFCandidates",
+                          srcToIsolate        = "slimmedPhotons",
+                          puppiValueMap       = ''
 )

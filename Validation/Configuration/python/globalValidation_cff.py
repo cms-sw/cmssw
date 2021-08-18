@@ -36,6 +36,7 @@ from Validation.RecoParticleFlow.PFJetResValidation_cff import *
 from Validation.RecoParticleFlow.PFClusterValidation_cff import *
 from Validation.RPCRecHits.rpcRecHitValidation_cfi import *
 from Validation.DTRecHits.DTRecHitQuality_cfi import *
+from Validation.CSCRecHits.cscRecHitValidation_cfi import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
 from Validation.L1T.L1Validator_cfi import *
 from Validation.SiPixelPhase1ConfigV.SiPixelPhase1OfflineDQM_sourceV_cff import *
@@ -94,6 +95,7 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + pfMuonValidationSequence
                                  + pfClusterValidationSequence
                                  + rpcRecHitValidation_step
+                                 + cscRecHitValidation
                                  + dtLocalRecoValidation_no2D
                                  + pfTauRunDQMValidation
                                  + bTagPlotsMCbcl
@@ -196,7 +198,7 @@ globalValidationHCALOnly = cms.Sequence(
 )
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)
-globalPrevalidationHGCal = cms.Sequence(hgcalAssociators)
+globalPrevalidationHGCal = cms.Sequence(hgcalAssociators, ticlSimTrackstersTask)
 
 globalValidationMTD = cms.Sequence()
 
@@ -211,6 +213,7 @@ globalPrevalidationMuons = cms.Sequence(
     + validationMuonRPCDigis
     + recoMuonValidation
     + rpcRecHitValidation_step
+    + cscRecHitValidation
     + dtLocalRecoValidation_no2D
     + muonIdValDQMSeq
 )

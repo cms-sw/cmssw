@@ -272,19 +272,17 @@ namespace {
   /*****************************************************************
      2d plot of ECAL IntercalibConstants difference between 2 IOVs
   ******************************************************************/
-  class EcalLaserAPDPNRatiosDiff : public cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios> {
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags, int method>
+  class EcalLaserAPDPNRatiosBase : public cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, nIOVs, ntags> {
   public:
-    EcalLaserAPDPNRatiosDiff()
-        : cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios>("ECAL Laser APDPNRatios difference") {
-      setSingleIov(false);
-    }
+    EcalLaserAPDPNRatiosBase()
+        : cond::payloadInspector::PlotImage<EcalLaserAPDPNRatios, nIOVs, ntags>("ECAL Laser APDPNRatios difference") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
       TH2F** barrel = new TH2F*[3];
       TH2F** endc_p = new TH2F*[3];
       TH2F** endc_m = new TH2F*[3];
       float pEBmin[3], pEEmin[3], pEBmax[3], pEEmax[3];
-
       for (int i = 0; i < 3; i++) {
         barrel[i] =
             new TH2F(Form("EBp%i", i), Form("EB p%i", i + 1), MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
@@ -297,16 +295,40 @@ namespace {
         pEBmax[i] = -10.;
         pEEmax[i] = -10.;
       }
-      unsigned int run[2] = {0, 0}, irun = 0;
+      unsigned int run[2] = {0, 0};
+      std::string l_tagname[2];
       unsigned long IOV = 0;
       float pEB[3][kEBChannels], pEE[3][kEEChannels];
-      for (auto const& iov : iovs) {
-        std::shared_ptr<EcalLaserAPDPNRatios> payload = fetchPayload(std::get<1>(iov));
-        IOV = std::get<0>(iov);
-        if (IOV < 4294967296)
-          run[irun] = std::get<0>(iov);
-        else  // time type IOV
-          run[irun] = IOV >> 32;
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      IOV = std::get<0>(firstiov);
+      if (IOV < 4294967296)
+        run[0] = std::get<0>(firstiov);
+      else  // time type IOV
+        run[0] = IOV >> 32;
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      IOV = std::get<0>(lastiov);
+      if (IOV < 4294967296)
+        run[1] = std::get<0>(lastiov);
+      else  // time type IOV
+        run[1] = IOV >> 32;
+
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalLaserAPDPNRatios> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
         if (payload.get()) {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
           for (int cellid = 0; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {  // loop on EB cells
@@ -322,24 +344,55 @@ namespace {
                 eta = eta - 0.5;  //   0.5 to 84.5
               else
                 eta = eta + 0.5;  //  -84.5 to -0.5
-              double diff = (payload->getLaserMap())[rawid].p1 - pEB[0][cellid];
-              if (diff < pEBmin[0])
-                pEBmin[0] = diff;
-              if (diff > pEBmax[0])
-                pEBmax[0] = diff;
-              barrel[0]->Fill(phi, eta, diff);
-              diff = (payload->getLaserMap())[rawid].p2 - pEB[1][cellid];
-              if (diff < pEBmin[1])
-                pEBmin[1] = diff;
-              if (diff > pEBmax[1])
-                pEBmax[1] = diff;
-              barrel[1]->Fill(phi, eta, diff);
-              diff = (payload->getLaserMap())[rawid].p3 - pEB[2][cellid];
-              if (diff < pEBmin[2])
-                pEBmin[2] = diff;
-              if (diff > pEBmax[2])
-                pEBmax[2] = diff;
-              barrel[2]->Fill(phi, eta, diff);
+              double dr;
+              if (method == 0)  // difference
+                dr = (payload->getLaserMap())[rawid].p1 - pEB[0][cellid];
+              else {  // ratio
+                if (pEB[0][cellid] == 0.) {
+                  if ((payload->getLaserMap())[rawid].p1 == 0.)
+                    dr = 1.;
+                  else
+                    dr = 9999.;  //use a large value
+                } else
+                  dr = (payload->getLaserMap())[rawid].p1 / pEB[0][cellid];
+              }
+              if (dr < pEBmin[0])
+                pEBmin[0] = dr;
+              if (dr > pEBmax[0])
+                pEBmax[0] = dr;
+              barrel[0]->Fill(phi, eta, dr);
+              if (method == 0)  // difference
+                dr = (payload->getLaserMap())[rawid].p2 - pEB[1][cellid];
+              else {  // ratio
+                if (pEB[1][cellid] == 0.) {
+                  if ((payload->getLaserMap())[rawid].p2 == 0.)
+                    dr = 1.;
+                  else
+                    dr = 9999.;  //use a large value
+                } else
+                  dr = (payload->getLaserMap())[rawid].p2 / pEB[1][cellid];
+              }
+              if (dr < pEBmin[1])
+                pEBmin[1] = dr;
+              if (dr > pEBmax[1])
+                pEBmax[1] = dr;
+              barrel[1]->Fill(phi, eta, dr);
+              if (method == 0)  // difference
+                dr = (payload->getLaserMap())[rawid].p3 - pEB[2][cellid];
+              else {  // ratio
+                if (pEB[2][cellid] == 0.) {
+                  if ((payload->getLaserMap())[rawid].p3 == 0.)
+                    dr = 1.;
+                  else
+                    dr = 9999.;  //use a large value
+                } else
+                  dr = (payload->getLaserMap())[rawid].p3 / pEB[2][cellid];
+              }
+              if (dr < pEBmin[2])
+                pEBmin[2] = dr;
+              if (dr > pEBmax[2])
+                pEBmax[2] = dr;
+              barrel[2]->Fill(phi, eta, dr);
             }
           }  // loop over cellid
 
@@ -354,36 +407,66 @@ namespace {
               pEE[1][cellid] = (payload->getLaserMap())[rawid].p2;
               pEE[2][cellid] = (payload->getLaserMap())[rawid].p3;
             } else {
-              double diff1 = (payload->getLaserMap())[rawid].p1 - pEE[0][cellid];
-              if (diff1 < pEEmin[0])
-                pEEmin[0] = diff1;
-              if (diff1 > pEEmax[0])
-                pEEmax[0] = diff1;
-              double diff2 = (payload->getLaserMap())[rawid].p2 - pEE[1][cellid];
-              if (diff2 < pEEmin[1])
-                pEEmin[1] = diff2;
-              if (diff2 > pEEmax[1])
-                pEEmax[1] = diff2;
-              double diff3 = (payload->getLaserMap())[rawid].p3 - pEE[2][cellid];
-              if (diff3 < pEEmin[2])
-                pEEmin[2] = diff3;
-              if (diff3 > pEEmax[2])
-                pEEmax[2] = diff3;
+              double dr1, dr2, dr3;
+              if (method == 0)  // difference
+                dr1 = (payload->getLaserMap())[rawid].p1 - pEE[0][cellid];
+              else {  // ratio
+                if (pEE[0][cellid] == 0.) {
+                  if ((payload->getLaserMap())[rawid].p1 == 0.)
+                    dr1 = 1.;
+                  else
+                    dr1 = 9999.;  //use a large value
+                } else
+                  dr1 = (payload->getLaserMap())[rawid].p1 / pEE[0][cellid];
+              }
+              if (dr1 < pEEmin[0])
+                pEEmin[0] = dr1;
+              if (dr1 > pEEmax[0])
+                pEEmax[0] = dr1;
+              if (method == 0)  // difference
+                dr2 = (payload->getLaserMap())[rawid].p2 - pEE[1][cellid];
+              else {  // ratio
+                if (pEE[1][cellid] == 0.) {
+                  if ((payload->getLaserMap())[rawid].p2 == 0.)
+                    dr2 = 1.;
+                  else
+                    dr2 = 9999.;  //use a large value
+                } else
+                  dr2 = (payload->getLaserMap())[rawid].p2 / pEE[1][cellid];
+              }
+              if (dr2 < pEEmin[1])
+                pEEmin[1] = dr2;
+              if (dr2 > pEEmax[1])
+                pEEmax[1] = dr2;
+              if (method == 0)  // difference
+                dr3 = (payload->getLaserMap())[rawid].p3 - pEE[2][cellid];
+              else {  // ratio
+                if (pEE[0][cellid] == 0.) {
+                  if ((payload->getLaserMap())[rawid].p3 == 0.)
+                    dr3 = 1.;
+                  else
+                    dr3 = 9999.;  //use a large value
+                } else
+                  dr3 = (payload->getLaserMap())[rawid].p3 / pEE[2][cellid];
+              }
+              if (dr3 < pEEmin[2])
+                pEEmin[2] = dr3;
+              if (dr3 > pEEmax[2])
+                pEEmax[2] = dr3;
               if (myEEId.zside() == 1) {
-                endc_p[0]->Fill(myEEId.ix(), myEEId.iy(), diff1);
-                endc_p[1]->Fill(myEEId.ix(), myEEId.iy(), diff2);
-                endc_p[2]->Fill(myEEId.ix(), myEEId.iy(), diff3);
+                endc_p[0]->Fill(myEEId.ix(), myEEId.iy(), dr1);
+                endc_p[1]->Fill(myEEId.ix(), myEEId.iy(), dr2);
+                endc_p[2]->Fill(myEEId.ix(), myEEId.iy(), dr3);
               } else {
-                endc_m[0]->Fill(myEEId.ix(), myEEId.iy(), diff1);
-                endc_m[1]->Fill(myEEId.ix(), myEEId.iy(), diff2);
-                endc_m[2]->Fill(myEEId.ix(), myEEId.iy(), diff3);
+                endc_m[0]->Fill(myEEId.ix(), myEEId.iy(), dr1);
+                endc_m[1]->Fill(myEEId.ix(), myEEId.iy(), dr2);
+                endc_m[2]->Fill(myEEId.ix(), myEEId.iy(), dr3);
               }
             }
           }  // loop over cellid
         }    //  if payload.get()
         else
           return false;
-        irun++;
       }  // loop over IOVs
 
       gStyle->SetPalette(1);
@@ -392,10 +475,28 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      std::string dr[2] = {"-", "/"};
       if (IOV < 4294967296) {
-        t1.SetTextSize(0.05);
-        t1.DrawLatex(0.5, 0.96, Form("Ecal Laser APD/PN, IOV %i - %i", run[1], run[0]));
+        if (ntags == 2) {
+          if (len < 80) {
+            t1.SetTextSize(0.02);
+            t1.DrawLatex(0.5,
+                         0.96,
+                         Form("%s IOV %i %s %s  IOV %i",
+                              l_tagname[1].c_str(),
+                              run[1],
+                              dr[method].c_str(),
+                              l_tagname[0].c_str(),
+                              run[0]));
+          } else {
+            t1.SetTextSize(0.03);
+            t1.DrawLatex(0.5, 0.96, Form("Ecal LaserAPDPNRatios, IOV %i %s %i", run[1], dr[method].c_str(), run[0]));
+          }
+        } else {
+          t1.SetTextSize(0.03);
+          t1.DrawLatex(0.5, 0.96, Form("%s, IOV %i %s %i", l_tagname[0].c_str(), run[1], dr[method].c_str(), run[0]));
+        }
       } else {  // time type IOV
         time_t t = run[0];
         char buf0[256], buf1[256];
@@ -407,10 +508,26 @@ namespace {
         localtime_r(&t, &lt);
         strftime(buf1, sizeof(buf1), "%F %R:%S", &lt);
         buf1[sizeof(buf1) - 1] = 0;
-        t1.SetTextSize(0.015);
-        t1.DrawLatex(0.5, 0.96, Form("Ecal Laser APD/PN, IOV %s - %s", buf1, buf0));
+        if (ntags == 2) {
+          if (len < 80) {
+            t1.SetTextSize(0.02);
+            t1.DrawLatex(0.5,
+                         0.96,
+                         Form("%s IOV %i %s %s  IOV %i",
+                              l_tagname[1].c_str(),
+                              run[1],
+                              dr[method].c_str(),
+                              l_tagname[0].c_str(),
+                              run[0]));
+          } else {
+            t1.SetTextSize(0.03);
+            t1.DrawLatex(0.5, 0.96, Form("Ecal LaserAPDPNRatios, IOV %i %s %i", run[1], dr[method].c_str(), run[0]));
+          }
+        } else {
+          t1.SetTextSize(0.03);
+          t1.DrawLatex(0.5, 0.96, Form("%s, IOV %i %s %i", l_tagname[0].c_str(), run[1], dr[method].c_str(), run[0]));
+        }
       }
-
       float xmi[3] = {0.0, 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
       TPad*** pad = new TPad**[3];
@@ -451,11 +568,15 @@ namespace {
         endc_p[i]->GetZaxis()->SetLabelSize(0.02);
       }
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };
+  };   // class EcalLaserAPDPNRatiosDiffBase
+  using EcalLaserAPDPNRatiosDiffOneTag = EcalLaserAPDPNRatiosBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
+  using EcalLaserAPDPNRatiosDiffTwoTags = EcalLaserAPDPNRatiosBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
+  using EcalLaserAPDPNRatiosRatioOneTag = EcalLaserAPDPNRatiosBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;
+  using EcalLaserAPDPNRatiosRatioTwoTags = EcalLaserAPDPNRatiosBase<cond::payloadInspector::SINGLE_IOV, 2, 1>;
 
 }  // namespace
 
@@ -464,5 +585,8 @@ PAYLOAD_INSPECTOR_MODULE(EcalLaserAPDPNRatios) {
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEBMap);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosEEMap);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosDiffTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosRatioOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAPDPNRatiosRatioTwoTags);
 }

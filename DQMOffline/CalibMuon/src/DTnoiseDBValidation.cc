@@ -21,11 +21,9 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 // Noise record
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
-#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -36,16 +34,15 @@
 using namespace edm;
 using namespace std;
 
-DTnoiseDBValidation::DTnoiseDBValidation(const ParameterSet &pset) {
+DTnoiseDBValidation::DTnoiseDBValidation(const ParameterSet &pset)
+    : labelDBRef_(esConsumes(edm::ESInputTag("", pset.getParameter<string>("labelDBRef")))),
+      labelDB_(esConsumes(edm::ESInputTag("", pset.getParameter<string>("labelDB")))),
+      muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogVerbatim("NoiseDBValidation") << "[DTnoiseDBValidation] Constructor called!";
 
   // Get the DQM needed services
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder("DT/DtCalib/NoiseDBValidation");
-
-  // Get dataBase label
-  labelDBRef_ = pset.getParameter<string>("labelDBRef");
-  labelDB_ = pset.getParameter<string>("labelDB");
 
   diffTestName_ = "noiseDifferenceInRange";
   if (pset.exists("diffTestName"))
@@ -77,16 +74,13 @@ DTnoiseDBValidation::DTnoiseDBValidation(const ParameterSet &pset) {
 DTnoiseDBValidation::~DTnoiseDBValidation() {}
 
 void DTnoiseDBValidation::beginRun(const edm::Run &run, const EventSetup &setup) {
-  ESHandle<DTStatusFlag> noiseRef;
-  setup.get<DTStatusFlagRcd>().get(labelDBRef_, noiseRef);
-  noiseRefMap_ = &*noiseRef;
+  noiseRefMap_ = &setup.getData(labelDBRef_);
 
-  ESHandle<DTStatusFlag> noiseValid;
-  setup.get<DTStatusFlagRcd>().get(labelDB_, noiseValid);
-  noiseMap_ = &*noiseValid;
+  noiseMap_ = &setup.getData(labelDB_);
+  ;
 
   // Get the geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom_);
+  dtGeom = &setup.getData(muonGeomToken_);
 
   LogVerbatim("NoiseDBValidation") << "[DTnoiseDBValidation] Parameters initialization";
 
@@ -163,7 +157,7 @@ void DTnoiseDBValidation::beginRun(const edm::Run &run, const EventSetup &setup)
     stMap[(*noise).first.stationId]++;
     sectMap[(*noise).first.sectorId]++;
 
-    const DTTopology &dtTopo = dtGeom_->layer(wireId.layerId())->specificTopology();
+    const DTTopology &dtTopo = dtGeom->layer(wireId.layerId())->specificTopology();
     const int lastWire = dtTopo.lastChannel();
     if ((*noise).first.cellId <= 10)
       layerMap[1]++;
@@ -280,7 +274,7 @@ void DTnoiseDBValidation::bookHisto(const DTChamberId &chId) {
   if (noiseHistoMap_.find(chId) == noiseHistoMap_.end()) {  // Redundant check
     // Get the chamber from the geometry
     int nWiresMax = 0;
-    const DTChamber *dtchamber = dtGeom_->chamber(chId);
+    const DTChamber *dtchamber = dtGeom->chamber(chId);
     const vector<const DTSuperLayer *> &superlayers = dtchamber->superLayers();
 
     // Loop over layers and find the max # of wires

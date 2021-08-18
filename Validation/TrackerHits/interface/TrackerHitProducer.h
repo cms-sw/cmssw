@@ -2,7 +2,7 @@
 #define TrackerHitProducer_h
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -18,7 +18,7 @@ namespace edm {
 }
 class PTrackerSimHit;
 
-class TrackerHitProducer : public edm::EDProducer {
+class TrackerHitProducer : public edm::one::EDProducer<> {
 public:
   typedef std::vector<float> FloatVector;
   typedef std::vector<int> IntegerVector;

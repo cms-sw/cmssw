@@ -101,16 +101,16 @@ namespace {
                                                       SiPixelGainCalibrationOffline>;
 
   using SiPixelGainCalibOfflineGainsBPIXMap =
-      SiPixelGainCalibrationBPIXMap<gainCalibPI::t_gain, SiPixelGainCalibrationOffline>;
+      SiPixelGainCalibrationMap<gainCalibPI::t_gain, SiPixelGainCalibrationOffline, SiPixelPI::t_barrel>;
 
   using SiPixelGainCalibOfflinePedestalsBPIXMap =
-      SiPixelGainCalibrationBPIXMap<gainCalibPI::t_pedestal, SiPixelGainCalibrationOffline>;
+      SiPixelGainCalibrationMap<gainCalibPI::t_pedestal, SiPixelGainCalibrationOffline, SiPixelPI::t_barrel>;
 
   using SiPixelGainCalibOfflineGainsFPIXMap =
-      SiPixelGainCalibrationFPIXMap<gainCalibPI::t_gain, SiPixelGainCalibrationOffline>;
+      SiPixelGainCalibrationMap<gainCalibPI::t_gain, SiPixelGainCalibrationOffline, SiPixelPI::t_forward>;
 
   using SiPixelGainCalibOfflinePedestalsFPIXMap =
-      SiPixelGainCalibrationFPIXMap<gainCalibPI::t_pedestal, SiPixelGainCalibrationOffline>;
+      SiPixelGainCalibrationMap<gainCalibPI::t_pedestal, SiPixelGainCalibrationOffline, SiPixelPI::t_forward>;
 
   using SiPixelGainCalibOfflineGainByRegionComparisonSingleTag =
       SiPixelGainCalibrationByRegionComparisonBase<gainCalibPI::t_gain,

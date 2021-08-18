@@ -7,7 +7,6 @@
 #include <algorithm>
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace l1tp2 {
 
@@ -66,7 +65,7 @@ namespace l1tp2 {
           looseL1TkMatchWP_(looseL1TkMatchWP),
           stage2effMatch_(stage2effMatch){};
 
-    virtual ~CaloCrystalCluster(){};
+    ~CaloCrystalCluster() override{};
     inline float calibratedPt() const { return calibratedPt_; };
     inline float hovere() const { return hovere_; };
     inline float isolation() const { return iso_; };
@@ -80,12 +79,12 @@ namespace l1tp2 {
     };
     void setExperimentalParams(const std::map<std::string, float> &params) { experimentalParams_ = params; };
     const std::map<std::string, float> &getExperimentalParams() const { return experimentalParams_; };
-    inline float experimentalParam(std::string name) const {
+    inline float experimentalParam(const std::string &name) const {
       auto iter = experimentalParams_.find(name);
       if (iter != experimentalParams_.end()) {
         return iter->second;
       } else {
-        edm::LogWarning("CaloCrystalCluster") << "Error: no mapping for ExperimentalParam: " << name << std::endl;
+        warningNoMapping(name);
         return -99.;
       }
     };
@@ -106,6 +105,7 @@ namespace l1tp2 {
     inline float crystalPt(unsigned int index) const { return (index < crystalPt_.size()) ? crystalPt_[index] : 0.; };
 
   private:
+    static void warningNoMapping(const std::string &name);
     // pT calibrated to Stage-2 (Phase-I) L1EG Objects.  NOTE
     // all working points are defined with respect to cluster.pt(),
     // not cluster.calibratedPt()

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #===================================================================
 # This python script is querying https://cmsweb.cern.ch/dbs_discovery/

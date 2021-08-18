@@ -14,10 +14,10 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "DataFormats/JetMatching/interface/JetFlavour.h"
+#include "DataFormats/JetMatching/interface/JetFlavourInfo.h"
+#include "DataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
+#include "DataFormats/JetMatching/interface/JetFlavourMatching.h"
 /** \class BTagPerformanceAnalyzerMC
  *
  *  Top level steering routine for b tag performance analysis.

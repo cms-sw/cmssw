@@ -5,11 +5,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
@@ -23,6 +18,8 @@ CaloExtractor::CaloExtractor(const ParameterSet& par, edm::ConsumesCollector&& i
     : theCaloTowerCollectionToken(
           iC.consumes<CaloTowerCollection>(par.getParameter<edm::InputTag>("CaloTowerCollectionLabel"))),
       theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
+      theCaloGeomToken(iC.esConsumes()),
+      theFieldToken(iC.esConsumes()),
       theWeight_E(par.getParameter<double>("Weight_E")),
       theWeight_H(par.getParameter<double>("Weight_H")),
       theThreshold_E(par.getParameter<double>("Threshold_E")),
@@ -41,12 +38,10 @@ void CaloExtractor::fillVetos(const edm::Event& event,
   Handle<CaloTowerCollection> towers;
   event.getByToken(theCaloTowerCollectionToken, towers);
 
-  edm::ESHandle<CaloGeometry> caloGeom;
-  eventSetup.get<CaloGeometryRecord>().get(caloGeom);
+  auto const& caloGeom = eventSetup.getData(theCaloGeomToken);
 
-  edm::ESHandle<MagneticField> bField;
-  eventSetup.get<IdealMagneticFieldRecord>().get(bField);
-  double bz = bField->inInverseGeV(GlobalPoint(0., 0., 0.)).z();
+  auto const& bField = eventSetup.getData(theFieldToken);
+  double bz = bField.inInverseGeV(GlobalPoint(0., 0., 0.)).z();
 
   TrackCollection::const_iterator mu;
   TrackCollection::const_iterator muEnd(muons.end());
@@ -75,7 +70,7 @@ void CaloExtractor::fillVetos(const edm::Event& event,
         continue;
 
       DetId calId = cal->id();
-      GlobalPoint endpos = caloGeom->getPosition(calId);
+      GlobalPoint endpos = caloGeom.getPosition(calId);
       GlobalPoint muatcal = MuonAtCaloPosition(*mu, bz, endpos, vertexConstraintFlag_XY, vertexConstraintFlag_Z);
       double deltar = reco::deltaR(muatcal, endpos);
 
@@ -98,12 +93,10 @@ IsoDeposit CaloExtractor::deposit(const Event& event, const EventSetup& eventSet
   Handle<CaloTowerCollection> towers;
   event.getByToken(theCaloTowerCollectionToken, towers);
 
-  edm::ESHandle<CaloGeometry> caloGeom;
-  eventSetup.get<CaloGeometryRecord>().get(caloGeom);
+  auto const& caloGeom = eventSetup.getData(theCaloGeomToken);
 
-  edm::ESHandle<MagneticField> bField;
-  eventSetup.get<IdealMagneticFieldRecord>().get(bField);
-  double bz = bField->inInverseGeV(GlobalPoint(0., 0., 0.)).z();
+  auto const& bField = eventSetup.getData(theFieldToken);
+  double bz = bField.inInverseGeV(GlobalPoint(0., 0., 0.)).z();
 
   CaloTowerCollection::const_iterator cal;
   CaloTowerCollection::const_iterator calEnd(towers->end());
@@ -127,7 +120,7 @@ IsoDeposit CaloExtractor::deposit(const Event& event, const EventSetup& eventSet
       continue;
 
     DetId calId = cal->id();
-    GlobalPoint endpos = caloGeom->getPosition(calId);
+    GlobalPoint endpos = caloGeom.getPosition(calId);
     GlobalPoint muatcal = MuonAtCaloPosition(muon, bz, endpos, vertexConstraintFlag_XY, vertexConstraintFlag_Z);
     double deltar = reco::deltaR(muatcal, endpos);
 

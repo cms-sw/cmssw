@@ -2,7 +2,7 @@
 #define DataFormats_L1TParticleFlow_HPSPFTau_H
 
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"  // l1t::PFCandidate, l1t::PFCandidateRef, l1t::PFCandidateRefVector
-#include "DataFormats/L1TParticleFlow/interface/PFJet.h"    // l1t::PFJet, l1t::PFJetCollection, l1t::PFJetRef
+#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"  // reco::LeafCandidate
 #include "DataFormats/Candidate/interface/Particle.h"       // reco::Particle::LorentzVector
 #include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"
@@ -21,10 +21,10 @@ namespace l1t {
 
     /// accessor functions for reco level quantities
     bool isChargedPFCandSeeded() const { return seedChargedPFCand_.isNonnull(); }
-    bool isPFJetSeeded() const { return seedPFJet_.isNonnull(); }
+    bool isJetSeeded() const { return seedJet_.isNonnull(); }
 
     const l1t::PFCandidateRef& seedChargedPFCand() const { return seedChargedPFCand_; }
-    const l1t::PFJetRef& seedPFJet() const { return seedPFJet_; }
+    const reco::CaloJetRef& seedJet() const { return seedJet_; }
     const l1t::PFCandidateRef& leadChargedPFCand() const { return leadChargedPFCand_; }
 
     const l1t::PFCandidateRefVector& signalAllL1PFCandidates() const { return signalAllL1PFCandidates_; }
@@ -57,9 +57,9 @@ namespace l1t {
     enum Kind { kUndefined, kOneProng0Pi0, kOneProng1Pi0, kThreeProng0Pi0, kThreeProng1Pi0 };
     Kind tauType() const { return tauType_; }
 
-    const reco::Particle::LorentzVector& strip_p4() const { return strip_p4_; }
+    const reco::Particle::LorentzVector& stripP4() const { return stripP4_; }
 
-    float sumAllL1PFCandidates_pt() const { return sumAllL1PFCandidates_pt_; }
+    float sumAllL1PFCandidatesPt() const { return sumAllL1PFCandidatesPt_; }
     float signalConeSize() const { return signalConeSize_; }
     float isolationConeSize() const { return signalConeSize_; }
 
@@ -67,7 +67,6 @@ namespace l1t {
     float sumNeutralIso() const { return sumNeutralIso_; }
     float sumCombinedIso() const { return sumCombinedIso_; }
     float sumChargedIsoPileup() const { return sumChargedIsoPileup_; }
-    float rhoCorr() const { return rhoCorr_; }
 
     bool passTightIso() const { return passTightIso_; }
     bool passMediumIso() const { return passMediumIso_; }
@@ -79,9 +78,75 @@ namespace l1t {
     bool passLooseRelIso() const { return passLooseRelIso_; }
     bool passVLooseRelIso() const { return passVLooseRelIso_; }
 
+    void setSeedChargedPFCand(l1t::PFCandidateRef seedChargedPFCand) { seedChargedPFCand_ = seedChargedPFCand; }
+    void setSeedJet(reco::CaloJetRef seedJet) { seedJet_ = seedJet; }
+    void setLeadChargedPFCand(l1t::PFCandidateRef leadChargedPFCand) { leadChargedPFCand_ = leadChargedPFCand; }
+
+    void setSignalAllL1PFCandidates(l1t::PFCandidateRefVector signalAllL1PFCandidates) {
+      signalAllL1PFCandidates_ = signalAllL1PFCandidates;
+    }
+    void setSignalChargedHadrons(l1t::PFCandidateRefVector signalChargedHadrons) {
+      signalChargedHadrons_ = signalChargedHadrons;
+    }
+    void setSignalElectrons(l1t::PFCandidateRefVector signalElectrons) { signalElectrons_ = signalElectrons; }
+    void setSignalNeutralHadrons(l1t::PFCandidateRefVector signalNeutralHadrons) {
+      signalNeutralHadrons_ = signalNeutralHadrons;
+    }
+    void setSignalPhotons(l1t::PFCandidateRefVector signalPhotons) { signalPhotons_ = signalPhotons; }
+    void setSignalMuons(l1t::PFCandidateRefVector signalMuons) { signalMuons_ = signalMuons; }
+
+    void setStripAllL1PFCandidates(l1t::PFCandidateRefVector stripAllL1PFCandidates) {
+      stripAllL1PFCandidates_ = stripAllL1PFCandidates;
+    }
+    void setStripElectrons(l1t::PFCandidateRefVector stripElectrons) { stripElectrons_ = stripElectrons; }
+    void setStripPhotons(l1t::PFCandidateRefVector stripPhotons) { stripPhotons_ = stripPhotons; }
+
+    void setIsoAllL1PFCandidates(l1t::PFCandidateRefVector isoAllL1PFCandidates) {
+      isoAllL1PFCandidates_ = isoAllL1PFCandidates;
+    }
+    void setIsoChargedHadrons(l1t::PFCandidateRefVector isoChargedHadrons) { isoChargedHadrons_ = isoChargedHadrons; }
+    void setIsoElectrons(l1t::PFCandidateRefVector isoElectrons) { isoElectrons_ = isoElectrons; }
+    void setIsoNeutralHadrons(l1t::PFCandidateRefVector isoNeutralHadrons) { isoNeutralHadrons_ = isoNeutralHadrons; }
+    void setIsoPhotons(l1t::PFCandidateRefVector isoPhotons) { isoPhotons_ = isoPhotons; }
+    void setIsoMuons(l1t::PFCandidateRefVector isoMuons) { isoMuons_ = isoMuons; }
+
+    void setSumAllL1PFCandidates(l1t::PFCandidateRefVector sumAllL1PFCandidates) {
+      sumAllL1PFCandidates_ = sumAllL1PFCandidates;
+    }
+    void setSumChargedHadrons(l1t::PFCandidateRefVector sumChargedHadrons) { sumChargedHadrons_ = sumChargedHadrons; }
+    void setSumElectrons(l1t::PFCandidateRefVector sumElectrons) { sumElectrons_ = sumElectrons; }
+    void setSumNeutralHadrons(l1t::PFCandidateRefVector sumNeutralHadrons) { sumNeutralHadrons_ = sumNeutralHadrons; }
+    void setSumPhotons(l1t::PFCandidateRefVector sumPhotons) { sumPhotons_ = sumPhotons; }
+    void setSumMuons(l1t::PFCandidateRefVector sumMuons) { sumMuons_ = sumMuons; }
+
+    void setPrimaryVertex(l1t::TkPrimaryVertexRef primaryVertex) { primaryVertex_ = primaryVertex; }
+
+    void setTauType(Kind tauType) { tauType_ = tauType; }
+
+    void setStripP4(reco::Particle::LorentzVector& stripP4) { stripP4_ = stripP4; }
+
+    void setSumAllL1PFCandidatesPt(float sumAllL1PFCandidatesPt) { sumAllL1PFCandidatesPt_ = sumAllL1PFCandidatesPt; }
+    void setSignalConeSize(float signalConeSize) { signalConeSize_ = signalConeSize; }
+    void setisolationConeSize(float isolationConeSize) { signalConeSize_ = isolationConeSize; }
+
+    void setSumChargedIso(float sumChargedIso) { sumChargedIso_ = sumChargedIso; }
+    void setSumNeutralIso(float sumNeutralIso) { sumNeutralIso_ = sumNeutralIso; }
+    void setSumCombinedIso(float sumCombinedIso) { sumCombinedIso_ = sumCombinedIso; }
+    void setSumChargedIsoPileup(float sumChargedIsoPileup) { sumChargedIsoPileup_ = sumChargedIsoPileup; }
+
+    void setPassTightIso(bool passTightIso) { passTightIso_ = passTightIso; }
+    void setPassMediumIso(bool passMediumIso) { passMediumIso_ = passMediumIso; }
+    void setPassLooseIso(bool passLooseIso) { passLooseIso_ = passLooseIso; }
+    void setPassVLooseIso(bool passVLooseIso) { passVLooseIso_ = passVLooseIso; }
+
+    void setPassTightRelIso(bool passTightRelIso) { passTightRelIso_ = passTightRelIso; }
+    void setPassMediumRelIso(bool passMediumRelIso) { passMediumRelIso_ = passMediumRelIso; }
+    void setPassLooseRelIso(bool passLooseRelIso) { passLooseRelIso_ = passLooseRelIso; }
+    void setPassVLooseRelIso(bool passVLooseRelIso) { passVLooseRelIso_ = passVLooseRelIso; }
+
   private:
     l1t::PFCandidateRef seedChargedPFCand_;
-    l1t::PFJetRef seedPFJet_;
+    reco::CaloJetRef seedJet_;
     l1t::PFCandidateRef leadChargedPFCand_;
 
     l1t::PFCandidateRefVector signalAllL1PFCandidates_;
@@ -112,9 +177,9 @@ namespace l1t {
     l1t::TkPrimaryVertexRef primaryVertex_;
     Kind tauType_;
 
-    reco::Particle::LorentzVector strip_p4_;
+    reco::Particle::LorentzVector stripP4_;
 
-    float sumAllL1PFCandidates_pt_;
+    float sumAllL1PFCandidatesPt_;
     float signalConeSize_;
     float isolationConeSize_;
 
@@ -122,7 +187,6 @@ namespace l1t {
     float sumNeutralIso_;
     float sumCombinedIso_;
     float sumChargedIsoPileup_;  // charged PFCands failing dz cut (maybe useful to correct neutral isolation for pile-up contributions by applying delta-beta corrections)
-    float rhoCorr_;              // rho correction (maybe useful for applying pile-up corrections to neutral isolation)
 
     bool passTightIso_;
     bool passMediumIso_;
@@ -135,11 +199,12 @@ namespace l1t {
     bool passVLooseRelIso_;
   };
 
-  void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, const l1t::TkPrimaryVertexRef& primaryVertex);
-  void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, float primaryVertex_z);
 }  // namespace l1t
 
 /// print to stream
 std::ostream& operator<<(std::ostream& os, const l1t::HPSPFTau& l1PFTau);
+
+void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, const l1t::TkPrimaryVertexRef& primaryVertex);
+void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, float primaryVertexZ);
 
 #endif

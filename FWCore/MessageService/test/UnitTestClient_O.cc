@@ -1,20 +1,22 @@
-#include "FWCore/MessageService/test/UnitTestClient_O.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include <iostream>
-#include <string>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 namespace edmtest {
 
-  void UnitTestClient_O::analyze(edm::Event const& /*unused*/
-                                 ,
-                                 edm::EventSetup const& /*unused*/
-  ) {
+  class UnitTestClient_O : public edm::global::EDAnalyzer<> {
+  public:
+    explicit UnitTestClient_O(edm::ParameterSet const&) {}
+
+    void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
+  };
+
+  void UnitTestClient_O::analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const {
     edm::LogInfo("importantInfo") << "This LogInfo message should appear in both destinations";
     edm::LogInfo("routineInfo") << "This LogInfo message should appear in the info destination";
-
-  }  // MessageLoggerClient::analyze()
+  }
 
 }  // namespace edmtest
 

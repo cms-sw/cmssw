@@ -15,42 +15,26 @@
 //
 //
 //
+#include <set>
 
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Math/interface/Point3D.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <TVector3.h>
-#include <TLorentzVector.h>
-#include <set>
-
 #include "HLTrigger/JetMET/interface/HLTHcalTowerNoiseCleaner.h"
 
-//#include <Point.h>
-
 HLTHcalTowerNoiseCleaner::HLTHcalTowerNoiseCleaner(const edm::ParameterSet& iConfig)
-    : HcalNoiseRBXCollectionTag_(iConfig.getParameter<edm::InputTag>("HcalNoiseRBXCollection")),
+    : hcalRecNumberingRecordToken_(esConsumes()),
+      HcalNoiseRBXCollectionTag_(iConfig.getParameter<edm::InputTag>("HcalNoiseRBXCollection")),
       TowerCollectionTag_(iConfig.getParameter<edm::InputTag>("CaloTowerCollection")),
       severity_(iConfig.getParameter<int>("severity")),
       maxNumRBXs_(iConfig.getParameter<int>("maxNumRBXs")),
@@ -155,8 +139,7 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
   }
 
   //get the calotower topology
-  edm::ESHandle<CaloTowerTopology> caloTowerTopology;
-  iSetup.get<HcalRecNumberingRecord>().get(caloTowerTopology);
+  auto const& caloTowerTopology = iSetup.getHandle(hcalRecNumberingRecordToken_);
 
   // get the RBXs produced by RecoMET/METProducers/HcalNoiseInfoProducer
   edm::Handle<HcalNoiseRBXCollection> rbxs_h;

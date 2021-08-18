@@ -24,6 +24,9 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 //
@@ -51,13 +54,16 @@ private:
   bool m_invert;
   bool m_throw;
 
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> const m_l1GtTriggerMenuToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd> const m_l1GtTriggerMaskAlgoTrigRcdToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd> const m_l1GtTriggerMaskTechTrigRcdToken;
+
   edm::ESWatcher<L1GtTriggerMenuRcd> m_watchL1Menu;
   edm::ESWatcher<L1GtTriggerMaskAlgoTrigRcd> m_watchPhysicsMask;
   edm::ESWatcher<L1GtTriggerMaskTechTrigRcd> m_watchTechnicalMask;
 };
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
@@ -76,7 +82,10 @@ HLTLevel1Pattern::HLTLevel1Pattern(const edm::ParameterSet& config)
       m_triggerMasked(false),
       m_ignoreL1Mask(config.getParameter<bool>("ignoreL1Mask")),
       m_invert(config.getParameter<bool>("invert")),
-      m_throw(config.getParameter<bool>("throw")) {
+      m_throw(config.getParameter<bool>("throw")),
+      m_l1GtTriggerMenuToken(esConsumes()),
+      m_l1GtTriggerMaskAlgoTrigRcdToken(esConsumes()),
+      m_l1GtTriggerMaskTechTrigRcdToken(esConsumes()) {
   m_gtReadoutRecordToken = consumes<L1GlobalTriggerReadoutRecord>(m_gtReadoutRecord);
   std::vector<int> pattern(config.getParameter<std::vector<int> >("triggerPattern"));
   if (pattern.size() != m_bunchCrossings.size())
@@ -127,9 +136,7 @@ void HLTLevel1Pattern::fillDescriptions(edm::ConfigurationDescriptions& descript
 bool HLTLevel1Pattern::filter(edm::Event& event, const edm::EventSetup& setup) {
   // determine the L1 algo or tech bit to use
   if (m_watchL1Menu.check(setup)) {
-    edm::ESHandle<L1GtTriggerMenu> h_menu;
-    setup.get<L1GtTriggerMenuRcd>().get(h_menu);
-
+    auto const& h_menu = setup.getHandle(m_l1GtTriggerMenuToken);
     // look for an Algo L1 bit
     const AlgorithmMap& algoMap = h_menu->gtAlgorithmAliasMap();
     const AlgorithmMap& techMap = h_menu->gtTechnicalTriggerMap();
@@ -156,8 +163,7 @@ bool HLTLevel1Pattern::filter(edm::Event& event, const edm::EventSetup& setup) {
     //  - mask & partition == 0x00  --> fully unmasked
     //  - mask & partition != part. --> unmasked in some partitions, consider as unmasked
     if (m_watchPhysicsMask.check(setup)) {
-      edm::ESHandle<L1GtTriggerMask> h_mask;
-      setup.get<L1GtTriggerMaskAlgoTrigRcd>().get(h_mask);
+      auto const& h_mask = setup.getHandle(m_l1GtTriggerMaskAlgoTrigRcdToken);
       m_triggerMasked = ((h_mask->gtTriggerMask()[m_triggerNumber] & m_daqPartitions) == m_daqPartitions);
     }
   } else {
@@ -166,8 +172,7 @@ bool HLTLevel1Pattern::filter(edm::Event& event, const edm::EventSetup& setup) {
     //  - mask & partition == 0x00  --> fully unmasked
     //  - mask & partition != part. --> unmasked in some partitions, consider as unmasked
     if (m_watchTechnicalMask.check(setup)) {
-      edm::ESHandle<L1GtTriggerMask> h_mask;
-      setup.get<L1GtTriggerMaskTechTrigRcd>().get(h_mask);
+      auto const& h_mask = setup.getHandle(m_l1GtTriggerMaskTechTrigRcdToken);
       m_triggerMasked = ((h_mask->gtTriggerMask()[m_triggerNumber] & m_daqPartitions) == m_daqPartitions);
     }
   }

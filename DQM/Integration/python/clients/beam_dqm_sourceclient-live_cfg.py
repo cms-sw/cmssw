@@ -4,8 +4,10 @@ import FWCore.ParameterSet.Config as cms
 # Define here the BeamSpotOnline record name,
 # it will be used both in BeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
-BSOnlineTag = 'BeamSpotOnlineTestLegacy'
-BSOnlineJobName = 'BeamSpotOnlineTestLegacy'
+BSOnlineTag = 'BeamSpotOnlinetLegacy'
+BSOnlineJobName = 'BeamSpotOnlineLegacy'
+BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
+useLockRecords = True
 
 #from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 #process = cms.Process("BeamMonitor", Run2_2018) FIXME
@@ -17,7 +19,8 @@ process = cms.Process("BeamMonitor", Run2_2018_pp_on_AA)
 if "dqm_cmssw/playback" in str(sys.argv[1]):
     BSOnlineTag = BSOnlineTag + 'Playback'
     BSOnlineJobName = BSOnlineJobName + 'Playback'
-
+    BSOnlineOmsServiceUrl = ''
+    useLockRecords = False
 #
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
@@ -34,6 +37,7 @@ unitTest = False
 if 'unitTest=True' in sys.argv:
     live=False
     unitTest=True
+    useLockRecords = False
 
 #---------------
 # Input sources
@@ -56,25 +60,26 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 #----------------------------
 # DQM Live Environment
 process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder = 'BeamMonitor'
-process.dqmSaver.tag           = 'BeamMonitor'
+process.dqmEnv.subSystemFolder = 'BeamMonitorLegacy'
+process.dqmSaver.tag           = 'BeamMonitorLegacy'
 process.dqmSaver.runNumber     = options.runNumber
-process.dqmSaverPB.tag         = 'BeamMonitor'
+process.dqmSaverPB.tag         = 'BeamMonitorLegacy'
 process.dqmSaverPB.runNumber   = options.runNumber
 
-process.dqmEnvPixelLess = process.dqmEnv.clone()
-process.dqmEnvPixelLess.subSystemFolder = 'BeamMonitor_PixelLess'
+process.dqmEnvPixelLess = process.dqmEnv.clone(
+  subSystemFolder = 'BeamMonitor_PixelLess'
+)
 
 #---------------
 # Conditions
 if (live):
     process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-    process.GlobalTag.DBParameters.authenticationPath = cms.untracked.string('.')
+    process.GlobalTag.DBParameters.authenticationPath = '.'
 else:
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
     process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
-    process.GlobalTag.DBParameters.authenticationPath = cms.untracked.string('.')
+    process.GlobalTag.DBParameters.authenticationPath = '.'
     # you may need to set manually the GT in the line below
     #process.GlobalTag.globaltag = '100X_upgrade2018_realistic_v10'
 
@@ -160,45 +165,43 @@ process.pixelTracksHP = cms.EDProducer( "TrackCollectionFilterCloner",
 # PixelTracksMonitor
 
 import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
-process.pixelTracksMonitor = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
+process.pixelTracksMonitor = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone(
+   FolderName                = 'BeamMonitor/Tracking/pixelTracks',
+   TrackProducer             = 'pixelTracks',
+   allTrackProducer          = 'pixelTracks',
+   beamSpot                  = "offlineBeamSpot",
+   primaryVertex             = "pixelVertices",
 
-process.pixelTracksMonitor.FolderName       = 'BeamMonitor/Tracking/pixelTracks'
-process.pixelTracksMonitor.TrackProducer    = 'pixelTracks'
-process.pixelTracksMonitor.allTrackProducer = 'pixelTracks'
-process.pixelTracksMonitor.beamSpot         = "offlineBeamSpot"
-process.pixelTracksMonitor.primaryVertex    = "pixelVertices"
+   doAllPlots                = False,
+   doLumiAnalysis            = False,
+   doProfilesVsLS            = True,
+   doDCAPlots                = True,
+   doPlotsVsGoodPVtx         = True,
 
-process.pixelTracksMonitor.doAllPlots                = cms.bool(False)
-process.pixelTracksMonitor.doLumiAnalysis            = cms.bool(False)
-process.pixelTracksMonitor.doProfilesVsLS            = cms.bool(True)
-process.pixelTracksMonitor.doDCAPlots                = cms.bool(True)
-process.pixelTracksMonitor.doPlotsVsGoodPVtx         = cms.bool(True)
-process.pixelTracksMonitor.doEffFromHitPatternVsPU   = cms.bool(False)
-process.pixelTracksMonitor.doEffFromHitPatternVsBX   = cms.bool(True)
-process.pixelTracksMonitor.doEffFromHitPatternVsLUMI = cms.bool(False)
-process.pixelTracksMonitor.doPlotsVsGoodPVtx         = cms.bool(True)
-process.pixelTracksMonitor.doPlotsVsLUMI             = cms.bool(True)
-process.pixelTracksMonitor.doPlotsVsBX               = cms.bool(True)
+   doEffFromHitPatternVsPU   = False,
+   doEffFromHitPatternVsBX   = True,
+   doEffFromHitPatternVsLUMI = False,
+   doPlotsVsLUMI             = True,
+   doPlotsVsBX               = True,
 
-process.pixelTracksMonitor.AbsDxyMax  =   1.2
-process.pixelTracksMonitor.AbsDxyBin  =  12
+   AbsDxyMax                 = 1.2,
+   AbsDxyBin                 = 12,
+   DxyMin                    = -1.2,
+   DxyMax                    = 1.2,
+   DxyBin                    = 60,
 
-process.pixelTracksMonitor.DxyMin     =  -1.2
-process.pixelTracksMonitor.DxyMax     =   1.2
-process.pixelTracksMonitor.DxyBin     =  60
+   Chi2NDFMax                = 35.,
+   Chi2NDFMin                = 0.,
+   Chi2NDFBin                = 70,
 
-process.pixelTracksMonitor.Chi2NDFMax =  35.
-process.pixelTracksMonitor.Chi2NDFMin =   0.
-process.pixelTracksMonitor.Chi2NDFBin =  70
+   VZBin                     = 124,
+   VZMin                     = -62.,
+   VZMax                     =  62.,
 
-process.pixelTracksMonitor.VZBin      =  124
-process.pixelTracksMonitor.VZMin      =  -62.
-process.pixelTracksMonitor.VZMax      =   62.
-
-process.pixelTracksMonitor.TrackPtMin =    0.
-process.pixelTracksMonitor.TrackPtMax =   50.
-process.pixelTracksMonitor.TrackPtBin =  250
-
+   TrackPtMin                =  0.,
+   TrackPtMax                =  50.,
+   TrackPtBin                =  250
+)
 #
 process.tracks2monitor = cms.EDFilter('TrackSelector',
     src = cms.InputTag('pixelTracks'),
@@ -209,10 +212,11 @@ process.tracks2monitor.cut = 'pt > 1 & abs(eta) < 2.4'
 
 
 #
-process.selectedPixelTracksMonitor = process.pixelTracksMonitor.clone()
-process.selectedPixelTracksMonitor.FolderName       = 'BeamMonitor/Tracking/selectedPixelTracks'
-process.selectedPixelTracksMonitor.TrackProducer    = 'tracks2monitor'
-process.selectedPixelTracksMonitor.allTrackProducer = 'tracks2monitor'
+process.selectedPixelTracksMonitor = process.pixelTracksMonitor.clone(
+   FolderName       = 'BeamMonitor/Tracking/selectedPixelTracks',
+   TrackProducer    = 'tracks2monitor',
+   allTrackProducer = 'tracks2monitor'
+)
 
 process.selectedPixelTracksMonitorSequence = cms.Sequence(
     process.pixelTracksCutClassifier
@@ -278,14 +282,14 @@ process = customise(process)
 #------------------------
 # Set rawDataRepacker (HI and live) or rawDataCollector (for all the rest)
 if (process.runType.getRunType() == process.runType.hi_run and live):
-    rawDataInputTag = cms.InputTag("rawDataRepacker")
+    rawDataInputTag = "rawDataRepacker"
 else:
-    rawDataInputTag = cms.InputTag("rawDataCollector")
+    rawDataInputTag = "rawDataCollector"
 
 process.castorDigis.InputLabel           = rawDataInputTag
 process.csctfDigis.producer              = rawDataInputTag 
 process.dttfDigis.DTTF_FED_Source        = rawDataInputTag
-process.ecalDigis.InputLabel             = rawDataInputTag
+process.ecalDigis.cpu.InputLabel         = rawDataInputTag
 process.ecalPreshowerDigis.sourceTag     = rawDataInputTag
 process.gctDigis.inputLabel              = rawDataInputTag
 process.gtDigis.DaqGtInputTag            = rawDataInputTag
@@ -301,6 +305,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 process.dqmBeamMonitor.OnlineMode = True
 process.dqmBeamMonitor.recordName = BSOnlineRecordName
+process.dqmBeamMonitor.useLockRecords = useLockRecords
 
 process.dqmBeamMonitor.resetEveryNLumi   = 5 # was 10 for HI
 process.dqmBeamMonitor.resetPVEveryNLumi = 5 # was 10 for HI
@@ -312,13 +317,15 @@ process.dqmBeamMonitor.PVFitter.errorScale = 1.22
 #----------------------------
 # Pixel tracks/vertices reco
 process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+from RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi import *
+process.pixelVertices = pixelVertices.clone(
+  TkFilterParameters = dict( minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin)
+)
 process.pixelTracksTrackingRegions.RegionPSet.originRadius = 0.4
 process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 12
 process.pixelTracksTrackingRegions.RegionPSet.originXPos =  0.08
 process.pixelTracksTrackingRegions.RegionPSet.originYPos = -0.03
 process.pixelTracksTrackingRegions.RegionPSet.originZPos = 0.
-
-process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
 
 process.tracking_FirstStep = cms.Sequence(
       process.siPixelDigis 
@@ -332,18 +339,18 @@ process.tracking_FirstStep = cms.Sequence(
 
 # triggerName for selecting pv for DIP publication, no wildcard needed here
 # it will pick all triggers which has these strings in theri name
-process.dqmBeamMonitor.jetTrigger  = cms.untracked.vstring(
+process.dqmBeamMonitor.jetTrigger  = [
          "HLT_PAZeroBias_v", "HLT_ZeroBias_v", "HLT_QuadJet",
          "HLT_ZeroBias_",
-         "HLT_HI")
+         "HLT_HI"]
 
 # for HI only: select events based on the pixel cluster multiplicity
 if (process.runType.getRunType() == process.runType.hi_run):
     import HLTrigger.special.hltPixelActivityFilter_cfi
     process.multFilter = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone(
-        inputTag  = cms.InputTag('siPixelClustersPreSplitting'),
-        minClusters = cms.uint32(150),
-        maxClusters = cms.uint32(50000) # was 10000
+        inputTag  = 'siPixelClustersPreSplitting',
+        minClusters = 150,
+        maxClusters = 50000 # was 10000
     )
        
     process.filter_step = cms.Sequence( process.siPixelDigis
@@ -351,7 +358,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                       * process.multFilter
     )
 
-process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
+process.dqmBeamMonitor.hltResults = "TriggerResults::HLT"
 
 #---------
 # Upload BeamSpotOnlineObject (LegacyRcd) to CondDB
@@ -368,9 +375,7 @@ if unitTest == False:
         preLoadConnectionString = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS'),
 
         runNumber = cms.untracked.uint64(options.runNumber),
-        #lastLumiFile = cms.untracked.string('last_lumi.txt'),
-        #lastLumiUrl = cms.untracked.string('http://ru-c2e14-11-01.cms:11100/urn:xdaq-application:lid=52/getLatestLumiSection'),
-        omsServiceUrl = cms.untracked.string('http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'),
+        omsServiceUrl = cms.untracked.string(BSOnlineOmsServiceUrl),
         writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
@@ -381,8 +386,10 @@ if unitTest == False:
             tag = cms.string(BSOnlineTag),
             timetype = cms.untracked.string('Lumi'),
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
-        ))
+        )),
+        frontierKey = cms.untracked.string(options.runUniqueKey)
     )
+
 else:
     process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
 
@@ -396,7 +403,6 @@ else:
         preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db'),
         runNumber = cms.untracked.uint64(options.runNumber),
         lastLumiFile = cms.untracked.string('last_lumi.txt'),
-        #lastLumiUrl = cms.untracked.string('http://ru-c2e14-11-01.cms:11100/urn:xdaq-application:lid=52/getLatestLumiSection'),
         writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
@@ -405,8 +411,10 @@ else:
             tag = cms.string(BSOnlineTag),
             timetype = cms.untracked.string('Lumi'),
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
-        ))
+        )),
+        frontierKey = cms.untracked.string(options.runUniqueKey)
     )
+print("Configured frontierKey", options.runUniqueKey)
 
 #---------
 # Final path

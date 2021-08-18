@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -204,7 +203,7 @@ void HFPMTHitAnalyzer::beginJob() {
 void HFPMTHitAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   ++event_no;
   if (event_no % 500 == 0)
-    std::cout << "Event # " << event_no << " processed.\n";
+    edm::LogVerbatim("HcalSim") << "Event # " << event_no << " processed.";
 
   std::vector<PCaloHit> caloHits;
   edm::Handle<edm::PCaloHitContainer> hitsHcal;

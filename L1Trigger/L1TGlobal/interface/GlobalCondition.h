@@ -11,6 +11,7 @@
  *    <TODO: enter implementation details>
  *
  * \author: Brian Winer, OSU   Vasile Mihai Ghete - HEPHY Vienna
+ *          Elisa Fontanesi - extended for three-body correlation conditions
  *
  * $Date$
  * $Revision$
@@ -92,6 +93,9 @@ public:
   /// get logic flag for conditions, different type of trigger objects,
   /// and with spatial correlations
   const bool corr() const;
+
+  /// get logic flag for three-body conditions, trigger objects are muons
+  const bool corrThree() const;
 
   /// print condition
   virtual void print(std::ostream& myCout) const;

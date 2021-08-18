@@ -1,10 +1,9 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 import sys
 import os
 import imp
 import argparse
-import six
 
 from FWCore.ParameterSet.Mixins import PrintOptions
 
@@ -54,7 +53,7 @@ options.useSubdirectories = args.subdirectories
 options.targetDirectory = args.output_directory
 
 files = process.splitPython(options)
-for fn, c in six.iteritems(files):
+for fn, c in files.items():
   if fn == '-':
     continue
   d = os.path.dirname(fn)

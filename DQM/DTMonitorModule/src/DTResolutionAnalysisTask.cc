@@ -20,7 +20,6 @@
 
 //Geometry
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 //RecHit
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
@@ -30,7 +29,8 @@
 using namespace edm;
 using namespace std;
 
-DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
+DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
       << "[DTResolutionAnalysisTask] Constructor called!" << endl;
 
@@ -53,7 +53,7 @@ DTResolutionAnalysisTask::~DTResolutionAnalysisTask() {
 
 void DTResolutionAnalysisTask::dqmBeginRun(const Run& run, const EventSetup& setup) {
   // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  dtGeom = &setup.getData(muonGeomToken_);
 }
 
 void DTResolutionAnalysisTask::bookHistograms(DQMStore::IBooker& ibooker,

@@ -5,7 +5,7 @@ from Validation.CTPPS.simu_config.base_cff import *
 # base profile settings for 2021
 profile_base_2021 = profile_base.clone(
   ctppsLHCInfo = dict(
-    beamEnergy = 6500
+    beamEnergy = 7000
   ),
 
   ctppsOpticalFunctions = dict(
@@ -33,6 +33,9 @@ profile_base_2021 = profile_base.clone(
     empiricalAperture56 = cms.string("1E3*([xi] - 0.20)")
   )
 )
+
+# adjust basic settings
+generator.energy = profile_base_2021.ctppsLHCInfo.beamEnergy
 
 # geometry
 from Geometry.VeryForwardGeometry.geometryRPFromDD_2021_cfi import *

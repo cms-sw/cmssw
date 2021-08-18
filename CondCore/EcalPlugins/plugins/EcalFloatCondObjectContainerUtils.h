@@ -66,8 +66,13 @@ void fillEEMap_SingleIOV(std::shared_ptr<floatCondObj> payload, TH2F*& endc_m, T
 }
 
 template <class floatCondObj>
-void fillEBMap_DiffIOV(
-    std::shared_ptr<floatCondObj> payload, TH2F*& barrel, int irun, float pEB[], float& pEBmin, float& pEBmax) {
+void fillEBMap_TwoIOVs(std::shared_ptr<floatCondObj> payload,
+                       TH2F*& barrel,
+                       int irun,
+                       float pEB[],
+                       float& pEBmin,
+                       float& pEBmax,
+                       int method) {
   for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
     uint32_t rawid = EBDetId::unhashIndex(cellid);
     EcalCondObjectContainer<float>::const_iterator value_ptr = payload->find(rawid);
@@ -85,28 +90,38 @@ void fillEBMap_DiffIOV(
         eta = eta - 0.5;  //   0.5 to 84.5
       else
         eta = eta + 0.5;  //  -84.5 to -0.5
-
-      double diff = weight - pEB[cellid];
-
-      if (diff < pEBmin)
-        pEBmin = diff;
-      if (diff > pEBmax)
-        pEBmax = diff;
-
-      barrel->Fill(phi, eta, diff);
+      double dr;
+      if (method == 0) {
+        dr = weight - pEB[cellid];
+      }  // diff
+      else {
+        if (pEB[cellid] != 0.)
+          dr = weight / pEB[cellid];
+        else {
+          if (weight == 0.)
+            dr = 1.;
+          else
+            dr = 9999.;  // use a large value
+        }
+      }  // ratio
+      if (dr < pEBmin)
+        pEBmin = dr;
+      if (dr > pEBmax)
+        pEBmax = dr;
+      barrel->Fill(phi, eta, dr);
     }
-
   }  // loop over cellid
 }
 
 template <class floatCondObj>
-void fillEEMap_DiffIOV(std::shared_ptr<floatCondObj> payload,
+void fillEEMap_TwoIOVs(std::shared_ptr<floatCondObj> payload,
                        TH2F*& endc_m,
                        TH2F*& endc_p,
                        int irun,
                        float pEE[],
                        float& pEEmin,
-                       float& pEEmax) {
+                       float& pEEmax,
+                       int method) {
   // looping over the EE channels
   for (int iz = -1; iz < 2; iz = iz + 2)  // -1 or +1
     for (int iy = IY_MIN; iy < IY_MAX + IY_MIN; iy++)
@@ -124,29 +139,41 @@ void fillEEMap_DiffIOV(std::shared_ptr<floatCondObj> payload,
           if (irun == 0)
             pEE[cellid] = weight;
           else {
-            double diff = weight - pEE[cellid];
-            if (diff < pEEmin)
-              pEEmin = diff;
-
-            if (diff > pEEmax)
-              pEEmax = diff;
+            double dr;
+            if (method == 0) {
+              dr = weight - pEE[cellid];
+            }  // diff
+            else {
+              if (pEE[cellid] != 0.)
+                dr = weight / pEE[cellid];
+              else {
+                if (weight == 0.)
+                  dr = 1.;
+                else
+                  dr = 9999.;  // use a large value
+              }
+            }  // ratio
+            if (dr < pEEmin)
+              pEEmin = dr;
+            if (dr > pEEmax)
+              pEEmax = dr;
             if (iz == 1)
-              endc_p->Fill(ix, iy, diff);
+              endc_p->Fill(ix, iy, dr);
             else
-              endc_m->Fill(ix, iy, diff);
+              endc_m->Fill(ix, iy, dr);
           }
 
         }  // validDetId
 }
 
-void fillTableWithSummary(TH2F*& align,
-                          std::string title,
-                          const float& mean_x_EB,
-                          const float& rms_EB,
-                          const int& num_x_EB,
-                          const float& mean_x_EE,
-                          const float& rms_EE,
-                          const int& num_x_EE) {
+inline void fillTableWithSummary(TH2F*& align,
+                                 std::string title,
+                                 const float& mean_x_EB,
+                                 const float& rms_EB,
+                                 const int& num_x_EB,
+                                 const float& mean_x_EE,
+                                 const float& rms_EE,
+                                 const int& num_x_EE) {
   int NbRows = 2;
   align = new TH2F(title.c_str(), "EB/EE      mean_x      rms        num_x", 4, 0, 4, NbRows, 0, NbRows);
 

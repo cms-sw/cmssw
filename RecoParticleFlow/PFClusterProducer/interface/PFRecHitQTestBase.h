@@ -31,7 +31,7 @@
 class PFRecHitQTestBase {
 public:
   PFRecHitQTestBase() = default;
-  PFRecHitQTestBase(const edm::ParameterSet& iConfig) {}
+  PFRecHitQTestBase(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {}
   virtual ~PFRecHitQTestBase() = default;
 
   virtual void beginEvent(const edm::Event&, const edm::EventSetup&) = 0;
@@ -45,5 +45,6 @@ public:
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory<PFRecHitQTestBase*(const edm::ParameterSet&)> PFRecHitQTestFactory;
+typedef edmplugin::PluginFactory<PFRecHitQTestBase*(const edm::ParameterSet&, edm::ConsumesCollector&)>
+    PFRecHitQTestFactory;
 #endif

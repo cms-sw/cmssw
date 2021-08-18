@@ -159,8 +159,7 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
   FRDEventMsgView msg(workBuffer.get()->data());
   writtensize += msg.size();
 
-  if (!templateConsumer_->sharedMode())
-    templateConsumer_->doOutputEvent(msg);
+  templateConsumer_->doOutputEvent(msg);
 }
 
 template <class Consumer>

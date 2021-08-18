@@ -21,6 +21,8 @@ CSCBaseboard::CSCBaseboard(unsigned endcap,
 
   commonParams_ = conf.getParameter<edm::ParameterSet>("commonParam");
 
+  showerParams_ = conf.getParameterSet("showerParam");
+
   theCSCName_ = CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber);
 
   runPhase2_ = commonParams_.getParameter<bool>("runPhase2");

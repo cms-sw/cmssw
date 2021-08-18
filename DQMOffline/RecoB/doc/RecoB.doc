@@ -32,7 +32,6 @@ offline DQM package for b-tagging : allowed to produce histograms for the differ
 - HistoProviderDQM 
 - HistoShifter
 - JetTagPlotter : fill histograms for informations related to the jets which are used by the taggers (jet pt, eta, phi, p, discriminant value and jet multiplicity)
-- MVAJetTagPlotter : in association with TaggingVariablePlotter allow to access to the variables defined in bTagCombinedSVVariables_cff.py and for the appropriate categories. Theses variables are taken from the tag infos in the reco::btau::TaggingVariableName list. 
 - MatchJet : check if it's needed the jet references when looking at the flavour map, could be also used to match collections
 - SoftLeptonTagPlotter : tag info for variables related to the soft lepton taggers 
 - TagCorrelationPlotter : to look at correlation

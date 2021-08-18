@@ -75,10 +75,11 @@ namespace edm {
         const ComponentDescription*& iDesc,
         bool iTransientAccessOnly,
         std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory,
-        edm::EventSetupImpl const*) const {
+        ESParentContext const& iParent,
+        edm::EventSetupImpl const* iEventSetupImpl) const {
       DataKey dataKey(*(iData->m_tag), iName, DataKey::kDoNotCopyMemory);
 
-      const void* pValue = this->getFromProxy(dataKey, iDesc, iTransientAccessOnly);
+      const void* pValue = this->getFromProxy(dataKey, iDesc, iTransientAccessOnly, iParent, iEventSetupImpl);
       if (nullptr == pValue) {
         throw cms::Exception("NoProxyException") << "No data of type \"" << iData->m_tag->name() << "\" with label \""
                                                  << iName << "\" in record \"" << this->key().name() << "\"";
@@ -94,7 +95,7 @@ namespace edm {
       const fwliteeswriter::DummyType* value = &t;
       const ComponentDescription* desc = nullptr;
       std::shared_ptr<ESHandleExceptionFactory> dummy;
-      impl_->getImplementation(value, iName.c_str(), desc, true, dummy, nullptr);
+      impl_->getImplementation(value, iName.c_str(), desc, true, dummy, *context_, eventSetupImpl_);
       iHolder.m_data = t.m_data;
       iHolder.m_desc = desc;
       return true;

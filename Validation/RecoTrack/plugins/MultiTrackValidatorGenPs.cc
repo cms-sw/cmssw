@@ -17,8 +17,6 @@
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
-#include "SimTracker/TrackAssociation/plugins/CosmicParametersDefinerForTPESProducer.h"
 
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -74,12 +72,8 @@ void MultiTrackValidatorGenPs::dqmAnalyze(const edm::Event& event,
                                  << "====================================================\n"
                                  << "\n";
 
-  edm::ESHandle<ParametersDefinerForTP> parametersDefinerTP;
-  setup.get<TrackAssociatorRecord>().get(parametersDefiner, parametersDefinerTP);
-
-  edm::ESHandle<TrackerTopology> httopo;
-  setup.get<TrackerTopologyRcd>().get(httopo);
-  const TrackerTopology& ttopo = *httopo;
+  const auto& parametersDefinerTP = &setup.getData(tpDefinerEsToken);
+  const TrackerTopology& ttopo = setup.getData(tTopoEsToken);
 
   edm::Handle<GenParticleCollection> TPCollectionHeff;
   event.getByToken(label_tp_effic, TPCollectionHeff);

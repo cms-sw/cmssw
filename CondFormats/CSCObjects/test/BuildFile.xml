@@ -81,12 +81,10 @@
 </library>
 
 <bin name="testCSCMapping" file="testCSCMapping.cpp">
-  <use name="FWCore/ParameterSetReader"/>
   <use name="cppunit"/>
 </bin>
 
 <bin name="testCSCTriggerMapping" file="testCSCTriggerMapping.cpp">
-  <use name="FWCore/ParameterSetReader"/>
   <use name="cppunit"/>
 </bin>
 

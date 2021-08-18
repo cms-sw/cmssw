@@ -53,7 +53,7 @@ namespace edm {
 
     void unsafe_resetProductData() const { wrapper_.reset(); }
 
-    void setProvenance(ProductProvenanceRetriever const* provRetriever) { prov_.setStore(provRetriever); }
+    void setProvenance(ProductProvenanceLookup const* provRetriever) { prov_.setStore(provRetriever); }
 
     void setProductID(ProductID const& pid) { prov_.setProductID(pid); }
 

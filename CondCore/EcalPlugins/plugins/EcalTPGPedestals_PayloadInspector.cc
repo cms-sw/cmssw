@@ -187,13 +187,12 @@ namespace {
   /******************************************************************
      2d plot of ECAL TPGPedestals difference between 2 IOVs
   ******************************************************************/
-  class EcalTPGPedestalsDiff : public cond::payloadInspector::PlotImage<EcalTPGPedestals> {
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags, int method>
+  class EcalTPGPedestalsBase : public cond::payloadInspector::PlotImage<EcalTPGPedestals, nIOVs, ntags> {
   public:
-    EcalTPGPedestalsDiff() : cond::payloadInspector::PlotImage<EcalTPGPedestals>("ECAL Gain Ratios difference") {
-      setSingleIov(false);
-    }
-
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    EcalTPGPedestalsBase()
+        : cond::payloadInspector::PlotImage<EcalTPGPedestals, nIOVs, ntags>("ECAL Gain Ratios comparison") {}
+    bool fill() override {
       TH2F** barrel_m = new TH2F*[kGains];
       TH2F** endc_p_m = new TH2F*[kGains];
       TH2F** endc_m_m = new TH2F*[kGains];
@@ -230,12 +229,31 @@ namespace {
         mEEmax[gainId] = -10.;
       }
 
-      unsigned int run[2], irun = 0;
-      //float gEB[3][kEBChannels], gEE[3][kEEChannels];
-      for (auto const& iov : iovs) {
-        std::shared_ptr<EcalTPGPedestals> payload = fetchPayload(std::get<1>(iov));
-        run[irun] = std::get<0>(iov);
+      unsigned int run[2];
+      std::string l_tagname[2];
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalTPGPedestals> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
         if (payload.get()) {
+          float dr;
           for (int sign = 0; sign < kSides; sign++) {
             int thesign = sign == 1 ? 1 : -1;
 
@@ -250,34 +268,64 @@ namespace {
                 if (irun == 0) {
                   mEB[0][hashindex] = val;
                 } else {
-                  float diff = val - mEB[0][hashindex];
-                  barrel_m[0]->Fill(iphi, y, diff);
-                  if (diff < mEBmin[0])
-                    mEBmin[0] = diff;
-                  if (diff > mEBmax[0])
-                    mEBmax[0] = diff;
+                  if (method == 0)
+                    dr = val - mEB[0][hashindex];
+                  else {
+                    if (mEB[0][hashindex] == 0.) {
+                      if (val == 0.)
+                        dr = 1.;
+                      else
+                        dr = 9999.;
+                    } else
+                      dr = val / mEB[0][hashindex];
+                  }
+                  barrel_m[0]->Fill(iphi, y, dr);
+                  if (dr < mEBmin[0])
+                    mEBmin[0] = dr;
+                  if (dr > mEBmax[0])
+                    mEBmax[0] = dr;
                 }
                 val = (*payload)[id.rawId()].mean_x6;
                 if (irun == 0) {
                   mEB[1][hashindex] = val;
                 } else {
-                  float diff = val - mEB[1][hashindex];
-                  barrel_m[1]->Fill(iphi, y, diff);
-                  if (diff < mEBmin[1])
-                    mEBmin[1] = diff;
-                  if (diff > mEBmax[1])
-                    mEBmax[1] = diff;
+                  if (method == 0)
+                    dr = val - mEB[1][hashindex];
+                  else {
+                    if (mEB[1][hashindex] == 0.) {
+                      if (val == 0.)
+                        dr = 1.;
+                      else
+                        dr = 9999.;
+                    } else
+                      dr = val / mEB[1][hashindex];
+                  }
+                  barrel_m[1]->Fill(iphi, y, dr);
+                  if (dr < mEBmin[1])
+                    mEBmin[1] = dr;
+                  if (dr > mEBmax[1])
+                    mEBmax[1] = dr;
                 }
                 val = (*payload)[id.rawId()].mean_x1;
                 if (irun == 0) {
                   mEB[2][hashindex] = val;
                 } else {
-                  float diff = val - mEB[2][hashindex];
-                  barrel_m[2]->Fill(iphi, y, diff);
-                  if (diff < mEBmin[2])
-                    mEBmin[2] = diff;
-                  if (diff > mEBmax[2])
-                    mEBmax[2] = diff;
+                  if (method == 0)
+                    dr = val - mEB[2][hashindex];
+                  else {
+                    if (mEB[2][hashindex] == 0.) {
+                      if (val == 0.)
+                        dr = 1.;
+                      else
+                        dr = 9999.;
+                    } else
+                      dr = val / mEB[2][hashindex];
+                  }
+                  barrel_m[2]->Fill(iphi, y, dr);
+                  if (dr < mEBmin[2])
+                    mEBmin[2] = dr;
+                  if (dr > mEBmax[2])
+                    mEBmax[2] = dr;
                 }
               }  // iphi
             }    // ieta
@@ -292,52 +340,81 @@ namespace {
                 if (irun == 0) {
                   mEE[0][hashindex] = val;
                 } else {
-                  float diff = val - mEE[0][hashindex];
+                  if (method == 0)
+                    dr = val - mEE[0][hashindex];
+                  else {
+                    if (mEE[0][hashindex] == 0.) {
+                      if (val == 0.)
+                        dr = 1.;
+                      else
+                        dr = 9999.;
+                    } else
+                      dr = val / mEE[0][hashindex];
+                  }
                   if (thesign == 1)
-                    endc_p_m[0]->Fill(ix + 1, iy + 1, diff);
+                    endc_p_m[0]->Fill(ix + 1, iy + 1, dr);
                   else
-                    endc_m_m[0]->Fill(ix + 1, iy + 1, diff);
-                  if (diff < mEEmin[0])
-                    mEEmin[0] = diff;
-                  if (diff > mEEmax[0])
-                    mEEmax[0] = diff;
+                    endc_m_m[0]->Fill(ix + 1, iy + 1, dr);
+                  if (dr < mEEmin[0])
+                    mEEmin[0] = dr;
+                  if (dr > mEEmax[0])
+                    mEEmax[0] = dr;
                 }
                 val = (*payload)[id.rawId()].mean_x6;
                 if (irun == 0) {
                   mEE[1][hashindex] = val;
                 } else {
-                  float diff = val - mEE[1][hashindex];
+                  if (method == 0)
+                    dr = val - mEE[1][hashindex];
+                  else {
+                    if (mEE[1][hashindex] == 0.) {
+                      if (val == 0.)
+                        dr = 1.;
+                      else
+                        dr = 9999.;
+                    } else
+                      dr = val / mEE[1][hashindex];
+                  }
                   if (thesign == 1)
-                    endc_p_m[1]->Fill(ix + 1, iy + 1, diff);
+                    endc_p_m[1]->Fill(ix + 1, iy + 1, dr);
                   else
-                    endc_m_m[1]->Fill(ix + 1, iy + 1, diff);
-                  if (diff < mEEmin[1])
-                    mEEmin[1] = diff;
-                  if (diff > mEEmax[1])
-                    mEEmax[1] = diff;
+                    endc_m_m[1]->Fill(ix + 1, iy + 1, dr);
+                  if (dr < mEEmin[1])
+                    mEEmin[1] = dr;
+                  if (dr > mEEmax[1])
+                    mEEmax[1] = dr;
                 }
                 val = (*payload)[id.rawId()].mean_x1;
                 if (irun == 0) {
                   mEE[2][hashindex] = val;
                 } else {
-                  float diff = val - mEE[2][hashindex];
+                  if (method == 0)
+                    dr = val - mEE[2][hashindex];
+                  else {
+                    if (mEE[2][hashindex] == 0.) {
+                      if (val == 0.)
+                        dr = 1.;
+                      else
+                        dr = 9999.;
+                    } else
+                      dr = val / mEE[2][hashindex];
+                  }
                   if (thesign == 1)
-                    endc_p_m[2]->Fill(ix + 1, iy + 1, diff);
+                    endc_p_m[2]->Fill(ix + 1, iy + 1, dr);
                   else
-                    endc_m_m[2]->Fill(ix + 1, iy + 1, diff);
-                  if (diff < mEEmin[2])
-                    mEEmin[2] = diff;
-                  if (diff > mEEmax[2])
-                    mEEmax[2] = diff;
+                    endc_m_m[2]->Fill(ix + 1, iy + 1, dr);
+                  if (dr < mEEmin[2])
+                    mEEmin[2] = dr;
+                  if (dr > mEEmax[2])
+                    mEEmax[2] = dr;
                 }
-                //	      fout << " x " << ix << " y " << " diff " << diff << std::endl;
+                //	      fout << " x " << ix << " y " << " dr " << dr << std::endl;
               }  // iy
             }    // ix
           }      // side
         }        //  if payload.get()
         else
           return false;
-        irun++;
       }  // loop over IOVs
 
       gStyle->SetPalette(1);
@@ -346,8 +423,23 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal TPGPedestals, IOV %i - %i", run[1], run[0]));
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      std::string dr[2] = {"-", "/"};
+      if (ntags == 2) {
+        if (len < 150) {
+          t1.SetTextSize(0.03);
+          t1.DrawLatex(
+              0.5,
+              0.96,
+              Form("%s %i %s %s %i", l_tagname[1].c_str(), run[1], dr[method].c_str(), l_tagname[0].c_str(), run[0]));
+        } else {
+          t1.SetTextSize(0.03);
+          t1.DrawLatex(0.5, 0.96, Form("Ecal TPGPedestals, IOV %i %s %i", run[1], dr[method].c_str(), run[0]));
+        }
+      } else {
+        t1.SetTextSize(0.03);
+        t1.DrawLatex(0.5, 0.96, Form("%s, IOV %i %s %i", l_tagname[0].c_str(), run[1], dr[method].c_str(), run[0]));
+      }
 
       float xmi[3] = {0.0, 0.22, 0.78};
       float xma[3] = {0.22, 0.78, 1.00};
@@ -371,16 +463,23 @@ namespace {
         DrawEE(endc_p_m[gId], mEEmin[gId], mEEmax[gId]);
       }
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };
+  };   // class EcalTPGPedestalsDiffBase
+  using EcalTPGPedestalsDiffOneTag = EcalTPGPedestalsBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
+  using EcalTPGPedestalsDiffTwoTags = EcalTPGPedestalsBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
+  using EcalTPGPedestalsRatioOneTag = EcalTPGPedestalsBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;
+  using EcalTPGPedestalsRatioTwoTags = EcalTPGPedestalsBase<cond::payloadInspector::SINGLE_IOV, 2, 1>;
 
 }  // namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(EcalTPGPedestals) {
   PAYLOAD_INSPECTOR_CLASS(EcalTPGPedestalsPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalTPGPedestalsDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalTPGPedestalsDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalTPGPedestalsDiffTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalTPGPedestalsRatioOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalTPGPedestalsRatioTwoTags);
 }

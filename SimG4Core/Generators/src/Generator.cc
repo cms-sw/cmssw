@@ -152,7 +152,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
     for (pitr = (*vitr)->particles_begin(HepMC::children); pitr != (*vitr)->particles_end(HepMC::children); ++pitr) {
       // For purposes of this function, the status is defined as follows:
       // 1:  particles are not decayed by generator
-      // 2:  particles are decayed by generator but need to be propagated by
+      // 2:  particles are decayed by generator but need to be propagated by GEANT
+      // 3:  particles are decayed by generator and do not need to be propagated by GEANT
       int status = (*pitr)->status();
       int pdg = (*pitr)->pdg_id();
       if (status > 3 && isExotic(pdg) && (!(isExoticNonDetectable(pdg)))) {
@@ -162,6 +163,9 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
         // propagated by GEANT. Some Standard Model particles, e.g., K0, cannot
         // be propagated by GEANT, so do not change their status code.
         status = 2;
+      }
+      if (status == 2 && abs(pdg) == 9900015) {
+        status = 3;
       }
 
       // Particles which are not decayed by generator
@@ -243,6 +247,9 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
       }
       if (status > 3 && isExotic(pdg) && (!(isExoticNonDetectable(pdg)))) {
         status = hasDecayVertex ? 2 : 1;
+      }
+      if (status == 2 && abs(pdg) == 9900015) {
+        status = 3;
       }
 
       // this particle has predefined decay but has no vertex

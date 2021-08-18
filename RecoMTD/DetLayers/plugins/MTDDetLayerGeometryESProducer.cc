@@ -18,8 +18,8 @@
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 
-#include "ETLDetLayerGeometryBuilder.h"
-#include "BTLDetLayerGeometryBuilder.h"
+#include "RecoMTD/DetLayers/interface/ETLDetLayerGeometryBuilder.h"
+#include "RecoMTD/DetLayers/interface/BTLDetLayerGeometryBuilder.h"
 #include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -52,19 +52,12 @@ MTDDetLayerGeometryESProducer::MTDDetLayerGeometryESProducer(const edm::Paramete
 
 std::unique_ptr<MTDDetLayerGeometry> MTDDetLayerGeometryESProducer::produce(const MTDRecoGeometryRecord& record) {
   auto mtdDetLayerGeometry = std::make_unique<MTDDetLayerGeometry>();
+  auto mtd = record.getHandle(geomToken_);
+  auto mtdtopo = record.getHandle(mtdtopoToken_);
 
-  if (auto mtd = record.getHandle(geomToken_)) {
-    // Build BTL layers
-    mtdDetLayerGeometry->addBTLLayers(BTLDetLayerGeometryBuilder::buildLayers(*mtd));
-    // Build ETL layers, depends on the scenario
-    if (auto mtdtopo = record.getHandle(mtdtopoToken_)) {
-      mtdDetLayerGeometry->addETLLayers(ETLDetLayerGeometryBuilder::buildLayers(*mtd, mtdtopo->getMTDTopologyMode()));
-    } else {
-      LogWarning("MTDDetLayers") << "No MTD topology  is available.";
-    }
-  } else {
-    LogWarning("MTDDetLayers") << "No MTD geometry is available.";
-  }
+  //The BTL and ETL builders are now called internally by the MTDDetLayerGeometry.
+  //This allows external plugings to use and build the object.
+  mtdDetLayerGeometry->buildLayers(&(*mtd), &(*mtdtopo));
 
   // Sort layers properly
   mtdDetLayerGeometry->sortLayers();

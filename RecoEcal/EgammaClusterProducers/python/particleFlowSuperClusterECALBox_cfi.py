@@ -1,76 +1,66 @@
 import FWCore.ParameterSet.Config as cms
+import RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECALMustache_cfi as _mod
 
-particleFlowSuperClusterECALBox = cms.EDProducer("PFECALSuperClusterProducer",
+particleFlowSuperClusterECALBox = _mod.particleFlowSuperClusterECALMustache.clone(
     # verbosity
-    verbose = cms.untracked.bool(False),
+    verbose = False,
     # clustering type: "Box" or "Mustache"
-    ClusteringType = cms.string("Box"),
+    ClusteringType = "Box",
     # energy weighting: "Raw", "CalibratedNoPS", "CalibratedTotal"
-    EnergyWeight = cms.string("Raw"),
+    EnergyWeight = "Raw",
 
     # this overrides both dphi cuts below if true!
-    useDynamicDPhiWindow = cms.bool(False),
+    useDynamicDPhiWindow = False,
 
     # PFClusters collection
-    PFClusters = cms.InputTag("particleFlowClusterECAL"),
-    ESAssociation = cms.InputTag("particleFlowClusterECAL"),
-    BeamSpot = cms.InputTag("offlineBeamSpot"),
+    PFClusters = "particleFlowClusterECAL",
+    ESAssociation = "particleFlowClusterECAL",
+    BeamSpot = "offlineBeamSpot",
 
-    PFBasicClusterCollectionBarrel = cms.string("particleFlowBasicClusterECALBarrel"),
-    PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),
-    PFBasicClusterCollectionEndcap = cms.string("particleFlowBasicClusterECALEndcap"),
-    PFSuperClusterCollectionEndcap = cms.string("particleFlowSuperClusterECALEndcap"),
-    PFBasicClusterCollectionPreshower = cms.string("particleFlowBasicClusterECALPreshower"),
-    PFSuperClusterCollectionEndcapWithPreshower = cms.string("particleFlowSuperClusterECALEndcapWithPreshower"),
+    PFBasicClusterCollectionBarrel = "particleFlowBasicClusterECALBarrel",
+    PFSuperClusterCollectionBarrel = "particleFlowSuperClusterECALBarrel",
+    PFBasicClusterCollectionEndcap = "particleFlowBasicClusterECALEndcap",
+    PFSuperClusterCollectionEndcap = "particleFlowSuperClusterECALEndcap",
+    PFBasicClusterCollectionPreshower = "particleFlowBasicClusterECALPreshower",
+    PFSuperClusterCollectionEndcapWithPreshower = "particleFlowSuperClusterECALEndcapWithPreshower",
 
     # use preshower ?
-    use_preshower = cms.bool(True),
+    use_preshower = True,
 
     # are the seed thresholds Et or Energy?
-    seedThresholdIsET = cms.bool(True),
+    seedThresholdIsET = True,
 
     # regression setup
-    useRegression = cms.bool(False), # regressions are mustache only
-    regressionConfig = cms.PSet(
-        regressionKeyEB = cms.string('pfscecal_EBCorrection_offline_v2'),
-        uncertaintyKeyEB = cms.string('pfscecal_EBUncertainty_offline_v2'),
-        regressionKeyEE = cms.string('pfscecal_EECorrection_offline_v2'),
-        uncertaintyKeyEE = cms.string('pfscecal_EEUncertainty_offline_v2'),
-        vertexCollection = cms.InputTag("offlinePrimaryVertices"),
-        ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
-        ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
-        applySigmaIetaIphiBug = cms.bool(False)
-    ),
+    useRegression = False, # regressions are mustache only
+    regressionConfig = dict(),
 
     # threshold for final SuperCluster Et
-    thresh_SCEt = cms.double(4.0),
+    thresh_SCEt = 4.0,
 
     # threshold in ECAL
-    thresh_PFClusterSeedBarrel = cms.double(3.0),
-    thresh_PFClusterBarrel = cms.double(0.5),
+    thresh_PFClusterSeedBarrel = 3.0,
+    thresh_PFClusterBarrel = 0.5,
 
-    thresh_PFClusterSeedEndcap = cms.double(5.0),
-    thresh_PFClusterEndcap = cms.double(0.5),
+    thresh_PFClusterSeedEndcap = 5.0,
+    thresh_PFClusterEndcap = 0.5,
 
     # window width in ECAL
-    phiwidth_SuperClusterBarrel = cms.double(0.28),
-    etawidth_SuperClusterBarrel = cms.double(0.04),
+    phiwidth_SuperClusterBarrel = 0.28,
+    etawidth_SuperClusterBarrel = 0.04,
 
-    phiwidth_SuperClusterEndcap = cms.double(0.28),
-    etawidth_SuperClusterEndcap = cms.double(0.04),
+    phiwidth_SuperClusterEndcap = 0.28,
+    etawidth_SuperClusterEndcap = 0.04,
 
     # threshold in preshower
-    thresh_PFClusterES = cms.double(0.),
+    thresh_PFClusterES = 0.,
 
     # turn on merging of the seed cluster to its nearest neighbors
     # that share a rechit
-    doSatelliteClusterMerge = cms.bool(False),
-    satelliteClusterSeedThreshold = cms.double(50.0),
-    satelliteMajorityFraction = cms.double(0.5),
-    dropUnseedable = cms.bool(False),
-    #thresh_PFClusterMustacheOutBarrel = cms.double(0.),
-    #thresh_PFClusterMustacheOutEndcap = cms.double(0.),
+    doSatelliteClusterMerge = False,
+    satelliteClusterSeedThreshold = 50.0,
+    satelliteMajorityFraction = 0.5,
+    dropUnseedable = False,
 
     # corrections
-    applyCrackCorrections = cms.bool(False)
+    applyCrackCorrections = False
 )

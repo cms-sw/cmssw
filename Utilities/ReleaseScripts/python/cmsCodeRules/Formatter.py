@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import os, sys, string
@@ -161,7 +161,7 @@ class SimpleHTMLFormatter :
         else:
             self.outFile.write( " <tr>" + '\n')
         for arg in args:
-            if string.strip(str(arg)) == "" : arg = "&nbsp;"
+            if str(arg).strip() == "" : arg = "&nbsp;"
             if bold: self.outFile.write( '<td class=cellbold> ' )
             else:    self.outFile.write( "  <td> " )
             self.outFile.write( arg )
@@ -175,7 +175,7 @@ class SimpleHTMLFormatter :
         # we assume that headers are done by now !!
         self.outFile.write( " <tr>" + '\n')
         for arg, cellStyle in zip(args, styles):
-            if string.strip(str(arg)) == "" : arg = "&nbsp;"
+            if str(arg).strip() == "" : arg = "&nbsp;"
             cellStyle = cellStyle.strip()
             if cellStyle != '' : self.outFile.write( '<td class='+cellStyle+'> ' )
             else:    self.outFile.write( "  <td> " )

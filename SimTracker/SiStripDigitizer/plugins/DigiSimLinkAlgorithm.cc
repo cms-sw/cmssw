@@ -52,7 +52,7 @@ DigiSimLinkAlgorithm::DigiSimLinkAlgorithm(const edm::ParameterSet& conf) : conf
   theDigiSimLinkPileUpSignals = new DigiSimLinkPileUpSignals();
   theSiNoiseAdder = new SiGaussianTailNoiseAdder(theThreshold);
   theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC, PreMixing_);
-  theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo);
+  theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo, nullptr);
 }
 
 DigiSimLinkAlgorithm::~DigiSimLinkAlgorithm() {
@@ -198,8 +198,11 @@ void DigiSimLinkAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
       }
     }
     digis.clear();
-    theSiZeroSuppress->suppress(
-        theSiDigitalConverter->convert(detAmpl, gainHandle, detID), digis, detID, noiseHandle, thresholdHandle);
+    theSiZeroSuppress->suppress(theSiDigitalConverter->convert(detAmpl, gainHandle.product(), detID),
+                                digis,
+                                detID,
+                                *noiseHandle,
+                                *thresholdHandle);
     push_link(digis, theLink, theCounterLink, detAmpl, detID);
     outdigi.data = digis;
   }
@@ -302,7 +305,7 @@ void DigiSimLinkAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
     //}else{
 
     rawdigis.clear();
-    rawdigis = theSiDigitalConverter->convertRaw(detAmpl, gainHandle, detID);
+    rawdigis = theSiDigitalConverter->convertRaw(detAmpl, gainHandle.product(), detID);
     push_link_raw(rawdigis, theLink, theCounterLink, detAmpl, detID);
     outrawdigi.data = rawdigis;
 

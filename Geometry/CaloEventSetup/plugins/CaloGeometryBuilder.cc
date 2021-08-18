@@ -92,8 +92,6 @@ CaloGeometryBuilder::CaloGeometryBuilder(const edm::ParameterSet& iConfig) {
 // ------------ method called to produce the data  ------------
 
 CaloGeometryBuilder::ReturnType CaloGeometryBuilder::produceAligned(const CaloGeometryRecord& iRecord) {
-  edm::ESHandle<CaloSubdetectorGeometry> pG;
-
   ReturnType pCalo = std::make_unique<CaloGeometry>();
 
   // look for HCAL parts

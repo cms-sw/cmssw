@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsMerge
+from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
 
+prefix = 'HGCAL/HGCalValidator/'
 maxlayerzm =  50# last layer of BH -z
 maxlayerzp =  100# last layer of BH +z
 
@@ -14,8 +17,9 @@ eff_layers.extend(["fake_phi_layer{:02d} 'LayerCluster Fake Rate vs #phi Layer{:
 eff_layers.extend(["merge_eta_layer{:02d} 'LayerCluster Merge Rate vs #eta Layer{:02d} in z-' NumMerge_LayerCluster_Eta_perlayer{:02d} Denom_LayerCluster_Eta_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) if (i<maxlayerzm) else "merge_eta_layer{:02d} 'LayerCluster Merge Rate vs #eta Layer{:02d} in z+' NumMerge_LayerCluster_Eta_perlayer{:02d} Denom_LayerCluster_Eta_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) for i in range(maxlayerzp) ])
 eff_layers.extend(["merge_phi_layer{:02d} 'LayerCluster Merge Rate vs #phi Layer{:02d} in z-' NumMerge_LayerCluster_Phi_perlayer{:02d} Denom_LayerCluster_Phi_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) if (i<maxlayerzm) else "merge_phi_layer{:02d} 'LayerCluster Merge Rate vs #phi Layer{:02d} in z+' NumMerge_LayerCluster_Phi_perlayer{:02d} Denom_LayerCluster_Phi_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) for i in range(maxlayerzp) ])
 
+lcToCP_linking = hgcalValidator.label_LCToCPLinking._InputTag__moduleLabel
 postProcessorHGCALlayerclusters= DQMEDHarvester('DQMGenericClient',
-    subDirs = cms.untracked.vstring('HGCAL/HGCalValidator/hgcalLayerClusters/'),
+    subDirs = cms.untracked.vstring(prefix+'hgcalLayerClusters/' + lcToCP_linking),
     efficiency = cms.vstring(eff_layers),
     resolution = cms.vstring(),
     cumulativeDists = cms.untracked.vstring(),
@@ -33,14 +37,10 @@ eff_simclusters.extend(["fake_phi_layer{:02d} 'LayerCluster Fake Rate vs #phi La
 eff_simclusters.extend(["merge_eta_layer{:02d} 'LayerCluster Merge Rate vs #eta Layer{:02d} in z-' NumMerge_LayerCluster_in_SimCluster_Eta_perlayer{:02d} Denom_LayerCluster_in_SimCluster_Eta_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) if (i<maxlayerzm) else "merge_eta_layer{:02d} 'LayerCluster Merge Rate vs #eta Layer{:02d} in z+' NumMerge_LayerCluster_in_SimCluster_Eta_perlayer{:02d} Denom_LayerCluster_in_SimCluster_Eta_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) for i in range(maxlayerzp) ])
 eff_simclusters.extend(["merge_phi_layer{:02d} 'LayerCluster Merge Rate vs #phi Layer{:02d} in z-' NumMerge_LayerCluster_in_SimCluster_Phi_perlayer{:02d} Denom_LayerCluster_in_SimCluster_Phi_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) if (i<maxlayerzm) else "merge_phi_layer{:02d} 'LayerCluster Merge Rate vs #phi Layer{:02d} in z+' NumMerge_LayerCluster_in_SimCluster_Phi_perlayer{:02d} Denom_LayerCluster_in_SimCluster_Phi_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) for i in range(maxlayerzp) ])
 
+subdirsSim = [prefix+'simClusters/ticlTracksters'+iteration+'/' for iteration in ticlIterLabelsMerge]
+subdirsSim.extend([prefix+'simClusters/ticlSimTracksters'])
 postProcessorHGCALsimclusters= DQMEDHarvester('DQMGenericClient',
-    subDirs = cms.untracked.vstring(
-        'HGCAL/HGCalValidator/simClusters/ticlTrackstersTrkEM',
-        'HGCAL/HGCalValidator/simClusters/ticlTrackstersEM',
-        'HGCAL/HGCalValidator/simClusters/ticlTrackstersTrk',
-        'HGCAL/HGCalValidator/simClusters/ticlTrackstersHAD',
-        'HGCAL/HGCalValidator/simClusters/ticlTrackstersMerge'
-    ),
+    subDirs = cms.untracked.vstring(subdirsSim),
     efficiency = cms.vstring(eff_simclusters),
     resolution = cms.vstring(),
     cumulativeDists = cms.untracked.vstring(),
@@ -48,27 +48,27 @@ postProcessorHGCALsimclusters= DQMEDHarvester('DQMGenericClient',
     outputFileName = cms.untracked.string(""),
     verbose = cms.untracked.uint32(4))
 
-eff_multiclusters = ["effic_eta 'MultiCluster Efficiency vs #eta' Num_CaloParticle_Eta Denom_CaloParticle_Eta"]
-eff_multiclusters.extend(["effic_phi 'MultiCluster Efficiency vs #phi' Num_CaloParticle_Phi Denom_CaloParticle_Phi"])
-eff_multiclusters.extend(["duplicate_eta 'MultiCluster Duplicate(Split) Rate vs #eta' NumDup_MultiCluster_Eta Denom_MultiCluster_Eta"])
-eff_multiclusters.extend(["duplicate_phi 'MultiCluster Duplicate(Split) Rate vs #phi' NumDup_MultiCluster_Phi Denom_MultiCluster_Phi"])
-eff_multiclusters.extend(["fake_eta 'MultiCluster Fake Rate vs #eta' Num_MultiCluster_Eta Denom_MultiCluster_Eta fake"])
-eff_multiclusters.extend(["fake_phi 'MultiCluster Fake Rate vs #phi'  Num_MultiCluster_Phi Denom_MultiCluster_Phi fake"])
-eff_multiclusters.extend(["merge_eta 'MultiCluster Merge Rate vs #eta' NumMerge_MultiCluster_Eta Denom_MultiCluster_Eta"])
-eff_multiclusters.extend(["merge_phi 'MultiCluster Merge Rate vs #phi' NumMerge_MultiCluster_Phi Denom_MultiCluster_Phi"])
+eff_tracksters = ["purity_eta 'Trackster Purity vs #eta' Num_CaloParticle_Eta Denom_CaloParticle_Eta"]
+eff_tracksters.extend(["purity_phi 'Trackster Purity vs #phi' Num_CaloParticle_Phi Denom_CaloParticle_Phi"])
+eff_tracksters.extend(["effic_eta 'Trackster Efficiency vs #eta' NumEff_CaloParticle_Eta Denom_CaloParticle_Eta"])
+eff_tracksters.extend(["effic_phi 'Trackster Efficiency vs #phi' NumEff_CaloParticle_Phi Denom_CaloParticle_Phi"])
+eff_tracksters.extend(["duplicate_eta 'Trackster Duplicate(Split) Rate vs #eta' NumDup_Trackster_Eta Denom_Trackster_Eta"])
+eff_tracksters.extend(["duplicate_phi 'Trackster Duplicate(Split) Rate vs #phi' NumDup_Trackster_Phi Denom_Trackster_Phi"])
+eff_tracksters.extend(["fake_eta 'Trackster Fake Rate vs #eta' Num_Trackster_Eta Denom_Trackster_Eta fake"])
+eff_tracksters.extend(["fake_phi 'Trackster Fake Rate vs #phi'  Num_Trackster_Phi Denom_Trackster_Phi fake"])
+eff_tracksters.extend(["merge_eta 'Trackster Merge Rate vs #eta' NumMerge_Trackster_Eta Denom_Trackster_Eta"])
+eff_tracksters.extend(["merge_phi 'Trackster Merge Rate vs #phi' NumMerge_Trackster_Phi Denom_Trackster_Phi"])
 
-postProcessorHGCALmulticlusters = DQMEDHarvester('DQMGenericClient',
-subDirs = cms.untracked.vstring(
-  'HGCAL/HGCalValidator/hgcalMultiClusters/',
-  'HGCAL/HGCalValidator/ticlMultiClustersFromTrackstersTrk/',
-  'HGCAL/HGCalValidator/ticlMultiClustersFromTrackstersEM/',
-  'HGCAL/HGCalValidator/ticlMultiClustersFromTrackstersHAD/',
-  'HGCAL/HGCalValidator/ticlMultiClustersFromTrackstersMerge/',
-  ),
+tsToCP_linking = hgcalValidator.label_TSToCPLinking._InputTag__moduleLabel
+subdirsTracksters = [prefix+'hgcalTracksters/'+tsToCP_linking, prefix+'ticlSimTracksters/'+tsToCP_linking]
+subdirsTracksters.extend(prefix+'ticlTracksters'+iteration+'/'+tsToCP_linking for iteration in ticlIterLabelsMerge)
 
-efficiency = cms.vstring(eff_multiclusters),
-resolution = cms.vstring(),
-cumulativeDists = cms.untracked.vstring(),
-noFlowDists = cms.untracked.vstring(),
-outputFileName = cms.untracked.string(""),
-verbose = cms.untracked.uint32(4))
+postProcessorHGCALTracksters = DQMEDHarvester('DQMGenericClient',
+  subDirs = cms.untracked.vstring(subdirsTracksters),
+  efficiency = cms.vstring(eff_tracksters),
+  resolution = cms.vstring(),
+  cumulativeDists = cms.untracked.vstring(),
+  noFlowDists = cms.untracked.vstring(),
+  outputFileName = cms.untracked.string(""),
+  verbose = cms.untracked.uint32(4)
+)

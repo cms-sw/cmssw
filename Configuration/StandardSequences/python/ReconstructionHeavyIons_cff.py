@@ -31,7 +31,6 @@ from RecoHI.Configuration.Reconstruction_HI_cff import *
 from RecoHI.Configuration.Reconstruction_hiPF_cff import *
 from RecoLocalCalo.Castor.Castor_cff import *
 from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
-from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 #--------------------------------------------------------------------------
 
 from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *

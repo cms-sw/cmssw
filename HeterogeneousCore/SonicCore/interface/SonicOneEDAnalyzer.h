@@ -21,8 +21,8 @@ public:
   typedef typename Client::Input Input;
   typedef typename Client::Output Output;
   //constructor
-  SonicOneEDAnalyzer(edm::ParameterSet const& cfg, const std::string& debugName)
-      : clientPset_(cfg.getParameterSet("Client")), debugName_(debugName) {
+  SonicOneEDAnalyzer(edm::ParameterSet const& cfg, const std::string& debugName, bool verbose = true)
+      : clientPset_(cfg.getParameterSet("Client")), debugName_(debugName), verbose_(verbose) {
     //ExternalWork is not compatible with one modules, so Sync mode is enforced
     if (clientPset_.getParameter<std::string>("mode") != "Sync") {
       edm::LogWarning("ResetClientMode") << "Resetting client mode to Sync for SonicOneEDAnalyzer";
@@ -42,18 +42,21 @@ public:
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) final {
     auto t0 = std::chrono::high_resolution_clock::now();
     acquire(iEvent, iSetup, client_->input());
-    sonic_utils::printDebugTime(debugName_, "acquire() time: ", t0);
+    if (verbose_)
+      sonic_utils::printDebugTime(debugName_, "acquire() time: ", t0);
 
     //pattern similar to ExternalWork, but blocking
     auto t1 = std::chrono::high_resolution_clock::now();
     client_->dispatch();
 
     //measure time between acquire and produce
-    sonic_utils::printDebugTime(debugName_, "dispatch() time: ", t1);
+    if (verbose_)
+      sonic_utils::printDebugTime(debugName_, "dispatch() time: ", t1);
 
     auto t2 = std::chrono::high_resolution_clock::now();
     analyze(iEvent, iSetup, client_->output());
-    sonic_utils::printDebugTime(debugName_, "analyze() time: ", t2);
+    if (verbose_)
+      sonic_utils::printDebugTime(debugName_, "analyze() time: ", t2);
 
     //reset client data
     client_->reset();
@@ -68,6 +71,7 @@ protected:
   edm::ParameterSet clientPset_;
   std::unique_ptr<Client> client_;
   std::string debugName_;
+  bool verbose_;
 };
 
 #endif

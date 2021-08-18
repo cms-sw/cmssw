@@ -47,10 +47,6 @@ namespace ecal {
           return dccFromSm(ism);
         }
 
-        //
-        // ---- why on hell things are so complex and not simple ???
-        //
-
         __device__ int lm_channel(int iX, int iY) {
           static const int idx_[] = {
               // clang-format off

@@ -8,9 +8,8 @@ from Configuration.StandardSequences.Eras import eras
 process = cms.Process('DIGI2RAW',eras.Run3)
 
 # import of standard configurations
-process.load("CondCore.CondDB.CondDB_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+#process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
@@ -20,11 +19,7 @@ process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
-# Since the PPS simulation geometry is not yet in the database, the line below is needed
 process.load('Configuration.StandardSequences.GeometryDB_cff')
-#process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2021_cfi")
-process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
 
 # Input source
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
@@ -70,8 +65,8 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('')
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    fileName = cms.untracked.string('GluGlu_step2_DIGI_DIGI2RAW2021.root'),
-    outputCommands = process.FEVTDEBUGEventContent.outputCommands + ['keep *_CTPPS*_*_*',"keep *_*RP*_*_*",'keep *_LHCTransport_*_*'],
+    fileName = cms.untracked.string('GluGlu_step2_DIGI_DIGI2RAW_2021.root'),
+    outputCommands = process.FEVTDEBUGEventContent.outputCommands + ['keep *_CTPPS*_*_*',"keep *_*RP*_*_*",'keep *_generatorSmeared_*_*'],
     splitLevel = cms.untracked.int32(0)
 )
 
@@ -79,7 +74,6 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, '111X_mcRun3_2021_realistic_Candidate_2020_06_03_17_55_10', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 
 

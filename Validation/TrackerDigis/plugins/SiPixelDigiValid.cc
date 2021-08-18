@@ -15,7 +15,6 @@
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "SiPixelDigiValid.h"
 
@@ -23,7 +22,9 @@
 // using namespace edm;
 
 SiPixelDigiValid::SiPixelDigiValid(const edm::ParameterSet &ps)
-    : outputFile_(ps.getUntrackedParameter<std::string>("outputFile", "pixeldigihisto.root")),
+    : m_geomToken(esConsumes<edm::Transition::BeginRun>()),
+      m_topoToken(esConsumes()),
+      outputFile_(ps.getUntrackedParameter<std::string>("outputFile", "pixeldigihisto.root")),
       runStandalone(ps.getParameter<bool>("runStandalone")),
       dbe_(nullptr),
       edmDetSetVector_PixelDigi_Token_(consumes<edm::DetSetVector<PixelDigi>>(ps.getParameter<edm::InputTag>("src"))) {}
@@ -32,7 +33,7 @@ SiPixelDigiValid::~SiPixelDigiValid() {}
 
 void SiPixelDigiValid::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &run, const edm::EventSetup &es) {
   dbe_ = edm::Service<DQMStore>().operator->();
-  es.get<TrackerRecoGeometryRecord>().get(tracker);
+  tracker = &es.getData(m_geomToken);
 
   if (dbe_) {
     ibooker.setCurrentFolder("TrackerDigisV/TrackerDigis/Pixel");
@@ -274,9 +275,7 @@ void SiPixelDigiValid::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run
 
 void SiPixelDigiValid::analyze(const edm::Event &e, const edm::EventSetup &c) {
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  c.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const TrackerTopology *const tTopo = &c.getData(m_topoToken);
   // Number of blades and ladders.
   // TODO: other Geometry-Dependent quantities, e.g. num layers.
   int nblades = tracker->posPixelForwardLayers()[0]->components().size();
@@ -331,9 +330,6 @@ void SiPixelDigiValid::analyze(const edm::Event &e, const edm::EventSetup &c) {
 
   // LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " <<
   // e.id().event();
-
-  edm::ESHandle<TrackerGeometry> tracker;
-  c.get<TrackerDigiGeometryRecord>().get(tracker);
 
   // string digiProducer = "siPixelDigis";
   edm::Handle<edm::DetSetVector<PixelDigi>> pixelDigis;

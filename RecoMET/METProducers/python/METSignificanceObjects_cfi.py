@@ -66,8 +66,10 @@ selectedPhotons = cms.EDFilter("PhotonSelector",
       )
 
 
-selectionSequenceForMETSig = cms.Sequence(
-      selectedMuons+
-      selectedElectrons+
+selectionTaskForMETSig = cms.Task(
+      selectedMuons,
+      selectedElectrons,
       selectedPhotons
       )
+selectionSequenceForMETSig = cms.Sequence(selectionTaskForMETSig)
+

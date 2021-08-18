@@ -14,8 +14,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "DataFormats/Math/interface/liblogintpack.h"
 #include <algorithm>
@@ -233,6 +231,7 @@ namespace {
 HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& iC)
     : simHitAccumulator_(new HGCSimHitDataAccumulator()),
       pusimHitAccumulator_(new HGCPUSimHitDataAccumulator()),
+      geomToken_(iC.esConsumes()),
       refSpeed_(0.1 * CLHEP::c_light),  //[CLHEP::c_light]=mm/ns convert to cm/ns
       averageOccupancies_(occupancyGuesses),
       nEvents_(1) {
@@ -248,7 +247,6 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& 
   premixStage1_ = ps.getParameter<bool>("premixStage1");
   premixStage1MinCharge_ = ps.getParameter<double>("premixStage1MinCharge");
   premixStage1MaxCharge_ = ps.getParameter<double>("premixStage1MaxCharge");
-  std::unordered_set<DetId>().swap(validIds_);
   iC.consumes<std::vector<PCaloHit>>(edm::InputTag("g4SimHits", hitCollection_));
   const auto& myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
 
@@ -269,6 +267,28 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& 
 
 //
 void HGCDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& es) {
+  if (geomWatcher_.check(es)) {
+    std::unordered_set<DetId>().swap(validIds_);
+
+    //get geometry
+    CaloGeometry const& geom = es.getData(geomToken_);
+
+    gHGCal_ =
+        dynamic_cast<const HGCalGeometry*>(geom.getSubdetectorGeometry(theDigitizer_->det(), theDigitizer_->subdet()));
+
+    int nadded(0);
+    //valid ID lists
+    if (nullptr != gHGCal_) {
+      getValidDetIds(gHGCal_, validIds_);
+    } else {
+      throw cms::Exception("BadConfiguration") << "HGCDigitizer is not producing EE, FH, or BH digis!";
+    }
+
+    if (verbosity_ > 0)
+      edm::LogInfo("HGCDigitizer") << "Added " << nadded << ":" << validIds_.size() << " detIds without "
+                                   << hitCollection_ << " in first event processed" << std::endl;
+  }
+
   // reserve memory for a full detector
   unsigned idx = getType();
   simHitAccumulator_->reserve(averageOccupancies_[idx] * validIds_.size());
@@ -689,33 +709,6 @@ void HGCDigitizer::accumulate_forPreMix(const PHGCSimAccumulator& simAccumulator
                                     thisBx_);
   }
 }
-
-//
-void HGCDigitizer::beginRun(const edm::EventSetup& es) {
-  //get geometry
-  edm::ESHandle<CaloGeometry> geom;
-  es.get<CaloGeometryRecord>().get(geom);
-
-  gHGCal_ = nullptr;
-
-  gHGCal_ =
-      dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(theDigitizer_->det(), theDigitizer_->subdet()));
-
-  int nadded(0);
-  //valid ID lists
-  if (nullptr != gHGCal_) {
-    getValidDetIds(gHGCal_, validIds_);
-  } else {
-    throw cms::Exception("BadConfiguration") << "HGCDigitizer is not producing EE, FH, or BH digis!";
-  }
-
-  if (verbosity_ > 0)
-    edm::LogInfo("HGCDigitizer") << "Added " << nadded << ":" << validIds_.size() << " detIds without "
-                                 << hitCollection_ << " in first event processed" << std::endl;
-}
-
-//
-void HGCDigitizer::endRun() { std::unordered_set<DetId>().swap(validIds_); }
 
 //
 void HGCDigitizer::resetSimHitDataAccumulator() {

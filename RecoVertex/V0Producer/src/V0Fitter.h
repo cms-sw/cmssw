@@ -46,6 +46,8 @@ public:
               reco::VertexCompositeCandidateCollection& l);
 
 private:
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> esTokenMF_;
+
   bool vertexFitter_;
   bool useRefTracks_;
   bool doKShorts_;

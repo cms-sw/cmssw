@@ -9,7 +9,7 @@
   <use name="CondFormats/SiPixelObjects"/>
   <use name="DQM/SiPixelCommon"/>
   <use name="Geometry/Records"/>
-  <use name="Geometry/CommonDetUnit"/>
+  <use name="Geometry/CommonDetUnit" source_only="1"/>
   <use name="Geometry/TrackerGeometryBuilder"/>
   <use name="CommonTools/UtilAlgos"/>
   <library file="*.cc" name="CalibTrackerSiPixelToolsPlugin">

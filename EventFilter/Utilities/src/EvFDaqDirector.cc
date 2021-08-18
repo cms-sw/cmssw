@@ -17,13 +17,12 @@
 #include "IOPool/Streamer/interface/FRDFileHeader.h"
 
 #include <iostream>
-//#include <istream>
+#include <fstream>
 #include <sstream>
 #include <sys/time.h>
 #include <unistd.h>
 #include <cstdio>
 #include <boost/lexical_cast.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/algorithm/string.hpp>
 
 //using boost::asio::ip::tcp;
@@ -124,7 +123,7 @@ namespace evf {
       socket_ = std::make_unique<boost::asio::ip::tcp::socket>(io_service_);
     }
 
-    char* startFromLSPtr = std::getenv("FFF_STARTFROMLS");
+    char* startFromLSPtr = std::getenv("FFF_START_LUMISECTION");
     if (startFromLSPtr) {
       try {
         startFromLS_ = boost::lexical_cast<unsigned int>(std::string(startFromLSPtr));
@@ -241,8 +240,15 @@ namespace evf {
                 << " Error creating bu run dir -: " << hltdir << " mkdir error:" << strerror(errno) << "\n";
 
           std::filesystem::copy_file(hltSourceDirectory_ + "/HltConfig.py", tmphltdir + "/HltConfig.py");
-
           std::filesystem::copy_file(hltSourceDirectory_ + "/fffParameters.jsn", tmphltdir + "/fffParameters.jsn");
+
+          std::string optfiles[3] = {"hltinfo", "blacklist", "whitelist"};
+          for (auto& optfile : optfiles) {
+            try {
+              std::filesystem::copy_file(hltSourceDirectory_ + "/" + optfile, tmphltdir + "/" + optfile);
+            } catch (...) {
+            }
+          }
 
           std::filesystem::rename(tmphltdir, hltdir);
         } else
@@ -1276,7 +1282,7 @@ namespace evf {
           std::ifstream ij(jsonDestPath);
           ss << ij.rdbuf();
         } catch (std::filesystem::filesystem_error const& ex) {
-          edm::LogError("EvFDaqDirector") << "grabNextJsonFile - BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
+          edm::LogError("EvFDaqDirector") << "grabNextJsonFile - FILESYSTEM ERROR CAUGHT -: " << ex.what();
           return -1;
         }
         result = reader.parse(ss.str(), deserializeRoot);
@@ -1857,7 +1863,7 @@ namespace evf {
     std::string fileprefix = run_dir_ + "/" + run_string_ + "_ls";
     std::string fullpath;
     struct stat buf;
-    unsigned int lscount = startFromLS_;
+    unsigned int lscount = 1;
     do {
       std::stringstream ss;
       ss << fileprefix << std::setfill('0') << std::setw(4) << lscount << "_EoLS.jsn";

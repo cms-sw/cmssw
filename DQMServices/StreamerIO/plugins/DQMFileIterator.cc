@@ -5,7 +5,6 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/range.hpp>
@@ -95,7 +94,7 @@ namespace dqmservices {
     std::vector<std::string> tokens;
     boost::split(tokens, runInputDir_, boost::is_any_of(":"));
 
-    for (auto token : tokens) {
+    for (const auto& token : tokens) {
       runPath_.push_back(fmt::sprintf("%s/run%06d", token, runNumber_));
     }
 
@@ -183,7 +182,7 @@ namespace dqmservices {
   unsigned DQMFileIterator::mtimeHash() const {
     unsigned mtime_now = 0;
 
-    for (auto path : runPath_) {
+    for (const auto& path : runPath_) {
       if (!std::filesystem::exists(path))
         continue;
 
@@ -225,7 +224,7 @@ namespace dqmservices {
 
     std::string fn_eor;
 
-    for (auto runPath : runPath_) {
+    for (const auto& runPath : runPath_) {
       if (!std::filesystem::exists(runPath)) {
         logFileAction("Directory does not exist: ", runPath);
 

@@ -1,4 +1,5 @@
 <use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/Math"/>
 <use name="rootcore"/>
 <export>
   <lib name="1"/>

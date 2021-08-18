@@ -56,11 +56,12 @@
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class ApeSettingAlgorithm : public AlignmentAlgorithmBase {
 public:
   /// Constructor
-  ApeSettingAlgorithm(const edm::ParameterSet &cfg);
+  ApeSettingAlgorithm(const edm::ParameterSet &cfg, const edm::ConsumesCollector &iC);
 
   /// Destructor
   ~ApeSettingAlgorithm() override;
@@ -94,8 +95,8 @@ private:
 
 // Constructor ----------------------------------------------------------------
 //____________________________________________________
-ApeSettingAlgorithm::ApeSettingAlgorithm(const edm::ParameterSet &cfg)
-    : AlignmentAlgorithmBase(cfg), theConfig(cfg), theAlignableNavigator(nullptr) {
+ApeSettingAlgorithm::ApeSettingAlgorithm(const edm::ParameterSet &cfg, const edm::ConsumesCollector &iC)
+    : AlignmentAlgorithmBase(cfg, iC), theConfig(cfg), theAlignableNavigator(nullptr) {
   edm::LogInfo("Alignment") << "@SUB=ApeSettingAlgorithm"
                             << "Start.";
   saveApeToAscii_ = theConfig.getUntrackedParameter<bool>("saveApeToASCII");

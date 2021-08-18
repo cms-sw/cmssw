@@ -355,8 +355,10 @@ void L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
         // Set displacement information
         int hwPtUnconstrained{mu->hwPtUnconstrained()};
-        outMu.setPtUnconstrained(hwPtUnconstrained == 0 ? 0
-                                                        : (hwPtUnconstrained - 1) * 0.5);  // Don't want negative pT.
+        outMu.setPtUnconstrained(
+            hwPtUnconstrained == 0
+                ? 0
+                : (hwPtUnconstrained - 1));  // Don't want negative pT, unconstr. pT has LSB of 1 GeV.
         outMu.setHwPtUnconstrained(hwPtUnconstrained);
         outMu.setHwDXY(mu->hwDXY());
 
@@ -454,7 +456,9 @@ void L1TMuonProducer::addMuonsToCollections(MicroGMTConfiguration::InterMuonList
                mu->hwRank()};
 
     int hwPtUnconstrained{mu->hwPtUnconstrained()};
-    outMu.setPtUnconstrained(hwPtUnconstrained == 0 ? 0 : (hwPtUnconstrained - 1) * 0.5);  // Don't want negative pT.
+    outMu.setPtUnconstrained(hwPtUnconstrained == 0
+                                 ? 0
+                                 : (hwPtUnconstrained - 1));  // Don't want negative pT, unconstr. pT has LSB of 1 GeV.
     outMu.setHwPtUnconstrained(hwPtUnconstrained);
     outMu.setHwDXY(mu->hwDXY());
 

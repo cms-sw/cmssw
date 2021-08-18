@@ -31,8 +31,9 @@
 #include "FWCore/Framework/interface/stream/callAbilities.h"
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
 #include "FWCore/Framework/interface/stream/makeGlobal.h"
-#include "FWCore/Framework/src/MakeModuleHelper.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/maker/MakeModuleHelper.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 // forward declarations
 
@@ -59,6 +60,8 @@ namespace edm {
         m_lumiSummaries.resize(1);
         typename T::GlobalCache const* dummy = nullptr;
         m_global = impl::makeGlobal<T>(iPSet, dummy);
+        typename T::InputProcessBlockCache const* dummyInputProcessBlockCacheImpl = nullptr;
+        m_inputProcessBlocks = impl::makeInputProcessBlockCacheImpl(dummyInputProcessBlockCacheImpl);
       }
       EDAnalyzerAdaptor(const EDAnalyzerAdaptor&) = delete;                   // stop default
       const EDAnalyzerAdaptor& operator=(const EDAnalyzerAdaptor&) = delete;  // stop default
@@ -84,9 +87,10 @@ namespace edm {
       using MyGlobalLuminosityBlockSummary = CallGlobalLuminosityBlockSummary<T>;
 
       void setupStreamModules() final {
-        this->createStreamModules([this]() -> EDAnalyzerBase* {
+        this->createStreamModules([this](unsigned int iStreamModule) -> EDAnalyzerBase* {
           auto tmp = impl::makeStreamModule<T>(*m_pset, m_global.get());
           MyGlobal::set(tmp, m_global.get());
+          MyInputProcessBlock::set(tmp, &m_inputProcessBlocks, iStreamModule);
           return tmp;
         });
         m_pset = nullptr;
@@ -131,7 +135,7 @@ namespace edm {
           ProcessBlock processBlock(pbp, moduleDescription(), mcc, false);
           processBlock.setConsumer(consumer());
           ProcessBlock const& cnstProcessBlock = processBlock;
-          MyInputProcessBlock::accessInputProcessBlock(cnstProcessBlock, m_global.get());
+          MyInputProcessBlock::accessInputProcessBlock(cnstProcessBlock, m_global.get(), m_inputProcessBlocks);
         }
       }
 
@@ -151,9 +155,11 @@ namespace edm {
           r.setConsumer(consumer());
           Run const& cnstR = r;
           RunIndex ri = rp.index();
+          ESParentContext pc{mcc};
           const EventSetup c{info,
                              static_cast<unsigned int>(Transition::BeginRun),
                              this->consumer()->esGetTokenIndices(Transition::BeginRun),
+                             pc,
                              false};
           MyGlobalRun::beginRun(cnstR, c, m_global.get(), m_runs[ri]);
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
@@ -168,9 +174,11 @@ namespace edm {
 
           RunIndex ri = rp.index();
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
+          ESParentContext pc{mcc};
           const EventSetup c{info,
                              static_cast<unsigned int>(Transition::EndRun),
                              this->consumer()->esGetTokenIndices(Transition::EndRun),
+                             pc,
                              false};
           MyGlobalRunSummary::globalEndRun(r, c, &rc, m_runSummaries[ri].get());
           MyGlobalRun::endRun(r, c, &rc);
@@ -186,9 +194,11 @@ namespace edm {
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
+          ESParentContext pc{mcc};
           const EventSetup c{info,
                              static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                              this->consumer()->esGetTokenIndices(Transition::BeginLuminosityBlock),
+                             pc,
                              false};
           MyGlobalLuminosityBlock::beginLuminosityBlock(cnstLb, c, &rc, m_lumis[li]);
           typename T::LuminosityBlockContext lc(m_lumis[li].get(), m_runs[ri].get(), m_global.get());
@@ -204,17 +214,28 @@ namespace edm {
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
           typename T::LuminosityBlockContext lc(m_lumis[li].get(), m_runs[ri].get(), m_global.get());
+          ESParentContext pc{mcc};
           const EventSetup c{info,
                              static_cast<unsigned int>(Transition::EndLuminosityBlock),
                              this->consumer()->esGetTokenIndices(Transition::EndLuminosityBlock),
+                             pc,
                              false};
           MyGlobalLuminosityBlockSummary::globalEndLuminosityBlock(lb, c, &lc, m_lumiSummaries[li].get());
           MyGlobalLuminosityBlock::endLuminosityBlock(lb, c, &lc);
         }
       }
 
+      void doRespondToCloseOutputFile() final { MyInputProcessBlock::clearCaches(m_inputProcessBlocks); }
+
+      void selectInputProcessBlocks(ProductRegistry const& productRegistry,
+                                    ProcessBlockHelperBase const& processBlockHelperBase) final {
+        MyInputProcessBlock::selectInputProcessBlocks(
+            m_inputProcessBlocks, productRegistry, processBlockHelperBase, *consumer());
+      }
+
       // ---------- member data --------------------------------
       typename impl::choose_unique_ptr<typename T::GlobalCache>::type m_global;
+      typename impl::choose_unique_ptr<typename T::InputProcessBlockCache>::type m_inputProcessBlocks;
       typename impl::choose_shared_vec<typename T::RunCache const>::type m_runs;
       typename impl::choose_shared_vec<typename T::LuminosityBlockCache const>::type m_lumis;
       typename impl::choose_shared_vec<typename T::RunSummaryCache>::type m_runSummaries;

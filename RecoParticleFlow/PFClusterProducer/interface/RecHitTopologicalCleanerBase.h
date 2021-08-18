@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 
@@ -11,7 +12,7 @@
 
 class RecHitTopologicalCleanerBase {
 public:
-  RecHitTopologicalCleanerBase(const edm::ParameterSet& conf) {}
+  RecHitTopologicalCleanerBase(const edm::ParameterSet& conf, edm::ConsumesCollector& cc) {}
   RecHitTopologicalCleanerBase(const RecHitTopologicalCleanerBase&) = delete;
   virtual ~RecHitTopologicalCleanerBase() = default;
   RecHitTopologicalCleanerBase& operator=(const RecHitTopologicalCleanerBase&) = delete;
@@ -26,7 +27,7 @@ private:
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory<RecHitTopologicalCleanerBase*(const edm::ParameterSet&)>
+typedef edmplugin::PluginFactory<RecHitTopologicalCleanerBase*(const edm::ParameterSet&, edm::ConsumesCollector&)>
     RecHitTopologicalCleanerFactory;
 
 #endif

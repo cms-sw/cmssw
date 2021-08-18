@@ -1,5 +1,5 @@
-#ifndef TopQuarkAnalysis_TopPairBSM_interface_CATopJetHelper_h
-#define TopQuarkAnalysis_TopPairBSM_interface_CATopJetHelper_h
+#ifndef RecoJets_JetAlgorithms_interface_CATopJetHelper_h
+#define RecoJets_JetAlgorithms_interface_CATopJetHelper_h
 
 // \class CATopJetHelper
 //

@@ -36,10 +36,11 @@ private:
   using InputCollection = edmNew::DetSetVector<SiPixelCluster>;
 
   const edm::EDGetTokenT<InputCollection> token_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
 };
 
 SiPixelClusterShapeCacheProducer::SiPixelClusterShapeCacheProducer(const edm::ParameterSet& iConfig)
-    : token_(consumes<InputCollection>(iConfig.getParameter<edm::InputTag>("src"))) {
+    : token_(consumes<InputCollection>(iConfig.getParameter<edm::InputTag>("src"))), geomToken_(esConsumes()) {
   if (iConfig.getParameter<bool>("onDemand")) {
     throw cms::Exception("OnDemandNotAllowed")
         << "Use of the `onDemand` feature of SiPixelClusterShapeCacheProducer is no longer supported";
@@ -60,8 +61,7 @@ void SiPixelClusterShapeCacheProducer::produce(edm::StreamID, edm::Event& iEvent
   edm::Handle<InputCollection> input;
   iEvent.getByToken(token_, input);
 
-  edm::ESHandle<TrackerGeometry> geom;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geom);
+  const auto& geom = &iSetup.getData(geomToken_);
 
   auto output = std::make_unique<SiPixelClusterShapeCache>(input);
   output->resize(input->data().size());

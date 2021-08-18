@@ -110,6 +110,7 @@ private:
 
   cond::persistency::ConnectionPool m_connection;
   std::string m_connectionString;
+  std::string m_frontierKey;
 
   // Container of DataProxy, implemented as multi-map keyed by records
   ProxyMap m_proxies;

@@ -16,7 +16,6 @@
 #include <cassert>
 #include <sys/types.h>
 #include <unistd.h>
-#include <boost/filesystem/fstream.hpp>
 
 using namespace jsoncollector;
 
@@ -33,11 +32,12 @@ FastMonitor::FastMonitor(
     getHostAndPID(sourceInfo_);
 
   //load definition file
-  dpd_ = new DataPointDefinition();
-  DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_, &defGroup);
+  auto temp = new DataPointDefinition();
+  DataPointDefinition::getDataPointDefinitionFor(defPath_, temp, &defGroup);
+  dpd_ = temp;
 }
 
-FastMonitor::FastMonitor(DataPointDefinition* dpd, bool strictChecking, bool useSource, bool useDefinition)
+FastMonitor::FastMonitor(DataPointDefinition const* dpd, bool strictChecking, bool useSource, bool useDefinition)
     : strictChecking_(strictChecking), useSource_(useSource), useDefinition_(useDefinition), nStreams_(1), dpd_(dpd) {
   //get host and PID info
   if (useSource)
@@ -56,8 +56,9 @@ FastMonitor::~FastMonitor() {
 void FastMonitor::addFastPathDefinition(std::string const& defPathFast, std::string const defGroupFast, bool strict) {
   haveFastPath_ = true;
   defPathFast_ = defPathFast;
-  dpdFast_ = new DataPointDefinition();
-  DataPointDefinition::getDataPointDefinitionFor(defPathFast_, dpdFast_, &defGroupFast);
+  auto temp = new DataPointDefinition();
+  DataPointDefinition::getDataPointDefinitionFor(defPathFast_, temp, &defGroupFast);
+  dpdFast_ = temp;
   fastPathStrictChecking_ = strict;
   deleteDefFast_ = true;
 }
@@ -239,16 +240,19 @@ JsonMonitorable* FastMonitor::getMergedIntJForLumi(std::string const& name, unsi
   return dataPoints_[it->second]->mergeAndRetrieveValue(forLumi);
 }
 
-bool FastMonitor::outputFullJSONs(std::string const& pathstem, std::string const& ext, unsigned int lumi) {
+bool FastMonitor::outputFullJSONs(std::string const& pathstem, std::string const& ext, unsigned int lumi, bool output) {
   LogDebug("FastMonitor") << "SNAP updates -: " << recentSnaps_ << " (by timer: " << recentSnapsTimer_
                           << ") in lumisection ";
 
   recentSnaps_ = recentSnapsTimer_ = 0;
   for (unsigned int i = 0; i < nStreams_; i++) {
+    //merge even if no output
     Json::Value serializeRoot;
     for (unsigned int j = 0; j < jsonDpIndex_.size(); j++) {
       dataPoints_[jsonDpIndex_[j]]->mergeAndSerialize(serializeRoot, lumi, true, i);
     }
+    if (!output)
+      continue;
     //get extension
     std::stringstream tidext;
     tidext << "_tid" << i;
@@ -258,10 +262,10 @@ bool FastMonitor::outputFullJSONs(std::string const& pathstem, std::string const
     std::string&& result = writer.write(serializeRoot);
     FileIO::writeStringToFile(path, result);
   }
-  return true;
+  return output;
 }
 
-bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi) {
+bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi, bool output) {
   LogDebug("FastMonitor") << "SNAP updates -: " << recentSnaps_ << " (by timer: " << recentSnapsTimer_
                           << ") in lumisection ";
 
@@ -270,6 +274,8 @@ bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi) {
   for (unsigned int j = 0; j < jsonDpIndex_.size(); j++) {
     dataPoints_[jsonDpIndex_[j]]->mergeAndSerialize(serializeRoot, lumi, j == 0, -1);
   }
+  if (!output)
+    return false;
 
   Json::StyledWriter writer;
   std::string&& result = writer.write(serializeRoot);

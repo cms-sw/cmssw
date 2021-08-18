@@ -33,8 +33,6 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 
-#define EDM_ML_DEBUG
-
 class HcalRecNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalRecNumberingTester(const edm::ParameterSet&);

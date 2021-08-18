@@ -1,7 +1,7 @@
 #ifndef MCTruth_MuonAssociatorEDProducer_h
 #define MCTruth_MuonAssociatorEDProducer_h
 
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+#include "SimDataFormats/Associations/interface/TrackAssociation.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -23,8 +23,10 @@ private:
   edm::InputTag tracksTag;
   edm::InputTag tpTag;
   edm::EDGetTokenT<TrackingParticleCollection> tpToken_;
+  edm::EDGetTokenT<TrackingParticleRefVector> tpRefVectorToken_;
   edm::EDGetTokenT<edm::View<reco::Track>> tracksToken_;
 
+  bool tpRefVector;
   bool ignoreMissingTrackCollection;
   edm::ParameterSet parset_;
   MuonAssociatorByHits *associatorByHits;

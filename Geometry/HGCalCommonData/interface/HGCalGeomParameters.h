@@ -49,6 +49,16 @@ public:
                             HGCalParameters& php,
                             const std::string& sdTag1,
                             int firstLayer);
+  void loadGeometryHexagonModule(const DDCompactView* cpv,
+                                 HGCalParameters& php,
+                                 const std::string& sdTag1,
+                                 const std::string& sdTag2,
+                                 int firstLayer);
+  void loadGeometryHexagonModule(const cms::DDCompactView* cpv,
+                                 HGCalParameters& php,
+                                 const std::string& sdTag1,
+                                 const std::string& sdTag2,
+                                 int firstLayer);
   void loadSpecParsHexagon(const DDFilteredView& fv,
                            HGCalParameters& php,
                            const DDCompactView* cpv,
@@ -108,6 +118,7 @@ private:
   void loadSpecParsHexagon(const HGCalParameters& php);
   void loadSpecParsHexagon8(HGCalParameters& php);
   void loadSpecParsHexagon8(HGCalParameters& php,
+                            const std::vector<int>& layerType,
                             const std::vector<int>& waferIndex,
                             const std::vector<int>& waferProperties);
   void loadSpecParsTrapezoid(HGCalParameters& php);

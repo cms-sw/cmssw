@@ -104,72 +104,16 @@ void SiPixelDigiErrorsFromSoA::produce(edm::Event& iEvent, const edm::EventSetup
     }
   }
 
-  constexpr uint32_t dummydetid = 0xffffffff;
-  typedef PixelDataFormatter::Errors::iterator IE;
-  for (auto& error : errors) {
-    uint32_t errordetid = error.first;
-    if (errordetid == dummydetid) {  // errors given dummy detId must be sorted by Fed
-      nodeterrors.insert(nodeterrors.end(), errors[errordetid].begin(), errors[errordetid].end());
-    } else {
-      edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection.find_or_insert(errordetid);
-      errorDetSet.data.insert(errorDetSet.data.end(), error.second.begin(), error.second.end());
-      // Fill detid of the detectors where there is error AND the error number is listed
-      // in the configurable error list in the job option cfi.
-      // Code needs to be here, because there can be a set of errors for each
-      // entry in the for loop over PixelDataFormatter::Errors
+  formatter.unpackFEDErrors(errors,
+                            tkerrorlist_,
+                            usererrorlist_,
+                            errorcollection,
+                            tkerror_detidcollection,
+                            usererror_detidcollection,
+                            disabled_channelcollection,
+                            nodeterrors);
 
-      std::vector<PixelFEDChannel> disabledChannelsDetSet;
-
-      for (auto const& aPixelError : errorDetSet) {
-        // For the time being, we extend the error handling functionality with ErrorType 25
-        // In the future, we should sort out how the usage of tkerrorlist can be generalized
-        if (aPixelError.getType() == 25) {
-          int fedId = aPixelError.getFedId();
-          const sipixelobjects::PixelFEDCabling* fed = cabling_->fed(fedId);
-          if (fed) {
-            cms_uint32_t linkId = formatter.linkId(aPixelError.getWord32());
-            const sipixelobjects::PixelFEDLink* link = fed->link(linkId);
-            if (link) {
-              // The "offline" 0..15 numbering is fixed by definition, also, the FrameConversion depends on it
-              // in contrast, the ROC-in-channel numbering is determined by hardware --> better to use the "offline" scheme
-              PixelFEDChannel ch = {fed->id(), linkId, 25, 0};
-              for (unsigned int iRoc = 1; iRoc <= link->numberOfROCs(); iRoc++) {
-                const sipixelobjects::PixelROC* roc = link->roc(iRoc);
-                if (roc->idInDetUnit() < ch.roc_first)
-                  ch.roc_first = roc->idInDetUnit();
-                if (roc->idInDetUnit() > ch.roc_last)
-                  ch.roc_last = roc->idInDetUnit();
-              }
-              disabledChannelsDetSet.push_back(ch);
-            }
-          }
-        } else {
-          // fill list of detIds to be turned off by tracking
-          if (!tkerrorlist_.empty()) {
-            auto it_find = std::find(tkerrorlist_.begin(), tkerrorlist_.end(), aPixelError.getType());
-            if (it_find != tkerrorlist_.end()) {
-              tkerror_detidcollection.push_back(errordetid);
-            }
-          }
-        }
-
-        // fill list of detIds with errors to be studied
-        if (!usererrorlist_.empty()) {
-          auto it_find = std::find(usererrorlist_.begin(), usererrorlist_.end(), aPixelError.getType());
-          if (it_find != usererrorlist_.end()) {
-            usererror_detidcollection.push_back(errordetid);
-          }
-        }
-
-      }  // loop on DetSet of errors
-
-      if (!disabledChannelsDetSet.empty()) {
-        disabled_channelcollection.insert(errordetid, disabledChannelsDetSet.data(), disabledChannelsDetSet.size());
-      }
-
-    }  // if error assigned to a real DetId
-  }    // loop on errors in event for this FED
-
+  const uint32_t dummydetid = 0xffffffff;
   edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection.find_or_insert(dummydetid);
   errorDetSet.data = nodeterrors;
 

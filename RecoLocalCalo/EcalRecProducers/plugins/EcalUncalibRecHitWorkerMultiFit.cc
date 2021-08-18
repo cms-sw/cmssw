@@ -65,7 +65,13 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     timealgo_ = ratioMethod;
   else if (timeAlgoName == "WeightsMethod")
     timealgo_ = weightsMethod;
-  else if (timeAlgoName != "None")
+  else if (timeAlgoName == "crossCorrelationMethod") {
+    timealgo_ = crossCorrelationMethod;
+    double startTime = ps.getParameter<double>("crossCorrelationStartTime");
+    double stopTime = ps.getParameter<double>("crossCorrelationStopTime");
+    double targetTimePrecision = ps.getParameter<double>("crossCorrelationTargetTimePrecision");
+    computeCC_ = std::make_unique<EcalUncalibRecHitTimingCCAlgo>(startTime, stopTime, targetTimePrecision);
+  } else if (timeAlgoName != "None")
     edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm defined";
 
   // ratio method parameters
@@ -472,7 +478,19 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
         }
         uncalibRecHit.setJitter(timerh);
         uncalibRecHit.setJitterError(0.);  // not computed with weights
-      } else {                             // no time method;
+
+      } else if (timealgo_ == crossCorrelationMethod) {
+        std::vector<double> amplitudes(activeBX.size());
+        for (unsigned int ibx = 0; ibx < activeBX.size(); ++ibx)
+          amplitudes[ibx] = uncalibRecHit.outOfTimeAmplitude(ibx);
+
+        float jitterError = 0.;
+        float jitter = computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError);
+
+        uncalibRecHit.setJitter(jitter);
+        uncalibRecHit.setJitterError(jitterError);
+
+      } else {  // no time method;
         uncalibRecHit.setJitter(0.);
         uncalibRecHit.setJitterError(0.);
       }
@@ -661,6 +679,9 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription
       edm::ParameterDescription<bool>("kPoorRecoFlagEE", false, true) and
       edm::ParameterDescription<double>("chi2ThreshEB_", 65.0, true) and
       edm::ParameterDescription<double>("chi2ThreshEE_", 50.0, true) and
+      edm::ParameterDescription<double>("crossCorrelationStartTime", -25.0, true) and
+      edm::ParameterDescription<double>("crossCorrelationStopTime", 25.0, true) and
+      edm::ParameterDescription<double>("crossCorrelationTargetTimePrecision", 0.01, true) and
       edm::ParameterDescription<edm::ParameterSetDescription>("EcalPulseShapeParameters", psd0, true));
 
   return psd;

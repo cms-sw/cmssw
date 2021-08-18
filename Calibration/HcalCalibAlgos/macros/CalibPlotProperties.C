@@ -7,12 +7,15 @@
 //                         phimin, phimax, zside, nvxlo, nvxhi, rbx, exclude,
 //                         etamax);
 //  c1.Loop();
-//  c1.savePlot(histFileName,append,all,debug);
+//  c1.savePlot(histFileName, append, all, debug);
 //
 //        This will prepare a set of histograms with properties of the tracks
 //        which can be displayed by the method in this file
 //
-//  PlotHist(histFileName, prefix, flagC, etalo, etahi, save)
+//  PlotHist(histFileName, prefix, text, flagC, etalo, etahi, save)
+//
+//        This will plot the heistograms and save the canvases
+//
 //
 //   where:
 //
@@ -40,7 +43,9 @@
 //                               l=2/1/0 for type of rcorFileName (2 for overall
 //                               response corrections; 1 for depth dependence
 //                               corrections; 0 for raddam corrections);
-//                               t =1/0 for applying cut or not on L1 closeness;
+//                               t = bit information (lower bit set will
+//                               apply a cut on L1 closeness; and higher bit
+//                               set read correction file with Marina format);
 //                               h =0/1 flag to create energy histograms
 //                               d =0/1 flag to create basic set of histograms;
 //                               o =0/1/2 for tight / loose / flexible
@@ -85,6 +90,7 @@
 //   all (bool)                = true/false if all histograms to be saved or
 //                               not (def false)
 //
+//   text  (string)            = string to be put in the title
 //   flagC (int)               = 3 digit integer (hdo) with control
 //                               information (h=0/1 for plottting the depth
 //                               depedendent histograms;
@@ -291,6 +297,7 @@ private:
   std::vector<TH1D *> h_etaEH[CalibPlots::npbin0];
   std::vector<TH1D *> h_etaEp[CalibPlots::npbin0];
   std::vector<TH1D *> h_etaEE[CalibPlots::npbin0];
+  std::vector<TH1D *> h_etaEE0[CalibPlots::npbin0];
   std::vector<TH1D *> h_mom, h_eEcal, h_eHcal;
   std::vector<TH1F *> h_bvlist, h_bvlist2, h_evlist, h_evlist2;
   std::vector<TH1F *> h_bvlist3, h_evlist3;
@@ -351,7 +358,9 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
   flexibleSelect_ = ((flag_ / 1) % 10);
   plotBasic_ = (((flag_ / 10) % 10) > 0);
   plotEnergy_ = (((flag_ / 10) % 10) > 0);
-  cutL1T_ = ((flag_ / 1000) % 10);
+  int oneplace = ((flag_ / 1000) % 10);
+  cutL1T_ = (oneplace % 2);
+  bool marina = ((oneplace / 2) % 2);
   bool ifDepth = (((flag_ / 10000) % 10) > 0);
   plotHists_ = (((flag_ / 100000) % 10) > 0);
   log2by18_ = std::log(2.5) / 18.0;
@@ -368,7 +377,7 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
             << "|" << plotEnergy_ << "|" << plotHists_ << "|" << corrPU_ << " cons " << log2by18_ << " eta range "
             << etalo_ << ":" << etahi_ << " run range " << runlo_ << ":" << runhi_ << " (inclusion flag " << includeRun_
             << ") Vertex Range " << nvxlo_ << ":" << nvxhi_ << std::endl;
-  corrFactor_ = new CalibCorrFactor(corrFileName, useScale, scl, etam, false);
+  corrFactor_ = new CalibCorrFactor(corrFileName, useScale, scl, etam, marina, false);
   if (!fillChain(chain, fname)) {
     std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
   } else {
@@ -626,6 +635,10 @@ void CalibPlotProperties::Init(TChain *tree, const char *dupFileName) {
         h_etaEE[k].push_back(new TH1D(name, title, 100, 0, 10));
         kk = h_etaEE[k].size() - 1;
         h_etaEE[k][kk]->Sumw2();
+        sprintf(name, "%senergyER%d%d", prefix_.c_str(), k, j);
+        h_etaEE0[k].push_back(new TH1D(name, title, 100, 0, 1));
+        kk = h_etaEE0[k].size() - 1;
+        h_etaEE0[k][kk]->Sumw2();
       }
     }
 
@@ -769,7 +782,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
       break;
     nb = fChain->GetEntry(jentry);
     nbytes += nb;
-    if (jentry % 100000 == 0)
+    if (jentry % 1000000 == 0)
       std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
     bool select = (std::find(entries_.begin(), entries_.end(), jentry) == entries_.end());
     if (!select) {
@@ -906,6 +919,8 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
             h_etaEp[kp][jp2]->Fill(pmom, t_EventWeight);
             h_etaEE[kp][jp1]->Fill(t_eMipDR, t_EventWeight);
             h_etaEE[kp][jp2]->Fill(t_eMipDR, t_EventWeight);
+            h_etaEE0[kp][jp1]->Fill(t_eMipDR, t_EventWeight);
+            h_etaEE0[kp][jp2]->Fill(t_eMipDR, t_EventWeight);
           }
           if (kp == kp50) {
             if (je1 != CalibPlots::netabin) {
@@ -1092,6 +1107,10 @@ void CalibPlotProperties::savePlot(const std::string &theName, bool append, bool
           TH1D *hist = (TH1D *)h_etaEE[k][j]->Clone();
           hist->Write();
         }
+        if (h_etaEE0[k].size() > j && h_etaEE0[k][j] != nullptr && (all || (k == kp50))) {
+          TH1D *hist = (TH1D *)h_etaEE0[k][j]->Clone();
+          hist->Write();
+        }
       }
     }
 
@@ -1164,7 +1183,7 @@ void CalibPlotProperties::correctEnergy(double &eHcal) {
   }
 }
 
-void PlotThisHist(TH1D *hist, int save) {
+void PlotThisHist(TH1D *hist, const std::string &text, int save) {
   char namep[120];
   sprintf(namep, "c_%s", hist->GetName());
   TCanvas *pad = new TCanvas(namep, namep, 700, 500);
@@ -1183,6 +1202,17 @@ void PlotThisHist(TH1D *hist, int save) {
   pad->Modified();
   pad->Update();
   TPaveStats *st1 = (TPaveStats *)hist->GetListOfFunctions()->FindObject("stats");
+  TPaveText *txt0 = new TPaveText(0.12, 0.91, 0.49, 0.96, "blNDC");
+  txt0->SetFillColor(0);
+  char txt[100];
+  sprintf(txt, "CMS Simulation Preliminary");
+  txt0->AddText(txt);
+  txt0->Draw("same");
+  TPaveText *txt1 = new TPaveText(0.51, 0.91, 0.90, 0.96, "blNDC");
+  txt1->SetFillColor(0);
+  sprintf(txt, "%s", text.c_str());
+  txt1->AddText(txt);
+  txt1->Draw("same");
   if (st1 != nullptr) {
     st1->SetY1NDC(0.70);
     st1->SetY2NDC(0.90);
@@ -1201,6 +1231,7 @@ void PlotThisHist(TH1D *hist, int save) {
 
 void PlotHist(const char *hisFileName,
               const std::string &prefix = "",
+              const std::string &text = "",
               int flagC = 111,
               int etalo = 0,
               int etahi = 30,
@@ -1227,14 +1258,14 @@ void PlotHist(const char *hisFileName,
       if (hist != nullptr) {
         sprintf(title, "Momentum for %s (GeV)", CalibPlots::getTitle(k).c_str());
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
       sprintf(name, "%seta%d", prefix.c_str(), k);
       hist = (TH1D *)(file->FindObjectAny(name));
       if (hist != nullptr) {
         sprintf(title, "#eta for %s", CalibPlots::getTitle(k).c_str());
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
     }
     for (int k = 0; k < CalibPlots::npbin; ++k) {
@@ -1247,7 +1278,7 @@ void PlotHist(const char *hisFileName,
                 CalibPlots::getP(k),
                 CalibPlots::getP(k + 1));
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
       sprintf(name, "%seta1%d", prefix.c_str(), k);
       hist = (TH1D *)(file->FindObjectAny(name));
@@ -1258,7 +1289,7 @@ void PlotHist(const char *hisFileName,
                 CalibPlots::getP(k),
                 CalibPlots::getP(k + 1));
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
       sprintf(name, "%seta2%d", prefix.c_str(), k);
       hist = (TH1D *)(file->FindObjectAny(name));
@@ -1269,7 +1300,7 @@ void PlotHist(const char *hisFileName,
                 CalibPlots::getP(k),
                 CalibPlots::getP(k + 1));
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
       sprintf(name, "%seta3%d", prefix.c_str(), k);
       hist = (TH1D *)(file->FindObjectAny(name));
@@ -1280,7 +1311,7 @@ void PlotHist(const char *hisFileName,
                 CalibPlots::getP(k),
                 CalibPlots::getP(k + 1));
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
       sprintf(name, "%seta4%d", prefix.c_str(), k);
       hist = (TH1D *)(file->FindObjectAny(name));
@@ -1291,21 +1322,21 @@ void PlotHist(const char *hisFileName,
                 CalibPlots::getP(k),
                 CalibPlots::getP(k + 1));
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
       sprintf(name, "%sdl1%d", prefix.c_str(), k);
       hist = (TH1D *)(file->FindObjectAny(name));
       if (hist != nullptr) {
         sprintf(title, "Distance from L1 (p = %d:%d GeV)", CalibPlots::getP(k), CalibPlots::getP(k + 1));
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
       sprintf(name, "%svtx%d", prefix.c_str(), k);
       hist = (TH1D *)(file->FindObjectAny(name));
       if (hist != nullptr) {
         sprintf(title, "N_{Vertex} (p = %d:%d GeV)", CalibPlots::getP(k), CalibPlots::getP(k + 1));
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
     }
   }
@@ -1333,7 +1364,7 @@ void PlotHist(const char *hisFileName,
                     CalibPlots::getP(k + 1),
                     j);
           hist->GetXaxis()->SetTitle(title);
-          PlotThisHist(hist, save);
+          PlotThisHist(hist, text, save);
         }
         sprintf(name, "%senergyP%d%d", prefix.c_str(), k, j);
         hist = (TH1D *)(file->FindObjectAny(name));
@@ -1354,7 +1385,7 @@ void PlotHist(const char *hisFileName,
                     CalibPlots::getP(k + 1),
                     j);
           hist->GetXaxis()->SetTitle(title);
-          PlotThisHist(hist, save);
+          PlotThisHist(hist, text, save);
         }
         sprintf(name, "%senergyE%d%d", prefix.c_str(), k, j);
         hist = (TH1D *)(file->FindObjectAny(name));
@@ -1375,7 +1406,13 @@ void PlotHist(const char *hisFileName,
                     CalibPlots::getP(k + 1),
                     j);
           hist->GetXaxis()->SetTitle(title);
-          PlotThisHist(hist, save);
+          PlotThisHist(hist, text, save);
+        }
+        sprintf(name, "%senergyER%d%d", prefix.c_str(), k, j);
+        hist = (TH1D *)(file->FindObjectAny(name));
+        if (hist != nullptr) {
+          std::cout << name << " Mean " << hist->GetMean() << " +- " << hist->GetMeanError() << " Entries "
+                    << hist->GetEntries() << " RMS " << hist->GetRMS() << std::endl;
         }
       }
     }
@@ -1393,7 +1430,7 @@ void PlotHist(const char *hisFileName,
                   CalibPlots::getEta(j - 1),
                   CalibPlots::getEta(j));
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
       sprintf(name, "%senergyP%d", prefix.c_str(), j);
       hist = (TH1D *)(file->FindObjectAny(name));
@@ -1407,7 +1444,7 @@ void PlotHist(const char *hisFileName,
                   CalibPlots::getEta(j - 1),
                   CalibPlots::getEta(j));
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
       sprintf(name, "%senergyE%d", prefix.c_str(), j);
       hist = (TH1D *)(file->FindObjectAny(name));
@@ -1421,7 +1458,7 @@ void PlotHist(const char *hisFileName,
                   CalibPlots::getEta(j - 1),
                   CalibPlots::getEta(j));
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
     }
   }
@@ -1430,7 +1467,7 @@ void PlotHist(const char *hisFileName,
     hist = (TH1D *)(file->FindObjectAny("hnvtx"));
     if (hist != nullptr) {
       hist->GetXaxis()->SetTitle("Number of vertices");
-      PlotThisHist(hist, save);
+      PlotThisHist(hist, text, save);
     }
     for (int i = 0; i < CalibPlots::ndepth; i++) {
       sprintf(name, "b_edepth%d", i);
@@ -1438,42 +1475,42 @@ void PlotHist(const char *hisFileName,
       if (hist != nullptr) {
         sprintf(title, "Total RecHit energy in depth %d (Barrel)", i + 1);
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
       sprintf(name, "b_recedepth%d", i);
       hist = (TH1D *)(file->FindObjectAny(name));
       if (hist != nullptr) {
         sprintf(title, "RecHit energy in depth %d (Barrel)", i + 1);
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
       sprintf(name, "b_nrecdepth%d", i);
       hist = (TH1D *)(file->FindObjectAny(name));
       if (hist != nullptr) {
         sprintf(title, "#RecHits in depth %d (Barrel)", i + 1);
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
       sprintf(name, "e_edepth%d", i);
       hist = (TH1D *)(file->FindObjectAny(name));
       if (hist != nullptr) {
         sprintf(title, "Total RecHit energy in depth %d (Endcap)", i + 1);
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
       sprintf(name, "e_recedepth%d", i);
       hist = (TH1D *)(file->FindObjectAny(name));
       if (hist != nullptr) {
         sprintf(title, "RecHit energy in depth %d (Endcap)", i + 1);
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
       sprintf(name, "e_nrecdepth%d", i);
       hist = (TH1D *)(file->FindObjectAny(name));
       if (hist != nullptr) {
         sprintf(title, "#RecHits in depth %d (Endcap)", i + 1);
         hist->GetXaxis()->SetTitle(title);
-        PlotThisHist(hist, save);
+        PlotThisHist(hist, text, save);
       }
     }
     TH2F *h_etaE = (TH2F *)(file->FindObjectAny("heta"));

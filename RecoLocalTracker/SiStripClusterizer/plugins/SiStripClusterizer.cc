@@ -3,6 +3,7 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/transform.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 SiStripClusterizer::SiStripClusterizer(const edm::ParameterSet& conf)
     : inputTags(conf.getParameter<std::vector<edm::InputTag>>("DigiProducersList")),

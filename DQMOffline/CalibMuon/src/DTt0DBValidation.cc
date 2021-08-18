@@ -20,11 +20,9 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 // t0
 #include "CondFormats/DTObjects/interface/DTT0.h"
-#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
 
 #include "TFile.h"
 
@@ -34,17 +32,16 @@
 using namespace edm;
 using namespace std;
 
-DTt0DBValidation::DTt0DBValidation(const ParameterSet &pset) {
+DTt0DBValidation::DTt0DBValidation(const ParameterSet &pset)
+    : labelDBRef_(esConsumes(edm::ESInputTag("", pset.getParameter<string>("labelDBRef")))),
+      labelDB_(esConsumes(edm::ESInputTag("", pset.getParameter<string>("labelDB")))),
+      muonGeomToken_(esConsumes()) {
   metname_ = "InterChannelSynchDBValidation";
   LogVerbatim(metname_) << "[DTt0DBValidation] Constructor called!";
 
   // Get the DQM needed services
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation");
-
-  // Get dataBase label
-  labelDBRef_ = pset.getParameter<string>("labelDBRef");
-  labelDB_ = pset.getParameter<string>("labelDB");
 
   t0TestName_ = "t0DifferenceInRange";
   if (pset.exists("t0TestName"))
@@ -63,15 +60,12 @@ void DTt0DBValidation::beginRun(const edm::Run &run, const EventSetup &setup) {
   metname_ = "InterChannelSynchDBValidation";
   LogVerbatim(metname_) << "[DTt0DBValidation] Parameters initialization";
 
-  ESHandle<DTT0> t0_Ref;
-  setup.get<DTT0Rcd>().get(labelDBRef_, t0_Ref);
-  tZeroRefMap_ = &*t0_Ref;
-  LogVerbatim(metname_) << "[DTt0DBValidation] reference T0 version: " << t0_Ref->version();
+  tZeroRefMap_ = &setup.getData(labelDBRef_);
+  ;
+  LogVerbatim(metname_) << "[DTt0DBValidation] reference T0 version: " << tZeroRefMap_->version();
 
-  ESHandle<DTT0> t0;
-  setup.get<DTT0Rcd>().get(labelDB_, t0);
-  tZeroMap_ = &*t0;
-  LogVerbatim(metname_) << "[DTt0DBValidation] T0 to validate version: " << t0->version();
+  tZeroMap_ = &setup.getData(labelDB_);
+  LogVerbatim(metname_) << "[DTt0DBValidation] T0 to validate version: " << tZeroMap_->version();
 
   // book&reset the summary histos
   for (int wheel = -2; wheel <= 2; wheel++) {
@@ -80,7 +74,7 @@ void DTt0DBValidation::beginRun(const edm::Run &run, const EventSetup &setup) {
   }
 
   // Get the geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom_);
+  dtGeom = &setup.getData(muonGeomToken_);
 
   // Loop over Ref DB entries
   for (DTT0::const_iterator tzero = tZeroRefMap_->begin(); tzero != tZeroRefMap_->end(); tzero++) {
@@ -141,7 +135,7 @@ void DTt0DBValidation::beginRun(const edm::Run &run, const EventSetup &setup) {
       // book histo
       DTLayerId layerId = (*theMap).first.layerId();
       if (t0DiffHistos_.find(layerId) == t0DiffHistos_.end()) {
-        const DTTopology &dtTopo = dtGeom_->layer(layerId)->specificTopology();
+        const DTTopology &dtTopo = dtGeom->layer(layerId)->specificTopology();
         const int firstWire = dtTopo.firstChannel();
         const int lastWire = dtTopo.lastChannel();
         bookHistos(layerId, firstWire, lastWire);

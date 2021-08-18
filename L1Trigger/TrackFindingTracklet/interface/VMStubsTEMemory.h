@@ -2,6 +2,7 @@
 #define L1Trigger_TrackFindingTracklet_interface_VMStubsTEMemory_h
 
 #include "L1Trigger/TrackFindingTracklet/interface/MemoryBase.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletLUT.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubTE.h"
 
 #include <string>
@@ -12,10 +13,11 @@ namespace trklet {
   class Settings;
   class Stub;
   class L1TStub;
+  class TrackletLUT;
 
   class VMStubsTEMemory : public MemoryBase {
   public:
-    VMStubsTEMemory(std::string name, Settings const& settings, unsigned int iSector);
+    VMStubsTEMemory(std::string name, Settings const& settings);
 
     ~VMStubsTEMemory() override = default;
 
@@ -37,7 +39,7 @@ namespace trklet {
 
     void clean() override;
 
-    void writeStubs(bool first);
+    void writeStubs(bool first, unsigned int iSector);
 
     int phibin() const { return phibin_; }
 
@@ -47,18 +49,12 @@ namespace trklet {
 
     VMStubsTEMemory* other() { return other_; }
 
-    void setbendtable(std::vector<bool> vmbendtable);
-
-    bool passbend(unsigned int ibend) const {
-      assert(ibend < vmbendtable_.size());
-      return vmbendtable_[ibend];
-    }
-
-    void writeVMBendTable();
+    void setbendtable(const TrackletLUT& bendtable);
 
   private:
     int layer_;
     int disk_;
+    int layerdisk_;
     int phibin_;
     VMStubsTEMemory* other_;
     bool overlap_;
@@ -66,7 +62,7 @@ namespace trklet {
     bool extended_;  // for the L2L3->D1 and D1D2->L2
     bool isinner_;   // is inner layer/disk for TE purpose
 
-    std::vector<bool> vmbendtable_;
+    TrackletLUT bendtable_;
 
     std::vector<VMStubTE> stubsvm_;
     std::vector<std::vector<VMStubTE> > stubsbinnedvm_;

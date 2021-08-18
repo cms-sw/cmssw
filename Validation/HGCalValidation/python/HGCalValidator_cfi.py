@@ -7,6 +7,13 @@ from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import layerC
 from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import layerClusterSimClusterAssociation
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+
+from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels, ticlIterLabelsMerge
+
+labelTst = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabelsMerge]
+labelTst.extend(["ticlSimTracksters"])
+lcInputMask = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabels]
+lcInputMask.extend(["ticlSimTracksters"])
 hgcalValidator = DQMEDAnalyzer(
     "HGCalValidator",
 
@@ -15,13 +22,10 @@ hgcalValidator = DQMEDAnalyzer(
     CaloParticleSelectionForEfficiency,
 
     ### reco input configuration ###
-    #2dlayerclusters, pfclusters, multiclusters
+    #2DLayerClusters, PFClusters, Tracksters
     label_lcl = layerClusterCaloParticleAssociation.label_lc,
-    label_mcl = cms.VInputTag(
-      cms.InputTag("ticlMultiClustersFromTrackstersTrk"),
-      cms.InputTag("ticlMultiClustersFromTrackstersEM"),
-      cms.InputTag("ticlMultiClustersFromTrackstersHAD"),
-      cms.InputTag("ticlMultiClustersFromTrackstersMerge")),
+    label_tst = cms.VInputTag(labelTst),
+    label_simTSFromCP = cms.InputTag("ticlSimTracksters"),
 
     associator = cms.untracked.InputTag("layerClusterCaloParticleAssociationProducer"),
 
@@ -34,11 +38,13 @@ hgcalValidator = DQMEDAnalyzer(
     #Select caloParticles for efficiency or pass through
     doCaloParticleSelection = cms.untracked.bool(True),
     #SimCluster related plots
-    dosimclustersPlots = cms.untracked.bool(True),
+    doSimClustersPlots = cms.untracked.bool(True),
     #Layer Cluster related plots
-    dolayerclustersPlots = cms.untracked.bool(True),
-    #Multi Cluster related plots
-    domulticlustersPlots = cms.untracked.bool(True),
+    doLayerClustersPlots = cms.untracked.bool(True),
+    label_LCToCPLinking = cms.InputTag("LCToCP_association"),
+    #Trackster related plots
+    doTrackstersPlots = cms.untracked.bool(True),
+    label_TSToCPLinking = cms.InputTag("TSToCP_linking"),
 
     #The cumulative material budget in front of each layer. To be more specific, it
     #is the material budget just in front of the active material (not including it).
@@ -53,12 +59,7 @@ hgcalValidator = DQMEDAnalyzer(
 
     simVertices = cms.InputTag("g4SimHits"),
 
-    LayerClustersInputMask = cms.VInputTag(
-        cms.InputTag("ticlTrackstersTrkEM"),
-        cms.InputTag("ticlTrackstersEM"),
-        cms.InputTag("ticlTrackstersTrk"),
-        cms.InputTag("ticlTrackstersHAD")
-    ),
+    LayerClustersInputMask = cms.VInputTag(lcInputMask),
 
     #Total number of layers of HGCal that we want to monitor
     #Could get this also from HGCalImagingAlgo::maxlayer but better to get it from here

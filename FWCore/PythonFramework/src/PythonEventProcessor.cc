@@ -86,10 +86,26 @@ PythonEventProcessor::PythonEventProcessor(PyBind11ProcessDesc const& iDesc)
                  createJobReport(),
                  edm::serviceregistry::kOverlapIsError) {}
 
+namespace {
+  class TaskCleanupSentry {
+  public:
+    TaskCleanupSentry(edm::EventProcessor* ep) : ep_(ep) {}
+    ~TaskCleanupSentry() { ep_->taskCleanup(); }
+
+  private:
+    edm::EventProcessor* ep_;
+  };
+}  // namespace
+
 PythonEventProcessor::~PythonEventProcessor() {
   auto gil = PyEval_SaveThread();
   // Protects the destructor from throwing exceptions.
-  CMS_SA_ALLOW try { processor_.endJob(); } catch (...) {
+  CMS_SA_ALLOW try {
+    tbb::task_arena{nThreads}.execute([this]() {
+      TaskCleanupSentry s(&processor_);
+      processor_.endJob();
+    });
+  } catch (...) {
   }
   PyEval_RestoreThread(gil);
 }

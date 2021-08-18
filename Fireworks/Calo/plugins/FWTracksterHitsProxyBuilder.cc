@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Fireworks/Calo/interface/FWHeatmapProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
@@ -5,6 +6,9 @@
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 #include "TEveBoxSet.h"
 #include "TEveStraightLineSet.h"
@@ -15,6 +19,9 @@ public:
   ~FWTracksterHitsProxyBuilder(void) override {}
 
   REGISTER_PROXYBUILDER_METHODS();
+
+  FWTracksterHitsProxyBuilder(const FWTracksterHitsProxyBuilder &) = delete;                   // stop default
+  const FWTracksterHitsProxyBuilder &operator=(const FWTracksterHitsProxyBuilder &) = delete;  // stop default
 
 private:
   edm::Handle<edm::ValueMap<std::pair<float, float>>> TimeValueMapHandle;
@@ -29,9 +36,6 @@ private:
   bool enableSeedLines;
   bool enablePositionLines;
   bool enableEdges;
-
-  FWTracksterHitsProxyBuilder(const FWTracksterHitsProxyBuilder &) = delete;                   // stop default
-  const FWTracksterHitsProxyBuilder &operator=(const FWTracksterHitsProxyBuilder &) = delete;  // stop default
 
   void setItem(const FWEventItem *iItem) override;
 
@@ -59,16 +63,18 @@ void FWTracksterHitsProxyBuilder::build(const FWEventItem *iItem, TEveElementLis
   iItem->getEvent()->getByLabel(edm::InputTag("hgcalLayerClusters", "timeLayerCluster"), TimeValueMapHandle);
   iItem->getEvent()->getByLabel(edm::InputTag("hgcalLayerClusters"), layerClustersHandle);
   if (TimeValueMapHandle.isValid()) {
-    timeLowerBound = std::min(item()->getConfig()->value<double>("TimeLowerBound(ns)"),
-                              item()->getConfig()->value<double>("TimeUpperBound(ns)"));
-    timeUpperBound = std::max(item()->getConfig()->value<double>("TimeLowerBound(ns)"),
-                              item()->getConfig()->value<double>("TimeUpperBound(ns)"));
+    timeLowerBound = item()->getConfig()->value<double>("TimeLowerBound(ns)");
+    timeUpperBound = item()->getConfig()->value<double>("TimeUpperBound(ns)");
+    if (timeLowerBound > timeUpperBound) {
+      edm::LogWarning("InvalidParameters")
+          << "lower time bound is larger than upper time bound. Maybe opposite is desired?";
+    }
   } else {
-    std::cerr << "Warning: couldn't locate 'timeLayerCluster' ValueMap in root file." << std::endl;
+    edm::LogWarning("DataNotFound|InvalidData") << "couldn't locate 'timeLayerCluster' ValueMap in root file.";
   }
 
   if (!layerClustersHandle.isValid()) {
-    std::cerr << "Warning: couldn't locate 'hgcalLayerClusters' collection in root file." << std::endl;
+    edm::LogWarning("DataNotFound|InvalidData") << "couldn't locate 'timeLayerCluster' ValueMap in root file.";
   }
 
   layer = item()->getConfig()->value<long>("Layer");
@@ -249,17 +255,40 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
 
     for (auto edge : edges) {
       auto doublet = std::make_pair(layerClusters[edge[0]], layerClusters[edge[1]]);
+
+      const bool isScintillatorIn = doublet.first.seed().det() == DetId::HGCalHSc;
+      const bool isScintillatorOut = doublet.second.seed().det() == DetId::HGCalHSc;
+      int layerIn = (isScintillatorIn) ? (HGCScintillatorDetId(doublet.first.seed()).layer())
+                                       : (HGCSiliconDetId(doublet.first.seed()).layer());
+      int layerOut = (isScintillatorOut) ? (HGCScintillatorDetId(doublet.second.seed()).layer())
+                                         : (HGCSiliconDetId(doublet.second.seed()).layer());
+
+      // Check if offset is needed
+      const int offset = 28;
+      const int offsetIn = offset * (doublet.first.seed().det() != DetId::HGCalEE);
+      const int offsetOut = offset * (doublet.second.seed().det() != DetId::HGCalEE);
+      layerIn += offsetIn;
+      layerOut += offsetOut;
+
+      const bool isAdjacent = (layerOut - layerIn) == 1;
+
       TEveStraightLineSet *marker = new TEveStraightLineSet;
       marker->SetLineWidth(2);
-      marker->SetLineColor(kRed);
+      if (isAdjacent) {
+        marker->SetLineColor(kYellow);
+      } else {
+        marker->SetLineColor(kRed);
+      }
 
       // draw 3D cross
-      marker->AddLine(doublet.first.x(),
-                      doublet.first.y(),
-                      doublet.first.z(),
-                      doublet.second.x(),
-                      doublet.second.y(),
-                      doublet.second.z());
+      if (layer == 0 || fabs(layerIn - layer) == 0 || fabs(layerOut - layer) == 0) {
+        marker->AddLine(doublet.first.x(),
+                        doublet.first.y(),
+                        doublet.first.z(),
+                        doublet.second.x(),
+                        doublet.second.y(),
+                        doublet.second.z());
+      }
 
       oItemHolder.AddElement(marker);
     }

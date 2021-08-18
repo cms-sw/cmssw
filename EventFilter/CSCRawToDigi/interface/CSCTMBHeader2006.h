@@ -47,6 +47,7 @@ struct CSCTMBHeader2006 : public CSCVTMBHeaderFormat {
   void addALCT1(const CSCALCTDigi& digi) override;
   void addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) override;
   void addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) override;
+  void addShower(const CSCShowerDigi& digi) override {}
 
   void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 

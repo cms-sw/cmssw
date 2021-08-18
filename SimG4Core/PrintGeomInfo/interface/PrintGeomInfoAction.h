@@ -39,10 +39,11 @@ private:
   void dumpHierarchyLeafPVLV(G4LogicalVolume* lv, unsigned int leafDepth, std::ostream& out = std::cout);
   void dumpLV(G4LogicalVolume* lv, unsigned int leafDepth, std::ostream& out = std::cout);
   void dumpPV(G4VPhysicalVolume* pv, unsigned int leafDepth, std::ostream& out = std::cout);
+  void dumpSolid(G4VSolid* sol, unsigned int leafDepth, std::ostream& out = std::cout);
   void dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth, std::ostream& out = std::cout);
   void dumpInFile();
+  void getTouch(G4VPhysicalVolume* pv, unsigned int leafDepth, unsigned int copym, std::vector<std::string>& touches);
   std::string spacesFromLeafDepth(unsigned int leafDepth);
-  void dumpSolid(G4VSolid* sol, unsigned int leafDepth, std::ostream& out = std::cout);
   G4VPhysicalVolume* getTopPV();
   G4LogicalVolume* getTopLV();
 
@@ -53,7 +54,8 @@ private:
   bool dumpSense_, dd4hep_;
   std::string name_;
   int nchar_;
-  std::string fileMat_, fileSolid_, fileLV_, filePV_;
+  std::string fileMat_, fileSolid_, fileLV_, filePV_, fileTouch_;
+  bool fileDetail_;
   std::vector<std::string> names_;
   G4VPhysicalVolume* theTopPV_;
   G4NavigationHistory fHistory_;

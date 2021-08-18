@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -60,13 +59,13 @@ private:
                                                    const TransientTrackBuilder& ttBuilder,
                                                    const reco::BeamSpot& beamspot);
 
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttbToken_;
   edm::EDGetTokenT<reco::VertexCollection> vertexSrc_;
   edm::EDGetTokenT<reco::BeamSpot> beamspotSrc_;
   edm::EDGetTokenT<LumiScalersCollection> lumiScalersSrc_;
   edm::EDGetTokenT<OnlineLuminosityRecord> metaDataSrc_;
   const bool forceSCAL_;
   std::string rootFolder_;
-  std::string transientTrackBuilder_;
 
   AdaptiveVertexFitter fitter_;
 
@@ -327,13 +326,13 @@ private:
 };
 
 PrimaryVertexResolution::PrimaryVertexResolution(const edm::ParameterSet& iConfig)
-    : vertexSrc_(consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexSrc"))),
+    : ttbToken_(esConsumes(edm::ESInputTag("", iConfig.getUntrackedParameter<std::string>("transientTrackBuilder")))),
+      vertexSrc_(consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexSrc"))),
       beamspotSrc_(consumes<reco::BeamSpot>(iConfig.getUntrackedParameter<edm::InputTag>("beamspotSrc"))),
       lumiScalersSrc_(consumes<LumiScalersCollection>(iConfig.getUntrackedParameter<edm::InputTag>("lumiScalersSrc"))),
       metaDataSrc_(consumes<OnlineLuminosityRecord>(iConfig.getUntrackedParameter<edm::InputTag>("metaDataSrc"))),
       forceSCAL_(iConfig.getUntrackedParameter<bool>("forceSCAL")),
       rootFolder_(iConfig.getUntrackedParameter<std::string>("rootFolder")),
-      transientTrackBuilder_(iConfig.getUntrackedParameter<std::string>("transientTrackBuilder")),
       binningX_(iConfig),
       binningY_(iConfig),
       hPV_(binningX_, binningY_),
@@ -391,34 +390,28 @@ void PrimaryVertexResolution::bookHistograms(DQMStore::IBooker& iBooker, edm::Ru
 }
 
 void PrimaryVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<reco::VertexCollection> hvertices;
-  iEvent.getByToken(vertexSrc_, hvertices);
+  edm::Handle<reco::VertexCollection> hvertices = iEvent.getHandle(vertexSrc_);
   const reco::VertexCollection& vertices = *hvertices;
   if (vertices.empty())
     return;
 
-  edm::Handle<reco::BeamSpot> hbeamspot;
-  iEvent.getByToken(beamspotSrc_, hbeamspot);
+  edm::Handle<reco::BeamSpot> hbeamspot = iEvent.getHandle(beamspotSrc_);
   const reco::BeamSpot& beamspot = *hbeamspot;
 
   float lumi = -1.;
   if (forceSCAL_) {
-    edm::Handle<LumiScalersCollection> lumiScalers;
-    iEvent.getByToken(lumiScalersSrc_, lumiScalers);
+    edm::Handle<LumiScalersCollection> lumiScalers = iEvent.getHandle(lumiScalersSrc_);
     if (lumiScalers.isValid() && !lumiScalers->empty()) {
       LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
       lumi = scalit->instantLumi();
     }
   } else {
-    edm::Handle<OnlineLuminosityRecord> metaData;
-    iEvent.getByToken(metaDataSrc_, metaData);
+    edm::Handle<OnlineLuminosityRecord> metaData = iEvent.getHandle(metaDataSrc_);
     if (metaData.isValid())
       lumi = metaData->instLumi();
   }
 
-  edm::ESHandle<TransientTrackBuilder> ttBuilderHandle;
-  iSetup.get<TransientTrackRecord>().get(transientTrackBuilder_, ttBuilderHandle);
-  const TransientTrackBuilder& ttBuilder = *ttBuilderHandle;
+  const TransientTrackBuilder& ttBuilder = iSetup.getData(ttbToken_);
 
   // deterministic seed from the event number
   // should not bias the result as the event number is already

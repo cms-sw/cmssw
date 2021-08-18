@@ -13,7 +13,7 @@ namespace reco {
   /// \brief Cluster Element.
   ///
   /// this class contains a reference to a PFCluster
-  class PFBlockElementCluster : public PFBlockElement {
+  class PFBlockElementCluster final : public PFBlockElement {
   public:
     PFBlockElementCluster() {}
 

@@ -20,93 +20,116 @@
 //  PlotHist(infile, prefix, text, modePlot, kopt, lumi, ener, dataMC,
 //           drawStatBox, save);
 //      Defaults: modePlot=4, kopt=100, lumi=0, ener=13, dataMC=false,
-//                drawStatBox=true, save=false
+//                drawStatBox=true, save=0
+//
+//             For plotting histograms corresponding to individual ieta's
+//  PlotHistEta(infile, prefix, text, iene, numb, ieta, lumi, ener, dataMC,
+//           drawStatBox, save);
+//      Defaults iene=3, numb=50, ieta=0, lumi=0, ener=13.0, dataMC=false,
+//                drawStatBox=true, save=0
 //
 //             For plotting several histograms in the same plot
 //             (fits to different data sets for example)
 //  PlotHists(infile, prefix, text, drawStatBox, save)
-//      Defaults: drawStatBox=true; save=false;
+//      Defaults: drawStatBox=true; save=0;
 //      Note prefix is common part for all histograms
 //
 //             For plotting on the same canvas plots with different
 //             prefixes residing in the same file with approrprate text
-//   PlotTwoHists(infile, prefix1, text1, prefix2, text2, text0, type, iname,
-//                lumi, ener, drawStatBox, save);
+//  PlotTwoHists(infile, prefix1, text1, prefix2, text2, text0, type, iname,
+//               lumi, ener, drawStatBox, save);
 //      Defaults: type=0; iname=2; lumi=0; ener=13; drawStatBox=true;
-//                save=false;
+//                save=0;
 //      Note prefixN, textN have the same meaning as prefix and text for set N
 //           text0 is the text for general title added within ()
 //           type=0 plots response distributions and MPV of response vs ieta
 //               =1 plots MPV of response vs RBX #
 //
 //             For plotting stored histograms from CalibTree
-//   PlotFiveHists(infile, text0, prefix0, type, iname, drawStatBox, normalize,
-//                 save, prefix1, text1, prefix2, text2, prefix3, text3,
+//  PlotFiveHists(infile, text0, prefix0, type, iname, drawStatBox, normalize,
+//                save, prefix1, text1, prefix2, text2, prefix3, text3,
 //                 prefix4, text4, prefix5, text5);
 //      Defaults: type=0; iname=0; drawStatBox=true; normalize=false;
-//                save=false; prefixN=""; textN=""; (for N > 0)
+//                save=0; prefixN=""; textN=""; (for N > 0)
 //      Note prefixN, textN have the same meaning as prefix and text for set N
 //           text0 is the text for general title added within ()
 //           prefix0 is the tag attached to the canvas name
 //           type has the same meaning as in PlotTwoHists
 //
 //  PlotHistCorrResults(infile, text, prefixF, save);
-//      Defaults: save=false
+//      Defaults: save=0
 //
 //             For plotting correction factors
 //  PlotHistCorrFactor(infile, text, prefixF, scale, nmin, dataMC,
-//                    drawStatBox, save);
-//      Defaults: dataMC=true, drwaStatBox=false, nmin=100, save=false
+//                    drawStatBox, iformat, save);
+//      Defaults: dataMC=true, drwaStatBox=false, nmin=100, iformat=0, save=0
 //
 //             For plotting (fractional) asymmetry in the correction factors
 //
-//  PlotHistCorrAsymmetry(infile, text, prefixF, save);
-//      Defaults: prefixF="", save=false
+//  PlotHistCorrAsymmetry(infile, text, prefixF, iformat, save);
+//      Defaults: prefixF="", iformat=0, save=0
 //
 //             For plotting correction factors from upto 5 different runs
 //             on the same canvas
 //
 //  PlotHistCorrFactors(infile1, text1, infile2, text2, infile3, text3,
 //                      infile4, text4, infile5, text5, prefixF, ratio,
-//                      drawStatBox, nmin, dataMC, year, save)
+//                      drawStatBox, nmin, dataMC, year, iformat, save)
 //      Defaults: ratio=false, drawStatBox=true, nmin=100, dataMC=false,
-//                year=2018, save=false
+//                year=2018, iformat=0, save=0
 //
 //             For plotting correction factors including systematics
 //  PlotHistCorrSys(infilec, conds, text, save)
-//      Defaults: save=false
+//      Defaults: save=0
 //
 //             For plotting uncertainties in correction factors with decreasing
 //             integrated luminpsoties starting from *lumi*
 //  PlotHistCorrLumis(infilec, conds, lumi, save)
-//      Defaults: save=false
+//      Defaults: save=0
 //
 //             For plotting correlation of correction factors
-//  PlotHistCorrRel(infile1, infile2, text1, text2, save)
-//      Defaults: save=false
+//  PlotHistCorrRel(infile1, infile2, text1, text2, iformat1, iformat2, save)
+//      Defaults: iformat1=0, iformat2=0, save=0
+//
+//             For plotting difference of correction factors for a given depth
+//  PlotHistCorrDepth(infile1, infile2, text1, text2, depth, iformat1, iformat2,
+//                    save)
+//      Defaults: iformat1=0, iformat2=0, save=0
 //
 //             For plotting four histograms
 //  PlotFourHists(infile, prefix0, type, drawStatBox, normalize, save, prefix1,
 //                text1, prefix2, text2, prefix3, text3, prefix4, text4)
-//      Defaults: type=0, drawStatBox=0, normalize=false, save=false,
+//      Defaults: type=0, drawStatBox=0, normalize=false, save=0,
 //                prefixN="", textN=""
 //
 //            For plotting PU corrected histograms (o/p of CalibPlotCombine)
 //  PlotPUCorrHists(infile, prefix drawStatBox, approve, save)
 //      Defaults: infile = "corrfac.root", prefix = "", drawStatBox = 0,
-//                approve = true, save = false
+//                approve = true, save = 0
 //
 //             For plotting histograms obtained from fits to PU correction
 //             (o/p of CalibFitPU) for a given ieta using 2D/profile/Graphs
 //  PlotHistCorr(infile, prefix, text, eta, mode, drawStatBox, save)
 //      Defaults eta = 0 (all ieta values), mode = 1 (profile histograms),
-//               drawStatBox = true, save = false
+//               drawStatBox = true, save = 0
 //
 //             For plotting histograms created by CalibPlotProperties
 //  PlotPropertyHist(infile, prefix, text, etaMax, lumi, ener, dataMC,
 //		     drawStatBox, save)
 //      Defaults etaMax = 25 (draws for eta = 1 .. etaMax), lumi = 0,
-//               ener = 13.0, dataMC = false,  drawStatBox = true, save = false
+//               ener = 13.0, dataMC = false,  drawStatBox = true, save = 0
+//
+//            For plotting mean response and resolution as a function of
+//            particle momentum
+//  PlotMeanError(infilest, region, resol, save, debug)
+//      Defaults region = 3 (overall), resol = false (response), save = 0,
+//               debug = false
+//      Format of the input file:
+//       # of energy points, # of types, # of regions
+//       Then for each type, energy point
+//         Type, lower and higher edge of momentum
+//         Mean response and its error for the 4 regions
+//         Width of response and uts error for the 4 regions
 //
 //  where:
 //  infile   (std::string)  = Name of the input ROOT file
@@ -134,11 +157,15 @@
 //                            o>0 to carry out pol0 fit, o>1 to restrict
 //                            fit region between -20 & 20; d=1 to show grid;
 //                            h=0,1 to show plots with 2- or 1-Gaussian fit
+//  ieta     (int)          = specific ieta histogram to be plotted; if 0
+//                            histograms for all ieta's from -numb/2 to numb/2
+//                            will be plotted
 //  lumi     (double)       = Integrated luminosity of the dataset used which
 //                            needs to be drawn on the top of the canvas
 //                            along with CM energy (if lumi > 0)
 //  ener     (double)       = CM energy of the dataset used
-//  save     (bool)         = if true it saves the canvas as a pdf file
+//  save     (int)          = if > 0 it saves the canvas as a pdf file; or
+//                            if < 0 it saves the canvas as a C file
 //  normalize(bool)         = if the histograms to be scaled to get
 //                            normalization to 1
 //  prefixF  (string)       = string to be included to the pad name
@@ -156,28 +183,40 @@
 //                            and 1..conds for the variations)
 //  conds    (int)          = number of variations in estimating systematic
 //                            checks
+//  infilest (string)       = input file name containing the responses and
+//                            resolutions for barrel, transition, endcap,
+//                            overall regions at 5 energies using 3 methods
+//  region   (int)         = region to be selected: 0 = barrel, 1 = transition,
+//                           2 = endcap, 3 = overall (3)
+//  resol    (bool)        = parameter to be plotted: true = resolution,
+//                           false = response (false)
+//  iformat  (int)         = flag if it is created by standard (0) or by
+//                           Marina's (1) code
 //////////////////////////////////////////////////////////////////////////////
 
-#include <TROOT.h>
+#include <TCanvas.h>
 #include <TChain.h>
-#include <TFile.h>
-#include <TF1.h>
-#include <TH1D.h>
-#include <TMath.h>
 #include <TProfile.h>
+#include <TF1.h>
+#include <TFile.h>
 #include <TFitResult.h>
 #include <TFitResultPtr.h>
-#include <TStyle.h>
-#include <TCanvas.h>
+#include <TH1D.h>
 #include <TLegend.h>
+#include <TGraph.h>
+#include <TGraphErrors.h>
+#include <TGraphAsymmErrors.h>
+#include <TMath.h>
 #include <TPaveStats.h>
 #include <TPaveText.h>
-#include <vector>
-#include <string>
+#include <TROOT.h>
+#include <TStyle.h>
+#include <cstdlib>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <fstream>
-#include <cstdlib>
+#include <string>
+#include <vector>
 
 #include "CalibCorr.C"
 
@@ -469,8 +508,14 @@ results fitOneGauss(TH1D* hist, bool fitTwice, bool debug) {
   return results(value, error, width, werror);
 }
 
-void readCorrFactors(
-    char* infile, double scale, std::map<int, cfactors>& cfacs, int& etamin, int& etamax, int& maxdepth) {
+void readCorrFactors(char* infile,
+                     double scale,
+                     std::map<int, cfactors>& cfacs,
+                     int& etamin,
+                     int& etamax,
+                     int& maxdepth,
+                     int iformat = 0,
+                     bool debug = false) {
   cfacs.clear();
   std::ifstream fInput(infile);
   if (!fInput.good()) {
@@ -487,12 +532,12 @@ void readCorrFactors(
         std::cout << "Ignore  line: " << buffer << std::endl;
       } else {
         ++good;
-        int ieta = std::atoi(items[1].c_str());
-        int depth = std::atoi(items[2].c_str());
+        int ieta = (iformat == 1) ? std::atoi(items[0].c_str()) : std::atoi(items[1].c_str());
+        int depth = (iformat == 1) ? std::atoi(items[1].c_str()) : std::atoi(items[2].c_str());
         float corrf = std::atof(items[3].c_str());
-        float dcorr = std::atof(items[4].c_str());
+        float dcorr = (iformat == 1) ? (0.02 * corrf) : std::atof(items[4].c_str());
         cfactors cfac(ieta, depth, scale * corrf, scale * dcorr);
-        int detId = std::atoi(items[0].c_str());
+        int detId = (iformat == 1) ? repackId(items[2], ieta, depth) : repackId(ieta, depth);
         cfacs[detId] = cfactors(ieta, depth, corrf, dcorr);
         if (ieta > etamax)
           etamax = ieta;
@@ -506,16 +551,13 @@ void readCorrFactors(
     std::cout << "Reads total of " << all << " and " << good << " good records"
               << " from " << infile << std::endl;
   }
-  /*
-  unsigned k(0);
-  std::cout << "Eta Range " << etamin << ":" << etamax << " Max Depth "
-	    << maxdepth << std::endl;
-  for (std::map<int,cfactors>::const_iterator itr = cfacs.begin();
-       itr != cfacs.end(); ++itr, ++k)  
-    std::cout << "[" << k << "] " << std::hex << itr->first << std::dec << ": "
-	      << (itr->second).ieta << " "  << (itr->second).depth << " " 
-	      << (itr->second).corrf << " " << (itr->second).dcorr << std::endl;
-  */
+  if (debug) {
+    unsigned k(0);
+    std::cout << "Eta Range " << etamin << ":" << etamax << " Max Depth " << maxdepth << std::endl;
+    for (std::map<int, cfactors>::const_iterator itr = cfacs.begin(); itr != cfacs.end(); ++itr, ++k)
+      std::cout << "[" << k << "] " << std::hex << itr->first << std::dec << ": " << (itr->second).ieta << " "
+                << (itr->second).depth << " " << (itr->second).corrf << " " << (itr->second).dcorr << std::endl;
+  }
 }
 
 void FitHistStandard(std::string infile,
@@ -947,27 +989,14 @@ void PlotHist(const char* infile,
               double ener = 13.0,
               bool dataMC = false,
               bool drawStatBox = true,
-              bool save = false) {
+              int save = 0) {
   std::string name0[6] = {"ratio00", "ratio10", "ratio20", "ratio30", "ratio40", "ratio50"};
   std::string name1[5] = {"Z0", "Z1", "Z2", "Z3", "Z4"};
   std::string name2[5] = {"L0", "L1", "L2", "L3", "L4"};
   std::string name3[5] = {"V0", "V1", "V2", "V3", "V4"};
-  std::string name4[16] = {"etaB31",
-                           "etaB32",
-                           "etaB33",
-                           "etaB34",
-                           "etaB21",
-                           "etaB22",
-                           "etaB23",
-                           "etaB24",
-                           "etaB11",
-                           "etaB12",
-                           "etaB13",
-                           "etaB14",
-                           "etaB01",
-                           "etaB02",
-                           "etaB03",
-                           "etaB04"};
+  std::string name4[20] = {"etaB41", "etaB42", "etaB43", "etaB44", "etaB31", "etaB32", "etaB33",
+                           "etaB34", "etaB21", "etaB22", "etaB23", "etaB24", "etaB11", "etaB12",
+                           "etaB13", "etaB14", "etaB01", "etaB02", "etaB03", "etaB04"};
   std::string name5[5] = {"W0", "W1", "W2", "W3", "W4"};
   std::string title[6] = {"Tracks with p = 10:20 GeV",
                           "Tracks with p = 20:30 GeV",
@@ -975,22 +1004,16 @@ void PlotHist(const char* infile,
                           "Tracks with p = 40:60 GeV",
                           "Tracks with p = 60:100 GeV",
                           "Tracks with p = 20:100 GeV"};
-  std::string title1[16] = {"Tracks with p = 40:60 GeV (Barrel)",
-                            "Tracks with p = 40:60 GeV (Transition)",
-                            "Tracks with p = 40:60 GeV (Endcap)",
-                            "Tracks with p = 40:60 GeV",
-                            "Tracks with p = 30:40 GeV (Barrel)",
-                            "Tracks with p = 30:40 GeV (Transition)",
-                            "Tracks with p = 30:40 GeV (Endcap)",
-                            "Tracks with p = 30:40 GeV",
-                            "Tracks with p = 20:30 GeV (Barrel)",
-                            "Tracks with p = 20:30 GeV (Transition)",
-                            "Tracks with p = 20:30 GeV (Endcap)",
-                            "Tracks with p = 20:30 GeV",
-                            "Tracks with p = 10:20 GeV (Barrel)",
-                            "Tracks with p = 10:20 GeV (Transition)",
-                            "Tracks with p = 10:20 GeV (Endcap)",
-                            "Tracks with p = 10:20 GeV"};
+  std::string title1[20] = {"Tracks with p = 60:100 GeV (Barrel)", "Tracks with p = 60:100 GeV (Transition)",
+                            "Tracks with p = 60:100 GeV (Endcap)", "Tracks with p = 60:100 GeV",
+                            "Tracks with p = 40:60 GeV (Barrel)",  "Tracks with p = 40:60 GeV (Transition)",
+                            "Tracks with p = 40:60 GeV (Endcap)",  "Tracks with p = 40:60 GeV",
+                            "Tracks with p = 30:40 GeV (Barrel)",  "Tracks with p = 30:40 GeV (Transition)",
+                            "Tracks with p = 30:40 GeV (Endcap)",  "Tracks with p = 30:40 GeV",
+                            "Tracks with p = 20:30 GeV (Barrel)",  "Tracks with p = 20:30 GeV (Transition)",
+                            "Tracks with p = 20:30 GeV (Endcap)",  "Tracks with p = 20:30 GeV",
+                            "Tracks with p = 10:20 GeV (Barrel)",  "Tracks with p = 10:20 GeV (Transition)",
+                            "Tracks with p = 10:20 GeV (Endcap)",  "Tracks with p = 10:20 GeV"};
   std::string xtitl[5] = {"E_{HCAL}/(p-E_{ECAL})", "i#eta", "d_{L1}", "# Vertex", "E_{HCAL}/(p-E_{ECAL})"};
   std::string ytitl[5] = {
       "Tracks", "MPV(E_{HCAL}/(p-E_{ECAL}))", "MPV(E_{HCAL}/(p-E_{ECAL}))", "MPV(E_{HCAL}/(p-E_{ECAL}))", "Tracks"};
@@ -1015,7 +1038,7 @@ void PlotHist(const char* infile,
   TFile* file = new TFile(infile);
   TLine* line(0);
   char name[100], namep[100];
-  int kmax = (mode == 4) ? 16 : (((mode < 1) && (mode > 5)) ? 6 : 5);
+  int kmax = (mode == 4) ? 20 : (((mode < 1) && (mode > 5)) ? 6 : 5);
   for (int k = 0; k < kmax; ++k) {
     if (mode == 1) {
       sprintf(name, "%s%s", prefix.c_str(), name1[k].c_str());
@@ -1156,15 +1179,134 @@ void PlotHist(const char* infile,
       txt2->Draw("same");
       pad->Modified();
       pad->Update();
-      if (save) {
+      if (save > 0) {
         sprintf(name, "%s.pdf", pad->GetName());
+        pad->Print(name);
+      } else if (save < 0) {
+        sprintf(name, "%s.C", pad->GetName());
         pad->Print(name);
       }
     }
   }
 }
 
-void PlotHists(std::string infile, std::string prefix, std::string text, bool drawStatBox = true, bool save = false) {
+void PlotHistEta(const char* infile,
+                 std::string prefix,
+                 std::string text,
+                 int iene = 3,
+                 int numb = 50,
+                 int ieta = 0,
+                 double lumi = 0,
+                 double ener = 13.0,
+                 bool dataMC = false,
+                 bool drawStatBox = true,
+                 int save = 0) {
+  std::string name0 = "ratio";
+  std::string title[5] = {"10:20", "20:30", "30:40", "40:60", "60:100"};
+  std::string xtitl = "E_{HCAL}/(p-E_{ECAL})";
+  std::string ytitl = "Tracks";
+
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);
+  gStyle->SetFillColor(kWhite);
+  gStyle->SetOptTitle(0);
+  if (drawStatBox) {
+    int iopt(1110);
+    gStyle->SetOptStat(iopt);
+    gStyle->SetOptFit(1);
+  } else {
+    gStyle->SetOptStat(0);
+    gStyle->SetOptFit(0);
+  }
+  if (iene < 0 || iene >= 5)
+    iene = 3;
+  int numb2 = numb / 2;
+  if (ieta < -numb2 || ieta > numb2)
+    ieta = 0;
+  int ietaMin = ((ieta == 0) ? 1 : ((ieta > 0) ? (numb2 + ieta) : (numb2 + ieta + 1)));
+  int ietaMax = (ieta == 0) ? numb : ietaMin;
+  TFile* file = new TFile(infile);
+  char name[100], namep[100];
+  for (int k = ietaMin; k <= ietaMax; ++k) {
+    int eta = (k > numb2) ? (k - numb2) : (k - numb2 - 1);
+    sprintf(name, "%s%s%d%d", prefix.c_str(), name0.c_str(), iene, k);
+    TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
+    std::cout << name << " at " << hist1 << std::endl;
+    if (hist1 != nullptr) {
+      TH1D* hist = (TH1D*)(hist1->Clone());
+      double ymin(0.90);
+      sprintf(namep, "c_%s", name);
+      TCanvas* pad = new TCanvas(namep, namep, 700, 500);
+      pad->SetRightMargin(0.10);
+      pad->SetTopMargin(0.10);
+      hist->GetXaxis()->SetTitleSize(0.04);
+      hist->GetXaxis()->SetTitle(xtitl.c_str());
+      hist->GetYaxis()->SetTitle(ytitl.c_str());
+      hist->GetYaxis()->SetLabelOffset(0.005);
+      hist->GetYaxis()->SetTitleSize(0.04);
+      hist->GetYaxis()->SetLabelSize(0.035);
+      hist->GetYaxis()->SetTitleOffset(1.10);
+      hist->GetXaxis()->SetRangeUser(0.25, 2.25);
+      hist->SetMarkerStyle(20);
+      hist->SetMarkerColor(2);
+      hist->SetLineColor(2);
+      hist->Draw();
+      pad->Update();
+      TPaveStats* st1 = (TPaveStats*)hist->GetListOfFunctions()->FindObject("stats");
+      if (st1 != nullptr) {
+        ymin = 0.70;
+        st1->SetY1NDC(ymin);
+        st1->SetY2NDC(0.90);
+        st1->SetX1NDC(0.65);
+        st1->SetX2NDC(0.90);
+      }
+      double ymx(0.96), xmi(0.25), xmx(0.90);
+      char txt[100];
+      if (lumi > 0.1) {
+        ymx = ymin - 0.005;
+        xmi = 0.45;
+        TPaveText* txt0 = new TPaveText(0.65, 0.91, 0.90, 0.96, "blNDC");
+        txt0->SetFillColor(0);
+        sprintf(txt, "%4.1f TeV %5.1f fb^{-1}", ener, lumi);
+        txt0->AddText(txt);
+        txt0->Draw("same");
+      }
+      double ymi = ymx - 0.05;
+      TPaveText* txt1 = new TPaveText(xmi, ymi, xmx, ymx, "blNDC");
+      txt1->SetFillColor(0);
+      if (text == "") {
+        sprintf(txt, "Tracks with p = %s GeV at i#eta = %d", title[iene].c_str(), eta);
+      } else {
+        sprintf(txt, "Tracks with p = %s GeV at i#eta = %d (%s)", title[iene].c_str(), eta, text.c_str());
+      }
+      txt1->AddText(txt);
+      txt1->Draw("same");
+      double xmax = (dataMC) ? 0.33 : 0.44;
+      ymi = (lumi > 0.1) ? 0.91 : 0.84;
+      ymx = ymi + 0.05;
+      TPaveText* txt2 = new TPaveText(0.11, ymi, xmax, ymx, "blNDC");
+      txt2->SetFillColor(0);
+      if (dataMC)
+        sprintf(txt, "CMS Preliminary");
+      else
+        sprintf(txt, "CMS Simulation Preliminary");
+      txt2->AddText(txt);
+      txt2->Draw("same");
+      pad->Modified();
+      pad->Update();
+      if (save > 0) {
+        sprintf(name, "%s.pdf", pad->GetName());
+        pad->Print(name);
+      } else if (save < 0) {
+        sprintf(name, "%s.C", pad->GetName());
+        pad->Print(name);
+      }
+    }
+  }
+}
+
+void PlotHists(std::string infile, std::string prefix, std::string text, bool drawStatBox = true, int save = 0) {
   int colors[6] = {1, 6, 4, 7, 2, 9};
   std::string types[6] = {"B", "C", "D", "E", "F", "G"};
   std::string names[3] = {"ratio20", "Z2", "W2"};
@@ -1273,8 +1415,11 @@ void PlotHists(std::string infile, std::string prefix, std::string text, bool dr
       }
       pad->Modified();
       pad->Update();
-      if (save) {
+      if (save > 0) {
         sprintf(name, "%s.pdf", pad->GetName());
+        pad->Print(name);
+      } else if (save < 0) {
+        sprintf(name, "%s.C", pad->GetName());
         pad->Print(name);
       }
     }
@@ -1292,7 +1437,7 @@ void PlotTwoHists(std::string infile,
                   double lumi = 0,
                   double ener = 13.0,
                   int drawStatBox = 0,
-                  bool save = false) {
+                  int save = 0) {
   int colors[2] = {2, 4};
   int numb[2] = {5, 1};
   std::string names0[5] = {"ratio00", "ratio00One", "etaB04One", "Z0", "W0"};
@@ -1458,8 +1603,11 @@ void PlotTwoHists(std::string infile,
         pad->Update();
       }
       pad->Update();
-      if (save) {
+      if (save > 0) {
         sprintf(name, "%s.pdf", pad->GetName());
+        pad->Print(name);
+      } else if (save < 0) {
+        sprintf(name, "%s.C", pad->GetName());
         pad->Print(name);
       }
     }
@@ -1473,7 +1621,7 @@ void PlotFiveHists(std::string infile,
                    int iname = 3,
                    int drawStatBox = 0,
                    bool normalize = false,
-                   bool save = false,
+                   int save = 0,
                    std::string prefix1 = "",
                    std::string text1 = "",
                    std::string prefix2 = "",
@@ -1676,15 +1824,18 @@ void PlotFiveHists(std::string infile,
         pad->Update();
       }
       pad->Update();
-      if (save) {
+      if (save > 0) {
         sprintf(name, "%s.pdf", pad->GetName());
+        pad->Print(name);
+      } else if (save < 0) {
+        sprintf(name, "%s.C", pad->GetName());
         pad->Print(name);
       }
     }
   }
 }
 
-void PlotHistCorrResults(std::string infile, std::string text, std::string prefixF, bool save = false) {
+void PlotHistCorrResults(std::string infile, std::string text, std::string prefixF, int save = 0) {
   std::string name[5] = {"Eta1Bf", "Eta2Bf", "Eta1Af", "Eta2Af", "Cvg0"};
   std::string title[5] = {"Mean at the start of itertions",
                           "Median at the start of itertions",
@@ -1753,8 +1904,11 @@ void PlotHistCorrResults(std::string infile, std::string text, std::string prefi
       txt1->Draw("same");
       pad->Modified();
       pad->Update();
-      if (save) {
+      if (save > 0) {
         sprintf(namep, "%s.pdf", pad->GetName());
+        pad->Print(namep);
+      } else if (save < 0) {
+        sprintf(namep, "%s.C", pad->GetName());
         pad->Print(namep);
       }
     }
@@ -1768,10 +1922,11 @@ void PlotHistCorrFactor(char* infile,
                         int nmin = 100,
                         bool dataMC = false,
                         bool drawStatBox = true,
-                        bool save = false) {
+                        int iformat = 0,
+                        int save = 0) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
-  readCorrFactors(infile, scale, cfacs, etamin, etamax, maxdepth);
+  readCorrFactors(infile, scale, cfacs, etamin, etamax, maxdepth, iformat);
 
   gStyle->SetCanvasBorderMode(0);
   gStyle->SetCanvasColor(kWhite);
@@ -1785,8 +1940,8 @@ void PlotHistCorrFactor(char* infile,
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
   }
-  int colors[6] = {1, 6, 4, 7, 2, 9};
-  int mtype[6] = {20, 21, 22, 23, 24, 33};
+  int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+  int mtype[7] = {20, 21, 22, 23, 24, 33, 25};
   int nbin = etamax - etamin + 1;
   std::vector<TH1D*> hists;
   std::vector<int> entries;
@@ -1882,17 +2037,20 @@ void PlotHistCorrFactor(char* infile,
   txt2->Draw("same");
   pad->Modified();
   pad->Update();
-  if (save) {
+  if (save > 0) {
     sprintf(name, "%s.pdf", pad->GetName());
+    pad->Print(name);
+  } else if (save < 0) {
+    sprintf(name, "%s.C", pad->GetName());
     pad->Print(name);
   }
 }
 
-void PlotHistCorrAsymmetry(char* infile, std::string text, std::string prefixF = "", bool save = false) {
+void PlotHistCorrAsymmetry(char* infile, std::string text, std::string prefixF = "", int iformat = 0, int save = 0) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
   double scale(1.0);
-  readCorrFactors(infile, scale, cfacs, etamin, etamax, maxdepth);
+  readCorrFactors(infile, scale, cfacs, etamin, etamax, maxdepth, iformat);
 
   gStyle->SetCanvasBorderMode(0);
   gStyle->SetCanvasColor(kWhite);
@@ -1972,8 +2130,11 @@ void PlotHistCorrAsymmetry(char* infile, std::string text, std::string prefixF =
   line->Draw("same");
   pad->Update();
 
-  if (save) {
+  if (save > 0) {
     sprintf(name, "%s.pdf", pad->GetName());
+    pad->Print(name);
+  } else if (save < 0) {
+    sprintf(name, "%s.C", pad->GetName());
     pad->Print(name);
   }
 }
@@ -1994,41 +2155,42 @@ void PlotHistCorrFactors(char* infile1,
                          int nmin = 100,
                          bool dataMC = false,
                          int year = 2018,
-                         bool save = false) {
+                         int iformat = 0,
+                         int save = 0) {
   std::map<int, cfactors> cfacs[5];
   std::vector<std::string> texts;
   int nfile(0), etamin(100), etamax(-100), maxdepth(0);
   const char* blank("");
   if (infile1 != blank) {
-    readCorrFactors(infile1, 1.0, cfacs[nfile], etamin, etamax, maxdepth);
+    readCorrFactors(infile1, 1.0, cfacs[nfile], etamin, etamax, maxdepth, iformat);
     if (cfacs[nfile].size() > 0) {
       texts.push_back(text1);
       ++nfile;
     }
   }
   if (infile2 != blank) {
-    readCorrFactors(infile2, 1.0, cfacs[nfile], etamin, etamax, maxdepth);
+    readCorrFactors(infile2, 1.0, cfacs[nfile], etamin, etamax, maxdepth, iformat);
     if (cfacs[nfile].size() > 0) {
       texts.push_back(text2);
       ++nfile;
     }
   }
   if (infile3 != blank) {
-    readCorrFactors(infile3, 1.0, cfacs[nfile], etamin, etamax, maxdepth);
+    readCorrFactors(infile3, 1.0, cfacs[nfile], etamin, etamax, maxdepth, iformat);
     if (cfacs[nfile].size() > 0) {
       texts.push_back(text3);
       ++nfile;
     }
   }
   if (infile4 != blank) {
-    readCorrFactors(infile4, 1.0, cfacs[nfile], etamin, etamax, maxdepth);
+    readCorrFactors(infile4, 1.0, cfacs[nfile], etamin, etamax, maxdepth, iformat);
     if (cfacs[nfile].size() > 0) {
       texts.push_back(text4);
       ++nfile;
     }
   }
   if (infile5 != blank) {
-    readCorrFactors(infile5, 1.0, cfacs[nfile], etamin, etamax, maxdepth);
+    readCorrFactors(infile5, 1.0, cfacs[nfile], etamin, etamax, maxdepth, iformat);
     if (cfacs[nfile].size() > 0) {
       texts.push_back(text5);
       ++nfile;
@@ -2201,19 +2363,23 @@ void PlotHistCorrFactors(char* infile1,
       line->Draw("same");
       pad->Update();
     }
-    if (save) {
+    if (save > 0) {
       sprintf(name, "%s.pdf", pad->GetName());
+      pad->Print(name);
+    } else if (save < 0) {
+      sprintf(name, "%s.C", pad->GetName());
       pad->Print(name);
     }
   }
 }
 
-void PlotHistCorrSys(std::string infilec, int conds, std::string text, bool save = false) {
+void PlotHistCorrSys(std::string infilec, int conds, std::string text, int save = 0) {
   char fname[100];
+  int iformat(0);
   sprintf(fname, "%s_cond0.txt", infilec.c_str());
   int etamin(100), etamax(-100), maxdepth(0);
   std::map<int, cfactors> cfacs;
-  readCorrFactors(fname, 1.0, cfacs, etamin, etamax, maxdepth);
+  readCorrFactors(fname, 1.0, cfacs, etamin, etamax, maxdepth, iformat);
   // There are good records from the master file
   if (cfacs.size() > 0) {
     // Now read the other files
@@ -2222,7 +2388,7 @@ void PlotHistCorrSys(std::string infilec, int conds, std::string text, bool save
       sprintf(fname, "%s_cond%d.txt", infilec.c_str(), i + 1);
       std::map<int, cfactors> cfacx;
       int etamin1(100), etamax1(-100), maxdepth1(0);
-      readCorrFactors(fname, 1.0, cfacx, etamin1, etamax1, maxdepth1);
+      readCorrFactors(fname, 1.0, cfacx, etamin1, etamax1, maxdepth1, iformat);
       for (std::map<int, cfactors>::const_iterator itr1 = cfacx.begin(); itr1 != cfacx.end(); ++itr1) {
         std::map<int, cfactors>::iterator itr2 = errfacs.find(itr1->first);
         float corrf = (itr1->second).corrf;
@@ -2314,19 +2480,23 @@ void PlotHistCorrSys(std::string infilec, int conds, std::string text, bool save
     }
     legend->Draw("same");
     pad->Update();
-    if (save) {
+    if (save > 0) {
       sprintf(name, "%s.pdf", pad->GetName());
+      pad->Print(name);
+    } else if (save < 0) {
+      sprintf(name, "%s.C", pad->GetName());
       pad->Print(name);
     }
   }
 }
 
-void PlotHistCorrLumis(std::string infilec, int conds, double lumi, bool save = false) {
+void PlotHistCorrLumis(std::string infilec, int conds, double lumi, int save = 0) {
   char fname[100];
+  int iformat(0);
   sprintf(fname, "%s_0.txt", infilec.c_str());
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
-  readCorrFactors(fname, 1.0, cfacs, etamin, etamax, maxdepth);
+  readCorrFactors(fname, 1.0, cfacs, etamin, etamax, maxdepth, iformat);
   int nbin = etamax - etamin + 1;
   std::cout << "Max Depth " << maxdepth << " and " << nbin << " eta bins for " << etamin << ":" << etamax << std::endl;
 
@@ -2355,7 +2525,7 @@ void PlotHistCorrLumis(std::string infilec, int conds, double lumi, bool save = 
       }
       sprintf(fname, "%s_%d.txt", infilec.c_str(), i);
       int etamin1(100), etamax1(-100), maxdepth1(0);
-      readCorrFactors(fname, 1.0, cfacs, etamin1, etamax1, maxdepth1);
+      readCorrFactors(fname, 1.0, cfacs, etamin1, etamax1, maxdepth1, iformat);
       for (std::map<int, cfactors>::const_iterator itr = cfacs.begin(); itr != cfacs.end(); ++itr) {
         double value = (itr->second).dcorr / (itr->second).corrf;
         int bin = (itr->second).ieta - etamin + 1;
@@ -2393,18 +2563,27 @@ void PlotHistCorrLumis(std::string infilec, int conds, double lumi, bool save = 
     }
     legend->Draw("same");
     pad->Update();
-    if (save) {
+    if (save > 0) {
       sprintf(name, "%s.pdf", pad->GetName());
+      pad->Print(name);
+    } else if (save < 0) {
+      sprintf(name, "%s.C", pad->GetName());
       pad->Print(name);
     }
   }
 }
 
-void PlotHistCorrRel(char* infile1, char* infile2, std::string text1, std::string text2, bool save = false) {
+void PlotHistCorrRel(char* infile1,
+                     char* infile2,
+                     std::string text1,
+                     std::string text2,
+                     int iformat1 = 0,
+                     int iformat2 = 0,
+                     int save = 0) {
   std::map<int, cfactors> cfacs1, cfacs2;
   int etamin(100), etamax(-100), maxdepth(0);
-  readCorrFactors(infile1, 1.0, cfacs1, etamin, etamax, maxdepth);
-  readCorrFactors(infile2, 1.0, cfacs2, etamin, etamax, maxdepth);
+  readCorrFactors(infile1, 1.0, cfacs1, etamin, etamax, maxdepth, iformat1);
+  readCorrFactors(infile2, 1.0, cfacs2, etamin, etamax, maxdepth, iformat2);
   std::map<int, std::pair<cfactors, cfactors> > cfacs;
   for (std::map<int, cfactors>::iterator itr = cfacs1.begin(); itr != cfacs1.end(); ++itr) {
     std::map<int, cfactors>::iterator ktr = cfacs2.find(itr->first);
@@ -2509,10 +2688,135 @@ void PlotHistCorrRel(char* infile1, char* infile2, std::string text1, std::strin
     }
     legend->Draw("same");
     pad->Update();
-    if (save) {
+    if (save > 0) {
       sprintf(name, "%s.pdf", pad->GetName());
       pad->Print(name);
+    } else if (save < 0) {
+      sprintf(name, "%s.C", pad->GetName());
+      pad->Print(name);
     }
+  }
+}
+
+void PlotHistCorrDepth(char* infile1,
+                       char* infile2,
+                       std::string text1,
+                       std::string text2,
+                       int depth,
+                       int ietamax,
+                       int iformat1 = 0,
+                       int iformat2 = 0,
+                       int save = 0,
+                       int debug = 1) {
+  std::map<int, cfactors> cfacs1, cfacs2;
+  int etamin(100), etamax(-100), maxdepth(0);
+  readCorrFactors(infile1, 1.0, cfacs1, etamin, etamax, maxdepth, iformat1, (debug > 1));
+  readCorrFactors(infile2, 1.0, cfacs2, etamin, etamax, maxdepth, iformat2, (debug > 1));
+
+  double sumNum(0), sumDen(0), ratMax(0);
+  int npt0(0), npt1(0);
+  for (std::map<int, cfactors>::iterator itr = cfacs1.begin(); itr != cfacs1.end(); ++itr) {
+    std::map<int, cfactors>::iterator ktr = cfacs2.find(itr->first);
+    if ((ktr != cfacs2.end()) && ((itr->second).depth == depth)) {
+      double er1 = (itr->second).dcorr / (itr->second).corrf;
+      double er2 = (ktr->second).dcorr / (ktr->second).corrf;
+      double tmp = (ktr->second).corrf / (itr->second).corrf;
+      double dtmp = tmp * sqrt(er1 * er1 + er2 * er2);
+      double rat = (tmp > 1.0) ? 1.0 / tmp : tmp;
+      double drt = (tmp > 1.0) ? dtmp / (tmp * tmp) : dtmp;
+      rat = fabs(1.0 - rat);
+      ratMax = std::max(ratMax, rat);
+      ++npt0;
+      if (debug > 0)
+        std::cout << std::hex << (itr->first) << std::dec << " ieta:depth" << (itr->second).ieta << ":"
+                  << (itr->second).depth << " Corr " << (itr->second).corrf << ":" << (ktr->second).corrf << " Ratio "
+                  << rat << ":" << drt << std::endl;
+      if (std::abs((itr->second).ieta) <= ietamax) {
+        sumNum += (rat / (drt * drt));
+        sumDen += (1.0 / (drt * drt));
+        ++npt1;
+      }
+    }
+  }
+  sumNum = (sumDen > 0) ? (sumNum / sumDen) : 0;
+  sumDen = (sumDen > 0) ? 1.0 / sqrt(sumDen) : 0;
+  std::cout << "Get Ratio of mean for " << npt0 << ":" << npt1 << " points for depth " << depth << " Mean " << sumNum
+            << " +- " << sumDen << " (Maximum " << ratMax << ")" << std::endl;
+
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);
+  gStyle->SetFillColor(kWhite);
+  gStyle->SetOptTitle(0);
+  gStyle->SetOptStat(0);
+  gStyle->SetOptFit(0);
+  int colors[2] = {1, 2};
+  int mtype[2] = {20, 24};
+  int nbin = etamax - etamin + 1;
+  std::vector<TH1D*> hists;
+  char name[100];
+  for (int j = 0; j < 2; ++j) {
+    sprintf(name, "hd%d", (j + 1));
+    TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
+    if (j == 0) {
+      for (std::map<int, cfactors>::const_iterator itr = cfacs1.begin(); itr != cfacs1.end(); ++itr) {
+        if ((itr->second).depth == depth) {
+          int ieta = (itr->second).ieta;
+          int bin = ieta - etamin + 1;
+          float val = (itr->second).corrf;
+          float dvl = (itr->second).dcorr;
+          h->SetBinContent(bin, val);
+          h->SetBinError(bin, dvl);
+        }
+      }
+    } else {
+      for (std::map<int, cfactors>::const_iterator itr = cfacs2.begin(); itr != cfacs2.end(); ++itr) {
+        if ((itr->second).depth == depth) {
+          int ieta = (itr->second).ieta;
+          int bin = ieta - etamin + 1;
+          float val = (itr->second).corrf;
+          float dvl = (itr->second).dcorr;
+          h->SetBinContent(bin, val);
+          h->SetBinError(bin, dvl);
+        }
+      }
+    }
+    h->SetLineColor(colors[j]);
+    h->SetMarkerColor(colors[j]);
+    h->SetMarkerStyle(mtype[j]);
+    h->GetXaxis()->SetTitle("i#eta");
+    h->GetYaxis()->SetTitle("Correction Factor");
+    h->GetYaxis()->SetLabelOffset(0.005);
+    h->GetYaxis()->SetTitleOffset(1.20);
+    h->GetYaxis()->SetRangeUser(0.0, 2.0);
+    hists.push_back(h);
+  }
+  sprintf(name, "c_CorrFactorDepth%d", depth);
+  TCanvas* pad = new TCanvas(name, name, 700, 500);
+  pad->SetRightMargin(0.10);
+  pad->SetTopMargin(0.10);
+  double yl = 0.25;
+  TLegend* legend = new TLegend(0.25, yl, 0.85, yl + 0.04 * hists.size());
+  legend->SetFillColor(kWhite);
+  for (unsigned int k = 0; k < hists.size(); ++k) {
+    if (k == 0) {
+      hists[k]->Draw("");
+      sprintf(name, "Depth %d (%s)", depth, text1.c_str());
+    } else {
+      hists[k]->Draw("sames");
+      sprintf(name, "Depth %d (%s)", depth, text2.c_str());
+    }
+    pad->Update();
+    legend->AddEntry(hists[k], name, "lp");
+  }
+  legend->Draw("same");
+  pad->Update();
+  if (save > 0) {
+    sprintf(name, "%s.pdf", pad->GetName());
+    pad->Print(name);
+  } else if (save < 0) {
+    sprintf(name, "%s.C", pad->GetName());
+    pad->Print(name);
   }
 }
 
@@ -2521,7 +2825,7 @@ void PlotFourHists(std::string infile,
                    int type = 0,
                    int drawStatBox = 0,
                    bool normalize = false,
-                   bool save = false,
+                   int save = 0,
                    std::string prefix1 = "",
                    std::string text1 = "",
                    std::string prefix2 = "",
@@ -2648,8 +2952,11 @@ void PlotFourHists(std::string infile,
     */
     pad->Modified();
     pad->Update();
-    if (save) {
+    if (save > 0) {
       sprintf(name, "%s.pdf", pad->GetName());
+      pad->Print(name);
+    } else if (save < 0) {
+      sprintf(name, "%s.C", pad->GetName());
       pad->Print(name);
     }
   }
@@ -2659,7 +2966,7 @@ void PlotPUCorrHists(std::string infile = "corrfac.root",
                      std::string prefix = "",
                      int drawStatBox = 0,
                      bool approve = true,
-                     bool save = false) {
+                     int save = 0) {
   std::string name1[4] = {"W0", "W1", "W2", "P"};
   std::string name2[4] = {"All", "Barrel", "Endcap", ""};
   std::string name3[2] = {"", "p = 40:60 GeV"};
@@ -2755,8 +3062,11 @@ void PlotPUCorrHists(std::string infile = "corrfac.root",
             }
             pad->Modified();
             pad->Update();
-            if (save) {
+            if (save > 0) {
               sprintf(name, "%s.pdf", pad->GetName());
+              pad->Print(name);
+            } else if (save < 0) {
+              sprintf(name, "%s.C", pad->GetName());
               pad->Print(name);
             }
           }
@@ -2772,7 +3082,7 @@ void PlotHistCorr(const char* infile,
                   int eta = 0,
                   int mode = 1,
                   bool drawStatBox = true,
-                  bool save = false) {
+                  int save = 0) {
   gStyle->SetCanvasBorderMode(0);
   gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);
@@ -2854,8 +3164,11 @@ void PlotHistCorr(const char* infile,
     txt1->Draw("same");
     pad->Modified();
     pad->Update();
-    if (save) {
+    if (save > 0) {
       sprintf(name, "%s.pdf", pad->GetName());
+      pad->Print(name);
+    } else if (save < 0) {
+      sprintf(name, "%s.C", pad->GetName());
       pad->Print(name);
     }
   }
@@ -2869,7 +3182,7 @@ void PlotPropertyHist(const char* infile,
                       double ener = 13.0,
                       bool dataMC = false,
                       bool drawStatBox = true,
-                      bool save = false) {
+                      int save = 0) {
   std::string name0[3] = {"energyE2", "energyH2", "energyP2"};
   std::string title0[3] = {"Energy in ECAL", "Energy in HCAL", "Track Momentum"};
   std::string xtitl0[3] = {"Energy (GeV)", "Energy (GeV)", "p (GeV)"};
@@ -2964,8 +3277,11 @@ void PlotPropertyHist(const char* infile,
         txt2->Draw("same");
         pad->Modified();
         pad->Update();
-        if (save) {
+        if (save > 0) {
           sprintf(name, "%s.pdf", pad->GetName());
+          pad->Print(name);
+        } else if (save < 0) {
+          sprintf(name, "%s.C", pad->GetName());
           pad->Print(name);
         }
       }
@@ -3050,11 +3366,146 @@ void PlotPropertyHist(const char* infile,
         txt2->Draw("same");
         pad->Modified();
         pad->Update();
-        if (save) {
+        if (save > 0) {
           sprintf(name, "%s.pdf", pad->GetName());
+          pad->Print(name);
+        } else if (save < 0) {
+          sprintf(name, "%s.C", pad->GetName());
           pad->Print(name);
         }
       }
+    }
+  }
+}
+
+void PlotMeanError(const std::string infilest, int reg = 3, bool resol = false, int save = 0, bool debug = false) {
+  bool ok(false);
+  const int ntypmx = 3;
+  const int nregmx = 4;
+  if (reg < 0 || reg >= nregmx)
+    reg = nregmx - 1;
+  int nEner(0), nType(0), nPts(0);
+  std::vector<double> energy[ntypmx], denergy[ntypmx], value[ntypmx], dvalue[ntypmx];
+  // First read the data
+  std::ifstream fInput(infilest.c_str());
+  if (!fInput.good()) {
+    std::cout << "Cannot open file " << infilest << std::endl;
+  } else {
+    ok = true;
+    fInput >> nEner >> nType >> nPts;
+    int nmax = nEner * nType;
+    int type, elow, ehigh;
+    double v1[4], e1[4], v2[4], e2[4];
+    for (int n = 0; n < nmax; ++n) {
+      fInput >> type >> elow >> ehigh;
+      fInput >> v1[0] >> e1[0] >> v1[1] >> e1[1] >> v1[2] >> e1[2] >> v1[3] >> e1[3];
+      fInput >> v2[0] >> e2[0] >> v2[1] >> e2[1] >> v2[2] >> e2[2] >> v2[3] >> e2[3];
+      double ener = 0.5 * (ehigh + elow);
+      double dene = 0.5 * (ehigh - elow);
+      energy[type].push_back(ener);
+      denergy[type].push_back(dene);
+      if (resol) {
+        value[type].push_back(v2[reg]);
+        dvalue[type].push_back(e2[reg]);
+      } else {
+        value[type].push_back(v1[reg]);
+        dvalue[type].push_back(e1[reg]);
+      }
+    }
+    fInput.close();
+    std::cout << "Reads " << (nmax + 1) << " cards from " << infilest << " with measurements for " << nEner
+              << " energies and " << nType << " types" << std::endl;
+    if (debug) {
+      for (int n = 0; n < nType; ++n) {
+        std::cout << "Type " << n << " with " << energy[n].size() << " points\n";
+        for (unsigned int k = 0; k < energy[n].size(); ++k)
+          std::cout << " [" << k << "] " << energy[n][k] << " +- " << denergy[n][k] << " Value " << value[n][k]
+                    << " +- " << dvalue[n][k] << std::endl;
+      }
+    }
+  }
+
+  // Now the plots
+  if (ok) {
+    int mvsres = (resol) ? 1 : 0;
+    std::string names[2] = {"Mean", "Resol"};
+    std::string namet[nregmx] = {"Barrel", "Transition", "Endcap", "Combined"};
+    char cname[100];
+    sprintf(cname, "c_%s%s", names[mvsres].c_str(), namet[reg].c_str());
+    int color[ntypmx] = {2, 4, 1};
+    int mtype[ntypmx] = {20, 21, 22};
+    double ymin[2] = {0.65, 0.10};
+    double ymax[2] = {1.30, 0.50};
+    gStyle->SetCanvasBorderMode(0);
+    gStyle->SetCanvasColor(kWhite);
+    gStyle->SetPadColor(kWhite);
+    gStyle->SetFillColor(kWhite);
+    gStyle->SetOptTitle(kFALSE);
+    gStyle->SetPadBorderMode(0);
+    gStyle->SetCanvasBorderMode(0);
+    gStyle->SetOptStat(0);
+    TCanvas* canvas = new TCanvas(cname, cname, 500, 500);
+    canvas->SetTopMargin(0.05);
+    canvas->SetBottomMargin(0.14);
+    canvas->SetLeftMargin(0.15);
+    canvas->SetRightMargin(0.10);
+    TH1F* vFrame = canvas->DrawFrame(0.0, ymin[mvsres], 120.0, ymax[mvsres]);
+    vFrame->GetXaxis()->SetRangeUser(0.0, 120.0);
+    vFrame->GetYaxis()->SetRangeUser(ymin[mvsres], ymax[mvsres]);
+    vFrame->GetXaxis()->SetLabelSize(0.04);
+    vFrame->GetYaxis()->SetLabelSize(0.04);
+    vFrame->GetXaxis()->SetTitleSize(0.04);
+    vFrame->GetYaxis()->SetTitleSize(0.04);
+    vFrame->GetXaxis()->SetTitleOffset(1.2);
+    vFrame->GetYaxis()->SetTitleOffset(1.6);
+    vFrame->GetXaxis()->SetLabelOffset(0.0);
+    vFrame->GetXaxis()->SetTitle("p_{Beam} (GeV/c)");
+    if (resol) {
+      vFrame->GetYaxis()->SetTitle("Width(E_{HCAL}/(p-E_{ECAL}))");
+    } else {
+      vFrame->GetYaxis()->SetTitle("MPV(E_{HCAL}/(p-E_{ECAL}))");
+    }
+    TLegend* legend = new TLegend(0.70, 0.80, 0.90, 0.94);
+    legend->SetFillColor(kWhite);
+    std::string nameg[ntypmx] = {"MAHI", "M0", "M2"};
+    for (int n = 0; n < nType; ++n) {
+      unsigned int nmax0 = energy[n].size();
+      double mom[nmax0], dmom[nmax0], mean[nmax0], dmean[nmax0];
+      for (unsigned int k = 0; k < nmax0; ++k) {
+        mom[k] = energy[n][k];
+        dmom[k] = denergy[n][k];
+        mean[k] = value[n][k];
+        dmean[k] = dvalue[n][k];
+      }
+      TGraphErrors* graph = new TGraphErrors(nmax0, mom, mean, dmom, dmean);
+      graph->SetMarkerStyle(mtype[n]);
+      graph->SetMarkerColor(color[n]);
+      graph->SetMarkerSize(1.4);
+      graph->SetLineColor(color[n]);
+      graph->SetLineWidth(2);
+      sprintf(cname, "%s", nameg[n].c_str());
+      legend->AddEntry(graph, cname, "lp");
+      graph->Draw("P");
+    }
+    legend->Draw("same");
+    std::string regions[nregmx] = {"20118B Barrel", "2018B Transition", "2018B Endcap", "2018B"};
+    sprintf(cname, "%s", regions[reg].c_str());
+    TPaveText* txt0 = new TPaveText(0.16, 0.90, 0.40, 0.94, "blNDC");
+    txt0->SetFillColor(0);
+    txt0->AddText(cname);
+    txt0->Draw("same");
+    TPaveText* txt1 = new TPaveText(0.15, 0.95, 0.40, 0.99, "blNDC");
+    txt1->SetFillColor(0);
+    sprintf(cname, "CMS Preliminary");
+    txt1->AddText(cname);
+    txt1->Draw("same");
+    canvas->Update();
+    if (save > 0) {
+      sprintf(cname, "%s.pdf", canvas->GetName());
+      canvas->Print(cname);
+    } else if (save < 0) {
+      sprintf(cname, "%s.C", canvas->GetName());
+      canvas->Print(cname);
     }
   }
 }

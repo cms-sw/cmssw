@@ -4,7 +4,6 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
-//#include <boost/filesystem/fstream.hpp>
 
 // CMSSW headers
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"

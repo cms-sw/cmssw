@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 import sys
-import six
 
 def checkPrefix(mainList, inputGTParams):
     """ Compares two input GTs to see if they have the same prefix. Returns the index in the internal list of GTs of the match
@@ -71,6 +70,13 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
                 raise Exception('no correspondence for '+globaltag+'\navailable keys are\n'+','.join(autoCond.keys()))
             if 'phase1_2017_design' == globaltag:
                 sys.stderr.write('Warning: %s now points to %s. This has reco-Beamspot centered to (0,0,0)\n'%(globaltag,autoCond[globaltag]))
+            if 'phase2_realistic' == globaltag:
+                sys.stderr.write('*'*120+'\n\t\t\t\t\t\t WARNING!\n The key %s now points to %s.'\
+                                 '\n Usage of this key is discretionary and users are cautioned to use it at their own risk!'\
+                                 '\n This Global Tag contains tags suited for an Inner Tracker layout with rectangular (25x100um2) pixel cells (T15,T21).'\
+                                 '\n If this is not the geometry you are expecting to use, please consult:' \
+                                 '\n https://github.com/cms-sw/cmssw/blob/master/Configuration/AlCa/python/autoCondPhase2.py' \
+                                 ' to retrieve the right key.\n'%(globaltag,autoCond[globaltag])+'*'*120+'\n')
             autoKey = autoCond[globaltag]
             if isinstance(autoKey, tuple) or isinstance(autoKey, list):
                 globaltag = autoKey[0]
@@ -124,7 +130,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
 
     # explicit payloads toGet from DB
     if custom_conditions:
-        for ( (record, label), (tag, connection, snapshotTime) ) in sorted(six.iteritems(custom_conditions)):
+        for ( (record, label), (tag, connection, snapshotTime) ) in sorted(custom_conditions.items()):
             payload = cms.PSet()
             payload.record = cms.string( record )
             if label:

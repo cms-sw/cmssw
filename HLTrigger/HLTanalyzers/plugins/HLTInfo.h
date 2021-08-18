@@ -1,6 +1,7 @@
 #ifndef HLTINFO_H
 #define HLTINFO_H
 
+#include <memory>
 #include <vector>
 #include <map>
 
@@ -26,7 +27,6 @@
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "FWCore/Common/interface/Provenance.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
@@ -41,13 +41,14 @@ namespace edm {
 typedef std::vector<std::string> MyStrings;
 
 /** \class HLTInfo
-  *  
+  *
   * $Date: November 2006
-  * $Revision: 
+  * $Revision:
   * \author P. Bargassa - Rice U.
-  * $Date: April 2016                                                                                                                                             
-  * $Revision:     
-  * \author G. Karapostoli - ULB    
+
+  * $Date: April 2016
+  * $Revision:
+  * \author G. Karapostoli - ULB
   */
 class HLTInfo {
 public:
@@ -71,6 +72,8 @@ public:
 
 private:
   HLTInfo();
+
+  edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> l1tUtmTriggerMenuToken_;
 
   // Tree variables
   float *hltppt, *hltpeta;
@@ -109,7 +112,8 @@ HLTInfo::HLTInfo(edm::ParameterSet const& pset, edm::ConsumesCollector&& iC, T& 
 
 template <typename T>
 HLTInfo::HLTInfo(edm::ParameterSet const& pset, edm::ConsumesCollector& iC, T& module) : HLTInfo() {
-  hltPrescaleProvider_.reset(new HLTPrescaleProvider(pset, iC, module));
+  l1tUtmTriggerMenuToken_ = iC.esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>();
+  hltPrescaleProvider_ = std::make_unique<HLTPrescaleProvider>(pset, iC, module);
 }
 
 #endif

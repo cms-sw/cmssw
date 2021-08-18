@@ -4,7 +4,7 @@
 <use name="CondFormats/SiPixelObjects"/>
 <use name="DataFormats/SiPixelDetId"/>
 <use name="DataFormats/TrackerCommon"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <export>
   <lib name="1"/>
 </export>

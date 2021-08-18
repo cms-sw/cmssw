@@ -65,7 +65,7 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST_cfg.py || die "cmsRun ${test}TEST_cfg.py" $?
 
   echo ${test}TESTFAIL------------------------------------------------------------
-  cmsRun -p ${LOCAL_TEST_DIR}/${test}TESTFAIL_cfg.py 2>/dev/null && die "cmsRun ${test}TESTFAIL_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}TESTFAIL_cfg.py 2>/dev/null && die "cmsRun ${test}TESTFAIL_cfg.py" 1
 
   echo ${test}TEST1------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST1_cfg.py || die "cmsRun ${test}TEST1_cfg.py" $?

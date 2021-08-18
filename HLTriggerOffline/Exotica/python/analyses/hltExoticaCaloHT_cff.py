@@ -2,17 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 CaloHTPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_HT900_v",         # Run2
-        "HLT_HT300_v",         # Run2
+#        "HLT_HT900_v",         # Run2
+#        "HLT_HT300_v",         # Run2
         "HLT_ECALHT800_v",     # Run2 7e33
-        "HLT_Photon90_CaloIdL_PFHT600_v" # 50ns backup menu
-        "HLT_HT650_v",           
-        "HLT_HT410to430_v",        # 2016 menu
-        "HLT_HT430to450_v",        # 2016 menu
-        "HLT_HT450to470_v",        # HT Parking
-        "HLT_HT470to500_v",        # HT Parking
-        "HLT_HT500to550_v",        # HT Parking
-        "HLT_HT550to650_v",        # HT Parking
+#        "HLT_Photon90_CaloIdL_PFHT600_v" # 50ns backup menu
+#        "HLT_HT650_v",           
+#        "HLT_HT410to430_v",        # 2016 menu
+#        "HLT_HT430to450_v",        # 2016 menu
+#        "HLT_HT450to470_v",        # HT Parking
+#        "HLT_HT470to500_v",        # HT Parking
+#        "HLT_HT500to550_v",        # HT Parking
+#        "HLT_HT550to650_v",        # HT Parking
         #"DST_HT250_CaloScouting_v", # scouting # moved to DSTJets category
         #"DST_CaloJet40_CaloScouting_v", # moved to DSTJets category
         #"DST_L1HTT125ORHTT150ORHTT175_CaloScouting_v" # moved to DSTJets category

@@ -77,6 +77,8 @@ private:
   MonitorElement* ugmtEMTFBX;
   MonitorElement* ugmtEMTFnMuons;
   MonitorElement* ugmtEMTFhwPt;
+  MonitorElement* ugmtEMTFhwPtUnconstrained;
+  MonitorElement* ugmtEMTFhwDXY;
   MonitorElement* ugmtEMTFhwEta;
   MonitorElement* ugmtEMTFhwPhiPos;
   MonitorElement* ugmtEMTFhwPhiNeg;

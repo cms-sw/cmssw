@@ -516,6 +516,7 @@ namespace l1t {
     std::vector<int> minimumBiasThresholds() const {
       if (pnode_[hiCentrality].version_ == 1 && pnode_[hiCentrality].iparams_.size() == 5) {
         std::vector<int> newVec;
+        newVec.reserve(4);
         for (int i = 0; i < 4; i++) {
           newVec.push_back(pnode_[hiCentrality].iparams_.at(i + 1));
         }

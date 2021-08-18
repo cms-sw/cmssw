@@ -5,8 +5,8 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEHitResponse.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
@@ -16,7 +16,7 @@
 EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet &params,
                                        edm::ProducesCollector producesCollector,
                                        edm::ConsumesCollector &iC)
-    : EcalDigiProducer(params, producesCollector, iC) {
+    : EcalDigiProducer(params, producesCollector, iC), m_geometryToken(iC.esConsumes()) {
   std::string const instance("simEcalUnsuppressedDigis");
   m_EBdigiFinalTag = params.getParameter<std::string>("EBdigiFinalCollection");
   m_EBdigiTempTag = params.getParameter<std::string>("EBdigiCollection");
@@ -62,9 +62,7 @@ EcalTBDigiProducer::~EcalTBDigiProducer() {}
 
 void EcalTBDigiProducer::initializeEvent(edm::Event const &event, edm::EventSetup const &eventSetup) {
   std::cout << "====****Entering EcalTBDigiProducer produce()" << std::endl;
-  edm::ESHandle<CaloGeometry> hGeometry;
-  eventSetup.get<CaloGeometryRecord>().get(hGeometry);
-  const std::vector<DetId> &theBarrelDets(hGeometry->getValidDetIds(DetId::Ecal, EcalBarrel));
+  const std::vector<DetId> &theBarrelDets = eventSetup.getData(m_geometryToken).getValidDetIds(DetId::Ecal, EcalBarrel);
 
   m_theTBReadout->setDetIds(theBarrelDets);
 

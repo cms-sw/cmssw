@@ -1,26 +1,40 @@
 import FWCore.ParameterSet.Config as cms
-
-from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerPreSplitting_cfi import siPixelClustersPreSplitting
-from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDA_cfi import siPixelRawToClusterCUDA as _siPixelRawToClusterCUDA
-from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoA_cfi import siPixelDigisClustersFromSoA as _siPixelDigisClustersFromSoA
-from CalibTracker.SiPixelESProducers.siPixelROCsStatusAndMappingWrapperESProducer_cfi import *
-from CalibTracker.SiPixelESProducers.siPixelGainCalibrationForHLTGPU_cfi import *
-
-siPixelClustersPreSplittingTask = cms.Task(siPixelClustersPreSplitting)
-
-siPixelClustersPreSplittingCUDA = _siPixelRawToClusterCUDA.clone()
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toModify(siPixelClustersPreSplittingCUDA,
-  isRun2=False
-)
-
-siPixelDigisClustersPreSplitting = _siPixelDigisClustersFromSoA.clone()
-siPixelClustersPreSplittingTaskCUDA = cms.Task(
-    siPixelClustersPreSplittingCUDA,
-    siPixelDigisClustersPreSplitting,
-)
-
 from Configuration.ProcessModifiers.gpu_cff import gpu
-_siPixelClustersPreSplittingTask_gpu = siPixelClustersPreSplittingTask.copy()
-_siPixelClustersPreSplittingTask_gpu.add(siPixelClustersPreSplittingTaskCUDA)
-gpu.toReplaceWith(siPixelClustersPreSplittingTask, _siPixelClustersPreSplittingTask_gpu)
+
+# conditions used *only* by the modules running on GPU
+from CalibTracker.SiPixelESProducers.siPixelROCsStatusAndMappingWrapperESProducer_cfi import siPixelROCsStatusAndMappingWrapperESProducer
+from CalibTracker.SiPixelESProducers.siPixelGainCalibrationForHLTGPU_cfi import siPixelGainCalibrationForHLTGPU
+
+# SwitchProducer wrapping the legacy pixel cluster producer or an alias for the pixel clusters information converted from SoA
+from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerPreSplitting_cfi import siPixelClustersPreSplitting
+
+siPixelClustersPreSplittingTask = cms.Task(
+    # SwitchProducer wrapping the legacy pixel cluster producer or an alias for the pixel clusters information converted from SoA
+    siPixelClustersPreSplitting
+)
+
+# reconstruct the pixel digis and clusters on the gpu
+from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDA_cfi import siPixelRawToClusterCUDA as _siPixelRawToClusterCUDA
+siPixelClustersPreSplittingCUDA = _siPixelRawToClusterCUDA.clone()
+
+run3_common.toModify(siPixelClustersPreSplittingCUDA,
+    # use the pixel channel calibrations scheme for Run 3
+    isRun2 = False
+)
+
+# convert the pixel digis (except errors) and clusters to the legacy format
+from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoA_cfi import siPixelDigisClustersFromSoA as _siPixelDigisClustersFromSoA
+siPixelDigisClustersPreSplitting = _siPixelDigisClustersFromSoA.clone()
+
+gpu.toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
+    # conditions used *only* by the modules running on GPU
+    siPixelROCsStatusAndMappingWrapperESProducer,
+    siPixelGainCalibrationForHLTGPU,
+    # reconstruct the pixel digis and clusters on the gpu
+    siPixelClustersPreSplittingCUDA,
+    # convert the pixel digis (except errors) and clusters to the legacy format
+    siPixelDigisClustersPreSplitting,
+    # SwitchProducer wrapping the legacy pixel cluster producer or an alias for the pixel clusters information converted from SoA
+    siPixelClustersPreSplittingTask.copy()
+))

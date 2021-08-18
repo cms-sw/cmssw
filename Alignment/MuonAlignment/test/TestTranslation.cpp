@@ -109,10 +109,12 @@ void TestTranslation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   //
   edm::ESHandle<DTGeometry> dtGeometry;
   edm::ESHandle<CSCGeometry> cscGeometry;
+  edm::ESHandle<GEMGeometry> gemGeometry;
   iSetup.get<MuonGeometryRecord>().get(dtGeometry);
   iSetup.get<MuonGeometryRecord>().get(cscGeometry);
+  iSetup.get<MuonGeometryRecord>().get(gemGeometry);
 
-  AlignableMuon* theAlignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
+  AlignableMuon* theAlignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
 
   // Apply  alignment
   for (const auto& iter : theAlignableMuon->DTChambers())

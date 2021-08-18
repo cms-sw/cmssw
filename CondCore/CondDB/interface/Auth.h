@@ -23,6 +23,13 @@ namespace cond {
                                                 std::string(COND_WRITER_ROLE),
                                                 std::string(COND_ADMIN_ROLE)};
 
+    typedef enum { DEFAULT_ROLE = 0, READER_ROLE = 1, WRITER_ROLE = 2, ADMIN_ROLE = 3 } RoleCode;
+
+    static const std::pair<const char*, RoleCode> s_roleCodeArray[] = {std::make_pair(COND_DEFAULT_ROLE, DEFAULT_ROLE),
+                                                                       std::make_pair(COND_READER_ROLE, READER_ROLE),
+                                                                       std::make_pair(COND_WRITER_ROLE, WRITER_ROLE),
+                                                                       std::make_pair(COND_ADMIN_ROLE, ADMIN_ROLE)};
+
     static constexpr const char* const COND_DEFAULT_PRINCIPAL = "COND_DEFAULT_PRINCIPAL";
 
     static constexpr const char* const COND_KEY = "Memento";

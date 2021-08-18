@@ -12,10 +12,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoHGCal/TICL/plugins/SeedingRegionAlgoBase.h"
+#include "SeedingRegionAlgoFactory.h"
+#include "SeedingRegionByL1.h"
 #include "SeedingRegionByTracks.h"
 #include "SeedingRegionGlobal.h"
+#include "SeedingRegionByHF.h"
 
 using namespace ticl;
 
@@ -31,37 +35,24 @@ public:
 
 private:
   std::unique_ptr<SeedingRegionAlgoBase> myAlgo_;
-  int algoId_;
-  std::string seedingId_;
 };
+
 DEFINE_FWK_MODULE(TICLSeedingRegionProducer);
 
-TICLSeedingRegionProducer::TICLSeedingRegionProducer(const edm::ParameterSet& ps)
-    : algoId_(ps.getParameter<int>("algoId")) {
+TICLSeedingRegionProducer::TICLSeedingRegionProducer(const edm::ParameterSet& ps) {
   auto sumes = consumesCollector();
-
-  switch (algoId_) {
-    case 1:
-      myAlgo_ = std::make_unique<SeedingRegionByTracks>(ps, sumes);
-      break;
-    case 2:
-      myAlgo_ = std::make_unique<SeedingRegionGlobal>(ps, sumes);
-      break;
-    default:
-      break;
-  }
+  auto seedingPSet = ps.getParameter<edm::ParameterSet>("seedingPSet");
+  auto algoType = seedingPSet.getParameter<std::string>("type");
+  myAlgo_ = SeedingRegionAlgoFactory::get()->create(algoType, seedingPSet, sumes);
   produces<std::vector<TICLSeedingRegion>>();
 }
 
 void TICLSeedingRegionProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<int>("algo_verbosity", 0);
-  desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
-  desc.add<std::string>("cutTk",
-                        "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
-                        "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
-  desc.add<std::string>("propagator", "PropagatorWithMaterial");
-  desc.add<int>("algoId", 1);
+
+  edm::ParameterSetDescription seedingDesc;
+  seedingDesc.addNode(edm::PluginDescription<SeedingRegionAlgoFactory>("type", "SeedingRegionGlobal", true));
+  desc.add<edm::ParameterSetDescription>("seedingPSet", seedingDesc);
   descriptions.add("ticlSeedingRegionProducer", desc);
 }
 

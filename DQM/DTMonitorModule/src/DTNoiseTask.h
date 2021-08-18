@@ -7,22 +7,23 @@
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
-#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include <DataFormats/MuonDetId/interface/DTChamberId.h>
-#include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
-#include <DataFormats/DTDigi/interface/DTDigi.h>
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
+#include "DataFormats/DTDigi/interface/DTDigi.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
-#include <CondFormats/DTObjects/interface/DTTtrig.h>
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 // RecHit
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
@@ -32,6 +33,7 @@ namespace edm {
 }  // namespace edm
 
 class DTGeometry;
+class DTTtrig;
 
 //-class DTNoiseTask : public edm::EDAnalyzer {
 class DTNoiseTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
@@ -69,8 +71,10 @@ private:
   //switch for segment veto
   bool doSegmentVeto;
 
-  edm::ESHandle<DTGeometry> dtGeom;
-  edm::ESHandle<DTTtrig> tTrigMap;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* dtGeom;
+  edm::ESGetToken<DTTtrig, DTTtrigRcd> tTrigMapToken_;
+  const DTTtrig* tTrigMap;
 
   //tTrig map per Station
   std::map<DTChamberId, double> tTrigStMap;

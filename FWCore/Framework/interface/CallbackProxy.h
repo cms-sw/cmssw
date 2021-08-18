@@ -58,9 +58,10 @@ namespace edm::eventsetup {
                            const EventSetupRecordImpl& iRecord,
                            const DataKey&,
                            EventSetupImpl const* iEventSetupImpl,
-                           ServiceToken const& iToken) final {
+                           ServiceToken const& iToken,
+                           edm::ESParentContext const& iParent) final {
       assert(iRecord.key() == RecordT::keyForClass());
-      callback_->prefetchAsync(iWaitTask, &iRecord, iEventSetupImpl, iToken);
+      callback_->prefetchAsync(iWaitTask, &iRecord, iEventSetupImpl, iToken, iParent);
     }
 
     void const* getAfterPrefetchImpl() const final { return smart_pointer_traits::getPointer(data_); }

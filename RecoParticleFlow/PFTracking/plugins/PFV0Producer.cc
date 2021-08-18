@@ -1,18 +1,45 @@
-#include <memory>
-#include "RecoParticleFlow/PFTracking/plugins/PFV0Producer.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFV0.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+
+class PFV0Producer : public edm::stream::EDProducer<> {
+public:
+  ///Constructor
+  explicit PFV0Producer(const edm::ParameterSet&);
+
+  ///Destructor
+  ~PFV0Producer() override;
+
+private:
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+
+  ///Produce the PFRecTrack collection
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  ///PFTrackTransformer
+  PFTrackTransformer* pfTransformer_;
+  std::vector<edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> > V0list_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFV0Producer);
 
 using namespace std;
 using namespace edm;
 using namespace reco;
-PFV0Producer::PFV0Producer(const ParameterSet& iConfig) : pfTransformer_(nullptr) {
+PFV0Producer::PFV0Producer(const ParameterSet& iConfig)
+    : pfTransformer_(nullptr), magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()) {
   produces<reco::PFV0Collection>();
   produces<reco::PFRecTrackCollection>();
 
@@ -67,8 +94,7 @@ void PFV0Producer::produce(Event& iEvent, const EventSetup& iSetup) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void PFV0Producer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
-  ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  auto const& magneticField = &iSetup.getData(magneticFieldToken_);
   pfTransformer_ = new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
   pfTransformer_->OnlyProp();
 }

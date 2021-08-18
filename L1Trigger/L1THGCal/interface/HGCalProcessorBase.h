@@ -6,16 +6,20 @@
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
+#include "DataFormats/L1THGCal/interface/HGCalConcentratorData.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalTowerMap.h"
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
 
 #include <utility>
+#include <tuple>
 
 typedef HGCalProcessorBaseT<HGCalDigiCollection, l1t::HGCalTriggerCellBxCollection> HGCalVFEProcessorBase;
 typedef HGCalProcessorBaseT<edm::Handle<l1t::HGCalTriggerCellBxCollection>,
-                            std::pair<l1t::HGCalTriggerCellBxCollection, l1t::HGCalTriggerSumsBxCollection> >
+                            std::tuple<l1t::HGCalTriggerCellBxCollection,
+                                       l1t::HGCalTriggerSumsBxCollection,
+                                       l1t::HGCalConcentratorDataBxCollection> >
     HGCalConcentratorProcessorBase;
 typedef HGCalProcessorBaseT<edm::Handle<l1t::HGCalTriggerCellBxCollection>, l1t::HGCalClusterBxCollection>
     HGCalBackendLayer1ProcessorBase;

@@ -23,7 +23,7 @@
 #include <unordered_map>
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
@@ -132,7 +132,6 @@ private:
   void accumulate(const edm::Event &event, const edm::EventSetup &setup) override;
   void accumulate(const PileUpEventPrincipal &event, const edm::EventSetup &setup, edm::StreamID const &) override;
   void finalizeEvent(edm::Event &event, const edm::EventSetup &setup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const &lumi, edm::EventSetup const &setup) override;
 
   /** @brief Both forms of accumulate() delegate to this templated method. */
   template <class T>
@@ -175,6 +174,8 @@ private:
   edm::InputTag genParticleLabel_;
   /// Needed to add HepMC::GenVertex to SimVertex
   edm::InputTag hepMCproductLabel_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+  edm::ESWatcher<CaloGeometryRecord> geomWatcher_;
 
   const double minEnergy_, maxPseudoRapidity_;
   const bool premixStage1_;
@@ -368,6 +369,7 @@ CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet &config,
       collectionTags_(),
       genParticleLabel_(config.getParameter<edm::InputTag>("genParticleCollection")),
       hepMCproductLabel_(config.getParameter<edm::InputTag>("HepMCProductLabel")),
+      geomToken_(iC.esConsumes()),
       minEnergy_(config.getParameter<double>("MinEnergy")),
       maxPseudoRapidity_(config.getParameter<double>("MaxPseudoRapidity")),
       premixStage1_(config.getParameter<bool>("premixStage1")),
@@ -399,50 +401,49 @@ CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet &config,
   }
 }
 
-void CaloTruthAccumulator::beginLuminosityBlock(edm::LuminosityBlock const &iLumiBlock, const edm::EventSetup &iSetup) {
-  edm::ESHandle<CaloGeometry> geom;
-  iSetup.get<CaloGeometryRecord>().get(geom);
-  const HGCalGeometry *eegeom = nullptr, *fhgeom = nullptr, *bhgeomnew = nullptr;
-  const HcalGeometry *bhgeom = nullptr;
-  bhgeom = static_cast<const HcalGeometry *>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
-
-  if (doHGCAL) {
-    eegeom = static_cast<const HGCalGeometry *>(
-        geom->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
-    // check if it's the new geometry
-    if (eegeom) {
-      geometryType_ = 1;
-      fhgeom = static_cast<const HGCalGeometry *>(
-          geom->getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
-      bhgeomnew = static_cast<const HGCalGeometry *>(
-          geom->getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
-    } else {
-      geometryType_ = 0;
-      eegeom = static_cast<const HGCalGeometry *>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
-      fhgeom = static_cast<const HGCalGeometry *>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
-      bhgeom = static_cast<const HcalGeometry *>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
-    }
-    hgtopo_[0] = &(eegeom->topology());
-    hgtopo_[1] = &(fhgeom->topology());
-    if (bhgeomnew)
-      hgtopo_[2] = &(bhgeomnew->topology());
-
-    for (unsigned i = 0; i < 3; ++i) {
-      if (hgtopo_[i])
-        hgddd_[i] = &(hgtopo_[i]->dddConstants());
-    }
-  }
-
-  if (bhgeom) {
-    hcddd_ = bhgeom->topology().dddConstants();
-  }
-}
-
 void CaloTruthAccumulator::initializeEvent(edm::Event const &event, edm::EventSetup const &setup) {
   output_.pSimClusters = std::make_unique<SimClusterCollection>();
   output_.pCaloParticles = std::make_unique<CaloParticleCollection>();
 
   m_detIdToTotalSimEnergy.clear();
+
+  if (geomWatcher_.check(setup)) {
+    auto const &geom = setup.getData(geomToken_);
+    const HGCalGeometry *eegeom = nullptr, *fhgeom = nullptr, *bhgeomnew = nullptr;
+    const HcalGeometry *bhgeom = nullptr;
+    bhgeom = static_cast<const HcalGeometry *>(geom.getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
+
+    if (doHGCAL) {
+      eegeom = static_cast<const HGCalGeometry *>(
+          geom.getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
+      // check if it's the new geometry
+      if (eegeom) {
+        geometryType_ = 1;
+        fhgeom = static_cast<const HGCalGeometry *>(
+            geom.getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
+        bhgeomnew = static_cast<const HGCalGeometry *>(
+            geom.getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
+      } else {
+        geometryType_ = 0;
+        eegeom = static_cast<const HGCalGeometry *>(geom.getSubdetectorGeometry(DetId::Forward, HGCEE));
+        fhgeom = static_cast<const HGCalGeometry *>(geom.getSubdetectorGeometry(DetId::Forward, HGCHEF));
+        bhgeom = static_cast<const HcalGeometry *>(geom.getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
+      }
+      hgtopo_[0] = &(eegeom->topology());
+      hgtopo_[1] = &(fhgeom->topology());
+      if (bhgeomnew)
+        hgtopo_[2] = &(bhgeomnew->topology());
+
+      for (unsigned i = 0; i < 3; ++i) {
+        if (hgtopo_[i])
+          hgddd_[i] = &(hgtopo_[i]->dddConstants());
+      }
+    }
+
+    if (bhgeom) {
+      hcddd_ = bhgeom->topology().dddConstants();
+    }
+  }
 }
 
 /** Create handle to edm::HepMCProduct here because event.getByLabel with

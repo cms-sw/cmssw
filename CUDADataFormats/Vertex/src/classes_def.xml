@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="cms::cuda::Product<ZVertexHeterogeneous>" persistent="false"/>
+  <class name="edm::Wrapper<ZVertexCUDAProduct>" persistent="false"/>
+  <class name="ZVertexHeterogeneous" persistent="false"/>
+  <class name="edm::Wrapper<ZVertexHeterogeneous>" persistent="false"/>
+</lcgdict>

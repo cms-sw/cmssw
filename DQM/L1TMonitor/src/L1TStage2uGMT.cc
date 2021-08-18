@@ -176,6 +176,15 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     ugmtEMTFhwPt = ibooker.book1D("ugmtEMTFhwPt", "uGMT EMTF HW p_{T}", 512, -0.5, 511.5);
     ugmtEMTFhwPt->setAxisTitle("Hardware p_{T}", 1);
 
+    if (displacedQuantities_) {
+      ugmtEMTFhwPtUnconstrained =
+          ibooker.book1D("ugmtEMTFhwPtUnconstrained", "uGMT EMTF Input HW p_{T} unconstrained", 256, -0.5, 255.5);
+      ugmtEMTFhwPtUnconstrained->setAxisTitle("Hardware p_{T} unconstrained", 1);
+
+      ugmtEMTFhwDXY = ibooker.book1D("ugmtEMTFhwDXY", "uGMT EMTF Input HW impact parameter", 4, -0.5, 3.5);
+      ugmtEMTFhwDXY->setAxisTitle("Hardware dXY", 1);
+    }
+
     ugmtEMTFhwEta = ibooker.book1D("ugmtEMTFhwEta", "uGMT EMTF HW #eta", 461, -230.5, 230.5);
     ugmtEMTFhwEta->setAxisTitle("Hardware #eta", 1);
 
@@ -790,6 +799,10 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
            ++EMTF) {
         ugmtEMTFBX->Fill(itBX);
         ugmtEMTFhwPt->Fill(EMTF->hwPt());
+        if (displacedQuantities_) {
+          ugmtEMTFhwPtUnconstrained->Fill(EMTF->hwPtUnconstrained());
+          ugmtEMTFhwDXY->Fill(EMTF->hwDXY());
+        }
         ugmtEMTFhwEta->Fill(EMTF->hwEta());
         ugmtEMTFhwSign->Fill(EMTF->hwSign());
         ugmtEMTFhwSignValid->Fill(EMTF->hwSignValid());

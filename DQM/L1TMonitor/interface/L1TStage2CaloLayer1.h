@@ -155,6 +155,14 @@ namespace CaloL1Information {
 
     dqm::reco::MonitorElement *last20Mismatches_;
 
+    dqm::reco::MonitorElement *ecalOccRecd5Bx_;
+    dqm::reco::MonitorElement *ecalOccRecd5BxEtWgt_;
+    dqm::reco::MonitorElement *ecalOccRecdBx1_;
+    dqm::reco::MonitorElement *ecalOccRecdBx2_;
+    dqm::reco::MonitorElement *ecalOccRecdBx3_;
+    dqm::reco::MonitorElement *ecalOccRecdBx4_;
+    dqm::reco::MonitorElement *ecalOccRecdBx5_;
+
     std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, std::vector<int>>> runMismatchList;
   };
 
@@ -268,6 +276,16 @@ private:
   // Input and config info
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecd_;
   std::string ecalTPSourceRecdLabel_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecdBx1_;
+  std::string ecalTPSourceRecdBx1Label_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecdBx2_;
+  std::string ecalTPSourceRecdBx2Label_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecdBx3_;
+  std::string ecalTPSourceRecdBx3Label_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecdBx4_;
+  std::string ecalTPSourceRecdBx4Label_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecdBx5_;
+  std::string ecalTPSourceRecdBx5Label_;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSourceRecd_;
   std::string hcalTPSourceRecdLabel_;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceSent_;
@@ -277,6 +295,7 @@ private:
   edm::EDGetTokenT<FEDRawDataCollection> fedRawData_;
   std::string histFolder_;
   int tpFillThreshold_;
+  int tpFillThreshold5Bx_;
   bool ignoreHFfbs_;
 };
 

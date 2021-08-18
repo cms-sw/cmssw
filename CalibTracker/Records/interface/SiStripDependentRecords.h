@@ -48,20 +48,14 @@ class SiStripHashedDetIdRcd
     : public edm::eventsetup::DependentRecordImplementation<SiStripHashedDetIdRcd,
                                                             edm::mpl::Vector<TrackerDigiGeometryRecord> > {};
 
-class SiStripBadModuleFedErrRcd
-    : public edm::eventsetup::DependentRecordImplementation<SiStripBadModuleFedErrRcd,
-                                                            edm::mpl::Vector<SiStripFedCablingRcd> > {};
-
-class SiStripQualityRcd
-    : public edm::eventsetup::DependentRecordImplementation<SiStripQualityRcd,
-                                                            edm::mpl::Vector<SiStripBadModuleRcd,
-                                                                             SiStripBadFiberRcd,
-                                                                             SiStripBadChannelRcd,
-                                                                             SiStripBadStripRcd,
-                                                                             SiStripDetCablingRcd,
-                                                                             SiStripDCSStatusRcd,
-                                                                             SiStripDetVOffRcd,
-                                                                             RunInfoRcd,
-                                                                             SiStripBadModuleFedErrRcd> > {};
+class SiStripQualityRcd : public edm::eventsetup::DependentRecordImplementation<SiStripQualityRcd,
+                                                                                edm::mpl::Vector<SiStripBadModuleRcd,
+                                                                                                 SiStripBadFiberRcd,
+                                                                                                 SiStripBadChannelRcd,
+                                                                                                 SiStripBadStripRcd,
+                                                                                                 SiStripDetCablingRcd,
+                                                                                                 SiStripDCSStatusRcd,
+                                                                                                 SiStripDetVOffRcd,
+                                                                                                 RunInfoRcd> > {};
 
 #endif

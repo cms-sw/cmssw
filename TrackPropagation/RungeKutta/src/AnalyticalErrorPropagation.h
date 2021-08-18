@@ -17,10 +17,9 @@ inline std::pair<TrajectoryStateOnSurface, double> analyticalErrorPropagation(
     SurfaceSideDefinition::SurfaceSide side,
     const GlobalTrajectoryParameters& destParameters,
     const double& s) {
-  if
-    UNLIKELY(!startingState.hasError())
-  // return state without errors
-  return std::pair<TrajectoryStateOnSurface, double>(TrajectoryStateOnSurface(destParameters, surface, side), s);
+  if UNLIKELY (!startingState.hasError())
+    // return state without errors
+    return std::pair<TrajectoryStateOnSurface, double>(TrajectoryStateOnSurface(destParameters, surface, side), s);
 
   //
   // compute jacobian

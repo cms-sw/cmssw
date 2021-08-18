@@ -7,12 +7,12 @@
 
 class CSCChamberTimeCorrectionsReadTest : public edm::EDAnalyzer {
 public:
-  explicit CSCChamberTimeCorrectionsReadTest(const edm::ParameterSet&);
+  explicit CSCChamberTimeCorrectionsReadTest(const edm::ParameterSet &);
   ~CSCChamberTimeCorrectionsReadTest() override;
 
 private:
   void beginJob() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
   void endJob() override;
 };
 

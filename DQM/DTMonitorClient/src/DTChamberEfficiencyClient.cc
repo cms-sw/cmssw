@@ -7,13 +7,12 @@
  *
  */
 
-#include <DQM/DTMonitorClient/src/DTChamberEfficiencyClient.h>
-#include <DQMServices/Core/interface/DQMStore.h>
+#include "DQM/DTMonitorClient/src/DTChamberEfficiencyClient.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 
 #include <cstdio>
@@ -26,7 +25,8 @@ using namespace std;
 //two words about conventions: "All" histograms are those made for all segments
 //while "Qual" histograms are those for segments with at least 12 hits
 
-DTChamberEfficiencyClient::DTChamberEfficiencyClient(const ParameterSet& pSet) {
+DTChamberEfficiencyClient::DTChamberEfficiencyClient(const ParameterSet& pSet)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogVerbatim("DTDQM|DTMonitorClient|DTChamberEfficiencyClient") << "DTChamberEfficiencyClient: Constructor called";
 
   prescaleFactor = pSet.getUntrackedParameter<int>("diagnosticPrescale", 1);
@@ -38,7 +38,7 @@ DTChamberEfficiencyClient::~DTChamberEfficiencyClient() {
 
 void DTChamberEfficiencyClient::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &setup.getData(muonGeomToken_);
 }
 
 void DTChamberEfficiencyClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,

@@ -226,12 +226,12 @@ void go(bool dovect = true) {
 }
 
 int main() {
-#ifdef CMS_USE_AVX
-  std::cout << "using AVX" << std::endl;
+#ifdef CMS_USE_AVX2
+  std::cout << "using AVX2" << std::endl;
 #endif
   testBa();
   go<float>();
-#ifdef CMS_USE_AVX
+#ifdef CMS_USE_AVX2
   go<double>(false);
 #else
   go<double>();

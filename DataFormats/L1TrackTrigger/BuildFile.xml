@@ -5,6 +5,9 @@
 <use name="DataFormats/Phase2TrackerDigi"/>
 <use name="DataFormats/SiStripDetId"/>
 <use name="DataFormats/TrackerCommon"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="hls"/>
 <export>
   <lib name="1"/>
 </export>

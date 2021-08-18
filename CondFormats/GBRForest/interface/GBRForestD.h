@@ -18,20 +18,17 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <vector>
 #include "GBRTreeD.h"
-#include <cmath>
-#include <cstdio>
-#include "Rtypes.h"
+
+#include <vector>
 
 class GBRForestD {
 public:
   typedef GBRTreeD TreeT;
 
-  GBRForestD();
+  GBRForestD() {}
   template <typename InputForestT>
   GBRForestD(const InputForestT &forest);
-  virtual ~GBRForestD();
 
   double GetResponse(const float *vector) const;
 
@@ -42,7 +39,7 @@ public:
   const std::vector<GBRTreeD> &Trees() const { return fTrees; }
 
 protected:
-  double fInitialResponse;
+  double fInitialResponse = 0.0;
   std::vector<GBRTreeD> fTrees;
 
   COND_SERIALIZABLE;

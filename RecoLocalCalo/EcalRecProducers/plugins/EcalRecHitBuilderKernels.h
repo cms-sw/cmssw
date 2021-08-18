@@ -9,7 +9,6 @@
 #include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-#include "Common.h"
 #include "DeclsForKernels.h"
 
 namespace ecal {

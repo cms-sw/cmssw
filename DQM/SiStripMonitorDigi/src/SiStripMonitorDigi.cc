@@ -452,7 +452,7 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker& ibooker, const edm::EventS
       ShotsVsTimeApvShotsGlobal->setAxisTitle("Time (s)", 1);
       ShotsVsTimeApvShotsGlobal->setAxisTitle("# Apv Shots", 2);
       if (ShotsVsTimeApvShotsGlobal->kind() == MonitorElement::Kind::TPROFILE)
-        ShotsVsTimeApvShotsGlobal->getTH1()->SetCanExtend(TH1::kAllAxes);
+        ShotsVsTimeApvShotsGlobal->setCanExtend(TH1::kAllAxes);
     }
 
     //cumulative number of Strips in APV shots
@@ -984,7 +984,7 @@ SiStripMonitorDigi::MonitorElement* SiStripMonitorDigi::bookMETrend(DQMStore::IB
 
   me->setAxisTitle("Lumisection", 1);
   if (me->kind() == MonitorElement::Kind::TPROFILE)
-    me->getTH1()->SetCanExtend(TH1::kAllAxes);
+    me->setCanExtend(TH1::kAllAxes);
   return me;
 }
 
@@ -1191,7 +1191,7 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker& ibooker, std::string
     subdetMEs.SubDetTotDigiProf->setAxisTitle("Lumisection", 1);
 
     if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::Kind::TPROFILE)
-      subdetMEs.SubDetTotDigiProf->getTH1()->SetCanExtend(TH1::kAllAxes);
+      subdetMEs.SubDetTotDigiProf->setCanExtend(TH1::kAllAxes);
   }
 
   // Number of Digi vs Bx - Profile
@@ -1305,7 +1305,7 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker& ibooker, std::string
     subdetMEs.SubDetNApvShotsProf->setAxisTitle("Time (s)", 1);
     subdetMEs.SubDetNApvShotsProf->setAxisTitle("# Apv Shots", 2);
     if (subdetMEs.SubDetNApvShotsProf->kind() == MonitorElement::Kind::TPROFILE)
-      subdetMEs.SubDetNApvShotsProf->getTH1()->SetCanExtend(TH1::kAllAxes);
+      subdetMEs.SubDetNApvShotsProf->setCanExtend(TH1::kAllAxes);
   }
 
   SubDetMEsMap[label] = subdetMEs;

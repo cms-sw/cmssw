@@ -4,7 +4,7 @@
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/TrackReco"/>
 <use name="Geometry/CSCGeometry"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="TrackingTools/TrackFitters"/>
 <use name="Alignment/CommonAlignment"/>
 <use name="RecoMuon/TransientTrackingRecHit"/>

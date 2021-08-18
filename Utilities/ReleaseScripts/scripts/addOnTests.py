@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 from __future__ import print_function
 from builtins import range
@@ -77,7 +77,7 @@ class StandardTester(object):
 
         nActive = 0
         for t in self.threadList:
-            if t.isAlive() : nActive += 1
+            if t.is_alive() : nActive += 1
 
         return nActive
 

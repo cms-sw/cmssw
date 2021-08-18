@@ -1,14 +1,12 @@
 #include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DD4hep/DetFactoryHelper.h"
 
 //#define EDM_ML_DEBUG
 using namespace angle_units::operators;
-#ifdef EDM_ML_DEBUG
-#include "Geometry/HcalAlgo/plugins/dd4hep/HcalDD4HepHelper.h"
-#endif
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
@@ -26,11 +24,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   std::vector<int> type = args.value<std::vector<int> >("Type");                        //First child
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: Cell material " << cellMat << "\tCell Size "
-                               << HcalDD4HepHelper::convert2mm(cellDx) << ", " << HcalDD4HepHelper::convert2mm(cellDy)
-                               << ", " << HcalDD4HepHelper::convert2mm(cellDz) << "\tStarting Y "
-                               << HcalDD4HepHelper::convert2mm(startY) << "\tChildren " << childName[0] << ", "
-                               << childName[1] << "\n                         Cell positioning done for "
-                               << number.size() << " times";
+                               << cms::convert2mm(cellDx) << ", " << cms::convert2mm(cellDy) << ", "
+                               << cms::convert2mm(cellDz) << "\tStarting Y " << cms::convert2mm(startY) << "\tChildren "
+                               << childName[0] << ", " << childName[1]
+                               << "\n                         Cell positioning done for " << number.size() << " times";
   for (unsigned int i = 0; i < number.size(); ++i)
     edm::LogVerbatim("HCalGeom") << "\t" << i << " Number of children " << size[i] << " occurence " << number[i]
                                  << " first child index " << type[i];
@@ -51,15 +48,15 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       dd4hep::Solid solid = dd4hep::Box(ns.prepend(name), dx, cellDy, cellDz);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: " << solid.name() << " Box made of " << cellMat << " of Size "
-                                   << HcalDD4HepHelper::convert2mm(dx) << ", " << HcalDD4HepHelper::convert2mm(cellDy)
-                                   << ", " << HcalDD4HepHelper::convert2mm(cellDz);
+                                   << cms::convert2mm(dx) << ", " << cms::convert2mm(cellDy) << ", "
+                                   << cms::convert2mm(cellDz);
 #endif
       dd4hep::Volume glog(solid.name(), solid, matter);
 
       parent.placeVolume(glog, box, dd4hep::Position(0.0, ypos, 0.0));
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: " << solid.name() << " number " << box << " positioned in "
-                                   << parent.name() << " at (0.0, " << HcalDD4HepHelper::convert2mm(ypos)
+                                   << parent.name() << " at (0.0, " << cms::convert2mm(ypos)
                                    << ", 0.0) with no rotation";
 #endif
 
@@ -70,8 +67,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         glog.placeVolume(ns.volume(childName[indx]), k + 1, dd4hep::Position(xpos, 0.0, 0.0));
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HCalGeom") << "DDHCalForwardAlgo: " << childName[indx] << " number " << (k + 1)
-                                     << " positioned in " << glog.name() << " at ("
-                                     << HcalDD4HepHelper::convert2mm(xpos) << ", 0,0, 0.0) with no rotation";
+                                     << " positioned in " << glog.name() << " at (" << cms::convert2mm(xpos)
+                                     << ", 0,0, 0.0) with no rotation";
 #endif
         xpos += 2 * cellDx;
       }

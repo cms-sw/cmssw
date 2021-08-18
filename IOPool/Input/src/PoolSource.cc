@@ -14,8 +14,8 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/SharedResourcesRegistry.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -154,8 +154,8 @@ namespace edm {
     InputFile::reportReadBranches();
   }
 
-  std::unique_ptr<FileBlock> PoolSource::readFile_() {
-    std::unique_ptr<FileBlock> fb = primaryFileSequence_->readFile_();
+  std::shared_ptr<FileBlock> PoolSource::readFile_() {
+    std::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_();
     if (secondaryFileSequence_) {
       fb->setNotFastClonable(FileBlock::HasSecondaryFileSequence);
     }
@@ -168,6 +168,16 @@ namespace edm {
 
   std::shared_ptr<LuminosityBlockAuxiliary> PoolSource::readLuminosityBlockAuxiliary_() {
     return primaryFileSequence_->readLuminosityBlockAuxiliary_();
+  }
+
+  void PoolSource::fillProcessBlockHelper_() { primaryFileSequence_->fillProcessBlockHelper_(); }
+
+  bool PoolSource::nextProcessBlock_(ProcessBlockPrincipal& processBlockPrincipal) {
+    return primaryFileSequence_->nextProcessBlock_(processBlockPrincipal);
+  }
+
+  void PoolSource::readProcessBlock_(ProcessBlockPrincipal& processBlockPrincipal) {
+    primaryFileSequence_->readProcessBlock_(processBlockPrincipal);
   }
 
   void PoolSource::readRun_(RunPrincipal& runPrincipal) {
@@ -215,15 +225,17 @@ namespace edm {
   }
 
   void PoolSource::readEvent_(EventPrincipal& eventPrincipal) {
-    primaryFileSequence_->readEvent(eventPrincipal);
+    bool readEventSucceeded = primaryFileSequence_->readEvent(eventPrincipal);
+    assert(readEventSucceeded);
     if (secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
       bool found = secondaryFileSequence_->skipToItem(
           eventPrincipal.run(), eventPrincipal.luminosityBlock(), eventPrincipal.id().event());
       if (found) {
         EventPrincipal& secondaryEventPrincipal = *secondaryEventPrincipals_[eventPrincipal.streamID().value()];
-        secondaryFileSequence_->readEvent(secondaryEventPrincipal);
+        bool readEventSucceeded = secondaryFileSequence_->readEvent(secondaryEventPrincipal);
         checkConsistency(eventPrincipal, secondaryEventPrincipal);
         checkHistoryConsistency(eventPrincipal, secondaryEventPrincipal);
+        assert(readEventSucceeded);
         eventPrincipal.recombine(secondaryEventPrincipal, branchIDsToReplace_[InEvent]);
         eventPrincipal.mergeProvenanceRetrievers(secondaryEventPrincipal);
         secondaryEventPrincipal.clearPrincipal();

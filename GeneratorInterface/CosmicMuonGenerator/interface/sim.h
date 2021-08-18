@@ -172,7 +172,7 @@ public:
 #endif
 
 #ifdef sim_cxx
-sim::sim(TTree *tree) {
+inline sim::sim(TTree *tree) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
   if (tree == nullptr) {
@@ -187,19 +187,19 @@ sim::sim(TTree *tree) {
   Init(tree);
 }
 
-sim::~sim() {
+inline sim::~sim() {
   if (!fChain)
     return;
   delete fChain->GetCurrentFile();
 }
 
-Int_t sim::GetEntry(Long64_t entry) {
+inline Int_t sim::GetEntry(Long64_t entry) {
   // Read contents of entry.
   if (!fChain)
     return 0;
   return fChain->GetEntry(entry);
 }
-Long64_t sim::LoadTree(Long64_t entry) {
+inline Long64_t sim::LoadTree(Long64_t entry) {
   // Set the environment to read one entry
   std::cout << "sim::LoadTree: " << std::endl;
   if (fChain)
@@ -221,7 +221,7 @@ Long64_t sim::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void sim::Init(TTree *tree) {
+inline void sim::Init(TTree *tree) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.
@@ -307,7 +307,7 @@ void sim::Init(TTree *tree) {
   Notify();
 }
 
-Bool_t sim::Notify() {
+inline Bool_t sim::Notify() {
   // The Notify() function is called when a new file is opened. This
   // can be either for a new TTree in a TChain or when when a new TTree
   // is started when using PROOF. It is normaly not necessary to make changes
@@ -317,14 +317,14 @@ Bool_t sim::Notify() {
   return kTRUE;
 }
 
-void sim::Show(Long64_t entry) {
+inline void sim::Show(Long64_t entry) {
   // Print contents of entry.
   // If entry is not specified, print current entry
   if (!fChain)
     return;
   fChain->Show(entry);
 }
-Int_t sim::Cut(Long64_t entry) {
+inline Int_t sim::Cut(Long64_t entry) {
   // This function may be called from Loop.
   // returns  1 if entry is accepted.
   // returns -1 otherwise.

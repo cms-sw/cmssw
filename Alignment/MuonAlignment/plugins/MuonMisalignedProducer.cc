@@ -26,12 +26,15 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <memory>
+
+#include <iostream>
 
 class MuonMisalignedProducer : public edm::one::EDAnalyzer<> {
 public:
@@ -52,12 +55,18 @@ private:
 
   std::string theDTAlignRecordName, theDTErrorRecordName;
   std::string theCSCAlignRecordName, theCSCErrorRecordName;
-  std::string theIdealGeometryLabel;
+  std::string theGEMAlignRecordName, theGEMErrorRecordName;
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> esTokenDT_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> esTokenCSC_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> esTokenGEM_;
 
   Alignments* dt_Alignments;
   AlignmentErrorsExtended* dt_AlignmentErrorsExtended;
   Alignments* csc_Alignments;
   AlignmentErrorsExtended* csc_AlignmentErrorsExtended;
+  Alignments* gem_Alignments;
+  AlignmentErrorsExtended* gem_AlignmentErrorsExtended;
 };
 
 //__________________________________________________________________________________________________
@@ -68,7 +77,11 @@ MuonMisalignedProducer::MuonMisalignedProducer(const edm::ParameterSet& p)
       theDTErrorRecordName("DTAlignmentErrorExtendedRcd"),
       theCSCAlignRecordName("CSCAlignmentRcd"),
       theCSCErrorRecordName("CSCAlignmentErrorExtendedRcd"),
-      theIdealGeometryLabel("idealForMuonMisalignedProducer") {}
+      theGEMAlignRecordName("GEMAlignmentRcd"),
+      theGEMErrorRecordName("GEMAlignmentErrorExtendedRcd"),
+      esTokenDT_(esConsumes(edm::ESInputTag("", "idealForMuonMisalignedProducer"))),
+      esTokenCSC_(esConsumes(edm::ESInputTag("", "idealForMuonMisalignedProducer"))),
+      esTokenGEM_(esConsumes(edm::ESInputTag("", "idealForMuonMisalignedProducer"))) {}
 
 //__________________________________________________________________________________________________
 MuonMisalignedProducer::~MuonMisalignedProducer() {}
@@ -77,13 +90,12 @@ MuonMisalignedProducer::~MuonMisalignedProducer() {}
 void MuonMisalignedProducer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   edm::LogInfo("MisalignedMuon") << "Producer called";
   // Create the Muon geometry from ideal geometry
-  edm::ESHandle<DTGeometry> theDTGeometry;
-  edm::ESHandle<CSCGeometry> theCSCGeometry;
-  eventSetup.get<MuonGeometryRecord>().get(theIdealGeometryLabel, theDTGeometry);
-  eventSetup.get<MuonGeometryRecord>().get(theIdealGeometryLabel, theCSCGeometry);
+  edm::ESHandle<DTGeometry> theDTGeometry = eventSetup.getHandle(esTokenDT_);
+  edm::ESHandle<CSCGeometry> theCSCGeometry = eventSetup.getHandle(esTokenCSC_);
+  edm::ESHandle<GEMGeometry> theGEMGeometry = eventSetup.getHandle(esTokenGEM_);
 
   // Create the alignable hierarchy
-  AlignableMuon* theAlignableMuon = new AlignableMuon(&(*theDTGeometry), &(*theCSCGeometry));
+  AlignableMuon* theAlignableMuon = new AlignableMuon(&(*theDTGeometry), &(*theCSCGeometry), &(*theGEMGeometry));
 
   // Create misalignment scenario
   MuonScenarioBuilder scenarioBuilder(theAlignableMuon);
@@ -94,14 +106,17 @@ void MuonMisalignedProducer::analyze(const edm::Event& event, const edm::EventSe
   dt_AlignmentErrorsExtended = theAlignableMuon->dtAlignmentErrorsExtended();
   csc_Alignments = theAlignableMuon->cscAlignments();
   csc_AlignmentErrorsExtended = theAlignableMuon->cscAlignmentErrorsExtended();
+  gem_Alignments = theAlignableMuon->gemAlignments();
+  gem_AlignmentErrorsExtended = theAlignableMuon->gemAlignmentErrorsExtended();
 
   // Misalign the EventSetup geometry
-  GeometryAligner aligner;
-
+  /* GeometryAligner aligner;
   aligner.applyAlignments<DTGeometry>(&(*theDTGeometry), dt_Alignments, dt_AlignmentErrorsExtended, AlignTransform());
   aligner.applyAlignments<CSCGeometry>(
       &(*theCSCGeometry), csc_Alignments, csc_AlignmentErrorsExtended, AlignTransform());
-
+  aligner.applyAlignments<GEMGeometry>(
+      &(*theGEMGeometry), gem_Alignments, gem_AlignmentErrorsExtended, AlignTransform());
+  */
   // Write alignments to DB
   if (theSaveToDB)
     this->saveToDB();
@@ -125,6 +140,9 @@ void MuonMisalignedProducer::saveToDB(void) {
   poolDbService->writeOne<Alignments>(&(*csc_Alignments), poolDbService->beginOfTime(), theCSCAlignRecordName);
   poolDbService->writeOne<AlignmentErrorsExtended>(
       &(*csc_AlignmentErrorsExtended), poolDbService->beginOfTime(), theCSCErrorRecordName);
+  poolDbService->writeOne<Alignments>(&(*gem_Alignments), poolDbService->beginOfTime(), theGEMAlignRecordName);
+  poolDbService->writeOne<AlignmentErrorsExtended>(
+      &(*gem_AlignmentErrorsExtended), poolDbService->beginOfTime(), theGEMErrorRecordName);
 }
 //____________________________________________________________________________________________
 DEFINE_FWK_MODULE(MuonMisalignedProducer);

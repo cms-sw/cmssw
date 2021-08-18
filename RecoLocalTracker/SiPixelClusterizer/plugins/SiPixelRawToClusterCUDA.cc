@@ -37,6 +37,7 @@
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 // local includes
+#include "SiPixelClusterThresholds.h"
 #include "SiPixelRawToClusterGPUKernel.h"
 
 class SiPixelRawToClusterCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
@@ -77,6 +78,8 @@ private:
   const bool isRun2_;
   const bool includeErrors_;
   const bool useQuality_;
+  const uint32_t maxFedWords_;
+  const SiPixelClusterThresholds clusterThresholds_;
 };
 
 SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfig)
@@ -89,7 +92,10 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
           edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
       isRun2_(iConfig.getParameter<bool>("isRun2")),
       includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
-      useQuality_(iConfig.getParameter<bool>("UseQualityInfo")) {
+      useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
+      maxFedWords_(iConfig.getParameter<uint32_t>("MaxFEDWords")),
+      clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
+                         iConfig.getParameter<int32_t>("clusterThreshold_otherLayers")} {
   if (includeErrors_) {
     digiErrorPutToken_ = produces<cms::cuda::Product<SiPixelDigiErrorsCUDA>>();
   }
@@ -101,7 +107,7 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
 
   edm::Service<CUDAService> cs;
   if (cs->enabled()) {
-    wordFedAppender_ = std::make_unique<pixelgpudetails::SiPixelRawToClusterGPUKernel::WordFedAppender>();
+    wordFedAppender_ = std::make_unique<pixelgpudetails::SiPixelRawToClusterGPUKernel::WordFedAppender>(maxFedWords_);
   }
 }
 
@@ -110,6 +116,9 @@ void SiPixelRawToClusterCUDA::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<bool>("isRun2", true);
   desc.add<bool>("IncludeErrors", true);
   desc.add<bool>("UseQualityInfo", false);
+  desc.add<uint32_t>("MaxFEDWords", pixelgpudetails::MAX_FED * pixelgpudetails::MAX_WORD);
+  desc.add<int32_t>("clusterThreshold_layer1", kSiPixelClusterThresholdsDefaultPhase1.layer1);
+  desc.add<int32_t>("clusterThreshold_otherLayers", kSiPixelClusterThresholdsDefaultPhase1.otherLayers);
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
   {
     edm::ParameterSetDescription psd0;
@@ -231,6 +240,7 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
   }  // end of for loop
 
   gpuAlgo_.makeClustersAsync(isRun2_,
+                             clusterThresholds_,
                              gpuMap,
                              gpuModulesToUnpack,
                              gpuGains,
@@ -238,6 +248,7 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
                              std::move(errors_),
                              wordCounterGPU,
                              fedCounter,
+                             maxFedWords_,
                              useQuality_,
                              includeErrors_,
                              edm::MessageDrop::instance()->debugEnabled,

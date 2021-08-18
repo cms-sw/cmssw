@@ -22,9 +22,9 @@
 #include <atomic>
 #include <exception>
 #include <memory>
-#include "tbb/task.h"
 
 // user include files
+#include "FWCore/Concurrency/interface/TaskBase.h"
 
 // forward declarations
 
@@ -33,7 +33,7 @@ namespace edm {
   class WaitingTaskHolder;
   class WaitingTaskWithArenaHolder;
 
-  class WaitingTask : public tbb::task {
+  class WaitingTask : public TaskBase {
   public:
     friend class WaitingTaskList;
     friend class WaitingTaskHolder;
@@ -69,23 +69,37 @@ namespace edm {
     std::atomic<std::exception_ptr*> m_ptr;
   };
 
+  /** Use this class on the stack to signal the final task to be run.
+   Call done() to check to see if the task was run and check value of
+   exceptionPtr() to see if an exception was thrown by any task in the group.
+   */
+  class FinalWaitingTask : public WaitingTask {
+  public:
+    FinalWaitingTask() : m_done{false} {}
+
+    void execute() final { m_done = true; }
+
+    bool done() const { return m_done.load(); }
+
+  private:
+    void recycle() final {}
+    std::atomic<bool> m_done;
+  };
+
   template <typename F>
   class FunctorWaitingTask : public WaitingTask {
   public:
     explicit FunctorWaitingTask(F f) : func_(std::move(f)) {}
 
-    task* execute() override {
-      func_(exceptionPtr());
-      return nullptr;
-    };
+    void execute() final { func_(exceptionPtr()); };
 
   private:
     F func_;
   };
 
-  template <typename ALLOC, typename F>
-  FunctorWaitingTask<F>* make_waiting_task(ALLOC&& iAlloc, F f) {
-    return new (iAlloc) FunctorWaitingTask<F>(std::move(f));
+  template <typename F>
+  FunctorWaitingTask<F>* make_waiting_task(F f) {
+    return new FunctorWaitingTask<F>(std::move(f));
   }
 
 }  // namespace edm

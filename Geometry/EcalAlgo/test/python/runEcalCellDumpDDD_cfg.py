@@ -1,16 +1,9 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Run3_cff import Run3
 
-process = cms.Process("EcalGeometryTest")
+process = cms.Process("EcalGeometryTest",Run3)
 
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
-process.load("Geometry.HcalCommonData.hcalDDDRecConstants_cfi")
-process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi");
-process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
-process.load("Geometry.EcalMapping.EcalMapping_cfi")
-process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
+process.load("Configuration.Geometry.GeometryExtended2021Reco_cff")
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(

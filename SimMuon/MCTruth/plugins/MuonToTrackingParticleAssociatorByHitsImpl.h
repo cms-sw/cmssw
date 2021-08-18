@@ -35,6 +35,12 @@ public:
                                              MuonAssociatorByHitsHelper::Resources const &iResources,
                                              MuonAssociatorByHitsHelper const *iHelper);
 
+  MuonToTrackingParticleAssociatorByHitsImpl(const MuonToTrackingParticleAssociatorByHitsImpl &) =
+      delete;  // stop default
+
+  const MuonToTrackingParticleAssociatorByHitsImpl &operator=(const MuonToTrackingParticleAssociatorByHitsImpl &) =
+      delete;  // stop default
+
   // ---------- const member functions ---------------------
   void associateMuons(reco::MuonToSimCollection &recoToSim,
                       reco::SimToMuonCollection &simToReco,
@@ -53,12 +59,6 @@ public:
   // ---------- member functions ---------------------------
 
 private:
-  MuonToTrackingParticleAssociatorByHitsImpl(const MuonToTrackingParticleAssociatorByHitsImpl &) =
-      delete;  // stop default
-
-  const MuonToTrackingParticleAssociatorByHitsImpl &operator=(const MuonToTrackingParticleAssociatorByHitsImpl &) =
-      delete;  // stop default
-
   // ---------- member data --------------------------------
   TrackerMuonHitExtractor const *m_hitExtractor;
   MuonAssociatorByHitsHelper::Resources m_resources;

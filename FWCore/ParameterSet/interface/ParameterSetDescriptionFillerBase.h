@@ -83,6 +83,7 @@ namespace edm {
     static const std::string kBaseForService;
     static const std::string kBaseForESSource;
     static const std::string kBaseForESProducer;
+    static const std::string kBaseForEDLooper;
     static const std::string kExtendedBaseForEDAnalyzer;
     static const std::string kExtendedBaseForEDProducer;
     static const std::string kExtendedBaseForEDFilter;

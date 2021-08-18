@@ -51,6 +51,7 @@
 <library file="CMSRunSummary2DB.cc" name="CMSRunSummary2DB">
   <use name="RecoLuminosity/LumiProducer"/>
   <use name="rootcore"/>
+  <use name="boost_regex"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 

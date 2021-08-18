@@ -40,6 +40,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -242,7 +243,7 @@ void DeepCoreSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& i
         input_tensors[1].second.matrix<float>()(0, 0) = 0.0;
         for (int x = 0; x < jetDimX; x++) {
           for (int y = 0; y < jetDimY; y++) {
-            for (int l = 0; l < 4; l++) {
+            for (int l = 0; l < Nlayer; l++) {
               input_tensors[2].second.tensor<float, 4>()(0, x, y, l) = 0.0;
             }
           }
@@ -270,7 +271,7 @@ void DeepCoreSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& i
 
           for (const auto& aCluster : detset) {
             det_id_type aClusterID = detset.id();
-            if (DetId(aClusterID).subdetId() != 1)
+            if (DetId(aClusterID).subdetId() != PixelSubdetector::PixelBarrel)
               continue;
 
             int lay = tTopo->layer(det->geographicalId());
@@ -560,8 +561,8 @@ void DeepCoreSeedGenerator::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("pixelClusters", edm::InputTag("siPixelClustersPreSplitting"));
   desc.add<edm::InputTag>("cores", edm::InputTag("jetsForCoreTracking"));
-  desc.add<double>("ptMin", 300);
-  desc.add<double>("deltaR", 0.1);
+  desc.add<double>("ptMin", 100);
+  desc.add<double>("deltaR", 0.25);  // the current training makes use of 0.1
   desc.add<double>("chargeFractionMin", 18000.0);
   desc.add<double>("centralMIPCharge", 2);
   desc.add<std::string>("pixelCPE", "PixelCPEGeneric");

@@ -27,3 +27,5 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 typedef SingleObjectSelector<edm::SimVertexContainer, StringCutObjectSelector<SimVertex> > SimVertexSelector;
+
+DEFINE_FWK_MODULE(SimVertexSelector);

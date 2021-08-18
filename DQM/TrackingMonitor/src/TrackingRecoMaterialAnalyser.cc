@@ -176,14 +176,13 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event &event, const edm::E
 
   refitter_.setServices(setup);
 
-  Handle<TrackCollection> tracks;
-  Handle<VertexCollection> vertices;
+  Handle<TrackCollection> tracks = event.getHandle(tracksToken_);
+  Handle<VertexCollection> vertices = event.getHandle(verticesToken_);
 
   // Get the TrackerTopology
   const TrackerTopology *const tTopo = &setup.getData(tTopoToken_);
 
   // Get Tracks
-  event.getByToken(tracksToken_, tracks);
   if (!tracks.isValid() || tracks->empty()) {
     LogInfo("TrackingRecoMaterialAnalyser") << "Invalid or empty track collection" << endl;
     return;
@@ -196,15 +195,13 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event &event, const edm::E
   };
 
   // Get BeamSpot
-  Handle<BeamSpot> beamSpot;
-  event.getByToken(beamspotToken_, beamSpot);
+  Handle<BeamSpot> beamSpot = event.getHandle(beamspotToken_);
   // Bail out if missing
   if (!beamSpot.isValid())
     return;
 
   reco::Vertex::Point pv(beamSpot->position());
   if (usePV_) {
-    event.getByToken(verticesToken_, vertices);
     if (vertices.isValid() && !vertices->empty()) {
       // Since we need to use eta and Z information from the tracks, in
       // order not to have the reco material distribution washed out due

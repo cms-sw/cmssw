@@ -15,7 +15,6 @@
 
 #include "DataFormats/Common/interface/SecondaryEventIDAndFileInfo.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iterator>
 #include <vector>
 #include <utility>

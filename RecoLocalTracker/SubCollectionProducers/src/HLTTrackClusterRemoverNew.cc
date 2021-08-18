@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -43,6 +42,7 @@ public:
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
 private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
   struct ParamBlock {
     ParamBlock() : isSet_(false), usesCharge_(false) {}
     ParamBlock(const edm::ParameterSet &iConfig)
@@ -132,7 +132,8 @@ void HLTTrackClusterRemoverNew::readPSet(
 }
 
 HLTTrackClusterRemoverNew::HLTTrackClusterRemoverNew(const ParameterSet &iConfig)
-    : doTracks_(iConfig.exists("trajectories")),
+    : tTrackerGeom_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      doTracks_(iConfig.exists("trajectories")),
       doStrip_(iConfig.existsAs<bool>("doStrip") ? iConfig.getParameter<bool>("doStrip") : true),
       doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
       mergeOld_(false),
@@ -364,8 +365,7 @@ void HLTTrackClusterRemoverNew::process(const TrackingRecHit *hit, float chi2, c
 void HLTTrackClusterRemoverNew::produce(Event &iEvent, const EventSetup &iSetup) {
   ProductID pixelOldProdID, stripOldProdID;
 
-  edm::ESHandle<TrackerGeometry> tgh;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tgh);
+  const auto &tgh = &iSetup.getData(tTrackerGeom_);
 
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
   if (doPixel_) {
@@ -411,7 +411,7 @@ void HLTTrackClusterRemoverNew::produce(Event &iEvent, const EventSetup &iSetup)
       if (!hit->isValid())
         continue;
       //	    std::cout<<"process hit"<<std::endl;
-      process(hit, itm->estimate(), tgh.product());
+      process(hit, itm->estimate(), tgh);
     }
   }
 

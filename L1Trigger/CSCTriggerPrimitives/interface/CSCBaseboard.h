@@ -6,9 +6,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "DataFormats/L1TMuon/interface/CSCConstants.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboardLUT.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCLUTReader.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 
 class CSCBaseboard {
@@ -43,7 +43,7 @@ protected:
   const unsigned theSector;
   const unsigned theSubsector;
   const unsigned theTrigChamber;
-  unsigned theRegion;
+  int theRegion;
   unsigned theRing;
   unsigned theChamber;
 
@@ -76,6 +76,9 @@ protected:
 
   // CLCT Processor parameters:
   edm::ParameterSet clctParams_;
+
+  // Shower Trigger parameters:
+  edm::ParameterSet showerParams_;
 
   // chamber name, e.g. ME+1/1/9
   std::string theCSCName_;

@@ -24,7 +24,8 @@
 using namespace edm;
 using namespace std;
 
-DTSegmentsTask::DTSegmentsTask(const edm::ParameterSet& pset) {
+DTSegmentsTask::DTSegmentsTask(const edm::ParameterSet& pset)
+    : statusMapToken_(esConsumes<DTStatusFlag, DTStatusFlagRcd>()) {
   debug = pset.getUntrackedParameter<bool>("debug", false);
   parameters = pset;
 
@@ -112,7 +113,7 @@ void DTSegmentsTask::analyze(const edm::Event& event, const edm::EventSetup& set
   //  bool checkNoisyChannels = parameters.getUntrackedParameter<bool>("checkNoisyChannels",false);
   ESHandle<DTStatusFlag> statusMap;
   if (checkNoisyChannels) {
-    setup.get<DTStatusFlagRcd>().get(statusMap);
+    statusMap = setup.getHandle(statusMapToken_);
   }
 
   // Get the 4D segment collection from the event

@@ -11,8 +11,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <vector>
 
-#include <ext/hash_map>
-
 class SiStripBadFiberBuilder : public ConditionDBWriter<SiStripBadStrip> {
 public:
   explicit SiStripBadFiberBuilder(const edm::ParameterSet&);
@@ -21,7 +19,6 @@ public:
 private:
   std::unique_ptr<SiStripBadStrip> getNewObject() override;
 
-  edm::FileInPath fp_;
   bool printdebug_;
 
   typedef std::vector<edm::ParameterSet> Parameters;

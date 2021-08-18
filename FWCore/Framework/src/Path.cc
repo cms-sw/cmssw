@@ -1,11 +1,11 @@
 
-#include "FWCore/Framework/src/Path.h"
+#include "FWCore/Framework/interface/Path.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "FWCore/Framework/src/EarlyDeleteHelper.h"
+#include "FWCore/Framework/interface/EarlyDeleteHelper.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
@@ -238,7 +238,7 @@ namespace edm {
       return;
     }
 
-    runNextWorkerAsync(0, iInfo, iToken, iStreamID, iStreamContext);
+    runNextWorkerAsync(0, iInfo, iToken, iStreamID, iStreamContext, *iTask.group());
   }
 
   void Path::workerFinished(std::exception_ptr const* iException,
@@ -246,7 +246,8 @@ namespace edm {
                             EventTransitionInfo const& iInfo,
                             ServiceToken const& iToken,
                             StreamID const& iID,
-                            StreamContext const* iContext) {
+                            StreamContext const* iContext,
+                            tbb::task_group& iGroup) {
     EventPrincipal const& iEP = iInfo.principal();
     ServiceRegistry::Operate guard(iToken);
 
@@ -295,7 +296,7 @@ namespace edm {
     if (shouldContinue and nextIndex < workers_.size()) {
       if (not worker.runConcurrently()) {
         --modulesToRun_;
-        runNextWorkerAsync(nextIndex, iInfo, iToken, iID, iContext);
+        runNextWorkerAsync(nextIndex, iInfo, iToken, iID, iContext, iGroup);
         return;
       }
     }
@@ -348,7 +349,8 @@ namespace edm {
                                 EventTransitionInfo const& iInfo,
                                 ServiceToken const& iToken,
                                 StreamID const& iID,
-                                StreamContext const* iContext) {
+                                StreamContext const* iContext,
+                                tbb::task_group& iGroup) {
     //Figure out which next modules can run concurrently
     const int firstModuleIndex = iNextModuleIndex;
     int lastModuleIndex = firstModuleIndex;
@@ -356,13 +358,13 @@ namespace edm {
       ++lastModuleIndex;
     }
     for (; lastModuleIndex >= firstModuleIndex; --lastModuleIndex) {
-      auto nextTask = make_waiting_task(
-          tbb::task::allocate_root(),
-          [this, lastModuleIndex, info = iInfo, iID, iContext, token = iToken](std::exception_ptr const* iException) {
-            this->workerFinished(iException, lastModuleIndex, info, token, iID, iContext);
-          });
+      ServiceWeakToken weakToken = iToken;
+      auto nextTask = make_waiting_task([this, lastModuleIndex, info = iInfo, iID, iContext, weakToken, &iGroup](
+                                            std::exception_ptr const* iException) {
+        this->workerFinished(iException, lastModuleIndex, info, weakToken.lock(), iID, iContext, iGroup);
+      });
       workers_[lastModuleIndex].runWorkerAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-          WaitingTaskHolder(nextTask), iInfo, iToken, iID, iContext);
+          WaitingTaskHolder(iGroup, nextTask), iInfo, iToken, iID, iContext);
     }
   }
 

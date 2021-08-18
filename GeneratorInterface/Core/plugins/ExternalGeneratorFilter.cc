@@ -46,15 +46,21 @@ namespace externalgen {
 
       channel_.setupWorker([&]() {
         using namespace std::string_literals;
+        using namespace std::filesystem;
         edm::LogSystem("ExternalProcess") << id_ << " starting external process \n";
         std::string verboseCommand;
         if (verbose) {
           verboseCommand = "--verbose ";
         }
+        auto curDir = current_path();
+        auto newDir = path("thread"s + std::to_string(id_));
+        create_directory(newDir);
+        current_path(newDir);
         pipe_ =
             popen(("cmsExternalGenerator "s + verboseCommand + channel_.sharedMemoryName() + " " + channel_.uniqueID())
                       .c_str(),
                   "w");
+        current_path(curDir);
 
         if (nullptr == pipe_) {
           abort();
@@ -78,7 +84,8 @@ namespace externalgen {
       if (not channel_.doTransition(
               [&value, &iDeserializer]() { value = iDeserializer.deserialize(); }, iTrans, iTransitionID)) {
         externalFailed_ = true;
-        throw cms::Exception("ExternalFailed") << "failed waiting for external process";
+        throw cms::Exception("ExternalFailed")
+            << "failed waiting for external process. Timed out after " << channel_.maxWaitInSeconds() << " seconds.";
       }
       return value;
     }
@@ -205,6 +212,7 @@ private:
   std::string const config_;
   bool const verbose_;
   unsigned int waitTime_;
+  std::string const extraConfig_;
 
   //This is set at beginStream and used for globalBeginRun
   //The framework guarantees that non of those can happen concurrently
@@ -225,7 +233,8 @@ ExternalGeneratorFilter::ExternalGeneratorFilter(edm::ParameterSet const& iPSet)
       lumiInfoToken_{produces<GenLumiInfoProduct, edm::Transition::EndLuminosityBlock>()},
       config_{iPSet.getUntrackedParameter<std::string>("@python_config")},
       verbose_{iPSet.getUntrackedParameter<bool>("_external_process_verbose_")},
-      waitTime_{iPSet.getUntrackedParameter<unsigned int>("_external_process_waitTime_")} {}
+      waitTime_{iPSet.getUntrackedParameter<unsigned int>("_external_process_waitTime_")},
+      extraConfig_{iPSet.getUntrackedParameter<std::string>("_external_process_extraConfig_")} {}
 
 std::unique_ptr<externalgen::StreamCache> ExternalGeneratorFilter::beginStream(edm::StreamID iID) const {
   auto const label = moduleDescription().moduleLabel();
@@ -240,6 +249,10 @@ process = TestProcess()
   config += R"_(
 process.add_(cms.Service("InitRootHandlers", UnloadRootSigHandler=cms.untracked.bool(True)))
   )_";
+  if (not extraConfig_.empty()) {
+    config += "\n";
+    config += extraConfig_;
+  }
 
   auto cache = std::make_unique<externalgen::StreamCache>(config, iID.value(), verbose_, waitTime_);
   if (iID.value() == 0) {

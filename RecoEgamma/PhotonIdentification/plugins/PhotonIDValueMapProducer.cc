@@ -216,7 +216,7 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
     // and userFloats or lazy tools for miniAOD. From some point in 72X and on, one can
     // retrieve the full5x5 directly from the object with ->full5x5_sigmaIetaIeta()
     // for both formats.
-    std::vector<float> vCov = lazyToolnoZS.localCovariances(seed);
+    const auto& vCov = lazyToolnoZS.localCovariances(seed);
     vars[0].push_back(edm::isNotFinite(vCov[0]) ? 0. : sqrt(vCov[0]));
     vars[1].push_back(vCov[1]);
     vars[2].push_back(lazyToolnoZS.e1x3(seed));

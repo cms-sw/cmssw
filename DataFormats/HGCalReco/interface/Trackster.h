@@ -20,6 +20,8 @@ namespace ticl {
   public:
     typedef math::XYZVector Vector;
 
+    enum IterationIndex { TRKEM = 0, EM, TRKHAD, HAD, MIP };
+
     // types considered by the particle identification
     enum class ParticleType {
       photon = 0,
@@ -35,7 +37,8 @@ namespace ticl {
     enum class PCAOrdering { ascending = 0, descending };
 
     Trackster()
-        : seedIndex_(0),
+        : iterationIndex_(0),
+          seedIndex_(0),
           time_(0.f),
           timeError_(-1.f),
           regressed_energy_(0.f),
@@ -50,8 +53,9 @@ namespace ticl {
       zeroProbabilities();
     }
 
+    inline void setIteration(const Trackster::IterationIndex i) { iterationIndex_ = i; }
     std::vector<unsigned int> &vertices() { return vertices_; }
-    std::vector<uint8_t> &vertex_multiplicity() { return vertex_multiplicity_; }
+    std::vector<float> &vertex_multiplicity() { return vertex_multiplicity_; }
     std::vector<std::array<unsigned int, 2> > &edges() { return edges_; }
     inline void setSeed(edm::ProductID pid, int index) {
       seedID_ = pid;
@@ -111,12 +115,13 @@ namespace ticl {
         p = *(probs++);
       }
     }
-    inline void setIdProbability(ParticleType type, float value) { id_probabilities_[int(type)] = 1.f; }
+    inline void setIdProbability(ParticleType type, float value) { id_probabilities_[int(type)] = value; }
 
+    inline const Trackster::IterationIndex ticlIteration() const { return (IterationIndex)iterationIndex_; }
     inline const std::vector<unsigned int> &vertices() const { return vertices_; }
     inline const unsigned int vertices(int index) const { return vertices_[index]; }
-    inline const std::vector<uint8_t> &vertex_multiplicity() const { return vertex_multiplicity_; }
-    inline const uint8_t vertex_multiplicity(int index) const { return vertex_multiplicity_[index]; }
+    inline const std::vector<float> &vertex_multiplicity() const { return vertex_multiplicity_; }
+    inline const float vertex_multiplicity(int index) const { return vertex_multiplicity_[index]; }
     inline const std::vector<std::array<unsigned int, 2> > &edges() const { return edges_; }
     inline const edm::ProductID &seedID() const { return seedID_; }
     inline const int seedIndex() const { return seedIndex_; }
@@ -143,10 +148,13 @@ namespace ticl {
     }
 
   private:
+    // TICL iteration producing the trackster
+    uint8_t iterationIndex_;
+
     // The vertices of the DAG are the indices of the
     // 2d objects in the global collection
     std::vector<unsigned int> vertices_;
-    std::vector<uint8_t> vertex_multiplicity_;
+    std::vector<float> vertex_multiplicity_;
 
     // The edges connect two vertices together in a directed doublet
     // ATTENTION: order matters!
@@ -192,5 +200,7 @@ namespace ticl {
     // trackster ID probabilities
     std::array<float, 8> id_probabilities_;
   };
+
+  typedef std::vector<Trackster> TracksterCollection;
 }  // namespace ticl
 #endif

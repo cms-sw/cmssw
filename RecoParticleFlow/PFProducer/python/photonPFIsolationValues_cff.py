@@ -161,4 +161,3 @@ photonPFIsolationValuesTask = cms.Task(
     phPFIsoValueNeutral04PFId,
     phPFIsoValuePU04PFId
     )
-photonPFIsolationValuesSequence = cms.Sequence(photonPFIsolationValuesTask)

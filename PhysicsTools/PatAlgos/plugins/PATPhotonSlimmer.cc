@@ -196,7 +196,7 @@ void pat::PATPhotonSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& i
       }
     }
     if (saveNonZSClusterShapes_(photon)) {
-      std::vector<float> vCov = lazyToolsNoZS.localCovariances(*(photon.superCluster()->seed()));
+      const auto& vCov = lazyToolsNoZS.localCovariances(*(photon.superCluster()->seed()));
       float r9 = lazyToolsNoZS.e3x3(*(photon.superCluster()->seed())) / photon.superCluster()->rawEnergy();
       float sigmaIetaIeta = (!edm::isNotFinite(vCov[0])) ? sqrt(vCov[0]) : 0;
       float sigmaIetaIphi = vCov[1];

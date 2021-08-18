@@ -19,13 +19,12 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "GBRTree2D.h"
-#include <cstdio>
+
 #include <vector>
 
 class GBRForest2D {
 public:
-  GBRForest2D();
-  ~GBRForest2D() {}
+  GBRForest2D() {}
 
   void GetResponse(const float *vector, double &x, double &y) const;
 
@@ -38,8 +37,8 @@ public:
   const std::vector<GBRTree2D> &Trees() const { return fTrees; }
 
 protected:
-  double fInitialResponseX;
-  double fInitialResponseY;
+  double fInitialResponseX = 0.0;
+  double fInitialResponseY = 0.0;
   std::vector<GBRTree2D> fTrees;
 
   COND_SERIALIZABLE;

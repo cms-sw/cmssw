@@ -19,7 +19,6 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWEcalRecHitProxyBuilder(const FWEcalRecHitProxyBuilder&) = delete;
   const FWEcalRecHitProxyBuilder& operator=(const FWEcalRecHitProxyBuilder&) = delete;
 };

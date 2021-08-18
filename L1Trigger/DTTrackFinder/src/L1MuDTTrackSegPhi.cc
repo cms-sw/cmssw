@@ -41,7 +41,8 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuDTTrackSegPhi::L1MuDTTrackSegPhi() : m_location(), m_phi(0), m_phib(0), m_quality(Null), m_bx(0) {}
+L1MuDTTrackSegPhi::L1MuDTTrackSegPhi()
+    : m_location(), m_phi(0), m_phib(0), m_quality(Null), m_tag(false), m_bx(0), m_etaFlag(false) {}
 
 L1MuDTTrackSegPhi::L1MuDTTrackSegPhi(
     int wheel_id, int sector_id, int station_id, int phi, int phib, TSQuality quality, bool tag, int bx, bool etaFlag)
@@ -49,6 +50,7 @@ L1MuDTTrackSegPhi::L1MuDTTrackSegPhi(
       m_phi(phi),
       m_phib(phib),
       m_quality(quality),
+      m_tag(false),
       m_bx(bx),
       m_etaFlag(etaFlag) {
   if (phi < -2048 || phi > 2047) {

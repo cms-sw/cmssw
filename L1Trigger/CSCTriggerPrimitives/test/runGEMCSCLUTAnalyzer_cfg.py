@@ -5,7 +5,7 @@ process = cms.Process("GEMCSCLUT", Phase2C12)
 
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load('Configuration.Geometry.GeometryExtended2026D74Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D80Reco_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 

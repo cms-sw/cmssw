@@ -550,20 +550,17 @@ void HouseholderDecomposition::makeRegions(const int& regLength) {
       remPhi % numSubRegPhi;  // add "addtomore" number of times (addto+-1), remaining times add just (addto)
 
   // now put it all together
-  int addedLengthEta = 0;
-  int addedLengthPhi = 0;
   int startIndexEta = mineta;
   int startIndexPhi;
-  int endIndexEta = 0;
+  int endIndexEta;
   int endIndexPhi;
   for (int i = 0; i < numSubRegEta; i++) {
-    addedLengthEta = regLength + addtoEta + addtomoreEta / abs(addtomoreEta) * (i < abs(addtomoreEta));
+    int addedLengthEta = regLength + addtoEta + addtomoreEta / abs(addtomoreEta) * (i < abs(addtomoreEta));
     endIndexEta = startIndexEta + addedLengthEta - 1;
 
     startIndexPhi = minphi;
-    endIndexPhi = 0;
     for (int j = 0; j < numSubRegPhi; j++) {
-      addedLengthPhi = regLength + addtoPhi + addtomorePhi / abs(addtomorePhi) * (j < abs(addtomorePhi));
+      int addedLengthPhi = regLength + addtoPhi + addtomorePhi / abs(addtomorePhi) * (j < abs(addtomorePhi));
       endIndexPhi = startIndexPhi + addedLengthPhi - 1;
 
       regMinPhi.push_back(startIndexPhi - regFrame * (j != 0));

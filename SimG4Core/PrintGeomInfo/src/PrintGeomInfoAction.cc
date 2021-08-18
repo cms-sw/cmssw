@@ -16,7 +16,8 @@
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 
-#include <DD4hep/DD4hepUnits.h>
+#include "DD4hep/DD4hepUnits.h"
+#include "DD4hep/Filter.h"
 
 #include "G4Run.hh"
 #include "G4PhysicalVolumeStore.hh"
@@ -30,9 +31,11 @@
 #include "G4UserLimits.hh"
 #include "G4TransportationManager.hh"
 
+#include <algorithm>
 #include <fstream>
-#include <set>
 #include <map>
+#include <set>
+#include <vector>
 
 using angle_units::operators::convertRadToDeg;
 
@@ -58,6 +61,8 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
   fileSolid_ = p.getUntrackedParameter<std::string>("SolidFileName", "");
   fileLV_ = p.getUntrackedParameter<std::string>("LVFileName", "");
   filePV_ = p.getUntrackedParameter<std::string>("PVFileName", "");
+  fileTouch_ = p.getUntrackedParameter<std::string>("TouchFileName", "");
+  fileDetail_ = p.getUntrackedParameter<bool>("FileDetail", false);
   G4cout << "PrintGeomInfoAction:: initialised for dd4hep " << dd4hep_ << " with verbosity levels:"
          << " Summary   " << dumpSummary_ << " LVTree   " << dumpLVTree_ << " LVList    " << dumpLVList_ << " Material "
          << dumpMaterial_ << "\n                                                        "
@@ -67,10 +72,9 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
          << "\n                                                        "
          << " Touchable " << dumpTouch_ << " for names (0-" << nchar_ << ") = " << name_
          << "\n                                                        "
-         << " Sensitive " << dumpSense_ << " for " << names_.size() << " names:"
-         << "\n                                                        "
-         << " Files " << fileMat_ << ":" << fileSolid_ << ":"
-         << ":" << fileLV_ << ":" << filePV_;
+         << " Sensitive " << dumpSense_ << " Files " << fileMat_ << ":" << fileSolid_ << ":" << fileLV_ << ":"
+         << filePV_ << ":" << fileTouch_ << " FileDetail " << fileDetail_
+         << "\n                                                        for " << names_.size() << " names:";
   for (unsigned int i = 0; i < names_.size(); i++)
     G4cout << " " << names_[i];
   G4cout << G4endl;
@@ -232,43 +236,6 @@ void PrintGeomInfoAction::dumpG4LVLeaf(G4LogicalVolume *lv,
     dumpG4LVLeaf((cite->first), leafDepth + 1, (cite->second), out);
 }
 
-void PrintGeomInfoAction::dumpInFile() {
-  //---------- Dump number objects of each class in a file
-  if (theTopPV_ != nullptr) {
-    if (!fileMat_.empty()) {
-      const G4MaterialTable *matTab = G4Material::GetMaterialTable();
-      std::ofstream fout(fileMat_.c_str());
-      for (std::vector<G4Material *>::const_iterator matite = matTab->begin(); matite != matTab->end(); matite++)
-        fout << (*matite)->GetName() << "\n";
-      fout.close();
-    }
-    const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
-    if (!fileSolid_.empty()) {
-      std::ofstream fout(fileSolid_.c_str());
-      for (std::vector<G4LogicalVolume *>::const_iterator lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
-        fout << (*lvcite)->GetSolid()->GetName() << "\n";
-      fout.close();
-    }
-    if (!fileLV_.empty()) {
-      std::ofstream fout(fileLV_.c_str());
-      for (std::vector<G4LogicalVolume *>::const_iterator lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
-        fout << (*lvcite)->GetName() << "\n";
-      fout.close();
-    }
-    if (!filePV_.empty()) {
-      const G4PhysicalVolumeStore *pvs = G4PhysicalVolumeStore::GetInstance();
-      std::ofstream fout(filePV_.c_str());
-      for (std::vector<G4VPhysicalVolume *>::const_iterator pvcite = pvs->begin(); pvcite != pvs->end(); pvcite++) {
-        if (dd4hep_)
-          fout << (*pvcite)->GetName() << "\n";
-        else
-          fout << (*pvcite)->GetName() << "_" << (*pvcite)->GetCopyNo() << "\n";
-      }
-      fout.close();
-    }
-  }
-}
-
 int PrintGeomInfoAction::countNoTouchables() {
   int nTouch = 0;
   G4LogicalVolume *lv = getTopLV();
@@ -424,6 +391,11 @@ void PrintGeomInfoAction::dumpPV(G4VPhysicalVolume *pv, unsigned int leafDepth, 
   }
 }
 
+void PrintGeomInfoAction::dumpSolid(G4VSolid *sol, unsigned int leafDepth, std::ostream &out) {
+  std::string spaces = spacesFromLeafDepth(leafDepth);
+  out << spaces << *(sol) << G4endl;
+}
+
 void PrintGeomInfoAction::dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, std::ostream &out) {
   std::string spaces = spacesFromLeafDepth(leafDepth);
   if (leafDepth == 0)
@@ -455,6 +427,103 @@ void PrintGeomInfoAction::dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDept
     fHistory_.BackLevel();
 }
 
+void PrintGeomInfoAction::dumpInFile() {
+  //---------- Dump number objects of each class in a file
+  if (theTopPV_ != nullptr) {
+    if (!fileMat_.empty()) {
+      const G4MaterialTable *matTab = G4Material::GetMaterialTable();
+      std::ofstream fout(fileMat_.c_str());
+      for (std::vector<G4Material *>::const_iterator matite = matTab->begin(); matite != matTab->end(); matite++) {
+        if (!fileDetail_)
+          fout << (*matite)->GetName() << "\n";
+        else
+          fout << (*matite)->GetName() << " " << (*matite)->GetRadlen() << " " << (*matite)->GetNuclearInterLength()
+               << "\n";
+      }
+      fout.close();
+    }
+    const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
+    if (!fileSolid_.empty()) {
+      std::ofstream fout(fileSolid_.c_str());
+      for (std::vector<G4LogicalVolume *>::const_iterator lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
+        if (!fileDetail_)
+          fout << (*lvcite)->GetSolid()->GetName() << "\n";
+        else
+          fout << (*lvcite)->GetSolid()->GetName() << "  " << (*lvcite)->GetSolid()->GetCubicVolume() << "\n";
+      fout.close();
+    }
+    if (!fileLV_.empty()) {
+      std::ofstream fout(fileLV_.c_str());
+      for (std::vector<G4LogicalVolume *>::const_iterator lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
+        if (!fileDetail_)
+          fout << (*lvcite)->GetName() << "\n";
+        else
+          fout << (*lvcite)->GetName() << "  " << (*lvcite)->GetMass(false, false) << "\n";
+      fout.close();
+    }
+    if (!filePV_.empty()) {
+      const G4PhysicalVolumeStore *pvs = G4PhysicalVolumeStore::GetInstance();
+      std::ofstream fout(filePV_.c_str());
+      for (std::vector<G4VPhysicalVolume *>::const_iterator pvcite = pvs->begin(); pvcite != pvs->end(); pvcite++) {
+        if (fileDetail_) {
+          if (dd4hep_)
+            fout << (*pvcite)->GetName() << " " << (*pvcite)->GetTranslation().x() << " "
+                 << (*pvcite)->GetTranslation().y() << " " << (*pvcite)->GetTranslation().z() << "\n";
+          else
+            fout << (*pvcite)->GetName() << "_" << (*pvcite)->GetCopyNo() << " " << (*pvcite)->GetTranslation().x()
+                 << " " << (*pvcite)->GetTranslation().y() << " " << (*pvcite)->GetTranslation().z() << "\n";
+        } else {
+          if (dd4hep_)
+            fout << (*pvcite)->GetName() << "\n";
+          else
+            fout << (*pvcite)->GetName() << "_" << (*pvcite)->GetCopyNo() << "\n";
+        }
+      }
+      fout.close();
+    }
+    if (!fileTouch_.empty()) {
+      std::ofstream fout(fileTouch_.c_str());
+      std::vector<std::string> touches;
+      getTouch(theTopPV_, 0, 1, touches);
+      std::sort(touches.begin(), touches.end());
+      for (const auto &touch : touches)
+        fout << touch << "\n";
+      fout.close();
+    }
+  }
+}
+
+void PrintGeomInfoAction::getTouch(G4VPhysicalVolume *pv,
+                                   unsigned int leafDepth,
+                                   unsigned int copym,
+                                   std::vector<std::string> &touches) {
+  if (leafDepth == 0)
+    fHistory_.SetFirstEntry(pv);
+  else
+    fHistory_.NewLevel(pv, kNormal, pv->GetCopyNo());
+
+  std::string mother = "World";
+  if (pv->GetMotherLogical())
+    mother = static_cast<std::string>(dd4hep::dd::noNamespace(pv->GetMotherLogical()->GetName()));
+
+  G4LogicalVolume *lv = pv->GetLogicalVolume();
+  std::string lvname = static_cast<std::string>(dd4hep::dd::noNamespace(lv->GetName()));
+  unsigned int copy = static_cast<unsigned int>(pv->GetCopyNo());
+
+  std::string name = lvname + ":" + std::to_string(copy) + "_" + mother + ":" + std::to_string(copym);
+  touches.emplace_back(name);
+
+  int NoDaughters = lv->GetNoDaughters();
+  while ((NoDaughters--) > 0) {
+    G4VPhysicalVolume *pvD = lv->GetDaughter(NoDaughters);
+    if (!pvD->IsReplicated())
+      getTouch(pvD, leafDepth + 1, copy, touches);
+  }
+
+  if (leafDepth > 0)
+    fHistory_.BackLevel();
+}
+
 std::string PrintGeomInfoAction::spacesFromLeafDepth(unsigned int leafDepth) {
   std::string spaces;
   unsigned int ii;
@@ -462,11 +531,6 @@ std::string PrintGeomInfoAction::spacesFromLeafDepth(unsigned int leafDepth) {
     spaces += "  ";
   }
   return spaces;
-}
-
-void PrintGeomInfoAction::dumpSolid(G4VSolid *sol, unsigned int leafDepth, std::ostream &out) {
-  std::string spaces = spacesFromLeafDepth(leafDepth);
-  out << spaces << *(sol) << G4endl;
 }
 
 G4VPhysicalVolume *PrintGeomInfoAction::getTopPV() {

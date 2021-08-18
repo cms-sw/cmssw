@@ -1,7 +1,7 @@
 <library file="ClusterShapeExtractor.cc" name="ClusterShapeExtractor">
   <use name="root"/>
   <use name="FWCore/Framework"/>
-  <use name="Geometry/CommonDetUnit"/>
+  <use name="Geometry/CommonDetUnit" source_only="1"/>
   <use name="Geometry/Records"/>
   <use name="Geometry/TrackerGeometryBuilder"/>
   <use name="DataFormats/TrackerRecHit2D"/>

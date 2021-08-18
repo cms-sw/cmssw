@@ -51,8 +51,9 @@ namespace {
 
     for (auto const& ds : compatDets) {
       MeasurementDetWithData mdet = detSystem.idToDet(ds.first->geographicalId(), data);
-      if
-        UNLIKELY(mdet.isNull()) { throw MeasurementDetException("MeasurementDet not found"); }
+      if UNLIKELY (mdet.isNull()) {
+        throw MeasurementDetException("MeasurementDet not found");
+      }
 
       if (mdet.measurements(ds.second, est, tmps))
         for (std::size_t i = 0; i != tmps.size(); ++i)

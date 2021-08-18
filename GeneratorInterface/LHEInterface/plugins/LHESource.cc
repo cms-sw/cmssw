@@ -115,7 +115,7 @@ void LHESource::putRunInfoProduct(edm::RunPrincipal& iRunPrincipal) {
   if (runInfoProductLast_) {
     auto product = std::make_unique<LHERunInfoProduct>(*runInfoProductLast_);
     std::unique_ptr<edm::WrapperBase> rdp(new edm::Wrapper<LHERunInfoProduct>(std::move(product)));
-    iRunPrincipal.put(lheProvenanceHelper_.runProductBranchDescription_, std::move(rdp));
+    iRunPrincipal.putOrMerge(lheProvenanceHelper_.runProductBranchDescription_, std::move(rdp));
   }
 }
 

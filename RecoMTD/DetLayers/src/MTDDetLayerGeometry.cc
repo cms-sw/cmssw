@@ -5,6 +5,8 @@
  */
 
 #include <RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h>
+#include <RecoMTD/DetLayers/interface/ETLDetLayerGeometryBuilder.h>
+#include <RecoMTD/DetLayers/interface/BTLDetLayerGeometryBuilder.h>
 
 #include <FWCore/Utilities/interface/Exception.h>
 #include <TrackingTools/DetLayers/interface/DetLayer.h>
@@ -14,14 +16,31 @@
 #include <Utilities/General/interface/precomputed_value_sort.h>
 #include <DataFormats/GeometrySurface/interface/GeometricSorting.h>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
 using namespace std;
 using namespace geomsort;
+using namespace edm;
 
 MTDDetLayerGeometry::MTDDetLayerGeometry() {}
 
 MTDDetLayerGeometry::~MTDDetLayerGeometry() {}
+
+void MTDDetLayerGeometry::buildLayers(const MTDGeometry* geo, const MTDTopology* mtopo) {
+  if (geo) {
+    // Build BTL layers
+    this->addBTLLayers(BTLDetLayerGeometryBuilder::buildLayers(*geo));
+    // Build ETL layers, depends on the scenario
+    if (mtopo) {
+      this->addETLLayers(ETLDetLayerGeometryBuilder::buildLayers(*geo, *mtopo));
+    } else {
+      LogWarning("MTDDetLayers") << "No MTD topology  is available.";
+    }
+  } else {
+    LogWarning("MTDDetLayers") << "No MTD geometry is available.";
+  }
+}
 
 void MTDDetLayerGeometry::addETLLayers(const pair<vector<DetLayer*>, vector<DetLayer*> >& etllayers) {
   for (auto const it : etllayers.first) {

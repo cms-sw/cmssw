@@ -21,6 +21,7 @@ private:
   using FWSimpleProxyBuilderTemplate<reco::Track>::build;
   void build(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 
+public:
   FWTrackTrackingRecHitProxyBuilder(const FWTrackTrackingRecHitProxyBuilder&) = delete;  // stop default
   const FWTrackTrackingRecHitProxyBuilder& operator=(const FWTrackTrackingRecHitProxyBuilder&) = delete;  // stop default
 };

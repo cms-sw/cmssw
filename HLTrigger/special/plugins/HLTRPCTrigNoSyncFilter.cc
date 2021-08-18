@@ -45,7 +45,8 @@ bool bigmag(const RPC4DHit& Point1, const RPC4DHit& Point2) {
     return false;
 }
 
-HLTRPCTrigNoSyncFilter::HLTRPCTrigNoSyncFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
+HLTRPCTrigNoSyncFilter::HLTRPCTrigNoSyncFilter(const edm::ParameterSet& iConfig)
+    : HLTFilter(iConfig), muonGeometryRecordToken_(esConsumes()) {
   //now do what ever initialization is needed
   m_GMTInputTag = iConfig.getParameter<edm::InputTag>("GMTInputTag");
   rpcRecHitsLabel = iConfig.getParameter<edm::InputTag>("rpcRecHits");
@@ -96,8 +97,7 @@ bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent,
 
   RPCRecHitCollection::const_iterator recHit;
 
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+  auto const& rpcGeo = iSetup.getHandle(muonGeometryRecordToken_);
 
   int k = 0;
 

@@ -37,7 +37,7 @@ private:
   const edm::EDGetTokenT<cms::cuda::Product<BeamSpotCUDA>> tBeamSpot;
   const edm::EDGetTokenT<cms::cuda::Product<SiPixelClustersCUDA>> token_;
   const edm::EDGetTokenT<cms::cuda::Product<SiPixelDigisCUDA>> tokenDigi_;
-  const edm::EDPutTokenT<cms::cuda::Product<TrackingRecHit2DCUDA>> tokenHit_;
+  const edm::EDPutTokenT<cms::cuda::Product<TrackingRecHit2DGPU>> tokenHit_;
 
   const pixelgpudetails::PixelRecHitGPUKernel gpuAlgo_;
 };
@@ -47,7 +47,7 @@ SiPixelRecHitCUDA::SiPixelRecHitCUDA(const edm::ParameterSet& iConfig)
       tBeamSpot(consumes<cms::cuda::Product<BeamSpotCUDA>>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
       token_(consumes<cms::cuda::Product<SiPixelClustersCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
       tokenDigi_(consumes<cms::cuda::Product<SiPixelDigisCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
-      tokenHit_(produces<cms::cuda::Product<TrackingRecHit2DCUDA>>()) {}
+      tokenHit_(produces<cms::cuda::Product<TrackingRecHit2DGPU>>()) {}
 
 void SiPixelRecHitCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -77,12 +77,6 @@ void SiPixelRecHitCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, cons
   edm::Handle<cms::cuda::Product<BeamSpotCUDA>> hbs;
   iEvent.getByToken(tBeamSpot, hbs);
   auto const& bs = ctx.get(*hbs);
-
-  auto nHits = clusters.nClusters();
-  if (nHits >= TrackingRecHit2DSOAView::maxHits()) {
-    edm::LogWarning("PixelRecHitGPUKernel")
-        << "Clusters/Hits Overflow " << nHits << " >= " << TrackingRecHit2DSOAView::maxHits();
-  }
 
   ctx.emplace(iEvent,
               tokenHit_,

@@ -1,7 +1,6 @@
-#!  /usr/bin/env python
+#!  /usr/bin/env python3
 import string, os
 from optparse import OptionParser
-import six
 
 class ClassesDefXmlParser(object):
     """Parses a classes_def.xml file looking for class declarations that do not contain
@@ -138,14 +137,14 @@ class GccXmlOutputParser(object):
     def getNameTree(self):
         nameTree = {}
         idToNode = {}
-        for id,atts in six.iteritems(self._contexts):
+        for id,atts in self._contexts.items():
             childList = idToNode.setdefault(id,[isContext,{}])
             if atts[1]:
                 l=idToNode.setdefault(atts[1],[isContext,{}])
                 l[1][atts[0]]=childList
             else:
                 nameTree[atts[0]]=childList
-        for id,atts in six.iteritems(self._typedefs):
+        for id,atts in self._typedefs.items():
             typeID = self.resolvePossibleTypedef(atts[2])
             if typeID not in idToNode:
                 continue
@@ -156,7 +155,7 @@ class GccXmlOutputParser(object):
                 idToNode[atts[1]][1][atts[0]]=childList
             returnValue = {}
             #the actual bottom node doesn't have a name so we remove it
-            for i in six.itervalues(nameTree):
+            for i in nameTree.values():
                 returnValue.update(i[childrenIndex])
         return returnValue
         
@@ -283,11 +282,11 @@ if __name__ == '__main__':
     xmlfile = options.filedir+"/classes_def.xml"
     p = ClassesDefXmlParser(xmlfile)
     #print p.classes
-    classesToModify = [x[0] for x in six.iteritems(p.classes) if not checkIfTypedefOfTemplate([y for y in x[0].split(':') if y != ''],nameTree)]
+    classesToModify = [x[0] for x in p.classes.items() if not checkIfTypedefOfTemplate([y for y in x[0].split(':') if y != ''],nameTree)]
     
     classesWithChecksum = dict([(x,checksumForClass(x)) for x in classesToModify])
     print 'Found the following non-templated classes which will be assigned a ClassVersion and the following checksum'
-    for name,checksum in six.iteritems(classesWithChecksum):
+    for name,checksum in classesWithChecksum.items():
         print name,checksum
     #exit(0)
     

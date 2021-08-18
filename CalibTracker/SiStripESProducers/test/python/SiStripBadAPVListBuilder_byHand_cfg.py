@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import six
 process = cms.Process("CALIB")
 
 ####################################################
@@ -56,7 +55,7 @@ with open(detIDsFileName,"r") as detIDs:  # create dictionary online -> rawid
 #print(detDict)
 
 APVsToKill = []
-for det,napv in six.iteritems(detDict):
+for det,napv in detDict.items():
     APVsToKill.append(
         cms.PSet(
             DetId = cms.uint32(int(det)),        	 
@@ -121,11 +120,11 @@ process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
 process.load("DQM.SiStripCommon.TkHistoMap_cff")
 ####
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-process.reader = DQMEDAnalyzer("SiStripQualityStatistics",
-                               dataLabel = cms.untracked.string(""),
-                               TkMapFileName = cms.untracked.string("TkMapBadComponents_byHand.png")
-                               )
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+process.reader = siStripQualityStatistics.clone(
+        TkMapFileName = cms.untracked.string("TkMapBadComponents_byHand.png")
+        )
+
 
 process.siStripBadModuleDummyDBWriter.record=process.PoolDBOutputService.toPut[0].record
 process.p = cms.Path(process.reader*process.siStripBadModuleDummyDBWriter)

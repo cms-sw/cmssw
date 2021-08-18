@@ -257,6 +257,10 @@
 ++++ starting: global begin run 1 : time = 1
 ++++++ starting: global begin run for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global begin run for module: label = 'thingWithMergeProducer' id = 5
+++++++++ starting: prefetching for esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ finished: prefetching for esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ starting: processing esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ finished: processing esmodule: label = '' type = DoodadESSource in record = GadgetRcd
 ++++++ starting: global begin run for module: label = 'get' id = 6
 ++++++ finished: global begin run for module: label = 'get' id = 6
 ++++++ starting: global begin run for module: label = 'getInt' id = 10
@@ -274,6 +278,10 @@
 ++++++ finished: global begin run for module: label = 'test' id = 32
 ++++++ starting: global begin run for module: label = 'testmerge' id = 33
 ++++++ finished: global begin run for module: label = 'testmerge' id = 33
+++++++++ starting: prefetching for esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ finished: prefetching for esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ starting: processing esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ finished: processing esmodule: label = '' type = DoodadESSource in record = GadgetRcd
 ++++++ starting: global begin run for module: label = 'get' id = 34
 ++++++ finished: global begin run for module: label = 'get' id = 34
 ++++++ starting: global begin run for module: label = 'getInt' id = 35

@@ -62,9 +62,9 @@ namespace ecaldqm {
                   _ids.end(),
                   [&](EcalElectronicsIdCollection::value_type const& id) {
                     if (id.towerId() == 69)
-                      meMEMErrors->fill(id.dccId() + 0.0, errorType);
+                      meMEMErrors->fill(getEcalDQMSetupObjects(), id.dccId() + 0.0, errorType);
                     else if (id.towerId() == 70)
-                      meMEMErrors->fill(id.dccId() + 0.5, errorType);
+                      meMEMErrors->fill(getEcalDQMSetupObjects(), id.dccId() + 0.5, errorType);
                     else {
                       edm::LogWarning("EcalDQM")
                           << "PNDiodeTask::runOnErrors : one of the ids in the electronics ID collection does not "
@@ -82,16 +82,16 @@ namespace ecaldqm {
     std::for_each(_digis.begin(), _digis.end(), [&](EcalPnDiodeDigiCollection::value_type const& digi) {
       const EcalPnDiodeDetId& id(digi.id());
 
-      if (!enable_[dccId(id) - 1])
+      if (!enable_[dccId(id, GetElectronicsMap()) - 1])
         return;
 
-      meOccupancy.fill(id);
-      meOccupancySummary.fill(id);
+      meOccupancy.fill(getEcalDQMSetupObjects(), id);
+      meOccupancySummary.fill(getEcalDQMSetupObjects(), id);
 
       for (int iSample(0); iSample < 4; iSample++) {
         if (digi.sample(iSample).gainId() != 1)
           break;
-        mePedestal.fill(id, double(digi.sample(iSample).adc()));
+        mePedestal.fill(getEcalDQMSetupObjects(), id, double(digi.sample(iSample).adc()));
       }
     });
   }

@@ -5,8 +5,9 @@
 
 <library file="CondDBPyBind11Wrappers.cc" name="CondDBPyBind11Interface">
   <use name="CondCore/CondDB"/>
-  <use name="py2-pybind11"/>
-  <use name="python"/>
+  <flags EDM_PLUGIN="0"/>
+  <use name="py3-pybind11"/>
+  <use name="python3"/>
 </library>                                                                                                                                                                    
 
 <library file="XMLAuthenticationService.cc" name="CondCoreCondDBXMLAuthenticationService">

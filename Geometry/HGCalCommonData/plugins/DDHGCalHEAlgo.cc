@@ -369,7 +369,7 @@ void DDHGCalHEAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& 
       ++copyNumber_[ii];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << glog.name() << " number " << copy << " positioned in "
-                                    << module.name() << " at " << r1 << " with " << rot;
+                                    << module.name() << " at " << r1 << " with no rotation";
 #endif
       zz += hthick;
     }  // End of loop over layers in a block
@@ -420,7 +420,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
   cpv.position(glog1, glog, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << glog1.name() << " number 1 positioned in " << glog.name()
-                                << " at " << tran << " with " << rot;
+                                << " at " << tran << " with no rotation";
 #endif
   double thickTot(0), zpos(-hthick);
   for (unsigned int ly = 0; ly < layerTypeTop_.size(); ++ly) {
@@ -450,7 +450,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     cpv.position(glog2, glog1, copy, r1, rot);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Position " << glog2.name() << " number " << copy << " in "
-                                  << glog1.name() << " at " << r1 << " with " << rot;
+                                  << glog1.name() << " at " << r1 << " with no rotation";
 #endif
     ++copyNumberTop_[ii];
     zpos += hthickl;
@@ -476,7 +476,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
   cpv.position(glog1, glog, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << glog1.name() << " number 1 positioned in " << glog.name()
-                                << " at " << tran << " with " << rot;
+                                << " at " << tran << " with no rotation";
 #endif
   thickTot = 0;
   zpos = -hthick;
@@ -507,7 +507,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     cpv.position(glog2, glog1, copy, r1, rot);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Position " << glog2.name() << " number " << copy << " in "
-                                  << glog1.name() << " at " << r1 << " with " << rot;
+                                  << glog1.name() << " at " << r1 << " with no rotation";
 #endif
     if (layerSenseBot_[ly] != 0) {
 #ifdef EDM_ML_DEBUG
@@ -591,7 +591,7 @@ void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog,
 #ifdef EDM_ML_DEBUG
           ++ntype[type];
           edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << name << " number " << copy << " positioned in "
-                                        << glog.ddname() << " at " << tran << " with " << rotation;
+                                        << glog.ddname() << " at " << tran << " with no rotation";
 #endif
         }
       }

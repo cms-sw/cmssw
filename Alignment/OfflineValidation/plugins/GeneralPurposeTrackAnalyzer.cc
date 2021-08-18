@@ -38,7 +38,7 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
-#include "CondCore/SiPixelPlugins/interface/Phase1PixelMaps.h"
+#include "DQM/TrackerRemapper/interface/Phase1PixelMaps.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -115,9 +115,7 @@ public:
 
     pixelmap = std::make_unique<Phase1PixelMaps>("COLZ0 L");
     pixelmap->bookBarrelHistograms("entriesBarrel", "# hits", "# pixel hits");
-    pixelmap->bookBarrelBins("entriesBarrel");
     pixelmap->bookForwardHistograms("entriesForward", "# hits", "# pixel hits");
-    pixelmap->bookForwardBins("entriesForward");
   }
 
   ~GeneralPurposeTrackAnalyzer() override {}
@@ -1135,11 +1133,11 @@ private:
     pixelmap->beautifyAllHistograms();
 
     TCanvas cB("CanvBarrel", "CanvBarrel", 1200, 1000);
-    pixelmap->DrawBarrelMaps("entriesBarrel", cB);
+    pixelmap->drawBarrelMaps("entriesBarrel", cB);
     cB.SaveAs("pixelBarrelEntries.png");
 
     TCanvas cF("CanvForward", "CanvForward", 1600, 1000);
-    pixelmap->DrawForwardMaps("entriesForward", cF);
+    pixelmap->drawForwardMaps("entriesForward", cF);
     cF.SaveAs("pixelForwardEntries.png");
   }
 

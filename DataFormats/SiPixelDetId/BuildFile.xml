@@ -1,6 +1,7 @@
 <use name="DataFormats/DetId"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/MessageLogger"/>
+<use name="DataFormats/Common"/>
 <export>
   <lib name="1"/>
 </export>

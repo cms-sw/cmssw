@@ -15,7 +15,7 @@
 #include <string>
 
 template <>
-bool PlotCompareUtility::compare<Plot1D>(HistoData *HD) {
+inline bool PlotCompareUtility::compare<Plot1D>(HistoData *HD) {
   // get the reference and comparison histograms
   TH1F *href = (TH1F *)HD->getRefHisto();
   TH1F *hnew = (TH1F *)HD->getNewHisto();
@@ -64,7 +64,7 @@ bool PlotCompareUtility::compare<Plot1D>(HistoData *HD) {
 }
 
 template <>
-void PlotCompareUtility::makePlots<Plot1D>(HistoData *HD) {
+inline void PlotCompareUtility::makePlots<Plot1D>(HistoData *HD) {
   std::cerr << HD->getName() << "makePlots<Plot1D>\n";
 
   // do not make any new plot if empty
@@ -146,7 +146,7 @@ void PlotCompareUtility::makePlots<Plot1D>(HistoData *HD) {
 }
 
 template <>
-void PlotCompareUtility::makeHTML<Plot1D>(HistoData *HD) {
+inline void PlotCompareUtility::makeHTML<Plot1D>(HistoData *HD) {
   /* HTML is not presently required for 1D histograms -- do nothing
 
   // create HTML support code for this HistoData

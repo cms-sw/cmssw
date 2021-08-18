@@ -22,6 +22,11 @@ public:
   enum Relative { SET, CURRENT, END };
 
   Storage(void);
+
+  // undefined, no semantics
+  Storage(const Storage &) = delete;
+  Storage &operator=(const Storage &) = delete;
+
   ~Storage(void) override;
 
   using IOInput::read;
@@ -48,11 +53,6 @@ public:
 
   virtual void flush(void);
   virtual void close(void);
-
-private:
-  // undefined, no semantics
-  Storage(const Storage &) = delete;
-  Storage &operator=(const Storage &) = delete;
 };
 
 #endif  // STORAGE_FACTORY_STORAGE_H

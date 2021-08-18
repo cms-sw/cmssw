@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -31,19 +31,21 @@ public:
 
 private:
   void process(const ClusterCollection& input, std::vector<DetDigiCollection>& output_base);
-  void initialize(const edm::EventSetup& es);
   void setDetId(const uint32_t id);
-  float gain(const uint16_t& strip) const { return gainHandle->getStripGain(strip, gainRange); }
+  float gain(const uint16_t& strip) const { return gain_->getStripGain(strip, gainRange); }
   uint16_t applyGain(const uint16_t& strip, const uint16_t& adc);
 
   edm::EDGetTokenT<ClusterCollection> token;
   SiStripApvGain::Range gainRange;
-  edm::ESHandle<SiStripGain> gainHandle;
-  uint32_t gain_cache_id, detId;
+  edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
+  edm::ESWatcher<SiStripGainRcd> gainWatcher_;
+  const SiStripGain* gain_;
+  uint32_t detId;
 };
 
 SiStripClusterToDigiProducer::SiStripClusterToDigiProducer(const edm::ParameterSet& conf) {
   token = consumes<ClusterCollection>(conf.getParameter<edm::InputTag>("ClusterProducer"));
+  gainToken_ = esConsumes();
 
   produces<DigiCollection>("ZeroSuppressed");
   produces<DigiCollection>("VirginRaw");
@@ -52,7 +54,9 @@ SiStripClusterToDigiProducer::SiStripClusterToDigiProducer(const edm::ParameterS
 }
 
 void SiStripClusterToDigiProducer::produce(edm::Event& event, const edm::EventSetup& es) {
-  initialize(es);
+  if (gainWatcher_.check(es)) {
+    gain_ = &es.getData(gainToken_);
+  }
 
   std::vector<DetDigiCollection> output_base;
   edm::Handle<ClusterCollection> input;
@@ -97,17 +101,8 @@ void SiStripClusterToDigiProducer::process(const ClusterCollection& input,
   }
 }
 
-void SiStripClusterToDigiProducer::initialize(const edm::EventSetup& es) {
-  uint32_t g_cache_id = es.get<SiStripGainRcd>().cacheIdentifier();
-
-  if (g_cache_id != gain_cache_id) {
-    es.get<SiStripGainRcd>().get(gainHandle);
-    gain_cache_id = g_cache_id;
-  }
-}
-
 inline void SiStripClusterToDigiProducer::setDetId(const uint32_t id) {
-  gainRange = gainHandle->getRange(id);
+  gainRange = gain_->getRange(id);
   detId = id;
 }
 

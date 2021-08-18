@@ -14,7 +14,6 @@ from RecoHGCal.TICL.ticlSeedingRegionProducer_cfi import ticlSeedingRegionProduc
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 from RecoHGCal.TICL.trackstersProducer_cfi import trackstersProducer
 from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer
-from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClustersFromTrackstersProducer
 from RecoHGCal.TICL.ticlCandidateFromTrackstersProducer_cfi import ticlCandidateFromTrackstersProducer
 from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer
 from Validation.HGCalValidation.ticlPFValidationDefault_cfi import ticlPFValidationDefault as ticlPFValidation
@@ -22,7 +21,7 @@ from Validation.HGCalValidation.ticlPFValidationDefault_cfi import ticlPFValidat
 ## withReco: requires full reco of the event to run this part
 ## i.e. collections of generalTracks can be accessed
 def TICL_iterations_withReco(process):
-  process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_multiClustersFromTracksters*_*_*',
+  process.FEVTDEBUGHLTEventContent.outputCommands.extend([
     'keep *_ticlCandidateFromTrackstersProducer*_*_*',
     'keep *_pfTICLProducer*_*_*'])
 
@@ -47,11 +46,6 @@ def TICL_iterations_withReco(process):
     min_cos_pointing = 0.9
   )
 
-  process.multiClustersFromTrackstersTrk = multiClustersFromTrackstersProducer.clone(
-      label = "TrkMultiClustersFromTracksterByCA",
-      Tracksters = "trackstersTrk"
-  )
-
   process.ticlSeedingGlobal = ticlSeedingRegionProducer.clone(
     algoId = 2
   )
@@ -73,11 +67,6 @@ def TICL_iterations_withReco(process):
       out_in_dfs = False,
   )
 
-  process.multiClustersFromTrackstersMIP = multiClustersFromTrackstersProducer.clone(
-      label = "MIPMultiClustersFromTracksterByCA",
-      Tracksters = "trackstersMIP"
-  )
-
   process.filteredLayerClusters = filteredLayerClustersProducer.clone(
       clusterFilter = "ClusterFilterByAlgoAndSize",
       min_cluster_size = 2,
@@ -97,11 +86,6 @@ def TICL_iterations_withReco(process):
       min_cos_pointing = 0.9 # ~26 degrees
   )
 
-  process.multiClustersFromTrackstersEM = multiClustersFromTrackstersProducer.clone(
-      Tracksters = "trackstersEM"
-  )
-
-
   process.trackstersHAD = trackstersProducer.clone(
       filtered_mask = "filteredLayerClusters:algo8",
       seeding_regions = "ticlSeedingGlobal",
@@ -109,10 +93,6 @@ def TICL_iterations_withReco(process):
       min_layers_per_trackster = 10,
       min_cos_theta = 0.8, 
       min_cos_pointing = 0.7
-  )
-
-  process.multiClustersFromTrackstersHAD = multiClustersFromTrackstersProducer.clone(
-      Tracksters = "trackstersHAD"
   )
 
   process.ticlCandidateFromTrackstersProducer = ticlCandidateFromTrackstersProducer.clone()
@@ -125,16 +105,12 @@ def TICL_iterations_withReco(process):
       process.ticlSeedingTrk,
       process.filteredLayerClustersTrk,
       process.trackstersTrk,
-      process.multiClustersFromTrackstersTrk,
       process.ticlSeedingGlobal,
       process.filteredLayerClustersMIP,
       process.trackstersMIP,
-      process.multiClustersFromTrackstersMIP,
       process.filteredLayerClusters,
       process.trackstersEM,
-      process.multiClustersFromTrackstersEM,
       process.trackstersHAD,
-      process.multiClustersFromTrackstersHAD,
       process.ticlCandidateFromTrackstersProducer,
       process.pfTICLProducer)
 
@@ -154,8 +130,6 @@ def TICL_iterations_withReco(process):
 ## TICL_iterations: to be run with local HGCAL reco only
 ## i.e. collections of generalTracks (track-seeded iteration) NOT available
 def TICL_iterations(process):
-  process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_multiClustersFromTracksters*_*_*'])
-
   process.ticlLayerTileProducer = ticlLayerTileProducer.clone()
 
   process.ticlSeedingGlobal = ticlSeedingRegionProducer.clone(
@@ -177,11 +151,6 @@ def TICL_iterations(process):
       min_cos_theta = 0.99, # ~10 degrees
   )
 
-  process.multiClustersFromTrackstersMIP = multiClustersFromTrackstersProducer.clone(
-      label = "MIPMultiClustersFromTracksterByCA",
-      Tracksters = "trackstersMIP"
-  )
-
   process.filteredLayerClusters = filteredLayerClustersProducer.clone(
       clusterFilter = "ClusterFilterByAlgoAndSize",
       min_cluster_size = 2,
@@ -199,10 +168,6 @@ def TICL_iterations(process):
       min_cos_pointing = 0.7
   )
 
-  process.multiClustersFromTracksters = multiClustersFromTrackstersProducer.clone(
-      Tracksters = "tracksters"
-  )
-
   process.HGCalUncalibRecHit = HGCalUncalibRecHit
   process.HGCalRecHit = HGCalRecHit
   process.hgcalLayerClusters = hgcalLayerClusters
@@ -214,10 +179,8 @@ def TICL_iterations(process):
       process.ticlLayerTileProducer,
       process.ticlSeedingGlobal,
       process.trackstersMIP,
-      process.multiClustersFromTrackstersMIP,
       process.filteredLayerClusters,
       process.tracksters,
-      process.multiClustersFromTracksters,
       process.hgcalMultiClusters)
   process.schedule = cms.Schedule(process.raw2digi_step,process.FEVTDEBUGHLToutput_step)
   process.schedule.associate(process.TICL_Task)

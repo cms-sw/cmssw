@@ -21,13 +21,18 @@
 namespace clangcms {
 
   class ESRGetChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXMethodDecl>,
-                                                    clang::ento::check::ASTDecl<clang::FunctionTemplateDecl> > {
+                                                    clang::ento::check::ASTDecl<clang::FunctionTemplateDecl>,
+                                                    clang::ento::check::ASTDecl<clang::FunctionDecl> > {
   public:
     void checkASTDecl(const clang::CXXMethodDecl *CMD,
                       clang::ento::AnalysisManager &mgr,
                       clang::ento::BugReporter &BR) const;
 
     void checkASTDecl(const clang::FunctionTemplateDecl *TD,
+                      clang::ento::AnalysisManager &mgr,
+                      clang::ento::BugReporter &BR) const;
+
+    void checkASTDecl(const clang::FunctionDecl *CMD,
                       clang::ento::AnalysisManager &mgr,
                       clang::ento::BugReporter &BR) const;
 

@@ -59,7 +59,10 @@ private:
   TFile* theFile;
   float x, y, z, phi, theta, length, thick, width;
   TRotMatrix* rot;
-  std::string idealGeometryLabel;
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> esTokenDT_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> esTokenCSC_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> esTokenGEM_;
 };
 
 //
@@ -77,7 +80,9 @@ TestMuonReader::TestMuonReader(const edm::ParameterSet& iConfig)
       thick(0.),
       width(0.),
       rot(0),
-      idealGeometryLabel("idealForTestReader") {}
+      esTokenDT_(esConsumes(edm::ESInputTag("", "idealForTestReader"))),
+      esTokenCSC_(esConsumes(edm::ESInputTag("", "idealForTestReader"))),
+      esTokenGEM_(esConsumes(edm::ESInputTag("", "idealForTestReader"))) {}
 
 TestMuonReader::~TestMuonReader() {}
 
@@ -105,12 +110,11 @@ align::EulerAngles TestMuonReader::toPhiXYZ(const align::RotationType& rot) {
 
 void TestMuonReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // first, get chamber alignables from ideal geometry:
-  edm::ESHandle<DTGeometry> dtGeometry;
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
+  edm::ESHandle<DTGeometry> dtGeometry = iSetup.getHandle(esTokenDT_);
+  edm::ESHandle<CSCGeometry> cscGeometry = iSetup.getHandle(esTokenCSC_);
+  edm::ESHandle<GEMGeometry> gemGeometry = iSetup.getHandle(esTokenGEM_);
 
-  AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*cscGeometry));
+  AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
 
   const auto& ideal_barrels = ideal_alignableMuon.DTBarrel();
   const auto& ideal_endcaps = ideal_alignableMuon.CSCEndcaps();

@@ -74,8 +74,19 @@ namespace reco {
     /// fit with tracks.
     /// For a primary vertex, it could simply be the beam line.
     bool isFake() const { return (chi2_ == 0 && ndof_ == 0 && tracks_.empty()); }
+    /// reserve space for the tracks
+    void reserve(int size, bool refitAsWell = false) {
+      tracks_.reserve(size);
+      if (refitAsWell)
+        refittedTracks_.reserve(size);
+      weights_.reserve(size);
+    }
     /// add a reference to a Track
-    void add(const TrackBaseRef &r, float w = 1.0);
+    template <typename Ref>
+    void add(Ref const &r, float w = 1.0) {
+      tracks_.emplace_back(r);
+      weights_.emplace_back(w * 255.f);
+    }
     /// add the original a Track(reference) and the smoothed Track
     void add(const TrackBaseRef &r, const Track &refTrack, float w = 1.0);
     void removeTracks();
@@ -91,12 +102,14 @@ namespace reco {
       }
       return 0;
     }
+    // track collections
+    auto const &tracks() const { return tracks_; }
     /// first iterator over tracks
-    trackRef_iterator tracks_begin() const;
+    trackRef_iterator tracks_begin() const { return tracks_.begin(); }
     /// last iterator over tracks
-    trackRef_iterator tracks_end() const;
+    trackRef_iterator tracks_end() const { return tracks_.end(); }
     /// number of tracks
-    size_t tracksSize() const;
+    size_t tracksSize() const { return tracks_.size(); }
     /// python friendly track getting
     const TrackBaseRef &trackRefAt(size_t idx) const { return tracks_[idx]; }
     /// chi-squares

@@ -248,7 +248,7 @@ void DDHGCalHEFileAlgo::initialize(const DDNumericArguments& nArgs,
 #endif
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: NameSpace " << nameSpace_;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: NameSpace " << nameSpace_ << ":";
 #endif
 }
 
@@ -274,9 +274,6 @@ void DDHGCalHEFileAlgo::execute(DDCompactView& cpv) {
 }
 
 void DDHGCalHEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& cpv) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: \t\tInside Layers";
-#endif
   double zi(zMinBlock_);
   int laymin(0);
   for (unsigned int i = 0; i < layers_.size(); i++) {
@@ -304,32 +301,26 @@ void DDHGCalHEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
       DDLogicalPart glog;
       if (layerSense_[ly] < 1) {
         std::vector<double> pgonZ, pgonRin, pgonRout;
-        if (layerSense_[ly] == 0 || absorbMode_ == 0) {
-          double rmax =
-              (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) - tol1_;
-          pgonZ.emplace_back(-hthick);
-          pgonZ.emplace_back(hthick);
-          pgonRin.emplace_back(rinB);
-          pgonRin.emplace_back(rinB);
-          pgonRout.emplace_back(rmax);
-          pgonRout.emplace_back(rmax);
-        } else {
-          HGCalGeomTools::radius(zz - hthick,
-                                 zz + hthick,
-                                 zFrontB_,
-                                 rMinFront_,
-                                 slopeB_,
-                                 zFrontT_,
-                                 rMaxFront_,
-                                 slopeT_,
-                                 -layerSense_[ly],
-                                 pgonZ,
-                                 pgonRin,
-                                 pgonRout);
-          for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
-            pgonZ[isec] -= zz;
+        double rmax =
+            (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) - tol1_;
+        HGCalGeomTools::radius(zz - hthick,
+                               zz + hthick,
+                               zFrontB_,
+                               rMinFront_,
+                               slopeB_,
+                               zFrontT_,
+                               rMaxFront_,
+                               slopeT_,
+                               -layerSense_[ly],
+                               pgonZ,
+                               pgonRin,
+                               pgonRout);
+        for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
+          pgonZ[isec] -= zz;
+          if (layerSense_[ly] == 0 || absorbMode_ == 0)
+            pgonRout[isec] = rmax;
+          else
             pgonRout[isec] = pgonRout[isec] * cosAlpha_ - tol1_;
-          }
         }
         DDSolid solid =
             DDSolidFactory::polyhedra(DDName(name, nameSpace_), sectors_, -alpha_, 2._pi, pgonZ, pgonRin, pgonRout);
@@ -361,7 +352,7 @@ void DDHGCalHEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
       ++copyNumber_[ii];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << glog.name() << " number " << copy << " positioned in "
-                                    << module.name() << " at " << r1 << " with " << rot;
+                                    << module.name() << " at " << r1 << " with no rotation";
 #endif
       zz += hthick;
     }  // End of loop over layers in a block
@@ -413,7 +404,7 @@ void DDHGCalHEFileAlgo::positionMix(const DDLogicalPart& glog,
   cpv.position(glog1, glog, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << glog1.name() << " number 1 positioned in " << glog.name()
-                                << " at " << tran << " with " << rot;
+                                << " at " << tran << " with no rotation";
 #endif
   double thickTot(0), zpos(-hthick);
   for (unsigned int ly = 0; ly < layerTypeTop_.size(); ++ly) {
@@ -443,7 +434,7 @@ void DDHGCalHEFileAlgo::positionMix(const DDLogicalPart& glog,
     cpv.position(glog2, glog1, copy, r1, rot);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: Position " << glog2.name() << " number " << copy << " in "
-                                  << glog1.name() << " at " << r1 << " with " << rot;
+                                  << glog1.name() << " at " << r1 << " with no rotation";
 #endif
     ++copyNumberTop_[ii];
     zpos += hthickl;
@@ -469,7 +460,7 @@ void DDHGCalHEFileAlgo::positionMix(const DDLogicalPart& glog,
   cpv.position(glog1, glog, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << glog1.name() << " number 1 positioned in " << glog.name()
-                                << " at " << tran << " with " << rot;
+                                << " at " << tran << " with no rotation";
 #endif
   thickTot = 0;
   zpos = -hthick;
@@ -500,7 +491,7 @@ void DDHGCalHEFileAlgo::positionMix(const DDLogicalPart& glog,
     cpv.position(glog2, glog1, copy, r1, rot);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: Position " << glog2.name() << " number " << copy << " in "
-                                  << glog1.name() << " at " << r1 << " with " << rot;
+                                  << glog1.name() << " at " << r1 << " with no rotation";
 #endif
     if (layerSenseBot_[ly] != 0) {
 #ifdef EDM_ML_DEBUG
@@ -587,7 +578,7 @@ void DDHGCalHEFileAlgo::positionSensitive(
           ++ntype[type];
           edm::LogVerbatim("HGCalGeom") << " DDHGCalHEFileAlgo: " << name << " number " << copy << " type " << layertype
                                         << ":" << type << " positioned in " << glog.ddname() << " at " << tran
-                                        << " with " << rotation;
+                                        << " with no rotation";
 #endif
         }
       }

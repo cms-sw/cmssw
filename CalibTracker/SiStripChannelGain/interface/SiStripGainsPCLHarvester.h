@@ -56,7 +56,6 @@ public:
 
 private:
   virtual void checkBookAPVColls(const edm::EventSetup& setup);
-  virtual void checkAndRetrieveTopology(const edm::EventSetup& setup);
   void dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) override;
 
   void gainQualityMonitor(DQMStore::IBooker& ibooker_, const MonitorElement* Charge_Vs_Index) const;
@@ -94,7 +93,7 @@ private:
   int CalibrationLevel;
 
   const TrackerGeometry* bareTkGeomPtr_ = nullptr;  // ugly hack to fill APV colls only once, but checks
-  const TrackerTopology* tTopo_ = nullptr;
+  std::unique_ptr<TrackerTopology> tTopo_;
 
   std::vector<std::shared_ptr<stAPVGain> > APVsCollOrdered;
   std::unordered_map<unsigned int, std::shared_ptr<stAPVGain> > APVsColl;

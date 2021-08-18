@@ -36,7 +36,7 @@ void RPCSeedOverlapper::unsetIO() { isIOset = false; }
 void RPCSeedOverlapper::setGeometry(const RPCGeometry &iGeom) { rpcGeometry = &iGeom; }
 
 void RPCSeedOverlapper::run() {
-  if (isConfigured == false || isIOset == false || rpcGeometry != nullptr) {
+  if (isConfigured == false || isIOset == false || rpcGeometry == nullptr) {
     cout << "Configuration or IO is not set yet" << endl;
     return;
   }
@@ -167,7 +167,7 @@ bool RPCSeedOverlapper::isShareHit(const std::vector<TrackingRecHit const *> &re
   GlobalPoint gpos1 = rpcroll1->toGlobal(lpos1);
   cout << "The hit's position: " << gpos1.x() << ", " << gpos1.y() << ", " << gpos1.z() << endl;
   for (auto const &recHit : recHits) {
-    cout << "Checking the " << n << " th recHit from tempRecHits" << endl;
+    cout << "Checking the " << (n++) << " th recHit from tempRecHits" << endl;
     LocalPoint lpos2 = recHit->localPosition();
     DetId RPCId2 = recHit->geographicalId();
     const GeomDetUnit *rpcroll2 = rpcGeometry.idToDetUnit(RPCId2);

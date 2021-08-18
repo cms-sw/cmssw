@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -27,6 +28,9 @@ protected:
   void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &run, const edm::EventSetup &es) override;
 
 private:
+  const edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> m_geomToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_topoToken;
+
   std::string outputFile_;
   bool runStandalone;
 
@@ -259,6 +263,6 @@ private:
 
   DQMStore *dbe_;
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> edmDetSetVector_PixelDigi_Token_;
-  edm::ESHandle<GeometricSearchTracker> tracker;
+  const GeometricSearchTracker *tracker;
 };
 #endif

@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "CondFormats/DataRecord/interface/MFGeometryFileRcd.h"
@@ -65,9 +66,10 @@ private:
 DDDetectorESProducer::DDDetectorESProducer(const ParameterSet& iConfig)
     : fromDB_(iConfig.getParameter<bool>("fromDB")),
       appendToDataLabel_(iConfig.getParameter<string>("appendToDataLabel")),
-      confGeomXMLFiles_(iConfig.getParameter<FileInPath>("confGeomXMLFiles").fullPath()),
+      confGeomXMLFiles_(fromDB_ ? "none" : iConfig.getParameter<FileInPath>("confGeomXMLFiles").fullPath()),
       rootDDName_(iConfig.getParameter<string>("rootDDName")),
       label_(iConfig.getParameter<string>("label")) {
+  usesResources({edm::ESSharedResourceNames::kDD4Hep});
   if (rootDDName_ == "MagneticFieldVolumes:MAGF" || rootDDName_ == "cmsMagneticField:MAGF") {
     auto c = setWhatProduced(this,
                              &DDDetectorESProducer::produceMagField,
@@ -77,8 +79,7 @@ DDDetectorESProducer::DDDetectorESProducer(const ParameterSet& iConfig)
     }
     findingRecord<IdealMagneticFieldRecord>();
   } else {
-    auto c = setWhatProduced(
-        this, &DDDetectorESProducer::produceGeom, edm::es::Label(iConfig.getParameter<std::string>("@module_label")));
+    auto c = setWhatProduced(this, &DDDetectorESProducer::produceGeom);
     if (fromDB_) {
       geomToken_ = c.consumes(edm::ESInputTag("", label_));
     }
@@ -130,13 +131,13 @@ DDDetectorESProducer::ReturnType DDDetectorESProducer::produceGeom(const IdealGe
 
     return make_unique<cms::DDDetector>(label_, string(tb->begin(), tb->end()), true);
   } else {
-    return make_unique<DDDetector>(appendToDataLabel_, confGeomXMLFiles_);
+    return make_unique<DDDetector>(appendToDataLabel_, confGeomXMLFiles_, false);
   }
 }
 
 DDDetectorESProducer::ReturnType DDDetectorESProducer::produce() {
   LogVerbatim("Geometry") << "DDDetectorESProducer::Produce " << appendToDataLabel_;
-  return make_unique<DDDetector>(appendToDataLabel_, confGeomXMLFiles_);
+  return make_unique<DDDetector>(appendToDataLabel_, confGeomXMLFiles_, false);
 }
 
 DEFINE_FWK_EVENTSETUP_SOURCE(DDDetectorESProducer);

@@ -21,4 +21,5 @@
 <use name="RecoMuon/MuonIsolation"/>
 <use name="TrackingTools/PatternTools"/>
 <use name="TrackingTools/TransientTrack"/>
+<use name="RecoTracker/FinalTrackSelectors"/>
 <flags EDM_PLUGIN="1"/>

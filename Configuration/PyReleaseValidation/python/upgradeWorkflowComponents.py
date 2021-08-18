@@ -1,6 +1,5 @@
-from copy import deepcopy
+from copy import copy, deepcopy
 from collections import OrderedDict
-import six
 from .MatrixUtil import merge, Kby
 import re
 
@@ -32,32 +31,34 @@ upgradeKeys[2026] = [
     '2026D49PU',
     '2026D60',
     '2026D60PU',
-    '2026D64',
-    '2026D64PU',
-    '2026D65',
-    '2026D65PU',
-    '2026D66',
-    '2026D66PU',
-    '2026D67',
-    '2026D67PU',
     '2026D68',
     '2026D68PU',
-    '2026D69',
-    '2026D69PU',
     '2026D70',
     '2026D70PU',
-    '2026D71',
-    '2026D71PU',
-    '2026D72',
-    '2026D72PU',
-    '2026D73',
-    '2026D73PU',
-    '2026D74',
-    '2026D74PU',
-    '2026D75',
-    '2026D75PU',
     '2026D76',
     '2026D76PU',
+    '2026D77',
+    '2026D77PU',
+    '2026D78',
+    '2026D78PU',
+    '2026D79',
+    '2026D79PU',
+    '2026D80',
+    '2026D80PU',
+    '2026D81',
+    '2026D81PU',
+    '2026D82',
+    '2026D82PU',
+    '2026D83',
+    '2026D83PU',
+    '2026D84',
+    '2026D84PU',
+    '2026D85',
+    '2026D85PU',
+    '2026D86',
+    '2026D86PU',
+    '2026D87',
+    '2026D87PU',
 ]
 
 # pre-generation of WF numbers
@@ -67,7 +68,7 @@ numWFStart={
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[20000,23200],[23600,28200],[28600,29800],[50000,51000]]
+numWFConflict = [[20000,23200],[23600,28200],[28600,31400],[31800,32200],[32600,34600],[50000,51000]]
 numWFAll={
     2017: [],
     2026: []
@@ -158,6 +159,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'GenSim',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
+        'GenSimHLBeamSpotHGCALCloseBy',
         'Digi',
         'DigiTrigger',
         'RecoLocal',
@@ -299,11 +301,14 @@ upgradeWFs['pixelTrackingOnly'].step3 = {
 
 class UpgradeWorkflow_trackingMkFit(UpgradeWorkflowTracking):
     def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Digi' in step: stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
         return '2017' in key or '2021' in key
 upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
     steps = [
+        'Digi',
+        'DigiTrigger',
         'Reco',
         'RecoGlobal',
     ],
@@ -311,6 +316,9 @@ upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
     suffix = '_trackingMkFit',
     offset = 0.7,
 )
+upgradeWFs['trackingMkFit'].step2 = {
+    '--customise': 'RecoTracker/MkFit/customizeHLTIter0ToMkFit.customizeHLTIter0ToMkFit'
+}
 upgradeWFs['trackingMkFit'].step3 = {
     '--procModifiers': 'trackingMkFit'
 }
@@ -348,6 +356,7 @@ class UpgradeWorkflow_vectorHits(UpgradeWorkflow):
 upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
     steps = [
         'RecoGlobal',
+        'HARVESTGlobal'
     ],
     PU = [
         'RecoGlobal',
@@ -355,6 +364,26 @@ upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
     suffix = '_vectorHits',
     offset = 0.9,
 )
+
+
+# Track DNN workflows
+class UpgradeWorkflow_trackdnn(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--procModifiers': 'trackdnn'}, stepDict[step][k]])
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and '2021' in key
+upgradeWFs['trackdnn'] = UpgradeWorkflow_trackdnn(
+    steps = [
+        'Reco',
+    ],
+    PU = [
+        'Reco',
+    ],
+    suffix = '_trackdnn',
+    offset = 0.91,
+)
+
 
 # MLPF workflows
 class UpgradeWorkflow_mlpf(UpgradeWorkflow):
@@ -380,213 +409,161 @@ upgradeWFs['mlpf'].step3 = {
     '--procModifiers': 'mlpf'
 }
 
-# Patatrack workflows
-class UpgradeWorkflowPatatrack(UpgradeWorkflow):
+# Patatrack workflows:
+#   - 2018 conditions, TTbar
+#   - 2018 conditions, Z->mumu,
+#   - 2021 conditions, TTbar
+#   - 2021 conditions, Z->mumu,
+class PatatrackWorkflow(UpgradeWorkflow):
+    def __init__(self, reco, harvest, **kwargs):
+        # adapt the parameters for the UpgradeWorkflow init method
+        super(PatatrackWorkflow, self).__init__(
+            steps = [
+                'Reco',
+                'HARVEST',
+                'RecoFakeHLT',
+                'HARVESTFakeHLT',
+                'RecoGlobal',
+                'HARVESTGlobal',
+            ],
+            PU = [],
+            **kwargs)
+        self.__reco = reco
+        self.__reco.update({
+            '--datatier':     'GEN-SIM-RECO,DQMIO',
+            '--eventcontent': 'RECOSIM,DQM'
+        })
+        self.__harvest = harvest
+
     def condition(self, fragment, stepList, key, hasHarvest):
-        is_2018_ttbar = ('2018' in key and fragment=="TTbar_13")
-        is_2021_ttbar = ('2021' in key and fragment=="TTbar_14TeV")
-        is_2018_zmumu = ('2018' in key and fragment=="ZMM_13")
-        is_2021_zmumu = ('2021' in key and fragment=="ZMM_14")
-        result = any((is_2018_ttbar, is_2021_ttbar, is_2018_zmumu, is_2021_zmumu)) and hasHarvest and self.condition_(fragment, stepList, key, hasHarvest)
-        if result:
-            # skip ALCA and Nano
-            skipList = [s for s in stepList if (("ALCA" in s) or ("Nano" in s))]
-            for skip in skipList:
+        # select only a subset of the workflows
+        selected = [
+            ('2018' in key and fragment == "TTbar_13"),
+            ('2021' in key and fragment == "TTbar_14TeV"),
+            ('2018' in key and fragment == "ZMM_13"),
+            ('2021' in key and fragment == "ZMM_14"),
+        ]
+        result = any(selected) and hasHarvest
+
+        # skip ALCA and Nano steps
+        for skip in copy(stepList):
+            if ("ALCA" in skip) or ("Nano" in skip):
                 stepList.remove(skip)
         return result
-    def condition_(self, fragment, stepList, key, hasHarvest):
-        return True
 
-class UpgradeWorkflowPatatrack_PixelOnlyCPU(UpgradeWorkflowPatatrack):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step:
-            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+            stepDict[stepName][k] = merge([self.__reco, stepDict[step][k]])
         elif 'HARVEST' in step:
-            stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
+            stepDict[stepName][k] = merge([self.__harvest, stepDict[step][k]])
 
-    def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2018' in key or '2021' in key
 
-upgradeWFs['PatatrackPixelOnlyCPU'] = UpgradeWorkflowPatatrack_PixelOnlyCPU(
-    steps = [
-        'Reco',
-        'HARVEST',
-        'RecoFakeHLT',
-        'HARVESTFakeHLT',
-        'RecoGlobal',
-        'HARVESTGlobal',
-    ],
-    PU = [],
+upgradeWFs['PatatrackPixelOnlyCPU'] = PatatrackWorkflow(
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+        '--procModifiers': 'pixelNtupletFit'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+    },
     suffix = 'Patatrack_PixelOnlyCPU',
     offset = 0.501,
 )
 
-upgradeWFs['PatatrackPixelOnlyCPU'].step3 = {
-    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
-    '--datatier': 'GEN-SIM-RECO,DQMIO',
-    '--eventcontent': 'RECOSIM,DQM',
-    '--procModifiers': 'pixelNtupleFit'
-}
-
-class UpgradeWorkflowPatatrack_PixelOnlyGPU(UpgradeWorkflowPatatrack):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step:
-            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-        elif 'HARVEST' in step:
-            stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
-
-    def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2018' in key or '2021' in key
-
-upgradeWFs['PatatrackPixelOnlyGPU'] = UpgradeWorkflowPatatrack_PixelOnlyGPU(
-    steps = [
-        'Reco',
-        'HARVEST',
-        'RecoFakeHLT',
-        'HARVESTFakeHLT',
-        'RecoGlobal',
-        'HARVESTGlobal',
-    ],
-    PU = [],
+upgradeWFs['PatatrackPixelOnlyGPU'] = PatatrackWorkflow(
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+        '--procModifiers': 'pixelNtupletFit,gpu'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+    },
     suffix = 'Patatrack_PixelOnlyGPU',
     offset = 0.502,
 )
 
-upgradeWFs['PatatrackPixelOnlyGPU'].step3 = {
-    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
-    '--datatier': 'GEN-SIM-RECO,DQMIO',
-    '--eventcontent': 'RECOSIM,DQM',
-    '--procModifiers': 'gpu'
-}
+upgradeWFs['PatatrackPixelOnlyTripletsCPU'] = PatatrackWorkflow(
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+        '--procModifiers': 'pixelNtupletFit',
+        '--customise' : 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+    },
+    suffix = 'Patatrack_PixelOnlyTripletsCPU',
+    offset = 0.505,
+)
 
-class UpgradeWorkflowPatatrack_ECALOnlyCPU(UpgradeWorkflowPatatrack):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step:
-            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-        elif 'HARVEST' in step:
-            stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@ecalOnlyValidation+@ecal'}, stepDict[step][k]])
+upgradeWFs['PatatrackPixelOnlyTripletsGPU'] = PatatrackWorkflow(
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+        '--procModifiers': 'pixelNtupletFit,gpu',
+        '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+    },
+    suffix = 'Patatrack_PixelOnlyTripletsGPU',
+    offset = 0.506,
+)
 
-    def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2018' in key or '2021' in key
-
-upgradeWFs['PatatrackECALOnlyCPU'] = UpgradeWorkflowPatatrack_ECALOnlyCPU(
-    steps = [
-        'Reco',
-        'HARVEST',
-        'RecoFakeHLT',
-        'HARVESTFakeHLT',
-        'RecoGlobal',
-        'HARVESTGlobal',
-    ],
-    PU = [],
+upgradeWFs['PatatrackECALOnlyCPU'] = PatatrackWorkflow(
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
+    },
+    harvest = {
+        '-s': 'HARVESTING:@ecalOnlyValidation+@ecal'
+    },
     suffix = 'Patatrack_ECALOnlyCPU',
     offset = 0.511,
 )
 
-upgradeWFs['PatatrackECALOnlyCPU'].step3 = {
-    '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
-    '--datatier': 'GEN-SIM-RECO,DQMIO',
-    '--eventcontent': 'RECOSIM,DQM',
-}
-
-class UpgradeWorkflowPatatrack_ECALOnlyGPU(UpgradeWorkflowPatatrack):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step:
-            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-        elif 'HARVEST' in step:
-            stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@ecalOnlyValidation+@ecal'}, stepDict[step][k]])
-
-    def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2018' in key or '2021' in key
-
-upgradeWFs['PatatrackECALOnlyGPU'] = UpgradeWorkflowPatatrack_ECALOnlyGPU(
-    steps = [
-        'Reco',
-        'HARVEST',
-        'RecoFakeHLT',
-        'HARVESTFakeHLT',
-        'RecoGlobal',
-        'HARVESTGlobal',
-    ],
-    PU = [],
+upgradeWFs['PatatrackECALOnlyGPU'] = PatatrackWorkflow(
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
+        '--procModifiers': 'gpu'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@ecalOnlyValidation+@ecal'
+    },
     suffix = 'Patatrack_ECALOnlyGPU',
     offset = 0.512,
 )
 
-upgradeWFs['PatatrackECALOnlyGPU'].step3 = {
-    '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
-    '--datatier': 'GEN-SIM-RECO,DQMIO',
-    '--eventcontent': 'RECOSIM,DQM',
-    '--procModifiers': 'gpu'
-}
-
-class UpgradeWorkflowPatatrack_HCALOnlyCPU(UpgradeWorkflowPatatrack):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step:
-            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-        elif 'HARVEST' in step:
-            stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@hcalOnlyValidation+@hcalOnly+@hcal2Only'}, stepDict[step][k]])
-
-    def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2018' in key or '2021' in key
-
-upgradeWFs['PatatrackHCALOnlyCPU'] = UpgradeWorkflowPatatrack_HCALOnlyCPU(
-    steps = [
-        'Reco',
-        'HARVEST',
-        'RecoFakeHLT',
-        'HARVESTFakeHLT',
-        'RecoGlobal',
-        'HARVESTGlobal',
-    ],
-    PU = [],
+upgradeWFs['PatatrackHCALOnlyCPU'] = PatatrackWorkflow(
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly+@hcal2Only',
+    },
+    harvest = {
+        '-s': 'HARVESTING:@hcalOnlyValidation+@hcalOnly+@hcal2Only'
+    },
     suffix = 'Patatrack_HCALOnlyCPU',
     offset = 0.521,
 )
 
-upgradeWFs['PatatrackHCALOnlyCPU'].step3 = {
-    '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly+@hcal2Only',
-    '--datatier': 'GEN-SIM-RECO,DQMIO',
-    '--eventcontent': 'RECOSIM,DQM',
-}
-
-class UpgradeWorkflowPatatrack_HCALOnlyGPU(UpgradeWorkflowPatatrack):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step:
-            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-        elif 'HARVEST' in step:
-            stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@hcalOnlyValidation+@hcalOnly+@hcal2Only'}, stepDict[step][k]])
-
-    def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2018' in key or '2021' in key
-
-upgradeWFs['PatatrackHCALOnlyGPU'] = UpgradeWorkflowPatatrack_HCALOnlyGPU(
-    steps = [
-        'Reco',
-        'HARVEST',
-        'RecoFakeHLT',
-        'HARVESTFakeHLT',
-        'RecoGlobal',
-        'HARVESTGlobal',
-    ],
-    PU = [],
+upgradeWFs['PatatrackHCALOnlyGPU'] = PatatrackWorkflow(
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly+@hcal2Only',
+        '--procModifiers': 'gpu'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@hcalOnlyValidation+@hcalOnly+@hcal2Only'
+    },
     suffix = 'Patatrack_HCALOnlyGPU',
     offset = 0.522,
 )
-
-upgradeWFs['PatatrackHCALOnlyGPU'].step3 = {
-    '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly+@hcal2Only',
-    '--datatier': 'GEN-SIM-RECO,DQMIO',
-    '--eventcontent': 'RECOSIM,DQM',
-    '--procModifiers': 'gpu'
-}
 
 # end of Patatrack workflows
 
 class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Digi' in step and 'Trigger' not in step:
-            stepDict[stepName][k] = merge([{'-s': 'DIGI,L1,DIGI2RAW,HLT:@relval2021', '--datatier':'GEN-SIM-DIGI-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
+        if 'GenSimHLBeamSpot14' in step:
+            stepDict[stepName][k] = merge([{'--eventcontent': 'RAWSIM', '--datatier': 'GEN-SIM'},stepDict[step][k]])
+        elif 'Digi' in step and 'Trigger' not in step:
+            stepDict[stepName][k] = merge([{'-s': 'DIGI,L1,DIGI2RAW,HLT:@relval2021', '--datatier':'GEN-SIM-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
+        elif 'DigiTrigger' in step: # for Phase-2
+            stepDict[stepName][k] = merge([{'-s': 'DIGI,L1TrackTrigger,L1,DIGI2RAW,HLT:@fake2', '--datatier':'GEN-SIM-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
         elif 'Reco' in step:
             stepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'AODSIM', '--eventcontent':'AODSIM'}, stepDict[step][k]])
         elif 'MiniAOD' in step:
@@ -601,7 +578,9 @@ class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
         return fragment=="TTbar_14TeV" and ('2026' in key or '2021' in key)
 upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
     steps = [
+        'GenSimHLBeamSpot14',
         'Digi',
+        'DigiTrigger',
         'Reco',
         'RecoGlobal',
         'HARVEST',
@@ -611,7 +590,9 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
         'Nano',
     ],
     PU = [
+        'GenSimHLBeamSpot14',
         'Digi',
+        'DigiTrigger',
         'Reco',
         'RecoGlobal',
         'HARVEST',
@@ -819,6 +800,8 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
                 },
                 stepDict[stepName][k]
             ])
+            if "ProdLike" in self.suffix:
+                stepDict[stepNamePmx][k] = merge([{'-s': 'GEN,SIM,DIGI'},stepDict[stepNamePmx][k]])
         # setup for stage 2
         elif "Digi" in step or "Reco" in step:
             # go back to non-PU step version
@@ -941,6 +924,67 @@ upgradeWFs['PMXS1S2PR'] = UpgradeWorkflowAdjustPU(
     offset = 0.999,
 )
 
+class UpgradeWorkflowPremixProdLike(UpgradeWorkflowPremix,UpgradeWorkflow_ProdLike):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # copy steps, then apply specializations
+        UpgradeWorkflowPremix.setup_(self, step, stepName, stepDict, k, properties)
+        UpgradeWorkflow_ProdLike.setup_(self, step, stepName, stepDict, k, properties)
+        #
+        if 'Digi' in step:
+            d = merge([stepDict[self.getStepName(step)][k]])
+            tmpsteps = []
+            for s in d["-s"].split(","):
+                if "DIGI:pdigi_valid" in s:
+                    tmpsteps.append("DIGI")
+                else:
+                    tmpsteps.append(s)
+            d = merge([{"-s" : ",".join(tmpsteps),
+                        "--eventcontent": "PREMIXRAW"},
+                       d])
+            stepDict[stepName][k] = d
+    def condition(self, fragment, stepList, key, hasHarvest):
+        # use both conditions
+        return UpgradeWorkflowPremix.condition(self, fragment, stepList, key, hasHarvest) and UpgradeWorkflow_ProdLike.condition(self, fragment, stepList, key, hasHarvest)
+# premix stage2
+upgradeWFs['PMXS2ProdLike'] = UpgradeWorkflowPremixProdLike(
+    steps = [],
+    PU = [
+        'Digi',
+        'DigiTrigger',
+        'RecoLocal',
+        'Reco',
+        'RecoGlobal',
+        'Nano',
+        'HARVEST',
+        'HARVESTGlobal',
+        'MiniAOD',
+        'ALCA',
+    ],
+    suffix = '_PMXS2ProdLike',
+    offset = 0.9821,
+)
+# premix combined stage1+stage2
+upgradeWFs['PMXS1S2ProdLike'] = UpgradeWorkflowPremixProdLike(
+    steps = [],
+    PU = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
+        'RecoLocal',
+        'Reco',
+        'RecoGlobal',
+        'Nano',
+        'HARVEST',
+        'HARVESTGlobal',
+        'MiniAOD',
+        'ALCA',
+    ],
+    suffix = '_PMXS1S2ProdLike',
+    offset = 0.9921,
+)
+
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Run3' in stepDict[step][k]['--era']:
@@ -950,8 +994,7 @@ class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
             dd4hepGeom+=stepDict[step][k]['--geometry']
             stepDict[stepName][k] = merge([{'--geometry' : dd4hepGeom, '--procModifiers': 'dd4hep'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ((fragment=='TTbar_14TeV' or fragment=='ZMM_14' or fragment=='SingleMuPt10') and '2021' in key) \
-            or ((fragment=='TTbar_14TeV' or fragment=='ZMM_14' or fragment=='SingleMuPt10') and '2026' in key)
+        return '2021' in key or '2026' in key
 upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
     steps = [
         'GenSim',
@@ -970,6 +1013,31 @@ upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
     offset = 0.911,
 )
 upgradeWFs['DD4hep'].allowReuse = False
+
+class UpgradeWorkflow_DD4hepDB(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Run3' in stepDict[step][k]['--era']:
+            stepDict[stepName][k] = merge([{'--conditions': '120X_mcRun3_2021_realistic_dd4hep_v1', '--geometry': 'DB:Extended', '--procModifiers': 'dd4hep'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return '2021' in key
+upgradeWFs['DD4hepDB'] = UpgradeWorkflow_DD4hepDB(
+    steps = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
+        'Reco',
+        'RecoGlobal',
+        'HARVEST',
+        'HARVESTGlobal',
+        'ALCA',
+    ],
+    PU = [],
+    suffix = '_DD4hepDB',
+    offset = 0.912,
+)
+upgradeWFs['DD4hepDB'].allowReuse = False
 
 class UpgradeWorkflow_SonicTriton(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -1007,7 +1075,7 @@ upgradeWFs['SonicTriton'] = UpgradeWorkflow_SonicTriton(
 )
 
 # check for duplicate offsets
-offsets = [specialWF.offset for specialType,specialWF in six.iteritems(upgradeWFs)]
+offsets = [specialWF.offset for specialType,specialWF in upgradeWFs.items()]
 seen = set()
 dups = set(x for x in offsets if x in seen or seen.add(x))
 if len(dups)>0:
@@ -1103,48 +1171,11 @@ upgradeProperties[2026] = {
         'Era' : 'Phase2C10',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
-    '2026D64' : {
-        'Geom' : 'Extended2026D64',             # N.B.: Geometry with square 50x50 um2 pixels in the Inner Tracker.
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T22',
-        'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
-        'Era' : 'Phase2C11T22',       # customized for square pixels
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D65' : {
-        'Geom' : 'Extended2026D65',             # N.B.: Geometry with 3D pixels in the Inner Tracker.
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T23',     # This symbolic GT has no pixel template / GenError informations.
-        'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
-        'Era' : 'Phase2C11T23',           # customizes for 3D Pixels
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D66' : {
-        'Geom' : 'Extended2026D66',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D67' : {
-        'Geom' : 'Extended2026D67',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
     '2026D68' : {
         'Geom' : 'Extended2026D68',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C11',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D69' : {
-        'Geom' : 'Extended2026D69',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C12',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D70' : {
@@ -1154,47 +1185,90 @@ upgradeProperties[2026] = {
         'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
-    '2026D71' : {
-        'Geom' : 'Extended2026D71',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D72' : {
-        'Geom' : 'Extended2026D72',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11_etlV4',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D73' : {
-        'Geom' : 'Extended2026D73',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11_etlV4',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D74' : {
-        'Geom' : 'Extended2026D74',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D75' : {
-        'Geom' : 'Extended2026D75',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
     '2026D76' : {
         'Geom' : 'Extended2026D76',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11M9',
+        'Era' : 'Phase2C11I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D77' : {
+        'Geom' : 'Extended2026D77',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D78' : {
+        'Geom' : 'Extended2026D78', # N.B.: Geometry with square 50x50 um2 pixels in the Inner Tracker.
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T22',
+        'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
+        'Era' : 'Phase2C11I13T22M9', # customized for square pixels and Muon M9
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D79' : {
+        'Geom' : 'Extended2026D79', # N.B.: Geometry with 3D pixels in the Inner Tracker.
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T23',
+        'Era' : 'Phase2C11I13T23M9', # customizes for 3D Pixels and Muon M9
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D80' : {
+        'Geom' : 'Extended2026D80', # N.B.: Geometry with 3D pixels in the Inner Tracker L1.
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T25',
+        'Era' : 'Phase2C11I13T25M9', # customized for 3D pixels and Muon M9
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D81' : {
+        'Geom' : 'Extended2026D81', # N.B.: Geometry with 3D pixels (TBPX,L1) and square 50x50 um2 pixels (TFPX+TEPX) in the Inner Tracker.
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T26',
+        'Era' : 'Phase2C11I13T26M9', # customized for square pixels and Muon M9
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D82' : {
+        'Geom' : 'Extended2026D82',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D83' : {
+        'Geom' : 'Extended2026D83',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D84' : {
+        'Geom' : 'Extended2026D84',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D85' : {
+        'Geom' : 'Extended2026D85',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D86' : {
+        'Geom' : 'Extended2026D86',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D87' : {
+        'Geom' : 'Extended2026D87', # N.B.: Geometry with 3D pixels in the Inner Tracker L1.
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T27',
+        'Era' : 'Phase2C11I13T25M9', # customized for 3D pixels and Muon M9
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger'],
     },
 }
 
@@ -1258,7 +1332,7 @@ upgradeFragments = OrderedDict([
     ('PhotonJet_Pt_10_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'PhotonJets_Pt_10_14TeV')),
     ('QQH1352T_Tauola_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'QQH1352T_Tauola_14TeV')),
     ('MinBias_14TeV_pythia8_TuneCP5_cfi', UpgradeFragment(Kby(90,100),'MinBias_14TeV')),
-    ('WM_14TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(9,100),'WM_14TeV')),
+    ('WToMuNu_14TeV_TuneCP5_pythia8_cfi', UpgradeFragment(Kby(9,100),'WToMuNu_14TeV')),
     ('ZMM_13TeV_TuneCUETP8M1_cfi', UpgradeFragment(Kby(18,100),'ZMM_13')),
     ('QCDForPF_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(50,100),'QCD_FlatPt_15_3000HS_14')),
     ('DYToLL_M-50_14TeV_pythia8_cff', UpgradeFragment(Kby(9,100),'DYToLL_M_50_14TeV')),
@@ -1328,18 +1402,32 @@ upgradeFragments = OrderedDict([
     ('FlatRandomPtAndDxyGunProducer_MuPt2To10_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuPt2To10')),
     ('FlatRandomPtAndDxyGunProducer_MuPt10To30_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuPt10To30')),
     ('FlatRandomPtAndDxyGunProducer_MuPt30To100_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuPt30To100')),
-    ('B0ToKstarMuMu_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(304,3030),'B0ToKstarMuMu_14TeV')), # 3.3% 
-    ('BsToEleEle_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(223,2222),'BsToEleEle_14TeV')), # 4.5%    
-    ('BsToJpsiGamma_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(2500,25000),'BsToJpsiGamma_14TeV')), # 0.4% 
+    ('B0ToKstarMuMu_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(304,3030),'B0ToKstarMuMu_14TeV')), # 3.3%
+    ('BsToEleEle_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(223,2222),'BsToEleEle_14TeV')), # 4.5%
+    ('BsToJpsiGamma_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(2500,25000),'BsToJpsiGamma_14TeV')), # 0.4%
     ('BsToJpsiPhi_mumuKK_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(910,9090),'BsToJpsiPhi_mumuKK_14TeV')), # 1.1%
-    ('BsToMuMu_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(313,3125),'BsToMuMu_14TeV')), # 3.2% 
-    ('BsToPhiPhi_KKKK_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(556,5555),'BsToPhiPhi_KKKK_14TeV')), # 1.8%   
+    ('BsToMuMu_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(313,3125),'BsToMuMu_14TeV')), # 3.2%
+    ('BsToPhiPhi_KKKK_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(556,5555),'BsToPhiPhi_KKKK_14TeV')), # 1.8%
     ('TauToMuMuMu_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(18939,189393),'TauToMuMuMu_14TeV')), # effi = 5.280e-04
-    ('BdToKstarEleEle_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(206,2061),'BdToKstarEleEle_14TeV')), #effi = 4.850e-02 
+    ('BdToKstarEleEle_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(206,2061),'BdToKstarEleEle_14TeV')), #effi = 4.850e-02
     ('ZpTT_1500_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'ZpTT_1500_14')),
     ('BuMixing_BMuonFilter_forSTEAM_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(900,10000),'BuMixing_14')),
     ('Upsilon1SToMuMu_forSTEAM_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'Upsilon1SToMuMu_14')),
     ('TenTau_E_15_500_Eta3p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_15_500_Eta3p1')),
     ('QCD_Pt_1800_2400_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50), 'QCD_Pt_1800_2400_14')),
-    ('DisplacedSUSY_stopToBottom_M_800_500mm_TuneCP5_14TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_stopToB_M_800_500mm_14')),
+    ('DisplacedSUSY_stopToBottom_M_800_500mm_TuneCP5_14TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_14TeV')),
+    ('GluGluTo2Jets_M_300_2000_14TeV_Exhume_cff',UpgradeFragment(Kby(9,100),'GluGluTo2Jets_14TeV')),
+    ('TTbarToDilepton_mt172p5_TuneCP5_14TeV_pythia8_cfi',UpgradeFragment(Kby(9,50),'TTbarToDilepton_14TeV')),
+    ('QQToHToTauTau_mh125_TuneCP5_14TeV_pythia8_cfi',UpgradeFragment(Kby(9,50),'QQToHToTauTau_14TeV')),
+    ('ZpToEE_m6000_TuneCP5_14TeV_pythia8_cfi',UpgradeFragment(Kby(9,50),'ZpToEE_m6000_14TeV')),
+    ('ZpToMM_m6000_TuneCP5_14TeV_pythia8_cfi',UpgradeFragment(Kby(9,50),'ZpToMM_m6000_14TeV')),
+    ('SMS-T1tttt_mGl-1500_mLSP-100_TuneCP5_14TeV_pythia8_cfi',UpgradeFragment(Kby(9,50),'SMS-T1tttt_14TeV')),
+    ('VBFHZZ4Nu_TuneCP5_14TeV_pythia8_cfi',UpgradeFragment(Kby(9,50),'VBFHZZ4Nu_14TeV')),
+    ('EtaBToJpsiJpsi_14TeV_TuneCP5_pythia8_cfi',UpgradeFragment(Kby(9,50),'EtaBToJpsiJpsi_14TeV')),
+    ('WToLNu_14TeV_TuneCP5_pythia8_cfi',UpgradeFragment(Kby(21,50),'WToLNu_14TeV')),
+    ('WprimeToLNu_M2000_14TeV_TuneCP5_pythia8_cfi',UpgradeFragment(Kby(21,50),'WprimeToLNu_M2000_14TeV')),
+    ('DoubleMuFlatPt1p5To8_cfi', UpgradeFragment(Kby(9,100),'SingleMuFlatPt1p5To8')),
+    ('DoubleElectronFlatPt1p5To8_cfi', UpgradeFragment(Kby(9,100),'SingleElectronFlatPt1p5To8')),
+    ('DoubleMuFlatPt1p5To8Dxy100GunProducer_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuPt1p5To8Dxy100')),
+    ('DoubleMuFlatPt2To100Dxy100GunProducer_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuPt2To100Dxy100')),
 ])

@@ -3,9 +3,11 @@
 
 /** \class
  *
- * This class checks if ALCT, CLCT and LCT products are valid
+ * This class checks if ALCT, CLCT and LCT products are valid.
+ * It inherits from CSCBaseboard. Neither are physical boards at CMS
+ * But they are convenient classes in the trigger code.
  *
- * Author: Sven Dildick
+ * Author: Sven Dildick (Rice University)
  *
  */
 
@@ -56,28 +58,38 @@ public:
   void checkMultiplicityBX(const std::vector<T>& lcts, unsigned nLCT) const;
 
   // for Phase-1 patterns
-  int getSlopePhase1(int pattern) const;
+  int getSlopePhase1(unsigned pattern) const;
 
-  // CSC max strip & max wire
-  unsigned get_csc_max_wire(int station, int ring) const;
-  unsigned get_csc_max_halfstrip(int station, int ring) const;
-  unsigned get_csc_max_quartstrip(int station, int ring) const;
-  unsigned get_csc_max_eightstrip(int station, int ring) const;
+  /*
+    CSC max strip & max wire
+    Need to pass station and ring, because we want to reuse the LCTQualityControl in the
+    MPC where the station and ring are considered arguments, not data members.
+  */
+  unsigned get_csc_max_wiregroup(unsigned station, unsigned ring) const;
+  unsigned get_csc_max_halfstrip(unsigned station, unsigned ring) const;
+  unsigned get_csc_max_quartstrip(unsigned station, unsigned ring) const;
+  unsigned get_csc_max_eighthstrip(unsigned station, unsigned ring) const;
 
   // slope values
   std::pair<int, int> get_csc_clct_min_max_slope() const;
 
   // CLCT min, max CFEB numbers
-  std::pair<unsigned, unsigned> get_csc_min_max_cfeb(int station, int ring) const;
+  std::pair<unsigned, unsigned> get_csc_min_max_cfeb() const;
 
   // CSC min, max pattern
-  std::pair<unsigned, unsigned> get_csc_min_max_pattern(bool isRun3) const;
+  std::pair<unsigned, unsigned> get_csc_min_max_pattern() const;
+  std::pair<unsigned, unsigned> get_csc_min_max_pattern_run3() const;
   std::pair<unsigned, unsigned> get_csc_lct_min_max_pattern() const;
 
-  // CSC max quality
-  unsigned get_csc_alct_max_quality(int station, int ring, bool runGEMCSC) const;
-  unsigned get_csc_clct_max_quality() const;
-  unsigned get_csc_lct_max_quality() const;
+  /*
+   CSC min, max quality
+   Need to pass station and ring for the LCT implementation, because we want to
+   reuse the LCTQualityControl in the MPC where the station and ring are considered
+   arguments, not data members.
+  */
+  std::pair<unsigned, unsigned> get_csc_alct_min_max_quality() const;
+  std::pair<unsigned, unsigned> get_csc_clct_min_max_quality() const;
+  std::pair<unsigned, unsigned> get_csc_lct_min_max_quality(unsigned station, unsigned ring) const;
 
 private:
   // min number of layers for a CLCT

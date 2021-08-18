@@ -6,7 +6,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "FWCore/ParameterSet/interface/AllowedLabelsDescription.h"
 #include "FWCore/ParameterSet/interface/IfExistsDescription.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"

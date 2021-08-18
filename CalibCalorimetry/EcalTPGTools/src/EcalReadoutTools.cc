@@ -1,13 +1,8 @@
 #include "CalibCalorimetry/EcalTPGTools/interface/EcalReadoutTools.h"
 
-EcalReadoutTools::EcalReadoutTools(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
-  iSetup.get<IdealGeometryRecord>().get(hTriggerTowerMap);
-  triggerTowerMap_ = hTriggerTowerMap.product();
-
-  edm::ESHandle<EcalElectronicsMapping> ecalmapping;
-  iSetup.get<EcalMappingRcd>().get(ecalmapping);
-  elecMap_ = ecalmapping.product();
+EcalReadoutTools::EcalReadoutTools(const edm::Event&, const edm::EventSetup& iSetup, const ESGetTokens& esGetTokens) {
+  triggerTowerMap_ = &iSetup.getData(esGetTokens.ecalTrigTowerConstituentsMapToken);
+  elecMap_ = &iSetup.getData(esGetTokens.ecalElectronicsMappingToken);
 }
 
 EcalTrigTowerDetId EcalReadoutTools::readOutUnitOf(const EBDetId& xtalId) const {

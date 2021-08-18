@@ -15,6 +15,10 @@
     <rSolid name="OCMS"/>
     <rMaterial name="materials:Air"/>
   </LogicalPart>
+  <LogicalPart name="MCMS" category="unspecified">
+    <rSolid name="OCMS"/>
+    <rMaterial name="materials:Air"/>
+    </LogicalPart>
   <LogicalPart name="CMSE" category="unspecified">
     <rSolid name="CMSE"/>
     <rMaterial name="materials:Air"/>

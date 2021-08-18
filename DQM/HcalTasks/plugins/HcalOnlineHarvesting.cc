@@ -18,11 +18,12 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps)
   _vnames[fTP] = "TPTask";
   _vnames[fPedestal] = "PedestalTask";
 
-  _vsumgen[fRaw] = new hcaldqm::RawRunSummary("RawRunHarvesting", _vnames[fRaw], ps);
-  _vsumgen[fDigi] = new hcaldqm::DigiRunSummary("DigiRunHarvesting", _vnames[fDigi], ps);
-  _vsumgen[fReco] = new hcaldqm::RecoRunSummary("RecoRunHarvesting", _vnames[fReco], ps);
-  _vsumgen[fTP] = new hcaldqm::TPRunSummary("TPRunHarvesting", _vnames[fTP], ps);
-  _vsumgen[fPedestal] = new hcaldqm::PedestalRunSummary("PedestalRunHarvesting", _vnames[fPedestal], ps);
+  auto iC = consumesCollector();
+  _vsumgen[fRaw] = new hcaldqm::RawRunSummary("RawRunHarvesting", _vnames[fRaw], ps, iC);
+  _vsumgen[fDigi] = new hcaldqm::DigiRunSummary("DigiRunHarvesting", _vnames[fDigi], ps, iC);
+  _vsumgen[fReco] = new hcaldqm::RecoRunSummary("RecoRunHarvesting", _vnames[fReco], ps, iC);
+  _vsumgen[fTP] = new hcaldqm::TPRunSummary("TPRunHarvesting", _vnames[fTP], ps, iC);
+  _vsumgen[fPedestal] = new hcaldqm::PedestalRunSummary("PedestalRunHarvesting", _vnames[fPedestal], ps, iC);
 
   _thresh_bad_bad = ps.getUntrackedParameter("thresh_bad_bad", 0.05);
 }
@@ -135,19 +136,19 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps)
     if (meOccupancy_HF_depth && meOccupancyNoTDC_HF_depth && meOccupancy_HF_ieta && meOccupancyNoTDC_HF_ieta) {
       TH2F* hOccupancy_HF_depth = meOccupancy_HF_depth->getTH2F();
       TH2F* hOccupancyNoTDC_HF_depth = meOccupancyNoTDC_HF_depth->getTH2F();
-      TH1F* hOccupancy_HF_ieta = meOccupancy_HF_ieta->getTH1F();
-      TH1F* hOccupancyNoTDC_HF_ieta = meOccupancyNoTDC_HF_ieta->getTH1F();
+      TH1D* hOccupancy_HF_ieta = meOccupancy_HF_ieta->getTH1D();
+      TH1D* hOccupancyNoTDC_HF_ieta = meOccupancyNoTDC_HF_ieta->getTH1D();
 
       TH2F* hEfficiency_HF_depth = (TH2F*)hOccupancy_HF_depth->Clone();
       hEfficiency_HF_depth->Divide(hOccupancyNoTDC_HF_depth);
-      TH1F* hEfficiency_HF_ieta = (TH1F*)hOccupancy_HF_ieta->Clone();
+      TH1D* hEfficiency_HF_ieta = (TH1D*)hOccupancy_HF_ieta->Clone();
       hEfficiency_HF_ieta->Divide(hOccupancyNoTDC_HF_ieta);
 
       ib.setCurrentFolder("Hcal/TPTask");
 
       MonitorElement* meEfficiency_HF_depth = ib.book2D("TDCCutEfficiency_depth", hEfficiency_HF_depth);
       meEfficiency_HF_depth->setEfficiencyFlag();
-      MonitorElement* meEfficiency_HF_ieta = ib.book1D("TDCCutEfficiency_ieta", hEfficiency_HF_ieta);
+      MonitorElement* meEfficiency_HF_ieta = ib.book1DD("TDCCutEfficiency_ieta", hEfficiency_HF_ieta);
       meEfficiency_HF_ieta->setEfficiencyFlag();
 
       delete hEfficiency_HF_depth;

@@ -1,7 +1,6 @@
 <use name="CondFormats/PPSObjects"/>
 <use name="DataFormats/CTPPSDigi"/>
 <use name="FWCore/ParameterSet"/>
-<use name="Geometry/VeryForwardGeometry"/>
 <use name="SimTracker/Common"/>
 <export>
   <lib name="1"/>

@@ -7,6 +7,7 @@
 <use name="CommonTools/Egamma"/>
 <use name="CommonTools/MVAUtils"/>
 <use name="CommonTools/UtilAlgos"/>
+<use name="CommonTools/Utils"/>
 <library name="RecoEgammaPhotonIdentificationPlugins" file="*.cc">
   <use name="RecoEgamma/PhotonIdentification"/>
   <use name="RecoEgamma/EgammaTools"/>

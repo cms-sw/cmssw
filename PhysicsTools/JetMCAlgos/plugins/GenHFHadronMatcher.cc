@@ -44,7 +44,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
+#include "DataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
 
 //
 // class declaration
@@ -320,8 +320,9 @@ std::vector<int> GenHFHadronMatcher::findHadronJets(const reco::GenParticleColle
     reco::JetFlavourInfo jetInfo = i_info->second;
     const int jetIndex = i_info - jetFlavourInfos->begin();
     // Looping over each hadron associated with the jet and finding its origin
-    const reco::GenParticleRefVector &hadronsInJet =
-        flavour_ == 5 ? jetInfo.getbHadrons() : flavour_ == 4 ? jetInfo.getcHadrons() : reco::GenParticleRefVector();
+    const reco::GenParticleRefVector &hadronsInJet = flavour_ == 5   ? jetInfo.getbHadrons()
+                                                     : flavour_ == 4 ? jetInfo.getcHadrons()
+                                                                     : reco::GenParticleRefVector();
     for (reco::GenParticleRefVector::const_iterator hadron = hadronsInJet.begin(); hadron != hadronsInJet.end();
          ++hadron) {
       // Check that the hadron satisfies criteria configured in the module

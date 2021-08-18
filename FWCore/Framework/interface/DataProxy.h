@@ -32,6 +32,7 @@ namespace edm {
   class ActivityRegistry;
   class EventSetupImpl;
   class ServiceToken;
+  class ESParentContext;
 
   namespace eventsetup {
     struct ComponentDescription;
@@ -52,13 +53,15 @@ namespace edm {
                          EventSetupRecordImpl const&,
                          DataKey const&,
                          EventSetupImpl const*,
-                         ServiceToken const&) const;
+                         ServiceToken const&,
+                         ESParentContext const&) const;
 
       void const* get(EventSetupRecordImpl const&,
                       DataKey const&,
                       bool iTransiently,
                       ActivityRegistry const*,
-                      EventSetupImpl const*) const;
+                      EventSetupImpl const*,
+                      ESParentContext const&) const;
       void const* getAfterPrefetch(const EventSetupRecordImpl& iRecord, const DataKey& iKey, bool iTransiently) const;
 
       ///returns the description of the DataProxyProvider which owns this Proxy
@@ -87,7 +90,8 @@ namespace edm {
                                      EventSetupRecordImpl const&,
                                      DataKey const& iKey,
                                      EventSetupImpl const*,
-                                     ServiceToken const&) = 0;
+                                     ServiceToken const&,
+                                     ESParentContext const&) = 0;
 
       /** indicates that the Proxy should invalidate any cached information
           as that information has 'expired' (i.e. we have moved to a new IOV)

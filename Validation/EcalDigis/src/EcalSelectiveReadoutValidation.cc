@@ -25,13 +25,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
-#include "CondFormats/DataRecord/interface/EcalTPGLutIdMapRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
-
 using namespace cms;
 using namespace edm;
 using namespace std;
@@ -103,7 +96,13 @@ const int EcalSelectiveReadoutValidation::nDccRus_[nDccs_] = {
     34};
 
 EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSet& ps)
-    : collNotFoundWarn_(ps.getUntrackedParameter<bool>("warnIfCollectionNotFound", true)),
+    : geoToken(esConsumes()),
+      ecalmapping(esConsumes<edm::Transition::BeginRun>()),
+      hTriggerTowerMap(esConsumes<edm::Transition::BeginRun>()),
+      physHandle(esConsumes()),
+      lutGrpHandle(esConsumes()),
+      lutMapHandle(esConsumes()),
+      collNotFoundWarn_(ps.getUntrackedParameter<bool>("warnIfCollectionNotFound", true)),
       ebDigis_(ps.getParameter<edm::InputTag>("EbDigiCollection"), false, collNotFoundWarn_),
       eeDigis_(ps.getParameter<edm::InputTag>("EeDigiCollection"), false, collNotFoundWarn_),
       ebNoZsDigis_(ps.getParameter<edm::InputTag>("EbUnsuppressedDigiCollection"), false, false /*collNotFoundWarn_*/),
@@ -305,8 +304,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
   }
 
   // gets the endcap geometry:
-  edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);
+  auto geoHandle = es.getHandle(geoToken);
   const CaloSubdetectorGeometry* geometry_p = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   //CaloSubdetectorGeometry const& geometry = *geometry_p;
 
@@ -575,9 +573,7 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
   }
 
   // get the barrel geometry:
-  edm::ESHandle<CaloGeometry> geoHandle;
-
-  es.get<CaloGeometryRecord>().get(geoHandle);
+  auto geoHandle = es.getHandle(geoToken);
   const CaloSubdetectorGeometry* geometry_p = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   //CaloSubdetectorGeometry const& geometry = *geometry_p;
 
@@ -836,14 +832,10 @@ EcalSelectiveReadoutValidation::~EcalSelectiveReadoutValidation() {}
 
 void EcalSelectiveReadoutValidation::dqmBeginRun(edm::Run const& r, edm::EventSetup const& es) {
   // endcap mapping
-  edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
-  es.get<IdealGeometryRecord>().get(hTriggerTowerMap);
-  triggerTowerMap_ = hTriggerTowerMap.product();
+  triggerTowerMap_ = &es.getData(hTriggerTowerMap);
 
   //electronics map
-  ESHandle<EcalElectronicsMapping> ecalmapping;
-  es.get<EcalMappingRcd>().get(ecalmapping);
-  elecMap_ = ecalmapping.product();
+  elecMap_ = &es.getData(ecalmapping);
 
   initAsciiFile();
 }
@@ -1503,17 +1495,11 @@ void EcalSelectiveReadoutValidation::analyzeTP(edm::Event const& event, edm::Eve
     tpEtCount[iEt] = 0;
   }
 
-  edm::ESHandle<EcalTPGPhysicsConst> physHandle;
-  es.get<EcalTPGPhysicsConstRcd>().get(physHandle);
-  const EcalTPGPhysicsConstMap& physMap = physHandle.product()->getMap();
+  const EcalTPGPhysicsConstMap& physMap = es.getData(physHandle).getMap();
 
-  edm::ESHandle<EcalTPGLutGroup> lutGrpHandle;
-  es.get<EcalTPGLutGroupRcd>().get(lutGrpHandle);
-  const EcalTPGGroups::EcalTPGGroupsMap& lutGrpMap = lutGrpHandle.product()->getMap();
+  const EcalTPGGroups::EcalTPGGroupsMap& lutGrpMap = es.getData(lutGrpHandle).getMap();
 
-  edm::ESHandle<EcalTPGLutIdMap> lutMapHandle;
-  es.get<EcalTPGLutIdMapRcd>().get(lutMapHandle);
-  const EcalTPGLutIdMap::EcalTPGLutMap& lutMap = lutMapHandle.product()->getMap();
+  const EcalTPGLutIdMap::EcalTPGLutMap& lutMap = es.getData(lutMapHandle).getMap();
 
   EcalTPGPhysicsConstMapIterator ebItr(physMap.find(DetId(DetId::Ecal, EcalBarrel).rawId()));
   double lsb10bitsEB(ebItr == physMap.end() ? 0. : ebItr->second.EtSat / 1024.);
@@ -1870,8 +1856,8 @@ void EcalSelectiveReadoutValidation::setTtEtSums(const edm::EventSetup& es,
   const CaloSubdetectorGeometry* eeGeometry = nullptr;
   const CaloSubdetectorGeometry* ebGeometry = nullptr;
   if (eeGeometry == nullptr || ebGeometry == nullptr) {
-    edm::ESHandle<CaloGeometry> geoHandle;
-    es.get<CaloGeometryRecord>().get(geoHandle);
+    es.getData(geoToken);
+    auto geoHandle = es.getHandle(geoToken);
     eeGeometry = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
     ebGeometry = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   }

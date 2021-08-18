@@ -16,6 +16,7 @@
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 #include "FWCore/TestProcessor/interface/EventSetupTestHelper.h"
 
+#include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/ScheduleItems.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -25,10 +26,11 @@
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
-#include "FWCore/Framework/src/EventSetupsController.h"
-#include "FWCore/Framework/src/globalTransitionAsync.h"
-#include "FWCore/Framework/src/streamTransitionAsync.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/EventSetupsController.h"
+#include "FWCore/Framework/interface/globalTransitionAsync.h"
+#include "FWCore/Framework/interface/streamTransitionAsync.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -118,7 +120,6 @@ namespace edm {
       auto nConcurrentRuns = 1U;
       preallocations_ = PreallocationConfiguration{nThreads, nStreams, nConcurrentLumis, nConcurrentRuns};
 
-      espController_->setMaxConcurrentIOVs(nStreams, nConcurrentLumis);
       if (not iConfig.esProduceEntries().empty()) {
         esHelper_ = std::make_unique<EventSetupTestHelper>(iConfig.esProduceEntries());
         esp_->add(std::dynamic_pointer_cast<eventsetup::DataProxyProvider>(esHelper_));
@@ -161,7 +162,9 @@ namespace edm {
         preg_->addProduct(product);
       }
 
-      schedule_ = items.initSchedule(*psetPtr, false, preallocations_, &processContext_);
+      processBlockHelper_ = std::make_shared<ProcessBlockHelper>();
+
+      schedule_ = items.initSchedule(*psetPtr, false, preallocations_, &processContext_, *processBlockHelper_);
       // set the data members
       act_table_ = std::move(items.act_table_);
       actReg_ = items.actReg_;
@@ -381,7 +384,11 @@ namespace edm {
         if (beginJobCalled_) {
           endJob();
         }
-        espController_->endIOVs();
+        edm::FinalWaitingTask task;
+        espController_->endIOVsAsync(edm::WaitingTaskHolder(taskGroup_, &task));
+        do {
+          taskGroup_.wait();
+        } while (not task.done());
       });
     }
 
@@ -406,7 +413,7 @@ namespace edm {
 
       espController_->finishConfiguration();
 
-      schedule_->beginJob(*preg_, esp_->recordsToProxyIndices());
+      schedule_->beginJob(*preg_, esp_->recordsToProxyIndices(), *processBlockHelper_);
       actReg_->postBeginJobSignal_();
 
       for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
@@ -423,15 +430,14 @@ namespace edm {
       {
         ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
         using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>;
-        auto globalWaitTask = make_empty_waiting_task();
-        globalWaitTask->increment_ref_count();
-
+        FinalWaitingTask globalWaitTask;
         beginGlobalTransitionAsync<Traits>(
-            WaitingTaskHolder(globalWaitTask.get()), *schedule_, transitionInfo, serviceToken_, emptyList);
-
-        globalWaitTask->wait_for_all();
-        if (globalWaitTask->exceptionPtr() != nullptr) {
-          std::rethrow_exception(*(globalWaitTask->exceptionPtr()));
+            WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList);
+        do {
+          taskGroup_.wait();
+        } while (not globalWaitTask.done());
+        if (globalWaitTask.exceptionPtr() != nullptr) {
+          std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
         }
       }
       beginProcessBlockCalled_ = true;
@@ -446,7 +452,7 @@ namespace edm {
       RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, runNumber_);
 
       IOVSyncValue ts(EventID(runPrincipal.run(), 0, 0), runPrincipal.beginTime());
-      espController_->eventSetupForInstance(ts);
+      eventsetup::synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
 
       auto const& es = esp_->eventSetupImpl();
 
@@ -455,31 +461,33 @@ namespace edm {
       std::vector<edm::SubProcess> emptyList;
       {
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
-        auto globalWaitTask = make_empty_waiting_task();
-        globalWaitTask->increment_ref_count();
+        FinalWaitingTask globalWaitTask;
         beginGlobalTransitionAsync<Traits>(
-            WaitingTaskHolder(globalWaitTask.get()), *schedule_, transitionInfo, serviceToken_, emptyList);
-        globalWaitTask->wait_for_all();
-        if (globalWaitTask->exceptionPtr() != nullptr) {
-          std::rethrow_exception(*(globalWaitTask->exceptionPtr()));
+            WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList);
+        do {
+          taskGroup_.wait();
+        } while (not globalWaitTask.done());
+        if (globalWaitTask.exceptionPtr() != nullptr) {
+          std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
         }
       }
       {
         //To wait, the ref count has to be 1+#streams
-        auto streamLoopWaitTask = make_empty_waiting_task();
-        streamLoopWaitTask->increment_ref_count();
+        FinalWaitingTask streamLoopWaitTask;
 
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
-        beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
+        beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &streamLoopWaitTask),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
                                             transitionInfo,
                                             serviceToken_,
                                             emptyList);
 
-        streamLoopWaitTask->wait_for_all();
-        if (streamLoopWaitTask->exceptionPtr() != nullptr) {
-          std::rethrow_exception(*(streamLoopWaitTask->exceptionPtr()));
+        do {
+          taskGroup_.wait();
+        } while (not streamLoopWaitTask.done());
+        if (streamLoopWaitTask.exceptionPtr() != nullptr) {
+          std::rethrow_exception(*(streamLoopWaitTask.exceptionPtr()));
         }
       }
       beginRunCalled_ = true;
@@ -495,7 +503,7 @@ namespace edm {
       lumiPrincipal_->setRunPrincipal(principalCache_.runPrincipalPtr());
 
       IOVSyncValue ts(EventID(runNumber_, lumiNumber_, eventNumber_), lumiPrincipal_->beginTime());
-      espController_->eventSetupForInstance(ts);
+      eventsetup::synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
 
       auto const& es = esp_->eventSetupImpl();
 
@@ -504,32 +512,34 @@ namespace edm {
       std::vector<edm::SubProcess> emptyList;
       {
         using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
-        auto globalWaitTask = make_empty_waiting_task();
-        globalWaitTask->increment_ref_count();
+        FinalWaitingTask globalWaitTask;
         beginGlobalTransitionAsync<Traits>(
-            WaitingTaskHolder(globalWaitTask.get()), *schedule_, transitionInfo, serviceToken_, emptyList);
-        globalWaitTask->wait_for_all();
-        if (globalWaitTask->exceptionPtr() != nullptr) {
-          std::rethrow_exception(*(globalWaitTask->exceptionPtr()));
+            WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList);
+        do {
+          taskGroup_.wait();
+        } while (not globalWaitTask.done());
+        if (globalWaitTask.exceptionPtr() != nullptr) {
+          std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
         }
       }
       {
         //To wait, the ref count has to be 1+#streams
-        auto streamLoopWaitTask = make_empty_waiting_task();
-        streamLoopWaitTask->increment_ref_count();
+        FinalWaitingTask streamLoopWaitTask;
 
         using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
 
-        beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
+        beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &streamLoopWaitTask),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
                                             transitionInfo,
                                             serviceToken_,
                                             emptyList);
 
-        streamLoopWaitTask->wait_for_all();
-        if (streamLoopWaitTask->exceptionPtr() != nullptr) {
-          std::rethrow_exception(*(streamLoopWaitTask->exceptionPtr()));
+        do {
+          taskGroup_.wait();
+        } while (not streamLoopWaitTask.done());
+        if (streamLoopWaitTask.exceptionPtr() != nullptr) {
+          std::rethrow_exception(*(streamLoopWaitTask.exceptionPtr()));
         }
       }
       beginLumiCalled_ = true;
@@ -554,21 +564,22 @@ namespace edm {
           //The data product was not set so we need to
           // tell the ProductResolver not to wait
           auto r = pep->getProductResolver(p.first.branchID());
-          r->putProduct(std::unique_ptr<WrapperBase>());
+          dynamic_cast<ProductPutterBase const*>(r)->putProduct(std::unique_ptr<WrapperBase>());
         }
       }
 
       ServiceRegistry::Operate operate(serviceToken_);
 
-      auto waitTask = make_empty_waiting_task();
-      waitTask->increment_ref_count();
+      FinalWaitingTask waitTask;
 
       EventTransitionInfo info(*pep, esp_->eventSetupImpl());
-      schedule_->processOneEventAsync(edm::WaitingTaskHolder(waitTask.get()), 0, info, serviceToken_);
+      schedule_->processOneEventAsync(edm::WaitingTaskHolder(taskGroup_, &waitTask), 0, info, serviceToken_);
 
-      waitTask->wait_for_all();
-      if (waitTask->exceptionPtr() != nullptr) {
-        std::rethrow_exception(*(waitTask->exceptionPtr()));
+      do {
+        taskGroup_.wait();
+      } while (not waitTask.done());
+      if (waitTask.exceptionPtr() != nullptr) {
+        std::rethrow_exception(*(waitTask.exceptionPtr()));
       }
       ++eventNumber_;
     }
@@ -580,7 +591,7 @@ namespace edm {
         lumiPrincipal_.reset();
 
         IOVSyncValue ts(EventID(runNumber_, lumiNumber_, eventNumber_), lumiPrincipal->endTime());
-        espController_->eventSetupForInstance(ts);
+        eventsetup::synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
 
         auto const& es = esp_->eventSetupImpl();
 
@@ -590,12 +601,11 @@ namespace edm {
 
         //To wait, the ref count has to be 1+#streams
         {
-          auto streamLoopWaitTask = make_empty_waiting_task();
-          streamLoopWaitTask->increment_ref_count();
+          FinalWaitingTask streamLoopWaitTask;
 
           using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
 
-          endStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
+          endStreamsTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &streamLoopWaitTask),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
                                             transitionInfo,
@@ -603,21 +613,28 @@ namespace edm {
                                             emptyList,
                                             false);
 
-          streamLoopWaitTask->wait_for_all();
-          if (streamLoopWaitTask->exceptionPtr() != nullptr) {
-            std::rethrow_exception(*(streamLoopWaitTask->exceptionPtr()));
+          do {
+            taskGroup_.wait();
+          } while (not streamLoopWaitTask.done());
+          if (streamLoopWaitTask.exceptionPtr() != nullptr) {
+            std::rethrow_exception(*(streamLoopWaitTask.exceptionPtr()));
           }
         }
         {
-          auto globalWaitTask = make_empty_waiting_task();
-          globalWaitTask->increment_ref_count();
+          FinalWaitingTask globalWaitTask;
 
           using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
-          endGlobalTransitionAsync<Traits>(
-              WaitingTaskHolder(globalWaitTask.get()), *schedule_, transitionInfo, serviceToken_, emptyList, false);
-          globalWaitTask->wait_for_all();
-          if (globalWaitTask->exceptionPtr() != nullptr) {
-            std::rethrow_exception(*(globalWaitTask->exceptionPtr()));
+          endGlobalTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &globalWaitTask),
+                                           *schedule_,
+                                           transitionInfo,
+                                           serviceToken_,
+                                           emptyList,
+                                           false);
+          do {
+            taskGroup_.wait();
+          } while (not globalWaitTask.done());
+          if (globalWaitTask.exceptionPtr() != nullptr) {
+            std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
           }
         }
       }
@@ -635,7 +652,7 @@ namespace edm {
         IOVSyncValue ts(
             EventID(runPrincipal.run(), LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
             runPrincipal.endTime());
-        espController_->eventSetupForInstance(ts);
+        eventsetup::synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
 
         auto const& es = esp_->eventSetupImpl();
 
@@ -645,12 +662,11 @@ namespace edm {
 
         //To wait, the ref count has to be 1+#streams
         {
-          auto streamLoopWaitTask = make_empty_waiting_task();
-          streamLoopWaitTask->increment_ref_count();
+          FinalWaitingTask streamLoopWaitTask;
 
           using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
 
-          endStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
+          endStreamsTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &streamLoopWaitTask),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
                                             transitionInfo,
@@ -658,21 +674,28 @@ namespace edm {
                                             emptyList,
                                             false);
 
-          streamLoopWaitTask->wait_for_all();
-          if (streamLoopWaitTask->exceptionPtr() != nullptr) {
-            std::rethrow_exception(*(streamLoopWaitTask->exceptionPtr()));
+          do {
+            taskGroup_.wait();
+          } while (not streamLoopWaitTask.done());
+          if (streamLoopWaitTask.exceptionPtr() != nullptr) {
+            std::rethrow_exception(*(streamLoopWaitTask.exceptionPtr()));
           }
         }
         {
-          auto globalWaitTask = make_empty_waiting_task();
-          globalWaitTask->increment_ref_count();
+          FinalWaitingTask globalWaitTask;
 
           using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
-          endGlobalTransitionAsync<Traits>(
-              WaitingTaskHolder(globalWaitTask.get()), *schedule_, transitionInfo, serviceToken_, emptyList, false);
-          globalWaitTask->wait_for_all();
-          if (globalWaitTask->exceptionPtr() != nullptr) {
-            std::rethrow_exception(*(globalWaitTask->exceptionPtr()));
+          endGlobalTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &globalWaitTask),
+                                           *schedule_,
+                                           transitionInfo,
+                                           serviceToken_,
+                                           emptyList,
+                                           false);
+          do {
+            taskGroup_.wait();
+          } while (not globalWaitTask.done());
+          if (globalWaitTask.exceptionPtr() != nullptr) {
+            std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
           }
         }
 
@@ -688,16 +711,21 @@ namespace edm {
 
         std::vector<edm::SubProcess> emptyList;
         {
-          auto globalWaitTask = make_empty_waiting_task();
-          globalWaitTask->increment_ref_count();
+          FinalWaitingTask globalWaitTask;
 
           ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
           using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>;
-          endGlobalTransitionAsync<Traits>(
-              WaitingTaskHolder(globalWaitTask.get()), *schedule_, transitionInfo, serviceToken_, emptyList, false);
-          globalWaitTask->wait_for_all();
-          if (globalWaitTask->exceptionPtr() != nullptr) {
-            std::rethrow_exception(*(globalWaitTask->exceptionPtr()));
+          endGlobalTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &globalWaitTask),
+                                           *schedule_,
+                                           transitionInfo,
+                                           serviceToken_,
+                                           emptyList,
+                                           false);
+          do {
+            taskGroup_.wait();
+          } while (not globalWaitTask.done());
+          if (globalWaitTask.exceptionPtr() != nullptr) {
+            std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
           }
         }
       }

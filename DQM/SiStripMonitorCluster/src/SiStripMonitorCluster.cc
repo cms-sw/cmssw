@@ -1,4 +1,3 @@
-
 // -*- C++ -*-
 // Package:    SiStripMonitorCluster
 // Class:      SiStripMonitorCluster
@@ -517,7 +516,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es, DQMStore::IBook
                                                      0,
                                                      0);
       if (NclusVsCycleTimeProf2D->kind() == MonitorElement::Kind::TPROFILE2D)
-        NclusVsCycleTimeProf2D->getTH1()->SetCanExtend(TH1::kAllAxes);
+        NclusVsCycleTimeProf2D->setCanExtend(TH1::kAllAxes);
     }
     if (clusterWidth_vs_amplitude_on) {
       ibooker.setCurrentFolder(topFolderName_ + "/MechanicalView/");
@@ -652,8 +651,15 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
   runNb = iEvent.id().run();
   eventNb++;
-  trendVar = trendVs10Ls_ ? iEvent.orbitNumber() / (10 * 262144.0)
-                          : iEvent.orbitNumber() / (1 * 262144.0);  // 10 lumisection : lumisection
+
+  if (!iEvent.isRealData()) {
+    trendVar = trendVs10Ls_ ? iEvent.eventAuxiliary().luminosityBlock() / 10.f
+                            : iEvent.eventAuxiliary().luminosityBlock();  // 10 lumisection : lumisection
+
+  } else {
+    trendVar = trendVs10Ls_ ? iEvent.orbitNumber() / (10 * 262144.0)
+                            : iEvent.orbitNumber() / (1 * 262144.0);  // 10 lumisection : lumisection
+  }
 
   int NPixClusters = 0, NStripClusters = 0, MultiplicityRegion = 0;
   bool isPixValid = false;
@@ -1402,7 +1408,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label, DQMStore::IBooker
                                                          "");
     subdetMEs.SubDetTotClusterProf->setAxisTitle(Parameters.getParameter<std::string>("xaxis"), 1);
     if (subdetMEs.SubDetTotClusterProf->kind() == MonitorElement::Kind::TPROFILE)
-      subdetMEs.SubDetTotClusterProf->getTH1()->SetCanExtend(TH1::kAllAxes);
+      subdetMEs.SubDetTotClusterProf->setCanExtend(TH1::kAllAxes);
 
     Parameters = conf_.getParameter<edm::ParameterSet>("NumberOfClusterPerLayerTrendVar");
     HistoName = "TotalNumberOfClusterPerLayer__" + label;
@@ -1610,7 +1616,7 @@ SiStripMonitorCluster::MonitorElement* SiStripMonitorCluster::bookMETrend(const 
     return me;
   me->setAxisTitle(ParametersTrend.getParameter<std::string>("xaxis"), 1);
   if (me->kind() == MonitorElement::Kind::TPROFILE)
-    me->getTH1()->SetCanExtend(TH1::kAllAxes);
+    me->setCanExtend(TH1::kAllAxes);
   return me;
 }
 

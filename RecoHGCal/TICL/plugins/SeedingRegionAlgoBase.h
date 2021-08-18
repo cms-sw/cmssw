@@ -9,6 +9,7 @@
 #include <vector>
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -29,6 +30,8 @@ namespace ticl {
     virtual void makeRegions(const edm::Event& ev,
                              const edm::EventSetup& es,
                              std::vector<TICLSeedingRegion>& result) = 0;
+
+    static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<int>("algo_verbosity", 0); }
 
     enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
 

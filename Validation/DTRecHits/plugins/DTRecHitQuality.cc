@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Validation/DTRecHits/interface/DTHitQualityUtils.h"
 
 #include "DTRecHitQuality.h"
@@ -85,7 +84,7 @@ namespace {
 }
 
 // Constructor
-DTRecHitQuality::DTRecHitQuality(const ParameterSet &pset) {
+DTRecHitQuality::DTRecHitQuality(const ParameterSet &pset) : muonGeomToken_(esConsumes()) {
   // Get the debug parameter for verbose output
   debug_ = pset.getUntrackedParameter<bool>("debug");
   // the name of the simhit collection
@@ -218,8 +217,7 @@ void DTRecHitQuality::dqmAnalyze(edm::Event const &event,
   }
 
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  const DTGeometry &dtGeom = setup.getData(muonGeomToken_);
 
   // Get the SimHit collection from the event
   Handle<PSimHitContainer> simHits;
@@ -248,7 +246,7 @@ void DTRecHitQuality::dqmAnalyze(edm::Event const &event,
 
     // Map rechits per wire
     auto const &recHitsPerWire = map1DRecHitsPerWire(dtRecHits.product());
-    compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, histograms, 1);
+    compute(dtGeom, simHitsPerWire, recHitsPerWire, histograms, 1);
   }
 
   //=======================================================================================
@@ -271,7 +269,7 @@ void DTRecHitQuality::dqmAnalyze(edm::Event const &event,
     } else {
       // Map rechits per wire
       auto const &recHitsPerWire = map1DRecHitsPerWire(segment2Ds.product());
-      compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, histograms, 2);
+      compute(dtGeom, simHitsPerWire, recHitsPerWire, histograms, 2);
     }
   }
 
@@ -296,7 +294,7 @@ void DTRecHitQuality::dqmAnalyze(edm::Event const &event,
 
     // Map rechits per wire
     auto const &recHitsPerWire = map1DRecHitsPerWire(segment4Ds.product());
-    compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, histograms, 3);
+    compute(dtGeom, simHitsPerWire, recHitsPerWire, histograms, 3);
   }
 }
 
@@ -413,7 +411,7 @@ float DTRecHitQuality::recHitDistFromWire(const DTRecHit1D &recHit, const DTLaye
 }
 
 template <typename type>
-void DTRecHitQuality::compute(const DTGeometry *dtGeom,
+void DTRecHitQuality::compute(const DTGeometry &dtGeom,
                               const std::map<DTWireId, std::vector<PSimHit>> &simHitsPerWire,
                               const std::map<DTWireId, std::vector<type>> &recHitsPerWire,
                               Histograms const &histograms,
@@ -427,7 +425,7 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
     vector<PSimHit> simHitsInCell = wireAndSHits.second;
 
     // Get the layer
-    const DTLayer *layer = dtGeom->layer(wireId);
+    const DTLayer *layer = dtGeom.layer(wireId);
 
     // Look for a mu hit in the cell
     const PSimHit *muSimHit = DTHitQualityUtils::findMuSimHit(simHitsInCell);

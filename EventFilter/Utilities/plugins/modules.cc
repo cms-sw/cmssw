@@ -8,6 +8,7 @@
 #include "EventFilter/Utilities/plugins/ExceptionGenerator.h"
 #include "EventFilter/Utilities/plugins/RawEventFileWriterForBU.h"
 #include "EventFilter/Utilities/plugins/RawEventOutputModuleForBU.h"
+#include "EventFilter/Utilities/plugins/FRDOutputModule.h"
 #include "EventFilter/Utilities/plugins/RecoEventOutputModuleForFU.h"
 #include "EventFilter/Utilities/plugins/RecoEventWriterForFU.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
@@ -22,6 +23,7 @@ DEFINE_FWK_SERVICE_MAKER(FastMonitoringService, FastMonitoringServiceMaker);
 
 typedef RawEventOutputModuleForBU<RawEventFileWriterForBU> RawStreamFileWriterForBU;
 DEFINE_FWK_MODULE(RawStreamFileWriterForBU);
+DEFINE_FWK_MODULE(FRDOutputModule);
 
 // legacy name for ConfDB compatibility
 typedef RecoEventOutputModuleForFU<RecoEventWriterForFU> ShmStreamConsumer;

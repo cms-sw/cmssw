@@ -4,6 +4,9 @@
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 //#include "DataFormats/Common/interface/Handle.h"
 
@@ -43,7 +46,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 // Geometry
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"

@@ -20,6 +20,7 @@
 #include "CalibTracker/SiStripQuality/interface/SiStripHotStripAlgorithmFromClusterOccupancy.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripBadAPVAlgorithmFromClusterOccupancy.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiStripBadStrip>(iConfig),
@@ -85,7 +86,9 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObj
             conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile", false));
         theIdentifier->setTrackerGeometry(tracker_);
 
-        SiStripQuality* qobj = new SiStripQuality();
+        const auto detInfo =
+            SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+        SiStripQuality* qobj = new SiStripQuality(detInfo);
         theIdentifier->extractBadStrips(
             qobj,
             ClusterPositionHistoMap,
@@ -130,7 +133,9 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObj
             conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile", false));
         theIdentifier2->setTrackerGeometry(tracker_);
 
-        SiStripQuality* qobj = new SiStripQuality();
+        const auto detInfo =
+            SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+        SiStripQuality* qobj = new SiStripQuality(detInfo);
         theIdentifier2->extractBadAPVs(qobj, ClusterPositionHistoMap, SiStripQuality_);
 
         //----------
@@ -181,7 +186,9 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObj
             parameters.getUntrackedParameter<double>("OccupancyThreshold", 1.E-5));
         theIdentifier3->setMinNumOfEvents();
 
-        SiStripQuality* qobj = new SiStripQuality();
+        const auto detInfo =
+            SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+        SiStripQuality* qobj = new SiStripQuality(detInfo);
         theIdentifier3->extractBadAPVSandStrips(
             qobj,
             ClusterPositionHistoMap,
@@ -290,7 +297,7 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos() {
   }
   if (!gotNentries) {
     edm::LogWarning("SiStripQualityHotStripIdentifierRoot")
-        << " [SiStripQualityHotStripIdentifierRoot::bookHistos] :: Histogram with to check # of evemnts missing"
+        << " [SiStripQualityHotStripIdentifierRoot::bookHistos] :: Histogram with to check # of events missing"
         << std::endl;
   }
   for (; iter != iterEnd; ++iter) {

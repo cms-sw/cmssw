@@ -1,7 +1,7 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define LOCAL_DEBUG
+//#define EDM_ML_DEBUG
 
 void MuonBaseNumber::addBase(const LevelBaseNumber& num) {
   basenumber_type::iterator cur = sortedBaseNumber.begin();
@@ -11,8 +11,8 @@ void MuonBaseNumber::addBase(const LevelBaseNumber& num) {
 
   while (cur != end) {
     if (num.level() == (*cur).level()) {
-#ifdef LOCAL_DEBUG
-      edm::LogVerbatim("Geometry") << "MuonBaseNumber::addBase was asked to add " << num.level() << " " << num.super()
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("MuonGeom") << "MuonBaseNumber::addBase was asked to add " << num.level() << " " << num.super()
                                    << " " << num.base() << " to existing level " << (*cur).level() << " "
                                    << (*cur).super() << " " << (*cur).base() << " but refused.";
 #endif
@@ -29,13 +29,13 @@ void MuonBaseNumber::addBase(const LevelBaseNumber& num) {
   }
   sortedBaseNumber.insert(cur, num);
 
-#ifdef LOCAL_DEBUG
+#ifdef EDM_ML_DEBUG
   cur = sortedBaseNumber.begin();
   end = sortedBaseNumber.end();
-  edm::LogVerbatim("Geometry") << "MuonBaseNumber::AddBase ";
+  edm::LogVerbatim("MuonGeom") << "MuonBaseNumber::AddBase ";
   unsigned int k(0);
   while (cur != end) {
-    edm::LogVerbatim("Geometry") << "[" << k << "] " << (*cur).level() << " " << (*cur).super() << " " << (*cur).base();
+    edm::LogVerbatim("MuonGeom") << "[" << k << "] " << (*cur).level() << " " << (*cur).super() << " " << (*cur).base();
     cur++;
     ++k;
   }

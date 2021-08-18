@@ -1,16 +1,19 @@
-#include "FWCore/MessageService/test/UnitTestClient_E.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include <iostream>
-#include <string>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 namespace edmtest {
 
-  void UnitTestClient_E::analyze(edm::Event const& /*unused*/
-                                 ,
-                                 edm::EventSetup const& /*unused*/
-  ) {
+  class UnitTestClient_E : public edm::global::EDAnalyzer<> {
+  public:
+    explicit UnitTestClient_E(edm::ParameterSet const&) {}
+
+    void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
+  };
+
+  void UnitTestClient_E::analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const {
     edm::LogInfo("expect_overall_unnamed") << "The following outputs are expected: \n"
                                            << "unlisted_category    appearing in events 1,2,3,4,5,10,15,25,45 \n";
 
@@ -35,8 +38,7 @@ namespace edmtest {
       //    edm::LogInfo   ("lim3bydefault")   <<
       //  	"message with overall default limit (superceded) of 2: " << i;
     }
-
-  }  // MessageLoggerClient::analyze()
+  }
 
 }  // namespace edmtest
 

@@ -25,11 +25,11 @@ public:
   explicit BufferedBoostIODBWriter(const edm::ParameterSet&);
   ~BufferedBoostIODBWriter() override {}
 
-private:
   BufferedBoostIODBWriter() = delete;
   BufferedBoostIODBWriter(const BufferedBoostIODBWriter&) = delete;
   BufferedBoostIODBWriter& operator=(const BufferedBoostIODBWriter&) = delete;
 
+private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string inputFile;

@@ -2,6 +2,7 @@
 <use name="DataFormats/CSCDigi"/>
 <use name="DataFormats/FEDRawData"/>
 <use name="CondFormats/CSCObjects"/>
+<use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <export>

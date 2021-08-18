@@ -14,6 +14,7 @@
 #include "DataFormats/HGCDigi/interface/HGCDataFrame.h"
 #include "DataFormats/HGCDigi/interface/HGCSample.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
   class Event;
@@ -23,7 +24,7 @@ namespace edm {
 
 class HGCalUncalibRecHitWorkerWeights : public HGCalUncalibRecHitWorkerBaseClass {
 public:
-  HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet&);
+  HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet&, edm::ConsumesCollector iC);
   ~HGCalUncalibRecHitWorkerWeights() override{};
 
   void set(const edm::EventSetup& es) override;
@@ -36,6 +37,9 @@ public:
                     HGChfnoseUncalibratedRecHitCollection& result) override;
 
 protected:
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> ee_geometry_token_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hef_geometry_token_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hfnose_geometry_token_;
   HGCalUncalibRecHitRecWeightsAlgo<HGCalDataFrame> uncalibMaker_ee_;
   HGCalUncalibRecHitRecWeightsAlgo<HGCalDataFrame> uncalibMaker_hef_;
   HGCalUncalibRecHitRecWeightsAlgo<HGCalDataFrame> uncalibMaker_heb_;

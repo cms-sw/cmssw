@@ -107,11 +107,11 @@ namespace edmNew {
           size = rh.size;
           return *this;
         }
-        Item(Item&& rh) noexcept : id(std::move(rh.id)), offset(int(rh.offset)), size(std::move(rh.size)) {}
+        Item(Item&& rh) noexcept : id(rh.id), offset(int(rh.offset)), size(rh.size) {}
         Item& operator=(Item&& rh) noexcept {
-          id = std::move(rh.id);
+          id = rh.id;
           offset = int(rh.offset);
-          size = std::move(rh.size);
+          size = rh.size;
           return *this;
         }
 
@@ -212,6 +212,7 @@ namespace edmNew {
         static DetSetVector<T>::Item d;
         return d;
       }
+
       FastFiller(DetSetVector<T>& iv, id_type id, bool isaveEmpty = false)
           : m_v(iv), m_item(m_v.ready() ? m_v.push_back(id) : dummy()), m_saveEmpty(isaveEmpty) {
         if (m_v.onDemand())
@@ -271,12 +272,21 @@ namespace edmNew {
       DataIter begin() { return m_v.m_data.begin() + m_item.offset; }
       DataIter end() { return begin() + size(); }
 
+      template <typename... Args>
+      void emplace_back(Args&&... args) {
+        checkCapacityExausted();
+        m_v.m_data.emplace_back(args...);
+        ++m_v.m_dataSize;
+        m_item.size++;
+      }
+
       void push_back(data_type const& d) {
         checkCapacityExausted();
         m_v.m_data.push_back(d);
         ++m_v.m_dataSize;
         m_item.size++;
       }
+
       void push_back(data_type&& d) {
         checkCapacityExausted();
         m_v.m_data.push_back(std::move(d));
@@ -355,6 +365,11 @@ namespace edmNew {
       data_type& operator[](size_type i) { return m_lv[i]; }
       DataIter begin() { return m_lv.begin(); }
       DataIter end() { return m_lv.end(); }
+
+      template <typename... Args>
+      void emplace_back(Args&&... args) {
+        m_lv.emplace_back(args...);
+      }
 
       void push_back(data_type const& d) { m_lv.push_back(d); }
       void push_back(data_type&& d) { m_lv.push_back(std::move(d)); }

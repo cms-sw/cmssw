@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os, re, hashlib, time, sys
 from traceback import print_exc
 from datetime import datetime

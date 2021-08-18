@@ -111,6 +111,7 @@ L1TTauOffline::L1TTauOffline(const edm::ParameterSet& ps)
       h_efficiencyNonIsoTauET_EB_EE_total_() {
   edm::LogInfo("L1TTauOffline") << "Constructor "
                                 << "L1TTauOffline::L1TTauOffline " << std::endl;
+  mFieldToken_ = esConsumes();
 }
 
 //
@@ -236,7 +237,8 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup) 
     return;
   }
 
-  eSetup.get<IdealMagneticFieldRecord>().get(m_BField);
+  m_BField = eSetup.getHandle(mFieldToken_);
+
   const reco::Vertex primaryVertex = getPrimaryVertex(vertex, beamSpot);
 
   getTightMuons(muons, mets, primaryVertex, trigEvent);

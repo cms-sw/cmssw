@@ -195,26 +195,24 @@ public:
   double transverseCurvature() const { return theFreeState.transverseCurvature(); }
 
   const CartesianTrajectoryError cartesianError() const {
-    if
-      UNLIKELY(!hasError()) {
-        missingError(" accesing cartesian error.");
-        return CartesianTrajectoryError();
-      }
+    if UNLIKELY (!hasError()) {
+      missingError(" accesing cartesian error.");
+      return CartesianTrajectoryError();
+    }
     return freeTrajectoryState(true)->cartesianError();
   }
   const CurvilinearTrajectoryError& curvilinearError() const {
-    if
-      UNLIKELY(!hasError()) {
-        missingError(" accesing curvilinearerror.");
-        static const CurvilinearTrajectoryError crap;
-        return crap;
-      }
+    if UNLIKELY (!hasError()) {
+      missingError(" accesing curvilinearerror.");
+      static const CurvilinearTrajectoryError crap;
+      return crap;
+    }
     return freeTrajectoryState(true)->curvilinearError();
   }
 
   FreeTrajectoryState const* freeTrajectoryState(bool withErrors = true) const {
-    if
-      UNLIKELY(!isValid()) notValid();
+    if UNLIKELY (!isValid())
+      notValid();
     if (withErrors && hasError()) {  // this is the right thing
       checkCurvilinError();
     }
@@ -225,11 +223,10 @@ public:
 
   // access local parameters/errors
   const LocalTrajectoryParameters& localParameters() const {
-    if
-      UNLIKELY(!isValid()) notValid();
-    if
-      UNLIKELY(!theLocalParametersValid)
-    createLocalParameters();
+    if UNLIKELY (!isValid())
+      notValid();
+    if UNLIKELY (!theLocalParametersValid)
+      createLocalParameters();
     return theLocalParameters;
   }
   LocalPoint localPosition() const { return localParameters().position(); }
@@ -237,13 +234,12 @@ public:
   LocalVector localDirection() const { return localMomentum().unit(); }
 
   const LocalTrajectoryError& localError() const {
-    if
-      UNLIKELY(!hasError()) {
-        missingError(" accessing local error.");
-        return theLocalError;
-      }
-    if
-      UNLIKELY(theLocalError.invalid()) createLocalError();
+    if UNLIKELY (!hasError()) {
+      missingError(" accessing local error.");
+      return theLocalError;
+    }
+    if UNLIKELY (theLocalError.invalid())
+      createLocalError();
     return theLocalError;
   }
 

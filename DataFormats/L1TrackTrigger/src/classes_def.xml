@@ -20,10 +20,20 @@
   <class name="vector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
   <class name="vector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
   <class name="vector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
-  <class name="TTTrack_TrackWord"/>
+  <class name="TTTrack_TrackWord" ClassVersion="4">
+   <version ClassVersion="4" checksum="133238749"/>
+   <version ClassVersion="3" checksum="4186150061"/>
+   <ioread sourceClass = "TTTrack_TrackWord" version="[-3]" targetClass="TTTrack_TrackWord"
+    source="unsigned int iRinv; unsigned int iphi; unsigned int itanl; unsigned int iz0; unsigned int id0; unsigned int ichi2XY; unsigned int ichi2Z; unsigned int iBendChi2; unsigned int ispare; unsigned int iHitPattern;" target="">
+    <![CDATA[
+      TTTrack_TrackWord tmp(1, onfile.iRinv, onfile.iphi, onfile.itanl, onfile.iz0, onfile.id0, onfile.ichi2XY, onfile.ichi2Z, onfile.iBendChi2, onfile.iHitPattern, 0, 0);
+      *newObj=tmp;
+    ]]>
+   </ioread>
+  </class>
   <class name="std::vector<TTTrack_TrackWord>"/>
   <class name="edm::Wrapper<std::vector<TTTrack_TrackWord> >"/>
-  <class name="edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
+  <class name="edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" /> 
   <class name="TTDTC"/>
   <class name="edm::Wrapper<TTDTC>"/>
   <class name="TTDTC::Streams"/>

@@ -101,14 +101,14 @@ namespace {
                                                       SiPixelGainCalibrationForHLT>;
 
   using SiPixelGainCalibForHLTGainsBPIXMap =
-      SiPixelGainCalibrationBPIXMap<gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationMap<gainCalibPI::t_gain, SiPixelGainCalibrationForHLT, SiPixelPI::t_barrel>;
   using SiPixelGainCalibForHLTPedestalsBPIXMap =
-      SiPixelGainCalibrationBPIXMap<gainCalibPI::t_pedestal, SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationMap<gainCalibPI::t_pedestal, SiPixelGainCalibrationForHLT, SiPixelPI::t_barrel>;
 
   using SiPixelGainCalibForHLTGainsFPIXMap =
-      SiPixelGainCalibrationFPIXMap<gainCalibPI::t_gain, SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationMap<gainCalibPI::t_gain, SiPixelGainCalibrationForHLT, SiPixelPI::t_forward>;
   using SiPixelGainCalibForHLTPedestalsFPIXMap =
-      SiPixelGainCalibrationFPIXMap<gainCalibPI::t_pedestal, SiPixelGainCalibrationForHLT>;
+      SiPixelGainCalibrationMap<gainCalibPI::t_pedestal, SiPixelGainCalibrationForHLT, SiPixelPI::t_forward>;
 
   using SiPixelGainCalibForHLTGainByRegionComparisonSingleTag =
       SiPixelGainCalibrationByRegionComparisonBase<gainCalibPI::t_gain,

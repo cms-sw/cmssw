@@ -61,9 +61,11 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const m_geomToken;
+  edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord> const m_pixelCPEToken;
+
   const double m_maxZ;             // Use only pixel clusters with |z| < maxZ
   const edm::InputTag m_clusters;  // PixelClusters InputTag
-  std::string m_pixelCPE;          // PixelCPE (PixelClusterParameterEstimator)
   edm::EDGetTokenT<SiPixelClusterCollectionNew> clustersToken;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
   edm::EDGetTokenT<edm::View<reco::Jet> > jetsToken;
@@ -125,9 +127,9 @@ private:
 };
 
 FastPrimaryVertexWithWeightsProducer::FastPrimaryVertexWithWeightsProducer(const edm::ParameterSet& iConfig)
-    : m_maxZ(iConfig.getParameter<double>("maxZ")),
-      m_pixelCPE(iConfig.getParameter<std::string>("pixelCPE")),
-
+    : m_geomToken(esConsumes()),
+      m_pixelCPEToken(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("pixelCPE")))),
+      m_maxZ(iConfig.getParameter<double>("maxZ")),
       m_njets(iConfig.getParameter<int>("njets")),
       m_maxJetEta(iConfig.getParameter<double>("maxJetEta")),
       m_minJetPt(iConfig.getParameter<double>("minJetPt")),
@@ -248,19 +250,14 @@ void FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm
   }
 
   //get PixelClusterParameterEstimator
-  edm::ESHandle<PixelClusterParameterEstimator> pe;
-  const PixelClusterParameterEstimator* pp;
-  iSetup.get<TkPixelCPERecord>().get(m_pixelCPE, pe);
-  pp = pe.product();
+  const PixelClusterParameterEstimator* pp = &iSetup.getData(m_pixelCPEToken);
 
   //get beamSpot
   edm::Handle<BeamSpot> beamSpot;
   iEvent.getByToken(beamSpotToken, beamSpot);
 
   //get TrackerGeometry
-  edm::ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-  const TrackerGeometry* trackerGeometry = tracker.product();
+  const TrackerGeometry* trackerGeometry = &iSetup.getData(m_geomToken);
 
   // PART I: get z-projections with z-weights
   std::vector<float> zProjections;

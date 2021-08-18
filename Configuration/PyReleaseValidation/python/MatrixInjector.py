@@ -65,16 +65,29 @@ class MatrixInjector(object):
         if(opt.batchName):
             self.batchName = '__'+opt.batchName+'-'+self.batchTime
 
-        #wagemt stuff
+        # WMagent url
         if not self.wmagent:
-            self.wmagent=os.getenv('WMAGENT_REQMGR')
+            # Overwrite with env variable
+            self.wmagent = os.getenv('WMAGENT_REQMGR')
+
         if not self.wmagent:
-            if not opt.testbed :
+            # Default values
+            if not opt.testbed:
                 self.wmagent = 'cmsweb.cern.ch'
-                self.DbsUrl = "https://"+self.wmagent+"/dbs/prod/global/DBSReader"
-            else :
+            else:
                 self.wmagent = 'cmsweb-testbed.cern.ch'
-                self.DbsUrl = "https://"+self.wmagent+"/dbs/int/global/DBSReader"
+
+        # DBSReader url
+        if opt.dbsUrl is not None:
+            self.DbsUrl = opt.dbsUrl
+        elif os.getenv('CMS_DBSREADER_URL') is not None:
+            self.DbsUrl = os.getenv('CMS_DBSREADER_URL')
+        else:
+            # Default values
+            if not opt.testbed:
+                self.DbsUrl = "https://cmsweb-prod.cern.ch/dbs/prod/global/DBSReader"
+            else:
+                self.DbsUrl = "https://cmsweb-testbed.cern.ch/dbs/int/global/DBSReader"
 
         if not self.dqmgui:
             self.dqmgui="https://cmsweb.cern.ch/dqm/relval"

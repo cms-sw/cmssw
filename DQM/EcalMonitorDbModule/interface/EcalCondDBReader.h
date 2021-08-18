@@ -12,7 +12,12 @@ public:
   ~EcalCondDBReader() override;
 
 private:
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void dqmEndRun(DQMStore::IBooker &, DQMStore::IGetter &, edm::Run const &, edm::EventSetup const &) override;
+
+  EcalElectronicsMapping const *electronicsMap;
+  void setElectronicsMap(edm::EventSetup const &);
+  EcalElectronicsMapping const *GetElectronicsMap();
+  ecaldqm::EcalDQMSetupObjects const getEcalDQMSetupObjects();
 
   // DON'T CHANGE - ORDER MATTERS IN DB
   enum Tasks {

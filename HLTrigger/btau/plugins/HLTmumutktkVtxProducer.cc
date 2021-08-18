@@ -5,23 +5,18 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-
 #include "HLTmumutktkVtxProducer.h"
-#include <DataFormats/Math/interface/deltaR.h>
-#include "TMath.h"
 
 using namespace edm;
 using namespace reco;
@@ -30,13 +25,15 @@ using namespace trigger;
 
 // ----------------------------------------------------------------------
 HLTmumutktkVtxProducer::HLTmumutktkVtxProducer(const edm::ParameterSet& iConfig)
-    : muCandTag_(iConfig.getParameter<edm::InputTag>("MuCand")),
+    : transientTrackRecordToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      muCandTag_(iConfig.getParameter<edm::InputTag>("MuCand")),
       muCandToken_(consumes<reco::RecoChargedCandidateCollection>(muCandTag_)),
       trkCandTag_(iConfig.getParameter<edm::InputTag>("TrackCand")),
       trkCandToken_(consumes<reco::RecoChargedCandidateCollection>(trkCandTag_)),
       previousCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
       previousCandToken_(consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
       mfName_(iConfig.getParameter<std::string>("SimpleMagneticField")),
+      idealMagneticFieldRecordToken_(esConsumes(edm::ESInputTag("", mfName_))),
       thirdTrackMass_(iConfig.getParameter<double>("ThirdTrackMass")),
       fourthTrackMass_(iConfig.getParameter<double>("FourthTrackMass")),
       maxEta_(iConfig.getParameter<double>("MaxEta")),
@@ -88,17 +85,15 @@ void HLTmumutktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   Handle<RecoChargedCandidateCollection> mucands;
   iEvent.getByToken(muCandToken_, mucands);
 
-  //get the transient track builder:
-  edm::ESHandle<TransientTrackBuilder> theB;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
+  // get the transient track builder
+  auto const& theB = iSetup.getHandle(transientTrackRecordToken_);
 
-  //get the beamspot position
+  // get the beamspot position
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByToken(beamSpotToken_, recoBeamSpotHandle);
 
-  //get the b field
-  ESHandle<MagneticField> bFieldHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(mfName_, bFieldHandle);
+  // get the b field
+  auto const& bFieldHandle = iSetup.getHandle(idealMagneticFieldRecordToken_);
   const MagneticField* magField = bFieldHandle.product();
   TSCBLBuilderNoMaterial blsBuilder;
 

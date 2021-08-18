@@ -1,7 +1,6 @@
 #ifndef RecoLocalCalo_EcalRecProducers_plugins_AmplitudeComputationCommonKernels_h
 #define RecoLocalCalo_EcalRecProducers_plugins_AmplitudeComputationCommonKernels_h
 
-#include "Common.h"
 #include "DeclsForKernels.h"
 #include "EigenMatrixTypes_gpu.h"
 

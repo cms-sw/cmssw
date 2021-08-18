@@ -46,6 +46,7 @@ protected:
   edm::EDGetTokenT<QIE11DigiCollection> _tokQIE11;
   edm::EDGetTokenT<HODigiCollection> _tokHO;
   edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
   double _thresh_unihf;

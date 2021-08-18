@@ -127,8 +127,8 @@ process.p = cms.Path(process.castorDigis*process.castorreco*process.castorMonito
 #process.p = cms.Path(process.castorMonitor*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
 
 
-process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.castorMonitor.rawLabel = cms.InputTag("rawDataCollector")
+process.castorDigis.InputLabel = "rawDataCollector"
+process.castorMonitor.rawLabel = "rawDataCollector"
     
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
@@ -137,8 +137,8 @@ process.castorMonitor.rawLabel = cms.InputTag("rawDataCollector")
 print("Running with run type = ", process.runType.getRunTypeName())
 
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.castorMonitor.rawLabel = cms.InputTag("rawDataRepacker")
+    process.castorDigis.InputLabel = "rawDataRepacker"
+    process.castorMonitor.rawLabel = "rawDataRepacker"
 
 
 ### process customizations included here

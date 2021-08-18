@@ -39,7 +39,7 @@ namespace DTHitQualityUtils {
   /// Find direction and position of a segment (in local RF) from outer and inner
   /// mu SimHit in the RF of object Det
   std::pair<LocalVector, LocalPoint> findMuSimSegmentDirAndPos(
-      const std::pair<const PSimHit *, const PSimHit *> &inAndOutSimHit, const DetId detId, const DTGeometry *muonGeom);
+      const std::pair<const PSimHit *, const PSimHit *> &inAndOutSimHit, const DetId detId, const DTGeometry &muonGeom);
   /// Find the angles from a segment direction:
   /// atan(dx/dz) = "phi"   angle in the chamber RF
   /// atan(dy/dz) = "theta" angle in the chamber RF (note: this has opposite sign

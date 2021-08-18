@@ -29,8 +29,6 @@ public:
   void finalizeEvent(edm::Event&, edm::EventSetup const&) override;
   void accumulate(edm::Event const&, edm::EventSetup const&) override;
   void accumulate(PileUpEventPrincipal const&, edm::EventSetup const&, edm::StreamID const&) override;
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
   ~HGCDigiProducer() override = default;
 
 private:

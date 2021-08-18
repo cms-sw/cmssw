@@ -33,7 +33,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/METReco/interface/HaloClusterCandidateHCAL.h"
 
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"

@@ -19,6 +19,7 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG
@@ -52,7 +53,7 @@ struct HGCalMixLayer {
     absorbMode_ = args.value<int>("AbsorberMode");
     sensitiveMode_ = args.value<int>("SensitiveMode");
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "First Layer " << firstLayer_ << " and "
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer::First Layer " << firstLayer_ << " and "
                                   << "Absober:Sensitive mode " << absorbMode_ << ":" << sensitiveMode_;
 #endif
     zMinBlock_ = args.value<double>("zMinBlock");
@@ -62,9 +63,23 @@ struct HGCalMixLayer {
     alpha_ = (1._pi) / sectors_;
     cosAlpha_ = cos(alpha_);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: zStart " << (f2mm_ * zMinBlock_) << " wafer width "
-                                  << (f2mm_ * waferSize_) << " separations " << (f2mm_ * waferSepar_) << " sectors "
-                                  << sectors_ << ":" << convertRadToDeg(alpha_) << ":" << cosAlpha_;
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: zStart " << cms::convert2mm(zMinBlock_) << " wafer width "
+                                  << cms::convert2mm(waferSize_) << " separations " << cms::convert2mm(waferSepar_)
+                                  << " sectors " << sectors_ << ":" << convertRadToDeg(alpha_) << ":" << cosAlpha_;
+#endif
+    slopeB_ = args.value<std::vector<double>>("SlopeBottom");
+    zFrontB_ = args.value<std::vector<double>>("ZFrontBottom");
+    rMinFront_ = args.value<std::vector<double>>("RMinFront");
+    slopeT_ = args.value<std::vector<double>>("SlopeTop");
+    zFrontT_ = args.value<std::vector<double>>("ZFrontTop");
+    rMaxFront_ = args.value<std::vector<double>>("RMaxFront");
+#ifdef EDM_ML_DEBUG
+    for (unsigned int i = 0; i < slopeB_.size(); ++i)
+      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << cms::convert2mm(zFrontB_[i]) << " Rmin "
+                                    << cms::convert2mm(rMinFront_[i]) << " Slope " << slopeB_[i];
+    for (unsigned int i = 0; i < slopeT_.size(); ++i)
+      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << cms::convert2mm(zFrontT_[i]) << " Rmax "
+                                    << cms::convert2mm(rMaxFront_[i]) << " Slope " << slopeT_[i];
 #endif
 
     waferFull_ = args.value<std::vector<std::string>>("WaferNamesFull");
@@ -90,20 +105,6 @@ struct HGCalMixLayer {
       edm::LogVerbatim("HGCalGeom") << st1.str() << std::endl;
     }
 #endif
-    slopeB_ = args.value<std::vector<double>>("SlopeBottom");
-    zFrontB_ = args.value<std::vector<double>>("ZFrontBottom");
-    rMinFront_ = args.value<std::vector<double>>("RMinFront");
-    slopeT_ = args.value<std::vector<double>>("SlopeTop");
-    zFrontT_ = args.value<std::vector<double>>("ZFrontTop");
-    rMaxFront_ = args.value<std::vector<double>>("RMaxFront");
-#ifdef EDM_ML_DEBUG
-    for (unsigned int i = 0; i < slopeB_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << (f2mm_ * zFrontB_[i]) << " Rmin "
-                                    << (f2mm_ * rMinFront_[i]) << " Slope " << slopeB_[i];
-    for (unsigned int i = 0; i < slopeT_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << (f2mm_ * zFrontT_[i]) << " Rmax "
-                                    << (f2mm_ * rMaxFront_[i]) << " Slope " << slopeT_[i];
-#endif
 
     materials_ = args.value<std::vector<std::string>>("MaterialNames");
     names_ = args.value<std::vector<std::string>>("VolumeNames");
@@ -112,23 +113,24 @@ struct HGCalMixLayer {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: " << materials_.size() << " types of volumes";
     for (unsigned int i = 0; i < names_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names_[i] << " of thickness " << (f2mm_ * thick_[i])
-                                    << " filled with " << materials_[i] << " first copy number " << copyNumber_[i];
+      edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names_[i] << " of thickness "
+                                    << cms::convert2mm(thick_[i]) << " filled with " << materials_[i]
+                                    << " first copy number " << copyNumber_[i];
 #endif
     layers_ = args.value<std::vector<int>>("Layers");
     layerThick_ = args.value<std::vector<double>>("LayerThick");
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "There are " << layers_.size() << " blocks";
     for (unsigned int i = 0; i < layers_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << (f2mm_ * layerThick_[i]) << " with "
-                                    << layers_[i] << " layers";
+      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << cms::convert2mm(layerThick_[i])
+                                    << " with " << layers_[i] << " layers";
 #endif
     layerType_ = args.value<std::vector<int>>("LayerType");
     layerSense_ = args.value<std::vector<int>>("LayerSense");
-    layerCenter_ = args.value<std::vector<int>>("LayerCenter");
+    layerTypes_ = args.value<std::vector<int>>("LayerTypes");
 #ifdef EDM_ML_DEBUG
-    for (unsigned int i = 0; i < layerCenter_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "LayerCenter [" << i << "] " << layerCenter_[i];
+    for (unsigned int i = 0; i < layerTypes_.size(); ++i)
+      edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerTypes_[i];
 #endif
     if (firstLayer_ > 0) {
       for (unsigned int i = 0; i < layerType_.size(); ++i) {
@@ -160,7 +162,7 @@ struct HGCalMixLayer {
     edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: " << materialTop_.size() << " types of volumes in the top part";
     for (unsigned int i = 0; i < materialTop_.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << namesTop_[i] << " of thickness "
-                                    << (f2mm_ * layerThickTop_[i]) << " filled with " << materialTop_[i]
+                                    << cms::convert2mm(layerThickTop_[i]) << " filled with " << materialTop_[i]
                                     << " first copy number " << copyNumberTop_[i];
     edm::LogVerbatim("HGCalGeom") << "There are " << layerTypeTop_.size() << " layers in the top part";
     for (unsigned int i = 0; i < layerTypeTop_.size(); ++i)
@@ -191,8 +193,8 @@ struct HGCalMixLayer {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer:: with " << tileRMin_.size() << " rings";
     for (unsigned int k = 0; k < tileRMin_.size(); ++k)
-      edm::LogVerbatim("HGCalGeom") << "Ring[" << k << "] " << (f2mm_ * tileRMin_[k]) << " : "
-                                    << (f2mm_ * tileRMax_[k]);
+      edm::LogVerbatim("HGCalGeom") << "Ring[" << k << "] " << cms::convert2mm(tileRMin_[k]) << " : "
+                                    << cms::convert2mm(tileRMax_[k]);
     edm::LogVerbatim("HGCalGeom") << "TileProperties with " << tileIndex_.size() << " entries in "
                                   << tileLayerStart_.size() << " layers";
     for (unsigned int k = 0; k < tileLayerStart_.size(); ++k)
@@ -231,9 +233,10 @@ struct HGCalMixLayer {
 
         std::string name = names_[ii] + std::to_string(copy);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Layer " << ly << ":" << ii << " Front " << (f2mm_ * zi)
-                                      << ", " << (f2mm_ * routF) << " Back " << (f2mm_ * zo) << ", " << (f2mm_ * rinB)
-                                      << " superlayer thickness " << (f2mm_ * layerThick_[i]);
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Layer " << ly << ":" << ii << " Front "
+                                      << cms::convert2mm(zi) << ", " << cms::convert2mm(routF) << " Back "
+                                      << cms::convert2mm(zo) << ", " << cms::convert2mm(rinB)
+                                      << " superlayer thickness " << cms::convert2mm(layerThick_[i]);
 #endif
 
         dd4hep::Material matter = ns.material(materials_[ii]);
@@ -241,33 +244,26 @@ struct HGCalMixLayer {
 
         if (layerSense_[ly] < 1) {
           std::vector<double> pgonZ, pgonRin, pgonRout;
-          if (layerSense_[ly] == 0 || absorbMode_ == 0) {
-            double rmax =
-                (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) -
-                tol1;
-            pgonZ.emplace_back(-hthick);
-            pgonZ.emplace_back(hthick);
-            pgonRin.emplace_back(rinB);
-            pgonRin.emplace_back(rinB);
-            pgonRout.emplace_back(rmax);
-            pgonRout.emplace_back(rmax);
-          } else {
-            HGCalGeomTools::radius(zz - hthick,
-                                   zz + hthick,
-                                   zFrontB_,
-                                   rMinFront_,
-                                   slopeB_,
-                                   zFrontT_,
-                                   rMaxFront_,
-                                   slopeT_,
-                                   -layerSense_[ly],
-                                   pgonZ,
-                                   pgonRin,
-                                   pgonRout);
-            for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
-              pgonZ[isec] -= zz;
+          double rmax =
+              (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) - tol1;
+          HGCalGeomTools::radius(zz - hthick,
+                                 zz + hthick,
+                                 zFrontB_,
+                                 rMinFront_,
+                                 slopeB_,
+                                 zFrontT_,
+                                 rMaxFront_,
+                                 slopeT_,
+                                 -layerSense_[ly],
+                                 pgonZ,
+                                 pgonRin,
+                                 pgonRout);
+          for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
+            pgonZ[isec] -= zz;
+            if (layerSense_[ly] == 0 || absorbMode_ == 0)
+              pgonRout[isec] = rmax;
+            else
               pgonRout[isec] = pgonRout[isec] * cosAlpha_ - tol1;
-            }
           }
 
           dd4hep::Solid solid = dd4hep::Polyhedra(sectors_, -alpha_, 2._pi, pgonZ, pgonRin, pgonRout);
@@ -279,8 +275,8 @@ struct HGCalMixLayer {
                                         << " sectors covering " << convertRadToDeg(-alpha_) << ":"
                                         << convertRadToDeg(-alpha_ + 2._pi) << " with " << pgonZ.size() << " sections";
           for (unsigned int k = 0; k < pgonZ.size(); ++k)
-            edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << (f2mm_ * pgonZ[k]) << " R " << (f2mm_ * pgonRin[k])
-                                          << ":" << (f2mm_ * pgonRout[k]);
+            edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << cms::convert2mm(pgonZ[k]) << " R "
+                                          << cms::convert2mm(pgonRin[k]) << ":" << cms::convert2mm(pgonRout[k]);
 #endif
         } else {
           double rins =
@@ -294,11 +290,12 @@ struct HGCalMixLayer {
 
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: " << solid.name() << " Tubs made of " << matter.name()
-                                        << " of dimensions " << (f2mm_ * rinB) << ":" << (f2mm_ * rins) << ", "
-                                        << (f2mm_ * routF) << ":" << (f2mm_ * routs) << ", " << (f2mm_ * hthick)
-                                        << ", 0.0, 360.0 and positioned in: " << glog.name() << " number " << copy;
+                                        << " of dimensions " << cms::convert2mm(rinB) << ":" << cms::convert2mm(rins)
+                                        << ", " << cms::convert2mm(routF) << ":" << cms::convert2mm(routs) << ", "
+                                        << cms::convert2mm(hthick) << ", 0.0, 360.0 and positioned in: " << glog.name()
+                                        << " number " << copy;
 #endif
-          positionMix(ctxt, e, glog, name, copy, thick_[ii], matter, layerSense_[ly]);
+          positionMix(ctxt, e, glog, name, copy, thick_[ii], matter);
         }
 
         dd4hep::Position r1(0, 0, zz);
@@ -306,7 +303,7 @@ struct HGCalMixLayer {
         ++copyNumber_[ii];
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: " << glog.name() << " number " << copy << " positioned in "
-                                      << mother.name() << " at (0,0," << (f2mm_ * zz) << ") with no rotation";
+                                      << mother.name() << " at (0,0," << cms::convert2mm(zz) << ") with no rotation";
 #endif
         zz += hthick;
       }  // End of loop over layers in a block
@@ -314,11 +311,12 @@ struct HGCalMixLayer {
       laymin = laymax;
       if (std::abs(thickTot - layerThick_[i]) > tol2_) {
         if (thickTot > layerThick_[i]) {
-          edm::LogError("HGCalGeom") << "Thickness of the partition " << (f2mm_ * layerThick_[i]) << " is smaller than "
-                                     << (f2mm_ * thickTot) << ": thickness of all its components **** ERROR ****";
+          edm::LogError("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(layerThick_[i])
+                                     << " is smaller than " << cms::convert2mm(thickTot)
+                                     << ": thickness of all its components **** ERROR ****";
         } else {
-          edm::LogWarning("HGCalGeom") << "Thickness of the partition " << (f2mm_ * layerThick_[i])
-                                       << " does not match with " << (f2mm_ * thickTot) << " of the components";
+          edm::LogWarning("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(layerThick_[i])
+                                       << " does not match with " << cms::convert2mm(thickTot) << " of the components";
         }
       }
     }  // End of loop over blocks
@@ -340,8 +338,7 @@ struct HGCalMixLayer {
                    const std::string& nameM,
                    int copyM,
                    double thick,
-                   const dd4hep::Material& matter,
-                   int layerType) {
+                   const dd4hep::Material& matter) {
     cms::DDNamespace ns(ctxt, e, true);
 
     // Make the top part first
@@ -379,9 +376,9 @@ struct HGCalMixLayer {
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Layer " << copy << " iR "
                                       << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << ":"
                                       << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << " R "
-                                      << (f2mm_ * r1) << ":" << (f2mm_ * r2) << " Thick " << (f2mm_ * (2.0 * hthickl))
-                                      << " phi " << fimin << ":" << fimax << ":" << convertRadToDeg(phi1) << ":"
-                                      << convertRadToDeg(phi2);
+                                      << cms::convert2mm(r1) << ":" << cms::convert2mm(r2) << " Thick "
+                                      << cms::convert2mm((2.0 * hthickl)) << " phi " << fimin << ":" << fimax << ":"
+                                      << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2);
 #endif
         std::string name = namesTop_[ii] + "L" + std::to_string(copy) + "F" + std::to_string(k);
         ++k;
@@ -391,15 +388,15 @@ struct HGCalMixLayer {
         ns.addVolumeNS(glog1);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: " << glog1.name() << " Tubs made of " << materialTop_[ii]
-                                      << " of dimensions " << (f2mm_ * r1) << ", " << (f2mm_ * r2) << ", "
-                                      << (f2mm_ * hthickl) << ", " << convertRadToDeg(phi1) << ", "
+                                      << " of dimensions " << cms::convert2mm(r1) << ", " << cms::convert2mm(r2) << ", "
+                                      << cms::convert2mm(hthickl) << ", " << convertRadToDeg(phi1) << ", "
                                       << convertRadToDeg(phi2);
 #endif
         dd4hep::Position tran(0, 0, zpos);
         glog.placeVolume(glog1, copy, tran);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Position " << glog1.name() << " number " << copy << " in "
-                                      << glog.name() << " at (0, 0, " << (f2mm_ * zpos) << ") with no rotation";
+                                      << glog.name() << " at (0, 0, " << cms::convert2mm(zpos) << ") with no rotation";
 #endif
       }
       ++copyNumberTop_[ii];
@@ -407,23 +404,26 @@ struct HGCalMixLayer {
     }
     if (std::abs(thickTot - thick) > tol2_) {
       if (thickTot > thick) {
-        edm::LogError("HGCalGeom") << "Thickness of the partition " << (f2mm_ * thick) << " is smaller than "
-                                   << (f2mm_ * thickTot)
+        edm::LogError("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(thick) << " is smaller than "
+                                   << cms::convert2mm(thickTot)
                                    << ": thickness of all its components in the top part **** ERROR ****";
       } else {
-        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << (f2mm_ * thick) << " does not match with "
-                                     << (f2mm_ * thickTot) << " of the components in top part";
+        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(thick)
+                                     << " does not match with " << cms::convert2mm(thickTot)
+                                     << " of the components in top part";
       }
     }
 
     // Make the bottom part next
     int layer = (copyM - firstLayer_);
     static const double sqrt3 = std::sqrt(3.0);
-    int layercenter = layerCenter_[layer];
+    int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda)
+                          ? 1
+                          : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? 2 : 0);
+    int layerType = (layerTypes_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
     int firstWafer = waferLayerStart_[layer];
-    int lastWafer =
-        ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
-                                                                 : static_cast<int>(waferLayerStart_.size()));
+    int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
+                                                                             : static_cast<int>(waferIndex_.size()));
     double r = 0.5 * (waferSize_ + waferSepar_);
     double R = 2.0 * r / sqrt3;
     double dy = 0.75 * R;
@@ -431,10 +431,11 @@ struct HGCalMixLayer {
 #ifdef EDM_ML_DEBUG
     int ium(0), ivm(0), kount(0);
     std::vector<int> ntype(3, 0);
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: " << glog.name() << "  r " << (f2mm_ * r) << " R " << (f2mm_ * R)
-                                  << " dy " << (f2mm_ * dy) << " Shift " << (f2mm_ * xyoff.first) << ":"
-                                  << (f2mm_ * xyoff.second) << " WaferSize " << (f2mm_ * (waferSize_ + waferSepar_))
-                                  << " index " << firstWafer << ":" << (lastWafer - 1);
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: " << glog.name() << "  r " << cms::convert2mm(r) << " R "
+                                  << cms::convert2mm(R) << " dy " << cms::convert2mm(dy) << " Shift "
+                                  << cms::convert2mm(xyoff.first) << ":" << cms::convert2mm(xyoff.second)
+                                  << " WaferSize " << cms::convert2mm((waferSize_ + waferSepar_)) << " index "
+                                  << firstWafer << ":" << (lastWafer - 1);
 #endif
     for (int k = firstWafer; k < lastWafer; ++k) {
       int u = HGCalWaferIndex::waferU(waferIndex_[k]);
@@ -453,11 +454,11 @@ struct HGCalMixLayer {
       std::string wafer;
       int i(999);
       if (part == HGCalTypes::WaferFull) {
-        i = (layerType - 1) * waferTypes_ + type;
+        i = layerType * waferTypes_ + type;
         wafer = waferFull_[i];
       } else {
-        i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ +
-            (layerType - 1) * waferTypes_ * orientationTypes_ + type * orientationTypes_ + orien;
+        i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ + layerType * waferTypes_ * orientationTypes_ +
+            type * orientationTypes_ + orien;
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:ind " << layerType << ":" << type << ":" << part
                                       << ":" << orien << ":" << i << ":" << waferPart_.size();
@@ -483,8 +484,8 @@ struct HGCalMixLayer {
 #ifdef EDM_ML_DEBUG
       ++ntype[type];
       edm::LogVerbatim("HGCalGeom") << " DDHGCalMixLayer: " << wafer << " number " << copy << " type " << layerType
-                                    << ":" << type << " positioned in " << glog.name() << " at (" << (f2mm_ * xpos)
-                                    << "," << (f2mm_ * ypos) << ",0) with no rotation";
+                                    << ":" << type << " positioned in " << glog.name() << " at ("
+                                    << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos) << ",0) with no rotation";
 #endif
     }
 
@@ -532,7 +533,7 @@ struct HGCalMixLayer {
   std::vector<double> layerThickTop_;     // Thickness of the top sections
   std::vector<int> layerTypeTop_;         // Type of the Top layer
   std::vector<int> copyNumberTop_;        // Initial copy numbers (top section)
-  std::vector<int> layerCenter_;          // Centering of the wafers
+  std::vector<int> layerTypes_;           // Layer type of silicon layers
   std::vector<int> waferIndex_;           // Wafer index for the types
   std::vector<int> waferProperty_;        // Wafer property
   std::vector<int> waferLayerStart_;      // Start index of wafers in each layer
@@ -543,8 +544,6 @@ struct HGCalMixLayer {
   std::vector<int> tileLayerStart_;       // Start index of tiles in each layer
   std::unordered_set<int> copies_;        // List of copy #'s
   double alpha_, cosAlpha_;
-
-  static constexpr double f2mm_ = (1.0 / dd4hep::mm);
 };
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {

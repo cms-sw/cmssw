@@ -131,14 +131,12 @@ void dEdxHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     return;
 
   if (doDeDxPlots_ || doAllPlots_) {
-    edm::Handle<reco::TrackCollection> trackCollectionHandle;
-    iEvent.getByToken(trackToken_, trackCollectionHandle);
+    edm::Handle<reco::TrackCollection> trackCollectionHandle = iEvent.getHandle(trackToken_);
     if (!trackCollectionHandle.isValid())
       return;
 
     for (unsigned int i = 0; i < dEdxInputList_.size(); i++) {
-      edm::Handle<reco::DeDxHitInfoAss> dEdxObjectHandle;
-      iEvent.getByToken(dEdxTokenList_[i], dEdxObjectHandle);
+      edm::Handle<reco::DeDxHitInfoAss> dEdxObjectHandle = iEvent.getHandle(dEdxTokenList_[i]);
       if (!dEdxObjectHandle.isValid())
         continue;
 

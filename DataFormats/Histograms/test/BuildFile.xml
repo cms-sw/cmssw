@@ -2,3 +2,8 @@
   <use name="cppunit"/>
   <use name="DataFormats/Histograms"/>
 </bin>
+
+<bin name="TestDataFormatsHistogramsPath" file="MonitorElementData_Path_catch.cc">
+  <use name="catch2"/>
+  <use name="DataFormats/Histograms"/>
+</bin>

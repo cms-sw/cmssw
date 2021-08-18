@@ -1,13 +1,8 @@
 #include <SimG4Core/CustomPhysics/interface/CustomPDGParser.h>
-//#include<iostream>
 #include <cstdlib>
 
-/*CustomPDGParser::CustomPDGParser(int pdgCode) : m_pdgCode(pdgCode)
-{
-
-}*/
-
-bool CustomPDGParser::s_isRHadron(int pdg) {
+// check for R-hadron with gluino content
+bool CustomPDGParser::s_isgluinoHadron(int pdg) {
   int pdgAbs = abs(pdg);
   return ((pdgAbs % 100000 / 10000 == 9) || (pdgAbs % 10000 / 1000 == 9) || s_isRGlueball(pdg));
 }
@@ -39,7 +34,7 @@ bool CustomPDGParser::s_isRGlueball(int pdg) {
 
 bool CustomPDGParser::s_isDphoton(int pdg) {
   int pdgAbs = abs(pdg);
-  return (pdgAbs == 1072000);
+  return (pdgAbs == 1072000) || (pdgAbs == 1023);
 }
 
 bool CustomPDGParser::s_isRMeson(int pdg) {

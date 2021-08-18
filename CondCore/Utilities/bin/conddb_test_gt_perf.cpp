@@ -2,8 +2,6 @@
 #include "CondCore/CondDB/interface/IOVProxy.h"
 #include "CondCore/CondDB/interface/GTProxy.h"
 
-#include "CondCore/CondDB/src/IOVSchema.cc"
-
 #include "CondCore/Utilities/interface/Utilities.h"
 #include "CondCore/Utilities/interface/CondDBImport.h"
 #include <iostream>
@@ -14,7 +12,7 @@
 
 #include <boost/thread/mutex.hpp>
 #include "tbb/parallel_for_each.h"
-#include "tbb/task_scheduler_init.h"
+#include "tbb/global_control.h"
 
 namespace cond {
 
@@ -188,12 +186,6 @@ bool cond::UntypedPayloadProxy::get(cond::Time_t targetTime, bool debug) {
     } else {
       if (debug)
         std::cout << "Loaded payload of type \"" << payloadType << "\" (" << m_buffer.size() << " bytes)" << std::endl;
-    }
-    // check if hash is correct:
-    cond::Hash localHash = cond::persistency::makeHash(payloadType, m_buffer);
-    if (localHash != m_data->current.payloadId) {
-      std::cout << "ERROR: payload of type " << payloadType << " with id " << m_data->current.payloadId
-                << " in DB has wrong local hash: " << localHash << std::endl;
     }
   }
   return loaded;
@@ -505,7 +497,7 @@ int cond::TestGTPerf::execute() {
   if (nThrF > 1)
     session.transaction().commit();
 
-  tbb::task_scheduler_init init(nThrF);
+  tbb::global_control init(tbb::global_control::max_allowed_parallelism, nThrF);
   std::vector<std::shared_ptr<FetchWorker> > tasks;
 
   std::string payloadTypeName;
@@ -568,7 +560,7 @@ int cond::TestGTPerf::execute() {
 
   std::shared_ptr<void> payloadPtr;
 
-  tbb::task_scheduler_init initD(nThrD);
+  tbb::global_control initD(tbb::global_control::max_allowed_parallelism, nThrD);
   std::vector<std::shared_ptr<DeserialWorker> > tasksD;
 
   timex.interval("setup deserialization");

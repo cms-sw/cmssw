@@ -252,7 +252,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
     double dz = 0.5 * layerL - 2. * fillerDz;
     double _rmi = std::min(rin + 0.5 * dd4hep::mm, rout - 0.5 * dd4hep::mm);
     double _rma = std::max(rin + 0.5 * dd4hep::mm, rout - 0.5 * dd4hep::mm);
-    solid = ns.addSolidNS(name, Tube(_rmi, _rma, dz, -0.5 * width, width));
+    solid = ns.addSolidNS(name, Tube(_rmi, _rma, dz, -0.5 * width, 0.5 * width));
     LogDebug("TIBGeom") << solid.name() << " Tubs made of " << ribMat << " from " << -0.5 * convertRadToDeg(width)
                         << " to " << 0.5 * convertRadToDeg(width) << " with Rin " << rin + 0.5 * dd4hep::mm << " Rout "
                         << rout - 0.5 * dd4hep::mm << " ZHalf " << dz;
@@ -362,9 +362,12 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
     int dohmCarrierReplica = 0;
     int placeDohm = 0;
 
+    Volume dohmCarrier;
+
     switch (j) {
       case 0:
         name = idName + "DOHMCarrierFW";
+        dohmCarrier = ns.addVolumeNS(Volume(name, solid, ns.material(dohmCarrierMaterial)));
         dohmList = dohmListFW;
         tran = Position(0., 0., dohmCarrierZ);
         rotstr = idName + "FwUp";
@@ -374,6 +377,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
         break;
       case 1:
         name = idName + "DOHMCarrierFW";
+        dohmCarrier = ns.volume(name);  // Re-use internally stored DOHMCarrierFW Volume
         dohmList = dohmListFW;
         tran = Position(0., 0., dohmCarrierZ);
         rotstr = idName + "FwDown";
@@ -383,6 +387,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
         break;
       case 2:
         name = idName + "DOHMCarrierBW";
+        dohmCarrier = ns.addVolumeNS(Volume(name, solid, ns.material(dohmCarrierMaterial)));
         dohmList = dohmListBW;
         tran = Position(0., 0., -dohmCarrierZ);
         rotstr = idName + "BwUp";
@@ -392,6 +397,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
         break;
       case 3:
         name = idName + "DOHMCarrierBW";
+        dohmCarrier = ns.volume(name);  // Re-use internally stored DOHMCarrierBW Volume
         dohmList = dohmListBW;
         tran = Position(0., 0., -dohmCarrierZ);
         rotstr = idName + "BwDown";
@@ -401,7 +407,6 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
         break;
     }
 
-    Volume dohmCarrier = ns.addVolumeNS(Volume(name, solid, ns.material(dohmCarrierMaterial)));
     int primReplica = 0;
     int auxReplica = 0;
 
@@ -485,7 +490,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
         break;
     }
 
-    solid = ns.addSolidNS(name, Tube(pillarRin, pillarRout, pillarDz, -pillarDPhi, 2. * pillarDPhi));
+    solid = ns.addSolidNS(name, Tube(pillarRin, pillarRout, pillarDz, -pillarDPhi, pillarDPhi));
     Volume Pillar = ns.addVolumeNS(Volume(name, solid, ns.material(pillarMaterial)));
     LogDebug("TIBGeom") << solid.name() << " Tubs made of " << pillarMaterial << " from " << -pillarDPhi << " to "
                         << pillarDPhi << " with Rin " << pillarRin << " Rout " << pillarRout << " ZHalf " << pillarDz;

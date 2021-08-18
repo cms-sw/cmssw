@@ -1,10 +1,14 @@
+<use name="cuda"/>
+<use name="ofast-flag"/>
+<use name="CUDADataFormats/Track"/>
 <use name="CommonTools/RecoAlgos"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="HeterogeneousCore/CUDACore"/>
 <use name="RecoTracker/TkTrackingRegions"/>
 <use name="RecoPixelVertexing/PixelTriplets"/>
 <use name="RecoTracker/TkSeedingLayers"/>
-<library file="*.cc" name="RecoPixelVertexingPixelTripletsPlugins">
+<library file="*.cc *.cu" name="RecoPixelVertexingPixelTripletsPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
-
-<use name="ofast-flag"/>
-<flags CXXFLAGS="-fno-math-errno"/>

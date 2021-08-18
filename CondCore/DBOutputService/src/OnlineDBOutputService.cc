@@ -9,7 +9,7 @@ static size_t getHtmlCallback(void* contents, size_t size, size_t nmemb, void* p
   return size * nmemb;
 }
 
-bool getInfoFromDAQ(const std::string& urlString, std::string& info) {
+bool getInfoFromService(const std::string& urlString, std::string& info) {
   CURL* curl;
   CURLcode res;
   std::string htmlBuffer;
@@ -58,7 +58,7 @@ namespace cond {
   cond::Time_t getLastLumiFromOMS(const std::string& omsServiceUrl) {
     cond::Time_t lastLumiProcessed = cond::time::MIN_VAL;
     std::string info("");
-    if (!getInfoFromDAQ(omsServiceUrl, info))
+    if (!getInfoFromService(omsServiceUrl, info))
       throw Exception("Can't get data from OMS Service.");
     std::istringstream sinfo(info);
     std::string srun;
@@ -80,22 +80,14 @@ namespace cond {
 cond::service::OnlineDBOutputService::OnlineDBOutputService(const edm::ParameterSet& iConfig,
                                                             edm::ActivityRegistry& iAR)
     : PoolDBOutputService(iConfig, iAR),
-      m_runNumber(iConfig.getUntrackedParameter<unsigned long long>("runNumber", 0)),
+      m_runNumber(iConfig.getUntrackedParameter<unsigned long long>("runNumber", 1)),
       m_latencyInLumisections(iConfig.getUntrackedParameter<unsigned int>("latency", 1)),
       m_omsServiceUrl(iConfig.getUntrackedParameter<std::string>("omsServiceUrl", "")),
-      m_lastLumiUrl(iConfig.getUntrackedParameter<std::string>("lastLumiUrl", "")),
       m_preLoadConnectionString(iConfig.getUntrackedParameter<std::string>("preLoadConnectionString", "")),
+      m_frontierKey(iConfig.getUntrackedParameter<std::string>("frontierKey", "")),
       m_debug(iConfig.getUntrackedParameter<bool>("debugLogging", false)) {
   if (m_omsServiceUrl.empty()) {
-    if (!m_lastLumiUrl.empty()) {
-      startTransaction();
-      auto lastRun = PoolDBOutputService::session().getLastRun();
-      if (lastRun.isOnGoing()) {
-        m_runNumber = lastRun.run;
-      }
-    } else {
-      m_lastLumiFile = iConfig.getUntrackedParameter<std::string>("lastLumiFile", "");
-    }
+    m_lastLumiFile = iConfig.getUntrackedParameter<std::string>("lastLumiFile", "");
   }
 }
 
@@ -110,23 +102,13 @@ cond::Time_t cond::service::OnlineDBOutputService::getLastLumiProcessed() {
                        << " Current run: " << cond::time::unpack(lastLumiProcessed).first
                        << " lumi id:" << cond::time::unpack(lastLumiProcessed).second;
   } else {
-    if (!m_lastLumiUrl.empty()) {
-      std::string info("");
-      if (!getInfoFromDAQ(m_lastLumiUrl, info))
-        throw Exception("Can't get last Lumisection from DAQ.");
-      unsigned int lastL = boost::lexical_cast<unsigned int>(info);
-      lastLumiProcessed = cond::time::lumiTime(m_runNumber, lastL);
-      logger().logInfo() << "Last lumi: " << lastLumiProcessed << " Current run: " << m_runNumber
-                         << " lumi id:" << lastL;
+    if (!m_lastLumiFile.empty()) {
+      lastLumiProcessed = cond::getLatestLumiFromFile(m_lastLumiFile);
+      auto upkTime = cond::time::unpack(lastLumiProcessed);
+      logger().logInfo() << "Last lumi: " << lastLumiProcessed << " Current run: " << upkTime.first
+                         << " lumi id:" << upkTime.second;
     } else {
-      if (m_lastLumiFile.empty()) {
-        throw Exception("File name for last lumi has not been provided.");
-      } else {
-        lastLumiProcessed = cond::getLatestLumiFromFile(m_lastLumiFile);
-        auto upkTime = cond::time::unpack(lastLumiProcessed);
-        logger().logInfo() << "Last lumi: " << lastLumiProcessed << " Current run: " << upkTime.first
-                           << " lumi id:" << upkTime.second;
-      }
+      lastLumiProcessed = cond::time::lumiTime(m_runNumber, 1);
     }
   }
   return lastLumiProcessed;
@@ -143,5 +125,10 @@ cond::Iov_t cond::service::OnlineDBOutputService::preLoadIov(const std::string& 
 }
 
 cond::persistency::Session cond::service::OnlineDBOutputService::getReadOnlyCache(cond::Time_t targetTime) {
-  return PoolDBOutputService::newReadOnlySession(m_preLoadConnectionString, std::to_string(targetTime));
+  std::stringstream transId;
+  transId << targetTime;
+  if (!m_frontierKey.empty()) {
+    transId << "_" << m_frontierKey;
+  }
+  return PoolDBOutputService::newReadOnlySession(m_preLoadConnectionString, transId.str());
 }

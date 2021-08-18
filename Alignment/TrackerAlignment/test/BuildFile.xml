@@ -6,7 +6,7 @@
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <library name="AlignmentTrackerAlignment_test" file="*.cpp">
-  <use name="Geometry/CommonDetUnit"/>
+  <use name="Geometry/CommonDetUnit" source_only="1"/>
   <use name="CondCore/DBOutputService"/>
   <use name="CondFormats/Alignment"/>
   <use name="CondFormats/AlignmentRecord"/>

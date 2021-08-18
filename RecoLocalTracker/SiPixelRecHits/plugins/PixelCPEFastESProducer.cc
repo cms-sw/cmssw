@@ -80,6 +80,9 @@ void PixelCPEFastESProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   // from PixelCPEBase
   PixelCPEBase::fillPSetDescription(desc);
 
+  // from PixelCPEFast
+  PixelCPEFast::fillPSetDescription(desc);
+
   // used by PixelCPEFast
   desc.add<double>("EdgeClusterErrorX", 50.0);
   desc.add<double>("EdgeClusterErrorY", 85.0);
@@ -89,8 +92,6 @@ void PixelCPEFastESProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   // specific to PixelCPEFastESProducer
   desc.add<std::string>("ComponentName", "PixelCPEFast");
   desc.add<edm::ESInputTag>("MagneticFieldRecord", edm::ESInputTag());
-  desc.add<bool>("useLAAlignmentOffsets", false);
-  desc.add<bool>("DoLorentz", false);
 
   descriptions.add("PixelCPEFastESProducer", desc);
 }

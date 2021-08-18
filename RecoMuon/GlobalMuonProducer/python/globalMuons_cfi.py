@@ -13,7 +13,7 @@ globalMuons = cms.EDProducer("GlobalMuonProducer",
     MuonCollectionLabel = cms.InputTag("standAloneMuons","UpdatedAtVtx")
 )
 
-globalMuons.GLBTrajBuilderParameters.GlobalMuonTrackMatcher.Propagator = cms.string('SmartPropagatorRK')
+globalMuons.GLBTrajBuilderParameters.GlobalMuonTrackMatcher.Propagator = 'SmartPropagatorRK'
 globalMuons.GLBTrajBuilderParameters.TrackTransformer.Propagator = cms.string('SmartPropagatorAnyRK')
 
 # FastSim has no template fit on tracker hits

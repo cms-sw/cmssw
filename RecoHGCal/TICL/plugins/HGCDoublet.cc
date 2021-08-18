@@ -110,9 +110,10 @@ int HGCDoublet::areAligned(double xi,
   auto minCosPointing_sq = minCosPointing * minCosPointing;
   bool isWithinLimitsPointing = (dot_pointing_sq > minCosPointing_sq * mag_pointing_sq * mag2sq);
   if (debug) {
-    LogDebug("HGCDoublet") << "-- Are Aligned -- dot_pointing_sq: " << dot_pointing * dot_pointing
+    LogDebug("HGCDoublet") << "Pointing direction: " << pointingDir << std::endl;
+    LogDebug("HGCDoublet") << "-- Are Aligned -- dot_pointing_sq: " << dot_pointing_sq
                            << " mag_pointing_sq: " << mag_pointing_sq << " mag2sq: " << mag2sq
-                           << " isWithinLimits: " << isWithinLimitsPointing << std::endl;
+                           << " isWithinLimitsPointing: " << isWithinLimitsPointing << std::endl;
   }
   // by squaring cosTheta and multiplying by the squares of the magnitudes
   // an equivalent comparison is made without the division and square root which are costly FP ops.

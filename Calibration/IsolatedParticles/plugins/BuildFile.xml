@@ -69,6 +69,3 @@
 
 <library name="CalibrationHcalRaddamMuon" file="HcalRaddamMuon.cc">
 </library>
-
-<library name="CalibrationHcalHBHEMuonSimAnalyzer" file="HcalHBHEMuonSimAnalyzer.cc">
-</library>

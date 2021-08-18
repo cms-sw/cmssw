@@ -12,7 +12,7 @@
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimMuon/DTDigitizer/test/Histograms.h"
+#include "SimMuon/DTDigitizer/interface/Histograms.h"
 #include <DataFormats/MuonDetId/interface/DTWireId.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 

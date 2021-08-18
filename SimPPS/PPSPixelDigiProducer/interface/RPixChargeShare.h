@@ -3,18 +3,17 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
-#include "Geometry/VeryForwardGeometry/interface/CTPPSPixelSimTopology.h"
+#include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixSignalPoint.h"
 
 class RPixChargeShare {
 public:
-  RPixChargeShare(const edm::ParameterSet &params, uint32_t det_id);
-  std::map<unsigned short, double> Share(const std::vector<RPixSignalPoint> &charge_map);
+  RPixChargeShare(const edm::ParameterSet &params, uint32_t det_id, const PPSPixelTopology &ppt);
+  std::map<unsigned short, double> Share(const std::vector<RPixSignalPoint> &charge_map, const PPSPixelTopology &ppt);
 
 private:
   uint32_t det_id_;
   std::vector<double> signalCoupling_;
-  CTPPSPixelSimTopology theRPixDetTopology_;
   CTPPSPixelIndices pxlInd;
   const int pxlRowSize_ = pxlInd.getDefaultRowDetSize();
   const int pxlColSize_ = pxlInd.getDefaultColDetSize();

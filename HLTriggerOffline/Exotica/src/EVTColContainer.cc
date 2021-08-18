@@ -34,6 +34,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <map>
 #include <vector>

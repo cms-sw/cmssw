@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -31,18 +30,16 @@ private:
   void doTestWafer(const HGCalGeometry* geom);
 
   const std::string name_;
+  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tokGeom_;
 };
 
 HFNoseGeometryTester::HFNoseGeometryTester(const edm::ParameterSet& iC)
-    : name_(iC.getParameter<std::string>("Detector")) {}
+    : name_(iC.getParameter<std::string>("Detector")),
+      tokGeom_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_})) {}
 
 void HFNoseGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<HGCalGeometry> geomH;
-  iSetup.get<IdealGeometryRecord>().get(name_, geomH);
-  const HGCalGeometry* geom = (geomH.product());
-  if (!geomH.isValid()) {
-    std::cout << "Cannot get valid HGCalGeometry Object for " << name_ << std::endl;
-  } else if (geom->topology().isHFNose()) {
+  const HGCalGeometry* geom = &iSetup.getData(tokGeom_);
+  if (geom->topology().isHFNose()) {
     doTestWafer(geom);
   } else {
     std::cout << name_ << " is not a valid name for HFNose Detecor" << std::endl;

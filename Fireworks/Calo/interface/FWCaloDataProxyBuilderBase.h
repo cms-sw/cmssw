@@ -56,11 +56,12 @@ protected:
   Int_t m_sliceIndex;
   void itemBeingDestroyed(const FWEventItem*) override;
 
-private:
+public:
   FWCaloDataProxyBuilderBase(const FWCaloDataProxyBuilderBase&) = delete;  // stop default
 
   const FWCaloDataProxyBuilderBase& operator=(const FWCaloDataProxyBuilderBase&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
 
   void modelChanges(const FWModelIds&, Product*) override;

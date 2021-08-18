@@ -317,7 +317,7 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
       // Fill the position histograms
       trackerLayout_->Fill(globalPosClu.z(), globalPosClu.perp());
       trackerLayoutXY_->Fill(globalPosClu.x(), globalPosClu.y());
-      if (fabs(layer) < 1000) {
+      if (layer < 1000) {
         trackerLayoutXYBar_->Fill(globalPosClu.x(), globalPosClu.y());
       } else {
         trackerLayoutXYEC_->Fill(globalPosClu.x(), globalPosClu.y());
@@ -325,7 +325,7 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
 
       histogramLayer->second.localPosXY[det][0]->Fill(localPosClu.x(), localPosClu.y());
       histogramLayer->second.localPosXY[det][nch]->Fill(localPosClu.x(), localPosClu.y());
-      if (fabs(layer) < 1000) {
+      if (layer < 1000) {
         histogramLayer->second.globalPosXY[det][0]->Fill(globalPosClu.z(), globalPosClu.perp());
         histogramLayer->second.globalPosXY[det][nch]->Fill(globalPosClu.z(), globalPosClu.perp());
       } else {

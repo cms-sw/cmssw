@@ -1,4 +1,5 @@
 // system include files
+#include <cfloat>
 #include <memory>
 
 // framework stuff
@@ -214,8 +215,8 @@ std::unique_ptr<FastTrackerRecHit> FastTrackerRecHitMatcher::match(const FastSin
   // position of the initial and final point of the strip in local coordinates (mono det)
   StripPosition stripmono = StripPosition(topol.localPosition(RPHIpointini), topol.localPosition(RPHIpointend));
 
-  if (trackdirection.mag2() <
-      FLT_MIN) {  // in case of no track hypothesis assume a track from the origin through the center of the strip
+  // in case of no track hypothesis assume a track from the origin through the center of the strip
+  if (trackdirection.mag2() < FLT_MIN) {
     LocalPoint lcenterofstrip = monoRH->localPosition();
     GlobalPoint gcenterofstrip = (stripdet->surface()).toGlobal(lcenterofstrip);
     GlobalVector gtrackdirection = gcenterofstrip - GlobalPoint(0, 0, 0);

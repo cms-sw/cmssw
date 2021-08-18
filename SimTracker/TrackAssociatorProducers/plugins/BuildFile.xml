@@ -8,6 +8,7 @@
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="DataFormats/HepMCCandidate"/>
+<use name="TrackingTools/PatternTools"/>
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/GeomPropagators"/>
 <use name="TrackingTools/TrajectoryState"/>

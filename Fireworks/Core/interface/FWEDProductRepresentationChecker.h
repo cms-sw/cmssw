@@ -41,11 +41,11 @@ public:
 
   // ---------- member functions ---------------------------
 
-private:
   FWEDProductRepresentationChecker(const FWEDProductRepresentationChecker&) = delete;  // stop default
 
   const FWEDProductRepresentationChecker& operator=(const FWEDProductRepresentationChecker&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   const std::string m_typeidName;
 };

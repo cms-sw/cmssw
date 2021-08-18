@@ -37,8 +37,6 @@ using namespace edm;
 using namespace std;
 using namespace gen;
 
-HepMC::IO_HEPEVT hepevtio;
-
 namespace {
   int convertStatus(int st) {
     if (st <= 0)

@@ -22,7 +22,7 @@ namespace CLHEP {
 
 class BTLDeviceSim {
 public:
-  BTLDeviceSim(const edm::ParameterSet& pset);
+  BTLDeviceSim(const edm::ParameterSet& pset, edm::ConsumesCollector iC);
 
   void getEvent(const edm::Event& evt) {}
 
@@ -34,6 +34,8 @@ public:
                        CLHEP::HepRandomEngine* hre);
 
 private:
+  const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<MTDTopology, MTDTopologyRcd> topoToken_;
   const MTDGeometry* geom_;
   const MTDTopology* topo_;
 

@@ -11,7 +11,7 @@ from __future__ import print_function
 
 import readline
 import rlcompleter
-from six import builtins
+import builtins
 import __main__
 
 __all__ = ["CMSCompleter"]

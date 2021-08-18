@@ -128,9 +128,10 @@ private:
   uint16_t bx_;
   uint16_t trknmb_;
   uint16_t fullbx_;
-  /// Run-3 introduces high-multiplicity bits for CSCs.
-  /// Note: In DN-20-016, 3 bits are allocated for HMT in the
-  /// ALCT board. These bits are copied into the ALCT digi in CMSSW
+  // In Run-3, CSC trigger data will include the high-multiplicity
+  // bits for a chamber. These bits may indicate the observation of
+  // "exotic" events. This data member was included in a prototype.
+  // Later on, we developed a dedicated object: "CSCShowerDigi<Anode>"
   uint16_t hmt_;
 
   Version version_;

@@ -4,6 +4,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
@@ -46,6 +47,11 @@ void OffHelper::setup(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC
   caloTowersToken = iC.consumes<CaloTowerCollection>(conf.getParameter<edm::InputTag>("CaloTowers"));
   trigResultsToken = iC.consumes<edm::TriggerResults>(conf.getParameter<edm::InputTag>("TrigResults"));
   vertexToken = iC.consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("VertexCollection"));
+
+  caloGeomToken_ = iC.esConsumes();
+  caloTopoToken_ = iC.esConsumes();
+  magFieldToken_ = iC.esConsumes();
+  ecalSeverityToken_ = iC.esConsumes();
 
   eleCuts_.setup(conf.getParameter<edm::ParameterSet>("eleCuts"));
   eleLooseCuts_.setup(conf.getParameter<edm::ParameterSet>("eleLooseCuts"));
@@ -169,14 +175,14 @@ int OffHelper::makeOffEvt(const edm::Event& edmEvent,
 
 int OffHelper::getHandles(const edm::Event& event, const edm::EventSetup& setup) {
   try {
-    setup.get<CaloGeometryRecord>().get(caloGeom_);
-    setup.get<CaloTopologyRecord>().get(caloTopology_);
-    //setup.get<EcalSeverityLevelAlgoRcd>().get(ecalSeverityLevel_);
+    caloGeom_ = setup.getHandle(caloGeomToken_);
+    caloTopology_ = setup.getHandle(caloTopoToken_);
+    //ecalSeverityLevel_ = setup.getHandle(ecalSeverityToken_);
   } catch (cms::Exception& iException) {
     return errCodes::Geom;
   }
   try {
-    setup.get<IdealMagneticFieldRecord>().get(magField_);
+    magField_ = setup.getHandle(magFieldToken_);
   } catch (cms::Exception& iException) {
     return errCodes::MagField;
   }
@@ -282,8 +288,8 @@ void OffHelper::fillIsolData(const reco::GsfElectron& ele, OffEle::IsolData& iso
   isolData.ptTrks = ele.dr03TkSumPt();
   isolData.nrTrks = 999;  //no longer supported
   isolData.em = ele.dr03EcalRecHitSumEt();
-  isolData.hadDepth1 = ele.dr03HcalDepth1TowerSumEt();
-  isolData.hadDepth2 = ele.dr03HcalDepth2TowerSumEt();
+  isolData.hadDepth1 = ele.dr03HcalTowerSumEt(1);
+  isolData.hadDepth2 = ele.dr03HcalTowerSumEt(2);
 
   //now time to do the HLT algos
   if (calHLTHcalIsol_)
@@ -325,10 +331,9 @@ void OffHelper::fillClusShapeData(const reco::GsfElectron& ele, OffEle::ClusShap
       seedClus.hitsAndFractions()[0]
           .first;  //note this may not actually be the seed hit but it doesnt matter because all hits will be in the barrel OR endcap
   if (seedDetId.subdetId() == EcalBarrel) {
-    std::vector<float> stdCov =
+    const auto& stdCov =
         EcalClusterTools::covariances(seedClus, ebRecHits_.product(), caloTopology_.product(), caloGeom_.product());
-    std::vector<float> crysCov =
-        EcalClusterTools::localCovariances(seedClus, ebRecHits_.product(), caloTopology_.product());
+    const auto& crysCov = EcalClusterTools::localCovariances(seedClus, ebRecHits_.product(), caloTopology_.product());
     clusShapeData.sigmaPhiPhi = sqrt(stdCov[2]);
     clusShapeData.sigmaIPhiIPhi = sqrt(crysCov[2]);
     if (ele.superCluster()->rawEnergy() != 0.) {
@@ -338,10 +343,9 @@ void OffHelper::fillClusShapeData(const reco::GsfElectron& ele, OffEle::ClusShap
       clusShapeData.r9 = -1.;
 
   } else {
-    std::vector<float> stdCov =
+    const auto& stdCov =
         EcalClusterTools::covariances(seedClus, eeRecHits_.product(), caloTopology_.product(), caloGeom_.product());
-    std::vector<float> crysCov =
-        EcalClusterTools::localCovariances(seedClus, eeRecHits_.product(), caloTopology_.product());
+    const auto& crysCov = EcalClusterTools::localCovariances(seedClus, eeRecHits_.product(), caloTopology_.product());
     clusShapeData.sigmaPhiPhi = sqrt(stdCov[2]);
     clusShapeData.sigmaIPhiIPhi = sqrt(crysCov[2]);
     if (ele.superCluster()->rawEnergy() != 0.) {
@@ -496,18 +500,15 @@ void OffHelper::fillClusShapeData(const reco::Photon& pho, OffPho::ClusShapeData
       seedClus.hitsAndFractions()[0]
           .first;  //note this may not actually be the seed hit but it doesnt matter because all hits will be in the barrel OR endcap (it is also incredably inefficient as it getHitsByDetId passes the vector by value not reference
   if (seedDetId.subdetId() == EcalBarrel) {
-    std::vector<float> stdCov =
+    const auto& stdCov =
         EcalClusterTools::covariances(seedClus, ebRecHits_.product(), caloTopology_.product(), caloGeom_.product());
-    std::vector<float> crysCov =
-        EcalClusterTools::localCovariances(seedClus, ebRecHits_.product(), caloTopology_.product());
+    const auto& crysCov = EcalClusterTools::localCovariances(seedClus, ebRecHits_.product(), caloTopology_.product());
     clusShapeData.sigmaPhiPhi = sqrt(stdCov[2]);
     clusShapeData.sigmaIPhiIPhi = sqrt(crysCov[2]);
   } else {
-    std::vector<float> stdCov =
+    const auto& stdCov =
         EcalClusterTools::covariances(seedClus, eeRecHits_.product(), caloTopology_.product(), caloGeom_.product());
-    std::vector<float> crysCov =
-        EcalClusterTools::localCovariances(seedClus, eeRecHits_.product(), caloTopology_.product());
-
+    const auto& crysCov = EcalClusterTools::localCovariances(seedClus, eeRecHits_.product(), caloTopology_.product());
     clusShapeData.sigmaPhiPhi = sqrt(stdCov[2]);
     clusShapeData.sigmaIPhiIPhi = sqrt(crysCov[2]);
   }

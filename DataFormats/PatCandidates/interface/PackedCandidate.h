@@ -204,12 +204,12 @@ namespace pat {
           // Need to trigger unpacking in iOther
           p4_(new PolarLorentzVector(iOther.polarP4())),
           p4c_(new LorentzVector(iOther.p4())),
-          vertex_(new Point(iOther.vertex())),
-          dxy_(iOther.dxy_),
-          dz_(iOther.dz_),
-          dphi_(iOther.dphi_),
-          deta_(iOther.deta_),
-          dtrkpt_(iOther.dtrkpt_),
+          vertex_((iOther.vertex_ ? new Point(iOther.vertex()) : nullptr)),
+          dxy_(vertex_ ? iOther.dxy_ : 0),
+          dz_(vertex_ ? iOther.dz_ : 0),
+          dphi_(vertex_ ? iOther.dphi_ : 0),
+          deta_(vertex_ ? iOther.deta_ : 0),
+          dtrkpt_(vertex_ ? iOther.dtrkpt_ : 0),
           track_(iOther.track_ ? new reco::Track(*iOther.track_) : nullptr),
           pdgId_(iOther.pdgId_),
           qualityFlags_(iOther.qualityFlags_),
@@ -254,7 +254,7 @@ namespace pat {
           track_(iOther.track_.exchange(nullptr)),
           pdgId_(iOther.pdgId_),
           qualityFlags_(iOther.qualityFlags_),
-          pvRefProd_(std::move(iOther.pvRefProd_)),
+          pvRefProd_(iOther.pvRefProd_),
           pvRefKey_(iOther.pvRefKey_),
           m_(iOther.m_.exchange(nullptr)),
           packedHits_(iOther.packedHits_),
@@ -650,6 +650,7 @@ namespace pat {
       covarianceSchema_ = quality;
       normalizedChi2_ = tk.normalizedChi2();
       setHits(tk);
+      maybeUnpackBoth();
       packBoth();
       packCovariance(covariance, false);
     }
@@ -658,6 +659,16 @@ namespace pat {
     // level of details in the cov. matrix
     virtual void setTrackProperties(const reco::Track &tk, int quality, int covarianceVersion) {
       setTrackProperties(tk, tk.covariance(), quality, covarianceVersion);
+    }
+
+    void setTrackPropertiesLite(unsigned int covSchema,
+                                unsigned int covarianceVersion,
+                                unsigned int nHits,
+                                unsigned int nPixelHits) {
+      covarianceVersion_ = covarianceVersion;
+      covarianceSchema_ = covSchema;
+      packedHits_ =
+          (nPixelHits & trackPixelHitsMask) | (((nHits - nPixelHits) & trackStripHitsMask) << trackStripHitsShift);
     }
 
     int numberOfPixelHits() const { return (packedHits_ & trackPixelHitsMask) + pixelLayersWithMeasurement(); }
@@ -741,6 +752,7 @@ namespace pat {
       maybeUnpackBoth();
       return dxy_;
     }
+
     /// dz with respect to the PV[ipv]
     virtual float dz(size_t ipv = 0) const {
       maybeUnpackBoth();
@@ -751,6 +763,7 @@ namespace pat {
       maybeUnpackBoth();
       return dz_;
     }
+
     /// dxy with respect to another point
     virtual float dxy(const Point &p) const;
     /// dz  with respect to another point
@@ -785,7 +798,9 @@ namespace pat {
     }
     /// Return true if a bestTrack can be extracted from this Candidate
     bool hasTrackDetails() const { return (packedHits_ != 0 || packedLayers_ != 0); }
-
+    /// Return true if the original candidate had a track associated
+    /// even if the PackedCandidate has no track
+    bool fromTrackCandidate() const { return (packedDz_ != 0 || (packedDxy_ != 0 && packedDxy_ != 32768)); }
     /// true if the track had the highPurity quality bit
     bool trackHighPurity() const { return (qualityFlags_ & trackHighPurityMask) >> trackHighPurityShift; }
     /// set to true if the track had the highPurity quality bit

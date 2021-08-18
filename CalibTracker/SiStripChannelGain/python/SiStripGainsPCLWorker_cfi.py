@@ -12,17 +12,5 @@ SiStripGainsPCLWorker = DQMEDAnalyzer(
     DQMdir              = cms.untracked.string('AlCaReco/SiStripGains'),
     calibrationMode     = cms.untracked.string('StdBunch'),
     ChargeHisto         = cms.untracked.vstring('TIB','TIB_layer_1','TOB','TOB_layer_1','TIDminus','TIDplus','TECminus','TECplus','TEC_thin','TEC_thick'),
-    gain                = cms.untracked.PSet(label = cms.untracked.string('shallowGainCalibration'), 
-                                             prefix = cms.untracked.string("GainCalibration"), 
-                                             suffix = cms.untracked.string('')
-                                             ),
-    evtinfo             = cms.untracked.PSet(label = cms.untracked.string('shallowEventRun'), 
-                                             prefix = cms.untracked.string(""), 
-                                             suffix = cms.untracked.string('')
-                                             ),
-    tracks              = cms.untracked.PSet(label = cms.untracked.string('shallowTracks'), 
-                                             prefix = cms.untracked.string("track"), 
-                                             suffix = cms.untracked.string('')
-                                             )
+    tracks=cms.InputTag("generalTracks",""),
     )
-

@@ -1,6 +1,8 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/GEMDigi"/>
+<use name="DataFormats/MuonData" source_only="1"/>
+<use name="FWCore/MessageLogger"/>
 <export>
   <lib name="1"/>
 </export>

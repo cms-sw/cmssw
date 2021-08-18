@@ -3,8 +3,11 @@
 namespace hcaldqm {
   using namespace constants;
 
-  DigiRunSummary::DigiRunSummary(std::string const& name, std::string const& taskname, edm::ParameterSet const& ps)
-      : DQClient(name, taskname, ps), _booked(false) {
+  DigiRunSummary::DigiRunSummary(std::string const& name,
+                                 std::string const& taskname,
+                                 edm::ParameterSet const& ps,
+                                 edm::ConsumesCollector& iC)
+      : DQClient(name, taskname, ps, iC), _booked(false) {
     _thresh_unihf = ps.getUntrackedParameter<double>("thresh_unihf", 0.2);
 
     std::vector<uint32_t> vrefDigiSize = ps.getUntrackedParameter<std::vector<uint32_t>>("refDigiSize");
@@ -115,7 +118,7 @@ namespace hcaldqm {
     //	book the Numer of Events - set axis extendable
     if (!_booked) {
       ib.setCurrentFolder(_subsystem + "/" + _taskname);
-      _meNumEvents = ib.book1D("NumberOfEvents", "NumberOfEvents", 1000, 1, 1001);  // 1000 to start with
+      _meNumEvents = ib.book1DD("NumberOfEvents", "NumberOfEvents", 1000, 1, 1001);  // 1000 to start with
       _meNumEvents->getTH1()->SetCanExtend(TH1::kXaxis);
 
       _cOccupancy_depth.book(ib, _emap, _subsystem);

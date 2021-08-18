@@ -92,6 +92,10 @@ private:
 
   void clear();
 
+  void addGhostLCTs(const CSCCorrelatedLCTDigi& lct11,
+                    const CSCCorrelatedLCTDigi& lct22,
+                    CSCCorrelatedLCTDigiContainer& lctcontainer) const;
+
   edm::EDGetTokenT<CSCCLCTDigiCollection> clctToken_;
   edm::EDGetTokenT<CSCALCTDigiCollection> alctToken_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lctToken_;
@@ -124,6 +128,7 @@ private:
   std::set<unsigned int> selectDetIds(D&, int) const;
 
   bool addGhostLCTs_;
+  bool useGEMs_;
 
   int minNHitsChamber_;
   int minNHitsChamberALCT_;

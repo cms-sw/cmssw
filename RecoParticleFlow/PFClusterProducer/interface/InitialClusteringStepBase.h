@@ -25,7 +25,7 @@ class InitialClusteringStepBase {
   typedef InitialClusteringStepBase ICSB;
 
 public:
-  InitialClusteringStepBase(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
+  InitialClusteringStepBase(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
       : _nSeeds(0),
         _nClustersFound(0),
         _layerMap({{"PS2", (int)PFLayer::PS2},

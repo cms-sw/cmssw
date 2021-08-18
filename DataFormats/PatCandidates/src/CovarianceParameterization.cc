@@ -9,7 +9,7 @@
 #include "DataFormats/Math/interface/liblogintpack.h"
 #include "DataFormats/Math/interface/libminifloat.h"
 #include "DataFormats/PatCandidates/interface/CovarianceParameterization.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 
 uint16_t CompressionElement::pack(float value, float ref) const {
   float toCompress = 0;

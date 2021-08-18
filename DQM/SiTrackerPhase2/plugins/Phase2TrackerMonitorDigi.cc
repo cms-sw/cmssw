@@ -36,12 +36,12 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 
 // DQM Histograming
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 
+using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
 //
 // constructors
 //
@@ -69,10 +69,8 @@ Phase2TrackerMonitorDigi::~Phase2TrackerMonitorDigi() {
 }
 
 void Phase2TrackerMonitorDigi::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
-  tkGeom_ = &(*geomHandle);
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  tTopo_ = tTopoHandle.product();
+  tkGeom_ = &iSetup.getData(geomToken_);
+  tTopo_ = &iSetup.getData(topoToken_);
 }
 
 // -- Analyze
@@ -81,11 +79,8 @@ void Phase2TrackerMonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
   using namespace edm;
 
   // Get digis
-  edm::Handle<edm::DetSetVector<PixelDigi>> pixDigiHandle;
-  iEvent.getByToken(itPixelDigiToken_, pixDigiHandle);
-
-  edm::Handle<edm::DetSetVector<Phase2TrackerDigi>> otDigiHandle;
-  iEvent.getByToken(otDigiToken_, otDigiHandle);
+  const auto& pixDigiHandle = iEvent.getHandle(itPixelDigiToken_);
+  const auto& otDigiHandle = iEvent.getHandle(otDigiToken_);
 
   // Tracker Topology
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;

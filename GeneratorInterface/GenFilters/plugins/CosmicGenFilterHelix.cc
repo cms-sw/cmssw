@@ -8,19 +8,12 @@
 // user include files
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -38,9 +31,10 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 CosmicGenFilterHelix::CosmicGenFilterHelix(const edm::ParameterSet &cfg)
-    : theIds(cfg.getParameter<std::vector<int> >("pdgIds")),
+    : theMFToken(esConsumes()),
+      thePropToken(esConsumes(edm::ESInputTag("", cfg.getParameter<std::string>("propagator")))),
+      theIds(cfg.getParameter<std::vector<int> >("pdgIds")),
       theCharges(cfg.getParameter<std::vector<int> >("charges")),
-      thePropagatorName(cfg.getParameter<std::string>("propagator")),
       theMinP2(cfg.getParameter<double>("minP") * cfg.getParameter<double>("minP")),
       theMinPt2(cfg.getParameter<double>("minPt") * cfg.getParameter<double>("minPt")),
       theDoMonitor(cfg.getUntrackedParameter<bool>("doMonitor")) {
@@ -345,18 +339,12 @@ bool CosmicGenFilterHelix::charge(int id, int &charge) const {
 
 //_________________________________________________________________________________________________
 const MagneticField *CosmicGenFilterHelix::getMagneticField(const edm::EventSetup &setup) const {
-  edm::ESHandle<MagneticField> fieldHandle;
-  setup.get<IdealMagneticFieldRecord>().get(fieldHandle);
-
-  return fieldHandle.product();
+  return &setup.getData(theMFToken);
 }
 
 //_________________________________________________________________________________________________
 const Propagator *CosmicGenFilterHelix::getPropagator(const edm::EventSetup &setup) const {
-  edm::ESHandle<Propagator> propHandle;
-  setup.get<TrackingComponentsRecord>().get(thePropagatorName, propHandle);
-
-  const Propagator *prop = propHandle.product();
+  const Propagator *prop = &setup.getData(thePropToken);
   if (!dynamic_cast<const SteppingHelixPropagator *>(prop)) {
     edm::LogWarning("BadConfig") << "@SUB=CosmicGenFilterHelix::getPropagator"
                                  << "Not a SteppingHelixPropagator!";

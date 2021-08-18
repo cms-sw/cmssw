@@ -47,3 +47,16 @@ std::vector<reco::TransientTrack> TrackFilterForPVFinding::select(
   }
   return seltks;
 }
+
+void TrackFilterForPVFinding::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<double>("maxNormalizedChi2", 10.0);
+  desc.add<double>("minPt", 0.0);
+  desc.add<std::string>("algorithm", "filter");
+  desc.add<double>("maxEta", 2.4);
+  desc.add<double>("maxD0Significance", 4.0);
+  desc.add<double>("maxD0Error", 1.0);
+  desc.add<double>("maxDzError", 1.0);
+  desc.add<std::string>("trackQuality", "any");
+  desc.add<int>("minPixelLayersWithHits", 2);
+  desc.add<int>("minSiliconLayersWithHits", 5);
+}

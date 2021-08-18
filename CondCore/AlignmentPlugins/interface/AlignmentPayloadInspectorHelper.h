@@ -71,7 +71,9 @@ namespace AlignmentPI {
                                   PARTITION::TECp,
                                   PARTITION::TECm};
 
-  std::ostream& operator<<(std::ostream& o, PARTITION x) { return o << std::underlying_type<PARTITION>::type(x); }
+  inline std::ostream& operator<<(std::ostream& o, PARTITION x) {
+    return o << std::underlying_type<PARTITION>::type(x);
+  }
 
   enum regions {
     BPixL1o,          //0  Barrel Pixel Layer 1 outer
@@ -149,7 +151,7 @@ namespace AlignmentPI {
   };
 
   /*--------------------------------------------------------------------*/
-  std::string getStringFromRegionEnum(AlignmentPI::regions e)
+  inline std::string getStringFromRegionEnum(AlignmentPI::regions e)
   /*--------------------------------------------------------------------*/
   {
     switch (e) {
@@ -300,7 +302,7 @@ namespace AlignmentPI {
   }
 
   /*--------------------------------------------------------------------*/
-  bool isBPixOuterLadder(const DetId& detid, const TrackerTopology& tTopo, bool isPhase0)
+  inline bool isBPixOuterLadder(const DetId& detid, const TrackerTopology& tTopo, bool isPhase0)
   /*--------------------------------------------------------------------*/
   {
     bool isOuter = false;
@@ -344,7 +346,7 @@ namespace AlignmentPI {
   };
 
   /*--------------------------------------------------------------------*/
-  void topolInfo::printAll()
+  inline void topolInfo::printAll()
   /*--------------------------------------------------------------------*/
   {
     std::cout << " detId:" << m_rawid << " subdetid: " << m_subdetid << " layer: " << m_layer << " side: " << m_side
@@ -353,7 +355,7 @@ namespace AlignmentPI {
   }
 
   /*--------------------------------------------------------------------*/
-  void topolInfo::init()
+  inline void topolInfo::init()
   /*--------------------------------------------------------------------*/
   {
     m_rawid = 0;
@@ -367,7 +369,7 @@ namespace AlignmentPI {
   };
 
   /*--------------------------------------------------------------------*/
-  bool topolInfo::sanityCheck()
+  inline bool topolInfo::sanityCheck()
   /*--------------------------------------------------------------------*/
   {
     if (m_layer == 0 || (m_subdetid == 1 && m_layer > 4) || (m_subdetid == 2 && m_layer > 3)) {
@@ -377,7 +379,7 @@ namespace AlignmentPI {
     }
   }
   /*--------------------------------------------------------------------*/
-  void topolInfo::fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, bool isPhase0)
+  inline void topolInfo::fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, bool isPhase0)
   /*--------------------------------------------------------------------*/
   {
     unsigned int subdetId = static_cast<unsigned int>(detId.subdetId());
@@ -424,7 +426,7 @@ namespace AlignmentPI {
   // ------------ method to assign a partition based on the topology struct info ---------------
 
   /*--------------------------------------------------------------------*/
-  AlignmentPI::regions topolInfo::filterThePartition()
+  inline AlignmentPI::regions topolInfo::filterThePartition()
   /*--------------------------------------------------------------------*/
   {
     AlignmentPI::regions ret = AlignmentPI::NUM_OF_REGIONS;
@@ -594,7 +596,7 @@ namespace AlignmentPI {
   }
 
   /*--------------------------------------------------------------------*/
-  std::string getStringFromCoordinate(AlignmentPI::coordinate coord)
+  inline std::string getStringFromCoordinate(AlignmentPI::coordinate coord)
   /*--------------------------------------------------------------------*/
   {
     switch (coord) {
@@ -616,7 +618,7 @@ namespace AlignmentPI {
   }
 
   /*--------------------------------------------------------------------*/
-  std::string getStringFromIndex(AlignmentPI::index i)
+  inline std::string getStringFromIndex(AlignmentPI::index i)
   /*--------------------------------------------------------------------*/
   {
     switch (i) {
@@ -638,7 +640,7 @@ namespace AlignmentPI {
   }
 
   /*--------------------------------------------------------------------*/
-  std::string getStringFromPart(AlignmentPI::partitions i)
+  inline std::string getStringFromPart(AlignmentPI::partitions i)
   /*--------------------------------------------------------------------*/
   {
     switch (i) {
@@ -660,7 +662,7 @@ namespace AlignmentPI {
   }
 
   /*--------------------------------------------------------------------*/
-  std::pair<int, int> getIndices(AlignmentPI::index i)
+  inline std::pair<int, int> getIndices(AlignmentPI::index i)
   /*--------------------------------------------------------------------*/
   {
     switch (i) {
@@ -682,7 +684,7 @@ namespace AlignmentPI {
   }
 
   /*--------------------------------------------------------------------*/
-  void makeNicePlotStyle(TH1* hist, int color)
+  inline void makeNicePlotStyle(TH1* hist, int color)
   /*--------------------------------------------------------------------*/
   {
     hist->SetStats(kFALSE);
@@ -707,7 +709,7 @@ namespace AlignmentPI {
   }
 
   /*--------------------------------------------------------------------*/
-  void makeNiceStats(TH1F* hist, AlignmentPI::partitions part, int color)
+  inline void makeNiceStats(TH1F* hist, AlignmentPI::partitions part, int color)
   /*--------------------------------------------------------------------*/
   {
     char buffer[255];
@@ -740,7 +742,7 @@ namespace AlignmentPI {
   }
 
   /*--------------------------------------------------------------------*/
-  std::pair<float, float> getTheRange(std::map<uint32_t, float> values, const float nsigma)
+  inline std::pair<float, float> getTheRange(std::map<uint32_t, float> values, const float nsigma)
   /*--------------------------------------------------------------------*/
   {
     float sum = std::accumulate(
@@ -765,7 +767,7 @@ namespace AlignmentPI {
   }
 
   /*--------------------------------------------------------------------*/
-  std::pair<double, double> calculatePosition(TVirtualPad* myPad, int boundary)
+  inline std::pair<double, double> calculatePosition(TVirtualPad* myPad, int boundary)
   /*--------------------------------------------------------------------*/
   {
     int ix1;
@@ -850,16 +852,16 @@ namespace AlignmentPI {
   };
 
   /*--------------------------------------------------------------------*/
-  GlobalPoint TkAlBarycenters::getPartitionAvg(AlignmentPI::PARTITION p)
+  inline GlobalPoint TkAlBarycenters::getPartitionAvg(AlignmentPI::PARTITION p)
   /*--------------------------------------------------------------------*/
   {
     return GlobalPoint(Xbarycenters[p], Ybarycenters[p], Zbarycenters[p]);
   }
 
   /*--------------------------------------------------------------------*/
-  void TkAlBarycenters::computeBarycenters(const std::vector<AlignTransform>& input,
-                                           const TrackerTopology& tTopo,
-                                           const std::map<AlignmentPI::coordinate, float>& GPR)
+  inline void TkAlBarycenters::computeBarycenters(const std::vector<AlignTransform>& input,
+                                                  const TrackerTopology& tTopo,
+                                                  const std::map<AlignmentPI::coordinate, float>& GPR)
   /*--------------------------------------------------------------------*/
   {
     for (const auto& ali : input) {

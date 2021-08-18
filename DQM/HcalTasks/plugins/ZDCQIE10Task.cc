@@ -17,11 +17,11 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps) {
     HcalZDCDetId didp(HcalZDCDetId::EM, true, channel);
     histoname = "EM_P_" + std::to_string(channel) + "_1";
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_perChannel");
-    _cADC_EChannel[didp()] = ib.book1D(histoname.c_str(), histoname.c_str(), 256, 0, 256);
+    _cADC_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 256, 0, 256);
     _cADC_EChannel[didp()]->setAxisTitle("ADC", 1);
     _cADC_EChannel[didp()]->setAxisTitle("N", 2);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_vs_TS_perChannel");
-    _cADC_vs_TS_EChannel[didp()] = ib.book1D(histoname.c_str(), histoname.c_str(), 10, 0, 10);
+    _cADC_vs_TS_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 10, 0, 10);
     _cADC_vs_TS_EChannel[didp()]->setAxisTitle("TS", 1);
     _cADC_vs_TS_EChannel[didp()]->setAxisTitle("sum ADC", 2);
 
@@ -29,11 +29,11 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps) {
     HcalZDCDetId didm(HcalZDCDetId::EM, false, channel);
     histoname = "EM_M_" + std::to_string(channel) + "_1";
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_perChannel");
-    _cADC_EChannel[didm()] = ib.book1D(histoname.c_str(), histoname.c_str(), 256, 0, 256);
+    _cADC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 256, 0, 256);
     _cADC_EChannel[didm()]->setAxisTitle("ADC", 1);
     _cADC_EChannel[didm()]->setAxisTitle("N", 2);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_vs_TS_perChannel");
-    _cADC_vs_TS_EChannel[didm()] = ib.book1D(histoname.c_str(), histoname.c_str(), 10, 0, 10);
+    _cADC_vs_TS_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 10, 0, 10);
     _cADC_vs_TS_EChannel[didm()]->setAxisTitle("TS", 1);
     _cADC_vs_TS_EChannel[didm()]->setAxisTitle("sum ADC", 2);
   }
@@ -43,11 +43,11 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps) {
     HcalZDCDetId didp(HcalZDCDetId::HAD, true, channel);
     histoname = "HAD_P_" + std::to_string(channel) + "_" + std::to_string(channel + 2);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_perChannel");
-    _cADC_EChannel[didp()] = ib.book1D(histoname.c_str(), histoname.c_str(), 256, 0, 256);
+    _cADC_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 256, 0, 256);
     _cADC_EChannel[didp()]->setAxisTitle("ADC", 1);
     _cADC_EChannel[didp()]->setAxisTitle("N", 2);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_vs_TS_perChannel");
-    _cADC_vs_TS_EChannel[didp()] = ib.book1D(histoname.c_str(), histoname.c_str(), 10, 0, 10);
+    _cADC_vs_TS_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 10, 0, 10);
     _cADC_vs_TS_EChannel[didp()]->setAxisTitle("TS", 1);
     _cADC_vs_TS_EChannel[didp()]->setAxisTitle("sum ADC", 2);
 
@@ -55,11 +55,11 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps) {
     HcalZDCDetId didm(HcalZDCDetId::HAD, false, channel);
     histoname = "HAD_M_" + std::to_string(channel) + "_" + std::to_string(channel + 2);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_perChannel");
-    _cADC_EChannel[didm()] = ib.book1D(histoname.c_str(), histoname.c_str(), 256, 0, 256);
+    _cADC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 256, 0, 256);
     _cADC_EChannel[didm()]->setAxisTitle("ADC", 1);
     _cADC_EChannel[didm()]->setAxisTitle("N", 2);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_vs_TS_perChannel");
-    _cADC_vs_TS_EChannel[didm()] = ib.book1D(histoname.c_str(), histoname.c_str(), 10, 0, 10);
+    _cADC_vs_TS_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 10, 0, 10);
     _cADC_vs_TS_EChannel[didm()]->setAxisTitle("TS", 1);
     _cADC_vs_TS_EChannel[didm()]->setAxisTitle("sum ADC", 2);
   }
@@ -69,11 +69,11 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps) {
     HcalZDCDetId didp(HcalZDCDetId::RPD, true, channel);
     histoname = "RPD_P_" + std::to_string(channel) + "_2";
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_perChannel");
-    _cADC_EChannel[didp()] = ib.book1D(histoname.c_str(), histoname.c_str(), 256, 0, 256);
+    _cADC_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 256, 0, 256);
     _cADC_EChannel[didp()]->setAxisTitle("ADC", 1);
     _cADC_EChannel[didp()]->setAxisTitle("N", 2);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_vs_TS_perChannel");
-    _cADC_vs_TS_EChannel[didp()] = ib.book1D(histoname.c_str(), histoname.c_str(), 10, 0, 10);
+    _cADC_vs_TS_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 10, 0, 10);
     _cADC_vs_TS_EChannel[didp()]->setAxisTitle("TS", 1);
     _cADC_vs_TS_EChannel[didp()]->setAxisTitle("sum ADC", 2);
 
@@ -81,11 +81,11 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps) {
     HcalZDCDetId didm(HcalZDCDetId::RPD, false, channel);
     histoname = "RPD_M_" + std::to_string(channel) + "_2";
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_perChannel");
-    _cADC_EChannel[didm()] = ib.book1D(histoname.c_str(), histoname.c_str(), 256, 0, 256);
+    _cADC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 256, 0, 256);
     _cADC_EChannel[didm()]->setAxisTitle("ADC", 1);
     _cADC_EChannel[didm()]->setAxisTitle("N", 2);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_vs_TS_perChannel");
-    _cADC_vs_TS_EChannel[didm()] = ib.book1D(histoname.c_str(), histoname.c_str(), 10, 0, 10);
+    _cADC_vs_TS_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 10, 0, 10);
     _cADC_vs_TS_EChannel[didm()]->setAxisTitle("TS", 1);
     _cADC_vs_TS_EChannel[didm()]->setAxisTitle("sum ADC", 2);
   }

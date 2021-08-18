@@ -10,11 +10,12 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace track_associator {
-  const TrackingRecHit *getHitFromIter(trackingRecHit_iterator iter) { return &(**iter); }
+  inline const TrackingRecHit *getHitFromIter(trackingRecHit_iterator iter) { return &(**iter); }
 
-  const TrackingRecHit *getHitFromIter(TrackingRecHitCollection::const_iterator iter) { return &(*iter); }
+  inline const TrackingRecHit *getHitFromIter(TrackingRecHitCollection::const_iterator iter) { return &(*iter); }
 
   template <typename iter>
   std::vector<OmniClusterRef> hitsToClusterRefs(iter begin, iter end) {

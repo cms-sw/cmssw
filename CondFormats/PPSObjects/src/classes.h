@@ -19,5 +19,6 @@ namespace CondFormats_CTPPSPixelObjects {
     LHCOpticalFunctionsSetCollection lhc_ofsc;
     LHCInterpolatedOpticalFunctionsSet lhc_iofs;
     LHCInterpolatedOpticalFunctionsSetCollection lhc_iofsc;
+    PPSPixelTopology pps_pt;
   };
 }  // namespace CondFormats_CTPPSPixelObjects

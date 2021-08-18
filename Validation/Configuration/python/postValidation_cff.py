@@ -66,6 +66,7 @@ from Validation.MuonGEMHits.PostProcessor_cff import *
 from Validation.MuonGEMDigis.PostProcessor_cff import *
 from Validation.MuonGEMRecHits.PostProcessor_cff import *
 from Validation.MuonME0Validation.PostProcessor_cff import *
+from Validation.MuonCSCDigis.PostProcessor_cff import *
 from Validation.HGCalValidation.HGCalPostProcessor_cff import *
 from Validation.MtdValidation.MtdPostProcessor_cff import *
 
@@ -83,6 +84,7 @@ postValidation_muons = cms.Sequence(
     + MuonGEMRecHitsPostProcessors
     + MuonME0DigisPostProcessors
     + MuonME0SegPostProcessors
+    + MuonCSCDigisPostProcessors
     + rpcRecHitPostValidation_step
 )
 

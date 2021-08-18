@@ -14,6 +14,7 @@ public:
   static constexpr int k_fiveCorners = 5;
   static constexpr int k_fourCorners = 4;
   static constexpr int k_threeCorners = 3;
+  static constexpr int k_twoCorners = 2;
 
   static void radius(double zf,
                      double zb,

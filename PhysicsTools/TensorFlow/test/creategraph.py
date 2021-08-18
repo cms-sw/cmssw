@@ -7,17 +7,15 @@ SavedModel serialization format.
 https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/saved_model/README.md
 """
 
-
 import os
 import sys
-import tensorflow as tf
 
-from PhysicsTools.TensorFlow.tools import TF2
+import cmsml
 
 
-# go into v1 compatibility mode
-if TF2:
-    tf = tf.compat.v1
+# get tensorflow and work with the v1 compatibility layer
+tf, tf1, tf_version = cmsml.tensorflow.import_tf()
+tf = tf1
 tf.disable_eager_execution()
 
 # prepare the datadir

@@ -54,7 +54,7 @@ HCALRecHitAnalyzer::HCALRecHitAnalyzer(const edm::ParameterSet& iConfig) {
   hBHERecHitsLabel_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("HBHERecHitsLabel"));
   hORecHitsLabel_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("HORecHitsLabel"));
   hFRecHitsLabel_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("HFRecHitsLabel"));
-
+  caloGeomToken_ = esConsumes<edm::Transition::BeginRun>();
   debug_ = iConfig.getParameter<bool>("Debug");
   finebinning_ = iConfig.getUntrackedParameter<bool>("FineBinning");
   FolderName_ = iConfig.getUntrackedParameter<std::string>("FolderName");
@@ -239,8 +239,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup) {
   // Retrieve!
   // ==========================================================
 
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
+  const auto& pG = iSetup.getHandle(caloGeomToken_);
 
   if (!pG.isValid()) {
     edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Setup Handle, Aborting Task "

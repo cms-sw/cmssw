@@ -23,7 +23,7 @@ class MatrixRunner(object):
 
         nActive = 0
         for t in self.threadList:
-            if t.isAlive() : nActive += 1
+            if t.is_alive() : nActive += 1
 
         return nActive
 

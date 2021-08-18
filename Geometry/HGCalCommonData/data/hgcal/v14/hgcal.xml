@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition>
 
 <ConstantsSection label="hgcal.xml" eval="true">
   <Constant name="WaferSize"             value="166.4408*mm"/>
@@ -13,6 +13,7 @@
   <Constant name="NumberOfCellsFine"     value="12"/>
   <Constant name="NumberOfCellsCoarse"   value="8"/>
   <Constant name="FirstMixedLayer"       value="9"/>
+  <Constant name="LayerRotation"         value="0*deg"/>
   <Constant name="rad100200P0"           value="-1.60163E-06"/>
   <Constant name="rad100200P1"           value="2.50640E-03"/>
   <Constant name="rad100200P2"           value="-1.46943E+00"/>
@@ -109,7 +110,7 @@
   <Constant name="zHGCalHEmix3"          value="[zHGCal8]"/>
   <Constant name="zHGCalHEmix4"          value="[zHGCal10]"/>
   <Constant name="zHGCalHEmix5"          value="[zHGCal11]"/>
-  <Constant name="zHGCalHEmix6"          value="[zHGCal13]"/>
+  <Constant name="zHGCalHEmix6"          value="[zHGCal12]"/>
   <Constant name="rMinHGCalHEmix1"       value="[rMinHGCal6]"/>
   <Constant name="rMinHGCalHEmix2"       value="[rMinHGCal8]"/>
   <Constant name="rMaxHGCalHEmix1"       value="[rMaxHGCal6]"/>

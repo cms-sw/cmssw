@@ -1,6 +1,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimDataFormats/Forward"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="Utilities/PPS"/>
 <use   name="SimTransport/TotemRPProtonTransportParametrization"/>

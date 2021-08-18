@@ -1,9 +1,12 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace cms_units::operators;
+//#define EDM_ML_DEBUG
+
+using namespace angle_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& context, xml_h element) {
   cms::DDNamespace ns(context, element, true);
@@ -21,12 +24,13 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   childName = ns.prepend(childName);
   dd4hep::Volume child = ns.volume(childName);
 
-  edm::LogVerbatim("MuonGeom") << "debug: Parameters for positioning:: n " << n << " Start, Step "
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MuonGeom") << "DDMuonAngular: Parameters for positioning:: n " << n << " Start, Step "
                                << convertRadToDeg(startAngle) << ", " << convertRadToDeg(stepAngle) << ", zoffset "
-                               << zoffset << ", RotNameSpace " << rotns;
-  edm::LogVerbatim("MuonGeom") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
-                               << ns.name();
-
+                               << cms::convert2mm(zoffset) << ", RotNameSpace " << rotns;
+  edm::LogVerbatim("MuonGeom") << "DDMuonAngular: Parent " << mother.name() << "\tChild " << child.name()
+                               << " NameSpace " << ns.name();
+#endif
   double phi = startAngle;
   int copyNo = startCopyNo;
 
@@ -42,12 +46,15 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     }
     dd4hep::Position tran(0., 0., zoffset);
     mother.placeVolume(child, copyNo, dd4hep::Transform3D(rotation, tran));
-    edm::LogVerbatim("MuonGeom") << "test " << child.name() << " number " << copyNo << " positioned in "
-                                 << mother.name() << " at " << tran << " with " << rotstr << ": " << rotation;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("MuonGeom") << "DDMuonAngular:" << child.name() << " number " << copyNo << " positioned in "
+                                 << mother.name() << " at (0,0," << cms::convert2mm(zoffset) << ") with " << rotstr
+                                 << ": " << rotation;
+#endif
     phi += stepAngle;
     copyNo += incrCopyNo;
   }
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file

@@ -1,5 +1,5 @@
 #include "QGSPCMS_FTFP_BERT_EMM.h"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -35,7 +35,7 @@ QGSPCMS_FTFP_BERT_EMM::QGSPCMS_FTFP_BERT_EMM(const edm::ParameterSet& p) : Physi
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics(new CMSEmStandardPhysicsLPM(ver));
+    RegisterPhysics(new CMSEmStandardPhysics(ver, p));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);

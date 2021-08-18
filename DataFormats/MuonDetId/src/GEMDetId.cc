@@ -14,7 +14,7 @@ bool GEMDetId::isME0() const { return subsystem() == GEMSubDetId::Station::ME0; 
 
 std::ostream& operator<<(std::ostream& os, const GEMDetId& id) {
   os << " Re " << id.region() << " Ri " << id.ring() << " St " << id.station() << " La " << id.layer() << " Ch "
-     << id.chamber() << " Ro " << id.roll() << " ";
+     << id.chamber() << " Et " << id.roll() << " ";
 
   return os;
 }

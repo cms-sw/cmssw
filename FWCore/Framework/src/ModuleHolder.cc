@@ -13,8 +13,8 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/src/ModuleHolder.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/Framework/interface/maker/ModuleHolder.h"
+#include "FWCore/Framework/interface/maker/WorkerMaker.h"
 
 namespace edm {
   namespace maker {

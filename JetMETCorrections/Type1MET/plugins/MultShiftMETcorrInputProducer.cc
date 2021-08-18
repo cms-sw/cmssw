@@ -6,6 +6,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Common/interface/View.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <TString.h>
 

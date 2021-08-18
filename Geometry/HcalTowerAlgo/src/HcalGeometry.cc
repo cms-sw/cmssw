@@ -372,10 +372,10 @@ DetId HcalGeometry::detIdFromLocalAlignmentIndex(unsigned int i) {
   const unsigned int nF(numberOfForwardAlignments());
   //   const unsigned int nO ( numberOfOuterAlignments()   ) ;
 
-  return (i < nB ? detIdFromBarrelAlignmentIndex(i)
-                 : i < nB + nE ? detIdFromEndcapAlignmentIndex(i - nB)
-                               : i < nB + nE + nF ? detIdFromForwardAlignmentIndex(i - nB - nE)
-                                                  : detIdFromOuterAlignmentIndex(i - nB - nE - nF));
+  return (i < nB             ? detIdFromBarrelAlignmentIndex(i)
+          : i < nB + nE      ? detIdFromEndcapAlignmentIndex(i - nB)
+          : i < nB + nE + nF ? detIdFromForwardAlignmentIndex(i - nB - nE)
+                             : detIdFromOuterAlignmentIndex(i - nB - nE - nF));
 }
 
 unsigned int HcalGeometry::alignmentBarEndForIndexLocal(const DetId& id, unsigned int nD) {
@@ -424,10 +424,10 @@ unsigned int HcalGeometry::alignmentTransformIndexLocal(const DetId& id) {
   const unsigned int nF(numberOfForwardAlignments());
   // const unsigned int nO ( numberOfOuterAlignments()   ) ;
 
-  const unsigned int index(isHB ? alignmentBarrelIndexLocal(id)
-                                : isHE ? alignmentEndcapIndexLocal(id) + nB
-                                       : isHF ? alignmentForwardIndexLocal(id) + nB + nE
-                                              : alignmentOuterIndexLocal(id) + nB + nE + nF);
+  const unsigned int index(isHB   ? alignmentBarrelIndexLocal(id)
+                           : isHE ? alignmentEndcapIndexLocal(id) + nB
+                           : isHF ? alignmentForwardIndexLocal(id) + nB + nE
+                                  : alignmentOuterIndexLocal(id) + nB + nE + nF);
 
   assert(index < numberOfAlignments());
   return index;

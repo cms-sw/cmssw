@@ -40,6 +40,7 @@
 #include "CondFormats/DataRecord/interface/EcalSamplesCorrelationRcd.h"
 #include "CondFormats/DataRecord/interface/EcalPulseShapesRcd.h"
 #include "CondFormats/DataRecord/interface/EcalPulseCovariancesRcd.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitTimingCCAlgo.h"
 
 namespace edm {
   class Event;
@@ -94,7 +95,7 @@ private:
   edm::ESGetToken<EcalSampleMask, EcalSampleMaskRcd> sampleMaskToken_;
 
   // time algorithm to be used to set the jitter and its uncertainty
-  enum TimeAlgo { noMethod, ratioMethod, weightsMethod };
+  enum TimeAlgo { noMethod, ratioMethod, weightsMethod, crossCorrelationMethod };
   TimeAlgo timealgo_ = noMethod;
 
   // time weights method
@@ -163,6 +164,9 @@ private:
   bool kPoorRecoFlagEE_;
   double chi2ThreshEB_;
   double chi2ThreshEE_;
+
+  //Timing Cross Correlation Algo
+  std::unique_ptr<EcalUncalibRecHitTimingCCAlgo> computeCC_;
 };
 
 #endif

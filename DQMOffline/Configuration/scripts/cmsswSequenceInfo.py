@@ -35,11 +35,6 @@ def inspectsequence(seq):
     sep = ":"
     if not seq.seqname:
         sep = ""
-    otherstep = ""
-    if seq.step not in ("HARVESTING", "ALCAHARVEST"):
-        # cmsDriver refuses to run some steps on their own, so we add this to them
-        # only loading a single module that we can blacklist later
-        otherstep = "RAW2DIGI:siPixelDigis,"
 
     wd = tempfile.mkdtemp()
 
@@ -55,7 +50,7 @@ def inspectsequence(seq):
         "cmsDriver.py",
         "step3",
         "--conditions", "auto:run2_data",                                    # conditions is mandatory, but should not affect the result.
-        "-s", otherstep+seq.step+sep+seq.seqname,                            # running only DQM seems to be not possible, so also load a single module for RAW2DIGI
+        "-s", seq.step+sep+seq.seqname,                            # running only DQM seems to be not possible, so also load a single module for RAW2DIGI
         "--process", "DUMMY", 
         "--mc" if seq.mc else "", "--data" if seq.data else "", "--fast" if seq.fast else "", # random switches 
         "--era" if seq.era else "", seq.era,                                 # era is important as it trigger e.g. switching phase0/pahse1/phase2
@@ -501,6 +496,7 @@ if __name__ == "__main__":
     parser.add_argument("--steps", default="ALCA,ALCAPRODUCER,ALCAHARVEST,DQM,HARVESTING,VALIDATION", help="Which workflow steps to inspect from runTheMatrix.")
     parser.add_argument("--sqlite", default=False, action="store_true", help="Write information to SQLite DB instead of stdout.")
     parser.add_argument("--dbfile", default="sequences.db", help="Name of the DB file to use.")
+    parser.add_argument("--infile", default=INFILE, help="LFN/PFN of input file to use. Default is %s" % INFILE)
     parser.add_argument("--threads", default=None, type=int, help="Use a fixed number of threads (default is #cores).")
     parser.add_argument("--limit", default=None, type=int, help="Process only this many sequences.")
     parser.add_argument("--offset", default=None, type=int, help="Process sequences starting from this index. Used with --limit to divide the work into jobs.")
@@ -519,6 +515,7 @@ if __name__ == "__main__":
       tp = ThreadPool(args.threads)
       stp = ThreadPool(args.threads)
 
+    INFILE = args.infile
     if args.serve:
         serve()
     elif args.workflow or args.runTheMatrix:

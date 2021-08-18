@@ -1,4 +1,4 @@
-void volumeHandle::buildTubs(double zhalf, double rIn, double rOut, double startPhi, double deltaPhi) {
+inline void volumeHandle::buildTubs(double zhalf, double rIn, double rOut, double startPhi, double deltaPhi) {
   LogTrace("MagGeoBuilder") << "Building tubs surfaces...: ";
   LogTrace("MagGeoBuilder") << "zhalf    " << zhalf << newln << "rIn      " << rIn << newln << "rOut     " << rOut
                             << newln << "startPhi " << startPhi << newln << "deltaPhi " << deltaPhi;

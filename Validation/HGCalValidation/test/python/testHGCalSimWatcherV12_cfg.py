@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C12_cff import Phase2C12
-process = cms.Process('testHGCalRecoLocal',Phase2C12)
+from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+process = cms.Process('testHGCalRecoLocal',Phase2C11)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -90,7 +90,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(

@@ -42,10 +42,14 @@ class TFile;
 
 //Constructor
 SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet &ps)
-    : dbe_(edm::Service<DQMStore>().operator->()),
+    : m_geomToken(esConsumes()),
+      m_topoToken(esConsumes()),
+      m_topoTokenBR(esConsumes<edm::Transition::BeginRun>()),
+      m_SiStripDetCablingToken(esConsumes<edm::Transition::BeginRun>()),
+      m_stripCPEToken(esConsumes(edm::ESInputTag("", "SimpleStripCPE"))),
+      dbe_(edm::Service<DQMStore>().operator->()),
       conf_(ps),
-      trackerHitAssociatorConfig_(ps, consumesCollector()),
-      m_cacheID_(0)
+      trackerHitAssociatorConfig_(ps, consumesCollector())
 // trajectoryInput_( ps.getParameter<edm::InputTag>("trajectoryInput") )
 {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
@@ -537,9 +541,7 @@ SiStripTrackingRecHitsValid::~SiStripTrackingRecHitsValid() {}
 void SiStripTrackingRecHitsValid::bookHistograms(DQMStore::IBooker &ibooker,
                                                  const edm::Run &run,
                                                  const edm::EventSetup &es) {
-  unsigned long long cacheID = es.get<SiStripDetCablingRcd>().cacheIdentifier();
-  if (m_cacheID_ != cacheID) {
-    m_cacheID_ = cacheID;
+  if (watchSiStripDetCablingRcd_.check(es)) {
     edm::LogInfo("SiStripRecHitsValid") << "SiStripRecHitsValid::beginRun: "
                                         << " Creating MEs for new Cabling ";
 
@@ -562,27 +564,9 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event &e, const edm::EventS
   TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
-
-  edm::ESHandle<TrackerGeometry> pDD;
-  es.get<TrackerDigiGeometryRecord>().get(pDD);
-  const TrackerGeometry &tracker(*pDD);
-
-  const TrackerGeometry *tracker2;
-  edm::ESHandle<TrackerGeometry> estracker;
-  es.get<TrackerDigiGeometryRecord>().get(estracker);
-  tracker2 = &(*estracker);
-
-  edm::ESHandle<MagneticField> magfield;
-  es.get<IdealMagneticFieldRecord>().get(magfield);
-
-  const MagneticField &magfield_(*magfield);
-  magfield2_ = &magfield_;
-
-  edm::ESHandle<StripClusterParameterEstimator> stripcpe;
-  es.get<TkStripCPERecord>().get("SimpleStripCPE", stripcpe);
+  const TrackerTopology *const tTopo = &es.getData(m_topoToken);
+  const TrackerGeometry &tracker = es.getData(m_geomToken);
+  const auto &stripcpe = &es.getData(m_stripCPEToken);
 
   // Mangano's
 
@@ -676,7 +660,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event &e, const edm::EventS
           auto hm = matchedhit->monoHit();
           const SiStripRecHit2D *monohit = &hm;
           //      const GeomDetUnit * monodet=gdet->monoDet();
-          GluedGeomDet *gdet = (GluedGeomDet *)tracker2->idToDet(matchedhit->geographicalId());
+          GluedGeomDet *gdet = (GluedGeomDet *)tracker.idToDet(matchedhit->geographicalId());
 
           if (monohit) {
             isrechitrphi = 1;
@@ -1076,7 +1060,7 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir,
                                                          const TrackingRecHit *rechit,
                                                          const GluedGeomDet *gluedDet,
                                                          TrackerHitAssociator &associate,
-                                                         edm::ESHandle<StripClusterParameterEstimator> stripcpe,
+                                                         const StripClusterParameterEstimator *stripcpe,
                                                          const MatchStatus matchedmonorstereo) {
   rechitpro.resx = -999999.;
   rechitpro.resy = -999999.;
@@ -1233,6 +1217,10 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir,
           closest = &m;
         }
       }
+
+      if (!closest)
+        return;
+
       float closestX = closest->localPosition().x();
       rechitpro.resx = rechitpro.x - closestX;
       rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
@@ -1248,6 +1236,10 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir,
           closest = &m;
         }
       }
+
+      if (!closest)
+        return;
+
       float closestX = closest->localPosition().x();
       rechitpro.resx = rechitpro.x - closestX;
       rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
@@ -1260,7 +1252,7 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir,
 void SiStripTrackingRecHitsValid::rechitanalysis(LocalVector ldir,
                                                  const TrackingRecHit *rechit,
                                                  const StripGeomDetUnit *stripdet,
-                                                 edm::ESHandle<StripClusterParameterEstimator> stripcpe,
+                                                 const StripClusterParameterEstimator *stripcpe,
                                                  TrackerHitAssociator &associate,
                                                  bool simplehit1or2D) {
   rechitpro.resx = -999999.;
@@ -1349,6 +1341,10 @@ void SiStripTrackingRecHitsValid::rechitanalysis(LocalVector ldir,
           closest = &m;
         }
       }
+
+      if (!closest)
+        return;
+
       float closestX = closest->localPosition().x();
       rechitpro.resx = rechitpro.x - closestX;
       rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
@@ -1365,6 +1361,10 @@ void SiStripTrackingRecHitsValid::rechitanalysis(LocalVector ldir,
           closest = &m;
         }
       }
+
+      if (!closest)
+        return;
+
       float closestX = closest->localPosition().x();
       rechitpro.resx = rechitpro.x - closestX;
       rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
@@ -1376,12 +1376,10 @@ void SiStripTrackingRecHitsValid::rechitanalysis(LocalVector ldir,
 //--------------------------------------------------------------------------------------------
 void SiStripTrackingRecHitsValid::createMEs(DQMStore::IBooker &ibooker, const edm::EventSetup &es) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const TrackerTopology *const tTopo = &es.getData(m_topoTokenBR);
 
   // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
-  es.get<SiStripDetCablingRcd>().get(SiStripDetCabling_);
+  const auto &SiStripDetCabling_ = &es.getData(m_SiStripDetCablingToken);
 
   // get list of active detectors from SiStripDetCabling
   std::vector<uint32_t> activeDets;

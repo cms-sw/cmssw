@@ -1,5 +1,3 @@
-
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -9,11 +7,16 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
-#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
-#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 
 namespace triggerExpression {
+
+  void Data::setPathStatusToken(edm::BranchDescription const& branch, edm::ConsumesCollector&& iC) {
+    if (branch.branchType() == edm::InEvent && branch.className() == "edm::HLTPathStatus" &&
+        branch.moduleLabel().rfind("HLT_", 0) == 0)
+      m_pathStatusTokens[branch.moduleLabel()] = iC.consumes<edm::HLTPathStatus>(
+          edm::InputTag(branch.moduleLabel(), branch.productInstanceName(), branch.processName()));
+  }
 
   bool Data::setEvent(const edm::Event& event, const edm::EventSetup& setup) {
     // cache the event number
@@ -37,14 +40,26 @@ namespace triggerExpression {
       if (m_l1tCacheID == l1tCacheID) {
         m_l1tUpdated = false;
       } else {
-        m_l1tMenu = &edm::get<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>(setup);
+        m_l1tMenu = &setup.getData(m_l1tUtmTriggerMenuToken);
         m_l1tCacheID = l1tCacheID;
         m_l1tUpdated = true;
       }
     }
 
     // access HLT objects only if HLT is used
-    if (hasHLT()) {
+    if (usePathStatus()) {
+      m_pathStatus.clear();
+      std::vector<std::string> triggerNames;
+      for (auto const& p : m_pathStatusTokens) {
+        auto const& handle = event.getHandle(p.second);
+        if (handle.isValid()) {
+          m_pathStatus.push_back(handle->accept());
+          triggerNames.push_back(p.first);
+        }
+      }
+      m_hltUpdated = m_triggerNames != triggerNames;
+      m_triggerNames = triggerNames;
+    } else if (hasHLT()) {
       // cache the HLT TriggerResults
       m_hltResults = &edm::get(event, m_hltResultsToken);
       if (not m_hltResults)

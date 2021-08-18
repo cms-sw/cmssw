@@ -18,6 +18,7 @@
 
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusterChargeCut.h"
+#include "RecoLocalTracker/SiPixelClusterizer/plugins/SiPixelClusterThresholds.h"
 
 int main(void) {
 #ifdef __CUDACC__
@@ -27,6 +28,7 @@ int main(void) {
   using namespace gpuClustering;
 
   constexpr int numElements = 256 * maxNumModules;
+  constexpr SiPixelClusterThresholds clusterThresholds(kSiPixelClusterThresholdsDefaultPhase1);
 
   // these in reality are already on GPU
   auto h_id = std::make_unique<uint16_t[]>(numElements);
@@ -288,6 +290,7 @@ int main(void) {
 
     cms::cuda::launch(clusterChargeCut,
                       {blocksPerGrid, threadsPerBlock},
+                      clusterThresholds,
                       d_id.get(),
                       d_adc.get(),
                       d_moduleStart.get(),
@@ -317,8 +320,14 @@ int main(void) {
     if (ncl != std::accumulate(nclus, nclus + maxNumModules, 0))
       std::cout << "ERROR!!!!! wrong number of cluster found" << std::endl;
 
-    clusterChargeCut(
-        h_id.get(), h_adc.get(), h_moduleStart.get(), h_clusInModule.get(), h_moduleId.get(), h_clus.get(), n);
+    clusterChargeCut(clusterThresholds,
+                     h_id.get(),
+                     h_adc.get(),
+                     h_moduleStart.get(),
+                     h_clusInModule.get(),
+                     h_moduleId.get(),
+                     h_clus.get(),
+                     n);
 #endif  // __CUDACC__
 
     std::cout << "found " << nModules << " Modules active" << std::endl;

@@ -4,6 +4,7 @@
 <use name="CondFormats/L1TObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="L1Trigger/L1TCommon"/>
+<use name="hls"/>
 <export>
   <lib name="1"/>
 </export>

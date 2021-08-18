@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
-#include "FWCore/Framework/src/EventSetupsController.h"
+#include "FWCore/Framework/interface/EventSetupsController.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 using namespace edm::eventsetup;
@@ -62,7 +62,8 @@ void testEventsetupplugin::finderTest()
 {
   doInit();
   EventSetupsController esController;
-  EventSetupProvider provider(&activityRegistry);
+  tbb::task_arena taskArena(1);
+  EventSetupProvider provider(&activityRegistry, &taskArena);
 
   edm::ParameterSet dummyFinderPSet;
   dummyFinderPSet.addParameter("@module_type", std::string("LoadableDummyFinder"));

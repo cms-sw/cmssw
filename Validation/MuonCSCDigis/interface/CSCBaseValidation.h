@@ -16,15 +16,15 @@ public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
-  CSCBaseValidation(const edm::InputTag &inputTag);
+  CSCBaseValidation(const edm::ParameterSet &ps);
   virtual ~CSCBaseValidation() {}
   void setGeometry(const CSCGeometry *geom) { theCSCGeometry = geom; }
   void setSimHitMap(const PSimHitMap *simHitMap) { theSimHitMap = simHitMap; }
   virtual void analyze(const edm::Event &e, const edm::EventSetup &eventSetup) = 0;
 
 protected:
+  bool doSim_;
   const CSCLayer *findLayer(int detId) const;
-  edm::InputTag theInputTag;
   const PSimHitMap *theSimHitMap;
   const CSCGeometry *theCSCGeometry;
 };

@@ -4,26 +4,14 @@
  *  \author Monica Vazquez Acosta (CERN)
  *
  */
-
 #include "HLTEgammaL1MatchFilterRegional.h"
-
-//#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
-#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #define TWOPI 6.283185308
@@ -91,10 +79,6 @@ bool HLTEgammaL1MatchFilterRegional::hltFilter(edm::Event& iEvent,
   }
 
   edm::Ref<reco::RecoEcalCandidateCollection> ref;
-
-  // Get the CaloGeometry
-  edm::ESHandle<L1CaloGeometry> l1CaloGeom;
-  iSetup.get<L1CaloGeometryRecord>().get(l1CaloGeom);
 
   // look at all candidates,  check cuts and add to filter object
   int n(0);

@@ -10,8 +10,11 @@
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Framework/interface/Callback.h"
 #include "FWCore/Framework/interface/ESProducts.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Concurrency/interface/ThreadsController.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+
+#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 
 #include <memory>
 #include <cassert>
@@ -36,19 +39,16 @@ namespace callbacktest {
                  unsigned int transitionID,
                  void const* getTokenIndices,
                  void const* iEventSetupImpl,
+                 void const* ESParentContext,
                  bool requireTokens) {}
+    constexpr static bool allowConcurrentIOVs_ = false;
   };
 
   struct Queue {
     template <typename T>
-    void push(T&& iT) {
+    void push(tbb::task_group&, T&& iT) {
       iT();
     }
-  };
-
-  struct ComponentDescription {
-    static constexpr char const* const type_ = "";
-    static constexpr char const* const label_ = "";
   };
 
   struct Base {
@@ -60,7 +60,10 @@ namespace callbacktest {
     static constexpr edm::ESRecordIndex const* getTokenRecordIndices(unsigned int) { return nullptr; }
     static constexpr size_t numberOfTokenIndices(unsigned int) { return 0; }
     static constexpr bool hasMayConsumes() { return false; }
-    static ComponentDescription description() { return ComponentDescription{}; }
+    static edm::eventsetup::ComponentDescription const& description() {
+      static const edm::eventsetup::ComponentDescription s_description;
+      return s_description;
+    }
 
     Queue queue() { return Queue(); }
   };
@@ -98,13 +101,21 @@ namespace callbacktest {
   };
 }  // namespace callbacktest
 
+EVENTSETUP_RECORD_REG(callbacktest::Record);
+
 namespace {
   template <typename CALLBACK>
   void call(CALLBACK& iCallback) {
-    auto waitTask = edm::make_empty_waiting_task();
-    waitTask->set_ref_count(1);
-    iCallback.prefetchAsync(edm::WaitingTaskHolder(waitTask.get()), nullptr, nullptr, edm::ServiceToken{});
-    waitTask->wait_for_all();
+    edm::ActivityRegistry ar;
+    edm::eventsetup::EventSetupRecordImpl rec(edm::eventsetup::EventSetupRecordKey::makeKey<callbacktest::Record>(),
+                                              &ar);
+    edm::FinalWaitingTask task;
+    tbb::task_group group;
+    edm::ServiceToken token;
+    iCallback.prefetchAsync(edm::WaitingTaskHolder(group, &task), &rec, nullptr, token, edm::ESParentContext{});
+    do {
+      group.wait();
+    } while (not task.done());
   }
 }  // namespace
 
