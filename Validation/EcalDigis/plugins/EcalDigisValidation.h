@@ -37,7 +37,6 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "EcalDigisValidation.h"
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
 #include <iostream>
