@@ -1274,7 +1274,6 @@ class SimpleValidation:
         for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
             if sample is not None and not _processPlotsForSample(plotterFolder, sample):
                 continue
-            return_dict[iProc] = None
             p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, iProc, return_dict))
             proc.append((plotterFolder, dqmSubFolder, p))
             p.start()
