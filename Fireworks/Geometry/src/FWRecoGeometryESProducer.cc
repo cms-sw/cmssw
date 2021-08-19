@@ -67,7 +67,8 @@ using Phase2TrackerTopology = PixelTopology;
       fwRecoGeometry.idToName[rawid].topology[0] = 0;                                                          \
       fwRecoGeometry.idToName[rawid].topology[1] = topo->nstrips();                                            \
       fwRecoGeometry.idToName[rawid].topology[2] = topo->stripLength();                                        \
-    } else if (const RadialStripTopology* rtop =                                                               \
+    }                                                                                                          \
+    if (const RadialStripTopology* rtop =                                                                      \
                    dynamic_cast<const RadialStripTopology*>(&(det->specificType().specificTopology()))) {      \
       fwRecoGeometry.idToName[rawid].topology[0] = 1;                                                          \
       fwRecoGeometry.idToName[rawid].topology[3] = rtop->yAxisOrientation();                                   \
