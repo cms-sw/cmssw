@@ -77,6 +77,7 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(CTPPSPixelGainCalibrations)
         IMPORT_PAYLOAD_CASE(CTPPSRPAlignmentCorrectionsData)
         IMPORT_PAYLOAD_CASE(PPSAlignmentConfig)
+        IMPORT_PAYLOAD_CASE(PPSAlignmentConfigRun3v1)
         IMPORT_PAYLOAD_CASE(LHCOpticalFunctionsSetCollection)
         IMPORT_PAYLOAD_CASE(CastorChannelQuality)
         IMPORT_PAYLOAD_CASE(CastorElectronicsMap)

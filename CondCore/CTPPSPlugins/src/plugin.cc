@@ -21,6 +21,8 @@
 #include "CondFormats/DataRecord/interface/PPSPixelTopologyRcd.h"
 #include "CondFormats/PPSObjects/interface/PPSAlignmentConfig.h"
 #include "CondFormats/DataRecord/interface/PPSAlignmentConfigRcd.h"
+#include "CondFormats/PPSObjects/interface/PPSAlignmentConfigRun3v1.h"
+#include "CondFormats/DataRecord/interface/PPSAlignmentConfigRun3v1Rcd.h"
 
 REGISTER_PLUGIN(CTPPSBeamParametersRcd, CTPPSBeamParameters);
 REGISTER_PLUGIN(CTPPSPixelDAQMappingRcd, CTPPSPixelDAQMapping);
@@ -34,3 +36,4 @@ REGISTER_PLUGIN(CTPPSOpticsRcd, LHCOpticalFunctionsSetCollection);
 REGISTER_PLUGIN(PPSDirectSimulationDataRcd, PPSDirectSimulationData);
 REGISTER_PLUGIN(PPSPixelTopologyRcd, PPSPixelTopology);
 REGISTER_PLUGIN(PPSAlignmentConfigRcd, PPSAlignmentConfig);
+REGISTER_PLUGIN(PPSAlignmentConfigRun3v1Rcd, PPSAlignmentConfigRun3v1);
