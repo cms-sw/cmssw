@@ -267,14 +267,14 @@ ecalTrigPrimTask = cms.untracked.PSet(
         ),
         RealvEmulEt = cms.untracked.PSet(
             kind = cms.untracked.string('TH2F'),
-            yaxis = cms.untracked.PSet(
+            xaxis = cms.untracked.PSet(
                 high = cms.untracked.double(256.0),
                 nbins = cms.untracked.int32(128),
                 low = cms.untracked.double(0.0),
                 title = cms.untracked.string('Real data TP Et (ADC)')
             ),
             otype = cms.untracked.string('Ecal3P'),
-            xaxis = cms.untracked.PSet(
+            yaxis = cms.untracked.PSet(
                 high = cms.untracked.double(256.0),
                 nbins = cms.untracked.int32(128),
                 low = cms.untracked.double(0.0),
