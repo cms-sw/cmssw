@@ -22,18 +22,6 @@
 #include "DataFormats/GEMDigi/interface/GEMVFATStatus.h"
 #include "DataFormats/GEMDigi/interface/GEMVFATStatusCollection.h"
 
-#include "DataFormats/GEMDigi/interface/GEMVfatStatusDigi.h"
-#include "DataFormats/GEMDigi/interface/GEMVfatStatusDigiCollection.h"
-
-#include "DataFormats/GEMDigi/interface/GEBdata.h"
-#include "DataFormats/GEMDigi/interface/GEMGEBdataCollection.h"
-
-#include "DataFormats/GEMDigi/interface/AMCdata.h"
-#include "DataFormats/GEMDigi/interface/GEMAMCdataCollection.h"
-
-#include "DataFormats/GEMDigi/interface/AMC13Event.h"
-#include "DataFormats/GEMDigi/interface/GEMAMC13EventCollection.h"
-
 #include "DataFormats/GEMDigi/interface/ME0DigiPreReco.h"
 #include "DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h"
 
