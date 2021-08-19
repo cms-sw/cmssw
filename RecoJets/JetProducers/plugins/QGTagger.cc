@@ -45,13 +45,13 @@ QGTagger::QGTagger(const edm::ParameterSet& iConfig)
 
 /// Produce qgLikelihood using {mult, ptD, -log(axis2)}
 void QGTagger::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  std::vector<float>* qgProduct = new std::vector<float>;
-  std::vector<float>* axis2Product = new std::vector<float>;
-  std::vector<int>* multProduct = new std::vector<int>;
-  std::vector<float>* ptDProduct = new std::vector<float>;
-  std::vector<float>* smearedQuarkProduct = new std::vector<float>;
-  std::vector<float>* smearedGluonProduct = new std::vector<float>;
-  std::vector<float>* smearedAllProduct = new std::vector<float>;
+  std::vector<float> qgProduct;
+  std::vector<float> axis2Product;
+  std::vector<int> multProduct;
+  std::vector<float> ptDProduct;
+  std::vector<float> smearedQuarkProduct;
+  std::vector<float> smearedGluonProduct;
+  std::vector<float> smearedAllProduct;
 
   edm::Handle<edm::View<reco::Jet>> jets;
   iEvent.getByToken(jetsToken, jets);
@@ -90,15 +90,15 @@ void QGTagger::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&
     else
       qgValue = -1;
 
-    qgProduct->push_back(qgValue);
+    qgProduct.push_back(qgValue);
     if (produceSyst) {
-      smearedQuarkProduct->push_back(qgLikelihood.systematicSmearing(*QGLSystColl, pt, jet->eta(), *rho, qgValue, 0));
-      smearedGluonProduct->push_back(qgLikelihood.systematicSmearing(*QGLSystColl, pt, jet->eta(), *rho, qgValue, 1));
-      smearedAllProduct->push_back(qgLikelihood.systematicSmearing(*QGLSystColl, pt, jet->eta(), *rho, qgValue, 2));
+      smearedQuarkProduct.push_back(qgLikelihood.systematicSmearing(*QGLSystColl, pt, jet->eta(), *rho, qgValue, 0));
+      smearedGluonProduct.push_back(qgLikelihood.systematicSmearing(*QGLSystColl, pt, jet->eta(), *rho, qgValue, 1));
+      smearedAllProduct.push_back(qgLikelihood.systematicSmearing(*QGLSystColl, pt, jet->eta(), *rho, qgValue, 2));
     }
-    axis2Product->push_back(axis2);
-    multProduct->push_back(mult);
-    ptDProduct->push_back(ptD);
+    axis2Product.push_back(axis2);
+    multProduct.push_back(mult);
+    ptDProduct.push_back(ptD);
   }
 
   putInEvent("qgLikelihood", jets, qgProduct, iEvent);
@@ -116,14 +116,13 @@ void QGTagger::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&
 template <typename T>
 void QGTagger::putInEvent(const std::string& name,
                           const edm::Handle<edm::View<reco::Jet>>& jets,
-                          std::vector<T>* product,
+                          const std::vector<T>& product,
                           edm::Event& iEvent) const {
   auto out = std::make_unique<edm::ValueMap<T>>();
   typename edm::ValueMap<T>::Filler filler(*out);
-  filler.insert(jets, product->begin(), product->end());
+  filler.insert(jets, product.begin(), product.end());
   filler.fill();
   iEvent.put(std::move(out), name);
-  delete product;
 }
 
 /// Function to tell us if we are using packedCandidates, only test for first candidate
