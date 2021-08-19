@@ -1,6 +1,6 @@
 #ifndef DataFormats_GEMDigi_GEMOHStatus_h
 #define DataFormats_GEMDigi_GEMOHStatus_h
-#include "GEBdata.h"
+#include "GEMOptoHybrid.h"
 #include <bitset>
 #include <ostream>
 
@@ -35,7 +35,7 @@ public:
   };
 
   GEMOHStatus() {}
-  GEMOHStatus(const gem::GEBdata& oh) {
+  GEMOHStatus(const GEMOptoHybrid& oh) {
     Errors error{0};
     error.EvtF = oh.evtF();
     error.InF = oh.inF();
