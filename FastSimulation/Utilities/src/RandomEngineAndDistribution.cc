@@ -3,7 +3,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "IOMC/RandomEngine/src/TRandomAdaptor.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 
