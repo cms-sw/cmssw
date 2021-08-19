@@ -5,9 +5,11 @@
  *  \author A. Everett - Purdue University <adam.everett@cern.ch>
  */
 
-#include "RecoMuon/GlobalMuonProducer/test/GLBMuonAnalyzer.h"
+// Base Class Headers
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 // Collaborating Class Header
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -32,11 +34,50 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
+class GLBMuonAnalyzer : public edm::EDAnalyzer {
+public:
+  /// Constructor
+  GLBMuonAnalyzer(const edm::ParameterSet &pset);
+
+  /// Destructor
+  virtual ~GLBMuonAnalyzer();
+
+  // Operations
+
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup);
+
+  virtual void beginJob();
+  virtual void endJob();
+
+protected:
+private:
+  edm::InputTag theGLBMuonLabel;
+
+  std::string theRootFileName;
+  TFile *theFile;
+
+  // Histograms
+  TH1F *hPtRec;
+  TH1F *hPtSim;
+  TH1F *hPres;
+  TH1F *h1_Pres;
+  TH1F *hPTDiff;
+  TH1F *hPTDiff2;
+  TH2F *hPTDiffvsEta;
+  TH2F *hPTDiffvsPhi;
+
+  // Counters
+  int numberOfSimTracks;
+  int numberOfRecTracks;
+
+  std::string theDataType;
+};
+
 using namespace std;
 using namespace edm;
 
 /// Constructor
-GLBMuonAnalyzer::GLBMuonAnalyzer(const ParameterSet& pset) {
+GLBMuonAnalyzer::GLBMuonAnalyzer(const ParameterSet &pset) {
   theGLBMuonLabel = pset.getUntrackedParameter<edm::InputTag>("GlobalTrackCollectionLabel");
 
   theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
@@ -91,7 +132,7 @@ void GLBMuonAnalyzer::endJob() {
   theFile->Close();
 }
 
-void GLBMuonAnalyzer::analyze(const Event& event, const EventSetup& eventSetup) {
+void GLBMuonAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) {
   //LogTrace("Analyzer") << "Run: " << event.id().run() << " Event: " << event.id().event() << endl;
   MuonPatternRecoDumper debug;
 
@@ -186,3 +227,5 @@ void GLBMuonAnalyzer::analyze(const Event& event, const EventSetup& eventSetup) 
   }
   LogTrace("Analyzer") << "---" << endl;
 }
+
+DEFINE_FWK_MODULE(GLBMuonAnalyzer);
