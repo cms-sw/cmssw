@@ -25,7 +25,10 @@ private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   std::tuple<int, float, float> calcVariables(const reco::Jet*, edm::Handle<reco::VertexCollection>&, bool) const;
   template <typename T>
-  void putInEvent(const std::string&, const edm::Handle<edm::View<reco::Jet>>&, std::vector<T>*, edm::Event&) const;
+  void putInEvent(const std::string&,
+                  const edm::Handle<edm::View<reco::Jet>>&,
+                  const std::vector<T>&,
+                  edm::Event&) const;
   bool isPackedCandidate(const reco::Jet* jet) const;
 
   edm::EDGetTokenT<edm::View<reco::Jet>> jetsToken;
