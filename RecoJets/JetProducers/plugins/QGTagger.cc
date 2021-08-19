@@ -2,7 +2,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -17,8 +16,6 @@
 
 #include "RecoJets/JetProducers/interface/QGTagger.h"
 #include "RecoJets/JetAlgorithms/interface/QGLikelihoodCalculator.h"
-#include "CondFormats/DataRecord/interface/QGLikelihoodRcd.h"
-#include "CondFormats/DataRecord/interface/QGLikelihoodSystematicsRcd.h"
 
 /**
  * EDProducer class to produced the qgLikelihood values and related variables
@@ -30,21 +27,20 @@ QGTagger::QGTagger(const edm::ParameterSet& iConfig)
       jetCorrectorToken(consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("jec"))),
       vertexToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("srcVertexCollection"))),
       rhoToken(consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"))),
-      jetsLabel(iConfig.getParameter<std::string>("jetsLabel")),
-      systLabel(iConfig.getParameter<std::string>("systematicsLabel")),
+      paramsToken(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("jetsLabel")))),
       useQC(iConfig.getParameter<bool>("useQualityCuts")),
       useJetCorr(!iConfig.getParameter<edm::InputTag>("jec").label().empty()),
-      produceSyst(!systLabel.empty()) {
+      produceSyst(!iConfig.getParameter<std::string>("systematicsLabel").empty()) {
   produces<edm::ValueMap<float>>("qgLikelihood");
   produces<edm::ValueMap<float>>("axis2");
   produces<edm::ValueMap<int>>("mult");
   produces<edm::ValueMap<float>>("ptD");
   if (produceSyst) {
+    systToken = esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("systematicsLabel")));
     produces<edm::ValueMap<float>>("qgLikelihoodSmearedQuark");
     produces<edm::ValueMap<float>>("qgLikelihoodSmearedGluon");
     produces<edm::ValueMap<float>>("qgLikelihoodSmearedAll");
   }
-  qgLikelihood = new QGLikelihoodCalculator();
 }
 
 /// Produce qgLikelihood using {mult, ptD, -log(axis2)}
@@ -67,14 +63,11 @@ void QGTagger::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<double> rho;
   iEvent.getByToken(rhoToken, rho);
 
-  edm::ESHandle<QGLikelihoodObject> QGLParamsColl;
-  QGLikelihoodRcd const& rcdhandle = iSetup.get<QGLikelihoodRcd>();
-  rcdhandle.get(jetsLabel, QGLParamsColl);
+  const auto& QGLParamsColl = iSetup.getData(paramsToken);
 
-  edm::ESHandle<QGLikelihoodSystematicsObject> QGLSystColl;
+  const QGLikelihoodSystematicsObject* QGLSystColl = nullptr;
   if (produceSyst) {
-    QGLikelihoodSystematicsRcd const& systrcdhandle = iSetup.get<QGLikelihoodSystematicsRcd>();
-    systrcdhandle.get(systLabel, QGLSystColl);
+    QGLSystColl = &iSetup.getData(systToken);
   }
 
   bool weStillNeedToCheckJetCandidates = true;
@@ -93,15 +86,15 @@ void QGTagger::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&
     float qgValue;
     if (mult > 2)
       qgValue =
-          qgLikelihood->computeQGLikelihood(QGLParamsColl, pt, jet->eta(), *rho, {(float)mult, ptD, -std::log(axis2)});
+          qgLikelihood.computeQGLikelihood(QGLParamsColl, pt, jet->eta(), *rho, {(float)mult, ptD, -std::log(axis2)});
     else
       qgValue = -1;
 
     qgProduct->push_back(qgValue);
     if (produceSyst) {
-      smearedQuarkProduct->push_back(qgLikelihood->systematicSmearing(QGLSystColl, pt, jet->eta(), *rho, qgValue, 0));
-      smearedGluonProduct->push_back(qgLikelihood->systematicSmearing(QGLSystColl, pt, jet->eta(), *rho, qgValue, 1));
-      smearedAllProduct->push_back(qgLikelihood->systematicSmearing(QGLSystColl, pt, jet->eta(), *rho, qgValue, 2));
+      smearedQuarkProduct->push_back(qgLikelihood.systematicSmearing(*QGLSystColl, pt, jet->eta(), *rho, qgValue, 0));
+      smearedGluonProduct->push_back(qgLikelihood.systematicSmearing(*QGLSystColl, pt, jet->eta(), *rho, qgValue, 1));
+      smearedAllProduct->push_back(qgLikelihood.systematicSmearing(*QGLSystColl, pt, jet->eta(), *rho, qgValue, 2));
     }
     axis2Product->push_back(axis2);
     multProduct->push_back(mult);
