@@ -16,21 +16,42 @@
 #include <atomic>
 #include <mutex>
 
-class MakerResponseHandler : public XrdCl::ResponseHandler
-{
-public:
-    void HandleResponse( XrdCl::XRootDStatus *status,
-                                 XrdCl::AnyObject    *response ) override
-    {
-        // Note: Prepare call has a response object.
-        delete response;
-        delete status;
-    }
+namespace {
 
+class PrepareHandler : public XrdCl::ResponseHandler {
+public:
+  PrepareHandler(const XrdCl::URL &url) : m_fs(url) {
+    m_fileList.push_back(url.GetPath());
+  }
+
+  void callAsyncPrepare() {
+    auto status = m_fs.Prepare(m_fileList, XrdCl::PrepareFlags::Stage, 0, this);
+    if (!status.IsOK()) {
+      LogDebug("StageInError") << "XrdCl::FileSystem::Prepare submit failed with error '" << status.ToStr()
+                                    << "' (errNo = " << status.errNo << ")";
+      delete this;
+    }
+  }
+
+  void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override {
+    // Note: Prepare call has a response object.
+    if (!status->IsOK()) {
+      LogDebug("StageInError") << "XrdCl::FileSystem::Prepare failed with error '" << status->ToStr()
+                                    << "' (errNo = " << status->errNo << ")";
+    }
+    delete response;
+    delete status;
+    delete this;
+  }
+
+private:
+  XrdCl::FileSystem m_fs;
+  std::vector<std::string> m_fileList;
 };
 
-class XrdStorageMaker final : public StorageMaker
-{
+}
+
+class XrdStorageMaker final : public StorageMaker {
 public:
   static const unsigned int XRD_DEFAULT_TIMEOUT = 3*60;
 
@@ -85,16 +106,9 @@ public:
 
     std::string fullpath(proto + ":" + path);
     XrdCl::URL url(fullpath);
-    XrdCl::FileSystem fs(url);
-    XrdCl::Buffer *buffer = nullptr;
-    std::vector<std::string> fileList;
-    fileList.push_back(url.GetPath());
-    auto status = fs.Prepare(fileList, XrdCl::PrepareFlags::Stage, 0, buffer);
-    delete buffer;
-    if (!status.IsOK()) {
-      edm::LogWarning("StageInError") << "XrdCl::FileSystem::Prepare failed with error '" << status.ToStr()
-                                      << "' (errNo = " << status.errNo << ")";
-    }
+
+    auto prep_handler = new PrepareHandler(url);
+    prep_handler->callAsyncPrepare();
   }
 
   bool check (const std::string &proto,
@@ -191,7 +205,6 @@ public:
   }
 
 private:
-  CMS_THREAD_SAFE mutable MakerResponseHandler m_null_handler;
   mutable std::mutex m_envMutex;
   mutable std::atomic<unsigned int> m_lastDebugLevel;
   mutable std::atomic<unsigned int> m_lastTimeout;
