@@ -86,7 +86,8 @@ private:
 
   void DumpMagneticField(const G4Field*, const std::string&) const;
 
-  static void resetTLS();
+  void resetTLS();
+  int getThreadIndex() const { return m_thread_index; }
 
   Generator m_generator;
   edm::EDGetTokenT<edm::HepMCProduct> m_InToken;
@@ -111,12 +112,14 @@ private:
   edm::ParameterSet m_p;
 
   struct TLSData;
-  static thread_local TLSData* m_tls;
-  static thread_local bool dumpMF;
+  TLSData* m_tls{nullptr};
+  bool dumpMF{false};
 
   G4SimEvent* m_simEvent;
   std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
   std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> m_sdMakers;
+
+  const int m_thread_index{-1};
 };
 
 #endif
