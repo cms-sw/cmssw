@@ -1,7 +1,7 @@
 #ifndef DataFormats_GEMDigi_GEMAMCStatus_h
 #define DataFormats_GEMDigi_GEMAMCStatus_h
-#include "AMC13Event.h"
-#include "AMCdata.h"
+#include "GEMAMC13.h"
+#include "GEMAMC.h"
 #include <bitset>
 #include <ostream>
 
@@ -30,7 +30,7 @@ public:
   };
 
   GEMAMCStatus() {}
-  GEMAMCStatus(const gem::AMC13Event* amc13, const gem::AMCdata& amc) {
+  GEMAMCStatus(const GEMAMC13* amc13, const GEMAMC& amc) {
     amcNum_ = amc.amcNum();
     Errors error{0};
     error.badEC = (amc13->lv1Id() != amc.lv1Id());
