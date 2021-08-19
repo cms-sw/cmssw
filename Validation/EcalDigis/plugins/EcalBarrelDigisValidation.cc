@@ -5,7 +5,7 @@
  *
 */
 
-#include <Validation/EcalDigis/interface/EcalBarrelDigisValidation.h>
+#include "EcalBarrelDigisValidation.h"
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 

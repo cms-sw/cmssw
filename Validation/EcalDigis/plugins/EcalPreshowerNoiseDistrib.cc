@@ -3,7 +3,7 @@
  *
 */
 
-#include <Validation/EcalDigis/interface/EcalPreshowerNoiseDistrib.h>
+#include "EcalPreshowerNoiseDistrib.h"
 
 EcalPreshowerNoiseDistrib::EcalPreshowerNoiseDistrib(const edm::ParameterSet& ps)
     : ESdigiCollectionToken_(consumes<ESDigiCollection>(ps.getParameter<edm::InputTag>("ESdigiCollection"))) {

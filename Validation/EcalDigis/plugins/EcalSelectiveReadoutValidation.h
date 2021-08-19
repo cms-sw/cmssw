@@ -32,7 +32,7 @@
 #include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
 
-#include "Validation/EcalDigis/src/CollHandle.h"
+#include "CollHandle.h"
 
 #include <string>
 #include <set>

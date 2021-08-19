@@ -1,8 +1,8 @@
-#ifndef EcalEndcapDigisValidation_H
-#define EcalEndcapDigisValidation_H
+#ifndef EcalBarrelDigisValidation_H
+#define EcalBarrelDigisValidation_H
 
 /*
- * \file EcalEndcapDigisValidation.h
+ * \file EcalBarrelDigisValidation.h
  *
  * \author F. Cossutti
  *
@@ -22,11 +22,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-
-#include <Validation/EcalDigis/interface/EcalEndcapDigisValidation.h>
-#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
 #include <iostream>
 #include <fstream>
@@ -34,23 +31,24 @@
 #include <map>
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class EcalEndcapDigisValidation : public DQMEDAnalyzer {
+#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
+
+class EcalBarrelDigisValidation : public DQMEDAnalyzer {
   typedef std::map<uint32_t, float, std::less<uint32_t> > MapType;
 
 public:
   /// Constructor
-  EcalEndcapDigisValidation(const edm::ParameterSet& ps);
+  EcalBarrelDigisValidation(const edm::ParameterSet& ps);
 
   /// Destructor
-  ~EcalEndcapDigisValidation() override;
+  ~EcalBarrelDigisValidation() override;
 
-  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
   void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
 
 protected:
   /// Analyze
   void analyze(edm::Event const& e, edm::EventSetup const& c) override;
-
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
   void checkCalibrations(edm::EventSetup const& c);
 
 private:
@@ -58,38 +56,35 @@ private:
 
   std::string outputFile_;
 
-  edm::EDGetTokenT<EEDigiCollection> EEdigiCollectionToken_;
+  edm::EDGetTokenT<EBDigiCollection> EBdigiCollection_;
   edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> pAgc;
-
   std::map<int, double, std::less<int> > gainConv_;
 
   double barrelADCtoGeV_;
   double endcapADCtoGeV_;
 
-  MonitorElement* meEEDigiOccupancyzp_;
-  MonitorElement* meEEDigiOccupancyzm_;
+  MonitorElement* meEBDigiOccupancy_;
 
-  MonitorElement* meEEDigiMultiplicityzp_;
-  MonitorElement* meEEDigiMultiplicityzm_;
+  MonitorElement* meEBDigiMultiplicity_;
 
-  MonitorElement* meEEDigiADCGlobal_;
+  MonitorElement* meEBDigiADCGlobal_;
 
-  MonitorElement* meEEDigiADCAnalog_[10];
+  MonitorElement* meEBDigiADCAnalog_[10];
 
-  MonitorElement* meEEDigiADCgS_[10];
-  MonitorElement* meEEDigiADCg1_[10];
-  MonitorElement* meEEDigiADCg6_[10];
-  MonitorElement* meEEDigiADCg12_[10];
+  MonitorElement* meEBDigiADCgS_[10];
+  MonitorElement* meEBDigiADCg1_[10];
+  MonitorElement* meEBDigiADCg6_[10];
+  MonitorElement* meEBDigiADCg12_[10];
 
-  MonitorElement* meEEDigiGain_[10];
+  MonitorElement* meEBDigiGain_[10];
 
-  MonitorElement* meEEPedestal_;
+  MonitorElement* meEBPedestal_;
 
-  MonitorElement* meEEMaximumgt100ADC_;
+  MonitorElement* meEBMaximumgt100ADC_;
 
-  MonitorElement* meEEMaximumgt20ADC_;
+  MonitorElement* meEBMaximumgt10ADC_;
 
-  MonitorElement* meEEnADCafterSwitch_;
+  MonitorElement* meEBnADCafterSwitch_;
 };
 
 #endif
