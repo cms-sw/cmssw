@@ -172,6 +172,7 @@ namespace evf {
     void createProcessingNotificationMaybe() const;
     int readLastLSEntry(std::string const& file);
     unsigned int getLumisectionToStart() const;
+    unsigned int getStartLumisectionFromEnv() const { return startFromLS_; }
     void setDeleteTracking(std::mutex* fileDeleteLock,
                            std::list<std::pair<int, std::unique_ptr<InputFile>>>* filesToDelete) {
       fileDeleteLockPtr_ = fileDeleteLock;
