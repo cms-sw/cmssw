@@ -35,22 +35,7 @@ ChildrenCPUTimer::ChildrenCPUTimer() : state_(kStopped), startCPUTime_(), accumu
   startCPUTime_.tv_usec = 0;
 }
 
-// ChildrenCPUTimer::ChildrenCPUTimer(ChildrenCPUTimer const& rhs) {
-//    // do actual copying here;
-// }
-
 ChildrenCPUTimer::~ChildrenCPUTimer() {}
-
-//
-// assignment operators
-//
-// ChildrenCPUTimer const& ChildrenCPUTimer::operator=(ChildrenCPUTimer const& rhs) {
-//   //An exception safe implementation is
-//   ChildrenCPUTimer temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
