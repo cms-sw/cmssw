@@ -12,11 +12,13 @@
 
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "RecoJets/JetAlgorithms/interface/QGLikelihoodCalculator.h"
+#include "CondFormats/DataRecord/interface/QGLikelihoodRcd.h"
+#include "CondFormats/DataRecord/interface/QGLikelihoodSystematicsRcd.h"
 
 class QGTagger : public edm::global::EDProducer<> {
 public:
   explicit QGTagger(const edm::ParameterSet&);
-  ~QGTagger() override { delete qgLikelihood; };
+  ~QGTagger() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -30,9 +32,10 @@ private:
   edm::EDGetTokenT<reco::JetCorrector> jetCorrectorToken;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken;
   edm::EDGetTokenT<double> rhoToken;
-  std::string jetsLabel, systLabel;
+  edm::ESGetToken<QGLikelihoodObject, QGLikelihoodRcd> paramsToken;
+  edm::ESGetToken<QGLikelihoodSystematicsObject, QGLikelihoodSystematicsRcd> systToken;
   const bool useQC, useJetCorr, produceSyst;
-  QGLikelihoodCalculator* qgLikelihood;
+  QGLikelihoodCalculator qgLikelihood;
 };
 
 #endif
