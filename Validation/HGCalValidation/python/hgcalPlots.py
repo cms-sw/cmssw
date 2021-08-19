@@ -16,6 +16,7 @@ import Validation.RecoTrack.plotting.plotting as plotting
 import Validation.RecoTrack.plotting.validation as validation
 import Validation.RecoTrack.plotting.html as html
 
+from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
 from Validation.HGCalValidation.PostProcessorHGCAL_cfi import tsToCP_linking, lcToCP_linking
 
 #To be able to spot any issues both in -z and +z a layer id was introduced
@@ -2270,7 +2271,7 @@ lc_zplus_extended = [
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus
 ]
 
-def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_collection = layerClustersLabel, extended = False):
+def append_hgcalLayerClustersPlots(collection = hgcalValidator.label_layerClusterPlots._InputTag__moduleLabel, name_collection = layerClustersLabel, extended = False):
   print('extended : ',extended)
   regions_ClusterLevel       = ["General: Cluster Level", "Z-minus: Cluster Level", "Z-plus: Cluster Level"]
   regions_CellLevel          = ["Z-minus: Cell Level", "Z-plus: Cell Level"]
@@ -2319,7 +2320,7 @@ def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_colle
 
 #=================================================================================================
 def _hgcalsimClustersFolders(lastDirName):
-    return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/simClusters/"+lastDirName
+    return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/" + hgcalValidator.label_SimClusters._InputTag__moduleLabel + "/"+lastDirName
 
 sc_clusterlevel = [
   # number of layer clusters per event in a) 120um, b) 200um, c) 300um, d) scint
@@ -2411,7 +2412,7 @@ sc_ticltracksters = [
 hgcalSimClustersPlotter = Plotter()
 
 def append_hgcalSimClustersPlots(collection, name_collection):
-  if collection == "ClusterLevel":
+  if collection == hgcalValidator.label_SimClustersLevel._InputTag__moduleLabel:
       hgcalSimClustersPlotter.append(collection, [
                   _hgcalsimClustersFolders(collection)
                   ], PlotFolder(
