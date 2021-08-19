@@ -28,7 +28,7 @@ public:
     auto status = m_fs.Prepare(m_fileList, XrdCl::PrepareFlags::Stage, 0, this);
     if (!status.IsOK()) {
       LogDebug("StageInError") << "XrdCl::FileSystem::Prepare submit failed with error '" << status.ToStr()
-                                    << "' (errNo = " << status.errNo << ")";
+                               << "' (errNo = " << status.errNo << ")";
       delete this;
     }
   }
@@ -37,7 +37,7 @@ public:
     // Note: Prepare call has a response object.
     if (!status->IsOK()) {
       LogDebug("StageInError") << "XrdCl::FileSystem::Prepare failed with error '" << status->ToStr()
-                                    << "' (errNo = " << status->errNo << ")";
+                               << "' (errNo = " << status->errNo << ")";
     }
     delete response;
     delete status;
