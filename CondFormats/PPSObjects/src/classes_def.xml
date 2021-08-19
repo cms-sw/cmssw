@@ -31,6 +31,7 @@
     <class name="PPSAssociationCuts::CutsPerArm"  class_version="0"/>
     <class name="std::map<unsigned int,PPSAssociationCuts::CutsPerArm >"/>
     <class name="std::pair<unsigned int, PPSAssociationCuts::CutsPerArm>"/>
+    <class name="std::vector<std::string>"/>
 
     <class name="CTPPSPixelROCInfo"  class_version="0"/>
 

@@ -34,6 +34,7 @@
 
 #include "CondFormats/DataRecord/interface/PPSAssociationCutsRcd.h"
 #include "CondFormats/PPSObjects/interface/PPSAssociationCuts.h"
+#include <TF1.h>
 
 //----------------------------------------------------------------------------------------------------
 
@@ -258,7 +259,7 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
         // do single-RP reco if needed
         std::map<unsigned int, reco::ForwardProton> singleRPResultsIndexed;
-        if (doSingleRPReconstruction_ || ac.xi_cut_apply || ac.th_y_cut_apply) {
+        if (doSingleRPReconstruction_ || ac.isApplied(ac.qXi) || ac.isApplied(ac.qThetaY)) {
           for (const auto &idx : indices) {
             if (verbosity_)
               ssLog << std::endl << "* reconstruction from track " << idx << std::endl;
@@ -299,14 +300,14 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
               bool matching = true;
 
-              if (ac.x_cut_apply && std::abs(tr_i.x() - tr_j.x() - ac.x_cut_mean) > ac.x_cut_value)
+              if (!ac.isSatisfied(ac.qX, tr_i.x(), tr_i.y(), hLHCInfo->crossingAngle(), tr_i.x() - tr_j.x()))
                 matching = false;
-              else if (ac.y_cut_apply && std::abs(tr_i.y() - tr_j.y() - ac.y_cut_mean) > ac.y_cut_value)
+              else if (!ac.isSatisfied(ac.qY, tr_i.x(), tr_i.y(), hLHCInfo->crossingAngle(), tr_i.y() - tr_j.y()))
                 matching = false;
-              else if (ac.xi_cut_apply && std::abs(pr_i.xi() - pr_j.xi() - ac.xi_cut_mean) > ac.xi_cut_value)
+              else if (!ac.isSatisfied(ac.qXi, tr_i.x(), tr_i.y(), hLHCInfo->crossingAngle(), pr_i.xi() - pr_j.xi()))
                 matching = false;
-              else if (ac.th_y_cut_apply &&
-                       std::abs(pr_i.thetaY() - pr_j.thetaY() - ac.th_y_cut_mean) > ac.th_y_cut_value)
+              else if (!ac.isSatisfied(
+                           ac.qThetaY, tr_i.x(), tr_i.y(), hLHCInfo->crossingAngle(), pr_i.thetaY() - pr_j.thetaY()))
                 matching = false;
 
               if (!matching)
@@ -360,7 +361,7 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
               const double de_x_unc = sqrt(tr_ti.xUnc() * tr_ti.xUnc() + x_inter_unc_sq);
               const double r = (de_x_unc > 0.) ? de_x / de_x_unc : 1E100;
 
-              const bool matching = (ac.ti_tr_min < r && r < ac.ti_tr_max);
+              const bool matching = (ac.ti_tr_min_ < r && r < ac.ti_tr_max_);
 
               if (verbosity_)
                 ssLog << "ti=" << ti << ", i=" << i << ", j=" << j << " | z_ti=" << z_ti << ", z_i=" << z_i

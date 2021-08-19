@@ -41,7 +41,7 @@ private:
   static edm::ParameterSetDescription getIOVDefaultParameters();
   bool currentAssociationCutValid_;
   unsigned int currentAssociationCutIdx_;
-  std::vector<std::shared_ptr<PPSAssociationCuts>> cppsAssociationCuts_;
+  std::vector<std::shared_ptr<PPSAssociationCuts>> ppsAssociationCuts_;
   std::vector<edm::EventRange> validityRanges_;
 };
 
@@ -49,7 +49,7 @@ private:
 
 PPSAssociationCutsESSource::PPSAssociationCutsESSource(const edm::ParameterSet &iConfig) {
   for (const auto &interval : iConfig.getParameter<std::vector<edm::ParameterSet>>("configuration")) {
-    cppsAssociationCuts_.push_back(make_shared<PPSAssociationCuts>(interval));
+    ppsAssociationCuts_.push_back(make_shared<PPSAssociationCuts>(interval));
     validityRanges_.push_back(interval.getParameter<edm::EventRange>("validityRange"));
   }
 
@@ -62,7 +62,7 @@ PPSAssociationCutsESSource::PPSAssociationCutsESSource(const edm::ParameterSet &
 void PPSAssociationCutsESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
                                                 const edm::IOVSyncValue &iosv,
                                                 edm::ValidityInterval &oValidity) {
-  for (unsigned int idx = 0; idx < cppsAssociationCuts_.size(); ++idx) {
+  for (unsigned int idx = 0; idx < ppsAssociationCuts_.size(); ++idx) {
     // is within an entry ?
     if (edm::contains(validityRanges_[idx], iosv.eventID())) {
       currentAssociationCutValid_ = true;
@@ -91,7 +91,7 @@ std::shared_ptr<PPSAssociationCuts> PPSAssociationCutsESSource::produce(const PP
   auto output = std::make_shared<PPSAssociationCuts>();
 
   if (currentAssociationCutValid_) {
-    const auto &associationCut = cppsAssociationCuts_[currentAssociationCutIdx_];
+    const auto &associationCut = ppsAssociationCuts_[currentAssociationCutIdx_];
     output = associationCut;
   }
 
