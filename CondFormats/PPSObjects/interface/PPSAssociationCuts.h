@@ -10,51 +10,70 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include <TF1.h>
 
 #include <iostream>
+#include <memory>
+#include <cmath>
 
 class PPSAssociationCuts {
 public:
   class CutsPerArm {
   public:
-    bool x_cut_apply = false;
-    double x_cut_value = 0.;
-    double x_cut_mean = 0.;
-    bool y_cut_apply = false;
-    double y_cut_value = 0.;
-    double y_cut_mean = 0.;
-    bool xi_cut_apply = false;
-    double xi_cut_value = 0.;
-    double xi_cut_mean = 0.;
-    bool th_y_cut_apply = false;
-    double th_y_cut_value = 0.;
-    double th_y_cut_mean = 0.;
-    double ti_tr_min = 0.;
-    double ti_tr_max = 0.;
+    enum Quantities { qX, qY, qXi, qThetaY };
+
+    double ti_tr_min_ = 0.;
+    double ti_tr_max_ = 0.;
+
+    std::vector<std::string> thresholds_;
+    std::vector<std::string> means_;
+
+    std::vector<std::shared_ptr<TF1> > s_de_means_ COND_TRANSIENT;
+    std::vector<std::shared_ptr<TF1> > s_de_thresholds_ COND_TRANSIENT;
+
+    bool isApplied(Quantities quantity) const {
+      return (!thresholds_.at(quantity).empty()) && (!means_.at(quantity).empty());
+    }
+
+    bool isSatisfied(Quantities quantity, double x_near, double y_near, double xangle, double q_NF_diff) const {
+      if (!isApplied(quantity))
+        return true;
+      const double mean = evaluateEquation(s_de_means_.at(quantity),x_near, y_near, xangle);
+      const double threshold = evaluateEquation(s_de_thresholds_.at(quantity),x_near, y_near, xangle);
+      return fabs(q_NF_diff - mean) < threshold;
+    }
 
     CutsPerArm() {}
 
+    ~CutsPerArm() {}
+
     CutsPerArm(const edm::ParameterSet &iConfig, int sector) {
       const auto &association_cuts = iConfig.getParameterSet("association_cuts_" + std::to_string(sector));
-      x_cut_apply = association_cuts.getParameter<bool>("x_cut_apply");
-      x_cut_value = association_cuts.getParameter<double>("x_cut_value");
-      x_cut_mean = association_cuts.getParameter<double>("x_cut_mean");
 
-      y_cut_apply = association_cuts.getParameter<bool>("y_cut_apply");
-      y_cut_value = association_cuts.getParameter<double>("y_cut_value");
-      y_cut_mean = association_cuts.getParameter<double>("y_cut_mean");
+      const std::vector<std::string> names{"x", "y", "xi", "th_y"};
+      for (std::size_t i = 0; i < names.size(); ++i) {
+        std::string mean = association_cuts.getParameter<std::string>(names[i] + "_cut_mean");
+        means_.push_back(mean);
 
-      xi_cut_apply = association_cuts.getParameter<bool>("xi_cut_apply");
-      xi_cut_value = association_cuts.getParameter<double>("xi_cut_value");
-      xi_cut_mean = association_cuts.getParameter<double>("xi_cut_mean");
+        std::string threshold = association_cuts.getParameter<std::string>(names[i] + "_cut_threshold");
+        thresholds_.push_back(threshold);
 
-      th_y_cut_apply = association_cuts.getParameter<bool>("th_y_cut_apply");
-      th_y_cut_value = association_cuts.getParameter<double>("th_y_cut_value");
-      th_y_cut_mean = association_cuts.getParameter<double>("th_y_cut_mean");
+        s_de_means_.push_back(std::make_shared<TF1>("f", mean.c_str()));
+        s_de_thresholds_.push_back(std::make_shared<TF1>("f", threshold.c_str()));
+      }
 
-      ti_tr_min = association_cuts.getParameter<double>("ti_tr_min");
-      ti_tr_max = association_cuts.getParameter<double>("ti_tr_max");
+      ti_tr_min_ = association_cuts.getParameter<double>("ti_tr_min");
+      ti_tr_max_ = association_cuts.getParameter<double>("ti_tr_max");
     }
+
+  private:
+      double evaluateEquation(std::shared_ptr<TF1> equation,double x_near, double y_near, double xangle) const{
+        equation->SetParameter("x_near",x_near);
+        equation->SetParameter("y_near",y_near);
+        equation->SetParameter("xangle",xangle);
+        return equation->EvalPar(nullptr);
+    }
+
     COND_SERIALIZABLE;
   };
 
@@ -66,6 +85,7 @@ public:
   }
 
   PPSAssociationCuts() {}
+
   ~PPSAssociationCuts() {}
 
   const CutsPerArm &getAssociationCuts(const int sector) const { return association_cuts_.at(sector); }
