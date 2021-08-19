@@ -26,6 +26,7 @@
 
 // user include files
 #include "FWCore/Utilities/interface/CPUTimer.h"
+#include "FWCore/Utilities/interface/ChildrenCPUTimer.h"
 #include "FWCore/Utilities/interface/WallclockTimer.h"
 
 // forward declarations
@@ -106,6 +107,7 @@ namespace edm {
     std::vector<std::vector<std::string>> m_modulesOnPaths;
 
     CPUTimer m_processingLoopTimer;
+    ChildrenCPUTimer m_processingLoopChildrenTimer;
     ProcessContext const* m_processContext;
 
     unsigned int m_minModuleID;
