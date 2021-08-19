@@ -5,7 +5,7 @@
  *
 */
 
-#include <Validation/EcalDigis/interface/EcalEndcapDigisValidation.h>
+#include "EcalEndcapDigisValidation.h"
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
 using namespace cms;
