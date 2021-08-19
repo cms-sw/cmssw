@@ -5,19 +5,13 @@
 
 #include "RPCRecHitProducer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 
 #include "RPCRecHitAlgoFactory.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
-#include "CondFormats/DataRecord/interface/RPCMaskedStripsRcd.h"
-#include "CondFormats/DataRecord/interface/RPCDeadStripsRcd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
@@ -28,6 +22,7 @@ using namespace std;
 
 RPCRecHitProducer::RPCRecHitProducer(const ParameterSet& config)
     : theRPCDigiLabel(consumes<RPCDigiCollection>(config.getParameter<InputTag>("rpcDigiLabel"))),
+      theRPCGeomToken(esConsumes()),
       // Get the concrete reconstruction algo from the factory
       theAlgo{RPCRecHitAlgoFactory::get()->create(config.getParameter<string>("recAlgo"),
                                                   config.getParameter<ParameterSet>("recAlgoConfig"))},
@@ -56,6 +51,8 @@ RPCRecHitProducer::RPCRecHitProducer(const ParameterSet& config)
         MaskVec.push_back(Item);
     }
     inputFile.close();
+  } else {
+    theReadoutMaskedStripsToken = esConsumes();
   }
 
   const string deadSource = config.getParameter<std::string>("deadSource");
@@ -74,17 +71,15 @@ RPCRecHitProducer::RPCRecHitProducer(const ParameterSet& config)
         DeadVec.push_back(Item);
     }
     inputFile.close();
+  } else {
+    theReadoutDeadStripsToken = esConsumes();
   }
 }
 
 void RPCRecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup) {
   // Getting the masked-strip information
   if (maskSource_ == MaskSource::EventSetup) {
-    edm::ESHandle<RPCMaskedStrips> readoutMaskedStrips;
-    setup.get<RPCMaskedStripsRcd>().get(readoutMaskedStrips);
-    const RPCMaskedStrips* tmp_obj = readoutMaskedStrips.product();
-    theRPCMaskedStripsObj->MaskVec = tmp_obj->MaskVec;
-    delete tmp_obj;
+    theRPCMaskedStripsObj->MaskVec = setup.getData(theReadoutMaskedStripsToken).MaskVec;
   } else if (maskSource_ == MaskSource::File) {
     std::vector<RPCMaskedStrips::MaskItem>::iterator posVec;
     for (posVec = MaskVec.begin(); posVec != MaskVec.end(); ++posVec) {
@@ -97,11 +92,7 @@ void RPCRecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup
 
   // Getting the dead-strip information
   if (deadSource_ == MaskSource::EventSetup) {
-    edm::ESHandle<RPCDeadStrips> readoutDeadStrips;
-    setup.get<RPCDeadStripsRcd>().get(readoutDeadStrips);
-    const RPCDeadStrips* tmp_obj = readoutDeadStrips.product();
-    theRPCDeadStripsObj->DeadVec = tmp_obj->DeadVec;
-    delete tmp_obj;
+    theRPCDeadStripsObj->DeadVec = setup.getData(theReadoutDeadStripsToken).DeadVec;
   } else if (deadSource_ == MaskSource::File) {
     std::vector<RPCDeadStrips::DeadItem>::iterator posVec;
     for (posVec = DeadVec.begin(); posVec != DeadVec.end(); ++posVec) {
@@ -115,8 +106,7 @@ void RPCRecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup
 
 void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
   // Get the RPC Geometry
-  ESHandle<RPCGeometry> rpcGeom;
-  setup.get<MuonGeometryRecord>().get(rpcGeom);
+  auto const& rpcGeom = setup.getData(theRPCGeomToken);
 
   // Get the digis from the event
   Handle<RPCDigiCollection> digis;
@@ -135,7 +125,7 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
     const RPCDetId& rpcId = (*rpcdgIt).first;
 
     // Get the GeomDet from the setup
-    const RPCRoll* roll = rpcGeom->roll(rpcId);
+    const RPCRoll* roll = rpcGeom.roll(rpcId);
     if (roll == nullptr) {
       edm::LogError("BadDigiInput") << "Failed to find RPCRoll for ID " << rpcId;
       continue;
