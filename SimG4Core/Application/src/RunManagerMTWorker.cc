@@ -64,17 +64,12 @@
 #include "tbb/task_arena.h"
 
 static std::once_flag applyOnce;
-thread_local bool RunManagerMTWorker::dumpMF = false;
 
 // from https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/3302/2.html
 namespace {
   std::atomic<int> thread_counter{0};
 
   int get_new_thread_index() { return thread_counter++; }
-
-  thread_local int s_thread_index = get_new_thread_index();
-
-  int getThreadIndex() { return s_thread_index; }
 
   void createWatchers(const edm::ParameterSet& iP,
                       SimActivityRegistry* iReg,
@@ -102,10 +97,6 @@ namespace {
       }
     }
   }
-
-  std::atomic<int> active_tlsdata{0};
-  std::atomic<bool> tls_shutdown_timeout{false};
-  std::atomic<int> n_tls_shutdown_task{0};
 }  // namespace
 
 struct RunManagerMTWorker::TLSData {
@@ -127,9 +118,9 @@ struct RunManagerMTWorker::TLSData {
   bool threadInitialized = false;
   bool runTerminated = false;
 
-  TLSData() { ++active_tlsdata; }
+  TLSData() {}
 
-  ~TLSData() { --active_tlsdata; }
+  ~TLSData() {}
 };
 
 //This can not be a smart pointer since we must delete some of the members
@@ -137,7 +128,7 @@ struct RunManagerMTWorker::TLSData {
 // other 'singletons' after those singletons have been deleted. Instead we
 // atempt to delete all TLS at RunManagerMTWorker destructor. If that fails for
 // some reason, it is better to leak than cause a crash.
-thread_local RunManagerMTWorker::TLSData* RunManagerMTWorker::m_tls{nullptr};
+//thread_local RunManagerMTWorker::TLSData* RunManagerMTWorker::m_tls{nullptr};
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
     : m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
@@ -158,7 +149,8 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
       m_pCustomUIsession(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomUIsession")),
       m_p(iConfig),
       m_simEvent(nullptr),
-      m_sVerbose(nullptr) {
+      m_sVerbose(nullptr),
+      m_thread_index{get_new_thread_index()} {
   std::vector<std::string> onlySDs = iConfig.getParameter<std::vector<std::string>>("OnlySDs");
   m_sdMakers = sim::sensitiveDetectorMakers(m_p, iC, onlySDs);
   std::vector<edm::ParameterSet> watchers = iConfig.getParameter<std::vector<edm::ParameterSet>>("Watchers");
@@ -180,47 +172,9 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
     edm::LogVerbatim("SimG4CoreApplication") << "SD[" << k << "] " << itr->first;
 }
 
-RunManagerMTWorker::~RunManagerMTWorker() {
-  ++n_tls_shutdown_task;
-  resetTLS();
+RunManagerMTWorker::~RunManagerMTWorker() { resetTLS(); }
 
-  {
-    //make sure all tasks are done before continuing
-    timespec s;
-    s.tv_sec = 0;
-    s.tv_nsec = 10000;
-    while (n_tls_shutdown_task != 0) {
-      nanosleep(&s, nullptr);
-    }
-  }
-}
-
-void RunManagerMTWorker::resetTLS() {
-  m_tls = nullptr;
-
-  if (active_tlsdata != 0 and not tls_shutdown_timeout) {
-    ++n_tls_shutdown_task;
-    //need to run tasks on each thread which has set the tls
-    {
-      tbb::task_arena arena(tbb::task_arena::attach{});
-      arena.enqueue([]() { RunManagerMTWorker::resetTLS(); });
-    }
-    timespec s;
-    s.tv_sec = 0;
-    s.tv_nsec = 10000;
-    //we do not want this thread to be used for a new task since it
-    // has already cleared its structures. In order to fill all TBB
-    // threads we wait for all TLSes to clear
-    int count = 0;
-    while (active_tlsdata.load() != 0 and ++count < 1000) {
-      nanosleep(&s, nullptr);
-    }
-    if (count >= 1000) {
-      tls_shutdown_timeout = true;
-    }
-  }
-  --n_tls_shutdown_task;
-}
+void RunManagerMTWorker::resetTLS() { m_tls = nullptr; }
 
 void RunManagerMTWorker::beginRun(edm::EventSetup const& es) {
   for (auto& maker : m_sdMakers) {
@@ -323,7 +277,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
 
     std::string fieldFile = m_p.getUntrackedParameter<std::string>("FileNameField", "");
     if (!fieldFile.empty()) {
-      std::call_once(applyOnce, []() { dumpMF = true; });
+      std::call_once(applyOnce, [this]() { dumpMF = true; });
       if (dumpMF) {
         edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker: Dump magnetic field to file " << fieldFile;
         DumpMagneticField(tM->GetFieldManager()->GetDetectorField(), fieldFile);
@@ -494,13 +448,7 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
   // We have to do the per-thread initialization, and per-thread
   // per-run initialization here by ourselves.
 
-  if (nullptr == m_tls || !m_tls->threadInitialized) {
-    edm::LogVerbatim("SimG4CoreApplication")
-        << "RunManagerMTWorker::produce(): stream " << inpevt.streamID() << " thread " << getThreadIndex()
-        << " Geant4 initialisation for this thread";
-    initializeG4(&runManagerMaster, es);
-    m_tls->threadInitialized = true;
-  }
+  assert(m_tls != nullptr and m_tls->threadInitialized);
   // Initialize run
   if (inpevt.id().run() != m_tls->currentRunNumber) {
     edm::LogVerbatim("SimG4CoreApplication")
