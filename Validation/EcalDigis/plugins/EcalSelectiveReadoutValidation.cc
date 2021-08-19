@@ -4,9 +4,9 @@
  *
  */
 
-#include "Validation/EcalDigis/interface/EcalSelectiveReadoutValidation.h"
+#include "EcalSelectiveReadoutValidation.h"
 
-#include "Validation/EcalDigis/src/ecalDccMap.h"
+#include "ecalDccMap.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"

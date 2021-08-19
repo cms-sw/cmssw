@@ -5,7 +5,7 @@
  *
 */
 
-#include <Validation/EcalDigis/interface/EcalMixingModuleValidation.h>
+#include "EcalMixingModuleValidation.h"
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 #include <DataFormats/EcalDetId/interface/ESDetId.h>
