@@ -8,7 +8,7 @@
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
-#include "CACut.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CACut.h"
 
 class CACellStatus {
 public:

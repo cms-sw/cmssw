@@ -9,11 +9,11 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "RecoLocalMuon/RPCRecHit/interface/TracktoRPC.h"
-#include "RecoLocalMuon/RPCRecHit/src/DTStationIndex.h"
-#include "RecoLocalMuon/RPCRecHit/src/DTObjectMap.h"
-#include "RecoLocalMuon/RPCRecHit/src/CSCStationIndex.h"
-#include "RecoLocalMuon/RPCRecHit/src/CSCObjectMap.h"
+#include "TracktoRPC.h"
+#include "DTStationIndex.h"
+#include "DTObjectMap.h"
+#include "CSCStationIndex.h"
+#include "CSCObjectMap.h"
 
 #include <ctime>
 #include <TMath.h>

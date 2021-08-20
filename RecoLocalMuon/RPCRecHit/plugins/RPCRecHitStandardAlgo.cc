@@ -5,7 +5,7 @@
  */
 
 #include "RPCCluster.h"
-#include "RecoLocalMuon/RPCRecHit/src/RPCRecHitStandardAlgo.h"
+#include "RPCRecHitStandardAlgo.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"

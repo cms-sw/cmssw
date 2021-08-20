@@ -2,7 +2,7 @@
 #define RecoLocalMuon_RPCRecHit_DTObjectMap_h
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "RecoLocalMuon/RPCRecHit/src/DTStationIndex.h"
+#include "DTStationIndex.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 #include <set>
