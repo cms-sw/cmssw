@@ -32,6 +32,36 @@
       </MaterialFraction>
     </CompositeMaterial>  
 
+  <CompositeMaterial name="Polyurethane" density="0.0494*g/cm3" symbol=" " method="mixture by weight">   <!-- Airex -->
+     <MaterialFraction fraction="0.09">
+      <rMaterial name="materials:Nitrogen"/>
+     </MaterialFraction>
+     <MaterialFraction fraction="0.6559">
+      <rMaterial name="materials:Carbon"/>
+     </MaterialFraction>
+     <MaterialFraction fraction="0.0486">
+       <rMaterial name="materials:Hydrogen"/>
+     </MaterialFraction>
+    <MaterialFraction fraction="0.2056">
+       <rMaterial name="materials:Oxygen"/>
+     </MaterialFraction>
+   </CompositeMaterial>
+
+  <CompositeMaterial name="SupplyTubeEpoxy" density="1.05*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.5999">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0719">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.2283">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0999">
+      <rMaterial name="materials:Nitrogen"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
 <!--  Upgrade-->
     <CompositeMaterial name="SupplyTubeConn3_Upgrade" density="0.4868*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.560">
@@ -51,13 +81,13 @@
       <rMaterial name="pixbarmaterial:Bpix_CO2_-20C"/>
      </MaterialFraction>
      <MaterialFraction fraction="0.0944924">
-      <rMaterial name="Polyurethane"/>
+      <rMaterial name="pixbarmaterial:Polyurethane"/>
      </MaterialFraction>
 	 <MaterialFraction fraction="0.256154">
       <rMaterial name="pixbarmaterial:CFK"/>
     </MaterialFraction>
 	 <MaterialFraction fraction="0.113846">
-      <rMaterial name="SupplyTubeEpoxy"/>
+      <rMaterial name="pixbarmaterial:SupplyTubeEpoxy"/>
     </MaterialFraction>
     <MaterialFraction fraction="0.335428">
       <rMaterial name="trackermaterial:T_Aluminium"/>
@@ -81,21 +111,6 @@
     </MaterialFraction>
   </CompositeMaterial>
 
-  <CompositeMaterial name="SupplyTubeEpoxy" density="1.05*g/cm3" symbol=" " method="mixture by weight">
-    <MaterialFraction fraction="0.5999">
-      <rMaterial name="materials:Carbon"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.0719">
-      <rMaterial name="materials:Hydrogen"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.2283">
-      <rMaterial name="materials:Oxygen"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.0999">
-      <rMaterial name="materials:Nitrogen"/>
-    </MaterialFraction>
-  </CompositeMaterial>
-
   <CompositeMaterial name="CoolPipesDaisyChain" density="6.00*g/cm3" symbol=" " method="mixture by weight">   <!-- Intralayer daisy chain pipes r_i=1.8mm R_o=2.0mm-->
      <MaterialFraction fraction="0.6458">
       <rMaterial name="pixbarmaterial:Bpix_Pipe_Steel"/>
@@ -105,21 +120,6 @@
      </MaterialFraction>
    </CompositeMaterial>
    
-  <CompositeMaterial name="Polyurethane" density="0.0494*g/cm3" symbol=" " method="mixture by weight">   <!-- Airex -->
-     <MaterialFraction fraction="0.09">
-      <rMaterial name="materials:Nitrogen"/>
-     </MaterialFraction>
-     <MaterialFraction fraction="0.6559">
-      <rMaterial name="materials:Carbon"/>
-     </MaterialFraction>
-     <MaterialFraction fraction="0.0486">
-       <rMaterial name="materials:Hydrogen"/>
-     </MaterialFraction>
-    <MaterialFraction fraction="0.2056">
-       <rMaterial name="materials:Oxygen"/>
-     </MaterialFraction>
-   </CompositeMaterial>
-
   <CompositeMaterial name="Flange1_Airex" density="0.02697*g/cm3" symbol=" " method="mixture by weight">   <!-- Airex 0.546 empty factor-->
      <MaterialFraction fraction="1.00">
       <rMaterial name="pixbarmaterial:Polyurethane"/>
