@@ -2165,7 +2165,6 @@ static long load_dddefinition(Detector& det, xml_h element) {
     ns.addConstantNS("world_z", "450*m", "number");
     ns.addConstantNS("Air", "materials:Air", "string");
     ns.addConstantNS("Vacuum", "materials:Vacuum", "string");
-    ns.setContext()->debug_materials = true;
 
     string fname = xml::DocumentHandler::system_path(element);
     bool open_geometry = dddef.hasChild(DD_CMU(open_geometry)) ? dddef.child(DD_CMU(open_geometry)) : true;
