@@ -68,7 +68,7 @@ private:
     if (pos != std::string::npos) {
       dirpath.erase(pos, rsummary.length());
     }
-    std::cout << dirpath << std::endl;
+    //std::cout << dirpath << std::endl;
     meName = dirpath;
   }
   bool readdir(TDirectory *dir, const std::string& toppath);
