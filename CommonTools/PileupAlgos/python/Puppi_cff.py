@@ -34,8 +34,6 @@ puppi = _mod.PuppiProducer.clone(
                        useVertexAssociation = True,
                        vertexAssociationQuality = 6,
                        vertexAssociation = ('primaryVertexAssociationJME','original'),
-                       #candName      = 'packedPFCandidates',
-                       #vertexName     = 'offlineSlimmedPrimaryVertices',
                        clonePackedCands   = False, # should only be set to True for MiniAOD
                        algos          = { 
                         0: dict( 

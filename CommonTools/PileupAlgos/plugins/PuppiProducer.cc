@@ -109,7 +109,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     //Fill the reco objects
     fRecoObjCollection.clear();
     fRecoObjCollection.reserve(pfCol->size());
-    int ic = 0;
+    int iCand = 0;
     for (auto const& aPF : *pfCol) {
       RecoObj pReco;
       pReco.pt = aPF.pt();
@@ -127,8 +127,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
 
       if (fUseVertexAssociation) {
-        const reco::VertexRef& PVOrig = associatedPV[reco::CandidatePtr(hPFProduct, ic)];
-        int quality = associationQuality[reco::CandidatePtr(hPFProduct, ic)];
+        const reco::VertexRef& PVOrig = associatedPV[reco::CandidatePtr(hPFProduct, iCand)];
+        int quality = associationQuality[reco::CandidatePtr(hPFProduct, iCand)];
         if (PVOrig.isNonnull() && (quality >= vertexAssociationQuality_)) {
           closestVtx = PVOrig.get();
           pVtxId = PVOrig.key();
@@ -263,7 +263,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
 
       fRecoObjCollection.push_back(pReco);
-      ic++;
+      iCand++;
     }
 
     fPuppiContainer->initialize(fRecoObjCollection);

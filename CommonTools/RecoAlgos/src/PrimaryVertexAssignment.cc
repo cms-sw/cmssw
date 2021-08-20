@@ -53,7 +53,7 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
     for (IV iv = vertices.begin(); iv != vertices.end(); ++iv) {
       int ivtx = iv - vertices.begin();
       if (useVertexFit_ && (iVertex == ivtx))
-        return std::pair<int, PrimaryVertexAssignment::Quality>(ivtx, PrimaryVertexAssignment::UsedInFit);
+        return {ivtx, PrimaryVertexAssignment::UsedInFit};
 
       double dz = std::abs(track->dz(iv->position()));
       double dt = std::abs(time - iv->t());
@@ -62,18 +62,19 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
 
       if ((dz < maxDzForPrimaryAssignment_ or dz / track->dzError() < maxDzSigForPrimaryAssignment_) and
           (!useTimeVtx or dt / timeReso < maxDtSigForPrimaryAssignment_)) {
-        return std::pair<int, PrimaryVertexAssignment::Quality>(ivtx, PrimaryVertexAssignment::PrimaryDz);
+        return {ivtx, PrimaryVertexAssignment::PrimaryDz};
       }
     }
   }
 
+  auto firstVertexDz = std::abs(track->dz(vertices.at(0).position()));
   // recover cases where the primary vertex is split
   if (useVertexFit_ && (iVertex > 0) && (iVertex <= fNumOfPUVtxsForCharged_) &&
-      (std::abs(track->dz(vertices.at(0).position())) < fDzCutForChargedFromPUVtxs_))
-    return std::pair<int, PrimaryVertexAssignment::Quality>(iVertex, PrimaryVertexAssignment::PrimaryDz);
+      firstVertexDz < fDzCutForChargedFromPUVtxs_)
+    return {iVertex, PrimaryVertexAssignment::PrimaryDz};
 
   if (useVertexFit_ && (iVertex >= 0))
-    return std::pair<int, PrimaryVertexAssignment::Quality>(iVertex, PrimaryVertexAssignment::UsedInFit);
+    return {iVertex, PrimaryVertexAssignment::UsedInFit};
 
   double distmin = std::numeric_limits<double>::max();
   double dzmin = std::numeric_limits<double>::max();
@@ -120,17 +121,17 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
     } else {
       // consider only distances to first vertex for association of pileup vertices (originally used in PUPPI)
       if ((vtxIdMinSignif >= 0) && (std::abs(track->eta()) > fEtaMinUseDz_))
-        iVertex = ((std::abs(track->dz(vertices.at(0).position())) < maxDzForPrimaryAssignment_ and
-                    std::abs(track->dz(vertices.at(0).position())) / dzE < maxDzSigForPrimaryAssignment_ and
-                    track->dzError() < maxDzErrorForPrimaryAssignment_) and
-                   (!useTime or std::abs(time - vertices.at(0).t()) / timeReso < maxDtSigForPrimaryAssignment_))
-                      ? 0
-                      : vtxIdMinSignif;
+        iVertex =
+            ((firstVertexDz < maxDzForPrimaryAssignment_ and firstVertexDz / dzE < maxDzSigForPrimaryAssignment_ and
+              track->dzError() < maxDzErrorForPrimaryAssignment_) and
+             (!useTime or std::abs(time - vertices.at(0).t()) / timeReso < maxDtSigForPrimaryAssignment_))
+                ? 0
+                : vtxIdMinSignif;
     }
   }
 
   if (iVertex >= 0)
-    return std::pair<int, PrimaryVertexAssignment::Quality>(iVertex, PrimaryVertexAssignment::PrimaryDz);
+    return {iVertex, PrimaryVertexAssignment::PrimaryDz};
 
   // if track not assigned yet, it could be a b-decay secondary , use jet axis dist criterion
   // first find the closest jet within maxJetDeltaR_
@@ -170,20 +171,19 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
     }
   }
   if (iVertex >= 0)
-    return std::pair<int, PrimaryVertexAssignment::Quality>(iVertex, PrimaryVertexAssignment::BTrack);
+    return {iVertex, PrimaryVertexAssignment::BTrack};
 
   // if the track is not compatible with other PVs but is compatible with the BeamSpot, we may simply have not reco'ed the PV!
   //  we still point it to the closest in Z, but flag it as possible orphan-primary
   if (!vertices.empty() && std::abs(track->dxy(vertices[0].position())) < maxDxyForNotReconstructedPrimary_ &&
       std::abs(track->dxy(vertices[0].position()) / track->dxyError()) < maxDxySigForNotReconstructedPrimary_)
-    return std::pair<int, PrimaryVertexAssignment::Quality>(vtxIdMinSignif,
-                                                            PrimaryVertexAssignment::NotReconstructedPrimary);
+    return {vtxIdMinSignif, PrimaryVertexAssignment::NotReconstructedPrimary};
 
   //FIXME: here we could better handle V0s and NucInt
 
   // all other tracks could be non-B secondaries and we just attach them with closest Z
   if (vtxIdMinSignif >= 0)
-    return std::pair<int, PrimaryVertexAssignment::Quality>(vtxIdMinSignif, PrimaryVertexAssignment::OtherDz);
+    return {vtxIdMinSignif, PrimaryVertexAssignment::OtherDz};
   //If for some reason even the dz failed (when?) we consider the track not assigned
-  return std::pair<int, PrimaryVertexAssignment::Quality>(-1, PrimaryVertexAssignment::Unassigned);
+  return {-1, PrimaryVertexAssignment::Unassigned};
 }

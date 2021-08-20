@@ -91,7 +91,7 @@ public:
     }
     if (pfcand.gsfTrackRef().isNull()) {
       if (pfcand.trackRef().isNull())
-        return std::pair<int, PrimaryVertexAssignment::Quality>(-1, PrimaryVertexAssignment::Unassigned);
+        return {-1, PrimaryVertexAssignment::Unassigned};
       else
         return chargedHadronVertex(vertices, pfcand.trackRef(), time, timeResolution, jets, builder);
     }
@@ -109,7 +109,7 @@ public:
       timeResolution = pfcand.timeError();
     }
     if (!pfcand.hasTrackDetails())
-      return std::pair<int, PrimaryVertexAssignment::Quality>(-1, PrimaryVertexAssignment::Unassigned);
+      return {-1, PrimaryVertexAssignment::Unassigned};
     else
       return chargedHadronVertex(
           vertices,
@@ -135,7 +135,7 @@ public:
       timeResolution = (*trackTimeResoTag)[chcand.track()];
     }
     if (chcand.track().isNull())
-      return std::pair<int, PrimaryVertexAssignment::Quality>(-1, PrimaryVertexAssignment::Unassigned);
+      return {-1, PrimaryVertexAssignment::Unassigned};
     return chargedHadronVertex(vertices, chcand.track(), time, timeResolution, jets, builder);
   }
 

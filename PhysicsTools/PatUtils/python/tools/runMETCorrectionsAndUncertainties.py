@@ -1696,7 +1696,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         ##adding the necessary chs and track met configuration
         task = getPatAlgosToolsTask(process)
 
-        from  CommonTools.ParticleFlow.pfCHS_cff import pfCHS, packedPrimaryVertexAssociationJME
+        from CommonTools.ParticleFlow.pfCHS_cff import pfCHS, packedPrimaryVertexAssociationJME
         addToProcessAndTask("packedPrimaryVertexAssociationJME",packedPrimaryVertexAssociationJME.clone(), process, task)
         patMetModuleSequence += getattr(process, "packedPrimaryVertexAssociationJME")
         addToProcessAndTask("pfCHS", pfCHS.clone(), process, task)
