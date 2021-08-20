@@ -73,3 +73,8 @@ void HcalDigiProducer::setQIE10NoiseSignalGenerator(HcalBaseSignalGenerator *noi
 void HcalDigiProducer::setQIE11NoiseSignalGenerator(HcalBaseSignalGenerator *noiseGenerator) {
   theDigitizer_.setQIE11NoiseSignalGenerator(noiseGenerator);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
+
+DEFINE_DIGI_ACCUMULATOR(HcalDigiProducer);

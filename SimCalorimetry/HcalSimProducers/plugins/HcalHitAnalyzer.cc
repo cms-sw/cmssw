@@ -1,7 +1,43 @@
+/** Compares HCAL RecHits to SimHit
+
+  \Author Rick Wilkinson, Caltech
+*/
+
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimCalorimetry/HcalSimProducers/src/HcalHitAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloHitAnalyzer.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
+
 #include <iostream>
+#include <string>
+
+class HcalHitAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  explicit HcalHitAnalyzer(edm::ParameterSet const &conf);
+  void analyze(edm::Event const &e, edm::EventSetup const &c) override;
+
+private:
+  HcalSimParameterMap simParameterMap_;
+  HBHEHitFilter hbheFilter_;
+  HOHitFilter hoFilter_;
+  HFHitFilter hfFilter_;
+  ZDCHitFilter zdcFilter_;
+  CaloHitAnalyzer hbheAnalyzer_;
+  CaloHitAnalyzer hoAnalyzer_;
+  CaloHitAnalyzer hfAnalyzer_;
+  CaloHitAnalyzer zdcAnalyzer_;
+
+  edm::InputTag hbheRecHitCollectionTag_;
+  edm::InputTag hoRecHitCollectionTag_;
+  edm::InputTag hfRecHitCollectionTag_;
+};
 
 HcalHitAnalyzer::HcalHitAnalyzer(edm::ParameterSet const &conf)
     : simParameterMap_(conf),
@@ -47,3 +83,7 @@ void HcalHitAnalyzer::analyze(edm::Event const &e, edm::EventSetup const &c) {
   HcalHitAnalyzerImpl::analyze<HFRecHitCollection>(e, hfAnalyzer_, hfRecHitCollectionTag_);
   // HcalHitAnalyzerImpl::analyze<ZDCRecHitCollection>(e, zdcAnalyzer_);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(HcalHitAnalyzer);
