@@ -1,4 +1,5 @@
 #include "DQMServices/Core/interface/LegacyIOHelper.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cstdio>
 #include <cfloat>
@@ -165,14 +166,14 @@ bool LegacyIOHelper::createDirectoryIfNeededAndCd(const std::string &path) {
   return true;
 }
 
-bool LegacyIOHelper::readdir(TDirectory *dir, const std::string& toppath) {
+bool LegacyIOHelper::readdir(TDirectory *dir, const std::string &toppath) {
   TDirectory *dirsav = gDirectory;
-  //cout << "Inside:" << gDirectory->GetPath() << std::endl;
+  LogDebug("LegacyIOHelper") << "Inside:" << gDirectory->GetPath() << std::endl;
   TIter next(dir->GetListOfKeys());
   TKey *key;
-  while ((key = (TKey*)next())) {
+  while ((key = (TKey *)next())) {
     if (key->IsFolder()) {
-      //cout << key->GetName() << std::endl;
+      LogDebug("LegacyIOHelper") << key->GetName() << std::endl;
       dir->cd(key->GetName());
       TDirectory *subdir = gDirectory;
       readdir(subdir, toppath);
@@ -181,92 +182,85 @@ bool LegacyIOHelper::readdir(TDirectory *dir, const std::string& toppath) {
     } else {
       TClass *cl = gROOT->GetClass(key->GetClassName());
       std::string meName;
-      if(cl->InheritsFrom("TProfile")) {
-	TProfile *h = dynamic_cast<TProfile*>(key->ReadObject<TProfile>()->Clone());
-	h->SetDirectory(0);
-	if(h) {
-	  getMEName<TProfile>(h, toppath, meName);
-	  data_.insert(dbe_->bookProfile(meName, h));
-	}
+      if (cl->InheritsFrom("TProfile")) {
+        TProfile *h = dynamic_cast<TProfile *>(key->ReadObject<TProfile>()->Clone());
+        h->SetDirectory(nullptr);
+        if (h) {
+          getMEName<TProfile>(h, toppath, meName);
+          data_.insert(dbe_->bookProfile(meName, h));
+        }
+      } else if (cl->InheritsFrom("TProfile2D")) {
+        TProfile2D *h = dynamic_cast<TProfile2D *>(key->ReadObject<TProfile2D>()->Clone());
+        h->SetDirectory(nullptr);
+        if (h) {
+          getMEName<TProfile2D>(h, toppath, meName);
+          data_.insert(dbe_->bookProfile2D(meName, h));
+        }
+      } else if (cl->InheritsFrom("TH1F")) {
+        TH1F *h = dynamic_cast<TH1F *>(key->ReadObject<TH1F>()->Clone());
+        h->SetDirectory(nullptr);
+        if (h) {
+          getMEName<TH1F>(h, toppath, meName);
+          data_.insert(dbe_->book1D(meName, h));
+        }
+      } else if (cl->InheritsFrom("TH1S")) {
+        TH1S *h = dynamic_cast<TH1S *>(key->ReadObject<TH1S>()->Clone());
+        h->SetDirectory(nullptr);
+        if (h) {
+          getMEName<TH1S>(h, toppath, meName);
+          data_.insert(dbe_->book1S(meName, h));
+        }
+      } else if (cl->InheritsFrom("TH1D")) {
+        TH1D *h = dynamic_cast<TH1D *>(key->ReadObject<TH1D>()->Clone());
+        h->SetDirectory(nullptr);
+        if (h) {
+          getMEName<TH1D>(h, toppath, meName);
+          data_.insert(dbe_->book1DD(meName, h));
+        }
+      } else if (cl->InheritsFrom("TH2F")) {
+        TH2F *h = dynamic_cast<TH2F *>(key->ReadObject<TH2F>()->Clone());
+        h->SetDirectory(nullptr);
+        if (h) {
+          getMEName<TH2F>(h, toppath, meName);
+          data_.insert(dbe_->book2D(meName, h));
+        }
+      } else if (cl->InheritsFrom("TH2S")) {
+        TH2S *h = dynamic_cast<TH2S *>(key->ReadObject<TH2S>()->Clone());
+        h->SetDirectory(nullptr);
+        if (h) {
+          getMEName<TH2S>(h, toppath, meName);
+          data_.insert(dbe_->book2S(meName, h));
+        }
+      } else if (cl->InheritsFrom("TH2D")) {
+        TH2D *h = dynamic_cast<TH2D *>(key->ReadObject<TH2D>()->Clone());
+        h->SetDirectory(nullptr);
+        if (h) {
+          getMEName<TH2D>(h, toppath, meName);
+          data_.insert(dbe_->book2DD(meName, h));
+        }
+      } else if (cl->InheritsFrom("TH3F")) {
+        TH3F *h = dynamic_cast<TH3F *>(key->ReadObject<TH3F>()->Clone());
+        h->SetDirectory(nullptr);
+        if (h) {
+          getMEName<TH3F>(h, toppath, meName);
+          data_.insert(dbe_->book3D(meName, h));
+        }
       }
-      else if(cl->InheritsFrom("TProfile2D")) {
-	TProfile2D *h =  dynamic_cast<TProfile2D*>(key->ReadObject<TProfile2D>()->Clone());
-	h->SetDirectory(0);
-	if(h) {
-	  getMEName<TProfile2D>(h, toppath, meName);
-	  data_.insert(dbe_->bookProfile2D(meName, h));
-	}
-      }
-      else if(cl->InheritsFrom("TH1F")) {
-	TH1F *h =  dynamic_cast<TH1F*>(key->ReadObject<TH1F>()->Clone());
-	h->SetDirectory(0);
-	if(h) {
-	  getMEName<TH1F>(h, toppath, meName);
-	  data_.insert(dbe_->book1D(meName, h));
-	}
-      }
-      else if(cl->InheritsFrom("TH1S")) {
-	TH1S *h = dynamic_cast<TH1S*>(key->ReadObject<TH1S>()->Clone());
-	h->SetDirectory(0);
-	if(h) {
-	  getMEName<TH1S>(h, toppath, meName);
-	  data_.insert(dbe_->book1S(meName, h));
-	}
-      }
-      else if(cl->InheritsFrom("TH1D")) {
-	TH1D *h = dynamic_cast<TH1D*>(key->ReadObject<TH1D>()->Clone());
-	h->SetDirectory(0);
-	if(h) {
-	  getMEName<TH1D>(h, toppath, meName);
-	  data_.insert(dbe_->book1DD(meName, h));
-	}
-      }
-      else if(cl->InheritsFrom("TH2F")) {
-	TH2F *h = dynamic_cast<TH2F*>(key->ReadObject<TH2F>()->Clone());
-	h->SetDirectory(0);
-	if(h) { 
-	  getMEName<TH2F>(h, toppath, meName);
-	  data_.insert(dbe_->book2D(meName, h));
-	}	  
-      }
-      else if(cl->InheritsFrom("TH2S")) {
-	TH2S *h =dynamic_cast<TH2S*>(key->ReadObject<TH2S>()->Clone());
-	h->SetDirectory(0);
-	if(h) {
-	  getMEName<TH2S>(h, toppath, meName);
-	  data_.insert(dbe_->book2S(meName, h));
-	}
-      }
-      else if(cl->InheritsFrom("TH2D")) {
-	TH2D *h = dynamic_cast<TH2D*>(key->ReadObject<TH2D>()->Clone());
-	h->SetDirectory(0);
-	if(h) {
-	  getMEName<TH2D>(h, toppath, meName);
-	  data_.insert(dbe_->book2DD(meName, h));
-	}
-      }
-      else if(cl->InheritsFrom("TH3F")) {
-	TH3F *h = dynamic_cast<TH3F*>(key->ReadObject<TH3F>()->Clone());
-	h->SetDirectory(0);
-	if(h) {
-	  getMEName<TH3F>(h, toppath, meName);
-	  data_.insert(dbe_->book3D(meName, h));
-	}
-      }
-
     }
   }
-  if(!data_.empty()) return true;
+  if (!data_.empty())
+    return true;
   return false;
 }
 
-bool LegacyIOHelper::open(std::string const& filename, std::string const& path, uint32_t const run){
-  TFile* f1 = TFile::Open(filename.c_str());
-  if(!f1) return false;
+bool LegacyIOHelper::open(std::string const &filename, std::string const &path, uint32_t const run) {
+  TFile *f1 = TFile::Open(filename.c_str());
+  if (!f1)
+    return false;
   std::ostringstream toppath;
   toppath << filename << ":/DQMData/Run " << run << "/";
   std::string dirpath = toppath.str();
-  std::cout << dirpath << std::endl;
+  edm::LogPrint("LegacyIOHelper") << dirpath << std::endl;
   bool flag = readdir(f1, dirpath);
   f1->Close();
   return flag;

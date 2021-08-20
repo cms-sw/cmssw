@@ -200,13 +200,13 @@ void SiStripOfflineDQM::endJob() {
 }
 
 bool SiStripOfflineDQM::openInputFile(DQMStore& dqm_store) {
-  if (inputFileName_.empty())
+  if (inputFileName_.empty()) {
     return false;
+  }
   edm::LogInfo("OpenFile") << "SiStripOfflineDQM::openInputFile: Accessing root File" << inputFileName_;
   dqm::harvesting::DQMStore* temp = dynamic_cast<dqm::harvesting::DQMStore*>(&dqm_store);
   LegacyIOHelper leo(temp);
   return leo.open(inputFileName_);
-  //return true;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
