@@ -108,7 +108,7 @@ namespace edm {
     }
 
   private:
-    //only ConsumesCollector is allowed to make an instance of this class
+    //only ProducesCollector is allowed to make an instance of this class
     friend class ProducesCollector;
 
     ProducesCollectorAdaptor(ProducesCollector iBase, std::string iLabel)

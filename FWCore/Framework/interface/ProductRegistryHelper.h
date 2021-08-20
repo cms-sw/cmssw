@@ -204,7 +204,7 @@ namespace edm {
     }
 
   private:
-    //only ConsumesCollector is allowed to make an instance of this class
+    //only ProductRegistryHelper is allowed to make an instance of this class
     friend class ProductRegistryHelper;
 
     ProductRegistryHelperAdaptor(ProductRegistryHelper& iBase, std::string iLabel)
