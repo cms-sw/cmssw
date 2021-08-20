@@ -14,6 +14,13 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet &config)
     : AlignmentProducerBase{config}, maxLoops_{config.getUntrackedParameter<unsigned int>("maxLoops")} {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::AlignmentProducer";
 
+  // do now all the consumes
+  trajTrackAssociationCollectionToken_ = consumes<TrajTrackAssociationCollection>(tjTkAssociationMapTag_);
+  bsToken_ = consumes<reco::BeamSpot>(beamSpotTag_);
+  tkFittedLasBeamCollectionToken_ = consumes<TkFittedLasBeamCollection>(tkLasBeamTag_);
+  tsosVectorCollectionToken_ = consumes<TsosVectorCollection>(tkLasBeamTag_);
+  aliClusterValueMapToken_ = consumes<AliClusterValueMap>(clusterValueMapTag_);
+
   // Tell the framework what data is being produced
   if (doTracker_) {
     setWhatProduced(this, &AlignmentProducer::produceTracker);
