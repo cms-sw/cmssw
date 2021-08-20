@@ -71,7 +71,7 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
   // recover cases where the primary vertex is split
   if (useVertexFit_ && (iVertex > 0) && (iVertex <= fNumOfPUVtxsForCharged_) &&
       firstVertexDz < fDzCutForChargedFromPUVtxs_)
-    return {iVertex, PrimaryVertexAssignment::PrimaryDz};
+    return {0, PrimaryVertexAssignment::PrimaryDz};
 
   if (useVertexFit_ && (iVertex >= 0))
     return {iVertex, PrimaryVertexAssignment::UsedInFit};
