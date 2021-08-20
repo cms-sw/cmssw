@@ -4,11 +4,11 @@
  *  \author M. Maggi -- INFN Bari
  */
 
-#include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitBaseAlgo.h"
-#include "RecoLocalMuon/RPCRecHit/src/RPCClusterContainer.h"
-#include "RecoLocalMuon/RPCRecHit/src/RPCCluster.h"
-#include "RecoLocalMuon/RPCRecHit/src/RPCClusterizer.h"
-#include "RecoLocalMuon/RPCRecHit/src/RPCMaskReClusterizer.h"
+#include "RPCRecHitBaseAlgo.h"
+#include "RPCClusterContainer.h"
+#include "RPCCluster.h"
+#include "RPCClusterizer.h"
+#include "RPCMaskReClusterizer.h"
 
 RPCRecHitBaseAlgo::RPCRecHitBaseAlgo(const edm::ParameterSet& config) {
   //  theSync = RPCTTrigSyncFactory::get()->create(config.getParameter<string>("tTrigMode"),

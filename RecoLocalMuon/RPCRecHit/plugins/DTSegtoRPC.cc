@@ -8,9 +8,9 @@
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-#include "RecoLocalMuon/RPCRecHit/interface/DTSegtoRPC.h"
-#include "RecoLocalMuon/RPCRecHit/src/DTObjectMap.h"
-#include "RecoLocalMuon/RPCRecHit/src/DTStationIndex.h"
+#include "DTSegtoRPC.h"
+#include "DTObjectMap.h"
+#include "DTStationIndex.h"
 
 #include <ctime>
 

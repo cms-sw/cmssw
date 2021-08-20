@@ -8,7 +8,7 @@
  *  \author G. Cerminara - INFN Torino
  */
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-#include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitBaseAlgo.h"
+#include "RPCRecHitBaseAlgo.h"
 
 typedef edmplugin::PluginFactory<RPCRecHitBaseAlgo *(const edm::ParameterSet &)> RPCRecHitAlgoFactory;
 #endif

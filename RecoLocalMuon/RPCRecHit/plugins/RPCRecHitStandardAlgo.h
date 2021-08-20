@@ -7,7 +7,7 @@
  *  \author M. Maggi -- INFN Bari
  */
 
-#include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitBaseAlgo.h"
+#include "RPCRecHitBaseAlgo.h"
 
 class RPCRecHitStandardAlgo : public RPCRecHitBaseAlgo {
 public:
