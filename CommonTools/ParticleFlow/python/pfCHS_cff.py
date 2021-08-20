@@ -9,8 +9,7 @@ packedPrimaryVertexAssociationJME = sortedPackedPrimaryVertices.clone(
 )
 adapt(packedPrimaryVertexAssociationJME)
 
-pfCHS = cms.EDProducer("PFnoPileUpPacked",
-  candidates = cms.InputTag("packedPFCandidates"),
-  vertexAssociationQuality = pfPileUpJME.vertexAssociationQuality,
-  vertexAssociation = cms.InputTag("packedPrimaryVertexAssociationJME","original")
-  )
+from CommonTools.ParticleFlow.pfNoPileUpPacked_cfi import pfNoPileUpPacked as _pfNoPileUpPacked
+pfCHS = _pfNoPileUpPacked.clone(
+    vertexAssociationQuality=pfPileUpJME.vertexAssociationQuality
+)
