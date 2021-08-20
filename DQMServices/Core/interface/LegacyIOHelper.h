@@ -2,17 +2,17 @@
 #define DQMSERVICES_CORE_LEGACYIOHELPER_H
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include<iostream>
-#include<string>
+#include <iostream>
+#include <string>
 #include "TFile.h"
 #include "TROOT.h"
 #include "TKey.h"
 #include "TClass.h"
 #include "TSystem.h"
 #include "TBufferFile.h"
-#include<sstream>
-#include<utility>
-#include<set>
+#include <sstream>
+#include <utility>
+#include <set>
 // This class encapsulates the TDirectory based file format used for DQMGUI
 // uploads and many other use cases.
 // This should be part of `DQMFileSaver`, however since DQMServices/Components
@@ -27,13 +27,13 @@ public:
   typedef dqm::implementation::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
-  typedef dqm::harvesting::DQMStore HDQMStore;
-  typedef dqm::harvesting::MonitorElement HMonitorElement;
+  typedef dqm::harvesting::DQMStore HarvestedDQMStore;
+  typedef dqm::harvesting::MonitorElement HarvestedMonitorElement;
 
-  using MEMap = std::set<HMonitorElement*>;
+  using MEMap = std::set<HarvestedMonitorElement*>;
 
   LegacyIOHelper(DQMStore* dqmstore) : dbe_(dqmstore){};
-  LegacyIOHelper(HDQMStore* hdqmstore) : dbe_(hdqmstore){};
+  LegacyIOHelper(HarvestedDQMStore* hdqmstore) : dbe_(hdqmstore){};
   // Replace or append to `filename`, a TDirectory ROOT file. If a run number
   // is passed, the paths are rewritten to the "Run Summary" format used by
   // DQMGUI. The run number does not affect which MEs are saved; this code only
@@ -48,13 +48,11 @@ public:
             bool saveall = true,
             std::string const& fileupdate = "RECREATE");
 
-  bool open(std::string const& filename,
-            std::string const& path = "",
-            uint32_t const run = 0);
+  bool open(std::string const& filename, std::string const& path = "", uint32_t const run = 0);
 
 private:
-  template<class T>
-    void getMEName(T* h, const std::string& toppath, std::string& meName){
+  template <class T>
+  void getMEName(T* h, const std::string& toppath, std::string& meName) {
     std::ostringstream fullpath;
     fullpath << gDirectory->GetPath() << "/" << h->GetName();
     std::string dirpath = fullpath.str();
@@ -68,10 +66,9 @@ private:
     if (pos != std::string::npos) {
       dirpath.erase(pos, rsummary.length());
     }
-    //std::cout << dirpath << std::endl;
     meName = dirpath;
   }
-  bool readdir(TDirectory *dir, const std::string& toppath);
+  bool readdir(TDirectory* dir, const std::string& toppath);
   bool createDirectoryIfNeededAndCd(const std::string& path);
   DQMStore* dbe_;
   MEMap data_;
