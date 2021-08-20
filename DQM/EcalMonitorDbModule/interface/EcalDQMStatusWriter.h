@@ -28,6 +28,7 @@ private:
   EcalElectronicsMapping const *electronicsMap;
   void setElectronicsMap(edm::EventSetup const &);
   EcalElectronicsMapping const *GetElectronicsMap();
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> elecMapHandle;
 };
 
 #endif
