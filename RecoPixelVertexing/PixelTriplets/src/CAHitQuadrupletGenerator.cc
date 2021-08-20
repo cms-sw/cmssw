@@ -10,7 +10,7 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
-#include "CAGraph.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CAGraph.h"
 #include "CellularAutomaton.h"
 
 namespace {

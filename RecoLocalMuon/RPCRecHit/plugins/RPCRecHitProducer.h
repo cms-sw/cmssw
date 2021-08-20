@@ -14,7 +14,7 @@
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "CondFormats/RPCObjects/interface/RPCMaskedStrips.h"
 #include "CondFormats/RPCObjects/interface/RPCDeadStrips.h"
-#include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitBaseAlgo.h"
+#include "RPCRecHitBaseAlgo.h"
 
 class RPCRecHitProducer : public edm::stream::EDProducer<> {
 public:

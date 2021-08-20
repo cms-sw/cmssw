@@ -13,7 +13,7 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 
-#include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitAlgoFactory.h"
+#include "RPCRecHitAlgoFactory.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
 #include "CondFormats/DataRecord/interface/RPCMaskedStripsRcd.h"

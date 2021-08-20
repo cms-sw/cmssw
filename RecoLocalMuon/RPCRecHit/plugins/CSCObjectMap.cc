@@ -1,15 +1,14 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/RPCGeometry/interface/RPCChamber.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
-#include "RecoLocalMuon/RPCRecHit/src/DTObjectMap.h"
-#include "RecoLocalMuon/RPCRecHit/src/DTStationIndex.h"
+#include "CSCObjectMap.h"
+#include "CSCStationIndex.h"
 
-DTObjectMap::DTObjectMap(RPCGeometry const& rpcGeo) {
+CSCObjectMap::CSCObjectMap(RPCGeometry const& rpcGeo) {
   for (TrackingGeometry::DetContainer::const_iterator it = rpcGeo.dets().begin(); it < rpcGeo.dets().end(); it++) {
     if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
       auto ch = dynamic_cast<const RPCChamber*>(*it);
@@ -17,11 +16,18 @@ DTObjectMap::DTObjectMap(RPCGeometry const& rpcGeo) {
       for (std::vector<const RPCRoll*>::const_iterator r = roles.begin(); r != roles.end(); ++r) {
         RPCDetId rpcId = (*r)->id();
         int region = rpcId.region();
-        if (region == 0) {
-          int wheel = rpcId.ring();
-          int sector = rpcId.sector();
+        if (region != 0) {
           int station = rpcId.station();
-          DTStationIndex ind(region, wheel, sector, station);
+          int ring = rpcId.ring();
+          int cscring = ring;
+          int cscstation = station;
+          RPCGeomServ rpcsrv(rpcId);
+          int rpcsegment = rpcsrv.segment();
+          int cscchamber = rpcsegment;                        //FIX THIS ACCORDING TO RPCGeomServ::segment()Definition
+          if ((station == 2 || station == 3) && ring == 3) {  //Adding Ring 3 of RPC to the CSC Ring 2
+            cscring = 2;
+          }
+          CSCStationIndex ind(region, cscstation, cscring, cscchamber);
           std::set<RPCDetId> myrolls;
           if (rollstore.find(ind) != rollstore.end())
             myrolls = rollstore[ind];
@@ -33,7 +39,7 @@ DTObjectMap::DTObjectMap(RPCGeometry const& rpcGeo) {
   }
 }
 
-std::set<RPCDetId> const& DTObjectMap::getRolls(DTStationIndex index) const {
+std::set<RPCDetId> const& CSCObjectMap::getRolls(CSCStationIndex index) const {
   // FIXME
   // the present inplementation allows for NOT finding the given index in the map;
   // a muon expert should check that this is the intended behaviour.
@@ -43,4 +49,4 @@ std::set<RPCDetId> const& DTObjectMap::getRolls(DTStationIndex index) const {
 
 // register the class with the typelookup system used by the EventSetup
 #include "FWCore/Utilities/interface/typelookup.h"
-TYPELOOKUP_DATA_REG(DTObjectMap);
+TYPELOOKUP_DATA_REG(CSCObjectMap);

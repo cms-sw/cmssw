@@ -8,9 +8,9 @@
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-#include "RecoLocalMuon/RPCRecHit/interface/CSCSegtoRPC.h"
-#include "RecoLocalMuon/RPCRecHit/src/CSCStationIndex.h"
-#include "RecoLocalMuon/RPCRecHit/src/CSCObjectMap.h"
+#include "CSCSegtoRPC.h"
+#include "CSCStationIndex.h"
+#include "CSCObjectMap.h"
 
 CSCSegtoRPC::CSCSegtoRPC(edm::ConsumesCollector iC)
     : rpcGeoToken_(iC.esConsumes()), cscGeoToken_(iC.esConsumes()), cscMapToken_(iC.esConsumes()) {}
