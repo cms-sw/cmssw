@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref='SimG4Core/PrintGeomInfo/data/dd4hep/dd4DBBigFile.xml'/>
+    <Include ref='SimG4Core/PrintGeomInfo/data/dd4hep/hcalSimNumbering.xml'/>
+    <Include ref='SimG4Core/PrintGeomInfo/data/dd4hep/hcalRecNumbering.xml'/>
+  </IncludeSection>
+</DDDefinition>
