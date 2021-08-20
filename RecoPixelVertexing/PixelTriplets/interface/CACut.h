@@ -1,3 +1,5 @@
+#ifndef RecoPixelVertexing_PixelTriplets_interface_CACut_h
+#define RecoPixelVertexing_PixelTriplets_interface_CACut_h
 // -*- C++ -*-
 // //
 // // Package:    RecoPixelVertexing/PixelTriplets
@@ -7,12 +9,9 @@
 // //         Created:  Wed, 14 Feb 2019 10:30:00 GMT
 // //
 
-#ifndef RecoPixelVertexing_PixelTriplets_src_CACut_h
-#define RecoPixelVertexing_PixelTriplets_src_CACut_h
-
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CAGraph.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CAGraph.h"
 
 class CACut {
 public:
