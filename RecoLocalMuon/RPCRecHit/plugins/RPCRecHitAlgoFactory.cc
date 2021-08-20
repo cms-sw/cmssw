@@ -4,7 +4,7 @@
  *  \author M. Maggi -- INFN Bari
  */
 
-#include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitAlgoFactory.h"
+#include "RPCRecHitAlgoFactory.h"
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 

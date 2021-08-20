@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "RecoLocalMuon/RPCRecHit/src/CSCObjectMap.h"
+#include "CSCObjectMap.h"
 
 class CSCObjectMapESProducer : public edm::ESProducer {
 public:
