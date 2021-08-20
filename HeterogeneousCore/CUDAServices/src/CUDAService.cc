@@ -16,8 +16,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
-#include "HeterogeneousCore/CUDAUtilities/src/getCachingDeviceAllocator.h"
-#include "HeterogeneousCore/CUDAUtilities/src/getCachingHostAllocator.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cachingAllocators.h"
 
 void setCudaLimit(cudaLimit limit, const char* name, size_t request) {
   // read the current device
@@ -300,8 +299,7 @@ CUDAService::CUDAService(edm::ParameterSet const& config) {
 
   // Make sure the caching allocators and stream/event caches are constructed before declaring successful construction
   if constexpr (cms::cuda::allocator::useCaching) {
-    cms::cuda::allocator::getCachingDeviceAllocator();
-    cms::cuda::allocator::getCachingHostAllocator();
+    cms::cuda::allocator::cachingAllocatorsConstruct();
   }
   cms::cuda::getEventCache().clear();
   cms::cuda::getStreamCache().clear();
@@ -319,8 +317,7 @@ CUDAService::~CUDAService() {
   if (enabled_) {
     // Explicitly destruct the allocator before the device resets below
     if constexpr (cms::cuda::allocator::useCaching) {
-      cms::cuda::allocator::getCachingDeviceAllocator().FreeAllCached();
-      cms::cuda::allocator::getCachingHostAllocator().FreeAllCached();
+      cms::cuda::allocator::cachingAllocatorsFreeCached();
     }
     cms::cuda::getEventCache().clear();
     cms::cuda::getStreamCache().clear();
