@@ -103,27 +103,15 @@ void HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // Get raw SuperClusters from the event
   Handle<reco::SuperClusterCollection> pRawSuperClusters;
-  try {
-    iEvent.getByToken(sCInputProducerToken_, pRawSuperClusters);
-  } catch (cms::Exception& ex) {
-    edm::LogError("EgammaSCCorrectionMakerError") << "Error! can't get the rawSuperClusters ";
-  }
+  iEvent.getByToken(sCInputProducerToken_, pRawSuperClusters);
 
   // Get the RecHits from the event
   Handle<EcalRecHitCollection> pRecHitsB;
-  try {
-    iEvent.getByToken(rHInputProducerBToken_, pRecHitsB);
-  } catch (cms::Exception& ex) {
-    edm::LogError("EgammaSCCorrectionMakerError") << "Error! can't get the RecHits ";
-  }
+  iEvent.getByToken(rHInputProducerBToken_, pRecHitsB);
 
   // Get the RecHits from the event
   Handle<EcalRecHitCollection> pRecHitsE;
-  try {
-    iEvent.getByToken(rHInputProducerEToken_, pRecHitsE);
-  } catch (cms::Exception& ex) {
-    edm::LogError("EgammaSCCorrectionMakerError") << "Error! can't get the RecHits ";
-  }
+  iEvent.getByToken(rHInputProducerEToken_, pRecHitsE);
 
   // get the channel status from the DB
   //   edm::ESHandle<EcalChannelStatus> chStatus;
