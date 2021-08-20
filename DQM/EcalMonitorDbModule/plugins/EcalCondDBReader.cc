@@ -158,9 +158,7 @@ void EcalCondDBReader::dqmEndRun(DQMStore::IBooker &_ibooker,
     meSet_->setBinContent(getEcalDQMSetupObjects(), vItr->first, vItr->second);
 }
 
-void EcalCondDBReader::setElectronicsMap(edm::EventSetup const &_es) {
-  electronicsMap = &_es.getData(elecMapHandle);
-}
+void EcalCondDBReader::setElectronicsMap(edm::EventSetup const &_es) { electronicsMap = &_es.getData(elecMapHandle); }
 
 EcalElectronicsMapping const *EcalCondDBReader::GetElectronicsMap() {
   if (!electronicsMap)

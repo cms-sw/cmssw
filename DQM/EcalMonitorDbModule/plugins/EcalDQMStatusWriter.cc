@@ -13,8 +13,8 @@
 
 EcalDQMStatusWriter::EcalDQMStatusWriter(edm::ParameterSet const &_ps)
     : channelStatus_(),
-      towerStatus_(), 
-      firstRun_(_ps.getUntrackedParameter<unsigned>("firstRun")), 
+      towerStatus_(),
+      firstRun_(_ps.getUntrackedParameter<unsigned>("firstRun")),
       inputFile_(_ps.getUntrackedParameter<std::string>("inputFile")),
       elecMapHandle(esConsumes<edm::Transition::BeginRun>()) {
   if (!inputFile_.is_open())
@@ -42,7 +42,6 @@ void EcalDQMStatusWriter::analyze(edm::Event const &, edm::EventSetup const &_es
 }
 
 void EcalDQMStatusWriter::setElectronicsMap(edm::EventSetup const &_es) {
-
   electronicsMap = &_es.getData(elecMapHandle);
 }
 
