@@ -2,7 +2,7 @@
 #define CastorSim_CastorAmplifier_h
 
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-#include "SimCalorimetry/CastorSim/src/CastorSimParameterMap.h"
+#include "SimCalorimetry/CastorSim/interface/CastorSimParameterMap.h"
 
 class CastorDbService;
 
