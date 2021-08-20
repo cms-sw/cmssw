@@ -2,7 +2,7 @@
 #define CastorSim_CastorDigitizerTraits_h
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "SimCalorimetry/CastorSim/src/CastorElectronicsSim.h"
+#include "SimCalorimetry/CastorSim/interface/CastorElectronicsSim.h"
 
 class CastorDigitizerTraits {
 public:
