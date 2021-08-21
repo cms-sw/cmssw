@@ -41,9 +41,9 @@
 #include "RecoMET/METAlgorithms/interface/SignPFSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/METSignificance.h"
 
+#include "CondFormats/DataRecord/interface/JetResolutionRcd.h"
+#include "CondFormats/DataRecord/interface/JetResolutionScaleFactorRcd.h"
 #include "JetMETCorrections/Modules/interface/JetResolution.h"
-
-#include "TVector.h"
 
 #include <string>
 
@@ -76,9 +76,10 @@ namespace cms {
 
     edm::EDGetTokenT<edm::View<reco::Jet>> jetToken_;
     std::vector<edm::EDGetTokenT<edm::View<reco::Candidate>>> lepTokens_;
-    std::string jetSFType_;
-    std::string jetResPtType_;
-    std::string jetResPhiType_;
+
+    edm::ESGetToken<JME::JetResolutionObject, JetResolutionScaleFactorRcd> jetSFToken_;
+    edm::ESGetToken<JME::JetResolutionObject, JetResolutionRcd> jetResPtToken_;
+    edm::ESGetToken<JME::JetResolutionObject, JetResolutionRcd> jetResPhiToken_;
     edm::EDGetTokenT<double> rhoToken_;
     bool applyWeight_;
     edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
