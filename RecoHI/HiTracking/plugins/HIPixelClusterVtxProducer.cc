@@ -1,17 +1,14 @@
 #include "HIPixelClusterVtxProducer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -27,6 +24,7 @@
 /*****************************************************************************/
 HIPixelClusterVtxProducer::HIPixelClusterVtxProducer(const edm::ParameterSet &ps)
     : srcPixelsString_(ps.getParameter<std::string>("pixelRecHits")),
+      trackerToken_(esConsumes()),
       minZ_(ps.getParameter<double>("minZ")),
       maxZ_(ps.getParameter<double>("maxZ")),
       zStep_(ps.getParameter<double>("zStep"))
@@ -53,9 +51,7 @@ void HIPixelClusterVtxProducer::produce(edm::Event &ev, const edm::EventSetup &e
 
   // get tracker geometry
   if (hRecHits.isValid()) {
-    edm::ESHandle<TrackerGeometry> trackerHandle;
-    es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
-    const TrackerGeometry *tgeo = trackerHandle.product();
+    const TrackerGeometry *tgeo = &es.getData(trackerToken_);
     const SiPixelRecHitCollection *hits = hRecHits.product();
 
     // loop over pixel rechits
