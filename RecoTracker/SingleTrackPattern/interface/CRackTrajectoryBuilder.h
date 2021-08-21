@@ -10,6 +10,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
@@ -27,6 +28,7 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
@@ -34,8 +36,6 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
 
 //to sort hits by the det position
 class CompareDetY_plus {
@@ -172,7 +172,7 @@ public:
   };
 
 public:
-  CRackTrajectoryBuilder(const edm::ParameterSet& conf);
+  CRackTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
   ~CRackTrajectoryBuilder();
 
   /// Runs the algorithm
@@ -215,8 +215,11 @@ private:
   std::pair<TrajectoryStateOnSurface, const GeomDet*> innerState(const Trajectory& traj) const;
 
 private:
-  edm::ESHandle<MagneticField> magfield;
-  edm::ESHandle<TrackerGeometry> tracker;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> builderToken_;
+  const MagneticField* magfield;
+  const TrackerGeometry* tracker;
 
   PropagatorWithMaterial* thePropagator;
   PropagatorWithMaterial* thePropagatorOp;
@@ -242,7 +245,6 @@ private:
   TransientTrackingRecHit::RecHitContainer hits;
   bool seed_plus;
   std::string geometry;
-  std::string theBuilderName;
   //   TransientInitialStateEstimator*  theInitialState;
 };
 
