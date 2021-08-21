@@ -18,7 +18,6 @@
 <use name="CommonTools/Statistics"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="RecoEgamma/EgammaMCTools"/>
-<use name="SimTracker/Records"/>
 <use name="SimTracker/TrackerHitAssociation"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimDataFormats/Track"/>

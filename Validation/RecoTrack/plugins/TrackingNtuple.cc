@@ -71,7 +71,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
