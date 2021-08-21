@@ -14,7 +14,6 @@
 #include "SimDataFormats/Associations/interface/TrackAssociation.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackAssociation/interface/ParametersDefinerForTP.h"
 #include "SimTracker/TrackAssociation/interface/CosmicParametersDefinerForTP.h"
 
