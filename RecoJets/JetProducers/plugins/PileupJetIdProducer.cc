@@ -61,6 +61,7 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig, GBRFo
   input_vm_pujetid_token_ =
       consumes<edm::ValueMap<StoredPileupJetIdentifier>>(iConfig.getParameter<edm::InputTag>("jetids"));
   input_rho_token_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho"));
+  parameters_token_ = esConsumes(edm::ESInputTag("", globalCache->jec()));
 }
 
 // ------------------------------------------------------------------------------------------
@@ -245,10 +246,9 @@ void PileupJetIdProducer::initJetEnergyCorrector(const edm::EventSetup& iSetup, 
     jecLevels.push_back("L2L3Residual");
 
   //check the corrector parameters needed according to the correction levels
-  edm::ESHandle<JetCorrectorParametersCollection> parameters;
-  iSetup.get<JetCorrectionsRecord>().get(gc->jec(), parameters);
+  auto const& parameters = iSetup.getData(parameters_token_);
   for (std::vector<std::string>::const_iterator ll = jecLevels.begin(); ll != jecLevels.end(); ++ll) {
-    const JetCorrectorParameters& ip = (*parameters)[*ll];
+    const JetCorrectorParameters& ip = parameters[*ll];
     jetCorPars_.push_back(ip);
   }
   if (isData && gc->residualsFromTxt()) {
