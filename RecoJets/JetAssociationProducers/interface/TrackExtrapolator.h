@@ -33,7 +33,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/JetReco/interface/TrackExtrapolation.h"
@@ -47,7 +46,9 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/FiducialVolume.h"
 
 //
@@ -64,8 +65,11 @@ private:
 
   // ----------member data ---------------------------
 
-  edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;  /// Input tracks
-  reco::TrackBase::TrackQuality trackQuality_;         /// track quality of the tracks we care about
+  const edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;  /// Input tracks
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> fieldToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  const edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> ecalDetIdAssociatorToken_;
+  const reco::TrackBase::TrackQuality trackQuality_;  /// track quality of the tracks we care about
 
   // ----------internal functions ---------------------------
 
