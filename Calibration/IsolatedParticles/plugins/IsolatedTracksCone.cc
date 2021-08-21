@@ -101,7 +101,6 @@
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 // tracker hit associator
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
