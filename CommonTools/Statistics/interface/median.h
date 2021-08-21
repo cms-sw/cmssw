@@ -1,5 +1,5 @@
-#ifndef MEDIAN_ICC
-#define MEDIAN_ICC
+#ifndef CommonTools_Statistics_median_h
+#define CommonTools_Statistics_median_h
 
 #include <vector>
 #include <algorithm>

@@ -1,5 +1,5 @@
-#ifndef _LMS_1D_ICC_
-#define _LMS_1D_ICC_
+#ifndef CommonTools_Statistics_lms_1d_h
+#define CommonTools_Statistics_lms_1d_h
 
 #include "CommonTools/Statistics/interface/StatisticsException.h"
 
