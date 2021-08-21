@@ -63,9 +63,11 @@ public:
 
 private:
   edm::ParameterSet conf_;
-  std::string builderName;
 
-  edm::EDGetTokenT<SeedingLayerSetsHits> seedingLayerToken_;
+  const edm::EDGetTokenT<SeedingLayerSetsHits> seedingLayerToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> ttrhBuilderToken_;
   GlobalTrackingRegion region_;
   double pMin_;
   bool writeTriplets_;
@@ -75,9 +77,8 @@ private:
 
   uint32_t tripletsVerbosity_, seedVerbosity_, helixVerbosity_;
 
-  edm::ESHandle<MagneticField> magfield;
-  edm::ESHandle<TrackerGeometry> tracker;
-  edm::ESHandle<TransientTrackingRecHitBuilder> TTTRHBuilder;
+  const MagneticField *magfield;
+  const TrackerGeometry *tracker;
   TkClonerImpl cloner;  // FIXME
   KFUpdator *theUpdator;
   PropagatorWithMaterial *thePropagatorAl;
