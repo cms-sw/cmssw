@@ -691,8 +691,8 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   edm::ParameterSetDescription photonIDSourcesPSet;
   photonIDSourcesPSet.setAllowAnything();
   iDesc
-      .addNode(edm::ParameterDescription<edm::InputTag>("photonIDSource", edm::InputTag(), true) xor
-               edm::ParameterDescription<edm::ParameterSetDescription>("photonIDSources", photonIDSourcesPSet, true))
+      .addNode(edm::ParameterDescription<edm::ParameterSetDescription>("photonIDSources", photonIDSourcesPSet, true) xor
+               edm::ParameterDescription<edm::InputTag>("photonIDSource", edm::InputTag(), true))
       ->setComment("input with photon ID variables");
 
   // IsoDeposit configurables
