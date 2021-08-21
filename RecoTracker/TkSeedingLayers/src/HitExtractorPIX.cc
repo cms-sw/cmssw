@@ -1,13 +1,10 @@
 #include "HitExtractorPIX.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <iostream>
 using namespace ctfseeding;
@@ -17,7 +14,10 @@ HitExtractorPIX::HitExtractorPIX(TrackerDetSide side,
                                  int idLayer,
                                  const std::string& hitProducer,
                                  edm::ConsumesCollector& iC)
-    : theHitProducer(iC.consumes<SiPixelRecHitCollection>(hitProducer)), theSide(side), theIdLayer(idLayer) {}
+    : theHitProducer(iC.consumes<SiPixelRecHitCollection>(hitProducer)),
+      theTtopo(iC.esConsumes()),
+      theSide(side),
+      theIdLayer(idLayer) {}
 
 void HitExtractorPIX::useSkipClusters_(const edm::InputTag& m, edm::ConsumesCollector& iC) {
   theSkipClusters = iC.consumes<SkipClustersCollection>(m);
@@ -28,9 +28,7 @@ HitExtractor::Hits HitExtractorPIX::hits(const TkTransientTrackingRecHitBuilder&
                                          const edm::EventSetup& es) const {
   HitExtractor::Hits result;
 
-  edm::ESHandle<TrackerTopology> httopo;
-  es.get<TrackerTopologyRcd>().get(httopo);
-  const TrackerTopology& ttopo = *httopo;
+  const TrackerTopology& ttopo = es.getData(theTtopo);
 
   edm::Handle<SiPixelRecHitCollection> pixelHits;
   ev.getByToken(theHitProducer, pixelHits);
