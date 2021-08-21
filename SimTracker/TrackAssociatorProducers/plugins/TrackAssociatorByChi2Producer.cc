@@ -25,7 +25,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -45,7 +44,7 @@
 class TrackAssociatorByChi2Producer : public edm::global::EDProducer<> {
 public:
   explicit TrackAssociatorByChi2Producer(const edm::ParameterSet&);
-  ~TrackAssociatorByChi2Producer() override;
+  ~TrackAssociatorByChi2Producer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -54,34 +53,23 @@ private:
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  edm::EDPutTokenT<reco::TrackToTrackingParticleAssociator> tpPutToken_;
+  edm::EDPutTokenT<reco::TrackToGenParticleAssociator> genPutToken_;
   const double chi2cut_;
   const bool onlyDiagonal_;
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
 TrackAssociatorByChi2Producer::TrackAssociatorByChi2Producer(const edm::ParameterSet& iConfig)
     : bsToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+      magFieldToken_(esConsumes()),
+      tpPutToken_(produces<reco::TrackToTrackingParticleAssociator>()),
+      genPutToken_(produces<reco::TrackToGenParticleAssociator>()),
       chi2cut_(iConfig.getParameter<double>("chi2cut")),
-      onlyDiagonal_(iConfig.getParameter<bool>("onlyDiagonal")) {
-  //register your products
-  produces<reco::TrackToTrackingParticleAssociator>();
-  produces<reco::TrackToGenParticleAssociator>();
-}
-
-TrackAssociatorByChi2Producer::~TrackAssociatorByChi2Producer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+      onlyDiagonal_(iConfig.getParameter<bool>("onlyDiagonal")) {}
 
 //
 // member functions
@@ -91,30 +79,14 @@ TrackAssociatorByChi2Producer::~TrackAssociatorByChi2Producer() {
 void TrackAssociatorByChi2Producer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
-  edm::ESHandle<MagneticField> magField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magField);
+  auto const& magField = iSetup.getData(magFieldToken_);
+  auto const& beamSpot = iEvent.get(bsToken_);
 
-  edm::Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByToken(bsToken_, beamSpot);
-
-  {
-    std::unique_ptr<reco::TrackToTrackingParticleAssociatorBaseImpl> impl(
-        new TrackAssociatorByChi2Impl(iEvent.productGetter(), *magField, *beamSpot, chi2cut_, onlyDiagonal_));
-
-    std::unique_ptr<reco::TrackToTrackingParticleAssociator> assoc(
-        new reco::TrackToTrackingParticleAssociator(std::move(impl)));
-
-    iEvent.put(std::move(assoc));
-  }
-
-  {
-    std::unique_ptr<reco::TrackToGenParticleAssociatorBaseImpl> impl(
-        new TrackGenAssociatorByChi2Impl(*magField, *beamSpot, chi2cut_, onlyDiagonal_));
-
-    std::unique_ptr<reco::TrackToGenParticleAssociator> assoc(new reco::TrackToGenParticleAssociator(std::move(impl)));
-
-    iEvent.put(std::move(assoc));
-  }
+  iEvent.emplace(
+      tpPutToken_,
+      std::make_unique<TrackAssociatorByChi2Impl>(iEvent.productGetter(), magField, beamSpot, chi2cut_, onlyDiagonal_));
+  iEvent.emplace(genPutToken_,
+                 std::make_unique<TrackGenAssociatorByChi2Impl>(magField, beamSpot, chi2cut_, onlyDiagonal_));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
