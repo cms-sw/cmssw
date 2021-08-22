@@ -29,12 +29,11 @@ DataROOTDumper2::DataROOTDumper2(const edm::ParameterSet& edmCfg,
                                  const OMTFConfiguration* omtfConfig,
                                  std::string rootFileName)
     : EmulationObserverBase(edmCfg, omtfConfig) {
-  edm::LogVerbatim("l1tOmtfEventPrint") << " omtfConfig->nTestRefHits() "
-                                        << omtfConfig->nTestRefHits() << " event.omtfGpResultsPdfSum.num_elements() "
-                                        << endl;
+  edm::LogVerbatim("l1tOmtfEventPrint") << " omtfConfig->nTestRefHits() " << omtfConfig->nTestRefHits()
+                                        << " event.omtfGpResultsPdfSum.num_elements() " << endl;
   initializeTTree(rootFileName);
 
-/*  if (false) {                                           //TODO!!!!!!!!!!!!
+  /*  if (false) {                                           //TODO!!!!!!!!!!!!
     gpResultsToPt = new GpResultsToPt(gps, omtfConfig);  //TODO move to processor
 
     std::string fileName = edmCfg.getParameter<std::string>("gpResultsToPtFile");
@@ -50,7 +49,7 @@ DataROOTDumper2::DataROOTDumper2(const edm::ParameterSet& edmCfg,
     inArch >> *gpResultsToPt;
   }*/
 
-  edm::LogVerbatim("l1tOmtfEventPrint")  << " DataROOTDumper2 created"<<std::endl;
+  edm::LogVerbatim("l1tOmtfEventPrint") << " DataROOTDumper2 created" << std::endl;
 }
 
 DataROOTDumper2::~DataROOTDumper2() { saveTTree(); }
@@ -117,7 +116,7 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
   omtfEvent.muonPhi = simMuon->momentum().phi();
   omtfEvent.muonCharge = muonCharge;  //TODO
 
-  if (omtfCand->getPt() > 0) {                     //&& omtfCand->getFiredLayerCnt() > 3
+  if (omtfCand->getPt() > 0) {                         //&& omtfCand->getFiredLayerCnt() > 3
     omtfEvent.omtfPt = (omtfCand->getPt() - 1) / 2.0;  //TODO check
     omtfEvent.omtfEta = omtfCand->getEtaHw() / 240. * 2.61;
     omtfEvent.omtfPhi = omtfCand->getPhi();
@@ -177,9 +176,9 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
 
         if (hit.phiDist > 504 || hit.phiDist < -512) {
           edm::LogVerbatim("l1tOmtfEventPrint")
-              << " muonPt " << omtfEvent.muonPt << " omtfPt " << omtfEvent.omtfPt << " RefLayer " << omtfEvent.omtfRefLayer
-              << " layer " << int(hit.layer) << " hit.phiDist " << hit.phiDist << " valid " << stubResult.getValid()
-              << " !!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+              << " muonPt " << omtfEvent.muonPt << " omtfPt " << omtfEvent.omtfPt << " RefLayer "
+              << omtfEvent.omtfRefLayer << " layer " << int(hit.layer) << " hit.phiDist " << hit.phiDist << " valid "
+              << stubResult.getValid() << " !!!!!!!!!!!!!!!!!!!!!!!!" << endl;
         }
 
         DetId detId(stubResult.getMuonStub()->detId);

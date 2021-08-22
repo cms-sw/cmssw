@@ -15,11 +15,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
-class EmulationObserverBase : public IOMTFEmulationObserver  {
+class EmulationObserverBase : public IOMTFEmulationObserver {
 public:
   EmulationObserverBase(const edm::ParameterSet& edmCfg, const OMTFConfiguration* omtfConfig);
 
-  virtual ~EmulationObserverBase();
+  ~EmulationObserverBase() override;
 
   void observeProcesorEmulation(unsigned int iProcessor,
                                 l1t::tftype mtfType,

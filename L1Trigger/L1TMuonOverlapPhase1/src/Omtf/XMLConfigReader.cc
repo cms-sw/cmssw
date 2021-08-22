@@ -65,12 +65,14 @@ void XMLConfigReader::readLUTs(std::vector<l1t::LUT *> luts,
   ///Fill payload string
   auto aGPs = readPatterns<GoldenPattern>(aConfig, patternsFiles, true);
 
-
   edm::LogVerbatim("OMTFReconstruction") << "XMLConfigReader::readLUTs: aGPs.size() " << aGPs.size()
-		  <<" L1TMuonOverlapParams::nGoldenPatterns() "<<aConfig.nGoldenPatterns()<< std::endl;
+                                         << " L1TMuonOverlapParams::nGoldenPatterns() " << aConfig.nGoldenPatterns()
+                                         << std::endl;
 
-  if( (int)aGPs.size() != aConfig.nGoldenPatterns() ) {
-    throw cms::Exception("XMLConfigReader::readLUTs: aGPs.size() != aConfig.nGoldenPatterns(). Fix nGoldenPatterns in the hwToLogicLayer_0x000x.xml");
+  if ((int)aGPs.size() != aConfig.nGoldenPatterns()) {
+    throw cms::Exception(
+        "XMLConfigReader::readLUTs: aGPs.size() != aConfig.nGoldenPatterns(). Fix nGoldenPatterns in the "
+        "hwToLogicLayer_0x000x.xml");
   }
 
   bool useMeanDistPhi1 = false;
@@ -84,7 +86,7 @@ void XMLConfigReader::readLUTs(std::vector<l1t::LUT *> luts,
     std::stringstream strStream;
     //int totalInWidth = 7;  //Number of bits used to address LUT
     int totalInWidth = boost::multiprecision::msb(aGPs.size()) + 1;
-    int outWidth = 6;      //Number of bits used to store LUT value
+    int outWidth = 6;  //Number of bits used to store LUT value
 
     if (type == "iCharge")
       outWidth = 1;
@@ -96,34 +98,41 @@ void XMLConfigReader::readLUTs(std::vector<l1t::LUT *> luts,
       outWidth = aConfig.nPhiBits();
       //totalInWidth = 14;
 
-      int meanDistPhiValCnt = aGPs.size() * aGPs.at(0)->getMeanDistPhi().size() * aGPs.at(0)->getMeanDistPhi()[0].size();
-      totalInWidth = boost::multiprecision::msb(meanDistPhiValCnt) + 1; //the index of msb is zero-based, so +1 is needed to have the number of bits
+      int meanDistPhiValCnt =
+          aGPs.size() * aGPs.at(0)->getMeanDistPhi().size() * aGPs.at(0)->getMeanDistPhi()[0].size();
+      totalInWidth = boost::multiprecision::msb(meanDistPhiValCnt) +
+                     1;  //the index of msb is zero-based, so +1 is needed to have the number of bits
 
-      if(useMeanDistPhi1)
-        totalInWidth = totalInWidth +1;
-       //if two meanDistPhi values for each gp, iLayer,iRefLayer, are used - we need one bit more for the address
+      if (useMeanDistPhi1)
+        totalInWidth = totalInWidth + 1;
+      //if two meanDistPhi values for each gp, iLayer,iRefLayer, are used - we need one bit more for the address
 
-      edm::LogVerbatim("OMTFReconstruction") << "XMLConfigReader::readLUTs: meanDistPhi LUT address width: " << totalInWidth
-          <<" meanDistPhiValCnt: "<<meanDistPhiValCnt<<" useMeanDistPhi1 "<<useMeanDistPhi1<< std::endl;
+      edm::LogVerbatim("OMTFReconstruction")
+          << "XMLConfigReader::readLUTs: meanDistPhi LUT address width: " << totalInWidth
+          << " meanDistPhiValCnt: " << meanDistPhiValCnt << " useMeanDistPhi1 " << useMeanDistPhi1 << std::endl;
     }
     if (type == "pdf") {
       outWidth = aConfig.nPdfValBits();
       //totalInWidth = 21;
       int pdfValCnt = aGPs.size() * aGPs.at(0)->getPdf().num_elements();
-      totalInWidth = boost::multiprecision::msb(pdfValCnt) + 1; //the index of msb is zero-based, so +1 is needed to have the number of bits
+      totalInWidth = boost::multiprecision::msb(pdfValCnt) +
+                     1;  //the index of msb is zero-based, so +1 is needed to have the number of bits
       edm::LogVerbatim("OMTFReconstruction") << "XMLConfigReader::readLUTs: pdf LUT address width: " << totalInWidth
-          <<" pdfValCnt: "<<pdfValCnt<< std::endl;
+                                             << " pdfValCnt: " << pdfValCnt << std::endl;
     }
     if (type == "selDistPhiShift") {
       outWidth = 2;
       //totalInWidth = 14;
 
-      int distPhiShiftValCnt = aGPs.size() * aGPs.at(0)->getMeanDistPhi().size() * aGPs.at(0)->getMeanDistPhi()[0].size();
+      int distPhiShiftValCnt =
+          aGPs.size() * aGPs.at(0)->getMeanDistPhi().size() * aGPs.at(0)->getMeanDistPhi()[0].size();
       //distPhiShiftValCnt = aGPs.size() * omtfConfig->nLayers() * omtfConfig->nRefLayers() - should give the same as above
-      totalInWidth = boost::multiprecision::msb(distPhiShiftValCnt) + 1; //the index of msb is zero-based, so +1 is needed to have the number of bits
+      totalInWidth = boost::multiprecision::msb(distPhiShiftValCnt) +
+                     1;  //the index of msb is zero-based, so +1 is needed to have the number of bits
 
-      edm::LogVerbatim("OMTFReconstruction") << "XMLConfigReader::readLUTs: distPhiShift LUT address width: " << totalInWidth
-          <<" distPhiShiftValCnt: "<<distPhiShiftValCnt<< std::endl;
+      edm::LogVerbatim("OMTFReconstruction")
+          << "XMLConfigReader::readLUTs: distPhiShift LUT address width: " << totalInWidth
+          << " distPhiShiftValCnt: " << distPhiShiftValCnt << std::endl;
     }
 
     ///Prepare the header
@@ -131,7 +140,7 @@ void XMLConfigReader::readLUTs(std::vector<l1t::LUT *> luts,
 
     unsigned int in = 0;
     int out = 0;
-    for (auto& it : aGPs) {
+    for (auto &it : aGPs) {
       if (type == "iCharge")
         out = it->key().theCharge == -1 ? 0 : 1;
       //changing only -1 (negative charge) to 0 (to avoid negative numbers in LUT?) -N.B. that this is not the uGMT charge convention!!!!
@@ -234,8 +243,9 @@ unsigned int XMLConfigReader::getPatternsVersion() const {
 //////////////////////////////////////////////////
 template <class GoldenPatternType>
 GoldenPatternVec<GoldenPatternType> XMLConfigReader::readPatterns(const L1TMuonOverlapParams &aConfig,
-                                                                               const std::string &patternsFile,
-																			   bool buildEmptyPatterns, bool resetNumbering) {
+                                                                  const std::string &patternsFile,
+                                                                  bool buildEmptyPatterns,
+                                                                  bool resetNumbering) {
   GoldenPatternVec<GoldenPatternType> aGPs;
   aGPs.clear();
 
@@ -310,14 +320,15 @@ GoldenPatternVec<GoldenPatternType> XMLConfigReader::readPatterns(const L1TMuonO
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 template <class GoldenPatternType>
-GoldenPatternVec<GoldenPatternType> XMLConfigReader::readPatterns(
-    const L1TMuonOverlapParams &aConfig, const std::vector<std::string> &patternsFiles, bool buildEmptyPatterns) {
+GoldenPatternVec<GoldenPatternType> XMLConfigReader::readPatterns(const L1TMuonOverlapParams &aConfig,
+                                                                  const std::vector<std::string> &patternsFiles,
+                                                                  bool buildEmptyPatterns) {
   iGPNumber = 0;
   iPatternGroup = 0;
   GoldenPatternVec<GoldenPatternType> aGPs;
-  for (auto aPatternsFile : patternsFiles) {
+  for (const auto &aPatternsFile : patternsFiles) {
     auto tmpGPs = readPatterns<GoldenPatternType>(aConfig, aPatternsFile, buildEmptyPatterns, false);
-    for(auto& gp : tmpGPs)
+    for (auto &gp : tmpGPs)
       aGPs.push_back(std::move(gp));
   }
   return aGPs;
@@ -773,16 +784,22 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const {
 //  xercesc::DOMDocument* doc;
 
 template GoldenPatternVec<GoldenPattern> XMLConfigReader::readPatterns<GoldenPattern>(
-    const L1TMuonOverlapParams &aConfig, const std::string &patternsFile, bool buildEmptyPatterns, bool resetNumbering = true);
+    const L1TMuonOverlapParams &aConfig,
+    const std::string &patternsFile,
+    bool buildEmptyPatterns,
+    bool resetNumbering = true);
 
 template GoldenPatternVec<GoldenPattern> XMLConfigReader::readPatterns<GoldenPattern>(
-    const L1TMuonOverlapParams &aConfig, const std::vector<std::string>& patternsFiles, bool buildEmptyPatterns);
+    const L1TMuonOverlapParams &aConfig, const std::vector<std::string> &patternsFiles, bool buildEmptyPatterns);
 
 template GoldenPatternVec<GoldenPatternWithStat> XMLConfigReader::readPatterns<GoldenPatternWithStat>(
-    const L1TMuonOverlapParams &aConfig, const std::string &patternsFile, bool buildEmptyPatterns, bool resetNumbering = true);
+    const L1TMuonOverlapParams &aConfig,
+    const std::string &patternsFile,
+    bool buildEmptyPatterns,
+    bool resetNumbering = true);
 
 template GoldenPatternVec<GoldenPatternWithStat> XMLConfigReader::readPatterns<GoldenPatternWithStat>(
-    const L1TMuonOverlapParams &aConfig, const std::vector<std::string>& patternsFiles, bool buildEmptyPatterns);
+    const L1TMuonOverlapParams &aConfig, const std::vector<std::string> &patternsFiles, bool buildEmptyPatterns);
 
 /*template std::vector<std::unique_ptr<GoldenPatternWithThresh> > XMLConfigReader::readPatterns<GoldenPatternWithThresh>(
     const L1TMuonOverlapParams &aConfig, const std::string &patternsFile, bool buildEmptyPatterns, bool resetNumbering = true);

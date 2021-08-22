@@ -77,7 +77,7 @@ protected:
   OMTFConfigMaker* m_OMTFConfigMaker;
 
   std::vector<std::unique_ptr<IOMTFEmulationObserver> > observers;
-  
+
   edm::ESWatcher<L1TMuonOverlapParamsRcd> omtfParamsRecordWatcher;
 };
 

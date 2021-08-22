@@ -38,10 +38,10 @@ if verbose:
 #                          l1tOmtfEventPrint = cms.untracked.PSet( limit = cms.untracked.int32(1000000) ),
 #                          #OMTFReconstruction = cms.untracked.PSet( limit = cms.untracked.int32(1000000) )
 #                        ),
-       #debugModules = cms.untracked.vstring('L1MuonAnalyzerOmtfPhase1', 'simOmtfPhase1Digis') 
+       #debugModules = cms.untracked.vstring('L1MuonAnalyzerOmtfPhase1', 'simOmtfDigis') 
        debugModules = cms.untracked.vstring('omtfStage2Digis', 'L1MuonAnalyzerOmtfHW')  #, 'simOmtfDigis'
        
-       #debugModules = cms.untracked.vstring('L1MuonAnalyzerOmtf', 'simOmtfPhase1Digis', 'omtfStage2Digis') 
+       #debugModules = cms.untracked.vstring('L1MuonAnalyzerOmtf', 'simOmtfDigis', 'omtfStage2Digis') 
        #debugModules = cms.untracked.vstring('*')
     )
 
@@ -122,66 +122,69 @@ from EventFilter.L1TRawToDigi.omtfStage2Raw_cfi import *
 process.load('EventFilter.L1TRawToDigi.omtfStage2Raw_cfi') #packer
                                    
 #### new OMTF Emulator
-process.load('L1Trigger.L1TMuonOverlapPhase1.simOmtfPhase1Digis_cfi')
+process.load('L1Trigger.L1TMuonOverlapPhase1.simOmtfDigis_cfi')
 
-process.simOmtfPhase1Digis.srcDTPh = cms.InputTag('omtfStage2Digis')
-process.simOmtfPhase1Digis.srcDTTh = cms.InputTag('omtfStage2Digis')
-process.simOmtfPhase1Digis.srcCSC = cms.InputTag('omtfStage2Digis')
-process.simOmtfPhase1Digis.srcRPC = cms.InputTag('omtfStage2Digis')
-#process.simOmtfPhase1Digis.dropRPCPrimitives = cms.bool(False)
-#process.simOmtfPhase1Digis.dropDTPrimitives = cms.bool(False)
-#process.simOmtfPhase1Digis.dropCSCPrimitives = cms.bool(False)
-process.simOmtfPhase1Digis.bxMin = cms.int32(0)
-process.simOmtfPhase1Digis.bxMax = cms.int32(0)
+process.simOmtfDigis.bxMin = cms.int32(0)
+process.simOmtfDigis.bxMax = cms.int32(0)
 
-process.simOmtfPhase1Digis.dumpResultToXML = cms.bool(True)
-process.simOmtfPhase1Digis.dumpResultToROOT = cms.bool(False)
-process.simOmtfPhase1Digis.eventCaptureDebug = cms.bool(False)
+process.simOmtfDigis.srcDTPh = cms.InputTag('omtfStage2Digis')
+process.simOmtfDigis.srcDTTh = cms.InputTag('omtfStage2Digis')
+process.simOmtfDigis.srcCSC = cms.InputTag('omtfStage2Digis')
+process.simOmtfDigis.srcRPC = cms.InputTag('omtfStage2Digis')
+#process.simOmtfDigis.dropRPCPrimitives = cms.bool(False)
+#process.simOmtfDigis.dropDTPrimitives = cms.bool(False)
+#process.simOmtfDigis.dropCSCPrimitives = cms.bool(False)
+process.simOmtfDigis.bxMin = cms.int32(0)
+process.simOmtfDigis.bxMax = cms.int32(0)
 
-#process.simOmtfPhase1Digis.ghostBusterType = cms.string("GhostBusterPreferRefDt") #GhostBusterPreferRefDt byLLH
+process.simOmtfDigis.dumpResultToXML = cms.bool(True)
+process.simOmtfDigis.dumpResultToROOT = cms.bool(False)
+process.simOmtfDigis.eventCaptureDebug = cms.bool(False)
+
+#process.simOmtfDigis.ghostBusterType = cms.string("GhostBusterPreferRefDt") #GhostBusterPreferRefDt byLLH
 
 #Run3 config
-#process.simOmtfPhase1Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0009_oldSample_3_10Files.xml")
-#process.simOmtfPhase1Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0009_oldSample_3_10Files_classProb1.xml")
-#process.simOmtfPhase1Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00011_oldSample_3_30Files_grouped1_classProb7.xml")
-#process.simOmtfPhase1Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00012_oldSample_3_30Files_grouped1_classProb1_recalib.xml")
+#process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0009_oldSample_3_10Files.xml")
+#process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0009_oldSample_3_10Files_classProb1.xml")
+#process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00011_oldSample_3_30Files_grouped1_classProb7.xml")
+#process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00012_oldSample_3_30Files_grouped1_classProb1_recalib.xml")
 
-#process.simOmtfPhase1Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0003.xml")
-#process.simOmtfPhase1Digis.patternsXMLFiles = cms.VPSet(cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/GPs_parametrised_plus_v1.xml")),
+#process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0003.xml")
+#process.simOmtfDigis.patternsXMLFiles = cms.VPSet(cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/GPs_parametrised_plus_v1.xml")),
 #                                                       cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/GPs_parametrised_minus_v1.xml"))
 #)
-#process.simOmtfPhase1Digis.sorterType = cms.string("byLLH")
+#process.simOmtfDigis.sorterType = cms.string("byLLH")
 
 
-# process.simOmtfPhase1Digis.minDtPhiQuality = cms.int32(2)
-# process.simOmtfPhase1Digis.minDtPhiBQuality = cms.int32(4)
+# process.simOmtfDigis.minDtPhiQuality = cms.int32(2)
+# process.simOmtfDigis.minDtPhiBQuality = cms.int32(4)
 #   
-# process.simOmtfPhase1Digis.rpcMaxClusterSize = cms.int32(3)
-# process.simOmtfPhase1Digis.rpcMaxClusterCnt = cms.int32(2)
-# process.simOmtfPhase1Digis.rpcDropAllClustersIfMoreThanMax = cms.bool(True)
+# process.simOmtfDigis.rpcMaxClusterSize = cms.int32(3)
+# process.simOmtfDigis.rpcMaxClusterCnt = cms.int32(2)
+# process.simOmtfDigis.rpcDropAllClustersIfMoreThanMax = cms.bool(True)
 # 
-# process.simOmtfPhase1Digis.goldenPatternResultFinalizeFunction = cms.int32(9) #valid values are 0, 1, 2, 3, 5
+# process.simOmtfDigis.goldenPatternResultFinalizeFunction = cms.int32(9) #valid values are 0, 1, 2, 3, 5
 # 
-# process.simOmtfPhase1Digis.noHitValueInPdf = cms.bool(True)
+# process.simOmtfDigis.noHitValueInPdf = cms.bool(True)
 # 
-# process.simOmtfPhase1Digis.lctCentralBx = cms.int32(8);#<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!TODO this was changed in CMSSW 10(?) to 8. if the data were generated with the previous CMSSW then you have to use 6
+# process.simOmtfDigis.lctCentralBx = cms.int32(8);#<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!TODO this was changed in CMSSW 10(?) to 8. if the data were generated with the previous CMSSW then you have to use 6
 
 #Run2 config
 #process.omtfParams.configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0006.xml")
 
-process.simOmtfPhase1Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0003.xml")
-process.simOmtfPhase1Digis.minDtPhiQuality = cms.int32(2)
-process.simOmtfPhase1Digis.minDtPhiBQuality = cms.int32(2)
+process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0003.xml")
+process.simOmtfDigis.minDtPhiQuality = cms.int32(2)
+process.simOmtfDigis.minDtPhiBQuality = cms.int32(2)
   
-process.simOmtfPhase1Digis.rpcMaxClusterSize = cms.int32(3)
-process.simOmtfPhase1Digis.rpcMaxClusterCnt = cms.int32(2)
-process.simOmtfPhase1Digis.rpcDropAllClustersIfMoreThanMax = cms.bool(False)
+process.simOmtfDigis.rpcMaxClusterSize = cms.int32(3)
+process.simOmtfDigis.rpcMaxClusterCnt = cms.int32(2)
+process.simOmtfDigis.rpcDropAllClustersIfMoreThanMax = cms.bool(False)
 
-process.simOmtfPhase1Digis.goldenPatternResultFinalizeFunction = cms.int32(0) #valid values are 0, 1, 2, 3, 5
+process.simOmtfDigis.goldenPatternResultFinalizeFunction = cms.int32(0) #valid values are 0, 1, 2, 3, 5
 
-process.simOmtfPhase1Digis.noHitValueInPdf = cms.bool(False)
+process.simOmtfDigis.noHitValueInPdf = cms.bool(False)
 
-process.simOmtfPhase1Digis.lctCentralBx = cms.int32(8);#<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!TODO this was changed in CMSSW 10(?) to 8. if the data were generated with the previous CMSSW then you have to use 6
+process.simOmtfDigis.lctCentralBx = cms.int32(8);#<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!TODO this was changed in CMSSW 10(?) to 8. if the data were generated with the previous CMSSW then you have to use 6
 
 
 
@@ -189,10 +192,10 @@ process.simOmtfPhase1Digis.lctCentralBx = cms.int32(8);#<<<<<<<<<<<<<<<<!!!!!!!!
 #nn_pThresholds = [0.40, 0.50] 
 #nn_pThresholds = [0.35, 0.40, 0.45, 0.50, 0.55] 
  
-#process.simOmtfPhase1Digis.neuralNetworkFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/omtfClassifier_withPtBins_v34.txt")
-#process.simOmtfPhase1Digis.ptCalibrationFileName = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/PtCalibration_v34.root")
+#process.simOmtfDigis.neuralNetworkFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/omtfClassifier_withPtBins_v34.txt")
+#process.simOmtfDigis.ptCalibrationFileName = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/PtCalibration_v34.root")
 
-#process.simOmtfPhase1Digis.nn_pThresholds = cms.vdouble(nn_pThresholds)
+#process.simOmtfDigis.nn_pThresholds = cms.vdouble(nn_pThresholds)
 
 # end of L1TMuonOverlapPhase1
 
@@ -218,7 +221,7 @@ print "analysisType=" + analysisType
 process.L1MuonAnalyzerOmtfPhase1 = cms.EDAnalyzer("L1MuonAnalyzerOmtf", 
                                  etaCutFrom = cms.double(0.82), #OMTF eta range
                                  etaCutTo = cms.double(1.24),
-                                 L1OMTFInputTag  = cms.InputTag("simOmtfPhase1Digis","OMTF"),
+                                 L1OMTFInputTag  = cms.InputTag("simOmtfDigis","OMTF"),
                                  #nn_pThresholds = cms.vdouble(nn_pThresholds), 
                                  analysisType = cms.string(analysisType),
                                  
@@ -233,7 +236,7 @@ process.L1MuonAnalyzerOmtfPhase1 = cms.EDAnalyzer("L1MuonAnalyzerOmtf",
 
 
 process.L1TMuonSeqPhase1 = cms.Sequence( process.omtfStage2Digis #+ process.esProd          
-                                   + process.simOmtfPhase1Digis
+                                   + process.simOmtfDigis
                                    + process.L1MuonAnalyzerOmtfPhase1
                                    #+ process.dumpED
                                    #+ process.dumpES

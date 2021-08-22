@@ -238,8 +238,7 @@ int OmtfAngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTD
   // assume TMB2007 half-strips only as baseline
   double offset = 0.0;
   switch (1) {
-    case 1:
-      ;//offset = CSCPatternLUT::get2007Position(pattern); K.B. CSCPatternLUT is removed from CMSSW_11_2_1, but it looks that this offset is effectively not needed here
+    case 1:;  //offset = CSCPatternLUT::get2007Position(pattern); K.B. CSCPatternLUT is removed from CMSSW_11_2_1, but it looks that this offset is effectively not needed here
   }
   const unsigned halfstrip_offs = unsigned(0.5 + halfstrip + offset);
   const unsigned strip = halfstrip_offs / 2 + 1;  // geom starts from 1

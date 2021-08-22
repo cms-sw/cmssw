@@ -707,12 +707,8 @@ unsigned int XMLConfigWriter::findMaxInput(const OMTFConfiguration::vector1D& my
 }
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
-template void XMLConfigWriter::writeGPs(const GoldenPatternVec<GoldenPattern>& goldenPats,
-                                        std::string fName);
+template void XMLConfigWriter::writeGPs(const GoldenPatternVec<GoldenPattern>& goldenPats, std::string fName);
 
-template void XMLConfigWriter::writeGPs(const GoldenPatternVec<GoldenPatternWithStat>& goldenPats,
-                                        std::string fName);
+template void XMLConfigWriter::writeGPs(const GoldenPatternVec<GoldenPatternWithStat>& goldenPats, std::string fName);
 
-
-template void XMLConfigWriter::writeGPs(const GoldenPatternVec<GoldenPatternWithThresh>& goldenPats,
-                                        std::string fName);
+template void XMLConfigWriter::writeGPs(const GoldenPatternVec<GoldenPatternWithThresh>& goldenPats, std::string fName);

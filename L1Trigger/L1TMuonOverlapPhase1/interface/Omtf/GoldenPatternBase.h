@@ -157,8 +157,8 @@ protected:
   resultsArrayType results;
 };
 
-
-template <class GoldenPatternType> using GoldenPatternVec = std::vector<std::unique_ptr<GoldenPatternType> > ;
+template <class GoldenPatternType>
+using GoldenPatternVec = std::vector<std::unique_ptr<GoldenPatternType> >;
 //////////////////////////////////
 //////////////////////////////////
 #endif

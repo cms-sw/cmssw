@@ -98,7 +98,7 @@ public:
     GENERAL = 5,
     SECTORS_START = 6,
     SECTORS_END = 7,
-	DIST_PHI_SHIFT = 8,
+    DIST_PHI_SHIFT = 8,
     NUM_OMTFPARAMNODES = 9
   };
 
@@ -211,10 +211,11 @@ public:
    * which is the case for the fwVersion <= 0x6
    */
   const l1t::LUT *distPhiShiftLUT() const {
-	  if(pnodes_.size() >= (DIST_PHI_SHIFT+1)) return &pnodes_[DIST_PHI_SHIFT].LUT_;
-	  else return nullptr;
+    if (pnodes_.size() >= (DIST_PHI_SHIFT + 1))
+      return &pnodes_[DIST_PHI_SHIFT].LUT_;
+    else
+      return nullptr;
   }
-
 
   void setChargeLUT(const l1t::LUT &lut) {
     pnodes_[CHARGE].type_ = "LUT";

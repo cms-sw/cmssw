@@ -22,7 +22,7 @@ GpResultsToPt::GpResultsToPt(const std::vector<std::shared_ptr<GoldenPattern> >&
       entries(gps.size(), std::vector<int>(lutSize)),
       lowerGps(gps.size(), nullptr),
       higerGps(gps.size(), nullptr) {
-  for (auto gp : gps) {
+  for (const auto& gp : gps) {
     unsigned int iGP = gp->key().number();
 
     auto lowerGP = gp;
@@ -68,7 +68,7 @@ GpResultsToPt::GpResultsToPt(const std::vector<std::shared_ptr<GoldenPattern> >&
 GpResultsToPt::GpResultsToPt(const std::vector<std::shared_ptr<GoldenPattern> >& gps,
                              const OMTFConfiguration* omtfConfig)
     : gps(gps), omtfConfig(omtfConfig), lowerGps(gps.size(), nullptr), higerGps(gps.size(), nullptr) {
-  for (auto gp : gps) {
+  for (const auto& gp : gps) {
     unsigned int iGP = gp->key().number();
 
     auto lowerGP = gp;

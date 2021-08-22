@@ -44,12 +44,14 @@ public:
    */
   template <class GoldenPatternType>
   GoldenPatternVec<GoldenPatternType> readPatterns(const L1TMuonOverlapParams& aConfig,
-                                                                const std::string& patternsFile,
-																bool buildEmptyPatterns, bool resetNumbering = true);
+                                                   const std::string& patternsFile,
+                                                   bool buildEmptyPatterns,
+                                                   bool resetNumbering = true);
 
   template <class GoldenPatternType>
   GoldenPatternVec<GoldenPatternType> readPatterns(const L1TMuonOverlapParams& aConfig,
-                                                                const std::vector<std::string>& patternsFiles, bool buildEmptyPatterns);
+                                                   const std::vector<std::string>& patternsFiles,
+                                                   bool buildEmptyPatterns);
 
   void readLUTs(std::vector<l1t::LUT*> luts,
                 const L1TMuonOverlapParams& aConfig,

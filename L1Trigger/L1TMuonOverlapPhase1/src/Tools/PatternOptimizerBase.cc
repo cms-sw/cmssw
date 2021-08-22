@@ -87,7 +87,7 @@ PatternOptimizerBase::PatternOptimizerBase(const edm::ParameterSet& edmCfg,
   simMuPtSpectrum = new TH1F("simMuPtSpectrum", "simMuPtSpectrum", 800, 0, 400);
 
   if (edmCfg.exists("simTracksTag") == false)
-    edm::LogError("l1tOmtfEventPrint")  << "simTracksTag not found !!!"<<std::endl;
+    edm::LogError("l1tOmtfEventPrint") << "simTracksTag not found !!!" << std::endl;
 }
 
 PatternOptimizerBase::~PatternOptimizerBase() {
@@ -95,21 +95,22 @@ PatternOptimizerBase::~PatternOptimizerBase() {
 }
 
 void PatternOptimizerBase::printPatterns() {
-  edm::LogVerbatim("l1tOmtfEventPrint")  << __FUNCTION__ << ": " << __LINE__ << " called!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << std::endl;
+  edm::LogVerbatim("l1tOmtfEventPrint") << __FUNCTION__ << ": " << __LINE__ << " called!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "
+                                        << std::endl;
   for (int patNum = goldenPatterns.size() - 1; patNum >= 0; patNum--) {
     double pt = omtfConfig->getPatternPtRange(patNum).ptFrom;
     if (pt > 0) {
-      edm::LogVerbatim("l1tOmtfEventPrint")  << "cmsRun runThresholdCalc.py " << patNum << " " << (patNum + 1) << " _" << RPCConst::iptFromPt(pt) << "_";
+      edm::LogVerbatim("l1tOmtfEventPrint")
+          << "cmsRun runThresholdCalc.py " << patNum << " " << (patNum + 1) << " _" << RPCConst::iptFromPt(pt) << "_";
       if (goldenPatterns[patNum]->key().theCharge == -1)
-        edm::LogVerbatim("l1tOmtfEventPrint")  << "m_";
+        edm::LogVerbatim("l1tOmtfEventPrint") << "m_";
       else
-        edm::LogVerbatim("l1tOmtfEventPrint")  << "p_";
+        edm::LogVerbatim("l1tOmtfEventPrint") << "p_";
 
-      edm::LogVerbatim("l1tOmtfEventPrint")  << " > out" << patNum << ".txt" << std::endl;
+      edm::LogVerbatim("l1tOmtfEventPrint") << " > out" << patNum << ".txt" << std::endl;
     }
   }
 }
-
 
 void PatternOptimizerBase::observeEventEnd(const edm::Event& iEvent,
                                            std::unique_ptr<l1t::RegionalMuonCandBxCollection>& finalCandidates) {
@@ -139,8 +140,9 @@ void PatternOptimizerBase::endJob() {
 void PatternOptimizerBase::savePatternsInRoot(std::string rootFileName) {
   gStyle->SetOptStat(111111);
   TFile outfile(rootFileName.c_str(), "RECREATE");
-  edm::LogVerbatim("l1tOmtfEventPrint") << __FUNCTION__ << ": " << __LINE__ << " out fileName " << rootFileName << " outfile->GetName() "
-       << outfile.GetName() << " writeLayerStat " << writeLayerStat << endl;
+  edm::LogVerbatim("l1tOmtfEventPrint") << __FUNCTION__ << ": " << __LINE__ << " out fileName " << rootFileName
+                                        << " outfile->GetName() " << outfile.GetName() << " writeLayerStat "
+                                        << writeLayerStat << endl;
 
   outfile.cd();
   simMuFoundByOmtfPt->Write();

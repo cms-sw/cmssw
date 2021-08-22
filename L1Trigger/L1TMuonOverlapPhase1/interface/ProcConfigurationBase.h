@@ -86,8 +86,8 @@ private:
   unsigned int rpcMaxClusterSize = 3;
   unsigned int rpcMaxClusterCnt = 2;
 
-  bool rpcDropAllClustersIfMoreThanMax =
-      false;  // if true no  cluster is return if there is more clusters then maxClusterCnt (counted regardless of the size)
+  bool rpcDropAllClustersIfMoreThanMax = false;
+  // if true no  cluster is return if there is more clusters then maxClusterCnt (counted regardless of the size)
 
   int minDtPhiQuality = 2;
 

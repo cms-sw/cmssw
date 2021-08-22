@@ -16,6 +16,7 @@
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
+#include <memory>
 #include <sstream>
 
 EventCapture::EventCapture(const edm::ParameterSet& edmCfg,
@@ -37,7 +38,7 @@ EventCapture::EventCapture(const edm::ParameterSet& edmCfg,
         << "EventCapture::EventCapture: no InputTag simTracksTag found" << std::endl;
 
   if (this->candidateSimMuonMatcher)
-    stubsSimHitsMatcher.reset(new StubsSimHitsMatcher(edmCfg, omtfConfig, muonGeometryTokens));
+    stubsSimHitsMatcher = std::make_unique<StubsSimHitsMatcher>(edmCfg, omtfConfig, muonGeometryTokens);
 }
 
 EventCapture::~EventCapture() {
@@ -264,7 +265,7 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
               << board.name() << " " << *algoMuon << " RefHitNum " << algoMuon->getRefHitNumber() << std::endl;
           edm::LogVerbatim("l1tOmtfEventPrint") << algoMuon->getGpResult() << std::endl;
 
-          if(goldenPatterns) //watch out with the golden patterns
+          if (goldenPatterns)  //watch out with the golden patterns
             for (auto& gp : *goldenPatterns) {
               if (gp->key().thePt == 0)
                 continue;

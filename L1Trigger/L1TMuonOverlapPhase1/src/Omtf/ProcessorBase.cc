@@ -18,8 +18,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 template <class GoldenPatternType>
-ProcessorBase<GoldenPatternType>::ProcessorBase(OMTFConfiguration* omtfConfig, GoldenPatternVec<GoldenPatternType>&& gps) :
-myOmtfConfig(omtfConfig), theGPs(std::move(gps)) {
+ProcessorBase<GoldenPatternType>::ProcessorBase(OMTFConfiguration* omtfConfig,
+                                                GoldenPatternVec<GoldenPatternType>&& gps)
+    : myOmtfConfig(omtfConfig), theGPs(std::move(gps)) {
   for (auto& gp : theGPs) {
     gp->setConfig(myOmtfConfig);
   }
@@ -52,8 +53,9 @@ bool ProcessorBase<GoldenPatternType>::configure(OMTFConfiguration* omtfConfig,
   const l1t::LUT* distPhiShiftLUT = omtfPatterns->distPhiShiftLUT();
 
   unsigned int nGPs = myOmtfConfig->nGoldenPatterns();
-  edm::LogVerbatim("OMTFReconstruction") << "ProcessorBase<>::configure. Building patterns from L1TMuonOverlapParams (LUTs). nGoldenPatterns() "
-      << nGPs << std::endl;
+  edm::LogVerbatim("OMTFReconstruction")
+      << "ProcessorBase<>::configure. Building patterns from L1TMuonOverlapParams (LUTs). nGoldenPatterns() " << nGPs
+      << std::endl;
 
   unsigned int address = 0;
   unsigned int iEta, iPt;
@@ -70,7 +72,7 @@ bool ProcessorBase<GoldenPatternType>::configure(OMTFConfiguration* omtfConfig,
 
     //the patterns in the LUTs should contain the empty patterns, only then the group and indexInGroup calculation works
     group = iGP / myOmtfConfig->patternsInGroup;
-    indexInGroup = iGP % myOmtfConfig->patternsInGroup +1;
+    indexInGroup = iGP % myOmtfConfig->patternsInGroup + 1;
     Key aKey(iEta, iPt, iCharge, theGPs.size(), group, indexInGroup);
     if (iPt == 0) {
       LogTrace("OMTFReconstruction")
@@ -84,7 +86,6 @@ bool ProcessorBase<GoldenPatternType>::configure(OMTFConfiguration* omtfConfig,
         << std::endl;  //<<myOmtfConfig->getPatternPtRange(iGP).ptFrom<<" - "<<myOmtfConfig->getPatternPtRange(iGP).ptTo<<" GeV"<<std::endl; PatternPtRange is not initialized here yet!!!!
 
     GoldenPatternType* aGP = new GoldenPatternType(aKey, myOmtfConfig);
-
 
     for (unsigned int iLayer = 0; iLayer < myOmtfConfig->nLayers(); ++iLayer) {
       for (unsigned int iRefLayer = 0; iRefLayer < myOmtfConfig->nRefLayers(); ++iRefLayer) {
@@ -105,11 +106,10 @@ bool ProcessorBase<GoldenPatternType>::configure(OMTFConfiguration* omtfConfig,
         }*/
 
         //selDistPhiShift, if the distPhiShiftLUT is nullptr, it means it was not present in the L1TMuonOverlapParamsRcd
-        if(distPhiShiftLUT) {
-        	value = distPhiShiftLUT->data(address); //distPhiShiftLUT values are only positive
-        	aGP->setDistPhiBitShift(value, iLayer, iRefLayer);
+        if (distPhiShiftLUT) {
+          value = distPhiShiftLUT->data(address);  //distPhiShiftLUT values are only positive
+          aGP->setDistPhiBitShift(value, iLayer, iRefLayer);
         }
-
       }
       ///Pdf data
       for (unsigned int iRefLayer = 0; iRefLayer < myOmtfConfig->nRefLayers(); ++iRefLayer) {
@@ -220,6 +220,9 @@ void ProcessorBase<GoldenPatternType>::initPatternPtRange(bool firstPatFrom0) {
 
 template <class GoldenPatternType>
 void ProcessorBase<GoldenPatternType>::printInfo() const {
+  myOmtfConfig->printConfig();
+
+  edm::LogVerbatim("OMTFReconstruction") << "\npatterns:" << std::endl;
   unsigned int patNum = 0;
   for (auto& gp : theGPs) {
     edm::LogVerbatim("OMTFReconstruction")

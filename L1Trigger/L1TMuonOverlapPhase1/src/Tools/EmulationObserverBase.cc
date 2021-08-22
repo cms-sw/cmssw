@@ -10,21 +10,18 @@
 #include "Math/VectorUtil.h"
 
 EmulationObserverBase::EmulationObserverBase(const edm::ParameterSet& edmCfg, const OMTFConfiguration* omtfConfig)
-: edmCfg(edmCfg), omtfConfig(omtfConfig), simMuon(nullptr) {
-
-}
+    : edmCfg(edmCfg), omtfConfig(omtfConfig), simMuon(nullptr) {}
 
 EmulationObserverBase::~EmulationObserverBase() {
   // TODO Auto-generated destructor stub
 }
 
-
 void EmulationObserverBase::observeProcesorEmulation(unsigned int iProcessor,
-                                                    l1t::tftype mtfType,
-                                                    const std::shared_ptr<OMTFinput>& input,
-                                                    const AlgoMuons& algoCandidates,
-                                                    const AlgoMuons& gbCandidates,
-                                                    const std::vector<l1t::RegionalMuonCand>& candMuons) {
+                                                     l1t::tftype mtfType,
+                                                     const std::shared_ptr<OMTFinput>& input,
+                                                     const AlgoMuons& algoCandidates,
+                                                     const AlgoMuons& gbCandidates,
+                                                     const std::vector<l1t::RegionalMuonCand>& candMuons) {
   unsigned int procIndx = omtfConfig->getProcIndx(iProcessor, mtfType);
 
   /*
