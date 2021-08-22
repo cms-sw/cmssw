@@ -138,4 +138,4 @@ private:
 typedef std::shared_ptr<AlgoMuon> AlgoMuonPtr;
 typedef std::vector<AlgoMuonPtr> AlgoMuons;
 
-#endif //L1T_OmtfP1_AlgoMuon_H
+#endif  //L1T_OmtfP1_AlgoMuon_H

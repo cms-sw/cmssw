@@ -38,4 +38,4 @@ private:
   L1TMuonOverlapParams patterns;
 };
 
-#endif //L1T_OmtfP1_L1TMuonOverlapPhase1ParamsESProducer_H
+#endif  //L1T_OmtfP1_L1TMuonOverlapPhase1ParamsESProducer_H

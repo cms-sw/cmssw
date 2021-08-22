@@ -33,7 +33,7 @@ if verbose:
                          l1tOmtfEventPrint = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) ),
                          OMTFReconstruction = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) )
                        ),
-       debugModules = cms.untracked.vstring('simOmtfPhase1Digis') 
+       debugModules = cms.untracked.vstring('simOmtfDigis') 
        #debugModules = cms.untracked.vstring('*')
     )
 
@@ -161,36 +161,39 @@ process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
 #process.TFileService = cms.Service("TFileService", fileName = cms.string('omtfAnalysis1_1.root'), closeFileFast = cms.untracked.bool(True) )
                                    
 ####OMTF Emulator
-process.load('L1Trigger.L1TMuonOverlapPhase1.simOmtfPhase1Digis_cfi')
+process.load('L1Trigger.L1TMuonOverlapPhase1.simOmtfDigis_cfi')
 
-process.simOmtfPhase1Digis.dumpResultToXML = cms.bool(False)
-process.simOmtfPhase1Digis.dumpResultToROOT = cms.bool(False)
-process.simOmtfPhase1Digis.eventCaptureDebug = cms.bool(False)
+process.simOmtfDigis.bxMin = cms.int32(0)
+process.simOmtfDigis.bxMax = cms.int32(0)
 
-process.simOmtfPhase1Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_template.xml")
-#process.simOmtfPhase1Digis.patternsXMLFiles = cms.VPSet(cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/GPs_parametrised_plus_v1.xml")),
+process.simOmtfDigis.dumpResultToXML = cms.bool(False)
+process.simOmtfDigis.dumpResultToROOT = cms.bool(False)
+process.simOmtfDigis.eventCaptureDebug = cms.bool(False)
+
+process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlapPhase1/test/expert/omtf/Patterns_template.xml")
+#process.simOmtfDigis.patternsXMLFiles = cms.VPSet(cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/GPs_parametrised_plus_v1.xml")),
 #                                                       cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/GPs_parametrised_minus_v1.xml"))
 #)
 
-process.simOmtfPhase1Digis.patternGenerator = cms.string("patternGen")
+process.simOmtfDigis.patternGenerator = cms.string("patternGen")
 
-process.simOmtfPhase1Digis.patternType = cms.string("GoldenPatternWithStat")
-process.simOmtfPhase1Digis.generatePatterns = cms.bool(True)
-process.simOmtfPhase1Digis.optimisedPatsXmlFile = cms.string("Patterns_0x00011_oldSample_3_30Files_layerStat_test.xml")
+process.simOmtfDigis.patternType = cms.string("GoldenPatternWithStat")
+process.simOmtfDigis.generatePatterns = cms.bool(True)
+process.simOmtfDigis.optimisedPatsXmlFile = cms.string("Patterns_0x00011_oldSample_3_30Files_layerStat_test.xml")
 
-process.simOmtfPhase1Digis.rpcMaxClusterSize = cms.int32(3)
-process.simOmtfPhase1Digis.rpcMaxClusterCnt = cms.int32(2)
-process.simOmtfPhase1Digis.rpcDropAllClustersIfMoreThanMax = cms.bool(True)
+process.simOmtfDigis.rpcMaxClusterSize = cms.int32(3)
+process.simOmtfDigis.rpcMaxClusterCnt = cms.int32(2)
+process.simOmtfDigis.rpcDropAllClustersIfMoreThanMax = cms.bool(True)
 
-process.simOmtfPhase1Digis.goldenPatternResultFinalizeFunction = cms.int32(3) ## is needed here , becasue it just counts the number of layers with a stub
-process.simOmtfPhase1Digis.lctCentralBx = cms.int32(6);#<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!TODO this was changed in CMSSW 10(?) to 8. if the data were generated with the previous CMSSW then you have to use 6
+process.simOmtfDigis.goldenPatternResultFinalizeFunction = cms.int32(3) ## is needed here , becasue it just counts the number of layers with a stub
+process.simOmtfDigis.lctCentralBx = cms.int32(6);#<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!TODO this was changed in CMSSW 10(?) to 8. if the data were generated with the previous CMSSW then you have to use 6
 
 
 #process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 #process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
 process.L1TMuonSeq = cms.Sequence( process.esProd          
-                                   + process.simOmtfPhase1Digis 
+                                   + process.simOmtfDigis 
                                    #+ process.dumpED
                                    #+ process.dumpES
 )

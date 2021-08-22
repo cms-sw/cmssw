@@ -55,15 +55,12 @@ public:
 
   std::vector<unsigned long> hits;
 
-
   //OmtfEvent() {}
 };
 
 class DataROOTDumper2 : public EmulationObserverBase {
 public:
-  DataROOTDumper2(const edm::ParameterSet& edmCfg,
-                  const OMTFConfiguration* omtfConfig,
-                  std::string rootFileName);
+  DataROOTDumper2(const edm::ParameterSet& edmCfg, const OMTFConfiguration* omtfConfig, std::string rootFileName);
 
   ~DataROOTDumper2() override;
 

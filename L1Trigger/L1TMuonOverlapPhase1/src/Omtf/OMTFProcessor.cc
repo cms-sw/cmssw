@@ -41,7 +41,7 @@ OMTFProcessor<GoldenPatternType>::OMTFProcessor(OMTFConfiguration* omtfConfig,
                                                 const edm::ParameterSet& edmCfg,
                                                 edm::EventSetup const& evSetup,
                                                 GoldenPatternVec<GoldenPatternType>&& gps)
-    : ProcessorBase<GoldenPatternType>(omtfConfig, std::forward<GoldenPatternVec<GoldenPatternType> >(gps) ) {
+    : ProcessorBase<GoldenPatternType>(omtfConfig, std::forward<GoldenPatternVec<GoldenPatternType> >(gps)) {
   init(edmCfg, evSetup);
 };
 

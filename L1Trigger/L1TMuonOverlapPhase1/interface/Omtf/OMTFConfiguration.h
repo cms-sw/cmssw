@@ -253,6 +253,8 @@ public:
 
   void setGhostBusterType(const std::string& ghostBusterType = "") { this->ghostBusterType = ghostBusterType; }
 
+  void printConfig() const;
+
 private:
   L1TMuonOverlapParams rawParams;
 

@@ -167,12 +167,11 @@ void OMTFConfiguration::configure(const L1TMuonOverlapParams *omtfParams) {
   } else if (fwVersion() == 6) {
     setMinDtPhiQuality(2);
     setGhostBusterType("GhostBusterPreferRefDt");
-  }
-  else if (fwVersion() == 8) {
+  } else if (fwVersion() == 8) {
     setMinDtPhiQuality(2);
-    setMinDtPhiBQuality(2); //should be 4, but in the fwVersion = 8 was not yet implemented
+    setMinDtPhiBQuality(2);  //should be 4, but in the fwVersion = 8 was not yet implemented
 
-    setSorterType(1); //"byLLH"
+    setSorterType(1);  //"byLLH"
 
     setRpcMaxClusterSize(3);
     setRpcMaxClusterCnt(2);
@@ -190,7 +189,9 @@ void OMTFConfiguration::configure(const L1TMuonOverlapParams *omtfParams) {
 }
 
 void OMTFConfiguration::configureFromEdmParameterSet(const edm::ParameterSet &edmParameterSet) {
-  edm::LogVerbatim("OMTFReconstruction") << "OMTFConfiguration::configureFromEdmParameterSet: setting the params from python config (overwrites the EventSetup (DB) params): " << std::endl;
+  edm::LogVerbatim("OMTFReconstruction") << "OMTFConfiguration::configureFromEdmParameterSet: setting the params from "
+                                            "python config (overwrites the EventSetup (DB) params): "
+                                         << std::endl;
 
   ProcConfigurationBase::configureFromEdmParameterSet(edmParameterSet);
 
@@ -378,7 +379,6 @@ OMTFConfiguration::PatternPt OMTFConfiguration::getPatternPtRange(unsigned int p
   return patternPts[patNum];
 }
 
-
 unsigned int OMTFConfiguration::getPatternNum(double pt, int charge) const {
   //in LUT the charge is in convention 0 is -, 1 is + (so it is not the uGMT convention!!!)
   //so we change the charge here
@@ -393,3 +393,21 @@ unsigned int OMTFConfiguration::getPatternNum(double pt, int charge) const {
   return 0;  //FIXME in this way if pt < 4GeV, the pattern = 0 is return , regardless of sign!
 }
 
+void OMTFConfiguration::printConfig() const {
+  edm::LogVerbatim("OMTFReconstruction") << "OMTFConfiguration: " << std::endl;
+
+  edm::LogVerbatim("OMTFReconstruction") << "rpcMaxClusterSize " << getRpcMaxClusterSize() << std::endl;
+  edm::LogVerbatim("OMTFReconstruction") << "rpcMaxClusterCnt " << getRpcMaxClusterCnt() << std::endl;
+  edm::LogVerbatim("OMTFReconstruction") << "rpcDropAllClustersIfMoreThanMax " << getRpcDropAllClustersIfMoreThanMax()
+                                         << std::endl;
+  edm::LogVerbatim("OMTFReconstruction") << "minDtPhiQuality " << getMinDtPhiQuality() << std::endl;
+  edm::LogVerbatim("OMTFReconstruction") << "minDtPhiBQuality " << getMinDtPhiBQuality() << std::endl;
+
+  edm::LogVerbatim("OMTFReconstruction") << "cscLctCentralBx_ " << cscLctCentralBx() << std::endl;
+
+  edm::LogVerbatim("OMTFReconstruction") << "goldenPatternResultFinalizeFunction "
+                                         << goldenPatternResultFinalizeFunction << std::endl;
+  edm::LogVerbatim("OMTFReconstruction") << "noHitValueInPdf " << noHitValueInPdf << std::endl;
+  edm::LogVerbatim("OMTFReconstruction") << "sorterType " << sorterType << std::endl;
+  edm::LogVerbatim("OMTFReconstruction") << "ghostBusterType " << ghostBusterType << std::endl;
+}

@@ -37,7 +37,7 @@ public:
 
   void beginRun(edm::Run const& run, edm::EventSetup const& iSetup) override;
 
-  virtual void endRun(edm::Run const& run, edm::EventSetup const& iSetup) override {};
+  void endRun(edm::Run const& run, edm::EventSetup const& iSetup) override{};
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 

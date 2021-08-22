@@ -22,15 +22,17 @@ L1TMuonOverlapPhase1ParamsESProducer::L1TMuonOverlapPhase1ParamsESProducer(const
     return;
   std::string fName = theConfig.getParameter<edm::FileInPath>("configXMLFile").fullPath();
 
-  edm::LogImportant("OMTFReconstruction") << "L1TMuonOverlapPhase1ParamsESProducer - reading config from file: "<<fName << std::endl;
+  edm::LogVerbatim("OMTFReconstruction") << "L1TMuonOverlapPhase1ParamsESProducer - reading config from file: " << fName
+                                         << std::endl;
 
   if (!theConfig.exists("patternsXMLFiles"))
     return;
   std::vector<std::string> fileNames;
-  for (auto it : theConfig.getParameter<std::vector<edm::ParameterSet> >("patternsXMLFiles")) {
-	std::string fName = it.getParameter<edm::FileInPath>("patternsXMLFile").fullPath();
+  for (const auto& it : theConfig.getParameter<std::vector<edm::ParameterSet> >("patternsXMLFiles")) {
+    std::string fName = it.getParameter<edm::FileInPath>("patternsXMLFile").fullPath();
     fileNames.push_back(fName);
-    edm::LogImportant("OMTFReconstruction") << "L1TMuonOverlapPhase1ParamsESProducer - reading patterns from file: "<<fName << std::endl;
+    edm::LogVerbatim("OMTFReconstruction")
+        << "L1TMuonOverlapPhase1ParamsESProducer - reading patterns from file: " << fName << std::endl;
   }
 
   XMLConfigReader myReader;

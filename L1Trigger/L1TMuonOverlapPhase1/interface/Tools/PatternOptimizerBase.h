@@ -26,14 +26,14 @@ class PatternOptimizerBase : public EmulationObserverBase {
 public:
   static double vxMuRate(double pt_GeV);
   static double vxIntegMuRate(double pt_GeV, double dpt, double etaFrom, double etaTo);
-  
+
   PatternOptimizerBase(const edm::ParameterSet& edmCfg,
                        const OMTFConfiguration* omtfConfig,
                        GoldenPatternVec<GoldenPatternWithStat>& gps);
 
   ~PatternOptimizerBase() override;
 
-/*  void observeProcesorEmulation(unsigned int iProcessor,
+  /*  void observeProcesorEmulation(unsigned int iProcessor,
                                 l1t::tftype mtfType,
                                 const std::shared_ptr<OMTFinput>& input,
                                 const AlgoMuons& algoCandidates,
