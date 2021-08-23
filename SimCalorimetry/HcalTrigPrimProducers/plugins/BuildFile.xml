@@ -2,4 +2,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="SimCalorimetry/HcalTrigPrimAlgos"/>
 <use name="DataFormats/L1GlobalTrigger"/>
-<flags EDM_PLUGIN="1"/>
+<library file="*.cc" name="SimCalorimetryHcalTrigPrimProducersPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
