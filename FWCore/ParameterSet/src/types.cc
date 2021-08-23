@@ -460,7 +460,7 @@ bool edm::decode(double& to, std::string const& from) {
       // std::cerr << "from:" << from << std::endl;
       to = std::stod(from);
       // std::cerr << "to:" << to << std::endl;
-    } catch (const std::invalid_argument&) {
+    } catch (const std::exception&) {
       return false;
     }
   }

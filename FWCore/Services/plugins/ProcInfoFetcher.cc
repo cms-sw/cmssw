@@ -209,7 +209,7 @@ namespace edm {
               pinfo.num_threads >> pinfo.itrealvalue >> pinfo.starttime >> pinfo.vsize >> pinfo.rss >> pinfo.rlim >>
               pinfo.startcode >> pinfo.endcode >> pinfo.startstack >> pinfo.kstkesp >> pinfo.kstkeip >> pinfo.signal >>
               pinfo.blocked >> pinfo.sigignore >> pinfo.sigcatch >> pinfo.wchan;
-        } catch (const std::invalid_argument& iE) {
+        } catch (const std::exception& iE) {
           LogWarning("ProcInfoFetcher") << "Parsing of Prof file failed:" << iE.what() << std::endl;
           return ProcInfo();
         }
