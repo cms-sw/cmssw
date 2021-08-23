@@ -2,8 +2,11 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/FEDRawData"/>
 <use name="DataFormats/SiStripDetId"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/TrackerRecHit2D"/>
 <use name="DataFormats/Scalers"/>
 <use name="DataFormats/OnlineMetaData"/>
+<use name="DataFormats/NanoAOD"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
