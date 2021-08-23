@@ -371,8 +371,8 @@ void HBHEMuonOfflineSimAnalyzer::Loop() {
     nbytes += nb;
 
     if (debug_) {
-        std::cout << "ecal_det_id " << ecal_detID << std::endl;
-        std::cout << "hcal_det_id " << std::hex << hcal_detID << std::dec;
+      std::cout << "ecal_det_id " << ecal_detID << std::endl;
+      std::cout << "hcal_det_id " << std::hex << hcal_detID << std::dec;
     }
     int etaHcal, phiHcal, depthHcal;
     etaPhiHcal(hcal_detID, etaHcal, phiHcal, depthHcal);
@@ -380,7 +380,7 @@ void HBHEMuonOfflineSimAnalyzer::Loop() {
     int eta = (etaHcal > 0) ? (etaHcal - 1) : -(1 + etaHcal);
     int nDepth = NDepthBins(eta + 1, phiHcal);
     int nPhi = NPhiBins(eta + 1);
-    
+
     double phiYHcal = (phiHcal - 0.5);
     if (debug_)
       std::cout << "phiHcal" << phiHcal << " phiYHcal" << phiYHcal << std::endl;
@@ -388,107 +388,109 @@ void HBHEMuonOfflineSimAnalyzer::Loop() {
     for (int cut = 0; cut < 3; ++cut) {
       bool select(false);
       if (cut == 0)
-	select = tightMuon();
+        select = tightMuon();
       else if (cut == 1)
-	select = SoftMuon();
+        select = SoftMuon();
       else
-	select = LooseMuon();
+        select = LooseMuon();
 
       if (select) {
-	//	  h_P_Muon[cut]->Fill(p_of_muon);
-	h_P_Muon[cut]->Fill(p_of_muon);
-	h_Pt_Muon[cut]->Fill(pt_of_muon);
-	h_Eta_Muon[cut]->Fill(eta_of_muon);
+        //	  h_P_Muon[cut]->Fill(p_of_muon);
+        h_P_Muon[cut]->Fill(p_of_muon);
+        h_Pt_Muon[cut]->Fill(pt_of_muon);
+        h_Eta_Muon[cut]->Fill(eta_of_muon);
 
-	double energyFill;
-	for (int dep = 0; dep < nDepth; ++dep) {
-	  if (debug_) {
-	    std::cout << "why on 15/2 only" << std::endl;
-	    std::cout << "dep:" << dep << std::endl;
-	  }
-	  int PHI = (nPhi > 36) ? (phiHcal - 1) : (phiHcal - 1) / 2;
-	  double en1(-9999), en2(-9999);
-	  if (dep == 0) {
-	    en1 = hcal_edepth1;
-	    en2 = hcal_edepthHot1;
-	    energyFill = (hcal_activeHotL1 > 0) ? hcal_activeHotL1 : 999;
-	  } else if (dep == 1) {
-	    en1 = hcal_edepth2;
-	    en2 = hcal_edepthHot2;
-	    energyFill = (hcal_activeHotL2 > 0) ? hcal_activeHotL2 : 999;
-	    if (debug_)
-	      std::cout << "problem here.. lets see if it got printed\n";
-	  } else if (dep == 2) {
-	    en1 = hcal_edepth3;
-	    en2 = hcal_edepthHot3;
-	    energyFill = (hcal_activeHotL3 > 0) ? hcal_activeHotL3 : 999;
-	  } else if (dep == 3) {
-	    en1 = hcal_edepth4;
-	    en2 = hcal_edepthHot4;
-	    if (debug_)
-	      std::cout << "Hello in 4" << std::endl;
-	    energyFill = (hcal_activeHotL4 > 0) ? hcal_activeHotL4 : 999;
-	  } else if (dep == 4) {
-	    en1 = hcal_edepth5;
-	    en2 = hcal_edepthHot5;
-	    energyFill = (hcal_activeHotL5 > 0) ? hcal_activeHotL5 : 999;
-	  } else if (dep == 5) {
-	    if (debug_)
-	      std::cout << "Energy in depth 6 " << maxDepth_ << ":" << hcal_edepth6 << ":" << hcal_edepthHot6 << std::endl;
-	    en1 = (maxDepth_ > 5) ? hcal_edepth6 : 0;
-	    en2 = (maxDepth_ > 5) ? hcal_edepthHot6 : 0;
-	    energyFill = (hcal_activeHotL6 > 0) ? hcal_activeHotL6 : 999;
-	  } else if (dep == 6) {
-	    if (debug_)
-	      std::cout << "Energy in depth 7 " << maxDepth_ << ":" <<hcal_edepth7 << ":" << hcal_edepthHot7 << std::endl;
-	    en1 = (maxDepth_ > 6) ? hcal_edepth7 : 0;
-	    en2 = (maxDepth_ > 6) ? hcal_edepthHot7 : 0;
-	    energyFill = (hcal_activeHotL7 > 0) ? hcal_activeHotL7 : 999;
-	  }
-	  
-	  if (debug_) {
-	    std::cout << " Debug2" << std::endl;
-	    std::cout << "ok1" << en1 << std::endl;
-	    std::cout << "ok2" << en2 << std::endl;
-	  }
-	  bool ok1 = (en1 > -9999);
-	  bool ok2 = (en2 > -9999);
+        double energyFill;
+        for (int dep = 0; dep < nDepth; ++dep) {
+          if (debug_) {
+            std::cout << "why on 15/2 only" << std::endl;
+            std::cout << "dep:" << dep << std::endl;
+          }
+          int PHI = (nPhi > 36) ? (phiHcal - 1) : (phiHcal - 1) / 2;
+          double en1(-9999), en2(-9999);
+          if (dep == 0) {
+            en1 = hcal_edepth1;
+            en2 = hcal_edepthHot1;
+            energyFill = (hcal_activeHotL1 > 0) ? hcal_activeHotL1 : 999;
+          } else if (dep == 1) {
+            en1 = hcal_edepth2;
+            en2 = hcal_edepthHot2;
+            energyFill = (hcal_activeHotL2 > 0) ? hcal_activeHotL2 : 999;
+            if (debug_)
+              std::cout << "problem here.. lets see if it got printed\n";
+          } else if (dep == 2) {
+            en1 = hcal_edepth3;
+            en2 = hcal_edepthHot3;
+            energyFill = (hcal_activeHotL3 > 0) ? hcal_activeHotL3 : 999;
+          } else if (dep == 3) {
+            en1 = hcal_edepth4;
+            en2 = hcal_edepthHot4;
+            if (debug_)
+              std::cout << "Hello in 4" << std::endl;
+            energyFill = (hcal_activeHotL4 > 0) ? hcal_activeHotL4 : 999;
+          } else if (dep == 4) {
+            en1 = hcal_edepth5;
+            en2 = hcal_edepthHot5;
+            energyFill = (hcal_activeHotL5 > 0) ? hcal_activeHotL5 : 999;
+          } else if (dep == 5) {
+            if (debug_)
+              std::cout << "Energy in depth 6 " << maxDepth_ << ":" << hcal_edepth6 << ":" << hcal_edepthHot6
+                        << std::endl;
+            en1 = (maxDepth_ > 5) ? hcal_edepth6 : 0;
+            en2 = (maxDepth_ > 5) ? hcal_edepthHot6 : 0;
+            energyFill = (hcal_activeHotL6 > 0) ? hcal_activeHotL6 : 999;
+          } else if (dep == 6) {
+            if (debug_)
+              std::cout << "Energy in depth 7 " << maxDepth_ << ":" << hcal_edepth7 << ":" << hcal_edepthHot7
+                        << std::endl;
+            en1 = (maxDepth_ > 6) ? hcal_edepth7 : 0;
+            en2 = (maxDepth_ > 6) ? hcal_edepthHot7 : 0;
+            energyFill = (hcal_activeHotL7 > 0) ? hcal_activeHotL7 : 999;
+          }
 
-	  if (debug_)
-	    std::cout << "Before Index" << std::endl;
+          if (debug_) {
+            std::cout << " Debug2" << std::endl;
+            std::cout << "ok1" << en1 << std::endl;
+            std::cout << "ok2" << en2 << std::endl;
+          }
+          bool ok1 = (en1 > -9999);
+          bool ok2 = (en2 > -9999);
 
-	  int ind = (etaHcal > 0) ? indxEta[eta][dep][PHI] : 1 + indxEta[eta][dep][PHI];
+          if (debug_)
+            std::cout << "Before Index" << std::endl;
 
-	  if (debug_) {
-	    std::cout << "ieta " << eta << "depth " << dep << "indxEta[eta][dep]:" << indxEta[eta][dep][PHI]
-		      << std::endl;
-	    std::cout << "index showing eta,depth:" << ind << std::endl;
-	    std::cout << "etaHcal: " << etaHcal << " eta " << eta << " dep " << dep << " indx " << ind << std::endl;
-	  }
-	  if (!(matchedId))
-	    continue;
-	  if (ok1) {
-	    if (debug_)
-	      std::cout << "enter ok1" << std::endl;
-	    if (hcal_cellHot == 1) {
-	      if (en2 > 0) {
-		h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[cut][ind]->Fill(en2 / energyFill);
-	      }
-	      if (debug_)
-		std::cout << "enter hot cell" << std::endl;
-	    }
-	  }
+          int ind = (etaHcal > 0) ? indxEta[eta][dep][PHI] : 1 + indxEta[eta][dep][PHI];
 
-	  if (ok2) {
-	    if (debug_)
-	      std::cout << "enter ok2" << std::endl;
-	    if (hcal_cellHot != 1) {
-	    }
-	  }
+          if (debug_) {
+            std::cout << "ieta " << eta << "depth " << dep << "indxEta[eta][dep]:" << indxEta[eta][dep][PHI]
+                      << std::endl;
+            std::cout << "index showing eta,depth:" << ind << std::endl;
+            std::cout << "etaHcal: " << etaHcal << " eta " << eta << " dep " << dep << " indx " << ind << std::endl;
+          }
+          if (!(matchedId))
+            continue;
+          if (ok1) {
+            if (debug_)
+              std::cout << "enter ok1" << std::endl;
+            if (hcal_cellHot == 1) {
+              if (en2 > 0) {
+                h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[cut][ind]->Fill(en2 / energyFill);
+              }
+              if (debug_)
+                std::cout << "enter hot cell" << std::endl;
+            }
+          }
 
-	  if (debug_)
-	    std::cout << "ETA \t" << eta << "DEPTH \t" << dep << std::endl;
-	}
+          if (ok2) {
+            if (debug_)
+              std::cout << "enter ok2" << std::endl;
+            if (hcal_cellHot != 1) {
+            }
+          }
+
+          if (debug_)
+            std::cout << "ETA \t" << eta << "DEPTH \t" << dep << std::endl;
+        }
       }
     }
   }
