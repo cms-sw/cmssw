@@ -10,12 +10,8 @@ CSCDetId CSCDigiToRawAccept::chamberID(const CSCDetId& cscDetId) {
 }
 
 // older function for pretriggers BX objects
-bool CSCDigiToRawAccept::accept(const CSCDetId& cscId,
-                                const CSCCLCTPreTriggerCollection& lcts,
-                                int bxMin,
-                                int bxMax,
-                                int nominalBX,
-                                bool me1abCheck) {
+bool CSCDigiToRawAccept::accept(
+    const CSCDetId& cscId, const CSCCLCTPreTriggerCollection& lcts, int bxMin, int bxMax, int nominalBX) {
   if (bxMin == -999)
     return true;
   CSCDetId chamberId = chamberID(cscId);
@@ -28,18 +24,6 @@ bool CSCDigiToRawAccept::accept(const CSCDetId& cscId,
       break;
     }
   }
-  bool me1a = cscId.station() == 1 && cscId.ring() == 4;
-  if (me1a && result == false && me1abCheck) {
-    //check pretriggers in me1a as well; relevant for TMB emulator writing to separate detIds
-    lctRange = lcts.get(cscId);
-    for (CSCCLCTPreTriggerCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
-      int bx = *lctItr - nominalBX;
-      if (bx >= bxMin && bx <= bxMax) {
-        result = true;
-        break;
-      }
-    }
-  }
   return result;
 }
 
@@ -48,7 +32,6 @@ bool CSCDigiToRawAccept::accept(const CSCDetId& cscId,
                                 int bxMin,
                                 int bxMax,
                                 int nominalBX,
-                                bool me1abCheck,
                                 std::vector<bool>& preTriggerInCFEB) {
   if (bxMin == -999)
     return true;
@@ -63,19 +46,6 @@ bool CSCDigiToRawAccept::accept(const CSCDetId& cscId,
       atLeastOnePreTrigger = true;
       // save the location of all pretriggers
       preTriggerInCFEB[lctItr->getCFEB()] = true;
-    }
-  }
-  bool me1a = cscId.station() == 1 && cscId.ring() == 4;
-  if (me1a && !atLeastOnePreTrigger && me1abCheck) {
-    //check pretriggers in me1a as well; relevant for TMB emulator writing to separate detIds
-    lctRange = lcts.get(cscId);
-    for (CSCCLCTPreTriggerDigiCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
-      int bx = lctItr->getBX() - nominalBX;
-      if (bx >= bxMin && bx <= bxMax) {
-        atLeastOnePreTrigger = true;
-        // save the location of all pretriggers
-        preTriggerInCFEB[lctItr->getCFEB()] = true;
-      }
     }
   }
   return atLeastOnePreTrigger;

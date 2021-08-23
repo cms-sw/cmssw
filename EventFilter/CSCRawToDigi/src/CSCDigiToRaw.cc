@@ -77,8 +77,6 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
     CSCDetId cscDetId = (*j).first;
     // only digitize if there are pre-triggers
 
-    bool me1abCheck = fedInfo.formatVersion_ == 2013;
-
     // determine where the pretriggers are
     std::vector<bool> preTriggerInCFEB;
     preTriggerInCFEB.resize(CSCConstants::MAX_CFEBS_RUN2);
@@ -91,7 +89,6 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
                                                       preTriggerWindowMin_,
                                                       preTriggerWindowMax_,
                                                       CSCConstants::CLCT_CENTRAL_BX,
-                                                      me1abCheck,
                                                       preTriggerInCFEB))) {
       bool me1a = (cscDetId.station() == 1) && (cscDetId.ring() == 4);
       bool zplus = (cscDetId.endcap() == 1);
@@ -153,10 +150,8 @@ void CSCDigiToRaw::add(const CSCWireDigiCollection& wireDigis,
   add(alctDigis, fedInfo);
   for (CSCWireDigiCollection::DigiRangeIterator j = wireDigis.begin(); j != wireDigis.end(); ++j) {
     CSCDetId cscDetId = (*j).first;
-    bool me1abCheck = fedInfo.formatVersion_ == 2013;
-    if (packEverything_ ||
-        CSCDigiToRawAccept::accept(
-            cscDetId, alctDigis, alctWindowMin_, alctWindowMax_, CSCConstants::ALCT_CENTRAL_BX, me1abCheck)) {
+    if (packEverything_ || CSCDigiToRawAccept::accept(
+                               cscDetId, alctDigis, alctWindowMin_, alctWindowMax_, CSCConstants::ALCT_CENTRAL_BX)) {
       CSCEventData& cscData = findEventData(cscDetId, fedInfo);
       std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
       std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
@@ -174,10 +169,8 @@ void CSCDigiToRaw::add(const CSCComparatorDigiCollection& comparatorDigis,
   for (auto const& j : comparatorDigis) {
     CSCDetId cscDetId = j.first;
     CSCEventData& cscData = findEventData(cscDetId, fedInfo);
-    bool me1abCheck = fedInfo.formatVersion_ == 2013;
-    if (packEverything_ ||
-        CSCDigiToRawAccept::accept(
-            cscDetId, clctDigis, clctWindowMin_, clctWindowMax_, CSCConstants::CLCT_CENTRAL_BX, me1abCheck)) {
+    if (packEverything_ || CSCDigiToRawAccept::accept(
+                               cscDetId, clctDigis, clctWindowMin_, clctWindowMax_, CSCConstants::CLCT_CENTRAL_BX)) {
       bool me1a = (cscDetId.station() == 1) && (cscDetId.ring() == 4);
 
       /*
