@@ -39,7 +39,7 @@
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeInnerZminus.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeOuterZplus.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeOuterZminus.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v3/pixbarmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladder.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull1.xml'/>
