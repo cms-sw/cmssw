@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalCosmics_cff import ALCARECOSiStripCalCosmics
 from CalibTracker.SiStripCommon.prescaleEvent_cfi import prescaleEvent
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter
-from CalibTracker.SiStripCommon.SiStripBFieldFilter_cfi import siStripBFieldOnFilter
 
 ALCARECOSiStripCalCosmicsNanoPrescale = prescaleEvent.clone(prescale=1)
 
@@ -24,7 +23,6 @@ ALCARECOSiStripCalCosmicsNanoCalibTracksRefit = CalibrationTracksRefit.clone(
 ALCARECOSiStripCalCosmicsNanoTkCalSeq = cms.Sequence(
         ALCARECOSiStripCalCosmicsNanoPrescale*
         ALCARECOSiStripCalCosmicsNanoHLT*
-        siStripBFieldOnFilter*
         ALCARECOSiStripCalCosmicsNanoCalibTracks,
         cms.Task(MeasurementTrackerEvent),
         cms.Task(offlineBeamSpot),
