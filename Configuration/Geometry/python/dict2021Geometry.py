@@ -573,7 +573,7 @@ trackerDict = {
             'Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeInnerZminus.xml',
             'Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeOuterZplus.xml',
             'Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeOuterZminus.xml',
-            'Geometry/TrackerCommonData/data/PhaseI/v3/pixbarmaterial.xml', 
+            'Geometry/TrackerCommonData/data/PhaseI/v2/pixbarmaterial.xml', 
             'Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladder.xml', 
             'Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull0.xml', 
             'Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull1.xml', 
