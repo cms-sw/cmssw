@@ -1,7 +1,7 @@
 #ifndef EcalDQMStatusWriter_H
 #define EcalDQMStatusWriter_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "CondFormats/EcalObjects/interface/EcalDQMChannelStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalDQMTowerStatus.h"
@@ -11,14 +11,14 @@
 
 #include <fstream>
 
-class EcalDQMStatusWriter : public edm::EDAnalyzer {
+class EcalDQMStatusWriter : public edm::one::EDAnalyzer<> {
 public:
   EcalDQMStatusWriter(edm::ParameterSet const &);
   ~EcalDQMStatusWriter() override {}
 
 private:
   void analyze(edm::Event const &, edm::EventSetup const &) override;
-  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  void beginRun(edm::Run const &, edm::EventSetup const &);
 
   EcalDQMChannelStatus channelStatus_;
   EcalDQMTowerStatus towerStatus_;
