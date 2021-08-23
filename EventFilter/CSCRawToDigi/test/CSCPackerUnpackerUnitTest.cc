@@ -299,9 +299,8 @@ unsigned CSCPackerUnpackerUnitTest::analyzeALCT(const CSCDetId& cscDetId,
   }
 
   // readout condition for wires: L1A + ALCT
-  const bool me1abCheck = formatVersion_ == 2013;
   bool hasALCT = CSCDigiToRawAccept::accept(
-      cscDetId, alcts, alctWindowMin_, alctWindowMax_, CSCConstants::ALCT_CENTRAL_BX, me1abCheck);
+      cscDetId, alcts, alctWindowMin_, alctWindowMax_, CSCConstants::ALCT_CENTRAL_BX);
 
   unsigned numWireDigisUnpacked = nDigis(cscDetId, wires_unpacked);
 
@@ -349,9 +348,8 @@ unsigned CSCPackerUnpackerUnitTest::analyzeCLCT(const CSCDetId& cscDetId,
   }
 
   // readout condition for comparators in (O)TMB; L1A + CLCT
-  const bool me1abCheck = formatVersion_ == 2013;
   bool hasCLCT = CSCDigiToRawAccept::accept(
-      cscDetId, clcts, clctWindowMin_, clctWindowMax_, CSCConstants::CLCT_CENTRAL_BX, me1abCheck);
+      cscDetId, clcts, clctWindowMin_, clctWindowMax_, CSCConstants::CLCT_CENTRAL_BX);
 
   unsigned numCompDigisUnpacked = nDigis(cscDetId, comparators_unpacked);
 
@@ -403,13 +401,11 @@ unsigned CSCPackerUnpackerUnitTest::analyzePreCLCT(const CSCDetId& cscDetId,
   preTriggerInCFEB.resize(CSCConstants::MAX_CFEBS_RUN2);
 
   // readout condition for strips: L1A + preCLCT in CFEB
-  const bool me1abCheck = formatVersion_ == 2013;
   bool hasPreCLCT = CSCDigiToRawAccept::accept(cscDetId,
                                                preclcts,
                                                preTriggerWindowMin_,
                                                preTriggerWindowMax_,
                                                CSCConstants::CLCT_CENTRAL_BX,
-                                               me1abCheck,
                                                preTriggerInCFEB);
 
   unsigned testsFailed = 0;
