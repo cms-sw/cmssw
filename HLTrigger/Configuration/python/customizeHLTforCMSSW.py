@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# modifiers
+from Configuration.ProcessModifiers.gpu_cff import gpu
+
 # helper fuctions
 from HLTrigger.Configuration.common import *
 
@@ -133,6 +136,10 @@ def customiseFor2018Input(process):
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     
+    # if the gpu modifier is enabled, make the Pixel, ECAL and HCAL reconstruction offloadable to a GPU
+    from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack
+    gpu.makeProcessModifier(customizeHLTforPatatrack).apply(process)
+
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
