@@ -610,12 +610,12 @@ void DDCoreToDDXMLOutput::material(const DDMaterial& material, std::ostream& xos
   }
 }
 
-void DDCoreToDDXMLOutput::material(
-    const std::string& matName, double density, const std::vector<cms::DDParsingContext::CompositeMaterial>& matRefs,
-    std::ostream& xos) {
+void DDCoreToDDXMLOutput::material(const std::string& matName,
+                                   double density,
+                                   const std::vector<cms::DDParsingContext::CompositeMaterial>& matRefs,
+                                   std::ostream& xos) {
   xos << "<CompositeMaterial name=\"" << matName << "\""
-      << " density=\"" << std::scientific << std::setprecision(5) << convertGPerCcToMgPerCc(density)
-      << "*mg/cm3\""
+      << " density=\"" << std::scientific << std::setprecision(5) << convertGPerCcToMgPerCc(density) << "*mg/cm3\""
       << " method=\"mixture by weight\">" << std::endl;
 
   for (auto compIter = matRefs.begin(); compIter != matRefs.end(); ++compIter) {

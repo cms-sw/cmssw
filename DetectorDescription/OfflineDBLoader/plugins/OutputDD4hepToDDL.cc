@@ -124,7 +124,7 @@ void OutputDD4hepToDDL::beginRun(const edm::Run &, edm::EventSetup const &es) {
   }
   // Output composite materials
   for (const auto &it : parsingContext->compMaterialsVec) {
-    const std::string& matName = it.first;
+    const std::string &matName = it.first;
     out.material(matName, it.second, parsingContext->compMaterialsRefs[matName], *m_xos);
   }
   (*m_xos) << "</MaterialSection>" << std::endl;
