@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -53,7 +52,7 @@ namespace CLHEP {
 class RPDigiProducer : public edm::EDProducer {
 public:
   explicit RPDigiProducer(const edm::ParameterSet&);
-  ~RPDigiProducer() override;
+  ~RPDigiProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -85,6 +84,7 @@ private:
   bool simulateDeadChannels;
 
   edm::EDGetTokenT<CrossingFrame<PSimHit>> tokenCrossingFrameTotemRP;
+  edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> tokenAnalysisMask;
 };
 
 RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) : conf_(conf) {
@@ -102,12 +102,11 @@ RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) : conf_(conf) {
           "simulateDeadChannels")) {  //check if "simulateDeadChannels" variable is defined in configuration file
     simulateDeadChannels = conf.getParameter<bool>("simulateDeadChannels");
   }
+  if (simulateDeadChannels) {
+    tokenAnalysisMask = esConsumes();
+  }
 }
 
-RPDigiProducer::~RPDigiProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
 //
 // member functions
 //
@@ -201,9 +200,8 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 void RPDigiProducer::beginRun(const edm::Run& beginrun, const edm::EventSetup& es) {
   // get analysis mask to mask channels
   if (simulateDeadChannels) {
-    edm::ESHandle<TotemAnalysisMask> analysisMask;
-    es.get<TotemReadoutRcd>().get(analysisMask);
-    deadChannelsManager = DeadChannelsManager(analysisMask);  //set analysisMask in deadChannelsManager
+    //set analysisMask in deadChannelsManager
+    deadChannelsManager = DeadChannelsManager(&es.getData(tokenAnalysisMask));
   }
 }
 
