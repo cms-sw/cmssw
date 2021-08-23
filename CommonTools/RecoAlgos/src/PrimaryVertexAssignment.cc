@@ -68,7 +68,7 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
   }
 
   double firstVertexDz = std::numeric_limits<double>::max();
-  if (vertices.size() > 0)
+  if (!vertices.empty())
     firstVertexDz = std::abs(track->dz(vertices.at(0).position()));
   // recover cases where the primary vertex is split
   if (useVertexFit_ && (iVertex > 0) && (iVertex <= fNumOfPUVtxsForCharged_) &&
