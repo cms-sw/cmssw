@@ -52,7 +52,6 @@
 //#include <stdio.h>
 #include <string>
 //#include <string.h>
-#include <boost/lexical_cast.hpp>
 
 #include <cstdio>
 #include <atomic>
