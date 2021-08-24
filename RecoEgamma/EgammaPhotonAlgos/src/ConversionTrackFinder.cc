@@ -14,10 +14,11 @@
 #include <sstream>
 
 ConversionTrackFinder::ConversionTrackFinder(const edm::ParameterSet& conf,
-                                             const BaseCkfTrajectoryBuilder* trajectoryBuilder)
+                                             const BaseCkfTrajectoryBuilder* trajectoryBuilder,
+                                             edm::ConsumesCollector iC)
     : theCkfTrajectoryBuilder_(trajectoryBuilder),
       theInitialState_(new TransientInitialStateEstimator(
-          conf.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters"))),
+          conf.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters"), iC)),
       theTrackerGeom_(nullptr),
       theUpdator_(nullptr),
       thePropagator_(nullptr) {

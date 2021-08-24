@@ -18,8 +18,9 @@
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
 OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::ParameterSet& conf,
-                                                       const BaseCkfTrajectoryBuilder* trajectoryBuilder)
-    : ConversionTrackFinder(conf, trajectoryBuilder) {
+                                                       const BaseCkfTrajectoryBuilder* trajectoryBuilder,
+                                                       edm::ConsumesCollector iC)
+    : ConversionTrackFinder(conf, trajectoryBuilder, iC) {
   theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits(conf);
 
   // get the seed cleaner
