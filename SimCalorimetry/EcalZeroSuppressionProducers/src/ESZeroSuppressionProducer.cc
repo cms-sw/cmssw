@@ -2,21 +2,21 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "SimCalorimetry/EcalZeroSuppressionProducers/interface/ESZeroSuppressionProducer.h"
 
-ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet &ps) :
-  digiProducer_(ps.getParameter<std::string>("digiProducer")),
-  ESdigiCollection_(ps.getParameter<std::string>("ESdigiCollection")),
-  ESZSdigiCollection_(ps.getParameter<std::string>("ESZSdigiCollection")),
-  ES_token(consumes<ESDigiCollection>(edm::InputTag(digiProducer_))),
-  esthresholdsToken_(esConsumes()),
-  espedsToken_(esConsumes()) {
+ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet &ps)
+    : digiProducer_(ps.getParameter<std::string>("digiProducer")),
+      ESdigiCollection_(ps.getParameter<std::string>("ESdigiCollection")),
+      ESZSdigiCollection_(ps.getParameter<std::string>("ESZSdigiCollection")),
+      ES_token(consumes<ESDigiCollection>(edm::InputTag(digiProducer_))),
+      esthresholdsToken_(esConsumes()),
+      espedsToken_(esConsumes()) {
   produces<ESDigiCollection>(ESZSdigiCollection_);
 }
 
 ESZeroSuppressionProducer::~ESZeroSuppressionProducer() {}
 
 void ESZeroSuppressionProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
-  const ESThresholds& thresholds = eventSetup.getData(esthresholdsToken_);
-  const ESPedestals& pedestals = eventSetup.getData(espedsToken_);
+  const ESThresholds &thresholds = eventSetup.getData(esthresholdsToken_);
+  const ESPedestals &pedestals = eventSetup.getData(espedsToken_);
 
   float ts2Threshold = thresholds.getTS2Threshold();
 
