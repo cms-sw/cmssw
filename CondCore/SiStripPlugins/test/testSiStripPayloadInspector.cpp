@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
   std::string tag = "SiStripApvGain_FromParticles_GR10_v11_offline";
   cond::Time_t start = static_cast<unsigned long long>(132440);
   cond::Time_t end = static_cast<unsigned long long>(285368);
-  boost::python::dict inputs;
+  py::dict inputs;
 
   edm::LogPrint("testSiStripPayloadInspector") << "## Exercising Gains plots " << std::endl;
 
