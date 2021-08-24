@@ -1,5 +1,5 @@
 
-#include "FWCore/Framework/src/NumberOfConcurrentIOVs.h"
+#include "FWCore/Framework/interface/NumberOfConcurrentIOVs.h"
 
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/HCTypeTag.h"
