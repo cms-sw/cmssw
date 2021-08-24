@@ -72,8 +72,6 @@ namespace cms {
         theTrajectoryCleaner(nullptr),
         theInitialState(std::make_unique<TransientInitialStateEstimator>(
             conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters"))),
-        theMagFieldName(conf.exists("SimpleMagneticField") ? conf.getParameter<std::string>("SimpleMagneticField")
-                                                           : ""),
         theNavigationSchoolName(conf.getParameter<std::string>("NavigationSchool")),
         theNavigationSchool(nullptr),
         maxSeedsBeforeCleaning_(0),
@@ -126,11 +124,6 @@ namespace cms {
 
   void CkfTrackCandidateMakerBase::setEventSetup(const edm::EventSetup& es) {
     //services
-    es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTracker);
-    es.get<IdealMagneticFieldRecord>().get(theMagFieldName, theMagField);
-    //    edm::ESInputTag mfESInputTag(mfName);
-    //    es.get<IdealMagneticFieldRecord>().get(mfESInputTag,theMagField );
-
     edm::ESHandle<TrajectoryCleaner> trajectoryCleanerH;
     es.get<TrajectoryCleaner::Record>().get(theTrajectoryCleanerName, trajectoryCleanerH);
     theTrajectoryCleaner = trajectoryCleanerH.product();
