@@ -603,6 +603,9 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
 
 #endif
 
+    if (ns.context()->makePayload) {
+      ns.context()->compMaterialsVec.emplace_back(std::make_pair(nam, density));
+    }
     for (composites.reset(); composites; ++composites) {
       xml_dim_t xfrac(composites);
       xml_dim_t xfrac_mat(xfrac.child(DD_CMU(rMaterial)));
@@ -610,8 +613,7 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
       string fracname = ns.realName(xfrac_mat.nameStr());
 
       if (ns.context()->makePayload) {
-        ns.context()->allCompMaterials[nam].first = density;
-        ns.context()->allCompMaterials[nam].second.emplace_back(
+        ns.context()->compMaterialsRefs[nam].emplace_back(
             cms::DDParsingContext::CompositeMaterial(ns.prepend(fracname), fraction));
       }
       TGeoMaterial* frac_mat = mgr.GetMaterial(fracname.c_str());
