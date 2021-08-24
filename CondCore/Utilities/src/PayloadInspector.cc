@@ -75,7 +75,7 @@ namespace cond {
         std::vector<std::tuple<std::string, cond::Time_t, cond::Time_t> > tags;
         tags.resize(nt);
         for (size_t i = 0; i < nt; i++) {
-          boost::python::tuple entry = tagsWithTimeBoundaries[i].cast<py::tuple>();
+          py::tuple entry = tagsWithTimeBoundaries[i].cast<py::tuple>();
           std::string tagName = entry[0].cast<std::string>();
           std::string time0s = entry[1].cast<std::string>();
           std::string time1s = entry[2].cast<std::string>();
