@@ -224,13 +224,16 @@ def customisePixelLocalReconstruction(process):
 # customisation for running the "Patatrack" pixel track reconstruction
 def customisePixelTrackReconstruction(process):
 
-    if not all(seq in process.__dict__ for seq in ['HLTRecoPixelTracksSequence', 'HLTRecopixelvertexingSequence']):
+    if not 'HLTRecoPixelTracksSequence' in process.__dict__:
         return process
+
+    hasHLTPixelVertexReco = 'HLTRecopixelvertexingSequence' in process.__dict__
 
     # FIXME replace the Sequences with empty ones to avoid expanding them during the (re)definition of Modules and EDAliases
 
     process.HLTRecoPixelTracksSequence = cms.Sequence()
-    process.HLTRecopixelvertexingSequence = cms.Sequence()
+    if hasHLTPixelVertexReco:
+        process.HLTRecopixelvertexingSequence = cms.Sequence()
 
 
     # Modules and EDAliases
@@ -282,35 +285,36 @@ def customisePixelTrackReconstruction(process):
 
 
     # referenced in process.HLTRecopixelvertexingTask
+    if hasHLTPixelVertexReco:
 
-    # build pixel vertices in SoA format on gpu
-    from RecoPixelVertexing.PixelVertexFinding.pixelVerticesCUDA_cfi import pixelVerticesCUDA as _pixelVerticesCUDA
-    process.hltPixelVerticesCUDA = _pixelVerticesCUDA.clone(
-        pixelTrackSrc = "hltPixelTracksCUDA",
-        onGPU = True
-    )
-
-    # build or transfer pixel vertices in SoA format on cpu
-    from RecoPixelVertexing.PixelVertexFinding.pixelVerticesSoA_cfi import pixelVerticesSoA as _pixelVerticesSoA
-    process.hltPixelVerticesSoA = SwitchProducerCUDA(
-        # build pixel vertices in SoA format on cpu
-        cpu = _pixelVerticesCUDA.clone(
-            pixelTrackSrc = "hltPixelTracksSoA",
-            onGPU = False
-        ),
-        # transfer the pixel vertices in SoA format to cpu
-        cuda = _pixelVerticesSoA.clone(
-            src = "hltPixelVerticesCUDA"
+        # build pixel vertices in SoA format on gpu
+        from RecoPixelVertexing.PixelVertexFinding.pixelVerticesCUDA_cfi import pixelVerticesCUDA as _pixelVerticesCUDA
+        process.hltPixelVerticesCUDA = _pixelVerticesCUDA.clone(
+            pixelTrackSrc = "hltPixelTracksCUDA",
+            onGPU = True
         )
-    )
 
-    # convert the pixel vertices from SoA to legacy format
-    from RecoPixelVertexing.PixelVertexFinding.pixelVertexFromSoA_cfi import pixelVertexFromSoA as _pixelVertexFromSoA
-    process.hltPixelVertices = _pixelVertexFromSoA.clone(
-        src = "hltPixelVerticesSoA",
-        TrackCollection = "hltPixelTracks",
-        beamSpot = "hltOnlineBeamSpot"
-    )
+        # build or transfer pixel vertices in SoA format on cpu
+        from RecoPixelVertexing.PixelVertexFinding.pixelVerticesSoA_cfi import pixelVerticesSoA as _pixelVerticesSoA
+        process.hltPixelVerticesSoA = SwitchProducerCUDA(
+            # build pixel vertices in SoA format on cpu
+            cpu = _pixelVerticesCUDA.clone(
+                pixelTrackSrc = "hltPixelTracksSoA",
+                onGPU = False
+            ),
+            # transfer the pixel vertices in SoA format to cpu
+            cuda = _pixelVerticesSoA.clone(
+                src = "hltPixelVerticesCUDA"
+            )
+        )
+
+        # convert the pixel vertices from SoA to legacy format
+        from RecoPixelVertexing.PixelVertexFinding.pixelVertexFromSoA_cfi import pixelVertexFromSoA as _pixelVertexFromSoA
+        process.hltPixelVertices = _pixelVertexFromSoA.clone(
+            src = "hltPixelVerticesSoA",
+            TrackCollection = "hltPixelTracks",
+            beamSpot = "hltOnlineBeamSpot"
+        )
 
 
     # Tasks and Sequences
@@ -325,17 +329,18 @@ def customisePixelTrackReconstruction(process):
 
     process.HLTRecoPixelTracksSequence = cms.Sequence(process.HLTRecoPixelTracksTask)
 
-    process.HLTRecopixelvertexingTask = cms.Task(
-          process.HLTRecoPixelTracksTask,
-          process.hltPixelVerticesCUDA,                     # pixel vertices on gpu, in SoA format
-          process.hltPixelVerticesSoA,                      # pixel vertices on cpu, in SoA format
-          process.hltPixelVertices,                         # pixel vertices on cpu, in legacy format
-          process.hltTrimmedPixelVertices)                  # from the original sequence
+    if hasHLTPixelVertexReco:
+        process.HLTRecopixelvertexingTask = cms.Task(
+              process.HLTRecoPixelTracksTask,
+              process.hltPixelVerticesCUDA,                 # pixel vertices on gpu, in SoA format
+              process.hltPixelVerticesSoA,                  # pixel vertices on cpu, in SoA format
+              process.hltPixelVertices,                     # pixel vertices on cpu, in legacy format
+              process.hltTrimmedPixelVertices)              # from the original sequence
 
-    process.HLTRecopixelvertexingSequence = cms.Sequence(
-          process.hltPixelTracksFitter +                    # not used here, kept for compatibility with legacy sequences
-          process.hltPixelTracksFilter,                     # not used here, kept for compatibility with legacy sequences
-          process.HLTRecopixelvertexingTask)
+        process.HLTRecopixelvertexingSequence = cms.Sequence(
+              process.hltPixelTracksFitter +                # not used here, kept for compatibility with legacy sequences
+              process.hltPixelTracksFilter,                 # not used here, kept for compatibility with legacy sequences
+              process.HLTRecopixelvertexingTask)
 
 
     # done
