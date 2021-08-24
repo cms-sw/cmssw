@@ -71,7 +71,7 @@ namespace cms {
             iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("TrajectoryCleaner")))),
         theTrajectoryCleaner(nullptr),
         theInitialState(std::make_unique<TransientInitialStateEstimator>(
-            conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters"))),
+            conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters"), iC)),
         theNavigationSchoolToken(
             iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("NavigationSchool")))),
         theNavigationSchool(nullptr),
