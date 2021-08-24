@@ -71,3 +71,4 @@ patPhotons = _mod.PATPhotonProducer.clone(
     hcalPFClusterIsoMap = "",
     addPuppiIsolation   = False
 )
+del patPhotons.photonIDSource

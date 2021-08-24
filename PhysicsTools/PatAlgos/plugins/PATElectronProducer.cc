@@ -1319,8 +1319,8 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   electronIDSourcesPSet.setAllowAnything();
   iDesc
       .addNode(
-          edm::ParameterDescription<edm::ParameterSetDescription>("electronIDSources", electronIDSourcesPSet, true) xor
-          edm::ParameterDescription<edm::InputTag>("electronIDSource", edm::InputTag(), true))
+          edm::ParameterDescription<edm::InputTag>("electronIDSource", edm::InputTag(), true) xor
+          edm::ParameterDescription<edm::ParameterSetDescription>("electronIDSources", electronIDSourcesPSet, true))
       ->setComment("input with electron ID variables");
 
   // mini-iso

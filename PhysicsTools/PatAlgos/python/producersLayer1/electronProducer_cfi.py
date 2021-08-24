@@ -98,3 +98,4 @@ patElectrons = _mod.PATElectronProducer.clone(
     miniIsoParamsB = [0.05, 0.2, 10.0, 0.0, 0.000, 0.000, 0.00, 0.0, 0.0],
 
 )
+del patElectrons.electronIDSource
