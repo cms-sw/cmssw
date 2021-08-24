@@ -33,10 +33,11 @@ protected:
                          FWViewType::EType viewType,
                          const FWViewContext* vc) override;
 
-private:
+public:
   FWSiStripClusterProxyBuilder(const FWSiStripClusterProxyBuilder&) = delete;
   const FWSiStripClusterProxyBuilder& operator=(const FWSiStripClusterProxyBuilder&) = delete;
 
+private:
   TEveElementList* m_shapeList;
 };
 

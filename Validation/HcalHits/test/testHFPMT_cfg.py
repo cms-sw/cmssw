@@ -1,12 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("CaloTest")
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process("CaloTest",Run2_2018)
+
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
+process.load('Configuration.StandardSequences.Generator_cff')
 
 #Geometry
 process.load("SimG4CMS.Calo.testGeometryPMTXML_cfi")
+process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
+process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
 
 #Magnetic Field
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -14,6 +19,10 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['run2_mc']
 
 process.MessageLogger = cms.Service("MessageLogger",
     cerr = cms.untracked.PSet(
@@ -56,27 +65,25 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 
 process.Timing = cms.Service("Timing")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.generator.initialSeed = 456789
+process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
+process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.USER = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
     fileName = cms.untracked.string('simevent_HFPMT.root')
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.USER)
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
 process.g4SimHits.Physics.DefaultCutValue = 0.1
 process.g4SimHits.HCalSD.UseShowerLibrary = False
 process.g4SimHits.HCalSD.UseParametrize = True
 process.g4SimHits.HCalSD.UsePMTHits = True
+process.g4SimHits.OnlySDs = ['EcalSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector']
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     SimG4HcalValidation = cms.PSet(
         TimeLowLimit = cms.double(0.0),

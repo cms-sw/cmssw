@@ -13,7 +13,7 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
-#include "Geometry/RPCGeometryBuilder/src/RPCGeometryParsFromDD.h"
+#include "Geometry/RPCGeometryBuilder/interface/RPCGeometryParsFromDD.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"

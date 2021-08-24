@@ -76,8 +76,11 @@ private:
                        DTRecHit1D& newHit1D,
                        int step) const;
 
-  //Map of meantimes
+  // Map of meantimes (old DB format)
   const DTMtime* mTimeMap;
+
+  // Drift velocity (new DB format)
+  const DTRecoConditions* vDriftMap;
 
   // MF field
   const MagneticField* field;
@@ -102,6 +105,10 @@ private:
   // Assign hit uncertainties based on new uncertainties DB
   // If false, the value taken from vdrift DB is used instead.
   bool useUncertDB;
+
+  // Read legacy format for vdrift and ttrig DBs
+  bool readLegacyTTrigDB;
+  bool readLegacyVDriftDB;
 
   // Switch on/off the verbosity
   const bool debug;

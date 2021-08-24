@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import DQMOffline.CalibCalo.MonitorAlCaHcalPhisym_cfi
+import DQMOffline.CalibCalo.MonitorAlCaHcalIterativePhisym_cfi
 import DQMOffline.CalibCalo.MonitorHcalDiJetsAlCaReco_cfi
 import DQMOffline.CalibCalo.MonitorHcalIsoTrackAlCaReco_cfi
 import DQMOffline.CalibCalo.MonitorHcalIsolatedBunchAlCaReco_cfi
@@ -14,6 +15,8 @@ ALCARECOHcalCalPhisymDQM =  DQMOffline.CalibCalo.MonitorAlCaHcalPhisym_cfi.HcalP
 
 ALCARECOHcalCalPhisymDQM.hbheInputMB = "hbhereco"
 ALCARECOHcalCalPhisymDQM.hbheInputMB = "horeco"
+
+ALCARECOHcalCalIterativePhisymDQM =  DQMOffline.CalibCalo.MonitorAlCaHcalIterativePhisym_cfi.HcalIterativePhiSymMon.clone()
 
 ALCARECOHcalCalDiJetsDQM =  DQMOffline.CalibCalo.MonitorHcalDiJetsAlCaReco_cfi.MonitorHcalDiJetsAlCaReco.clone()
 

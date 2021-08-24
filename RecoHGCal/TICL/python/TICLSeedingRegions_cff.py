@@ -20,8 +20,11 @@ ticlSeedingGlobalHFNose = _ticlSeedingRegionProducer.clone(
 ticlSeedingTrkHFNose = _ticlSeedingRegionProducer.clone(
     seedingPSet = _ticlSeedingRegionProducer.seedingPSet.clone(
         type="SeedingRegionByTracks",
-        cutTk = cms.string('3. < abs(eta) < 4. && pt > 1. && quality("highPurity") && hitPattern().numberOfLostHits("MISSING_OUTER_HITS") < 5'),
-        detector = cms.string("HFNose")
+        cutTk = cms.string('3. < abs(eta) < 4. && pt > 2. &&' +
+                           'quality("highPurity") && numberOfValidHits() > 12 && normalizedChi2() > 0.7 &&' +
+                           'hitPattern().numberOfLostHits("MISSING_OUTER_HITS") < 5'),
+        detector = cms.string("HFNose"),
+	    propagator = cms.string("RungeKuttaTrackerPropagator")
     )
 )
 

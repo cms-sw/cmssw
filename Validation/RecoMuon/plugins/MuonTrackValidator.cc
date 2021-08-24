@@ -8,11 +8,8 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
-#include "SimTracker/TrackAssociation/plugins/CosmicParametersDefinerForTPESProducer.h"
 #include "SimTracker/TrackAssociation/interface/TrackingParticleIP.h"
 
 #include "TMath.h"
@@ -369,13 +366,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
   edm::Handle<std::vector<PileupSummaryInfo> > puinfoH;
   int PU_NumInteractions(-1);
 
-  edm::ESHandle<ParametersDefinerForTP> Lhc_parametersDefinerTP;
-  edm::ESHandle<CosmicParametersDefinerForTP> _Cosmic_parametersDefinerTP;
-  std::unique_ptr<ParametersDefinerForTP> Cosmic_parametersDefinerTP;
-
   if (parametersDefiner == "LhcParametersDefinerForTP") {
-    Lhc_parametersDefinerTP = setup.getHandle(tpDefinerEsToken);
-
     // PileupSummaryInfo is contained only in collision events
     event.getByToken(pileupinfo_Token, puinfoH);
     for (std::vector<PileupSummaryInfo>::const_iterator puInfoIt = puinfoH->begin(); puInfoIt != puinfoH->end();
@@ -387,20 +378,11 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
     }
 
   } else if (parametersDefiner == "CosmicParametersDefinerForTP") {
-    //setup.get<TrackAssociatorRecord>().get(parametersDefiner, _Cosmic_parametersDefinerTP);
-    _Cosmic_parametersDefinerTP = setup.getHandle(cosmictpDefinerEsToken);
-
-    //Since we modify the object, we must clone it
-    Cosmic_parametersDefinerTP = _Cosmic_parametersDefinerTP->clone();
-
     edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
     //warning: make sure the TP collection used in the map is the same used here
     event.getByToken(_simHitTpMapTag, simHitsTPAssoc);
-    Cosmic_parametersDefinerTP->initEvent(simHitsTPAssoc);
+    cosmicParametersDefinerTP_->initEvent(simHitsTPAssoc);
     cosmictpSelector.initEvent(simHitsTPAssoc);
-  } else {
-    edm::LogError("MuonTrackValidator") << "Unexpected label: parametersDefiner = " << parametersDefiner.c_str()
-                                        << "\n";
   }
 
   TrackingParticleRefVector TPrefV;
@@ -514,8 +496,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
             continue;
           momentumTP = tp.momentum();
           vertexTP = tp.vertex();
-          TrackingParticle::Vector momentum = Lhc_parametersDefinerTP->momentum(event, setup, tpr);
-          TrackingParticle::Point vertex = Lhc_parametersDefinerTP->vertex(event, setup, tpr);
+          TrackingParticle::Vector momentum = lhcParametersDefinerTP_->momentum(event, setup, tpr);
+          TrackingParticle::Point vertex = lhcParametersDefinerTP_->vertex(event, setup, tpr);
           dxySim = TrackingParticleIP::dxy(vertex, momentum, bs.position());
           dzSim = TrackingParticleIP::dz(vertex, momentum, bs.position());
         }
@@ -524,8 +506,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
           edm::LogVerbatim("MuonTrackValidator") << "TrackingParticle " << i;
           if (!cosmictpSelector(tpr, &bs, event, setup))
             continue;
-          momentumTP = Cosmic_parametersDefinerTP->momentum(event, setup, tpr);
-          vertexTP = Cosmic_parametersDefinerTP->vertex(event, setup, tpr);
+          momentumTP = cosmicParametersDefinerTP_->momentum(event, setup, tpr);
+          vertexTP = cosmicParametersDefinerTP_->vertex(event, setup, tpr);
           dxySim = TrackingParticleIP::dxy(vertexTP, momentumTP, bs.position());
           dzSim = TrackingParticleIP::dz(vertexTP, momentumTP, bs.position());
         }
@@ -796,16 +778,16 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
           if (!(Track_is_matched && tpSelector(*tpp)))
             continue;
           else {
-            momentumTP = Lhc_parametersDefinerTP->momentum(event, setup, tpr);
-            vertexTP = Lhc_parametersDefinerTP->vertex(event, setup, tpr);
+            momentumTP = lhcParametersDefinerTP_->momentum(event, setup, tpr);
+            vertexTP = lhcParametersDefinerTP_->vertex(event, setup, tpr);
           }
         } else if (parametersDefiner == "CosmicParametersDefinerForTP") {
           // following reco plots are made only from tracks associated to selected signal TPs
           if (!(Track_is_matched && cosmictpSelector(tpr, &bs, event, setup)))
             continue;
           else {
-            momentumTP = Cosmic_parametersDefinerTP->momentum(event, setup, tpr);
-            vertexTP = Cosmic_parametersDefinerTP->vertex(event, setup, tpr);
+            momentumTP = cosmicParametersDefinerTP_->momentum(event, setup, tpr);
+            vertexTP = cosmicParametersDefinerTP_->vertex(event, setup, tpr);
           }
         }
 

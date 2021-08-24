@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "CondFormats/RecoGeometryObjects/interface/RecoIdealGeometry.h"
-#include "Geometry/DTGeometryBuilder/src/DTGeometryParsFromDD.h"
+#include "Geometry/DTGeometryBuilderinterface/DTGeometryParsFromDD.h"
 #include "Geometry/Records/interface/RecoIdealGeometryRcd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"

@@ -39,8 +39,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "SimTransport/PPSProtonTransport/interface/ProtonTransport.h"
+#include "CLHEP/Random/RandomEngine.h"
 #include "TRandom3.h"
-#include "IOMC/RandomEngine/src/TRandomAdaptor.h"
 
 //
 // class declaration

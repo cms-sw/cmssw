@@ -172,21 +172,23 @@ lowPtElectronMCTable = cms.EDProducer(
 )
 
 ################################################################################
-# Sequences
+# Tasks
 ################################################################################
 
-lowPtElectronSequence = cms.Sequence(modifiedLowPtElectrons
-                                     +updatedLowPtElectrons
-                                     +lowPtPATElectronID
-                                     +isoForLowPtEle
-                                     +updatedLowPtElectronsWithUserData
-                                     +finalLowPtElectrons)
-lowPtElectronTables = cms.Sequence(lowPtElectronTable)
-lowPtElectronMC = cms.Sequence(
-    matchingLowPtElecPhoton
-    +lowPtElectronsMCMatchForTable
-    +lowPtElectronsMCMatchForTableAlt
-    +lowPtElectronMCTable)
+lowPtElectronTask = cms.Task(modifiedLowPtElectrons,
+                             updatedLowPtElectrons,
+                             lowPtPATElectronID,
+                             isoForLowPtEle,
+                             updatedLowPtElectronsWithUserData,
+                             finalLowPtElectrons)
+
+lowPtElectronTablesTask = cms.Task(lowPtElectronTable)
+
+lowPtElectronMCTask = cms.Task(
+    matchingLowPtElecPhoton,
+    lowPtElectronsMCMatchForTable,
+    lowPtElectronsMCMatchForTableAlt,
+    lowPtElectronMCTable)
 
 ################################################################################
 # Modifiers
@@ -198,6 +200,6 @@ _modifiers = ( run2_miniAOD_80XLegacy |
                run2_nanoAOD_94X2016 |
                run2_nanoAOD_102Xv1 |
                run2_nanoAOD_106Xv1 )
-(_modifiers).toReplaceWith(lowPtElectronSequence,cms.Sequence())
-(_modifiers).toReplaceWith(lowPtElectronTables,cms.Sequence())
-(_modifiers).toReplaceWith(lowPtElectronMC,cms.Sequence())
+(_modifiers).toReplaceWith(lowPtElectronTask,cms.Task())
+(_modifiers).toReplaceWith(lowPtElectronTablesTask,cms.Task())
+(_modifiers).toReplaceWith(lowPtElectronMCTask,cms.Task())

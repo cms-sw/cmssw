@@ -88,8 +88,8 @@ photons = cms.EDProducer("GEDPhotonProducer",
     checkHcalStatus = cms.bool(True)
 )
 
-photonsFromMultiCl = photons.clone(
-  photonProducer = 'photonCoreFromMultiCl'
+photonsHGC = photons.clone(
+  photonProducer = 'photonCoreHGC'
 )
 
 islandPhotons = cms.EDProducer("PhotonProducer",

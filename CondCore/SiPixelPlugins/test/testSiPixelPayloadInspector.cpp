@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
   histo16.process(connectionString, PI::mk_input(tag, end, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo16.data() << std::endl;
 
-  boost::python::dict inputs;
+  py::dict inputs;
   inputs["SetLog"] = "True";  // sets to true, 1,True,Yes will work
 
   SiPixelGainCalibrationOfflineGainsValuesBarrel histo17;

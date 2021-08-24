@@ -6,7 +6,7 @@
  *  Created:  Mon, 09 Nov 2020 
  *
  */
-#include "Geometry/RPCGeometryBuilder/src/RPCGeometryParsFromDD.h"
+#include "Geometry/RPCGeometryBuilder/interface/RPCGeometryParsFromDD.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include <CondFormats/GeometryObjects/interface/RecoIdealGeometry.h>
 #include <DetectorDescription/Core/interface/DDFilter.h>

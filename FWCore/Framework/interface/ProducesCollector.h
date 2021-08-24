@@ -39,6 +39,8 @@ a functor passed to the Framework with a call to callWhenNewProductsRegistered.
 namespace edm {
 
   class TypeID;
+  template <Transition B>
+  class ProducesCollectorAdaptor;
 
   class ProducesCollector {
   public:
@@ -68,6 +70,15 @@ namespace edm {
       return helper_->produces<ProductType, B>(std::move(instanceName));
     }
 
+    template <Transition Tr = Transition::Event>
+    [[nodiscard]] auto produces(std::string instanceName) noexcept {
+      return ProducesCollectorAdaptor<Tr>(*this, std::move(instanceName));
+    }
+    template <Transition Tr = Transition::Event>
+    [[nodiscard]] auto produces() noexcept {
+      return ProducesCollectorAdaptor<Tr>(*this);
+    }
+
     ProductRegistryHelper::BranchAliasSetter produces(const TypeID& id,
                                                       std::string instanceName = std::string(),
                                                       bool recordProvenance = true);
@@ -84,6 +95,28 @@ namespace edm {
     ProducesCollector(ProductRegistryHelper* helper);
 
     propagate_const<ProductRegistryHelper*> helper_;
+  };
+
+  template <Transition B>
+  class ProducesCollectorAdaptor {
+  public:
+    using Adapter = ProducesCollectorAdaptor<B>;
+
+    template <typename TYPE>
+    EDPutTokenT<TYPE> produces() {
+      return m_producer.template produces<TYPE, B>(m_label);
+    }
+
+  private:
+    //only ProducesCollector is allowed to make an instance of this class
+    friend class ProducesCollector;
+
+    ProducesCollectorAdaptor(ProducesCollector iBase, std::string iLabel)
+        : m_producer(iBase), m_label(std::move(iLabel)) {}
+    ProducesCollectorAdaptor(ProducesCollector iBase) : m_producer(iBase), m_label() {}
+
+    ProducesCollector m_producer;
+    std::string const m_label;
   };
 
 }  // namespace edm

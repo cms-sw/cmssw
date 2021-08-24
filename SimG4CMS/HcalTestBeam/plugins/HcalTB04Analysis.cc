@@ -46,9 +46,9 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "HcalTBNumberingScheme.h"
-#include "HcalTB04Histo.h"
-#include "HcalTB04XtalNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTBNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB04Histo.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB04XtalNumberingScheme.h"
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"
@@ -56,10 +56,12 @@
 #include "G4ThreeVector.hh"
 #include "G4VProcess.hh"
 #include "G4HCofThisEvent.hh"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "Randomize.hh"
+
+#include <CLHEP/Random/RandGaussQ.h>
+#include <CLHEP/Random/Randomize.h>
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+
 #include <cstdint>
 
 //#define EDM_ML_DEBUG
@@ -75,14 +77,13 @@ class HcalTB04Analysis : public SimProducer,
                          public Observer<const G4Step*> {
 public:
   HcalTB04Analysis(const edm::ParameterSet& p);
+  HcalTB04Analysis(const HcalTB04Analysis&) = delete;  // stop default
+  const HcalTB04Analysis& operator=(const HcalTB04Analysis&) = delete;
   ~HcalTB04Analysis() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  HcalTB04Analysis(const HcalTB04Analysis&) = delete;  // stop default
-  const HcalTB04Analysis& operator=(const HcalTB04Analysis&) = delete;
-
   void init();
 
   // observer methods

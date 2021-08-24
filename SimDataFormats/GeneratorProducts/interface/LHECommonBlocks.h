@@ -118,7 +118,6 @@ namespace lhef {
       }
     }
 
-  private:
     CommonBlocks() = delete;
     ~CommonBlocks() = delete;
   };

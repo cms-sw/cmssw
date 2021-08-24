@@ -1,6 +1,6 @@
 #ifndef CommonTools_Utils_cutParset_h
 #define CommonTools_Utils_cutParset_h
-#include "CommonTools/Utils/src/SelectorPtr.h"
+#include "CommonTools/Utils/interface/SelectorPtr.h"
 #include "CommonTools/Utils/interface/Exception.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 #include <string>

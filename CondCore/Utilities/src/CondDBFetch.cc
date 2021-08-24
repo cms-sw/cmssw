@@ -56,6 +56,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE(CTPPSPixelAnalysisMask)
       FETCH_PAYLOAD_CASE(CTPPSPixelGainCalibrations)
       FETCH_PAYLOAD_CASE(CTPPSRPAlignmentCorrectionsData)
+      FETCH_PAYLOAD_CASE(PPSAlignmentConfig)
       FETCH_PAYLOAD_CASE(LHCOpticalFunctionsSetCollection)
       FETCH_PAYLOAD_CASE(CastorChannelQuality)
       FETCH_PAYLOAD_CASE(CastorElectronicsMap)

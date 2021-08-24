@@ -8,7 +8,7 @@ a set of related EDProducts. This is the storage unit of such information.
 
 ----------------------------------------------------------------------*/
 #include "FWCore/Framework/interface/ProductResolverBase.h"
-#include "FWCore/Framework/src/ProductPutterBase.h"
+#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/src/ProductPutOrMergerBase.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/ProductData.h"

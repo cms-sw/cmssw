@@ -22,7 +22,6 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
 namespace spr {
 

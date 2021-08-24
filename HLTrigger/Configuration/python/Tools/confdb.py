@@ -791,6 +791,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['esmodules'].append( "-SiStripRecHitMatcherESProducer" )
       self.options['esmodules'].append( "-SiStripQualityESProducer" )
       self.options['esmodules'].append( "-StripCPEfromTrackAngleESProducer" )
+      self.options['esmodules'].append( "-TrackerAdditionalParametersPerDetESModule" )
       self.options['esmodules'].append( "-TrackerDigiGeometryESModule" )
       self.options['esmodules'].append( "-TrackerGeometricDetESModule" )
       self.options['esmodules'].append( "-VolumeBasedMagneticFieldESProducer" )

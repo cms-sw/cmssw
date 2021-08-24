@@ -31,9 +31,9 @@ namespace gs {
     static inline unsigned version() { return 1; }
     static ItemLocation *read(const ClassId &id, std::istream &in);
 
-  private:
     ItemLocation() = delete;
 
+  private:
     std::streampos pos_;
     std::string URI_;
     std::string cachedItemURI_;

@@ -1,7 +1,7 @@
 #ifndef DataFormats_GEMDigi_GEMVFATStatus_h
 #define DataFormats_GEMDigi_GEMVFATStatus_h
-#include "AMCdata.h"
-#include "VFATdata.h"
+#include "GEMAMC.h"
+#include "GEMVFAT.h"
 #include <bitset>
 #include <ostream>
 
@@ -25,7 +25,7 @@ public:
   };
 
   GEMVFATStatus() {}
-  GEMVFATStatus(const gem::AMCdata& amc, const gem::VFATdata& vfat, uint16_t position, bool readMultiBX) {
+  GEMVFATStatus(const GEMAMC& amc, const GEMVFAT& vfat, uint16_t position, bool readMultiBX) {
     Errors error{0};
     Warnings warn{0};
 

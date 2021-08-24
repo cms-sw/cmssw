@@ -610,16 +610,15 @@ void DDCoreToDDXMLOutput::material(const DDMaterial& material, std::ostream& xos
   }
 }
 
-void DDCoreToDDXMLOutput::material(
-    const std::pair<std::string, std::pair<double, std::vector<cms::DDParsingContext::CompositeMaterial>>>& material,
-    std::ostream& xos) {
-  xos << "<CompositeMaterial name=\"" << material.first << "\""
-      << " density=\"" << std::scientific << std::setprecision(5) << convertGPerCcToMgPerCc(material.second.first)
-      << "*mg/cm3\""
+void DDCoreToDDXMLOutput::material(const std::string& matName,
+                                   double density,
+                                   const std::vector<cms::DDParsingContext::CompositeMaterial>& matRefs,
+                                   std::ostream& xos) {
+  xos << "<CompositeMaterial name=\"" << matName << "\""
+      << " density=\"" << std::scientific << std::setprecision(5) << convertGPerCcToMgPerCc(density) << "*mg/cm3\""
       << " method=\"mixture by weight\">" << std::endl;
 
-  auto compIter = material.second.second.begin();
-  for (; compIter != material.second.second.end(); ++compIter) {
+  for (auto compIter = matRefs.begin(); compIter != matRefs.end(); ++compIter) {
     xos << "<MaterialFraction fraction=\"" << std::fixed << std::setprecision(9) << compIter->fraction << "\">"
         << std::endl;
     xos << "<rMaterial name=\"" << compIter->name << "\"/>" << std::endl;

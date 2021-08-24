@@ -16,6 +16,9 @@ import Validation.RecoTrack.plotting.plotting as plotting
 import Validation.RecoTrack.plotting.validation as validation
 import Validation.RecoTrack.plotting.html as html
 
+from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
+from Validation.HGCalValidation.PostProcessorHGCAL_cfi import tsToCP_linking, lcToCP_linking
+
 #To be able to spot any issues both in -z and +z a layer id was introduced
 #that spans from 0 to 103 for hgcal_v9 geometry. The mapping for hgcal_v9 is:
 #-z: 0->51
@@ -1664,10 +1667,10 @@ _merges = PlotGroup("MergeRate", _mergeplots, ncols=3)
 _common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d")
 _common_energy_score["ymax"] = 1.
 _common_energy_score["xmax"] = 1.0
-_energyscore_cp2mcl = PlotOnSideGroup("Energy_vs_Score_CaloParticlesToTracksters", Plot("Energy_vs_Score_caloparticle2trackster", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
+_energyscore_cp2ts = PlotOnSideGroup("Energy_vs_Score_CaloParticlesToTracksters", Plot("Energy_vs_Score_caloparticle2trackster", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
 _common_energy_score["ymax"] = 1.
 _common_energy_score["xmax"] = 1.0
-_energyscore_mcl2cp = PlotOnSideGroup("Energy_vs_Score_TrackstersToCaloParticles", Plot("Energy_vs_Score_trackster2caloparticle", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
+_energyscore_ts2cp = PlotOnSideGroup("Energy_vs_Score_TrackstersToCaloParticles", Plot("Energy_vs_Score_trackster2caloparticle", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score), ncols=1)
 
 #Coming back to the usual box definition
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
@@ -2268,7 +2271,7 @@ lc_zplus_extended = [
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus
 ]
 
-def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_collection = layerClustersLabel, extended = False):
+def append_hgcalLayerClustersPlots(collection = hgcalValidator.label_layerClusterPlots._InputTag__moduleLabel, name_collection = layerClustersLabel, extended = False):
   print('extended : ',extended)
   regions_ClusterLevel       = ["General: Cluster Level", "Z-minus: Cluster Level", "Z-plus: Cluster Level"]
   regions_CellLevel          = ["Z-minus: Cell Level", "Z-plus: Cell Level"]
@@ -2309,7 +2312,7 @@ def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_colle
                 purpose=PlotPurpose.Timing, page=layerClustersLabel, section=reg))
   for reg, setPlot in zip(regions_LCtoCP_association, setPlots_LCtoCP_association):
     hgcalLayerClustersPlotter.append(collection+"_"+reg, [
-                _hgcalFolders(collection + "/LCtoCP_association")
+                _hgcalFolders(collection + "/" + lcToCP_linking)
                 ], PlotFolder(
                 *setPlot,
                 loopSubFolders=False,
@@ -2317,7 +2320,7 @@ def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_colle
 
 #=================================================================================================
 def _hgcalsimClustersFolders(lastDirName):
-    return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/simClusters/"+lastDirName
+    return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/" + hgcalValidator.label_SimClusters._InputTag__moduleLabel + "/"+lastDirName
 
 sc_clusterlevel = [
   # number of layer clusters per event in a) 120um, b) 200um, c) 300um, d) scint
@@ -2409,7 +2412,7 @@ sc_ticltracksters = [
 hgcalSimClustersPlotter = Plotter()
 
 def append_hgcalSimClustersPlots(collection, name_collection):
-  if collection == "ClusterLevel":
+  if collection == hgcalValidator.label_SimClustersLevel._InputTag__moduleLabel:
       hgcalSimClustersPlotter.append(collection, [
                   _hgcalsimClustersFolders(collection)
                   ], PlotFolder(
@@ -2429,22 +2432,10 @@ def append_hgcalSimClustersPlots(collection, name_collection):
 def _hgcalFolders(lastDirName="hgcalLayerClusters"):
     return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"+lastDirName
 
-_trackstersAllPlots = [
-  _efficiencies,
-  _purities,
-  _duplicates,
-  _fakes,
-  _merges,
+_trackstersPlots = [
   _trackster_eppe,
   _trackster_xyz,
   _tottracksternum,
-  _score_caloparticle_to_tracksters,
-  _score_trackster_to_caloparticles,
-  _sharedEnergy_caloparticle_to_trackster,
-  _sharedEnergy_trackster_to_caloparticle,
-  #_energyscore_cp2mcl_mcl2cp,
-  _energyscore_cp2mcl,
-  _energyscore_mcl2cp,
   _clusternum_in_trackster,
   _clusternum_in_trackster_vs_layer,
   _clusternum_in_trackster_perlayer_zminus_EE,
@@ -2457,15 +2448,37 @@ _trackstersAllPlots = [
   _multiplicityOfLCinTST,
 ]
 
+_trackstersToCPLinkPlots = [
+  _efficiencies,
+  _purities,
+  _duplicates,
+  _fakes,
+  _merges,
+  _score_caloparticle_to_tracksters,
+  _score_trackster_to_caloparticles,
+  _sharedEnergy_caloparticle_to_trackster,
+  _sharedEnergy_trackster_to_caloparticle,
+  _energyscore_cp2ts,
+  _energyscore_ts2cp,
+]
+
 hgcalTrackstersPlotter = Plotter()
 def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collection = "TrackstersMerge"):
-  # Appending all plots for MCs
+  # Appending generic plots for Tracksters
   hgcalTrackstersPlotter.append(collection, [
               _hgcalFolders(collection)
               ], PlotFolder(
-              *_trackstersAllPlots,
+              *_trackstersPlots,
               loopSubFolders=False,
               purpose=PlotPurpose.Timing, page="Tracksters", section=name_collection))
+
+  # Appending plots for Tracksters to CP linking
+  hgcalTrackstersPlotter.append(collection, [
+              _hgcalFolders(collection + "/" + tsToCP_linking)
+              ], PlotFolder(
+              *_trackstersToCPLinkPlots,
+              loopSubFolders=False,
+              purpose=PlotPurpose.Timing, page=tsToCP_linking.replace('TSToCP_','TICL-'), section=name_collection))
 
   #We append here two PlotFolder because we want the text to be in percent
   #and the number of events are different in zplus and zminus
