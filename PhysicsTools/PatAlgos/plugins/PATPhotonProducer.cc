@@ -289,7 +289,8 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet& iConfig)
   // Resolution configurables
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
   if (addResolutions_) {
-    resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+    resolutionLoader_ =
+        pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"), consumesCollector());
   }
   // Check to see if the user wants to add user data
   if (useUserData_) {

@@ -339,7 +339,8 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet& iConfig)
   }
   // resolution configurables
   if (addResolutions_) {
-    resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+    resolutionLoader_ =
+        pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"), consumesCollector());
   }
   if (addPuppiIsolation_) {
     //puppi
