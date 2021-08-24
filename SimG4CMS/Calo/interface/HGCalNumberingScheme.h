@@ -16,6 +16,7 @@
 class HGCalNumberingScheme {
 public:
   HGCalNumberingScheme(const HGCalDDDConstants& hgc, const DetId::Detector& det, const std::string& name);
+  HGCalNumberingScheme() = delete;
   ~HGCalNumberingScheme();
 
   /**
@@ -26,7 +27,6 @@ public:
 private:
   void checkPosition(uint32_t index, const G4ThreeVector& pos, bool matchOnly, bool debug) const;
 
-  HGCalNumberingScheme() = delete;
   const HGCalDDDConstants& hgcons_;
   const HGCalGeometryMode::GeometryMode mode_;
   DetId::Detector det_;

@@ -1,9 +1,9 @@
-// NOLINTNEXTLINE(misc-definitions-in-headers)
-void AnalyticalCurvilinearJacobian::computeFullJacobian(const GlobalTrajectoryParameters& globalParameters,
-                                                        const GlobalPoint& x,
-                                                        const GlobalVector& p,
-                                                        const GlobalVector& h,
-                                                        const double& s) {
+void AnalyticalCurvilinearJacobian::computeFullJacobian(  //NOLINT(misc-definitions-in-headers)
+    const GlobalTrajectoryParameters& globalParameters,
+    const GlobalPoint& x,
+    const GlobalVector& p,
+    const GlobalVector& h,
+    const double& s) {
   using mathSSE::Vec2D;
   using mathSSE::Vec3D;
   using mathSSE::Vec4D;

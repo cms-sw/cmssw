@@ -2,7 +2,7 @@
 #define Fireworks_Calo_FWCaloHistDataProxyBuilder_h
 
 #include "Fireworks/Calo/interface/FWCaloDataProxyBuilderBase.h"
-#include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
+#include "Fireworks/Calo/interface/FWFromTEveCaloDataSelector.h"
 
 class TH2F;
 class FWHistSliceSelector;

@@ -21,6 +21,7 @@
 #include <cmath>
 #include <map>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -70,6 +71,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //TFile Service
@@ -99,7 +101,6 @@
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 // tracker hit associator
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
@@ -1721,7 +1722,9 @@ void IsolatedTracksCone::printTrack(const reco::Track* pTrack) {
   if (printTrkHitPattern_) {
     const reco::HitPattern& p = pTrack->hitPattern();
     for (int i = 0; i < p.numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) {
-      p.printHitPattern(reco::HitPattern::TRACK_HITS, i, std::cout);
+      std::ostringstream st1;
+      p.printHitPattern(reco::HitPattern::TRACK_HITS, i, st1);
+      edm::LogVerbatim("IsoTrack") << st1.str();
     }
   }
 }

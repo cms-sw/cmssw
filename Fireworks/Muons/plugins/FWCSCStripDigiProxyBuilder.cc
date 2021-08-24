@@ -30,6 +30,8 @@ public:
 private:
   using FWProxyBuilderBase::build;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+
+public:
   FWCSCStripDigiProxyBuilder(const FWCSCStripDigiProxyBuilder&) = delete;
   const FWCSCStripDigiProxyBuilder& operator=(const FWCSCStripDigiProxyBuilder&) = delete;
 };

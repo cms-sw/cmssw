@@ -72,10 +72,10 @@ electronMcSignalValidatorPt1000 = DQMEDAnalyzer('ElectronMcSignalValidator',
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
     electronMcSignalValidatorPt1000,
-    electronCollection = 'ecalDrivenGsfElectronsFromMultiCl',
-    electronCoreCollection = 'ecalDrivenGsfElectronCoresFromMultiCl',
-    electronTrackCollection = 'electronGsfTracksFromMultiCl',
-    electronSeedCollection = 'electronMergedSeedsFromMultiCl',
+    electronCollection = 'ecalDrivenGsfElectronsHGC',
+    electronCoreCollection = 'ecalDrivenGsfElectronCoresHGC',
+    electronTrackCollection = 'electronGsfTracks',
+    electronSeedCollection = 'electronMergedSeeds',
     MaxAbsEta = cms.double(3.0),
     histosCfg = dict( 
         Nbineta = 60 ,

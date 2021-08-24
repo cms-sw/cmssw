@@ -5,7 +5,7 @@
 // Package:     Core
 // Class  :     FWItemAccessorRegistry
 //
-/**\class FWItemAccessorRegistry FWItemAccessorRegistry.h Fireworks/Core/src/FWItemAccessorRegistry.h
+/**\class FWItemAccessorRegistry FWItemAccessorRegistry.h Fireworks/Core/interface/FWItemAccessorRegistry.h
 
    Description: Registry for all th FWItemAccessorBase derived classes that can be loaded via the
                 plugin manager. Those classes are to be used to have specialized versions of

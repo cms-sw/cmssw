@@ -20,4 +20,6 @@ dtRunConditionVarClient = DQMEDHarvester("DTRunConditionVarClient",
    maxGoodT0Sigma     = cms.untracked.double(2.),
    minBadT0Sigma      = cms.untracked.double(4.),
 
+   readLegacyVDriftDB =cms.bool(True),
+
 )

@@ -20,6 +20,7 @@
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
 #include "CondFormats/DTObjects/interface/DTMtime.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
@@ -81,6 +82,8 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset)
 
   // the granularity to be used for tMax
   string tMaxGranularity = pset.getUntrackedParameter<string>("tMaxGranularity", "bySL");
+
+  writeLegacyVDriftDB = pset.getParameter<bool>("writeLegacyVDriftDB");
 
   // Enforce it to be by SL since rest is not implemented
   if (tMaxGranularity != "bySL") {
@@ -281,7 +284,16 @@ void DTVDriftCalibration::endJob() {
   // Instantiate a DTCalibrationMap object if you want to calculate the calibration constants
   DTCalibrationMap calibValuesFile(theCalibFilePar);
   // Create the object to be written to DB
-  DTMtime* mTime = new DTMtime();
+  DTMtime* mTime = nullptr;
+  DTRecoConditions* vDrift = nullptr;
+  if (writeLegacyVDriftDB) {
+    mTime = new DTMtime();
+  } else {
+    vDrift = new DTRecoConditions();
+    vDrift->setFormulaExpr("[0]");
+    //vDriftNewMap->setFormulaExpr("[0]*(1-[1]*x)"); // add parametrization for dependency along Y
+    vDrift->setVersion(1);
+  }
 
   // write the TMax histograms of each SL to the root file
   if (theGranularity == bySL) {
@@ -322,7 +334,12 @@ void DTVDriftCalibration::endJob() {
         calibValuesFile.addCell(calibValuesFile.getKey(wireId), newConstants);
 
         // vdrift is cm/ns , resolution is cm
-        mTime->set((wireId.layerId()).superlayerId(), vDriftAndReso[0], vDriftAndReso[1], DTVelocityUnits::cm_per_ns);
+        if (writeLegacyVDriftDB) {
+          mTime->set((wireId.layerId()).superlayerId(), vDriftAndReso[0], vDriftAndReso[1], DTVelocityUnits::cm_per_ns);
+        } else {
+          vector<double> params = {vDriftAndReso[0]};
+          vDrift->set(wireId, params);
+        }
         LogTrace("Calibration") << " SL: " << (wireId.layerId()).superlayerId() << " vDrift = " << vDriftAndReso[0]
                                 << " reso = " << vDriftAndReso[1];
       }
@@ -366,8 +383,12 @@ void DTVDriftCalibration::endJob() {
   LogVerbatim("Calibration") << "[DTVDriftCalibration]Writing vdrift object to DB!";
 
   // Write the vdrift object to DB
-  string record = "DTMtimeRcd";
-  DTCalibDBUtils::writeToDB<DTMtime>(record, mTime);
+  if (writeLegacyVDriftDB) {
+    string record = "DTMtimeRcd";
+    DTCalibDBUtils::writeToDB<DTMtime>(record, mTime);
+  } else {
+    DTCalibDBUtils::writeToDB<DTRecoConditions>("DTRecoConditionsVdriftRcd", vDrift);
+  }
 }
 
 // to be implemented: granularity different from bySL

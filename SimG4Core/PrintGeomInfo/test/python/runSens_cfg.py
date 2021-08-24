@@ -3,12 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PrintGeom")
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.Geometry.GeometryExtended2021_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
+process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
 #process.load('Geometry.CMSCommonData.cmsIdealGeometryXML_cfi')
 #process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
 #process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
 #process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
+#process.load('Geometry.HcalCommonData.hcalDDDRecConstants_cfi')
 
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.files.SensDet = dict(extension="txt")

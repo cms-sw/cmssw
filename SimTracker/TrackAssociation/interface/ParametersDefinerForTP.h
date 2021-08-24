@@ -9,18 +9,20 @@
 
 #include <memory>
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
 #include <SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h>
 
 class ParametersDefinerForTP {
 public:
-  ParametersDefinerForTP(){};
-  ParametersDefinerForTP(const edm::ParameterSet &iConfig);
-  virtual ~ParametersDefinerForTP(){};
+  ParametersDefinerForTP(const edm::InputTag &beamspot, edm::ConsumesCollector iC);
+  virtual ~ParametersDefinerForTP();
 
   typedef int Charge;                              ///< electric charge type
   typedef math::XYZPointD Point;                   ///< point in the space
@@ -79,7 +81,9 @@ public:
     return std::make_unique<ParametersDefinerForTP>(*this);
   }
 
-  edm::InputTag beamSpotInputTag_;
+protected:
+  const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
 };
 
 #endif

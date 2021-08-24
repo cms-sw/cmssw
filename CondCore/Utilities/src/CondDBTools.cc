@@ -2,11 +2,8 @@
 #include "CondCore/Utilities/interface/CondDBImport.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 //
-#include "CondCore/CondDB/src/DbCore.h"
-//
-#include <boost/regex.hpp>
-
 #include <memory>
+#include <set>
 
 namespace cond {
 

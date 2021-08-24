@@ -534,8 +534,8 @@ def miniAOD_customizeCommon(process):
     # EGamma objects from HGCal are not yet in GED
     # so add companion collections for Phase-II MiniAOD production
     from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-    process.load("RecoEgamma.EgammaTools.slimmedEgammaFromMultiCl_cff")
-    phase2_hgcal.toModify(task, func=lambda t: t.add(process.slimmedEgammaFromMultiClTask))
+    process.load("RecoEgamma.EgammaTools.slimmedEgammaHGC_cff")
+    phase2_hgcal.toModify(task, func=lambda t: t.add(process.slimmedEgammaHGCTask))
 
     # L1 pre-firing weights for 2016, 2017, and 2018
     from Configuration.Eras.Modifier_run2_L1prefiring_cff import run2_L1prefiring

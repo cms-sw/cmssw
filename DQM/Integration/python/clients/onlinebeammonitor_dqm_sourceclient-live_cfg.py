@@ -145,6 +145,18 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
+# Please *do not* delete this toGet statement as it is needed to fetch BeamSpotOnline
+# information every lumisection (instead of every run as for the other records in the GT)
+process.GlobalTag.toGet = cms.VPSet(
+  cms.PSet(
+    record = cms.string("BeamSpotOnlineLegacyObjectsRcd"),
+    refreshTime = cms.uint64(1)
+  ),
+  cms.PSet(
+    record = cms.string("BeamSpotOnlineHLTObjectsRcd"),
+    refreshTime = cms.uint64(1)
+  )
+)
 
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                * process.dqmSaver * process.dqmSaverPB)

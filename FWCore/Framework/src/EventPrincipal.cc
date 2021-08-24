@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/src/ProductDeletedException.h"
-#include "FWCore/Framework/src/ProductPutterBase.h"
+#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"

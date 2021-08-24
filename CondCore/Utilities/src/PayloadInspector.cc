@@ -5,7 +5,6 @@
 
 #include <sstream>
 #include <iostream>
-#include <boost/python/extract.hpp>
 
 namespace cond {
 
@@ -49,27 +48,28 @@ namespace cond {
 
     bool PlotBase::isTwoTags() const { return m_plotAnnotations.ntags == 2; }
 
-    boost::python::list PlotBase::inputParams() const {
-      boost::python::list tmp;
+    py::list PlotBase::inputParams() const {
+      py::list tmp;
       for (const auto& ip : m_inputParams) {
         tmp.append(ip);
       }
       return tmp;
     }
 
-    void PlotBase::setInputParamValues(const boost::python::dict& values) {
-      for (const auto& ip : m_inputParams) {
-        if (values.has_key(ip)) {
-          std::string val = boost::python::extract<std::string>(values.get(ip));
-          m_inputParamValues.insert(std::make_pair(ip, val));
+    void PlotBase::setInputParamValues(const py::dict& values) {
+      for (auto item : values) {
+        std::string k = item.first.cast<std::string>();
+        std::string v = item.second.cast<std::string>();
+        if (m_inputParams.find(k) != m_inputParams.end()) {
+          m_inputParamValues.insert(std::make_pair(k, v));
         }
       }
     }
 
     std::string PlotBase::data() const { return m_data; }
 
-    bool PlotBase::process(const std::string& connectionString, const boost::python::list& tagsWithTimeBoundaries) {
-      size_t nt = boost::python::len(tagsWithTimeBoundaries);
+    bool PlotBase::process(const std::string& connectionString, const py::list& tagsWithTimeBoundaries) {
+      size_t nt = py::len(tagsWithTimeBoundaries);
       bool ret = false;
       if (nt) {
         std::vector<std::tuple<std::string, cond::Time_t, cond::Time_t> > tags;

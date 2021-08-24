@@ -21,7 +21,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HCALConfigDB.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
-#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
+#include "CalibCalorimetry/CaloTPG/interface/CaloTPGTranscoderULUT.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalAssistant.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelIterator.h"
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFinegrainBit.h"

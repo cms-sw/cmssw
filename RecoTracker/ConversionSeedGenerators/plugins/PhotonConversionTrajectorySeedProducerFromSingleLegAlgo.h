@@ -23,7 +23,7 @@
 #include "CombinedHitPairGeneratorForPhotonConversion.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/ClusterChecker.h"
-#include "RecoTracker/TkTrackingRegions/plugins/GlobalTrackingRegionProducerFromBeamSpot.h"
+#include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegionProducerFromBeamSpot.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <sstream>

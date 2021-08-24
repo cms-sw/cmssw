@@ -53,11 +53,12 @@ namespace {
   const float fgColor[4] = {1.0, 0.6, 0.2, 0.5};
 
   class Clipsi : public TGLClip {
-  private:
-    TGLRnrCtx* m_rnrCtx;
+  public:
     Clipsi(const Clipsi&) = delete;             // Not implemented
     Clipsi& operator=(const Clipsi&) = delete;  // Not implemented
 
+  private:
+    TGLRnrCtx* m_rnrCtx;
     TGLVertex3 vtx[4];
     TGLVertex3 appexOffset;
 

@@ -16,7 +16,7 @@
 #include "FWCore/Reflection/interface/ObjectWithDict.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 
-#include "CommonTools/Utils/src/Grammar.h"
+#include "CommonTools/Utils/interface/Grammar.h"
 #include "CommonTools/Utils/interface/Exception.h"
 
 // user include files

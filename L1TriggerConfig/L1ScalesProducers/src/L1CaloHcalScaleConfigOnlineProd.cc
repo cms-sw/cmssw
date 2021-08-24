@@ -24,7 +24,7 @@
 #include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
+#include "CalibCalorimetry/CaloTPG/interface/CaloTPGTranscoderULUT.h"
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

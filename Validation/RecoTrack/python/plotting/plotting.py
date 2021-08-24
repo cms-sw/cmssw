@@ -446,12 +446,12 @@ def _getYminMaxAroundMedian(obj, coverage, coverageRange=None):
     if nvals < 2:
         # Take median and +- 1 values
         if len(yvals) % 2 == 0:
-            half = len(yvals)/2
+            half = len(yvals)//2
             return ( yvals[half-1], yvals[half] )
         else:
-            middle = len(yvals)/2
+            middle = len(yvals)//2
             return ( yvals[middle-1], yvals[middle+1] )
-    ind_min = (len(yvals)-nvals)/2
+    ind_min = (len(yvals)-nvals)//2
     ind_max = len(yvals)-1 - ind_min
 
     return (yvals[ind_min], yvals[ind_max])

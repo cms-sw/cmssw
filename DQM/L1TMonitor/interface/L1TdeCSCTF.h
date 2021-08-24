@@ -22,7 +22,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFDTReceiver.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

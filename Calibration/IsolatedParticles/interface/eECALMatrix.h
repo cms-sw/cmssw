@@ -189,6 +189,45 @@ namespace spr {
                    double tMin = -500,
                    double tMax = 500,
                    bool debug = false);
+
+  // Energy in NxN crystal matrix
+  template <typename T>
+  double eECALmatrix(CaloNavigator<DetId>& navigator, edm::Handle<T>& hits, int ieta, int iphi, bool debug = false);
+
+  template <typename T>
+  std::vector<std::pair<DetId, double> > eECALmatrixCell(const DetId& detId,
+                                                         edm::Handle<T>& hitsEB,
+                                                         edm::Handle<T>& hitsEE,
+                                                         const CaloGeometry* geo,
+                                                         const CaloTopology* caloTopology,
+                                                         int ieta,
+                                                         int iphi,
+                                                         double ebThr = -100,
+                                                         double eeThr = -100,
+                                                         bool debug = false);
+
+  // Energy in ietaXiphi crystal matrix
+  template <typename T>
+  std::pair<double, int> eECALmatrixTotal(const DetId& detId,
+                                          edm::Handle<T>& hitsEB,
+                                          edm::Handle<T>& hitsEE,
+                                          const CaloGeometry* geo,
+                                          const CaloTopology* caloTopology,
+                                          int ieta,
+                                          int iphi,
+                                          double ebThr = -100,
+                                          double eeThr = -100,
+                                          bool debug = false);
+
+  // returns vector of hits in NxN matrix
+  template <typename T>
+  std::vector<std::pair<DetId, double> > energyECALCell(std::vector<DetId>& vdets,
+                                                        edm::Handle<T>& hitsEB,
+                                                        edm::Handle<T>& hitsEE,
+                                                        double ebThr = -100,
+                                                        double eeThr = -100,
+                                                        bool debug = false);
+
 }  // namespace spr
 
 #include "Calibration/IsolatedParticles/interface/eECALMatrix.icc"

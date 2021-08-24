@@ -6,7 +6,7 @@
  *  Created:  Thu, 25 Feb 2021 
  *
  */
-#include "Geometry/GEMGeometryBuilder/src/ME0GeometryParsFromDD.h"
+#include "Geometry/GEMGeometryBuilder/interface/ME0GeometryParsFromDD.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"

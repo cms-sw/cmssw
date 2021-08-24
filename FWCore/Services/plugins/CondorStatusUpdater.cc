@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include "Utilities/XrdAdaptor/src/XrdStatistics.h"
+#include "Utilities/XrdAdaptor/interface/XrdStatistics.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <fcntl.h>
@@ -294,7 +294,7 @@ void CondorStatusService::updateImpl(time_t sinceLastUpdate) {
   }
 
   // If Xrootd was used, pull the statistics from there.
-  edm::Service<XrdAdaptor::XrdStatisticsService> xrdsvc;
+  edm::Service<xrd_adaptor::XrdStatistics> xrdsvc;
   if (xrdsvc.isAvailable()) {
     for (auto const &iter : xrdsvc->condorUpdate()) {
       std::string site = iter.first;

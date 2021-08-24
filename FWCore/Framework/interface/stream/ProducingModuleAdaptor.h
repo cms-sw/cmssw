@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/stream/callAbilities.h"
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
 #include "FWCore/Framework/interface/stream/makeGlobal.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 // forward declarations
 

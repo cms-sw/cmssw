@@ -246,15 +246,9 @@ std::unordered_map<uint32_t, double> CaloTruthCellsProducer::makeHitMap(
                           [this, &geometry](DetId const& simId) -> DetId {
                             return this->triggerTools_.simToReco(simId, geometry.fhTopology());
                           }},
-                         {&simHitsTokenHEback_, nullptr}};
-  if (geometry.isV9Geometry())
-    specs[2].second = [this, &geometry](DetId const& simId) -> DetId {
-      return this->triggerTools_.simToReco(simId, geometry.hscTopology());
-    };
-  else
-    specs[2].second = [this, &geometry](DetId const& simId) -> DetId {
-      return this->triggerTools_.simToReco(simId, geometry.bhTopology());
-    };
+                         {&simHitsTokenHEback_, [this, &geometry](DetId const& simId) -> DetId {
+                            return this->triggerTools_.simToReco(simId, geometry.hscTopology());
+                          }}};
 
   for (auto const& tt : specs) {
     edm::Handle<std::vector<PCaloHit>> handle;

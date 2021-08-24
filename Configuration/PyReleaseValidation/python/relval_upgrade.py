@@ -31,8 +31,11 @@ for year in upgradeKeys:
             for step in upgradeProperties[year][key]['ScenToRun']:                    
                 stepMaker = makeStepName
                 if 'Sim' in step:
-                    if 'HLBeamSpot' in step and '14TeV' in frag:
-                        step = 'GenSimHLBeamSpot14'
+                    if 'HLBeamSpot' in step:
+                        if '14TeV' in frag:
+                            step = 'GenSimHLBeamSpot14'
+                        if 'CloseByParticle' in frag or 'CE_E' in frag or 'CE_H' in frag:
+                            step = 'GenSimHLBeamSpotHGCALCloseBy'
                     stepMaker = makeStepNameSim
                 
                 if 'HARVEST' in step: hasHarvest = True

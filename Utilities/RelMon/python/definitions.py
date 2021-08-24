@@ -39,7 +39,7 @@ url_encode_dict={"/":"%2F",
 cat_names={FAIL:"Failing",
             NULL:"Null",
             SUCCESS:"Successful",
-            SKIPED: "Skiped"}
+            SKIPED: "Skipped"}
 # Names used internally
 cat_states={FAIL:-1,
             NULL:0,
@@ -49,7 +49,7 @@ cat_states={FAIL:-1,
 cat_classes={FAIL:"fail",
              NULL:"null",
              SUCCESS:"succes",
-             SKIPED: "skiped"}     # 1s to avoid conflicts with blueoprint
+             SKIPED: "skipped"}     # 1s to avoid conflicts with blueoprint
 
 #-------------------------------------------------------------------------------                                 
 # Aggregation of names for the global directory
