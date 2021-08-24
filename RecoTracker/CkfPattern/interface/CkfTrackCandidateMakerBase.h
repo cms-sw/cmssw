@@ -59,10 +59,6 @@ namespace cms {
 
     std::unique_ptr<TransientInitialStateEstimator> theInitialState;
 
-    const std::string theMagFieldName;
-    edm::ESHandle<MagneticField> theMagField;
-    edm::ESHandle<GeometricSearchTracker> theGeomSearchTracker;
-
     std::string theNavigationSchoolName;
     const NavigationSchool* theNavigationSchool;
 
