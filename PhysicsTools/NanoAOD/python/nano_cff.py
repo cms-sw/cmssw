@@ -216,6 +216,9 @@ def nanoAOD_recalibrateMETs(process,isData):
                             getJetMCFlavour= False
         )
 
+        process.patJetsPuppi.addGenPartonMatch = cms.bool(False)
+        process.patJetsPuppi.addGenJetMatch = cms.bool(False)
+
         print("nanoAOD_PuppiV15_switch.reclusterJets is true")
     
     runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi", recoMetFromPFCs=bool(nanoAOD_PuppiV15_switch.recoMetFromPFCs), reclusterJets=bool(nanoAOD_PuppiV15_switch.reclusterJets))
@@ -395,7 +398,7 @@ def nanoAOD_customizeData(process):
     process = nanoAOD_customizeCommon(process)
 
     for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
-        modifier.toModify(process, lambda p: nanoAOD_recalibrateMETs(process,isData=True))
+        modifier.toModify(process, lambda p: nanoAOD_recalibrateMETs(p,isData=True))
     for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         modifier.toModify(process, lambda p: nanoAOD_runMETfixEE2017(p,isData=True))
     return process
@@ -403,7 +406,7 @@ def nanoAOD_customizeData(process):
 def nanoAOD_customizeMC(process):
     process = nanoAOD_customizeCommon(process)
     for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
-        modifier.toModify(process, lambda p: nanoAOD_recalibrateMETs(process,isData=False))
+        modifier.toModify(process, lambda p: nanoAOD_recalibrateMETs(p,isData=False))
     for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         modifier.toModify(process, lambda p: nanoAOD_runMETfixEE2017(p,isData=False))
     return process
