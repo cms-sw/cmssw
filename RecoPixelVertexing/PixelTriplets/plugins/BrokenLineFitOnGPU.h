@@ -90,7 +90,7 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
 #ifdef YERR_FROM_DC
       auto const &dp = hhp->cpeParams().detParams(hhp->detectorIndex(hit));
       auto status = hhp->status(hit);
-      int qbin = CPEFastParametrisation::GenErrorQBins - 1 - status.qBin;
+      int qbin = CPEFastParametrisation::kGenErrorQBins - 1 - status.qBin;
       assert(qbin >= 0 && qbin < 5);
       bool nok = (status.isBigY | status.isOneY);
       // compute cotanbeta and use it to recompute error
@@ -99,7 +99,7 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
       int bin =
           int(cb * (float(phase1PixelTopology::pixelThickess) / float(phase1PixelTopology::pixelPitchY)) * 8.f) - 4;
       int low_value = 0;
-      int high_value = CPEFastParametrisation::NumErrorBins - 1;
+      int high_value = CPEFastParametrisation::kNumErrorBins - 1;
       // return estimated bin value truncated to [0, 15]
       bin = std::clamp(bin, low_value, high_value);
       float yerr = dp.sigmay[bin] * 1.e-4f;  // toCM

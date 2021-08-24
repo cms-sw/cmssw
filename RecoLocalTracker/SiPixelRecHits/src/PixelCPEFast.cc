@@ -209,7 +209,7 @@ void PixelCPEFast::fillParamsForGpu() {
     // sample xerr as function of position
     auto const xoff = float(phase1PixelTopology::xOffset) * commonParamsGPU_.thePitchX;
 
-    for (int ix = 0; ix < CPEFastParametrisation::NumErrorBins; ++ix) {
+    for (int ix = 0; ix < CPEFastParametrisation::kNumErrorBins; ++ix) {
       auto x = xoff * (1.f - (0.5f + float(ix)) / 8.f);
       auto gvx = p.theOrigin.x() - x;
       auto gvy = p.theOrigin.y();
@@ -225,7 +225,7 @@ void PixelCPEFast::fillParamsForGpu() {
 #ifdef EDM_ML_DEBUG
     // sample yerr as function of position
     auto const yoff = float(phase1PixelTopology::yOffset) * commonParamsGPU_.thePitchY;
-    for (int ix = 0; ix < CPEFastParametrisation::NumErrorBins; ++ix) {
+    for (int ix = 0; ix < CPEFastParametrisation::kNumErrorBins; ++ix) {
       auto y = yoff * (1.f - (0.5f + float(ix)) / 8.f);
       auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchY;
       auto gvy = p.theOrigin.y() - y;
@@ -244,7 +244,7 @@ void PixelCPEFast::fillParamsForGpu() {
     auto aveCB = cp.cotbeta;
 
     // sample x by charge
-    int qbin = CPEFastParametrisation::GenErrorQBins;  // low charge
+    int qbin = CPEFastParametrisation::kGenErrorQBins;  // low charge
     int k = 0;
     for (int qclus = 1000; qclus < 200000; qclus += 1000) {
       errorFromTemplates(p, cp, qclus);
@@ -260,16 +260,16 @@ void PixelCPEFast::fillParamsForGpu() {
                                << m * cp.sigmay << ' ' << m * cp.sy1 << ' ' << m * cp.sy2 << std::endl;
 #endif  // EDM_ML_DEBUG
     }
-    assert(k <= CPEFastParametrisation::GenErrorQBins);
+    assert(k <= CPEFastParametrisation::kGenErrorQBins);
     // fill the rest  (sometimes bin 4 is missing)
-    for (int kk = k; kk < CPEFastParametrisation::GenErrorQBins; ++kk) {
+    for (int kk = k; kk < CPEFastParametrisation::kGenErrorQBins; ++kk) {
       g.xfact[kk] = g.xfact[k - 1];
       g.yfact[kk] = g.yfact[k - 1];
       g.minCh[kk] = g.minCh[k - 1];
     }
     auto detx = 1.f / g.xfact[0];
     auto dety = 1.f / g.yfact[0];
-    for (int kk = 0; kk < CPEFastParametrisation::GenErrorQBins; ++kk) {
+    for (int kk = 0; kk < CPEFastParametrisation::kGenErrorQBins; ++kk) {
       g.xfact[kk] *= detx;
       g.yfact[kk] *= dety;
     }
@@ -277,9 +277,9 @@ void PixelCPEFast::fillParamsForGpu() {
     float ys = 8.f - 4.f;  // apperent bias of half pixel (see plot)
     // plot: https://indico.cern.ch/event/934821/contributions/3974619/attachments/2091853/3515041/DigilessReco.pdf page 25
     // sample yerr as function of "size"
-    for (int iy = 0; iy < CPEFastParametrisation::NumErrorBins; ++iy) {
+    for (int iy = 0; iy < CPEFastParametrisation::kNumErrorBins; ++iy) {
       ys += 1.f;  // first bin 0 is for size 9  (and size is in fixed point 2^3)
-      if (CPEFastParametrisation::NumErrorBins - 1 == iy)
+      if (CPEFastParametrisation::kNumErrorBins - 1 == iy)
         ys += 8.f;  // last bin for "overflow"
       // cp.cotalpha = ys*(commonParamsGPU_.thePitchX/(8.f*thickness));  //  use this to print sampling in "x"  (and comment the line below)
       cp.cotbeta = std::copysign(ys * (commonParamsGPU_.thePitchY / (8.f * thickness)), aveCB);
