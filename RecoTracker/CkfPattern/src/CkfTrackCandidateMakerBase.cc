@@ -1,5 +1,4 @@
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
@@ -68,12 +67,15 @@ namespace cms {
         theMaxNSeeds(conf.getParameter<unsigned int>("maxNSeeds")),
         theTrajectoryBuilder(
             createBaseCkfTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), iC)),
-        theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")),
+        theTrajectoryCleanerToken(
+            iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("TrajectoryCleaner")))),
         theTrajectoryCleaner(nullptr),
         theInitialState(std::make_unique<TransientInitialStateEstimator>(
             conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters"))),
-        theNavigationSchoolName(conf.getParameter<std::string>("NavigationSchool")),
+        theNavigationSchoolToken(
+            iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("NavigationSchool")))),
         theNavigationSchool(nullptr),
+        thePropagatorToken(iC.esConsumes(edm::ESInputTag("", "AnyDirectionAnalyticalPropagator"))),
         maxSeedsBeforeCleaning_(0),
         theMTELabel(iC.consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
         skipClusters_(false),
@@ -109,6 +111,12 @@ namespace cms {
     }
 #endif
 
+#ifdef EDM_ML_DEBUG
+    if (theTrackCandidateOutput) {
+      theTrackerToken = iC.esConsumes();
+    }
+#endif
+
 #ifdef VI_REPRODUCIBLE
     std::cout << "CkfTrackCandidateMaker in reproducible setting" << std::endl;
     assert(nullptr == theSeedCleaner);
@@ -124,13 +132,9 @@ namespace cms {
 
   void CkfTrackCandidateMakerBase::setEventSetup(const edm::EventSetup& es) {
     //services
-    edm::ESHandle<TrajectoryCleaner> trajectoryCleanerH;
-    es.get<TrajectoryCleaner::Record>().get(theTrajectoryCleanerName, trajectoryCleanerH);
-    theTrajectoryCleaner = trajectoryCleanerH.product();
+    theTrajectoryCleaner = &es.getData(theTrajectoryCleanerToken);
 
-    edm::ESHandle<NavigationSchool> navigationSchoolH;
-    es.get<NavigationSchoolRecord>().get(theNavigationSchoolName, navigationSchoolH);
-    theNavigationSchool = navigationSchoolH.product();
+    theNavigationSchool = &es.getData(theNavigationSchoolToken);
     theTrajectoryBuilder->setNavigationSchool(theNavigationSchool);
   }
 
@@ -143,8 +147,7 @@ namespace cms {
     // NavigationSetter setter( *theNavigationSchool);
 
     // propagator
-    edm::ESHandle<Propagator> thePropagator;
-    es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator", thePropagator);
+    auto const& propagator = es.getData(thePropagatorToken);
 
     // method for Debugging
     printHitsDebugger(e);
@@ -498,7 +501,7 @@ namespace cms {
           if (useSplitting && (initState.second != recHits.front().det()) && recHits.front().det()) {
             LogDebug("CkfPattern") << "propagating to hit front in case of splitting.";
             TrajectoryStateOnSurface&& propagated =
-                thePropagator->propagate(initState.first, recHits.front().det()->surface());
+                propagator.propagate(initState.first, recHits.front().det()->surface());
             if (!propagated.isValid())
               continue;
             state = trajectoryStateTransform::persistentState(propagated, recHits.front().rawId());
@@ -510,11 +513,10 @@ namespace cms {
         }
       }  //output trackcandidates
 
-      edm::ESHandle<TrackerGeometry> tracker;
-      es.get<TrackerDigiGeometryRecord>().get(tracker);
-      LogTrace("CkfPattern|TrackingRegressionTest") << "========== CkfTrackCandidateMaker Info =========="
-                                                    << "number of Seed: " << collseed->size() << '\n'
-                                                    << PrintoutHelper::regressionTest(*tracker, unsmoothedResult);
+      LogTrace("CkfPattern|TrackingRegressionTest")
+          << "========== CkfTrackCandidateMaker Info =========="
+          << "number of Seed: " << collseed->size() << '\n'
+          << PrintoutHelper::regressionTest(es.getData(theTrackerToken), unsmoothedResult);
 
       assert(viTotHits >= 0);  // just to use it...
       // std::cout << "VICkfPattern result " << output->size() << " " << viTotHits << std::endl;
