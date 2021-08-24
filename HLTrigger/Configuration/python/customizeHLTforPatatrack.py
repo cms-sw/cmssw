@@ -97,8 +97,7 @@ def customisePixelLocalReconstruction(process):
     if not 'HLTDoLocalPixelSequence' in process.__dict__:
         return process
 
-
-    # FIXME replace the Sequences with empty ones to avoid exanding them during the (re)definition of Modules and EDAliases
+    # FIXME replace the Sequences with empty ones to avoid expanding them during the (re)definition of Modules and EDAliases
 
     process.HLTDoLocalPixelSequence = cms.Sequence()
 
@@ -225,11 +224,10 @@ def customisePixelLocalReconstruction(process):
 # customisation for running the "Patatrack" pixel track reconstruction
 def customisePixelTrackReconstruction(process):
 
-    if not 'HLTRecoPixelTracksSequence' in process.__dict__:
+    if not all(seq in process.__dict__ for seq in ['HLTRecoPixelTracksSequence', 'HLTRecopixelvertexingSequence']):
         return process
 
-
-    # FIXME replace the Sequences with empty ones to avoid exanding them during the (re)definition of Modules and EDAliases
+    # FIXME replace the Sequences with empty ones to avoid expanding them during the (re)definition of Modules and EDAliases
 
     process.HLTRecoPixelTracksSequence = cms.Sequence()
     process.HLTRecopixelvertexingSequence = cms.Sequence()
@@ -347,15 +345,16 @@ def customisePixelTrackReconstruction(process):
 # customisation for offloading the ECAL local reconstruction via CUDA if a supported gpu is present
 def customiseEcalLocalReconstruction(process):
 
-    if not 'HLTDoFullUnpackingEgammaEcalSequence' in process.__dict__:
+    hasHLTEcalPreshowerSeq = any(seq in process.__dict__ for seq in ['HLTDoFullUnpackingEgammaEcalMFSequence', 'HLTDoFullUnpackingEgammaEcalSequence'])
+    if not (hasHLTEcalPreshowerSeq or 'HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence' in process.__dict__):
         return process
 
+    # FIXME replace the Sequences with empty ones to avoid expanding them during the (re)definition of Modules and EDAliases
 
-    # FIXME replace the Sequences with empty ones to avoid exanding them during the (re)definition of Modules and EDAliases
-
-    process.HLTDoFullUnpackingEgammaEcalMFSequence = cms.Sequence()
     process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence()
-    process.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence()
+    if hasHLTEcalPreshowerSeq:
+        process.HLTDoFullUnpackingEgammaEcalMFSequence = cms.Sequence()
+        process.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence()
 
 
     # Event Setup
@@ -501,22 +500,22 @@ def customiseEcalLocalReconstruction(process):
     process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence(
         process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask)
 
-    process.HLTPreshowerTask = cms.Task(
-        process.hltEcalPreshowerDigis,                      # unpack ECAL preshower digis on the host
-        process.hltEcalPreshowerRecHit)                     # build ECAL preshower rechits on the host
+    if hasHLTEcalPreshowerSeq:
+        process.HLTPreshowerTask = cms.Task(
+            process.hltEcalPreshowerDigis,                  # unpack ECAL preshower digis on the host
+            process.hltEcalPreshowerRecHit)                 # build ECAL preshower rechits on the host
 
-    process.HLTPreshowerSequence = cms.Sequence(process.HLTPreshowerTask)
+        process.HLTPreshowerSequence = cms.Sequence(process.HLTPreshowerTask)
 
-    process.HLTDoFullUnpackingEgammaEcalTask = cms.Task(
-        process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask,
-        process.HLTPreshowerTask)
+        process.HLTDoFullUnpackingEgammaEcalTask = cms.Task(
+            process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask,
+            process.HLTPreshowerTask)
 
-    process.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence(
-        process.HLTDoFullUnpackingEgammaEcalTask)
+        process.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence(
+            process.HLTDoFullUnpackingEgammaEcalTask)
 
-    process.HLTDoFullUnpackingEgammaEcalMFSequence = cms.Sequence(
-        process.HLTDoFullUnpackingEgammaEcalTask)
-
+        process.HLTDoFullUnpackingEgammaEcalMFSequence = cms.Sequence(
+            process.HLTDoFullUnpackingEgammaEcalTask)
 
     # done
     return process
@@ -524,13 +523,14 @@ def customiseEcalLocalReconstruction(process):
 # customisation for offloading the HCAL local reconstruction via CUDA if a supported gpu is present
 def customiseHcalLocalReconstruction(process):
 
-    if not 'HLTDoLocalHcalSequence' in process.__dict__:
+    hasHLTDoLocalHcalSeq = 'HLTDoLocalHcalSequence' in process.__dict__
+    if not (hasHLTDoLocalHcalSeq or 'HLTStoppedHSCPLocalHcalReco' in process.__dict__):
         return process
 
+    # FIXME replace the Sequences with empty ones to avoid expanding them during the (re)definition of Modules and EDAliases
 
-    # FIXME replace the Sequences with empty ones to avoid exanding them during the (re)definition of Modules and EDAliases
-
-    process.HLTDoLocalHcalSequence = cms.Sequence()
+    if hasHLTDoLocalHcalSeq:
+        process.HLTDoLocalHcalSequence = cms.Sequence()
     process.HLTStoppedHSCPLocalHcalReco = cms.Sequence()
 
 
@@ -603,19 +603,19 @@ def customiseHcalLocalReconstruction(process):
 
 
     # Tasks and Sequences
+    if hasHLTDoLocalHcalSeq:
+        process.HLTDoLocalHcalTask = cms.Task(
+            process.hltHcalDigis,                           # legacy producer, unpack HCAL digis on cpu
+            process.hltHcalDigisGPU,                        # copy to gpu and convert to SoA format
+            process.hltHbherecoGPU,                         # run the HCAL local reconstruction (including Method 0 and MAHI) on gpu
+            process.hltHbherecoFromGPU,                     # transfer the HCAL rechits to the cpu, and convert them to the legacy format
+            process.hltHbhereco,                            # SwitchProducer between the legacy producer and the copy from gpu with conversion
+            process.hltHfprereco,                           # legacy producer
+            process.hltHfreco,                              # legacy producer
+            process.hltHoreco)                              # legacy producer
 
-    process.HLTDoLocalHcalTask = cms.Task(
-        process.hltHcalDigis,                               # legacy producer, unpack HCAL digis on cpu
-        process.hltHcalDigisGPU,                            # copy to gpu and convert to SoA format
-        process.hltHbherecoGPU,                             # run the HCAL local reconstruction (including Method 0 and MAHI) on gpu
-        process.hltHbherecoFromGPU,                         # transfer the HCAL rechits to the cpu, and convert them to the legacy format
-        process.hltHbhereco,                                # SwitchProducer between the legacy producer and the copy from gpu with conversion
-        process.hltHfprereco,                               # legacy producer
-        process.hltHfreco,                                  # legacy producer
-        process.hltHoreco)                                  # legacy producer
-
-    process.HLTDoLocalHcalSequence = cms.Sequence(
-        process.HLTDoLocalHcalTask)
+        process.HLTDoLocalHcalSequence = cms.Sequence(
+            process.HLTDoLocalHcalTask)
 
     process.HLTStoppedHSCPLocalHcalRecoTask = cms.Task(
         process.hltHcalDigis,                               # legacy producer, unpack HCAL digis on cpu
@@ -635,13 +635,15 @@ def customiseHcalLocalReconstruction(process):
 # customisation to enable pixel triplets instead of quadruplets
 def enablePatatrackPixelTriplets(process):
 
-  # configure GPU pixel tracks for triplets
-  process.hltPixelTracksCUDA.minHitsPerNtuplet = 3
-  process.hltPixelTracksCUDA.includeJumpingForwardDoublets = True
+  if 'hltPixelTracksCUDA' in process.__dict__:
+      # configure GPU pixel tracks for triplets
+      process.hltPixelTracksCUDA.minHitsPerNtuplet = 3
+      process.hltPixelTracksCUDA.includeJumpingForwardDoublets = True
 
-  # configure CPU pixel tracks for triplets
-  process.hltPixelTracksSoA.cpu.minHitsPerNtuplet = 3
-  process.hltPixelTracksSoA.cpu.includeJumpingForwardDoublets = True
+  if 'hltPixelTracksSoA' in process.__dict__:
+      # configure CPU pixel tracks for triplets
+      process.hltPixelTracksSoA.cpu.minHitsPerNtuplet = 3
+      process.hltPixelTracksSoA.cpu.includeJumpingForwardDoublets = True
 
   # done
   return process
