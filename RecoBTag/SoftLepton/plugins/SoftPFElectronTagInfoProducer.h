@@ -14,6 +14,7 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 // Vertex
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -41,6 +42,7 @@ private:
   edm::EDGetTokenT<edm::View<reco::GsfElectron> > token_elec;
   edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot;
   edm::EDGetTokenT<reco::ConversionCollection> token_allConversions;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> token_builder;
   float DeltaRElectronJet, MaxSip3Dsig;
   bool goodvertex;
 

@@ -32,7 +32,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include <cmath>
 
-SoftPFMuonTagInfoProducer::SoftPFMuonTagInfoProducer(const edm::ParameterSet& conf) {
+SoftPFMuonTagInfoProducer::SoftPFMuonTagInfoProducer(const edm::ParameterSet& conf)
+    : builderToken(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))) {
   jetToken = consumes<edm::View<reco::Jet> >(conf.getParameter<edm::InputTag>("jets"));
   muonToken = consumes<edm::View<reco::Muon> >(conf.getParameter<edm::InputTag>("muons"));
   vertexToken = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("primaryVertex"));
@@ -67,9 +68,7 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
   const reco::Vertex* vertex = &theVertexCollection->front();
 
   // Biult TransientTrackBuilder
-  edm::ESHandle<TransientTrackBuilder> theTrackBuilder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theTrackBuilder);
-  const TransientTrackBuilder* transientTrackBuilder = theTrackBuilder.product();
+  const TransientTrackBuilder* transientTrackBuilder = &iSetup.getData(builderToken);
 
   // Loop on jets
   for (unsigned int ij = 0, nj = theJetCollection->size(); ij < nj; ij++) {

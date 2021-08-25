@@ -25,7 +25,8 @@
 #include "CommonTools/Egamma/interface/ConversionTools.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
-SoftPFElectronTagInfoProducer::SoftPFElectronTagInfoProducer(const edm::ParameterSet& conf) {
+SoftPFElectronTagInfoProducer::SoftPFElectronTagInfoProducer(const edm::ParameterSet& conf)
+    : token_builder(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))) {
   token_jets = consumes<edm::View<reco::Jet> >(conf.getParameter<edm::InputTag>("jets"));
   token_elec = consumes<edm::View<reco::GsfElectron> >(conf.getParameter<edm::InputTag>("electrons"));
   token_primaryVertex = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("primaryVertex"));
@@ -40,9 +41,7 @@ SoftPFElectronTagInfoProducer::~SoftPFElectronTagInfoProducer() {}
 
 void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto theElecTagInfo = std::make_unique<reco::CandSoftLeptonTagInfoCollection>();
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
-  transientTrackBuilder = builder.product();
+  transientTrackBuilder = &iSetup.getData(token_builder);
 
   edm::Handle<reco::VertexCollection> PVCollection;
   iEvent.getByToken(token_primaryVertex, PVCollection);
