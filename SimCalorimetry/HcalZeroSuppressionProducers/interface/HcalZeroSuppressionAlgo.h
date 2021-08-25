@@ -1,5 +1,5 @@
-#ifndef SimCalorimetry_HcalZeroSuppressionAlgos_HCALZEROSUPPESSIONALGO_H
-#define SimCalorimetry_HcalZeroSuppressionAlgos_HCALZEROSUPPESSIONALGO_H 1
+#ifndef SimCalorimetry_HcalZeroSuppressionProducers_HCALZEROSUPPESSIONALGO_H
+#define SimCalorimetry_HcalZeroSuppressionProducers_HCALZEROSUPPESSIONALGO_H 1
 
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
