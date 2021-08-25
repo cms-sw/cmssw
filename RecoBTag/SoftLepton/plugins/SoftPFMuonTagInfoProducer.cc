@@ -2,7 +2,28 @@
 // * Mail: a.zucchetta@cern.ch
 // * January 16, 2015
 
-#include "RecoBTag/SoftLepton/plugins/SoftPFMuonTagInfoProducer.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
+
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -31,6 +52,24 @@
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include <cmath>
+#include <vector>
+
+class SoftPFMuonTagInfoProducer : public edm::stream::EDProducer<> {
+public:
+  SoftPFMuonTagInfoProducer(const edm::ParameterSet& conf);
+  ~SoftPFMuonTagInfoProducer() override;
+
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual float boostedPPar(const math::XYZVector&, const math::XYZVector&);
+
+  edm::EDGetTokenT<edm::View<reco::Jet> > jetToken;
+  edm::EDGetTokenT<edm::View<reco::Muon> > muonToken;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> builderToken;
+  float pTcut, SIPsigcut, IPsigcut, ratio1cut, ratio2cut;
+  bool useFilter;
+};
 
 SoftPFMuonTagInfoProducer::SoftPFMuonTagInfoProducer(const edm::ParameterSet& conf)
     : builderToken(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))) {
@@ -171,3 +210,5 @@ float SoftPFMuonTagInfoProducer::boostedPPar(const math::XYZVector& vector, cons
   ROOT::Math::BoostX boost(-jet.Beta());
   return boost(lepton).x();
 }
+
+DEFINE_FWK_MODULE(SoftPFMuonTagInfoProducer);
