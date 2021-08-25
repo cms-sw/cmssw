@@ -139,11 +139,12 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps) {
 
   // energy correction class
   if (applyEnergyCorrection_)
-    energyCorrectionFunction_ = EcalClusterFunctionFactory::get()->create(energyCorrectorName_, ps);
+    energyCorrectionFunction_ =
+        EcalClusterFunctionFactory::get()->create(energyCorrectorName_, ps, consumesCollector());
   //energyCorrectionFunction_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
 
   if (applyCrackCorrection_)
-    crackCorrectionFunction_ = EcalClusterFunctionFactory::get()->create(crackCorrectorName_, ps);
+    crackCorrectionFunction_ = EcalClusterFunctionFactory::get()->create(crackCorrectorName_, ps, consumesCollector());
 
   if (applyLocalContCorrection_)
     localContCorrectionFunction_ = std::make_unique<EcalBasicClusterLocalContCorrection>(consumesCollector());
