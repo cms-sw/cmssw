@@ -49,7 +49,7 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 * *maxCandsPerSeed:* maximum number of concurrent track candidates per given seed
 * *maxHolesPerCand:* maximum number of allowed holes on a candidate
 * *maxConsecHoles:*  maximum number of allowed consecutive holes on a candidate
-* *chi2Cut:*         chi2 cut for accepting a new hit
+* *chi2Cut_min:*     minimum chi2 cut for accepting a new hit
 * *chi2CutOverlap:*  chi2 cut for accepting an overlap hit
 * *pTCutOverlap:*    pT cut below which the overlap hits are not picked up
 
@@ -81,3 +81,5 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 * *c_dp_sf:* additional scaling factor for dphi cut
 * *c_dq_[012]:* dr (endcap) / dz (barrel) selection window cut (= [0]*1/pT + [1]*std::fabs(theta-pi/2) + [2])
 * *c_dq_sf:* additional scaling factor for dr (endcap) / dz (barrel) cut
+* *c_c2_[012]:* chi2 cut for accepting new hit (= [0]*1/pT + [1]*std::fabs(theta-pi/2) + [2])
+* *c_c2_sf:* additional scaling factor for chi2 cut
