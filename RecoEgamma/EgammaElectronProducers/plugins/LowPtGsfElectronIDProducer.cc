@@ -35,20 +35,24 @@ public:
 
 private:
   double eval(
-      const std::string& name, const edm::Ptr<reco::GsfElectron>&, double rho, float unbiased, float field_z) const;
+      const GBRForest& model, const edm::Ptr<reco::GsfElectron>&, double rho, float unbiased, float field_z) const;
 
   const bool usePAT_;
   edm::EDGetTokenT<reco::GsfElectronCollection> electrons_;
   edm::EDGetTokenT<pat::ElectronCollection> patElectrons_;
   const edm::EDGetTokenT<double> rho_;
   edm::EDGetTokenT<edm::ValueMap<float> > unbiased_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> fieldToken_;
+
   const std::vector<std::string> names_;
   const bool passThrough_;
   const double minPtThreshold_;
   const double maxPtThreshold_;
   std::vector<std::unique_ptr<const GBRForest> > models_;
   const std::vector<double> thresholds_;
-  const std::string version_;
+  const std::string versionName_;
+  enum class Version { V0, V1 };
+  Version version_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,12 +63,13 @@ LowPtGsfElectronIDProducer::LowPtGsfElectronIDProducer(const edm::ParameterSet& 
       patElectrons_(),
       rho_(consumes<double>(conf.getParameter<edm::InputTag>("rho"))),
       unbiased_(),
+      fieldToken_(esConsumes()),
       names_(conf.getParameter<std::vector<std::string> >("ModelNames")),
       passThrough_(conf.getParameter<bool>("PassThrough")),
       minPtThreshold_(conf.getParameter<double>("MinPtThreshold")),
       maxPtThreshold_(conf.getParameter<double>("MaxPtThreshold")),
       thresholds_(conf.getParameter<std::vector<double> >("ModelThresholds")),
-      version_(conf.getParameter<std::string>("Version")) {
+      versionName_(conf.getParameter<std::string>("Version")) {
   if (usePAT_) {
     patElectrons_ = consumes<pat::ElectronCollection>(conf.getParameter<edm::InputTag>("electrons"));
   } else {
@@ -82,8 +87,12 @@ LowPtGsfElectronIDProducer::LowPtGsfElectronIDProducer(const edm::ParameterSet& 
     throw cms::Exception("Incorrect configuration")
         << "'ModelWeights' size (" << models_.size() << ") != 'ModelThresholds' size (" << thresholds_.size() << ").\n";
   }
-  if (version_ != "V0" && version_ != "V1") {
-    throw cms::Exception("Incorrect configuration") << "Unknown Version: " << version_ << "\n";
+  if (versionName_ == "V0") {
+    version_ = Version::V0;
+  } else if (versionName_ == "V1") {
+    version_ = Version::V1;
+  } else {
+    throw cms::Exception("Incorrect configuration") << "Unknown Version: " << versionName_ << "\n";
   }
   for (const auto& name : names_) {
     produces<edm::ValueMap<float> >(name);
@@ -94,19 +103,18 @@ LowPtGsfElectronIDProducer::LowPtGsfElectronIDProducer(const edm::ParameterSet& 
 //
 void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
   // Get z-component of B field
-  edm::ESHandle<MagneticField> field;
-  setup.get<IdealMagneticFieldRecord>().get(field);
-  math::XYZVector zfield(field->inTesla(GlobalPoint(0, 0, 0)));
+  math::XYZVector zfield(setup.getData(fieldToken_).inTesla(GlobalPoint(0, 0, 0)));
 
   // Pileup
-  edm::Handle<double> rho;
-  event.getByToken(rho_, rho);
-  if (!rho.isValid()) {
+  edm::Handle<double> hRho;
+  event.getByToken(rho_, hRho);
+  if (!hRho.isValid()) {
     std::ostringstream os;
     os << "Problem accessing rho collection for low-pT electrons" << std::endl;
     throw cms::Exception("InvalidHandle", os.str());
   }
 
+  double rho = *hRho;
   // Retrieve pat::Electrons or reco::GsfElectrons from Event
   edm::Handle<pat::ElectronCollection> patElectrons;
   edm::Handle<reco::GsfElectronCollection> electrons;
@@ -124,19 +132,22 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
 
   // Iterate through Electrons, evaluate BDT, and store result
   std::vector<std::vector<float> > output;
+  output.reserve(names_.size());
   unsigned int nElectrons = usePAT_ ? patElectrons->size() : electrons->size();
   for (unsigned int iname = 0; iname < names_.size(); ++iname) {
     output.emplace_back(nElectrons, -999.);
   }
 
   if (usePAT_) {
+    const std::string kUnbiased("unbiased");
     for (unsigned int iele = 0; iele < nElectrons; iele++) {
       edm::Ptr<pat::Electron> ele(patElectrons, iele);
       if (!ele->isElectronIDAvailable("unbiased")) {
         continue;
       }
-      for (unsigned int iname = 0; iname < names_.size(); ++iname) {
-        output[iname][iele] = eval(names_[iname], ele, *rho, ele->electronID("unbiased"), zfield.z());
+      float id = ele->electronID(kUnbiased);
+      for (unsigned int index = 0; index < models_.size(); ++index) {
+        output[index][iele] = eval(*models_[index], ele, rho, id, zfield.z());
       }
     }
   } else {
@@ -150,8 +161,8 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
         continue;
       }
       float unbiased = (*unbiasedH)[gsf];
-      for (unsigned int iname = 0; iname < names_.size(); ++iname) {
-        output[iname][iele] = eval(names_[iname], ele, *rho, unbiased, zfield.z());
+      for (unsigned int index = 0; index < models_.size(); ++index) {
+        output[index][iele] = eval(*models_[index], ele, rho, unbiased, zfield.z());
       }
     }
   }
@@ -173,21 +184,14 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 double LowPtGsfElectronIDProducer::eval(
-    const std::string& name, const edm::Ptr<reco::GsfElectron>& ele, double rho, float unbiased, float field_z) const {
-  auto iter = std::find(names_.begin(), names_.end(), name);
-  if (iter != names_.end()) {
-    int index = std::distance(names_.begin(), iter);
-    std::vector<float> inputs;
-    if (version_ == "V0") {
-      inputs = lowptgsfeleid::features_V0(*ele, rho, unbiased);
-    } else if (version_ == "V1") {
-      inputs = lowptgsfeleid::features_V1(*ele, rho, unbiased, field_z);
-    }
-    return models_.at(index)->GetResponse(inputs.data());
-  } else {
-    throw cms::Exception("Unknown model name") << "'Name given: '" << name << "'. Check against configuration file.\n";
+    const GBRForest& model, const edm::Ptr<reco::GsfElectron>& ele, double rho, float unbiased, float field_z) const {
+  std::vector<float> inputs;
+  if (version_ == Version::V0) {
+    inputs = lowptgsfeleid::features_V0(*ele, rho, unbiased);
+  } else if (version_ == Version::V1) {
+    inputs = lowptgsfeleid::features_V1(*ele, rho, unbiased, field_z);
   }
-  return 0.;
+  return model.GetResponse(inputs.data());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
