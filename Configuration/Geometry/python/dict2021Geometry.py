@@ -601,7 +601,7 @@ trackerDict = {
             'Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeInnerZminus.xml',
             'Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeOuterZplus.xml',
             'Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeOuterZminus.xml',
-            'Geometry/TrackerCommonData/data/PhaseI/v2/pixbarmaterial.xml', 
+            'Geometry/TrackerCommonData/data/PhaseI/v3/pixbarmaterial.xml', 
             'Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladder.xml', 
             'Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull0.xml', 
             'Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull1.xml', 
@@ -2599,12 +2599,13 @@ ppsDict = {
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, ppsDict ]
 
 detectorVersionDict = {
-    ("O3","T3","C1","M1","F1","P5") : "2021",
-    ("O4","T4","C1","M1","F1","P5") : "2021ZeroMaterial",
-    ("O5","T5","C1","M1","F1","P5") : "2021FlatMinus05Percent",
-    ("O5","T6","C1","M1","F1","P5") : "2021FlatMinus10Percent",
-    ("O5","T7","C1","M1","F1","P5") : "2021FlatPlus05Percent",
-    ("O5","T8","C1","M1","F1","P5") : "2021FlatPlus10Percent",
+    ("O6","T3","C1","M1","F1","P6") : "2021",
+    ("O4","T4","C1","M1","F1","P6") : "2021ZeroMaterial",
+    ("O5","T5","C1","M1","F1","P6") : "2021FlatMinus05Percent",
+    ("O5","T6","C1","M1","F1","P6") : "2021FlatMinus10Percent",
+    ("O5","T7","C1","M1","F1","P6") : "2021FlatPlus05Percent",
+    ("O5","T8","C1","M1","F1","P6") : "2021FlatPlus10Percent",
  }
 
-deprecatedSubdets = set([ "T1", "T2", "O1", "O2", "P1", "P2", "P3", "P4" ])
+deprecatedSubdets = set([ "T1", "T2", "O1", "O2", "O3", "P1", "P2", "P3", 
+                          "P4", "P5" ])
