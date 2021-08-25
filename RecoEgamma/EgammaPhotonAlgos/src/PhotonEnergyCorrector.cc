@@ -25,19 +25,19 @@ PhotonEnergyCorrector::PhotonEnergyCorrector(const edm::ParameterSet& config, ed
 
   // function to extract f(eta) correction
   std::string superClusterFunctionName = config.getParameter<std::string>("superClusterEnergyCorrFunction");
-  scEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterFunctionName, config);
+  scEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterFunctionName, config, iC);
 
   // function to extract corrections to cracks
   std::string superClusterCrackFunctionName = config.getParameter<std::string>("superClusterCrackEnergyCorrFunction");
-  scCrackEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterCrackFunctionName, config);
+  scCrackEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterCrackFunctionName, config, iC);
 
   // function to extract the error on the sc ecal correction
   std::string superClusterErrorFunctionName = config.getParameter<std::string>("superClusterEnergyErrorFunction");
-  scEnergyErrorFunction_ = EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName, config);
+  scEnergyErrorFunction_ = EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName, config, iC);
 
   // function  to extract the error on the photon ecal correction
   std::string photonEnergyFunctionName = config.getParameter<std::string>("photonEcalEnergyCorrFunction");
-  photonEcalEnergyCorrFunction_ = EcalClusterFunctionFactory::get()->create(photonEnergyFunctionName, config);
+  photonEcalEnergyCorrFunction_ = EcalClusterFunctionFactory::get()->create(photonEnergyFunctionName, config, iC);
   //ingredient for photon uncertainty
   photonUncertaintyCalculator_ = std::make_unique<EnergyUncertaintyPhotonSpecific>(config);
 
