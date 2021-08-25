@@ -471,7 +471,7 @@ bool edm::decode(double& to, std::string const& from) {
 
 bool edm::encode(std::string& to, double from) {
   std::ostringstream ost;
-  ost.precision(std::numeric_limits<double>::digits10 + 1);
+  ost.precision(std::numeric_limits<double>::max_digits10);
   ost << from;
   if (!ost)
     return false;
