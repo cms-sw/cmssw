@@ -287,11 +287,11 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
             0.5 * (it1.second.radl - it2->second.radl) / std::max(denmin, (it1.second.radl + it2->second.radl));
         double idif =
             0.5 * (it1.second.intl - it2->second.intl) / std::max(denmin, (it1.second.intl + it2->second.intl));
-	if (std::abs(rdif) > difmax1) {
-	  difmax1 = std::abs(rdif);
-	  difmax2 = std::abs(idif);
-	  nameMax = it1.first;
-	}
+        if (std::abs(rdif) > difmax1) {
+          difmax1 = std::abs(rdif);
+          difmax2 = std::abs(idif);
+          nameMax = it1.first;
+        }
         if ((std::abs(rdif) > tol1) || (std::abs(idif) > tol1)) {
           ++kount2;
           std::cout << it1.first << " X0 " << it1.second.radl << ":" << it2->second.radl << ":" << rdif << " #L "
@@ -309,10 +309,10 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
         ++kount1;
         double vdif =
             0.5 * (it1.second.volume - it2->second.volume) / std::max(denmin, (it1.second.volume + it2->second.volume));
-	if (std::abs(vdif) > difmax1) {
-	  difmax1 = std::abs(vdif);
-	  nameMax = it1.first;
-	}
+        if (std::abs(vdif) > difmax1) {
+          difmax1 = std::abs(vdif);
+          nameMax = it1.first;
+        }
         if (std::abs(vdif) > tol2) {
           ++kount2;
           std::cout << it1.first << " Volume " << it1.second.volume << ":" << it2->second.volume << ":" << vdif
@@ -330,10 +330,10 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
         ++kount1;
         double vdif =
             0.5 * (it1.second.mass - it2->second.mass) / std::max(denmin, (it1.second.mass + it2->second.mass));
-	if (std::abs(vdif) > difmax1) {
-	  difmax1 = std::abs(vdif);
-	  nameMax = it1.first;
-	}
+        if (std::abs(vdif) > difmax1) {
+          difmax1 = std::abs(vdif);
+          nameMax = it1.first;
+        }
         if (std::abs(vdif) > tol3) {
           ++kount2;
           std::cout << it1.first << " Mass " << it1.second.mass << ":" << it2->second.mass << ":" << vdif << std::endl;
@@ -351,12 +351,12 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
         double xdif = (it1.second.xx - it2->second.xx);
         double ydif = (it1.second.yy - it2->second.yy);
         double zdif = (it1.second.zz - it2->second.zz);
-	double vdif = std::max(std::abs(xdif), std::abs(ydif));
-	vdif = std::max(vdif, std::abs(zdif));
-	if (vdif > difmax1) {
-	  difmax1 = vdif;
-	  nameMax = it1.first;
-	}
+        double vdif = std::max(std::abs(xdif), std::abs(ydif));
+        vdif = std::max(vdif, std::abs(zdif));
+        if (vdif > difmax1) {
+          difmax1 = vdif;
+          nameMax = it1.first;
+        }
         if ((std::abs(xdif) > tol4) || (std::abs(ydif) > tol4) || (std::abs(zdif) > tol4)) {
           ++kount2;
           std::cout << it1.first << " x " << it1.second.xx << ":" << it2->second.xx << ":" << xdif << " y "
