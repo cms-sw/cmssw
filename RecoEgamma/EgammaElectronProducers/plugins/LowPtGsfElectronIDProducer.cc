@@ -159,30 +159,27 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
 template <typename EL, typename F>
 void LowPtGsfElectronIDProducer::doWork(
     double rho, float bz, EL const& electrons, F&& idFunctor, edm::Event& event) const {
-  // Iterate through Electrons, evaluate BDT, and store result
-  std::vector<std::vector<float> > output;
-  output.reserve(names_.size());
   auto nElectrons = electrons->size();
-  for (unsigned int iname = 0; iname < names_.size(); ++iname) {
-    output.emplace_back(nElectrons, -999.);
-  }
+  std::vector<float> ids;
+  ids.reserve(nElectrons);
+  std::transform(electrons->begin(), electrons->end(), std::back_inserter(ids), idFunctor);
 
-  for (unsigned int iele = 0; iele < nElectrons; iele++) {
-    auto const& ele = (*electrons)[iele];
-    float id = idFunctor(ele);
-    if (id != std::numeric_limits<float>::max()) {
-      for (unsigned int index = 0; index < models_.size(); ++index) {
-        output[index][iele] = eval(*models_[index], ele, rho, id, bz);
+  std::vector<float> output(nElectrons);  //resused for each model
+  for (unsigned int index = 0; index < names_.size(); ++index) {
+    // Iterate through Electrons, evaluate BDT, and store result
+    for (unsigned int iele = 0; iele < nElectrons; iele++) {
+      auto const& ele = (*electrons)[iele];
+      if (ids[iele] != std::numeric_limits<float>::max()) {
+        output[iele] = eval(*models_[index], ele, rho, ids[iele], bz);
+      } else {
+        output[iele] = -999.;
       }
     }
-  }
-
-  for (unsigned int iname = 0; iname < names_.size(); ++iname) {
     auto ptr = std::make_unique<edm::ValueMap<float> >(edm::ValueMap<float>());
     edm::ValueMap<float>::Filler filler(*ptr);
-    filler.insert(electrons, output[iname].begin(), output[iname].end());
+    filler.insert(electrons, output.begin(), output.end());
     filler.fill();
-    event.put(std::move(ptr), names_[iname]);
+    event.put(std::move(ptr), names_[index]);
   }
 }
 
