@@ -32,10 +32,10 @@ namespace caConstants {
   constexpr uint32_t maxCellsPerHit = 128 / 2;
 #else   // GPU_SMALL_EVENTS
   // tested on MC events with 55-75 pileup events
-  // and extended for Heavy Ions operations (24k -> 32k tuples, 128 -> 256 cells)
+  // and extended for Heavy Ions operations (24k -> 32k tuples, 128 -> 212 cells)
   constexpr uint32_t maxNumberOfTuples = 32 * 1024;
   constexpr uint32_t maxNumberOfDoublets = 512 * 1024;
-  constexpr uint32_t maxCellsPerHit = 2 * 128;
+  constexpr uint32_t maxCellsPerHit = 212;
 #endif  // GPU_SMALL_EVENTS
 #endif  // ONLY_PHICUT
   constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
