@@ -3,7 +3,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/PluginManager"/>
-<use name="boost"/>
-<export>
-  <lib name="1"/>
-</export>
+<use name="SimCalorimetry/HcalZeroSuppressionProducers"/>
+<library file="*.cc" name="SimCalorimetryZeroSuppressionProducersPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
