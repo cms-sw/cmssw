@@ -359,7 +359,10 @@ int CCLUTLinearFitWriter(unsigned N_LAYER_REQUIREMENT = 3, bool use9bitquality =
       outslope_sw_bin << code << " " << slope_bin << "\n";
       outpatternconv << code << " " << legacypattern << "\n";
       outfile_fw << setfill('0');
-      outfile_fw << setw(5) << std::hex << fwword << "\n";
+      if (use9bitquality)
+        outfile_fw << setw(3) << std::hex << fwword << "\n";
+      else
+        outfile_fw << setw(5) << std::hex << fwword << "\n";
 
       // calculate min and max codes
       if (layer >= N_LAYER_REQUIREMENT) {
