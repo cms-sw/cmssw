@@ -85,7 +85,7 @@ void PFNoPileUpPacked::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::InputTag>("candidates", edm::InputTag("packedPFCandidates"));
   desc.add<int>("vertexAssociationQuality", 7);
   desc.add<edm::InputTag>("vertexAssociation", edm::InputTag("packedPrimaryVertexAssociationJME", "original"));
-  descriptions.add("produceMuons", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(PFNoPileUpPacked);
