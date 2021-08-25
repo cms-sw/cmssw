@@ -34,8 +34,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  double eval(
-      const GBRForest& model, const edm::Ptr<reco::GsfElectron>&, double rho, float unbiased, float field_z) const;
+  double eval(const GBRForest& model, const reco::GsfElectron&, double rho, float unbiased, float field_z) const;
 
   const bool usePAT_;
   edm::EDGetTokenT<reco::GsfElectronCollection> electrons_;
@@ -141,22 +140,22 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
   if (usePAT_) {
     const std::string kUnbiased("unbiased");
     for (unsigned int iele = 0; iele < nElectrons; iele++) {
-      edm::Ptr<pat::Electron> ele(patElectrons, iele);
-      if (!ele->isElectronIDAvailable("unbiased")) {
+      pat::Electron const& ele = (*patElectrons)[iele];
+      if (!ele.isElectronIDAvailable("unbiased")) {
         continue;
       }
-      float id = ele->electronID(kUnbiased);
+      float id = ele.electronID(kUnbiased);
       for (unsigned int index = 0; index < models_.size(); ++index) {
         output[index][iele] = eval(*models_[index], ele, rho, id, zfield.z());
       }
     }
   } else {
     for (unsigned int iele = 0; iele < nElectrons; iele++) {
-      edm::Ptr<reco::GsfElectron> ele(electrons, iele);
-      if (ele->core().isNull()) {
+      reco::GsfElectron const& ele = (*electrons)[iele];
+      if (ele.core().isNull()) {
         continue;
       }
-      const auto& gsf = ele->core()->gsfTrack();  // reco::GsfTrackRef
+      const auto& gsf = ele.core()->gsfTrack();  // reco::GsfTrackRef
       if (gsf.isNull()) {
         continue;
       }
@@ -184,12 +183,12 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 double LowPtGsfElectronIDProducer::eval(
-    const GBRForest& model, const edm::Ptr<reco::GsfElectron>& ele, double rho, float unbiased, float field_z) const {
+    const GBRForest& model, const reco::GsfElectron& ele, double rho, float unbiased, float field_z) const {
   std::vector<float> inputs;
   if (version_ == Version::V0) {
-    inputs = lowptgsfeleid::features_V0(*ele, rho, unbiased);
+    inputs = lowptgsfeleid::features_V0(ele, rho, unbiased);
   } else if (version_ == Version::V1) {
-    inputs = lowptgsfeleid::features_V1(*ele, rho, unbiased, field_z);
+    inputs = lowptgsfeleid::features_V1(ele, rho, unbiased, field_z);
   }
   return model.GetResponse(inputs.data());
 }
