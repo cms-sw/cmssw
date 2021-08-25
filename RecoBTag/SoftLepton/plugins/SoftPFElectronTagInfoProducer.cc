@@ -16,7 +16,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -51,85 +51,84 @@
 // a PFCandidateCollection as input and produces a RefVector
 // to the likely soft electrons in this collection.
 
-class SoftPFElectronTagInfoProducer : public edm::stream::EDProducer<> {
+class SoftPFElectronTagInfoProducer : public edm::global::EDProducer<> {
 public:
   SoftPFElectronTagInfoProducer(const edm::ParameterSet& conf);
-  ~SoftPFElectronTagInfoProducer() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  bool isElecClean(edm::Event&, const reco::GsfElectron*);
-  float boostedPPar(const math::XYZVector&, const math::XYZVector&);
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const final;
+  static bool isElecClean(edm::Event&, const reco::GsfElectron*);
+  static float boostedPPar(const math::XYZVector&, const math::XYZVector&);
 
   // service used to make transient tracks from tracks
-  const TransientTrackBuilder* transientTrackBuilder;
-  edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
-  edm::EDGetTokenT<edm::View<reco::Jet> > token_jets;
-  edm::EDGetTokenT<edm::View<reco::GsfElectron> > token_elec;
-  edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot;
-  edm::EDGetTokenT<reco::ConversionCollection> token_allConversions;
+  const edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
+  const edm::EDGetTokenT<edm::View<reco::Jet> > token_jets;
+  const edm::EDGetTokenT<edm::View<reco::GsfElectron> > token_elec;
+  const edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot;
+  const edm::EDGetTokenT<reco::ConversionCollection> token_allConversions;
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> token_builder;
-  float DeltaRElectronJet, MaxSip3Dsig;
-  bool goodvertex;
-
-  const reco::Vertex* vertex;
+  const edm::EDPutTokenT<reco::CandSoftLeptonTagInfoCollection> token_put;
+  const float DeltaRElectronJet, MaxSip3Dsig;
 };
 
 SoftPFElectronTagInfoProducer::SoftPFElectronTagInfoProducer(const edm::ParameterSet& conf)
-    : token_builder(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))) {
-  token_jets = consumes<edm::View<reco::Jet> >(conf.getParameter<edm::InputTag>("jets"));
-  token_elec = consumes<edm::View<reco::GsfElectron> >(conf.getParameter<edm::InputTag>("electrons"));
-  token_primaryVertex = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("primaryVertex"));
-  token_BeamSpot = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
-  token_allConversions = consumes<reco::ConversionCollection>(edm::InputTag("allConversions"));
-  DeltaRElectronJet = conf.getParameter<double>("DeltaRElectronJet");
-  MaxSip3Dsig = conf.getParameter<double>("MaxSip3Dsig");
-  produces<reco::CandSoftLeptonTagInfoCollection>();
+    : token_primaryVertex(consumes(conf.getParameter<edm::InputTag>("primaryVertex"))),
+      token_jets(consumes(conf.getParameter<edm::InputTag>("jets"))),
+      token_elec(consumes(conf.getParameter<edm::InputTag>("electrons"))),
+      token_BeamSpot(consumes(edm::InputTag("offlineBeamSpot"))),
+      token_allConversions(consumes(edm::InputTag("allConversions"))),
+      token_builder(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      token_put(produces()),
+      DeltaRElectronJet(conf.getParameter<double>("DeltaRElectronJet")),
+      MaxSip3Dsig(conf.getParameter<double>("MaxSip3Dsig")) {}
+
+void SoftPFElectronTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("primaryVertex");
+  desc.add<edm::InputTag>("jets");
+  desc.add<edm::InputTag>("electrons");
+  desc.add<double>("DeltaRElectronJet");
+  desc.add<double>("MaxSip3Dsig");
+  descriptions.addDefault(desc);
 }
 
-SoftPFElectronTagInfoProducer::~SoftPFElectronTagInfoProducer() {}
+void SoftPFElectronTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+  reco::CandSoftLeptonTagInfoCollection theElecTagInfo;
+  const auto& transientTrackBuilder = iSetup.getData(token_builder);
 
-void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  auto theElecTagInfo = std::make_unique<reco::CandSoftLeptonTagInfoCollection>();
-  transientTrackBuilder = &iSetup.getData(token_builder);
-
-  edm::Handle<reco::VertexCollection> PVCollection;
-  iEvent.getByToken(token_primaryVertex, PVCollection);
+  edm::Handle<reco::VertexCollection> PVCollection = iEvent.getHandle(token_primaryVertex);
   if (!PVCollection.isValid())
     return;
-  if (!PVCollection->empty()) {
-    goodvertex = true;
-    vertex = &PVCollection->front();
-  } else
-    goodvertex = false;
-  edm::Handle<reco::ConversionCollection> hConversions;
-  iEvent.getByToken(token_allConversions, hConversions);
 
-  edm::Handle<edm::View<reco::Jet> > theJetCollection;
-  iEvent.getByToken(token_jets, theJetCollection);
+  reco::ConversionCollection const& hConversions = iEvent.get(token_allConversions);
 
-  edm::Handle<edm::View<reco::GsfElectron> > theGEDGsfElectronCollection;
-  iEvent.getByToken(token_elec, theGEDGsfElectronCollection);
+  edm::View<reco::Jet> const& theJetCollection = iEvent.get(token_jets);
 
-  edm::Handle<reco::BeamSpot> bsHandle;
-  iEvent.getByToken(token_BeamSpot, bsHandle);
-  const reco::BeamSpot& beamspot = *bsHandle.product();
+  edm::View<reco::GsfElectron> const& theGEDGsfElectronCollection = iEvent.get(token_elec);
 
-  for (unsigned int i = 0; i < theJetCollection->size(); i++) {
-    edm::RefToBase<reco::Jet> jetRef = theJetCollection->refAt(i);
+  if (PVCollection->empty() and not theJetCollection.empty() and not theGEDGsfElectronCollection.empty()) {
+    //we would need to access a vertex from the collection but there isn't one.
+    return;
+  }
+
+  const reco::BeamSpot& beamspot = iEvent.get(token_BeamSpot);
+
+  for (unsigned int i = 0; i < theJetCollection.size(); i++) {
+    edm::RefToBase<reco::Jet> jetRef = theJetCollection.refAt(i);
     reco::CandSoftLeptonTagInfo tagInfo;
     tagInfo.setJetRef(jetRef);
-    std::vector<const reco::GsfElectron*> Elec;
-    for (unsigned int ie = 0, ne = theGEDGsfElectronCollection->size(); ie < ne; ++ie) {
+    for (unsigned int ie = 0, ne = theGEDGsfElectronCollection.size(); ie < ne; ++ie) {
       //Get the edm::Ptr and the GsfElectron
-      edm::Ptr<reco::Candidate> lepPtr = theGEDGsfElectronCollection->ptrAt(ie);
-      const reco::GsfElectron* recoelectron = theGEDGsfElectronCollection->refAt(ie).get();
+      edm::Ptr<reco::Candidate> lepPtr = theGEDGsfElectronCollection.ptrAt(ie);
+      const reco::GsfElectron* recoelectron = theGEDGsfElectronCollection.refAt(ie).get();
       const pat::Electron* patelec = dynamic_cast<const pat::Electron*>(recoelectron);
       if (patelec) {
         if (!patelec->passConversionVeto())
           continue;
       } else {
-        if (ConversionTools::hasMatchedConversion(*(recoelectron), *hConversions, beamspot.position()))
+        if (ConversionTools::hasMatchedConversion(*(recoelectron), hConversions, beamspot.position()))
           continue;
       }
       //Make sure that the electron is inside the jet
@@ -145,12 +144,13 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
       //Compute the TagInfos members
       math::XYZVector pel = recoelectron->p4().Vect();
       math::XYZVector pjet = jetRef->p4().Vect();
-      reco::TransientTrack transientTrack = transientTrackBuilder->build(recoelectron->gsfTrack());
+      reco::TransientTrack transientTrack = transientTrackBuilder.build(recoelectron->gsfTrack());
+      auto const& vertex = PVCollection->front();
       Measurement1D ip2d = IPTools::signedTransverseImpactParameter(
-                               transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex)
+                               transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), vertex)
                                .second;
       Measurement1D ip3d = IPTools::signedImpactParameter3D(
-                               transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex)
+                               transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), vertex)
                                .second;
       properties.sip2dsig = ip2d.significance();
       properties.sip3dsig = ip3d.significance();
@@ -171,9 +171,9 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
       // Fill the TagInfos
       tagInfo.insert(lepPtr, properties);
     }
-    theElecTagInfo->push_back(tagInfo);
+    theElecTagInfo.push_back(tagInfo);
   }
-  iEvent.put(std::move(theElecTagInfo));
+  iEvent.emplace(token_put, std::move(theElecTagInfo));
 }
 
 bool SoftPFElectronTagInfoProducer::isElecClean(edm::Event& iEvent, const reco::GsfElectron* candidate) {

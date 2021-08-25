@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -54,60 +54,70 @@
 #include <cmath>
 #include <vector>
 
-class SoftPFMuonTagInfoProducer : public edm::stream::EDProducer<> {
+class SoftPFMuonTagInfoProducer : public edm::global::EDProducer<> {
 public:
   SoftPFMuonTagInfoProducer(const edm::ParameterSet& conf);
-  ~SoftPFMuonTagInfoProducer() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual float boostedPPar(const math::XYZVector&, const math::XYZVector&);
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const final;
+  float boostedPPar(const math::XYZVector&, const math::XYZVector&) const;
 
-  edm::EDGetTokenT<edm::View<reco::Jet> > jetToken;
-  edm::EDGetTokenT<edm::View<reco::Muon> > muonToken;
-  edm::EDGetTokenT<reco::VertexCollection> vertexToken;
+  const edm::EDGetTokenT<edm::View<reco::Jet> > jetToken;
+  const edm::EDGetTokenT<edm::View<reco::Muon> > muonToken;
+  const edm::EDGetTokenT<reco::VertexCollection> vertexToken;
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> builderToken;
-  float pTcut, SIPsigcut, IPsigcut, ratio1cut, ratio2cut;
-  bool useFilter;
+  const edm::EDPutTokenT<reco::CandSoftLeptonTagInfoCollection> putToken;
+  const float pTcut, SIPsigcut, IPsigcut, ratio1cut, ratio2cut;
+  const bool useFilter;
 };
 
 SoftPFMuonTagInfoProducer::SoftPFMuonTagInfoProducer(const edm::ParameterSet& conf)
-    : builderToken(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))) {
-  jetToken = consumes<edm::View<reco::Jet> >(conf.getParameter<edm::InputTag>("jets"));
-  muonToken = consumes<edm::View<reco::Muon> >(conf.getParameter<edm::InputTag>("muons"));
-  vertexToken = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("primaryVertex"));
-  pTcut = conf.getParameter<double>("muonPt");
-  SIPsigcut = conf.getParameter<double>("muonSIPsig");
-  IPsigcut = conf.getParameter<double>("filterIpsig");
-  ratio1cut = conf.getParameter<double>("filterRatio1");
-  ratio2cut = conf.getParameter<double>("filterRatio2");
-  useFilter = conf.getParameter<bool>("filterPromptMuons");
-  produces<reco::CandSoftLeptonTagInfoCollection>();
+    : jetToken(consumes(conf.getParameter<edm::InputTag>("jets"))),
+      muonToken(consumes(conf.getParameter<edm::InputTag>("muons"))),
+      vertexToken(consumes(conf.getParameter<edm::InputTag>("primaryVertex"))),
+      builderToken(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      putToken(produces()),
+      pTcut(conf.getParameter<double>("muonPt")),
+      SIPsigcut(conf.getParameter<double>("muonSIPsig")),
+      IPsigcut(conf.getParameter<double>("filterIpsig")),
+      ratio1cut(conf.getParameter<double>("filterRatio1")),
+      ratio2cut(conf.getParameter<double>("filterRatio2")),
+      useFilter(conf.getParameter<bool>("filterPromptMuons")) {}
+
+void SoftPFMuonTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("jets");
+  desc.add<edm::InputTag>("muons");
+  desc.add<edm::InputTag>("primaryVertex");
+  desc.add<double>("muonPt");
+  desc.add<double>("muonSIPsig");
+  desc.add<double>("filterIpsig");
+  desc.add<double>("filterRatio1");
+  desc.add<double>("filterRatio2");
+  desc.add<bool>("filterPromptMuons");
+  descriptions.addDefault(desc);
 }
 
-SoftPFMuonTagInfoProducer::~SoftPFMuonTagInfoProducer() {}
-
-void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SoftPFMuonTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // Declare produced collection
-  auto theMuonTagInfo = std::make_unique<reco::CandSoftLeptonTagInfoCollection>();
+  reco::CandSoftLeptonTagInfoCollection theMuonTagInfo;
 
   // Declare and open Jet collection
-  edm::Handle<edm::View<reco::Jet> > theJetCollection;
-  iEvent.getByToken(jetToken, theJetCollection);
+  edm::Handle<edm::View<reco::Jet> > theJetCollection = iEvent.getHandle(jetToken);
 
   // Declare Muon collection
-  edm::Handle<edm::View<reco::Muon> > theMuonCollection;
-  iEvent.getByToken(muonToken, theMuonCollection);
+  edm::Handle<edm::View<reco::Muon> > theMuonCollection = iEvent.getHandle(muonToken);
 
   // Declare and open Vertex collection
-  edm::Handle<reco::VertexCollection> theVertexCollection;
-  iEvent.getByToken(vertexToken, theVertexCollection);
+  edm::Handle<reco::VertexCollection> theVertexCollection = iEvent.getHandle(vertexToken);
   if (!theVertexCollection.isValid() || theVertexCollection->empty())
     return;
   const reco::Vertex* vertex = &theVertexCollection->front();
 
-  // Biult TransientTrackBuilder
-  const TransientTrackBuilder* transientTrackBuilder = &iSetup.getData(builderToken);
+  // Build TransientTrackBuilder
+  const TransientTrackBuilder& transientTrackBuilder = iSetup.getData(builderToken);
 
   // Loop on jets
   for (unsigned int ij = 0, nj = theJetCollection->size(); ij < nj; ij++) {
@@ -154,7 +164,7 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
       reco::TrackRef trkRef(muon->innerTrack());
       reco::TrackBaseRef trkBaseRef(trkRef);
       // Build Transient Track
-      reco::TransientTrack transientTrack = transientTrackBuilder->build(trkRef);
+      reco::TransientTrack transientTrack = transientTrackBuilder.build(trkRef);
       // Define jet and muon vectors
       reco::Candidate::Vector jetvect(jetRef->p4().Vect()), muonvect(muon->p4().Vect());
       // Calculate variables
@@ -193,15 +203,15 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
     }  // --- End loop on daughters
 
     // Fill the TagInfo collection
-    theMuonTagInfo->push_back(tagInfo);
+    theMuonTagInfo.push_back(tagInfo);
   }  // --- End loop on jets
 
   // Put the TagInfo collection in the event
-  iEvent.put(std::move(theMuonTagInfo));
+  iEvent.emplace(putToken, std::move(theMuonTagInfo));
 }
 
 // compute the lepton momentum along the jet axis, in the jet rest frame
-float SoftPFMuonTagInfoProducer::boostedPPar(const math::XYZVector& vector, const math::XYZVector& axis) {
+float SoftPFMuonTagInfoProducer::boostedPPar(const math::XYZVector& vector, const math::XYZVector& axis) const {
   static const double lepton_mass = 0.00;  // assume a massless (ultrarelativistic) lepton
   static const double jet_mass = 5.279;    // use B±/B0 mass as the jet rest mass [PDG 2007 updates]
   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > lepton(
