@@ -4,18 +4,21 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+
+#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
+#include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "RecoTracker/MkFit/interface/MkFitClusterIndexToHit.h"
 #include "RecoTracker/MkFit/interface/MkFitEventOfHits.h"
 #include "RecoTracker/MkFit/interface/MkFitGeometry.h"
 #include "RecoTracker/MkFit/interface/MkFitHitWrapper.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
 
 // mkFit includes
 #include "mkFit/HitStructures.h"
@@ -66,7 +69,7 @@ void MkFitEventOfHitsProducer::fillDescriptions(edm::ConfigurationDescriptions& 
 
   desc.add("pixelHits", edm::InputTag{"mkFitSiPixelHits"});
   desc.add("stripHits", edm::InputTag{"mkFitSiStripHits"});
-  desc.add("useStripStripQualityDB", false)->setComment("Use SiStrip quality DB information");
+  desc.add("useStripStripQualityDB", true)->setComment("Use SiStrip quality DB information");
 
   descriptions.addWithDefaultLabel(desc);
 }
@@ -85,14 +88,52 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
     const auto& trackerGeom = iSetup.getData(geomToken_);
     const auto& badStrips = siStripQuality.getBadComponentList();
     for (const auto& bs : badStrips) {
-      const auto& surf = trackerGeom.idToDet(DetId(bs.detid))->surface();
       const DetId detid(bs.detid);
+      const auto& surf = trackerGeom.idToDet(detid)->surface();
       bool isBarrel = (mkFitGeom.topology()->side(detid) == static_cast<unsigned>(TrackerDetSide::Barrel));
       const auto ilay = mkFitGeom.mkFitLayerNumber(detid);
-      deadvectors[ilay].push_back({surf.phiSpan().first,
-                                   surf.phiSpan().second,
-                                   (isBarrel ? surf.zSpan().first : surf.rSpan().first),
-                                   (isBarrel ? surf.zSpan().second : surf.rSpan().second)});
+      const auto q1 = isBarrel ? surf.zSpan().first : surf.rSpan().first;
+      const auto q2 = isBarrel ? surf.zSpan().second : surf.rSpan().second;
+      if (bs.BadModule)
+        deadvectors[ilay].push_back({surf.phiSpan().first, surf.phiSpan().second, q1, q2});
+      else {  //assume that BadApvs are filled in sync with BadFibers
+        auto const& topo = dynamic_cast<const StripTopology&>(trackerGeom.idToDet(detid)->topology());
+        int firstApv = -1;
+        int lastApv = -1;
+
+        auto addRangeAPV = [&topo, &surf, &q1, &q2](int first, int last, mkfit::DeadVec& dv) {
+          auto const firstPoint = surf.toGlobal(topo.localPosition(first * sistrip::STRIPS_PER_APV));
+          auto const lastPoint = surf.toGlobal(topo.localPosition((last + 1) * sistrip::STRIPS_PER_APV));
+          float phi1 = firstPoint.phi();
+          float phi2 = lastPoint.phi();
+          if (reco::deltaPhi(phi1, phi2) > 0)
+            std::swap(phi1, phi2);
+          LogTrace("SiStripBadComponents")
+              << "insert bad range " << first << " to " << last << " " << phi1 << " " << phi2;
+          dv.push_back({phi1, phi2, q1, q2});
+        };
+
+        const int nApvs = topo.nstrips() / sistrip::STRIPS_PER_APV;
+        for (int apv = 0; apv < nApvs; ++apv) {
+          const bool isBad = bs.BadApvs & (1 << apv);
+          if (isBad) {
+            LogTrace("SiStripBadComponents") << "bad apv " << apv << " on " << bs.detid;
+            if (lastApv == -1) {
+              firstApv = apv;
+              lastApv = apv;
+            } else if (lastApv + 1 == apv)
+              lastApv++;
+
+            if (apv + 1 == nApvs)
+              addRangeAPV(firstApv, lastApv, deadvectors[ilay]);
+          } else if (firstApv != -1) {
+            addRangeAPV(firstApv, lastApv, deadvectors[ilay]);
+            //and reset
+            firstApv = -1;
+            lastApv = -1;
+          }
+        }
+      }
     }
     mkfit::StdSeq::LoadDeads(*eventOfHits, deadvectors);
   }
