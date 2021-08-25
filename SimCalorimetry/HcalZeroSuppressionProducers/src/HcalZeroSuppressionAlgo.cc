@@ -1,4 +1,4 @@
-#include "HcalZeroSuppressionAlgo.h"
+#include "SimCalorimetry/HcalZeroSuppressionProducers/interface/HcalZeroSuppressionAlgo.h"
 
 HcalZeroSuppressionAlgo::HcalZeroSuppressionAlgo(bool mp) : m_markAndPass(mp) { m_dbService = nullptr; }
 

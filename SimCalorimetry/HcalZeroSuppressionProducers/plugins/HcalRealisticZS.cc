@@ -1,14 +1,42 @@
+/** \class HcalSimpleRealisticZS
+
+\author J. Mans - Minnesota
+*/
+
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "HcalRealisticZS.h"
+#include "SimCalorimetry/HcalZeroSuppressionProducers/interface/HcalZSAlgoRealistic.h"
 
 #include <iostream>
 #include <memory>
+#include <string>
+
+class HcalRealisticZS : public edm::stream::EDProducer<> {
+public:
+  explicit HcalRealisticZS(const edm::ParameterSet &ps);
+  ~HcalRealisticZS() override;
+  void produce(edm::Event &e, const edm::EventSetup &c) override;
+
+private:
+  std::unique_ptr<HcalZSAlgoRealistic> algo_;
+  std::string inputLabel_;
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+  edm::EDGetTokenT<HODigiCollection> tok_ho_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hf_;
+  edm::EDGetTokenT<QIE10DigiCollection> tok_hfQIE10_;
+  edm::EDGetTokenT<QIE11DigiCollection> tok_hbheQIE11_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbService_;
+};
 
 HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const &conf)
     : inputLabel_(conf.getParameter<std::string>("digiLabel")) {
@@ -146,3 +174,8 @@ void HcalRealisticZS::produce(edm::Event &e, const edm::EventSetup &eventSetup) 
   e.put(std::move(zs_hfQIE10), "HFQIE10DigiCollection");
   e.put(std::move(zs_hbheQIE11), "HBHEQIE11DigiCollection");
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
+DEFINE_FWK_MODULE(HcalRealisticZS);
