@@ -19,6 +19,7 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
@@ -37,6 +38,7 @@ private:
   edm::EDGetTokenT<edm::View<reco::Jet> > jetToken;
   edm::EDGetTokenT<edm::View<reco::Muon> > muonToken;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> builderToken;
   float pTcut, SIPsigcut, IPsigcut, ratio1cut, ratio2cut;
   bool useFilter;
 };

@@ -44,6 +44,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 class TransientTrackBuilder;
 
@@ -99,15 +100,16 @@ private:
   const edm::EDGetTokenT<edm::ValueMap<float> > token_leptonId;
 
   // service used to make transient tracks from tracks
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> token_builder;
   const TransientTrackBuilder* m_transientTrackBuilder;
 
   // algorithm configuration
-  unsigned int m_refineJetAxis;
-  double m_deltaRCut;
-  double m_chi2Cut;
+  const unsigned int m_refineJetAxis;
+  const double m_deltaRCut;
+  const double m_chi2Cut;
 
   // specific for reco::Muons
-  muon::SelectionType m_muonSelection;
+  const muon::SelectionType m_muonSelection;
 
   // nominal beam spot position
   static const reco::Vertex s_nominalBeamSpot;

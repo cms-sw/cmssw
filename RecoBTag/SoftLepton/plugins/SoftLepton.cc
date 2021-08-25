@@ -85,6 +85,7 @@ SoftLepton::SoftLepton(const edm::ParameterSet &iConfig)
       m_leptonId(iConfig.exists("leptonId") ? iConfig.getParameter<edm::InputTag>("leptonId") : edm::InputTag()),
       token_leptonId(mayConsume<edm::ValueMap<float> >(
           iConfig.exists("leptonId") ? iConfig.getParameter<edm::InputTag>("leptonId") : edm::InputTag())),
+      token_builder(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
       m_transientTrackBuilder(nullptr),
       m_refineJetAxis(iConfig.getParameter<unsigned int>("refineJetAxis")),
       m_deltaRCut(iConfig.getParameter<double>("leptonDeltaRCut")),
@@ -99,9 +100,7 @@ SoftLepton::~SoftLepton(void) {}
 // ------------ method called once per event during the event loop -----------------------
 void SoftLepton::produce(edm::Event &event, const edm::EventSetup &setup) {
   // grab a TransientTrack helper from the Event Setup
-  edm::ESHandle<TransientTrackBuilder> builder;
-  setup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
-  m_transientTrackBuilder = builder.product();
+  m_transientTrackBuilder = &setup.getData(token_builder);
 
   // input objects
 
