@@ -2,7 +2,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
@@ -17,25 +16,25 @@
 #include "TrackingTools/GsfTracking/interface/GsfMultiStateUpdator.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
-GsfConstraintAtVertex::GsfConstraintAtVertex(const edm::EventSetup& setup) {
-  edm::ESHandle<TrackerGeometry> geometryHandle;
-  setup.get<TrackerDigiGeometryRecord>().get(geometryHandle);
-  geometry_ = geometryHandle.product();
+GsfConstraintAtVertex::GsfConstraintAtVertex(const TrackerGeometry* geometry, const MagneticField* magField)
+    : geometry_(geometry),
+      magField_(magField),
+      gsfPropagator_(AnalyticalPropagator(magField, anyDirection)),
+      tipExtrapolator_(gsfPropagator_) {
+  //edm::ESHandle<TrackerGeometry> geometryHandle;
+  //setup.get<TrackerDigiGeometryRecord>().get(geometryHandle);
+  geometry_ = geometry;
 
-  edm::ESHandle<MagneticField> magFieldHandle;
-  setup.get<IdealMagneticFieldRecord>().get(magFieldHandle);
-  magField_ = magFieldHandle.product();
+  //edm::ESHandle<MagneticField> magFieldHandle;
+  //setup.get<IdealMagneticFieldRecord>().get(magFieldHandle);
+  //magField_ = magFieldHandle.product();
+  magField_ = magField;
 
   //   edm::ESHandle<Propagator> propagatorHandle;
   //   setup.get<TrackingComponentsRecord>().get(propagatorName_,propagatorHandle);
   //   propagator_ = propagatorHandle.product();
-  gsfPropagator_ = new GsfPropagatorAdapter(AnalyticalPropagator(magField_, anyDirection));
-  tipExtrapolator_ = new TransverseImpactPointExtrapolator(*gsfPropagator_);
-}
-
-GsfConstraintAtVertex::~GsfConstraintAtVertex() {
-  delete tipExtrapolator_;
-  delete gsfPropagator_;
+  //gsfPropagator_ = std::make_unique<GsfPropagatorAdapter>(AnalyticalPropagator(magField, anyDirection));
+  //tipExtrapolator_ = std::make_unique<TransverseImpactPointExtrapolator>(*gsfPropagator_);
 }
 
 TrajectoryStateOnSurface GsfConstraintAtVertex::constrainAtBeamSpot(const reco::GsfTrack& track,
@@ -69,7 +68,7 @@ TrajectoryStateOnSurface GsfConstraintAtVertex::constrainAtPoint(const reco::Gsf
   TrajectoryStateOnSurface innerState = multiStateTransformer_.innerStateOnSurface(track, *geometry_, magField_);
   if (!innerState.isValid())
     return TrajectoryStateOnSurface();
-  TrajectoryStateOnSurface tipState = tipExtrapolator_->extrapolate(innerState, globalPosition);
+  TrajectoryStateOnSurface tipState = tipExtrapolator_.extrapolate(innerState, globalPosition);
   if (!tipState.isValid())
     return TrajectoryStateOnSurface();
   //
