@@ -767,9 +767,9 @@ jetMCTaskak8 = cms.Task(genJetAK8Table,genJetAK8FlavourAssociation,genJetAK8Flav
 jetMCTask = jetMCTaskak4.copy()
 jetMCTask.add(jetMCTaskak8)
 
+_jetMCTaskak8 = jetMCTaskak8.copyAndExclude([genSubJetAK8Table])
+
 _jetMC_pre94XTask = jetMCTaskak4.copy()
 _jetMC_pre94XTask.add(genJetFlavourAssociation)
-_jetMC_pre94XTask.add(jetMCTaskak8)
-_jetMC_pre94XTask.copyAndExclude([genSubJetAK8Table])
+_jetMC_pre94XTask.add(_jetMCTaskak8)
 run2_miniAOD_80XLegacy.toReplaceWith(jetMCTask, _jetMC_pre94XTask)
-
