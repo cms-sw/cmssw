@@ -6,6 +6,7 @@ import PhysicsTools.PatAlgos.tools.helpers as configtools
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 import CommonTools.CandAlgos.candPtrProjector_cfi as _mod
+from PhysicsTools.PatUtils.tools.pfforTrkMET_cff import *
 
 
 def isValidInputTag(input):
@@ -1727,8 +1728,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         patMetModuleSequence += getattr(process, "pfCHS")
         patMetModuleSequence += getattr(process, "pfMetCHS")
         patMetModuleSequence += getattr(process, "patCHSMet")
-
-        pfTrk = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("pvAssociationQuality()>=4 && charge()!=0 && vertexRef().key()==0"))
+        
+        pfTrk = chargedPackedCandsForTkMet.clone()
         addToProcessAndTask("pfTrk", pfTrk, process, task)
         pfMetTrk = pfMet.clone(src = 'pfTrk')
         addToProcessAndTask("pfMetTrk", pfMetTrk, process, task)
