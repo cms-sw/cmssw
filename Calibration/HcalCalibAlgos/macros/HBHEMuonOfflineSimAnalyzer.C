@@ -43,46 +43,46 @@ private:
   UInt_t Event_No;
   UInt_t LumiNumber;
   UInt_t BXNumber;
-  std::vector<double> *pt_of_muon;
-  std::vector<double> *eta_of_muon;
-  std::vector<double> *phi_of_muon;
-  std::vector<double> *p_of_muon;
-  std::vector<double> *ecal_3x3;
-  std::vector<unsigned int> *ecal_detID;
-  std::vector<double> *hcal_1x1;
-  std::vector<double> *matchedId;
-  std::vector<unsigned int> *hcal_detID;
-  std::vector<unsigned int> *hcal_cellHot;
-  std::vector<double> *activeLength;
-  std::vector<double> *hcal_edepth1;
-  std::vector<double> *hcal_edepth2;
-  std::vector<double> *hcal_edepth3;
-  std::vector<double> *hcal_edepth4;
-  std::vector<double> *hcal_activeL1;
-  std::vector<double> *hcal_activeL2;
-  std::vector<double> *hcal_activeL3;
-  std::vector<double> *hcal_activeL4;
-  std::vector<double> *activeLengthHot;
-  std::vector<double> *hcal_edepthHot1;
-  std::vector<double> *hcal_edepthHot2;
-  std::vector<double> *hcal_edepthHot3;
-  std::vector<double> *hcal_edepthHot4;
-  std::vector<double> *hcal_activeHotL1;
-  std::vector<double> *hcal_activeHotL2;
-  std::vector<double> *hcal_activeHotL3;
-  std::vector<double> *hcal_activeHotL4;
-  std::vector<double> *hcal_edepth5;
-  std::vector<double> *hcal_activeL5;
-  std::vector<double> *hcal_edepthHot5;
-  std::vector<double> *hcal_activeHotL5;
-  std::vector<double> *hcal_edepth6;
-  std::vector<double> *hcal_activeL6;
-  std::vector<double> *hcal_edepthHot6;
-  std::vector<double> *hcal_activeHotL6;
-  std::vector<double> *hcal_edepth7;
-  std::vector<double> *hcal_activeL7;
-  std::vector<double> *hcal_edepthHot7;
-  std::vector<double> *hcal_activeHotL7;
+  double pt_of_muon;
+  double eta_of_muon;
+  double phi_of_muon;
+  double p_of_muon;
+  double ecal_3x3;
+  unsigned int ecal_detID;
+  double hcal_1x1;
+  double matchedId;
+  unsigned int hcal_detID;
+  unsigned int hcal_cellHot;
+  double activeLength;
+  double hcal_edepth1;
+  double hcal_edepth2;
+  double hcal_edepth3;
+  double hcal_edepth4;
+  double hcal_activeL1;
+  double hcal_activeL2;
+  double hcal_activeL3;
+  double hcal_activeL4;
+  double activeLengthHot;
+  double hcal_edepthHot1;
+  double hcal_edepthHot2;
+  double hcal_edepthHot3;
+  double hcal_edepthHot4;
+  double hcal_activeHotL1;
+  double hcal_activeHotL2;
+  double hcal_activeHotL3;
+  double hcal_activeHotL4;
+  double hcal_edepth5;
+  double hcal_activeL5;
+  double hcal_edepthHot5;
+  double hcal_activeHotL5;
+  double hcal_edepth6;
+  double hcal_activeL6;
+  double hcal_edepthHot6;
+  double hcal_activeHotL6;
+  double hcal_edepth7;
+  double hcal_activeL7;
+  double hcal_edepthHot7;
+  double hcal_activeHotL7;
 
   TBranch *b_Run_No;            //!
   TBranch *b_Event_No;          //!
@@ -147,9 +147,9 @@ public:
   std::vector<std::string> firedTriggers;
   void BookHistograms(const char *);
   void WriteHistograms();
-  bool LooseMuon(unsigned int ml);
-  bool tightMuon(unsigned int ml);
-  bool SoftMuon(unsigned int ml);
+  bool LooseMuon();
+  bool tightMuon();
+  bool SoftMuon();
   void etaPhiHcal(unsigned int detId, int &eta, int &phi, int &depth);
   void etaPhiEcal(unsigned int detId, int &type, int &zside, int &etaX, int &phiY, int &plane, int &strip);
   void calculateP(double pt, double eta, double &pM);
@@ -370,129 +370,126 @@ void HBHEMuonOfflineSimAnalyzer::Loop() {
     nb = fChain->GetEntry(jentry);
     nbytes += nb;
 
-    for (unsigned int ml = 0; ml < pt_of_muon->size(); ml++) {
-      if (debug_) {
-        std::cout << "ecal_det_id " << ecal_detID->at(ml) << std::endl;
-        std::cout << "hcal_det_id " << std::hex << hcal_detID->at(ml) << std::dec;
-      }
-      int etaHcal, phiHcal, depthHcal;
-      etaPhiHcal(hcal_detID->at(ml), etaHcal, phiHcal, depthHcal);
+    if (debug_) {
+      std::cout << "ecal_det_id " << ecal_detID << std::endl;
+      std::cout << "hcal_det_id " << std::hex << hcal_detID << std::dec;
+    }
+    int etaHcal, phiHcal, depthHcal;
+    etaPhiHcal(hcal_detID, etaHcal, phiHcal, depthHcal);
 
-      int eta = (etaHcal > 0) ? (etaHcal - 1) : -(1 + etaHcal);
-      int nDepth = NDepthBins(eta + 1, phiHcal);
-      int nPhi = NPhiBins(eta + 1);
+    int eta = (etaHcal > 0) ? (etaHcal - 1) : -(1 + etaHcal);
+    int nDepth = NDepthBins(eta + 1, phiHcal);
+    int nPhi = NPhiBins(eta + 1);
 
-      double phiYHcal = (phiHcal - 0.5);
-      if (debug_)
-        std::cout << "phiHcal" << phiHcal << " phiYHcal" << phiYHcal << std::endl;
+    double phiYHcal = (phiHcal - 0.5);
+    if (debug_)
+      std::cout << "phiHcal" << phiHcal << " phiYHcal" << phiYHcal << std::endl;
 
-      for (int cut = 0; cut < 3; ++cut) {
-        bool select(false);
-        if (cut == 0)
-          select = tightMuon(ml);
-        else if (cut == 1)
-          select = SoftMuon(ml);
-        else
-          select = LooseMuon(ml);
+    for (int cut = 0; cut < 3; ++cut) {
+      bool select(false);
+      if (cut == 0)
+        select = tightMuon();
+      else if (cut == 1)
+        select = SoftMuon();
+      else
+        select = LooseMuon();
 
-        if (select) {
-          //	  h_P_Muon[cut]->Fill(p_of_muon->at(ml));
-          h_P_Muon[cut]->Fill(p_of_muon->at(ml));
-          h_Pt_Muon[cut]->Fill(pt_of_muon->at(ml));
-          h_Eta_Muon[cut]->Fill(eta_of_muon->at(ml));
+      if (select) {
+        //	  h_P_Muon[cut]->Fill(p_of_muon);
+        h_P_Muon[cut]->Fill(p_of_muon);
+        h_Pt_Muon[cut]->Fill(pt_of_muon);
+        h_Eta_Muon[cut]->Fill(eta_of_muon);
 
-          double energyFill;
-          for (int dep = 0; dep < nDepth; ++dep) {
-            if (debug_) {
-              std::cout << "why on 15/2 only" << std::endl;
-              std::cout << "dep:" << dep << std::endl;
-            }
-            int PHI = (nPhi > 36) ? (phiHcal - 1) : (phiHcal - 1) / 2;
-            double en1(-9999), en2(-9999);
-            if (dep == 0) {
-              en1 = hcal_edepth1->at(ml);
-              en2 = hcal_edepthHot1->at(ml);
-              energyFill = (hcal_activeHotL1->at(ml) > 0) ? hcal_activeHotL1->at(ml) : 999;
-
-            } else if (dep == 1) {
-              en1 = hcal_edepth2->at(ml);
-              en2 = hcal_edepthHot2->at(ml);
-              energyFill = (hcal_activeHotL2->at(ml) > 0) ? hcal_activeHotL2->at(ml) : 999;
-              if (debug_)
-                std::cout << "problem here.. lets see if it got printed\n";
-            } else if (dep == 2) {
-              en1 = hcal_edepth3->at(ml);
-              en2 = hcal_edepthHot3->at(ml);
-              energyFill = (hcal_activeHotL3->at(ml) > 0) ? hcal_activeHotL3->at(ml) : 999;
-            } else if (dep == 3) {
-              en1 = hcal_edepth4->at(ml);
-              en2 = hcal_edepthHot4->at(ml);
-              if (debug_)
-                std::cout << "Hello in 4" << std::endl;
-              energyFill = (hcal_activeHotL4->at(ml) > 0) ? hcal_activeHotL4->at(ml) : 999;
-            } else if (dep == 4) {
-              en1 = hcal_edepth5->at(ml);
-              en2 = hcal_edepthHot5->at(ml);
-              energyFill = (hcal_activeHotL5->at(ml) > 0) ? hcal_activeHotL5->at(ml) : 999;
-            } else if (dep == 5) {
-              if (debug_)
-                std::cout << "Energy in depth 6 " << hcal_edepth6->size() << ":" << hcal_edepthHot6->size()
-                          << std::endl;
-              en1 = (hcal_edepth6->size() > ml) ? hcal_edepth6->at(ml) : 0;
-              en2 = (hcal_edepthHot6->size() > ml) ? hcal_edepthHot6->at(ml) : 0;
-              energyFill = (hcal_activeHotL6->at(ml) > 0) ? hcal_activeHotL6->at(ml) : 999;
-            } else if (dep == 6) {
-              if (debug_)
-                std::cout << "Energy in depth 7 " << hcal_edepth7->size() << ":" << hcal_edepthHot7->size()
-                          << std::endl;
-              en1 = (hcal_edepth7->size() > ml) ? hcal_edepth7->at(ml) : 0;
-              en2 = (hcal_edepthHot7->size() > ml) ? hcal_edepthHot7->at(ml) : 0;
-              energyFill = (hcal_activeHotL7->at(ml) > 0) ? hcal_activeHotL7->at(ml) : 999;
-            }
-
-            if (debug_) {
-              std::cout << " Debug2" << std::endl;
-              std::cout << "ok1" << en1 << std::endl;
-              std::cout << "ok2" << en2 << std::endl;
-            }
-            bool ok1 = (en1 > -9999);
-            bool ok2 = (en2 > -9999);
-
-            if (debug_)
-              std::cout << "Before Index" << std::endl;
-
-            int ind = (etaHcal > 0) ? indxEta[eta][dep][PHI] : 1 + indxEta[eta][dep][PHI];
-
-            if (debug_) {
-              std::cout << "ieta " << eta << "depth " << dep << "indxEta[eta][dep]:" << indxEta[eta][dep][PHI]
-                        << std::endl;
-              std::cout << "index showing eta,depth:" << ind << std::endl;
-              std::cout << "etaHcal: " << etaHcal << " eta " << eta << " dep " << dep << " indx " << ind << std::endl;
-            }
-            if (!(matchedId->at(ml)))
-              continue;
-            if (ok1) {
-              if (debug_)
-                std::cout << "enter ok1" << std::endl;
-              if (hcal_cellHot->at(ml) == 1) {
-                if (en2 > 0) {
-                  h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[cut][ind]->Fill(en2 / energyFill);
-                }
-                if (debug_)
-                  std::cout << "enter hot cell" << std::endl;
-              }
-            }
-
-            if (ok2) {
-              if (debug_)
-                std::cout << "enter ok2" << std::endl;
-              if (hcal_cellHot->at(ml) != 1) {
-              }
-            }
-
-            if (debug_)
-              std::cout << "ETA \t" << eta << "DEPTH \t" << dep << std::endl;
+        double energyFill;
+        for (int dep = 0; dep < nDepth; ++dep) {
+          if (debug_) {
+            std::cout << "why on 15/2 only" << std::endl;
+            std::cout << "dep:" << dep << std::endl;
           }
+          int PHI = (nPhi > 36) ? (phiHcal - 1) : (phiHcal - 1) / 2;
+          double en1(-9999), en2(-9999);
+          if (dep == 0) {
+            en1 = hcal_edepth1;
+            en2 = hcal_edepthHot1;
+            energyFill = (hcal_activeHotL1 > 0) ? hcal_activeHotL1 : 999;
+          } else if (dep == 1) {
+            en1 = hcal_edepth2;
+            en2 = hcal_edepthHot2;
+            energyFill = (hcal_activeHotL2 > 0) ? hcal_activeHotL2 : 999;
+            if (debug_)
+              std::cout << "problem here.. lets see if it got printed\n";
+          } else if (dep == 2) {
+            en1 = hcal_edepth3;
+            en2 = hcal_edepthHot3;
+            energyFill = (hcal_activeHotL3 > 0) ? hcal_activeHotL3 : 999;
+          } else if (dep == 3) {
+            en1 = hcal_edepth4;
+            en2 = hcal_edepthHot4;
+            if (debug_)
+              std::cout << "Hello in 4" << std::endl;
+            energyFill = (hcal_activeHotL4 > 0) ? hcal_activeHotL4 : 999;
+          } else if (dep == 4) {
+            en1 = hcal_edepth5;
+            en2 = hcal_edepthHot5;
+            energyFill = (hcal_activeHotL5 > 0) ? hcal_activeHotL5 : 999;
+          } else if (dep == 5) {
+            if (debug_)
+              std::cout << "Energy in depth 6 " << maxDepth_ << ":" << hcal_edepth6 << ":" << hcal_edepthHot6
+                        << std::endl;
+            en1 = (maxDepth_ > 5) ? hcal_edepth6 : 0;
+            en2 = (maxDepth_ > 5) ? hcal_edepthHot6 : 0;
+            energyFill = (hcal_activeHotL6 > 0) ? hcal_activeHotL6 : 999;
+          } else if (dep == 6) {
+            if (debug_)
+              std::cout << "Energy in depth 7 " << maxDepth_ << ":" << hcal_edepth7 << ":" << hcal_edepthHot7
+                        << std::endl;
+            en1 = (maxDepth_ > 6) ? hcal_edepth7 : 0;
+            en2 = (maxDepth_ > 6) ? hcal_edepthHot7 : 0;
+            energyFill = (hcal_activeHotL7 > 0) ? hcal_activeHotL7 : 999;
+          }
+
+          if (debug_) {
+            std::cout << " Debug2" << std::endl;
+            std::cout << "ok1" << en1 << std::endl;
+            std::cout << "ok2" << en2 << std::endl;
+          }
+          bool ok1 = (en1 > -9999);
+          bool ok2 = (en2 > -9999);
+
+          if (debug_)
+            std::cout << "Before Index" << std::endl;
+
+          int ind = (etaHcal > 0) ? indxEta[eta][dep][PHI] : 1 + indxEta[eta][dep][PHI];
+
+          if (debug_) {
+            std::cout << "ieta " << eta << "depth " << dep << "indxEta[eta][dep]:" << indxEta[eta][dep][PHI]
+                      << std::endl;
+            std::cout << "index showing eta,depth:" << ind << std::endl;
+            std::cout << "etaHcal: " << etaHcal << " eta " << eta << " dep " << dep << " indx " << ind << std::endl;
+          }
+          if (!(matchedId))
+            continue;
+          if (ok1) {
+            if (debug_)
+              std::cout << "enter ok1" << std::endl;
+            if (hcal_cellHot == 1) {
+              if (en2 > 0) {
+                h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[cut][ind]->Fill(en2 / energyFill);
+              }
+              if (debug_)
+                std::cout << "enter hot cell" << std::endl;
+            }
+          }
+
+          if (ok2) {
+            if (debug_)
+              std::cout << "enter ok2" << std::endl;
+            if (hcal_cellHot != 1) {
+            }
+          }
+
+          if (debug_)
+            std::cout << "ETA \t" << eta << "DEPTH \t" << dep << std::endl;
         }
       }
     }
@@ -729,9 +726,9 @@ void HBHEMuonOfflineSimAnalyzer::BookHistograms(const char *fname) {
   //output_file->cd();
 }
 
-bool HBHEMuonOfflineSimAnalyzer::LooseMuon(unsigned int ml) {
-  if (pt_of_muon->at(ml) > 20.) {
-    if (fabs(eta_of_muon->at(ml)) <= 5.0) {
+bool HBHEMuonOfflineSimAnalyzer::LooseMuon() {
+  if (pt_of_muon > 20.) {
+    if (fabs(eta_of_muon) <= 5.0) {
       return true;
     }
   }
@@ -739,9 +736,9 @@ bool HBHEMuonOfflineSimAnalyzer::LooseMuon(unsigned int ml) {
   return false;
 }
 
-bool HBHEMuonOfflineSimAnalyzer::SoftMuon(unsigned int ml) {
-  if (pt_of_muon->at(ml) > 20.) {
-    if (fabs(eta_of_muon->at(ml)) <= 5.0) {
+bool HBHEMuonOfflineSimAnalyzer::SoftMuon() {
+  if (pt_of_muon > 20.) {
+    if (fabs(eta_of_muon) <= 5.0) {
       return true;
     }
   }
@@ -749,9 +746,9 @@ bool HBHEMuonOfflineSimAnalyzer::SoftMuon(unsigned int ml) {
   return false;
 }
 
-bool HBHEMuonOfflineSimAnalyzer::tightMuon(unsigned int ml) {
-  if (pt_of_muon->at(ml) > 20.) {
-    if (fabs(eta_of_muon->at(ml)) <= 5.0) {
+bool HBHEMuonOfflineSimAnalyzer::tightMuon() {
+  if (pt_of_muon > 20.) {
+    if (fabs(eta_of_muon) <= 5.0) {
       return true;
     }
   }
