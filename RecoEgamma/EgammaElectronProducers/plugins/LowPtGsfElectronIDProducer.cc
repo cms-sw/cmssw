@@ -36,6 +36,8 @@ public:
 private:
   double eval(const GBRForest& model, const reco::GsfElectron&, double rho, float unbiased, float field_z) const;
 
+  template <typename EL, typename F>
+  void doWork(double rho, float bz, EL const& electrons, F&& idFunctor, edm::Event&) const;
   const bool usePAT_;
   edm::EDGetTokenT<reco::GsfElectronCollection> electrons_;
   edm::EDGetTokenT<pat::ElectronCollection> patElectrons_;
@@ -118,63 +120,67 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
   edm::Handle<pat::ElectronCollection> patElectrons;
   edm::Handle<reco::GsfElectronCollection> electrons;
   if (usePAT_) {
-    event.getByToken(patElectrons_, patElectrons);
+    auto const& electrons = event.getHandle(patElectrons_);
+
+    const std::string kUnbiased("unbiased");
+    doWork(
+        rho,
+        zfield.z(),
+        electrons,
+        [&](auto const& ele) {
+          if (!ele.isElectronIDAvailable(kUnbiased)) {
+            return std::numeric_limits<float>::max();
+          }
+          return ele.electronID(kUnbiased);
+        },
+        event);
   } else {
-    event.getByToken(electrons_, electrons);
+    auto const& electrons = event.getHandle(electrons_);
+    // ElectronSeed unbiased BDT
+    edm::ValueMap<float> const& unbiasedH = event.get(unbiased_);
+    doWork(
+        rho,
+        zfield.z(),
+        electrons,
+        [&](auto const& ele) {
+          if (ele.core().isNull()) {
+            return std::numeric_limits<float>::max();
+          }
+          const auto& gsf = ele.core()->gsfTrack();  // reco::GsfTrackRef
+          if (gsf.isNull()) {
+            return std::numeric_limits<float>::max();
+          }
+          return unbiasedH[gsf];
+        },
+        event);
   }
+}
 
-  // ElectronSeed unbiased BDT
-  edm::Handle<edm::ValueMap<float> > unbiasedH;
-  if (!unbiased_.isUninitialized()) {
-    event.getByToken(unbiased_, unbiasedH);
-  }
-
+template <typename EL, typename F>
+void LowPtGsfElectronIDProducer::doWork(
+    double rho, float bz, EL const& electrons, F&& idFunctor, edm::Event& event) const {
   // Iterate through Electrons, evaluate BDT, and store result
   std::vector<std::vector<float> > output;
   output.reserve(names_.size());
-  unsigned int nElectrons = usePAT_ ? patElectrons->size() : electrons->size();
+  auto nElectrons = electrons->size();
   for (unsigned int iname = 0; iname < names_.size(); ++iname) {
     output.emplace_back(nElectrons, -999.);
   }
 
-  if (usePAT_) {
-    const std::string kUnbiased("unbiased");
-    for (unsigned int iele = 0; iele < nElectrons; iele++) {
-      pat::Electron const& ele = (*patElectrons)[iele];
-      if (!ele.isElectronIDAvailable("unbiased")) {
-        continue;
-      }
-      float id = ele.electronID(kUnbiased);
+  for (unsigned int iele = 0; iele < nElectrons; iele++) {
+    auto const& ele = (*electrons)[iele];
+    float id = idFunctor(ele);
+    if (id != std::numeric_limits<float>::max()) {
       for (unsigned int index = 0; index < models_.size(); ++index) {
-        output[index][iele] = eval(*models_[index], ele, rho, id, zfield.z());
-      }
-    }
-  } else {
-    for (unsigned int iele = 0; iele < nElectrons; iele++) {
-      reco::GsfElectron const& ele = (*electrons)[iele];
-      if (ele.core().isNull()) {
-        continue;
-      }
-      const auto& gsf = ele.core()->gsfTrack();  // reco::GsfTrackRef
-      if (gsf.isNull()) {
-        continue;
-      }
-      float unbiased = (*unbiasedH)[gsf];
-      for (unsigned int index = 0; index < models_.size(); ++index) {
-        output[index][iele] = eval(*models_[index], ele, rho, unbiased, zfield.z());
+        output[index][iele] = eval(*models_[index], ele, rho, id, bz);
       }
     }
   }
 
-  // Create and put ValueMap in Event
   for (unsigned int iname = 0; iname < names_.size(); ++iname) {
     auto ptr = std::make_unique<edm::ValueMap<float> >(edm::ValueMap<float>());
     edm::ValueMap<float>::Filler filler(*ptr);
-    if (usePAT_) {
-      filler.insert(patElectrons, output[iname].begin(), output[iname].end());
-    } else {
-      filler.insert(electrons, output[iname].begin(), output[iname].end());
-    }
+    filler.insert(electrons, output[iname].begin(), output[iname].end());
     filler.fill();
     event.put(std::move(ptr), names_[iname]);
   }
