@@ -48,7 +48,7 @@ FamosProducer::FamosProducer(edm::ParameterSet const& p) {
   sourceToken = consumes<edm::HepMCProduct>(sourceLabel);
 
   // famos manager
-  famosManager_ = new FamosManager(p);
+  famosManager_ = new FamosManager(p, consumesCollector());
 }
 
 FamosProducer::~FamosProducer() { delete famosManager_; }

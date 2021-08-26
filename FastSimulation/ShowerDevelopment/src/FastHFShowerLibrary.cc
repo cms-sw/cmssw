@@ -8,13 +8,12 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/HcalParametersRcd.h"
-#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
-#include "Geometry/HcalCommonData/interface/HcalSimulationConstants.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -31,8 +30,6 @@
 #include "G4ParticleTypes.hh"
 
 // STL headers
-#include <memory>
-
 #include <iostream>
 #include <mutex>
 #include <vector>
@@ -41,7 +38,8 @@
 
 static std::once_flag initializeOnce;
 
-FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const& p) : fast(p) {
+FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const& p, edm::ConsumesCollector&& iC)
+    : fast(p), hcalDDDSimConstantsESToken_(iC.esConsumes()), hcalSimulationConstantsESToken_(iC.esConsumes()) {
   edm::ParameterSet m_HS = p.getParameter<edm::ParameterSet>("HFShowerLibrary");
   applyFidCut = m_HS.getParameter<bool>("ApplyFiducialCut");
 }
@@ -49,13 +47,8 @@ FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const& p) : fast(p) {
 void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetup) {
   edm::LogInfo("FastCalorimetry") << "initHFShowerLibrary::initialization";
 
-  edm::ESHandle<HcalDDDSimConstants> hdc;
-  iSetup.get<HcalSimNumberingRecord>().get(hdc);
-  hcalConstants = hdc.product();
-
-  edm::ESHandle<HcalSimulationConstants> hdsc;
-  iSetup.get<HcalSimNumberingRecord>().get(hdsc);
-  const HcalSimulationConstants* hsps = hdsc.product();
+  hcalConstants = &iSetup.getData(hcalDDDSimConstantsESToken_);
+  const HcalSimulationConstants* hsps = &iSetup.getData(hcalSimulationConstantsESToken_);
 
   std::string name = "HcalHits";
   numberingFromDDD = std::make_unique<HcalNumberingFromDDD>(hcalConstants);

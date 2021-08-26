@@ -2,8 +2,12 @@
 #define FastSimulation_TrackingRecHitProducer_TrackingRecHitAlgorithm_H
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitProduct.h"
 
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
@@ -15,14 +19,6 @@
 #include <string>
 #include <memory>
 
-namespace edm {
-  class Event;
-  class EventSetup;
-  class ParameterSet;
-  class ConsumesCollector;
-  class Stream;
-}  // namespace edm
-
 class TrackingRecHitAlgorithm {
 private:
   const std::string _name;
@@ -30,6 +26,9 @@ private:
   const TrackerTopology* _trackerTopology;
   const TrackerGeometry* _trackerGeometry;
   const TrackerGeometry* _misalignedTrackerGeometry;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyESToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryESToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> misalignedTrackerGeometryESToken_;
   std::shared_ptr<RandomEngineAndDistribution> _randomEngine;
 
 public:
