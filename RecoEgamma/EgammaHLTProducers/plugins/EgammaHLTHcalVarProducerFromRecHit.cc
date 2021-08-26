@@ -88,7 +88,7 @@ EgammaHLTHcalVarProducerFromRecHit::EgammaHLTHcalVarProducerFromRecHit(const edm
                                     : edm::EDGetTokenT<double>()),
       caloGeometryToken_{esConsumes()},
       hcalTopologyToken_{esConsumes()},
-      hcalChannelQualityToken_{esConsumes()},
+      hcalChannelQualityToken_{esConsumes(edm::ESInputTag("", "withTopo"))},
       hcalSevLvlComputerToken_{esConsumes()},
       caloTowerConstituentsMapToken_{esConsumes()},
       putToken_{produces<reco::RecoEcalCandidateIsolationMap>()} {
@@ -114,6 +114,7 @@ void EgammaHLTHcalVarProducerFromRecHit::fillDescriptions(edm::ConfigurationDesc
 
   desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltRecoEcalCandidate"));
   desc.add<edm::InputTag>(("rhoProducer"), edm::InputTag("fixedGridRhoFastjetAllCalo"));
+  desc.add<edm::InputTag>(("hbheRecHitsTag"), edm::InputTag("hltHbhereco"));
   desc.add<bool>(("doRhoCorrection"), false);
   desc.add<double>(("rhoMax"), 999999.);
   desc.add<double>(("rhoScale"), 1.0);
