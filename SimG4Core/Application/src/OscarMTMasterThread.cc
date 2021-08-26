@@ -184,7 +184,6 @@ void OscarMTMasterThread::stopThread() {
   // the G4 master thread can do the cleanup. Then notify the master
   // thread, and join it.
   std::unique_lock<std::mutex> lk2(m_threadMutex);
-  m_runManagerMaster.reset();
   LogDebug("OscarMTMasterThread") << "Main thread: reseted shared_ptr";
 
   m_masterThreadState = ThreadState::Destruct;
