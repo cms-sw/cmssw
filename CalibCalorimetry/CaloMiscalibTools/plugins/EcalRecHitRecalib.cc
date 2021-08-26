@@ -52,7 +52,7 @@ void EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   auto RecalibEERecHitCollection = std::make_unique<EERecHitCollection>();
 
   // Intercalib constants
-  const EcalIntercalibConstants &ical = iSetup.getData(intercalibConstsToken_);
+  const EcalIntercalibConstants& ical = iSetup.getData(intercalibConstsToken_);
 
   if (EBRecHits) {
     //loop on all EcalRecHits (barrel)

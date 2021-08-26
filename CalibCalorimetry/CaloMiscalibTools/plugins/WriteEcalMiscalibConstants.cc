@@ -36,8 +36,7 @@
 // constructors and destructor
 //
 WriteEcalMiscalibConstants::WriteEcalMiscalibConstants(const edm::ParameterSet& iConfig)
-    : newTagRequest_(iConfig.getParameter<std::string>("NewTagRequest")),
-      intercalibConstsToken_(esConsumes()) {}
+    : newTagRequest_(iConfig.getParameter<std::string>("NewTagRequest")), intercalibConstsToken_(esConsumes()) {}
 
 WriteEcalMiscalibConstants::~WriteEcalMiscalibConstants() {}
 
@@ -68,7 +67,4 @@ void WriteEcalMiscalibConstants::analyze(const edm::Event& iEvent, const edm::Ev
 void WriteEcalMiscalibConstants::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-WriteEcalMiscalibConstants::endJob() {
-  edm::LogVerbatim("WriteEcalMiscalibConstants") << "Here is the end";
-}
+void WriteEcalMiscalibConstants::endJob() { edm::LogVerbatim("WriteEcalMiscalibConstants") << "Here is the end"; }
