@@ -2,18 +2,23 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLHcal.h"
 
-HcalRecHitRecalib::HcalRecHitRecalib(const edm::ParameterSet& iConfig) {
-  tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
-  tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
-  tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
-
+HcalRecHitRecalib::HcalRecHitRecalib(const edm::ParameterSet& iConfig)
+    : tok_hbhe_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"))),
+      tok_ho_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"))),
+      tok_hf_(consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"))),
+      topologyToken_(esConsumes<edm::Transition::BeginRun>()),
+      RecalibHBHEHits_(iConfig.getParameter<std::string>("RecalibHBHEHitCollection")),
+      RecalibHFHits_(iConfig.getParameter<std::string>("RecalibHFHitCollection")),
+      RecalibHOHits_(iConfig.getParameter<std::string>("RecalibHOHitCollection")),
+      hcalfileinpath_(iConfig.getUntrackedParameter<std::string>("fileNameHcal", "")),
+      refactor_(iConfig.getUntrackedParameter<double>("Refactor", (double)1)),
+      refactor_mean_(iConfig.getUntrackedParameter<double>("Refactor_mean", (double)1))
+{
   //   HBHEHitsProducer_ = iConfig.getParameter< std::string > ("HBHERecHitsProducer");
   //   HOHitsProducer_ = iConfig.getParameter< std::string > ("HERecHitsProducer");
   //   HFHitsProducer_ = iConfig.getParameter< std::string > ("HERecHitsProducer");
@@ -21,33 +26,22 @@ HcalRecHitRecalib::HcalRecHitRecalib(const edm::ParameterSet& iConfig) {
   //   HFHits_ = iConfig.getParameter< std::string > ("HFHitCollection");
   //   HOHits_ = iConfig.getParameter< std::string > ("HOHitCollection");
 
-  RecalibHBHEHits_ = iConfig.getParameter<std::string>("RecalibHBHEHitCollection");
-  RecalibHFHits_ = iConfig.getParameter<std::string>("RecalibHFHitCollection");
-  RecalibHOHits_ = iConfig.getParameter<std::string>("RecalibHOHitCollection");
-
-  refactor_ = iConfig.getUntrackedParameter<double>("Refactor", (double)1);
-  refactor_mean_ = iConfig.getUntrackedParameter<double>("Refactor_mean", (double)1);
-
   //register your products
   produces<HBHERecHitCollection>(RecalibHBHEHits_);
   produces<HFRecHitCollection>(RecalibHFHits_);
   produces<HORecHitCollection>(RecalibHOHits_);
 
   // here read them from xml (particular to HCAL)
-
-  hcalfileinpath_ = iConfig.getUntrackedParameter<std::string>("fileNameHcal", "");
   edm::FileInPath hcalfiletmp("CalibCalorimetry/CaloMiscalibTools/data/" + hcalfileinpath_);
-
   hcalfile_ = hcalfiletmp.fullPath();
 }
 
 HcalRecHitRecalib::~HcalRecHitRecalib() {}
 
 void HcalRecHitRecalib::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<HcalTopology> topology;
-  iSetup.get<HcalRecNumberingRecord>().get(topology);
+  const HcalTopology& topology = iSetup.getData(topologyToken_);
 
-  mapHcal_.prefillMap(*topology);
+  mapHcal_.prefillMap(topology);
 
   MiscalibReaderFromXMLHcal hcalreader_(mapHcal_);
   if (!hcalfile_.empty())
