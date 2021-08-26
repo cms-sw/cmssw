@@ -15,7 +15,7 @@ protected:
   void fillShape(float& time_interval,
                  double& m_thresh,
                  EcalShapeBase::DVec& aVec,
-                 const edm::EventSetup* es) const override;
+                 const EcalSimPulseShape* pulseShape) const override;
 };
 
 #endif

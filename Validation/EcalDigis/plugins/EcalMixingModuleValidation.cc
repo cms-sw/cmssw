@@ -33,7 +33,8 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
       esPedestals_(esConsumes<edm::Transition::BeginRun>()),
       esMIPs_(esConsumes<edm::Transition::BeginRun>()),
       dbPed(esConsumes()),
-      hGeometry(esConsumes()) {
+      hGeometry(esConsumes()),
+      pulseShapeToken_(esConsumes<edm::Transition::BeginRun>()) {
   // needed for MixingModule checks
 
   double simHitToPhotoelectronsBarrel = ps.getParameter<double>("simHitToPhotoelectronsBarrel");
@@ -135,8 +136,9 @@ EcalMixingModuleValidation::~EcalMixingModuleValidation() {}
 
 void EcalMixingModuleValidation::dqmBeginRun(edm::Run const&, edm::EventSetup const& c) {
   checkCalibrations(c);
-  theEBShape->setEventSetup(c);
-  theEEShape->setEventSetup(c);
+  auto const& pulseShape = c.getData(pulseShapeToken_);
+  theEBShape->setPulseShape(pulseShape);
+  theEEShape->setPulseShape(pulseShape);
 }
 
 void EcalMixingModuleValidation::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {

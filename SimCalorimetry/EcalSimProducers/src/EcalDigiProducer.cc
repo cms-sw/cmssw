@@ -63,6 +63,7 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::Consume
       m_agcToken(iC.esConsumes()),
       m_grToken(iC.esConsumes()),
       m_geometryToken(iC.esConsumes()),
+      m_pulseShapeToken(iC.esConsumes()),
       m_useLCcorrection(params.getUntrackedParameter<bool>("UseLCcorrection")),
       m_apdSeparateDigi(params.getParameter<bool>("apdSeparateDigi")),
 
@@ -312,17 +313,12 @@ void EcalDigiProducer::accumulate(edm::Event const &e, edm::EventSetup const &ev
   // Step A: Get Inputs
   edm::Handle<std::vector<PCaloHit>> ebHandle;
   if (m_doEB) {
-    m_EBShape.setEventSetup(eventSetup);   // need to set the eventSetup here, otherwise pre-mixing
-                                           // module will not wrk
-    m_APDShape.setEventSetup(eventSetup);  //
     edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
     e.getByLabel(ebTag, ebHandle);
   }
 
   edm::Handle<std::vector<PCaloHit>> eeHandle;
   if (m_doEE) {
-    m_EEShape.setEventSetup(eventSetup);  // need to set the eventSetup here, otherwise pre-mixing
-                                          // module will not work
     edm::InputTag eeTag(m_hitsProducerTag, "EcalHitsEE");
     e.getByLabel(eeTag, eeHandle);
   }
@@ -525,6 +521,18 @@ void EcalDigiProducer::checkGeometry(const edm::EventSetup &eventSetup) {
     m_Geometry = &eventSetup.getData(m_geometryToken);
     updateGeometry();
   }
+  if ((m_doEB or m_doEE) and m_pulseShapeWatcher.check(eventSetup)) {
+    // need to set the eventSetup here, otherwise pre-mixing
+    // module will not work
+    auto const &pulseShape = eventSetup.getData(m_pulseShapeToken);
+    if (m_doEB) {
+      m_APDShape.setPulseShape(pulseShape);
+      m_EBShape.setPulseShape(pulseShape);
+    }
+    if (m_doEE) {
+      m_EEShape.setPulseShape(pulseShape);
+    }
+  }
 }
 
 void EcalDigiProducer::updateGeometry() {
@@ -573,8 +581,4 @@ void EcalDigiProducer::setESNoiseSignalGenerator(EcalBaseSignalGenerator *noiseG
     m_ESDigitizer->setNoiseSignalGenerator(noiseGenerator);
 }
 
-void EcalDigiProducer::beginRun(edm::Run const &run, edm::EventSetup const &setup) {
-  m_EBShape.setEventSetup(setup);
-  m_EEShape.setEventSetup(setup);
-  m_APDShape.setEventSetup(setup);
-}
+void EcalDigiProducer::beginRun(edm::Run const &run, edm::EventSetup const &setup) {}

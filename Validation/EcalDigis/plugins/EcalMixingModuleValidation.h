@@ -55,6 +55,7 @@
 #include "CondFormats/ESObjects/interface/ESPedestals.h"
 #include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
 #include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
 #include "EcalBarrelDigisValidation.h"
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -119,6 +120,7 @@ private:
   edm::ESGetToken<ESIntercalibConstants, ESIntercalibConstantsRcd> esMIPs_;
   edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> dbPed;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> hGeometry;
+  edm::ESGetToken<EcalSimPulseShape, EcalSimPulseShapeRcd> pulseShapeToken_;
 
   std::map<int, double, std::less<int> > gainConv_;
 

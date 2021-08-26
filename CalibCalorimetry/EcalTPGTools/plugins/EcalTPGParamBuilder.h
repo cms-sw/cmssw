@@ -29,6 +29,7 @@
 #include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -119,6 +120,7 @@ private:
   edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> ecalIntercalibConstantsToken_;
   edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> ecalGainRatiosToken_;
   edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> ecalADCToGeVConstantToken_;
+  edm::ESGetToken<EcalSimPulseShape, EcalSimPulseShapeRcd> pulseShapeToken_;
 
   bool useTransverseEnergy_;
   double xtal_LSB_EB_, xtal_LSB_EE_;

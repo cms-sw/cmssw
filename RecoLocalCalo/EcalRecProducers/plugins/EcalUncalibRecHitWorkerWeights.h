@@ -16,6 +16,7 @@
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
@@ -49,6 +50,7 @@ protected:
   edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> tokenGains_;
   edm::ESGetToken<EcalWeightXtalGroups, EcalWeightXtalGroupsRcd> tokenGrps_;
   edm::ESGetToken<EcalTBWeights, EcalTBWeightsRcd> tokenWgts_;
+  edm::ESGetToken<EcalSimPulseShape, EcalSimPulseShapeRcd> tokenPulseShape_;
   edm::ESHandle<EcalPedestals> peds_;
   edm::ESHandle<EcalGainRatios> gains_;
   edm::ESHandle<EcalWeightXtalGroups> grps_;

@@ -23,6 +23,7 @@
 #include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
@@ -33,7 +34,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
-
 namespace edm {
   class Event;
   class EventSetup;
@@ -61,6 +61,7 @@ protected:
 
   edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> tokenPeds_;
   edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> tokenGains_;
+  edm::ESGetToken<EcalSimPulseShape, EcalSimPulseShapeRcd> tokenPulseShape_;
   edm::ESHandle<EcalPedestals> peds_;
   edm::ESHandle<EcalGainRatios> gains_;
 

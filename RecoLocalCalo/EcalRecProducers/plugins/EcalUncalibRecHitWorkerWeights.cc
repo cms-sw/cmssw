@@ -15,6 +15,7 @@ EcalUncalibRecHitWorkerWeights::EcalUncalibRecHitWorkerWeights(const edm::Parame
       tokenGains_(c.esConsumes<EcalGainRatios, EcalGainRatiosRcd>()),
       tokenGrps_(c.esConsumes<EcalWeightXtalGroups, EcalWeightXtalGroupsRcd>()),
       tokenWgts_(c.esConsumes<EcalTBWeights, EcalTBWeightsRcd>()),
+      tokenPulseShape_(c.esConsumes()),
       testbeamEEShape(EEShape(true)),
       testbeamEBShape(EBShape(true)) {}
 
@@ -24,8 +25,9 @@ void EcalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es) {
   grps_ = es.getHandle(tokenGrps_);
   wgts_ = es.getHandle(tokenWgts_);
 
-  testbeamEEShape.setEventSetup(es);
-  testbeamEBShape.setEventSetup(es);
+  auto const& pulseShape = es.getData(tokenPulseShape_);
+  testbeamEEShape.setPulseShape(pulseShape);
+  testbeamEBShape.setPulseShape(pulseShape);
 }
 
 bool EcalUncalibRecHitWorkerWeights::run(const edm::Event& evt,

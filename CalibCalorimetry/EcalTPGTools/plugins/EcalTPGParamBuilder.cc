@@ -49,6 +49,7 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
       ecalIntercalibConstantsToken_(esConsumes()),
       ecalGainRatiosToken_(esConsumes()),
       ecalADCToGeVConstantToken_(esConsumes()),
+      pulseShapeToken_(esConsumes()),
       xtal_LSB_EB_(0),
       xtal_LSB_EE_(0),
       nSample_(5),
@@ -1611,10 +1612,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   std::vector<unsigned int> weights[NWEIGROUPS];
 
   bool useDBShape = useDBShape_;
+  auto const& pulseShape = evtSetup.getData(pulseShapeToken_);
   EBShape shapeEB(useDBShape);
-  shapeEB.setEventSetup(evtSetup);  // EBShape, EEShape are fetched now from DB (2018.05.22 K. Theofilatos)
+  shapeEB.setPulseShape(pulseShape);  // EBShape, EEShape are fetched now from DB (2018.05.22 K. Theofilatos)
   EEShape shapeEE(useDBShape);
-  shapeEE.setEventSetup(evtSetup);  //
+  shapeEE.setPulseShape(pulseShape);  //
   weights[0] = computeWeights(shapeEB, hshapeEB);
   weights[1] = computeWeights(shapeEE, hshapeEE);
 

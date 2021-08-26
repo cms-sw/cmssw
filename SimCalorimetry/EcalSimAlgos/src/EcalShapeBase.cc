@@ -16,7 +16,7 @@ EcalShapeBase::EcalShapeBase(bool useDBShape)
       m_timeOfMax(0.0),
       m_thresh(0.0) {}
 
-void EcalShapeBase::setEventSetup(const edm::EventSetup& evtSetup) { buildMe(&evtSetup); }
+void EcalShapeBase::setPulseShape(const EcalSimPulseShape& pulseShape) { buildMe(&pulseShape); }
 
 double EcalShapeBase::timeOfThr() const { return m_firstTimeOverThreshold; }
 
@@ -26,14 +26,14 @@ double EcalShapeBase::timeToRise() const { return timeOfMax() - timeOfThr(); }
 
 double EcalShapeBase::threshold() const { return m_thresh; }
 
-void EcalShapeBase::buildMe(const edm::EventSetup* evtSetup) {
+void EcalShapeBase::buildMe(const EcalSimPulseShape* pulseShape) {
   DVec shapeArray;
 
   float time_interval = 0;
   fillShape(time_interval,
             m_thresh,
             shapeArray,
-            evtSetup);              // pure virtual function, implementation may vary for EB/EE/APD ...
+            pulseShape);            // pure virtual function, implementation may vary for EB/EE/APD ...
   m_arraySize = shapeArray.size();  // original data
 
   m_denseArraySize = 10 * m_arraySize;  // dense array with interpolation between data

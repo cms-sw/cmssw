@@ -20,6 +20,7 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
@@ -78,6 +79,7 @@ private:
   edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> agcToken_;
   edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> icalToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
+  edm::ESGetToken<EcalSimPulseShape, EcalSimPulseShapeRcd> pulseShapeToken_;
   void accumulateCaloHits(HitsHandle const& ebHandle, int bunchCrossing);
 
   void checkGeometry(const edm::EventSetup& eventSetup);

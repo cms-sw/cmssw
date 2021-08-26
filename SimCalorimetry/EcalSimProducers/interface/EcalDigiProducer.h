@@ -11,6 +11,7 @@
 #include "CondFormats/DataRecord/interface/ESMIPToGeVConstantRcd.h"
 #include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
@@ -125,11 +126,13 @@ private:
   const edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> m_agcToken;
   const edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> m_grToken;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> m_geometryToken;
+  edm::ESGetToken<EcalSimPulseShape, EcalSimPulseShapeRcd> m_pulseShapeToken;
   edm::ESGetToken<ESGain, ESGainRcd> m_esGainToken;
   edm::ESGetToken<ESMIPToGeVConstant, ESMIPToGeVConstantRcd> m_esMIPToGeVToken;
   edm::ESGetToken<ESPedestals, ESPedestalsRcd> m_esPedestalsToken;
   edm::ESGetToken<ESIntercalibConstants, ESIntercalibConstantsRcd> m_esMIPsToken;
   edm::ESWatcher<CaloGeometryRecord> m_geometryWatcher;
+  edm::ESWatcher<EcalSimPulseShapeRcd> m_pulseShapeWatcher;
 
   bool m_useLCcorrection;
 

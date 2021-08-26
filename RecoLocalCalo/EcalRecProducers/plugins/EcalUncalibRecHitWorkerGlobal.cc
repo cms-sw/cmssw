@@ -12,6 +12,7 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
     : EcalUncalibRecHitWorkerRunOneDigiBase(ps, c),
       tokenPeds_(c.esConsumes<EcalPedestals, EcalPedestalsRcd>()),
       tokenGains_(c.esConsumes<EcalGainRatios, EcalGainRatiosRcd>()),
+      tokenPulseShape_(c.esConsumes()),
       tokenGrps_(c.esConsumes<EcalWeightXtalGroups, EcalWeightXtalGroupsRcd>()),
       tokenWgts_(c.esConsumes<EcalTBWeights, EcalTBWeightsRcd>()),
       testbeamEEShape(EEShape(true)),
@@ -81,8 +82,9 @@ void EcalUncalibRecHitWorkerGlobal::set(const edm::EventSetup& es) {
   timeCorrBias_ = es.getHandle(tokenTimeCorrBias_);
 
   // for the DB Ecal Pulse Sim Shape
-  testbeamEEShape.setEventSetup(es);
-  testbeamEBShape.setEventSetup(es);
+  auto const& pulseShape = es.getData(tokenPulseShape_);
+  testbeamEEShape.setPulseShape(pulseShape);
+  testbeamEBShape.setPulseShape(pulseShape);
 }
 
 // check saturation: 5 samples with gainId = 0

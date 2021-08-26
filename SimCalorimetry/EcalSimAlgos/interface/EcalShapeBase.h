@@ -5,10 +5,7 @@
 //#include<stdexcept>
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
-#include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
 
 #include <iostream>
 #include <fstream>
@@ -40,17 +37,17 @@ public:
   double derivative(double time) const;  // appears to not be used anywhere
 
   void m_shape_print(const char* fileName);
-  void setEventSetup(const edm::EventSetup& evtSetup);
+  void setPulseShape(const EcalSimPulseShape& pulseShape);
 
 protected:
   unsigned int timeIndex(double aTime) const;
 
-  void buildMe(const edm::EventSetup* = nullptr);
+  void buildMe(const EcalSimPulseShape* = nullptr);
 
   virtual void fillShape(float& time_interval,
                          double& m_thresh,
                          EcalShapeBase::DVec& aVec,
-                         const edm::EventSetup* es) const = 0;
+                         const EcalSimPulseShape* pluseShape) const = 0;
   bool m_useDBShape;
 
 private:

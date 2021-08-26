@@ -1,23 +1,22 @@
 #include <cmath>
 
 #include "SimCalorimetry/EcalSimAlgos/interface/APDShape.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
 #include <cassert>
 
 void APDShape::fillShape(float& time_interval,
                          double& m_thresh,
                          EcalShapeBase::DVec& aVec,
-                         const edm::EventSetup* es) const {
+                         const EcalSimPulseShape* pulseShape) const {
   if (m_useDBShape) {
-    if (es == nullptr) {
-      throw cms::Exception("EcalShapeBase:: DB conditions are not available, const edm::EventSetup* es == nullptr ");
+    if (pulseShape == nullptr) {
+      throw cms::Exception(
+          "EcalShapeBase:: DB conditions are not available, const EcalSimPulseShape* pulseShape == nullptr ");
     }
-    edm::ESHandle<EcalSimPulseShape> esps;
-    es->get<EcalSimPulseShapeRcd>().get(esps);
 
-    aVec = esps->apd_shape;
-    time_interval = esps->time_interval;
-    m_thresh = esps->apd_thresh;
+    aVec = pulseShape->apd_shape;
+    time_interval = pulseShape->time_interval;
+    m_thresh = pulseShape->apd_thresh;
   } else {
     m_thresh = 0.0;
     time_interval = 1.0;

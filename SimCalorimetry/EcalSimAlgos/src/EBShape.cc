@@ -1,21 +1,21 @@
 #include <cmath>
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 void EBShape::fillShape(float& time_interval,
                         double& m_thresh,
                         EcalShapeBase::DVec& aVec,
-                        const edm::EventSetup* es) const {
+                        const EcalSimPulseShape* pulseShape) const {
   if (m_useDBShape) {
-    if (es == nullptr) {
-      throw cms::Exception("EcalShapeBase:: DB conditions are not available, const edm::EventSetup* es == nullptr ");
+    if (pulseShape == nullptr) {
+      throw cms::Exception(
+          "EcalShapeBase:: DB conditions are not available, const EcalSimPulseShape* pulseShape == nullptr ");
     }
-    edm::ESHandle<EcalSimPulseShape> esps;
-    es->get<EcalSimPulseShapeRcd>().get(esps);
 
-    aVec = esps->barrel_shape;
-    time_interval = esps->time_interval;
-    m_thresh = esps->barrel_thresh;
+    aVec = pulseShape->barrel_shape;
+    time_interval = pulseShape->time_interval;
+    m_thresh = pulseShape->barrel_thresh;
 
   } else  // use old hardcoded arrays
   {
