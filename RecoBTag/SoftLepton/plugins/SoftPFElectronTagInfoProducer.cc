@@ -99,9 +99,10 @@ void SoftPFElectronTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, c
   const auto& transientTrackBuilder = iSetup.getData(token_builder);
 
   edm::Handle<reco::VertexCollection> PVCollection = iEvent.getHandle(token_primaryVertex);
-  if (!PVCollection.isValid())
+  if (!PVCollection.isValid()) {
+    iEvent.emplace(token_put, std::move(theElecTagInfo));
     return;
-
+  }
   reco::ConversionCollection const& hConversions = iEvent.get(token_allConversions);
 
   edm::View<reco::Jet> const& theJetCollection = iEvent.get(token_jets);
@@ -110,6 +111,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, c
 
   if (PVCollection->empty() and not theJetCollection.empty() and not theGEDGsfElectronCollection.empty()) {
     //we would need to access a vertex from the collection but there isn't one.
+    iEvent.emplace(token_put, std::move(theElecTagInfo));
     return;
   }
 
