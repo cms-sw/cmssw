@@ -530,7 +530,7 @@ void AlignmentTask::buildEqualMeanUMeanVRotZConstraints(vector<AlignmentConstrai
       ac.coef[qcit].Zero();
     }
 
-    for (const string &proj : {"U", "V"}) {
+    for (auto &&proj : {"U", "V"}) {
       const auto &planes = (proj == "U") ? p.second.first : p.second.second;
       const double c = ((proj == "U") ? -1. : +1.) / planes.size();
 
