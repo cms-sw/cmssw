@@ -62,16 +62,17 @@ void PrintGeomSolids::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     const cms::DDDetector* det = cpv->detector();
     TGeoManager const& geom = det->description()->manager();
     TGeoIterator next(geom.GetTopVolume());
-    TGeoNode *node;
+    TGeoNode* node;
     TString path;
     std::vector<std::string> names;
-    while (( node = next())) {
-      next.GetPath( path );
+    while ((node = next())) {
+      next.GetPath(path);
       std::string name = static_cast<std::string>(node->GetVolume()->GetName());
       if (std::find(names.begin(), names.end(), name) == names.end()) {
-	edm::LogVerbatim("PrintGeom") << name << "   " << static_cast<std::string>(node->GetVolume()->GetShape()->GetTitle());
-	names.emplace_back(name);
-	++solids;
+        edm::LogVerbatim("PrintGeom") << name << "   "
+                                      << static_cast<std::string>(node->GetVolume()->GetShape()->GetTitle());
+        names.emplace_back(name);
+        ++solids;
       }
     }
 
