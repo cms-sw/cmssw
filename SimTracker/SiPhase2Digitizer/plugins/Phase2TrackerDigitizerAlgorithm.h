@@ -1,3 +1,5 @@
+
+
 #ifndef __SimTracker_SiPhase2Digitizer_Phase2TrackerDigitizerAlgorithm_h
 #define __SimTracker_SiPhase2Digitizer_Phase2TrackerDigitizerAlgorithm_h
 
@@ -218,6 +220,7 @@ protected:
       const Phase2TrackerGeomDetUnit* pixdet);  // remove dead modules uisng the list in the DB
 
   const SubdetEfficiencies subdetEfficiencies_;
+  float calcQ(float x);
 
   // For random numbers
   std::unique_ptr<CLHEP::RandGaussQ> gaussDistribution_;
