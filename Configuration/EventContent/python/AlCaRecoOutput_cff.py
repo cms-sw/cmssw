@@ -141,6 +141,7 @@ from CalibMuon.DTCalibration.ALCARECODtCalibCosmics_Output_cff import *
 ###############################################################
 from CalibPPS.TimingCalibration.ALCARECOPPSCalTrackBasedSel_Output_cff import *
 from CalibPPS.TimingCalibration.ALCARECOPPSTimingCalib_Output_cff import *
+from CalibPPS.TimingCalibration.ALCARECOPPSDiamondSampicTimingCalib_Output_cff import *
 
 ###############################################################
 # stream for prompt-calibration @ Tier0
