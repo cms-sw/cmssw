@@ -2,6 +2,7 @@
 #define FastSimulation_EventProducer_FamosManager_H
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include <string>
 
@@ -10,9 +11,6 @@ namespace HepMC {
 }
 
 namespace edm {
-  class ParameterSet;
-  class EventSetup;
-  class Run;
   class HepMCProduct;
 }  // namespace edm
 
@@ -29,7 +27,7 @@ class TrackerTopology;
 class FamosManager {
 public:
   /// Constructor
-  FamosManager(edm::ParameterSet const& p);
+  FamosManager(edm::ParameterSet const& p, edm::ConsumesCollector&&);
 
   /// Destructor
   ~FamosManager();
