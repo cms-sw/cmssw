@@ -42,10 +42,10 @@ struct Histograms_PPSDiamondSampicTimingCalibrationPCLWorker {
   std::unordered_map<uint32_t, dqm::reco::MonitorElement*> db;
   std::unordered_map<uint32_t, dqm::reco::MonitorElement*> sampic;
   std::unordered_map<uint32_t, dqm::reco::MonitorElement*> channel;
-
 };
 
-class PPSDiamondSampicTimingCalibrationPCLWorker : public DQMGlobalEDAnalyzer<Histograms_PPSDiamondSampicTimingCalibrationPCLWorker> {
+class PPSDiamondSampicTimingCalibrationPCLWorker
+    : public DQMGlobalEDAnalyzer<Histograms_PPSDiamondSampicTimingCalibrationPCLWorker> {
 public:
   explicit PPSDiamondSampicTimingCalibrationPCLWorker(const edm::ParameterSet&);
   ~PPSDiamondSampicTimingCalibrationPCLWorker() override;
@@ -58,10 +58,12 @@ private:
                       edm::EventSetup const&,
                       Histograms_PPSDiamondSampicTimingCalibrationPCLWorker&) const override;
 
-  void dqmAnalyze(edm::Event const&, edm::EventSetup const&, Histograms_PPSDiamondSampicTimingCalibrationPCLWorker const&) const override;
+  void dqmAnalyze(edm::Event const&,
+                  edm::EventSetup const&,
+                  Histograms_PPSDiamondSampicTimingCalibrationPCLWorker const&) const override;
 
   // ------------ member data ------------
-  edm::EDGetTokenT< edm::DetSetVector<TotemTimingDigi> > totemTimingDigiToken_;
+  edm::EDGetTokenT<edm::DetSetVector<TotemTimingDigi>> totemTimingDigiToken_;
   edm::EDGetTokenT<edm::DetSetVector<TotemTimingRecHit>> totemTimingRecHitToken_;
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomEsToken_;
   std::string folder_;
@@ -70,8 +72,10 @@ private:
 //------------------------------------------------------------------------------
 
 PPSDiamondSampicTimingCalibrationPCLWorker::PPSDiamondSampicTimingCalibrationPCLWorker(const edm::ParameterSet& iConfig)
-    : totemTimingDigiToken_(consumes< edm::DetSetVector<TotemTimingDigi> >(iConfig.getParameter<edm::InputTag>("totemTimingDigiTag"))),
-      totemTimingRecHitToken_(consumes<edm::DetSetVector<TotemTimingRecHit>>(iConfig.getParameter<edm::InputTag>("totemTimingRecHitTag"))),
+    : totemTimingDigiToken_(
+          consumes<edm::DetSetVector<TotemTimingDigi>>(iConfig.getParameter<edm::InputTag>("totemTimingDigiTag"))),
+      totemTimingRecHitToken_(
+          consumes<edm::DetSetVector<TotemTimingRecHit>>(iConfig.getParameter<edm::InputTag>("totemTimingRecHitTag"))),
       geomEsToken_(esConsumes<edm::Transition::BeginRun>()),
       folder_(iConfig.getParameter<std::string>("folder")) {}
 
@@ -79,18 +83,18 @@ PPSDiamondSampicTimingCalibrationPCLWorker::~PPSDiamondSampicTimingCalibrationPC
 
 //------------------------------------------------------------------------------
 
-void PPSDiamondSampicTimingCalibrationPCLWorker::dqmAnalyze(edm::Event const& iEvent,
-                           edm::EventSetup const& iSetup,
-                           Histograms_PPSDiamondSampicTimingCalibrationPCLWorker const& histos) const {
-  edm::Handle< edm::DetSetVector<TotemTimingDigi> > timingDigi;                           
-  edm::Handle< edm::DetSetVector<TotemTimingRecHit> > timingRecHit;
-  iEvent.getByToken( totemTimingRecHitToken_, timingRecHit );
-  iEvent.getByToken( totemTimingDigiToken_, timingDigi );
+void PPSDiamondSampicTimingCalibrationPCLWorker::dqmAnalyze(
+    edm::Event const& iEvent,
+    edm::EventSetup const& iSetup,
+    Histograms_PPSDiamondSampicTimingCalibrationPCLWorker const& histos) const {
+  edm::Handle<edm::DetSetVector<TotemTimingDigi>> timingDigi;
+  edm::Handle<edm::DetSetVector<TotemTimingRecHit>> timingRecHit;
+  iEvent.getByToken(totemTimingRecHitToken_, timingRecHit);
+  iEvent.getByToken(totemTimingDigiToken_, timingDigi);
 
-
-   for (const auto& digis : *timingDigi){
+  for (const auto& digis : *timingDigi) {
     const CTPPSDiamondDetId detId(digis.detId());
-    for (const auto& digi : digis ){
+    for (const auto& digi : digis) {
       histos.db.at(detId.rawId())->Fill(digi.hardwareBoardId());
       histos.sampic.at(detId.rawId())->Fill(digi.hardwareSampicId());
       histos.channel.at(detId.rawId())->Fill(digi.hardwareChannelId());
@@ -98,24 +102,25 @@ void PPSDiamondSampicTimingCalibrationPCLWorker::dqmAnalyze(edm::Event const& iE
   }
 
   if (timingRecHit->empty()) {
-    edm::LogWarning("PPSDiamondSampicTimingCalibrationPCLWorker:dqmAnalyze") << "No rechits retrieved from the event content.";
+    edm::LogWarning("PPSDiamondSampicTimingCalibrationPCLWorker:dqmAnalyze")
+        << "No rechits retrieved from the event content.";
     return;
   }
 
   for (const auto& recHits : *timingRecHit) {
-    const CTPPSDiamondDetId detId( recHits.detId() );
-    for (const auto& recHit : recHits )
-    histos.timeHisto.at(detId.rawId())->Fill( recHit.time() );
-    
+    const CTPPSDiamondDetId detId(recHits.detId());
+    for (const auto& recHit : recHits)
+      histos.timeHisto.at(detId.rawId())->Fill(recHit.time());
   }
 }
 
 //------------------------------------------------------------------------------
 
-void PPSDiamondSampicTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& ibook,
-                               edm::Run const& run,
-                               edm::EventSetup const& iSetup,
-                               Histograms_PPSDiamondSampicTimingCalibrationPCLWorker& histos) const {
+void PPSDiamondSampicTimingCalibrationPCLWorker::bookHistograms(
+    DQMStore::IBooker& ibook,
+    edm::Run const& run,
+    edm::EventSetup const& iSetup,
+    Histograms_PPSDiamondSampicTimingCalibrationPCLWorker& histos) const {
   ibook.setCurrentFolder(folder_);
   std::string ch_name;
   const auto& geom = iSetup.getData(geomEsToken_);
@@ -124,10 +129,10 @@ void PPSDiamondSampicTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooke
       continue;
     const CTPPSDiamondDetId detid(it->first);
     detid.channelName(ch_name);
-    histos.timeHisto[detid.rawId()]=ibook.book1D(ch_name, ch_name, 1200,-40,40);
-    histos.db[detid.rawId()]=ibook.bookInt(ch_name+"db");
-    histos.sampic[detid.rawId()]=ibook.bookInt(ch_name+"sampic");
-    histos.channel[detid.rawId()]=ibook.bookInt(ch_name+"channel");
+    histos.timeHisto[detid.rawId()] = ibook.book1D(ch_name, ch_name, 1200, -40, 40);
+    histos.db[detid.rawId()] = ibook.bookInt(ch_name + "db");
+    histos.sampic[detid.rawId()] = ibook.bookInt(ch_name + "sampic");
+    histos.channel[detid.rawId()] = ibook.bookInt(ch_name + "channel");
   }
 }
 
