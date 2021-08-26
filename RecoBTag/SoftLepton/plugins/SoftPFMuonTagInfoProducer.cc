@@ -112,8 +112,10 @@ void SoftPFMuonTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const
 
   // Declare and open Vertex collection
   edm::Handle<reco::VertexCollection> theVertexCollection = iEvent.getHandle(vertexToken);
-  if (!theVertexCollection.isValid() || theVertexCollection->empty())
+  if (!theVertexCollection.isValid() || theVertexCollection->empty()) {
+    iEvent.emplace(putToken, std::move(theMuonTagInfo));
     return;
+  }
   const reco::Vertex* vertex = &theVertexCollection->front();
 
   // Build TransientTrackBuilder
