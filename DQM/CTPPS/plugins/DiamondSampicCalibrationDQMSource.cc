@@ -64,14 +64,13 @@ private:
                                                        // (in mm)
   static const double INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
 
-
   edm::EDGetTokenT<edm::DetSetVector<TotemTimingRecHit>> tokenRecHit_;
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomEsToken_;
   unsigned int verbosity_;
   edm::TimeValue_t timeOfPreviousEvent_;
 
   float verticalShiftBot_, verticalShiftTop_;
-  std::unordered_map<unsigned int,double> horizontalShiftOfDiamond_;
+  std::unordered_map<unsigned int, double> horizontalShiftOfDiamond_;
 
   /// plots related to the whole system
   struct GlobalPlots {
@@ -83,7 +82,6 @@ private:
 
   /// plots related to one Diamond detector package
   struct PotPlots {
-
     // RecHits
     MonitorElement *hitDistribution2d = nullptr;
     MonitorElement *recHitTime = nullptr;
@@ -118,7 +116,8 @@ private:
 
 // Values for all constants
 const double DiamondSampicCalibrationDQMSource::DISPLAY_RESOLUTION_FOR_HITS_MM = 0.05;
-const double DiamondSampicCalibrationDQMSource::INV_DISPLAY_RESOLUTION_FOR_HITS_MM = 1. / DISPLAY_RESOLUTION_FOR_HITS_MM;
+const double DiamondSampicCalibrationDQMSource::INV_DISPLAY_RESOLUTION_FOR_HITS_MM =
+    1. / DISPLAY_RESOLUTION_FOR_HITS_MM;
 
 //----------------------------------------------------------------------------------------------------
 
@@ -135,7 +134,6 @@ DiamondSampicCalibrationDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker
 
   CTPPSDiamondDetId(id).rpName(title, CTPPSDiamondDetId::nFull);
 
-
   hitDistribution2d = ibooker.book2D("hits in planes",
                                      title + " hits in planes;plane number;x (mm)",
                                      10,
@@ -145,9 +143,7 @@ DiamondSampicCalibrationDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker
                                      -0.5,
                                      18.5);
 
-
   recHitTime = ibooker.book1D("recHit time", title + " time in the recHits; t (ns)", 500, -25, 25);
-
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -167,13 +163,12 @@ DiamondSampicCalibrationDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker 
 
   CTPPSDiamondDetId(id).channelName(title, CTPPSDiamondDetId::nFull);
   recHitTime = ibooker.book1D("recHit Time", title + " recHit Time; t (ns)", 500, -25, 25);
-  
 }
 
 //----------------------------------------------------------------------------------------------------
 
 DiamondSampicCalibrationDQMSource::DiamondSampicCalibrationDQMSource(const edm::ParameterSet &ps)
-      :tokenRecHit_(consumes<edm::DetSetVector<TotemTimingRecHit>>(ps.getParameter<edm::InputTag>("tagRecHits"))),
+    : tokenRecHit_(consumes<edm::DetSetVector<TotemTimingRecHit>>(ps.getParameter<edm::InputTag>("tagRecHits"))),
       geomEsToken_(esConsumes<edm::Transition::BeginRun>()),
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
       timeOfPreviousEvent_(0) {}
@@ -186,28 +181,30 @@ DiamondSampicCalibrationDQMSource::~DiamondSampicCalibrationDQMSource() {}
 
 void DiamondSampicCalibrationDQMSource::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   // Get detector shifts from the geometry (if present)
-  const auto& geom = iSetup.getData(geomEsToken_);
-  for(auto it=geom.beginSensor();it!=geom.endSensor();it++){
+  const auto &geom = iSetup.getData(geomEsToken_);
+  for (auto it = geom.beginSensor(); it != geom.endSensor(); it++) {
     if (!CTPPSDiamondDetId::check(it->first))
       continue;
     const CTPPSDiamondDetId detid(it->first);
 
     const DetGeomDesc *det = geom.sensorNoThrow(detid);
-    if(det)
+    if (det)
       horizontalShiftOfDiamond_[detid.rpId()] = det->translation().x() - det->getDiamondDimensions().xHalfWidth;
     else
-      edm::LogProblem("DiamondSampicCalibrationDQMSource") <<"ERROR: no descriptor for detId";
+      edm::LogProblem("DiamondSampicCalibrationDQMSource") << "ERROR: no descriptor for detId";
   }
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void DiamondSampicCalibrationDQMSource::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &, const edm::EventSetup &iSetup) {
+void DiamondSampicCalibrationDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
+                                                       const edm::Run &,
+                                                       const edm::EventSetup &iSetup) {
   ibooker.cd();
   ibooker.setCurrentFolder("CTPPS");
 
   globalPlot_ = GlobalPlots(ibooker);
-  const auto& geom = iSetup.getData(geomEsToken_);
+  const auto &geom = iSetup.getData(geomEsToken_);
   for (auto it = geom.beginSensor(); it != geom.endSensor(); ++it) {
     if (!CTPPSDiamondDetId::check(it->first))
       continue;
@@ -216,10 +213,10 @@ void DiamondSampicCalibrationDQMSource::bookHistograms(DQMStore::IBooker &ibooke
     const CTPPSDiamondDetId rpId(detid.arm(), detid.station(), detid.rp());
     potPlots_[rpId] = PotPlots(ibooker, rpId);
 
-    const CTPPSDiamondDetId plId(detid.arm(), detid.station(), detid.rp(),detid.plane());
+    const CTPPSDiamondDetId plId(detid.arm(), detid.station(), detid.rp(), detid.plane());
     planePlots_[plId] = PlanePlots(ibooker, plId);
 
-    const CTPPSDiamondDetId chId(detid.arm(), detid.station(), detid.rp(),detid.plane(),detid.channel());
+    const CTPPSDiamondDetId chId(detid.arm(), detid.station(), detid.rp(), detid.plane(), detid.channel());
     channelPlots_[chId] = ChannelPlots(ibooker, chId);
   }
 }
@@ -248,27 +245,25 @@ void DiamondSampicCalibrationDQMSource::analyze(const edm::Event &event, const e
 
     for (const auto &rechit : rechits) {
       if (potPlots_.find(detId_pot) != potPlots_.end()) {
-
         float UFSDShift = 0.0;
         if (rechit.yWidth() < 3)
-          UFSDShift = 0.5; 
+          UFSDShift = 0.5;
 
-        TH2F* hitHistoTmp = potPlots_[detId_pot].hitDistribution2d->getTH2F();
-        TAxis* hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
-        int startBin = hitHistoTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_[detId_pot] - 0.5 * rechit.xWidth());
+        TH2F *hitHistoTmp = potPlots_[detId_pot].hitDistribution2d->getTH2F();
+        TAxis *hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
+        int startBin =
+            hitHistoTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_[detId_pot] - 0.5 * rechit.xWidth());
         int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-        for (int i = 0; i < numOfBins; ++i) 
-          potPlots_[detId_pot].hitDistribution2d->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
+        for (int i = 0; i < numOfBins; ++i)
+          potPlots_[detId_pot].hitDistribution2d->Fill(detId.plane() + UFSDShift,
+                                                       hitHistoTmpYAxis->GetBinCenter(startBin + i));
 
         //All plots with Time
         if (rechit.time() != TotemTimingRecHit::NO_T_AVAILABLE) {
-
           potPlots_[detId_pot].recHitTime->Fill(rechit.time());
-          
+
           if (channelPlots_.find(detId) != channelPlots_.end())
             channelPlots_[detId].recHitTime->Fill(rechit.time());
-          
-          
         }
       }
     }
