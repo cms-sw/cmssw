@@ -125,6 +125,7 @@ from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_cff import *
 # Timing calibration
 from CalibPPS.TimingCalibration.ALCARECOPPSCalTrackBasedSel_cff import *
 from CalibPPS.TimingCalibration.ALCARECOPPSTimingCalib_cff import *
+from CalibPPS.TimingCalibration.ALCARECOPPSDiamondSampicTimingCalib_cff import *
 
 ###############################################################
 # nonbeam alcas
@@ -226,6 +227,7 @@ pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps)
 pathALCARECOMuAlOverlapsGeneralTracks = cms.Path(seqALCARECOMuAlOverlapsGeneralTracks)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
 pathALCARECOPPSTimingCalib = cms.Path(taskALCARECOPPSTimingCalib)
+pathALCARECOPPSDiamondSampicTimingCalib = cms.Path(seqALCARECOPPSDiamondSampicTimingCalib)
 pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo*ALCARECOTkAlBeamHaloDQM)
 pathALCARECOMuAlBeamHaloOverlaps = cms.Path(seqALCARECOMuAlBeamHaloOverlaps)
 pathALCARECOMuAlBeamHalo = cms.Path(seqALCARECOMuAlBeamHalo)
@@ -819,6 +821,15 @@ ALCARECOStreamPPSTimingCalib = cms.FilteredStream(
 	paths  = (pathALCARECOPPSTimingCalib),
 	content = OutALCARECOPPSTimingCalib.outputCommands,
 	selectEvents = OutALCARECOPPSTimingCalib.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+	
+ALCARECOStreamPPSDiamondSampicTimingCalib = cms.FilteredStream(
+	responsible = 'Christopher Misan',
+	name = 'PPSDiamondSampicTimingCalib',
+	paths  = (pathALCARECOPPSDiamondSampicTimingCalib),
+	content = OutALCARECOPPSDiamondSampicTimingCalib.outputCommands,
+	selectEvents = OutALCARECOPPSDiamondSampicTimingCalib.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
