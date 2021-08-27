@@ -11,7 +11,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
 
 PhotonEnergyCorrector::PhotonEnergyCorrector(const edm::ParameterSet& config, edm::ConsumesCollector&& iC)
-    : ecalClusterToolsESGetTokens_{std::move(iC)} {
+    : ecalClusterToolsESGetTokens_{iC}, caloGeomToken_{iC.esConsumes()} {
   minR9Barrel_ = config.getParameter<double>("minR9Barrel");
   minR9Endcap_ = config.getParameter<double>("minR9Endcap");
   // get the geometry from the event setup:
@@ -58,7 +58,7 @@ PhotonEnergyCorrector::PhotonEnergyCorrector(const edm::ParameterSet& config, ed
 }
 
 void PhotonEnergyCorrector::init(const edm::EventSetup& theEventSetup) {
-  theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
+  theCaloGeom_ = theEventSetup.getHandle(caloGeomToken_);
 
   scEnergyFunction_->init(theEventSetup);
   scCrackEnergyFunction_->init(theEventSetup);
