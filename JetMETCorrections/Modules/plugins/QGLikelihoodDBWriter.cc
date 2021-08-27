@@ -112,7 +112,7 @@ void QGLikelihoodDBWriter::beginJob() {
 
   // The ROOT file contains the binning for each variable, needed to set up the binning grid
   std::map<TString, std::vector<float>> gridOfBins;
-  for (auto &&binVariable : {"eta", "pt", "rho"}) {
+  for (auto&& binVariable : {"eta", "pt", "rho"}) {
     if (!getVectorFromFile(f, gridOfBins[binVariable], TString(binVariable) + "Bins")) {
       edm::LogError("NoBins") << "Missing bin information for " << binVariable << " in input file" << std::endl;
       return;
@@ -124,9 +124,9 @@ void QGLikelihoodDBWriter::beginJob() {
   // Here we do not store the copies, but try to extend the range of the neighbouring category (will result in less comparisons during application phase)
   std::map<std::vector<int>, TH1*> pdfs;
   std::map<std::vector<int>, QGLikelihoodCategory> categories;
-  for (auto &&type : {"gluon", "quark"}) {
+  for (auto&& type : {"gluon", "quark"}) {
     int qgIndex = (TString(type) == "gluon");  // Keep numbering same as in RecoJets/JetAlgorithms/src/QGLikelihoodCalculator.cc
-    for (auto &&likelihoodVar : {"mult", "ptD", "axis2"}) {
+    for (auto&& likelihoodVar : {"mult", "ptD", "axis2"}) {
       int varIndex =
           (TString(likelihoodVar) == "mult"
                ? 0
@@ -144,8 +144,7 @@ void QGLikelihoodDBWriter::beginJob() {
             category.QGIndex = qgIndex;
             category.VarIndex = varIndex;
 
-            TString key =                
-                TString::Format("%s/%s_%s_eta%d_pt%d_rho%d", likelihoodVar, likelihoodVar, type, i, j, k);
+            TString key = TString::Format("%s/%s_%s_eta%d_pt%d_rho%d", likelihoodVar, likelihoodVar, type, i, j, k);
             TH1* pdf = (TH1*)f->Get(key);
             if (!pdf) {
               edm::LogError("NoPDF") << "Could not found pdf with key  " << key << " in input file" << std::endl;
