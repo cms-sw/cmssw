@@ -12,8 +12,9 @@ except ImportError:
 topfunc = r"::(accumulate|acquire|startingNewLoop|duringLoop|endOfLoop|beginOfJob|endOfJob|produce|analyze|filter|beginLuminosityBlock|beginRun|beginStream|streamBeginRun|streamBeginLuminosityBlock|streamEndRun|streamEndLuminosityBlock|globalBeginRun|globalEndRun|globalBeginLuminosityBlock|globalEndLuminosityBlock|endRun|endLuminosityBlock)\("
 topfuncre = re.compile(topfunc)
 
-baseclass = r"\b(edm::)?(one::|stream::|global::)?((DQM)?(Global|One)?ED(Producer|Filter|Analyzer|(IterateNTimes|NavigateEvents)?Looper)(Base)?|impl::(ExternalWork|Accumulator|RunWatcher|RunCacheHolder)|FromFiles|ProducerSourceBase|OutputModuleBase|InputSource|ProducerSourceFromFiles|ProducerBase|PuttableSourceBase|OutputModule|RawOutput|RawInputSource)\b"
+baseclass = r"\b(edm::)?(one::|stream::|global::)?((DQM)?(Global|One)?ED(Producer|Filter|Analyzer|(IterateNTimes|NavigateEvents)?Looper)(Base)?|impl::(ExternalWork|Accumulator|RunWatcher|RunCacheHolder)|FromFiles|ProducerSourceBase|OutputModuleBase|InputSource|ProducerSourceFromFiles|ProducerBase|PuttableSourceBase|OutputModule|RawOutput|RawInputSource|impl::RunWatcher<edm::one::EDProducerBase>)\b"
 baseclassre = re.compile(baseclass)
+assert(baseclassre.match('edm::one::impl::RunWatcher<edm::one::EDProducerBase>'))
 assert(baseclassre.match('edm::global::EDFilter::filter() virtual'))
 assert(topfuncre.search('edm::global::EDFilterBase::filter(&) const virtual'))
 assert(not baseclassre.match('edm::BaseFlatGunProducer'))
@@ -82,11 +83,10 @@ with open('classes.txt.dumperall') as f:
 assert(class2base['edm::FlatRandomEGunProducer']==['edm::BaseFlatGunProducer'])
 
 for cl, basecls in class2base.items():
-    clname=cl.split('::')[-1]:
+    clname=cl.split('::')[-1]
     for package, modules in module2package.items():
         for module in modules:
-            if module == clname
-                print(clname, basecls, package, module)
+            if module == clname:
                 for basecl in basecls:
                     if not basecl in set(module2package[package]):
                         module2package[package].append(basecl.split('::')[-1])
