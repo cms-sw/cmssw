@@ -7,6 +7,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("SimG4CMS.CherenkovAnalysis.gun_cff")
 process.load("Configuration.Geometry.GeometryDD4hep_cff")
+process.load("DetectorDescription.DDCMS.DDDetectorESProducer_cfi")
 process.load("Geometry.HcalCommonData.caloSimulationParameters_cff")
 process.load('GeneratorInterface.Core.generatorSmeared_cfi')
 process.load("SimG4Core.Application.g4SimHits_cfi")
@@ -24,6 +25,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 5
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.EcalSim=dict()
     process.MessageLogger.HCalGeom=dict()
+    process.MessageLogger.Geometry=dict()
     process.MessageLogger.CherenkovAnalysis=dict()
     process.MessageLogger.SimG4CoreGeometry=dict()
 
@@ -37,6 +39,7 @@ process.load("SimG4CMS.CherenkovAnalysis.cherenkovAnalysis_cfi")
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.cherenkovAnalysis)
 
 process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("SimG4CMS/CherenkovAnalysis/data/SingleDREAMDD4Hep.xml")
+process.DDDetectorESProducer.rootDDName = 'singleDREAM:DREAM'
 process.generator.PGunParameters.MinE = 10.0
 process.generator.PGunParameters.MaxE = 10.0
 process.g4SimHits.UseMagneticField = False

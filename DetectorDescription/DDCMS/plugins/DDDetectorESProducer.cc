@@ -70,6 +70,7 @@ DDDetectorESProducer::DDDetectorESProducer(const ParameterSet& iConfig)
       rootDDName_(iConfig.getParameter<string>("rootDDName")),
       label_(iConfig.getParameter<string>("label")) {
   usesResources({edm::ESSharedResourceNames::kDD4Hep});
+  edm::LogVerbatim("Geometry") << "DDDetectorESProducer::fromDB " << fromDB_ << " appendToDataLabel " << appendToDataLabel_ << " rootDDName " << rootDDName_ << " label " << label_ << " confGeomXMLFiles " << confGeomXMLFiles_;
   if (rootDDName_ == "MagneticFieldVolumes:MAGF" || rootDDName_ == "cmsMagneticField:MAGF") {
     auto c = setWhatProduced(this,
                              &DDDetectorESProducer::produceMagField,
