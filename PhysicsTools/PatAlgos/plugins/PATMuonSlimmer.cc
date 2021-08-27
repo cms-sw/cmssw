@@ -28,7 +28,6 @@ namespace pat {
     ~PATMuonSlimmer() override {}
 
     void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
-    void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) final;
 
   private:
     const edm::EDGetTokenT<pat::MuonCollection> src_;
@@ -85,14 +84,12 @@ pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet &iConfig)
   }
 }
 
-void pat::PATMuonSlimmer::beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &iSetup) {
-  if (modifyMuon_)
-    muonModifier_->setEventContent(iSetup);
-}
-
 void pat::PATMuonSlimmer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   using namespace std;
+
+  if (modifyMuon_)
+    muonModifier_->setEventContent(iSetup);
 
   Handle<pat::MuonCollection> src;
   iEvent.getByToken(src_, src);

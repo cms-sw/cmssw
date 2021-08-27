@@ -22,7 +22,6 @@ namespace pat {
     ~PATTauSlimmer() override {}
 
     void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
-    void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) final;
 
   private:
     const edm::EDGetTokenT<edm::View<pat::Tau>> src_;
@@ -54,14 +53,12 @@ pat::PATTauSlimmer::PATTauSlimmer(const edm::ParameterSet &iConfig)
   produces<std::vector<pat::Tau>>();
 }
 
-void pat::PATTauSlimmer::beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &iSetup) {
-  if (modifyTau_)
-    tauModifier_->setEventContent(iSetup);
-}
-
 void pat::PATTauSlimmer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   using namespace std;
+
+  if (modifyTau_)
+    tauModifier_->setEventContent(iSetup);
 
   Handle<View<pat::Tau>> src;
   iEvent.getByToken(src_, src);
