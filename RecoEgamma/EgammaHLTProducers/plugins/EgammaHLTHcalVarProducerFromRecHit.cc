@@ -1,7 +1,21 @@
-// -*- C++ -*-
-//
-// Class:      EgammaHLTHcalVarProducerFromRecHit
-//
+// Class: EgammaHLTHcalVarProducerFromRecHit
+
+/*
+
+Author: Swagata Mukherjee
+
+Date: August 2021
+
+This class is similar to the existing class EgammaHLTBcHcalIsolationProducersRegional, 
+but the new feature in this code is that the HCAL recHits are used instead of the 
+calotowers which is expected to be phased out sometime in Run3.
+The old class can also be used until calotowers stay. After that, one need to switch to this new one. 
+
+As the old producer code, this one also produces either Hcal isolation or H for H/E depending if doEtSum=true or false.
+H for H/E = either a single HCCAL tower behind SC, or towers in a cone, and hcal isolation has these tower(s) excluded.
+A rho correction can be applied
+
+*/
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
@@ -18,15 +32,6 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
-
-//This class is similar to the existing class EgammaHLTBcHcalIsolationProducersRegional, 
-//but the new feature in this code is that the HCAL recHits are used instead of the 
-//calotowers which is expected to be phased out sometime in Run3.
-//The old class can also be used until calotowers stay. After that, one need to switch to this new one. 
-
-//As the old producer code, this one also produces either Hcal isolation or H for H/E depending if doEtSum=true or false.
-//H for H/E = either a single HCCAL tower behind SC, or towers in a cone, and hcal isolation has these tower(s) excluded.
-//a rho correction can be applied
 
 class EgammaHLTHcalVarProducerFromRecHit : public edm::global::EDProducer<> {
 public:
