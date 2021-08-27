@@ -8,57 +8,30 @@
 
 class GEMDigiSimLink {
 public:
-  GEMDigiSimLink(std::pair<unsigned int, int> digi,
-                 Local3DPoint entryPoint,
-                 LocalVector momentumAtEntry,
-                 float timeOfFlight,
-                 float energyLoss,
-                 int particleType,
-                 unsigned int detUnitId,
-                 unsigned int trackId,
-                 EncodedEventId eventId,
-                 unsigned short processType) {
-    _entryPoint = entryPoint;
-    _momentumAtEntry = momentumAtEntry;
-    _timeOfFlight = timeOfFlight;
-    _energyLoss = energyLoss;
-    _particleType = particleType;
-    _detUnitId = detUnitId;
-    _trackId = trackId;
-    _eventId = eventId;
-    _processType = processType;
-    _digi = digi;
+  GEMDigiSimLink(uint16_t strip, int8_t bx, int16_t particleType, uint32_t trackId, EncodedEventId eventId) {
+    strip_ = strip;
+    bx_ = bx;
+    particleType_ = particleType;
+    trackId_ = trackId;
+    eventId_ = eventId;
   }
 
-  GEMDigiSimLink() { ; }
+  GEMDigiSimLink() {}
+  ~GEMDigiSimLink() {}
 
-  ~GEMDigiSimLink() { ; }
-
-  unsigned int getStrip() const { return _digi.first; }
-  int getBx() const { return _digi.second; }
-  Local3DPoint getEntryPoint() const { return _entryPoint; }
-  LocalVector getMomentumAtEntry() const { return _momentumAtEntry; }
-  float getTimeOfFlight() const { return _timeOfFlight; }
-  float getEnergyLoss() const { return _energyLoss; }
-  int getParticleType() const { return _particleType; }
-  unsigned int getDetUnitId() const { return _detUnitId; }
-  unsigned int getTrackId() const { return _trackId; }
-  EncodedEventId getEventId() const { return _eventId; }
-  unsigned short getProcessType() const { return _processType; }
+  unsigned int getStrip() const { return strip_; }
+  int getBx() const { return bx_; }
+  int getParticleType() const { return particleType_; }
+  unsigned int getTrackId() const { return trackId_; }
+  EncodedEventId getEventId() const { return eventId_; }
 
   inline bool operator<(const GEMDigiSimLink& other) const { return getStrip() < other.getStrip(); }
 
 private:
-  std::pair<unsigned int, int> _digi;
-
-  Local3DPoint _entryPoint;
-  LocalVector _momentumAtEntry;
-  float _timeOfFlight;
-  float _energyLoss;
-  int _particleType;
-  unsigned int _detUnitId;
-  unsigned int _trackId;
-  EncodedEventId _eventId;
-  unsigned short _processType;
+  uint16_t strip_;
+  int8_t bx_;
+  int16_t particleType_;
+  uint32_t trackId_;
+  EncodedEventId eventId_;
 };
 #endif

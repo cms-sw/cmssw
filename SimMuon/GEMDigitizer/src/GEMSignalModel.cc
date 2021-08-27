@@ -20,6 +20,7 @@ GEMSignalModel::GEMSignalModel(const edm::ParameterSet& config)
       timeResolution_(config.getParameter<double>("timeResolution")),
       timeJitter_(config.getParameter<double>("timeJitter")),
       signalPropagationSpeed_(config.getParameter<double>("signalPropagationSpeed")),
+      bx0filter_(config.getParameter<bool>("bx0filter")),
       digitizeOnlyMuons_(config.getParameter<bool>("digitizeOnlyMuons")),
       resolutionX_(config.getParameter<double>("resolutionX")),
       muonPdgId(13),
@@ -67,6 +68,8 @@ void GEMSignalModel::simulate(const GEMEtaPartition* roll,
     if (!(digiMuon || digiElec))
       continue;
     const int bx(getSimHitBx(&hit, engine));
+    if (bx != 0 and bx0filter_)
+      continue;
     const std::vector<std::pair<int, int> >& cluster(simulateClustering(top, &hit, bx, engine));
     for (const auto& digi : cluster) {
       detectorHitMap_.emplace(digi, &hit);
