@@ -105,7 +105,7 @@ namespace cond {
         return thePayloadHash;
       }
 
-      // warning: takes over the ownership of pointer "payload"
+      // warning: takes over the ownership of pointer "payload". Deprecated. Please move to the above referece-based function
       template <typename T>
       Hash writeOne(const T* payloadPtr, Time_t time, const std::string& recordName) {
         if (!payloadPtr)
@@ -115,7 +115,6 @@ namespace cond {
         return writeOne<T>(*payload, time, recordName);
       }
 
-      // warning: unlike the previous method, do NOT take over the ownership of payload pointers!
       template <typename T>
       void writeMany(const std::map<Time_t, std::shared_ptr<T> >& iovAndPayloads, const std::string& recordName) {
         if (iovAndPayloads.empty())
@@ -192,8 +191,7 @@ namespace cond {
         scope.close();
       }
 
-      // this one we need to avoid to adapt client code around... to be removed in the long term!
-      // warning: takes over the ownership of pointer "payload"
+      // warning: takes over the ownership of pointer "payload" - deprecated. Please move to the above reference-based function
       template <typename T>
       void createNewIOV(const T* payloadPtr, cond::Time_t firstSinceTime, cond::Time_t, const std::string& recordName) {
         if (!payloadPtr)
@@ -220,7 +218,7 @@ namespace cond {
         scope.close();
       }
 
-      // warning: takes over the ownership of pointer "payload"
+      // warning: takes over the ownership of pointer "payload" - deprecated. Please move to the above reference-based function
       template <typename T>
       void appendSinceTime(const T* payloadPtr, cond::Time_t sinceTime, const std::string& recordName) {
         if (!payloadPtr)
