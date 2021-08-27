@@ -37,6 +37,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 // TagInfo
 #include "DataFormats/BTauReco/interface/PixelClusterTagInfo.h"
@@ -79,6 +80,8 @@ private:
   const edm::EDGetTokenT<edm::View<reco::Jet> > m_jets;
   const edm::EDGetTokenT<reco::VertexCollection> m_vertices;
   const edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > m_pixelhit;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> m_geomToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_topoToken;
   const bool m_isPhase1;
   const bool m_addFPIX;
   const int m_minADC;
@@ -92,6 +95,8 @@ PixelClusterTagInfoProducer::PixelClusterTagInfoProducer(const edm::ParameterSet
     : m_jets(consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),
       m_vertices(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
       m_pixelhit(consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("pixelhit"))),
+      m_geomToken(esConsumes()),
+      m_topoToken(esConsumes()),
       m_isPhase1(iConfig.getParameter<bool>("isPhase1")),
       m_addFPIX(iConfig.getParameter<bool>("addForward")),
       m_minADC(iConfig.getParameter<int>("minAdcCount")),
@@ -140,14 +145,10 @@ void PixelClusterTagInfoProducer::produce(edm::StreamID iID, edm::Event& iEvent,
   const edmNew::DetSetVector<SiPixelCluster>& collectionClusters(*collectionHandle);
 
   // Open Geometry
-  edm::ESHandle<TrackerGeometry> geom;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geom);
-  const TrackerGeometry& theTracker(*geom);
+  const TrackerGeometry& theTracker = iSetup.getData(m_geomToken);
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoH;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoH);
-  const TrackerTopology* tTopo = tTopoH.product();
+  const TrackerTopology* tTopo = &iSetup.getData(m_topoToken);
 
   std::vector<reco::PixelClusterProperties> clusters;
 
