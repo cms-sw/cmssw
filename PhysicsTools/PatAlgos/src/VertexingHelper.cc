@@ -33,6 +33,9 @@ pat::helper::VertexingHelper::VertexingHelper(const edm::ParameterSet &iConfig, 
   } else {
     enabled_ = false;
   }
+  if (!playback_) {
+    ttToken_ = iC.esConsumes(edm::ESInputTag("", "TransientTrackBuilder"));
+  }
 }
 
 void pat::helper::VertexingHelper::newEvent(const edm::Event &iEvent) {
@@ -46,7 +49,7 @@ void pat::helper::VertexingHelper::newEvent(const edm::Event &iEvent) {
 void pat::helper::VertexingHelper::newEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   newEvent(iEvent);
   if (!playback_)
-    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", ttBuilder_);
+    ttBuilder_ = iSetup.getHandle(ttToken_);
 }
 
 pat::VertexAssociation pat::helper::VertexingHelper::associate(const reco::Candidate &c) const {
