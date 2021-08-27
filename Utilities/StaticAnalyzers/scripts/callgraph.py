@@ -82,13 +82,14 @@ with open('classes.txt.dumperall') as f:
 assert(class2base['edm::FlatRandomEGunProducer']==['edm::BaseFlatGunProducer'])
 
 for cl, basecls in class2base.items():
+    clname=cl.split('::')[-1]:
     for package, modules in module2package.items():
         for module in modules:
-            if module==cl.split('::')[-1]:
-                print(cl, basecls, package, module)
+            if module == clname
+                print(clname, basecls, package, module)
                 for basecl in basecls:
                     if not basecl in set(module2package[package]):
-                        module2package[package].append(basecl)
+                        module2package[package].append(basecl.split('::')[-1])
 
 G = nx.DiGraph()
 with open('function-calls-db.txt') as f:
