@@ -91,16 +91,7 @@ void GEMDigiModule::addLinksWithPartId(unsigned int strip, int bx) {
     if (hit == nullptr)
       continue;
 
-    theGemDigiSimLinks_.push_back(GEMDigiSimLink(digi,
-                                                 hit->entryPoint(),
-                                                 hit->momentumAtEntry(),
-                                                 hit->timeOfFlight(),
-                                                 hit->energyLoss(),
-                                                 hit->particleType(),
-                                                 hit->detUnitId(),
-                                                 hit->trackId(),
-                                                 hit->eventId(),
-                                                 hit->processType()));
+    theGemDigiSimLinks_.push_back(GEMDigiSimLink(strip, bx, hit->particleType(), hit->trackId(), hit->eventId()));
   }
 }
 
