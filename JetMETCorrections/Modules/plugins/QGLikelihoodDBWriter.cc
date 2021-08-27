@@ -125,12 +125,14 @@ void QGLikelihoodDBWriter::beginJob() {
   std::map<std::vector<int>, TH1*> pdfs;
   std::map<std::vector<int>, QGLikelihoodCategory> categories;
   for (auto&& type : {"gluon", "quark"}) {
-    int qgIndex = (TString(type) == "gluon");  // Keep numbering same as in RecoJets/JetAlgorithms/src/QGLikelihoodCalculator.cc
+    int qgIndex =
+        (TString(type) == "gluon");  // Keep numbering same as in RecoJets/JetAlgorithms/src/QGLikelihoodCalculator.cc
     for (auto&& likelihoodVar : {"mult", "ptD", "axis2"}) {
-      int varIndex =
-          (TString(likelihoodVar) == "mult"
-               ? 0
-               : (TString(likelihoodVar) == "ptD" ? 1 : 2));  // Keep order same as in RecoJets/JetProducers/plugins/QGTagger.cc
+      int varIndex = (TString(likelihoodVar) == "mult"
+                          ? 0
+                          : (TString(likelihoodVar) == "ptD"
+                                 ? 1
+                                 : 2));  // Keep order same as in RecoJets/JetProducers/plugins/QGTagger.cc
       for (int i = 0; i < (int)gridOfBins["eta"].size() - 1; ++i) {
         for (int j = 0; j < (int)gridOfBins["pt"].size() - 1; ++j) {
           for (int k = 0; k < (int)gridOfBins["rho"].size() - 1; ++k) {
