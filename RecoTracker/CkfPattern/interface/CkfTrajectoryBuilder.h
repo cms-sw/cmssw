@@ -10,7 +10,6 @@ class TrajectorySeed;
 class TrajectoryStateOnSurface;
 class TrajectoryFilter;
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -35,8 +34,10 @@ public:
   typedef std::vector<Trajectory> TrajectoryContainer;
   typedef std::vector<TempTrajectory> TempTrajectoryContainer;
 
-  CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
-  CkfTrajectoryBuilder(const edm::ParameterSet& conf, std::unique_ptr<TrajectoryFilter> filter);
+  CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
+  CkfTrajectoryBuilder(const edm::ParameterSet& conf,
+                       edm::ConsumesCollector iC,
+                       std::unique_ptr<TrajectoryFilter> filter);
 
   ~CkfTrajectoryBuilder() override {}
 
