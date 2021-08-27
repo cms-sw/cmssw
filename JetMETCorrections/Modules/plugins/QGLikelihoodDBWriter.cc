@@ -1,26 +1,26 @@
 // Author: Benedikt Hegner, Tom Cornelis
 // Email:  benedikt.hegner@cern.ch, tom.cornelis@cern.ch
 
-#include "TFile.h"
-#include "TVector.h"
-#include "TList.h"
-#include "TKey.h"
-#include "TH1.h"
-#include <sstream>
-#include <cstdlib>
-#include <vector>
-#include <memory>
-#include <string>
-#include <string.h>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "TFile.h"
+#include "TH1.h"
+#include "TKey.h"
+#include "TList.h"
+#include "TVector.h"
+#include <cstdlib>
+#include <cstring>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
 
 class QGLikelihoodDBWriter : public edm::EDAnalyzer {
 public:
@@ -130,10 +130,7 @@ void QGLikelihoodDBWriter::beginJob() {
     int qgIndex = strcmp(type, "gluon") == 0 ? 1 : 0;
     for (auto&& likelihoodVar : {"mult", "ptD", "axis2"}) {
       // Keep order same as in RecoJets/JetProducers/plugins/QGTagger.cc
-      int varIndex = (strcmp(likelihoodVar, "mult") == 0
-                          ? 0
-                          : (strcmp(likelihoodVar, "ptD") == 0
-                                 ? 1 : 2));        
+      int varIndex = (strcmp(likelihoodVar, "mult") == 0 ? 0 : (strcmp(likelihoodVar, "ptD") == 0 ? 1 : 2));
       for (int i = 0; i < (int)gridOfBins["eta"].size() - 1; ++i) {
         for (int j = 0; j < (int)gridOfBins["pt"].size() - 1; ++j) {
           for (int k = 0; k < (int)gridOfBins["rho"].size() - 1; ++k) {
