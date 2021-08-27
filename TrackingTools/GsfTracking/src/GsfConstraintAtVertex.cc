@@ -20,22 +20,7 @@ GsfConstraintAtVertex::GsfConstraintAtVertex(const TrackerGeometry* geometry, co
     : geometry_(geometry),
       magField_(magField),
       gsfPropagator_(AnalyticalPropagator(magField, anyDirection)),
-      tipExtrapolator_(gsfPropagator_) {
-  //edm::ESHandle<TrackerGeometry> geometryHandle;
-  //setup.get<TrackerDigiGeometryRecord>().get(geometryHandle);
-  geometry_ = geometry;
-
-  //edm::ESHandle<MagneticField> magFieldHandle;
-  //setup.get<IdealMagneticFieldRecord>().get(magFieldHandle);
-  //magField_ = magFieldHandle.product();
-  magField_ = magField;
-
-  //   edm::ESHandle<Propagator> propagatorHandle;
-  //   setup.get<TrackingComponentsRecord>().get(propagatorName_,propagatorHandle);
-  //   propagator_ = propagatorHandle.product();
-  //gsfPropagator_ = std::make_unique<GsfPropagatorAdapter>(AnalyticalPropagator(magField, anyDirection));
-  //tipExtrapolator_ = std::make_unique<TransverseImpactPointExtrapolator>(*gsfPropagator_);
-}
+      tipExtrapolator_(gsfPropagator_) {}
 
 TrajectoryStateOnSurface GsfConstraintAtVertex::constrainAtBeamSpot(const reco::GsfTrack& track,
                                                                     const reco::BeamSpot& beamSpot) const {
