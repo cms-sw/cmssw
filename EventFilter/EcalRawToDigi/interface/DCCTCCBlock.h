@@ -59,7 +59,6 @@ protected:
   unsigned int expTccId_;
   unsigned int ps_;
 
-  EcalTrigTowerDetId* pTTDetId_;
   EcalTriggerPrimitiveDigi* pTP_;
   EcalPseudoStripInputDigi* pPS_;
   std::unique_ptr<EcalTrigPrimDigiCollection>* tps_;
