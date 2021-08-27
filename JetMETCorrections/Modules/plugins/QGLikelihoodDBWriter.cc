@@ -11,6 +11,7 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <string.h>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -125,12 +126,12 @@ void QGLikelihoodDBWriter::beginJob() {
   std::map<std::vector<int>, TH1*> pdfs;
   std::map<std::vector<int>, QGLikelihoodCategory> categories;
   for (auto&& type : {"gluon", "quark"}) {
-    int qgIndex =
+    int qgIndex = strcpm(type, "gluon") == 0 ? 1 : 0;
         (TString(type) == "gluon");  // Keep numbering same as in RecoJets/JetAlgorithms/src/QGLikelihoodCalculator.cc
     for (auto&& likelihoodVar : {"mult", "ptD", "axis2"}) {
-      int varIndex = (TString(likelihoodVar) == "mult"
+      int varIndex = (strcmp(likelihoodVar, "mult") == 0
                           ? 0
-                          : (TString(likelihoodVar) == "ptD"
+                          : (strcmp(likelihoodVar, "ptD") == 0
                                  ? 1
                                  : 2));  // Keep order same as in RecoJets/JetProducers/plugins/QGTagger.cc
       for (int i = 0; i < (int)gridOfBins["eta"].size() - 1; ++i) {
