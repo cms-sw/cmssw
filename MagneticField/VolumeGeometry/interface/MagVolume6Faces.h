@@ -20,7 +20,7 @@
 template <class T>
 class MagneticFieldProvider;
 
-class MagVolume6Faces : public MagVolume {
+class MagVolume6Faces final : public MagVolume {
 public:
   MagVolume6Faces(const PositionType& pos,
                   const RotationType& rot,
