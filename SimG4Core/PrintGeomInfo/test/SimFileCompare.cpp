@@ -275,6 +275,8 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
   std::cout << "\nEntries in " << fileFile1 << " and " << fileFile2 << " do not match in the content\n";
   const double denmin = 0.0001;
   int kount1(0), kount2(0);
+  double difmax1(0), difmax2(0);
+  std::string nameMax("");
   if (type == 0) {
     const double tol1 = 0.00001;
     for (auto it1 : matFile1) {
@@ -285,6 +287,11 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
             0.5 * (it1.second.radl - it2->second.radl) / std::max(denmin, (it1.second.radl + it2->second.radl));
         double idif =
             0.5 * (it1.second.intl - it2->second.intl) / std::max(denmin, (it1.second.intl + it2->second.intl));
+        if (std::abs(rdif) > difmax1) {
+          difmax1 = std::abs(rdif);
+          difmax2 = std::abs(idif);
+          nameMax = it1.first;
+        }
         if ((std::abs(rdif) > tol1) || (std::abs(idif) > tol1)) {
           ++kount2;
           std::cout << it1.first << " X0 " << it1.second.radl << ":" << it2->second.radl << ":" << rdif << " #L "
@@ -293,7 +300,7 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
       }
     }
     std::cout << "\n " << kount2 << " out of " << kount1 << " entries having discrpancies at the level of " << tol1
-              << " or more\n";
+              << " or more; the maximum happens for " << nameMax << " with " << difmax1 << ":" << difmax2 << "\n";
   } else if (type == 1) {
     const double tol2 = 0.0001;
     for (auto it1 : solidFile1) {
@@ -302,6 +309,10 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
         ++kount1;
         double vdif =
             0.5 * (it1.second.volume - it2->second.volume) / std::max(denmin, (it1.second.volume + it2->second.volume));
+        if (std::abs(vdif) > difmax1) {
+          difmax1 = std::abs(vdif);
+          nameMax = it1.first;
+        }
         if (std::abs(vdif) > tol2) {
           ++kount2;
           std::cout << it1.first << " Volume " << it1.second.volume << ":" << it2->second.volume << ":" << vdif
@@ -310,7 +321,7 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
       }
     }
     std::cout << "\n " << kount2 << " out of " << kount1 << " entries having discrpancies at the level of " << tol2
-              << " or more\n";
+              << " or more; the maximum happens for " << nameMax << " with " << difmax1 << "\n";
   } else if (type == 2) {
     const double tol3 = 0.0001;
     for (auto it1 : lvFile1) {
@@ -319,6 +330,10 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
         ++kount1;
         double vdif =
             0.5 * (it1.second.mass - it2->second.mass) / std::max(denmin, (it1.second.mass + it2->second.mass));
+        if (std::abs(vdif) > difmax1) {
+          difmax1 = std::abs(vdif);
+          nameMax = it1.first;
+        }
         if (std::abs(vdif) > tol3) {
           ++kount2;
           std::cout << it1.first << " Mass " << it1.second.mass << ":" << it2->second.mass << ":" << vdif << std::endl;
@@ -326,7 +341,7 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
       }
     }
     std::cout << "\n " << kount2 << " out of " << kount1 << " entries having discrpancies at the level of " << tol3
-              << " or more\n";
+              << " or more; the maximum happens for " << nameMax << " with " << difmax1 << "\n";
   } else {
     const double tol4 = 0.0001;
     for (auto it1 : pvFile1) {
@@ -336,6 +351,12 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
         double xdif = (it1.second.xx - it2->second.xx);
         double ydif = (it1.second.yy - it2->second.yy);
         double zdif = (it1.second.zz - it2->second.zz);
+        double vdif = std::max(std::abs(xdif), std::abs(ydif));
+        vdif = std::max(vdif, std::abs(zdif));
+        if (vdif > difmax1) {
+          difmax1 = vdif;
+          nameMax = it1.first;
+        }
         if ((std::abs(xdif) > tol4) || (std::abs(ydif) > tol4) || (std::abs(zdif) > tol4)) {
           ++kount2;
           std::cout << it1.first << " x " << it1.second.xx << ":" << it2->second.xx << ":" << xdif << " y "
@@ -345,7 +366,7 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
       }
     }
     std::cout << "\n " << kount2 << " out of " << kount1 << " entries having discrpancies at the level of " << tol4
-              << " or more\n";
+              << " or more; the maximum happens for " << nameMax << " with " << difmax1 << "\n";
   }
 }
 
