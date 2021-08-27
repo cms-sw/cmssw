@@ -2,7 +2,6 @@
 #define CkfTrackCandidateMakerBase_h
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -29,6 +28,8 @@
 #include <memory>
 
 class TransientInitialStateEstimator;
+class NavigationSchoolRecord;
+class TrackerDigiGeometryRecord;
 
 namespace cms {
   class CkfTrackCandidateMakerBase {
@@ -54,17 +55,16 @@ namespace cms {
 
     std::unique_ptr<BaseCkfTrajectoryBuilder> theTrajectoryBuilder;
 
-    std::string theTrajectoryCleanerName;
+    edm::ESGetToken<TrajectoryCleaner, TrajectoryCleaner::Record> theTrajectoryCleanerToken;
     const TrajectoryCleaner* theTrajectoryCleaner;
 
     std::unique_ptr<TransientInitialStateEstimator> theInitialState;
 
-    const std::string theMagFieldName;
-    edm::ESHandle<MagneticField> theMagField;
-    edm::ESHandle<GeometricSearchTracker> theGeomSearchTracker;
-
-    std::string theNavigationSchoolName;
+    edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> theNavigationSchoolToken;
     const NavigationSchool* theNavigationSchool;
+
+    edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theTrackerToken;
 
     std::unique_ptr<RedundantSeedCleaner> theSeedCleaner;
 
