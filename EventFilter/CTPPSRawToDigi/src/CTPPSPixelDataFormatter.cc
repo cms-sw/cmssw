@@ -76,7 +76,7 @@ void CTPPSPixelDataFormatter::setErrorStatus(bool errorStatus) {
 }
 
 void CTPPSPixelDataFormatter::interpretRawData(
-    bool& isRun3, bool& errorsInEvent, int fedId, const FEDRawData& rawData, Collection& digis, Errors& errors) {
+    const bool& isRun3, bool& errorsInEvent, int fedId, const FEDRawData& rawData, Collection& digis, Errors& errors) {
   int nWords = rawData.size() / sizeof(Word64);
   if (nWords == 0)
     return;
@@ -216,8 +216,11 @@ void CTPPSPixelDataFormatter::interpretRawData(
   }
 }
 
-void CTPPSPixelDataFormatter::formatRawData(
-    bool& isRun3, unsigned int lvl1_ID, RawData& fedRawData, const Digis& digis, std::vector<PPSPixelIndex> iDdet2fed) {
+void CTPPSPixelDataFormatter::formatRawData(const bool& isRun3,
+                                            unsigned int lvl1_ID,
+                                            RawData& fedRawData,
+                                            const Digis& digis,
+                                            std::vector<PPSPixelIndex> iDdet2fed) {
   std::map<int, vector<Word32> > words;
   // translate digis into 32-bit raw words and store in map indexed by Fed
   m_allDetDigis = 0;
