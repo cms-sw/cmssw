@@ -112,8 +112,8 @@ void QGLikelihoodDBWriter::beginJob() {
 
   // The ROOT file contains the binning for each variable, needed to set up the binning grid
   std::map<TString, std::vector<float>> gridOfBins;
-  for (const TString& binVariable : {"eta", "pt", "rho"}) {
-    if (!getVectorFromFile(f, gridOfBins[binVariable], binVariable + "Bins")) {
+  for (auto &&binVariable : {"eta", "pt", "rho"}) {
+    if (!getVectorFromFile(f, gridOfBins[binVariable], TString(binVariable) + "Bins")) {
       edm::LogError("NoBins") << "Missing bin information for " << binVariable << " in input file" << std::endl;
       return;
     }
@@ -124,13 +124,13 @@ void QGLikelihoodDBWriter::beginJob() {
   // Here we do not store the copies, but try to extend the range of the neighbouring category (will result in less comparisons during application phase)
   std::map<std::vector<int>, TH1*> pdfs;
   std::map<std::vector<int>, QGLikelihoodCategory> categories;
-  for (const TString& type : {"gluon", "quark"}) {
-    int qgIndex = (type == "gluon");  // Keep numbering same as in RecoJets/JetAlgorithms/src/QGLikelihoodCalculator.cc
-    for (const TString& likelihoodVar : {"mult", "ptD", "axis2"}) {
+  for (auto &&type : {"gluon", "quark"}) {
+    int qgIndex = (TString(type) == "gluon");  // Keep numbering same as in RecoJets/JetAlgorithms/src/QGLikelihoodCalculator.cc
+    for (auto &&likelihoodVar : {"mult", "ptD", "axis2"}) {
       int varIndex =
-          (likelihoodVar == "mult"
+          (TString(likelihoodVar) == "mult"
                ? 0
-               : (likelihoodVar == "ptD" ? 1 : 2));  // Keep order same as in RecoJets/JetProducers/plugins/QGTagger.cc
+               : (TString(likelihoodVar) == "ptD" ? 1 : 2));  // Keep order same as in RecoJets/JetProducers/plugins/QGTagger.cc
       for (int i = 0; i < (int)gridOfBins["eta"].size() - 1; ++i) {
         for (int j = 0; j < (int)gridOfBins["pt"].size() - 1; ++j) {
           for (int k = 0; k < (int)gridOfBins["rho"].size() - 1; ++k) {
@@ -144,8 +144,8 @@ void QGLikelihoodDBWriter::beginJob() {
             category.QGIndex = qgIndex;
             category.VarIndex = varIndex;
 
-            TString key =
-                TString::Format(likelihoodVar + "/" + likelihoodVar + "_" + type + "_eta%d_pt%d_rho%d", i, j, k);
+            TString key =                
+                TString::Format("%s/%s_%s_eta%d_pt%d_rho%d", likelihoodVar, likelihoodVar, type, i, j, k);
             TH1* pdf = (TH1*)f->Get(key);
             if (!pdf) {
               edm::LogError("NoPDF") << "Could not found pdf with key  " << key << " in input file" << std::endl;
