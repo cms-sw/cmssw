@@ -9,6 +9,7 @@
 #include "TString.h"
 #include "TSystem.h"
 #include "TFile.h"
+#include "TKey.h"
 #include <sys/stat.h>
 
 void LegacyIOHelper::save(std::string const &filename,

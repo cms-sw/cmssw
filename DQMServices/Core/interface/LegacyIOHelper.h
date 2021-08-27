@@ -2,17 +2,8 @@
 #define DQMSERVICES_CORE_LEGACYIOHELPER_H
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <iostream>
-#include <string>
-#include "TFile.h"
 #include "TROOT.h"
-#include "TKey.h"
-#include "TClass.h"
-#include "TSystem.h"
-#include "TBufferFile.h"
-#include <sstream>
-#include <utility>
-#include <set>
+
 // This class encapsulates the TDirectory based file format used for DQMGUI
 // uploads and many other use cases.
 // This should be part of `DQMFileSaver`, however since DQMServices/Components
