@@ -12,11 +12,14 @@ except ImportError:
 topfunc = r"::(accumulate|acquire|startingNewLoop|duringLoop|endOfLoop|beginOfJob|endOfJob|produce|analyze|filter|beginLuminosityBlock|beginRun|beginStream|streamBeginRun|streamBeginLuminosityBlock|streamEndRun|streamEndLuminosityBlock|globalBeginRun|globalEndRun|globalBeginLuminosityBlock|globalEndLuminosityBlock|endRun|endLuminosityBlock)\("
 topfuncre = re.compile(topfunc)
 
-baseclass = r"\b(edm::)?(one::|stream::|global::)?((DQM)?(Global|One)?ED(Producer|Filter|Analyzer|(IterateNTimes|NavigateEvents)?Looper)(Base)?|impl::(ExternalWork|Accumulator|RunWatcher|RunCacheHolder))\b"
+baseclass = r"\b(edm::)?(one::|stream::|global::)?((DQM)?(Global|One)?ED(Producer|Filter|Analyzer|(IterateNTimes|NavigateEvents)?Looper)(Base)?|impl::(ExternalWork|Accumulator|RunWatcher|RunCacheHolder)|FromFiles|ProducerSourceBase|OutputModuleBase|InputSource|ProducerSourceFromFiles|ProducerBase|PuttableSourceBase|OutputModule|RawOutput|RawInputSource)\b"
 baseclassre = re.compile(baseclass)
 assert(baseclassre.match('edm::global::EDFilter::filter() virtual'))
 assert(topfuncre.search('edm::global::EDFilterBase::filter(&) const virtual'))
-
+assert(not baseclassre.match('edm::BaseFlatGunProducer'))
+assert(not baseclassre.match('edm::FlatRandomEGunProducer'))
+assert(baseclassre.match('edm::ProducerSourceBase'))
+assert(baseclassre.match('edm::one::OutputModuleBase'))
 farg = re.compile(r"\(.*?\)")
 tmpl = re.compile(r'<.*?>')
 toplevelfuncs = set()
@@ -65,6 +68,27 @@ for k,v in p.items():
 
 for k in module2package.keys():
     module2package[k]=sorted(set(module2package[k]))
+
+
+class2base = dict()
+mbcl = re.compile("(base|data) class")
+with open('classes.txt.dumperall') as f:
+    for line in f:
+        if mbcl.search(line):
+            fields = line.split("'")
+            if fields[2] == ' base class ' and not baseclassre.search(fields[3]):
+                class2base.setdefault(fields[1], []).append(fields[3])
+
+assert(class2base['edm::FlatRandomEGunProducer']==['edm::BaseFlatGunProducer'])
+
+for cl, basecls in class2base.items():
+    for package, modules in module2package.items():
+        for module in modules:
+            if module==cl.split('::')[-1]:
+                print(cl, basecls, package, module)
+                for basecl in basecls:
+                    if not basecl in set(module2package[package]):
+                        module2package[package].append(basecl)
 
 G = nx.DiGraph()
 with open('function-calls-db.txt') as f:
