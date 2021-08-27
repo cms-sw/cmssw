@@ -27,7 +27,9 @@ namespace defaultRKPropagator {
   class RKMagVolume final : public MagVolume {
   public:
     RKMagVolume(const PositionType& pos, const RotationType& rot, const MagneticFieldProvider<float>* mfp)
-        : MagVolume(pos, rot, mfp) {}
+        : MagVolume(pos, rot, mfp) {
+      setNominalValue();
+    }
 
     bool inside(const GlobalPoint& gp, double tolerance = 0.) const override { return true; }
 

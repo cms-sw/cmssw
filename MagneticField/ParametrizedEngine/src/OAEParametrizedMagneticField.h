@@ -22,7 +22,7 @@ namespace magfieldparam {
   class TkBfield;
 }
 
-class OAEParametrizedMagneticField : public MagneticField {
+class OAEParametrizedMagneticField final : public MagneticField {
 public:
   /// Constructor, pass value for nominal field
   explicit OAEParametrizedMagneticField(float B);

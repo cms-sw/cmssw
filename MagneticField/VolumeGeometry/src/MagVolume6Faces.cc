@@ -5,7 +5,9 @@ MagVolume6Faces::MagVolume6Faces(const PositionType& pos,
                                  const std::vector<VolumeSide>& faces,
                                  const MagneticFieldProvider<float>* mfp,
                                  double sf)
-    : MagVolume(pos, rot, mfp, sf), volumeNo(0), copyno(0), theFaces(faces) {}
+    : MagVolume(pos, rot, mfp, sf), volumeNo(0), copyno(0), theFaces(faces) {
+  setNominalValue();
+}
 
 bool MagVolume6Faces::inside(const GlobalPoint& gp, double tolerance) const {
   // check if the point is on the correct side of all delimiting surfaces
