@@ -75,7 +75,8 @@ void CTPPSPixelDataFormatter::setErrorStatus(bool errorStatus) {
   m_ErrorCheck.setErrorStatus(m_IncludeErrors);
 }
 
-void CTPPSPixelDataFormatter::interpretRawData(bool& isRun3, bool& errorsInEvent, int fedId, const FEDRawData& rawData, Collection& digis, Errors& errors) {
+void CTPPSPixelDataFormatter::interpretRawData(
+    bool& isRun3, bool& errorsInEvent, int fedId, const FEDRawData& rawData, Collection& digis, Errors& errors) {
   int nWords = rawData.size() / sizeof(Word64);
   if (nWords == 0)
     return;
@@ -142,7 +143,6 @@ void CTPPSPixelDataFormatter::interpretRawData(bool& isRun3, bool& errorsInEvent
     mit = m_Mapping.find(fPos);
 
     if (mit == m_Mapping.end()) {
-
       if (nlink >= maxLinkIndex) {
         m_ErrorCheck.conversionError(fedId, iD, InvalidLinkId, ww, errors);
       } else if ((nroc - 1) >= maxRocIndex) {
@@ -179,7 +179,7 @@ void CTPPSPixelDataFormatter::interpretRawData(bool& isRun3, bool& errorsInEvent
     int col = (ww >> m_COL_shift) & m_COL_mask;
     int row = (ww >> m_ROW_shift) & m_ROW_mask;
 
-    if (!isRun3 && (dcol < min_Dcol || dcol > max_Dcol || pxid < min_Pixid || pxid > max_Pixid) ) {
+    if (!isRun3 && (dcol < min_Dcol || dcol > max_Dcol || pxid < min_Pixid || pxid > max_Pixid)) {
       edm::LogError("CTPPSPixelDataFormatter")
           << " unphysical dcol and/or pxid "
           << " nllink=" << nlink << " nroc=" << nroc << " adc=" << adc << " dcol=" << dcol << " pxid=" << pxid;
@@ -188,7 +188,7 @@ void CTPPSPixelDataFormatter::interpretRawData(bool& isRun3, bool& errorsInEvent
 
       continue;
     }
-    if (isRun3 && (col < min_COL || col > max_COL || row < min_ROW || row > max_ROW) ) {
+    if (isRun3 && (col < min_COL || col > max_COL || row < min_ROW || row > max_ROW)) {
       edm::LogError("CTPPSPixelDataFormatter")
           << " unphysical col and/or row "
           << " nllink=" << nlink << " nroc=" << nroc << " adc=" << adc << " col=" << col << " row=" << row;
@@ -201,14 +201,14 @@ void CTPPSPixelDataFormatter::interpretRawData(bool& isRun3, bool& errorsInEvent
     std::pair<int, int> rocPixel;
     std::pair<int, int> modPixel;
 
-    if(isRun3){
+    if (isRun3) {
       rocPixel = std::make_pair(row, col);
       modPixel = rocp.toGlobal(rocPixel);
-    }else{
+    } else {
       rocPixel = std::make_pair(dcol, pxid);
       modPixel = rocp.toGlobalfromDcol(rocPixel);
     }
-    
+
     CTPPSPixelDigi testdigi(modPixel.first, modPixel.second, adc);
 
     if (detDigis)
@@ -216,11 +216,8 @@ void CTPPSPixelDataFormatter::interpretRawData(bool& isRun3, bool& errorsInEvent
   }
 }
 
-void CTPPSPixelDataFormatter::formatRawData(bool& isRun3, unsigned int lvl1_ID,
-                                            RawData& fedRawData,
-                                            const Digis& digis,
-                                            std::vector<PPSPixelIndex> iDdet2fed) {
-
+void CTPPSPixelDataFormatter::formatRawData(
+    bool& isRun3, unsigned int lvl1_ID, RawData& fedRawData, const Digis& digis, std::vector<PPSPixelIndex> iDdet2fed) {
   std::map<int, vector<Word32> > words;
   // translate digis into 32-bit raw words and store in map indexed by Fed
   m_allDetDigis = 0;
@@ -250,17 +247,19 @@ void CTPPSPixelDataFormatter::formatRawData(bool& isRun3, unsigned int lvl1_ID,
         nroc = iDdet2fed.at(i).rocch + 1;
 
         pps::pixel::ElectronicIndex cabling = {nlink, nroc, dcol, pxid};
-	if(isRun3){
-	  cms_uint32_t word = (cabling.link << m_LINK_shift) | (cabling.roc << m_ROC_shift) |
-	    (rocPixelColumn << m_COL_shift) | (rocPixelRow << m_ROW_shift) | (it.adc() << m_ADC_shift);
+        if (isRun3) {
+          cms_uint32_t word = (cabling.link << m_LINK_shift) | (cabling.roc << m_ROC_shift) |
+                              (rocPixelColumn << m_COL_shift) | (rocPixelRow << m_ROW_shift) |
+                              (it.adc() << m_ADC_shift);
 
-	  words[iDdet2fed.at(i).fedid].push_back(word);
-	}else{
-	  cms_uint32_t word = (cabling.link << m_LINK_shift) | (cabling.roc << m_ROC_shift) |
-	    (cabling.dcol << m_DCOL_shift) | (cabling.pxid << m_PXID_shift) | (it.adc() << m_ADC_shift);
-	  
-	  words[iDdet2fed.at(i).fedid].push_back(word);
-	}
+          words[iDdet2fed.at(i).fedid].push_back(word);
+        } else {
+          cms_uint32_t word = (cabling.link << m_LINK_shift) | (cabling.roc << m_ROC_shift) |
+                              (cabling.dcol << m_DCOL_shift) | (cabling.pxid << m_PXID_shift) |
+                              (it.adc() << m_ADC_shift);
+
+          words[iDdet2fed.at(i).fedid].push_back(word);
+        }
         m_WordCounter++;
         m_hasDetDigis++;
 

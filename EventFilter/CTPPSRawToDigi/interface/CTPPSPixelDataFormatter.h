@@ -71,7 +71,8 @@ public:
 
   int nWords() const { return m_WordCounter; }
 
-  void interpretRawData(bool& isRun3, bool& errorsInEvent, int fedId, const FEDRawData& data, Collection& digis, Errors& errors);
+  void interpretRawData(
+      bool& isRun3, bool& errorsInEvent, int fedId, const FEDRawData& data, Collection& digis, Errors& errors);
 
   int nDigis() const { return m_DigiCounter; }
 
@@ -83,7 +84,8 @@ public:
     short unsigned int fedch;
   };
 
-  void formatRawData(bool& isRun3, unsigned int lvl1_ID,
+  void formatRawData(bool& isRun3,
+                     unsigned int lvl1_ID,
                      RawData& fedRawData,
                      const Digis& digis,
                      std::vector<PPSPixelIndex> v_iDdet2fed);
