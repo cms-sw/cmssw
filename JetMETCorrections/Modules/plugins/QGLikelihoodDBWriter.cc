@@ -129,11 +129,11 @@ void QGLikelihoodDBWriter::beginJob() {
     int qgIndex = strcpm(type, "gluon") == 0 ? 1 : 0;
         (TString(type) == "gluon");  // Keep numbering same as in RecoJets/JetAlgorithms/src/QGLikelihoodCalculator.cc
     for (auto&& likelihoodVar : {"mult", "ptD", "axis2"}) {
+      // Keep order same as in RecoJets/JetProducers/plugins/QGTagger.cc
       int varIndex = (strcmp(likelihoodVar, "mult") == 0
                           ? 0
                           : (strcmp(likelihoodVar, "ptD") == 0
-                                 ? 1
-                                 : 2));  // Keep order same as in RecoJets/JetProducers/plugins/QGTagger.cc
+                                 ? 1 : 2));        
       for (int i = 0; i < (int)gridOfBins["eta"].size() - 1; ++i) {
         for (int j = 0; j < (int)gridOfBins["pt"].size() - 1; ++j) {
           for (int k = 0; k < (int)gridOfBins["rho"].size() - 1; ++k) {
