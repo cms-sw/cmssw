@@ -12,6 +12,15 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 #include "CUDADataFormats/TrackingRecHit/interface/SiPixelHitStatus.h"
 
+namespace CPEFastParametrisation {
+  // From https://cmssdt.cern.ch/dxr/CMSSW/source/CondFormats/SiPixelTransient/src/SiPixelGenError.cc#485-486
+  // qbin: int (0-4) describing the charge of the cluster
+  // [0: 1.5<Q/Qavg, 1: 1<Q/Qavg<1.5, 2: 0.85<Q/Qavg<1, 3: 0.95Qmin<Q<0.85Qavg, 4: Q<0.95Qmin]
+  constexpr int kGenErrorQBins = 5;
+  // arbitrary number of bins for sampling errors
+  constexpr int kNumErrorBins = 16;
+}  // namespace CPEFastParametrisation
+
 namespace pixelCPEforGPU {
 
   using Status = SiPixelHitStatus;
@@ -43,9 +52,10 @@ namespace pixelCPEforGPU {
 
     float apeXX, apeYY;  // ape^2
     uint8_t sx2, sy1, sy2;
-    uint8_t sigmax[16], sigmax1[16], sigmay[16];  // in micron
-    float xfact[5], yfact[5];
-    int minCh[5];
+    uint8_t sigmax[CPEFastParametrisation::kNumErrorBins], sigmax1[CPEFastParametrisation::kNumErrorBins],
+        sigmay[CPEFastParametrisation::kNumErrorBins];  // in micron
+    float xfact[CPEFastParametrisation::kGenErrorQBins], yfact[CPEFastParametrisation::kGenErrorQBins];
+    int minCh[CPEFastParametrisation::kGenErrorQBins];
 
     Frame frame;
   };
@@ -342,19 +352,26 @@ namespace pixelCPEforGPU {
 
     auto ch = cp.charge[ic];
     auto bin = 0;
-    for (; bin < 4; ++bin)
+    for (; bin < CPEFastParametrisation::kGenErrorQBins - 1; ++bin)
+      // find first bin which minimum charge exceeds cluster charge
       if (ch < detParams.minCh[bin + 1])
         break;
-    assert(bin < 5);
 
-    cp.status[ic].qBin = 4 - bin;
+    // in detParams qBins are reversed bin0 -> smallest charge, bin4-> largest charge
+    // whereas in CondFormats/SiPixelTransient/src/SiPixelGenError.cc it is the opposite
+    // so we reverse the bin here -> kGenErrorQBins - 1 - bin
+    cp.status[ic].qBin = CPEFastParametrisation::kGenErrorQBins - 1 - bin;
     cp.status[ic].isOneX = isOneX;
     cp.status[ic].isBigX = (isOneX & isBigX) | isEdgeX;
     cp.status[ic].isOneY = isOneY;
     cp.status[ic].isBigY = (isOneY & isBigY) | isEdgeY;
 
-    auto xoff = 81.f * comParams.thePitchX;
-    int jx = std::min(15, std::max(0, int(16.f * (cp.xpos[ic] + xoff) / (2 * xoff))));
+    auto xoff = -float(phase1PixelTopology::xOffset) * comParams.thePitchX;
+    int low_value = 0;
+    int high_value = CPEFastParametrisation::kNumErrorBins - 1;
+    int bin_value = float(CPEFastParametrisation::kNumErrorBins) * (cp.xpos[ic] + xoff) / (2 * xoff);
+    // return estimated bin value truncated to [0, 15]
+    int jx = std::clamp(bin_value, low_value, high_value);
 
     auto toCM = [](uint8_t x) { return float(x) * 1.e-4; };
 
