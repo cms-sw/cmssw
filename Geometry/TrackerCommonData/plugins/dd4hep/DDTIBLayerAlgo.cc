@@ -94,18 +94,20 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
   };
 
   edm::LogVerbatim("TIBGeom") << "Parent " << mother << " NameSpace " << ns.name() << " General Material " << genMat;
-  edm::LogVerbatim("TIBGeom") << "Lower layer Radius " << radiusLo << " Number " << stringsLo << " String " << detectorLo;
-  edm::LogVerbatim("TIBGeom") << "Upper layer Radius " << radiusUp << " Number " << stringsUp << " String " << detectorUp;
-  edm::LogVerbatim("TIBGeom") << "Cylinder Material/thickness " << cylinderMat << " " << cylinderT << " Rib Material " << ribMat
-                      << " at " << ribW.size() << " positions with width/phi";
+  edm::LogVerbatim("TIBGeom") << "Lower layer Radius " << radiusLo << " Number " << stringsLo << " String "
+                              << detectorLo;
+  edm::LogVerbatim("TIBGeom") << "Upper layer Radius " << radiusUp << " Number " << stringsUp << " String "
+                              << detectorUp;
+  edm::LogVerbatim("TIBGeom") << "Cylinder Material/thickness " << cylinderMat << " " << cylinderT << " Rib Material "
+                              << ribMat << " at " << ribW.size() << " positions with width/phi";
   for (unsigned int i = 0; i < ribW.size(); i++) {
     edm::LogVerbatim("TIBGeom") << "\tribW[" << i << "] = " << ribW[i] << "\tribPhi[" << i
-                        << "] = " << convertRadToDeg(ribPhi[i]);
+                                << "] = " << convertRadToDeg(ribPhi[i]);
   }
   edm::LogVerbatim("TIBGeom") << "DOHM Primary "
-                      << " Material " << dohmPrimMaterial << " Length " << dohmPrimL;
+                              << " Material " << dohmPrimMaterial << " Length " << dohmPrimL;
   edm::LogVerbatim("TIBGeom") << "DOHM Aux     "
-                      << " Material " << dohmAuxMaterial << " Length " << dohmAuxL;
+                              << " Material " << dohmAuxMaterial << " Length " << dohmAuxL;
   for (double i : dohmListFW) {
     if (i > 0.)
       edm::LogVerbatim("TIBGeom") << "DOHM Primary at FW Position " << i;
@@ -148,7 +150,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
   double rmax = MFRingOutR;
   Solid solid = ns.addSolidNS(ns.prepend(idName), Tube(rmin, rmax, 0.5 * layerL));
   edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << genMat << " from 0 to " << convertRadToDeg(2_pi)
-                      << " with Rin " << rmin << " Rout " << rmax << " ZHalf " << 0.5 * layerL;
+                              << " with Rin " << rmin << " Rout " << rmax << " ZHalf " << 0.5 * layerL;
   Volume layer = ns.addVolumeNS(Volume(ns.prepend(idName), solid, ns.material(genMat)));
 
   //Internal layer first
@@ -158,7 +160,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
   string name = idName + "Down";
   solid = ns.addSolidNS(ns.prepend(name), Tube(rin, rout, 0.5 * layerL));
   edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << genMat << " from 0 to " << convertRadToDeg(2_pi)
-                      << " with Rin " << rin << " Rout " << rout << " ZHalf " << 0.5 * layerL;
+                              << " with Rin " << rin << " Rout " << rout << " ZHalf " << 0.5 * layerL;
   Volume layerIn = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(genMat)));
   pv = layer.placeVolume(layerIn, 1);
   LogPosition(pv);
@@ -182,7 +184,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
   name = idName + "Up";
   solid = ns.addSolidNS(ns.prepend(name), Tube(rin, rout, 0.5 * layerL));
   edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << genMat << " from 0 to " << convertRadToDeg(2_pi)
-                      << " with Rin " << rin << " Rout " << rout << " ZHalf " << 0.5 * layerL;
+                              << " with Rin " << rin << " Rout " << rout << " ZHalf " << 0.5 * layerL;
   Volume layerOut = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(genMat)));
   pv = layer.placeVolume(layerOut, 1);
   LogPosition(pv);
@@ -209,8 +211,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
   rout = cylinderInR + cylinderT;
   name = idName + "Cylinder";
   solid = ns.addSolidNS(ns.prepend(name), Tube(rin, rout, 0.5 * layerL));
-  edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << cylinderMat << " from 0 to " << convertRadToDeg(2_pi)
-                      << " with Rin " << rin << " Rout " << rout << " ZHalf " << 0.5 * layerL;
+  edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << cylinderMat << " from 0 to "
+                              << convertRadToDeg(2_pi) << " with Rin " << rin << " Rout " << rout << " ZHalf "
+                              << 0.5 * layerL;
   Volume cylinder = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(cylinderMat)));
   pv = layer.placeVolume(cylinder, 1);
   LogPosition(pv);
@@ -223,7 +226,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
   name = idName + "CylinderIn";
   solid = ns.addSolidNS(ns.prepend(name), Tube(rin, rout, 0.5 * layerL));
   edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << genMat << " from 0 to " << convertRadToDeg(2_pi)
-                      << " with Rin " << rin << " Rout " << rout << " ZHalf " << 0.5 * layerL;
+                              << " with Rin " << rin << " Rout " << rout << " ZHalf " << 0.5 * layerL;
   Volume cylinderIn = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(genMat)));
   pv = cylinder.placeVolume(cylinderIn, 1);
   LogPosition(pv);
@@ -234,7 +237,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
   name = idName + "Filler";
   solid = ns.addSolidNS(ns.prepend(name), Tube(rin, rout, fillerDz));
   edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << fillerMat << " from " << 0. << " to "
-                      << convertRadToDeg(2_pi) << " with Rin " << rin << " Rout " << rout << " ZHalf " << fillerDz;
+                              << convertRadToDeg(2_pi) << " with Rin " << rin << " Rout " << rout << " ZHalf "
+                              << fillerDz;
   Volume cylinderFiller = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(fillerMat)));
   pv = cylinderIn.placeVolume(cylinderFiller, 1, Position(0.0, 0.0, 0.5 * layerL - fillerDz));
   LogPosition(pv);
@@ -253,9 +257,10 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
     double _rmi = std::min(rin + 0.5 * dd4hep::mm, rout - 0.5 * dd4hep::mm);
     double _rma = std::max(rin + 0.5 * dd4hep::mm, rout - 0.5 * dd4hep::mm);
     solid = ns.addSolidNS(ns.prepend(name), Tube(_rmi, _rma, dz, -0.5 * width, 0.5 * width));
-    edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << ribMat << " from " << -0.5 * convertRadToDeg(width)
-                        << " to " << 0.5 * convertRadToDeg(width) << " with Rin " << rin + 0.5 * dd4hep::mm << " Rout "
-                        << rout - 0.5 * dd4hep::mm << " ZHalf " << dz;
+    edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << ribMat << " from "
+                                << -0.5 * convertRadToDeg(width) << " to " << 0.5 * convertRadToDeg(width)
+                                << " with Rin " << rin + 0.5 * dd4hep::mm << " Rout " << rout - 0.5 * dd4hep::mm
+                                << " ZHalf " << dz;
     Volume cylinderRib = ns.addVolumeNS(Volume(ns.prepend(name), solid, matrib));
     double phix = ribPhi[i];
     double theta = 90_deg;
@@ -274,8 +279,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
   rout = rin + MFRingT;
   name = idName + "InnerMFRing";
   solid = ns.addSolidNS(ns.prepend(name), Tube(rin, rout, MFRingDz));
-  edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << MFIntRingMat << " from 0 to " << convertRadToDeg(2_pi)
-                      << " with Rin " << rin << " Rout " << rout << " ZHalf " << MFRingDz;
+  edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << MFIntRingMat << " from 0 to "
+                              << convertRadToDeg(2_pi) << " with Rin " << rin << " Rout " << rout << " ZHalf "
+                              << MFRingDz;
 
   Volume inmfr = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(MFIntRingMat)));
 
@@ -290,8 +296,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
   rin = rout - MFRingT;
   name = idName + "OuterMFRing";
   solid = ns.addSolidNS(ns.prepend(name), Tube(rin, rout, MFRingDz));
-  edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << MFExtRingMat << " from 0 to " << convertRadToDeg(2_pi)
-                      << " with Rin " << rin << " Rout " << rout << " ZHalf " << MFRingDz;
+  edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << MFExtRingMat << " from 0 to "
+                              << convertRadToDeg(2_pi) << " with Rin " << rin << " Rout " << rout << " ZHalf "
+                              << MFRingDz;
 
   Volume outmfr = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(MFExtRingMat)));
   pv = layer.placeVolume(outmfr, 1, Position(0.0, 0.0, -0.5 * layerL + MFRingDz));
@@ -311,7 +318,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
   solid = ns.addSolidNS(ns.prepend(name), Tube(rin, rout, centDz));
 
   edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << centMat << " from 0 to " << convertRadToDeg(2_pi)
-                      << " with Rin " << rin << " Rout " << rout << " ZHalf " << centDz;
+                              << " with Rin " << rin << " Rout " << rout << " ZHalf " << centDz;
 
   Volume cent1 = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(centMat)));
   pv = layer.placeVolume(cent1, 1, Position(0.0, 0.0, centZ));
@@ -324,7 +331,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
   name = idName + "CentRing2";
   solid = ns.addSolidNS(ns.prepend(name), Tube(rin, rout, centDz));
   edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << centMat << " from 0 to " << convertRadToDeg(2_pi)
-                      << " with Rin " << rin << " Rout " << rout << " ZHalf " << centDz;
+                              << " with Rin " << rin << " Rout " << rout << " ZHalf " << centDz;
 
   Volume cent2 = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(centMat)));
   pv = layer.placeVolume(cent2, 1, Position(0e0, 0e0, centZ));
@@ -341,10 +348,12 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
   double dohmCarrierDz = 0.5 * (dohmPrimL + dohmtoMF);
   double dohmCarrierZ = 0.5 * layerL - 2. * MFRingDz - dohmCarrierDz;
 
-  solid = ns.addSolidNS(ns.prepend(name), Tube(dohmCarrierRin, dohmCarrierRout, dohmCarrierDz, dohmCarrierPhiOff, 180._deg - dohmCarrierPhiOff));
-  edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << dohmCarrierMaterial << " from " << dohmCarrierPhiOff
-                      << " to " << 180._deg - dohmCarrierPhiOff << " with Rin " << dohmCarrierRin << " Rout "
-                      << MFRingOutR << " ZHalf " << dohmCarrierDz;
+  solid = ns.addSolidNS(
+      ns.prepend(name),
+      Tube(dohmCarrierRin, dohmCarrierRout, dohmCarrierDz, dohmCarrierPhiOff, 180._deg - dohmCarrierPhiOff));
+  edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << dohmCarrierMaterial << " from "
+                              << dohmCarrierPhiOff << " to " << 180._deg - dohmCarrierPhiOff << " with Rin "
+                              << dohmCarrierRin << " Rout " << MFRingOutR << " ZHalf " << dohmCarrierDz;
 
   // Define FW and BW carrier logical volume and
   // place DOHM Primary and auxiliary modules inside it
@@ -491,8 +500,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
 
     solid = ns.addSolidNS(ns.prepend(name), Tube(pillarRin, pillarRout, pillarDz, -pillarDPhi, pillarDPhi));
     Volume Pillar = ns.addVolumeNS(Volume(ns.prepend(name), solid, ns.material(pillarMaterial)));
-    edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << pillarMaterial << " from " << -pillarDPhi << " to "
-                        << pillarDPhi << " with Rin " << pillarRin << " Rout " << pillarRout << " ZHalf " << pillarDz;
+    edm::LogVerbatim("TIBGeom") << solid.name() << " Tubs made of " << pillarMaterial << " from " << -pillarDPhi
+                                << " to " << pillarDPhi << " with Rin " << pillarRin << " Rout " << pillarRout
+                                << " ZHalf " << pillarDz;
     Position pillarTran;
     Rotation3D pillarRota;
     int pillarReplica = 0;

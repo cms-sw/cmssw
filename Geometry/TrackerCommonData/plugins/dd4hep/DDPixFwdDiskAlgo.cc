@@ -52,14 +52,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   dd4hep::Volume child = ns.volume(childName);
 
   edm::LogVerbatim("PixelGeom") << "DDPixFwdDiskAlgo debug: Parent " << mother.name() << "\tChild " << child.name()
-                                  << " NameSpace " << ns.name() << "\tRot Name " << rotName << "\tCopyNo (Start/Total) "
-                                  << startCopyNo << ", " << nBlades << "\tAngles " << convertRadToDeg(bladeAngle)
-                                  << ", " << convertRadToDeg(bladeTilt) << "\tZshifts " << zPlane << "\tAnchor Radius "
-                                  << anchorR;
+                                << " NameSpace " << ns.name() << "\tRot Name " << rotName << "\tCopyNo (Start/Total) "
+                                << startCopyNo << ", " << nBlades << "\tAngles " << convertRadToDeg(bladeAngle) << ", "
+                                << convertRadToDeg(bladeTilt) << "\tZshifts " << zPlane << "\tAnchor Radius "
+                                << anchorR;
 
   for (int iBlade = 0; iBlade < nBlades; ++iBlade) {
     edm::LogVerbatim("PixelGeom") << "DDPixFwdDiskAlgo: Blade " << iBlade << " flag " << flagString[iBlade]
-                                    << " zshift " << bladeZShift[iBlade];
+                                  << " zshift " << bladeZShift[iBlade];
   }
 
   double deltaPhi = 360.0_deg / (double)nBlades;
@@ -87,23 +87,23 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
       if (irot != ctxt.rotations.end()) {
         edm::LogVerbatim("PixelGeom") << "DDPixFwdDiskAlgo test: Creating a new "
-                                        << "rotation: " << rotstr << "\t" << convertRadToDeg(thetx) << ", "
-                                        << convertRadToDeg(phix) << ", " << convertRadToDeg(thety) << ", "
-                                        << convertRadToDeg(phiy) << ", " << convertRadToDeg(thetz) << ", "
-                                        << convertRadToDeg(phiz);
+                                      << "rotation: " << rotstr << "\t" << convertRadToDeg(thetx) << ", "
+                                      << convertRadToDeg(phix) << ", " << convertRadToDeg(thety) << ", "
+                                      << convertRadToDeg(phiy) << ", " << convertRadToDeg(thetz) << ", "
+                                      << convertRadToDeg(phiz);
 
         edm::LogVerbatim("PixelGeom") << "Rotation Matrix (" << convertRadToDeg(phi) << ", "
-                                        << convertRadToDeg(bladeAngle) << ", " << convertRadToDeg(bladeTilt) << ") "
-                                        << cos(phi) * cos(bladeAngle) << ", "
-                                        << (-sin(phi) * cos(bladeTilt) + cos(phi) * sin(bladeAngle) * sin(bladeTilt))
-                                        << ", "
-                                        << (sin(phi) * sin(bladeTilt) + cos(phi) * sin(bladeAngle) * cos(bladeTilt))
-                                        << ", " << sin(phi) * cos(bladeAngle) << ", "
-                                        << (cos(phi) * cos(bladeTilt) + sin(phi) * sin(bladeAngle) * sin(bladeTilt))
-                                        << ", "
-                                        << (-cos(phi) * sin(bladeTilt) + sin(phi) * sin(bladeAngle) * cos(bladeTilt))
-                                        << ", " << -sin(bladeAngle) << ", " << cos(bladeAngle) * sin(bladeTilt) << ", "
-                                        << cos(bladeAngle) * cos(bladeTilt);
+                                      << convertRadToDeg(bladeAngle) << ", " << convertRadToDeg(bladeTilt) << ") "
+                                      << cos(phi) * cos(bladeAngle) << ", "
+                                      << (-sin(phi) * cos(bladeTilt) + cos(phi) * sin(bladeAngle) * sin(bladeTilt))
+                                      << ", "
+                                      << (sin(phi) * sin(bladeTilt) + cos(phi) * sin(bladeAngle) * cos(bladeTilt))
+                                      << ", " << sin(phi) * cos(bladeAngle) << ", "
+                                      << (cos(phi) * cos(bladeTilt) + sin(phi) * sin(bladeAngle) * sin(bladeTilt))
+                                      << ", "
+                                      << (-cos(phi) * sin(bladeTilt) + sin(phi) * sin(bladeAngle) * cos(bladeTilt))
+                                      << ", " << -sin(bladeAngle) << ", " << cos(bladeAngle) * sin(bladeTilt) << ", "
+                                      << cos(bladeAngle) * cos(bladeTilt);
         rot = cms::makeRotation3D(thetx, phix, thety, phiy, thetz, phiz);
       }
       double xpos = anchorR * (-sin(phi) * cos(bladeTilt) + cos(phi) * sin(bladeAngle) * sin(bladeTilt));
@@ -113,8 +113,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       dd4hep::Position tran(xpos, ypos, zpos);
       pv = mother.placeVolume(child, copyNo, dd4hep::Transform3D(rot, tran));
       edm::LogVerbatim("PixelGeom") << "DDPixFwdDiskAlgo test: " << pv.name() << ": " << childName << " number "
-                                      << copyNo << " positioned in " << mother.name() << " at " << tran << " with "
-                                      << rot;
+                                    << copyNo << " positioned in " << mother.name() << " at " << tran << " with "
+                                    << rot;
     }
     copyNo++;
   }

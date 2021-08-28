@@ -36,13 +36,13 @@ static long algorithm(dd4hep::Detector&, cms::DDParsingContext& ctxt, xml_h e) {
   int outerFirst = args.value<int>("OuterFirst");
 
   edm::LogVerbatim("PixelGeom") << "DDPixBarLayerUpgradeAlgo debug: Parent " << parentName << " NameSpace "
-                        << ns.objName(parentName) << "\n\tLadders " << number << "\tGeneral Material " << genMat
-                        << "\tLength " << layerDz << "\tSpecification of Cooling Pieces:\n"
-                        << "\tLength " << coolDz << "\tThickness of Shell " << coolThick << "\tRadial distance "
-                        << coolDist << "\tMaterials " << coolMat << ", " << tubeMat << std::endl;
+                                << ns.objName(parentName) << "\n\tLadders " << number << "\tGeneral Material " << genMat
+                                << "\tLength " << layerDz << "\tSpecification of Cooling Pieces:\n"
+                                << "\tLength " << coolDz << "\tThickness of Shell " << coolThick << "\tRadial distance "
+                                << coolDist << "\tMaterials " << coolMat << ", " << tubeMat << std::endl;
 
   edm::LogVerbatim("PixelGeom") << "DDPixBarLayerUpgradeAlgo debug: Full Ladder " << ladder << " width/thickness "
-                        << ladderWidth << ", " << ladderThick;
+                                << ladderWidth << ", " << ladderThick;
 
   double dphi = 2_pi / (double)number;
   double x2 = coolDist * sin(0.5 * dphi);
@@ -55,8 +55,8 @@ static long algorithm(dd4hep::Detector&, cms::DDParsingContext& ctxt, xml_h e) {
   dd4hep::Solid solid = ns.addSolid(ns.prepend(name), dd4hep::Tube(rtmi, rtmx, 0.5 * layerDz, 0., 2._pi));
 
   edm::LogVerbatim("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << solid.name() << " Tubs made of " << genMat
-                        << " from 0. to " << convertRadToDeg(2_pi) << " with Rin " << rtmi << " Rout " << rtmx
-                        << " ZHalf " << 0.5 * layerDz;
+                                << " from 0. to " << convertRadToDeg(2_pi) << " with Rin " << rtmi << " Rout " << rtmx
+                                << " ZHalf " << 0.5 * layerDz;
 
   dd4hep::Volume layer = ns.addVolume(dd4hep::Volume(solid.name(), solid, ns.material(genMat)));
 
@@ -64,8 +64,8 @@ static long algorithm(dd4hep::Detector&, cms::DDParsingContext& ctxt, xml_h e) {
   solid = ns.addSolid(ns.prepend(name + "CoolTube"), dd4hep::Tube(0., coolRadius, 0.5 * coolDz, 0., 2_pi));
 
   edm::LogVerbatim("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << solid.name() << " Tubs made of " << tubeMat
-                        << " from 0 to " << convertRadToDeg(2_pi) << " with Rout " << coolRadius << " ZHalf "
-                        << 0.5 * coolDz;
+                                << " from 0 to " << convertRadToDeg(2_pi) << " with Rout " << coolRadius << " ZHalf "
+                                << 0.5 * coolDz;
 
   dd4hep::Volume coolTube = ns.addVolume(dd4hep::Volume(solid.name(), solid, ns.material(tubeMat)));
 
@@ -73,8 +73,8 @@ static long algorithm(dd4hep::Detector&, cms::DDParsingContext& ctxt, xml_h e) {
   solid = ns.addSolid(ns.prepend(name + "CoolTubeHalf"), dd4hep::Tube(0., coolRadius, 0.5 * coolDz, 0, 1_pi));
 
   edm::LogVerbatim("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << solid.name() << " Tubs made of " << tubeMatHalf
-                        << " from 0 to " << convertRadToDeg(2_pi) << " with Rout " << coolRadius << " ZHalf "
-                        << 0.5 * coolDz;
+                                << " from 0 to " << convertRadToDeg(2_pi) << " with Rout " << coolRadius << " ZHalf "
+                                << 0.5 * coolDz;
 
   dd4hep::Volume coolTubeHalf = ns.addVolume(dd4hep::Volume(solid.name(), solid, ns.material(tubeMatHalf)));
 
@@ -84,30 +84,31 @@ static long algorithm(dd4hep::Detector&, cms::DDParsingContext& ctxt, xml_h e) {
   solid = ns.addSolid(ns.prepend(name + "Coolant"), dd4hep::Tube(0., coolRadius - coolThick, 0.5 * coolDz, 0., 2_pi));
 
   edm::LogVerbatim("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << solid.name() << " Tubs made of " << tubeMat
-                        << " from 0 to " << convertRadToDeg(2._pi) << " with Rout " << coolRadius - coolThick
-                        << " ZHalf " << 0.5 * coolDz;
+                                << " from 0 to " << convertRadToDeg(2._pi) << " with Rout " << coolRadius - coolThick
+                                << " ZHalf " << 0.5 * coolDz;
 
   dd4hep::Volume cool = ns.addVolume(dd4hep::Volume(solid.name(), solid, ns.material(coolMat)));
 
   coolTube.placeVolume(cool, 1, dd4hep::Transform3D(dd4hep::Rotation3D(), dd4hep::Position(0., 0., 0.)));
 
   edm::LogVerbatim("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << cool.name() << " number 1 positioned in "
-                        << coolTube.name() << " at (0,0,0) with no rotation";
+                                << coolTube.name() << " at (0,0,0) with no rotation";
 
   // Half Coolant
 
-  solid = ns.addSolid(ns.prepend(name + "CoolantHalf"), dd4hep::Tube(0., coolRadius - coolThick, 0.5 * coolDz, 0., 1._pi));
+  solid =
+      ns.addSolid(ns.prepend(name + "CoolantHalf"), dd4hep::Tube(0., coolRadius - coolThick, 0.5 * coolDz, 0., 1._pi));
 
   edm::LogVerbatim("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << solid.name() << " Tubs made of " << tubeMatHalf
-                        << " from 0 to " << convertRadToDeg(2._pi) << " with Rout " << coolRadius - coolThick
-                        << " ZHalf " << 0.5 * coolDz;
+                                << " from 0 to " << convertRadToDeg(2._pi) << " with Rout " << coolRadius - coolThick
+                                << " ZHalf " << 0.5 * coolDz;
 
   dd4hep::Volume coolHalf = ns.addVolume(dd4hep::Volume(solid.name(), solid, ns.material(coolMatHalf)));
 
   coolTubeHalf.placeVolume(coolHalf, 1, dd4hep::Transform3D(dd4hep::Rotation3D(), dd4hep::Position(0., 0., 0.)));
 
   edm::LogVerbatim("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << cool.name() << " number 1 positioned in "
-                        << coolTube.name() << " at (0,0,0) with no rotation";
+                                << coolTube.name() << " at (0,0,0) with no rotation";
   int copy = 1, iup = (-1) * outerFirst;
   int copyoffset = number + 2;
 
@@ -147,16 +148,16 @@ static long algorithm(dd4hep::Detector&, cms::DDParsingContext& ctxt, xml_h e) {
     phiy = phix + 90._deg;
 
     edm::LogVerbatim("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: Creating a new "
-                          << "rotation: " << rots << "\t90., " << convertRadToDeg(phix) << ", 90.,"
-                          << convertRadToDeg(phiy) << ", 0, 0";
+                                  << "rotation: " << rots << "\t90., " << convertRadToDeg(phix) << ", 90.,"
+                                  << convertRadToDeg(phiy) << ", 0, 0";
 
     rot = cms::makeRotation3D(90._deg, phix, 90._deg, phiy, 0., 0.);
 
     // FixMe : Would need ns.vecStr
     layer.placeVolume(ns.volume(ladder), copy, dd4hep::Transform3D(rot, tran));
 
-    edm::LogVerbatim("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << ladder << " number " << copy << " positioned in "
-                          << layer.name() << " at " << tran << " with " << rot;
+    edm::LogVerbatim("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << ladder << " number " << copy
+                                  << " positioned in " << layer.name() << " at " << tran << " with " << rot;
 
     copy++;
 
@@ -171,8 +172,8 @@ static long algorithm(dd4hep::Detector&, cms::DDParsingContext& ctxt, xml_h e) {
     phiy = phix + 90._deg;
 
     edm::LogVerbatim("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: Creating a new "
-                          << "rotation: " << rots << "\t90., " << convertRadToDeg(phix) << ", 90.,"
-                          << convertRadToDeg(phiy) << ", 0, 0";
+                                  << "rotation: " << rots << "\t90., " << convertRadToDeg(phix) << ", 90.,"
+                                  << convertRadToDeg(phiy) << ", 0, 0";
 
     tran = dd4hep::Position(rrr * cos(phi) - x2 * sin(phi), rrr * sin(phi) + x2 * cos(phi), 0.);
 
@@ -197,7 +198,7 @@ static long algorithm(dd4hep::Detector&, cms::DDParsingContext& ctxt, xml_h e) {
     }
 
     edm::LogVerbatim("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << coolTube.name() << " number " << i + 1
-                          << " positioned in " << layer.name() << " at " << tran << " with " << rot;
+                                  << " positioned in " << layer.name() << " at " << tran << " with " << rot;
   }
 
   return cms::s_executed;

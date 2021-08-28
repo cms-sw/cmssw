@@ -49,14 +49,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   dd4hep::Volume child = ns.volume(childName);
 
   edm::LogVerbatim("PixelGeom") << "DDPixFwdDiskAlgo debug: Parent " << mother.name() << "\tChild " << child.name()
-                                  << " NameSpace " << ns.name() << "\tRot Name " << rotName << "\tCopyNo (Start/Total) "
-                                  << startCopyNo << ", " << nBlades << "\tAngles " << convertRadToDeg(bladeAngle)
-                                  << ", " << convertRadToDeg(bladeTilt) << "\tZshifts " << zPlane << "\tAnchor Radius "
-                                  << anchorR;
+                                << " NameSpace " << ns.name() << "\tRot Name " << rotName << "\tCopyNo (Start/Total) "
+                                << startCopyNo << ", " << nBlades << "\tAngles " << convertRadToDeg(bladeAngle) << ", "
+                                << convertRadToDeg(bladeTilt) << "\tZshifts " << zPlane << "\tAnchor Radius "
+                                << anchorR;
 
   for (int iBlade = 0; iBlade < nBlades; ++iBlade) {
     edm::LogVerbatim("PixelGeom") << "DDPixFwdDiskAlgo: Blade " << iBlade << " flag " << flagString[iBlade]
-                                    << " zshift " << bladeZShift[iBlade];
+                                  << " zshift " << bladeZShift[iBlade];
   }
 
   double deltaPhi = 360.0_deg / (double)nBlades;

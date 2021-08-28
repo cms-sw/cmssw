@@ -22,7 +22,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
 
   edm::LogVerbatim("TECGeom") << "Parent " << mother.name() << " Child " << child.name() << " NameSpace " << ns.name();
   edm::LogVerbatim("TECGeom") << "Height of the Hybrid " << optoHeight << " and Width " << optoWidth << "Rpos " << rpos
-                      << " Zpos " << zpos << " StartCopyNo " << startCopyNo << " Number " << angles.size();
+                              << " Zpos " << zpos << " StartCopyNo " << startCopyNo << " Number " << angles.size();
 
   // given r positions are for the lower left corner
   rpos += optoHeight / 2;
@@ -46,14 +46,14 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
       } else {
         double theta = 90._deg;
         edm::LogVerbatim("TECGeom") << "test: Creating a new "
-                            << "rotation: " << rotstr << "\t90., " << convertRadToDeg(phix) << ", 90.,"
-                            << convertRadToDeg(phiy) << ", 0, 0";
+                                    << "rotation: " << rotstr << "\t90., " << convertRadToDeg(phix) << ", 90.,"
+                                    << convertRadToDeg(phiy) << ", 0, 0";
         rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
       }
     }
     mother.placeVolume(child, copyNo, Transform3D(rotation, tran));
     edm::LogVerbatim("TECGeom") << "test " << child.name() << " number " << copyNo << " positioned in " << mother.name()
-                        << " at " << tran << " with " << rotation;
+                                << " at " << tran << " with " << rotation;
     copyNo++;
   }
   edm::LogVerbatim("TECGeom") << "<<== End of DDTECOptoHybAlgo construction ...";
