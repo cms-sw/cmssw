@@ -1,4 +1,5 @@
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 namespace edm {
   class ParameterSet;
@@ -13,9 +14,8 @@ namespace reco {
 
 class BzeroReferenceTrajectoryFactory : public TrajectoryFactoryBase {
 public:
-  BzeroReferenceTrajectoryFactory(const edm::ParameterSet &config);
+  BzeroReferenceTrajectoryFactory(const edm::ParameterSet &config, edm::ConsumesCollector &iC);
   ~BzeroReferenceTrajectoryFactory() override;
-
   /// Produce the reference trajectories.
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
@@ -28,6 +28,7 @@ public:
 
   BzeroReferenceTrajectoryFactory *clone() const override { return new BzeroReferenceTrajectoryFactory(*this); }
 
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagFieldToken;
 private:
   double theMass;
   double theMomentumEstimate;
