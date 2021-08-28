@@ -504,9 +504,9 @@ CTPPSProtonReconstructionPlotter::CTPPSProtonReconstructionPlotter(const edm::Pa
       p_y_R_diffNF_vs_y_R_N_(new TProfile("p_y_R_diffNF_vs_y_R_N", ";y_{RN};y_{RF} - y_{RN}", 100, -20., +20.)),
 
       n_non_empty_events_(0) {
-  for (const std::string &sector : {"45", "56"}) {
-    const unsigned int arm = (sector == "45") ? 0 : 1;
-    association_cuts_[arm].load(ps.getParameterSet("association_cuts_" + sector));
+  for (auto &&sector : {"45", "56"}) {
+    const unsigned int arm = (sector == string("45")) ? 0 : 1;
+    association_cuts_[arm].load(ps.getParameterSet(string("association_cuts_") + sector));
   }
 }
 
