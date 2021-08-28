@@ -19,8 +19,9 @@
 
 class ReferenceTrajectoryFactory : public TrajectoryFactoryBase {
 public:
-  ReferenceTrajectoryFactory(const edm::ParameterSet &config);
+  ReferenceTrajectoryFactory(const edm::ParameterSet &config, edm::ConsumesCollector &iC);
   ~ReferenceTrajectoryFactory() override;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagFieldToken;
 
   /// Produce the reference trajectories.
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
@@ -47,8 +48,9 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-ReferenceTrajectoryFactory::ReferenceTrajectoryFactory(const edm::ParameterSet &config)
-    : TrajectoryFactoryBase(config),
+ReferenceTrajectoryFactory::ReferenceTrajectoryFactory(const edm::ParameterSet &config, edm::ConsumesCollector &iC)
+    : TrajectoryFactoryBase(config,iC),
+      m_MagFieldToken(iC.esConsumes()),
       theMass(config.getParameter<double>("ParticleMass")),
       theUseBzeroIfFieldOff(config.getParameter<bool>("UseBzeroIfFieldOff")),
       theBzeroFactory(nullptr) {
@@ -68,8 +70,8 @@ ReferenceTrajectoryFactory::~ReferenceTrajectoryFactory(void) { delete theBzeroF
 
 const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTrajectoryFactory::trajectories(
     const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks, const reco::BeamSpot &beamSpot) const {
-  edm::ESHandle<MagneticField> magneticField;
-  setup.get<IdealMagneticFieldRecord>().get(magneticField);
+  const MagneticField* magneticField = &setup.getData(m_MagFieldToken);
+
   if (theUseBzeroIfFieldOff && magneticField->inTesla(GlobalPoint(0., 0., 0.)).mag2() < 1.e-6) {
     return this->bzeroFactory()->trajectories(setup, tracks, beamSpot);
   }
@@ -90,7 +92,7 @@ const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTraject
       // set the flag for reversing the RecHits to false, since they are already in the correct order.
       config.hitsAreReverse = false;
       trajectories.push_back(ReferenceTrajectoryPtr(
-          new ReferenceTrajectory(input.first, input.second, magneticField.product(), beamSpot, config)));
+          new ReferenceTrajectory(input.first, input.second, magneticField, beamSpot, config)));
     }
 
     ++itTracks;
@@ -113,9 +115,8 @@ const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTraject
         << "\tnumber of tracks = " << tracks.size() << "\tnumber of external predictions = " << external.size();
     return trajectories;
   }
+  const MagneticField* magneticField = &setup.getData(m_MagFieldToken);
 
-  edm::ESHandle<MagneticField> magneticField;
-  setup.get<IdealMagneticFieldRecord>().get(magneticField);
   if (theUseBzeroIfFieldOff && magneticField->inTesla(GlobalPoint(0., 0., 0.)).mag2() < 1.e-6) {
     return this->bzeroFactory()->trajectories(setup, tracks, external, beamSpot);
   }
@@ -135,7 +136,7 @@ const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTraject
         // set the flag for reversing the RecHits to false, since they are already in the correct order.
         config.hitsAreReverse = false;
         ReferenceTrajectoryPtr refTraj(
-            new ReferenceTrajectory(*itExternal, input.second, magneticField.product(), beamSpot, config));
+            new ReferenceTrajectory(*itExternal, input.second, magneticField, beamSpot, config));
 
         AlgebraicSymMatrix externalParamErrors(asHepMatrix<5>((*itExternal).localError().matrix()));
         refTraj->setParameterErrors(externalParamErrors);
@@ -147,7 +148,7 @@ const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTraject
         config.allowZeroMaterial = allowZeroMaterial_;
         config.hitsAreReverse = false;
         trajectories.push_back(ReferenceTrajectoryPtr(
-            new ReferenceTrajectory(input.first, input.second, magneticField.product(), beamSpot, config)));
+            new ReferenceTrajectory(input.first, input.second, magneticField, beamSpot, config)));
       }
     }
 
@@ -165,13 +166,14 @@ const TrajectoryFactoryBase *ReferenceTrajectoryFactory::bzeroFactory() const {
                               << "Using BzeroReferenceTrajectoryFactory for some (all?) events.";
     // We take the config of this factory, copy it, replace its name and add
     // the momentum parameter as expected by BzeroReferenceTrajectoryFactory and create it:
+    edm::ConsumesCollector iC;
     edm::ParameterSet pset;
     pset.copyForModify(myPset);
     // next two lines not needed, but may help to better understand log file:
     pset.eraseSimpleParameter("TrajectoryFactoryName");
     pset.addParameter("TrajectoryFactoryName", std::string("BzeroReferenceTrajectoryFactory"));
     pset.addParameter("MomentumEstimate", myPset.getParameter<double>("MomentumEstimateFieldOff"));
-    theBzeroFactory = new BzeroReferenceTrajectoryFactory(pset);
+    theBzeroFactory = new BzeroReferenceTrajectoryFactory(pset, iC);
   }
   return theBzeroFactory;
 }
