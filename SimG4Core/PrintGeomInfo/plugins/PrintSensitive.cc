@@ -1,14 +1,34 @@
-#include "SimG4Core/PrintGeomInfo/interface/PrintSensitive.h"
-
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Watcher/interface/SimWatcher.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "G4Run.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4LogicalVolume.hh"
+#include "G4NavigationHistory.hh"
 #include "G4TransportationManager.hh"
 
 #include <set>
 #include <map>
+#include <iostream>
+#include <string>
+
+class PrintSensitive : public SimWatcher, public Observer<const BeginOfRun *> {
+public:
+  PrintSensitive(edm::ParameterSet const &p);
+  ~PrintSensitive() override;
+
+private:
+  void update(const BeginOfRun *run) override;
+  int dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, bool printIt, int ns, std::ostream &out = std::cout);
+  G4VPhysicalVolume *getTopPV();
+
+private:
+  std::string name_;
+  int nchar_;
+  G4NavigationHistory fHistory;
+};
 
 PrintSensitive::PrintSensitive(const edm::ParameterSet &p) {
   name_ = p.getUntrackedParameter<std::string>("Name", "*");
@@ -66,3 +86,8 @@ int PrintSensitive::dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, boo
 G4VPhysicalVolume *PrintSensitive::getTopPV() {
   return G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
 }
+
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
+DEFINE_SIMWATCHER(PrintSensitive);
