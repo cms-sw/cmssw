@@ -29,8 +29,7 @@ public:
   struct NodeType {
     edm::ModuleDescription module_;
     edm::EDMModuleType type_;
-    bool scheduled_;
-    NodeType() : scheduled_(false){};
+    bool scheduled_ = false;
   };
 
   // directed graph, with `NodeType` properties attached to each vertex
