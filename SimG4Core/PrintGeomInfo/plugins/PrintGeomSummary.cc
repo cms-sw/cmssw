@@ -36,31 +36,31 @@
 #include <set>
 #include <string>
 
-class PrintGeomSummary : public SimWatcher, public Observer<const BeginOfJob *>, public Observer<const BeginOfRun *> {
+class PrintGeomSummary : public SimWatcher, public Observer<const BeginOfJob*>, public Observer<const BeginOfRun*> {
 public:
-  PrintGeomSummary(edm::ParameterSet const &p);
+  PrintGeomSummary(edm::ParameterSet const& p);
   ~PrintGeomSummary() override;
 
 private:
-  void update(const BeginOfJob *job) override;
-  void update(const BeginOfRun *run) override;
-  void addSolid(const DDLogicalPart &part);
-  void fillLV(G4LogicalVolume *lv);
-  void fillPV(G4VPhysicalVolume *pv);
-  void dumpSummary(std::ostream &out, std::string name);
-  G4VPhysicalVolume *getTopPV();
+  void update(const BeginOfJob* job) override;
+  void update(const BeginOfRun* run) override;
+  void addSolid(const DDLogicalPart& part);
+  void fillLV(G4LogicalVolume* lv);
+  void fillPV(G4VPhysicalVolume* pv);
+  void dumpSummary(std::ostream& out, std::string name);
+  G4VPhysicalVolume* getTopPV();
   void addName(std::string name);
-  void printSummary(std::ostream &out);
+  void printSummary(std::ostream& out);
 
 private:
   std::vector<std::string> nodeNames_;
   std::map<DDSolidShape, std::string> solidShape_;
   std::map<std::string, DDSolidShape> solidMap_;
-  G4VPhysicalVolume *theTopPV_;
-  std::vector<G4LogicalVolume *> lvs_, touch_;
-  std::vector<G4VSolid *> sls_;
-  std::vector<G4VPhysicalVolume *> pvs_;
-  std::map<DDSolidShape, std::pair<int, int> > kount_;
+  G4VPhysicalVolume* theTopPV_;
+  std::vector<G4LogicalVolume*> lvs_, touch_;
+  std::vector<G4VSolid*> sls_;
+  std::vector<G4VPhysicalVolume*> pvs_;
+  std::map<DDSolidShape, std::pair<int, int>> kount_;
 };
 
 PrintGeomSummary::PrintGeomSummary(const edm::ParameterSet& p) : theTopPV_(nullptr) {
