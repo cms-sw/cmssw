@@ -220,7 +220,6 @@ namespace {
       nFpixD2Hits = 0;
       nFpixD3Hits = 0;
       passcuts = true;
-      passcuts_hit = true;
 
       // first, look at the full track to see whether it is good
       // auto const & trajParams = track.extra()->trajParams();
@@ -377,7 +376,7 @@ namespace {
       if (!((col < (centercol + 10)) && (col > (centercol - 10)) && (row < (centerrow + 10)) && (row > (centerrow -10 )))) passcuts_hit = false;
       */
 
-        if (passcuts_hit == true && passcuts) {
+        if (passcuts_hit && passcuts) {
           if (!(subdetid == PixelSubdetector::PixelBarrel && trackerTopology_->pxbLayer(id) == 1)) {
             if (isHitValid) {
               histo[VALID].fill(id, &iEvent);
@@ -550,14 +549,14 @@ namespace {
 
       //propagation B: filling inactive hits
 
-      for (uint p = 0; p < expTrajMeasurements.size(); p++) {
-        TrajectoryMeasurement pxb1TM(expTrajMeasurements[p]);
-        const auto& pxb1Hit = pxb1TM.recHit();
-        bool inactive = (pxb1Hit->getType() == TrackingRecHit::inactive);
-        int detid = pxb1Hit->geographicalId();
-        bool found_det = false;
+      if (passcuts && passcuts_hit) {
+        for (uint p = 0; p < expTrajMeasurements.size(); p++) {
+          TrajectoryMeasurement pxb1TM(expTrajMeasurements[p]);
+          const auto& pxb1Hit = pxb1TM.recHit();
+          bool inactive = (pxb1Hit->getType() == TrackingRecHit::inactive);
+          int detid = pxb1Hit->geographicalId();
+          bool found_det = false;
 
-        if (passcuts && passcuts_hit) {
           for (unsigned int i_eff = 0; i_eff < eff_pxb1_vector.size(); i_eff++) {
             //in case found hit in the same det, take only the valid hit
             if (eff_pxb1_vector[i_eff].first == detid) {
@@ -567,16 +566,14 @@ namespace {
               }
             }
           }
-
           //if no other hit in det
           if (!found_det) {
             eff_map.first = detid;
             eff_map.second[2] = inactive;
             eff_pxb1_vector.push_back(eff_map);
           }
-        }
-
-      }  //traj loop
+        }  //traj loop
+      }
 
       if (eff_pxb1_vector.size() == 1) {
         //eff map is filled -> decide what to do for double hits, ie eff_pxb1_vector.size>1 ... if 1 just use MISSING and VALID as usual
