@@ -3297,7 +3297,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
     for step in upgradeSteps['ParkingBPH']['steps']:
         stepName = step + upgradeSteps['ParkingBPH']['suffix']
-        if 'Reco' in step and 'Run2_2018' in upgradeStepDict[step][k]['--era']:
+        if ('Reco' in step or 'Digi' in step) and 'Run2_2018' in upgradeStepDict[step][k]['--era']:
             upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2018,bParking'}, upgradeStepDict[step][k]])
 
     # setup PU
