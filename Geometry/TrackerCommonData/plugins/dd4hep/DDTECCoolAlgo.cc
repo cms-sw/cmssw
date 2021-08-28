@@ -21,11 +21,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   Volume mother = ns.volume(args.parentName());
 
   edm::LogVerbatim("TECGeom") << "DDTECCoolAlgo debug: Parent " << mother.name() << " NameSpace " << ns.name()
-                      << " at radial Position " << rPosition;
+                              << " at radial Position " << rPosition;
   if (phiPosition.size() == coolInsert.size()) {
     for (int i = 0; i < (int)(phiPosition.size()); i++) {
       edm::LogVerbatim("TECGeom") << "DDTECCoolAlgo debug: Insert[" << i << "]: " << coolInsert.at(i) << " at Phi "
-                          << convertRadToDeg(phiPosition.at(i));
+                                  << convertRadToDeg(phiPosition.at(i));
     }
   } else {
     edm::LogVerbatim("TECGeom") << "DDTECCoolAlgo ERROR: Number of inserts does not match the numer of PhiPositions!";
@@ -41,8 +41,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     // place inserts
     Position tran(xpos, ypos, 0.0);
     mother.placeVolume(child, copyNo, tran);
-    edm::LogVerbatim("TECGeom") << "DDTECCoolAlgo test " << child.name() << "[" << copyNo << "] positioned in " << mother.name()
-                        << " at " << tran << " phi " << convertRadToDeg(phiPosition.at(i)) << " r " << rPosition;
+    edm::LogVerbatim("TECGeom") << "DDTECCoolAlgo test " << child.name() << "[" << copyNo << "] positioned in "
+                                << mother.name() << " at " << tran << " phi " << convertRadToDeg(phiPosition.at(i))
+                                << " r " << rPosition;
     copyNo++;
   }
   edm::LogVerbatim("TECGeom") << "DDTECCoolAlgo Finished....";

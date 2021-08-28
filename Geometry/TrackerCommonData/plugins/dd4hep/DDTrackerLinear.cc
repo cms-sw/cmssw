@@ -23,9 +23,10 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
 
   edm::LogVerbatim("TrackerGeom") << "DDTrackerLinear +++ Executing Algorithm. rParent:" << mother.name();
   edm::LogVerbatim("TrackerGeom") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
-                          << ns.name() << "\tNumber " << number << "\tAxis (theta/phi) " << theta / dd4hep::deg << ", "
-                          << phi / dd4hep::deg << "\t(Offset/Delta) " << offset << ", " << delta << "\tCentre "
-                          << centre[0] << ", " << centre[1] << ", " << centre[2] << "\tRotation " << rotMat;
+                                  << ns.name() << "\tNumber " << number << "\tAxis (theta/phi) " << theta / dd4hep::deg
+                                  << ", " << phi / dd4hep::deg << "\t(Offset/Delta) " << offset << ", " << delta
+                                  << "\tCentre " << centre[0] << ", " << centre[1] << ", " << centre[2] << "\tRotation "
+                                  << rotMat;
 
   Position direction(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
   Position base(centre[0], centre[1], centre[2]);
@@ -36,8 +37,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     Position tran = base + (offset + double(i) * delta) * direction;
     mother.placeVolume(child, ci, Transform3D(rot, tran));
 
-    edm::LogVerbatim("TrackerGeom") << child.name() << " number " << ci << " positioned in " << mother.name() << " at " << tran
-                            << " with " << rot;
+    edm::LogVerbatim("TrackerGeom") << child.name() << " number " << ci << " positioned in " << mother.name() << " at "
+                                    << tran << " with " << rot;
   }
   return cms::s_executed;
 }

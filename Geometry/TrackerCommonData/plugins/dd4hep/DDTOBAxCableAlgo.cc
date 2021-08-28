@@ -25,7 +25,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     edm::LogVerbatim("TOBGeom") << "DDTOBAxCableAlgo debug: sectorNumber[" << i << "] = " << sectorNumber[i];
 
   edm::LogVerbatim("TOBGeom") << "DDTOBAxCableAlgo debug: Axial Service Sectors half-length " << sectorDz << "\tRin "
-                      << sectorRin << "\tRout = " << sectorRout << "\tPhi of sectors position:";
+                              << sectorRin << "\tRout = " << sectorRout << "\tPhi of sectors position:";
   for (int i = 0; i < (int)(sectorNumber.size()); i++)
     edm::LogVerbatim("TOBGeom") << "\t[" << i << "]\tPhi = " << sectorStartPhi[i];
   edm::LogVerbatim("TOBGeom") << "DDTOBAxCableAlgo debug: List of materials for the sectors/3 parts";
@@ -64,12 +64,12 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     deltaphi = 0.5 * (widthphi - sectorDeltaPhi_B);
     solid = ns.addSolid(ns.prepend(name), Tube(rin, rout, dz, startphi, startphi + deltaphi));
     edm::LogVerbatim("TOBGeom") << solid.name() << " Tubs made of " << sectorMaterial_A[i] << " from "
-                        << convertRadToDeg(startphi) << " to " << convertRadToDeg((startphi + deltaphi)) << " with Rin "
-                        << rin << " Rout " << rout << " ZHalf " << dz;
+                                << convertRadToDeg(startphi) << " to " << convertRadToDeg((startphi + deltaphi))
+                                << " with Rin " << rin << " Rout " << rout << " ZHalf " << dz;
     Volume sectorLogic = ns.addVolume(Volume(solid.name(), solid, ns.material(sectorMaterial_A[i])));
     tubsVol.placeVolume(sectorLogic, i + 1);  // copyNr: i+1
     edm::LogVerbatim("TOBGeom") << sectorLogic.name() << " number " << i + 1 << " positioned in " << tubsName
-                        << " with no translation and no rotation";
+                                << " with no translation and no rotation";
 
     // Second Part: B
     name = "TOBAxService_" + sectorNumber[i] + "B";
@@ -77,13 +77,13 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     deltaphi = sectorDeltaPhi_B;
     solid = ns.addSolid(ns.prepend(name), Tube(rin, rout, dz, startphi, startphi + deltaphi));
     edm::LogVerbatim("TOBGeom") << solid.name() << " Tubs made of " << sectorMaterial_B[i] << " from "
-                        << convertRadToDeg(startphi) << " to " << convertRadToDeg((startphi + deltaphi)) << " with Rin "
-                        << rin << " Rout " << rout << " ZHalf " << dz;
+                                << convertRadToDeg(startphi) << " to " << convertRadToDeg((startphi + deltaphi))
+                                << " with Rin " << rin << " Rout " << rout << " ZHalf " << dz;
 
     sectorLogic = ns.addVolume(Volume(solid.name(), solid, ns.material(sectorMaterial_B[i])));
     tubsVol.placeVolume(sectorLogic, i + 1);  // copyNr: i+1
     edm::LogVerbatim("TOBGeom") << sectorLogic.name() << " number " << i + 1 << " positioned in " << tubsName
-                        << " with no translation and no rotation";
+                                << " with no translation and no rotation";
 
     // Third Part: C
     name = "TOBAxService_" + sectorNumber[i] + "C";
@@ -91,12 +91,12 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     deltaphi = 0.5 * (widthphi - sectorDeltaPhi_B);
     solid = ns.addSolid(ns.prepend(name), Tube(rin, rout, dz, startphi, startphi + deltaphi));
     edm::LogVerbatim("TOBGeom") << solid.name() << " Tubs made of " << sectorMaterial_C[i] << " from "
-                        << convertRadToDeg(startphi) << " to " << convertRadToDeg((startphi + deltaphi)) << " with Rin "
-                        << rin << " Rout " << rout << " ZHalf " << dz;
+                                << convertRadToDeg(startphi) << " to " << convertRadToDeg((startphi + deltaphi))
+                                << " with Rin " << rin << " Rout " << rout << " ZHalf " << dz;
     sectorLogic = ns.addVolume(Volume(solid.name(), solid, ns.material(sectorMaterial_C[i])));
     tubsVol.placeVolume(sectorLogic, i + 1);  // copyNr: i+1
     edm::LogVerbatim("TOBGeom") << sectorLogic.name() << " number " << i + 1 << " positioned in " << tubsName
-                        << " with no translation and no rotation";
+                                << " with no translation and no rotation";
   }
   edm::LogVerbatim("TOBGeom") << "<<== End of DDTOBAxCableAlgo construction ...";
   return 1;

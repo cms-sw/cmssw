@@ -65,44 +65,44 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   vector<double> aohY = args.vecDble("AOHy");            // AOH translation with respect small-ICC center (Y)
   vector<double> aohZ = args.vecDble("AOHz");            // AOH translation with respect small-ICC center (Z)
 
-  edm::LogVerbatim("TOBGeom") << "Parent " << parentName << " Central " << central << " NameSpace " << ns.name() << "\tShift "
-                      << shift;
+  edm::LogVerbatim("TOBGeom") << "Parent " << parentName << " Central " << central << " NameSpace " << ns.name()
+                              << "\tShift " << shift;
   for (int i = 0; i < (int)(sideRod.size()); i++) {
-    edm::LogVerbatim("TOBGeom") << sideRod[i] << " to be positioned " << sideRodX.size() << " times at y = " << sideRodY[i]
-                        << " z = " << sideRodZ[i] << " and x";
+    edm::LogVerbatim("TOBGeom") << sideRod[i] << " to be positioned " << sideRodX.size()
+                                << " times at y = " << sideRodY[i] << " z = " << sideRodZ[i] << " and x";
     for (double j : sideRodX)
       edm::LogVerbatim("TOBGeom") << "\tsideRodX[" << i << "] = " << j;
   }
   edm::LogVerbatim("TOBGeom") << endRod1 << " to be "
-                      << "positioned " << endRod1Y.size() << " times at";
+                              << "positioned " << endRod1Y.size() << " times at";
   for (int i = 0; i < (int)(endRod1Y.size()); i++)
     edm::LogVerbatim("TOBGeom") << "\t[" << i << "]\ty = " << endRod1Y[i] << "\tz = " << endRod1Z[i];
   edm::LogVerbatim("TOBGeom") << endRod2 << " to be "
-                      << "positioned at y = " << endRod2Y << " z = " << endRod2Z;
+                              << "positioned at y = " << endRod2Y << " z = " << endRod2Z;
   edm::LogVerbatim("TOBGeom") << cable << " to be "
-                      << "positioned at z = " << cableZ;
+                              << "positioned at z = " << cableZ;
   edm::LogVerbatim("TOBGeom") << clamp << " to be "
-                      << "positioned " << clampX.size() << " times at";
+                              << "positioned " << clampX.size() << " times at";
   for (int i = 0; i < (int)(clampX.size()); i++)
     edm::LogVerbatim("TOBGeom") << "\t[" << i << "]\tx = " << clampX[i] << "\tz = " << clampZ[i];
   edm::LogVerbatim("TOBGeom") << sideCool << " to be "
-                      << "positioned " << sideCoolX.size() << " times at";
+                              << "positioned " << sideCoolX.size() << " times at";
   for (int i = 0; i < (int)(sideCoolX.size()); i++)
     edm::LogVerbatim("TOBGeom") << "\t[" << i << "]\tx = " << sideCoolX[i] << "\ty = " << sideCoolY[i]
-                        << "\tz = " << sideCoolZ[i];
+                                << "\tz = " << sideCoolZ[i];
   edm::LogVerbatim("TOBGeom") << endCool << " to be "
-                      << "positioned with " << endCoolRot << " rotation at"
-                      << " y = " << endCoolY << " z = " << endCoolZ;
+                              << "positioned with " << endCoolRot << " rotation at"
+                              << " y = " << endCoolY << " z = " << endCoolZ;
   edm::LogVerbatim("TOBGeom") << optFibre << " to be "
-                      << "positioned " << optFibreX.size() << " times at";
+                              << "positioned " << optFibreX.size() << " times at";
   for (int i = 0; i < (int)(optFibreX.size()); i++)
     edm::LogVerbatim("TOBGeom") << "\t[" << i << "]\tx = " << optFibreX[i] << "\tz = " << optFibreZ[i];
   edm::LogVerbatim("TOBGeom") << sideClamp1 << " to be "
-                      << "positioned " << sideClampX.size() << " times at";
+                              << "positioned " << sideClampX.size() << " times at";
   for (int i = 0; i < (int)(sideClampX.size()); i++)
     edm::LogVerbatim("TOBGeom") << "\t[" << i << "]\tx = " << sideClampX[i] << "\tdz = " << sideClamp1DZ[i];
   edm::LogVerbatim("TOBGeom") << sideClamp2 << " to be "
-                      << "positioned " << sideClampX.size() << " times at";
+                              << "positioned " << sideClampX.size() << " times at";
   for (int i = 0; i < (int)(sideClampX.size()); i++)
     edm::LogVerbatim("TOBGeom") << "\t[" << i << "]\tx = " << sideClampX[i] << "\tdz = " << sideClamp2DZ[i];
   edm::LogVerbatim("TOBGeom") << "DDTOBRodAlgo debug:\t" << module << " positioned " << moduleRot.size() << " times";
@@ -114,7 +114,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   edm::LogVerbatim("TOBGeom") << "DDTOBRodAlgo debug:\t" << aohName << " AOH will be positioned on ICC's";
   for (int i = 0; i < (int)(aohCopies.size()); i++)
     edm::LogVerbatim("TOBGeom") << " copies " << aohCopies[i] << "\tx = " << aohX[i] << "\ty = " << aohY[i]
-                        << "\tz = " << aohZ[i];
+                                << "\tz = " << aohZ[i];
 
   const string& centName = central;
   string child;
@@ -128,7 +128,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
       child = sideRod[i];
       rod.placeVolume(ns.volume(child), j + 1, r);
       edm::LogVerbatim("TOBGeom") << child << " number " << j + 1 << " positioned in " << rodName << " at " << r
-                          << " with no rotation";
+                                  << " with no rotation";
     }
   }
   // Clamps
@@ -137,7 +137,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     child = clamp;
     rod.placeVolume(ns.volume(child), i + 1, r);
     edm::LogVerbatim("TOBGeom") << child << " number " << i + 1 << " positioned in " << rodName << " at " << r
-                        << " with no rotation";
+                                << " with no rotation";
   }
   // Side Cooling tubes
   for (int i = 0; i < (int)(sideCoolX.size()); i++) {
@@ -145,7 +145,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     child = sideCool;
     rod.placeVolume(ns.volume(child), i + 1, r);
     edm::LogVerbatim("TOBGeom") << child << " number " << i + 1 << " positioned in " << rodName << " at " << r
-                        << " with no rotation";
+                                << " with no rotation";
   }
   // Optical Fibres
   for (int i = 0; i < (int)(optFibreX.size()); i++) {
@@ -153,7 +153,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     child = optFibre;
     rod.placeVolume(ns.volume(child), i + 1, r);
     edm::LogVerbatim("TOBGeom") << child << " number " << i + 1 << " positioned in " << rodName << " at " << r
-                        << " with no rotation";
+                                << " with no rotation";
   }
 
   // Side Clamps
@@ -163,7 +163,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     child = sideClamp1;
     rod.placeVolume(ns.volume(child), i + 1, r);
     edm::LogVerbatim("TOBGeom") << child << " number " << i + 1 << " positioned in " << rodName << " at " << r
-                        << " with no rotation";
+                                << " with no rotation";
   }
   for (int i = 0; i < (int)(sideClamp2DZ.size()); i++) {
     int j = i / 2;
@@ -171,7 +171,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     child = sideClamp2;
     rod.placeVolume(ns.volume(child), i + 1, r);
     edm::LogVerbatim("TOBGeom") << child << " number " << i + 1 << " positioned in " << rodName << " at " << r
-                        << " with no rotation";
+                                << " with no rotation";
   }
 
   Volume cent = ns.volume(centName);
@@ -181,13 +181,13 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     child = endRod1;
     cent.placeVolume(ns.volume(child), i + 1, r);
     edm::LogVerbatim("TOBGeom") << child << " number " << i + 1 << " positioned in " << centName << " at " << r
-                        << " with no rotation";
+                                << " with no rotation";
   }
   Position r1(0, endRod2Y, shift + endRod2Z);
   child = endRod2;
   cent.placeVolume(ns.volume(child), 1, r1);
   edm::LogVerbatim("TOBGeom") << child << " number 1 "
-                      << "positioned in " << centName << " at " << r1 << " with no rotation";
+                              << "positioned in " << centName << " at " << r1 << " with no rotation";
 
   // End cooling tubes
   Position r2(0, endCoolY, shift + endCoolZ);
@@ -195,14 +195,14 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   child = endCool;
   cent.placeVolume(ns.volume(child), 1, Transform3D(rot2, r2));
   edm::LogVerbatim("TOBGeom") << child << " number 1 "
-                      << "positioned in " << centName << " at " << r2 << " with " << rot2;
+                              << "positioned in " << centName << " at " << r2 << " with " << rot2;
 
   //Mother cable
   Position r3(0, 0, shift + cableZ);
   child = cable;
   cent.placeVolume(ns.volume(child), 1, r3);
   edm::LogVerbatim("TOBGeom") << child << " number 1 "
-                      << "positioned in " << centName << " at " << r3 << " with no rotation";
+                              << "positioned in " << centName << " at " << r3 << " with no rotation";
 
   //Modules
   for (int i = 0; i < (int)(moduleRot.size()); i++) {
@@ -210,8 +210,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     const Rotation3D& rot = ns.rotation(moduleRot[i]);
     child = module;
     cent.placeVolume(ns.volume(child), i + 1, Transform3D(rot, r));
-    edm::LogVerbatim("TOBGeom") << child << " number " << i + 1 << " positioned in " << centName << " at " << r << " with "
-                        << rot;
+    edm::LogVerbatim("TOBGeom") << child << " number " << i + 1 << " positioned in " << centName << " at " << r
+                                << " with " << rot;
   }
 
   //Connectors (ICC, CCUM, ...)
@@ -220,7 +220,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     child = connect[i];
     cent.placeVolume(ns.volume(child), i + 1, r);
     edm::LogVerbatim("TOBGeom") << child << " number " << i + 1 << " positioned in " << centName << " at " << r
-                        << " with no rotation";
+                                << " with no rotation";
   }
 
   //AOH (only on ICCs)
@@ -233,7 +233,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
       child = aohName;
       cent.placeVolume(ns.volume(child), copyNumber, r);
       edm::LogVerbatim("TOBGeom") << child << " number " << copyNumber << " positioned in " << centName << " at " << r
-                          << " with no rotation";
+                                  << " with no rotation";
       // if two copies add a copy with (-aohX,-aohZ) translation
       if (aohCopies[i] == 2) {
         copyNumber++;
@@ -241,7 +241,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
         child = aohName;
         cent.placeVolume(ns.volume(child), copyNumber, r);
         edm::LogVerbatim("TOBGeom") << child << " number " << copyNumber << " positioned in " << centName << " at " << r
-                            << " with no rotation";
+                                    << " with no rotation";
       }
       // if four copies add 3 copies with (-aohX,+aohZ) (-aohX,-aohZ) (+aohX,+aohZ) and translations
       if (aohCopies[i] == 4) {
@@ -263,8 +263,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
               cent.placeVolume(ns.volume(child), copyNumber, rr);  // copyNumber
               break;
           }
-          edm::LogVerbatim("TOBGeom") << child << " number " << copyNumber << " positioned in " << centName << " at " << rr
-                              << " with no rotation";
+          edm::LogVerbatim("TOBGeom") << child << " number " << copyNumber << " positioned in " << centName << " at "
+                                      << rr << " with no rotation";
         }
       }
     }

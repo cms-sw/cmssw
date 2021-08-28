@@ -40,36 +40,36 @@ namespace {
     }
 
     edm::LogVerbatim("TrackerGeom") << "DDTrackerRingAlgo debug: Parameters for position"
-                            << "ing:: n " << n << " Start, Range, Delta " << convertRadToDeg(startAngle) << " "
-                            << convertRadToDeg(rangeAngle) << " " << convertRadToDeg(delta) << " Radius " << radius
-                            << " Centre " << center[0] << ", " << center[1] << ", " << center[2];
+                                    << "ing:: n " << n << " Start, Range, Delta " << convertRadToDeg(startAngle) << " "
+                                    << convertRadToDeg(rangeAngle) << " " << convertRadToDeg(delta) << " Radius "
+                                    << radius << " Centre " << center[0] << ", " << center[1] << ", " << center[2];
 
     edm::LogVerbatim("TrackerGeom") << "DDTrackerRingAlgo debug: Parent " << parentName << "\tChild " << childName
-                            << " NameSpace " << ns.name();
+                                    << " NameSpace " << ns.name();
 
     Rotation3D flipMatrix, tiltMatrix, phiRotMatrix, globalRotMatrix;  // Identity matrix
 
     // flipMatrix calculus
     if (isFlipped) {
       edm::LogVerbatim("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
-                              << "\t90., 180., "
-                              << "90., 90., "
-                              << "180., 0.";
+                                      << "\t90., 180., "
+                                      << "90., 90., "
+                                      << "180., 0.";
       flipMatrix = makeRotation3D(90._deg, 180._deg, 90._deg, 90._deg, 180._deg, 0._deg);
     }
     // tiltMatrix calculus
     if (isZPlus) {
       edm::LogVerbatim("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
-                              << "\t90., 90., " << convertRadToDeg(tiltAngle) << ", 180., "
-                              << convertRadToDeg(90._deg - tiltAngle) << ", 0.";
+                                      << "\t90., 90., " << convertRadToDeg(tiltAngle) << ", 180., "
+                                      << convertRadToDeg(90._deg - tiltAngle) << ", 0.";
       tiltMatrix = makeRotation3D(90._deg, 90._deg, tiltAngle, 180._deg, 90._deg - tiltAngle, 0._deg);
       if (isFlipped) {
         tiltMatrix *= flipMatrix;
       }
     } else {
       edm::LogVerbatim("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
-                              << "\t90., 90., " << convertRadToDeg(tiltAngle) << ", 0., "
-                              << convertRadToDeg(90._deg + tiltAngle) << ", 0.";
+                                      << "\t90., 90., " << convertRadToDeg(tiltAngle) << ", 0., "
+                                      << convertRadToDeg(90._deg + tiltAngle) << ", 0.";
       tiltMatrix = makeRotation3D(90._deg, 90._deg, tiltAngle, 0._deg, 90._deg + tiltAngle, 0._deg);
       if (isFlipped) {
         tiltMatrix *= flipMatrix;
@@ -87,8 +87,8 @@ namespace {
       double phiy = phix + 90._deg;
       if (phix != 0.) {
         edm::LogVerbatim("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
-                                << "\t90., " << convertRadToDeg(phix) << ", 90.," << convertRadToDeg(phiy)
-                                << ", 0., 0.";
+                                        << "\t90., " << convertRadToDeg(phix) << ", 90.," << convertRadToDeg(phiy)
+                                        << ", 0., 0.";
         phiRotMatrix = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
       }
 
@@ -103,8 +103,8 @@ namespace {
       // Positions child with respect to parent
       mother.placeVolume(child, copy, Transform3D(globalRotMatrix, tran));
       edm::LogVerbatim("TrackerGeom") << "DDTrackerRingAlgo test " << child.data()->GetName() << " number " << copy
-                              << " positioned in " << mother.data()->GetName() << " at " << tran << " with "
-                              << globalRotMatrix;
+                                      << " positioned in " << mother.data()->GetName() << " at " << tran << " with "
+                                      << globalRotMatrix;
 
       copy += incrCopyNo;
       phi += delta;
