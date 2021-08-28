@@ -39,19 +39,19 @@ namespace {
       }
     }
 
-    LogDebug("TrackerGeom") << "DDTrackerRingAlgo debug: Parameters for position"
+    edm::LogVerbatim("TrackerGeom") << "DDTrackerRingAlgo debug: Parameters for position"
                             << "ing:: n " << n << " Start, Range, Delta " << convertRadToDeg(startAngle) << " "
                             << convertRadToDeg(rangeAngle) << " " << convertRadToDeg(delta) << " Radius " << radius
                             << " Centre " << center[0] << ", " << center[1] << ", " << center[2];
 
-    LogDebug("TrackerGeom") << "DDTrackerRingAlgo debug: Parent " << parentName << "\tChild " << childName
+    edm::LogVerbatim("TrackerGeom") << "DDTrackerRingAlgo debug: Parent " << parentName << "\tChild " << childName
                             << " NameSpace " << ns.name();
 
     Rotation3D flipMatrix, tiltMatrix, phiRotMatrix, globalRotMatrix;  // Identity matrix
 
     // flipMatrix calculus
     if (isFlipped) {
-      LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
+      edm::LogVerbatim("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
                               << "\t90., 180., "
                               << "90., 90., "
                               << "180., 0.";
@@ -59,7 +59,7 @@ namespace {
     }
     // tiltMatrix calculus
     if (isZPlus) {
-      LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
+      edm::LogVerbatim("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
                               << "\t90., 90., " << convertRadToDeg(tiltAngle) << ", 180., "
                               << convertRadToDeg(90._deg - tiltAngle) << ", 0.";
       tiltMatrix = makeRotation3D(90._deg, 90._deg, tiltAngle, 180._deg, 90._deg - tiltAngle, 0._deg);
@@ -67,7 +67,7 @@ namespace {
         tiltMatrix *= flipMatrix;
       }
     } else {
-      LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
+      edm::LogVerbatim("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
                               << "\t90., 90., " << convertRadToDeg(tiltAngle) << ", 0., "
                               << convertRadToDeg(90._deg + tiltAngle) << ", 0.";
       tiltMatrix = makeRotation3D(90._deg, 90._deg, tiltAngle, 0._deg, 90._deg + tiltAngle, 0._deg);
@@ -86,7 +86,7 @@ namespace {
       double phix = phi;
       double phiy = phix + 90._deg;
       if (phix != 0.) {
-        LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
+        edm::LogVerbatim("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
                                 << "\t90., " << convertRadToDeg(phix) << ", 90.," << convertRadToDeg(phiy)
                                 << ", 0., 0.";
         phiRotMatrix = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
@@ -102,7 +102,7 @@ namespace {
 
       // Positions child with respect to parent
       mother.placeVolume(child, copy, Transform3D(globalRotMatrix, tran));
-      LogDebug("TrackerGeom") << "DDTrackerRingAlgo test " << child.data()->GetName() << " number " << copy
+      edm::LogVerbatim("TrackerGeom") << "DDTrackerRingAlgo test " << child.data()->GetName() << " number " << copy
                               << " positioned in " << mother.data()->GetName() << " at " << tran << " with "
                               << globalRotMatrix;
 

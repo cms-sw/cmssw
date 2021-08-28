@@ -22,18 +22,18 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   double tilt = args.value<double>("Tilt");
 
   if (numcopies != int(phi.size())) {
-    LogDebug("TrackerGeom") << "error: Parameter "
+    edm::LogVerbatim("TrackerGeom") << "error: Parameter "
                             << "NumCopies does not agree with the size "
                             << "of the Phi vector. It was adjusted to "
                             << "be the size of the Phi vector and may "
                             << "lead to crashes or errors.";
   }
-  LogDebug("TrackerGeom") << "debug: Parameters for position"
+  edm::LogVerbatim("TrackerGeom") << "debug: Parameters for position"
                           << "ing:: "
                           << " Radius " << radius << " Tilt " << tilt << " Copies " << phi.size() << " at";
   for (int i = 0; i < (int)(phi.size()); i++)
-    LogDebug("TrackerGeom") << "\t[" << i << "] phi = " << phi[i] << " z = " << zpos[i];
-  LogDebug("TrackerGeom") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
+    edm::LogVerbatim("TrackerGeom") << "\t[" << i << "] phi = " << phi[i] << " z = " << zpos[i];
+  edm::LogVerbatim("TrackerGeom") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
                           << ns.name();
 
   double theta = 90._deg;
@@ -46,7 +46,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     Rotation3D rot = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
     Position tran(xpos, ypos, zpos[i]);
     /* PlacedVolume pv = */ mother.placeVolume(child, ci, Transform3D(rot, tran));
-    LogDebug("TrackerGeom") << "test: " << child.name() << " number " << ci << " positioned in " << mother.name()
+    edm::LogVerbatim("TrackerGeom") << "test: " << child.name() << " number " << ci << " positioned in " << mother.name()
                             << " at " << tran << " with " << rot;
     ci = ci + incrcn;
   }

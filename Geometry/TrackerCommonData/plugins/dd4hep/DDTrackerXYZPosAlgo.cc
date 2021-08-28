@@ -18,11 +18,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   vector<double> zvec = args.value<vector<double> >("ZPositions");   // Z positions
   vector<string> rotMat = args.value<vector<string> >("Rotations");  // Names of rotation matrices
 
-  LogDebug("TrackerGeom") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
+  edm::LogVerbatim("TrackerGeom") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
                           << ns.name() << "\tCopyNo (Start/Increment) " << startCopyNo << ", " << incrCopyNo
                           << "\tNumber " << xvec.size() << ", " << yvec.size() << ", " << zvec.size();
   for (int i = 0; i < (int)(zvec.size()); i++) {
-    LogDebug("TrackerGeom") << "\t[" << i << "]\tX = " << xvec[i] << "\t[" << i << "]\tY = " << yvec[i] << "\t[" << i
+    edm::LogVerbatim("TrackerGeom") << "\t[" << i << "]\tX = " << xvec[i] << "\t[" << i << "]\tY = " << yvec[i] << "\t[" << i
                             << "]\tZ = " << zvec[i] << ", Rot.Matrix = " << rotMat[i];
   }
 
@@ -32,7 +32,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     /* PlacedVolume pv = */ rotMat[i] != "NULL"
         ? mother.placeVolume(child, copy, Transform3D(ns.rotation(rotMat[i]), tran))
         : mother.placeVolume(child, tran);
-    LogDebug("TrackerGeom") << "test: " << child.name() << " number " << copy << " positioned in " << mother.name()
+    edm::LogVerbatim("TrackerGeom") << "test: " << child.name() << " number " << copy << " positioned in " << mother.name()
                             << " at " << tran << " with " << rot;
   }
   return 1;

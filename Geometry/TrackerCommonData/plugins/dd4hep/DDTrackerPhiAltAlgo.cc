@@ -23,8 +23,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   int startCopyNo = args.find("StartCopyNo") ? args.value<int>("StartCopyNo") : 1;  //Start copy number
   int incrCopyNo = args.find("IncrCopyNo") ? args.value<int>("IncrCopyNo") : 1;     //Increment in copy number
 
-  LogDebug("TrackerGeom") << "Parent " << mother.name() << "\tChild " << child.name() << " NameSpace " << ns.name();
-  LogDebug("TrackerGeom") << "Parameters for positioning-- Tilt " << tilt << "\tStartAngle "
+  edm::LogVerbatim("TrackerGeom") << "Parent " << mother.name() << "\tChild " << child.name() << " NameSpace " << ns.name();
+  edm::LogVerbatim("TrackerGeom") << "Parameters for positioning-- Tilt " << tilt << "\tStartAngle "
                           << convertRadToDeg(startAngle) << "\tRangeAngle " << convertRadToDeg(rangeAngle) << "\tRin "
                           << radiusIn << "\tRout " << radiusOut << "\t ZPos " << zpos << "\tCopy Numbers " << number
                           << " Start/Increment " << startCopyNo << ", " << incrCopyNo;
@@ -59,7 +59,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
       }
       Position tran(xpos, ypos, zpos);
       /* PlacedVolume pv = */ mother.placeVolume(child, copyNo, Transform3D(rotation, tran));
-      LogDebug("TrackerGeom") << "" << child.name() << " number " << copyNo << " positioned in " << mother.name()
+      edm::LogVerbatim("TrackerGeom") << "" << child.name() << " number " << copyNo << " positioned in " << mother.name()
                               << " at " << tran << " with " << rotation;
       copyNo += incrCopyNo;
     }
