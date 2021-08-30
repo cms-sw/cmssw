@@ -2,6 +2,7 @@
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 using namespace pixelrecoutilities;
 
@@ -21,8 +22,11 @@ void ThirdHitCorrection::init(const edm::EventSetup &es,
                               bool useBendingCorrection) {
   theUseMultipleScattering = useMultipleScattering;
   theUseBendingCorrection = useBendingCorrection;
-  if (useBendingCorrection)
-    theBendingCorrection.init(pt, es);
+  if (useBendingCorrection) {
+    edm::ESHandle<MagneticField> hfield;
+    es.get<IdealMagneticFieldRecord>().get(hfield);
+    theBendingCorrection.init(pt, *hfield);
+  }
 
   theMultScattCorrRPhi = 0;
   theMScoeff = 0;

@@ -7,6 +7,7 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"
 #include "DataFormats/Math/interface/ExtVec.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #if !defined(__INTEL_COMPILER)
 #define USE_VECTORS_HERE
@@ -104,7 +105,9 @@ InnerDeltaPhi::InnerDeltaPhi(const DetLayer& outlayer,
 {
   float zMinOrigin = theVtxZ - region.originZBound();
   float zMaxOrigin = theVtxZ + region.originZBound();
-  theRCurvature = PixelRecoUtilities::bendingRadius(thePtMin, iSetup);
+  edm::ESHandle<MagneticField> hfield;
+  iSetup.get<IdealMagneticFieldRecord>().get(hfield);
+  theRCurvature = PixelRecoUtilities::bendingRadius(thePtMin, *hfield);
 
   if (innerIsBarrel)
     initBarrelLayer(layer);

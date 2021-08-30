@@ -16,6 +16,8 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 typedef PixelRecoRange<float> Range;
 template <class T>
 T sqr(T t) {
@@ -72,6 +74,10 @@ void PixelTripletNoTipGenerator::hitTriplets(const TrackingRegion& region,
     thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, es);
   }
 
+  edm::ESHandle<MagneticField> hfield;
+  es.get<IdealMagneticFieldRecord>().get(hfield);
+  const auto& field = *hfield;
+
   MultipleScatteringParametrisation sigma1RPhi(firstLayer, es);
   MultipleScatteringParametrisation sigma2RPhi(secondLayer, es);
 
@@ -81,7 +87,7 @@ void PixelTripletNoTipGenerator::hitTriplets(const TrackingRegion& region,
     GlobalPoint p2((*ip).outer()->globalPosition() - shift);
 
     ThirdHitPredictionFromInvLine predictionRPhiTMP(p1, p2);
-    double pt_p1p2 = 1. / PixelRecoUtilities::inversePt(predictionRPhiTMP.curvature(), es);
+    double pt_p1p2 = 1. / PixelRecoUtilities::inversePt(predictionRPhiTMP.curvature(), field);
 
     PixelRecoPointRZ point1(p1.perp(), p1.z());
     PixelRecoPointRZ point2(p2.perp(), p2.z());
@@ -165,7 +171,7 @@ void PixelTripletNoTipGenerator::hitTriplets(const TrackingRegion& region,
         Range hitZRange(z3Hit - z3HitError, z3Hit + z3HitError);
         bool inside = hitZRange.hasIntersection(zRange);
 
-        double curvatureMS = PixelRecoUtilities::curvature(1. / region.ptMin(), es);
+        double curvatureMS = PixelRecoUtilities::curvature(1. / region.ptMin(), field);
         bool ptCut = (predictionRPhi.curvature() - theNSigma * predictionRPhi.errorCurvature() < curvatureMS);
         bool chi2Cut = (predictionRPhi.chi2() < theChi2Cut);
         if (inside && ptCut && chi2Cut) {
