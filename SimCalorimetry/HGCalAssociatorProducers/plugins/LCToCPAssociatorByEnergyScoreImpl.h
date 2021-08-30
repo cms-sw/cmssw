@@ -25,13 +25,6 @@ namespace hgcal {
     }
   };
 
-  struct detIdInfoInMultiCluster {
-    bool operator==(const detIdInfoInMultiCluster &o) const { return multiclusterId == o.multiclusterId; };
-    unsigned int multiclusterId;
-    long unsigned int clusterId;
-    float fraction;
-  };
-
   struct caloParticleOnLayer {
     unsigned int caloParticleId;
     float energy = 0;
