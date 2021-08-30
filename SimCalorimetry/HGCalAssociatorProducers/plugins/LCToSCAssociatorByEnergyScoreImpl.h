@@ -15,10 +15,10 @@ namespace edm {
 }
 
 namespace hgcal {
-  // This structure is used both for LayerClusters and SimClusters storing the id and the fraction of a hit
+  // This structure is used both for LayerClusters and SimClusters storing their id and the fraction of a hit
   // that belongs to the LayerCluster or SimCluster. The meaning of the operator is extremely important since 
   // this struct will be used inside maps and other containers and when searching for one particular occurence
-  // only the clusterId member will be used in the check skipping the fraction part. 
+  // only the clusterId member will be used in the check, skipping the fraction part. 
   struct detIdInfoInCluster {
     bool operator==(const detIdInfoInCluster &o) const { return clusterId == o.clusterId; };
     long unsigned int clusterId;
@@ -36,8 +36,9 @@ namespace hgcal {
   //    and doesn't have any matched rechits are disregarded. 
   // 4. A map to save the LayerClusters ids (id is the key) that reconstructed at least one SimHit of the simCluster under study 
   //    together with the energy that the Layercluster reconstructed from the SimClusters and the score. The energy 
-  //    is not the energy of the LayerCluster, but the energy coming from the SimCluster. So, there will be energy of 
-  //    the LayerCluster that is disregarded here, since there may be LayerCluster's cells that the SimCluster didn't contributed. 
+  //    is not the energy of the LayerCluster, but the energy of the LayerCluster coming from the SimCluster. 
+  //    So, there will be energy of the LayerCluster that is disregarded here, since there may be LayerCluster's 
+  //    cells that the SimCluster didn't contribute. 
   struct simClusterOnLayer {
     unsigned int simClusterId;
     float energy = 0;
