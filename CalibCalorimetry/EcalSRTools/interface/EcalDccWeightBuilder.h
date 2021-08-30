@@ -1,15 +1,16 @@
-/*
- */
+#ifndef CalibCalorimetry_EcalSRTools_EcalDccWeightBuilder_h
+#define CalibCalorimetry_EcalSRTools_EcalDccWeightBuilder_h
 
-#ifndef ECALDCCWEIGHTBUILDER_CC
-#define ECALDCCWEIGHTBUILDER_CC
-
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -23,7 +24,7 @@ class EcalElectronicsMapping;
 
 /**
  */
-class EcalDccWeightBuilder : public edm::EDAnalyzer {
+class EcalDccWeightBuilder : public edm::one::EDAnalyzer<> {
 private:
   enum mode_t { WEIGHTS_FROM_CONFIG, COMPUTE_WEIGHTS };
 
@@ -121,6 +122,10 @@ private:
   std::string dbTag_;
   int dbVersion_;
   bool sqlMode_;
+
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+  const edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> mappingToken_;
+  const edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> intercalibConstToken_;
 
   edm::ESHandle<CaloGeometry> geom_;
 
