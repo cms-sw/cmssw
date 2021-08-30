@@ -16,6 +16,8 @@
 #include "MatchedHitRZCorrectionFromBending.h"
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -138,6 +140,10 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
   es.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology* tTopo = tTopoHand.product();
 
+  edm::ESHandle<MagneticField> hfield;
+  es.get<IdealMagneticFieldRecord>().get(hfield);
+  const auto& field = *hfield;
+
   auto outSeq = doublets.detLayer(HitDoublets::outer)->seqNum();
 
   using NodeInfo = KDTreeNodeInfo<unsigned int, 2>;
@@ -199,7 +205,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
     rzError[il] = maxErr;                //save error
   }
 
-  double curv = PixelRecoUtilities::curvature(1. / region.ptMin(), es);
+  double curv = PixelRecoUtilities::curvature(1. / region.ptMin(), field);
 
   for (std::size_t ip = 0; ip != doublets.size(); ip++) {
     auto xi = doublets.x(ip, HitDoublets::inner);

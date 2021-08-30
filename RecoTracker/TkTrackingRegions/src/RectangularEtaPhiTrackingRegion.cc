@@ -190,7 +190,10 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
     return nullptr;
 
   // phi prediction
-  OuterHitPhiPrediction phiPrediction = phiWindow(iSetup);
+  edm::ESHandle<MagneticField> hfield;
+  iSetup.get<IdealMagneticFieldRecord>().get(hfield);
+  const auto& field = *hfield;
+  OuterHitPhiPrediction phiPrediction = phiWindow(field);
 
   //
   // optional corrections for tolerance (mult.scatt, error, bending)
@@ -202,7 +205,7 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
     auto sinThetaInv = std::sqrt(1.f + sqr(cotTheta));
     MultipleScatteringParametrisation msSigma(layer, iSetup);
     auto scatt = 3.f * msSigma(ptMin(), cotTheta);
-    auto bendR = longitudinalBendingCorrection(radius, ptMin(), iSetup);
+    auto bendR = longitudinalBendingCorrection(radius, ptMin(), field);
 
     float hitErrRPhi = 0.;
     float hitErrZ = 0.;
@@ -246,7 +249,10 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
     return nullptr;
 
   // phi prediction
-  OuterHitPhiPrediction phiPrediction = phiWindow(iSetup);
+  edm::ESHandle<MagneticField> hfield;
+  iSetup.get<IdealMagneticFieldRecord>().get(hfield);
+  const auto& field = *hfield;
+  OuterHitPhiPrediction phiPrediction = phiWindow(field);
   OuterHitPhiPrediction::Range phiRange = phiPrediction(detRWindow.max());
 
   //
@@ -257,7 +263,7 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
     float cosThetaInv = std::sqrt(1 + sqr(cotTheta)) / cotTheta;
     MultipleScatteringParametrisation msSigma(layer, iSetup);
     float scatt = 3.f * msSigma(ptMin(), cotTheta);
-    float bendR = longitudinalBendingCorrection(hitRWindow.max(), ptMin(), iSetup);
+    float bendR = longitudinalBendingCorrection(hitRWindow.max(), ptMin(), field);
     float hitErrRPhi = 0.;
     float hitErrR = 0.;
     float corrPhi = (scatt + hitErrRPhi) / detRWindow.min();
@@ -285,11 +291,11 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
                                                 iSetup);
 }
 
-OuterHitPhiPrediction RectangularEtaPhiTrackingRegion::phiWindow(const edm::EventSetup& iSetup) const {
+OuterHitPhiPrediction RectangularEtaPhiTrackingRegion::phiWindow(const MagneticField& field) const {
   auto phi0 = phiDirection();
   return OuterHitPhiPrediction(
       OuterHitPhiPrediction::Range(phi0 - thePhiMargin.left(), phi0 + thePhiMargin.right()),
-      OuterHitPhiPrediction::Range(curvature(invPtRange().min(), iSetup), curvature(invPtRange().max(), iSetup)),
+      OuterHitPhiPrediction::Range(curvature(invPtRange().min(), field), curvature(invPtRange().max(), field)),
       originRBound());
 }
 

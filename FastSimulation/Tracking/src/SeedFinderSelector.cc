@@ -224,7 +224,7 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *> &hits
       for (auto &ntuplet : tripletresult)
         ntuplet.reserve(3);
       //calling the function from the class, modifies tripletresult
-      CAHitTriplGenerator_->hitNtuplets(ihd, tripletresult, *eventSetup_, *seedingLayer);
+      CAHitTriplGenerator_->hitNtuplets(ihd, tripletresult, *seedingLayer);
       return !tripletresult[0].empty();
     }
   }
@@ -311,7 +311,7 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *> &hits
     for (auto &ntuplet : quadrupletresult)
       ntuplet.reserve(4);
     //calling the function from the class, modifies quadrupletresult
-    CAHitQuadGenerator_->hitNtuplets(ihd, quadrupletresult, *eventSetup_, *seedingLayer);
+    CAHitQuadGenerator_->hitNtuplets(ihd, quadrupletresult, *seedingLayer);
     return !quadrupletresult[0].empty();
   }
 

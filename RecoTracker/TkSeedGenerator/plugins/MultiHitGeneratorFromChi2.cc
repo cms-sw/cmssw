@@ -305,7 +305,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   //gc: now we have initialized the KDTrees and we are out of the layer loop
 
   //gc: this sets the minPt of the triplet
-  auto curv = PixelRecoUtilities::curvature(1. / region.ptMin(), es);
+  auto curv = PixelRecoUtilities::curvature(1. / region.ptMin(), *bfield);
 
   LogTrace("MultiHitGeneratorFromChi2") << "doublet size=" << doublets.size() << std::endl;
 

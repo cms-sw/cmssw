@@ -127,8 +127,8 @@ std::unique_ptr<reco::Track> PixelFitterByHelixProjections::run(const std::vecto
   int iCharge = charge(points);
   float curvature = circle.curvature();
 
-  if ((curvature > 1.e-4) && (LIKELY(PixelRecoUtilities::fieldInInvGev(setup) > 0.01))) {
-    float invPt = PixelRecoUtilities::inversePt(circle.curvature(), setup);
+  if ((curvature > 1.e-4) && (LIKELY(theField->inverseNominalValueInGeV()) > 0.01)) {
+    float invPt = PixelRecoUtilities::inversePt(circle.curvature(), *theField);
     valPt = (invPt > 1.e-4f) ? 1.f / invPt : 1.e4f;
     CircleFromThreePoints::Vector2D center = circle.center();
     valTip = iCharge * (center.mag() - 1.f / curvature);
