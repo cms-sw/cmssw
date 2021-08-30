@@ -6,6 +6,9 @@ CaloTower::CaloTower() {
   outerE_ = 0;
   emLvl1_ = 0;
   hadLvl1_ = 0;
+  subdet_ = HcalEmpty;
+  inHO_ = false;
+  inHBHEgap_ = false;
 }
 
 CaloTower::CaloTower(const CaloTowerDetId& id,
@@ -25,7 +28,11 @@ CaloTower::CaloTower(const CaloTowerDetId& id,
       hadE_(hadE),
       outerE_(outerE),
       emLvl1_(ecal_tp),
-      hadLvl1_(hcal_tp) {}
+      hadLvl1_(hcal_tp) {
+  subdet_ = HcalEmpty;
+  inHO_ = false;
+  inHBHEgap_ = false;
+}
 
 CaloTower::CaloTower(const CaloTowerDetId& id,
                      double emE,
@@ -44,7 +51,11 @@ CaloTower::CaloTower(const CaloTowerDetId& id,
       hadE_(hadE),
       outerE_(outerE),
       emLvl1_(ecal_tp),
-      hadLvl1_(hcal_tp) {}
+      hadLvl1_(hcal_tp) {
+  subdet_ = HcalEmpty;
+  inHO_ = false;
+  inHBHEgap_ = false;
+}
 
 CaloTower::CaloTower(CaloTowerDetId id,
                      float emE,
@@ -65,7 +76,11 @@ CaloTower::CaloTower(CaloTowerDetId id,
       hadE_(hadE),
       outerE_(outerE),
       emLvl1_(ecal_tp),
-      hadLvl1_(hcal_tp) {}
+      hadLvl1_(hcal_tp) {
+  subdet_ = HcalEmpty;
+  inHO_ = false;
+  inHBHEgap_ = false;
+}
 
 CaloTower::CaloTower(CaloTowerDetId id,
                      float emE,
@@ -86,7 +101,11 @@ CaloTower::CaloTower(CaloTowerDetId id,
       hadE_(hadE),
       outerE_(outerE),
       emLvl1_(ecal_tp),
-      hadLvl1_(hcal_tp) {}
+      hadLvl1_(hcal_tp) {
+  subdet_ = HcalEmpty;
+  inHO_ = false;
+  inHBHEgap_ = false;
+}
 
 // recalculated momentum-related quantities wrt user provided vertex Z position
 
