@@ -20,13 +20,12 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-BzeroReferenceTrajectoryFactory::BzeroReferenceTrajectoryFactory(const edm::ParameterSet &config, edm::ConsumesCollector &iC)
-    : 
-      TrajectoryFactoryBase(config, iC),
-m_MagFieldToken(iC.esConsumes()), 
+BzeroReferenceTrajectoryFactory::BzeroReferenceTrajectoryFactory(const edm::ParameterSet &config,
+                                                                 edm::ConsumesCollector &iC)
+    : TrajectoryFactoryBase(config, iC),
+      m_MagFieldToken(iC.esConsumes()),
       theMass(config.getParameter<double>("ParticleMass")),
-      theMomentumEstimate(config.getParameter<double>("MomentumEstimate"))
-{
+      theMomentumEstimate(config.getParameter<double>("MomentumEstimate")) {
   edm::LogInfo("Alignment") << "@SUB=BzeroReferenceTrajectoryFactory"
                             << "mass: " << theMass << "\nmomentum: " << theMomentumEstimate;
 }
@@ -35,12 +34,13 @@ BzeroReferenceTrajectoryFactory::~BzeroReferenceTrajectoryFactory(void) {}
 
 /////////////////////////////////////////////////////////////////////
 const BzeroReferenceTrajectoryFactory::ReferenceTrajectoryCollection BzeroReferenceTrajectoryFactory::trajectories(
-    const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks, const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const {
+    const edm::EventSetup &setup,
+    const ConstTrajTrackPairCollection &tracks,
+    const reco::BeamSpot &beamSpot,
+    edm::ConsumesCollector &iC) const {
   ReferenceTrajectoryCollection trajectories;
 
-//  edm::ESHandle<MagneticField> magneticField;
-//  setup.get<IdealMagneticFieldRecord>().get(magneticField);
-  const MagneticField* magneticField = &setup.getData(m_MagFieldToken); 
+  const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
 
   ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
 
@@ -69,7 +69,8 @@ const BzeroReferenceTrajectoryFactory::ReferenceTrajectoryCollection BzeroRefere
     const edm::EventSetup &setup,
     const ConstTrajTrackPairCollection &tracks,
     const ExternalPredictionCollection &external,
-    const reco::BeamSpot &beamSpot,edm::ConsumesCollector &iC) const {
+    const reco::BeamSpot &beamSpot,
+    edm::ConsumesCollector &iC) const {
   ReferenceTrajectoryCollection trajectories;
 
   if (tracks.size() != external.size()) {
@@ -80,7 +81,7 @@ const BzeroReferenceTrajectoryFactory::ReferenceTrajectoryCollection BzeroRefere
     return trajectories;
   }
 
-  const MagneticField* magneticField = &setup.getData(m_MagFieldToken); 
+  const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
 
   ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
   ExternalPredictionCollection::const_iterator itExternal = external.begin();

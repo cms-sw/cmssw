@@ -39,12 +39,14 @@ public:
   /// Produce the trajectories.
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
-                                                   const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const override;
+                                                   const reco::BeamSpot &beamSpot,
+                                                   edm::ConsumesCollector &iC) const override;
 
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
                                                    const ExternalPredictionCollection &external,
-                                                   const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const override;
+                                                   const reco::BeamSpot &beamSpot,
+                                                   edm::ConsumesCollector &iC) const override;
 
   TwoBodyDecayTrajectoryFactory *clone() const override { return new TwoBodyDecayTrajectoryFactory(*this); }
 
@@ -73,8 +75,12 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-TwoBodyDecayTrajectoryFactory::TwoBodyDecayTrajectoryFactory(const edm::ParameterSet &config, edm::ConsumesCollector &iC)
-    : TrajectoryFactoryBase(config, 2, iC),m_MagFieldToken(iC.esConsumes()),       m_globTackingToken(iC.esConsumes()) , theFitter(config){
+TwoBodyDecayTrajectoryFactory::TwoBodyDecayTrajectoryFactory(const edm::ParameterSet &config,
+                                                             edm::ConsumesCollector &iC)
+    : TrajectoryFactoryBase(config, 2, iC),
+      m_MagFieldToken(iC.esConsumes()),
+      m_globTackingToken(iC.esConsumes()),
+      theFitter(config) {
   const edm::ParameterSet ppc = config.getParameter<edm::ParameterSet>("ParticleProperties");
   thePrimaryMass = ppc.getParameter<double>("PrimaryMass");
   thePrimaryWidth = ppc.getParameter<double>("PrimaryWidth");
@@ -89,14 +95,14 @@ TwoBodyDecayTrajectoryFactory::TwoBodyDecayTrajectoryFactory(const edm::Paramete
 TwoBodyDecayTrajectoryFactory::~TwoBodyDecayTrajectoryFactory() {}
 
 const TrajectoryFactoryBase::ReferenceTrajectoryCollection TwoBodyDecayTrajectoryFactory::trajectories(
-    const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks, const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const {
+    const edm::EventSetup &setup,
+    const ConstTrajTrackPairCollection &tracks,
+    const reco::BeamSpot &beamSpot,
+    edm::ConsumesCollector &iC) const {
   ReferenceTrajectoryCollection trajectories;
 
-  const MagneticField* magneticField = &setup.getData(m_MagFieldToken);
-  
- //edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
- // setup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
-   const GlobalTrackingGeometry* trackingGeometry= &setup.getData(m_globTackingToken);
+  const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
+  const GlobalTrackingGeometry *trackingGeometry = &setup.getData(m_globTackingToken);
   if (tracks.size() == 2) {
     // produce transient tracks from persistent tracks
     std::vector<reco::TransientTrack> transientTracks(2);
@@ -129,12 +135,13 @@ const TrajectoryFactoryBase::ReferenceTrajectoryCollection TwoBodyDecayTrajector
     const edm::EventSetup &setup,
     const ConstTrajTrackPairCollection &tracks,
     const ExternalPredictionCollection &external,
-    const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const {
+    const reco::BeamSpot &beamSpot,
+    edm::ConsumesCollector &iC) const {
   ReferenceTrajectoryCollection trajectories;
 
-  const MagneticField* magneticField = &setup.getData(m_MagFieldToken);
+  const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
 
-   const GlobalTrackingGeometry* trackingGeometry= &setup.getData(m_globTackingToken);
+  const GlobalTrackingGeometry *trackingGeometry = &setup.getData(m_globTackingToken);
 
   if (tracks.size() == 2 && external.size() == 2) {
     if (external[0].isValid() && external[1].isValid())  // Include external estimates
