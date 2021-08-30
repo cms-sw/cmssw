@@ -22,14 +22,7 @@
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 using namespace cms;
 using namespace edm;
@@ -39,6 +32,10 @@ EcalPedOffset::EcalPedOffset(const ParameterSet &paramSet)
     : m_barrelDigiCollection(paramSet.getParameter<edm::InputTag>("EBdigiCollection")),
       m_endcapDigiCollection(paramSet.getParameter<edm::InputTag>("EEdigiCollection")),
       m_headerCollection(paramSet.getParameter<edm::InputTag>("headerCollection")),
+      m_rawDataToken(consumes<EcalRawDataCollection>(m_headerCollection)),
+      m_ebDigiToken(consumes<EBDigiCollection>(m_barrelDigiCollection)),
+      m_eeDigiToken(consumes<EEDigiCollection>(m_endcapDigiCollection)),
+      m_mappingToken(esConsumes()),
       m_xmlFile(paramSet.getParameter<std::string>("xmlFile")),
       m_DACmin(paramSet.getUntrackedParameter<int>("DACmin", 0)),
       m_DACmax(paramSet.getUntrackedParameter<int>("DACmax", 256)),
@@ -77,10 +74,15 @@ EcalPedOffset::~EcalPedOffset() {
 void EcalPedOffset::beginRun(Run const &, EventSetup const &eventSetup) {
   LogDebug("EcalPedOffset") << "entering beginRun...";
 
-  edm::ESHandle<EcalElectronicsMapping> handle;
-  eventSetup.get<EcalMappingRcd>().get(handle);
-  ecalElectronicsMap_ = handle.product();
+  // get the electronics map
+  const auto mappingHandle = eventSetup.getHandle(m_mappingToken);
+  ecalElectronicsMap_ = mappingHandle.product();
 }
+
+// -----------------------------------------------------------------------------
+
+//! end the run
+void EcalPedOffset::endRun(Run const &, EventSetup const &eventSetup) {}
 
 // -----------------------------------------------------------------------------
 
@@ -91,7 +93,7 @@ void EcalPedOffset::analyze(Event const &event, EventSetup const &eventSetup) {
   // get the headers
   // (one header for each supermodule)
   edm::Handle<EcalRawDataCollection> DCCHeaders;
-  event.getByLabel(m_headerCollection, DCCHeaders);
+  event.getByToken(m_rawDataToken, DCCHeaders);
 
   std::map<int, int> DACvalues;
 
@@ -112,7 +114,7 @@ void EcalPedOffset::analyze(Event const &event, EventSetup const &eventSetup) {
   // get the barrel digis
   // (one digi for each crystal)
   Handle<EBDigiCollection> barrelDigis;
-  event.getByLabel(m_barrelDigiCollection, barrelDigis);
+  event.getByToken(m_ebDigiToken, barrelDigis);
   if (!barrelDigis.isValid()) {
     edm::LogError("EcalPedOffset") << "Error! can't get the product " << m_barrelDigiCollection
                                    << "; not reading barrel digis";
@@ -128,7 +130,7 @@ void EcalPedOffset::analyze(Event const &event, EventSetup const &eventSetup) {
   // get the endcap digis
   // (one digi for each crystal)
   Handle<EEDigiCollection> endcapDigis;
-  event.getByLabel(m_endcapDigiCollection, endcapDigis);
+  event.getByToken(m_eeDigiToken, endcapDigis);
   if (!endcapDigis.isValid()) {
     edm::LogError("EcalPedOffset") << "Error! can't get the product " << m_endcapDigiCollection
                                    << "; not reading endcap digis";
