@@ -26,8 +26,6 @@
 #include <cmath>
 #include <string>
 
-#include "boost/lexical_cast.hpp"
-
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
@@ -473,7 +471,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
 
       std::string ttName = itAlgo->first;
       int ttBitNumber = (itAlgo->second).algoBitNumber();
-      // std::string ttName = boost::lexical_cast<std::string>(iTechTrig);
+      // std::string ttName = std::to_string(iTechTrig);
       // int ttBitNumber = iTechTrig;
 
       // the result before applying the trigger masks is available
