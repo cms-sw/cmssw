@@ -55,15 +55,15 @@ using namespace edm;
 
 class JetTagProducer : public edm::stream::EDProducer<> {
 public:
-  explicit JetTagProducer(const edm::ParameterSet&);
+  explicit JetTagProducer(const edm::ParameterSet &);
   ~JetTagProducer() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
-  std::string m_jetTagComputer;
   std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo> > > token_tagInfos;
+  const edm::ESGetToken<JetTagComputer, JetTagComputerRecord> computerToken_;
   unsigned int nTagInfos;
   edm::ESWatcher<JetTagComputerRecord> recordWatcher_;
 };
@@ -72,7 +72,7 @@ private:
 // constructors and destructor
 //
 JetTagProducer::JetTagProducer(const ParameterSet &iConfig)
-    : m_jetTagComputer(iConfig.getParameter<string>("jetTagComputer")) {
+    : computerToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<string>("jetTagComputer")))) {
   std::vector<edm::InputTag> m_tagInfos = iConfig.getParameter<vector<InputTag> >("tagInfos");
   nTagInfos = m_tagInfos.size();
   for (unsigned int i = 0; i < nTagInfos; i++) {
@@ -99,15 +99,14 @@ namespace {
 
 // ------------ method called to produce the data  ------------
 void JetTagProducer::produce(Event &iEvent, const EventSetup &iSetup) {
-  edm::ESHandle<JetTagComputer> computer;
-  iSetup.get<JetTagComputerRecord>().get(m_jetTagComputer, computer);
+  auto const &computer = iSetup.getData(computerToken_);
 
   if (recordWatcher_.check(iSetup)) {
-    unsigned int nLabels = computer->getInputLabels().size();
+    unsigned int nLabels = computer.getInputLabels().size();
     if (nLabels == 0)
       ++nLabels;
     if (nTagInfos != nLabels) {
-      vector<string> inputLabels(computer->getInputLabels());
+      vector<string> inputLabels(computer.getInputLabels());
       // backward compatible case, use default tagInfo
       if (inputLabels.empty())
         inputLabels.push_back("tagInfo");
@@ -158,7 +157,7 @@ void JetTagProducer::produce(Event &iEvent, const EventSetup &iSetup) {
     const TagInfoPtrs &tagInfoPtrs = iter->second;
 
     JetTagComputer::TagInfoHelper helper(tagInfoPtrs);
-    float discriminator = (*computer)(helper);
+    float discriminator = computer(helper);
 
     (*jetTagCollection)[iter->first] = discriminator;
   }
