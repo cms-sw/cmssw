@@ -56,7 +56,9 @@ using namespace std;
 L1MuDTSectorReceiver::L1MuDTSectorReceiver(L1MuDTSectorProcessor& sp, edm::ConsumesCollector iC)
     : m_sp(sp),
       m_DTDigiToken(iC.consumes<L1MuDTChambPhContainer>(m_sp.tf().config()->getDTDigiInputTag())),
-      m_CSCTrSToken(iC.mayConsume<CSCTriggerContainer<csctf::TrackStub> >(m_sp.tf().config()->getCSCTrSInputTag())) {}
+      m_CSCTrSToken(iC.mayConsume<CSCTriggerContainer<csctf::TrackStub> >(m_sp.tf().config()->getCSCTrSInputTag())),
+      m_parsToken(iC.esConsumes()),
+      m_msksToken(iC.esConsumes()) {}
 
 //--------------
 // Destructor --
@@ -73,8 +75,8 @@ L1MuDTSectorReceiver::~L1MuDTSectorReceiver() {
 // receive track segment data from the DTBX and CSC chamber triggers
 //
 void L1MuDTSectorReceiver::run(int bx, const edm::Event& e, const edm::EventSetup& c) {
-  c.get<L1MuDTTFParametersRcd>().get(pars);
-  c.get<L1MuDTTFMasksRcd>().get(msks);
+  pars = c.getHandle(m_parsToken);
+  msks = c.getHandle(m_msksToken);
 
   // get track segments from DTBX chamber trigger
   receiveDTBXData(bx, e, c);
