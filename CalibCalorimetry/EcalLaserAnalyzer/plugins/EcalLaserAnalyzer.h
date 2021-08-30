@@ -1,3 +1,5 @@
+#ifndef CalibCalorimetry_EcalLaserAnalyzer_EcalLaserAnalyzer_h
+#define CalibCalorimetry_EcalLaserAnalyzer_EcalLaserAnalyzer_h
 // $Id: EcalLaserAnalyzer.h
 
 #include <memory>
@@ -244,3 +246,4 @@ private:
   bool isGainOK;
   bool isTimingOK;
 };
+#endif
