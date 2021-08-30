@@ -29,11 +29,11 @@ namespace hgcal {
     }
   };
 
-  // For a simCluster it stores:
+  // This introduces a simCluster on layer concept. For a simCluster it stores:
   // 1. Its id: simClusterId. 
   // 2. The energy that the simCluster deposited in a specific layer and it was reconstructed. 
   // 3. The hits_and_fractions that contributed to that deposition. SimHits that aren't reconstructed 
-  //    and doesn't have any matched rechits are disgarded. 
+  //    and doesn't have any matched rechits are disregarded. 
   // 4. A map to save the LayerClusters ids (id is the key) that reconstructed at least one SimHit of the simCluster under study 
   //    together with the energy that the Layercluster reconstructed from the SimClusters and the score. The energy 
   //    is not the energy of the LayerCluster, but the energy coming from the SimCluster. So, there will be energy of 
@@ -45,12 +45,15 @@ namespace hgcal {
     std::unordered_map<int, std::pair<float, float>> layerClusterIdToEnergyAndScore;
   };
 
+  // This object connects a LayerCluster, identified through its id (lcId), with a vector containing all the SimClusters 
+  // (via their ids (scIds)) that share at least one cell with the LayerCluster. For that pair (lcId,scId) it 
+  // stores the score. 
   typedef std::vector<std::vector<std::pair<unsigned int, float>>> layerClusterToSimCluster;
   // This is used to save the simClusterOnLayer structure for all simClusters in each layer. 
-  // This is not exactly what is returned outside, but out of its entries, the output object is build. 
+  // It is not exactly what is returned outside, but out of its entries, the output object is build. 
   typedef std::vector<std::vector<hgcal::simClusterOnLayer>> simClusterToLayerCluster;
   //This is the output of the makeConnections function that contain all the work with SC2LC and LC2SC 
-  //association. It will be read by the relevant associateRecoToSim and associateSimToReco functions to 
+  //association. It will be read by the relevant associateSimToReco and associateRecoToSim functions to 
   //provide the final product.  
   typedef std::tuple<layerClusterToSimCluster, simClusterToLayerCluster> association;
 }  // namespace hgcal
