@@ -1,3 +1,5 @@
+#ifndef CalibCalorimetry_EcalLaserAnalyzer_EcalPerEvtLaserAnalyzer_h
+#define CalibCalorimetry_EcalLaserAnalyzer_EcalPerEvtLaserAnalyzer_h
 // $Id: EcalPerEvtLaserAnalyzer.h
 
 #include <memory>
@@ -142,3 +144,4 @@ private:
   double apdTime;
   double pnAmpl;
 };
+#endif
