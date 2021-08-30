@@ -12,7 +12,7 @@ calotowers which is expected to be phased out sometime in Run3.
 The old class can also be used until calotowers stay. After that, one need to switch to this new one. 
 
 As the old producer code, this one also produces either Hcal isolation or H for H/E depending if doEtSum=true or false.
-H for H/E = either a single HCCAL tower behind SC, or towers in a cone, and hcal isolation has these tower(s) excluded.
+H for H/E = either a single HCAL tower behind SC, or towers in a cone, and hcal isolation has these tower(s) excluded.
 A rho correction can be applied
 
 */
@@ -116,27 +116,27 @@ EgammaHLTHcalVarProducerFromRecHit::EgammaHLTHcalVarProducerFromRecHit(const edm
 void EgammaHLTHcalVarProducerFromRecHit::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltRecoEcalCandidate"));
-  desc.add<edm::InputTag>(("rhoProducer"), edm::InputTag("fixedGridRhoFastjetAllCalo"));
-  desc.add<edm::InputTag>(("hbheRecHitsTag"), edm::InputTag("hltHbhereco"));
-  desc.add<bool>(("doRhoCorrection"), false);
-  desc.add<double>(("rhoMax"), 999999.);
+  desc.add<edm::InputTag>("recoEcalCandidateProducer", edm::InputTag("hltRecoEcalCandidate"));
+  desc.add<edm::InputTag>("rhoProducer", edm::InputTag("fixedGridRhoFastjetAllCalo"));
+  desc.add<edm::InputTag>("hbheRecHitsTag", edm::InputTag("hltHbhereco"));
+  desc.add<bool>("doRhoCorrection", false);
+  desc.add<double>("rhoMax", 999999.);
   desc.add<double>(("rhoScale"), 1.0);
   //eThresHB/HE are from RecoParticleFlow/PFClusterProducer/python/particleFlowRecHitHBHE_cfi.py
-  desc.add<std::vector<double> >(("eThresHB"), {0.1, 0.2, 0.3, 0.3});
-  desc.add<std::vector<double> >(("etThresHB"), {0, 0, 0, 0});
-  desc.add<std::vector<double> >(("eThresHE"), {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2});
-  desc.add<std::vector<double> >(("etThresHE"), {0, 0, 0, 0, 0, 0, 0});
-  desc.add<double>(("innerCone"), 0);
-  desc.add<double>(("outerCone"), 0.14);
-  desc.add<int>(("depth"), 0);
-  desc.add<int>(("maxSeverityHB"), 9);
-  desc.add<int>(("maxSeverityHE"), 9);
-  desc.add<bool>(("doEtSum"), false);
-  desc.add<bool>(("useSingleTower"), false);
+  desc.add<std::vector<double> >("eThresHB", {0.1, 0.2, 0.3, 0.3});
+  desc.add<std::vector<double> >("etThresHB", {0, 0, 0, 0});
+  desc.add<std::vector<double> >("eThresHE", {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2});
+  desc.add<std::vector<double> >("etThresHE", {0, 0, 0, 0, 0, 0, 0});
+  desc.add<double>("innerCone", 0);
+  desc.add<double>("outerCone", 0.14);
+  desc.add<int>("depth", 0);
+  desc.add<int>("maxSeverityHB", 9);
+  desc.add<int>("maxSeverityHE", 9);
+  desc.add<bool>("doEtSum", false);
+  desc.add<bool>("useSingleTower", false);
   desc.add<std::vector<double> >("effectiveAreas", {0.079, 0.25});  // 2016 post-ichep sinEle default
   desc.add<std::vector<double> >("absEtaLowEdges", {0.0, 1.479});   // Barrel, Endcap
-  descriptions.add(("hltEgammaHLTHcalVarProducerFromRecHit"), desc);
+  descriptions.add("hltEgammaHLTHcalVarProducerFromRecHit", desc);
 }
 
 void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
