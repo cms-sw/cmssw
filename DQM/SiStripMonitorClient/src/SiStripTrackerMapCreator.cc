@@ -150,6 +150,9 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet& tkmapPs
                                    << " with range set to 0.0 - 1.0";
     trackerMap_->save(true, 0.0, 1.0, map_type + namesuffix + ".svg");
     trackerMap_->save(true, 0.0, 1.0, map_type + namesuffix + ".png", 4500, 2400);
+    // reset the map name to ResidualsMean to restore the
+    // correct behaviour for the summary file creation
+    map_type = "ResidualsMean";
   } else {
     edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << namesuffix << " with range set to "
                                    << tkMapMin_ << " - " << tkMapMax_;
