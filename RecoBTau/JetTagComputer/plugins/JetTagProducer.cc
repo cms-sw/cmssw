@@ -55,7 +55,6 @@ using namespace edm;
 class JetTagProducer : public edm::global::EDProducer<> {
 public:
   explicit JetTagProducer(const edm::ParameterSet &);
-  ~JetTagProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
@@ -63,6 +62,7 @@ private:
 
   std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo> > > token_tagInfos_;
   const edm::ESGetToken<JetTagComputer, JetTagComputerRecord> token_computer_;
+  const edm::EDPutTokenT<JetTagCollection> token_put_;
   mutable std::atomic<unsigned long long> recordCacheID_{0};
   unsigned int nTagInfos_;
 };
@@ -71,18 +71,15 @@ private:
 // constructors and destructor
 //
 JetTagProducer::JetTagProducer(const ParameterSet &iConfig)
-    : token_computer_(esConsumes(edm::ESInputTag("", iConfig.getParameter<string>("jetTagComputer")))) {
-  std::vector<edm::InputTag> tagInfos = iConfig.getParameter<vector<InputTag> >("tagInfos");
+    : token_computer_(esConsumes(edm::ESInputTag("", iConfig.getParameter<string>("jetTagComputer")))),
+      token_put_(produces()) {
+  const std::vector<edm::InputTag> tagInfos = iConfig.getParameter<vector<InputTag> >("tagInfos");
   nTagInfos_ = tagInfos.size();
   token_tagInfos_.reserve(nTagInfos_);
-  for (unsigned int i = 0; i < nTagInfos_; i++) {
-    token_tagInfos_.push_back(consumes<View<BaseTagInfo> >(tagInfos[i]));
-  }
-
-  produces<JetTagCollection>();
+  std::transform(tagInfos.begin(), tagInfos.end(), std::back_inserter(token_tagInfos_), [this](auto const &tagInfo) {
+    return consumes<View<BaseTagInfo> >(tagInfo);
+  });
 }
-
-JetTagProducer::~JetTagProducer() {}
 
 //
 // member functions
@@ -134,22 +131,23 @@ void JetTagProducer::produce(StreamID, Event &iEvent, const EventSetup &iSetup) 
   JetToTagInfoMap jetToTagInfos;
 
   // retrieve all requested TagInfos
-  vector<Handle<View<BaseTagInfo> > > tagInfoHandles(nTagInfos_);
+  Handle<View<BaseTagInfo> > tagInfoHandle;
   for (unsigned int i = 0; i < nTagInfos_; i++) {
-    Handle<View<BaseTagInfo> > &tagInfoHandle = tagInfoHandles[i];
-    iEvent.getByToken(token_tagInfos_[i], tagInfoHandle);
+    auto tagHandle = iEvent.getHandle(token_tagInfos_[i]);
+    // take first tagInfo
+    if (not tagInfoHandle.isValid()) {
+      tagInfoHandle = tagHandle;
+    }
 
-    for (View<BaseTagInfo>::const_iterator iter = tagInfoHandle->begin(); iter != tagInfoHandle->end(); iter++) {
-      TagInfoPtrs &tagInfos = jetToTagInfos[iter->jet()];
+    for (auto const &tagInfo : *tagHandle) {
+      TagInfoPtrs &tagInfos = jetToTagInfos[tagInfo.jet()];
       if (tagInfos.empty())
         tagInfos.resize(nTagInfos_);
 
-      tagInfos[i] = &*iter;
+      tagInfos[i] = &tagInfo;
     }
   }
 
-  // take first tagInfo
-  Handle<View<BaseTagInfo> > &tagInfoHandle = tagInfoHandles[0];
   std::unique_ptr<JetTagCollection> jetTagCollection;
   if (!tagInfoHandle.product()->empty()) {
     RefToBase<Jet> jj = tagInfoHandle->begin()->jet();
@@ -167,7 +165,7 @@ void JetTagProducer::produce(StreamID, Event &iEvent, const EventSetup &iSetup) 
     (*jetTagCollection)[iter->first] = discriminator;
   }
 
-  iEvent.put(std::move(jetTagCollection));
+  iEvent.put(token_put_, std::move(jetTagCollection));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
