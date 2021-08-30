@@ -238,7 +238,8 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
   }
 
   // retrieving electronics mapping
-  const auto& TheMapping = c.getData(mappingToken_);;
+  const auto& TheMapping = c.getData(mappingToken_);
+  ;
 
   // ====================================
   // Decode Basic DCCHeader Information

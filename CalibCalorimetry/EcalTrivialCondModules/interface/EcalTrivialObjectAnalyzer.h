@@ -82,11 +82,16 @@ private:
   const edm::ESGetToken<EcalTimeCalibErrors, EcalTimeCalibErrorsRcd> timeCalibErrorsToken_;
   const edm::ESGetToken<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd> timeOffsetConstantToken_;
   const edm::ESGetToken<EcalTBWeights, EcalTBWeightsRcd> tbWeightsToken_;
-  const edm::ESGetToken<EcalClusterLocalContCorrParameters, EcalClusterLocalContCorrParametersRcd> clusterLocalContCorrToken_;
+  const edm::ESGetToken<EcalClusterLocalContCorrParameters, EcalClusterLocalContCorrParametersRcd>
+      clusterLocalContCorrToken_;
   const edm::ESGetToken<EcalClusterCrackCorrParameters, EcalClusterCrackCorrParametersRcd> clusterCrackCorrToken_;
-  const edm::ESGetToken<EcalClusterEnergyCorrectionParameters, EcalClusterEnergyCorrectionParametersRcd> clusterEnergyCorrectionToken_;
-  const edm::ESGetToken<EcalClusterEnergyUncertaintyParameters, EcalClusterEnergyUncertaintyParametersRcd> clusterEnergyUncertaintyToken_;
-  const edm::ESGetToken<EcalClusterEnergyCorrectionObjectSpecificParameters, EcalClusterEnergyCorrectionObjectSpecificParametersRcd> clusterEnergyCorrectionObjectSpecificToken_;
+  const edm::ESGetToken<EcalClusterEnergyCorrectionParameters, EcalClusterEnergyCorrectionParametersRcd>
+      clusterEnergyCorrectionToken_;
+  const edm::ESGetToken<EcalClusterEnergyUncertaintyParameters, EcalClusterEnergyUncertaintyParametersRcd>
+      clusterEnergyUncertaintyToken_;
+  const edm::ESGetToken<EcalClusterEnergyCorrectionObjectSpecificParameters,
+                        EcalClusterEnergyCorrectionObjectSpecificParametersRcd>
+      clusterEnergyCorrectionObjectSpecificToken_;
   const edm::ESGetToken<EcalLaserAlphas, EcalLaserAlphasRcd> laserAlphasToken_;
   const edm::ESGetToken<EcalLaserAPDPNRatiosRef, EcalLaserAPDPNRatiosRefRcd> laserAPDPNRatiosRefToken_;
   const edm::ESGetToken<EcalLaserAPDPNRatios, EcalLaserAPDPNRatiosRcd> laserAPDPNRatiosToken_;

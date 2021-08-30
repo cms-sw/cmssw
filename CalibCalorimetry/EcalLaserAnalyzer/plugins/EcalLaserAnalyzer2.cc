@@ -402,7 +402,8 @@ void EcalLaserAnalyzer2::analyze(const edm::Event& e, const edm::EventSetup& c) 
     EcalPnDiodeDetId pnDetId = EcalPnDiodeDetId((*pnItr).id());
 
     if (_debug == 1)
-      edm::LogVerbatim("EcalLaserAnalyzer2") << "-- debug test -- Inside PNDigi - pnID=" << pnDetId.iPnId() << ", dccID=" << pnDetId.iDCCId();
+      edm::LogVerbatim("EcalLaserAnalyzer2")
+          << "-- debug test -- Inside PNDigi - pnID=" << pnDetId.iPnId() << ", dccID=" << pnDetId.iDCCId();
 
     // Skip MEM DCC without relevant data
 
@@ -447,7 +448,8 @@ void EcalLaserAnalyzer2::analyze(const edm::Event& e, const edm::EventSetup& c) 
     allPNAmpl[pnDetId.iDCCId()].push_back(pnAmpl);
 
     if (_debug == 1)
-      edm::LogVerbatim("EcalLaserAnalyzer2") << "-- debug -- Inside PNDigi - PNampl=" << pnAmpl << ", PNgain=" << pnGain;
+      edm::LogVerbatim("EcalLaserAnalyzer2")
+          << "-- debug -- Inside PNDigi - PNampl=" << pnAmpl << ", PNgain=" << pnGain;
   }
 
   // ===========================
@@ -497,8 +499,9 @@ void EcalLaserAnalyzer2::analyze(const edm::Event& e, const edm::EventSetup& c) 
       setGeomEB(etaG, phiG, module, tower, strip, xtal, apdRefTT, channel, lmr);
 
       if (_debug == 1)
-        edm::LogVerbatim("EcalLaserAnalyzer2") << "-- debug -- Inside EBDigi - towerID:" << towerID << " channelID:" << channelID << " module:" << module
-             << " modules:" << modules.size();
+        edm::LogVerbatim("EcalLaserAnalyzer2")
+            << "-- debug -- Inside EBDigi - towerID:" << towerID << " channelID:" << channelID << " module:" << module
+            << " modules:" << modules.size();
 
       // APD Pulse
       //===========
@@ -596,8 +599,9 @@ void EcalLaserAnalyzer2::analyze(const edm::Event& e, const edm::EventSetup& c) 
       setGeomEE(etaG, phiG, iX, iY, iZ, module, tower, ch, apdRefTT, channel, lmr);
 
       if (_debug == 1)
-        edm::LogVerbatim("EcalLaserAnalyzer2") << "-- debug -- Inside EEDigi - towerID:" << towerID << " channelID:" << channelID << " module:" << module
-             << " modules:" << modules.size();
+        edm::LogVerbatim("EcalLaserAnalyzer2")
+            << "-- debug -- Inside EEDigi - towerID:" << towerID << " channelID:" << channelID << " module:" << module
+            << " modules:" << modules.size();
 
       // APD Pulse
       //===========
@@ -898,7 +902,8 @@ void EcalLaserAnalyzer2::endJob() {
       }
 
       if (_debug >= 1)
-        edm::LogVerbatim("EcalLaserAnalyzer2") << "-- debug test -- endJob -- apdAmpl:" << apdAmpl << " apdTime:" << apdTime;
+        edm::LogVerbatim("EcalLaserAnalyzer2")
+            << "-- debug test -- endJob -- apdAmpl:" << apdAmpl << " apdTime:" << apdTime;
       double pnmean;
       if (pn0 < 10 && pn1 > 10) {
         pnmean = pn1;
@@ -940,8 +945,8 @@ void EcalLaserAnalyzer2::endJob() {
 
         for (unsigned int ir = 0; ir < nRefChan; ir++) {
           if (_debug >= 1)
-            edm::LogVerbatim("EcalLaserAnalyzer2") << "-- debug test -- ir:" << ir << " tt:" << towerID << " refmap:" << apdRefMap[ir][iMod + 1]
-                 << " iCry:" << iCry;
+            edm::LogVerbatim("EcalLaserAnalyzer2") << "-- debug test -- ir:" << ir << " tt:" << towerID
+                                                   << " refmap:" << apdRefMap[ir][iMod + 1] << " iCry:" << iCry;
 
           if (apdRefMap[ir][iMod + 1] == iCry) {
             if (_debug >= 1)
@@ -955,8 +960,8 @@ void EcalLaserAnalyzer2::endJob() {
             if (_debug >= 1)
               edm::LogVerbatim("EcalLaserAnalyzer2") << "-- debug test -- apdAmplB=" << apdAmplB;
             if (_debug >= 1)
-              edm::LogVerbatim("EcalLaserAnalyzer2") << "-- debug test -- color=" << color << ", event:" << event << ", ir:" << ir
-                   << " tt-1:" << towerID - 1;
+              edm::LogVerbatim("EcalLaserAnalyzer2") << "-- debug test -- color=" << color << ", event:" << event
+                                                     << ", ir:" << ir << " tt-1:" << towerID - 1;
 
             RefAPDtrees[ir][iMod + 1]->Fill();
 
@@ -1159,8 +1164,9 @@ void EcalLaserAnalyzer2::endJob() {
       }
 
       if (_debug == 1)
-        edm::LogVerbatim("EcalLaserAnalyzer2") << "-- debug test -- LastLoop apdAmplA:" << apdAmplA << " apdAmplB:" << apdAmplB << ", event:" << event
-             << ", eventref:" << eventref;
+        edm::LogVerbatim("EcalLaserAnalyzer2")
+            << "-- debug test -- LastLoop apdAmplA:" << apdAmplA << " apdAmplB:" << apdAmplB << ", event:" << event
+            << ", eventref:" << eventref;
 
       // Fill APD stuff
       //===============
@@ -1212,8 +1218,8 @@ void EcalLaserAnalyzer2::endJob() {
         flag = 0;
 
       if (_debug >= 1)
-        edm::LogVerbatim("EcalLaserAnalyzer2") << "-- debug test -- endJob -- APD[0]" << APD[0] << " APDoPN[0] " << APDoPN[0] << " APDoAPDA[0] "
-             << APDoAPDA[0] << " flag " << flag;
+        edm::LogVerbatim("EcalLaserAnalyzer2") << "-- debug test -- endJob -- APD[0]" << APD[0] << " APDoPN[0] "
+                                               << APDoPN[0] << " APDoAPDA[0] " << APDoAPDA[0] << " flag " << flag;
       restrees[iColor]->Fill();
     }
   }
@@ -1247,8 +1253,9 @@ void EcalLaserAnalyzer2::endJob() {
         }
 
         if (_debug >= 1)
-          edm::LogVerbatim("EcalLaserAnalyzer2") << "-- debug test -- endJob -- filling pn results'tree: PN[0]:" << PN[0] << " iModule:" << iMod
-               << " iColor:" << iColor << " ch:" << ch;
+          edm::LogVerbatim("EcalLaserAnalyzer2")
+              << "-- debug test -- endJob -- filling pn results'tree: PN[0]:" << PN[0] << " iModule:" << iMod
+              << " iColor:" << iColor << " ch:" << ch;
 
         // Fill PN results trees
         //========================
@@ -1363,7 +1370,8 @@ bool EcalLaserAnalyzer2::getShapes() {
       unsigned int nBins2 = int(elecShape->GetNbinsX());
 
       if (nBins2 < nBins) {
-        edm::LogError("cfg_error") << "EcalLaserAnalyzer2::getShapes: wrong configuration of the shapes' number of bins";
+        edm::LogError("cfg_error")
+            << "EcalLaserAnalyzer2::getShapes: wrong configuration of the shapes' number of bins";
         isSPRFine = false;
       }
       assert(nSamplesShapes == nBins2);

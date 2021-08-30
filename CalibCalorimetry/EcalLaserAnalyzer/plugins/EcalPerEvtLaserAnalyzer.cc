@@ -540,10 +540,14 @@ void EcalPerEvtLaserAnalyzer::endJob() {
 
   ADCtrees->Write();
 
-  edm::LogVerbatim("EcalPerEvtLaserAnalyzer") << "\n\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+";
-  edm::LogVerbatim("EcalPerEvtLaserAnalyzer") << "\t+=+       Analyzing laser data: getting per event               +=+";
-  edm::LogVerbatim("EcalPerEvtLaserAnalyzer") << "\t+=+            APD Amplitudes and ADC samples                   +=+";
-  edm::LogVerbatim("EcalPerEvtLaserAnalyzer") << "\t+=+    for fed:" << _fedid << ", tower:" << _tower << ", and channel:" << _channel;
+  edm::LogVerbatim("EcalPerEvtLaserAnalyzer")
+      << "\n\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+";
+  edm::LogVerbatim("EcalPerEvtLaserAnalyzer")
+      << "\t+=+       Analyzing laser data: getting per event               +=+";
+  edm::LogVerbatim("EcalPerEvtLaserAnalyzer")
+      << "\t+=+            APD Amplitudes and ADC samples                   +=+";
+  edm::LogVerbatim("EcalPerEvtLaserAnalyzer")
+      << "\t+=+    for fed:" << _fedid << ", tower:" << _tower << ", and channel:" << _channel;
 
   // Define temporary tree to save APD amplitudes
 
@@ -716,8 +720,10 @@ void EcalPerEvtLaserAnalyzer::endJob() {
   del << "rm " << ADCfile;
   system(del.str().c_str());
 
-  edm::LogVerbatim("EcalPerEvtLaserAnalyzer") << "\t+=+    .................................................. done  +=+";
-  edm::LogVerbatim("EcalPerEvtLaserAnalyzer") << "\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+";
+  edm::LogVerbatim("EcalPerEvtLaserAnalyzer")
+      << "\t+=+    .................................................. done  +=+";
+  edm::LogVerbatim("EcalPerEvtLaserAnalyzer")
+      << "\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+";
 }
 
 DEFINE_FWK_MODULE(EcalPerEvtLaserAnalyzer);
