@@ -108,7 +108,7 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
   // this contains the ids of the simTracksters contributing with at least one
   // hit to the Trackster. To be returned since this contains the information
   // to compute the Trackster-To-SimTrackster score.
-  hgcal::tracksterToSimTrackster stsInTrackster;  //[tsId][stId]->(energy,score)
+  hgcal::tracksterToSimTrackster stsInTrackster;  // tsId->(stId,score)
   stsInTrackster.resize(nTracksters);
 
   for (unsigned int tsId = 0; tsId < nTracksters; ++tsId) {
