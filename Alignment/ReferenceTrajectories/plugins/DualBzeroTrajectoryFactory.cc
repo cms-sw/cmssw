@@ -23,12 +23,14 @@ public:
   /// Produce the reference trajectories.
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
-                                                   const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const override;
+                                                   const reco::BeamSpot &beamSpot,
+                                                   edm::ConsumesCollector &iC) const override;
 
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
                                                    const ExternalPredictionCollection &external,
-                                                   const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const override;
+                                                   const reco::BeamSpot &beamSpot,
+                                                   edm::ConsumesCollector &iC) const override;
 
   DualBzeroTrajectoryFactory *clone() const override { return new DualBzeroTrajectoryFactory(*this); }
 
@@ -54,8 +56,7 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 DualBzeroTrajectoryFactory::DualBzeroTrajectoryFactory(const edm::ParameterSet &config, edm::ConsumesCollector &iC)
-    : TrajectoryFactoryBase(config, iC),m_MagFieldToken(iC.esConsumes())
- {
+    : TrajectoryFactoryBase(config, iC), m_MagFieldToken(iC.esConsumes()) {
   theMass = config.getParameter<double>("ParticleMass");
   theMomentumEstimate = config.getParameter<double>("MomentumEstimate");
 }
@@ -63,10 +64,13 @@ DualBzeroTrajectoryFactory::DualBzeroTrajectoryFactory(const edm::ParameterSet &
 DualBzeroTrajectoryFactory::~DualBzeroTrajectoryFactory(void) {}
 
 const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection DualBzeroTrajectoryFactory::trajectories(
-    const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks, const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const {
+    const edm::EventSetup &setup,
+    const ConstTrajTrackPairCollection &tracks,
+    const reco::BeamSpot &beamSpot,
+    edm::ConsumesCollector &iC) const {
   ReferenceTrajectoryCollection trajectories;
 
-  const MagneticField* magneticField = &setup.getData(m_MagFieldToken);
+  const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
 
   ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
 
@@ -93,7 +97,8 @@ const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection DualBzeroTraject
     const edm::EventSetup &setup,
     const ConstTrajTrackPairCollection &tracks,
     const ExternalPredictionCollection &external,
-    const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const {
+    const reco::BeamSpot &beamSpot,
+    edm::ConsumesCollector &iC) const {
   ReferenceTrajectoryCollection trajectories;
 
   if (tracks.size() != external.size()) {
@@ -104,7 +109,7 @@ const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection DualBzeroTraject
     return trajectories;
   }
 
-  const MagneticField* magneticField = &setup.getData(m_MagFieldToken);
+  const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
 
   ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
   ExternalPredictionCollection::const_iterator itExternal = external.begin();
@@ -114,8 +119,7 @@ const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection DualBzeroTraject
     // Check input: If all hits were rejected, the TSOS is initialized as invalid.
     if (input.refTsos.isValid()) {
       if ((*itExternal).isValid()) {
-        TrajectoryStateOnSurface propExternal =
-            propagateExternal(*itExternal, input.refTsos.surface(), magneticField);
+        TrajectoryStateOnSurface propExternal = propagateExternal(*itExternal, input.refTsos.surface(), magneticField);
 
         if (!propExternal.isValid())
           continue;

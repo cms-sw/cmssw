@@ -27,19 +27,20 @@ public:
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
                                                    const reco::BeamSpot &beamSpot,
-						   edm::ConsumesCollector &iC) const override;
+                                                   edm::ConsumesCollector &iC) const override;
 
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
                                                    const ExternalPredictionCollection &external,
-                                                   const reco::BeamSpot &beamSpot,edm::ConsumesCollector &iC) const override;
+                                                   const reco::BeamSpot &beamSpot,
+                                                   edm::ConsumesCollector &iC) const override;
 
   ReferenceTrajectoryFactory *clone() const override { return new ReferenceTrajectoryFactory(*this); }
 
 protected:
   ReferenceTrajectoryFactory(const ReferenceTrajectoryFactory &other);
   const TrajectoryFactoryBase *bzeroFactory() const;
-  const TrajectoryFactoryBase *bzeroFactory( edm::ConsumesCollector &iC) const;
+  const TrajectoryFactoryBase *bzeroFactory(edm::ConsumesCollector &iC) const;
 
   double theMass;
   bool theUseBzeroIfFieldOff;
@@ -51,7 +52,7 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 ReferenceTrajectoryFactory::ReferenceTrajectoryFactory(const edm::ParameterSet &config, edm::ConsumesCollector &iC)
-    : TrajectoryFactoryBase(config,iC),
+    : TrajectoryFactoryBase(config, iC),
       m_MagFieldToken(iC.esConsumes()),
       theMass(config.getParameter<double>("ParticleMass")),
       theUseBzeroIfFieldOff(config.getParameter<bool>("UseBzeroIfFieldOff")),
@@ -71,8 +72,11 @@ ReferenceTrajectoryFactory::ReferenceTrajectoryFactory(const ReferenceTrajectory
 ReferenceTrajectoryFactory::~ReferenceTrajectoryFactory(void) { delete theBzeroFactory; }
 
 const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTrajectoryFactory::trajectories(
-    const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks, const reco::BeamSpot &beamSpot,edm::ConsumesCollector &iC) const {
-  const MagneticField* magneticField = &setup.getData(m_MagFieldToken);
+    const edm::EventSetup &setup,
+    const ConstTrajTrackPairCollection &tracks,
+    const reco::BeamSpot &beamSpot,
+    edm::ConsumesCollector &iC) const {
+  const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
 
   if (theUseBzeroIfFieldOff && magneticField->inTesla(GlobalPoint(0., 0., 0.)).mag2() < 1.e-6) {
     return this->bzeroFactory(iC)->trajectories(setup, tracks, beamSpot, iC);
@@ -93,8 +97,8 @@ const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTraject
       config.allowZeroMaterial = allowZeroMaterial_;
       // set the flag for reversing the RecHits to false, since they are already in the correct order.
       config.hitsAreReverse = false;
-      trajectories.push_back(ReferenceTrajectoryPtr(
-          new ReferenceTrajectory(input.first, input.second, magneticField, beamSpot, config)));
+      trajectories.push_back(
+          ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second, magneticField, beamSpot, config)));
     }
 
     ++itTracks;
@@ -108,7 +112,7 @@ const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTraject
     const ConstTrajTrackPairCollection &tracks,
     const ExternalPredictionCollection &external,
     const reco::BeamSpot &beamSpot,
-   edm::ConsumesCollector &iC) const {
+    edm::ConsumesCollector &iC) const {
   ReferenceTrajectoryCollection trajectories;
 
   if (tracks.size() != external.size()) {
@@ -118,7 +122,7 @@ const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTraject
         << "\tnumber of tracks = " << tracks.size() << "\tnumber of external predictions = " << external.size();
     return trajectories;
   }
-  const MagneticField* magneticField = &setup.getData(m_MagFieldToken);
+  const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
 
   if (theUseBzeroIfFieldOff && magneticField->inTesla(GlobalPoint(0., 0., 0.)).mag2() < 1.e-6) {
     return this->bzeroFactory(iC)->trajectories(setup, tracks, external, beamSpot, iC);
@@ -162,7 +166,7 @@ const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTraject
   return trajectories;
 }
 
-const TrajectoryFactoryBase *ReferenceTrajectoryFactory::bzeroFactory(  edm::ConsumesCollector &iC) const {
+const TrajectoryFactoryBase *ReferenceTrajectoryFactory::bzeroFactory(edm::ConsumesCollector &iC) const {
   if (!theBzeroFactory) {
     const edm::ParameterSet &myPset = this->configuration();
     edm::LogInfo("Alignment") << "@SUB=ReferenceTrajectoryFactory::bzeroFactory"
