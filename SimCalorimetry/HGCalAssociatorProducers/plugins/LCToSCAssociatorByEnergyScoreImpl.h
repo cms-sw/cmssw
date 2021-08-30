@@ -46,9 +46,9 @@ namespace hgcal {
     std::unordered_map<int, std::pair<float, float>> layerClusterIdToEnergyAndScore;
   };
 
-  // This object connects a LayerCluster, identified through its id (lcId), with a vector containing all the SimClusters 
-  // (via their ids (scIds)) that share at least one cell with the LayerCluster. For that pair (lcId,scId) it 
-  // stores the score. 
+  // This object connects a LayerCluster, identified through its id (lcId), with a vector of pairs containing all the SimClusters 
+  // (via their ids (scIds)) that share at least one cell with the LayerCluster. In that pair it 
+  // stores the score (lcId->(scId,score)). 
   typedef std::vector<std::vector<std::pair<unsigned int, float>>> layerClusterToSimCluster;
   // This is used to save the simClusterOnLayer structure for all simClusters in each layer. 
   // It is not exactly what is returned outside, but out of its entries, the output object is build. 

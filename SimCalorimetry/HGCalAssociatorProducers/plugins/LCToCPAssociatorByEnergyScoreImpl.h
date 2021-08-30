@@ -48,9 +48,9 @@ namespace hgcal {
     std::unordered_map<int, std::pair<float, float>> layerClusterIdToEnergyAndScore;
   };
 
-  // This object connects a LayerCluster, identified through its id (lcId), with a vector containing all the CaloParticles 
-  // (via their ids (cpIds)) that share at least one cell with the LayerCluster. For that pair (lcId,cpId) it 
-  // stores the score. Keep in mind that the association is not unique, since there could be several instances 
+  // This object connects a LayerCluster, identified through its id (lcId), with a vector of pairs containing all the CaloParticles 
+  // (via their ids (cpIds)) that share at least one cell with the LayerCluster. In that pair it 
+  // stores the score (lcId->(cpId,score)). Keep in mind that the association is not unique, since there could be several instances 
   // of the same CaloParticle from several related SimClusters that each contributed to the same LayerCluster. 
   typedef std::vector<std::vector<std::pair<unsigned int, float>>> layerClusterToCaloParticle;
   // This is used to save the caloParticleOnLayer structure for all CaloParticles in each layer. 
