@@ -54,7 +54,7 @@ namespace csctf {
 class L1MuDTSectorReceiver {
 public:
   /// constructor
-  L1MuDTSectorReceiver(L1MuDTSectorProcessor&, edm::ConsumesCollector&& iC);
+  L1MuDTSectorReceiver(L1MuDTSectorProcessor&, edm::ConsumesCollector iC);
 
   /// destructor
   virtual ~L1MuDTSectorReceiver();
