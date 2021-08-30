@@ -29,13 +29,12 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTAssParam.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTAddressArray.h"
 class L1MuDTPhiLut;
@@ -47,19 +46,19 @@ class L1MuDTSectorProcessor;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTAssignmentUnit : public L1AbstractProcessor {
+class L1MuDTAssignmentUnit {
 public:
   /// constructor
   L1MuDTAssignmentUnit(L1MuDTSectorProcessor& sp, int id);
 
   /// destructor
-  ~L1MuDTAssignmentUnit() override;
+  ~L1MuDTAssignmentUnit();
 
   /// run Assignment Unit
-  void run(const edm::EventSetup& c) override;
+  void run(const edm::EventSetup& c);
 
   /// reset Assignment Unit
-  void reset() override;
+  void reset();
 
   /// assign phi
   void PhiAU(const edm::EventSetup& c);

@@ -33,14 +33,13 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 class L1MuDTSectorProcessor;
 class L1MuDTSEU;
 class L1MuDTTFParameters;
@@ -49,7 +48,7 @@ class L1MuDTTFParameters;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTExtrapolationUnit : public L1AbstractProcessor {
+class L1MuDTExtrapolationUnit {
 public:
   typedef std::pair<Extrapolation, unsigned int> SEUId;
   typedef std::map<SEUId, L1MuDTSEU*, std::less<SEUId> > SEUmap;
@@ -58,13 +57,13 @@ public:
   L1MuDTExtrapolationUnit(const L1MuDTSectorProcessor&);
 
   /// destructor
-  ~L1MuDTExtrapolationUnit() override;
+  ~L1MuDTExtrapolationUnit();
 
   /// run Extrapolation Unit
-  void run(const edm::EventSetup& c) override;
+  void run(const edm::EventSetup& c);
 
   /// reset Extrapolation Unit
-  void reset() override;
+  void reset();
 
   /// reset a single extrapolation
   void reset(Extrapolation ext, unsigned int startAdr, unsigned int relAdr);
