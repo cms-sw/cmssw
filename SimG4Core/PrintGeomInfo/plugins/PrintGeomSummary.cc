@@ -1,16 +1,18 @@
-#include "SimG4Core/PrintGeomInfo/interface/PrintGeomSummary.h"
-
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Watcher/interface/SimWatcher.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 
@@ -21,13 +23,45 @@
 #include "G4LogicalVolume.hh"
 #include "G4VSolid.hh"
 #include "G4Material.hh"
+#include "G4NavigationHistory.hh"
 #include "G4Track.hh"
 #include "G4VisAttributes.hh"
 #include "G4UserLimits.hh"
 #include "G4TransportationManager.hh"
 
-#include <set>
+#include <algorithm>
+#include <iostream>
+#include <vector>
 #include <map>
+#include <set>
+#include <string>
+
+class PrintGeomSummary : public SimWatcher, public Observer<const BeginOfJob*>, public Observer<const BeginOfRun*> {
+public:
+  PrintGeomSummary(edm::ParameterSet const& p);
+  ~PrintGeomSummary() override;
+
+private:
+  void update(const BeginOfJob* job) override;
+  void update(const BeginOfRun* run) override;
+  void addSolid(const DDLogicalPart& part);
+  void fillLV(G4LogicalVolume* lv);
+  void fillPV(G4VPhysicalVolume* pv);
+  void dumpSummary(std::ostream& out, std::string name);
+  G4VPhysicalVolume* getTopPV();
+  void addName(std::string name);
+  void printSummary(std::ostream& out);
+
+private:
+  std::vector<std::string> nodeNames_;
+  std::map<DDSolidShape, std::string> solidShape_;
+  std::map<std::string, DDSolidShape> solidMap_;
+  G4VPhysicalVolume* theTopPV_;
+  std::vector<G4LogicalVolume*> lvs_, touch_;
+  std::vector<G4VSolid*> sls_;
+  std::vector<G4VPhysicalVolume*> pvs_;
+  std::map<DDSolidShape, std::pair<int, int>> kount_;
+};
 
 PrintGeomSummary::PrintGeomSummary(const edm::ParameterSet& p) : theTopPV_(nullptr) {
   std::vector<std::string> defNames;
@@ -215,3 +249,8 @@ void PrintGeomSummary::printSummary(std::ostream& out) {
     out << "Shape [" << k << "]  " << shape << " # " << (itr->second).first << " : " << (itr->second).second << G4endl;
   }
 }
+
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
+DEFINE_SIMWATCHER(PrintGeomSummary);
