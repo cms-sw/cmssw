@@ -222,6 +222,7 @@ upgradeSteps['killStuckTBM'] = {
 }
 upgradeSteps['ParkingBPH'] = {
     'steps' : [
+        'DigiFull',
         'RecoFull',
     ],
     'PU' : [],
