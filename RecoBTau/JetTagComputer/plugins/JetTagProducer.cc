@@ -28,8 +28,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -53,30 +52,31 @@ using namespace std;
 using namespace reco;
 using namespace edm;
 
-class JetTagProducer : public edm::stream::EDProducer<> {
+class JetTagProducer : public edm::global::EDProducer<> {
 public:
   explicit JetTagProducer(const edm::ParameterSet &);
   ~JetTagProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
-  std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo> > > token_tagInfos;
-  const edm::ESGetToken<JetTagComputer, JetTagComputerRecord> computerToken_;
-  unsigned int nTagInfos;
-  edm::ESWatcher<JetTagComputerRecord> recordWatcher_;
+  std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo> > > token_tagInfos_;
+  const edm::ESGetToken<JetTagComputer, JetTagComputerRecord> token_computer_;
+  mutable std::atomic<unsigned long long> recordCacheID_{0};
+  unsigned int nTagInfos_;
 };
 
 //
 // constructors and destructor
 //
 JetTagProducer::JetTagProducer(const ParameterSet &iConfig)
-    : computerToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<string>("jetTagComputer")))) {
-  std::vector<edm::InputTag> m_tagInfos = iConfig.getParameter<vector<InputTag> >("tagInfos");
-  nTagInfos = m_tagInfos.size();
-  for (unsigned int i = 0; i < nTagInfos; i++) {
-    token_tagInfos.push_back(consumes<View<BaseTagInfo> >(m_tagInfos[i]));
+    : token_computer_(esConsumes(edm::ESInputTag("", iConfig.getParameter<string>("jetTagComputer")))) {
+  std::vector<edm::InputTag> tagInfos = iConfig.getParameter<vector<InputTag> >("tagInfos");
+  nTagInfos_ = tagInfos.size();
+  token_tagInfos_.reserve(nTagInfos_);
+  for (unsigned int i = 0; i < nTagInfos_; i++) {
+    token_tagInfos_.push_back(consumes<View<BaseTagInfo> >(tagInfos[i]));
   }
 
   produces<JetTagCollection>();
@@ -98,14 +98,16 @@ namespace {
 }  // namespace
 
 // ------------ method called to produce the data  ------------
-void JetTagProducer::produce(Event &iEvent, const EventSetup &iSetup) {
-  auto const &computer = iSetup.getData(computerToken_);
+void JetTagProducer::produce(StreamID, Event &iEvent, const EventSetup &iSetup) const {
+  auto const &computer = iSetup.getData(token_computer_);
 
-  if (recordWatcher_.check(iSetup)) {
+  auto oldID = recordCacheID_.load();
+  auto newID = iSetup.get<JetTagComputerRecord>().cacheIdentifier();
+  if (oldID != newID) {
     unsigned int nLabels = computer.getInputLabels().size();
     if (nLabels == 0)
       ++nLabels;
-    if (nTagInfos != nLabels) {
+    if (nTagInfos_ != nLabels) {
       vector<string> inputLabels(computer.getInputLabels());
       // backward compatible case, use default tagInfo
       if (inputLabels.empty())
@@ -117,6 +119,9 @@ void JetTagProducer::produce(Event &iEvent, const EventSetup &iSetup) {
         message += "\"" + *iter + "\"\n";
       throw edm::Exception(errors::Configuration) << message;
     }
+    //only if we didn't encounter a problem should we update the cache
+    // that way other threads will see the same problem
+    recordCacheID_.compare_exchange_strong(oldID, newID);
   }
 
   // now comes the tricky part:
@@ -129,15 +134,15 @@ void JetTagProducer::produce(Event &iEvent, const EventSetup &iSetup) {
   JetToTagInfoMap jetToTagInfos;
 
   // retrieve all requested TagInfos
-  vector<Handle<View<BaseTagInfo> > > tagInfoHandles(nTagInfos);
-  for (unsigned int i = 0; i < nTagInfos; i++) {
+  vector<Handle<View<BaseTagInfo> > > tagInfoHandles(nTagInfos_);
+  for (unsigned int i = 0; i < nTagInfos_; i++) {
     Handle<View<BaseTagInfo> > &tagInfoHandle = tagInfoHandles[i];
-    iEvent.getByToken(token_tagInfos[i], tagInfoHandle);
+    iEvent.getByToken(token_tagInfos_[i], tagInfoHandle);
 
     for (View<BaseTagInfo>::const_iterator iter = tagInfoHandle->begin(); iter != tagInfoHandle->end(); iter++) {
       TagInfoPtrs &tagInfos = jetToTagInfos[iter->jet()];
       if (tagInfos.empty())
-        tagInfos.resize(nTagInfos);
+        tagInfos.resize(nTagInfos_);
 
       tagInfos[i] = &*iter;
     }
