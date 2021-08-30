@@ -28,21 +28,45 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
-#include "JetTagProducer.h"
+#include <string>
+#include <vector>
+#include <map>
 
 using namespace std;
 using namespace reco;
 using namespace edm;
+
+class JetTagProducer : public edm::stream::EDProducer<> {
+public:
+  explicit JetTagProducer(const edm::ParameterSet&);
+  ~JetTagProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  std::string m_jetTagComputer;
+  std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo> > > token_tagInfos;
+  unsigned int nTagInfos;
+  edm::ESWatcher<JetTagComputerRecord> recordWatcher_;
+};
 
 //
 // constructors and destructor
