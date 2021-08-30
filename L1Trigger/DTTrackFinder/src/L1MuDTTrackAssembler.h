@@ -32,8 +32,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -46,19 +44,19 @@ class L1MuDTSectorProcessor;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTTrackAssembler : public L1AbstractProcessor {
+class L1MuDTTrackAssembler {
 public:
   /// constructor
   L1MuDTTrackAssembler(const L1MuDTSectorProcessor&);
 
   /// destructor
-  ~L1MuDTTrackAssembler() override;
+  ~L1MuDTTrackAssembler();
 
   /// run Track Assembler
-  void run() override;
+  void run();
 
   /// reset Track Assembler
-  void reset() override;
+  void reset();
 
   /// print result of Track Assembler
   void print() const;

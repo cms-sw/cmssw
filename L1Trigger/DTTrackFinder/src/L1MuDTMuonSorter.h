@@ -28,8 +28,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -42,19 +40,19 @@ class L1MuDTSecProcId;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTMuonSorter : public L1AbstractProcessor {
+class L1MuDTMuonSorter {
 public:
   /// constructor
   L1MuDTMuonSorter(const L1MuDTTrackFinder&);
 
   /// destructor
-  ~L1MuDTMuonSorter() override;
+  ~L1MuDTMuonSorter();
 
   /// run Muon Sorter
-  void run() override;
+  void run();
 
   /// reset Muon Sorter
-  void reset() override;
+  void reset();
 
   /// print results after sorting
   void print() const;
