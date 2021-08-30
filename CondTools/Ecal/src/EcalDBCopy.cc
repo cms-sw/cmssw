@@ -1,67 +1,38 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "CondTools/Ecal/interface/EcalDBCopy.h"
-#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
 #include "CondFormats/DataRecord/interface/EcalLinearCorrectionsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
 #include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDCSTowerStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDAQTowerStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalDQMTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDQMTowerStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalDQMChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDQMChannelStatusRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyUncertaintyParametersRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionObjectSpecificParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionObjectSpecificParametersRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
@@ -86,36 +57,66 @@
 #include <vector>
 
 EcalDBCopy::EcalDBCopy(const edm::ParameterSet& iConfig)
-    : m_timetype(iConfig.getParameter<std::string>("timetype")), m_cacheIDs(), m_records() {
+    : m_timetype(iConfig.getParameter<std::string>("timetype")),
+      m_cacheIDs(),
+      m_records(),
+      ecalPedestalToken_(esConsumes()),
+      ecalADCtoGeVToken_(esConsumes()),
+      ecalTimeCalibToken_(esConsumes()),
+      ecalChannelStatusToken_(esConsumes()),
+      ecalDQMChannelStatusToken_(esConsumes()),
+      ecalDQMTowerStatusToken_(esConsumes()),
+      ecalDCSTowerStatusToken_(esConsumes()),
+      ecalDAQTowerStatusToken_(esConsumes()),
+      ecalTPGCrystalStatusToken_(esConsumes()),
+      ecalTPGTowerStatusToken_(esConsumes()),
+      ecalIntercalibConstantsToken_(esConsumes()),
+      ecalLinearCorrectionsToken_(esConsumes()),
+      ecalIntercalibConstantsMCToken_(esConsumes()),
+      ecalIntercalibErrorsToken_(esConsumes()),
+      ecalGainRatiosToken_(esConsumes()),
+      ecalWeightXtalGroupsToken_(esConsumes()),
+      ecalTBWeightsToken_(esConsumes()),
+      ecalLaserAlphasToken_(esConsumes()),
+      ecalLaserAPDPNRatiosToken_(esConsumes()),
+      ecalLaserAPDPNRatiosRefToken_(esConsumes()),
+      ecalClusterCrackCorrParametersToken_(esConsumes()),
+      ecalPFRecHitThresholdsToken_(esConsumes()),
+      ecalClusterEnergyUncertaintyParametersToken_(esConsumes()),
+      ecalClusterEnergyCorrectionParametersToken_(esConsumes()),
+      ecalClusterEnergyCorrectionObjectSpecificParametersToken_(esConsumes()),
+      ecalClusterLocalContCorrParametersToken_(esConsumes()),
+      ebAlignmentToken_(esConsumes()),
+      eeAlignmentToken_(esConsumes()),
+      esAlignmentToken_(esConsumes()),
+      ecalTimeOffsetConstantToken_(esConsumes()),
+      ecalSampleMaskToken_(esConsumes()),
+      ecalSimPulseShapeToken_(esConsumes()),
+      ecalTimeBiasCorrectionsToken_(esConsumes()),
+      ecalSamplesCorrelationToken_(esConsumes()) {
   std::string container;
-  std::string tag;
   std::string record;
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters toCopy = iConfig.getParameter<Parameters>("toCopy");
-  for (Parameters::iterator i = toCopy.begin(); i != toCopy.end(); ++i) {
-    container = i->getParameter<std::string>("container");
-    record = i->getParameter<std::string>("record");
-    m_cacheIDs.insert(std::make_pair(container, 0));
-    m_records.insert(std::make_pair(container, record));
+  for (auto& iparam : toCopy) {
+    container = iparam.getParameter<std::string>("container");
+    record = iparam.getParameter<std::string>("record");
+    m_cacheIDs.emplace(container, 0);
+    m_records.emplace(container, record);
   }
 }
 
 EcalDBCopy::~EcalDBCopy() {}
 
 void EcalDBCopy::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
-  std::string container;
-  std::string record;
-  typedef std::map<std::string, std::string>::const_iterator recordIter;
-  for (recordIter i = m_records.begin(); i != m_records.end(); ++i) {
-    container = (*i).first;
-    record = (*i).second;
-    if (shouldCopy(evtSetup, container)) {
-      copyToDB(evtSetup, container);
+  for (const auto& irec : m_records) {
+    if (shouldCopy(evtSetup, irec.first)) {
+      copyToDB(evtSetup, irec.first);
     }
   }
 }
 
-bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string container) {
+bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, const std::string& container) {
   unsigned long long cacheID = 0;
   if (container == "EcalPedestals") {
     cacheID = evtSetup.get<EcalPedestalsRcd>().cacheIdentifier();
@@ -199,7 +200,7 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
   }
 }
 
-void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container) {
+void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, const std::string& container) {
   edm::Service<cond::service::PoolDBOutputService> dbOutput;
   if (!dbOutput.isAvailable()) {
     throw cms::Exception("PoolDBOutputService is not available");
@@ -208,209 +209,160 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
   std::string recordName = m_records[container];
 
   if (container == "EcalPedestals") {
-    edm::ESHandle<EcalPedestals> handle;
-    evtSetup.get<EcalPedestalsRcd>().get(handle);
-    const EcalPedestals* obj = handle.product();
-    std::cout << "ped pointer is: " << obj << std::endl;
+    const EcalPedestals* obj = &evtSetup.getData(ecalPedestalToken_);
+    edm::LogInfo("EcalDBCopy") << "ped pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalPedestals>(
         new EcalPedestals(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalADCToGeVConstant") {
-    edm::ESHandle<EcalADCToGeVConstant> handle;
-    evtSetup.get<EcalADCToGeVConstantRcd>().get(handle);
-    const EcalADCToGeVConstant* obj = handle.product();
-    std::cout << "adc pointer is: " << obj << std::endl;
+    const EcalADCToGeVConstant* obj = &evtSetup.getData(ecalADCtoGeVToken_);
+    edm::LogInfo("EcalDBCopy") << "adc pointer is: " << obj << std::endl;
 
     dbOutput->createNewIOV<const EcalADCToGeVConstant>(
         new EcalADCToGeVConstant(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTimeCalibConstants") {
-    edm::ESHandle<EcalTimeCalibConstants> handle;
-    evtSetup.get<EcalTimeCalibConstantsRcd>().get(handle);
-    const EcalTimeCalibConstants* obj = handle.product();
-    std::cout << "adc pointer is: " << obj << std::endl;
+    const EcalTimeCalibConstants* obj = &evtSetup.getData(ecalTimeCalibToken_);
+    edm::LogInfo("EcalDBCopy") << "adc pointer is: " << obj << std::endl;
 
     dbOutput->createNewIOV<const EcalTimeCalibConstants>(
         new EcalTimeCalibConstants(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalChannelStatus") {
-    edm::ESHandle<EcalChannelStatus> handle;
-    evtSetup.get<EcalChannelStatusRcd>().get(handle);
-    const EcalChannelStatus* obj = handle.product();
-    std::cout << "channel status pointer is: " << obj << std::endl;
+    const EcalChannelStatus* obj = &evtSetup.getData(ecalChannelStatusToken_);
+    edm::LogInfo("EcalDBCopy") << "channel status pointer is: " << obj << std::endl;
 
     dbOutput->createNewIOV<const EcalChannelStatus>(
         new EcalChannelStatus(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalDQMChannelStatus") {
-    edm::ESHandle<EcalDQMChannelStatus> handle;
-    evtSetup.get<EcalDQMChannelStatusRcd>().get(handle);
-    const EcalDQMChannelStatus* obj = handle.product();
-    std::cout << "DQM channel status pointer is: " << obj << std::endl;
+    const EcalDQMChannelStatus* obj = &evtSetup.getData(ecalDQMChannelStatusToken_);
+    edm::LogInfo("EcalDBCopy") << "DQM channel status pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalDQMChannelStatus>(
         new EcalDQMChannelStatus(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalDQMTowerStatus") {
-    edm::ESHandle<EcalDQMTowerStatus> handle;
-    evtSetup.get<EcalDQMTowerStatusRcd>().get(handle);
-    const EcalDQMTowerStatus* obj = handle.product();
-    std::cout << "DQM Tower status pointer is: " << obj << std::endl;
+    const EcalDQMTowerStatus* obj = &evtSetup.getData(ecalDQMTowerStatusToken_);
+    edm::LogInfo("EcalDBCopy") << "DQM Tower status pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalDQMTowerStatus>(
         new EcalDQMTowerStatus(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalDCSTowerStatus") {
-    edm::ESHandle<EcalDCSTowerStatus> handle;
-    evtSetup.get<EcalDCSTowerStatusRcd>().get(handle);
-    const EcalDCSTowerStatus* obj = handle.product();
-    std::cout << "channel status pointer is: " << obj << std::endl;
+    const EcalDCSTowerStatus* obj = &evtSetup.getData(ecalDCSTowerStatusToken_);
+    edm::LogInfo("EcalDBCopy") << "channel status pointer is: " << obj << std::endl;
 
     dbOutput->createNewIOV<const EcalDCSTowerStatus>(
         new EcalDCSTowerStatus(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalDAQTowerStatus") {
-    edm::ESHandle<EcalDAQTowerStatus> handle;
-    evtSetup.get<EcalDAQTowerStatusRcd>().get(handle);
-    const EcalDAQTowerStatus* obj = handle.product();
-    std::cout << "DAQ channel status pointer is: " << obj << std::endl;
+    const EcalDAQTowerStatus* obj = &evtSetup.getData(ecalDAQTowerStatusToken_);
+    edm::LogInfo("EcalDBCopy") << "DAQ channel status pointer is: " << obj << std::endl;
 
     dbOutput->createNewIOV<const EcalDAQTowerStatus>(
         new EcalDAQTowerStatus(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGCrystalStatus") {
-    edm::ESHandle<EcalTPGCrystalStatus> handle;
-    evtSetup.get<EcalTPGCrystalStatusRcd>().get(handle);
-    const EcalTPGCrystalStatus* obj = handle.product();
-    std::cout << "TPG channel status pointer is: " << obj << std::endl;
+    const EcalTPGCrystalStatus* obj = &evtSetup.getData(ecalTPGCrystalStatusToken_);
+    edm::LogInfo("EcalDBCopy") << "TPG channel status pointer is: " << obj << std::endl;
 
     dbOutput->createNewIOV<const EcalTPGCrystalStatus>(
         new EcalTPGCrystalStatus(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGTowerStatus") {
-    edm::ESHandle<EcalTPGTowerStatus> handle;
-    evtSetup.get<EcalTPGTowerStatusRcd>().get(handle);
-    const EcalTPGTowerStatus* obj = handle.product();
-    std::cout << "TPG tower status pointer is: " << obj << std::endl;
+    const EcalTPGTowerStatus* obj = &evtSetup.getData(ecalTPGTowerStatusToken_);
+    edm::LogInfo("EcalDBCopy") << "TPG tower status pointer is: " << obj << std::endl;
 
     dbOutput->createNewIOV<const EcalTPGTowerStatus>(
         new EcalTPGTowerStatus(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalIntercalibConstants") {
-    edm::ESHandle<EcalIntercalibConstants> handle;
-    evtSetup.get<EcalIntercalibConstantsRcd>().get(handle);
-    const EcalIntercalibConstants* obj = handle.product();
-    std::cout << "inter pointer is: " << obj << std::endl;
+    const EcalIntercalibConstants* obj = &evtSetup.getData(ecalIntercalibConstantsToken_);
+    edm::LogInfo("EcalDBCopy") << "inter pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalIntercalibConstants>(
         new EcalIntercalibConstants(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalLinearCorrections") {
-    edm::ESHandle<EcalLinearCorrections> handle;
-    evtSetup.get<EcalLinearCorrectionsRcd>().get(handle);
-    const EcalLinearCorrections* obj = handle.product();
-    std::cout << "inter pointer is: " << obj << std::endl;
+    const EcalLinearCorrections* obj = &evtSetup.getData(ecalLinearCorrectionsToken_);
+    edm::LogInfo("EcalDBCopy") << "inter pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalLinearCorrections>(
         new EcalLinearCorrections(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalIntercalibConstantsMC") {
-    edm::ESHandle<EcalIntercalibConstantsMC> handle;
-    evtSetup.get<EcalIntercalibConstantsMCRcd>().get(handle);
-    const EcalIntercalibConstantsMC* obj = handle.product();
-    std::cout << "intercalib MC pointer is: " << obj << std::endl;
+    const EcalIntercalibConstantsMC* obj = &evtSetup.getData(ecalIntercalibConstantsMCToken_);
+    edm::LogInfo("EcalDBCopy") << "intercalib MC pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalIntercalibConstantsMC>(
         new EcalIntercalibConstantsMC(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalIntercalibErrors") {
-    edm::ESHandle<EcalIntercalibErrors> handle;
-    evtSetup.get<EcalIntercalibErrorsRcd>().get(handle);
-    const EcalIntercalibErrors* obj = handle.product();
-    std::cout << "inter pointer is: " << obj << std::endl;
+    const EcalIntercalibErrors* obj = &evtSetup.getData(ecalIntercalibErrorsToken_);
+    edm::LogInfo("EcalDBCopy") << "inter pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalIntercalibErrors>(
         new EcalIntercalibErrors(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalGainRatios") {
-    edm::ESHandle<EcalGainRatios> handle;
-    evtSetup.get<EcalGainRatiosRcd>().get(handle);
-    const EcalGainRatios* obj = handle.product();
-    std::cout << "gain pointer is: " << obj << std::endl;
+    const EcalGainRatios* obj = &evtSetup.getData(ecalGainRatiosToken_);
+    edm::LogInfo("EcalDBCopy") << "gain pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalGainRatios>(
         new EcalGainRatios(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalWeightXtalGroups") {
-    edm::ESHandle<EcalWeightXtalGroups> handle;
-    evtSetup.get<EcalWeightXtalGroupsRcd>().get(handle);
-    const EcalWeightXtalGroups* obj = handle.product();
-    std::cout << "weight pointer is: " << obj << std::endl;
+    const EcalWeightXtalGroups* obj = &evtSetup.getData(ecalWeightXtalGroupsToken_);
+    edm::LogInfo("EcalDBCopy") << "weight pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalWeightXtalGroups>(
         new EcalWeightXtalGroups(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTBWeights") {
-    edm::ESHandle<EcalTBWeights> handle;
-    evtSetup.get<EcalTBWeightsRcd>().get(handle);
-    const EcalTBWeights* obj = handle.product();
-    std::cout << "tbweight pointer is: " << obj << std::endl;
+    const EcalTBWeights* obj = &evtSetup.getData(ecalTBWeightsToken_);
+    edm::LogInfo("EcalDBCopy") << "tbweight pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalTBWeights>(
         new EcalTBWeights(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalLaserAlphas") {
-    edm::ESHandle<EcalLaserAlphas> handle;
-    evtSetup.get<EcalLaserAlphasRcd>().get(handle);
-    const EcalLaserAlphas* obj = handle.product();
-    std::cout << "ecalLaserAlpha pointer is: " << obj << std::endl;
+    const EcalLaserAlphas* obj = &evtSetup.getData(ecalLaserAlphasToken_);
+    edm::LogInfo("EcalDBCopy") << "ecalLaserAlpha pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalLaserAlphas>(
         new EcalLaserAlphas(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalLaserAPDPNRatios") {
-    edm::ESHandle<EcalLaserAPDPNRatios> handle;
-    evtSetup.get<EcalLaserAPDPNRatiosRcd>().get(handle);
-    const EcalLaserAPDPNRatios* obj = handle.product();
-    std::cout << "tbweight pointer is: " << obj << std::endl;
+    const EcalLaserAPDPNRatios* obj = &evtSetup.getData(ecalLaserAPDPNRatiosToken_);
+    edm::LogInfo("EcalDBCopy") << "tbweight pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalLaserAPDPNRatios>(
         new EcalLaserAPDPNRatios(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalLaserAPDPNRatiosRef") {
-    edm::ESHandle<EcalLaserAPDPNRatiosRef> handle;
-    evtSetup.get<EcalLaserAPDPNRatiosRefRcd>().get(handle);
-    const EcalLaserAPDPNRatiosRef* obj = handle.product();
-    std::cout << "tbweight pointer is: " << obj << std::endl;
+    const EcalLaserAPDPNRatiosRef* obj = &evtSetup.getData(ecalLaserAPDPNRatiosRefToken_);
+    edm::LogInfo("EcalDBCopy") << "tbweight pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalLaserAPDPNRatiosRef>(
         new EcalLaserAPDPNRatiosRef(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalClusterCrackCorrParameters") {
-    edm::ESHandle<EcalClusterCrackCorrParameters> handle;
-    evtSetup.get<EcalClusterCrackCorrParametersRcd>().get(handle);
-    const EcalClusterCrackCorrParameters* obj = handle.product();
-    std::cout << "cluster crack pointer is: " << obj << std::endl;
+    const EcalClusterCrackCorrParameters* obj = &evtSetup.getData(ecalClusterCrackCorrParametersToken_);
+    edm::LogInfo("EcalDBCopy") << "cluster crack pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalClusterCrackCorrParameters>(
         new EcalClusterCrackCorrParameters(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalPFRecHitThresholds") {
-    edm::ESHandle<EcalPFRecHitThresholds> handle;
-    evtSetup.get<EcalPFRecHitThresholdsRcd>().get(handle);
-    const EcalPFRecHitThresholds* obj = handle.product();
-    std::cout << "Ecal PF rec hit thresholds pointer is: " << obj << std::endl;
+    const EcalPFRecHitThresholds* obj = &evtSetup.getData(ecalPFRecHitThresholdsToken_);
+    edm::LogInfo("EcalDBCopy") << "Ecal PF rec hit thresholds pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalPFRecHitThresholds>(
         new EcalPFRecHitThresholds(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalClusterEnergyUncertaintyParameters") {
-    edm::ESHandle<EcalClusterEnergyUncertaintyParameters> handle;
-    evtSetup.get<EcalClusterEnergyUncertaintyParametersRcd>().get(handle);
-    const EcalClusterEnergyUncertaintyParameters* obj = handle.product();
-    std::cout << "tbweight pointer is: " << obj << std::endl;
+    const EcalClusterEnergyUncertaintyParameters* obj = &evtSetup.getData(ecalClusterEnergyUncertaintyParametersToken_);
+    edm::LogInfo("EcalDBCopy") << "tbweight pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalClusterEnergyUncertaintyParameters>(
         new EcalClusterEnergyUncertaintyParameters(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalClusterEnergyCorrectionParameters") {
-    edm::ESHandle<EcalClusterEnergyCorrectionParameters> handle;
-    evtSetup.get<EcalClusterEnergyCorrectionParametersRcd>().get(handle);
-    const EcalClusterEnergyCorrectionParameters* obj = handle.product();
-    std::cout << "tbweight pointer is: " << obj << std::endl;
+    const EcalClusterEnergyCorrectionParameters* obj = &evtSetup.getData(ecalClusterEnergyCorrectionParametersToken_);
+    edm::LogInfo("EcalDBCopy") << "tbweight pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalClusterEnergyCorrectionParameters>(
         new EcalClusterEnergyCorrectionParameters(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalClusterEnergyCorrectionObjectSpecificParameters") {
-    edm::ESHandle<EcalClusterEnergyCorrectionObjectSpecificParameters> handle;
-    evtSetup.get<EcalClusterEnergyCorrectionObjectSpecificParametersRcd>().get(handle);
-    const EcalClusterEnergyCorrectionObjectSpecificParameters* obj = handle.product();
-    std::cout << "tbweight pointer is: " << obj << std::endl;
+    const EcalClusterEnergyCorrectionObjectSpecificParameters* obj =
+        &evtSetup.getData(ecalClusterEnergyCorrectionObjectSpecificParametersToken_);
+    edm::LogInfo("EcalDBCopy") << "tbweight pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalClusterEnergyCorrectionObjectSpecificParameters>(
         new EcalClusterEnergyCorrectionObjectSpecificParameters(*obj),
         dbOutput->beginOfTime(),
@@ -418,65 +370,49 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
         recordName);
 
   } else if (container == "EcalClusterLocalContCorrParameters") {
-    edm::ESHandle<EcalClusterLocalContCorrParameters> handle;
-    evtSetup.get<EcalClusterLocalContCorrParametersRcd>().get(handle);
-    const EcalClusterLocalContCorrParameters* obj = handle.product();
-    std::cout << "tbweight pointer is: " << obj << std::endl;
+    const EcalClusterLocalContCorrParameters* obj = &evtSetup.getData(ecalClusterLocalContCorrParametersToken_);
+    edm::LogInfo("EcalDBCopy") << "tbweight pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalClusterLocalContCorrParameters>(
         new EcalClusterLocalContCorrParameters(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EBAlignment") {
-    edm::ESHandle<Alignments> handle;
-    evtSetup.get<EBAlignmentRcd>().get(handle);
-    const Alignments* obj = handle.product();
-    std::cout << "EB alignment pointer is: " << obj << std::endl;
+    const Alignments* obj = &evtSetup.getData(ebAlignmentToken_);
+    edm::LogInfo("EcalDBCopy") << "EB alignment pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const Alignments>(
         new Alignments(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EEAlignment") {
-    edm::ESHandle<Alignments> handle;
-    evtSetup.get<EEAlignmentRcd>().get(handle);
-    const Alignments* obj = handle.product();
-    std::cout << "EE alignment pointer is: " << obj << std::endl;
+    const Alignments* obj = &evtSetup.getData(eeAlignmentToken_);
+    edm::LogInfo("EcalDBCopy") << "EE alignment pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const Alignments>(
         new Alignments(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "ESAlignment") {
-    edm::ESHandle<Alignments> handle;
-    evtSetup.get<ESAlignmentRcd>().get(handle);
-    const Alignments* obj = handle.product();
-    std::cout << "ES alignment pointer is: " << obj << std::endl;
+    const Alignments* obj = &evtSetup.getData(esAlignmentToken_);
+    edm::LogInfo("EcalDBCopy") << "ES alignment pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const Alignments>(
         new Alignments(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTimeOffsetConstant") {
-    edm::ESHandle<EcalTimeOffsetConstant> handle;
-    evtSetup.get<EcalTimeOffsetConstantRcd>().get(handle);
-    const EcalTimeOffsetConstant* obj = handle.product();
-    std::cout << "TimeOffset pointer is: " << obj << std::endl;
+    const EcalTimeOffsetConstant* obj = &evtSetup.getData(ecalTimeOffsetConstantToken_);
+    edm::LogInfo("EcalDBCopy") << "TimeOffset pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalTimeOffsetConstant>(
         new EcalTimeOffsetConstant(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalSampleMask") {
-    edm::ESHandle<EcalSampleMask> handle;
-    evtSetup.get<EcalSampleMaskRcd>().get(handle);
-    const EcalSampleMask* obj = handle.product();
-    std::cout << "sample mask pointer is: " << obj << std::endl;
+    const EcalSampleMask* obj = &evtSetup.getData(ecalSampleMaskToken_);
+    edm::LogInfo("EcalDBCopy") << "sample mask pointer is: " << obj << std::endl;
     dbOutput->createNewIOV<const EcalSampleMask>(
         new EcalSampleMask(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalSimPulseShape") {
-    edm::ESHandle<EcalSimPulseShape> handle;
-    evtSetup.get<EcalSimPulseShapeRcd>().get(handle);
-    const EcalSimPulseShape* obj = handle.product();
+    const EcalSimPulseShape* obj = &evtSetup.getData(ecalSimPulseShapeToken_);
     dbOutput->createNewIOV<const EcalSimPulseShape>(
         new EcalSimPulseShape(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTimeBiasCorrections") {
-    edm::ESHandle<EcalTimeBiasCorrections> handle;
-    evtSetup.get<EcalTimeBiasCorrectionsRcd>().get(handle);
-    const EcalTimeBiasCorrections* obj = handle.product();
-    std::cout << "TimeBiasCorrections pointer is: " << obj << std::endl;
+    const EcalTimeBiasCorrections* obj = &evtSetup.getData(ecalTimeBiasCorrectionsToken_);
+    edm::LogInfo("EcalDBCopy") << "TimeBiasCorrections pointer is: " << obj << std::endl;
     EcalTimeBiasCorrections* bias_;
     bias_ = new EcalTimeBiasCorrections();
     std::vector<float> vect = obj->EBTimeCorrAmplitudeBins;
@@ -490,10 +426,8 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
     dbOutput->writeOne(bias_, dbOutput->beginOfTime(), "EcalTimeBiasCorrectionsRcd");
 
   } else if (container == "EcalSamplesCorrelation") {
-    edm::ESHandle<EcalSamplesCorrelation> handle;
-    evtSetup.get<EcalSamplesCorrelationRcd>().get(handle);
-    const EcalSamplesCorrelation* obj = handle.product();
-    std::cout << "SamplesCorrelation pointer is: " << obj << std::endl;
+    const EcalSamplesCorrelation* obj = &evtSetup.getData(ecalSamplesCorrelationToken_);
+    edm::LogInfo("EcalDBCopy") << "SamplesCorrelation pointer is: " << obj << std::endl;
     EcalSamplesCorrelation* correl_;
     correl_ = new EcalSamplesCorrelation();
     std::vector<double> vect = obj->EBG12SamplesCorrelation;
@@ -514,5 +448,5 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
     throw cms::Exception("Unknown container");
   }
 
-  std::cout << "EcalDBCopy wrote " << recordName << std::endl;
+  edm::LogInfo("EcalDBCopy") << "EcalDBCopy wrote " << recordName << std::endl;
 }
