@@ -40,9 +40,11 @@
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 class L1MuDTSectorProcessor;
 class L1MuDTSEU;
 class L1MuDTTFParameters;
+class L1MuDTTFParametersRcd;
 
 //              ---------------------
 //              -- Class Interface --
@@ -54,7 +56,7 @@ public:
   typedef std::map<SEUId, L1MuDTSEU*, std::less<SEUId> > SEUmap;
 
   /// constructor
-  L1MuDTExtrapolationUnit(const L1MuDTSectorProcessor&);
+  L1MuDTExtrapolationUnit(const L1MuDTSectorProcessor&, edm::ConsumesCollector);
 
   /// destructor
   ~L1MuDTExtrapolationUnit();
@@ -94,6 +96,7 @@ private:
 
   mutable SEUmap m_SEUs;  // Single Extrapolation Units
 
+  edm::ESGetToken<L1MuDTTFParameters, L1MuDTTFParametersRcd> m_parsToken;
   edm::ESHandle<L1MuDTTFParameters> pars;
 };
 

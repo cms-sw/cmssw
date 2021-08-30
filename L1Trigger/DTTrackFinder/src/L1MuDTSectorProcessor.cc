@@ -56,12 +56,11 @@ L1MuDTSectorProcessor::L1MuDTSectorProcessor(const L1MuDTTrackFinder& tf,
       m_spid(id),
       m_SectorReceiver(*this, iC),
       m_DataBuffer(*this),
-      m_EU(*this),
+      m_EU(*this, iC),
       m_TA(*this),
-      m_AUs{{{*this, 0}, {*this, 1}}},
+      m_AUs{{{*this, 0, iC}, {*this, 1, iC}}},
       m_TrackCands{{{m_spid}, {m_spid}}},
-      m_TracKCands{{{m_spid}, {m_spid}}} {
-}
+      m_TracKCands{{{m_spid}, {m_spid}}} {}
 
 //--------------
 // Destructor --
