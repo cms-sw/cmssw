@@ -314,8 +314,8 @@ void EcalLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
   const EcalRawDataCollection* DCCHeader = nullptr;
   e.getByToken(rawDataToken_, pDCCHeader);
   if (!pDCCHeader.isValid()) {
-    edm::LogError("nodata") << "Error! can't get the product retrieving DCC header" << eventHeaderCollection_.c_str() << " "
-              << eventHeaderProducer_.c_str();
+    edm::LogError("nodata") << "Error! can't get the product retrieving DCC header" << eventHeaderCollection_.c_str()
+                            << " " << eventHeaderProducer_.c_str();
   } else {
     DCCHeader = pDCCHeader.product();
   }
@@ -431,7 +431,8 @@ void EcalLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
     EcalPnDiodeDetId pnDetId = EcalPnDiodeDetId((*pnItr).id());
 
     if (_debug == 1)
-      edm::LogVerbatim("EcalLaserAnalyzer") << "-- debug -- Inside PNDigi - pnID=" << pnDetId.iPnId() << ", dccID=" << pnDetId.iDCCId();
+      edm::LogVerbatim("EcalLaserAnalyzer")
+          << "-- debug -- Inside PNDigi - pnID=" << pnDetId.iPnId() << ", dccID=" << pnDetId.iDCCId();
 
     // Skip MEM DCC without relevant data
 
@@ -524,8 +525,9 @@ void EcalLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
       setGeomEB(etaG, phiG, module, tower, strip, xtal, apdRefTT, channel, lmr);
 
       if (_debug == 1)
-        edm::LogVerbatim("EcalLaserAnalyzer") << "-- debug -- Inside EBDigi - towerID:" << towerID << " channelID:" << channelID
-                  << " module:" << module << " modules:" << modules.size();
+        edm::LogVerbatim("EcalLaserAnalyzer")
+            << "-- debug -- Inside EBDigi - towerID:" << towerID << " channelID:" << channelID << " module:" << module
+            << " modules:" << modules.size();
 
       // APD Pulse
       //===========
@@ -631,8 +633,9 @@ void EcalLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
       setGeomEE(etaG, phiG, iX, iY, iZ, module, tower, ch, apdRefTT, channel, lmr);
 
       if (_debug == 1)
-        edm::LogVerbatim("EcalLaserAnalyzer") << "-- debug -- Inside EEDigi - towerID:" << towerID << " channelID:" << channelID
-                  << " module:" << module << " modules:" << modules.size();
+        edm::LogVerbatim("EcalLaserAnalyzer")
+            << "-- debug -- Inside EEDigi - towerID:" << towerID << " channelID:" << channelID << " module:" << module
+            << " modules:" << modules.size();
 
       // APD Pulse
       //===========
@@ -1212,8 +1215,9 @@ void EcalLaserAnalyzer::endJob() {
       }
 
       if (_debug == 1)
-        edm::LogVerbatim("EcalLaserAnalyzer") << "-- debug test -- Last Loop apdAmplA:" << apdAmplA << " apdAmplB:" << apdAmplB
-                  << ", event:" << event << ", eventref:" << eventref;
+        edm::LogVerbatim("EcalLaserAnalyzer")
+            << "-- debug test -- Last Loop apdAmplA:" << apdAmplA << " apdAmplB:" << apdAmplB << ", event:" << event
+            << ", eventref:" << eventref;
 
       // Fill APD stuff
       //===============

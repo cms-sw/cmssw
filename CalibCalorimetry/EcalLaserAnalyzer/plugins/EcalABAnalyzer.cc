@@ -230,8 +230,8 @@ void EcalABAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
   const EcalRawDataCollection* DCCHeader = nullptr;
   e.getByToken(rawDataToken_, pDCCHeader);
   if (!pDCCHeader.isValid()) {
-    edm::LogError("nodata") << "Error! can't get the product retrieving DCC header" << eventHeaderCollection_.c_str() << " "
-              << eventHeaderProducer_.c_str();
+    edm::LogError("nodata") << "Error! can't get the product retrieving DCC header" << eventHeaderCollection_.c_str()
+                            << " " << eventHeaderProducer_.c_str();
   } else {
     DCCHeader = pDCCHeader.product();
   }

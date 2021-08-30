@@ -17,8 +17,7 @@ HcalRecHitRecalib::HcalRecHitRecalib(const edm::ParameterSet& iConfig)
       RecalibHOHits_(iConfig.getParameter<std::string>("RecalibHOHitCollection")),
       hcalfileinpath_(iConfig.getUntrackedParameter<std::string>("fileNameHcal", "")),
       refactor_(iConfig.getUntrackedParameter<double>("Refactor", (double)1)),
-      refactor_mean_(iConfig.getUntrackedParameter<double>("Refactor_mean", (double)1))
-{
+      refactor_mean_(iConfig.getUntrackedParameter<double>("Refactor_mean", (double)1)) {
   //   HBHEHitsProducer_ = iConfig.getParameter< std::string > ("HBHERecHitsProducer");
   //   HOHitsProducer_ = iConfig.getParameter< std::string > ("HERecHitsProducer");
   //   HFHitsProducer_ = iConfig.getParameter< std::string > ("HERecHitsProducer");

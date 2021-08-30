@@ -183,11 +183,12 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib, const edm::Eve
     } catch (std::exception& e) {
       edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": ";
       if (it->subdetId() == EcalBarrel) {
-        edm::LogVerbatim("EcalDccWeightBuilder") << "ieta = " << setw(4) << ((EBDetId)(*it)).ieta() << " iphi = " << setw(4) << ((EBDetId)(*it)).iphi()
-             << " ";
+        edm::LogVerbatim("EcalDccWeightBuilder") << "ieta = " << setw(4) << ((EBDetId)(*it)).ieta()
+                                                 << " iphi = " << setw(4) << ((EBDetId)(*it)).iphi() << " ";
       } else if (it->subdetId() == EcalEndcap) {
-        edm::LogVerbatim("EcalDccWeightBuilder") << "ix = " << setw(3) << ((EEDetId)(*it)).ix() << " iy = " << setw(3) << ((EEDetId)(*it)).iy()
-             << " iz = " << setw(1) << ((EEDetId)(*it)).iy() << " ";
+        edm::LogVerbatim("EcalDccWeightBuilder")
+            << "ix = " << setw(3) << ((EEDetId)(*it)).ix() << " iy = " << setw(3) << ((EEDetId)(*it)).iy()
+            << " iz = " << setw(1) << ((EEDetId)(*it)).iy() << " ";
       } else {
         edm::LogVerbatim("EcalDccWeightBuilder") << "DetId " << (uint32_t)(*it);
       }

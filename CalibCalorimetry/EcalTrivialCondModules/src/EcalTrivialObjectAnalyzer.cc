@@ -41,8 +41,7 @@ EcalTrivialObjectAnalyzer::EcalTrivialObjectAnalyzer(edm::ParameterSet const& p)
       laserAPDPNRatiosRefToken_(esConsumes()),
       laserAPDPNRatiosToken_(esConsumes()),
       channelStatusToken_(esConsumes()),
-      sampleMaskToken_(esConsumes()) {
-}
+      sampleMaskToken_(esConsumes()) {}
 
 void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
   using namespace edm::eventsetup;
@@ -206,20 +205,18 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
   // cluster functions/corrections
   const auto& paramLocalCont = context.getData(clusterLocalContCorrToken_);
   edm::LogInfo("LocalContCorrParameters:");
-  for (EcalFunctionParameters::const_iterator it = paramLocalCont.params().begin();
-       it != paramLocalCont.params().end();
+  for (EcalFunctionParameters::const_iterator it = paramLocalCont.params().begin(); it != paramLocalCont.params().end();
        ++it) {
     // edm::LogInfo(" ") << *it;
   }
   // std::cout << "\n";
   const auto& paramCrack = context.getData(clusterCrackCorrToken_);
   edm::LogInfo("CrackCorrParameters:");
-  for (EcalFunctionParameters::const_iterator it = paramCrack.params().begin(); it != paramCrack.params().end();
-       ++it) {
+  for (EcalFunctionParameters::const_iterator it = paramCrack.params().begin(); it != paramCrack.params().end(); ++it) {
     //  edm::LogInfo(" ") << *it;
   }
   // std::cout << "\n";
-const auto& paramEnergyCorrection = context.getData(clusterEnergyCorrectionToken_);
+  const auto& paramEnergyCorrection = context.getData(clusterEnergyCorrectionToken_);
   edm::LogInfo("EnergyCorrectionParameters:");
   for (EcalFunctionParameters::const_iterator it = paramEnergyCorrection.params().begin();
        it != paramEnergyCorrection.params().end();
