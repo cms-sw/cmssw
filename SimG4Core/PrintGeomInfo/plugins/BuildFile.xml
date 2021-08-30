@@ -1,4 +1,3 @@
-<flags EDM_PLUGIN="1"/>
 <use name="DetectorDescription/Core"/>
 <use name="DetectorDescription/DDCMS"/>
 <use name="SimG4Core/Notification"/>
@@ -8,3 +7,6 @@
 <use name="geant4core"/>
 <use name="dd4hep"/>
 <use name="boost"/>
+<library file="*.cc" name="SimG4CorePrintGeomInfoPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

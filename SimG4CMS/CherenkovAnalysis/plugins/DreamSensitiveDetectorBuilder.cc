@@ -13,8 +13,9 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 class DreamSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
 public:
@@ -24,6 +25,7 @@ public:
       cpvTokenDD4Hep_ = cc.esConsumes<edm::Transition::BeginRun>();
     else
       cpvTokenDDD_ = cc.esConsumes<edm::Transition::BeginRun>();
+    edm::LogVerbatim("EcalSim") << "DreamSensitiveDetectorBuilder called  with dd4hep flag " << fromDD4Hep_;
   }
 
   void beginRun(const edm::EventSetup& es) final {
