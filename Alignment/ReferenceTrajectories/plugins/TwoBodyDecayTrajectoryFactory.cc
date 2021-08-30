@@ -39,12 +39,12 @@ public:
   /// Produce the trajectories.
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
-                                                   const reco::BeamSpot &beamSpot) const override;
+                                                   const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const override;
 
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
                                                    const ExternalPredictionCollection &external,
-                                                   const reco::BeamSpot &beamSpot) const override;
+                                                   const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const override;
 
   TwoBodyDecayTrajectoryFactory *clone() const override { return new TwoBodyDecayTrajectoryFactory(*this); }
 
@@ -89,7 +89,7 @@ TwoBodyDecayTrajectoryFactory::TwoBodyDecayTrajectoryFactory(const edm::Paramete
 TwoBodyDecayTrajectoryFactory::~TwoBodyDecayTrajectoryFactory() {}
 
 const TrajectoryFactoryBase::ReferenceTrajectoryCollection TwoBodyDecayTrajectoryFactory::trajectories(
-    const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks, const reco::BeamSpot &beamSpot) const {
+    const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks, const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const {
   ReferenceTrajectoryCollection trajectories;
 
   const MagneticField* magneticField = &setup.getData(m_MagFieldToken);
@@ -129,7 +129,7 @@ const TrajectoryFactoryBase::ReferenceTrajectoryCollection TwoBodyDecayTrajector
     const edm::EventSetup &setup,
     const ConstTrajTrackPairCollection &tracks,
     const ExternalPredictionCollection &external,
-    const reco::BeamSpot &beamSpot) const {
+    const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const {
   ReferenceTrajectoryCollection trajectories;
 
   const MagneticField* magneticField = &setup.getData(m_MagFieldToken);
@@ -162,7 +162,7 @@ const TrajectoryFactoryBase::ReferenceTrajectoryCollection TwoBodyDecayTrajector
       return constructTrajectories(tracks, tbd, magneticField, beamSpot, true);
     } else {
       // Return without external estimate
-      trajectories = this->trajectories(setup, tracks, beamSpot);
+      trajectories = this->trajectories(setup, tracks, beamSpot, iC);
     }
   } else {
     edm::LogInfo("ReferenceTrajectories") << "@SUB=TwoBodyDecayTrajectoryFactory::trajectories"

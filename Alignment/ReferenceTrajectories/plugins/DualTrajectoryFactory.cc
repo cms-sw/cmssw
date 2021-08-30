@@ -23,12 +23,12 @@ public:
   /// Produce the reference trajectories.
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
-                                                   const reco::BeamSpot &beamSpot) const override;
+                                                   const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const override;
 
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
                                                    const ExternalPredictionCollection &external,
-                                                   const reco::BeamSpot &beamSpot) const override;
+                                                   const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const override;
 
   DualTrajectoryFactory *clone() const override { return new DualTrajectoryFactory(*this); }
 
@@ -61,7 +61,7 @@ DualTrajectoryFactory::DualTrajectoryFactory(const edm::ParameterSet &config, ed
 DualTrajectoryFactory::~DualTrajectoryFactory(void) {}
 
 const DualTrajectoryFactory::ReferenceTrajectoryCollection DualTrajectoryFactory::trajectories(
-    const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks, const reco::BeamSpot &beamSpot) const {
+    const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks, const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const {
   ReferenceTrajectoryCollection trajectories;
 
   const MagneticField* magneticField = &setup.getData(m_MagFieldToken);
@@ -98,7 +98,7 @@ const DualTrajectoryFactory::ReferenceTrajectoryCollection DualTrajectoryFactory
     const edm::EventSetup &setup,
     const ConstTrajTrackPairCollection &tracks,
     const ExternalPredictionCollection &external,
-    const reco::BeamSpot &beamSpot) const {
+    const reco::BeamSpot &beamSpot, edm::ConsumesCollector &iC) const {
   ReferenceTrajectoryCollection trajectories;
 
   if (tracks.size() != external.size()) {
