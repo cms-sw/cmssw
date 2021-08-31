@@ -5,29 +5,29 @@
 // user include files
 #include "Calibration/EcalCalibAlgos/interface/ECALpedestalPCLHarvester.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
-#include <iostream>
 #include <string>
 
 ECALpedestalPCLHarvester::ECALpedestalPCLHarvester(const edm::ParameterSet& ps)
-    : currentPedestals_(nullptr), channelStatus_(nullptr) {
+    : minEntries_(ps.getParameter<int>("MinEntries")),
+      checkAnomalies_(ps.getParameter<bool>("checkAnomalies")),
+      nSigma_(ps.getParameter<double>("nSigma")),
+      thresholdAnomalies_(ps.getParameter<double>("thresholdAnomalies")),
+      dqmDir_(ps.getParameter<std::string>("dqmDir")),
+      labelG6G1_(ps.getParameter<std::string>("labelG6G1")),
+      threshDiffEB_(ps.getParameter<double>("threshDiffEB")),
+      threshDiffEE_(ps.getParameter<double>("threshDiffEE")),
+      threshChannelsAnalyzed_(ps.getParameter<double>("threshChannelsAnalyzed")),
+      channelsStatusToken_(esConsumes<edm::Transition::EndRun>()),
+      pedestalsToken_(esConsumes<edm::Transition::EndRun>()),
+      g6g1PedestalsToken_(esConsumes<edm::Transition::EndRun>(edm::ESInputTag("", labelG6G1_))),
+      currentPedestals_(nullptr),
+      g6g1Pedestals_(nullptr),
+      channelStatus_(nullptr) {
   chStatusToExclude_ = StringToEnumValue<EcalChannelStatusCode::Code>(
       ps.getParameter<std::vector<std::string> >("ChannelStatusToExclude"));
-  minEntries_ = ps.getParameter<int>("MinEntries");
-  checkAnomalies_ = ps.getParameter<bool>("checkAnomalies");
-  nSigma_ = ps.getParameter<double>("nSigma");
-  thresholdAnomalies_ = ps.getParameter<double>("thresholdAnomalies");
-  dqmDir_ = ps.getParameter<std::string>("dqmDir");
-  labelG6G1_ = ps.getParameter<std::string>("labelG6G1");
-  threshDiffEB_ = ps.getParameter<double>("threshDiffEB");
-  threshDiffEE_ = ps.getParameter<double>("threshDiffEE");
-  threshChannelsAnalyzed_ = ps.getParameter<double>("threshChannelsAnalyzed");
 }
 
 void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) {
@@ -155,16 +155,13 @@ void ECALpedestalPCLHarvester::fillDescriptions(edm::ConfigurationDescriptions& 
 }
 
 void ECALpedestalPCLHarvester::endRun(edm::Run const& run, edm::EventSetup const& isetup) {
-  edm::ESHandle<EcalChannelStatus> chStatus;
-  isetup.get<EcalChannelStatusRcd>().get(chStatus);
+  const auto chStatus = isetup.getHandle(channelsStatusToken_);
   channelStatus_ = chStatus.product();
 
-  edm::ESHandle<EcalPedestals> peds;
-  isetup.get<EcalPedestalsRcd>().get(peds);
+  const auto peds = isetup.getHandle(pedestalsToken_);
   currentPedestals_ = peds.product();
 
-  edm::ESHandle<EcalPedestals> g6g1peds;
-  isetup.get<EcalPedestalsRcd>().get(labelG6G1_, g6g1peds);
+  const auto g6g1peds = isetup.getHandle(g6g1PedestalsToken_);
   g6g1Pedestals_ = g6g1peds.product();
 }
 
