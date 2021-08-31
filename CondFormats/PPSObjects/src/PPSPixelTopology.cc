@@ -36,9 +36,9 @@ bool PPSPixelTopology::isPixelHit(float xLocalCoordinate, float yLocalCoordinate
   const double y2x2top = no_of_pixels_simY_ / 6. * pitch_simY_ + dead_edge_width_;
   if (is3x2 && (yLocalCoordinate < -yModuleSize / 2. || yLocalCoordinate > yModuleSize / 2.))
     return false;
-  if (!is3x2 && (runType_=="Run2") && (yLocalCoordinate < -yModuleSize / 2. || yLocalCoordinate > y2x2top))
+  if (!is3x2 && (runType_ == "Run2") && (yLocalCoordinate < -yModuleSize / 2. || yLocalCoordinate > y2x2top))
     return false;
-  if (!is3x2 && (runType_=="Run3") && (yLocalCoordinate < -yModuleSize / 2. || yLocalCoordinate > yModuleSize / 2.))
+  if (!is3x2 && (runType_ == "Run3") && (yLocalCoordinate < -yModuleSize / 2. || yLocalCoordinate > yModuleSize / 2.))
     return false;
 
   return true;
