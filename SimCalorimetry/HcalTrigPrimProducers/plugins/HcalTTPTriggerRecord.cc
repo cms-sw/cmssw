@@ -1,9 +1,25 @@
-#include "SimCalorimetry/HcalTrigPrimProducers/src/HcalTTPTriggerRecord.h"
-
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalTTPDigi.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+class HcalTTPTriggerRecord : public edm::stream::EDProducer<> {
+public:
+  explicit HcalTTPTriggerRecord(const edm::ParameterSet& ps);
+  ~HcalTTPTriggerRecord() override;
+
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+private:
+  edm::EDGetTokenT<HcalTTPDigiCollection> tok_ttp_;
+  std::vector<unsigned int> ttpBits_;
+  std::vector<std::string> names_;
+};
 
 HcalTTPTriggerRecord::HcalTTPTriggerRecord(const edm::ParameterSet& ps) {
   tok_ttp_ = consumes<HcalTTPDigiCollection>(ps.getParameter<edm::InputTag>("ttpDigiCollection"));
@@ -48,3 +64,8 @@ void HcalTTPTriggerRecord::produce(edm::Event& e, const edm::EventSetup& eventSe
   output->setGtTechnicalTrigger(vecTT);
   e.put(std::move(output));
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(HcalTTPTriggerRecord);
