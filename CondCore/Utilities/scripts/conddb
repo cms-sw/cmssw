@@ -1380,6 +1380,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
     else:
         query = query.order_by(IOV1.since.desc(), IOV1.insertion_time.desc())
         lastIov = None
+        targetIovSince = None
         for iov in query:
             iov = _rawdict(iov)
             since = iov['since'] 
@@ -1387,9 +1388,19 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
                 lastIov = since
             else:
                 if lastIov != since:
-                    iovs[since] = iov['payload_hash']
-                    hashes.add( iov['payload_hash'] )
-                    break
+                    if targetIovSince is None:
+                        targetIovSince = since
+                        break
+        query = session1.query(IOV1).filter(IOV1.tag_name == first).order_by(IOV1.since.asc(),IOV1.insertion_time.desc())
+        firstIovHash = None
+        for iov in query:
+            iov = _rawdict(iov)
+            since = iov['since'] 
+            if firstIovHash is None:
+                firstIovHash = iov['payload_hash']
+                break
+        iovs[targetIovSince] = firstIovHash
+        hashes.add(firstIovHash)
     logfun = logging.info 
     if len(iovs)==0:
         logfun = logging.warning
