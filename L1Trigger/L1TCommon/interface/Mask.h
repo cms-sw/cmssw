@@ -2,9 +2,6 @@
 #define L1Trigger_L1TCommon_Mask_h
 #include <string>
 
-//boost libraries
-#include <boost/lexical_cast.hpp>
-
 namespace l1t {
 
   class Mask {
