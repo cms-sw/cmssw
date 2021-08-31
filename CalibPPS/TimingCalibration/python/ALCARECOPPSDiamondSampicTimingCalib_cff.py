@@ -1,20 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoPPS.Configuration.recoCTPPS_cff import diamondSampicLocalReconstruction
+from RecoPPS.Configuration.recoCTPPS_cff import diamondSampicLocalReconstructionTask
 from CalibPPS.TimingCalibration.PPSDiamondSampicTimingCalibrationPCLWorker_cfi import PPSDiamondSampicTimingCalibrationPCLWorker
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-
-diamondSampicCalibrationDQM = DQMEDAnalyzer('DiamondSampicCalibrationDQMSource',
-    tagRecHits = cms.InputTag("totemTimingRecHits"),
-    verbosity = cms.untracked.uint32(0)
-)
-
-# load DQM framework
-from DQM.Integration.config.environment_cfi import *
-dqmEnv.subSystemFolder = "CTPPS"
-dqmEnv.eventInfoFolder = "EventInfo"
-dqmSaver.path = ""
-dqmSaver.tag = "CTPPS"
 
 MEtoEDMConvertPPSDiamondSampicTimingCalib = cms.EDProducer('MEtoEDMConverter',
     Name = cms.untracked.string('MEtoEDMConverter'),
@@ -24,11 +12,8 @@ MEtoEDMConvertPPSDiamondSampicTimingCalib = cms.EDProducer('MEtoEDMConverter',
     deleteAfterCopy = cms.untracked.bool(True),
 )
 
-seqALCARECOPPSDiamondSampicTimingCalib = cms.Sequence(
-    diamondSampicLocalReconstruction*
-    PPSDiamondSampicTimingCalibrationPCLWorker*
-    diamondSampicCalibrationDQM*
-    dqmEnv*
-    dqmSaver*
+taskALCARECOPPSDiamondSampicTimingCalib = cms.Task(
+    diamondSampicLocalReconstructionTask,
+    PPSDiamondSampicTimingCalibrationPCLWorker,
     MEtoEDMConvertPPSDiamondSampicTimingCalib
 )

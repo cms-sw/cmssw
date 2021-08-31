@@ -221,14 +221,14 @@ ALCAHARVESTPPSTimingCalibration = ppsTimingCalibrationPCLHarvester.clone()
 ALCAHARVESTPPSTimingCalibration_metadata = cms.PSet(record = cms.untracked.string('PPSTimingCalibrationRcd'))
 ALCAHARVESTPPSTimingCalibration_dbOutput = cms.PSet(record = cms.string('PPSTimingCalibrationRcd'),
                                                     tag = cms.string('PPSDiamondTimingCalibration_pcl'),
-                                                    timetype = cms.untracked.string('lumiid')
+                                                    timetype = cms.untracked.string('runnumber')
                                                     )
 
 ALCAHARVESTPPSDiamondSampicTimingCalibration = PPSDiamondSampicTimingCalibrationPCLHarvester.clone()
-ALCAHARVESTPPSDiamondSampicTimingCalibration_metadata = cms.PSet(record = cms.untracked.string('PPSTimingCalibrationRcd'))
-ALCAHARVESTPPSDiamondSampicTimingCalibration_dbOutput = cms.PSet(record = cms.string('PPSTimingCalibrationRcd'),
+ALCAHARVESTPPSDiamondSampicTimingCalibration_metadata = cms.PSet(record = cms.untracked.string('PPSTimingCalibrationRcd_Sampic'))
+ALCAHARVESTPPSDiamondSampicTimingCalibration_dbOutput = cms.PSet(record = cms.string('PPSTimingCalibrationRcd_Sampic'),
                                             tag = cms.string('DiamondSampicCalibration'),
-                                            timetype = cms.untracked.string('lumiid'))
+                                            timetype = cms.untracked.string('runnumber'))
 
 # define all the paths
 BeamSpotByRun  = cms.Path(ALCAHARVESTBeamSpotByRun)
