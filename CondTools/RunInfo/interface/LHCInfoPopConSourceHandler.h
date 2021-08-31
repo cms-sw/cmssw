@@ -47,7 +47,6 @@ private:
   std::unique_ptr<LHCInfo> m_fillPayload;
   std::shared_ptr<LHCInfo> m_prevPayload;
   std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfo> > > m_tmpBuffer;
-  std::vector<std::shared_ptr<LHCInfo> > m_payloadBuffer;
   bool m_lastPayloadEmpty = false;
 };
 
