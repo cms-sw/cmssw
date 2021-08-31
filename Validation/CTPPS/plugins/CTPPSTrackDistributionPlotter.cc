@@ -191,9 +191,9 @@ private:
       }
     }
 
-    static std::unique_ptr<TH1D> buildRMSHistogram(const std::unique_ptr<TProfile> &p)
-    {
-      std::unique_ptr<TH1D> output = std::make_unique<TH1D>("", p->GetTitle(), p->GetNbinsX(), p->GetXaxis()->GetXmin(), p->GetXaxis()->GetXmax());
+    static std::unique_ptr<TH1D> buildRMSHistogram(const std::unique_ptr<TProfile>& p) {
+      std::unique_ptr<TH1D> output =
+          std::make_unique<TH1D>("", p->GetTitle(), p->GetNbinsX(), p->GetXaxis()->GetXmin(), p->GetXaxis()->GetXmax());
 
       for (int bi = 1; bi <= output->GetNbinsX(); ++bi)
         output->SetBinContent(bi, p->GetBinError(bi));
@@ -201,11 +201,15 @@ private:
       return output;
     }
 
-    static std::unique_ptr<TH2D> buildRMSHistogram(const std::unique_ptr<TProfile2D> &p)
-    {
-      std::unique_ptr<TH2D> output = std::make_unique<TH2D>("", p->GetTitle(),
-        p->GetNbinsX(), p->GetXaxis()->GetXmin(), p->GetXaxis()->GetXmax(),
-        p->GetNbinsY(), p->GetYaxis()->GetXmin(), p->GetYaxis()->GetXmax());
+    static std::unique_ptr<TH2D> buildRMSHistogram(const std::unique_ptr<TProfile2D>& p) {
+      std::unique_ptr<TH2D> output = std::make_unique<TH2D>("",
+                                                            p->GetTitle(),
+                                                            p->GetNbinsX(),
+                                                            p->GetXaxis()->GetXmin(),
+                                                            p->GetXaxis()->GetXmax(),
+                                                            p->GetNbinsY(),
+                                                            p->GetYaxis()->GetXmin(),
+                                                            p->GetYaxis()->GetXmax());
 
       for (int bi_x = 1; bi_x <= output->GetNbinsX(); ++bi_x)
         for (int bi_y = 1; bi_y <= output->GetNbinsY(); ++bi_y)
