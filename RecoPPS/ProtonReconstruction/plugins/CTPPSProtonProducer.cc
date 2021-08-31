@@ -34,7 +34,6 @@
 
 #include "CondFormats/DataRecord/interface/PPSAssociationCutsRcd.h"
 #include "CondFormats/PPSObjects/interface/PPSAssociationCuts.h"
-#include <TF1.h>
 
 //----------------------------------------------------------------------------------------------------
 
@@ -252,7 +251,7 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
       }
 
       // process each arm
-      for (const auto &arm_it : trackingSelection) {  //0->45 1->56
+      for (const auto &arm_it : trackingSelection) {
         const auto &indices = arm_it.second;
 
         const auto &ac = ppsAssociationCuts->getAssociationCuts(arm_it.first);
@@ -361,7 +360,7 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
               const double de_x_unc = sqrt(tr_ti.xUnc() * tr_ti.xUnc() + x_inter_unc_sq);
               const double r = (de_x_unc > 0.) ? de_x / de_x_unc : 1E100;
 
-              const bool matching = (ac.ti_tr_min_ < r && r < ac.ti_tr_max_);
+              const bool matching = (ac.getTiTrMin() < r && r < ac.getTiTrMax());
 
               if (verbosity_)
                 ssLog << "ti=" << ti << ", i=" << i << ", j=" << j << " | z_ti=" << z_ti << ", z_i=" << z_i

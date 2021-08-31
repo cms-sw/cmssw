@@ -668,7 +668,7 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
 
       const double rd = (de_x_unc > 0.) ? de_x / de_x_unc : -1E10;
       const auto &ac = ppsAssociationCuts->getAssociationCuts(armId);
-      const bool match = (ac.ti_tr_min_ <= fabs(rd) && fabs(rd) <= ac.ti_tr_max_);
+      const bool match = (ac.getTiTrMin() <= fabs(rd) && fabs(rd) <= ac.getTiTrMax());
 
       pl.h_de_x_timing_vs_tracking->Fill(de_x);
       pl.h_de_x_rel_timing_vs_tracking->Fill(rd);
