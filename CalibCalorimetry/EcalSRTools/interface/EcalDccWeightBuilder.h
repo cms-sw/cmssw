@@ -144,4 +144,4 @@ private:
   static const int nDccs = ecalDccFedIdMax - ecalDccFedIdMin + 1;
 };
 
-#endif  //ECALDCCWEIGHTBUILDER_CC not defined
+#endif  //CalibCalorimetry_EcalSRTools_EcalDccWeightBuilder_h not defined
