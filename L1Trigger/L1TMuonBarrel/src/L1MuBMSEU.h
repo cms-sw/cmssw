@@ -36,6 +36,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 class L1MuBMSectorProcessor;
+class L1TMuonBarrelParams;
 class L1MuBMTrackSegPhi;
 class L1MuBMEUX;
 class L1MuBMERS;
@@ -53,7 +54,7 @@ public:
   ~L1MuBMSEU();
 
   /// run SEU
-  void run(const edm::EventSetup& c);
+  void run(const L1TMuonBarrelParams& params);
 
   /// reset SEU
   void reset();

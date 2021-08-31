@@ -66,10 +66,7 @@ public:
 
 private:
   /// receive track segment data from BBMX chamber trigger
-  void receiveBBMXData(int bx, const edm::Event& e, const edm::EventSetup& c);
-
-  /// receive track segment data from CSC chamber trigger
-  void receiveCSCData(int bx, const edm::Event& e, const edm::EventSetup& c);
+  void receiveBBMXData(int bx, const edm::Event& e);
 
   /// find the right sector for a given address
   int address2sector(int adr) const;
@@ -80,7 +77,7 @@ private:
 private:
   L1MuBMSectorProcessor& m_sp;
 
-  edm::ESHandle<L1TMuonBarrelParams> bmtfParamsHandle;
+  edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> m_bmtfParamsToken;
   L1MuDTTFMasks msks;
   L1MuDTTFParameters pars;
 
