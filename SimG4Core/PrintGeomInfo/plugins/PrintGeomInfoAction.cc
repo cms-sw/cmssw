@@ -54,19 +54,19 @@ public:
 private:
   void update(const BeginOfJob *job) override;
   void update(const BeginOfRun *run) override;
-  void dumpSummary(std::ostream &out = std::cout);
-  void dumpG4LVList(std::ostream &out = std::cout);
-  void dumpG4LVTree(std::ostream &out = std::cout);
-  void dumpMaterialList(std::ostream &out = std::cout);
-  void dumpG4LVLeaf(G4LogicalVolume *lv, unsigned int leafDepth, unsigned int count, std::ostream &out = std::cout);
+  void dumpSummary(std::ostream &out = G4cout);
+  void dumpG4LVList(std::ostream &out = G4cout);
+  void dumpG4LVTree(std::ostream &out = G4cout);
+  void dumpMaterialList(std::ostream &out = G4cout);
+  void dumpG4LVLeaf(G4LogicalVolume *lv, unsigned int leafDepth, unsigned int count, std::ostream &out = G4cout);
   int countNoTouchables();
   void add1touchable(G4LogicalVolume *lv, int &nTouch);
-  void dumpHierarchyTreePVLV(std::ostream &out = std::cout);
-  void dumpHierarchyLeafPVLV(G4LogicalVolume *lv, unsigned int leafDepth, std::ostream &out = std::cout);
-  void dumpLV(G4LogicalVolume *lv, unsigned int leafDepth, std::ostream &out = std::cout);
-  void dumpPV(G4VPhysicalVolume *pv, unsigned int leafDepth, std::ostream &out = std::cout);
-  void dumpSolid(G4VSolid *sol, unsigned int leafDepth, std::ostream &out = std::cout);
-  void dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, std::ostream &out = std::cout);
+  void dumpHierarchyTreePVLV(std::ostream &out = G4cout);
+  void dumpHierarchyLeafPVLV(G4LogicalVolume *lv, unsigned int leafDepth, std::ostream &out = G4cout);
+  void dumpLV(G4LogicalVolume *lv, unsigned int leafDepth, std::ostream &out = G4cout);
+  void dumpPV(G4VPhysicalVolume *pv, unsigned int leafDepth, std::ostream &out = G4cout);
+  void dumpSolid(G4VSolid *sol, unsigned int leafDepth, std::ostream &out = G4cout);
+  void dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, std::ostream &out = G4cout);
   void dumpInFile();
   void getTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, unsigned int copym, std::vector<std::string> &touches);
   std::string spacesFromLeafDepth(unsigned int leafDepth);
@@ -113,16 +113,16 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
   fileDetail_ = p.getUntrackedParameter<bool>("FileDetail", false);
   G4cout << "PrintGeomInfoAction:: initialised for dd4hep " << dd4hep_ << " with verbosity levels:"
          << " Summary   " << dumpSummary_ << " LVTree   " << dumpLVTree_ << " LVList    " << dumpLVList_ << " Material "
-         << dumpMaterial_ << "\n                                                        "
+         << dumpMaterial_ << G4endl << "                                                        "
          << " LV        " << dumpLV_ << " Solid    " << dumpSolid_ << " Attribs   " << dumpAtts_
-         << "\n                                                        "
+         << G4endl << "                                                        "
          << " PV        " << dumpPV_ << " Rotation " << dumpRotation_ << " Replica   " << dumpReplica_
-         << "\n                                                        "
+         << G4endl << "                                                        "
          << " Touchable " << dumpTouch_ << " for names (0-" << nchar_ << ") = " << name_
-         << "\n                                                        "
+         << G4endl << "                                                        "
          << " Sensitive " << dumpSense_ << " Files " << fileMat_ << ":" << fileSolid_ << ":" << fileLV_ << ":"
          << filePV_ << ":" << fileTouch_ << " FileDetail " << fileDetail_
-         << "\n                                                        for " << names_.size() << " names:";
+         << G4endl << "                                                        for " << names_.size() << " names:";
   for (unsigned int i = 0; i < names_.size(); i++)
     G4cout << " " << names_[i];
   G4cout << G4endl;
@@ -483,10 +483,10 @@ void PrintGeomInfoAction::dumpInFile() {
       std::ofstream fout(fileMat_.c_str());
       for (std::vector<G4Material *>::const_iterator matite = matTab->begin(); matite != matTab->end(); matite++) {
         if (!fileDetail_)
-          fout << (*matite)->GetName() << "\n";
+          fout << (*matite)->GetName() << G4endl;
         else
           fout << (*matite)->GetName() << " " << (*matite)->GetRadlen() << " " << (*matite)->GetNuclearInterLength()
-               << "\n";
+               << G4endl;
       }
       fout.close();
     }
@@ -495,18 +495,18 @@ void PrintGeomInfoAction::dumpInFile() {
       std::ofstream fout(fileSolid_.c_str());
       for (std::vector<G4LogicalVolume *>::const_iterator lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
         if (!fileDetail_)
-          fout << (*lvcite)->GetSolid()->GetName() << "\n";
+          fout << (*lvcite)->GetSolid()->GetName() << G4endl;
         else
-          fout << (*lvcite)->GetSolid()->GetName() << "  " << (*lvcite)->GetSolid()->GetCubicVolume() << "\n";
+          fout << (*lvcite)->GetSolid()->GetName() << "  " << (*lvcite)->GetSolid()->GetCubicVolume() << G4endl;
       fout.close();
     }
     if (!fileLV_.empty()) {
       std::ofstream fout(fileLV_.c_str());
       for (std::vector<G4LogicalVolume *>::const_iterator lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
         if (!fileDetail_)
-          fout << (*lvcite)->GetName() << "\n";
+          fout << (*lvcite)->GetName() << G4endl;
         else
-          fout << (*lvcite)->GetName() << "  " << (*lvcite)->GetMass(false, false) << "\n";
+          fout << (*lvcite)->GetName() << "  " << (*lvcite)->GetMass(false, false) << G4endl;
       fout.close();
     }
     if (!filePV_.empty()) {
@@ -516,15 +516,15 @@ void PrintGeomInfoAction::dumpInFile() {
         if (fileDetail_) {
           if (dd4hep_)
             fout << (*pvcite)->GetName() << " " << (*pvcite)->GetTranslation().x() << " "
-                 << (*pvcite)->GetTranslation().y() << " " << (*pvcite)->GetTranslation().z() << "\n";
+                 << (*pvcite)->GetTranslation().y() << " " << (*pvcite)->GetTranslation().z() << G4endl;
           else
             fout << (*pvcite)->GetName() << "_" << (*pvcite)->GetCopyNo() << " " << (*pvcite)->GetTranslation().x()
-                 << " " << (*pvcite)->GetTranslation().y() << " " << (*pvcite)->GetTranslation().z() << "\n";
+                 << " " << (*pvcite)->GetTranslation().y() << " " << (*pvcite)->GetTranslation().z() << G4endl;
         } else {
           if (dd4hep_)
-            fout << (*pvcite)->GetName() << "\n";
+            fout << (*pvcite)->GetName() << G4endl;
           else
-            fout << (*pvcite)->GetName() << "_" << (*pvcite)->GetCopyNo() << "\n";
+            fout << (*pvcite)->GetName() << "_" << (*pvcite)->GetCopyNo() << G4endl;
         }
       }
       fout.close();
@@ -535,7 +535,7 @@ void PrintGeomInfoAction::dumpInFile() {
       getTouch(theTopPV_, 0, 1, touches);
       std::sort(touches.begin(), touches.end());
       for (const auto &touch : touches)
-        fout << touch << "\n";
+        fout << touch << G4endl;
       fout.close();
     }
   }
