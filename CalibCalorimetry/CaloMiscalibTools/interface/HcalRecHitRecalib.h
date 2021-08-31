@@ -47,9 +47,9 @@ private:
   const edm::EDGetTokenT<HORecHitCollection> tok_ho_;
   const edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
   const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topologyToken_;
-  const std::string RecalibHBHEHits_;
-  const std::string RecalibHFHits_;
-  const std::string RecalibHOHits_;
+  const std::string recalibHBHEHits_;
+  const std::string recalibHFHits_;
+  const std::string recalibHOHits_;
 
   std::string hcalfile_;
   const std::string hcalfileinpath_;

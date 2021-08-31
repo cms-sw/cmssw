@@ -50,8 +50,8 @@ private:
   const std::string ecalHitsProducer_;
   const std::string barrelHits_;
   const std::string endcapHits_;
-  const std::string RecalibBarrelHits_;
-  const std::string RecalibEndcapHits_;
+  const std::string recalibBarrelHits_;
+  const std::string recalibEndcapHits_;
   const double refactor_;
   const double refactor_mean_;
 
