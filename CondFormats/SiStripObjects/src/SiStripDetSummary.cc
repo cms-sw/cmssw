@@ -34,7 +34,6 @@ void SiStripDetSummary::add(DetId detid, float value) {
       break;
   }
   detNum += layer * 10 + stereo;
-  // string name( detector + std::to_string(layer) + std::to_string(stereo) );
   valueMap_[detNum].mean += value;
   valueMap_[detNum].rms += value * value;
   valueMap_[detNum].count += 1;
