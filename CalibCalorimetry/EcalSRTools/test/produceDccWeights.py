@@ -24,8 +24,9 @@ process.load("Geometry.HcalCommonData.hcalDDDRecConstants_cfi")
 #process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
 #process.EcalTrivialConditionRetriever.producedEcalIntercalibConstants = True
 # b) Getting conditions through frontier interface:
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = "113X_dataRun3_HLT_v3"
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 # c) Getting conditions through oracle interface:
 #process.load("RecoLocalCalo.EcalRecProducers.getEcalConditions_orcoffint2r_cff")
 
