@@ -7,6 +7,8 @@
 #include "L1Trigger/L1THGCal/interface/backend/HGCalHistoSeedingImpl.h"
 #include "L1Trigger/L1THGCal/interface/HGCalAlgoWrapperBase.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalTriggerClusterInterpreterBase.h"
+#include "DataFormats/ForwardDetId/interface/HGCalTriggerBackendDetId.h"
+#include "L1Trigger/L1THGCal/interface/backend/HGCalStage2ClusterDistribution.h"
 
 #include <utility>
 
@@ -49,41 +51,65 @@ public:
     l1t::HGCalClusterBxCollection& rejectedClusters = be_output.second;
 
     /* create a persistent vector of pointers to the trigger-cells */
-    std::vector<edm::Ptr<l1t::HGCalCluster>> clustersPtrs;
+    std::unordered_map<uint32_t, std::vector<edm::Ptr<l1t::HGCalCluster>>> tcs_per_fpga;
+
     for (unsigned i = 0; i < collHandle->size(); ++i) {
-      edm::Ptr<l1t::HGCalCluster> ptr(collHandle, i);
-      clustersPtrs.push_back(ptr);
+      edm::Ptr<l1t::HGCalCluster> tc_ptr(collHandle, i);
+      uint32_t module = geometry_->getModuleFromTriggerCell(tc_ptr->detId());
+      uint32_t stage1_fpga = geometry_->getStage1FpgaFromModule(module);
+      HGCalTriggerGeometryBase::geom_set possible_stage2_fpgas = geometry_->getStage2FpgasFromStage1Fpga(stage1_fpga);
+
+      HGCalStage2ClusterDistribution distributor(conf_.getParameterSet("DistributionParameters"));
+
+      HGCalTriggerGeometryBase::geom_set stage2_fpgas =
+          distributor.getStage2FPGAs(stage1_fpga, possible_stage2_fpgas, tc_ptr);
+
+      for (auto& fpga : stage2_fpgas) {
+        tcs_per_fpga[fpga].push_back(tc_ptr);
+      }
     }
-
-    /* create a vector of seed positions and their energy*/
-    std::vector<std::pair<GlobalPoint, double>> seedPositionsEnergy;
-
-    /* call to multiclustering and compute shower shape*/
-    multiclusteringHistoSeeding_->findHistoSeeds(clustersPtrs, seedPositionsEnergy);
-
-    // Inputs
-    std::pair<const std::vector<edm::Ptr<l1t::HGCalCluster>>&, const std::vector<std::pair<GlobalPoint, double>>&>
-        inputClustersAndSeeds{clustersPtrs, seedPositionsEnergy};
-    // Outputs
-    l1t::HGCalMulticlusterBxCollection collCluster3D;
-
-    std::pair<l1t::HGCalMulticlusterBxCollection&, l1t::HGCalClusterBxCollection&>
-        outputMulticlustersAndRejectedClusters{collCluster3D, rejectedClusters};
 
     // Configuration
     const std::pair<const edm::EventSetup&, const edm::ParameterSet&> configuration{es, conf_};
-
-    // Configure and process
     multiclusteringHistoClusteringWrapper_->configure(configuration);
-    multiclusteringHistoClusteringWrapper_->process(inputClustersAndSeeds, outputMulticlustersAndRejectedClusters);
-
     multiclusteringSortingTruncationWrapper_->configure(configuration);
-    multiclusteringSortingTruncationWrapper_->process(collCluster3D, collCluster3D_sorted);
 
-    // Call all the energy interpretation modules on the cluster collection
-    for (const auto& interpreter : energy_interpreters_) {
-      interpreter->eventSetup(es);
-      interpreter->interpret(collCluster3D);
+    for (auto& fpga_tcs : tcs_per_fpga) {
+      /* create a vector of seed positions and their energy*/
+      std::vector<std::pair<GlobalPoint, double>> seedPositionsEnergy;
+
+      /* call to multiclustering and compute shower shape*/
+      multiclusteringHistoSeeding_->findHistoSeeds(fpga_tcs.second, seedPositionsEnergy);
+
+      // Inputs
+      std::pair<const std::vector<edm::Ptr<l1t::HGCalCluster>>&, const std::vector<std::pair<GlobalPoint, double>>&>
+          inputClustersAndSeeds{fpga_tcs.second, seedPositionsEnergy};
+      // Outputs
+      l1t::HGCalMulticlusterBxCollection collCluster3D_perFPGA;
+      l1t::HGCalMulticlusterBxCollection collCluster3D_perFPGA_sorted;
+      l1t::HGCalClusterBxCollection rejectedClusters_perFPGA;
+
+      std::pair<l1t::HGCalMulticlusterBxCollection&, l1t::HGCalClusterBxCollection&>
+          outputMulticlustersAndRejectedClusters_perFPGA{collCluster3D_perFPGA, rejectedClusters_perFPGA};
+
+      // Process
+      multiclusteringHistoClusteringWrapper_->process(inputClustersAndSeeds,
+                                                      outputMulticlustersAndRejectedClusters_perFPGA);
+
+      multiclusteringSortingTruncationWrapper_->process(collCluster3D_perFPGA, collCluster3D_perFPGA_sorted);
+
+      // Call all the energy interpretation modules on the cluster collection
+      for (const auto& interpreter : energy_interpreters_) {
+        interpreter->eventSetup(es);
+        interpreter->interpret(collCluster3D_perFPGA_sorted);
+      }
+
+      for (const auto& collcluster : collCluster3D_perFPGA_sorted) {
+        collCluster3D_sorted.push_back(0, collcluster);
+      }
+      for (const auto& rejectedcluster : rejectedClusters_perFPGA) {
+        rejectedClusters.push_back(0, rejectedcluster);
+      }
     }
   }
 

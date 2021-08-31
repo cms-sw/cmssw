@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import stage1truncation_proc
-
+from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import truncation_params
 
 def custom_stage1_truncation(process):
     parameters = stage1truncation_proc.clone()
@@ -11,6 +11,7 @@ def custom_stage1_truncation(process):
 
 def custom_clustering_standalone(process):
     process.hgcalBackEndLayer2Producer.ProcessorParameters.ProcessorName = cms.string('HGCalBackendLayer2Processor3DClusteringSA')
+    process.hgcalBackEndLayer2Producer.ProcessorParameters.DistributionParameters = truncation_params
     return process
 
 def custom_tower_standalone(process):

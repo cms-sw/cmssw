@@ -615,7 +615,6 @@ unsigned HGCalTriggerGeometryV9Imp3::getStage2FpgaFromStage1Link(const unsigned 
 HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getStage1LinksFromStage1Fpga(
     const unsigned stage1_id) const {
   geom_set stage1link_ids;
-
   HGCalTriggerBackendDetId id(stage1_id);
 
   auto stage1_itrs = stage1_to_stage1links_.equal_range(id.label());
