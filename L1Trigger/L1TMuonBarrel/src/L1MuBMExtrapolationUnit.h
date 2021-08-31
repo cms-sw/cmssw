@@ -33,8 +33,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -51,7 +49,7 @@ class L1MuDTTFParameters;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuBMExtrapolationUnit : public L1AbstractProcessor {
+class L1MuBMExtrapolationUnit {
 public:
   typedef std::pair<Extrapolation, unsigned int> SEUId;
   typedef std::map<SEUId, L1MuBMSEU*, std::less<SEUId> > SEUmap;
@@ -60,13 +58,13 @@ public:
   L1MuBMExtrapolationUnit(const L1MuBMSectorProcessor&);
 
   /// destructor
-  ~L1MuBMExtrapolationUnit() override;
+  ~L1MuBMExtrapolationUnit();
 
   /// run Extrapolation Unit
-  void run(const edm::EventSetup& c) override;
+  void run(const edm::EventSetup& c);
 
   /// reset Extrapolation Unit
-  void reset() override;
+  void reset();
 
   /// reset a single extrapolation
   void reset(Extrapolation ext, unsigned int startAdr, unsigned int relAdr);

@@ -28,7 +28,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1AbstractProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMLUTHandler.h"
 
 //------------------------------------
@@ -49,22 +48,22 @@ class L1MuDTTFParameters;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuBMEUX : public L1AbstractProcessor {
+class L1MuBMEUX {
 public:
   /// constructor
   L1MuBMEUX(const L1MuBMSectorProcessor& sp, const L1MuBMSEU& seu, int id);
 
   /// destructor
-  ~L1MuBMEUX() override;
+  ~L1MuBMEUX();
 
   /// equal operator
   bool operator==(const L1MuBMEUX&) const;
 
   /// run Extrapolator
-  void run(const edm::EventSetup& c) override;
+  void run(const edm::EventSetup& c);
 
   /// reset Extrapolator
-  void reset() override;
+  void reset();
 
   /// load data into EUX
   void load(const L1MuBMTrackSegPhi* start_ts, const L1MuBMTrackSegPhi* target_ts);
