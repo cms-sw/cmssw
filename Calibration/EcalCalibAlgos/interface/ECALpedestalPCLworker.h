@@ -23,6 +23,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/TCDS/interface/BSTRecord.h"
 #include "DataFormats/TCDS/interface/TCDSRecord.h"
@@ -43,6 +45,7 @@ private:
   edm::EDGetTokenT<EBDigiCollection> digiTokenEB_;
   edm::EDGetTokenT<EEDigiCollection> digiTokenEE_;
   edm::EDGetTokenT<TCDSRecord> tcdsToken_;
+  const edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> pedestalToken_;
 
   std::vector<MonitorElement *> meEB_;
   std::vector<MonitorElement *> meEE_;
