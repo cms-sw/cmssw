@@ -1,13 +1,53 @@
-#include "SimCalorimetry/CastorTechTrigProducer/src/CastorTTRecord.h"
-
 #include "CalibFormats/CastorObjects/interface/CastorCalibrations.h"
 #include "CalibFormats/CastorObjects/interface/CastorCoderDb.h"
+#include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
+#include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalTTPDigi.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+
+class CastorTTRecord : public edm::one::EDProducer<> {
+public:
+  explicit CastorTTRecord(const edm::ParameterSet &ps);
+  ~CastorTTRecord() override;
+
+  void produce(edm::Event &e, const edm::EventSetup &c) override;
+
+  // get fC from digis and save it to array double energy[16 sectors][14
+  // modules]
+  void getEnergy_fC(double energy[16][14],
+                    edm::Handle<CastorDigiCollection> &CastorDigiColl,
+                    edm::Event &e,
+                    const edm::EventSetup &c);
+
+  // get Trigger decisions | vector needs same SIZE and ORDER as in 'ttpBits_'
+  void getTriggerDecisions(std::vector<bool> &decision, double energy[16][14]) const;
+
+  // get Trigger decisions for every octant | vector has size of 6 -> 6 HTR card
+  // bits
+  void getTriggerDecisionsPerOctant(std::vector<bool> tdps[16], double energy[16][14]) const;
+
+private:
+  edm::EDGetTokenT<CastorDigiCollection> CastorDigiColl_;
+  unsigned int CastorSignalTS_;
+
+  std::vector<unsigned int> ttpBits_;
+  std::vector<std::string> TrigNames_;
+  std::vector<double> TrigThresholds_;
+  edm::ESGetToken<CastorDbService, CastorDbRecord> conditionsToken_;
+
+  double reweighted_gain;
+};
 
 CastorTTRecord::CastorTTRecord(const edm::ParameterSet &ps) {
   CastorDigiColl_ = consumes<CastorDigiCollection>(ps.getParameter<edm::InputTag>("CastorDigiCollection"));
@@ -261,3 +301,8 @@ void CastorTTRecord::getTriggerDecisionsPerOctant(std::vector<bool> tdpo[8], dou
     }
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
+DEFINE_FWK_MODULE(CastorTTRecord);
