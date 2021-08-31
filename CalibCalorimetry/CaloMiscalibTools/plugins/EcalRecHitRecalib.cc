@@ -10,15 +10,15 @@ EcalRecHitRecalib::EcalRecHitRecalib(const edm::ParameterSet& iConfig)
     : ecalHitsProducer_(iConfig.getParameter<std::string>("ecalRecHitsProducer")),
       barrelHits_(iConfig.getParameter<std::string>("barrelHitCollection")),
       endcapHits_(iConfig.getParameter<std::string>("endcapHitCollection")),
-      RecalibBarrelHits_(iConfig.getParameter<std::string>("RecalibBarrelHitCollection")),
-      RecalibEndcapHits_(iConfig.getParameter<std::string>("RecalibEndcapHitCollection")),
+      recalibBarrelHits_(iConfig.getParameter<std::string>("RecalibBarrelHitCollection")),
+      recalibEndcapHits_(iConfig.getParameter<std::string>("RecalibEndcapHitCollection")),
       refactor_(iConfig.getUntrackedParameter<double>("Refactor", (double)1)),
       refactor_mean_(iConfig.getUntrackedParameter<double>("Refactor_mean", (double)1)),
       ebRecHitToken_(consumes<EBRecHitCollection>(edm::InputTag(ecalHitsProducer_, barrelHits_))),
       eeRecHitToken_(consumes<EERecHitCollection>(edm::InputTag(ecalHitsProducer_, endcapHits_))),
       intercalibConstsToken_(esConsumes()),
-      barrelHitsToken_(produces<EBRecHitCollection>(RecalibBarrelHits_)),
-      endcapHitsToken_(produces<EERecHitCollection>(RecalibEndcapHits_)) {}
+      barrelHitsToken_(produces<EBRecHitCollection>(recalibBarrelHits_)),
+      endcapHitsToken_(produces<EERecHitCollection>(recalibEndcapHits_)) {}
 
 EcalRecHitRecalib::~EcalRecHitRecalib() {}
 
@@ -64,7 +64,6 @@ void EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
       if (icalit != ical.getMap().end()) {
         icalconst = (*icalit);
-        // edm::LogDebug("EcalRecHitRecalib") << "Found intercalib for xtal " << EBDetId(itb->id()) << " " << icalconst ;
 
       } else {
         edm::LogError("EcalRecHitRecalib") << "No intercalib const found for xtal " << EBDetId(itb->id())
@@ -90,7 +89,6 @@ void EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
       if (icalit != ical.getMap().end()) {
         icalconst = (*icalit);
-        // edm:: LogDebug("EcalRecHitRecalib") << "Found intercalib for xtal " << EEDetId(ite->id()) << " " << icalconst ;
       } else {
         edm::LogError("EcalRecHitRecalib") << "No intercalib const found for xtal " << EEDetId(ite->id())
                                            << "! something wrong with EcalIntercalibConstants in your DB? ";
