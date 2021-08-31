@@ -1,11 +1,47 @@
-#include "SimCalorimetry/HcalTrigPrimProducers/src/HcalTTPDigiProducer.h"
-
-#include "DataFormats/HcalDigi/interface/HFDataFrame.h"
+#include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
+#include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <cstdio>
+
+class HcalTTPDigiProducer : public edm::stream::EDProducer<> {
+public:
+  explicit HcalTTPDigiProducer(const edm::ParameterSet& ps);
+  ~HcalTTPDigiProducer() override = default;
+
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+private:
+  bool isMasked(HcalDetId id);
+  bool decision(int nP, int nM, int bit);
+
+  edm::EDGetTokenT<HFDigiCollection> tok_hf_;
+  edm::ESGetToken<HcalTPGCoder, HcalTPGRecord> tok_tpgCoder_;
+  std::vector<unsigned int> maskedChannels_;
+  std::string bit_[4];
+  int calc_[4];
+  int nHits_[4], nHFp_[4], nHFm_[4];
+  char pReq_[4], mReq_[4], pmLogic_[4];
+  int id_, samples_, presamples_;
+  int fwAlgo_;
+  int iEtaMin_, iEtaMax_;
+  unsigned int threshold_;
+
+  int SoI_;
+
+  static const int inputs_[];
+};
 
 // DO NOT MODIFY: Mapping between iphi (array index) and TTP input (value) for HF
 const int HcalTTPDigiProducer::inputs_[] = {30, 66, 4,  44, 4,  44, 0,  68, 0,  68, 16, 48, 16, 48, 6,  46, 6,  46,
@@ -183,3 +219,8 @@ void HcalTTPDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSet
   // Step E: Put outputs into event
   e.put(std::move(ttpResult));
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(HcalTTPDigiProducer);
