@@ -21,7 +21,7 @@ public:
 
 private:
   void update(const BeginOfRun *run) override;
-  int dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, bool printIt, int ns, std::ostream &out = std::cout);
+  int dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, bool printIt, int ns, std::ostream &out = G4cout);
   G4VPhysicalVolume *getTopPV();
 
 private:
@@ -34,16 +34,16 @@ PrintSensitive::PrintSensitive(const edm::ParameterSet &p) {
   name_ = p.getUntrackedParameter<std::string>("Name", "*");
   nchar_ = name_.find('*');
   name_.assign(name_, 0, nchar_);
-  std::cout << "PrintSensitive:: Print position of all Sensitive Touchables: "
-            << " for names (0-" << nchar_ << ") = " << name_ << "\n";
+  G4cout << "PrintSensitive:: Print position of all Sensitive Touchables: "
+         << " for names (0-" << nchar_ << ") = " << name_ << G4endl;
 }
 
 PrintSensitive::~PrintSensitive() {}
 
 void PrintSensitive::update(const BeginOfRun *run) {
   G4VPhysicalVolume *theTopPV = getTopPV();
-  int nsens = dumpTouch(theTopPV, 0, false, 0, std::cout);
-  std::cout << "\nTotal number of sensitive detector volumes for " << name_ << " is " << nsens << std::endl;
+  int nsens = dumpTouch(theTopPV, 0, false, 0, G4cout);
+  G4cout << "\nTotal number of sensitive detector volumes for " << name_ << " is " << nsens << G4endl;
 }
 
 int PrintSensitive::dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, bool printIt, int ns, std::ostream &out) {
