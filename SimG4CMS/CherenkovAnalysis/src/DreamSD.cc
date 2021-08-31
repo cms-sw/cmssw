@@ -179,7 +179,7 @@ void DreamSD::fillMap(const std::string &name, double length, double width) {
   for (auto lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
     edm::LogVerbatim("EcalSim") << name << " vs " << (*lvcite)->GetName();
     std::string namex = static_cast<std::string>((*lvcite)->GetName());
-    if (name  == static_cast<std::string>(dd4hep::dd::noNamespace(namex))) {
+    if (name == static_cast<std::string>(dd4hep::dd::noNamespace(namex))) {
       lv = (*lvcite);
       break;
     }
