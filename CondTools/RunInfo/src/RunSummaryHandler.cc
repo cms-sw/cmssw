@@ -47,7 +47,6 @@ void RunSummaryHandler::getNewObjects() {
 
   size_t n_empty_run = 0;
   if (tagInfo().size > 0 && (tagInfo().lastInterval.since + 1) < snc) {
-    n_empty_run = snc - tagInfo().lastInterval.since - 1;
     edm::LogInfo("RunSummaryHandler") << "------- "
                                       << "entering fake run from " << tagInfo().lastInterval.since + 1 << "to "
                                       << snc - 1 << "- > getNewObjects" << std::endl;

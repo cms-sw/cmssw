@@ -23,22 +23,22 @@
 #include <cmath>
 
 namespace {
-  std::string dot(".");
-  std::string quote("\"");
-  std::string bNOTb(" NOT ");
-  std::string squoted(const std::string& s) { return quote + s + quote; }
+  const std::string dot(".");
+  const std::string quote("\"");
+  const std::string bNOTb(" NOT ");
+  const std::string squoted(const std::string& s) { return quote + s + quote; }
   //now strings for the tables and columns to be queried
-  std::string sParameterTable("RUNSESSION_PARAMETER");
-  std::string sDateTable("RUNSESSION_DATE");
-  std::string sStringTable("RUNSESSION_STRING");
-  std::string sIdParameterColumn("ID");
-  std::string sRunNumberParameterColumn("RUNNUMBER");
-  std::string sNameParameterColumn("NAME");
-  std::string sRunSessionParameterIdDataColumn("RUNSESSION_PARAMETER_ID");
-  std::string sValueDataColumn("VALUE");
-  std::string sDCSMagnetTable("CMSFWMAGNET");
-  std::string sDCSMagnetCurrentColumn("CURRENT");
-  std::string sDCSMagnetChangeDateColumn("CHANGE_DATE");
+  const std::string sParameterTable("RUNSESSION_PARAMETER");
+  const std::string sDateTable("RUNSESSION_DATE");
+  const std::string sStringTable("RUNSESSION_STRING");
+  const std::string sIdParameterColumn("ID");
+  const std::string sRunNumberParameterColumn("RUNNUMBER");
+  const std::string sNameParameterColumn("NAME");
+  const std::string sRunSessionParameterIdDataColumn("RUNSESSION_PARAMETER_ID");
+  const std::string sValueDataColumn("VALUE");
+  const std::string sDCSMagnetTable("CMSFWMAGNET");
+  const std::string sDCSMagnetCurrentColumn("CURRENT");
+  const std::string sDCSMagnetChangeDateColumn("CHANGE_DATE");
 }  // namespace
 
 RunInfoRead::RunInfoRead(const std::string& connectionString, const edm::ParameterSet& connectionPset)
