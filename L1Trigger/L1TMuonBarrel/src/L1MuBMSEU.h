@@ -29,12 +29,11 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 class L1MuBMSectorProcessor;
 class L1MuBMTrackSegPhi;
@@ -45,19 +44,19 @@ class L1MuBMERS;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuBMSEU : public L1AbstractProcessor {
+class L1MuBMSEU {
 public:
   /// constructor
   L1MuBMSEU(const L1MuBMSectorProcessor& sp, Extrapolation ext, unsigned int tsId);
 
   /// destructor
-  ~L1MuBMSEU() override;
+  ~L1MuBMSEU();
 
   /// run SEU
-  void run(const edm::EventSetup& c) override;
+  void run(const edm::EventSetup& c);
 
   /// reset SEU
-  void reset() override;
+  void reset();
 
   /// reset single extrapolation
   void reset(unsigned int relAdr);

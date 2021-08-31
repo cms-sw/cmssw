@@ -29,8 +29,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -39,7 +37,8 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/L1TMuon/interface/BMTF/L1MuBMAddressArray.h"
 
 class L1MuBMTrackSegPhi;
@@ -49,19 +48,19 @@ class L1MuBMLUTHandler;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuBMAssignmentUnit : public L1AbstractProcessor {
+class L1MuBMAssignmentUnit {
 public:
   /// constructor
   L1MuBMAssignmentUnit(L1MuBMSectorProcessor& sp, int id);
 
   /// destructor
-  ~L1MuBMAssignmentUnit() override;
+  ~L1MuBMAssignmentUnit();
 
   /// run Assignment Unit
-  void run(const edm::EventSetup& c) override;
+  void run(const edm::EventSetup& c);
 
   /// reset Assignment Unit
-  void reset() override;
+  void reset();
 
   /// assign phi
   void PhiAU(const edm::EventSetup& c);

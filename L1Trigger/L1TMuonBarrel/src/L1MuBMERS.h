@@ -27,8 +27,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -40,19 +38,19 @@ class L1MuBMSEU;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuBMERS : public L1AbstractProcessor {
+class L1MuBMERS {
 public:
   /// constructor
   L1MuBMERS(const L1MuBMSEU&);
 
   /// destructor
-  ~L1MuBMERS() override;
+  ~L1MuBMERS();
 
   /// run L1MuBMERS
-  void run() override;
+  void run();
 
   /// reset ERS
-  void reset() override;
+  void reset();
 
   /// return extrapolation quality
   inline unsigned int quality(int id) const { return m_quality[id]; }
