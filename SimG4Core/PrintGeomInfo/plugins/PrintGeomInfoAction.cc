@@ -114,15 +114,15 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
   G4cout << "PrintGeomInfoAction:: initialised for dd4hep " << dd4hep_ << " with verbosity levels:"
          << " Summary   " << dumpSummary_ << " LVTree   " << dumpLVTree_ << " LVList    " << dumpLVList_ << " Material "
          << dumpMaterial_ << G4endl << "                                                        "
-         << " LV        " << dumpLV_ << " Solid    " << dumpSolid_ << " Attribs   " << dumpAtts_
-         << G4endl << "                                                        "
-         << " PV        " << dumpPV_ << " Rotation " << dumpRotation_ << " Replica   " << dumpReplica_
-         << G4endl << "                                                        "
-         << " Touchable " << dumpTouch_ << " for names (0-" << nchar_ << ") = " << name_
-         << G4endl << "                                                        "
+         << " LV        " << dumpLV_ << " Solid    " << dumpSolid_ << " Attribs   " << dumpAtts_ << G4endl
+         << "                                                        "
+         << " PV        " << dumpPV_ << " Rotation " << dumpRotation_ << " Replica   " << dumpReplica_ << G4endl
+         << "                                                        "
+         << " Touchable " << dumpTouch_ << " for names (0-" << nchar_ << ") = " << name_ << G4endl
+         << "                                                        "
          << " Sensitive " << dumpSense_ << " Files " << fileMat_ << ":" << fileSolid_ << ":" << fileLV_ << ":"
-         << filePV_ << ":" << fileTouch_ << " FileDetail " << fileDetail_
-         << G4endl << "                                                        for " << names_.size() << " names:";
+         << filePV_ << ":" << fileTouch_ << " FileDetail " << fileDetail_ << G4endl
+         << "                                                        for " << names_.size() << " names:";
   for (unsigned int i = 0; i < names_.size(); i++)
     G4cout << " " << names_[i];
   G4cout << G4endl;

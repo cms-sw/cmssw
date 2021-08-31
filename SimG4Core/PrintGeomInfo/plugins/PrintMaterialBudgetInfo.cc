@@ -170,12 +170,9 @@ void PrintMaterialBudgetInfo::dumpHeader(std::ostream& out) {
 }
 
 void PrintMaterialBudgetInfo::dumpLaTeXHeader(std::ostream& out) {
-  out << "\\begin{table}[h!]" << G4endl
-      << "  \\caption{\\textsf {" << name << "} volume list.}" << G4endl
-      << "  \\label{tab: " << name << "}" << G4endl
-      << "  \\begin{center}" << G4endl
-      << "    \\begin{tabular}{ccccccc}" << G4endl
-      << "      \\hline" << G4endl;
+  out << "\\begin{table}[h!]" << G4endl << "  \\caption{\\textsf {" << name << "} volume list.}" << G4endl
+      << "  \\label{tab: " << name << "}" << G4endl << "  \\begin{center}" << G4endl << "    \\begin{tabular}{ccccccc}"
+      << G4endl << "      \\hline" << G4endl;
   out << "      Geom."
       << "\t & "
       << "      Volume"
@@ -203,15 +200,12 @@ void PrintMaterialBudgetInfo::dumpLaTeXHeader(std::ostream& out) {
       << "                "
       << "\t & "
       << "                "
-      << "\t \\\\ " << G4endl
-      << "      \\hline\\hline" << G4endl;
+      << "\t \\\\ " << G4endl << "      \\hline\\hline" << G4endl;
 }
 
 void PrintMaterialBudgetInfo::dumpLaTeXFooter(std::ostream& out) {
-  out << "      \\hline" << G4endl
-      << "    \\end{tabular}" << G4endl
-      << "  \\end{center}" << G4endl
-      << "\\end{table}" << G4endl;
+  out << "      \\hline" << G4endl << "    \\end{tabular}" << G4endl << "  \\end{center}" << G4endl << "\\end{table}"
+      << G4endl;
 }
 
 void PrintMaterialBudgetInfo::dumpHierarchyLeaf(

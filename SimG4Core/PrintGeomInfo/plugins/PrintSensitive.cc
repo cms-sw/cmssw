@@ -35,7 +35,7 @@ PrintSensitive::PrintSensitive(const edm::ParameterSet &p) {
   nchar_ = name_.find('*');
   name_.assign(name_, 0, nchar_);
   G4cout << "PrintSensitive:: Print position of all Sensitive Touchables: "
-	 << " for names (0-" << nchar_ << ") = " << name_ << G4endl;
+         << " for names (0-" << nchar_ << ") = " << name_ << G4endl;
 }
 
 PrintSensitive::~PrintSensitive() {}
