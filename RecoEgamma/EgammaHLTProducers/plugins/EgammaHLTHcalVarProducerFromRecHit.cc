@@ -165,16 +165,16 @@ void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
 
     if (useSingleTower_) {
       if (!doEtSum_) {  //this is single tower based H/E
-	external = EgammaHcalIsolation::InclusionRule::isBehindClusterSeed;
-	internal = EgammaHcalIsolation::InclusionRule::withinConeAroundCluster;
+        external = EgammaHcalIsolation::InclusionRule::isBehindClusterSeed;
+        internal = EgammaHcalIsolation::InclusionRule::withinConeAroundCluster;
       } else {  //this is cone-based HCAL isolation with single tower based footprint removal
-	external = EgammaHcalIsolation::InclusionRule::withinConeAroundCluster;
-	internal = EgammaHcalIsolation::InclusionRule::isBehindClusterSeed;
+        external = EgammaHcalIsolation::InclusionRule::withinConeAroundCluster;
+        internal = EgammaHcalIsolation::InclusionRule::isBehindClusterSeed;
       }
     } else {  //useSingleTower_=False means H/E is cone-based
-	external = EgammaHcalIsolation::InclusionRule::withinConeAroundCluster;
-	internal = EgammaHcalIsolation::InclusionRule::withinConeAroundCluster;
-      }
+      external = EgammaHcalIsolation::InclusionRule::withinConeAroundCluster;
+      internal = EgammaHcalIsolation::InclusionRule::withinConeAroundCluster;
+    }
 
     EgammaHcalIsolation thisHcalVar_ = EgammaHcalIsolation(external,
                                                            outerCone_,
@@ -196,11 +196,11 @@ void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
     if (useSingleTower_) {
       if (doEtSum_) {  //this is cone-based HCAL isolation with single tower based footprint removal
         isol = thisHcalVar_.getHcalEtSumBc(recoEcalCandRef.get(), depth_);  //depth=0 means all depths
-      } else { //this is single tower based H/E
-	isol = thisHcalVar_.getHcalESumBc(recoEcalCandRef.get(), depth_);   //depth=0 means all depths
+      } else {                                                              //this is single tower based H/E
+        isol = thisHcalVar_.getHcalESumBc(recoEcalCandRef.get(), depth_);   //depth=0 means all depths
       }
-    } else {  //useSingleTower_=False means H/E is cone-based.
-      if (doEtSum_) { //hcal iso
+    } else {           //useSingleTower_=False means H/E is cone-based.
+      if (doEtSum_) {  //hcal iso
         isol = thisHcalVar_.getHcalEtSum(recoEcalCandRef.get(), depth_);  //depth=0 means all depths
       } else {  // doEtSum_=False means sum up energy, this is for H/E
         isol = thisHcalVar_.getHcalESum(recoEcalCandRef.get(), depth_);  //depth=0 means all depths
