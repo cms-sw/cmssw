@@ -332,8 +332,7 @@ private:
 
     edm::LogInfo("ConditionDBWriter") << "appending a new object to tag " << Record_ << " in since mode " << std::endl;
 
-    // The Framework will take control over the DB object now, therefore the release.
-    mydbservice->writeOne<T>(objPointer.release(), since, Record_);
+    mydbservice->writeOne<T>(*objPointer, since, Record_);
   }
 
   void setTime() {

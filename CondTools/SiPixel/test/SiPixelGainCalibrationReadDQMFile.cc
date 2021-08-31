@@ -459,24 +459,20 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
     if (record_ == "SiPixelGainCalibrationForHLTRcd") {
       std::cout << "now doing SiPixelGainCalibrationForHLTRcd payload..." << std::endl;
       if (mydbservice->isNewTagRequest(record_)) {
-        mydbservice->createNewIOV<SiPixelGainCalibrationForHLT>(theGainCalibrationDbInputHLT.release(),
-                                                                mydbservice->beginOfTime(),
-                                                                mydbservice->endOfTime(),
-                                                                "SiPixelGainCalibrationForHLTRcd");
+        mydbservice->createNewIOV<SiPixelGainCalibrationForHLT>(
+            *theGainCalibrationDbInputHLT, mydbservice->beginOfTime(), "SiPixelGainCalibrationForHLTRcd");
       } else {
         mydbservice->appendSinceTime<SiPixelGainCalibrationForHLT>(
-            theGainCalibrationDbInputHLT.release(), mydbservice->currentTime(), "SiPixelGainCalibrationForHLTRcd");
+            *theGainCalibrationDbInputHLT, mydbservice->currentTime(), "SiPixelGainCalibrationForHLTRcd");
       }
     } else if (record_ == "SiPixelGainCalibrationOfflineRcd") {
       std::cout << "now doing SiPixelGainCalibrationOfflineRcd payload..." << std::endl;
       if (mydbservice->isNewTagRequest(record_)) {
-        mydbservice->createNewIOV<SiPixelGainCalibrationOffline>(theGainCalibrationDbInputOffline.release(),
-                                                                 mydbservice->beginOfTime(),
-                                                                 mydbservice->endOfTime(),
-                                                                 "SiPixelGainCalibrationOfflineRcd");
+        mydbservice->createNewIOV<SiPixelGainCalibrationOffline>(
+            *theGainCalibrationDbInputOffline, mydbservice->beginOfTime(), "SiPixelGainCalibrationOfflineRcd");
       } else {
         mydbservice->appendSinceTime<SiPixelGainCalibrationOffline>(
-            theGainCalibrationDbInputOffline.release(), mydbservice->currentTime(), "SiPixelGainCalibrationOfflineRcd");
+            *theGainCalibrationDbInputOffline, mydbservice->currentTime(), "SiPixelGainCalibrationOfflineRcd");
       }
     }
     edm::LogInfo(" --- all OK");
