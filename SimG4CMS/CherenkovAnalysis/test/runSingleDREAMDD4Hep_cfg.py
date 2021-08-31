@@ -39,7 +39,6 @@ process.load("SimG4CMS.CherenkovAnalysis.cherenkovAnalysis_cfi")
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.cherenkovAnalysis)
 
 process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("SimG4CMS/CherenkovAnalysis/data/SingleDREAMDD4Hep.xml")
-process.DDDetectorESProducer.rootDDName = 'singleDREAM:DREAM'
 process.generator.PGunParameters.MinE = 10.0
 process.generator.PGunParameters.MaxE = 10.0
 process.g4SimHits.UseMagneticField = False

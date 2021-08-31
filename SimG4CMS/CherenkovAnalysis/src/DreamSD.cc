@@ -1,6 +1,3 @@
-
-#include <memory>
-
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -142,11 +139,10 @@ void DreamSD::initMap(const std::string &sd) {
     DDFilteredView fv((*cpvDDD_), filter);
     fv.firstChild();
     bool dodet = true;
-    const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
     while (dodet) {
       const DDSolid &sol = fv.logicalPart().solid();
       std::vector<double> paras(sol.parameters());
-      G4String name = sol.name().name();
+      std::string name = static_cast<std::string>(sol.name().name());
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("EcalSim") << "DreamSD::initMap (for " << sd << "): Solid " << name << " Shape " << sol.shape()
                                   << " Parameter 0 = " << paras[0];
@@ -155,16 +151,7 @@ void DreamSD::initMap(const std::string &sd) {
       std::sort(paras.begin(), paras.end());
       double length = 2.0 * k_ScaleFromDDDToG4 * paras.back();
       double width = 2.0 * k_ScaleFromDDDToG4 * paras.front();
-      G4LogicalVolume *lv = nullptr;
-      for (auto lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
-        if ((*lvcite)->GetName() == name) {
-          lv = (*lvcite);
-          break;
-        }
-      xtalLMap_.insert(std::pair<G4LogicalVolume *, Doubles>(lv, Doubles(length, width)));
-#ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalSim") << "DreamSD " << name << ":" << lv << ":" << length << ":" << width;
-#endif
+      fillMap(name, length, width);
       dodet = fv.next();
     }
   }
@@ -191,7 +178,8 @@ void DreamSD::fillMap(const std::string &name, double length, double width) {
   G4LogicalVolume *lv = nullptr;
   for (auto lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
     edm::LogVerbatim("EcalSim") << name << " vs " << (*lvcite)->GetName();
-    if ((*lvcite)->GetName() == static_cast<G4String>(name)) {
+    std::string namex = static_cast<std::string>((*lvcite)->GetName());
+    if (name  == static_cast<std::string>(dd4hep::dd::noNamespace(namex))) {
       lv = (*lvcite);
       break;
     }
@@ -432,7 +420,8 @@ double DreamSD::getAverageNumberOfPhotons_(const double charge,
 // Values from Ts42 detector construction
 bool DreamSD::setPbWO2MaterialProperties_(G4Material *aMaterial) {
   std::string pbWO2Name("E_PbWO4");
-  if (pbWO2Name != aMaterial->GetName()) {  // Wrong material!
+  std::string name = static_cast<std::string>(aMaterial->GetName());
+  if (static_cast<std::string>(dd4hep::dd::noNamespace(name)) != pbWO2Name) {  // Wrong material!
     edm::LogWarning("EcalSim") << "This is not the right material: "
                                << "expecting " << pbWO2Name << ", got " << aMaterial->GetName();
     return false;
