@@ -66,29 +66,14 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string("worker_output.root")
 )
 
-# load DQM framework
-process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder = "CTPPS"
-process.dqmEnv.eventInfoFolder = "EventInfo"
-process.dqmSaver.path = ""
-process.dqmSaver.tag = "CTPPS"
-
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-process.diamondSampicDQMSource = DQMEDAnalyzer('DiamondSampicCalibrationDQMSource',
-    tagRecHits = cms.InputTag("totemTimingRecHits"),
-    verbosity = cms.untracked.uint32(0)
-)
 
 process.path = cms.Path(
     process.totemTimingRawToDigi*
     process.diamondSampicLocalReconstruction*
-    process.diamondSampicDQMSource*
     process.PPSDiamondSampicTimingCalibrationPCLWorker
 )
 
 process.end_path = cms.EndPath(
-    process.dqmEnv +
-    process.dqmSaver+
     process.dqmOutput
 )
 
