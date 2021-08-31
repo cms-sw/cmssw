@@ -6,10 +6,12 @@
 #include <string>
 #include <stdio.h>
 #include <cassert>
+#include <thread>
 
 #include "controller.h"
 #include "worker.h"
 namespace {
+
   const char* jobType(bool isWorker) {
     if (isWorker) {
       return "Worker";
@@ -23,10 +25,10 @@ int main(int argc, char** argv) {
   int retValue = 0;
   try {
     if (argc > 1) {
-      retValue = worker(argc, argv, WorkerType::kStandard);
+      retValue = worker(argc, argv, WorkerType::kOKTimeout);
     } else {
       isWorker = false;
-      retValue = controller(argc, argv, 60);
+      retValue = controller(argc, argv, 5);
     }
   } catch (std::exception const& iException) {
     std::cerr << "Caught exception\n" << iException.what() << "\n";
