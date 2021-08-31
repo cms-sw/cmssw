@@ -22,12 +22,12 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   double sICC = args.value<double>("ICCShift");                           //Shift of ICC       per to R
   vector<double> zICC = args.value<vector<double> >("ICCZ");              //                   in Z
 
-  LogDebug("TIDGeom") << "Parent " << mother.name() << "\tModule " << moduleName[0] << ", " << moduleName[1] << "\tICC "
-                      << iccName << "\tNameSpace " << ns.name();
-  LogDebug("TIDGeom") << "Parameters for positioning--"
-                      << " StartAngle " << convertRadToDeg(startAngle) << " Copy Numbers " << number << " Modules at R "
-                      << rModule << " Z " << zModule[0] << ", " << zModule[1] << " ICCs at R " << rICC << " Z "
-                      << zICC[0] << ", " << zICC[1];
+  edm::LogVerbatim("TIDGeom") << "Parent " << mother.name() << "\tModule " << moduleName[0] << ", " << moduleName[1]
+                              << "\tICC " << iccName << "\tNameSpace " << ns.name();
+  edm::LogVerbatim("TIDGeom") << "Parameters for positioning--"
+                              << " StartAngle " << convertRadToDeg(startAngle) << " Copy Numbers " << number
+                              << " Modules at R " << rModule << " Z " << zModule[0] << ", " << zModule[1]
+                              << " ICCs at R " << rICC << " Z " << zICC[0] << ", " << zICC[1];
   double theta = 90._deg;
   double phiy = 0._deg;
   double dphi = 2_pi / number;
@@ -63,8 +63,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     Rotation3D rotation = makeRotation3D(theta, phix, thetay, phiy, theta, phiz);
     // int copyNr = i+1;
     /* PlacedVolume pv = */ mother.placeVolume(module, i + 1, Transform3D(rotation, trmod));
-    LogDebug("TIDGeom") << module.name() << " number " << i + 1 << " positioned in " << mother.name() << " at " << trmod
-                        << " with " << rotation;
+    edm::LogVerbatim("TIDGeom") << module.name() << " number " << i + 1 << " positioned in " << mother.name() << " at "
+                                << trmod << " with " << rotation;
     //Now the ICC
     if (i % 2 == 0) {
       zpos = zICC[0];
@@ -78,8 +78,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     // int copyNr = i+1;
     Position tricc(xpos, ypos, zpos);
     /* PlacedVolume pv = */ mother.placeVolume(icc, i + 1, Transform3D(rotation, tricc));
-    LogDebug("TIDGeom") << iccName << " number " << i + 1 << " positioned in " << mother.name() << " at " << tricc
-                        << " with " << rotation;
+    edm::LogVerbatim("TIDGeom") << icc.name() << " number " << i + 1 << " positioned in " << mother.name() << " at "
+                                << tricc << " with " << rotation;
   }
   return 1;
 }
