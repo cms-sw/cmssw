@@ -20,5 +20,7 @@ void HGCalSortingTruncationImplSA::sortAndTruncate_SA(
 
   //Truncate, keeping maxTCs entries
   unsigned maxTCs = configuration.maxTCs();
-  outputMulticlusters.resize(maxTCs);
+  if (outputMulticlusters.size() > maxTCs) {
+    outputMulticlusters.resize(maxTCs);
+  }
 }
