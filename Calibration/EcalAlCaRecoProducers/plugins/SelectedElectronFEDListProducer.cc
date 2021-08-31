@@ -8,21 +8,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-//#include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 // raw data
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
-//#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 // Geometry
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-// strip geometry
-#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
-#include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
 
 // egamma objects
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -37,7 +29,6 @@
 
 // Strip and pixel
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
 // detector id
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -47,30 +38,27 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 // Geometry
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 // strip geometry
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 // Message logger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // Strip and pixel
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
-
-// Hcal objects
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 using namespace std;
 
 /// Producer constructor
 template <typename TEle, typename TCand>
-SelectedElectronFEDListProducer<TEle, TCand>::SelectedElectronFEDListProducer(const edm::ParameterSet& iConfig) {
+SelectedElectronFEDListProducer<TEle, TCand>::SelectedElectronFEDListProducer(const edm::ParameterSet& iConfig)
+    : hcalDbToken_(esConsumes()),
+      ecalMappingToken_(esConsumes()),
+      caloGeometryToken_(esConsumes()),
+      siPixelFedCablingMapToken_(esConsumes()),
+      trackerGeometryToken_(esConsumes()),
+      siStripRegionCablingToken_(esConsumes())
+{
   // input electron collection Tag
   if (iConfig.existsAs<std::vector<edm::InputTag>>("electronTags")) {
     electronTags_ = iConfig.getParameter<std::vector<edm::InputTag>>("electronTags");
@@ -309,31 +297,26 @@ void SelectedElectronFEDListProducer<TEle, TCand>::beginJob() {
 template <typename TEle, typename TCand>
 void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get the hcal electronics map
-  edm::ESHandle<HcalDbService> pSetup;
-  iSetup.get<HcalDbRecord>().get(pSetup);
+  const auto pSetup = iSetup.getHandle(hcalDbToken_);
   HcalReadoutMap_ = pSetup->getHcalMapping();
 
   // get the ecal electronics map
-  edm::ESHandle<EcalElectronicsMapping> ecalmapping;
-  iSetup.get<EcalMappingRcd>().get(ecalmapping);
+  const auto ecalmapping = iSetup.getHandle(ecalMappingToken_);
   EcalMapping_ = ecalmapping.product();
 
   // get the calo geometry
-  edm::ESHandle<CaloGeometry> caloGeometry;
-  iSetup.get<CaloGeometryRecord>().get(caloGeometry);
+  const auto caloGeometry = iSetup.getHandle(caloGeometryToken_);
   GeometryCalo_ = caloGeometry.product();
 
   //ES geometry
   GeometryES_ = caloGeometry->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
   // pixel tracker cabling map
-  edm::ESTransientHandle<SiPixelFedCablingMap> pixelCablingMap;
-  iSetup.get<SiPixelFedCablingMapRcd>().get(pixelCablingMap);
+  const auto pixelCablingMap = iSetup.getTransientHandle(siPixelFedCablingMapToken_);
   PixelCabling_.reset();
   PixelCabling_ = pixelCablingMap->cablingTree();
 
-  edm::ESHandle<TrackerGeometry> trackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
+  const auto trackerGeometry = iSetup.getHandle(trackerGeometryToken_);
 
   if (pixelModuleVector_.empty()) {
     // build the tracker pixel module map
@@ -357,8 +340,7 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
     std::sort(pixelModuleVector_.begin(), pixelModuleVector_.end());
   }
 
-  edm::ESHandle<SiStripRegionCabling> SiStripCablingHandle;
-  iSetup.get<SiStripRegionCablingRcd>().get(SiStripCablingHandle);
+  const auto SiStripCablingHandle = iSetup.getHandle(siStripRegionCablingToken_);
   StripRegionCabling_ = SiStripCablingHandle.product();
 
   SiStripRegionCabling::Cabling SiStripCabling;
