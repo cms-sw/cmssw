@@ -8,6 +8,8 @@ GEMClusterProcessor::GEMClusterProcessor(int region, unsigned station, unsigned 
     : region_(region), station_(station), chamber_(chamber) {
   isEven_ = chamber_ % 2 == 0;
 
+  hasGE21Geometry16Partitions_ = false;
+
   if (station_ == 1) {
     const edm::ParameterSet copad(conf.getParameter<edm::ParameterSet>("copadParamGE11"));
     maxDeltaPad_ = copad.getParameter<unsigned int>("maxDeltaPad");
