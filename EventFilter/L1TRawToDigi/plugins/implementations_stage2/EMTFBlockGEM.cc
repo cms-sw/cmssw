@@ -227,11 +227,12 @@ namespace l1t {
           }
         }  // End loop: for (auto const & iHit : *res_hit)
 
-        if (exact_duplicate)
-          edm::LogWarning("L1T|EMTF") << "EMTF unpacked duplicate GEM digis: BX " << Hit_.BX() << ", endcap "
-                                      << Hit_.Endcap() << ", station " << Hit_.Station() << ", neighbor "
-                                      << Hit_.Neighbor() << ", ring " << Hit_.Ring() << ", chamber " << Hit_.Chamber()
-                                      << ", roll " << Hit_.Roll() << ", pad " << Hit_.Pad() << std::endl;
+        // TODO: Re-enable once GEM TP data format is fixed
+        // if (exact_duplicate)
+        //   edm::LogWarning("L1T|EMTF") << "EMTF unpacked duplicate GEM digis: BX " << Hit_.BX() << ", endcap "
+        //                               << Hit_.Endcap() << ", station " << Hit_.Station() << ", neighbor "
+        //                               << Hit_.Neighbor() << ", ring " << Hit_.Ring() << ", chamber " << Hit_.Chamber()
+        //                               << ", roll " << Hit_.Roll() << ", pad " << Hit_.Pad() << std::endl;
 
         (res->at(iOut)).push_GEM(GEM_);
         if (!exact_duplicate)
