@@ -52,7 +52,8 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuBMExtrapolationUnit::L1MuBMExtrapolationUnit(const L1MuBMSectorProcessor& sp) : m_sp(sp), m_SEUs() {
+L1MuBMExtrapolationUnit::L1MuBMExtrapolationUnit(const L1MuBMSectorProcessor& sp, edm::ConsumesCollector cc)
+    : m_sp(sp), m_SEUs(), m_paramsToken(cc.esConsumes()) {
   for (int ext_idx = 0; ext_idx < MAX_EXT; ext_idx++) {
     Extrapolation ext = static_cast<Extrapolation>(ext_idx);
 
@@ -92,10 +93,7 @@ L1MuBMExtrapolationUnit::~L1MuBMExtrapolationUnit() {
 // run Extrapolation Unit
 //
 void L1MuBMExtrapolationUnit::run(const edm::EventSetup& c) {
-  //c.get< L1MuDTTFParametersRcd >().get( pars );
-  const L1TMuonBarrelParamsRcd& bmtfParamsRcd = c.get<L1TMuonBarrelParamsRcd>();
-  bmtfParamsRcd.get(bmtfParamsHandle);
-  const L1TMuonBarrelParams& bmtfParams = *bmtfParamsHandle.product();
+  const L1TMuonBarrelParams& bmtfParams = c.getData(m_paramsToken);
   pars = bmtfParams.l1mudttfparams;
 
   SEUmap::const_iterator iter;
@@ -110,7 +108,7 @@ void L1MuBMExtrapolationUnit::run(const edm::EventSetup& c) {
 
     if (ts != nullptr && !ts->empty()) {
       ((*iter).second)->load(ts);
-      ((*iter).second)->run(c);
+      ((*iter).second)->run(bmtfParams);
     }
   }
 
