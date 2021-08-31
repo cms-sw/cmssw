@@ -105,14 +105,7 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib, const edm::Eve
 
   EcalSimParameterMap parameterMap;
   const vector<DetId>& ebDetIds = geom_->getValidDetIds(DetId::Ecal, EcalBarrel);
-
-  //   edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": "
-  //        <<  "Number of EB det IDs: " << ebDetIds.size() << "\n";
-
   const vector<DetId>& eeDetIds = geom_->getValidDetIds(DetId::Ecal, EcalEndcap);
-
-  //  edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": "
-  //        <<  "Number of EE det IDs: " << eeDetIds.size() << "\n";
 
   vector<DetId> detIds(ebDetIds.size() + eeDetIds.size());
   copy(ebDetIds.begin(), ebDetIds.end(), detIds.begin());
@@ -239,13 +232,6 @@ double EcalDccWeightBuilder::decodeWeight(int W) { return ((double)W) / weightSc
 
 template <class T>
 void EcalDccWeightBuilder::sort(const std::vector<T>& a, std::vector<int>& s, bool decreasingOrder) {
-  //   edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": "
-  //        << "sort input array:" ;
-  //   for(unsigned i=0; i<a.size(); ++i){
-  //     edm::LogVerbatim("EcalDccWeightBuilder") << "\t" << a[i];
-  //   }
-  //   edm::LogVerbatim("EcalDccWeightBuilder") << "\n";
-
   //performs a bubble sort: adjacent elements are successively swapped 2 by 2
   //until the list is finally sorted.
   bool changed = false;
@@ -265,13 +251,6 @@ void EcalDccWeightBuilder::sort(const std::vector<T>& a, std::vector<int>& s, bo
       }
     }
   } while (changed);
-
-  //   edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": "
-  //        << "sorted list of indices:" ;
-  //   for(unsigned i=0; i < s.size(); ++i){
-  //     edm::LogVerbatim("EcalDccWeightBuilder") << "\t" << s[i];
-  //   }
-  //   edm::LogVerbatim("EcalDccWeightBuilder") << "\n";
 }
 
 void EcalDccWeightBuilder::unbiasWeights(std::vector<double>& weights, std::vector<int>* encodedWeights) {
@@ -286,14 +265,6 @@ void EcalDccWeightBuilder::unbiasWeights(std::vector<double>& weights, std::vect
     dw[i] = decodeWeight(W[i]) - weights[i];
     wsum += W[i];
   }
-
-  //   edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": "
-  //        <<  "weights before bias correction: ";
-  //   for(unsigned i=0; i<weights.size(); ++i){
-  //     const double w = weights[i];
-  //     edm::LogVerbatim("EcalDccWeightBuilder") << "\t" << encodeWeight(w) << "(" << w << ", dw = " << dw[i] << ")";
-  //   }
-  //   edm::LogVerbatim("EcalDccWeightBuilder") << "\t sum: " << wsum << "\n";
 
   //sorts weight residuals in decreasing order:
   vector<int> iw(nw);
@@ -323,14 +294,6 @@ void EcalDccWeightBuilder::unbiasWeights(std::vector<double>& weights, std::vect
     if (i >= (int)nw)
       i = 0;
   }
-
-  //   edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": "
-  //        <<  "weights after bias correction: ";
-  //   for(unsigned i=0; i<weights.size(); ++i){
-  //     edm::LogVerbatim("EcalDccWeightBuilder") << "\t" << W[i] << "(" << decodeWeight(W[i]) << ", dw = "
-  // 	 << (decodeWeight(W[i])-weights[i]) << ")";
-  //   }
-  //   edm::LogVerbatim("EcalDccWeightBuilder") << "\n";
 
   //copy result
   if (encodedWeights != nullptr)
@@ -518,9 +481,6 @@ void EcalDccWeightBuilder::writeWeightToDB() {
       PasswordReader pr;
       pr.readPassword(fileName, dbUser_, dbPassword_);
     }
-
-    //     edm::LogVerbatim("EcalDccWeightBuilder") << __FILE__ << ":" << __LINE__ << ": "
-    //           <<  "Password: " << dbPassword_ << "\n";
 
     econn = new EcalCondDBInterface(dbSid_, dbUser_, dbPassword_);
     edm::LogVerbatim("EcalDccWeightBuilder") << "Done.";
