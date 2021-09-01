@@ -213,7 +213,7 @@ std::unique_ptr<CaloObjCollType> HLTCaloObjInRegionsProducer<CaloObjType, CaloOb
   if (!inputColl->empty()) {
     const CaloSubdetectorGeometry* subDetGeom = caloGeomHandle.getSubdetectorGeometry(inputColl->begin()->id());
     if (!regions.empty()) {
-      for (const CaloObjType& obj : *inputColl) {
+      for (auto const& obj : *inputColl) {
         auto objGeom = subDetGeom->getGeometry(obj.id());
         if (objGeom == nullptr) {
           //wondering what to do here
