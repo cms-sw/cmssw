@@ -10,9 +10,7 @@ from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import *
 # produce "raw" (uncorrected) pat::MET of PF-type
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
 patPFMet = patMETs.clone(
-    metSource = cms.InputTag('pfMet'),
-    addMuonCorrections = cms.bool(False),
-    genMETSource = cms.InputTag('genMetTrue')
+    metSource = 'pfMet'
 )
 #--------------------------------------------------------------------------------
 
@@ -35,23 +33,20 @@ selectedPatJetsForMetT2Corr = cms.EDFilter("PATJetSelector",
 
 #--------------------------------------------------------------------------------
 # produce Type 1 + 2 MET corrections for pat::Jets of PF-type
-patPFMetT1T2Corr = cms.EDProducer("PATPFJetMETcorrInputProducer",
-    src = cms.InputTag('selectedPatJetsForMetT1T2Corr'),
-    offsetCorrLabel = cms.InputTag("L1FastJet"),
-    jetCorrLabel = cms.InputTag("L3Absolute"), # for MC
-    jetCorrLabelRes = cms.InputTag("L2L3Residual"), # for Data automatic switch
-    type1JetPtThreshold = cms.double(15.0),
-    skipEM = cms.bool(True),
-    skipEMfractionThreshold = cms.double(0.90),
-    skipMuons = cms.bool(True),
-    skipMuonSelection = cms.string("isGlobalMuon | isStandAloneMuon")
+import PhysicsTools.PatUtils.pfJetMETcorrInputProducerTPatJetPATJetCorrExtractor_cfi as _mod
+
+patPFMetT1T2Corr = _mod.pfJetMETcorrInputProducerTPatJetPATJetCorrExtractor.clone(
+    src             = 'selectedPatJetsForMetT1T2Corr',
+    offsetCorrLabel = "L1FastJet",
+    jetCorrLabel    = "L3Absolute",  # for MC
+    jetCorrLabelRes = "L2L3Residual" # for Data automatic switch
 )
 patPFMetT1T2CorrTask = cms.Task(selectedPatJetsForMetT1T2Corr,
                                 patPFMetT1T2Corr)
 patPFMetT1T2CorrSequence = cms.Sequence(patPFMetT1T2CorrTask)
 
 patPFMetT2Corr = patPFMetT1T2Corr.clone(
-    src = cms.InputTag('selectedPatJetsForMetT2Corr')
+    src = 'selectedPatJetsForMetT2Corr'
 )
 patPFMetT2CorrTask = cms.Task(patPFMetT2Corr)
 patPFMetT2CorrSequence = cms.Sequence(patPFMetT2CorrTask)
@@ -61,6 +56,7 @@ patPFMetT2CorrSequence = cms.Sequence(patPFMetT2CorrTask)
 #--------------------------------------------------------------------------------
 # produce Type 0 MET corrections
 from JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi import *
+
 patPFMetT0Corr = pfMETcorrType0.clone()
 patPFMetT0CorrTask = cms.Task(type0PFMEtCorrectionPFCandToVertexAssociationTask, patPFMetT0Corr)
 patPFMetT0CorrSequence = cms.Sequence(patPFMetT0CorrTask)
@@ -152,11 +148,11 @@ selectedPatJetsForMetT2SmearCorr = cms.EDFilter("PATJetSelector",
 )
 
 patPFMetT1T2SmearCorr = patPFMetT1T2Corr.clone(
-    src = cms.InputTag('selectedPatJetsForMetT1T2SmearCorr')
+    src = 'selectedPatJetsForMetT1T2SmearCorr'
 )
 
 patPFMetT2SmearCorr = patPFMetT2Corr.clone(
-    src = cms.InputTag('selectedPatJetsForMetT2SmearCorr')
+    src = 'selectedPatJetsForMetT2SmearCorr'
 )
 
 patPFMetSmearCorrTask = cms.Task(patSmearedJets,
@@ -205,8 +201,8 @@ patPFMetT0pcT1T2Txy.srcCorrections.append( cms.InputTag('patPFMetTxyCorr') )
 
 
 ## smeared METs
-patPFMetT1Smear = patPFMetT1.clone( srcCorrections = cms.VInputTag(
-        cms.InputTag('patPFMetT1T2SmearCorr', 'type1') )
+patPFMetT1Smear = patPFMetT1.clone( 
+    srcCorrections = ['patPFMetT1T2SmearCorr:type1']
 )
 
 patPFMetT1T2Smear = patPFMetT1Smear.clone()
