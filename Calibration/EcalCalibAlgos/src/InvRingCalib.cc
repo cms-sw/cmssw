@@ -1,8 +1,6 @@
 #include <memory>
 #include <cmath>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Calibration/EcalCalibAlgos/interface/InvRingCalib.h"
@@ -12,7 +10,6 @@
 #include "Calibration/Tools/interface/calibXMLwriter.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalBarrel.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalEndcap.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
@@ -23,7 +20,6 @@
 //Not to remain in the final version
 #include "TH2.h"
 #include "TFile.h"
-#include <iostream>
 //----------------------------------------------------------------
 //ctor
 
@@ -46,7 +42,11 @@ InvRingCalib::InvRingCalib(const edm::ParameterSet& iConfig)
       m_endRing(iConfig.getParameter<int>("endRing")),
       m_EBcoeffFile(iConfig.getParameter<std::string>("EBcoeffs")),
       m_EEcoeffFile(iConfig.getParameter<std::string>("EEcoeffs")),
-      m_EEZone(iConfig.getParameter<int>("EEZone")) {
+      m_EEZone(iConfig.getParameter<int>("EEZone")),
+      m_ebRecHitToken(consumes<EBRecHitCollection>(m_barrelAlCa)),
+      m_eeRecHitToken(consumes<EERecHitCollection>(m_endcapAlCa)),
+      m_gsfElectronToken(consumes<reco::GsfElectronCollection>(m_ElectronLabel)),
+      m_geometryToken(esConsumes()) {
   //controls if the parameters inputed are correct
   if ((m_etaEnd * m_etaStart) > 0)
     assert(!((m_etaEnd - m_etaStart) % m_etaWidth));
@@ -130,13 +130,11 @@ edm::EDLooper::Status InvRingCalib::duringLoop(const edm::Event& iEvent, const e
   if (isfirstcall_) {
     edm::LogInfo("IML") << "[InvRingCalib][beginOfJob]";
     //gets the geometry from the event setup
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
-    const CaloGeometry* geometry = geoHandle.product();
+    const auto& geometry = iSetup.getData(m_geometryToken);
     edm::LogInfo("IML") << "[InvRingCalib] Event Setup read";
     //fills a vector with all the cells
-    m_barrelCells = geometry->getValidDetIds(DetId::Ecal, EcalBarrel);
-    m_endcapCells = geometry->getValidDetIds(DetId::Ecal, EcalEndcap);
+    m_barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
+    m_endcapCells = geometry.getValidDetIds(DetId::Ecal, EcalEndcap);
     //Defines the EB regions
     edm::LogInfo("IML") << "[InvRingCalib] Defining Barrel Regions";
     EBRegionDef();
@@ -234,17 +232,18 @@ edm::EDLooper::Status InvRingCalib::duringLoop(const edm::Event& iEvent, const e
   double pTk = 0.;
   const EcalRecHitCollection* barrelHitsCollection = nullptr;
   edm::Handle<EBRecHitCollection> barrelRecHitsHandle;
-  iEvent.getByLabel(m_barrelAlCa, barrelRecHitsHandle);
+  iEvent.getByToken(m_ebRecHitToken, barrelRecHitsHandle);
   barrelHitsCollection = barrelRecHitsHandle.product();
 
   if (!barrelRecHitsHandle.isValid()) {
     edm::LogError("IML") << "[EcalEleCalibLooper] barrel rec hits not found";
     return kContinue;
   }
+
   //gets the endcap recHits
   const EcalRecHitCollection* endcapHitsCollection = nullptr;
   edm::Handle<EERecHitCollection> endcapRecHitsHandle;
-  iEvent.getByLabel(m_endcapAlCa, endcapRecHitsHandle);
+  iEvent.getByToken(m_eeRecHitToken, endcapRecHitsHandle);
   endcapHitsCollection = endcapRecHitsHandle.product();
 
   if (!endcapRecHitsHandle.isValid()) {
@@ -254,7 +253,7 @@ edm::EDLooper::Status InvRingCalib::duringLoop(const edm::Event& iEvent, const e
 
   //gets the electrons
   edm::Handle<reco::GsfElectronCollection> pElectrons;
-  iEvent.getByLabel(m_ElectronLabel, pElectrons);
+  iEvent.getByToken(m_gsfElectronToken, pElectrons);
 
   if (!pElectrons.isValid()) {
     edm::LogError("IML") << "[EcalEleCalibLooper] electrons not found";
@@ -382,13 +381,9 @@ void InvRingCalib::endOfJob() {
 
 //!EE ring definition
 void InvRingCalib::EERingDef(const edm::EventSetup& iSetup) {
-  //Gets the Handle for the geometry from the eventSetup
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<CaloGeometryRecord>().get(geoHandle);
   //Gets the geometry of the endcap
-  const CaloGeometry* geometry = geoHandle.product();
-  const CaloSubdetectorGeometry* endcapGeometry = geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  // const CaloSubdetectorGeometry *barrelGeometry = geometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  const auto& geometry = iSetup.getData(m_geometryToken);
+  const CaloSubdetectorGeometry* endcapGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   //for every xtal gets the position Vector and the phi position
 
   // for (std::vector<DetId>::const_iterator barrelIt = m_barrelCells.begin();
