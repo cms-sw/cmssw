@@ -9,19 +9,22 @@ options.register ("analyzeEffiency", False, VarParsing.multiplicity.singleton, V
 options.register ("analyzeResolution", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("dataVsEmulationFile", "empty", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 """
-- For CMS runs, use the actual run number. Set B904Setup to False
-- For B904 runs, set B904Setup to True and set runNumber >= 341761.
+- For CMS runs, use the actual run number. Set useB904ME11, useB904ME21 or useB904ME234s2 to False
+- For B904 runs, set useB904ME11, useB904ME21 or useB904ME234s2 to True and set runNumber >= 341761.
   Set B904RunNumber to when the data was taken, e.g. 210519_162820.
 """
 options.register ("runNumber", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int)
-options.register ("B904Setup", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("useB904ME11", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("useB904ME21", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("useB904ME234s2", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("B904RunNumber", "YYMMDD_HHMMSS", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.parseArguments()
 
-if options.B904Setup and options.B904RunNumber == "YYMMDD_HHMMSS":
+B904Setup = options.useB904ME11 or options.useB904ME21 or options.useB904ME234s2
+if B904Setup and options.B904RunNumber == "YYMMDD_HHMMSS":
     sys.exit("B904 setup was selected. Please provide a valid Run Number")
 
-if (not options.B904Setup) and int(options.runNumber) == 0:
+if (not B904Setup) and int(options.runNumber) == 0:
     sys.exit("Please provide a valid CMS Run Number")
 
 process = cms.Process("ANALYSIS", Run3)
@@ -63,6 +66,8 @@ process.cscTriggerPrimitivesAnalyzer = cms.EDAnalyzer(
 )
 
 # this needs to be set here, otherwise we duplicate the B904Setup parameter
-process.cscTriggerPrimitivesAnalyzer.B904Setup = options.B904Setup
+process.cscTriggerPrimitivesAnalyzer.useB904ME11 = options.useB904ME11
+process.cscTriggerPrimitivesAnalyzer.useB904ME21 = options.useB904ME21
+process.cscTriggerPrimitivesAnalyzer.useB904ME234s2 = options.useB904ME234s2
 
 process.p = cms.Path(process.cscTriggerPrimitivesAnalyzer)

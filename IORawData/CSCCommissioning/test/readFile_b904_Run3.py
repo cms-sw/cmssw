@@ -13,6 +13,9 @@ options = VarParsing ('analysis')
 options.register ("firstRun", 341761, VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register ("inputFilesGEM", "", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register ("readGEMData", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("useB904ME11", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("useB904ME21", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("useB904ME234s2", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.maxEvents = 10000
 options.parseArguments()
 
@@ -50,18 +53,39 @@ process.rawDataCollectorGEM = cms.EDAlias(
     )
 )
 
-# Note by Sven Dildick: I had to change the CSC producer module name to process.rawDataCollectorCSC so
-# that the name would not conflict with the GEM source.
-
 # For B904 setup ME11 chamber, which corresponds to ME+1/1/02 in the production system mapping
 # changing to FED837 and RUI16 could let to pass data without disabling mapping consistency check unpacking flags
+if options.useB904ME11:
+    FEDRUI = cms.PSet(
+        FED846 = cms.untracked.vstring('RUI01'),
+        RUI01 = cms.untracked.vstring(options.inputFiles[0])
+    )
+# Please note that after passing mapping check this chamber still would be recognized as production chamber
+# ME+2/2/03, which is OK, because this is the same chamber type as ME42 hardware-wise.
+elif options.useB904ME21:
+    FEDRUI = cms.PSet(
+        FED839 = cms.untracked.vstring('RUI18'),
+        RUI18 = cms.untracked.vstring(options.inputFiles[0])
+    )
+# For B904 setup ME21 chamber, which corresponds to ME+2/1/03 VMECrate13 / DMBSlot2 RUI17 / FED838 in the production system mapping
+elif options.useB904ME234s2:
+    FEDRUI = cms.PSet(
+        FED838 = cms.untracked.vstring('RUI16'),
+        RUI17 = cms.untracked.vstring(options.inputFiles[0])
+    )
+## default case
+else:
+    FEDRUI = cms.PSet(
+        FED837 = cms.untracked.vstring('RUI16'),
+        RUI16 = cms.untracked.vstring('/afs/cern.ch/user/b/barvic/public/cscgem_tests/csc_00000001_EmuRUI01_Local_000_210519_162820_UTC.raw')
+    )
+
+# Note by Sven Dildick: I had to change the CSC producer module name to process.rawDataCollectorCSC so
+# that the name would not conflict with the GEM source.
 process.rawDataCollectorCSC = cms.EDProducer(
     'CSCFileReader',
+    FEDRUI,
     firstEvent  = cms.untracked.int32(0),
-    FED846 = cms.untracked.vstring('RUI01'),
-    RUI01 = cms.untracked.vstring(options.inputFiles[0])
-    #      FED837 = cms.untracked.vstring('RUI16'),
-    #      RUI16 = cms.untracked.vstring('/afs/cern.ch/user/b/barvic/public/cscgem_tests/csc_00000001_EmuRUI01_Local_000_210519_162820_UTC.raw')
 )
 
 process.FEVT = cms.OutputModule(

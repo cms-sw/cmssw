@@ -79,7 +79,10 @@ private:
     the Building 904 CSC test-stand. This test-stand is a single
     ME1/1 chamber.
   */
-  bool B904Setup_;
+  bool useB904_;
+  bool useB904ME11_;
+  bool useB904ME21_;
+  bool useB904ME234s2_;
   // label only relevant for B904 local runs
   std::string B904RunNumber_;
 };
@@ -95,9 +98,12 @@ CSCTriggerPrimitivesAnalyzer::CSCTriggerPrimitivesAnalyzer(const edm::ParameterS
       dataVsEmulatorPlots_(conf.getParameter<bool>("dataVsEmulatorPlots")),
       mcEfficiencyPlots_(conf.getParameter<bool>("mcEfficiencyPlots")),
       mcResolutionPlots_(conf.getParameter<bool>("mcResolutionPlots")),
-      B904Setup_(conf.getParameter<bool>("B904Setup")),
+      useB904ME11_(conf.getParameter<bool>("useB904ME11")),
+      useB904ME21_(conf.getParameter<bool>("useB904ME21")),
+      useB904ME234s2_(conf.getParameter<bool>("useB904ME234s2")),
       B904RunNumber_(conf.getParameter<std::string>("B904RunNumber")) {
   usesResource("TFileService");
+  useB904_ = useB904ME11_ or useB904ME21_ or useB904ME234s2_;
 }
 
 void CSCTriggerPrimitivesAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &setup) {
@@ -134,7 +140,7 @@ void CSCTriggerPrimitivesAnalyzer::makeDataVsEmulatorPlots() {
   }
 
   TString runTitle = "CMS_Run_" + std::to_string(runNumber_);
-  if (B904Setup_)
+  if (useB904_)
     runTitle = "B904_Cosmic_Run_" + TString(B904RunNumber_);
 
   TPostScript *ps = new TPostScript("CSC_dataVsEmul_" + runTitle + ".ps", 111);
@@ -226,7 +232,7 @@ void CSCTriggerPrimitivesAnalyzer::makePlot(TH1F *dataMon,
   ps->NewPage();
 
   TString runTitle = "(CMS Run " + std::to_string(runNumber_) + ")";
-  if (B904Setup_)
+  if (useB904_)
     runTitle = "(B904 Cosmic Run " + TString(B904RunNumber_) + ")";
   const TString title(chamber + " " + lcts + " " + var + " " + runTitle);
   c1->cd(1);

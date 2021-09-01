@@ -11,7 +11,9 @@ options.register ("l1GEM", False, VarParsing.multiplicity.singleton, VarParsing.
 options.register ("mc", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("dqm", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("dqmGEM", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("useB904Data", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("useB904ME11", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("useB904ME21", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("useB904ME234s2", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("run3", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("runCCLUT", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("runME11ILT", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
@@ -77,7 +79,8 @@ if not options.mc or options.unpack:
       process.cscTriggerPrimitiveDigis.CSCWireDigiProducer = "muonCSCDigis:MuonCSCWireDigi"
 
 ## unpacker
-if options.useB904Data:
+useB904Data = options.useB904ME11 or options.useB904ME21 or options.useB904ME234s2
+if useB904Data:
       ## CSC
       process.muonCSCDigis.DisableMappingCheck = True
       process.muonCSCDigis.B904Setup = True
@@ -105,7 +108,9 @@ if options.l1GEM:
 
 ## DQM monitor
 if options.dqm:
-      process.l1tdeCSCTPG.B904Setup = options.useB904Data
+      process.l1tdeCSCTPG.useB904ME11 = options.useB904ME11
+      process.l1tdeCSCTPG.useB904ME21 = options.useB904ME21
+      process.l1tdeCSCTPG.useB904ME234s2 = options.useB904ME234s2
       process.l1tdeCSCTPG.emulALCT = "cscTriggerPrimitiveDigis"
       process.l1tdeCSCTPG.emulCLCT = "cscTriggerPrimitiveDigis"
       process.l1tdeCSCTPG.emulLCT = "cscTriggerPrimitiveDigis:MPCSORTED"
