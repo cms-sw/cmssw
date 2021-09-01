@@ -25,6 +25,8 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "CLHEP/Matrix/GenMatrix.h"
 #include "CLHEP/Matrix/Matrix.h"
@@ -59,6 +61,9 @@ private:
   int etaShifter(const int) const;
 
 private:
+  //! ES token
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> m_geometryToken;
+
   //! EcalBarrel Input Collection name
   edm::InputTag m_barrelAlCa;
   //! EcalEndcap Input Collection name
