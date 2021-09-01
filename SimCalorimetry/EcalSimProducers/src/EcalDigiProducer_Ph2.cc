@@ -54,8 +54,8 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params,
 // version for Pre-Mixing, for use outside of MixingModule
 EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm::ConsumesCollector& iC)
     : DigiAccumulatorMixMod(),
-      m_APDShape(true),
-      m_EBShape(true),
+      m_APDShape(iC),
+      m_EBShape(iC),
 
       m_EBdigiCollection(params.getParameter<std::string>("EBdigiCollectionPh2")),
 
@@ -200,8 +200,8 @@ void EcalDigiProducer_Ph2::accumulate(edm::Event const& e, edm::EventSetup const
   // Step A: Get Inputs
   edm::Handle<std::vector<PCaloHit>> ebHandle;
 
-  m_EBShape.setEventSetup(eventSetup);   // need to set the eventSetup here, otherwise pre-mixing module will not wrk
-  m_APDShape.setEventSetup(eventSetup);  //
+  m_EBShape.setEventSetup(eventSetup);
+  m_APDShape.setEventSetup(eventSetup);
   edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
   e.getByLabel(ebTag, ebHandle);
 
@@ -324,9 +324,4 @@ void EcalDigiProducer_Ph2::updateGeometry() {
 
 void EcalDigiProducer_Ph2::setEBNoiseSignalGenerator(EcalBaseSignalGenerator* noiseGenerator) {
   m_BarrelDigitizer->setNoiseSignalGenerator(noiseGenerator);
-}
-
-void EcalDigiProducer_Ph2::beginRun(edm::Run const& run, edm::EventSetup const& setup) {
-  m_EBShape.setEventSetup(setup);
-  m_APDShape.setEventSetup(setup);
 }

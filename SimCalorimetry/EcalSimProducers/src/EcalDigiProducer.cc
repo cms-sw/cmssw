@@ -49,9 +49,9 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params,
 // version for Pre-Mixing, for use outside of MixingModule
 EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::ConsumesCollector &iC)
     : DigiAccumulatorMixMod(),
-      m_APDShape(true),
-      m_EBShape(true),
-      m_EEShape(true),
+      m_APDShape(iC),
+      m_EBShape(iC),
+      m_EEShape(iC),
       m_ESShape(),
       m_EBdigiCollection(params.getParameter<std::string>("EBdigiCollection")),
       m_EEdigiCollection(params.getParameter<std::string>("EEdigiCollection")),
@@ -312,17 +312,15 @@ void EcalDigiProducer::accumulate(edm::Event const &e, edm::EventSetup const &ev
   // Step A: Get Inputs
   edm::Handle<std::vector<PCaloHit>> ebHandle;
   if (m_doEB) {
-    m_EBShape.setEventSetup(eventSetup);   // need to set the eventSetup here, otherwise pre-mixing
-                                           // module will not wrk
-    m_APDShape.setEventSetup(eventSetup);  //
+    m_EBShape.setEventSetup(eventSetup);
+    m_APDShape.setEventSetup(eventSetup);
     edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
     e.getByLabel(ebTag, ebHandle);
   }
 
   edm::Handle<std::vector<PCaloHit>> eeHandle;
   if (m_doEE) {
-    m_EEShape.setEventSetup(eventSetup);  // need to set the eventSetup here, otherwise pre-mixing
-                                          // module will not work
+    m_EEShape.setEventSetup(eventSetup);
     edm::InputTag eeTag(m_hitsProducerTag, "EcalHitsEE");
     e.getByLabel(eeTag, eeHandle);
   }
@@ -571,10 +569,4 @@ void EcalDigiProducer::setESNoiseSignalGenerator(EcalBaseSignalGenerator *noiseG
   // noiseGenerator->setParameterMap(theParameterMap);
   if (nullptr != m_ESDigitizer)
     m_ESDigitizer->setNoiseSignalGenerator(noiseGenerator);
-}
-
-void EcalDigiProducer::beginRun(edm::Run const &run, edm::EventSetup const &setup) {
-  m_EBShape.setEventSetup(setup);
-  m_EEShape.setEventSetup(setup);
-  m_APDShape.setEventSetup(setup);
 }
