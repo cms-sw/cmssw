@@ -75,7 +75,7 @@ process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(options.maxEven
 
 process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(options.inputFiles))
 if options.runNumber != -1:
-   if 'Cosmics' not in options.inputCollection:  # FIXME: this should be improved
+   if 'Cosmics' not in options.inputCollection:
       print("Restricting to the following events :")
       print('%s:1-%s:MAX'%(options.runNumber,options.runNumber))
       process.source.eventsToProcess = cms.untracked.VEventRange('%s:1-%s:MAX'%(options.runNumber,options.runNumber))
