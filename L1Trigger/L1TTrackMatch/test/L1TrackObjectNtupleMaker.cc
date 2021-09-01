@@ -207,6 +207,7 @@ private:
   std::vector<float>* m_trk_pt;
   std::vector<float>* m_trk_eta;
   std::vector<float>* m_trk_phi;
+  std::vector<float>* m_trk_phi_local;
   std::vector<float>* m_trk_d0;  // (filled if nFitPar==5, else 999)
   std::vector<float>* m_trk_z0;
   std::vector<float>* m_trk_chi2;
@@ -237,6 +238,7 @@ private:
   std::vector<float>* m_trkExt_pt;
   std::vector<float>* m_trkExt_eta;
   std::vector<float>* m_trkExt_phi;
+  std::vector<float>* m_trkExt_phi_local;
   std::vector<float>* m_trkExt_d0;  // (filled if nFitPar==5, else 999)
   std::vector<float>* m_trkExt_z0;
   std::vector<float>* m_trkExt_chi2;
@@ -499,6 +501,7 @@ void L1TrackObjectNtupleMaker::beginJob() {
   m_trk_pt = new std::vector<float>;
   m_trk_eta = new std::vector<float>;
   m_trk_phi = new std::vector<float>;
+  m_trk_phi_local = new std::vector<float>;
   m_trk_z0 = new std::vector<float>;
   m_trk_d0 = new std::vector<float>;
   m_trk_chi2 = new std::vector<float>;
@@ -528,6 +531,7 @@ void L1TrackObjectNtupleMaker::beginJob() {
   m_trkExt_pt = new std::vector<float>;
   m_trkExt_eta = new std::vector<float>;
   m_trkExt_phi = new std::vector<float>;
+  m_trkExt_phi_local = new std::vector<float>;
   m_trkExt_z0 = new std::vector<float>;
   m_trkExt_d0 = new std::vector<float>;
   m_trkExt_chi2 = new std::vector<float>;
@@ -687,6 +691,7 @@ void L1TrackObjectNtupleMaker::beginJob() {
     eventTree->Branch("trk_pt", &m_trk_pt);
     eventTree->Branch("trk_eta", &m_trk_eta);
     eventTree->Branch("trk_phi", &m_trk_phi);
+    eventTree->Branch("trk_phi_local", &m_trk_phi_local);
     eventTree->Branch("trk_d0", &m_trk_d0);
     eventTree->Branch("trk_z0", &m_trk_z0);
     eventTree->Branch("trk_chi2", &m_trk_chi2);
@@ -723,6 +728,7 @@ void L1TrackObjectNtupleMaker::beginJob() {
     eventTree->Branch("trkExt_pt", &m_trkExt_pt);
     eventTree->Branch("trkExt_eta", &m_trkExt_eta);
     eventTree->Branch("trkExt_phi", &m_trkExt_phi);
+    eventTree->Branch("trkExt_phi_local", &m_trkExt_phi_local);
     eventTree->Branch("trkExt_d0", &m_trkExt_d0);
     eventTree->Branch("trkExt_z0", &m_trkExt_z0);
     eventTree->Branch("trkExt_chi2", &m_trkExt_chi2);
@@ -935,6 +941,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     m_trk_pt->clear();
     m_trk_eta->clear();
     m_trk_phi->clear();
+    m_trk_phi_local->clear();
     m_trk_d0->clear();
     m_trk_z0->clear();
     m_trk_chi2->clear();
@@ -965,6 +972,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     m_trkExt_pt->clear();
     m_trkExt_eta->clear();
     m_trkExt_phi->clear();
+    m_trkExt_phi_local->clear();
     m_trkExt_d0->clear();
     m_trkExt_z0->clear();
     m_trkExt_chi2->clear();
@@ -1346,6 +1354,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       float tmp_trk_pt = iterL1Track->momentum().perp();
       float tmp_trk_eta = iterL1Track->momentum().eta();
       float tmp_trk_phi = iterL1Track->momentum().phi();
+      float tmp_trk_phi_local = iterL1Track->localPhi();
       float tmp_trk_z0 = iterL1Track->z0();            //cm
       int tmp_trk_nFitPars = iterL1Track->nFitPars();  //4 or 5
 
@@ -1438,6 +1447,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       m_trk_pt->push_back(tmp_trk_pt);
       m_trk_eta->push_back(tmp_trk_eta);
       m_trk_phi->push_back(tmp_trk_phi);
+      m_trk_phi_local->push_back(tmp_trk_phi_local);
       m_trk_z0->push_back(tmp_trk_z0);
       if (tmp_trk_nFitPars == 5)
         m_trk_d0->push_back(tmp_trk_d0);
@@ -1527,6 +1537,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       float tmp_trk_pt = iterL1Track->momentum().perp();
       float tmp_trk_eta = iterL1Track->momentum().eta();
       float tmp_trk_phi = iterL1Track->momentum().phi();
+      float tmp_trk_phi_local = iterL1Track->localPhi();
       float tmp_trk_z0 = iterL1Track->z0();            //cm
       int tmp_trk_nFitPars = iterL1Track->nFitPars();  //4 or 5
 
@@ -1619,6 +1630,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       m_trkExt_pt->push_back(tmp_trk_pt);
       m_trkExt_eta->push_back(tmp_trk_eta);
       m_trkExt_phi->push_back(tmp_trk_phi);
+      m_trkExt_phi_local->push_back(tmp_trk_phi_local);
       m_trkExt_z0->push_back(tmp_trk_z0);
       if (tmp_trk_nFitPars == 5)
         m_trkExt_d0->push_back(tmp_trk_d0);
