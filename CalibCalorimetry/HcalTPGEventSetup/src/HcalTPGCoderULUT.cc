@@ -59,6 +59,7 @@ private:
   bool read_FGLut_, read_Ascii_, read_XML_, LUTGenerationMode_, linearLUTs_;
   bool contain1TSHB_, contain1TSHE_;
   double containPhaseNSHB_, containPhaseNSHE_;
+  bool applyFixPCC_;
   bool overrideDBweightsAndFilterHB_, overrideDBweightsAndFilterHE_;
   double linearLSB_QIE8_, linearLSB_QIE11Overlap_, linearLSB_QIE11_;
   int maskBit_;
@@ -86,6 +87,7 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
   contain1TSHE_ = iConfig.getParameter<bool>("contain1TSHE");
   containPhaseNSHB_ = iConfig.getParameter<double>("containPhaseNSHB");
   containPhaseNSHE_ = iConfig.getParameter<double>("containPhaseNSHE");
+  applyFixPCC_ = iConfig.getParameter<bool>("applyFixPCC");
   overrideDBweightsAndFilterHB_ = iConfig.getParameter<bool>("overrideDBweightsAndFilterHB");
   overrideDBweightsAndFilterHE_ = iConfig.getParameter<bool>("overrideDBweightsAndFilterHE");
 
@@ -122,6 +124,8 @@ void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const HcalTimeSlew* 
 
   theCoder->setContainPhaseHB(containPhaseNSHB_);
   theCoder->setContainPhaseHE(containPhaseNSHE_);
+
+  theCoder->setApplyFixPCC(applyFixPCC_);
 
   if (read_Ascii_ || read_XML_) {
     edm::LogInfo("HCAL") << "Using ASCII/XML LUTs" << ifilename_.fullPath() << " for HcalTPGCoderULUT initialization";
