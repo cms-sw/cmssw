@@ -14,29 +14,29 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CondFormats/PPSObjects/interface/PPSAlignmentConfigRun3v1.h"
-#include "CondFormats/DataRecord/interface/PPSAlignmentConfigRun3v1Rcd.h"
+#include "CondFormats/PPSObjects/interface/PPSAlignmentConfiguration.h"
+#include "CondFormats/DataRecord/interface/PPSAlignmentConfigurationRcd.h"
 
 #include <memory>
 
-class RetrievePPSAlignmentConfigRun3v1 : public edm::one::EDAnalyzer<> {
+class RetrievePPSAlignmentConfiguration : public edm::one::EDAnalyzer<> {
 public:
-  explicit RetrievePPSAlignmentConfigRun3v1(const edm::ParameterSet &);
+  explicit RetrievePPSAlignmentConfiguration(const edm::ParameterSet &);
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  edm::ESGetToken<PPSAlignmentConfigRun3v1, PPSAlignmentConfigRun3v1Rcd> esToken_;
+  edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esToken_;
 };
 
-RetrievePPSAlignmentConfigRun3v1::RetrievePPSAlignmentConfigRun3v1(const edm::ParameterSet &iConfig) : esToken_(esConsumes()) {}
+RetrievePPSAlignmentConfiguration::RetrievePPSAlignmentConfiguration(const edm::ParameterSet &iConfig) : esToken_(esConsumes()) {}
 
-void RetrievePPSAlignmentConfigRun3v1::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void RetrievePPSAlignmentConfiguration::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get the data
-  const auto &ppsAlignmentConfigRun3v1 = iSetup.getData(esToken_);
+  const auto &ppsAlignmentConfiguration = iSetup.getData(esToken_);
 
-  edm::LogInfo("PPS") << ppsAlignmentConfigRun3v1;
+  edm::LogInfo("PPS") << ppsAlignmentConfiguration;
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(RetrievePPSAlignmentConfigRun3v1);
+DEFINE_FWK_MODULE(RetrievePPSAlignmentConfiguration);

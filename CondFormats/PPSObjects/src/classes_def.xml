@@ -81,16 +81,16 @@
     <class name="std::pair<unsigned int, SelectionRange>"/>
     <class name="PPSAlignmentConfig" class_version="0"/>
 
-    <class name="PPSAlignmentConfigRun3v1::PointErrors"/>
-    <class name="PPSAlignmentConfigRun3v1::SelectionRange"/>
-    <class name="PPSAlignmentConfigRun3v1::RPConfig"/>
-    <class name="PPSAlignmentConfigRun3v1::SectorConfig"/>
-    <class name="PPSAlignmentConfigRun3v1::Binning"/>
-    <class name="std::vector<PPSAlignmentConfigRun3v1::PointErrors>"/>
-    <class name="std::map<unsigned int, std::vector<PPSAlignmentConfigRun3v1::PointErrors>>"/>
-    <class name="std::pair<unsigned int, std::vector<PPSAlignmentConfigRun3v1::PointErrors>>"/>
-    <class name="std::map<unsigned int, PPSAlignmentConfigRun3v1::SelectionRange>"/>
-    <class name="std::pair<unsigned int, PPSAlignmentConfigRun3v1::SelectionRange>"/>
-    <class name="PPSAlignmentConfigRun3v1" class_version="0"/>
+    <class name="PPSAlignmentConfiguration::PointErrors"/>
+    <class name="PPSAlignmentConfiguration::SelectionRange"/>
+    <class name="PPSAlignmentConfiguration::RPConfig"/>
+    <class name="PPSAlignmentConfiguration::SectorConfig"/>
+    <class name="PPSAlignmentConfiguration::Binning"/>
+    <class name="std::vector<PPSAlignmentConfiguration::PointErrors>"/>
+    <class name="std::map<unsigned int, std::vector<PPSAlignmentConfiguration::PointErrors>>"/>
+    <class name="std::pair<unsigned int, std::vector<PPSAlignmentConfiguration::PointErrors>>"/>
+    <class name="std::map<unsigned int, PPSAlignmentConfiguration::SelectionRange>"/>
+    <class name="std::pair<unsigned int, PPSAlignmentConfiguration::SelectionRange>"/>
+    <class name="PPSAlignmentConfiguration" class_version="0"/>
 
 </lcgdict>

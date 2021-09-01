@@ -4,8 +4,8 @@
 *  Mateusz Kocot (mateuszkocot99@gmail.com)
 ****************************************************************************/
 
-#ifndef CondFormats_PPSObjects_PPSAlignmentConfigRun3v1_h
-#define CondFormats_PPSObjects_PPSAlignmentConfigRun3v1_h
+#ifndef CondFormats_PPSObjects_PPSAlignmentConfiguration_h
+#define CondFormats_PPSObjects_PPSAlignmentConfiguration_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
@@ -13,7 +13,7 @@
 #include <string>
 #include <map>
 
-class PPSAlignmentConfigRun3v1 {
+class PPSAlignmentConfiguration {
 public:
   // Auxiliary structures
   struct PointErrors {
@@ -149,7 +149,7 @@ public:
   void setBinning(Binning &binning);
 
   // << operator
-  friend std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfigRun3v1 &c);
+  friend std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfiguration &c);
 
 private:
   SectorConfig sectorConfig45_, sectorConfig56_;
@@ -186,8 +186,8 @@ private:
   COND_SERIALIZABLE;
 };
 
-std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfigRun3v1::RPConfig &rc);
-std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfigRun3v1::SectorConfig &sc);
-std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfigRun3v1::Binning &b);
+std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfiguration::RPConfig &rc);
+std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfiguration::SectorConfig &sc);
+std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfiguration::Binning &b);
 
 #endif

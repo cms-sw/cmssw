@@ -15,37 +15,37 @@
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-#include "CondFormats/PPSObjects/interface/PPSAlignmentConfigRun3v1.h"
-#include "CondFormats/DataRecord/interface/PPSAlignmentConfigRun3v1Rcd.h"
+#include "CondFormats/PPSObjects/interface/PPSAlignmentConfiguration.h"
+#include "CondFormats/DataRecord/interface/PPSAlignmentConfigurationRcd.h"
 
 #include <memory>
 
-class WritePPSAlignmentConfigRun3v1 : public edm::one::EDAnalyzer<> {
+class WritePPSAlignmentConfiguration : public edm::one::EDAnalyzer<> {
 public:
-  explicit WritePPSAlignmentConfigRun3v1(const edm::ParameterSet &);
+  explicit WritePPSAlignmentConfiguration(const edm::ParameterSet &);
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  edm::ESGetToken<PPSAlignmentConfigRun3v1, PPSAlignmentConfigRun3v1Rcd> esToken_;
+  edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esToken_;
 };
 
-WritePPSAlignmentConfigRun3v1::WritePPSAlignmentConfigRun3v1(const edm::ParameterSet &iConfig)
-    : esToken_(esConsumes<PPSAlignmentConfigRun3v1, PPSAlignmentConfigRun3v1Rcd>(
+WritePPSAlignmentConfiguration::WritePPSAlignmentConfiguration(const edm::ParameterSet &iConfig)
+    : esToken_(esConsumes<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd>(
           edm::ESInputTag("", iConfig.getParameter<std::string>("label")))) {}
 
-void WritePPSAlignmentConfigRun3v1::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void WritePPSAlignmentConfiguration::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get the data
-  const auto &ppsAlignmentConfigRun3v1 = iSetup.getData(esToken_);
+  const auto &ppsAlignmentConfiguration = iSetup.getData(esToken_);
 
   // store the data in a DB object
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOne(&ppsAlignmentConfigRun3v1, poolDbService->currentTime(), "PPSAlignmentConfigRun3v1Rcd");
+    poolDbService->writeOne(&ppsAlignmentConfiguration, poolDbService->currentTime(), "PPSAlignmentConfigurationRcd");
   } else {
-    throw cms::Exception("WritePPSAlignmentConfigRun3v1") << "PoolDBService required.";
+    throw cms::Exception("WritePPSAlignmentConfiguration") << "PoolDBService required.";
   }
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(WritePPSAlignmentConfigRun3v1);
+DEFINE_FWK_MODULE(WritePPSAlignmentConfiguration);
