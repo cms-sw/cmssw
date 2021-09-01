@@ -629,7 +629,7 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
   double magneticFieldInTesla = magneticField.inTesla(GlobalPoint(0., 0., 0.)).z();
 
   MultiTrajectoryStateTransform mtsTransform(&trackerGeometry, &magneticField);
-  GsfConstraintAtVertex constraintAtVtx(eventSetup);
+  GsfConstraintAtVertex constraintAtVtx(&trackerGeometry, &magneticField);
 
   std::optional<egamma::conv::TrackTable> ctfTrackTable = std::nullopt;
   std::optional<egamma::conv::TrackTable> gsfTrackTable = std::nullopt;
