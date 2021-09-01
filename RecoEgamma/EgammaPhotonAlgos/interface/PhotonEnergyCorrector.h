@@ -52,6 +52,7 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHitsToken_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHitsToken_;
   const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
 
   std::unique_ptr<EnergyUncertaintyPhotonSpecific> photonUncertaintyCalculator_;
 };

@@ -75,6 +75,7 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> rHInputProducer_;
   edm::EDGetTokenT<reco::SuperClusterCollection> sCInputProducer_;
   edm::InputTag rHTag_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
 
   reco::CaloCluster::AlgoId sCAlgo_;
   std::string outputCollection_;
@@ -88,6 +89,7 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps) {
   rHTag_ = ps.getParameter<edm::InputTag>("recHitProducer");
   rHInputProducer_ = consumes<EcalRecHitCollection>(rHTag_);
   sCInputProducer_ = consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("rawSuperClusterProducer"));
+  caloGeomToken_ = esConsumes();
   std::string sCAlgo_str = ps.getParameter<std::string>("superClusterAlgo");
 
   // determine which BasicCluster algo we are correcting for
@@ -139,11 +141,12 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps) {
 
   // energy correction class
   if (applyEnergyCorrection_)
-    energyCorrectionFunction_ = EcalClusterFunctionFactory::get()->create(energyCorrectorName_, ps);
+    energyCorrectionFunction_ =
+        EcalClusterFunctionFactory::get()->create(energyCorrectorName_, ps, consumesCollector());
   //energyCorrectionFunction_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
 
   if (applyCrackCorrection_)
-    crackCorrectionFunction_ = EcalClusterFunctionFactory::get()->create(crackCorrectorName_, ps);
+    crackCorrectionFunction_ = EcalClusterFunctionFactory::get()->create(crackCorrectorName_, ps, consumesCollector());
 
   if (applyLocalContCorrection_)
     localContCorrectionFunction_ = std::make_unique<EcalBasicClusterLocalContCorrection>(consumesCollector());
@@ -165,9 +168,7 @@ void EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es
     localContCorrectionFunction_->init(es);
 
   // get the collection geometry:
-  edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);
-  const CaloGeometry& geometry = *geoHandle;
+  const CaloGeometry& geometry = es.getData(caloGeomToken_);
   const CaloSubdetectorGeometry* geometry_p;
 
   std::string rHInputCollection = rHTag_.instance();
