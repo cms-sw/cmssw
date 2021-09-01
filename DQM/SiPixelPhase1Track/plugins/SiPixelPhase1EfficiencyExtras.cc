@@ -24,9 +24,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // DQM Framework
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -45,24 +42,19 @@ protected:
 
   void dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) override;
 
-  std::string effFolderName_;
-  std::string vtxFolderName_;
-  std::string instLumiFolderName_;
-
-private:
-  edm::ParameterSet conf_;
+  const std::string effFolderName_;
+  const std::string vtxFolderName_;
+  const std::string instLumiFolderName_;
 };
 
-SiPixelPhase1EfficiencyExtras::SiPixelPhase1EfficiencyExtras(const edm::ParameterSet& iConfig) : conf_(iConfig) {
+SiPixelPhase1EfficiencyExtras::SiPixelPhase1EfficiencyExtras(const edm::ParameterSet& iConfig)
+    : effFolderName_(iConfig.getParameter<std::string>("EffFolderName")),
+      vtxFolderName_(iConfig.getParameter<std::string>("VtxFolderName")),
+      instLumiFolderName_(iConfig.getParameter<std::string>("InstLumiFolderName")) {
   LogInfo("PixelDQM") << "SiPixelPhase1EfficiencyExtras::SiPixelPhase1EfficiencyExtras: Hello!" << endl;
-  effFolderName_ = conf_.getParameter<std::string>("EffFolderName");
-  vtxFolderName_ = conf_.getParameter<std::string>("VtxFolderName");
-  instLumiFolderName_ = conf_.getParameter<std::string>("InstLumiFolderName");
 }
 
 SiPixelPhase1EfficiencyExtras::~SiPixelPhase1EfficiencyExtras() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
   LogInfo("PixelDQM") << "SiPixelPhase1EfficiencyExtras::~SiPixelPhase1EfficiencyExtras: Destructor" << endl;
 }
 
