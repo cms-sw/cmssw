@@ -57,7 +57,6 @@
 //
 
 class ElectronCalibrationUniv : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
-
 public:
   explicit ElectronCalibrationUniv(const edm::ParameterSet &);
   ~ElectronCalibrationUniv() override;

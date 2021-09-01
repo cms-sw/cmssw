@@ -57,8 +57,7 @@ SelectedElectronFEDListProducer<TEle, TCand>::SelectedElectronFEDListProducer(co
       caloGeometryToken_(esConsumes()),
       siPixelFedCablingMapToken_(esConsumes()),
       trackerGeometryToken_(esConsumes()),
-      siStripRegionCablingToken_(esConsumes())
-{
+      siStripRegionCablingToken_(esConsumes()) {
   // input electron collection Tag
   if (iConfig.existsAs<std::vector<edm::InputTag>>("electronTags")) {
     electronTags_ = iConfig.getParameter<std::vector<edm::InputTag>>("electronTags");

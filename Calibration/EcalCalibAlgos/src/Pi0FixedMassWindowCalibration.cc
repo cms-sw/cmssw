@@ -292,7 +292,7 @@ edm::EDLooper::Status Pi0FixedMassWindowCalibration::duringLoop(const edm::Event
     // get initial constants out of DB
 
     const auto& pIcal = setup.getData(intercalibConstantsToken_);
-    const auto imap = pIcal.getMap();
+    const auto& imap = pIcal.getMap();
     std::cout << "imap.size() = " << imap.size() << std::endl;
 
     // loop over all barrel crystals

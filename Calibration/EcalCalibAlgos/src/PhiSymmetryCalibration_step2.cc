@@ -25,8 +25,7 @@ PhiSymmetryCalibration_step2::PhiSymmetryCalibration_step2(const edm::ParameterS
       reiteration_(iConfig.getUntrackedParameter<bool>("reiteration", false)),
       oldcalibfile_(iConfig.getUntrackedParameter<std::string>("oldcalibfile", "EcalIntercalibConstants.xml")),
       have_initial_miscalib_(iConfig.getUntrackedParameter<bool>("haveInitialMiscalib", false)),
-      initialmiscalibfile_(iConfig.getUntrackedParameter<std::string>("initialmiscalibfile", "InitialMiscalib.xml")) {
-}
+      initialmiscalibfile_(iConfig.getUntrackedParameter<std::string>("initialmiscalibfile", "InitialMiscalib.xml")) {}
 
 void PhiSymmetryCalibration_step2::analyze(const edm::Event& ev, const edm::EventSetup& se) {
   if (firstpass_) {

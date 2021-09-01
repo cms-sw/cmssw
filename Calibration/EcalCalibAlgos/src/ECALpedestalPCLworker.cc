@@ -5,8 +5,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <sstream>
 
-ECALpedestalPCLworker::ECALpedestalPCLworker(const edm::ParameterSet& iConfig) : pedestalToken_(esConsumes<edm::Transition::BeginRun>())
-{
+ECALpedestalPCLworker::ECALpedestalPCLworker(const edm::ParameterSet& iConfig)
+    : pedestalToken_(esConsumes<edm::Transition::BeginRun>()) {
   edm::InputTag digiTagEB = iConfig.getParameter<edm::InputTag>("BarrelDigis");
   edm::InputTag digiTagEE = iConfig.getParameter<edm::InputTag>("EndcapDigis");
 
