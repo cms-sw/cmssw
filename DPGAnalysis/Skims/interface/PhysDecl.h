@@ -17,7 +17,7 @@
 // user include files
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,7 +31,7 @@
 // class declaration
 //
 
-class PhysDecl : public edm::EDFilter {
+class PhysDecl : public edm::one::EDFilter<> {
 public:
   explicit PhysDecl(const edm::ParameterSet &);
   ~PhysDecl() override;

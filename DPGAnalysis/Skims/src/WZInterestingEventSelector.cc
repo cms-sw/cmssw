@@ -14,7 +14,7 @@
 #include <cstdlib>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -41,7 +41,7 @@
 
 using namespace reco;
 
-class WZInterestingEventSelector : public edm::EDFilter {
+class WZInterestingEventSelector : public edm::one::EDFilter<> {
 public:
   struct event {
     long run;

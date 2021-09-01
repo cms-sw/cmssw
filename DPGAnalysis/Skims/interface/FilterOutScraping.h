@@ -17,7 +17,7 @@
 // user include files
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,7 +30,7 @@
 // class declaration
 //
 
-class FilterOutScraping : public edm::EDFilter {
+class FilterOutScraping : public edm::stream::EDFilter<> {
 public:
   explicit FilterOutScraping(const edm::ParameterSet &);
   ~FilterOutScraping() override;

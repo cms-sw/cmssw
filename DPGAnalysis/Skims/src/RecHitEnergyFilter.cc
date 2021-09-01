@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,15 +32,13 @@
 // class declaration
 //
 
-class RecHitEnergyFilter : public edm::EDFilter {
+class RecHitEnergyFilter : public edm::stream::EDFilter<> {
 public:
   explicit RecHitEnergyFilter(const edm::ParameterSet&);
   ~RecHitEnergyFilter() override;
 
 private:
-  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   // RecHit input tags
   edm::InputTag ebRecHitsTag_;
@@ -102,12 +100,6 @@ bool RecHitEnergyFilter::filter(edm::Event& evt, const edm::EventSetup& iSetup) 
 
   return false;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void RecHitEnergyFilter::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void RecHitEnergyFilter::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(RecHitEnergyFilter);

@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -45,15 +45,13 @@
 using namespace edm;
 //using namespace l1extra;
 
-class HCALHighEnergyFilter : public edm::EDFilter {
+class HCALHighEnergyFilter : public edm::stream::EDFilter<> {
 public:
   explicit HCALHighEnergyFilter(const edm::ParameterSet&);
   ~HCALHighEnergyFilter() override;
 
 private:
-  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
   //  bool jetGood(L1JetParticleCollection::const_iterator &);
   bool jetGood(reco::CaloJetCollection::const_iterator&);
   // ----------member data ---------------------------
@@ -133,12 +131,6 @@ bool HCALHighEnergyFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   return false;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void HCALHighEnergyFilter::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void HCALHighEnergyFilter::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HCALHighEnergyFilter);

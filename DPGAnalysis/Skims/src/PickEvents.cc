@@ -32,7 +32,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -51,7 +51,7 @@ bool orderLuminosityBlockRange(edm::LuminosityBlockRange u, edm::LuminosityBlock
 // class declaration
 //
 
-class PickEvents : public edm::EDFilter {
+class PickEvents : public edm::one::EDFilter<> {
 public:
   explicit PickEvents(const edm::ParameterSet&);
   ~PickEvents() override;
