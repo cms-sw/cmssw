@@ -17,15 +17,13 @@
 #include <fstream>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 //includes for reco objects
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -54,7 +52,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
-class LeptonRecoSkim : public edm::EDFilter {
+class LeptonRecoSkim : public edm::one::EDFilter<> {
 public:
   explicit LeptonRecoSkim(const edm::ParameterSet&);
   ~LeptonRecoSkim() override;
@@ -66,15 +64,20 @@ private:
 
   void handleObjects(const edm::Event&, const edm::EventSetup& iSetup);
 
+  // ----------member data ---------------------------
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> m_CaloGeoToken;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> m_CaloTopoToken;
+
   edm::InputTag hltLabel;
   std::string filterName;
-  edm::InputTag m_electronSrc;
-  edm::InputTag m_pfelectronSrc;
-  edm::InputTag m_muonSrc;
-  edm::InputTag m_jetsSrc;
-  edm::InputTag m_pfjetsSrc;
-  edm::InputTag m_ebRecHitsSrc;
-  edm::InputTag m_eeRecHitsSrc;
+
+  edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronCollectionToken_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateCollectionToken_;
+  edm::EDGetTokenT<reco::MuonCollection> muonCollectionToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection> caloJetCollectionToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> pfJetCollectionToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> ebRecHitCollectionToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> eeRecHitCollectionToken_;
 
   const reco::GsfElectronCollection* theElectronCollection;
   const reco::PFCandidateCollection* thePfCandidateCollection;
@@ -119,5 +122,4 @@ private:
 
   int NtotalElectrons;
   int NmvaElectrons;
-  // ----------member data ---------------------------
 };
