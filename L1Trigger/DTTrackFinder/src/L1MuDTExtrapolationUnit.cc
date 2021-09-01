@@ -36,9 +36,9 @@
 #include "L1Trigger/DTTrackFinder/src/L1MuDTEUX.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTERS.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSectorProcessor.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTSecProcId.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTDataBuffer.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegPhi.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
 
