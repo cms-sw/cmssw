@@ -1,24 +1,24 @@
 ##### configuration #####
 input_conditions = 'sqlite_file:alignment_config.db'  # input database
 run_number = 1  # used to select the IOV
-db_tag = 'PPSAlignmentConfigRun3v1_v1_express'  # database tag
+db_tag = 'PPSAlignmentConfiguration_v1_express'  # database tag
 #########################
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("retrievePPSAlignmentConfigRun3v1")
+process = cms.Process("retrievePPSAlignmentConfiguration")
 
 # Message Logger
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('retrieve_PPSAlignmentConfigRun3v1'),
-    retrieve_PPSAlignmentConfigRun3v1 = cms.untracked.PSet(
+    destinations = cms.untracked.vstring('retrieve_PPSAlignmentConfiguration'),
+    retrieve_PPSAlignmentConfiguration = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     )
 )
 
 # Load CondDB service
 process.load("CondCore.CondDB.CondDB_cfi")
-
+\
 # input database (in this case the local sqlite file)
 process.CondDB.connect = input_conditions
 
@@ -35,16 +35,16 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     process.CondDB,
     DumbStat = cms.untracked.bool(True),
     toGet = cms.VPSet(cms.PSet(
-        record = cms.string('PPSAlignmentConfigRun3v1Rcd'),
+        record = cms.string('PPSAlignmentConfigurationRcd'),
         tag = cms.string(db_tag)
     ))
 )
 
 # DB object retrieve module
-process.retrieve_config = cms.EDAnalyzer("RetrievePPSAlignmentConfigRun3v1",
+process.retrieve_config = cms.EDAnalyzer("RetrievePPSAlignmentConfiguration",
     toGet = cms.VPSet(cms.PSet(
-        record = cms.string('PPSAlignmentConfigRun3v1Rcd'),
-        data = cms.vstring('PPSAlignmentConfigRun3v1')
+        record = cms.string('PPSAlignmentConfigurationRcd'),
+        data = cms.vstring('PPSAlignmentConfiguration')
     )),
     verbose = cms.untracked.bool(True)
 )

@@ -4,124 +4,124 @@
 *  Mateusz Kocot (mateuszkocot99@gmail.com)
 ****************************************************************************/
 
-#include "CondFormats/PPSObjects/interface/PPSAlignmentConfigRun3v1.h"
+#include "CondFormats/PPSObjects/interface/PPSAlignmentConfiguration.h"
 
 #include <iostream>
 #include <cmath>
 #include <iomanip>
 
-// -------------------------------- PPSAlignmentConfigRun3v1 getters --------------------------------
+// -------------------------------- PPSAlignmentConfiguration getters --------------------------------
 
-const PPSAlignmentConfigRun3v1::SectorConfig &PPSAlignmentConfigRun3v1::sectorConfig45() const { return sectorConfig45_; }
-const PPSAlignmentConfigRun3v1::SectorConfig &PPSAlignmentConfigRun3v1::sectorConfig56() const { return sectorConfig56_; }
+const PPSAlignmentConfiguration::SectorConfig &PPSAlignmentConfiguration::sectorConfig45() const { return sectorConfig45_; }
+const PPSAlignmentConfiguration::SectorConfig &PPSAlignmentConfiguration::sectorConfig56() const { return sectorConfig56_; }
 
-double PPSAlignmentConfigRun3v1::x_ali_sh_step() const { return x_ali_sh_step_; }
+double PPSAlignmentConfiguration::x_ali_sh_step() const { return x_ali_sh_step_; }
 
-double PPSAlignmentConfigRun3v1::y_mode_sys_unc() const { return y_mode_sys_unc_; }
-double PPSAlignmentConfigRun3v1::chiSqThreshold() const { return chiSqThreshold_; }
-double PPSAlignmentConfigRun3v1::y_mode_unc_max_valid() const { return y_mode_unc_max_valid_; }
-double PPSAlignmentConfigRun3v1::y_mode_max_valid() const { return y_mode_max_valid_; }
+double PPSAlignmentConfiguration::y_mode_sys_unc() const { return y_mode_sys_unc_; }
+double PPSAlignmentConfiguration::chiSqThreshold() const { return chiSqThreshold_; }
+double PPSAlignmentConfiguration::y_mode_unc_max_valid() const { return y_mode_unc_max_valid_; }
+double PPSAlignmentConfiguration::y_mode_max_valid() const { return y_mode_max_valid_; }
 
-double PPSAlignmentConfigRun3v1::minRPTracksSize() const { return minRPTracksSize_; }
-double PPSAlignmentConfigRun3v1::maxRPTracksSize() const { return maxRPTracksSize_; }
-double PPSAlignmentConfigRun3v1::n_si() const { return n_si_; }
+double PPSAlignmentConfiguration::minRPTracksSize() const { return minRPTracksSize_; }
+double PPSAlignmentConfiguration::maxRPTracksSize() const { return maxRPTracksSize_; }
+double PPSAlignmentConfiguration::n_si() const { return n_si_; }
 
-const std::map<unsigned int, std::vector<PPSAlignmentConfigRun3v1::PointErrors>>
-    &PPSAlignmentConfigRun3v1::matchingReferencePoints() const {
+const std::map<unsigned int, std::vector<PPSAlignmentConfiguration::PointErrors>>
+    &PPSAlignmentConfiguration::matchingReferencePoints() const {
   return matchingReferencePoints_;
 }
-const std::map<unsigned int, PPSAlignmentConfigRun3v1::SelectionRange> &PPSAlignmentConfigRun3v1::matchingShiftRanges() const {
+const std::map<unsigned int, PPSAlignmentConfiguration::SelectionRange> &PPSAlignmentConfiguration::matchingShiftRanges() const {
   return matchingShiftRanges_;
 }
 
-const std::map<unsigned int, PPSAlignmentConfigRun3v1::SelectionRange> &PPSAlignmentConfigRun3v1::alignment_x_meth_o_ranges() const {
+const std::map<unsigned int, PPSAlignmentConfiguration::SelectionRange> &PPSAlignmentConfiguration::alignment_x_meth_o_ranges() const {
   return alignment_x_meth_o_ranges_;
 }
-unsigned int PPSAlignmentConfigRun3v1::fitProfileMinBinEntries() const { return fitProfileMinBinEntries_; }
-unsigned int PPSAlignmentConfigRun3v1::fitProfileMinNReasonable() const { return fitProfileMinNReasonable_; }
-unsigned int PPSAlignmentConfigRun3v1::methOGraphMinN() const { return methOGraphMinN_; }
-double PPSAlignmentConfigRun3v1::methOUncFitRange() const { return methOUncFitRange_; }
+unsigned int PPSAlignmentConfiguration::fitProfileMinBinEntries() const { return fitProfileMinBinEntries_; }
+unsigned int PPSAlignmentConfiguration::fitProfileMinNReasonable() const { return fitProfileMinNReasonable_; }
+unsigned int PPSAlignmentConfiguration::methOGraphMinN() const { return methOGraphMinN_; }
+double PPSAlignmentConfiguration::methOUncFitRange() const { return methOUncFitRange_; }
 
-const std::map<unsigned int, PPSAlignmentConfigRun3v1::SelectionRange> &PPSAlignmentConfigRun3v1::alignment_x_relative_ranges()
+const std::map<unsigned int, PPSAlignmentConfiguration::SelectionRange> &PPSAlignmentConfiguration::alignment_x_relative_ranges()
     const {
   return alignment_x_relative_ranges_;
 }
-unsigned int PPSAlignmentConfigRun3v1::nearFarMinEntries() const { return nearFarMinEntries_; }
+unsigned int PPSAlignmentConfiguration::nearFarMinEntries() const { return nearFarMinEntries_; }
 
-const std::map<unsigned int, PPSAlignmentConfigRun3v1::SelectionRange> &PPSAlignmentConfigRun3v1::alignment_y_ranges() const {
+const std::map<unsigned int, PPSAlignmentConfiguration::SelectionRange> &PPSAlignmentConfiguration::alignment_y_ranges() const {
   return alignment_y_ranges_;
 }
-unsigned int PPSAlignmentConfigRun3v1::modeGraphMinN() const { return modeGraphMinN_; }
-unsigned int PPSAlignmentConfigRun3v1::multSelProjYMinEntries() const { return multSelProjYMinEntries_; }
+unsigned int PPSAlignmentConfiguration::modeGraphMinN() const { return modeGraphMinN_; }
+unsigned int PPSAlignmentConfiguration::multSelProjYMinEntries() const { return multSelProjYMinEntries_; }
 
-const PPSAlignmentConfigRun3v1::Binning &PPSAlignmentConfigRun3v1::binning() const { return binning_; }
+const PPSAlignmentConfiguration::Binning &PPSAlignmentConfiguration::binning() const { return binning_; }
 
-// -------------------------------- PPSAlignmentConfigRun3v1 setters --------------------------------
+// -------------------------------- PPSAlignmentConfiguration setters --------------------------------
 
-void PPSAlignmentConfigRun3v1::setSectorConfig45(PPSAlignmentConfigRun3v1::SectorConfig &sectorConfig45) {
+void PPSAlignmentConfiguration::setSectorConfig45(PPSAlignmentConfiguration::SectorConfig &sectorConfig45) {
   sectorConfig45_ = sectorConfig45;
 }
-void PPSAlignmentConfigRun3v1::setSectorConfig56(PPSAlignmentConfigRun3v1::SectorConfig &sectorConfig56) {
+void PPSAlignmentConfiguration::setSectorConfig56(PPSAlignmentConfiguration::SectorConfig &sectorConfig56) {
   sectorConfig56_ = sectorConfig56;
 }
 
-void PPSAlignmentConfigRun3v1::setX_ali_sh_step(double x_ali_sh_step) { x_ali_sh_step_ = x_ali_sh_step; }
+void PPSAlignmentConfiguration::setX_ali_sh_step(double x_ali_sh_step) { x_ali_sh_step_ = x_ali_sh_step; }
 
-void PPSAlignmentConfigRun3v1::setY_mode_sys_unc(double y_mode_sys_unc) { y_mode_sys_unc_ = y_mode_sys_unc; }
-void PPSAlignmentConfigRun3v1::setChiSqThreshold(double chiSqThreshold) { chiSqThreshold_ = chiSqThreshold; }
-void PPSAlignmentConfigRun3v1::setY_mode_unc_max_valid(double y_mode_unc_max_valid) {
+void PPSAlignmentConfiguration::setY_mode_sys_unc(double y_mode_sys_unc) { y_mode_sys_unc_ = y_mode_sys_unc; }
+void PPSAlignmentConfiguration::setChiSqThreshold(double chiSqThreshold) { chiSqThreshold_ = chiSqThreshold; }
+void PPSAlignmentConfiguration::setY_mode_unc_max_valid(double y_mode_unc_max_valid) {
   y_mode_unc_max_valid_ = y_mode_unc_max_valid;
 }
-void PPSAlignmentConfigRun3v1::setY_mode_max_valid(double y_mode_max_valid) { y_mode_max_valid_ = y_mode_max_valid; }
+void PPSAlignmentConfiguration::setY_mode_max_valid(double y_mode_max_valid) { y_mode_max_valid_ = y_mode_max_valid; }
 
-void PPSAlignmentConfigRun3v1::setMinRPTracksSize(unsigned int minRPTracksSize) { minRPTracksSize_ = minRPTracksSize; }
-void PPSAlignmentConfigRun3v1::setMaxRPTracksSize(unsigned int maxRPTracksSize) { maxRPTracksSize_ = maxRPTracksSize; }
-void PPSAlignmentConfigRun3v1::setN_si(double n_si) { n_si_ = n_si; }
+void PPSAlignmentConfiguration::setMinRPTracksSize(unsigned int minRPTracksSize) { minRPTracksSize_ = minRPTracksSize; }
+void PPSAlignmentConfiguration::setMaxRPTracksSize(unsigned int maxRPTracksSize) { maxRPTracksSize_ = maxRPTracksSize; }
+void PPSAlignmentConfiguration::setN_si(double n_si) { n_si_ = n_si; }
 
-void PPSAlignmentConfigRun3v1::setMatchingReferencePoints(
-    std::map<unsigned int, std::vector<PPSAlignmentConfigRun3v1::PointErrors>> &matchingReferencePoints) {
+void PPSAlignmentConfiguration::setMatchingReferencePoints(
+    std::map<unsigned int, std::vector<PPSAlignmentConfiguration::PointErrors>> &matchingReferencePoints) {
   matchingReferencePoints_ = matchingReferencePoints;
 }
-void PPSAlignmentConfigRun3v1::setMatchingShiftRanges(
-    std::map<unsigned int, PPSAlignmentConfigRun3v1::SelectionRange> &matchingShiftRanges) {
+void PPSAlignmentConfiguration::setMatchingShiftRanges(
+    std::map<unsigned int, PPSAlignmentConfiguration::SelectionRange> &matchingShiftRanges) {
   matchingShiftRanges_ = matchingShiftRanges;
 }
 
-void PPSAlignmentConfigRun3v1::setAlignment_x_meth_o_ranges(
-    std::map<unsigned int, PPSAlignmentConfigRun3v1::SelectionRange> &alignment_x_meth_o_ranges) {
+void PPSAlignmentConfiguration::setAlignment_x_meth_o_ranges(
+    std::map<unsigned int, PPSAlignmentConfiguration::SelectionRange> &alignment_x_meth_o_ranges) {
   alignment_x_meth_o_ranges_ = alignment_x_meth_o_ranges;
 }
-void PPSAlignmentConfigRun3v1::setFitProfileMinBinEntries(unsigned int fitProfileMinBinEntries) {
+void PPSAlignmentConfiguration::setFitProfileMinBinEntries(unsigned int fitProfileMinBinEntries) {
   fitProfileMinBinEntries_ = fitProfileMinBinEntries;
 }
-void PPSAlignmentConfigRun3v1::setFitProfileMinNReasonable(unsigned int fitProfileMinNReasonable) {
+void PPSAlignmentConfiguration::setFitProfileMinNReasonable(unsigned int fitProfileMinNReasonable) {
   fitProfileMinNReasonable_ = fitProfileMinNReasonable;
 }
-void PPSAlignmentConfigRun3v1::setMethOGraphMinN(unsigned int methOGraphMinN) { methOGraphMinN_ = methOGraphMinN; }
-void PPSAlignmentConfigRun3v1::setMethOUncFitRange(double methOUncFitRange) { methOUncFitRange_ = methOUncFitRange; }
+void PPSAlignmentConfiguration::setMethOGraphMinN(unsigned int methOGraphMinN) { methOGraphMinN_ = methOGraphMinN; }
+void PPSAlignmentConfiguration::setMethOUncFitRange(double methOUncFitRange) { methOUncFitRange_ = methOUncFitRange; }
 
-void PPSAlignmentConfigRun3v1::setAlignment_x_relative_ranges(
-    std::map<unsigned int, PPSAlignmentConfigRun3v1::SelectionRange> &alignment_x_relative_ranges) {
+void PPSAlignmentConfiguration::setAlignment_x_relative_ranges(
+    std::map<unsigned int, PPSAlignmentConfiguration::SelectionRange> &alignment_x_relative_ranges) {
   alignment_x_relative_ranges_ = alignment_x_relative_ranges;
 }
-void PPSAlignmentConfigRun3v1::setNearFarMinEntries(unsigned int nearFarMinEntries) {
+void PPSAlignmentConfiguration::setNearFarMinEntries(unsigned int nearFarMinEntries) {
   nearFarMinEntries_ = nearFarMinEntries;
 }
 
-void PPSAlignmentConfigRun3v1::setAlignment_y_ranges(
-    std::map<unsigned int, PPSAlignmentConfigRun3v1::SelectionRange> &alignment_y_ranges) {
+void PPSAlignmentConfiguration::setAlignment_y_ranges(
+    std::map<unsigned int, PPSAlignmentConfiguration::SelectionRange> &alignment_y_ranges) {
   alignment_y_ranges_ = alignment_y_ranges;
 }
-void PPSAlignmentConfigRun3v1::setModeGraphMinN(unsigned int modeGraphMinN) { modeGraphMinN_ = modeGraphMinN; }
-void PPSAlignmentConfigRun3v1::setMultSelProjYMinEntries(unsigned int multSelProjYMinEntries) {
+void PPSAlignmentConfiguration::setModeGraphMinN(unsigned int modeGraphMinN) { modeGraphMinN_ = modeGraphMinN; }
+void PPSAlignmentConfiguration::setMultSelProjYMinEntries(unsigned int multSelProjYMinEntries) {
   multSelProjYMinEntries_ = multSelProjYMinEntries;
 }
 
-void PPSAlignmentConfigRun3v1::setBinning(PPSAlignmentConfigRun3v1::Binning &binning) { binning_ = binning; }
+void PPSAlignmentConfiguration::setBinning(PPSAlignmentConfiguration::Binning &binning) { binning_ = binning; }
 
 // -------------------------------- << operators --------------------------------
 
-std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfigRun3v1::RPConfig &rc) {
+std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfiguration::RPConfig &rc) {
   os << std::fixed << std::setprecision(3);
   os << "    " << rc.name_ << ", id = " << rc.id_ << ", position = " << rc.position_ << ":\n";
   os << "        slope = " << rc.slope_ << ", sh_x = " << rc.sh_x_ << "\n";
@@ -134,7 +134,7 @@ std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfigRun3v1::RPCon
   return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfigRun3v1::SectorConfig &sc) {
+std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfiguration::SectorConfig &sc) {
   os << std::fixed << std::setprecision(3);
   os << sc.name_ << ":\n";
   os << sc.rp_N_ << "\n" << sc.rp_F_ << "\n";
@@ -148,7 +148,7 @@ std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfigRun3v1::Secto
   return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfigRun3v1::Binning &b) {
+std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfiguration::Binning &b) {
   os << "    bin_size_x = " << b.bin_size_x_ << ", n_bins_x = " << b.n_bins_x_ << "\n";
   os << "    pixel_x_offset = " << b.pixel_x_offset_ << "\n";
   os << "    n_bins_y = " << b.n_bins_y_ << ", y_min = " << b.y_min_ << ", y_max = " << b.y_max_ << "\n";
@@ -165,7 +165,7 @@ std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfigRun3v1::Binni
   return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfigRun3v1 &c) {
+std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfiguration &c) {
   os << "* " << c.sectorConfig45_ << "\n\n";
   os << "* " << c.sectorConfig56_ << "\n\n";
 

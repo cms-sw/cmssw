@@ -5,7 +5,7 @@
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsDataSequence.h"
 #include "CondFormats/PPSObjects/interface/PPSTimingCalibration.h"
-#include "CondFormats/PPSObjects/interface/PPSAlignmentConfigRun3v1.h"
+#include "CondFormats/PPSObjects/interface/PPSAlignmentConfiguration.h"
 
 #include "CondFormats/PPSObjects/interface/LHCOpticalFunctionsSet.h"
 #include "CondFormats/PPSObjects/interface/LHCOpticalFunctionsSetCollection.h"

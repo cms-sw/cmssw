@@ -15,8 +15,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 
-#include "CondFormats/PPSObjects/interface/PPSAlignmentConfigRun3v1.h"
-#include "CondFormats/DataRecord/interface/PPSAlignmentConfigRun3v1Rcd.h"
+#include "CondFormats/PPSObjects/interface/PPSAlignmentConfiguration.h"
+#include "CondFormats/DataRecord/interface/PPSAlignmentConfigurationRcd.h"
 
 #include <string>
 #include <vector>
@@ -32,18 +32,18 @@
 
 //---------------------------------------------------------------------------------------------
 
-class PPSAlignmentConfigRun3v1ESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class PPSAlignmentConfigurationESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
-  PPSAlignmentConfigRun3v1ESSource(const edm::ParameterSet &iConfig);
+  PPSAlignmentConfigurationESSource(const edm::ParameterSet &iConfig);
 
-  std::unique_ptr<PPSAlignmentConfigRun3v1> produce(const PPSAlignmentConfigRun3v1Rcd &);
+  std::unique_ptr<PPSAlignmentConfiguration> produce(const PPSAlignmentConfigurationRcd &);
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   int fitProfile(TProfile *p, double x_mean, double x_rms, double &sl, double &sl_unc);
   TDirectory *findDirectoryWithName(TDirectory *dir, std::string searchName);
-  std::vector<PPSAlignmentConfigRun3v1::PointErrors> buildVectorFromDirectory(TDirectory *dir,
-                                                                        const PPSAlignmentConfigRun3v1::RPConfig &rpd);
+  std::vector<PPSAlignmentConfiguration::PointErrors> buildVectorFromDirectory(TDirectory *dir,
+                                                                        const PPSAlignmentConfiguration::RPConfig &rpd);
 
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
                       const edm::IOVSyncValue &iosv,
@@ -51,7 +51,7 @@ private:
 
   bool debug;
 
-  PPSAlignmentConfigRun3v1::SectorConfig sectorConfig45, sectorConfig56;
+  PPSAlignmentConfiguration::SectorConfig sectorConfig45, sectorConfig56;
 
   double x_ali_sh_step;
 
@@ -64,30 +64,30 @@ private:
   unsigned int maxRPTracksSize;
   double n_si;
 
-  std::map<unsigned int, std::vector<PPSAlignmentConfigRun3v1::PointErrors>> matchingReferencePoints;
-  std::map<unsigned int, PPSAlignmentConfigRun3v1::SelectionRange> matchingShiftRanges;
+  std::map<unsigned int, std::vector<PPSAlignmentConfiguration::PointErrors>> matchingReferencePoints;
+  std::map<unsigned int, PPSAlignmentConfiguration::SelectionRange> matchingShiftRanges;
 
-  std::map<unsigned int, PPSAlignmentConfigRun3v1::SelectionRange> alignment_x_meth_o_ranges;
+  std::map<unsigned int, PPSAlignmentConfiguration::SelectionRange> alignment_x_meth_o_ranges;
   unsigned int fitProfileMinBinEntries;
   unsigned int fitProfileMinNReasonable;
   unsigned int methOGraphMinN;
   double methOUncFitRange;
 
-  std::map<unsigned int, PPSAlignmentConfigRun3v1::SelectionRange> alignment_x_relative_ranges;
+  std::map<unsigned int, PPSAlignmentConfiguration::SelectionRange> alignment_x_relative_ranges;
   unsigned int nearFarMinEntries;
 
-  std::map<unsigned int, PPSAlignmentConfigRun3v1::SelectionRange> alignment_y_ranges;
+  std::map<unsigned int, PPSAlignmentConfiguration::SelectionRange> alignment_y_ranges;
   unsigned int modeGraphMinN;
   unsigned int multSelProjYMinEntries;
 
-  PPSAlignmentConfigRun3v1::Binning binning;
+  PPSAlignmentConfiguration::Binning binning;
 
   std::string label;
 };
 
 //---------------------------------------------------------------------------------------------
 
-PPSAlignmentConfigRun3v1ESSource::PPSAlignmentConfigRun3v1ESSource(const edm::ParameterSet &iConfig) {
+PPSAlignmentConfigurationESSource::PPSAlignmentConfigurationESSource(const edm::ParameterSet &iConfig) {
   label = iConfig.getParameter<std::string>("label");
 
   debug = iConfig.getParameter<bool>("debug");
@@ -108,7 +108,7 @@ PPSAlignmentConfigRun3v1ESSource::PPSAlignmentConfigRun3v1ESSource(const edm::Pa
 
   for (std::string sectorName : {"sector_45", "sector_56"}) {
     const auto &sps = iConfig.getParameter<edm::ParameterSet>(sectorName);
-    PPSAlignmentConfigRun3v1::SectorConfig *sc;
+    PPSAlignmentConfiguration::SectorConfig *sc;
     if (sectorName == "sector_45")
       sc = &sectorConfig45;
     else
@@ -116,7 +116,7 @@ PPSAlignmentConfigRun3v1ESSource::PPSAlignmentConfigRun3v1ESSource(const edm::Pa
 
     for (std::string rpName : {"rp_N", "rp_F"}) {
       const auto &rpps = sps.getParameter<edm::ParameterSet>(rpName);
-      PPSAlignmentConfigRun3v1::RPConfig *rc;
+      PPSAlignmentConfiguration::RPConfig *rc;
       if (rpName == "rp_N")
         rc = &sc->rp_N_;
       else
@@ -162,7 +162,7 @@ PPSAlignmentConfigRun3v1ESSource::PPSAlignmentConfigRun3v1ESSource(const edm::Pa
                                                      {sectorConfig56.rp_N_.id_, sectorConfig56.name_},
                                                      {sectorConfig56.rp_F_.id_, sectorConfig56.name_}};
 
-  std::map<unsigned int, const PPSAlignmentConfigRun3v1::RPConfig *> rpConfigs = {
+  std::map<unsigned int, const PPSAlignmentConfiguration::RPConfig *> rpConfigs = {
       {sectorConfig45.rp_F_.id_, &sectorConfig45.rp_F_},
       {sectorConfig45.rp_N_.id_, &sectorConfig45.rp_N_},
       {sectorConfig56.rp_N_.id_, &sectorConfig56.rp_N_},
@@ -263,7 +263,7 @@ PPSAlignmentConfigRun3v1ESSource::PPSAlignmentConfigRun3v1ESSource(const edm::Pa
   binning.slice_y_max_ = bps.getParameter<double>("slice_y_max");
 
   setWhatProduced(this, label);
-  findingRecord<PPSAlignmentConfigRun3v1Rcd>();
+  findingRecord<PPSAlignmentConfigurationRcd>();
 
   if (debug)
     delete debugFile;
@@ -271,8 +271,8 @@ PPSAlignmentConfigRun3v1ESSource::PPSAlignmentConfigRun3v1ESSource(const edm::Pa
 
 //---------------------------------------------------------------------------------------------
 
-std::unique_ptr<PPSAlignmentConfigRun3v1> PPSAlignmentConfigRun3v1ESSource::produce(const PPSAlignmentConfigRun3v1Rcd &) {
-  auto p = std::make_unique<PPSAlignmentConfigRun3v1>();
+std::unique_ptr<PPSAlignmentConfiguration> PPSAlignmentConfigurationESSource::produce(const PPSAlignmentConfigurationRcd &) {
+  auto p = std::make_unique<PPSAlignmentConfiguration>();
 
   p->setSectorConfig45(sectorConfig45);
   p->setSectorConfig56(sectorConfig56);
@@ -316,7 +316,7 @@ std::unique_ptr<PPSAlignmentConfigRun3v1> PPSAlignmentConfigRun3v1ESSource::prod
 //---------------------------------------------------------------------------------------------
 
 // most default values come from 2018 period
-void PPSAlignmentConfigRun3v1ESSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void PPSAlignmentConfigurationESSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<bool>("debug", false);
@@ -574,13 +574,13 @@ void PPSAlignmentConfigRun3v1ESSource::fillDescriptions(edm::ConfigurationDescri
     desc.add<edm::ParameterSetDescription>("binning", binning);
   }
 
-  descriptions.add("ppsAlignmentConfigRun3v1ESSource", desc);
+  descriptions.add("ppsAlignmentConfigurationESSource", desc);
 }
 
 //---------------------------------------------------------------------------------------------
 
 // Fits a linear function to a TProfile (similar method in PPSAlignmentHarvester).
-int PPSAlignmentConfigRun3v1ESSource::fitProfile(TProfile *p, double x_mean, double x_rms, double &sl, double &sl_unc) {
+int PPSAlignmentConfigurationESSource::fitProfile(TProfile *p, double x_mean, double x_rms, double &sl, double &sl_unc) {
   unsigned int n_reasonable = 0;
   for (int bi = 1; bi <= p->GetNbinsX(); bi++) {
     if (p->GetBinEntries(bi) < fitProfileMinBinEntries) {
@@ -611,7 +611,7 @@ int PPSAlignmentConfigRun3v1ESSource::fitProfile(TProfile *p, double x_mean, dou
 
 // Performs a breadth first search on dir. If found, returns the directory with object
 // named searchName inside. Otherwise, returns nullptr.
-TDirectory *PPSAlignmentConfigRun3v1ESSource::findDirectoryWithName(TDirectory *dir, std::string searchName) {
+TDirectory *PPSAlignmentConfigurationESSource::findDirectoryWithName(TDirectory *dir, std::string searchName) {
   TIter next(dir->GetListOfKeys());
   std::queue<TDirectory *> dirQueue;
   TObject *o;
@@ -639,9 +639,9 @@ TDirectory *PPSAlignmentConfigRun3v1ESSource::findDirectoryWithName(TDirectory *
 //---------------------------------------------------------------------------------------------
 
 // Builds vector of PointErrors instances from slice plots in dir.
-std::vector<PPSAlignmentConfigRun3v1::PointErrors> PPSAlignmentConfigRun3v1ESSource::buildVectorFromDirectory(
-    TDirectory *dir, const PPSAlignmentConfigRun3v1::RPConfig &rpd) {
-  std::vector<PPSAlignmentConfigRun3v1::PointErrors> pv;
+std::vector<PPSAlignmentConfiguration::PointErrors> PPSAlignmentConfigurationESSource::buildVectorFromDirectory(
+    TDirectory *dir, const PPSAlignmentConfiguration::RPConfig &rpd) {
+  std::vector<PPSAlignmentConfiguration::PointErrors> pv;
 
   TIter next(dir->GetListOfKeys());
   TObject *o;
@@ -680,14 +680,14 @@ std::vector<PPSAlignmentConfigRun3v1::PointErrors> PPSAlignmentConfigRun3v1ESSou
 
 //---------------------------------------------------------------------------------------------
 
-void PPSAlignmentConfigRun3v1ESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
+void PPSAlignmentConfigurationESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
                                                 const edm::IOVSyncValue &iosv,
                                                 edm::ValidityInterval &oValidity) {
-  edm::LogInfo("PPS") << ">> PPSAlignmentConfigRun3v1ESSource::setIntervalFor(" << key.name() << ")\n"
+  edm::LogInfo("PPS") << ">> PPSAlignmentConfigurationESSource::setIntervalFor(" << key.name() << ")\n"
                       << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event();
 
   edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
   oValidity = infinity;
 }
 
-DEFINE_FWK_EVENTSETUP_SOURCE(PPSAlignmentConfigRun3v1ESSource);
+DEFINE_FWK_EVENTSETUP_SOURCE(PPSAlignmentConfigurationESSource);

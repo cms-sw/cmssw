@@ -14,6 +14,6 @@
   <use name="CondFormats/PPSObjects"/>
 </bin>
 
-<bin file="testSerializationPPSAlignmentConfigRun3v1.cc">
+<bin file="testSerializationPPSAlignmentConfiguration.cc">
   <use name="CondFormats/PPSObjects"/>
 </bin>

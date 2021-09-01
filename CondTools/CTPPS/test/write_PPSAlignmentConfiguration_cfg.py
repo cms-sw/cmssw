@@ -1,7 +1,7 @@
 ##### configuration #####
 output_conditions = 'sqlite_file:alignment_config.db'  # output database
 run_number = 1  # beginning of the IOV
-db_tag = 'PPSAlignmentConfigRun3v1_v1_express'  # database tag
+db_tag = 'PPSAlignmentConfiguration_v1_express'  # database tag
 produce_logs = True  # if set to True, a file with logs will be produced.
 product_instance_label = 'db_test'  # ES product label
 # ESSource parameters can be configured below
@@ -9,15 +9,15 @@ product_instance_label = 'db_test'  # ES product label
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("writePPSAlignmentConfigRun3v1")
+process = cms.Process("writePPSAlignmentConfiguration")
 
 # Message Logger
 if produce_logs:
     process.MessageLogger = cms.Service("MessageLogger",
-        destinations = cms.untracked.vstring('write_PPSAlignmentConfigRun3v1',
+        destinations = cms.untracked.vstring('write_PPSAlignmentConfiguration',
                                              'cout'
                                             ),
-        write_PPSAlignmentConfigRun3v1 = cms.untracked.PSet(
+        write_PPSAlignmentConfiguration = cms.untracked.PSet(
             threshold = cms.untracked.string('INFO')
         ),
         cout = cms.untracked.PSet(
@@ -51,14 +51,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDB,
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('PPSAlignmentConfigRun3v1Rcd'),
+        record = cms.string('PPSAlignmentConfigurationRcd'),
         tag = cms.string(db_tag)
     ))
 )
 
 # ESSource
-process.ppsAlignmentConfigRun3v1ESSource = cms.ESSource("PPSAlignmentConfigRun3v1ESSource",
-    # PPSAlignmentConfigRun3v1ESSource parameters, defaults will be taken from fillDescriptions
+process.ppsAlignmentConfigurationESSource = cms.ESSource("PPSAlignmentConfigurationESSource",
+    # PPSAlignmentConfigurationESSource parameters, defaults will be taken from fillDescriptions
     label = cms.string(product_instance_label),
     sector_45 = cms.PSet(
         rp_N = cms.PSet(
@@ -76,8 +76,8 @@ process.ppsAlignmentConfigRun3v1ESSource = cms.ESSource("PPSAlignmentConfigRun3v
 )
 
 # DB object maker
-process.config_writer = cms.EDAnalyzer("WritePPSAlignmentConfigRun3v1",
-    record = cms.string('PPSAlignmentConfigRun3v1Rcd'),
+process.config_writer = cms.EDAnalyzer("WritePPSAlignmentConfiguration",
+    record = cms.string('PPSAlignmentConfigurationRcd'),
     loggingOn = cms.untracked.bool(True),
     SinceAppendMode = cms.bool(True),
     Source = cms.PSet(
