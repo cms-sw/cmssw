@@ -27,7 +27,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegLoc.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegLoc.h"
 
 //              ---------------------
 //              -- Class Interface --

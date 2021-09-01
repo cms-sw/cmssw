@@ -1,8 +1,8 @@
 #ifndef L1GCTJETCOUNT_H
 #define L1GCTJETCOUNT_H
 
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctUnsignedInt.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctTwosComplement.h"
 
 #include <ostream>
 
