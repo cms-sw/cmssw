@@ -36,7 +36,8 @@
 
 class TH1F;
 
-class PhiSymmetryCalibration : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+class PhiSymmetryCalibration
+    : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   PhiSymmetryCalibration(const edm::ParameterSet& iConfig);

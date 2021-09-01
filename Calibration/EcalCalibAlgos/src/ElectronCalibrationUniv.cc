@@ -47,8 +47,7 @@ ElectronCalibrationUniv::ElectronCalibrationUniv(const edm::ParameterSet& iConfi
       ebRecHitToken_(consumes<EBRecHitCollection>(ebRecHitLabel_)),
       eeRecHitToken_(consumes<EERecHitCollection>(eeRecHitLabel_)),
       gsfElectronToken_(consumes<reco::GsfElectronCollection>(electronLabel_)),
-      topologyToken_(esConsumes<edm::Transition::BeginRun>()) {
-}
+      topologyToken_(esConsumes<edm::Transition::BeginRun>()) {}
 
 ElectronCalibrationUniv::~ElectronCalibrationUniv() {}
 
