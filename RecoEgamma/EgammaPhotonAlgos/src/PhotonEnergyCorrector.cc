@@ -11,7 +11,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
 
 PhotonEnergyCorrector::PhotonEnergyCorrector(const edm::ParameterSet& config, edm::ConsumesCollector&& iC)
-    : ecalClusterToolsESGetTokens_{std::move(iC)} {
+    : ecalClusterToolsESGetTokens_{iC}, caloGeomToken_{iC.esConsumes()} {
   minR9Barrel_ = config.getParameter<double>("minR9Barrel");
   minR9Endcap_ = config.getParameter<double>("minR9Endcap");
   // get the geometry from the event setup:
@@ -25,19 +25,19 @@ PhotonEnergyCorrector::PhotonEnergyCorrector(const edm::ParameterSet& config, ed
 
   // function to extract f(eta) correction
   std::string superClusterFunctionName = config.getParameter<std::string>("superClusterEnergyCorrFunction");
-  scEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterFunctionName, config);
+  scEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterFunctionName, config, iC);
 
   // function to extract corrections to cracks
   std::string superClusterCrackFunctionName = config.getParameter<std::string>("superClusterCrackEnergyCorrFunction");
-  scCrackEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterCrackFunctionName, config);
+  scCrackEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterCrackFunctionName, config, iC);
 
   // function to extract the error on the sc ecal correction
   std::string superClusterErrorFunctionName = config.getParameter<std::string>("superClusterEnergyErrorFunction");
-  scEnergyErrorFunction_ = EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName, config);
+  scEnergyErrorFunction_ = EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName, config, iC);
 
   // function  to extract the error on the photon ecal correction
   std::string photonEnergyFunctionName = config.getParameter<std::string>("photonEcalEnergyCorrFunction");
-  photonEcalEnergyCorrFunction_ = EcalClusterFunctionFactory::get()->create(photonEnergyFunctionName, config);
+  photonEcalEnergyCorrFunction_ = EcalClusterFunctionFactory::get()->create(photonEnergyFunctionName, config, iC);
   //ingredient for photon uncertainty
   photonUncertaintyCalculator_ = std::make_unique<EnergyUncertaintyPhotonSpecific>(config);
 
@@ -58,7 +58,7 @@ PhotonEnergyCorrector::PhotonEnergyCorrector(const edm::ParameterSet& config, ed
 }
 
 void PhotonEnergyCorrector::init(const edm::EventSetup& theEventSetup) {
-  theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
+  theCaloGeom_ = theEventSetup.getHandle(caloGeomToken_);
 
   scEnergyFunction_->init(theEventSetup);
   scCrackEnergyFunction_->init(theEventSetup);
