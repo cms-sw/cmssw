@@ -1,6 +1,5 @@
 #include <memory>
 #include <cmath>
-#include <iostream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -9,9 +8,7 @@
 #include "Calibration/EcalCalibAlgos/interface/EcalEleCalibLooper.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "Calibration/Tools/interface/calibXMLwriter.h"
@@ -31,7 +28,8 @@
 
 //!LP ctor
 EcalEleCalibLooper::EcalEleCalibLooper(const edm::ParameterSet& iConfig)
-    : m_barrelAlCa(iConfig.getParameter<edm::InputTag>("alcaBarrelHitCollection")),
+    : m_geometryToken(esConsumes()),
+      m_barrelAlCa(iConfig.getParameter<edm::InputTag>("alcaBarrelHitCollection")),
       m_endcapAlCa(iConfig.getParameter<edm::InputTag>("alcaEndcapHitCollection")),
       m_recoWindowSidex(iConfig.getParameter<int>("recoWindowSidex")),
       m_recoWindowSidey(iConfig.getParameter<int>("recoWindowSidey")),
@@ -168,9 +166,7 @@ edm::EDLooper::Status EcalEleCalibLooper::duringLoop(const edm::Event& iEvent, c
   // with the beginJob without arguments migration
 
   if (isfirstcall_) {
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
-    const CaloGeometry& geometry = *geoHandle;
+    const auto& geometry = iSetup.getData(m_geometryToken);
     m_barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
     m_endcapCells = geometry.getValidDetIds(DetId::Ecal, EcalEndcap);
     for (std::vector<DetId>::const_iterator barrelIt = m_barrelCells.begin(); barrelIt != m_barrelCells.end();
