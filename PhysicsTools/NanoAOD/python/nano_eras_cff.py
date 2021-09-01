@@ -20,3 +20,4 @@ from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106
 from Configuration.Eras.Modifier_run2_nanoAOD_106Xv2_cff import run2_nanoAOD_106Xv2
 from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
 
+from Configuration.Eras.Modifier_run3_nanoAOD_devel_cff import run3_nanoAOD_devel
