@@ -59,7 +59,7 @@ namespace edm {
 
     std::vector<std::vector<edm::SecondaryEventIDAndFileInfo> > vectorEventIDs_;
 
-    std::shared_ptr<PileUp> input_;
+    std::unique_ptr<PileUp> input_;
     std::vector<float> TrueNumInteractions_[5];
 
     InputTag tag_;

@@ -15,8 +15,8 @@ EcalUncalibRecHitWorkerWeights::EcalUncalibRecHitWorkerWeights(const edm::Parame
       tokenGains_(c.esConsumes<EcalGainRatios, EcalGainRatiosRcd>()),
       tokenGrps_(c.esConsumes<EcalWeightXtalGroups, EcalWeightXtalGroupsRcd>()),
       tokenWgts_(c.esConsumes<EcalTBWeights, EcalTBWeightsRcd>()),
-      testbeamEEShape(EEShape(true)),
-      testbeamEBShape(EBShape(true)) {}
+      testbeamEEShape(c),
+      testbeamEBShape(c) {}
 
 void EcalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es) {
   gains_ = es.getHandle(tokenGains_);
