@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -69,7 +69,7 @@
 #include "TString.h"
 #include "TTree.h"
 
-class CSCSkim : public edm::EDFilter {
+class CSCSkim : public edm::one::EDFilter<> {
 public:
   // Constructor
   explicit CSCSkim(const edm::ParameterSet &pset);
@@ -136,6 +136,9 @@ private:
   // file names
   std::string outputFileName;
   std::string histogramFileName;
+
+  // es token names
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> m_CSCGeomToken;
 
   // token names
   edm::EDGetTokenT<CSCWireDigiCollection> wds_token;
