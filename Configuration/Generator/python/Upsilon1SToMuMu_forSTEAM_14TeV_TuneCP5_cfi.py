@@ -3,7 +3,7 @@ from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.MCTunes2017.PythiaCP5Settings_cfi import *
 from Configuration.Generator.Pythia8BottomoniumSettings_cfi import *
 
-generator = cms.EDFilter("Pythia8GeneratorFilter",
+generator = cms.EDFilter("Pythia8ConcurrentGeneratorFilter",
                          pythiaPylistVerbosity = cms.untracked.int32(0),
                          filterEfficiency = cms.untracked.double(0.53),
                          pythiaHepMCVerbosity = cms.untracked.bool(False),
