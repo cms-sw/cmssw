@@ -149,16 +149,16 @@ private:
   MonitorElement* meEEShapeRatio_;
   MonitorElement* meESShapeRatio_;
 
-  const EcalSimParameterMap* theParameterMap;
+  std::unique_ptr<const EcalSimParameterMap> theParameterMap;
   //const CaloVShape * theEcalShape;
-  ESShape* theESShape;
-  EBShape* theEBShape;
-  EEShape* theEEShape;
+  std::unique_ptr<ESShape> theESShape;
+  std::unique_ptr<EBShape> theEBShape;
+  std::unique_ptr<EEShape> theEEShape;
 
   //CaloHitResponse * theEcalResponse;
-  CaloHitResponse* theESResponse;
-  CaloHitResponse* theEBResponse;
-  CaloHitResponse* theEEResponse;
+  std::unique_ptr<CaloHitResponse> theESResponse;
+  std::unique_ptr<CaloHitResponse> theEBResponse;
+  std::unique_ptr<CaloHitResponse> theEEResponse;
 
   void computeSDBunchDigi(const edm::EventSetup& eventSetup,
                           const MixCollection<PCaloHit>& theHits,
