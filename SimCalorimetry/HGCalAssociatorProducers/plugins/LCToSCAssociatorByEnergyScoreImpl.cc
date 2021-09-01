@@ -35,9 +35,9 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
   }
   nSimClusters = sCIndices.size();
 
-  // Initialize lcsInSimCluster. It contains the simClusterOnLayer structure for all simClusters in each layer and 
+  // Initialize lcsInSimCluster. It contains the simClusterOnLayer structure for all simClusters in each layer and
   // among other the information to compute the SimCluster-To-LayerCluster score. It is one of the two objects that
-  // build the output of the makeConnections function. 
+  // build the output of the makeConnections function.
   // lcsInSimCluster[scId][layerId]
   hgcal::simClusterToLayerCluster lcsInSimCluster;
   lcsInSimCluster.resize(nSimClusters);
@@ -51,10 +51,10 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
   }
 
   // Fill detIdToSimClusterId_Map and update lcsInSimCluster
-  // The detIdToSimClusterId_Map is used to connect a hit Detid (key) with all the SimClusters that 
-  // contributed to that hit by storing the SimCluster id and the fraction of the hit. Observe here 
-  // that in contrast to the CaloParticle case there is no merging and summing of the fractions, which 
-  // in the CaloParticle's case was necessary due to the multiple SimClusters of a single CaloParticle. 
+  // The detIdToSimClusterId_Map is used to connect a hit Detid (key) with all the SimClusters that
+  // contributed to that hit by storing the SimCluster id and the fraction of the hit. Observe here
+  // that in contrast to the CaloParticle case there is no merging and summing of the fractions, which
+  // in the CaloParticle's case was necessary due to the multiple SimClusters of a single CaloParticle.
   std::unordered_map<DetId, std::vector<hgcal::detIdInfoInCluster>> detIdToSimClusterId_Map;
   for (const auto& scId : sCIndices) {
     const auto& hits_and_fractions = simClusters[scId].hits_and_fractions();
@@ -110,10 +110,10 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
     LogDebug("LCToSCAssociatorByEnergyScoreImpl")
         << "For detId: " << (uint32_t)sc.first
         << " we have found the following connections with SimClusters:" << std::endl;
-    // At this point here if you activate the printing you will notice cases where in a 
+    // At this point here if you activate the printing you will notice cases where in a
     // specific detId there are more that one SimClusters contributing with fractions less than 1.
-    // This is important since it effects the score computation, since the fraction is also in the 
-    // denominator of the score formula. 
+    // This is important since it effects the score computation, since the fraction is also in the
+    // denominator of the score formula.
     for (auto const& sclu : sc.second) {
       LogDebug("LCToSCAssociatorByEnergyScoreImpl")
           << "  SimCluster Id: " << sclu.clusterId << " with fraction: " << sclu.fraction
@@ -123,12 +123,12 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
 #endif
 
   // Fill detIdToLayerClusterId_Map and scsInLayerCluster; update lcsInSimCluster
-  // The detIdToLayerClusterId_Map is used to connect a hit Detid (key) with all the LayerClusters that 
-  // contributed to that hit by storing the LayerCluster id and the fraction of the corresponding hit. 
+  // The detIdToLayerClusterId_Map is used to connect a hit Detid (key) with all the LayerClusters that
+  // contributed to that hit by storing the LayerCluster id and the fraction of the corresponding hit.
   std::unordered_map<DetId, std::vector<hgcal::detIdInfoInCluster>> detIdToLayerClusterId_Map;
-  // scsInLayerCluster together with lcsInSimCluster are the two objects that are used to build the 
-  // output of the makeConnections function. scsInLayerCluster connects a LayerCluster with 
-  // all the SimClusters that share at least one cell with the LayerCluster and for each pair (LC,SC) 
+  // scsInLayerCluster together with lcsInSimCluster are the two objects that are used to build the
+  // output of the makeConnections function. scsInLayerCluster connects a LayerCluster with
+  // all the SimClusters that share at least one cell with the LayerCluster and for each pair (LC,SC)
   // it stores the score.
   hgcal::layerClusterToSimCluster scsInLayerCluster;  //[lcId][scId]->(score)
   scsInLayerCluster.resize(nLayerClusters);
@@ -354,8 +354,8 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
       continue;
     }
 
-    // Compute the correct normalization. 
-    // It is the inverse of the denominator of the LCToSC score formula. Observe that this is the sum of the squares. 
+    // Compute the correct normalization.
+    // It is the inverse of the denominator of the LCToSC score formula. Observe that this is the sum of the squares.
     float invLayerClusterEnergyWeight = 0.f;
     for (auto const& haf : clusters[lcId].hitsAndFractions()) {
       invLayerClusterEnergyWeight +=
@@ -411,7 +411,7 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
       int lcWithMaxEnergyInSC = -1;
       //energy of the most energetic LC from all that were linked to SC
       float maxEnergyLCinSC = 0.f;
-      //Energy of the SC scId on layer layerId that was reconstructed. 
+      //Energy of the SC scId on layer layerId that was reconstructed.
       float SCenergy = lcsInSimCluster[scId][layerId].energy;
       //most energetic LC from all LCs linked to SC over SC energy.
       float SCEnergyFractionInLC = 0.f;
@@ -435,7 +435,7 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
           << "\t" << std::setw(18) << lcWithMaxEnergyInSC << "\t" << std::setw(15) << maxEnergyLCinSC << "\t"
           << std::setw(20) << SCEnergyFractionInLC << "\n";
 #endif
-      // Compute the correct normalization. Observe that this is the sum of the squares. 
+      // Compute the correct normalization. Observe that this is the sum of the squares.
       float invSCEnergyWeight = 0.f;
       for (auto const& haf : lcsInSimCluster[scId][layerId].hits_and_fractions) {
         invSCEnergyWeight += std::pow(haf.second * hitMap_->at(haf.first)->energy(), 2);
@@ -490,8 +490,8 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
             << (lcPair.second.first / SCenergy) << "\n";
       }
 #endif
-    } // End of loop over layers
-  } // End of loop over SimClusters
+    }  // End of loop over layers
+  }    // End of loop over SimClusters
 
   return {scsInLayerCluster, lcsInSimCluster};
 }
