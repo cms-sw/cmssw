@@ -5,7 +5,6 @@
   <lib name="1"/>
 </export>
 <use name="DataFormats/TrajectorySeed"/>
-<use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
