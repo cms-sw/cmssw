@@ -9,7 +9,7 @@
 
 #include "AlgoProductTraits.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -67,17 +67,8 @@ public:
   /// Method where the procduction take place. To be implemented in concrete classes
   virtual void produce(edm::Event&, const edm::EventSetup&) = 0;
 
-  /// Set parameter set
-  void setConf(const edm::ParameterSet& conf) { conf_ = conf; }
-
-  /// set label of source collection
-  void setSrc(const edm::EDGetToken& src,
-              const edm::EDGetTokenT<reco::BeamSpot>& bsSrc,
-              const edm::EDGetTokenT<MeasurementTrackerEvent>& mteSrc) {
-    src_ = src;
-    bsSrc_ = bsSrc;
-    mteSrc_ = mteSrc;
-  }
+  /// Call this method in inheriting class' constructor
+  void initTrackProducerBase(const edm::ParameterSet& conf, edm::ConsumesCollector cc, const edm::EDGetToken& src);
 
   /// set the aliases of produced collections
   void setAlias(std::string alias) {

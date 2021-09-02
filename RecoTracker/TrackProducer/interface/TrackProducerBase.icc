@@ -37,6 +37,17 @@ template <class T>
 TrackProducerBase<T>::~TrackProducerBase() noexcept(false) {}
 
 // member functions
+
+template <class T>
+void TrackProducerBase<T>::initTrackProducerBase(const edm::ParameterSet& conf,
+                                                 edm::ConsumesCollector cc,
+                                                 const edm::EDGetToken& src) {
+  conf_ = conf;
+  src_ = src;
+  bsSrc_ = cc.consumes(conf.getParameter<edm::InputTag>("beamSpot"));
+  mteSrc_ = cc.consumes(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"));
+}
+
 // ------------ method called to produce the data  ------------
 
 template <class T>

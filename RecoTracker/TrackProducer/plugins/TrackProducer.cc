@@ -19,10 +19,8 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig)
     : KfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
                           iConfig.getParameter<bool>("useHitsSplitting")),
       theAlgo(iConfig) {
-  setConf(iConfig);
-  setSrc(consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("src")),
-         consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot")),
-         consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent")));
+  initTrackProducerBase(
+      iConfig, consumesCollector(), consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("src")));
   setAlias(iConfig.getParameter<std::string>("@module_label"));
 
   if (iConfig.exists("clusterRemovalInfo")) {
