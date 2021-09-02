@@ -11,7 +11,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '113X_dataRun3_Prompt_Candidate_2021_08_24_17_11_47')
+process.GlobalTag = GlobalTag(process.GlobalTag, '113X_dataRun3_Prompt_PPStestSampicPCL_v1')
 
 ################
 #digi converter

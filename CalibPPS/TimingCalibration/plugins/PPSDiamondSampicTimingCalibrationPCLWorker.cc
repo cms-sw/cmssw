@@ -5,7 +5,7 @@
 //
 /**\class PPSDiamondSampicTimingCalibrationPCLWorker PPSDiamondSampicTimingCalibrationPCLWorker.cc CalibPPS/TimingCalibration/PPSDiamondSampicTimingCalibrationPCLWorker/plugins/PPSDiamondSampicTimingCalibrationPCLWorker.cc
 
- Description: Worker of the DiamondSampicCalibration PCL which produces RecHitsTime histograms and id mapping for the Harvester
+ Description: Worker of DiamondSampic calibration which produces RecHitsTime histograms and id mapping for the Harvester
 
  Implementation:
      [Notes on implementation]
@@ -92,6 +92,12 @@ void PPSDiamondSampicTimingCalibrationPCLWorker::dqmAnalyze(
   iEvent.getByToken(totemTimingRecHitToken_, timingRecHit);
   iEvent.getByToken(totemTimingDigiToken_, timingDigi);
 
+  if (timingRecHit->empty()) {
+    edm::LogWarning("PPSDiamondSampicTimingCalibrationPCLWorker:dqmAnalyze")
+        << "No rechits retrieved from the event content.";
+    return;
+  }
+
   for (const auto& digis : *timingDigi) {
     const CTPPSDiamondDetId detId(digis.detId());
     for (const auto& digi : digis) {
@@ -99,12 +105,6 @@ void PPSDiamondSampicTimingCalibrationPCLWorker::dqmAnalyze(
       histos.sampic.at(detId.rawId())->Fill(digi.hardwareSampicId());
       histos.channel.at(detId.rawId())->Fill(digi.hardwareChannelId());
     }
-  }
-
-  if (timingRecHit->empty()) {
-    edm::LogWarning("PPSDiamondSampicTimingCalibrationPCLWorker:dqmAnalyze")
-        << "No rechits retrieved from the event content.";
-    return;
   }
 
   for (const auto& recHits : *timingRecHit) {
@@ -128,11 +128,14 @@ void PPSDiamondSampicTimingCalibrationPCLWorker::bookHistograms(
     if (!CTPPSDiamondDetId::check(it->first))
       continue;
     const CTPPSDiamondDetId detid(it->first);
+
+    std::string path;
+    detid.channelName(path, CTPPSDiamondDetId::nPath);
     detid.channelName(ch_name);
-    histos.timeHisto[detid.rawId()] = ibook.book1D(ch_name, ch_name, 1200, -40, 40);
-    histos.db[detid.rawId()] = ibook.bookInt(ch_name + "db");
-    histos.sampic[detid.rawId()] = ibook.bookInt(ch_name + "sampic");
-    histos.channel[detid.rawId()] = ibook.bookInt(ch_name + "channel");
+    histos.timeHisto[detid.rawId()] = ibook.book1D(path + "/" + ch_name, ch_name, 500, -25, 25);
+    histos.db[detid.rawId()] = ibook.bookInt(path + "/" + ch_name + "db");
+    histos.sampic[detid.rawId()] = ibook.bookInt(path + "/" + ch_name + "sampic");
+    histos.channel[detid.rawId()] = ibook.bookInt(path + "/" + ch_name + "channel");
   }
 }
 

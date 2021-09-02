@@ -10,7 +10,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '113X_dataRun3_Prompt_Candidate_2021_08_24_17_11_47')
+process.GlobalTag = GlobalTag(process.GlobalTag, '113X_dataRun3_Prompt_PPStestSampicPCL_v1')
 
 # Source (histograms)
 process.source = cms.Source("DQMRootSource",
@@ -40,12 +40,29 @@ process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_2021_cfi')
 process.load("CalibPPS.TimingCalibration.PPSDiamondSampicTimingCalibrationPCLHarvester_cfi")
 #process.PPSDiamondSampicTimingCalibrationPCLHarvester.jsonCalibFile=cms.string("initial.cal.json")
 
+# load DQM framework
+process.load("DQMServices.Core.DQMStore_cfi")
+process.load("DQMServices.Components.DQMEnvironment_cfi")
+process.dqmEnv.subSystemFolder = "CalibPPS"
+process.dqmSaver.convention = 'Offline'
+process.dqmSaver.workflow = "/CalibPPS/TimingCalibration/CMSSW_12_0_0_pre2"
+process.dqmSaver.saveByRun = -1
+process.dqmSaver.saveAtJobEnd = True
+process.dqmSaver.forceRunNumber = 999999
+
 process.p = cms.Path(
     process.PPSDiamondSampicTimingCalibrationPCLHarvester
 )
 
-process.schedule = cms.Schedule(
-    process.p
+process.end_path = cms.EndPath(
+    process.dqmEnv +
+    process.dqmSaver
 )
+
+process.schedule = cms.Schedule(
+    process.p,
+    process.end_path
+)
+
 
 
