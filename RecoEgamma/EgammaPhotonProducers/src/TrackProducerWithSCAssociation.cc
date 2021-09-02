@@ -64,10 +64,8 @@ DEFINE_FWK_MODULE(TrackProducerWithSCAssociation);
 
 TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::ParameterSet& iConfig)
     : TrackProducerBase<reco::Track>(iConfig.getParameter<bool>("TrajectoryInEvent")), theAlgo(iConfig) {
-  setConf(iConfig);
-  setSrc(consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("src")),
-         consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot")),
-         consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent")));
+  initTrackProducerBase(
+      iConfig, consumesCollector(), consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("src")));
   setAlias(iConfig.getParameter<std::string>("@module_label"));
 
   myname_ = iConfig.getParameter<std::string>("ComponentName");
