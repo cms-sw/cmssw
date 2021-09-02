@@ -17,7 +17,6 @@
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtPsbSetupConfigOnlineProd.h"
 
 // system include files
-#include "boost/lexical_cast.hpp"
 #include <algorithm>
 
 // user include files
