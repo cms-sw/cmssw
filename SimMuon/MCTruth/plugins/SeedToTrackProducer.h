@@ -62,6 +62,10 @@ private:
   edm::EDGetTokenT<TrajectorySeedCollection> L2seedsTagT_;
   edm::EDGetTokenT<edm::View<TrajectorySeed>> L2seedsTagS_;
 
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMGFieldToken;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> theTrackingGeometryToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTopoToken;
+
   edm::ESHandle<MagneticField> theMGField;
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
 };

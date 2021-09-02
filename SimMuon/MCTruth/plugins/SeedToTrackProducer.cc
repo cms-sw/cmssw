@@ -26,7 +26,8 @@
 //
 // constructors and destructor
 //
-SeedToTrackProducer::SeedToTrackProducer(const edm::ParameterSet &iConfig) {
+SeedToTrackProducer::SeedToTrackProducer(const edm::ParameterSet &iConfig)
+    : theMGFieldToken(esConsumes()), theTrackingGeometryToken(esConsumes()), theTopoToken(esConsumes()) {
   L2seedsTagT_ = consumes<TrajectorySeedCollection>(iConfig.getParameter<edm::InputTag>("L2seedsCollection"));
   L2seedsTagS_ = consumes<edm::View<TrajectorySeed>>(iConfig.getParameter<edm::InputTag>("L2seedsCollection"));
 
@@ -58,12 +59,10 @@ void SeedToTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
   edm::Ref<reco::TrackExtraCollection>::key_type idx = 0;
 
   // magnetic fied and detector geometry
-  iSetup.get<IdealMagneticFieldRecord>().get(theMGField);
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+  theMGField = iSetup.getHandle(theMGFieldToken);
+  theTrackingGeometry = iSetup.getHandle(theTrackingGeometryToken);
 
-  edm::ESHandle<TrackerTopology> httopo;
-  iSetup.get<TrackerTopologyRcd>().get(httopo);
-  const TrackerTopology &ttopo = *httopo;
+  const TrackerTopology &ttopo = iSetup.getData(theTopoToken);
 
   // now read the L2 seeds collection :
   edm::Handle<TrajectorySeedCollection> L2seedsCollection;
