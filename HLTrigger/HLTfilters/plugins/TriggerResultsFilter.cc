@@ -42,11 +42,14 @@ TriggerResultsFilter::~TriggerResultsFilter() { delete m_expression; }
 void TriggerResultsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   // # use HLTPathStatus results
-  desc.add<bool>("usePathStatus", false);
-  // # HLT results   - set to empty to ignore HLT
-  desc.add<edm::InputTag>("hltResults", edm::InputTag("TriggerResults"));
+  desc.add<bool>("usePathStatus", false)
+      ->setComment("Read the HLT results from the TriggerResults (false) or from the current job's PathStatus (true).");
+  // # HLT results - set to empty to ignore HLT
+  desc.add<edm::InputTag>("hltResults", edm::InputTag("TriggerResults", "", "@skipCurrentProcess"))
+      ->setComment("HLT TriggerResults. Leave empty to ignore the HLT results. Ignored when usePathStatus is true.");
   // # L1 uGT results - set to empty to ignore L1T
-  desc.add<edm::InputTag>("l1tResults", edm::InputTag("hltGtStage2Digis"));
+  desc.add<edm::InputTag>("l1tResults", edm::InputTag("hltGtStage2Digis"))
+      ->setComment("uGT digi collection. Leave empty to ignore the L1T results.");
   // # use initial L1 decision, before masks and prescales
   desc.add<bool>("l1tIgnoreMaskAndPrescale", false);
   // # OBSOLETE - these parameters are ignored, they are left only not to break old configurations
