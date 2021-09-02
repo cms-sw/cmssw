@@ -189,13 +189,8 @@ private:
   TrackerMuonHitExtractor hitExtractor_;
 
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
-
-  std::unique_ptr<RPCHitAssociator> rpctruth_;
-  std::unique_ptr<GEMHitAssociator> gemtruth_;
-  std::unique_ptr<DTHitAssociator> dttruth_;
-  std::unique_ptr<CSCHitAssociator> csctruth_;
-  std::unique_ptr<TrackerHitAssociator> trackertruth_;
   std::unique_ptr<InputDumper> diagnostics_;
+
 };
 
 //
@@ -259,19 +254,19 @@ void MuonToTrackingParticleAssociatorEDProducer::produce(edm::Event &iEvent, con
   // the resources own the memory.
 
   // Tracker hit association
-  trackertruth_ = std::make_unique<TrackerHitAssociator>(iEvent, trackerHitAssociatorConfig_);
+  TrackerHitAssociator trackertruth(iEvent, trackerHitAssociatorConfig_);
   // CSC hit association
-  csctruth_ = std::make_unique<CSCHitAssociator>(iEvent, iSetup, config_);
+  CSCHitAssociator csctruth(iEvent, iSetup, config_);
   // DT hit association
   printRtS = false;
-  dttruth_ = std::make_unique<DTHitAssociator>(iEvent, iSetup, config_, printRtS);
+  DTHitAssociator dttruth(iEvent, iSetup, config_, printRtS);
   // RPC hit association
-  rpctruth_ = std::make_unique<RPCHitAssociator>(iEvent, config_);
+  RPCHitAssociator rpctruth(iEvent, config_);
   // GEM hit association
-  gemtruth_ = std::make_unique<GEMHitAssociator>(iEvent, config_);
+  GEMHitAssociator gemtruth(iEvent, config_);
 
   MuonAssociatorByHitsHelper::Resources resources = {
-      tTopo, trackertruth_.get(), csctruth_.get(), dttruth_.get(), rpctruth_.get(), gemtruth_.get(), {}};
+      tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};
 
   if (diagnostics_) {
     diagnostics_->read(iEvent);
