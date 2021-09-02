@@ -22,21 +22,21 @@
 
 class WritePPSAlignmentConfig : public edm::one::EDAnalyzer<> {
 public:
-  explicit WritePPSAlignmentConfig(const edm::ParameterSet &);
+  explicit WritePPSAlignmentConfig(const edm::ParameterSet&);
 
 private:
-  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   edm::ESGetToken<PPSAlignmentConfig, PPSAlignmentConfigRcd> esToken_;
 };
 
-WritePPSAlignmentConfig::WritePPSAlignmentConfig(const edm::ParameterSet &iConfig)
+WritePPSAlignmentConfig::WritePPSAlignmentConfig(const edm::ParameterSet& iConfig)
     : esToken_(esConsumes<PPSAlignmentConfig, PPSAlignmentConfigRcd>(
           edm::ESInputTag("", iConfig.getParameter<std::string>("label")))) {}
 
-void WritePPSAlignmentConfig::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void WritePPSAlignmentConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get the data
-  const auto &ppsAlignmentConfig = iSetup.getData(esToken_);
+  const auto& ppsAlignmentConfig = iSetup.getData(esToken_);
 
   // store the data in a DB object
   edm::Service<cond::service::PoolDBOutputService> poolDbService;

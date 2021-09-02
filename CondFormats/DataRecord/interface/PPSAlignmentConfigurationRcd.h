@@ -9,6 +9,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class PPSAlignmentConfigurationRcd : public edm::eventsetup::EventSetupRecordImplementation<PPSAlignmentConfigurationRcd> {};
+class PPSAlignmentConfigurationRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<PPSAlignmentConfigurationRcd> {};
 
 #endif
