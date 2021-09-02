@@ -224,7 +224,6 @@ ALCAHARVESTPPSTimingCalibration_dbOutput = cms.PSet(record = cms.string('PPSTimi
                                                     timetype = cms.untracked.string('runnumber')
                                                     )
 
-ALCAHARVESTPPSDiamondSampicTimingCalibration = PPSDiamondSampicTimingCalibrationPCLHarvester.clone()
 ALCAHARVESTPPSDiamondSampicTimingCalibration_metadata = cms.PSet(record = cms.untracked.string('PPSTimingCalibrationRcd_Sampic'))
 ALCAHARVESTPPSDiamondSampicTimingCalibration_dbOutput = cms.PSet(record = cms.string('PPSTimingCalibrationRcd_Sampic'),
                                             tag = cms.string('DiamondSampicCalibration'),

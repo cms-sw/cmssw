@@ -5,7 +5,7 @@
 //
 /**\class PPSDiamondSampicTimingCalibrationPCLHarvester PPSDiamondSampicTimingCalibrationPCLHarvester.cc CalibPPS/TimingCalibration/PPSDiamondSampicTimingCalibrationPCLHarvester/plugins/PPSDiamondSampicTimingCalibrationPCLHarvester.cc
 
- Description: Harvester of the DiamondSampicCalibration PCL which produces sqlite file with a new calibration
+ Description: Harvester of the DiamondSampic calibration which produces sqlite file with a new channel alignment
 
  Implementation:
      [Notes on implementation]
@@ -15,7 +15,9 @@
 //         Created:  Mon, 26 Jul 2021 16:36:13 GMT
 //
 //
-
+#include "TAxis.h"
+#include "TH1.h"
+#include "TArrayD.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -40,13 +42,6 @@
 
 namespace pt = boost::property_tree;
 
-struct Histograms_PPSDiamondSampicTimingCalibrationPCLWorker {
-  std::unordered_map<uint32_t, dqm::reco::MonitorElement*> timeHisto;
-  std::unordered_map<uint32_t, dqm::reco::MonitorElement*> db;
-  std::unordered_map<uint32_t, dqm::reco::MonitorElement*> sampic;
-  std::unordered_map<uint32_t, dqm::reco::MonitorElement*> channel;
-};
-
 class PPSDiamondSampicTimingCalibrationPCLHarvester : public DQMEDHarvester {
 public:
   PPSDiamondSampicTimingCalibrationPCLHarvester(const edm::ParameterSet&);
@@ -57,14 +52,15 @@ private:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
   void calibJson(DQMStore::IGetter& iGetter);
   void calibDb(DQMStore::IGetter& iGetter);
-
+  bool getDbSampicChannel(
+      DQMStore::IGetter& iGetter, int& db, int& sampic, int& channel, std::string ch_name, CTPPSDiamondDetId detid);
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomEsToken_;
   edm::ESGetToken<PPSTimingCalibration, PPSTimingCalibrationRcd> timingCalibrationToken_;
   edm::ESHandle<PPSTimingCalibration> hTimingCalib_;
   std::vector<CTPPSDiamondDetId> detids_;
   const std::string dqmDir_;
   const unsigned int min_entries_;
-  const std::string jsonCalibFile_;
+  const std::string jsonCalibFile_, jsonOutputPath_;
 };
 
 //------------------------------------------------------------------------------
@@ -74,7 +70,8 @@ PPSDiamondSampicTimingCalibrationPCLHarvester::PPSDiamondSampicTimingCalibration
     : geomEsToken_(esConsumes<edm::Transition::BeginRun>()),
       dqmDir_(iConfig.getParameter<std::string>("dqmDir")),
       min_entries_(iConfig.getParameter<unsigned int>("minEntries")),
-      jsonCalibFile_(iConfig.getParameter<std::string>("jsonCalibFile")) {
+      jsonCalibFile_(iConfig.getParameter<std::string>("jsonCalibFile")),
+      jsonOutputPath_(iConfig.getParameter<std::string>("jsonOutputPath")) {
   if (jsonCalibFile_.empty())
     timingCalibrationToken_ = esConsumes<edm::Transition::BeginRun>(
         edm::ESInputTag(iConfig.getParameter<std::string>("timingCalibrationTag")));
@@ -96,61 +93,93 @@ void PPSDiamondSampicTimingCalibrationPCLHarvester::beginRun(const edm::Run& iRu
 
 //------------------------------------------------------------------------------
 
+bool PPSDiamondSampicTimingCalibrationPCLHarvester::getDbSampicChannel(
+    DQMStore::IGetter& iGetter, int& db, int& sampic, int& channel, std::string path, CTPPSDiamondDetId detid) {
+  auto histDb = iGetter.get(path + "db");
+  auto histSampic = iGetter.get(path + "sampic");
+  auto histChannel = iGetter.get(path + "channel");
+
+  if (histDb == nullptr) {
+    edm::LogWarning("PPSDiamondSampicTimingCalibrationPCLHarvester:dqmEndJob")
+        << "Failed to retrieve db for detid: " << detid;
+    return false;
+  }
+
+  if (histSampic == nullptr) {
+    edm::LogWarning("PPSDiamondSampicTimingCalibrationPCLHarvester:dqmEndJob")
+        << "Failed to retrieve sampic for detid: " << detid;
+    return false;
+  }
+
+  if (histChannel == nullptr) {
+    edm::LogWarning("PPSDiamondSampicTimingCalibrationPCLHarvester:dqmEndJob")
+        << "Failed to retrieve channel hwId for detid: " << detid;
+    return false;
+  }
+
+  db = histDb->getIntValue();
+  sampic = histSampic->getIntValue();
+  channel = histChannel->getIntValue();
+
+  return true;
+}
+//------------------------------------------------------------------------------
+
 void PPSDiamondSampicTimingCalibrationPCLHarvester::calibJson(DQMStore::IGetter& iGetter) {
-  Histograms_PPSDiamondSampicTimingCalibrationPCLWorker hists;
-  std::string ch_name;
+  std::unordered_map<uint32_t, dqm::reco::MonitorElement*> timeHisto;
+  std::string ch_name, path;
 
   pt::ptree node;
   pt::read_json(jsonCalibFile_, node);
   const std::string formula = node.get<std::string>("formula");
 
   for (const auto& detid : detids_) {
+    detid.channelName(path, CTPPSDiamondDetId::nPath);
     detid.channelName(ch_name);
+    path = dqmDir_ + "/" + path + "/" + ch_name;
     const auto chid = detid.rawId();
 
-    hists.db[chid] = iGetter.get(dqmDir_ + "/" + ch_name + "db");
-    hists.sampic[chid] = iGetter.get(dqmDir_ + "/" + ch_name + "sampic");
-    hists.channel[chid] = iGetter.get(dqmDir_ + "/" + ch_name + "channel");
-
-    int db = hists.db[chid]->getIntValue();
-    int sampic = hists.sampic[chid]->getIntValue();
-    int channel = hists.channel[chid]->getIntValue();
-
-    if (!node.get_child_optional("parameters." + std::to_string(db))) {
-      edm::LogWarning("PPSDiamondSampicTimingCalibrationPCLHarvester:dqmEndJob")
-          << "db " << db << " not present in calibration";
+    int db, sampic, channel;
+    if (!getDbSampicChannel(iGetter, db, sampic, channel, path, detid))
       continue;
-    }
 
     int ct = 0;
     for (pt::ptree::value_type& par : node.get_child("parameters." + std::to_string(db))) {
       double new_time_offset;
       if (ct == 16 * (1 - sampic) + channel) {  //flip the calibration - sampic 1 is first in json
         double old_time_offset = par.second.get<double>("time_offset");
-        hists.timeHisto[chid] = iGetter.get(dqmDir_ + "/" + ch_name);
 
-        if (hists.timeHisto[chid] == nullptr) {
+        timeHisto[chid] = iGetter.get(path);
+
+        if (timeHisto[chid] == nullptr) {
           edm::LogWarning("PPSDiamondSampicTimingCalibrationPCLHarvester:dqmEndJob")
               << "Failed to retrieve time monitor for detid" << detid;
           par.second.put<double>("time_offset", old_time_offset);
           continue;
         }
 
-        if (min_entries_ > 0 && hists.timeHisto[chid]->getEntries() < min_entries_) {
+        if (min_entries_ > 0 && timeHisto[chid]->getEntries() < min_entries_) {
           edm::LogWarning("PPSDiamondSampicTimingCalibrationPCLHarvester:dqmEndJob")
-              << "Not enough entries for channel (" << detid << "): " << hists.timeHisto[chid]->getEntries() << " < "
+              << "Not enough entries for channel (" << detid << "): " << timeHisto[chid]->getEntries() << " < "
               << min_entries_ << ". Skipping calibration.";
           par.second.put<double>("time_offset", old_time_offset);
           continue;
         }
-        new_time_offset = old_time_offset - hists.timeHisto[chid]->getMean();
+        new_time_offset = old_time_offset - timeHisto[chid]->getMean();
+        //scale x axis of the plots by calculated offset
+        timeHisto[chid]->getTH1F()->GetXaxis()->Set(
+            timeHisto[chid]->getTH1F()->GetXaxis()->GetNbins(),
+            timeHisto[chid]->getTH1F()->GetXaxis()->GetXmin() + new_time_offset,   // new Xmin
+            timeHisto[chid]->getTH1F()->GetXaxis()->GetXmax() + new_time_offset);  // new Xmax
+        timeHisto[chid]->getTH1F()->ResetStats();
+
         par.second.put<double>("time_offset", new_time_offset);
         break;
       }
       ct++;
     }
   }
-  pt::write_json("adc_offsets_prec.cal.json", node);
+  pt::write_json(jsonOutputPath_, node);
 }
 
 //------------------------------------------------------------------------------
@@ -162,38 +191,19 @@ void PPSDiamondSampicTimingCalibrationPCLHarvester::calibDb(DQMStore::IGetter& i
   PPSTimingCalibration::ParametersMap params;
   PPSTimingCalibration::TimingMap time_info;
 
-  Histograms_PPSDiamondSampicTimingCalibrationPCLWorker hists;
-  std::string ch_name;
+  std::unordered_map<uint32_t, dqm::reco::MonitorElement*> timeHisto;
+  std::string rp_name, plane_name, ch_name, path;
   const std::string& formula = calib.formula();
 
   for (const auto& detid : detids_) {
+    detid.channelName(path, CTPPSDiamondDetId::nPath);
     detid.channelName(ch_name);
+    path = dqmDir_ + "/" + path + "/" + ch_name;
     const auto chid = detid.rawId();
 
-    hists.db[chid] = iGetter.get(dqmDir_ + "/" + ch_name + "db");
-    if (hists.db[chid] == nullptr) {
-      edm::LogWarning("PPSDiamondSampicTimingCalibrationPCLHarvester:dqmEndJob")
-          << "Failed to retrieve db for detid: " << detid;
+    int db, sampic, channel;
+    if (!getDbSampicChannel(iGetter, db, sampic, channel, path, detid))
       continue;
-    }
-
-    hists.sampic[chid] = iGetter.get(dqmDir_ + "/" + ch_name + "sampic");
-    if (hists.sampic[chid] == nullptr) {
-      edm::LogWarning("PPSDiamondSampicTimingCalibrationPCLHarvester:dqmEndJob")
-          << "Failed to retrieve sampic for detid: " << detid;
-      continue;
-    }
-
-    hists.channel[chid] = iGetter.get(dqmDir_ + "/" + ch_name + "channel");
-    if (hists.channel[chid] == nullptr) {
-      edm::LogWarning("PPSDiamondSampicTimingCalibrationPCLHarvester:dqmEndJob")
-          << "Failed to retrieve channel hwId for detid: " << detid;
-      continue;
-    }
-
-    int db = hists.db[chid]->getIntValue();
-    int sampic = hists.sampic[chid]->getIntValue();
-    int channel = hists.channel[chid]->getIntValue();
 
     PPSTimingCalibration::Key key;
     key.db = db;
@@ -219,21 +229,28 @@ void PPSDiamondSampicTimingCalibrationPCLHarvester::calibDb(DQMStore::IGetter& i
     key.cell = -1;
 
     time_info[key] = {timeOffset, timePrecision};
-    hists.timeHisto[chid] = iGetter.get(dqmDir_ + "/" + ch_name);
-    if (hists.timeHisto[chid] == nullptr) {
+    timeHisto[chid] = iGetter.get(path);
+    if (timeHisto[chid] == nullptr) {
       edm::LogWarning("PPSDiamondSampicTimingCalibrationPCLHarvester:dqmEndJob")
           << "Failed to retrieve time monitor for detid: " << detid;
       continue;
     }
 
-    if (min_entries_ > 0 && hists.timeHisto[chid]->getEntries() < min_entries_) {
+    if (min_entries_ > 0 && timeHisto[chid]->getEntries() < min_entries_) {
       edm::LogInfo("PPSDiamondSampicTimingCalibrationPCLHarvester:dqmEndJob")
-          << "Not enough entries (" << detid << "): " << hists.timeHisto[chid]->getEntries() << " < " << min_entries_
+          << "Not enough entries (" << detid << "): " << timeHisto[chid]->getEntries() << " < " << min_entries_
           << ". Skipping calibration.";
       continue;
     }
 
-    double new_time_offset = timeOffset - hists.timeHisto[chid]->getMean();
+    double new_time_offset = timeOffset - timeHisto[chid]->getMean();
+    //scale x axis of the plots by calculated offset
+    timeHisto[chid]->getTH1F()->GetXaxis()->Set(
+        timeHisto[chid]->getTH1F()->GetXaxis()->GetNbins(),
+        timeHisto[chid]->getTH1F()->GetXaxis()->GetXmin() + new_time_offset,   // new Xmin
+        timeHisto[chid]->getTH1F()->GetXaxis()->GetXmax() + new_time_offset);  // new Xmax
+    timeHisto[chid]->getTH1F()->ResetStats();
+
     time_info[key] = {new_time_offset, timePrecision};
   }
 
@@ -266,6 +283,7 @@ void PPSDiamondSampicTimingCalibrationPCLHarvester::fillDescriptions(edm::Config
   desc.add<std::string>("jsonCalibFile", "")
       ->setComment(
           "input path for json file containing calibration, if none, calibration will be obtained from db instead");
+  desc.add<std::string>("jsonOutputPath", "offset_cal.json")->setComment("output path for the new json calibration");
   descriptions.add("PPSDiamondSampicTimingCalibrationPCLHarvester", desc);
 }
 
