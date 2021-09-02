@@ -42,7 +42,6 @@ EcalTPGAnalyzer::EcalTPGAnalyzer(const edm::ParameterSet& iConfig)
       allowTP_(iConfig.getParameter<bool>("ReadTriggerPrimitives")),
       useEE_(iConfig.getParameter<bool>("UseEndCap")),
       print_(iConfig.getParameter<bool>("Print")) {
-
   // file
   file_ = new TFile("ECALTPGtree.root", "RECREATE");
   file_->cd();
