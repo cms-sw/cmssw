@@ -15,9 +15,6 @@
 // this class header
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtTriggerMaskVetoTechTrigConfigOnlineProd.h"
 
-// system include files
-#include "boost/lexical_cast.hpp"
-
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
