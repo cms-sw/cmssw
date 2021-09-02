@@ -83,8 +83,8 @@ private:
   void fillForTraj(const TrajectoryAtInvalidHit& tm,
                    const TrackerTopology* tTopo,
                    const TrackerGeometry* tkgeom,
-                   const StripClusterParameterEstimator* stripCPE,
-                   const SiStripQuality* stripQuality,
+                   const StripClusterParameterEstimator& stripCPE,
+                   const SiStripQuality& stripQuality,
                    const DetIdCollection& fedErrorIds,
                    const edm::Handle<edm::DetSetVector<SiStripRawDigi>>& commonModeDigis,
                    const edmNew::DetSetVector<SiStripCluster>& theClusters,
@@ -125,6 +125,15 @@ private:
   const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> clusters_token_;
   const edm::EDGetTokenT<DetIdCollection> digis_token_;
   const edm::EDGetTokenT<MeasurementTrackerEvent> trackerEvent_token_;
+
+  edm::ESGetToken<TrackerTopology,TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<StripClusterParameterEstimator, TkStripCPERecord> stripCPEToken_;
+  edm::ESGetToken<SiStripQuality,SiStripQualityRcd> stripQualityToken_;
+  edm::ESGetToken<MagneticField,IdealMagneticFieldRecord> magFieldToken_;
+  edm::ESGetToken<MeasurementTracker,CkfComponentsRecord> measTrackerToken_;
+  edm::ESGetToken<Chi2MeasurementEstimatorBase,TrackingComponentsRecord> chi2EstimatorToken_;
+  edm::ESGetToken<Propagator,TrackingComponentsRecord> propagatorToken_;
 
   int events, EventTrackCKF;
 
@@ -187,7 +196,15 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
       clusters_token_(
           consumes<edmNew::DetSetVector<SiStripCluster>>(conf.getParameter<edm::InputTag>("siStripClusters"))),
       digis_token_(consumes<DetIdCollection>(conf.getParameter<edm::InputTag>("siStripDigis"))),
-      trackerEvent_token_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))) {
+      trackerEvent_token_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
+      tTopoToken_(esConsumes()),
+      tkGeomToken_(esConsumes()),
+      stripCPEToken_(esConsumes(edm::ESInputTag{"", "StripCPEfromTrackAngle"})),
+      stripQualityToken_(esConsumes()),
+      magFieldToken_(esConsumes()),
+      measTrackerToken_(esConsumes()),
+      chi2EstimatorToken_(esConsumes(edm::ESInputTag{"", "Chi2"})),
+      propagatorToken_(esConsumes(edm::ESInputTag{"", "PropagatorWithMaterial"})) {
   layers = conf.getParameter<int>("Layer");
   DEBUG = conf.getParameter<bool>("Debug");
   addLumi_ = conf.getUntrackedParameter<bool>("addLumi", false);
@@ -395,28 +412,28 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
 
   h_layer = EffME1(booker.book1D("layer_found", "layer_found", 23, 0., 23.),
                    booker.book1D("layer_total", "layer_total", 23, 0., 23.));
-  for (int iLayer = 0; iLayer != 23; ++iLayer) {
-    const auto lyrName = layerName(iLayer);  // TODO change to std::string and {fmt}
-    auto ihres = booker.book1D(Form("resol_layer_%i", iLayer), lyrName, 125, -125., 125.);
+  for (int layer = 0; layer != 23; ++layer) {
+    const auto lyrName = layerName(layer);  // TODO change to std::string and {fmt}
+    auto ihres = booker.book1D(Form("resol_layer_%i", layer), lyrName, 125, -125., 125.);
     ihres->setAxisTitle("trajX-clusX [strip unit]");
     h_resolution.push_back(ihres);
-    h_layer_vsLumi.push_back(EffME1(booker.book1D(Form("layerfound_vsLumi_%i", iLayer), lyrName, 100, 0, 25000),
-                                    booker.book1D(Form("layertotal_vsLumi_%i", iLayer), lyrName, 100, 0, 25000)));
-    h_layer_vsPU.push_back(EffME1(booker.book1D(Form("layerfound_vsPU_%i", iLayer), lyrName, 45, 0, 90),
-                                  booker.book1D(Form("layertotal_vsPU_%i", iLayer), lyrName, 45, 0, 90)));
+    h_layer_vsLumi.push_back(EffME1(booker.book1D(Form("layertotal_vsLumi_layer_%i", layer), lyrName, 100, 0, 25000),
+                                    booker.book1D(Form("layerfound_vsLumi_layer_%i", layer), lyrName, 100, 0, 25000)));
+    h_layer_vsPU.push_back(EffME1(booker.book1D(Form("layertotal_vsPU_layer_%i", layer), lyrName, 45, 0, 90),
+                                  booker.book1D(Form("layerfound_vsPU_layer_%i", layer), lyrName, 45, 0, 90)));
     if (addCommonMode_) {
-      h_layer_vsCM.push_back(EffME1(booker.book1D(Form("layerfound_vsCM_%i", iLayer), lyrName, 20, 0, 400),
-                                    booker.book1D(Form("layertotal_vsCM_%i", iLayer), lyrName, 20, 0, 400)));
+      h_layer_vsCM.push_back(EffME1(booker.book1D(Form("layertotal_vsCM_layer_%i", layer), lyrName, 20, 0, 400),
+                                    booker.book1D(Form("layerfound_vsCM_layer_%i", layer), lyrName, 20, 0, 400)));
     }
     h_layer_vsBx.push_back(
-        EffME1(booker.book1D(Form("totalVsBx_layer%i", iLayer), Form("layer %i", iLayer), 3565, 0, 3565),
-               booker.book1D(Form("foundVsBx_layer%i", iLayer), Form("layer %i", iLayer), 3565, 0, 3565)));
-    if (iLayer < 10) {
-      const bool isTIB = iLayer < 4;
+        EffME1(booker.book1D(Form("totalVsBx_layer%i", layer), Form("layer %i", layer), 3565, 0, 3565),
+               booker.book1D(Form("foundVsBx_layer%i", layer), Form("layer %i", layer), 3565, 0, 3565)));
+    if (layer < 10) {
+      const bool isTIB = layer < 4;
       const auto partition = (isTIB ? "TIB" : "TOB");
       const auto yMax = (isTIB ? 100 : 120);
       auto ihhotcold = booker.book2D(
-          Form("%s%i", partition, (isTIB ? iLayer + 1 : iLayer - 3)), partition, 100, -1, 361, 100, -yMax, yMax);
+          Form("%s%i", partition, (isTIB ? layer + 1 : layer - 3)), partition, 100, -1, 361, 100, -yMax, yMax);
       ihhotcold->setAxisTitle("Phi", 1);
       ihhotcold->setBinLabel(1, "360", 1);
       ihhotcold->setBinLabel(50, "180", 1);
@@ -425,12 +442,12 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
       ihhotcold->setOption("colz");
       h_hotcold.push_back(ihhotcold);
     } else {
-      const bool isTID = iLayer < 13;
+      const bool isTID = layer < 13;
       const auto partitions =
           (isTID ? std::vector<std::string>{"TID-", "TID+"} : std::vector<std::string>{"TEC-", "TEC+"});
       const auto axMax = (isTID ? 100 : 120);
       for (const auto& part : partitions) {
-        auto ihhotcold = booker.book2D(Form("%s%i", part.c_str(), (isTID ? iLayer - 9 : iLayer - 12)),
+        auto ihhotcold = booker.book2D(Form("%s%i", part.c_str(), (isTID ? layer - 9 : layer - 12)),
                                        part,
                                        100,
                                        -axMax,
@@ -452,8 +469,6 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
     }
   }
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
   edm::ESHandle<TkDetMap> tkDetMapHandle;
   setup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
   h_module =
@@ -462,10 +477,7 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
 }
 
 void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSetup& es) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const auto tTopo = &es.getData(tTopoToken_);
 
   //  bool DEBUG = false;
 
@@ -504,33 +516,19 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
   edm::Handle<edmNew::DetSetVector<SiStripCluster>> theClusters;
   e.getByToken(clusters_token_, theClusters);
 
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
-  const TrackerGeometry* tkgeom = tracker.product();
-
-  edm::ESHandle<StripClusterParameterEstimator> stripcpe;
-  es.get<TkStripCPERecord>().get("StripCPEfromTrackAngle", stripcpe);
-
-  edm::ESHandle<SiStripQuality> SiStripQuality_;
-  es.get<SiStripQualityRcd>().get(SiStripQuality_);
-
-  edm::ESHandle<MagneticField> magField;
-  es.get<IdealMagneticFieldRecord>().get(magField);
-
   edm::Handle<DetIdCollection> fedErrorIds;
   e.getByToken(digis_token_, fedErrorIds);
-
-  edm::ESHandle<MeasurementTracker> measTracker;
-  es.get<CkfComponentsRecord>().get(measTracker);
 
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
   e.getByToken(trackerEvent_token_, measurementTrackerEvent);
 
-  edm::ESHandle<Chi2MeasurementEstimatorBase> estimator;
-  es.get<TrackingComponentsRecord>().get("Chi2", estimator);
-
-  edm::ESHandle<Propagator> prop;
-  es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", prop);
+  const auto tkgeom = &es.getData(tkGeomToken_);
+  const auto& stripcpe = es.getData(stripCPEToken_);
+  const auto& stripQuality = es.getData(stripQualityToken_);
+  const auto& magField = es.getData(magFieldToken_);
+  const auto& measTracker = es.getData(measTrackerToken_);
+  const auto& chi2Estimator = es.getData(chi2EstimatorToken_);
+  const auto& prop = es.getData(propagatorToken_);
 
   ++events;
 
@@ -588,7 +586,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
         std::vector<TrajectoryAtInvalidHit> TMs;
 
         // Make AnalyticalPropagat // TODO where to save these?or to use in TAVH constructor
-        AnalyticalPropagator propagator(magField.product(), anyDirection);
+        AnalyticalPropagator propagator(&magField, anyDirection);
 
         // for double sided layers check both sensors--if no hit was found on either sensor surface,
         // the trajectory measurements only have one invalid hit entry on the matched surface
@@ -619,10 +617,10 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
         if (TKlayers == 9 && theInHit->isValid() && !((!nextId.null()) && (checkLayer(nextId.rawId(), tTopo) == 9))) {
           //	  if ( TKlayers==9 && itm==TMeas.rbegin()) {
           //	  if ( TKlayers==9 && (itm==TMeas.back()) ) {	  // to check for only the last entry in the trajectory for propagation
-          const DetLayer* tob6 = measTracker->geometricSearchTracker()->tobLayers().back();
-          const LayerMeasurements theLayerMeasurements{*measTracker, *measurementTrackerEvent};
+          const DetLayer* tob6 = measTracker.geometricSearchTracker()->tobLayers().back();
+          const LayerMeasurements theLayerMeasurements{measTracker, *measurementTrackerEvent};
           const TrajectoryStateOnSurface tsosTOB5 = itm->updatedState();
-          const auto tmp = theLayerMeasurements.measurements(*tob6, tsosTOB5, *prop, *estimator);
+          const auto tmp = theLayerMeasurements.measurements(*tob6, tsosTOB5, prop, chi2Estimator);
 
           if (!tmp.empty()) {
             LogDebug("SiStripHitEfficiency:HitEff") << "size of TM from propagation = " << tmp.size() << std::endl;
@@ -641,10 +639,10 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
         // same for TEC8
         if (TKlayers == 21 && theInHit->isValid() && !((!nextId.null()) && (checkLayer(nextId.rawId(), tTopo) == 21))) {
-          const DetLayer* tec9pos = measTracker->geometricSearchTracker()->posTecLayers().back();
-          const DetLayer* tec9neg = measTracker->geometricSearchTracker()->negTecLayers().back();
+          const DetLayer* tec9pos = measTracker.geometricSearchTracker()->posTecLayers().back();
+          const DetLayer* tec9neg = measTracker.geometricSearchTracker()->negTecLayers().back();
 
-          const LayerMeasurements theLayerMeasurements{*measTracker, *measurementTrackerEvent};
+          const LayerMeasurements theLayerMeasurements{measTracker, *measurementTrackerEvent};
           const TrajectoryStateOnSurface tsosTEC9 = itm->updatedState();
 
           // check if track on positive or negative z
@@ -654,11 +652,11 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
           //cout << " tec9 id = " << iidd << " and side = " << tTopo->tecSide(iidd) << std::endl;
           std::vector<TrajectoryMeasurement> tmp;
           if (tTopo->tecSide(iidd) == 1) {
-            tmp = theLayerMeasurements.measurements(*tec9neg, tsosTEC9, *prop, *estimator);
+            tmp = theLayerMeasurements.measurements(*tec9neg, tsosTEC9, prop, chi2Estimator);
             //cout << "on negative side" << std::endl;
           }
           if (tTopo->tecSide(iidd) == 2) {
-            tmp = theLayerMeasurements.measurements(*tec9pos, tsosTEC9, *prop, *estimator);
+            tmp = theLayerMeasurements.measurements(*tec9pos, tsosTEC9, prop, chi2Estimator);
             //cout << "on positive side" << std::endl;
           }
 
@@ -691,8 +689,8 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
           fillForTraj(tm,
                       tTopo,
                       tkgeom,
-                      stripcpe.product(),
-                      SiStripQuality_.product(),
+                      stripcpe,
+                      stripQuality,
                       *fedErrorIds,
                       commonModeDigis,
                       *theClusters,
@@ -726,8 +724,8 @@ TString SiStripHitEfficiencyWorker::layerName(unsigned int k) const {
 void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
                                              const TrackerTopology* tTopo,
                                              const TrackerGeometry* tkgeom,
-                                             const StripClusterParameterEstimator* stripCPE,
-                                             const SiStripQuality* stripQuality,
+                                             const StripClusterParameterEstimator& stripCPE,
+                                             const SiStripQuality& stripQuality,
                                              const DetIdCollection& fedErrorIds,
                                              const edm::Handle<edm::DetSetVector<SiStripRawDigi>>& commonModeDigis,
                                              const edmNew::DetSetVector<SiStripCluster>& theClusters,
@@ -752,7 +750,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
 
   const bool withinAcceptance = tm.withinAcceptance() && (!isInBondingExclusionZone(iidd, TKlayers, yloc, yErr, tTopo));
 
-  if ((TKlayers > 0) &&
+  if (// (TKlayers > 0) && // FIXME confirm this
       ((layers == TKlayers) || (layers == 0))) {  // Look at the layer not used to reconstruct the track
     LogDebug("SiStripHitEfficiency:HitEff") << "Looking at layer under study" << std::endl;
     unsigned int ModIsBad = 2;
@@ -804,7 +802,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
         }
 
         for (const auto& clus : *idsv) {
-          StripClusterParameterEstimator::LocalValues parameters = stripCPE->localParameters(clus, *stripdet);
+          StripClusterParameterEstimator::LocalValues parameters = stripCPE.localParameters(clus, *stripdet);
           float res = (parameters.first.x() - xloc);
           float sigma = checkConsistency(parameters, xloc, xErr);
           // The consistency is probably more accurately measured with the Chi2MeasurementEstimator. To use it
@@ -857,8 +855,8 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
       //
       // fill ntuple varibles
 
-      //if ( SiStripQuality_->IsModuleBad(iidd) )
-      if (stripQuality->getBadApvs(iidd) != 0) {
+      //if ( stripQuality->IsModuleBad(iidd) )
+      if (stripQuality.getBadApvs(iidd) != 0) {
         SiStripQualBad = 1;
         LogDebug("SiStripHitEfficiency:HitEff") << "strip is bad from SiStripQuality" << std::endl;
       } else {
@@ -985,26 +983,35 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
       if (_clusterMatchingMethod >= 1) {
         badflag = false;
         if (finalCluster.xResidualPull == 1000.0) {
+          LogDebug("SiStripHitEfficiency:HitEff") << "Marking bad for resxsig=1000";
           badflag = true;
         } else {
           if (_clusterMatchingMethod == 2 || _clusterMatchingMethod == 4) {
             // check the distance between cluster and trajectory position
-            if (std::abs(stripCluster - stripTrajMid) > _clusterTrajDist)
+            if (std::abs(stripCluster - stripTrajMid) > _clusterTrajDist) {
+              LogDebug("SiStripHitEfficiency:HitEff") << "Marking bad for cluster-to-traj distance";
               badflag = true;
+            }
           }
           if (_clusterMatchingMethod == 3 || _clusterMatchingMethod == 4) {
             // cluster and traj have to be in the same APV (don't take edges into accounts)
             const int tapv = (int)stripTrajMid / 128;
-            const int capv = (int)stripTrajMid / 128;
+            const int capv = (int)stripCluster / 128;
             float stripInAPV = stripTrajMid - tapv * 128;
-            if (stripInAPV < _stripsApvEdge || stripInAPV > 128 - _stripsApvEdge)
+            if (stripInAPV < _stripsApvEdge || stripInAPV > 128 - _stripsApvEdge) {
+              LogDebug("SiStripHitEfficiency:HitEff") << "Too close to the edge: " << stripInAPV << std::endl;
               return;
-            if (tapv != capv)
+            }
+            if (tapv != capv) {
+              LogDebug("SiStripHitEfficiency:HitEff") << "Marking bad for tapv!=capv";
               badflag = true;
+            }
           }
         }
       }
       if (!badquality) {
+        LogDebug("SiStripHitEfficiency:HitEff") << "Filling measurement for " << iidd << " in layer " << layer << " histograms with bx=" << bunchCrossing << ", lumi=" << instLumi << ", PU=" << PU << "; bad flag=" << badflag;
+
         // hot/cold maps of hits that are expected but not found
         if (badflag) {
           if (layer > 0 && layer <= 10) {
@@ -1017,8 +1024,6 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
           }
         }
 
-        // efficiency with bad modules excluded
-        h_module.fill(iidd, !badflag);
         h_layer_vsBx[layer].fill(bunchCrossing, !badflag);
         if (addLumi_) {
           h_layer_vsLumi[layer].fill(instLumi, !badflag);
@@ -1028,6 +1033,11 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
           h_layer_vsCM[layer].fill(commonMode, !badflag);
         }
         h_goodLayer.fill(layerWithSide, !badflag);
+
+        // efficiency with bad modules excluded
+        if (0 != TKlayers) {
+          h_module.fill(iidd, !badflag);
+        }
       }
       // efficiency without bad modules excluded
       h_allLayer.fill(layerWithSide, !badflag);
@@ -1057,7 +1067,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
     }
     LogDebug("SiStripHitEfficiency:HitEff") << "after list of clusters" << std::endl;
   }
-  LogDebug("SiStripHitEfficiency:HitEff") << "After layers=TKLayers if" << std::endl;
+  LogDebug("SiStripHitEfficiency:HitEff") << "After layers=TKLayers if with TKlayers=" << TKlayers << ", layers=" << layers << std::endl;
 }
 
 void SiStripHitEfficiencyWorker::endJob() {
