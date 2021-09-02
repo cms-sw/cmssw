@@ -11,3 +11,7 @@ typedef edm::FwdPtrCollectionFilter<reco::PFCandidate,
     PFCandidateFwdPtrCollectionStringFilter;
 typedef edm::FwdPtrCollectionFilter<reco::PFCandidate, reco::PdgIdSelectorHandler, reco::PFCandidateWithSrcPtrFactory>
     PFCandidateFwdPtrCollectionPdgIdFilter;
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFCandidateFwdPtrCollectionStringFilter);
+DEFINE_FWK_MODULE(PFCandidateFwdPtrCollectionPdgIdFilter);
