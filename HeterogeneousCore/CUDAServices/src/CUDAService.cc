@@ -30,7 +30,7 @@ void setCudaLimit(cudaLimit limit, const char* name, size_t request) {
   }
   // read back the limit value
   size_t value;
-  cudaCheck(cudaDeviceGetLimit(&value, limit));
+  result = cudaDeviceGetLimit(&value, limit);
   if (cudaSuccess != result) {
     edm::LogWarning("CUDAService") << "CUDA device " << device << ": failed to set limit \"" << name << "\" to "
                                    << request << ", current value is " << value;
