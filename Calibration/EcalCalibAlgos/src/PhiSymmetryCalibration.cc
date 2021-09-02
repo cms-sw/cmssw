@@ -56,10 +56,6 @@ PhiSymmetryCalibration::PhiSymmetryCalibration(const edm::ParameterSet& iConfig)
       oldcalibfile_(iConfig.getUntrackedParameter<std::string>("oldcalibfile", "EcalintercalibConstants.xml")) {
   isfirstpass_ = true;
 
-  if (!reiteration_) {
-    intercalibConstantsToken_ = esConsumes();
-  }
-
   et_spectrum_b_histos.resize(kBarlRings);
   e_spectrum_b_histos.resize(kBarlRings);
   et_spectrum_e_histos.resize(kEndcEtaRings);
@@ -499,12 +495,6 @@ void PhiSymmetryCalibration::setUp(const edm::EventSetup& setup) {
     int ret = EcalIntercalibConstantsXMLTranslator::readXML(fip.fullPath(), h, oldCalibs_);
     if (ret)
       edm::LogError("PhiSym") << "Error reading XML files" << endl;
-    ;
-
-  } else {
-    // in fact if not reiterating, oldCalibs_ will never be used
-    const auto pIcal = setup.getHandle(intercalibConstantsToken_);
-    oldCalibs_ = *pIcal;
   }
 }
 

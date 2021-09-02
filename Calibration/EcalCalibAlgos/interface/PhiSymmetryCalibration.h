@@ -127,7 +127,6 @@ private:
   const edm::EDGetTokenT<EERecHitCollection> eeRecHitToken_;
   const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> channelStatusToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
-  edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> intercalibConstantsToken_;
 
   // energy cut in the barrel
   const double eCut_barl_;
