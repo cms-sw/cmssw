@@ -101,7 +101,7 @@ void ECALpedestalPCLworker::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
   ibooker.cd();
   ibooker.setCurrentFolder(dqmDir_);
 
-  const auto peds = es.getData(pedestalToken_);
+  const auto& peds = es.getData(pedestalToken_);
 
   for (uint32_t i = 0; i < EBDetId::kSizeForDenseIndexing; ++i) {
     ibooker.setCurrentFolder(dqmDir_ + "/EB/" + std::to_string(int(i / 100)));

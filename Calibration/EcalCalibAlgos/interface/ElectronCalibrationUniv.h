@@ -120,7 +120,7 @@ private:
   const edm::EDGetTokenT<EERecHitCollection> eeRecHitToken_;
   const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronToken_;
   const edm::ESGetToken<CaloTopology, CaloTopologyRecord> topologyToken_;
-  const CaloTopology* theCaloTopology_;
+  const CaloTopology *theCaloTopology_;
 
   std::vector<float> solution;
   std::vector<float> solutionNoCuts;
