@@ -34,8 +34,11 @@ using namespace std;
 // constructors and destructor
 //
 EcalURecHitHists::EcalURecHitHists(const edm::ParameterSet& iConfig)
-    : EBUncalibratedRecHitCollection_(iConfig.getParameter<edm::InputTag>("EBUncalibratedRecHitCollection")),
-      EEUncalibratedRecHitCollection_(iConfig.getParameter<edm::InputTag>("EEUncalibratedRecHitCollection")),
+    : ebUncalibratedRecHitCollection_(iConfig.getParameter<edm::InputTag>("EBUncalibratedRecHitCollection")),
+      eeUncalibratedRecHitCollection_(iConfig.getParameter<edm::InputTag>("EEUncalibratedRecHitCollection")),
+      ebUncalibRecHitsToken_(consumes<EcalUncalibratedRecHitCollection>(ebUncalibratedRecHitCollection_)),
+      eeUncalibRecHitsToken_(consumes<EcalUncalibratedRecHitCollection>(eeUncalibratedRecHitCollection_)),
+      ecalMappingToken_(esConsumes<edm::Transition::BeginRun>()),
       runNum_(-1),
       histRangeMax_(iConfig.getUntrackedParameter<double>("histogramMaxRange", 200.0)),
       histRangeMin_(iConfig.getUntrackedParameter<double>("histogramMinRange", -10.0)),
@@ -83,10 +86,10 @@ void EcalURecHitHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
   Handle<EcalUncalibratedRecHitCollection> EBhits;
   Handle<EcalUncalibratedRecHitCollection> EEhits;
 
-  iEvent.getByLabel(EBUncalibratedRecHitCollection_, EBhits);
+  iEvent.getByToken(ebUncalibRecHitsToken_, EBhits);
   LogDebug("EcalURecHitHists") << "event " << ievt << " hits collection size " << EBhits->size();
 
-  iEvent.getByLabel(EEUncalibratedRecHitCollection_, EEhits);
+  iEvent.getByToken(eeUncalibRecHitsToken_, EEhits);
   LogDebug("EcalURecHitHists") << "event " << ievt << " hits collection size " << EEhits->size();
 
   for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EBhits->begin(); hitItr != EBhits->end(); ++hitItr) {
@@ -194,10 +197,10 @@ void EcalURecHitHists::initHists(int FED) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void EcalURecHitHists::beginRun(edm::Run const&, edm::EventSetup const& c) {
-  edm::ESHandle<EcalElectronicsMapping> elecHandle;
-  c.get<EcalMappingRcd>().get(elecHandle);
-  ecalElectronicsMap_ = elecHandle.product();
+  ecalElectronicsMap_ = &c.getData(ecalMappingToken_);
 }
+
+void EcalURecHitHists::endRun(edm::Run const&, edm::EventSetup const& c) {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void EcalURecHitHists::endJob() {
