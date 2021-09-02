@@ -188,6 +188,8 @@ private:
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   TrackerMuonHitExtractor hitExtractor_;
 
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+
   std::unique_ptr<RPCHitAssociator> rpctruth_;
   std::unique_ptr<GEMHitAssociator> gemtruth_;
   std::unique_ptr<DTHitAssociator> dttruth_;
@@ -211,7 +213,8 @@ MuonToTrackingParticleAssociatorEDProducer::MuonToTrackingParticleAssociatorEDPr
     : config_(iConfig),
       helper_(iConfig),
       trackerHitAssociatorConfig_(iConfig, consumesCollector()),
-      hitExtractor_(iConfig, consumesCollector()) {
+      hitExtractor_(iConfig, consumesCollector()),
+      tTopoToken_(esConsumes()) {
   // register your products
   produces<reco::MuonToTrackingParticleAssociator>();
 
@@ -246,9 +249,7 @@ void MuonToTrackingParticleAssociatorEDProducer::produce(edm::Event &iEvent, con
   hitExtractor_.init(iEvent, iSetup);
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology *tTopo = tTopoHand.product();
+  const TrackerTopology *tTopo = &iSetup.getData(tTopoToken_);
 
   bool printRtS = true;
 
