@@ -22,7 +22,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -47,16 +47,15 @@
 
 typedef math::Error<5>::type CovarianceMatrix;
 
-class SeedToTrackProducer : public edm::one::EDProducer<> {
+class SeedToTrackProducer : public edm::global::EDProducer<> {
 public:
   explicit SeedToTrackProducer(const edm::ParameterSet &);
-  ~SeedToTrackProducer() override;
 
 private:
-  void beginJob() override;
-  void produce(edm::Event &, const edm::EventSetup &) override;
-  void endJob() override;
-  virtual TrajectoryStateOnSurface seedTransientState(const TrajectorySeed &);
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const final;
+  TrajectoryStateOnSurface seedTransientState(const TrajectorySeed &,
+                                              const MagneticField &,
+                                              const GlobalTrackingGeometry &) const;
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<TrajectorySeedCollection> L2seedsTagT_;
@@ -65,7 +64,4 @@ private:
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMGFieldToken;
   const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> theTrackingGeometryToken;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTopoToken;
-
-  edm::ESHandle<MagneticField> theMGField;
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
 };
