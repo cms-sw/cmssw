@@ -3,13 +3,11 @@
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
@@ -24,6 +22,20 @@ namespace {
   }
 
 }  // namespace
+
+SeedFromConsecutiveHitsCreator::SeedFromConsecutiveHitsCreator(const edm::ParameterSet& cfg,
+                                                               edm::ConsumesCollector&& iC)
+    : thePropagatorLabel(cfg.getParameter<std::string>("propagator")),
+      theBOFFMomentum(cfg.getParameter<double>("SeedMomentumForBOFF")),
+      theOriginTransverseErrorMultiplier(cfg.getParameter<double>("OriginTransverseErrorMultiplier")),
+      theMinOneOverPtError(cfg.getParameter<double>("MinOneOverPtError")),
+      TTRHBuilder(cfg.getParameter<std::string>("TTRHBuilder")),
+      mfName_(cfg.getParameter<std::string>("magneticField")),
+      forceKinematicWithRegionDirection_(cfg.getParameter<bool>("forceKinematicWithRegionDirection")),
+      trackerGeometryESToken_(iC.esConsumes()),
+      propagatorESToken_(iC.esConsumes(edm::ESInputTag("", thePropagatorLabel))),
+      magneticFieldESToken_(iC.esConsumes(edm::ESInputTag("", mfName_))),
+      transientTrackingRecHitBuilderESToken_(iC.esConsumes(edm::ESInputTag("", TTRHBuilder))) {}
 
 SeedFromConsecutiveHitsCreator::~SeedFromConsecutiveHitsCreator() {}
 
@@ -42,20 +54,15 @@ void SeedFromConsecutiveHitsCreator::init(const TrackingRegion& iregion,
                                           const SeedComparitor* ifilter) {
   region = &iregion;
   filter = ifilter;
-  // get tracker
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
-  // get propagator
-  es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
-  // mag field
-  es.get<IdealMagneticFieldRecord>().get(mfName_, bfield);
-  //  edm::ESInputTag mfESInputTag(mfName_);
-  //  es.get<IdealMagneticFieldRecord>().get(mfESInputTag, bfield);
-  nomField = bfield->nominalValue();
+  trackerGeometry_ = &es.getData(trackerGeometryESToken_);
+  propagator_ = &es.getData(propagatorESToken_);
+  magneticField_ = &es.getData(magneticFieldESToken_);
+  nomField = magneticField_->nominalValue();
   isBOFF = (0 == nomField);
 
-  edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
-  es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
-  auto builder = (TkTransientTrackingRecHitBuilder const*)(builderH.product());
+  TransientTrackingRecHitBuilder const* transientTrackingRecHitBuilder =
+      &es.getData(transientTrackingRecHitBuilderESToken_);
+  auto builder = (TkTransientTrackingRecHitBuilder const*)(transientTrackingRecHitBuilder);
   cloner = (*builder).cloner();
 }
 
@@ -111,18 +118,18 @@ bool SeedFromConsecutiveHitsCreator::initialKinematic(GlobalTrajectoryParameters
 
   const GlobalPoint& vertexPos = region->origin();
 
-  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, nomField, &*bfield);
+  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, nomField, magneticField_);
   if (helix.isValid()) {
     kine = helix.stateAtVertex();
   } else {
     GlobalVector initMomentum(tth2->globalPosition() - vertexPos);
     initMomentum *= (100.f / initMomentum.perp());
-    kine = GlobalTrajectoryParameters(vertexPos, initMomentum, 1, &*bfield);
+    kine = GlobalTrajectoryParameters(vertexPos, initMomentum, 1, magneticField_);
   }
 
   if UNLIKELY (isBOFF && (theBOFFMomentum > 0)) {
-    kine =
-        GlobalTrajectoryParameters(kine.position(), kine.momentum().unit() * theBOFFMomentum, kine.charge(), &*bfield);
+    kine = GlobalTrajectoryParameters(
+        kine.position(), kine.momentum().unit() * theBOFFMomentum, kine.charge(), magneticField_);
   }
   return (filter ? filter->compatible(hits, kine, helix) : true);
 }
@@ -152,8 +159,6 @@ CurvilinearTrajectoryError SeedFromConsecutiveHitsCreator::initialError(float si
 void SeedFromConsecutiveHitsCreator::buildSeed(TrajectorySeedCollection& seedCollection,
                                                const SeedingHitSet& hits,
                                                const FreeTrajectoryState& fts) const {
-  const Propagator* propagator = &(*propagatorHandle);
-
   // get updator
   KFUpdator updator;
 
@@ -166,8 +171,8 @@ void SeedFromConsecutiveHitsCreator::buildSeed(TrajectorySeedCollection& seedCol
   for (unsigned int iHit = 0; iHit < hits.size(); iHit++) {
     hit = hits[iHit]->hit();
     TrajectoryStateOnSurface state =
-        (iHit == 0) ? propagator->propagate(fts, tracker->idToDet(hit->geographicalId())->surface())
-                    : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
+        (iHit == 0) ? propagator_->propagate(fts, trackerGeometry_->idToDet(hit->geographicalId())->surface())
+                    : propagator_->propagate(updatedState, trackerGeometry_->idToDet(hit->geographicalId())->surface());
     if (!state.isValid())
       return;
 

@@ -1,17 +1,16 @@
 #include "FastSimulation/Tracking/interface/SeedFinderSelector.h"
 
 // framework
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 
 // track reco
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayers.h"
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayersFactory.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayersFactory.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/CAHitTripletGenerator.h"
@@ -25,7 +24,9 @@ SeedFinderSelector::SeedFinderSelector(const edm::ParameterSet &cfg, edm::Consum
     : trackingRegion_(nullptr),
       eventSetup_(nullptr),
       measurementTracker_(nullptr),
-      measurementTrackerLabel_(cfg.getParameter<std::string>("measurementTracker")) {
+      measurementTrackerLabel_(cfg.getParameter<std::string>("measurementTracker")),
+      measurementTrackerESToken_(consumesCollector.esConsumes(edm::ESInputTag("", measurementTrackerLabel_))),
+      trackerTopologyESToken_(consumesCollector.esConsumes()) {
   if (cfg.exists("pixelTripletGeneratorFactory")) {
     const edm::ParameterSet &tripletConfig = cfg.getParameter<edm::ParameterSet>("pixelTripletGeneratorFactory");
     pixelTripletGenerator_ = HitTripletGeneratorFromPairAndLayersFactory::get()->create(
@@ -35,7 +36,7 @@ SeedFinderSelector::SeedFinderSelector(const edm::ParameterSet &cfg, edm::Consum
   if (cfg.exists("MultiHitGeneratorFactory")) {
     const edm::ParameterSet &tripletConfig = cfg.getParameter<edm::ParameterSet>("MultiHitGeneratorFactory");
     multiHitGenerator_ = MultiHitGeneratorFromPairAndLayersFactory::get()->create(
-        tripletConfig.getParameter<std::string>("ComponentName"), tripletConfig);
+        tripletConfig.getParameter<std::string>("ComponentName"), tripletConfig, consumesCollector);
   }
 
   if (cfg.exists("CAHitTripletGeneratorFactory")) {
@@ -77,10 +78,8 @@ SeedFinderSelector::~SeedFinderSelector() { ; }
 void SeedFinderSelector::initEvent(const edm::Event &ev, const edm::EventSetup &es) {
   eventSetup_ = &es;
 
-  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-  es.get<CkfComponentsRecord>().get(measurementTrackerLabel_, measurementTrackerHandle);
-  es.get<TrackerTopologyRcd>().get(trackerTopology);
-  measurementTracker_ = &(*measurementTrackerHandle);
+  measurementTracker_ = &es.getData(measurementTrackerESToken_);
+  trackerTopology_ = &es.getData(trackerTopologyESToken_);
 
   if (multiHitGenerator_) {
     multiHitGenerator_->initES(es);
@@ -320,7 +319,6 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *> &hits
 
 //new for Phase1
 SeedingLayerSetsBuilder::SeedingLayerId SeedFinderSelector::Layer_tuple(const FastTrackerRecHit *hit) const {
-  const TrackerTopology *const tTopo = trackerTopology.product();
   GeomDetEnumerators::SubDetector subdet = GeomDetEnumerators::invalidDet;
   TrackerDetSide side = TrackerDetSide::Barrel;
   int idLayer = 0;
@@ -328,11 +326,11 @@ SeedingLayerSetsBuilder::SeedingLayerId SeedFinderSelector::Layer_tuple(const Fa
   if ((hit->det()->geographicalId()).subdetId() == PixelSubdetector::PixelBarrel) {
     subdet = GeomDetEnumerators::PixelBarrel;
     side = TrackerDetSide::Barrel;
-    idLayer = tTopo->pxbLayer(hit->det()->geographicalId());
+    idLayer = trackerTopology_->pxbLayer(hit->det()->geographicalId());
   } else if ((hit->det()->geographicalId()).subdetId() == PixelSubdetector::PixelEndcap) {
     subdet = GeomDetEnumerators::PixelEndcap;
-    idLayer = tTopo->pxfDisk(hit->det()->geographicalId());
-    if (tTopo->pxfSide(hit->det()->geographicalId()) == 1) {
+    idLayer = trackerTopology_->pxfDisk(hit->det()->geographicalId());
+    if (trackerTopology_->pxfSide(hit->det()->geographicalId()) == 1) {
       side = TrackerDetSide::NegEndcap;
     } else {
       side = TrackerDetSide::PosEndcap;

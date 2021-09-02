@@ -33,7 +33,7 @@ private:
 
 MultiHitFromChi2EDProducer::MultiHitFromChi2EDProducer(const edm::ParameterSet& iConfig)
     : doubletToken_(consumes<IntermediateHitDoublets>(iConfig.getParameter<edm::InputTag>("doublets"))),
-      generator_(iConfig) {
+      generator_(iConfig, consumesCollector()) {
   produces<RegionsSeedingHitSets>();
   produces<edm::OwnVector<BaseTrackerRecHit> >();
 }

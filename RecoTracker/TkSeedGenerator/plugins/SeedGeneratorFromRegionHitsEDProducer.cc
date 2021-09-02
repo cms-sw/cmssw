@@ -51,7 +51,7 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(con
   theGenerator = std::make_unique<SeedGeneratorFromRegionHits>(
       OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC),
       std::move(aComparitor),
-      SeedCreatorFactory::get()->create(creatorName, creatorPSet));
+      SeedCreatorFactory::get()->create(creatorName, creatorPSet, consumesCollector()));
 
   produces<TrajectorySeedCollection>();
 }

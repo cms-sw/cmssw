@@ -24,30 +24,30 @@ bool SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(GlobalTrajector
                     tth2->globalPosition(),
                     tth1->globalPosition(),
                     nomField,
-                    &*bfield,
+                    magneticField_,
                     tth1->globalPosition());
     kine = helix.stateAtVertex();
     if UNLIKELY (isBOFF && (theBOFFMomentum > 0)) {
       kine = GlobalTrajectoryParameters(
-          kine.position(), kine.momentum().unit() * theBOFFMomentum, kine.charge(), &*bfield);
+          kine.position(), kine.momentum().unit() * theBOFFMomentum, kine.charge(), magneticField_);
     }
     return (filter ? filter->compatible(hits, kine, helix) : true);
   }
 
   const GlobalPoint& vertexPos = region->origin();
 
-  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, nomField, &*bfield);
+  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, nomField, magneticField_);
   if (helix.isValid()) {
     kine = helix.stateAtVertex();
   } else {
     GlobalVector initMomentum(tth2->globalPosition() - vertexPos);
     initMomentum *= (100. / initMomentum.perp());
-    kine = GlobalTrajectoryParameters(vertexPos, initMomentum, 1, &*bfield);
+    kine = GlobalTrajectoryParameters(vertexPos, initMomentum, 1, magneticField_);
   }
 
   if UNLIKELY (isBOFF && (theBOFFMomentum > 0)) {
-    kine =
-        GlobalTrajectoryParameters(kine.position(), kine.momentum().unit() * theBOFFMomentum, kine.charge(), &*bfield);
+    kine = GlobalTrajectoryParameters(
+        kine.position(), kine.momentum().unit() * theBOFFMomentum, kine.charge(), magneticField_);
   }
   return (filter ? filter->compatible(hits, kine, helix) : true);
 }

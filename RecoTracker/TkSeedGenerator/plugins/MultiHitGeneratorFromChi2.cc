@@ -3,7 +3,6 @@
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPrediction.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -15,7 +14,6 @@
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
@@ -25,9 +23,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
@@ -51,7 +46,7 @@ namespace {
   };
 }  // namespace
 
-MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cfg)
+MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
     : MultiHitGeneratorFromPairAndLayers(cfg),
       useFixedPreFiltering(cfg.getParameter<bool>("useFixedPreFiltering")),
       extraHitRZtolerance(
@@ -98,6 +93,16 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
   filter = nullptr;
   bfield = nullptr;
   nomField = -1.;
+
+  if (useSimpleMF_) {
+    magneticFieldESToken_ = iC.esConsumes(edm::ESInputTag("", mfName_));
+  } else {
+    magneticFieldESToken_ = iC.esConsumes();
+  }
+  if (refitHits) {
+    clusterShapeHitFilterESToken_ = iC.esConsumes(edm::ESInputTag("", filterName_));
+    transientTrackingRecHitBuilderESToken_ = iC.esConsumes(edm::ESInputTag("", builderName_));
+  }
 }
 
 MultiHitGeneratorFromChi2::~MultiHitGeneratorFromChi2() {}
@@ -133,23 +138,14 @@ void MultiHitGeneratorFromChi2::fillDescriptions(edm::ParameterSetDescription& d
 }
 
 void MultiHitGeneratorFromChi2::initES(const edm::EventSetup& es) {
-  edm::ESHandle<MagneticField> bfield_h;
-  if (useSimpleMF_)
-    es.get<IdealMagneticFieldRecord>().get(mfName_, bfield_h);
-  else
-    es.get<IdealMagneticFieldRecord>().get(bfield_h);
-  bfield = bfield_h.product();
+  bfield = &es.getData(magneticFieldESToken_);
   nomField = bfield->nominalValue();
   ufield.set(nomField);  // more than enough (never actually used)
 
   if (refitHits) {
-    edm::ESHandle<ClusterShapeHitFilter> filterHandle_;
-    es.get<CkfComponentsRecord>().get(filterName_, filterHandle_);
-    filter = filterHandle_.product();
-
-    edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
-    es.get<TransientRecHitRecord>().get(builderName_, builderH);
-    builder = (TkTransientTrackingRecHitBuilder const*)(builderH.product());
+    filter = &es.getData(clusterShapeHitFilterESToken_);
+    auto const& builderRef = es.getData(transientTrackingRecHitBuilderESToken_);
+    builder = (TkTransientTrackingRecHitBuilder const*)(&builderRef);
     cloner = (*builder).cloner();
   }
 }
