@@ -1,9 +1,41 @@
+// system include files
+#include <memory>
 
-#include "Calibration/HcalIsolatedTrackReco/interface/SiStripRegFEDSelector.h"
+// user include files
+#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
+#include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
+class SiStripRegFEDSelector : public edm::EDProducer {
+public:
+  SiStripRegFEDSelector(const edm::ParameterSet&);
+  ~SiStripRegFEDSelector() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void beginJob() override {}
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
+
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_seed_;
+  const edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+  const edm::ESGetToken<SiStripRegionCabling, SiStripRegionCablingRcd> tok_strip_;
+  const double delta_;
+};
 
 SiStripRegFEDSelector::SiStripRegFEDSelector(const edm::ParameterSet& iConfig)
     : tok_seed_(consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<edm::InputTag>("regSeedLabel"))),
@@ -120,6 +152,15 @@ void SiStripRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.put(std::move(producedData));
 }
 
-void SiStripRegFEDSelector::beginJob() {}
+void SiStripRegFEDSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("regSeedLabel", edm::InputTag("hltIsolPixelTrackFilter"));
+  desc.add<edm::InputTag>("rawInputLabel", edm::InputTag("rawDataCollector"));
+  desc.add<double>("delta", 1.0);
+  descriptions.add("stripFED", desc);
+}
 
-void SiStripRegFEDSelector::endJob() {}
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripRegFEDSelector);

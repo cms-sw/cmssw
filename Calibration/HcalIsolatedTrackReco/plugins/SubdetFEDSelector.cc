@@ -1,5 +1,37 @@
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-#include "Calibration/HcalIsolatedTrackReco/interface/SubdetFEDSelector.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+
+#include "EventFilter/RawDataCollector/interface/RawDataFEDSelector.h"
+
+class SubdetFEDSelector : public edm::EDProducer {
+public:
+  SubdetFEDSelector(const edm::ParameterSet&);
+  ~SubdetFEDSelector() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void beginJob() override {}
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
+
+  // ----------member data ---------------------------
+  bool getEcal_;
+  bool getHcal_;
+  bool getStrip_;
+  bool getPixel_;
+  bool getMuon_;
+  bool getTrigger_;
+
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+};
 
 SubdetFEDSelector::SubdetFEDSelector(const edm::ParameterSet& iConfig) {
   getEcal_ = iConfig.getParameter<bool>("getECAL");
@@ -171,8 +203,19 @@ void SubdetFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.put(std::move(producedData));
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void SubdetFEDSelector::beginJob() {}
+void SubdetFEDSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("rawInputLabel", edm::InputTag("rawDataCollector"));
+  desc.add<bool>("getSiPixel", true);
+  desc.add<bool>("getHCAL", true);
+  desc.add<bool>("getECAL", false);
+  desc.add<bool>("getMuon", false);
+  desc.add<bool>("getTrigger", true);
+  desc.add<bool>("getSiStrip", false);
+  descriptions.add("subdetFED", desc);
+}
 
-// ------------ method called once each job just after ending the event loop  ------------
-void SubdetFEDSelector::endJob() {}
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SubdetFEDSelector);

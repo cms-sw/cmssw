@@ -1,6 +1,3 @@
-#ifndef HITRegionalPixelSeedGenerator_h
-#define HITRegionalPixelSeedGenerator_h
-
 //
 // Class:           HITRegionalPixelSeedGenerator
 
@@ -206,4 +203,9 @@ private:
   edm::EDGetTokenT<l1extra::L1JetParticleCollection> token_l1jet;
 };
 
-#endif
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
+#
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HITRegionalPixelSeedGenerator, "HITRegionalPixelSeedGenerator");
