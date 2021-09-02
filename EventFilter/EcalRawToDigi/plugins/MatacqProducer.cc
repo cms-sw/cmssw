@@ -17,7 +17,6 @@
 #include "EventFilter/EcalRawToDigi/interface/MatacqRawEvent.h"
 #include "EventFilter/EcalRawToDigi/src/MatacqDataFormatter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include <string>
@@ -315,10 +314,8 @@ private:
 
 #include <csignal>
 #include <cstdio>
-#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <memory>
 
 #include <glob.h>
 #include <sys/stat.h>
@@ -329,7 +326,6 @@ private:
 #include <boost/algorithm/string.hpp>
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
