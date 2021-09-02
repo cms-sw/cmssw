@@ -21,19 +21,20 @@
 
 class RetrievePPSAlignmentConfiguration : public edm::one::EDAnalyzer<> {
 public:
-  explicit RetrievePPSAlignmentConfiguration(const edm::ParameterSet &);
+  explicit RetrievePPSAlignmentConfiguration(const edm::ParameterSet&);
 
 private:
-  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esToken_;
 };
 
-RetrievePPSAlignmentConfiguration::RetrievePPSAlignmentConfiguration(const edm::ParameterSet &iConfig) : esToken_(esConsumes()) {}
+RetrievePPSAlignmentConfiguration::RetrievePPSAlignmentConfiguration(const edm::ParameterSet& iConfig)
+    : esToken_(esConsumes()) {}
 
-void RetrievePPSAlignmentConfiguration::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void RetrievePPSAlignmentConfiguration::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get the data
-  const auto &ppsAlignmentConfiguration = iSetup.getData(esToken_);
+  const auto& ppsAlignmentConfiguration = iSetup.getData(esToken_);
 
   edm::LogInfo("PPS") << ppsAlignmentConfiguration;
 }

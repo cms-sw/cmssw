@@ -83,8 +83,8 @@ public:
   };
 
   // Getters
-  const SectorConfig &sectorConfig45() const;
-  const SectorConfig &sectorConfig56() const;
+  const SectorConfig& sectorConfig45() const;
+  const SectorConfig& sectorConfig56() const;
 
   double x_ali_sh_step() const;
 
@@ -97,27 +97,27 @@ public:
   double maxRPTracksSize() const;
   double n_si() const;
 
-  const std::map<unsigned int, std::vector<PointErrors>> &matchingReferencePoints() const;
-  const std::map<unsigned int, SelectionRange> &matchingShiftRanges() const;
+  const std::map<unsigned int, std::vector<PointErrors>>& matchingReferencePoints() const;
+  const std::map<unsigned int, SelectionRange>& matchingShiftRanges() const;
 
-  const std::map<unsigned int, SelectionRange> &alignment_x_meth_o_ranges() const;
+  const std::map<unsigned int, SelectionRange>& alignment_x_meth_o_ranges() const;
   unsigned int fitProfileMinBinEntries() const;
   unsigned int fitProfileMinNReasonable() const;
   unsigned int methOGraphMinN() const;
   double methOUncFitRange() const;
 
-  const std::map<unsigned int, SelectionRange> &alignment_x_relative_ranges() const;
+  const std::map<unsigned int, SelectionRange>& alignment_x_relative_ranges() const;
   unsigned int nearFarMinEntries() const;
 
-  const std::map<unsigned int, SelectionRange> &alignment_y_ranges() const;
+  const std::map<unsigned int, SelectionRange>& alignment_y_ranges() const;
   unsigned int modeGraphMinN() const;
   unsigned int multSelProjYMinEntries() const;
 
-  const Binning &binning() const;
+  const Binning& binning() const;
 
   // Setters
-  void setSectorConfig45(SectorConfig &sectorConfig45);
-  void setSectorConfig56(SectorConfig &sectorConfig56);
+  void setSectorConfig45(SectorConfig& sectorConfig45);
+  void setSectorConfig56(SectorConfig& sectorConfig56);
 
   void setX_ali_sh_step(double x_ali_sh_step);
 
@@ -130,26 +130,26 @@ public:
   void setMaxRPTracksSize(unsigned int maxRPTracksSize);
   void setN_si(double n_si);
 
-  void setMatchingReferencePoints(std::map<unsigned int, std::vector<PointErrors>> &matchingReferencePoints);
-  void setMatchingShiftRanges(std::map<unsigned int, SelectionRange> &matchingShiftRanges);
+  void setMatchingReferencePoints(std::map<unsigned int, std::vector<PointErrors>>& matchingReferencePoints);
+  void setMatchingShiftRanges(std::map<unsigned int, SelectionRange>& matchingShiftRanges);
 
-  void setAlignment_x_meth_o_ranges(std::map<unsigned int, SelectionRange> &alignment_x_meth_o_ranges);
+  void setAlignment_x_meth_o_ranges(std::map<unsigned int, SelectionRange>& alignment_x_meth_o_ranges);
   void setFitProfileMinBinEntries(unsigned int fitProfileMinBinEntries);
   void setFitProfileMinNReasonable(unsigned int fitProfileMinNReasonable);
   void setMethOGraphMinN(unsigned int methOGraphMinN);
   void setMethOUncFitRange(double methOUncFitRange);
 
-  void setAlignment_x_relative_ranges(std::map<unsigned int, SelectionRange> &alignment_x_relative_ranges);
+  void setAlignment_x_relative_ranges(std::map<unsigned int, SelectionRange>& alignment_x_relative_ranges);
   void setNearFarMinEntries(unsigned int nearFarMinEntries);
 
-  void setAlignment_y_ranges(std::map<unsigned int, SelectionRange> &alignment_y_ranges);
+  void setAlignment_y_ranges(std::map<unsigned int, SelectionRange>& alignment_y_ranges);
   void setModeGraphMinN(unsigned int modeGraphMinN);
   void setMultSelProjYMinEntries(unsigned int multSelProjYMinEntries);
 
-  void setBinning(Binning &binning);
+  void setBinning(Binning& binning);
 
   // << operator
-  friend std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfiguration &c);
+  friend std::ostream& operator<<(std::ostream& os, const PPSAlignmentConfiguration& c);
 
 private:
   SectorConfig sectorConfig45_, sectorConfig56_;
@@ -186,8 +186,8 @@ private:
   COND_SERIALIZABLE;
 };
 
-std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfiguration::RPConfig &rc);
-std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfiguration::SectorConfig &sc);
-std::ostream &operator<<(std::ostream &os, const PPSAlignmentConfiguration::Binning &b);
+std::ostream& operator<<(std::ostream& os, const PPSAlignmentConfiguration::RPConfig& rc);
+std::ostream& operator<<(std::ostream& os, const PPSAlignmentConfiguration::SectorConfig& sc);
+std::ostream& operator<<(std::ostream& os, const PPSAlignmentConfiguration::Binning& b);
 
 #endif

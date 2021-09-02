@@ -34,20 +34,20 @@
 
 class PPSAlignmentConfigurationESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
-  PPSAlignmentConfigurationESSource(const edm::ParameterSet &iConfig);
+  PPSAlignmentConfigurationESSource(const edm::ParameterSet& iConfig);
 
-  std::unique_ptr<PPSAlignmentConfiguration> produce(const PPSAlignmentConfigurationRcd &);
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  std::unique_ptr<PPSAlignmentConfiguration> produce(const PPSAlignmentConfigurationRcd&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  int fitProfile(TProfile *p, double x_mean, double x_rms, double &sl, double &sl_unc);
-  TDirectory *findDirectoryWithName(TDirectory *dir, std::string searchName);
-  std::vector<PPSAlignmentConfiguration::PointErrors> buildVectorFromDirectory(TDirectory *dir,
-                                                                        const PPSAlignmentConfiguration::RPConfig &rpd);
+  int fitProfile(TProfile* p, double x_mean, double x_rms, double& sl, double& sl_unc);
+  TDirectory* findDirectoryWithName(TDirectory* dir, std::string searchName);
+  std::vector<PPSAlignmentConfiguration::PointErrors> buildVectorFromDirectory(
+      TDirectory* dir, const PPSAlignmentConfiguration::RPConfig& rpd);
 
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
-                      const edm::IOVSyncValue &iosv,
-                      edm::ValidityInterval &oValidity) override;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey& key,
+                      const edm::IOVSyncValue& iosv,
+                      edm::ValidityInterval& oValidity) override;
 
   bool debug;
 
@@ -87,11 +87,11 @@ private:
 
 //---------------------------------------------------------------------------------------------
 
-PPSAlignmentConfigurationESSource::PPSAlignmentConfigurationESSource(const edm::ParameterSet &iConfig) {
+PPSAlignmentConfigurationESSource::PPSAlignmentConfigurationESSource(const edm::ParameterSet& iConfig) {
   label = iConfig.getParameter<std::string>("label");
 
   debug = iConfig.getParameter<bool>("debug");
-  TFile *debugFile = nullptr;
+  TFile* debugFile = nullptr;
   if (debug) {
     debugFile = new TFile(("debug_producer_" + (label.empty() ? "test" : label) + ".root").c_str(), "recreate");
   }
@@ -107,16 +107,16 @@ PPSAlignmentConfigurationESSource::PPSAlignmentConfigurationESSource(const edm::
   sectorConfig56.rp_F_.position_ = "F";
 
   for (std::string sectorName : {"sector_45", "sector_56"}) {
-    const auto &sps = iConfig.getParameter<edm::ParameterSet>(sectorName);
-    PPSAlignmentConfiguration::SectorConfig *sc;
+    const auto& sps = iConfig.getParameter<edm::ParameterSet>(sectorName);
+    PPSAlignmentConfiguration::SectorConfig* sc;
     if (sectorName == "sector_45")
       sc = &sectorConfig45;
     else
       sc = &sectorConfig56;
 
     for (std::string rpName : {"rp_N", "rp_F"}) {
-      const auto &rpps = sps.getParameter<edm::ParameterSet>(rpName);
-      PPSAlignmentConfiguration::RPConfig *rc;
+      const auto& rpps = sps.getParameter<edm::ParameterSet>(rpName);
+      PPSAlignmentConfiguration::RPConfig* rc;
       if (rpName == "rp_N")
         rc = &sc->rp_N_;
       else
@@ -162,7 +162,7 @@ PPSAlignmentConfigurationESSource::PPSAlignmentConfigurationESSource(const edm::
                                                      {sectorConfig56.rp_N_.id_, sectorConfig56.name_},
                                                      {sectorConfig56.rp_F_.id_, sectorConfig56.name_}};
 
-  std::map<unsigned int, const PPSAlignmentConfiguration::RPConfig *> rpConfigs = {
+  std::map<unsigned int, const PPSAlignmentConfiguration::RPConfig*> rpConfigs = {
       {sectorConfig45.rp_F_.id_, &sectorConfig45.rp_F_},
       {sectorConfig45.rp_N_.id_, &sectorConfig45.rp_N_},
       {sectorConfig56.rp_N_.id_, &sectorConfig56.rp_N_},
@@ -179,9 +179,9 @@ PPSAlignmentConfigurationESSource::PPSAlignmentConfigurationESSource(const edm::
   maxRPTracksSize = iConfig.getParameter<unsigned int>("max_RP_tracks_size");
   n_si = iConfig.getParameter<double>("n_si");
 
-  const auto &c_axo = iConfig.getParameter<edm::ParameterSet>("x_alignment_meth_o");
-  for (const auto &p : rpTags) {
-    const auto &ps = c_axo.getParameter<edm::ParameterSet>(p.second);
+  const auto& c_axo = iConfig.getParameter<edm::ParameterSet>("x_alignment_meth_o");
+  for (const auto& p : rpTags) {
+    const auto& ps = c_axo.getParameter<edm::ParameterSet>(p.second);
     alignment_x_meth_o_ranges[p.first] = {ps.getParameter<double>("x_min"), ps.getParameter<double>("x_max")};
   }
   fitProfileMinBinEntries = c_axo.getParameter<unsigned int>("fit_profile_min_bin_entries");
@@ -189,26 +189,26 @@ PPSAlignmentConfigurationESSource::PPSAlignmentConfigurationESSource(const edm::
   methOGraphMinN = c_axo.getParameter<unsigned int>("meth_o_graph_min_N");
   methOUncFitRange = c_axo.getParameter<double>("meth_o_unc_fit_range");
 
-  const auto &c_m = iConfig.getParameter<edm::ParameterSet>("matching");
-  const auto &referenceDataset = c_m.getParameter<std::string>("reference_dataset");
+  const auto& c_m = iConfig.getParameter<edm::ParameterSet>("matching");
+  const auto& referenceDataset = c_m.getParameter<std::string>("reference_dataset");
 
   // constructing vectors with reference data
   if (!referenceDataset.empty()) {
-    TFile *f_ref = TFile::Open(referenceDataset.c_str());
+    TFile* f_ref = TFile::Open(referenceDataset.c_str());
     if (!f_ref->IsOpen()) {
       edm::LogWarning("PPS") << "[ESSource] could not find reference dataset file: " << referenceDataset;
     } else {
-      TDirectory *ad_ref = findDirectoryWithName((TDirectory *)f_ref, sectorConfig45.name_);
+      TDirectory* ad_ref = findDirectoryWithName((TDirectory*)f_ref, sectorConfig45.name_);
       if (ad_ref == nullptr) {
         edm::LogWarning("PPS") << "[ESSource] could not find reference dataset in " << referenceDataset;
       } else {
         edm::LogInfo("PPS") << "[ESSource] loading reference dataset from " << ad_ref->GetPath();
 
-        for (const auto &p : rpTags) {
+        for (const auto& p : rpTags) {
           if (debug)
             gDirectory = debugFile->mkdir(rpConfigs[p.first]->name_.c_str())->mkdir("fits_ref");
 
-          auto *d_ref = (TDirectory *)ad_ref->Get(
+          auto* d_ref = (TDirectory*)ad_ref->Get(
               (sectorNames[p.first] + "/near_far/x slices, " + rpConfigs[p.first]->position_).c_str());
           if (d_ref == nullptr) {
             edm::LogWarning("PPS") << "[ESSource] could not load d_ref";
@@ -221,29 +221,29 @@ PPSAlignmentConfigurationESSource::PPSAlignmentConfigurationESSource(const edm::
     delete f_ref;
   }
 
-  for (const auto &p : rpTags) {
-    const auto &ps = c_m.getParameter<edm::ParameterSet>(p.second);
+  for (const auto& p : rpTags) {
+    const auto& ps = c_m.getParameter<edm::ParameterSet>(p.second);
     matchingShiftRanges[p.first] = {ps.getParameter<double>("sh_min"), ps.getParameter<double>("sh_max")};
   }
 
-  const auto &c_axr = iConfig.getParameter<edm::ParameterSet>("x_alignment_relative");
-  for (const auto &p : rpTags) {
+  const auto& c_axr = iConfig.getParameter<edm::ParameterSet>("x_alignment_relative");
+  for (const auto& p : rpTags) {
     if (p.second.back() == 'N') {  // only near RPs
-      const auto &ps = c_axr.getParameter<edm::ParameterSet>(p.second);
+      const auto& ps = c_axr.getParameter<edm::ParameterSet>(p.second);
       alignment_x_relative_ranges[p.first] = {ps.getParameter<double>("x_min"), ps.getParameter<double>("x_max")};
     }
   }
   nearFarMinEntries = c_axr.getParameter<unsigned int>("near_far_min_entries");
 
-  const auto &c_ay = iConfig.getParameter<edm::ParameterSet>("y_alignment");
-  for (const auto &p : rpTags) {
-    const auto &ps = c_ay.getParameter<edm::ParameterSet>(p.second);
+  const auto& c_ay = iConfig.getParameter<edm::ParameterSet>("y_alignment");
+  for (const auto& p : rpTags) {
+    const auto& ps = c_ay.getParameter<edm::ParameterSet>(p.second);
     alignment_y_ranges[p.first] = {ps.getParameter<double>("x_min"), ps.getParameter<double>("x_max")};
   }
   modeGraphMinN = c_ay.getParameter<unsigned int>("mode_graph_min_N");
   multSelProjYMinEntries = c_ay.getParameter<unsigned int>("mult_sel_proj_y_min_entries");
 
-  const auto &bps = iConfig.getParameter<edm::ParameterSet>("binning");
+  const auto& bps = iConfig.getParameter<edm::ParameterSet>("binning");
   binning.bin_size_x_ = bps.getParameter<double>("bin_size_x");
   binning.n_bins_x_ = bps.getParameter<unsigned int>("n_bins_x");
   binning.pixel_x_offset_ = bps.getParameter<double>("pixel_x_offset");
@@ -271,7 +271,8 @@ PPSAlignmentConfigurationESSource::PPSAlignmentConfigurationESSource(const edm::
 
 //---------------------------------------------------------------------------------------------
 
-std::unique_ptr<PPSAlignmentConfiguration> PPSAlignmentConfigurationESSource::produce(const PPSAlignmentConfigurationRcd &) {
+std::unique_ptr<PPSAlignmentConfiguration> PPSAlignmentConfigurationESSource::produce(
+    const PPSAlignmentConfigurationRcd&) {
   auto p = std::make_unique<PPSAlignmentConfiguration>();
 
   p->setSectorConfig45(sectorConfig45);
@@ -316,7 +317,7 @@ std::unique_ptr<PPSAlignmentConfiguration> PPSAlignmentConfigurationESSource::pr
 //---------------------------------------------------------------------------------------------
 
 // most default values come from 2018 period
-void PPSAlignmentConfigurationESSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void PPSAlignmentConfigurationESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<bool>("debug", false);
@@ -580,7 +581,7 @@ void PPSAlignmentConfigurationESSource::fillDescriptions(edm::ConfigurationDescr
 //---------------------------------------------------------------------------------------------
 
 // Fits a linear function to a TProfile (similar method in PPSAlignmentHarvester).
-int PPSAlignmentConfigurationESSource::fitProfile(TProfile *p, double x_mean, double x_rms, double &sl, double &sl_unc) {
+int PPSAlignmentConfigurationESSource::fitProfile(TProfile* p, double x_mean, double x_rms, double& sl, double& sl_unc) {
   unsigned int n_reasonable = 0;
   for (int bi = 1; bi <= p->GetNbinsX(); bi++) {
     if (p->GetBinEntries(bi) < fitProfileMinBinEntries) {
@@ -596,7 +597,7 @@ int PPSAlignmentConfigurationESSource::fitProfile(TProfile *p, double x_mean, do
 
   double x_min = x_mean - x_rms, x_max = x_mean + x_rms;
 
-  TF1 *ff_pol1 = new TF1("ff_pol1", "[0] + [1]*x");
+  TF1* ff_pol1 = new TF1("ff_pol1", "[0] + [1]*x");
 
   ff_pol1->SetParameter(0., 0.);
   p->Fit(ff_pol1, "Q", "", x_min, x_max);
@@ -611,23 +612,23 @@ int PPSAlignmentConfigurationESSource::fitProfile(TProfile *p, double x_mean, do
 
 // Performs a breadth first search on dir. If found, returns the directory with object
 // named searchName inside. Otherwise, returns nullptr.
-TDirectory *PPSAlignmentConfigurationESSource::findDirectoryWithName(TDirectory *dir, std::string searchName) {
+TDirectory* PPSAlignmentConfigurationESSource::findDirectoryWithName(TDirectory* dir, std::string searchName) {
   TIter next(dir->GetListOfKeys());
-  std::queue<TDirectory *> dirQueue;
-  TObject *o;
+  std::queue<TDirectory*> dirQueue;
+  TObject* o;
   while ((o = next())) {
-    TKey *k = (TKey *)o;
+    TKey* k = (TKey*)o;
 
     std::string name = k->GetName();
     if (name == searchName)
       return dir;
 
-    if (((TSystemFile *)k)->IsDirectory())
-      dirQueue.push((TDirectory *)k->ReadObj());
+    if (((TSystemFile*)k)->IsDirectory())
+      dirQueue.push((TDirectory*)k->ReadObj());
   }
 
   while (!dirQueue.empty()) {
-    TDirectory *resultDir = findDirectoryWithName(dirQueue.front(), searchName);
+    TDirectory* resultDir = findDirectoryWithName(dirQueue.front(), searchName);
     dirQueue.pop();
     if (resultDir != nullptr)
       return resultDir;
@@ -640,23 +641,23 @@ TDirectory *PPSAlignmentConfigurationESSource::findDirectoryWithName(TDirectory 
 
 // Builds vector of PointErrors instances from slice plots in dir.
 std::vector<PPSAlignmentConfiguration::PointErrors> PPSAlignmentConfigurationESSource::buildVectorFromDirectory(
-    TDirectory *dir, const PPSAlignmentConfiguration::RPConfig &rpd) {
+    TDirectory* dir, const PPSAlignmentConfiguration::RPConfig& rpd) {
   std::vector<PPSAlignmentConfiguration::PointErrors> pv;
 
   TIter next(dir->GetListOfKeys());
-  TObject *o;
+  TObject* o;
   while ((o = next())) {
-    TKey *k = (TKey *)o;
+    TKey* k = (TKey*)o;
 
     std::string name = k->GetName();
     size_t d = name.find('-');
     const double x_min = std::stod(name.substr(0, d));
     const double x_max = std::stod(name.substr(d + 1));
 
-    TDirectory *d_slice = (TDirectory *)k->ReadObj();
+    TDirectory* d_slice = (TDirectory*)k->ReadObj();
 
-    TH1D *h_y = (TH1D *)d_slice->Get("h_y");
-    TProfile *p_y_diffFN_vs_y = (TProfile *)d_slice->Get("p_y_diffFN_vs_y");
+    TH1D* h_y = (TH1D*)d_slice->Get("h_y");
+    TProfile* p_y_diffFN_vs_y = (TProfile*)d_slice->Get("p_y_diffFN_vs_y");
 
     double y_cen = h_y->GetMean();
     double y_width = h_y->GetRMS();
@@ -680,9 +681,9 @@ std::vector<PPSAlignmentConfiguration::PointErrors> PPSAlignmentConfigurationESS
 
 //---------------------------------------------------------------------------------------------
 
-void PPSAlignmentConfigurationESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
-                                                const edm::IOVSyncValue &iosv,
-                                                edm::ValidityInterval &oValidity) {
+void PPSAlignmentConfigurationESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& key,
+                                                       const edm::IOVSyncValue& iosv,
+                                                       edm::ValidityInterval& oValidity) {
   edm::LogInfo("PPS") << ">> PPSAlignmentConfigurationESSource::setIntervalFor(" << key.name() << ")\n"
                       << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event();
 
