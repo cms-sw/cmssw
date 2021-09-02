@@ -189,6 +189,7 @@ private:
   TrackerMuonHitExtractor hitExtractor_;
   GEMHitAssociator::Config gemHitAssociatorConfig_;
   RPCHitAssociator::Config rpcHitAssociatorConfig_;
+  CSCHitAssociator::Config cscHitAssociatorConfig_;
 
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   std::unique_ptr<InputDumper> diagnostics_;
@@ -212,13 +213,13 @@ MuonToTrackingParticleAssociatorEDProducer::MuonToTrackingParticleAssociatorEDPr
       hitExtractor_(iConfig, consumesCollector()),
       gemHitAssociatorConfig_(iConfig, consumesCollector()),
       rpcHitAssociatorConfig_(iConfig, consumesCollector()),
+      cscHitAssociatorConfig_(iConfig, consumesCollector()),
       tTopoToken_(esConsumes()) {
   // register your products
   produces<reco::MuonToTrackingParticleAssociator>();
 
   // hack for consumes
   DTHitAssociator dttruth(iConfig, consumesCollector());
-  CSCHitAssociator cscruth(iConfig, consumesCollector());
 
   edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
       << "\n constructing MuonToTrackingParticleAssociatorEDProducer"
@@ -257,7 +258,7 @@ void MuonToTrackingParticleAssociatorEDProducer::produce(edm::Event &iEvent, con
   // Tracker hit association
   TrackerHitAssociator trackertruth(iEvent, trackerHitAssociatorConfig_);
   // CSC hit association
-  CSCHitAssociator csctruth(iEvent, iSetup, config_);
+  CSCHitAssociator csctruth(iEvent, iSetup, cscHitAssociatorConfig_);
   // DT hit association
   printRtS = false;
   DTHitAssociator dttruth(iEvent, iSetup, config_, printRtS);
