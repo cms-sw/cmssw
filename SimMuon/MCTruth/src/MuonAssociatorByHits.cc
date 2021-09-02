@@ -141,10 +141,10 @@ MuonAssociatorByHits::MuonAssociatorByHits(const edm::ParameterSet &conf, edm::C
       conf_(conf),
       trackerHitAssociatorConfig_(conf, std::move(iC)),
       gemHitAssociatorConfig_(conf, iC),
-      rpcHitAssociatorConfig_(conf, iC) {
+      rpcHitAssociatorConfig_(conf, iC),
+      cscHitAssociatorConfig_(conf, iC) {
   // hack for consumes
   DTHitAssociator dttruth(conf, std::move(iC));
-  CSCHitAssociator muonTruth(conf, std::move(iC));
   if (conf.getUntrackedParameter<bool>("dumpInputCollections")) {
     diagnostics_ = std::make_unique<InputDumper>(conf, std::move(iC));
   }
@@ -172,7 +172,7 @@ RecoToSimCollection MuonAssociatorByHits::associateRecoToSim(
   // Tracker hit association
   TrackerHitAssociator trackertruth(*e, trackerHitAssociatorConfig_);
   // CSC hit association
-  CSCHitAssociator csctruth(*e, *setup, conf_);
+  CSCHitAssociator csctruth(*e, *setup, cscHitAssociatorConfig_);
   // DT hit association
   bool printRtS(true);
   DTHitAssociator dttruth(*e, *setup, conf_, printRtS);
@@ -220,7 +220,7 @@ SimToRecoCollection MuonAssociatorByHits::associateSimToReco(
   // Tracker hit association
   TrackerHitAssociator trackertruth(*e, trackerHitAssociatorConfig_);
   // CSC hit association
-  CSCHitAssociator csctruth(*e, *setup, conf_);
+  CSCHitAssociator csctruth(*e, *setup, cscHitAssociatorConfig_);
   // DT hit association
   bool printRtS = false;
   DTHitAssociator dttruth(*e, *setup, conf_, printRtS);
