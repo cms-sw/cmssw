@@ -711,6 +711,7 @@ namespace edm {
         first([this, i, &c, &collectorMutex](auto nextTask) {
           std::exception_ptr ep;
           try {
+            ServiceRegistry::Operate operate(serviceToken_);
             this->schedule_->endStream(i);
           } catch (...) {
             ep = std::current_exception();
@@ -721,9 +722,10 @@ namespace edm {
           }
         }) | then([this, i, &c, &collectorMutex](auto nextTask) {
           for (auto& subProcess : subProcesses_) {
-            first([i, &c, &collectorMutex, &subProcess](auto nextTask) {
+            first([this, i, &c, &collectorMutex, &subProcess](auto nextTask) {
               std::exception_ptr ep;
               try {
+                ServiceRegistry::Operate operate(serviceToken_);
                 subProcess.doEndStream(i);
               } catch (...) {
                 ep = std::current_exception();
