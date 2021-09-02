@@ -243,10 +243,10 @@ void EcalIsolatedParticleCandidateProducer::produce(edm::StreamID,
 void EcalIsolatedParticleCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<double>("ECHitEnergyThreshold", 0.05);
-  desc.add<edm::InputTag>("L1eTauJetsSource", edm::InputTag("l1extraParticles","Tau"));
+  desc.add<edm::InputTag>("L1eTauJetsSource", edm::InputTag("l1extraParticles", "Tau"));
   desc.add<edm::InputTag>("L1GTSeedLabel", edm::InputTag("l1sIsolTrack"));
-  desc.add<edm::InputTag>("EBrecHitCollectionLabel", edm::InputTag("ecalRecHit","EcalRecHitsEB"));
-  desc.add<edm::InputTag>("EErecHitCollectionLabel", edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  desc.add<edm::InputTag>("EBrecHitCollectionLabel", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("EErecHitCollectionLabel", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
   desc.add<double>("ECHitCountEnergyThreshold", 0.5);
   desc.add<double>("EcalInnerConeSize", 0.3);
   desc.add<double>("EcalOuterConeSize", 0.7);

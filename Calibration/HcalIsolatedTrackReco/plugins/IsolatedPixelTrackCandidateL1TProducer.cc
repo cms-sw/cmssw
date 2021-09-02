@@ -61,7 +61,6 @@
 
 //#define EDM_ML_DEBUG
 
-
 class IsolatedPixelTrackCandidateL1TProducer : public edm::stream::EDProducer<> {
 public:
   IsolatedPixelTrackCandidateL1TProducer(const edm::ParameterSet& ps);
