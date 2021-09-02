@@ -374,13 +374,13 @@ namespace brokenline {
     riemannFit::Vector2d eVec = hits.block(0, 1, 2, 1) + (-zInSZplane(1) + uVec(1)) * radii.block(0, 1, 2, 1);
     auto eMinusd = eVec - dVec;
     auto eMinusd2 = eMinusd.squaredNorm();
+    auto tmp1 = 1. / eMinusd2;
+    auto tmp2 = sqrt(riemannFit::sqr(fast_fit(2)) - 0.25 * eMinusd2);
 
-    circle_results.par << atan2(eMinusd(1), eMinusd(0)),
-        circle_results.qCharge * (sqrt(riemannFit::sqr(fast_fit(2)) - 0.25 * eMinusd2) - fast_fit(2)),
+    circle_results.par << atan2(eMinusd(1), eMinusd(0)), circle_results.qCharge * (tmp2 - fast_fit(2)),
         circle_results.qCharge * (1. / fast_fit(2) + uVec(n));
 
-    auto tmp1 = 1. / eMinusd2;
-    auto tmp2 = 0.5 / sqrt(riemannFit::sqr(2. * fast_fit(2)) - eMinusd2);
+    tmp2 = 1. / tmp2;
 
     riemannFit::Matrix3d jacobian;
     jacobian << (radii(1, 0) * eMinusd(0) - eMinusd(1) * radii(0, 0)) * tmp1,
