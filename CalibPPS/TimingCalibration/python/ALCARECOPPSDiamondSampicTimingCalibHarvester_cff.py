@@ -4,7 +4,7 @@ from Geometry.VeryForwardGeometry.geometryRPFromDB_cfi import *
 from CalibPPS.TimingCalibration.PPSDiamondSampicTimingCalibrationPCLHarvester_cfi import *
 
 
-QMStore = cms.Service("DQMStore")
+DQMStore = cms.Service("DQMStore")
 
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 dqmEnv = DQMEDHarvester('DQMHarvestingMetadata',
