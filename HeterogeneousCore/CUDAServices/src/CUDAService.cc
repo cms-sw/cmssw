@@ -3,6 +3,8 @@
 #include <limits>
 
 #include <cuda.h>
+#include <cuda_runtime.h>
+#include <nvml.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -10,13 +12,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/EventCache.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/StreamCache.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cachingAllocators.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cachingAllocators.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/nvmlCheck.h"
 
 void setCudaLimit(cudaLimit limit, const char* name, size_t request) {
   // read the current device
@@ -83,6 +86,10 @@ constexpr unsigned int getCudaCoresPerSM(unsigned int major, unsigned int minor)
   }
 }
 
+std::string decodeVersion(int version) {
+  return std::to_string(version / 1000) + '.' + std::to_string(version % 1000 / 10);
+}
+
 namespace {
   template <template <typename> typename UniquePtr, typename Allocate>
   void preallocate(Allocate allocate, const std::vector<unsigned int>& bufferSizes) {
@@ -132,10 +139,34 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
     return;
   }
   computeCapabilities_.reserve(numberOfDevices_);
+
+  // NVIDIA system driver version, e.g. 470.57.02
+  char systemDriverVersion[NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE];
+  nvmlCheck(nvmlInitWithFlags(NVML_INIT_FLAG_NO_GPUS | NVML_INIT_FLAG_NO_ATTACH));
+  nvmlCheck(nvmlSystemGetDriverVersion(systemDriverVersion, sizeof(systemDriverVersion)));
+  nvmlCheck(nvmlShutdown());
+
+  // CUDA driver version, e.g. 11.4
+  // the full version, like 11.4.1 or 11.4.100, is not reported
+  int driverVersion = 0;
+  cudaCheck(cudaDriverGetVersion(&driverVersion));
+
+  // CUDA runtime version, e.g. 11.4
+  // the full version, like 11.4.1 or 11.4.108, is not reported
+  int runtimeVersion = 0;
+  cudaCheck(cudaRuntimeGetVersion(&runtimeVersion));
+
   edm::LogInfo log("CUDAService");
-  log << "CUDA runtime successfully initialised, found " << numberOfDevices_ << " compute devices.\n";
   if (verbose_) {
-    log << '\n';
+    log << "NVIDIA driver:    " << systemDriverVersion << '\n';
+    log << "CUDA driver API:  " << decodeVersion(driverVersion) << " (compiled with " << decodeVersion(CUDA_VERSION)
+        << ")\n";
+    log << "CUDA runtime API: " << decodeVersion(runtimeVersion) << " (compiled with " << decodeVersion(CUDART_VERSION)
+        << ")\n";
+    log << "CUDA runtime successfully initialised, found " << numberOfDevices_ << " compute devices.\n";
+  } else {
+    log << "CUDA runtime version " << decodeVersion(runtimeVersion) << ", driver version "
+        << decodeVersion(driverVersion) << ", NVIDIA driver version " << systemDriverVersion;
   }
 
   auto const& limits = config.getUntrackedParameter<edm::ParameterSet>("limits");
@@ -150,7 +181,7 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
     // see the documentation of cudaGetDeviceProperties() for more information.
     cudaDeviceProp properties;
     cudaCheck(cudaGetDeviceProperties(&properties, i));
-    log << "CUDA device " << i << ": " << properties.name;
+    log << '\n' << "CUDA device " << i << ": " << properties.name;
     if (verbose_) {
       log << '\n';
     }
@@ -160,8 +191,9 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
     if (verbose_) {
       log << "  compute capability:          " << properties.major << "." << properties.minor;
     }
-    log << " (sm_" << properties.major << properties.minor << ")\n";
+    log << " (sm_" << properties.major << properties.minor << ")";
     if (verbose_) {
+      log << '\n';
       log << "  streaming multiprocessors: " << std::setw(13) << properties.multiProcessorCount << '\n';
       log << "  CUDA cores: " << std::setw(28)
           << properties.multiProcessorCount * getCudaCoresPerSM(properties.major, properties.minor) << '\n';
@@ -313,7 +345,6 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
         cudaCheck(cudaDeviceGetLimit(&value, cudaLimitDevRuntimePendingLaunchCount));
         log << "  runtime pending launch count: " << std::setw(10) << value << '\n';
       }
-      log << '\n';
     }
   }
 
@@ -325,7 +356,7 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
   cms::cuda::getStreamCache().clear();
 
   if (verbose_) {
-    log << "CUDAService fully initialized";
+    log << '\n' << "CUDAService fully initialized";
   }
   enabled_ = true;
 
