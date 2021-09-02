@@ -246,7 +246,7 @@ MuonToTrackingParticleAssociatorEDProducer::~MuonToTrackingParticleAssociatorEDP
 void MuonToTrackingParticleAssociatorEDProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
 
-  hitExtractor_.init(iEvent, iSetup);
+  hitExtractor_.init(iEvent);
 
   // Retrieve tracker topology from geometry
   const TrackerTopology *tTopo = &iSetup.getData(tTopoToken_);
@@ -266,9 +266,9 @@ void MuonToTrackingParticleAssociatorEDProducer::produce(edm::Event &iEvent, con
   printRtS = false;
   dttruth_ = std::make_unique<DTHitAssociator>(iEvent, iSetup, config_, printRtS);
   // RPC hit association
-  rpctruth_ = std::make_unique<RPCHitAssociator>(iEvent, iSetup, config_);
+  rpctruth_ = std::make_unique<RPCHitAssociator>(iEvent, config_);
   // GEM hit association
-  gemtruth_ = std::make_unique<GEMHitAssociator>(iEvent, iSetup, config_);
+  gemtruth_ = std::make_unique<GEMHitAssociator>(iEvent, config_);
 
   MuonAssociatorByHitsHelper::Resources resources = {
       tTopo, trackertruth_.get(), csctruth_.get(), dttruth_.get(), rpctruth_.get(), gemtruth_.get(), {}};

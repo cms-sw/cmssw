@@ -19,18 +19,16 @@ RPCHitAssociator::RPCHitAssociator(const edm::ParameterSet &conf, edm::ConsumesC
   RPCdigisimlinkToken_ = iC.consumes<edm::DetSetVector<RPCDigiSimLink>>(RPCdigisimlinkTag);
 }
 
-RPCHitAssociator::RPCHitAssociator(const edm::Event &e,
-                                   const edm::EventSetup &eventSetup,
-                                   const edm::ParameterSet &conf)
+RPCHitAssociator::RPCHitAssociator(const edm::Event &e, const edm::ParameterSet &conf)
     : RPCdigisimlinkTag(conf.getParameter<edm::InputTag>("RPCdigisimlinkTag")),
       // CrossingFrame used or not ?
       crossingframe(conf.getParameter<bool>("crossingframe")),
       RPCsimhitsTag(conf.getParameter<edm::InputTag>("RPCsimhitsTag")),
       RPCsimhitsXFTag(conf.getParameter<edm::InputTag>("RPCsimhitsXFTag")) {
-  initEvent(e, eventSetup);
+  initEvent(e);
 }
 
-void RPCHitAssociator::initEvent(const edm::Event &e, const edm::EventSetup &eventSetup)
+void RPCHitAssociator::initEvent(const edm::Event &e)
 
 {
   if (crossingframe) {
