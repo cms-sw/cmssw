@@ -1,9 +1,47 @@
+// system include files
+#include <memory>
 
-#include "Calibration/HcalIsolatedTrackReco/interface/ECALRegFEDSelector.h"
-#include "EventFilter/EcalRawToDigi/interface/EcalRegionCabling.h"
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
+#include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
+
+#include "EventFilter/EcalRawToDigi/interface/EcalRegionCabling.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+
+class ECALRegFEDSelector : public edm::EDProducer {
+public:
+  ECALRegFEDSelector(const edm::ParameterSet&);
+  ~ECALRegFEDSelector() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void beginJob() override {}
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
+
+  std::unique_ptr<const EcalElectronicsMapping> ec_mapping;
+
+  double delta_;
+  bool fedSaved[1200];
+
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_seed_;
+};
 
 ECALRegFEDSelector::ECALRegFEDSelector(const edm::ParameterSet& iConfig) {
   tok_seed_ = consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<edm::InputTag>("regSeedLabel"));
@@ -95,6 +133,15 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   iEvent.put(std::move(fedList));
 }
 
-void ECALRegFEDSelector::beginJob() {}
+void ECALRegFEDSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("regSeedLabel", edm::InputTag("hltPixelIsolTrackFilter"));
+  desc.add<edm::InputTag>("rawInputLabel", edm::InputTag("rawDataCollector"));
+  desc.add<double>("delta", 1.0);
+  descriptions.add("ecalFED", desc);
+}
 
-void ECALRegFEDSelector::endJob() {}
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(ECALRegFEDSelector);

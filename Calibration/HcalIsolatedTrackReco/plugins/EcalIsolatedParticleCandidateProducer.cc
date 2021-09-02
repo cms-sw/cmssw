@@ -22,16 +22,56 @@
 
 // user include files
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
-#include "Calibration/HcalIsolatedTrackReco/interface/EcalIsolatedParticleCandidateProducer.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 //#define EDM_ML_DEBUG
+
+//
+// class decleration
+//
+
+class EcalIsolatedParticleCandidateProducer : public edm::global::EDProducer<> {
+public:
+  explicit EcalIsolatedParticleCandidateProducer(const edm::ParameterSet&);
+  ~EcalIsolatedParticleCandidateProducer() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void beginJob() override {}
+  void endJob() override {}
+
+  double InConeSize_;
+  double OutConeSize_;
+  double hitCountEthr_;
+  double hitEthr_;
+
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_l1tau_;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_hlt_;
+  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
+  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+
+  // ----------member data ---------------------------
+};
 
 EcalIsolatedParticleCandidateProducer::EcalIsolatedParticleCandidateProducer(const edm::ParameterSet& conf) {
   InConeSize_ = conf.getParameter<double>("EcalInnerConeSize");
@@ -199,8 +239,21 @@ void EcalIsolatedParticleCandidateProducer::produce(edm::StreamID,
 #endif
   iEvent.put(std::move(iptcCollection));
 }
-// ------------ method called once each job just before starting event loop  ------------
-void EcalIsolatedParticleCandidateProducer::beginJob() {}
 
-// ------------ method called once each job just after ending the event loop  ------------
-void EcalIsolatedParticleCandidateProducer::endJob() {}
+void EcalIsolatedParticleCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<double>("ECHitEnergyThreshold", 0.05);
+  desc.add<edm::InputTag>("L1eTauJetsSource", edm::InputTag("l1extraParticles","Tau"));
+  desc.add<edm::InputTag>("L1GTSeedLabel", edm::InputTag("l1sIsolTrack"));
+  desc.add<edm::InputTag>("EBrecHitCollectionLabel", edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  desc.add<edm::InputTag>("EErecHitCollectionLabel", edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  desc.add<double>("ECHitCountEnergyThreshold", 0.5);
+  desc.add<double>("EcalInnerConeSize", 0.3);
+  desc.add<double>("EcalOuterConeSize", 0.7);
+  descriptions.add("ecalIsolPartProd", desc);
+}
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(EcalIsolatedParticleCandidateProducer);
