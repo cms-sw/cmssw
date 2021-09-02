@@ -36,14 +36,12 @@ SeedToTrackProducer::SeedToTrackProducer(const edm::ParameterSet &iConfig)
   produces<TrackingRecHitCollection>();
 }
 
-SeedToTrackProducer::~SeedToTrackProducer() {}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void SeedToTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void SeedToTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   using namespace edm;
   using namespace std;
 
@@ -59,8 +57,8 @@ void SeedToTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
   edm::Ref<reco::TrackExtraCollection>::key_type idx = 0;
 
   // magnetic fied and detector geometry
-  theMGField = iSetup.getHandle(theMGFieldToken);
-  theTrackingGeometry = iSetup.getHandle(theTrackingGeometryToken);
+  auto const &mgField = iSetup.getData(theMGFieldToken);
+  auto const &trackingGeometry = iSetup.getData(theTrackingGeometryToken);
 
   const TrackerTopology &ttopo = iSetup.getData(theTopoToken);
 
@@ -79,7 +77,7 @@ void SeedToTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
   // now  loop on the seeds :
   for (unsigned int i = 0; i < L2seeds->size(); i++) {
     // get the kinematic extrapolation from the seed
-    TrajectoryStateOnSurface theTrajectory = seedTransientState(L2seeds->at(i));
+    TrajectoryStateOnSurface theTrajectory = seedTransientState(L2seeds->at(i), mgField, trackingGeometry);
     float seedEta = theTrajectory.globalMomentum().eta();
     float seedPhi = theTrajectory.globalMomentum().phi();
     float seedPt = theTrajectory.globalMomentum().perp();
@@ -147,22 +145,16 @@ void SeedToTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
   iEvent.put(std::move(selectedTrackHits));
 }
 
-TrajectoryStateOnSurface SeedToTrackProducer::seedTransientState(const TrajectorySeed &tmpSeed) {
+TrajectoryStateOnSurface SeedToTrackProducer::seedTransientState(const TrajectorySeed &tmpSeed,
+                                                                 const MagneticField &mgField,
+                                                                 const GlobalTrackingGeometry &trackingGeometry) const {
   PTrajectoryStateOnDet tmpTSOD = tmpSeed.startingState();
   DetId tmpDetId(tmpTSOD.detId());
-  const GeomDet *tmpGeomDet = theTrackingGeometry->idToDet(tmpDetId);
+  const GeomDet *tmpGeomDet = trackingGeometry.idToDet(tmpDetId);
   TrajectoryStateOnSurface tmpTSOS =
-      trajectoryStateTransform::transientState(tmpTSOD, &(tmpGeomDet->surface()), &(*theMGField));
+      trajectoryStateTransform::transientState(tmpTSOD, &(tmpGeomDet->surface()), &mgField);
   return tmpTSOS;
 }
-
-// ------------ method called once each job just before starting event loop
-// ------------
-void SeedToTrackProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop
-// ------------
-void SeedToTrackProducer::endJob() {}
 
 // define this as a plug-in
 DEFINE_FWK_MODULE(SeedToTrackProducer);
