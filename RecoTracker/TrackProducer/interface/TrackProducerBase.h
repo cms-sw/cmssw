@@ -45,7 +45,7 @@ public:
 
 public:
   /// Constructor
-  TrackProducerBase(bool trajectoryInEvent = false) : trajectoryInEvent_(trajectoryInEvent), rekeyClusterRefs_(false) {}
+  TrackProducerBase(bool trajectoryInEvent = false) : trajectoryInEvent_(trajectoryInEvent) {}
 
   /// Destructor
   virtual ~TrackProducerBase() noexcept(false);
@@ -85,12 +85,6 @@ public:
     alias_ = alias;
   }
 
-  /// Sets the information on cluster removal, and turns it on
-  void setClusterRemovalInfo(const edm::InputTag& clusterRemovalInfo) {
-    rekeyClusterRefs_ = true;
-    clusterRemovalInfo_ = clusterRemovalInfo;
-  }
-
   void setSecondHitPattern(Trajectory* traj,
                            T& track,
                            const Propagator* prop,
@@ -109,9 +103,6 @@ protected:
   edm::OrphanHandle<TrackCollection> rTracks_;
   edm::EDGetTokenT<reco::BeamSpot> bsSrc_;
   edm::EDGetTokenT<MeasurementTrackerEvent> mteSrc_;
-
-  bool rekeyClusterRefs_;
-  edm::InputTag clusterRemovalInfo_;
 
   edm::ESHandle<NavigationSchool> theSchool;
 };
