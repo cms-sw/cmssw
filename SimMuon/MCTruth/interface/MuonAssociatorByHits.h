@@ -18,6 +18,7 @@
 #include "SimMuon/MCTruth/interface/GEMHitAssociator.h"
 #include "SimMuon/MCTruth/interface/RPCHitAssociator.h"
 #include "SimMuon/MCTruth/interface/CSCHitAssociator.h"
+#include "SimMuon/MCTruth/interface/DTHitAssociator.h"
 
 #include <memory>
 
@@ -77,11 +78,11 @@ public:
 
 private:
   MuonAssociatorByHitsHelper helper_;
-  edm::ParameterSet const conf_;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   GEMHitAssociator::Config gemHitAssociatorConfig_;
   RPCHitAssociator::Config rpcHitAssociatorConfig_;
   CSCHitAssociator::Config cscHitAssociatorConfig_;
+  DTHitAssociator::Config dtHitAssociatorConfig_;
 
   std::unique_ptr<muonAssociatorByHitsDiagnostics::InputDumper> diagnostics_;
 };
