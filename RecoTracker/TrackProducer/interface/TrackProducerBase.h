@@ -18,6 +18,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -34,6 +35,12 @@ class TrackerGeometry;
 class TrajectoryFitter;
 class TransientTrackingRecHitBuilder;
 class NavigationSchool;
+class TrackerDigiGeometryRecord;
+class IdealMagneticFieldRecord;
+class TransientRecHitRecord;
+class TrackingComponentsRecord;
+class NavigationSchoolRecord;
+class CkfComponentsRecord;
 
 template <class T>
 class TrackProducerBase : public AlgoProductTraits<T> {
@@ -95,7 +102,16 @@ protected:
   edm::EDGetTokenT<reco::BeamSpot> bsSrc_;
   edm::EDGetTokenT<MeasurementTrackerEvent> mteSrc_;
 
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackGeomSrc_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfSrc_;
+  edm::ESGetToken<TrajectoryFitter, TrajectoryFitter::Record> fitterSrc_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorSrc_;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> builderSrc_;
+  edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> measTkSrc_;
+  edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> schoolSrc_;
+
   edm::ESHandle<NavigationSchool> theSchool;
+  bool useSchool_ = false;
 };
 
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.icc"
