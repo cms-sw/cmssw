@@ -36,9 +36,9 @@ public:
 
   // Constructor with configurable parameters
   RPCHitAssociator(const edm::ParameterSet &, edm::ConsumesCollector &&ic);
-  RPCHitAssociator(const edm::Event &e, const edm::EventSetup &eventSetup, const edm::ParameterSet &conf);
+  RPCHitAssociator(const edm::Event &e, const edm::ParameterSet &conf);
 
-  void initEvent(const edm::Event &, const edm::EventSetup &);
+  void initEvent(const edm::Event &);
 
   // Destructor
   ~RPCHitAssociator() {}

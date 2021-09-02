@@ -175,9 +175,9 @@ RecoToSimCollection MuonAssociatorByHits::associateRecoToSim(
   bool printRtS(true);
   DTHitAssociator dttruth(*e, *setup, conf_, printRtS);
   // RPC hit association
-  RPCHitAssociator rpctruth(*e, *setup, conf_);
+  RPCHitAssociator rpctruth(*e, conf_);
   // GEM hit association
-  GEMHitAssociator gemtruth(*e, *setup, conf_);
+  GEMHitAssociator gemtruth(*e, conf_);
 
   MuonAssociatorByHitsHelper::Resources resources = {
       tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};
@@ -223,9 +223,9 @@ SimToRecoCollection MuonAssociatorByHits::associateSimToReco(
   bool printRtS = false;
   DTHitAssociator dttruth(*e, *setup, conf_, printRtS);
   // RPC hit association
-  RPCHitAssociator rpctruth(*e, *setup, conf_);
+  RPCHitAssociator rpctruth(*e, conf_);
   // GEM hit association
-  GEMHitAssociator gemtruth(*e, *setup, conf_);
+  GEMHitAssociator gemtruth(*e, conf_);
 
   MuonAssociatorByHitsHelper::Resources resources = {
       tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};
