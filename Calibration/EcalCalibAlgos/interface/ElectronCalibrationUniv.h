@@ -26,7 +26,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Geometry
@@ -121,7 +120,7 @@ private:
   const edm::EDGetTokenT<EERecHitCollection> eeRecHitToken_;
   const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronToken_;
   const edm::ESGetToken<CaloTopology, CaloTopologyRecord> topologyToken_;
-  edm::ESHandle<CaloTopology> theCaloTopology_;
+  const CaloTopology* theCaloTopology_;
 
   std::vector<float> solution;
   std::vector<float> solutionNoCuts;
