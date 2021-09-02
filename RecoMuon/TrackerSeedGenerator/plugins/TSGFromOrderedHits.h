@@ -2,9 +2,8 @@
 #define RecoMuon_TrackerSeedGenerator_TSGFromOrderedHits_H
 
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "DataFormats/Provenance/interface/RunID.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class SeedGeneratorFromRegionHits;
 class TrackingRegion;

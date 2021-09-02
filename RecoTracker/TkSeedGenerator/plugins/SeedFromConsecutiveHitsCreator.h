@@ -5,34 +5,27 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
 
-namespace edm {
-  class ParameterSetDescription;
-}
 class FreeTrajectoryState;
 
 class dso_hidden SeedFromConsecutiveHitsCreator : public SeedCreator {
 public:
-  SeedFromConsecutiveHitsCreator(const edm::ParameterSet &cfg)
-      : thePropagatorLabel(cfg.getParameter<std::string>("propagator")),
-        theBOFFMomentum(cfg.getParameter<double>("SeedMomentumForBOFF")),
-        theOriginTransverseErrorMultiplier(cfg.getParameter<double>("OriginTransverseErrorMultiplier")),
-        theMinOneOverPtError(cfg.getParameter<double>("MinOneOverPtError")),
-        TTRHBuilder(cfg.getParameter<std::string>("TTRHBuilder")),
-        mfName_(cfg.getParameter<std::string>("magneticField")),
-        forceKinematicWithRegionDirection_(cfg.getParameter<bool>("forceKinematicWithRegionDirection")) {}
+  SeedFromConsecutiveHitsCreator(const edm::ParameterSet &, edm::ConsumesCollector &&);
 
-  //dtor
   ~SeedFromConsecutiveHitsCreator() override;
 
   static void fillDescriptions(edm::ParameterSetDescription &desc);
@@ -67,9 +60,9 @@ protected:
 
   const TrackingRegion *region = nullptr;
   const SeedComparitor *filter = nullptr;
-  edm::ESHandle<TrackerGeometry> tracker;
-  edm::ESHandle<Propagator> propagatorHandle;
-  edm::ESHandle<MagneticField> bfield;
+  TrackerGeometry const *trackerGeometry_;
+  Propagator const *propagator_;
+  MagneticField const *magneticField_;
   float nomField;
   bool isBOFF = false;
   std::string TTRHBuilder;
@@ -77,5 +70,10 @@ protected:
   bool forceKinematicWithRegionDirection_;
 
   TkClonerImpl cloner;
+
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryESToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorESToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldESToken_;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> transientTrackingRecHitBuilderESToken_;
 };
 #endif

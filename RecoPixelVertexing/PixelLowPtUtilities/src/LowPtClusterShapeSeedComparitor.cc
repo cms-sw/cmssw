@@ -3,21 +3,17 @@
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/HitInfo.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/LowPtClusterShapeSeedComparitor.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/CircleFromThreePoints.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 
 namespace {
@@ -84,13 +80,14 @@ LowPtClusterShapeSeedComparitor::LowPtClusterShapeSeedComparitor(const edm::Para
                                                                  edm::ConsumesCollector& iC)
     : thePixelClusterShapeCacheToken(
           iC.consumes<SiPixelClusterShapeCache>(ps.getParameter<edm::InputTag>("clusterShapeCacheSrc"))),
-      theShapeFilterLabel_(ps.getParameter<std::string>("clusterShapeHitFilter")) {}
+      theShapeFilterLabel_(ps.getParameter<std::string>("clusterShapeHitFilter")),
+      clusterShapeHitFilterESToken_(iC.esConsumes(edm::ESInputTag("", theShapeFilterLabel_))),
+      trackerTopologyESToken_(iC.esConsumes()) {}
 
 /*****************************************************************************/
 void LowPtClusterShapeSeedComparitor::init(const edm::Event& e, const edm::EventSetup& es) {
-  es.get<CkfComponentsRecord>().get(theShapeFilterLabel_, theShapeFilter);
-  es.get<TrackerTopologyRcd>().get(theTTopo);
-
+  clusterShapeHitFilter_ = &es.getData(clusterShapeHitFilterESToken_);
+  trackerTopology_ = &es.getData(trackerTopologyESToken_);
   e.getByToken(thePixelClusterShapeCacheToken, thePixelClusterShapeCache);
 }
 
@@ -99,8 +96,7 @@ bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet& hits) cons
 {
   assert(hits.size() == 3);
 
-  const ClusterShapeHitFilter* filter = theShapeFilter.product();
-  if (filter == nullptr)
+  if (clusterShapeHitFilter_ == nullptr)
     throw cms::Exception("LogicError") << "LowPtClusterShapeSeedComparitor: init(EventSetup) method was not called";
 
   // Get global positions
@@ -138,9 +134,9 @@ bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet& hits) cons
     LogDebug("LowPtClusterShapeSeedComparitor") << "about to compute compatibility."
                                                 << "hit ptr: " << pixelRecHit << "global direction:" << globalDirs[i];
 
-    if (!filter->isCompatible(*pixelRecHit, globalDirs[i], *thePixelClusterShapeCache)) {
+    if (!clusterShapeHitFilter_->isCompatible(*pixelRecHit, globalDirs[i], *thePixelClusterShapeCache)) {
       LogTrace("LowPtClusterShapeSeedComparitor")
-          << " clusShape is not compatible" << HitInfo::getInfo(*hits[i]->hit(), theTTopo.product());
+          << " clusShape is not compatible" << HitInfo::getInfo(*hits[i]->hit(), trackerTopology_);
 
       ok = false;
       break;

@@ -12,7 +12,7 @@ CombinedMultiHitGenerator::CombinedMultiHitGenerator(const edm::ParameterSet& cf
     : theSeedingLayerToken(iC.consumes<SeedingLayerSetsHits>(cfg.getParameter<edm::InputTag>("SeedingLayers"))) {
   edm::ParameterSet generatorPSet = cfg.getParameter<edm::ParameterSet>("GeneratorPSet");
   std::string generatorName = generatorPSet.getParameter<std::string>("ComponentName");
-  theGenerator = MultiHitGeneratorFromPairAndLayersFactory::get()->create(generatorName, generatorPSet);
+  theGenerator = MultiHitGeneratorFromPairAndLayersFactory::get()->create(generatorName, generatorPSet, iC);
   theGenerator->init(std::make_unique<HitPairGeneratorFromLayerPair>(0, 1, &theLayerCache), &theLayerCache);
 }
 

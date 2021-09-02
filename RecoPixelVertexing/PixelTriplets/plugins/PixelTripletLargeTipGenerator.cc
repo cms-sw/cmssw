@@ -1,15 +1,14 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/PixelTripletLargeTipGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPrediction.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "RecoPixelVertexing/PixelTriplets/plugins/ThirdHitCorrection.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 
@@ -51,7 +50,8 @@ PixelTripletLargeTipGenerator::PixelTripletLargeTipGenerator(const edm::Paramete
       extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")),
       useMScat(cfg.getParameter<bool>("useMultScattering")),
       useBend(cfg.getParameter<bool>("useBending")),
-      dphi(useFixedPreFiltering ? cfg.getParameter<double>("phiPreFiltering") : 0) {}
+      dphi(useFixedPreFiltering ? cfg.getParameter<double>("phiPreFiltering") : 0),
+      trackerTopologyESToken_(iC.esConsumes()) {}
 
 PixelTripletLargeTipGenerator::~PixelTripletLargeTipGenerator() {}
 
@@ -130,13 +130,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
                                                 const std::vector<const DetLayer*>& thirdLayerDetLayer,
                                                 const int nThirdLayers,
                                                 std::vector<int>* tripletLastLayerIndex) {
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
-
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology* tTopo = tTopoHand.product();
+  const TrackerTopology* tTopo = &es.getData(trackerTopologyESToken_);
 
   auto outSeq = doublets.detLayer(HitDoublets::outer)->seqNum();
 

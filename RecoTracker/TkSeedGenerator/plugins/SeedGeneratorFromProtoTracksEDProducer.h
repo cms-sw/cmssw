@@ -3,9 +3,11 @@
 #include "FWCore/Utilities/interface/Visibility.h"
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "SeedFromConsecutiveHitsCreator.h"
+
+#include <string>
 
 namespace edm {
   class Event;
@@ -20,7 +22,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  const edm::ParameterSet theConfig;
   const double originHalfLength;
   const double originRadius;
   const bool useProtoTrackKinematics;
@@ -30,5 +31,6 @@ private:
   const bool includeFourthHit_;
   const edm::EDGetTokenT<reco::TrackCollection> theInputCollectionTag;
   const edm::EDGetTokenT<reco::VertexCollection> theInputVertexCollectionTag;
+  SeedFromConsecutiveHitsCreator seedCreator_;
 };
 #endif

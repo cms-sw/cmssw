@@ -14,7 +14,7 @@ bool SeedFromConsecutiveHitsStraightLineCreator::initialKinematic(GlobalTrajecto
   double rescale = 1000. / initMomentum.perp();
   initMomentum *= rescale;  // set to approximately infinite momentum
   TrackCharge q = 1;        // irrelevant, since infinite momentum
-  kine = GlobalTrajectoryParameters(vertexPos, initMomentum, q, &*bfield);
+  kine = GlobalTrajectoryParameters(vertexPos, initMomentum, q, magneticField_);
 
   return true;
 }
