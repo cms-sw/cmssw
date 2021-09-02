@@ -236,7 +236,7 @@ void ElectronCalibrationUniv::beginRun(edm::Run const&, edm::EventSetup const& i
   //========================================================================
 
   //To Deal with Geometry:
-  theCaloTopology_ = iSetup.getHandle(topologyToken_);
+  theCaloTopology_ = &iSetup.getData(topologyToken_);
 }
 
 //========================================================================

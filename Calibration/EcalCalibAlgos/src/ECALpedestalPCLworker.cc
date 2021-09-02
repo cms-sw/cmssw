@@ -101,7 +101,7 @@ void ECALpedestalPCLworker::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
   ibooker.cd();
   ibooker.setCurrentFolder(dqmDir_);
 
-  const auto peds = es.getHandle(pedestalToken_);
+  const auto peds = es.getData(pedestalToken_);
 
   for (uint32_t i = 0; i < EBDetId::kSizeForDenseIndexing; ++i) {
     ibooker.setCurrentFolder(dqmDir_ + "/EB/" + std::to_string(int(i / 100)));
@@ -111,7 +111,7 @@ void ECALpedestalPCLworker::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
     int centralBin = fixedBookingCenterBin_;
 
     if (dynamicBooking_) {
-      centralBin = int((peds->find(id))->mean_x12);
+      centralBin = int((peds.find(id))->mean_x12);
     }
 
     int min = centralBin - nBins_ / 2;
@@ -129,7 +129,7 @@ void ECALpedestalPCLworker::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
     int centralBin = fixedBookingCenterBin_;
 
     if (dynamicBooking_) {
-      centralBin = int((peds->find(id))->mean_x12);
+      centralBin = int((peds.find(id))->mean_x12);
     }
 
     int min = centralBin - nBins_ / 2;

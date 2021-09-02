@@ -296,31 +296,30 @@ void SelectedElectronFEDListProducer<TEle, TCand>::beginJob() {
 template <typename TEle, typename TCand>
 void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get the hcal electronics map
-  const auto pSetup = iSetup.getHandle(hcalDbToken_);
-  HcalReadoutMap_ = pSetup->getHcalMapping();
+  const auto& pSetup = iSetup.getData(hcalDbToken_);
+  HcalReadoutMap_ = pSetup.getHcalMapping();
 
   // get the ecal electronics map
-  const auto ecalmapping = iSetup.getHandle(ecalMappingToken_);
-  EcalMapping_ = ecalmapping.product();
+  EcalMapping_ = &iSetup.getData(ecalMappingToken_);
 
   // get the calo geometry
-  const auto caloGeometry = iSetup.getHandle(caloGeometryToken_);
-  GeometryCalo_ = caloGeometry.product();
+  const auto& caloGeometry = iSetup.getData(caloGeometryToken_);
+  GeometryCalo_ = &caloGeometry;
 
   //ES geometry
-  GeometryES_ = caloGeometry->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  GeometryES_ = caloGeometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
   // pixel tracker cabling map
   const auto pixelCablingMap = iSetup.getTransientHandle(siPixelFedCablingMapToken_);
   PixelCabling_.reset();
   PixelCabling_ = pixelCablingMap->cablingTree();
 
-  const auto trackerGeometry = iSetup.getHandle(trackerGeometryToken_);
+  const auto& trackerGeometry = iSetup.getData(trackerGeometryToken_);
 
   if (pixelModuleVector_.empty()) {
     // build the tracker pixel module map
-    std::vector<const GeomDet*>::const_iterator itTracker = trackerGeometry->dets().begin();
-    for (; itTracker != trackerGeometry->dets().end(); ++itTracker) {
+    std::vector<const GeomDet*>::const_iterator itTracker = trackerGeometry.dets().begin();
+    for (; itTracker != trackerGeometry.dets().end(); ++itTracker) {
       int subdet = (*itTracker)->geographicalId().subdetId();
       if (!(subdet == PixelSubdetector::PixelBarrel || subdet == PixelSubdetector::PixelEndcap))
         continue;
@@ -339,8 +338,7 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
     std::sort(pixelModuleVector_.begin(), pixelModuleVector_.end());
   }
 
-  const auto SiStripCablingHandle = iSetup.getHandle(siStripRegionCablingToken_);
-  StripRegionCabling_ = SiStripCablingHandle.product();
+  StripRegionCabling_ = &iSetup.getData(siStripRegionCablingToken_);
 
   SiStripRegionCabling::Cabling SiStripCabling;
   SiStripCabling = StripRegionCabling_->getRegionCabling();

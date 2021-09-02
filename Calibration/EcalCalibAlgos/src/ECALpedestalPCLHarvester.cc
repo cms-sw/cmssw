@@ -155,14 +155,9 @@ void ECALpedestalPCLHarvester::fillDescriptions(edm::ConfigurationDescriptions& 
 }
 
 void ECALpedestalPCLHarvester::endRun(edm::Run const& run, edm::EventSetup const& isetup) {
-  const auto chStatus = isetup.getHandle(channelsStatusToken_);
-  channelStatus_ = chStatus.product();
-
-  const auto peds = isetup.getHandle(pedestalsToken_);
-  currentPedestals_ = peds.product();
-
-  const auto g6g1peds = isetup.getHandle(g6g1PedestalsToken_);
-  g6g1Pedestals_ = g6g1peds.product();
+  channelStatus_ = &isetup.getData(channelsStatusToken_);
+  currentPedestals_ = &isetup.getData(pedestalsToken_);
+  g6g1Pedestals_ = &isetup.getData(g6g1PedestalsToken_);
 }
 
 bool ECALpedestalPCLHarvester::checkStatusCode(const DetId& id) {
