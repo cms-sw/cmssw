@@ -34,10 +34,7 @@ public:
   friend std::ostream& operator<<(std::ostream& out, const GoldenPatternWithStat& aPattern);
 
   friend class PatternOptimizerBase;
-  friend class PatternOptimizer;
   friend class PatternGenerator;
-
-  void initGpProbabilityStat();
 
   void iniStatisitics(unsigned int pdfBinsCnt, unsigned int statBins) {
     statistics.resize(boost::extents[pdfAllRef.size()][pdfAllRef[0].size()][pdfBinsCnt][statBins]);
@@ -51,11 +48,6 @@ public:
 
 private:
   StatArrayType statistics;
-
-  ///the vector index is the muon pt_code
-  ///the histogram bin is the value of the pdfSum (or product) for the muons of given pt_code
-  std::vector<TH1I*> gpProbabilityStat;  //TODO maybe better is to have just TH2I
-  //TH1I gpProbabilityStat;
 };
 //////////////////////////////////
 //////////////////////////////////

@@ -124,9 +124,6 @@ void CscDigiToStubsConverterOmtf::addCSCstubs(MuonStubPtrs2D& muonStubsInLayers,
 }
 
 bool CscDigiToStubsConverterOmtf::acceptDigi(const CSCDetId& csc, unsigned int iProcessor, l1t::tftype procType) {
-  unsigned int aMin = config->getBarrelMin()[iProcessor];
-  unsigned int aMax = config->getBarrelMax()[iProcessor];
-
   if (procType == l1t::tftype::omtf_pos && (csc.endcap() == 2 || csc.ring() == 1 || csc.station() == 4))
     return false;
   if (procType == l1t::tftype::omtf_neg && (csc.endcap() == 1 || csc.ring() == 1 || csc.station() == 4))
@@ -138,8 +135,8 @@ bool CscDigiToStubsConverterOmtf::acceptDigi(const CSCDetId& csc, unsigned int i
     return false;
 
   unsigned int aSector = csc.chamber();
-  aMin = config->getEndcap10DegMin()[iProcessor];
-  aMax = config->getEndcap10DegMax()[iProcessor];
+  unsigned int aMin = config->getEndcap10DegMin()[iProcessor];
+  unsigned int aMax = config->getEndcap10DegMax()[iProcessor];
 
   if ((procType == l1t::tftype::emtf_pos || procType == l1t::tftype::emtf_neg) && csc.station() > 1 &&
       csc.ring() == 1) {

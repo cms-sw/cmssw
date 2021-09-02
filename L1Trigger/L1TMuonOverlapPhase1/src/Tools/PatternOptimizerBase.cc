@@ -239,13 +239,6 @@ void PatternOptimizerBase::savePatternsInRoot(std::string rootFileName) {
     }
   }
 
-  outfile.mkdir("patternsPdfSumStat")->cd();
-  for (auto& gp : goldenPatterns) {
-    for (unsigned int iRefLayer = 0; iRefLayer < gp->gpProbabilityStat.size(); ++iRefLayer) {
-      gp->gpProbabilityStat[iRefLayer]->Write();
-    }
-  }
-
   outfile.cd();
   for (auto& classProbHist : classProbHists) {
     classProbHist->Write();

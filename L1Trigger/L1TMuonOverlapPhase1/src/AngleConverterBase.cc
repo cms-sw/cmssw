@@ -243,17 +243,11 @@ int AngleConverterBase::getProcessorPhi(unsigned int iProcessor,
 ///////////////////////////////////////
 ///////////////////////////////////////
 EtaValue AngleConverterBase::getGlobalEtaDt(const DTChamberId& detId) const {
-  // do not use this pointer for anything other than creating a trig geom
-  std::unique_ptr<DTChamber> chamb(const_cast<DTChamber*>(_geodt->chamber(detId)));
-
   Local2DPoint chamberMiddleLP(0, 0);
-  GlobalPoint chamberMiddleGP = chamb->toGlobal(chamberMiddleLP);
-  chamb.release();
+  GlobalPoint chamberMiddleGP = _geodt->chamber(detId)->toGlobal(chamberMiddleLP);
 
   const DTChamberId baseidNeigh(detId.wheel() + (detId.wheel() >= 0 ? -1 : +1), detId.station(), detId.sector());
-  std::unique_ptr<DTChamber> chambNeigh(const_cast<DTChamber*>(_geodt->chamber(baseidNeigh)));
-  GlobalPoint chambNeighMiddleGP = chambNeigh->toGlobal(chamberMiddleLP);
-  chambNeigh.release();
+  GlobalPoint chambNeighMiddleGP = _geodt->chamber(baseidNeigh)->toGlobal(chamberMiddleLP);
 
   EtaValue etaValue = {
       config->etaToHwEta(chamberMiddleGP.eta()),
@@ -271,23 +265,20 @@ EtaValue AngleConverterBase::getGlobalEtaDt(const DTChamberId& detId) const {
 ///////////////////////////////////////
 void AngleConverterBase::getGlobalEta(const L1MuDTChambThDigi& thetaDigi, std::vector<EtaValue>& etaSegments) const {
   const DTChamberId baseid(thetaDigi.whNum(), thetaDigi.stNum(), thetaDigi.scNum() + 1);
-  // do not use this pointer for anything other than creating a trig geom
-  std::unique_ptr<DTChamber> chamb(const_cast<DTChamber*>(_geodt->chamber(baseid)));
+  DTTrigGeom trig_geom(_geodt->chamber(baseid), false);
 
-  std::unique_ptr<DTTrigGeom> trig_geom(new DTTrigGeom(chamb.get(), false));
-  chamb.release();  // release it here so no one gets funny ideas
   // super layer 2 is the theta superlayer in a DT chamber
   // station 4 does not have a theta super layer
   // the BTI index from the theta trigger is an OR of some BTI outputs
   // so, we choose the BTI that's in the middle of the group
   // as the BTI that we get theta from
   // TODO:::::>>> need to make sure this ordering doesn't flip under wheel sign
-  const int NBTI_theta = trig_geom->nCell(2);
+  const int NBTI_theta = trig_geom.nCell(2);
   for (unsigned int btiGroup = 0; btiGroup < 7; ++btiGroup) {
     if (thetaDigi.position(btiGroup)) {
       unsigned btiActual = btiGroup * NBTI_theta / 7 + NBTI_theta / 14 + 1;
       DTBtiId thetaBTI = DTBtiId(baseid, 2, btiActual);
-      GlobalPoint theta_gp = trig_geom->CMSPosition(thetaBTI);
+      GlobalPoint theta_gp = trig_geom.CMSPosition(thetaBTI);
 
       EtaValue etaValue = {
           config->etaToHwEta(theta_gp.eta()),
@@ -303,7 +294,9 @@ void AngleConverterBase::getGlobalEta(const L1MuDTChambThDigi& thetaDigi, std::v
   }
 }
 
-std::vector<EtaValue> AngleConverterBase::getGlobalEta(const L1MuDTChambThContainer* dtThDigis, int bxFrom, int bxTo) {
+std::vector<EtaValue> AngleConverterBase::getGlobalEta(const L1MuDTChambThContainer* dtThDigis,
+                                                       int bxFrom,
+                                                       int bxTo) const {
   //std::cout<<__FUNCTION__<<":"<<__LINE__<<" dtThDigis size "<<dtThDigis->getContainer()->size()<<std::endl;
 
   std::vector<EtaValue> etaSegments;

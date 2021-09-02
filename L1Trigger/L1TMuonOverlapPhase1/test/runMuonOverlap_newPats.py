@@ -103,7 +103,7 @@ process.source = cms.Source('PoolSource',
         'drop l1tEMTFTrack2016s_simEmtfDigis__HLT')
 )
 	                    
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
 
 ####Event Setup Producer

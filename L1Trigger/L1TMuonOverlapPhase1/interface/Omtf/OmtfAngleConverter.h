@@ -25,6 +25,9 @@ public:
 
   ///Convert local eta coordinate to global digital microGMT scale.
   virtual int getGlobalEtaRpc(unsigned int rawid, const unsigned int &aDigi) const;
+
+  //to avoid  Clang Warnings "hides overloaded virtual functions"
+  using AngleConverterBase::getGlobalEta;
 };
 
 #endif /* L1T_OmtfP1_OMTFANGLECONVERTER_H_ */
