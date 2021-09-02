@@ -34,7 +34,7 @@ tracks = cms.InputTag("refitTracks")
 
 process.hiteff = cms.EDProducer("SiStripHitEfficiencyWorker",
     lumiScalers=cms.InputTag("scalersRawToDigi"),
-    addLumi = cms.untracked.bool(False),
+    addLumi = cms.untracked.bool(True),
     commonMode=cms.InputTag("siStripDigis", "CommonMode"),
     addCommonMode=cms.untracked.bool(False),
     combinatorialTracks = tracks,
@@ -51,7 +51,10 @@ process.hiteff = cms.EDProducer("SiStripHitEfficiencyWorker",
     # use or not first and last measurement of a trajectory (biases), default is false
     useFirstMeas = cms.untracked.bool(False),
     useLastMeas = cms.untracked.bool(False),
-    useAllHitsFromTracksWithMissingHits = cms.untracked.bool(False)
+    useAllHitsFromTracksWithMissingHits = cms.untracked.bool(False),
+    ## non-default settings
+    ClusterMatchingMethod = cms.untracked.int32(4),   # default 0  case0,1,2,3,4
+    ClusterTrajDist       = cms.untracked.double(15), # default 64
     )
 
 process.load("DQM.SiStripCommon.TkHistoMap_cff")
