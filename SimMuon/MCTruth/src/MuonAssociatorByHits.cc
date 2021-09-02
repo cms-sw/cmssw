@@ -137,10 +137,9 @@ namespace muonAssociatorByHitsDiagnostics {
 }  // namespace muonAssociatorByHitsDiagnostics
 
 MuonAssociatorByHits::MuonAssociatorByHits(const edm::ParameterSet &conf, edm::ConsumesCollector &&iC)
-    : helper_(conf), conf_(conf), trackerHitAssociatorConfig_(conf, std::move(iC)) {
+    : helper_(conf), conf_(conf), trackerHitAssociatorConfig_(conf, std::move(iC)), gemHitAssociatorConfig_(conf, iC) {
   // hack for consumes
   RPCHitAssociator rpctruth(conf, std::move(iC));
-  GEMHitAssociator gemtruth(conf, std::move(iC));
   DTHitAssociator dttruth(conf, std::move(iC));
   CSCHitAssociator muonTruth(conf, std::move(iC));
   if (conf.getUntrackedParameter<bool>("dumpInputCollections")) {
@@ -177,7 +176,7 @@ RecoToSimCollection MuonAssociatorByHits::associateRecoToSim(
   // RPC hit association
   RPCHitAssociator rpctruth(*e, conf_);
   // GEM hit association
-  GEMHitAssociator gemtruth(*e, conf_);
+  GEMHitAssociator gemtruth(*e, gemHitAssociatorConfig_);
 
   MuonAssociatorByHitsHelper::Resources resources = {
       tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};
@@ -225,7 +224,7 @@ SimToRecoCollection MuonAssociatorByHits::associateSimToReco(
   // RPC hit association
   RPCHitAssociator rpctruth(*e, conf_);
   // GEM hit association
-  GEMHitAssociator gemtruth(*e, conf_);
+  GEMHitAssociator gemtruth(*e, gemHitAssociatorConfig_);
 
   MuonAssociatorByHitsHelper::Resources resources = {
       tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};

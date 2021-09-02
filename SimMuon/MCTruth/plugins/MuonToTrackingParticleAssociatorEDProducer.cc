@@ -187,10 +187,10 @@ private:
   MuonAssociatorByHitsHelper helper_;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   TrackerMuonHitExtractor hitExtractor_;
+  GEMHitAssociator::Config gemHitAssociatorConfig_;
 
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   std::unique_ptr<InputDumper> diagnostics_;
-
 };
 
 //
@@ -209,13 +209,13 @@ MuonToTrackingParticleAssociatorEDProducer::MuonToTrackingParticleAssociatorEDPr
       helper_(iConfig),
       trackerHitAssociatorConfig_(iConfig, consumesCollector()),
       hitExtractor_(iConfig, consumesCollector()),
+      gemHitAssociatorConfig_(iConfig, consumesCollector()),
       tTopoToken_(esConsumes()) {
   // register your products
   produces<reco::MuonToTrackingParticleAssociator>();
 
   // hack for consumes
   RPCHitAssociator rpctruth(iConfig, consumesCollector());
-  GEMHitAssociator gemtruth(iConfig, consumesCollector());
   DTHitAssociator dttruth(iConfig, consumesCollector());
   CSCHitAssociator cscruth(iConfig, consumesCollector());
 
@@ -263,7 +263,7 @@ void MuonToTrackingParticleAssociatorEDProducer::produce(edm::Event &iEvent, con
   // RPC hit association
   RPCHitAssociator rpctruth(iEvent, config_);
   // GEM hit association
-  GEMHitAssociator gemtruth(iEvent, config_);
+  GEMHitAssociator gemtruth(iEvent, gemHitAssociatorConfig_);
 
   MuonAssociatorByHitsHelper::Resources resources = {
       tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};

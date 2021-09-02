@@ -15,6 +15,7 @@
 
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHitsHelper.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+#include "SimMuon/MCTruth/interface/GEMHitAssociator.h"
 
 #include <memory>
 
@@ -76,6 +77,7 @@ private:
   MuonAssociatorByHitsHelper helper_;
   edm::ParameterSet const conf_;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  GEMHitAssociator::Config gemHitAssociatorConfig_;
 
   std::unique_ptr<muonAssociatorByHitsDiagnostics::InputDumper> diagnostics_;
 };
