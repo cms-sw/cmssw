@@ -70,13 +70,6 @@ TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::Parame
          consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent")));
   setAlias(iConfig.getParameter<std::string>("@module_label"));
 
-  if (iConfig.exists("clusterRemovalInfo")) {
-    edm::InputTag tag = iConfig.getParameter<edm::InputTag>("clusterRemovalInfo");
-    if (!(tag == edm::InputTag())) {
-      setClusterRemovalInfo(tag);
-    }
-  }
-
   myname_ = iConfig.getParameter<std::string>("ComponentName");
   conversionTrackCandidateProducer_ = iConfig.getParameter<std::string>("producer");
   trackCSuperClusterAssociationCollection_ = iConfig.getParameter<std::string>("trackCandidateSCAssociationCollection");
