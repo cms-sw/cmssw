@@ -6,4 +6,7 @@
 <use name="DataFormats/HcalDigi"/>
 <use name="DataFormats/L1GlobalTrigger"/>
 <use name="CalibFormats/CastorObjects"/>
-<flags EDM_PLUGIN="1"/>
+<library file="*.cc" name="SimCalorimetryCastorTechTrigProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
