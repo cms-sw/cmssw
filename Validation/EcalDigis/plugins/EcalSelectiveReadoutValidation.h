@@ -518,8 +518,8 @@ private:
   CollHandle<EESrFlagCollection> eeSrFlags_;
   CollHandle<EBSrFlagCollection> ebComputedSrFlags_;
   CollHandle<EESrFlagCollection> eeComputedSrFlags_;
-  CollHandle<std::vector<PCaloHit> > ebSimHits_;
-  CollHandle<std::vector<PCaloHit> > eeSimHits_;
+  CollHandle<std::vector<PCaloHit>> ebSimHits_;
+  CollHandle<std::vector<PCaloHit>> eeSimHits_;
   CollHandle<EcalTrigPrimDigiCollection> tps_;
   CollHandle<RecHitCollection> ebRecHits_;
   CollHandle<RecHitCollection> eeRecHits_;
@@ -788,14 +788,16 @@ private:
 
   /** Energy deposited in ECAL barrel crystals. Eta index starts from 0 at
    * eta minimum and phi index starts at phi=0+ in CMS std coordinate system.
-   */ 
-   std::vector<std::vector<energiesEb_t>> ebEnergies= std::vector<std::vector<energiesEb_t>>(nEbEta, std::vector<energiesEb_t>(nEbPhi));
+   */
+  std::vector<std::vector<energiesEb_t>> ebEnergies =
+      std::vector<std::vector<energiesEb_t>>(nEbEta, std::vector<energiesEb_t>(nEbPhi));
 
   /** Energy deposited in ECAL endcap crystals. Endcap index is 0 for EE- and
    * 1 for EE+. X and Y index starts at x and y minimum in std CMS coordinate
    * system.
-   */ 
-  std::vector<std::vector<std::vector<energiesEe_t>>> eeEnergies= std::vector<std::vector<std::vector<energiesEe_t>>> (nEndcaps, std::vector<std::vector<energiesEe_t>> (nEeX, std::vector<energiesEe_t>(nEeY)));
+   */
+  std::vector<std::vector<std::vector<energiesEe_t>>> eeEnergies = std::vector<std::vector<std::vector<energiesEe_t>>>(
+      nEndcaps, std::vector<std::vector<energiesEe_t>>(nEeX, std::vector<energiesEe_t>(nEeY)));
 
   /** Permits to skip inner SC
    */
