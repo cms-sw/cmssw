@@ -117,10 +117,10 @@ void PatternGenerator::updateStat() {
   eventCntPerGp[exptPatNum]++;
 
   //edm::LogImportant("l1tOmtfEventPrint")<<"\n" <<__FUNCTION__<<": "<<__LINE__<<" exptCandGp "<<exptCandGp->key()<<" candProcIndx "<<candProcIndx<<" ptSim "<<ptSim<<" chargeSim "<<chargeSim<<std::endl;
-
+  /*
   unsigned int iCharge = omtfCand->getCharge();
   if (iCharge != 1)
-    iCharge = 0;
+    iCharge = 0;*/
 
   int pdfMiddle = 1 << (omtfConfig->nPdfAddrBits() - 1);
 

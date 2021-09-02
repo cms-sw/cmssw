@@ -82,7 +82,7 @@ public:
 
   //adds the eta segments from the thetaDigi to etaSegments
   virtual void getGlobalEta(const L1MuDTChambThDigi& thetaDigi, std::vector<EtaValue>& etaSegments) const;
-  virtual std::vector<EtaValue> getGlobalEta(const L1MuDTChambThContainer* dtThDigis, int bxFrom, int bxTo);
+  virtual std::vector<EtaValue> getGlobalEta(const L1MuDTChambThContainer* dtThDigis, int bxFrom, int bxTo) const;
 
   ///Convert local eta coordinate to global digital microGMT scale.
   virtual EtaValue getGlobalEta(const CSCDetId& detId, const CSCCorrelatedLCTDigi& aDigi) const;

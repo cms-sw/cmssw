@@ -9,7 +9,6 @@
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/DataROOTDumper2.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/EventCapture.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/PatternGenerator.h"
-#include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/PatternOptimizer.h"
 
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
@@ -134,11 +133,15 @@ void OMTFReconstruction::beginRun(edm::Run const& run,
     //std::cout<<__FUNCTION__<<":"<<__LINE__<<std::endl;
     if (patternType == "GoldenPattern") {
       if (processorType == "OMTFProcessor") {
-        omtfProc = std::make_unique<OMTFProcessor<GoldenPattern> >(
-            omtfConfig.get(),
-            edmParameterSet,
-            eventSetup,
-            xmlReader.readPatterns<GoldenPattern>(*omtfParams, patternsXMLFiles, false));
+        if (omtfParams) {
+          omtfProc = std::make_unique<OMTFProcessor<GoldenPattern> >(
+              omtfConfig.get(),
+              edmParameterSet,
+              eventSetup,
+              xmlReader.readPatterns<GoldenPattern>(*omtfParams, patternsXMLFiles, false));
+        } else {  //in principle should not happen
+          throw cms::Exception("OMTFReconstruction::beginRun: omtfParams is nullptr");
+        }
       }
 
       edm::LogVerbatim("OMTFReconstruction") << "OMTFProcessor constructed. processorType " << processorType
@@ -147,18 +150,16 @@ void OMTFReconstruction::beginRun(edm::Run const& run,
       //pattern generation is only possible if the processor is constructed only once per job
       //PatternGenerator modifies the patterns!!!
       if (processorType == "OMTFProcessor") {
-        omtfProc = std::make_unique<OMTFProcessor<GoldenPatternWithStat> >(
-            omtfConfig.get(),
-            edmParameterSet,
-            eventSetup,
-            xmlReader.readPatterns<GoldenPatternWithStat>(*omtfParams, patternsXMLFiles, false));
-
-        auto omtfProcGoldenPat = dynamic_cast<OMTFProcessor<GoldenPatternWithStat>*>(omtfProc.get());
-
-        if (edmParameterSet.exists("optimizePatterns") && edmParameterSet.getParameter<bool>("optimizePatterns")) {
-          observers.emplace_back(
-              std::make_unique<PatternOptimizer>(edmParameterSet, omtfConfig.get(), omtfProcGoldenPat->getPatterns()));
+        if (omtfParams) {
+          omtfProc = std::make_unique<OMTFProcessor<GoldenPatternWithStat> >(
+              omtfConfig.get(),
+              edmParameterSet,
+              eventSetup,
+              xmlReader.readPatterns<GoldenPatternWithStat>(*omtfParams, patternsXMLFiles, false));
+        } else {  //in principle should not happen
+          throw cms::Exception("OMTFReconstruction::beginRun: omtfParams is nullptr");
         }
+        auto omtfProcGoldenPat = dynamic_cast<OMTFProcessor<GoldenPatternWithStat>*>(omtfProc.get());
 
         if (edmParameterSet.exists("generatePatterns") && edmParameterSet.getParameter<bool>("generatePatterns")) {
           observers.emplace_back(
