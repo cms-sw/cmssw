@@ -14,6 +14,7 @@
 */
 
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <string>
 #include <map>
@@ -26,9 +27,6 @@
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
 #include <DataFormats/EcalDigi/interface/EcalPseudoStripInputDigi.h>
 #include <DataFormats/EcalDigi/interface/EcalSrFlag.h>
-#include <iostream>
-#include <sstream>
-
 #include <DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h>
 
 class EcalElectronicsMapping;

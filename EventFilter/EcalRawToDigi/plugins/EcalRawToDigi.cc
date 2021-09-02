@@ -110,9 +110,6 @@ private:
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
 EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf)
     :
 
