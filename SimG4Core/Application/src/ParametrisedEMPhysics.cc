@@ -89,7 +89,8 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
       << "ParametrisedEMPhysics::ConstructProcess: bremsstrahlung threshold Eth= " << bremth / GeV << " GeV"
       << "\n                                         verbosity= " << verb << "  fluoFlag: " << fluo
       << "  modifyTransport: " << modifyT << "  Ntrials= " << nt
-      << "\n                                         ThWarning(MeV)= " << th1 << "  ThException(MeV)= " << th2;
+      << "\n                                         ThWarning(MeV)= " << th1 << "  ThException(MeV)= " << th2
+      << "\n                                         Activation of general process = " << genp;
 
   // Russian roulette and tracking cut for e+-
   double energyLim = theParSet.getParameter<double>("RusRoElectronEnergyLimit") * MeV;
