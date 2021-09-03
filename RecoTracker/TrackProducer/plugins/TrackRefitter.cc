@@ -16,7 +16,8 @@
 TrackRefitter::TrackRefitter(const edm::ParameterSet &iConfig)
     : KfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
                           iConfig.getParameter<bool>("useHitsSplitting")),
-      theAlgo(iConfig) {
+      theAlgo(iConfig),
+      ttopoToken_(esConsumes()) {
   initTrackProducerBase(
       iConfig, consumesCollector(), consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>("src")));
   setAlias(iConfig.getParameter<std::string>("@module_label"));
@@ -73,8 +74,7 @@ void TrackRefitter::produce(edm::Event &theEvent, const edm::EventSetup &setup) 
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup, theG, theMF, theFitter, thePropagator, theMeasTk, theBuilder);
 
-  edm::ESHandle<TrackerTopology> httopo;
-  setup.get<TrackerTopologyRcd>().get(httopo);
+  TrackerTopology const &ttopo = setup.getData(ttopoToken_);
 
   //
   //declare and get TrackCollection to be retrieved from the event
@@ -226,7 +226,7 @@ void TrackRefitter::produce(edm::Event &theEvent, const edm::EventSetup &setup) 
            outputIndecesInputColl,
            algoResults,
            theBuilder.product(),
-           httopo.product());
+           &ttopo);
   LogDebug("TrackRefitter") << "end"
                             << "\n";
 }
