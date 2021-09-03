@@ -82,11 +82,12 @@ PPSPixelTopologyESSource::PPSPixelTopologyESSource(const edm::ParameterSet& iCon
       dead_edge_width_(0.),
       active_edge_sigma_(0.),
       phys_active_edge_dist_(0.) {
+  setPPSPixelTopology(iConfig);
+
   // validate input
   if (runType_ != "Run2" && runType_ != "Run3")
     throw cms::Exception("PPS") << runType_ << " is not valid runType.";
 
-  setPPSPixelTopology(iConfig);
   setWhatProduced(this);
   findingRecord<PPSPixelTopologyRcd>();
 }
