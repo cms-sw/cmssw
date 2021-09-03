@@ -29,7 +29,7 @@ public:
 public:
   /** Default constructor.
    */
-  EcalMatacqDigi() : chId_(-1), ts_(0.), tTrigS_(999.), version_(-1) { init(); }
+  EcalMatacqDigi() : chId_(-1), freq(0), ts_(0.), tTrigS_(999.), version_(-1) { init(); }
 
   /** Constructor
    * @param samples adc time samples
@@ -43,7 +43,7 @@ public:
                  const double& ts,
                  const short& version = -1,
                  const double& tTrig = 999.)
-      : chId_(chId), data_(samples), ts_(ts), tTrigS_(tTrig), version_(version) {
+      : chId_(chId), data_(samples), freq(0), ts_(ts), tTrigS_(tTrig), version_(version) {
     init();
   };
 
@@ -270,6 +270,7 @@ public:
    * @param value new value
    */
   void laserPower(int value) { laserPower_ = value; }
+#endif
 
   void init() {
 #if (ECAL_MATACQ_DIGI_VERS >= 2)
@@ -285,10 +286,10 @@ public:
     emtcPhase_ = -1;
     attenuation_dB_ = -1;
     laserPower_ = -1;
+    tv_sec_ = 0;
+    tv_usec_ = 0;
 #endif
   }
-
-#endif
 
 private:
   /** Electronic channel id
