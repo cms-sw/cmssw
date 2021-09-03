@@ -29,20 +29,23 @@
 //
 MuonToTrackingParticleAssociatorByHitsImpl::MuonToTrackingParticleAssociatorByHitsImpl(
     TrackerMuonHitExtractor const &iHitExtractor,
-    std::unique_ptr<TrackerHitAssociator> iTracker,
-    std::unique_ptr<CSCHitAssociator> iCSC,
-    std::unique_ptr<DTHitAssociator> iDT,
-    std::unique_ptr<RPCHitAssociator> iRPC,
-    std::unique_ptr<GEMHitAssociator> iGEM,
-    MuonAssociatorByHitsHelper::Resources const &iResources,
+    TrackerHitAssociator::Config const &iTracker,
+    CSCHitAssociator::Config const &iCSC,
+    DTHitAssociator::Config const &iDT,
+    RPCHitAssociator::Config const &iRPC,
+    GEMHitAssociator::Config const &iGEM,
+    edm::Event const &iEvent,
+    edm::EventSetup const &iSetup,
+    const TrackerTopology *iTopo,
+    std::function<void(const TrackHitsCollection &, const TrackingParticleCollection &)> iDiagnostics,
     MuonAssociatorByHitsHelper const *iHelper)
     : m_hitExtractor(&iHitExtractor),
-      m_tracker(std::move(iTracker)),
-      m_csc(std::move(iCSC)),
-      m_dt(std::move(iDT)),
-      m_rpc(std::move(iRPC)),
-      m_gem(std::move(iGEM)),
-      m_resources(iResources),
+      m_tracker(iEvent, iTracker),
+      m_csc(iEvent, iSetup, iCSC),
+      m_dt(iEvent, iSetup, iDT, true),
+      m_rpc(iEvent, iRPC),
+      m_gem(iEvent, iGEM),
+      m_resources(iTopo, &m_tracker, &m_csc, &m_dt, &m_rpc, &m_gem, iDiagnostics),
       m_helper(iHelper) {}
 
 //

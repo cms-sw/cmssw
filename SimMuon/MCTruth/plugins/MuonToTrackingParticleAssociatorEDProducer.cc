@@ -247,37 +247,24 @@ void MuonToTrackingParticleAssociatorEDProducer::produce(edm::Event &iEvent, con
   // Retrieve tracker topology from geometry
   const TrackerTopology *tTopo = &iSetup.getData(tTopoToken_);
 
-  bool printRtS = true;
-
-  // Tracker hit association
-  auto trackertruth = std::make_unique<TrackerHitAssociator>(iEvent, trackerHitAssociatorConfig_);
-  // CSC hit association
-  auto csctruth = std::make_unique<CSCHitAssociator>(iEvent, iSetup, cscHitAssociatorConfig_);
-  // DT hit association
-  printRtS = false;
-  auto dttruth = std::make_unique<DTHitAssociator>(iEvent, iSetup, dtHitAssociatorConfig_, printRtS);
-  // RPC hit association
-  auto rpctruth = std::make_unique<RPCHitAssociator>(iEvent, rpcHitAssociatorConfig_);
-  // GEM hit association
-  auto gemtruth = std::make_unique<GEMHitAssociator>(iEvent, gemHitAssociatorConfig_);
-
-  MuonAssociatorByHitsHelper::Resources resources = {
-      tTopo, trackertruth.get(), csctruth.get(), dttruth.get(), rpctruth.get(), gemtruth.get(), {}};
-
+  std::function<void(const TrackHitsCollection &, const TrackingParticleCollection &)> diagnostics;
   if (diagnostics_) {
     diagnostics_->read(iEvent);
-    resources.diagnostics_ = [this](const TrackHitsCollection &hC, const TrackingParticleCollection &pC) {
+    diagnostics = [this](const TrackHitsCollection &hC, const TrackingParticleCollection &pC) {
       diagnostics_->dump(hC, pC);
     };
   }
 
   auto impl = std::make_unique<MuonToTrackingParticleAssociatorByHitsImpl>(hitExtractor_,
-                                                                           std::move(trackertruth),
-                                                                           std::move(csctruth),
-                                                                           std::move(dttruth),
-                                                                           std::move(rpctruth),
-                                                                           std::move(gemtruth),
-                                                                           resources,
+                                                                           trackerHitAssociatorConfig_,
+                                                                           cscHitAssociatorConfig_,
+                                                                           dtHitAssociatorConfig_,
+                                                                           rpcHitAssociatorConfig_,
+                                                                           gemHitAssociatorConfig_,
+                                                                           iEvent,
+                                                                           iSetup,
+                                                                           tTopo,
+                                                                           diagnostics,
                                                                            &helper_);
   auto toPut = std::make_unique<reco::MuonToTrackingParticleAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
