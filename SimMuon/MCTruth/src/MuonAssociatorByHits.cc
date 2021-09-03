@@ -142,7 +142,8 @@ MuonAssociatorByHits::MuonAssociatorByHits(const edm::ParameterSet &conf, edm::C
       gemHitAssociatorConfig_(conf, iC),
       rpcHitAssociatorConfig_(conf, iC),
       cscHitAssociatorConfig_(conf, iC),
-      dtHitAssociatorConfig_(conf, iC) {
+      dtHitAssociatorConfig_(conf, iC),
+      ttopoToken_(iC.esConsumes()) {
   // hack for consumes
   if (conf.getUntrackedParameter<bool>("dumpInputCollections")) {
     diagnostics_ = std::make_unique<InputDumper>(conf, std::move(iC));
@@ -164,9 +165,7 @@ RecoToSimCollection MuonAssociatorByHits::associateRecoToSim(
   }
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  setup->get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology *tTopo = tTopoHand.product();
+  const TrackerTopology *tTopo = &setup->getData(ttopoToken_);
 
   // Tracker hit association
   TrackerHitAssociator trackertruth(*e, trackerHitAssociatorConfig_);
@@ -212,9 +211,7 @@ SimToRecoCollection MuonAssociatorByHits::associateSimToReco(
   }
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  setup->get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology *tTopo = tTopoHand.product();
+  const TrackerTopology *tTopo = &setup->getData(ttopoToken_);
 
   // Tracker hit association
   TrackerHitAssociator trackertruth(*e, trackerHitAssociatorConfig_);
