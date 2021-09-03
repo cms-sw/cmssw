@@ -13,35 +13,6 @@ GEMClusterProcessor::GEMClusterProcessor(int region, unsigned station, unsigned 
     maxDeltaPad_ = copad.getParameter<unsigned int>("maxDeltaPad");
     maxDeltaRoll_ = copad.getParameter<unsigned int>("maxDeltaRoll");
     maxDeltaBX_ = copad.getParameter<unsigned int>("maxDeltaBX");
-
-    padToHsME1aFiles_ = conf.getParameter<std::vector<std::string>>("padToHsME1aFiles");
-    padToHsME1bFiles_ = conf.getParameter<std::vector<std::string>>("padToHsME1bFiles");
-
-    padToEsME1aFiles_ = conf.getParameter<std::vector<std::string>>("padToEsME1aFiles");
-    padToEsME1bFiles_ = conf.getParameter<std::vector<std::string>>("padToEsME1bFiles");
-
-    rollToMaxWgME11Files_ = conf.getParameter<std::vector<std::string>>("rollToMaxWgME11Files");
-    rollToMinWgME11Files_ = conf.getParameter<std::vector<std::string>>("rollToMinWgME11Files");
-
-    GEMCSCLUT_pad_hs_ME1a_even_ = std::make_unique<CSCLUTReader>(padToHsME1aFiles_[0]);
-    GEMCSCLUT_pad_hs_ME1a_odd_ = std::make_unique<CSCLUTReader>(padToHsME1aFiles_[1]);
-    GEMCSCLUT_pad_hs_ME1b_even_ = std::make_unique<CSCLUTReader>(padToHsME1bFiles_[0]);
-    GEMCSCLUT_pad_hs_ME1b_odd_ = std::make_unique<CSCLUTReader>(padToHsME1bFiles_[1]);
-
-    GEMCSCLUT_pad_es_ME1a_even_ = std::make_unique<CSCLUTReader>(padToEsME1aFiles_[0]);
-    GEMCSCLUT_pad_es_ME1a_odd_ = std::make_unique<CSCLUTReader>(padToEsME1aFiles_[1]);
-    GEMCSCLUT_pad_es_ME1b_even_ = std::make_unique<CSCLUTReader>(padToEsME1bFiles_[0]);
-    GEMCSCLUT_pad_es_ME1b_odd_ = std::make_unique<CSCLUTReader>(padToEsME1bFiles_[1]);
-
-    GEMCSCLUT_roll_l1_min_wg_ME11_even_ = std::make_unique<CSCLUTReader>(rollToMinWgME11Files_[0]);
-    GEMCSCLUT_roll_l1_min_wg_ME11_odd_ = std::make_unique<CSCLUTReader>(rollToMinWgME11Files_[1]);
-    GEMCSCLUT_roll_l2_min_wg_ME11_even_ = std::make_unique<CSCLUTReader>(rollToMinWgME11Files_[2]);
-    GEMCSCLUT_roll_l2_min_wg_ME11_odd_ = std::make_unique<CSCLUTReader>(rollToMinWgME11Files_[3]);
-
-    GEMCSCLUT_roll_l1_max_wg_ME11_even_ = std::make_unique<CSCLUTReader>(rollToMaxWgME11Files_[0]);
-    GEMCSCLUT_roll_l1_max_wg_ME11_odd_ = std::make_unique<CSCLUTReader>(rollToMaxWgME11Files_[1]);
-    GEMCSCLUT_roll_l2_max_wg_ME11_even_ = std::make_unique<CSCLUTReader>(rollToMaxWgME11Files_[2]);
-    GEMCSCLUT_roll_l2_max_wg_ME11_odd_ = std::make_unique<CSCLUTReader>(rollToMaxWgME11Files_[3]);
   }
 
   if (station_ == 2) {
@@ -52,31 +23,14 @@ GEMClusterProcessor::GEMClusterProcessor(int region, unsigned station, unsigned 
     maxDeltaPad_ = copad.getParameter<unsigned int>("maxDeltaPad");
     maxDeltaRoll_ = copad.getParameter<unsigned int>("maxDeltaRoll");
     maxDeltaBX_ = copad.getParameter<unsigned int>("maxDeltaBX");
-
-    padToHsME21Files_ = conf.getParameter<std::vector<std::string>>("padToHsME21Files");
-    padToEsME21Files_ = conf.getParameter<std::vector<std::string>>("padToEsME21Files");
-
-    rollToMaxWgME21Files_ = conf.getParameter<std::vector<std::string>>("rollToMaxWgME21Files");
-    rollToMinWgME21Files_ = conf.getParameter<std::vector<std::string>>("rollToMinWgME21Files");
-
-    GEMCSCLUT_pad_hs_ME21_even_ = std::make_unique<CSCLUTReader>(padToHsME21Files_[0]);
-    GEMCSCLUT_pad_hs_ME21_odd_ = std::make_unique<CSCLUTReader>(padToHsME21Files_[1]);
-    GEMCSCLUT_pad_es_ME21_even_ = std::make_unique<CSCLUTReader>(padToEsME21Files_[0]);
-    GEMCSCLUT_pad_es_ME21_odd_ = std::make_unique<CSCLUTReader>(padToEsME21Files_[1]);
-
-    GEMCSCLUT_roll_l1_min_wg_ME21_even_ = std::make_unique<CSCLUTReader>(rollToMinWgME21Files_[0]);
-    GEMCSCLUT_roll_l1_min_wg_ME21_odd_ = std::make_unique<CSCLUTReader>(rollToMinWgME21Files_[1]);
-    GEMCSCLUT_roll_l2_min_wg_ME21_even_ = std::make_unique<CSCLUTReader>(rollToMinWgME21Files_[2]);
-    GEMCSCLUT_roll_l2_min_wg_ME21_odd_ = std::make_unique<CSCLUTReader>(rollToMinWgME21Files_[3]);
-
-    GEMCSCLUT_roll_l1_max_wg_ME21_even_ = std::make_unique<CSCLUTReader>(rollToMaxWgME21Files_[0]);
-    GEMCSCLUT_roll_l1_max_wg_ME21_odd_ = std::make_unique<CSCLUTReader>(rollToMaxWgME21Files_[1]);
-    GEMCSCLUT_roll_l2_max_wg_ME21_even_ = std::make_unique<CSCLUTReader>(rollToMaxWgME21Files_[2]);
-    GEMCSCLUT_roll_l2_max_wg_ME21_odd_ = std::make_unique<CSCLUTReader>(rollToMaxWgME21Files_[3]);
   }
 }
 
 void GEMClusterProcessor::clear() { clusters_.clear(); }
+
+void GEMClusterProcessor::setESLookupTables(const CSCL1TPLookupTableME11ILT* conf) { lookupTableME11ILT_ = conf; }
+
+void GEMClusterProcessor::setESLookupTables(const CSCL1TPLookupTableME21ILT* conf) { lookupTableME21ILT_ = conf; }
 
 void GEMClusterProcessor::run(const GEMPadDigiClusterCollection* in_clusters) {
   // Step 1: clear the GEMInternalCluster vector
@@ -265,28 +219,28 @@ void GEMClusterProcessor::doCoordinateConversion() {
       if (station_ == 1) {
         if (isEven_) {
           // ME1/b
-          layer1_pad_to_first_hs = GEMCSCLUT_pad_hs_ME1b_even_->lookup(layer1_first_pad);
-          layer1_pad_to_last_hs = GEMCSCLUT_pad_hs_ME1b_even_->lookup(layer1_last_pad);
+          layer1_pad_to_first_hs = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1b_even(layer1_first_pad);
+          layer1_pad_to_last_hs = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1b_even(layer1_last_pad);
           // ME1/a
-          layer1_pad_to_first_hs_me1a = GEMCSCLUT_pad_hs_ME1a_even_->lookup(layer1_first_pad);
-          layer1_pad_to_last_hs_me1a = GEMCSCLUT_pad_hs_ME1a_even_->lookup(layer1_last_pad);
+          layer1_pad_to_first_hs_me1a = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1a_even(layer1_first_pad);
+          layer1_pad_to_last_hs_me1a = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1a_even(layer1_last_pad);
         } else {
           // ME1/b
-          layer1_pad_to_first_hs = GEMCSCLUT_pad_hs_ME1b_odd_->lookup(layer1_first_pad);
-          layer1_pad_to_last_hs = GEMCSCLUT_pad_hs_ME1b_odd_->lookup(layer1_last_pad);
+          layer1_pad_to_first_hs = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1b_odd(layer1_first_pad);
+          layer1_pad_to_last_hs = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1b_odd(layer1_last_pad);
           // ME1/a
-          layer1_pad_to_first_hs_me1a = GEMCSCLUT_pad_hs_ME1a_odd_->lookup(layer1_first_pad);
-          layer1_pad_to_last_hs_me1a = GEMCSCLUT_pad_hs_ME1a_odd_->lookup(layer1_last_pad);
+          layer1_pad_to_first_hs_me1a = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1a_odd(layer1_first_pad);
+          layer1_pad_to_last_hs_me1a = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1a_odd(layer1_last_pad);
         }
       }
       // ME2/1
       if (station_ == 2) {
         if (isEven_) {
-          layer1_pad_to_first_hs = GEMCSCLUT_pad_hs_ME21_even_->lookup(layer1_first_pad);
-          layer1_pad_to_last_hs = GEMCSCLUT_pad_hs_ME21_even_->lookup(layer1_last_pad);
+          layer1_pad_to_first_hs = lookupTableME21ILT_->GEM_pad_CSC_hs_ME21_even(layer1_first_pad);
+          layer1_pad_to_last_hs = lookupTableME21ILT_->GEM_pad_CSC_hs_ME21_even(layer1_last_pad);
         } else {
-          layer1_pad_to_first_hs = GEMCSCLUT_pad_hs_ME21_odd_->lookup(layer1_first_pad);
-          layer1_pad_to_last_hs = GEMCSCLUT_pad_hs_ME21_odd_->lookup(layer1_last_pad);
+          layer1_pad_to_first_hs = lookupTableME21ILT_->GEM_pad_CSC_hs_ME21_odd(layer1_first_pad);
+          layer1_pad_to_last_hs = lookupTableME21ILT_->GEM_pad_CSC_hs_ME21_odd(layer1_last_pad);
         }
       }
       // middle 1/2-strip
@@ -314,28 +268,28 @@ void GEMClusterProcessor::doCoordinateConversion() {
       if (station_ == 1) {
         if (isEven_) {
           // ME1/b
-          layer1_pad_to_first_es = GEMCSCLUT_pad_es_ME1b_even_->lookup(layer1_first_pad);
-          layer1_pad_to_last_es = GEMCSCLUT_pad_es_ME1b_even_->lookup(layer1_last_pad);
+          layer1_pad_to_first_es = lookupTableME11ILT_->GEM_pad_CSC_es_ME1b_even(layer1_first_pad);
+          layer1_pad_to_last_es = lookupTableME11ILT_->GEM_pad_CSC_es_ME1b_even(layer1_last_pad);
           // ME1/a
-          layer1_pad_to_first_es_me1a = GEMCSCLUT_pad_es_ME1a_even_->lookup(layer1_first_pad);
-          layer1_pad_to_last_es_me1a = GEMCSCLUT_pad_es_ME1a_even_->lookup(layer1_last_pad);
+          layer1_pad_to_first_es_me1a = lookupTableME11ILT_->GEM_pad_CSC_es_ME1a_even(layer1_first_pad);
+          layer1_pad_to_last_es_me1a = lookupTableME11ILT_->GEM_pad_CSC_es_ME1a_even(layer1_last_pad);
         } else {
           // ME1/b
-          layer1_pad_to_first_es = GEMCSCLUT_pad_es_ME1b_odd_->lookup(layer1_first_pad);
-          layer1_pad_to_last_es = GEMCSCLUT_pad_es_ME1b_odd_->lookup(layer1_last_pad);
+          layer1_pad_to_first_es = lookupTableME11ILT_->GEM_pad_CSC_es_ME1b_odd(layer1_first_pad);
+          layer1_pad_to_last_es = lookupTableME11ILT_->GEM_pad_CSC_es_ME1b_odd(layer1_last_pad);
           // ME1/a
-          layer1_pad_to_first_es_me1a = GEMCSCLUT_pad_es_ME1a_odd_->lookup(layer1_first_pad);
-          layer1_pad_to_last_es_me1a = GEMCSCLUT_pad_es_ME1a_odd_->lookup(layer1_last_pad);
+          layer1_pad_to_first_es_me1a = lookupTableME11ILT_->GEM_pad_CSC_es_ME1a_odd(layer1_first_pad);
+          layer1_pad_to_last_es_me1a = lookupTableME11ILT_->GEM_pad_CSC_es_ME1a_odd(layer1_last_pad);
         }
       }
       // ME2/1
       if (station_ == 2) {
         if (isEven_) {
-          layer1_pad_to_first_es = GEMCSCLUT_pad_es_ME21_even_->lookup(layer1_first_pad);
-          layer1_pad_to_last_es = GEMCSCLUT_pad_es_ME21_even_->lookup(layer1_last_pad);
+          layer1_pad_to_first_es = lookupTableME21ILT_->GEM_pad_CSC_es_ME21_even(layer1_first_pad);
+          layer1_pad_to_last_es = lookupTableME21ILT_->GEM_pad_CSC_es_ME21_even(layer1_last_pad);
         } else {
-          layer1_pad_to_first_es = GEMCSCLUT_pad_es_ME21_odd_->lookup(layer1_first_pad);
-          layer1_pad_to_last_es = GEMCSCLUT_pad_es_ME21_odd_->lookup(layer1_last_pad);
+          layer1_pad_to_first_es = lookupTableME21ILT_->GEM_pad_CSC_es_ME21_odd(layer1_first_pad);
+          layer1_pad_to_last_es = lookupTableME21ILT_->GEM_pad_CSC_es_ME21_odd(layer1_last_pad);
         }
       }
       // middle 1/8-strip
@@ -362,22 +316,22 @@ void GEMClusterProcessor::doCoordinateConversion() {
       // ME1/1
       if (station_ == 1) {
         if (isEven_) {
-          roll_l1_to_min_wg = GEMCSCLUT_roll_l1_min_wg_ME11_even_->lookup(roll);
-          roll_l1_to_max_wg = GEMCSCLUT_roll_l1_max_wg_ME11_even_->lookup(roll);
+          roll_l1_to_min_wg = lookupTableME11ILT_->GEM_roll_L1_CSC_min_wg_ME11_even(roll);
+          roll_l1_to_max_wg = lookupTableME11ILT_->GEM_roll_L1_CSC_max_wg_ME11_even(roll);
         } else {
-          roll_l1_to_min_wg = GEMCSCLUT_roll_l1_min_wg_ME11_odd_->lookup(roll);
-          roll_l1_to_max_wg = GEMCSCLUT_roll_l1_max_wg_ME11_odd_->lookup(roll);
+          roll_l1_to_min_wg = lookupTableME11ILT_->GEM_roll_L1_CSC_min_wg_ME11_odd(roll);
+          roll_l1_to_max_wg = lookupTableME11ILT_->GEM_roll_L1_CSC_max_wg_ME11_odd(roll);
         }
       }
 
       // ME2/1
       if (station_ == 2) {
         if (isEven_) {
-          roll_l1_to_min_wg = GEMCSCLUT_roll_l1_min_wg_ME21_even_->lookup(roll);
-          roll_l1_to_max_wg = GEMCSCLUT_roll_l1_max_wg_ME21_even_->lookup(roll);
+          roll_l1_to_min_wg = lookupTableME21ILT_->GEM_roll_L1_CSC_min_wg_ME21_even(roll);
+          roll_l1_to_max_wg = lookupTableME21ILT_->GEM_roll_L1_CSC_max_wg_ME21_even(roll);
         } else {
-          roll_l1_to_min_wg = GEMCSCLUT_roll_l1_min_wg_ME21_odd_->lookup(roll);
-          roll_l1_to_max_wg = GEMCSCLUT_roll_l1_max_wg_ME21_odd_->lookup(roll);
+          roll_l1_to_min_wg = lookupTableME21ILT_->GEM_roll_L1_CSC_min_wg_ME21_odd(roll);
+          roll_l1_to_max_wg = lookupTableME21ILT_->GEM_roll_L1_CSC_max_wg_ME21_odd(roll);
         }
       }
 
@@ -400,28 +354,28 @@ void GEMClusterProcessor::doCoordinateConversion() {
       if (station_ == 1) {
         if (isEven_) {
           // ME1/b
-          layer2_pad_to_first_hs = GEMCSCLUT_pad_hs_ME1b_even_->lookup(layer2_first_pad);
-          layer2_pad_to_last_hs = GEMCSCLUT_pad_hs_ME1b_even_->lookup(layer2_last_pad);
+          layer2_pad_to_first_hs = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1b_even(layer2_first_pad);
+          layer2_pad_to_last_hs = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1b_even(layer2_last_pad);
           // ME1/a
-          layer2_pad_to_first_hs_me1a = GEMCSCLUT_pad_hs_ME1a_even_->lookup(layer2_first_pad);
-          layer2_pad_to_last_hs_me1a = GEMCSCLUT_pad_hs_ME1a_even_->lookup(layer2_last_pad);
+          layer2_pad_to_first_hs_me1a = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1a_even(layer2_first_pad);
+          layer2_pad_to_last_hs_me1a = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1a_even(layer2_last_pad);
         } else {
           // ME1/b
-          layer2_pad_to_first_hs = GEMCSCLUT_pad_hs_ME1b_odd_->lookup(layer2_first_pad);
-          layer2_pad_to_last_hs = GEMCSCLUT_pad_hs_ME1b_odd_->lookup(layer2_last_pad);
+          layer2_pad_to_first_hs = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1b_odd(layer2_first_pad);
+          layer2_pad_to_last_hs = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1b_odd(layer2_last_pad);
           // ME1/a
-          layer2_pad_to_first_hs_me1a = GEMCSCLUT_pad_hs_ME1a_odd_->lookup(layer2_first_pad);
-          layer2_pad_to_last_hs_me1a = GEMCSCLUT_pad_hs_ME1a_odd_->lookup(layer2_last_pad);
+          layer2_pad_to_first_hs_me1a = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1a_odd(layer2_first_pad);
+          layer2_pad_to_last_hs_me1a = lookupTableME11ILT_->GEM_pad_CSC_hs_ME1a_odd(layer2_last_pad);
         }
       }
       // ME2/1
       if (station_ == 2) {
         if (isEven_) {
-          layer2_pad_to_first_hs = GEMCSCLUT_pad_hs_ME21_even_->lookup(layer2_first_pad);
-          layer2_pad_to_last_hs = GEMCSCLUT_pad_hs_ME21_even_->lookup(layer2_last_pad);
+          layer2_pad_to_first_hs = lookupTableME21ILT_->GEM_pad_CSC_hs_ME21_even(layer2_first_pad);
+          layer2_pad_to_last_hs = lookupTableME21ILT_->GEM_pad_CSC_hs_ME21_even(layer2_last_pad);
         } else {
-          layer2_pad_to_first_hs = GEMCSCLUT_pad_hs_ME21_odd_->lookup(layer2_first_pad);
-          layer2_pad_to_last_hs = GEMCSCLUT_pad_hs_ME21_odd_->lookup(layer2_last_pad);
+          layer2_pad_to_first_hs = lookupTableME21ILT_->GEM_pad_CSC_hs_ME21_odd(layer2_first_pad);
+          layer2_pad_to_last_hs = lookupTableME21ILT_->GEM_pad_CSC_hs_ME21_odd(layer2_last_pad);
         }
       }
       // middle 1/2-strip
@@ -448,29 +402,29 @@ void GEMClusterProcessor::doCoordinateConversion() {
       if (station_ == 1) {
         if (isEven_) {
           // ME1/b
-          layer2_pad_to_first_es = GEMCSCLUT_pad_es_ME1b_even_->lookup(layer2_first_pad);
-          layer2_pad_to_last_es = GEMCSCLUT_pad_es_ME1b_even_->lookup(layer2_last_pad);
+          layer2_pad_to_first_es = lookupTableME11ILT_->GEM_pad_CSC_es_ME1b_even(layer2_first_pad);
+          layer2_pad_to_last_es = lookupTableME11ILT_->GEM_pad_CSC_es_ME1b_even(layer2_last_pad);
           // ME1/a
-          layer2_pad_to_first_es_me1a = GEMCSCLUT_pad_es_ME1a_even_->lookup(layer2_first_pad);
-          layer2_pad_to_last_es_me1a = GEMCSCLUT_pad_es_ME1a_even_->lookup(layer2_last_pad);
+          layer2_pad_to_first_es_me1a = lookupTableME11ILT_->GEM_pad_CSC_es_ME1a_even(layer2_first_pad);
+          layer2_pad_to_last_es_me1a = lookupTableME11ILT_->GEM_pad_CSC_es_ME1a_even(layer2_last_pad);
         } else {
           // ME1/b
-          layer2_pad_to_first_es = GEMCSCLUT_pad_es_ME1b_odd_->lookup(layer2_first_pad);
-          layer2_pad_to_last_es = GEMCSCLUT_pad_es_ME1b_odd_->lookup(layer2_last_pad);
+          layer2_pad_to_first_es = lookupTableME11ILT_->GEM_pad_CSC_es_ME1b_odd(layer2_first_pad);
+          layer2_pad_to_last_es = lookupTableME11ILT_->GEM_pad_CSC_es_ME1b_odd(layer2_last_pad);
           // ME1/a
-          layer2_pad_to_first_es_me1a = GEMCSCLUT_pad_es_ME1a_odd_->lookup(layer2_first_pad);
-          layer2_pad_to_last_es_me1a = GEMCSCLUT_pad_es_ME1a_odd_->lookup(layer2_last_pad);
+          layer2_pad_to_first_es_me1a = lookupTableME11ILT_->GEM_pad_CSC_es_ME1a_odd(layer2_first_pad);
+          layer2_pad_to_last_es_me1a = lookupTableME11ILT_->GEM_pad_CSC_es_ME1a_odd(layer2_last_pad);
         }
       }
 
       // ME2/1
       if (station_ == 2) {
         if (isEven_) {
-          layer2_pad_to_first_es = GEMCSCLUT_pad_es_ME21_even_->lookup(layer2_first_pad);
-          layer2_pad_to_last_es = GEMCSCLUT_pad_es_ME21_even_->lookup(layer2_last_pad);
+          layer2_pad_to_first_es = lookupTableME21ILT_->GEM_pad_CSC_es_ME21_even(layer2_first_pad);
+          layer2_pad_to_last_es = lookupTableME21ILT_->GEM_pad_CSC_es_ME21_even(layer2_last_pad);
         } else {
-          layer2_pad_to_first_es = GEMCSCLUT_pad_es_ME21_odd_->lookup(layer2_first_pad);
-          layer2_pad_to_last_es = GEMCSCLUT_pad_es_ME21_odd_->lookup(layer2_last_pad);
+          layer2_pad_to_first_es = lookupTableME21ILT_->GEM_pad_CSC_es_ME21_odd(layer2_first_pad);
+          layer2_pad_to_last_es = lookupTableME21ILT_->GEM_pad_CSC_es_ME21_odd(layer2_last_pad);
         }
       }
       // middle 1/8-strip
@@ -498,22 +452,22 @@ void GEMClusterProcessor::doCoordinateConversion() {
     // ME1/1
     if (station_ == 1) {
       if (isEven_) {
-        roll_l2_to_min_wg = GEMCSCLUT_roll_l2_min_wg_ME11_even_->lookup(roll);
-        roll_l2_to_max_wg = GEMCSCLUT_roll_l2_max_wg_ME11_even_->lookup(roll);
+        roll_l2_to_min_wg = lookupTableME11ILT_->GEM_roll_L2_CSC_min_wg_ME11_even(roll);
+        roll_l2_to_max_wg = lookupTableME11ILT_->GEM_roll_L2_CSC_max_wg_ME11_even(roll);
       } else {
-        roll_l2_to_min_wg = GEMCSCLUT_roll_l2_min_wg_ME11_odd_->lookup(roll);
-        roll_l2_to_max_wg = GEMCSCLUT_roll_l2_max_wg_ME11_odd_->lookup(roll);
+        roll_l2_to_min_wg = lookupTableME11ILT_->GEM_roll_L2_CSC_min_wg_ME11_odd(roll);
+        roll_l2_to_max_wg = lookupTableME11ILT_->GEM_roll_L2_CSC_max_wg_ME11_odd(roll);
       }
     }
 
     // ME2/1
     if (station_ == 2) {
       if (isEven_) {
-        roll_l2_to_min_wg = GEMCSCLUT_roll_l2_min_wg_ME21_even_->lookup(roll);
-        roll_l2_to_max_wg = GEMCSCLUT_roll_l2_max_wg_ME21_even_->lookup(roll);
+        roll_l2_to_min_wg = lookupTableME21ILT_->GEM_roll_L2_CSC_min_wg_ME21_even(roll);
+        roll_l2_to_max_wg = lookupTableME21ILT_->GEM_roll_L2_CSC_max_wg_ME21_even(roll);
       } else {
-        roll_l2_to_min_wg = GEMCSCLUT_roll_l2_min_wg_ME21_odd_->lookup(roll);
-        roll_l2_to_max_wg = GEMCSCLUT_roll_l2_max_wg_ME21_odd_->lookup(roll);
+        roll_l2_to_min_wg = lookupTableME21ILT_->GEM_roll_L2_CSC_min_wg_ME21_odd(roll);
+        roll_l2_to_max_wg = lookupTableME21ILT_->GEM_roll_L2_CSC_max_wg_ME21_odd(roll);
       }
     }
 

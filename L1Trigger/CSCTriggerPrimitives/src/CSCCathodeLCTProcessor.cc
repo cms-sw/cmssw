@@ -140,6 +140,8 @@ void CSCCathodeLCTProcessor::setConfigParameters(const CSCDBL1TPParameters* conf
   }
 }
 
+void CSCCathodeLCTProcessor::setESLookupTables(const CSCL1TPLookupTableCCLUT* conf) { cclut_->setESLookupTables(conf); }
+
 void CSCCathodeLCTProcessor::checkConfigParameters() {
   // Make sure that the parameter values are within the allowed range.
 

@@ -11,11 +11,12 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME11ILT.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME21ILT.h"
 
 #include <string>
 #include <vector>
 
-class CSCLUTReader;
 class CSCALCTDigi;
 class CSCCLCTDigi;
 class GEMInternalCluster;
@@ -29,6 +30,9 @@ public:
                 unsigned chamber,
                 const edm::ParameterSet& tmbParams,
                 const edm::ParameterSet& luts);
+
+  void setESLookupTables(const CSCL1TPLookupTableME11ILT* conf);
+  void setESLookupTables(const CSCL1TPLookupTableME21ILT* conf);
 
   // calculate the bending angle
   unsigned calculateGEMCSCBending(const CSCCLCTDigi& clct, const GEMInternalCluster& cluster) const;
@@ -106,6 +110,10 @@ public:
                         GEMInternalCluster& best) const;
 
 private:
+  // access to lookup tables via eventsetup
+  const CSCL1TPLookupTableME11ILT* lookupTableME11ILT_;
+  const CSCL1TPLookupTableME21ILT* lookupTableME21ILT_;
+
   //mitigate slope by consistency of slope indicator, if necessary
   uint16_t mitigatedSlopeByConsistency(const CSCCLCTDigi& clct) const;
 
@@ -130,48 +138,6 @@ private:
 
   bool assign_gem_csc_bending_;
   bool mitigateSlopeByCosi_;
-
-  // strings to paths of LUTs
-  std::vector<std::string> gemCscSlopeCorrectionFiles_;
-  std::vector<std::string> gemCscSlopeCosiFiles_;
-  std::vector<std::string> gemCscSlopeCosiCorrectionFiles_;
-  std::vector<std::string> esDiffToSlopeME1aFiles_;
-  std::vector<std::string> esDiffToSlopeME1bFiles_;
-  std::vector<std::string> esDiffToSlopeME21Files_;
-
-  // unique pointers to the luts
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_2to1_L1_ME11_even_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_3to1_L1_ME11_even_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_2to1_L1_ME11_odd_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_3to1_L1_ME11_odd_;
-
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_corr_L1_ME11_even_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_corr_L2_ME11_even_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_corr_L1_ME11_odd_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_corr_L2_ME11_odd_;
-
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_corr_L1_ME11_even_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_corr_L2_ME11_even_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_corr_L1_ME11_odd_;
-  std::unique_ptr<CSCLUTReader> gem_csc_slope_cosi_corr_L2_ME11_odd_;
-
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L1_ME1b_even_;
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L2_ME1b_even_;
-
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L1_ME1b_odd_;
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L2_ME1b_odd_;
-
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L1_ME1a_even_;
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L2_ME1a_even_;
-
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L1_ME1a_odd_;
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L2_ME1a_odd_;
-
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L1_ME21_even_;
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L2_ME21_even_;
-
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L1_ME21_odd_;
-  std::unique_ptr<CSCLUTReader> es_diff_slope_L2_ME21_odd_;
 };
 
 #endif
