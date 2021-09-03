@@ -1,6 +1,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -11,7 +11,7 @@
 
 #include "EventFilter/RawDataCollector/interface/RawDataFEDSelector.h"
 
-class SubdetFEDSelector : public edm::EDProducer {
+class SubdetFEDSelector : public edm::global::EDProducer<> {
 public:
   SubdetFEDSelector(const edm::ParameterSet&);
   ~SubdetFEDSelector() override;
@@ -19,7 +19,7 @@ public:
 
 private:
   void beginJob() override {}
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   void endJob() override {}
 
   // ----------member data ---------------------------
@@ -48,7 +48,7 @@ SubdetFEDSelector::SubdetFEDSelector(const edm::ParameterSet& iConfig) {
 
 SubdetFEDSelector::~SubdetFEDSelector() {}
 
-void SubdetFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SubdetFEDSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   auto producedData = std::make_unique<FEDRawDataCollection>();
 
   edm::Handle<FEDRawDataCollection> rawIn;

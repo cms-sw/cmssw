@@ -13,13 +13,13 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-class SiStripRegFEDSelector : public edm::EDProducer {
+class SiStripRegFEDSelector : public edm::global::EDProducer<> {
 public:
   SiStripRegFEDSelector(const edm::ParameterSet&);
   ~SiStripRegFEDSelector() override;
@@ -28,7 +28,7 @@ public:
 
 private:
   void beginJob() override {}
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   void endJob() override {}
 
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_seed_;
@@ -47,7 +47,7 @@ SiStripRegFEDSelector::SiStripRegFEDSelector(const edm::ParameterSet& iConfig)
 
 SiStripRegFEDSelector::~SiStripRegFEDSelector() {}
 
-void SiStripRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiStripRegFEDSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   auto producedData = std::make_unique<FEDRawDataCollection>();
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> trigSeedTrks;
