@@ -660,7 +660,7 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
       //				     << " ) " << std::endl;
 
       if (!EEDetId::validDetId(ix, iy, iz)) {
-        LogWarning("EcalCosmicsHists") << "INVALID EE DetId !!!" << endl;
+        LogWarning("EcalCosmicsHists") << "INVALID EE DetId !!!";
         return;
       }
 
@@ -1008,7 +1008,6 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
   iEvent.getByToken(tracksToken_, recoTracks);
 
   if (recoTracks.isValid()) {
-    //    LogWarning("EcalCosmicsHists") << "... Valid TrackAssociator recoTracks !!! " << recoTracks.product()->size();
     std::map<int, std::vector<DetId> > trackDetIdMap;
     int tracks = 0;
     for (reco::TrackCollection::const_iterator recoTrack = recoTracks->begin(); recoTrack != recoTracks->end();
@@ -1169,16 +1168,15 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
       numberofCosmicsWTrackHist_->Fill(numSeeds);
     }
   } else {
-    //    LogWarning("EcalCosmicsHists") << "!!! No TrackAssociator recoTracks !!!";
+    LogWarning("EcalCosmicsHists") << "!!! No TrackAssociator recoTracks !!!";
   }
 
   // Study on Tracks for High Energy events
   edm::Handle<reco::TrackCollection> recoTracksBarrel;
   iEvent.getByToken(tracksBarrelToken_, recoTracksBarrel);
   if (!recoTracksBarrel.isValid()) {
-    //edm::LogWarning("EcalCosmicsHists") << "RecoTracksBarrel not valid!! " ;
+    edm::LogWarning("EcalCosmicsHists") << "RecoTracksBarrel not valid!! ";
   } else {
-    //edm::LogWarning("EcalCosmicsHists") << "Number of barrel reco tracks found in the event: " << recoTracksBarrel->size() ;
     HighEnergy_numRecoTrackBarrel->Fill(recoTracksBarrel->size());
     for (reco::TrackCollection::const_iterator recoTrack = recoTracksBarrel->begin();
          recoTrack != recoTracksBarrel->end();
@@ -1266,7 +1264,6 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
   iEvent.getByToken(hoRecHitToken_, horh);
 
   if (hbhe.isValid()) {
-    //    LogInfo("EcalCosmicHists") << "event " << ievt << " HBHE RecHits collection size " << hbhe->size();
     const HBHERecHitCollection hbheHit = *(hbhe.product());
     for (HBHERecHitCollection::const_iterator hhit = hbheHit.begin(); hhit != hbheHit.end(); hhit++) {
       //      if (hhit->energy() > 0.6){
@@ -1274,21 +1271,19 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
       //      }
     }
   } else {
-    //    LogWarning("EcalCosmicHists") << " HBHE RecHits **NOT** VALID!! " << endl;
+    LogWarning("EcalCosmicHists") << " HBHE RecHits **NOT** VALID!! ";
   }
 
   if (hfrh.isValid()) {
-    //    LogInfo("EcalCosmicHists") << "event " << ievt << " HF RecHits collection size " << hfrh->size();
     const HFRecHitCollection hfHit = *(hfrh.product());
     for (HFRecHitCollection::const_iterator hhit = hfHit.begin(); hhit != hfHit.end(); hhit++) {
       hcalEnergy_HF_->Fill(hhit->energy());
     }
   } else {
-    //    LogWarning("EcalCosmicHists") << " HF RecHits **NOT** VALID!! " << endl;
+    LogWarning("EcalCosmicHists") << " HF RecHits **NOT** VALID!! ";
   }
 
   if (horh.isValid()) {
-    //    LogInfo("EcalCosmicHists") << "event " << ievt << " HO RecHits collection size " << horh->size();
     const HORecHitCollection hoHit = *(horh.product());
     for (HORecHitCollection::const_iterator hhit = hoHit.begin(); hhit != hoHit.end(); hhit++) {
       //     if (hhit->energy() > 0.6){
@@ -1296,7 +1291,7 @@ void EcalCosmicsHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
       //     }
     }
   } else {
-    //    LogWarning("EcalCosmicHists") << " HO RecHits **NOT** VALID!! " << endl;
+    LogWarning("EcalCosmicHists") << " HO RecHits **NOT** VALID!! ";
   }
 
   // *** end of HCAL code *** //

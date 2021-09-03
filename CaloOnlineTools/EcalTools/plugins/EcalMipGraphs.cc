@@ -128,9 +128,6 @@ void EcalMipGraphs::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   // Now, retrieve the crystal digi from the event
   iEvent.getByToken(ebDigiToken_, EBdigisHandle);
   iEvent.getByToken(eeDigiToken_, EEdigisHandle);
-  //debug
-  //LogWarning("EcalMipGraphs") << "event " << ievt << " EBhits collection size " << EBhits->size();
-  //LogWarning("EcalMipGraphs") << "event " << ievt << " EEhits collection size " << EEhits->size();
 
   selectHits(EBhits, ievt);
   selectHits(EEhits, ievt);
