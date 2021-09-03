@@ -661,10 +661,8 @@ run2_HCAL_2017.toModify( g4SimHits, HCalSD = dict( TestNumberingScheme = True ) 
 ## Disable Castor from Run 3, enable PPS (***temporarily disable PPS***)
 ##
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toModify( g4SimHits, CastorSD = dict( useShowerLibrary = False ) ) 
-run3_common.toModify( g4SimHits, LHCTransport = True )
+run3_common.toModify( g4SimHits, CastorSD = dict( useShowerLibrary = False ) )
 
-##
 ## Disable PPS from Run 3 PbPb runs
 ##
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
