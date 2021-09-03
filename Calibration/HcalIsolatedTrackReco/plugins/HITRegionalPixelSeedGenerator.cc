@@ -168,8 +168,8 @@ public:
       e.getByToken(token_vertex, vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
       if (!vertCollection.empty()) {
-//      reco::VertexCollection::const_iterator ci = vertCollection.begin();
-//      originz = ci->z();
+        //      reco::VertexCollection::const_iterator ci = vertCollection.begin();
+        //      originz = ci->z();
       } else {
         deltaZVertex = 15.;
       }
