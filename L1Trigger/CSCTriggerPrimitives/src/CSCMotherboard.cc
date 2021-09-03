@@ -75,8 +75,10 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
   }
 
   // set up helper class to check if ALCT and CLCT cross
-  const bool ignoreAlctCrossClct = tmbParams_.getParameter<bool>("ignoreAlctCrossClct");
-  cscOverlap_ = std::make_unique<CSCALCTCrossCLCT>(endcap, station, theRing, ignoreAlctCrossClct, conf);
+  ignoreAlctCrossClct_ = tmbParams_.getParameter<bool>("ignoreAlctCrossClct");
+  if (!ignoreAlctCrossClct_) {
+    cscOverlap_ = std::make_unique<CSCALCTCrossCLCT>(endcap, station, theRing, ignoreAlctCrossClct_, conf);
+  }
 }
 
 void CSCMotherboard::clear() {
@@ -121,6 +123,12 @@ void CSCMotherboard::setConfigParameters(const CSCDBL1TPParameters* conf) {
   }
 }
 
+void CSCMotherboard::setESLookupTables(const CSCL1TPLookupTableCCLUT* conf) { lookupTableCCLUT_ = conf; }
+
+void CSCMotherboard::setESLookupTables(const CSCL1TPLookupTableME11ILT* conf) { lookupTableME11ILT_ = conf; }
+
+void CSCMotherboard::setESLookupTables(const CSCL1TPLookupTableME21ILT* conf) { lookupTableME21ILT_ = conf; }
+
 void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc) {
   // Step 1: Setup
   clear();
@@ -134,6 +142,11 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
   // set geometry
   alctProc->setCSCGeometry(cscGeometry_);
   clctProc->setCSCGeometry(cscGeometry_);
+
+  // set CCLUT parameters if necessary
+  if (runCCLUT_) {
+    clctProc->setESLookupTables(lookupTableCCLUT_);
+  }
 
   // Step 2: Run the processors
   alctV = alctProc->run(wiredc);  // run anodeLCT
@@ -371,7 +384,7 @@ void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
     all information, even if it's unphysical.
   */
   const bool bestCase3(match_trig_enable and bestALCT.isValid() and bestCLCT.isValid() and
-                       cscOverlap_->doesALCTCrossCLCT(bestALCT, bestCLCT));
+                       doesALCTCrossCLCT(bestALCT, bestCLCT));
 
   // at least one of the cases must be valid
   if (bestCase1 or bestCase2 or bestCase3) {
@@ -391,7 +404,7 @@ void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
     all information, even if it's unphysical.
   */
   const bool secondCase3(match_trig_enable and secondALCT.isValid() and secondCLCT.isValid() and
-                         cscOverlap_->doesALCTCrossCLCT(secondALCT, secondCLCT));
+                         doesALCTCrossCLCT(secondALCT, secondCLCT));
 
   // at least one component must be different in order to consider the secondLCT
   if ((secondALCT != bestALCT) or (secondCLCT != bestCLCT)) {
@@ -421,6 +434,13 @@ void CSCMotherboard::copyValidToInValid(CSCALCTDigi& bestALCT,
     secondCLCT = bestCLCT;
   if (!cathodeBestValid && cathodeSecondValid)
     bestCLCT = secondCLCT;
+}
+
+bool CSCMotherboard::doesALCTCrossCLCT(const CSCALCTDigi& alct, const CSCCLCTDigi& clct) const {
+  if (ignoreAlctCrossClct_)
+    return true;
+  else
+    return cscOverlap_->doesALCTCrossCLCT(alct, clct);
 }
 
 // This method calculates all the TMB words and then passes them to the

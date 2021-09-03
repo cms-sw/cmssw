@@ -1,23 +1,38 @@
-//-------------------------------------------------
-//
-//   Class: CSCTriggerPrimitivesProducer
-//
-//   Description: Steering routine of the local Level-1 Cathode Strip Chamber
-//                trigger.
-//
-//   Author List: S. Valuev, UCLA.
-//
-//
-//   Modifications:
-//
-//--------------------------------------------------
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCTriggerPrimitivesProducer_h
+#define L1Trigger_CSCTriggerPrimitives_CSCTriggerPrimitivesProducer_h
 
-#include "L1Trigger/CSCTriggerPrimitives/plugins/CSCTriggerPrimitivesProducer.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCTriggerPrimitivesBuilder.h"
+/** \class CSCTriggerPrimitivesProducer
+ *
+ * Implementation of the local Level-1 Cathode Strip Chamber trigger.
+ * Simulates functionalities of the anode and cathode Local Charged Tracks
+ * (LCT) processors, of the Trigger Mother Board (TMB), and of the Muon Port
+ * Card (MPC).
+ *
+ * Input to the simulation are collections of the CSC wire and comparator
+ * digis.
+ *
+ * Produces four collections of the Level-1 CSC Trigger Primitives (track
+ * stubs, or LCTs): anode LCTs (ALCTs), cathode LCTs (CLCTs), correlated
+ * LCTs at TMB, and correlated LCTs at MPC.
+ *
+ * \author Slava Valuev, UCLA.
+ *
+ * The trigger primitive emulator has been expanded with options to
+ * use both ALCTs, CLCTs and GEM clusters. The GEM-CSC integrated
+ * local trigger combines ALCT, CLCT and GEM information to produce integrated
+ * stubs. The available stub types can be found in the class definition of
+ * CSCCorrelatedLCTDigi (DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h)
+ *
+ * authors: Sven Dildick (TAMU), Tao Huang (TAMU)
+ */
 
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
@@ -25,10 +40,72 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
-
-// Configuration via EventSetup
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCTriggerPrimitivesBuilder.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
+#include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
+#include "CondFormats/DataRecord/interface/CSCL1TPLookupTableCCLUTRcd.h"
+#include "CondFormats/DataRecord/interface/CSCL1TPLookupTableME11ILTRcd.h"
+#include "CondFormats/DataRecord/interface/CSCL1TPLookupTableME21ILTRcd.h"
+#include "CondFormats/DataRecord/interface/CSCDBL1TPParametersRcd.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+
+// temporarily switch to a "one" module with a CSCTriggerPrimitivesBuilder data member
+class CSCTriggerPrimitivesProducer : public edm::one::EDProducer<> {
+public:
+  explicit CSCTriggerPrimitivesProducer(const edm::ParameterSet&);
+  ~CSCTriggerPrimitivesProducer() override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  // master configuration
+  edm::ParameterSet config_;
+
+  // temporarily switch to a "one" module with a CSCTriggerPrimitivesBuilder data member
+  std::unique_ptr<CSCTriggerPrimitivesBuilder> builder_;
+
+  // input tags for input collections
+  edm::InputTag compDigiProducer_;
+  edm::InputTag wireDigiProducer_;
+  edm::InputTag gemPadDigiClusterProducer_;
+
+  // tokens
+  edm::EDGetTokenT<CSCComparatorDigiCollection> comp_token_;
+  edm::EDGetTokenT<CSCWireDigiCollection> wire_token_;
+  edm::EDGetTokenT<GEMPadDigiClusterCollection> gem_pad_cluster_token_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscToken_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemToken_;
+  edm::ESGetToken<CSCBadChambers, CSCBadChambersRcd> pBadChambersToken_;
+  edm::ESGetToken<CSCL1TPLookupTableCCLUT, CSCL1TPLookupTableCCLUTRcd> pLookupTableCCLUTToken_;
+  edm::ESGetToken<CSCL1TPLookupTableME11ILT, CSCL1TPLookupTableME11ILTRcd> pLookupTableME11ILTToken_;
+  edm::ESGetToken<CSCL1TPLookupTableME21ILT, CSCL1TPLookupTableME21ILTRcd> pLookupTableME21ILTToken_;
+  edm::ESGetToken<CSCDBL1TPParameters, CSCDBL1TPParametersRcd> confToken_;
+  // switch to force the use of parameters from config file rather then from DB
+  bool debugParameters_;
+
+  // switch to for enabling checking against the list of bad chambers
+  bool checkBadChambers_;
+
+  // Write out pre-triggers
+  bool keepCLCTPreTriggers_;
+  bool keepALCTPreTriggers_;
+
+  // write out showrs
+  bool keepShowers_;
+
+  // switch to enable the integrated local triggers in ME11 and ME21
+  bool runCCLUT_;
+  bool runME11ILT_;
+  bool runME21ILT_;
+};
+
+#endif
 
 CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterSet& conf) {
   config_ = conf;
@@ -49,6 +126,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   // check whether you need to run the integrated local triggers
   const edm::ParameterSet commonParam(conf.getParameter<edm::ParameterSet>("commonParam"));
+  runCCLUT_ = commonParam.getParameter<bool>("runCCLUT");
   runME11ILT_ = commonParam.getParameter<bool>("runME11ILT");
   runME21ILT_ = commonParam.getParameter<bool>("runME21ILT");
 
@@ -59,6 +137,13 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   cscToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
   gemToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
   pBadChambersToken_ = esConsumes<CSCBadChambers, CSCBadChambersRcd>();
+  // consume lookup tables only when flags are set
+  if (runCCLUT_)
+    pLookupTableCCLUTToken_ = esConsumes<CSCL1TPLookupTableCCLUT, CSCL1TPLookupTableCCLUTRcd>();
+  if (runME11ILT_)
+    pLookupTableME11ILTToken_ = esConsumes<CSCL1TPLookupTableME11ILT, CSCL1TPLookupTableME11ILTRcd>();
+  if (runME21ILT_)
+    pLookupTableME21ILTToken_ = esConsumes<CSCL1TPLookupTableME21ILT, CSCL1TPLookupTableME21ILTRcd>();
   confToken_ = esConsumes<CSCDBL1TPParameters, CSCDBL1TPParametersRcd>();
 
   // register what this produces
@@ -103,6 +188,36 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
 
   // Find conditions data for bad chambers.
   edm::ESHandle<CSCBadChambers> pBadChambers = setup.getHandle(pBadChambersToken_);
+
+  if (runCCLUT_) {
+    edm::ESHandle<CSCL1TPLookupTableCCLUT> conf = setup.getHandle(pLookupTableCCLUTToken_);
+    if (conf.product() == nullptr) {
+      edm::LogError("CSCTriggerPrimitivesProducer")
+          << "Failed to find a CSCL1TPLookupTableCCLUTRcd in EventSetup with runCCLUT_ on";
+      return;
+    }
+    builder_->setESLookupTables(conf.product());
+  }
+
+  if (runME11ILT_) {
+    edm::ESHandle<CSCL1TPLookupTableME11ILT> conf = setup.getHandle(pLookupTableME11ILTToken_);
+    if (conf.product() == nullptr) {
+      edm::LogError("CSCTriggerPrimitivesProducer")
+          << "Failed to find a CSCL1TPLookupTableME11ILTRcd in EventSetup with runME11ILT_ on";
+      return;
+    }
+    builder_->setESLookupTables(conf.product());
+  }
+
+  if (runME21ILT_) {
+    edm::ESHandle<CSCL1TPLookupTableME21ILT> conf = setup.getHandle(pLookupTableME21ILTToken_);
+    if (conf.product() == nullptr) {
+      edm::LogError("CSCTriggerPrimitivesProducer")
+          << "Failed to find a CSCL1TPLookupTableME21ILTRcd in EventSetup with runME21ILT_ on";
+      return;
+    }
+    builder_->setESLookupTables(conf.product());
+  }
 
   // If !debugParameters then get config parameters using EventSetup mechanism.
   // This must be done in produce() for every event and not in beginJob()
@@ -201,3 +316,6 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   if (runME11ILT_ or runME21ILT_)
     ev.put(std::move(oc_gemcopad));
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(CSCTriggerPrimitivesProducer);
