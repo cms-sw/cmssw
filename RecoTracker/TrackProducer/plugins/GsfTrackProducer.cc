@@ -21,12 +21,15 @@ public:
 
 private:
   TrackProducerAlgorithm<reco::GsfTrack> theAlgo;
+
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTopoToken;
 };
 
 GsfTrackProducer::GsfTrackProducer(const edm::ParameterSet& iConfig)
     : GsfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
                            iConfig.getParameter<bool>("useHitsSplitting")),
-      theAlgo(iConfig) {
+      theAlgo(iConfig),
+      theTopoToken(esConsumes()) {
   initTrackProducerBase(
       iConfig, consumesCollector(), consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("src")));
   setAlias(iConfig.getParameter<std::string>("@module_label"));
@@ -63,8 +66,7 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup, theG, theMF, theFitter, thePropagator, theMeasTk, theBuilder);
 
-  edm::ESHandle<TrackerTopology> httopo;
-  setup.get<TrackerTopologyRcd>().get(httopo);
+  TrackerTopology const& ttopo = setup.getData(theTopoToken);
 
   //
   //declare and get TrackColection to be retrieved from the event
@@ -107,7 +109,7 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
            algoResults,
            theBuilder.product(),
            bs,
-           httopo.product());
+           &ttopo);
   LogDebug("GsfTrackProducer") << "end"
                                << "\n";
 }
