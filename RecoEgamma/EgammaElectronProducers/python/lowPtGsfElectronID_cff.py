@@ -28,3 +28,9 @@ run2_miniAOD_devel.toModify(
     lowPtGsfElectronID,
     ModelWeights = ["RecoEgamma/ElectronIdentification/data/LowPtElectrons/LowPtElectrons_ID_2021May17.root"],
 )
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(
+    lowPtGsfElectronID,
+    useGsfToTrack = True,
+)
