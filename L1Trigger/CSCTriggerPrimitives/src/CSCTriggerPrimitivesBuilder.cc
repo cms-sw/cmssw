@@ -95,6 +95,54 @@ void CSCTriggerPrimitivesBuilder::setConfigParameters(const CSCDBL1TPParameters*
   }
 }
 
+void CSCTriggerPrimitivesBuilder::setESLookupTables(const CSCL1TPLookupTableCCLUT* conf) {
+  // Receives CSCL1TPLookupTableCCLUT percolated down from ESProducer.
+  for (int endc = min_endcap; endc <= max_endcap; endc++) {
+    for (int stat = min_station; stat <= max_station; stat++) {
+      int numsubs = ((stat == 1) ? max_subsector : 1);
+      for (int sect = min_sector; sect <= max_sector; sect++) {
+        for (int subs = min_subsector; subs <= numsubs; subs++) {
+          for (int cham = min_chamber; cham <= max_chamber; cham++) {
+            tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1]->setESLookupTables(conf);
+          }
+        }
+      }
+    }
+  }
+}
+
+void CSCTriggerPrimitivesBuilder::setESLookupTables(const CSCL1TPLookupTableME11ILT* conf) {
+  for (int endc = min_endcap; endc <= max_endcap; endc++) {
+    for (int stat = min_station; stat <= max_station; stat++) {
+      int numsubs = ((stat == 1) ? max_subsector : 1);
+      for (int sect = min_sector; sect <= max_sector; sect++) {
+        for (int subs = min_subsector; subs <= numsubs; subs++) {
+          for (int cham = min_chamber; cham <= max_chamber; cham++) {
+            if (tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1]->id().isME11())
+              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1]->setESLookupTables(conf);
+          }
+        }
+      }
+    }
+  }
+}
+
+void CSCTriggerPrimitivesBuilder::setESLookupTables(const CSCL1TPLookupTableME21ILT* conf) {
+  for (int endc = min_endcap; endc <= max_endcap; endc++) {
+    for (int stat = min_station; stat <= max_station; stat++) {
+      int numsubs = ((stat == 1) ? max_subsector : 1);
+      for (int sect = min_sector; sect <= max_sector; sect++) {
+        for (int subs = min_subsector; subs <= numsubs; subs++) {
+          for (int cham = min_chamber; cham <= max_chamber; cham++) {
+            if (tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1]->id().isME21())
+              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1]->setESLookupTables(conf);
+          }
+        }
+      }
+    }
+  }
+}
+
 void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
                                         const CSCWireDigiCollection* wiredc,
                                         const CSCComparatorDigiCollection* compdc,
