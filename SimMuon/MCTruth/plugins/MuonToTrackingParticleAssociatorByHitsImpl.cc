@@ -29,9 +29,21 @@
 //
 MuonToTrackingParticleAssociatorByHitsImpl::MuonToTrackingParticleAssociatorByHitsImpl(
     TrackerMuonHitExtractor const &iHitExtractor,
+    std::unique_ptr<TrackerHitAssociator> iTracker,
+    std::unique_ptr<CSCHitAssociator> iCSC,
+    std::unique_ptr<DTHitAssociator> iDT,
+    std::unique_ptr<RPCHitAssociator> iRPC,
+    std::unique_ptr<GEMHitAssociator> iGEM,
     MuonAssociatorByHitsHelper::Resources const &iResources,
     MuonAssociatorByHitsHelper const *iHelper)
-    : m_hitExtractor(&iHitExtractor), m_resources(iResources), m_helper(iHelper) {}
+    : m_hitExtractor(&iHitExtractor),
+      m_tracker(std::move(iTracker)),
+      m_csc(std::move(iCSC)),
+      m_dt(std::move(iDT)),
+      m_rpc(std::move(iRPC)),
+      m_gem(std::move(iGEM)),
+      m_resources(iResources),
+      m_helper(iHelper) {}
 
 //
 // member functions
