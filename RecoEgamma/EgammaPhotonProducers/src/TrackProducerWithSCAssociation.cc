@@ -42,6 +42,7 @@ private:
   edm::EDGetTokenT<reco::TrackCandidateCaloClusterPtrAssociation> assoc_token;
   edm::OrphanHandle<reco::TrackCollection> rTracks_;
   edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrkToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
   bool myTrajectoryInEvent_;
   bool validTrackCandidateSCAssociationInput_;
 
@@ -63,7 +64,9 @@ private:
 DEFINE_FWK_MODULE(TrackProducerWithSCAssociation);
 
 TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::ParameterSet& iConfig)
-    : TrackProducerBase<reco::Track>(iConfig.getParameter<bool>("TrajectoryInEvent")), theAlgo(iConfig) {
+    : TrackProducerBase<reco::Track>(iConfig.getParameter<bool>("TrajectoryInEvent")),
+      theAlgo(iConfig),
+      ttopoToken_(esConsumes()) {
   initTrackProducerBase(
       iConfig, consumesCollector(), consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("src")));
   setAlias(iConfig.getParameter<std::string>("@module_label"));
@@ -116,9 +119,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   edm::ESHandle<MeasurementTracker> theMeasTk;
   getFromES(setup, theG, theMF, theFitter, thePropagator, theMeasTk, theBuilder);
 
-  edm::ESHandle<TrackerTopology> httopo;
-  setup.get<TrackerTopologyRcd>().get(httopo);
-  const TrackerTopology* ttopo = httopo.product();
+  const TrackerTopology* ttopo = &setup.getData(ttopoToken_);
 
   //
   //declare and get TrackColection to be retrieved from the event
