@@ -18,7 +18,7 @@ def custom_geometry_decentralized_V11(process, links='signaldriven',implementati
     process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TLinksMapping = cms.FileInPath(links_mapping)
     process.hgcalTriggerGeometryESProducer.TriggerGeometry.DisconnectedModules = cms.vuint32(0)
     process.hgcalTriggerGeometryESProducer.TriggerGeometry.ScintillatorLinksPerModule = cms.uint32(2)
-    process.hgcalTriggerGeometryESProducer.TriggerGeometry.JsonMappingFile = cms.FileInPath("L1Trigger/L1THGCal/data/hgcal_trigger_link_mapping_v1.json")
+    process.hgcalTriggerGeometryESProducer.TriggerGeometry.JsonMappingFile = cms.FileInPath("L1Trigger/L1THGCal/data/hgcal_trigger_link_mapping_120links_v1.json")
     return process
 
 

@@ -522,10 +522,8 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
       // fill modules
       uint32_t module = triggerGeometry_->getModuleFromTriggerCell(id);
       if (module != 0) {
-        if (id.det() != DetId::HGCalHSc) {
-          auto itr_insert = modules_to_triggercells.emplace(module, std::unordered_set<uint32_t>());
-          itr_insert.first->second.emplace(id);
-        }
+        auto itr_insert = modules_to_triggercells.emplace(module, std::unordered_set<uint32_t>());
+        itr_insert.first->second.emplace(id);
       }
 
       // Check consistency of cells included in trigger cell
@@ -577,13 +575,13 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
     edm::LogPrint("ModuleCheck") << "Checking trigger cell -> module -> trigger cell consistency";
     // Loop over modules
     for (const auto& module_triggercells : modules_to_triggercells) {
-      DetId id(module_triggercells.first);
+      HGCalTriggerModuleDetId id(module_triggercells.first);
       // Check consistency of trigger cells included in module
       HGCalTriggerGeometryBase::geom_set triggercells_geom = triggerGeometry_->getTriggerCellsFromModule(id);
       const auto& triggercells = module_triggercells.second;
       for (auto cell : triggercells) {
         if (triggercells_geom.find(cell) == triggercells_geom.end()) {
-          if (id.det() == DetId::HGCalHSc) {
+          if (id.triggerSubdetId() == HGCalTriggerSubdetector::HGCalHScTrigger) {
             HGCScintillatorDetId cellid(cell);
             edm::LogProblem("BadModule") << "Error: \n Trigger cell " << cell << "(" << cellid
                                          << ")\n has not been found in \n module " << HGCalTriggerModuleDetId(id);
@@ -595,7 +593,7 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
             edm::LogProblem("BadModule") << output.str();
             throw cms::Exception("BadGeometry")
                 << "HGCalTriggerGeometry: Found inconsistency in trigger cell <->  module mapping";
-          } else if (id.det() == DetId::Forward and id.subdetId() == ForwardSubdetector::HFNose) {
+          } else if (id.triggerSubdetId() == HGCalTriggerSubdetector::HFNoseTrigger) {
             HFNoseTriggerDetId cellid(cell);
             edm::LogProblem("BadModule") << "Error : \n Trigger cell " << cell << "(" << cellid
                                          << ")\n has not been found in \n module " << HGCalTriggerModuleDetId(id);
@@ -731,11 +729,11 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
         if (stage1FPGAs.find(stage1fpga) == stage1FPGAs.end()) {
           edm::LogProblem("BadStage2") << "Error: \n Stage-1 FPGA " << stage1fpga << "("
                                        << HGCalTriggerBackendDetId(stage1fpga)
-                                       << ")\n has not been found in \n stage-2 " << HGCalTriggerBackendDetId(stage2);
+                                       << ")\n has not been found in \n Stage-2 " << HGCalTriggerBackendDetId(stage2);
           std::stringstream output;
-          output << "   Available Stage-1 FPGAs are:\n";
+          output << "\n   Available Stage-1 FPGAs are:\n";
           for (auto stage1FPGA : stage1FPGAs) {
-            output << stage1FPGA << " ";
+            output << HGCalTriggerBackendDetId(stage1FPGA) << "\n";
           }
           edm::LogProblem("BadStage2") << output.str();
           throw cms::Exception("BadGeometry")
