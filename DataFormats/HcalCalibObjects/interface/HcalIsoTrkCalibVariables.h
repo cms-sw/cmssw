@@ -4,20 +4,19 @@
 #include <vector>
 
 class HcalIsoTrkCalibVariables {
-
 public:
   HcalIsoTrkCalibVariables() { clear(); }
-  
+
   void clear() {
     eventWeight_ = rhoh_ = 0;
     nVtx_ = goodPV_ = nTrk_ = 0;
     trgbits_.clear();
     mindR1_ = l1pt_ = l1eta_ = l1phi_ = 0;
     mindR2_ = l3pt_ = l3eta_ = l3phi_ = 0;
-    p_ = pt_=  phi_ = gentrackP_ = 0;
+    p_ = pt_ = phi_ = gentrackP_ = 0;
     ieta_ = iphi_ = 0;
     eMipDR_.clear();
-    eHcal_ =  eHcal10_ = eHcal30_ = 0;
+    eHcal_ = eHcal10_ = eHcal30_ = 0;
     emaxNearP_ = eAnnular_ = hmaxNearP_ = hAnnular_ = 0;
     selectTk_ = qltyFlag_ = qltyMissFlag_ = qltyPVFlag_ = false;
     detIds_.clear();

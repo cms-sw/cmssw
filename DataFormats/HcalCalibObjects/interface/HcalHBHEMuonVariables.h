@@ -4,16 +4,15 @@
 #include <vector>
 
 class HcalHBHEMuonVariables {
-
 public:
   HcalHBHEMuonVariables() { clear(); }
 
   void clear() {
-    muonGood_ = muonGlobal_ = muonTracker_ = muonTight_ =  muonMedium_ = false;
+    muonGood_ = muonGlobal_ = muonTracker_ = muonTight_ = muonMedium_ = false;
     ptGlob_ = etaGlob_ = phiGlob_ = energyMuon_ = pMuon_ = 0;
-    muonTrkKink_ =  muonChi2LocalPosition_ =  muonSegComp_ = 0;
+    muonTrkKink_ = muonChi2LocalPosition_ = muonSegComp_ = 0;
     trackerLayer_ = numPixelLayers_ = tightPixelHits_;
-    innerTrack_ = outerTrack_ = globalTrack_= false;
+    innerTrack_ = outerTrack_ = globalTrack_ = false;
     chiTracker_ = dxyTracker_ = dzTracker_ = 0;
     innerTrackPt_ = innerTrackEta_ = innerTrackEhi_ = 0;
     outerTrackHits_ = outerTrackRHits_ = 0;
@@ -22,23 +21,23 @@ public:
     globalTrackPt_ = globalTrackEta_ = globalTrackPhi_ = chiGlobal_ = 0;
     tightValidFraction_ = tightLongPara_ = tightTransImpara_ = 0;
     isolationR04_ = isolationR03_ = 0;
-    ecalDetId_ = 0; 
+    ecalDetId_ = 0;
     ecalEnergy_ = ecal3x3Energy_ = 0;
     hcalDetId_ = ehcalDetId_ = 0;
-    matchedId_ = hcalHot_= false;
+    matchedId_ = hcalHot_ = false;
     hcalIeta_ = hcalIphi_ = 0;
     hcalEnergy_ = hoEnergy_ = hcal1x1Energy_ = 0;
     hcalDepthEnergy_.clear();
     hcalDepthActiveLength_.clear();
-    hcalDepthEnergyHot_.clear(); 
+    hcalDepthEnergyHot_.clear();
     hcalDepthActiveLengthHot_.clear();
-    hcalDepthChargeHot_.clear(); 
+    hcalDepthChargeHot_.clear();
     hcalDepthChargeHotBG_.clear();
-    hcalDepthEnergyCorr_.clear(); 
+    hcalDepthEnergyCorr_.clear();
     hcalDepthEnergyHotCorr_.clear();
-    hcalDepthMatch_.clear(); 
+    hcalDepthMatch_.clear();
     hcalDepthMatchHot_.clear();
-    hcalActiveLength_ =  hcalActiveLengthHot_ = 0;
+    hcalActiveLength_ = hcalActiveLengthHot_ = 0;
     allTriggers_.clear();
     hltResults_.clear();
   }
@@ -56,7 +55,7 @@ public:
   float globalTrackPt_, globalTrackEta_, globalTrackPhi_, chiGlobal_;
   float tightValidFraction_, tightLongPara_, tightTransImpara_;
   float isolationR04_, isolationR03_;
-  unsigned int ecalDetId_; 
+  unsigned int ecalDetId_;
   float ecalEnergy_, ecal3x3Energy_;
   unsigned int hcalDetId_, ehcalDetId_;
   bool matchedId_, hcalHot_;
@@ -67,7 +66,7 @@ public:
   std::vector<float> hcalDepthChargeHot_, hcalDepthChargeHotBG_;
   std::vector<float> hcalDepthEnergyCorr_, hcalDepthEnergyHotCorr_;
   std::vector<bool> hcalDepthMatch_, hcalDepthMatchHot_;
-  float hcalActiveLength_,  hcalActiveLengthHot_;
+  float hcalActiveLength_, hcalActiveLengthHot_;
   std::vector<std::string> allTriggers_;
   std::vector<int> hltResults_;
 };
