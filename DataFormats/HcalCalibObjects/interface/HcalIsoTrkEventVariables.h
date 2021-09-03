@@ -4,10 +4,9 @@
 #include <vector>
 
 class HcalIsoTrkEventVariables {
-
 public:
   HcalIsoTrkEventVariables() { clear(); }
-  
+
   void clear() {
     allvertex_ = 0;
     tracks_ = tracksProp_ = tracksSaved_ = tracksLoose_ = tracksTight_ = 0;
