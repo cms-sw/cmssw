@@ -44,8 +44,8 @@ EcalTBWeightUncalibRecHitProducer::EcalTBWeightUncalibRecHitProducer(const edm::
       gainRatiosToken_(esConsumes()),
       tbWeightsToken_(esConsumes()),
       pedestalsToken_(esConsumes()),
-      testbeamEEShape(), // Shapes have been updated in 2018 such as to be able to fetch shape from the DB if EBShape(consumesCollector())//EEShape(consumesCollector()) are used
-      testbeamEBShape(), // use default constructor if you would rather prefer to use Phase I hardcoded shapes (18.05.2018 K. Theofilatos)
+      testbeamEEShape(),  // Shapes have been updated in 2018 such as to be able to fetch shape from the DB if EBShape(consumesCollector())//EEShape(consumesCollector()) are used
+      testbeamEBShape(),  // use default constructor if you would rather prefer to use Phase I hardcoded shapes (18.05.2018 K. Theofilatos)
       nbTimeBin_(ps.getParameter<int>("nbTimeBin")),
       use2004OffsetConvention_(ps.getUntrackedParameter<bool>("use2004OffsetConvention", false)) {
   produces<EBUncalibratedRecHitCollection>(ebHitCollection_);
