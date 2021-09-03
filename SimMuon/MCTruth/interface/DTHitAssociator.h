@@ -15,9 +15,12 @@
 #include "SimDataFormats/DigiSimLinks/interface/DTDigiSimLinkCollection.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 
 #include <map>
 #include <vector>
+
+class MuonGeometryRecord;
 
 class DTHitAssociator {
 public:
