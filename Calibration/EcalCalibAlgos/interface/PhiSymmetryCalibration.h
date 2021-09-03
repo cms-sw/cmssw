@@ -19,19 +19,25 @@
 #include "Calibration/EcalCalibAlgos/interface/EcalGeomPhiSymHelper.h"
 
 // Framework
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 class TH1F;
 
-class PhiSymmetryCalibration : public edm::EDAnalyzer {
+class PhiSymmetryCalibration
+    : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   PhiSymmetryCalibration(const edm::ParameterSet& iConfig);
@@ -41,7 +47,9 @@ public:
 
   /// Called at beginning of job
   void beginJob() override;
+  void beginRun(edm::Run const&, const edm::EventSetup&) override;
   void endRun(edm::Run const&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   /// Called at end of job
@@ -111,27 +119,32 @@ private:
 
   // steering parameters
 
-  std::string ecalHitsProducer_;
-  std::string barrelHits_;
-  std::string endcapHits_;
+  const std::string ecalHitsProducer_;
+  const std::string barrelHits_;
+  const std::string endcapHits_;
+
+  const edm::EDGetTokenT<EBRecHitCollection> ebRecHitToken_;
+  const edm::EDGetTokenT<EERecHitCollection> eeRecHitToken_;
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> channelStatusToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
 
   // energy cut in the barrel
-  double eCut_barl_;
+  const double eCut_barl_;
 
   // parametrized energy cut EE : e_cut = ap + eta_ring*b
-  double ap_;
-  double b_;
+  const double ap_;
+  const double b_;
 
-  int eventSet_;
+  const int eventSet_;
   /// threshold in channel status beyond which channel is marked bad
-  int statusThreshold_;
+  const int statusThreshold_;
 
   static const int kMaxEndciPhi = 360;
 
   float phi_endc[kMaxEndciPhi][kEndcEtaRings];
 
-  bool reiteration_;
-  std::string oldcalibfile_;  //searched for in Calibration/EcalCalibAlgos/data
+  const bool reiteration_;
+  const std::string oldcalibfile_;  //searched for in Calibration/EcalCalibAlgos/data
 
   /// the old calibration constants (when reiterating, the last ones derived)
   EcalIntercalibConstants oldCalibs_;
