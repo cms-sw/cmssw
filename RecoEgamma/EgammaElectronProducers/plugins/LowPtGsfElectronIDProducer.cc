@@ -158,12 +158,15 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
       // Extract Track
       const reco::Track* trk = nullptr;
       if (useGsfToTrack_) {
-        const edm::Ptr<pat::PackedCandidate>* cand =
-            ele->hasUserData("ele2packed")
-                ? ele->userData<edm::Ptr<pat::PackedCandidate> >("ele2packed")
-                : ele->hasUserData("ele2lost") ? ele->userData<edm::Ptr<pat::PackedCandidate> >("ele2lost") : nullptr;
-        if (cand != nullptr && cand->isNonnull()) {
-          trk = (*cand)->bestTrack();
+        const edm::Ptr<pat::PackedCandidate>* ptr1 =
+	  ele->hasUserData("ele2packed") ? ele->userData<edm::Ptr<pat::PackedCandidate> >("ele2packed") : nullptr;
+        const edm::Ptr<pat::PackedCandidate>* ptr2 =
+	  ele->hasUserData("ele2lost") ? ele->userData<edm::Ptr<pat::PackedCandidate> >("ele2lost") : nullptr;
+        const pat::PackedCandidate* cand1 = ptr1 && ptr1->isNonnull() ? ptr1->get() : nullptr;
+        const pat::PackedCandidate* cand2 = ptr2 && ptr2->isNonnull() ? ptr2->get() : nullptr;
+	const pat::PackedCandidate* cand = cand1 ? cand1 : cand2;
+        if (cand != nullptr) {
+          trk = cand->bestTrack();
         }
       } else {
         reco::TrackRef ref = ele->closestCtfTrackRef();
