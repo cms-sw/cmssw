@@ -26,6 +26,8 @@ namespace muonAssociatorByHitsDiagnostics {
   class InputDumper;
 }
 
+class TrackerTopologyRcd;
+
 class MuonAssociatorByHits {
 public:
   MuonAssociatorByHits(const edm::ParameterSet &conf, edm::ConsumesCollector &&iC);
@@ -84,6 +86,7 @@ private:
   CSCHitAssociator::Config cscHitAssociatorConfig_;
   DTHitAssociator::Config dtHitAssociatorConfig_;
 
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
   std::unique_ptr<muonAssociatorByHitsDiagnostics::InputDumper> diagnostics_;
 };
 
