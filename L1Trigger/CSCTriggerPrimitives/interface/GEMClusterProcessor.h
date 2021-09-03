@@ -8,11 +8,11 @@
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigi.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/GEMInternalCluster.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCLUTReader.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME11ILT.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME21ILT.h"
 
 #include <vector>
 
@@ -40,6 +40,10 @@ public:
   std::vector<GEMCoPadDigi> readoutCoPads() const;
 
   bool hasGE21Geometry16Partitions() const { return hasGE21Geometry16Partitions_; }
+
+  void setESLookupTables(const CSCL1TPLookupTableME11ILT* conf);
+
+  void setESLookupTables(const CSCL1TPLookupTableME21ILT* conf);
 
 private:
   // put coincidence clusters in GEMInternalCluster vector
@@ -69,52 +73,8 @@ private:
   // output collection
   std::vector<GEMInternalCluster> clusters_;
 
-  // strings to paths of LUTs
-  std::vector<std::string> padToHsME1aFiles_;
-  std::vector<std::string> padToHsME1bFiles_;
-  std::vector<std::string> padToHsME21Files_;
-
-  std::vector<std::string> padToEsME1aFiles_;
-  std::vector<std::string> padToEsME1bFiles_;
-  std::vector<std::string> padToEsME21Files_;
-
-  std::vector<std::string> rollToMaxWgME11Files_;
-  std::vector<std::string> rollToMinWgME11Files_;
-  std::vector<std::string> rollToMaxWgME21Files_;
-  std::vector<std::string> rollToMinWgME21Files_;
-
-  // unique pointers to the luts
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_pad_hs_ME1a_even_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_pad_hs_ME1a_odd_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_pad_hs_ME1b_even_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_pad_hs_ME1b_odd_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_pad_hs_ME21_even_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_pad_hs_ME21_odd_;
-
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_pad_es_ME1a_even_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_pad_es_ME1a_odd_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_pad_es_ME1b_even_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_pad_es_ME1b_odd_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_pad_es_ME21_even_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_pad_es_ME21_odd_;
-
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l1_max_wg_ME11_even_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l1_max_wg_ME11_odd_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l1_min_wg_ME11_even_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l1_min_wg_ME11_odd_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l1_max_wg_ME21_even_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l1_max_wg_ME21_odd_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l1_min_wg_ME21_even_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l1_min_wg_ME21_odd_;
-
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l2_max_wg_ME11_even_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l2_max_wg_ME11_odd_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l2_min_wg_ME11_even_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l2_min_wg_ME11_odd_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l2_max_wg_ME21_even_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l2_max_wg_ME21_odd_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l2_min_wg_ME21_even_;
-  std::unique_ptr<CSCLUTReader> GEMCSCLUT_roll_l2_min_wg_ME21_odd_;
+  const CSCL1TPLookupTableME11ILT* lookupTableME11ILT_;
+  const CSCL1TPLookupTableME21ILT* lookupTableME21ILT_;
 };
 
 #endif

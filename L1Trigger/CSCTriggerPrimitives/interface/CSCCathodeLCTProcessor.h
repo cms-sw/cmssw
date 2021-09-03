@@ -34,7 +34,6 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigi.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCLUTReader.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/ComparatorCodeLUT.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/PulseArray.h"
@@ -56,6 +55,8 @@ public:
 
   /** Sets configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
+
+  void setESLookupTables(const CSCL1TPLookupTableCCLUT* conf);
 
   /** Clears the LCT containers. */
   void clear();

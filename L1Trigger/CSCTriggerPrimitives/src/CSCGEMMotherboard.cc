@@ -72,6 +72,11 @@ void CSCGEMMotherboard::run(const CSCWireDigiCollection* wiredc,
   alctProc->setCSCGeometry(cscGeometry_);
   clctProc->setCSCGeometry(cscGeometry_);
 
+  // set CCLUT parameters if necessary
+  if (runCCLUT_) {
+    clctProc->setESLookupTables(lookupTableCCLUT_);
+  }
+
   // Step 2: Run the processors
   const std::vector<CSCALCTDigi>& alctV = alctProc->run(wiredc);  // run anodeLCT
   const std::vector<CSCCLCTDigi>& clctV = clctProc->run(compdc);  // run cathodeLCT
@@ -82,6 +87,16 @@ void CSCGEMMotherboard::run(const CSCWireDigiCollection* wiredc,
   // if there are no ALCTs and no CLCTs, do not run the ALCT-CLCT correlation
   if (alctV.empty() and clctV.empty())
     return;
+
+  // set the lookup tables for coordinate conversion and matching
+  if (isME11_) {
+    clusterProc_->setESLookupTables(lookupTableME11ILT_);
+    cscGEMMatcher_->setESLookupTables(lookupTableME11ILT_);
+  }
+  if (isME21_) {
+    clusterProc_->setESLookupTables(lookupTableME21ILT_);
+    cscGEMMatcher_->setESLookupTables(lookupTableME21ILT_);
+  }
 
   // Step 3: run the GEM cluster processor to get the internal clusters
   clusterProc_->run(gemClusters);
