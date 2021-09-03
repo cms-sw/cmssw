@@ -16,7 +16,9 @@ struct A {
 int main(int s, char **) {
   using T = A;
 
-  unsigned n = 4 * s;
+  unsigned n = 4;
+  if (s > 1)
+    n = 4 * s;
 
   //  alignas(alignof(T)) unsigned char a_storage[sizeof(T)*n];
   //  DynArray<T> a(a_storage,n);
