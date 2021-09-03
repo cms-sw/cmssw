@@ -21,7 +21,7 @@
 //
 
 // system include files
-#include <memory>
+#include <functional>
 
 // user include files
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociatorBaseImpl.h"
@@ -32,14 +32,20 @@ class TrackerMuonHitExtractor;
 
 class MuonToTrackingParticleAssociatorByHitsImpl : public reco::MuonToTrackingParticleAssociatorBaseImpl {
 public:
-  MuonToTrackingParticleAssociatorByHitsImpl(TrackerMuonHitExtractor const &iHitExtractor,
-                                             std::unique_ptr<TrackerHitAssociator> iTracker,
-                                             std::unique_ptr<CSCHitAssociator> iCSC,
-                                             std::unique_ptr<DTHitAssociator> iDT,
-                                             std::unique_ptr<RPCHitAssociator> iRPC,
-                                             std::unique_ptr<GEMHitAssociator> iGEM,
-                                             MuonAssociatorByHitsHelper::Resources const &iResources,
-                                             MuonAssociatorByHitsHelper const *iHelper);
+  using TrackHitsCollection = MuonAssociatorByHitsHelper::TrackHitsCollection;
+
+  MuonToTrackingParticleAssociatorByHitsImpl(
+      TrackerMuonHitExtractor const &iHitExtractor,
+      TrackerHitAssociator::Config const &iTracker,
+      CSCHitAssociator::Config const &iCSC,
+      DTHitAssociator::Config const &iDT,
+      RPCHitAssociator::Config const &iRPC,
+      GEMHitAssociator::Config const &iGEM,
+      edm::Event const &iEvent,
+      edm::EventSetup const &iSetup,
+      const TrackerTopology *iTopo,
+      std::function<void(const TrackHitsCollection &, const TrackingParticleCollection &)>,
+      MuonAssociatorByHitsHelper const *iHelper);
 
   MuonToTrackingParticleAssociatorByHitsImpl(const MuonToTrackingParticleAssociatorByHitsImpl &) =
       delete;  // stop default
@@ -67,11 +73,11 @@ public:
 private:
   // ---------- member data --------------------------------
   TrackerMuonHitExtractor const *m_hitExtractor;
-  std::unique_ptr<TrackerHitAssociator const> m_tracker;
-  std::unique_ptr<CSCHitAssociator const> m_csc;
-  std::unique_ptr<DTHitAssociator const> m_dt;
-  std::unique_ptr<RPCHitAssociator const> m_rpc;
-  std::unique_ptr<GEMHitAssociator const> m_gem;
+  TrackerHitAssociator const m_tracker;
+  CSCHitAssociator const m_csc;
+  DTHitAssociator const m_dt;
+  RPCHitAssociator const m_rpc;
+  GEMHitAssociator const m_gem;
   MuonAssociatorByHitsHelper::Resources m_resources;
   MuonAssociatorByHitsHelper const *m_helper;
 };
