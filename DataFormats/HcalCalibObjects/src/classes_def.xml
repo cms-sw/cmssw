@@ -4,4 +4,19 @@
   </class>
   <class name="std::vector<HOCalibVariables>"/>
   <class name="edm::Wrapper<std::vector<HOCalibVariables> >"/>
+  <class name="HcalHBHEMuonVariables" ClassVersion="17">
+   <version ClassVersion="17" checksum="1863216916"/>
+  </class>
+  <class name="std::vector<HcalHBHEMuonVariables>"/>
+  <class name="edm::Wrapper<std::vector<HcalHBHEMuonVariables> >"/>
+  <class name="HcalIsoTrkCalibVariables" ClassVersion="17">
+   <version ClassVersion="17" checksum="662580897"/>
+  </class>
+  <class name="std::vector<HcalIsoTrkCalibVariables>"/>
+  <class name="edm::Wrapper<std::vector<HcalIsoTrkCalibVariables> >"/>
+  <class name="HcalIsoTrkEventVariables" ClassVersion="17">
+   <version ClassVersion="17" checksum="4094456915"/>
+  </class>
+  <class name="std::vector<HcalIsoTrkEventVariables>"/>
+  <class name="edm::Wrapper<std::vector<HcalIsoTrkEventVariables> >"/>
 </lcgdict>
