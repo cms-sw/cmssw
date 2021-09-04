@@ -35,7 +35,6 @@
 #include "CondFormats/PPSObjects/interface/PPSTimingCalibration.h"
 #include "CondFormats/PPSObjects/interface/PPSAlignmentConfiguration.h"
 #include "CondFormats/PPSObjects/interface/LHCOpticalFunctionsSetCollection.h"
-#include "CondFormats/PPSObjects/interface/PPSAlignmentConfig.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DTObjects/interface/DTDeadFlag.h"
 #include "CondFormats/DTObjects/interface/DTHVStatus.h"
