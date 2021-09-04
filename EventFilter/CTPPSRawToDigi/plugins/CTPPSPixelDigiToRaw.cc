@@ -82,6 +82,7 @@ private:
   edm::ESGetToken<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd> tCTPPSPixelDAQMapping_;
   std::vector<CTPPSPixelDataFormatter::PPSPixelIndex> v_iDdet2fed_;
   CTPPSPixelFramePosition fPos_;
+  bool isRun3_;
 };
 
 //
@@ -106,6 +107,8 @@ CTPPSPixelDigiToRaw::CTPPSPixelDigiToRaw(const edm::ParameterSet& iConfig)
 
   // Define EDProduct type
   produces<FEDRawDataCollection>();
+
+  isRun3_ = iConfig.getParameter<bool>("isRun3");
 }
 
 CTPPSPixelDigiToRaw::~CTPPSPixelDigiToRaw() {}
@@ -149,7 +152,7 @@ void CTPPSPixelDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::sort(v_iDdet2fed_.begin(), v_iDdet2fed_.end(), CTPPSPixelDataFormatter::compare);
 
   // convert data to raw
-  formatter.formatRawData(iEvent.id().event(), rawdata, digis, v_iDdet2fed_);
+  formatter.formatRawData(isRun3_, iEvent.id().event(), rawdata, digis, v_iDdet2fed_);
 
   // pack raw data into collection
   for (auto it = fedIds_.begin(); it != fedIds_.end(); it++) {
@@ -171,6 +174,7 @@ void CTPPSPixelDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void CTPPSPixelDigiToRaw::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<bool>("isRun3", true);
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("RPixDetDigitizer"));
   desc.add<std::string>("mappingLabel", "RPix");
   descriptions.add("ctppsPixelRawData", desc);
