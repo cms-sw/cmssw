@@ -20,8 +20,6 @@
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "TCanvas.h"
 #include <utility>
-#include <string>
-#include <vector>
 
 using namespace edm;
 using namespace std;
@@ -45,6 +43,13 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig)
       EBDigis_(iConfig.getParameter<edm::InputTag>("EBDigiCollection")),
       EEDigis_(iConfig.getParameter<edm::InputTag>("EEDigiCollection")),
       headerProducer_(iConfig.getParameter<edm::InputTag>("headerProducer")),
+      rawDataToken_(consumes<EcalRawDataCollection>(headerProducer_)),
+      ebRecHitToken_(consumes<EcalRecHitCollection>(EBRecHitCollection_)),
+      eeRecHitToken_(consumes<EcalRecHitCollection>(EERecHitCollection_)),
+      ebDigiToken_(consumes<EBDigiCollection>(EBDigis_)),
+      eeDigiToken_(consumes<EEDigiCollection>(EEDigis_)),
+      ecalMappingToken_(esConsumes<edm::Transition::BeginRun>()),
+      topologyToken_(esConsumes()),
       runNum_(-1),
       side_(iConfig.getUntrackedParameter<int>("side", 3)),
       threshold_(iConfig.getUntrackedParameter<double>("amplitudeThreshold", 12.0)),
@@ -94,7 +99,7 @@ void EcalMipGraphs::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   // get the headers
   // (one header for each supermodule)
   edm::Handle<EcalRawDataCollection> DCCHeaders;
-  iEvent.getByLabel(headerProducer_, DCCHeaders);
+  iEvent.getByToken(rawDataToken_, DCCHeaders);
 
   for (EcalRawDataCollection::const_iterator headerItr = DCCHeaders->begin(); headerItr != DCCHeaders->end();
        ++headerItr) {
@@ -114,21 +119,18 @@ void EcalMipGraphs::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   //We only want the 3x3's for this event...
   listEBChannels.clear();
   listEEChannels.clear();
+  caloTopo_ = &iSetup.getData(topologyToken_);
+
   Handle<EcalRecHitCollection> EBhits;
   Handle<EcalRecHitCollection> EEhits;
-  ESHandle<CaloTopology> caloTopo;
-  iSetup.get<CaloTopologyRecord>().get(caloTopo);
-  iEvent.getByLabel(EBRecHitCollection_, EBhits);
-  iEvent.getByLabel(EERecHitCollection_, EEhits);
+  iEvent.getByToken(ebRecHitToken_, EBhits);
+  iEvent.getByToken(eeRecHitToken_, EEhits);
   // Now, retrieve the crystal digi from the event
-  iEvent.getByLabel(EBDigis_, EBdigisHandle);
-  iEvent.getByLabel(EEDigis_, EEdigisHandle);
-  //debug
-  //LogWarning("EcalMipGraphs") << "event " << ievt << " EBhits collection size " << EBhits->size();
-  //LogWarning("EcalMipGraphs") << "event " << ievt << " EEhits collection size " << EEhits->size();
+  iEvent.getByToken(ebDigiToken_, EBdigisHandle);
+  iEvent.getByToken(eeDigiToken_, EEdigisHandle);
 
-  selectHits(EBhits, ievt, caloTopo);
-  selectHits(EEhits, ievt, caloTopo);
+  selectHits(EBhits, ievt);
+  selectHits(EEhits, ievt);
 }
 
 TGraph* EcalMipGraphs::selectDigi(DetId thisDet, int ievt) {
@@ -232,7 +234,7 @@ TGraph* EcalMipGraphs::selectDigi(DetId thisDet, int ievt) {
   return oneGraph;
 }
 
-void EcalMipGraphs::selectHits(Handle<EcalRecHitCollection> hits, int ievt, ESHandle<CaloTopology> caloTopo) {
+void EcalMipGraphs::selectHits(Handle<EcalRecHitCollection> hits, int ievt) {
   for (EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr) {
     EcalRecHit hit = (*hitItr);
     DetId det = hit.id();
@@ -281,7 +283,7 @@ void EcalMipGraphs::selectHits(Handle<EcalRecHitCollection> hits, int ievt, ESHa
       TGraph* myGraph;
       int canvasNum = 1;
 
-      CaloNavigator<DetId> cursor = CaloNavigator<DetId>(det, caloTopo->getSubdetectorTopology(det));
+      CaloNavigator<DetId> cursor = CaloNavigator<DetId>(det, caloTopo_->getSubdetectorTopology(det));
       //Now put each graph in one by one
       for (int j = side_ / 2; j >= -side_ / 2; --j) {
         for (int i = -side_ / 2; i <= side_ / 2; ++i) {
@@ -328,10 +330,10 @@ void EcalMipGraphs::initHists(int FED) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void EcalMipGraphs::beginRun(edm::Run const&, edm::EventSetup const& c) {
-  edm::ESHandle<EcalElectronicsMapping> handle;
-  c.get<EcalMappingRcd>().get(handle);
-  ecalElectronicsMap_ = handle.product();
+  ecalElectronicsMap_ = &c.getData(ecalMappingToken_);
 }
+
+void EcalMipGraphs::endRun(edm::Run const&, edm::EventSetup const& c) {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void EcalMipGraphs::endJob() {
