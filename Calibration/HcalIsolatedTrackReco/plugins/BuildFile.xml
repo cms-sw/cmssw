@@ -22,4 +22,6 @@
 <use name="MagneticField/VolumeBasedEngine"/>
 <use name="RecoTracker/TkTrackingRegions"/>
 <use name="rootmath"/>
-<flags EDM_PLUGIN="1"/>
+<library file="*.cc" name="CalibrationHcalIsolatedTrackRecoPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
