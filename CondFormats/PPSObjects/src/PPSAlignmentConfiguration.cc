@@ -63,6 +63,8 @@ unsigned int PPSAlignmentConfiguration::multSelProjYMinEntries() const { return 
 
 const PPSAlignmentConfiguration::Binning& PPSAlignmentConfiguration::binning() const { return binning_; }
 
+const std::vector<double>& PPSAlignmentConfiguration::extraParams() const { return extraParams_; }
+
 // -------------------------------- PPSAlignmentConfiguration setters --------------------------------
 
 void PPSAlignmentConfiguration::setSectorConfig45(PPSAlignmentConfiguration::SectorConfig& sectorConfig45) {
@@ -125,6 +127,8 @@ void PPSAlignmentConfiguration::setMultSelProjYMinEntries(unsigned int multSelPr
 }
 
 void PPSAlignmentConfiguration::setBinning(PPSAlignmentConfiguration::Binning& binning) { binning_ = binning; }
+
+void PPSAlignmentConfiguration::setExtraParams(std::vector<double>& extraParams) { extraParams_ = extraParams; }
 
 // -------------------------------- << operators --------------------------------
 
@@ -246,6 +250,14 @@ std::ostream& operator<<(std::ostream& os, const PPSAlignmentConfiguration& c) {
   os << "\n"
      << "* binning\n";
   os << c.binning_ << "\n";
+
+  if (!c.extraParams_.empty()) {
+    os << "\n";
+    os << "extra_params:\n";
+    for (size_t i = 0; i < c.extraParams_.size(); i++) {
+      os << std::setw(5) << i << ": " << c.extraParams_[i] << "\n";
+    }
+  }
 
   return os;
 }
