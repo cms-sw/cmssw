@@ -1,22 +1,50 @@
+/* \class IsolatedPixelTrackCorrector
+ *
+ *  
+ */
+
 #include <vector>
 #include <memory>
 #include <algorithm>
 
-// Class header file
-#include "Calibration/HcalIsolatedTrackReco/interface/IPTCorrector.h"
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
-// Framework
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+
+// Framework
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 //
-#include "DataFormats/Common/interface/TriggerResults.h"
 ///
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
-#include "DataFormats/Math/interface/deltaR.h"
+
+class IPTCorrector : public edm::global::EDProducer<> {
+public:
+  IPTCorrector(const edm::ParameterSet& ps);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+
+private:
+  const edm::EDGetTokenT<reco::TrackCollection> tok_cor_;
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_uncor_;
+  const double assocCone_;
+};
 
 IPTCorrector::IPTCorrector(const edm::ParameterSet& config)
     : tok_cor_(consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("corTracksLabel"))),
@@ -88,3 +116,8 @@ void IPTCorrector::produce(edm::StreamID, edm::Event& theEvent, edm::EventSetup 
   // put the product in the event
   theEvent.put(std::move(trackCollection));
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(IPTCorrector);

@@ -1,6 +1,3 @@
-#ifndef HITRegionalPixelSeedGenerator_h
-#define HITRegionalPixelSeedGenerator_h
-
 //
 // Class:           HITRegionalPixelSeedGenerator
 
@@ -170,9 +167,9 @@ public:
       edm::Handle<reco::VertexCollection> vertices;
       e.getByToken(token_vertex, vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
-      reco::VertexCollection::const_iterator ci = vertCollection.begin();
       if (!vertCollection.empty()) {
-        originz = ci->z();
+        //      reco::VertexCollection::const_iterator ci = vertCollection.begin();
+        //      originz = ci->z();
       } else {
         deltaZVertex = 15.;
       }
@@ -206,4 +203,9 @@ private:
   edm::EDGetTokenT<l1extra::L1JetParticleCollection> token_l1jet;
 };
 
-#endif
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
+#
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HITRegionalPixelSeedGenerator, "HITRegionalPixelSeedGenerator");
