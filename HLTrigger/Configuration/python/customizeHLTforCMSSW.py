@@ -133,16 +133,17 @@ def customiseFor2018Input(process):
 def customiseForRun3GEMGeometry34788(process):
     """Add GEM geometry to output from hltGetConfiguration"""
     process.load("Geometry.GEMGeometryBuilder.gemGeometryDB_cfi")
-    
-    return process
+
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    
+
+    # GEM
+    from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
     if menuType in ["GRun","HIon","PIon","PRef"]:
-        process = customiseForRun3GEMGeometry34788(process)
+        addCustomiseForRun3GEMGeometry34788_ = (~dd4hep).makeProcessModifier( customiseForRun3GEMGeometry34788 )
 
     return process
