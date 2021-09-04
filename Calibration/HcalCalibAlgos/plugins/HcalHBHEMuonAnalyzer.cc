@@ -810,8 +810,9 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   }
   if (accept) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HBHEMuon") << "ieta/iphi for entry to "
-                                 << "HCAL has value of " << hcal_ieta_ << ":" << hcal_iphi_;
+    for (unsigned int i = 0; i < hcal_ieta.size(); ++i)
+      edm::LogVerbatim("HBHEMuon") << "[" << i << "] ieta/iphi for entry to "
+                                   << "HCAL has value of " << hcal_ieta[i] << ":" << hcal_iphi[i];
 #endif
     for (unsigned int k = 0; k < muon_is_good.size(); ++k) {
       muon_is_good_ = muon_is_good[k];
