@@ -25,7 +25,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-
 void hcalCalib::Begin(TTree* /*tree*/) {
   TString option = GetOption();
 
@@ -695,7 +694,7 @@ void hcalCalib::makeTextFile() {
   return;
 }
 
-inline void hcalCalib::Init(TTree *tree) {
+inline void hcalCalib::Init(TTree* tree) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.

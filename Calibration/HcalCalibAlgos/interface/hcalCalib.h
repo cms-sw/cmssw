@@ -94,29 +94,29 @@ public:
 
   UInt_t nEvents;
 
-  TFile* histoFile;
+  TFile *histoFile;
 
   // sanity check histograms
-  TH1F* h1_trkP;
-  TH1F* h1_allTrkP;
+  TH1F *h1_trkP;
+  TH1F *h1_allTrkP;
 
-  TH1F* h1_selTrkP_iEta10;
+  TH1F *h1_selTrkP_iEta10;
 
-  TH1F* h1_rawSumE;
-  TH1F* h1_rawResp;
-  TH1F* h1_corResp;
-  TH1F* h1_rawRespBarrel;
-  TH1F* h1_corRespBarrel;
-  TH1F* h1_rawRespEndcap;
-  TH1F* h1_corRespEndcap;
-  TH1F* h1_numEventsTwrIEta;
-  
-  TH2F* h2_dHitRefBarrel;
-  TH2F* h2_dHitRefEndcap;
+  TH1F *h1_rawSumE;
+  TH1F *h1_rawResp;
+  TH1F *h1_corResp;
+  TH1F *h1_rawRespBarrel;
+  TH1F *h1_corRespBarrel;
+  TH1F *h1_rawRespEndcap;
+  TH1F *h1_corRespEndcap;
+  TH1F *h1_numEventsTwrIEta;
+
+  TH2F *h2_dHitRefBarrel;
+  TH2F *h2_dHitRefEndcap;
 
   // histograms based on iEta, iPhi of refPosition forthe cluster (at the moment: hottest tower)
   // expect range |iEta|<=24 (to do: add flexibility for arbitrary range)
-  TH1F* h1_corRespIEta[48];
+  TH1F *h1_corRespIEta[48];
 
   hcalCalib(TTree * /*tree*/ = nullptr) {}
   ~hcalCalib() override {}
