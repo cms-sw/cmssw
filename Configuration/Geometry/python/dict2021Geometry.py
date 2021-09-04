@@ -350,7 +350,6 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
     },
     "T2" : {
@@ -553,7 +552,6 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
     },
     "T3" : {
@@ -757,7 +755,6 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
     },
     "T4" : {
@@ -961,7 +958,6 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
     },
     "T5" : {
@@ -1166,7 +1162,6 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
     },
     "T6" : {
@@ -1371,7 +1366,6 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
     },
     "T7" : {
@@ -1576,7 +1570,6 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
     },
     "T8" : {
@@ -1781,7 +1774,6 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *',
             'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
     },
 }
