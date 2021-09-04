@@ -72,7 +72,8 @@ process.ppsAlignmentConfigurationESSource = cms.ESSource("PPSAlignmentConfigurat
             x_min = cms.double(102),
             x_max = cms.double(210.0)
         )
-    )
+    ),
+    extra_params = cms.vdouble( 1.15, 102., 777.7 )
 )
 
 # DB object maker

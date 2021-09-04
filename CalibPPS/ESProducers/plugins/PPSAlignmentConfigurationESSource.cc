@@ -82,6 +82,8 @@ private:
 
   PPSAlignmentConfiguration::Binning binning;
 
+  std::vector<double> extraParams;
+
   std::string label;
 };
 
@@ -262,6 +264,8 @@ PPSAlignmentConfigurationESSource::PPSAlignmentConfigurationESSource(const edm::
   binning.slice_y_min_ = bps.getParameter<double>("slice_y_min");
   binning.slice_y_max_ = bps.getParameter<double>("slice_y_max");
 
+  extraParams = iConfig.getParameter<std::vector<double>>("extra_params");
+
   setWhatProduced(this, label);
   findingRecord<PPSAlignmentConfigurationRcd>();
 
@@ -306,6 +310,8 @@ std::unique_ptr<PPSAlignmentConfiguration> PPSAlignmentConfigurationESSource::pr
   p->setMultSelProjYMinEntries(multSelProjYMinEntries);
 
   p->setBinning(binning);
+
+  p->setExtraParams(extraParams);
 
   edm::LogInfo("PPS") << "\n"
                       << "[ESSource] " << (label.empty() ? "empty label" : "label = " + label) << ":\n\n"
@@ -574,6 +580,8 @@ void PPSAlignmentConfigurationESSource::fillDescriptions(edm::ConfigurationDescr
 
     desc.add<edm::ParameterSetDescription>("binning", binning);
   }
+
+  desc.add<std::vector<double>>("extra_params", {});
 
   descriptions.add("ppsAlignmentConfigurationESSource", desc);
 }

@@ -115,6 +115,8 @@ public:
 
   const Binning& binning() const;
 
+  const std::vector<double>& extraParams() const;
+
   // Setters
   void setSectorConfig45(SectorConfig& sectorConfig45);
   void setSectorConfig56(SectorConfig& sectorConfig56);
@@ -147,6 +149,8 @@ public:
   void setMultSelProjYMinEntries(unsigned int multSelProjYMinEntries);
 
   void setBinning(Binning& binning);
+
+  void setExtraParams(std::vector<double>& extraParams);
 
   // << operator
   friend std::ostream& operator<<(std::ostream& os, const PPSAlignmentConfiguration& c);
@@ -182,6 +186,8 @@ private:
   unsigned int multSelProjYMinEntries_;
 
   Binning binning_;
+
+  std::vector<double> extraParams_;
 
   COND_SERIALIZABLE;
 };
