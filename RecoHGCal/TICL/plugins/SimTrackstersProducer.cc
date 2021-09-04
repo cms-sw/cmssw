@@ -125,13 +125,17 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
     auto const& cp = *(key);
     auto cpIndex = &cp - &caloparticles[0];
 
+    auto regr_energy = cp.energy();
+
     // Create a Trackster from the object entering HGCal
     if (cp.g4Tracks()[0].crossedBoundary()) {
+      regr_energy = cp.g4Tracks()[0].getMomentumAtBoundary().energy();
+
       addTrackster(cpIndex,
                    lcVec,
                    inputClusterMask,
                    fractionCut_,
-                   cp.g4Tracks()[0].getMomentumAtBoundary().energy(),
+                   regr_energy,
                    cp.pdgId(),
                    cp.charge(),
                    key.id(),
@@ -164,7 +168,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                  lcVec,
                  inputClusterMask,
                  fractionCut_,
-                 cp.g4Tracks()[0].getMomentumAtBoundary().energy(),
+                 regr_energy,
                  cp.pdgId(),
                  cp.charge(),
                  key.id(),
