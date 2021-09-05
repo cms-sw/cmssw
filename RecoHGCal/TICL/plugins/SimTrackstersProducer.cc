@@ -29,6 +29,7 @@
 
 #include "TrackstersPCA.h"
 #include <vector>
+#include <map>
 #include <iterator>
 #include <algorithm>
 
@@ -73,10 +74,11 @@ SimTrackstersProducer::SimTrackstersProducer(const edm::ParameterSet& ps)
           consumes(ps.getParameter<edm::InputTag>("layerClusterCaloParticleAssociator"))),
       geom_token_(esConsumes()),
       fractionCut_(ps.getParameter<double>("fractionCut")) {
-  produces<std::vector<Trackster>>();
+  produces<TracksterCollection>();
   produces<std::vector<float>>();
-  produces<std::vector<Trackster>>("fromCPs");
+  produces<TracksterCollection>("fromCPs");
   produces<std::vector<float>>("fromCPs");
+  produces<std::map<uint, std::vector<uint>>>();
 }
 
 void SimTrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -98,10 +100,11 @@ void SimTrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& des
 }
 
 void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
-  auto result = std::make_unique<std::vector<Trackster>>();
+  auto result = std::make_unique<TracksterCollection>();
   auto output_mask = std::make_unique<std::vector<float>>();
-  auto result_fromCP = std::make_unique<std::vector<Trackster>>();
+  auto result_fromCP = std::make_unique<TracksterCollection>();
   auto output_mask_fromCP = std::make_unique<std::vector<float>>();
+  auto cpToSc_STS = std::make_unique<std::map<uint, std::vector<uint>>>();
   const auto& layerClusters = evt.get(clusters_token_);
   const auto& layerClustersTimes = evt.get(clustersTime_token_);
   const auto& inputClusterMask = evt.get(filtered_layerclusters_mask_token_);
@@ -117,7 +120,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   const auto& geom = es.getData(geom_token_);
   rhtools_.setGeometry(geom);
   auto num_simclusters = simclusters.size();
-  result->reserve(num_simclusters); // Conservative size, will call shrink_to_fit later
+  result->reserve(num_simclusters);  // Conservative size, will call shrink_to_fit later
   auto num_caloparticles = caloparticles.size();
   result_fromCP->reserve(num_caloparticles);
 
@@ -126,6 +129,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
     auto cpIndex = &cp - &caloparticles[0];
 
     auto regr_energy = cp.energy();
+    std::vector<uint> scSTS;
 
     // Create a Trackster from the object entering HGCal
     if (cp.g4Tracks()[0].crossedBoundary()) {
@@ -160,6 +164,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                      scRef.id(),
                      *output_mask,
                      *result);
+        scSTS.push_back(result->size() - 1);
       }
     }
 
@@ -174,7 +179,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                  key.id(),
                  *output_mask_fromCP,
                  *result_fromCP);
-
+    (*cpToSc_STS)[result_fromCP->size() - 1] = scSTS;
   }
 
   ticl::assignPCAtoTracksters(
@@ -188,4 +193,5 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   evt.put(std::move(output_mask));
   evt.put(std::move(result_fromCP), "fromCPs");
   evt.put(std::move(output_mask_fromCP), "fromCPs");
+  evt.put(std::move(cpToSc_STS));
 }
