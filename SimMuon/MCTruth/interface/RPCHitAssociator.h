@@ -34,31 +34,37 @@ public:
   typedef edm::DetSetVector<RPCDigiSimLink> RPCDigiSimLinks;
   typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
 
+  class Config {
+  public:
+    Config(const edm::ParameterSet &, edm::ConsumesCollector ic);
+
+  private:
+    friend class RPCHitAssociator;
+
+    edm::InputTag RPCdigisimlinkTag;
+
+    edm::InputTag RPCsimhitsTag;
+    edm::InputTag RPCsimhitsXFTag;
+
+    edm::EDGetTokenT<CrossingFrame<PSimHit>> RPCsimhitsXFToken_;
+    edm::EDGetTokenT<edm::PSimHitContainer> RPCsimhitsToken_;
+    edm::EDGetTokenT<edm::DetSetVector<RPCDigiSimLink>> RPCdigisimlinkToken_;
+
+    bool crossingframe;
+  };
+
   // Constructor with configurable parameters
-  RPCHitAssociator(const edm::ParameterSet &, edm::ConsumesCollector &&ic);
-  RPCHitAssociator(const edm::Event &e, const edm::EventSetup &eventSetup, const edm::ParameterSet &conf);
-
-  void initEvent(const edm::Event &, const edm::EventSetup &);
-
-  // Destructor
-  ~RPCHitAssociator() {}
+  RPCHitAssociator(const edm::Event &e, const Config &conf);
 
   std::vector<SimHitIdpr> associateRecHit(const TrackingRecHit &hit) const;
   std::set<RPCDigiSimLink> findRPCDigiSimLink(uint32_t rpcDetId, int strip, int bx) const;
   //   const PSimHit* linkToSimHit(RPCDigiSimLink link);
 
 private:
+  void initEvent(const edm::Event &);
+
+  Config const &theConfig;
   edm::Handle<edm::DetSetVector<RPCDigiSimLink>> _thelinkDigis;
-  edm::InputTag RPCdigisimlinkTag;
-
-  bool crossingframe;
-  edm::InputTag RPCsimhitsTag;
-  edm::InputTag RPCsimhitsXFTag;
-
-  edm::EDGetTokenT<CrossingFrame<PSimHit>> RPCsimhitsXFToken_;
-  edm::EDGetTokenT<edm::PSimHitContainer> RPCsimhitsToken_;
-  edm::EDGetTokenT<edm::DetSetVector<RPCDigiSimLink>> RPCdigisimlinkToken_;
-
   std::map<unsigned int, edm::PSimHitContainer> _SimHitMap;
 };
 

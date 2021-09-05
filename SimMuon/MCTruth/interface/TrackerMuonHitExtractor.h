@@ -21,7 +21,7 @@ public:
   explicit TrackerMuonHitExtractor(const edm::ParameterSet &);
   ~TrackerMuonHitExtractor();
 
-  void init(const edm::Event &, const edm::EventSetup &);
+  void init(const edm::Event &);
   std::vector<const TrackingRecHit *> getMuonHits(const reco::Muon &mu) const;
 
 private:
