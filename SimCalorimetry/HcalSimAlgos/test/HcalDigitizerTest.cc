@@ -66,9 +66,9 @@ private:
   const HcalTimeSlew* hcalTimeSlew_delay_;
 };
 
-HcalDigitizerTest::HcalDigitizerTest(const edm::ParameterSet& iConfig) :
-  tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()),
-  tok_slew_(esConsumes<HcalTimeSlew, HcalTimeSlewRecord>(edm::ESInputTag("", "HBHE"))) {
+HcalDigitizerTest::HcalDigitizerTest(const edm::ParameterSet& iConfig)
+    : tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()),
+      tok_slew_(esConsumes<HcalTimeSlew, HcalTimeSlewRecord>(edm::ESInputTag("", "HBHE"))) {
   //DB helper preparation
   dbHardcode.setHB(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("hb")));
   dbHardcode.setHE(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("he")));

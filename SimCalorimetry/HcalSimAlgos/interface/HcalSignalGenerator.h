@@ -39,14 +39,18 @@ public:
 
   ~HcalSignalGenerator() override {}
 
-  void initializeEvent(const edm::Event* event, const edm::EventSetup* eventSetup, const edm::ESGetToken<HcalDbService, HcalDbRecord>& tok) {
+  void initializeEvent(const edm::Event* event,
+                       const edm::EventSetup* eventSetup,
+                       const edm::ESGetToken<HcalDbService, HcalDbRecord>& tok) {
     theEvent = event;
     theConditions = &(eventSetup->getData(tok));
     theParameterMap->setDbService(theConditions);
   }
 
   /// some users use EventPrincipals, not Events.  We support both
-  void initializeEvent(const edm::EventPrincipal* eventPrincipal, const edm::EventSetup* eventSetup, const edm::ESGetToken<HcalDbService, HcalDbRecord>& tok) {
+  void initializeEvent(const edm::EventPrincipal* eventPrincipal,
+                       const edm::EventSetup* eventSetup,
+                       const edm::ESGetToken<HcalDbService, HcalDbRecord>& tok) {
     theEventPrincipal = eventPrincipal;
     theConditions = &(eventSetup->getData(tok));
     theParameterMap->setDbService(theConditions);

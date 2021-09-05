@@ -43,7 +43,9 @@ namespace edm {
   class DataMixingHcalDigiWorkerProd {
   public:
     /** standard constructor*/
-    explicit DataMixingHcalDigiWorkerProd(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC, const edm::ESGetToken<HcalDbService, HcalDbRecord>&);
+    explicit DataMixingHcalDigiWorkerProd(const edm::ParameterSet &ps,
+                                          edm::ConsumesCollector &&iC,
+                                          const edm::ESGetToken<HcalDbService, HcalDbRecord> &);
 
     /**Default destructor*/
     virtual ~DataMixingHcalDigiWorkerProd();

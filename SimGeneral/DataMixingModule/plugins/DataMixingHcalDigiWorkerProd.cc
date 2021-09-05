@@ -16,7 +16,9 @@
 using namespace std;
 namespace edm {
   // Constructor
-  DataMixingHcalDigiWorkerProd::DataMixingHcalDigiWorkerProd(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC, const edm::ESGetToken<HcalDbService, HcalDbRecord>& tok)
+  DataMixingHcalDigiWorkerProd::DataMixingHcalDigiWorkerProd(const edm::ParameterSet &ps,
+                                                             edm::ConsumesCollector &&iC,
+                                                             const edm::ESGetToken<HcalDbService, HcalDbRecord> &tok)
       : HBHEPileInputTag_(ps.getParameter<edm::InputTag>("HBHEPileInputTag")),
         HOPileInputTag_(ps.getParameter<edm::InputTag>("HOPileInputTag")),
         HFPileInputTag_(ps.getParameter<edm::InputTag>("HFPileInputTag")),
