@@ -48,6 +48,10 @@ void CSCStubEfficiencyValidation::bookHistograms(DQMStore::IBooker& iBooker) {
     etaCLCTDenom[j] = iBooker.book1D(t2, t2 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
     etaLCTDenom[j] = iBooker.book1D(t3, t3 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
 
+    etaALCTDenom[j]->getTH1()->SetMinimum(0);
+    etaCLCTDenom[j]->getTH1()->SetMinimum(0);
+    etaLCTDenom[j]->getTH1()->SetMinimum(0);
+
     t1 = "ALCTEtaNum_" + cn;
     t2 = "CLCTEtaNum_" + cn;
     t3 = "LCTEtaNum_" + cn;
@@ -55,6 +59,10 @@ void CSCStubEfficiencyValidation::bookHistograms(DQMStore::IBooker& iBooker) {
     etaALCTNum[j] = iBooker.book1D(t1, t1 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
     etaCLCTNum[j] = iBooker.book1D(t2, t2 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
     etaLCTNum[j] = iBooker.book1D(t3, t3 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
+
+    etaALCTNum[j]->getTH1()->SetMinimum(0);
+    etaCLCTNum[j]->getTH1()->SetMinimum(0);
+    etaLCTNum[j]->getTH1()->SetMinimum(0);
   }
 }
 
