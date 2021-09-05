@@ -27,7 +27,7 @@ TrackerMuonHitExtractor::TrackerMuonHitExtractor(const edm::ParameterSet &parset
 
 TrackerMuonHitExtractor::~TrackerMuonHitExtractor() {}
 
-void TrackerMuonHitExtractor::init(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void TrackerMuonHitExtractor::init(const edm::Event &iEvent) {
   iEvent.getByLabel(inputDTRecSegment4DCollection_, dtSegmentCollectionH_);
   iEvent.getByLabel(inputCSCSegmentCollection_, cscSegmentCollectionH_);
 

@@ -32,34 +32,39 @@
 
 class GEMHitAssociator {
 public:
+  class Config {
+  public:
+    Config(const edm::ParameterSet &, edm::ConsumesCollector ic);
+
+  private:
+    friend class GEMHitAssociator;
+
+    edm::InputTag GEMdigisimlinkTag;
+    edm::InputTag GEMsimhitsTag;
+    edm::InputTag GEMsimhitsXFTag;
+
+    edm::EDGetTokenT<CrossingFrame<PSimHit>> GEMsimhitsXFToken_;
+    edm::EDGetTokenT<edm::PSimHitContainer> GEMsimhitsToken_;
+    edm::EDGetTokenT<edm::DetSetVector<GEMDigiSimLink>> GEMdigisimlinkToken_;
+
+    bool crossingframe;
+    bool useGEMs_;
+  };
+
   typedef edm::DetSetVector<GEMDigiSimLink> DigiSimLinks;
   typedef edm::DetSet<GEMDigiSimLink> LayerLinks;
   typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
 
   // Constructor with configurable parameters
-  GEMHitAssociator(const edm::ParameterSet &, edm::ConsumesCollector &&ic);
-  GEMHitAssociator(const edm::Event &e, const edm::EventSetup &eventSetup, const edm::ParameterSet &conf);
-
-  void initEvent(const edm::Event &, const edm::EventSetup &);
-
-  // Destructor
-  ~GEMHitAssociator() {}
+  GEMHitAssociator(const edm::Event &e, const Config &config);
 
   std::vector<SimHitIdpr> associateRecHit(const GEMRecHit *gemrechit) const;
 
 private:
+  void initEvent(const edm::Event &);
+
+  const Config &theConfig;
   const DigiSimLinks *theDigiSimLinks;
-  edm::InputTag GEMdigisimlinkTag;
-
-  bool crossingframe;
-  bool useGEMs_;
-  edm::InputTag GEMsimhitsTag;
-  edm::InputTag GEMsimhitsXFTag;
-
-  edm::EDGetTokenT<CrossingFrame<PSimHit>> GEMsimhitsXFToken_;
-  edm::EDGetTokenT<edm::PSimHitContainer> GEMsimhitsToken_;
-  edm::EDGetTokenT<edm::DetSetVector<GEMDigiSimLink>> GEMdigisimlinkToken_;
-
   std::map<unsigned int, edm::PSimHitContainer> _SimHitMap;
 };
 
