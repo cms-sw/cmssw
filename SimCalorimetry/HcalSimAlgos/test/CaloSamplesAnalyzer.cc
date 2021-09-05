@@ -94,7 +94,7 @@ private:
   edm::EDGetTokenT<std::vector<CaloSamples>> tok_calo;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tokGeom_;
   edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tokRecCns_;
-  edm::ESGetToken<HcalDbService,HcalDbRecord> tokDB_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> tokDB_;
 };
 
 //
@@ -111,8 +111,8 @@ CaloSamplesAnalyzer::CaloSamplesAnalyzer(const edm::ParameterSet& iConfig)
           edm::InputTag(iConfig.getParameter<std::string>("hitsProducer"), "HcalHits"))),
       tok_calo(consumes<std::vector<CaloSamples>>(iConfig.getParameter<edm::InputTag>("CaloSamplesTag"))),
       tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
-  tokRecCns_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
-  tokDB_(esConsumes<HcalDbService,HcalDbRecord>()) {
+      tokRecCns_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tokDB_(esConsumes<HcalDbService, HcalDbRecord>()) {
   usesResource("TFileService");
 }
 
