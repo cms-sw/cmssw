@@ -1,11 +1,11 @@
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSignalGenerator.h"
 
-class HcalSignalGeneratorTest : public edm::EDAnalyzer {
+class HcalSignalGeneratorTest : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalSignalGeneratorTest(const edm::ParameterSet&);
   ~HcalSignalGeneratorTest() override {}
@@ -34,6 +34,7 @@ private:
   edm::EDGetTokenT<HcalQIE11DigitizerTraits::DigiCollection> tok_qie11_;
 
   edm::InputTag theHBHETag_, theHOTag_, theHFTag_, theZDCTag_, theQIE10Tag_, theQIE11Tag_;
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> tokDB_;
 };
 
 HcalSignalGeneratorTest::HcalSignalGeneratorTest(const edm::ParameterSet& iConfig)
@@ -43,7 +44,8 @@ HcalSignalGeneratorTest::HcalSignalGeneratorTest(const edm::ParameterSet& iConfi
       theHFTag_(iConfig.getParameter<edm::InputTag>("HFdigiCollectionPile")),
       theZDCTag_(iConfig.getParameter<edm::InputTag>("ZDCdigiCollectionPile")),
       theQIE10Tag_(iConfig.getParameter<edm::InputTag>("QIE10digiCollectionPile")),
-      theQIE11Tag_(iConfig.getParameter<edm::InputTag>("QIE11digiCollectionPile")) {
+      theQIE11Tag_(iConfig.getParameter<edm::InputTag>("QIE11digiCollectionPile")),
+      tokDB_(esConsumes<HcalDbService, HcalDbRecord>()) {
   tok_hbhe_ = consumes<HBHEDigitizerTraits::DigiCollection>(theHBHETag_);
   tok_ho_ = consumes<HODigitizerTraits::DigiCollection>(theHOTag_);
   tok_hf_ = consumes<HFDigitizerTraits::DigiCollection>(theHFTag_);
@@ -67,12 +69,12 @@ HcalSignalGeneratorTest::HcalSignalGeneratorTest(const edm::ParameterSet& iConfi
 }
 
 void HcalSignalGeneratorTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  theHBHESignalGenerator.initializeEvent(&iEvent, &iSetup);
-  theHOSignalGenerator.initializeEvent(&iEvent, &iSetup);
-  theHFSignalGenerator.initializeEvent(&iEvent, &iSetup);
-  theZDCSignalGenerator.initializeEvent(&iEvent, &iSetup);
-  theQIE10SignalGenerator.initializeEvent(&iEvent, &iSetup);
-  theQIE11SignalGenerator.initializeEvent(&iEvent, &iSetup);
+  theHBHESignalGenerator.initializeEvent(&iEvent, &iSetup, tokDB_);
+  theHOSignalGenerator.initializeEvent(&iEvent, &iSetup, tokDB_);
+  theHFSignalGenerator.initializeEvent(&iEvent, &iSetup, tokDB_);
+  theZDCSignalGenerator.initializeEvent(&iEvent, &iSetup, tokDB_);
+  theQIE10SignalGenerator.initializeEvent(&iEvent, &iSetup, tokDB_);
+  theQIE11SignalGenerator.initializeEvent(&iEvent, &iSetup, tokDB_);
 
   theHBHESignalGenerator.fill(nullptr);
   theHOSignalGenerator.fill(nullptr);
