@@ -1,12 +1,58 @@
-#include "Calibration/HcalCalibAlgos/plugins/HitReCalibrator.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+// system include files
+#include <memory>
+#include <string>
+
+// user include files
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+//
+// class declaration
+//
+
+namespace cms {
+
+  class HitReCalibrator : public edm::one::EDProducer<> {
+  public:
+    explicit HitReCalibrator(const edm::ParameterSet&);
+    ~HitReCalibrator() override;
+
+    void beginJob() override;
+
+    void produce(edm::Event&, const edm::EventSetup&) override;
+
+  private:
+    // ----------member data ---------------------------
+
+    bool allowMissingInputs_;
+
+    edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+    edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+    edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+
+    edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
+  };
+}  // end namespace cms
 
 namespace cms {
 
