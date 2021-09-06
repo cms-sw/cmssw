@@ -29,7 +29,6 @@ namespace ecaldqm {
     void runOnDigis(DigiCollection const&, Collections);
     void runOnTPDigis(EcalTrigPrimDigiCollection const&);
     void runOnRecHits(EcalRecHitCollection const&, Collections);
-    void setEventTime(const edm::TimeValue_t& iTime);
     void setTokens(edm::ConsumesCollector&) override;
 
   private:
