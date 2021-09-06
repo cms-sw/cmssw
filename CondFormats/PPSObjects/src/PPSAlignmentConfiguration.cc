@@ -151,9 +151,9 @@ std::ostream& operator<<(std::ostream& os, const PPSAlignmentConfiguration::Sect
   os << sc.rp_N_ << "\n" << sc.rp_F_ << "\n";
   os << std::setprecision(3);
   os << "    slope = " << sc.slope_ << "\n";
-  os << "    cut_h: apply = " << sc.cut_h_apply_ << ", a = " << sc.cut_h_a_ << ", c = " << sc.cut_h_c_
+  os << "    cut_h: apply = " << std::boolalpha << sc.cut_h_apply_ << ", a = " << sc.cut_h_a_ << ", c = " << sc.cut_h_c_
      << ", si = " << sc.cut_h_si_ << "\n";
-  os << "    cut_v: apply = " << sc.cut_v_apply_ << ", a = " << sc.cut_v_a_ << ", c = " << sc.cut_v_c_
+  os << "    cut_v: apply = " << std::boolalpha << sc.cut_v_apply_ << ", a = " << sc.cut_v_a_ << ", c = " << sc.cut_v_c_
      << ", si = " << sc.cut_v_si_ << "\n";
 
   return os;
@@ -171,7 +171,7 @@ std::ostream& operator<<(std::ostream& os, const PPSAlignmentConfiguration::Binn
      << "\n";
   os << "        n_bins_x = " << b.slice_n_bins_x_ << ", x_min = " << b.slice_x_min_ << ", x_max = " << b.slice_x_max_
      << "\n";
-  os << "        n_bins_y = " << b.slice_n_bins_x_ << ", y_min = " << b.slice_x_min_ << ", y_max = " << b.slice_x_max_;
+  os << "        n_bins_y = " << b.slice_n_bins_y_ << ", y_min = " << b.slice_y_min_ << ", y_max = " << b.slice_y_max_;
 
   return os;
 }
@@ -233,7 +233,7 @@ std::ostream& operator<<(std::ostream& os, const PPSAlignmentConfiguration& c) {
   os << "\n"
      << "* alignment_x_relative\n";
   for (const auto& p : c.alignment_x_relative_ranges_)
-    if (rpTags[p.first][2] == '1') {  // only near RPs
+    if (p.first == c.sectorConfig45_.rp_N_.id_ || p.first == c.sectorConfig56_.rp_N_.id_) {  // only near RPs
       os << "    RP " << rpTags[p.first] << " (" << std::setw(3) << p.first << "): sh_min = " << p.second.x_min_
          << ", sh_max = " << p.second.x_max_ << "\n";
     }
