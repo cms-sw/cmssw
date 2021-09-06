@@ -1,4 +1,4 @@
-#run with: cmsRun hgchebacksignalscaler_cfg.py doseMap=SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.5.15.9.txt sipmMap=SimCalorimetry/HGCalSimProducers/data/sipmParams_geom-10.txt nPEperMIP=21
+#run with: cmsRun hgchebacksignalscaler_cfg.py doseMap=SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt geometry=GeometryExtended2026D49Reco sipmMap=SimCalorimetry/HGCalSimProducers/data/sipmParams_geom-10.txt nPEperMIP=21
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -8,12 +8,14 @@ options = VarParsing()
 options.register ("doseMap", "",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register ("sipmMap", "",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register ("nPEperMIP", "",  VarParsing.multiplicity.singleton, VarParsing.varType.int)
+options.register ("geometry", "GeometryExtended2026D49Reco",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.parseArguments()
 
-process = cms.Process("demo",eras.Phase2C8)
+from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+process = cms.Process('demo',Phase2C11I13M9)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
+process.load('Configuration.Geometry.{}_cff'.format(options.geometry))
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
@@ -27,7 +29,7 @@ process.plotter = cms.EDAnalyzer("HGCHEbackSignalScalerAnalyzer",
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("scalingNumbers.root")
+    fileName = cms.string("dosemap_output_sipmontile.root")
 )
 
 process.p = cms.Path(process.plotter)
