@@ -37,14 +37,14 @@
 using namespace edm;
 using namespace sipixelobjects;
 
-namespace Ph2TkDigiAlgo  {
+namespace Ph2TkDigiAlgo {
   // Mass in MeV
   constexpr double m_pion = 139.571;
   constexpr double m_kaon = 493.677;
   constexpr double m_electron = 0.511;
   constexpr double m_muon = 105.658;
   constexpr double m_proton = 938.272;
-}  // namespace
+}  // namespace Ph2TkDigiAlgo
 Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common,
                                                                  const edm::ParameterSet& conf_specific,
                                                                  edm::ConsumesCollector iC)
@@ -1034,8 +1034,7 @@ float Phase2TrackerDigitizerAlgorithm::calcQ(float x) {
   constexpr float p1 = 12.5f;
   constexpr float p2 = 0.2733f;
   constexpr float p3 = 0.147f;
-  
+
   auto xx = std::min(0.5f * x * x, p1);
   return 0.5f * (1.f - std::copysign(std::sqrt(1.f - unsafe_expf<4>(-xx * (1.f + p2 / (1.f + p3 * xx)))), x));
 }
-  

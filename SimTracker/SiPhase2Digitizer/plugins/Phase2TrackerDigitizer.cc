@@ -248,17 +248,17 @@ namespace cms {
         algotype = AlgorithmType::InnerPixel;
         break;
       case TrackerGeometry::ModuleType::Ph2PXB:
-        if (topol->isBricked()) 
-	  algotype = AlgorithmType::InnerPixelBricked;
-        else 
-	  algotype = AlgorithmType::InnerPixel;
-	break;
+        if (topol->isBricked())
+          algotype = AlgorithmType::InnerPixelBricked;
+        else
+          algotype = AlgorithmType::InnerPixel;
+        break;
       case TrackerGeometry::ModuleType::Ph2PXF:
-        if (topol->isBricked()) 
-	  algotype = AlgorithmType::InnerPixelBricked;
-        else 
-	  algotype = AlgorithmType::InnerPixel;
-	break;
+        if (topol->isBricked())
+          algotype = AlgorithmType::InnerPixelBricked;
+        else
+          algotype = AlgorithmType::InnerPixel;
+        break;
       case TrackerGeometry::ModuleType::Ph2PXB3D:
         algotype = AlgorithmType::InnerPixel3D;
         break;
@@ -293,11 +293,10 @@ namespace cms {
         continue;
 
       // Decide if we want analog readout for Outer Tracker.
-      if (!ot_analog && 
-	  algotype != AlgorithmType::InnerPixel && 
-	  algotype != AlgorithmType::InnerPixel3D &&
-	  algotype != AlgorithmType::InnerPixelBricked) continue;
-      
+      if (!ot_analog && algotype != AlgorithmType::InnerPixel && algotype != AlgorithmType::InnerPixel3D &&
+          algotype != AlgorithmType::InnerPixelBricked)
+        continue;
+
       std::map<int, DigitizerUtility::DigiSimInfo> digi_map;
       fiter->second->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u), digi_map, tTopo_);
 
@@ -356,12 +355,11 @@ namespace cms {
     for (auto const& det_u : pDD_->detUnits()) {
       uint32_t rawId = det_u->geographicalId().rawId();
       auto algotype = getAlgoType(rawId);
-      
+
       auto fiter = algomap_.find(algotype);
-      if (fiter == algomap_.end() || 
-	  algotype == AlgorithmType::InnerPixel || 
-	  algotype == AlgorithmType::InnerPixel3D || 
-	  algotype == AlgorithmType::InnerPixelBricked) continue;
+      if (fiter == algomap_.end() || algotype == AlgorithmType::InnerPixel || algotype == AlgorithmType::InnerPixel3D ||
+          algotype == AlgorithmType::InnerPixelBricked)
+        continue;
 
       std::map<int, DigitizerUtility::DigiSimInfo> digi_map;
       fiter->second->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u), digi_map, tTopo_);

@@ -24,8 +24,8 @@ using namespace edm;
 using namespace sipixelobjects;
 
 PixelBrickedDigitizerAlgorithm::PixelBrickedDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
-  : PixelDigitizerAlgorithm(conf,iC)
-    /*    odd_row_interchannelCoupling_next_row_(conf.getParameter<ParameterSet>("PixelBrickedDigitizerAlgorithm")
+    : PixelDigitizerAlgorithm(conf, iC)
+/*    odd_row_interchannelCoupling_next_row_(conf.getParameter<ParameterSet>("PixelBrickedDigitizerAlgorithm")
                                                  .getParameter<double>("Odd_row_interchannelCoupling_next_row"))
          even_row_interchannelCoupling_next_row_(conf.getParameter<ParameterSet>("PixelBrickedDigitizerAlgorithm")
                                                   .getParameter<double>("Even_row_interchannelCoupling_next_row")),
@@ -36,32 +36,30 @@ PixelBrickedDigitizerAlgorithm::PixelBrickedDigitizerAlgorithm(const edm::Parame
           conf.getParameter<ParameterSet>("PixelBrickedDigitizerAlgorithm")
 	  .getParameter<double>("Even_column_interchannelCoupling_next_column"))*/
 {
-  
   even_row_interchannelCoupling_next_row_ = conf.getParameter<ParameterSet>("PixelBrickedDigitizerAlgorithm")
-    .getParameter<double>("Even_row_interchannelCoupling_next_row");
+                                                .getParameter<double>("Even_row_interchannelCoupling_next_row");
   pixelFlag_ = true;
-  LogDebug("PixelBrickedDigitizerAlgorithm") << "Algorithm constructed "
-                                      << "Configuration parameters:"
-                                      << "Threshold/Gain = "
-                                      << "threshold in electron Endcap = " << theThresholdInE_Endcap_
-                                      << "threshold in electron Barrel = " << theThresholdInE_Barrel_ << " "
-                                      << theElectronPerADC_ << " " << theAdcFullScale_
-                                      << " The delta cut-off is set to " << tMax_ << " pix-inefficiency "
-					     << addPixelInefficiency_ ;
+  LogDebug("PixelBrickedDigitizerAlgorithm")
+      << "Algorithm constructed "
+      << "Configuration parameters:"
+      << "Threshold/Gain = "
+      << "threshold in electron Endcap = " << theThresholdInE_Endcap_
+      << "threshold in electron Barrel = " << theThresholdInE_Barrel_ << " " << theElectronPerADC_ << " "
+      << theAdcFullScale_ << " The delta cut-off is set to " << tMax_ << " pix-inefficiency " << addPixelInefficiency_;
 }
-PixelBrickedDigitizerAlgorithm::~PixelBrickedDigitizerAlgorithm() { LogDebug("PixelBrickedDigitizerAlgorithm") << "Algorithm deleted"; }
-void PixelBrickedDigitizerAlgorithm::induce_signal(
-    const PSimHit& hit,
-    const size_t hitIndex,
-    const uint32_t tofBin,
-    const Phase2TrackerGeomDetUnit* pixdet,
-    const std::vector<DigitizerUtility::SignalPoint>& collection_points) {
+PixelBrickedDigitizerAlgorithm::~PixelBrickedDigitizerAlgorithm() {
+  LogDebug("PixelBrickedDigitizerAlgorithm") << "Algorithm deleted";
+}
+void PixelBrickedDigitizerAlgorithm::induce_signal(const PSimHit& hit,
+                                                   const size_t hitIndex,
+                                                   const uint32_t tofBin,
+                                                   const Phase2TrackerGeomDetUnit* pixdet,
+                                                   const std::vector<DigitizerUtility::SignalPoint>& collection_points) {
   // X  - Rows, Left-Right, 160, (1.6cm)   for barrel
   // Y  - Columns, Down-Up, 416, (6.4cm)
   const Phase2TrackerTopology* topol = &pixdet->specificTopology();
   uint32_t detID = pixdet->geographicalId().rawId();
   signal_map_type& theSignal = _signal[detID];
-  
 
   // local map to store pixels hit by 1 Hit.
   using hit_map_type = std::map<int, float, std::less<int> >;
@@ -75,7 +73,6 @@ void PixelBrickedDigitizerAlgorithm::induce_signal(
     float SigmaX = v.sigma_x();             // Charge spread in x
     float SigmaY = v.sigma_y();             //               in y
     float Charge = v.amplitude();           // Charge amplitude
-
 
     // Find the maximum cloud spread in 2D plane , assume 3*sigma
     float CloudRight = CloudCenterX + clusterWidth_ * SigmaX;
@@ -104,19 +101,19 @@ void PixelBrickedDigitizerAlgorithm::induce_signal(
     int numRows = topol->nrows();
     IPixRightUpX = numRows > IPixRightUpX ? IPixRightUpX : numRows - 1;
 
-    //Specific to bricked geometry 
-    int IPixRightUpY = static_cast<int>(mp.y() - 0.5*(IPixRightUpX%2) );
+    //Specific to bricked geometry
+    int IPixRightUpY = static_cast<int>(mp.y() - 0.5 * (IPixRightUpX % 2));
 
     mp = topol->measurementPosition(PointLeftDown);
-    
+
     int IPixLeftDownX = static_cast<int>(std::floor(mp.x()));
 
     IPixLeftDownX = 0 < IPixLeftDownX ? IPixLeftDownX : 0;
 
-    //Specific to bricked geometry 
-    int IPixLeftDownY = static_cast<int>(mp.y() - 0.5*(IPixLeftDownX%2));//changed in case negative value	
+    //Specific to bricked geometry
+    int IPixLeftDownY = static_cast<int>(mp.y() - 0.5 * (IPixLeftDownX % 2));  //changed in case negative value
 
-    IPixRightUpY =  numColumns > IPixRightUpY    ? IPixRightUpY : numColumns - 1;
+    IPixRightUpY = numColumns > IPixRightUpY ? IPixRightUpY : numColumns - 1;
     IPixLeftDownY = 0 < IPixLeftDownY ? IPixLeftDownY : 0;
 
     // First integrate charge strips in x
@@ -132,7 +129,7 @@ void PixelBrickedDigitizerAlgorithm::induce_signal(
         xLB = topol->localPosition(mp).x();
         LowerBound = 1 - calcQ((xLB - CloudCenterX) / SigmaX);
       }
-      
+
       float xUB, UpperBound;
       if (ix == numRows - 1 || SigmaX == 0.) {
         UpperBound = 1.;
@@ -148,10 +145,10 @@ void PixelBrickedDigitizerAlgorithm::induce_signal(
     // Now integrate strips in y. Two maps will be filled: y and y_bricked which will both be used for the induced signal.
     int IPixLeftDownY_bricked = IPixLeftDownY;
     int IPixRightUpY_bricked = IPixRightUpY;
-    
+
     //Specific to bricked geometry
-    IPixRightUpY = std::min( IPixRightUpY + int((IPixRightUpX%2)), numColumns-1);
-    
+    IPixRightUpY = std::min(IPixRightUpY + int((IPixRightUpX % 2)), numColumns - 1);
+
     //This map will be twice as large as the non-bricked hit map in y to harbor both the integrated charge from the bricked and non-bricked columns.
     hit_map_type y;
     for (int iy = IPixLeftDownY; iy <= IPixRightUpY; ++iy) {  // loop over y index
@@ -163,70 +160,69 @@ void PixelBrickedDigitizerAlgorithm::induce_signal(
         yLB = topol->localPosition(mp).y();
         LowerBound = 1. - calcQ((yLB - CloudCenterY) / SigmaY);
       }
-      
+
       float yUB, UpperBound;
       if (iy >= numColumns - 1 || SigmaY == 0.) {
         UpperBound = 1.;
       } else {
-	mp = MeasurementPoint(0.0, iy + 1);
+        mp = MeasurementPoint(0.0, iy + 1);
         yUB = topol->localPosition(mp).y();
         UpperBound = 1. - calcQ((yUB - CloudCenterY) / SigmaY);
       }
-      
+
       float TotalIntegrationRange = UpperBound - LowerBound;
-	
+
       //Even indices correspond to the non-bricked columns
-      y.emplace(2*iy, TotalIntegrationRange);  // save strip integral
+      y.emplace(2 * iy, TotalIntegrationRange);  // save strip integral
     }
-    
-    IPixLeftDownY_bricked = std::max( IPixLeftDownY_bricked - int((!(IPixLeftDownX%2))), 0);
+
+    IPixLeftDownY_bricked = std::max(IPixLeftDownY_bricked - int((!(IPixLeftDownX % 2))), 0);
     for (int iy = IPixLeftDownY_bricked; iy <= IPixRightUpY_bricked; ++iy) {  // loop over y index
       float yLB, LowerBound;
       if (iy == 0 || SigmaY == 0.) {
         LowerBound = 0.;
       } else {
-	mp = MeasurementPoint(0.0, iy + 0.5);
+        mp = MeasurementPoint(0.0, iy + 0.5);
         yLB = topol->localPosition(mp).y();
         LowerBound = 1. - calcQ((yLB - CloudCenterY) / SigmaY);
       }
-      
+
       float yUB, UpperBound;
-      if (iy >= numColumns  || SigmaY == 0.) { // This was changed for bricked pixels
+      if (iy >= numColumns || SigmaY == 0.) {  // This was changed for bricked pixels
         UpperBound = 1.;
       } else {
-	mp = MeasurementPoint(0.0, iy + 1.5 );
+        mp = MeasurementPoint(0.0, iy + 1.5);
         yUB = topol->localPosition(mp).y();
         UpperBound = 1. - calcQ((yUB - CloudCenterY) / SigmaY);
       }
 
       float TotalIntegrationRange = UpperBound - LowerBound;
       //Odd indices correspond to bricked columns
-      y.emplace(2*iy + 1, TotalIntegrationRange);  // save strip integral
-    }//loop over y index
-    
+      y.emplace(2 * iy + 1, TotalIntegrationRange);  // save strip integral
+    }                                                //loop over y index
+
     // Get the 2D charge integrals by folding x and y strips
-    for (int ix = IPixLeftDownX; ix <= IPixRightUpX; ++ix) {    // loop over x index
-      for (int iy = std::max(0,IPixLeftDownY - int((ix%2)))   ; iy <= IPixRightUpY ; ++iy) {  // loop over y index
-	int iy_considered = iy*2 + ix%2;
-	float ChargeFraction = Charge * x[ix] * y[iy_considered];
-	
-	int chanFired = -1;
-	if (ChargeFraction > 0.) {
-	  chanFired =
-	    pixelFlag_ ? PixelDigi::pixelToChannel(ix, iy ) : Phase2TrackerDigi::pixelToChannel(ix, iy);  // Get index
-	  // Load the ampl
-	  hit_signal[chanFired] += ChargeFraction;
-	}
-      }  
-    }//x loop
-  }//collection loop
+    for (int ix = IPixLeftDownX; ix <= IPixRightUpX; ++ix) {                                 // loop over x index
+      for (int iy = std::max(0, IPixLeftDownY - int((ix % 2))); iy <= IPixRightUpY; ++iy) {  // loop over y index
+        int iy_considered = iy * 2 + ix % 2;
+        float ChargeFraction = Charge * x[ix] * y[iy_considered];
+
+        int chanFired = -1;
+        if (ChargeFraction > 0.) {
+          chanFired =
+              pixelFlag_ ? PixelDigi::pixelToChannel(ix, iy) : Phase2TrackerDigi::pixelToChannel(ix, iy);  // Get index
+          // Load the ampl
+          hit_signal[chanFired] += ChargeFraction;
+        }
+      }
+    }  //x loop
+  }    //collection loop
   // Fill the global map with all hit pixels from this event
   float corr_time = hit.tof() - pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv;
   for (auto const& hit_s : hit_signal) {
     int chan = hit_s.first;
     theSignal[chan] +=
-      (makeDigiSimLinks_ ? DigitizerUtility::Amplitude(hit_s.second, &hit, hit_s.second, corr_time, hitIndex, tofBin)
-       : DigitizerUtility::Amplitude(hit_s.second, nullptr, hit_s.second));
+        (makeDigiSimLinks_ ? DigitizerUtility::Amplitude(hit_s.second, &hit, hit_s.second, corr_time, hitIndex, tofBin)
+                           : DigitizerUtility::Amplitude(hit_s.second, nullptr, hit_s.second));
   }
 }
-

@@ -12,18 +12,15 @@
 
 class PixelBrickedDigitizerAlgorithm : public PixelDigitizerAlgorithm {
 private:
-
 public:
-  PixelBrickedDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector  iC);
+  PixelBrickedDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
   ~PixelBrickedDigitizerAlgorithm() override;
 
-  
   // Specific for bricked pixel
   void induce_signal(const PSimHit& hit,
                      const size_t hitIndex,
                      const unsigned int tofBin,
                      const Phase2TrackerGeomDetUnit* pixdet,
-                     const std::vector<DigitizerUtility::SignalPoint>& collection_points);
-
+                     const std::vector<DigitizerUtility::SignalPoint>& collection_points) override;
 };
 #endif
