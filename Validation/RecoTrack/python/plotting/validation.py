@@ -1274,7 +1274,13 @@ class SimpleValidation:
         for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
             if sample is not None and not _processPlotsForSample(plotterFolder, sample):
                 continue
-            p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, iProc, return_dict))
+
+            newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
+            newdir = os.path.join(self._newdir, newsubdir)
+            if not os.path.exists(newdir):
+                os.makedirs(newdir)
+
+            p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict))
             proc.append((plotterFolder, dqmSubFolder, p))
             p.start()
             iProc += 1
@@ -1283,12 +1289,8 @@ class SimpleValidation:
             if len(return_dict[i]) > 0:
                 self._htmlReport.addPlots(proc[i][0], proc[i][1], return_dict[i])
 
-    def _doPlots(self, plotterFolder, dqmSubFolder, iProc, return_dict):
+    def _doPlots(self, plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict):
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
-        newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
-        newdir = os.path.join(self._newdir, newsubdir)
-        if not os.path.exists(newdir):
-            os.makedirs(newdir)
         fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
 
         for tableCreator in plotterFolder.getTableCreators():
