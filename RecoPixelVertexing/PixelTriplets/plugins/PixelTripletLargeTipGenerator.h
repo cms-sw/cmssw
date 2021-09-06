@@ -12,7 +12,10 @@
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 
 #include <utility>
 #include <vector>
@@ -72,5 +75,7 @@ private:
   const float dphi;
 
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyESToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> fieldESToken_;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> msmakerESToken_;
 };
 #endif
