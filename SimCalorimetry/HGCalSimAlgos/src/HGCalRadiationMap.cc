@@ -56,7 +56,8 @@ double HGCalRadiationMap::getFluenceValue(const int subdet, const int layer, con
 }
 
 //
-std::map<std::pair<int, int>, HGCalRadiationMap::DoseParameters> HGCalRadiationMap::readDosePars(const std::string& fullpath) {
+std::map<std::pair<int, int>, HGCalRadiationMap::DoseParameters> HGCalRadiationMap::readDosePars(
+    const std::string& fullpath) {
   doseParametersMap result;
 
   //no dose file means no aging

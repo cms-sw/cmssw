@@ -58,7 +58,7 @@ private:
   std::string sipmMap_;
   uint32_t nPEperMIP_;
 
-  std::set<int> allLayers_, allIeta_; //allIphi_
+  std::set<int> allLayers_, allIeta_;  //allIphi_
 
   const HGCalGeometry* gHGCal_;
   const HGCalDDDConstants* hgcCons_;
@@ -71,7 +71,7 @@ private:
 // constructors and destructor
 //
 HGCHEbackSignalScalerAnalyzer::HGCHEbackSignalScalerAnalyzer(const edm::ParameterSet& iConfig)
-    : doseMap_(iConfig.getParameter<std::string>("doseMap")),      
+    : doseMap_(iConfig.getParameter<std::string>("doseMap")),
       sipmMap_(iConfig.getParameter<std::string>("sipmMap")),
       nPEperMIP_(iConfig.getParameter<uint32_t>("nPEperMIP")) {
   usesResource("TFileService");
@@ -108,11 +108,11 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
 
   //setup maps
   createBinning(detIdVec);
-  int minLayer( *std::min_element(allLayers_.begin(),allLayers_.end()) );
-  int maxLayer( *std::max_element(allLayers_.begin(),allLayers_.end()) );
+  int minLayer(*std::min_element(allLayers_.begin(), allLayers_.end()));
+  int maxLayer(*std::max_element(allLayers_.begin(), allLayers_.end()));
   int nLayers(maxLayer - minLayer + 1);
-  int minIeta( *std::min_element(allIeta_.begin(),allIeta_.end()) );
-  int maxIeta( *std::max_element(allIeta_.begin(),allIeta_.end()) );
+  int minIeta(*std::min_element(allIeta_.begin(), allIeta_.end()));
+  int maxIeta(*std::max_element(allIeta_.begin(), allIeta_.end()));
   int nIeta(maxIeta - minIeta + 1);
   //int minIphi( *std::min_element(allIphi_.begin(),allIphi_.end()) );
   //int maxIphi( *std::max_element(allIphi_.begin(),allIphi_.end()) );
@@ -167,17 +167,17 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
     double radius = std::sqrt(std::pow(global.x(), 2) + std::pow(global.y(), 2));
     double dose = scal.getDoseValue(DetId::HGCalHSc, layer, radius);
     double fluence = scal.getFluenceValue(DetId::HGCalHSc, layer, radius);
-    
+
     auto dosePair = scal.scaleByDose(scId, radius);
     float scaleFactorBySipmArea = scal.scaleBySipmArea(scId, radius);
     float scaleFactorByTileArea = scal.scaleByTileArea(scId, radius);
     float scaleFactorByDose = dosePair.first;
     float noiseByFluence = dosePair.second;
-    
+
     float lysf = scaleFactorByTileArea * scaleFactorBySipmArea * scaleFactorByDose;
-    float s=nPEperMIP_ * lysf;
-    float n=noiseByFluence*sqrt(scaleFactorBySipmArea);
-    float sn=s/n;
+    float s = nPEperMIP_ * lysf;
+    float n = noiseByFluence * sqrt(scaleFactorBySipmArea);
+    float sn = s / n;
 
     histos_["count_ieta"]->Fill(layer, ieta, 1);
     //histos_["count_iphi"]->Fill(layer, iphi, 1);
@@ -219,24 +219,24 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
     //layerHistos_[layer]["lysf_iphi"]->Fill(iphi, lysf);
   }
 
-
   //for all (except count histograms) normalize by the number of sensors
-  for(auto &lit : layerHistos_) {
-    for(auto &hit : lit.second) {
+  for (auto& lit : layerHistos_) {
+    for (auto& hit : lit.second) {
       TString name(hit.first);
-      if(name.Contains("count_")) continue;
+      if (name.Contains("count_"))
+        continue;
       TString count_name(name.Contains("_ieta") ? "count_ieta" : "count_iphi");
       hit.second->Divide(lit.second[count_name]);
     }
   }
 
-  for(auto &hit : histos_) {
+  for (auto& hit : histos_) {
     TString name(hit.first);
-    if(name.Contains("count_")) continue;
+    if (name.Contains("count_"))
+      continue;
     TString count_name(name.Contains("_ieta") ? "count_ieta" : "count_iphi");
     hit.second->Divide(histos_[count_name]);
   }
- 
 }
 
 //
