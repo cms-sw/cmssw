@@ -1,3 +1,18 @@
+# To work on geometry package
+
+### To create or update geometries
+```
+git cms-addpkg Geometry/CMSCommonData
+git cms-addpkg Configuration/Geometry
+scram b -j 8
+cd Configuration/Geometry
+vi python/dict2021Geometry.py
+python3 ./scripts/generate2021Geometry.py -D 2021
+```
+Note:
+* For Phase-2, use [generate2026Geometry.py](./python/dict2026Geometry.py) and [generate2026Geometry.py](./scripts/generate2026Geometry.py) instead.
+* For the list of geometries, see below.
+
 # Run 3 Geometries
 
 The Run 3 geometry is automatically created using the script [generate2021Geometry.py](./scripts/generate2021Geometry.py).
