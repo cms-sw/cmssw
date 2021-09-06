@@ -12,7 +12,8 @@ def makePuppies( process ):
 
 def makePuppiesFromMiniAOD( process, createScheduledSequence=False ):
     task = getPatAlgosToolsTask(process)
-    process.load('CommonTools.ParticleFlow.pfCHS_cff')
+    from CommonTools.ParticleFlow.pfCHS_cff import packedPrimaryVertexAssociationJME
+    setattr(process, "packedPrimaryVertexAssociationJME", packedPrimaryVertexAssociationJME.clone())
     task.add(process.packedPrimaryVertexAssociationJME)
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     task.add(process.puppi)
@@ -30,5 +31,7 @@ def makePuppiesFromMiniAOD( process, createScheduledSequence=False ):
 
     #making a sequence for people running the MET tool in scheduled mode
     if createScheduledSequence:
-        puppiMETSequence = cms.Sequence(process.packedPrimaryVertexAssociationJME*process.puppi*process.puppiNoLep)
+        puppiMETTask = cms.Task(process.packedPrimaryVertexAssociationJME, process.puppi, process.puppiNoLep)
+        setattr(process, "puppiMETTask", puppiMETTask)
+        puppiMETSequence = cms.Sequence(puppiMETTask)
         setattr(process, "puppiMETSequence", puppiMETSequence)
