@@ -29,7 +29,7 @@ public:
 public:
   /** Default constructor.
    */
-  EcalMatacqDigi() : chId_(-1), freq(0), ts_(0.), tTrigS_(999.), version_(-1) { init(); }
+  EcalMatacqDigi() : chId_(-1), ts_(0.), tTrigS_(999.), version_(-1) { init(); }
 
   /** Constructor
    * @param samples adc time samples
@@ -43,7 +43,7 @@ public:
                  const double& ts,
                  const short& version = -1,
                  const double& tTrig = 999.)
-      : chId_(chId), data_(samples), freq(0), ts_(ts), tTrigS_(tTrig), version_(version) {
+      : chId_(chId), data_(samples), ts_(ts), tTrigS_(tTrig), version_(version) {
     init();
   };
 
@@ -299,10 +299,6 @@ private:
   /** ADC count of time samples
    */
   std::vector<Short_t> data_;
-
-  /** Frequency mode. 1->1GHz sampling, 2->2GHz sampling
-   */
-  int freq;
 
   /**Sampling period in seconds. In priniciple 1ns or 0.5ns
    */
