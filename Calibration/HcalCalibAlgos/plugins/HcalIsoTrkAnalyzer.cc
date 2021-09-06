@@ -411,9 +411,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   const CaloGeometry* geo = &iSetup.getData(tok_geom_);
   const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
   const HcalTopology* theHBHETopology = &iSetup.getData(tok_htopo_);
-  const HcalRespCorrs* resp = &iSetup.getData(tok_resp_);
-  HcalRespCorrs* respCorrs = new HcalRespCorrs(*resp);
-  respCorrs->setTopo(theHBHETopology);
+  const HcalRespCorrs* respCorrs = &iSetup.getData(tok_resp_);
 
   //=== genParticle information
   edm::Handle<reco::GenParticleCollection> genParticles;
