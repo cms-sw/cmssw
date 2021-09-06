@@ -43,7 +43,9 @@ namespace edm {
   class DataMixingHcalDigiWorkerProd {
   public:
     /** standard constructor*/
-    explicit DataMixingHcalDigiWorkerProd(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC);
+    explicit DataMixingHcalDigiWorkerProd(const edm::ParameterSet &ps,
+                                          edm::ConsumesCollector &&iC,
+                                          const edm::ESGetToken<HcalDbService, HcalDbRecord> &);
 
     /**Default destructor*/
     virtual ~DataMixingHcalDigiWorkerProd();
@@ -85,6 +87,8 @@ namespace edm {
     edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok_zdc_;
     edm::EDGetTokenT<HcalQIE10DigitizerTraits::DigiCollection> tok_qie10_;
     edm::EDGetTokenT<HcalQIE11DigitizerTraits::DigiCollection> tok_qie11_;
+
+    const edm::ESGetToken<HcalDbService, HcalDbRecord> tokDB_;
 
     HcalDigiProducer *myHcalDigitizer_;
     HBHESignalGenerator theHBHESignalGenerator;

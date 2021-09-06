@@ -57,6 +57,8 @@ private:
   edm::EDGetTokenT<HcalQIE10DigitizerTraits::DigiCollection> tok_qie10_;
   edm::EDGetTokenT<HcalQIE11DigitizerTraits::DigiCollection> tok_qie11_;
 
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> tokDB_;
+
   HcalDigiProducer myHcalDigitizer_;
   HBHESignalGenerator theHBHESignalGenerator;
   HOSignalGenerator theHOSignalGenerator;
@@ -76,6 +78,7 @@ PreMixingHcalWorker::PreMixingHcalWorker(const edm::ParameterSet &ps,
       ZDCPileInputTag_(ps.getParameter<edm::InputTag>("ZDCPileInputTag")),
       QIE10PileInputTag_(ps.getParameter<edm::InputTag>("QIE10PileInputTag")),
       QIE11PileInputTag_(ps.getParameter<edm::InputTag>("QIE11PileInputTag")),
+      tokDB_(iC.esConsumes()),
       myHcalDigitizer_(ps, iC) {
   tok_hbhe_ = iC.consumes<HBHEDigitizerTraits::DigiCollection>(HBHEPileInputTag_);
   tok_ho_ = iC.consumes<HODigitizerTraits::DigiCollection>(HOPileInputTag_);
@@ -135,12 +138,12 @@ void PreMixingHcalWorker::addPileups(const PileUpEventPrincipal &pep, const edm:
   LogDebug("PreMixingHcalWorker") << "\n===============> adding pileups from event  " << ep.id()
                                   << " for bunchcrossing " << pep.bunchCrossing();
 
-  theHBHESignalGenerator.initializeEvent(&ep, &ES);
-  theHOSignalGenerator.initializeEvent(&ep, &ES);
-  theHFSignalGenerator.initializeEvent(&ep, &ES);
-  theZDCSignalGenerator.initializeEvent(&ep, &ES);
-  theQIE10SignalGenerator.initializeEvent(&ep, &ES);
-  theQIE11SignalGenerator.initializeEvent(&ep, &ES);
+  theHBHESignalGenerator.initializeEvent(&ep, &ES, tokDB_);
+  theHOSignalGenerator.initializeEvent(&ep, &ES, tokDB_);
+  theHFSignalGenerator.initializeEvent(&ep, &ES, tokDB_);
+  theZDCSignalGenerator.initializeEvent(&ep, &ES, tokDB_);
+  theQIE10SignalGenerator.initializeEvent(&ep, &ES, tokDB_);
+  theQIE11SignalGenerator.initializeEvent(&ep, &ES, tokDB_);
 
   // put digis from pileup event into digitizer
 
