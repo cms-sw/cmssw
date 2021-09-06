@@ -915,7 +915,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         # PFPhotons :
         #------------
         pfPhotons = cms.EDFilter("CandPtrSelector",
-                                 src = pfCandCollection,
+                                 src = pfCandCollection if self._parameters["Puppi"].value or not self._parameters["onMiniAOD"].value else cms.InputTag("pfCHS"),
                                  cut = cms.string("abs(pdgId) = 22")
                                  )
         addToProcessAndTask("pfPhotons"+postfix, pfPhotons, process, task)
