@@ -26,6 +26,8 @@ public:
 
 private:
   bool fromDD4Hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
 };
 
 HcalParametersDBBuilder::HcalParametersDBBuilder(const edm::ParameterSet& ps)
@@ -34,6 +36,8 @@ HcalParametersDBBuilder::HcalParametersDBBuilder(const edm::ParameterSet& ps)
   edm::LogVerbatim("HCalGeom") << "HcalParametersDBBuilder::HcalParametersDBBuilder called with dd4hep: "
                                << fromDD4Hep_;
 #endif
+  dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
+  compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 void HcalParametersDBBuilder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -56,15 +60,13 @@ void HcalParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& e
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "HcalParametersDBBuilder::Try to access cms::DDCompactView";
 #endif
-    edm::ESTransientHandle<cms::DDCompactView> cpv;
-    es.get<IdealGeometryRecord>().get(cpv);
+    auto cpv = es.getTransientHandle(dd4HepCompactViewToken_);
     builder.build((*cpv), *php);
   } else {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "HcalParametersDBBuilder::Try to access DDCompactView";
 #endif
-    edm::ESTransientHandle<DDCompactView> cpv;
-    es.get<IdealGeometryRecord>().get(cpv);
+    auto cpv = es.getTransientHandle(compactViewToken_);
     builder.build(&(*cpv), *php);
   }
 

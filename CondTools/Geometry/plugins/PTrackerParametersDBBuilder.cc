@@ -20,10 +20,14 @@ public:
 
 private:
   bool fromDD4hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
 };
 
 PTrackerParametersDBBuilder::PTrackerParametersDBBuilder(const edm::ParameterSet& iConfig) {
   fromDD4hep_ = iConfig.getParameter<bool>("fromDD4hep");
+  dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
+  compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 void PTrackerParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
@@ -37,12 +41,10 @@ void PTrackerParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup cons
   TrackerParametersFromDD builder;
 
   if (!fromDD4hep_) {
-    edm::ESTransientHandle<DDCompactView> cpv;
-    es.get<IdealGeometryRecord>().get(cpv);
+    auto cpv = es.getTransientHandle(compactViewToken_);
     builder.build(&(*cpv), *ptp);
   } else {
-    edm::ESTransientHandle<cms::DDCompactView> cpv;
-    es.get<IdealGeometryRecord>().get(cpv);
+    auto cpv = es.getTransientHandle(dd4HepCompactViewToken_);
     builder.build(&(*cpv), *ptp);
   }
 
