@@ -1336,8 +1336,11 @@ namespace evf {
         }
       }
       return std::stoi(data);
-    } catch (const std::exception& e) {
+    } catch (const std::out_of_range& e) {
       edm::LogError("EvFDaqDirector") << "grabNextJsonFile - error parsing number of events from BU JSON. "
+                                      << "Input value is -: " << data;
+    } catch (const std::invalid_argument& e) {
+      edm::LogError("EvFDaqDirector") << "grabNextJsonFile - argument error parsing events from BU JSON. "
                                       << "Input value is -: " << data;
     } catch (std::runtime_error const& e) {
       //Can be thrown by Json parser
@@ -1433,6 +1436,9 @@ namespace evf {
       edm::LogError("EvFDaqDirector") << "grabNextFile runtime Exception -: " << e.what();
     } catch (const std::out_of_range&) {
       edm::LogError("EvFDaqDirector") << "grabNextFile error parsing number of events from BU JSON. "
+                                      << "Input value is -: " << data;
+    } catch (const std::invalid_argument&) {
+      edm::LogError("EvFDaqDirector") << "grabNextFile argument error parsing events from BU JSON. "
                                       << "Input value is -: " << data;
     } catch (std::exception const& e) {
       // BU run directory disappeared?
