@@ -176,7 +176,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         G4MscSafetyFactor = cms.double(0.6), 
         G4MscLambdaLimit = cms.double(1.0), # mm 
         G4MscStepLimit = cms.string("UseSafety"), 
-        G4GeneralProcess = cms.bool(True),
+        G4GeneralProcess = cms.bool(False),
         ReadMuonData = cms.bool(False), 
         Verbosity = cms.untracked.int32(0),
         # 1 will print cuts as they get set from DD
@@ -627,7 +627,7 @@ run2_HCAL_2017.toModify( g4SimHits, HCalSD = dict( TestNumberingScheme = True ) 
 ## Disable Castor from Run 3
 ##
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toModify( g4SimHits, CastorSD = dict( useShowerLibrary = False ) ) 
+run3_common.toModify( g4SimHits, CastorSD = dict( useShowerLibrary = False ) )
 
 ##
 ## Change ECAL time slices
