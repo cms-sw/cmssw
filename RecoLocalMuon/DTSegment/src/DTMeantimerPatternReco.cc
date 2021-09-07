@@ -37,7 +37,10 @@ typedef hitCont::const_iterator hitIter;
 
 /// Constructor
 DTMeantimerPatternReco::DTMeantimerPatternReco(const edm::ParameterSet& pset, edm::ConsumesCollector cc)
-    : DTRecSegment2DBaseAlgo(pset), theFitter(new DTLinearFit()), theAlgoName("DTMeantimerPatternReco") {
+    : DTRecSegment2DBaseAlgo(pset),
+      theFitter(new DTLinearFit()),
+      theAlgoName("DTMeantimerPatternReco"),
+      theDTGeometryToken(cc.esConsumes()) {
   theMaxAllowedHits = pset.getParameter<unsigned int>("MaxAllowedHits");  // 100
   theAlphaMaxTheta = pset.getParameter<double>("AlphaMaxTheta");          // 0.1 ;
   theAlphaMaxPhi = pset.getParameter<double>("AlphaMaxPhi");              // 1.0 ;
@@ -79,7 +82,7 @@ edm::OwnVector<DTSLRecSegment2D> DTMeantimerPatternReco::reconstruct(const DTSup
 
 void DTMeantimerPatternReco::setES(const edm::EventSetup& setup) {
   // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(theDTGeometry);
+  theDTGeometry = setup.getHandle(theDTGeometryToken);
   theUpdator->setES(setup);
 }
 

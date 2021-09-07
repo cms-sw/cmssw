@@ -65,10 +65,6 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup) {
   // Create the pointer to the collection which will store the rechits
   auto segments4DCollection = std::make_unique<DTRecSegment4DCollection>();
 
-  // get the geometry
-  ESHandle<DTGeometry> theGeom;
-  setup.get<MuonGeometryRecord>().get(theGeom);
-
   // Percolate the setup
   the4DAlgo->setES(setup);
 

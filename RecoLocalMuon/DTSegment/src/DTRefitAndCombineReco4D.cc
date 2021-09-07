@@ -28,7 +28,7 @@ using namespace std;
 using namespace edm;
 
 DTRefitAndCombineReco4D::DTRefitAndCombineReco4D(const ParameterSet& pset, ConsumesCollector cc)
-    : DTRecSegment4DBaseAlgo(pset), theAlgoName("DTRefitAndCombineReco4D") {
+    : DTRecSegment4DBaseAlgo(pset), theAlgoName("DTRefitAndCombineReco4D"), theDTGeometryToken(cc.esConsumes()) {
   // debug parameter
   debug = pset.getUntrackedParameter<bool>("debug");
 
@@ -40,7 +40,7 @@ DTRefitAndCombineReco4D::DTRefitAndCombineReco4D(const ParameterSet& pset, Consu
 }
 
 void DTRefitAndCombineReco4D::setES(const EventSetup& setup) {
-  setup.get<MuonGeometryRecord>().get(theDTGeometry);
+  theDTGeometry = setup.getHandle(theDTGeometryToken);
   theUpdator->setES(setup);
   //  the2DAlgo->setES(setup);
 }

@@ -47,10 +47,6 @@ void DTSegment4DT0Corrector::produce(Event& event, const EventSetup& setup) {
   Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByToken(recHits4DToken_, all4DSegments);
 
-  // get the geometry
-  ESHandle<DTGeometry> theGeom;
-  setup.get<MuonGeometryRecord>().get(theGeom);
-
   // Percolate the setup
   theUpdator->setES(setup);
 

@@ -31,7 +31,7 @@ using namespace edm;
 // there isn't it. (Or launch a "lazy" reco on demand)
 
 DTMeantimerPatternReco4D::DTMeantimerPatternReco4D(const ParameterSet& pset, ConsumesCollector cc)
-    : DTRecSegment4DBaseAlgo(pset), theAlgoName("DTMeantimerPatternReco4D") {
+    : DTRecSegment4DBaseAlgo(pset), theAlgoName("DTMeantimerPatternReco4D"), theDTGeometryToken(cc.esConsumes()) {
   // debug parameter
   debug = pset.getUntrackedParameter<bool>("debug");
 
@@ -61,7 +61,7 @@ DTMeantimerPatternReco4D::~DTMeantimerPatternReco4D() {
 }
 
 void DTMeantimerPatternReco4D::setES(const EventSetup& setup) {
-  setup.get<MuonGeometryRecord>().get(theDTGeometry);
+  theDTGeometry = setup.getHandle(theDTGeometryToken);
   the2DAlgo->setES(setup);
   theUpdator->setES(setup);
 }

@@ -34,6 +34,8 @@ class DTRecSegment4D;
 class DTLinearFit;
 class DTRecHitBaseAlgo;
 class DTChamberRecSegment2D;
+class DTGeometry;
+class MuonGeometryRecord;
 
 namespace edm {
   class EventSetup;
@@ -83,6 +85,7 @@ private:
   std::unique_ptr<DTLinearFit> theFitter;     // the linear fitter
   std::unique_ptr<DTRecHitBaseAlgo> theAlgo;  // the algo for hit reconstruction
   edm::ESHandle<DTGeometry> theGeom;          // the geometry
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> theGeomToken;
 
   void updateHits(DTRecSegment2D* seg, GlobalPoint& gpos, GlobalVector& gdir, const int step = 2) const;
 

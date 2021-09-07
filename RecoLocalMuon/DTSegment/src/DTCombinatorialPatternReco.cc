@@ -32,7 +32,7 @@ using namespace std;
 
 /// Constructor
 DTCombinatorialPatternReco::DTCombinatorialPatternReco(const edm::ParameterSet& pset, edm::ConsumesCollector iCC)
-    : DTRecSegment2DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco") {
+    : DTRecSegment2DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco"), theDTGeometryToken(iCC.esConsumes()) {
   theMaxAllowedHits = pset.getParameter<unsigned int>("MaxAllowedHits");  // 100
   theAlphaMaxTheta = pset.getParameter<double>("AlphaMaxTheta");          // 0.1 ;
   theAlphaMaxPhi = pset.getParameter<double>("AlphaMaxPhi");              // 1.0 ;
@@ -77,7 +77,7 @@ edm::OwnVector<DTSLRecSegment2D> DTCombinatorialPatternReco::reconstruct(const D
 
 void DTCombinatorialPatternReco::setES(const edm::EventSetup& setup) {
   // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(theDTGeometry);
+  theDTGeometry = setup.getHandle(theDTGeometryToken);
   theUpdator->setES(setup);
 }
 

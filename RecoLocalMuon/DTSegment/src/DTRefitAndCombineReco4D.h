@@ -23,6 +23,7 @@ namespace edm {
 }  // namespace edm
 class DTSegmentUpdator;
 //class DTSegmentCleaner;
+class MuonGeometryRecord;
 
 // C++ Headers
 #include <vector>
@@ -30,6 +31,7 @@ class DTSegmentUpdator;
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 // ======================================================================
@@ -70,6 +72,7 @@ private:
   // DTSegmentCleaner* theCleaner; // the cleaner
 
   edm::ESHandle<DTGeometry> theDTGeometry;  // the DT geometry
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDTGeometryToken;
 
   //   // The reconstruction 2D algorithm
   // DTRecSegment2DBaseAlgo* the2DAlgo;

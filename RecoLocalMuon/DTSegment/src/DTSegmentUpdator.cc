@@ -48,6 +48,7 @@ DTSegmentUpdator::DTSegmentUpdator(const ParameterSet& config, edm::ConsumesColl
     : theFitter{std::make_unique<DTLinearFit>()},
       theAlgo{DTRecHitAlgoFactory::get()->create(
           config.getParameter<string>("recAlgo"), config.getParameter<ParameterSet>("recAlgoConfig"), cc)},
+      theGeomToken(cc.esConsumes()),
       vdrift_4parfit(config.getParameter<bool>("performT0_vdriftSegCorrection")),
       T0_hit_resolution(config.getParameter<double>("hit_afterT0_resolution")),
       perform_delta_rejecting(config.getParameter<bool>("perform_delta_rejecting")),
@@ -66,7 +67,7 @@ DTSegmentUpdator::~DTSegmentUpdator() = default;
 /* Operations */
 
 void DTSegmentUpdator::setES(const EventSetup& setup) {
-  setup.get<MuonGeometryRecord>().get(theGeom);
+  theGeom = setup.getHandle(theGeomToken);
   theAlgo->setES(setup);
 }
 
