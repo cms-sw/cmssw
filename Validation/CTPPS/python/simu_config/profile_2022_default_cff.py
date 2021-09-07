@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.CTPPS.simu_config.year_2022_cff import *
 
-alignmentFile = "Validation/CTPPS/alignment/2022.xml"
+alignmentFile = "Validation/CTPPS/alignment/alignment_2022.xml"
 
 profile_2022_default = profile_base_2022.clone(
   L_int = 1,
