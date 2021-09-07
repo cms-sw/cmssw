@@ -34,6 +34,7 @@ class DTLinearFit;
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 
 /* ====================================================================== */
@@ -43,7 +44,7 @@ class DTLinearFit;
 class DTMeantimerPatternReco : public DTRecSegment2DBaseAlgo {
 public:
   /// Constructor
-  DTMeantimerPatternReco(const edm::ParameterSet& pset);
+  DTMeantimerPatternReco(const edm::ParameterSet& pset, edm::ConsumesCollector cc);
 
   /// Destructor
   ~DTMeantimerPatternReco() override;

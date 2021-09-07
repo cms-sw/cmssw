@@ -12,6 +12,7 @@
 
 /* Base Class Headers */
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DBaseAlgo.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 /* Collaborating Class Declarations */
 namespace edm {
@@ -42,7 +43,7 @@ class DTSegmentCand;
 class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
 public:
   /// Constructor
-  DTCombinatorialPatternReco(const edm::ParameterSet& pset);
+  DTCombinatorialPatternReco(const edm::ParameterSet& pset, edm::ConsumesCollector);
 
   /// Destructor
   ~DTCombinatorialPatternReco() override;

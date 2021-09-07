@@ -30,6 +30,7 @@ class DTSegmentUpdator;
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 // ======================================================================
 //#include "DataFormats/DTRecHit/interface/DTRecSegment2DPhi.h"
@@ -39,7 +40,7 @@ class DTSegmentUpdator;
 class DTRefitAndCombineReco4D : public DTRecSegment4DBaseAlgo {
 public:
   /// Constructor
-  DTRefitAndCombineReco4D(const edm::ParameterSet &pset);
+  DTRefitAndCombineReco4D(const edm::ParameterSet &pset, edm::ConsumesCollector cc);
 
   /// Destructor
   ~DTRefitAndCombineReco4D() override{};

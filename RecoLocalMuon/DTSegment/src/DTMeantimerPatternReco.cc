@@ -11,6 +11,7 @@
 /* Collaborating Class Header */
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -35,13 +36,14 @@ typedef std::vector<std::shared_ptr<DTHitPairForFit>> hitCont;
 typedef hitCont::const_iterator hitIter;
 
 /// Constructor
-DTMeantimerPatternReco::DTMeantimerPatternReco(const edm::ParameterSet& pset)
+DTMeantimerPatternReco::DTMeantimerPatternReco(const edm::ParameterSet& pset, edm::ConsumesCollector cc)
     : DTRecSegment2DBaseAlgo(pset), theFitter(new DTLinearFit()), theAlgoName("DTMeantimerPatternReco") {
   theMaxAllowedHits = pset.getParameter<unsigned int>("MaxAllowedHits");  // 100
   theAlphaMaxTheta = pset.getParameter<double>("AlphaMaxTheta");          // 0.1 ;
   theAlphaMaxPhi = pset.getParameter<double>("AlphaMaxPhi");              // 1.0 ;
   theMaxChi2 = pset.getParameter<double>("MaxChi2");                      // 8.0 ;
   debug = pset.getUntrackedParameter<bool>("debug");
+  //theUpdator = new DTSegmentUpdator(pset, cc);
   theUpdator = new DTSegmentUpdator(pset);
   theCleaner = new DTSegmentCleaner(pset);
 }
