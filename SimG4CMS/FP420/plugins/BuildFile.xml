@@ -1,4 +1,5 @@
 <use name="SimG4CMS/FP420"/>
+<use name="SimG4Core/Watcher"/>
 <library file="*.cc" name="SimG4CMSFP420Plugins">
   <flags EDM_PLUGIN="1"/>
   <!--

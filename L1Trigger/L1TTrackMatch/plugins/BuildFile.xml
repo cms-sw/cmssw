@@ -7,7 +7,7 @@
 <use   name="SimTracker/TrackTriggerAssociation"/>
 <use   name="DataFormats/L1TrackTrigger"/>
 <use   name="FWCore/Utilities"/>
-<use   name="RecoJets/JetProducers"/>
+<use   name="fastjet"/>
 <use   name="root"/>
 <flags   EDM_PLUGIN="1"/>
 </library>
