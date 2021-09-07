@@ -344,9 +344,7 @@ namespace cond {
       std::string payloadTypeName;
       bool found = session.fetchPayloadData(payloadId, payloadTypeName, data, streamerInfo);
       if (!found)
-        throwException(
-            "Payload with id " + boost::lexical_cast<std::string>(payloadId) + " has not been found in the database.",
-            "fetch");
+        throwException("Payload with id " + payloadId + " has not been found in the database.", "fetch");
       return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr);
     }
 
