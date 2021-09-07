@@ -53,10 +53,7 @@ constexpr int dccNum[12][12] = {
 using namespace std;
 
 EcalSRCondTools::EcalSRCondTools(const edm::ParameterSet& ps)
-    : ps_(ps),
-      mode_(ps.getParameter<string>("mode")),
-      iomode_write_(true),
-      done_(false) {
+    : ps_(ps), mode_(ps.getParameter<string>("mode")), iomode_write_(true), done_(false) {
   if (mode_ == "read") {
     iomode_write_ = false;
     hSrToken_ = esConsumes();
