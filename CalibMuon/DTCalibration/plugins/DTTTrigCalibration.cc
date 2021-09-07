@@ -79,6 +79,10 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
 
   if (debug)
     cout << "[DTTTrigCalibration]Constructor called!" << endl;
+
+  if (checkNoisyChannels) {
+    theStatusMapToken = esConsumes();
+  }
 }
 
 // Destructor
@@ -108,7 +112,7 @@ void DTTTrigCalibration::analyze(const edm::Event& event, const edm::EventSetup&
   ESHandle<DTStatusFlag> statusMap;
   if (checkNoisyChannels) {
     // Get the map of noisy channels
-    eventSetup.get<DTStatusFlagRcd>().get(statusMap);
+    statusMap = eventSetup.getHandle(theStatusMapToken);
   }
 
   if (doSubtractT0)
