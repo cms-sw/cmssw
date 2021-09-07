@@ -130,6 +130,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 
     auto regr_energy = cp.energy();
     std::vector<uint> scSimTracksterIdx;
+    scSimTracksterIdx.reserve(cp.simClusters());
 
     // Create a Trackster from the object entering HGCal
     if (cp.g4Tracks()[0].crossedBoundary()) {
@@ -164,8 +165,15 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                      scRef.id(),
                      *output_mask,
                      *result);
-        scSimTracksterIdx.push_back(result->size() - 1);
+
+        if (result->size() < 1)
+          continue;
+        const auto index = result->size() - 1;
+        if (std::find(scSimTracksterIdx.begin(), scSimTracksterIdx.end(), index) == scSimTracksterIdx.end()) {
+          scSimTracksterIdx.emplace_back(index);
+        }
       }
+      scSimTracksterIdx.shrink_to_fit();
     }
 
     // Create a Trackster from any CP
@@ -179,7 +187,13 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                  key.id(),
                  *output_mask_fromCP,
                  *result_fromCP);
-    (*cpToSc_SimTrackstersMap)[result_fromCP->size() - 1] = scSimTracksterIdx;
+
+    if (result_fromCP->size() < 1)
+      continue;
+    const auto index = result_fromCP->size() - 1;
+    if (cpToSc_SimTrackstersMap->find(index) == cpToSc_SimTrackstersMap->end()) {
+      (*cpToSc_SimTrackstersMap)[index] = scSimTracksterIdx;
+    }
   }
 
   ticl::assignPCAtoTracksters(
