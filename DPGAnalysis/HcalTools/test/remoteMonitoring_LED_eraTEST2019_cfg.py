@@ -379,6 +379,10 @@ process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         'RespCorrs')
 )
 
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string(histodir+'/LED_'+runnumber+'.root')
+                                   )
+
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 # 2018:
