@@ -32,7 +32,7 @@ DTSegment4DT0Corrector::DTSegment4DT0Corrector(const ParameterSet& pset) {
   recHits4DToken_ = consumes<DTRecSegment4DCollection>(pset.getParameter<InputTag>("recHits4DLabel"));
 
   // the updator
-  theUpdator = new DTSegmentUpdator(pset);
+  theUpdator = new DTSegmentUpdator(pset, consumesCollector());
 }
 
 /// Destructor

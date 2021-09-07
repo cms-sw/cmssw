@@ -21,6 +21,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 
@@ -43,7 +44,7 @@ namespace edm {
 class DTSegmentUpdator {
 public:
   /// Constructor
-  DTSegmentUpdator(const edm::ParameterSet& config);
+  DTSegmentUpdator(const edm::ParameterSet& config, edm::ConsumesCollector);
 
   /// Destructor
   ~DTSegmentUpdator();

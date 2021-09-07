@@ -41,8 +41,7 @@ DTMeantimerPatternReco4D::DTMeantimerPatternReco4D(const ParameterSet& pset, Con
   computeT0corr = pset.existsAs<bool>("computeT0Seg") ? pset.getParameter<bool>("computeT0Seg") : true;
 
   // the updator
-  //theUpdator = new DTSegmentUpdator(pset, cc);
-  theUpdator = new DTSegmentUpdator(pset);
+  theUpdator = new DTSegmentUpdator(pset, cc);
 
   // the input type.
   // If true the instructions in setDTRecSegment2DContainer will be schipped and the
