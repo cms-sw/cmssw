@@ -9,6 +9,7 @@
 /* Collaborating Class Header */
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 using namespace edm;
@@ -46,7 +47,8 @@ DTRecSegment2DExtendedProducer::DTRecSegment2DExtendedProducer(const edm::Parame
   produces<DTRecSegment2DCollection>();
 
   // Get the concrete reconstruction algo from the factory
-  theAlgo = new DTCombinatorialExtendedPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
+  theAlgo =
+      new DTCombinatorialExtendedPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"), consumesCollector());
 }
 
 /// Destructor

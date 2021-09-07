@@ -31,12 +31,14 @@ using namespace std;
 /* ====================================================================== */
 
 /// Constructor
-DTCombinatorialExtendedPatternReco::DTCombinatorialExtendedPatternReco(const edm::ParameterSet& pset)
+DTCombinatorialExtendedPatternReco::DTCombinatorialExtendedPatternReco(const edm::ParameterSet& pset,
+                                                                       edm::ConsumesCollector cc)
     : DTRecSegment2DBaseAlgo(pset), theAlgoName("DTCombinatorialExtendedPatternReco") {
   theMaxAllowedHits = pset.getParameter<unsigned int>("MaxAllowedHits");  // 100
   theAlphaMaxTheta = pset.getParameter<double>("AlphaMaxTheta");          // 0.1 ;
   theAlphaMaxPhi = pset.getParameter<double>("AlphaMaxPhi");              // 1.0 ;
   debug = pset.getUntrackedParameter<bool>("debug");                      //true;
+  //theUpdator = new DTSegmentUpdator(pset, cc);
   theUpdator = new DTSegmentUpdator(pset);
   theCleaner = new DTSegmentCleaner(pset);
   string theHitAlgoName = pset.getParameter<string>("recAlgo");

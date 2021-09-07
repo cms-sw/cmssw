@@ -29,6 +29,7 @@ class DTSegmentUpdator;
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 // ======================================================================
 class DTSegmentCand;
@@ -40,7 +41,7 @@ class DTHitPairForFit;
 class DTCombinatorialPatternReco4D : public DTRecSegment4DBaseAlgo {
 public:
   /// Constructor
-  DTCombinatorialPatternReco4D(const edm::ParameterSet& pset);
+  DTCombinatorialPatternReco4D(const edm::ParameterSet& pset, edm::ConsumesCollector);
 
   /// Destructor
   ~DTCombinatorialPatternReco4D() override;

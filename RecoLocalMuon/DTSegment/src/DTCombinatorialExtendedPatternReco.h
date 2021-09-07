@@ -25,6 +25,7 @@ class DTHitPairForFit;
 class DTSegmentCand;
 class DTSegmentExtendedCand;
 #include "DataFormats/DTRecHit/interface/DTSLRecCluster.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 /* C++ Headers */
 #include <vector>
@@ -42,7 +43,7 @@ class DTSegmentExtendedCand;
 class DTCombinatorialExtendedPatternReco : private DTRecSegment2DBaseAlgo {
 public:
   /// Constructor
-  DTCombinatorialExtendedPatternReco(const edm::ParameterSet& pset);
+  DTCombinatorialExtendedPatternReco(const edm::ParameterSet& pset, edm::ConsumesCollector);
 
   /// Destructor
   ~DTCombinatorialExtendedPatternReco() override;
