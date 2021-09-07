@@ -17,6 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <iostream>
 #include <iomanip>
@@ -24,8 +25,8 @@
 using namespace std;
 using namespace edm;
 
-DTParametrizedDriftAlgo::DTParametrizedDriftAlgo(const ParameterSet& config)
-    : DTRecHitBaseAlgo(config),
+DTParametrizedDriftAlgo::DTParametrizedDriftAlgo(const ParameterSet& config, ConsumesCollector cc)
+    : DTRecHitBaseAlgo(config, cc),
       interpolate(config.getParameter<bool>("interpolate")),
       minTime(config.getParameter<double>("minTime")),  // FIXME: Default was -3 ns
       maxTime(config.getParameter<double>("maxTime")),  // FIXME: Default was 415 ns

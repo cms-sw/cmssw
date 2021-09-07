@@ -18,7 +18,7 @@ class MagneticField;
 class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
 public:
   /// Constructor
-  DTLinearDriftFromDBAlgo(const edm::ParameterSet& config);
+  DTLinearDriftFromDBAlgo(const edm::ParameterSet& config, edm::ConsumesCollector cc);
 
   /// Destructor
   ~DTLinearDriftFromDBAlgo() override;

@@ -47,9 +47,7 @@ using namespace edm;
 DTSegmentUpdator::DTSegmentUpdator(const ParameterSet& config, edm::ConsumesCollector cc)
     : theFitter{std::make_unique<DTLinearFit>()},
       theAlgo{DTRecHitAlgoFactory::get()->create(
-          config.getParameter<string>("recAlgo"), config.getParameter<ParameterSet>("recAlgoConfig"))},
-      //theAlgo{DTRecHitAlgoFactory::get()->create(
-      //    config.getParameter<string>("recAlgo"), config.getParameter<ParameterSet>("recAlgoConfig"), cc)},
+          config.getParameter<string>("recAlgo"), config.getParameter<ParameterSet>("recAlgoConfig"), cc)},
       vdrift_4parfit(config.getParameter<bool>("performT0_vdriftSegCorrection")),
       T0_hit_resolution(config.getParameter<double>("hit_afterT0_resolution")),
       perform_delta_rejecting(config.getParameter<bool>("perform_delta_rejecting")),

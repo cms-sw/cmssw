@@ -16,7 +16,7 @@ class MagneticField;
 class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
 public:
   /// Constructor
-  DTParametrizedDriftAlgo(const edm::ParameterSet& config);
+  DTParametrizedDriftAlgo(const edm::ParameterSet& config, edm::ConsumesCollector);
 
   /// Destructor
   ~DTParametrizedDriftAlgo() override;
