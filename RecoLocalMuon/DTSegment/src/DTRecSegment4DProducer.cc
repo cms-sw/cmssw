@@ -26,7 +26,8 @@ using namespace std;
 DTRecSegment4DProducer::DTRecSegment4DProducer(const ParameterSet& pset)
     :  // Get the concrete 4D-segments reconstruction algo from the factory
       the4DAlgo{DTRecSegment4DAlgoFactory::get()->create(pset.getParameter<string>("Reco4DAlgoName"),
-                                                         pset.getParameter<ParameterSet>("Reco4DAlgoConfig"))} {
+                                                         pset.getParameter<ParameterSet>("Reco4DAlgoConfig"),
+                                                         consumesCollector())} {
   produces<DTRecSegment4DCollection>();
 
   // debug parameter

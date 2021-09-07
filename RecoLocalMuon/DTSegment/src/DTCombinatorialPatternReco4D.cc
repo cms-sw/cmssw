@@ -29,7 +29,7 @@ using namespace edm;
 // Throw an exception if a theta segment container is requested and in the event
 // there isn't it. (Or launch a "lazy" reco on demand)
 
-DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& pset)
+DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& pset, ConsumesCollector cc)
     : DTRecSegment4DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco4D") {
   // debug parameter
   debug = pset.getUntrackedParameter<bool>("debug");
@@ -40,6 +40,7 @@ DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& p
   computeT0corr = pset.existsAs<bool>("computeT0Seg") ? pset.getParameter<bool>("computeT0Seg") : true;
 
   // the updator
+  //theUpdator = new DTSegmentUpdator(pset, cc);
   theUpdator = new DTSegmentUpdator(pset);
 
   // the input type.
@@ -51,7 +52,7 @@ DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& p
 
   // Get the concrete 2D-segments reconstruction algo from the factory
   // For the 2D reco I use this reconstructor!
-  the2DAlgo = new DTCombinatorialPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
+  the2DAlgo = new DTCombinatorialPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"), cc);
 }
 
 DTCombinatorialPatternReco4D::~DTCombinatorialPatternReco4D() {

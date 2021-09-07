@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
 // For the 2D reco I use thei reconstructor!
@@ -29,7 +30,7 @@ using namespace edm;
 // Throw an exception if a theta segment container is requested and in the event
 // there isn't it. (Or launch a "lazy" reco on demand)
 
-DTMeantimerPatternReco4D::DTMeantimerPatternReco4D(const ParameterSet& pset)
+DTMeantimerPatternReco4D::DTMeantimerPatternReco4D(const ParameterSet& pset, ConsumesCollector cc)
     : DTRecSegment4DBaseAlgo(pset), theAlgoName("DTMeantimerPatternReco4D") {
   // debug parameter
   debug = pset.getUntrackedParameter<bool>("debug");
@@ -40,6 +41,7 @@ DTMeantimerPatternReco4D::DTMeantimerPatternReco4D(const ParameterSet& pset)
   computeT0corr = pset.existsAs<bool>("computeT0Seg") ? pset.getParameter<bool>("computeT0Seg") : true;
 
   // the updator
+  //theUpdator = new DTSegmentUpdator(pset, cc);
   theUpdator = new DTSegmentUpdator(pset);
 
   // the input type.
@@ -51,7 +53,7 @@ DTMeantimerPatternReco4D::DTMeantimerPatternReco4D(const ParameterSet& pset)
 
   // Get the concrete 2D-segments reconstruction algo from the factory
   // For the 2D reco I use this reconstructor!
-  the2DAlgo = new DTMeantimerPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
+  the2DAlgo = new DTMeantimerPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"), cc);
 }
 
 DTMeantimerPatternReco4D::~DTMeantimerPatternReco4D() {

@@ -15,6 +15,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
@@ -26,12 +27,13 @@
 using namespace std;
 using namespace edm;
 
-DTRefitAndCombineReco4D::DTRefitAndCombineReco4D(const ParameterSet& pset)
+DTRefitAndCombineReco4D::DTRefitAndCombineReco4D(const ParameterSet& pset, ConsumesCollector cc)
     : DTRecSegment4DBaseAlgo(pset), theAlgoName("DTRefitAndCombineReco4D") {
   // debug parameter
   debug = pset.getUntrackedParameter<bool>("debug");
 
   // the updator
+  //theUpdator = new DTSegmentUpdator(pset, cc);
   theUpdator = new DTSegmentUpdator(pset);
 
   // the max allowd chi^2 for the fit of th combination of two phi segments
