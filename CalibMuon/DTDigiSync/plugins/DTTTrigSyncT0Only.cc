@@ -7,10 +7,15 @@
  */
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "CondFormats/DTObjects/interface/DTT0.h"
+#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
 
-class DTLayer;
-class DTWireId;
-class DTT0;
+#include <iostream>
 
 namespace edm {
   class ParameterSet;
@@ -19,7 +24,7 @@ namespace edm {
 class DTTTrigSyncT0Only : public DTTTrigBaseSync {
 public:
   /// Constructor
-  DTTTrigSyncT0Only(const edm::ParameterSet& config);
+  DTTTrigSyncT0Only(const edm::ParameterSet& config, edm::ConsumesCollector);
 
   /// Destructor
   ~DTTTrigSyncT0Only() override;
@@ -48,34 +53,25 @@ public:
 
 private:
   const DTT0* tZeroMap;
+  edm::ESGetToken<DTT0, DTT0Rcd> t0Token_;
 
   // Set the verbosity level
   const bool debug;
 };
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
-#include "CondFormats/DTObjects/interface/DTT0.h"
-#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
-
-#include <iostream>
-
 using namespace std;
 using namespace edm;
 
-DTTTrigSyncT0Only::DTTTrigSyncT0Only(const ParameterSet& config) : debug(config.getUntrackedParameter<bool>("debug")) {}
+DTTTrigSyncT0Only::DTTTrigSyncT0Only(const ParameterSet& config, edm::ConsumesCollector cc)
+    : t0Token_(cc.esConsumes()), debug(config.getUntrackedParameter<bool>("debug")) {}
 
 DTTTrigSyncT0Only::~DTTTrigSyncT0Only() {}
 
 void DTTTrigSyncT0Only::setES(const EventSetup& setup) {
-  ESHandle<DTT0> t0;
-  setup.get<DTT0Rcd>().get(t0);
-  tZeroMap = &*t0;
+  tZeroMap = &setup.getData(t0Token_);
 
   if (debug) {
-    cout << "[DTTTrigSyncT0Only] T0 version: " << t0->version() << endl;
+    cout << "[DTTTrigSyncT0Only] T0 version: " << tZeroMap->version() << endl;
   }
 }
 

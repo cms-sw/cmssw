@@ -4,6 +4,7 @@
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -73,7 +74,8 @@ DTTPAnalyzer::DTTPAnalyzer(const edm::ParameterSet& pset)
 
   if (subtractT0_)
     tTrigSync_ = DTTTrigSyncFactory::get()->create(pset.getParameter<std::string>("tTrigMode"),
-                                                   pset.getParameter<edm::ParameterSet>("tTrigModeConfig"));
+                                                   pset.getParameter<edm::ParameterSet>("tTrigModeConfig"),
+                                                   consumesCollector());
 }
 
 DTTPAnalyzer::~DTTPAnalyzer() { rootFile_->Close(); }
