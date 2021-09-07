@@ -67,7 +67,7 @@ void CAHitNtupletCUDA::fillDescriptions(edm::ConfigurationDescriptions& descript
 }
 
 void CAHitNtupletCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& es) const {
-  auto bf = 1. / es.getData(tokenField_).inverseNominalValueInGeV();
+  auto bf = 1. / es.getData(tokenField_).inverseBzAtOriginInGeV();
 
   if (onGPU_) {
     auto hHits = iEvent.getHandle(tokenHitGPU_);

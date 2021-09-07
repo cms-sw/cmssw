@@ -48,8 +48,8 @@ public:
   /// The nominal field value for this map in kGauss
   int nominalValue() const { return theNominalValue; }
 
-  /// The inverse of nominal field value for this map in GeV
-  float inverseNominalValueInGeV() const { return theInverseNominalValueInGeV; }
+  /// The inverse of field z component for this map in GeV
+  float inverseBzAtOriginInGeV() const { return theInverseBzAtOriginInGeV; }
 
 protected:
   // need to be called from the constructor of the deriving classes
@@ -58,7 +58,7 @@ protected:
 private:
   //nominal field values
   int theNominalValue = 0;
-  float theInverseNominalValueInGeV = 0;
+  float theInverseBzAtOriginInGeV = 0;
 };
 
 #endif
