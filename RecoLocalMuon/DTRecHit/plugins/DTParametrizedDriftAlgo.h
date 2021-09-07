@@ -10,8 +10,10 @@
  */
 
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitBaseAlgo.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 class MagneticField;
+class IdealMagneticFieldRecord;
 
 class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
 public:
@@ -97,5 +99,6 @@ private:
 
   // Pointer to the magnetic field (read from ES once per event)
   const MagneticField* magField;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
 };
 #endif
