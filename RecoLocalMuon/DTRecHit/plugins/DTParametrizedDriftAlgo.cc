@@ -31,16 +31,16 @@ DTParametrizedDriftAlgo::DTParametrizedDriftAlgo(const ParameterSet& config, Con
       minTime(config.getParameter<double>("minTime")),  // FIXME: Default was -3 ns
       maxTime(config.getParameter<double>("maxTime")),  // FIXME: Default was 415 ns
       // Set verbose output
-      debug(config.getUntrackedParameter<bool>("debug", "false")) {}
+      debug(config.getUntrackedParameter<bool>("debug", "false")),
+      magField(nullptr),
+      magFieldToken_(cc.esConsumes()) {}
 
 DTParametrizedDriftAlgo::~DTParametrizedDriftAlgo() {}
 
 void DTParametrizedDriftAlgo::setES(const EventSetup& setup) {
   theSync->setES(setup);
   // Access the magnetic field
-  ESHandle<MagneticField> magneticField;
-  setup.get<IdealMagneticFieldRecord>().get(magneticField);
-  magField = &*magneticField;
+  magField = &setup.getData(magFieldToken_);
 }
 
 // First Step
