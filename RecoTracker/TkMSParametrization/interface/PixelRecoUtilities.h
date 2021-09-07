@@ -13,7 +13,7 @@ namespace PixelRecoUtilities {
    */
   template <typename T>
   T bendingRadius(T pt, const MagneticField& field) {
-    return pt * field.inverseNominalValueInGeV();
+    return pt * field.inverseBzAtOriginInGeV();
   }
 
   /** gives transverse curvature (=1/radius of curvature) in magnetic field, 
@@ -21,13 +21,13 @@ namespace PixelRecoUtilities {
    */
   template <typename T>
   T curvature(T InversePt, const MagneticField& field) {
-    return InversePt / field.inverseNominalValueInGeV();
+    return InversePt / field.inverseBzAtOriginInGeV();
   }
 
   /** inverse pt from curvature **/
   template <typename T>
   T inversePt(T curvature, const MagneticField& field) {
-    return curvature * field.inverseNominalValueInGeV();
+    return curvature * field.inverseBzAtOriginInGeV();
   }
 
   /** distance between stright line propagation and helix

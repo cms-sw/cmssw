@@ -8,7 +8,7 @@ namespace pixelrecoutilities {
     LongitudinalBendingCorrection() : coeff(0) {}
     LongitudinalBendingCorrection(float pt, const MagneticField& field) { init(pt, field); }
     void init(float pt, const MagneticField& field) {
-      auto theInvCurv = pt * field.inverseNominalValueInGeV();
+      auto theInvCurv = pt * field.inverseBzAtOriginInGeV();
       coeff = 1.f / (4.f * 6.f * theInvCurv * theInvCurv);
     }
 
