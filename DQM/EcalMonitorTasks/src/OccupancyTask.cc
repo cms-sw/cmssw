@@ -1,5 +1,5 @@
 #include "DQM/EcalMonitorTasks/interface/OccupancyTask.h"
-
+#include "FWCore/Framework/interface/Event.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,7 +28,6 @@ namespace ecaldqm {
   }
 
   void OccupancyTask::beginRun(edm::Run const&, edm::EventSetup const& _es) { FillLaser = true; }
-  void OccupancyTask::setEventTime(const edm::TimeValue_t& iTime) { m_iTime = iTime; }
   void OccupancyTask::beginEvent(edm::Event const& _evt,
                                  edm::EventSetup const& _es,
                                  bool const& ByLumiResetSwitch,
@@ -39,6 +38,7 @@ namespace ecaldqm {
       MEs_.at("RecHitThrAllByLumi").reset(GetElectronicsMap());
     }
     MESet& meLaserCorrProjEta(MEs_.at("LaserCorrProjEta"));
+    m_iTime = _evt.time().value();
     if (FillLaser) {
       float lasercalib = 1.;
       auto const& laser = &_es.getData(lasertoken_);
