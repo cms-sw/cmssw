@@ -100,7 +100,7 @@ void EcalZeroSuppressionProducer::produce(edm::Event &event, const edm::EventSet
 
 void EcalZeroSuppressionProducer::initCalibrations(const edm::EventSetup &eventSetup) {
   // Pedestals from event setup
-  const auto& thePedestals = eventSetup.getData(pedestalToken_);
+  const auto &thePedestals = eventSetup.getData(pedestalToken_);
 
   theBarrelZeroSuppressor_.setPedestals(&thePedestals);
   theEndcapZeroSuppressor_.setPedestals(&thePedestals);
