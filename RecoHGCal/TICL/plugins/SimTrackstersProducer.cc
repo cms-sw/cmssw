@@ -166,7 +166,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                      *output_mask,
                      *result);
 
-        if (result->size() < 1)
+        if (result->empty())
           continue;
         const auto index = result->size() - 1;
         if (std::find(scSimTracksterIdx.begin(), scSimTracksterIdx.end(), index) == scSimTracksterIdx.end()) {
@@ -188,7 +188,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                  *output_mask_fromCP,
                  *result_fromCP);
 
-    if (result_fromCP->size() < 1)
+    if (result_fromCP->empty())
       continue;
     const auto index = result_fromCP->size() - 1;
     if (cpToSc_SimTrackstersMap->find(index) == cpToSc_SimTrackstersMap->end()) {
