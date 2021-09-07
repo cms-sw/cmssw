@@ -221,7 +221,7 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun3HI
       set Custom = " "
       set L1REPACK = L1REPACK:Full
-      set DIGI = DIGI:pdigi_hi
+      set DIGI = DIGI:pdigi_hi_nogen
     else if ( $table == PIon ) then
       set XL1T = $XL1TPI
       set XHLT = HLT:PIon
