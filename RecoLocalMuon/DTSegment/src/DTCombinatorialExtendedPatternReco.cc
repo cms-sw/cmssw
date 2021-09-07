@@ -38,8 +38,7 @@ DTCombinatorialExtendedPatternReco::DTCombinatorialExtendedPatternReco(const edm
   theAlphaMaxTheta = pset.getParameter<double>("AlphaMaxTheta");          // 0.1 ;
   theAlphaMaxPhi = pset.getParameter<double>("AlphaMaxPhi");              // 1.0 ;
   debug = pset.getUntrackedParameter<bool>("debug");                      //true;
-  //theUpdator = new DTSegmentUpdator(pset, cc);
-  theUpdator = new DTSegmentUpdator(pset);
+  theUpdator = new DTSegmentUpdator(pset, cc);
   theCleaner = new DTSegmentCleaner(pset);
   string theHitAlgoName = pset.getParameter<string>("recAlgo");
   usePairs = !(theHitAlgoName == "DTNoDriftAlgo");

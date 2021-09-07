@@ -33,8 +33,7 @@ DTRefitAndCombineReco4D::DTRefitAndCombineReco4D(const ParameterSet& pset, Consu
   debug = pset.getUntrackedParameter<bool>("debug");
 
   // the updator
-  //theUpdator = new DTSegmentUpdator(pset, cc);
-  theUpdator = new DTSegmentUpdator(pset);
+  theUpdator = new DTSegmentUpdator(pset, cc);
 
   // the max allowd chi^2 for the fit of th combination of two phi segments
   theMaxChi2forPhi = pset.getParameter<double>("MaxChi2forPhi");

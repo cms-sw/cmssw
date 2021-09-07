@@ -43,8 +43,7 @@ DTMeantimerPatternReco::DTMeantimerPatternReco(const edm::ParameterSet& pset, ed
   theAlphaMaxPhi = pset.getParameter<double>("AlphaMaxPhi");              // 1.0 ;
   theMaxChi2 = pset.getParameter<double>("MaxChi2");                      // 8.0 ;
   debug = pset.getUntrackedParameter<bool>("debug");
-  //theUpdator = new DTSegmentUpdator(pset, cc);
-  theUpdator = new DTSegmentUpdator(pset);
+  theUpdator = new DTSegmentUpdator(pset, cc);
   theCleaner = new DTSegmentCleaner(pset);
 }
 
