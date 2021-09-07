@@ -26,6 +26,7 @@ class DTSegmentCleaner;
 class DTHitPairForFit;
 class DTSegmentCand;
 class DTLinearFit;
+class MuonGeometryRecord;
 
 /* C++ Headers */
 #include <vector>
@@ -34,6 +35,7 @@ class DTLinearFit;
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 
@@ -106,5 +108,6 @@ private:
   unsigned int maxfound;
 
   edm::ESHandle<DTGeometry> theDTGeometry;  // the DT geometry
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDTGeometryToken;
 };
 #endif  // DTSegment_DTMeantimerPatternReco_h
