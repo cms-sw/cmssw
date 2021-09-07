@@ -34,9 +34,10 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
   }
   nSimTracksters = sTIndices.size();
 
-  // Initialize tssInSimTrackster. To be returned outside, since it contains the
-  // information to compute the SimTrackster-To-Trackster score.
-  // tssInSimTrackster[stId]:
+  // Initialize tssInSimTrackster. It contains the simTracksterOnLayer structure for all CaloParticles in each layer and
+  // among other the information to compute the SimTrackster-To-Trackster score. It is one of the two objects that
+  // build the output of the makeConnections function.
+  // tssInSimTrackster[stId]
   hgcal::simTracksterToTrackster tssInSimTrackster;
   tssInSimTrackster.resize(nSimTracksters);
   for (unsigned int i = 0; i < nSimTracksters; ++i) {
@@ -46,6 +47,9 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
   }
 
   // Fill lcToSimTracksterId_Map and update tssInSimTrackster
+  // The lcToSimTracksterId_Map is used to connect a LayerCluster, via its id (key), with all the SimTracksters that
+  // contributed to that LayerCluster by storing the SimTrackster id and the fraction of the LayerCluster's energy
+  // in which the SimTrackster contributed.
   std::unordered_map<int, std::vector<hgcal::lcInfoInTrackster>> lcToSimTracksterId_Map;
   for (const auto& stId : sTIndices) {
     const auto& lcs = simTracksters[stId].vertices();
@@ -104,7 +108,7 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
   // this contains the ids of the simTracksters contributing with at least one
   // hit to the Trackster. To be returned since this contains the information
   // to compute the Trackster-To-SimTrackster score.
-  hgcal::tracksterToSimTrackster stsInTrackster;  //[tsId][stId]->(energy,score)
+  hgcal::tracksterToSimTrackster stsInTrackster;  // tsId->(stId,score)
   stsInTrackster.resize(nTracksters);
 
   for (unsigned int tsId = 0; tsId < nTracksters; ++tsId) {
