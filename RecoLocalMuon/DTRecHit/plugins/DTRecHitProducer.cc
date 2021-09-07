@@ -29,6 +29,7 @@ using namespace std;
 DTRecHitProducer::DTRecHitProducer(const ParameterSet& config)
     :  // Set verbose output
       debug(config.getUntrackedParameter<bool>("debug", false)),
+      dtGeomToken_(esConsumes()),
       // Get the concrete reconstruction algo from the factory
       theAlgo{DTRecHitAlgoFactory::get()->create(config.getParameter<string>("recAlgo"),
                                                  config.getParameter<ParameterSet>("recAlgoConfig"),
@@ -48,8 +49,7 @@ DTRecHitProducer::~DTRecHitProducer() {
 
 void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  const DTGeometry& dtGeom = setup.getData(dtGeomToken_);
 
   // Get the digis from the event
   Handle<DTDigiCollection> digis;
@@ -67,7 +67,7 @@ void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
     // The layerId
     const DTLayerId& layerId = (*dtLayerIt).first;
     // Get the GeomDet from the setup
-    const DTLayer* layer = dtGeom->layer(layerId);
+    const DTLayer* layer = dtGeom.layer(layerId);
 
     // Get the iterators over the digis associated with this LayerId
     const DTDigiCollection::Range& range = (*dtLayerIt).second;
