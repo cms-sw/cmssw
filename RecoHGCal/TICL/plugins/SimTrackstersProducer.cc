@@ -1,4 +1,4 @@
-// Author: Leonardo Cristella - leonardo.cristella@cern.ch
+// Author: Felice Pantaleo, Leonardo Cristella - felice.pantaleo@cern.ch, leonardo.cristella@cern.ch
 // Date: 09/2021
 
 // user include files
@@ -104,7 +104,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   auto output_mask = std::make_unique<std::vector<float>>();
   auto result_fromCP = std::make_unique<TracksterCollection>();
   auto output_mask_fromCP = std::make_unique<std::vector<float>>();
-  auto cpToSc_STS = std::make_unique<std::map<uint, std::vector<uint>>>();
+  auto cpToSc_SimTrackstersMap = std::make_unique<std::map<uint, std::vector<uint>>>();
   const auto& layerClusters = evt.get(clusters_token_);
   const auto& layerClustersTimes = evt.get(clustersTime_token_);
   const auto& inputClusterMask = evt.get(filtered_layerclusters_mask_token_);
@@ -119,9 +119,9 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 
   const auto& geom = es.getData(geom_token_);
   rhtools_.setGeometry(geom);
-  auto num_simclusters = simclusters.size();
+  const auto num_simclusters = simclusters.size();
   result->reserve(num_simclusters);  // Conservative size, will call shrink_to_fit later
-  auto num_caloparticles = caloparticles.size();
+  const auto num_caloparticles = caloparticles.size();
   result_fromCP->reserve(num_caloparticles);
 
   for (const auto& [key, lcVec] : caloParticlesToRecoColl) {
@@ -129,7 +129,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
     auto cpIndex = &cp - &caloparticles[0];
 
     auto regr_energy = cp.energy();
-    std::vector<uint> scSTS;
+    std::vector<uint> scSimTracksterIdx;
 
     // Create a Trackster from the object entering HGCal
     if (cp.g4Tracks()[0].crossedBoundary()) {
@@ -164,7 +164,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                      scRef.id(),
                      *output_mask,
                      *result);
-        scSTS.push_back(result->size() - 1);
+        scSimTracksterIdx.push_back(result->size() - 1);
       }
     }
 
@@ -179,7 +179,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                  key.id(),
                  *output_mask_fromCP,
                  *result_fromCP);
-    (*cpToSc_STS)[result_fromCP->size() - 1] = scSTS;
+    (*cpToSc_SimTrackstersMap)[result_fromCP->size() - 1] = scSimTracksterIdx;
   }
 
   ticl::assignPCAtoTracksters(
@@ -193,5 +193,5 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   evt.put(std::move(output_mask));
   evt.put(std::move(result_fromCP), "fromCPs");
   evt.put(std::move(output_mask_fromCP), "fromCPs");
-  evt.put(std::move(cpToSc_STS));
+  evt.put(std::move(cpToSc_SimTrackstersMap));
 }
