@@ -27,8 +27,8 @@ HcalForwardLibWriter::HcalForwardLibWriter(const edm::ParameterSet& iConfig) {
 
   //https://root.cern/root/html534/TTree.html
   // TBranch*Branch(const char* name, const char* classname, void** obj, Int_t bufsize = 32000, Int_t splitlevel = 99)
-  LibTree->Branch("emParticles", "HFShowerPhotons-emParticles", &emColl, bsize, splitlevel);
-  LibTree->Branch("hadParticles", "HFShowerPhotons-hadParticles", &hadColl, bsize, splitlevel);
+  emBranch = LibTree->Branch("emParticles", "HFShowerPhotons-emParticles", &emColl, bsize, splitlevel);
+  hadBranch = LibTree->Branch("hadParticles", "HFShowerPhotons-hadParticles", &hadColl, bsize, splitlevel);
 }
 
 HcalForwardLibWriter::~HcalForwardLibWriter() {}
@@ -40,6 +40,9 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
   en.reserve(nbins);
   for (int i = 0; i < nbins; ++i)
     en.push_back(momBin[i]);
+
+  int nem = 0;
+  int nhad = 0;
 
   //shower photons
   int n = theFileHandle.size();
@@ -113,16 +116,15 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
       }
       // end of cycle over photons in shower -------------------------------------------
 
-      //        if(iev>0) LibTree->SetBranchStatus("HFShowerLibInfo",0);
       if (particle == "electron") {
-        LibTree->SetBranchStatus("hadParticles", false);
-      } else {
-        LibTree->SetBranchStatus("emParticles", false);
-      }
-      LibTree->Fill();
-      if (particle == "electron") {
+        LibTree->SetEntries(nem + 1);
+        emBranch->Fill();
+        nem++;
         emColl.clear();
       } else {
+        LibTree->SetEntries(nhad + 1);
+        nhad++;
+        hadBranch->Fill();
         hadColl.clear();
       }
     }
