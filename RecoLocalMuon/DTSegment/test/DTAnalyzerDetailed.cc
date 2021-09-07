@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -61,7 +62,8 @@ using namespace std;
 DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
     : _ev(0),
       theSync{DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
-                                                pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"))} {
+                                                pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"),
+                                                consumesCollector())} {
   // Get the debug parameter for verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
   theRootFileName = pset.getUntrackedParameter<string>("rootFileName");

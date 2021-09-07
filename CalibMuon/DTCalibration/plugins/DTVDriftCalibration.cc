@@ -11,6 +11,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -43,7 +44,8 @@ using namespace dttmaxenums;
 DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset)
     :  // Get the synchronizer
       theSync{DTTTrigSyncFactory::get()->create(pset.getParameter<string>("tTrigMode"),
-                                                pset.getParameter<ParameterSet>("tTrigModeConfig"))}
+                                                pset.getParameter<ParameterSet>("tTrigModeConfig"),
+                                                consumesCollector())}
 
 {
   edm::ConsumesCollector collector(consumesCollector());

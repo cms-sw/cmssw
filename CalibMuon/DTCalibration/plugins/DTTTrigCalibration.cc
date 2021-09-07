@@ -10,6 +10,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -67,7 +68,8 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   // Get the synchronizer
   if (doSubtractT0) {
     theSync = DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
-                                                pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"));
+                                                pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"),
+                                                consumesCollector());
   }
 
   checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels", "false");
