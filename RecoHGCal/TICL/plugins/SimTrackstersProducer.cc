@@ -130,7 +130,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 
     auto regr_energy = cp.energy();
     std::vector<uint> scSimTracksterIdx;
-    scSimTracksterIdx.reserve(cp.simClusters());
+    scSimTracksterIdx.reserve(cp.simClusters().size());
 
     // Create a Trackster from the object entering HGCal
     if (cp.g4Tracks()[0].crossedBoundary()) {
