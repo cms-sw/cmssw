@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
@@ -30,7 +31,8 @@ DTRecHitProducer::DTRecHitProducer(const ParameterSet& config)
       debug(config.getUntrackedParameter<bool>("debug", false)),
       // Get the concrete reconstruction algo from the factory
       theAlgo{DTRecHitAlgoFactory::get()->create(config.getParameter<string>("recAlgo"),
-                                                 config.getParameter<ParameterSet>("recAlgoConfig"))} {
+                                                 config.getParameter<ParameterSet>("recAlgoConfig"),
+                                                 consumesCollector())} {
   if (debug)
     cout << "[DTRecHitProducer] Constructor called" << endl;
 

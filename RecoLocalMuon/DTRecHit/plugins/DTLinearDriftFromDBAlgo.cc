@@ -11,6 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
@@ -24,8 +25,8 @@
 using namespace std;
 using namespace edm;
 
-DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config)
-    : DTRecHitBaseAlgo(config),
+DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config, ConsumesCollector cc)
+    : DTRecHitBaseAlgo(config, cc),
       mTimeMap(nullptr),
       vDriftMap(nullptr),
       field(nullptr),
