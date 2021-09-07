@@ -489,7 +489,7 @@ using namespace std;
 using namespace edm;
 //
 //
-class CMTRawAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources>  {
+class CMTRawAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit CMTRawAnalyzer(const edm::ParameterSet&);
   ~CMTRawAnalyzer() override;
@@ -4163,9 +4163,9 @@ void CMTRawAnalyzer::endJob() {
 
 //
 //
-CMTRawAnalyzer::CMTRawAnalyzer(const edm::ParameterSet& iConfig) :
-  tokDB_(esConsumes<HcalDbService, HcalDbRecord>()),
-  tokTopo_(edm::ESGetToken<HcalTopology, HcalRecNumberingRecord>()) {
+CMTRawAnalyzer::CMTRawAnalyzer(const edm::ParameterSet& iConfig)
+    : tokDB_(esConsumes<HcalDbService, HcalDbRecord>()),
+      tokTopo_(edm::ESGetToken<HcalTopology, HcalRecNumberingRecord>()) {
   usesResource(TFileService::kSharedResource);
   verbosity = iConfig.getUntrackedParameter<int>("Verbosity");
   MAPcreation = iConfig.getUntrackedParameter<int>("MapCreation");
@@ -7994,10 +7994,14 @@ void CMTRawAnalyzer::beginJob() {
     h_mapDepth2ADCAmpl225_HB = fs_->make<TH2F>("h_mapDepth2ADCAmpl225_HB", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth3ADCAmpl225_HB = fs_->make<TH2F>("h_mapDepth3ADCAmpl225_HB", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth4ADCAmpl225_HB = fs_->make<TH2F>("h_mapDepth4ADCAmpl225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1ADCAmpl225Copy_HB = fs_->make<TH2F>("h_mapDepth1ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl225Copy_HB = fs_->make<TH2F>("h_mapDepth2ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl225Copy_HB = fs_->make<TH2F>("h_mapDepth3ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl225Copy_HB = fs_->make<TH2F>("h_mapDepth4ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmpl225Copy_HB =
+        fs_->make<TH2F>("h_mapDepth1ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl225Copy_HB =
+        fs_->make<TH2F>("h_mapDepth2ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl225Copy_HB =
+        fs_->make<TH2F>("h_mapDepth3ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl225Copy_HB =
+        fs_->make<TH2F>("h_mapDepth4ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth1ADCAmpl_HB = fs_->make<TH2F>("h_mapDepth1ADCAmpl_HB", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth2ADCAmpl_HB = fs_->make<TH2F>("h_mapDepth2ADCAmpl_HB", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth3ADCAmpl_HB = fs_->make<TH2F>("h_mapDepth3ADCAmpl_HB", " ", neta, -41., 41., nphi, 0., bphi);
@@ -8076,8 +8080,8 @@ void CMTRawAnalyzer::beginJob() {
         fs_->make<TH2F>("h_mapADCAmplfirstpeak0_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for amplmaxts 1TS w/ max
     h_mapADCAmplsecondpeak_HE =
         fs_->make<TH2F>("h_mapADCAmplsecondpeak_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for amplmaxts 1TS w/ max
-    h_mapADCAmplsecondpeak0_HE =
-        fs_->make<TH2F>("h_mapADCAmplsecondpeak0_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for amplmaxts 1TS w/ max
+    h_mapADCAmplsecondpeak0_HE = fs_->make<TH2F>(
+        "h_mapADCAmplsecondpeak0_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for amplmaxts 1TS w/ max
 
     h_mapADCAmpl11firstpeak_HE =
         fs_->make<TH2F>("h_mapADCAmpl11firstpeak_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl3ts 3TSs
@@ -8126,13 +8130,20 @@ void CMTRawAnalyzer::beginJob() {
     h_mapDepth5ADCAmpl225_HE = fs_->make<TH2F>("h_mapDepth5ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth6ADCAmpl225_HE = fs_->make<TH2F>("h_mapDepth6ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth7ADCAmpl225_HE = fs_->make<TH2F>("h_mapDepth7ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1ADCAmpl225Copy_HE = fs_->make<TH2F>("h_mapDepth1ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl225Copy_HE = fs_->make<TH2F>("h_mapDepth2ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl225Copy_HE = fs_->make<TH2F>("h_mapDepth3ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl225Copy_HE = fs_->make<TH2F>("h_mapDepth4ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5ADCAmpl225Copy_HE = fs_->make<TH2F>("h_mapDepth5ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6ADCAmpl225Copy_HE = fs_->make<TH2F>("h_mapDepth6ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7ADCAmpl225Copy_HE = fs_->make<TH2F>("h_mapDepth7ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmpl225Copy_HE =
+        fs_->make<TH2F>("h_mapDepth1ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl225Copy_HE =
+        fs_->make<TH2F>("h_mapDepth2ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl225Copy_HE =
+        fs_->make<TH2F>("h_mapDepth3ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl225Copy_HE =
+        fs_->make<TH2F>("h_mapDepth4ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5ADCAmpl225Copy_HE =
+        fs_->make<TH2F>("h_mapDepth5ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6ADCAmpl225Copy_HE =
+        fs_->make<TH2F>("h_mapDepth6ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7ADCAmpl225Copy_HE =
+        fs_->make<TH2F>("h_mapDepth7ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
 
     h_mapDepth1ADCAmpl_HE = fs_->make<TH2F>("h_mapDepth1ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth2ADCAmpl_HE = fs_->make<TH2F>("h_mapDepth2ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
@@ -8442,7 +8453,8 @@ void CMTRawAnalyzer::beginJob() {
     h_sumphiEta16Depth3RADDAM_HED2P = fs_->make<TH1F>("h_sumphiEta16Depth3RADDAM_HED2P", " ", 100, min90, 70. * max90);
     h_Eta16Depth3RADDAM_HED2P = fs_->make<TH1F>("h_Eta16Depth3RADDAM_HED2P", " ", 100, min90, max90);
     h_NphiForEta16Depth3RADDAM_HED2P = fs_->make<TH1F>("h_NphiForEta16Depth3RADDAM_HED2P", " ", 100, 0, 100.);
-    h_sumphiEta16Depth3RADDAM_HED2ALL = fs_->make<TH1F>("h_sumphiEta16Depth3RADDAM_HED2ALL", " ", 100, min90, 70. * max90);
+    h_sumphiEta16Depth3RADDAM_HED2ALL =
+        fs_->make<TH1F>("h_sumphiEta16Depth3RADDAM_HED2ALL", " ", 100, min90, 70. * max90);
     h_Eta16Depth3RADDAM_HED2ALL = fs_->make<TH1F>("h_Eta16Depth3RADDAM_HED2ALL", " ", 100, min90, max90);
     h_NphiForEta16Depth3RADDAM_HED2ALL = fs_->make<TH1F>("h_NphiForEta16Depth3RADDAM_HED2ALL", " ", 100, 0, 100.);
     h_sigLayer1RADDAM5_HE = fs_->make<TH1F>("h_sigLayer1RADDAM5_HE", " ", neta, -41., 41.);
@@ -8466,14 +8478,18 @@ void CMTRawAnalyzer::beginJob() {
 
     h_mapDepth1ADCAmpl225_HF = fs_->make<TH2F>("h_mapDepth1ADCAmpl225_HF", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth2ADCAmpl225_HF = fs_->make<TH2F>("h_mapDepth2ADCAmpl225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1ADCAmpl225Copy_HF = fs_->make<TH2F>("h_mapDepth1ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl225Copy_HF = fs_->make<TH2F>("h_mapDepth2ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmpl225Copy_HF =
+        fs_->make<TH2F>("h_mapDepth1ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl225Copy_HF =
+        fs_->make<TH2F>("h_mapDepth2ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth1ADCAmpl_HF = fs_->make<TH2F>("h_mapDepth1ADCAmpl_HF", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth2ADCAmpl_HF = fs_->make<TH2F>("h_mapDepth2ADCAmpl_HF", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth3ADCAmpl225_HF = fs_->make<TH2F>("h_mapDepth3ADCAmpl225_HF", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth4ADCAmpl225_HF = fs_->make<TH2F>("h_mapDepth4ADCAmpl225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl225Copy_HF = fs_->make<TH2F>("h_mapDepth3ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl225Copy_HF = fs_->make<TH2F>("h_mapDepth4ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl225Copy_HF =
+        fs_->make<TH2F>("h_mapDepth3ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl225Copy_HF =
+        fs_->make<TH2F>("h_mapDepth4ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth3ADCAmpl_HF = fs_->make<TH2F>("h_mapDepth3ADCAmpl_HF", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth4ADCAmpl_HF = fs_->make<TH2F>("h_mapDepth4ADCAmpl_HF", " ", neta, -41., 41., nphi, 0., bphi);
     h_TSmeanA_HF = fs_->make<TH1F>("h_TSmeanA_HF", " ", 100, -1., 11.);
@@ -8536,7 +8552,8 @@ void CMTRawAnalyzer::beginJob() {
     h_ADCAmplZoom1_HO = fs_->make<TH1F>("h_ADCAmplZoom1_HO", " ", 100, -20., 280.);
     h_ADCAmpl_HO_copy = fs_->make<TH1F>("h_ADCAmpl_HO_copy", " ", 100, 0., 30000.);
     h_mapDepth4ADCAmpl225_HO = fs_->make<TH2F>("h_mapDepth4ADCAmpl225_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl225Copy_HO = fs_->make<TH2F>("h_mapDepth4ADCAmpl225Copy_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl225Copy_HO =
+        fs_->make<TH2F>("h_mapDepth4ADCAmpl225Copy_HO", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapDepth4ADCAmpl_HO = fs_->make<TH2F>("h_mapDepth4ADCAmpl_HO", " ", neta, -41., 41., nphi, 0., bphi);
     h_TSmeanA_HO = fs_->make<TH1F>("h_TSmeanA_HO", " ", 100, 0., 10.);
     h_mapDepth4TSmeanA225_HO = fs_->make<TH2F>("h_mapDepth4TSmeanA225_HO", " ", neta, -41., 41., nphi, 0., bphi);
@@ -8596,30 +8613,31 @@ void CMTRawAnalyzer::beginJob() {
     h_orbitNumvsamplitude0_HF = fs_->make<TH1F>("h_orbitNumvsamplitude0_HF", " ", zaP, zaR, zaR2);
     h_orbitNumvsamplitude0_HO = fs_->make<TH1F>("h_orbitNumvsamplitude0_HO", " ", zaP, zaR, zaR2);
 
-    h_2DsumADCAmplEtaPhiLs0 =
-        fs_->make<TH2F>("h_2DsumADCAmplEtaPhiLs0", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
-    h_2DsumADCAmplEtaPhiLs1 =
-        fs_->make<TH2F>("h_2DsumADCAmplEtaPhiLs1", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
-    h_2DsumADCAmplEtaPhiLs2 =
-        fs_->make<TH2F>("h_2DsumADCAmplEtaPhiLs2", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
-    h_2DsumADCAmplEtaPhiLs3 =
-        fs_->make<TH2F>("h_2DsumADCAmplEtaPhiLs3", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs0 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs0", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs1 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs1", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs2 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs2", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs3 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs3", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
 
-    h_2DsumADCAmplEtaPhiLs00 =
-        fs_->make<TH2F>("h_2DsumADCAmplEtaPhiLs00", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
-    h_2DsumADCAmplEtaPhiLs10 =
-        fs_->make<TH2F>("h_2DsumADCAmplEtaPhiLs10", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
-    h_2DsumADCAmplEtaPhiLs20 =
-        fs_->make<TH2F>("h_2DsumADCAmplEtaPhiLs20", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
-    h_2DsumADCAmplEtaPhiLs30 =
-        fs_->make<TH2F>("h_2DsumADCAmplEtaPhiLs30", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs00 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs00", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs10 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs10", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs20 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs20", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs30 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs30", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
 
     h_sumADCAmplEtaPhiLs = fs_->make<TH1F>("h_sumADCAmplEtaPhiLs", " ", 1000, 0., 14000.);
     h_sumADCAmplEtaPhiLs_bbbc = fs_->make<TH1F>("h_sumADCAmplEtaPhiLs_bbbc", " ", 1000, 0., 300000.);
     h_sumADCAmplEtaPhiLs_bbb1 = fs_->make<TH1F>("h_sumADCAmplEtaPhiLs_bbb1", " ", 100, 0., 3000.);
     h_sumADCAmplEtaPhiLs_lscounterM1 = fs_->make<TH1F>("h_sumADCAmplEtaPhiLs_lscounterM1", " ", 600, 1., 601.);
     h_sumADCAmplEtaPhiLs_ietaphi = fs_->make<TH1F>("h_sumADCAmplEtaPhiLs_ietaphi", " ", 400, 0., 400.);
-    h_sumADCAmplEtaPhiLs_lscounterM1orbitNum = fs_->make<TH1F>("h_sumADCAmplEtaPhiLs_lscounterM1orbitNum", " ", 600, 1., 601.);
+    h_sumADCAmplEtaPhiLs_lscounterM1orbitNum =
+        fs_->make<TH1F>("h_sumADCAmplEtaPhiLs_lscounterM1orbitNum", " ", 600, 1., 601.);
     h_sumADCAmplEtaPhiLs_orbitNum = fs_->make<TH1F>("h_sumADCAmplEtaPhiLs_orbitNum", " ", 1000, 25000000., 40000000.);
 
     // for LS :
@@ -8837,7 +8855,8 @@ void CMTRawAnalyzer::beginJob() {
     h_sumADCAmplLS1copy5 = fs_->make<TH1F>("h_sumADCAmplLS1copy5", " ", 100, 0., 150000);
     h_sumADCAmplLS1 = fs_->make<TH1F>("h_sumADCAmplLS1", " ", 100, 0., lsdep_estimator1_HBdepth1_);
     h_2DsumADCAmplLS1 = fs_->make<TH2F>("h_2DsumADCAmplLS1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS1_LSselected = fs_->make<TH2F>("h_2DsumADCAmplLS1_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS1_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS1_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
     h_sumADCAmplperLS1 = fs_->make<TH1F>("h_sumADCAmplperLS1", " ", bac, 1., bac2);
     h_sumCutADCAmplperLS1 = fs_->make<TH1F>("h_sumCutADCAmplperLS1", " ", bac, 1., bac2);
     h_2D0sumADCAmplLS1 = fs_->make<TH2F>("h_2D0sumADCAmplLS1", " ", neta, -41., 41., nphi, 0., bphi);
@@ -8845,7 +8864,8 @@ void CMTRawAnalyzer::beginJob() {
 
     h_sumADCAmplLS2 = fs_->make<TH1F>("h_sumADCAmplLS2", " ", 100, 0., lsdep_estimator1_HBdepth2_);
     h_2DsumADCAmplLS2 = fs_->make<TH2F>("h_2DsumADCAmplLS2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS2_LSselected = fs_->make<TH2F>("h_2DsumADCAmplLS2_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS2_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS2_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
     h_sumADCAmplperLS2 = fs_->make<TH1F>("h_sumADCAmplperLS2", " ", bac, 1., bac2);
     h_sumCutADCAmplperLS2 = fs_->make<TH1F>("h_sumCutADCAmplperLS2", " ", bac, 1., bac2);
     h_2D0sumADCAmplLS2 = fs_->make<TH2F>("h_2D0sumADCAmplLS2", " ", neta, -41., 41., nphi, 0., bphi);
@@ -8853,7 +8873,8 @@ void CMTRawAnalyzer::beginJob() {
 
     h_sumADCAmplLS3 = fs_->make<TH1F>("h_sumADCAmplLS3", " ", 100, 0., lsdep_estimator1_HEdepth1_);
     h_2DsumADCAmplLS3 = fs_->make<TH2F>("h_2DsumADCAmplLS3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS3_LSselected = fs_->make<TH2F>("h_2DsumADCAmplLS3_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS3_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS3_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
     h_sumADCAmplperLS3 = fs_->make<TH1F>("h_sumADCAmplperLS3", " ", bac, 1., bac2);
     h_sumCutADCAmplperLS3 = fs_->make<TH1F>("h_sumCutADCAmplperLS3", " ", bac, 1., bac2);
     h_2D0sumADCAmplLS3 = fs_->make<TH2F>("h_2D0sumADCAmplLS3", " ", neta, -41., 41., nphi, 0., bphi);
@@ -8861,7 +8882,8 @@ void CMTRawAnalyzer::beginJob() {
 
     h_sumADCAmplLS4 = fs_->make<TH1F>("h_sumADCAmplLS4", " ", 100, 0., lsdep_estimator1_HEdepth2_);
     h_2DsumADCAmplLS4 = fs_->make<TH2F>("h_2DsumADCAmplLS4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS4_LSselected = fs_->make<TH2F>("h_2DsumADCAmplLS4_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS4_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS4_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
     h_sumADCAmplperLS4 = fs_->make<TH1F>("h_sumADCAmplperLS4", " ", bac, 1., bac2);
     h_sumCutADCAmplperLS4 = fs_->make<TH1F>("h_sumCutADCAmplperLS4", " ", bac, 1., bac2);
     h_2D0sumADCAmplLS4 = fs_->make<TH2F>("h_2D0sumADCAmplLS4", " ", neta, -41., 41., nphi, 0., bphi);
@@ -8869,7 +8891,8 @@ void CMTRawAnalyzer::beginJob() {
 
     h_sumADCAmplLS5 = fs_->make<TH1F>("h_sumADCAmplLS5", " ", 100, 0., lsdep_estimator1_HEdepth3_);
     h_2DsumADCAmplLS5 = fs_->make<TH2F>("h_2DsumADCAmplLS5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS5_LSselected = fs_->make<TH2F>("h_2DsumADCAmplLS5_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS5_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS5_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
     h_sumADCAmplperLS5 = fs_->make<TH1F>("h_sumADCAmplperLS5", " ", bac, 1., bac2);
     h_sumCutADCAmplperLS5 = fs_->make<TH1F>("h_sumCutADCAmplperLS5", " ", bac, 1., bac2);
     h_2D0sumADCAmplLS5 = fs_->make<TH2F>("h_2D0sumADCAmplLS5", " ", neta, -41., 41., nphi, 0., bphi);
@@ -8907,7 +8930,8 @@ void CMTRawAnalyzer::beginJob() {
 
     h_sumADCAmplLS6 = fs_->make<TH1F>("h_sumADCAmplLS6", " ", 100, 0., lsdep_estimator1_HFdepth1_);
     h_2DsumADCAmplLS6 = fs_->make<TH2F>("h_2DsumADCAmplLS6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS6_LSselected = fs_->make<TH2F>("h_2DsumADCAmplLS6_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS6_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS6_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
     h_2D0sumADCAmplLS6 = fs_->make<TH2F>("h_2D0sumADCAmplLS6", " ", neta, -41., 41., nphi, 0., bphi);
     h_sumADCAmplperLS6 = fs_->make<TH1F>("h_sumADCAmplperLS6", " ", bac, 1., bac2);
     h_sumCutADCAmplperLS6 = fs_->make<TH1F>("h_sumCutADCAmplperLS6", " ", bac, 1., bac2);
@@ -8919,7 +8943,8 @@ void CMTRawAnalyzer::beginJob() {
 
     h_sumADCAmplLS7 = fs_->make<TH1F>("h_sumADCAmplLS7", " ", 100, 0., lsdep_estimator1_HFdepth2_);
     h_2DsumADCAmplLS7 = fs_->make<TH2F>("h_2DsumADCAmplLS7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS7_LSselected = fs_->make<TH2F>("h_2DsumADCAmplLS7_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS7_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS7_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
     h_2D0sumADCAmplLS7 = fs_->make<TH2F>("h_2D0sumADCAmplLS7", " ", neta, -41., 41., nphi, 0., bphi);
     h_sumADCAmplperLS7 = fs_->make<TH1F>("h_sumADCAmplperLS7", " ", bac, 1., bac2);
     h_sumCutADCAmplperLS7 = fs_->make<TH1F>("h_sumCutADCAmplperLS7", " ", bac, 1., bac2);
@@ -8931,7 +8956,8 @@ void CMTRawAnalyzer::beginJob() {
 
     h_sumADCAmplLS8 = fs_->make<TH1F>("h_sumADCAmplLS8", " ", 100, 0., lsdep_estimator1_HOdepth4_);
     h_2DsumADCAmplLS8 = fs_->make<TH2F>("h_2DsumADCAmplLS8", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS8_LSselected = fs_->make<TH2F>("h_2DsumADCAmplLS8_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS8_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS8_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
     h_sumADCAmplperLS8 = fs_->make<TH1F>("h_sumADCAmplperLS8", " ", bac, 1., bac2);
     h_sumCutADCAmplperLS8 = fs_->make<TH1F>("h_sumCutADCAmplperLS8", " ", bac, 1., bac2);
     h_2D0sumADCAmplLS8 = fs_->make<TH2F>("h_2D0sumADCAmplLS8", " ", neta, -41., 41., nphi, 0., bphi);
