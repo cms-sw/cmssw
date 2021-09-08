@@ -1196,7 +1196,7 @@ def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
         newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
         newdir = os.path.join(self._newdir, newsubdir)
         if not os.path.exists(newdir):
-            os.makedirs(newdir)
+            os.makedirs(newdir, exist_ok=True)
 
         p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict))
         proc.append((plotterFolder, dqmSubFolder, p))
