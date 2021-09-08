@@ -1,6 +1,8 @@
 <library file="*.cc" name="RecoTrackerMkFitPlugins">
   <use name="CalibFormats/SiStripObjects"/>
   <use name="CalibTracker/Records"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondFormats/SiPixelObjects"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/SiStripCluster"/>
   <use name="DataFormats/SiStripCommon"/>
