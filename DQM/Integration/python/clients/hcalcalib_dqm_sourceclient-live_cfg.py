@@ -55,7 +55,7 @@ if not useFileInput:
   if hasattr(process, "BeamSplashRun") :
     if not process.BeamSplashRun : 
       process.source.minEventsPerLumi=100
-	else : process.source.minEventsPerLumi=100
+  else : process.source.minEventsPerLumi=100
 
 
 #-------------------------------------
