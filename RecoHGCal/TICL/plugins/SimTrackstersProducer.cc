@@ -1,5 +1,5 @@
-// Author: Felice Pantaleo - felice.pantaleo@cern.ch
-// Date: 02/2021
+// Author: Felice Pantaleo, Leonardo Cristella - felice.pantaleo@cern.ch, leonardo.cristella@cern.ch
+// Date: 09/2021
 
 // user include files
 
@@ -29,14 +29,15 @@
 
 #include "TrackstersPCA.h"
 #include <vector>
+#include <map>
 #include <iterator>
 #include <algorithm>
 
 using namespace ticl;
 
-class TrackstersFromSimClustersProducer : public edm::stream::EDProducer<> {
+class SimTrackstersProducer : public edm::stream::EDProducer<> {
 public:
-  explicit TrackstersFromSimClustersProducer(const edm::ParameterSet&);
+  explicit SimTrackstersProducer(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -57,9 +58,9 @@ private:
   hgcal::RecHitTools rhtools_;
   const double fractionCut_;
 };
-DEFINE_FWK_MODULE(TrackstersFromSimClustersProducer);
+DEFINE_FWK_MODULE(SimTrackstersProducer);
 
-TrackstersFromSimClustersProducer::TrackstersFromSimClustersProducer(const edm::ParameterSet& ps)
+SimTrackstersProducer::SimTrackstersProducer(const edm::ParameterSet& ps)
     : detector_(ps.getParameter<std::string>("detector")),
       doNose_(detector_ == "HFNose"),
       clusters_token_(consumes(ps.getParameter<edm::InputTag>("layer_clusters"))),
@@ -73,11 +74,14 @@ TrackstersFromSimClustersProducer::TrackstersFromSimClustersProducer(const edm::
           consumes(ps.getParameter<edm::InputTag>("layerClusterCaloParticleAssociator"))),
       geom_token_(esConsumes()),
       fractionCut_(ps.getParameter<double>("fractionCut")) {
-  produces<std::vector<Trackster>>();
+  produces<TracksterCollection>();
   produces<std::vector<float>>();
+  produces<TracksterCollection>("fromCPs");
+  produces<std::vector<float>>("fromCPs");
+  produces<std::map<uint, std::vector<uint>>>();
 }
 
-void TrackstersFromSimClustersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SimTrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // hgcalMultiClusters
   edm::ParameterSetDescription desc;
   desc.add<std::string>("detector", "HGCAL");
@@ -95,13 +99,17 @@ void TrackstersFromSimClustersProducer::fillDescriptions(edm::ConfigurationDescr
   descriptions.addWithDefaultLabel(desc);
 }
 
-void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
-  auto result = std::make_unique<std::vector<Trackster>>();
+void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
+  auto result = std::make_unique<TracksterCollection>();
   auto output_mask = std::make_unique<std::vector<float>>();
+  auto result_fromCP = std::make_unique<TracksterCollection>();
+  auto output_mask_fromCP = std::make_unique<std::vector<float>>();
+  auto cpToSc_SimTrackstersMap = std::make_unique<std::map<uint, std::vector<uint>>>();
   const auto& layerClusters = evt.get(clusters_token_);
   const auto& layerClustersTimes = evt.get(clustersTime_token_);
   const auto& inputClusterMask = evt.get(filtered_layerclusters_mask_token_);
   output_mask->resize(layerClusters.size(), 1.f);
+  output_mask_fromCP->resize(layerClusters.size(), 1.f);
 
   const auto& simclusters = evt.get(simclusters_token_);
   const auto& caloparticles = evt.get(caloparticles_token_);
@@ -111,24 +119,33 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
 
   const auto& geom = es.getData(geom_token_);
   rhtools_.setGeometry(geom);
-  auto num_simclusters = simclusters.size();
-  result->reserve(num_simclusters);
+  const auto num_simclusters = simclusters.size();
+  result->reserve(num_simclusters);  // Conservative size, will call shrink_to_fit later
+  const auto num_caloparticles = caloparticles.size();
+  result_fromCP->reserve(num_caloparticles);
 
   for (const auto& [key, lcVec] : caloParticlesToRecoColl) {
     auto const& cp = *(key);
     auto cpIndex = &cp - &caloparticles[0];
+
+    auto regr_energy = cp.energy();
+    std::vector<uint> scSimTracksterIdx;
+    scSimTracksterIdx.reserve(cp.simClusters().size());
+
+    // Create a Trackster from the object entering HGCal
     if (cp.g4Tracks()[0].crossedBoundary()) {
+      regr_energy = cp.g4Tracks()[0].getMomentumAtBoundary().energy();
+
       addTrackster(cpIndex,
                    lcVec,
                    inputClusterMask,
                    fractionCut_,
-                   cp.g4Tracks()[0].getMomentumAtBoundary().energy(),
+                   regr_energy,
                    cp.pdgId(),
                    cp.charge(),
                    key.id(),
                    *output_mask,
                    *result);
-
     } else {
       for (const auto& scRef : cp.simClusters()) {
         const auto& it = simClustersToRecoColl.find(scRef);
@@ -148,14 +165,47 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
                      scRef.id(),
                      *output_mask,
                      *result);
+
+        if (result->empty())
+          continue;
+        const auto index = result->size() - 1;
+        if (std::find(scSimTracksterIdx.begin(), scSimTracksterIdx.end(), index) == scSimTracksterIdx.end()) {
+          scSimTracksterIdx.emplace_back(index);
+        }
       }
+      scSimTracksterIdx.shrink_to_fit();
+    }
+
+    // Create a Trackster from any CP
+    addTrackster(cpIndex,
+                 lcVec,
+                 inputClusterMask,
+                 fractionCut_,
+                 regr_energy,
+                 cp.pdgId(),
+                 cp.charge(),
+                 key.id(),
+                 *output_mask_fromCP,
+                 *result_fromCP);
+
+    if (result_fromCP->empty())
+      continue;
+    const auto index = result_fromCP->size() - 1;
+    if (cpToSc_SimTrackstersMap->find(index) == cpToSc_SimTrackstersMap->end()) {
+      (*cpToSc_SimTrackstersMap)[index] = scSimTracksterIdx;
     }
   }
 
   ticl::assignPCAtoTracksters(
       *result, layerClusters, layerClustersTimes, rhtools_.getPositionLayer(rhtools_.lastLayerEE(doNose_)).z());
   result->shrink_to_fit();
+  ticl::assignPCAtoTracksters(
+      *result_fromCP, layerClusters, layerClustersTimes, rhtools_.getPositionLayer(rhtools_.lastLayerEE(doNose_)).z());
+  result_fromCP->shrink_to_fit();
 
   evt.put(std::move(result));
   evt.put(std::move(output_mask));
+  evt.put(std::move(result_fromCP), "fromCPs");
+  evt.put(std::move(output_mask_fromCP), "fromCPs");
+  evt.put(std::move(cpToSc_SimTrackstersMap));
 }
