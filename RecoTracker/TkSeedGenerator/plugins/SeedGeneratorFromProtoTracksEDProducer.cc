@@ -16,8 +16,6 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -69,7 +67,6 @@ SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(c
       originRadius(cfg.getParameter<double>("originRadius")),
       useProtoTrackKinematics(cfg.getParameter<bool>("useProtoTrackKinematics")),
       useEventsWithNoVertex(cfg.getParameter<bool>("useEventsWithNoVertex")),
-      builderName(cfg.getParameter<std::string>("TTRHBuilder")),
       usePV_(cfg.getParameter<bool>("usePV")),
       includeFourthHit_(cfg.getParameter<bool>("includeFourthHit")),
       theInputCollectionTag(consumes<reco::TrackCollection>(cfg.getParameter<InputTag>("InputCollection"))),
@@ -129,8 +126,6 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
       if (seedFromProtoTrack.isValid())
         (*result).push_back(seedFromProtoTrack.trajectorySeed());
     } else {
-      edm::ESHandle<TransientTrackingRecHitBuilder> ttrhbESH;
-      es.get<TransientRecHitRecord>().get(builderName, ttrhbESH);
       std::vector<Hit> hits;
       for (unsigned int iHit = 0, nHits = proto.recHitsSize(); iHit < nHits; ++iHit) {
         TrackingRecHitRef refHit = proto.recHit(iHit);
