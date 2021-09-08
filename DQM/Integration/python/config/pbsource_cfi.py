@@ -83,4 +83,12 @@ source = cms.Source("DQMProtobufReader",
     endOfRunKills  = cms.untracked.bool(endOfRunKills),
 )
 
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/CMSBeamSplash2017
+def set_BeamSplashRun_settings( source ):
+  source.minEventsPerLumi      = 1000000
+  source.nextLumiTimeoutMillis = 15000
+
+BeamSplashRun = False
+if BeamSplashRun : set_BeamSplashRun_settings( source )
+
 print("Source:", source)
