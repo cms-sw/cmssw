@@ -52,7 +52,10 @@ process.dqmSaverPB.tag = subsystem
 process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 if not useFileInput:
-	process.source.minEventsPerLumi=100
+  if hasattr(process, "BeamSplashRun") :
+    if not process.BeamSplashRun : 
+      process.source.minEventsPerLumi=100
+	else : process.source.minEventsPerLumi=100
 
 
 #-------------------------------------
@@ -244,6 +247,7 @@ process.p = cms.Path(
 #-------------------------------------
 #	Scheduling
 #-------------------------------------
+print("Final Source settings:", process.source)
 process.options = cms.untracked.PSet(
 		Rethrow = cms.untracked.vstring(
 #			"ProductNotFound",

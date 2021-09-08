@@ -14,7 +14,7 @@ if 'unitTest=True' in sys.argv:
 if unitTest:
     from DQM.Integration.config.unittestinputsource_cfi import options, runType, source
 else:
-    from DQM.Integration.config.inputsource_cfi import options, runType, source
+    from DQM.Integration.config.inputsource_cfi import options, runType, source, set_BeamSplashRun_settings
 
 # this is needed to map the names of the run-types chosen by DQM to the scenarios, ideally we could converge to the same names
 #scenarios = {'pp_run': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','hi_run':'HeavyIons'}
@@ -26,6 +26,9 @@ if not runType.getRunTypeName() in scenarios.keys():
     raise RuntimeError(msg)
 
 scenarioName = scenarios[runType.getRunTypeName()]
+
+if not unitTest and process.BeamSplashRun :
+  scenarioName = 'ppEra_Run3'
 
 print("Using scenario:",scenarioName)
 
@@ -66,6 +69,8 @@ if not unitTest:
     process.source.minEventsPerLumi              = cms.untracked.int32(0)
     process.source.nextLumiTimeoutMillis         = cms.untracked.int32(10000)
     process.source.streamLabel                   = cms.untracked.string('streamDQM')
+    if process.BeamSplashRun :
+      set_BeamSplashRun_settings( process.source )
 
     m = re.search(r"\((\w+)\)", str(source.runNumber))
     runno = str(m.group(1))
@@ -113,3 +118,4 @@ if dump:
     psetFile.close()
     cmsRun = "cmsRun -e RunVisualizationProcessingCfg.py"
     print("Now do:\n%s" % cmsRun)
+print("Final Source settings:", process.source)
