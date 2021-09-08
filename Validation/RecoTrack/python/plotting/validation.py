@@ -1183,6 +1183,31 @@ def _findDuplicates(lst):
             found.add(x)
     return list(found2)
 
+def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
+    plotterInstance = plotter.readDirs(*self._openFiles)
+    manager = multiprocessing.Manager()
+    return_dict = manager.dict()
+    proc = []
+    iProc = 0
+
+    for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
+        if sample is not None and not _processPlotsForSample(plotterFolder, sample):
+            continue
+        newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
+        newdir = os.path.join(self._newdir, newsubdir)
+        if not os.path.exists(newdir):
+            os.makedirs(newdir, exist_ok=True)
+
+        p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict))
+        proc.append((plotterFolder, dqmSubFolder, p))
+        p.start()
+        iProc += 1
+
+    for i in range(iProc):
+        proc[i][2].join()
+        if len(return_dict[i]) > 0:
+            self._htmlReport.addPlots(proc[i][0], proc[i][1], return_dict[i])
+
 class SimpleSample:
     def __init__(self, label, name, fileLegends, pileup=True, customPileupLabel=""):
         self._label = label
@@ -1258,37 +1283,15 @@ class SimpleValidation:
                     self._openFiles.append(None)
 
             for plotter in plotters:
-                self._doPlotsForPlotter(plotter, sample, **kwargs)
+                _doPlotsForPlotter(self, plotter, sample, **kwargs)
 
             for tf in self._openFiles:
                 if tf is not None:
                     tf.Close()
             self._openFiles = []
 
-    def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
-        plotterInstance = plotter.readDirs(*self._openFiles)
-        manager = multiprocessing.Manager()
-        return_dict = manager.dict()
-        proc = []
-        iProc = 0
-        for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
-            if sample is not None and not _processPlotsForSample(plotterFolder, sample):
-                continue
-            p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, iProc, return_dict))
-            proc.append((plotterFolder, dqmSubFolder, p))
-            p.start()
-            iProc += 1
-        for i in range(iProc):
-            proc[i][2].join()
-            if len(return_dict[i]) > 0:
-                self._htmlReport.addPlots(proc[i][0], proc[i][1], return_dict[i])
-
-    def _doPlots(self, plotterFolder, dqmSubFolder, iProc, return_dict):
+    def _doPlots(self, plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict):
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
-        newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
-        newdir = os.path.join(self._newdir, newsubdir)
-        if not os.path.exists(newdir):
-            os.makedirs(newdir)
         fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
 
         for tableCreator in plotterFolder.getTableCreators():
@@ -1349,28 +1352,15 @@ class SeparateValidation:
                     self._openFiles.append(None)
 
             for plotter in plotters:
-                self._doPlotsForPlotter(plotter, sample, **kwargs)
+                _doPlotsForPlotter(self, plotter, sample, **kwargs)
 
             for tf in self._openFiles:
                 if tf is not None:
                     tf.Close()
             self._openFiles = []
 
-    def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
-        plotterInstance = plotter.readDirs(*self._openFiles)
-        for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
-            if sample is not None and not _processPlotsForSample(plotterFolder, sample):
-                continue
-            plotFiles = self._doPlots(plotterFolder, dqmSubFolder)
-            if len(plotFiles) > 0:
-                self._htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
-
-    def _doPlots(self, plotterFolder, dqmSubFolder):
+    def _doPlots(self, plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict):
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
-        newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
-        newdir = os.path.join(self._newdir, newsubdir)
-        if not os.path.exists(newdir):
-            os.makedirs(newdir)
         fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
 
         # check if plots are produced
@@ -1402,4 +1392,4 @@ class SeparateValidation:
                     urllib.request.urlretrieve("https://raw.githubusercontent.com/rovere/php-plots/master/%s"%d, "%s/%s"%(link,d))
 
         print("Created separated plots in %s" % newdir)
-        return list(map(lambda n: n.replace(newdir, newsubdir), linkList))
+        return_dict[iProc] = list(map(lambda n: n.replace(newdir, newsubdir), linkList))
