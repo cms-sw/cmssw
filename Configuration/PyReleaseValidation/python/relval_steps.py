@@ -495,7 +495,7 @@ steps['RunCosmics2021']={'INPUT':InputInfo(dataSet='/ExpressCosmics/Commissionin
 
 #### run3 Cosmics ####
 ##Run 344518 @ 0T 2021CRUZET
-steps['RunCosmics2021CRUZET']={'INPUT':InputInfo(dataSet='/Cosmics/Commissioning2021-v1/RAW',label='2021CRUZET',events=100000,location='STD')}
+steps['RunCosmics2021CRUZET']={'INPUT':InputInfo(dataSet='/Cosmics/Commissioning2021-v1/RAW',label='2021CRUZET',run=[344518],events=100000,location='STD')}
 
 #### Test of lumi section boundary crossing with run2 2018D ####
 Run2018Dml1={320822: [[1,1]] , 320823: [[1,1]]}
