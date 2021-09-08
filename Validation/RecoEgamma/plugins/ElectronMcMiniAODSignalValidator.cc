@@ -438,7 +438,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
 
   pat::Electron gsfElectron;
   pat::ElectronCollection::const_iterator el1;
-  pat::ElectronCollection::const_iterator el2;
   std::vector<pat::Electron>::const_iterator el3;
   std::vector<pat::Electron>::const_iterator el4;
 
