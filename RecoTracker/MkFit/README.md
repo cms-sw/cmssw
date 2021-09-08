@@ -41,6 +41,7 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 * *m_require_quality_filter:* is additional post-processing required for result tracks
 * *m_require_dupclean_tight:* is tight duplicate removal post-processing required for result tracks
 * *m_params:* IterationParams structure for this iteration
+* *m_backward_params:* IterationParams structure for backward search for this iteration
 * *m_layer_configs:* std::vector of per-layer parameters
 
 ### Iteration parameters [class IterationParams]
