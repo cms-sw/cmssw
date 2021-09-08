@@ -1,17 +1,19 @@
-#run with: cmsRun hgcsiNoiseMapTester_cfg.py doseMap=SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb.txt
+#run with: cmsRun hgcsiNoiseMapTester_cfg.py doseMap=SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt geometry=GeometryExtended2026D49Reco
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 from Configuration.StandardSequences.Eras import eras
 
 options = VarParsing()
-options.register ("doseMap", "",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register ("doseMap",  "SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register ("geometry", "GeometryExtended2026D49Reco",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.parseArguments()
 
-process = cms.Process("demo",eras.Phase2C8)
+from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+process = cms.Process('demo',Phase2C11I13M9)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+process.load('Configuration.Geometry.{}_cff'.format(options.geometry))
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
