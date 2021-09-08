@@ -30,9 +30,9 @@ namespace reco {
     }
 
     struct TrackData {
-      static const int trackSelected = 0;
-      static const int trackUsedForVertexFit = 1;
-      static const int trackAssociatedToVertex = 2;
+      static constexpr int trackSelected = 0;
+      static constexpr int trackUsedForVertexFit = 1;
+      static constexpr int trackAssociatedToVertex = 2;
       inline bool usedForVertexFit() const { return svStatus >= trackUsedForVertexFit; }
       inline bool associatedToVertex() const { return svStatus >= trackAssociatedToVertex; }
       inline bool associatedToVertex(unsigned int index) const {
