@@ -1,4 +1,4 @@
-sourceimport FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms
 
 import sys
 from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018

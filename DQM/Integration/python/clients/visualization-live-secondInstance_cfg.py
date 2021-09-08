@@ -14,7 +14,7 @@ if 'unitTest=True' in sys.argv:
 if unitTest:
     from DQM.Integration.config.unittestinputsource_cfi import options, runType, source
 else:
-    from DQM.Integration.config.inputsource_cfi import options, runType, source, set_BeamSplashRun_settings
+    from DQM.Integration.config.inputsource_cfi import options, runType, source, BeamSplashRun, set_BeamSplashRun_settings
 
 # this is needed to map the names of the run-types chosen by DQM to the scenarios, ideally we could converge to the same names
 #scenarios = {'pp_run': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','hi_run':'HeavyIons'}
@@ -27,8 +27,9 @@ if not runType.getRunTypeName() in scenarios.keys():
 
 scenarioName = scenarios[runType.getRunTypeName()]
 
-if not unitTest and process.BeamSplashRun :
-  scenarioName = 'ppEra_Run3'
+if not unitTest :
+  if BeamSplashRun :
+    scenarioName = 'ppEra_Run3'
 
 print("Using scenario:",scenarioName)
 
