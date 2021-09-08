@@ -91,4 +91,4 @@ def set_BeamSplashRun_settings( source ):
 BeamSplashRun = False
 if BeamSplashRun : set_BeamSplashRun_settings( source )
 
-print("Source:", source)
+print("Initial Source settings:", source)
