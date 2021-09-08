@@ -961,8 +961,7 @@ void TemplatedSecondaryVertexProducer<CandIPTagInfo, reco::VertexCompositePtrCan
 
     if (pos != trackRefs.end()) {
       unsigned int index = pos - trackRefs.begin();
-      trackData[index].second.svStatus =
-          (btag::TrackData::trackAssociatedToVertex + idx);
+      trackData[index].second.svStatus = (btag::TrackData::trackAssociatedToVertex + idx);
     }
   }
 }
