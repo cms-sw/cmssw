@@ -199,6 +199,9 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params)
   arguments.push_back(shRng);
   isInitialized = false;
   //initialization of Sherpa moved to initializeForInternalPartons
+#ifdef USING__MPI
+  MPI::Init();
+#endif
 }
 
 SherpaHadronizer::~SherpaHadronizer() {
@@ -215,9 +218,6 @@ bool SherpaHadronizer::initializeForInternalPartons() {
     char *argv[argc];
     for (int l = 0; l < argc; l++)
       argv[l] = (char *)arguments[l].c_str();
-#ifdef USING__MPI
-    MPI::Init();
-#endif
     Generator->InitializeTheRun(argc, argv);
     Generator->InitializeTheEventHandler();
     isInitialized = true;
