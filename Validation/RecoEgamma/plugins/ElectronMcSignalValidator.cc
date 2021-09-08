@@ -3269,29 +3269,27 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
   h1_recOfflineVertices->Fill((*vertexCollectionHandle).size());
 
   reco::GsfElectronCollection::const_iterator gsfIter;
-  std::vector <reco::GsfElectron>::const_iterator gsfIter3;
-  std::vector <reco::GsfElectron>::const_iterator gsfIter4;
+  std::vector<reco::GsfElectron>::const_iterator gsfIter3;
+  std::vector<reco::GsfElectron>::const_iterator gsfIter4;
 
   //===============================================
   // get a vector with EB  & EE
   //===============================================
-  std::vector <reco::GsfElectron> localCollection;
+  std::vector<reco::GsfElectron> localCollection;
   int iBarrels = 0;
   int iEndcaps = 0;
 
   // looking for EB
   for (gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
-    if (gsfIter->isEB()) 
-    {
-      localCollection.push_back( *gsfIter );
+    if (gsfIter->isEB()) {
+      localCollection.push_back(*gsfIter);
       iBarrels += 1;
     }
   }
 
   // looking for EE
   for (gsfIter = gsfElectronsEndcaps->begin(); gsfIter != gsfElectronsEndcaps->end(); gsfIter++) {
-    if (gsfIter->isEE()) 
-    {
+    if (gsfIter->isEE()) {
       localCollection.push_back(*gsfIter);
       iEndcaps += 1;
     }
@@ -3303,7 +3301,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
   // mee only
   for (gsfIter3 = localCollection.begin(); gsfIter3 != localCollection.end(); gsfIter3++) {
-
     float enrj1 = gsfIter3->ecalEnergy();
 
     for (gsfIter4 = gsfIter3 + 1; gsfIter4 != localCollection.end(); gsfIter4++) {
@@ -3328,7 +3325,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
         if ((gsfIter3->classification() == GsfElectron::GOLDEN && gsfIter4->classification() == GsfElectron::GOLDEN) ||
             (gsfIter3->classification() == GsfElectron::GOLDEN && gsfIter4->classification() == GsfElectron::BIGBREM) ||
             (gsfIter3->classification() == GsfElectron::BIGBREM && gsfIter4->classification() == GsfElectron::GOLDEN) ||
-            (gsfIter3->classification() == GsfElectron::BIGBREM && gsfIter4->classification() == GsfElectron::BIGBREM)) {
+            (gsfIter3->classification() == GsfElectron::BIGBREM &&
+             gsfIter4->classification() == GsfElectron::BIGBREM)) {
           h1_ele_mee_os_gg->Fill(sqrt(mee2));
         } else if ((gsfIter3->classification() == GsfElectron::SHOWERING &&
                     gsfIter4->classification() == GsfElectron::SHOWERING) ||
@@ -3385,7 +3383,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
   reco::GenParticleCollection::const_iterator mcIter;
   for (mcIter = genParticles->begin(); mcIter != genParticles->end(); mcIter++) {
-
     // select requested matching gen particle
     matchingID = false;
     for (unsigned int i = 0; i < matchingIDs_.size(); i++) {
@@ -3399,7 +3396,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       const Candidate *mother = mcIter->mother();
       matchingMotherID = false;
       for (unsigned int i = 0; i < matchingMotherIDs_.size(); i++) {
-
         if (mother == nullptr) {
           matchingMotherID = true;
         } else if (mother->pdgId() == matchingMotherIDs_[i]) {
@@ -3508,10 +3504,10 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     bool passMiniAODSelection = true;
     double gsfOkRatio = 999999.;
     bool isEBflag = false;
-    bool isEEflag = false; 
+    bool isEEflag = false;
 
     reco::GsfElectron bestGsfElectron;
-    for (gsfIter3 = localCollection.begin(); gsfIter3 != localCollection.end(); gsfIter3++) {        
+    for (gsfIter3 = localCollection.begin(); gsfIter3 != localCollection.end(); gsfIter3++) {
       // temporary cut for pt < 5.
       double dphi = gsfIter3->phi() - mcIter->phi();
       if (std::abs(dphi) > CLHEP::pi) {
@@ -3526,7 +3522,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
             gsfOkRatio = tmpGsfRatio;
             bestGsfElectron = *gsfIter3;
             okGsfFound = true;
-
           }
         }
       }

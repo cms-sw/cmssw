@@ -439,29 +439,27 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
   pat::Electron gsfElectron;
   pat::ElectronCollection::const_iterator el1;
   pat::ElectronCollection::const_iterator el2;
-  std::vector <pat::Electron>::const_iterator el3;
-  std::vector <pat::Electron>::const_iterator el4;
+  std::vector<pat::Electron>::const_iterator el3;
+  std::vector<pat::Electron>::const_iterator el4;
 
   //===============================================
   // get a vector with EB  & EE
   //===============================================
-  std::vector <pat::Electron> localCollection;
+  std::vector<pat::Electron> localCollection;
   int iBarrels = 0;
   int iEndcaps = 0;
 
   // looking for EB
   for (el1 = electrons->begin(); el1 != electrons->end(); el1++) {
-    if (el1->isEB()) 
-    {
-      localCollection.push_back( *el1 );
+    if (el1->isEB()) {
+      localCollection.push_back(*el1);
       iBarrels += 1;
     }
   }
 
   // looking for EE
   for (el1 = electrons_endcaps->begin(); el1 != electrons_endcaps->end(); el1++) {
-    if (el1->isEE()) 
-    {
+    if (el1->isEE()) {
       localCollection.push_back(*el1);
       iEndcaps += 1;
     }
@@ -490,7 +488,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
   //===============================================
 
   for (size_t i = 0; i < genParticles->size(); i++) {
-
     // number of mc particles
     mcNum++;
 
@@ -504,7 +501,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     const Candidate* mother = (*genParticles)[i].mother(0);
     matchingMotherID = false;
     for (unsigned int ii = 0; ii < matchingMotherIDs_.size(); ii++) {
-
       if (mother == nullptr) {
         matchingMotherID = true;
       } else if (mother->pdgId() == matchingMotherIDs_[ii]) {
@@ -529,11 +525,10 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     bool passMiniAODSelection = true;
     double gsfOkRatio = 999999.;
     bool isEBflag = false;
-    bool isEEflag = false; 
+    bool isEEflag = false;
     pat::Electron bestGsfElectron;
 
     for (el3 = localCollection.begin(); el3 != localCollection.end(); el3++) {
-
       double dphi = el3->phi() - (*genParticles)[i].phi();
       if (std::abs(dphi) > CLHEP::pi) {
         dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
@@ -550,7 +545,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
           }
         }
       }
-    } // end *electrons loop
+    }  // end *electrons loop
 
     if (okGsfFound) {
       //------------------------------------

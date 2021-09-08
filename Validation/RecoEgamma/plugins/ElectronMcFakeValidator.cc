@@ -2448,29 +2448,27 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
   h1_recOfflineVertices_->Fill((*vertexCollectionHandle).size());
 
   reco::GsfElectronCollection::const_iterator gsfIter;
-  std::vector <reco::GsfElectron>::const_iterator gsfIter3;
-  std::vector <reco::GsfElectron>::const_iterator gsfIter4;
+  std::vector<reco::GsfElectron>::const_iterator gsfIter3;
+  std::vector<reco::GsfElectron>::const_iterator gsfIter4;
 
   //===============================================
   // get a vector with EB  & EE
   //===============================================
-  std::vector <reco::GsfElectron> localCollection;
+  std::vector<reco::GsfElectron> localCollection;
   int iBarrels = 0;
   int iEndcaps = 0;
 
   // looking for EB
   for (gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
-    if (gsfIter->isEB()) 
-    {
-      localCollection.push_back( *gsfIter );
+    if (gsfIter->isEB()) {
+      localCollection.push_back(*gsfIter);
       iBarrels += 1;
     }
   }
 
   // looking for EE
   for (gsfIter = gsfElectronsEndcaps->begin(); gsfIter != gsfElectronsEndcaps->end(); gsfIter++) {
-    if (gsfIter->isEE()) 
-    {
+    if (gsfIter->isEE()) {
       localCollection.push_back(*gsfIter);
       iEndcaps += 1;
     }
@@ -2548,7 +2546,7 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
     bool okGsfFound = false;
     double gsfOkRatio = 999999.;
     bool isEBflag = false;
-    bool isEEflag = false; 
+    bool isEEflag = false;
 
     // find best matched electron
     reco::GsfElectron bestGsfElectron;
