@@ -247,7 +247,7 @@ process = TestProcess()
   config += "process."s + label + "=" + config_ + "\n";
   config += "process.moduleToTest(process."s + label + ")\n";
   config += R"_(
-process.add_(cms.Service("InitRootHandlers", UnloadRootSigHandler=cms.untracked.bool(True)))
+process.add_(cms.Service("InitRootHandlers", AbortOnSignal=cms.untracked.bool(False)))
   )_";
   if (not extraConfig_.empty()) {
     config += "\n";
