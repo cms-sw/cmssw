@@ -22,7 +22,7 @@ namespace test {
   class FailingHad {
   public:
     FailingHad(const edm::ParameterSet& iPSet)
-        : failAt_(iPSet.getParameter<int>("failAt")), useException_(iPSet.getParameter<bool>("useException")) {}
+        : failAt_(iPSet.getParameter<int>("failAt")), failureType_(iPSet.getParameter<int>("failureType")) {}
 
     std::vector<std::string> sharedResources() const {
       if (failAt_ == 0) {
@@ -84,14 +84,26 @@ namespace test {
 
   private:
     void fail(std::string const& iName) const {
-      if (useException_) {
-        throw cms::Exception(iName);
+      switch (failureType_) {
+        case 0: {
+          throw cms::Exception(iName);
+        }
+        case 1: {
+          std::raise(SIGSEGV);
+          break;
+        }
+        case 2: {
+          std::terminate();
+          break;
+        }
+        default: {
+          std::exit(-1);
+        }
       }
-      std::raise(SIGSEGV);
     }
     std::unique_ptr<HepMC::GenEvent> event_;
     int failAt_;
-    bool useException_;
+    int failureType_;
   };
 
   class DummyDec {

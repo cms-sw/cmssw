@@ -11,7 +11,7 @@ from GeneratorInterface.Core.ExternalGeneratorFilter import *
 process.generator = ExternalGeneratorFilter(
     cms.EDFilter("FailingGeneratorFilter",
                  failAt=cms.int32(int(sys.argv[2])),
-                 useException = cms.bool(0 == int(sys.argv[3]))),
+                 failureType = cms.int32(int(sys.argv[3]))),
     _external_process_waitTime_ = cms.untracked.uint32(5),
     _external_process_verbose_ = cms.untracked.bool(True),
     _external_process_components_ =cms.vstring()
