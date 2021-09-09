@@ -134,7 +134,7 @@ DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config, edm::ConsumesCo
       thetTrigLabel(config.getParameter<string>("tTrigLabel")),
       thet0Label(config.getParameter<string>("t0Label")) {
   if (doT0Correction) {
-    t0Token_ = cc.esConsumes();
+    t0Token_ = cc.esConsumes(edm::ESInputTag("", thet0Label));
   }
 }
 
