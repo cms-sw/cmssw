@@ -8,19 +8,88 @@ Calibration/HcalIsolatedTrackReco/src/SubdetFEDSelector.cc
 
 */
 
-#include "Calibration/HcalAlCaRecoProducers/interface/AlCaHcalNoiseProducer.h"
+// -*- C++ -*-
+
+// system include files
+#include <memory>
+#include <string>
+// user include files
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "EventFilter/RawDataCollector/interface/RawDataFEDSelector.h"
 
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/Math/interface/deltaR.h"
+//
+// class decleration
+//
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+class AlCaHcalNoiseProducer : public edm::one::EDProducer<> {
+public:
+  explicit AlCaHcalNoiseProducer(const edm::ParameterSet&);
+  ~AlCaHcalNoiseProducer() override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  // ----------member data ---------------------------
+
+  bool useMet_;
+  bool useJet_;
+  double MetCut_;
+  double JetMinE_;
+  double JetHCALminEnergyFraction_;
+  int nAnomalousEvents;
+  int nEvents;
+
+  std::vector<edm::InputTag> ecalLabels_;
+
+  edm::EDGetTokenT<reco::CaloJetCollection> tok_jets_;
+  edm::EDGetTokenT<reco::CaloMETCollection> tok_met_;
+  edm::EDGetTokenT<CaloTowerCollection> tok_tower_;
+
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+
+  edm::EDGetTokenT<EcalRecHitCollection> tok_ps_;
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+  std::vector<edm::EDGetTokenT<EcalRecHitCollection> > toks_ecal_;
+};
 
 AlCaHcalNoiseProducer::AlCaHcalNoiseProducer(const edm::ParameterSet& iConfig) {
   tok_jets_ = consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("JetSource"));
@@ -240,3 +309,7 @@ void AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.put(std::move(outputESColl), "PSEcalRecHitCollectionFHN");
   iEvent.put(std::move(outputFEDs), "HcalFEDsFHN");
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(AlCaHcalNoiseProducer);
