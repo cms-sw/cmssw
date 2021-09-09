@@ -5,7 +5,7 @@ process = cms.Process("TEST")
 
 process.source = cms.Source("EmptySource")
 
-process.maxEvents.input=10
+process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(10))
 
 from GeneratorInterface.Core.ExternalGeneratorFilter import *
 process.generator = ExternalGeneratorFilter(
