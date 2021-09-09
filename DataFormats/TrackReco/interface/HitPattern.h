@@ -766,11 +766,10 @@ namespace reco {
   inline uint16_t HitPattern::getRPCregion(uint16_t pattern) { return getSubSubStructure(pattern) & 1; }
 
   ////////////////////////////// GEM
-  inline uint16_t HitPattern::getGEMStation(uint16_t pattern)
-
-  {
+  inline uint16_t HitPattern::getGEMStation(uint16_t pattern) {
     uint16_t sss = getSubSubStructure(pattern);
-    if (sss & 0b1000) return 0;
+    if (sss & 0b1000)
+      return 0;
     return (sss >> 2) + 1;
   }
 
@@ -779,10 +778,10 @@ namespace reco {
 
   inline uint16_t HitPattern::getETLRing(uint16_t pattern) { return getSubSubStructure(pattern); }
 
-  inline uint16_t HitPattern::getGEMLayer(uint16_t pattern)
-  {
+  inline uint16_t HitPattern::getGEMLayer(uint16_t pattern) {
     uint16_t sss = getSubSubStructure(pattern);
-    if (sss & 0b1000) return sss & 0b0111;
+    if (sss & 0b1000)
+      return sss & 0b0111;
     return sss & 0b11;
   }
 

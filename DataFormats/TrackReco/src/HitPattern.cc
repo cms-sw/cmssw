@@ -104,10 +104,10 @@ namespace {
             uint16_t la = gemid.layer();
             if (st == 0) {
               layer |= 0b1000;
-              layer |= (la-1);
+              layer |= (la - 1);
             } else {
-              layer |= (st-1) << 2;
-              layer |= (la-1);
+              layer |= (st - 1) << 2;
+              layer |= (la - 1);
             }
           }
         } break;
