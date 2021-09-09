@@ -119,7 +119,7 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
 
       // The absence of TT channels in the HcalTPChannelParameters
       // is intepreted as to not use the new filter
-      auto tpParam = db->getHcalTPChannelParameter(hcalTTDetId);
+      auto tpParam = db->getHcalTPChannelParameter(hcalTTDetId, false);
       if (tpParam) 
         fixedPointWeight = tpParam->getauxi1();
 
