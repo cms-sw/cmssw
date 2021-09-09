@@ -950,7 +950,8 @@ namespace evf {
       bool found = (stat(fuEoLS.c_str(), &buf) == 0);
       if (!found) {
         if (doCreateEoLS) {
-          int eol_fd = open(fuEoLS.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+          int eol_fd =
+              open(fuEoLS.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
           close(eol_fd);
         }
         if (doCreateBoLS)
@@ -1778,7 +1779,6 @@ namespace evf {
       if (fileBrokerUseLocalLock_)
         unlockFULocal();
       return noFile;
-
     }
 
     //handle creation of BoLS files if lumisection has changed

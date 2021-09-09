@@ -48,7 +48,8 @@ DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset)
         << " TCDS FED ID lower than " << FEDNumbering::MINTCDSuTCAFEDID;
   if (fillRandom_) {
     //intialize random seed
-    auto time_count = static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+    auto time_count =
+        static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
     srand(time_count & 0xffffffff);
   }
   produces<FEDRawDataCollection>();
@@ -113,7 +114,7 @@ void DaqFakeReader::fillFEDs(
     if (fillRandom_) {
       //fill FED with random values
       size_t size_ui = size - size % sizeof(unsigned int);
-      for (size_t i=0; i < size_ui; i += sizeof(unsigned int)) {
+      for (size_t i = 0; i < size_ui; i += sizeof(unsigned int)) {
         *((unsigned int*)(feddata.data() + i)) = (unsigned int)rand();
       }
       //remainder
