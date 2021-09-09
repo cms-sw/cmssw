@@ -127,7 +127,8 @@ namespace evf {
     void createBoLSFile(const uint32_t lumiSection, bool checkIfExists) const;
     void createLumiSectionFiles(const uint32_t lumiSection,
                                 const uint32_t currentLumiSection,
-                                bool doCreateBoLS = true);
+                                bool doCreateBoLS,
+                                bool doCreateEoLS);
     static int parseFRDFileHeader(std::string const& rawSourcePath,
                                   int& rawFd,
                                   uint16_t& rawHeaderSize,
