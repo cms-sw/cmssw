@@ -37,14 +37,14 @@
 using namespace edm;
 using namespace sipixelobjects;
 
-namespace Ph2TkDigiAlgo {
+namespace ph2tkdigialgo {
   // Mass in MeV
   constexpr double m_pion = 139.571;
   constexpr double m_kaon = 493.677;
   constexpr double m_electron = 0.511;
   constexpr double m_muon = 105.658;
   constexpr double m_proton = 938.272;
-}  // namespace Ph2TkDigiAlgo
+} 
 Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common,
                                                                  const edm::ParameterSet& conf_specific,
                                                                  edm::ConsumesCollector iC)
@@ -268,17 +268,17 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Phase2TrackerDigitizerAlgorithm
 //==============================================================================
 std::vector<float> Phase2TrackerDigitizerAlgorithm::fluctuateEloss(
     int pid, float particleMomentum, float eloss, float length, int NumberOfSegs) const {
-  double particleMass = Ph2TkDigiAlgo::m_pion;  // Mass in MeV, assume pion
+  double particleMass = ph2tkdigialgo::m_pion;  // Mass in MeV, assume pion
   pid = std::abs(pid);
   if (pid != 211) {  // Mass in MeV
     if (pid == 11)
-      particleMass = Ph2TkDigiAlgo::m_electron;
+      particleMass = ph2tkdigialgo::m_electron;
     else if (pid == 13)
-      particleMass = Ph2TkDigiAlgo::m_muon;
+      particleMass = ph2tkdigialgo::m_muon;
     else if (pid == 321)
-      particleMass = Ph2TkDigiAlgo::m_kaon;
+      particleMass = ph2tkdigialgo::m_kaon;
     else if (pid == 2212)
-      particleMass = Ph2TkDigiAlgo::m_proton;
+      particleMass = ph2tkdigialgo::m_proton;
   }
   // What is the track segment length.
   float segmentLength = length / NumberOfSegs;
