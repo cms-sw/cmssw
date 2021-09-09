@@ -61,22 +61,30 @@ lhcInfoTable = cms.EDProducer("LHCInfoProducer",
                               precision = cms.int32(10),
 )
 
-nanoSequenceCommon = cms.Sequence(
-        nanoMetadata + jetSequence + cms.Sequence(extraFlagsProducersTask, muonTask, tauTask, boostedTauTask, electronTask, lowPtElectronTask, photonTask,
-        vertexTablesTask,isoTrackTask) + jetLepSequence + # must be after all the leptons
-        linkedObjects  +
-        jetTables + cms.Sequence(muonTablesTask, tauTablesTask, boostedTauTablesTask, electronTablesTask, lowPtElectronTablesTask, photonTablesTask, globalTablesTask) + metTables + simpleCleanerTable + cms.Sequence(extraFlagsTableTask,isoTrackTablesTask)
-        )
+nanoTableTaskCommon = cms.Task(
+     cms.Task(nanoMetadata), jetTask, extraFlagsProducersTask, muonTask, tauTask, boostedTauTask,
+     electronTask , lowPtElectronTask, photonTask,
+     vertexTask, isoTrackTask, jetLepTask,  # must be after all the leptons
+     cms.Task(linkedObjects),
+     jetTablesTask, muonTablesTask, tauTablesTask, boostedTauTablesTask,
+     electronTablesTask, lowPtElectronTablesTask, photonTablesTask,
+     globalTablesTask, vertexTablesTask, metTablesTask, simpleCleanerTable, extraFlagsTableTask,
+     isoTrackTablesTask
+ )
+
+nanoSequenceCommon = cms.Sequence(nanoTableTaskCommon)
 
 nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTablesTask)
 nanoSequenceOnlyData = cms.Sequence(cms.Sequence(protonTablesTask) + lhcInfoTable)
 
 nanoSequence = cms.Sequence(nanoSequenceCommon + nanoSequenceOnlyData + nanoSequenceOnlyFullSim)
 
-nanoSequenceFS = cms.Sequence(
-    cms.Sequence(genParticleTask,particleLevelTask) + nanoSequenceCommon + jetMC + cms.Sequence(muonMCTask, electronMCTask, lowPtElectronMCTask, photonMCTask,
-    tauMCTask,boostedTauMCTask) + metMC +
-    cms.Sequence(ttbarCatMCProducersTask,globalTablesMCTask,cms.Task(btagWeightTable),genWeightsTableTask,genVertexTablesTask,genParticleTablesTask,particleLevelTablesTask,ttbarCategoryTableTask) )
+nanoTableTaskFS = cms.Task(genParticleTask, particleLevelTask, jetMCTask, muonMCTask, electronMCTask, lowPtElectronMCTask, photonMCTask,
+                            tauMCTask, boostedTauMCTask,
+                            metMCTable, ttbarCatMCProducersTask, globalTablesMCTask, cms.Task(btagWeightTable), ttbarCategoryTableTask,
+                            genWeightsTableTask, genVertexTablesTask, genParticleTablesTask, particleLevelTablesTask)
+
+nanoSequenceFS = cms.Sequence(nanoSequenceCommon + cms.Sequence(nanoTableTaskFS))
 
 # GenVertex only stored in newer MiniAOD
 nanoSequenceMC = nanoSequenceFS.copy()
@@ -144,11 +152,10 @@ def nanoAOD_addDeepMET(process, addDeepMETProducer, ResponseTune_Graph):
         process.deepMETsResponseTune = process.deepMETProducer.clone()
         #process.deepMETsResponseTune.graph_path = 'RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb'
         process.deepMETsResponseTune.graph_path = ResponseTune_Graph.value()
-    process.metTables += process.deepMetTables
+    process.metTablesTask.add(process.deepMetTablesTask)
     return process
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
 def nanoAOD_recalibrateMETs(process,isData):
 
     # add DeepMETs
@@ -171,23 +178,17 @@ def nanoAOD_recalibrateMETs(process,isData):
     extractDeepMETs = nanoAOD_DeepMET_switch.nanoAOD_addDeepMET_switch and not nanoAOD_DeepMET_switch.nanoAOD_produceDeepMET_switch
 
     runMetCorAndUncFromMiniAOD(process,isData=isData, extractDeepMETs=extractDeepMETs)
-    process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(process.jetSequence),cms.Sequence(process.fullPatMetSequence))
-    process.basicJetsForMetForT1METNano = process.basicJetsForMet.clone(
-        src = process.updatedJetsWithUserData.src,
-        skipEM = False,
-        type1JetPtThreshold = 0.0,
-        calcMuonSubtrRawPtAsValueMap = cms.bool(True),
-    )
-    process.jetSequence.insert(process.jetSequence.index(process.updatedJetsWithUserData),cms.Sequence(process.basicJetsForMetForT1METNano))
-    process.updatedJetsWithUserData.userFloats.muonSubtrRawPt = cms.InputTag("basicJetsForMetForT1METNano:MuonSubtrRawPt")
-    process.corrT1METJetTable.src = process.finalJets.src
-    process.corrT1METJetTable.cut = "pt<15 && abs(eta)<9.9"
-    for table in process.jetTable, process.corrT1METJetTable:
-        table.variables.muonSubtrFactor = Var("1-userFloat('muonSubtrRawPt')/(pt()*jecFactor('Uncorrected'))",float,doc="1-(muon-subtracted raw pt)/(raw pt)",precision=6)
-    process.metTables += process.corrT1METJetTable
+    process.nanoSequenceCommon.insert(2,cms.Sequence(process.fullPatMetSequence))
 
 
-#
+    from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
+    makePuppiesFromMiniAOD(process,True)
+    process.puppiNoLep.useExistingWeights = True
+    process.puppi.useExistingWeights = True
+    run2_nanoAOD_106Xv1.toModify(process.puppiNoLep, useExistingWeights = False)
+    run2_nanoAOD_106Xv1.toModify(process.puppi, useExistingWeights = False)
+    print("will make Puppies on top of MINIAOD")
+
 #    makePuppiesFromMiniAOD(process,True) # call this before in the global customizer otherwise it would reset photon IDs in VID
     nanoAOD_PuppiV15_switch = cms.PSet(
             recoMetFromPFCs = cms.untracked.bool(False),
@@ -217,9 +218,12 @@ def nanoAOD_recalibrateMETs(process,isData):
 
         process.patJetsPuppi.addGenPartonMatch = cms.bool(False)
         process.patJetsPuppi.addGenJetMatch = cms.bool(False)
+
+        print("nanoAOD_PuppiV15_switch.reclusterJets is true")
     
     runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi", recoMetFromPFCs=bool(nanoAOD_PuppiV15_switch.recoMetFromPFCs), reclusterJets=bool(nanoAOD_PuppiV15_switch.reclusterJets))
-    process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(process.jetSequence),cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
+    process.nanoSequenceCommon.insert(2,cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
+
     return process
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
@@ -300,14 +304,38 @@ def nanoAOD_runMETfixEE2017(process,isData):
                                fixEE2017 = True,
                                fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139},
                                postfix = "FixEE2017")
-    process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(jetSequence),process.fullPatMetSequenceFixEE2017)
+    process.nanoSequenceCommon.insert(2,process.fullPatMetSequenceFixEE2017)
+
+
+def nanoAOD_jetForT1met(process):
+    process.basicJetsForMetForT1METNano = cms.EDProducer("PATJetCleanerForType1MET",
+                                                          src = process.updatedJetsWithUserData.src,
+                                                          jetCorrEtaMax = cms.double(9.9),
+                                                          jetCorrLabel = cms.InputTag("L3Absolute"),
+                                                          jetCorrLabelRes = cms.InputTag("L2L3Residual"),
+                                                          offsetCorrLabel = cms.InputTag("L1FastJet"),
+                                                          skipEM = cms.bool(False),
+                                                          skipEMfractionThreshold = cms.double(0.9),
+                                                          skipMuonSelection = cms.string('isGlobalMuon | isStandAloneMuon'),
+                                                          skipMuons = cms.bool(True),
+                                                          type1JetPtThreshold = cms.double(0.0),
+                                                          calcMuonSubtrRawPtAsValueMap = cms.bool(True)
+                                                      )
+
+    process.jetTask.add(process.basicJetsForMetForT1METNano)
+    process.updatedJetsWithUserData.userFloats.muonSubtrRawPt = cms.InputTag("basicJetsForMetForT1METNano:MuonSubtrRawPt")
+    process.corrT1METJetTable.src = process.finalJets.src
+    process.corrT1METJetTable.cut = "pt<15 && abs(eta)<9.9"
+    process.metTablesTask.add(process.corrT1METJetTable)
+
+    for table in process.jetTable, process.corrT1METJetTable:
+        table.variables.muonSubtrFactor = Var("1-userFloat('muonSubtrRawPt')/(pt()*jecFactor('Uncorrected'))",float,doc="1-(muon-subtracted raw pt)/(raw pt)",precision=6)
+
+    return process
 
 def nanoAOD_customizeCommon(process):
-    makePuppiesFromMiniAOD(process,True)
-    process.puppiNoLep.useExistingWeights = True
-    process.puppi.useExistingWeights = True
-    run2_nanoAOD_106Xv1.toModify(process.puppiNoLep, useExistingWeights = False)
-    run2_nanoAOD_106Xv1.toModify(process.puppi, useExistingWeights = False)
+
+    process = nanoAOD_jetForT1met(process)
     process = nanoAOD_activateVID(process)
     nanoAOD_addDeepInfo_switch = cms.PSet(
         nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
@@ -368,14 +396,17 @@ def nanoAOD_customizeCommon(process):
 
 def nanoAOD_customizeData(process):
     process = nanoAOD_customizeCommon(process)
-    process = nanoAOD_recalibrateMETs(process,isData=True)
+
+    for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
+        modifier.toModify(process, lambda p: nanoAOD_recalibrateMETs(p,isData=True))
     for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         modifier.toModify(process, lambda p: nanoAOD_runMETfixEE2017(p,isData=True))
     return process
 
 def nanoAOD_customizeMC(process):
     process = nanoAOD_customizeCommon(process)
-    process = nanoAOD_recalibrateMETs(process,isData=False)
+    for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
+        modifier.toModify(process, lambda p: nanoAOD_recalibrateMETs(p,isData=False))
     for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         modifier.toModify(process, lambda p: nanoAOD_runMETfixEE2017(p,isData=False))
     return process

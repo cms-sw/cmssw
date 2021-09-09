@@ -6,6 +6,8 @@ from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProce
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 
+from PhysicsTools.PatUtils.tools.pfforTrkMET_cff import *
+
 def miniAOD_customizeCommon(process):
     process.patMuons.isoDeposits = cms.PSet()
     process.patElectrons.isoDeposits = cms.PSet()
@@ -216,10 +218,7 @@ def miniAOD_customizeCommon(process):
     #  ==================  CHSMET 
 
     #  ==================  TrkMET 
-    process.TrkCands = cms.EDFilter("CandPtrSelector",
-                                    src=cms.InputTag("packedPFCandidates"),
-                                    cut=cms.string("charge()!=0 && pvAssociationQuality()>=4 && vertexRef().key()==0")
-                                    )
+    process.TrkCands = chargedPackedCandsForTkMet.clone()
     task.add(process.TrkCands)
 
     process.pfMetTrk = pfMet.clone(src = 'TrkCands')

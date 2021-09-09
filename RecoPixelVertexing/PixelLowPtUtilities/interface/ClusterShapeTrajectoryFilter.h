@@ -36,6 +36,7 @@ public:
 
 private:
   edm::EDGetTokenT<SiPixelClusterShapeCache> theCacheToken;
+  edm::ESGetToken<ClusterShapeHitFilter, TrajectoryFilter::Record> theFilterToken;
   const SiPixelClusterShapeCache* theCache;
   const ClusterShapeHitFilter* theFilter;
 };

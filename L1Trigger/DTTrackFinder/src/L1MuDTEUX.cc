@@ -32,7 +32,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSectorProcessor.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSEU.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegPhi.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
 #include "CondFormats/DataRecord/interface/L1MuDTExtLutRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"

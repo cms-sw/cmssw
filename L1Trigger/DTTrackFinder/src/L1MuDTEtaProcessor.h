@@ -39,7 +39,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTAddressArray.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTAddressArray.h"
 class L1MuDTChambThContainer;
 class L1MuDTTrackSegEta;
 class L1MuDTTrackFinder;

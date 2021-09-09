@@ -28,16 +28,17 @@ unsigned short PPSPixelTopology::pixelIndex(PixelInfo pI) const {
 
 bool PPSPixelTopology::isPixelHit(float xLocalCoordinate, float yLocalCoordinate, bool is3x2 = true) const {
   // check hit fiducial boundaries
-  double xModuleSize = 2 * ((no_of_pixels_simX_ / 2. + 1) * pitch_simX_ + dead_edge_width_);
+  const double xModuleSize = 2 * ((no_of_pixels_simX_ / 2. + 1) * pitch_simX_ + dead_edge_width_);
   if (xLocalCoordinate < -xModuleSize / 2. || xLocalCoordinate > xModuleSize / 2.)
     return false;
 
-  double yModuleSize = (no_of_pixels_simY_ + 4.) * pitch_simY_ + 2. * dead_edge_width_;
-  double y2x2top = no_of_pixels_simY_ / 6. * pitch_simY_ + dead_edge_width_;
+  const double yModuleSize = (no_of_pixels_simY_ + 4.) * pitch_simY_ + 2. * dead_edge_width_;
+  const double y2x2top = no_of_pixels_simY_ / 6. * pitch_simY_ + dead_edge_width_;
   if (is3x2 && (yLocalCoordinate < -yModuleSize / 2. || yLocalCoordinate > yModuleSize / 2.))
     return false;
-
-  if (!is3x2 && (yLocalCoordinate < -yModuleSize / 2. || yLocalCoordinate > y2x2top))
+  if (!is3x2 && (runType_ == "Run2") && (yLocalCoordinate < -yModuleSize / 2. || yLocalCoordinate > y2x2top))
+    return false;
+  if (!is3x2 && (runType_ == "Run3") && (yLocalCoordinate < -yModuleSize / 2. || yLocalCoordinate > yModuleSize / 2.))
     return false;
 
   return true;

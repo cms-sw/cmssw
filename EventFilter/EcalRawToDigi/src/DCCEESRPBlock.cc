@@ -16,7 +16,7 @@ void DCCEESRPBlock::addSRFlagToCollection() {
   data_++;
   const uint16_t *my16Bitp_ = reinterpret_cast<const uint16_t *>(data_);
 
-  for (unsigned int n = 0; n < expNumbSrFlags_; n++, pSCDetId_++) {
+  for (unsigned int n = 0; n < expNumbSrFlags_; ++n) {
     if (n != 0 && n % 4 == 0)
       my16Bitp_++;
 

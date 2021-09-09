@@ -15,6 +15,10 @@ namespace edm {
 }
 
 namespace hgcal {
+  // This structure is used both for LayerClusters and SimClusters storing their id and the fraction of a hit
+  // that belongs to the LayerCluster or SimCluster. The meaning of the operator is extremely important since
+  // this struct will be used inside maps and other containers and when searching for one particular occurence
+  // only the clusterId member will be used in the check, skipping the fraction part.
   struct detIdInfoInCluster {
     bool operator==(const detIdInfoInCluster &o) const { return clusterId == o.clusterId; };
     long unsigned int clusterId;
@@ -25,13 +29,16 @@ namespace hgcal {
     }
   };
 
-  struct detIdInfoInMultiCluster {
-    bool operator==(const detIdInfoInMultiCluster &o) const { return multiclusterId == o.multiclusterId; };
-    unsigned int multiclusterId;
-    long unsigned int clusterId;
-    float fraction;
-  };
-
+  // This introduces a simCluster on layer concept. For a simCluster it stores:
+  // 1. Its id: simClusterId.
+  // 2. The energy that the simCluster deposited in a specific layer and it was reconstructed.
+  // 3. The hits_and_fractions that contributed to that deposition. SimHits that aren't reconstructed
+  //    and doesn't have any matched rechits are disregarded.
+  // 4. A map to save the LayerClusters ids (id is the key) that reconstructed at least one SimHit of the simCluster under study
+  //    together with the energy that the Layercluster reconstructed from the SimClusters and the score. The energy
+  //    is not the energy of the LayerCluster, but the energy of the LayerCluster coming from the SimCluster.
+  //    So, there will be energy of the LayerCluster that is disregarded here, since there may be LayerCluster's
+  //    cells that the SimCluster didn't contribute.
   struct simClusterOnLayer {
     unsigned int simClusterId;
     float energy = 0;
@@ -39,8 +46,16 @@ namespace hgcal {
     std::unordered_map<int, std::pair<float, float>> layerClusterIdToEnergyAndScore;
   };
 
+  // This object connects a LayerCluster, identified through its id (lcId), with a vector of pairs containing all the SimClusters
+  // (via their ids (scIds)) that share at least one cell with the LayerCluster. In that pair it
+  // stores the score (lcId->(scId,score)).
   typedef std::vector<std::vector<std::pair<unsigned int, float>>> layerClusterToSimCluster;
+  // This is used to save the simClusterOnLayer structure for all simClusters in each layer.
+  // It is not exactly what is returned outside, but out of its entries, the output object is build.
   typedef std::vector<std::vector<hgcal::simClusterOnLayer>> simClusterToLayerCluster;
+  //This is the output of the makeConnections function that contain all the work with SC2LC and LC2SC
+  //association. It will be read by the relevant associateSimToReco and associateRecoToSim functions to
+  //provide the final product.
   typedef std::tuple<layerClusterToSimCluster, simClusterToLayerCluster> association;
 }  // namespace hgcal
 

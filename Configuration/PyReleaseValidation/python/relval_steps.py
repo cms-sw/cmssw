@@ -1357,7 +1357,7 @@ steps['WprimeTolNu_M3000_13TeV_pythia8']=genvalid('WprimeTolNu_M3000_13TeV_pythi
 steps['BsToMuMu_forSTEAM_13TeV_ExtGen']=genvalid('BsToMuMu_forSTEAM_13TeV_ExtGen_cfi',step1GenDefaults)
 steps['BuToKstarJPsiToMuMu_forSTEAM_13TeV_ExtGen']=genvalid('BuToKstarJPsiToMuMu_forSTEAM_13TeV_ExtGen_cfi',step1GenDefaults)
 steps['ZTTFS_ExtGen']=genvalid('ZTT_Tauola_OneLepton_OtherHadrons_8TeV_TuneCUETP8M1_ExtGen_cfi',step1GenDefaults)
-steps['sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_ExtGen']=genvalid('sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_ExtGen_cff',step1GenDefaults)
+steps['sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_ExtGen']=genvalid('sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_ExtGen_cff',merge([{'-n':'50'},step1GenDefaults]))
 steps['HydjetQ_B12_5020GeV_2018_ExtGen']=genvalid('Hydjet_Quenched_B12_5020GeV_ExtGen_cfi',step1GenDefaults)
 steps['AMPT_PPb_5020GeV_MinimumBias_ExtGen']=genvalid('AMPT_PPb_5020GeV_MinimumBias_ExtGen_cfi',step1GenDefaults)
 steps['EPOS_PPb_8160GeV_MinimumBias_ExtGen']=genvalid('ReggeGribovPartonMC_EposLHC_4080_4080GeV_pPb_ExtGen_cfi',step1GenDefaults)
@@ -2821,9 +2821,13 @@ steps['HARVESTDCRUN3']=merge([{'--conditions':'auto:run3_data_prompt','--era':'R
 steps['HARVESTDCEXPRUN3']=merge([{'--conditions':'auto:run3_data_express','--era':'Run3'},steps['HARVESTDC']])
 
 steps['HARVESTDR2_REMINIAOD_data2016']=merge([{'--data':'', '-s':'HARVESTING:@miniAODDQM','--era':'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTDR2']])
+steps['HARVESTDR2_REMININANO_data2016']=merge([{'--data':'', '-s':'HARVESTING:@miniAODDQM+@nanoAODDQM','--era':'Run2_2016'},steps['HARVESTDR2']])
 steps['HARVESTDR2_REMINIAOD_data2016_HIPM']=merge([{'--era':'Run2_2016_HIPM,run2_miniAOD_80XLegacy'},steps['HARVESTDR2_REMINIAOD_data2016']])
 steps['HARVESTDR2_REMINIAOD_data2016UL']=merge([{'--era':'Run2_2016', '--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['HARVESTDR2_REMINIAOD_data2016']])
+steps['HARVESTDR2_REMININANO_data2016UL']=merge([{'--era':'Run2_2016', '--procModifiers':'run2_miniAOD_UL_preSummer20'},steps['HARVESTDR2_REMININANO_data2016']])
 steps['HARVESTDR2_REMINIAOD_data2016UL_HIPM']=merge([{'--era':'Run2_2016_HIPM'},steps['HARVESTDR2_REMINIAOD_data2016UL']])
+steps['HARVESTDR2_REMININANO_data2016UL_HIPM']=merge([{'--era':'Run2_2016_HIPM,run2_nanoAOD_106Xv2,run3_nanoAOD_devel'},steps['HARVESTDR2_REMININANO_data2016UL']])
+steps['HARVESTDR2_REMININANO_data2016UL_HIPM_met']=merge([{'--era':'Run2_2016_HIPM,run2_nanoAOD_106Xv1,run3_nanoAOD_devel'},steps['HARVESTDR2_REMININANO_data2016UL']])
 
 steps['HARVEST2017_REMINIAOD_data2017']=merge([{'--era':'Run2_2017,run2_miniAOD_94XFall17'},steps['HARVESTDR2_REMINIAOD_data2016']])
 steps['HARVEST2017_REMINIAOD_data2017UL']=merge([{'--era':'Run2_2017'},steps['HARVESTDR2_REMINIAOD_data2016UL']])
@@ -3105,9 +3109,22 @@ steps['REMINIAOD_data2016'] = merge([{'-s' : 'PAT,DQM:@miniAODDQM',
                                       '--datatier' : 'MINIAOD,DQMIO'
                                       },stepMiniAODDefaults])
 
+steps['REMININANO_data2016'] = merge([{'-s' : 'PAT,NANO,DQM:@miniAODDQM+@nanoAODDQM',
+                                       '--process' : 'PATnano',
+                                       '--era' : 'Run2_2016',
+                                       '--conditions' : 'auto:run2_data_relval',
+                                       '--data' : '',
+                                       '--scenario' : 'pp',
+                                       '--eventcontent' : 'MINIAOD,NANOEDMAOD,DQM',
+                                       '--datatier' : 'MINIAOD,NANOAOD,DQMIO'
+                                       }])
+
 steps['REMINIAOD_data2016_HIPM'] = merge([{'--era' : 'Run2_2016_HIPM,run2_miniAOD_80XLegacy'},steps['REMINIAOD_data2016']])
 steps['REMINIAOD_data2016UL'] = merge([{'--era' : 'Run2_2016', '--procModifiers' : 'run2_miniAOD_UL_preSummer20'},steps['REMINIAOD_data2016']])
+steps['REMININANO_data2016UL'] = merge([{'--era' : 'Run2_2016', '--procModifiers' : 'run2_miniAOD_UL_preSummer20'},steps['REMININANO_data2016']])
 steps['REMINIAOD_data2016UL_HIPM'] = merge([{'--era' : 'Run2_2016_HIPM'},steps['REMINIAOD_data2016UL']])
+steps['REMININANO_data2016UL_HIPM'] = merge([{'--era' : 'Run2_2016_HIPM,run2_nanoAOD_106Xv2,run3_nanoAOD_devel'},steps['REMININANO_data2016UL']])
+steps['REMININANO_data2016UL_HIPM_met'] = merge([{'--era' : 'Run2_2016_HIPM,run2_nanoAOD_106Xv1,run3_nanoAOD_devel'},steps['REMININANO_data2016UL']])
 
 stepReMiniAODData17 = merge([{'--era' : 'Run2_2017,run2_miniAOD_94XFall17'},steps['REMINIAOD_data2016']])
 steps['REMINIAOD_data2017'] = stepReMiniAODData17

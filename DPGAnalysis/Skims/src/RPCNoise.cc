@@ -28,7 +28,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -84,7 +84,7 @@ using namespace edm;
 // class declaration
 //
 
-class RPCNoise : public edm::EDFilter {
+class RPCNoise : public edm::one::EDFilter<> {
 public:
   explicit RPCNoise(const edm::ParameterSet &);
   ~RPCNoise() override;

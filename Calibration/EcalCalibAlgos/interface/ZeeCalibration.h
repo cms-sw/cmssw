@@ -21,17 +21,16 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/LooperFactory.h"
 #include "FWCore/Framework/interface/ESProducerLooper.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Calibration/Tools/interface/ZIterativeAlgorithmWithFit.h"
 #include "Calibration/Tools/interface/CalibElectron.h"
@@ -42,8 +41,12 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetId.h"
+
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -53,17 +56,11 @@
 #include "TH2.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include <vector>
-#include <string>
 
 // class declaration
 //
@@ -145,23 +142,33 @@ private:
 
   std::string outputFileName_;
 
-  std::string rechitProducer_;
-  std::string rechitCollection_;
-  std::string erechitProducer_;
-  std::string erechitCollection_;
-  std::string scProducer_;
-  std::string scCollection_;
+  const edm::InputTag hlTriggerResults_;
 
-  std::string scIslandProducer_;
-  std::string scIslandCollection_;
+  const std::string mcProducer_;
+  const std::string rechitProducer_;
+  const std::string rechitCollection_;
+  const std::string erechitProducer_;
+  const std::string erechitCollection_;
+  const std::string scProducer_;
+  const std::string scCollection_;
 
-  std::string mcProducer_;
+  const std::string scIslandProducer_;
+  const std::string scIslandCollection_;
+
+  const std::string electronProducer_;
+  const std::string electronCollection_;
+
   std::string calibMode_;
 
-  std::string electronProducer_;
-  std::string electronCollection_;
+  const edm::EDGetTokenT<edm::TriggerResults> trigResultsToken_;
+  const edm::EDGetTokenT<edm::HepMCProduct> hepMCToken_;
+  const edm::EDGetTokenT<EBRecHitCollection> ebRecHitToken_;
+  const edm::EDGetTokenT<EERecHitCollection> eeRecHitToken_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> scToken_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> islandSCToken_;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronToken_;
 
-  std::string RecalibBarrelHits_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
 
   unsigned int etaBins_;
   unsigned int etBins_;
@@ -337,8 +344,6 @@ private:
 
   int CRACK_ELECTRONS_IN_BARREL;
   int CRACK_ELECTRONS_IN_ENDCAP;
-
-  edm::InputTag hlTriggerResults_;
 
   unsigned int nEvents_;  // number of events processed
 

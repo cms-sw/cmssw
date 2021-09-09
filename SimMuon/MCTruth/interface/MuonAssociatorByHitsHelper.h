@@ -36,6 +36,21 @@ public:
   MuonAssociatorByHitsHelper(const edm::ParameterSet &conf);
 
   struct Resources {
+    Resources(TrackerTopology const *tTopo,
+              TrackerHitAssociator const *trackerHitAssoc,
+              CSCHitAssociator const *cscHitAssoc,
+              DTHitAssociator const *dtHitAssoc,
+              RPCHitAssociator const *rpcHitAssoc,
+              GEMHitAssociator const *gemHitAssoc,
+              std::function<void(const TrackHitsCollection &, const TrackingParticleCollection &)> diagnostics)
+        : tTopo_(tTopo),
+          trackerHitAssoc_(trackerHitAssoc),
+          cscHitAssoc_(cscHitAssoc),
+          dtHitAssoc_(dtHitAssoc),
+          rpcHitAssoc_(rpcHitAssoc),
+          gemHitAssoc_(gemHitAssoc),
+          diagnostics_(diagnostics) {}
+
     TrackerTopology const *tTopo_;
     TrackerHitAssociator const *trackerHitAssoc_;
     CSCHitAssociator const *cscHitAssoc_;

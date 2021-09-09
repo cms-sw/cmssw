@@ -1275,7 +1275,7 @@ class ConfigBuilder(object):
         # decide which ALCA paths to use
         alcaList = sequence.split("+")
         maxLevel=0
-        from Configuration.AlCa.autoAlca import autoAlca
+        from Configuration.AlCa.autoAlca import autoAlca, AlCaNoConcurrentLumis
         # support @X from autoAlca.py, and recursion support: i.e T0:@Mu+@EG+...
         self.expandMapping(alcaList,autoAlca)
         self.AlCaPaths=[]
@@ -1283,6 +1283,10 @@ class ConfigBuilder(object):
             alcastream = getattr(alcaConfig,name)
             shortName = name.replace('ALCARECOStream','')
             if shortName in alcaList and isinstance(alcastream,cms.FilteredStream):
+                if shortName in AlCaNoConcurrentLumis:
+                    print("Setting numberOfConcurrentLuminosityBlocks=1 because of AlCa sequence {}".format(shortName))
+                    self._options.nConcurrentLumis = "1"
+                    self._options.nConcurrentIOVs = "1"
                 output = self.addExtraStream(name,alcastream, workflow = workflow)
                 self.executeAndRemember('process.ALCARECOEventContent.outputCommands.extend(process.OutALCARECO'+shortName+'_noDrop.outputCommands)')
                 self.AlCaPaths.append(shortName)

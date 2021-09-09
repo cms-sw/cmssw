@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.CTPPS.simu_config.year_2016_cff import *
 
+from CalibPPS.ESProducers.ctppsOpticalFunctions_non_DB_cff import optics_2016_preTS2 as selected_optics
+
 alignmentFile = "Validation/CTPPS/alignment/2016_preTS2.xml"
 
 profile_2016_preTS2 = profile_base_2016.clone(
@@ -12,17 +14,8 @@ profile_2016_preTS2 = profile_base_2016.clone(
   ),
 
   ctppsOpticalFunctions = dict(
-    opticalFunctions = cms.VPSet(
-      cms.PSet( xangle = cms.double(185), fileName = cms.FileInPath("CalibPPS/ESProducers/data/optical_functions/2016_preTS2/version2/185urad.root") )
-    ),
-
-    scoringPlanes = cms.VPSet(
-      # z in cm
-      cms.PSet( rpId = cms.uint32(0x76100000), dirName = cms.string("XRPH_C6L5_B2"), z = cms.double(-20382.6) ),  # RP 002, strip
-      cms.PSet( rpId = cms.uint32(0x76180000), dirName = cms.string("XRPH_D6L5_B2"), z = cms.double(-21255.1) ),  # RP 003, strip
-      cms.PSet( rpId = cms.uint32(0x77100000), dirName = cms.string("XRPH_C6R5_B1"), z = cms.double(+20382.6) ),  # RP 102, strip
-      cms.PSet( rpId = cms.uint32(0x77180000), dirName = cms.string("XRPH_D6R5_B1"), z = cms.double(+21255.1) ),  # RP 103, strip
-    )
+    opticalFunctions = selected_optics.opticalFunctions,
+    scoringPlanes = selected_optics.scoringPlanes,
   ),
 
   ctppsRPAlignmentCorrectionsDataXML = dict(

@@ -29,6 +29,7 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
@@ -47,7 +48,7 @@ private:
 
 testEcalClusterFunctions::testEcalClusterFunctions(const edm::ParameterSet& ps) {
   std::string functionName = ps.getParameter<std::string>("functionName");
-  ff_ = EcalClusterFunctionFactory::get()->create(functionName, ps);
+  ff_ = EcalClusterFunctionFactory::get()->create(functionName, ps, consumesCollector());
   std::cout << "got " << functionName << " function at: " << ff_.get() << "\n";
 }
 

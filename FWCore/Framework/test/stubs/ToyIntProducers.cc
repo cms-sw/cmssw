@@ -457,7 +457,7 @@ namespace edmtest {
     }
 
     // EventSetup is not used.
-    for (auto const tv : tokenValues_) {
+    for (auto const& tv : tokenValues_) {
       e.emplace(tv.token, tv.value);
     }
   }
