@@ -11,6 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DataRecord/interface/DTT0Rcd.h"
@@ -71,7 +72,7 @@ void DTTTrigSyncT0Only::setES(const EventSetup& setup) {
   tZeroMap = &setup.getData(t0Token_);
 
   if (debug) {
-    cout << "[DTTTrigSyncT0Only] T0 version: " << tZeroMap->version() << endl;
+    edm::LogPrint("[DTTTrigSyncT0Only]") << "T0 version: " << tZeroMap->version() << endl;
   }
 }
 
@@ -86,13 +87,13 @@ double DTTTrigSyncT0Only::offset(const DTLayer* layer,
   tofCorr = 0;
 
   if (debug) {
-    cout << "[DTTTrigSyncT0Only] Offset (ns): " << tTrig + wirePropCorr - tofCorr << endl
-         << "      various contributions are: "
-         << endl
-         //<< "      tZero (ns):   " << t0 << endl
-         << "      Propagation along wire delay (ns): " << wirePropCorr << endl
-         << "      TOF correction (ns): " << tofCorr << endl
-         << endl;
+    edm::LogPrint("[DTTTrigSyncT0Only]") << "Offset (ns): " << tTrig + wirePropCorr - tofCorr << endl
+                                         << "      various contributions are: "
+                                         << endl
+                                         //<< "      tZero (ns):   " << t0 << endl
+                                         << "      Propagation along wire delay (ns): " << wirePropCorr << endl
+                                         << "      TOF correction (ns): " << tofCorr << endl
+                                         << endl;
   }
   //The global offset is the sum of various contributions
   return tTrig + wirePropCorr - tofCorr;
