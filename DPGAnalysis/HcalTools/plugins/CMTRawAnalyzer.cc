@@ -3,14 +3,434 @@
 //
 // Package:    CMTRawAnalyzer
 //
-#include "DPGAnalysis/HcalTools/interface/CMTRawAnalyzer.h"
+#include <fstream>
+#include <iostream>
+#include <cmath>
+#include <iosfwd>
+#include <bitset>
+#include <memory>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+// this line is to retrieve HCAL RecHitCollections:
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDigi/interface/HcalQIESample.h"
+#include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HFDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HODataFrame.h"
+#include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
+#include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
+#include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "Geometry/Records/interface/HcalGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TF1.h"
+
+#define NUMADCS 256
+// very preliminary,  NEEDS UPDATING
+double adc2fC_QIE10[NUMADCS] = {
+    // - - - - - - - range 0 - - - - - - - -
+    //subrange0
+    1.58,
+    4.73,
+    7.88,
+    11.0,
+    14.2,
+    17.3,
+    20.5,
+    23.6,
+    26.8,
+    29.9,
+    33.1,
+    36.2,
+    39.4,
+    42.5,
+    45.7,
+    48.8,
+    //subrange1
+    53.6,
+    60.1,
+    66.6,
+    73.0,
+    79.5,
+    86.0,
+    92.5,
+    98.9,
+    105,
+    112,
+    118,
+    125,
+    131,
+    138,
+    144,
+    151,
+    //subrange2
+    157,
+    164,
+    170,
+    177,
+    186,
+    199,
+    212,
+    225,
+    238,
+    251,
+    264,
+    277,
+    289,
+    302,
+    315,
+    328,
+    //subrange3
+    341,
+    354,
+    367,
+    380,
+    393,
+    406,
+    418,
+    431,
+    444,
+    464,
+    490,
+    516,
+    542,
+    568,
+    594,
+    620,
+
+    // - - - - - - - range 1 - - - - - - - -
+    //subrange0
+    569,
+    594,
+    619,
+    645,
+    670,
+    695,
+    720,
+    745,
+    771,
+    796,
+    821,
+    846,
+    871,
+    897,
+    922,
+    947,
+    //subrange1
+    960,
+    1010,
+    1060,
+    1120,
+    1170,
+    1220,
+    1270,
+    1320,
+    1370,
+    1430,
+    1480,
+    1530,
+    1580,
+    1630,
+    1690,
+    1740,
+    //subrange2
+    1790,
+    1840,
+    1890,
+    1940,
+    2020,
+    2120,
+    2230,
+    2330,
+    2430,
+    2540,
+    2640,
+    2740,
+    2850,
+    2950,
+    3050,
+    3150,
+    //subrange3
+    3260,
+    3360,
+    3460,
+    3570,
+    3670,
+    3770,
+    3880,
+    3980,
+    4080,
+    4240,
+    4450,
+    4650,
+    4860,
+    5070,
+    5280,
+    5490,
+
+    // - - - - - - - range 2 - - - - - - - -
+    //subrange0
+    5080,
+    5280,
+    5480,
+    5680,
+    5880,
+    6080,
+    6280,
+    6480,
+    6680,
+    6890,
+    7090,
+    7290,
+    7490,
+    7690,
+    7890,
+    8090,
+    //subrange1
+    8400,
+    8810,
+    9220,
+    9630,
+    10000,
+    10400,
+    10900,
+    11300,
+    11700,
+    12100,
+    12500,
+    12900,
+    13300,
+    13700,
+    14100,
+    14500,
+    //subrange2
+    15000,
+    15400,
+    15800,
+    16200,
+    16800,
+    17600,
+    18400,
+    19300,
+    20100,
+    20900,
+    21700,
+    22500,
+    23400,
+    24200,
+    25000,
+    25800,
+    //subrange3
+    26600,
+    27500,
+    28300,
+    29100,
+    29900,
+    30700,
+    31600,
+    32400,
+    33200,
+    34400,
+    36100,
+    37700,
+    39400,
+    41000,
+    42700,
+    44300,
+
+    // - - - - - - - range 3 - - - - - - - - -
+    //subrange0
+    41100,
+    42700,
+    44300,
+    45900,
+    47600,
+    49200,
+    50800,
+    52500,
+    54100,
+    55700,
+    57400,
+    59000,
+    60600,
+    62200,
+    63900,
+    65500,
+    //subrange1
+    68000,
+    71300,
+    74700,
+    78000,
+    81400,
+    84700,
+    88000,
+    91400,
+    94700,
+    98100,
+    101000,
+    105000,
+    108000,
+    111000,
+    115000,
+    118000,
+    //subrange2
+    121000,
+    125000,
+    128000,
+    131000,
+    137000,
+    145000,
+    152000,
+    160000,
+    168000,
+    176000,
+    183000,
+    191000,
+    199000,
+    206000,
+    214000,
+    222000,
+    //subrange3
+    230000,
+    237000,
+    245000,
+    253000,
+    261000,
+    268000,
+    276000,
+    284000,
+    291000,
+    302000,
+    316000,
+    329000,
+    343000,
+    356000,
+    370000,
+    384000
+
+};
+
+//shunt1
+double const adc2fC_QIE11_shunt1[NUMADCS] = {
+    1.89,     5.07,     8.25,     11.43,    14.61,    17.78,    20.96,    24.14,    27.32,    30.50,    33.68,
+    36.86,    40.04,    43.22,    46.40,    49.58,    54.35,    60.71,    67.07,    73.43,    79.79,    86.15,
+    92.51,    98.87,    105.2,    111.6,    117.9,    124.3,    130.7,    137.0,    143.4,    149.7,    156.1,
+    162.5,    168.8,    175.2,    184.7,    197.4,    210.2,    222.9,    235.6,    248.3,    261.0,    273.7,
+    286.5,    299.2,    311.9,    324.6,    337.3,    350.1,    362.8,    375.5,    388.2,    400.9,    413.6,
+    426.4,    439.1,    458.2,    483.6,    509.0,    534.5,    559.9,    585.3,    610.8,    558.9,    584.2,
+    609.5,    634.7,    660.0,    685.3,    710.6,    735.9,    761.2,    786.5,    811.8,    837.1,    862.4,
+    887.7,    913.0,    938.3,    976.2,    1026.8,   1077.4,   1128.0,   1178.6,   1229.1,   1279.7,   1330.3,
+    1380.9,   1431.5,   1482.1,   1532.7,   1583.3,   1633.8,   1684.4,   1735.0,   1785.6,   1836.2,   1886.8,
+    1937.4,   2013.2,   2114.4,   2215.6,   2316.8,   2417.9,   2519.1,   2620.3,   2721.5,   2822.6,   2923.8,
+    3025.0,   3126.2,   3227.3,   3328.5,   3429.7,   3530.9,   3632.0,   3733.2,   3834.4,   3935.5,   4036.7,
+    4188.5,   4390.8,   4593.2,   4795.5,   4997.9,   5200.2,   5402.6,   5057.5,   5262.3,   5467.1,   5671.8,
+    5876.6,   6081.4,   6286.2,   6491.0,   6695.8,   6900.6,   7105.3,   7310.1,   7514.9,   7719.7,   7924.5,
+    8129.3,   8436.4,   8846.0,   9255.6,   9665.1,   10074.7,  10484.3,  10893.9,  11303.4,  11713.0,  12122.6,
+    12532.1,  12941.7,  13351.3,  13760.8,  14170.4,  14580.0,  14989.5,  15399.1,  15808.7,  16218.2,  16832.6,
+    17651.7,  18470.9,  19290.0,  20109.2,  20928.3,  21747.4,  22566.6,  23385.7,  24204.8,  25024.0,  25843.1,
+    26662.3,  27481.4,  28300.5,  29119.7,  29938.8,  30757.9,  31577.1,  32396.2,  33215.4,  34444.1,  36082.3,
+    37720.6,  39358.9,  40997.2,  42635.4,  44273.7,  40908.7,  42542.6,  44176.5,  45810.4,  47444.3,  49078.3,
+    50712.2,  52346.1,  53980.0,  55613.9,  57247.8,  58881.8,  60515.7,  62149.6,  63783.5,  65417.4,  67868.3,
+    71136.1,  74404.0,  77671.8,  80939.7,  84207.5,  87475.3,  90743.2,  94011.0,  97278.8,  100546.7, 103814.5,
+    107082.3, 110350.2, 113618.0, 116885.8, 120153.7, 123421.5, 126689.3, 129957.2, 134858.9, 141394.6, 147930.3,
+    154465.9, 161001.6, 167537.3, 174072.9, 180608.6, 187144.3, 193679.9, 200215.6, 206751.3, 213287.0, 219822.6,
+    226358.3, 232894.0, 239429.6, 245965.3, 252501.0, 259036.6, 265572.3, 275375.8, 288447.2, 301518.5, 314589.8,
+    327661.2, 340732.5, 353803.8};
+//shunt6
+double const adc2fC_QIE11_shunt6[NUMADCS] = {
+    9.56,      28.24,     46.91,     65.59,     84.27,     102.9,     121.6,     140.3,     159.0,     177.7,
+    196.3,     215.0,     233.7,     252.4,     271.0,     289.7,     317.7,     355.1,     392.4,     429.8,
+    467.1,     504.5,     541.9,     579.2,     616.6,     653.9,     691.3,     728.6,     766.0,     803.3,
+    840.7,     878.0,     915.4,     952.8,     990.1,     1027.5,    1083.5,    1158.2,    1232.9,    1307.6,
+    1382.3,    1457.0,    1531.7,    1606.4,    1681.2,    1755.9,    1830.6,    1905.3,    1980.0,    2054.7,
+    2129.4,    2204.1,    2278.8,    2353.5,    2428.2,    2502.9,    2577.7,    2689.7,    2839.1,    2988.6,
+    3138.0,    3287.4,    3436.8,    3586.2,    3263.0,    3411.3,    3559.6,    3707.9,    3856.2,    4004.5,
+    4152.9,    4301.2,    4449.5,    4597.8,    4746.1,    4894.4,    5042.7,    5191.0,    5339.4,    5487.7,
+    5710.1,    6006.8,    6303.4,    6600.0,    6896.6,    7193.3,    7489.9,    7786.5,    8083.1,    8379.8,
+    8676.4,    8973.0,    9269.6,    9566.3,    9862.9,    10159.5,   10456.2,   10752.8,   11049.4,   11346.0,
+    11791.0,   12384.2,   12977.5,   13570.7,   14164.0,   14757.2,   15350.5,   15943.7,   16537.0,   17130.2,
+    17723.5,   18316.7,   18910.0,   19503.2,   20096.5,   20689.7,   21283.0,   21876.2,   22469.5,   23062.8,
+    23656.0,   24545.9,   25732.4,   26918.9,   28105.4,   29291.9,   30478.4,   31664.9,   29399.4,   30590.1,
+    31780.9,   32971.7,   34162.4,   35353.2,   36544.0,   37734.7,   38925.5,   40116.3,   41307.0,   42497.8,
+    43688.5,   44879.3,   46070.1,   47260.8,   49047.0,   51428.5,   53810.1,   56191.6,   58573.1,   60954.6,
+    63336.2,   65717.7,   68099.2,   70480.8,   72862.3,   75243.8,   77625.4,   80006.9,   82388.4,   84769.9,
+    87151.5,   89533.0,   91914.5,   94296.1,   97868.4,   102631.4,  107394.5,  112157.5,  116920.6,  121683.7,
+    126446.7,  131209.8,  135972.8,  140735.9,  145499.0,  150262.0,  155025.1,  159788.2,  164551.2,  169314.3,
+    174077.3,  178840.4,  183603.5,  188366.5,  193129.6,  200274.2,  209800.3,  219326.4,  228852.5,  238378.7,
+    247904.8,  257430.9,  237822.7,  247326.7,  256830.7,  266334.8,  275838.8,  285342.9,  294846.9,  304351.0,
+    313855.0,  323359.1,  332863.1,  342367.1,  351871.2,  361375.2,  370879.3,  380383.3,  394639.4,  413647.5,
+    432655.6,  451663.6,  470671.7,  489679.8,  508687.9,  527696.0,  546704.1,  565712.2,  584720.3,  603728.3,
+    622736.4,  641744.5,  660752.6,  679760.7,  698768.8,  717776.9,  736785.0,  755793.0,  784305.2,  822321.3,
+    860337.5,  898353.7,  936369.9,  974386.0,  1012402.2, 1050418.4, 1088434.6, 1126450.7, 1164466.9, 1202483.1,
+    1240499.3, 1278515.4, 1316531.6, 1354547.8, 1392564.0, 1430580.1, 1468596.3, 1506612.5, 1544628.7, 1601652.9,
+    1677685.3, 1753717.6, 1829750.0, 1905782.3, 1981814.7, 2057847.0};
+// for HPD:
+static const float adc2fC[128] = {
+    -0.5,   0.5,    1.5,    2.5,    3.5,    4.5,    5.5,    6.5,    7.5,    8.5,    9.5,    10.5,   11.5,
+    12.5,   13.5,   15.,    17.,    19.,    21.,    23.,    25.,    27.,    29.5,   32.5,   35.5,   38.5,
+    42.,    46.,    50.,    54.5,   59.5,   64.5,   59.5,   64.5,   69.5,   74.5,   79.5,   84.5,   89.5,
+    94.5,   99.5,   104.5,  109.5,  114.5,  119.5,  124.5,  129.5,  137.,   147.,   157.,   167.,   177.,
+    187.,   197.,   209.5,  224.5,  239.5,  254.5,  272.,   292.,   312.,   334.5,  359.5,  384.5,  359.5,
+    384.5,  409.5,  434.5,  459.5,  484.5,  509.5,  534.5,  559.5,  584.5,  609.5,  634.5,  659.5,  684.5,
+    709.5,  747.,   797.,   847.,   897.,   947.,   997.,   1047.,  1109.5, 1184.5, 1259.5, 1334.5, 1422.,
+    1522.,  1622.,  1734.5, 1859.5, 1984.5, 1859.5, 1984.5, 2109.5, 2234.5, 2359.5, 2484.5, 2609.5, 2734.5,
+    2859.5, 2984.5, 3109.5, 3234.5, 3359.5, 3484.5, 3609.5, 3797.,  4047.,  4297.,  4547.,  4797.,  5047.,
+    5297.,  5609.5, 5984.5, 6359.5, 6734.5, 7172.,  7672.,  8172.,  8734.5, 9359.5, 9984.5};
+const int nsub = 4;
+const int ndepth = 7;
+const int neta = 82;
+const int nphi = 72;
+const float bphi = 72.;
+const int zneta = 22;
+const int znphi = 18;
+const int npfit = 220;
+const float anpfit = 220.;  // for SiPM:
+
 //
-using namespace std;
 //
-using namespace edm;
-//
-//
-class CMTRawAnalyzer : public edm::EDAnalyzer {
+class CMTRawAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit CMTRawAnalyzer(const edm::ParameterSet&);
   ~CMTRawAnalyzer() override;
@@ -22,6 +442,10 @@ public:
   virtual void fillMAP();
 
 private:
+  double phi12(double phi1, double en1, double phi2, double en2);
+  double dR(double eta1, double phi1, double eta2, double phi2);
+  double dPhiWsign(double phi1, double phi2);
+
   edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
   edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
   edm::EDGetTokenT<HODigiCollection> tok_ho_;
@@ -33,18 +457,15 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNoise_;
   edm::EDGetTokenT<HFRecHitCollection> tok_hfSignal_;
   edm::EDGetTokenT<HFRecHitCollection> tok_hfNoise_;
-  ////////////////////////////////////
-  //  double dR(double eta1, double phi1, double eta2, double phi2);
-  //  double phi12(double phi1, double en1, double phi2, double en2);
-  //  double dPhiWsign(double phi1, double phi2);
-  ////////////////////////////////////
+
+  edm::Service<TFileService> fs_;
   std::string fOutputFileName;
   std::string MAPOutputFileName;
   edm::InputTag inputTag_;
-  edm::ESHandle<CaloGeometry> geometry;
-  edm::ESHandle<HcalDbService> conditions;
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> tokDB_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tokTopo_;
   const HcalQIEShape* shape;
-  edm::ESHandle<HcalTopology> topo_;
+  const HcalDbService* conditions;
   const HcalTopology* topo;
   /////////////////////////////////////////////
   int verbosity;
@@ -1901,7 +2322,7 @@ private:
   double maxxOCCUP4;
   TTree* myTree;
   TFile* hOutputFile;
-  ofstream MAPfile;
+  std::ofstream MAPfile;
   /////////////////////////////////////////
   // Get RBX number from 1-35 for Calibration box
   int getRBX(int& i, int& j, int& k);
@@ -1926,6 +2347,7 @@ private:
   float blsmax;
   int nlsminmax;
 };
+
 //
 /////////////////////////////// -------------------------------------------------------------------
 //
@@ -1939,14 +2361,6 @@ void CMTRawAnalyzer::endJob() {
   std::cout << " --------------------------------------------- " << std::endl;
   h_nls_per_run->Fill(float(lscounterrun));
   h_nls_per_run10->Fill(float(lscounterrun10));
-
-  hOutputFile->SetCompressionLevel(2);
-
-  hOutputFile->Write();
-  hOutputFile->cd();
-
-  if (recordNtuples_)
-    myTree->Write();
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
   std::cout << "===== full number of events =  " << nevent << std::endl;
@@ -1962,1724 +2376,15 @@ void CMTRawAnalyzer::endJob() {
   std::cout << "===== Start writing user histograms =====" << std::endl;
   //////////////////////////////////////////////////////////////////////   scaling of some histoes:
   ///////////////////////////////////////////->Write();
-  h_bcnvsamplitude_HB->Write();
-  h_bcnvsamplitude0_HB->Write();
-  h_bcnvsamplitude_HE->Write();
-  h_bcnvsamplitude0_HE->Write();
-  h_bcnvsamplitude_HF->Write();
-  h_bcnvsamplitude0_HF->Write();
-  h_bcnvsamplitude_HO->Write();
-  h_bcnvsamplitude0_HO->Write();
-
-  h_orbitNumvsamplitude_HB->Write();
-  h_orbitNumvsamplitude0_HB->Write();
-  h_orbitNumvsamplitude_HE->Write();
-  h_orbitNumvsamplitude0_HE->Write();
-  h_orbitNumvsamplitude_HF->Write();
-  h_orbitNumvsamplitude0_HF->Write();
-  h_orbitNumvsamplitude_HO->Write();
-  h_orbitNumvsamplitude0_HO->Write();
-
-  h_2DsumADCAmplEtaPhiLs0->Write();
-  h_2DsumADCAmplEtaPhiLs1->Write();
-  h_2DsumADCAmplEtaPhiLs2->Write();
-  h_2DsumADCAmplEtaPhiLs3->Write();
-
-  h_2DsumADCAmplEtaPhiLs00->Write();
-  h_2DsumADCAmplEtaPhiLs10->Write();
-  h_2DsumADCAmplEtaPhiLs20->Write();
-  h_2DsumADCAmplEtaPhiLs30->Write();
-
-  h_sumADCAmplEtaPhiLs->Write();
-  h_sumADCAmplEtaPhiLs_bbbc->Write();
-  h_sumADCAmplEtaPhiLs_bbb1->Write();
-  h_sumADCAmplEtaPhiLs_lscounterM1->Write();
-  h_sumADCAmplEtaPhiLs_ietaphi->Write();
-  h_sumADCAmplEtaPhiLs_lscounterM1orbitNum->Write();
-  h_sumADCAmplEtaPhiLs_orbitNum->Write();
-
-  if (recordHistoes_) {
-    h_errorGeneral->Write();
-    h_error1->Write();
-    h_error2->Write();
-    h_error3->Write();
-    h_amplError->Write();
-    h_amplFine->Write();
-
-    h_errorGeneral_HB->Write();
-    h_error1_HB->Write();
-    h_error2_HB->Write();
-    h_error3_HB->Write();
-    h_error4_HB->Write();
-    h_error5_HB->Write();
-    h_error6_HB->Write();
-    h_error7_HB->Write();
-    h_amplError_HB->Write();
-    h_amplFine_HB->Write();
-    h_mapDepth1Error_HB->Write();
-    h_mapDepth2Error_HB->Write();
-    h_mapDepth3Error_HB->Write();
-    h_mapDepth4Error_HB->Write();
-    h_fiber0_HB->Write();
-    h_fiber1_HB->Write();
-    h_fiber2_HB->Write();
-    h_repetedcapid_HB->Write();
-
-    h_errorGeneral_HE->Write();
-    h_error1_HE->Write();
-    h_error2_HE->Write();
-    h_error3_HE->Write();
-    h_error4_HE->Write();
-    h_error5_HE->Write();
-    h_error6_HE->Write();
-    h_error7_HE->Write();
-    h_amplError_HE->Write();
-    h_amplFine_HE->Write();
-    h_mapDepth1Error_HE->Write();
-    h_mapDepth2Error_HE->Write();
-    h_mapDepth3Error_HE->Write();
-    h_mapDepth4Error_HE->Write();
-    h_mapDepth5Error_HE->Write();
-    h_mapDepth6Error_HE->Write();
-    h_mapDepth7Error_HE->Write();
-    h_fiber0_HE->Write();
-    h_fiber1_HE->Write();
-    h_fiber2_HE->Write();
-    h_repetedcapid_HE->Write();
-
-    h_errorGeneral_HF->Write();
-    h_error1_HF->Write();
-    h_error2_HF->Write();
-    h_error3_HF->Write();
-    h_error4_HF->Write();
-    h_error5_HF->Write();
-    h_error6_HF->Write();
-    h_error7_HF->Write();
-    h_amplError_HF->Write();
-    h_amplFine_HF->Write();
-    h_mapDepth1Error_HF->Write();
-    h_mapDepth2Error_HF->Write();
-    h_mapDepth3Error_HF->Write();
-    h_mapDepth4Error_HF->Write();
-    h_fiber0_HF->Write();
-    h_fiber1_HF->Write();
-    h_fiber2_HF->Write();
-    h_repetedcapid_HF->Write();
-
-    h_errorGeneral_HO->Write();
-    h_error1_HO->Write();
-    h_error2_HO->Write();
-    h_error3_HO->Write();
-    h_error4_HO->Write();
-    h_error5_HO->Write();
-    h_error6_HO->Write();
-    h_error7_HO->Write();
-    h_amplError_HO->Write();
-    h_amplFine_HO->Write();
-    h_mapDepth4Error_HO->Write();
-    h_fiber0_HO->Write();
-    h_fiber1_HO->Write();
-    h_fiber2_HO->Write();
-    h_repetedcapid_HO->Write();
-
-    ///////////////////////
-    h_numberofhitsHBtest->Write();
-    h_numberofhitsHEtest->Write();
-    h_numberofhitsHFtest->Write();
-    h_numberofhitsHOtest->Write();
-    h_AmplitudeHBtest->Write();
-    h_AmplitudeHBtest1->Write();
-    h_AmplitudeHBtest6->Write();
-    h_AmplitudeHEtest->Write();
-    h_AmplitudeHEtest1->Write();
-    h_AmplitudeHEtest6->Write();
-    h_AmplitudeHFtest->Write();
-    h_AmplitudeHOtest->Write();
-    h_totalAmplitudeHB->Write();
-    h_totalAmplitudeHE->Write();
-    h_totalAmplitudeHF->Write();
-    h_totalAmplitudeHO->Write();
-    h_totalAmplitudeHBperEvent->Write();
-    h_totalAmplitudeHEperEvent->Write();
-    h_totalAmplitudeHFperEvent->Write();
-    h_totalAmplitudeHOperEvent->Write();
-
-    h_ADCAmpl345Zoom_HB->Write();
-    h_ADCAmpl345Zoom1_HB->Write();
-    h_ADCAmpl345_HB->Write();
-
-    h_ADCAmpl_HBCapIdNoError->Write();
-    h_ADCAmpl345_HBCapIdNoError->Write();
-    h_ADCAmpl_HBCapIdError->Write();
-    h_ADCAmpl345_HBCapIdError->Write();
-
-    h_ADCAmplZoom_HB->Write();
-    h_ADCAmplZoom1_HB->Write();
-    h_ADCAmpl_HB->Write();
-
-    h_AmplitudeHBrest->Write();
-    h_AmplitudeHBrest1->Write();
-    h_AmplitudeHBrest6->Write();
-
-    h_mapDepth1ADCAmpl225_HB->Write();
-    h_mapDepth2ADCAmpl225_HB->Write();
-    h_mapDepth1ADCAmpl_HB->Write();
-    h_mapDepth2ADCAmpl_HB->Write();
-    h_mapDepth1ADCAmpl12_HB->Write();
-    h_mapDepth2ADCAmpl12_HB->Write();
-
-    h_mapDepth3ADCAmpl225_HB->Write();
-    h_mapDepth4ADCAmpl225_HB->Write();
-    h_mapDepth3ADCAmpl_HB->Write();
-    h_mapDepth4ADCAmpl_HB->Write();
-    h_mapDepth3ADCAmpl12_HB->Write();
-    h_mapDepth4ADCAmpl12_HB->Write();
-
-    h_TSmeanA_HB->Write();
-    h_mapDepth1TSmeanA225_HB->Write();
-    h_mapDepth2TSmeanA225_HB->Write();
-    h_mapDepth1TSmeanA_HB->Write();
-    h_mapDepth2TSmeanA_HB->Write();
-    h_mapDepth3TSmeanA225_HB->Write();
-    h_mapDepth4TSmeanA225_HB->Write();
-    h_mapDepth3TSmeanA_HB->Write();
-    h_mapDepth4TSmeanA_HB->Write();
-
-    h_TSmaxA_HB->Write();
-    h_mapDepth1TSmaxA225_HB->Write();
-    h_mapDepth2TSmaxA225_HB->Write();
-    h_mapDepth1TSmaxA_HB->Write();
-    h_mapDepth2TSmaxA_HB->Write();
-    h_mapDepth3TSmaxA225_HB->Write();
-    h_mapDepth4TSmaxA225_HB->Write();
-    h_mapDepth3TSmaxA_HB->Write();
-    h_mapDepth4TSmaxA_HB->Write();
-
-    h_Amplitude_HB->Write();
-    h_mapDepth1Amplitude225_HB->Write();
-    h_mapDepth2Amplitude225_HB->Write();
-    h_mapDepth1Amplitude_HB->Write();
-    h_mapDepth2Amplitude_HB->Write();
-    h_mapDepth3Amplitude225_HB->Write();
-    h_mapDepth4Amplitude225_HB->Write();
-    h_mapDepth3Amplitude_HB->Write();
-    h_mapDepth4Amplitude_HB->Write();
-
-    h_Ampl_HB->Write();
-    h_mapDepth1Ampl047_HB->Write();
-    h_mapDepth2Ampl047_HB->Write();
-    h_mapDepth1Ampl_HB->Write();
-    h_mapDepth2Ampl_HB->Write();
-    h_mapDepth1AmplE34_HB->Write();
-    h_mapDepth2AmplE34_HB->Write();
-    h_mapDepth1_HB->Write();
-    h_mapDepth2_HB->Write();
-    h_mapDepth3Ampl047_HB->Write();
-    h_mapDepth4Ampl047_HB->Write();
-    h_mapDepth3Ampl_HB->Write();
-    h_mapDepth4Ampl_HB->Write();
-    h_mapDepth3AmplE34_HB->Write();
-    h_mapDepth4AmplE34_HB->Write();
-    h_mapDepth3_HB->Write();
-    h_mapDepth4_HB->Write();
-
-    h_mapDepth1ADCAmpl225Copy_HB->Write();
-    h_mapDepth2ADCAmpl225Copy_HB->Write();
-    h_mapDepth3ADCAmpl225Copy_HB->Write();
-    h_mapDepth4ADCAmpl225Copy_HB->Write();
-    h_mapDepth1ADCAmpl225Copy_HE->Write();
-    h_mapDepth2ADCAmpl225Copy_HE->Write();
-    h_mapDepth3ADCAmpl225Copy_HE->Write();
-    h_mapDepth4ADCAmpl225Copy_HE->Write();
-    h_mapDepth5ADCAmpl225Copy_HE->Write();
-    h_mapDepth6ADCAmpl225Copy_HE->Write();
-    h_mapDepth7ADCAmpl225Copy_HE->Write();
-    h_mapDepth1ADCAmpl225Copy_HF->Write();
-    h_mapDepth2ADCAmpl225Copy_HF->Write();
-    h_mapDepth3ADCAmpl225Copy_HF->Write();
-    h_mapDepth4ADCAmpl225Copy_HF->Write();
-    h_mapDepth4ADCAmpl225Copy_HO->Write();
-    ///////////////////////
-    h_ADCAmpl_HF->Write();
-    h_ADCAmplrest1_HF->Write();
-    h_ADCAmplrest6_HF->Write();
-
-    h_ADCAmplZoom1_HF->Write();
-    h_mapDepth1ADCAmpl225_HF->Write();
-    h_mapDepth2ADCAmpl225_HF->Write();
-    h_mapDepth1ADCAmpl_HF->Write();
-    h_mapDepth2ADCAmpl_HF->Write();
-    h_mapDepth1ADCAmpl12_HF->Write();
-    h_mapDepth2ADCAmpl12_HF->Write();
-    h_mapDepth3ADCAmpl225_HF->Write();
-    h_mapDepth4ADCAmpl225_HF->Write();
-    h_mapDepth3ADCAmpl_HF->Write();
-    h_mapDepth4ADCAmpl_HF->Write();
-    h_mapDepth3ADCAmpl12_HF->Write();
-    h_mapDepth4ADCAmpl12_HF->Write();
-
-    h_TSmeanA_HF->Write();
-    h_mapDepth1TSmeanA225_HF->Write();
-    h_mapDepth2TSmeanA225_HF->Write();
-    h_mapDepth1TSmeanA_HF->Write();
-    h_mapDepth2TSmeanA_HF->Write();
-    h_mapDepth3TSmeanA225_HF->Write();
-    h_mapDepth4TSmeanA225_HF->Write();
-    h_mapDepth3TSmeanA_HF->Write();
-    h_mapDepth4TSmeanA_HF->Write();
-
-    h_TSmaxA_HF->Write();
-    h_mapDepth1TSmaxA225_HF->Write();
-    h_mapDepth2TSmaxA225_HF->Write();
-    h_mapDepth1TSmaxA_HF->Write();
-    h_mapDepth2TSmaxA_HF->Write();
-    h_mapDepth3TSmaxA225_HF->Write();
-    h_mapDepth4TSmaxA225_HF->Write();
-    h_mapDepth3TSmaxA_HF->Write();
-    h_mapDepth4TSmaxA_HF->Write();
-
-    h_Amplitude_HF->Write();
-    h_mapDepth1Amplitude225_HF->Write();
-    h_mapDepth2Amplitude225_HF->Write();
-    h_mapDepth1Amplitude_HF->Write();
-    h_mapDepth2Amplitude_HF->Write();
-    h_mapDepth3Amplitude225_HF->Write();
-    h_mapDepth4Amplitude225_HF->Write();
-    h_mapDepth3Amplitude_HF->Write();
-    h_mapDepth4Amplitude_HF->Write();
-
-    h_Ampl_HF->Write();
-    h_mapDepth1Ampl047_HF->Write();
-    h_mapDepth2Ampl047_HF->Write();
-    h_mapDepth3Ampl047_HF->Write();
-    h_mapDepth4Ampl047_HF->Write();
-
-    h_mapDepth1Ampl_HF->Write();
-    h_mapDepth2Ampl_HF->Write();
-    h_mapDepth1AmplE34_HF->Write();
-    h_mapDepth2AmplE34_HF->Write();
-    h_mapDepth1_HF->Write();
-    h_mapDepth2_HF->Write();
-    h_mapDepth3Ampl_HF->Write();
-    h_mapDepth4Ampl_HF->Write();
-    h_mapDepth3AmplE34_HF->Write();
-    h_mapDepth4AmplE34_HF->Write();
-    h_mapDepth3_HF->Write();
-    h_mapDepth4_HF->Write();
-
-    ///////////////////////
-    h_ADCAmpl_HO->Write();
-    h_ADCAmplrest1_HO->Write();
-    h_ADCAmplrest6_HO->Write();
-
-    h_ADCAmplZoom1_HO->Write();
-    h_ADCAmpl_HO_copy->Write();
-    h_mapDepth4ADCAmpl225_HO->Write();
-    h_mapDepth4ADCAmpl_HO->Write();
-    h_mapDepth4ADCAmpl12_HO->Write();
-
-    h_TSmeanA_HO->Write();
-    h_mapDepth4TSmeanA225_HO->Write();
-    h_mapDepth4TSmeanA_HO->Write();
-
-    h_TSmaxA_HO->Write();
-    h_mapDepth4TSmaxA225_HO->Write();
-    h_mapDepth4TSmaxA_HO->Write();
-
-    h_Amplitude_HO->Write();
-    h_mapDepth4Amplitude225_HO->Write();
-    h_mapDepth4Amplitude_HO->Write();
-    h_Ampl_HO->Write();
-    h_mapDepth4Ampl047_HO->Write();
-    h_mapDepth4Ampl_HO->Write();
-    h_mapDepth4AmplE34_HO->Write();
-    h_mapDepth4_HO->Write();
-
-    //////////////////////////////////////////
-
-    h_ADCAmpl345Zoom_HE->Write();
-    h_ADCAmpl345Zoom1_HE->Write();
-    h_ADCAmpl345_HE->Write();
-    h_ADCAmpl_HE->Write();
-    h_ADCAmplrest_HE->Write();
-    h_ADCAmplrest1_HE->Write();
-    h_ADCAmplrest6_HE->Write();
-
-    h_ADCAmplZoom1_HE->Write();
-
-    h_corrforxaMAIN_HE->Write();
-    h_corrforxaMAIN0_HE->Write();
-    h_corrforxaADDI_HE->Write();
-    h_corrforxaADDI0_HE->Write();
-
-    h_mapDepth1ADCAmpl225_HE->Write();
-    h_mapDepth2ADCAmpl225_HE->Write();
-    h_mapDepth3ADCAmpl225_HE->Write();
-    h_mapDepth4ADCAmpl225_HE->Write();
-    h_mapDepth5ADCAmpl225_HE->Write();
-    h_mapDepth6ADCAmpl225_HE->Write();
-    h_mapDepth7ADCAmpl225_HE->Write();
-
-    h_mapADCAmplfirstpeak_HE->Write();
-    h_mapADCAmplfirstpeak0_HE->Write();
-    h_mapADCAmplsecondpeak_HE->Write();
-    h_mapADCAmplsecondpeak0_HE->Write();
-    h_mapADCAmpl11firstpeak_HE->Write();
-    h_mapADCAmpl11firstpeak0_HE->Write();
-    h_mapADCAmpl11secondpeak_HE->Write();
-    h_mapADCAmpl11secondpeak0_HE->Write();
-    h_mapADCAmpl12firstpeak_HE->Write();
-    h_mapADCAmpl12firstpeak0_HE->Write();
-    h_mapADCAmpl12secondpeak_HE->Write();
-    h_mapADCAmpl12secondpeak0_HE->Write();
-
-    h_gsmdifferencefit1_HE->Write();
-    h_gsmdifferencefit2_HE->Write();
-    h_gsmdifferencefit3_HE->Write();
-    h_gsmdifferencefit4_HE->Write();
-    h_gsmdifferencefit5_HE->Write();
-    h_gsmdifferencefit6_HE->Write();
-
-    h_mapDepth1ADCAmpl_HE->Write();
-    h_mapDepth2ADCAmpl_HE->Write();
-    h_mapDepth3ADCAmpl_HE->Write();
-    h_mapDepth4ADCAmpl_HE->Write();
-    h_mapDepth5ADCAmpl_HE->Write();
-    h_mapDepth6ADCAmpl_HE->Write();
-    h_mapDepth7ADCAmpl_HE->Write();
-    h_mapDepth1ADCAmpl12_HE->Write();
-    h_mapDepth2ADCAmpl12_HE->Write();
-    h_mapDepth3ADCAmpl12_HE->Write();
-    h_mapDepth4ADCAmpl12_HE->Write();
-    h_mapDepth5ADCAmpl12_HE->Write();
-    h_mapDepth6ADCAmpl12_HE->Write();
-    h_mapDepth7ADCAmpl12_HE->Write();
-
-    h_mapDepth1ADCAmplSiPM_HE->Write();
-    h_mapDepth2ADCAmplSiPM_HE->Write();
-    h_mapDepth3ADCAmplSiPM_HE->Write();
-    h_mapDepth1ADCAmpl12SiPM_HE->Write();
-    h_mapDepth2ADCAmpl12SiPM_HE->Write();
-    h_mapDepth3ADCAmpl12SiPM_HE->Write();
-
-    h_mapDepth1linADCAmpl12_HE->Write();
-    h_mapDepth2linADCAmpl12_HE->Write();
-    h_mapDepth3linADCAmpl12_HE->Write();
-
-    h_TSmeanA_HE->Write();
-    h_mapDepth1TSmeanA225_HE->Write();
-    h_mapDepth2TSmeanA225_HE->Write();
-    h_mapDepth3TSmeanA225_HE->Write();
-    h_mapDepth4TSmeanA225_HE->Write();
-    h_mapDepth5TSmeanA225_HE->Write();
-    h_mapDepth6TSmeanA225_HE->Write();
-    h_mapDepth7TSmeanA225_HE->Write();
-    h_mapDepth1TSmeanA_HE->Write();
-    h_mapDepth2TSmeanA_HE->Write();
-    h_mapDepth3TSmeanA_HE->Write();
-    h_mapDepth4TSmeanA_HE->Write();
-    h_mapDepth5TSmeanA_HE->Write();
-    h_mapDepth6TSmeanA_HE->Write();
-    h_mapDepth7TSmeanA_HE->Write();
-
-    h_TSmaxA_HE->Write();
-    h_mapDepth1TSmaxA225_HE->Write();
-    h_mapDepth2TSmaxA225_HE->Write();
-    h_mapDepth3TSmaxA225_HE->Write();
-    h_mapDepth4TSmaxA225_HE->Write();
-    h_mapDepth5TSmaxA225_HE->Write();
-    h_mapDepth6TSmaxA225_HE->Write();
-    h_mapDepth7TSmaxA225_HE->Write();
-    h_mapDepth1TSmaxA_HE->Write();
-    h_mapDepth2TSmaxA_HE->Write();
-    h_mapDepth3TSmaxA_HE->Write();
-    h_mapDepth4TSmaxA_HE->Write();
-    h_mapDepth5TSmaxA_HE->Write();
-    h_mapDepth6TSmaxA_HE->Write();
-    h_mapDepth7TSmaxA_HE->Write();
-
-    h_Amplitude_HE->Write();
-    h_mapDepth1Amplitude225_HE->Write();
-    h_mapDepth2Amplitude225_HE->Write();
-    h_mapDepth3Amplitude225_HE->Write();
-    h_mapDepth4Amplitude225_HE->Write();
-    h_mapDepth5Amplitude225_HE->Write();
-    h_mapDepth6Amplitude225_HE->Write();
-    h_mapDepth7Amplitude225_HE->Write();
-    h_mapDepth1Amplitude_HE->Write();
-    h_mapDepth2Amplitude_HE->Write();
-    h_mapDepth3Amplitude_HE->Write();
-    h_mapDepth4Amplitude_HE->Write();
-    h_mapDepth5Amplitude_HE->Write();
-    h_mapDepth6Amplitude_HE->Write();
-    h_mapDepth7Amplitude_HE->Write();
-
-    h_Ampl_HE->Write();
-    h_mapDepth1Ampl047_HE->Write();
-    h_mapDepth2Ampl047_HE->Write();
-    h_mapDepth3Ampl047_HE->Write();
-    h_mapDepth4Ampl047_HE->Write();
-    h_mapDepth5Ampl047_HE->Write();
-    h_mapDepth6Ampl047_HE->Write();
-    h_mapDepth7Ampl047_HE->Write();
-    h_mapDepth1Ampl_HE->Write();
-    h_mapDepth2Ampl_HE->Write();
-    h_mapDepth3Ampl_HE->Write();
-    h_mapDepth4Ampl_HE->Write();
-    h_mapDepth5Ampl_HE->Write();
-    h_mapDepth6Ampl_HE->Write();
-    h_mapDepth7Ampl_HE->Write();
-    h_mapDepth1AmplE34_HE->Write();
-    h_mapDepth2AmplE34_HE->Write();
-    h_mapDepth3AmplE34_HE->Write();
-    h_mapDepth4AmplE34_HE->Write();
-    h_mapDepth5AmplE34_HE->Write();
-    h_mapDepth6AmplE34_HE->Write();
-    h_mapDepth7AmplE34_HE->Write();
-    h_mapDepth1_HE->Write();
-    h_mapDepth2_HE->Write();
-    h_mapDepth3_HE->Write();
-    h_mapDepth4_HE->Write();
-    h_mapDepth5_HE->Write();
-    h_mapDepth6_HE->Write();
-    h_mapDepth7_HE->Write();
-
-    ///////////////////////
-
-    h_FullSignal3D_HB->Write();
-    h_FullSignal3D0_HB->Write();
-    h_FullSignal3D_HE->Write();
-    h_FullSignal3D0_HE->Write();
-    h_FullSignal3D_HO->Write();
-    h_FullSignal3D0_HO->Write();
-    h_FullSignal3D_HF->Write();
-    h_FullSignal3D0_HF->Write();
-
-    h_nbadchannels_depth1_HB->Write();
-    h_runnbadchannels_depth1_HB->Write();
-    h_runnbadchannelsC_depth1_HB->Write();
-    h_runbadrate_depth1_HB->Write();
-    h_runbadrateC_depth1_HB->Write();
-    h_runbadrate0_depth1_HB->Write();
-
-    h_nbadchannels_depth2_HB->Write();
-    h_runnbadchannels_depth2_HB->Write();
-    h_runnbadchannelsC_depth2_HB->Write();
-    h_runbadrate_depth2_HB->Write();
-    h_runbadrateC_depth2_HB->Write();
-    h_runbadrate0_depth2_HB->Write();
-
-    h_nbadchannels_depth1_HE->Write();
-    h_runnbadchannels_depth1_HE->Write();
-    h_runnbadchannelsC_depth1_HE->Write();
-    h_runbadrate_depth1_HE->Write();
-    h_runbadrateC_depth1_HE->Write();
-    h_runbadrate0_depth1_HE->Write();
-
-    h_nbadchannels_depth2_HE->Write();
-    h_runnbadchannels_depth2_HE->Write();
-    h_runnbadchannelsC_depth2_HE->Write();
-    h_runbadrate_depth2_HE->Write();
-    h_runbadrateC_depth2_HE->Write();
-    h_runbadrate0_depth2_HE->Write();
-
-    h_nbadchannels_depth3_HE->Write();
-    h_runnbadchannels_depth3_HE->Write();
-    h_runnbadchannelsC_depth3_HE->Write();
-    h_runbadrate_depth3_HE->Write();
-    h_runbadrateC_depth3_HE->Write();
-    h_runbadrate0_depth3_HE->Write();
-
-    h_nbadchannels_depth1_HF->Write();
-    h_runnbadchannels_depth1_HF->Write();
-    h_runnbadchannelsC_depth1_HF->Write();
-    h_runbadrate_depth1_HF->Write();
-    h_runbadrateC_depth1_HF->Write();
-    h_runbadrate0_depth1_HF->Write();
-
-    h_nbadchannels_depth2_HF->Write();
-    h_runnbadchannels_depth2_HF->Write();
-    h_runnbadchannelsC_depth2_HF->Write();
-    h_runbadrate_depth2_HF->Write();
-    h_runbadrateC_depth2_HF->Write();
-    h_runbadrate0_depth2_HF->Write();
-
-    h_nbadchannels_depth4_HO->Write();
-    h_runnbadchannels_depth4_HO->Write();
-    h_runnbadchannelsC_depth4_HO->Write();
-    h_runbadrate_depth4_HO->Write();
-    h_runbadrateC_depth4_HO->Write();
-    h_runbadrate0_depth4_HO->Write();
-
-    ///////////////////////
-    h_mapCapCalib047_HB->Write();
-    h_mapCapCalib047_HE->Write();
-    h_mapCapCalib047_HO->Write();
-    h_mapCapCalib047_HF->Write();
-
-    h_ADCCalib_HB->Write();
-    h_ADCCalib1_HB->Write();
-    h_mapADCCalib047_HB->Write();
-    h_mapADCCalib_HB->Write();
-    h_RatioCalib_HB->Write();
-    h_mapRatioCalib047_HB->Write();
-    h_mapRatioCalib_HB->Write();
-    h_TSmaxCalib_HB->Write();
-    h_mapTSmaxCalib047_HB->Write();
-    h_mapTSmaxCalib_HB->Write();
-    h_TSmeanCalib_HB->Write();
-    h_mapTSmeanCalib047_HB->Write();
-    h_mapTSmeanCalib_HB->Write();
-    h_WidthCalib_HB->Write();
-    h_mapWidthCalib047_HB->Write();
-    h_mapWidthCalib_HB->Write();
-    h_map_HB->Write();
-    h_ADCCalib_HE->Write();
-    h_ADCCalib1_HE->Write();
-    h_mapADCCalib047_HE->Write();
-    h_mapADCCalib_HE->Write();
-    h_RatioCalib_HE->Write();
-    h_mapRatioCalib047_HE->Write();
-    h_mapRatioCalib_HE->Write();
-    h_TSmaxCalib_HE->Write();
-    h_mapTSmaxCalib047_HE->Write();
-    h_mapTSmaxCalib_HE->Write();
-    h_TSmeanCalib_HE->Write();
-    h_mapTSmeanCalib047_HE->Write();
-    h_mapTSmeanCalib_HE->Write();
-    h_WidthCalib_HE->Write();
-    h_mapWidthCalib047_HE->Write();
-    h_mapWidthCalib_HE->Write();
-    h_map_HE->Write();
-    h_ADCCalib_HO->Write();
-    h_ADCCalib1_HO->Write();
-    h_mapADCCalib047_HO->Write();
-    h_mapADCCalib_HO->Write();
-    h_RatioCalib_HO->Write();
-    h_mapRatioCalib047_HO->Write();
-    h_mapRatioCalib_HO->Write();
-    h_TSmaxCalib_HO->Write();
-    h_mapTSmaxCalib047_HO->Write();
-    h_mapTSmaxCalib_HO->Write();
-    h_TSmeanCalib_HO->Write();
-    h_mapTSmeanCalib047_HO->Write();
-    h_mapTSmeanCalib_HO->Write();
-    h_WidthCalib_HO->Write();
-    h_mapWidthCalib047_HO->Write();
-    h_mapWidthCalib_HO->Write();
-    h_map_HO->Write();
-    h_ADCCalib_HF->Write();
-    h_ADCCalib1_HF->Write();
-    h_mapADCCalib047_HF->Write();
-    h_mapADCCalib_HF->Write();
-    h_RatioCalib_HF->Write();
-    h_mapRatioCalib047_HF->Write();
-    h_mapRatioCalib_HF->Write();
-    h_TSmaxCalib_HF->Write();
-    h_mapTSmaxCalib047_HF->Write();
-    h_mapTSmaxCalib_HF->Write();
-    h_TSmeanCalib_HF->Write();
-    h_mapTSmeanCalib047_HF->Write();
-    h_mapTSmeanCalib_HF->Write();
-    h_WidthCalib_HF->Write();
-    h_mapWidthCalib047_HF->Write();
-    h_mapWidthCalib_HF->Write();
-    h_map_HF->Write();
-
-    h_nls_per_run->Write();
-    h_nls_per_run10->Write();
-    h_nevents_per_LS->Write();
-    h_nevents_per_LSzoom->Write();
-    h_nevents_per_eachRealLS->Write();
-    h_nevents_per_eachLS->Write();
-    h_lsnumber_per_eachLS->Write();
-
-    // for estimator0:
-    h_sumPedestalLS1->Write();
-    h_2DsumPedestalLS1->Write();
-    h_sumPedestalperLS1->Write();
-    h_2D0sumPedestalLS1->Write();
-    h_sum0PedestalperLS1->Write();
-
-    h_sumPedestalLS2->Write();
-    h_2DsumPedestalLS2->Write();
-    h_sumPedestalperLS2->Write();
-    h_2D0sumPedestalLS2->Write();
-    h_sum0PedestalperLS2->Write();
-
-    h_sumPedestalLS3->Write();
-    h_2DsumPedestalLS3->Write();
-    h_sumPedestalperLS3->Write();
-    h_2D0sumPedestalLS3->Write();
-    h_sum0PedestalperLS3->Write();
-
-    h_sumPedestalLS4->Write();
-    h_2DsumPedestalLS4->Write();
-    h_sumPedestalperLS4->Write();
-    h_2D0sumPedestalLS4->Write();
-    h_sum0PedestalperLS4->Write();
-
-    h_sumPedestalLS5->Write();
-    h_2DsumPedestalLS5->Write();
-    h_sumPedestalperLS5->Write();
-    h_2D0sumPedestalLS5->Write();
-    h_sum0PedestalperLS5->Write();
-
-    h_sumPedestalLS6->Write();
-    h_2DsumPedestalLS6->Write();
-    h_sumPedestalperLS6->Write();
-    h_2D0sumPedestalLS6->Write();
-    h_sum0PedestalperLS6->Write();
-
-    h_sumPedestalLS7->Write();
-    h_2DsumPedestalLS7->Write();
-    h_sumPedestalperLS7->Write();
-    h_2D0sumPedestalLS7->Write();
-    h_sum0PedestalperLS7->Write();
-
-    h_sumPedestalLS8->Write();
-    h_2DsumPedestalLS8->Write();
-    h_sumPedestalperLS8->Write();
-    h_2D0sumPedestalLS8->Write();
-    h_sum0PedestalperLS8->Write();
-
-    // for estimator1:
-
-    // for HE gain stability vs LS:
-    h_2DsumADCAmplLSdepth4HEu->Write();
-    h_2D0sumADCAmplLSdepth4HEu->Write();
-    h_2DsumADCAmplLSdepth5HEu->Write();
-    h_2D0sumADCAmplLSdepth5HEu->Write();
-    h_2DsumADCAmplLSdepth6HEu->Write();
-    h_2D0sumADCAmplLSdepth6HEu->Write();
-    h_2DsumADCAmplLSdepth7HEu->Write();
-    h_2D0sumADCAmplLSdepth7HEu->Write();
-    h_2DsumADCAmplLSdepth3HFu->Write();
-    h_2D0sumADCAmplLSdepth3HFu->Write();
-    h_2DsumADCAmplLSdepth4HFu->Write();
-    h_2D0sumADCAmplLSdepth4HFu->Write();
-    // for HB gain stability vs LS:
-    h_2DsumADCAmplLSdepth3HBu->Write();
-    h_2D0sumADCAmplLSdepth3HBu->Write();
-    h_2DsumADCAmplLSdepth4HBu->Write();
-    h_2D0sumADCAmplLSdepth4HBu->Write();
-
-    h_sumADCAmplLS1copy1->Write();
-    h_sumADCAmplLS1copy2->Write();
-    h_sumADCAmplLS1copy3->Write();
-    h_sumADCAmplLS1copy4->Write();
-    h_sumADCAmplLS1copy5->Write();
-    h_sumADCAmplLS1->Write();
-    h_2DsumADCAmplLS1->Write();
-    h_2DsumADCAmplLS1_LSselected->Write();
-    h_sumADCAmplperLS1->Write();
-    h_sumCutADCAmplperLS1->Write();
-    h_2D0sumADCAmplLS1->Write();
-    h_sum0ADCAmplperLS1->Write();
-
-    h_sumADCAmplLS2->Write();
-    h_2DsumADCAmplLS2->Write();
-    h_2DsumADCAmplLS2_LSselected->Write();
-    h_sumADCAmplperLS2->Write();
-    h_sumCutADCAmplperLS2->Write();
-    h_2D0sumADCAmplLS2->Write();
-    h_sum0ADCAmplperLS2->Write();
-
-    h_sumADCAmplLS3->Write();
-    h_2DsumADCAmplLS3->Write();
-    h_2DsumADCAmplLS3_LSselected->Write();
-    h_sumADCAmplperLS3->Write();
-    h_sumCutADCAmplperLS3->Write();
-    h_2D0sumADCAmplLS3->Write();
-    h_sum0ADCAmplperLS3->Write();
-
-    h_sumADCAmplLS4->Write();
-    h_2DsumADCAmplLS4->Write();
-    h_2DsumADCAmplLS4_LSselected->Write();
-    h_sumADCAmplperLS4->Write();
-    h_sumCutADCAmplperLS4->Write();
-    h_2D0sumADCAmplLS4->Write();
-    h_sum0ADCAmplperLS4->Write();
-
-    h_sumADCAmplLS5->Write();
-    h_2DsumADCAmplLS5->Write();
-    h_2DsumADCAmplLS5_LSselected->Write();
-    h_sumADCAmplperLS5->Write();
-    h_sumCutADCAmplperLS5->Write();
-    h_2D0sumADCAmplLS5->Write();
-    h_sum0ADCAmplperLS5->Write();
-
-    h_sumADCAmplLS6->Write();
-    h_2DsumADCAmplLS6->Write();
-    h_2DsumADCAmplLS6_LSselected->Write();
-    h_2D0sumADCAmplLS6->Write();
-    h_sumADCAmplperLS6->Write();
-    h_sumCutADCAmplperLS6->Write();
-    h_sum0ADCAmplperLS6->Write();
-    h_sumADCAmplperLS6u->Write();
-    h_sumCutADCAmplperLS6u->Write();
-    h_sum0ADCAmplperLS6u->Write();
-
-    h_sumADCAmplperLSdepth4HEu->Write();
-    h_sumADCAmplperLSdepth5HEu->Write();
-    h_sumADCAmplperLSdepth6HEu->Write();
-    h_sumADCAmplperLSdepth7HEu->Write();
-    h_sumCutADCAmplperLSdepth4HEu->Write();
-    h_sumCutADCAmplperLSdepth5HEu->Write();
-    h_sumCutADCAmplperLSdepth6HEu->Write();
-    h_sumCutADCAmplperLSdepth7HEu->Write();
-    h_sum0ADCAmplperLSdepth4HEu->Write();
-    h_sum0ADCAmplperLSdepth5HEu->Write();
-    h_sum0ADCAmplperLSdepth6HEu->Write();
-    h_sum0ADCAmplperLSdepth7HEu->Write();
-
-    h_sumADCAmplperLSdepth3HBu->Write();
-    h_sumADCAmplperLSdepth4HBu->Write();
-    h_sumCutADCAmplperLSdepth3HBu->Write();
-    h_sumCutADCAmplperLSdepth4HBu->Write();
-    h_sum0ADCAmplperLSdepth3HBu->Write();
-    h_sum0ADCAmplperLSdepth4HBu->Write();
-
-    h_sumADCAmplperLS1_P1->Write();
-    h_sum0ADCAmplperLS1_P1->Write();
-    h_sumADCAmplperLS1_P2->Write();
-    h_sum0ADCAmplperLS1_P2->Write();
-    h_sumADCAmplperLS1_M1->Write();
-    h_sum0ADCAmplperLS1_M1->Write();
-    h_sumADCAmplperLS1_M2->Write();
-    h_sum0ADCAmplperLS1_M2->Write();
-
-    h_sumADCAmplperLS3_P1->Write();
-    h_sum0ADCAmplperLS3_P1->Write();
-    h_sumADCAmplperLS3_P2->Write();
-    h_sum0ADCAmplperLS3_P2->Write();
-    h_sumADCAmplperLS3_M1->Write();
-    h_sum0ADCAmplperLS3_M1->Write();
-    h_sumADCAmplperLS3_M2->Write();
-    h_sum0ADCAmplperLS3_M2->Write();
-
-    h_sumADCAmplperLS6_P1->Write();
-    h_sum0ADCAmplperLS6_P1->Write();
-    h_sumADCAmplperLS6_P2->Write();
-    h_sum0ADCAmplperLS6_P2->Write();
-    h_sumADCAmplperLS6_M1->Write();
-    h_sum0ADCAmplperLS6_M1->Write();
-    h_sumADCAmplperLS6_M2->Write();
-    h_sum0ADCAmplperLS6_M2->Write();
-
-    h_sumADCAmplperLS8_P1->Write();
-    h_sum0ADCAmplperLS8_P1->Write();
-    h_sumADCAmplperLS8_P2->Write();
-    h_sum0ADCAmplperLS8_P2->Write();
-    h_sumADCAmplperLS8_M1->Write();
-    h_sum0ADCAmplperLS8_M1->Write();
-    h_sumADCAmplperLS8_M2->Write();
-    h_sum0ADCAmplperLS8_M2->Write();
-
-    h_sumADCAmplLS7->Write();
-    h_2DsumADCAmplLS7->Write();
-    h_2DsumADCAmplLS7_LSselected->Write();
-    h_2D0sumADCAmplLS7->Write();
-    h_sumADCAmplperLS7->Write();
-    h_sumCutADCAmplperLS7->Write();
-    h_sum0ADCAmplperLS7->Write();
-    h_sumADCAmplperLS7u->Write();
-    h_sumCutADCAmplperLS7u->Write();
-    h_sum0ADCAmplperLS7u->Write();
-
-    h_sumADCAmplLS8->Write();
-    h_2DsumADCAmplLS8->Write();
-    h_2DsumADCAmplLS8_LSselected->Write();
-    h_sumADCAmplperLS8->Write();
-    h_sumCutADCAmplperLS8->Write();
-    h_2D0sumADCAmplLS8->Write();
-    h_sum0ADCAmplperLS8->Write();
-
-    // for estimator2:
-    h_sumTSmeanALS1->Write();
-    h_2DsumTSmeanALS1->Write();
-    h_sumTSmeanAperLS1->Write();
-    h_sumTSmeanAperLS1_LSselected->Write();
-    h_sumCutTSmeanAperLS1->Write();
-    h_2D0sumTSmeanALS1->Write();
-    h_sum0TSmeanAperLS1->Write();
-
-    h_sumTSmeanALS2->Write();
-    h_2DsumTSmeanALS2->Write();
-    h_sumTSmeanAperLS2->Write();
-    h_sumCutTSmeanAperLS2->Write();
-    h_2D0sumTSmeanALS2->Write();
-    h_sum0TSmeanAperLS2->Write();
-
-    h_sumTSmeanALS3->Write();
-    h_2DsumTSmeanALS3->Write();
-    h_sumTSmeanAperLS3->Write();
-    h_sumCutTSmeanAperLS3->Write();
-    h_2D0sumTSmeanALS3->Write();
-    h_sum0TSmeanAperLS3->Write();
-
-    h_sumTSmeanALS4->Write();
-    h_2DsumTSmeanALS4->Write();
-    h_sumTSmeanAperLS4->Write();
-    h_sumCutTSmeanAperLS4->Write();
-    h_2D0sumTSmeanALS4->Write();
-    h_sum0TSmeanAperLS4->Write();
-
-    h_sumTSmeanALS5->Write();
-    h_2DsumTSmeanALS5->Write();
-    h_sumTSmeanAperLS5->Write();
-    h_sumCutTSmeanAperLS5->Write();
-    h_2D0sumTSmeanALS5->Write();
-    h_sum0TSmeanAperLS5->Write();
-
-    h_sumTSmeanALS6->Write();
-    h_2DsumTSmeanALS6->Write();
-    h_sumTSmeanAperLS6->Write();
-    h_sumCutTSmeanAperLS6->Write();
-    h_2D0sumTSmeanALS6->Write();
-    h_sum0TSmeanAperLS6->Write();
-
-    h_sumTSmeanALS7->Write();
-    h_2DsumTSmeanALS7->Write();
-    h_sumTSmeanAperLS7->Write();
-    h_sumCutTSmeanAperLS7->Write();
-    h_2D0sumTSmeanALS7->Write();
-    h_sum0TSmeanAperLS7->Write();
-
-    h_sumTSmeanALS8->Write();
-    h_2DsumTSmeanALS8->Write();
-    h_sumTSmeanAperLS8->Write();
-    h_sumCutTSmeanAperLS8->Write();
-    h_2D0sumTSmeanALS8->Write();
-    h_sum0TSmeanAperLS8->Write();
-
-    // for estimator3:
-    h_sumTSmaxALS1->Write();
-    h_2DsumTSmaxALS1->Write();
-    h_sumTSmaxAperLS1->Write();
-    h_sumTSmaxAperLS1_LSselected->Write();
-    h_sumCutTSmaxAperLS1->Write();
-    h_2D0sumTSmaxALS1->Write();
-    h_sum0TSmaxAperLS1->Write();
-
-    h_sumTSmaxALS2->Write();
-    h_2DsumTSmaxALS2->Write();
-    h_sumTSmaxAperLS2->Write();
-    h_sumCutTSmaxAperLS2->Write();
-    h_2D0sumTSmaxALS2->Write();
-    h_sum0TSmaxAperLS2->Write();
-
-    h_sumTSmaxALS3->Write();
-    h_2DsumTSmaxALS3->Write();
-    h_sumTSmaxAperLS3->Write();
-    h_sumCutTSmaxAperLS3->Write();
-    h_2D0sumTSmaxALS3->Write();
-    h_sum0TSmaxAperLS3->Write();
-
-    h_sumTSmaxALS4->Write();
-    h_2DsumTSmaxALS4->Write();
-    h_sumTSmaxAperLS4->Write();
-    h_sumCutTSmaxAperLS4->Write();
-    h_2D0sumTSmaxALS4->Write();
-    h_sum0TSmaxAperLS4->Write();
-
-    h_sumTSmaxALS5->Write();
-    h_2DsumTSmaxALS5->Write();
-    h_sumTSmaxAperLS5->Write();
-    h_sumCutTSmaxAperLS5->Write();
-    h_2D0sumTSmaxALS5->Write();
-    h_sum0TSmaxAperLS5->Write();
-
-    h_sumTSmaxALS6->Write();
-    h_2DsumTSmaxALS6->Write();
-    h_sumTSmaxAperLS6->Write();
-    h_sumCutTSmaxAperLS6->Write();
-    h_2D0sumTSmaxALS6->Write();
-    h_sum0TSmaxAperLS6->Write();
-
-    h_sumTSmaxALS7->Write();
-    h_2DsumTSmaxALS7->Write();
-    h_sumTSmaxAperLS7->Write();
-    h_sumCutTSmaxAperLS7->Write();
-    h_2D0sumTSmaxALS7->Write();
-    h_sum0TSmaxAperLS7->Write();
-
-    h_sumTSmaxALS8->Write();
-    h_2DsumTSmaxALS8->Write();
-    h_sumTSmaxAperLS8->Write();
-    h_sumCutTSmaxAperLS8->Write();
-    h_2D0sumTSmaxALS8->Write();
-    h_sum0TSmaxAperLS8->Write();
-
-    // for estimator4:
-    h_sumAmplitudeLS1->Write();
-    h_2DsumAmplitudeLS1->Write();
-    h_sumAmplitudeperLS1->Write();
-    h_sumAmplitudeperLS1_LSselected->Write();
-    h_sumCutAmplitudeperLS1->Write();
-    h_2D0sumAmplitudeLS1->Write();
-    h_sum0AmplitudeperLS1->Write();
-
-    h_sumAmplitudeLS2->Write();
-    h_2DsumAmplitudeLS2->Write();
-    h_sumAmplitudeperLS2->Write();
-    h_sumCutAmplitudeperLS2->Write();
-    h_2D0sumAmplitudeLS2->Write();
-    h_sum0AmplitudeperLS2->Write();
-
-    h_sumAmplitudeLS3->Write();
-    h_2DsumAmplitudeLS3->Write();
-    h_sumAmplitudeperLS3->Write();
-    h_sumCutAmplitudeperLS3->Write();
-    h_2D0sumAmplitudeLS3->Write();
-    h_sum0AmplitudeperLS3->Write();
-
-    h_sumAmplitudeLS4->Write();
-    h_2DsumAmplitudeLS4->Write();
-    h_sumAmplitudeperLS4->Write();
-    h_sumCutAmplitudeperLS4->Write();
-    h_2D0sumAmplitudeLS4->Write();
-    h_sum0AmplitudeperLS4->Write();
-
-    h_sumAmplitudeLS5->Write();
-    h_2DsumAmplitudeLS5->Write();
-    h_sumAmplitudeperLS5->Write();
-    h_sumCutAmplitudeperLS5->Write();
-    h_2D0sumAmplitudeLS5->Write();
-    h_sum0AmplitudeperLS5->Write();
-
-    h_sumAmplitudeLS6->Write();
-    h_2DsumAmplitudeLS6->Write();
-    h_sumAmplitudeperLS6->Write();
-    h_sumCutAmplitudeperLS6->Write();
-    h_2D0sumAmplitudeLS6->Write();
-    h_sum0AmplitudeperLS6->Write();
-
-    h_sumAmplitudeLS7->Write();
-    h_2DsumAmplitudeLS7->Write();
-    h_sumAmplitudeperLS7->Write();
-    h_sumCutAmplitudeperLS7->Write();
-    h_2D0sumAmplitudeLS7->Write();
-    h_sum0AmplitudeperLS7->Write();
-
-    h_sumAmplitudeLS8->Write();
-    h_2DsumAmplitudeLS8->Write();
-    h_sumAmplitudeperLS8->Write();
-    h_sumCutAmplitudeperLS8->Write();
-    h_2D0sumAmplitudeLS8->Write();
-    h_sum0AmplitudeperLS8->Write();
-
-    // for estimator6:
-    h_sumErrorBLS1->Write();
-    h_sumErrorBperLS1->Write();
-    h_sum0ErrorBperLS1->Write();
-    h_2D0sumErrorBLS1->Write();
-    h_2DsumErrorBLS1->Write();
-    h_sumErrorBLS2->Write();
-    h_sumErrorBperLS2->Write();
-    h_sum0ErrorBperLS2->Write();
-    h_2D0sumErrorBLS2->Write();
-    h_2DsumErrorBLS2->Write();
-
-    h_sumErrorBLS3->Write();
-    h_sumErrorBperLS3->Write();
-    h_sum0ErrorBperLS3->Write();
-    h_2D0sumErrorBLS3->Write();
-    h_2DsumErrorBLS3->Write();
-    h_sumErrorBLS4->Write();
-    h_sumErrorBperLS4->Write();
-    h_sum0ErrorBperLS4->Write();
-    h_2D0sumErrorBLS4->Write();
-    h_2DsumErrorBLS4->Write();
-    h_sumErrorBLS5->Write();
-    h_sumErrorBperLS5->Write();
-    h_sum0ErrorBperLS5->Write();
-    h_2D0sumErrorBLS5->Write();
-    h_2DsumErrorBLS5->Write();
-
-    h_sumErrorBLS6->Write();
-    h_sumErrorBperLS6->Write();
-    h_sum0ErrorBperLS6->Write();
-    h_2D0sumErrorBLS6->Write();
-    h_2DsumErrorBLS6->Write();
-    h_sumErrorBLS7->Write();
-    h_sumErrorBperLS7->Write();
-    h_sum0ErrorBperLS7->Write();
-    h_2D0sumErrorBLS7->Write();
-    h_2DsumErrorBLS7->Write();
-
-    h_sumErrorBLS8->Write();
-    h_sumErrorBperLS8->Write();
-    h_sum0ErrorBperLS8->Write();
-    h_2D0sumErrorBLS8->Write();
-    h_2DsumErrorBLS8->Write();
-
-    // for estimator5:
-    h_sumAmplLS1->Write();
-    h_2DsumAmplLS1->Write();
-    h_sumAmplperLS1->Write();
-    h_sumAmplperLS1_LSselected->Write();
-    h_sumCutAmplperLS1->Write();
-    h_2D0sumAmplLS1->Write();
-    h_sum0AmplperLS1->Write();
-
-    h_sumAmplLS2->Write();
-    h_2DsumAmplLS2->Write();
-    h_sumAmplperLS2->Write();
-    h_sumCutAmplperLS2->Write();
-    h_2D0sumAmplLS2->Write();
-    h_sum0AmplperLS2->Write();
-
-    h_sumAmplLS3->Write();
-    h_2DsumAmplLS3->Write();
-    h_sumAmplperLS3->Write();
-    h_sumCutAmplperLS3->Write();
-    h_2D0sumAmplLS3->Write();
-    h_sum0AmplperLS3->Write();
-
-    h_sumAmplLS4->Write();
-    h_2DsumAmplLS4->Write();
-    h_sumAmplperLS4->Write();
-    h_sumCutAmplperLS4->Write();
-    h_2D0sumAmplLS4->Write();
-    h_sum0AmplperLS4->Write();
-
-    h_sumAmplLS5->Write();
-    h_2DsumAmplLS5->Write();
-    h_sumAmplperLS5->Write();
-    h_sumCutAmplperLS5->Write();
-    h_2D0sumAmplLS5->Write();
-    h_sum0AmplperLS5->Write();
-
-    h_sumAmplLS6->Write();
-    h_2DsumAmplLS6->Write();
-    h_sumAmplperLS6->Write();
-    h_sumCutAmplperLS6->Write();
-    h_2D0sumAmplLS6->Write();
-    h_sum0AmplperLS6->Write();
-
-    h_RatioOccupancy_HBP->Write();
-    h_RatioOccupancy_HBM->Write();
-    h_RatioOccupancy_HEP->Write();
-    h_RatioOccupancy_HEM->Write();
-    h_RatioOccupancy_HOP->Write();
-    h_RatioOccupancy_HOM->Write();
-    h_RatioOccupancy_HFP->Write();
-    h_RatioOccupancy_HFM->Write();
-
-    h_sumAmplLS7->Write();
-    h_2DsumAmplLS7->Write();
-    h_sumAmplperLS7->Write();
-    h_sumCutAmplperLS7->Write();
-    h_2D0sumAmplLS7->Write();
-    h_sum0AmplperLS7->Write();
-
-    h_sumAmplLS8->Write();
-    h_2DsumAmplLS8->Write();
-    h_sumAmplperLS8->Write();
-    h_sumCutAmplperLS8->Write();
-    h_2D0sumAmplLS8->Write();
-    h_sum0AmplperLS8->Write();
-
-    h_pedestal0_HB->Write();
-    h_pedestal1_HB->Write();
-    h_pedestal2_HB->Write();
-    h_pedestal3_HB->Write();
-    h_pedestalaver4_HB->Write();
-    h_pedestalaver9_HB->Write();
-    h_pedestalw0_HB->Write();
-    h_pedestalw1_HB->Write();
-    h_pedestalw2_HB->Write();
-    h_pedestalw3_HB->Write();
-    h_pedestalwaver4_HB->Write();
-    h_pedestalwaver9_HB->Write();
-
-    h_pedestal0_HE->Write();
-    h_pedestal1_HE->Write();
-    h_pedestal2_HE->Write();
-    h_pedestal3_HE->Write();
-    h_pedestalaver4_HE->Write();
-    h_pedestalaver9_HE->Write();
-    h_pedestalw0_HE->Write();
-    h_pedestalw1_HE->Write();
-    h_pedestalw2_HE->Write();
-    h_pedestalw3_HE->Write();
-    h_pedestalwaver4_HE->Write();
-    h_pedestalwaver9_HE->Write();
-
-    h_pedestal0_HF->Write();
-    h_pedestal1_HF->Write();
-    h_pedestal2_HF->Write();
-    h_pedestal3_HF->Write();
-    h_pedestalaver4_HF->Write();
-    h_pedestalaver9_HF->Write();
-    h_pedestalw0_HF->Write();
-    h_pedestalw1_HF->Write();
-    h_pedestalw2_HF->Write();
-    h_pedestalw3_HF->Write();
-    h_pedestalwaver4_HF->Write();
-    h_pedestalwaver9_HF->Write();
-
-    h_pedestal0_HO->Write();
-    h_pedestal1_HO->Write();
-    h_pedestal2_HO->Write();
-    h_pedestal3_HO->Write();
-    h_pedestalaver4_HO->Write();
-    h_pedestalaver9_HO->Write();
-    h_pedestalw0_HO->Write();
-    h_pedestalw1_HO->Write();
-    h_pedestalw2_HO->Write();
-    h_pedestalw3_HO->Write();
-    h_pedestalwaver4_HO->Write();
-    h_pedestalwaver9_HO->Write();
-
-    h_mapDepth1pedestalw_HB->Write();
-    h_mapDepth2pedestalw_HB->Write();
-    h_mapDepth3pedestalw_HB->Write();
-    h_mapDepth4pedestalw_HB->Write();
-    h_mapDepth1pedestalw_HE->Write();
-    h_mapDepth2pedestalw_HE->Write();
-    h_mapDepth3pedestalw_HE->Write();
-    h_mapDepth4pedestalw_HE->Write();
-    h_mapDepth5pedestalw_HE->Write();
-    h_mapDepth6pedestalw_HE->Write();
-    h_mapDepth7pedestalw_HE->Write();
-    h_mapDepth1pedestalw_HF->Write();
-    h_mapDepth2pedestalw_HF->Write();
-    h_mapDepth3pedestalw_HF->Write();
-    h_mapDepth4pedestalw_HF->Write();
-    h_mapDepth4pedestalw_HO->Write();
-
-    h_mapDepth1pedestal_HB->Write();
-    h_mapDepth2pedestal_HB->Write();
-    h_mapDepth3pedestal_HB->Write();
-    h_mapDepth4pedestal_HB->Write();
-    h_mapDepth1pedestal_HE->Write();
-    h_mapDepth2pedestal_HE->Write();
-    h_mapDepth3pedestal_HE->Write();
-    h_mapDepth4pedestal_HE->Write();
-    h_mapDepth5pedestal_HE->Write();
-    h_mapDepth6pedestal_HE->Write();
-    h_mapDepth7pedestal_HE->Write();
-    h_mapDepth1pedestal_HF->Write();
-    h_mapDepth2pedestal_HF->Write();
-    h_mapDepth3pedestal_HF->Write();
-    h_mapDepth4pedestal_HF->Write();
-    h_mapDepth4pedestal_HO->Write();
-
-    h_pedestal00_HB->Write();
-    h_gain_HB->Write();
-    h_respcorr_HB->Write();
-    h_timecorr_HB->Write();
-    h_lutcorr_HB->Write();
-    h_difpedestal0_HB->Write();
-    h_difpedestal1_HB->Write();
-    h_difpedestal2_HB->Write();
-    h_difpedestal3_HB->Write();
-
-    h_pedestal00_HE->Write();
-    h_gain_HE->Write();
-    h_respcorr_HE->Write();
-    h_timecorr_HE->Write();
-    h_lutcorr_HE->Write();
-
-    h_pedestal00_HF->Write();
-    h_gain_HF->Write();
-    h_respcorr_HF->Write();
-    h_timecorr_HF->Write();
-    h_lutcorr_HF->Write();
-
-    h_pedestal00_HO->Write();
-    h_gain_HO->Write();
-    h_respcorr_HO->Write();
-    h_timecorr_HO->Write();
-    h_lutcorr_HO->Write();
-
-    h2_pedvsampl_HB->Write();
-    h2_pedwvsampl_HB->Write();
-    h_pedvsampl_HB->Write();
-    h_pedwvsampl_HB->Write();
-    h_pedvsampl0_HB->Write();
-    h_pedwvsampl0_HB->Write();
-    h2_amplvsped_HB->Write();
-    h2_amplvspedw_HB->Write();
-    h_amplvsped_HB->Write();
-    h_amplvspedw_HB->Write();
-    h_amplvsped0_HB->Write();
-
-    h2_pedvsampl_HE->Write();
-    h2_pedwvsampl_HE->Write();
-    h_pedvsampl_HE->Write();
-    h_pedwvsampl_HE->Write();
-    h_pedvsampl0_HE->Write();
-    h_pedwvsampl0_HE->Write();
-    h2_pedvsampl_HF->Write();
-    h2_pedwvsampl_HF->Write();
-    h_pedvsampl_HF->Write();
-    h_pedwvsampl_HF->Write();
-    h_pedvsampl0_HF->Write();
-    h_pedwvsampl0_HF->Write();
-    h2_pedvsampl_HO->Write();
-    h2_pedwvsampl_HO->Write();
-    h_pedvsampl_HO->Write();
-    h_pedwvsampl_HO->Write();
-    h_pedvsampl0_HO->Write();
-    h_pedwvsampl0_HO->Write();
-
-    h_mapDepth1Ped0_HB->Write();
-    h_mapDepth1Ped1_HB->Write();
-    h_mapDepth1Ped2_HB->Write();
-    h_mapDepth1Ped3_HB->Write();
-    h_mapDepth1Pedw0_HB->Write();
-    h_mapDepth1Pedw1_HB->Write();
-    h_mapDepth1Pedw2_HB->Write();
-    h_mapDepth1Pedw3_HB->Write();
-    h_mapDepth2Ped0_HB->Write();
-    h_mapDepth2Ped1_HB->Write();
-    h_mapDepth2Ped2_HB->Write();
-    h_mapDepth2Ped3_HB->Write();
-    h_mapDepth2Pedw0_HB->Write();
-    h_mapDepth2Pedw1_HB->Write();
-    h_mapDepth2Pedw2_HB->Write();
-    h_mapDepth2Pedw3_HB->Write();
-
-    h_mapDepth1Ped0_HE->Write();
-    h_mapDepth1Ped1_HE->Write();
-    h_mapDepth1Ped2_HE->Write();
-    h_mapDepth1Ped3_HE->Write();
-    h_mapDepth1Pedw0_HE->Write();
-    h_mapDepth1Pedw1_HE->Write();
-    h_mapDepth1Pedw2_HE->Write();
-    h_mapDepth1Pedw3_HE->Write();
-    h_mapDepth2Ped0_HE->Write();
-    h_mapDepth2Ped1_HE->Write();
-    h_mapDepth2Ped2_HE->Write();
-    h_mapDepth2Ped3_HE->Write();
-    h_mapDepth2Pedw0_HE->Write();
-    h_mapDepth2Pedw1_HE->Write();
-    h_mapDepth2Pedw2_HE->Write();
-    h_mapDepth2Pedw3_HE->Write();
-    h_mapDepth3Ped0_HE->Write();
-    h_mapDepth3Ped1_HE->Write();
-    h_mapDepth3Ped2_HE->Write();
-    h_mapDepth3Ped3_HE->Write();
-    h_mapDepth3Pedw0_HE->Write();
-    h_mapDepth3Pedw1_HE->Write();
-    h_mapDepth3Pedw2_HE->Write();
-    h_mapDepth3Pedw3_HE->Write();
-
-    h_mapDepth1Ped0_HF->Write();
-    h_mapDepth1Ped1_HF->Write();
-    h_mapDepth1Ped2_HF->Write();
-    h_mapDepth1Ped3_HF->Write();
-    h_mapDepth1Pedw0_HF->Write();
-    h_mapDepth1Pedw1_HF->Write();
-    h_mapDepth1Pedw2_HF->Write();
-    h_mapDepth1Pedw3_HF->Write();
-    h_mapDepth2Ped0_HF->Write();
-    h_mapDepth2Ped1_HF->Write();
-    h_mapDepth2Ped2_HF->Write();
-    h_mapDepth2Ped3_HF->Write();
-    h_mapDepth2Pedw0_HF->Write();
-    h_mapDepth2Pedw1_HF->Write();
-    h_mapDepth2Pedw2_HF->Write();
-    h_mapDepth2Pedw3_HF->Write();
-
-    h_mapDepth4Ped0_HO->Write();
-    h_mapDepth4Ped1_HO->Write();
-    h_mapDepth4Ped2_HO->Write();
-    h_mapDepth4Ped3_HO->Write();
-    h_mapDepth4Pedw0_HO->Write();
-    h_mapDepth4Pedw1_HO->Write();
-    h_mapDepth4Pedw2_HO->Write();
-    h_mapDepth4Pedw3_HO->Write();
-
-    h_mapGetRMSOverNormalizedSignal_HB->Write();
-    h_mapGetRMSOverNormalizedSignal0_HB->Write();
-    h_mapGetRMSOverNormalizedSignal_HE->Write();
-    h_mapGetRMSOverNormalizedSignal0_HE->Write();
-    h_mapGetRMSOverNormalizedSignal_HF->Write();
-    h_mapGetRMSOverNormalizedSignal0_HF->Write();
-    h_mapGetRMSOverNormalizedSignal_HO->Write();
-    h_mapGetRMSOverNormalizedSignal0_HO->Write();
-
-    h_shape_Ahigh_HB0->Write();
-    h_shape0_Ahigh_HB0->Write();
-    h_shape_Alow_HB0->Write();
-    h_shape0_Alow_HB0->Write();
-    h_shape_Ahigh_HB1->Write();
-    h_shape0_Ahigh_HB1->Write();
-    h_shape_Alow_HB1->Write();
-    h_shape0_Alow_HB1->Write();
-    h_shape_Ahigh_HB2->Write();
-    h_shape0_Ahigh_HB2->Write();
-    h_shape_Alow_HB2->Write();
-    h_shape0_Alow_HB2->Write();
-    h_shape_Ahigh_HB3->Write();
-    h_shape0_Ahigh_HB3->Write();
-    h_shape_Alow_HB3->Write();
-    h_shape0_Alow_HB3->Write();
-
-    h_shape_bad_channels_HB->Write();
-    h_shape0_bad_channels_HB->Write();
-    h_shape_good_channels_HB->Write();
-    h_shape0_good_channels_HB->Write();
-    h_shape_bad_channels_HE->Write();
-    h_shape0_bad_channels_HE->Write();
-    h_shape_good_channels_HE->Write();
-    h_shape0_good_channels_HE->Write();
-    h_shape_bad_channels_HF->Write();
-    h_shape0_bad_channels_HF->Write();
-    h_shape_good_channels_HF->Write();
-    h_shape0_good_channels_HF->Write();
-    h_shape_bad_channels_HO->Write();
-    h_shape0_bad_channels_HO->Write();
-    h_shape_good_channels_HO->Write();
-    h_shape0_good_channels_HO->Write();
-
-    h_sumamplitude_depth1_HB->Write();
-    h_sumamplitude_depth2_HB->Write();
-    h_sumamplitude_depth1_HE->Write();
-    h_sumamplitude_depth2_HE->Write();
-    h_sumamplitude_depth3_HE->Write();
-    h_sumamplitude_depth1_HF->Write();
-    h_sumamplitude_depth2_HF->Write();
-    h_sumamplitude_depth4_HO->Write();
-
-    h_sumamplitude_depth1_HB0->Write();
-    h_sumamplitude_depth2_HB0->Write();
-    h_sumamplitude_depth1_HE0->Write();
-    h_sumamplitude_depth2_HE0->Write();
-    h_sumamplitude_depth3_HE0->Write();
-    h_sumamplitude_depth1_HF0->Write();
-    h_sumamplitude_depth2_HF0->Write();
-    h_sumamplitude_depth4_HO0->Write();
-
-    h_sumamplitude_depth1_HB1->Write();
-    h_sumamplitude_depth2_HB1->Write();
-    h_sumamplitude_depth1_HE1->Write();
-    h_sumamplitude_depth2_HE1->Write();
-    h_sumamplitude_depth3_HE1->Write();
-    h_sumamplitude_depth1_HF1->Write();
-    h_sumamplitude_depth2_HF1->Write();
-    h_sumamplitude_depth4_HO1->Write();
-    h_bcnnbadchannels_depth1_HB->Write();
-    h_bcnnbadchannels_depth2_HB->Write();
-    h_bcnnbadchannels_depth1_HE->Write();
-    h_bcnnbadchannels_depth2_HE->Write();
-    h_bcnnbadchannels_depth3_HE->Write();
-    h_bcnnbadchannels_depth4_HO->Write();
-    h_bcnnbadchannels_depth1_HF->Write();
-    h_bcnnbadchannels_depth2_HF->Write();
-    h_bcnbadrate0_depth1_HB->Write();
-    h_bcnbadrate0_depth2_HB->Write();
-    h_bcnbadrate0_depth1_HE->Write();
-    h_bcnbadrate0_depth2_HE->Write();
-    h_bcnbadrate0_depth3_HE->Write();
-    h_bcnbadrate0_depth4_HO->Write();
-    h_bcnbadrate0_depth1_HF->Write();
-    h_bcnbadrate0_depth2_HF->Write();
-
-    h_Amplitude_forCapIdErrors_HB1->Write();
-    h_Amplitude_forCapIdErrors_HB2->Write();
-    h_Amplitude_forCapIdErrors_HE1->Write();
-    h_Amplitude_forCapIdErrors_HE2->Write();
-    h_Amplitude_forCapIdErrors_HE3->Write();
-    h_Amplitude_forCapIdErrors_HF1->Write();
-    h_Amplitude_forCapIdErrors_HF2->Write();
-    h_Amplitude_forCapIdErrors_HO4->Write();
-
-    h_Amplitude_notCapIdErrors_HB1->Write();
-    h_Amplitude_notCapIdErrors_HB2->Write();
-    h_Amplitude_notCapIdErrors_HE1->Write();
-    h_Amplitude_notCapIdErrors_HE2->Write();
-    h_Amplitude_notCapIdErrors_HE3->Write();
-    h_Amplitude_notCapIdErrors_HF1->Write();
-    h_Amplitude_notCapIdErrors_HF2->Write();
-    h_Amplitude_notCapIdErrors_HO4->Write();
-
-    h_averSIGNALoccupancy_HB->Write();
-    h_averSIGNALoccupancy_HE->Write();
-    h_averSIGNALoccupancy_HF->Write();
-    h_averSIGNALoccupancy_HO->Write();
-
-    h_averSIGNALsumamplitude_HB->Write();
-    h_averSIGNALsumamplitude_HE->Write();
-    h_averSIGNALsumamplitude_HF->Write();
-    h_averSIGNALsumamplitude_HO->Write();
-
-    h_averNOSIGNALoccupancy_HB->Write();
-    h_averNOSIGNALoccupancy_HE->Write();
-    h_averNOSIGNALoccupancy_HF->Write();
-    h_averNOSIGNALoccupancy_HO->Write();
-
-    h_averNOSIGNALsumamplitude_HB->Write();
-    h_averNOSIGNALsumamplitude_HE->Write();
-    h_averNOSIGNALsumamplitude_HF->Write();
-    h_averNOSIGNALsumamplitude_HO->Write();
-
-    h_maxxSUMAmpl_HB->Write();
-    h_maxxSUMAmpl_HE->Write();
-    h_maxxSUMAmpl_HF->Write();
-    h_maxxSUMAmpl_HO->Write();
-
-    h_maxxOCCUP_HB->Write();
-    h_maxxOCCUP_HE->Write();
-    h_maxxOCCUP_HF->Write();
-    h_maxxOCCUP_HO->Write();
-
-    h_sumamplitudechannel_HB->Write();
-    h_sumamplitudechannel_HE->Write();
-    h_sumamplitudechannel_HF->Write();
-    h_sumamplitudechannel_HO->Write();
-
-    h_eventamplitude_HB->Write();
-    h_eventamplitude_HE->Write();
-    h_eventamplitude_HF->Write();
-    h_eventamplitude_HO->Write();
-
-    h_eventoccupancy_HB->Write();
-    h_eventoccupancy_HE->Write();
-    h_eventoccupancy_HF->Write();
-    h_eventoccupancy_HO->Write();
-
-    h_2DAtaildepth1_HB->Write();
-    h_2D0Ataildepth1_HB->Write();
-    h_2DAtaildepth2_HB->Write();
-    h_2D0Ataildepth2_HB->Write();
-
-    h_mapenophinorm_HE1->Write();
-    h_mapenophinorm_HE2->Write();
-    h_mapenophinorm_HE3->Write();
-    h_mapenophinorm_HE4->Write();
-    h_mapenophinorm_HE5->Write();
-    h_mapenophinorm_HE6->Write();
-    h_mapenophinorm_HE7->Write();
-    h_mapenophinorm2_HE1->Write();
-    h_mapenophinorm2_HE2->Write();
-    h_mapenophinorm2_HE3->Write();
-    h_mapenophinorm2_HE4->Write();
-    h_mapenophinorm2_HE5->Write();
-    h_mapenophinorm2_HE6->Write();
-    h_mapenophinorm2_HE7->Write();
-
-    h_maprphinorm_HE1->Write();
-    h_maprphinorm_HE2->Write();
-    h_maprphinorm_HE3->Write();
-    h_maprphinorm_HE4->Write();
-    h_maprphinorm_HE5->Write();
-    h_maprphinorm_HE6->Write();
-    h_maprphinorm_HE7->Write();
-    h_maprphinorm2_HE1->Write();
-    h_maprphinorm2_HE2->Write();
-    h_maprphinorm2_HE3->Write();
-    h_maprphinorm2_HE4->Write();
-    h_maprphinorm2_HE5->Write();
-    h_maprphinorm2_HE6->Write();
-    h_maprphinorm2_HE7->Write();
-
-    h_maprphinorm0_HE1->Write();
-    h_maprphinorm0_HE2->Write();
-    h_maprphinorm0_HE3->Write();
-    h_maprphinorm0_HE4->Write();
-    h_maprphinorm0_HE5->Write();
-    h_maprphinorm0_HE6->Write();
-    h_maprphinorm0_HE7->Write();
-
-    //// phi-symmetry phy-symmetry:
-    h_energyhitSignal_HB->Write();
-    h_energyhitSignal_HE->Write();
-    h_energyhitSignal_HF->Write();
-    h_energyhitNoise_HB->Write();
-    h_energyhitNoise_HE->Write();
-    h_energyhitNoise_HF->Write();
-    //HB
-    h_recSignalEnergy0_HB1->Write();
-    h_recSignalEnergy1_HB1->Write();
-    h_recSignalEnergy2_HB1->Write();
-    h_recSignalEnergy0_HB2->Write();
-    h_recSignalEnergy1_HB2->Write();
-    h_recSignalEnergy2_HB2->Write();
-    h_recSignalEnergy0_HB3->Write();
-    h_recSignalEnergy1_HB3->Write();
-    h_recSignalEnergy2_HB3->Write();
-    h_recSignalEnergy0_HB4->Write();
-    h_recSignalEnergy1_HB4->Write();
-    h_recSignalEnergy2_HB4->Write();
-
-    h_recNoiseEnergy0_HB1->Write();
-    h_recNoiseEnergy1_HB1->Write();
-    h_recNoiseEnergy2_HB1->Write();
-    h_recNoiseEnergy0_HB2->Write();
-    h_recNoiseEnergy1_HB2->Write();
-    h_recNoiseEnergy2_HB2->Write();
-    h_recNoiseEnergy0_HB3->Write();
-    h_recNoiseEnergy1_HB3->Write();
-    h_recNoiseEnergy2_HB3->Write();
-    h_recNoiseEnergy0_HB4->Write();
-    h_recNoiseEnergy1_HB4->Write();
-    h_recNoiseEnergy2_HB4->Write();
-
-    //HE
-    h_recSignalEnergy0_HE1->Write();
-    h_recSignalEnergy1_HE1->Write();
-    h_recSignalEnergy2_HE1->Write();
-    h_recSignalEnergy0_HE2->Write();
-    h_recSignalEnergy1_HE2->Write();
-    h_recSignalEnergy2_HE2->Write();
-    h_recSignalEnergy0_HE3->Write();
-    h_recSignalEnergy1_HE3->Write();
-    h_recSignalEnergy2_HE3->Write();
-    h_recSignalEnergy0_HE4->Write();
-    h_recSignalEnergy1_HE4->Write();
-    h_recSignalEnergy2_HE4->Write();
-    h_recSignalEnergy0_HE5->Write();
-    h_recSignalEnergy1_HE5->Write();
-    h_recSignalEnergy2_HE5->Write();
-    h_recSignalEnergy0_HE6->Write();
-    h_recSignalEnergy1_HE6->Write();
-    h_recSignalEnergy2_HE6->Write();
-    h_recSignalEnergy0_HE7->Write();
-    h_recSignalEnergy1_HE7->Write();
-    h_recSignalEnergy2_HE7->Write();
-
-    h_recNoiseEnergy0_HE1->Write();
-    h_recNoiseEnergy1_HE1->Write();
-    h_recNoiseEnergy2_HE1->Write();
-    h_recNoiseEnergy0_HE2->Write();
-    h_recNoiseEnergy1_HE2->Write();
-    h_recNoiseEnergy2_HE2->Write();
-    h_recNoiseEnergy0_HE3->Write();
-    h_recNoiseEnergy1_HE3->Write();
-    h_recNoiseEnergy2_HE3->Write();
-    h_recNoiseEnergy0_HE4->Write();
-    h_recNoiseEnergy1_HE4->Write();
-    h_recNoiseEnergy2_HE4->Write();
-    h_recNoiseEnergy0_HE5->Write();
-    h_recNoiseEnergy1_HE5->Write();
-    h_recNoiseEnergy2_HE5->Write();
-    h_recNoiseEnergy0_HE6->Write();
-    h_recNoiseEnergy1_HE6->Write();
-    h_recNoiseEnergy2_HE6->Write();
-    h_recNoiseEnergy0_HE7->Write();
-    h_recNoiseEnergy1_HE7->Write();
-    h_recNoiseEnergy2_HE7->Write();
-
-    //HF
-    h_recSignalEnergy0_HF1->Write();
-    h_recSignalEnergy1_HF1->Write();
-    h_recSignalEnergy2_HF1->Write();
-    h_recSignalEnergy0_HF2->Write();
-    h_recSignalEnergy1_HF2->Write();
-    h_recSignalEnergy2_HF2->Write();
-
-    h_recNoiseEnergy0_HF1->Write();
-    h_recNoiseEnergy1_HF1->Write();
-    h_recNoiseEnergy2_HF1->Write();
-    h_recNoiseEnergy0_HF2->Write();
-    h_recNoiseEnergy1_HF2->Write();
-    h_recNoiseEnergy2_HF2->Write();
-
-    // Digi as Reco:
-    //HB:
-    h_amplitudechannel0_HB1->Write();
-    h_amplitudechannel1_HB1->Write();
-    h_amplitudechannel2_HB1->Write();
-    h_amplitudechannel0_HB2->Write();
-    h_amplitudechannel1_HB2->Write();
-    h_amplitudechannel2_HB2->Write();
-    h_amplitudechannel0_HB3->Write();
-    h_amplitudechannel1_HB3->Write();
-    h_amplitudechannel2_HB3->Write();
-    h_amplitudechannel0_HB4->Write();
-    h_amplitudechannel1_HB4->Write();
-    h_amplitudechannel2_HB4->Write();
-
-    h_amplitudechannel0_HE1->Write();
-    h_amplitudechannel1_HE1->Write();
-    h_amplitudechannel2_HE1->Write();
-    h_amplitudechannel0_HE2->Write();
-    h_amplitudechannel1_HE2->Write();
-    h_amplitudechannel2_HE2->Write();
-    h_amplitudechannel0_HE3->Write();
-    h_amplitudechannel1_HE3->Write();
-    h_amplitudechannel2_HE3->Write();
-    h_amplitudechannel0_HE4->Write();
-    h_amplitudechannel1_HE4->Write();
-    h_amplitudechannel2_HE4->Write();
-    h_amplitudechannel0_HE5->Write();
-    h_amplitudechannel1_HE5->Write();
-    h_amplitudechannel2_HE5->Write();
-    h_amplitudechannel0_HE6->Write();
-    h_amplitudechannel1_HE6->Write();
-    h_amplitudechannel2_HE6->Write();
-    h_amplitudechannel0_HE7->Write();
-    h_amplitudechannel1_HE7->Write();
-    h_amplitudechannel2_HE7->Write();
-
-    h_amplitudechannel0_HF1->Write();
-    h_amplitudechannel1_HF1->Write();
-    h_amplitudechannel2_HF1->Write();
-    h_amplitudechannel0_HF2->Write();
-    h_amplitudechannel1_HF2->Write();
-    h_amplitudechannel2_HF2->Write();
-    h_amplitudechannel0_HF3->Write();
-    h_amplitudechannel1_HF3->Write();
-    h_amplitudechannel2_HF3->Write();
-    h_amplitudechannel0_HF4->Write();
-    h_amplitudechannel1_HF4->Write();
-    h_amplitudechannel2_HF4->Write();
-
-    // RADDAM:
-    h_mapDepth1RADDAM_HE->Write();
-    h_mapDepth2RADDAM_HE->Write();
-    h_mapDepth3RADDAM_HE->Write();
-    h_mapDepth1RADDAM0_HE->Write();
-    h_mapDepth2RADDAM0_HE->Write();
-    h_mapDepth3RADDAM0_HE->Write();
-    h_AamplitudewithPedSubtr_RADDAM_HE->Write();
-    h_AamplitudewithPedSubtr_RADDAM_HEzoom0->Write();
-    h_AamplitudewithPedSubtr_RADDAM_HEzoom1->Write();
-    h_A_Depth1RADDAM_HE->Write();
-    h_A_Depth2RADDAM_HE->Write();
-    h_A_Depth3RADDAM_HE->Write();
-    h_sumphiEta16Depth3RADDAM_HED2->Write();
-    h_Eta16Depth3RADDAM_HED2->Write();
-    h_NphiForEta16Depth3RADDAM_HED2->Write();
-    h_sumphiEta16Depth3RADDAM_HED2P->Write();
-    h_Eta16Depth3RADDAM_HED2P->Write();
-    h_NphiForEta16Depth3RADDAM_HED2P->Write();
-    h_sumphiEta16Depth3RADDAM_HED2ALL->Write();
-    h_Eta16Depth3RADDAM_HED2ALL->Write();
-    h_NphiForEta16Depth3RADDAM_HED2ALL->Write();
-    h_sigLayer1RADDAM_HE->Write();
-    h_sigLayer2RADDAM_HE->Write();
-    h_sigLayer1RADDAM0_HE->Write();
-    h_sigLayer2RADDAM0_HE->Write();
-    h_sigLayer1RADDAM5_HE->Write();
-    h_sigLayer2RADDAM5_HE->Write();
-    h_sigLayer1RADDAM6_HE->Write();
-    h_sigLayer2RADDAM6_HE->Write();
-    h_sigLayer1RADDAM5_HED2->Write();
-    h_sigLayer1RADDAM6_HED2->Write();
-    h_sigLayer2RADDAM5_HED2->Write();
-    h_sigLayer2RADDAM6_HED2->Write();
-    h_mapDepth3RADDAM16_HE->Write();
-
-    h_amplitudeaveragedbydepthes_HE->Write();
-    h_ndepthesperamplitudebins_HE->Write();
-    ///////////////////////
-  }  //if
-  ///////////////////////
-  hOutputFile->Close();
-  std::cout << "===== Finish writing user histograms and ntuple =====" << std::endl;
-  ///////////////////////
 }
 //
 
 //
 //
-CMTRawAnalyzer::CMTRawAnalyzer(const edm::ParameterSet& iConfig) {
+CMTRawAnalyzer::CMTRawAnalyzer(const edm::ParameterSet& iConfig)
+    : tokDB_(esConsumes<HcalDbService, HcalDbRecord>()),
+      tokTopo_(edm::ESGetToken<HcalTopology, HcalRecNumberingRecord>()) {
+  usesResource(TFileService::kSharedResource);
   verbosity = iConfig.getUntrackedParameter<int>("Verbosity");
   MAPcreation = iConfig.getUntrackedParameter<int>("MapCreation");
   recordNtuples_ = iConfig.getUntrackedParameter<bool>("recordNtuples");
@@ -3956,10 +2661,9 @@ CMTRawAnalyzer::CMTRawAnalyzer(const edm::ParameterSet& iConfig) {
 }
 CMTRawAnalyzer::~CMTRawAnalyzer() {}
 void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<HcalDbRecord>().get(conditions);
-  iSetup.get<HcalRecNumberingRecord>().get(topo_);
+  conditions = &iSetup.getData(tokDB_);
+  topo = &iSetup.getData(tokTopo_);
   if (MAPcreation > 0) {
-    topo = &*topo_;
     if (flagupgradeqie1011_ == 1)
       fillMAP();
     MAPcreation = 0;
@@ -3981,18 +2685,19 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       ++runcounter;
       if (runcounter != 1) {
         nevcounter00 = eventcounter;
-        cout << " --------------------------------------- " << endl;
-        cout << " for Run = " << run0 << " with runcounter = " << runcounter - 1 << " #ev = " << eventcounter << endl;
-        cout << " #LS =  " << lscounterrun << " #LS10 =  " << lscounterrun10 << " Last LS =  " << ls0 << endl;
-        cout << " --------------------------------------------- " << endl;
+        std::cout << " --------------------------------------- " << std::endl;
+        std::cout << " for Run = " << run0 << " with runcounter = " << runcounter - 1 << " #ev = " << eventcounter
+                  << std::endl;
+        std::cout << " #LS =  " << lscounterrun << " #LS10 =  " << lscounterrun10 << " Last LS =  " << ls0 << std::endl;
+        std::cout << " --------------------------------------------- " << std::endl;
         h_nls_per_run->Fill(float(lscounterrun));
         h_nls_per_run10->Fill(float(lscounterrun10));
         lscounterrun = 0;
         lscounterrun10 = 0;
       }  // runcounter > 1
-      cout << " ---------***********************------------- " << endl;
-      cout << " New Run =  " << Run << " runcounter =  " << runcounter << endl;
-      cout << " ------- " << endl;
+      std::cout << " ---------***********************------------- " << std::endl;
+      std::cout << " New Run =  " << Run << " runcounter =  " << runcounter << std::endl;
+      std::cout << " ------- " << std::endl;
       run0 = Run;
       eventcounter = 0;
       ls0 = -1;
@@ -5463,7 +4168,8 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         gotHFDigis = false;
       }  //if it is not there, leave it false
       if (!gotHFDigis) {
-        cout << " ******************************  ===========================   No HFDigiCollection found " << endl;
+        std::cout << " ******************************  ===========================   No HFDigiCollection found "
+                  << std::endl;
       } else {
         ////////////////////////////////////////////////////////////////////   qie8   QIE8 :
         for (HFDigiCollection::const_iterator digi = hf->begin(); digi != hf->end(); digi++) {
@@ -5513,7 +4219,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         gotQIE10Digis = false;
       }  //if it is not there, leave it false
       if (!gotQIE10Digis) {
-        cout << " No QIE10DigiCollection collection is found " << endl;
+        std::cout << " No QIE10DigiCollection collection is found " << std::endl;
       } else {
         ////////////////////////////////////////////////////////////////////   qie10   QIE10 :
         double totalAmplitudeHF = 0.;
@@ -5584,7 +4290,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (!(hbhe.isValid()))
         gotHBHEDigis = false;  //if it is not there, leave it false
       if (!gotHBHEDigis) {
-        cout << " No HBHEDigiCollection collection is found " << endl;
+        std::cout << " No HBHEDigiCollection collection is found " << std::endl;
       } else {
         //      unsigned int NHBHEDigiCollectionsize =  hbhe->size();
         double totalAmplitudeHB = 0.;
@@ -5694,7 +4400,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (!(heqie11.isValid()))
         gotQIE11Digis = false;  //if it is not there, leave it false
       if (!gotQIE11Digis) {
-        cout << " No QIE11DigiCollection collection is found " << endl;
+        std::cout << " No QIE11DigiCollection collection is found " << std::endl;
       } else {
         ////////////////////////////////////////////////////////////////////   qie11   QIE11 :
         double totalAmplitudeHBQIE11 = 0.;
@@ -5818,7 +4524,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       gotHODigis = false;  //if it is not there, leave it false
     if (!gotHODigis) {
       //  if(!ho.isValid()) {
-      cout << " No HO collection is found " << endl;
+      std::cout << " No HO collection is found " << std::endl;
     } else {
       int qwert6 = 0;
       double totalAmplitudeHO = 0.;
@@ -5891,7 +4597,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         gotHBHERecHitsNoise = false;  //if it is not there, leave it false
       if (!gotHBHERecHitsNoise) {
         //  if(!hbheNoise.isValid()) {
-        std::cout << " No RecHits HBHENoise collection is found " << endl;
+        std::cout << " No RecHits HBHENoise collection is found " << std::endl;
       } else {
         for (HBHERecHitCollection::const_iterator hbheItr = hbheNoise->begin(); hbheItr != hbheNoise->end();
              hbheItr++) {
@@ -5950,7 +4656,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         gotHFRecHitsNoise = false;  //if it is not there, leave it false
       if (!gotHFRecHitsNoise) {
         //  if(!hfNoise.isValid()) {
-        std::cout << " No RecHits HFNoise collection is found " << endl;
+        std::cout << " No RecHits HFNoise collection is found " << std::endl;
       } else {
         for (HFRecHitCollection::const_iterator hfItr = hfNoise->begin(); hfItr != hfNoise->end(); hfItr++) {
           // Recalibration of energy
@@ -6004,7 +4710,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         gotHBHERecHitsSignal = false;  //if it is not there, leave it false
       if (!gotHBHERecHitsSignal) {
         //  if(!hbheSignal.isValid()) {
-        std::cout << " No RecHits HBHESignal collection is found " << endl;
+        std::cout << " No RecHits HBHESignal collection is found " << std::endl;
       } else {
         for (HBHERecHitCollection::const_iterator hbheItr = hbheSignal->begin(); hbheItr != hbheSignal->end();
              hbheItr++) {
@@ -6062,7 +4768,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         gotHFRecHitsSignal = false;  //if it is not there, leave it false
       if (!gotHFRecHitsSignal) {
         //  if(!hfSignal.isValid()) {
-        std::cout << " No RecHits HFSignal collection is found " << endl;
+        std::cout << " No RecHits HFSignal collection is found " << std::endl;
       } else {
         for (HFRecHitCollection::const_iterator hfItr = hfSignal->begin(); hfItr != hfSignal->end(); hfItr++) {
           // Recalibration of energy
@@ -6144,7 +4850,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                   if (verbosity == -9504)
                     std::cout << "nsumoverphi= " << nsumoverphi << " sumoverphi= " << sumoverphi << " k1= " << k1
                               << " k2= " << k2 << " kkk= " << kkk << " k3= " << k3
-                              << " maprphinorm= " << maprphinorm[k0][k1][k2][k3] << endl;
+                              << " maprphinorm= " << maprphinorm[k0][k1][k2][k3] << std::endl;
                   if (k1 == 0) {
                     h_mapenophinorm_HE1->Fill(double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3]);
                     h_mapenophinorm2_HE1->Fill(
@@ -7360,8 +6066,8 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     ///////////////////////////////////////////////////
     if (++local_event % 100 == 0) {
       if (verbosity == -22)
-        cout << "run " << Run << " processing events " << local_event << " ok, "
-             << ", lumi " << lumi << ", numOfLaserEv " << numOfLaserEv << endl;
+        std::cout << "run " << Run << " processing events " << local_event << " ok, "
+                  << ", lumi " << lumi << ", numOfLaserEv " << numOfLaserEv << std::endl;
     }
   }  // bcn
 
@@ -7371,8 +6077,8 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 // ------------ method called once each job just before starting event loop  -----------
 void CMTRawAnalyzer::beginJob() {
   if (verbosity > 0)
-    cout << "========================   beignJob START   +++++++++++++++++++++++++++" << endl;
-  hOutputFile = new TFile(fOutputFileName.c_str(), "RECREATE");
+    std::cout << "========================   beignJob START   +++++++++++++++++++++++++++" << std::endl;
+  //  hOutputFile = new TFile(fOutputFileName.c_str(), "RECREATE");
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
   nnnnnn = 0;
   nnnnnnhbhe = 0;
@@ -7394,532 +6100,543 @@ void CMTRawAnalyzer::beginJob() {
   //////////////////////////////////////////////////////////////////////////////////    book histoes
 
   if (recordHistoes_) {
-    //  ha2 = new TH2F("ha2"," ", neta, -41., 41., nphi, 0., bphi);
+    //  ha2 = fs_->make<TH2F>("ha2"," ", neta, -41., 41., nphi, 0., bphi);
 
-    h_errorGeneral = new TH1F("h_errorGeneral", " ", 5, 0., 5.);
-    h_error1 = new TH1F("h_error1", " ", 5, 0., 5.);
-    h_error2 = new TH1F("h_error2", " ", 5, 0., 5.);
-    h_error3 = new TH1F("h_error3", " ", 5, 0., 5.);
-    h_amplError = new TH1F("h_amplError", " ", 100, -2., 98.);
-    h_amplFine = new TH1F("h_amplFine", " ", 100, -2., 98.);
+    h_errorGeneral = fs_->make<TH1F>("h_errorGeneral", " ", 5, 0., 5.);
+    h_error1 = fs_->make<TH1F>("h_error1", " ", 5, 0., 5.);
+    h_error2 = fs_->make<TH1F>("h_error2", " ", 5, 0., 5.);
+    h_error3 = fs_->make<TH1F>("h_error3", " ", 5, 0., 5.);
+    h_amplError = fs_->make<TH1F>("h_amplError", " ", 100, -2., 98.);
+    h_amplFine = fs_->make<TH1F>("h_amplFine", " ", 100, -2., 98.);
 
-    h_errorGeneral_HB = new TH1F("h_errorGeneral_HB", " ", 5, 0., 5.);
-    h_error1_HB = new TH1F("h_error1_HB", " ", 5, 0., 5.);
-    h_error2_HB = new TH1F("h_error2_HB", " ", 5, 0., 5.);
-    h_error3_HB = new TH1F("h_error3_HB", " ", 5, 0., 5.);
-    h_error4_HB = new TH1F("h_error4_HB", " ", 5, 0., 5.);
-    h_error5_HB = new TH1F("h_error5_HB", " ", 5, 0., 5.);
-    h_error6_HB = new TH1F("h_error6_HB", " ", 5, 0., 5.);
-    h_error7_HB = new TH1F("h_error7_HB", " ", 5, 0., 5.);
-    h_amplError_HB = new TH1F("h_amplError_HB", " ", 100, -2., 98.);
-    h_amplFine_HB = new TH1F("h_amplFine_HB", " ", 100, -2., 98.);
-    h_mapDepth1Error_HB = new TH2F("h_mapDepth1Error_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Error_HB = new TH2F("h_mapDepth2Error_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Error_HB = new TH2F("h_mapDepth3Error_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Error_HB = new TH2F("h_mapDepth4Error_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_fiber0_HB = new TH1F("h_fiber0_HB", " ", 10, 0., 10.);
-    h_fiber1_HB = new TH1F("h_fiber1_HB", " ", 10, 0., 10.);
-    h_fiber2_HB = new TH1F("h_fiber2_HB", " ", 40, 0., 40.);
-    h_repetedcapid_HB = new TH1F("h_repetedcapid_HB", " ", 5, 0., 5.);
+    h_errorGeneral_HB = fs_->make<TH1F>("h_errorGeneral_HB", " ", 5, 0., 5.);
+    h_error1_HB = fs_->make<TH1F>("h_error1_HB", " ", 5, 0., 5.);
+    h_error2_HB = fs_->make<TH1F>("h_error2_HB", " ", 5, 0., 5.);
+    h_error3_HB = fs_->make<TH1F>("h_error3_HB", " ", 5, 0., 5.);
+    h_error4_HB = fs_->make<TH1F>("h_error4_HB", " ", 5, 0., 5.);
+    h_error5_HB = fs_->make<TH1F>("h_error5_HB", " ", 5, 0., 5.);
+    h_error6_HB = fs_->make<TH1F>("h_error6_HB", " ", 5, 0., 5.);
+    h_error7_HB = fs_->make<TH1F>("h_error7_HB", " ", 5, 0., 5.);
+    h_amplError_HB = fs_->make<TH1F>("h_amplError_HB", " ", 100, -2., 98.);
+    h_amplFine_HB = fs_->make<TH1F>("h_amplFine_HB", " ", 100, -2., 98.);
+    h_mapDepth1Error_HB = fs_->make<TH2F>("h_mapDepth1Error_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Error_HB = fs_->make<TH2F>("h_mapDepth2Error_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Error_HB = fs_->make<TH2F>("h_mapDepth3Error_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Error_HB = fs_->make<TH2F>("h_mapDepth4Error_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_fiber0_HB = fs_->make<TH1F>("h_fiber0_HB", " ", 10, 0., 10.);
+    h_fiber1_HB = fs_->make<TH1F>("h_fiber1_HB", " ", 10, 0., 10.);
+    h_fiber2_HB = fs_->make<TH1F>("h_fiber2_HB", " ", 40, 0., 40.);
+    h_repetedcapid_HB = fs_->make<TH1F>("h_repetedcapid_HB", " ", 5, 0., 5.);
 
-    h_errorGeneral_HE = new TH1F("h_errorGeneral_HE", " ", 5, 0., 5.);
-    h_error1_HE = new TH1F("h_error1_HE", " ", 5, 0., 5.);
-    h_error2_HE = new TH1F("h_error2_HE", " ", 5, 0., 5.);
-    h_error3_HE = new TH1F("h_error3_HE", " ", 5, 0., 5.);
-    h_error4_HE = new TH1F("h_error4_HE", " ", 5, 0., 5.);
-    h_error5_HE = new TH1F("h_error5_HE", " ", 5, 0., 5.);
-    h_error6_HE = new TH1F("h_error6_HE", " ", 5, 0., 5.);
-    h_error7_HE = new TH1F("h_error7_HE", " ", 5, 0., 5.);
-    h_amplError_HE = new TH1F("h_amplError_HE", " ", 100, -2., 98.);
-    h_amplFine_HE = new TH1F("h_amplFine_HE", " ", 100, -2., 98.);
-    h_mapDepth1Error_HE = new TH2F("h_mapDepth1Error_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Error_HE = new TH2F("h_mapDepth2Error_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Error_HE = new TH2F("h_mapDepth3Error_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Error_HE = new TH2F("h_mapDepth4Error_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5Error_HE = new TH2F("h_mapDepth5Error_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6Error_HE = new TH2F("h_mapDepth6Error_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7Error_HE = new TH2F("h_mapDepth7Error_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_fiber0_HE = new TH1F("h_fiber0_HE", " ", 10, 0., 10.);
-    h_fiber1_HE = new TH1F("h_fiber1_HE", " ", 10, 0., 10.);
-    h_fiber2_HE = new TH1F("h_fiber2_HE", " ", 40, 0., 40.);
-    h_repetedcapid_HE = new TH1F("h_repetedcapid_HE", " ", 5, 0., 5.);
+    h_errorGeneral_HE = fs_->make<TH1F>("h_errorGeneral_HE", " ", 5, 0., 5.);
+    h_error1_HE = fs_->make<TH1F>("h_error1_HE", " ", 5, 0., 5.);
+    h_error2_HE = fs_->make<TH1F>("h_error2_HE", " ", 5, 0., 5.);
+    h_error3_HE = fs_->make<TH1F>("h_error3_HE", " ", 5, 0., 5.);
+    h_error4_HE = fs_->make<TH1F>("h_error4_HE", " ", 5, 0., 5.);
+    h_error5_HE = fs_->make<TH1F>("h_error5_HE", " ", 5, 0., 5.);
+    h_error6_HE = fs_->make<TH1F>("h_error6_HE", " ", 5, 0., 5.);
+    h_error7_HE = fs_->make<TH1F>("h_error7_HE", " ", 5, 0., 5.);
+    h_amplError_HE = fs_->make<TH1F>("h_amplError_HE", " ", 100, -2., 98.);
+    h_amplFine_HE = fs_->make<TH1F>("h_amplFine_HE", " ", 100, -2., 98.);
+    h_mapDepth1Error_HE = fs_->make<TH2F>("h_mapDepth1Error_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Error_HE = fs_->make<TH2F>("h_mapDepth2Error_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Error_HE = fs_->make<TH2F>("h_mapDepth3Error_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Error_HE = fs_->make<TH2F>("h_mapDepth4Error_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5Error_HE = fs_->make<TH2F>("h_mapDepth5Error_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6Error_HE = fs_->make<TH2F>("h_mapDepth6Error_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7Error_HE = fs_->make<TH2F>("h_mapDepth7Error_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_fiber0_HE = fs_->make<TH1F>("h_fiber0_HE", " ", 10, 0., 10.);
+    h_fiber1_HE = fs_->make<TH1F>("h_fiber1_HE", " ", 10, 0., 10.);
+    h_fiber2_HE = fs_->make<TH1F>("h_fiber2_HE", " ", 40, 0., 40.);
+    h_repetedcapid_HE = fs_->make<TH1F>("h_repetedcapid_HE", " ", 5, 0., 5.);
 
-    h_errorGeneral_HF = new TH1F("h_errorGeneral_HF", " ", 5, 0., 5.);
-    h_error1_HF = new TH1F("h_error1_HF", " ", 5, 0., 5.);
-    h_error2_HF = new TH1F("h_error2_HF", " ", 5, 0., 5.);
-    h_error3_HF = new TH1F("h_error3_HF", " ", 5, 0., 5.);
-    h_error4_HF = new TH1F("h_error4_HF", " ", 5, 0., 5.);
-    h_error5_HF = new TH1F("h_error5_HF", " ", 5, 0., 5.);
-    h_error6_HF = new TH1F("h_error6_HF", " ", 5, 0., 5.);
-    h_error7_HF = new TH1F("h_error7_HF", " ", 5, 0., 5.);
-    h_amplError_HF = new TH1F("h_amplError_HF", " ", 100, -2., 98.);
-    h_amplFine_HF = new TH1F("h_amplFine_HF", " ", 100, -2., 98.);
-    h_mapDepth1Error_HF = new TH2F("h_mapDepth1Error_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Error_HF = new TH2F("h_mapDepth2Error_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Error_HF = new TH2F("h_mapDepth3Error_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Error_HF = new TH2F("h_mapDepth4Error_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_fiber0_HF = new TH1F("h_fiber0_HF", " ", 10, 0., 10.);
-    h_fiber1_HF = new TH1F("h_fiber1_HF", " ", 10, 0., 10.);
-    h_fiber2_HF = new TH1F("h_fiber2_HF", " ", 40, 0., 40.);
-    h_repetedcapid_HF = new TH1F("h_repetedcapid_HF", " ", 5, 0., 5.);
+    h_errorGeneral_HF = fs_->make<TH1F>("h_errorGeneral_HF", " ", 5, 0., 5.);
+    h_error1_HF = fs_->make<TH1F>("h_error1_HF", " ", 5, 0., 5.);
+    h_error2_HF = fs_->make<TH1F>("h_error2_HF", " ", 5, 0., 5.);
+    h_error3_HF = fs_->make<TH1F>("h_error3_HF", " ", 5, 0., 5.);
+    h_error4_HF = fs_->make<TH1F>("h_error4_HF", " ", 5, 0., 5.);
+    h_error5_HF = fs_->make<TH1F>("h_error5_HF", " ", 5, 0., 5.);
+    h_error6_HF = fs_->make<TH1F>("h_error6_HF", " ", 5, 0., 5.);
+    h_error7_HF = fs_->make<TH1F>("h_error7_HF", " ", 5, 0., 5.);
+    h_amplError_HF = fs_->make<TH1F>("h_amplError_HF", " ", 100, -2., 98.);
+    h_amplFine_HF = fs_->make<TH1F>("h_amplFine_HF", " ", 100, -2., 98.);
+    h_mapDepth1Error_HF = fs_->make<TH2F>("h_mapDepth1Error_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Error_HF = fs_->make<TH2F>("h_mapDepth2Error_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Error_HF = fs_->make<TH2F>("h_mapDepth3Error_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Error_HF = fs_->make<TH2F>("h_mapDepth4Error_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_fiber0_HF = fs_->make<TH1F>("h_fiber0_HF", " ", 10, 0., 10.);
+    h_fiber1_HF = fs_->make<TH1F>("h_fiber1_HF", " ", 10, 0., 10.);
+    h_fiber2_HF = fs_->make<TH1F>("h_fiber2_HF", " ", 40, 0., 40.);
+    h_repetedcapid_HF = fs_->make<TH1F>("h_repetedcapid_HF", " ", 5, 0., 5.);
 
-    h_errorGeneral_HO = new TH1F("h_errorGeneral_HO", " ", 5, 0., 5.);
-    h_error1_HO = new TH1F("h_error1_HO", " ", 5, 0., 5.);
-    h_error2_HO = new TH1F("h_error2_HO", " ", 5, 0., 5.);
-    h_error3_HO = new TH1F("h_error3_HO", " ", 5, 0., 5.);
-    h_error4_HO = new TH1F("h_error4_HO", " ", 5, 0., 5.);
-    h_error5_HO = new TH1F("h_error5_HO", " ", 5, 0., 5.);
-    h_error6_HO = new TH1F("h_error6_HO", " ", 5, 0., 5.);
-    h_error7_HO = new TH1F("h_error7_HO", " ", 5, 0., 5.);
-    h_amplError_HO = new TH1F("h_amplError_HO", " ", 100, -2., 98.);
-    h_amplFine_HO = new TH1F("h_amplFine_HO", " ", 100, -2., 98.);
-    h_mapDepth4Error_HO = new TH2F("h_mapDepth4Error_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_fiber0_HO = new TH1F("h_fiber0_HO", " ", 10, 0., 10.);
-    h_fiber1_HO = new TH1F("h_fiber1_HO", " ", 10, 0., 10.);
-    h_fiber2_HO = new TH1F("h_fiber2_HO", " ", 40, 0., 40.);
-    h_repetedcapid_HO = new TH1F("h_repetedcapid_HO", " ", 5, 0., 5.);
+    h_errorGeneral_HO = fs_->make<TH1F>("h_errorGeneral_HO", " ", 5, 0., 5.);
+    h_error1_HO = fs_->make<TH1F>("h_error1_HO", " ", 5, 0., 5.);
+    h_error2_HO = fs_->make<TH1F>("h_error2_HO", " ", 5, 0., 5.);
+    h_error3_HO = fs_->make<TH1F>("h_error3_HO", " ", 5, 0., 5.);
+    h_error4_HO = fs_->make<TH1F>("h_error4_HO", " ", 5, 0., 5.);
+    h_error5_HO = fs_->make<TH1F>("h_error5_HO", " ", 5, 0., 5.);
+    h_error6_HO = fs_->make<TH1F>("h_error6_HO", " ", 5, 0., 5.);
+    h_error7_HO = fs_->make<TH1F>("h_error7_HO", " ", 5, 0., 5.);
+    h_amplError_HO = fs_->make<TH1F>("h_amplError_HO", " ", 100, -2., 98.);
+    h_amplFine_HO = fs_->make<TH1F>("h_amplFine_HO", " ", 100, -2., 98.);
+    h_mapDepth4Error_HO = fs_->make<TH2F>("h_mapDepth4Error_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_fiber0_HO = fs_->make<TH1F>("h_fiber0_HO", " ", 10, 0., 10.);
+    h_fiber1_HO = fs_->make<TH1F>("h_fiber1_HO", " ", 10, 0., 10.);
+    h_fiber2_HO = fs_->make<TH1F>("h_fiber2_HO", " ", 40, 0., 40.);
+    h_repetedcapid_HO = fs_->make<TH1F>("h_repetedcapid_HO", " ", 5, 0., 5.);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////             HB
 
-    h_numberofhitsHBtest = new TH1F("h_numberofhitsHBtest", " ", 100, 0., 100.);
-    h_AmplitudeHBtest = new TH1F("h_AmplitudeHBtest", " ", 100, 0., 10000.);
-    h_AmplitudeHBtest1 = new TH1F("h_AmplitudeHBtest1", " ", 100, 0., 1000000.);
-    h_AmplitudeHBtest6 = new TH1F("h_AmplitudeHBtest6", " ", 100, 0., 2000000.);
-    h_totalAmplitudeHB = new TH1F("h_totalAmplitudeHB", " ", 100, 0., 3000000.);
-    h_totalAmplitudeHBperEvent = new TH1F("h_totalAmplitudeHBperEvent", " ", 1000, 1., 1001.);
+    h_numberofhitsHBtest = fs_->make<TH1F>("h_numberofhitsHBtest", " ", 100, 0., 100.);
+    h_AmplitudeHBtest = fs_->make<TH1F>("h_AmplitudeHBtest", " ", 100, 0., 10000.);
+    h_AmplitudeHBtest1 = fs_->make<TH1F>("h_AmplitudeHBtest1", " ", 100, 0., 1000000.);
+    h_AmplitudeHBtest6 = fs_->make<TH1F>("h_AmplitudeHBtest6", " ", 100, 0., 2000000.);
+    h_totalAmplitudeHB = fs_->make<TH1F>("h_totalAmplitudeHB", " ", 100, 0., 3000000.);
+    h_totalAmplitudeHBperEvent = fs_->make<TH1F>("h_totalAmplitudeHBperEvent", " ", 1000, 1., 1001.);
     // fullAmplitude:
-    h_ADCAmpl345Zoom_HB = new TH1F("h_ADCAmpl345Zoom_HB", " ", 100, 0., 400.);
-    h_ADCAmpl345Zoom1_HB = new TH1F("h_ADCAmpl345Zoom1_HB", " ", 100, 0., 100.);
-    h_ADCAmpl345_HB = new TH1F("h_ADCAmpl345_HB", " ", 100, 10., 3000.);
+    h_ADCAmpl345Zoom_HB = fs_->make<TH1F>("h_ADCAmpl345Zoom_HB", " ", 100, 0., 400.);
+    h_ADCAmpl345Zoom1_HB = fs_->make<TH1F>("h_ADCAmpl345Zoom1_HB", " ", 100, 0., 100.);
+    h_ADCAmpl345_HB = fs_->make<TH1F>("h_ADCAmpl345_HB", " ", 100, 10., 3000.);
 
-    h_AmplitudeHBrest = new TH1F("h_AmplitudeHBrest", " ", 100, 0., 10000.);
-    h_AmplitudeHBrest1 = new TH1F("h_AmplitudeHBrest1", " ", 100, 0., 1000000.);
-    h_AmplitudeHBrest6 = new TH1F("h_AmplitudeHBrest6", " ", 100, 0., 2000000.);
+    h_AmplitudeHBrest = fs_->make<TH1F>("h_AmplitudeHBrest", " ", 100, 0., 10000.);
+    h_AmplitudeHBrest1 = fs_->make<TH1F>("h_AmplitudeHBrest1", " ", 100, 0., 1000000.);
+    h_AmplitudeHBrest6 = fs_->make<TH1F>("h_AmplitudeHBrest6", " ", 100, 0., 2000000.);
 
-    h_ADCAmpl345_HBCapIdError = new TH1F("h_ADCAmpl345_HBCapIdError", " ", 100, 10., 3000.);
-    h_ADCAmpl345_HBCapIdNoError = new TH1F("h_ADCAmpl345_HBCapIdNoError", " ", 100, 10., 3000.);
-    h_ADCAmpl_HBCapIdError = new TH1F("h_ADCAmpl_HBCapIdError", " ", 100, 10., 3000.);
-    h_ADCAmpl_HBCapIdNoError = new TH1F("h_ADCAmpl_HBCapIdNoError", " ", 100, 10., 3000.);
+    h_ADCAmpl345_HBCapIdError = fs_->make<TH1F>("h_ADCAmpl345_HBCapIdError", " ", 100, 10., 3000.);
+    h_ADCAmpl345_HBCapIdNoError = fs_->make<TH1F>("h_ADCAmpl345_HBCapIdNoError", " ", 100, 10., 3000.);
+    h_ADCAmpl_HBCapIdError = fs_->make<TH1F>("h_ADCAmpl_HBCapIdError", " ", 100, 10., 3000.);
+    h_ADCAmpl_HBCapIdNoError = fs_->make<TH1F>("h_ADCAmpl_HBCapIdNoError", " ", 100, 10., 3000.);
 
-    h_ADCAmplZoom_HB = new TH1F("h_ADCAmplZoom_HB", " ", 100, 0., 400.);
-    h_ADCAmplZoom1_HB = new TH1F("h_ADCAmplZoom1_HB", " ", 100, -20., 80.);
-    h_ADCAmpl_HB = new TH1F("h_ADCAmpl_HB", " ", 100, 10., 5000.);
-    h_mapDepth1ADCAmpl225_HB = new TH2F("h_mapDepth1ADCAmpl225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl225_HB = new TH2F("h_mapDepth2ADCAmpl225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl225_HB = new TH2F("h_mapDepth3ADCAmpl225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl225_HB = new TH2F("h_mapDepth4ADCAmpl225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1ADCAmpl225Copy_HB = new TH2F("h_mapDepth1ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl225Copy_HB = new TH2F("h_mapDepth2ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl225Copy_HB = new TH2F("h_mapDepth3ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl225Copy_HB = new TH2F("h_mapDepth4ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1ADCAmpl_HB = new TH2F("h_mapDepth1ADCAmpl_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl_HB = new TH2F("h_mapDepth2ADCAmpl_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl_HB = new TH2F("h_mapDepth3ADCAmpl_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl_HB = new TH2F("h_mapDepth4ADCAmpl_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_TSmeanA_HB = new TH1F("h_TSmeanA_HB", " ", 100, -1., 11.);
-    h_mapDepth1TSmeanA225_HB = new TH2F("h_mapDepth1TSmeanA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2TSmeanA225_HB = new TH2F("h_mapDepth2TSmeanA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3TSmeanA225_HB = new TH2F("h_mapDepth3TSmeanA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4TSmeanA225_HB = new TH2F("h_mapDepth4TSmeanA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1TSmeanA_HB = new TH2F("h_mapDepth1TSmeanA_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2TSmeanA_HB = new TH2F("h_mapDepth2TSmeanA_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3TSmeanA_HB = new TH2F("h_mapDepth3TSmeanA_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4TSmeanA_HB = new TH2F("h_mapDepth4TSmeanA_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_TSmaxA_HB = new TH1F("h_TSmaxA_HB", " ", 100, -1., 11.);
-    h_mapDepth1TSmaxA225_HB = new TH2F("h_mapDepth1TSmaxA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2TSmaxA225_HB = new TH2F("h_mapDepth2TSmaxA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3TSmaxA225_HB = new TH2F("h_mapDepth3TSmaxA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4TSmaxA225_HB = new TH2F("h_mapDepth4TSmaxA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1TSmaxA_HB = new TH2F("h_mapDepth1TSmaxA_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2TSmaxA_HB = new TH2F("h_mapDepth2TSmaxA_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3TSmaxA_HB = new TH2F("h_mapDepth3TSmaxA_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4TSmaxA_HB = new TH2F("h_mapDepth4TSmaxA_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_ADCAmplZoom_HB = fs_->make<TH1F>("h_ADCAmplZoom_HB", " ", 100, 0., 400.);
+    h_ADCAmplZoom1_HB = fs_->make<TH1F>("h_ADCAmplZoom1_HB", " ", 100, -20., 80.);
+    h_ADCAmpl_HB = fs_->make<TH1F>("h_ADCAmpl_HB", " ", 100, 10., 5000.);
+    h_mapDepth1ADCAmpl225_HB = fs_->make<TH2F>("h_mapDepth1ADCAmpl225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl225_HB = fs_->make<TH2F>("h_mapDepth2ADCAmpl225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl225_HB = fs_->make<TH2F>("h_mapDepth3ADCAmpl225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl225_HB = fs_->make<TH2F>("h_mapDepth4ADCAmpl225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmpl225Copy_HB =
+        fs_->make<TH2F>("h_mapDepth1ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl225Copy_HB =
+        fs_->make<TH2F>("h_mapDepth2ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl225Copy_HB =
+        fs_->make<TH2F>("h_mapDepth3ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl225Copy_HB =
+        fs_->make<TH2F>("h_mapDepth4ADCAmpl225Copy_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmpl_HB = fs_->make<TH2F>("h_mapDepth1ADCAmpl_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl_HB = fs_->make<TH2F>("h_mapDepth2ADCAmpl_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl_HB = fs_->make<TH2F>("h_mapDepth3ADCAmpl_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl_HB = fs_->make<TH2F>("h_mapDepth4ADCAmpl_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_TSmeanA_HB = fs_->make<TH1F>("h_TSmeanA_HB", " ", 100, -1., 11.);
+    h_mapDepth1TSmeanA225_HB = fs_->make<TH2F>("h_mapDepth1TSmeanA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2TSmeanA225_HB = fs_->make<TH2F>("h_mapDepth2TSmeanA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3TSmeanA225_HB = fs_->make<TH2F>("h_mapDepth3TSmeanA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4TSmeanA225_HB = fs_->make<TH2F>("h_mapDepth4TSmeanA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1TSmeanA_HB = fs_->make<TH2F>("h_mapDepth1TSmeanA_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2TSmeanA_HB = fs_->make<TH2F>("h_mapDepth2TSmeanA_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3TSmeanA_HB = fs_->make<TH2F>("h_mapDepth3TSmeanA_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4TSmeanA_HB = fs_->make<TH2F>("h_mapDepth4TSmeanA_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_TSmaxA_HB = fs_->make<TH1F>("h_TSmaxA_HB", " ", 100, -1., 11.);
+    h_mapDepth1TSmaxA225_HB = fs_->make<TH2F>("h_mapDepth1TSmaxA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2TSmaxA225_HB = fs_->make<TH2F>("h_mapDepth2TSmaxA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3TSmaxA225_HB = fs_->make<TH2F>("h_mapDepth3TSmaxA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4TSmaxA225_HB = fs_->make<TH2F>("h_mapDepth4TSmaxA225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1TSmaxA_HB = fs_->make<TH2F>("h_mapDepth1TSmaxA_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2TSmaxA_HB = fs_->make<TH2F>("h_mapDepth2TSmaxA_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3TSmaxA_HB = fs_->make<TH2F>("h_mapDepth3TSmaxA_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4TSmaxA_HB = fs_->make<TH2F>("h_mapDepth4TSmaxA_HB", " ", neta, -41., 41., nphi, 0., bphi);
     // RMS:
-    h_Amplitude_HB = new TH1F("h_Amplitude_HB", " ", 100, 0., 5.);
-    h_mapDepth1Amplitude225_HB = new TH2F("h_mapDepth1Amplitude225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Amplitude225_HB = new TH2F("h_mapDepth2Amplitude225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Amplitude225_HB = new TH2F("h_mapDepth3Amplitude225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Amplitude225_HB = new TH2F("h_mapDepth4Amplitude225_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Amplitude_HB = new TH2F("h_mapDepth1Amplitude_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Amplitude_HB = new TH2F("h_mapDepth2Amplitude_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Amplitude_HB = new TH2F("h_mapDepth3Amplitude_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Amplitude_HB = new TH2F("h_mapDepth4Amplitude_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_Amplitude_HB = fs_->make<TH1F>("h_Amplitude_HB", " ", 100, 0., 5.);
+    h_mapDepth1Amplitude225_HB = fs_->make<TH2F>("h_mapDepth1Amplitude225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Amplitude225_HB = fs_->make<TH2F>("h_mapDepth2Amplitude225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Amplitude225_HB = fs_->make<TH2F>("h_mapDepth3Amplitude225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Amplitude225_HB = fs_->make<TH2F>("h_mapDepth4Amplitude225_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Amplitude_HB = fs_->make<TH2F>("h_mapDepth1Amplitude_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Amplitude_HB = fs_->make<TH2F>("h_mapDepth2Amplitude_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Amplitude_HB = fs_->make<TH2F>("h_mapDepth3Amplitude_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Amplitude_HB = fs_->make<TH2F>("h_mapDepth4Amplitude_HB", " ", neta, -41., 41., nphi, 0., bphi);
     // Ratio:
-    h_Ampl_HB = new TH1F("h_Ampl_HB", " ", 100, 0., 1.1);
-    h_mapDepth1Ampl047_HB = new TH2F("h_mapDepth1Ampl047_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ampl047_HB = new TH2F("h_mapDepth2Ampl047_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Ampl047_HB = new TH2F("h_mapDepth3Ampl047_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Ampl047_HB = new TH2F("h_mapDepth4Ampl047_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Ampl_HB = new TH2F("h_mapDepth1Ampl_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ampl_HB = new TH2F("h_mapDepth2Ampl_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Ampl_HB = new TH2F("h_mapDepth3Ampl_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Ampl_HB = new TH2F("h_mapDepth4Ampl_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1AmplE34_HB = new TH2F("h_mapDepth1AmplE34_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2AmplE34_HB = new TH2F("h_mapDepth2AmplE34_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3AmplE34_HB = new TH2F("h_mapDepth3AmplE34_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4AmplE34_HB = new TH2F("h_mapDepth4AmplE34_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1_HB = new TH2F("h_mapDepth1_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2_HB = new TH2F("h_mapDepth2_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3_HB = new TH2F("h_mapDepth3_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4_HB = new TH2F("h_mapDepth4_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_Ampl_HB = fs_->make<TH1F>("h_Ampl_HB", " ", 100, 0., 1.1);
+    h_mapDepth1Ampl047_HB = fs_->make<TH2F>("h_mapDepth1Ampl047_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ampl047_HB = fs_->make<TH2F>("h_mapDepth2Ampl047_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Ampl047_HB = fs_->make<TH2F>("h_mapDepth3Ampl047_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Ampl047_HB = fs_->make<TH2F>("h_mapDepth4Ampl047_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Ampl_HB = fs_->make<TH2F>("h_mapDepth1Ampl_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ampl_HB = fs_->make<TH2F>("h_mapDepth2Ampl_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Ampl_HB = fs_->make<TH2F>("h_mapDepth3Ampl_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Ampl_HB = fs_->make<TH2F>("h_mapDepth4Ampl_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1AmplE34_HB = fs_->make<TH2F>("h_mapDepth1AmplE34_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2AmplE34_HB = fs_->make<TH2F>("h_mapDepth2AmplE34_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3AmplE34_HB = fs_->make<TH2F>("h_mapDepth3AmplE34_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4AmplE34_HB = fs_->make<TH2F>("h_mapDepth4AmplE34_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1_HB = fs_->make<TH2F>("h_mapDepth1_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2_HB = fs_->make<TH2F>("h_mapDepth2_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3_HB = fs_->make<TH2F>("h_mapDepth3_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4_HB = fs_->make<TH2F>("h_mapDepth4_HB", " ", neta, -41., 41., nphi, 0., bphi);
 
     //////////////////////////////////////////////////////////////////////////////////////////////             HE
 
     // stuff regarding summed(total) Amplitude vs iEvent (histo-name is  h_totalAmplitudeHEperEvent)
     // to see from which event ALL channels are available(related to quality of the run)
-    h_numberofhitsHEtest = new TH1F("h_numberofhitsHEtest", " ", 100, 0., 10000.);
-    h_AmplitudeHEtest = new TH1F("h_AmplitudeHEtest", " ", 100, 0., 1000000.);
-    h_AmplitudeHEtest1 = new TH1F("h_AmplitudeHEtest1", " ", 100, 0., 1000000.);
-    h_AmplitudeHEtest6 = new TH1F("h_AmplitudeHEtest6", " ", 100, 0., 2000000.);
-    h_totalAmplitudeHE = new TH1F("h_totalAmplitudeHE", " ", 100, 0., 10000000000.);
-    h_totalAmplitudeHEperEvent = new TH1F("h_totalAmplitudeHEperEvent", " ", 1000, 1., 1001.);
+    h_numberofhitsHEtest = fs_->make<TH1F>("h_numberofhitsHEtest", " ", 100, 0., 10000.);
+    h_AmplitudeHEtest = fs_->make<TH1F>("h_AmplitudeHEtest", " ", 100, 0., 1000000.);
+    h_AmplitudeHEtest1 = fs_->make<TH1F>("h_AmplitudeHEtest1", " ", 100, 0., 1000000.);
+    h_AmplitudeHEtest6 = fs_->make<TH1F>("h_AmplitudeHEtest6", " ", 100, 0., 2000000.);
+    h_totalAmplitudeHE = fs_->make<TH1F>("h_totalAmplitudeHE", " ", 100, 0., 10000000000.);
+    h_totalAmplitudeHEperEvent = fs_->make<TH1F>("h_totalAmplitudeHEperEvent", " ", 1000, 1., 1001.);
 
     // Aijk Amplitude:
-    h_ADCAmplZoom1_HE = new TH1F("h_ADCAmplZoom1_HE", " ", npfit, 0., anpfit);        // for amplmaxts 1TS w/ max
-    h_ADCAmpl345Zoom1_HE = new TH1F("h_ADCAmpl345Zoom1_HE", " ", npfit, 0., anpfit);  // for ampl3ts 3TSs
-    h_ADCAmpl345Zoom_HE = new TH1F("h_ADCAmpl345Zoom_HE", " ", npfit, 0., anpfit);    // for ampl 4TSs
+    h_ADCAmplZoom1_HE = fs_->make<TH1F>("h_ADCAmplZoom1_HE", " ", npfit, 0., anpfit);        // for amplmaxts 1TS w/ max
+    h_ADCAmpl345Zoom1_HE = fs_->make<TH1F>("h_ADCAmpl345Zoom1_HE", " ", npfit, 0., anpfit);  // for ampl3ts 3TSs
+    h_ADCAmpl345Zoom_HE = fs_->make<TH1F>("h_ADCAmpl345Zoom_HE", " ", npfit, 0., anpfit);    // for ampl 4TSs
     h_amplitudeaveragedbydepthes_HE =
-        new TH1F("h_amplitudeaveragedbydepthes_HE", " ", npfit, 0., anpfit);  // for cross-check: A spectrum
+        fs_->make<TH1F>("h_amplitudeaveragedbydepthes_HE", " ", npfit, 0., anpfit);  // for cross-check: A spectrum
     h_ndepthesperamplitudebins_HE =
-        new TH1F("h_ndepthesperamplitudebins_HE", " ", 10, 0., 10.);  // for cross-check: ndepthes
+        fs_->make<TH1F>("h_ndepthesperamplitudebins_HE", " ", 10, 0., 10.);  // for cross-check: ndepthes
 
     // Ampl12 4TSs to work with "ped-Gsel0" or "led-low-intensity" to clarify gain diff peak2-peak1
     h_mapADCAmplfirstpeak_HE =
-        new TH2F("h_mapADCAmplfirstpeak_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for amplmaxts 1TS w/ max
+        fs_->make<TH2F>("h_mapADCAmplfirstpeak_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for amplmaxts 1TS w/ max
     h_mapADCAmplfirstpeak0_HE =
-        new TH2F("h_mapADCAmplfirstpeak0_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for amplmaxts 1TS w/ max
+        fs_->make<TH2F>("h_mapADCAmplfirstpeak0_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for amplmaxts 1TS w/ max
     h_mapADCAmplsecondpeak_HE =
-        new TH2F("h_mapADCAmplsecondpeak_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for amplmaxts 1TS w/ max
-    h_mapADCAmplsecondpeak0_HE =
-        new TH2F("h_mapADCAmplsecondpeak0_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for amplmaxts 1TS w/ max
+        fs_->make<TH2F>("h_mapADCAmplsecondpeak_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for amplmaxts 1TS w/ max
+    h_mapADCAmplsecondpeak0_HE = fs_->make<TH2F>(
+        "h_mapADCAmplsecondpeak0_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for amplmaxts 1TS w/ max
 
     h_mapADCAmpl11firstpeak_HE =
-        new TH2F("h_mapADCAmpl11firstpeak_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl3ts 3TSs
+        fs_->make<TH2F>("h_mapADCAmpl11firstpeak_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl3ts 3TSs
     h_mapADCAmpl11firstpeak0_HE =
-        new TH2F("h_mapADCAmpl11firstpeak0_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl3ts 3TSs
+        fs_->make<TH2F>("h_mapADCAmpl11firstpeak0_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl3ts 3TSs
     h_mapADCAmpl11secondpeak_HE =
-        new TH2F("h_mapADCAmpl11secondpeak_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl3ts 3TSs
+        fs_->make<TH2F>("h_mapADCAmpl11secondpeak_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl3ts 3TSs
     h_mapADCAmpl11secondpeak0_HE =
-        new TH2F("h_mapADCAmpl11secondpeak0_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl3ts 3TSs
+        fs_->make<TH2F>("h_mapADCAmpl11secondpeak0_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl3ts 3TSs
 
     h_mapADCAmpl12firstpeak_HE =
-        new TH2F("h_mapADCAmpl12firstpeak_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl 4TSs
+        fs_->make<TH2F>("h_mapADCAmpl12firstpeak_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl 4TSs
     h_mapADCAmpl12firstpeak0_HE =
-        new TH2F("h_mapADCAmpl12firstpeak0_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl 4TSs
+        fs_->make<TH2F>("h_mapADCAmpl12firstpeak0_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl 4TSs
     h_mapADCAmpl12secondpeak_HE =
-        new TH2F("h_mapADCAmpl12secondpeak_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl 4TSs
+        fs_->make<TH2F>("h_mapADCAmpl12secondpeak_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl 4TSs
     h_mapADCAmpl12secondpeak0_HE =
-        new TH2F("h_mapADCAmpl12secondpeak0_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl 4TSs
+        fs_->make<TH2F>("h_mapADCAmpl12secondpeak0_HE", " ", neta, -41., 41., nphi, 0., bphi);  // for ampl 4TSs
 
     // Ampl12 4TSs to work with "ped-Gsel0" or "led-low-intensity" to clarify gain diff peak2-peak1  fit results:
-    h_gsmdifferencefit1_HE = new TH1F("h_gsmdifferencefit1_HE", " ", 80, 20., 60.);
-    h_gsmdifferencefit2_HE = new TH1F("h_gsmdifferencefit2_HE", " ", 80, 20., 60.);
-    h_gsmdifferencefit3_HE = new TH1F("h_gsmdifferencefit3_HE", " ", 80, 20., 60.);
-    h_gsmdifferencefit4_HE = new TH1F("h_gsmdifferencefit4_HE", " ", 80, 20., 60.);
-    h_gsmdifferencefit5_HE = new TH1F("h_gsmdifferencefit5_HE", " ", 80, 20., 60.);
-    h_gsmdifferencefit6_HE = new TH1F("h_gsmdifferencefit6_HE", " ", 80, 20., 60.);
+    h_gsmdifferencefit1_HE = fs_->make<TH1F>("h_gsmdifferencefit1_HE", " ", 80, 20., 60.);
+    h_gsmdifferencefit2_HE = fs_->make<TH1F>("h_gsmdifferencefit2_HE", " ", 80, 20., 60.);
+    h_gsmdifferencefit3_HE = fs_->make<TH1F>("h_gsmdifferencefit3_HE", " ", 80, 20., 60.);
+    h_gsmdifferencefit4_HE = fs_->make<TH1F>("h_gsmdifferencefit4_HE", " ", 80, 20., 60.);
+    h_gsmdifferencefit5_HE = fs_->make<TH1F>("h_gsmdifferencefit5_HE", " ", 80, 20., 60.);
+    h_gsmdifferencefit6_HE = fs_->make<TH1F>("h_gsmdifferencefit6_HE", " ", 80, 20., 60.);
 
     // Aijk Amplitude:
-    h_ADCAmpl_HE = new TH1F("h_ADCAmpl_HE", " ", 200, 0., 2000000.);
-    h_ADCAmplrest_HE = new TH1F("h_ADCAmplrest_HE", " ", 100, 0., 500.);
-    h_ADCAmplrest1_HE = new TH1F("h_ADCAmplrest1_HE", " ", 100, 0., 100.);
-    h_ADCAmplrest6_HE = new TH1F("h_ADCAmplrest6_HE", " ", 100, 0., 10000.);
+    h_ADCAmpl_HE = fs_->make<TH1F>("h_ADCAmpl_HE", " ", 200, 0., 2000000.);
+    h_ADCAmplrest_HE = fs_->make<TH1F>("h_ADCAmplrest_HE", " ", 100, 0., 500.);
+    h_ADCAmplrest1_HE = fs_->make<TH1F>("h_ADCAmplrest1_HE", " ", 100, 0., 100.);
+    h_ADCAmplrest6_HE = fs_->make<TH1F>("h_ADCAmplrest6_HE", " ", 100, 0., 10000.);
 
-    h_ADCAmpl345_HE = new TH1F("h_ADCAmpl345_HE", " ", 70, 0., 700000.);
+    h_ADCAmpl345_HE = fs_->make<TH1F>("h_ADCAmpl345_HE", " ", 70, 0., 700000.);
 
     // SiPM corrections:
-    h_corrforxaMAIN_HE = new TH1F("h_corrforxaMAIN_HE", " ", 70, 0., 700000.);
-    h_corrforxaMAIN0_HE = new TH1F("h_corrforxaMAIN0_HE", " ", 70, 0., 700000.);
-    h_corrforxaADDI_HE = new TH1F("h_corrforxaADDI_HE", " ", 70, 0., 700000.);
-    h_corrforxaADDI0_HE = new TH1F("h_corrforxaADDI0_HE", " ", 70, 0., 700000.);
+    h_corrforxaMAIN_HE = fs_->make<TH1F>("h_corrforxaMAIN_HE", " ", 70, 0., 700000.);
+    h_corrforxaMAIN0_HE = fs_->make<TH1F>("h_corrforxaMAIN0_HE", " ", 70, 0., 700000.);
+    h_corrforxaADDI_HE = fs_->make<TH1F>("h_corrforxaADDI_HE", " ", 70, 0., 700000.);
+    h_corrforxaADDI0_HE = fs_->make<TH1F>("h_corrforxaADDI0_HE", " ", 70, 0., 700000.);
 
-    h_mapDepth1ADCAmpl225_HE = new TH2F("h_mapDepth1ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl225_HE = new TH2F("h_mapDepth2ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl225_HE = new TH2F("h_mapDepth3ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl225_HE = new TH2F("h_mapDepth4ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5ADCAmpl225_HE = new TH2F("h_mapDepth5ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6ADCAmpl225_HE = new TH2F("h_mapDepth6ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7ADCAmpl225_HE = new TH2F("h_mapDepth7ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1ADCAmpl225Copy_HE = new TH2F("h_mapDepth1ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl225Copy_HE = new TH2F("h_mapDepth2ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl225Copy_HE = new TH2F("h_mapDepth3ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl225Copy_HE = new TH2F("h_mapDepth4ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5ADCAmpl225Copy_HE = new TH2F("h_mapDepth5ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6ADCAmpl225Copy_HE = new TH2F("h_mapDepth6ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7ADCAmpl225Copy_HE = new TH2F("h_mapDepth7ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmpl225_HE = fs_->make<TH2F>("h_mapDepth1ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl225_HE = fs_->make<TH2F>("h_mapDepth2ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl225_HE = fs_->make<TH2F>("h_mapDepth3ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl225_HE = fs_->make<TH2F>("h_mapDepth4ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5ADCAmpl225_HE = fs_->make<TH2F>("h_mapDepth5ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6ADCAmpl225_HE = fs_->make<TH2F>("h_mapDepth6ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7ADCAmpl225_HE = fs_->make<TH2F>("h_mapDepth7ADCAmpl225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmpl225Copy_HE =
+        fs_->make<TH2F>("h_mapDepth1ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl225Copy_HE =
+        fs_->make<TH2F>("h_mapDepth2ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl225Copy_HE =
+        fs_->make<TH2F>("h_mapDepth3ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl225Copy_HE =
+        fs_->make<TH2F>("h_mapDepth4ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5ADCAmpl225Copy_HE =
+        fs_->make<TH2F>("h_mapDepth5ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6ADCAmpl225Copy_HE =
+        fs_->make<TH2F>("h_mapDepth6ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7ADCAmpl225Copy_HE =
+        fs_->make<TH2F>("h_mapDepth7ADCAmpl225Copy_HE", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_mapDepth1ADCAmpl_HE = new TH2F("h_mapDepth1ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl_HE = new TH2F("h_mapDepth2ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl_HE = new TH2F("h_mapDepth3ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl_HE = new TH2F("h_mapDepth4ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5ADCAmpl_HE = new TH2F("h_mapDepth5ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6ADCAmpl_HE = new TH2F("h_mapDepth6ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7ADCAmpl_HE = new TH2F("h_mapDepth7ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1ADCAmplSiPM_HE = new TH2F("h_mapDepth1ADCAmplSiPM_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmplSiPM_HE = new TH2F("h_mapDepth2ADCAmplSiPM_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmplSiPM_HE = new TH2F("h_mapDepth3ADCAmplSiPM_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmpl_HE = fs_->make<TH2F>("h_mapDepth1ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl_HE = fs_->make<TH2F>("h_mapDepth2ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl_HE = fs_->make<TH2F>("h_mapDepth3ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl_HE = fs_->make<TH2F>("h_mapDepth4ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5ADCAmpl_HE = fs_->make<TH2F>("h_mapDepth5ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6ADCAmpl_HE = fs_->make<TH2F>("h_mapDepth6ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7ADCAmpl_HE = fs_->make<TH2F>("h_mapDepth7ADCAmpl_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmplSiPM_HE = fs_->make<TH2F>("h_mapDepth1ADCAmplSiPM_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmplSiPM_HE = fs_->make<TH2F>("h_mapDepth2ADCAmplSiPM_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmplSiPM_HE = fs_->make<TH2F>("h_mapDepth3ADCAmplSiPM_HE", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_TSmeanA_HE = new TH1F("h_TSmeanA_HE", " ", 100, -2., 8.);
-    h_mapDepth1TSmeanA225_HE = new TH2F("h_mapDepth1TSmeanA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2TSmeanA225_HE = new TH2F("h_mapDepth2TSmeanA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3TSmeanA225_HE = new TH2F("h_mapDepth3TSmeanA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4TSmeanA225_HE = new TH2F("h_mapDepth4TSmeanA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5TSmeanA225_HE = new TH2F("h_mapDepth5TSmeanA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6TSmeanA225_HE = new TH2F("h_mapDepth6TSmeanA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7TSmeanA225_HE = new TH2F("h_mapDepth7TSmeanA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1TSmeanA_HE = new TH2F("h_mapDepth1TSmeanA_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2TSmeanA_HE = new TH2F("h_mapDepth2TSmeanA_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3TSmeanA_HE = new TH2F("h_mapDepth3TSmeanA_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4TSmeanA_HE = new TH2F("h_mapDepth4TSmeanA_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5TSmeanA_HE = new TH2F("h_mapDepth5TSmeanA_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6TSmeanA_HE = new TH2F("h_mapDepth6TSmeanA_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7TSmeanA_HE = new TH2F("h_mapDepth7TSmeanA_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_TSmaxA_HE = new TH1F("h_TSmaxA_HE", " ", 100, -1., 11.);
-    h_mapDepth1TSmaxA225_HE = new TH2F("h_mapDepth1TSmaxA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2TSmaxA225_HE = new TH2F("h_mapDepth2TSmaxA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3TSmaxA225_HE = new TH2F("h_mapDepth3TSmaxA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4TSmaxA225_HE = new TH2F("h_mapDepth4TSmaxA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5TSmaxA225_HE = new TH2F("h_mapDepth5TSmaxA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6TSmaxA225_HE = new TH2F("h_mapDepth6TSmaxA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7TSmaxA225_HE = new TH2F("h_mapDepth7TSmaxA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1TSmaxA_HE = new TH2F("h_mapDepth1TSmaxA_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2TSmaxA_HE = new TH2F("h_mapDepth2TSmaxA_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3TSmaxA_HE = new TH2F("h_mapDepth3TSmaxA_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4TSmaxA_HE = new TH2F("h_mapDepth4TSmaxA_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5TSmaxA_HE = new TH2F("h_mapDepth5TSmaxA_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6TSmaxA_HE = new TH2F("h_mapDepth6TSmaxA_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7TSmaxA_HE = new TH2F("h_mapDepth7TSmaxA_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_TSmeanA_HE = fs_->make<TH1F>("h_TSmeanA_HE", " ", 100, -2., 8.);
+    h_mapDepth1TSmeanA225_HE = fs_->make<TH2F>("h_mapDepth1TSmeanA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2TSmeanA225_HE = fs_->make<TH2F>("h_mapDepth2TSmeanA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3TSmeanA225_HE = fs_->make<TH2F>("h_mapDepth3TSmeanA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4TSmeanA225_HE = fs_->make<TH2F>("h_mapDepth4TSmeanA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5TSmeanA225_HE = fs_->make<TH2F>("h_mapDepth5TSmeanA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6TSmeanA225_HE = fs_->make<TH2F>("h_mapDepth6TSmeanA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7TSmeanA225_HE = fs_->make<TH2F>("h_mapDepth7TSmeanA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1TSmeanA_HE = fs_->make<TH2F>("h_mapDepth1TSmeanA_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2TSmeanA_HE = fs_->make<TH2F>("h_mapDepth2TSmeanA_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3TSmeanA_HE = fs_->make<TH2F>("h_mapDepth3TSmeanA_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4TSmeanA_HE = fs_->make<TH2F>("h_mapDepth4TSmeanA_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5TSmeanA_HE = fs_->make<TH2F>("h_mapDepth5TSmeanA_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6TSmeanA_HE = fs_->make<TH2F>("h_mapDepth6TSmeanA_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7TSmeanA_HE = fs_->make<TH2F>("h_mapDepth7TSmeanA_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_TSmaxA_HE = fs_->make<TH1F>("h_TSmaxA_HE", " ", 100, -1., 11.);
+    h_mapDepth1TSmaxA225_HE = fs_->make<TH2F>("h_mapDepth1TSmaxA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2TSmaxA225_HE = fs_->make<TH2F>("h_mapDepth2TSmaxA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3TSmaxA225_HE = fs_->make<TH2F>("h_mapDepth3TSmaxA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4TSmaxA225_HE = fs_->make<TH2F>("h_mapDepth4TSmaxA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5TSmaxA225_HE = fs_->make<TH2F>("h_mapDepth5TSmaxA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6TSmaxA225_HE = fs_->make<TH2F>("h_mapDepth6TSmaxA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7TSmaxA225_HE = fs_->make<TH2F>("h_mapDepth7TSmaxA225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1TSmaxA_HE = fs_->make<TH2F>("h_mapDepth1TSmaxA_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2TSmaxA_HE = fs_->make<TH2F>("h_mapDepth2TSmaxA_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3TSmaxA_HE = fs_->make<TH2F>("h_mapDepth3TSmaxA_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4TSmaxA_HE = fs_->make<TH2F>("h_mapDepth4TSmaxA_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5TSmaxA_HE = fs_->make<TH2F>("h_mapDepth5TSmaxA_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6TSmaxA_HE = fs_->make<TH2F>("h_mapDepth6TSmaxA_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7TSmaxA_HE = fs_->make<TH2F>("h_mapDepth7TSmaxA_HE", " ", neta, -41., 41., nphi, 0., bphi);
     // RMS:
-    h_Amplitude_HE = new TH1F("h_Amplitude_HE", " ", 100, 0., 5.5);
-    h_mapDepth1Amplitude225_HE = new TH2F("h_mapDepth1Amplitude225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Amplitude225_HE = new TH2F("h_mapDepth2Amplitude225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Amplitude225_HE = new TH2F("h_mapDepth3Amplitude225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Amplitude225_HE = new TH2F("h_mapDepth4Amplitude225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5Amplitude225_HE = new TH2F("h_mapDepth5Amplitude225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6Amplitude225_HE = new TH2F("h_mapDepth6Amplitude225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7Amplitude225_HE = new TH2F("h_mapDepth7Amplitude225_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Amplitude_HE = new TH2F("h_mapDepth1Amplitude_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Amplitude_HE = new TH2F("h_mapDepth2Amplitude_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Amplitude_HE = new TH2F("h_mapDepth3Amplitude_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Amplitude_HE = new TH2F("h_mapDepth4Amplitude_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5Amplitude_HE = new TH2F("h_mapDepth5Amplitude_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6Amplitude_HE = new TH2F("h_mapDepth6Amplitude_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7Amplitude_HE = new TH2F("h_mapDepth7Amplitude_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_Amplitude_HE = fs_->make<TH1F>("h_Amplitude_HE", " ", 100, 0., 5.5);
+    h_mapDepth1Amplitude225_HE = fs_->make<TH2F>("h_mapDepth1Amplitude225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Amplitude225_HE = fs_->make<TH2F>("h_mapDepth2Amplitude225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Amplitude225_HE = fs_->make<TH2F>("h_mapDepth3Amplitude225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Amplitude225_HE = fs_->make<TH2F>("h_mapDepth4Amplitude225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5Amplitude225_HE = fs_->make<TH2F>("h_mapDepth5Amplitude225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6Amplitude225_HE = fs_->make<TH2F>("h_mapDepth6Amplitude225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7Amplitude225_HE = fs_->make<TH2F>("h_mapDepth7Amplitude225_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Amplitude_HE = fs_->make<TH2F>("h_mapDepth1Amplitude_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Amplitude_HE = fs_->make<TH2F>("h_mapDepth2Amplitude_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Amplitude_HE = fs_->make<TH2F>("h_mapDepth3Amplitude_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Amplitude_HE = fs_->make<TH2F>("h_mapDepth4Amplitude_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5Amplitude_HE = fs_->make<TH2F>("h_mapDepth5Amplitude_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6Amplitude_HE = fs_->make<TH2F>("h_mapDepth6Amplitude_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7Amplitude_HE = fs_->make<TH2F>("h_mapDepth7Amplitude_HE", " ", neta, -41., 41., nphi, 0., bphi);
 
     // Ratio:
-    h_Ampl_HE = new TH1F("h_Ampl_HE", " ", 100, 0., 1.1);
-    h_mapDepth1Ampl047_HE = new TH2F("h_mapDepth1Ampl047_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ampl047_HE = new TH2F("h_mapDepth2Ampl047_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Ampl047_HE = new TH2F("h_mapDepth3Ampl047_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Ampl047_HE = new TH2F("h_mapDepth4Ampl047_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5Ampl047_HE = new TH2F("h_mapDepth5Ampl047_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6Ampl047_HE = new TH2F("h_mapDepth6Ampl047_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7Ampl047_HE = new TH2F("h_mapDepth7Ampl047_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Ampl_HE = new TH2F("h_mapDepth1Ampl_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ampl_HE = new TH2F("h_mapDepth2Ampl_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Ampl_HE = new TH2F("h_mapDepth3Ampl_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Ampl_HE = new TH2F("h_mapDepth4Ampl_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5Ampl_HE = new TH2F("h_mapDepth5Ampl_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6Ampl_HE = new TH2F("h_mapDepth6Ampl_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7Ampl_HE = new TH2F("h_mapDepth7Ampl_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1AmplE34_HE = new TH2F("h_mapDepth1AmplE34_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2AmplE34_HE = new TH2F("h_mapDepth2AmplE34_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3AmplE34_HE = new TH2F("h_mapDepth3AmplE34_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4AmplE34_HE = new TH2F("h_mapDepth4AmplE34_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5AmplE34_HE = new TH2F("h_mapDepth5AmplE34_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6AmplE34_HE = new TH2F("h_mapDepth6AmplE34_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7AmplE34_HE = new TH2F("h_mapDepth7AmplE34_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1_HE = new TH2F("h_mapDepth1_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2_HE = new TH2F("h_mapDepth2_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3_HE = new TH2F("h_mapDepth3_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4_HE = new TH2F("h_mapDepth4_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5_HE = new TH2F("h_mapDepth5_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6_HE = new TH2F("h_mapDepth6_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7_HE = new TH2F("h_mapDepth7_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_Ampl_HE = fs_->make<TH1F>("h_Ampl_HE", " ", 100, 0., 1.1);
+    h_mapDepth1Ampl047_HE = fs_->make<TH2F>("h_mapDepth1Ampl047_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ampl047_HE = fs_->make<TH2F>("h_mapDepth2Ampl047_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Ampl047_HE = fs_->make<TH2F>("h_mapDepth3Ampl047_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Ampl047_HE = fs_->make<TH2F>("h_mapDepth4Ampl047_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5Ampl047_HE = fs_->make<TH2F>("h_mapDepth5Ampl047_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6Ampl047_HE = fs_->make<TH2F>("h_mapDepth6Ampl047_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7Ampl047_HE = fs_->make<TH2F>("h_mapDepth7Ampl047_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Ampl_HE = fs_->make<TH2F>("h_mapDepth1Ampl_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ampl_HE = fs_->make<TH2F>("h_mapDepth2Ampl_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Ampl_HE = fs_->make<TH2F>("h_mapDepth3Ampl_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Ampl_HE = fs_->make<TH2F>("h_mapDepth4Ampl_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5Ampl_HE = fs_->make<TH2F>("h_mapDepth5Ampl_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6Ampl_HE = fs_->make<TH2F>("h_mapDepth6Ampl_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7Ampl_HE = fs_->make<TH2F>("h_mapDepth7Ampl_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1AmplE34_HE = fs_->make<TH2F>("h_mapDepth1AmplE34_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2AmplE34_HE = fs_->make<TH2F>("h_mapDepth2AmplE34_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3AmplE34_HE = fs_->make<TH2F>("h_mapDepth3AmplE34_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4AmplE34_HE = fs_->make<TH2F>("h_mapDepth4AmplE34_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5AmplE34_HE = fs_->make<TH2F>("h_mapDepth5AmplE34_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6AmplE34_HE = fs_->make<TH2F>("h_mapDepth6AmplE34_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7AmplE34_HE = fs_->make<TH2F>("h_mapDepth7AmplE34_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1_HE = fs_->make<TH2F>("h_mapDepth1_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2_HE = fs_->make<TH2F>("h_mapDepth2_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3_HE = fs_->make<TH2F>("h_mapDepth3_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4_HE = fs_->make<TH2F>("h_mapDepth4_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5_HE = fs_->make<TH2F>("h_mapDepth5_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6_HE = fs_->make<TH2F>("h_mapDepth6_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7_HE = fs_->make<TH2F>("h_mapDepth7_HE", " ", neta, -41., 41., nphi, 0., bphi);
     ///////////////////////////////////////////////////////////////////////////////////////////////////  IterativeMethodCalibrationGroup
-    h_mapenophinorm_HE1 = new TH2F("h_mapenophinorm_HE1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapenophinorm_HE2 = new TH2F("h_mapenophinorm_HE2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapenophinorm_HE3 = new TH2F("h_mapenophinorm_HE3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapenophinorm_HE4 = new TH2F("h_mapenophinorm_HE4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapenophinorm_HE5 = new TH2F("h_mapenophinorm_HE5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapenophinorm_HE6 = new TH2F("h_mapenophinorm_HE6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapenophinorm_HE7 = new TH2F("h_mapenophinorm_HE7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapenophinorm2_HE1 = new TH2F("h_mapenophinorm2_HE1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapenophinorm2_HE2 = new TH2F("h_mapenophinorm2_HE2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapenophinorm2_HE3 = new TH2F("h_mapenophinorm2_HE3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapenophinorm2_HE4 = new TH2F("h_mapenophinorm2_HE4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapenophinorm2_HE5 = new TH2F("h_mapenophinorm2_HE5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapenophinorm2_HE6 = new TH2F("h_mapenophinorm2_HE6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapenophinorm2_HE7 = new TH2F("h_mapenophinorm2_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapenophinorm_HE1 = fs_->make<TH2F>("h_mapenophinorm_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapenophinorm_HE2 = fs_->make<TH2F>("h_mapenophinorm_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapenophinorm_HE3 = fs_->make<TH2F>("h_mapenophinorm_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapenophinorm_HE4 = fs_->make<TH2F>("h_mapenophinorm_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapenophinorm_HE5 = fs_->make<TH2F>("h_mapenophinorm_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapenophinorm_HE6 = fs_->make<TH2F>("h_mapenophinorm_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapenophinorm_HE7 = fs_->make<TH2F>("h_mapenophinorm_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapenophinorm2_HE1 = fs_->make<TH2F>("h_mapenophinorm2_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapenophinorm2_HE2 = fs_->make<TH2F>("h_mapenophinorm2_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapenophinorm2_HE3 = fs_->make<TH2F>("h_mapenophinorm2_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapenophinorm2_HE4 = fs_->make<TH2F>("h_mapenophinorm2_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapenophinorm2_HE5 = fs_->make<TH2F>("h_mapenophinorm2_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapenophinorm2_HE6 = fs_->make<TH2F>("h_mapenophinorm2_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapenophinorm2_HE7 = fs_->make<TH2F>("h_mapenophinorm2_HE7", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_maprphinorm_HE1 = new TH2F("h_maprphinorm_HE1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm_HE2 = new TH2F("h_maprphinorm_HE2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm_HE3 = new TH2F("h_maprphinorm_HE3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm_HE4 = new TH2F("h_maprphinorm_HE4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm_HE5 = new TH2F("h_maprphinorm_HE5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm_HE6 = new TH2F("h_maprphinorm_HE6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm_HE7 = new TH2F("h_maprphinorm_HE7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm2_HE1 = new TH2F("h_maprphinorm2_HE1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm2_HE2 = new TH2F("h_maprphinorm2_HE2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm2_HE3 = new TH2F("h_maprphinorm2_HE3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm2_HE4 = new TH2F("h_maprphinorm2_HE4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm2_HE5 = new TH2F("h_maprphinorm2_HE5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm2_HE6 = new TH2F("h_maprphinorm2_HE6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm2_HE7 = new TH2F("h_maprphinorm2_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm_HE1 = fs_->make<TH2F>("h_maprphinorm_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm_HE2 = fs_->make<TH2F>("h_maprphinorm_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm_HE3 = fs_->make<TH2F>("h_maprphinorm_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm_HE4 = fs_->make<TH2F>("h_maprphinorm_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm_HE5 = fs_->make<TH2F>("h_maprphinorm_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm_HE6 = fs_->make<TH2F>("h_maprphinorm_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm_HE7 = fs_->make<TH2F>("h_maprphinorm_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm2_HE1 = fs_->make<TH2F>("h_maprphinorm2_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm2_HE2 = fs_->make<TH2F>("h_maprphinorm2_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm2_HE3 = fs_->make<TH2F>("h_maprphinorm2_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm2_HE4 = fs_->make<TH2F>("h_maprphinorm2_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm2_HE5 = fs_->make<TH2F>("h_maprphinorm2_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm2_HE6 = fs_->make<TH2F>("h_maprphinorm2_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm2_HE7 = fs_->make<TH2F>("h_maprphinorm2_HE7", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_maprphinorm0_HE1 = new TH2F("h_maprphinorm0_HE1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm0_HE2 = new TH2F("h_maprphinorm0_HE2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm0_HE3 = new TH2F("h_maprphinorm0_HE3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm0_HE4 = new TH2F("h_maprphinorm0_HE4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm0_HE5 = new TH2F("h_maprphinorm0_HE5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm0_HE6 = new TH2F("h_maprphinorm0_HE6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_maprphinorm0_HE7 = new TH2F("h_maprphinorm0_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm0_HE1 = fs_->make<TH2F>("h_maprphinorm0_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm0_HE2 = fs_->make<TH2F>("h_maprphinorm0_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm0_HE3 = fs_->make<TH2F>("h_maprphinorm0_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm0_HE4 = fs_->make<TH2F>("h_maprphinorm0_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm0_HE5 = fs_->make<TH2F>("h_maprphinorm0_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm0_HE6 = fs_->make<TH2F>("h_maprphinorm0_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_maprphinorm0_HE7 = fs_->make<TH2F>("h_maprphinorm0_HE7", " ", neta, -41., 41., nphi, 0., bphi);
 
     //
     // Didi as done in Reco
     //HB:
-    h_amplitudechannel0_HB1 = new TH2F("h_amplitudechannel0_HB1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HB1 = new TH2F("h_amplitudechannel1_HB1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HB1 = new TH2F("h_amplitudechannel2_HB1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HB2 = new TH2F("h_amplitudechannel0_HB2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HB2 = new TH2F("h_amplitudechannel1_HB2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HB2 = new TH2F("h_amplitudechannel2_HB2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HB3 = new TH2F("h_amplitudechannel0_HB3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HB3 = new TH2F("h_amplitudechannel1_HB3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HB3 = new TH2F("h_amplitudechannel2_HB3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HB4 = new TH2F("h_amplitudechannel0_HB4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HB4 = new TH2F("h_amplitudechannel1_HB4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HB4 = new TH2F("h_amplitudechannel2_HB4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HB1 = fs_->make<TH2F>("h_amplitudechannel0_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HB1 = fs_->make<TH2F>("h_amplitudechannel1_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HB1 = fs_->make<TH2F>("h_amplitudechannel2_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HB2 = fs_->make<TH2F>("h_amplitudechannel0_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HB2 = fs_->make<TH2F>("h_amplitudechannel1_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HB2 = fs_->make<TH2F>("h_amplitudechannel2_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HB3 = fs_->make<TH2F>("h_amplitudechannel0_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HB3 = fs_->make<TH2F>("h_amplitudechannel1_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HB3 = fs_->make<TH2F>("h_amplitudechannel2_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HB4 = fs_->make<TH2F>("h_amplitudechannel0_HB4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HB4 = fs_->make<TH2F>("h_amplitudechannel1_HB4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HB4 = fs_->make<TH2F>("h_amplitudechannel2_HB4", " ", neta, -41., 41., nphi, 0., bphi);
     //HE:
-    h_amplitudechannel0_HE1 = new TH2F("h_amplitudechannel0_HE1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HE1 = new TH2F("h_amplitudechannel1_HE1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HE1 = new TH2F("h_amplitudechannel2_HE1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HE2 = new TH2F("h_amplitudechannel0_HE2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HE2 = new TH2F("h_amplitudechannel1_HE2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HE2 = new TH2F("h_amplitudechannel2_HE2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HE3 = new TH2F("h_amplitudechannel0_HE3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HE3 = new TH2F("h_amplitudechannel1_HE3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HE3 = new TH2F("h_amplitudechannel2_HE3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HE4 = new TH2F("h_amplitudechannel0_HE4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HE4 = new TH2F("h_amplitudechannel1_HE4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HE4 = new TH2F("h_amplitudechannel2_HE4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HE5 = new TH2F("h_amplitudechannel0_HE5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HE5 = new TH2F("h_amplitudechannel1_HE5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HE5 = new TH2F("h_amplitudechannel2_HE5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HE6 = new TH2F("h_amplitudechannel0_HE6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HE6 = new TH2F("h_amplitudechannel1_HE6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HE6 = new TH2F("h_amplitudechannel2_HE6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HE7 = new TH2F("h_amplitudechannel0_HE7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HE7 = new TH2F("h_amplitudechannel1_HE7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HE7 = new TH2F("h_amplitudechannel2_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HE1 = fs_->make<TH2F>("h_amplitudechannel0_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HE1 = fs_->make<TH2F>("h_amplitudechannel1_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HE1 = fs_->make<TH2F>("h_amplitudechannel2_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HE2 = fs_->make<TH2F>("h_amplitudechannel0_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HE2 = fs_->make<TH2F>("h_amplitudechannel1_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HE2 = fs_->make<TH2F>("h_amplitudechannel2_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HE3 = fs_->make<TH2F>("h_amplitudechannel0_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HE3 = fs_->make<TH2F>("h_amplitudechannel1_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HE3 = fs_->make<TH2F>("h_amplitudechannel2_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HE4 = fs_->make<TH2F>("h_amplitudechannel0_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HE4 = fs_->make<TH2F>("h_amplitudechannel1_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HE4 = fs_->make<TH2F>("h_amplitudechannel2_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HE5 = fs_->make<TH2F>("h_amplitudechannel0_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HE5 = fs_->make<TH2F>("h_amplitudechannel1_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HE5 = fs_->make<TH2F>("h_amplitudechannel2_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HE6 = fs_->make<TH2F>("h_amplitudechannel0_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HE6 = fs_->make<TH2F>("h_amplitudechannel1_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HE6 = fs_->make<TH2F>("h_amplitudechannel2_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HE7 = fs_->make<TH2F>("h_amplitudechannel0_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HE7 = fs_->make<TH2F>("h_amplitudechannel1_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HE7 = fs_->make<TH2F>("h_amplitudechannel2_HE7", " ", neta, -41., 41., nphi, 0., bphi);
     //HF:
-    h_amplitudechannel0_HF1 = new TH2F("h_amplitudechannel0_HF1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HF1 = new TH2F("h_amplitudechannel1_HF1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HF1 = new TH2F("h_amplitudechannel2_HF1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HF2 = new TH2F("h_amplitudechannel0_HF2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HF2 = new TH2F("h_amplitudechannel1_HF2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HF2 = new TH2F("h_amplitudechannel2_HF2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HF3 = new TH2F("h_amplitudechannel0_HF3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HF3 = new TH2F("h_amplitudechannel1_HF3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HF3 = new TH2F("h_amplitudechannel2_HF3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HF4 = new TH2F("h_amplitudechannel0_HF4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HF4 = new TH2F("h_amplitudechannel1_HF4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HF4 = new TH2F("h_amplitudechannel2_HF4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HF1 = fs_->make<TH2F>("h_amplitudechannel0_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HF1 = fs_->make<TH2F>("h_amplitudechannel1_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HF1 = fs_->make<TH2F>("h_amplitudechannel2_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HF2 = fs_->make<TH2F>("h_amplitudechannel0_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HF2 = fs_->make<TH2F>("h_amplitudechannel1_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HF2 = fs_->make<TH2F>("h_amplitudechannel2_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HF3 = fs_->make<TH2F>("h_amplitudechannel0_HF3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HF3 = fs_->make<TH2F>("h_amplitudechannel1_HF3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HF3 = fs_->make<TH2F>("h_amplitudechannel2_HF3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HF4 = fs_->make<TH2F>("h_amplitudechannel0_HF4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HF4 = fs_->make<TH2F>("h_amplitudechannel1_HF4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HF4 = fs_->make<TH2F>("h_amplitudechannel2_HF4", " ", neta, -41., 41., nphi, 0., bphi);
 
     // Reco
-    h_energyhitSignal_HB = new TH1F("h_energyhitSignal_HB", " ", npfit, 0., 0.);  //
-    h_energyhitSignal_HE = new TH1F("h_energyhitSignal_HE", " ", npfit, 0., 0.);  //
-    h_energyhitSignal_HF = new TH1F("h_energyhitSignal_HF", " ", npfit, 0., 0.);  //
-    h_energyhitNoise_HB = new TH1F("h_energyhitNoise_HB", " ", npfit, 0., 0.);    //
-    h_energyhitNoise_HE = new TH1F("h_energyhitNoise_HE", " ", npfit, 0., 0.);    //
-    h_energyhitNoise_HF = new TH1F("h_energyhitNoise_HF", " ", npfit, 0., 0.);    //
+    h_energyhitSignal_HB = fs_->make<TH1F>("h_energyhitSignal_HB", " ", npfit, 0., 0.);  //
+    h_energyhitSignal_HE = fs_->make<TH1F>("h_energyhitSignal_HE", " ", npfit, 0., 0.);  //
+    h_energyhitSignal_HF = fs_->make<TH1F>("h_energyhitSignal_HF", " ", npfit, 0., 0.);  //
+    h_energyhitNoise_HB = fs_->make<TH1F>("h_energyhitNoise_HB", " ", npfit, 0., 0.);    //
+    h_energyhitNoise_HE = fs_->make<TH1F>("h_energyhitNoise_HE", " ", npfit, 0., 0.);    //
+    h_energyhitNoise_HF = fs_->make<TH1F>("h_energyhitNoise_HF", " ", npfit, 0., 0.);    //
 
     //HB:
-    h_recSignalEnergy0_HB1 = new TH2F("h_recSignalEnergy0_HB1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HB1 = new TH2F("h_recSignalEnergy1_HB1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HB1 = new TH2F("h_recSignalEnergy2_HB1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HB2 = new TH2F("h_recSignalEnergy0_HB2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HB2 = new TH2F("h_recSignalEnergy1_HB2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HB2 = new TH2F("h_recSignalEnergy2_HB2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HB3 = new TH2F("h_recSignalEnergy0_HB3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HB3 = new TH2F("h_recSignalEnergy1_HB3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HB3 = new TH2F("h_recSignalEnergy2_HB3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HB4 = new TH2F("h_recSignalEnergy0_HB4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HB4 = new TH2F("h_recSignalEnergy1_HB4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HB4 = new TH2F("h_recSignalEnergy2_HB4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HB1 = fs_->make<TH2F>("h_recSignalEnergy0_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HB1 = fs_->make<TH2F>("h_recSignalEnergy1_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HB1 = fs_->make<TH2F>("h_recSignalEnergy2_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HB2 = fs_->make<TH2F>("h_recSignalEnergy0_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HB2 = fs_->make<TH2F>("h_recSignalEnergy1_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HB2 = fs_->make<TH2F>("h_recSignalEnergy2_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HB3 = fs_->make<TH2F>("h_recSignalEnergy0_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HB3 = fs_->make<TH2F>("h_recSignalEnergy1_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HB3 = fs_->make<TH2F>("h_recSignalEnergy2_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HB4 = fs_->make<TH2F>("h_recSignalEnergy0_HB4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HB4 = fs_->make<TH2F>("h_recSignalEnergy1_HB4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HB4 = fs_->make<TH2F>("h_recSignalEnergy2_HB4", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_recNoiseEnergy0_HB1 = new TH2F("h_recNoiseEnergy0_HB1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HB1 = new TH2F("h_recNoiseEnergy1_HB1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HB1 = new TH2F("h_recNoiseEnergy2_HB1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HB2 = new TH2F("h_recNoiseEnergy0_HB2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HB2 = new TH2F("h_recNoiseEnergy1_HB2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HB2 = new TH2F("h_recNoiseEnergy2_HB2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HB3 = new TH2F("h_recNoiseEnergy0_HB3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HB3 = new TH2F("h_recNoiseEnergy1_HB3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HB3 = new TH2F("h_recNoiseEnergy2_HB3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HB4 = new TH2F("h_recNoiseEnergy0_HB4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HB4 = new TH2F("h_recNoiseEnergy1_HB4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HB4 = new TH2F("h_recNoiseEnergy2_HB4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HB1 = fs_->make<TH2F>("h_recNoiseEnergy0_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HB1 = fs_->make<TH2F>("h_recNoiseEnergy1_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HB1 = fs_->make<TH2F>("h_recNoiseEnergy2_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HB2 = fs_->make<TH2F>("h_recNoiseEnergy0_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HB2 = fs_->make<TH2F>("h_recNoiseEnergy1_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HB2 = fs_->make<TH2F>("h_recNoiseEnergy2_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HB3 = fs_->make<TH2F>("h_recNoiseEnergy0_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HB3 = fs_->make<TH2F>("h_recNoiseEnergy1_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HB3 = fs_->make<TH2F>("h_recNoiseEnergy2_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HB4 = fs_->make<TH2F>("h_recNoiseEnergy0_HB4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HB4 = fs_->make<TH2F>("h_recNoiseEnergy1_HB4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HB4 = fs_->make<TH2F>("h_recNoiseEnergy2_HB4", " ", neta, -41., 41., nphi, 0., bphi);
 
     //HE:
-    h_recSignalEnergy0_HE1 = new TH2F("h_recSignalEnergy0_HE1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HE1 = new TH2F("h_recSignalEnergy1_HE1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HE1 = new TH2F("h_recSignalEnergy2_HE1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HE2 = new TH2F("h_recSignalEnergy0_HE2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HE2 = new TH2F("h_recSignalEnergy1_HE2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HE2 = new TH2F("h_recSignalEnergy2_HE2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HE3 = new TH2F("h_recSignalEnergy0_HE3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HE3 = new TH2F("h_recSignalEnergy1_HE3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HE3 = new TH2F("h_recSignalEnergy2_HE3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HE4 = new TH2F("h_recSignalEnergy0_HE4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HE4 = new TH2F("h_recSignalEnergy1_HE4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HE4 = new TH2F("h_recSignalEnergy2_HE4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HE5 = new TH2F("h_recSignalEnergy0_HE5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HE5 = new TH2F("h_recSignalEnergy1_HE5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HE5 = new TH2F("h_recSignalEnergy2_HE5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HE6 = new TH2F("h_recSignalEnergy0_HE6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HE6 = new TH2F("h_recSignalEnergy1_HE6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HE6 = new TH2F("h_recSignalEnergy2_HE6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HE7 = new TH2F("h_recSignalEnergy0_HE7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HE7 = new TH2F("h_recSignalEnergy1_HE7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HE7 = new TH2F("h_recSignalEnergy2_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HE1 = fs_->make<TH2F>("h_recSignalEnergy0_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HE1 = fs_->make<TH2F>("h_recSignalEnergy1_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HE1 = fs_->make<TH2F>("h_recSignalEnergy2_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HE2 = fs_->make<TH2F>("h_recSignalEnergy0_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HE2 = fs_->make<TH2F>("h_recSignalEnergy1_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HE2 = fs_->make<TH2F>("h_recSignalEnergy2_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HE3 = fs_->make<TH2F>("h_recSignalEnergy0_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HE3 = fs_->make<TH2F>("h_recSignalEnergy1_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HE3 = fs_->make<TH2F>("h_recSignalEnergy2_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HE4 = fs_->make<TH2F>("h_recSignalEnergy0_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HE4 = fs_->make<TH2F>("h_recSignalEnergy1_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HE4 = fs_->make<TH2F>("h_recSignalEnergy2_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HE5 = fs_->make<TH2F>("h_recSignalEnergy0_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HE5 = fs_->make<TH2F>("h_recSignalEnergy1_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HE5 = fs_->make<TH2F>("h_recSignalEnergy2_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HE6 = fs_->make<TH2F>("h_recSignalEnergy0_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HE6 = fs_->make<TH2F>("h_recSignalEnergy1_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HE6 = fs_->make<TH2F>("h_recSignalEnergy2_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HE7 = fs_->make<TH2F>("h_recSignalEnergy0_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HE7 = fs_->make<TH2F>("h_recSignalEnergy1_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HE7 = fs_->make<TH2F>("h_recSignalEnergy2_HE7", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_recNoiseEnergy0_HE1 = new TH2F("h_recNoiseEnergy0_HE1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HE1 = new TH2F("h_recNoiseEnergy1_HE1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HE1 = new TH2F("h_recNoiseEnergy2_HE1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HE2 = new TH2F("h_recNoiseEnergy0_HE2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HE2 = new TH2F("h_recNoiseEnergy1_HE2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HE2 = new TH2F("h_recNoiseEnergy2_HE2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HE3 = new TH2F("h_recNoiseEnergy0_HE3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HE3 = new TH2F("h_recNoiseEnergy1_HE3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HE3 = new TH2F("h_recNoiseEnergy2_HE3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HE4 = new TH2F("h_recNoiseEnergy0_HE4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HE4 = new TH2F("h_recNoiseEnergy1_HE4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HE4 = new TH2F("h_recNoiseEnergy2_HE4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HE5 = new TH2F("h_recNoiseEnergy0_HE5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HE5 = new TH2F("h_recNoiseEnergy1_HE5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HE5 = new TH2F("h_recNoiseEnergy2_HE5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HE6 = new TH2F("h_recNoiseEnergy0_HE6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HE6 = new TH2F("h_recNoiseEnergy1_HE6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HE6 = new TH2F("h_recNoiseEnergy2_HE6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HE7 = new TH2F("h_recNoiseEnergy0_HE7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HE7 = new TH2F("h_recNoiseEnergy1_HE7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HE7 = new TH2F("h_recNoiseEnergy2_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HE1 = fs_->make<TH2F>("h_recNoiseEnergy0_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HE1 = fs_->make<TH2F>("h_recNoiseEnergy1_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HE1 = fs_->make<TH2F>("h_recNoiseEnergy2_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HE2 = fs_->make<TH2F>("h_recNoiseEnergy0_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HE2 = fs_->make<TH2F>("h_recNoiseEnergy1_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HE2 = fs_->make<TH2F>("h_recNoiseEnergy2_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HE3 = fs_->make<TH2F>("h_recNoiseEnergy0_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HE3 = fs_->make<TH2F>("h_recNoiseEnergy1_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HE3 = fs_->make<TH2F>("h_recNoiseEnergy2_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HE4 = fs_->make<TH2F>("h_recNoiseEnergy0_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HE4 = fs_->make<TH2F>("h_recNoiseEnergy1_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HE4 = fs_->make<TH2F>("h_recNoiseEnergy2_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HE5 = fs_->make<TH2F>("h_recNoiseEnergy0_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HE5 = fs_->make<TH2F>("h_recNoiseEnergy1_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HE5 = fs_->make<TH2F>("h_recNoiseEnergy2_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HE6 = fs_->make<TH2F>("h_recNoiseEnergy0_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HE6 = fs_->make<TH2F>("h_recNoiseEnergy1_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HE6 = fs_->make<TH2F>("h_recNoiseEnergy2_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HE7 = fs_->make<TH2F>("h_recNoiseEnergy0_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HE7 = fs_->make<TH2F>("h_recNoiseEnergy1_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HE7 = fs_->make<TH2F>("h_recNoiseEnergy2_HE7", " ", neta, -41., 41., nphi, 0., bphi);
 
     //HF:
-    h_recSignalEnergy0_HF1 = new TH2F("h_recSignalEnergy0_HF1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HF1 = new TH2F("h_recSignalEnergy1_HF1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HF1 = new TH2F("h_recSignalEnergy2_HF1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HF2 = new TH2F("h_recSignalEnergy0_HF2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HF2 = new TH2F("h_recSignalEnergy1_HF2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HF2 = new TH2F("h_recSignalEnergy2_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HF1 = fs_->make<TH2F>("h_recSignalEnergy0_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HF1 = fs_->make<TH2F>("h_recSignalEnergy1_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HF1 = fs_->make<TH2F>("h_recSignalEnergy2_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HF2 = fs_->make<TH2F>("h_recSignalEnergy0_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HF2 = fs_->make<TH2F>("h_recSignalEnergy1_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HF2 = fs_->make<TH2F>("h_recSignalEnergy2_HF2", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_recNoiseEnergy0_HF1 = new TH2F("h_recNoiseEnergy0_HF1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HF1 = new TH2F("h_recNoiseEnergy1_HF1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HF1 = new TH2F("h_recNoiseEnergy2_HF1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HF2 = new TH2F("h_recNoiseEnergy0_HF2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HF2 = new TH2F("h_recNoiseEnergy1_HF2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HF2 = new TH2F("h_recNoiseEnergy2_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HF1 = fs_->make<TH2F>("h_recNoiseEnergy0_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HF1 = fs_->make<TH2F>("h_recNoiseEnergy1_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HF1 = fs_->make<TH2F>("h_recNoiseEnergy2_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HF2 = fs_->make<TH2F>("h_recNoiseEnergy0_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HF2 = fs_->make<TH2F>("h_recNoiseEnergy1_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HF2 = fs_->make<TH2F>("h_recNoiseEnergy2_HF2", " ", neta, -41., 41., nphi, 0., bphi);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////  raddam:
     // RADDAM:
@@ -7928,213 +6645,220 @@ void CMTRawAnalyzer::beginJob() {
     int min80 = -100.;
     int max80 = 9000.;
     // fill for each digi (=each event, each channel)
-    h_mapDepth1RADDAM_HE = new TH2F("h_mapDepth1RADDAM_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2RADDAM_HE = new TH2F("h_mapDepth2RADDAM_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3RADDAM_HE = new TH2F("h_mapDepth3RADDAM_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1RADDAM0_HE = new TH2F("h_mapDepth1RADDAM0_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2RADDAM0_HE = new TH2F("h_mapDepth2RADDAM0_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3RADDAM0_HE = new TH2F("h_mapDepth3RADDAM0_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1RADDAM_HE = fs_->make<TH2F>("h_mapDepth1RADDAM_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2RADDAM_HE = fs_->make<TH2F>("h_mapDepth2RADDAM_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3RADDAM_HE = fs_->make<TH2F>("h_mapDepth3RADDAM_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1RADDAM0_HE = fs_->make<TH2F>("h_mapDepth1RADDAM0_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2RADDAM0_HE = fs_->make<TH2F>("h_mapDepth2RADDAM0_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3RADDAM0_HE = fs_->make<TH2F>("h_mapDepth3RADDAM0_HE", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_sigLayer1RADDAM_HE = new TH1F("h_sigLayer1RADDAM_HE", " ", neta, -41., 41.);
-    h_sigLayer2RADDAM_HE = new TH1F("h_sigLayer2RADDAM_HE", " ", neta, -41., 41.);
-    h_sigLayer1RADDAM0_HE = new TH1F("h_sigLayer1RADDAM0_HE", " ", neta, -41., 41.);
-    h_sigLayer2RADDAM0_HE = new TH1F("h_sigLayer2RADDAM0_HE", " ", neta, -41., 41.);
-    h_AamplitudewithPedSubtr_RADDAM_HE = new TH1F("h_AamplitudewithPedSubtr_RADDAM_HE", " ", 100, min80, max80);
+    h_sigLayer1RADDAM_HE = fs_->make<TH1F>("h_sigLayer1RADDAM_HE", " ", neta, -41., 41.);
+    h_sigLayer2RADDAM_HE = fs_->make<TH1F>("h_sigLayer2RADDAM_HE", " ", neta, -41., 41.);
+    h_sigLayer1RADDAM0_HE = fs_->make<TH1F>("h_sigLayer1RADDAM0_HE", " ", neta, -41., 41.);
+    h_sigLayer2RADDAM0_HE = fs_->make<TH1F>("h_sigLayer2RADDAM0_HE", " ", neta, -41., 41.);
+    h_AamplitudewithPedSubtr_RADDAM_HE = fs_->make<TH1F>("h_AamplitudewithPedSubtr_RADDAM_HE", " ", 100, min80, max80);
     h_AamplitudewithPedSubtr_RADDAM_HEzoom0 =
-        new TH1F("h_AamplitudewithPedSubtr_RADDAM_HEzoom0", " ", 100, min80, 4000.);
+        fs_->make<TH1F>("h_AamplitudewithPedSubtr_RADDAM_HEzoom0", " ", 100, min80, 4000.);
     h_AamplitudewithPedSubtr_RADDAM_HEzoom1 =
-        new TH1F("h_AamplitudewithPedSubtr_RADDAM_HEzoom1", " ", 100, min80, 1000.);
-    h_mapDepth3RADDAM16_HE = new TH1F("h_mapDepth3RADDAM16_HE", " ", 100, min80, max80);
-    h_A_Depth1RADDAM_HE = new TH1F("h_A_Depth1RADDAM_HE", " ", 100, min80, max80);
-    h_A_Depth2RADDAM_HE = new TH1F("h_A_Depth2RADDAM_HE", " ", 100, min80, max80);
-    h_A_Depth3RADDAM_HE = new TH1F("h_A_Depth3RADDAM_HE", " ", 100, min80, max80);
+        fs_->make<TH1F>("h_AamplitudewithPedSubtr_RADDAM_HEzoom1", " ", 100, min80, 1000.);
+    h_mapDepth3RADDAM16_HE = fs_->make<TH1F>("h_mapDepth3RADDAM16_HE", " ", 100, min80, max80);
+    h_A_Depth1RADDAM_HE = fs_->make<TH1F>("h_A_Depth1RADDAM_HE", " ", 100, min80, max80);
+    h_A_Depth2RADDAM_HE = fs_->make<TH1F>("h_A_Depth2RADDAM_HE", " ", 100, min80, max80);
+    h_A_Depth3RADDAM_HE = fs_->make<TH1F>("h_A_Depth3RADDAM_HE", " ", 100, min80, max80);
     int min90 = 0.;
     int max90 = 5000.;
-    h_sumphiEta16Depth3RADDAM_HED2 = new TH1F("h_sumphiEta16Depth3RADDAM_HED2", " ", 100, min90, 70. * max90);
-    h_Eta16Depth3RADDAM_HED2 = new TH1F("h_Eta16Depth3RADDAM_HED2", " ", 100, min90, max90);
-    h_NphiForEta16Depth3RADDAM_HED2 = new TH1F("h_NphiForEta16Depth3RADDAM_HED2", " ", 100, 0, 100.);
-    h_sumphiEta16Depth3RADDAM_HED2P = new TH1F("h_sumphiEta16Depth3RADDAM_HED2P", " ", 100, min90, 70. * max90);
-    h_Eta16Depth3RADDAM_HED2P = new TH1F("h_Eta16Depth3RADDAM_HED2P", " ", 100, min90, max90);
-    h_NphiForEta16Depth3RADDAM_HED2P = new TH1F("h_NphiForEta16Depth3RADDAM_HED2P", " ", 100, 0, 100.);
-    h_sumphiEta16Depth3RADDAM_HED2ALL = new TH1F("h_sumphiEta16Depth3RADDAM_HED2ALL", " ", 100, min90, 70. * max90);
-    h_Eta16Depth3RADDAM_HED2ALL = new TH1F("h_Eta16Depth3RADDAM_HED2ALL", " ", 100, min90, max90);
-    h_NphiForEta16Depth3RADDAM_HED2ALL = new TH1F("h_NphiForEta16Depth3RADDAM_HED2ALL", " ", 100, 0, 100.);
-    h_sigLayer1RADDAM5_HE = new TH1F("h_sigLayer1RADDAM5_HE", " ", neta, -41., 41.);
-    h_sigLayer2RADDAM5_HE = new TH1F("h_sigLayer2RADDAM5_HE", " ", neta, -41., 41.);
-    h_sigLayer1RADDAM6_HE = new TH1F("h_sigLayer1RADDAM6_HE", " ", neta, -41., 41.);
-    h_sigLayer2RADDAM6_HE = new TH1F("h_sigLayer2RADDAM6_HE", " ", neta, -41., 41.);
-    h_sigLayer1RADDAM5_HED2 = new TH1F("h_sigLayer1RADDAM5_HED2", " ", neta, -41., 41.);
-    h_sigLayer2RADDAM5_HED2 = new TH1F("h_sigLayer2RADDAM5_HED2", " ", neta, -41., 41.);
-    h_sigLayer1RADDAM6_HED2 = new TH1F("h_sigLayer1RADDAM6_HED2", " ", neta, -41., 41.);
-    h_sigLayer2RADDAM6_HED2 = new TH1F("h_sigLayer2RADDAM6_HED2", " ", neta, -41., 41.);
+    h_sumphiEta16Depth3RADDAM_HED2 = fs_->make<TH1F>("h_sumphiEta16Depth3RADDAM_HED2", " ", 100, min90, 70. * max90);
+    h_Eta16Depth3RADDAM_HED2 = fs_->make<TH1F>("h_Eta16Depth3RADDAM_HED2", " ", 100, min90, max90);
+    h_NphiForEta16Depth3RADDAM_HED2 = fs_->make<TH1F>("h_NphiForEta16Depth3RADDAM_HED2", " ", 100, 0, 100.);
+    h_sumphiEta16Depth3RADDAM_HED2P = fs_->make<TH1F>("h_sumphiEta16Depth3RADDAM_HED2P", " ", 100, min90, 70. * max90);
+    h_Eta16Depth3RADDAM_HED2P = fs_->make<TH1F>("h_Eta16Depth3RADDAM_HED2P", " ", 100, min90, max90);
+    h_NphiForEta16Depth3RADDAM_HED2P = fs_->make<TH1F>("h_NphiForEta16Depth3RADDAM_HED2P", " ", 100, 0, 100.);
+    h_sumphiEta16Depth3RADDAM_HED2ALL =
+        fs_->make<TH1F>("h_sumphiEta16Depth3RADDAM_HED2ALL", " ", 100, min90, 70. * max90);
+    h_Eta16Depth3RADDAM_HED2ALL = fs_->make<TH1F>("h_Eta16Depth3RADDAM_HED2ALL", " ", 100, min90, max90);
+    h_NphiForEta16Depth3RADDAM_HED2ALL = fs_->make<TH1F>("h_NphiForEta16Depth3RADDAM_HED2ALL", " ", 100, 0, 100.);
+    h_sigLayer1RADDAM5_HE = fs_->make<TH1F>("h_sigLayer1RADDAM5_HE", " ", neta, -41., 41.);
+    h_sigLayer2RADDAM5_HE = fs_->make<TH1F>("h_sigLayer2RADDAM5_HE", " ", neta, -41., 41.);
+    h_sigLayer1RADDAM6_HE = fs_->make<TH1F>("h_sigLayer1RADDAM6_HE", " ", neta, -41., 41.);
+    h_sigLayer2RADDAM6_HE = fs_->make<TH1F>("h_sigLayer2RADDAM6_HE", " ", neta, -41., 41.);
+    h_sigLayer1RADDAM5_HED2 = fs_->make<TH1F>("h_sigLayer1RADDAM5_HED2", " ", neta, -41., 41.);
+    h_sigLayer2RADDAM5_HED2 = fs_->make<TH1F>("h_sigLayer2RADDAM5_HED2", " ", neta, -41., 41.);
+    h_sigLayer1RADDAM6_HED2 = fs_->make<TH1F>("h_sigLayer1RADDAM6_HED2", " ", neta, -41., 41.);
+    h_sigLayer2RADDAM6_HED2 = fs_->make<TH1F>("h_sigLayer2RADDAM6_HED2", " ", neta, -41., 41.);
 
-    h_numberofhitsHFtest = new TH1F("h_numberofhitsHFtest", " ", 100, 0., 30000.);
-    h_AmplitudeHFtest = new TH1F("h_AmplitudeHFtest", " ", 100, 0., 300000.);
-    h_totalAmplitudeHF = new TH1F("h_totalAmplitudeHF", " ", 100, 0., 100000000000.);
-    h_totalAmplitudeHFperEvent = new TH1F("h_totalAmplitudeHFperEvent", " ", 1000, 1., 1001.);
+    h_numberofhitsHFtest = fs_->make<TH1F>("h_numberofhitsHFtest", " ", 100, 0., 30000.);
+    h_AmplitudeHFtest = fs_->make<TH1F>("h_AmplitudeHFtest", " ", 100, 0., 300000.);
+    h_totalAmplitudeHF = fs_->make<TH1F>("h_totalAmplitudeHF", " ", 100, 0., 100000000000.);
+    h_totalAmplitudeHFperEvent = fs_->make<TH1F>("h_totalAmplitudeHFperEvent", " ", 1000, 1., 1001.);
     // fullAmplitude:
-    h_ADCAmplZoom1_HF = new TH1F("h_ADCAmplZoom1_HF", " ", 100, 0., 1000000.);
-    h_ADCAmpl_HF = new TH1F("h_ADCAmpl_HF", " ", 250, 0., 500000.);
-    h_ADCAmplrest1_HF = new TH1F("h_ADCAmplrest1_HF", " ", 100, 0., 1000.);
-    h_ADCAmplrest6_HF = new TH1F("h_ADCAmplrest6_HF", " ", 100, 0., 10000.);
+    h_ADCAmplZoom1_HF = fs_->make<TH1F>("h_ADCAmplZoom1_HF", " ", 100, 0., 1000000.);
+    h_ADCAmpl_HF = fs_->make<TH1F>("h_ADCAmpl_HF", " ", 250, 0., 500000.);
+    h_ADCAmplrest1_HF = fs_->make<TH1F>("h_ADCAmplrest1_HF", " ", 100, 0., 1000.);
+    h_ADCAmplrest6_HF = fs_->make<TH1F>("h_ADCAmplrest6_HF", " ", 100, 0., 10000.);
 
-    h_mapDepth1ADCAmpl225_HF = new TH2F("h_mapDepth1ADCAmpl225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl225_HF = new TH2F("h_mapDepth2ADCAmpl225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1ADCAmpl225Copy_HF = new TH2F("h_mapDepth1ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl225Copy_HF = new TH2F("h_mapDepth2ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1ADCAmpl_HF = new TH2F("h_mapDepth1ADCAmpl_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl_HF = new TH2F("h_mapDepth2ADCAmpl_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl225_HF = new TH2F("h_mapDepth3ADCAmpl225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl225_HF = new TH2F("h_mapDepth4ADCAmpl225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl225Copy_HF = new TH2F("h_mapDepth3ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl225Copy_HF = new TH2F("h_mapDepth4ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl_HF = new TH2F("h_mapDepth3ADCAmpl_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl_HF = new TH2F("h_mapDepth4ADCAmpl_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_TSmeanA_HF = new TH1F("h_TSmeanA_HF", " ", 100, -1., 11.);
-    h_mapDepth1TSmeanA225_HF = new TH2F("h_mapDepth1TSmeanA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2TSmeanA225_HF = new TH2F("h_mapDepth2TSmeanA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1TSmeanA_HF = new TH2F("h_mapDepth1TSmeanA_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2TSmeanA_HF = new TH2F("h_mapDepth2TSmeanA_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3TSmeanA225_HF = new TH2F("h_mapDepth3TSmeanA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4TSmeanA225_HF = new TH2F("h_mapDepth4TSmeanA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3TSmeanA_HF = new TH2F("h_mapDepth3TSmeanA_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4TSmeanA_HF = new TH2F("h_mapDepth4TSmeanA_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_Amplitude_HF = new TH1F("h_Amplitude_HF", " ", 100, 0., 5.);
-    h_TSmaxA_HF = new TH1F("h_TSmaxA_HF", " ", 100, -1., 11.);
-    h_mapDepth1TSmaxA225_HF = new TH2F("h_mapDepth1TSmaxA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2TSmaxA225_HF = new TH2F("h_mapDepth2TSmaxA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1TSmaxA_HF = new TH2F("h_mapDepth1TSmaxA_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2TSmaxA_HF = new TH2F("h_mapDepth2TSmaxA_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3TSmaxA225_HF = new TH2F("h_mapDepth3TSmaxA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4TSmaxA225_HF = new TH2F("h_mapDepth4TSmaxA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3TSmaxA_HF = new TH2F("h_mapDepth3TSmaxA_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4TSmaxA_HF = new TH2F("h_mapDepth4TSmaxA_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_Amplitude_HF = new TH1F("h_Amplitude_HF", " ", 100, 0., 5.);
-    h_mapDepth1Amplitude225_HF = new TH2F("h_mapDepth1Amplitude225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Amplitude225_HF = new TH2F("h_mapDepth2Amplitude225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Amplitude_HF = new TH2F("h_mapDepth1Amplitude_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Amplitude_HF = new TH2F("h_mapDepth2Amplitude_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Amplitude225_HF = new TH2F("h_mapDepth3Amplitude225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Amplitude225_HF = new TH2F("h_mapDepth4Amplitude225_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Amplitude_HF = new TH2F("h_mapDepth3Amplitude_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Amplitude_HF = new TH2F("h_mapDepth4Amplitude_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmpl225_HF = fs_->make<TH2F>("h_mapDepth1ADCAmpl225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl225_HF = fs_->make<TH2F>("h_mapDepth2ADCAmpl225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmpl225Copy_HF =
+        fs_->make<TH2F>("h_mapDepth1ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl225Copy_HF =
+        fs_->make<TH2F>("h_mapDepth2ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmpl_HF = fs_->make<TH2F>("h_mapDepth1ADCAmpl_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl_HF = fs_->make<TH2F>("h_mapDepth2ADCAmpl_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl225_HF = fs_->make<TH2F>("h_mapDepth3ADCAmpl225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl225_HF = fs_->make<TH2F>("h_mapDepth4ADCAmpl225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl225Copy_HF =
+        fs_->make<TH2F>("h_mapDepth3ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl225Copy_HF =
+        fs_->make<TH2F>("h_mapDepth4ADCAmpl225Copy_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl_HF = fs_->make<TH2F>("h_mapDepth3ADCAmpl_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl_HF = fs_->make<TH2F>("h_mapDepth4ADCAmpl_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_TSmeanA_HF = fs_->make<TH1F>("h_TSmeanA_HF", " ", 100, -1., 11.);
+    h_mapDepth1TSmeanA225_HF = fs_->make<TH2F>("h_mapDepth1TSmeanA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2TSmeanA225_HF = fs_->make<TH2F>("h_mapDepth2TSmeanA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1TSmeanA_HF = fs_->make<TH2F>("h_mapDepth1TSmeanA_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2TSmeanA_HF = fs_->make<TH2F>("h_mapDepth2TSmeanA_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3TSmeanA225_HF = fs_->make<TH2F>("h_mapDepth3TSmeanA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4TSmeanA225_HF = fs_->make<TH2F>("h_mapDepth4TSmeanA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3TSmeanA_HF = fs_->make<TH2F>("h_mapDepth3TSmeanA_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4TSmeanA_HF = fs_->make<TH2F>("h_mapDepth4TSmeanA_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_Amplitude_HF = fs_->make<TH1F>("h_Amplitude_HF", " ", 100, 0., 5.);
+    h_TSmaxA_HF = fs_->make<TH1F>("h_TSmaxA_HF", " ", 100, -1., 11.);
+    h_mapDepth1TSmaxA225_HF = fs_->make<TH2F>("h_mapDepth1TSmaxA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2TSmaxA225_HF = fs_->make<TH2F>("h_mapDepth2TSmaxA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1TSmaxA_HF = fs_->make<TH2F>("h_mapDepth1TSmaxA_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2TSmaxA_HF = fs_->make<TH2F>("h_mapDepth2TSmaxA_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3TSmaxA225_HF = fs_->make<TH2F>("h_mapDepth3TSmaxA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4TSmaxA225_HF = fs_->make<TH2F>("h_mapDepth4TSmaxA225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3TSmaxA_HF = fs_->make<TH2F>("h_mapDepth3TSmaxA_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4TSmaxA_HF = fs_->make<TH2F>("h_mapDepth4TSmaxA_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_Amplitude_HF = fs_->make<TH1F>("h_Amplitude_HF", " ", 100, 0., 5.);
+    h_mapDepth1Amplitude225_HF = fs_->make<TH2F>("h_mapDepth1Amplitude225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Amplitude225_HF = fs_->make<TH2F>("h_mapDepth2Amplitude225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Amplitude_HF = fs_->make<TH2F>("h_mapDepth1Amplitude_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Amplitude_HF = fs_->make<TH2F>("h_mapDepth2Amplitude_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Amplitude225_HF = fs_->make<TH2F>("h_mapDepth3Amplitude225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Amplitude225_HF = fs_->make<TH2F>("h_mapDepth4Amplitude225_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Amplitude_HF = fs_->make<TH2F>("h_mapDepth3Amplitude_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Amplitude_HF = fs_->make<TH2F>("h_mapDepth4Amplitude_HF", " ", neta, -41., 41., nphi, 0., bphi);
     // Ratio:
-    h_Ampl_HF = new TH1F("h_Ampl_HF", " ", 100, 0., 1.1);
-    h_mapDepth1Ampl047_HF = new TH2F("h_mapDepth1Ampl047_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ampl047_HF = new TH2F("h_mapDepth2Ampl047_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Ampl_HF = new TH2F("h_mapDepth1Ampl_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ampl_HF = new TH2F("h_mapDepth2Ampl_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1AmplE34_HF = new TH2F("h_mapDepth1AmplE34_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2AmplE34_HF = new TH2F("h_mapDepth2AmplE34_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1_HF = new TH2F("h_mapDepth1_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2_HF = new TH2F("h_mapDepth2_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Ampl047_HF = new TH2F("h_mapDepth3Ampl047_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Ampl047_HF = new TH2F("h_mapDepth4Ampl047_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Ampl_HF = new TH2F("h_mapDepth3Ampl_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Ampl_HF = new TH2F("h_mapDepth4Ampl_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3AmplE34_HF = new TH2F("h_mapDepth3AmplE34_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4AmplE34_HF = new TH2F("h_mapDepth4AmplE34_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3_HF = new TH2F("h_mapDepth3_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4_HF = new TH2F("h_mapDepth4_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_Ampl_HF = fs_->make<TH1F>("h_Ampl_HF", " ", 100, 0., 1.1);
+    h_mapDepth1Ampl047_HF = fs_->make<TH2F>("h_mapDepth1Ampl047_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ampl047_HF = fs_->make<TH2F>("h_mapDepth2Ampl047_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Ampl_HF = fs_->make<TH2F>("h_mapDepth1Ampl_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ampl_HF = fs_->make<TH2F>("h_mapDepth2Ampl_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1AmplE34_HF = fs_->make<TH2F>("h_mapDepth1AmplE34_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2AmplE34_HF = fs_->make<TH2F>("h_mapDepth2AmplE34_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1_HF = fs_->make<TH2F>("h_mapDepth1_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2_HF = fs_->make<TH2F>("h_mapDepth2_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Ampl047_HF = fs_->make<TH2F>("h_mapDepth3Ampl047_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Ampl047_HF = fs_->make<TH2F>("h_mapDepth4Ampl047_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Ampl_HF = fs_->make<TH2F>("h_mapDepth3Ampl_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Ampl_HF = fs_->make<TH2F>("h_mapDepth4Ampl_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3AmplE34_HF = fs_->make<TH2F>("h_mapDepth3AmplE34_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4AmplE34_HF = fs_->make<TH2F>("h_mapDepth4AmplE34_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3_HF = fs_->make<TH2F>("h_mapDepth3_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4_HF = fs_->make<TH2F>("h_mapDepth4_HF", " ", neta, -41., 41., nphi, 0., bphi);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////                  HO
-    h_numberofhitsHOtest = new TH1F("h_numberofhitsHOtest", " ", 100, 0., 30000.);
-    h_AmplitudeHOtest = new TH1F("h_AmplitudeHOtest", " ", 100, 0., 300000.);
-    h_totalAmplitudeHO = new TH1F("h_totalAmplitudeHO", " ", 100, 0., 100000000.);
-    h_totalAmplitudeHOperEvent = new TH1F("h_totalAmplitudeHOperEvent", " ", 1000, 1., 1001.);
+    h_numberofhitsHOtest = fs_->make<TH1F>("h_numberofhitsHOtest", " ", 100, 0., 30000.);
+    h_AmplitudeHOtest = fs_->make<TH1F>("h_AmplitudeHOtest", " ", 100, 0., 300000.);
+    h_totalAmplitudeHO = fs_->make<TH1F>("h_totalAmplitudeHO", " ", 100, 0., 100000000.);
+    h_totalAmplitudeHOperEvent = fs_->make<TH1F>("h_totalAmplitudeHOperEvent", " ", 1000, 1., 1001.);
     // fullAmplitude:
-    h_ADCAmpl_HO = new TH1F("h_ADCAmpl_HO", " ", 100, 0., 7000.);
-    h_ADCAmplrest1_HO = new TH1F("h_ADCAmplrest1_HO", " ", 100, 0., 150.);
-    h_ADCAmplrest6_HO = new TH1F("h_ADCAmplrest6_HO", " ", 100, 0., 500.);
+    h_ADCAmpl_HO = fs_->make<TH1F>("h_ADCAmpl_HO", " ", 100, 0., 7000.);
+    h_ADCAmplrest1_HO = fs_->make<TH1F>("h_ADCAmplrest1_HO", " ", 100, 0., 150.);
+    h_ADCAmplrest6_HO = fs_->make<TH1F>("h_ADCAmplrest6_HO", " ", 100, 0., 500.);
 
-    h_ADCAmplZoom1_HO = new TH1F("h_ADCAmplZoom1_HO", " ", 100, -20., 280.);
-    h_ADCAmpl_HO_copy = new TH1F("h_ADCAmpl_HO_copy", " ", 100, 0., 30000.);
-    h_mapDepth4ADCAmpl225_HO = new TH2F("h_mapDepth4ADCAmpl225_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl225Copy_HO = new TH2F("h_mapDepth4ADCAmpl225Copy_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl_HO = new TH2F("h_mapDepth4ADCAmpl_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_TSmeanA_HO = new TH1F("h_TSmeanA_HO", " ", 100, 0., 10.);
-    h_mapDepth4TSmeanA225_HO = new TH2F("h_mapDepth4TSmeanA225_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4TSmeanA_HO = new TH2F("h_mapDepth4TSmeanA_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_TSmaxA_HO = new TH1F("h_TSmaxA_HO", " ", 100, 0., 10.);
-    h_mapDepth4TSmaxA225_HO = new TH2F("h_mapDepth4TSmaxA225_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4TSmaxA_HO = new TH2F("h_mapDepth4TSmaxA_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_Amplitude_HO = new TH1F("h_Amplitude_HO", " ", 100, 0., 5.);
-    h_mapDepth4Amplitude225_HO = new TH2F("h_mapDepth4Amplitude225_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Amplitude_HO = new TH2F("h_mapDepth4Amplitude_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_ADCAmplZoom1_HO = fs_->make<TH1F>("h_ADCAmplZoom1_HO", " ", 100, -20., 280.);
+    h_ADCAmpl_HO_copy = fs_->make<TH1F>("h_ADCAmpl_HO_copy", " ", 100, 0., 30000.);
+    h_mapDepth4ADCAmpl225_HO = fs_->make<TH2F>("h_mapDepth4ADCAmpl225_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl225Copy_HO =
+        fs_->make<TH2F>("h_mapDepth4ADCAmpl225Copy_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl_HO = fs_->make<TH2F>("h_mapDepth4ADCAmpl_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_TSmeanA_HO = fs_->make<TH1F>("h_TSmeanA_HO", " ", 100, 0., 10.);
+    h_mapDepth4TSmeanA225_HO = fs_->make<TH2F>("h_mapDepth4TSmeanA225_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4TSmeanA_HO = fs_->make<TH2F>("h_mapDepth4TSmeanA_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_TSmaxA_HO = fs_->make<TH1F>("h_TSmaxA_HO", " ", 100, 0., 10.);
+    h_mapDepth4TSmaxA225_HO = fs_->make<TH2F>("h_mapDepth4TSmaxA225_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4TSmaxA_HO = fs_->make<TH2F>("h_mapDepth4TSmaxA_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_Amplitude_HO = fs_->make<TH1F>("h_Amplitude_HO", " ", 100, 0., 5.);
+    h_mapDepth4Amplitude225_HO = fs_->make<TH2F>("h_mapDepth4Amplitude225_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Amplitude_HO = fs_->make<TH2F>("h_mapDepth4Amplitude_HO", " ", neta, -41., 41., nphi, 0., bphi);
     // Ratio:
-    h_Ampl_HO = new TH1F("h_Ampl_HO", " ", 100, 0., 1.1);
-    h_mapDepth4Ampl047_HO = new TH2F("h_mapDepth4Ampl047_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Ampl_HO = new TH2F("h_mapDepth4Ampl_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4AmplE34_HO = new TH2F("h_mapDepth4AmplE34_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4_HO = new TH2F("h_mapDepth4_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_Ampl_HO = fs_->make<TH1F>("h_Ampl_HO", " ", 100, 0., 1.1);
+    h_mapDepth4Ampl047_HO = fs_->make<TH2F>("h_mapDepth4Ampl047_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Ampl_HO = fs_->make<TH2F>("h_mapDepth4Ampl_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4AmplE34_HO = fs_->make<TH2F>("h_mapDepth4AmplE34_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4_HO = fs_->make<TH2F>("h_mapDepth4_HO", " ", neta, -41., 41., nphi, 0., bphi);
 
     //////////////////////////////////////////////////////////////////////////////////////
     int baP = 4000;
     float baR = 0.;
     float baR2 = baP;
-    h_bcnnbadchannels_depth1_HB = new TH1F("h_bcnnbadchannels_depth1_HB", " ", baP, baR, baR2);
-    h_bcnnbadchannels_depth2_HB = new TH1F("h_bcnnbadchannels_depth2_HB", " ", baP, baR, baR2);
-    h_bcnnbadchannels_depth1_HE = new TH1F("h_bcnnbadchannels_depth1_HE", " ", baP, baR, baR2);
-    h_bcnnbadchannels_depth2_HE = new TH1F("h_bcnnbadchannels_depth2_HE", " ", baP, baR, baR2);
-    h_bcnnbadchannels_depth3_HE = new TH1F("h_bcnnbadchannels_depth3_HE", " ", baP, baR, baR2);
-    h_bcnnbadchannels_depth4_HO = new TH1F("h_bcnnbadchannels_depth4_HO", " ", baP, baR, baR2);
-    h_bcnnbadchannels_depth1_HF = new TH1F("h_bcnnbadchannels_depth1_HF", " ", baP, baR, baR2);
-    h_bcnnbadchannels_depth2_HF = new TH1F("h_bcnnbadchannels_depth2_HF", " ", baP, baR, baR2);
-    h_bcnbadrate0_depth1_HB = new TH1F("h_bcnbadrate0_depth1_HB", " ", baP, baR, baR2);
-    h_bcnbadrate0_depth2_HB = new TH1F("h_bcnbadrate0_depth2_HB", " ", baP, baR, baR2);
-    h_bcnbadrate0_depth1_HE = new TH1F("h_bcnbadrate0_depth1_HE", " ", baP, baR, baR2);
-    h_bcnbadrate0_depth2_HE = new TH1F("h_bcnbadrate0_depth2_HE", " ", baP, baR, baR2);
-    h_bcnbadrate0_depth3_HE = new TH1F("h_bcnbadrate0_depth3_HE", " ", baP, baR, baR2);
-    h_bcnbadrate0_depth4_HO = new TH1F("h_bcnbadrate0_depth4_HO", " ", baP, baR, baR2);
-    h_bcnbadrate0_depth1_HF = new TH1F("h_bcnbadrate0_depth1_HF", " ", baP, baR, baR2);
-    h_bcnbadrate0_depth2_HF = new TH1F("h_bcnbadrate0_depth2_HF", " ", baP, baR, baR2);
+    h_bcnnbadchannels_depth1_HB = fs_->make<TH1F>("h_bcnnbadchannels_depth1_HB", " ", baP, baR, baR2);
+    h_bcnnbadchannels_depth2_HB = fs_->make<TH1F>("h_bcnnbadchannels_depth2_HB", " ", baP, baR, baR2);
+    h_bcnnbadchannels_depth1_HE = fs_->make<TH1F>("h_bcnnbadchannels_depth1_HE", " ", baP, baR, baR2);
+    h_bcnnbadchannels_depth2_HE = fs_->make<TH1F>("h_bcnnbadchannels_depth2_HE", " ", baP, baR, baR2);
+    h_bcnnbadchannels_depth3_HE = fs_->make<TH1F>("h_bcnnbadchannels_depth3_HE", " ", baP, baR, baR2);
+    h_bcnnbadchannels_depth4_HO = fs_->make<TH1F>("h_bcnnbadchannels_depth4_HO", " ", baP, baR, baR2);
+    h_bcnnbadchannels_depth1_HF = fs_->make<TH1F>("h_bcnnbadchannels_depth1_HF", " ", baP, baR, baR2);
+    h_bcnnbadchannels_depth2_HF = fs_->make<TH1F>("h_bcnnbadchannels_depth2_HF", " ", baP, baR, baR2);
+    h_bcnbadrate0_depth1_HB = fs_->make<TH1F>("h_bcnbadrate0_depth1_HB", " ", baP, baR, baR2);
+    h_bcnbadrate0_depth2_HB = fs_->make<TH1F>("h_bcnbadrate0_depth2_HB", " ", baP, baR, baR2);
+    h_bcnbadrate0_depth1_HE = fs_->make<TH1F>("h_bcnbadrate0_depth1_HE", " ", baP, baR, baR2);
+    h_bcnbadrate0_depth2_HE = fs_->make<TH1F>("h_bcnbadrate0_depth2_HE", " ", baP, baR, baR2);
+    h_bcnbadrate0_depth3_HE = fs_->make<TH1F>("h_bcnbadrate0_depth3_HE", " ", baP, baR, baR2);
+    h_bcnbadrate0_depth4_HO = fs_->make<TH1F>("h_bcnbadrate0_depth4_HO", " ", baP, baR, baR2);
+    h_bcnbadrate0_depth1_HF = fs_->make<TH1F>("h_bcnbadrate0_depth1_HF", " ", baP, baR, baR2);
+    h_bcnbadrate0_depth2_HF = fs_->make<TH1F>("h_bcnbadrate0_depth2_HF", " ", baP, baR, baR2);
 
-    h_bcnvsamplitude_HB = new TH1F("h_bcnvsamplitude_HB", " ", baP, baR, baR2);
-    h_bcnvsamplitude_HE = new TH1F("h_bcnvsamplitude_HE", " ", baP, baR, baR2);
-    h_bcnvsamplitude_HF = new TH1F("h_bcnvsamplitude_HF", " ", baP, baR, baR2);
-    h_bcnvsamplitude_HO = new TH1F("h_bcnvsamplitude_HO", " ", baP, baR, baR2);
-    h_bcnvsamplitude0_HB = new TH1F("h_bcnvsamplitude0_HB", " ", baP, baR, baR2);
-    h_bcnvsamplitude0_HE = new TH1F("h_bcnvsamplitude0_HE", " ", baP, baR, baR2);
-    h_bcnvsamplitude0_HF = new TH1F("h_bcnvsamplitude0_HF", " ", baP, baR, baR2);
-    h_bcnvsamplitude0_HO = new TH1F("h_bcnvsamplitude0_HO", " ", baP, baR, baR2);
+    h_bcnvsamplitude_HB = fs_->make<TH1F>("h_bcnvsamplitude_HB", " ", baP, baR, baR2);
+    h_bcnvsamplitude_HE = fs_->make<TH1F>("h_bcnvsamplitude_HE", " ", baP, baR, baR2);
+    h_bcnvsamplitude_HF = fs_->make<TH1F>("h_bcnvsamplitude_HF", " ", baP, baR, baR2);
+    h_bcnvsamplitude_HO = fs_->make<TH1F>("h_bcnvsamplitude_HO", " ", baP, baR, baR2);
+    h_bcnvsamplitude0_HB = fs_->make<TH1F>("h_bcnvsamplitude0_HB", " ", baP, baR, baR2);
+    h_bcnvsamplitude0_HE = fs_->make<TH1F>("h_bcnvsamplitude0_HE", " ", baP, baR, baR2);
+    h_bcnvsamplitude0_HF = fs_->make<TH1F>("h_bcnvsamplitude0_HF", " ", baP, baR, baR2);
+    h_bcnvsamplitude0_HO = fs_->make<TH1F>("h_bcnvsamplitude0_HO", " ", baP, baR, baR2);
 
     int zaP = 1000;
     float zaR = 10000000.;
     float zaR2 = 50000000.;
-    h_orbitNumvsamplitude_HB = new TH1F("h_orbitNumvsamplitude_HB", " ", zaP, zaR, zaR2);
-    h_orbitNumvsamplitude_HE = new TH1F("h_orbitNumvsamplitude_HE", " ", zaP, zaR, zaR2);
-    h_orbitNumvsamplitude_HF = new TH1F("h_orbitNumvsamplitude_HF", " ", zaP, zaR, zaR2);
-    h_orbitNumvsamplitude_HO = new TH1F("h_orbitNumvsamplitude_HO", " ", zaP, zaR, zaR2);
-    h_orbitNumvsamplitude0_HB = new TH1F("h_orbitNumvsamplitude0_HB", " ", zaP, zaR, zaR2);
-    h_orbitNumvsamplitude0_HE = new TH1F("h_orbitNumvsamplitude0_HE", " ", zaP, zaR, zaR2);
-    h_orbitNumvsamplitude0_HF = new TH1F("h_orbitNumvsamplitude0_HF", " ", zaP, zaR, zaR2);
-    h_orbitNumvsamplitude0_HO = new TH1F("h_orbitNumvsamplitude0_HO", " ", zaP, zaR, zaR2);
+    h_orbitNumvsamplitude_HB = fs_->make<TH1F>("h_orbitNumvsamplitude_HB", " ", zaP, zaR, zaR2);
+    h_orbitNumvsamplitude_HE = fs_->make<TH1F>("h_orbitNumvsamplitude_HE", " ", zaP, zaR, zaR2);
+    h_orbitNumvsamplitude_HF = fs_->make<TH1F>("h_orbitNumvsamplitude_HF", " ", zaP, zaR, zaR2);
+    h_orbitNumvsamplitude_HO = fs_->make<TH1F>("h_orbitNumvsamplitude_HO", " ", zaP, zaR, zaR2);
+    h_orbitNumvsamplitude0_HB = fs_->make<TH1F>("h_orbitNumvsamplitude0_HB", " ", zaP, zaR, zaR2);
+    h_orbitNumvsamplitude0_HE = fs_->make<TH1F>("h_orbitNumvsamplitude0_HE", " ", zaP, zaR, zaR2);
+    h_orbitNumvsamplitude0_HF = fs_->make<TH1F>("h_orbitNumvsamplitude0_HF", " ", zaP, zaR, zaR2);
+    h_orbitNumvsamplitude0_HO = fs_->make<TH1F>("h_orbitNumvsamplitude0_HO", " ", zaP, zaR, zaR2);
 
-    h_2DsumADCAmplEtaPhiLs0 =
-        new TH2F("h_2DsumADCAmplEtaPhiLs0", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
-    h_2DsumADCAmplEtaPhiLs1 =
-        new TH2F("h_2DsumADCAmplEtaPhiLs1", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
-    h_2DsumADCAmplEtaPhiLs2 =
-        new TH2F("h_2DsumADCAmplEtaPhiLs2", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
-    h_2DsumADCAmplEtaPhiLs3 =
-        new TH2F("h_2DsumADCAmplEtaPhiLs3", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs0 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs0", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs1 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs1", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs2 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs2", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs3 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs3", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
 
-    h_2DsumADCAmplEtaPhiLs00 =
-        new TH2F("h_2DsumADCAmplEtaPhiLs00", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
-    h_2DsumADCAmplEtaPhiLs10 =
-        new TH2F("h_2DsumADCAmplEtaPhiLs10", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
-    h_2DsumADCAmplEtaPhiLs20 =
-        new TH2F("h_2DsumADCAmplEtaPhiLs20", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
-    h_2DsumADCAmplEtaPhiLs30 =
-        new TH2F("h_2DsumADCAmplEtaPhiLs30", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs00 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs00", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs10 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs10", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs20 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs20", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
+    h_2DsumADCAmplEtaPhiLs30 = fs_->make<TH2F>(
+        "h_2DsumADCAmplEtaPhiLs30", " ", nlsminmax, alsmin, blsmax, znphi * zneta, 1., znphi * zneta + 1.);
 
-    h_sumADCAmplEtaPhiLs = new TH1F("h_sumADCAmplEtaPhiLs", " ", 1000, 0., 14000.);
-    h_sumADCAmplEtaPhiLs_bbbc = new TH1F("h_sumADCAmplEtaPhiLs_bbbc", " ", 1000, 0., 300000.);
-    h_sumADCAmplEtaPhiLs_bbb1 = new TH1F("h_sumADCAmplEtaPhiLs_bbb1", " ", 100, 0., 3000.);
-    h_sumADCAmplEtaPhiLs_lscounterM1 = new TH1F("h_sumADCAmplEtaPhiLs_lscounterM1", " ", 600, 1., 601.);
-    h_sumADCAmplEtaPhiLs_ietaphi = new TH1F("h_sumADCAmplEtaPhiLs_ietaphi", " ", 400, 0., 400.);
-    h_sumADCAmplEtaPhiLs_lscounterM1orbitNum = new TH1F("h_sumADCAmplEtaPhiLs_lscounterM1orbitNum", " ", 600, 1., 601.);
-    h_sumADCAmplEtaPhiLs_orbitNum = new TH1F("h_sumADCAmplEtaPhiLs_orbitNum", " ", 1000, 25000000., 40000000.);
+    h_sumADCAmplEtaPhiLs = fs_->make<TH1F>("h_sumADCAmplEtaPhiLs", " ", 1000, 0., 14000.);
+    h_sumADCAmplEtaPhiLs_bbbc = fs_->make<TH1F>("h_sumADCAmplEtaPhiLs_bbbc", " ", 1000, 0., 300000.);
+    h_sumADCAmplEtaPhiLs_bbb1 = fs_->make<TH1F>("h_sumADCAmplEtaPhiLs_bbb1", " ", 100, 0., 3000.);
+    h_sumADCAmplEtaPhiLs_lscounterM1 = fs_->make<TH1F>("h_sumADCAmplEtaPhiLs_lscounterM1", " ", 600, 1., 601.);
+    h_sumADCAmplEtaPhiLs_ietaphi = fs_->make<TH1F>("h_sumADCAmplEtaPhiLs_ietaphi", " ", 400, 0., 400.);
+    h_sumADCAmplEtaPhiLs_lscounterM1orbitNum =
+        fs_->make<TH1F>("h_sumADCAmplEtaPhiLs_lscounterM1orbitNum", " ", 600, 1., 601.);
+    h_sumADCAmplEtaPhiLs_orbitNum = fs_->make<TH1F>("h_sumADCAmplEtaPhiLs_orbitNum", " ", 1000, 25000000., 40000000.);
 
     // for LS :
 
@@ -8144,1080 +6868,1088 @@ void CMTRawAnalyzer::beginJob() {
     float bac2 = bac + 1.;
     // bac,         1.,     bac2  );
 
-    h_nbadchannels_depth1_HB = new TH1F("h_nbadchannels_depth1_HB", " ", 100, 1., 3001.);
-    h_runnbadchannels_depth1_HB = new TH1F("h_runnbadchannels_depth1_HB", " ", bac, 1., bac2);
-    h_runnbadchannelsC_depth1_HB = new TH1F("h_runnbadchannelsC_depth1_HB", " ", bac, 1., bac2);
-    h_runbadrate_depth1_HB = new TH1F("h_runbadrate_depth1_HB", " ", bac, 1., bac2);
-    h_runbadrateC_depth1_HB = new TH1F("h_runbadrateC_depth1_HB", " ", bac, 1., bac2);
-    h_runbadrate0_depth1_HB = new TH1F("h_runbadrate0_depth1_HB", " ", bac, 1., bac2);
+    h_nbadchannels_depth1_HB = fs_->make<TH1F>("h_nbadchannels_depth1_HB", " ", 100, 1., 3001.);
+    h_runnbadchannels_depth1_HB = fs_->make<TH1F>("h_runnbadchannels_depth1_HB", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth1_HB = fs_->make<TH1F>("h_runnbadchannelsC_depth1_HB", " ", bac, 1., bac2);
+    h_runbadrate_depth1_HB = fs_->make<TH1F>("h_runbadrate_depth1_HB", " ", bac, 1., bac2);
+    h_runbadrateC_depth1_HB = fs_->make<TH1F>("h_runbadrateC_depth1_HB", " ", bac, 1., bac2);
+    h_runbadrate0_depth1_HB = fs_->make<TH1F>("h_runbadrate0_depth1_HB", " ", bac, 1., bac2);
 
-    h_nbadchannels_depth2_HB = new TH1F("h_nbadchannels_depth2_HB", " ", 100, 1., 501.);
-    h_runnbadchannels_depth2_HB = new TH1F("h_runnbadchannels_depth2_HB", " ", bac, 1., bac2);
-    h_runnbadchannelsC_depth2_HB = new TH1F("h_runnbadchannelsC_depth2_HB", " ", bac, 1., bac2);
-    h_runbadrate_depth2_HB = new TH1F("h_runbadrate_depth2_HB", " ", bac, 1., bac2);
-    h_runbadrateC_depth2_HB = new TH1F("h_runbadrateC_depth2_HB", " ", bac, 1., bac2);
-    h_runbadrate0_depth2_HB = new TH1F("h_runbadrate0_depth2_HB", " ", bac, 1., bac2);
+    h_nbadchannels_depth2_HB = fs_->make<TH1F>("h_nbadchannels_depth2_HB", " ", 100, 1., 501.);
+    h_runnbadchannels_depth2_HB = fs_->make<TH1F>("h_runnbadchannels_depth2_HB", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth2_HB = fs_->make<TH1F>("h_runnbadchannelsC_depth2_HB", " ", bac, 1., bac2);
+    h_runbadrate_depth2_HB = fs_->make<TH1F>("h_runbadrate_depth2_HB", " ", bac, 1., bac2);
+    h_runbadrateC_depth2_HB = fs_->make<TH1F>("h_runbadrateC_depth2_HB", " ", bac, 1., bac2);
+    h_runbadrate0_depth2_HB = fs_->make<TH1F>("h_runbadrate0_depth2_HB", " ", bac, 1., bac2);
 
-    h_nbadchannels_depth1_HE = new TH1F("h_nbadchannels_depth1_HE", " ", 100, 1., 3001.);
-    h_runnbadchannels_depth1_HE = new TH1F("h_runnbadchannels_depth1_HE", " ", bac, 1., bac2);
-    h_runnbadchannelsC_depth1_HE = new TH1F("h_runnbadchannelsC_depth1_HE", " ", bac, 1., bac2);
-    h_runbadrate_depth1_HE = new TH1F("h_runbadrate_depth1_HE", " ", bac, 1., bac2);
-    h_runbadrateC_depth1_HE = new TH1F("h_runbadrateC_depth1_HE", " ", bac, 1., bac2);
-    h_runbadrate0_depth1_HE = new TH1F("h_runbadrate0_depth1_HE", " ", bac, 1., bac2);
+    h_nbadchannels_depth1_HE = fs_->make<TH1F>("h_nbadchannels_depth1_HE", " ", 100, 1., 3001.);
+    h_runnbadchannels_depth1_HE = fs_->make<TH1F>("h_runnbadchannels_depth1_HE", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth1_HE = fs_->make<TH1F>("h_runnbadchannelsC_depth1_HE", " ", bac, 1., bac2);
+    h_runbadrate_depth1_HE = fs_->make<TH1F>("h_runbadrate_depth1_HE", " ", bac, 1., bac2);
+    h_runbadrateC_depth1_HE = fs_->make<TH1F>("h_runbadrateC_depth1_HE", " ", bac, 1., bac2);
+    h_runbadrate0_depth1_HE = fs_->make<TH1F>("h_runbadrate0_depth1_HE", " ", bac, 1., bac2);
 
-    h_nbadchannels_depth2_HE = new TH1F("h_nbadchannels_depth2_HE", " ", 100, 1., 3001.);
-    h_runnbadchannels_depth2_HE = new TH1F("h_runnbadchannels_depth2_HE", " ", bac, 1., bac2);
-    h_runnbadchannelsC_depth2_HE = new TH1F("h_runnbadchannelsC_depth2_HE", " ", bac, 1., bac2);
-    h_runbadrate_depth2_HE = new TH1F("h_runbadrate_depth2_HE", " ", bac, 1., bac2);
-    h_runbadrateC_depth2_HE = new TH1F("h_runbadrateC_depth2_HE", " ", bac, 1., bac2);
-    h_runbadrate0_depth2_HE = new TH1F("h_runbadrate0_depth2_HE", " ", bac, 1., bac2);
+    h_nbadchannels_depth2_HE = fs_->make<TH1F>("h_nbadchannels_depth2_HE", " ", 100, 1., 3001.);
+    h_runnbadchannels_depth2_HE = fs_->make<TH1F>("h_runnbadchannels_depth2_HE", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth2_HE = fs_->make<TH1F>("h_runnbadchannelsC_depth2_HE", " ", bac, 1., bac2);
+    h_runbadrate_depth2_HE = fs_->make<TH1F>("h_runbadrate_depth2_HE", " ", bac, 1., bac2);
+    h_runbadrateC_depth2_HE = fs_->make<TH1F>("h_runbadrateC_depth2_HE", " ", bac, 1., bac2);
+    h_runbadrate0_depth2_HE = fs_->make<TH1F>("h_runbadrate0_depth2_HE", " ", bac, 1., bac2);
 
-    h_nbadchannels_depth3_HE = new TH1F("h_nbadchannels_depth3_HE", " ", 100, 1., 501.);
-    h_runnbadchannels_depth3_HE = new TH1F("h_runnbadchannels_depth3_HE", " ", bac, 1., bac2);
-    h_runnbadchannelsC_depth3_HE = new TH1F("h_runnbadchannelsC_depth3_HE", " ", bac, 1., bac2);
-    h_runbadrate_depth3_HE = new TH1F("h_runbadrate_depth3_HE", " ", bac, 1., bac2);
-    h_runbadrateC_depth3_HE = new TH1F("h_runbadrateC_depth3_HE", " ", bac, 1., bac2);
-    h_runbadrate0_depth3_HE = new TH1F("h_runbadrate0_depth3_HE", " ", bac, 1., bac2);
+    h_nbadchannels_depth3_HE = fs_->make<TH1F>("h_nbadchannels_depth3_HE", " ", 100, 1., 501.);
+    h_runnbadchannels_depth3_HE = fs_->make<TH1F>("h_runnbadchannels_depth3_HE", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth3_HE = fs_->make<TH1F>("h_runnbadchannelsC_depth3_HE", " ", bac, 1., bac2);
+    h_runbadrate_depth3_HE = fs_->make<TH1F>("h_runbadrate_depth3_HE", " ", bac, 1., bac2);
+    h_runbadrateC_depth3_HE = fs_->make<TH1F>("h_runbadrateC_depth3_HE", " ", bac, 1., bac2);
+    h_runbadrate0_depth3_HE = fs_->make<TH1F>("h_runbadrate0_depth3_HE", " ", bac, 1., bac2);
 
-    h_nbadchannels_depth1_HF = new TH1F("h_nbadchannels_depth1_HF", " ", 100, 1., 3001.);
-    h_runnbadchannels_depth1_HF = new TH1F("h_runnbadchannels_depth1_HF", " ", bac, 1., bac2);
-    h_runnbadchannelsC_depth1_HF = new TH1F("h_runnbadchannelsC_depth1_HF", " ", bac, 1., bac2);
-    h_runbadrate_depth1_HF = new TH1F("h_runbadrate_depth1_HF", " ", bac, 1., bac2);
-    h_runbadrateC_depth1_HF = new TH1F("h_runbadrateC_depth1_HF", " ", bac, 1., bac2);
-    h_runbadrate0_depth1_HF = new TH1F("h_runbadrate0_depth1_HF", " ", bac, 1., bac2);
+    h_nbadchannels_depth1_HF = fs_->make<TH1F>("h_nbadchannels_depth1_HF", " ", 100, 1., 3001.);
+    h_runnbadchannels_depth1_HF = fs_->make<TH1F>("h_runnbadchannels_depth1_HF", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth1_HF = fs_->make<TH1F>("h_runnbadchannelsC_depth1_HF", " ", bac, 1., bac2);
+    h_runbadrate_depth1_HF = fs_->make<TH1F>("h_runbadrate_depth1_HF", " ", bac, 1., bac2);
+    h_runbadrateC_depth1_HF = fs_->make<TH1F>("h_runbadrateC_depth1_HF", " ", bac, 1., bac2);
+    h_runbadrate0_depth1_HF = fs_->make<TH1F>("h_runbadrate0_depth1_HF", " ", bac, 1., bac2);
 
-    h_nbadchannels_depth2_HF = new TH1F("h_nbadchannels_depth2_HF", " ", 100, 1., 501.);
-    h_runnbadchannels_depth2_HF = new TH1F("h_runnbadchannels_depth2_HF", " ", bac, 1., bac2);
-    h_runnbadchannelsC_depth2_HF = new TH1F("h_runnbadchannelsC_depth2_HF", " ", bac, 1., bac2);
-    h_runbadrate_depth2_HF = new TH1F("h_runbadrate_depth2_HF", " ", bac, 1., bac2);
-    h_runbadrateC_depth2_HF = new TH1F("h_runbadrateC_depth2_HF", " ", bac, 1., bac2);
-    h_runbadrate0_depth2_HF = new TH1F("h_runbadrate0_depth2_HF", " ", bac, 1., bac2);
+    h_nbadchannels_depth2_HF = fs_->make<TH1F>("h_nbadchannels_depth2_HF", " ", 100, 1., 501.);
+    h_runnbadchannels_depth2_HF = fs_->make<TH1F>("h_runnbadchannels_depth2_HF", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth2_HF = fs_->make<TH1F>("h_runnbadchannelsC_depth2_HF", " ", bac, 1., bac2);
+    h_runbadrate_depth2_HF = fs_->make<TH1F>("h_runbadrate_depth2_HF", " ", bac, 1., bac2);
+    h_runbadrateC_depth2_HF = fs_->make<TH1F>("h_runbadrateC_depth2_HF", " ", bac, 1., bac2);
+    h_runbadrate0_depth2_HF = fs_->make<TH1F>("h_runbadrate0_depth2_HF", " ", bac, 1., bac2);
 
-    h_nbadchannels_depth4_HO = new TH1F("h_nbadchannels_depth4_HO", " ", 100, 1., 3001.);
-    h_runnbadchannels_depth4_HO = new TH1F("h_runnbadchannels_depth4_HO", " ", bac, 1., bac2);
-    h_runnbadchannelsC_depth4_HO = new TH1F("h_runnbadchannelsC_depth4_HO", " ", bac, 1., bac2);
-    h_runbadrate_depth4_HO = new TH1F("h_runbadrate_depth4_HO", " ", bac, 1., bac2);
-    h_runbadrateC_depth4_HO = new TH1F("h_runbadrateC_depth4_HO", " ", bac, 1., bac2);
-    h_runbadrate0_depth4_HO = new TH1F("h_runbadrate0_depth4_HO", " ", bac, 1., bac2);
+    h_nbadchannels_depth4_HO = fs_->make<TH1F>("h_nbadchannels_depth4_HO", " ", 100, 1., 3001.);
+    h_runnbadchannels_depth4_HO = fs_->make<TH1F>("h_runnbadchannels_depth4_HO", " ", bac, 1., bac2);
+    h_runnbadchannelsC_depth4_HO = fs_->make<TH1F>("h_runnbadchannelsC_depth4_HO", " ", bac, 1., bac2);
+    h_runbadrate_depth4_HO = fs_->make<TH1F>("h_runbadrate_depth4_HO", " ", bac, 1., bac2);
+    h_runbadrateC_depth4_HO = fs_->make<TH1F>("h_runbadrateC_depth4_HO", " ", bac, 1., bac2);
+    h_runbadrate0_depth4_HO = fs_->make<TH1F>("h_runbadrate0_depth4_HO", " ", bac, 1., bac2);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    h_FullSignal3D_HB = new TH2F("h_FullSignal3D_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_FullSignal3D0_HB = new TH2F("h_FullSignal3D0_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_FullSignal3D_HE = new TH2F("h_FullSignal3D_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_FullSignal3D0_HE = new TH2F("h_FullSignal3D0_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_FullSignal3D_HO = new TH2F("h_FullSignal3D_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_FullSignal3D0_HO = new TH2F("h_FullSignal3D0_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_FullSignal3D_HF = new TH2F("h_FullSignal3D_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_FullSignal3D0_HF = new TH2F("h_FullSignal3D0_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_FullSignal3D_HB = fs_->make<TH2F>("h_FullSignal3D_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_FullSignal3D0_HB = fs_->make<TH2F>("h_FullSignal3D0_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_FullSignal3D_HE = fs_->make<TH2F>("h_FullSignal3D_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_FullSignal3D0_HE = fs_->make<TH2F>("h_FullSignal3D0_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_FullSignal3D_HO = fs_->make<TH2F>("h_FullSignal3D_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_FullSignal3D0_HO = fs_->make<TH2F>("h_FullSignal3D0_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_FullSignal3D_HF = fs_->make<TH2F>("h_FullSignal3D_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_FullSignal3D0_HF = fs_->make<TH2F>("h_FullSignal3D0_HF", " ", neta, -41., 41., nphi, 0., bphi);
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
-    h_ADCCalib_HB = new TH1F("h_ADCCalib_HB", " ", 100, 10., 10000.);
-    h_ADCCalib1_HB = new TH1F("h_ADCCalib1_HB", " ", 100, 0.1, 100.1);
-    h_mapADCCalib047_HB = new TH2F("h_mapADCCalib047_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapADCCalib_HB = new TH2F("h_mapADCCalib_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_RatioCalib_HB = new TH1F("h_RatioCalib_HB", " ", 100, 0., 1.);
-    h_mapRatioCalib047_HB = new TH2F("h_mapRatioCalib047_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapRatioCalib_HB = new TH2F("h_mapRatioCalib_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_TSmaxCalib_HB = new TH1F("h_TSmaxCalib_HB", " ", 100, 0., 10.);
-    h_mapTSmaxCalib047_HB = new TH2F("h_mapTSmaxCalib047_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapTSmaxCalib_HB = new TH2F("h_mapTSmaxCalib_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_TSmeanCalib_HB = new TH1F("h_TSmeanCalib_HB", " ", 100, 0., 10.);
-    h_mapTSmeanCalib047_HB = new TH2F("h_mapTSmeanCalib047_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapTSmeanCalib_HB = new TH2F("h_mapTSmeanCalib_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_WidthCalib_HB = new TH1F("h_WidthCalib_HB", " ", 100, 0., 5.);
-    h_mapWidthCalib047_HB = new TH2F("h_mapWidthCalib047_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapCapCalib047_HB = new TH2F("h_mapCapCalib047_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapWidthCalib_HB = new TH2F("h_mapWidthCalib_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_map_HB = new TH2F("h_map_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_ADCCalib_HE = new TH1F("h_ADCCalib_HE", " ", 100, 10., 10000.);
-    h_ADCCalib1_HE = new TH1F("h_ADCCalib1_HE", " ", 100, 0.1, 100.1);
-    h_mapADCCalib047_HE = new TH2F("h_mapADCCalib047_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapADCCalib_HE = new TH2F("h_mapADCCalib_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_RatioCalib_HE = new TH1F("h_RatioCalib_HE", " ", 100, 0., 1.);
-    h_mapRatioCalib047_HE = new TH2F("h_mapRatioCalib047_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapRatioCalib_HE = new TH2F("h_mapRatioCalib_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_TSmaxCalib_HE = new TH1F("h_TSmaxCalib_HE", " ", 100, 0., 10.);
-    h_mapTSmaxCalib047_HE = new TH2F("h_mapTSmaxCalib047_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapTSmaxCalib_HE = new TH2F("h_mapTSmaxCalib_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_TSmeanCalib_HE = new TH1F("h_TSmeanCalib_HE", " ", 100, 0., 10.);
-    h_mapTSmeanCalib047_HE = new TH2F("h_mapTSmeanCalib047_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapTSmeanCalib_HE = new TH2F("h_mapTSmeanCalib_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_WidthCalib_HE = new TH1F("h_WidthCalib_HE", " ", 100, 0., 5.);
-    h_mapWidthCalib047_HE = new TH2F("h_mapWidthCalib047_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapCapCalib047_HE = new TH2F("h_mapCapCalib047_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapWidthCalib_HE = new TH2F("h_mapWidthCalib_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_map_HE = new TH2F("h_map_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_ADCCalib_HO = new TH1F("h_ADCCalib_HO", " ", 100, 10., 10000.);
-    h_ADCCalib1_HO = new TH1F("h_ADCCalib1_HO", " ", 100, 0.1, 100.1);
-    h_mapADCCalib047_HO = new TH2F("h_mapADCCalib047_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapADCCalib_HO = new TH2F("h_mapADCCalib_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_RatioCalib_HO = new TH1F("h_RatioCalib_HO", " ", 100, 0., 1.);
-    h_mapRatioCalib047_HO = new TH2F("h_mapRatioCalib047_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapRatioCalib_HO = new TH2F("h_mapRatioCalib_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_TSmaxCalib_HO = new TH1F("h_TSmaxCalib_HO", " ", 100, 0., 10.);
-    h_mapTSmaxCalib047_HO = new TH2F("h_mapTSmaxCalib047_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapTSmaxCalib_HO = new TH2F("h_mapTSmaxCalib_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_TSmeanCalib_HO = new TH1F("h_TSmeanCalib_HO", " ", 100, 0., 10.);
-    h_mapTSmeanCalib047_HO = new TH2F("h_mapTSmeanCalib047_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapTSmeanCalib_HO = new TH2F("h_mapTSmeanCalib_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_WidthCalib_HO = new TH1F("h_WidthCalib_HO", " ", 100, 0., 5.);
-    h_mapWidthCalib047_HO = new TH2F("h_mapWidthCalib047_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapCapCalib047_HO = new TH2F("h_mapCapCalib047_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapWidthCalib_HO = new TH2F("h_mapWidthCalib_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_map_HO = new TH2F("h_map_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_ADCCalib_HF = new TH1F("h_ADCCalib_HF", " ", 100, 10., 2000.);
-    h_ADCCalib1_HF = new TH1F("h_ADCCalib1_HF", " ", 100, 0.1, 100.1);
-    h_mapADCCalib047_HF = new TH2F("h_mapADCCalib047_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapADCCalib_HF = new TH2F("h_mapADCCalib_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_RatioCalib_HF = new TH1F("h_RatioCalib_HF", " ", 100, 0., 1.);
-    h_mapRatioCalib047_HF = new TH2F("h_mapRatioCalib047_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapRatioCalib_HF = new TH2F("h_mapRatioCalib_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_TSmaxCalib_HF = new TH1F("h_TSmaxCalib_HF", " ", 100, 0., 10.);
-    h_mapTSmaxCalib047_HF = new TH2F("h_mapTSmaxCalib047_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapTSmaxCalib_HF = new TH2F("h_mapTSmaxCalib_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_TSmeanCalib_HF = new TH1F("h_TSmeanCalib_HF", " ", 100, 0., 10.);
-    h_mapTSmeanCalib047_HF = new TH2F("h_mapTSmeanCalib047_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapTSmeanCalib_HF = new TH2F("h_mapTSmeanCalib_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_WidthCalib_HF = new TH1F("h_WidthCalib_HF", " ", 100, 0., 5.);
-    h_mapWidthCalib047_HF = new TH2F("h_mapWidthCalib047_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapCapCalib047_HF = new TH2F("h_mapCapCalib047_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapWidthCalib_HF = new TH2F("h_mapWidthCalib_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_map_HF = new TH2F("h_map_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_ADCCalib_HB = fs_->make<TH1F>("h_ADCCalib_HB", " ", 100, 10., 10000.);
+    h_ADCCalib1_HB = fs_->make<TH1F>("h_ADCCalib1_HB", " ", 100, 0.1, 100.1);
+    h_mapADCCalib047_HB = fs_->make<TH2F>("h_mapADCCalib047_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapADCCalib_HB = fs_->make<TH2F>("h_mapADCCalib_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_RatioCalib_HB = fs_->make<TH1F>("h_RatioCalib_HB", " ", 100, 0., 1.);
+    h_mapRatioCalib047_HB = fs_->make<TH2F>("h_mapRatioCalib047_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapRatioCalib_HB = fs_->make<TH2F>("h_mapRatioCalib_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_TSmaxCalib_HB = fs_->make<TH1F>("h_TSmaxCalib_HB", " ", 100, 0., 10.);
+    h_mapTSmaxCalib047_HB = fs_->make<TH2F>("h_mapTSmaxCalib047_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapTSmaxCalib_HB = fs_->make<TH2F>("h_mapTSmaxCalib_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_TSmeanCalib_HB = fs_->make<TH1F>("h_TSmeanCalib_HB", " ", 100, 0., 10.);
+    h_mapTSmeanCalib047_HB = fs_->make<TH2F>("h_mapTSmeanCalib047_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapTSmeanCalib_HB = fs_->make<TH2F>("h_mapTSmeanCalib_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_WidthCalib_HB = fs_->make<TH1F>("h_WidthCalib_HB", " ", 100, 0., 5.);
+    h_mapWidthCalib047_HB = fs_->make<TH2F>("h_mapWidthCalib047_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapCapCalib047_HB = fs_->make<TH2F>("h_mapCapCalib047_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapWidthCalib_HB = fs_->make<TH2F>("h_mapWidthCalib_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_map_HB = fs_->make<TH2F>("h_map_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_ADCCalib_HE = fs_->make<TH1F>("h_ADCCalib_HE", " ", 100, 10., 10000.);
+    h_ADCCalib1_HE = fs_->make<TH1F>("h_ADCCalib1_HE", " ", 100, 0.1, 100.1);
+    h_mapADCCalib047_HE = fs_->make<TH2F>("h_mapADCCalib047_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapADCCalib_HE = fs_->make<TH2F>("h_mapADCCalib_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_RatioCalib_HE = fs_->make<TH1F>("h_RatioCalib_HE", " ", 100, 0., 1.);
+    h_mapRatioCalib047_HE = fs_->make<TH2F>("h_mapRatioCalib047_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapRatioCalib_HE = fs_->make<TH2F>("h_mapRatioCalib_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_TSmaxCalib_HE = fs_->make<TH1F>("h_TSmaxCalib_HE", " ", 100, 0., 10.);
+    h_mapTSmaxCalib047_HE = fs_->make<TH2F>("h_mapTSmaxCalib047_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapTSmaxCalib_HE = fs_->make<TH2F>("h_mapTSmaxCalib_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_TSmeanCalib_HE = fs_->make<TH1F>("h_TSmeanCalib_HE", " ", 100, 0., 10.);
+    h_mapTSmeanCalib047_HE = fs_->make<TH2F>("h_mapTSmeanCalib047_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapTSmeanCalib_HE = fs_->make<TH2F>("h_mapTSmeanCalib_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_WidthCalib_HE = fs_->make<TH1F>("h_WidthCalib_HE", " ", 100, 0., 5.);
+    h_mapWidthCalib047_HE = fs_->make<TH2F>("h_mapWidthCalib047_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapCapCalib047_HE = fs_->make<TH2F>("h_mapCapCalib047_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapWidthCalib_HE = fs_->make<TH2F>("h_mapWidthCalib_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_map_HE = fs_->make<TH2F>("h_map_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_ADCCalib_HO = fs_->make<TH1F>("h_ADCCalib_HO", " ", 100, 10., 10000.);
+    h_ADCCalib1_HO = fs_->make<TH1F>("h_ADCCalib1_HO", " ", 100, 0.1, 100.1);
+    h_mapADCCalib047_HO = fs_->make<TH2F>("h_mapADCCalib047_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapADCCalib_HO = fs_->make<TH2F>("h_mapADCCalib_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_RatioCalib_HO = fs_->make<TH1F>("h_RatioCalib_HO", " ", 100, 0., 1.);
+    h_mapRatioCalib047_HO = fs_->make<TH2F>("h_mapRatioCalib047_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapRatioCalib_HO = fs_->make<TH2F>("h_mapRatioCalib_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_TSmaxCalib_HO = fs_->make<TH1F>("h_TSmaxCalib_HO", " ", 100, 0., 10.);
+    h_mapTSmaxCalib047_HO = fs_->make<TH2F>("h_mapTSmaxCalib047_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapTSmaxCalib_HO = fs_->make<TH2F>("h_mapTSmaxCalib_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_TSmeanCalib_HO = fs_->make<TH1F>("h_TSmeanCalib_HO", " ", 100, 0., 10.);
+    h_mapTSmeanCalib047_HO = fs_->make<TH2F>("h_mapTSmeanCalib047_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapTSmeanCalib_HO = fs_->make<TH2F>("h_mapTSmeanCalib_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_WidthCalib_HO = fs_->make<TH1F>("h_WidthCalib_HO", " ", 100, 0., 5.);
+    h_mapWidthCalib047_HO = fs_->make<TH2F>("h_mapWidthCalib047_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapCapCalib047_HO = fs_->make<TH2F>("h_mapCapCalib047_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapWidthCalib_HO = fs_->make<TH2F>("h_mapWidthCalib_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_map_HO = fs_->make<TH2F>("h_map_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_ADCCalib_HF = fs_->make<TH1F>("h_ADCCalib_HF", " ", 100, 10., 2000.);
+    h_ADCCalib1_HF = fs_->make<TH1F>("h_ADCCalib1_HF", " ", 100, 0.1, 100.1);
+    h_mapADCCalib047_HF = fs_->make<TH2F>("h_mapADCCalib047_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapADCCalib_HF = fs_->make<TH2F>("h_mapADCCalib_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_RatioCalib_HF = fs_->make<TH1F>("h_RatioCalib_HF", " ", 100, 0., 1.);
+    h_mapRatioCalib047_HF = fs_->make<TH2F>("h_mapRatioCalib047_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapRatioCalib_HF = fs_->make<TH2F>("h_mapRatioCalib_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_TSmaxCalib_HF = fs_->make<TH1F>("h_TSmaxCalib_HF", " ", 100, 0., 10.);
+    h_mapTSmaxCalib047_HF = fs_->make<TH2F>("h_mapTSmaxCalib047_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapTSmaxCalib_HF = fs_->make<TH2F>("h_mapTSmaxCalib_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_TSmeanCalib_HF = fs_->make<TH1F>("h_TSmeanCalib_HF", " ", 100, 0., 10.);
+    h_mapTSmeanCalib047_HF = fs_->make<TH2F>("h_mapTSmeanCalib047_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapTSmeanCalib_HF = fs_->make<TH2F>("h_mapTSmeanCalib_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_WidthCalib_HF = fs_->make<TH1F>("h_WidthCalib_HF", " ", 100, 0., 5.);
+    h_mapWidthCalib047_HF = fs_->make<TH2F>("h_mapWidthCalib047_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapCapCalib047_HF = fs_->make<TH2F>("h_mapCapCalib047_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapWidthCalib_HF = fs_->make<TH2F>("h_mapWidthCalib_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_map_HF = fs_->make<TH2F>("h_map_HF", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_nls_per_run = new TH1F("h_nls_per_run", " ", 100, 0., 800.);
-    h_nls_per_run10 = new TH1F("h_nls_per_run10", " ", 100, 0., 60.);
-    h_nevents_per_LS = new TH1F("h_nevents_per_LS", " ", 100, 0., 600.);
-    h_nevents_per_LSzoom = new TH1F("h_nevents_per_LSzoom", " ", 50, 0., 50.);
-    h_nevents_per_eachLS = new TH1F("h_nevents_per_eachLS", " ", bac, 1., bac2);
-    h_nevents_per_eachRealLS = new TH1F("h_nevents_per_eachRealLS", " ", bac, 1., bac2);
-    h_lsnumber_per_eachLS = new TH1F("h_lsnumber_per_eachLS", " ", bac, 1., bac2);
+    h_nls_per_run = fs_->make<TH1F>("h_nls_per_run", " ", 100, 0., 800.);
+    h_nls_per_run10 = fs_->make<TH1F>("h_nls_per_run10", " ", 100, 0., 60.);
+    h_nevents_per_LS = fs_->make<TH1F>("h_nevents_per_LS", " ", 100, 0., 600.);
+    h_nevents_per_LSzoom = fs_->make<TH1F>("h_nevents_per_LSzoom", " ", 50, 0., 50.);
+    h_nevents_per_eachLS = fs_->make<TH1F>("h_nevents_per_eachLS", " ", bac, 1., bac2);
+    h_nevents_per_eachRealLS = fs_->make<TH1F>("h_nevents_per_eachRealLS", " ", bac, 1., bac2);
+    h_lsnumber_per_eachLS = fs_->make<TH1F>("h_lsnumber_per_eachLS", " ", bac, 1., bac2);
     //--------------------------------------------------
     // for estimator0:
     float pst1 = 30.;
-    h_sumPedestalLS1 = new TH1F("h_sumPedestalLS1", " ", 100, 0., pst1);
-    h_2DsumPedestalLS1 = new TH2F("h_2DsumPedestalLS1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumPedestalperLS1 = new TH1F("h_sumPedestalperLS1", " ", bac, 1., bac2);
-    h_2D0sumPedestalLS1 = new TH2F("h_2D0sumPedestalLS1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0PedestalperLS1 = new TH1F("h_sum0PedestalperLS1", " ", bac, 1., bac2);
+    h_sumPedestalLS1 = fs_->make<TH1F>("h_sumPedestalLS1", " ", 100, 0., pst1);
+    h_2DsumPedestalLS1 = fs_->make<TH2F>("h_2DsumPedestalLS1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumPedestalperLS1 = fs_->make<TH1F>("h_sumPedestalperLS1", " ", bac, 1., bac2);
+    h_2D0sumPedestalLS1 = fs_->make<TH2F>("h_2D0sumPedestalLS1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0PedestalperLS1 = fs_->make<TH1F>("h_sum0PedestalperLS1", " ", bac, 1., bac2);
 
-    h_sumPedestalLS2 = new TH1F("h_sumPedestalLS2", " ", 100, 0., pst1);
-    h_2DsumPedestalLS2 = new TH2F("h_2DsumPedestalLS2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumPedestalperLS2 = new TH1F("h_sumPedestalperLS2", " ", bac, 1., bac2);
-    h_2D0sumPedestalLS2 = new TH2F("h_2D0sumPedestalLS2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0PedestalperLS2 = new TH1F("h_sum0PedestalperLS2", " ", bac, 1., bac2);
+    h_sumPedestalLS2 = fs_->make<TH1F>("h_sumPedestalLS2", " ", 100, 0., pst1);
+    h_2DsumPedestalLS2 = fs_->make<TH2F>("h_2DsumPedestalLS2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumPedestalperLS2 = fs_->make<TH1F>("h_sumPedestalperLS2", " ", bac, 1., bac2);
+    h_2D0sumPedestalLS2 = fs_->make<TH2F>("h_2D0sumPedestalLS2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0PedestalperLS2 = fs_->make<TH1F>("h_sum0PedestalperLS2", " ", bac, 1., bac2);
 
-    h_sumPedestalLS3 = new TH1F("h_sumPedestalLS3", " ", 100, 0., pst1);
-    h_2DsumPedestalLS3 = new TH2F("h_2DsumPedestalLS3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumPedestalperLS3 = new TH1F("h_sumPedestalperLS3", " ", bac, 1., bac2);
-    h_2D0sumPedestalLS3 = new TH2F("h_2D0sumPedestalLS3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0PedestalperLS3 = new TH1F("h_sum0PedestalperLS3", " ", bac, 1., bac2);
+    h_sumPedestalLS3 = fs_->make<TH1F>("h_sumPedestalLS3", " ", 100, 0., pst1);
+    h_2DsumPedestalLS3 = fs_->make<TH2F>("h_2DsumPedestalLS3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumPedestalperLS3 = fs_->make<TH1F>("h_sumPedestalperLS3", " ", bac, 1., bac2);
+    h_2D0sumPedestalLS3 = fs_->make<TH2F>("h_2D0sumPedestalLS3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0PedestalperLS3 = fs_->make<TH1F>("h_sum0PedestalperLS3", " ", bac, 1., bac2);
 
-    h_sumPedestalLS4 = new TH1F("h_sumPedestalLS4", " ", 100, 0., pst1);
-    h_2DsumPedestalLS4 = new TH2F("h_2DsumPedestalLS4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumPedestalperLS4 = new TH1F("h_sumPedestalperLS4", " ", bac, 1., bac2);
-    h_2D0sumPedestalLS4 = new TH2F("h_2D0sumPedestalLS4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0PedestalperLS4 = new TH1F("h_sum0PedestalperLS4", " ", bac, 1., bac2);
+    h_sumPedestalLS4 = fs_->make<TH1F>("h_sumPedestalLS4", " ", 100, 0., pst1);
+    h_2DsumPedestalLS4 = fs_->make<TH2F>("h_2DsumPedestalLS4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumPedestalperLS4 = fs_->make<TH1F>("h_sumPedestalperLS4", " ", bac, 1., bac2);
+    h_2D0sumPedestalLS4 = fs_->make<TH2F>("h_2D0sumPedestalLS4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0PedestalperLS4 = fs_->make<TH1F>("h_sum0PedestalperLS4", " ", bac, 1., bac2);
 
-    h_sumPedestalLS5 = new TH1F("h_sumPedestalLS5", " ", 100, 0., pst1);
-    h_2DsumPedestalLS5 = new TH2F("h_2DsumPedestalLS5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumPedestalperLS5 = new TH1F("h_sumPedestalperLS5", " ", bac, 1., bac2);
-    h_2D0sumPedestalLS5 = new TH2F("h_2D0sumPedestalLS5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0PedestalperLS5 = new TH1F("h_sum0PedestalperLS5", " ", bac, 1., bac2);
+    h_sumPedestalLS5 = fs_->make<TH1F>("h_sumPedestalLS5", " ", 100, 0., pst1);
+    h_2DsumPedestalLS5 = fs_->make<TH2F>("h_2DsumPedestalLS5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumPedestalperLS5 = fs_->make<TH1F>("h_sumPedestalperLS5", " ", bac, 1., bac2);
+    h_2D0sumPedestalLS5 = fs_->make<TH2F>("h_2D0sumPedestalLS5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0PedestalperLS5 = fs_->make<TH1F>("h_sum0PedestalperLS5", " ", bac, 1., bac2);
 
-    h_sumPedestalLS6 = new TH1F("h_sumPedestalLS6", " ", 100, 0., pst1);
-    h_2DsumPedestalLS6 = new TH2F("h_2DsumPedestalLS6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumPedestalperLS6 = new TH1F("h_sumPedestalperLS6", " ", bac, 1., bac2);
-    h_2D0sumPedestalLS6 = new TH2F("h_2D0sumPedestalLS6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0PedestalperLS6 = new TH1F("h_sum0PedestalperLS6", " ", bac, 1., bac2);
+    h_sumPedestalLS6 = fs_->make<TH1F>("h_sumPedestalLS6", " ", 100, 0., pst1);
+    h_2DsumPedestalLS6 = fs_->make<TH2F>("h_2DsumPedestalLS6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumPedestalperLS6 = fs_->make<TH1F>("h_sumPedestalperLS6", " ", bac, 1., bac2);
+    h_2D0sumPedestalLS6 = fs_->make<TH2F>("h_2D0sumPedestalLS6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0PedestalperLS6 = fs_->make<TH1F>("h_sum0PedestalperLS6", " ", bac, 1., bac2);
 
-    h_sumPedestalLS7 = new TH1F("h_sumPedestalLS7", " ", 100, 0., pst1);
-    h_2DsumPedestalLS7 = new TH2F("h_2DsumPedestalLS7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumPedestalperLS7 = new TH1F("h_sumPedestalperLS7", " ", bac, 1., bac2);
-    h_2D0sumPedestalLS7 = new TH2F("h_2D0sumPedestalLS7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0PedestalperLS7 = new TH1F("h_sum0PedestalperLS7", " ", bac, 1., bac2);
+    h_sumPedestalLS7 = fs_->make<TH1F>("h_sumPedestalLS7", " ", 100, 0., pst1);
+    h_2DsumPedestalLS7 = fs_->make<TH2F>("h_2DsumPedestalLS7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumPedestalperLS7 = fs_->make<TH1F>("h_sumPedestalperLS7", " ", bac, 1., bac2);
+    h_2D0sumPedestalLS7 = fs_->make<TH2F>("h_2D0sumPedestalLS7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0PedestalperLS7 = fs_->make<TH1F>("h_sum0PedestalperLS7", " ", bac, 1., bac2);
 
-    h_sumPedestalLS8 = new TH1F("h_sumPedestalLS8", " ", 100, 0., pst1);
-    h_2DsumPedestalLS8 = new TH2F("h_2DsumPedestalLS8", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumPedestalperLS8 = new TH1F("h_sumPedestalperLS8", " ", bac, 1., bac2);
-    h_2D0sumPedestalLS8 = new TH2F("h_2D0sumPedestalLS8", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0PedestalperLS8 = new TH1F("h_sum0PedestalperLS8", " ", bac, 1., bac2);
+    h_sumPedestalLS8 = fs_->make<TH1F>("h_sumPedestalLS8", " ", 100, 0., pst1);
+    h_2DsumPedestalLS8 = fs_->make<TH2F>("h_2DsumPedestalLS8", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumPedestalperLS8 = fs_->make<TH1F>("h_sumPedestalperLS8", " ", bac, 1., bac2);
+    h_2D0sumPedestalLS8 = fs_->make<TH2F>("h_2D0sumPedestalLS8", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0PedestalperLS8 = fs_->make<TH1F>("h_sum0PedestalperLS8", " ", bac, 1., bac2);
 
     //--------------------------------------------------
     // for estimator1:
-    h_sumADCAmplLS1copy1 = new TH1F("h_sumADCAmplLS1copy1", " ", 100, 0., 10000);
-    h_sumADCAmplLS1copy2 = new TH1F("h_sumADCAmplLS1copy2", " ", 100, 0., 20000);
-    h_sumADCAmplLS1copy3 = new TH1F("h_sumADCAmplLS1copy3", " ", 100, 0., 50000);
-    h_sumADCAmplLS1copy4 = new TH1F("h_sumADCAmplLS1copy4", " ", 100, 0., 100000);
-    h_sumADCAmplLS1copy5 = new TH1F("h_sumADCAmplLS1copy5", " ", 100, 0., 150000);
-    h_sumADCAmplLS1 = new TH1F("h_sumADCAmplLS1", " ", 100, 0., lsdep_estimator1_HBdepth1_);
-    h_2DsumADCAmplLS1 = new TH2F("h_2DsumADCAmplLS1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS1_LSselected = new TH2F("h_2DsumADCAmplLS1_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumADCAmplperLS1 = new TH1F("h_sumADCAmplperLS1", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLS1 = new TH1F("h_sumCutADCAmplperLS1", " ", bac, 1., bac2);
-    h_2D0sumADCAmplLS1 = new TH2F("h_2D0sumADCAmplLS1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0ADCAmplperLS1 = new TH1F("h_sum0ADCAmplperLS1", " ", bac, 1., bac2);
+    h_sumADCAmplLS1copy1 = fs_->make<TH1F>("h_sumADCAmplLS1copy1", " ", 100, 0., 10000);
+    h_sumADCAmplLS1copy2 = fs_->make<TH1F>("h_sumADCAmplLS1copy2", " ", 100, 0., 20000);
+    h_sumADCAmplLS1copy3 = fs_->make<TH1F>("h_sumADCAmplLS1copy3", " ", 100, 0., 50000);
+    h_sumADCAmplLS1copy4 = fs_->make<TH1F>("h_sumADCAmplLS1copy4", " ", 100, 0., 100000);
+    h_sumADCAmplLS1copy5 = fs_->make<TH1F>("h_sumADCAmplLS1copy5", " ", 100, 0., 150000);
+    h_sumADCAmplLS1 = fs_->make<TH1F>("h_sumADCAmplLS1", " ", 100, 0., lsdep_estimator1_HBdepth1_);
+    h_2DsumADCAmplLS1 = fs_->make<TH2F>("h_2DsumADCAmplLS1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS1_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS1_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumADCAmplperLS1 = fs_->make<TH1F>("h_sumADCAmplperLS1", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLS1 = fs_->make<TH1F>("h_sumCutADCAmplperLS1", " ", bac, 1., bac2);
+    h_2D0sumADCAmplLS1 = fs_->make<TH2F>("h_2D0sumADCAmplLS1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0ADCAmplperLS1 = fs_->make<TH1F>("h_sum0ADCAmplperLS1", " ", bac, 1., bac2);
 
-    h_sumADCAmplLS2 = new TH1F("h_sumADCAmplLS2", " ", 100, 0., lsdep_estimator1_HBdepth2_);
-    h_2DsumADCAmplLS2 = new TH2F("h_2DsumADCAmplLS2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS2_LSselected = new TH2F("h_2DsumADCAmplLS2_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumADCAmplperLS2 = new TH1F("h_sumADCAmplperLS2", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLS2 = new TH1F("h_sumCutADCAmplperLS2", " ", bac, 1., bac2);
-    h_2D0sumADCAmplLS2 = new TH2F("h_2D0sumADCAmplLS2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0ADCAmplperLS2 = new TH1F("h_sum0ADCAmplperLS2", " ", bac, 1., bac2);
+    h_sumADCAmplLS2 = fs_->make<TH1F>("h_sumADCAmplLS2", " ", 100, 0., lsdep_estimator1_HBdepth2_);
+    h_2DsumADCAmplLS2 = fs_->make<TH2F>("h_2DsumADCAmplLS2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS2_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS2_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumADCAmplperLS2 = fs_->make<TH1F>("h_sumADCAmplperLS2", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLS2 = fs_->make<TH1F>("h_sumCutADCAmplperLS2", " ", bac, 1., bac2);
+    h_2D0sumADCAmplLS2 = fs_->make<TH2F>("h_2D0sumADCAmplLS2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0ADCAmplperLS2 = fs_->make<TH1F>("h_sum0ADCAmplperLS2", " ", bac, 1., bac2);
 
-    h_sumADCAmplLS3 = new TH1F("h_sumADCAmplLS3", " ", 100, 0., lsdep_estimator1_HEdepth1_);
-    h_2DsumADCAmplLS3 = new TH2F("h_2DsumADCAmplLS3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS3_LSselected = new TH2F("h_2DsumADCAmplLS3_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumADCAmplperLS3 = new TH1F("h_sumADCAmplperLS3", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLS3 = new TH1F("h_sumCutADCAmplperLS3", " ", bac, 1., bac2);
-    h_2D0sumADCAmplLS3 = new TH2F("h_2D0sumADCAmplLS3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0ADCAmplperLS3 = new TH1F("h_sum0ADCAmplperLS3", " ", bac, 1., bac2);
+    h_sumADCAmplLS3 = fs_->make<TH1F>("h_sumADCAmplLS3", " ", 100, 0., lsdep_estimator1_HEdepth1_);
+    h_2DsumADCAmplLS3 = fs_->make<TH2F>("h_2DsumADCAmplLS3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS3_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS3_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumADCAmplperLS3 = fs_->make<TH1F>("h_sumADCAmplperLS3", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLS3 = fs_->make<TH1F>("h_sumCutADCAmplperLS3", " ", bac, 1., bac2);
+    h_2D0sumADCAmplLS3 = fs_->make<TH2F>("h_2D0sumADCAmplLS3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0ADCAmplperLS3 = fs_->make<TH1F>("h_sum0ADCAmplperLS3", " ", bac, 1., bac2);
 
-    h_sumADCAmplLS4 = new TH1F("h_sumADCAmplLS4", " ", 100, 0., lsdep_estimator1_HEdepth2_);
-    h_2DsumADCAmplLS4 = new TH2F("h_2DsumADCAmplLS4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS4_LSselected = new TH2F("h_2DsumADCAmplLS4_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumADCAmplperLS4 = new TH1F("h_sumADCAmplperLS4", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLS4 = new TH1F("h_sumCutADCAmplperLS4", " ", bac, 1., bac2);
-    h_2D0sumADCAmplLS4 = new TH2F("h_2D0sumADCAmplLS4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0ADCAmplperLS4 = new TH1F("h_sum0ADCAmplperLS4", " ", bac, 1., bac2);
+    h_sumADCAmplLS4 = fs_->make<TH1F>("h_sumADCAmplLS4", " ", 100, 0., lsdep_estimator1_HEdepth2_);
+    h_2DsumADCAmplLS4 = fs_->make<TH2F>("h_2DsumADCAmplLS4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS4_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS4_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumADCAmplperLS4 = fs_->make<TH1F>("h_sumADCAmplperLS4", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLS4 = fs_->make<TH1F>("h_sumCutADCAmplperLS4", " ", bac, 1., bac2);
+    h_2D0sumADCAmplLS4 = fs_->make<TH2F>("h_2D0sumADCAmplLS4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0ADCAmplperLS4 = fs_->make<TH1F>("h_sum0ADCAmplperLS4", " ", bac, 1., bac2);
 
-    h_sumADCAmplLS5 = new TH1F("h_sumADCAmplLS5", " ", 100, 0., lsdep_estimator1_HEdepth3_);
-    h_2DsumADCAmplLS5 = new TH2F("h_2DsumADCAmplLS5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS5_LSselected = new TH2F("h_2DsumADCAmplLS5_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumADCAmplperLS5 = new TH1F("h_sumADCAmplperLS5", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLS5 = new TH1F("h_sumCutADCAmplperLS5", " ", bac, 1., bac2);
-    h_2D0sumADCAmplLS5 = new TH2F("h_2D0sumADCAmplLS5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0ADCAmplperLS5 = new TH1F("h_sum0ADCAmplperLS5", " ", bac, 1., bac2);
+    h_sumADCAmplLS5 = fs_->make<TH1F>("h_sumADCAmplLS5", " ", 100, 0., lsdep_estimator1_HEdepth3_);
+    h_2DsumADCAmplLS5 = fs_->make<TH2F>("h_2DsumADCAmplLS5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS5_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS5_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumADCAmplperLS5 = fs_->make<TH1F>("h_sumADCAmplperLS5", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLS5 = fs_->make<TH1F>("h_sumCutADCAmplperLS5", " ", bac, 1., bac2);
+    h_2D0sumADCAmplLS5 = fs_->make<TH2F>("h_2D0sumADCAmplLS5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0ADCAmplperLS5 = fs_->make<TH1F>("h_sum0ADCAmplperLS5", " ", bac, 1., bac2);
     // HE upgrade depth4
-    h_sumADCAmplperLSdepth4HEu = new TH1F("h_sumADCAmplperLSdepth4HEu", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLSdepth4HEu = new TH1F("h_sumCutADCAmplperLSdepth4HEu", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLSdepth4HEu = new TH1F("h_sum0ADCAmplperLSdepth4HEu", " ", bac, 1., bac2);
+    h_sumADCAmplperLSdepth4HEu = fs_->make<TH1F>("h_sumADCAmplperLSdepth4HEu", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLSdepth4HEu = fs_->make<TH1F>("h_sumCutADCAmplperLSdepth4HEu", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLSdepth4HEu = fs_->make<TH1F>("h_sum0ADCAmplperLSdepth4HEu", " ", bac, 1., bac2);
 
     // HE upgrade depth5
-    h_sumADCAmplperLSdepth5HEu = new TH1F("h_sumADCAmplperLSdepth5HEu", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLSdepth5HEu = new TH1F("h_sumCutADCAmplperLSdepth5HEu", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLSdepth5HEu = new TH1F("h_sum0ADCAmplperLSdepth5HEu", " ", bac, 1., bac2);
+    h_sumADCAmplperLSdepth5HEu = fs_->make<TH1F>("h_sumADCAmplperLSdepth5HEu", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLSdepth5HEu = fs_->make<TH1F>("h_sumCutADCAmplperLSdepth5HEu", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLSdepth5HEu = fs_->make<TH1F>("h_sum0ADCAmplperLSdepth5HEu", " ", bac, 1., bac2);
     // HE upgrade depth6
-    h_sumADCAmplperLSdepth6HEu = new TH1F("h_sumADCAmplperLSdepth6HEu", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLSdepth6HEu = new TH1F("h_sumCutADCAmplperLSdepth6HEu", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLSdepth6HEu = new TH1F("h_sum0ADCAmplperLSdepth6HEu", " ", bac, 1., bac2);
+    h_sumADCAmplperLSdepth6HEu = fs_->make<TH1F>("h_sumADCAmplperLSdepth6HEu", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLSdepth6HEu = fs_->make<TH1F>("h_sumCutADCAmplperLSdepth6HEu", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLSdepth6HEu = fs_->make<TH1F>("h_sum0ADCAmplperLSdepth6HEu", " ", bac, 1., bac2);
     // HE upgrade depth7
-    h_sumADCAmplperLSdepth7HEu = new TH1F("h_sumADCAmplperLSdepth7HEu", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLSdepth7HEu = new TH1F("h_sumCutADCAmplperLSdepth7HEu", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLSdepth7HEu = new TH1F("h_sum0ADCAmplperLSdepth7HEu", " ", bac, 1., bac2);
+    h_sumADCAmplperLSdepth7HEu = fs_->make<TH1F>("h_sumADCAmplperLSdepth7HEu", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLSdepth7HEu = fs_->make<TH1F>("h_sumCutADCAmplperLSdepth7HEu", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLSdepth7HEu = fs_->make<TH1F>("h_sum0ADCAmplperLSdepth7HEu", " ", bac, 1., bac2);
     // for HE gain stability vs LS:
-    h_2DsumADCAmplLSdepth4HEu = new TH2F("h_2DsumADCAmplLSdepth4HEu", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2D0sumADCAmplLSdepth4HEu = new TH2F("h_2D0sumADCAmplLSdepth4HEu", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLSdepth5HEu = new TH2F("h_2DsumADCAmplLSdepth5HEu", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2D0sumADCAmplLSdepth5HEu = new TH2F("h_2D0sumADCAmplLSdepth5HEu", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLSdepth6HEu = new TH2F("h_2DsumADCAmplLSdepth6HEu", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2D0sumADCAmplLSdepth6HEu = new TH2F("h_2D0sumADCAmplLSdepth6HEu", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLSdepth7HEu = new TH2F("h_2DsumADCAmplLSdepth7HEu", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2D0sumADCAmplLSdepth7HEu = new TH2F("h_2D0sumADCAmplLSdepth7HEu", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLSdepth3HFu = new TH2F("h_2DsumADCAmplLSdepth3HFu", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2D0sumADCAmplLSdepth3HFu = new TH2F("h_2D0sumADCAmplLSdepth3HFu", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLSdepth4HFu = new TH2F("h_2DsumADCAmplLSdepth4HFu", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2D0sumADCAmplLSdepth4HFu = new TH2F("h_2D0sumADCAmplLSdepth4HFu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLSdepth4HEu = fs_->make<TH2F>("h_2DsumADCAmplLSdepth4HEu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2D0sumADCAmplLSdepth4HEu = fs_->make<TH2F>("h_2D0sumADCAmplLSdepth4HEu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLSdepth5HEu = fs_->make<TH2F>("h_2DsumADCAmplLSdepth5HEu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2D0sumADCAmplLSdepth5HEu = fs_->make<TH2F>("h_2D0sumADCAmplLSdepth5HEu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLSdepth6HEu = fs_->make<TH2F>("h_2DsumADCAmplLSdepth6HEu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2D0sumADCAmplLSdepth6HEu = fs_->make<TH2F>("h_2D0sumADCAmplLSdepth6HEu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLSdepth7HEu = fs_->make<TH2F>("h_2DsumADCAmplLSdepth7HEu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2D0sumADCAmplLSdepth7HEu = fs_->make<TH2F>("h_2D0sumADCAmplLSdepth7HEu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLSdepth3HFu = fs_->make<TH2F>("h_2DsumADCAmplLSdepth3HFu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2D0sumADCAmplLSdepth3HFu = fs_->make<TH2F>("h_2D0sumADCAmplLSdepth3HFu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLSdepth4HFu = fs_->make<TH2F>("h_2DsumADCAmplLSdepth4HFu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2D0sumADCAmplLSdepth4HFu = fs_->make<TH2F>("h_2D0sumADCAmplLSdepth4HFu", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_sumADCAmplLS6 = new TH1F("h_sumADCAmplLS6", " ", 100, 0., lsdep_estimator1_HFdepth1_);
-    h_2DsumADCAmplLS6 = new TH2F("h_2DsumADCAmplLS6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS6_LSselected = new TH2F("h_2DsumADCAmplLS6_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2D0sumADCAmplLS6 = new TH2F("h_2D0sumADCAmplLS6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumADCAmplperLS6 = new TH1F("h_sumADCAmplperLS6", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLS6 = new TH1F("h_sumCutADCAmplperLS6", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS6 = new TH1F("h_sum0ADCAmplperLS6", " ", bac, 1., bac2);
+    h_sumADCAmplLS6 = fs_->make<TH1F>("h_sumADCAmplLS6", " ", 100, 0., lsdep_estimator1_HFdepth1_);
+    h_2DsumADCAmplLS6 = fs_->make<TH2F>("h_2DsumADCAmplLS6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS6_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS6_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2D0sumADCAmplLS6 = fs_->make<TH2F>("h_2D0sumADCAmplLS6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumADCAmplperLS6 = fs_->make<TH1F>("h_sumADCAmplperLS6", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLS6 = fs_->make<TH1F>("h_sumCutADCAmplperLS6", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS6 = fs_->make<TH1F>("h_sum0ADCAmplperLS6", " ", bac, 1., bac2);
     // HF upgrade depth3
-    h_sumADCAmplperLS6u = new TH1F("h_sumADCAmplperLS6u", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLS6u = new TH1F("h_sumCutADCAmplperLS6u", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS6u = new TH1F("h_sum0ADCAmplperLS6u", " ", bac, 1., bac2);
+    h_sumADCAmplperLS6u = fs_->make<TH1F>("h_sumADCAmplperLS6u", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLS6u = fs_->make<TH1F>("h_sumCutADCAmplperLS6u", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS6u = fs_->make<TH1F>("h_sum0ADCAmplperLS6u", " ", bac, 1., bac2);
 
-    h_sumADCAmplLS7 = new TH1F("h_sumADCAmplLS7", " ", 100, 0., lsdep_estimator1_HFdepth2_);
-    h_2DsumADCAmplLS7 = new TH2F("h_2DsumADCAmplLS7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS7_LSselected = new TH2F("h_2DsumADCAmplLS7_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2D0sumADCAmplLS7 = new TH2F("h_2D0sumADCAmplLS7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumADCAmplperLS7 = new TH1F("h_sumADCAmplperLS7", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLS7 = new TH1F("h_sumCutADCAmplperLS7", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS7 = new TH1F("h_sum0ADCAmplperLS7", " ", bac, 1., bac2);
+    h_sumADCAmplLS7 = fs_->make<TH1F>("h_sumADCAmplLS7", " ", 100, 0., lsdep_estimator1_HFdepth2_);
+    h_2DsumADCAmplLS7 = fs_->make<TH2F>("h_2DsumADCAmplLS7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS7_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS7_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2D0sumADCAmplLS7 = fs_->make<TH2F>("h_2D0sumADCAmplLS7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumADCAmplperLS7 = fs_->make<TH1F>("h_sumADCAmplperLS7", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLS7 = fs_->make<TH1F>("h_sumCutADCAmplperLS7", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS7 = fs_->make<TH1F>("h_sum0ADCAmplperLS7", " ", bac, 1., bac2);
     // HF upgrade depth4
-    h_sumADCAmplperLS7u = new TH1F("h_sumADCAmplperLS7u", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLS7u = new TH1F("h_sumCutADCAmplperLS7u", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS7u = new TH1F("h_sum0ADCAmplperLS7u", " ", bac, 1., bac2);
+    h_sumADCAmplperLS7u = fs_->make<TH1F>("h_sumADCAmplperLS7u", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLS7u = fs_->make<TH1F>("h_sumCutADCAmplperLS7u", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS7u = fs_->make<TH1F>("h_sum0ADCAmplperLS7u", " ", bac, 1., bac2);
 
-    h_sumADCAmplLS8 = new TH1F("h_sumADCAmplLS8", " ", 100, 0., lsdep_estimator1_HOdepth4_);
-    h_2DsumADCAmplLS8 = new TH2F("h_2DsumADCAmplLS8", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLS8_LSselected = new TH2F("h_2DsumADCAmplLS8_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumADCAmplperLS8 = new TH1F("h_sumADCAmplperLS8", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLS8 = new TH1F("h_sumCutADCAmplperLS8", " ", bac, 1., bac2);
-    h_2D0sumADCAmplLS8 = new TH2F("h_2D0sumADCAmplLS8", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0ADCAmplperLS8 = new TH1F("h_sum0ADCAmplperLS8", " ", bac, 1., bac2);
+    h_sumADCAmplLS8 = fs_->make<TH1F>("h_sumADCAmplLS8", " ", 100, 0., lsdep_estimator1_HOdepth4_);
+    h_2DsumADCAmplLS8 = fs_->make<TH2F>("h_2DsumADCAmplLS8", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLS8_LSselected =
+        fs_->make<TH2F>("h_2DsumADCAmplLS8_LSselected", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumADCAmplperLS8 = fs_->make<TH1F>("h_sumADCAmplperLS8", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLS8 = fs_->make<TH1F>("h_sumCutADCAmplperLS8", " ", bac, 1., bac2);
+    h_2D0sumADCAmplLS8 = fs_->make<TH2F>("h_2D0sumADCAmplLS8", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0ADCAmplperLS8 = fs_->make<TH1F>("h_sum0ADCAmplperLS8", " ", bac, 1., bac2);
 
     // HB upgrade depth3
-    h_sumADCAmplperLSdepth3HBu = new TH1F("h_sumADCAmplperLSdepth3HBu", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLSdepth3HBu = new TH1F("h_sumCutADCAmplperLSdepth3HBu", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLSdepth3HBu = new TH1F("h_sum0ADCAmplperLSdepth3HBu", " ", bac, 1., bac2);
+    h_sumADCAmplperLSdepth3HBu = fs_->make<TH1F>("h_sumADCAmplperLSdepth3HBu", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLSdepth3HBu = fs_->make<TH1F>("h_sumCutADCAmplperLSdepth3HBu", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLSdepth3HBu = fs_->make<TH1F>("h_sum0ADCAmplperLSdepth3HBu", " ", bac, 1., bac2);
     // HB upgrade depth4
-    h_sumADCAmplperLSdepth4HBu = new TH1F("h_sumADCAmplperLSdepth4HBu", " ", bac, 1., bac2);
-    h_sumCutADCAmplperLSdepth4HBu = new TH1F("h_sumCutADCAmplperLSdepth4HBu", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLSdepth4HBu = new TH1F("h_sum0ADCAmplperLSdepth4HBu", " ", bac, 1., bac2);
+    h_sumADCAmplperLSdepth4HBu = fs_->make<TH1F>("h_sumADCAmplperLSdepth4HBu", " ", bac, 1., bac2);
+    h_sumCutADCAmplperLSdepth4HBu = fs_->make<TH1F>("h_sumCutADCAmplperLSdepth4HBu", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLSdepth4HBu = fs_->make<TH1F>("h_sum0ADCAmplperLSdepth4HBu", " ", bac, 1., bac2);
 
     // for HB gain stability vs LS:
-    h_2DsumADCAmplLSdepth3HBu = new TH2F("h_2DsumADCAmplLSdepth3HBu", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2D0sumADCAmplLSdepth3HBu = new TH2F("h_2D0sumADCAmplLSdepth3HBu", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumADCAmplLSdepth4HBu = new TH2F("h_2DsumADCAmplLSdepth4HBu", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2D0sumADCAmplLSdepth4HBu = new TH2F("h_2D0sumADCAmplLSdepth4HBu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLSdepth3HBu = fs_->make<TH2F>("h_2DsumADCAmplLSdepth3HBu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2D0sumADCAmplLSdepth3HBu = fs_->make<TH2F>("h_2D0sumADCAmplLSdepth3HBu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumADCAmplLSdepth4HBu = fs_->make<TH2F>("h_2DsumADCAmplLSdepth4HBu", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2D0sumADCAmplLSdepth4HBu = fs_->make<TH2F>("h_2D0sumADCAmplLSdepth4HBu", " ", neta, -41., 41., nphi, 0., bphi);
 
     // error-A for HB( depth1 only)
-    h_sumADCAmplperLS1_P1 = new TH1F("h_sumADCAmplperLS1_P1", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS1_P1 = new TH1F("h_sum0ADCAmplperLS1_P1", " ", bac, 1., bac2);
-    h_sumADCAmplperLS1_P2 = new TH1F("h_sumADCAmplperLS1_P2", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS1_P2 = new TH1F("h_sum0ADCAmplperLS1_P2", " ", bac, 1., bac2);
-    h_sumADCAmplperLS1_M1 = new TH1F("h_sumADCAmplperLS1_M1", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS1_M1 = new TH1F("h_sum0ADCAmplperLS1_M1", " ", bac, 1., bac2);
-    h_sumADCAmplperLS1_M2 = new TH1F("h_sumADCAmplperLS1_M2", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS1_M2 = new TH1F("h_sum0ADCAmplperLS1_M2", " ", bac, 1., bac2);
+    h_sumADCAmplperLS1_P1 = fs_->make<TH1F>("h_sumADCAmplperLS1_P1", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS1_P1 = fs_->make<TH1F>("h_sum0ADCAmplperLS1_P1", " ", bac, 1., bac2);
+    h_sumADCAmplperLS1_P2 = fs_->make<TH1F>("h_sumADCAmplperLS1_P2", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS1_P2 = fs_->make<TH1F>("h_sum0ADCAmplperLS1_P2", " ", bac, 1., bac2);
+    h_sumADCAmplperLS1_M1 = fs_->make<TH1F>("h_sumADCAmplperLS1_M1", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS1_M1 = fs_->make<TH1F>("h_sum0ADCAmplperLS1_M1", " ", bac, 1., bac2);
+    h_sumADCAmplperLS1_M2 = fs_->make<TH1F>("h_sumADCAmplperLS1_M2", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS1_M2 = fs_->make<TH1F>("h_sum0ADCAmplperLS1_M2", " ", bac, 1., bac2);
 
     // error-A for HE( depth1 only)
-    h_sumADCAmplperLS3_P1 = new TH1F("h_sumADCAmplperLS3_P1", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS3_P1 = new TH1F("h_sum0ADCAmplperLS3_P1", " ", bac, 1., bac2);
-    h_sumADCAmplperLS3_P2 = new TH1F("h_sumADCAmplperLS3_P2", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS3_P2 = new TH1F("h_sum0ADCAmplperLS3_P2", " ", bac, 1., bac2);
-    h_sumADCAmplperLS3_M1 = new TH1F("h_sumADCAmplperLS3_M1", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS3_M1 = new TH1F("h_sum0ADCAmplperLS3_M1", " ", bac, 1., bac2);
-    h_sumADCAmplperLS3_M2 = new TH1F("h_sumADCAmplperLS3_M2", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS3_M2 = new TH1F("h_sum0ADCAmplperLS3_M2", " ", bac, 1., bac2);
+    h_sumADCAmplperLS3_P1 = fs_->make<TH1F>("h_sumADCAmplperLS3_P1", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS3_P1 = fs_->make<TH1F>("h_sum0ADCAmplperLS3_P1", " ", bac, 1., bac2);
+    h_sumADCAmplperLS3_P2 = fs_->make<TH1F>("h_sumADCAmplperLS3_P2", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS3_P2 = fs_->make<TH1F>("h_sum0ADCAmplperLS3_P2", " ", bac, 1., bac2);
+    h_sumADCAmplperLS3_M1 = fs_->make<TH1F>("h_sumADCAmplperLS3_M1", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS3_M1 = fs_->make<TH1F>("h_sum0ADCAmplperLS3_M1", " ", bac, 1., bac2);
+    h_sumADCAmplperLS3_M2 = fs_->make<TH1F>("h_sumADCAmplperLS3_M2", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS3_M2 = fs_->make<TH1F>("h_sum0ADCAmplperLS3_M2", " ", bac, 1., bac2);
 
     // error-A for HF( depth1 only)
-    h_sumADCAmplperLS6_P1 = new TH1F("h_sumADCAmplperLS6_P1", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS6_P1 = new TH1F("h_sum0ADCAmplperLS6_P1", " ", bac, 1., bac2);
-    h_sumADCAmplperLS6_P2 = new TH1F("h_sumADCAmplperLS6_P2", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS6_P2 = new TH1F("h_sum0ADCAmplperLS6_P2", " ", bac, 1., bac2);
-    h_sumADCAmplperLS6_M1 = new TH1F("h_sumADCAmplperLS6_M1", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS6_M1 = new TH1F("h_sum0ADCAmplperLS6_M1", " ", bac, 1., bac2);
-    h_sumADCAmplperLS6_M2 = new TH1F("h_sumADCAmplperLS6_M2", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS6_M2 = new TH1F("h_sum0ADCAmplperLS6_M2", " ", bac, 1., bac2);
+    h_sumADCAmplperLS6_P1 = fs_->make<TH1F>("h_sumADCAmplperLS6_P1", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS6_P1 = fs_->make<TH1F>("h_sum0ADCAmplperLS6_P1", " ", bac, 1., bac2);
+    h_sumADCAmplperLS6_P2 = fs_->make<TH1F>("h_sumADCAmplperLS6_P2", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS6_P2 = fs_->make<TH1F>("h_sum0ADCAmplperLS6_P2", " ", bac, 1., bac2);
+    h_sumADCAmplperLS6_M1 = fs_->make<TH1F>("h_sumADCAmplperLS6_M1", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS6_M1 = fs_->make<TH1F>("h_sum0ADCAmplperLS6_M1", " ", bac, 1., bac2);
+    h_sumADCAmplperLS6_M2 = fs_->make<TH1F>("h_sumADCAmplperLS6_M2", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS6_M2 = fs_->make<TH1F>("h_sum0ADCAmplperLS6_M2", " ", bac, 1., bac2);
 
     // error-A for HO( depth4 only)
-    h_sumADCAmplperLS8_P1 = new TH1F("h_sumADCAmplperLS8_P1", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS8_P1 = new TH1F("h_sum0ADCAmplperLS8_P1", " ", bac, 1., bac2);
-    h_sumADCAmplperLS8_P2 = new TH1F("h_sumADCAmplperLS8_P2", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS8_P2 = new TH1F("h_sum0ADCAmplperLS8_P2", " ", bac, 1., bac2);
-    h_sumADCAmplperLS8_M1 = new TH1F("h_sumADCAmplperLS8_M1", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS8_M1 = new TH1F("h_sum0ADCAmplperLS8_M1", " ", bac, 1., bac2);
-    h_sumADCAmplperLS8_M2 = new TH1F("h_sumADCAmplperLS8_M2", " ", bac, 1., bac2);
-    h_sum0ADCAmplperLS8_M2 = new TH1F("h_sum0ADCAmplperLS8_M2", " ", bac, 1., bac2);
+    h_sumADCAmplperLS8_P1 = fs_->make<TH1F>("h_sumADCAmplperLS8_P1", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS8_P1 = fs_->make<TH1F>("h_sum0ADCAmplperLS8_P1", " ", bac, 1., bac2);
+    h_sumADCAmplperLS8_P2 = fs_->make<TH1F>("h_sumADCAmplperLS8_P2", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS8_P2 = fs_->make<TH1F>("h_sum0ADCAmplperLS8_P2", " ", bac, 1., bac2);
+    h_sumADCAmplperLS8_M1 = fs_->make<TH1F>("h_sumADCAmplperLS8_M1", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS8_M1 = fs_->make<TH1F>("h_sum0ADCAmplperLS8_M1", " ", bac, 1., bac2);
+    h_sumADCAmplperLS8_M2 = fs_->make<TH1F>("h_sumADCAmplperLS8_M2", " ", bac, 1., bac2);
+    h_sum0ADCAmplperLS8_M2 = fs_->make<TH1F>("h_sum0ADCAmplperLS8_M2", " ", bac, 1., bac2);
 
     //--------------------------------------------------
-    h_sumTSmeanALS1 = new TH1F("h_sumTSmeanALS1", " ", 100, 0., lsdep_estimator2_HBdepth1_);
-    h_2DsumTSmeanALS1 = new TH2F("h_2DsumTSmeanALS1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmeanAperLS1 = new TH1F("h_sumTSmeanAperLS1", " ", bac, 1., bac2);
-    h_sumTSmeanAperLS1_LSselected = new TH1F("h_sumTSmeanAperLS1_LSselected", " ", bac, 1., bac2);
-    h_sumCutTSmeanAperLS1 = new TH1F("h_sumCutTSmeanAperLS1", " ", bac, 1., bac2);
-    h_2D0sumTSmeanALS1 = new TH2F("h_2D0sumTSmeanALS1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmeanAperLS1 = new TH1F("h_sum0TSmeanAperLS1", " ", bac, 1., bac2);
+    h_sumTSmeanALS1 = fs_->make<TH1F>("h_sumTSmeanALS1", " ", 100, 0., lsdep_estimator2_HBdepth1_);
+    h_2DsumTSmeanALS1 = fs_->make<TH2F>("h_2DsumTSmeanALS1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmeanAperLS1 = fs_->make<TH1F>("h_sumTSmeanAperLS1", " ", bac, 1., bac2);
+    h_sumTSmeanAperLS1_LSselected = fs_->make<TH1F>("h_sumTSmeanAperLS1_LSselected", " ", bac, 1., bac2);
+    h_sumCutTSmeanAperLS1 = fs_->make<TH1F>("h_sumCutTSmeanAperLS1", " ", bac, 1., bac2);
+    h_2D0sumTSmeanALS1 = fs_->make<TH2F>("h_2D0sumTSmeanALS1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmeanAperLS1 = fs_->make<TH1F>("h_sum0TSmeanAperLS1", " ", bac, 1., bac2);
 
-    h_sumTSmeanALS2 = new TH1F("h_sumTSmeanALS2", " ", 100, 0., lsdep_estimator2_HBdepth2_);
-    h_2DsumTSmeanALS2 = new TH2F("h_2DsumTSmeanALS2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmeanAperLS2 = new TH1F("h_sumTSmeanAperLS2", " ", bac, 1., bac2);
-    h_sumCutTSmeanAperLS2 = new TH1F("h_sumCutTSmeanAperLS2", " ", bac, 1., bac2);
-    h_2D0sumTSmeanALS2 = new TH2F("h_2D0sumTSmeanALS2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmeanAperLS2 = new TH1F("h_sum0TSmeanAperLS2", " ", bac, 1., bac2);
+    h_sumTSmeanALS2 = fs_->make<TH1F>("h_sumTSmeanALS2", " ", 100, 0., lsdep_estimator2_HBdepth2_);
+    h_2DsumTSmeanALS2 = fs_->make<TH2F>("h_2DsumTSmeanALS2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmeanAperLS2 = fs_->make<TH1F>("h_sumTSmeanAperLS2", " ", bac, 1., bac2);
+    h_sumCutTSmeanAperLS2 = fs_->make<TH1F>("h_sumCutTSmeanAperLS2", " ", bac, 1., bac2);
+    h_2D0sumTSmeanALS2 = fs_->make<TH2F>("h_2D0sumTSmeanALS2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmeanAperLS2 = fs_->make<TH1F>("h_sum0TSmeanAperLS2", " ", bac, 1., bac2);
 
-    h_sumTSmeanALS3 = new TH1F("h_sumTSmeanALS3", " ", 100, 0., lsdep_estimator2_HEdepth1_);
-    h_2DsumTSmeanALS3 = new TH2F("h_2DsumTSmeanALS3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmeanAperLS3 = new TH1F("h_sumTSmeanAperLS3", " ", bac, 1., bac2);
-    h_sumCutTSmeanAperLS3 = new TH1F("h_sumCutTSmeanAperLS3", " ", bac, 1., bac2);
-    h_2D0sumTSmeanALS3 = new TH2F("h_2D0sumTSmeanALS3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmeanAperLS3 = new TH1F("h_sum0TSmeanAperLS3", " ", bac, 1., bac2);
+    h_sumTSmeanALS3 = fs_->make<TH1F>("h_sumTSmeanALS3", " ", 100, 0., lsdep_estimator2_HEdepth1_);
+    h_2DsumTSmeanALS3 = fs_->make<TH2F>("h_2DsumTSmeanALS3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmeanAperLS3 = fs_->make<TH1F>("h_sumTSmeanAperLS3", " ", bac, 1., bac2);
+    h_sumCutTSmeanAperLS3 = fs_->make<TH1F>("h_sumCutTSmeanAperLS3", " ", bac, 1., bac2);
+    h_2D0sumTSmeanALS3 = fs_->make<TH2F>("h_2D0sumTSmeanALS3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmeanAperLS3 = fs_->make<TH1F>("h_sum0TSmeanAperLS3", " ", bac, 1., bac2);
 
-    h_sumTSmeanALS4 = new TH1F("h_sumTSmeanALS4", " ", 100, 0., lsdep_estimator2_HEdepth2_);
-    h_2DsumTSmeanALS4 = new TH2F("h_2DsumTSmeanALS4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmeanAperLS4 = new TH1F("h_sumTSmeanAperLS4", " ", bac, 1., bac2);
-    h_sumCutTSmeanAperLS4 = new TH1F("h_sumCutTSmeanAperLS4", " ", bac, 1., bac2);
-    h_2D0sumTSmeanALS4 = new TH2F("h_2D0sumTSmeanALS4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmeanAperLS4 = new TH1F("h_sum0TSmeanAperLS4", " ", bac, 1., bac2);
+    h_sumTSmeanALS4 = fs_->make<TH1F>("h_sumTSmeanALS4", " ", 100, 0., lsdep_estimator2_HEdepth2_);
+    h_2DsumTSmeanALS4 = fs_->make<TH2F>("h_2DsumTSmeanALS4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmeanAperLS4 = fs_->make<TH1F>("h_sumTSmeanAperLS4", " ", bac, 1., bac2);
+    h_sumCutTSmeanAperLS4 = fs_->make<TH1F>("h_sumCutTSmeanAperLS4", " ", bac, 1., bac2);
+    h_2D0sumTSmeanALS4 = fs_->make<TH2F>("h_2D0sumTSmeanALS4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmeanAperLS4 = fs_->make<TH1F>("h_sum0TSmeanAperLS4", " ", bac, 1., bac2);
 
-    h_sumTSmeanALS5 = new TH1F("h_sumTSmeanALS5", " ", 100, 0., lsdep_estimator2_HEdepth3_);
-    h_2DsumTSmeanALS5 = new TH2F("h_2DsumTSmeanALS5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmeanAperLS5 = new TH1F("h_sumTSmeanAperLS5", " ", bac, 1., bac2);
-    h_sumCutTSmeanAperLS5 = new TH1F("h_sumCutTSmeanAperLS5", " ", bac, 1., bac2);
-    h_2D0sumTSmeanALS5 = new TH2F("h_2D0sumTSmeanALS5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmeanAperLS5 = new TH1F("h_sum0TSmeanAperLS5", " ", bac, 1., bac2);
+    h_sumTSmeanALS5 = fs_->make<TH1F>("h_sumTSmeanALS5", " ", 100, 0., lsdep_estimator2_HEdepth3_);
+    h_2DsumTSmeanALS5 = fs_->make<TH2F>("h_2DsumTSmeanALS5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmeanAperLS5 = fs_->make<TH1F>("h_sumTSmeanAperLS5", " ", bac, 1., bac2);
+    h_sumCutTSmeanAperLS5 = fs_->make<TH1F>("h_sumCutTSmeanAperLS5", " ", bac, 1., bac2);
+    h_2D0sumTSmeanALS5 = fs_->make<TH2F>("h_2D0sumTSmeanALS5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmeanAperLS5 = fs_->make<TH1F>("h_sum0TSmeanAperLS5", " ", bac, 1., bac2);
 
-    h_sumTSmeanALS6 = new TH1F("h_sumTSmeanALS6", " ", 100, 0., lsdep_estimator2_HFdepth1_);
-    h_2DsumTSmeanALS6 = new TH2F("h_2DsumTSmeanALS6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmeanAperLS6 = new TH1F("h_sumTSmeanAperLS6", " ", bac, 1., bac2);
-    h_sumCutTSmeanAperLS6 = new TH1F("h_sumCutTSmeanAperLS6", " ", bac, 1., bac2);
-    h_2D0sumTSmeanALS6 = new TH2F("h_2D0sumTSmeanALS6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmeanAperLS6 = new TH1F("h_sum0TSmeanAperLS6", " ", bac, 1., bac2);
+    h_sumTSmeanALS6 = fs_->make<TH1F>("h_sumTSmeanALS6", " ", 100, 0., lsdep_estimator2_HFdepth1_);
+    h_2DsumTSmeanALS6 = fs_->make<TH2F>("h_2DsumTSmeanALS6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmeanAperLS6 = fs_->make<TH1F>("h_sumTSmeanAperLS6", " ", bac, 1., bac2);
+    h_sumCutTSmeanAperLS6 = fs_->make<TH1F>("h_sumCutTSmeanAperLS6", " ", bac, 1., bac2);
+    h_2D0sumTSmeanALS6 = fs_->make<TH2F>("h_2D0sumTSmeanALS6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmeanAperLS6 = fs_->make<TH1F>("h_sum0TSmeanAperLS6", " ", bac, 1., bac2);
 
-    h_sumTSmeanALS7 = new TH1F("h_sumTSmeanALS7", " ", 100, 0., lsdep_estimator2_HFdepth2_);
-    h_2DsumTSmeanALS7 = new TH2F("h_2DsumTSmeanALS7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmeanAperLS7 = new TH1F("h_sumTSmeanAperLS7", " ", bac, 1., bac2);
-    h_sumCutTSmeanAperLS7 = new TH1F("h_sumCutTSmeanAperLS7", " ", bac, 1., bac2);
-    h_2D0sumTSmeanALS7 = new TH2F("h_2D0sumTSmeanALS7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmeanAperLS7 = new TH1F("h_sum0TSmeanAperLS7", " ", bac, 1., bac2);
+    h_sumTSmeanALS7 = fs_->make<TH1F>("h_sumTSmeanALS7", " ", 100, 0., lsdep_estimator2_HFdepth2_);
+    h_2DsumTSmeanALS7 = fs_->make<TH2F>("h_2DsumTSmeanALS7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmeanAperLS7 = fs_->make<TH1F>("h_sumTSmeanAperLS7", " ", bac, 1., bac2);
+    h_sumCutTSmeanAperLS7 = fs_->make<TH1F>("h_sumCutTSmeanAperLS7", " ", bac, 1., bac2);
+    h_2D0sumTSmeanALS7 = fs_->make<TH2F>("h_2D0sumTSmeanALS7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmeanAperLS7 = fs_->make<TH1F>("h_sum0TSmeanAperLS7", " ", bac, 1., bac2);
 
-    h_sumTSmeanALS8 = new TH1F("h_sumTSmeanALS8", " ", 100, 0., lsdep_estimator2_HOdepth4_);
-    h_2DsumTSmeanALS8 = new TH2F("h_2DsumTSmeanALS8", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmeanAperLS8 = new TH1F("h_sumTSmeanAperLS8", " ", bac, 1., bac2);
-    h_sumCutTSmeanAperLS8 = new TH1F("h_sumCutTSmeanAperLS8", " ", bac, 1., bac2);
-    h_2D0sumTSmeanALS8 = new TH2F("h_2D0sumTSmeanALS8", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmeanAperLS8 = new TH1F("h_sum0TSmeanAperLS8", " ", bac, 1., bac2);
+    h_sumTSmeanALS8 = fs_->make<TH1F>("h_sumTSmeanALS8", " ", 100, 0., lsdep_estimator2_HOdepth4_);
+    h_2DsumTSmeanALS8 = fs_->make<TH2F>("h_2DsumTSmeanALS8", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmeanAperLS8 = fs_->make<TH1F>("h_sumTSmeanAperLS8", " ", bac, 1., bac2);
+    h_sumCutTSmeanAperLS8 = fs_->make<TH1F>("h_sumCutTSmeanAperLS8", " ", bac, 1., bac2);
+    h_2D0sumTSmeanALS8 = fs_->make<TH2F>("h_2D0sumTSmeanALS8", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmeanAperLS8 = fs_->make<TH1F>("h_sum0TSmeanAperLS8", " ", bac, 1., bac2);
     //--------------------------------------------------
     // for estimator3:
     //  float est3 = 10.0;
-    h_sumTSmaxALS1 = new TH1F("h_sumTSmaxALS1", " ", 100, 0., lsdep_estimator3_HBdepth1_);
-    h_2DsumTSmaxALS1 = new TH2F("h_2DsumTSmaxALS1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmaxAperLS1 = new TH1F("h_sumTSmaxAperLS1", " ", bac, 1., bac2);
-    h_sumTSmaxAperLS1_LSselected = new TH1F("h_sumTSmaxAperLS1_LSselected", " ", bac, 1., bac2);
-    h_sumCutTSmaxAperLS1 = new TH1F("h_sumCutTSmaxAperLS1", " ", bac, 1., bac2);
-    h_2D0sumTSmaxALS1 = new TH2F("h_2D0sumTSmaxALS1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmaxAperLS1 = new TH1F("h_sum0TSmaxAperLS1", " ", bac, 1., bac2);
+    h_sumTSmaxALS1 = fs_->make<TH1F>("h_sumTSmaxALS1", " ", 100, 0., lsdep_estimator3_HBdepth1_);
+    h_2DsumTSmaxALS1 = fs_->make<TH2F>("h_2DsumTSmaxALS1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmaxAperLS1 = fs_->make<TH1F>("h_sumTSmaxAperLS1", " ", bac, 1., bac2);
+    h_sumTSmaxAperLS1_LSselected = fs_->make<TH1F>("h_sumTSmaxAperLS1_LSselected", " ", bac, 1., bac2);
+    h_sumCutTSmaxAperLS1 = fs_->make<TH1F>("h_sumCutTSmaxAperLS1", " ", bac, 1., bac2);
+    h_2D0sumTSmaxALS1 = fs_->make<TH2F>("h_2D0sumTSmaxALS1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmaxAperLS1 = fs_->make<TH1F>("h_sum0TSmaxAperLS1", " ", bac, 1., bac2);
 
-    h_sumTSmaxALS2 = new TH1F("h_sumTSmaxALS2", " ", 100, 0., lsdep_estimator3_HBdepth2_);
-    h_2DsumTSmaxALS2 = new TH2F("h_2DsumTSmaxALS2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmaxAperLS2 = new TH1F("h_sumTSmaxAperLS2", " ", bac, 1., bac2);
-    h_sumCutTSmaxAperLS2 = new TH1F("h_sumCutTSmaxAperLS2", " ", bac, 1., bac2);
-    h_2D0sumTSmaxALS2 = new TH2F("h_2D0sumTSmaxALS2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmaxAperLS2 = new TH1F("h_sum0TSmaxAperLS2", " ", bac, 1., bac2);
+    h_sumTSmaxALS2 = fs_->make<TH1F>("h_sumTSmaxALS2", " ", 100, 0., lsdep_estimator3_HBdepth2_);
+    h_2DsumTSmaxALS2 = fs_->make<TH2F>("h_2DsumTSmaxALS2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmaxAperLS2 = fs_->make<TH1F>("h_sumTSmaxAperLS2", " ", bac, 1., bac2);
+    h_sumCutTSmaxAperLS2 = fs_->make<TH1F>("h_sumCutTSmaxAperLS2", " ", bac, 1., bac2);
+    h_2D0sumTSmaxALS2 = fs_->make<TH2F>("h_2D0sumTSmaxALS2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmaxAperLS2 = fs_->make<TH1F>("h_sum0TSmaxAperLS2", " ", bac, 1., bac2);
 
-    h_sumTSmaxALS3 = new TH1F("h_sumTSmaxALS3", " ", 100, 0., lsdep_estimator3_HEdepth1_);
-    h_2DsumTSmaxALS3 = new TH2F("h_2DsumTSmaxALS3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmaxAperLS3 = new TH1F("h_sumTSmaxAperLS3", " ", bac, 1., bac2);
-    h_sumCutTSmaxAperLS3 = new TH1F("h_sumCutTSmaxAperLS3", " ", bac, 1., bac2);
-    h_2D0sumTSmaxALS3 = new TH2F("h_2D0sumTSmaxALS3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmaxAperLS3 = new TH1F("h_sum0TSmaxAperLS3", " ", bac, 1., bac2);
+    h_sumTSmaxALS3 = fs_->make<TH1F>("h_sumTSmaxALS3", " ", 100, 0., lsdep_estimator3_HEdepth1_);
+    h_2DsumTSmaxALS3 = fs_->make<TH2F>("h_2DsumTSmaxALS3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmaxAperLS3 = fs_->make<TH1F>("h_sumTSmaxAperLS3", " ", bac, 1., bac2);
+    h_sumCutTSmaxAperLS3 = fs_->make<TH1F>("h_sumCutTSmaxAperLS3", " ", bac, 1., bac2);
+    h_2D0sumTSmaxALS3 = fs_->make<TH2F>("h_2D0sumTSmaxALS3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmaxAperLS3 = fs_->make<TH1F>("h_sum0TSmaxAperLS3", " ", bac, 1., bac2);
 
-    h_sumTSmaxALS4 = new TH1F("h_sumTSmaxALS4", " ", 100, 0., lsdep_estimator3_HEdepth2_);
-    h_2DsumTSmaxALS4 = new TH2F("h_2DsumTSmaxALS4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmaxAperLS4 = new TH1F("h_sumTSmaxAperLS4", " ", bac, 1., bac2);
-    h_sumCutTSmaxAperLS4 = new TH1F("h_sumCutTSmaxAperLS4", " ", bac, 1., bac2);
-    h_2D0sumTSmaxALS4 = new TH2F("h_2D0sumTSmaxALS4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmaxAperLS4 = new TH1F("h_sum0TSmaxAperLS4", " ", bac, 1., bac2);
+    h_sumTSmaxALS4 = fs_->make<TH1F>("h_sumTSmaxALS4", " ", 100, 0., lsdep_estimator3_HEdepth2_);
+    h_2DsumTSmaxALS4 = fs_->make<TH2F>("h_2DsumTSmaxALS4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmaxAperLS4 = fs_->make<TH1F>("h_sumTSmaxAperLS4", " ", bac, 1., bac2);
+    h_sumCutTSmaxAperLS4 = fs_->make<TH1F>("h_sumCutTSmaxAperLS4", " ", bac, 1., bac2);
+    h_2D0sumTSmaxALS4 = fs_->make<TH2F>("h_2D0sumTSmaxALS4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmaxAperLS4 = fs_->make<TH1F>("h_sum0TSmaxAperLS4", " ", bac, 1., bac2);
 
-    h_sumTSmaxALS5 = new TH1F("h_sumTSmaxALS5", " ", 100, 0., lsdep_estimator3_HEdepth3_);
-    h_2DsumTSmaxALS5 = new TH2F("h_2DsumTSmaxALS5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmaxAperLS5 = new TH1F("h_sumTSmaxAperLS5", " ", bac, 1., bac2);
-    h_sumCutTSmaxAperLS5 = new TH1F("h_sumCutTSmaxAperLS5", " ", bac, 1., bac2);
-    h_2D0sumTSmaxALS5 = new TH2F("h_2D0sumTSmaxALS5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmaxAperLS5 = new TH1F("h_sum0TSmaxAperLS5", " ", bac, 1., bac2);
+    h_sumTSmaxALS5 = fs_->make<TH1F>("h_sumTSmaxALS5", " ", 100, 0., lsdep_estimator3_HEdepth3_);
+    h_2DsumTSmaxALS5 = fs_->make<TH2F>("h_2DsumTSmaxALS5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmaxAperLS5 = fs_->make<TH1F>("h_sumTSmaxAperLS5", " ", bac, 1., bac2);
+    h_sumCutTSmaxAperLS5 = fs_->make<TH1F>("h_sumCutTSmaxAperLS5", " ", bac, 1., bac2);
+    h_2D0sumTSmaxALS5 = fs_->make<TH2F>("h_2D0sumTSmaxALS5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmaxAperLS5 = fs_->make<TH1F>("h_sum0TSmaxAperLS5", " ", bac, 1., bac2);
 
-    h_sumTSmaxALS6 = new TH1F("h_sumTSmaxALS6", " ", 100, 0., lsdep_estimator3_HFdepth1_);
-    h_2DsumTSmaxALS6 = new TH2F("h_2DsumTSmaxALS6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmaxAperLS6 = new TH1F("h_sumTSmaxAperLS6", " ", bac, 1., bac2);
-    h_sumCutTSmaxAperLS6 = new TH1F("h_sumCutTSmaxAperLS6", " ", bac, 1., bac2);
-    h_2D0sumTSmaxALS6 = new TH2F("h_2D0sumTSmaxALS6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmaxAperLS6 = new TH1F("h_sum0TSmaxAperLS6", " ", bac, 1., bac2);
+    h_sumTSmaxALS6 = fs_->make<TH1F>("h_sumTSmaxALS6", " ", 100, 0., lsdep_estimator3_HFdepth1_);
+    h_2DsumTSmaxALS6 = fs_->make<TH2F>("h_2DsumTSmaxALS6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmaxAperLS6 = fs_->make<TH1F>("h_sumTSmaxAperLS6", " ", bac, 1., bac2);
+    h_sumCutTSmaxAperLS6 = fs_->make<TH1F>("h_sumCutTSmaxAperLS6", " ", bac, 1., bac2);
+    h_2D0sumTSmaxALS6 = fs_->make<TH2F>("h_2D0sumTSmaxALS6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmaxAperLS6 = fs_->make<TH1F>("h_sum0TSmaxAperLS6", " ", bac, 1., bac2);
 
-    h_sumTSmaxALS7 = new TH1F("h_sumTSmaxALS7", " ", 100, 0., lsdep_estimator3_HFdepth2_);
-    h_2DsumTSmaxALS7 = new TH2F("h_2DsumTSmaxALS7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmaxAperLS7 = new TH1F("h_sumTSmaxAperLS7", " ", bac, 1., bac2);
-    h_sumCutTSmaxAperLS7 = new TH1F("h_sumCutTSmaxAperLS7", " ", bac, 1., bac2);
-    h_2D0sumTSmaxALS7 = new TH2F("h_2D0sumTSmaxALS7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmaxAperLS7 = new TH1F("h_sum0TSmaxAperLS7", " ", bac, 1., bac2);
+    h_sumTSmaxALS7 = fs_->make<TH1F>("h_sumTSmaxALS7", " ", 100, 0., lsdep_estimator3_HFdepth2_);
+    h_2DsumTSmaxALS7 = fs_->make<TH2F>("h_2DsumTSmaxALS7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmaxAperLS7 = fs_->make<TH1F>("h_sumTSmaxAperLS7", " ", bac, 1., bac2);
+    h_sumCutTSmaxAperLS7 = fs_->make<TH1F>("h_sumCutTSmaxAperLS7", " ", bac, 1., bac2);
+    h_2D0sumTSmaxALS7 = fs_->make<TH2F>("h_2D0sumTSmaxALS7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmaxAperLS7 = fs_->make<TH1F>("h_sum0TSmaxAperLS7", " ", bac, 1., bac2);
 
-    h_sumTSmaxALS8 = new TH1F("h_sumTSmaxALS8", " ", 100, 0., lsdep_estimator3_HOdepth4_);
-    h_2DsumTSmaxALS8 = new TH2F("h_2DsumTSmaxALS8", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumTSmaxAperLS8 = new TH1F("h_sumTSmaxAperLS8", " ", bac, 1., bac2);
-    h_sumCutTSmaxAperLS8 = new TH1F("h_sumCutTSmaxAperLS8", " ", bac, 1., bac2);
-    h_2D0sumTSmaxALS8 = new TH2F("h_2D0sumTSmaxALS8", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0TSmaxAperLS8 = new TH1F("h_sum0TSmaxAperLS8", " ", bac, 1., bac2);
+    h_sumTSmaxALS8 = fs_->make<TH1F>("h_sumTSmaxALS8", " ", 100, 0., lsdep_estimator3_HOdepth4_);
+    h_2DsumTSmaxALS8 = fs_->make<TH2F>("h_2DsumTSmaxALS8", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumTSmaxAperLS8 = fs_->make<TH1F>("h_sumTSmaxAperLS8", " ", bac, 1., bac2);
+    h_sumCutTSmaxAperLS8 = fs_->make<TH1F>("h_sumCutTSmaxAperLS8", " ", bac, 1., bac2);
+    h_2D0sumTSmaxALS8 = fs_->make<TH2F>("h_2D0sumTSmaxALS8", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0TSmaxAperLS8 = fs_->make<TH1F>("h_sum0TSmaxAperLS8", " ", bac, 1., bac2);
     //--------------------------------------------------
     // for estimator4:
     //  float est4 = 3.4;
     //  float est41= 2.0;
-    h_sumAmplitudeLS1 = new TH1F("h_sumAmplitudeLS1", " ", 100, 0.0, lsdep_estimator4_HBdepth1_);
-    h_2DsumAmplitudeLS1 = new TH2F("h_2DsumAmplitudeLS1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplitudeperLS1 = new TH1F("h_sumAmplitudeperLS1", " ", bac, 1., bac2);
-    h_sumAmplitudeperLS1_LSselected = new TH1F("h_sumAmplitudeperLS1_LSselected", " ", bac, 1., bac2);
-    h_sumCutAmplitudeperLS1 = new TH1F("h_sumCutAmplitudeperLS1", " ", bac, 1., bac2);
-    h_2D0sumAmplitudeLS1 = new TH2F("h_2D0sumAmplitudeLS1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplitudeperLS1 = new TH1F("h_sum0AmplitudeperLS1", " ", bac, 1., bac2);
+    h_sumAmplitudeLS1 = fs_->make<TH1F>("h_sumAmplitudeLS1", " ", 100, 0.0, lsdep_estimator4_HBdepth1_);
+    h_2DsumAmplitudeLS1 = fs_->make<TH2F>("h_2DsumAmplitudeLS1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplitudeperLS1 = fs_->make<TH1F>("h_sumAmplitudeperLS1", " ", bac, 1., bac2);
+    h_sumAmplitudeperLS1_LSselected = fs_->make<TH1F>("h_sumAmplitudeperLS1_LSselected", " ", bac, 1., bac2);
+    h_sumCutAmplitudeperLS1 = fs_->make<TH1F>("h_sumCutAmplitudeperLS1", " ", bac, 1., bac2);
+    h_2D0sumAmplitudeLS1 = fs_->make<TH2F>("h_2D0sumAmplitudeLS1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplitudeperLS1 = fs_->make<TH1F>("h_sum0AmplitudeperLS1", " ", bac, 1., bac2);
 
-    h_sumAmplitudeLS2 = new TH1F("h_sumAmplitudeLS2", " ", 100, 0.0, lsdep_estimator4_HBdepth2_);
-    h_2DsumAmplitudeLS2 = new TH2F("h_2DsumAmplitudeLS2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplitudeperLS2 = new TH1F("h_sumAmplitudeperLS2", " ", bac, 1., bac2);
-    h_sumCutAmplitudeperLS2 = new TH1F("h_sumCutAmplitudeperLS2", " ", bac, 1., bac2);
-    h_2D0sumAmplitudeLS2 = new TH2F("h_2D0sumAmplitudeLS2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplitudeperLS2 = new TH1F("h_sum0AmplitudeperLS2", " ", bac, 1., bac2);
+    h_sumAmplitudeLS2 = fs_->make<TH1F>("h_sumAmplitudeLS2", " ", 100, 0.0, lsdep_estimator4_HBdepth2_);
+    h_2DsumAmplitudeLS2 = fs_->make<TH2F>("h_2DsumAmplitudeLS2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplitudeperLS2 = fs_->make<TH1F>("h_sumAmplitudeperLS2", " ", bac, 1., bac2);
+    h_sumCutAmplitudeperLS2 = fs_->make<TH1F>("h_sumCutAmplitudeperLS2", " ", bac, 1., bac2);
+    h_2D0sumAmplitudeLS2 = fs_->make<TH2F>("h_2D0sumAmplitudeLS2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplitudeperLS2 = fs_->make<TH1F>("h_sum0AmplitudeperLS2", " ", bac, 1., bac2);
 
-    h_sumAmplitudeLS3 = new TH1F("h_sumAmplitudeLS3", " ", 100, 0.0, lsdep_estimator4_HEdepth1_);
-    h_2DsumAmplitudeLS3 = new TH2F("h_2DsumAmplitudeLS3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplitudeperLS3 = new TH1F("h_sumAmplitudeperLS3", " ", bac, 1., bac2);
-    h_sumCutAmplitudeperLS3 = new TH1F("h_sumCutAmplitudeperLS3", " ", bac, 1., bac2);
-    h_2D0sumAmplitudeLS3 = new TH2F("h_2D0sumAmplitudeLS3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplitudeperLS3 = new TH1F("h_sum0AmplitudeperLS3", " ", bac, 1., bac2);
+    h_sumAmplitudeLS3 = fs_->make<TH1F>("h_sumAmplitudeLS3", " ", 100, 0.0, lsdep_estimator4_HEdepth1_);
+    h_2DsumAmplitudeLS3 = fs_->make<TH2F>("h_2DsumAmplitudeLS3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplitudeperLS3 = fs_->make<TH1F>("h_sumAmplitudeperLS3", " ", bac, 1., bac2);
+    h_sumCutAmplitudeperLS3 = fs_->make<TH1F>("h_sumCutAmplitudeperLS3", " ", bac, 1., bac2);
+    h_2D0sumAmplitudeLS3 = fs_->make<TH2F>("h_2D0sumAmplitudeLS3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplitudeperLS3 = fs_->make<TH1F>("h_sum0AmplitudeperLS3", " ", bac, 1., bac2);
 
-    h_sumAmplitudeLS4 = new TH1F("h_sumAmplitudeLS4", " ", 100, 0.0, lsdep_estimator4_HEdepth2_);
-    h_2DsumAmplitudeLS4 = new TH2F("h_2DsumAmplitudeLS4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplitudeperLS4 = new TH1F("h_sumAmplitudeperLS4", " ", bac, 1., bac2);
-    h_sumCutAmplitudeperLS4 = new TH1F("h_sumCutAmplitudeperLS4", " ", bac, 1., bac2);
-    h_2D0sumAmplitudeLS4 = new TH2F("h_2D0sumAmplitudeLS4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplitudeperLS4 = new TH1F("h_sum0AmplitudeperLS4", " ", bac, 1., bac2);
+    h_sumAmplitudeLS4 = fs_->make<TH1F>("h_sumAmplitudeLS4", " ", 100, 0.0, lsdep_estimator4_HEdepth2_);
+    h_2DsumAmplitudeLS4 = fs_->make<TH2F>("h_2DsumAmplitudeLS4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplitudeperLS4 = fs_->make<TH1F>("h_sumAmplitudeperLS4", " ", bac, 1., bac2);
+    h_sumCutAmplitudeperLS4 = fs_->make<TH1F>("h_sumCutAmplitudeperLS4", " ", bac, 1., bac2);
+    h_2D0sumAmplitudeLS4 = fs_->make<TH2F>("h_2D0sumAmplitudeLS4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplitudeperLS4 = fs_->make<TH1F>("h_sum0AmplitudeperLS4", " ", bac, 1., bac2);
 
-    h_sumAmplitudeLS5 = new TH1F("h_sumAmplitudeLS5", " ", 100, 0.0, lsdep_estimator4_HEdepth3_);
-    h_2DsumAmplitudeLS5 = new TH2F("h_2DsumAmplitudeLS5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplitudeperLS5 = new TH1F("h_sumAmplitudeperLS5", " ", bac, 1., bac2);
-    h_sumCutAmplitudeperLS5 = new TH1F("h_sumCutAmplitudeperLS5", " ", bac, 1., bac2);
-    h_2D0sumAmplitudeLS5 = new TH2F("h_2D0sumAmplitudeLS5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplitudeperLS5 = new TH1F("h_sum0AmplitudeperLS5", " ", bac, 1., bac2);
+    h_sumAmplitudeLS5 = fs_->make<TH1F>("h_sumAmplitudeLS5", " ", 100, 0.0, lsdep_estimator4_HEdepth3_);
+    h_2DsumAmplitudeLS5 = fs_->make<TH2F>("h_2DsumAmplitudeLS5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplitudeperLS5 = fs_->make<TH1F>("h_sumAmplitudeperLS5", " ", bac, 1., bac2);
+    h_sumCutAmplitudeperLS5 = fs_->make<TH1F>("h_sumCutAmplitudeperLS5", " ", bac, 1., bac2);
+    h_2D0sumAmplitudeLS5 = fs_->make<TH2F>("h_2D0sumAmplitudeLS5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplitudeperLS5 = fs_->make<TH1F>("h_sum0AmplitudeperLS5", " ", bac, 1., bac2);
 
-    h_sumAmplitudeLS6 = new TH1F("h_sumAmplitudeLS6", " ", 100, 0., lsdep_estimator4_HFdepth1_);
-    h_2DsumAmplitudeLS6 = new TH2F("h_2DsumAmplitudeLS6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplitudeperLS6 = new TH1F("h_sumAmplitudeperLS6", " ", bac, 1., bac2);
-    h_sumCutAmplitudeperLS6 = new TH1F("h_sumCutAmplitudeperLS6", " ", bac, 1., bac2);
-    h_2D0sumAmplitudeLS6 = new TH2F("h_2D0sumAmplitudeLS6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplitudeperLS6 = new TH1F("h_sum0AmplitudeperLS6", " ", bac, 1., bac2);
+    h_sumAmplitudeLS6 = fs_->make<TH1F>("h_sumAmplitudeLS6", " ", 100, 0., lsdep_estimator4_HFdepth1_);
+    h_2DsumAmplitudeLS6 = fs_->make<TH2F>("h_2DsumAmplitudeLS6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplitudeperLS6 = fs_->make<TH1F>("h_sumAmplitudeperLS6", " ", bac, 1., bac2);
+    h_sumCutAmplitudeperLS6 = fs_->make<TH1F>("h_sumCutAmplitudeperLS6", " ", bac, 1., bac2);
+    h_2D0sumAmplitudeLS6 = fs_->make<TH2F>("h_2D0sumAmplitudeLS6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplitudeperLS6 = fs_->make<TH1F>("h_sum0AmplitudeperLS6", " ", bac, 1., bac2);
 
-    h_sumAmplitudeLS7 = new TH1F("h_sumAmplitudeLS7", " ", 100, 0., lsdep_estimator4_HFdepth2_);
-    h_2DsumAmplitudeLS7 = new TH2F("h_2DsumAmplitudeLS7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplitudeperLS7 = new TH1F("h_sumAmplitudeperLS7", " ", bac, 1., bac2);
-    h_sumCutAmplitudeperLS7 = new TH1F("h_sumCutAmplitudeperLS7", " ", bac, 1., bac2);
-    h_2D0sumAmplitudeLS7 = new TH2F("h_2D0sumAmplitudeLS7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplitudeperLS7 = new TH1F("h_sum0AmplitudeperLS7", " ", bac, 1., bac2);
+    h_sumAmplitudeLS7 = fs_->make<TH1F>("h_sumAmplitudeLS7", " ", 100, 0., lsdep_estimator4_HFdepth2_);
+    h_2DsumAmplitudeLS7 = fs_->make<TH2F>("h_2DsumAmplitudeLS7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplitudeperLS7 = fs_->make<TH1F>("h_sumAmplitudeperLS7", " ", bac, 1., bac2);
+    h_sumCutAmplitudeperLS7 = fs_->make<TH1F>("h_sumCutAmplitudeperLS7", " ", bac, 1., bac2);
+    h_2D0sumAmplitudeLS7 = fs_->make<TH2F>("h_2D0sumAmplitudeLS7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplitudeperLS7 = fs_->make<TH1F>("h_sum0AmplitudeperLS7", " ", bac, 1., bac2);
 
-    h_sumAmplitudeLS8 = new TH1F("h_sumAmplitudeLS8", " ", 100, 0., lsdep_estimator4_HOdepth4_);
-    h_2DsumAmplitudeLS8 = new TH2F("h_2DsumAmplitudeLS8", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplitudeperLS8 = new TH1F("h_sumAmplitudeperLS8", " ", bac, 1., bac2);
-    h_sumCutAmplitudeperLS8 = new TH1F("h_sumCutAmplitudeperLS8", " ", bac, 1., bac2);
-    h_2D0sumAmplitudeLS8 = new TH2F("h_2D0sumAmplitudeLS8", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplitudeperLS8 = new TH1F("h_sum0AmplitudeperLS8", " ", bac, 1., bac2);
+    h_sumAmplitudeLS8 = fs_->make<TH1F>("h_sumAmplitudeLS8", " ", 100, 0., lsdep_estimator4_HOdepth4_);
+    h_2DsumAmplitudeLS8 = fs_->make<TH2F>("h_2DsumAmplitudeLS8", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplitudeperLS8 = fs_->make<TH1F>("h_sumAmplitudeperLS8", " ", bac, 1., bac2);
+    h_sumCutAmplitudeperLS8 = fs_->make<TH1F>("h_sumCutAmplitudeperLS8", " ", bac, 1., bac2);
+    h_2D0sumAmplitudeLS8 = fs_->make<TH2F>("h_2D0sumAmplitudeLS8", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplitudeperLS8 = fs_->make<TH1F>("h_sum0AmplitudeperLS8", " ", bac, 1., bac2);
     //--------------------------------------------------
     // for estimator5:
     //  float est5 = 0.6;
     //  float est51= 1.0;
     //  float est52= 0.8;
-    h_sumAmplLS1 = new TH1F("h_sumAmplLS1", " ", 100, 0.0, lsdep_estimator5_HBdepth1_);
-    h_2DsumAmplLS1 = new TH2F("h_2DsumAmplLS1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplperLS1 = new TH1F("h_sumAmplperLS1", " ", bac, 1., bac2);
-    h_sumAmplperLS1_LSselected = new TH1F("h_sumAmplperLS1_LSselected", " ", bac, 1., bac2);
-    h_sumCutAmplperLS1 = new TH1F("h_sumCutAmplperLS1", " ", bac, 1., bac2);
-    h_2D0sumAmplLS1 = new TH2F("h_2D0sumAmplLS1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplperLS1 = new TH1F("h_sum0AmplperLS1", " ", bac, 1., bac2);
+    h_sumAmplLS1 = fs_->make<TH1F>("h_sumAmplLS1", " ", 100, 0.0, lsdep_estimator5_HBdepth1_);
+    h_2DsumAmplLS1 = fs_->make<TH2F>("h_2DsumAmplLS1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplperLS1 = fs_->make<TH1F>("h_sumAmplperLS1", " ", bac, 1., bac2);
+    h_sumAmplperLS1_LSselected = fs_->make<TH1F>("h_sumAmplperLS1_LSselected", " ", bac, 1., bac2);
+    h_sumCutAmplperLS1 = fs_->make<TH1F>("h_sumCutAmplperLS1", " ", bac, 1., bac2);
+    h_2D0sumAmplLS1 = fs_->make<TH2F>("h_2D0sumAmplLS1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplperLS1 = fs_->make<TH1F>("h_sum0AmplperLS1", " ", bac, 1., bac2);
 
-    h_sumAmplLS2 = new TH1F("h_sumAmplLS2", " ", 100, 0.0, lsdep_estimator5_HBdepth2_);
-    h_2DsumAmplLS2 = new TH2F("h_2DsumAmplLS2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplperLS2 = new TH1F("h_sumAmplperLS2", " ", bac, 1., bac2);
-    h_sumCutAmplperLS2 = new TH1F("h_sumCutAmplperLS2", " ", bac, 1., bac2);
-    h_2D0sumAmplLS2 = new TH2F("h_2D0sumAmplLS2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplperLS2 = new TH1F("h_sum0AmplperLS2", " ", bac, 1., bac2);
+    h_sumAmplLS2 = fs_->make<TH1F>("h_sumAmplLS2", " ", 100, 0.0, lsdep_estimator5_HBdepth2_);
+    h_2DsumAmplLS2 = fs_->make<TH2F>("h_2DsumAmplLS2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplperLS2 = fs_->make<TH1F>("h_sumAmplperLS2", " ", bac, 1., bac2);
+    h_sumCutAmplperLS2 = fs_->make<TH1F>("h_sumCutAmplperLS2", " ", bac, 1., bac2);
+    h_2D0sumAmplLS2 = fs_->make<TH2F>("h_2D0sumAmplLS2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplperLS2 = fs_->make<TH1F>("h_sum0AmplperLS2", " ", bac, 1., bac2);
 
-    h_sumAmplLS3 = new TH1F("h_sumAmplLS3", " ", 100, 0.0, lsdep_estimator5_HEdepth1_);
-    h_2DsumAmplLS3 = new TH2F("h_2DsumAmplLS3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplperLS3 = new TH1F("h_sumAmplperLS3", " ", bac, 1., bac2);
-    h_sumCutAmplperLS3 = new TH1F("h_sumCutAmplperLS3", " ", bac, 1., bac2);
-    h_2D0sumAmplLS3 = new TH2F("h_2D0sumAmplLS3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplperLS3 = new TH1F("h_sum0AmplperLS3", " ", bac, 1., bac2);
+    h_sumAmplLS3 = fs_->make<TH1F>("h_sumAmplLS3", " ", 100, 0.0, lsdep_estimator5_HEdepth1_);
+    h_2DsumAmplLS3 = fs_->make<TH2F>("h_2DsumAmplLS3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplperLS3 = fs_->make<TH1F>("h_sumAmplperLS3", " ", bac, 1., bac2);
+    h_sumCutAmplperLS3 = fs_->make<TH1F>("h_sumCutAmplperLS3", " ", bac, 1., bac2);
+    h_2D0sumAmplLS3 = fs_->make<TH2F>("h_2D0sumAmplLS3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplperLS3 = fs_->make<TH1F>("h_sum0AmplperLS3", " ", bac, 1., bac2);
 
-    h_sumAmplLS4 = new TH1F("h_sumAmplLS4", " ", 100, 0.0, lsdep_estimator5_HEdepth2_);
-    h_2DsumAmplLS4 = new TH2F("h_2DsumAmplLS4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplperLS4 = new TH1F("h_sumAmplperLS4", " ", bac, 1., bac2);
-    h_sumCutAmplperLS4 = new TH1F("h_sumCutAmplperLS4", " ", bac, 1., bac2);
-    h_2D0sumAmplLS4 = new TH2F("h_2D0sumAmplLS4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplperLS4 = new TH1F("h_sum0AmplperLS4", " ", bac, 1., bac2);
+    h_sumAmplLS4 = fs_->make<TH1F>("h_sumAmplLS4", " ", 100, 0.0, lsdep_estimator5_HEdepth2_);
+    h_2DsumAmplLS4 = fs_->make<TH2F>("h_2DsumAmplLS4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplperLS4 = fs_->make<TH1F>("h_sumAmplperLS4", " ", bac, 1., bac2);
+    h_sumCutAmplperLS4 = fs_->make<TH1F>("h_sumCutAmplperLS4", " ", bac, 1., bac2);
+    h_2D0sumAmplLS4 = fs_->make<TH2F>("h_2D0sumAmplLS4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplperLS4 = fs_->make<TH1F>("h_sum0AmplperLS4", " ", bac, 1., bac2);
 
-    h_sumAmplLS5 = new TH1F("h_sumAmplLS5", " ", 100, 0.0, lsdep_estimator5_HEdepth3_);
-    h_2DsumAmplLS5 = new TH2F("h_2DsumAmplLS5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplperLS5 = new TH1F("h_sumAmplperLS5", " ", bac, 1., bac2);
-    h_sumCutAmplperLS5 = new TH1F("h_sumCutAmplperLS5", " ", bac, 1., bac2);
-    h_2D0sumAmplLS5 = new TH2F("h_2D0sumAmplLS5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplperLS5 = new TH1F("h_sum0AmplperLS5", " ", bac, 1., bac2);
+    h_sumAmplLS5 = fs_->make<TH1F>("h_sumAmplLS5", " ", 100, 0.0, lsdep_estimator5_HEdepth3_);
+    h_2DsumAmplLS5 = fs_->make<TH2F>("h_2DsumAmplLS5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplperLS5 = fs_->make<TH1F>("h_sumAmplperLS5", " ", bac, 1., bac2);
+    h_sumCutAmplperLS5 = fs_->make<TH1F>("h_sumCutAmplperLS5", " ", bac, 1., bac2);
+    h_2D0sumAmplLS5 = fs_->make<TH2F>("h_2D0sumAmplLS5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplperLS5 = fs_->make<TH1F>("h_sum0AmplperLS5", " ", bac, 1., bac2);
 
-    h_sumAmplLS6 = new TH1F("h_sumAmplLS6", " ", 100, 0.0, lsdep_estimator5_HFdepth1_);
-    h_2DsumAmplLS6 = new TH2F("h_2DsumAmplLS6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplperLS6 = new TH1F("h_sumAmplperLS6", " ", bac, 1., bac2);
-    h_sumCutAmplperLS6 = new TH1F("h_sumCutAmplperLS6", " ", bac, 1., bac2);
-    h_2D0sumAmplLS6 = new TH2F("h_2D0sumAmplLS6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplperLS6 = new TH1F("h_sum0AmplperLS6", " ", bac, 1., bac2);
+    h_sumAmplLS6 = fs_->make<TH1F>("h_sumAmplLS6", " ", 100, 0.0, lsdep_estimator5_HFdepth1_);
+    h_2DsumAmplLS6 = fs_->make<TH2F>("h_2DsumAmplLS6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplperLS6 = fs_->make<TH1F>("h_sumAmplperLS6", " ", bac, 1., bac2);
+    h_sumCutAmplperLS6 = fs_->make<TH1F>("h_sumCutAmplperLS6", " ", bac, 1., bac2);
+    h_2D0sumAmplLS6 = fs_->make<TH2F>("h_2D0sumAmplLS6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplperLS6 = fs_->make<TH1F>("h_sum0AmplperLS6", " ", bac, 1., bac2);
 
-    h_RatioOccupancy_HBP = new TH1F("h_RatioOccupancy_HBP", " ", bac, 1., bac2);
-    h_RatioOccupancy_HBM = new TH1F("h_RatioOccupancy_HBM", " ", bac, 1., bac2);
-    h_RatioOccupancy_HEP = new TH1F("h_RatioOccupancy_HEP", " ", bac, 1., bac2);
-    h_RatioOccupancy_HEM = new TH1F("h_RatioOccupancy_HEM", " ", bac, 1., bac2);
-    h_RatioOccupancy_HOP = new TH1F("h_RatioOccupancy_HOP", " ", bac, 1., bac2);
-    h_RatioOccupancy_HOM = new TH1F("h_RatioOccupancy_HOM", " ", bac, 1., bac2);
-    h_RatioOccupancy_HFP = new TH1F("h_RatioOccupancy_HFP", " ", bac, 1., bac2);
-    h_RatioOccupancy_HFM = new TH1F("h_RatioOccupancy_HFM", " ", bac, 1., bac2);
+    h_RatioOccupancy_HBP = fs_->make<TH1F>("h_RatioOccupancy_HBP", " ", bac, 1., bac2);
+    h_RatioOccupancy_HBM = fs_->make<TH1F>("h_RatioOccupancy_HBM", " ", bac, 1., bac2);
+    h_RatioOccupancy_HEP = fs_->make<TH1F>("h_RatioOccupancy_HEP", " ", bac, 1., bac2);
+    h_RatioOccupancy_HEM = fs_->make<TH1F>("h_RatioOccupancy_HEM", " ", bac, 1., bac2);
+    h_RatioOccupancy_HOP = fs_->make<TH1F>("h_RatioOccupancy_HOP", " ", bac, 1., bac2);
+    h_RatioOccupancy_HOM = fs_->make<TH1F>("h_RatioOccupancy_HOM", " ", bac, 1., bac2);
+    h_RatioOccupancy_HFP = fs_->make<TH1F>("h_RatioOccupancy_HFP", " ", bac, 1., bac2);
+    h_RatioOccupancy_HFM = fs_->make<TH1F>("h_RatioOccupancy_HFM", " ", bac, 1., bac2);
 
-    h_sumAmplLS7 = new TH1F("h_sumAmplLS7", " ", 100, 0.0, lsdep_estimator5_HFdepth2_);
-    h_2DsumAmplLS7 = new TH2F("h_2DsumAmplLS7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplperLS7 = new TH1F("h_sumAmplperLS7", " ", bac, 1., bac2);
-    h_sumCutAmplperLS7 = new TH1F("h_sumCutAmplperLS7", " ", bac, 1., bac2);
-    h_2D0sumAmplLS7 = new TH2F("h_2D0sumAmplLS7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplperLS7 = new TH1F("h_sum0AmplperLS7", " ", bac, 1., bac2);
+    h_sumAmplLS7 = fs_->make<TH1F>("h_sumAmplLS7", " ", 100, 0.0, lsdep_estimator5_HFdepth2_);
+    h_2DsumAmplLS7 = fs_->make<TH2F>("h_2DsumAmplLS7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplperLS7 = fs_->make<TH1F>("h_sumAmplperLS7", " ", bac, 1., bac2);
+    h_sumCutAmplperLS7 = fs_->make<TH1F>("h_sumCutAmplperLS7", " ", bac, 1., bac2);
+    h_2D0sumAmplLS7 = fs_->make<TH2F>("h_2D0sumAmplLS7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplperLS7 = fs_->make<TH1F>("h_sum0AmplperLS7", " ", bac, 1., bac2);
 
-    h_sumAmplLS8 = new TH1F("h_sumAmplLS8", " ", 100, 0.0, lsdep_estimator5_HOdepth4_);
-    h_2DsumAmplLS8 = new TH2F("h_2DsumAmplLS8", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumAmplperLS8 = new TH1F("h_sumAmplperLS8", " ", bac, 1., bac2);
-    h_sumCutAmplperLS8 = new TH1F("h_sumCutAmplperLS8", " ", bac, 1., bac2);
-    h_2D0sumAmplLS8 = new TH2F("h_2D0sumAmplLS8", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sum0AmplperLS8 = new TH1F("h_sum0AmplperLS8", " ", bac, 1., bac2);
+    h_sumAmplLS8 = fs_->make<TH1F>("h_sumAmplLS8", " ", 100, 0.0, lsdep_estimator5_HOdepth4_);
+    h_2DsumAmplLS8 = fs_->make<TH2F>("h_2DsumAmplLS8", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumAmplperLS8 = fs_->make<TH1F>("h_sumAmplperLS8", " ", bac, 1., bac2);
+    h_sumCutAmplperLS8 = fs_->make<TH1F>("h_sumCutAmplperLS8", " ", bac, 1., bac2);
+    h_2D0sumAmplLS8 = fs_->make<TH2F>("h_2D0sumAmplLS8", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sum0AmplperLS8 = fs_->make<TH1F>("h_sum0AmplperLS8", " ", bac, 1., bac2);
     //--------------------------------------------------
     // for estimator6:
-    h_sumErrorBLS1 = new TH1F("h_sumErrorBLS1", " ", 10, 0., 10.);
-    h_sumErrorBperLS1 = new TH1F("h_sumErrorBperLS1", " ", bac, 1., bac2);
-    h_sum0ErrorBperLS1 = new TH1F("h_sum0ErrorBperLS1", " ", bac, 1., bac2);
-    h_2D0sumErrorBLS1 = new TH2F("h_2D0sumErrorBLS1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumErrorBLS1 = new TH2F("h_2DsumErrorBLS1", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumErrorBLS2 = new TH1F("h_sumErrorBLS2", " ", 10, 0., 10.);
-    h_sumErrorBperLS2 = new TH1F("h_sumErrorBperLS2", " ", bac, 1., bac2);
-    h_sum0ErrorBperLS2 = new TH1F("h_sum0ErrorBperLS2", " ", bac, 1., bac2);
-    h_2D0sumErrorBLS2 = new TH2F("h_2D0sumErrorBLS2", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumErrorBLS2 = new TH2F("h_2DsumErrorBLS2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumErrorBLS1 = fs_->make<TH1F>("h_sumErrorBLS1", " ", 10, 0., 10.);
+    h_sumErrorBperLS1 = fs_->make<TH1F>("h_sumErrorBperLS1", " ", bac, 1., bac2);
+    h_sum0ErrorBperLS1 = fs_->make<TH1F>("h_sum0ErrorBperLS1", " ", bac, 1., bac2);
+    h_2D0sumErrorBLS1 = fs_->make<TH2F>("h_2D0sumErrorBLS1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumErrorBLS1 = fs_->make<TH2F>("h_2DsumErrorBLS1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumErrorBLS2 = fs_->make<TH1F>("h_sumErrorBLS2", " ", 10, 0., 10.);
+    h_sumErrorBperLS2 = fs_->make<TH1F>("h_sumErrorBperLS2", " ", bac, 1., bac2);
+    h_sum0ErrorBperLS2 = fs_->make<TH1F>("h_sum0ErrorBperLS2", " ", bac, 1., bac2);
+    h_2D0sumErrorBLS2 = fs_->make<TH2F>("h_2D0sumErrorBLS2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumErrorBLS2 = fs_->make<TH2F>("h_2DsumErrorBLS2", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_sumErrorBLS3 = new TH1F("h_sumErrorBLS3", " ", 10, 0., 10.);
-    h_sumErrorBperLS3 = new TH1F("h_sumErrorBperLS3", " ", bac, 1., bac2);
-    h_sum0ErrorBperLS3 = new TH1F("h_sum0ErrorBperLS3", " ", bac, 1., bac2);
-    h_2D0sumErrorBLS3 = new TH2F("h_2D0sumErrorBLS3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumErrorBLS3 = new TH2F("h_2DsumErrorBLS3", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumErrorBLS4 = new TH1F("h_sumErrorBLS4", " ", 10, 0., 10.);
-    h_sumErrorBperLS4 = new TH1F("h_sumErrorBperLS4", " ", bac, 1., bac2);
-    h_sum0ErrorBperLS4 = new TH1F("h_sum0ErrorBperLS4", " ", bac, 1., bac2);
-    h_2D0sumErrorBLS4 = new TH2F("h_2D0sumErrorBLS4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumErrorBLS4 = new TH2F("h_2DsumErrorBLS4", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumErrorBLS5 = new TH1F("h_sumErrorBLS5", " ", 10, 0., 10.);
-    h_sumErrorBperLS5 = new TH1F("h_sumErrorBperLS5", " ", bac, 1., bac2);
-    h_sum0ErrorBperLS5 = new TH1F("h_sum0ErrorBperLS5", " ", bac, 1., bac2);
-    h_2D0sumErrorBLS5 = new TH2F("h_2D0sumErrorBLS5", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumErrorBLS5 = new TH2F("h_2DsumErrorBLS5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumErrorBLS3 = fs_->make<TH1F>("h_sumErrorBLS3", " ", 10, 0., 10.);
+    h_sumErrorBperLS3 = fs_->make<TH1F>("h_sumErrorBperLS3", " ", bac, 1., bac2);
+    h_sum0ErrorBperLS3 = fs_->make<TH1F>("h_sum0ErrorBperLS3", " ", bac, 1., bac2);
+    h_2D0sumErrorBLS3 = fs_->make<TH2F>("h_2D0sumErrorBLS3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumErrorBLS3 = fs_->make<TH2F>("h_2DsumErrorBLS3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumErrorBLS4 = fs_->make<TH1F>("h_sumErrorBLS4", " ", 10, 0., 10.);
+    h_sumErrorBperLS4 = fs_->make<TH1F>("h_sumErrorBperLS4", " ", bac, 1., bac2);
+    h_sum0ErrorBperLS4 = fs_->make<TH1F>("h_sum0ErrorBperLS4", " ", bac, 1., bac2);
+    h_2D0sumErrorBLS4 = fs_->make<TH2F>("h_2D0sumErrorBLS4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumErrorBLS4 = fs_->make<TH2F>("h_2DsumErrorBLS4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumErrorBLS5 = fs_->make<TH1F>("h_sumErrorBLS5", " ", 10, 0., 10.);
+    h_sumErrorBperLS5 = fs_->make<TH1F>("h_sumErrorBperLS5", " ", bac, 1., bac2);
+    h_sum0ErrorBperLS5 = fs_->make<TH1F>("h_sum0ErrorBperLS5", " ", bac, 1., bac2);
+    h_2D0sumErrorBLS5 = fs_->make<TH2F>("h_2D0sumErrorBLS5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumErrorBLS5 = fs_->make<TH2F>("h_2DsumErrorBLS5", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_sumErrorBLS6 = new TH1F("h_sumErrorBLS6", " ", 10, 0., 10.);
-    h_sumErrorBperLS6 = new TH1F("h_sumErrorBperLS6", " ", bac, 1., bac2);
-    h_sum0ErrorBperLS6 = new TH1F("h_sum0ErrorBperLS6", " ", bac, 1., bac2);
-    h_2D0sumErrorBLS6 = new TH2F("h_2D0sumErrorBLS6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumErrorBLS6 = new TH2F("h_2DsumErrorBLS6", " ", neta, -41., 41., nphi, 0., bphi);
-    h_sumErrorBLS7 = new TH1F("h_sumErrorBLS7", " ", 10, 0., 10.);
-    h_sumErrorBperLS7 = new TH1F("h_sumErrorBperLS7", " ", bac, 1., bac2);
-    h_sum0ErrorBperLS7 = new TH1F("h_sum0ErrorBperLS7", " ", bac, 1., bac2);
-    h_2D0sumErrorBLS7 = new TH2F("h_2D0sumErrorBLS7", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumErrorBLS7 = new TH2F("h_2DsumErrorBLS7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumErrorBLS6 = fs_->make<TH1F>("h_sumErrorBLS6", " ", 10, 0., 10.);
+    h_sumErrorBperLS6 = fs_->make<TH1F>("h_sumErrorBperLS6", " ", bac, 1., bac2);
+    h_sum0ErrorBperLS6 = fs_->make<TH1F>("h_sum0ErrorBperLS6", " ", bac, 1., bac2);
+    h_2D0sumErrorBLS6 = fs_->make<TH2F>("h_2D0sumErrorBLS6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumErrorBLS6 = fs_->make<TH2F>("h_2DsumErrorBLS6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumErrorBLS7 = fs_->make<TH1F>("h_sumErrorBLS7", " ", 10, 0., 10.);
+    h_sumErrorBperLS7 = fs_->make<TH1F>("h_sumErrorBperLS7", " ", bac, 1., bac2);
+    h_sum0ErrorBperLS7 = fs_->make<TH1F>("h_sum0ErrorBperLS7", " ", bac, 1., bac2);
+    h_2D0sumErrorBLS7 = fs_->make<TH2F>("h_2D0sumErrorBLS7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumErrorBLS7 = fs_->make<TH2F>("h_2DsumErrorBLS7", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_sumErrorBLS8 = new TH1F("h_sumErrorBLS8", " ", 10, 0., 10.);
-    h_sumErrorBperLS8 = new TH1F("h_sumErrorBperLS8", " ", bac, 1., bac2);
-    h_sum0ErrorBperLS8 = new TH1F("h_sum0ErrorBperLS8", " ", bac, 1., bac2);
-    h_2D0sumErrorBLS8 = new TH2F("h_2D0sumErrorBLS8", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DsumErrorBLS8 = new TH2F("h_2DsumErrorBLS8", " ", neta, -41., 41., nphi, 0., bphi);
+    h_sumErrorBLS8 = fs_->make<TH1F>("h_sumErrorBLS8", " ", 10, 0., 10.);
+    h_sumErrorBperLS8 = fs_->make<TH1F>("h_sumErrorBperLS8", " ", bac, 1., bac2);
+    h_sum0ErrorBperLS8 = fs_->make<TH1F>("h_sum0ErrorBperLS8", " ", bac, 1., bac2);
+    h_2D0sumErrorBLS8 = fs_->make<TH2F>("h_2D0sumErrorBLS8", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DsumErrorBLS8 = fs_->make<TH2F>("h_2DsumErrorBLS8", " ", neta, -41., 41., nphi, 0., bphi);
 
     //--------------------------------------------------
     // for averSIGNALOCCUPANCY :
-    h_averSIGNALoccupancy_HB = new TH1F("h_averSIGNALoccupancy_HB", " ", bac, 1., bac2);
-    h_averSIGNALoccupancy_HE = new TH1F("h_averSIGNALoccupancy_HE", " ", bac, 1., bac2);
-    h_averSIGNALoccupancy_HF = new TH1F("h_averSIGNALoccupancy_HF", " ", bac, 1., bac2);
-    h_averSIGNALoccupancy_HO = new TH1F("h_averSIGNALoccupancy_HO", " ", bac, 1., bac2);
+    h_averSIGNALoccupancy_HB = fs_->make<TH1F>("h_averSIGNALoccupancy_HB", " ", bac, 1., bac2);
+    h_averSIGNALoccupancy_HE = fs_->make<TH1F>("h_averSIGNALoccupancy_HE", " ", bac, 1., bac2);
+    h_averSIGNALoccupancy_HF = fs_->make<TH1F>("h_averSIGNALoccupancy_HF", " ", bac, 1., bac2);
+    h_averSIGNALoccupancy_HO = fs_->make<TH1F>("h_averSIGNALoccupancy_HO", " ", bac, 1., bac2);
 
     // for averSIGNALsumamplitude :
-    h_averSIGNALsumamplitude_HB = new TH1F("h_averSIGNALsumamplitude_HB", " ", bac, 1., bac2);
-    h_averSIGNALsumamplitude_HE = new TH1F("h_averSIGNALsumamplitude_HE", " ", bac, 1., bac2);
-    h_averSIGNALsumamplitude_HF = new TH1F("h_averSIGNALsumamplitude_HF", " ", bac, 1., bac2);
-    h_averSIGNALsumamplitude_HO = new TH1F("h_averSIGNALsumamplitude_HO", " ", bac, 1., bac2);
+    h_averSIGNALsumamplitude_HB = fs_->make<TH1F>("h_averSIGNALsumamplitude_HB", " ", bac, 1., bac2);
+    h_averSIGNALsumamplitude_HE = fs_->make<TH1F>("h_averSIGNALsumamplitude_HE", " ", bac, 1., bac2);
+    h_averSIGNALsumamplitude_HF = fs_->make<TH1F>("h_averSIGNALsumamplitude_HF", " ", bac, 1., bac2);
+    h_averSIGNALsumamplitude_HO = fs_->make<TH1F>("h_averSIGNALsumamplitude_HO", " ", bac, 1., bac2);
 
     // for averNOSIGNALOCCUPANCY :
-    h_averNOSIGNALoccupancy_HB = new TH1F("h_averNOSIGNALoccupancy_HB", " ", bac, 1., bac2);
-    h_averNOSIGNALoccupancy_HE = new TH1F("h_averNOSIGNALoccupancy_HE", " ", bac, 1., bac2);
-    h_averNOSIGNALoccupancy_HF = new TH1F("h_averNOSIGNALoccupancy_HF", " ", bac, 1., bac2);
-    h_averNOSIGNALoccupancy_HO = new TH1F("h_averNOSIGNALoccupancy_HO", " ", bac, 1., bac2);
+    h_averNOSIGNALoccupancy_HB = fs_->make<TH1F>("h_averNOSIGNALoccupancy_HB", " ", bac, 1., bac2);
+    h_averNOSIGNALoccupancy_HE = fs_->make<TH1F>("h_averNOSIGNALoccupancy_HE", " ", bac, 1., bac2);
+    h_averNOSIGNALoccupancy_HF = fs_->make<TH1F>("h_averNOSIGNALoccupancy_HF", " ", bac, 1., bac2);
+    h_averNOSIGNALoccupancy_HO = fs_->make<TH1F>("h_averNOSIGNALoccupancy_HO", " ", bac, 1., bac2);
 
     // for averNOSIGNALsumamplitude :
-    h_averNOSIGNALsumamplitude_HB = new TH1F("h_averNOSIGNALsumamplitude_HB", " ", bac, 1., bac2);
-    h_averNOSIGNALsumamplitude_HE = new TH1F("h_averNOSIGNALsumamplitude_HE", " ", bac, 1., bac2);
-    h_averNOSIGNALsumamplitude_HF = new TH1F("h_averNOSIGNALsumamplitude_HF", " ", bac, 1., bac2);
-    h_averNOSIGNALsumamplitude_HO = new TH1F("h_averNOSIGNALsumamplitude_HO", " ", bac, 1., bac2);
+    h_averNOSIGNALsumamplitude_HB = fs_->make<TH1F>("h_averNOSIGNALsumamplitude_HB", " ", bac, 1., bac2);
+    h_averNOSIGNALsumamplitude_HE = fs_->make<TH1F>("h_averNOSIGNALsumamplitude_HE", " ", bac, 1., bac2);
+    h_averNOSIGNALsumamplitude_HF = fs_->make<TH1F>("h_averNOSIGNALsumamplitude_HF", " ", bac, 1., bac2);
+    h_averNOSIGNALsumamplitude_HO = fs_->make<TH1F>("h_averNOSIGNALsumamplitude_HO", " ", bac, 1., bac2);
 
     // for channel SUM over depthes Amplitudes for each sub-detector
-    h_sumamplitudechannel_HB = new TH1F("h_sumamplitudechannel_HB", " ", 100, 0., 2000.);
-    h_sumamplitudechannel_HE = new TH1F("h_sumamplitudechannel_HE", " ", 100, 0., 3000.);
-    h_sumamplitudechannel_HF = new TH1F("h_sumamplitudechannel_HF", " ", 100, 0., 7000.);
-    h_sumamplitudechannel_HO = new TH1F("h_sumamplitudechannel_HO", " ", 100, 0., 10000.);
+    h_sumamplitudechannel_HB = fs_->make<TH1F>("h_sumamplitudechannel_HB", " ", 100, 0., 2000.);
+    h_sumamplitudechannel_HE = fs_->make<TH1F>("h_sumamplitudechannel_HE", " ", 100, 0., 3000.);
+    h_sumamplitudechannel_HF = fs_->make<TH1F>("h_sumamplitudechannel_HF", " ", 100, 0., 7000.);
+    h_sumamplitudechannel_HO = fs_->make<TH1F>("h_sumamplitudechannel_HO", " ", 100, 0., 10000.);
 
     // for event Amplitudes for each sub-detector
-    h_eventamplitude_HB = new TH1F("h_eventamplitude_HB", " ", 100, 0., 80000.);
-    h_eventamplitude_HE = new TH1F("h_eventamplitude_HE", " ", 100, 0., 100000.);
-    h_eventamplitude_HF = new TH1F("h_eventamplitude_HF", " ", 100, 0., 150000.);
-    h_eventamplitude_HO = new TH1F("h_eventamplitude_HO", " ", 100, 0., 250000.);
+    h_eventamplitude_HB = fs_->make<TH1F>("h_eventamplitude_HB", " ", 100, 0., 80000.);
+    h_eventamplitude_HE = fs_->make<TH1F>("h_eventamplitude_HE", " ", 100, 0., 100000.);
+    h_eventamplitude_HF = fs_->make<TH1F>("h_eventamplitude_HF", " ", 100, 0., 150000.);
+    h_eventamplitude_HO = fs_->make<TH1F>("h_eventamplitude_HO", " ", 100, 0., 250000.);
 
     // for event Occupancy for each sub-detector
-    h_eventoccupancy_HB = new TH1F("h_eventoccupancy_HB", " ", 100, 0., 3000.);
-    h_eventoccupancy_HE = new TH1F("h_eventoccupancy_HE", " ", 100, 0., 2000.);
-    h_eventoccupancy_HF = new TH1F("h_eventoccupancy_HF", " ", 100, 0., 1000.);
-    h_eventoccupancy_HO = new TH1F("h_eventoccupancy_HO", " ", 100, 0., 2500.);
+    h_eventoccupancy_HB = fs_->make<TH1F>("h_eventoccupancy_HB", " ", 100, 0., 3000.);
+    h_eventoccupancy_HE = fs_->make<TH1F>("h_eventoccupancy_HE", " ", 100, 0., 2000.);
+    h_eventoccupancy_HF = fs_->make<TH1F>("h_eventoccupancy_HF", " ", 100, 0., 1000.);
+    h_eventoccupancy_HO = fs_->make<TH1F>("h_eventoccupancy_HO", " ", 100, 0., 2500.);
 
     // for maxxSUMAmplitude
-    h_maxxSUMAmpl_HB = new TH1F("h_maxxSUMAmpl_HB", " ", bac, 1., bac2);
-    h_maxxSUMAmpl_HE = new TH1F("h_maxxSUMAmpl_HE", " ", bac, 1., bac2);
-    h_maxxSUMAmpl_HF = new TH1F("h_maxxSUMAmpl_HF", " ", bac, 1., bac2);
-    h_maxxSUMAmpl_HO = new TH1F("h_maxxSUMAmpl_HO", " ", bac, 1., bac2);
+    h_maxxSUMAmpl_HB = fs_->make<TH1F>("h_maxxSUMAmpl_HB", " ", bac, 1., bac2);
+    h_maxxSUMAmpl_HE = fs_->make<TH1F>("h_maxxSUMAmpl_HE", " ", bac, 1., bac2);
+    h_maxxSUMAmpl_HF = fs_->make<TH1F>("h_maxxSUMAmpl_HF", " ", bac, 1., bac2);
+    h_maxxSUMAmpl_HO = fs_->make<TH1F>("h_maxxSUMAmpl_HO", " ", bac, 1., bac2);
 
     // for maxxOCCUP
-    h_maxxOCCUP_HB = new TH1F("h_maxxOCCUP_HB", " ", bac, 1., bac2);
-    h_maxxOCCUP_HE = new TH1F("h_maxxOCCUP_HE", " ", bac, 1., bac2);
-    h_maxxOCCUP_HF = new TH1F("h_maxxOCCUP_HF", " ", bac, 1., bac2);
-    h_maxxOCCUP_HO = new TH1F("h_maxxOCCUP_HO", " ", bac, 1., bac2);
+    h_maxxOCCUP_HB = fs_->make<TH1F>("h_maxxOCCUP_HB", " ", bac, 1., bac2);
+    h_maxxOCCUP_HE = fs_->make<TH1F>("h_maxxOCCUP_HE", " ", bac, 1., bac2);
+    h_maxxOCCUP_HF = fs_->make<TH1F>("h_maxxOCCUP_HF", " ", bac, 1., bac2);
+    h_maxxOCCUP_HO = fs_->make<TH1F>("h_maxxOCCUP_HO", " ", bac, 1., bac2);
     //--------------------------------------------------
     // pedestals
-    h_pedestal0_HB = new TH1F("h_pedestal0_HB", " ", 100, 0., 10.);
-    h_pedestal1_HB = new TH1F("h_pedestal1_HB", " ", 100, 0., 10.);
-    h_pedestal2_HB = new TH1F("h_pedestal2_HB", " ", 100, 0., 10.);
-    h_pedestal3_HB = new TH1F("h_pedestal3_HB", " ", 100, 0., 10.);
-    h_pedestalaver4_HB = new TH1F("h_pedestalaver4_HB", " ", 100, 0., 10.);
-    h_pedestalaver9_HB = new TH1F("h_pedestalaver9_HB", " ", 100, 0., 10.);
-    h_pedestalw0_HB = new TH1F("h_pedestalw0_HB", " ", 100, 0., 2.5);
-    h_pedestalw1_HB = new TH1F("h_pedestalw1_HB", " ", 100, 0., 2.5);
-    h_pedestalw2_HB = new TH1F("h_pedestalw2_HB", " ", 100, 0., 2.5);
-    h_pedestalw3_HB = new TH1F("h_pedestalw3_HB", " ", 100, 0., 2.5);
-    h_pedestalwaver4_HB = new TH1F("h_pedestalwaver4_HB", " ", 100, 0., 2.5);
-    h_pedestalwaver9_HB = new TH1F("h_pedestalwaver9_HB", " ", 100, 0., 2.5);
+    h_pedestal0_HB = fs_->make<TH1F>("h_pedestal0_HB", " ", 100, 0., 10.);
+    h_pedestal1_HB = fs_->make<TH1F>("h_pedestal1_HB", " ", 100, 0., 10.);
+    h_pedestal2_HB = fs_->make<TH1F>("h_pedestal2_HB", " ", 100, 0., 10.);
+    h_pedestal3_HB = fs_->make<TH1F>("h_pedestal3_HB", " ", 100, 0., 10.);
+    h_pedestalaver4_HB = fs_->make<TH1F>("h_pedestalaver4_HB", " ", 100, 0., 10.);
+    h_pedestalaver9_HB = fs_->make<TH1F>("h_pedestalaver9_HB", " ", 100, 0., 10.);
+    h_pedestalw0_HB = fs_->make<TH1F>("h_pedestalw0_HB", " ", 100, 0., 2.5);
+    h_pedestalw1_HB = fs_->make<TH1F>("h_pedestalw1_HB", " ", 100, 0., 2.5);
+    h_pedestalw2_HB = fs_->make<TH1F>("h_pedestalw2_HB", " ", 100, 0., 2.5);
+    h_pedestalw3_HB = fs_->make<TH1F>("h_pedestalw3_HB", " ", 100, 0., 2.5);
+    h_pedestalwaver4_HB = fs_->make<TH1F>("h_pedestalwaver4_HB", " ", 100, 0., 2.5);
+    h_pedestalwaver9_HB = fs_->make<TH1F>("h_pedestalwaver9_HB", " ", 100, 0., 2.5);
 
-    h_pedestal0_HE = new TH1F("h_pedestal0_HE", " ", 100, 0., 10.);
-    h_pedestal1_HE = new TH1F("h_pedestal1_HE", " ", 100, 0., 10.);
-    h_pedestal2_HE = new TH1F("h_pedestal2_HE", " ", 100, 0., 10.);
-    h_pedestal3_HE = new TH1F("h_pedestal3_HE", " ", 100, 0., 10.);
-    h_pedestalaver4_HE = new TH1F("h_pedestalaver4_HE", " ", 100, 0., 10.);
-    h_pedestalaver9_HE = new TH1F("h_pedestalaver9_HE", " ", 100, 0., 10.);
-    h_pedestalw0_HE = new TH1F("h_pedestalw0_HE", " ", 100, 0., 2.5);
-    h_pedestalw1_HE = new TH1F("h_pedestalw1_HE", " ", 100, 0., 2.5);
-    h_pedestalw2_HE = new TH1F("h_pedestalw2_HE", " ", 100, 0., 2.5);
-    h_pedestalw3_HE = new TH1F("h_pedestalw3_HE", " ", 100, 0., 2.5);
-    h_pedestalwaver4_HE = new TH1F("h_pedestalwaver4_HE", " ", 100, 0., 2.5);
-    h_pedestalwaver9_HE = new TH1F("h_pedestalwaver9_HE", " ", 100, 0., 2.5);
+    h_pedestal0_HE = fs_->make<TH1F>("h_pedestal0_HE", " ", 100, 0., 10.);
+    h_pedestal1_HE = fs_->make<TH1F>("h_pedestal1_HE", " ", 100, 0., 10.);
+    h_pedestal2_HE = fs_->make<TH1F>("h_pedestal2_HE", " ", 100, 0., 10.);
+    h_pedestal3_HE = fs_->make<TH1F>("h_pedestal3_HE", " ", 100, 0., 10.);
+    h_pedestalaver4_HE = fs_->make<TH1F>("h_pedestalaver4_HE", " ", 100, 0., 10.);
+    h_pedestalaver9_HE = fs_->make<TH1F>("h_pedestalaver9_HE", " ", 100, 0., 10.);
+    h_pedestalw0_HE = fs_->make<TH1F>("h_pedestalw0_HE", " ", 100, 0., 2.5);
+    h_pedestalw1_HE = fs_->make<TH1F>("h_pedestalw1_HE", " ", 100, 0., 2.5);
+    h_pedestalw2_HE = fs_->make<TH1F>("h_pedestalw2_HE", " ", 100, 0., 2.5);
+    h_pedestalw3_HE = fs_->make<TH1F>("h_pedestalw3_HE", " ", 100, 0., 2.5);
+    h_pedestalwaver4_HE = fs_->make<TH1F>("h_pedestalwaver4_HE", " ", 100, 0., 2.5);
+    h_pedestalwaver9_HE = fs_->make<TH1F>("h_pedestalwaver9_HE", " ", 100, 0., 2.5);
 
-    h_pedestal0_HF = new TH1F("h_pedestal0_HF", " ", 100, 0., 20.);
-    h_pedestal1_HF = new TH1F("h_pedestal1_HF", " ", 100, 0., 20.);
-    h_pedestal2_HF = new TH1F("h_pedestal2_HF", " ", 100, 0., 20.);
-    h_pedestal3_HF = new TH1F("h_pedestal3_HF", " ", 100, 0., 20.);
-    h_pedestalaver4_HF = new TH1F("h_pedestalaver4_HF", " ", 100, 0., 20.);
-    h_pedestalaver9_HF = new TH1F("h_pedestalaver9_HF", " ", 100, 0., 20.);
-    h_pedestalw0_HF = new TH1F("h_pedestalw0_HF", " ", 100, 0., 2.5);
-    h_pedestalw1_HF = new TH1F("h_pedestalw1_HF", " ", 100, 0., 2.5);
-    h_pedestalw2_HF = new TH1F("h_pedestalw2_HF", " ", 100, 0., 2.5);
-    h_pedestalw3_HF = new TH1F("h_pedestalw3_HF", " ", 100, 0., 2.5);
-    h_pedestalwaver4_HF = new TH1F("h_pedestalwaver4_HF", " ", 100, 0., 2.5);
-    h_pedestalwaver9_HF = new TH1F("h_pedestalwaver9_HF", " ", 100, 0., 2.5);
+    h_pedestal0_HF = fs_->make<TH1F>("h_pedestal0_HF", " ", 100, 0., 20.);
+    h_pedestal1_HF = fs_->make<TH1F>("h_pedestal1_HF", " ", 100, 0., 20.);
+    h_pedestal2_HF = fs_->make<TH1F>("h_pedestal2_HF", " ", 100, 0., 20.);
+    h_pedestal3_HF = fs_->make<TH1F>("h_pedestal3_HF", " ", 100, 0., 20.);
+    h_pedestalaver4_HF = fs_->make<TH1F>("h_pedestalaver4_HF", " ", 100, 0., 20.);
+    h_pedestalaver9_HF = fs_->make<TH1F>("h_pedestalaver9_HF", " ", 100, 0., 20.);
+    h_pedestalw0_HF = fs_->make<TH1F>("h_pedestalw0_HF", " ", 100, 0., 2.5);
+    h_pedestalw1_HF = fs_->make<TH1F>("h_pedestalw1_HF", " ", 100, 0., 2.5);
+    h_pedestalw2_HF = fs_->make<TH1F>("h_pedestalw2_HF", " ", 100, 0., 2.5);
+    h_pedestalw3_HF = fs_->make<TH1F>("h_pedestalw3_HF", " ", 100, 0., 2.5);
+    h_pedestalwaver4_HF = fs_->make<TH1F>("h_pedestalwaver4_HF", " ", 100, 0., 2.5);
+    h_pedestalwaver9_HF = fs_->make<TH1F>("h_pedestalwaver9_HF", " ", 100, 0., 2.5);
 
-    h_pedestal0_HO = new TH1F("h_pedestal0_HO", " ", 100, 0., 20.);
-    h_pedestal1_HO = new TH1F("h_pedestal1_HO", " ", 100, 0., 20.);
-    h_pedestal2_HO = new TH1F("h_pedestal2_HO", " ", 100, 0., 20.);
-    h_pedestal3_HO = new TH1F("h_pedestal3_HO", " ", 100, 0., 20.);
-    h_pedestalaver4_HO = new TH1F("h_pedestalaver4_HO", " ", 100, 0., 20.);
-    h_pedestalaver9_HO = new TH1F("h_pedestalaver9_HO", " ", 100, 0., 20.);
-    h_pedestalw0_HO = new TH1F("h_pedestalw0_HO", " ", 100, 0., 2.5);
-    h_pedestalw1_HO = new TH1F("h_pedestalw1_HO", " ", 100, 0., 2.5);
-    h_pedestalw2_HO = new TH1F("h_pedestalw2_HO", " ", 100, 0., 2.5);
-    h_pedestalw3_HO = new TH1F("h_pedestalw3_HO", " ", 100, 0., 2.5);
-    h_pedestalwaver4_HO = new TH1F("h_pedestalwaver4_HO", " ", 100, 0., 2.5);
-    h_pedestalwaver9_HO = new TH1F("h_pedestalwaver9_HO", " ", 100, 0., 2.5);
+    h_pedestal0_HO = fs_->make<TH1F>("h_pedestal0_HO", " ", 100, 0., 20.);
+    h_pedestal1_HO = fs_->make<TH1F>("h_pedestal1_HO", " ", 100, 0., 20.);
+    h_pedestal2_HO = fs_->make<TH1F>("h_pedestal2_HO", " ", 100, 0., 20.);
+    h_pedestal3_HO = fs_->make<TH1F>("h_pedestal3_HO", " ", 100, 0., 20.);
+    h_pedestalaver4_HO = fs_->make<TH1F>("h_pedestalaver4_HO", " ", 100, 0., 20.);
+    h_pedestalaver9_HO = fs_->make<TH1F>("h_pedestalaver9_HO", " ", 100, 0., 20.);
+    h_pedestalw0_HO = fs_->make<TH1F>("h_pedestalw0_HO", " ", 100, 0., 2.5);
+    h_pedestalw1_HO = fs_->make<TH1F>("h_pedestalw1_HO", " ", 100, 0., 2.5);
+    h_pedestalw2_HO = fs_->make<TH1F>("h_pedestalw2_HO", " ", 100, 0., 2.5);
+    h_pedestalw3_HO = fs_->make<TH1F>("h_pedestalw3_HO", " ", 100, 0., 2.5);
+    h_pedestalwaver4_HO = fs_->make<TH1F>("h_pedestalwaver4_HO", " ", 100, 0., 2.5);
+    h_pedestalwaver9_HO = fs_->make<TH1F>("h_pedestalwaver9_HO", " ", 100, 0., 2.5);
     //--------------------------------------------------
-    h_mapDepth1pedestalw_HB = new TH2F("h_mapDepth1pedestalw_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2pedestalw_HB = new TH2F("h_mapDepth2pedestalw_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3pedestalw_HB = new TH2F("h_mapDepth3pedestalw_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4pedestalw_HB = new TH2F("h_mapDepth4pedestalw_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1pedestalw_HE = new TH2F("h_mapDepth1pedestalw_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2pedestalw_HE = new TH2F("h_mapDepth2pedestalw_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3pedestalw_HE = new TH2F("h_mapDepth3pedestalw_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4pedestalw_HE = new TH2F("h_mapDepth4pedestalw_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5pedestalw_HE = new TH2F("h_mapDepth5pedestalw_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6pedestalw_HE = new TH2F("h_mapDepth6pedestalw_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7pedestalw_HE = new TH2F("h_mapDepth7pedestalw_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1pedestalw_HF = new TH2F("h_mapDepth1pedestalw_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2pedestalw_HF = new TH2F("h_mapDepth2pedestalw_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3pedestalw_HF = new TH2F("h_mapDepth3pedestalw_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4pedestalw_HF = new TH2F("h_mapDepth4pedestalw_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4pedestalw_HO = new TH2F("h_mapDepth4pedestalw_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1pedestalw_HB = fs_->make<TH2F>("h_mapDepth1pedestalw_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2pedestalw_HB = fs_->make<TH2F>("h_mapDepth2pedestalw_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3pedestalw_HB = fs_->make<TH2F>("h_mapDepth3pedestalw_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4pedestalw_HB = fs_->make<TH2F>("h_mapDepth4pedestalw_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1pedestalw_HE = fs_->make<TH2F>("h_mapDepth1pedestalw_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2pedestalw_HE = fs_->make<TH2F>("h_mapDepth2pedestalw_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3pedestalw_HE = fs_->make<TH2F>("h_mapDepth3pedestalw_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4pedestalw_HE = fs_->make<TH2F>("h_mapDepth4pedestalw_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5pedestalw_HE = fs_->make<TH2F>("h_mapDepth5pedestalw_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6pedestalw_HE = fs_->make<TH2F>("h_mapDepth6pedestalw_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7pedestalw_HE = fs_->make<TH2F>("h_mapDepth7pedestalw_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1pedestalw_HF = fs_->make<TH2F>("h_mapDepth1pedestalw_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2pedestalw_HF = fs_->make<TH2F>("h_mapDepth2pedestalw_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3pedestalw_HF = fs_->make<TH2F>("h_mapDepth3pedestalw_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4pedestalw_HF = fs_->make<TH2F>("h_mapDepth4pedestalw_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4pedestalw_HO = fs_->make<TH2F>("h_mapDepth4pedestalw_HO", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_mapDepth1pedestal_HB = new TH2F("h_mapDepth1pedestal_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2pedestal_HB = new TH2F("h_mapDepth2pedestal_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3pedestal_HB = new TH2F("h_mapDepth3pedestal_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4pedestal_HB = new TH2F("h_mapDepth4pedestal_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1pedestal_HE = new TH2F("h_mapDepth1pedestal_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2pedestal_HE = new TH2F("h_mapDepth2pedestal_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3pedestal_HE = new TH2F("h_mapDepth3pedestal_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4pedestal_HE = new TH2F("h_mapDepth4pedestal_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5pedestal_HE = new TH2F("h_mapDepth5pedestal_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6pedestal_HE = new TH2F("h_mapDepth6pedestal_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7pedestal_HE = new TH2F("h_mapDepth7pedestal_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1pedestal_HF = new TH2F("h_mapDepth1pedestal_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2pedestal_HF = new TH2F("h_mapDepth2pedestal_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3pedestal_HF = new TH2F("h_mapDepth3pedestal_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4pedestal_HF = new TH2F("h_mapDepth4pedestal_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4pedestal_HO = new TH2F("h_mapDepth4pedestal_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1pedestal_HB = fs_->make<TH2F>("h_mapDepth1pedestal_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2pedestal_HB = fs_->make<TH2F>("h_mapDepth2pedestal_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3pedestal_HB = fs_->make<TH2F>("h_mapDepth3pedestal_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4pedestal_HB = fs_->make<TH2F>("h_mapDepth4pedestal_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1pedestal_HE = fs_->make<TH2F>("h_mapDepth1pedestal_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2pedestal_HE = fs_->make<TH2F>("h_mapDepth2pedestal_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3pedestal_HE = fs_->make<TH2F>("h_mapDepth3pedestal_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4pedestal_HE = fs_->make<TH2F>("h_mapDepth4pedestal_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5pedestal_HE = fs_->make<TH2F>("h_mapDepth5pedestal_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6pedestal_HE = fs_->make<TH2F>("h_mapDepth6pedestal_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7pedestal_HE = fs_->make<TH2F>("h_mapDepth7pedestal_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1pedestal_HF = fs_->make<TH2F>("h_mapDepth1pedestal_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2pedestal_HF = fs_->make<TH2F>("h_mapDepth2pedestal_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3pedestal_HF = fs_->make<TH2F>("h_mapDepth3pedestal_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4pedestal_HF = fs_->make<TH2F>("h_mapDepth4pedestal_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4pedestal_HO = fs_->make<TH2F>("h_mapDepth4pedestal_HO", " ", neta, -41., 41., nphi, 0., bphi);
     //--------------------------------------------------
-    h_pedestal00_HB = new TH1F("h_pedestal00_HB", " ", 100, 0., 10.);
-    h_gain_HB = new TH1F("h_gain_HB", " ", 100, 0., 1.);
-    h_respcorr_HB = new TH1F("h_respcorr_HB", " ", 100, 0., 2.5);
-    h_timecorr_HB = new TH1F("h_timecorr_HB", " ", 100, 0., 30.);
-    h_lutcorr_HB = new TH1F("h_lutcorr_HB", " ", 100, 0., 10.);
-    h_difpedestal0_HB = new TH1F("h_difpedestal0_HB", " ", 100, -3., 3.);
-    h_difpedestal1_HB = new TH1F("h_difpedestal1_HB", " ", 100, -3., 3.);
-    h_difpedestal2_HB = new TH1F("h_difpedestal2_HB", " ", 100, -3., 3.);
-    h_difpedestal3_HB = new TH1F("h_difpedestal3_HB", " ", 100, -3., 3.);
+    h_pedestal00_HB = fs_->make<TH1F>("h_pedestal00_HB", " ", 100, 0., 10.);
+    h_gain_HB = fs_->make<TH1F>("h_gain_HB", " ", 100, 0., 1.);
+    h_respcorr_HB = fs_->make<TH1F>("h_respcorr_HB", " ", 100, 0., 2.5);
+    h_timecorr_HB = fs_->make<TH1F>("h_timecorr_HB", " ", 100, 0., 30.);
+    h_lutcorr_HB = fs_->make<TH1F>("h_lutcorr_HB", " ", 100, 0., 10.);
+    h_difpedestal0_HB = fs_->make<TH1F>("h_difpedestal0_HB", " ", 100, -3., 3.);
+    h_difpedestal1_HB = fs_->make<TH1F>("h_difpedestal1_HB", " ", 100, -3., 3.);
+    h_difpedestal2_HB = fs_->make<TH1F>("h_difpedestal2_HB", " ", 100, -3., 3.);
+    h_difpedestal3_HB = fs_->make<TH1F>("h_difpedestal3_HB", " ", 100, -3., 3.);
 
-    h_pedestal00_HE = new TH1F("h_pedestal00_HE", " ", 100, 0., 10.);
-    h_gain_HE = new TH1F("h_gain_HE", " ", 100, 0., 1.);
-    h_respcorr_HE = new TH1F("h_respcorr_HE", " ", 100, 0., 2.5);
-    h_timecorr_HE = new TH1F("h_timecorr_HE", " ", 100, 0., 30.);
-    h_lutcorr_HE = new TH1F("h_lutcorr_HE", " ", 100, 0., 10.);
+    h_pedestal00_HE = fs_->make<TH1F>("h_pedestal00_HE", " ", 100, 0., 10.);
+    h_gain_HE = fs_->make<TH1F>("h_gain_HE", " ", 100, 0., 1.);
+    h_respcorr_HE = fs_->make<TH1F>("h_respcorr_HE", " ", 100, 0., 2.5);
+    h_timecorr_HE = fs_->make<TH1F>("h_timecorr_HE", " ", 100, 0., 30.);
+    h_lutcorr_HE = fs_->make<TH1F>("h_lutcorr_HE", " ", 100, 0., 10.);
 
-    h_pedestal00_HF = new TH1F("h_pedestal00_HF", " ", 100, 0., 10.);
-    h_gain_HF = new TH1F("h_gain_HF", " ", 100, 0., 1.);
-    h_respcorr_HF = new TH1F("h_respcorr_HF", " ", 100, 0., 2.5);
-    h_timecorr_HF = new TH1F("h_timecorr_HF", " ", 100, 0., 30.);
-    h_lutcorr_HF = new TH1F("h_lutcorr_HF", " ", 100, 0., 10.);
+    h_pedestal00_HF = fs_->make<TH1F>("h_pedestal00_HF", " ", 100, 0., 10.);
+    h_gain_HF = fs_->make<TH1F>("h_gain_HF", " ", 100, 0., 1.);
+    h_respcorr_HF = fs_->make<TH1F>("h_respcorr_HF", " ", 100, 0., 2.5);
+    h_timecorr_HF = fs_->make<TH1F>("h_timecorr_HF", " ", 100, 0., 30.);
+    h_lutcorr_HF = fs_->make<TH1F>("h_lutcorr_HF", " ", 100, 0., 10.);
 
-    h_pedestal00_HO = new TH1F("h_pedestal00_HO", " ", 100, 0., 10.);
-    h_gain_HO = new TH1F("h_gain_HO", " ", 100, 0., 1.);
-    h_respcorr_HO = new TH1F("h_respcorr_HO", " ", 100, 0., 2.5);
-    h_timecorr_HO = new TH1F("h_timecorr_HO", " ", 100, 0., 30.);
-    h_lutcorr_HO = new TH1F("h_lutcorr_HO", " ", 100, 0., 10.);
+    h_pedestal00_HO = fs_->make<TH1F>("h_pedestal00_HO", " ", 100, 0., 10.);
+    h_gain_HO = fs_->make<TH1F>("h_gain_HO", " ", 100, 0., 1.);
+    h_respcorr_HO = fs_->make<TH1F>("h_respcorr_HO", " ", 100, 0., 2.5);
+    h_timecorr_HO = fs_->make<TH1F>("h_timecorr_HO", " ", 100, 0., 30.);
+    h_lutcorr_HO = fs_->make<TH1F>("h_lutcorr_HO", " ", 100, 0., 10.);
     //--------------------------------------------------
     float est6 = 2500.;
     int ist6 = 30;
     int ist2 = 60;
-    h2_pedvsampl_HB = new TH2F("h2_pedvsampl_HB", " ", ist2, 0., 7.0, ist2, 0., est6);
-    h2_pedwvsampl_HB = new TH2F("h2_pedwvsampl_HB", " ", ist2, 0., 2.5, ist2, 0., est6);
-    h_pedvsampl_HB = new TH1F("h_pedvsampl_HB", " ", ist6, 0., 7.0);
-    h_pedwvsampl_HB = new TH1F("h_pedwvsampl_HB", " ", ist6, 0., 2.5);
-    h_pedvsampl0_HB = new TH1F("h_pedvsampl0_HB", " ", ist6, 0., 7.);
-    h_pedwvsampl0_HB = new TH1F("h_pedwvsampl0_HB", " ", ist6, 0., 2.5);
-    h2_amplvsped_HB = new TH2F("h2_amplvsped_HB", " ", ist2, 0., est6, ist2, 0., 7.0);
-    h2_amplvspedw_HB = new TH2F("h2_amplvspedw_HB", " ", ist2, 0., est6, ist2, 0., 2.5);
-    h_amplvsped_HB = new TH1F("h_amplvsped_HB", " ", ist6, 0., est6);
-    h_amplvspedw_HB = new TH1F("h_amplvspedw_HB", " ", ist6, 0., est6);
-    h_amplvsped0_HB = new TH1F("h_amplvsped0_HB", " ", ist6, 0., est6);
+    h2_pedvsampl_HB = fs_->make<TH2F>("h2_pedvsampl_HB", " ", ist2, 0., 7.0, ist2, 0., est6);
+    h2_pedwvsampl_HB = fs_->make<TH2F>("h2_pedwvsampl_HB", " ", ist2, 0., 2.5, ist2, 0., est6);
+    h_pedvsampl_HB = fs_->make<TH1F>("h_pedvsampl_HB", " ", ist6, 0., 7.0);
+    h_pedwvsampl_HB = fs_->make<TH1F>("h_pedwvsampl_HB", " ", ist6, 0., 2.5);
+    h_pedvsampl0_HB = fs_->make<TH1F>("h_pedvsampl0_HB", " ", ist6, 0., 7.);
+    h_pedwvsampl0_HB = fs_->make<TH1F>("h_pedwvsampl0_HB", " ", ist6, 0., 2.5);
+    h2_amplvsped_HB = fs_->make<TH2F>("h2_amplvsped_HB", " ", ist2, 0., est6, ist2, 0., 7.0);
+    h2_amplvspedw_HB = fs_->make<TH2F>("h2_amplvspedw_HB", " ", ist2, 0., est6, ist2, 0., 2.5);
+    h_amplvsped_HB = fs_->make<TH1F>("h_amplvsped_HB", " ", ist6, 0., est6);
+    h_amplvspedw_HB = fs_->make<TH1F>("h_amplvspedw_HB", " ", ist6, 0., est6);
+    h_amplvsped0_HB = fs_->make<TH1F>("h_amplvsped0_HB", " ", ist6, 0., est6);
 
-    h2_pedvsampl_HE = new TH2F("h2_pedvsampl_HE", " ", ist2, 0., 7.0, ist2, 0., est6);
-    h2_pedwvsampl_HE = new TH2F("h2_pedwvsampl_HE", " ", ist2, 0., 2.5, ist2, 0., est6);
-    h_pedvsampl_HE = new TH1F("h_pedvsampl_HE", " ", ist6, 0., 7.0);
-    h_pedwvsampl_HE = new TH1F("h_pedwvsampl_HE", " ", ist6, 0., 2.5);
-    h_pedvsampl0_HE = new TH1F("h_pedvsampl0_HE", " ", ist6, 0., 7.);
-    h_pedwvsampl0_HE = new TH1F("h_pedwvsampl0_HE", " ", ist6, 0., 2.5);
+    h2_pedvsampl_HE = fs_->make<TH2F>("h2_pedvsampl_HE", " ", ist2, 0., 7.0, ist2, 0., est6);
+    h2_pedwvsampl_HE = fs_->make<TH2F>("h2_pedwvsampl_HE", " ", ist2, 0., 2.5, ist2, 0., est6);
+    h_pedvsampl_HE = fs_->make<TH1F>("h_pedvsampl_HE", " ", ist6, 0., 7.0);
+    h_pedwvsampl_HE = fs_->make<TH1F>("h_pedwvsampl_HE", " ", ist6, 0., 2.5);
+    h_pedvsampl0_HE = fs_->make<TH1F>("h_pedvsampl0_HE", " ", ist6, 0., 7.);
+    h_pedwvsampl0_HE = fs_->make<TH1F>("h_pedwvsampl0_HE", " ", ist6, 0., 2.5);
 
-    h2_pedvsampl_HF = new TH2F("h2_pedvsampl_HF", " ", ist2, 0., 20.0, ist2, 0., est6);
-    h2_pedwvsampl_HF = new TH2F("h2_pedwvsampl_HF", " ", ist2, 0., 2.0, ist2, 0., est6);
-    h_pedvsampl_HF = new TH1F("h_pedvsampl_HF", " ", ist6, 0., 20.0);
-    h_pedwvsampl_HF = new TH1F("h_pedwvsampl_HF", " ", ist6, 0., 2.0);
-    h_pedvsampl0_HF = new TH1F("h_pedvsampl0_HF", " ", ist6, 0., 20.);
-    h_pedwvsampl0_HF = new TH1F("h_pedwvsampl0_HF", " ", ist6, 0., 2.0);
+    h2_pedvsampl_HF = fs_->make<TH2F>("h2_pedvsampl_HF", " ", ist2, 0., 20.0, ist2, 0., est6);
+    h2_pedwvsampl_HF = fs_->make<TH2F>("h2_pedwvsampl_HF", " ", ist2, 0., 2.0, ist2, 0., est6);
+    h_pedvsampl_HF = fs_->make<TH1F>("h_pedvsampl_HF", " ", ist6, 0., 20.0);
+    h_pedwvsampl_HF = fs_->make<TH1F>("h_pedwvsampl_HF", " ", ist6, 0., 2.0);
+    h_pedvsampl0_HF = fs_->make<TH1F>("h_pedvsampl0_HF", " ", ist6, 0., 20.);
+    h_pedwvsampl0_HF = fs_->make<TH1F>("h_pedwvsampl0_HF", " ", ist6, 0., 2.0);
 
-    h2_pedvsampl_HO = new TH2F("h2_pedvsampl_HO", " ", ist2, 0., 20.0, ist2, 0., est6);
-    h2_pedwvsampl_HO = new TH2F("h2_pedwvsampl_HO", " ", ist2, 0., 2.5, ist2, 0., est6);
-    h_pedvsampl_HO = new TH1F("h_pedvsampl_HO", " ", ist6, 0., 20.0);
-    h_pedwvsampl_HO = new TH1F("h_pedwvsampl_HO", " ", ist6, 0., 2.5);
-    h_pedvsampl0_HO = new TH1F("h_pedvsampl0_HO", " ", ist6, 0., 20.);
-    h_pedwvsampl0_HO = new TH1F("h_pedwvsampl0_HO", " ", ist6, 0., 2.5);
+    h2_pedvsampl_HO = fs_->make<TH2F>("h2_pedvsampl_HO", " ", ist2, 0., 20.0, ist2, 0., est6);
+    h2_pedwvsampl_HO = fs_->make<TH2F>("h2_pedwvsampl_HO", " ", ist2, 0., 2.5, ist2, 0., est6);
+    h_pedvsampl_HO = fs_->make<TH1F>("h_pedvsampl_HO", " ", ist6, 0., 20.0);
+    h_pedwvsampl_HO = fs_->make<TH1F>("h_pedwvsampl_HO", " ", ist6, 0., 2.5);
+    h_pedvsampl0_HO = fs_->make<TH1F>("h_pedvsampl0_HO", " ", ist6, 0., 20.);
+    h_pedwvsampl0_HO = fs_->make<TH1F>("h_pedwvsampl0_HO", " ", ist6, 0., 2.5);
     //--------------------------------------------------
-    h_mapDepth1Ped0_HB = new TH2F("h_mapDepth1Ped0_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Ped1_HB = new TH2F("h_mapDepth1Ped1_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Ped2_HB = new TH2F("h_mapDepth1Ped2_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Ped3_HB = new TH2F("h_mapDepth1Ped3_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Pedw0_HB = new TH2F("h_mapDepth1Pedw0_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Pedw1_HB = new TH2F("h_mapDepth1Pedw1_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Pedw2_HB = new TH2F("h_mapDepth1Pedw2_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Pedw3_HB = new TH2F("h_mapDepth1Pedw3_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ped0_HB = new TH2F("h_mapDepth2Ped0_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ped1_HB = new TH2F("h_mapDepth2Ped1_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ped2_HB = new TH2F("h_mapDepth2Ped2_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ped3_HB = new TH2F("h_mapDepth2Ped3_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Pedw0_HB = new TH2F("h_mapDepth2Pedw0_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Pedw1_HB = new TH2F("h_mapDepth2Pedw1_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Pedw2_HB = new TH2F("h_mapDepth2Pedw2_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Pedw3_HB = new TH2F("h_mapDepth2Pedw3_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Ped0_HB = fs_->make<TH2F>("h_mapDepth1Ped0_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Ped1_HB = fs_->make<TH2F>("h_mapDepth1Ped1_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Ped2_HB = fs_->make<TH2F>("h_mapDepth1Ped2_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Ped3_HB = fs_->make<TH2F>("h_mapDepth1Ped3_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Pedw0_HB = fs_->make<TH2F>("h_mapDepth1Pedw0_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Pedw1_HB = fs_->make<TH2F>("h_mapDepth1Pedw1_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Pedw2_HB = fs_->make<TH2F>("h_mapDepth1Pedw2_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Pedw3_HB = fs_->make<TH2F>("h_mapDepth1Pedw3_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ped0_HB = fs_->make<TH2F>("h_mapDepth2Ped0_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ped1_HB = fs_->make<TH2F>("h_mapDepth2Ped1_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ped2_HB = fs_->make<TH2F>("h_mapDepth2Ped2_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ped3_HB = fs_->make<TH2F>("h_mapDepth2Ped3_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Pedw0_HB = fs_->make<TH2F>("h_mapDepth2Pedw0_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Pedw1_HB = fs_->make<TH2F>("h_mapDepth2Pedw1_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Pedw2_HB = fs_->make<TH2F>("h_mapDepth2Pedw2_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Pedw3_HB = fs_->make<TH2F>("h_mapDepth2Pedw3_HB", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_mapDepth1Ped0_HE = new TH2F("h_mapDepth1Ped0_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Ped1_HE = new TH2F("h_mapDepth1Ped1_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Ped2_HE = new TH2F("h_mapDepth1Ped2_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Ped3_HE = new TH2F("h_mapDepth1Ped3_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Pedw0_HE = new TH2F("h_mapDepth1Pedw0_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Pedw1_HE = new TH2F("h_mapDepth1Pedw1_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Pedw2_HE = new TH2F("h_mapDepth1Pedw2_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Pedw3_HE = new TH2F("h_mapDepth1Pedw3_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ped0_HE = new TH2F("h_mapDepth2Ped0_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ped1_HE = new TH2F("h_mapDepth2Ped1_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ped2_HE = new TH2F("h_mapDepth2Ped2_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ped3_HE = new TH2F("h_mapDepth2Ped3_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Pedw0_HE = new TH2F("h_mapDepth2Pedw0_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Pedw1_HE = new TH2F("h_mapDepth2Pedw1_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Pedw2_HE = new TH2F("h_mapDepth2Pedw2_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Pedw3_HE = new TH2F("h_mapDepth2Pedw3_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Ped0_HE = new TH2F("h_mapDepth3Ped0_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Ped1_HE = new TH2F("h_mapDepth3Ped1_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Ped2_HE = new TH2F("h_mapDepth3Ped2_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Ped3_HE = new TH2F("h_mapDepth3Ped3_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Pedw0_HE = new TH2F("h_mapDepth3Pedw0_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Pedw1_HE = new TH2F("h_mapDepth3Pedw1_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Pedw2_HE = new TH2F("h_mapDepth3Pedw2_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3Pedw3_HE = new TH2F("h_mapDepth3Pedw3_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Ped0_HE = fs_->make<TH2F>("h_mapDepth1Ped0_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Ped1_HE = fs_->make<TH2F>("h_mapDepth1Ped1_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Ped2_HE = fs_->make<TH2F>("h_mapDepth1Ped2_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Ped3_HE = fs_->make<TH2F>("h_mapDepth1Ped3_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Pedw0_HE = fs_->make<TH2F>("h_mapDepth1Pedw0_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Pedw1_HE = fs_->make<TH2F>("h_mapDepth1Pedw1_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Pedw2_HE = fs_->make<TH2F>("h_mapDepth1Pedw2_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Pedw3_HE = fs_->make<TH2F>("h_mapDepth1Pedw3_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ped0_HE = fs_->make<TH2F>("h_mapDepth2Ped0_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ped1_HE = fs_->make<TH2F>("h_mapDepth2Ped1_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ped2_HE = fs_->make<TH2F>("h_mapDepth2Ped2_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ped3_HE = fs_->make<TH2F>("h_mapDepth2Ped3_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Pedw0_HE = fs_->make<TH2F>("h_mapDepth2Pedw0_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Pedw1_HE = fs_->make<TH2F>("h_mapDepth2Pedw1_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Pedw2_HE = fs_->make<TH2F>("h_mapDepth2Pedw2_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Pedw3_HE = fs_->make<TH2F>("h_mapDepth2Pedw3_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Ped0_HE = fs_->make<TH2F>("h_mapDepth3Ped0_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Ped1_HE = fs_->make<TH2F>("h_mapDepth3Ped1_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Ped2_HE = fs_->make<TH2F>("h_mapDepth3Ped2_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Ped3_HE = fs_->make<TH2F>("h_mapDepth3Ped3_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Pedw0_HE = fs_->make<TH2F>("h_mapDepth3Pedw0_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Pedw1_HE = fs_->make<TH2F>("h_mapDepth3Pedw1_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Pedw2_HE = fs_->make<TH2F>("h_mapDepth3Pedw2_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3Pedw3_HE = fs_->make<TH2F>("h_mapDepth3Pedw3_HE", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_mapDepth1Ped0_HF = new TH2F("h_mapDepth1Ped0_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Ped1_HF = new TH2F("h_mapDepth1Ped1_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Ped2_HF = new TH2F("h_mapDepth1Ped2_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Ped3_HF = new TH2F("h_mapDepth1Ped3_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Pedw0_HF = new TH2F("h_mapDepth1Pedw0_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Pedw1_HF = new TH2F("h_mapDepth1Pedw1_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Pedw2_HF = new TH2F("h_mapDepth1Pedw2_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1Pedw3_HF = new TH2F("h_mapDepth1Pedw3_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ped0_HF = new TH2F("h_mapDepth2Ped0_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ped1_HF = new TH2F("h_mapDepth2Ped1_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ped2_HF = new TH2F("h_mapDepth2Ped2_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Ped3_HF = new TH2F("h_mapDepth2Ped3_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Pedw0_HF = new TH2F("h_mapDepth2Pedw0_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Pedw1_HF = new TH2F("h_mapDepth2Pedw1_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Pedw2_HF = new TH2F("h_mapDepth2Pedw2_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2Pedw3_HF = new TH2F("h_mapDepth2Pedw3_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Ped0_HF = fs_->make<TH2F>("h_mapDepth1Ped0_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Ped1_HF = fs_->make<TH2F>("h_mapDepth1Ped1_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Ped2_HF = fs_->make<TH2F>("h_mapDepth1Ped2_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Ped3_HF = fs_->make<TH2F>("h_mapDepth1Ped3_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Pedw0_HF = fs_->make<TH2F>("h_mapDepth1Pedw0_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Pedw1_HF = fs_->make<TH2F>("h_mapDepth1Pedw1_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Pedw2_HF = fs_->make<TH2F>("h_mapDepth1Pedw2_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1Pedw3_HF = fs_->make<TH2F>("h_mapDepth1Pedw3_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ped0_HF = fs_->make<TH2F>("h_mapDepth2Ped0_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ped1_HF = fs_->make<TH2F>("h_mapDepth2Ped1_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ped2_HF = fs_->make<TH2F>("h_mapDepth2Ped2_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Ped3_HF = fs_->make<TH2F>("h_mapDepth2Ped3_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Pedw0_HF = fs_->make<TH2F>("h_mapDepth2Pedw0_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Pedw1_HF = fs_->make<TH2F>("h_mapDepth2Pedw1_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Pedw2_HF = fs_->make<TH2F>("h_mapDepth2Pedw2_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2Pedw3_HF = fs_->make<TH2F>("h_mapDepth2Pedw3_HF", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_mapDepth4Ped0_HO = new TH2F("h_mapDepth4Ped0_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Ped1_HO = new TH2F("h_mapDepth4Ped1_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Ped2_HO = new TH2F("h_mapDepth4Ped2_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Ped3_HO = new TH2F("h_mapDepth4Ped3_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Pedw0_HO = new TH2F("h_mapDepth4Pedw0_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Pedw1_HO = new TH2F("h_mapDepth4Pedw1_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Pedw2_HO = new TH2F("h_mapDepth4Pedw2_HO", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4Pedw3_HO = new TH2F("h_mapDepth4Pedw3_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Ped0_HO = fs_->make<TH2F>("h_mapDepth4Ped0_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Ped1_HO = fs_->make<TH2F>("h_mapDepth4Ped1_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Ped2_HO = fs_->make<TH2F>("h_mapDepth4Ped2_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Ped3_HO = fs_->make<TH2F>("h_mapDepth4Ped3_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Pedw0_HO = fs_->make<TH2F>("h_mapDepth4Pedw0_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Pedw1_HO = fs_->make<TH2F>("h_mapDepth4Pedw1_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Pedw2_HO = fs_->make<TH2F>("h_mapDepth4Pedw2_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4Pedw3_HO = fs_->make<TH2F>("h_mapDepth4Pedw3_HO", " ", neta, -41., 41., nphi, 0., bphi);
     //--------------------------------------------------
-    h_mapDepth1ADCAmpl12_HB = new TH2F("h_mapDepth1ADCAmpl12_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl12_HB = new TH2F("h_mapDepth2ADCAmpl12_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl12_HB = new TH2F("h_mapDepth3ADCAmpl12_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl12_HB = new TH2F("h_mapDepth4ADCAmpl12_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1ADCAmpl12_HE = new TH2F("h_mapDepth1ADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl12_HE = new TH2F("h_mapDepth2ADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl12_HE = new TH2F("h_mapDepth3ADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl12_HE = new TH2F("h_mapDepth4ADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth5ADCAmpl12_HE = new TH2F("h_mapDepth5ADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth6ADCAmpl12_HE = new TH2F("h_mapDepth6ADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth7ADCAmpl12_HE = new TH2F("h_mapDepth7ADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth1ADCAmpl12SiPM_HE = new TH2F("h_mapDepth1ADCAmpl12SiPM_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl12SiPM_HE = new TH2F("h_mapDepth2ADCAmpl12SiPM_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl12SiPM_HE = new TH2F("h_mapDepth3ADCAmpl12SiPM_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmpl12_HB = fs_->make<TH2F>("h_mapDepth1ADCAmpl12_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl12_HB = fs_->make<TH2F>("h_mapDepth2ADCAmpl12_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl12_HB = fs_->make<TH2F>("h_mapDepth3ADCAmpl12_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl12_HB = fs_->make<TH2F>("h_mapDepth4ADCAmpl12_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmpl12_HE = fs_->make<TH2F>("h_mapDepth1ADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl12_HE = fs_->make<TH2F>("h_mapDepth2ADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl12_HE = fs_->make<TH2F>("h_mapDepth3ADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl12_HE = fs_->make<TH2F>("h_mapDepth4ADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth5ADCAmpl12_HE = fs_->make<TH2F>("h_mapDepth5ADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth6ADCAmpl12_HE = fs_->make<TH2F>("h_mapDepth6ADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth7ADCAmpl12_HE = fs_->make<TH2F>("h_mapDepth7ADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmpl12SiPM_HE = fs_->make<TH2F>("h_mapDepth1ADCAmpl12SiPM_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl12SiPM_HE = fs_->make<TH2F>("h_mapDepth2ADCAmpl12SiPM_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl12SiPM_HE = fs_->make<TH2F>("h_mapDepth3ADCAmpl12SiPM_HE", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_mapDepth1ADCAmpl12_HF = new TH2F("h_mapDepth1ADCAmpl12_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2ADCAmpl12_HF = new TH2F("h_mapDepth2ADCAmpl12_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3ADCAmpl12_HF = new TH2F("h_mapDepth3ADCAmpl12_HF", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth4ADCAmpl12_HF = new TH2F("h_mapDepth4ADCAmpl12_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1ADCAmpl12_HF = fs_->make<TH2F>("h_mapDepth1ADCAmpl12_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2ADCAmpl12_HF = fs_->make<TH2F>("h_mapDepth2ADCAmpl12_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3ADCAmpl12_HF = fs_->make<TH2F>("h_mapDepth3ADCAmpl12_HF", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl12_HF = fs_->make<TH2F>("h_mapDepth4ADCAmpl12_HF", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_mapDepth4ADCAmpl12_HO = new TH2F("h_mapDepth4ADCAmpl12_HO", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth4ADCAmpl12_HO = fs_->make<TH2F>("h_mapDepth4ADCAmpl12_HO", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_mapDepth1linADCAmpl12_HE = new TH2F("h_mapDepth1linADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth2linADCAmpl12_HE = new TH2F("h_mapDepth2linADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
-    h_mapDepth3linADCAmpl12_HE = new TH2F("h_mapDepth3linADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth1linADCAmpl12_HE = fs_->make<TH2F>("h_mapDepth1linADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth2linADCAmpl12_HE = fs_->make<TH2F>("h_mapDepth2linADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
+    h_mapDepth3linADCAmpl12_HE = fs_->make<TH2F>("h_mapDepth3linADCAmpl12_HE", " ", neta, -41., 41., nphi, 0., bphi);
     //--------------------------------------------------
     h_mapGetRMSOverNormalizedSignal_HB =
-        new TH2F("h_mapGetRMSOverNormalizedSignal_HB", " ", neta, -41., 41., nphi, 0., bphi);
+        fs_->make<TH2F>("h_mapGetRMSOverNormalizedSignal_HB", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapGetRMSOverNormalizedSignal0_HB =
-        new TH2F("h_mapGetRMSOverNormalizedSignal0_HB", " ", neta, -41., 41., nphi, 0., bphi);
+        fs_->make<TH2F>("h_mapGetRMSOverNormalizedSignal0_HB", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapGetRMSOverNormalizedSignal_HE =
-        new TH2F("h_mapGetRMSOverNormalizedSignal_HE", " ", neta, -41., 41., nphi, 0., bphi);
+        fs_->make<TH2F>("h_mapGetRMSOverNormalizedSignal_HE", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapGetRMSOverNormalizedSignal0_HE =
-        new TH2F("h_mapGetRMSOverNormalizedSignal0_HE", " ", neta, -41., 41., nphi, 0., bphi);
+        fs_->make<TH2F>("h_mapGetRMSOverNormalizedSignal0_HE", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapGetRMSOverNormalizedSignal_HF =
-        new TH2F("h_mapGetRMSOverNormalizedSignal_HF", " ", neta, -41., 41., nphi, 0., bphi);
+        fs_->make<TH2F>("h_mapGetRMSOverNormalizedSignal_HF", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapGetRMSOverNormalizedSignal0_HF =
-        new TH2F("h_mapGetRMSOverNormalizedSignal0_HF", " ", neta, -41., 41., nphi, 0., bphi);
+        fs_->make<TH2F>("h_mapGetRMSOverNormalizedSignal0_HF", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapGetRMSOverNormalizedSignal_HO =
-        new TH2F("h_mapGetRMSOverNormalizedSignal_HO", " ", neta, -41., 41., nphi, 0., bphi);
+        fs_->make<TH2F>("h_mapGetRMSOverNormalizedSignal_HO", " ", neta, -41., 41., nphi, 0., bphi);
     h_mapGetRMSOverNormalizedSignal0_HO =
-        new TH2F("h_mapGetRMSOverNormalizedSignal0_HO", " ", neta, -41., 41., nphi, 0., bphi);
+        fs_->make<TH2F>("h_mapGetRMSOverNormalizedSignal0_HO", " ", neta, -41., 41., nphi, 0., bphi);
     //--------------------------------------------------
-    h_shape_Ahigh_HB0 = new TH1F("h_shape_Ahigh_HB0", " ", 10, 0., 10.);
-    h_shape0_Ahigh_HB0 = new TH1F("h_shape0_Ahigh_HB0", " ", 10, 0., 10.);
-    h_shape_Alow_HB0 = new TH1F("h_shape_Alow_HB0", " ", 10, 0., 10.);
-    h_shape0_Alow_HB0 = new TH1F("h_shape0_Alow_HB0", " ", 10, 0., 10.);
-    h_shape_Ahigh_HB1 = new TH1F("h_shape_Ahigh_HB1", " ", 10, 0., 10.);
-    h_shape0_Ahigh_HB1 = new TH1F("h_shape0_Ahigh_HB1", " ", 10, 0., 10.);
-    h_shape_Alow_HB1 = new TH1F("h_shape_Alow_HB1", " ", 10, 0., 10.);
-    h_shape0_Alow_HB1 = new TH1F("h_shape0_Alow_HB1", " ", 10, 0., 10.);
-    h_shape_Ahigh_HB2 = new TH1F("h_shape_Ahigh_HB2", " ", 10, 0., 10.);
-    h_shape0_Ahigh_HB2 = new TH1F("h_shape0_Ahigh_HB2", " ", 10, 0., 10.);
-    h_shape_Alow_HB2 = new TH1F("h_shape_Alow_HB2", " ", 10, 0., 10.);
-    h_shape0_Alow_HB2 = new TH1F("h_shape0_Alow_HB2", " ", 10, 0., 10.);
-    h_shape_Ahigh_HB3 = new TH1F("h_shape_Ahigh_HB3", " ", 10, 0., 10.);
-    h_shape0_Ahigh_HB3 = new TH1F("h_shape0_Ahigh_HB3", " ", 10, 0., 10.);
-    h_shape_Alow_HB3 = new TH1F("h_shape_Alow_HB3", " ", 10, 0., 10.);
-    h_shape0_Alow_HB3 = new TH1F("h_shape0_Alow_HB3", " ", 10, 0., 10.);
+    h_shape_Ahigh_HB0 = fs_->make<TH1F>("h_shape_Ahigh_HB0", " ", 10, 0., 10.);
+    h_shape0_Ahigh_HB0 = fs_->make<TH1F>("h_shape0_Ahigh_HB0", " ", 10, 0., 10.);
+    h_shape_Alow_HB0 = fs_->make<TH1F>("h_shape_Alow_HB0", " ", 10, 0., 10.);
+    h_shape0_Alow_HB0 = fs_->make<TH1F>("h_shape0_Alow_HB0", " ", 10, 0., 10.);
+    h_shape_Ahigh_HB1 = fs_->make<TH1F>("h_shape_Ahigh_HB1", " ", 10, 0., 10.);
+    h_shape0_Ahigh_HB1 = fs_->make<TH1F>("h_shape0_Ahigh_HB1", " ", 10, 0., 10.);
+    h_shape_Alow_HB1 = fs_->make<TH1F>("h_shape_Alow_HB1", " ", 10, 0., 10.);
+    h_shape0_Alow_HB1 = fs_->make<TH1F>("h_shape0_Alow_HB1", " ", 10, 0., 10.);
+    h_shape_Ahigh_HB2 = fs_->make<TH1F>("h_shape_Ahigh_HB2", " ", 10, 0., 10.);
+    h_shape0_Ahigh_HB2 = fs_->make<TH1F>("h_shape0_Ahigh_HB2", " ", 10, 0., 10.);
+    h_shape_Alow_HB2 = fs_->make<TH1F>("h_shape_Alow_HB2", " ", 10, 0., 10.);
+    h_shape0_Alow_HB2 = fs_->make<TH1F>("h_shape0_Alow_HB2", " ", 10, 0., 10.);
+    h_shape_Ahigh_HB3 = fs_->make<TH1F>("h_shape_Ahigh_HB3", " ", 10, 0., 10.);
+    h_shape0_Ahigh_HB3 = fs_->make<TH1F>("h_shape0_Ahigh_HB3", " ", 10, 0., 10.);
+    h_shape_Alow_HB3 = fs_->make<TH1F>("h_shape_Alow_HB3", " ", 10, 0., 10.);
+    h_shape0_Alow_HB3 = fs_->make<TH1F>("h_shape0_Alow_HB3", " ", 10, 0., 10.);
     //--------------------------------------------------
-    h_shape_bad_channels_HB = new TH1F("h_shape_bad_channels_HB", " ", 10, 0., 10.);
-    h_shape0_bad_channels_HB = new TH1F("h_shape0_bad_channels_HB", " ", 10, 0., 10.);
-    h_shape_good_channels_HB = new TH1F("h_shape_good_channels_HB", " ", 10, 0., 10.);
-    h_shape0_good_channels_HB = new TH1F("h_shape0_good_channels_HB", " ", 10, 0., 10.);
-    h_shape_bad_channels_HE = new TH1F("h_shape_bad_channels_HE", " ", 10, 0., 10.);
-    h_shape0_bad_channels_HE = new TH1F("h_shape0_bad_channels_HE", " ", 10, 0., 10.);
-    h_shape_good_channels_HE = new TH1F("h_shape_good_channels_HE", " ", 10, 0., 10.);
-    h_shape0_good_channels_HE = new TH1F("h_shape0_good_channels_HE", " ", 10, 0., 10.);
-    h_shape_bad_channels_HF = new TH1F("h_shape_bad_channels_HF", " ", 10, 0., 10.);
-    h_shape0_bad_channels_HF = new TH1F("h_shape0_bad_channels_HF", " ", 10, 0., 10.);
-    h_shape_good_channels_HF = new TH1F("h_shape_good_channels_HF", " ", 10, 0., 10.);
-    h_shape0_good_channels_HF = new TH1F("h_shape0_good_channels_HF", " ", 10, 0., 10.);
-    h_shape_bad_channels_HO = new TH1F("h_shape_bad_channels_HO", " ", 10, 0., 10.);
-    h_shape0_bad_channels_HO = new TH1F("h_shape0_bad_channels_HO", " ", 10, 0., 10.);
-    h_shape_good_channels_HO = new TH1F("h_shape_good_channels_HO", " ", 10, 0., 10.);
-    h_shape0_good_channels_HO = new TH1F("h_shape0_good_channels_HO", " ", 10, 0., 10.);
+    h_shape_bad_channels_HB = fs_->make<TH1F>("h_shape_bad_channels_HB", " ", 10, 0., 10.);
+    h_shape0_bad_channels_HB = fs_->make<TH1F>("h_shape0_bad_channels_HB", " ", 10, 0., 10.);
+    h_shape_good_channels_HB = fs_->make<TH1F>("h_shape_good_channels_HB", " ", 10, 0., 10.);
+    h_shape0_good_channels_HB = fs_->make<TH1F>("h_shape0_good_channels_HB", " ", 10, 0., 10.);
+    h_shape_bad_channels_HE = fs_->make<TH1F>("h_shape_bad_channels_HE", " ", 10, 0., 10.);
+    h_shape0_bad_channels_HE = fs_->make<TH1F>("h_shape0_bad_channels_HE", " ", 10, 0., 10.);
+    h_shape_good_channels_HE = fs_->make<TH1F>("h_shape_good_channels_HE", " ", 10, 0., 10.);
+    h_shape0_good_channels_HE = fs_->make<TH1F>("h_shape0_good_channels_HE", " ", 10, 0., 10.);
+    h_shape_bad_channels_HF = fs_->make<TH1F>("h_shape_bad_channels_HF", " ", 10, 0., 10.);
+    h_shape0_bad_channels_HF = fs_->make<TH1F>("h_shape0_bad_channels_HF", " ", 10, 0., 10.);
+    h_shape_good_channels_HF = fs_->make<TH1F>("h_shape_good_channels_HF", " ", 10, 0., 10.);
+    h_shape0_good_channels_HF = fs_->make<TH1F>("h_shape0_good_channels_HF", " ", 10, 0., 10.);
+    h_shape_bad_channels_HO = fs_->make<TH1F>("h_shape_bad_channels_HO", " ", 10, 0., 10.);
+    h_shape0_bad_channels_HO = fs_->make<TH1F>("h_shape0_bad_channels_HO", " ", 10, 0., 10.);
+    h_shape_good_channels_HO = fs_->make<TH1F>("h_shape_good_channels_HO", " ", 10, 0., 10.);
+    h_shape0_good_channels_HO = fs_->make<TH1F>("h_shape0_good_channels_HO", " ", 10, 0., 10.);
     //--------------------------------------------------
     //    if(flagcpuoptimization_== 0 ) {
 
     int spl = 1000;
     float spls = 5000;
-    h_sumamplitude_depth1_HB = new TH1F("h_sumamplitude_depth1_HB", " ", spl, 0., spls);
-    h_sumamplitude_depth2_HB = new TH1F("h_sumamplitude_depth2_HB", " ", spl, 0., spls);
-    h_sumamplitude_depth1_HE = new TH1F("h_sumamplitude_depth1_HE", " ", spl, 0., spls);
-    h_sumamplitude_depth2_HE = new TH1F("h_sumamplitude_depth2_HE", " ", spl, 0., spls);
-    h_sumamplitude_depth3_HE = new TH1F("h_sumamplitude_depth3_HE", " ", spl, 0., spls);
-    h_sumamplitude_depth1_HF = new TH1F("h_sumamplitude_depth1_HF", " ", spl, 0., spls);
-    h_sumamplitude_depth2_HF = new TH1F("h_sumamplitude_depth2_HF", " ", spl, 0., spls);
-    h_sumamplitude_depth4_HO = new TH1F("h_sumamplitude_depth4_HO", " ", spl, 0., spls);
+    h_sumamplitude_depth1_HB = fs_->make<TH1F>("h_sumamplitude_depth1_HB", " ", spl, 0., spls);
+    h_sumamplitude_depth2_HB = fs_->make<TH1F>("h_sumamplitude_depth2_HB", " ", spl, 0., spls);
+    h_sumamplitude_depth1_HE = fs_->make<TH1F>("h_sumamplitude_depth1_HE", " ", spl, 0., spls);
+    h_sumamplitude_depth2_HE = fs_->make<TH1F>("h_sumamplitude_depth2_HE", " ", spl, 0., spls);
+    h_sumamplitude_depth3_HE = fs_->make<TH1F>("h_sumamplitude_depth3_HE", " ", spl, 0., spls);
+    h_sumamplitude_depth1_HF = fs_->make<TH1F>("h_sumamplitude_depth1_HF", " ", spl, 0., spls);
+    h_sumamplitude_depth2_HF = fs_->make<TH1F>("h_sumamplitude_depth2_HF", " ", spl, 0., spls);
+    h_sumamplitude_depth4_HO = fs_->make<TH1F>("h_sumamplitude_depth4_HO", " ", spl, 0., spls);
     int spl0 = 1000;
     float spls0 = 10000;
-    h_sumamplitude_depth1_HB0 = new TH1F("h_sumamplitude_depth1_HB0", " ", spl0, 0., spls0);
-    h_sumamplitude_depth2_HB0 = new TH1F("h_sumamplitude_depth2_HB0", " ", spl0, 0., spls0);
-    h_sumamplitude_depth1_HE0 = new TH1F("h_sumamplitude_depth1_HE0", " ", spl0, 0., spls0);
-    h_sumamplitude_depth2_HE0 = new TH1F("h_sumamplitude_depth2_HE0", " ", spl0, 0., spls0);
-    h_sumamplitude_depth3_HE0 = new TH1F("h_sumamplitude_depth3_HE0", " ", spl0, 0., spls0);
-    h_sumamplitude_depth1_HF0 = new TH1F("h_sumamplitude_depth1_HF0", " ", spl0, 0., spls0);
-    h_sumamplitude_depth2_HF0 = new TH1F("h_sumamplitude_depth2_HF0", " ", spl0, 0., spls0);
-    h_sumamplitude_depth4_HO0 = new TH1F("h_sumamplitude_depth4_HO0", " ", spl0, 0., spls0);
+    h_sumamplitude_depth1_HB0 = fs_->make<TH1F>("h_sumamplitude_depth1_HB0", " ", spl0, 0., spls0);
+    h_sumamplitude_depth2_HB0 = fs_->make<TH1F>("h_sumamplitude_depth2_HB0", " ", spl0, 0., spls0);
+    h_sumamplitude_depth1_HE0 = fs_->make<TH1F>("h_sumamplitude_depth1_HE0", " ", spl0, 0., spls0);
+    h_sumamplitude_depth2_HE0 = fs_->make<TH1F>("h_sumamplitude_depth2_HE0", " ", spl0, 0., spls0);
+    h_sumamplitude_depth3_HE0 = fs_->make<TH1F>("h_sumamplitude_depth3_HE0", " ", spl0, 0., spls0);
+    h_sumamplitude_depth1_HF0 = fs_->make<TH1F>("h_sumamplitude_depth1_HF0", " ", spl0, 0., spls0);
+    h_sumamplitude_depth2_HF0 = fs_->make<TH1F>("h_sumamplitude_depth2_HF0", " ", spl0, 0., spls0);
+    h_sumamplitude_depth4_HO0 = fs_->make<TH1F>("h_sumamplitude_depth4_HO0", " ", spl0, 0., spls0);
     int spl1 = 1000;
     float spls1 = 100000;
-    h_sumamplitude_depth1_HB1 = new TH1F("h_sumamplitude_depth1_HB1", " ", spl1, 0., spls1);
-    h_sumamplitude_depth2_HB1 = new TH1F("h_sumamplitude_depth2_HB1", " ", spl1, 0., spls1);
-    h_sumamplitude_depth1_HE1 = new TH1F("h_sumamplitude_depth1_HE1", " ", spl1, 0., spls1);
-    h_sumamplitude_depth2_HE1 = new TH1F("h_sumamplitude_depth2_HE1", " ", spl1, 0., spls1);
-    h_sumamplitude_depth3_HE1 = new TH1F("h_sumamplitude_depth3_HE1", " ", spl1, 0., spls1);
-    h_sumamplitude_depth1_HF1 = new TH1F("h_sumamplitude_depth1_HF1", " ", spl1, 0., spls1);
-    h_sumamplitude_depth2_HF1 = new TH1F("h_sumamplitude_depth2_HF1", " ", spl1, 0., spls1);
-    h_sumamplitude_depth4_HO1 = new TH1F("h_sumamplitude_depth4_HO1", " ", spl1, 0., spls1);
+    h_sumamplitude_depth1_HB1 = fs_->make<TH1F>("h_sumamplitude_depth1_HB1", " ", spl1, 0., spls1);
+    h_sumamplitude_depth2_HB1 = fs_->make<TH1F>("h_sumamplitude_depth2_HB1", " ", spl1, 0., spls1);
+    h_sumamplitude_depth1_HE1 = fs_->make<TH1F>("h_sumamplitude_depth1_HE1", " ", spl1, 0., spls1);
+    h_sumamplitude_depth2_HE1 = fs_->make<TH1F>("h_sumamplitude_depth2_HE1", " ", spl1, 0., spls1);
+    h_sumamplitude_depth3_HE1 = fs_->make<TH1F>("h_sumamplitude_depth3_HE1", " ", spl1, 0., spls1);
+    h_sumamplitude_depth1_HF1 = fs_->make<TH1F>("h_sumamplitude_depth1_HF1", " ", spl1, 0., spls1);
+    h_sumamplitude_depth2_HF1 = fs_->make<TH1F>("h_sumamplitude_depth2_HF1", " ", spl1, 0., spls1);
+    h_sumamplitude_depth4_HO1 = fs_->make<TH1F>("h_sumamplitude_depth4_HO1", " ", spl1, 0., spls1);
 
-    h_Amplitude_forCapIdErrors_HB1 = new TH1F("h_Amplitude_forCapIdErrors_HB1", " ", 100, 0., 30000.);
-    h_Amplitude_forCapIdErrors_HB2 = new TH1F("h_Amplitude_forCapIdErrors_HB2", " ", 100, 0., 30000.);
-    h_Amplitude_forCapIdErrors_HE1 = new TH1F("h_Amplitude_forCapIdErrors_HE1", " ", 100, 0., 30000.);
-    h_Amplitude_forCapIdErrors_HE2 = new TH1F("h_Amplitude_forCapIdErrors_HE2", " ", 100, 0., 30000.);
-    h_Amplitude_forCapIdErrors_HE3 = new TH1F("h_Amplitude_forCapIdErrors_HE3", " ", 100, 0., 30000.);
-    h_Amplitude_forCapIdErrors_HF1 = new TH1F("h_Amplitude_forCapIdErrors_HF1", " ", 100, 0., 30000.);
-    h_Amplitude_forCapIdErrors_HF2 = new TH1F("h_Amplitude_forCapIdErrors_HF2", " ", 100, 0., 30000.);
-    h_Amplitude_forCapIdErrors_HO4 = new TH1F("h_Amplitude_forCapIdErrors_HO4", " ", 100, 0., 30000.);
+    h_Amplitude_forCapIdErrors_HB1 = fs_->make<TH1F>("h_Amplitude_forCapIdErrors_HB1", " ", 100, 0., 30000.);
+    h_Amplitude_forCapIdErrors_HB2 = fs_->make<TH1F>("h_Amplitude_forCapIdErrors_HB2", " ", 100, 0., 30000.);
+    h_Amplitude_forCapIdErrors_HE1 = fs_->make<TH1F>("h_Amplitude_forCapIdErrors_HE1", " ", 100, 0., 30000.);
+    h_Amplitude_forCapIdErrors_HE2 = fs_->make<TH1F>("h_Amplitude_forCapIdErrors_HE2", " ", 100, 0., 30000.);
+    h_Amplitude_forCapIdErrors_HE3 = fs_->make<TH1F>("h_Amplitude_forCapIdErrors_HE3", " ", 100, 0., 30000.);
+    h_Amplitude_forCapIdErrors_HF1 = fs_->make<TH1F>("h_Amplitude_forCapIdErrors_HF1", " ", 100, 0., 30000.);
+    h_Amplitude_forCapIdErrors_HF2 = fs_->make<TH1F>("h_Amplitude_forCapIdErrors_HF2", " ", 100, 0., 30000.);
+    h_Amplitude_forCapIdErrors_HO4 = fs_->make<TH1F>("h_Amplitude_forCapIdErrors_HO4", " ", 100, 0., 30000.);
 
-    h_Amplitude_notCapIdErrors_HB1 = new TH1F("h_Amplitude_notCapIdErrors_HB1", " ", 100, 0., 30000.);
-    h_Amplitude_notCapIdErrors_HB2 = new TH1F("h_Amplitude_notCapIdErrors_HB2", " ", 100, 0., 30000.);
-    h_Amplitude_notCapIdErrors_HE1 = new TH1F("h_Amplitude_notCapIdErrors_HE1", " ", 100, 0., 30000.);
-    h_Amplitude_notCapIdErrors_HE2 = new TH1F("h_Amplitude_notCapIdErrors_HE2", " ", 100, 0., 30000.);
-    h_Amplitude_notCapIdErrors_HE3 = new TH1F("h_Amplitude_notCapIdErrors_HE3", " ", 100, 0., 30000.);
-    h_Amplitude_notCapIdErrors_HF1 = new TH1F("h_Amplitude_notCapIdErrors_HF1", " ", 100, 0., 30000.);
-    h_Amplitude_notCapIdErrors_HF2 = new TH1F("h_Amplitude_notCapIdErrors_HF2", " ", 100, 0., 30000.);
-    h_Amplitude_notCapIdErrors_HO4 = new TH1F("h_Amplitude_notCapIdErrors_HO4", " ", 100, 0., 30000.);
+    h_Amplitude_notCapIdErrors_HB1 = fs_->make<TH1F>("h_Amplitude_notCapIdErrors_HB1", " ", 100, 0., 30000.);
+    h_Amplitude_notCapIdErrors_HB2 = fs_->make<TH1F>("h_Amplitude_notCapIdErrors_HB2", " ", 100, 0., 30000.);
+    h_Amplitude_notCapIdErrors_HE1 = fs_->make<TH1F>("h_Amplitude_notCapIdErrors_HE1", " ", 100, 0., 30000.);
+    h_Amplitude_notCapIdErrors_HE2 = fs_->make<TH1F>("h_Amplitude_notCapIdErrors_HE2", " ", 100, 0., 30000.);
+    h_Amplitude_notCapIdErrors_HE3 = fs_->make<TH1F>("h_Amplitude_notCapIdErrors_HE3", " ", 100, 0., 30000.);
+    h_Amplitude_notCapIdErrors_HF1 = fs_->make<TH1F>("h_Amplitude_notCapIdErrors_HF1", " ", 100, 0., 30000.);
+    h_Amplitude_notCapIdErrors_HF2 = fs_->make<TH1F>("h_Amplitude_notCapIdErrors_HF2", " ", 100, 0., 30000.);
+    h_Amplitude_notCapIdErrors_HO4 = fs_->make<TH1F>("h_Amplitude_notCapIdErrors_HO4", " ", 100, 0., 30000.);
 
-    h_2DAtaildepth1_HB = new TH2F("h_2DAtaildepth1_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2D0Ataildepth1_HB = new TH2F("h_2D0Ataildepth1_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2DAtaildepth2_HB = new TH2F("h_2DAtaildepth2_HB", " ", neta, -41., 41., nphi, 0., bphi);
-    h_2D0Ataildepth2_HB = new TH2F("h_2D0Ataildepth2_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DAtaildepth1_HB = fs_->make<TH2F>("h_2DAtaildepth1_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2D0Ataildepth1_HB = fs_->make<TH2F>("h_2D0Ataildepth1_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2DAtaildepth2_HB = fs_->make<TH2F>("h_2DAtaildepth2_HB", " ", neta, -41., 41., nphi, 0., bphi);
+    h_2D0Ataildepth2_HB = fs_->make<TH2F>("h_2D0Ataildepth2_HB", " ", neta, -41., 41., nphi, 0., bphi);
 
     ////////////////////////////////////////////////////////////////////////////////////
   }  //if(recordHistoes_
   if (verbosity > 0)
-    cout << "========================   booking DONE   +++++++++++++++++++++++++++" << endl;
+    std::cout << "========================   booking DONE   +++++++++++++++++++++++++++" << std::endl;
   ///////////////////////////////////////////////////////            ntuples:
   if (recordNtuples_) {
-    myTree = new TTree("Hcal", "Hcal Tree");
+    myTree = fs_->make<TTree>("Hcal", "Hcal Tree");
     myTree->Branch("Nevent", &Nevent, "Nevent/I");
     myTree->Branch("Run", &Run, "Run/I");
 
   }  //if(recordNtuples_
   if (verbosity > 0)
-    cout << "========================   beignJob  finish   +++++++++++++++++++++++++++" << endl;
+    std::cout << "========================   beignJob  finish   +++++++++++++++++++++++++++" << std::endl;
   //////////////////////////////////////////////////////////////////
 }
 
@@ -12452,10 +11184,8 @@ void CMTRawAnalyzer::fillDigiAmplitudeHFQIE10(QIE10DataFrame qie10df) {
   if (mdepth > 2 && flagupgradeqie1011_ == 9)
     return;
   /////////////////////////////////////////////////////////////////
-  //    HcalCalibrations calib = conditions->getHcalCalibrations(hcaldetid);
   const HcalPedestal* pedestal00 = conditions->getPedestal(hcaldetid);
   const HcalGain* gain = conditions->getGain(hcaldetid);
-  //  const HcalGainWidth* gainWidth = conditions->getGainWidth(hcaldetid);
   const HcalRespCorr* respcorr = conditions->getHcalRespCorr(hcaldetid);
   const HcalTimeCorr* timecorr = conditions->getHcalTimeCorr(hcaldetid);
   const HcalLUTCorr* lutcorr = conditions->getHcalLUTCorr(hcaldetid);
@@ -14685,6 +13415,52 @@ void CMTRawAnalyzer::fillMAP() {
   MAPfile << "};" << std::endl;
   MAPfile.close();
   std::cout << "===== Finish writing Channel MAP =====" << std::endl;
+}
+
+double CMTRawAnalyzer::dR(double eta1, double phi1, double eta2, double phi2) {
+  double deltaphi = phi1 - phi2;
+  if (phi2 > phi1) {
+    deltaphi = phi2 - phi1;
+  }
+  if (deltaphi > M_PI) {
+    deltaphi = 2. * M_PI - deltaphi;
+  }
+  double deltaeta = eta2 - eta1;
+  double tmp = sqrt(deltaeta * deltaeta + deltaphi * deltaphi);
+  return tmp;
+}
+
+double CMTRawAnalyzer::phi12(double phi1, double en1, double phi2, double en2) {
+  // weighted mean value of phi1 and phi2
+
+  double a1 = phi1;
+  double a2 = phi2;
+
+  if (a1 > 0.5 * M_PI && a2 < 0.)
+    a2 += 2 * M_PI;
+  if (a2 > 0.5 * M_PI && a1 < 0.)
+    a1 += 2 * M_PI;
+  double tmp = (a1 * en1 + a2 * en2) / (en1 + en2);
+  if (tmp > M_PI)
+    tmp -= 2. * M_PI;
+
+  return tmp;
+}
+
+double CMTRawAnalyzer::dPhiWsign(double phi1, double phi2) {
+  // clockwise      phi2 w.r.t phi1 means "+" phi distance
+  // anti-clockwise phi2 w.r.t phi1 means "-" phi distance
+
+  double a1 = phi1;
+  double a2 = phi2;
+  double tmp = a2 - a1;
+  if (a1 * a2 < 0.) {
+    if (a1 > 0.5 * M_PI)
+      tmp += 2. * M_PI;
+    if (a2 > 0.5 * M_PI)
+      tmp -= 2. * M_PI;
+  }
+  return tmp;
 }
 
 /////////////////////////////// -------------------------------------------------------------------
