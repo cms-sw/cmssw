@@ -44,7 +44,7 @@ namespace ph2tkdigialgo {
   constexpr double m_electron = 0.511;
   constexpr double m_muon = 105.658;
   constexpr double m_proton = 938.272;
-} 
+}  // namespace ph2tkdigialgo
 Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common,
                                                                  const edm::ParameterSet& conf_specific,
                                                                  edm::ConsumesCollector iC)
