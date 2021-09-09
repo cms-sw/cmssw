@@ -104,7 +104,6 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
 
   std::vector<HcalElectronicsId> vIds = emap->allElectronicsIdTrigger();
   for (std::vector<HcalElectronicsId>::const_iterator eId = vIds.begin(); eId != vIds.end(); eId++) {
-
     HcalTrigTowerDetId hcalTTDetId(emap->lookupTrigger(*eId));
     if (hcalTTDetId.null())
       continue;
@@ -120,7 +119,7 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
       // The absence of TT channels in the HcalTPChannelParameters
       // is intepreted as to not use the new filter
       auto tpParam = db->getHcalTPChannelParameter(hcalTTDetId, false);
-      if (tpParam) 
+      if (tpParam)
         fixedPointWeight = tpParam->getauxi1();
 
       if (aieta <= lastHBRing) {
