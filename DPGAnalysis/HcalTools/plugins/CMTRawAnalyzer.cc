@@ -425,68 +425,9 @@ const int nphi = 72;
 const float bphi = 72.;
 const int zneta = 22;
 const int znphi = 18;
-//const float zbphi = 18.;
 const int npfit = 220;
 const float anpfit = 220.;  // for SiPM:
 
-/////////////////////////////////////////////////////////////////////////
-//  SERVICE FUNCTIONS --------------------------------------------------------
-/*
-double CMTRawAnalyzer::dR(double eta1, double phi1, double eta2, double phi2) {
-  double PI = 3.1415926535898;
-  double deltaphi = phi1 - phi2;
-  if (phi2 > phi1) {
-    deltaphi = phi2 - phi1;
-  }
-  if (deltaphi > PI) {
-    deltaphi = 2. * PI - deltaphi;
-  }
-  double deltaeta = eta2 - eta1;
-  double tmp = sqrt(deltaeta * deltaeta + deltaphi * deltaphi);
-  return tmp;
-}
-
-double CMTRawAnalyzer::phi12(double phi1, double en1, double phi2, double en2) {
-  // weighted mean value of phi1 and phi2
-
-  double tmp;
-  double PI = 3.1415926535898;
-  double a1 = phi1;
-  double a2 = phi2;
-
-  if (a1 > 0.5 * PI && a2 < 0.)
-    a2 += 2 * PI;
-  if (a2 > 0.5 * PI && a1 < 0.)
-    a1 += 2 * PI;
-  tmp = (a1 * en1 + a2 * en2) / (en1 + en2);
-  if (tmp > PI)
-    tmp -= 2. * PI;
-
-  return tmp;
-}
-
-double CMTRawAnalyzer::dPhiWsign(double phi1, double phi2) {
-  // clockwise      phi2 w.r.t phi1 means "+" phi distance
-  // anti-clockwise phi2 w.r.t phi1 means "-" phi distance
-
-  double PI = 3.1415926535898;
-  double a1 = phi1;
-  double a2 = phi2;
-  double tmp = a2 - a1;
-  if (a1 * a2 < 0.) {
-    if (a1 > 0.5 * PI)
-      tmp += 2. * PI;
-    if (a2 > 0.5 * PI)
-      tmp -= 2. * PI;
-  }
-  return tmp;
-}
-*/
-/////////////////////////////////////////////////////////////////////////
-//
-using namespace std;
-//
-using namespace edm;
 //
 //
 class CMTRawAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
@@ -501,6 +442,10 @@ public:
   virtual void fillMAP();
 
 private:
+  double phi12(double phi1, double en1, double phi2, double en2);
+  double dR(double eta1, double phi1, double eta2, double phi2);
+  double dPhiWsign(double phi1, double phi2);
+
   edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
   edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
   edm::EDGetTokenT<HODigiCollection> tok_ho_;
@@ -512,11 +457,7 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNoise_;
   edm::EDGetTokenT<HFRecHitCollection> tok_hfSignal_;
   edm::EDGetTokenT<HFRecHitCollection> tok_hfNoise_;
-  ////////////////////////////////////
-  //  double dR(double eta1, double phi1, double eta2, double phi2);
-  //  double phi12(double phi1, double en1, double phi2, double en2);
-  //  double dPhiWsign(double phi1, double phi2);
-  ////////////////////////////////////
+
   edm::Service<TFileService> fs_;
   std::string fOutputFileName;
   std::string MAPOutputFileName;
@@ -2381,7 +2322,7 @@ private:
   double maxxOCCUP4;
   TTree* myTree;
   TFile* hOutputFile;
-  ofstream MAPfile;
+  std::ofstream MAPfile;
   /////////////////////////////////////////
   // Get RBX number from 1-35 for Calibration box
   int getRBX(int& i, int& j, int& k);
@@ -2421,15 +2362,6 @@ void CMTRawAnalyzer::endJob() {
   h_nls_per_run->Fill(float(lscounterrun));
   h_nls_per_run10->Fill(float(lscounterrun10));
 
-  /*
-  hOutputFile->SetCompressionLevel(2);
-
-  hOutputFile->Write();
-  hOutputFile->cd();
-
-  if (recordNtuples_)
-    myTree->Write();
-  */
   ///////////////////////////////////////////////////////////////////////////////////////////////
   std::cout << "===== full number of events =  " << nevent << std::endl;
   std::cout << "===== possible max number of events in ntuple(each 50th recorded) =  " << nevent50 << std::endl;
@@ -2444,1720 +2376,6 @@ void CMTRawAnalyzer::endJob() {
   std::cout << "===== Start writing user histograms =====" << std::endl;
   //////////////////////////////////////////////////////////////////////   scaling of some histoes:
   ///////////////////////////////////////////->Write();
-  /*
-  h_bcnvsamplitude_HB->Write();
-  h_bcnvsamplitude0_HB->Write();
-  h_bcnvsamplitude_HE->Write();
-  h_bcnvsamplitude0_HE->Write();
-  h_bcnvsamplitude_HF->Write();
-  h_bcnvsamplitude0_HF->Write();
-  h_bcnvsamplitude_HO->Write();
-  h_bcnvsamplitude0_HO->Write();
-
-  h_orbitNumvsamplitude_HB->Write();
-  h_orbitNumvsamplitude0_HB->Write();
-  h_orbitNumvsamplitude_HE->Write();
-  h_orbitNumvsamplitude0_HE->Write();
-  h_orbitNumvsamplitude_HF->Write();
-  h_orbitNumvsamplitude0_HF->Write();
-  h_orbitNumvsamplitude_HO->Write();
-  h_orbitNumvsamplitude0_HO->Write();
-
-  h_2DsumADCAmplEtaPhiLs0->Write();
-  h_2DsumADCAmplEtaPhiLs1->Write();
-  h_2DsumADCAmplEtaPhiLs2->Write();
-  h_2DsumADCAmplEtaPhiLs3->Write();
-
-  h_2DsumADCAmplEtaPhiLs00->Write();
-  h_2DsumADCAmplEtaPhiLs10->Write();
-  h_2DsumADCAmplEtaPhiLs20->Write();
-  h_2DsumADCAmplEtaPhiLs30->Write();
-
-  h_sumADCAmplEtaPhiLs->Write();
-  h_sumADCAmplEtaPhiLs_bbbc->Write();
-  h_sumADCAmplEtaPhiLs_bbb1->Write();
-  h_sumADCAmplEtaPhiLs_lscounterM1->Write();
-  h_sumADCAmplEtaPhiLs_ietaphi->Write();
-  h_sumADCAmplEtaPhiLs_lscounterM1orbitNum->Write();
-  h_sumADCAmplEtaPhiLs_orbitNum->Write();
-
-  if (recordHistoes_) {
-    h_errorGeneral->Write();
-    h_error1->Write();
-    h_error2->Write();
-    h_error3->Write();
-    h_amplError->Write();
-    h_amplFine->Write();
-
-    h_errorGeneral_HB->Write();
-    h_error1_HB->Write();
-    h_error2_HB->Write();
-    h_error3_HB->Write();
-    h_error4_HB->Write();
-    h_error5_HB->Write();
-    h_error6_HB->Write();
-    h_error7_HB->Write();
-    h_amplError_HB->Write();
-    h_amplFine_HB->Write();
-    h_mapDepth1Error_HB->Write();
-    h_mapDepth2Error_HB->Write();
-    h_mapDepth3Error_HB->Write();
-    h_mapDepth4Error_HB->Write();
-    h_fiber0_HB->Write();
-    h_fiber1_HB->Write();
-    h_fiber2_HB->Write();
-    h_repetedcapid_HB->Write();
-
-    h_errorGeneral_HE->Write();
-    h_error1_HE->Write();
-    h_error2_HE->Write();
-    h_error3_HE->Write();
-    h_error4_HE->Write();
-    h_error5_HE->Write();
-    h_error6_HE->Write();
-    h_error7_HE->Write();
-    h_amplError_HE->Write();
-    h_amplFine_HE->Write();
-    h_mapDepth1Error_HE->Write();
-    h_mapDepth2Error_HE->Write();
-    h_mapDepth3Error_HE->Write();
-    h_mapDepth4Error_HE->Write();
-    h_mapDepth5Error_HE->Write();
-    h_mapDepth6Error_HE->Write();
-    h_mapDepth7Error_HE->Write();
-    h_fiber0_HE->Write();
-    h_fiber1_HE->Write();
-    h_fiber2_HE->Write();
-    h_repetedcapid_HE->Write();
-
-    h_errorGeneral_HF->Write();
-    h_error1_HF->Write();
-    h_error2_HF->Write();
-    h_error3_HF->Write();
-    h_error4_HF->Write();
-    h_error5_HF->Write();
-    h_error6_HF->Write();
-    h_error7_HF->Write();
-    h_amplError_HF->Write();
-    h_amplFine_HF->Write();
-    h_mapDepth1Error_HF->Write();
-    h_mapDepth2Error_HF->Write();
-    h_mapDepth3Error_HF->Write();
-    h_mapDepth4Error_HF->Write();
-    h_fiber0_HF->Write();
-    h_fiber1_HF->Write();
-    h_fiber2_HF->Write();
-    h_repetedcapid_HF->Write();
-
-    h_errorGeneral_HO->Write();
-    h_error1_HO->Write();
-    h_error2_HO->Write();
-    h_error3_HO->Write();
-    h_error4_HO->Write();
-    h_error5_HO->Write();
-    h_error6_HO->Write();
-    h_error7_HO->Write();
-    h_amplError_HO->Write();
-    h_amplFine_HO->Write();
-    h_mapDepth4Error_HO->Write();
-    h_fiber0_HO->Write();
-    h_fiber1_HO->Write();
-    h_fiber2_HO->Write();
-    h_repetedcapid_HO->Write();
-
-    ///////////////////////
-    h_numberofhitsHBtest->Write();
-    h_numberofhitsHEtest->Write();
-    h_numberofhitsHFtest->Write();
-    h_numberofhitsHOtest->Write();
-    h_AmplitudeHBtest->Write();
-    h_AmplitudeHBtest1->Write();
-    h_AmplitudeHBtest6->Write();
-    h_AmplitudeHEtest->Write();
-    h_AmplitudeHEtest1->Write();
-    h_AmplitudeHEtest6->Write();
-    h_AmplitudeHFtest->Write();
-    h_AmplitudeHOtest->Write();
-    h_totalAmplitudeHB->Write();
-    h_totalAmplitudeHE->Write();
-    h_totalAmplitudeHF->Write();
-    h_totalAmplitudeHO->Write();
-    h_totalAmplitudeHBperEvent->Write();
-    h_totalAmplitudeHEperEvent->Write();
-    h_totalAmplitudeHFperEvent->Write();
-    h_totalAmplitudeHOperEvent->Write();
-
-    h_ADCAmpl345Zoom_HB->Write();
-    h_ADCAmpl345Zoom1_HB->Write();
-    h_ADCAmpl345_HB->Write();
-
-    h_ADCAmpl_HBCapIdNoError->Write();
-    h_ADCAmpl345_HBCapIdNoError->Write();
-    h_ADCAmpl_HBCapIdError->Write();
-    h_ADCAmpl345_HBCapIdError->Write();
-
-    h_ADCAmplZoom_HB->Write();
-    h_ADCAmplZoom1_HB->Write();
-    h_ADCAmpl_HB->Write();
-
-    h_AmplitudeHBrest->Write();
-    h_AmplitudeHBrest1->Write();
-    h_AmplitudeHBrest6->Write();
-
-    h_mapDepth1ADCAmpl225_HB->Write();
-    h_mapDepth2ADCAmpl225_HB->Write();
-    h_mapDepth1ADCAmpl_HB->Write();
-    h_mapDepth2ADCAmpl_HB->Write();
-    h_mapDepth1ADCAmpl12_HB->Write();
-    h_mapDepth2ADCAmpl12_HB->Write();
-
-    h_mapDepth3ADCAmpl225_HB->Write();
-    h_mapDepth4ADCAmpl225_HB->Write();
-    h_mapDepth3ADCAmpl_HB->Write();
-    h_mapDepth4ADCAmpl_HB->Write();
-    h_mapDepth3ADCAmpl12_HB->Write();
-    h_mapDepth4ADCAmpl12_HB->Write();
-
-    h_TSmeanA_HB->Write();
-    h_mapDepth1TSmeanA225_HB->Write();
-    h_mapDepth2TSmeanA225_HB->Write();
-    h_mapDepth1TSmeanA_HB->Write();
-    h_mapDepth2TSmeanA_HB->Write();
-    h_mapDepth3TSmeanA225_HB->Write();
-    h_mapDepth4TSmeanA225_HB->Write();
-    h_mapDepth3TSmeanA_HB->Write();
-    h_mapDepth4TSmeanA_HB->Write();
-
-    h_TSmaxA_HB->Write();
-    h_mapDepth1TSmaxA225_HB->Write();
-    h_mapDepth2TSmaxA225_HB->Write();
-    h_mapDepth1TSmaxA_HB->Write();
-    h_mapDepth2TSmaxA_HB->Write();
-    h_mapDepth3TSmaxA225_HB->Write();
-    h_mapDepth4TSmaxA225_HB->Write();
-    h_mapDepth3TSmaxA_HB->Write();
-    h_mapDepth4TSmaxA_HB->Write();
-
-    h_Amplitude_HB->Write();
-    h_mapDepth1Amplitude225_HB->Write();
-    h_mapDepth2Amplitude225_HB->Write();
-    h_mapDepth1Amplitude_HB->Write();
-    h_mapDepth2Amplitude_HB->Write();
-    h_mapDepth3Amplitude225_HB->Write();
-    h_mapDepth4Amplitude225_HB->Write();
-    h_mapDepth3Amplitude_HB->Write();
-    h_mapDepth4Amplitude_HB->Write();
-
-    h_Ampl_HB->Write();
-    h_mapDepth1Ampl047_HB->Write();
-    h_mapDepth2Ampl047_HB->Write();
-    h_mapDepth1Ampl_HB->Write();
-    h_mapDepth2Ampl_HB->Write();
-    h_mapDepth1AmplE34_HB->Write();
-    h_mapDepth2AmplE34_HB->Write();
-    h_mapDepth1_HB->Write();
-    h_mapDepth2_HB->Write();
-    h_mapDepth3Ampl047_HB->Write();
-    h_mapDepth4Ampl047_HB->Write();
-    h_mapDepth3Ampl_HB->Write();
-    h_mapDepth4Ampl_HB->Write();
-    h_mapDepth3AmplE34_HB->Write();
-    h_mapDepth4AmplE34_HB->Write();
-    h_mapDepth3_HB->Write();
-    h_mapDepth4_HB->Write();
-
-    h_mapDepth1ADCAmpl225Copy_HB->Write();
-    h_mapDepth2ADCAmpl225Copy_HB->Write();
-    h_mapDepth3ADCAmpl225Copy_HB->Write();
-    h_mapDepth4ADCAmpl225Copy_HB->Write();
-    h_mapDepth1ADCAmpl225Copy_HE->Write();
-    h_mapDepth2ADCAmpl225Copy_HE->Write();
-    h_mapDepth3ADCAmpl225Copy_HE->Write();
-    h_mapDepth4ADCAmpl225Copy_HE->Write();
-    h_mapDepth5ADCAmpl225Copy_HE->Write();
-    h_mapDepth6ADCAmpl225Copy_HE->Write();
-    h_mapDepth7ADCAmpl225Copy_HE->Write();
-    h_mapDepth1ADCAmpl225Copy_HF->Write();
-    h_mapDepth2ADCAmpl225Copy_HF->Write();
-    h_mapDepth3ADCAmpl225Copy_HF->Write();
-    h_mapDepth4ADCAmpl225Copy_HF->Write();
-    h_mapDepth4ADCAmpl225Copy_HO->Write();
-    ///////////////////////
-    h_ADCAmpl_HF->Write();
-    h_ADCAmplrest1_HF->Write();
-    h_ADCAmplrest6_HF->Write();
-
-    h_ADCAmplZoom1_HF->Write();
-    h_mapDepth1ADCAmpl225_HF->Write();
-    h_mapDepth2ADCAmpl225_HF->Write();
-    h_mapDepth1ADCAmpl_HF->Write();
-    h_mapDepth2ADCAmpl_HF->Write();
-    h_mapDepth1ADCAmpl12_HF->Write();
-    h_mapDepth2ADCAmpl12_HF->Write();
-    h_mapDepth3ADCAmpl225_HF->Write();
-    h_mapDepth4ADCAmpl225_HF->Write();
-    h_mapDepth3ADCAmpl_HF->Write();
-    h_mapDepth4ADCAmpl_HF->Write();
-    h_mapDepth3ADCAmpl12_HF->Write();
-    h_mapDepth4ADCAmpl12_HF->Write();
-
-    h_TSmeanA_HF->Write();
-    h_mapDepth1TSmeanA225_HF->Write();
-    h_mapDepth2TSmeanA225_HF->Write();
-    h_mapDepth1TSmeanA_HF->Write();
-    h_mapDepth2TSmeanA_HF->Write();
-    h_mapDepth3TSmeanA225_HF->Write();
-    h_mapDepth4TSmeanA225_HF->Write();
-    h_mapDepth3TSmeanA_HF->Write();
-    h_mapDepth4TSmeanA_HF->Write();
-
-    h_TSmaxA_HF->Write();
-    h_mapDepth1TSmaxA225_HF->Write();
-    h_mapDepth2TSmaxA225_HF->Write();
-    h_mapDepth1TSmaxA_HF->Write();
-    h_mapDepth2TSmaxA_HF->Write();
-    h_mapDepth3TSmaxA225_HF->Write();
-    h_mapDepth4TSmaxA225_HF->Write();
-    h_mapDepth3TSmaxA_HF->Write();
-    h_mapDepth4TSmaxA_HF->Write();
-
-    h_Amplitude_HF->Write();
-    h_mapDepth1Amplitude225_HF->Write();
-    h_mapDepth2Amplitude225_HF->Write();
-    h_mapDepth1Amplitude_HF->Write();
-    h_mapDepth2Amplitude_HF->Write();
-    h_mapDepth3Amplitude225_HF->Write();
-    h_mapDepth4Amplitude225_HF->Write();
-    h_mapDepth3Amplitude_HF->Write();
-    h_mapDepth4Amplitude_HF->Write();
-
-    h_Ampl_HF->Write();
-    h_mapDepth1Ampl047_HF->Write();
-    h_mapDepth2Ampl047_HF->Write();
-    h_mapDepth3Ampl047_HF->Write();
-    h_mapDepth4Ampl047_HF->Write();
-
-    h_mapDepth1Ampl_HF->Write();
-    h_mapDepth2Ampl_HF->Write();
-    h_mapDepth1AmplE34_HF->Write();
-    h_mapDepth2AmplE34_HF->Write();
-    h_mapDepth1_HF->Write();
-    h_mapDepth2_HF->Write();
-    h_mapDepth3Ampl_HF->Write();
-    h_mapDepth4Ampl_HF->Write();
-    h_mapDepth3AmplE34_HF->Write();
-    h_mapDepth4AmplE34_HF->Write();
-    h_mapDepth3_HF->Write();
-    h_mapDepth4_HF->Write();
-
-    ///////////////////////
-    h_ADCAmpl_HO->Write();
-    h_ADCAmplrest1_HO->Write();
-    h_ADCAmplrest6_HO->Write();
-
-    h_ADCAmplZoom1_HO->Write();
-    h_ADCAmpl_HO_copy->Write();
-    h_mapDepth4ADCAmpl225_HO->Write();
-    h_mapDepth4ADCAmpl_HO->Write();
-    h_mapDepth4ADCAmpl12_HO->Write();
-
-    h_TSmeanA_HO->Write();
-    h_mapDepth4TSmeanA225_HO->Write();
-    h_mapDepth4TSmeanA_HO->Write();
-
-    h_TSmaxA_HO->Write();
-    h_mapDepth4TSmaxA225_HO->Write();
-    h_mapDepth4TSmaxA_HO->Write();
-
-    h_Amplitude_HO->Write();
-    h_mapDepth4Amplitude225_HO->Write();
-    h_mapDepth4Amplitude_HO->Write();
-    h_Ampl_HO->Write();
-    h_mapDepth4Ampl047_HO->Write();
-    h_mapDepth4Ampl_HO->Write();
-    h_mapDepth4AmplE34_HO->Write();
-    h_mapDepth4_HO->Write();
-
-    //////////////////////////////////////////
-
-    h_ADCAmpl345Zoom_HE->Write();
-    h_ADCAmpl345Zoom1_HE->Write();
-    h_ADCAmpl345_HE->Write();
-    h_ADCAmpl_HE->Write();
-    h_ADCAmplrest_HE->Write();
-    h_ADCAmplrest1_HE->Write();
-    h_ADCAmplrest6_HE->Write();
-
-    h_ADCAmplZoom1_HE->Write();
-
-    h_corrforxaMAIN_HE->Write();
-    h_corrforxaMAIN0_HE->Write();
-    h_corrforxaADDI_HE->Write();
-    h_corrforxaADDI0_HE->Write();
-
-    h_mapDepth1ADCAmpl225_HE->Write();
-    h_mapDepth2ADCAmpl225_HE->Write();
-    h_mapDepth3ADCAmpl225_HE->Write();
-    h_mapDepth4ADCAmpl225_HE->Write();
-    h_mapDepth5ADCAmpl225_HE->Write();
-    h_mapDepth6ADCAmpl225_HE->Write();
-    h_mapDepth7ADCAmpl225_HE->Write();
-
-    h_mapADCAmplfirstpeak_HE->Write();
-    h_mapADCAmplfirstpeak0_HE->Write();
-    h_mapADCAmplsecondpeak_HE->Write();
-    h_mapADCAmplsecondpeak0_HE->Write();
-    h_mapADCAmpl11firstpeak_HE->Write();
-    h_mapADCAmpl11firstpeak0_HE->Write();
-    h_mapADCAmpl11secondpeak_HE->Write();
-    h_mapADCAmpl11secondpeak0_HE->Write();
-    h_mapADCAmpl12firstpeak_HE->Write();
-    h_mapADCAmpl12firstpeak0_HE->Write();
-    h_mapADCAmpl12secondpeak_HE->Write();
-    h_mapADCAmpl12secondpeak0_HE->Write();
-
-    h_gsmdifferencefit1_HE->Write();
-    h_gsmdifferencefit2_HE->Write();
-    h_gsmdifferencefit3_HE->Write();
-    h_gsmdifferencefit4_HE->Write();
-    h_gsmdifferencefit5_HE->Write();
-    h_gsmdifferencefit6_HE->Write();
-
-    h_mapDepth1ADCAmpl_HE->Write();
-    h_mapDepth2ADCAmpl_HE->Write();
-    h_mapDepth3ADCAmpl_HE->Write();
-    h_mapDepth4ADCAmpl_HE->Write();
-    h_mapDepth5ADCAmpl_HE->Write();
-    h_mapDepth6ADCAmpl_HE->Write();
-    h_mapDepth7ADCAmpl_HE->Write();
-    h_mapDepth1ADCAmpl12_HE->Write();
-    h_mapDepth2ADCAmpl12_HE->Write();
-    h_mapDepth3ADCAmpl12_HE->Write();
-    h_mapDepth4ADCAmpl12_HE->Write();
-    h_mapDepth5ADCAmpl12_HE->Write();
-    h_mapDepth6ADCAmpl12_HE->Write();
-    h_mapDepth7ADCAmpl12_HE->Write();
-
-    h_mapDepth1ADCAmplSiPM_HE->Write();
-    h_mapDepth2ADCAmplSiPM_HE->Write();
-    h_mapDepth3ADCAmplSiPM_HE->Write();
-    h_mapDepth1ADCAmpl12SiPM_HE->Write();
-    h_mapDepth2ADCAmpl12SiPM_HE->Write();
-    h_mapDepth3ADCAmpl12SiPM_HE->Write();
-
-    h_mapDepth1linADCAmpl12_HE->Write();
-    h_mapDepth2linADCAmpl12_HE->Write();
-    h_mapDepth3linADCAmpl12_HE->Write();
-
-    h_TSmeanA_HE->Write();
-    h_mapDepth1TSmeanA225_HE->Write();
-    h_mapDepth2TSmeanA225_HE->Write();
-    h_mapDepth3TSmeanA225_HE->Write();
-    h_mapDepth4TSmeanA225_HE->Write();
-    h_mapDepth5TSmeanA225_HE->Write();
-    h_mapDepth6TSmeanA225_HE->Write();
-    h_mapDepth7TSmeanA225_HE->Write();
-    h_mapDepth1TSmeanA_HE->Write();
-    h_mapDepth2TSmeanA_HE->Write();
-    h_mapDepth3TSmeanA_HE->Write();
-    h_mapDepth4TSmeanA_HE->Write();
-    h_mapDepth5TSmeanA_HE->Write();
-    h_mapDepth6TSmeanA_HE->Write();
-    h_mapDepth7TSmeanA_HE->Write();
-
-    h_TSmaxA_HE->Write();
-    h_mapDepth1TSmaxA225_HE->Write();
-    h_mapDepth2TSmaxA225_HE->Write();
-    h_mapDepth3TSmaxA225_HE->Write();
-    h_mapDepth4TSmaxA225_HE->Write();
-    h_mapDepth5TSmaxA225_HE->Write();
-    h_mapDepth6TSmaxA225_HE->Write();
-    h_mapDepth7TSmaxA225_HE->Write();
-    h_mapDepth1TSmaxA_HE->Write();
-    h_mapDepth2TSmaxA_HE->Write();
-    h_mapDepth3TSmaxA_HE->Write();
-    h_mapDepth4TSmaxA_HE->Write();
-    h_mapDepth5TSmaxA_HE->Write();
-    h_mapDepth6TSmaxA_HE->Write();
-    h_mapDepth7TSmaxA_HE->Write();
-
-    h_Amplitude_HE->Write();
-    h_mapDepth1Amplitude225_HE->Write();
-    h_mapDepth2Amplitude225_HE->Write();
-    h_mapDepth3Amplitude225_HE->Write();
-    h_mapDepth4Amplitude225_HE->Write();
-    h_mapDepth5Amplitude225_HE->Write();
-    h_mapDepth6Amplitude225_HE->Write();
-    h_mapDepth7Amplitude225_HE->Write();
-    h_mapDepth1Amplitude_HE->Write();
-    h_mapDepth2Amplitude_HE->Write();
-    h_mapDepth3Amplitude_HE->Write();
-    h_mapDepth4Amplitude_HE->Write();
-    h_mapDepth5Amplitude_HE->Write();
-    h_mapDepth6Amplitude_HE->Write();
-    h_mapDepth7Amplitude_HE->Write();
-
-    h_Ampl_HE->Write();
-    h_mapDepth1Ampl047_HE->Write();
-    h_mapDepth2Ampl047_HE->Write();
-    h_mapDepth3Ampl047_HE->Write();
-    h_mapDepth4Ampl047_HE->Write();
-    h_mapDepth5Ampl047_HE->Write();
-    h_mapDepth6Ampl047_HE->Write();
-    h_mapDepth7Ampl047_HE->Write();
-    h_mapDepth1Ampl_HE->Write();
-    h_mapDepth2Ampl_HE->Write();
-    h_mapDepth3Ampl_HE->Write();
-    h_mapDepth4Ampl_HE->Write();
-    h_mapDepth5Ampl_HE->Write();
-    h_mapDepth6Ampl_HE->Write();
-    h_mapDepth7Ampl_HE->Write();
-    h_mapDepth1AmplE34_HE->Write();
-    h_mapDepth2AmplE34_HE->Write();
-    h_mapDepth3AmplE34_HE->Write();
-    h_mapDepth4AmplE34_HE->Write();
-    h_mapDepth5AmplE34_HE->Write();
-    h_mapDepth6AmplE34_HE->Write();
-    h_mapDepth7AmplE34_HE->Write();
-    h_mapDepth1_HE->Write();
-    h_mapDepth2_HE->Write();
-    h_mapDepth3_HE->Write();
-    h_mapDepth4_HE->Write();
-    h_mapDepth5_HE->Write();
-    h_mapDepth6_HE->Write();
-    h_mapDepth7_HE->Write();
-
-    ///////////////////////
-
-    h_FullSignal3D_HB->Write();
-    h_FullSignal3D0_HB->Write();
-    h_FullSignal3D_HE->Write();
-    h_FullSignal3D0_HE->Write();
-    h_FullSignal3D_HO->Write();
-    h_FullSignal3D0_HO->Write();
-    h_FullSignal3D_HF->Write();
-    h_FullSignal3D0_HF->Write();
-
-    h_nbadchannels_depth1_HB->Write();
-    h_runnbadchannels_depth1_HB->Write();
-    h_runnbadchannelsC_depth1_HB->Write();
-    h_runbadrate_depth1_HB->Write();
-    h_runbadrateC_depth1_HB->Write();
-    h_runbadrate0_depth1_HB->Write();
-
-    h_nbadchannels_depth2_HB->Write();
-    h_runnbadchannels_depth2_HB->Write();
-    h_runnbadchannelsC_depth2_HB->Write();
-    h_runbadrate_depth2_HB->Write();
-    h_runbadrateC_depth2_HB->Write();
-    h_runbadrate0_depth2_HB->Write();
-
-    h_nbadchannels_depth1_HE->Write();
-    h_runnbadchannels_depth1_HE->Write();
-    h_runnbadchannelsC_depth1_HE->Write();
-    h_runbadrate_depth1_HE->Write();
-    h_runbadrateC_depth1_HE->Write();
-    h_runbadrate0_depth1_HE->Write();
-
-    h_nbadchannels_depth2_HE->Write();
-    h_runnbadchannels_depth2_HE->Write();
-    h_runnbadchannelsC_depth2_HE->Write();
-    h_runbadrate_depth2_HE->Write();
-    h_runbadrateC_depth2_HE->Write();
-    h_runbadrate0_depth2_HE->Write();
-
-    h_nbadchannels_depth3_HE->Write();
-    h_runnbadchannels_depth3_HE->Write();
-    h_runnbadchannelsC_depth3_HE->Write();
-    h_runbadrate_depth3_HE->Write();
-    h_runbadrateC_depth3_HE->Write();
-    h_runbadrate0_depth3_HE->Write();
-
-    h_nbadchannels_depth1_HF->Write();
-    h_runnbadchannels_depth1_HF->Write();
-    h_runnbadchannelsC_depth1_HF->Write();
-    h_runbadrate_depth1_HF->Write();
-    h_runbadrateC_depth1_HF->Write();
-    h_runbadrate0_depth1_HF->Write();
-
-    h_nbadchannels_depth2_HF->Write();
-    h_runnbadchannels_depth2_HF->Write();
-    h_runnbadchannelsC_depth2_HF->Write();
-    h_runbadrate_depth2_HF->Write();
-    h_runbadrateC_depth2_HF->Write();
-    h_runbadrate0_depth2_HF->Write();
-
-    h_nbadchannels_depth4_HO->Write();
-    h_runnbadchannels_depth4_HO->Write();
-    h_runnbadchannelsC_depth4_HO->Write();
-    h_runbadrate_depth4_HO->Write();
-    h_runbadrateC_depth4_HO->Write();
-    h_runbadrate0_depth4_HO->Write();
-
-    ///////////////////////
-    h_mapCapCalib047_HB->Write();
-    h_mapCapCalib047_HE->Write();
-    h_mapCapCalib047_HO->Write();
-    h_mapCapCalib047_HF->Write();
-
-    h_ADCCalib_HB->Write();
-    h_ADCCalib1_HB->Write();
-    h_mapADCCalib047_HB->Write();
-    h_mapADCCalib_HB->Write();
-    h_RatioCalib_HB->Write();
-    h_mapRatioCalib047_HB->Write();
-    h_mapRatioCalib_HB->Write();
-    h_TSmaxCalib_HB->Write();
-    h_mapTSmaxCalib047_HB->Write();
-    h_mapTSmaxCalib_HB->Write();
-    h_TSmeanCalib_HB->Write();
-    h_mapTSmeanCalib047_HB->Write();
-    h_mapTSmeanCalib_HB->Write();
-    h_WidthCalib_HB->Write();
-    h_mapWidthCalib047_HB->Write();
-    h_mapWidthCalib_HB->Write();
-    h_map_HB->Write();
-    h_ADCCalib_HE->Write();
-    h_ADCCalib1_HE->Write();
-    h_mapADCCalib047_HE->Write();
-    h_mapADCCalib_HE->Write();
-    h_RatioCalib_HE->Write();
-    h_mapRatioCalib047_HE->Write();
-    h_mapRatioCalib_HE->Write();
-    h_TSmaxCalib_HE->Write();
-    h_mapTSmaxCalib047_HE->Write();
-    h_mapTSmaxCalib_HE->Write();
-    h_TSmeanCalib_HE->Write();
-    h_mapTSmeanCalib047_HE->Write();
-    h_mapTSmeanCalib_HE->Write();
-    h_WidthCalib_HE->Write();
-    h_mapWidthCalib047_HE->Write();
-    h_mapWidthCalib_HE->Write();
-    h_map_HE->Write();
-    h_ADCCalib_HO->Write();
-    h_ADCCalib1_HO->Write();
-    h_mapADCCalib047_HO->Write();
-    h_mapADCCalib_HO->Write();
-    h_RatioCalib_HO->Write();
-    h_mapRatioCalib047_HO->Write();
-    h_mapRatioCalib_HO->Write();
-    h_TSmaxCalib_HO->Write();
-    h_mapTSmaxCalib047_HO->Write();
-    h_mapTSmaxCalib_HO->Write();
-    h_TSmeanCalib_HO->Write();
-    h_mapTSmeanCalib047_HO->Write();
-    h_mapTSmeanCalib_HO->Write();
-    h_WidthCalib_HO->Write();
-    h_mapWidthCalib047_HO->Write();
-    h_mapWidthCalib_HO->Write();
-    h_map_HO->Write();
-    h_ADCCalib_HF->Write();
-    h_ADCCalib1_HF->Write();
-    h_mapADCCalib047_HF->Write();
-    h_mapADCCalib_HF->Write();
-    h_RatioCalib_HF->Write();
-    h_mapRatioCalib047_HF->Write();
-    h_mapRatioCalib_HF->Write();
-    h_TSmaxCalib_HF->Write();
-    h_mapTSmaxCalib047_HF->Write();
-    h_mapTSmaxCalib_HF->Write();
-    h_TSmeanCalib_HF->Write();
-    h_mapTSmeanCalib047_HF->Write();
-    h_mapTSmeanCalib_HF->Write();
-    h_WidthCalib_HF->Write();
-    h_mapWidthCalib047_HF->Write();
-    h_mapWidthCalib_HF->Write();
-    h_map_HF->Write();
-
-    h_nls_per_run->Write();
-    h_nls_per_run10->Write();
-    h_nevents_per_LS->Write();
-    h_nevents_per_LSzoom->Write();
-    h_nevents_per_eachRealLS->Write();
-    h_nevents_per_eachLS->Write();
-    h_lsnumber_per_eachLS->Write();
-
-    // for estimator0:
-    h_sumPedestalLS1->Write();
-    h_2DsumPedestalLS1->Write();
-    h_sumPedestalperLS1->Write();
-    h_2D0sumPedestalLS1->Write();
-    h_sum0PedestalperLS1->Write();
-
-    h_sumPedestalLS2->Write();
-    h_2DsumPedestalLS2->Write();
-    h_sumPedestalperLS2->Write();
-    h_2D0sumPedestalLS2->Write();
-    h_sum0PedestalperLS2->Write();
-
-    h_sumPedestalLS3->Write();
-    h_2DsumPedestalLS3->Write();
-    h_sumPedestalperLS3->Write();
-    h_2D0sumPedestalLS3->Write();
-    h_sum0PedestalperLS3->Write();
-
-    h_sumPedestalLS4->Write();
-    h_2DsumPedestalLS4->Write();
-    h_sumPedestalperLS4->Write();
-    h_2D0sumPedestalLS4->Write();
-    h_sum0PedestalperLS4->Write();
-
-    h_sumPedestalLS5->Write();
-    h_2DsumPedestalLS5->Write();
-    h_sumPedestalperLS5->Write();
-    h_2D0sumPedestalLS5->Write();
-    h_sum0PedestalperLS5->Write();
-
-    h_sumPedestalLS6->Write();
-    h_2DsumPedestalLS6->Write();
-    h_sumPedestalperLS6->Write();
-    h_2D0sumPedestalLS6->Write();
-    h_sum0PedestalperLS6->Write();
-
-    h_sumPedestalLS7->Write();
-    h_2DsumPedestalLS7->Write();
-    h_sumPedestalperLS7->Write();
-    h_2D0sumPedestalLS7->Write();
-    h_sum0PedestalperLS7->Write();
-
-    h_sumPedestalLS8->Write();
-    h_2DsumPedestalLS8->Write();
-    h_sumPedestalperLS8->Write();
-    h_2D0sumPedestalLS8->Write();
-    h_sum0PedestalperLS8->Write();
-
-    // for estimator1:
-
-    // for HE gain stability vs LS:
-    h_2DsumADCAmplLSdepth4HEu->Write();
-    h_2D0sumADCAmplLSdepth4HEu->Write();
-    h_2DsumADCAmplLSdepth5HEu->Write();
-    h_2D0sumADCAmplLSdepth5HEu->Write();
-    h_2DsumADCAmplLSdepth6HEu->Write();
-    h_2D0sumADCAmplLSdepth6HEu->Write();
-    h_2DsumADCAmplLSdepth7HEu->Write();
-    h_2D0sumADCAmplLSdepth7HEu->Write();
-    h_2DsumADCAmplLSdepth3HFu->Write();
-    h_2D0sumADCAmplLSdepth3HFu->Write();
-    h_2DsumADCAmplLSdepth4HFu->Write();
-    h_2D0sumADCAmplLSdepth4HFu->Write();
-    // for HB gain stability vs LS:
-    h_2DsumADCAmplLSdepth3HBu->Write();
-    h_2D0sumADCAmplLSdepth3HBu->Write();
-    h_2DsumADCAmplLSdepth4HBu->Write();
-    h_2D0sumADCAmplLSdepth4HBu->Write();
-
-    h_sumADCAmplLS1copy1->Write();
-    h_sumADCAmplLS1copy2->Write();
-    h_sumADCAmplLS1copy3->Write();
-    h_sumADCAmplLS1copy4->Write();
-    h_sumADCAmplLS1copy5->Write();
-    h_sumADCAmplLS1->Write();
-    h_2DsumADCAmplLS1->Write();
-    h_2DsumADCAmplLS1_LSselected->Write();
-    h_sumADCAmplperLS1->Write();
-    h_sumCutADCAmplperLS1->Write();
-    h_2D0sumADCAmplLS1->Write();
-    h_sum0ADCAmplperLS1->Write();
-
-    h_sumADCAmplLS2->Write();
-    h_2DsumADCAmplLS2->Write();
-    h_2DsumADCAmplLS2_LSselected->Write();
-    h_sumADCAmplperLS2->Write();
-    h_sumCutADCAmplperLS2->Write();
-    h_2D0sumADCAmplLS2->Write();
-    h_sum0ADCAmplperLS2->Write();
-
-    h_sumADCAmplLS3->Write();
-    h_2DsumADCAmplLS3->Write();
-    h_2DsumADCAmplLS3_LSselected->Write();
-    h_sumADCAmplperLS3->Write();
-    h_sumCutADCAmplperLS3->Write();
-    h_2D0sumADCAmplLS3->Write();
-    h_sum0ADCAmplperLS3->Write();
-
-    h_sumADCAmplLS4->Write();
-    h_2DsumADCAmplLS4->Write();
-    h_2DsumADCAmplLS4_LSselected->Write();
-    h_sumADCAmplperLS4->Write();
-    h_sumCutADCAmplperLS4->Write();
-    h_2D0sumADCAmplLS4->Write();
-    h_sum0ADCAmplperLS4->Write();
-
-    h_sumADCAmplLS5->Write();
-    h_2DsumADCAmplLS5->Write();
-    h_2DsumADCAmplLS5_LSselected->Write();
-    h_sumADCAmplperLS5->Write();
-    h_sumCutADCAmplperLS5->Write();
-    h_2D0sumADCAmplLS5->Write();
-    h_sum0ADCAmplperLS5->Write();
-
-    h_sumADCAmplLS6->Write();
-    h_2DsumADCAmplLS6->Write();
-    h_2DsumADCAmplLS6_LSselected->Write();
-    h_2D0sumADCAmplLS6->Write();
-    h_sumADCAmplperLS6->Write();
-    h_sumCutADCAmplperLS6->Write();
-    h_sum0ADCAmplperLS6->Write();
-    h_sumADCAmplperLS6u->Write();
-    h_sumCutADCAmplperLS6u->Write();
-    h_sum0ADCAmplperLS6u->Write();
-
-    h_sumADCAmplperLSdepth4HEu->Write();
-    h_sumADCAmplperLSdepth5HEu->Write();
-    h_sumADCAmplperLSdepth6HEu->Write();
-    h_sumADCAmplperLSdepth7HEu->Write();
-    h_sumCutADCAmplperLSdepth4HEu->Write();
-    h_sumCutADCAmplperLSdepth5HEu->Write();
-    h_sumCutADCAmplperLSdepth6HEu->Write();
-    h_sumCutADCAmplperLSdepth7HEu->Write();
-    h_sum0ADCAmplperLSdepth4HEu->Write();
-    h_sum0ADCAmplperLSdepth5HEu->Write();
-    h_sum0ADCAmplperLSdepth6HEu->Write();
-    h_sum0ADCAmplperLSdepth7HEu->Write();
-
-    h_sumADCAmplperLSdepth3HBu->Write();
-    h_sumADCAmplperLSdepth4HBu->Write();
-    h_sumCutADCAmplperLSdepth3HBu->Write();
-    h_sumCutADCAmplperLSdepth4HBu->Write();
-    h_sum0ADCAmplperLSdepth3HBu->Write();
-    h_sum0ADCAmplperLSdepth4HBu->Write();
-
-    h_sumADCAmplperLS1_P1->Write();
-    h_sum0ADCAmplperLS1_P1->Write();
-    h_sumADCAmplperLS1_P2->Write();
-    h_sum0ADCAmplperLS1_P2->Write();
-    h_sumADCAmplperLS1_M1->Write();
-    h_sum0ADCAmplperLS1_M1->Write();
-    h_sumADCAmplperLS1_M2->Write();
-    h_sum0ADCAmplperLS1_M2->Write();
-
-    h_sumADCAmplperLS3_P1->Write();
-    h_sum0ADCAmplperLS3_P1->Write();
-    h_sumADCAmplperLS3_P2->Write();
-    h_sum0ADCAmplperLS3_P2->Write();
-    h_sumADCAmplperLS3_M1->Write();
-    h_sum0ADCAmplperLS3_M1->Write();
-    h_sumADCAmplperLS3_M2->Write();
-    h_sum0ADCAmplperLS3_M2->Write();
-
-    h_sumADCAmplperLS6_P1->Write();
-    h_sum0ADCAmplperLS6_P1->Write();
-    h_sumADCAmplperLS6_P2->Write();
-    h_sum0ADCAmplperLS6_P2->Write();
-    h_sumADCAmplperLS6_M1->Write();
-    h_sum0ADCAmplperLS6_M1->Write();
-    h_sumADCAmplperLS6_M2->Write();
-    h_sum0ADCAmplperLS6_M2->Write();
-
-    h_sumADCAmplperLS8_P1->Write();
-    h_sum0ADCAmplperLS8_P1->Write();
-    h_sumADCAmplperLS8_P2->Write();
-    h_sum0ADCAmplperLS8_P2->Write();
-    h_sumADCAmplperLS8_M1->Write();
-    h_sum0ADCAmplperLS8_M1->Write();
-    h_sumADCAmplperLS8_M2->Write();
-    h_sum0ADCAmplperLS8_M2->Write();
-
-    h_sumADCAmplLS7->Write();
-    h_2DsumADCAmplLS7->Write();
-    h_2DsumADCAmplLS7_LSselected->Write();
-    h_2D0sumADCAmplLS7->Write();
-    h_sumADCAmplperLS7->Write();
-    h_sumCutADCAmplperLS7->Write();
-    h_sum0ADCAmplperLS7->Write();
-    h_sumADCAmplperLS7u->Write();
-    h_sumCutADCAmplperLS7u->Write();
-    h_sum0ADCAmplperLS7u->Write();
-
-    h_sumADCAmplLS8->Write();
-    h_2DsumADCAmplLS8->Write();
-    h_2DsumADCAmplLS8_LSselected->Write();
-    h_sumADCAmplperLS8->Write();
-    h_sumCutADCAmplperLS8->Write();
-    h_2D0sumADCAmplLS8->Write();
-    h_sum0ADCAmplperLS8->Write();
-
-    // for estimator2:
-    h_sumTSmeanALS1->Write();
-    h_2DsumTSmeanALS1->Write();
-    h_sumTSmeanAperLS1->Write();
-    h_sumTSmeanAperLS1_LSselected->Write();
-    h_sumCutTSmeanAperLS1->Write();
-    h_2D0sumTSmeanALS1->Write();
-    h_sum0TSmeanAperLS1->Write();
-
-    h_sumTSmeanALS2->Write();
-    h_2DsumTSmeanALS2->Write();
-    h_sumTSmeanAperLS2->Write();
-    h_sumCutTSmeanAperLS2->Write();
-    h_2D0sumTSmeanALS2->Write();
-    h_sum0TSmeanAperLS2->Write();
-
-    h_sumTSmeanALS3->Write();
-    h_2DsumTSmeanALS3->Write();
-    h_sumTSmeanAperLS3->Write();
-    h_sumCutTSmeanAperLS3->Write();
-    h_2D0sumTSmeanALS3->Write();
-    h_sum0TSmeanAperLS3->Write();
-
-    h_sumTSmeanALS4->Write();
-    h_2DsumTSmeanALS4->Write();
-    h_sumTSmeanAperLS4->Write();
-    h_sumCutTSmeanAperLS4->Write();
-    h_2D0sumTSmeanALS4->Write();
-    h_sum0TSmeanAperLS4->Write();
-
-    h_sumTSmeanALS5->Write();
-    h_2DsumTSmeanALS5->Write();
-    h_sumTSmeanAperLS5->Write();
-    h_sumCutTSmeanAperLS5->Write();
-    h_2D0sumTSmeanALS5->Write();
-    h_sum0TSmeanAperLS5->Write();
-
-    h_sumTSmeanALS6->Write();
-    h_2DsumTSmeanALS6->Write();
-    h_sumTSmeanAperLS6->Write();
-    h_sumCutTSmeanAperLS6->Write();
-    h_2D0sumTSmeanALS6->Write();
-    h_sum0TSmeanAperLS6->Write();
-
-    h_sumTSmeanALS7->Write();
-    h_2DsumTSmeanALS7->Write();
-    h_sumTSmeanAperLS7->Write();
-    h_sumCutTSmeanAperLS7->Write();
-    h_2D0sumTSmeanALS7->Write();
-    h_sum0TSmeanAperLS7->Write();
-
-    h_sumTSmeanALS8->Write();
-    h_2DsumTSmeanALS8->Write();
-    h_sumTSmeanAperLS8->Write();
-    h_sumCutTSmeanAperLS8->Write();
-    h_2D0sumTSmeanALS8->Write();
-    h_sum0TSmeanAperLS8->Write();
-
-    // for estimator3:
-    h_sumTSmaxALS1->Write();
-    h_2DsumTSmaxALS1->Write();
-    h_sumTSmaxAperLS1->Write();
-    h_sumTSmaxAperLS1_LSselected->Write();
-    h_sumCutTSmaxAperLS1->Write();
-    h_2D0sumTSmaxALS1->Write();
-    h_sum0TSmaxAperLS1->Write();
-
-    h_sumTSmaxALS2->Write();
-    h_2DsumTSmaxALS2->Write();
-    h_sumTSmaxAperLS2->Write();
-    h_sumCutTSmaxAperLS2->Write();
-    h_2D0sumTSmaxALS2->Write();
-    h_sum0TSmaxAperLS2->Write();
-
-    h_sumTSmaxALS3->Write();
-    h_2DsumTSmaxALS3->Write();
-    h_sumTSmaxAperLS3->Write();
-    h_sumCutTSmaxAperLS3->Write();
-    h_2D0sumTSmaxALS3->Write();
-    h_sum0TSmaxAperLS3->Write();
-
-    h_sumTSmaxALS4->Write();
-    h_2DsumTSmaxALS4->Write();
-    h_sumTSmaxAperLS4->Write();
-    h_sumCutTSmaxAperLS4->Write();
-    h_2D0sumTSmaxALS4->Write();
-    h_sum0TSmaxAperLS4->Write();
-
-    h_sumTSmaxALS5->Write();
-    h_2DsumTSmaxALS5->Write();
-    h_sumTSmaxAperLS5->Write();
-    h_sumCutTSmaxAperLS5->Write();
-    h_2D0sumTSmaxALS5->Write();
-    h_sum0TSmaxAperLS5->Write();
-
-    h_sumTSmaxALS6->Write();
-    h_2DsumTSmaxALS6->Write();
-    h_sumTSmaxAperLS6->Write();
-    h_sumCutTSmaxAperLS6->Write();
-    h_2D0sumTSmaxALS6->Write();
-    h_sum0TSmaxAperLS6->Write();
-
-    h_sumTSmaxALS7->Write();
-    h_2DsumTSmaxALS7->Write();
-    h_sumTSmaxAperLS7->Write();
-    h_sumCutTSmaxAperLS7->Write();
-    h_2D0sumTSmaxALS7->Write();
-    h_sum0TSmaxAperLS7->Write();
-
-    h_sumTSmaxALS8->Write();
-    h_2DsumTSmaxALS8->Write();
-    h_sumTSmaxAperLS8->Write();
-    h_sumCutTSmaxAperLS8->Write();
-    h_2D0sumTSmaxALS8->Write();
-    h_sum0TSmaxAperLS8->Write();
-
-    // for estimator4:
-    h_sumAmplitudeLS1->Write();
-    h_2DsumAmplitudeLS1->Write();
-    h_sumAmplitudeperLS1->Write();
-    h_sumAmplitudeperLS1_LSselected->Write();
-    h_sumCutAmplitudeperLS1->Write();
-    h_2D0sumAmplitudeLS1->Write();
-    h_sum0AmplitudeperLS1->Write();
-
-    h_sumAmplitudeLS2->Write();
-    h_2DsumAmplitudeLS2->Write();
-    h_sumAmplitudeperLS2->Write();
-    h_sumCutAmplitudeperLS2->Write();
-    h_2D0sumAmplitudeLS2->Write();
-    h_sum0AmplitudeperLS2->Write();
-
-    h_sumAmplitudeLS3->Write();
-    h_2DsumAmplitudeLS3->Write();
-    h_sumAmplitudeperLS3->Write();
-    h_sumCutAmplitudeperLS3->Write();
-    h_2D0sumAmplitudeLS3->Write();
-    h_sum0AmplitudeperLS3->Write();
-
-    h_sumAmplitudeLS4->Write();
-    h_2DsumAmplitudeLS4->Write();
-    h_sumAmplitudeperLS4->Write();
-    h_sumCutAmplitudeperLS4->Write();
-    h_2D0sumAmplitudeLS4->Write();
-    h_sum0AmplitudeperLS4->Write();
-
-    h_sumAmplitudeLS5->Write();
-    h_2DsumAmplitudeLS5->Write();
-    h_sumAmplitudeperLS5->Write();
-    h_sumCutAmplitudeperLS5->Write();
-    h_2D0sumAmplitudeLS5->Write();
-    h_sum0AmplitudeperLS5->Write();
-
-    h_sumAmplitudeLS6->Write();
-    h_2DsumAmplitudeLS6->Write();
-    h_sumAmplitudeperLS6->Write();
-    h_sumCutAmplitudeperLS6->Write();
-    h_2D0sumAmplitudeLS6->Write();
-    h_sum0AmplitudeperLS6->Write();
-
-    h_sumAmplitudeLS7->Write();
-    h_2DsumAmplitudeLS7->Write();
-    h_sumAmplitudeperLS7->Write();
-    h_sumCutAmplitudeperLS7->Write();
-    h_2D0sumAmplitudeLS7->Write();
-    h_sum0AmplitudeperLS7->Write();
-
-    h_sumAmplitudeLS8->Write();
-    h_2DsumAmplitudeLS8->Write();
-    h_sumAmplitudeperLS8->Write();
-    h_sumCutAmplitudeperLS8->Write();
-    h_2D0sumAmplitudeLS8->Write();
-    h_sum0AmplitudeperLS8->Write();
-
-    // for estimator6:
-    h_sumErrorBLS1->Write();
-    h_sumErrorBperLS1->Write();
-    h_sum0ErrorBperLS1->Write();
-    h_2D0sumErrorBLS1->Write();
-    h_2DsumErrorBLS1->Write();
-    h_sumErrorBLS2->Write();
-    h_sumErrorBperLS2->Write();
-    h_sum0ErrorBperLS2->Write();
-    h_2D0sumErrorBLS2->Write();
-    h_2DsumErrorBLS2->Write();
-
-    h_sumErrorBLS3->Write();
-    h_sumErrorBperLS3->Write();
-    h_sum0ErrorBperLS3->Write();
-    h_2D0sumErrorBLS3->Write();
-    h_2DsumErrorBLS3->Write();
-    h_sumErrorBLS4->Write();
-    h_sumErrorBperLS4->Write();
-    h_sum0ErrorBperLS4->Write();
-    h_2D0sumErrorBLS4->Write();
-    h_2DsumErrorBLS4->Write();
-    h_sumErrorBLS5->Write();
-    h_sumErrorBperLS5->Write();
-    h_sum0ErrorBperLS5->Write();
-    h_2D0sumErrorBLS5->Write();
-    h_2DsumErrorBLS5->Write();
-
-    h_sumErrorBLS6->Write();
-    h_sumErrorBperLS6->Write();
-    h_sum0ErrorBperLS6->Write();
-    h_2D0sumErrorBLS6->Write();
-    h_2DsumErrorBLS6->Write();
-    h_sumErrorBLS7->Write();
-    h_sumErrorBperLS7->Write();
-    h_sum0ErrorBperLS7->Write();
-    h_2D0sumErrorBLS7->Write();
-    h_2DsumErrorBLS7->Write();
-
-    h_sumErrorBLS8->Write();
-    h_sumErrorBperLS8->Write();
-    h_sum0ErrorBperLS8->Write();
-    h_2D0sumErrorBLS8->Write();
-    h_2DsumErrorBLS8->Write();
-
-    // for estimator5:
-    h_sumAmplLS1->Write();
-    h_2DsumAmplLS1->Write();
-    h_sumAmplperLS1->Write();
-    h_sumAmplperLS1_LSselected->Write();
-    h_sumCutAmplperLS1->Write();
-    h_2D0sumAmplLS1->Write();
-    h_sum0AmplperLS1->Write();
-
-    h_sumAmplLS2->Write();
-    h_2DsumAmplLS2->Write();
-    h_sumAmplperLS2->Write();
-    h_sumCutAmplperLS2->Write();
-    h_2D0sumAmplLS2->Write();
-    h_sum0AmplperLS2->Write();
-
-    h_sumAmplLS3->Write();
-    h_2DsumAmplLS3->Write();
-    h_sumAmplperLS3->Write();
-    h_sumCutAmplperLS3->Write();
-    h_2D0sumAmplLS3->Write();
-    h_sum0AmplperLS3->Write();
-
-    h_sumAmplLS4->Write();
-    h_2DsumAmplLS4->Write();
-    h_sumAmplperLS4->Write();
-    h_sumCutAmplperLS4->Write();
-    h_2D0sumAmplLS4->Write();
-    h_sum0AmplperLS4->Write();
-
-    h_sumAmplLS5->Write();
-    h_2DsumAmplLS5->Write();
-    h_sumAmplperLS5->Write();
-    h_sumCutAmplperLS5->Write();
-    h_2D0sumAmplLS5->Write();
-    h_sum0AmplperLS5->Write();
-
-    h_sumAmplLS6->Write();
-    h_2DsumAmplLS6->Write();
-    h_sumAmplperLS6->Write();
-    h_sumCutAmplperLS6->Write();
-    h_2D0sumAmplLS6->Write();
-    h_sum0AmplperLS6->Write();
-
-    h_RatioOccupancy_HBP->Write();
-    h_RatioOccupancy_HBM->Write();
-    h_RatioOccupancy_HEP->Write();
-    h_RatioOccupancy_HEM->Write();
-    h_RatioOccupancy_HOP->Write();
-    h_RatioOccupancy_HOM->Write();
-    h_RatioOccupancy_HFP->Write();
-    h_RatioOccupancy_HFM->Write();
-
-    h_sumAmplLS7->Write();
-    h_2DsumAmplLS7->Write();
-    h_sumAmplperLS7->Write();
-    h_sumCutAmplperLS7->Write();
-    h_2D0sumAmplLS7->Write();
-    h_sum0AmplperLS7->Write();
-
-    h_sumAmplLS8->Write();
-    h_2DsumAmplLS8->Write();
-    h_sumAmplperLS8->Write();
-    h_sumCutAmplperLS8->Write();
-    h_2D0sumAmplLS8->Write();
-    h_sum0AmplperLS8->Write();
-
-    h_pedestal0_HB->Write();
-    h_pedestal1_HB->Write();
-    h_pedestal2_HB->Write();
-    h_pedestal3_HB->Write();
-    h_pedestalaver4_HB->Write();
-    h_pedestalaver9_HB->Write();
-    h_pedestalw0_HB->Write();
-    h_pedestalw1_HB->Write();
-    h_pedestalw2_HB->Write();
-    h_pedestalw3_HB->Write();
-    h_pedestalwaver4_HB->Write();
-    h_pedestalwaver9_HB->Write();
-
-    h_pedestal0_HE->Write();
-    h_pedestal1_HE->Write();
-    h_pedestal2_HE->Write();
-    h_pedestal3_HE->Write();
-    h_pedestalaver4_HE->Write();
-    h_pedestalaver9_HE->Write();
-    h_pedestalw0_HE->Write();
-    h_pedestalw1_HE->Write();
-    h_pedestalw2_HE->Write();
-    h_pedestalw3_HE->Write();
-    h_pedestalwaver4_HE->Write();
-    h_pedestalwaver9_HE->Write();
-
-    h_pedestal0_HF->Write();
-    h_pedestal1_HF->Write();
-    h_pedestal2_HF->Write();
-    h_pedestal3_HF->Write();
-    h_pedestalaver4_HF->Write();
-    h_pedestalaver9_HF->Write();
-    h_pedestalw0_HF->Write();
-    h_pedestalw1_HF->Write();
-    h_pedestalw2_HF->Write();
-    h_pedestalw3_HF->Write();
-    h_pedestalwaver4_HF->Write();
-    h_pedestalwaver9_HF->Write();
-
-    h_pedestal0_HO->Write();
-    h_pedestal1_HO->Write();
-    h_pedestal2_HO->Write();
-    h_pedestal3_HO->Write();
-    h_pedestalaver4_HO->Write();
-    h_pedestalaver9_HO->Write();
-    h_pedestalw0_HO->Write();
-    h_pedestalw1_HO->Write();
-    h_pedestalw2_HO->Write();
-    h_pedestalw3_HO->Write();
-    h_pedestalwaver4_HO->Write();
-    h_pedestalwaver9_HO->Write();
-
-    h_mapDepth1pedestalw_HB->Write();
-    h_mapDepth2pedestalw_HB->Write();
-    h_mapDepth3pedestalw_HB->Write();
-    h_mapDepth4pedestalw_HB->Write();
-    h_mapDepth1pedestalw_HE->Write();
-    h_mapDepth2pedestalw_HE->Write();
-    h_mapDepth3pedestalw_HE->Write();
-    h_mapDepth4pedestalw_HE->Write();
-    h_mapDepth5pedestalw_HE->Write();
-    h_mapDepth6pedestalw_HE->Write();
-    h_mapDepth7pedestalw_HE->Write();
-    h_mapDepth1pedestalw_HF->Write();
-    h_mapDepth2pedestalw_HF->Write();
-    h_mapDepth3pedestalw_HF->Write();
-    h_mapDepth4pedestalw_HF->Write();
-    h_mapDepth4pedestalw_HO->Write();
-
-    h_mapDepth1pedestal_HB->Write();
-    h_mapDepth2pedestal_HB->Write();
-    h_mapDepth3pedestal_HB->Write();
-    h_mapDepth4pedestal_HB->Write();
-    h_mapDepth1pedestal_HE->Write();
-    h_mapDepth2pedestal_HE->Write();
-    h_mapDepth3pedestal_HE->Write();
-    h_mapDepth4pedestal_HE->Write();
-    h_mapDepth5pedestal_HE->Write();
-    h_mapDepth6pedestal_HE->Write();
-    h_mapDepth7pedestal_HE->Write();
-    h_mapDepth1pedestal_HF->Write();
-    h_mapDepth2pedestal_HF->Write();
-    h_mapDepth3pedestal_HF->Write();
-    h_mapDepth4pedestal_HF->Write();
-    h_mapDepth4pedestal_HO->Write();
-
-    h_pedestal00_HB->Write();
-    h_gain_HB->Write();
-    h_respcorr_HB->Write();
-    h_timecorr_HB->Write();
-    h_lutcorr_HB->Write();
-    h_difpedestal0_HB->Write();
-    h_difpedestal1_HB->Write();
-    h_difpedestal2_HB->Write();
-    h_difpedestal3_HB->Write();
-
-    h_pedestal00_HE->Write();
-    h_gain_HE->Write();
-    h_respcorr_HE->Write();
-    h_timecorr_HE->Write();
-    h_lutcorr_HE->Write();
-
-    h_pedestal00_HF->Write();
-    h_gain_HF->Write();
-    h_respcorr_HF->Write();
-    h_timecorr_HF->Write();
-    h_lutcorr_HF->Write();
-
-    h_pedestal00_HO->Write();
-    h_gain_HO->Write();
-    h_respcorr_HO->Write();
-    h_timecorr_HO->Write();
-    h_lutcorr_HO->Write();
-
-    h2_pedvsampl_HB->Write();
-    h2_pedwvsampl_HB->Write();
-    h_pedvsampl_HB->Write();
-    h_pedwvsampl_HB->Write();
-    h_pedvsampl0_HB->Write();
-    h_pedwvsampl0_HB->Write();
-    h2_amplvsped_HB->Write();
-    h2_amplvspedw_HB->Write();
-    h_amplvsped_HB->Write();
-    h_amplvspedw_HB->Write();
-    h_amplvsped0_HB->Write();
-
-    h2_pedvsampl_HE->Write();
-    h2_pedwvsampl_HE->Write();
-    h_pedvsampl_HE->Write();
-    h_pedwvsampl_HE->Write();
-    h_pedvsampl0_HE->Write();
-    h_pedwvsampl0_HE->Write();
-    h2_pedvsampl_HF->Write();
-    h2_pedwvsampl_HF->Write();
-    h_pedvsampl_HF->Write();
-    h_pedwvsampl_HF->Write();
-    h_pedvsampl0_HF->Write();
-    h_pedwvsampl0_HF->Write();
-    h2_pedvsampl_HO->Write();
-    h2_pedwvsampl_HO->Write();
-    h_pedvsampl_HO->Write();
-    h_pedwvsampl_HO->Write();
-    h_pedvsampl0_HO->Write();
-    h_pedwvsampl0_HO->Write();
-
-    h_mapDepth1Ped0_HB->Write();
-    h_mapDepth1Ped1_HB->Write();
-    h_mapDepth1Ped2_HB->Write();
-    h_mapDepth1Ped3_HB->Write();
-    h_mapDepth1Pedw0_HB->Write();
-    h_mapDepth1Pedw1_HB->Write();
-    h_mapDepth1Pedw2_HB->Write();
-    h_mapDepth1Pedw3_HB->Write();
-    h_mapDepth2Ped0_HB->Write();
-    h_mapDepth2Ped1_HB->Write();
-    h_mapDepth2Ped2_HB->Write();
-    h_mapDepth2Ped3_HB->Write();
-    h_mapDepth2Pedw0_HB->Write();
-    h_mapDepth2Pedw1_HB->Write();
-    h_mapDepth2Pedw2_HB->Write();
-    h_mapDepth2Pedw3_HB->Write();
-
-    h_mapDepth1Ped0_HE->Write();
-    h_mapDepth1Ped1_HE->Write();
-    h_mapDepth1Ped2_HE->Write();
-    h_mapDepth1Ped3_HE->Write();
-    h_mapDepth1Pedw0_HE->Write();
-    h_mapDepth1Pedw1_HE->Write();
-    h_mapDepth1Pedw2_HE->Write();
-    h_mapDepth1Pedw3_HE->Write();
-    h_mapDepth2Ped0_HE->Write();
-    h_mapDepth2Ped1_HE->Write();
-    h_mapDepth2Ped2_HE->Write();
-    h_mapDepth2Ped3_HE->Write();
-    h_mapDepth2Pedw0_HE->Write();
-    h_mapDepth2Pedw1_HE->Write();
-    h_mapDepth2Pedw2_HE->Write();
-    h_mapDepth2Pedw3_HE->Write();
-    h_mapDepth3Ped0_HE->Write();
-    h_mapDepth3Ped1_HE->Write();
-    h_mapDepth3Ped2_HE->Write();
-    h_mapDepth3Ped3_HE->Write();
-    h_mapDepth3Pedw0_HE->Write();
-    h_mapDepth3Pedw1_HE->Write();
-    h_mapDepth3Pedw2_HE->Write();
-    h_mapDepth3Pedw3_HE->Write();
-
-    h_mapDepth1Ped0_HF->Write();
-    h_mapDepth1Ped1_HF->Write();
-    h_mapDepth1Ped2_HF->Write();
-    h_mapDepth1Ped3_HF->Write();
-    h_mapDepth1Pedw0_HF->Write();
-    h_mapDepth1Pedw1_HF->Write();
-    h_mapDepth1Pedw2_HF->Write();
-    h_mapDepth1Pedw3_HF->Write();
-    h_mapDepth2Ped0_HF->Write();
-    h_mapDepth2Ped1_HF->Write();
-    h_mapDepth2Ped2_HF->Write();
-    h_mapDepth2Ped3_HF->Write();
-    h_mapDepth2Pedw0_HF->Write();
-    h_mapDepth2Pedw1_HF->Write();
-    h_mapDepth2Pedw2_HF->Write();
-    h_mapDepth2Pedw3_HF->Write();
-
-    h_mapDepth4Ped0_HO->Write();
-    h_mapDepth4Ped1_HO->Write();
-    h_mapDepth4Ped2_HO->Write();
-    h_mapDepth4Ped3_HO->Write();
-    h_mapDepth4Pedw0_HO->Write();
-    h_mapDepth4Pedw1_HO->Write();
-    h_mapDepth4Pedw2_HO->Write();
-    h_mapDepth4Pedw3_HO->Write();
-
-    h_mapGetRMSOverNormalizedSignal_HB->Write();
-    h_mapGetRMSOverNormalizedSignal0_HB->Write();
-    h_mapGetRMSOverNormalizedSignal_HE->Write();
-    h_mapGetRMSOverNormalizedSignal0_HE->Write();
-    h_mapGetRMSOverNormalizedSignal_HF->Write();
-    h_mapGetRMSOverNormalizedSignal0_HF->Write();
-    h_mapGetRMSOverNormalizedSignal_HO->Write();
-    h_mapGetRMSOverNormalizedSignal0_HO->Write();
-
-    h_shape_Ahigh_HB0->Write();
-    h_shape0_Ahigh_HB0->Write();
-    h_shape_Alow_HB0->Write();
-    h_shape0_Alow_HB0->Write();
-    h_shape_Ahigh_HB1->Write();
-    h_shape0_Ahigh_HB1->Write();
-    h_shape_Alow_HB1->Write();
-    h_shape0_Alow_HB1->Write();
-    h_shape_Ahigh_HB2->Write();
-    h_shape0_Ahigh_HB2->Write();
-    h_shape_Alow_HB2->Write();
-    h_shape0_Alow_HB2->Write();
-    h_shape_Ahigh_HB3->Write();
-    h_shape0_Ahigh_HB3->Write();
-    h_shape_Alow_HB3->Write();
-    h_shape0_Alow_HB3->Write();
-
-    h_shape_bad_channels_HB->Write();
-    h_shape0_bad_channels_HB->Write();
-    h_shape_good_channels_HB->Write();
-    h_shape0_good_channels_HB->Write();
-    h_shape_bad_channels_HE->Write();
-    h_shape0_bad_channels_HE->Write();
-    h_shape_good_channels_HE->Write();
-    h_shape0_good_channels_HE->Write();
-    h_shape_bad_channels_HF->Write();
-    h_shape0_bad_channels_HF->Write();
-    h_shape_good_channels_HF->Write();
-    h_shape0_good_channels_HF->Write();
-    h_shape_bad_channels_HO->Write();
-    h_shape0_bad_channels_HO->Write();
-    h_shape_good_channels_HO->Write();
-    h_shape0_good_channels_HO->Write();
-
-    h_sumamplitude_depth1_HB->Write();
-    h_sumamplitude_depth2_HB->Write();
-    h_sumamplitude_depth1_HE->Write();
-    h_sumamplitude_depth2_HE->Write();
-    h_sumamplitude_depth3_HE->Write();
-    h_sumamplitude_depth1_HF->Write();
-    h_sumamplitude_depth2_HF->Write();
-    h_sumamplitude_depth4_HO->Write();
-
-    h_sumamplitude_depth1_HB0->Write();
-    h_sumamplitude_depth2_HB0->Write();
-    h_sumamplitude_depth1_HE0->Write();
-    h_sumamplitude_depth2_HE0->Write();
-    h_sumamplitude_depth3_HE0->Write();
-    h_sumamplitude_depth1_HF0->Write();
-    h_sumamplitude_depth2_HF0->Write();
-    h_sumamplitude_depth4_HO0->Write();
-
-    h_sumamplitude_depth1_HB1->Write();
-    h_sumamplitude_depth2_HB1->Write();
-    h_sumamplitude_depth1_HE1->Write();
-    h_sumamplitude_depth2_HE1->Write();
-    h_sumamplitude_depth3_HE1->Write();
-    h_sumamplitude_depth1_HF1->Write();
-    h_sumamplitude_depth2_HF1->Write();
-    h_sumamplitude_depth4_HO1->Write();
-    h_bcnnbadchannels_depth1_HB->Write();
-    h_bcnnbadchannels_depth2_HB->Write();
-    h_bcnnbadchannels_depth1_HE->Write();
-    h_bcnnbadchannels_depth2_HE->Write();
-    h_bcnnbadchannels_depth3_HE->Write();
-    h_bcnnbadchannels_depth4_HO->Write();
-    h_bcnnbadchannels_depth1_HF->Write();
-    h_bcnnbadchannels_depth2_HF->Write();
-    h_bcnbadrate0_depth1_HB->Write();
-    h_bcnbadrate0_depth2_HB->Write();
-    h_bcnbadrate0_depth1_HE->Write();
-    h_bcnbadrate0_depth2_HE->Write();
-    h_bcnbadrate0_depth3_HE->Write();
-    h_bcnbadrate0_depth4_HO->Write();
-    h_bcnbadrate0_depth1_HF->Write();
-    h_bcnbadrate0_depth2_HF->Write();
-
-    h_Amplitude_forCapIdErrors_HB1->Write();
-    h_Amplitude_forCapIdErrors_HB2->Write();
-    h_Amplitude_forCapIdErrors_HE1->Write();
-    h_Amplitude_forCapIdErrors_HE2->Write();
-    h_Amplitude_forCapIdErrors_HE3->Write();
-    h_Amplitude_forCapIdErrors_HF1->Write();
-    h_Amplitude_forCapIdErrors_HF2->Write();
-    h_Amplitude_forCapIdErrors_HO4->Write();
-
-    h_Amplitude_notCapIdErrors_HB1->Write();
-    h_Amplitude_notCapIdErrors_HB2->Write();
-    h_Amplitude_notCapIdErrors_HE1->Write();
-    h_Amplitude_notCapIdErrors_HE2->Write();
-    h_Amplitude_notCapIdErrors_HE3->Write();
-    h_Amplitude_notCapIdErrors_HF1->Write();
-    h_Amplitude_notCapIdErrors_HF2->Write();
-    h_Amplitude_notCapIdErrors_HO4->Write();
-
-    h_averSIGNALoccupancy_HB->Write();
-    h_averSIGNALoccupancy_HE->Write();
-    h_averSIGNALoccupancy_HF->Write();
-    h_averSIGNALoccupancy_HO->Write();
-
-    h_averSIGNALsumamplitude_HB->Write();
-    h_averSIGNALsumamplitude_HE->Write();
-    h_averSIGNALsumamplitude_HF->Write();
-    h_averSIGNALsumamplitude_HO->Write();
-
-    h_averNOSIGNALoccupancy_HB->Write();
-    h_averNOSIGNALoccupancy_HE->Write();
-    h_averNOSIGNALoccupancy_HF->Write();
-    h_averNOSIGNALoccupancy_HO->Write();
-
-    h_averNOSIGNALsumamplitude_HB->Write();
-    h_averNOSIGNALsumamplitude_HE->Write();
-    h_averNOSIGNALsumamplitude_HF->Write();
-    h_averNOSIGNALsumamplitude_HO->Write();
-
-    h_maxxSUMAmpl_HB->Write();
-    h_maxxSUMAmpl_HE->Write();
-    h_maxxSUMAmpl_HF->Write();
-    h_maxxSUMAmpl_HO->Write();
-
-    h_maxxOCCUP_HB->Write();
-    h_maxxOCCUP_HE->Write();
-    h_maxxOCCUP_HF->Write();
-    h_maxxOCCUP_HO->Write();
-
-    h_sumamplitudechannel_HB->Write();
-    h_sumamplitudechannel_HE->Write();
-    h_sumamplitudechannel_HF->Write();
-    h_sumamplitudechannel_HO->Write();
-
-    h_eventamplitude_HB->Write();
-    h_eventamplitude_HE->Write();
-    h_eventamplitude_HF->Write();
-    h_eventamplitude_HO->Write();
-
-    h_eventoccupancy_HB->Write();
-    h_eventoccupancy_HE->Write();
-    h_eventoccupancy_HF->Write();
-    h_eventoccupancy_HO->Write();
-
-    h_2DAtaildepth1_HB->Write();
-    h_2D0Ataildepth1_HB->Write();
-    h_2DAtaildepth2_HB->Write();
-    h_2D0Ataildepth2_HB->Write();
-
-    h_mapenophinorm_HE1->Write();
-    h_mapenophinorm_HE2->Write();
-    h_mapenophinorm_HE3->Write();
-    h_mapenophinorm_HE4->Write();
-    h_mapenophinorm_HE5->Write();
-    h_mapenophinorm_HE6->Write();
-    h_mapenophinorm_HE7->Write();
-    h_mapenophinorm2_HE1->Write();
-    h_mapenophinorm2_HE2->Write();
-    h_mapenophinorm2_HE3->Write();
-    h_mapenophinorm2_HE4->Write();
-    h_mapenophinorm2_HE5->Write();
-    h_mapenophinorm2_HE6->Write();
-    h_mapenophinorm2_HE7->Write();
-
-    h_maprphinorm_HE1->Write();
-    h_maprphinorm_HE2->Write();
-    h_maprphinorm_HE3->Write();
-    h_maprphinorm_HE4->Write();
-    h_maprphinorm_HE5->Write();
-    h_maprphinorm_HE6->Write();
-    h_maprphinorm_HE7->Write();
-    h_maprphinorm2_HE1->Write();
-    h_maprphinorm2_HE2->Write();
-    h_maprphinorm2_HE3->Write();
-    h_maprphinorm2_HE4->Write();
-    h_maprphinorm2_HE5->Write();
-    h_maprphinorm2_HE6->Write();
-    h_maprphinorm2_HE7->Write();
-
-    h_maprphinorm0_HE1->Write();
-    h_maprphinorm0_HE2->Write();
-    h_maprphinorm0_HE3->Write();
-    h_maprphinorm0_HE4->Write();
-    h_maprphinorm0_HE5->Write();
-    h_maprphinorm0_HE6->Write();
-    h_maprphinorm0_HE7->Write();
-
-    //// phi-symmetry phy-symmetry:
-    h_energyhitSignal_HB->Write();
-    h_energyhitSignal_HE->Write();
-    h_energyhitSignal_HF->Write();
-    h_energyhitNoise_HB->Write();
-    h_energyhitNoise_HE->Write();
-    h_energyhitNoise_HF->Write();
-    //HB
-    h_recSignalEnergy0_HB1->Write();
-    h_recSignalEnergy1_HB1->Write();
-    h_recSignalEnergy2_HB1->Write();
-    h_recSignalEnergy0_HB2->Write();
-    h_recSignalEnergy1_HB2->Write();
-    h_recSignalEnergy2_HB2->Write();
-    h_recSignalEnergy0_HB3->Write();
-    h_recSignalEnergy1_HB3->Write();
-    h_recSignalEnergy2_HB3->Write();
-    h_recSignalEnergy0_HB4->Write();
-    h_recSignalEnergy1_HB4->Write();
-    h_recSignalEnergy2_HB4->Write();
-
-    h_recNoiseEnergy0_HB1->Write();
-    h_recNoiseEnergy1_HB1->Write();
-    h_recNoiseEnergy2_HB1->Write();
-    h_recNoiseEnergy0_HB2->Write();
-    h_recNoiseEnergy1_HB2->Write();
-    h_recNoiseEnergy2_HB2->Write();
-    h_recNoiseEnergy0_HB3->Write();
-    h_recNoiseEnergy1_HB3->Write();
-    h_recNoiseEnergy2_HB3->Write();
-    h_recNoiseEnergy0_HB4->Write();
-    h_recNoiseEnergy1_HB4->Write();
-    h_recNoiseEnergy2_HB4->Write();
-
-    //HE
-    h_recSignalEnergy0_HE1->Write();
-    h_recSignalEnergy1_HE1->Write();
-    h_recSignalEnergy2_HE1->Write();
-    h_recSignalEnergy0_HE2->Write();
-    h_recSignalEnergy1_HE2->Write();
-    h_recSignalEnergy2_HE2->Write();
-    h_recSignalEnergy0_HE3->Write();
-    h_recSignalEnergy1_HE3->Write();
-    h_recSignalEnergy2_HE3->Write();
-    h_recSignalEnergy0_HE4->Write();
-    h_recSignalEnergy1_HE4->Write();
-    h_recSignalEnergy2_HE4->Write();
-    h_recSignalEnergy0_HE5->Write();
-    h_recSignalEnergy1_HE5->Write();
-    h_recSignalEnergy2_HE5->Write();
-    h_recSignalEnergy0_HE6->Write();
-    h_recSignalEnergy1_HE6->Write();
-    h_recSignalEnergy2_HE6->Write();
-    h_recSignalEnergy0_HE7->Write();
-    h_recSignalEnergy1_HE7->Write();
-    h_recSignalEnergy2_HE7->Write();
-
-    h_recNoiseEnergy0_HE1->Write();
-    h_recNoiseEnergy1_HE1->Write();
-    h_recNoiseEnergy2_HE1->Write();
-    h_recNoiseEnergy0_HE2->Write();
-    h_recNoiseEnergy1_HE2->Write();
-    h_recNoiseEnergy2_HE2->Write();
-    h_recNoiseEnergy0_HE3->Write();
-    h_recNoiseEnergy1_HE3->Write();
-    h_recNoiseEnergy2_HE3->Write();
-    h_recNoiseEnergy0_HE4->Write();
-    h_recNoiseEnergy1_HE4->Write();
-    h_recNoiseEnergy2_HE4->Write();
-    h_recNoiseEnergy0_HE5->Write();
-    h_recNoiseEnergy1_HE5->Write();
-    h_recNoiseEnergy2_HE5->Write();
-    h_recNoiseEnergy0_HE6->Write();
-    h_recNoiseEnergy1_HE6->Write();
-    h_recNoiseEnergy2_HE6->Write();
-    h_recNoiseEnergy0_HE7->Write();
-    h_recNoiseEnergy1_HE7->Write();
-    h_recNoiseEnergy2_HE7->Write();
-
-    //HF
-    h_recSignalEnergy0_HF1->Write();
-    h_recSignalEnergy1_HF1->Write();
-    h_recSignalEnergy2_HF1->Write();
-    h_recSignalEnergy0_HF2->Write();
-    h_recSignalEnergy1_HF2->Write();
-    h_recSignalEnergy2_HF2->Write();
-
-    h_recNoiseEnergy0_HF1->Write();
-    h_recNoiseEnergy1_HF1->Write();
-    h_recNoiseEnergy2_HF1->Write();
-    h_recNoiseEnergy0_HF2->Write();
-    h_recNoiseEnergy1_HF2->Write();
-    h_recNoiseEnergy2_HF2->Write();
-
-    // Digi as Reco:
-    //HB:
-    h_amplitudechannel0_HB1->Write();
-    h_amplitudechannel1_HB1->Write();
-    h_amplitudechannel2_HB1->Write();
-    h_amplitudechannel0_HB2->Write();
-    h_amplitudechannel1_HB2->Write();
-    h_amplitudechannel2_HB2->Write();
-    h_amplitudechannel0_HB3->Write();
-    h_amplitudechannel1_HB3->Write();
-    h_amplitudechannel2_HB3->Write();
-    h_amplitudechannel0_HB4->Write();
-    h_amplitudechannel1_HB4->Write();
-    h_amplitudechannel2_HB4->Write();
-
-    h_amplitudechannel0_HE1->Write();
-    h_amplitudechannel1_HE1->Write();
-    h_amplitudechannel2_HE1->Write();
-    h_amplitudechannel0_HE2->Write();
-    h_amplitudechannel1_HE2->Write();
-    h_amplitudechannel2_HE2->Write();
-    h_amplitudechannel0_HE3->Write();
-    h_amplitudechannel1_HE3->Write();
-    h_amplitudechannel2_HE3->Write();
-    h_amplitudechannel0_HE4->Write();
-    h_amplitudechannel1_HE4->Write();
-    h_amplitudechannel2_HE4->Write();
-    h_amplitudechannel0_HE5->Write();
-    h_amplitudechannel1_HE5->Write();
-    h_amplitudechannel2_HE5->Write();
-    h_amplitudechannel0_HE6->Write();
-    h_amplitudechannel1_HE6->Write();
-    h_amplitudechannel2_HE6->Write();
-    h_amplitudechannel0_HE7->Write();
-    h_amplitudechannel1_HE7->Write();
-    h_amplitudechannel2_HE7->Write();
-
-    h_amplitudechannel0_HF1->Write();
-    h_amplitudechannel1_HF1->Write();
-    h_amplitudechannel2_HF1->Write();
-    h_amplitudechannel0_HF2->Write();
-    h_amplitudechannel1_HF2->Write();
-    h_amplitudechannel2_HF2->Write();
-    h_amplitudechannel0_HF3->Write();
-    h_amplitudechannel1_HF3->Write();
-    h_amplitudechannel2_HF3->Write();
-    h_amplitudechannel0_HF4->Write();
-    h_amplitudechannel1_HF4->Write();
-    h_amplitudechannel2_HF4->Write();
-
-    // RADDAM:
-    h_mapDepth1RADDAM_HE->Write();
-    h_mapDepth2RADDAM_HE->Write();
-    h_mapDepth3RADDAM_HE->Write();
-    h_mapDepth1RADDAM0_HE->Write();
-    h_mapDepth2RADDAM0_HE->Write();
-    h_mapDepth3RADDAM0_HE->Write();
-    h_AamplitudewithPedSubtr_RADDAM_HE->Write();
-    h_AamplitudewithPedSubtr_RADDAM_HEzoom0->Write();
-    h_AamplitudewithPedSubtr_RADDAM_HEzoom1->Write();
-    h_A_Depth1RADDAM_HE->Write();
-    h_A_Depth2RADDAM_HE->Write();
-    h_A_Depth3RADDAM_HE->Write();
-    h_sumphiEta16Depth3RADDAM_HED2->Write();
-    h_Eta16Depth3RADDAM_HED2->Write();
-    h_NphiForEta16Depth3RADDAM_HED2->Write();
-    h_sumphiEta16Depth3RADDAM_HED2P->Write();
-    h_Eta16Depth3RADDAM_HED2P->Write();
-    h_NphiForEta16Depth3RADDAM_HED2P->Write();
-    h_sumphiEta16Depth3RADDAM_HED2ALL->Write();
-    h_Eta16Depth3RADDAM_HED2ALL->Write();
-    h_NphiForEta16Depth3RADDAM_HED2ALL->Write();
-    h_sigLayer1RADDAM_HE->Write();
-    h_sigLayer2RADDAM_HE->Write();
-    h_sigLayer1RADDAM0_HE->Write();
-    h_sigLayer2RADDAM0_HE->Write();
-    h_sigLayer1RADDAM5_HE->Write();
-    h_sigLayer2RADDAM5_HE->Write();
-    h_sigLayer1RADDAM6_HE->Write();
-    h_sigLayer2RADDAM6_HE->Write();
-    h_sigLayer1RADDAM5_HED2->Write();
-    h_sigLayer1RADDAM6_HED2->Write();
-    h_sigLayer2RADDAM5_HED2->Write();
-    h_sigLayer2RADDAM6_HED2->Write();
-    h_mapDepth3RADDAM16_HE->Write();
-
-    h_amplitudeaveragedbydepthes_HE->Write();
-    h_ndepthesperamplitudebins_HE->Write();
-    ///////////////////////
-  }  //if
-  ///////////////////////
-  hOutputFile->Close();
-  std::cout << "===== Finish writing user histograms and ntuple =====" << std::endl;
-  ///////////////////////
-  */
 }
 //
 
@@ -4467,18 +2685,18 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       ++runcounter;
       if (runcounter != 1) {
         nevcounter00 = eventcounter;
-        cout << " --------------------------------------- " << endl;
-        cout << " for Run = " << run0 << " with runcounter = " << runcounter - 1 << " #ev = " << eventcounter << endl;
-        cout << " #LS =  " << lscounterrun << " #LS10 =  " << lscounterrun10 << " Last LS =  " << ls0 << endl;
-        cout << " --------------------------------------------- " << endl;
+        std::cout << " --------------------------------------- " << std::endl;
+        std::cout << " for Run = " << run0 << " with runcounter = " << runcounter - 1 << " #ev = " << eventcounter << std::endl;
+        std::cout << " #LS =  " << lscounterrun << " #LS10 =  " << lscounterrun10 << " Last LS =  " << ls0 << std::endl;
+        std::cout << " --------------------------------------------- " << std::endl;
         h_nls_per_run->Fill(float(lscounterrun));
         h_nls_per_run10->Fill(float(lscounterrun10));
         lscounterrun = 0;
         lscounterrun10 = 0;
       }  // runcounter > 1
-      cout << " ---------***********************------------- " << endl;
-      cout << " New Run =  " << Run << " runcounter =  " << runcounter << endl;
-      cout << " ------- " << endl;
+      std::cout << " ---------***********************------------- " << std::endl;
+      std::cout << " New Run =  " << Run << " runcounter =  " << runcounter << std::endl;
+      std::cout << " ------- " << std::endl;
       run0 = Run;
       eventcounter = 0;
       ls0 = -1;
@@ -5949,7 +4167,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         gotHFDigis = false;
       }  //if it is not there, leave it false
       if (!gotHFDigis) {
-        cout << " ******************************  ===========================   No HFDigiCollection found " << endl;
+        std::cout << " ******************************  ===========================   No HFDigiCollection found " << std::endl;
       } else {
         ////////////////////////////////////////////////////////////////////   qie8   QIE8 :
         for (HFDigiCollection::const_iterator digi = hf->begin(); digi != hf->end(); digi++) {
@@ -5999,7 +4217,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         gotQIE10Digis = false;
       }  //if it is not there, leave it false
       if (!gotQIE10Digis) {
-        cout << " No QIE10DigiCollection collection is found " << endl;
+        std::cout << " No QIE10DigiCollection collection is found " << std::endl;
       } else {
         ////////////////////////////////////////////////////////////////////   qie10   QIE10 :
         double totalAmplitudeHF = 0.;
@@ -6070,7 +4288,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (!(hbhe.isValid()))
         gotHBHEDigis = false;  //if it is not there, leave it false
       if (!gotHBHEDigis) {
-        cout << " No HBHEDigiCollection collection is found " << endl;
+        std::cout << " No HBHEDigiCollection collection is found " << std::endl;
       } else {
         //      unsigned int NHBHEDigiCollectionsize =  hbhe->size();
         double totalAmplitudeHB = 0.;
@@ -6180,7 +4398,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (!(heqie11.isValid()))
         gotQIE11Digis = false;  //if it is not there, leave it false
       if (!gotQIE11Digis) {
-        cout << " No QIE11DigiCollection collection is found " << endl;
+        std::cout << " No QIE11DigiCollection collection is found " << std::endl;
       } else {
         ////////////////////////////////////////////////////////////////////   qie11   QIE11 :
         double totalAmplitudeHBQIE11 = 0.;
@@ -6304,7 +4522,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       gotHODigis = false;  //if it is not there, leave it false
     if (!gotHODigis) {
       //  if(!ho.isValid()) {
-      cout << " No HO collection is found " << endl;
+      std::cout << " No HO collection is found " << std::endl;
     } else {
       int qwert6 = 0;
       double totalAmplitudeHO = 0.;
@@ -6377,7 +4595,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         gotHBHERecHitsNoise = false;  //if it is not there, leave it false
       if (!gotHBHERecHitsNoise) {
         //  if(!hbheNoise.isValid()) {
-        std::cout << " No RecHits HBHENoise collection is found " << endl;
+        std::cout << " No RecHits HBHENoise collection is found " << std::endl;
       } else {
         for (HBHERecHitCollection::const_iterator hbheItr = hbheNoise->begin(); hbheItr != hbheNoise->end();
              hbheItr++) {
@@ -6436,7 +4654,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         gotHFRecHitsNoise = false;  //if it is not there, leave it false
       if (!gotHFRecHitsNoise) {
         //  if(!hfNoise.isValid()) {
-        std::cout << " No RecHits HFNoise collection is found " << endl;
+        std::cout << " No RecHits HFNoise collection is found " << std::endl;
       } else {
         for (HFRecHitCollection::const_iterator hfItr = hfNoise->begin(); hfItr != hfNoise->end(); hfItr++) {
           // Recalibration of energy
@@ -6490,7 +4708,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         gotHBHERecHitsSignal = false;  //if it is not there, leave it false
       if (!gotHBHERecHitsSignal) {
         //  if(!hbheSignal.isValid()) {
-        std::cout << " No RecHits HBHESignal collection is found " << endl;
+        std::cout << " No RecHits HBHESignal collection is found " << std::endl;
       } else {
         for (HBHERecHitCollection::const_iterator hbheItr = hbheSignal->begin(); hbheItr != hbheSignal->end();
              hbheItr++) {
@@ -6548,7 +4766,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         gotHFRecHitsSignal = false;  //if it is not there, leave it false
       if (!gotHFRecHitsSignal) {
         //  if(!hfSignal.isValid()) {
-        std::cout << " No RecHits HFSignal collection is found " << endl;
+        std::cout << " No RecHits HFSignal collection is found " << std::endl;
       } else {
         for (HFRecHitCollection::const_iterator hfItr = hfSignal->begin(); hfItr != hfSignal->end(); hfItr++) {
           // Recalibration of energy
@@ -6630,7 +4848,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                   if (verbosity == -9504)
                     std::cout << "nsumoverphi= " << nsumoverphi << " sumoverphi= " << sumoverphi << " k1= " << k1
                               << " k2= " << k2 << " kkk= " << kkk << " k3= " << k3
-                              << " maprphinorm= " << maprphinorm[k0][k1][k2][k3] << endl;
+                              << " maprphinorm= " << maprphinorm[k0][k1][k2][k3] << std::endl;
                   if (k1 == 0) {
                     h_mapenophinorm_HE1->Fill(double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3]);
                     h_mapenophinorm2_HE1->Fill(
@@ -7846,8 +6064,8 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     ///////////////////////////////////////////////////
     if (++local_event % 100 == 0) {
       if (verbosity == -22)
-        cout << "run " << Run << " processing events " << local_event << " ok, "
-             << ", lumi " << lumi << ", numOfLaserEv " << numOfLaserEv << endl;
+        std::cout << "run " << Run << " processing events " << local_event << " ok, "
+             << ", lumi " << lumi << ", numOfLaserEv " << numOfLaserEv << std::endl;
     }
   }  // bcn
 
@@ -7857,7 +6075,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 // ------------ method called once each job just before starting event loop  -----------
 void CMTRawAnalyzer::beginJob() {
   if (verbosity > 0)
-    cout << "========================   beignJob START   +++++++++++++++++++++++++++" << endl;
+    std::cout << "========================   beignJob START   +++++++++++++++++++++++++++" << std::endl;
   //  hOutputFile = new TFile(fOutputFileName.c_str(), "RECREATE");
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
   nnnnnn = 0;
@@ -9720,7 +7938,7 @@ void CMTRawAnalyzer::beginJob() {
     ////////////////////////////////////////////////////////////////////////////////////
   }  //if(recordHistoes_
   if (verbosity > 0)
-    cout << "========================   booking DONE   +++++++++++++++++++++++++++" << endl;
+    std::cout << "========================   booking DONE   +++++++++++++++++++++++++++" << std::endl;
   ///////////////////////////////////////////////////////            ntuples:
   if (recordNtuples_) {
     myTree = fs_->make<TTree>("Hcal", "Hcal Tree");
@@ -9729,7 +7947,7 @@ void CMTRawAnalyzer::beginJob() {
 
   }  //if(recordNtuples_
   if (verbosity > 0)
-    cout << "========================   beignJob  finish   +++++++++++++++++++++++++++" << endl;
+    std::cout << "========================   beignJob  finish   +++++++++++++++++++++++++++" << std::endl;
   //////////////////////////////////////////////////////////////////
 }
 
@@ -12964,10 +11182,8 @@ void CMTRawAnalyzer::fillDigiAmplitudeHFQIE10(QIE10DataFrame qie10df) {
   if (mdepth > 2 && flagupgradeqie1011_ == 9)
     return;
   /////////////////////////////////////////////////////////////////
-  //    HcalCalibrations calib = conditions->getHcalCalibrations(hcaldetid);
   const HcalPedestal* pedestal00 = conditions->getPedestal(hcaldetid);
   const HcalGain* gain = conditions->getGain(hcaldetid);
-  //  const HcalGainWidth* gainWidth = conditions->getGainWidth(hcaldetid);
   const HcalRespCorr* respcorr = conditions->getHcalRespCorr(hcaldetid);
   const HcalTimeCorr* timecorr = conditions->getHcalTimeCorr(hcaldetid);
   const HcalLUTCorr* lutcorr = conditions->getHcalLUTCorr(hcaldetid);
@@ -15197,6 +13413,52 @@ void CMTRawAnalyzer::fillMAP() {
   MAPfile << "};" << std::endl;
   MAPfile.close();
   std::cout << "===== Finish writing Channel MAP =====" << std::endl;
+}
+
+double CMTRawAnalyzer::dR(double eta1, double phi1, double eta2, double phi2) {
+  double deltaphi = phi1 - phi2;
+  if (phi2 > phi1) {
+    deltaphi = phi2 - phi1;
+  }
+  if (deltaphi > M_PI) {
+    deltaphi = 2. * M_PI - deltaphi;
+  }
+  double deltaeta = eta2 - eta1;
+  double tmp = sqrt(deltaeta * deltaeta + deltaphi * deltaphi);
+  return tmp;
+}
+
+double CMTRawAnalyzer::phi12(double phi1, double en1, double phi2, double en2) {
+  // weighted mean value of phi1 and phi2
+
+  double a1 = phi1;
+  double a2 = phi2;
+
+  if (a1 > 0.5 * M_PI && a2 < 0.)
+    a2 += 2 * M_PI;
+  if (a2 > 0.5 * M_PI && a1 < 0.)
+    a1 += 2 * M_PI;
+  double tmp = (a1 * en1 + a2 * en2) / (en1 + en2);
+  if (tmp > M_PI)
+    tmp -= 2. * M_PI;
+
+  return tmp;
+}
+
+double CMTRawAnalyzer::dPhiWsign(double phi1, double phi2) {
+  // clockwise      phi2 w.r.t phi1 means "+" phi distance
+  // anti-clockwise phi2 w.r.t phi1 means "-" phi distance
+
+  double a1 = phi1;
+  double a2 = phi2;
+  double tmp = a2 - a1;
+  if (a1 * a2 < 0.) {
+    if (a1 > 0.5 * M_PI)
+      tmp += 2. * M_PI;
+    if (a2 > 0.5 * M_PI)
+      tmp -= 2. * M_PI;
+  }
+  return tmp;
 }
 
 /////////////////////////////// -------------------------------------------------------------------
