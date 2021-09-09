@@ -15,8 +15,6 @@
 #include "OuterDetCompatibility.h"
 #include "OuterHitCompatibility.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-
 #include "FWCore/Utilities/interface/Visibility.h"
 
 template <typename Algo>
@@ -25,8 +23,7 @@ public:
   using OuterHitCompat = OuterHitCompatibility<Algo>;
 
   OuterEstimator(const OuterDetCompatibility& detCompatibility,
-                 const OuterHitCompat& hitCompatibility,
-                 const edm::EventSetup& iSetup)
+                 const OuterHitCompat& hitCompatibility)
       : theDetCompatibility(detCompatibility), theHitCompatibility(hitCompatibility) {}
 
   ~OuterEstimator() override {}
