@@ -237,8 +237,7 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
   }
 
   return std::make_unique<OuterEstimator<Algo>>(OuterDetCompatibility(layer, phiRange, detRWindow, hitZWindow),
-                                                OuterHitCompatibility<Algo>(phiPrediction, zPrediction),
-                                                iSetup);
+                                                OuterHitCompatibility<Algo>(phiPrediction, zPrediction));
 }
 
 std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator(const ForwardDetLayer* layer,
@@ -297,8 +296,7 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
   }
 
   return std::make_unique<OuterEstimator<Algo>>(OuterDetCompatibility(layer, phiRange, hitRWindow, detZWindow),
-                                                OuterHitCompatibility<Algo>(phiPrediction, rPrediction),
-                                                iSetup);
+                                                OuterHitCompatibility<Algo>(phiPrediction, rPrediction));
 }
 
 OuterHitPhiPrediction RectangularEtaPhiTrackingRegion::phiWindow(const MagneticField& field) const {
