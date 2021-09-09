@@ -367,7 +367,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
     int weight = -1.0;
     auto tpParam = conditions.getHcalTPChannelParameter(hcalTTDetId, false);
     if (tpParam)
-        weight = tpParam->getauxi1();
+      weight = tpParam->getauxi1();
 
     if (aieta <= lastHBRing) {
       foundHB = true;
