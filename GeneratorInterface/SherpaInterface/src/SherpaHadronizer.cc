@@ -23,6 +23,8 @@
 
 #include "CLHEP/Random/RandomEngine.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 //This unnamed namespace is used (instead of static variables) to pass the
 //randomEngine passed to doSetRandomEngine to the External Random
 //Number Generator CMS_SHERPA_RNG of sherpa
@@ -95,8 +97,11 @@ void SherpaHadronizer::doSetRandomEngine(CLHEP::HepRandomEngine *v) {
       SetExternalEngine(v);
       // Throw exception if there is no reference to an external RNG and it is not the first call!
     } else {
-      throw edm::Exception(edm::errors::LogicError) << "The Sherpa interface got a randomEngine reference but there is "
-                                                       "no reference to the external RNG to hand it over to\n";
+      if (isInitialized and v != nullptr) {
+        throw edm::Exception(edm::errors::LogicError)
+            << "The Sherpa interface got a randomEngine reference but there is "
+               "no reference to the external RNG to hand it over to\n";
+      }
     }
   } else {
     cmsSherpaRng->setRandomEngine(v);
@@ -213,6 +218,7 @@ SherpaHadronizer::~SherpaHadronizer() {
 
 bool SherpaHadronizer::initializeForInternalPartons() {
   //initialize Sherpa but only once
+  throw cms::Exception("TEST");
   if (!isInitialized) {
     int argc = arguments.size();
     char *argv[argc];
