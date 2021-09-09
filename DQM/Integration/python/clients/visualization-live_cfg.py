@@ -29,7 +29,8 @@ scenarioName = scenarios[runType.getRunTypeName()]
 
 if not unitTest :
   if BeamSplashRun :
-    scenarioName = 'ppEra_Run3'
+    # scenarioName = 'ppEra_Run3' #FIXME
+    pass
 
 print("Using scenario:",scenarioName)
 
@@ -70,7 +71,7 @@ if not unitTest:
     process.source.minEventsPerLumi              = cms.untracked.int32(0)
     process.source.nextLumiTimeoutMillis         = cms.untracked.int32(10000)
     process.source.streamLabel                   = cms.untracked.string('streamDQM')
-    if process.BeamSplashRun :
+    if BeamSplashRun :
       set_BeamSplashRun_settings( process.source )
 
     m = re.search(r"\((\w+)\)", str(source.runNumber))
