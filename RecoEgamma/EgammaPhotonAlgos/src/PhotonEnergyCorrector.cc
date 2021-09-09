@@ -1,4 +1,5 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
+#include "RecoEgamma/EgammaTools/interface/egEnergyCorrectorFactoryFromRootFile.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -50,11 +51,14 @@ PhotonEnergyCorrector::PhotonEnergyCorrector(const edm::ParameterSet& config, ed
   // ingredient for energy regression
   weightsfromDB_ = config.getParameter<bool>("regressionWeightsFromDB");
   w_file_ = config.getParameter<std::string>("energyRegressionWeightsFileLocation");
-  if (weightsfromDB_)
+  if (weightsfromDB_) {
     w_db_ = config.getParameter<std::string>("energyRegressionWeightsDBLocation");
-  else
-    w_db_ = "none";
-  regressionCorrector_ = std::make_unique<EGEnergyCorrector>();
+    regressionCorrectorFactory_ = std::make_unique<EGEnergyCorrectorFactoryFromEventSetup>(iC, w_db_);
+  } else if (w_file_ != "none") {
+    regressionCorrector_ = std::make_unique<EGEnergyCorrector>(egEnergyCorrectorFactoryFromRootFile(w_file_.c_str()));
+  } else {
+    regressionCorrector_ = std::make_unique<EGEnergyCorrector>();
+  }
 }
 
 void PhotonEnergyCorrector::init(const edm::EventSetup& theEventSetup) {
@@ -65,15 +69,9 @@ void PhotonEnergyCorrector::init(const edm::EventSetup& theEventSetup) {
   scEnergyErrorFunction_->init(theEventSetup);
   photonEcalEnergyCorrFunction_->init(theEventSetup);
 
-  if (weightsfromDB_) {
-    if (!regressionCorrector_->IsInitialized())
-      regressionCorrector_->Initialize(theEventSetup, w_db_, weightsfromDB_);
+  if (not regressionCorrector_) {
+    regressionCorrector_ = std::make_unique<EGEnergyCorrector>(regressionCorrectorFactory_->build(theEventSetup));
   }
-  if (!weightsfromDB_ && !(w_file_ == "none")) {
-    if (!regressionCorrector_->IsInitialized())
-      regressionCorrector_->Initialize(theEventSetup, w_file_, weightsfromDB_);
-  }
-
   photonUncertaintyCalculator_->init(theEventSetup);
 }
 
