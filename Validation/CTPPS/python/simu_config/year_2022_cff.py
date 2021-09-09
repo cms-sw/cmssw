@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.CTPPS.simu_config.base_cff import *
 
-from CalibPPS.ESProducers.ctppsOpticalFunctions_non_DB_cff import optics_2021 as selected_optics
+from CalibPPS.ESProducers.ctppsOpticalFunctions_non_DB_cff import optics_2022 as selected_optics
 
-# base profile settings for 2021
-profile_base_2021 = profile_base.clone(
+# base profile settings for 2022
+profile_base_2022 = profile_base.clone(
   ctppsLHCInfo = dict(
     beamEnergy = 7000
   ),
@@ -22,9 +22,9 @@ profile_base_2021 = profile_base.clone(
 )
 
 # adjust basic settings
-generator.energy = profile_base_2021.ctppsLHCInfo.beamEnergy
+generator.energy = profile_base_2022.ctppsLHCInfo.beamEnergy
 
-# geometry
+# geometry (NB: until a dedicated 2022 geometry is issued, it is OK to use 2021 one here)
 from Geometry.VeryForwardGeometry.geometryRPFromDD_2021_cfi import *
 ctppsCompositeESSource.compactViewTag = ctppsGeometryESModule.compactViewTag
 del ctppsGeometryESModule # this functionality is replaced by the composite ES source
@@ -49,5 +49,5 @@ rpIds = cms.PSet(
 )
 
 # default list of profiles
-from Validation.CTPPS.simu_config.profile_2021_default_cff import profile_2021_default
-ctppsCompositeESSource.periods = [profile_2021_default]
+from Validation.CTPPS.simu_config.profile_2022_default_cff import profile_2022_default
+ctppsCompositeESSource.periods = [profile_2022_default]
