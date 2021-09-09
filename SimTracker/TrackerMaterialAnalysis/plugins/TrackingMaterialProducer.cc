@@ -93,8 +93,8 @@ TrackingMaterialProducer::TrackingMaterialProducer(const edm::ParameterSet& iPSe
 
   //Check if HGCal volumes are selected
   isHGCal = false;
-  if (std::find(m_selectedNames.begin(), m_selectedNames.end(), "HGCal") != m_selectedNames.end()) {
   //if (std::find(m_selectedNames.begin(), m_selectedNames.end(), "CALOECTSRear") != m_selectedNames.end()) {
+  if (std::find(m_selectedNames.begin(), m_selectedNames.end(), "HGCal") != m_selectedNames.end()) {
     isHGCal = true;
   }
   //Check if HFNose volumes are selected
@@ -165,11 +165,9 @@ void TrackingMaterialProducer::update(const BeginOfTrack* event) {
   if (isHGCal && track->GetTrackStatus() != fStopAndKill && fabs(track->GetMomentum().eta()) > outerHGCalEta &&
       fabs(track->GetMomentum().eta()) < innerHGCalEta) {
     if (track->GetMomentum().eta() > 0.) {
-      outVolumeZpositionTxt << "Air " << m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0
-                            << std::endl;
+      outVolumeZpositionTxt << "Air " << m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0 << std::endl;
     } else if (track->GetMomentum().eta() <= 0.) {
-      outVolumeZpositionTxt << "Air " << -m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0
-                            << std::endl;
+      outVolumeZpositionTxt << "Air " << -m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0 << std::endl;
     }
   }
 
