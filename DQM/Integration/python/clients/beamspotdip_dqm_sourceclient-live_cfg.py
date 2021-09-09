@@ -31,7 +31,7 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
 )
 
 process.BeamSpotESProducer = cms.ESProducer("OnlineBeamSpotESProducer")
-process.BeamSpotDBSource.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+process.BeamSpotDBSource.connect = 'frontier://FrontierProd/CMS_CONDITIONS'
 
 # module
 process.load("DQM.BeamMonitor.BeamSpotDipServer_cff")

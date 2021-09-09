@@ -49,18 +49,16 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
 )
 
 process.BeamSpotESProducer = cms.ESProducer("OnlineBeamSpotESProducer")
-process.BeamSpotDBSource.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+process.BeamSpotDBSource.connect = 'frontier://FrontierProd/CMS_CONDITIONS'
 
 # module
 process.load("DQM.BeamMonitor.BeamSpotDipServer_cff")
 
-process.beamSpotDipServer.verbose = cms.untracked.bool(True)
-process.beamSpotDipServer.testing = cms.untracked.bool(True)
+process.beamSpotDipServer.verbose = True
+process.beamSpotDipServer.testing = True
 
-process.beamSpotDipServer.sourceFile  = cms.untracked.string(
-               "../../../../../BeamFitResults.txt")
-process.beamSpotDipServer.sourceFile1 = cms.untracked.string(
-               "../../../../../TkStatus.txt")
+process.beamSpotDipServer.sourceFile  = "../../../../../BeamFitResults.txt"
+process.beamSpotDipServer.sourceFile1 = "../../../../../TkStatus.txt"
 
 # process customizations
 from DQM.Integration.config.online_customizations_cfi import *
