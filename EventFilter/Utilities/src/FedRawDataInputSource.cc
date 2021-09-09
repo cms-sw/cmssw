@@ -686,7 +686,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
   return;
 }
 
-edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollection& rawData, bool &tcdsInRange) {
+edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollection& rawData, bool& tcdsInRange) {
   edm::TimeValue_t time;
   timeval stv;
   gettimeofday(&stv, nullptr);
@@ -716,7 +716,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
         selectedTCDSFed = fedId;
         tcds_pointer_ = event + eventSize;
         if (fedId >= FEDNumbering::MINTCDSuTCAFEDID && fedId <= FEDNumbering::MAXTCDSuTCAFEDID) {
-            tcdsInRange = true;
+          tcdsInRange = true;
         }
       } else
         throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection")
