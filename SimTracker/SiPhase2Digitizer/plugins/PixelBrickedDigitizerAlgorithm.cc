@@ -89,7 +89,7 @@ void PixelBrickedDigitizerAlgorithm::induce_signal(const PSimHit& hit,
     // so the returned pixel index might be wrong (outside range).
     // We rely on the limits check below to fix this.
     // But remember whatever we do here THE CHARGE OUTSIDE THE ACTIVE
-    // PIXEL ARE IS LOST, it should not be collected.
+    // PIXEL AREA IS LOST, it should not be collected.
 
     // Convert the 2D points to pixel indices
     MeasurementPoint mp = topol->measurementPosition(PointRightUp);
