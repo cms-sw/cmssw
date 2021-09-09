@@ -2686,7 +2686,8 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (runcounter != 1) {
         nevcounter00 = eventcounter;
         std::cout << " --------------------------------------- " << std::endl;
-        std::cout << " for Run = " << run0 << " with runcounter = " << runcounter - 1 << " #ev = " << eventcounter << std::endl;
+        std::cout << " for Run = " << run0 << " with runcounter = " << runcounter - 1 << " #ev = " << eventcounter
+                  << std::endl;
         std::cout << " #LS =  " << lscounterrun << " #LS10 =  " << lscounterrun10 << " Last LS =  " << ls0 << std::endl;
         std::cout << " --------------------------------------------- " << std::endl;
         h_nls_per_run->Fill(float(lscounterrun));
@@ -4167,7 +4168,8 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         gotHFDigis = false;
       }  //if it is not there, leave it false
       if (!gotHFDigis) {
-        std::cout << " ******************************  ===========================   No HFDigiCollection found " << std::endl;
+        std::cout << " ******************************  ===========================   No HFDigiCollection found "
+                  << std::endl;
       } else {
         ////////////////////////////////////////////////////////////////////   qie8   QIE8 :
         for (HFDigiCollection::const_iterator digi = hf->begin(); digi != hf->end(); digi++) {
@@ -6065,7 +6067,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     if (++local_event % 100 == 0) {
       if (verbosity == -22)
         std::cout << "run " << Run << " processing events " << local_event << " ok, "
-             << ", lumi " << lumi << ", numOfLaserEv " << numOfLaserEv << std::endl;
+                  << ", lumi " << lumi << ", numOfLaserEv " << numOfLaserEv << std::endl;
     }
   }  // bcn
 
