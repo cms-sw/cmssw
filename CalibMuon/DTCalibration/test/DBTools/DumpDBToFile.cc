@@ -27,8 +27,6 @@
 #include "CondFormats/DTObjects/interface/DTDeadFlag.h"
 #include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
-#include "CondFormats/DataRecord/interface/DTRecoUncertaintiesRcd.h"
-#include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
 #include "CondFormats/DTObjects/interface/DTRecoConditions.h"
 #include "CondFormats/DataRecord/interface/DTRecoConditionsTtrigRcd.h"
 #include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
@@ -98,15 +96,9 @@ void DumpDBToFile::beginRun(const edm::Run&, const EventSetup& setup) {
     setup.get<DTReadOutMappingRcd>().get(channels);
     channelsMap = &*channels;
   } else if (dbToDump == "RecoUncertDB") {
-    if (format == "Legacy") {
-      ESHandle<DTRecoUncertainties> uncerts;
-      setup.get<DTRecoUncertaintiesRcd>().get(uncerts);
-      uncertMap = &*uncerts;
-    } else if (format == "DTRecoConditions") {
-      ESHandle<DTRecoConditions> h_rconds;
-      setup.get<DTRecoConditionsUncertRcd>().get(h_rconds);
-      rconds = &*h_rconds;
-    }
+    ESHandle<DTRecoConditions> h_rconds;
+    setup.get<DTRecoConditionsUncertRcd>().get(h_rconds);
+    rconds = &*h_rconds;
   }
 }
 
@@ -302,42 +294,23 @@ void DumpDBToFile::endJob() {
 
       //---------- Uncertainties
     } else if (dbToDump == "RecoUncertDB") {
-      if (format == "Legacy") {
-        int version = 1;
-        int type = 2;  // par[step]
-        cout << "RecoUncertDB version: " << uncertMap->version() << endl;
-        for (DTRecoUncertainties::const_iterator wireAndUncerts = uncertMap->begin();
-             wireAndUncerts != uncertMap->end();
-             ++wireAndUncerts) {
-          DTWireId wireId((*wireAndUncerts).first);
-          vector<float> values = (*wireAndUncerts).second;
-          // 	  cout << wireId;
-          // 	  copy(values.begin(), values.end(), ostream_iterator<float>(cout, " cm, "));
-          // 	  cout << endl;
-          int nfields = values.size();
-          vector<float> consts = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, float(version * 1000 + type * 100 + nfields)};
-          consts.insert(consts.end(), values.begin(), values.end());
-          theCalibFile->addCell(wireId, consts);
-        }
-      } else if (format == "DTRecoConditions") {
-        int version = rconds->version();
-        string expr = rconds->getFormulaExpr();
-        int type = 2;  // par[step]
-        if (version != 1 || expr != "par[step]")
-          throw cms::Exception("Configuration") << "only version 1, type 2 is presently supported for RecoUncertDB";
+      int version = rconds->version();
+      string expr = rconds->getFormulaExpr();
+      int type = 2;  // par[step]
+      if (version != 1 || expr != "par[step]")
+        throw cms::Exception("Configuration") << "only version 1, type 2 is presently supported for RecoUncertDB";
 
-        cout << "[DumpDBToFile] DTRecoConditions (uncerts) version: " << rconds->version() << " expression: " << expr
-             << endl;
+      cout << "[DumpDBToFile] DTRecoConditions (uncerts) version: " << rconds->version() << " expression: " << expr
+           << endl;
 
-        for (DTRecoConditions::const_iterator irc = rconds->begin(); irc != rconds->end(); ++irc) {
-          DTWireId wireId(irc->first);
-          const vector<double>& data = irc->second;
-          int nfields = data.size();
-          vector<float> consts(11 + nfields, -1);
-          consts[10] = float(version * 1000 + type * 100 + nfields);
-          std::copy(data.begin(), data.end(), consts.begin() + 11);
-          theCalibFile->addCell(wireId, consts);
-        }
+      for (DTRecoConditions::const_iterator irc = rconds->begin(); irc != rconds->end(); ++irc) {
+        DTWireId wireId(irc->first);
+        const vector<double>& data = irc->second;
+        int nfields = data.size();
+        vector<float> consts(11 + nfields, -1);
+        consts[10] = float(version * 1000 + type * 100 + nfields);
+        std::copy(data.begin(), data.end(), consts.begin() + 11);
+        theCalibFile->addCell(wireId, consts);
       }
     }
     //Write constants into file
