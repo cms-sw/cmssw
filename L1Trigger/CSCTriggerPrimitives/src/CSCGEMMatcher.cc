@@ -1,5 +1,4 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMatcher.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCLUTReader.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/GEMInternalCluster.h"
 #include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
@@ -29,56 +28,11 @@ CSCGEMMatcher::CSCGEMMatcher(
 
   mitigateSlopeByCosi_ = tmbParams.getParameter<bool>("mitigateSlopeByCosi");
   assign_gem_csc_bending_ = tmbParams.getParameter<bool>("assignGEMCSCBending");
-
-  if (mitigateSlopeByCosi_) {
-    gemCscSlopeCosiFiles_ = conf.getParameter<std::vector<std::string>>("gemCscSlopeCosiFiles");
-
-    gem_csc_slope_cosi_2to1_L1_ME11_even_ = std::make_unique<CSCLUTReader>(gemCscSlopeCosiFiles_[0]);
-    gem_csc_slope_cosi_2to1_L1_ME11_odd_ = std::make_unique<CSCLUTReader>(gemCscSlopeCosiFiles_[1]);
-    gem_csc_slope_cosi_3to1_L1_ME11_even_ = std::make_unique<CSCLUTReader>(gemCscSlopeCosiFiles_[2]);
-    gem_csc_slope_cosi_3to1_L1_ME11_odd_ = std::make_unique<CSCLUTReader>(gemCscSlopeCosiFiles_[3]);
-
-    gemCscSlopeCosiCorrectionFiles_ = conf.getParameter<std::vector<std::string>>("gemCscSlopeCosiCorrectionFiles");
-
-    gem_csc_slope_cosi_corr_L1_ME11_even_ = std::make_unique<CSCLUTReader>(gemCscSlopeCosiCorrectionFiles_[0]);
-    gem_csc_slope_cosi_corr_L2_ME11_even_ = std::make_unique<CSCLUTReader>(gemCscSlopeCosiCorrectionFiles_[1]);
-    gem_csc_slope_cosi_corr_L1_ME11_odd_ = std::make_unique<CSCLUTReader>(gemCscSlopeCosiCorrectionFiles_[2]);
-    gem_csc_slope_cosi_corr_L2_ME11_odd_ = std::make_unique<CSCLUTReader>(gemCscSlopeCosiCorrectionFiles_[3]);
-  } else {
-    gemCscSlopeCorrectionFiles_ = conf.getParameter<std::vector<std::string>>("gemCscSlopeCorrectionFiles");
-
-    gem_csc_slope_corr_L1_ME11_even_ = std::make_unique<CSCLUTReader>(gemCscSlopeCorrectionFiles_[0]);
-    gem_csc_slope_corr_L2_ME11_even_ = std::make_unique<CSCLUTReader>(gemCscSlopeCorrectionFiles_[1]);
-    gem_csc_slope_corr_L1_ME11_odd_ = std::make_unique<CSCLUTReader>(gemCscSlopeCorrectionFiles_[2]);
-    gem_csc_slope_corr_L2_ME11_odd_ = std::make_unique<CSCLUTReader>(gemCscSlopeCorrectionFiles_[3]);
-  }
-
-  if (assign_gem_csc_bending_) {
-    if (station_ == 1) {
-      esDiffToSlopeME1aFiles_ = conf.getParameter<std::vector<std::string>>("esDiffToSlopeME1aFiles");
-      esDiffToSlopeME1bFiles_ = conf.getParameter<std::vector<std::string>>("esDiffToSlopeME1bFiles");
-
-      es_diff_slope_L1_ME1a_even_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1aFiles_[0]);
-      es_diff_slope_L1_ME1a_odd_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1aFiles_[1]);
-      es_diff_slope_L2_ME1a_even_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1aFiles_[2]);
-      es_diff_slope_L2_ME1a_odd_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1aFiles_[3]);
-
-      es_diff_slope_L1_ME1b_even_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1bFiles_[0]);
-      es_diff_slope_L1_ME1b_odd_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1bFiles_[1]);
-      es_diff_slope_L2_ME1b_even_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1bFiles_[2]);
-      es_diff_slope_L2_ME1b_odd_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1bFiles_[3]);
-    }
-
-    if (station_ == 2) {
-      esDiffToSlopeME21Files_ = conf.getParameter<std::vector<std::string>>("esDiffToSlopeME21Files");
-
-      es_diff_slope_L1_ME21_even_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME21Files_[0]);
-      es_diff_slope_L1_ME21_odd_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME21Files_[1]);
-      es_diff_slope_L2_ME21_even_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME21Files_[2]);
-      es_diff_slope_L2_ME21_odd_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME21Files_[3]);
-    }
-  }
 }
+
+void CSCGEMMatcher::setESLookupTables(const CSCL1TPLookupTableME11ILT* conf) { lookupTableME11ILT_ = conf; }
+
+void CSCGEMMatcher::setESLookupTables(const CSCL1TPLookupTableME21ILT* conf) { lookupTableME21ILT_ = conf; }
 
 unsigned CSCGEMMatcher::calculateGEMCSCBending(const CSCCLCTDigi& clct, const GEMInternalCluster& cluster) const {
   // difference in 1/8-strip number
@@ -90,14 +44,14 @@ unsigned CSCGEMMatcher::calculateGEMCSCBending(const CSCCLCTDigi& clct, const GE
   if (station_ == 2) {
     if (isEven_) {
       if (cluster.id().layer() == 1)
-        slope = es_diff_slope_L1_ME21_even_->lookup(diff);
+        slope = lookupTableME21ILT_->es_diff_slope_L1_ME21_even(diff);
       else
-        slope = es_diff_slope_L2_ME21_even_->lookup(diff);
+        slope = lookupTableME21ILT_->es_diff_slope_L2_ME21_even(diff);
     } else {
       if (cluster.id().layer() == 1)
-        slope = es_diff_slope_L1_ME21_odd_->lookup(diff);
+        slope = lookupTableME21ILT_->es_diff_slope_L1_ME21_odd(diff);
       else
-        slope = es_diff_slope_L2_ME21_odd_->lookup(diff);
+        slope = lookupTableME21ILT_->es_diff_slope_L2_ME21_odd(diff);
     }
   }
 
@@ -106,26 +60,26 @@ unsigned CSCGEMMatcher::calculateGEMCSCBending(const CSCCLCTDigi& clct, const GE
   if (station_ == 1 and isME1a) {
     if (isEven_) {
       if (cluster.id().layer() == 1)
-        slope = es_diff_slope_L1_ME1a_even_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L1_ME1a_even(diff);
       else
-        slope = es_diff_slope_L2_ME1a_even_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L2_ME1a_even(diff);
     } else {
       if (cluster.id().layer() == 1)
-        slope = es_diff_slope_L1_ME1a_odd_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L1_ME1a_odd(diff);
       else
-        slope = es_diff_slope_L2_ME1a_odd_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L2_ME1a_odd(diff);
     }
   } else {
     if (isEven_) {
       if (cluster.id().layer() == 1)
-        slope = es_diff_slope_L1_ME1b_even_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L1_ME1b_even(diff);
       else
-        slope = es_diff_slope_L2_ME1b_even_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L2_ME1b_even(diff);
     } else {
       if (cluster.id().layer() == 1)
-        slope = es_diff_slope_L1_ME1b_odd_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L1_ME1b_odd(diff);
       else
-        slope = es_diff_slope_L2_ME1b_odd_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L2_ME1b_odd(diff);
     }
   }
 
@@ -458,16 +412,16 @@ uint16_t CSCGEMMatcher::mitigatedSlopeByConsistency(const CSCCLCTDigi& clct) con
   //need to look up in table 2->1
   else if (cosi == 2) {
     if (chamber_ % 2 == 0)
-      return gem_csc_slope_cosi_2to1_L1_ME11_even_->lookup(clct.getSlope());
+      return lookupTableME11ILT_->CSC_slope_cosi_2to1_L1_ME11_even(clct.getSlope());
     else
-      return gem_csc_slope_cosi_2to1_L1_ME11_odd_->lookup(clct.getSlope());
+      return lookupTableME11ILT_->CSC_slope_cosi_2to1_L1_ME11_odd(clct.getSlope());
   }
   //need to look up in table 3->1
   else if (cosi == 3) {
     if (chamber_ % 2 == 0)
-      return gem_csc_slope_cosi_3to1_L1_ME11_even_->lookup(clct.getSlope());
+      return lookupTableME11ILT_->CSC_slope_cosi_3to1_L1_ME11_even(clct.getSlope());
     else
-      return gem_csc_slope_cosi_3to1_L1_ME11_odd_->lookup(clct.getSlope());
+      return lookupTableME11ILT_->CSC_slope_cosi_3to1_L1_ME11_odd(clct.getSlope());
   }
   //just to avoid compiler errors an error code
   else {
@@ -483,27 +437,27 @@ int CSCGEMMatcher::CSCGEMSlopeCorrector(bool isL1orCoincidence, int cscSlope) co
     //determine cosi-based slope correction
     if (chamber_ % 2 == 0) {
       if (isL1orCoincidence)
-        SlopeShift = gem_csc_slope_cosi_corr_L1_ME11_even_->lookup(std::abs(cscSlope));
+        SlopeShift = lookupTableME11ILT_->CSC_slope_cosi_corr_L1_ME11_even(std::abs(cscSlope));
       else
-        SlopeShift = gem_csc_slope_cosi_corr_L2_ME11_even_->lookup(std::abs(cscSlope));
+        SlopeShift = lookupTableME11ILT_->CSC_slope_cosi_corr_L2_ME11_even(std::abs(cscSlope));
     } else {
       if (isL1orCoincidence)
-        SlopeShift = gem_csc_slope_cosi_corr_L1_ME11_odd_->lookup(std::abs(cscSlope));
+        SlopeShift = lookupTableME11ILT_->CSC_slope_cosi_corr_L1_ME11_odd(std::abs(cscSlope));
       else
-        SlopeShift = gem_csc_slope_cosi_corr_L2_ME11_odd_->lookup(std::abs(cscSlope));
+        SlopeShift = lookupTableME11ILT_->CSC_slope_cosi_corr_L2_ME11_odd(std::abs(cscSlope));
     }
   } else {
     //determine shift by slope correction
     if (chamber_ % 2 == 0) {
       if (isL1orCoincidence)
-        SlopeShift = gem_csc_slope_corr_L1_ME11_even_->lookup(std::abs(cscSlope));
+        SlopeShift = lookupTableME11ILT_->CSC_slope_corr_L1_ME11_even(std::abs(cscSlope));
       else
-        SlopeShift = gem_csc_slope_corr_L2_ME11_even_->lookup(std::abs(cscSlope));
+        SlopeShift = lookupTableME11ILT_->CSC_slope_corr_L2_ME11_even(std::abs(cscSlope));
     } else {
       if (isL1orCoincidence)
-        SlopeShift = gem_csc_slope_corr_L1_ME11_odd_->lookup(std::abs(cscSlope));
+        SlopeShift = lookupTableME11ILT_->CSC_slope_corr_L1_ME11_odd(std::abs(cscSlope));
       else
-        SlopeShift = gem_csc_slope_corr_L2_ME11_odd_->lookup(std::abs(cscSlope));
+        SlopeShift = lookupTableME11ILT_->CSC_slope_corr_L2_ME11_odd(std::abs(cscSlope));
     }
   }
   return std::round(SlopeShift * SlopeSign * endcap_);

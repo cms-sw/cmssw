@@ -38,8 +38,8 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackAssParam.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTAddressArray.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackAssParam.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTAddressArray.h"
 class L1MuDTSectorProcessor;
 
 //              ---------------------

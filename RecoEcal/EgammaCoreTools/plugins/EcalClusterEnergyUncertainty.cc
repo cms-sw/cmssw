@@ -12,11 +12,12 @@
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyUncertaintyParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 
 class EcalClusterEnergyUncertainty : public EcalClusterFunctionBaseClass {
 public:
-  EcalClusterEnergyUncertainty(const edm::ParameterSet &){};
+  EcalClusterEnergyUncertainty(const edm::ParameterSet &, edm::ConsumesCollector iC) : paramsToken_(iC.esConsumes()) {}
 
   // get/set explicit methods for parameters
   const EcalClusterEnergyUncertaintyParameters *getParameters() const { return params_; }
@@ -31,14 +32,11 @@ public:
   void init(const edm::EventSetup &es) override;
 
 private:
-  edm::ESHandle<EcalClusterEnergyUncertaintyParameters> esParams_;
-  const EcalClusterEnergyUncertaintyParameters *params_;
+  const edm::ESGetToken<EcalClusterEnergyUncertaintyParameters, EcalClusterEnergyUncertaintyParametersRcd> paramsToken_;
+  const EcalClusterEnergyUncertaintyParameters *params_ = nullptr;
 };
 
-void EcalClusterEnergyUncertainty::init(const edm::EventSetup &es) {
-  es.get<EcalClusterEnergyUncertaintyParametersRcd>().get(esParams_);
-  params_ = esParams_.product();
-}
+void EcalClusterEnergyUncertainty::init(const edm::EventSetup &es) { params_ = &es.getData(paramsToken_); }
 
 void EcalClusterEnergyUncertainty::checkInit() const {
   if (!params_) {

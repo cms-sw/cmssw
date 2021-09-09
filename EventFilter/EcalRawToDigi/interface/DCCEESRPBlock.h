@@ -39,8 +39,6 @@ protected:
   bool checkSrpIdAndNumbSRFlags() override;
 
   std::unique_ptr<EESrFlagCollection>* eeSrFlagsDigis_;
-
-  EcalScDetId* pSCDetId_;
 };
 
 #endif

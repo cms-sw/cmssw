@@ -168,9 +168,9 @@ CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet &iConfig)
       opticalFunctionsToken_(esConsumes<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd>(
           edm::ESInputTag("", opticsLabel_))),
       geometryToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()) {
-  for (const std::string &sector : {"45", "56"}) {
-    const unsigned int arm = (sector == "45") ? 0 : 1;
-    association_cuts_[arm].load(iConfig.getParameterSet("association_cuts_" + sector));
+  for (auto &sector : {"45", "56"}) {
+    const unsigned int arm = strcmp(sector, "45") == 0 ? 0 : 1;
+    association_cuts_[arm].load(iConfig.getParameterSet("association_cuts_" + std::string(sector)));
   }
 
   if (doSingleRPReconstruction_)
@@ -212,9 +212,10 @@ void CTPPSProtonProducer::fillDescriptions(edm::ConfigurationDescriptions &descr
   desc.add<double>("localAngleYMin", -0.04)->setComment("minimal accepted value of local vertical angle (rad)");
   desc.add<double>("localAngleYMax", +0.04)->setComment("maximal accepted value of local vertical angle (rad)");
 
-  for (const std::string &sector : {"45", "56"}) {
-    desc.add<edm::ParameterSetDescription>("association_cuts_" + sector, AssociationCuts::getDefaultParameters())
-        ->setComment("track-association cuts for sector " + sector);
+  for (auto &sector : {"45", "56"}) {
+    desc.add<edm::ParameterSetDescription>("association_cuts_" + std::string(sector),
+                                           AssociationCuts::getDefaultParameters())
+        ->setComment("track-association cuts for sector " + std::string(sector));
   }
 
   std::vector<edm::ParameterSet> config;

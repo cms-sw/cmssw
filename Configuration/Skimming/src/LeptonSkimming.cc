@@ -1,10 +1,10 @@
 
 // -*- C++ -*-
 //
-// Package:    SkimmingForB/LeptonSkimming
+// Package:    Configuration/Skimming
 // Class:      LeptonSkimming
 //
-/**\class LeptonSkimming LeptonSkimming.cc SkimmingForB/LeptonSkimming/plugins/LeptonSkimming.cc
+/**\class LeptonSkimming LeptonSkimming.cc Configuration/Skimming/src/LeptonSkimming.cc
 
  Description: [one line class summary]
 

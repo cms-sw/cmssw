@@ -65,27 +65,27 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   double sidSpacersWidth = args.dble("SideSpacersWidth");     //              width
   double sidSpacersRadShift = args.dble("SideSpacersShift");  //
 
-  LogDebug("TIDGeom") << "Parent " << parentName << " Detector Planes " << detectorN;
-  LogDebug("TIDGeom") << "Detector Tilt " << convertRadToDeg(detTilt) << " Height " << fullHeight << " dl(Top) "
-                      << dlTop << " dl(Bottom) " << dlBottom << " dl(Hybrid) " << dlHybrid;
-  LogDebug("TIDGeom") << boxFrameName << " positioned at Z";
+  edm::LogVerbatim("TIDGeom") << "Parent " << parentName << " Detector Planes " << detectorN;
+  edm::LogVerbatim("TIDGeom") << "Detector Tilt " << convertRadToDeg(detTilt) << " Height " << fullHeight << " dl(Top) "
+                              << dlTop << " dl(Bottom) " << dlBottom << " dl(Hybrid) " << dlHybrid;
+  edm::LogVerbatim("TIDGeom") << boxFrameName << " positioned at Z";
   for (int i = 0; i < detectorN; i++)
-    LogDebug("TIDGeom") << "\tboxFrameZ[" << i << "] = " << boxFrameZ[i];
-  LogDebug("TIDGeom") << "\t Extra Height at Bottom " << bottomFrameHeight << " Overlap " << bottomFrameOver;
+    edm::LogVerbatim("TIDGeom") << "\tboxFrameZ[" << i << "] = " << boxFrameZ[i];
+  edm::LogVerbatim("TIDGeom") << "\t Extra Height at Bottom " << bottomFrameHeight << " Overlap " << bottomFrameOver;
   for (int i = 0; i < detectorN; i++)
-    LogDebug("TIDGeom") << "\tsideFrame[" << i << "] = " << sideFrameName[i] << " positioned at Z " << sideFrameZ[i]
-                        << " with rotation " << sideFrameRot[i];
+    edm::LogVerbatim("TIDGeom") << "\tsideFrame[" << i << "] = " << sideFrameName[i] << " positioned at Z "
+                                << sideFrameZ[i] << " with rotation " << sideFrameRot[i];
   for (int i = 0; i < detectorN; i++)
-    LogDebug("TIDGeom") << "\tkapton[" << i << "] = " << kaptonName[i] << " positioned at Z " << kaptonZ[i]
-                        << " with rotation " << kaptonRot[i];
+    edm::LogVerbatim("TIDGeom") << "\tkapton[" << i << "] = " << kaptonName[i] << " positioned at Z " << kaptonZ[i]
+                                << " with rotation " << kaptonRot[i];
   for (int i = 0; i < detectorN; i++)
-    LogDebug("TIDGeom") << waferName[i] << " positioned at Z " << waferZ[i] << " with rotation " << waferRot[i];
-  LogDebug("TIDGeom") << hybridName << " Height " << hybridHeight << " Z";
+    edm::LogVerbatim("TIDGeom") << waferName[i] << " positioned at Z " << waferZ[i] << " with rotation " << waferRot[i];
+  edm::LogVerbatim("TIDGeom") << hybridName << " Height " << hybridHeight << " Z";
   for (int i = 0; i < detectorN; i++)
-    LogDebug("TIDGeom") << "\thybridZ[" << i << "] = " << hybridZ[i];
-  LogDebug("TIDGeom") << "Pitch Adapter Height " << pitchHeight;
+    edm::LogVerbatim("TIDGeom") << "\thybridZ[" << i << "] = " << hybridZ[i];
+  edm::LogVerbatim("TIDGeom") << "Pitch Adapter Height " << pitchHeight;
   for (int i = 0; i < detectorN; i++)
-    LogDebug("TIDGeom") << pitchName[i] << " position at Z " << pitchZ[i] << " with rotation " << pitchRot[i];
+    edm::LogVerbatim("TIDGeom") << pitchName[i] << " position at Z " << pitchZ[i] << " with rotation " << pitchRot[i];
 
   string name;
   double botfr;  // width of side frame at the the bottom of the modules
@@ -162,8 +162,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     for (int j2 = 0; j2 < 2; j2++) {
       copy++;
       parentVol.placeVolume(ns.volume(name), copy, Position(xpos, ypos, zpos));
-      LogDebug("TIDGeom") << name << " number " << copy << " positioned in " << parentName << " at "
-                          << Position(xpos, ypos, zpos) << " with " << rot;
+      edm::LogVerbatim("TIDGeom") << name << " number " << copy << " positioned in " << parentName << " at "
+                                  << Position(xpos, ypos, zpos) << " with " << rot;
       xpos = -xpos;
     }
   }
@@ -180,8 +180,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     }
     zpos = zBotSpacers - zCenter;
     parentVol.placeVolume(ns.volume(name), 1, Position(0.0, ypos, zpos));
-    LogDebug("TIDGeom") << name << " number " << 1 << " positioned in " << parentName << " at "
-                        << Position(0.0, ypos, zpos) << " with no rotation";
+    edm::LogVerbatim("TIDGeom") << name << " number " << 1 << " positioned in " << parentName << " at "
+                                << Position(0.0, ypos, zpos) << " with no rotation";
     // Side Spacers (Alumina)
     name = sidSpacersName;
     ypos = sidSpacersZ;
@@ -211,8 +211,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
       thetax = 90._deg + thetaz;
       rot = makeRotation3D(thetax, phix, thetay, phiy, thetaz, phiz);
       parentVol.placeVolume(ns.volume(name), copy, Transform3D(rot, Position(xpos, ypos, zpos)));
-      LogDebug("TIDGeom") << name << " number " << copy << " positioned in " << parentName << " at "
-                          << Position(xpos, ypos, zpos) << " with " << rot;
+      edm::LogVerbatim("TIDGeom") << name << " number " << copy << " positioned in " << parentName << " at "
+                                  << Position(xpos, ypos, zpos) << " with " << rot;
       xpos = -xpos;
       thetaz = -thetaz;
     }
@@ -235,8 +235,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     rot = ns.rotation(waferRot[k]);
 
     parentVol.placeVolume(ns.volume(name), k + 1, Transform3D(rot, tran));  // copyNr=k+1
-    LogDebug("TIDGeom") << name << " number " << k + 1 << " positioned in " << parentName << " at " << tran << " with "
-                        << rot;
+    edm::LogVerbatim("TIDGeom") << name << " number " << k + 1 << " positioned in " << parentName << " at " << tran
+                                << " with " << rot;
 
     //Pitch Adapter
     name = pitchName[k];
@@ -256,8 +256,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     rot = ns.rotation(pitchRot[k]);
     tran = Position(xpos, ypos, zpos);
     parentVol.placeVolume(ns.volume(name), k + 1, Transform3D(rot, tran));  // copyNr=k+1
-    LogDebug("TIDGeom") << name << " number " << k + 1 << " positioned in " << parentName << " at " << tran << " with "
-                        << rot;
+    edm::LogVerbatim("TIDGeom") << name << " number " << k + 1 << " positioned in " << parentName << " at " << tran
+                                << " with " << rot;
 
     // Hybrid
     name = hybridName;
@@ -271,7 +271,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     zpos = zHybrid - zCenter;
     tran = Position(0, ypos, zpos);
     parentVol.placeVolume(ns.volume(name), k + 1, tran);  // copyNr=k+1
-    LogDebug("TIDGeom") << name << " number " << k + 1 << " positioned in " << parentName << " at " << tran;
+    edm::LogVerbatim("TIDGeom") << name << " number " << k + 1 << " positioned in " << parentName << " at " << tran;
 
     // Box frame
     name = boxFrameName;
@@ -285,7 +285,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     zpos = zBoxFrame - zCenter;
     tran = Position(0, ypos, zpos);
     parentVol.placeVolume(ns.volume(name), k + 1, tran);  // copyNr=k+1
-    LogDebug("TIDGeom") << name << " number " << k + 1 << " positioned in " << parentName << " at " << tran;
+    edm::LogVerbatim("TIDGeom") << name << " number " << k + 1 << " positioned in " << parentName << " at " << tran;
 
     // Side frame
     name = sideFrameName[k];
@@ -300,8 +300,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     rot = ns.rotation(sideFrameRot[k]);
     tran = Position(0, ypos, zpos);
     parentVol.placeVolume(ns.volume(name), k + 1, Transform3D(rot, tran));
-    LogDebug("TIDGeom") << name << " number " << k + 1 << " positioned in " << parentName << " at " << tran << " with "
-                        << rot;
+    edm::LogVerbatim("TIDGeom") << name << " number " << k + 1 << " positioned in " << parentName << " at " << tran
+                                << " with " << rot;
     // Kapton circuit
     name = kaptonName[k];
     ypos = kaptonZ[k];
@@ -322,10 +322,10 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     rot = ns.rotation(kaptonRot[k]);
     tran = Position(0, ypos, zpos);
     parentVol.placeVolume(ns.volume(name), k + 1, Transform3D(rot, tran));
-    LogDebug("TIDGeom") << name << " number " << k + 1 << " positioned in " << parentName << " at " << tran << " with "
-                        << rot;
+    edm::LogVerbatim("TIDGeom") << name << " number " << k + 1 << " positioned in " << parentName << " at " << tran
+                                << " with " << rot;
   }
-  LogDebug("TIDGeom") << "<<== End of DDTIDModulePosAlgo positioning ...";
+  edm::LogVerbatim("TIDGeom") << "<<== End of DDTIDModulePosAlgo positioning ...";
   return 1;
 }
 

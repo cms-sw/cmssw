@@ -113,6 +113,11 @@ totemTimingRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 from EventFilter.CTPPSRawToDigi.ctppsPixelDigis_cfi import ctppsPixelDigis
 ctppsPixelDigis.inputLabel = cms.InputTag("rawDataCollector")
 
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017
+from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
+(ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(ctppsPixelDigis, isRun3 = False )
+
 # raw-to-digi task and sequence
 ctppsRawToDigiTask = cms.Task(
   totemTriggerRawToDigi,

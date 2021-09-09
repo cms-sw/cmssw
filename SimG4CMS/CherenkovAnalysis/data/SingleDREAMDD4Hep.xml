@@ -21,6 +21,7 @@
 
   <IncludeSection>
    <Include ref='Geometry/CMSCommonData/data/materials/2021/v2/materials.xml'/>
+   <Include ref='SimG4CMS/CherenkovAnalysis/data/cms.xml'/>
    <Include ref='SimG4CMS/CherenkovAnalysis/data/singleDREAM.xml'/>
   </IncludeSection>
 </DDDefinition>

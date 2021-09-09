@@ -21,15 +21,15 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
@@ -56,38 +56,48 @@
 // class declaration
 //
 
-class EcalMipGraphs : public edm::EDAnalyzer {
+class EcalMipGraphs : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit EcalMipGraphs(const edm::ParameterSet&);
   ~EcalMipGraphs() override;
 
 private:
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override;
   std::string intToString(int num);
   std::string floatToString(float num);
   void writeGraphs();
   void initHists(int);
-  void selectHits(edm::Handle<EcalRecHitCollection> hits, int ievt, edm::ESHandle<CaloTopology> caloTopo);
+  void selectHits(edm::Handle<EcalRecHitCollection> hits, int ievt);
   TGraph* selectDigi(DetId det, int ievt);
   int getEEIndex(EcalElectronicsId elecId);
 
   // ----------member data ---------------------------
 
-  edm::InputTag EBRecHitCollection_;
-  edm::InputTag EERecHitCollection_;
-  edm::InputTag EBDigis_;
-  edm::InputTag EEDigis_;
-  edm::InputTag headerProducer_;
+  const edm::InputTag EBRecHitCollection_;
+  const edm::InputTag EERecHitCollection_;
+  const edm::InputTag EBDigis_;
+  const edm::InputTag EEDigis_;
+  const edm::InputTag headerProducer_;
 
   edm::Handle<EBDigiCollection> EBdigisHandle;
   edm::Handle<EEDigiCollection> EEdigisHandle;
 
+  const edm::EDGetTokenT<EcalRawDataCollection> rawDataToken_;
+  const edm::EDGetTokenT<EcalRecHitCollection> ebRecHitToken_;
+  const edm::EDGetTokenT<EcalRecHitCollection> eeRecHitToken_;
+  const edm::EDGetTokenT<EBDigiCollection> ebDigiToken_;
+  const edm::EDGetTokenT<EEDigiCollection> eeDigiToken_;
+
+  const edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> ecalMappingToken_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> topologyToken_;
+
   int runNum_;
-  int side_;
-  double threshold_;
-  double minTimingAmp_;
+  const int side_;
+  const double threshold_;
+  const double minTimingAmp_;
 
   std::set<EBDetId> listEBChannels;
   std::set<EEDetId> listEEChannels;
@@ -114,6 +124,7 @@ private:
   TTree* canvasNames_;
   EcalFedMap* fedMap_;
   const EcalElectronicsMapping* ecalElectronicsMap_;
+  const CaloTopology* caloTopo_;
 
   int naiveEvtNum_;
 };

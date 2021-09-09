@@ -407,7 +407,8 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
       hcalCfgBc_,
       isoCfg,
       recHitsCfg,
-      EcalClusterFunctionFactory::get()->create(cfg.getParameter<std::string>("crackCorrectionFunction"), cfg),
+      EcalClusterFunctionFactory::get()->create(
+          cfg.getParameter<std::string>("crackCorrectionFunction"), cfg, consumesCollector()),
       regressionCfg,
       cfg.getParameter<edm::ParameterSet>("trkIsol03Cfg"),
       cfg.getParameter<edm::ParameterSet>("trkIsol04Cfg"),

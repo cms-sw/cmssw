@@ -69,12 +69,12 @@ void WriteEcalMiscalibConstants::analyze(const edm::Event& iEvent, const edm::Ev
   if (poolDbService.isAvailable()) {
     if (poolDbService->isNewTagRequest(newTagRequest_)) {
       std::cout << " Creating a  new one " << std::endl;
-      poolDbService->createNewIOV<const EcalIntercalibConstants>(
-          Mcal, poolDbService->beginOfTime(), poolDbService->endOfTime(), newTagRequest_);
+      poolDbService->createNewIOV<const EcalIntercalibConstants>(*Mcal, poolDbService->beginOfTime(), newTagRequest_);
       std::cout << "Done" << std::endl;
     } else {
       std::cout << "Old One " << std::endl;
-      poolDbService->appendSinceTime<const EcalIntercalibConstants>(Mcal, poolDbService->currentTime(), newTagRequest_);
+      poolDbService->appendSinceTime<const EcalIntercalibConstants>(
+          *Mcal, poolDbService->currentTime(), newTagRequest_);
     }
   }
 }

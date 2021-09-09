@@ -59,7 +59,9 @@ EcalDccWeightBuilder::EcalDccWeightBuilder(edm::ParameterSet const& ps)
       dbTag_(ps.getParameter<string>("dbTag")),
       dbVersion_(ps.getParameter<int>("dbVersion")),
       sqlMode_(ps.getParameter<bool>("sqlMode")),
-      calibMap_(emptyCalibMap_) {
+      calibMap_(emptyCalibMap_),
+      ebShape_(consumesCollector()),
+      eeShape_(consumesCollector()) {
   if (mode_ == "weightsFromConfig") {
     imode_ = WEIGHTS_FROM_CONFIG;
     if (inputWeights_.size() != (unsigned)nDccWeights_) {
@@ -157,15 +159,12 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib, const edm::Eve
 #endif
 
     try {
-      bool useDBShape = true;
-      EBShape ebShape(useDBShape);
-      EEShape eeShape(useDBShape);
       EcalShapeBase* pShape;
 
       if (it->subdetId() == EcalBarrel) {
-        pShape = &ebShape;
+        pShape = &ebShape_;
       } else if (it->subdetId() == EcalEndcap) {
-        pShape = &eeShape;
+        pShape = &eeShape_;
       } else {
         throw cms::Exception("EcalDccWeightBuilder") << "Bug found in " << __FILE__ << ":" << __LINE__ << ": "
                                                      << "Got a detId which is neither tagged as ECAL Barrel "

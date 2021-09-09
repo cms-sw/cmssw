@@ -44,8 +44,8 @@ process.success = cms.EDFilter('HLTBool', result = cms.bool(True))
 process.Path_1  = cms.Path(process.scale_1)
 process.Path_2  = cms.Path(process.scale_2)
 process.Path_3  = cms.Path(process.scale_3)
-process.True    = cms.Path(process.success)
-process.False   = cms.Path(process.fail)
+process.AlwaysTrue    = cms.Path(process.success)
+process.AlwaysFalse   = cms.Path(process.fail)
 process.L1_Path = cms.Path(process.success)
 
 # define and EndPath to analyze all other path results

@@ -1,76 +1,21 @@
-#include <TFile.h>
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 #include "CondFormats/GBRForest/interface/GBRForest.h"
-#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 using namespace reco;
 
 //--------------------------------------------------------------------------------------------------
-EGEnergyCorrector::~EGEnergyCorrector() {
-  if (fOwnsForests) {
-    if (fReadereb)
-      delete fReadereb;
-    if (fReaderebvariance)
-      delete fReaderebvariance;
-    if (fReaderee)
-      delete fReaderee;
-    if (fReadereevariance)
-      delete fReadereevariance;
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-void EGEnergyCorrector::Initialize(const edm::EventSetup &iSetup, std::string regweights, bool weightsFromDB) {
-  fIsInitialized = true;
-
-  if (fOwnsForests) {
-    if (fReadereb)
-      delete fReadereb;
-    if (fReaderebvariance)
-      delete fReaderebvariance;
-    if (fReaderee)
-      delete fReaderee;
-    if (fReadereevariance)
-      delete fReadereevariance;
-  }
-
+EGEnergyCorrector::EGEnergyCorrector(Initializer init) noexcept
+    : fReadereb(std::move(init.readereb_)),
+      fReaderebvariance(std::move(init.readerebvariance_)),
+      fReaderee(std::move(init.readeree_)),
+      fReadereevariance(std::move(init.readereevariance_)) {
   fVals.fill(0.0f);
-
-  if (weightsFromDB) {  //weights from event setup
-
-    edm::ESHandle<GBRForest> readereb;
-    edm::ESHandle<GBRForest> readerebvar;
-    edm::ESHandle<GBRForest> readeree;
-    edm::ESHandle<GBRForest> readereevar;
-
-    iSetup.get<GBRWrapperRcd>().get(regweights + "_EBCorrection", readereb);
-    iSetup.get<GBRWrapperRcd>().get(regweights + "_EBUncertainty", readerebvar);
-    iSetup.get<GBRWrapperRcd>().get(regweights + "_EECorrection", readeree);
-    iSetup.get<GBRWrapperRcd>().get(regweights + "_EEUncertainty", readereevar);
-
-    fReadereb = readereb.product();
-    fReaderebvariance = readerebvar.product();
-    fReaderee = readeree.product();
-    fReadereevariance = readereevar.product();
-
-  } else {  //weights from root file
-    fOwnsForests = true;
-
-    TFile *fgbr = TFile::Open(regweights.c_str(), "READ");
-    fReadereb = (GBRForest *)fgbr->Get("EBCorrection");
-    fReaderebvariance = (GBRForest *)fgbr->Get("EBUncertainty");
-    fReaderee = (GBRForest *)fgbr->Get("EECorrection");
-    fReadereevariance = (GBRForest *)fgbr->Get("EEUncertainty");
-    fgbr->Close();
-  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -252,12 +197,12 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithError(const Phot
   const GBRForest *readervar;
   if (isbarrel) {
     den = s->rawEnergy();
-    reader = fReadereb;
-    readervar = fReaderebvariance;
+    reader = fReadereb.get();
+    readervar = fReaderebvariance.get();
   } else {
     den = s->rawEnergy() + s->preshowerEnergy();
-    reader = fReaderee;
-    readervar = fReadereevariance;
+    reader = fReaderee.get();
+    readervar = fReadereevariance.get();
   }
 
   double ecor = reader->GetResponse(fVals.data()) * den;
@@ -361,12 +306,12 @@ std::pair<double, double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Ph
   const GBRForest *readervar;
   if (isbarrel) {
     den = s->rawEnergy();
-    reader = fReadereb;
-    readervar = fReaderebvariance;
+    reader = fReadereb.get();
+    readervar = fReaderebvariance.get();
   } else {
     den = s->rawEnergy() + s->preshowerEnergy();
-    reader = fReaderee;
-    readervar = fReadereevariance;
+    reader = fReaderee.get();
+    readervar = fReadereevariance.get();
   }
 
   double ecor = reader->GetResponse(fVals.data()) * den;

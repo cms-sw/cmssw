@@ -145,9 +145,9 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
       theTrajectoryBuilder_(createBaseCkfTrajectoryBuilder(
           config.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), consumesCollector())),
       outInSeedFinder_{config, consumesCollector()},
-      outInTrackFinder_{config, theTrajectoryBuilder_.get()},
+      outInTrackFinder_{config, theTrajectoryBuilder_.get(), consumesCollector()},
       inOutSeedFinder_{config, consumesCollector()},
-      inOutTrackFinder_{config, theTrajectoryBuilder_.get()} {
+      inOutTrackFinder_{config, theTrajectoryBuilder_.get(), consumesCollector()} {
   OutInTrackCandidateCollection_ = config.getParameter<std::string>("outInTrackCandidateCollection");
   InOutTrackCandidateCollection_ = config.getParameter<std::string>("inOutTrackCandidateCollection");
 

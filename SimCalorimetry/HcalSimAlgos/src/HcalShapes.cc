@@ -1,6 +1,4 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShapes.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloCachedShapeIntegrator.h"
 #include "CondFormats/HcalObjects/interface/HcalMCParam.h"
 #include "CondFormats/HcalObjects/interface/HcalMCParams.h"

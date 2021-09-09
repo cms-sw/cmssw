@@ -27,30 +27,85 @@ to the actual calibration code in "endJob()".
 #include <memory>
 #include <fstream>
 #include <iostream>
+#include <string>
 
 // user include files
 
-#include "Calibration/HcalCalibAlgos/plugins/HcalCalibrator.h"
 #include "Calibration/HcalCalibAlgos/interface/hcalCalib.h"
+#include "DataFormats/Common/interface/Handle.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//--------------
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DataFormats/Common/interface/Handle.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-#include "TFile.h"
+class HcalCalibrator : public edm::one::EDAnalyzer<> {
+public:
+  explicit HcalCalibrator(const edm::ParameterSet&);
+  ~HcalCalibrator() override;
+
+  // Added for running the CaloTower creation algorithm
+
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
+  std::string mOutputFile;
+  std::string mInputFileList;
+
+  std::string mCalibType;
+  std::string mCalibMethod;
+  double mMinTargetE;
+  double mMaxTargetE;
+  double mMinCellE;
+  double mMinEOverP;
+  double mMaxEOverP;
+  double mMaxTrkEmE;
+
+  double mMaxEtThirdJet;
+  double mMinDPhiDiJets;
+  bool mSumDepths;
+  bool mSumSmallDepths;
+  bool mCombinePhi;
+  int mHbClusterSize;
+  int mHeClusterSize;
+
+  bool mUseConeClustering;
+  double mMaxConeDist;
+
+  int mCalibAbsIEtaMax;
+  int mCalibAbsIEtaMin;
+
+  double mMaxProbeJetEmFrac;
+  double mMaxTagJetEmFrac;
+  double mMaxTagJetAbsEta;
+  double mMinTagJetEt;
+  double mMinProbeJetAbsEta;
+
+  std::string mPhiSymCorFileName;
+  bool mApplyPhiSymCorFlag;
+
+  std::string mOutputCorCoefFileName;
+  std::string mHistoFileName;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+
+  const CaloGeometry* mTheCaloGeometry;
+  const HcalTopology* mTheHcalTopology;
+
+  bool allowMissingInputs_;
+};
 
 // constructor
 

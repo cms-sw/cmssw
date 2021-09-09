@@ -128,6 +128,9 @@ private:
   EcalIntercalibConstantMap emptyCalibMap_;
   std::map<DetId, std::vector<int> > encodedWeights_;
 
+  EBShape ebShape_;
+  EEShape eeShape_;
+
   static const double weightScale_;
   const EcalElectronicsMapping* ecalElectronicsMap_;
 

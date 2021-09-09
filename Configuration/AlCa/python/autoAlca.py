@@ -124,3 +124,11 @@ autoAlca = { 'allForPrompt'         : buildList(['Charmonium', 'Commissioning', 
              'allForPromptCosmics'  : buildList(['Cosmics'], AlCaRecoMatrix),
              'allForExpressCosmics' : buildList(['ExpressCosmics'], AlCaRecoMatrix) }
 autoAlca.update(AlCaRecoMatrix)
+
+# list of AlCa sequences that have modules that do not support concurrent LuminosityBlocks
+AlCaNoConcurrentLumis = [
+    'PromptCalibProd',                 # AlcaBeamSpotProducer
+    'PromptCalibProdSiPixelAli',       # AlignmentProducerAsAnalyzer, MillePedeFileConverter
+    'PromptCalibProdBeamSpotHP',       # AlcaBeamSpotProducer
+    'PromptCalibProdBeamSpotHPLowPU',  # AlcaBeamSpotProducer
+]
