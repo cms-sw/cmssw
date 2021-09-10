@@ -19,14 +19,9 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
@@ -128,9 +123,7 @@ std::unique_ptr<HitRZCompatibility> RectangularEtaPhiTrackingRegion::checkRZOld(
   float innerScatt = 0;
   //CHECK
   if (theUseMS) {
-    edm::ESHandle<MultipleScatteringParametrisationMaker> hmaker;
-    iSetup.get<TrackerMultipleScatteringRecord>().get(hmaker);
-    MultipleScatteringParametrisation oSigma = hmaker->parametrisation(layer);
+    MultipleScatteringParametrisation oSigma = theMSMaker->parametrisation(layer);
     float cotThetaOuter = theMeanLambda;
     float sinThetaOuterInv = std::sqrt(1.f + sqr(cotThetaOuter));
     outerZscatt = 3.f * oSigma(ptMin(), cotThetaOuter) * sinThetaOuterInv;
@@ -146,9 +139,7 @@ std::unique_ptr<HitRZCompatibility> RectangularEtaPhiTrackingRegion::checkRZOld(
   //CHECK
 
   if (theUseMS) {
-    edm::ESHandle<MultipleScatteringParametrisationMaker> hmaker;
-    iSetup.get<TrackerMultipleScatteringRecord>().get(hmaker);
-    MultipleScatteringParametrisation iSigma = hmaker->parametrisation(layer);
+    MultipleScatteringParametrisation iSigma = theMSMaker->parametrisation(layer);
 
     innerScatt =
         3.f * (outerlayer ? iSigma(ptMin(), vtxMean, outer, outerlayer->seqNum()) : iSigma(ptMin(), vtxMean, outer));
@@ -196,10 +187,7 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
     return nullptr;
 
   // phi prediction
-  edm::ESHandle<MagneticField> hfield;
-  iSetup.get<IdealMagneticFieldRecord>().get(hfield);
-  const auto& field = *hfield;
-  OuterHitPhiPrediction phiPrediction = phiWindow(field);
+  OuterHitPhiPrediction phiPrediction = phiWindow(*theField);
 
   //
   // optional corrections for tolerance (mult.scatt, error, bending)
@@ -209,11 +197,9 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
     auto invR = 1.f / radius;
     auto cotTheta = (hitZWindow.mean() - origin().z()) * invR;
     auto sinThetaInv = std::sqrt(1.f + sqr(cotTheta));
-    edm::ESHandle<MultipleScatteringParametrisationMaker> hmaker;
-    iSetup.get<TrackerMultipleScatteringRecord>().get(hmaker);
-    MultipleScatteringParametrisation msSigma = hmaker->parametrisation(layer);
+    MultipleScatteringParametrisation msSigma = theMSMaker->parametrisation(layer);
     auto scatt = 3.f * msSigma(ptMin(), cotTheta);
-    auto bendR = longitudinalBendingCorrection(radius, ptMin(), field);
+    auto bendR = longitudinalBendingCorrection(radius, ptMin(), *theField);
 
     float hitErrRPhi = 0.;
     float hitErrZ = 0.;
@@ -256,10 +242,7 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
     return nullptr;
 
   // phi prediction
-  edm::ESHandle<MagneticField> hfield;
-  iSetup.get<IdealMagneticFieldRecord>().get(hfield);
-  const auto& field = *hfield;
-  OuterHitPhiPrediction phiPrediction = phiWindow(field);
+  OuterHitPhiPrediction phiPrediction = phiWindow(*theField);
   OuterHitPhiPrediction::Range phiRange = phiPrediction(detRWindow.max());
 
   //
@@ -268,11 +251,9 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
   if (thePrecise) {
     float cotTheta = (detZWindow.mean() - origin().z()) / hitRWindow.mean();
     float cosThetaInv = std::sqrt(1 + sqr(cotTheta)) / cotTheta;
-    edm::ESHandle<MultipleScatteringParametrisationMaker> hmaker;
-    iSetup.get<TrackerMultipleScatteringRecord>().get(hmaker);
-    MultipleScatteringParametrisation msSigma = hmaker->parametrisation(layer);
+    MultipleScatteringParametrisation msSigma = theMSMaker->parametrisation(layer);
     float scatt = 3.f * msSigma(ptMin(), cotTheta);
-    float bendR = longitudinalBendingCorrection(hitRWindow.max(), ptMin(), field);
+    float bendR = longitudinalBendingCorrection(hitRWindow.max(), ptMin(), *theField);
     float hitErrRPhi = 0.;
     float hitErrR = 0.;
     float corrPhi = (scatt + hitErrRPhi) / detRWindow.min();
@@ -342,10 +323,6 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(const edm::EventSetup
     measurementMethod = true;
 
   if (measurementMethod) {
-    edm::ESHandle<MagneticField> field;
-    es.get<IdealMagneticFieldRecord>().get(field);
-    const MagneticField* magField = field.product();
-
     const GlobalPoint vtx = origin();
     GlobalVector dir = direction();
 
@@ -378,13 +355,13 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(const edm::EventSetup
     Surface::RotationType rot(sin(phi), -cos(phi), 0, 0, 0, -1, cos(phi), sin(phi), 0);
 
     Plane::PlanePointer surface = Plane::build(GlobalPoint(0., 0., 0.), rot);
-    //TrajectoryStateOnSurface tsos(lpar, *surface, magField);
+    //TrajectoryStateOnSurface tsos(lpar, *surface, theField);
 
-    FreeTrajectoryState fts(GlobalTrajectoryParameters(vtx, dir, 1, magField));
+    FreeTrajectoryState fts(GlobalTrajectoryParameters(vtx, dir, 1, theField));
     TrajectoryStateOnSurface tsos(fts, *surface);
 
     // propagator
-    StraightLinePropagator prop(magField, alongMomentum);
+    StraightLinePropagator prop(theField, alongMomentum);
 
     LayerMeasurements lm(theMeasurementTracker->measurementTracker(), *theMeasurementTracker);
 
