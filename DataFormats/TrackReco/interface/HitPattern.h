@@ -781,8 +781,8 @@ namespace reco {
   inline uint16_t HitPattern::getGEMLayer(uint16_t pattern) {
     uint16_t sss = getSubSubStructure(pattern);
     if (sss & 0b1000)
-      return sss & 0b0111;
-    return sss & 0b11;
+      return (sss & 0b0111) + 1;
+    return (sss & 0b11) + 1;
   }
 
   inline bool HitPattern::validHitFilter(uint16_t pattern) { return getHitType(pattern) == HitPattern::VALID; }
