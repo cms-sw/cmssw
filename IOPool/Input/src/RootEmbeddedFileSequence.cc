@@ -16,7 +16,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Utilities/StorageFactory/interface/StatisticsSenderService.h"
 
 #include "CLHEP/Random/RandFlat.h"
 
@@ -127,10 +126,6 @@ namespace edm {
   void RootEmbeddedFileSequence::closeFile_() {
     // delete the RootFile object.
     if (rootFile()) {
-      edm::Service<edm::storage::StatisticsSenderService> service;
-      if (service.isAvailable()) {
-        service->filePreCloseEvent(lfn(), usedFallback());
-      }
       rootFile().reset();
     }
   }
