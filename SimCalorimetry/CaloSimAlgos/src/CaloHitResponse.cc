@@ -130,7 +130,7 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit &hit, CLHEP::HepRan
     // use 0.5ns binning for precise sample
     for (int bin = 0; bin < result.size() * BUNCHSPACE * invdt; bin++) {
       sampleBin = bin / (BUNCHSPACE * invdt);
-      double pulseBit = (*shape)(binTime)*signal*dt;
+      double pulseBit = (*shape)(binTime)*signal * dt;
       result[sampleBin] += pulseBit;
       result.preciseAtMod(bin) += pulseBit;
       binTime += dt;
@@ -177,7 +177,7 @@ CaloSamples CaloHitResponse::makeBlankSignal(const DetId &detId) const {
   int preciseSize(storePrecise ? parameters.readoutFrameSize() * BUNCHSPACE * invdt : 0);
   CaloSamples result(detId, parameters.readoutFrameSize(), preciseSize);
   result.setPresamples(parameters.binOfMaximum() - 1);
-  if (storePrecise){
+  if (storePrecise) {
     result.setPreciseSize(preciseSize);
     result.setPrecise(result.presamples() * BUNCHSPACE * invdt, dt);
   }
