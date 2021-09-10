@@ -493,6 +493,9 @@ steps['RunCosmics2016B']={'INPUT':InputInfo(dataSet='/Cosmics/Run2016B-v1/RAW',l
 ### LS2 - MWGR 2021 - CSC, DAQ, DCS, DQM, DT, ECAL, GEM, HCAL, L1SCOUT, PIXEL, RPC, TCDS, TRACKER, TRG ###
 steps['RunCosmics2021']={'INPUT':InputInfo(dataSet='/ExpressCosmics/Commissioning2021-Express-v1/FEVT',label='2021GR5',ls={343498: [[1, 10000]]},events=100000,location='STD')}
 
+#### run3 Cosmics ####
+##Run 344518 @ 0T 2021CRUZET
+steps['RunCosmics2021CRUZET']={'INPUT':InputInfo(dataSet='/Cosmics/Commissioning2021-v1/RAW',label='2021CRUZET',run=[344518],events=100000,location='STD')}
 
 #### Test of lumi section boundary crossing with run2 2018D ####
 Run2018Dml1={320822: [[1,1]] , 320823: [[1,1]]}
@@ -2170,7 +2173,7 @@ steps['RECOCOSD']=merge([{'--scenario':'cosmics',
                           },dataReco])
 
 steps['RECOCOSDRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016'},steps['RECOCOSD']])
-steps['RECOCOSDRUN3']=merge([{'--conditions':'auto:run3_data_prompt','--era':'Run3'},steps['RECOCOSD']])
+steps['RECOCOSDRUN3']=merge([{'--conditions':'auto:run3_data','--era':'Run3'},steps['RECOCOSD']])
 
 steps['RECOCOSDPROMPTRUN3']=merge([{'--conditions':'auto:run3_data_prompt',
                                     '--era':'Run3',
@@ -2596,7 +2599,8 @@ steps['ALCACOSD']={'--conditions':'auto:run1_data',
 
 steps['ALCACOSDRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'},steps['ALCACOSD']])
 
-steps['ALCACOSDRUN3']=merge([{'--conditions':'auto:run3_data_prompt','--era':'Run3','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'},steps['ALCACOSD']])
+steps['ALCACOSDRUN3']=merge([{'--conditions':'auto:run3_data','--era':'Run3','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'},steps['ALCACOSD']])
+steps['ALCACOSDPROMPTRUN3']=merge([{'--conditions':'auto:run3_data_prompt','--era':'Run3','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'},steps['ALCACOSD']])
 steps['ALCACOSDEXPRUN3']=merge([{'--conditions':'auto:run3_data_express','--era':'Run3','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'},steps['ALCACOSD']])
 
 steps['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
@@ -2817,7 +2821,8 @@ steps['HARVESTDC']={'-s':'HARVESTING:dqmHarvestingFakeHLT',
 
 steps['HARVESTDCRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016'},steps['HARVESTDC']])
 
-steps['HARVESTDCRUN3']=merge([{'--conditions':'auto:run3_data_prompt','--era':'Run3'},steps['HARVESTDC']])
+steps['HARVESTDCRUN3']=merge([{'--conditions':'auto:run3_data','--era':'Run3'},steps['HARVESTDC']])
+steps['HARVESTDCPROMPTRUN3']=merge([{'--conditions':'auto:run3_data_prompt','--era':'Run3'},steps['HARVESTDC']])
 steps['HARVESTDCEXPRUN3']=merge([{'--conditions':'auto:run3_data_express','--era':'Run3'},steps['HARVESTDC']])
 
 steps['HARVESTDR2_REMINIAOD_data2016']=merge([{'--data':'', '-s':'HARVESTING:@miniAODDQM','--era':'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTDR2']])
