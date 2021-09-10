@@ -8,6 +8,7 @@
  */
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 #include <vector>
 
 class GlobalTrackingRegion final : public TrackingRegion {
@@ -17,14 +18,18 @@ public:
    *  originHalfLength, positioned at "origin".
    *  This class DOES provide the possibility to displace the origin
    *  in the transverse plane. 
+   *
+   * if useMS == true, msmaker needs to be given
    */
   GlobalTrackingRegion(float ptMin,
                        const GlobalPoint& origin,
                        float originRadius,
                        float originHalfLength,
                        bool precise = false,
-                       bool useMS = false)
+                       bool useMS = false,
+                       const MultipleScatteringParametrisationMaker* msmaker = nullptr)
       : TrackingRegionBase(GlobalVector(0, 0, 0), origin, Range(-1 / ptMin, 1 / ptMin), originRadius, originHalfLength),
+        theMSMaker(msmaker),
         thePrecise(precise),
         theUseMS(useMS) {}
 
@@ -62,6 +67,7 @@ public:
   std::string print() const override;
 
 private:
+  const MultipleScatteringParametrisationMaker* theMSMaker = nullptr;
   bool thePrecise = false;
   bool theUseMS = false;
 };
