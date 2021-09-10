@@ -8,8 +8,10 @@
  */
 
 #include "CombinedHitTripletGenerator.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
 
 #include <utility>
@@ -68,5 +70,7 @@ private:
   const bool useMScat;
   const bool useBend;
   const float dphi;
+
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyESToken_;
 };
 #endif
