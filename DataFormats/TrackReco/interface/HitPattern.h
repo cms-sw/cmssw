@@ -214,7 +214,7 @@ namespace reco {
     /// GEM station: 1,2. Only valid for muon GEM patterns, of course.
     static uint16_t getGEMStation(uint16_t pattern);
 
-    /// GEM layer: 1,2. Only valid for muon GEM patterns, of course.
+    /// GEM layer: 1-6 for station 0, 1-2 for stations 1 and 2. Only valid for muon GEM patterns, of course.
     static uint16_t getGEMLayer(uint16_t pattern);
 
     /// BTL Module type: 1,2,3. Only valid for BTL patterns of course.
@@ -746,7 +746,7 @@ namespace reco {
     return ((pattern >> HitTypeOffset) & HitTypeMask);
   }
 
-  inline uint16_t HitPattern::getMuonStation(uint16_t pattern) { return (getSubSubStructure(pattern) >> 2) + 1; }
+  inline uint16_t HitPattern::getMuonStation(uint16_t pattern) { return muonGEMHitFilter(pattern) ? getGEMStation(pattern) : (getSubSubStructure(pattern) >> 2) + 1; }
 
   inline uint16_t HitPattern::getDTSuperLayer(uint16_t pattern) { return (getSubSubStructure(pattern) & 3); }
 
