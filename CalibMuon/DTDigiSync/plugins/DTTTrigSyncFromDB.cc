@@ -108,16 +108,13 @@ private:
   int theWirePropCorrType;
   // spacing of BX in ns
   double theBXspace;
-
-  std::string thetTrigLabel;
-  std::string thet0Label;
 };
 
 using namespace std;
 using namespace edm;
 
 DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config, edm::ConsumesCollector cc)
-    : ttrigToken_(cc.esConsumes()),
+    : ttrigToken_(cc.esConsumes(edm::ESInputTag("", config.getParameter<string>("tTrigLabel")))),
       debug(config.getUntrackedParameter<bool>("debug")),
       // The velocity of signal propagation along the wire (cm/ns)
       theVPropWire(config.getParameter<double>("vPropWire")),
@@ -130,11 +127,9 @@ DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config, edm::ConsumesCo
       doWirePropCorrection(config.getParameter<bool>("doWirePropCorrection")),
       theWirePropCorrType(config.getParameter<int>("wirePropCorrType")),
       // spacing of BX in ns
-      theBXspace(config.getUntrackedParameter<double>("bxSpace", 25.)),
-      thetTrigLabel(config.getParameter<string>("tTrigLabel")),
-      thet0Label(config.getParameter<string>("t0Label")) {
+      theBXspace(config.getUntrackedParameter<double>("bxSpace", 25.)) {
   if (doT0Correction) {
-    t0Token_ = cc.esConsumes(edm::ESInputTag("", thet0Label));
+    t0Token_ = cc.esConsumes(edm::ESInputTag("", config.getParameter<string>("t0Label")));
   }
 }
 
