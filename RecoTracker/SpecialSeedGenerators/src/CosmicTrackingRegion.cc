@@ -13,8 +13,6 @@
 
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 namespace {
   template <class T>
   T sqr(T t) {
@@ -65,11 +63,6 @@ void CosmicTrackingRegion::hits_(const edm::EventSetup& es, const T& layer, Trac
   LogDebug("CosmicTrackingRegion") << "Looking at hits on subdet/layer " << layer.name();
   EtaPhiMeasurementEstimator est(0.3, 0.3);
 
-  //magnetic field
-  edm::ESHandle<MagneticField> field;
-  es.get<IdealMagneticFieldRecord>().get(field);
-  const MagneticField* magField = field.product();
-
   //region
   const GlobalPoint vtx = origin();
   GlobalVector dir = direction();
@@ -85,12 +78,12 @@ void CosmicTrackingRegion::hits_(const edm::EventSetup& es, const T& layer, Trac
   Surface::RotationType rot(sin(phi), -cos(phi), 0, 0, 0, -1, cos(phi), sin(phi), 0);
 
   Plane::PlanePointer surface = Plane::build(vtx, rot);
-  FreeTrajectoryState fts(GlobalTrajectoryParameters(vtx, dir, 1, magField));
+  FreeTrajectoryState fts(GlobalTrajectoryParameters(vtx, dir, 1, theMagneticField_));
   TrajectoryStateOnSurface tsos(fts, *surface);
   LogDebug("CosmicTrackingRegion") << "The state used to find measurement with the measurement tracker is:\n" << tsos;
 
   //propagator
-  AnalyticalPropagator prop(magField, alongMomentum);
+  AnalyticalPropagator prop(theMagneticField_, alongMomentum);
 
   //propagation verification (debug)
   //++++++++++++++++++++++++++++++++
