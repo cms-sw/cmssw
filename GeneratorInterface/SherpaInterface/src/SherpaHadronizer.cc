@@ -218,7 +218,6 @@ SherpaHadronizer::~SherpaHadronizer() {
 
 bool SherpaHadronizer::initializeForInternalPartons() {
   //initialize Sherpa but only once
-  throw cms::Exception("TEST");
   if (!isInitialized) {
     int argc = arguments.size();
     char *argv[argc];
