@@ -156,17 +156,16 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
         },
         [&](auto const& ele) {  // trkFunctor ...
           if (useGsfToTrack_) {
-            const edm::Ptr<pat::PackedCandidate>* ptr1 =
-                ele.hasUserData("ele2packed") ? ele.template userData<edm::Ptr<pat::PackedCandidate>>("ele2packed")
-                                              : nullptr;
-            const edm::Ptr<pat::PackedCandidate>* ptr2 =
-                ele.hasUserData("ele2lost") ? ele.template userData<edm::Ptr<pat::PackedCandidate>>("ele2lost")
-                                            : nullptr;
-            if (ptr1 != nullptr && ptr1->isNonnull() && ptr1->isAvailable() && ptr1->get() != nullptr &&
-                ptr1->get()->bestTrack() != nullptr) {
+            using PackedPtr = edm::Ptr<pat::PackedCandidate>;
+            const PackedPtr* ptr1 = ele.template userData<PackedPtr>("ele2packed");
+            const PackedPtr* ptr2 = ele.template userData<PackedPtr>("ele2lost");
+            auto hasBestTrack = [](const PackedPtr* ptr) {
+              return ptr != nullptr && ptr->isNonnull() && ptr->isAvailable() && ptr->get() != nullptr &&
+                     ptr->get()->bestTrack() != nullptr;
+            };
+            if (hasBestTrack(ptr1)) {
               return ptr1->get()->bestTrack();
-            } else if (ptr2 != nullptr && ptr2->isNonnull() && ptr2->isAvailable() && ptr2->get() != nullptr &&
-                       ptr2->get()->bestTrack() != nullptr) {
+            } else if (hasBestTrack(ptr2)) {
               return ptr2->get()->bestTrack();
             }
           } else {
