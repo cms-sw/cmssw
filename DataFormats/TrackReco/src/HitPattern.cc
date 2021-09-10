@@ -827,7 +827,8 @@ void HitPattern::printHitPattern(HitCategory category, int position, std::ostrea
     } else if (muonRPCHitFilter(pattern)) {
       stream << "\trpc " << (getRPCregion(pattern) ? "endcaps" : "barrel") << ", layer " << getRPCLayer(pattern);
     } else if (muonGEMHitFilter(pattern)) {
-      stream << "\tgem " << " station " << getGEMStation(pattern) << ", layer" << getGEMLayer(pattern);
+      stream << "\tgem "
+             << " station " << getGEMStation(pattern) << ", layer" << getGEMLayer(pattern);
     } else if (muonME0HitFilter(pattern)) {
       stream << "\tme0 ";
     } else {
