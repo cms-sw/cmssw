@@ -1,20 +1,87 @@
 // system include files
+#include <memory>
+#include <string>
+#include <iostream>
 
 // user include files
 
-#include "Calibration/HcalAlCaRecoProducers/src/ProducerAnalyzer.h"
 #include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+// collections
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/HcalCalibObjects/interface/HOCalibVariableCollection.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
+namespace cms {
+
+  //
+  // class declaration
+  //
+
+  class ProducerAnalyzer : public edm::one::EDAnalyzer<> {
+  public:
+    explicit ProducerAnalyzer(const edm::ParameterSet&);
+    ~ProducerAnalyzer() override;
+
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void beginJob() override {}
+    void endJob() override {}
+
+  private:
+    // ----------member data ---------------------------
+    std::string nameProd_;
+    std::string jetCalo_;
+    std::string gammaClus_;
+    std::string ecalInput_;
+    std::string hbheInput_;
+    std::string hoInput_;
+    std::string hfInput_;
+    std::string tracks_;
+
+    edm::EDGetTokenT<HOCalibVariableCollection> tok_hovar_;
+    edm::EDGetTokenT<HORecHitCollection> tok_horeco_;
+    edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+    edm::EDGetTokenT<HORecHitCollection> tok_hoProd_;
+
+    edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+
+    edm::EDGetTokenT<reco::CaloJetCollection> tok_jets_;
+    edm::EDGetTokenT<reco::SuperClusterCollection> tok_gamma_;
+    edm::EDGetTokenT<reco::MuonCollection> tok_muons_;
+    edm::EDGetTokenT<EcalRecHitCollection> tok_ecal_;
+    edm::EDGetTokenT<reco::TrackCollection> tok_tracks_;
+
+    edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+    edm::EDGetTokenT<HBHERecHitCollection> tok_hbheProd_;
+
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  };
+}  // end namespace cms
 
 using namespace reco;
 
@@ -33,7 +100,7 @@ namespace cms {
     hbheInput_ = iConfig.getUntrackedParameter<std::string>("hbheInput");
     hoInput_ = iConfig.getUntrackedParameter<std::string>("hoInput");
     hfInput_ = iConfig.getUntrackedParameter<std::string>("hfInput");
-    Tracks_ = iConfig.getUntrackedParameter<std::string>("Tracks", "GammaJetTracksCollection");
+    tracks_ = iConfig.getUntrackedParameter<std::string>("Tracks", "GammaJetTracksCollection");
 
     tok_hovar_ = consumes<HOCalibVariableCollection>(edm::InputTag(nameProd_, hoInput_));
     tok_horeco_ = consumes<HORecHitCollection>(edm::InputTag("horeco"));
@@ -46,7 +113,7 @@ namespace cms {
     tok_gamma_ = consumes<reco::SuperClusterCollection>(edm::InputTag(nameProd_, gammaClus_));
     tok_muons_ = consumes<reco::MuonCollection>(edm::InputTag(nameProd_, "SelectedMuons"));
     tok_ecal_ = consumes<EcalRecHitCollection>(edm::InputTag(nameProd_, ecalInput_));
-    tok_tracks_ = consumes<reco::TrackCollection>(edm::InputTag(nameProd_, Tracks_));
+    tok_tracks_ = consumes<reco::TrackCollection>(edm::InputTag(nameProd_, tracks_));
 
     tok_hbheProd_ = consumes<HBHERecHitCollection>(edm::InputTag(nameProd_, hbheInput_));
     tok_hbhe_ = consumes<HBHERecHitCollection>(edm::InputTag(hbheInput_));
@@ -58,10 +125,6 @@ namespace cms {
     // do anything here that needs to be done at desctruction time
     // (e.g. close files, deallocate resources etc.)
   }
-
-  void ProducerAnalyzer::beginJob() {}
-
-  void ProducerAnalyzer::endJob() {}
 
   //
   // member functions
@@ -193,6 +256,10 @@ namespace cms {
       }
     }
   }
-  //define this as a plug-in
-  //DEFINE_FWK_MODULE(ProducerAnalyzer)
 }  // namespace cms
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+using cms::ProducerAnalyzer;
+DEFINE_FWK_MODULE(ProducerAnalyzer);
