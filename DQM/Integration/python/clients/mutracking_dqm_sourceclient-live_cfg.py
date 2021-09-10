@@ -189,4 +189,5 @@ from DQM.Integration.config.online_customizations_cfi import *
 
 process = customise(process)
 process.options.wantSummary = cms.untracked.bool(True)
+print("Final Source settings:", process.source)
 
