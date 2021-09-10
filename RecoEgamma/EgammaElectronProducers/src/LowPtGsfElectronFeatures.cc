@@ -169,29 +169,16 @@ namespace lowptgsfeleid {
     float sc_clus2_E_ov_p = -999.;
 
     // KF tracks
-    if (trk != nullptr) {
-      eid_trk_p = (float)trk->p();
-      eid_trk_nhits = (float)trk->found();
-      eid_trk_chi2red = (float)trk->normalizedChi2();
+    if (trk != nullptr || (ele.core().isNonnull() && ele.closestCtfTrackRef().isNonnull())) {
+      const reco::Track* tk = trk ? trk : &*ele.closestCtfTrackRef();
+      eid_trk_p = tk->p();
+      eid_trk_nhits = tk->found();
+      eid_trk_chi2red = tk->normalizedChi2();
       TVector3 trkTV3(0, 0, 0);
-      trkTV3.SetPtEtaPhi(trk->pt(), trk->eta(), trk->phi());
+      trkTV3.SetPtEtaPhi(tk->pt(), tk->eta(), tk->phi());
       TVector3 eleTV3(0, 0, 0);
       eleTV3.SetPtEtaPhi(ele.pt(), ele.eta(), ele.phi());
-      trk_dr = eleTV3.DeltaR(trkTV3);
-    } else {
-      if (ele.core().isNonnull()) {
-        reco::TrackRef trk = ele.closestCtfTrackRef();
-        if (trk.isNonnull()) {
-          eid_trk_p = (float)trk->p();
-          eid_trk_nhits = (float)trk->found();
-          eid_trk_chi2red = (float)trk->normalizedChi2();
-          TVector3 trkTV3(0, 0, 0);
-          trkTV3.SetPtEtaPhi(trk->pt(), trk->eta(), trk->phi());
-          TVector3 eleTV3(0, 0, 0);
-          eleTV3.SetPtEtaPhi(ele.pt(), ele.eta(), ele.phi());
-          trk_dr = eleTV3.DeltaR(trkTV3);
-        }
-      }
+      trk_dr = reco::deltaR(*tk, ele);
     }
 
     // GSF tracks
