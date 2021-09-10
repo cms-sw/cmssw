@@ -21,6 +21,8 @@ class OuterHitPhiPrediction;
 class BarrelDetLayer;
 class ForwardDetLayer;
 class MeasurementTrackerEvent;
+class MagneticField;
+class MultipleScatteringParametrisationMaker;
 
 class RectangularEtaPhiTrackingRegion final : public TrackingRegion {
 public:
@@ -51,8 +53,9 @@ public:
         theMeasurementTrackerUsage(rh.theMeasurementTrackerUsage),
         thePrecise(rh.thePrecise),
         theUseEtaPhi(rh.theUseEtaPhi),
-        theMeasurementTracker(rh.theMeasurementTracker) {}
-
+        theMeasurementTracker(rh.theMeasurementTracker),
+        theField(rh.theField),
+        theMSMaker(rh.theMSMaker) {}
   RectangularEtaPhiTrackingRegion& operator=(RectangularEtaPhiTrackingRegion const&) = delete;
   RectangularEtaPhiTrackingRegion(RectangularEtaPhiTrackingRegion&&) = default;
   RectangularEtaPhiTrackingRegion& operator=(RectangularEtaPhiTrackingRegion&&) = delete;
@@ -83,6 +86,7 @@ public:
   *  deltaPhi  - allowed deviation of the initial direction of particle
   *              in phi in respect to direction of the region 
   *  whereToUseMeasurementTracker: 1=everywhere, 0=outside pixles, -1=nowhere
+  * msmaker    - Needed if either precise or useMS is true
   */
   RectangularEtaPhiTrackingRegion(const GlobalVector& dir,
                                   const GlobalPoint& vertexPos,
@@ -91,8 +95,10 @@ public:
                                   float zVertex,
                                   float deltaEta,
                                   float deltaPhi,
-                                  UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
+                                  const MagneticField& field,
+                                  const MultipleScatteringParametrisationMaker* msmaker,
                                   bool precise = true,
+                                  UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
                                   const MeasurementTrackerEvent* measurementTracker = nullptr,
                                   bool etaPhiRegion = false)
       : RectangularEtaPhiTrackingRegion(dir,
@@ -102,8 +108,10 @@ public:
                                         zVertex,
                                         Margin(std::abs(deltaEta), std::abs(deltaEta)),
                                         Margin(std::abs(deltaPhi), std::abs(deltaPhi)),
-                                        whereToUseMeasurementTracker,
+                                        field,
+                                        msmaker,
                                         precise,
+                                        whereToUseMeasurementTracker,
                                         measurementTracker,
                                         etaPhiRegion) {}
 
@@ -120,8 +128,10 @@ public:
                                   float zVertex,
                                   Margin etaMargin,
                                   Margin phiMargin,
-                                  UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
+                                  const MagneticField& field,
+                                  const MultipleScatteringParametrisationMaker* msmaker,
                                   bool precise = true,
+                                  UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
                                   const MeasurementTrackerEvent* measurementTracker = nullptr,
                                   bool etaPhiRegion = false)
       : RectangularEtaPhiTrackingRegion(dir,
@@ -131,8 +141,10 @@ public:
                                         zVertex,
                                         etaMargin,
                                         phiMargin,
-                                        whereToUseMeasurementTracker,
+                                        field,
+                                        msmaker,
                                         precise,
+                                        whereToUseMeasurementTracker,
                                         measurementTracker,
                                         etaPhiRegion) {}
 
@@ -147,8 +159,10 @@ public:
                                   float zVertex,
                                   Margin etaMargin,
                                   Margin phiMargin,
-                                  UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
+                                  const MagneticField& field,
+                                  const MultipleScatteringParametrisationMaker* msmaker,
                                   bool precise = true,
+                                  UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
                                   const MeasurementTrackerEvent* measurementTracker = nullptr,
                                   bool etaPhiRegion = false,
                                   bool useMS = true)
@@ -158,7 +172,9 @@ public:
         thePrecise(precise),
         theUseMS(useMS),
         theUseEtaPhi(etaPhiRegion),
-        theMeasurementTracker(measurementTracker) {
+        theMeasurementTracker(measurementTracker),
+        theField(&field),
+        theMSMaker(msmaker) {
     initEtaRange(dir, etaMargin);
   }
 
@@ -223,6 +239,8 @@ private:
   bool theUseMS = false;
   bool theUseEtaPhi = false;
   const MeasurementTrackerEvent* theMeasurementTracker = nullptr;
+  const MagneticField* theField = nullptr;
+  const MultipleScatteringParametrisationMaker* theMSMaker = nullptr;
 
   using cacheHitPointer = mayown_ptr<BaseTrackerRecHit>;
   using cacheHits = std::vector<cacheHitPointer>;

@@ -22,8 +22,7 @@ class dso_internal OuterEstimator final : public MeasurementEstimator {
 public:
   using OuterHitCompat = OuterHitCompatibility<Algo>;
 
-  OuterEstimator(const OuterDetCompatibility& detCompatibility,
-                 const OuterHitCompat& hitCompatibility)
+  OuterEstimator(const OuterDetCompatibility& detCompatibility, const OuterHitCompat& hitCompatibility)
       : theDetCompatibility(detCompatibility), theHitCompatibility(hitCompatibility) {}
 
   ~OuterEstimator() override {}
