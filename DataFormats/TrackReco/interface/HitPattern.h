@@ -746,7 +746,9 @@ namespace reco {
     return ((pattern >> HitTypeOffset) & HitTypeMask);
   }
 
-  inline uint16_t HitPattern::getMuonStation(uint16_t pattern) { return muonGEMHitFilter(pattern) ? getGEMStation(pattern) : (getSubSubStructure(pattern) >> 2) + 1; }
+  inline uint16_t HitPattern::getMuonStation(uint16_t pattern) {
+    return muonGEMHitFilter(pattern) ? getGEMStation(pattern) : (getSubSubStructure(pattern) >> 2) + 1;
+  }
 
   inline uint16_t HitPattern::getDTSuperLayer(uint16_t pattern) { return (getSubSubStructure(pattern) & 3); }
 
