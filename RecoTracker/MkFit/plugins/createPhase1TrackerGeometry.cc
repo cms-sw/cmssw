@@ -32,7 +32,7 @@ namespace {
       sp.append_plan(47, false);
       sp.fill_plan(48, 53);  // TID,  6 disks (3 mono + 3 stereo)
       sp.fill_plan(54, 71);  // TEC, 18 disks (3 mono + 3 stereo)
-      sp.finalize_plan();
+      sp.set_iterator_limits(2, 0);
     }
     {
       SteeringParams &sp = ic.m_steering_params[TrackerInfo::Reg_Transition_Neg];
@@ -47,7 +47,7 @@ namespace {
       sp.fill_plan(48, 53);  // TID,  6 disks  (3 mono + 3 stereo)
       sp.fill_plan(10, 17);  // TOB,  8 layers (6 mono + 2 stereo)
       sp.fill_plan(54, 71);  // TEC, 18 disks  (9 mono + 9 stereo)
-      sp.finalize_plan();
+      sp.set_iterator_limits(2, 0);
     }
     {
       SteeringParams &sp = ic.m_steering_params[TrackerInfo::Reg_Barrel];
@@ -57,7 +57,7 @@ namespace {
       sp.append_plan(3, false);
       sp.fill_plan(4, 9);    // TIB, 6 layers (4 mono + 2 stereo)
       sp.fill_plan(10, 17);  // TOB, 8 layers (6 mono + 2 stereo)
-      sp.finalize_plan();
+      sp.set_iterator_limits(2, 0);
     }
     {
       SteeringParams &sp = ic.m_steering_params[TrackerInfo::Reg_Transition_Pos];
@@ -72,7 +72,7 @@ namespace {
       sp.fill_plan(21, 26);  // TID,  6 disks  (3 mono + 3 stereo)
       sp.fill_plan(10, 17);  // TOB,  8 layers (6 mono + 2 stereo)
       sp.fill_plan(27, 44);  // TEC, 18 disks  (9 mono + 9 stereo)
-      sp.finalize_plan();
+      sp.set_iterator_limits(2, 0);
     }
     {
       SteeringParams &sp = ic.m_steering_params[TrackerInfo::Reg_Endcap_Pos];
@@ -84,8 +84,36 @@ namespace {
       sp.append_plan(20, false);
       sp.fill_plan(21, 26);  // TID,  6 disks  (3 mono + 3 stereo)
       sp.fill_plan(27, 44);  // TEC, 18 disks  (9 mono + 9 stereo)
-      sp.finalize_plan();
+      sp.set_iterator_limits(2, 0);
     }
+  }
+
+  void OverrideSteeringParams_Iter7(IterationConfig &ic) {
+    ic.m_backward_search = true;
+    ic.m_backward_params = ic.m_params;
+    ic.m_backward_params.maxHolesPerCand = 2;
+    ic.m_backward_params.maxConsecHoles = 2;
+    // Remove pixel layers from FwdSearch, add them to BkwSearch
+    auto &spv = ic.m_steering_params;
+    spv[TrackerInfo::Reg_Endcap_Neg].set_iterator_limits(8, 6, 19);
+    spv[TrackerInfo::Reg_Transition_Neg].set_iterator_limits(9, 7, 34);
+    spv[TrackerInfo::Reg_Barrel].set_iterator_limits(6, 4, 8);
+    spv[TrackerInfo::Reg_Transition_Pos].set_iterator_limits(9, 7, 34);
+    spv[TrackerInfo::Reg_Endcap_Pos].set_iterator_limits(8, 6, 19);
+  }
+
+  void OverrideSteeringParams_Iter8(IterationConfig &ic) {
+    ic.m_backward_search = true;
+    ic.m_backward_params = ic.m_params;
+    ic.m_backward_params.maxHolesPerCand = 2;
+    ic.m_backward_params.maxConsecHoles = 2;
+    // Remove pixel/tib/tid layers from FwdSearch, add them to BkwSearch/
+    auto &spv = ic.m_steering_params;
+    spv[TrackerInfo::Reg_Endcap_Neg].set_iterator_limits(12, 12, 24);
+    spv[TrackerInfo::Reg_Transition_Neg].set_iterator_limits(27, 19, 39);
+    spv[TrackerInfo::Reg_Barrel].set_iterator_limits(12, 10, 14);
+    spv[TrackerInfo::Reg_Transition_Pos].set_iterator_limits(27, 19, 39);
+    spv[TrackerInfo::Reg_Endcap_Pos].set_iterator_limits(12, 12, 24);
   }
 
   void partitionSeeds0(const TrackerInfo &trk_info,
@@ -221,9 +249,11 @@ namespace mkfit {
     ii[6].set_iteration_index_and_track_algorithm(6, (int)TrackBase::TrackAlgorithm::mixedTripletStep);
 
     ii[7].Clone(ii[0]);
+    OverrideSteeringParams_Iter7(ii[7]);
     ii[7].set_iteration_index_and_track_algorithm(7, (int)TrackBase::TrackAlgorithm::pixelLessStep);
 
     ii[8].Clone(ii[0]);
+    OverrideSteeringParams_Iter8(ii[8]);
     ii[8].set_iteration_index_and_track_algorithm(8, (int)TrackBase::TrackAlgorithm::tobTecStep);
 
     ii[9].Clone(ii[0]);
