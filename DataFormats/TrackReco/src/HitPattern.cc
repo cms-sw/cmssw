@@ -99,8 +99,17 @@ namespace {
         } break;
         case MuonSubdetId::GEM: {
           GEMDetId gemid(id.rawId());
-          layer = ((gemid.station() - 1) << 2);
-          layer |= abs(gemid.layer() - 1);
+          {
+            uint16_t st = gemid.station();
+            uint16_t la = gemid.layer();
+            if (st == 0) {
+              layer |= 0b1000;
+              layer |= (la - 1);
+            } else {
+              layer |= (st - 1) << 2;
+              layer |= (la - 1);
+            }
+          }
         } break;
         case MuonSubdetId::ME0: {
           ME0DetId me0id(id.rawId());
@@ -818,7 +827,8 @@ void HitPattern::printHitPattern(HitCategory category, int position, std::ostrea
     } else if (muonRPCHitFilter(pattern)) {
       stream << "\trpc " << (getRPCregion(pattern) ? "endcaps" : "barrel") << ", layer " << getRPCLayer(pattern);
     } else if (muonGEMHitFilter(pattern)) {
-      stream << "\tgem " << (getGEMLayer(pattern) ? "layer1" : "layer2") << ", station " << getGEMStation(pattern);
+      stream << "\tgem "
+             << " station " << getGEMStation(pattern) << ", layer" << getGEMLayer(pattern);
     } else if (muonME0HitFilter(pattern)) {
       stream << "\tme0 ";
     } else {

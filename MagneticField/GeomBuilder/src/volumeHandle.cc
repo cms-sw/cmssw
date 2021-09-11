@@ -22,7 +22,6 @@
 #include <iterator>
 #include <iomanip>
 #include <iostream>
-#include <boost/lexical_cast.hpp>
 
 using namespace SurfaceOrientation;
 using namespace std;
@@ -48,7 +47,7 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
   // ASSUMPTION: volume names ends with "_NUM" where NUM is the volume number
   string volName = name;
   volName.erase(0, volName.rfind('_') + 1);
-  volumeno = boost::lexical_cast<unsigned short>(volName);
+  volumeno = std::stoul(volName);
 
   for (int i = 0; i < 6; ++i) {
     isAssigned[i] = false;
