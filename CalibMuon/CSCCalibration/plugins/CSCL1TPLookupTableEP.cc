@@ -179,13 +179,13 @@ std::unique_ptr<CSCL1TPLookupTableME11ILT> CSCL1TPLookupTableEP::produceME11ILT(
 
   lut->set_CSC_slope_cosi_corr_L1_ME11_even(std::move(CSC_slope_cosi_corr_L1_ME11_even_));
   lut->set_CSC_slope_cosi_corr_L1_ME11_odd(std::move(CSC_slope_cosi_corr_L1_ME11_odd_));
-  lut->set_CSC_slope_cosi_corr_L1_ME11_even(std::move(CSC_slope_cosi_corr_L1_ME11_even_));
-  lut->set_CSC_slope_cosi_corr_L1_ME11_odd(std::move(CSC_slope_cosi_corr_L1_ME11_odd_));
+  lut->set_CSC_slope_cosi_corr_L2_ME11_even(std::move(CSC_slope_cosi_corr_L2_ME11_even_));
+  lut->set_CSC_slope_cosi_corr_L2_ME11_odd(std::move(CSC_slope_cosi_corr_L2_ME11_odd_));
 
   lut->set_CSC_slope_corr_L1_ME11_even(std::move(CSC_slope_corr_L1_ME11_even_));
   lut->set_CSC_slope_corr_L1_ME11_odd(std::move(CSC_slope_corr_L1_ME11_odd_));
-  lut->set_CSC_slope_corr_L1_ME11_even(std::move(CSC_slope_corr_L1_ME11_even_));
-  lut->set_CSC_slope_corr_L1_ME11_odd(std::move(CSC_slope_corr_L1_ME11_odd_));
+  lut->set_CSC_slope_corr_L2_ME11_even(std::move(CSC_slope_corr_L2_ME11_even_));
+  lut->set_CSC_slope_corr_L2_ME11_odd(std::move(CSC_slope_corr_L2_ME11_odd_));
 
   // GEM-CSC trigger: 1/8-strip difference to slope
   lut->set_es_diff_slope_L1_ME1a_even(std::move(es_diff_slope_L1_ME1a_even_));
