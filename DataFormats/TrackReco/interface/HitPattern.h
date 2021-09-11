@@ -33,7 +33,7 @@
 // | mu  = 0    |    DT  = 1    | 4*(stat-1)+superlayer     |                 | hit type = 0-3 |
 // | mu  = 0    |    CSC = 2    | 4*(stat-1)+(ring-1)       |                 | hit type = 0-3 |
 // | mu  = 0    |    RPC = 3    | 4*(stat-1)+2*layer+region |                 | hit type = 0-3 |
-// | mu  = 0    |    GEM = 4    | 2*(stat-1)+2*(layer-1)    |                 | hit type = 0-3 |
+// | mu  = 0    |    GEM = 4    | 1xxx=st0, 0yxx=st y-1 la x|                 | hit type = 0-3 |
 // | mu  = 0    |    ME0 = 5    | roll                      |                 | hit type = 0-3 |
 // | mtd = 2    |    BTL = 1    | moduleType = 1-3          |                 | hit type = 0-3 |
 // | mtd = 2    |    ETL = 2    | ring = 1-12               |                 | hit type = 0-3 |
@@ -214,7 +214,7 @@ namespace reco {
     /// GEM station: 1,2. Only valid for muon GEM patterns, of course.
     static uint16_t getGEMStation(uint16_t pattern);
 
-    /// GEM layer: 1,2. Only valid for muon GEM patterns, of course.
+    /// GEM layer: 1-6 for station 0, 1-2 for stations 1 and 2. Only valid for muon GEM patterns, of course.
     static uint16_t getGEMLayer(uint16_t pattern);
 
     /// BTL Module type: 1,2,3. Only valid for BTL patterns of course.
@@ -746,7 +746,9 @@ namespace reco {
     return ((pattern >> HitTypeOffset) & HitTypeMask);
   }
 
-  inline uint16_t HitPattern::getMuonStation(uint16_t pattern) { return (getSubSubStructure(pattern) >> 2) + 1; }
+  inline uint16_t HitPattern::getMuonStation(uint16_t pattern) {
+    return muonGEMHitFilter(pattern) ? getGEMStation(pattern) : (getSubSubStructure(pattern) >> 2) + 1;
+  }
 
   inline uint16_t HitPattern::getDTSuperLayer(uint16_t pattern) { return (getSubSubStructure(pattern) & 3); }
 
@@ -766,11 +768,11 @@ namespace reco {
   inline uint16_t HitPattern::getRPCregion(uint16_t pattern) { return getSubSubStructure(pattern) & 1; }
 
   ////////////////////////////// GEM
-  inline uint16_t HitPattern::getGEMStation(uint16_t pattern)
-
-  {
-    uint16_t sss = getSubSubStructure(pattern), stat = sss >> 1;
-    return stat + 1;
+  inline uint16_t HitPattern::getGEMStation(uint16_t pattern) {
+    uint16_t sss = getSubSubStructure(pattern);
+    if (sss & 0b1000)
+      return 0;
+    return (sss >> 2) + 1;
   }
 
   /// MTD
@@ -778,7 +780,12 @@ namespace reco {
 
   inline uint16_t HitPattern::getETLRing(uint16_t pattern) { return getSubSubStructure(pattern); }
 
-  inline uint16_t HitPattern::getGEMLayer(uint16_t pattern) { return (getSubSubStructure(pattern) & 1) + 1; }
+  inline uint16_t HitPattern::getGEMLayer(uint16_t pattern) {
+    uint16_t sss = getSubSubStructure(pattern);
+    if (sss & 0b1000)
+      return (sss & 0b0111) + 1;
+    return (sss & 0b11) + 1;
+  }
 
   inline bool HitPattern::validHitFilter(uint16_t pattern) { return getHitType(pattern) == HitPattern::VALID; }
 
