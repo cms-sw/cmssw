@@ -36,7 +36,8 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
       ele_noniso_mva_(cfg.getParameter<double>("electron_noniso_mvaCut")),
       ele_missinghits_(cfg.getParameter<unsigned int>("electron_missinghits")),
       ele_ecalDrivenHademPreselCut_(cfg.getParameter<double>("electron_ecalDrivenHademPreselCut")),
-      ele_maxElePtForOnlyMVAPresel_(cfg.getParameter<double>("electron_maxElePtForOnlyMVAPresel")) {
+      ele_maxElePtForOnlyMVAPresel_(cfg.getParameter<double>("electron_maxElePtForOnlyMVAPresel")),
+      allowEEEinPF_(cfg.getParameter<bool>("allowEEEinPF")) {
   auto const& eleProtectionsForBadHcal = cfg.getParameter<edm::ParameterSet>("electron_protectionsForBadHcal");
   auto const& eleProtectionsForJetMET = cfg.getParameter<edm::ParameterSet>("electron_protectionsForJetMET");
   auto const& phoProtectionsForBadHcal = cfg.getParameter<edm::ParameterSet>("photon_protectionsForBadHcal");
@@ -161,6 +162,16 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
           (std::abs(electron.deltaPhiSuperClusterTrackAtVtx()) < badHcal_dPhi_[EE])) {
         passEleSelection = true;
       }
+    }
+  }
+
+  //TEMPORARY hack. 
+  //Do not allow new EtaExtendedEle to enter PF, until ID, regression of EEEs are in place.
+  if  (!allowEEEinPF_) {
+    int nHitGsf= electron.gsfTrack()->numberOfValidHits();
+    double absEleEta = fabs(electron.eta());
+    if ( (absEleEta>2.5) && (nHitGsf<5) ) {
+      passEleSelection=false;
     }
   }
 
@@ -323,6 +334,16 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
     isSafeForJetMET = false;
   }
 
+  //TEMPORARY hack. 
+  //Do not allow new EtaExtendedEle to be SafeForJetMET, until ID, regression of EEEs are in place.  
+  if  (!allowEEEinPF_) {
+    int nHitGsf= electron.gsfTrack()->numberOfValidHits();
+    double absEleEta = fabs(electron.eta());
+    if ( (absEleEta>2.5) && (nHitGsf<5) ) {
+      isSafeForJetMET=false;
+    }
+  }
+
   return isSafeForJetMET;
 }
 bool PFEGammaFilters::isPhotonSafeForJetMET(const reco::Photon& photon, const reco::PFCandidate& pfcand) const {
@@ -411,6 +432,7 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   iDesc.add<unsigned int>("electron_missinghits", 1);
   iDesc.add<double>("electron_ecalDrivenHademPreselCut", 0.15);
   iDesc.add<double>("electron_maxElePtForOnlyMVAPresel", 50.0);
+  iDesc.add<bool>("allowEEEinPF",false);
   {
     edm::ParameterSetDescription psd;
     psd.add<double>("maxNtracks", 3.0)->setComment("Max tracks pointing at Ele cluster");
