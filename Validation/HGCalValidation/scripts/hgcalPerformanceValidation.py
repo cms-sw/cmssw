@@ -244,7 +244,7 @@ phase2samples_noPU = [
     Sample("RelValZMM", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     #Sample("RelValZMM", midfix="14", scenario="2026D49", dqmVersion="0002", appendGlobalTag=appendglobaltag ),
     Sample("RelValZEE", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    #Sample("RelValTenTau_15_500_Eta3p1", scenario="2026D49", appendGlobalTag=appendglobaltag  ),
+    Sample("RelValTenTau_15_500_Eta3p1", scenario="2026D49", appendGlobalTag=appendglobaltag  ),
     #Sample("RelValTenTau_15_500", scenario="2026D49", appendGlobalTag=appendglobaltag  ),
     Sample("RelValTTbar", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValQCD_Pt15To7000_Flat", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
