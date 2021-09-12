@@ -121,6 +121,7 @@ private:
   std::unique_ptr<MahiFit> mahi_;
 
   edm::EDGetTokenT<HBHEChannelInfoCollection> token_ChannelInfo_;
+  const edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> tokDelay_;
 
   const HcalTimeSlew* hcalTimeSlewDelay;
 
@@ -181,7 +182,8 @@ MahiDebugger::MahiDebugger(const edm::ParameterSet& iConfig)
       nMaxItersMin_(iConfig.getParameter<int>("nMaxItersMin")),
       nMaxItersNNLS_(iConfig.getParameter<int>("nMaxItersNNLS")),
       deltaChiSqThresh_(iConfig.getParameter<double>("deltaChiSqThresh")),
-      nnlsThresh_(iConfig.getParameter<double>("nnlsThresh")) {
+      nnlsThresh_(iConfig.getParameter<double>("nnlsThresh")),
+      tokDelay_(esConsumes<HcalTimeSlew, HcalTimeSlewRecord>(edm::ESInputTag("", "HBHE"))) {
   usesResource("TFileService");
 
   mahi_ = std::make_unique<MahiFit>();
@@ -214,9 +216,7 @@ MahiDebugger::~MahiDebugger() {}
 void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  edm::ESHandle<HcalTimeSlew> delay;
-  iSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
-  hcalTimeSlewDelay = &*delay;
+  hcalTimeSlewDelay = &iSetup.getData(tokDelay_);
 
   run = iEvent.id().run();
   evt = iEvent.id().event();
