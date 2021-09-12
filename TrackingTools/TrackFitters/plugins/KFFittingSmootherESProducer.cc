@@ -28,6 +28,8 @@ namespace {
           theNoOutliersBeginEnd(conf.getParameter<bool>("NoOutliersBeginEnd")),
           theMinDof(conf.getParameter<int>("MinDof")),
           theMinNumberOfHits(conf.getParameter<int>("MinNumberOfHits")),
+	  theMinNumberOfHitsHighEta(conf.getParameter<int>("MinNumberOfHitsHighEta")),
+          theHighEtaSwitch(conf.getParameter<double>("HighEtaSwitch")),
           rejectTracksFlag(conf.getParameter<bool>("RejectTracks")),
           breakTrajWith2ConsecutiveMissing(conf.getParameter<bool>("BreakTrajWith2ConsecutiveMissing")),
           noInvalidHitsBeginEnd(conf.getParameter<bool>("NoInvalidHitsBeginEnd")) {}
@@ -40,6 +42,8 @@ namespace {
     int theMinDof;
 
     int theMinNumberOfHits;
+    int theMinNumberOfHitsHighEta;
+    double theHighEtaSwitch;
     bool rejectTracksFlag;
     bool breakTrajWith2ConsecutiveMissing;
     bool noInvalidHitsBeginEnd;
@@ -62,6 +66,8 @@ namespace {
       desc.add<int>("MinDof", 2);
       desc.add<bool>("NoOutliersBeginEnd", false);
       desc.add<int>("MinNumberOfHits", 5);
+      desc.add<int>("MinNumberOfHitsHighEta", 5);
+      desc.add<double>("HighEtaSwitch", 5.0);
       desc.add<bool>("RejectTracks", true);
       desc.add<bool>("BreakTrajWith2ConsecutiveMissing", true);
       desc.add<bool>("NoInvalidHitsBeginEnd", true);
@@ -93,14 +99,20 @@ namespace {
         : KFFittingSmootherParam(other), theFitter(aFitter.clone()), theSmoother(aSmoother.clone()) {}
 
     Trajectory smoothingStep(Trajectory&& fitted) const {
+      double absTrajEta = 99.0;
+      if ( !fitted.empty() ) {
+	absTrajEta=fabs(fitted.lastMeasurement().updatedState().freeTrajectoryState()->momentum().eta()); //needed for eta-extended electrons
+      }
+      int thisHitCut=theMinNumberOfHits;
+      if (absTrajEta>theHighEtaSwitch) thisHitCut=theMinNumberOfHitsHighEta;
       if (theEstimateCut > 0) {
         // remove "outlier" at the end of Traj
         while (
-            !fitted.empty() && fitted.foundHits() >= theMinNumberOfHits &&
+            !fitted.empty() && fitted.foundHits() >= thisHitCut &&
             (!fitted.lastMeasurement().recHitR().isValid() || (fitted.lastMeasurement().recHitR().det() != nullptr &&
                                                                fitted.lastMeasurement().estimate() > theEstimateCut)))
           fitted.pop();
-        if (fitted.foundHits() < theMinNumberOfHits)
+        if (fitted.foundHits() < thisHitCut)
           return Trajectory();
       }
       return theSmoother->trajectory(fitted);
@@ -199,11 +211,17 @@ namespace {
 #endif
 
       bool hasNaN = false;
-      if (!smoothed.isValid() || (hasNaN = !checkForNans(smoothed)) || (smoothed.foundHits() < theMinNumberOfHits)) {
+      double absTrajEta=99.0;
+      if (smoothed.isValid()) {
+	absTrajEta=fabs(smoothed.lastMeasurement().updatedState().freeTrajectoryState()->momentum().eta()); //needed for eta-extended electrons 
+      }
+      int thisHitCut=theMinNumberOfHits;
+      if (absTrajEta>theHighEtaSwitch) thisHitCut=theMinNumberOfHitsHighEta;
+      if (!smoothed.isValid() || (hasNaN = !checkForNans(smoothed)) || (smoothed.foundHits() < thisHitCut)) {
         if (hasNaN)
           edm::LogWarning("TrackNaN") << "Track has NaN or the cov is not pos-definite";
-        if (smoothed.foundHits() < theMinNumberOfHits)
-          LogTrace("TrackFitters") << "smoothed.foundHits()<theMinNumberOfHits";
+        if (smoothed.foundHits() < thisHitCut)
+          LogTrace("TrackFitters") << "smoothed.foundHits()<thisHitCut";
         DPRINT("TrackFitters") << "smoothed invalid => trajectory rejected with nhits/chi2 " << smoothed.foundHits()
                                << '/' << smoothed.chiSquared() << "\n";
         if (rejectTracksFlag) {
