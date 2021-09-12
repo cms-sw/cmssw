@@ -47,9 +47,6 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  const edm::ESGetToken<SetupData, SetupRecord> totkSet_;
-#endif
   const edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> tokSev_;
 };
 
@@ -65,11 +62,7 @@ private:
 // constructors and destructor
 //
 HcalSevLvlAnalyzer::HcalSevLvlAnalyzer(const edm::ParameterSet& iConfig)
-    :
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-      totkSet_(esConsumes()),
-#endif
-      tokSev_(esConsumes()) {
+    : tokSev_(esConsumes()) {
   //now do what ever initialization is needed
 
   // initialize the severity level code
@@ -86,17 +79,6 @@ HcalSevLvlAnalyzer::~HcalSevLvlAnalyzer() {
 
 // ------------ method called to for each event  ------------
 void HcalSevLvlAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-  Handle<ExampleData> pIn;
-  iEvent.getByLabel("example", pIn);
-#endif
-
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  auto pSetup = &iSetup.getData(tokSet_);
-#endif
-
   // here's how to access the severity level computer:
   const HcalSeverityLevelComputer* myProd = &iSetup.getData(tokSev_);
 
