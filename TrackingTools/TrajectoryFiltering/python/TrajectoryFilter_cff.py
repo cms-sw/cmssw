@@ -8,6 +8,8 @@ CkfBaseTrajectoryFilter_block = cms.PSet(
 #--- Cuts applied to completed trajectory
 # At least this many hits (counting matched hits as 1)
     minimumNumberOfHits = cms.int32(5),
+    highEtaSwitch = cms.double(5.0),
+    minHitsAtHighEta = cms.int32(5),
 # add this if seed is a Pair  (opposed to a triplet)
     seedPairPenalty = cms.int32(0),
 # What is this ?
@@ -68,7 +70,9 @@ MaxHitsTrajectoryFilter_block = cms.PSet(
 )
 MinHitsTrajectoryFilter_block = cms.PSet(
     ComponentType = cms.string('MinHitsTrajectoryFilter'),
-    minimumNumberOfHits = cms.int32(5)
+    minimumNumberOfHits = cms.int32(5),
+    highEtaSwitch = cms.double(5.0),
+    minHitsAtHighEta = cms.int32(5)
 )
 MinPtTrajectoryFilter_block = cms.PSet(
     ComponentType = cms.string('MinPtTrajectoryFilter'),
