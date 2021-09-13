@@ -1,7 +1,7 @@
 #ifndef ECALDBCOPY_H
 #define ECALDBCOPY_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "CondCore/CondDB/interface/Exception.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
@@ -83,7 +83,7 @@ class EcalSimPulseShapeRcd;
 class EcalTimeBiasCorrectionsRcd;
 class EcalSamplesCorrelationRcd;
 
-class EcalDBCopy : public edm::EDAnalyzer {
+class EcalDBCopy : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalDBCopy(const edm::ParameterSet& iConfig);
   ~EcalDBCopy() override;
