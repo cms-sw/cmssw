@@ -58,7 +58,7 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
     electronMcSignalValidatorMiniAOD,
     electrons_endcaps=cms.InputTag("slimmedElectronsHGC"),
-    MaxAbsEta=cms.double(3.0),
+    MaxAbsEta=3.0,
     histosCfg=dict(
         Nbineta=60,
         Nbineta2D=60,
