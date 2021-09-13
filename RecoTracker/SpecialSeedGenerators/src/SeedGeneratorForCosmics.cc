@@ -5,6 +5,7 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 void SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection& collstereo,
                                    const SiStripRecHit2DCollection& collrphi,
                                    const SiStripMatchedRecHit2DCollection& collmatched,
@@ -37,8 +38,7 @@ void SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection& collstereo,
     thePairGenerator->hitPairs(region, HitPairs);
   }
 
-  CosmicLayerTriplets cosmiclayers2;
-  cosmiclayers2.init(collstereo, collrphi, collmatched, geometry, iSetup);
+  CosmicLayerTriplets cosmiclayers2(geometry, collrphi, *track, *httopo);
   theTripletGenerator = new CosmicHitTripletGenerator(cosmiclayers2, iSetup);
   HitTriplets.clear();
   if ((hitsforseeds == "triplets") || (hitsforseeds == "pairsandtriplets")) {
