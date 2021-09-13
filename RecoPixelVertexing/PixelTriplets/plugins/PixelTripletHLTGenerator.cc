@@ -12,7 +12,6 @@
 #include "ThirdHitCorrection.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
@@ -23,6 +22,8 @@
 #include "CommonTools/Utils/interface/DynArray.h"
 
 #include "DataFormats/Math/interface/normalizedPhi.h"
+
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include <cstdio>
 #include <iostream>
@@ -138,6 +139,10 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   const float maxphi = M_PI + maxDelphi, minphi = -maxphi;  // increase to cater for any range
   const float safePhi = M_PI - maxDelphi;                   // sideband
 
+  edm::ESHandle<MagneticField> hfield;
+  es.get<IdealMagneticFieldRecord>().get(hfield);
+  const auto& field = *hfield;
+
   // fill the prediction vector
   for (int il = 0; il < nThirdLayers; ++il) {
     auto const& hits = *thirdHitMap[il];
@@ -180,7 +185,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 
   float imppar = region.originRBound();
   float imppartmp = region.originRBound() + region.origin().perp();
-  float curv = PixelRecoUtilities::curvature(1.f / region.ptMin(), es);
+  float curv = PixelRecoUtilities::curvature(1.f / region.ptMin(), field);
 
   for (std::size_t ip = 0; ip != doublets.size(); ip++) {
     auto xi = doublets.x(ip, HitDoublets::inner);
