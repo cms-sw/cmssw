@@ -22,7 +22,6 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <cstdio>
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
 //using boost::asio::ip::tcp;
@@ -84,10 +83,10 @@ namespace evf {
     char* fuLockPollIntervalPtr = std::getenv("FFF_LOCKPOLLINTERVAL");
     if (fuLockPollIntervalPtr) {
       try {
-        fuLockPollInterval_ = boost::lexical_cast<unsigned int>(std::string(fuLockPollIntervalPtr));
+        fuLockPollInterval_ = std::stoul(std::string(fuLockPollIntervalPtr));
         edm::LogInfo("EvFDaqDirector") << "Setting fu lock poll interval by environment string: " << fuLockPollInterval_
                                        << " us";
-      } catch (boost::bad_lexical_cast const&) {
+      } catch (const std::exception&) {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fuLockPollIntervalPtr);
       }
     }
@@ -96,9 +95,9 @@ namespace evf {
     char* fileBrokerParamPtr = std::getenv("FFF_USEFILEBROKER");
     if (fileBrokerParamPtr) {
       try {
-        useFileBroker_ = (boost::lexical_cast<unsigned int>(std::string(fileBrokerParamPtr))) > 0;
+        useFileBroker_ = (std::stoul(std::string(fileBrokerParamPtr))) > 0;
         edm::LogInfo("EvFDaqDirector") << "Setting useFileBroker parameter by environment string: " << useFileBroker_;
-      } catch (boost::bad_lexical_cast const&) {
+      } catch (const std::exception&) {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fileBrokerParamPtr);
       }
     }
@@ -126,9 +125,9 @@ namespace evf {
     char* startFromLSPtr = std::getenv("FFF_START_LUMISECTION");
     if (startFromLSPtr) {
       try {
-        startFromLS_ = boost::lexical_cast<unsigned int>(std::string(startFromLSPtr));
+        startFromLS_ = std::stoul(std::string(startFromLSPtr));
         edm::LogInfo("EvFDaqDirector") << "Setting start from LS by environment string: " << startFromLS_;
-      } catch (boost::bad_lexical_cast const&) {
+      } catch (const std::exception&) {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(startFromLSPtr);
       }
     }
@@ -137,10 +136,10 @@ namespace evf {
     char* fileBrokerUseLockParamPtr = std::getenv("FFF_FILEBROKERUSELOCALLOCK");
     if (fileBrokerUseLockParamPtr) {
       try {
-        fileBrokerUseLocalLock_ = (boost::lexical_cast<unsigned int>(std::string(fileBrokerUseLockParamPtr))) > 0;
+        fileBrokerUseLocalLock_ = (std::stoul(std::string(fileBrokerUseLockParamPtr))) > 0;
         edm::LogInfo("EvFDaqDirector") << "Setting fileBrokerUseLocalLock parameter by environment string: "
                                        << fileBrokerUseLocalLock_;
-      } catch (boost::bad_lexical_cast const&) {
+      } catch (const std::exception&) {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fileBrokerUseLockParamPtr);
       }
     }
@@ -773,7 +772,7 @@ namespace evf {
       edm::LogError("EvFDaqDirector") << " error reading number of files from BU JSON -: " << BUEoLSFile;
       return -1;
     }
-    return boost::lexical_cast<int>(data);
+    return std::stoi(data);
   }
 
   bool EvFDaqDirector::bumpFile(unsigned int& ls,
@@ -1330,8 +1329,8 @@ namespace evf {
           if (i < dp.getData().size()) {
             std::string dataSize = dp.getData()[i];
             try {
-              fileSizeFromJson = boost::lexical_cast<long>(dataSize);
-            } catch (boost::bad_lexical_cast const&) {
+              fileSizeFromJson = std::stol(dataSize);
+            } catch (const std::exception&) {
               //non-fatal currently, processing can continue without this value
               edm::LogWarning("EvFDaqDirector") << "grabNextJsonFile - error parsing number of Bytes from BU JSON. "
                                                 << "Input value is -: " << dataSize;
@@ -1340,9 +1339,12 @@ namespace evf {
           }
         }
       }
-      return boost::lexical_cast<int>(data);
-    } catch (boost::bad_lexical_cast const& e) {
+      return std::stoi(data);
+    } catch (const std::out_of_range& e) {
       edm::LogError("EvFDaqDirector") << "grabNextJsonFile - error parsing number of events from BU JSON. "
+                                      << "Input value is -: " << data;
+    } catch (const std::invalid_argument& e) {
+      edm::LogError("EvFDaqDirector") << "grabNextJsonFile - argument error parsing events from BU JSON. "
                                       << "Input value is -: " << data;
     } catch (std::runtime_error const& e) {
       //Can be thrown by Json parser
@@ -1427,7 +1429,7 @@ namespace evf {
           throw cms::Exception("EvFDaqDirector::grabNextJsonFileUnlock")
               << " error reading number of events from BU JSON -: No input value " << data;
       }
-      return boost::lexical_cast<int>(data);
+      return std::stoi(data);
     } catch (std::filesystem::filesystem_error const& ex) {
       // Input dir gone?
       unlockFULocal();
@@ -1436,8 +1438,11 @@ namespace evf {
       // Another process grabbed the file and NFS did not register this
       unlockFULocal();
       edm::LogError("EvFDaqDirector") << "grabNextFile runtime Exception -: " << e.what();
-    } catch (boost::bad_lexical_cast const&) {
+    } catch (const std::out_of_range&) {
       edm::LogError("EvFDaqDirector") << "grabNextFile error parsing number of events from BU JSON. "
+                                      << "Input value is -: " << data;
+    } catch (const std::invalid_argument&) {
+      edm::LogError("EvFDaqDirector") << "grabNextFile argument error parsing events from BU JSON. "
                                       << "Input value is -: " << data;
     } catch (std::exception const& e) {
       // BU run directory disappeared?
