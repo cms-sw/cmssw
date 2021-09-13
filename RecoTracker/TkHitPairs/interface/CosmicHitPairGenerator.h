@@ -18,16 +18,16 @@ class CosmicHitPairGenerator {
   typedef std::vector<std::unique_ptr<CosmicHitPairGeneratorFromLayerPair> > Container;
 
 public:
-  CosmicHitPairGenerator(SeedLayerPairs& layers, const edm::EventSetup& iSetup);
+  CosmicHitPairGenerator(SeedLayerPairs& layers, const TrackerGeometry&);
   CosmicHitPairGenerator(SeedLayerPairs& layers);
 
   ~CosmicHitPairGenerator();
 
   /// add generators based on layers
   //  void  add(const DetLayer* inner, const DetLayer* outer);
-  void add(const LayerWithHits* inner, const LayerWithHits* outer, const edm::EventSetup& iSetup);
+  void add(const LayerWithHits* inner, const LayerWithHits* outer, const TrackerGeometry& trackGeom);
   /// form base class
-  void hitPairs(const TrackingRegion& reg, OrderedHitPairs& prs, const edm::EventSetup& iSetup);
+  void hitPairs(const TrackingRegion& reg, OrderedHitPairs& pr);
 
 private:
   Container theGenerators;

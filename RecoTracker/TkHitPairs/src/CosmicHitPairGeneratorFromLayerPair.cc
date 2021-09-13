@@ -16,20 +16,18 @@ CosmicHitPairGeneratorFromLayerPair::CosmicHitPairGeneratorFromLayerPair(
     const LayerWithHits* inner,
     const LayerWithHits* outer,
     //							     LayerCacheType* layerCache,
-    const edm::EventSetup& iSetup)
-    : TTRHbuilder(nullptr),
-      trackerGeometry(nullptr),
+    const TrackerGeometry& geom)
+    : trackerGeometry(&geom),
       //theLayerCache(*layerCache),
       theOuterLayer(outer),
       theInnerLayer(inner) {
-  edm::ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-  trackerGeometry = tracker.product();
+  //edm::ESHandle<TrackerGeometry> tracker;
+  //iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+  //trackerGeometry = tracker.product();
 }
 CosmicHitPairGeneratorFromLayerPair::~CosmicHitPairGeneratorFromLayerPair() {}
-void CosmicHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion& region,
-                                                   OrderedHitPairs& result,
-                                                   const edm::EventSetup& iSetup) {
+
+void CosmicHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion& region, OrderedHitPairs& result) {
   //  static int NSee = 0; static int Ntry = 0; static int Nacc = 0;
 
   typedef OrderedHitPair::InnerRecHit InnerHit;
@@ -65,9 +63,6 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion& region,
   }
 
   vector<OrderedHitPair> allthepairs;
-  std::string builderName = "WithTrackAngle";
-  edm::ESHandle<TransientTrackingRecHitBuilder> builder;
-  iSetup.get<TransientRecHitRecord>().get(builderName, builder);
 
   for (auto ohh = theOuterLayer->recHits().begin(); ohh != theOuterLayer->recHits().end(); ohh++) {
     for (auto ihh = theInnerLayer->recHits().begin(); ihh != theInnerLayer->recHits().end(); ihh++) {
@@ -107,7 +102,32 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion& region,
     }
   }
 
-  //   stable_sort(allthepairs.begin(),allthepairs.end(),CompareHitPairsY(iSetup));
+  /*
+  class CompareHitPairsY {
+  public:
+    CompareHitPairsY(const TrackerGeometry& t): tracker{&t} {}
+    bool operator()(const OrderedHitPair& h1, const OrderedHitPair& h2) {
+      const TrackingRecHit* trh1i = h1.inner()->hit();
+      const TrackingRecHit* trh2i = h2.inner()->hit();
+      const TrackingRecHit* trh1o = h1.outer()->hit();
+      const TrackingRecHit* trh2o = h2.outer()->hit();
+      GlobalPoint in1p = tracker->idToDet(trh1i->geographicalId())->surface().toGlobal(trh1i->localPosition());
+      GlobalPoint in2p = tracker->idToDet(trh2i->geographicalId())->surface().toGlobal(trh2i->localPosition());
+      GlobalPoint ou1p = tracker->idToDet(trh1o->geographicalId())->surface().toGlobal(trh1o->localPosition());
+      GlobalPoint ou2p = tracker->idToDet(trh2o->geographicalId())->surface().toGlobal(trh2o->localPosition());
+      if (ou1p.y() * ou2p.y() < 0)
+        return ou1p.y() > ou2p.y();
+      else {
+        float dist1 = 100 * std::abs(ou1p.z() - in1p.z()) - std::abs(ou1p.y()) - 0.1 * std::abs(in1p.y());
+        float dist2 = 100 * std::abs(ou2p.z() - in2p.z()) - std::abs(ou2p.y()) - 0.1 * std::abs(in2p.y());
+        return dist1 < dist2;
+      }
+    }
+    
+  private:
+    const TrackerGeometry* tracker;
+    }; */
+  //   stable_sort(allthepairs.begin(),allthepairs.end(),CompareHitPairsY(*trackerGeometry));
   //   //Seed from overlaps are saved only if
   //   //no others have been saved
 
