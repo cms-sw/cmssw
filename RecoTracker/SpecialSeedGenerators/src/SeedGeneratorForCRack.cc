@@ -24,9 +24,9 @@ void SeedGeneratorForCRack::init(const SiStripRecHit2DCollection& collstereo,
   edm::ESHandle<TrackerTopology> httopo;
   iSetup.get<TrackerTopologyRcd>().get(httopo);
   CosmicLayerPairs cosmiclayers(geometry, collrphi, collmatched, *track, *httopo);
-  thePairGenerator = new CosmicHitPairGenerator(cosmiclayers, iSetup);
+  thePairGenerator = new CosmicHitPairGenerator(cosmiclayers, *tracker);
   HitPairs.clear();
-  thePairGenerator->hitPairs(region, HitPairs, iSetup);
+  thePairGenerator->hitPairs(region, HitPairs);
   LogDebug("CosmicSeedFinder") << "Initialized with " << HitPairs.size() << " hit pairs" << std::endl;
 }
 

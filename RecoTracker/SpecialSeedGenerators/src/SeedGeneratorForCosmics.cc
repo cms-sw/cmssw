@@ -28,13 +28,13 @@ void SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection& collstereo,
   iSetup.get<TrackerRecoGeometryRecord>().get(track);
   edm::ESHandle<TrackerTopology> httopo;
   iSetup.get<TrackerTopologyRcd>().get(httopo);
-  
+
   CosmicLayerPairs cosmiclayers(geometry, collrphi, collmatched, *track, *httopo);
 
-  thePairGenerator = new CosmicHitPairGenerator(cosmiclayers, iSetup);
+  thePairGenerator = new CosmicHitPairGenerator(cosmiclayers, *tracker);
   HitPairs.clear();
   if ((hitsforseeds == "pairs") || (hitsforseeds == "pairsandtriplets")) {
-    thePairGenerator->hitPairs(region, HitPairs, iSetup);
+    thePairGenerator->hitPairs(region, HitPairs);
   }
 
   CosmicLayerTriplets cosmiclayers2;
