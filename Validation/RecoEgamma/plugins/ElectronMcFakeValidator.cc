@@ -75,8 +75,7 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
 
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
-  deltaR_ = conf.getParameter<double>("DeltaR");
-  deltaR2_ = deltaR_ * deltaR_;
+  deltaR2_ = conf.getParameter<double>("DeltaR") * conf.getParameter<double>("DeltaR");
   inputFile_ = conf.getParameter<std::string>("InputFile");
   outputFile_ = conf.getParameter<std::string>("OutputFile");
   inputInternalPath_ = conf.getParameter<std::string>("InputFolderName");
