@@ -10,7 +10,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -29,7 +29,7 @@
 //-----------------------
 // This Class' Header --
 //-----------------------
-class DTKeyedConfigDBDump : public edm::EDAnalyzer {
+class DTKeyedConfigDBDump : public edm::one::EDAnalyzer<> {
 public:
   /** Constructor                                                                                                
    */
@@ -75,11 +75,6 @@ void DTKeyedConfigDBDump::analyze(const edm::Event& iEvent, const edm::EventSetu
     edm::LogWarning("DTKeyedConfigDBDump") << "Record \"DTKeyedConfigListRcd "
                                            << "\" does not exist " << std::endl;
   }
-  //edm::ESHandle<cond::persistency::KeyList> klh;
-  //std::cout << "got eshandle" << std::endl;
-  //iSetup.get<DTKeyedConfigListRcd>().get(klh);
-  //std::cout << "got context" << std::endl;
-  //cond::persistency::KeyList const& kl = *klh.product();
   cond::persistency::KeyList const* kp = &iSetup.getData(perskeylistToken_);
   edm::LogInfo("DTKeyedConfigDBDump") << "now load and get" << std::endl;
   auto pkc = kp->getUsingKey<DTKeyedConfig>(999999999);
