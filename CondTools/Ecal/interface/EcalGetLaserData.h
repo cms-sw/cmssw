@@ -1,7 +1,7 @@
 #ifndef ECALGETLASERDATA_H
 #define ECALGETLASERDATA_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
 
@@ -21,7 +21,7 @@ class EcalLaserAPDPNRatiosRcd;
 class EcalLaserAPDPNRatiosRefRcd;
 class EcalLaserAlphasRcd;
 
-class EcalGetLaserData : public edm::EDAnalyzer {
+class EcalGetLaserData : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalGetLaserData(const edm::ParameterSet& iConfig);
   ~EcalGetLaserData() override;

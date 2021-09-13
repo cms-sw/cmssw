@@ -1,7 +1,7 @@
 #ifndef ECALPFRECHITTHRESHOLDSMAKER_H
 #define ECALPFRECHITTHRESHOLDSMAKER_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "CondCore/CondDB/interface/Exception.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
@@ -21,7 +21,7 @@ class EcalADCToGeVConstantRcd;
 class EcalIntercalibConstantsRcd;
 class EcalLaserDbService;
 class EcalLaserDbRecord;
-class EcalPFRecHitThresholdsMaker : public edm::EDAnalyzer {
+class EcalPFRecHitThresholdsMaker : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalPFRecHitThresholdsMaker(const edm::ParameterSet& iConfig);
   ~EcalPFRecHitThresholdsMaker() override;
