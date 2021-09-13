@@ -3,7 +3,7 @@
  *  \author A. Vilela Pereira
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,7 +19,7 @@ class DTGeometry;
 class DTTTrigBaseSync;
 class TFile;
 
-class DTTPAnalyzer : public edm::EDAnalyzer {
+class DTTPAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   DTTPAnalyzer(const edm::ParameterSet&);
   ~DTTPAnalyzer() override;

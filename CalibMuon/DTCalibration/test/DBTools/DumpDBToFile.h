@@ -10,7 +10,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include <string>
 
@@ -23,20 +23,22 @@ class DTCalibrationMap;
 class DTReadOutMapping;
 class DTRecoConditions;
 
-class DumpDBToFile : public edm::EDAnalyzer {
+class DumpDBToFile : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   /// Constructor
   DumpDBToFile(const edm::ParameterSet &pset);
 
   /// Destructor
-  virtual ~DumpDBToFile();
+  ~DumpDBToFile() override;
 
   // Operations
-  virtual void beginRun(const edm::Run &run, const edm::EventSetup &setup);
+  void beginRun(const edm::Run &run, const edm::EventSetup &setup) override;
 
-  virtual void analyze(const edm::Event &event, const edm::EventSetup &setup) {}
+  void endRun(const edm::Run &run, const edm::EventSetup &setup) override {}
 
-  virtual void endJob();
+  void analyze(const edm::Event &event, const edm::EventSetup &setup) override {}
+
+  void endJob() override;
 
 protected:
 private:
