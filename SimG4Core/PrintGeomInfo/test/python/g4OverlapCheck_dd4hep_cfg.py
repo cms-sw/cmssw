@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
 process = cms.Process('G4PrintGeometry',Run3_dd4hep)
-process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff')
+process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 

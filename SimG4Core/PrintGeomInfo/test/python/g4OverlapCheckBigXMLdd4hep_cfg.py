@@ -1,13 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-#from Configuration.Eras.Era_Run2_cff import Run2
-#process = cms.Process('SIM',Run2)
-#process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
-
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process('SIM',Run3)
-process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
+from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+process = cms.Process('G4PrintGeometry',Run3_dd4hep)
+process.load("Configuration.Geometry.GeometryDD4hep_cff")
+process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff")
+process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
+process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
+process.load("Geometry.HcalCommonData.hcalDDDRecConstants_cfi")
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load("Geometry.MuonNumbering.muonOffsetESProducer_cff")
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
@@ -20,6 +21,8 @@ process = checkOverlap(process)
 # enable Geant4 overlap check 
 process.g4SimHits.CheckGeometry = True
 
+process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("SimG4Core/PrintGeomInfo/data/dd4hep/cmsExtendedGeometry2021.xml")
+
 # Geant4 geometry check 
 process.g4SimHits.G4CheckOverlap.OutputBaseName = cms.string("cms2021")
 process.g4SimHits.G4CheckOverlap.OverlapFlag = cms.bool(True)
@@ -29,7 +32,7 @@ process.g4SimHits.G4CheckOverlap.Depth      = cms.int32(-1)
 # tells if NodeName is G4Region or G4PhysicalVolume
 process.g4SimHits.G4CheckOverlap.RegionFlag = cms.bool(False)
 # list of names
-process.g4SimHits.G4CheckOverlap.NodeNames  = cms.vstring('OCMS')
+process.g4SimHits.G4CheckOverlap.NodeNames  = cms.vstring('cms:OCMS_1')
 # enable dump gdml file 
 process.g4SimHits.G4CheckOverlap.gdmlFlag   = cms.bool(False)
 # if defined a G4PhysicsVolume info is printed
