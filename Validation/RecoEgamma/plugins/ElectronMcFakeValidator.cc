@@ -76,6 +76,7 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
   deltaR_ = conf.getParameter<double>("DeltaR");
+  deltaR2_ = deltaR_ * deltaR_;
   inputFile_ = conf.getParameter<std::string>("InputFile");
   outputFile_ = conf.getParameter<std::string>("OutputFile");
   inputInternalPath_ = conf.getParameter<std::string>("InputFolderName");
@@ -2556,8 +2557,8 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
       if (std::abs(dphi) > CLHEP::pi) {
         dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
       }
-      double deltaR = sqrt(pow((gsfIter3->eta() - moIter->eta()), 2) + pow(dphi, 2));
-      if (deltaR < deltaR_) {
+      double deltaR2 = (gsfIter3->eta() - moIter->eta()) * (gsfIter3->eta() - moIter->eta()) + dphi * dphi;
+      if (deltaR2 < deltaR2_) {
         double tmpGsfRatio = gsfIter3->p() / moIter->energy();
         if (std::abs(tmpGsfRatio - 1) < std::abs(gsfOkRatio - 1)) {
           gsfOkRatio = tmpGsfRatio;
