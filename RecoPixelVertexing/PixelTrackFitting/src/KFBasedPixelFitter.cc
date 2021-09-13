@@ -92,7 +92,7 @@ std::unique_ptr<reco::Track> KFBasedPixelFitter::run(const std::vector<const Tra
   float theta;
   CircleFromThreePoints circle(points[0], points[1], points[2]);
   if (circle.curvature() > 1.e-4) {
-    float invPt = PixelRecoUtilities::inversePt(circle.curvature(), setup);
+    float invPt = PixelRecoUtilities::inversePt(circle.curvature(), *theField);
     float valPt = 1.f / invPt;
     float chargeTmp = (points[1].x() - points[0].x()) * (points[2].y() - points[1].y()) -
                       (points[1].y() - points[0].y()) * (points[2].x() - points[1].x());
