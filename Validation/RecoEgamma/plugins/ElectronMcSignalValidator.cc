@@ -82,8 +82,7 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
 
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
-  deltaR_ = conf.getParameter<double>("DeltaR");
-  deltaR2_ = deltaR_ * deltaR_;
+  deltaR2_ = conf.getParameter<double>("DeltaR") * conf.getParameter<double>("DeltaR");
   matchingIDs_ = conf.getParameter<std::vector<int> >("MatchingID");
   matchingMotherIDs_ = conf.getParameter<std::vector<int> >("MatchingMotherID");
   inputFile_ = conf.getParameter<std::string>("InputFile");
