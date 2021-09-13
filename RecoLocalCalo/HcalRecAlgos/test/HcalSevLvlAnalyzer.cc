@@ -61,8 +61,7 @@ private:
 //
 // constructors and destructor
 //
-HcalSevLvlAnalyzer::HcalSevLvlAnalyzer(const edm::ParameterSet& iConfig)
-    : tokSev_(esConsumes()) {
+HcalSevLvlAnalyzer::HcalSevLvlAnalyzer(const edm::ParameterSet& iConfig) : tokSev_(esConsumes()) {
   //now do what ever initialization is needed
 
   // initialize the severity level code
