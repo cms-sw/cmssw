@@ -67,7 +67,7 @@ private:
 
   double maxPt_;
   double maxAbsEta_;
-  double deltaR_;
+  double deltaR_, deltaR2_;
 
   std::string inputFile_;
   std::string outputFile_;
