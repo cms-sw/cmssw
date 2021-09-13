@@ -92,11 +92,11 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region
                                                     const Layer& innerLayer,
                                                     const Layer& outerLayer,
                                                     LayerCacheType& layerCache) {
-  const RecHitsSortedInPhi& innerHitsMap = layerCache(innerLayer, region, iSetup);
+  const RecHitsSortedInPhi& innerHitsMap = layerCache(innerLayer, region);
   if (innerHitsMap.empty())
     return HitDoublets(innerHitsMap, innerHitsMap);
 
-  const RecHitsSortedInPhi& outerHitsMap = layerCache(outerLayer, region, iSetup);
+  const RecHitsSortedInPhi& outerHitsMap = layerCache(outerLayer, region);
   if (outerHitsMap.empty())
     return HitDoublets(innerHitsMap, outerHitsMap);
   HitDoublets result(innerHitsMap, outerHitsMap);
@@ -140,7 +140,6 @@ void HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
     std::unique_ptr<const HitRZCompatibility> checkRZ =
         region.checkRZ(&innerHitDetLayer,
                        ohit,
-                       iSetup,
                        &outerHitDetLayer,
                        outerHitsMap.rv(io),
                        outerHitsMap.z[io],

@@ -99,7 +99,6 @@ void RectangularEtaPhiTrackingRegion::initEtaRange(const GlobalVector& dir, cons
 
 std::unique_ptr<HitRZCompatibility> RectangularEtaPhiTrackingRegion::checkRZOld(const DetLayer* layer,
                                                                                 const Hit& outerHit,
-                                                                                const edm::EventSetup& iSetup,
                                                                                 const DetLayer* outerlayer) const {
   bool isBarrel = (layer->location() == GeomDetEnumerators::barrel);
   GlobalPoint ohit = outerHit->globalPosition();
@@ -166,8 +165,7 @@ std::unique_ptr<HitRZCompatibility> RectangularEtaPhiTrackingRegion::checkRZOld(
   }
 }
 
-std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator(const BarrelDetLayer* layer,
-                                                                                 const edm::EventSetup& iSetup) const {
+std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator(const BarrelDetLayer* layer) const {
   using Algo = HitZCheck;
 
   // det dimensions
@@ -226,8 +224,7 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
                                                 OuterHitCompatibility<Algo>(phiPrediction, zPrediction));
 }
 
-std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator(const ForwardDetLayer* layer,
-                                                                                 const edm::EventSetup& iSetup) const {
+std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator(const ForwardDetLayer* layer) const {
   using Algo = HitRCheck;
   // det dimensions, ranges
   float halfThickness = 0.5f * layer->surface().bounds().thickness();
@@ -307,8 +304,7 @@ HitRZConstraint RectangularEtaPhiTrackingRegion::rzConstraint() const {
   return HitRZConstraint(pLeft, theLambdaRange.min(), pRight, theLambdaRange.max());
 }
 
-TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(const edm::EventSetup& es,
-                                                           const SeedingLayerSetsHits::SeedingLayer& layer) const {
+TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(const SeedingLayerSetsHits::SeedingLayer& layer) const {
   TrackingRegion::Hits result;
 
   //ESTIMATOR
@@ -331,12 +327,12 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(const edm::EventSetup
          GeomDetEnumerators::isBarrel(detLayer->subDetector())) ||
         (!theUseEtaPhi && detLayer->location() == GeomDetEnumerators::barrel)) {
       const BarrelDetLayer& bl = dynamic_cast<const BarrelDetLayer&>(*detLayer);
-      est = estimator(&bl, es);
+      est = estimator(&bl);
     } else if ((GeomDetEnumerators::isTrackerPixel(detLayer->subDetector()) &&
                 GeomDetEnumerators::isEndcap(detLayer->subDetector())) ||
                (!theUseEtaPhi && detLayer->location() == GeomDetEnumerators::endcap)) {
       const ForwardDetLayer& fl = dynamic_cast<const ForwardDetLayer&>(*detLayer);
-      est = estimator(&fl, es);
+      est = estimator(&fl);
     }
 
     EtaPhiMeasurementEstimator etaPhiEstimator((theEtaRange.second - theEtaRange.first) * 0.5f,
@@ -383,7 +379,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(const edm::EventSetup
     //
     if (detLayer->location() == GeomDetEnumerators::barrel) {
       const BarrelDetLayer& bl = dynamic_cast<const BarrelDetLayer&>(*detLayer);
-      auto est = estimator(&bl, es);
+      auto est = estimator(&bl);
       if (!est)
         return result;
       using Algo = HitZCheck;
@@ -397,7 +393,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(const edm::EventSetup
 
     } else {
       const ForwardDetLayer& fl = dynamic_cast<const ForwardDetLayer&>(*detLayer);
-      auto est = estimator(&fl, es);
+      auto est = estimator(&fl);
       if (!est)
         return result;
       using Algo = HitRCheck;

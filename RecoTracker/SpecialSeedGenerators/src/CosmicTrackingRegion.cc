@@ -46,15 +46,14 @@ void CosmicTrackingRegion::checkTracks(reco::TrackCollection const& tracks, std:
   }
 }
 
-TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::EventSetup& es,
-                                                const SeedingLayerSetsHits::SeedingLayer& layer) const {
+TrackingRegion::Hits CosmicTrackingRegion::hits(const SeedingLayerSetsHits::SeedingLayer& layer) const {
   TrackingRegion::Hits result;
-  hits_(es, layer, result);
+  hits_(layer, result);
   return result;
 }
 
 template <typename T>
-void CosmicTrackingRegion::hits_(const edm::EventSetup& es, const T& layer, TrackingRegion::Hits& result) const {
+void CosmicTrackingRegion::hits_(const T& layer, TrackingRegion::Hits& result) const {
   //get and name collections
   //++++++++++++++++++++++++
 
