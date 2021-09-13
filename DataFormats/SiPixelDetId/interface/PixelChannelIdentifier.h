@@ -1,10 +1,10 @@
-#ifndef DATAFORMATS_PIXELCHANMNELIDENTIFIER_H
-#define DATAFORMATS_PIXELCHANMNELIDENTIFIER_H
+#ifndef DataFormats_SiPixelDetId_interface_PixelChannelIdentifier_h
+#define DataFormats_SiPixelDetId_interface_PixelChannelIdentifier_h
 
 #include <utility>
 #include <cstdint>
 
-namespace pixelchanelidentifierimpl {
+namespace pixelchannelidentifierimpl {
   /**
    * Pack the pixel information to use less memory
    */
@@ -50,7 +50,7 @@ namespace pixelchanelidentifierimpl {
     const int max_column;
     const int max_adc;
   };
-}  // namespace pixelchanelidentifierimpl
+}  // namespace pixelchannelidentifierimpl
 
 class PixelChannelIdentifier {
 public:
@@ -65,7 +65,7 @@ public:
 
   static int pixelToChannel(int row, int col) { return (row << thePacking.column_width) | col; }
 
-  using Packing = pixelchanelidentifierimpl::Packing;
+  using Packing = pixelchannelidentifierimpl::Packing;
 
 public:
   constexpr static Packing packing() { return Packing(8, 9, 4, 11); }
@@ -73,4 +73,4 @@ public:
   constexpr static Packing thePacking = {11, 10, 1, 10};
 };
 
-#endif
+#endif  // DataFormats_SiPixelDetId_interface_PixelChannelIdentifier_h
