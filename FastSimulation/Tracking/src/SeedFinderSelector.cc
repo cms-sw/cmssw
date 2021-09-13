@@ -150,8 +150,7 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *> &hits
       return !tripletresult.empty();
     } else if (multiHitGenerator_) {
       OrderedMultiHits tripletresult;
-      multiHitGenerator_->hitTriplets(
-          *trackingRegion_, tripletresult, *eventSetup_, result, &thmp, thirdLayerDetLayer, 1);
+      multiHitGenerator_->hitTriplets(*trackingRegion_, tripletresult, result, &thmp, thirdLayerDetLayer, 1);
       return !tripletresult.empty();
     }
     //new for Phase1

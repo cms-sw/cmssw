@@ -91,7 +91,7 @@ void PixelTripletLowPtGenerator::hitTriplets(const TrackingRegion& region,
   // Set aliases
   const RecHitsSortedInPhi** thirdHitMap = new const RecHitsSortedInPhi*[size];
   for (int il = 0; il < size; il++)
-    thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, es);
+    thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region);
 
   // Get tracker
   getTracker(es);

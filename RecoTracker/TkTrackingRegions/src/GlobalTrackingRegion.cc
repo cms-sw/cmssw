@@ -24,14 +24,12 @@ std::string GlobalTrackingRegion::print() const {
   return str.str();
 }
 
-TrackingRegion::Hits GlobalTrackingRegion::hits(const edm::EventSetup& es,
-                                                const SeedingLayerSetsHits::SeedingLayer& layer) const {
+TrackingRegion::Hits GlobalTrackingRegion::hits(const SeedingLayerSetsHits::SeedingLayer& layer) const {
   return layer.hits();
 }
 
 std::unique_ptr<HitRZCompatibility> GlobalTrackingRegion::checkRZ(const DetLayer* layer,
                                                                   const Hit& outerHit,
-                                                                  const edm::EventSetup& iSetup,
                                                                   const DetLayer* outerlayer,
                                                                   float lr,
                                                                   float gz,

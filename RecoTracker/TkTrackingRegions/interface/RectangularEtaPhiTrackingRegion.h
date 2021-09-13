@@ -12,7 +12,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
 //#include "CommonDet/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
@@ -189,7 +188,7 @@ public:
   /// is precise error calculation switched on
   bool isPrecise() const { return thePrecise; }
 
-  TrackingRegion::Hits hits(const edm::EventSetup& es, const SeedingLayerSetsHits::SeedingLayer& layer) const override;
+  TrackingRegion::Hits hits(const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
   /// Set the elements of the mask corresponding to the tracks that are compatable with the region.
   /// Does not reset the elements corresponding to the tracks that are not compatible.
@@ -197,13 +196,12 @@ public:
 
   std::unique_ptr<HitRZCompatibility> checkRZ(const DetLayer* layer,
                                               const Hit& outerHit,
-                                              const edm::EventSetup& iSetup,
                                               const DetLayer* outerlayer = nullptr,
                                               float lr = 0,
                                               float gz = 0,
                                               float dr = 0,
                                               float dz = 0) const override {
-    return checkRZOld(layer, outerHit, iSetup, outerlayer);
+    return checkRZOld(layer, outerHit, outerlayer);
   }
 
   std::unique_ptr<TrackingRegion> clone() const override {
@@ -216,13 +214,10 @@ public:
 private:
   std::unique_ptr<HitRZCompatibility> checkRZOld(const DetLayer* layer,
                                                  const Hit& outerHit,
-                                                 const edm::EventSetup& iSetup,
                                                  const DetLayer* outerlayer) const;
 
-  std::unique_ptr<MeasurementEstimator> estimator(const BarrelDetLayer* layer,
-                                                  const edm::EventSetup& iSetup) const dso_internal;
-  std::unique_ptr<MeasurementEstimator> estimator(const ForwardDetLayer* layer,
-                                                  const edm::EventSetup& iSetup) const dso_internal;
+  std::unique_ptr<MeasurementEstimator> estimator(const BarrelDetLayer* layer) const dso_internal;
+  std::unique_ptr<MeasurementEstimator> estimator(const ForwardDetLayer* layer) const dso_internal;
 
   OuterHitPhiPrediction phiWindow(const MagneticField& field) const dso_internal;
   HitRZConstraint rzConstraint() const dso_internal;

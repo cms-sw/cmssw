@@ -46,11 +46,10 @@ public:
                            originHalfLength),
         thePrecise(precise) {}
 
-  TrackingRegion::Hits hits(const edm::EventSetup& es, const SeedingLayerSetsHits::SeedingLayer& layer) const override;
+  TrackingRegion::Hits hits(const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
   std::unique_ptr<HitRZCompatibility> checkRZ(const DetLayer* layer,
                                               const Hit& outerHit,
-                                              const edm::EventSetup& iSetup,
                                               const DetLayer* outerlayer = nullptr,
                                               float lr = 0,
                                               float gz = 0,

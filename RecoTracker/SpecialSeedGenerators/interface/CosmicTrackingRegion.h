@@ -10,7 +10,6 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -81,11 +80,10 @@ public:
         theMeasurementTracker_(rh.theMeasurementTracker_),
         theMagneticField_(rh.theMagneticField_) {}
 
-  TrackingRegion::Hits hits(const edm::EventSetup& es, const SeedingLayerSetsHits::SeedingLayer& layer) const override;
+  TrackingRegion::Hits hits(const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
   std::unique_ptr<HitRZCompatibility> checkRZ(const DetLayer* layer,
                                               const Hit& outerHit,
-                                              const edm::EventSetup& iSetup,
                                               const DetLayer* outerlayer = nullptr,
                                               float lr = 0,
                                               float gz = 0,
@@ -104,7 +102,7 @@ public:
 
 private:
   template <typename T>
-  void hits_(const edm::EventSetup& es, const T& layer, TrackingRegion::Hits& result) const;
+  void hits_(const T& layer, TrackingRegion::Hits& result) const;
 
   const MeasurementTrackerEvent* theMeasurementTracker_;
   const MagneticField* theMagneticField_;

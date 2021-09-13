@@ -112,7 +112,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
   const RecHitsSortedInPhi* thirdHitMap[size];
   vector<const DetLayer*> thirdLayerDetLayer(size, nullptr);
   for (int il = 0; il < size; ++il) {
-    thirdHitMap[il] = &layerCache(thirdLayers[il], region, es);
+    thirdHitMap[il] = &layerCache(thirdLayers[il], region);
     thirdLayerDetLayer[il] = thirdLayers[il].detLayer();
   }
   hitTriplets(region, result, es, doublets, thirdHitMap, thirdLayerDetLayer, size, tripletLastLayerIndex);
