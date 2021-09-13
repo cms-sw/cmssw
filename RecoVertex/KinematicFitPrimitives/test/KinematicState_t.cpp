@@ -16,9 +16,11 @@
 
 #include <iostream>
 
-class ConstMagneticField : public MagneticField {
+class ConstMagneticField final : public MagneticField {
 public:
-  virtual GlobalVector inTesla(const GlobalPoint&) const { return GlobalVector(0, 0, 4); }
+  ConstMagneticField() { setNominalValue(); }
+
+  GlobalVector inTesla(const GlobalPoint&) const override { return GlobalVector(0, 0, 4); }
 };
 
 int main() {

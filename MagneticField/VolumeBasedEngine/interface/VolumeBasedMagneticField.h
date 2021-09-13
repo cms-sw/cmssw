@@ -15,7 +15,7 @@
 class testMagneticField;
 class testMagGeometryAnalyzer;
 
-class VolumeBasedMagneticField : public MagneticField {
+class VolumeBasedMagneticField final : public MagneticField {
   // For tests
   friend class testMagneticField;
   friend class testMagGeometryAnalyzer;

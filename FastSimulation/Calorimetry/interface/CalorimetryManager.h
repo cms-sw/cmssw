@@ -15,6 +15,8 @@
 
 #include "FastSimulation/Calorimetry/interface/KKCorrectionFactors.h"
 
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+
 // For the uint32_t
 //#include <boost/cstdint.hpp>
 #include <map>
@@ -37,10 +39,6 @@ class GflashAntiProtonShowerProfile;
 // FastHFshowerLibrary
 class FastHFShowerLibrary;
 
-namespace edm {
-  class ParameterSet;
-}
-
 class CalorimetryManager {
 public:
   CalorimetryManager();
@@ -48,7 +46,8 @@ public:
                      const edm::ParameterSet& fastCalo,
                      const edm::ParameterSet& MuonECALPars,
                      const edm::ParameterSet& MuonHCALPars,
-                     const edm::ParameterSet& fastGflash);
+                     const edm::ParameterSet& fastGflash,
+                     edm::ConsumesCollector&&);
   ~CalorimetryManager();
 
   // Does the real job

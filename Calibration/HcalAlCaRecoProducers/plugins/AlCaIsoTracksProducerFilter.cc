@@ -23,6 +23,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+//#define EDM_ML_DEBUG
 //
 // class declaration
 //
@@ -101,8 +102,10 @@ bool AlCaIsoTracksProducerFilter::filter(edm::Event& iEvent, edm::EventSetup con
         int hlt = triggerResults->accept(iHLT);
         for (unsigned int i = 0; i < trigNames_.size(); ++i) {
           if (triggerNames_[iHLT].find(trigNames_[i]) != std::string::npos) {
+#ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HcalIsoTrack")
-                << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":" << triggerSatisfied << std::endl;
+                << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":" << triggerSatisfied;
+#endif
             if (hlt > 0) {
               triggerSatisfied = true;
               break;
@@ -114,6 +117,9 @@ bool AlCaIsoTracksProducerFilter::filter(edm::Event& iEvent, edm::EventSetup con
       }
     }
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "AlCaIsoTracksProducerFilter:: triggerSatisfied: " << triggerSatisfied;
+#endif
   if (triggerSatisfied)
     ++nGood_;
   return triggerSatisfied;
