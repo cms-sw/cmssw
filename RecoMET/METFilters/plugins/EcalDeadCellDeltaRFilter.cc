@@ -87,7 +87,7 @@
 class EcalDeadCellDeltaRFilter : public edm::stream::EDFilter<> {
 public:
   explicit EcalDeadCellDeltaRFilter(const edm::ParameterSet &);
-  ~EcalDeadCellDeltaRFilter() override;
+  ~EcalDeadCellDeltaRFilter() override = default;
 
 private:
   bool filter(edm::Event &, const edm::EventSetup &) override;
@@ -225,8 +225,6 @@ EcalDeadCellDeltaRFilter::EcalDeadCellDeltaRFilter(const edm::ParameterSet &iCon
   produces<int>("boundaryStatus");
   produces<bool>();
 }
-
-EcalDeadCellDeltaRFilter::~EcalDeadCellDeltaRFilter() {}
 
 void EcalDeadCellDeltaRFilter::envSet(const edm::EventSetup &iSetup) {
   if (debug_)
