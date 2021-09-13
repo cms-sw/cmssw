@@ -7,7 +7,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/ProxyStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TkRadialStripTopology.h"
-#include "boost/lexical_cast.hpp"
 #include "TFile.h"
 #include "TProfile.h"
 

@@ -1,8 +1,6 @@
 #include <iostream>
 #include <cmath>
 
-#include "boost/lexical_cast.hpp"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
