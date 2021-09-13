@@ -39,10 +39,10 @@ void SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection& collstereo,
   }
 
   CosmicLayerTriplets cosmiclayers2(geometry, collrphi, *track, *httopo);
-  theTripletGenerator = new CosmicHitTripletGenerator(cosmiclayers2, iSetup);
+  theTripletGenerator = new CosmicHitTripletGenerator(cosmiclayers2, *tracker);
   HitTriplets.clear();
   if ((hitsforseeds == "triplets") || (hitsforseeds == "pairsandtriplets")) {
-    theTripletGenerator->hitTriplets(region, HitTriplets, iSetup);
+    theTripletGenerator->hitTriplets(region, HitTriplets);
   }
 }
 
