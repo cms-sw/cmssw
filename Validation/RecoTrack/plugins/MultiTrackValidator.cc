@@ -483,6 +483,9 @@ size_t MultiTrackValidator::tpDR(const TrackingParticleRefVector& tPCeff,
                                  DynArray<float>& dR_tPCeff,
                                  DynArray<float>& dR_tPCeff_jet,
                                  const edm::View<reco::Candidate>* cores) const {
+  if (tPCeff.empty()) {
+    return 0;
+  }
   float etaL[tPCeff.size()], phiL[tPCeff.size()];
   size_t n_selTP_dr = 0;
   for (size_t iTP : selected_tPCeff) {
@@ -532,6 +535,9 @@ void MultiTrackValidator::trackDR(const edm::View<reco::Track>& trackCollection,
                                   DynArray<float>& dR_trk,
                                   DynArray<float>& dR_trk_jet,
                                   const edm::View<reco::Candidate>* cores) const {
+  if (trackCollectionDr.empty()) {
+    return;
+  }
   int i = 0;
   float etaL[trackCollectionDr.size()];
   float phiL[trackCollectionDr.size()];
