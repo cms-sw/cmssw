@@ -174,40 +174,38 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
 
     int aieta = abs(hcalTTDetId.ieta());
 
+    // Filter weight represented in fixed point 8 bit
+    int fixedPointWeight = -1.0;
+
+    // The absence of TT channels in the HcalTPChannelParameters
+    // is intepreted as to not use the new filter
+    auto tpParam = db->getHcalTPChannelParameter(hcalTTDetId, false);
+    if (tpParam)
+      fixedPointWeight = tpParam->getauxi1();
+
     // Do not let ieta 29 in the map
     // If the aieta already has a weight in the map, then move on
-    if (aieta < lastHERing) {
-      // Filter weight represented in fixed point 8 bit
-      int fixedPointWeight = -1.0;
-
-      // The absence of TT channels in the HcalTPChannelParameters
-      // is intepreted as to not use the new filter
-      auto tpParam = db->getHcalTPChannelParameter(hcalTTDetId, false);
-      if (tpParam)
-        fixedPointWeight = tpParam->getauxi1();
-
-      if (aieta <= lastHBRing) {
-        // Fix number of filter presamples to one if we are using DB weights
-        // Size of filter is already known when using DB weights
-        // Weight from DB represented as 8-bit integer
-        if (!overrideDBweightsAndFilterHB_) {
-          if (fixedPointWeight != -1.0) {
-            theAlgo_.setNumFilterPresamplesHBQIE11(1);
-            theAlgo_.setWeightQIE11(aieta, -static_cast<double>(fixedPointWeight) / 256.0);
-          } else {
-            theAlgo_.setNumFilterPresamplesHBQIE11(0);
-            theAlgo_.setWeightQIE11(aieta, 1.0);
-          }
+    if (aieta <= lastHBRing) {
+      // Fix number of filter presamples to one if we are using DB weights
+      // Size of filter is already known when using DB weights
+      // Weight from DB represented as 8-bit integer
+      if (!overrideDBweightsAndFilterHB_) {
+        if (fixedPointWeight != -1.0) {
+          theAlgo_.setNumFilterPresamplesHBQIE11(1);
+          theAlgo_.setWeightQIE11(aieta, -static_cast<double>(fixedPointWeight) / 256.0);
+        } else {
+          theAlgo_.setNumFilterPresamplesHBQIE11(0);
+          theAlgo_.setWeightQIE11(aieta, 1.0);
         }
-      } else if (aieta > lastHBRing) {
-        if (!overrideDBweightsAndFilterHE_) {
-          if (fixedPointWeight != -1.0) {
-            theAlgo_.setNumFilterPresamplesHEQIE11(1);
-            theAlgo_.setWeightQIE11(aieta, -static_cast<double>(fixedPointWeight) / 256.0);
-          } else {
-            theAlgo_.setNumFilterPresamplesHEQIE11(0);
-            theAlgo_.setWeightQIE11(aieta, 1.0);
-          }
+      }
+    } else if (aieta < lastHERing) {
+      if (!overrideDBweightsAndFilterHE_) {
+        if (fixedPointWeight != -1.0) {
+          theAlgo_.setNumFilterPresamplesHEQIE11(1);
+          theAlgo_.setWeightQIE11(aieta, -static_cast<double>(fixedPointWeight) / 256.0);
+        } else {
+          theAlgo_.setNumFilterPresamplesHEQIE11(0);
+          theAlgo_.setWeightQIE11(aieta, 1.0);
         }
       }
     }
