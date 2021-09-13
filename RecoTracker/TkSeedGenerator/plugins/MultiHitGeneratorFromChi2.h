@@ -10,15 +10,22 @@
 
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGenerator.h"
 #include "CombinedMultiHitGenerator.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayers.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/UniformEngine/interface/UniformMagneticField.h"
 
 #include <utility>
@@ -30,7 +37,9 @@ class dso_hidden MultiHitGeneratorFromChi2 final : public MultiHitGeneratorFromP
   typedef CombinedMultiHitGenerator::LayerCacheType LayerCacheType;
 
 public:
-  MultiHitGeneratorFromChi2(const edm::ParameterSet& cfg);
+  MultiHitGeneratorFromChi2(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
+      : MultiHitGeneratorFromChi2(cfg, iC) {}
+  MultiHitGeneratorFromChi2(const edm::ParameterSet& cfg, edm::ConsumesCollector&);
 
   ~MultiHitGeneratorFromChi2() override;
 
@@ -119,5 +128,9 @@ private:
   std::string mfName_;
 
   std::vector<int> detIdsToDebug;
+
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldESToken_;
+  edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> clusterShapeHitFilterESToken_;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> transientTrackingRecHitBuilderESToken_;
 };
 #endif

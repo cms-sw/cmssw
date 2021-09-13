@@ -18,7 +18,7 @@ namespace magfieldparam {
   class BFit;
 }
 
-class PolyFit2DParametrizedMagneticField : public MagneticField {
+class PolyFit2DParametrizedMagneticField final : public MagneticField {
 public:
   /// Constructor. Fitted bVal for the nominal currents are:
   /// 2.0216; 3.5162;  3.8114; 4.01242188708911
