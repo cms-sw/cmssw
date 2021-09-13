@@ -12,7 +12,7 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-class LocalMagneticField : public MagneticField {
+class LocalMagneticField final : public MagneticField {
 public:
   ///Construct passing the Z field component in Tesla
   LocalMagneticField(double value);
