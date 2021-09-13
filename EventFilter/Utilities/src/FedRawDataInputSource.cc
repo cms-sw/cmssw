@@ -46,8 +46,6 @@
 //JSON file reader
 #include "EventFilter/Utilities/interface/reader.h"
 
-#include <boost/lexical_cast.hpp>
-
 using namespace evf::FastMonState;
 
 FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc)
@@ -1562,10 +1560,10 @@ long FedRawDataInputSource::initFileList() {
       std::string runStr = fileStem.substr(3, end - 3);
       try {
         //get long to support test run numbers < 2^32
-        long rval = boost::lexical_cast<long>(runStr);
+        long rval = std::stol(runStr);
         edm::LogInfo("FedRawDataInputSource") << "Autodetected run number in fileListMode -: " << rval;
         return rval;
-      } catch (boost::bad_lexical_cast const&) {
+      } catch (const std::exception&) {
         edm::LogWarning("FedRawDataInputSource")
             << "Unable to autodetect run number in fileListMode from file -: " << fileName;
       }
@@ -1592,7 +1590,7 @@ evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getFile(unsigned int& ls,
       fileStem = fileStem.substr(0, fileStem.find('_'));
 
     if (!fileListLoopMode_)
-      ls = boost::lexical_cast<unsigned int>(fileStem);
+      ls = std::stoul(fileStem);
     else  //always starting from LS 1 in loop mode
       ls = 1 + loopModeIterationInc_;
 
