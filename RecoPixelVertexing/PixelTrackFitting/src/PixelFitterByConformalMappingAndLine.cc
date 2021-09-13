@@ -85,9 +85,9 @@ std::unique_ptr<reco::Track> PixelFitterByConformalMappingAndLine::run(const std
     parabola.fixImpactParmaeter(0.);
 
   Measurement1D curv = parabola.curvature();
-  float invPt = PixelRecoUtilities::inversePt(curv.value(), setup);
+  float invPt = PixelRecoUtilities::inversePt(curv.value(), *theField);
   float valPt = (invPt > 1.e-4) ? 1. / invPt : 1.e4;
-  float errPt = PixelRecoUtilities::inversePt(curv.error(), setup) * sqr(valPt);
+  float errPt = PixelRecoUtilities::inversePt(curv.error(), *theField) * sqr(valPt);
   Measurement1D pt(valPt, errPt);
   Measurement1D phi = parabola.directionPhi();
   Measurement1D tip = parabola.impactParameter();
@@ -101,7 +101,7 @@ std::unique_ptr<reco::Track> PixelFitterByConformalMappingAndLine::run(const std
     const GlobalPoint &point = points[i];
     const GlobalError &error = errors[i];
     r[i] = sqrt(sqr(point.x() - region.origin().x()) + sqr(point.y() - region.origin().y()));
-    r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt.value(), setup)(r[i]);
+    r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt.value(), *theField)(r[i]);
     z[i] = point.z() - region.origin().z();
     errZ[i] = (isBarrel[i]) ? sqrt(error.czz()) : sqrt(error.rerr(point)) * simpleCot;
   }
