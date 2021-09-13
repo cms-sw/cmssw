@@ -1,3 +1,4 @@
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -48,7 +49,7 @@ FamosProducer::FamosProducer(edm::ParameterSet const& p) {
   sourceToken = consumes<edm::HepMCProduct>(sourceLabel);
 
   // famos manager
-  famosManager_ = new FamosManager(p);
+  famosManager_ = new FamosManager(p, consumesCollector());
 }
 
 FamosProducer::~FamosProducer() { delete famosManager_; }
