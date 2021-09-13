@@ -87,7 +87,6 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   m_kernel = new G4MTRunManagerKernel();
   m_stateManager = G4StateManager::GetStateManager();
   m_stateManager->SetExceptionHandler(new ExceptionHandler());
-  m_geometryManager->G4GeometryManager::GetInstance();
 
   m_check = p.getUntrackedParameter<bool>("CheckGeometry", false);
 }
@@ -266,9 +265,7 @@ void RunManagerMT::Connect(RunAction* runAction) {
 }
 
 void RunManagerMT::stopG4() {
-  if (nullptr != m_geometryManager) {
-    m_geometryManager->OpenGeometry();
-  }
+  G4GeometryManager::GetInstance()->OpenGeometry();
   m_stateManager->SetNewState(G4State_Quit);
   if (!m_runTerminated) {
     terminateRun();
@@ -281,7 +278,7 @@ void RunManagerMT::terminateRun() {
     delete m_userRunAction;
     m_userRunAction = nullptr;
   }
-  if (nullptr != m_kernel && !m_runTerminated) {
+  if (!m_runTerminated) {
     m_kernel->RunTermination();
   }
   m_runTerminated = true;
