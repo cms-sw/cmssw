@@ -29,6 +29,8 @@ namespace edm {
 
 class TFile;
 class DTMeanTimerFitter;
+class DTGeometry;
+class MuonGeometryRecord;
 
 class DTVDriftCalibration : public edm::EDAnalyzer {
 public:
@@ -86,6 +88,8 @@ private:
 
   // The label used to retrieve 4D segments from the event
   edm::EDGetTokenT<DTRecSegment4DCollection> theRecHits4DToken;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDTGeomToken;
 
   // Debug flag
   bool debug;
