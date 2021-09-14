@@ -34,16 +34,19 @@ plots.setdefault('x_over_l_vs_eta', Plot_params(10, '#eta', '(x/X_{0})/(x/#lambd
 plots.setdefault('x_over_l_vs_phi', Plot_params(20, '#varphi [rad]', '(x/X_{0})/(x/#lambda_{I})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
 
 # Conversion name from the label (key) to the components in CMSSW/Geometry
-_LABELS2COMPS = {'BeamPipe': 'BEAM',
+_LABELS2COMPS = {'BeamPipe': 'BEAM', #There are other BEAM volumes but there are behind the region of our interest. 
                  'Tracker': 'Tracker', 
-                 'EndcapTimingLayer + Thermal Screen': 'CALOECTSFront',
-                 'Neutron Moderator + Thermal Screen' : 'CALOECTSMiddle',
+                 #CALOECTSFront contains both CALOECTSModerator and EndcapTimingLayer plus 
+                 #thermal screen but I want to split those. 
+                 #In V16(D86) there is no CALOECTSMiddle.
+                 'EndcapTimingLayer': 'EndcapTimingLayer',
+                 'Neutron Moderator + Thermal Screen' : 'CALOECTSModerator',
                  'HGCal + HGCal Service + Thermal Screen' : 'CALOECTSRear',
                  'Solenoid Magnet' : 'MGNT',
                  'Muon Wheels and Cables' : 'MB',
                  'ECAL': 'ECAL',
                  'HCal': 'HCal',
-                 'FromVertexToBackOfHGCal' : ['BEAM','Tracker','ECAL','HCal','CALOECTSFront','CALOECTSMiddle','CALOECTSRear','MGNT','MB'],
+                 'FromVertexToBackOfHGCal' : ['BEAM','Tracker','ECAL','HCal','EndcapTimingLayer','CALOECTSModerator','CALOECTSRear','MGNT','MB'],
                  'HGCal': 'HGCal',
                  'HGCalEE': 'HGCalEE',
                  'HGCalHE': ['HGCalHEsil', 'HGCalHEmix']
@@ -60,7 +63,7 @@ COMPOUNDS = OrderedDict()
 COMPOUNDS["HGCal"] = ["HGCal"]
 COMPOUNDS["HGCalEE"] = ["HGCalEE"]
 COMPOUNDS["HGCalHE"] = ["HGCalHEsil", "HGCalHEmix"]
-COMPOUNDS["FromVertexToBackOfHGCal"] = ["BeamPipe","Tracker","ECAL","HCal","EndcapTimingLayer + Thermal Screen","Neutron Moderator + Thermal Screen","HGCal + HGCal Service + Thermal Screen","Solenoid Magnet","Muon Wheels and Cables"]
+COMPOUNDS["FromVertexToBackOfHGCal"] = ["BeamPipe","Tracker","ECAL","HCal","EndcapTimingLayer","Neutron Moderator + Thermal Screen","HGCal + HGCal Service + Thermal Screen","Solenoid Magnet","Muon Wheels and Cables"]
 
 # The DETECTORS must be the single component of the HGCal for which
 # the user can ask for the corresponding material description.
@@ -74,7 +77,7 @@ DETECTORS["BeamPipe"] = kGray+2
 DETECTORS["Tracker"]  = 9 #kAzure-5
 DETECTORS["ECAL"] = 2 #kOrange+10
 DETECTORS["HCal"] = 6  #kMagenta-2
-DETECTORS["EndcapTimingLayer + Thermal Screen"] = 7#kAzure-9 
+DETECTORS["EndcapTimingLayer"] = 7#kAzure-9 
 DETECTORS["Neutron Moderator + Thermal Screen"] = 46#kOrange+5
 DETECTORS["HGCal + HGCal Service + Thermal Screen"] = 5#kOrange-2
 DETECTORS["Solenoid Magnet"] = 4#kGray+5
