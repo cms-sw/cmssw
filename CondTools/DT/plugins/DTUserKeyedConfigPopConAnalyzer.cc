@@ -12,23 +12,21 @@
 class DTUserKeyedConfigPopConAnalyzer : public popcon::PopConAnalyzer<DTUserKeyedConfigHandler> {
 public:
   DTUserKeyedConfigPopConAnalyzer(const edm::ParameterSet& pset)
-      : popcon::PopConAnalyzer<DTUserKeyedConfigHandler>(pset) {}
+      : popcon::PopConAnalyzer<DTUserKeyedConfigHandler>(pset), perskeylistToken_(esConsumes()) {}
   ~DTUserKeyedConfigPopConAnalyzer() override {}
-  void analyze(const edm::Event& e, const edm::EventSetup& s) override {
-    edm::ESHandle<cond::persistency::KeyList> klh;
-    std::cout << "got eshandle" << std::endl;
-    s.get<DTKeyedConfigListRcd>().get(klh);
-    std::cout << "got context" << std::endl;
-    cond::persistency::KeyList const& kl = *klh.product();
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {
+    edm::LogInfo("DTUserKeyedConfigPopConAnalyzer") << "got eSdata" << std::endl;
+    cond::persistency::KeyList const& kl = iSetup.getData(perskeylistToken_);
     for (size_t i = 0; i < kl.size(); i++) {
       std::shared_ptr<DTKeyedConfig> kentry = kl.getUsingIndex<DTKeyedConfig>(i);
       if (kentry.get())
-        std::cout << kentry->getId() << std::endl;
+        edm::LogInfo("DTUserKeyedConfigPopConAnalyzer") << kentry->getId() << std::endl;
     }
     source().setList(&kl);
   }
 
 private:
+  edm::ESGetToken<cond::persistency::KeyList, DTKeyedConfigListRcd> perskeylistToken_;
 };
 
 DEFINE_FWK_MODULE(DTUserKeyedConfigPopConAnalyzer);
