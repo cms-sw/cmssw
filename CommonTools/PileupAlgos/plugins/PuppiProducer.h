@@ -34,6 +34,7 @@ public:
   typedef std::vector<reco::PFCandidate> PFOutputCollection;
   typedef std::vector<pat::PackedCandidate> PackedOutputCollection;
   typedef edm::View<reco::PFCandidate> PFView;
+  typedef edm::Association<reco::VertexCollection> CandToVertex;
 
 private:
   virtual void beginJob();
@@ -42,6 +43,8 @@ private:
 
   edm::EDGetTokenT<CandidateView> tokenPFCandidates_;
   edm::EDGetTokenT<VertexCollection> tokenVertices_;
+  edm::EDGetTokenT<CandToVertex> tokenVertexAssociation_;
+  edm::EDGetTokenT<edm::ValueMap<int>> tokenVertexAssociationQuality_;
   edm::EDGetTokenT<PuppiContainer> tokenPuppiContainer_;
   edm::EDGetTokenT<PFOutputCollection> tokenPuppiCandidates_;
   edm::EDGetTokenT<PackedOutputCollection> tokenPackedPuppiCandidates_;
@@ -59,6 +62,8 @@ private:
   std::string fPuppiName;
   std::string fPFName;
   std::string fPVName;
+  bool fUseVertexAssociation;
+  int vertexAssociationQuality_;
   bool fPuppiDiagnostics;
   bool fPuppiNoLep;
   bool fUseFromPVLooseTight;
