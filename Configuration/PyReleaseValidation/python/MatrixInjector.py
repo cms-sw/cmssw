@@ -65,6 +65,25 @@ class MatrixInjector(object):
         if(opt.batchName):
             self.batchName = '__'+opt.batchName+'-'+self.batchTime
 
+        ####################################
+        # Checking and setting up GPU attributes
+        ####################################
+        # Mendatory
+        self.RequiresGPU = opt.RequiresGPU
+        if self.RequiresGPU not in ('forbidden','optional','required'):
+            print('RequiresGPU must be forbidden, optional, required. Now, set to forbidden.')
+            self.RequiresGPU = 'forbidden'
+        if self.RequiresGPU == 'optional':
+            print('Optional GPU is turned off for RelVals. Now, changing it to forbidden')
+            self.RequiresGPU = 'forbidden'
+        self.GPUMemoryMB = opt.GPUMemoryMB
+        self.CUDACapabilities = opt.CUDACapabilities.split(',')
+        self.CUDARuntime = opt.CUDARuntime
+        # optional
+        self.GPUName = opt.GPUName
+        self.CUDADriverVersion = opt.CUDADriverVersion
+        self.CUDARuntimeVersion = opt.CUDARuntimeVersion
+
         # WMagent url
         if not self.wmagent:
             # Overwrite with env variable
@@ -180,7 +199,17 @@ class MatrixInjector(object):
             "nowmIO": {},
             "Multicore" : opt.nThreads,                       # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "EventStreams": self.numberOfStreams,
-            "KeepOutput" : False
+            "KeepOutput" : False,
+            "RequiresGPU" : None,
+            "GPUParams": None
+            }
+        self.defaultGPUParams={
+            "GPUMemoryMB": self.GPUMemoryMB,
+            "CUDACapabilities": self.CUDACapabilities,
+            "CUDARuntime": self.CUDARuntime,
+            "GPUName": self.GPUName,
+            "CUDADriverVersion": self.CUDADriverVersion,
+            "CUDARuntimeVersion": self.CUDARuntimeVersion
             }
 
         self.chainDicts={}
@@ -408,6 +437,9 @@ class MatrixInjector(object):
                                     if setPrimaryDs:
                                         chainDict['nowmTasklist'][-1]['PrimaryDataset']=setPrimaryDs
                                 nextHasDSInput=None
+                                if 'GPU' in step and self.RequiresGPU == 'required':
+                                    chainDict['nowmTasklist'][-1]['RequiresGPU'] = self.RequiresGPU
+                                    chainDict['nowmTasklist'][-1]['GPUParams']=json.dumps(self.defaultGPUParams)
                             else:
                                 #not first step and no inputDS
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultTask))
@@ -420,6 +452,9 @@ class MatrixInjector(object):
                                     chainDict['nowmTasklist'][-1]['LumisPerJob']=splitForThisWf
                                 if step in wmsplit:
                                     chainDict['nowmTasklist'][-1]['LumisPerJob']=wmsplit[step]
+                                if 'GPU' in step and self.RequiresGPU == 'required':
+                                    chainDict['nowmTasklist'][-1]['RequiresGPU'] = self.RequiresGPU
+                                    chainDict['nowmTasklist'][-1]['GPUParams']=json.dumps(self.defaultGPUParams)
 
                             # change LumisPerJob for Hadronizer steps. 
                             if 'Hadronizer' in step: 
