@@ -20,10 +20,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
 
-process.chs = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV"))
+process.load("CommonTools.ParticleFlow.pfCHS_cff")
 
 process.ak4PFJets = ak4PFJets.clone(src = 'packedPFCandidates', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
-process.ak4PFJetsCHS = ak4PFJets.clone(src = 'chs', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
+process.ak4PFJetsCHS = ak4PFJets.clone(src = 'pfCHS', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
 process.ak4GenJets = ak4GenJets.clone(src = 'packedGenParticles')
 
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
