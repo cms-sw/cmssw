@@ -8,8 +8,10 @@
  *  \author G. Cerminara - INFN Torino
  */
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitBaseAlgo.h"
 
-typedef edmplugin::PluginFactory<DTRecHitBaseAlgo *(const edm::ParameterSet &)> DTRecHitAlgoFactory;
+typedef edmplugin::PluginFactory<DTRecHitBaseAlgo *(const edm::ParameterSet &, edm::ConsumesCollector)>
+    DTRecHitAlgoFactory;
 #endif

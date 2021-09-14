@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -61,7 +62,9 @@ using namespace std;
 DTAnalyzerDetailed::DTAnalyzerDetailed(const ParameterSet& pset)
     : _ev(0),
       theSync{DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
-                                                pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"))} {
+                                                pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"),
+                                                consumesCollector())},
+      theDTGeomToken(esConsumes()) {
   // Get the debug parameter for verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
   theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
@@ -348,8 +351,7 @@ void DTAnalyzerDetailed::analyze(const Event& event, const EventSetup& eventSetu
 
 void DTAnalyzerDetailed::analyzeDTHits(const Event& event, const EventSetup& eventSetup) {
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  ESHandle<DTGeometry> dtGeom = eventSetup.getHandle(theDTGeomToken);
 
   // Get the 1D rechits from the event --------------
   Handle<DTRecHitCollection> dtRecHits;
@@ -400,7 +402,7 @@ void DTAnalyzerDetailed::analyzeDTHits(const Event& event, const EventSetup& eve
   for (auto sl = sls.begin(); sl != sls.end(); ++sl) {
     DTSuperLayerId slid = (*sl)->id();
 
-    DTMeanTimer meanTimer(dtGeom->superLayer(slid), dtRecHits, eventSetup, theSync.get());
+    DTMeanTimer meanTimer(dtGeom->superLayer(slid), dtRecHits, theSync.get());
     vector<double> tMaxs = meanTimer.run();
     for (vector<double>::const_iterator tMax = tMaxs.begin(); tMax != tMaxs.end(); ++tMax) {
       //cout << "Filling " << hName("hMeanTimer", slid) << " with " << *tMax << endl;
@@ -413,8 +415,7 @@ void DTAnalyzerDetailed::analyzeDTSegments(const Event& event, const EventSetup&
   if (debug)
     cout << "analyzeDTSegments" << endl;
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  ESHandle<DTGeometry> dtGeom = eventSetup.getHandle(theDTGeomToken);
 
   // Get the 4D rechit collection from the event -------------------
   edm::Handle<DTRecSegment4DCollection> segs;
@@ -467,7 +468,7 @@ void DTAnalyzerDetailed::analyzeDTSegments(const Event& event, const EventSetup&
 
         DTSuperLayerId slid1(phiSeg->chamberId(), 1);
         /// Mean timer analysis
-        DTMeanTimer meanTimer1(dtGeom->superLayer(slid1), phiHits, eventSetup, theSync.get());
+        DTMeanTimer meanTimer1(dtGeom->superLayer(slid1), phiHits, theSync.get());
         vector<double> tMaxs1 = meanTimer1.run();
         for (vector<double>::const_iterator tMax = tMaxs1.begin(); tMax != tMaxs1.end(); ++tMax) {
           histo(hName("hMeanTimerSeg", slid1))->Fill(*tMax);
@@ -480,7 +481,7 @@ void DTAnalyzerDetailed::analyzeDTSegments(const Event& event, const EventSetup&
 
         DTSuperLayerId slid3(phiSeg->chamberId(), 3);
         /// Mean timer analysis
-        DTMeanTimer meanTimer3(dtGeom->superLayer(slid3), phiHits, eventSetup, theSync.get());
+        DTMeanTimer meanTimer3(dtGeom->superLayer(slid3), phiHits, theSync.get());
         vector<double> tMaxs3 = meanTimer3.run();
         for (vector<double>::const_iterator tMax = tMaxs3.begin(); tMax != tMaxs3.end(); ++tMax) {
           histo(hName("hMeanTimerSeg", slid3))->Fill(*tMax);
@@ -501,7 +502,7 @@ void DTAnalyzerDetailed::analyzeDTSegments(const Event& event, const EventSetup&
         zedHits = zedSeg->specificRecHits();
         DTSuperLayerId slid(zedSeg->superLayerId());
         /// Mean timer analysis
-        DTMeanTimer meanTimer(dtGeom->superLayer(slid), zedHits, eventSetup, theSync.get());
+        DTMeanTimer meanTimer(dtGeom->superLayer(slid), zedHits, theSync.get());
         vector<double> tMaxs = meanTimer.run();
         for (vector<double>::const_iterator tMax = tMaxs.begin(); tMax != tMaxs.end(); ++tMax) {
           histo(hName("hMeanTimerSeg", slid))->Fill(*tMax);

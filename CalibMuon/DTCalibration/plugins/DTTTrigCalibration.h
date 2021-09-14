@@ -27,6 +27,8 @@ class TH1F;
 class DTTimeBoxFitter;
 class DTTTrigBaseSync;
 class DTTtrig;
+class DTStatusFlag;
+class DTStatusFlagRcd;
 
 class DTTTrigCalibration : public edm::EDAnalyzer {
 public:
@@ -88,5 +90,6 @@ private:
   std::unique_ptr<DTTimeBoxFitter> theFitter;
   // The module for t0 subtraction
   std::unique_ptr<DTTTrigBaseSync> theSync;  //FIXME: should be const
+  edm::ESGetToken<DTStatusFlag, DTStatusFlagRcd> theStatusMapToken;
 };
 #endif

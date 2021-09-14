@@ -22,6 +22,8 @@ namespace edm {
 }  // namespace edm
 
 class DTCombinatorialExtendedPatternReco;
+class DTGeometry;
+class MuonGeometryRecord;
 
 /* C++ Headers */
 
@@ -53,5 +55,6 @@ private:
   //static std::string theAlgoName;
   edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
   edm::EDGetTokenT<DTRecClusterCollection> recClusToken_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
 #endif  // DTRecHit_DTRecSegment2DExtendedProducer_h
