@@ -69,11 +69,11 @@ private:
 //
 // constructors and destructor
 //
-RecHitCorrector::RecHitCorrector(const edm::ParameterSet& iConfig) :
-  tokCond_(esConsumes<CastorDbService, CastorDbRecord>()),
-  tokChan_(esConsumes<CastorChannelQuality, CastorChannelQualityRcd>()),
-  factor_(iConfig.getParameter<double>("revertFactor")), 
-  doInterCalib_(iConfig.getParameter<bool>("doInterCalib")) {
+RecHitCorrector::RecHitCorrector(const edm::ParameterSet& iConfig)
+    : tokCond_(esConsumes<CastorDbService, CastorDbRecord>()),
+      tokChan_(esConsumes<CastorChannelQuality, CastorChannelQualityRcd>()),
+      factor_(iConfig.getParameter<double>("revertFactor")),
+      doInterCalib_(iConfig.getParameter<bool>("doInterCalib")) {
   tok_input_ = consumes<CastorRecHitCollection>(iConfig.getParameter<edm::InputTag>("rechitLabel"));
   //register your products
   produces<CastorRecHitCollection>();
