@@ -214,6 +214,11 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 
   jetTypeE = JetType::byName(jetType_);
 
+  if (JetType::CaloJet == jetTypeE) {
+    geometry_token_ = esConsumes();
+    topology_token_ = esConsumes();
+  }
+
   if (doPUOffsetCorr_) {
     if (puSubtractorName_.empty()) {
       LogWarning("VirtualJetProducer")
@@ -692,6 +697,12 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
 
     auto orParam_ = 1. / rParam_;
     // fill jets
+    [[maybe_unused]] const CaloGeometry* pGeometry = nullptr;
+    [[maybe_unused]] const HcalTopology* pTopology = nullptr;
+    if constexpr (std::is_same_v<T, reco::CaloJet>) {
+      pGeometry = &getGeometry(iSetup);
+      pTopology = &getTopology(iSetup);
+    }
     for (unsigned int ijet = 0; ijet < fjJets_.size(); ++ijet) {
       auto& jet = (*jets)[ijet];
 
@@ -713,17 +724,12 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
                       &weights_);
       else {
         if constexpr (std::is_same_v<T, reco::CaloJet>) {
-          edm::ESHandle<CaloGeometry> geometry;
-          iSetup.get<CaloGeometryRecord>().get(geometry);
-          edm::ESHandle<HcalTopology> topology;
-          iSetup.get<HcalRecNumberingRecord>().get(topology);
-
           writeSpecific(jet,
                         Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()),
                         vertex_,
                         constituents,
-                        *geometry,
-                        *topology);
+                        *pGeometry,
+                        *pTopology);
         } else {
           writeSpecific(
               jet, Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()), vertex_, constituents);
@@ -880,12 +886,8 @@ void VirtualJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup c
       if ((applyWeight_) && (makePFJet(jetTypeE)))
         reco::writeSpecific(dynamic_cast<reco::PFJet&>(jet), p4Subjet, point, constituents, &weights_);
       else if constexpr (std::is_same_v<T, reco::CaloJet>) {
-        edm::ESHandle<CaloGeometry> geometry;
-        iSetup.get<CaloGeometryRecord>().get(geometry);
-        edm::ESHandle<HcalTopology> topology;
-        iSetup.get<HcalRecNumberingRecord>().get(topology);
-
-        reco::writeSpecific(jet, p4Subjet, point, constituents, *geometry, *topology);
+        reco::writeSpecific(
+            jet, p4Subjet, point, constituents, iSetup.getData(geometry_token_), iSetup.getData(topology_token_));
       } else {
         reco::writeSpecific(jet, p4Subjet, point, constituents);
       }
@@ -1023,6 +1025,14 @@ void VirtualJetProducer::writeJetsWithConstituents(edm::Event& iEvent, edm::Even
 
   // put jets into event record
   iEvent.put(std::move(jetCollection));
+}
+
+CaloGeometry const& VirtualJetProducer::getGeometry(edm::EventSetup const& iSetup) const {
+  return iSetup.getData(geometry_token_);
+}
+
+HcalTopology const& VirtualJetProducer::getTopology(edm::EventSetup const& iSetup) const {
+  return iSetup.getData(topology_token_);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
