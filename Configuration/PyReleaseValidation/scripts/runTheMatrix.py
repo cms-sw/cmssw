@@ -334,18 +334,24 @@ if __name__ == '__main__':
                       default=None,
                       action='store')
 
+    parser.add_option('--gpu',
+                      help='Use GPU workflow setup if available',
+                      dest='gpuEnable',
+                      default=False,
+                      action='store_true')
+
     parser.add_option('--RequiresGPU',
-                      help='if GPU is reuired or not: forbidden (default, CPU-only), optional, required. For relvals, the GPU option will be turned off for optional.',
+                      help='if GPU is required or not: forbidden (default, CPU-only), optional, required. For relvals, the GPU option will be turned off for optional.',
                       dest='RequiresGPU',
                       default='forbidden')
 
     parser.add_option('--GPUMemoryMB',
                       help='to specify GPU memory. Default = 8000 MB (for RequiresGPU = required).',
                       dest='GPUMemoryMB',
-                      default='8000')
+                      default=8000)
 
     parser.add_option('--CUDACapabilities',
-                      help='to specify CUDA capabilities. Default = 7.5 (for RequiresGPU = required). Use comma to identify various CUDACapabilities',
+                      help='to specify CUDA capabilities. Default = 6.0,6.1,6.2,7.0,7.2,7.5 (for RequiresGPU = required). Use comma to identify various CUDACapabilities',
                       dest='CUDACapabilities',
                       default='6.0,6.1,6.2,7.0,7.2,7.5')
 
@@ -410,8 +416,6 @@ if __name__ == '__main__':
     if opt.keep:
         opt.keep=map(stepOrIndex,opt.keep.split(','))
 
-
-
     if opt.testList:
         testList=[]
         for entry in opt.testList.split(','):
@@ -439,6 +443,8 @@ if __name__ == '__main__':
     if opt.numberEventsInLuminosityBlock: opt.numberEventsInLuminosityBlock=int(opt.numberEventsInLuminosityBlock)
     if opt.memoryOffset: opt.memoryOffset=int(opt.memoryOffset)
     if opt.memPerCore: opt.memPerCore=int(opt.memPerCore)
+    if opt.GPUMemoryMB: opt.GPUMemoryMB=int(opt.GPUMemoryMB)
+    if opt.gpuEnable: opt.RequiresGPU="required"
 
     if opt.wmcontrol:
         performInjectionOptionTest(opt)
