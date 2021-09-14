@@ -8,7 +8,6 @@
 <use name="TrackingTools/PatternTools"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="Geometry/Records"/>
-<use name="Geometry/TrackerGeometryBuilder"/>
 <use name="MagneticField/Records"/>
 <use name="clhep"/>
 <export>

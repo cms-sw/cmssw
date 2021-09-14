@@ -1,6 +1,7 @@
 <use name="SimGeneral/TrackingAnalysis"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="DataFormats/HepMCCandidate"/>
+<use name="Geometry/Records"/>
 <use name="SimDataFormats/TrackerDigiSimLink"/>
 <use name="SimGeneral/MixingModule"/>
 <use name="SimGeneral/PreMixingModule"/>
