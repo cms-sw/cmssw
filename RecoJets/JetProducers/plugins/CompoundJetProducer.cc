@@ -59,6 +59,13 @@ void CompoundJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup 
   // this is the hardjet areas
   std::vector<double> area_hardJets;
 
+  [[maybe_unused]] const CaloGeometry* pGeometry = nullptr;
+  [[maybe_unused]] const HcalTopology* pTopology = nullptr;
+  if constexpr (std::is_same_v<T, reco::CaloJet>) {
+    pGeometry = &getGeometry(iSetup);
+    pTopology = &getTopology(iSetup);
+  }
+
   // Loop over the hard jets
   std::vector<CompoundPseudoJet>::const_iterator it = fjCompoundJets_.begin(), iEnd = fjCompoundJets_.end(),
                                                  iBegin = fjCompoundJets_.begin();
@@ -97,12 +104,7 @@ void CompoundJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup 
       // Add the concrete subjet type to the subjet list to write to event record
       T jet;
       if constexpr (std::is_same_v<T, reco::CaloJet>) {
-        edm::ESHandle<CaloGeometry> geometry;
-        iSetup.get<CaloGeometryRecord>().get(geometry);
-        edm::ESHandle<HcalTopology> topology;
-        iSetup.get<HcalRecNumberingRecord>().get(topology);
-
-        reco::writeSpecific(jet, p4Subjet, point, subjetConstituents, *geometry, *topology);
+        reco::writeSpecific(jet, p4Subjet, point, subjetConstituents, *pGeometry, *pTopology);
       } else {
         reco::writeSpecific(jet, p4Subjet, point, subjetConstituents);
       }
