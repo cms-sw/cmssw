@@ -40,11 +40,12 @@ public:
 
 private:
   edm::EDGetTokenT<reco::GsfElectronCollection> electronCollection_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> electronCollectionEndcaps_;
   edm::EDGetTokenT<reco::GsfElectronCoreCollection> electronCoreCollection_;
   edm::EDGetTokenT<reco::GsfTrackCollection> electronTrackCollection_;
   edm::EDGetTokenT<reco::ElectronSeedCollection> electronSeedCollection_;
   edm::EDGetTokenT<reco::GenJetCollection> matchingObjectCollection_;
-  edm::EDGetTokenT<reco::VertexCollection> offlineVerticesCollection_;  // new 2015.04.02
+  edm::EDGetTokenT<reco::VertexCollection> offlineVerticesCollection_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
   bool readAOD_;
 
@@ -66,7 +67,7 @@ private:
 
   double maxPt_;
   double maxAbsEta_;
-  double deltaR_;
+  double deltaR2_;
 
   std::string inputFile_;
   std::string outputFile_;
@@ -148,7 +149,7 @@ private:
   MonitorElement *h1_recTrackNum_;
   MonitorElement *h1_recSeedNum_;
 
-  MonitorElement *h1_recOfflineVertices_;  // new 2015.04.02
+  MonitorElement *h1_recOfflineVertices_;
 
   MonitorElement *h1_matchingObjectEta;
   MonitorElement *h1_matchingObjectAbsEta;
@@ -232,9 +233,9 @@ private:
   MonitorElement *h1_scl_SigIEtaIEta_;
   MonitorElement *h1_scl_SigIEtaIEta_barrel_;
   MonitorElement *h1_scl_SigIEtaIEta_endcaps_;
-  MonitorElement *h1_scl_full5x5_sigmaIetaIeta_;          // new 2014.01.12
-  MonitorElement *h1_scl_full5x5_sigmaIetaIeta_barrel_;   // new 2014.01.12
-  MonitorElement *h1_scl_full5x5_sigmaIetaIeta_endcaps_;  // new 2014.01.12
+  MonitorElement *h1_scl_full5x5_sigmaIetaIeta_;
+  MonitorElement *h1_scl_full5x5_sigmaIetaIeta_barrel_;
+  MonitorElement *h1_scl_full5x5_sigmaIetaIeta_endcaps_;
   MonitorElement *h1_scl_E1x5_;
   MonitorElement *h1_scl_E1x5_barrel_;
   MonitorElement *h1_scl_E1x5_endcaps_;
@@ -381,7 +382,6 @@ private:
   MonitorElement *h2_ele_HoEVsEta;
   MonitorElement *h2_ele_HoEVsPhi;
   MonitorElement *h2_ele_HoEVsE;
-  //    MonitorElement *h1_scl_ESFrac;
   MonitorElement *h1_scl_ESFrac_endcaps;
 
   MonitorElement *h1_ele_fbrem;
