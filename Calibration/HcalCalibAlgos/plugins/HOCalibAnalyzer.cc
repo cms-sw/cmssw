@@ -55,6 +55,7 @@ April 2015
 using namespace std;
 using namespace edm;
 
+//#define EDM_ML_DEBUG
 //
 // class decleration
 //
@@ -395,13 +396,13 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       for (int ij = 0; ij < 9; ij++) {
         hosig[ij] = (*hoC).hosig[ij];
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HOCalib") << "hosig " << i << " " << hosig[ij];
+        edm::LogVerbatim("HOCalib") << "hosig " << ij << " " << hosig[ij];
 #endif
       }
       for (int ij = 0; ij < 18; ij++) {
         hocorsig[ij] = (*hoC).hocorsig[ij];
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HOCalib") << "hocorsig " << i << " " << hocorsig[ij];
+        edm::LogVerbatim("HOCalib") << "hocorsig " << ij << " " << hocorsig[ij];
 #endif
       }
       hocro = (*hoC).hocro;
