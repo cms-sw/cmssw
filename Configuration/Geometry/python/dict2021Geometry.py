@@ -3,7 +3,7 @@ maxSections = 5
 commonDict = {
     "abbrev" : "O",
     "name" : "common",
-    "default" : 3,
+    "default" : 6,
     "O1" : {
         1 : [
             'Geometry/CMSCommonData/data/materials/2021/v1/materials.xml',
@@ -1967,7 +1967,7 @@ forwardDict = {
 ppsDict = {
     "abbrev" : "P",
     "name" : "pps",
-    "default" : 2,
+    "default" : 6,
     "P1" : {
         2 : [
             'Geometry/ForwardCommonData/data/Run2/totemMaterials.xml',
