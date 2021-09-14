@@ -3,6 +3,8 @@
 #include "RecoJets/JetProducers/plugins/CompoundJetProducer.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 using namespace std;
 using namespace reco;
@@ -94,7 +96,16 @@ void CompoundJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup 
 
       // Add the concrete subjet type to the subjet list to write to event record
       T jet;
-      reco::writeSpecific(jet, p4Subjet, point, subjetConstituents, iSetup);
+      if constexpr (std::is_same_v<T, reco::CaloJet>) {
+        edm::ESHandle<CaloGeometry> geometry;
+        iSetup.get<CaloGeometryRecord>().get(geometry);
+        edm::ESHandle<HcalTopology> topology;
+        iSetup.get<HcalRecNumberingRecord>().get(topology);
+
+        reco::writeSpecific(jet, p4Subjet, point, subjetConstituents, *geometry, *topology);
+      } else {
+        reco::writeSpecific(jet, p4Subjet, point, subjetConstituents);
+      }
       jet.setJetArea(itSubJet->subjetArea());
       subjetCollection->push_back(jet);
     }

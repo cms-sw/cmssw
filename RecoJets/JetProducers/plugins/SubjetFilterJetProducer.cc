@@ -28,6 +28,8 @@
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +152,16 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent, const edm::E
           subJetConstituents.push_back(inputs_[*itIndex]);
 
       T subJet;
-      reco::writeSpecific(subJet, p4SubJet, point, subJetConstituents, iSetup);
+      if constexpr (std::is_same_v<T, reco::CaloJet>) {
+        edm::ESHandle<CaloGeometry> geometry;
+        iSetup.get<CaloGeometryRecord>().get(geometry);
+        edm::ESHandle<HcalTopology> topology;
+        iSetup.get<HcalRecNumberingRecord>().get(topology);
+
+        reco::writeSpecific(subJet, p4SubJet, point, subJetConstituents, *geometry, *topology);
+      } else {
+        reco::writeSpecific(subJet, p4SubJet, point, subJetConstituents);
+      }
       subJet.setJetArea(itSub->subjetArea());
 
       if (subJetIndex < 2) {
