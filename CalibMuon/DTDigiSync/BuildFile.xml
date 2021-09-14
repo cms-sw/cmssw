@@ -1,5 +1,4 @@
 <use name="FWCore/PluginManager"/>
-<use name="Geometry/DTGeometry"/>
 <export>
   <lib name="1"/>
 </export>
