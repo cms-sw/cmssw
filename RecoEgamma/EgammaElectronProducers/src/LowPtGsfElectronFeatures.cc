@@ -174,10 +174,6 @@ namespace lowptgsfeleid {
       eid_trk_p = tk->p();
       eid_trk_nhits = tk->found();
       eid_trk_chi2red = tk->normalizedChi2();
-      TVector3 trkTV3(0, 0, 0);
-      trkTV3.SetPtEtaPhi(tk->pt(), tk->eta(), tk->phi());
-      TVector3 eleTV3(0, 0, 0);
-      eleTV3.SetPtEtaPhi(ele.pt(), ele.eta(), ele.phi());
       trk_dr = reco::deltaR(*tk, ele);
     }
 
