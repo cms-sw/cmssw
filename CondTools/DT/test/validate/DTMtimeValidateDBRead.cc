@@ -29,9 +29,11 @@ Toy EDAnalyzer for testing purposes only.
 DTMtimeValidateDBRead::DTMtimeValidateDBRead(edm::ParameterSet const& p)
     : dataFileName(p.getParameter<std::string>("chkFile")),
       elogFileName(p.getParameter<std::string>("logFile")),
-      readLegacyVDriftDB(p.getParameter<bool>("readLegacyVDriftDB")) {}
+      readLegacyVDriftDB(p.getParameter<bool>("readLegacyVDriftDB")),
+      dtmtTimeToken_(esConsumes()),
+      dtrecoCondToken_(esConsumes()) {}
 
-DTMtimeValidateDBRead::DTMtimeValidateDBRead(int i) {}
+DTMtimeValidateDBRead::DTMtimeValidateDBRead(int i) : dtmtTimeToken_(esConsumes()), dtrecoCondToken_(esConsumes()) {}
 
 DTMtimeValidateDBRead::~DTMtimeValidateDBRead() {}
 
@@ -54,8 +56,7 @@ void DTMtimeValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& 
   float ckmt;
   float ckrms;
   if (readLegacyVDriftDB) {  //legacy format
-    edm::ESHandle<DTMtime> mT;
-    context.get<DTMtimeRcd>().get(mT);
+    auto mT = context.getHandle(dtmtTimeToken_);
     std::cout << mT->version() << std::endl;
     std::cout << std::distance(mT->begin(), mT->end()) << " data in the container" << std::endl;
 
@@ -83,9 +84,9 @@ void DTMtimeValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& 
                 << ckmt << " " << ckrms << " -> " << mTime << " " << mTrms << std::endl;
     }
   } else {
-    edm::ESHandle<DTRecoConditions> hVdrift;
-    context.get<DTRecoConditionsVdriftRcd>().get(hVdrift);
-    const DTRecoConditions* vDriftMap_ = &*hVdrift;
+    //hVdrift;
+    //context.get<DTRecoConditionsVdriftRcd>().get(hVdrift);
+    const DTRecoConditions* vDriftMap_ = &context.getData(dtrecoCondToken_);
     // Consistency check: no parametrization is implemented for the time being
     int version = vDriftMap_->version();
     if (version != 1) {
