@@ -29,8 +29,8 @@ using namespace edm;
 // Throw an exception if a theta segment container is requested and in the event
 // there isn't it. (Or launch a "lazy" reco on demand)
 
-DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& pset)
-    : DTRecSegment4DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco4D") {
+DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& pset, ConsumesCollector cc)
+    : DTRecSegment4DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco4D"), theDTGeometryToken(cc.esConsumes()) {
   // debug parameter
   debug = pset.getUntrackedParameter<bool>("debug");
 
@@ -40,7 +40,7 @@ DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& p
   computeT0corr = pset.existsAs<bool>("computeT0Seg") ? pset.getParameter<bool>("computeT0Seg") : true;
 
   // the updator
-  theUpdator = new DTSegmentUpdator(pset);
+  theUpdator = new DTSegmentUpdator(pset, cc);
 
   // the input type.
   // If true the instructions in setDTRecSegment2DContainer will be schipped and the
@@ -51,7 +51,7 @@ DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& p
 
   // Get the concrete 2D-segments reconstruction algo from the factory
   // For the 2D reco I use this reconstructor!
-  the2DAlgo = new DTCombinatorialPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
+  the2DAlgo = new DTCombinatorialPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"), cc);
 }
 
 DTCombinatorialPatternReco4D::~DTCombinatorialPatternReco4D() {
@@ -60,7 +60,7 @@ DTCombinatorialPatternReco4D::~DTCombinatorialPatternReco4D() {
 }
 
 void DTCombinatorialPatternReco4D::setES(const EventSetup& setup) {
-  setup.get<MuonGeometryRecord>().get(theDTGeometry);
+  theDTGeometry = setup.getHandle(theDTGeometryToken);
   the2DAlgo->setES(setup);
   theUpdator->setES(setup);
 }
