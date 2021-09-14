@@ -32,7 +32,6 @@
 #include "CondFormats/DataRecord/interface/CastorRecoParamsRcd.h"
 #include "CondFormats/DataRecord/interface/CastorSaturationCorrsRcd.h"
 
-
 class CastorTextCalibrations : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CastorTextCalibrations(const edm::ParameterSet&);

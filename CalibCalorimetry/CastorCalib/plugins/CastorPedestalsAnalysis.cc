@@ -74,11 +74,11 @@ struct NewPedBunch {
 class CastorPedestalsAnalysis : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   //Constructor
-  CastorPedestalsAnalysis(const edm::ParameterSet &ps);
+  CastorPedestalsAnalysis(const edm::ParameterSet& ps);
   //Destructor
   ~CastorPedestalsAnalysis() override;
   //Analysis
-  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
 private:
   //Container for data, 1 per channel
@@ -102,11 +102,11 @@ private:
   edm::ESGetToken<CastorDbService, CastorDbRecord> tok_cond_;
   edm::ESGetToken<CastorElectronicsMap, CastorElectronicsMapRcd> tok_map_;
 
-  TH1F *CASTORMeans;
-  TH1F *CASTORWidths;
+  TH1F* CASTORMeans;
+  TH1F* CASTORWidths;
 
   // TH2F *dephist[4];
-  TH2F *dephist;
+  TH2F* dephist;
 
   bool firsttime;
 
