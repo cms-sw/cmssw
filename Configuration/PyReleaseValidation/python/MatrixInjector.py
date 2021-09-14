@@ -208,15 +208,9 @@ class MatrixInjector(object):
             "CUDACapabilities": self.CUDACapabilities,
             "CUDARuntime": self.CUDARuntime
             }
-        
-        self.dictGPUName={"GPUName": self.GPUName}
-        if self.GPUName: self.defaultGPUParams.update(self.dictGPUName)
-        
-        self.dictCUDADriverVersion={"CUDADriverVersion": self.CUDADriverVersion}
-        if self.CUDADriverVersion: self.defaultGPUParams.update(self.dictCUDADriverVersion)
-        
-        self.dictCUDARuntimeVersion={"CUDARuntimeVersion": self.CUDARuntimeVersion}
-        if self.CUDARuntimeVersion: elf.defaultGPUParams.update(self.dictCUDARuntimeVersion)
+        if self.GPUName: self.defaultGPUParams.update({"GPUName": self.GPUName})
+        if self.CUDADriverVersion: self.defaultGPUParams.update({"CUDADriverVersion": self.CUDADriverVersion})
+        if self.CUDARuntimeVersion: self.defaultGPUParams.update({"CUDARuntimeVersion": self.CUDARuntimeVersion})
 
         self.chainDicts={}
 
