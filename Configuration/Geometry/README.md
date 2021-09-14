@@ -44,7 +44,7 @@ The script also handles the common and forward elements of the geometry:
 * O3: 2021 baseline
 * O4: as O3, but with zero material
 * O5: as O3, but with trackermaterial removed (they are in T5, T6, T7, T8)
-* O6: Replaces O3 as baseline to rmove duplicate material definition
+* O6: Replaces O3 as baseline to remove duplicate material definition
 * F1: 2021 baseline
 
 Several detector combinations have been generated:
