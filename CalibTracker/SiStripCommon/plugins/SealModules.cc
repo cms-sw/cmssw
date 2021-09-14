@@ -1,10 +1,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "CalibTracker/SiStripCommon/plugins/SiStripDetInfoFileWriter.h"
-
-DEFINE_FWK_MODULE(SiStripDetInfoFileWriter);
-
 #include "ShallowTree.h"
 #include "ShallowEventDataProducer.h"
 #include "ShallowDigisProducer.h"
