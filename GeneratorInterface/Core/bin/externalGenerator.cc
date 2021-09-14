@@ -6,6 +6,7 @@
 #include <string>
 #include <thread>
 #include <memory>
+#include <filesystem>
 
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 
@@ -136,6 +137,13 @@ int main(int argc, char* argv[]) {
     std::cout << " no second argument given" << std::endl;
     return 1;
   }
+
+  using namespace std::string_literals;
+  using namespace std::filesystem;
+
+  auto newDir = path("thread"s + vm[kUniqueIDOpt].as<std::string>());
+  create_directory(newDir);
+  current_path(newDir);
 
   WorkerMonitorThread monitorThread;
 
