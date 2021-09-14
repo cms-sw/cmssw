@@ -28,7 +28,8 @@ using namespace edm;
 using namespace std;
 using namespace CLHEP;
 
-BaseRandomtXiGunProducer::BaseRandomtXiGunProducer(const edm::ParameterSet& pset) : fEvt(nullptr) {
+BaseRandomtXiGunProducer::BaseRandomtXiGunProducer(const edm::ParameterSet& pset)
+    : fPDGTableToken(esConsumes<Transition::BeginRun>()), fEvt(nullptr) {
   Service<RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -60,7 +61,7 @@ BaseRandomtXiGunProducer::BaseRandomtXiGunProducer(const edm::ParameterSet& pset
 BaseRandomtXiGunProducer::~BaseRandomtXiGunProducer() {}
 
 void BaseRandomtXiGunProducer::beginRun(const edm::Run& r, const EventSetup& es) {
-  es.getData(fPDGTable);
+  fPDGTable = es.getHandle(fPDGTableToken);
   return;
 }
 

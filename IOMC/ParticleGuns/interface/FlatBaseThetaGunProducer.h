@@ -27,6 +27,8 @@ namespace edm {
     void endRunProduce(edm::Run& r, const edm::EventSetup&) override;
 
   private:
+    const ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
+
   protected:
     // non-virtuals ! this and only way !
     //
