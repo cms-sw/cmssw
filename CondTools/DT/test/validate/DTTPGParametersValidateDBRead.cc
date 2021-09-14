@@ -25,9 +25,11 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DataRecord/interface/DTTPGParametersRcd.h"
 
 DTTPGParametersValidateDBRead::DTTPGParametersValidateDBRead(edm::ParameterSet const& p)
-    : dataFileName(p.getParameter<std::string>("chkFile")), elogFileName(p.getParameter<std::string>("logFile")) {}
+    : dataFileName(p.getParameter<std::string>("chkFile")),
+      elogFileName(p.getParameter<std::string>("logFile")),
+      dttpgPramToken_(esConsumes()) {}
 
-DTTPGParametersValidateDBRead::DTTPGParametersValidateDBRead(int i) {}
+DTTPGParametersValidateDBRead::DTTPGParametersValidateDBRead(int i) : dttpgPramToken_(esConsumes()) {}
 
 DTTPGParametersValidateDBRead::~DTTPGParametersValidateDBRead() {}
 
@@ -40,8 +42,7 @@ void DTTPGParametersValidateDBRead::analyze(const edm::Event& e, const edm::Even
   run_fn << "run" << e.id().run() << dataFileName;
   std::ifstream chkFile(run_fn.str().c_str());
   std::ofstream logFile(elogFileName.c_str(), std::ios_base::app);
-  edm::ESHandle<DTTPGParameters> tpg;
-  context.get<DTTPGParametersRcd>().get(tpg);
+  auto tpg = context.getHandle(dttpgPramToken_);
   std::cout << tpg->version() << std::endl;
   std::cout << std::distance(tpg->begin(), tpg->end()) << " data in the container" << std::endl;
   int whe;
