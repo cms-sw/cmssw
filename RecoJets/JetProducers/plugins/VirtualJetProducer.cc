@@ -40,6 +40,9 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+
 #include "fastjet/SISConePlugin.hh"
 #include "fastjet/CMSIterativeConePlugin.hh"
 #include "fastjet/ATLASConePlugin.hh"
@@ -707,11 +710,25 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
                       Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()),
                       vertex_,
                       constituents,
-                      iSetup,
                       &weights_);
-      else
-        writeSpecific(
-            jet, Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()), vertex_, constituents, iSetup);
+      else {
+        if constexpr (std::is_same_v<T, reco::CaloJet>) {
+          edm::ESHandle<CaloGeometry> geometry;
+          iSetup.get<CaloGeometryRecord>().get(geometry);
+          edm::ESHandle<HcalTopology> topology;
+          iSetup.get<HcalRecNumberingRecord>().get(topology);
+
+          writeSpecific(jet,
+                        Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()),
+                        vertex_,
+                        constituents,
+                        *geometry,
+                        *topology);
+        } else {
+          writeSpecific(
+              jet, Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()), vertex_, constituents);
+        }
+      }
       phiJ[ijet] = jet.phi();
       etaJ[ijet] = jet.eta();
       jet.setIsWeighted(applyWeight_);
@@ -861,9 +878,17 @@ void VirtualJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup c
       subjetCollection->push_back(*std::make_unique<T>());
       auto& jet = subjetCollection->back();
       if ((applyWeight_) && (makePFJet(jetTypeE)))
-        reco::writeSpecific(dynamic_cast<reco::PFJet&>(jet), p4Subjet, point, constituents, iSetup, &weights_);
-      else
-        reco::writeSpecific(jet, p4Subjet, point, constituents, iSetup);
+        reco::writeSpecific(dynamic_cast<reco::PFJet&>(jet), p4Subjet, point, constituents, &weights_);
+      else if constexpr (std::is_same_v<T, reco::CaloJet>) {
+        edm::ESHandle<CaloGeometry> geometry;
+        iSetup.get<CaloGeometryRecord>().get(geometry);
+        edm::ESHandle<HcalTopology> topology;
+        iSetup.get<HcalRecNumberingRecord>().get(topology);
+
+        reco::writeSpecific(jet, p4Subjet, point, constituents, *geometry, *topology);
+      } else {
+        reco::writeSpecific(jet, p4Subjet, point, constituents);
+      }
       jet.setIsWeighted(applyWeight_);
       double subjetArea = 0.0;
       if (doAreaFastjet_ && itSubJet->has_area()) {
@@ -990,7 +1015,7 @@ void VirtualJetProducer::writeJetsWithConstituents(edm::Event& iEvent, edm::Even
     if (!i_jetConstituents.empty()) {  //only keep jets which have constituents after subtraction
       reco::Particle::Point point(0, 0, 0);
       reco::PFJet jet;
-      reco::writeSpecific(jet, *ip4, point, i_jetConstituents, iSetup);
+      reco::writeSpecific(jet, *ip4, point, i_jetConstituents);
       jet.setJetArea(area_Jets[ip4 - ip4Begin]);
       jetCollection->emplace_back(jet);
     }
