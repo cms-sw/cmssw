@@ -1,10 +1,12 @@
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/View.h"
@@ -25,16 +27,19 @@
 
 #include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMap.h"
-//#include <boost/regex.hpp>
 
-class TkAlCaOverlapTagger : public edm::EDProducer {
+class TkAlCaOverlapTagger : public edm::stream::EDProducer<> {
 public:
   TkAlCaOverlapTagger(const edm::ParameterSet& iConfig);
   ~TkAlCaOverlapTagger() override;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> trajTrackToken_;
+  edm::EDGetTokenT<SiPixelCluster> siPixelClustersToken_;
+  edm::EDGetTokenT<SiStripCluster> siStripClustersToken_;
   edm::InputTag src_;
   edm::InputTag srcClust_;
   bool rejectBadMods_;
@@ -45,31 +50,33 @@ private:
 
 TkAlCaOverlapTagger::TkAlCaOverlapTagger(const edm::ParameterSet& iConfig)
     : topoToken_(esConsumes()),
-      src_(iConfig.getParameter<edm::InputTag>("src")),
-      srcClust_(iConfig.getParameter<edm::InputTag>("Clustersrc")),
+      trajTrackToken_(consumes((iConfig.getParameter<edm::InputTag>("src")))),
+      siPixelClustersToken_(consumes((iConfig.getParameter<edm::InputTag>("Clustersrc")))),
+      siStripClustersToken_(consumes((iConfig.getParameter<edm::InputTag>("Clustersrc")))),
       rejectBadMods_(iConfig.getParameter<bool>("rejectBadMods")),
-      BadModsList_(iConfig.getParameter<std::vector<uint32_t> >("BadMods")) {
+      BadModsList_(iConfig.getParameter<std::vector<uint32_t>>("BadMods")) {
   produces<AliClusterValueMap>();  //produces the ValueMap (VM) to be stored in the Event at the end
 }
 
-TkAlCaOverlapTagger::~TkAlCaOverlapTagger() {}
+TkAlCaOverlapTagger::~TkAlCaOverlapTagger() = default;
 
 void TkAlCaOverlapTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
   const TrackerTopology* tTopo = &iSetup.getData(topoToken_);
 
   edm::Handle<TrajTrackAssociationCollection> assoMap;
-  iEvent.getByLabel(src_, assoMap);
-  // cout<<"\n\n############################\n###  Starting a new TkAlCaOverlapTagger - Ev "<<iEvent.id().run()<<", "<<iEvent.id().event()<<endl;
+  iEvent.getByToken(trajTrackToken_, assoMap);
+  LogDebug("TkAlCaOverlapTagger") << "\n\n############################\n###  Starting a new TkAlCaOverlapTagger - Ev "
+                                  << iEvent.id().run() << ", " << iEvent.id().event();
 
   AlignmentClusterFlag iniflag;
-  edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelclusters;
-  iEvent.getByLabel(srcClust_, pixelclusters);  //same label as tracks
+  edm::Handle<edmNew::DetSetVector<SiPixelCluster>> pixelclusters;
+  iEvent.getByToken(siPixelClustersToken_, pixelclusters);  //same label as tracks
   std::vector<AlignmentClusterFlag> pixelvalues(pixelclusters->dataSize(),
                                                 iniflag);  //vector where to store value to be fileld in the VM
 
-  edm::Handle<edmNew::DetSetVector<SiStripCluster> > stripclusters;
-  iEvent.getByLabel(srcClust_, stripclusters);  //same label as tracks
+  edm::Handle<edmNew::DetSetVector<SiStripCluster>> stripclusters;
+  iEvent.getByToken(siStripClustersToken_, stripclusters);  //same label as tracks
   std::vector<AlignmentClusterFlag> stripvalues(stripclusters->dataSize(),
                                                 iniflag);  //vector where to store value to be fileld in the VM
 
@@ -78,7 +85,7 @@ void TkAlCaOverlapTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   //loop over trajectories
   for (TrajTrackAssociationCollection::const_iterator itass = assoMap->begin(); itass != assoMap->end(); ++itass) {
     int nOverlaps = 0;
-    const edm::Ref<std::vector<Trajectory> > traj = itass->key;  //trajectory in the collection
+    const edm::Ref<std::vector<Trajectory>> traj = itass->key;  //trajectory in the collection
     const Trajectory* myTrajectory = &(*traj);
     std::vector<TrajectoryMeasurement> tmColl = myTrajectory->measurements();
 
@@ -95,14 +102,17 @@ void TkAlCaOverlapTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       hitcnt++;
 
       if (previousTM != nullptr) {
-        //	std::cout<<"Checking TrajMeas ("<<hitcnt+1<<"):"<<std::endl;
+        LogDebug("TkAlCaOverlapTagger") << "Checking TrajMeas (" << hitcnt + 1 << "):";
         if (!previousTM->recHit()->isValid()) {
-          //std::cout<<"Previous RecHit invalid !"<<std::endl;
+          LogDebug("TkAlCaOverlapTagger") << "Previous RecHit invalid !";
           continue;
+        } else {
+          LogDebug("TkAlCaOverlapTagger") << "\nDetId: " << std::flush << previousTM->recHit()->geographicalId().rawId()
+                                          << "\t Local x of hit: " << previousTM->recHit()->localPosition().x();
         }
-        //else std::cout<<"\nDetId: "<<std::flush<<previousTM->recHit()->geographicalId().rawId()<<"\t Local x of hit: "<<previousTM->recHit()->localPosition().x()<<std::endl;
       } else {
-        //std::cout<<"This is the first Traj Meas of the Trajectory! The Trajectory contains "<< tmColl.size()<<" TrajMeas"<<std::endl;
+        LogDebug("TkAlCaOverlapTagger") << "This is the first Traj Meas of the Trajectory! The Trajectory contains "
+                                        << tmColl.size() << " TrajMeas";
       }
 
       TrackingRecHit::ConstRecHitPointer hitpointer = itTrajMeas->recHit();
@@ -110,7 +120,6 @@ void TkAlCaOverlapTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       if (!hit->isValid())
         continue;
 
-      //std::cout << "         hit number " << (ith - itt->recHits().begin()) << std::endl;
       DetId detid = hit->geographicalId();
       int layer(layerFromId(detid, tTopo));  //layer 1-4=TIB, layer 5-10=TOB
       int subDet = detid.subdetId();
@@ -133,12 +142,12 @@ void TkAlCaOverlapTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
             //
             AlignmentClusterFlag hitflag(hit->geographicalId());
             hitflag.SetOverlapFlag();
-            // cout<<"Overlap found in SubDet "<<subDet<<"!!!"<<flush;
+            LogDebug("TkAlCaOverlapTagger") << "Overlap found in SubDet " << subDet << "!!!" << std::flush;
 
             bool hitInStrip = (subDet == SiStripDetId::TIB) || (subDet == SiStripDetId::TID) ||
                               (subDet == SiStripDetId::TOB) || (subDet == SiStripDetId::TEC);
             if (hitInStrip) {
-              //cout<<"  TypeId of the RecHit: "<<className(*hit)<<endl;
+              LogDebug("TkAlCaOverlapTagger") << "  TypeId of the RecHit: " << className(*hit);
               // const std::type_info &type = typeid(*hit);
               const SiStripRecHit2D* transstriphit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
               const SiStripRecHit1D* transstriphit1D = dynamic_cast<const SiStripRecHit1D*>(hit);
@@ -177,14 +186,17 @@ void TkAlCaOverlapTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                           .id()) {  //ensure that the stripclust is really present in the original cluster collection!!!
                     stripvalues[stripclust.key()] = hitflag;
 
-                    //cout<<">>> Storing in the ValueMap a StripClusterRef with Cluster.Key: "<<stripclust.key()<<" ("<<striphit->cluster().key() <<"), Cluster.Id: "<<stripclust.id()<<"  (DetId is "<<hit->geographicalId().rawId()<<")"<<endl;
+                    LogDebug("TkAlCaOverlapTagger")
+                        << ">>> Storing in the ValueMap a StripClusterRef with Cluster.Key: " << stripclust.key()
+                        << " (" << striphit->cluster().key() << "), Cluster.Id: " << stripclust.id() << "  (DetId is "
+                        << hit->geographicalId().rawId() << ")";
                   } else {
                     edm::LogError("TkAlCaOverlapTagger")
                         << "ERROR in <TkAlCaOverlapTagger::produce>: ProdId of Strip clusters mismatched: "
                         << stripclust.id() << " vs " << stripclusters.id();
                   }
 
-                  // cout<<"Cluster baricentre: "<<stripclust->barycenter()<<endl;
+                  LogDebug("TkAlCaOverlapTagger") << "Cluster baricentre: " << stripclust->barycenter();
                 } else {
                   edm::LogError("TkAlCaOverlapTagger") << "ERROR in <TkAlCaOverlapTagger::produce>: Dynamic cast of "
                                                           "Strip RecHit failed!   TypeId of the RecHit: "
@@ -206,7 +218,9 @@ void TkAlCaOverlapTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
                 if (pixclust.id() == pixelclusters.id()) {
                   pixelvalues[pixclust.key()] = hitflag;
-                  //cout<<">>> Storing in the ValueMap a PixelClusterRef with ProdID: "<<pixclust.id()<<"  (DetId is "<<hit->geographicalId().rawId()<<")" <<endl;//"  and  a Val with ID: "<<flag.id()<<endl;
+                  LogDebug("TkAlCaOverlapTagger")
+                      << ">>> Storing in the ValueMap a PixelClusterRef with ProdID: " << pixclust.id()
+                      << "  (DetId is " << hit->geographicalId().rawId() << ")";  //"  and  a Val with ID: "<<flag.id();
                 } else {
                   edm::LogError("TkAlCaOverlapTagger")
                       << "ERROR in <TkAlCaOverlapTagger::produce>: ProdId of Pixel clusters mismatched: "
@@ -228,18 +242,17 @@ void TkAlCaOverlapTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       previousTM = &(*itTrajMeas);
       previousId = detid;
     }  //end loop over traj meas
-    //std::cout<<"Found "<<nOverlaps<<" overlaps in this trajectory"<<std::endl;
-
+    LogDebug("TkAlCaOverlapTagger") << "Found " << nOverlaps << " overlaps in this trajectory";
   }  //end loop over trajectories
 
   // prepare output
   auto hitvalmap = std::make_unique<AliClusterValueMap>();
   AliClusterValueMap::Filler mapfiller(*hitvalmap);
 
-  edm::TestHandle<std::vector<AlignmentClusterFlag> > fakePixelHandle(&pixelvalues, pixelclusters.id());
+  edm::TestHandle<std::vector<AlignmentClusterFlag>> fakePixelHandle(&pixelvalues, pixelclusters.id());
   mapfiller.insert(fakePixelHandle, pixelvalues.begin(), pixelvalues.end());
 
-  edm::TestHandle<std::vector<AlignmentClusterFlag> > fakeStripHandle(&stripvalues, stripclusters.id());
+  edm::TestHandle<std::vector<AlignmentClusterFlag>> fakeStripHandle(&stripvalues, stripclusters.id());
   mapfiller.insert(fakeStripHandle, stripvalues.begin(), stripvalues.end());
   mapfiller.fill();
 
@@ -263,6 +276,16 @@ int TkAlCaOverlapTagger::layerFromId(const DetId& id, const TrackerTopology* tTo
   return -1;
 
 }  //end layerfromId
+
+void TkAlCaOverlapTagger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Tagger of overlaps for tracker alignment");
+  desc.add<edm::InputTag>("src", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("Clustersrc", edm::InputTag("ALCARECOTkAlCosmicsCTF0T"));
+  desc.add<bool>("rejectBadMods", false);
+  desc.add<std::vector<uint32_t>>("BadMods", {});
+  descriptions.addWithDefaultLabel(desc);
+}
 
 // ========= MODULE DEF ==============
 #include "FWCore/PluginManager/interface/ModuleDef.h"
