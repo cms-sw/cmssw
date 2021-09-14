@@ -28,8 +28,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -42,19 +40,19 @@ class L1MuBMSecProcId;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuBMMuonSorter : public L1AbstractProcessor {
+class L1MuBMMuonSorter {
 public:
   /// constructor
   L1MuBMMuonSorter(const L1MuBMTrackFinder&);
 
   /// destructor
-  ~L1MuBMMuonSorter() override;
+  ~L1MuBMMuonSorter();
 
   /// run Muon Sorter
-  void run() override;
+  void run();
 
   /// reset Muon Sorter
-  void reset() override;
+  void reset();
 
   /// print results after sorting
   void print() const;
