@@ -73,10 +73,18 @@ namespace caConstants {
   using CellNeighborsVector = cms::cuda::SimpleVector<CellNeighbors>;
   using CellTracksVector = cms::cuda::SimpleVector<CellTracks>;
 
-  using OuterHitOfCell = cms::cuda::VecArray<uint32_t, maxCellsPerHit>;
+  using OuterHitOfCellContainer = cms::cuda::VecArray<uint32_t, maxCellsPerHit>;
   using TuplesContainer = cms::cuda::OneToManyAssoc<hindex_type, maxTuples, 5 * maxTuples>;
   using HitToTuple = cms::cuda::OneToManyAssoc<tindex_type, -1, 4 * maxTuples>;  // 3.5 should be enough
   using TupleMultiplicity = cms::cuda::OneToManyAssoc<tindex_type, 8, maxTuples>;
+
+  struct OuterHitOfCell {
+    OuterHitOfCellContainer * m_container;
+    int32_t m_offset;
+    constexpr auto & operator[](int i) { return m_container[i-m_offset]; }
+    constexpr auto const & operator[](int i) const { return m_container[i-m_offset]; }
+  };
+
 
 }  // namespace caConstants
 
