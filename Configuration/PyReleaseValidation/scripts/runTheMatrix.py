@@ -335,42 +335,42 @@ if __name__ == '__main__':
                       action='store')
 
     parser.add_option('--gpu',
-                      help='Use GPU workflow setup if available',
+                      help='Use GPU workflow setup if available. It will force --requires-gpu required.',
                       dest='gpuEnable',
                       default=False,
                       action='store_true')
 
-    parser.add_option('--RequiresGPU',
+    parser.add_option('--requires-gpu',
                       help='if GPU is required or not: forbidden (default, CPU-only), optional, required. For relvals, the GPU option will be turned off for optional.',
                       dest='RequiresGPU',
                       default='forbidden')
 
-    parser.add_option('--GPUMemoryMB',
-                      help='to specify GPU memory. Default = 8000 MB (for RequiresGPU = required).',
+    parser.add_option('--gpu-memory-mb',
+                      help='to specify GPU memory. Default = 8000 MB (for --requires-gpu = required).',
                       dest='GPUMemoryMB',
                       default=8000)
 
-    parser.add_option('--CUDACapabilities',
+    parser.add_option('--cuda-capabilities',
                       help='to specify CUDA capabilities. Default = 6.0,6.1,6.2,7.0,7.2,7.5 (for RequiresGPU = required). Use comma to identify various CUDACapabilities',
                       dest='CUDACapabilities',
                       default='6.0,6.1,6.2,7.0,7.2,7.5')
 
-    parser.add_option('--CUDARuntime',
+    parser.add_option('--cuda-runtime',
                       help='to specify major and minor CUDA runtime used to build the application. Default = 11.2 (for RequiresGPU = required). FIX ME TO MATCH WITH CMSSW.',
                       dest='CUDARuntime',
                       default='11.2')
 
-    parser.add_option('--GPUName',
+    parser.add_option('--gpu-name',
                       help='to specify GPU class. This is an optional parameter.',
                       dest='GPUName',
                       default='')
 
-    parser.add_option('--CUDADriverVersion',
+    parser.add_option('--cuda-driver-version',
                       help='to specify CUDA driver version. This is an optional parameter.',
                       dest='CUDADriverVersion',
                       default='')
 
-    parser.add_option('--CUDARuntimeVersion',
+    parser.add_option('--cuda-runtime-version',
                       help='to specify CUDA runtime version. This is an optional parameter.',
                       dest='CUDARuntimeVersion',
                       default='')
