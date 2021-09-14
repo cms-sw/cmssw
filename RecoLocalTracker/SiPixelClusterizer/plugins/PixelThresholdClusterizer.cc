@@ -222,6 +222,11 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
     // std::cout << (doMissCalibrate ? "VI from db" : "VI linear") << std::endl;
   }
 #endif
+
+  //avoid undefined behavior
+  if (end <= begin)
+    return;
+
   int electron[end - begin];  // pixel charge in electrons
   memset(electron, 0, (end - begin) * sizeof(int));
 
