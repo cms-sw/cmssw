@@ -1,8 +1,5 @@
 <use name="CalibFormats/HcalObjects"/>
 <use name="DataFormats/HcalDigi"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/MessageLogger"/>
-<use name="FWCore/PluginManager"/>
 <use name="boost"/>
 <export>
   <lib name="1"/>
