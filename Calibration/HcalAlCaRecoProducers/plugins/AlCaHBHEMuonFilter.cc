@@ -70,6 +70,7 @@ private:
   bool pfCut_;
   double trackIsoCut_, caloIsoCut_, pfIsoCut_;
   int preScale_;
+  bool onlyOuterTrack_;
   unsigned int nRun_, nAll_, nGood_, nFinal_;
   edm::InputTag triggerResults_, labelMuon_;
   edm::EDGetTokenT<trigger::TriggerEvent> tok_trigEvt;
@@ -104,6 +105,7 @@ AlCaHBHEMuonFilter::AlCaHBHEMuonFilter(edm::ParameterSet const& iConfig, const A
   preScale_ = iConfig.getParameter<int>("PreScale");
   if (preScale_ < 1)
     preScale_ = 1;
+  onlyOuterTrack_ = iConfig.getParameter<bool>("OnlyOuterTrack");
 
   // define tokens for access
   tok_trigRes_ = consumes<edm::TriggerResults>(triggerResults_);
@@ -112,9 +114,11 @@ AlCaHBHEMuonFilter::AlCaHBHEMuonFilter(edm::ParameterSet const& iConfig, const A
   tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
   tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
-  edm::LogVerbatim("HBHEMuon") << "Parameters read from config file \n"
-                               << "Process " << processName_ << "  Prescale " << preScale_ << "  Isolation Cuts "
-                               << trackIsoCut_ << ":" << caloIsoCut_ << "\n";
+  edm::LogVerbatim("HBHEMuon") << "Parameters read from config file \nProcess " << processName_ << "  Prescale "
+                               << preScale_ << "  Isolation Cuts " << pfCut_ << ":" << pfIsoCut_ << ":" << trackIsoCut_
+                               << ":" << caloIsoCut_ << " OnlyOuterTrack " << onlyOuterTrack_ << "\nInput tags "
+                               << labelMuon_ << " and " << triggerResults_ << "\nStudy " << trigNames_.size()
+                               << " triggers: ";
   for (unsigned int k = 0; k < trigNames_.size(); ++k)
     edm::LogVerbatim("HBHEMuon") << "Trigger[" << k << "] " << trigNames_[k] << "\n";
 }  // AlCaHBHEMuonFilter::AlCaHBHEMuonFilter  constructor
@@ -171,9 +175,12 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::MuonCollection> _Muon;
     iEvent.getByToken(tok_Muon_, _Muon);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Muon Handle " << _Muon.isValid() << std::endl;
+    edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Muon Handle " << _Muon.isValid();
 #endif
     if (_Muon.isValid()) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Size of collection " << _Muon->size();
+#endif
       for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull()
@@ -181,9 +188,11 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
                                      << RecMuon->outerTrack().isNonnull() << " globalTrack "
                                      << RecMuon->globalTrack().isNonnull() << std::endl;
 #endif
-        if ((RecMuon->track().isNonnull()) && (RecMuon->innerTrack().isNonnull()) &&
-            (RecMuon->outerTrack().isNonnull()) && (RecMuon->globalTrack().isNonnull())) {
-          const reco::Track* pTrack = (RecMuon->innerTrack()).get();
+        bool check = (onlyOuterTrack_) ? (RecMuon->outerTrack().isNonnull())
+                                       : ((RecMuon->track().isNonnull()) && (RecMuon->innerTrack().isNonnull()) &&
+                                          (RecMuon->outerTrack().isNonnull()) && (RecMuon->globalTrack().isNonnull()));
+        if (check) {
+          const reco::Track* pTrack = (onlyOuterTrack_) ? (RecMuon->outerTrack()).get() : (RecMuon->innerTrack()).get();
           spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo, bField, false);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Propagate: ECAL " << trackID.okECAL << " to HCAL "
@@ -198,6 +207,10 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
                              (0.5 * RecMuon->pfIsolationR04().sumPUPt))) /
                RecMuon->pt());
           bool isoCut = (pfCut_) ? (isolR04 < pfIsoCut_) : ((trackIso < trackIsoCut_) && (caloIso < caloIsoCut_));
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Isolation: " << trackIso << ":" << caloIso << ":"
+                                       << isolR04 << " --> " << isoCut;
+#endif
           if ((trackID.okECAL) && (trackID.okHCAL) && isoCut) {
             accept = true;
             break;
@@ -260,6 +273,7 @@ void AlCaHBHEMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("TrackIsolationCut", 3.0);
   desc.add<double>("CaloIsolationCut", 5.0);
   desc.add<int>("PreScale", 2);
+  desc.add<bool>("OnlyOuterTrack", false);
   descriptions.add("AlcaHBHEMuonFilter", desc);
 }
 
