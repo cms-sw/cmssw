@@ -37,7 +37,7 @@ if useFileInput:
 	from DQM.Integration.config.fileinputsource_cfi import options
 else:
 	process.load('DQM.Integration.config.inputsource_cfi')
-	from DQM.Integration.config.inputsource_cfi import options, BeamSplashRun
+	from DQM.Integration.config.inputsource_cfi import options
 process.load('DQM.Integration.config.environment_cfi')
 
 #-------------------------------------
@@ -52,7 +52,7 @@ process.dqmSaverPB.tag = subsystem
 process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 if not useFileInput:
-  if not BeamSplashRun : 
+  if not options.BeamSplashRun : 
     process.source.minEventsPerLumi=100
 
 
