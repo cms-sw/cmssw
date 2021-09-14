@@ -14,7 +14,7 @@ int main() {
   print<GPUCACell>();
   print<CellNeighbors>();
   print<CellTracks>();
-  print<OuterHitOfCell>();
+  print<OuterHitOfCellContainer>();
   print<TuplesContainer>();
   print<HitToTuple>();
   print<TupleMultiplicity>();

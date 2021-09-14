@@ -519,7 +519,7 @@ namespace pixelgpudetails {
     }
     clusters_d = SiPixelClustersCUDA(gpuClustering::maxNumModules, stream);
 
-    nModules_Clusters_h = cms::cuda::make_host_unique<uint32_t[]>(2, stream);
+    nModules_Clusters_h = cms::cuda::make_host_unique<uint32_t[]>(3, stream);
 
     if (wordCounter)  // protect in case of empty event....
     {
@@ -645,6 +645,14 @@ namespace pixelgpudetails {
                                 sizeof(uint32_t),
                                 cudaMemcpyDefault,
                                 stream));
+
+     // element 96 is the start of BPIX2 (i.e. the number of clusters in BPIX1)
+     cudaCheck(cudaMemcpyAsync(&(nModules_Clusters_h[2]),
+                                clusters_d.clusModuleStart() + 96,
+                                   sizeof(uint32_t),
+                                   cudaMemcpyDefault,
+                                   stream));
+
 
 #ifdef GPU_DEBUG
       cudaDeviceSynchronize();
