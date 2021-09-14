@@ -32,6 +32,12 @@ options.register('skipFirstLumis',
                  VarParsing.VarParsing.varType.bool,
                  "Skip (and ignore the minEventsPerLumi parameter) for the files which have been available at the begining of the processing. ")
 
+options.register('BeamSplashRun',
+                 False, # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Set client source settings for beam SPLASH run")
+
 # Parameters for runType
 
 options.register ('runkey',
@@ -88,7 +94,8 @@ def set_BeamSplashRun_settings( source ):
   # source.minEventsPerLumi      = 1000000
   source.nextLumiTimeoutMillis = 15000
 
-BeamSplashRun = False
-if BeamSplashRun : set_BeamSplashRun_settings( source )
+if options.BeamSplashRun : set_BeamSplashRun_settings( source )
 
 print("Initial Source settings:", source)
+
+
