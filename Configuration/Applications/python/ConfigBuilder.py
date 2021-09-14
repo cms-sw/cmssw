@@ -1368,6 +1368,8 @@ class ConfigBuilder(object):
                 raise Exception("Neither gen fragment of input files provided: this is an inconsistent GEN step configuration")
 
         if not loadFailure:
+            from Configuration.Generator.concurrentLumisDisable import noConcurrentLumiGenerators
+
             generatorModule=sys.modules[loadFragment]
             genModules=generatorModule.__dict__
             #remove lhe producer module since this should have been
@@ -1385,6 +1387,10 @@ class ConfigBuilder(object):
                     theObject = getattr(generatorModule,name)
                     if isinstance(theObject, cmstypes._Module):
                         self._options.inlineObjets=name+','+self._options.inlineObjets
+                        if theObject.type_() in noConcurrentLumiGenerators:
+                            print("Setting numberOfConcurrentLuminosityBlocks=1 because of generator {}".format(theObject.type_()))
+                            self._options.nConcurrentLumis = "1"
+                            self._options.nConcurrentIOVs = "1"
                     elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
                         self._options.inlineObjets+=','+name
 
