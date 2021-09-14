@@ -47,7 +47,7 @@ _sampleName = {
     "RelValH125GGgluonfusion" : "Higgs to gamma gamma",
     "RelValNuGun" : "Neutrino gun",
     "RelValZpTT_1500" : "Z prime with 1500 GeV nominal mass",
-    "RelValTenTau_15_500" : "Ten Taus with energy from 15 GeV to 500 GeV"
+    "RelValTenTau_15_500_Eta3p1" : "Ten Taus with energy from 15 GeV to 500 GeV"
 }
 
 _sampleFileName = {
