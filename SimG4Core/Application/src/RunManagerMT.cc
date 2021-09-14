@@ -85,10 +85,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   m_currentRun = nullptr;
 
   m_kernel = new G4MTRunManagerKernel();
-  m_stateManager = G4StateManager::GetStateManager();
-  m_stateManager->SetExceptionHandler(new ExceptionHandler());
-  m_geometryManager->G4GeometryManager::GetInstance();
-
+  G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
   m_check = p.getUntrackedParameter<bool>("CheckGeometry", false);
 }
 
@@ -192,7 +189,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
     }
   }
 
-  m_stateManager->SetNewState(G4State_Init);
+  G4StateManager::GetStateManager()->SetNewState(G4State_Init);
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: G4State is Init";
   m_kernel->InitializePhysics();
   m_kernel->SetUpDecayChannels();
@@ -239,14 +236,14 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
     CMSG4CheckOverlap check(m_g4overlap, regionFile, m_UIsession, world);
   }
 
-  m_stateManager->SetNewState(G4State_PreInit);
+  G4StateManager::GetStateManager()->SetNewState(G4State_PreInit);
   G4HadronicParameters::Instance()->SetVerboseLevel(std::max(verb - 1, 0));
 
   // If the Geant4 particle table is needed, decomment the lines below
   //
   //G4ParticleTable::GetParticleTable()->DumpTable("ALL");
   //
-  m_stateManager->SetNewState(G4State_GeomClosed);
+  G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
   m_currentRun = new G4Run();
   m_userRunAction->BeginOfRunAction(m_currentRun);
   timer.Stop();
@@ -266,20 +263,20 @@ void RunManagerMT::Connect(RunAction* runAction) {
 }
 
 void RunManagerMT::stopG4() {
-  m_geometryManager->OpenGeometry();
-  m_stateManager->SetNewState(G4State_Quit);
+  G4GeometryManager::GetInstance()->OpenGeometry();
+  G4StateManager::GetStateManager()->SetNewState(G4State_Quit);
   if (!m_runTerminated) {
     terminateRun();
   }
 }
 
 void RunManagerMT::terminateRun() {
-  if (m_userRunAction) {
+  if (nullptr != m_userRunAction) {
     m_userRunAction->EndOfRunAction(m_currentRun);
     delete m_userRunAction;
     m_userRunAction = nullptr;
   }
-  if (m_kernel && !m_runTerminated) {
+  if (!m_runTerminated) {
     m_kernel->RunTermination();
   }
   m_runTerminated = true;
