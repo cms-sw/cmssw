@@ -69,13 +69,14 @@ class MatrixInjector(object):
         # Checking and setting up GPU attributes
         ####################################
         # Mendatory
-        self.RequiresGPU = opt.RequiresGPU
+        self.RequiresGPU='forbidden'
+        if opt.gpu: self.RequiresGPU=opt.gpu
         if self.RequiresGPU not in ('forbidden','optional','required'):
-            print('RequiresGPU must be forbidden, optional, required. Now, set to forbidden.')
+            print("'--gpu option' you provided are not 'forbidden', 'optional', 'required'. Now, set to forbidden.")
             self.RequiresGPU = 'forbidden'
-        if self.RequiresGPU == 'optional':
-            print('Optional GPU is turned off for RelVals. Now, changing it to forbidden')
-            self.RequiresGPU = 'forbidden'
+        #if self.RequiresGPU == 'optional':
+        #print("Optional GPU is turned off for RelVals. Now, changing it to forbidden")
+        #self.RequiresGPU = 'forbidden'
         self.GPUMemoryMB = opt.GPUMemoryMB
         self.CUDACapabilities = opt.CUDACapabilities.split(',')
         self.CUDARuntime = opt.CUDARuntime
