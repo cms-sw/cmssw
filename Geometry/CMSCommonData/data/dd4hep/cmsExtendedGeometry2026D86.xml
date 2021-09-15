@@ -44,7 +44,7 @@
     <Include ref='Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eregalgo/2026/v2/eregalgo.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ectkcable/2026/v1/ectkcable.xml'/>
-    <Include ref='Geometry/EcalCommonData/data/ectkcablemat/2026/v1/ectkcablemat.xml'/>
+    <Include ref='Geometry/EcalCommonData/data/ectkcablemat/2026/v2/ectkcablemat.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ebalgo.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ebcon/2021/v1/ebcon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ebrot.xml'/>
