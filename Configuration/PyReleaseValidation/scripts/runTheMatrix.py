@@ -300,7 +300,7 @@ if __name__ == '__main__':
                         action='store_true')
     
     parser.add_argument('--sites',
-                        help='Run DAS query to get data from a specific site (default is T2_CH_CERN). Set it to empty string to search all sites.',
+                        help='Run DAS query to get data from a specific site. Set it to empty string to search all sites.',
                         dest='dasSites',
                         default='T2_CH_CERN',
                         action='store')
