@@ -107,7 +107,7 @@ if __name__ == '__main__':
     import argparse
     usage = 'usage: runTheMatrix.py --show -s '
 
-    parser = argparse.ArgumentParser(usage)
+    parser = argparse.ArgumentParser(usage,formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('-b','--batchName',
                         help='relval batch: suffix to be appended to Campaign name',
@@ -180,6 +180,7 @@ if __name__ == '__main__':
     parser.add_argument('-i','--useInput',
                         help='Use recyling where available. Either all, or a comma separated list of wf number.',
                         dest='useInput',
+                        type=lambda x: x.split(','),
                         default=None)
     
     parser.add_argument('-w','--what',
@@ -201,6 +202,7 @@ if __name__ == '__main__':
     parser.add_argument('--fromScratch',
                         help='Comma separated list of wf to be run without recycling. all is not supported as default.',
                         dest='fromScratch',
+                        type=lambda x: x.split(','),
                         default=None)
     
     parser.add_argument('--refRelease',
@@ -326,14 +328,15 @@ if __name__ == '__main__':
                           action='store')
 
     gpugroup.add_argument('--gpu-memory',
-                          help='Specify the minimum amount of GPU memory required by the job, in MB (default: %(default)d MB)',
+                          help='Specify the minimum amount of GPU memory required by the job, in MB.',
                           dest='GPUMemoryMB',
                           type=int,
                           default=8000)
     
     gpugroup.add_argument('--cuda-capabilities',
-                          help='Specify a comma-separated list of CUDA "compute capabilities", or GPU hardware architectures, that the job can use (default: %(default)s).',
+                          help='Specify a comma-separated list of CUDA "compute capabilities", or GPU hardware architectures, that the job can use.',
                           dest='CUDACapabilities',
+                          type=lambda x: x.split(','),
                           default='6.0,6.1,6.2,7.0,7.2,7.5,8.0,8.6')
     
     # read the CUDA runtime version included in CMSSW
@@ -343,22 +346,22 @@ if __name__ == '__main__':
         cudart_basename = os.path.basename(libcudart)
         cudart_version = '.'.join(cudart_basename.split('.')[2:4])
     gpugroup.add_argument('--cuda-runtime',
-                          help='Specify major and minor version of the CUDA runtime used to build the application (default: %(default)s).',
+                          help='Specify major and minor version of the CUDA runtime used to build the application.',
                           dest='CUDARuntime',
                           default=cudart_version)
     
     gpugroup.add_argument('--force-gpu-name',
-                          help='Request a specific GPU model, e.g. "Tesla T4" or "NVIDIA GeForce RTX 2080" (default: none). The default behaviour is to accept any supported GPU.',
+                          help='Request a specific GPU model, e.g. "Tesla T4" or "NVIDIA GeForce RTX 2080". The default behaviour is to accept any supported GPU.',
                           dest='GPUName',
                           default='')
     
     gpugroup.add_argument('--force-cuda-driver-version',
-                          help='Request a specific CUDA driver version, e.g. 470.57.02 (default: none). The default behaviour is to accept any supported CUDA driver version.',
+                          help='Request a specific CUDA driver version, e.g. 470.57.02. The default behaviour is to accept any supported CUDA driver version.',
                           dest='CUDADriverVersion',
                           default='')
     
     gpugroup.add_argument('--force-cuda-runtime-version',
-                          help='Request a specific CUDA runtime version, e.g. 11.4 (default: none). The default behaviour is to accept any supported CUDA runtime version.',
+                          help='Request a specific CUDA runtime version, e.g. 11.4. The default behaviour is to accept any supported CUDA runtime version.',
                           dest='CUDARuntimeVersion',
                           default='')
     
@@ -420,12 +423,7 @@ if __name__ == '__main__':
                     print(entry,'is not a possible selected entry')
 
         opt.testList = list(set(testList))
-
-
-    if opt.useInput: opt.useInput = opt.useInput.split(',')
-    if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
-    if opt.CUDACapabilities: opt.CUDACapabilities = opt.CUDACapabilities.split(',')
-
+    
     if opt.wmcontrol:
         performInjectionOptionTest(opt)
     if opt.overWrite:
