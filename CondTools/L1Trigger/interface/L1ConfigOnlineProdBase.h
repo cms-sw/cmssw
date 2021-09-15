@@ -124,9 +124,8 @@ std::unique_ptr<TData> L1ConfigOnlineProdBase<TRcd, TData>::produce(const TRcd& 
     if (m_copyFromCondDB) {
       // Get L1TriggerKeyList from EventSetup
       const L1TriggerKeyListRcd& keyListRcd = iRecord.template getRecord<L1TriggerKeyListRcd>();
-      ///edm::ESHandle<L1TriggerKeyList> keyList;
-      //keyListRcd.get(keyList);
-      auto keyList = iRecord.template getHandle(l1TriggerKeyListToken_);
+
+      const auto keyList = iRecord.getHandle(l1TriggerKeyListToken_);
 
       // Find payload token
       std::string recordName = edm::typelookup::className<TRcd>();
@@ -174,9 +173,9 @@ bool L1ConfigOnlineProdBase<TRcd, TData>::getObjectKey(const TRcd& record, std::
 
   // If L1TriggerKey is invalid, then all configuration objects are
   // already in ORCON.
-  edm::ESHandle<L1TriggerKey> key;
+  const edm::ESHandle<L1TriggerKey> key;
   try {
-    key = iRecord.template getHandle(l1TriggerKeyToken_);
+    key = iRecord.getHandle(l1TriggerKeyToken_);
   } catch (l1t::DataAlreadyPresentException& ex) {
     objectKey = std::string();
     return false;

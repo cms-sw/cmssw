@@ -72,7 +72,7 @@ void L1O2OTestAnalyzerExt::analyze(const edm::Event& iEvent, const edm::EventSet
       edm::LogError("L1-O2O") << "Problem getting last L1TriggerKeyListExt";
     }
 
-    edm::LogInfo("L1-O2O") << "Found " << pList.tscKeyToTokenMap().size() << " TSC keys:" << std::endl;
+    edm::LogInfo("L1-O2O") << "Found " << pList.tscKeyToTokenMap().size() << " TSC keys:";
 
     L1TriggerKeyListExt::KeyToToken::const_iterator iTSCKey = pList.tscKeyToTokenMap().begin();
     L1TriggerKeyListExt::KeyToToken::const_iterator eTSCKey = pList.tscKeyToTokenMap().end();
@@ -81,16 +81,13 @@ void L1O2OTestAnalyzerExt::analyze(const edm::Event& iEvent, const edm::EventSet
       if (m_printPayloadTokens) {
         edm::LogInfo("L1-O2O") << " " << iTSCKey->second;
       }
-      edm::LogInfo("L1-O2O") << std::endl;
     }
-    edm::LogInfo("L1-O2O") << std::endl;
 
     L1TriggerKeyListExt::RecordToKeyToToken::const_iterator iRec = pList.recordTypeToKeyToTokenMap().begin();
     L1TriggerKeyListExt::RecordToKeyToToken::const_iterator eRec = pList.recordTypeToKeyToTokenMap().end();
     for (; iRec != eRec; ++iRec) {
       const L1TriggerKeyListExt::KeyToToken& keyTokenMap = iRec->second;
-      edm::LogInfo("L1-O2O") << "For record@type " << iRec->first << ", found " << keyTokenMap.size()
-                             << " keys:" << std::endl;
+      edm::LogInfo("L1-O2O") << "For record@type " << iRec->first << ", found " << keyTokenMap.size() << " keys:";
 
       L1TriggerKeyListExt::KeyToToken::const_iterator iKey = keyTokenMap.begin();
       L1TriggerKeyListExt::KeyToToken::const_iterator eKey = keyTokenMap.end();
@@ -99,9 +96,7 @@ void L1O2OTestAnalyzerExt::analyze(const edm::Event& iEvent, const edm::EventSet
         if (m_printPayloadTokens) {
           edm::LogInfo("L1-O2O") << " " << iKey->second;
         }
-        edm::LogInfo("L1-O2O") << std::endl;
       }
-      edm::LogInfo("L1-O2O") << std::endl;
     }
   }
 
@@ -109,21 +104,20 @@ void L1O2OTestAnalyzerExt::analyze(const edm::Event& iEvent, const edm::EventSet
     try {
       ESHandle<L1TriggerKeyExt> pKey = iSetup.getHandle(l1TriggerKeyExtToken_);
 
-      edm::LogInfo("L1-O2O") << std::endl;
-      edm::LogInfo("L1-O2O") << "Current TSC key = " << pKey->tscKey() << std::endl << std::endl;
+      edm::LogInfo("L1-O2O") << "Current TSC key = " << pKey->tscKey();
 
-      edm::LogInfo("L1-O2O") << "Current subsystem keys:" << std::endl;
-      edm::LogInfo("L1-O2O") << "TSP0 " << pKey->subsystemKey(L1TriggerKeyExt::kuGT) << std::endl << std::endl;
+      edm::LogInfo("L1-O2O") << "Current subsystem keys:";
+      edm::LogInfo("L1-O2O") << "TSP0 " << pKey->subsystemKey(L1TriggerKeyExt::kuGT);
 
-      edm::LogInfo("L1-O2O") << "Object keys:" << std::endl;
+      edm::LogInfo("L1-O2O") << "Object keys:";
       const L1TriggerKeyExt::RecordToKey& recKeyMap = pKey->recordToKeyMap();
       L1TriggerKeyExt::RecordToKey::const_iterator iRec = recKeyMap.begin();
       L1TriggerKeyExt::RecordToKey::const_iterator eRec = recKeyMap.end();
       for (; iRec != eRec; ++iRec) {
-        edm::LogInfo("L1-O2O") << iRec->first << " " << iRec->second << std::endl;
+        edm::LogInfo("L1-O2O") << iRec->first << " " << iRec->second;
       }
     } catch (cms::Exception& ex) {
-      edm::LogInfo("L1-O2O") << "No L1TriggerKeyExt found." << std::endl;
+      edm::LogInfo("L1-O2O") << "No L1TriggerKeyExt found.";
     }
   }
 
@@ -142,7 +136,7 @@ void L1O2OTestAnalyzerExt::analyze(const edm::Event& iEvent, const edm::EventSet
 
     l1t::DataWriterExt writer;
 
-    edm::LogInfo("L1-O2O") << std::endl << "Run Settings keys:" << std::endl;
+    edm::LogInfo("L1-O2O") << "Run Settings keys:";
 
     std::vector<std::string>::const_iterator iRec = m_recordsToPrint.begin();
     std::vector<std::string>::const_iterator iEnd = m_recordsToPrint.end();
@@ -160,7 +154,6 @@ void L1O2OTestAnalyzerExt::analyze(const edm::Event& iEvent, const edm::EventSet
       if (m_printPayloadTokens) {
         edm::LogInfo("L1-O2O") << " " << payloadToken;
       }
-      edm::LogInfo("L1-O2O") << std::endl;
 
       // Replace spaces in key with ?s.  Do reverse substitution when
       // making L1TriggerKeyExt.
@@ -168,7 +161,7 @@ void L1O2OTestAnalyzerExt::analyze(const edm::Event& iEvent, const edm::EventSet
       log += " " + *iRec + "Key=" + key;
     }
 
-    edm::LogInfo("L1-O2O") << std::endl << log << std::endl;
+    edm::LogInfo("L1-O2O") << log;
   }
 }
 
