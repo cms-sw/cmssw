@@ -67,7 +67,7 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
     auto nthTot = 128;
     auto stride = 16;
     auto blockSize = nthTot / stride;
-    auto numberOfBlocks = (nhits - isOuterHitOfCell_.offset  + blockSize - 1) / blockSize;
+    auto numberOfBlocks = (nhits - isOuterHitOfCell_.offset + blockSize - 1) / blockSize;
     dim3 blks(1, numberOfBlocks, 1);
     dim3 thrs(stride, blockSize, 1);
     gpuPixelDoublets::fishbone<<<blks, thrs, 0, cudaStream>>>(
@@ -152,8 +152,8 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStr
 #endif
 
   // in principle we can use "nhits" to heuristically dimension the workspace...
-  device_isOuterHitOfCell_ =
-      cms::cuda::make_device_unique<GPUCACell::OuterHitOfCellContainer[]>(std::max(1, nhits-hh.offsetBPIX2()), stream);
+  device_isOuterHitOfCell_ = cms::cuda::make_device_unique<GPUCACell::OuterHitOfCellContainer[]>(
+      std::max(1, nhits - hh.offsetBPIX2()), stream);
   assert(device_isOuterHitOfCell_.get());
 
   isOuterHitOfCell_ = GPUCACell::OuterHitOfCell{device_isOuterHitOfCell_.get(), hh.offsetBPIX2()};
@@ -169,7 +169,7 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStr
   {
     int threadsPerBlock = 128;
     // at least one block!
-    int blocks = (std::max(1, nhits-hh.offsetBPIX2()) + threadsPerBlock - 1) / threadsPerBlock;
+    int blocks = (std::max(1, nhits - hh.offsetBPIX2()) + threadsPerBlock - 1) / threadsPerBlock;
     gpuPixelDoublets::initDoublets<<<blocks, threadsPerBlock, 0, stream>>>(isOuterHitOfCell_,
                                                                            nhits,
                                                                            device_theCellNeighbors_.get(),
