@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,7 +37,7 @@
 class L1TriggerKey;
 class L1TriggerKeyRcd;
 
-class L1CondDBPayloadWriter : public edm::EDAnalyzer {
+class L1CondDBPayloadWriter : public edm::one::EDAnalyzer<> {
 public:
   explicit L1CondDBPayloadWriter(const edm::ParameterSet&);
   ~L1CondDBPayloadWriter() override;
