@@ -38,6 +38,8 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 // Loader for the lookup tables
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetLookupTableSequenceLoader.h"
@@ -565,7 +567,15 @@ void FFTJetProducer::writeJets(edm::Event& iEvent, const edm::EventSetup& iSetup
     // vertex, constituents). These are overridden functions that will
     // call the appropriate specific code.
     T jet;
-    writeSpecific(jet, jet4vec, vertexUsed(), constituents[ijet + 1], iSetup);
+    if constexpr (std::is_same_v<T, reco::CaloJet>) {
+      edm::ESHandle<CaloGeometry> geometry;
+      iSetup.get<CaloGeometryRecord>().get(geometry);
+      edm::ESHandle<HcalTopology> topology;
+      iSetup.get<HcalRecNumberingRecord>().get(topology);
+      writeSpecific(jet, jet4vec, vertexUsed(), constituents[ijet + 1], *geometry, *topology);
+    } else {
+      writeSpecific(jet, jet4vec, vertexUsed(), constituents[ijet + 1]);
+    }
 
     // calcuate the jet area
     double ncells = myjet.ncells();
