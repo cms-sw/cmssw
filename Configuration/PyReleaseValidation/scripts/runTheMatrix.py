@@ -212,9 +212,7 @@ if __name__ == '__main__':
                         help='Create the workflows for injection to WMAgent. In the WORKING. -wmcontrol init will create the the workflows, -wmcontrol test will dryRun a test, -wmcontrol submit will submit to wmagent',
                         choices=['init','test','submit','force'],
                         dest='wmcontrol',
-                        default='test',
-                        const='test',
-                        nargs='?')
+                        default=None)
     
     parser.add_argument('--revertDqmio',
                         help='When submitting workflows to wmcontrol, force DQM outout to use pool and not DQMIO',
