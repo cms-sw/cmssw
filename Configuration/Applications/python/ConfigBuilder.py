@@ -1151,9 +1151,9 @@ class ConfigBuilder(object):
         self.REDIGIDefaultSeq=self.DIGIDefaultSeq
 
     # for alca, skims, etc
-    def addExtraStream(self,name,stream,workflow='full'):
+    def addExtraStream(self, name, stream, workflow='full', cppType="PoolOutputModule"):
             # define output module and go from there
-        output = cms.OutputModule("PoolOutputModule")
+        output = cms.OutputModule(cppType)
         if stream.selectEvents.parameters_().__len__()!=0:
             output.SelectEvents = stream.selectEvents
         else:
@@ -1187,8 +1187,9 @@ class ConfigBuilder(object):
         if self._options.filtername:
             output.dataset.filterName= cms.untracked.string(self._options.filtername+"_"+stream.name)
 
-        #add an automatic flushing to limit memory consumption
-        output.eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+        if cppType == "PoolOutputModule":
+            #add an automatic flushing to limit memory consumption
+            output.eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 
         if workflow in ("producers,full"):
             if isinstance(stream.paths,tuple):
@@ -1287,10 +1288,12 @@ class ConfigBuilder(object):
                     print("Setting numberOfConcurrentLuminosityBlocks=1 because of AlCa sequence {}".format(shortName))
                     self._options.nConcurrentLumis = "1"
                     self._options.nConcurrentIOVs = "1"
-                output = self.addExtraStream(name,alcastream, workflow = workflow)
+                isNano = (alcastream.dataTier == "NANOAOD")
+                output = self.addExtraStream(name, alcastream, workflow=workflow,
+                        cppType=("NanoAODOutputModule" if isNano else "PoolOutputModule"))
                 self.executeAndRemember('process.ALCARECOEventContent.outputCommands.extend(process.OutALCARECO'+shortName+'_noDrop.outputCommands)')
                 self.AlCaPaths.append(shortName)
-                if 'DQM' in alcaList:
+                if 'DQM' in alcaList and not isNano:
                     if not self._options.inlineEventContent and hasattr(self.process,name):
                         self.executeAndRemember('process.' + name + '.outputCommands.append("keep *_MEtoEDMConverter_*_*")')
                     else:
