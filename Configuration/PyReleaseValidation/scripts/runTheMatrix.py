@@ -312,44 +312,46 @@ if __name__ == '__main__':
                         default=None,
                         action='store')
     
-    parser.add_argument('--gpu','--requires-gpu',
-                        help='Enable GPU workflows. Possible options are "forbidden" (default), "required" (implied if no argument is given), or "optional".',
-                        dest='gpu',
-                        choices=['forbidden', 'optional', 'required'],
-                        nargs='?',
-                        const='required',
-                        default='forbidden',
-                        action='store')
+    gpugroup = parser.add_argument_group('GPU-related options','These options are only meaningful when --gpu is used, and is not set to forbidden.')
 
-    parser.add_argument('--gpu-memory-mb',
-                        help='to specify GPU memory. Default = 8000 MB (with --gpu).',
-                        dest='GPUMemoryMB',
-                        default=8000)
+    gpugroup.add_argument('--gpu','--requires-gpu',
+                          help='Enable GPU workflows. Possible options are "forbidden" (default), "required" (implied if no argument is given), or "optional".',
+                          dest='gpu',
+                          choices=['forbidden', 'optional', 'required'],
+                          nargs='?',
+                          const='required',
+                          default='forbidden',
+                          action='store')
+
+    gpugroup.add_argument('--gpu-memory-mb',
+                          help='to specify GPU memory. Default = 8000 MB (with --gpu).',
+                          dest='GPUMemoryMB',
+                          default=8000)
     
-    parser.add_argument('--cuda-capabilities',
-                        help='to specify CUDA capabilities. Default = 6.0,6.1,6.2,7.0,7.2,7.5 (with --gpu). Use comma to identify various CUDACapabilities',
-                        dest='CUDACapabilities',
-                        default='6.0,6.1,6.2,7.0,7.2,7.5')
+    gpugroup.add_argument('--cuda-capabilities',
+                          help='to specify CUDA capabilities. Default = 6.0,6.1,6.2,7.0,7.2,7.5 (with --gpu). Use comma to identify various CUDACapabilities',
+                          dest='CUDACapabilities',
+                          default='6.0,6.1,6.2,7.0,7.2,7.5')
     
-    parser.add_argument('--cuda-runtime',
-                        help='to specify major and minor CUDA runtime used to build the application. Default = 11.2 (with --gpu). FIX ME TO MATCH WITH CMSSW.',
-                        dest='CUDARuntime',
-                        default='11.2')
+    gpugroup.add_argument('--cuda-runtime',
+                          help='to specify major and minor CUDA runtime used to build the application. Default = 11.2 (with --gpu). FIX ME TO MATCH WITH CMSSW.',
+                          dest='CUDARuntime',
+                          default='11.2')
     
-    parser.add_argument('--gpu-name',
-                        help='to specify GPU class. This is an optional parameter.',
-                        dest='GPUName',
-                        default='')
+    gpugroup.add_argument('--force-gpu-name',
+                          help='to specify GPU class. This is an optional parameter.',
+                          dest='GPUName',
+                          default='')
     
-    parser.add_argument('--cuda-driver-version',
-                        help='to specify CUDA driver version. This is an optional parameter.',
-                        dest='CUDADriverVersion',
-                        default='')
+    gpugroup.add_argument('--force-cuda-driver-version',
+                          help='to specify CUDA driver version. This is an optional parameter.',
+                          dest='CUDADriverVersion',
+                          default='')
     
-    parser.add_argument('--cuda-runtime-version',
-                        help='to specify CUDA runtime version. This is an optional parameter.',
-                        dest='CUDARuntimeVersion',
-                        default='')
+    gpugroup.add_argument('--force-cuda-runtime-version',
+                          help='to specify CUDA runtime version. This is an optional parameter.',
+                          dest='CUDARuntimeVersion',
+                          default='')
     
     opt = parser.parse_args()
     if opt.command: opt.command = ' '.join(opt.command)
