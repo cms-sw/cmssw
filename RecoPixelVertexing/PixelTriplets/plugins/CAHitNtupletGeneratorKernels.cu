@@ -140,8 +140,7 @@ template <>
 void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStream_t stream) {
   int32_t nhits = hh.nHits();
 
-  isOuterHitOfCell_ = GPUCACell::OuterHitOfCell{device_isOuterHitOfCell_.get(),hh.offsetBPIX2()};
-
+  isOuterHitOfCell_ = GPUCACell::OuterHitOfCell{device_isOuterHitOfCell_.get(), hh.offsetBPIX2()};
 
 #ifdef NTUPLE_DEBUG
   std::cout << "building Doublets out of " << nhits << " Hits" << std::endl;
@@ -153,11 +152,11 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStr
 #endif
 
   // in principle we can use "nhits" to heuristically dimension the workspace...
-  device_isOuterHitOfCell_ = cms::cuda::make_device_unique<GPUCACell::OuterHitOfCellContainer[]>(std::max(1, nhits), stream);
+  device_isOuterHitOfCell_ =
+      cms::cuda::make_device_unique<GPUCACell::OuterHitOfCellContainer[]>(std::max(1, nhits), stream);
   assert(device_isOuterHitOfCell_.get());
 
- isOuterHitOfCell_ = GPUCACell::OuterHitOfCell{device_isOuterHitOfCell_.get(),hh.offsetBPIX2()};
-
+  isOuterHitOfCell_ = GPUCACell::OuterHitOfCell{device_isOuterHitOfCell_.get(), hh.offsetBPIX2()};
 
   cellStorage_ = cms::cuda::make_device_unique<unsigned char[]>(
       caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellNeighbors) +

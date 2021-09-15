@@ -113,7 +113,7 @@ __global__ void kernel_checkOverflows(HitContainer const *foundNtuplets,
       atomicAdd(&c.nZeroTrackCells, 1);
   }
 
-  for (int idx = first, nt = nHits-isOuterHitOfCell.offset; idx < nt; idx += gridDim.x * blockDim.x) {
+  for (int idx = first, nt = nHits - isOuterHitOfCell.offset; idx < nt; idx += gridDim.x * blockDim.x) {
     if (isOuterHitOfCell.container[idx].full())  // ++tooManyOuterHitOfCell;
       printf("OuterHitOfCell overflow %d\n", idx);
   }
@@ -297,8 +297,8 @@ __global__ void kernel_connect(cms::cuda::AtomicPairCounter *apc1,
     auto cellIndex = idx;
     auto &thisCell = cells[idx];
     auto innerHitId = thisCell.inner_hit_id();
-    if (int(innerHitId) <isOuterHitOfCell.offset)
-       continue;
+    if (int(innerHitId) < isOuterHitOfCell.offset)
+      continue;
     int numberOfPossibleNeighbors = isOuterHitOfCell[innerHitId].size();
     auto vi = isOuterHitOfCell[innerHitId].data();
 

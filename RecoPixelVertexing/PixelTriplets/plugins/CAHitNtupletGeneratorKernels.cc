@@ -14,9 +14,9 @@ template <>
 void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStream_t stream) {
   auto nhits = hh.nHits();
 
-// #ifdef NTUPLE_DEBUG
+  // #ifdef NTUPLE_DEBUG
   std::cout << "building Doublets out of " << nhits << " Hits. BPIX2 offset is " << hh.offsetBPIX2() << std::endl;
-// #endif
+  // #endif
 
   // use "nhits" to heuristically dimension the workspace
 
@@ -24,7 +24,7 @@ void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStr
   //device_isOuterHitOfCell_ = Traits::template make_unique<GPUCACell::OuterHitOfCell[]>(std::max(1U, nhits), stream);
   device_isOuterHitOfCell_ = std::make_unique<GPUCACell::OuterHitOfCellContainer[]>(std::max(1U, nhits));
   assert(device_isOuterHitOfCell_.get());
-  isOuterHitOfCell_ = GPUCACell::OuterHitOfCell{device_isOuterHitOfCell_.get(),hh.offsetBPIX2()};
+  isOuterHitOfCell_ = GPUCACell::OuterHitOfCell{device_isOuterHitOfCell_.get(), hh.offsetBPIX2()};
 
   auto cellStorageSize = caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellNeighbors) +
                          caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellTracks);
@@ -108,8 +108,7 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
                  params_.dcaCutOuterTriplet_);
 
   if (nhits > 1 && params_.earlyFishbone_) {
-    gpuPixelDoublets::fishbone(
-        hh.view(), device_theCells_.get(), device_nCells_, isOuterHitOfCell_, nhits, false);
+    gpuPixelDoublets::fishbone(hh.view(), device_theCells_.get(), device_nCells_, isOuterHitOfCell_, nhits, false);
   }
 
   kernel_find_ntuplets(hh.view(),
@@ -133,8 +132,7 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   kernel_fillMultiplicity(tuples_d, quality_d, device_tupleMultiplicity_.get());
 
   if (nhits > 1 && params_.lateFishbone_) {
-    gpuPixelDoublets::fishbone(
-        hh.view(), device_theCells_.get(), device_nCells_, isOuterHitOfCell_, nhits, true);
+    gpuPixelDoublets::fishbone(hh.view(), device_theCells_.get(), device_nCells_, isOuterHitOfCell_, nhits, true);
   }
 
   if (params_.doStats_) {
