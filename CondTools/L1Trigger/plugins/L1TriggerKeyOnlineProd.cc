@@ -48,10 +48,10 @@ L1TriggerKeyOnlineProd::L1TriggerKeyOnlineProd(const edm::ParameterSet& iConfig)
   //the following line is needed to tell the framework what
   // data is being produced
   auto cc = setWhatProduced(this);
-  
+
   //now do what ever other initialization is needed
   l1TriggerKeyToken_ = cc.consumes(edm::ESInputTag("", "SubsystemKeysOnly"));
-  for(auto mlabel : m_subsystemLabels) {
+  for (const auto& mlabel : m_subsystemLabels) {
     l1TriggerKeyTokenVec_.emplace_back(cc.consumes(edm::ESInputTag("", mlabel)));
   }
 }
@@ -70,7 +70,7 @@ L1TriggerKeyOnlineProd::ReturnType L1TriggerKeyOnlineProd::produce(const L1Trigg
   // Start with "SubsystemKeysOnly"
   edm::ESHandle<L1TriggerKey> subsystemKeys;
   try {
-    subsystemKeys = iRecord.getHandle(l1TriggerKeyToken_); 
+    subsystemKeys = iRecord.getHandle(l1TriggerKeyToken_);
   } catch (l1t::DataAlreadyPresentException& ex) {
     throw ex;
   }
@@ -78,7 +78,7 @@ L1TriggerKeyOnlineProd::ReturnType L1TriggerKeyOnlineProd::produce(const L1Trigg
   std::unique_ptr<L1TriggerKey> pL1TriggerKey = std::make_unique<L1TriggerKey>(*subsystemKeys);
 
   // Collate object keys
-  for (auto l1token : l1TriggerKeyTokenVec_) {
+  for (const auto& l1token : l1TriggerKeyTokenVec_) {
     edm::ESHandle<L1TriggerKey> objectKeys;
     try {
       objectKeys = iRecord.getHandle(l1token);

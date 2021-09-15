@@ -48,9 +48,8 @@ private:
   bool m_logTransactions;
 
   bool m_forceUpdate;
-  
+
   edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd> l1TriggerKeyExtToken_;
 };
 
 #endif
-
