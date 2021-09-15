@@ -10,7 +10,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerWrapper.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstruction.h"
@@ -22,11 +21,14 @@ using edm::ParameterSet;
 
 PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg, edm::ConsumesCollector&& iC)
     : theHitSetsToken(iC.consumes<RegionsSeedingHitSets>(cfg.getParameter<edm::InputTag>("SeedingHitSets"))),
-      theFitterToken(iC.consumes<PixelFitter>(cfg.getParameter<edm::InputTag>("Fitter"))),
-      theCleanerName(cfg.getParameter<std::string>("Cleaner")) {
+      theFitterToken(iC.consumes<PixelFitter>(cfg.getParameter<edm::InputTag>("Fitter"))) {
   edm::InputTag filterTag = cfg.getParameter<edm::InputTag>("Filter");
   if (not filterTag.label().empty()) {
     theFilterToken = iC.consumes<PixelTrackFilter>(filterTag);
+  }
+  std::string cleanerName = cfg.getParameter<std::string>("Cleaner");
+  if (not cleanerName.empty()) {
+    theCleanerToken = iC.esConsumes(edm::ESInputTag("", cleanerName));
   }
 }
 
@@ -90,10 +92,8 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   }
 
   // skip ovelrapped tracks
-  if (!theCleanerName.empty()) {
-    edm::ESHandle<PixelTrackCleaner> hcleaner;
-    es.get<PixelTrackCleaner::Record>().get(theCleanerName, hcleaner);
-    const auto& cleaner = *hcleaner;
+  if (theCleanerToken.isInitialized()) {
+    const auto& cleaner = es.getData(theCleanerToken);
     if (cleaner.fast())
       cleaner.cleanTracks(tracks);
     else
