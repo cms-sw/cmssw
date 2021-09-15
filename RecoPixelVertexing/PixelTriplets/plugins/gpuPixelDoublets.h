@@ -71,10 +71,10 @@ namespace gpuPixelDoublets {
                                CellNeighbors* cellNeighborsContainer,
                                CellTracksVector* cellTracks,
                                CellTracks* cellTracksContainer) {
-    assert(isOuterHitOfCell.m_container);
+    assert(isOuterHitOfCell.container);
     int first = blockIdx.x * blockDim.x + threadIdx.x;
-    for (int i = first; i < nHits; i += gridDim.x * blockDim.x)
-      isOuterHitOfCell[i].reset();
+    for (int i = first; i < nHits-isOuterHitOfCell.offset; i += gridDim.x * blockDim.x)
+      isOuterHitOfCell.container[i].reset();
 
     if (0 == first) {
       cellNeighbors->construct(caConstants::maxNumOfActiveDoublets, cellNeighborsContainer);
