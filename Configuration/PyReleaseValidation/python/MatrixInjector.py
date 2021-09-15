@@ -69,16 +69,9 @@ class MatrixInjector(object):
         # Checking and setting up GPU attributes
         ####################################
         # Mendatory
-        self.RequiresGPU='forbidden'
-        if opt.gpu: self.RequiresGPU=opt.gpu
-        if self.RequiresGPU not in ('forbidden','optional','required'):
-            print("'--gpu option' you provided are not 'forbidden', 'optional', 'required'. Now, set to forbidden.")
-            self.RequiresGPU = 'forbidden'
-        #if self.RequiresGPU == 'optional':
-        #print("Optional GPU is turned off for RelVals. Now, changing it to forbidden")
-        #self.RequiresGPU = 'forbidden'
+        self.RequiresGPU = opt.gpu
         self.GPUMemoryMB = opt.GPUMemoryMB
-        self.CUDACapabilities = opt.CUDACapabilities.split(',')
+        self.CUDACapabilities = opt.CUDACapabilities
         self.CUDARuntime = opt.CUDARuntime
         # optional
         self.GPUName = opt.GPUName
@@ -438,7 +431,7 @@ class MatrixInjector(object):
                                     if setPrimaryDs:
                                         chainDict['nowmTasklist'][-1]['PrimaryDataset']=setPrimaryDs
                                 nextHasDSInput=None
-                                if 'GPU' in step and self.RequiresGPU == 'required':
+                                if 'GPU' in step and self.RequiresGPU != 'forbidden':
                                     chainDict['nowmTasklist'][-1]['RequiresGPU'] = self.RequiresGPU
                                     chainDict['nowmTasklist'][-1]['GPUParams']=json.dumps(self.defaultGPUParams)
                             else:
@@ -453,7 +446,7 @@ class MatrixInjector(object):
                                     chainDict['nowmTasklist'][-1]['LumisPerJob']=splitForThisWf
                                 if step in wmsplit:
                                     chainDict['nowmTasklist'][-1]['LumisPerJob']=wmsplit[step]
-                                if 'GPU' in step and self.RequiresGPU == 'required':
+                                if 'GPU' in step and self.RequiresGPU != 'forbidden':
                                     chainDict['nowmTasklist'][-1]['RequiresGPU'] = self.RequiresGPU
                                     chainDict['nowmTasklist'][-1]['GPUParams']=json.dumps(self.defaultGPUParams)
 
