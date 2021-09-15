@@ -70,18 +70,19 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override {}
 
-  int getHOieta(int ij) { return (ij < netamx / 2) ? -netamx / 2 + ij : -netamx / 2 + ij + 1; }
-  int invert_HOieta(int ieta) { return (ieta < 0) ? netamx / 2 + ieta : netamx / 2 + ieta - 1; }
-
-  int mypow_2[31];
-  static const int netamx = 30;
-  static const int nphimx = 72;
-  static const int ringmx = 5;
-  static const int ncut = 14;
+  static constexpr int netamx = 30;
+  static constexpr int nphimx = 72;
+  static constexpr int ringmx = 5;
+  static constexpr int ncut = 14;
 
   const char* varcrit[3] = {"All", "steps", "n-1"};  // or opposite
 
   const double elosfact = (14.9 + 0.96 * fabs(log(8 * 2.8)) + 0.033 * 8 * (1.0 - pow(8, -0.33)));
+
+  int getHOieta(int ij) { return (ij < netamx / 2) ? -netamx / 2 + ij : -netamx / 2 + ij + 1; }
+  int invert_HOieta(int ieta) { return (ieta < 0) ? netamx / 2 + ieta : netamx / 2 + ieta - 1; }
+
+  int mypow_2[31];
 
   bool m_cosmic;
   bool m_zeroField;
