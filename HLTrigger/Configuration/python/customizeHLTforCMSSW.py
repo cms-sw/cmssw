@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 # helper fuctions
 from HLTrigger.Configuration.common import *
 
+# dd4hep
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+
 # add one customisation function per PR
 # - put the PR number into the name of the function
 # - add a short comment
@@ -130,10 +133,11 @@ def customiseFor2018Input(process):
 
 
 #temporary solution to add GEM geometry for hltGetConfiguration
-def customiseForRun3GEMGeometry34788(process):
+def customiseFor34788(process):
     """Add GEM geometry to output from hltGetConfiguration"""
     process.load("Geometry.GEMGeometryBuilder.gemGeometryDB_cfi")
 
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -141,9 +145,8 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    # GEM
-    from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+    # temporary for GEM
     if menuType in ["GRun","HIon","PIon","PRef"]:
-        addCustomiseForRun3GEMGeometry34788_ = (~dd4hep).makeProcessModifier( customiseForRun3GEMGeometry34788 )
+        (~dd4hep).makeProcessModifier(customiseFor34788)
 
     return process
