@@ -14,9 +14,7 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-EcalClusterIsoCalculator::EcalClusterIsoCalculator(const edm::Event &iEvent,
-                                                   const edm::EventSetup &iSetup,
-                                                   const edm::Handle<BasicClusterCollection> pEBclusters,
+EcalClusterIsoCalculator::EcalClusterIsoCalculator(const edm::Handle<BasicClusterCollection> pEBclusters,
                                                    const edm::Handle<BasicClusterCollection> pEEclusters) {
   if (pEBclusters.isValid())
     fEBclusters_ = pEBclusters.product();
