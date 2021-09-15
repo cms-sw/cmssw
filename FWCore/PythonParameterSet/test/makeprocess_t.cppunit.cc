@@ -288,27 +288,10 @@ void testmakeprocess::taskTest() {
   for (auto const& pset : vpsetServices) {
     serviceNames.insert(pset.getParameter<std::string>("@service_type"));
   }
-  std::vector<std::string> expectedServiceNames;
-  expectedServiceNames.emplace_back("serv1");
-  expectedServiceNames.emplace_back("serv2");
-  expectedServiceNames.emplace_back("serv11");
-  expectedServiceNames.emplace_back("serv12");
-  expectedServiceNames.emplace_back("serv13");
-  expectedServiceNames.emplace_back("serv14");
-  expectedServiceNames.emplace_back("serv15");
-  expectedServiceNames.emplace_back("serv16");
-  expectedServiceNames.emplace_back("serv17");
-  expectedServiceNames.emplace_back("serv18");
-  expectedServiceNames.emplace_back("serv19");
-  expectedServiceNames.emplace_back("serv20");
-  expectedServiceNames.emplace_back("serv21");
-  expectedServiceNames.emplace_back("serv22");
-  expectedServiceNames.emplace_back("serv23");
-  expectedServiceNames.emplace_back("serv24");
-  expectedServiceNames.emplace_back("serv25");
-  expectedServiceNames.emplace_back("serv26");
-  expectedServiceNames.emplace_back("serv27");
-  expectedServiceNames.emplace_back("serv28");
+  std::vector<std::string> expectedServiceNames{"MessageLogger", "serv1",  "serv2",  "serv11", "serv12", "serv13",
+                                                "serv14",        "serv15", "serv16", "serv17", "serv18", "serv19",
+                                                "serv20",        "serv21", "serv22", "serv23", "serv24", "serv25",
+                                                "serv26",        "serv27", "serv28"};
   bool result = true;
   for (auto const& name : expectedServiceNames) {
     if (serviceNames.find(name) == serviceNames.end()) {
@@ -407,11 +390,7 @@ void testmakeprocess::taskTestWithEmptySchedule() {
   for (auto const& pset : vpsetServices) {
     serviceNames.insert(pset.getParameter<std::string>("@service_type"));
   }
-  std::vector<std::string> expectedServiceNames;
-  expectedServiceNames.emplace_back("serv1");
-  expectedServiceNames.emplace_back("serv2");
-  expectedServiceNames.emplace_back("serv27");
-  expectedServiceNames.emplace_back("serv28");
+  std::vector<std::string> expectedServiceNames{"MessageLogger", "serv1", "serv2", "serv27", "serv28"};
   bool result = true;
   for (auto const& name : expectedServiceNames) {
     if (serviceNames.find(name) == serviceNames.end()) {
@@ -516,29 +495,10 @@ void testmakeprocess::taskTestWithSchedule() {
   for (auto const& pset : vpsetServices) {
     serviceNames.insert(pset.getParameter<std::string>("@service_type"));
   }
-  std::vector<std::string> expectedServiceNames;
-  expectedServiceNames.emplace_back("serv1");
-  expectedServiceNames.emplace_back("serv2");
-  expectedServiceNames.emplace_back("serv3");
-  expectedServiceNames.emplace_back("serv4");
-  expectedServiceNames.emplace_back("serv11");
-  expectedServiceNames.emplace_back("serv12");
-  expectedServiceNames.emplace_back("serv13");
-  expectedServiceNames.emplace_back("serv14");
-  expectedServiceNames.emplace_back("serv15");
-  expectedServiceNames.emplace_back("serv16");
-  expectedServiceNames.emplace_back("serv17");
-  expectedServiceNames.emplace_back("serv18");
-  expectedServiceNames.emplace_back("serv19");
-  expectedServiceNames.emplace_back("serv20");
-  expectedServiceNames.emplace_back("serv21");
-  expectedServiceNames.emplace_back("serv22");
-  expectedServiceNames.emplace_back("serv23");
-  expectedServiceNames.emplace_back("serv24");
-  expectedServiceNames.emplace_back("serv25");
-  expectedServiceNames.emplace_back("serv26");
-  expectedServiceNames.emplace_back("serv27");
-  expectedServiceNames.emplace_back("serv28");
+  std::vector<std::string> expectedServiceNames{"MessageLogger", "serv1",  "serv2",  "serv3",  "serv4",  "serv11",
+                                                "serv12",        "serv13", "serv14", "serv15", "serv16", "serv17",
+                                                "serv18",        "serv19", "serv20", "serv21", "serv22", "serv23",
+                                                "serv24",        "serv25", "serv26", "serv27", "serv28"};
   bool result = true;
   for (auto const& name : expectedServiceNames) {
     if (serviceNames.find(name) == serviceNames.end()) {
