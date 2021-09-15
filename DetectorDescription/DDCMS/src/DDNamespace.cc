@@ -6,6 +6,8 @@
 #include "XML/XML.h"
 
 #include <TClass.h>
+#include <iomanip>
+#include <sstream>
 #include <unordered_map>
 #include <vector>
 
@@ -14,7 +16,7 @@ using namespace cms;
 
 double cms::rotation_utils::roundBinary(double value) {
   value = cms_rounding::roundIfNear0(value);
-  static constexpr double roundingVal = 1 << 14;
+  static constexpr double roundingVal = 1 << 24;
   value = (round(value * roundingVal) / roundingVal);
   // Set -0 to 0
   return (cms_rounding::roundIfNear0(value));
@@ -24,7 +26,10 @@ std::string cms::rotation_utils::rotHash(const Double_t* rot) {
   std::string hashVal;
   for (int row = 0; row <= 2; ++row) {
     for (int col = 0; col <= 2; ++col) {
-      hashVal += std::to_string(roundBinary(rot[(3 * row) + col]));
+      std::ostringstream numStream;
+      numStream << std::fixed << std::setprecision(7);
+      numStream << roundBinary(rot[(3 * row) + col]);
+      hashVal += numStream.str();
     }
   }
   return (hashVal);
@@ -36,7 +41,10 @@ std::string cms::rotation_utils::rotHash(const dd4hep::Rotation3D& rot) {
   matrix.assign(9, 0.);
   rot.GetComponents(matrix.begin());
   for (double val : matrix) {
-    hashVal += std::to_string(roundBinary(val));
+    std::ostringstream numStream;
+    numStream << std::fixed << std::setprecision(7);
+    numStream << roundBinary(val);
+    hashVal += numStream.str();
   }
   return (hashVal);
 }
@@ -152,7 +160,10 @@ void DDNamespace::addRotation(const string& name, const dd4hep::Rotation3D& rot)
   m_context->rotations[n] = rot;
   if (m_context->makePayload) {
     string hashVal = cms::rotation_utils::rotHash(rot);
-    m_context->rotRevMap[hashVal] = n;
+    if (m_context->rotRevMap.find(hashVal) == m_context->rotRevMap.end()) {
+      // Only set a rotation that is not already in the map
+      m_context->rotRevMap[hashVal] = n;
+    }
   }
 }
 
