@@ -218,9 +218,7 @@ if __name__ == '__main__':
                         help='When submitting workflows to wmcontrol, force DQM outout to use pool and not DQMIO',
                         choices=['yes','no'],
                         dest='revertDqmio',
-                        default='no',
-                        const='no',
-                        nargs='?')
+                        default='no')
     
     parser.add_argument('--optionswm',
                         help='Specify a few things for wm injection',
