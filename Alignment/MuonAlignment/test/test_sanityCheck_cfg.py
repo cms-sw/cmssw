@@ -6,7 +6,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "MC_36Y_V10::All"
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 from Alignment.MuonAlignment.MuonGeometrySanityCheck_cfi import *
 process.MuonGeometrySanityCheck = MuonGeometrySanityCheck.clone()
