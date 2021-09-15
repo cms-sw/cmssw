@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -43,7 +43,7 @@
 // class decleration
 //
 
-class L1O2OTestAnalyzer : public edm::EDAnalyzer {
+class L1O2OTestAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit L1O2OTestAnalyzer(const edm::ParameterSet&);
   ~L1O2OTestAnalyzer() override;
