@@ -117,31 +117,37 @@ if __name__ == '__main__':
     parser.add_argument('-m','--memoryOffset',
                         help='memory of the wf for single core',
                         dest='memoryOffset',
+                        type=int,
                         default=3000)
 
     parser.add_argument('--addMemPerCore',
                         help='increase of memory per each n > 1 core:  memory(n_core) = memoryOffset + (n_core-1) * memPerCore',
                         dest='memPerCore',
+                        type=int,
                         default=1500)
     
     parser.add_argument('-j','--nproc',
                         help='number of processes. 0 Will use 4 processes, not execute anything but create the wfs',
                         dest='nProcs',
+                        type=int,
                         default=4)
     
     parser.add_argument('-t','--nThreads',
                         help='number of threads per process to use in cmsRun.',
                         dest='nThreads',
+                        type=int,
                         default=1)
     
     parser.add_argument('--nStreams',
                         help='number of streams to use in cmsRun.',
                         dest='nStreams',
+                        type=int,
                         default=0)
     
     parser.add_argument('--numberEventsInLuminosityBlock',
                         help='number of events in a luminosity block',
                         dest='numberEventsInLuminosityBlock',
+                        type=int,
                         default=-1)
 
     parser.add_argument('-n','--showMatrix',
@@ -323,33 +329,40 @@ if __name__ == '__main__':
                           default='forbidden',
                           action='store')
 
-    gpugroup.add_argument('--gpu-memory-mb',
-                          help='to specify GPU memory. Default = 8000 MB (with --gpu).',
+    gpugroup.add_argument('--gpu-memory',
+                          help='Specify the minimum amount of GPU memory required by the job, in MB (default: %(default)d MB)',
                           dest='GPUMemoryMB',
+                          type=int,
                           default=8000)
     
     gpugroup.add_argument('--cuda-capabilities',
-                          help='to specify CUDA capabilities. Default = 6.0,6.1,6.2,7.0,7.2,7.5 (with --gpu). Use comma to identify various CUDACapabilities',
+                          help='Specify a comma-separated list of CUDA "compute capabilities", or GPU hardware architectures, that the job can use (default: %(default)s).',
                           dest='CUDACapabilities',
-                          default='6.0,6.1,6.2,7.0,7.2,7.5')
+                          default='6.0,6.1,6.2,7.0,7.2,7.5,8.0,8.6')
     
+    # read the CUDA runtime version included in CMSSW
+    cudart_version = None
+    libcudart = os.path.realpath(os.path.expandvars('$CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/lib/libcudart.so'))
+    if os.path.isfile(libcudart):
+        cudart_basename = os.path.basename(libcudart)
+        cudart_version = '.'.join(cudart_basename.split('.')[2:4])
     gpugroup.add_argument('--cuda-runtime',
-                          help='to specify major and minor CUDA runtime used to build the application. Default = 11.2 (with --gpu). FIX ME TO MATCH WITH CMSSW.',
+                          help='Specify major and minor version of the CUDA runtime used to build the application (default: %(default)s).',
                           dest='CUDARuntime',
-                          default='11.2')
+                          default=cudart_version)
     
     gpugroup.add_argument('--force-gpu-name',
-                          help='to specify GPU class. This is an optional parameter.',
+                          help='Request a specific GPU model, e.g. "Tesla T4" or "NVIDIA GeForce RTX 2080" (default: none). The default behaviour is to accept any supported GPU.',
                           dest='GPUName',
                           default='')
     
     gpugroup.add_argument('--force-cuda-driver-version',
-                          help='to specify CUDA driver version. This is an optional parameter.',
+                          help='Request a specific CUDA driver version, e.g. 470.57.02 (default: none). The default behaviour is to accept any supported CUDA driver version.',
                           dest='CUDADriverVersion',
                           default='')
     
     gpugroup.add_argument('--force-cuda-runtime-version',
-                          help='to specify CUDA runtime version. This is an optional parameter.',
+                          help='Request a specific CUDA runtime version, e.g. 11.4 (default: none). The default behaviour is to accept any supported CUDA runtime version.',
                           dest='CUDARuntimeVersion',
                           default='')
     
@@ -415,13 +428,7 @@ if __name__ == '__main__':
 
     if opt.useInput: opt.useInput = opt.useInput.split(',')
     if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
-    if opt.nProcs: opt.nProcs=int(opt.nProcs)
-    if opt.nThreads: opt.nThreads=int(opt.nThreads)
-    if opt.nStreams: opt.nStreams=int(opt.nStreams)
-    if opt.numberEventsInLuminosityBlock: opt.numberEventsInLuminosityBlock=int(opt.numberEventsInLuminosityBlock)
-    if opt.memoryOffset: opt.memoryOffset=int(opt.memoryOffset)
-    if opt.memPerCore: opt.memPerCore=int(opt.memPerCore)
-    if opt.GPUMemoryMB: opt.GPUMemoryMB=int(opt.GPUMemoryMB)
+    if opt.CUDACapabilities: opt.CUDACapabilities = opt.CUDACapabilities.split(',')
 
     if opt.wmcontrol:
         performInjectionOptionTest(opt)
