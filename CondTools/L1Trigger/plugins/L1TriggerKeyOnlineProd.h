@@ -48,8 +48,8 @@ public:
 private:
   // ----------member data ---------------------------
   std::vector<std::string> m_subsystemLabels;
-  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd>  l1TriggerKeyToken_;
-  std::vector<edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd>>  l1TriggerKeyTokenVec_;
+  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd> l1TriggerKeyToken_;
+  std::vector<edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd>> l1TriggerKeyTokenVec_;
 };
 
 #endif

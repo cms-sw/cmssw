@@ -67,7 +67,7 @@ private:
 
   bool m_forceUpdate;
 
-  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd>  l1TriggerKeyToken_;
+  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd> l1TriggerKeyToken_;
 };
 
 #endif

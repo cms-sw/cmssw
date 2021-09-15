@@ -62,6 +62,7 @@ private:
   // ----------member data ---------------------------
   edm::ESGetToken<L1TriggerKeyList, TRcd> l1TriggerKeyListToken_;
   edm::ESGetToken<L1TriggerKey, TRcd> l1TriggerKeyToken_;
+
 protected:
   l1t::OMDSReader m_omdsReader;
   bool m_forceGeneration;

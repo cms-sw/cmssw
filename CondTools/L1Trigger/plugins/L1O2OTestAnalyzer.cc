@@ -122,7 +122,8 @@ void L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     L1TriggerKeyList::RecordToKeyToToken::const_iterator eRec = pList.recordTypeToKeyToTokenMap().end();
     for (; iRec != eRec; ++iRec) {
       const L1TriggerKeyList::KeyToToken& keyTokenMap = iRec->second;
-      edm::LogInfo("L1-O2O") << "For record@type " << iRec->first << ", found " << keyTokenMap.size() << " keys:" << std::endl;
+      edm::LogInfo("L1-O2O") << "For record@type " << iRec->first << ", found " << keyTokenMap.size()
+                             << " keys:" << std::endl;
 
       L1TriggerKeyList::KeyToToken::const_iterator iKey = keyTokenMap.begin();
       L1TriggerKeyList::KeyToToken::const_iterator eKey = keyTokenMap.end();
