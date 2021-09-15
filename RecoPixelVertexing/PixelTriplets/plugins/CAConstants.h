@@ -79,12 +79,17 @@ namespace caConstants {
   using TupleMultiplicity = cms::cuda::OneToManyAssoc<tindex_type, 8, maxTuples>;
 
   struct OuterHitOfCell {
-    OuterHitOfCellContainer * container;
+    OuterHitOfCellContainer* container;
     int32_t offset;
-    constexpr auto & operator[](int i) { assert(i>=offset); return container[i-offset]; }
-    constexpr auto const & operator[](int i) const { assert(i>=offset); return container[i-offset]; }
+    constexpr auto& operator[](int i) {
+      assert(i >= offset);
+      return container[i - offset];
+    }
+    constexpr auto const& operator[](int i) const {
+      assert(i >= offset);
+      return container[i - offset];
+    }
   };
-
 
 }  // namespace caConstants
 

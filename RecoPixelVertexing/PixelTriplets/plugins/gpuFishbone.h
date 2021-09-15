@@ -28,7 +28,7 @@ namespace gpuPixelDoublets {
 
     auto const& hh = *hhp;
 
-    auto const isOuterHitOfCell =  isOuterHitOfCellWrap.container;
+    auto const isOuterHitOfCell = isOuterHitOfCellWrap.container;
     auto offset = isOuterHitOfCellWrap.offset;
 
     // x run faster...
@@ -39,7 +39,7 @@ namespace gpuPixelDoublets {
     uint16_t d[maxCellsPerHit];  // uint8_t l[maxCellsPerHit];
     uint32_t cc[maxCellsPerHit];
 
-    for (int idy = firstY, nt = nHits-offset; idy < nt; idy += gridDim.y * blockDim.y) {
+    for (int idy = firstY, nt = nHits - offset; idy < nt; idy += gridDim.y * blockDim.y) {
       auto const& vc = isOuterHitOfCell[idy];
       auto size = vc.size();
       if (size < 2)

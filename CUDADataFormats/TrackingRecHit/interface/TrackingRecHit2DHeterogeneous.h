@@ -64,7 +64,6 @@ private:
   uint32_t m_nHits;
   int32_t m_offsetBPIX2;
 
-
   uint32_t const* m_hitsModuleStart;  // needed for legacy, this is on GPU!
 
   // needed as kernel params...
@@ -89,8 +88,7 @@ TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(
     uint32_t const* hitsModuleStart,
     cudaStream_t stream,
     TrackingRecHit2DHeterogeneous<cms::cudacompat::GPUTraits> const* input)
-    : m_nHits(nHits), m_offsetBPIX2(offsetBPIX2),
-m_hitsModuleStart(hitsModuleStart) {
+    : m_nHits(nHits), m_offsetBPIX2(offsetBPIX2), m_hitsModuleStart(hitsModuleStart) {
   auto view = Traits::template make_host_unique<TrackingRecHit2DSOAView>(stream);
 
   view->m_nHits = nHits;

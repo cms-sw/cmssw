@@ -646,13 +646,9 @@ namespace pixelgpudetails {
                                 cudaMemcpyDefault,
                                 stream));
 
-     // element 96 is the start of BPIX2 (i.e. the number of clusters in BPIX1)
-     cudaCheck(cudaMemcpyAsync(&(nModules_Clusters_h[2]),
-                                clusters_d.clusModuleStart() + 96,
-                                   sizeof(uint32_t),
-                                   cudaMemcpyDefault,
-                                   stream));
-
+      // element 96 is the start of BPIX2 (i.e. the number of clusters in BPIX1)
+      cudaCheck(cudaMemcpyAsync(
+          &(nModules_Clusters_h[2]), clusters_d.clusModuleStart() + 96, sizeof(uint32_t), cudaMemcpyDefault, stream));
 
 #ifdef GPU_DEBUG
       cudaDeviceSynchronize();
