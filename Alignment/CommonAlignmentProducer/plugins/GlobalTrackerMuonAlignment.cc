@@ -31,7 +31,7 @@
 
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 //#include "FWCore/Framework/interface/EDProducer.h"
@@ -106,7 +106,7 @@ using namespace reco;
 // class declaration
 //
 
-class GlobalTrackerMuonAlignment : public edm::EDAnalyzer {
+class GlobalTrackerMuonAlignment : public edm::one::EDAnalyzer<> {
 public:
   explicit GlobalTrackerMuonAlignment(const edm::ParameterSet&);
   ~GlobalTrackerMuonAlignment() override;
@@ -155,6 +155,11 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_TkGeometryToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagFieldToken;
+  edm::ESGetToken<Alignments, GlobalPositionRcd> m_globalPosToken;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> m_propToken;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> m_ttrhBuilderToken;
 
   edm::InputTag trackTags_;  // used to select what tracks to read from configuration file
   edm::InputTag muonTags_;   // used to select what standalone muons
@@ -270,18 +275,19 @@ private:
 // constructors and destructor
 //
 GlobalTrackerMuonAlignment::GlobalTrackerMuonAlignment(const edm::ParameterSet& iConfig)
-    : trackTags_(iConfig.getParameter<edm::InputTag>("tracks")),
+    : m_TkGeometryToken(esConsumes()),
+      m_MagFieldToken(esConsumes()),
+      m_globalPosToken(esConsumes()),
+      m_propToken(esConsumes(edm::ESInputTag("", iConfig.getParameter<string>("Propagator")))),
+      m_ttrhBuilderToken(esConsumes(edm::ESInputTag("", "witTrackAngle"))),
+      trackTags_(iConfig.getParameter<edm::InputTag>("tracks")),
       muonTags_(iConfig.getParameter<edm::InputTag>("muons")),
       gmuonTags_(iConfig.getParameter<edm::InputTag>("gmuons")),
       smuonTags_(iConfig.getParameter<edm::InputTag>("smuons")),
-      propagator_(iConfig.getParameter<string>("Propagator")),
-
       cosmicMuonMode_(iConfig.getParameter<bool>("cosmics")),
       isolatedMuonMode_(iConfig.getParameter<bool>("isolated")),
-
       refitMuon_(iConfig.getParameter<bool>("refitmuon")),
       refitTrack_(iConfig.getParameter<bool>("refittrack")),
-
       rootOutFile_(iConfig.getUntrackedParameter<string>("rootOutFile")),
       txtOutFile_(iConfig.getUntrackedParameter<string>("txtOutFile")),
       writeDB_(iConfig.getUntrackedParameter<bool>("writeDB")),
@@ -660,20 +666,17 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack(const edm::Event& iEvent, con
   //iSetup.get<MuonGeometryRecord>().get(cscGeometry);
 
   if (watchTrackingGeometry_.check(iSetup) || !trackingGeometry_) {
-    edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
-    iSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
+    edm::ESHandle<GlobalTrackingGeometry> trackingGeometry = iSetup.getHandle(m_TkGeometryToken);
     trackingGeometry_ = &*trackingGeometry;
   }
 
   if (watchMagneticFieldRecord_.check(iSetup) || !magneticField_) {
-    edm::ESHandle<MagneticField> magneticField;
-    iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+    edm::ESHandle<MagneticField> magneticField = iSetup.getHandle(m_MagFieldToken);
     magneticField_ = &*magneticField;
   }
 
   if (watchGlobalPositionRcd_.check(iSetup) || !globalPositionRcd_) {
-    edm::ESHandle<Alignments> globalPositionRcd;
-    iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
+    edm::ESHandle<Alignments> globalPositionRcd = iSetup.getHandle(m_globalPosToken);
     globalPositionRcd_ = &*globalPositionRcd;
     for (std::vector<AlignTransform>::const_iterator i = globalPositionRcd_->m_align.begin();
          i != globalPositionRcd_->m_align.end();
@@ -695,8 +698,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack(const edm::Event& iEvent, con
     }
   }  // end of GlobalPositionRcd
 
-  ESHandle<Propagator> propagator;
-  iSetup.get<TrackingComponentsRecord>().get(propagator_, propagator);
+  edm::ESHandle<Propagator> propagator = iSetup.getHandle(m_propToken);
 
   SteppingHelixPropagator alongStHePr = SteppingHelixPropagator(magneticField_, alongMomentum);
   SteppingHelixPropagator oppositeStHePr = SteppingHelixPropagator(magneticField_, oppositeToMomentum);
@@ -1339,21 +1341,18 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory(const edm::Event& iEvent
   //iSetup.get<MuonGeometryRecord>().get(cscGeometry);
 
   if (watchTrackingGeometry_.check(iSetup) || !trackingGeometry_) {
-    edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
-    iSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
+    edm::ESHandle<GlobalTrackingGeometry> trackingGeometry = iSetup.getHandle(m_TkGeometryToken);
     trackingGeometry_ = &*trackingGeometry;
     theTrackingGeometry = trackingGeometry;
   }
 
   if (watchMagneticFieldRecord_.check(iSetup) || !magneticField_) {
-    edm::ESHandle<MagneticField> magneticField;
-    iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+    edm::ESHandle<MagneticField> magneticField = iSetup.getHandle(m_MagFieldToken);
     magneticField_ = &*magneticField;
   }
 
   if (watchGlobalPositionRcd_.check(iSetup) || !globalPositionRcd_) {
-    edm::ESHandle<Alignments> globalPositionRcd;
-    iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
+    edm::ESHandle<Alignments> globalPositionRcd = iSetup.getHandle(m_globalPosToken);
     globalPositionRcd_ = &*globalPositionRcd;
     for (std::vector<AlignTransform>::const_iterator i = globalPositionRcd_->m_align.begin();
          i != globalPositionRcd_->m_align.end();
@@ -1379,8 +1378,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory(const edm::Event& iEvent
     }
   }  // end of GlobalPositionRcd
 
-  ESHandle<Propagator> propagator;
-  iSetup.get<TrackingComponentsRecord>().get(propagator_, propagator);
+  edm::ESHandle<Propagator> propagator = iSetup.getHandle(m_propToken);
 
   SteppingHelixPropagator alongStHePr = SteppingHelixPropagator(magneticField_, alongMomentum);
   SteppingHelixPropagator oppositeStHePr = SteppingHelixPropagator(magneticField_, oppositeToMomentum);
@@ -1407,8 +1405,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory(const edm::Event& iEvent
     theFitterOp = new KFTrajectoryFitter(oppositeSmPr, *theUpdator, *theEstimator);
     theSmootherOp = new KFTrajectorySmoother(oppositeSmPr, *theUpdator, *theEstimator);
 
-    edm::ESHandle<TransientTrackingRecHitBuilder> builder;
-    iSetup.get<TransientRecHitRecord>().get("WithTrackAngle", builder);
+    edm::ESHandle<TransientTrackingRecHitBuilder> builder = iSetup.getHandle(m_ttrhBuilderToken);
     this->TTRHBuilder = &(*builder);
     this->MuRHBuilder = new MuonTransientTrackingRecHitBuilder(theTrackingGeometry);
     if (debug_) {
