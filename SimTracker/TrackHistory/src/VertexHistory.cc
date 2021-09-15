@@ -3,7 +3,7 @@
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
 #include "SimTracker/TrackHistory/interface/VertexHistory.h"
 
-VertexHistory::VertexHistory(const edm::ParameterSet &config, edm::ConsumesCollector &&collector) : HistoryBase() {
+VertexHistory::VertexHistory(const edm::ParameterSet &config, edm::ConsumesCollector collector) : HistoryBase() {
   // Name of the track collection
   vertexProducer_ = config.getUntrackedParameter<edm::InputTag>("vertexProducer");
 
