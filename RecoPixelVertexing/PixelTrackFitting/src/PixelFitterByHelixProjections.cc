@@ -94,8 +94,7 @@ PixelFitterByHelixProjections::PixelFitterByHelixProjections(const TrackerTopolo
     : theTopo(ttopo), theField(field), thescaleErrorsForBPix1(scaleErrorsForBPix1), thescaleFactor(scaleFactor) {}
 
 std::unique_ptr<reco::Track> PixelFitterByHelixProjections::run(const std::vector<const TrackingRecHit*>& hits,
-                                                                const TrackingRegion& region,
-                                                                const edm::EventSetup& setup) const {
+                                                                const TrackingRegion& region) const {
   std::unique_ptr<reco::Track> ret;
 
   int nhits = hits.size();
