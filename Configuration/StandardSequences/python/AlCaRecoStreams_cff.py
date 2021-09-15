@@ -51,6 +51,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_cff import *
 from CalibTracker.SiPixelQuality.ALCARECOSiPixelCalZeroBias_cff import *
 # AlCaReco for tracker calibration using Cosmics events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalCosmics_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalCosmicsNano_cff import *
 
 ###############################################################
 # LUMI Calibration
@@ -184,6 +185,7 @@ pathALCARECOSiPixelCalSingleMuonTight = cms.Path(seqALCARECOSiPixelCalSingleMuon
 pathALCARECOSiPixelCalCosmics = cms.Path(seqALCARECOSiPixelCalCosmics)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSiStripCalMinBiasDQM)
 pathALCARECOSiStripCalCosmics = cms.Path(seqALCARECOSiStripCalCosmics)
+pathALCARECOSiStripCalCosmicsNano = cms.Path(seqALCARECOSiStripCalCosmics*seqALCARECOSiStripCalCosmicsNano)
 pathALCARECOSiStripCalMinBiasAAG = cms.Path(seqALCARECOSiStripCalMinBiasAAG*ALCARECOSiStripCalMinBiasAAGDQM)
 pathALCARECOSiStripCalSmallBiasScan = cms.Path(seqALCARECOSiStripCalSmallBiasScan)
 pathALCARECOSiStripCalZeroBias = cms.Path(seqALCARECOSiStripCalZeroBias*ALCARECOSiStripCalZeroBiasDQM)
@@ -441,6 +443,15 @@ ALCARECOStreamSiStripCalCosmics = cms.FilteredStream(
 	content = OutALCARECOSiStripCalCosmics.outputCommands,
 	selectEvents = OutALCARECOSiStripCalCosmics.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamSiStripCalCosmicsNano = cms.FilteredStream(
+	responsible = "Pieter David",
+	name = "SiStripCalCosmicsNano",
+	paths  = (pathALCARECOSiStripCalCosmicsNano),
+	content = OutALCARECOSiStripCalCosmicsNano.outputCommands,
+	selectEvents = OutALCARECOSiStripCalCosmicsNano.SelectEvents,
+	dataTier = cms.untracked.string("NANOAOD")
 	)
 
 ALCARECOStreamSiStripCalZeroBias = cms.FilteredStream(

@@ -53,6 +53,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_Output_cff impor
 from CalibTracker.SiPixelQuality.ALCARECOSiPixelCalZeroBias_Output_cff import *
 # AlCaReco for tracker calibration using Cosmics events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalCosmics_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalCosmicsNano_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalCosmics_Output_cff import *
 
 # AlCaReco for tracker based alignment using beam halo
