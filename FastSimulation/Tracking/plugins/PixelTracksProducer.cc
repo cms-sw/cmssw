@@ -107,7 +107,7 @@ void PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       }
 
       // fitting the triplet
-      std::unique_ptr<reco::Track> track = fitter.run(TripletHits, region, es);
+      std::unique_ptr<reco::Track> track = fitter.run(TripletHits, region);
 
       // decide if track should be skipped according to filter
       if (!theFilter(track.get(), TripletHits)) {

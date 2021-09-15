@@ -68,7 +68,7 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
         hits[iHit] = tuplet[iHit];
 
       // fitting
-      std::unique_ptr<reco::Track> track = fitter.run(hits, region, es);
+      std::unique_ptr<reco::Track> track = fitter.run(hits, region);
       if (!track)
         continue;
 

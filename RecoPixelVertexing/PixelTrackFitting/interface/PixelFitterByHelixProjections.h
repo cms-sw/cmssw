@@ -19,8 +19,7 @@ public:
                                          float scaleFactor);
   ~PixelFitterByHelixProjections() override {}
   std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *> &hits,
-                                   const TrackingRegion &region,
-                                   const edm::EventSetup &setup) const override;
+                                   const TrackingRegion &region) const override;
 
 private:
   const TrackerTopology *theTopo;
