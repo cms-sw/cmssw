@@ -13,6 +13,9 @@
 
 #include "CondTools/L1TriggerExt/interface/DataWriterExt.h"
 
+class L1TriggerKeyExt;
+class L1TriggerKeyExtRcd;
+
 class L1CondDBIOVWriterExt : public edm::EDAnalyzer {
 public:
   explicit L1CondDBIOVWriterExt(const edm::ParameterSet&);
@@ -45,6 +48,9 @@ private:
   bool m_logTransactions;
 
   bool m_forceUpdate;
+  
+  edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd> l1TriggerKeyExtToken_;
 };
 
 #endif
+

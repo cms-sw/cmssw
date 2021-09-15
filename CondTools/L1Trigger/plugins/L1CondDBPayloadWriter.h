@@ -34,6 +34,8 @@
 #include "CondTools/L1Trigger/interface/DataWriter.h"
 
 // forward declarations
+class L1TriggerKey;
+class L1TriggerKeyRcd;
 
 class L1CondDBPayloadWriter : public edm::EDAnalyzer {
 public:
@@ -62,6 +64,8 @@ private:
 
   // if true, do not retrieve L1TriggerKeyList from EventSetup
   bool m_newL1TriggerKeyList;
+
+  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd> l1TriggerKeyToken_;
 };
 
 #endif

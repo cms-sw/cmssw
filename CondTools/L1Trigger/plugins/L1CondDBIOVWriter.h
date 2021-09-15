@@ -34,7 +34,8 @@
 #include "CondTools/L1Trigger/interface/DataWriter.h"
 
 // forward declarations
-
+class L1TriggerKey;
+class L1TriggerKeyRcd;
 class L1CondDBIOVWriter : public edm::EDAnalyzer {
 public:
   explicit L1CondDBIOVWriter(const edm::ParameterSet&);
@@ -65,6 +66,8 @@ private:
   bool m_logTransactions;
 
   bool m_forceUpdate;
+
+  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd>  l1TriggerKeyToken_;
 };
 
 #endif
