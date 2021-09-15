@@ -937,9 +937,13 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
        trkDetItr++, nTracks++) {
     const reco::Track* pTrack = &(*(trkDetItr->trkItr));
     math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), pTrack->pz(), pTrack->p());
+    t_p = pTrack->p();
+    t_pt = pTrack->pt();
+    t_phi = pTrack->phi();
+
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) :" << pTrack->pt() << "|"
-                                     << pTrack->eta() << "|" << pTrack->phi() << "|" << pTrack->p();
+    edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) :" << t_pt << "|"
+                                     << pTrack->eta() << "|" << t_phi << "|" << t_p;
 #endif
     t_mindR2 = 999;
     for (unsigned int k = 0; k < vecL3.size(); ++k) {
@@ -952,6 +956,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalIsoTrack") << "Closest L3 object at dr :" << t_mindR2 << " and from L1 " << t_mindR1;
 #endif
+
     t_ieta = t_iphi = 0;
     if (trkDetItr->okHCAL) {
       HcalDetId detId = (HcalDetId)(trkDetItr->detIdHCAL);
@@ -1206,10 +1211,6 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
             ids3[k] = newId(ids3[k]);
         }
         storeEnergy(3, respCorrs, ids3, edet3, t_eHcal30, t_DetIds3, t_HitEnergies3);
-
-        t_p = pTrack->p();
-        t_pt = pTrack->pt();
-        t_phi = pTrack->phi();
 
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) :" << t_pt << "|"
