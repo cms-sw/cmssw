@@ -52,7 +52,7 @@ class ElasticReport(object):
 
             pr = l.split("=")
             if len(pr) > 1 and pr[0] == "runNumber" and pr[1].isdigit():
-                run = long(pr[1])
+                run = int(pr[1])
                 self.doc["run"] = run
 
         self.make_id()
