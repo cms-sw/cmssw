@@ -6,8 +6,9 @@ DEVICE=$2
 # the test is not possible if:
 # 1. GPU not available (only if GPU test requested) / avx instructions not supported (needed for singularity on CPU)
 # 1b. Nvidia driver version too low
-# 2. singularity not found or not usable
-# 3. inside singularity container w/o unprivileged user namespace enabled (needed for singularity-in-singularity)
+# 2. wrong architecture (not amd64)
+# 3. singularity not found or not usable
+# 4. inside singularity container w/o unprivileged user namespace enabled (needed for singularity-in-singularity)
 # so just return true in those cases
 
 if [ "$DEVICE" = "GPU" ]; then
@@ -36,6 +37,14 @@ else
 		echo "missing avx"
 		exit 0
 	fi
+fi
+
+THIS_ARCH=$(echo $SCRAM_ARCH | cut -d'_' -f2)
+if [ "$THIS_ARCH" == "amd64" ]; then
+       echo "has amd64"
+else
+       echo "missing amd64"
+       exit 0
 fi
 
 if type singularity >& /dev/null; then
