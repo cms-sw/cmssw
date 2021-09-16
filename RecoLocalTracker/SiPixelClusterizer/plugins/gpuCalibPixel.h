@@ -54,9 +54,9 @@ namespace gpuCalibPixel {
       float gain = ret.second;
       // float pedestal = 0; float gain = 1.;
       if (isDeadColumn | isNoisyColumn) {
+        printf("bad pixel at %d in %d\n", i, id[i]);
         id[i] = invalidModuleId;
         adc[i] = 0;
-        printf("bad pixel at %d in %d\n", i, id[i]);
       } else {
         float vcal = adc[i] * gain - pedestal * gain;
         adc[i] = std::max(100, int(vcal * conversionFactor + offset));
