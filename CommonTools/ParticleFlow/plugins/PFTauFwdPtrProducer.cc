@@ -3,3 +3,6 @@
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 
 typedef edm::FwdPtrProducer<reco::PFTau> PFTauFwdPtrProducer;
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFTauFwdPtrProducer);

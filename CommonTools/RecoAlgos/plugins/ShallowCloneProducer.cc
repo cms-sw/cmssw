@@ -1,5 +1,3 @@
-#ifndef CandAlgos_ShallowCloneProducer_h
-#define CandAlgos_ShallowCloneProducer_h
 /** \class ShallowCloneProducer
  *
  * Clones a concrete Candidate collection
@@ -13,11 +11,12 @@
  * - C : Concrete candidate collection type
  *
  */
+
+#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 
 template <typename C>
 class ShallowCloneProducer : public edm::EDProducer {
@@ -55,4 +54,33 @@ void ShallowCloneProducer<C>::produce(edm::Event& evt, const edm::EventSetup&) {
   evt.put(std::move(coll));
 }
 
-#endif
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+typedef ShallowCloneProducer<reco::GenMETCollection> GenMETShallowCloneProducer;
+typedef ShallowCloneProducer<reco::GsfElectronCollection> PixelMatchGsfElectronShallowCloneProducer;
+typedef ShallowCloneProducer<reco::MuonCollection> MuonShallowCloneProducer;
+typedef ShallowCloneProducer<reco::CaloMETCollection> CaloMETShallowCloneProducer;
+typedef ShallowCloneProducer<reco::ElectronCollection> ElectronShallowCloneProducer;
+typedef ShallowCloneProducer<reco::GenJetCollection> GenJetShallowCloneProducer;
+typedef ShallowCloneProducer<reco::CaloJetCollection> CaloJetShallowCloneProducer;
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(GenMETShallowCloneProducer);
+DEFINE_FWK_MODULE(PixelMatchGsfElectronShallowCloneProducer);
+DEFINE_FWK_MODULE(MuonShallowCloneProducer);
+DEFINE_FWK_MODULE(CaloMETShallowCloneProducer);
+DEFINE_FWK_MODULE(ElectronShallowCloneProducer);
+DEFINE_FWK_MODULE(GenJetShallowCloneProducer);
+DEFINE_FWK_MODULE(CaloJetShallowCloneProducer);
