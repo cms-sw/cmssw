@@ -135,8 +135,12 @@ void L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetu
     if (store_unprefireable_bit_) {
       edm::Handle<GlobalExtBlkBxCollection> handleExtResults;
       iEvent.getByToken(token_ext_, handleExtResults);
-      if (handleExtResults->size() != 0) {
-        unprefireable_bit = handleExtResults->at(0, 0).getExternalDecision(GlobalExtBlk::maxExternalConditions - 1);
+      if (handleExtResults.isValid()) {
+        if (handleExtResults->size() != 0) {
+          unprefireable_bit = handleExtResults->at(0, 0).getExternalDecision(GlobalExtBlk::maxExternalConditions - 1);
+        }
+      } else {
+        LogDebug("Unprefirable bit not found, always set to false");
       }
     }
   } else {
