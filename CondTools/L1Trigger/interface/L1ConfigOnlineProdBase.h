@@ -89,8 +89,8 @@ L1ConfigOnlineProdBase<TRcd, TData>::L1ConfigOnlineProdBase(const edm::Parameter
   auto cc = setWhatProduced(this);
 
   //now do what ever other initialization is needed
-  l1TriggerKeyListToken_ = cc.esConsumes();
-  l1TriggerKeyToken_ = cc.esConsumes();
+  l1TriggerKeyListToken_ = cc.consumes();
+  l1TriggerKeyToken_ = cc.consumes();
 
   if (iConfig.exists("copyFromCondDB")) {
     m_copyFromCondDB = iConfig.getParameter<bool>("copyFromCondDB");
@@ -175,7 +175,7 @@ bool L1ConfigOnlineProdBase<TRcd, TData>::getObjectKey(const TRcd& record, std::
   // already in ORCON.
   const edm::ESHandle<L1TriggerKey> key;
   try {
-    key = iRecord.getHandle(l1TriggerKeyToken_);
+    key = record.getHandle(l1TriggerKeyToken_);
   } catch (l1t::DataAlreadyPresentException& ex) {
     objectKey = std::string();
     return false;
