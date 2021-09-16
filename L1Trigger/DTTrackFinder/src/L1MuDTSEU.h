@@ -38,6 +38,8 @@ class L1MuDTSectorProcessor;
 class L1MuDTTrackSegPhi;
 class L1MuDTEUX;
 class L1MuDTERS;
+class L1MuDTExtLut;
+class L1MuDTTFParameters;
 
 //              ---------------------
 //              -- Class Interface --
@@ -52,7 +54,7 @@ public:
   ~L1MuDTSEU();
 
   /// run SEU
-  void run(const edm::EventSetup& c);
+  void run(const L1MuDTExtLut& extLUTs, const L1MuDTTFParameters& pars);
 
   /// reset SEU
   void reset();
