@@ -16,8 +16,8 @@ class OptionParser(optparse.OptionParser):
   def __init__(self):
     optparse.OptionParser.__init__(self, usage="%prog [options]", version="%prog 0.0.1", conflict_handler="resolve")
     self.add_option("--url", action="store", type="string", dest="url", default=SERVER_URL, help="specify RR XML-RPC server URL. Default is " + SERVER_URL)
-    self.add_option("--from", action="store", type="int", dest="from", default=None, help="specify run number lower threshold inclusive. Note that all runs/datasets retrieval can take a int time!")
-    self.add_option("--to", action="store", type="int", dest="to", default=None, help="specify run number upper threshold inclusive. Note that all runs/datasets retrieval can take a int time!")
+    self.add_option("--from", action="store", type="int", dest="from", default=None, help="specify run number lower threshold inclusive. Note that all runs/datasets retrieval can take a long time!")
+    self.add_option("--to", action="store", type="int", dest="to", default=None, help="specify run number upper threshold inclusive. Note that all runs/datasets retrieval can take a long time!")
     self.add_option("--base", action="store", type="string", dest="base", default=DEFAULT_BASE, help="file base. Default is " + DEFAULT_BASE)
 
 def getNodeText(nodelist):
