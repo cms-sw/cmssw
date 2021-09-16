@@ -12,8 +12,14 @@
 
 class MinHitsTrajectoryFilter final : public TrajectoryFilter {
 public:
-  explicit MinHitsTrajectoryFilter(int minHits = 5, double highEtaSwitch = 5.0, int minHitsAtHighEta = 5, int seedPairPenalty = 0)
-    : theMinHits(minHits), theHighEtaSwitch(highEtaSwitch), theMinHitsAtHighEta(minHitsAtHighEta), theSeedPairPenalty(seedPairPenalty) {}
+  explicit MinHitsTrajectoryFilter(int minHits = 5,
+                                   double highEtaSwitch = 5.0,
+                                   int minHitsAtHighEta = 5,
+                                   int seedPairPenalty = 0)
+      : theMinHits(minHits),
+        theHighEtaSwitch(highEtaSwitch),
+        theMinHitsAtHighEta(minHitsAtHighEta),
+        theSeedPairPenalty(seedPairPenalty) {}
 
   MinHitsTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC)
       : theMinHits(pset.getParameter<int>("minimumNumberOfHits")),
@@ -42,19 +48,20 @@ protected:
   template <class T>
   bool QF(const T& traj) const {
     int seedPenalty = (2 == traj.seedNHits()) ? theSeedPairPenalty : 0;  // increase by one if seed-doublet...
-    bool passed=false;
-    double absTrajEta=fabs(traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().eta());
-    if (absTrajEta<theHighEtaSwitch) {
-      if (traj.foundHits() >= theMinHits + seedPenalty) passed=true;
-    }
-    else { //absTrajEta>theHighEtaSwitch, so apply relaxed cuts
-      if (traj.foundHits() >= theMinHitsAtHighEta + seedPenalty) passed=true;
+    bool passed = false;
+    double absTrajEta = fabs(traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().eta());
+    if (absTrajEta < theHighEtaSwitch) {
+      if (traj.foundHits() >= theMinHits + seedPenalty)
+        passed = true;
+    } else {  //absTrajEta>theHighEtaSwitch, so apply relaxed cuts
+      if (traj.foundHits() >= theMinHitsAtHighEta + seedPenalty)
+        passed = true;
     }
     return passed;
   }
 
   int theMinHits;
-  double theHighEtaSwitch; 
+  double theHighEtaSwitch;
   int theMinHitsAtHighEta;
   int theSeedPairPenalty;
 };

@@ -28,7 +28,7 @@ namespace {
           theNoOutliersBeginEnd(conf.getParameter<bool>("NoOutliersBeginEnd")),
           theMinDof(conf.getParameter<int>("MinDof")),
           theMinNumberOfHits(conf.getParameter<int>("MinNumberOfHits")),
-	  theMinNumberOfHitsHighEta(conf.getParameter<int>("MinNumberOfHitsHighEta")),
+          theMinNumberOfHitsHighEta(conf.getParameter<int>("MinNumberOfHitsHighEta")),
           theHighEtaSwitch(conf.getParameter<double>("HighEtaSwitch")),
           rejectTracksFlag(conf.getParameter<bool>("RejectTracks")),
           breakTrajWith2ConsecutiveMissing(conf.getParameter<bool>("BreakTrajWith2ConsecutiveMissing")),
@@ -100,11 +100,16 @@ namespace {
 
     Trajectory smoothingStep(Trajectory&& fitted) const {
       double absTrajEta = 99.0;
-      if ( !fitted.empty() ) {
-	absTrajEta=fabs(fitted.lastMeasurement().updatedState().freeTrajectoryState()->momentum().eta()); //needed for eta-extended electrons
+      if (!fitted.empty()) {
+        absTrajEta = fabs(fitted.lastMeasurement()
+                              .updatedState()
+                              .freeTrajectoryState()
+                              ->momentum()
+                              .eta());  //needed for eta-extended electrons
       }
-      int thisHitCut=theMinNumberOfHits;
-      if (absTrajEta>theHighEtaSwitch) thisHitCut=theMinNumberOfHitsHighEta;
+      int thisHitCut = theMinNumberOfHits;
+      if (absTrajEta > theHighEtaSwitch)
+        thisHitCut = theMinNumberOfHitsHighEta;
       if (theEstimateCut > 0) {
         // remove "outlier" at the end of Traj
         while (
@@ -211,12 +216,17 @@ namespace {
 #endif
 
       bool hasNaN = false;
-      double absTrajEta=99.0;
+      double absTrajEta = 99.0;
       if (smoothed.isValid()) {
-	absTrajEta=fabs(smoothed.lastMeasurement().updatedState().freeTrajectoryState()->momentum().eta()); //needed for eta-extended electrons 
+        absTrajEta = fabs(smoothed.lastMeasurement()
+                              .updatedState()
+                              .freeTrajectoryState()
+                              ->momentum()
+                              .eta());  //needed for eta-extended electrons
       }
-      int thisHitCut=theMinNumberOfHits;
-      if (absTrajEta>theHighEtaSwitch) thisHitCut=theMinNumberOfHitsHighEta;
+      int thisHitCut = theMinNumberOfHits;
+      if (absTrajEta > theHighEtaSwitch)
+        thisHitCut = theMinNumberOfHitsHighEta;
       if (!smoothed.isValid() || (hasNaN = !checkForNans(smoothed)) || (smoothed.foundHits() < thisHitCut)) {
         if (hasNaN)
           edm::LogWarning("TrackNaN") << "Track has NaN or the cov is not pos-definite";

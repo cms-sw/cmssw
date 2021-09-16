@@ -165,13 +165,13 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
     }
   }
 
-  //TEMPORARY hack. 
+  //TEMPORARY hack.
   //Do not allow new EtaExtendedEle to enter PF, until ID, regression of EEEs are in place.
-  if  (!allowEEEinPF_) {
-    int nHitGsf= electron.gsfTrack()->numberOfValidHits();
+  if (!allowEEEinPF_) {
+    int nHitGsf = electron.gsfTrack()->numberOfValidHits();
     double absEleEta = fabs(electron.eta());
-    if ( (absEleEta>2.5) && (nHitGsf<5) ) {
-      passEleSelection=false;
+    if ((absEleEta > 2.5) && (nHitGsf < 5)) {
+      passEleSelection = false;
     }
   }
 
@@ -334,13 +334,13 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
     isSafeForJetMET = false;
   }
 
-  //TEMPORARY hack. 
-  //Do not allow new EtaExtendedEle to be SafeForJetMET, until ID, regression of EEEs are in place.  
-  if  (!allowEEEinPF_) {
-    int nHitGsf= electron.gsfTrack()->numberOfValidHits();
+  //TEMPORARY hack.
+  //Do not allow new EtaExtendedEle to be SafeForJetMET, until ID, regression of EEEs are in place.
+  if (!allowEEEinPF_) {
+    int nHitGsf = electron.gsfTrack()->numberOfValidHits();
     double absEleEta = fabs(electron.eta());
-    if ( (absEleEta>2.5) && (nHitGsf<5) ) {
-      isSafeForJetMET=false;
+    if ((absEleEta > 2.5) && (nHitGsf < 5)) {
+      isSafeForJetMET = false;
     }
   }
 
@@ -432,7 +432,7 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   iDesc.add<unsigned int>("electron_missinghits", 1);
   iDesc.add<double>("electron_ecalDrivenHademPreselCut", 0.15);
   iDesc.add<double>("electron_maxElePtForOnlyMVAPresel", 50.0);
-  iDesc.add<bool>("allowEEEinPF",false);
+  iDesc.add<bool>("allowEEEinPF", false);
   {
     edm::ParameterSetDescription psd;
     psd.add<double>("maxNtracks", 3.0)->setComment("Max tracks pointing at Ele cluster");
