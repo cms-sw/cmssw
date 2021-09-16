@@ -121,7 +121,7 @@ def getFileList(path, quota = -1,all = True):
   return fileList
 # --------------------------------------------------------------------
 # Creating temporary file so that it doesn't get erased under our feet and we can renew 
-# credentials as int as theprocess is running
+# credentials as long as theprocess is running
 
 #os.putenv('KRB5CCNAME',"FILE:/tmp/krb5cc_visDQMSync")
 
