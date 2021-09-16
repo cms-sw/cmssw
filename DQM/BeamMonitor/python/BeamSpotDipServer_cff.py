@@ -12,7 +12,8 @@ beamSpotDipServer = DQMEDAnalyzer("BeamSpotDipServer",
   subjectPV  = cms.untracked.string("dip/CMS/Tracker/PrimaryVertices"),
   #
   readFromNFS = cms.untracked.bool(False),
-  DCSStatus   = cms.untracked.string("scalersRawToDigi"),
+  # DCSStatus   = cms.untracked.string("scalersRawToDigi"),
+  dcsRecordInputTag = cms.InputTag ( "onlineMetaDataDigis" ),
   #
   sourceFile  = cms.untracked.string(
     "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt"),

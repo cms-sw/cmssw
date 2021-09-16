@@ -9,6 +9,7 @@
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="CondCore/DBOutputService"/>
+<use name="DataFormats/OnlineMetaData"/>
 <use name="dip"/>
 <use name="log4cplus"/>
 <library file="BeamMonitor.cc" name="BeamMonitor">

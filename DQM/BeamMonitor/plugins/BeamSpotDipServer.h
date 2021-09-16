@@ -9,9 +9,8 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
-#include "DataFormats/Scalers/interface/DcsStatus.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+//#include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DataFormats/OnlineMetaData/interface/DCSRecord.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
@@ -128,7 +127,10 @@ class BeamSpotDipServer : public DQMOneLumiEDAnalyzer<>
   float Tilt[2];
 
   // tracker status
-  edm::EDGetTokenT<DcsStatusCollection> dcsStatus_;
+//  edm::EDGetTokenT<DcsStatusCollection> dcsStatus_;
+  edm::InputTag dcsRecordInputTag_;
+  edm::EDGetTokenT<DCSRecord> dcsRecordToken_;
+
   int lastlumi = -1;
   bool wholeTrackerOn = false;
 

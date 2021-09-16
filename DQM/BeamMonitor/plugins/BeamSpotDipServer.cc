@@ -7,9 +7,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-#include "DataFormats/Scalers/interface/DcsStatus.h"
-
-#include <iostream> // FIXME
 #include <fstream>
 #include <vector>
 #include <ctime>
@@ -54,8 +51,10 @@ BeamSpotDipServer::BeamSpotDipServer(const edm::ParameterSet& ps)
   //
   bsHLTToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
 
-  dcsStatus_ = consumes<DcsStatusCollection>(
-    ps.getUntrackedParameter<string>("DCSStatus", "scalersRawToDigi")); 
+//  dcsStatus_ = consumes<DcsStatusCollection>(
+//    ps.getUntrackedParameter<string>("DCSStatus", "scalersRawToDigi")); 
+  dcsRecordInputTag_ = ps.getParameter<edm::InputTag>("dcsRecordInputTag");
+  dcsRecordToken_ = consumes<DCSRecord>(dcsRecordInputTag_);
 
   //
   dip = Dip::create("CmsBeamSpotServer");
@@ -127,19 +126,29 @@ void BeamSpotDipServer::analyze(
     if (nthlumi > lastlumi) { // check every LS
       lastlumi = nthlumi;
 
-      edm::Handle<DcsStatusCollection> dcsStatus;
-      iEvent.getByToken(dcsStatus_, dcsStatus);
+//      edm::Handle<DcsStatusCollection> dcsStatus;
+//      iEvent.getByToken(dcsStatus_, dcsStatus);
 
-      wholeTrackerOn = true;
+      edm::Handle<DCSRecord> dcsRecord;
+      iEvent.getByToken(dcsRecordToken_, dcsRecord);
 
-      for (auto const& status : *dcsStatus) {
-        if (!status.ready(DcsStatus::BPIX))   wholeTrackerOn = false;
-        if (!status.ready(DcsStatus::FPIX))   wholeTrackerOn = false;
-        if (!status.ready(DcsStatus::TIBTID)) wholeTrackerOn = false;
-        if (!status.ready(DcsStatus::TOB))    wholeTrackerOn = false;
-        if (!status.ready(DcsStatus::TECp))   wholeTrackerOn = false;
-        if (!status.ready(DcsStatus::TECm))   wholeTrackerOn = false;
-      }
+//      wholeTrackerOn = true;
+//      for (auto const& status : *dcsStatus) {
+//        if (!status.ready(DcsStatus::BPIX))   wholeTrackerOn = false;
+//        if (!status.ready(DcsStatus::FPIX))   wholeTrackerOn = false;
+//        if (!status.ready(DcsStatus::TIBTID)) wholeTrackerOn = false;
+//        if (!status.ready(DcsStatus::TOB))    wholeTrackerOn = false;
+//        if (!status.ready(DcsStatus::TECp))   wholeTrackerOn = false;
+//        if (!status.ready(DcsStatus::TECm))   wholeTrackerOn = false;
+//      }
+    
+      wholeTrackerOn = 
+        (*dcsRecord).highVoltageReady(DCSRecord::BPIX)   &&
+        (*dcsRecord).highVoltageReady(DCSRecord::FPIX)   &&
+        (*dcsRecord).highVoltageReady(DCSRecord::TIBTID) &&
+        (*dcsRecord).highVoltageReady(DCSRecord::TOB)    &&
+        (*dcsRecord).highVoltageReady(DCSRecord::TECp)   &&
+        (*dcsRecord).highVoltageReady(DCSRecord::TECm);
 
       if(verbose)
         edm::LogInfo("BeamSpotDipServer")
@@ -414,9 +423,6 @@ bool BeamSpotDipServer::readRcd(const BeamSpotOnlineObjects & bs)
   startTimeStamp = bs.GetCreationTime(); // provides cond::Time_t -> time_t ?
     endTime      = bs.GetCreationTime();
     endTimeStamp = bs.GetCreationTime();
-
-cerr << " a " << startTime      << endl;
-cerr << " b " << startTimeStamp << endl;
 
   lumiRange = to_string(bs.GetLastAnalyzedLumi());
   currentLS = bs.GetLastAnalyzedLumi();
