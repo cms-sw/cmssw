@@ -28,6 +28,7 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
       ph_loose_hoe_(cfg.getParameter<double>("photon_HoE")),
       ph_sietaieta_eb_(cfg.getParameter<double>("photon_SigmaiEtaiEta_barrel")),
       ph_sietaieta_ee_(cfg.getParameter<double>("photon_SigmaiEtaiEta_endcap")),
+      use_ele_id_DNN_(cfg.getParameter<bool>("use_ele_id_DNN")),
       ele_iso_pt_(cfg.getParameter<double>("electron_iso_pt")),
       ele_iso_mva_eb_(cfg.getParameter<double>("electron_iso_mva_barrel")),
       ele_iso_mva_ee_(cfg.getParameter<double>("electron_iso_mva_endcap")),
@@ -42,6 +43,7 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
   auto const& eleProtectionsForJetMET = cfg.getParameter<edm::ParameterSet>("electron_protectionsForJetMET");
   auto const& phoProtectionsForBadHcal = cfg.getParameter<edm::ParameterSet>("photon_protectionsForBadHcal");
   auto const& phoProtectionsForJetMET = cfg.getParameter<edm::ParameterSet>("photon_protectionsForJetMET");
+  auto const& eleDNNIdThresholds = cfg.getParameter<edm::ParameterSet>("electron_dnn_thresholds");
 
   pho_sumPtTrackIso_ = phoProtectionsForJetMET.getParameter<double>("sumPtTrackIso");
   pho_sumPtTrackIsoSlope_ = phoProtectionsForJetMET.getParameter<double>("sumPtTrackIsoSlope");
@@ -59,6 +61,10 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
   ele_maxEcalEOverP_2_ = eleProtectionsForJetMET.getParameter<double>("maxEcalEOverP_2");
   ele_maxEeleOverPout_ = eleProtectionsForJetMET.getParameter<double>("maxEeleOverPout");
   ele_maxDPhiIN_ = eleProtectionsForJetMET.getParameter<double>("maxDPhiIN");
+
+  ele_dnn_lowpt_ = eleDNNIdThresholds.getParameter<double>("electron_dnn_lowpt");
+  ele_dnn_highpt_barrel_ = eleDNNIdThresholds.getParameter<double>("electron_dnn_highpt_barrel");
+  ele_dnn_highpt_endcap_ = eleDNNIdThresholds.getParameter<double>("electron_dnn_highpt_endcap");
 
   readEBEEParams_(eleProtectionsForBadHcal, "full5x5_sigmaIetaIeta", badHcal_full5x5_sigmaIetaIeta_);
   readEBEEParams_(eleProtectionsForBadHcal, "eInvPInv", badHcal_eInvPInv_);
@@ -137,30 +143,45 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
 
   // Electron ET
   float electronPt = electron.pt();
+  double eleEta = fabs(electron.eta());
 
-  if (electronPt > ele_iso_pt_) {
-    double isoDr03 = electron.dr03TkSumPt() + electron.dr03EcalRecHitSumEt() + electron.dr03HcalTowerSumEt();
-    double eleEta = fabs(electron.eta());
-    if (eleEta <= 1.485 && isoDr03 < ele_iso_combIso_eb_) {
-      if (electron.mva_Isolated() > ele_iso_mva_eb_)
-        passEleSelection = true;
-    } else if (eleEta > 1.485 && isoDr03 < ele_iso_combIso_ee_) {
-      if (electron.mva_Isolated() > ele_iso_mva_ee_)
-        passEleSelection = true;
+  if(use_ele_id_DNN_){ // Use DNN for ele pfID >=CMSSW12_1
+    float dnn_sig = electron.dnn_signal_Isolated() + electron.dnn_signal_nonIsolated();
+    if (electronPt > ele_iso_pt_) {
+      if (eleEta <= 1.485){
+        passEleSelection = dnn_sig > ele_dnn_highpt_barrel_; 
+      } else if (eleEta > 1.485){
+        passEleSelection = dnn_sig > ele_dnn_highpt_endcap_; 
+      }   
+    } else {// pt < ele_iso_pt_
+      passEleSelection = dnn_sig > ele_dnn_lowpt_; 
     }
-  }
+    // N.B.: For the moment do not evaluate further conditions on isolation and HCAL cleaning..
+    // To be understood if they are needed
 
-  //  cout << " My OLD MVA " << pfcand.mva_e_pi() << " MyNEW MVA " << electron.mva() << endl;
-  if (electron.mva_e_pi() > ele_noniso_mva_) {
-    if (validHoverE || !badHcal_eleEnable_) {
-      passEleSelection = true;
-    } else {
-      bool EE = (std::abs(electron.eta()) > 1.485);  // for prefer consistency with above than with E/gamma for now
-      if ((electron.full5x5_sigmaIetaIeta() < badHcal_full5x5_sigmaIetaIeta_[EE]) &&
-          (std::abs(1.0 - electron.eSuperClusterOverP()) / electron.ecalEnergy() < badHcal_eInvPInv_[EE]) &&
-          (std::abs(electron.deltaEtaSeedClusterTrackAtVtx()) < badHcal_dEta_[EE]) &&  // looser in case of misalignment
-          (std::abs(electron.deltaPhiSuperClusterTrackAtVtx()) < badHcal_dPhi_[EE])) {
+  }else{ // Use legacy MVA for ele pfID < CMSSW_12_1
+    if (electronPt > ele_iso_pt_) {
+      double isoDr03 = electron.dr03TkSumPt() + electron.dr03EcalRecHitSumEt() + electron.dr03HcalTowerSumEt();
+      if (eleEta <= 1.485 && isoDr03 < ele_iso_combIso_eb_) {
+        if (electron.mva_Isolated() > ele_iso_mva_eb_)
+          passEleSelection = true;
+      } else if (eleEta > 1.485 && isoDr03 < ele_iso_combIso_ee_) {
+        if (electron.mva_Isolated() > ele_iso_mva_ee_)
+          passEleSelection = true;
+      }
+    }
+    
+    if (electron.mva_e_pi() > ele_noniso_mva_) {
+      if (validHoverE || !badHcal_eleEnable_) {
         passEleSelection = true;
+      } else {
+        bool EE = (std::abs(electron.eta()) > 1.485);  // for prefer consistency with above than with E/gamma for now
+        if ((electron.full5x5_sigmaIetaIeta() < badHcal_full5x5_sigmaIetaIeta_[EE]) &&
+            (std::abs(1.0 - electron.eSuperClusterOverP()) / electron.ecalEnergy() < badHcal_eInvPInv_[EE]) &&
+            (std::abs(electron.deltaEtaSeedClusterTrackAtVtx()) < badHcal_dEta_[EE]) &&  // looser in case of misalignment
+            (std::abs(electron.deltaPhiSuperClusterTrackAtVtx()) < badHcal_dPhi_[EE])) {
+          passEleSelection = true;
+        }
       }
     }
   }
@@ -431,6 +452,7 @@ bool PFEGammaFilters::thisEleIsNotAllowedInPF(const reco::GsfElectron& electron,
 
 void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   // Electron selection cuts
+  iDesc.add<bool>("use_ele_id_DNN", false);
   iDesc.add<double>("electron_iso_pt", 10.0);
   iDesc.add<double>("electron_iso_mva_barrel", -0.1875);
   iDesc.add<double>("electron_iso_mva_endcap", -0.1075);
@@ -441,6 +463,13 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   iDesc.add<double>("electron_ecalDrivenHademPreselCut", 0.15);
   iDesc.add<double>("electron_maxElePtForOnlyMVAPresel", 50.0);
   iDesc.add<bool>("allowEEEinPF", false);
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<double>("electron_dnn_lowpt", 0.5);
+    psd.add<double>("electron_dnn_highpt_barrel", 0.5);
+    psd.add<double>("electron_dnn_highpt_endcap", 0.5);
+    iDesc.add<edm::ParameterSetDescription>("electron_dnn_thresholds", psd);
+  }
   {
     edm::ParameterSetDescription psd;
     psd.add<double>("maxNtracks", 3.0)->setComment("Max tracks pointing at Ele cluster");

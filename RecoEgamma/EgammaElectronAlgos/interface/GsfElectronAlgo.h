@@ -37,6 +37,7 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EleTkIsolFromCands.h"
 #include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimator.h"
 #include "RecoEgamma/ElectronIdentification/interface/SoftElectronMVAEstimator.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronDNNEstimator.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
@@ -55,6 +56,7 @@ public:
     HeavyObjectCache(const edm::ParameterSet&);
     std::unique_ptr<const SoftElectronMVAEstimator> sElectronMVAEstimator;
     std::unique_ptr<const ElectronMVAEstimator> iElectronMVAEstimator;
+    std::unique_ptr<const ElectronDNNEstimator> iElectronDNNEstimator;
   };
 
   struct Tokens {

@@ -46,12 +46,34 @@
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EgammaLocalCovParamDefaults.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
+#include "RecoEgamma/PhotonIdentification/interface/PhotonDNNEstimator.h"
+#include "PhysicsTools/TensorFlow/interface/TensorFlow.h" 
 
-class GEDPhotonProducer : public edm::stream::EDProducer<> {
+class CacheData {
+  public:
+    CacheData(const edm::ParameterSet& conf){
+      // Here we will have to load the DNN PFID if present in the config
+      PhotonDNNEstimator::Configuration config;
+      auto pset_dnn = conf.getParameter<edm::ParameterSet>("PhotonDNNPFid");
+      config.inputTensorName = pset_dnn.getParameter<std::string>("inputTensorName");
+      config.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
+      config.models_files = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
+      config.scalers_files = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
+      config.log_level = pset_dnn.getParameter<std::string>("logLevel");
+      photonDNNEstimator_ = std::make_unique<PhotonDNNEstimator>(config);
+   }
+   std::unique_ptr<const PhotonDNNEstimator> photonDNNEstimator_;
+};
+
+class GEDPhotonProducer : public edm::stream::EDProducer<edm::GlobalCache<CacheData>> {
 public:
-  GEDPhotonProducer(const edm::ParameterSet& ps);
+  GEDPhotonProducer(const edm::ParameterSet& ps, const CacheData* gcache);
 
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
+
+  static std::unique_ptr<CacheData> initializeGlobalCache(const edm::ParameterSet&);
+  static void globalEndJob(const CacheData*){};
+
 
 private:
   class RecoStepInfo {
@@ -61,9 +83,13 @@ private:
 
     bool isOOT() const { return flags_ & kOOT; }
     bool isFinal() const { return flags_ & kFinal; }
-
   private:
     unsigned int flags_;
+  };
+
+  void endJob(){
+    // Close the tensorflow sessions
+    std::for_each(photonPfidTFSessions.begin(), photonPfidTFSessions.end(), [](auto s){tensorflow::closeSession(s);});
   };
 
   void fillPhotonCollection(edm::Event& evt,
@@ -76,6 +102,8 @@ private:
                             const ElectronHcalHelper* hcalHelperCone,
                             const ElectronHcalHelper* hcalHelperBc,
                             const reco::VertexCollection& pvVertices,
+			    const edm::Handle<edm::ValueMap<float>>& pfEcalClusters,
+			    const edm::Handle<edm::ValueMap<float>>& pfHcalClusters,
                             reco::PhotonCollection& outputCollection,
                             int& iSC,
                             EcalPFRecHitThresholds const& thresholds);
@@ -169,6 +197,9 @@ private:
   std::unique_ptr<ElectronHcalHelper> hcalHelperCone_;
   std::unique_ptr<ElectronHcalHelper> hcalHelperBc_;
   bool hcalRun2EffDepth_;
+
+  // Tensorflow sessions for the PFid DNN
+  std::vector<tensorflow::Session*> photonPfidTFSessions;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -196,7 +227,8 @@ GEDPhotonProducer::RecoStepInfo::RecoStepInfo(const std::string& step) : flags_(
   }
 }
 
-GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
+
+GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const CacheData* gcache)
     : photonProducer_{config.getParameter<edm::InputTag>("photonProducer")},
       ecalClusterESGetTokens_{consumesCollector()},
       recoStep_(config.getParameter<std::string>("reconstructionStep")),
@@ -219,19 +251,22 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
     phoChargedWorstVtxIsoToken_ = getVMToken("chargedHadronWorstVtxIso");
     phoChargedWorstVtxGeomVetoIsoToken_ = getVMToken("chargedHadronWorstVtxGeomVetoIso");
     phoChargedPFPVIsoToken_ = getVMToken("chargedHadronPFPVIso");
-
+    
     //OOT photons in legacy 80X re-miniAOD do not have PF cluster embeded into the reco object
     //to preserve 80X behaviour
     if (config.exists("pfECALClusIsolation")) {
+      std::cout<<"SJ!!! recoStep_.isFinal()"<< recoStep_.isFinal() <<" pfECALClusIsolation found!!!"<<std::endl;
       phoPFECALClusIsolationToken_ = consumes(config.getParameter<edm::InputTag>("pfECALClusIsolation"));
     }
     if (config.exists("pfHCALClusIsolation")) {
       phoPFHCALClusIsolationToken_ = consumes(config.getParameter<edm::InputTag>("pfHCALClusIsolation"));
     }
+    
+
   } else {
     photonCoreProducerT_ = consumes(photonProducer_);
   }
-
+  
   auto pfEg = config.getParameter<edm::InputTag>("pfEgammaCandidates");
   if (not pfEg.label().empty()) {
     pfEgammaCandidates_ = consumes(pfEg);
@@ -308,8 +343,6 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
 
   hcalRun2EffDepth_ = config.getParameter<bool>("hcalRun2EffDepth");
 
-  //AA
-
   // cut values for pre-selection
   preselCutValuesBarrel_ = {config.getParameter<double>("minSCEtBarrel"),
                             config.getParameter<double>("maxHoverEBarrel"),
@@ -355,6 +388,22 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
   produces<reco::PhotonCollection>(photonCollection_);
   if (not pfEgammaCandidates_.isUninitialized()) {
     produces<edm::ValueMap<reco::PhotonRef>>(valueMapPFCandPhoton_);
+  }
+
+  // Open the tensorflow sessions
+  photonPfidTFSessions = gcache->photonDNNEstimator_->getSessions();
+}
+
+
+std::unique_ptr<CacheData> GEDPhotonProducer::initializeGlobalCache(const edm::ParameterSet& config) {
+  // this method is supposed to create, initialize and return a CacheData instance
+  CacheData* cacheData = new CacheData(config);
+  return std::unique_ptr<CacheData>(cacheData);
+}
+
+void GEDPhotonProducer::beginRun(edm::Run const& r, edm::EventSetup const& eventSetup) {
+  if (!recoStep_.isFinal()) {
+    photonEnergyCorrector_->init(eventSetup);
   }
 }
 
@@ -478,6 +527,8 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eve
                          hcalHelperBc_.get(),
                          //vtx,
                          vertexCollection,
+			 phoPFECALClusIsolationMap,
+                         phoPFHCALClusIsolationMap,
                          *outputPhotonCollection_p,
                          iSC,
                          thresholds);
@@ -547,6 +598,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
                                              const ElectronHcalHelper* hcalHelperCone,
                                              const ElectronHcalHelper* hcalHelperBc,
                                              const reco::VertexCollection& vertexCollection,
+					     const edm::Handle<edm::ValueMap<float>>& pfEcalClusters,
+                                             const edm::Handle<edm::ValueMap<float>>& pfHcalClusters,
                                              reco::PhotonCollection& outputPhotonCollection,
                                              int& iSC,
                                              EcalPFRecHitThresholds const& thresholds) {
@@ -554,6 +607,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
   std::vector<double> preselCutValues;
   std::vector<int> flags_, severitiesexcl_;
 
+  std::cout<<"Inside fillPhotons1 "<<std::endl;
+  
   for (unsigned int lSC = 0; lSC < photonCoreHandle->size(); lSC++) {
     reco::PhotonCoreRef coreRef(reco::PhotonCoreRef(photonCoreHandle, lSC));
     reco::SuperClusterRef parentSCRef = coreRef->parentSuperCluster();
@@ -631,7 +686,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 
     float full5x5_sigmaEtaEta = sqrt(full5x5_cov[0]);
     float full5x5_sigmaIetaIeta = sqrt(full5x5_locCov[0]);
-
+    float full5x5_sigmaIetaIphi = full5x5_locCov[1]; //SJ
+    
     // compute position of ECAL shower
     math::XYZPoint caloPosition = scRef->position();
 
@@ -662,6 +718,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     newCandidate.setIsolationVariables(isolVarR04, isolVarR03);
 
     /// fill shower shape block
+    double hcalSumOverEcalBc = 0;//SJ
     reco::Photon::ShowerShape showerShape;
     showerShape.e1x5 = e1x5;
     showerShape.e2x5 = e2x5;
@@ -673,8 +730,10 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
       showerShape.hcalOverEcal[id] =
           (hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1) / scRef->energy() : 0.f;
+      
       showerShape.hcalOverEcalBc[id] =
           (hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1) / scRef->energy() : 0.f;
+      hcalSumOverEcalBc += (hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1) / scRef->energy() : 0.f; //SJ - might not want to call this function twice - check
     }
     showerShape.invalidHcal = (hcalHelperBc != nullptr) ? !hcalHelperBc->hasActiveHcal(*scRef) : false;
     if (hcalHelperBc != nullptr)
@@ -793,6 +852,36 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.pre7DepthHcal = false;
     newCandidate.full5x5_setShowerShapeVariables(full5x5_showerShape);
 
+    //get the pointer for the photon object
+    edm::Ptr<reco::PhotonCore> photonPtr(photonCoreHandle, lSC);
+    
+    ///DNN implementation - SJ
+    // double trackSumHollowConePt = isolVarR03.trkSumPtHollowCone;
+    // double sieie_full5x5 = full5x5_sigmaIetaIeta;
+    // double hadTowOverEm = hcalSumOverEcalBc;
+
+    // double EcalRecHitSumEtConeDR03 = isolVarR03.ecalRecHitSumEt;
+    // double HcalTowerSumEtConeDR03 = 0;
+
+    // if (isolVarR03.pre7DepthHcal) 
+    //   HcalTowerSumEtConeDR03 = isolVarR03.hcalTowerSumEt;
+    // else{
+    //   const auto& hcaliso = isolVarR03.hcalRecHitSumEt;
+    //   HcalTowerSumEtConeDR03 = hcaliso[0];
+    // }
+
+
+    // double SigmaIEtaIEta = sigmaIetaIeta;
+    // double SigmaIEtaIPhiFull5x5 = full5x5_sigmaIetaIphi;
+    // double R9Full5x5 = full5x5_e3x3/scRef->rawEnergy();
+    // bool HasPix = coreRef->electronPixelSeeds().empty() ? false : true;
+
+    //std::cout<<"SJ!! inside first fillPhotonCollection"<<std::endl;
+    //std::cout<<"SJ!! trackSumHollowConePt "<<trackSumHollowConePt<<" sieie_full5x5 "<<sieie_full5x5<<" hadTowOverEm "<<hadTowOverEm<<" EcalRecHitSumEtConeDR03 "<<EcalRecHitSumEtConeDR03<<" HcalTowerSumEtConeDR03 "<<HcalTowerSumEtConeDR03<<" SigmaIEtaIEta "<<SigmaIEtaIEta<<" SigmaIEtaIPhiFull5x5 "<<SigmaIEtaIPhiFull5x5<<" R9Full5x5 "<<R9Full5x5<<" HasPix "<<HasPix<<std::endl;
+
+
+    ///End of DNN implementation - SJ
+
     /// get ecal photon specific corrected energy
     /// plus values from regressions     and store them in the Photon
     // Photon candidate takes by default (set in photons_cfi.py)
@@ -822,6 +911,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       fiducialFlags.isEE = true;
       newCandidate.setFiducialVolumeFlags(fiducialFlags);
     }
+
 
     // fill MIP Vairables for Halo: Block for MIP are filled from PhotonMIPHaloTagger
     reco::Photon::MIPVariables mipVar;
@@ -854,6 +944,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     if (isLooseEM)
       outputPhotonCollection.push_back(newCandidate);
   }
+
+  // DNN evaluation
 }
 
 void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
@@ -920,6 +1012,30 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 
     newCandidate.setPflowIsolationVariables(pfIso);
     newCandidate.setPflowIDVariables(pfID);
+
+    ///Variables for DNN implementation - SJ
+    // double trackSumHollowConePt = phoRef->trkSumPtHollowConeDR03();
+    // double sieie_full5x5 = phoRef->full5x5_sigmaIetaIeta();
+    // double hadTowOverEm = phoRef->hadTowOverEm();
+
+    // double EcalRecHitSumEtConeDR03 = phoRef->ecalRecHitSumEtConeDR03();
+    // double hcalTowerSumEtConeDR03 = phoRef->hcalTowerSumEtConeDR03(0);
+
+    // double SigmaIEtaIEta = phoRef->sigmaIetaIeta();
+    // double SigmaIEtaIPhiFull5x5 = phoRef->full5x5_showerShapeVariables().sigmaIetaIphi;
+    // double EcalPFClusterIso = !phoPFECALClusIsolationToken_.isUninitialized() ? (*pfEcalClusters)[photonPtr] : 0.;
+
+    // double HcalPFClusterIso = !phoPFHCALClusIsolationToken_.isUninitialized() ? (*pfHcalClusters)[photonPtr] : 0.;
+    
+    // double R9Full5x5 = phoRef->full5x5_r9();
+    // bool HasPix = phoRef->photonCore()->electronPixelSeeds().empty() ? false : true;
+    
+    ///end of the implementation
+    //SJ
+    // std::cout<<" "<<std::endl;
+    // std::cout<<"SJ!! inside second fillPhotonCollection"<<std::endl;
+    // std::cout<<"SJ!! trackSumHollowConePt "<<trackSumHollowConePt<<" sieie_full5x5 "<<sieie_full5x5<<" hadTowOverEm "<<hadTowOverEm<<" EcalRecHitSumEtConeDR03 "<<EcalRecHitSumEtConeDR03<<" hcalTowerSumEtConeDR03 "<<hcalTowerSumEtConeDR03<<" SigmaIEtaIEta "<<SigmaIEtaIEta<<" SigmaIEtaIPhiFull5x5 "<<SigmaIEtaIPhiFull5x5<<" EcalPFClusterIso "<<EcalPFClusterIso<<" HcalPFClusterIso "<<HcalPFClusterIso<<" R9Full5x5 "<<R9Full5x5<<" HasPix "<<HasPix<<std::endl;
+    
 
     // do the regression
     photonEnergyCorrector_->calculate(evt, newCandidate, subdet, vertexCollection, es);
