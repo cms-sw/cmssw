@@ -80,6 +80,12 @@ constexpr unsigned int getCudaCoresPerSM(unsigned int major, unsigned int minor)
     case 75:  // SM 7.5: TU10x class
       return 64;
 
+    // Ampere architecture
+    case 80:  // SM 8.0: GA100 class
+      return 64;
+    case 86:  // SM 8.6: GA10x class
+      return 128;
+
     // unknown architecture, return a default value
     default:
       return 64;
