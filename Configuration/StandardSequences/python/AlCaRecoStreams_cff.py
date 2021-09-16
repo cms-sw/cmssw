@@ -91,6 +91,7 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHOCosmics_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkFilter_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkFilterNoHLT_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkProducerFilter_cff import *
 # HCAL noise
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalNoise_cff import *
 #HCAL calibration iterative PhiSym
@@ -217,6 +218,7 @@ pathALCARECOHcalCalHOCosmics = cms.Path(seqALCARECOHcalCalHOCosmics)
 pathALCARECOHcalCalIsoTrk = cms.Path(seqALCARECOHcalCalIsoTrk*ALCARECOHcalCalIsoTrackDQM)
 pathALCARECOHcalCalIsoTrkFilter = cms.Path(seqALCARECOHcalCalIsoTrkFilter)
 pathALCARECOHcalCalIsoTrkFilterNoHLT = cms.Path(seqALCARECOHcalCalIsoTrkFilterNoHLT)
+pathALCARECOHcalCalIsoTrkProducerFilter = cms.Path(seqALCARECOHcalCalIsoTrkProducerFilter)
 pathALCARECOHcalCalNoise = cms.Path(seqALCARECOHcalCalNoise)
 pathALCARECOHcalCalIterativePhiSym = cms.Path(seqALCARECOHcalCalIterativePhiSym*ALCARECOHcalCalIterativePhisymDQM)
 pathALCARECOHcalCalIsolatedBunchFilter = cms.Path(seqALCARECOHcalCalIsolatedBunchFilter)
@@ -637,6 +639,15 @@ ALCARECOStreamHcalCalIsoTrkFilterNoHLT = cms.FilteredStream(
 	paths  = (pathALCARECOHcalCalIsoTrkFilterNoHLT),
 	content = OutALCARECOHcalCalIsoTrkFilter.outputCommands,
 	selectEvents = OutALCARECOHcalCalIsoTrkFilter.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamHcalCalIsoTrkProducerFilter = cms.FilteredStream(
+	responsible = 'Sunanda Banerjee',
+	name = 'HcalCalIsoTrkProducerFilter',
+	paths  = (pathALCARECOHcalCalIsoTrkProducerFilter),
+	content = OutALCARECOHcalCalIsoTrkProducerFilter.outputCommands,
+	selectEvents = OutALCARECOHcalCalIsoTrkProducerFilter.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
