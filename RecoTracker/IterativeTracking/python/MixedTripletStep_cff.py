@@ -31,7 +31,7 @@ trackingPhase1.toModify(mixedTripletStepClusters, oldClusterRemovalInfo='chargeC
 # SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTripletStepSeedLayers
-from RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _seedmod
+import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _seedmod
 mixedTripletStepSeedLayersA = _seedmod.seedingLayersEDProducer.clone(
      layerList = ['BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg'],
 #    layerList = ['BPix1+BPix2+BPix3', 
