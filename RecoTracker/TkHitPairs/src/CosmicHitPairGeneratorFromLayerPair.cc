@@ -12,19 +12,10 @@
 using namespace std;
 // typedef TransientTrackingRecHit::ConstRecHitPointer TkHitPairsCachedHit;
 
-CosmicHitPairGeneratorFromLayerPair::CosmicHitPairGeneratorFromLayerPair(
-    const LayerWithHits* inner,
-    const LayerWithHits* outer,
-    //							     LayerCacheType* layerCache,
-    const TrackerGeometry& geom)
-    : trackerGeometry(&geom),
-      //theLayerCache(*layerCache),
-      theOuterLayer(outer),
-      theInnerLayer(inner) {
-  //edm::ESHandle<TrackerGeometry> tracker;
-  //iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-  //trackerGeometry = tracker.product();
-}
+CosmicHitPairGeneratorFromLayerPair::CosmicHitPairGeneratorFromLayerPair(const LayerWithHits* inner,
+                                                                         const LayerWithHits* outer,
+                                                                         const TrackerGeometry& geom)
+    : trackerGeometry(&geom), theOuterLayer(outer), theInnerLayer(inner) {}
 CosmicHitPairGeneratorFromLayerPair::~CosmicHitPairGeneratorFromLayerPair() {}
 
 void CosmicHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion& region, OrderedHitPairs& result) {
@@ -103,6 +94,7 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion& region,
   }
 
   /*
+  // uncomment if the sort operation below needs to be called
   class CompareHitPairsY {
   public:
     CompareHitPairsY(const TrackerGeometry& t): tracker{&t} {}
@@ -126,15 +118,16 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion& region,
     
   private:
     const TrackerGeometry* tracker;
-    }; */
-  //   stable_sort(allthepairs.begin(),allthepairs.end(),CompareHitPairsY(*trackerGeometry));
-  //   //Seed from overlaps are saved only if
-  //   //no others have been saved
+  }; 
+  stable_sort(allthepairs.begin(),allthepairs.end(),CompareHitPairsY(*trackerGeometry));
+  //Seed from overlaps are saved only if
+  //no others have been saved
 
-  //   if (allthepairs.size()>0) {
-  //     if (seedfromoverlaps) {
-  //       if (result.size()==0) result.push_back(allthepairs[0]);
-  //     }
-  //     else result.push_back(allthepairs[0]);
-  //   }
+  if (allthepairs.size()>0) {
+    if (seedfromoverlaps) {
+      if (result.size()==0) result.push_back(allthepairs[0]);
+    }
+    else result.push_back(allthepairs[0]);
+  }
+*/
 }
