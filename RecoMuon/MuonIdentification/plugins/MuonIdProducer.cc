@@ -89,6 +89,8 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   if (fillShowerDigis_ && fillMatching_) {
     edm::ParameterSet showerDigiParameters = iConfig.getParameter<edm::ParameterSet>("ShowerDigiFillerParameters");
     theShowerDigiFiller_ = std::make_unique<MuonShowerDigiFiller>(showerDigiParameters, consumesCollector());
+  } else {
+    theShowerDigiFiller_ = std::make_unique<MuonShowerDigiFiller>();  // to be used to call fillDefault only
   }
 
   if (fillCaloCompatibility_) {
@@ -888,7 +890,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
 
     matchedChamber.id = chamber.id;
 
-    if (fillShowerDigis_) {
+    if (fillShowerDigis_ && fillMatching_) {
       theShowerDigiFiller_->fill(matchedChamber);
     } else {
       theShowerDigiFiller_->fillDefault(matchedChamber);
