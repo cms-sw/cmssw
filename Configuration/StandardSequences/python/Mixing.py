@@ -118,6 +118,7 @@ addMixingScenario("2016_25ns_UltraLegacy_PoissonOOTPU",{'file': 'SimGeneral.Mixi
 addMixingScenario("mix_2016_PoissonOOTPU_HighPUTrains_Fill5412",{'file': 'SimGeneral.MixingModule.mix_2016_PoissonOOTPU_HighPUTrains_Fill5412_cfi'})
 addMixingScenario("2017_25ns_WinterMC_PUScenarioV1_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2017_25ns_WinterMC_PUScenarioV1_PoissonOOTPU_cfi'})
 addMixingScenario("2017_25ns_UltraLegacy_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2017_25ns_UltraLegacy_PoissonOOTPU_cfi'})
+addMixingScenario("2017_5TeV_UltraLegacy_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2017_5TeV_UltraLegacy_PoissonOOTPU_cfi'})
 addMixingScenario("2018_25ns_ProjectedPileup_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2018_25ns_ProjectedPileup_PoissonOOTPU_cfi'})
 addMixingScenario("2018_25ns_JuneProjectionFull18_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2018_25ns_JuneProjectionFull18_PoissonOOTPU_cfi'})
 addMixingScenario("2018_25ns_UltraLegacy_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2018_25ns_UltraLegacy_PoissonOOTPU_cfi'})
