@@ -38,8 +38,8 @@ public:
   const double dt = 0.5;
   const int invdt = 2;
 
-  CaloHitResponse(const CaloVSimParameterMap *parameterMap, const CaloVShape *shape);
-  CaloHitResponse(const CaloVSimParameterMap *parameterMap, const CaloShapes *shapes);
+  CaloHitResponse(const CaloVSimParameterMap *parameterMap, const CaloVShape *shape, bool PreMix1 = false, bool HighFidelity = false);
+  CaloHitResponse(const CaloVSimParameterMap *parameterMap, const CaloShapes *shapes, bool PreMix1 = false, bool HighFidelity = false);
 
   /// doesn't delete the pointers passed in
   virtual ~CaloHitResponse();
@@ -56,7 +56,7 @@ public:
   virtual void initializeHits() {}
 
   /// Finalize hits
-  virtual void finalizeHits(CLHEP::HepRandomEngine *) {}
+  virtual void finalizeHits(CLHEP::HepRandomEngine *);
 
   /// Complete cell digitization.
   virtual void run(const MixCollection<PCaloHit> &hits, CLHEP::HepRandomEngine *);
@@ -99,6 +99,8 @@ public:
   /// number of signals in the current cache
   int nSignals() const { return theAnalogSignalMap.size(); }
 
+  int getReadoutFrameSize(const DetId& id) const;
+
   /// creates an empty signal for this DetId
   CaloSamples makeBlankSignal(const DetId &detId) const;
 
@@ -136,6 +138,8 @@ protected:
 
   double thePhaseShift_;
   bool storePrecise;
+  bool PreMixDigis;
+  bool HighFidelityPreMix;
   bool ignoreTime;
 };
 
