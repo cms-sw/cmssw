@@ -147,6 +147,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # temporary for GEM
     if menuType in ["GRun","HIon","PIon","PRef"]:
-        (~dd4hep).makeProcessModifier(customiseFor34788)
+        (~dd4hep).makeProcessModifier(customiseFor34788).apply(process)
 
     return process
