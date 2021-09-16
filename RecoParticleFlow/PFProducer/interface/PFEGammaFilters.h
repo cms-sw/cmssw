@@ -44,12 +44,18 @@ private:
   float pho_sumPtTrackIsoSlope_;
 
   // Electron selections
+  const bool use_ele_id_DNN_;
   const float ele_iso_pt_;
   const float ele_iso_mva_eb_;
   const float ele_iso_mva_ee_;
   const float ele_iso_combIso_eb_;
   const float ele_iso_combIso_ee_;
   const float ele_noniso_mva_;
+  // Threshold for DNN ele pfid
+  float ele_dnn_lowpt_;
+  float ele_dnn_highpt_barrel_;
+  float ele_dnn_highpt_endcap_;
+
   const int ele_missinghits_;
   const float ele_ecalDrivenHademPreselCut_;
   const float ele_maxElePtForOnlyMVAPresel_;

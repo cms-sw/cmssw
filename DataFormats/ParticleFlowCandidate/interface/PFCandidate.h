@@ -492,6 +492,21 @@ namespace reco {
     /// mva for neutral hadron - gamma discrimination
     float mva_gamma_nh_;
 
+    /// DNN for electron PFid: isolated signal
+    float dnn_e_sigIsolated;
+
+    /// DNN for electron PFid: non-isolated signal
+    float dnn_e_sigNonIsolated;
+    
+    /// DNN for electron PFid: non-isolated bkg
+    float dnn_e_bkgNonIsolated;
+    
+    /// DNN for electron PFid: tau bkg
+    float dnn_e_bkgTau;
+    
+    /// DNN for electron PFid: photon bkg
+    float dnn_e_bkgPhoton;
+
     /// position at ECAL entrance, from the PFRecTrack
     math::XYZPointF positionAtECALEntrance_;
 

@@ -10,6 +10,7 @@
 <use name="DataFormats/GsfTrackReco"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/VertexReco"/>
+<use name="PhysicsTools/TensorFlow" />
 <export>
   <lib name="1"/>
 </export>

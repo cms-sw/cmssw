@@ -28,8 +28,8 @@ namespace reco {
  * Renamed from PixelMatchGsfElectron.
  * Originally adapted from the TRecElectron class in ORCA.
  *
- * \author Claude Charlot - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
- * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
+ * \author Claude Charlot - Laboratoire Leprince-Ringuet - Ã‰cole polytechnique, CNRS/IN2P3
+ * \author David Chamont  - Laboratoire Leprince-Ringuet - Ã‰cole polytechnique, CNRS/IN2P3
  *
  ****************************************************************************/
 
@@ -706,7 +706,15 @@ namespace reco {
       float mva_Isolated;
       float mva_e_pi;
       float mvaByPassForIsolated;  // complementary MVA used in preselection
-      MvaOutput() : status(-1), mva_Isolated(-999999999.), mva_e_pi(-999999999.), mvaByPassForIsolated(-999999999.) {}
+      float dnn_e_sigIsolated;
+      float dnn_e_sigNonIsolated;
+      float dnn_e_bkgNonIsolated;
+      float dnn_e_bkgTau;
+      float dnn_e_bkgPhoton;
+      MvaOutput() : status(-1), mva_Isolated(-999999999.), mva_e_pi(-999999999.), mvaByPassForIsolated(-999999999.),
+          dnn_e_sigIsolated(-999999999.), dnn_e_sigNonIsolated(-999999999.), dnn_e_bkgNonIsolated(-999999999.),
+          dnn_e_bkgTau(-999999999.), dnn_e_bkgPhoton(-999999999.)
+       {}
     };
 
     // accessors
@@ -726,6 +734,11 @@ namespace reco {
     // for backward compatibility
     float mva_Isolated() const { return mvaOutput_.mva_Isolated; }
     float mva_e_pi() const { return mvaOutput_.mva_e_pi; }
+    float dnn_signal_Isolated() const {return mvaOutput_.dnn_e_sigIsolated;}
+    float dnn_signal_nonIsolated() const {return mvaOutput_.dnn_e_sigNonIsolated;}
+    float dnn_bkg_nonIsolated() const {return mvaOutput_.dnn_e_bkgNonIsolated;}
+    float dnn_bkg_Tau() const {return mvaOutput_.dnn_e_bkgTau;}
+    float dnn_bkg_Photon() const {return mvaOutput_.dnn_e_bkgPhoton;}
 
   private:
     PflowIsolationVariables pfIso_;

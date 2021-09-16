@@ -94,7 +94,19 @@ gedPhotons = cms.EDProducer("GEDPhotonProducer",
     RecHitSeverityToBeExcludedEB = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
     RecHitFlagToBeExcludedEE = multi5x5BasicClustersCleaned.RecHitFlagToBeExcluded,
     RecHitSeverityToBeExcludedEE = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
-    checkHcalStatus = cms.bool(True)
+    checkHcalStatus = cms.bool(True),
+    PhotonDNNPFid = cms.PSet(
+        inputTensorName = cms.string("FirstLayer_input"),
+        outputTensorName = cms.string("sequential/LastLayer/Softmax"),
+        modelsFiles = cms.vstring(
+                                'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/model_barrel.pb',
+                                'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/model_endcap.pb'),
+        scalersFiles = cms.vstring(
+                    'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/PhotonDNNScaler.txt',
+                    'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/PhotonDNNScaler.txt'
+        ),
+        logLevel = cms.string("0")
+    )
 )
 
 

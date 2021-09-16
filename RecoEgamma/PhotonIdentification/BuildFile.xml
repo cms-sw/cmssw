@@ -22,6 +22,7 @@
 <use name="RecoEgamma/EgammaIsolationAlgos"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="RecoLocalCalo/HcalRecAlgos"/>
+<use name="PhysicsTools/TensorFlow" />
 <export>
   <lib name="1"/>
 </export>
