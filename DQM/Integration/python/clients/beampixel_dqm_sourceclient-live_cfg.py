@@ -213,7 +213,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 #----------------------------
 # File to save beamspot info
 #----------------------------
-if process.dqmRunConfig.type.value() is "production":
+if process.dqmRunConfig.type.value() == "production":
     process.pixelVertexDQM.fileName = "/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt"
 else:
     process.pixelVertexDQM.fileName = "/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"

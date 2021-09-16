@@ -55,11 +55,11 @@ Provide human readable units
   if unit is "b":
     units=["B","KB","MB","GB","TB"]
     it=iter(units)
-    v=long(value/1024)
+    v=int(value/1024)
     p=0
     runit=next(it)
     while v > 0:
-      v=long(v/1024)
+      v=int(v/1024)
       try:
         runit=next(it)
         p+=1
