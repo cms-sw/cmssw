@@ -18,7 +18,10 @@
 
 #include <iostream>
 
-CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap, const CaloVShape *shape, bool PreMix1, bool HighFidelity)
+CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap,
+                                 const CaloVShape *shape,
+                                 bool PreMix1,
+                                 bool HighFidelity)
     : theAnalogSignalMap(),
       theParameterMap(parametersMap),
       theShapes(nullptr),
@@ -35,7 +38,10 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap, cons
       HighFidelityPreMix(HighFidelity),
       ignoreTime(false) {}
 
-CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap, const CaloShapes *shapes, bool PreMix1, bool HighFidelity)
+CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap,
+                                 const CaloShapes *shapes,
+                                 bool PreMix1,
+                                 bool HighFidelity)
     : theAnalogSignalMap(),
       theParameterMap(parametersMap),
       theShapes(shapes),
@@ -187,8 +193,8 @@ CaloSamples *CaloHitResponse::findSignal(const DetId &detId) {
   return result;
 }
 
-int CaloHitResponse::getReadoutFrameSize(const DetId& id) const {
-  const CaloSimParameters& parameters = theParameterMap->simParameters(id);
+int CaloHitResponse::getReadoutFrameSize(const DetId &id) const {
+  const CaloSimParameters &parameters = theParameterMap->simParameters(id);
   int readoutFrameSize = parameters.readoutFrameSize();
   if (PreMixDigis and HighFidelityPreMix) {
     //preserve fidelity of time info

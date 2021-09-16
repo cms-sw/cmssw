@@ -38,8 +38,14 @@ public:
   const double dt = 0.5;
   const int invdt = 2;
 
-  CaloHitResponse(const CaloVSimParameterMap *parameterMap, const CaloVShape *shape, bool PreMix1 = false, bool HighFidelity = false);
-  CaloHitResponse(const CaloVSimParameterMap *parameterMap, const CaloShapes *shapes, bool PreMix1 = false, bool HighFidelity = false);
+  CaloHitResponse(const CaloVSimParameterMap *parameterMap,
+                  const CaloVShape *shape,
+                  bool PreMix1 = false,
+                  bool HighFidelity = false);
+  CaloHitResponse(const CaloVSimParameterMap *parameterMap,
+                  const CaloShapes *shapes,
+                  bool PreMix1 = false,
+                  bool HighFidelity = false);
 
   /// doesn't delete the pointers passed in
   virtual ~CaloHitResponse();
@@ -99,7 +105,7 @@ public:
   /// number of signals in the current cache
   int nSignals() const { return theAnalogSignalMap.size(); }
 
-  int getReadoutFrameSize(const DetId& id) const;
+  int getReadoutFrameSize(const DetId &id) const;
 
   /// creates an empty signal for this DetId
   CaloSamples makeBlankSignal(const DetId &detId) const;
