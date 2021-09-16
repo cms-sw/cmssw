@@ -14,24 +14,18 @@ process.load("DQM.Integration.config.inputsource_cfi")
 # beamspot from database
 process.load("CondCore.CondDB.CondDB_cfi")
 
-#process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
-#  process.CondDB,
-#  toGet = cms.VPSet(
-#    cms.PSet(
-#      record = cms.string('BeamSpotOnlineLegacyObjectsRcd'),
-#      tag = cms.string("BeamSpotOnlineTestLegacy"),
-#      refreshTime = cms.uint64(1)
-#    ),
-#    cms.PSet(
-#      record = cms.string('BeamSpotOnlineHLTObjectsRcd'),
-#      tag = cms.string("BeamSpotOnlineTestHLT"),
-#      refreshTime = cms.uint64(1)
-#    )
-#  )
-#)
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
-#process.BeamSpotESProducer = cms.ESProducer("OnlineBeamSpotESProducer")
-#process.BeamSpotDBSource.connect = 'frontier://FrontierProd/CMS_CONDITIONS'
+process.GlobalTag.toGet = cms.VPSet(
+  cms.PSet(
+    record = cms.string("BeamSpotOnlineLegacyObjectsRcd"),
+    refreshTime = cms.uint64(1)
+  ),
+  cms.PSet(
+    record = cms.string("BeamSpotOnlineHLTObjectsRcd"),
+    refreshTime = cms.uint64(1)
+  )
+)
 
 # module
 process.load("DQM.BeamMonitor.BeamSpotDipServer_cff")
