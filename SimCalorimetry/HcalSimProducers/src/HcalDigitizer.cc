@@ -49,8 +49,10 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
       theHOSiPMResponse(std::make_unique<HcalSiPMHitResponse>(
           &theParameterMap, &theShapes, ps.getParameter<bool>("HcalPreMixStage1"), false)),
       theHFResponse(std::make_unique<CaloHitResponse>(&theParameterMap, &theShapes)),
-      theHFQIE10Response(std::make_unique<CaloHitResponse>(&theParameterMap, &theShapes, ps.getParameter<bool>("HcalPreMixStage1"), true)),
-      theZDCResponse(std::make_unique<CaloHitResponse>(&theParameterMap, &theShapes, ps.getParameter<bool>("HcalPreMixStage1"), false)),
+      theHFQIE10Response(std::make_unique<CaloHitResponse>(
+          &theParameterMap, &theShapes, ps.getParameter<bool>("HcalPreMixStage1"), true)),
+      theZDCResponse(std::make_unique<CaloHitResponse>(
+          &theParameterMap, &theShapes, ps.getParameter<bool>("HcalPreMixStage1"), false)),
       theHBHEAmplifier(nullptr),
       theHFAmplifier(nullptr),
       theHOAmplifier(nullptr),

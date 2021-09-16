@@ -53,8 +53,7 @@ CaloSamples &CaloSamples::operator+=(const CaloSamples &other) {
   if (size_ != other.size_ || presamples_ != other.presamples_ || preciseSize_ != other.preciseSize_) {
     if (presamples_ == other.presamples_ && preciseSize_ == other.size_) {
       addHighFidelityPreMix = true;
-    }
-    else {
+    } else {
       edm::LogError("CaloHitResponse") << "Mismatched calo signals ";
     }
   }
@@ -65,8 +64,7 @@ CaloSamples &CaloSamples::operator+=(const CaloSamples &other) {
       data_[sampleBin] += other.data_[i];
       preciseData_[i] += other.data_[i];
     }
-  }
-  else {
+  } else {
     int i;
     for (i = 0; i < size_; ++i) {
       data_[i] += other.data_[i];
