@@ -1,17 +1,15 @@
 #include "DQM/BeamMonitor/plugins/BeamSpotDipServer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-//#include "FWCore/Utilities/interface/ESInputTag.h"
-//#include "FWCore/Utilities/interface/Transition.h"
-
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 
-#include <iostream>
+#include <iostream> // FIXME
 #include <fstream>
 #include <vector>
 #include <ctime>
@@ -30,7 +28,8 @@ class ErrHandler : public DipPublicationErrorHandler {
   virtual ~ErrHandler() = default;
  private:
   void handleException(DipPublication* publication, DipException& e) {
-    cerr << "[Dip] exception (at create): " << e.what() << endl;
+    edm::LogError("BeamSpotDipServer")
+      << "exception (create): " << e.what();
   }
 };
 
@@ -46,22 +45,22 @@ BeamSpotDipServer::BeamSpotDipServer(const edm::ParameterSet& ps)
   subjectPV  = ps.getUntrackedParameter<string>("subjectPV" ); 
 
   readFromNFS = ps.getUntrackedParameter<bool>("readFromNFS");
-
+  // only if readFromNFS = true
   sourceFile  = ps.getUntrackedParameter<string>("sourceFile" ); // beamspot
   sourceFile1 = ps.getUntrackedParameter<string>("sourceFile1"); // tk status
 
   timeoutLS = ps.getUntrackedParameter<vector<int>>("timeoutLS");
 
   //
-  bsLegacyToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
+  bsHLTToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
 
   dcsStatus_ = consumes<DcsStatusCollection>(
     ps.getUntrackedParameter<string>("DCSStatus", "scalersRawToDigi")); 
 
   //
   dip = Dip::create("CmsBeamSpotServer");
-  cerr << "[Dip] reading from " << (readFromNFS ? "file (NFS)" : "database")
-       << endl;
+  edm::LogInfo("BeamSpotDipServer")
+    << "reading from " << (readFromNFS ? "file (NFS)" : "database");
 }
 
 /*****************************************************************************/ 
@@ -75,23 +74,23 @@ void BeamSpotDipServer::bookHistograms(
 void BeamSpotDipServer::dqmBeginRun(
   const edm::Run& r, const edm::EventSetup&)
 {
-  cout << "[Dip] begin run " << r.run() << endl;
+  edm::LogInfo("BeamSpotDipServer") << "begin run " << r.run();
 
   try
   {
     ErrHandler errHandler;
 
-    cout << "[Dip] server started at " + getDateTime() << endl;
+    edm::LogInfo("BeamSpotDipServer") << "server started at " + getDateTime();
 
-    cout << "[Dip] creating publication " + subjectCMS << endl;
+    edm::LogInfo("BeamSpotDipServer") << "creating publication " + subjectCMS;
     publicationCMS = dip->createDipPublication(subjectCMS.c_str(),&errHandler);
         messageCMS = dip->createDipData();
 
-    cout << "[Dip] creating publication " + subjectLHC << endl;
+    edm::LogInfo("BeamSpotDipServer") << "creating publication " + subjectLHC;
     publicationLHC = dip->createDipPublication(subjectLHC.c_str(),&errHandler);
         messageLHC = dip->createDipData();
 
-    cout << "[Dip] creating publication " + subjectPV << endl;
+    edm::LogInfo("BeamSpotDipServer") << "creating publication " + subjectPV;
     publicationPV  = dip->createDipPublication(subjectPV.c_str(), &errHandler);
         messagePV  = dip->createDipData();
 
@@ -100,7 +99,7 @@ void BeamSpotDipServer::dqmBeginRun(
   }
   catch (exception & e)
   {
-    cerr << "[Dip] exception (start up): " << e.what() << endl;
+    edm::LogError("BeamSpotDipServer") << "exception (start up): " << e.what();
   }
 
   quality = qualities[0]; // start with Uncertain
@@ -143,8 +142,8 @@ void BeamSpotDipServer::analyze(
       }
 
       if(verbose)
-        cout << "[Dip] whole tracker on? "
-             << (wholeTrackerOn ? "yes" : "no") << endl;
+        edm::LogInfo("BeamSpotDipServer")
+          << "whole tracker on? " << (wholeTrackerOn ? "yes" : "no");
     }
   }
 }
@@ -153,8 +152,8 @@ void BeamSpotDipServer::analyze(
 void BeamSpotDipServer::dqmEndLuminosityBlock(
   const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup)
 {
-  cerr << "[Dip] --------------------- end of LS "
-       << lumiSeg.luminosityBlock() << endl;
+  edm::LogInfo("BeamSpotDipServer")
+    << "--------------------- end of LS " << lumiSeg.luminosityBlock();
 
   try
   { 
@@ -163,7 +162,8 @@ void BeamSpotDipServer::dqmEndLuminosityBlock(
   ifstream logFile(sourceFile);
 
   if (!logFile.good()) {
-    cerr << "Source File: " + sourceFile + " doesn't exist!" << endl;
+    edm::LogWarning("BeamSpotDipServer")
+      << "Source File: " + sourceFile + " doesn't exist!";
     problem();
   } else {
     lastModTime = getLastTime(sourceFile);
@@ -175,9 +175,11 @@ void BeamSpotDipServer::dqmEndLuminosityBlock(
       // source file has zero length
       if (lastModTime > lastFitTime) {
         string tmp = tkStatus();
-        cout << "[Dip] New run starts. Run number: " << runnum << endl;
+        edm::LogInfo("BeamSpotDipServer")
+          << "New run starts. Run number: " << runnum;
         if (verbose)
-          cout << "[Dip] Initial lastModTime = " + getDateTime(lastModTime) << endl;
+          edm::LogInfo("BeamSpotDipServer")
+            << "Initial lastModTime = " + getDateTime(lastModTime);
       }
       lastFitTime = lastModTime;
     }
@@ -185,22 +187,29 @@ void BeamSpotDipServer::dqmEndLuminosityBlock(
     if (lastModTime > lastFitTime) {
       // source file modified
       if (verbose) {
-        cout << "[Dip] time of last fit    = " + getDateTime(lastFitTime) << endl;
-        cout << "[Dip] time of current fit = " + getDateTime(lastModTime) << endl;
+        edm::LogInfo("BeamSpotDipServer")
+          << "time of last fit    = " + getDateTime(lastFitTime);
+        edm::LogInfo("BeamSpotDipServer")
+          << "time of current fit = " + getDateTime(lastModTime);
       }
       lastFitTime = lastModTime;
 
       // source file length > 0
       if(getFileSize(sourceFile) > 0) {
-        if (verbose) cout << "[Dip] reading record from " + sourceFile << endl;
+        if (verbose)
+          edm::LogInfo("BeamSpotDipServer")
+            << "reading record from " + sourceFile;
 
         if (readRcd(logFile)) {
-          if (verbose) cout << "[Dip] got new record from file" << endl;
+          if (verbose)
+            edm::LogInfo("BeamSpotDipServer") << "got new record from file";
+
           trueRcd();
           alive.reset();
           alive.flip(7);
         } else {
-          if (verbose) cout << "[Dip] problem with new record" << endl;
+          if (verbose)
+            edm::LogInfo("BeamSpotDipServer") << "problem with new record";
           fakeRcd();
         }
 
@@ -215,17 +224,19 @@ void BeamSpotDipServer::dqmEndLuminosityBlock(
   logFile.close();
   } else {
     edm::ESHandle<BeamSpotOnlineObjects>
-      bsLegacyHandle = iSetup.getHandle(bsLegacyToken_);
-    auto const & bs = *bsLegacyHandle; 
+      bsHLTHandle = iSetup.getHandle(bsHLTToken_);
+    auto const & bs = *bsHLTHandle; 
  
     // from database
     if(readRcd(bs)) {
-      if (verbose) cout << "[Dip] got new record from database" << endl;
+      if (verbose)
+        edm::LogInfo("BeamSpotDipServer") << "got new record from database";
       trueRcd();
       alive.reset();
       alive.flip(7);
     } else {
-      if (verbose) cout << "[Dip] problem with new record" << endl;
+      if (verbose)
+        edm::LogInfo("BeamSpotDipServer") << "problem with new record";
       fakeRcd();
     }
 
@@ -240,7 +251,8 @@ void BeamSpotDipServer::dqmEndLuminosityBlock(
   else
     publishRcd(quality,"",true,true); // Good
   } catch (exception & e) {
-    cerr << "[Dip] IOException (end of lumi): " << e.what() << endl;
+    edm::LogWarning("BeamSpotDipServer")
+      << "io exception (end of lumi): " << e.what();
   };
 }
 
@@ -249,15 +261,15 @@ void BeamSpotDipServer::dqmEndRun(
   const edm::Run&, const edm::EventSetup&)
 {
   // destroy publications and data
-  cout << "[Dip] destroying publication " + subjectCMS << endl;
+  edm::LogInfo("BeamSpotDipServer") << "destroying publication " + subjectCMS;
   dip->destroyDipPublication(publicationCMS);
   delete messageCMS;
 
-  cout << "[Dip] destroying publication " + subjectLHC << endl;
+  edm::LogInfo("BeamSpotDipServer") << "destroying publication " + subjectLHC;
   dip->destroyDipPublication(publicationLHC);
   delete messageLHC;
 
-  cout << "[Dip] destroying publication " + subjectPV  << endl;
+  edm::LogInfo("BeamSpotDipServer") << "destroying publication " + subjectPV;
   dip->destroyDipPublication(publicationPV );
   delete messagePV ;
 }
@@ -333,7 +345,8 @@ string BeamSpotDipServer::tkStatus()
           }
         }
       } catch (exception & e) {
-        cerr << "[Dip] Exception (tkStatus): " << e.what() << endl;
+        edm::LogWarning("BeamSpotDipServer")
+          << "exception (tkStatus): " << e.what();
       }
     }
 
@@ -352,7 +365,8 @@ string BeamSpotDipServer::tkStatus()
 /*****************************************************************************/ 
 void BeamSpotDipServer::problem()
 {
-  if(verbose) cout << "[Dip] no update | alive = " << alive << endl;
+  if(verbose)
+    edm::LogInfo("BeamSpotDipServer") << "no update | alive = " << alive;
 
   lsCount++;
 
@@ -394,10 +408,15 @@ bool BeamSpotDipServer::readRcd(const BeamSpotOnlineObjects & bs)
 {
   runnum = bs.GetLastAnalyzedRun();
 
-  startTime      = bs.GetCreationTime();
-  startTimeStamp = bs.GetCreationTime(); // not provided by BeamSpotOnlineObject
+  // BeamSpotOnlineObject only provides creation time
+
+  startTime      = bs.GetCreationTime(); // provides cond::Time_t -> string ?
+  startTimeStamp = bs.GetCreationTime(); // provides cond::Time_t -> time_t ?
     endTime      = bs.GetCreationTime();
-    endTimeStamp = bs.GetCreationTime(); // not provided by BeamSpotOnlineObject
+    endTimeStamp = bs.GetCreationTime();
+
+cerr << " a " << startTime      << endl;
+cerr << " b " << startTimeStamp << endl;
 
   lumiRange = to_string(bs.GetLastAnalyzedLumi());
   currentLS = bs.GetLastAnalyzedLumi();
@@ -405,10 +424,11 @@ bool BeamSpotDipServer::readRcd(const BeamSpotOnlineObjects & bs)
   type = bs.GetBeamType();
 
   if(verbose)
-    cout << "[Dip] run: " << runnum
-         << ", LS: "    << currentLS 
+    edm::LogInfo("BeamSpotDipServer")
+         << "run: "    << runnum
+         << ", LS: "   << currentLS 
          << ", time: " << startTime << " " << startTimeStamp
-         << ", type: " << type << endl;
+         << ", type: " << type;
 
   if (testing)          quality = qualities[0]; // Uncertain
   else if (type >= 2)   quality = qualities[2]; // Good
@@ -443,8 +463,9 @@ bool BeamSpotDipServer::readRcd(const BeamSpotOnlineObjects & bs)
         nPV = bs.GetNumPVs();
 
   if(verbose)
-    cout << "[Dip] pos: (" << x << "," << y << "," << z << ")"
-               << " nPV: " << nPV << endl;
+    edm::LogInfo("BeamSpotDipServer")
+               << "pos: (" << x << "," << y << "," << z << ")"
+               << " nPV: " << nPV;
 
   return true;
 }
@@ -467,8 +488,8 @@ bool BeamSpotDipServer::readRcd(ifstream & file) // readFromNFS
   switch(nthLnInRcd) {
     case 1:
       if(record.rfind("Run", 0) != 0) {
-        cerr << "Reading of results text file interrupted. " + getDateTime()
-             << endl;
+        edm::LogError("BeamSpotDipServer")
+          << "Reading of results text file interrupted. " + getDateTime();
         return false;
       }
       runnum = stoi(tmp[1]);
@@ -481,7 +502,8 @@ bool BeamSpotDipServer::readRcd(ifstream & file) // readFromNFS
       break;
     case 4:
       lumiRange = record.substr(10);
-      if(verbose) cout << "[Dip] lumisection range: " + lumiRange << endl;
+      if(verbose)
+        edm::LogInfo("BeamSpotDipServer") << "lumisection range: " + lumiRange;
       currentLS = stoi(tmp[3]);
       break;
     case 5:
@@ -527,7 +549,8 @@ bool BeamSpotDipServer::readRcd(ifstream & file) // readFromNFS
 
   file.close();
   } catch (exception & e) {
-    cerr << "[Dip] IOException (readRcd): " << e.what() << endl;
+    edm::LogWarning("BeamSpotDipServer")
+      << "io exception (readRcd): " << e.what();
   }
 
   return rcdQlty;
@@ -632,7 +655,7 @@ void BeamSpotDipServer::trueRcd()
     messagePV->insert(maxPV,"maxPV");
     messagePV->insert(nPV,"nPV");
   } catch (exception & e){
-    cerr << "[Dip] Exception (trueRcd): " << e.what() << endl;
+    edm::LogWarning("BeamSpotDipServer") << "exception (trueRcd): " << e.what();
   }
 }
 
@@ -656,7 +679,7 @@ void BeamSpotDipServer::fakeRcd()
     messageLHC->insert(Centroid,3,"Centroid");
     messageLHC->insert(Tilt,2,"Tilt");
   } catch (exception & e){
-    cerr << "[Dip] Exception (fakeRcd): " << e.what() << endl;
+    edm::LogWarning("BeamSpotDipServer") << "exception (fakeRcd): " << e.what();
   }
 }
 
@@ -670,14 +693,14 @@ void BeamSpotDipServer::publishRcd(string qlty, string err,
 
     if(verbose)
     {
-      cout << "[Dip] sending (" << qlty << " | " << err << ")";
+      edm::LogInfo("BeamSpotDipServer")
+        << "sending (" << qlty << " | " << err << ")";
 
       if (alive.test(7)) {
-        if (updateCMS) cout << " to CCC and CMS";
+        if (updateCMS) edm::LogInfo("BeamSpotDipServer") << " to CCC and CMS";
         else if (!alive.test(1) && !alive.test(2))
-                       cout << " to CCC only";
+                       edm::LogInfo("BeamSpotDipServer") << " to CCC only";
       }
-      cout << endl;
     }
 
     DipTimestamp zeit;
@@ -715,7 +738,8 @@ void BeamSpotDipServer::publishRcd(string qlty, string err,
       publicationLHC->setQualityBad("UNINITIALIZED");
     }
   } catch (exception & e) {
-    cerr << "[Dip] Exception (publishRcd): " << e.what() << endl;
+    edm::LogWarning("BeamSpotDipServer")
+      << "exception (publishRcd): " << e.what();
   }
 }
 
