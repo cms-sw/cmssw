@@ -705,15 +705,15 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
       mytau.SetPtEtaPhiE(tauIt->pt(), tauIt->eta(), tauIt->phi(), tauIt->energy());
 
       if ((*antimu)[tauCandidate].workingPoints.empty()) {
-        LogWarning("This offline tau has no antimu discriminator, skipping");
+        edm::LogWarning("L1TTauOffline") << "This offline tau has no antimu discriminator, skipping" << std::endl;
         continue;
       }
       if ((*antiele)[tauCandidate].workingPoints.empty()) {
-        LogWarning("This offline tau has no antiele discriminator, skipping");
+        edm::LogWarning("L1TTauOffline") << "This offline tau has no antiele discriminator, skipping" << std::endl;
         continue;
       }
       if ((*comb3T)[tauCandidate].workingPoints.empty()) {
-        LogWarning("This offline tau has no comb3T discriminator, skipping");
+        edm::LogWarning("L1TTauOffline") << "This offline tau has no comb3T discriminator, skipping" << std::endl;
         continue;
       }
 
