@@ -26,7 +26,7 @@ public:
                    const TrackerTopology &ttopo)
       : _geometry(geometry) {
     init(collrphi, collmatched, track, ttopo);
-  };  //:isFirstCall(true){};
+  };
   ~CosmicLayerPairs() override;
 
   std::vector<SeedLayerPairs::LayerPair> operator()() override;
@@ -37,7 +37,6 @@ private:
             const GeometricSearchTracker &,
             const TrackerTopology &);
 
-  //bool isFirstCall;
   std::string _geometry;
 
   std::vector<BarrelDetLayer const *> bl;
