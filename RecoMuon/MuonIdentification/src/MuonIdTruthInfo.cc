@@ -14,7 +14,9 @@ void MuonIdTruthInfo::registerConsumes(edm::ConsumesCollector& iC) {
   iC.mayConsume<edm::PSimHitContainer>(edm::InputTag("g4SimHits", "MuonCSCHits"));
 }
 
-void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon) {
+void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent,
+                                     GlobalTrackingGeometry const& geometry,
+                                     reco::Muon& aMuon) {
   // get a list of simulated track and find a track with the best match to
   // the muon.track(). Use its id and chamber id to localize hits
   // If a hit has non-zero local z coordinate, it's position wrt
@@ -26,12 +28,6 @@ void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent, const edm::EventS
     LogTrace("MuonIdentification") << "No tracks found";
     return;
   }
-
-  // get the tracking Geometry
-  edm::ESHandle<GlobalTrackingGeometry> geometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geometry);
-  if (!geometry.isValid())
-    throw cms::Exception("FatalError") << "Unable to find GlobalTrackingGeometryRecord in event!\n";
 
   float bestMatchChi2 = 9999;  //minimization creteria
   unsigned int bestMatch = 0;
@@ -102,7 +98,7 @@ void MuonIdTruthInfo::checkSimHitForBestMatch(reco::MuonSegmentMatch& segmentMat
                                               double& distance,
                                               const PSimHit& hit,
                                               const DetId& chamberId,
-                                              const edm::ESHandle<GlobalTrackingGeometry>& geometry) {
+                                              const GlobalTrackingGeometry& geometry) {
   printf("DONT FORGET TO CALL REGISTERCONSUMES()\n");
 
   // find the hit position projection at the reference surface of the chamber:
@@ -110,8 +106,8 @@ void MuonIdTruthInfo::checkSimHitForBestMatch(reco::MuonSegmentMatch& segmentMat
   // get local coordinates of these points wrt the chamber and then find the
   // projected X-Y coordinates
 
-  const GeomDet* chamberGeometry = geometry->idToDet(chamberId);
-  const GeomDet* simUnitGeometry = geometry->idToDet(DetId(hit.detUnitId()));
+  const GeomDet* chamberGeometry = geometry.idToDet(chamberId);
+  const GeomDet* simUnitGeometry = geometry.idToDet(DetId(hit.detUnitId()));
 
   if (chamberGeometry && simUnitGeometry) {
     LocalPoint entryPoint = chamberGeometry->toLocal(simUnitGeometry->toGlobal(hit.entryPoint()));
