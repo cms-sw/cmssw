@@ -90,6 +90,7 @@ if __name__ == '__main__':
                      11634.911, #2021 DD4hep ttbar reading geometry from XML
                      11634.912, #2021 DD4hep ttbar reading geometry from the DB
                      11634.0, #2021 ttbar
+                     11634.7, #2021 ttbar mkFit
                      12434.0, #2023 ttbar
                      23234.0, #2026D49 ttbar (HLT TDR baseline w/ HGCal v11)
                      28234.0, #2026D60 (exercise HF nose)
