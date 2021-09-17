@@ -578,6 +578,69 @@ upgradeWFs['PatatrackHCALOnlyGPU'] = PatatrackWorkflow(
     offset = 0.522,
 )
 
+upgradeWFs['PatatrackCPU'] = PatatrackWorkflow(
+    digi = {
+        # there is no customisation for enabling the Patatrack pixel quadruplets running only on the CPU
+    },
+    reco = {
+        # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
+        '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@pixelTrackingOnlyDQM',
+        '--procModifiers': 'pixelNtupletFit'
+    },
+    harvest = {
+    },
+    suffix = 'Patatrack_CPU',
+    offset = 0.591,
+)
+
+upgradeWFs['PatatrackGPU'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
+        '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@pixelTrackingOnlyDQM',
+        '--procModifiers': 'pixelNtupletFit,gpu'
+    },
+    harvest = {
+    },
+    suffix = 'Patatrack_GPU',
+    offset = 0.592,
+)
+
+upgradeWFs['PatatrackTripletsCPU'] = PatatrackWorkflow(
+    digi = {
+        # there is no customisation for enabling the Patatrack pixel triplets running only on the CPU
+    },
+    reco = {
+        # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
+        '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@pixelTrackingOnlyDQM',
+        '--procModifiers': 'pixelNtupletFit',
+        '--customise' : 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+    },
+    harvest = {
+    },
+    suffix = 'Patatrack_TripletsCPU',
+    offset = 0.595,
+)
+
+upgradeWFs['PatatrackTripletsGPU'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu',
+        '--customise': 'HLTrigger/Configuration/customizeHLTforPatatrack.enablePatatrackPixelTriplets'
+    },
+    reco = {
+        # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
+        '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@pixelTrackingOnlyDQM',
+        '--procModifiers': 'pixelNtupletFit,gpu',
+        '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+    },
+    harvest = {
+    },
+    suffix = 'Patatrack_TripletsGPU',
+    offset = 0.596,
+)
+
 # end of Patatrack workflows
 
 class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
