@@ -59,9 +59,15 @@ std::unique_ptr<CSCL1TPLookupTableCCLUT> CSCL1TPLookupTableEP::produceCCLUT(cons
   // make the LUT object
   std::unique_ptr<CSCL1TPLookupTableCCLUT> lut = std::make_unique<CSCL1TPLookupTableCCLUT>();
 
+  // check if the 11-bit patterns are used
+  const bool use11BitPatterns(pset_.getParameter<bool>("use11BitPatterns"));
+
+  const std::string stringPosition(use11BitPatterns ? "positionLUTFilesv2" : "positionLUTFiles");
+  const std::string stringSlope(use11BitPatterns ? "slopeLUTFilesv2" : "slopeLUTFiles");
+
   // get the text files
-  std::vector<std::string> positionLUTFiles_ = pset_.getParameter<std::vector<std::string>>("positionLUTFiles");
-  std::vector<std::string> slopeLUTFiles_ = pset_.getParameter<std::vector<std::string>>("slopeLUTFiles");
+  std::vector<std::string> positionLUTFiles_ = pset_.getParameter<std::vector<std::string>>(stringPosition);
+  std::vector<std::string> slopeLUTFiles_ = pset_.getParameter<std::vector<std::string>>(stringSlope);
 
   std::unordered_map<unsigned, std::vector<unsigned>> cclutPosition;
   std::unordered_map<unsigned, std::vector<unsigned>> cclutSlope;

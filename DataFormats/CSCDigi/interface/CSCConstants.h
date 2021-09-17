@@ -116,7 +116,8 @@ public:
     CLCT_PATTERN_WIDTH = 11,
     // Max number of wires participating in a pattern
     MAX_WIRES_IN_PATTERN = 14,
-    NUM_COMPARATOR_CODES = 4096
+    NUM_COMPARATOR_CODES = 4096,
+    NUM_COMPARATOR_CODES_11BITS = 2048
   };
 
   enum Digis_Info { MAX_DIGIS_PER_ALCT = 10, MAX_DIGIS_PER_CLCT = 8 };

@@ -114,8 +114,19 @@ void LCTQualityControl::checkValid(const CSCCLCTDigi& clct, unsigned max_stubs) 
 
   if (runCCLUT_) {
     // CLCT comparator code is invalid
-    checkRange(clct.getCompCode(), 0, std::pow(2, 12) - 1, "CSCCLCTDigi with invalid comparator code: ", errors);
-
+    if (use11BitPatterns_) {
+      checkRange(clct.getCompCode(),
+                 0,
+                 CSCConstants::NUM_COMPARATOR_CODES_11BITS - 1,
+                 "CSCCLCTDigi with invalid comparator code: ",
+                 errors);
+    } else {
+      checkRange(clct.getCompCode(),
+                 0,
+                 CSCConstants::NUM_COMPARATOR_CODES - 1,
+                 "CSCCLCTDigi with invalid comparator code: ",
+                 errors);
+    }
     const unsigned max_quartstrip = get_csc_max_quartstrip(theStation, theRing);
     const unsigned max_eighthstrip = get_csc_max_eighthstrip(theStation, theRing);
 

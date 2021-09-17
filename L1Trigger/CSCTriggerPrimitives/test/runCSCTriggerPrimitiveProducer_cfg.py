@@ -4,23 +4,44 @@ from Configuration.Eras.Era_Run3_cff import Run3
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 
 options = VarParsing('analysis')
-options.register ("unpack", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("unpackGEM", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("l1", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("l1GEM", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("mc", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("dqm", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("dqmGEM", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("useB904ME11", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("useB904ME21", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("useB904ME234s2", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("run3", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("runCCLUT", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("runME11ILT", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("saveEdmOutput", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("preTriggerAnalysis", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("dropNonMuonCollections", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("dqmOutputFile", "step_DQM.root", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register("unpack", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when you want to unpack the CSC DAQ data.")
+options.register("unpackGEM", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when you want to unpack the GEM DAQ data.")
+options.register("l1", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when you want to re-emulate the CSC trigger primitives.")
+options.register("l1GEM", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when you want to re-emulate the GEM trigger primitives.")
+options.register("mc", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when running on MC.")
+options.register("dqm", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when you want to run the CSC DQM")
+options.register("dqmGEM", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when you want to run the GEM DQM")
+options.register("useB904ME11", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME1/1 data.")
+options.register("useB904ME21", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME2/1 data (also works for ME3/1 and ME4/1).")
+options.register("useB904ME234s2", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME1/1 data (also works for MEX/2 and ME1/3).")
+options.register("run3", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using Run-3 data.")
+options.register("runCCLUTOTMB", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using the CCLUT OTMB algorithm.")
+options.register("runCCLUTTMB", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using the CCLUT TMB algorithm.")
+options.register("runME11ILT", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when running the GEM-CSC integrated local trigger algorithm in ME1/1.")
+options.register("runME21ILT", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when running the GEM-CSC integrated local trigger algorithm in ME2/1.")
+options.register("saveEdmOutput", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True if you want to keep the EDM ROOT after unpacking and re-emulating.")
+options.register("preTriggerAnalysis", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True if you want to print out more details about CLCTs and LCTs in the offline CSC DQM module.")
+options.register("dropNonMuonCollections", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Option to drop most non-muon collections generally considered unnecessary for GEM/CSC analysis")
+options.register("dqmOutputFile", "step_DQM.root", VarParsing.multiplicity.singleton, VarParsing.varType.string,
+                 "Name of the DQM output file. Default: step_DQM.root")
 options.parseArguments()
 
 process_era = Run3
@@ -94,14 +115,16 @@ if useB904Data:
 ## l1 emulator
 l1csc = process.cscTriggerPrimitiveDigis
 if options.l1:
-      l1csc.commonParam.runCCLUT = options.runCCLUT
+      l1csc.commonParam.runCCLUT_OTMB = options.runCCLUTOTMB
+      l1csc.commonParam.runCCLUT_TMB = options.runCCLUTTMB
       l1csc.commonParam.runME11ILT = options.runME11ILT
+      l1csc.commonParam.runME21ILT = options.runME21ILT
       ## running on unpacked data, or after running the unpacker
       if (not options.mc or options.unpack):
             l1csc.CSCComparatorDigiProducer = "muonCSCDigis:MuonCSCComparatorDigi"
             l1csc.CSCWireDigiProducer = "muonCSCDigis:MuonCSCWireDigi"
             ## GEM-CSC trigger enabled
-            if options.runME11ILT:
+            if options.runME11ILT or options.runME21ILT:
                   l1csc.GEMPadDigiClusterProducer = "muonCSCDigis:MuonGEMPadDigiCluster"
 
 if options.l1GEM:

@@ -89,6 +89,9 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
     clct_pattern_ = CSCPatternBank::clct_pattern_run3_;
     // comparator code lookup table algorithm for Phase-2
     cclut_ = std::make_unique<ComparatorCodeLUT>(conf);
+    if (use11BitPatterns_) {
+      clct_pattern_ = CSCPatternBank::clct_pattern_run3_11bit_;
+    }
   } else {
     clct_pattern_ = CSCPatternBank::clct_pattern_legacy_;
   }

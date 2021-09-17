@@ -35,6 +35,9 @@ public:
   void run(CSCCLCTDigi& digi, unsigned numCFEBs) const;
 
 private:
+  // comparator code for a specific layer
+  int calculateComparatorCodeLayer(int column, const std::array<int, 3>& halfStripPattern) const;
+
   //calculates the id based on location of hits
   int calculateComparatorCode(const pattern& halfStripPattern) const;
 
@@ -51,6 +54,8 @@ private:
 
   // access to lookup tables via eventsetup
   const CSCL1TPLookupTableCCLUT* lookupTableCCLUT_;
+
+  bool use11BitPatterns_;
 };
 
 #endif

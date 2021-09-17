@@ -1,7 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+from L1Trigger.CSCTriggerPrimitives.params.auxiliaryParams import commonParam
 
 CSCL1TPLookupTableEP = cms.ESSource(
     "CSCL1TPLookupTableEP",
+    # when this is set to True, the CSC local trigger for Run-3 uses
+    # 11-bit patterns (see CSCPatternBank class) suitable for the CCLUT v2 algorithm
+    use11BitPatterns = commonParam.use11BitPatterns,
     ## CCLUT
     positionLUTFiles = cms.vstring(
         "L1Trigger/CSCTriggerPrimitives/data/CCLUT/CSCComparatorCodePosOffsetLUT_pat0_v1.txt",
@@ -16,6 +20,20 @@ CSCL1TPLookupTableEP = cms.ESSource(
         "L1Trigger/CSCTriggerPrimitives/data/CCLUT/CSCComparatorCodeSlopeLUT_pat2_v1.txt",
         "L1Trigger/CSCTriggerPrimitives/data/CCLUT/CSCComparatorCodeSlopeLUT_pat3_v1.txt",
         "L1Trigger/CSCTriggerPrimitives/data/CCLUT/CSCComparatorCodeSlopeLUT_pat4_v1.txt"
+    ),
+    positionLUTFilesv2 = cms.vstring(
+        "L1Trigger/CSCTriggerPrimitives/data/CCLUTv2/CSCComparatorCodePosOffsetLUT_pat0_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CCLUTv2/CSCComparatorCodePosOffsetLUT_pat1_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CCLUTv2/CSCComparatorCodePosOffsetLUT_pat2_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CCLUTv2/CSCComparatorCodePosOffsetLUT_pat3_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CCLUTv2/CSCComparatorCodePosOffsetLUT_pat4_v1.txt"
+    ),
+    slopeLUTFilesv2 = cms.vstring(
+        "L1Trigger/CSCTriggerPrimitives/data/CCLUTv2/CSCComparatorCodeSlopeLUT_pat0_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CCLUTv2/CSCComparatorCodeSlopeLUT_pat1_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CCLUTv2/CSCComparatorCodeSlopeLUT_pat2_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CCLUTv2/CSCComparatorCodeSlopeLUT_pat3_v1.txt",
+        "L1Trigger/CSCTriggerPrimitives/data/CCLUTv2/CSCComparatorCodeSlopeLUT_pat4_v1.txt"
     ),
     ## convert pad number to 1/2-strip in ME1a
     padToHsME1aFiles = cms.vstring(
