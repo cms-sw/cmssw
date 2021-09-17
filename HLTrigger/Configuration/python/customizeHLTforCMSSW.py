@@ -18,7 +18,7 @@ from HLTrigger.Configuration.common import *
 #     return process
 
 # Eta Extended Electrons 
-def customiseForPRNUM(process):
+def customiseFor35309(process):
     for pset in process._Process__psets.values():
         if hasattr(pset,'ComponentType'):
             if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
@@ -161,7 +161,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
+    process = customiseFor35309(process)
     process = customiseFor35315(process)
-    process = customiseForPRNUM(process)
 
     return process
