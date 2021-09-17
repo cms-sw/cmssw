@@ -1486,6 +1486,12 @@ class SubProcess(_Unlabelable):
         self.__SelectEvents = SelectEvents
         self.__outputCommands = outputCommands
         # Need to remove MessageLogger from the subprocess now that MessageLogger is always present
+        if self.__process.MessageLogger is not MessageLogger:
+            print("""Warning: You have reconfigured service
+'edm::MessageLogger' in a subprocess.
+This service has already been configured.
+This particular service may not be reconfigured in a subprocess.
+The reconfiguration will be ignored.""")
         del self.__process.MessageLogger
     def dumpPython(self, options=PrintOptions()):
         out = "parentProcess"+str(hash(self))+" = process\n"
