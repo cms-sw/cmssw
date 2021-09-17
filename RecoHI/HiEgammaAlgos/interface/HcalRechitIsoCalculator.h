@@ -18,8 +18,7 @@
 
 class HcalRechitIsoCalculator {
 public:
-  HcalRechitIsoCalculator(const edm::Event &iEvent,
-                          const edm::EventSetup &iSetup,
+  HcalRechitIsoCalculator(const CaloGeometry *geometry,
                           const edm::Handle<HBHERecHitCollection> hbhe,
                           const edm::Handle<HFRecHitCollection> hfLabel,
                           const edm::Handle<HORecHitCollection> hoLabel);
