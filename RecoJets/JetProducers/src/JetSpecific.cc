@@ -35,13 +35,7 @@ void reco::writeSpecific(reco::CaloJet& jet,
                          std::vector<reco::CandidatePtr> const& constituents,
                          CaloGeometry const& geometry,
                          HcalTopology const& topology) {
-  // Get geometry
-  //edm::ESHandle<CaloGeometry> geometry;
-  //c.get<CaloGeometryRecord>().get(geometry);
   const CaloSubdetectorGeometry* towerGeometry = geometry.getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
-
-  //edm::ESHandle<HcalTopology> topology;
-  //c.get<HcalRecNumberingRecord>().get(topology);
 
   // Make the specific
   reco::CaloJet::Specific specific;
