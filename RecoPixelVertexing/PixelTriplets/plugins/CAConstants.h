@@ -81,14 +81,8 @@ namespace caConstants {
   struct OuterHitOfCell {
     OuterHitOfCellContainer* container;
     int32_t offset;
-    constexpr auto& operator[](int i) {
-      assert(i >= offset);
-      return container[i - offset];
-    }
-    constexpr auto const& operator[](int i) const {
-      assert(i >= offset);
-      return container[i - offset];
-    }
+    constexpr auto& operator[](int i) { return container[i - offset]; }
+    constexpr auto const& operator[](int i) const { return container[i - offset]; }
   };
 
 }  // namespace caConstants

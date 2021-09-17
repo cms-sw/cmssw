@@ -14,9 +14,9 @@ template <>
 void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStream_t stream) {
   auto nhits = hh.nHits();
 
-  // #ifdef NTUPLE_DEBUG
+#ifdef NTUPLE_DEBUG
   std::cout << "building Doublets out of " << nhits << " Hits. BPIX2 offset is " << hh.offsetBPIX2() << std::endl;
-  // #endif
+#endif
 
   // use "nhits" to heuristically dimension the workspace
 
