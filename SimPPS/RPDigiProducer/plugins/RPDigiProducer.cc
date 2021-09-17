@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -25,6 +26,8 @@
 //Random Number
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 
 #include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
@@ -57,6 +60,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -69,6 +73,7 @@ private:
   typedef simhit_map::iterator simhit_map_iterator;
 
   edm::ParameterSet conf_;
+
   std::map<RPDetId, std::unique_ptr<RPDetDigitizer>> theAlgoMap;
 
   CLHEP::HepRandomEngine* rndEngine_ = nullptr;
@@ -85,9 +90,20 @@ private:
   bool simulateDeadChannels;
 
   edm::EDGetTokenT<CrossingFrame<PSimHit>> tokenCrossingFrameTotemRP;
+
+  //eventSetup tokens for esConsumes
+  edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> esTotemAM_TokenBeginRun_;
+  edm::ESGetToken<CTPPSRPAlignmentCorrectionsData,VeryForwardMisalignedGeometryRecord> esAlignments_token_;
+  edm::ESGetToken<CTPPSGeometry,VeryForwardRealGeometryRecord> esGeometry_token_;
+
 };
 
-RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) : conf_(conf) {
+RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) 
+  : conf_(conf) ,
+    esTotemAM_TokenBeginRun_(esConsumes<TotemAnalysisMask, TotemReadoutRcd,edm::Transition::BeginRun>()),
+    esAlignments_token_(esConsumes<CTPPSRPAlignmentCorrectionsData,VeryForwardMisalignedGeometryRecord>()),
+    esGeometry_token_(esConsumes<CTPPSGeometry,VeryForwardRealGeometryRecord>())
+{
   //now do what ever other initialization is needed
   produces<edm::DetSetVector<TotemRPDigi>>();
 
@@ -169,11 +185,16 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   DigiVector.reserve(400);
   DigiVector.clear();
 
+  //get here the alignments and geometry from EventSetup 
+  // for esConsumes migration
+  auto const & alignments = iSetup.getData(esAlignments_token_);
+  auto const & geom = iSetup.getData(esGeometry_token_);
+
   for (simhit_map_iterator it = simHitMap_.begin(); it != simHitMap_.end(); ++it) {
     edm::DetSet<TotemRPDigi> digi_collector(it->first);
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
-      theAlgoMap[it->first] = std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, iSetup);
+      theAlgoMap[it->first] = std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, alignments, geom);
     }
 
     std::vector<int> input_links;
@@ -201,8 +222,9 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 void RPDigiProducer::beginRun(const edm::Run& beginrun, const edm::EventSetup& es) {
   // get analysis mask to mask channels
   if (simulateDeadChannels) {
-    edm::ESHandle<TotemAnalysisMask> analysisMask;
-    es.get<TotemReadoutRcd>().get(analysisMask);
+    /*    edm::ESHandle<TotemAnalysisMask> analysisMask;
+	  es.get<TotemReadoutRcd>().get(analysisMask);*/
+    auto analysisMask = es.getHandle(esTotemAM_TokenBeginRun_);
     deadChannelsManager = DeadChannelsManager(analysisMask);  //set analysisMask in deadChannelsManager
   }
 }
