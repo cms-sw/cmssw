@@ -4,7 +4,7 @@
  *  \authors: Vadim Khotilovich
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -23,7 +23,7 @@
 
 using namespace std;
 
-class GEMPadDigiReader : public edm::EDAnalyzer {
+class GEMPadDigiReader : public edm::stream::EDAnalyzer<> {
 public:
   explicit GEMPadDigiReader(const edm::ParameterSet& pset);
 
