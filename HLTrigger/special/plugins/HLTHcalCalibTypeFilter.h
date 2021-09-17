@@ -47,13 +47,10 @@ public:
 
 private:
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  void endJob(void) override;
 
   // ----------member data ---------------------------
   const edm::EDGetTokenT<FEDRawDataCollection> DataInputToken_;
   const std::vector<int> CalibTypes_;
-  const bool Summary_;
-  mutable std::array<std::atomic<int>, 8> eventsByType_;
 };
 
 #endif

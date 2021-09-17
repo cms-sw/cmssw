@@ -44,11 +44,7 @@ Implementation:
 //
 HLTHcalCalibTypeFilter::HLTHcalCalibTypeFilter(const edm::ParameterSet& config)
     : DataInputToken_(consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputTag"))),
-      CalibTypes_(config.getParameter<std::vector<int> >("CalibTypes")),
-      Summary_(config.getUntrackedParameter<bool>("FilterSummary", false)),
-      eventsByType_() {
-  for (auto& i : eventsByType_)
-    i = 0;
+      CalibTypes_(config.getParameter<std::vector<int> >("CalibTypes")) {
 }
 
 HLTHcalCalibTypeFilter::~HLTHcalCalibTypeFilter() {
@@ -128,16 +124,6 @@ bool HLTHcalCalibTypeFilter::filter(edm::StreamID, edm::Event& iEvent, const edm
   //    return false if there are no positives
   //    and if the majority has 0 calib type
   return false;
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void HLTHcalCalibTypeFilter::endJob() {
-  if (Summary_)
-    edm::LogWarning("HLTHcalCalibTypeFilter")
-        << "Summary of filter decisions: " << eventsByType_.at(hc_Null) << "(No Calib), "
-        << eventsByType_.at(hc_Pedestal) << "(Pedestal), " << eventsByType_.at(hc_RADDAM) << "(RADDAM), "
-        << eventsByType_.at(hc_HBHEHPD) << "(HBHE/HPD), " << eventsByType_.at(hc_HOHPD) << "(HO/HPD), "
-        << eventsByType_.at(hc_HFPMT) << "(HF/PMT)";
 }
 
 // declare this class as a framework plugin
