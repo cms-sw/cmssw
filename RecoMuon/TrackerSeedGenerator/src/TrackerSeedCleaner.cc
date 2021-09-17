@@ -31,8 +31,6 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
 
 using namespace std;
 using namespace edm;
