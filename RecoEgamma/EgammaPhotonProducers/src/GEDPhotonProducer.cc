@@ -55,12 +55,15 @@ class CacheData {
       // Here we will have to load the DNN PFID if present in the config
       PhotonDNNEstimator::Configuration config;
       auto pset_dnn = conf.getParameter<edm::ParameterSet>("PhotonDNNPFid");
-      config.inputTensorName = pset_dnn.getParameter<std::string>("inputTensorName");
-      config.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
-      config.models_files = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
-      config.scalers_files = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
-      config.log_level = pset_dnn.getParameter<std::string>("logLevel");
-      photonDNNEstimator = std::make_unique<PhotonDNNEstimator>(config);
+      bool  dnnEnabled = pset_dnn.getParameter<bool>("enabled");
+      if(dnnEnabled){
+        config.inputTensorName = pset_dnn.getParameter<std::string>("inputTensorName");
+        config.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
+        config.models_files = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
+        config.scalers_files = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
+        config.log_level = pset_dnn.getParameter<std::string>("logLevel");
+        photonDNNEstimator = std::make_unique<PhotonDNNEstimator>(config);
+      }
    }
    std::unique_ptr<const PhotonDNNEstimator> photonDNNEstimator;
 };
@@ -89,7 +92,8 @@ private:
 
   void endJob(){
     // Close the tensorflow sessions
-    std::for_each(photonPfidTFSessions_.begin(), photonPfidTFSessions_.end(), [](auto s){tensorflow::closeSession(s);});
+    if (dnnPFidEnabled_)
+    std::for_each(photonPfidTFSessions_.begin(), photonPfidTFSessions_.end(), [](auto s){if (s!=nullptr) tensorflow::closeSession(s);});
   };
 
   void fillPhotonCollection(edm::Event& evt,
@@ -198,6 +202,8 @@ private:
   std::unique_ptr<ElectronHcalHelper> hcalHelperBc_;
   bool hcalRun2EffDepth_;
 
+  // DNN for PFID photon enabled
+  bool dnnPFidEnabled_;
   // Tensorflow sessions for the PFid DNN
   std::vector<tensorflow::Session*> photonPfidTFSessions_;
 };
@@ -391,7 +397,10 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
   }
 
   // Open the tensorflow sessions
-  photonPfidTFSessions_ = gcache->photonDNNEstimator->getSessions();
+  auto pset_dnn = config.getParameter<edm::ParameterSet>("PhotonDNNPFid");
+  dnnPFidEnabled_ = pset_dnn.getParameter<bool>("enabled");
+  if(dnnPFidEnabled_)
+    photonPfidTFSessions_ = gcache->photonDNNEstimator->getSessions();
 }
 
 
@@ -606,8 +615,6 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
   const EcalRecHitCollection* hits = nullptr;
   std::vector<double> preselCutValues;
   std::vector<int> flags_, severitiesexcl_;
-
-  std::cout<<"Inside fillPhotons1 "<<std::endl;
   
   for (unsigned int lSC = 0; lSC < photonCoreHandle->size(); lSC++) {
     reco::PhotonCoreRef coreRef(reco::PhotonCoreRef(photonCoreHandle, lSC));
@@ -945,16 +952,18 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       outputPhotonCollection.push_back(newCandidate);
   }
 
-  // Here send the list of photons to the PhotonDNNEstimator and get back the values for all the photons in one go
-  LogDebug("GEDPhotonProducer") << "Getting DNN PFId for photons"; 
-  std::vector<std::array<float,1>> dnn_photon_pfid = globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection, photonPfidTFSessions_);
-  int ipho = -1;
-  for (auto& photon : outputPhotonCollection) {
-    ipho++;
-    auto values = dnn_photon_pfid[ipho];
-    reco::Photon::PflowIDVariables pfID;
-    pfID.dnn = values[0];
-    photon.setPflowIDVariables(pfID);
+  if (dnnPFidEnabled_){
+    // Here send the list of photons to the PhotonDNNEstimator and get back the values for all the photons in one go
+    LogDebug("GEDPhotonProducer") << "Getting DNN PFId for photons"; 
+    std::vector<std::array<float,1>> dnn_photon_pfid = globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection, photonPfidTFSessions_);
+    int ipho = -1;
+    for (auto& photon : outputPhotonCollection) {
+      ipho++;
+      auto values = dnn_photon_pfid[ipho];
+      reco::Photon::PflowIDVariables pfID;
+      pfID.dnn = values[0];
+      photon.setPflowIDVariables(pfID);
+    }
   }
 }
 
@@ -1065,15 +1074,18 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 
     outputPhotonCollection.push_back(newCandidate);
   }
-  // Here send the list of photons to the PhotonDNNEstimator and get back the values for all the photons in one go
-  LogDebug("GEDPhotonProducer") << "Getting DNN PFId for photons"; 
-  std::vector<std::array<float,1>> dnn_photon_pfid = globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection, photonPfidTFSessions_);
-  int ipho = -1;
-  for (auto& photon : outputPhotonCollection) {
-    ipho++;
-    auto values = dnn_photon_pfid[ipho];
-    reco::Photon::PflowIDVariables pfID;
-    pfID.dnn = values[0];
-    photon.setPflowIDVariables(pfID);
+
+  if (dnnPFidEnabled_){
+    // Here send the list of photons to the PhotonDNNEstimator and get back the values for all the photons in one go
+    LogDebug("GEDPhotonProducer") << "Getting DNN PFId for photons"; 
+    std::vector<std::array<float,1>> dnn_photon_pfid = globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection, photonPfidTFSessions_);
+    int ipho = -1;
+    for (auto& photon : outputPhotonCollection) {
+      ipho++;
+      auto values = dnn_photon_pfid[ipho];
+      reco::Photon::PflowIDVariables pfID;
+      pfID.dnn = values[0];
+      photon.setPflowIDVariables(pfID);
+    }
   }
 }

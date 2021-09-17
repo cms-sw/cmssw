@@ -87,6 +87,7 @@ photons = cms.EDProducer("GEDPhotonProducer",
     RecHitSeverityToBeExcludedEE = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
     checkHcalStatus = cms.bool(True),
     PhotonDNNPFid = cms.PSet(
+        enabled = cms.bool(False),
         inputTensorName = cms.string("FirstLayer_input"),
         outputTensorName = cms.string("sequential/LastLayer/Softmax"),
         modelsFiles = cms.vstring(
