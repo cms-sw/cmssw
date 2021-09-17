@@ -1297,10 +1297,6 @@ class SimpleValidation:
         for tableCreator in plotterFolder.getTableCreators():
             self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
 
-
-        if len(fileList) == 0:
-            return fileList
-
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
             print("Plotter produced multiple files with names", ", ".join(dups))
