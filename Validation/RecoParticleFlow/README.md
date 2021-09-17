@@ -9,8 +9,8 @@ for lxplus with SLC7 (default since April 2019)
 
 ~~~
 export SCRAM_ARCH=slc7_amd64_gcc900
-cmsrel CMSSW_11_3_0_pre1
-cd CMSSW_11_3_0_pre1
+cmsrel CMSSW_12_1_0_pre3
+cd CMSSW_12_1_0_pre3
 cmsenv
 ~~~
 
