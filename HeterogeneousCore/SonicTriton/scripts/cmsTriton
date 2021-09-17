@@ -55,6 +55,7 @@ usage() {
 	$ECHO "Operations:"
 	$ECHO "start       \t start server"
 	$ECHO "stop        \t stop server"
+	$ECHO "info        \t print server info"
 	exit $1
 }
 
@@ -106,7 +107,7 @@ done
 shift $(($OPTIND - 1))
 OP=$1
 
-if [ "$OP" != start ] && [ "$OP" != stop ]; then
+if [ "$OP" != start ] && [ "$OP" != stop ] && [ "$OP" != info ]; then
 	usage 1
 fi
 
@@ -389,7 +390,9 @@ else
 	PROG_NAME=Singularity
 fi
 
-if [ "$OP" == start ]; then
+if [ "$OP" == info ]; then
+	echo $SANDBOX
+elif [ "$OP" == start ]; then
 	# handle cleaning up
 	if [ -n "$FORCE" ]; then
 		auto_stop
