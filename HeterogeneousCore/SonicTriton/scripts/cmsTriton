@@ -194,6 +194,7 @@ start_singularity(){
 	# triton server image may need to modify contents of opt/tritonserver/lib/
 	# but cvmfs is read-only
 	# -> make a writable local directory with the same contents
+	# this is no longer needed as of triton 2.11.0, but kept for compatibility w/ older server versions
 	$DRYRUN mkdir ${LIB}
 	$DRYRUN ln -s ${SANDBOX}/opt/tritonserver/lib/* ${LIB}/
 
@@ -204,6 +205,17 @@ start_singularity(){
 		MOUNTARGS="$MOUNTARGS -B $REPO"
 		REPOARGS="$REPOARGS --model-repository=${REPO}"
 	done
+
+	# workaround for nvidia libs w/ singularity-in-singularity
+	# from https://github.com/hpcng/singularity/issues/5759#issuecomment-919523970
+	if [ -d /.singularity.d/libs ]; then
+		TMPD=`mktemp -d`
+		(echo '#!/bin/bash'; echo 'exec /usr/sbin/ldconfig -C '"$TMPD"'/ld.so.cache "$@"') > $TMPD/ldconfig
+		chmod +x $TMPD/ldconfig
+		PATH=$TMPD:$PATH
+		# this does not work with LD_LIBRARY_PATH from cmsenv
+		ldconfig /.singularity.d/libs
+	fi
 
 	# start instance
 	# need to bind /cvmfs for above symlinks to work inside container
