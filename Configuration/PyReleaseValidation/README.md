@@ -32,13 +32,17 @@ The offsets currently in use are:
 * 0.4: LowPU tracking era, `Run2_2017_trackingLowPU`
 * 0.5: Pixel tracking only + 0.1
 * 0.501: Patatrack, pixel only quadruplets, on CPU
-* 0.502: Patatrack, pixel only quadruplets, on GPU
+* 0.502: Patatrack, pixel only quadruplets, with automatic offload to GPU if available
 * 0.505: Patatrack, pixel only triplets, on CPU
-* 0.506: Patatrack, pixel only triplets, on GPU
-* 0.511: Patatrack, ECAL only CPU
-* 0.512: Patatrack, ECAL only GPU
-* 0.521: Patatrack, HCAL only CPU
-* 0.522: Patatrack, HCAL only GPU
+* 0.506: Patatrack, pixel only triplets, with automatic offload to GPU if available
+* 0.511: Patatrack, ECAL only, on CPU
+* 0.512: Patatrack, ECAL only, with automatic offload to GPU if available
+* 0.521: Patatrack, HCAL only, on CPU
+* 0.522: Patatrack, HCAL only, with automatic offload to GPU if available
+* 0.591: Patatrack, full reco with pixel quadruplets, on CPU
+* 0.592: Patatrack, full reco with pixel quadruplets, with automatic offload to GPU if available
+* 0.595: Patatrack, full reco with pixel triplets, on CPU
+* 0.596: Patatrack, full reco with pixel triplets, with automatic offload to GPU if available
 * 0.6: HE Collapse (old depth segmentation for 2018)
 * 0.7: trackingMkFit modifier
 * 0.8: BPH Parking (Run-2)
